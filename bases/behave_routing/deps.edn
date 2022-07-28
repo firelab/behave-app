@@ -1,0 +1,3 @@
+{:paths ["src" "resources"]
+ :deps {bidi/bidi {:mvn/version "2.1.6"}}
+ :aliases {:test {:extra-paths ["test"]}}}

@@ -1,0 +1,8 @@
+{:aliases {:dev {:extra-paths ["development"
+
+                               ;; Components
+                               "components/config/src"
+
+                               ;; Bases
+                               "bases/behave_routing/src"]
+                 :extra-deps {bidi/bidi {:mvn/version "2.1.6"}}}}}

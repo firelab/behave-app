@@ -1,0 +1,16 @@
+{:mvn/repos {"central" {:url "https://repo1.maven.org/maven2/"}
+             "clojars" {:url "https://clojars.org/repo"}}
+
+ :deps    {;; Clojure
+           org.clojure/clojure {:mvn/version "1.10.3"}
+
+           ;; Components
+           ; sig/<component>     {:local/root "../../components/<component_name>"}
+           sig/config          {:local/root "../../components/config"}
+
+           ;; Bases
+           ; sig/<base-name>     {:local/root "../../bases/<base_name>"}
+           }
+
+ :aliases {:test {:extra-paths []
+                  :extra-deps {}}}}
