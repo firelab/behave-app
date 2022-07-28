@@ -2,7 +2,18 @@
 
                                ;; Components
                                "components/config/src"
+                               "components/transport/src"
 
                                ;; Bases
                                "bases/behave_routing/src"]
-                 :extra-deps {bidi/bidi {:mvn/version "2.1.6"}}}}}
+                 :extra-deps {;; Dev Deps
+                              bidi/bidi                          {:mvn/version "2.1.6"}
+                              org.clojure/data.json              {:mvn/version "1.0.0"}
+
+                              ;; MsgPack
+                              clojure-msgpack/clojure-msgpack    {:mvn/version "1.2.1"}
+                              org.clojars.ertucetin/msgpack-cljs {:mvn/version "0.1.2"}
+
+                              ;; Transit
+                              com.cognitect/transit-clj          {:mvn/version "1.0.324"}
+                              com.cognitect/transit-cljs         {:mvn/version "0.8.264"}}}}}
