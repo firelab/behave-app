@@ -18,18 +18,18 @@
         x))
     routes))
 
-(def result-routes
+(def ^:private result-routes
   ["/results"
-   [["" :results]
+   [["" :ws/results]
     [["/" :page] :ws/results]]])
 
-(def module-routes
+(def ^:private module-routes
   ["/modules"
    [[["/" [keyword :module]]
      [[["/" [keyword :io]]
        [[["/" [keyword :submodule]] :ws/wizard]]]]]]])
 
-(def worksheet-routes
+(def ^:private worksheet-routes
   ["worksheets"
    {""           :ws/all
     ["/" :db/id] [["" :ws/overview]
@@ -37,17 +37,17 @@
                   result-routes
                   ["/review" :ws/review]]}])
 
-(def settings-routes
+(def ^:private settings-routes
   ["settings"
    {""                    :settings/all
     ["/" [keyword :page]] :settings/page}])
 
-(def tools-routes
+(def ^:private tools-routes
   ["tools"
    {"" :tools/all
     ["/" [keyword :page]] :tools/page}])
 
-(def workflow-routes
+(def ^:private workflow-routes
   ["workflow/"
    {"guided"      :workflow/guided
     "independent" :workflow/independent
@@ -61,6 +61,23 @@
           settings-routes
           tools-routes]]))
 
+(defn results-path [ws-id]
+  (bidi/path-for routes :ws/results :db/id ws-id))
+
+(defn review-path [ws-id]
+  (bidi/path-for routes :ws/review :db/id ws-id))
+
+(defn settings-path [page]
+  (bidi/path-for routes :settings/page :page page))
+
+(defn tools-path [page]
+  (bidi/path-for routes :tools/page :page page))
+
+(defn worksheet-path [ws-id]
+  (bidi/path-for routes :ws/overview :db/id ws-id))
+
+(defn wizard-path [ws-id module io submodule]
+  (bidi/path-for routes :ws/wizard :db/id ws-id :module module :io io :submodule submodule))
 
 (comment
   (bidi/path-for result-routes :results)

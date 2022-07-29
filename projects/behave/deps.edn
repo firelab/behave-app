@@ -1,12 +1,23 @@
-{:mvn/repos {"central" {:url "https://repo1.maven.org/maven2/"}
+{:paths ["src/clj" "src/cljs" "src/cljc" "resources"]
+ :mvn/repos {"central" {:url "https://repo1.maven.org/maven2/"}
              "clojars" {:url "https://clojars.org/repo"}}
 
  :deps    {;; Clojure
-           org.clojure/clojure {:mvn/version "1.10.3"}
+           org.clojure/clojure        {:mvn/version "1.10.3"}
+           ring/ring                  {:mvn/version "1.9.5"}
+           ring/ring-defaults         {:mvn/version "0.3.3"}
+
+           ;; ClojureScript
+           datascript/datascript      {:mvn/version "1.3.13"}
+           re-frame/re-frame          {:mvn/version "1.3.0-rc3"}
+           re-posh/re-posh            {:mvn/version "0.3.3"}
+           reagent/reagent            {:mvn/version "0.10.0"}
 
            ;; Components
-           ; sig/<component>     {:local/root "../../components/<component_name>"}
-           sig/config          {:local/root "../../components/config"}
+           sig/config                 {:local/root "../../components/config"}
+           sig/server                 {:local/root "../../components/server"}
+           sig/transport              {:local/root "../../components/transport"}
+           sig/devtools               {:local/root "../../components/devtools"}
 
            ;; Bases
            ; sig/<base-name>     {:local/root "../../bases/<base_name>"}

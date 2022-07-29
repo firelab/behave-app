@@ -1,15 +1,19 @@
 (ns user
-  (:require [manage :as m]
-            [config.interface :as config]))
+  (:require [fig-repl :as r]))
 
-(config/load-config "deps.edn")
+(r/start-figwheel!)
 
-(config/get-config :aliases)
+;; Connect to 1337
+(r/start-repl!)
+
+#_(config/load-config "deps.edn")
+
+#_(config/get-config :aliases)
 
 #_(m/new-component "storage")
 
 #_(m/new-base "behave-routing")
-(m/new-project "behave")
+#_(m/new-project "behave")
 #_(m/new-project "behave-cms")
 
 #_(load "manage")
