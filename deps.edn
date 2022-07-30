@@ -3,6 +3,7 @@
                                ;; Components
                                "components/config/src"
                                "components/devtools/src"
+                               "components/ds-schema-utils/src"
                                "components/server/src"
                                "components/transport/src"
 

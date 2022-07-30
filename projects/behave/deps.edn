@@ -16,6 +16,7 @@
            ;; Components
            sig/config                 {:local/root "../../components/config"}
            sig/server                 {:local/root "../../components/server"}
+           sig/ds-schema-utils        {:local/root "../../components/ds_schema_utils"}
            sig/transport              {:local/root "../../components/transport"}
            sig/devtools               {:local/root "../../components/devtools"}
 
