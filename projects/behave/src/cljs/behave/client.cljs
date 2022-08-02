@@ -2,21 +2,22 @@
   (:require [reagent.dom :refer [render]]
             [re-frame.core :as rf]
             [re-frisk.core :as re-frisk]
-            [behave.settings :as settings]
-            [behave.tools :as tools]
-            [behave.results :as results]
-            [behave.review :as review]
-            [behave.wizard :as wizard]
+            [behave.results   :as results]
+            [behave.review    :as review]
+            [behave.settings  :as settings]
+            [behave.tools     :as tools]
+            [behave.translate :refer [<t load-translations!]]
+            [behave.wizard    :as wizard]
             [behave.events]
             [behave.subs]))
 
 (defn home-root []
   [:div
-   [:h1 "Oh Behave!"]])
+   [:h1 (<t "behaveplus")]])
 
 (defn not-found []
   [:div
-   [:h1 "Not Found :("]])
+   [:h1 (str (<t "notfound") " :(")]])
 
 (def handler->component {:home          home-root
                          :ws/wizard     wizard/root-component
@@ -38,6 +39,7 @@
   [params]
   (re-frisk/enable)
   (rf/dispatch-sync [:initialize])
+  (load-translations!)
   (render [:div [page-component params]] (.getElementById js/document "app")))
 
 (defn- ^:after-load mount-root!

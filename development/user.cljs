@@ -18,13 +18,10 @@
   (rf/dispatch [:navigate "/settings/depr"])
   (rf/dispatch [:navigate "/tools/derp"])
 
+  (rf/dispatch [:settings/set :language "en-US"])
+
   @(rf/subscribe [:route])
   (rf/subscribe [:handler])
-
-  (require '[behave-routing.main :refer [routes]])
-  (require '[bidi.bidi :refer [match-route]])
-
-  (match-route routes @(rf/subscribe [:route]))
 
   (rf/subscribe [:entity 78 '[* {:application/modules [:module/name]}]])
 

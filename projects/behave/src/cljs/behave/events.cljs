@@ -4,21 +4,25 @@
 
 ;;; Initialization
 
-(def initial-state {:router   {:history       ["/"]
-                               :curr-position 0}
-                    :state    {}})
+(def initial-state {:router       {:history       ["/"]
+                                   :curr-position 0}
+                    :state        {}
+                    :translations {"en-US" {"behaveplus" "BehavePlus"}}
+                    :settings     {:language "en-US"}})
 
 (rf/reg-event-db
   :initialize
   (fn [db [_ _]]
     (merge db initial-state)))
 
+;;; Datascript
+
+;;; Navigation
+
 (rf/reg-fx
   :history/push-state
   (fn [{:keys [position route]}]
     (.pushState js/history position nil route)))
-
-;;; Navigation
 
 (defn navigate [{:keys [history curr-position]} new-route]
   (let [curr-route (get history curr-position)]
@@ -46,3 +50,23 @@
     (let [new-position (.-state e)]
       (assoc router :curr-position (or new-position 0)))))
 
+;;; Settings
+
+(rf/reg-event-db
+  :settings/set
+  (rf/path [:settings])
+  (fn [settings [_ k v]]
+    (cond
+      (keyword? k)
+      (assoc settings k v)
+
+      (vector? k)
+      (assoc-in settings k v))))
+
+;;; Translations
+
+(rf/reg-event-db
+  :translations/load
+  (rf/path [:translations])
+  (fn [translations [_ language new-translations]]
+    (update translations language merge new-translations)))

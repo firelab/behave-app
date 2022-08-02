@@ -33,6 +33,32 @@
       (or (vector? path) (list? path))
       (get-in state path))))
 
+;;; Settings
+
+(rf/reg-sub
+  :settings/get
+  (fn [{:keys [settings]} [_ k]]
+    (cond
+      (keyword? k)
+      (get settings k)
+
+      (vector? k)
+      (get-in settings k))))
+
+;;; Translations
+
+(rf/reg-sub
+  :all-translations
+  (fn [{:keys [translations]}]
+    translations))
+
+(rf/reg-sub
+  :t
+  :<- [:settings/get :language]
+  :<- [:all-translations]
+  (fn [[language all-translations] [_ translation-key]]
+    (get-in all-translations [language translation-key] (str translation-key " (" language ")"))))
+
 ;;; Entities
 
 (rp/reg-sub
