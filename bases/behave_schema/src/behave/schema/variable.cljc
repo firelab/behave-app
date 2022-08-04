@@ -74,21 +74,13 @@
 ;;; Schema
 
 (def schema
-  [{:db/ident       :variable/groups
-    :db/doc         "Variable's parent groups."
-    :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/many}
-   {:db/ident       :variable/name
+  [{:db/ident       :variable/name
     :db/doc         "Variable's name."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
    {:db/ident       :variable/kind
     :db/doc         "Kind of variable. Can be :continuous, :discrete, or :text."
     :db/valueType   :db.type/keyword
-    :db/cardinality :db.cardinality/one}
-   {:db/ident       :variable/order
-    :db/doc         "Variable's order."
-    :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
    {:db/ident       :variable/translation-key
     :db/doc         "Variable's translation key."
@@ -146,10 +138,28 @@
     :db/cardinality :db.cardinality/one}
 
    ;; Lists
-   {:db/ident       :list/options
-    :db/doc         "List options."
+   {:db/ident       :list/name
+    :db/doc         "List's names."
     :db/valueType   :db.type/string
-    :db/cardinality :db.cardinality/many}])
+    :db/cardinality :db.cardinality/many}
+   {:db/ident       :list/translation-key
+    :db/doc         "List's translation key."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   ;; List Options
+   {:db/ident       :list-option/name
+    :db/doc         "List option's name."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+   {:db/ident       :list/translation-key
+    :db/doc         "List option's translation key."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+   {:db/ident       :list-option/order
+    :db/doc         "List option's order."
+    :db/valueType   :db.type/long
+    :db/cardinality :db.cardinality/one}])
 
 ;;; Testing
 

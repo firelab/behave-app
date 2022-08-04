@@ -2,6 +2,7 @@
   (:require ;[fig-repl :as r]
             [clojure.edn :as edn]
             [clojure.java.io :as io]
+            [clojure.set :as set]
             [clojure.string :as str]
             [datascript.core :as d]
             [datahike.api :as dh]
@@ -126,10 +127,24 @@
                                (convert-key :variable/minimum float)
                                (convert-key :variable/default-value float)))) (rest rows)))
 
+
+  (defn csv->vmap [f]
+    (let [rows   (str/split-lines (slurp f))
+          header (as-> (first rows) % (str/split % #",") (map (comp keyword remove-quotes) %))]
+      (mapv (fn [row] (->> (str/split row #",") (map remove-quotes) (interleave header) (apply hash-map))) (rest rows))))
+
+  (def disc-vars (mapv #(set/rename-keys % {:name :variable/name :list :list/name}) (csv->vmap "projects/behave_cms/src/csv/disc_vars.csv")))
+
+
+  (defn add-disc-var [])
+
+  (map disc-vars )
+
+
   (map keyword (filter (comp not empty?) (set (map :variable/english-units cont-vars))))
   (map keyword (filter (comp not empty?) (set (map :variable/metric-units cont-vars))))
 
-  (map #(-> % :variable/metric-decimals type) cont-vars)
+  (map  #(-> % :variable/metric-decimals type) cont-vars)
 
   cont-vars
 
