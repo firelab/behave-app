@@ -88,7 +88,7 @@
     :db/cardinality :db.cardinality/one}
    {:db/ident       :variable/order
     :db/doc         "Variable's order."
-    :db/valueType   :db.type/number
+    :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
    {:db/ident       :variable/translation-key
     :db/doc         "Variable's translation key."
@@ -102,11 +102,11 @@
     :db/cardinality :db.cardinality/one}
 
    ;; Continuous Variables
-   {:db/ident       :variable/max
+   {:db/ident       :variable/maximum
     :db/doc         "Variable's maximum value."
     :db/valueType   :db.type/float
     :db/cardinality :db.cardinality/one}
-   {:db/ident       :variable/min
+   {:db/ident       :variable/minimum
     :db/doc         "Variable's minimum value."
     :db/valueType   :db.type/float
     :db/cardinality :db.cardinality/one}
@@ -116,7 +116,7 @@
     :db/cardinality :db.cardinality/one}
    {:db/ident       :variable/english-decimals
     :db/doc         "Variable's english decimal value."
-    :db/valueType   :db.type/number
+    :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
    {:db/ident       :variable/english-units
     :db/doc         "Variable's english units."
@@ -124,7 +124,7 @@
     :db/cardinality :db.cardinality/one}
    {:db/ident       :variable/metric-decimals
     :db/doc         "Variable's metric decimal value."
-    :db/valueType   :db.type/number
+    :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
    {:db/ident       :variable/metric-units
     :db/doc         "Variable's metric units."
@@ -132,7 +132,7 @@
     :db/cardinality :db.cardinality/one}
    {:db/ident       :variable/native-decimals
     :db/doc         "Variable's native decimal value."
-    :db/valueType   :db.type/number
+    :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
    {:db/ident       :variable/native-units
     :db/doc         "Variable's native units."
