@@ -4,7 +4,6 @@
             [bidi.bidi                    :refer [match-route]]
             [hiccup.page                  :refer [html5 include-css include-js]]
             [ring.middleware.defaults     :refer [wrap-defaults site-defaults]]
-            [ring.middleware.content-type :refer [wrap-content-type]]
             [ring.middleware.reload       :refer [wrap-reload]]
             [ring.util.request            :as request]
             [ring.util.response           :refer [response not-found]]
@@ -32,15 +31,19 @@
                        :else                    (not-found "404 Not Found"))]
     (next-handler request)))
 
-(defn wrap-content-type [handler]
+(defn wrap-params [handler]
   (fn [{:keys [body content-type params] :as req}]
     (if-let [req-type (mime->type content-type)]
-      (handler (assoc req :params (merge params (->clj body req-type))))
-      (handler req))))
+                (handler (assoc req :params (merge params (->clj body req-type))))
+                (handler req))))
+
+(defn wrap-content-type [handler]
+  (fn [{:keys [headers] :as req}]
+    (handler (assoc req :content-type (get headers "Content-Type")))))
 
 (defn create-handler-stack []
   (-> routing-handler
-      (wrap-content-type)
+      wrap-params
       (wrap-defaults (assoc-in site-defaults [:static :resources] "public"))
       wrap-content-type
       wrap-reload))

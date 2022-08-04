@@ -1,0 +1,15 @@
+{:database {:host     "localhost"
+            :port     5432
+            :dbname   "behave"
+            :user     "behave"
+            :password "behave"
+            :config {:store {:backend :file :path "/Users/rsheperd/Code/sig/behave-polylith/projects/behave/resources/db"}}}
+ :server   {:http-port 8002
+            :mode      "dev"}
+ :mail     {:host     "smtp.gmail.com"
+            :user     "support@sig-gis.com"
+            :pass     "atfrxfmpqkkijjsn"
+            :tls      true
+            :port     587
+            :site-url "https://behave.sig-gis.com"}
+ :secret-token "883kljlsl36dnll9s9l2ls8xksl"}

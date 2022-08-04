@@ -1,5 +1,5 @@
 (ns user
-  (:require [fig-repl :as r]
+  (:require ;[fig-repl :as r]
             [behave.core :as b]))
 
 (b/init!)
