@@ -1,4 +1,5 @@
 {:paths ["src/clj" "src/cljs" "src/cljc" "resources"]
+
  :mvn/repos {"central" {:url "https://repo1.maven.org/maven2/"}
              "clojars" {:url "https://clojars.org/repo"}}
 
@@ -6,6 +7,7 @@
            org.clojure/clojure       {:mvn/version "1.10.3"}
            ring/ring                 {:mvn/version "1.9.5"}
            ring/ring-defaults        {:mvn/version "0.3.3"}
+           io.replikativ/datahike    {:mvn/version "0.5.1506"}
 
            ;; Common
            cljs-ajax/cljs-ajax       {:mvn/version "0.8.4"}
@@ -28,8 +30,9 @@
            sig/devtools              {:local/root "../../components/devtools"}
 
            ;; Bases
-           ; sig/<base-name>     {:local/root "../../bases/<base_name>"}
-           }
+           sig/behave-routing        {:local/root "../../bases/behave_routing"}
+           sig/behave_schema         {:local/root "../../bases/behave_schema"}
+           sig/datom_store           {:local/root "../../bases/datom_store"}}
 
  :aliases {:test {:extra-paths []
                   :extra-deps {}}}}

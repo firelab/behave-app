@@ -1,10 +1,13 @@
 (ns user
-  (:require [fig-repl :as r]))
+  (:require [fig-repl :as r]
+            [behave.core :as b]))
 
-(r/start-figwheel!)
+(b/init!)
+
+#_(r/start-figwheel!)
 
 ;; Connect to 1337
-(r/start-repl!)
+#_(r/start-repl!)
 
 #_(config/load-config "deps.edn")
 

@@ -1,0 +1,11 @@
+{:paths ["src" "resources"]
+ :deps {;; Bases
+
+        ;; Components
+        sig/datom-utils        {:local/root "../../components/datom_utils"}
+        sig/ds-schema-utils    {:local/root "../../components/ds_schema_utils"}
+
+        ;; Clojure Deps
+        datascript/datascript  {:mvn/version "1.3.13"}
+        io.replikativ/datahike {:mvn/version "0.5.1506"}}
+ :aliases {:test {:extra-paths ["test"]}}}

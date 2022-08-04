@@ -1,11 +1,29 @@
 (ns transport.core
   (:require
+    [clojure.set :refer [map-invert]]
     [#?(:clj clojure.edn :cljs cljs.reader) :as edn]
     #?(:clj [clojure.data.json :as json])
     [cognitect.transit  :as transit]
     [#?(:clj msgpack.core :cljs msgpack-cljs.core) :as msg]
     #?(:clj [msgpack.clojure-extensions]))
   #?(:clj (:import [java.io ByteArrayInputStream ByteArrayOutputStream])))
+
+;;; MIME to Type
+
+(def ^:private mime->type-mapping {"application/edn"          :edn
+                                   "application/json"         :json
+                                   "application/transit+json" :transit
+                                   "application/msgpack"      :msgpack})
+
+(def ^:private type->mime-mapping (map-invert mime->type-mapping))
+
+(defn mime->type
+  [mime]
+  (get mime->type-mapping mime))
+
+(defn type->mime
+  [t]
+  (get type->mime-mapping t))
 
 ;;; EDN
 
@@ -84,3 +102,4 @@
     :msgpack (msgpack->clj s)
     :transit (transit->clj s)
     :else    (edn->clj s)))
+

@@ -28,5 +28,9 @@
   kebab-key c/kebab-key)
 
 (def ^{:argslist '[s end]
+       :doc "Prepends `start` to `s` as long as `s` doesn't already start with `start`."}
+  start-with c/start-with)
+
+(def ^{:argslist '[s end]
        :doc "Appends `end` to `s` as long as `s` doesn't already end with `end`."}
   end-with c/end-with)

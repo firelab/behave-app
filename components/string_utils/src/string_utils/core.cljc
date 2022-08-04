@@ -41,6 +41,13 @@
   [& xs]
   (str/join ":" (map #(-> % (->str) (->kebab)) xs)))
 
+(defn start-with
+  "Prepends `start` to `s` as long as `s` doesn't already start with `start`."
+  [s start]
+  (if-not (str/starts-with? s start)
+    (str start s)
+    s))
+
 (defn end-with
   "Appends `end` to `s` as long as `s` doesn't already end with `end`."
   [s end]

@@ -1,20 +1,47 @@
 (ns behave.core
-  (:require [server.interface             :refer [start-server!]]
+  (:require [clojure.java.io              :as io]
+            [clojure.string               :as str]
+            [bidi.bidi                    :refer [match-route]]
+            [hiccup.page                  :refer [html5 include-css include-js]]
             [ring.middleware.defaults     :refer [wrap-defaults site-defaults]]
             [ring.middleware.content-type :refer [wrap-content-type]]
-            [ring.middleware.resource     :refer [wrap-resource resource-request]]
             [ring.middleware.reload       :refer [wrap-reload]]
-            [ring.util.response           :refer [response content-type]]
             [ring.util.request            :as request]
+            [ring.util.response           :refer [response not-found]]
+            [server.interface             :refer [start-server!]]
+            [config.interface             :refer [get-config load-config]]
+            [transport.interface          :refer [->clj mime->type]]
+            [behave-routing.main          :refer [routes]]
+            [behave.store                 :as store]
+            [behave.views                 :refer [render-page]]
             )
   (:gen-class))
 
-(defn default-app [_req]
-  (content-type (response "<!DOCTYPE HTML><head><script src=\"/cljs/app.js\" type=\"text/javascript\"></script></head><body>OK DUDE NOW ITS WORKING</body>") "text/html"))
+(defn init! []
+  (load-config (io/resource "config.edn"))
+  (store/connect! (get-config :database :config)))
+
+(defn bad-uri?
+  [uri]
+  (str/includes? (str/lower-case uri) "php"))
+
+(defn routing-handler [{:keys [uri] :as request}]
+  (let [next-handler (cond
+                       (bad-uri? uri)           (not-found "404 Not Found")
+                       (match-route routes uri) (render-page (match-route routes uri))
+                       :else                    (not-found "404 Not Found"))]
+    (next-handler request)))
+
+(defn wrap-content-type [handler]
+  (fn [{:keys [body content-type params] :as req}]
+    (if-let [req-type (mime->type content-type)]
+      (handler (assoc req :params (merge params (->clj body req-type))))
+      (handler req))))
 
 (defn create-handler-stack []
-  (-> (constantly nil)
-      (wrap-resource "public")
+  (-> routing-handler
+      (wrap-content-type)
+      (wrap-defaults (assoc-in site-defaults [:static :resources] "public"))
       wrap-content-type
       wrap-reload))
 

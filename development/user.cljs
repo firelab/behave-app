@@ -9,6 +9,7 @@
 (comment
 
   (require '[re-frame.core :as rf])
+
   (rf/dispatch [:initialize])
   (rf/dispatch [:navigate "/worksheets/1/modules/contain/output/fire"])
   (rf/dispatch [:navigate "/worksheets/1/modules/contain/input/fire"])

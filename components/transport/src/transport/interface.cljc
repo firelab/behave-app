@@ -1,7 +1,29 @@
 (ns transport.interface
   (:require [transport.core :as c]))
 
-;; Universal
+;;; MIME to Type
+
+(def ^{:argslist '([mime])
+       :doc "Converts MIME type to keyword (e.g. (type->mime \"application/json\") ; => :json)
+
+            Possible values for `mime` are one of:
+            - \"application/edn\" -> :edn
+            - \"application/json\" -> :json
+            - \"application/transit+json\" -> :transit
+            - \"application/msgpack\" -> :msgpack"}
+  mime->type c/mime->type)
+
+(def ^{:argslist '([t])
+       :doc "Converts keyword to MIME type (e.g. (type->mime :json) => \"application/json\")
+
+            Possible values for `transport` are one of:
+            - :edn -> application/edn
+            - :json -> application/json
+            - :transit -> application/transit+json
+            - :msgpack -> application/msgpack"}
+  type->mime c/type->mime)
+
+;;; Universal
 
 (def ^{:argslist '([data transport])
        :doc "Converts CLJ/CLJS `data` to a `transport` format.
@@ -23,7 +45,7 @@
             - :transit (Transit w/ JSON encoding)"}
   ->clj c/->clj)
 
-;; EDN
+;;; EDN
 
 (def ^{:argslist '([data])
        :doc "Converts CLJ/CLJS `data` to a EDN encoded string."}
@@ -33,7 +55,7 @@
        :doc "Converts EDN encoded string to CLJ/CLJS."}
   edn->clj c/edn->clj)
 
-;; JSON
+;;; JSON
 
 (def ^{:argslist '([data])
        :doc "Converts CLJ/CLJS `data` to a JSON encoded string."}
@@ -43,7 +65,7 @@
        :doc "Converts JSON encoded string to CLJ/CLJS."}
   json->clj c/json->clj)
 
-;; MsgPack
+;;; MsgPack
 
 (def ^{:argslist '([data])
        :doc "Converts CLJ/CLJS `data` to a MsgPack format."}
@@ -53,7 +75,7 @@
        :doc "Converts MsgPack string to CLJ/CLJS."}
   msgpack->clj c/msgpack->clj)
 
-;; Transit
+;;; Transit
 
 (def ^{:argslist '([data])
        :doc "Converts CLJ/CLJS `data` to a Transit (JSON-encoded) string."}
