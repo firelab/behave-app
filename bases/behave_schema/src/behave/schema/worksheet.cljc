@@ -14,7 +14,7 @@
 (s/def :workshet/notes          many-ref?)
 (s/def :workshet/inputs         many-ref?)
 (s/def :workshet/outputs        many-ref?)
-(s/def :workshet/results-table  single-ref?)
+(s/def :workshet/result-table   single-ref?)
 (s/def :workshet/graph-settings single-ref?)
 (s/def :workshet/table-settings single-ref?)
 
@@ -73,6 +73,10 @@
     :db/doc         "Input's kind."
     :db/valueType   :db.type/keyword
     :db/cardinality :db.cardinality/one}
+   {:db/ident       :input/units
+    :db/doc         "Input's units."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/many}
    {:db/ident       :input/continuous-value
     :db/doc         "Input's continuous value."
     :db/valueType   :db.type/float
@@ -93,11 +97,11 @@
     :db/cardinality :db.cardinality/one}
 
    ;; Result Table
-   {:db/ident       :result-table/header
+   {:db/ident       :result-table/headers
     :db/doc         "Result table's heaers."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
-   {:db/ident       :result-table/row
+   {:db/ident       :result-table/rows
     :db/doc         "Result table's rows."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}

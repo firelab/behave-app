@@ -141,6 +141,10 @@
    {:db/ident       :list/name
     :db/doc         "List's names."
     :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+   {:db/ident       :list/options
+    :db/doc         "List's options."
+    :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
    {:db/ident       :list/translation-key
     :db/doc         "List's translation key."
@@ -152,13 +156,21 @@
     :db/doc         "List option's name."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
-   {:db/ident       :list/translation-key
-    :db/doc         "List option's translation key."
-    :db/valueType   :db.type/string
+   {:db/ident       :list-option/default
+    :db/doc         "Whether list option's is the default value."
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
+   {:db/ident       :list-option/index
+    :db/doc         "List option's index."
+    :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
    {:db/ident       :list-option/order
     :db/doc         "List option's order."
     :db/valueType   :db.type/long
+    :db/cardinality :db.cardinality/one}
+   {:db/ident       :list-option/translation-key
+    :db/doc         "List option's translation key."
+    :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}])
 
 ;;; Testing
