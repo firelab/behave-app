@@ -1,0 +1,43 @@
+;; shadow-cljs configuration
+{:source-paths
+  ["src"]
+
+ :dependencies
+ [[reagent "1.0.0"]]
+
+ :dev-http
+ {8080 "public"}
+
+ :builds
+ {:frontend {:target  :browser
+             :modules {:main {:init-fn behave.core/init}}}
+  :stories  {:target      :npm-module
+             :entries     [behave.stories.accordion-stories
+                           behave.stories.card-stories
+                           behave.stories.card-group-stories
+                           behave.stories.header-stories
+                           behave.stories.icon-stories
+                           behave.stories.progress-nob-stories
+                           behave.stories.progress-stories
+                           behave.stories.tab-stories
+                           behave.stories.tab-group-stories
+
+                           ;; Buttons
+                           behave.stories.button.button-default-primary-stories
+                           behave.stories.button.button-default-secondary-stories
+                           behave.stories.button.button-default-highlight-stories
+                           behave.stories.button.button-outline-primary-stories
+                           behave.stories.button.button-outline-secondary-stories
+                           behave.stories.button.button-outline-highlight-stories
+                           behave.stories.button.button-transparent-primary-stories
+                           behave.stories.button.button-transparent-secondary-stories
+                           behave.stories.button.button-transparent-highlight-stories
+
+                           ; Inputs
+                           behave.stories.inputs.checkbox-stories
+                           behave.stories.inputs.browse-input-stories
+                           behave.stories.inputs.dropdown-stories
+                           behave.stories.inputs.number-input-stories
+                           behave.stories.inputs.radio-input-stories
+                           behave.stories.inputs.text-input-stories]
+             :output-dir  "resources/public/js/stories"}}}
