@@ -14,6 +14,7 @@
                                "components/transport/src"
 
                                ;; Bases
+                               "bases/behave_components/src"
                                "bases/behave_routing/src"
                                "bases/behave_schema/src"
                                "bases/datom_store/src"

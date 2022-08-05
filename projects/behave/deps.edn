@@ -30,8 +30,9 @@
            sig/devtools              {:local/root "../../components/devtools"}
 
            ;; Bases
+           sig/behave-components     {:local/root "../../bases/behave_components"}
            sig/behave-routing        {:local/root "../../bases/behave_routing"}
-           sig/behave_schema         {:local/root "../../bases/behave_schema"}
+           sig/behave-schema         {:local/root "../../bases/behave_schema"}
            sig/datom_store           {:local/root "../../bases/datom_store"}}
 
  :aliases {:test {:extra-paths []

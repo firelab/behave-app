@@ -11,6 +11,8 @@
             [string-utils.interface :refer [->kebab]]
             [config.interface :refer [load-config get-config]]
             [ds-schema-utils.interface :refer [->ds-schema]]
+            [datom-utils.interface :as du]
+            [datom-compressor.interface :as c]
             [behave.schema.core :refer [all-schemas]]))
 
 (defn num-str? [s]
@@ -75,12 +77,13 @@
 
   (d/datoms @conn :eavt)
 
-  #_(b/init!)
+  (require '[fig-repl :as r])
+  (b/init!)
 
-  #_(r/start-figwheel!)
+  (r/start-figwheel!)
 
   ;; Connect to 1337
-  #_(r/start-repl!)
+  (r/start-repl!)
 
   (require '[clojure.java.io :as io])
   (require '[me.raynes.fs :as fs])
@@ -95,6 +98,24 @@
   (dh/create-database ws-cfg)
 
   (def ws-conn (dh/connect ws-cfg))
+  (def dh-conn (dh/connect (get-config :database :config)))
+
+  (dh/q '[:find ?e ?name :where [?e :application/name ?name]] @dh-conn)
+
+  (def unsafe-attrs (du/unsafe-attrs all-schemas))
+  (import '[java.util Base64]
+          '[java.io FileOutputStream])
+
+  (def out-file "projects/behave/resources/public/layout.msgpack")
+  (def os (FileOutputStream. (io/file out-file)))
+
+  (def packed-in-str (c/pack (filter #(du/safe-attr? unsafe-attrs %) (dc/datoms @dh-conn :eavt))))
+
+
+  (type packed-in-str)
+
+  (.write os packed-in-str)
+  (spit  packed-in-str)
   (filter #(= :variable/maximum (:db/ident %)) all-schemas)
   (filter #(= :variable/metric-decimals (:db/ident %)) all-schemas)
   (filter #(= :list/options (:db/ident %)) all-schemas)

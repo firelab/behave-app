@@ -15,9 +15,9 @@
        :doc "Splits Datomic/DataHike/DataScript datoms into vectors."}
   split-datoms c/split-datoms)
 
-(def ^{:argslist '([safe-attrs?])
-       :doc "Filters for datoms that are not tuples, passwords, or transaction
-            dates to maintain compatability with DataScript."}
+(def ^{:argslist '([unsafe-attrs datom])
+       :doc "Meant to be used to filter for datoms that are not tuples, passwords,
+            or transaction dates to maintain compatability with DataScript."}
   safe-attr? c/safe-attr?)
 
 (def ^{:argslist '([a])

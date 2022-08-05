@@ -2,7 +2,13 @@
   (:require [datascript.core :as d]
             [re-frame.core :as rf]
             [re-posh.core :as rp]
-            [re-frisk.core :as re-frisk]))
+            [re-frisk.core :as re-frisk]
+            [datom-compressor.interface :as c]
+            [ds-schema-utils.interface :refer [->ds-schema]]
+            [ajax.core :refer [ajax-request raw-request-format raw-response-format]]
+            [ajax.protocols :as pr]
+            [behave.schema.core :refer [all-schemas]]))
+
 
 (re-frisk/enable)
 
@@ -18,6 +24,29 @@
   (rf/dispatch [:navigate "/worksheets/1/results/derp"])
   (rf/dispatch [:navigate "/settings/depr"])
   (rf/dispatch [:navigate "/tools/derp"])
+
+  (def conn (d/create-conn (->ds-schema all-schemas)))
+
+  (defn handler [[ok body]]
+    (println "HERES WHAT I GOT BOSS:" ok body)
+
+    (let [unpacked (c/unpack body)
+          datoms   (mapv (fn [datom-vec] (apply d/datom datom-vec)) unpacked)]
+      #_(println unpacked)
+      (println datoms)
+      (d/transact conn datoms)))
+
+  (d/q '[:find ?name :where [?e :application/name ?name]] @conn)
+
+  (ajax-request {:uri "/layout.msgpack"
+                 :handler handler
+                 :format {:content-type "application/text" :write str}
+                 :response-format {:description "ArrayBuffer"
+                                   :type :arraybuffer
+                                   :content-type "*/*"
+                                   :read pr/-body}})
+
+
 
   (rf/dispatch [:settings/set :language "en-US"])
 
@@ -39,7 +68,6 @@
   (rf/subscribe [:children-ids :application/modules 78])
 
   (rf/subscribe [:pull-children :application/modules 78])
-
 
   (rf/dispatch [:api/delete-entity {:db/id 82}])
 

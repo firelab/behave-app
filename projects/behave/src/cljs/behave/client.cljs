@@ -7,6 +7,7 @@
             [behave.settings  :as settings]
             [behave.tools     :as tools]
             [behave.translate :refer [<t load-translations!]]
+            [behave.store     :refer [load-store!]]
             [behave.wizard    :as wizard]
             [behave.events]
             [behave.subs]))
@@ -40,6 +41,7 @@
   (re-frisk/enable)
   (rf/dispatch-sync [:initialize])
   (load-translations!)
+  (load-store!)
   (render [:div [page-component params]] (.getElementById js/document "app")))
 
 (defn- ^:after-load mount-root!
