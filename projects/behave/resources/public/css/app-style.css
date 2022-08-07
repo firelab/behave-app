@@ -1,3 +1,5 @@
+@charset "UTF-8";
+
 /* -- App -- */
 #app {
   width: 100%;
@@ -22,7 +24,6 @@
   width: 180px;
   display: flex;
   flex-direction: column;
-  background: white;
 }
 /* -- End Sidebar Container -- */
 
@@ -36,7 +37,7 @@
 
 /* -- Header -- */
 .header {
-  background: white;
+  background-color: var(--white);
 }
 /* -- End Header -- */
 
@@ -76,7 +77,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: white;
+  background-color: var(--white);
 }
 
 /* -- End Identity -- */
@@ -86,6 +87,7 @@
   display: flex;
   flex-direction: column;
   margin: 20px 0px;
+  background-color: var(--white);
 }
 
 .sidebar-group__module {
@@ -104,12 +106,154 @@
 
 /* -- Working Area -- */
 .working-area {
-  background: white;
+  border-radius: 8px 8px 0px 0px;
+  background-color: var(--white);
+}
+
+.working-area__title {
+  padding: 10px 20px;
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  color: var(--white);
+  background-color: var(--darkblue-4);
+  border-radius: 8px 8px 0px 0px;
 }
 /* -- End Working Area -- */
 
+/* -- Work Style Select -- */
+.workflow-select {
+
+}
+
+.workflow-select__header {
+  padding: 30px;
+  background-color: var(--gray-1);
+  border-bottom: 1px solid var(--gray-3);
+}
+
+.workflow-select__content {
+  padding: 30px 20px;;
+}
+/* -- End Work Style Select -- */
+
 /* -- Help Area -- */
 .help-area {
-  background: white;
+
+}
+
+.help-area__tab-group {
+
+}
+
+.help-area__tab-group__tab {
+
+}
+
+.help-area__content {
+  padding:2%;
+  font-family: 'Roboto', sans-serif;
+  background: var(--white);
+  overflow-x: hidden;
+  overflow-y: scroll;
+  height: 100%;
+}
+
+.help-area__content h1,
+.help-area__content h2,
+.help-area__content h3,
+.help-area__content h4,
+.help-area__content h5,
+.help-area__content h6 {
+    margin: 0px;
+}
+
+/* Help Headers */
+
+.help-area__content h1 {
+    font-size: 2em;
+    font-weight: 500;
+    line-height: 32px;
+    padding-bottom: 0px;
+}
+
+.help-area__content h2 {
+    font-size: 1.700em;
+    font-weight: 400;
+    line-height: 1.700em;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #707070;
+}
+
+.help-area__content h3 {
+    font-size: 1.300em;
+    font-weight: 300;
+    line-height: 1.600em;
+}
+
+.help-area__content h4 {
+    font-size: 1.200em;
+    font-weight: 500;
+    line-height: 18px;
+    margin-top: 20px;
+    color: #13486A;
+}
+
+.help-area__content h5 {
+    font-size: 1.200em;
+    font-weight: 500;
+    line-height: 18px;
+    color: white;
+    background: #3F454A;
+    padding: 10px 10px 10px 10px;
+    margin-bottom: 0px;
+}
+
+.help-area__content h6 {
+    color:black;
+    font-size: 1.200em;
+    font-weight: 400;
+    line-height: 18px;
+    margin-top: 20px;
+    text-decoration: underline;
+}
+
+.help-area__content p {
+    font-size: 1.000em;
+    font-weight: 400;
+    line-height: 26px;
+    margin-bottom: 30px;
+    margin-top: 12px;
+}
+
+.help-area__content hr {
+    padding-bottom: 6px;
+}
+
+/* Highlight */
+
+.help-area__content .highlight {
+    background: #EDF2F5;
+    width: 100%;
+    padding: 0px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.help-area__content .highlight h1,
+.help-area__content .highlight h2,
+.help-area__content .highlight h3,
+.help-area__content .highlight h4,
+.help-area__content .highlight h5,
+.help-area__content .highlight h6 {
+    color: white;
+    background: #5788A7;
+    padding: 10px 10px 10px 10px;
+    margin-bottom: 0px;
+    text-decoration: underline;
+}
+
+.help-area__content .highlight p {
+    padding: 10px 10px 20px 10px;
+    margin-top: 0px;
 }
 /* -- End Help Area -- */

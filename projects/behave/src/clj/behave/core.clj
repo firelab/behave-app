@@ -67,8 +67,9 @@
   (require '[ring.mock.request :refer [request header]])
   (require '[clojure.java.io :as io])
 
-  (development-app {:uri "/index.html"})
-  (development-app {:uri "/cljs/app.js"})
+  (def app (create-handler-stack))
+
+  (development-app {:uri "/js/out/app.js"})
   (development-app {:uri "/cljs/app.js" :request-method :get})
   (development-app {:uri "/index.html" :request-method :get})
 

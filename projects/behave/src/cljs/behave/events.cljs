@@ -15,6 +15,37 @@
   (fn [db [_ _]]
     (merge db initial-state)))
 
+;;; State
+
+(rf/reg-event-db
+  :state/set
+  (rf/path :state)
+  (fn [db [_ path value]]
+    (cond
+      (or (vector? path) (list? path))
+      (assoc-in db path value)
+
+      (keyword? path)
+      (assoc db path value)
+
+      :else db)))
+
+(rf/reg-event-db
+  :state/merge
+  (rf/path :state)
+  (fn [state [_ path value]]
+    (let [orig-value (get-in state path)]
+      (cond
+        (nil? orig-value)
+        (assoc-in state path value)
+
+        (and (map? orig-value) (map? value))
+        (update-in state path merge value)
+
+        (and (or (vector? orig-value) (seq? orig-value))
+             (or (vector? value) (seq? orig-value)))
+        (update-in state path into value)))))
+
 ;;; Datascript
 
 ;;; Navigation

@@ -65,14 +65,16 @@ behaveplus:graph_y_variables,Graph Y variables
 behaveplus:graphs,Graphs
 behaveplus:graphs_and_axis_limits,Graphs & Axis Limits
 behaveplus:graphs_results,Graphs Results
-behaveplus:guided_workow,Guided workﬂow
+behaveplus:workflow:guided_title,Guided workflow
+behaveplus:workflow:guided_desc,Start from a template from our worksheet library.
 behaveplus:guides_and_manuals,Guides & Manuals
 behaveplus:head_attack,Head Attack
 behaveplus:help,Help
 behaveplus:home_screen,Home Screen
 behaveplus:hours,Hours
 behaveplus:imperial_units_ranges_are,Imperial units ranges are:
-behaveplus:independent_work,Independent work
+behaveplus:workflow:independent_title,Independent workflow
+behaveplus:workflow:independent_desc,Recommended for experienced users of BehavePlus.
 behaveplus:index,Index
 behaveplus:info,Info
 behaveplus:information,Information
@@ -108,7 +110,8 @@ behaveplus:number_of_characters,# of characters
 behaveplus:number_of_moisture_scenarios,Number of Moisture Scenario(s):
 behaveplus:number_of_resources,Number of Resources:
 behaveplus:number_of_resources_used,Number of Resources Used
-behaveplus:open_or_import_an_existing_le,Open or import an existing ﬁle.
+behaveplus:workflow:import_title,Open or import an existing file.
+behaveplus:workflow:import_desc,File extensions supported: *.bp6 (XML) or *.bp7 (SQLite)
 behaveplus:output_range,OUTPUT RANGE
 behaveplus:output_selections_fire,Output Selections: Fire
 behaveplus:outputs,Outputs

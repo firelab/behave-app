@@ -1,8 +1,7 @@
 (ns behave.translate
   (:require [clojure.string :as str]
             [ajax.core :refer [GET]]
-            [behave.subs :refer [<sub]]
-            [re-frame.core :refer [dispatch-sync]]))
+            [re-frame.core :refer [dispatch-sync subscribe]]))
 
 ;;; Configuration
 
@@ -35,7 +34,7 @@
     [:btn (<t \"success\")])
   ```"
   [translation-key]
-  (<sub [:t translation-key]))
+  (subscribe [:t translation-key]))
 
 (defn load-translations! []
   (let [browser   (browser-lang)

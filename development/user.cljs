@@ -16,6 +16,8 @@
 
   (require '[re-frame.core :as rf])
 
+
+  (rf/subscribe [:help/current-tab])
   (rf/dispatch [:initialize])
   (rf/dispatch [:navigate "/worksheets/1/modules/contain/output/fire"])
   (rf/dispatch [:navigate "/worksheets/1/modules/contain/input/fire"])
@@ -104,7 +106,7 @@
 
   (rf/subscribe [:pull-many '[{:application/_modules [*]}] [64 65]])
 
-  (rf/subscribe [:query '[:find ?e ?name :where [?e :user/first-name ?name]]])
+  (rf/subscribe [:query '[:find ?e ?name :where [?e :application/help-key ?name]]])
 
   (sort-by :application/name @(rf/subscribe [:applications]))
 
