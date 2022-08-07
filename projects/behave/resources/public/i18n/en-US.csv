@@ -119,6 +119,7 @@ behaveplus:please_select_from_the_following_options,Please select from the follo
 behaveplus:please_select_from_the_following_templates,Please select from the following templates
 behaveplus:press_below_to_start_a_new_worksheet,Press below to start a new worksheet.
 behaveplus:previous_screen,Previous Screen
+behaveplus:print,Print
 behaveplus:production_rate_chh,Production Rate (ch/h)
 behaveplus:programming_notes,Programming Notes:
 behaveplus:range_fire_size_at_report,Range: Fire Size at Report
@@ -154,6 +155,7 @@ behaveplus:select_the_row_variable,Select the row variable
 behaveplus:selecting_axis,Selecting Axis
 behaveplus:selection,Selection
 behaveplus:settings,Settings
+behaveplus:share,Share
 behaveplus:skip,Skip
 behaveplus:steps,Steps
 behaveplus:suppression,Suppression

@@ -78,7 +78,6 @@
   (d/datoms @conn :eavt)
 
   (require '[fig-repl :as r])
-  (b/init!)
 
   (r/start-figwheel!)
 

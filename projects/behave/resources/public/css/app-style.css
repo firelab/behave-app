@@ -1,0 +1,115 @@
+/* -- App -- */
+#app {
+  width: 100%;
+  height: 100vh;
+}
+/* -- End App -- */
+
+/* -- Page -- */
+.page {
+  height: 100vh;
+  display: grid;
+  grid-template-columns: 2fr 14fr;
+  grid-auto-rows: 2fr 8fr;
+  column-gap: 60px;
+  row-gap: 30px;
+  background-color: var(--gray-2);
+}
+/* -- End Page -- */
+
+/* -- Sidebar Container -- */
+.sidebar-container {
+  width: 180px;
+  display: flex;
+  flex-direction: column;
+  background: white;
+}
+/* -- End Sidebar Container -- */
+
+/* -- Container -- */
+.container {
+  display: grid;
+  grid-template-columns: 6fr 4fr;
+  column-gap: 30px;
+}
+/* -- End Container -- */
+
+/* -- Header -- */
+.header {
+  background: white;
+}
+/* -- End Header -- */
+
+/* -- Top Bar -- */
+.top-bar {
+  width: 100%;
+}
+/* -- End Top Bar -- */
+
+.toolbar {
+  display: flex;
+  flex-direction: row;
+}
+
+/* -- Footer Area -- */
+.footer-bar {
+
+}
+/* -- End Footer Area -- */
+
+/* -- Progress Indicator -- */
+.progress-indicator {
+}
+/* -- End Progress Indicator -- */
+
+/* -- Sidebar -- */
+.sidebar__header {
+  height: 40px;
+  width: 100%;
+}
+/* -- End Sidebar -- */
+
+/* -- Identity -- */
+.behave-identity {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+}
+
+/* -- End Identity -- */
+
+/* -- Sidebar Group -- */
+.sidebar-group {
+  display: flex;
+  flex-direction: column;
+  margin: 20px 0px;
+}
+
+.sidebar-group__module {
+  height: 80px;
+}
+
+.sidebar-group__module__icon {
+  height: 50px;
+  width: 50px;
+}
+
+.sidebar-group__module__label {
+
+}
+/* -- End Modules Group -- */
+
+/* -- Working Area -- */
+.working-area {
+  background: white;
+}
+/* -- End Working Area -- */
+
+/* -- Help Area -- */
+.help-area {
+  background: white;
+}
+/* -- End Help Area -- */

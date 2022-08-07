@@ -4,10 +4,11 @@
             [bidi.bidi                    :refer [match-route]]
             [hiccup.page                  :refer [html5 include-css include-js]]
             [ring.middleware.defaults     :refer [wrap-defaults site-defaults]]
+            [ring.middleware.resource     :refer [wrap-resource]]
             [ring.middleware.reload       :refer [wrap-reload]]
             [ring.util.request            :as request]
             [ring.util.response           :refer [response not-found]]
-            [server.interface             :refer [start-server!]]
+            [server.interface             :as server]
             [config.interface             :refer [get-config load-config]]
             [transport.interface          :refer [->clj mime->type]]
             [behave-routing.main          :refer [routes]]
@@ -41,10 +42,15 @@
   (fn [{:keys [headers] :as req}]
     (handler (assoc req :content-type (get headers "Content-Type")))))
 
+(def behave-defaults
+  (-> site-defaults
+      (assoc-in [:static :resources] ["public" {:allow-symlinks? true}])))
+
 (defn create-handler-stack []
   (-> routing-handler
       wrap-params
-      (wrap-defaults (assoc-in site-defaults [:static :resources] "public"))
+      #_(wrap-defaults behave-defaults)
+      (wrap-resource "public" {:allow-symlinks? true})
       wrap-content-type
       wrap-reload))
 
@@ -53,7 +59,7 @@
   (create-handler-stack))
 
 (defn -main [& _args]
-  (start-server! {:handler development-app}))
+  (server/start-server! {:handler development-app :port 8003}))
 
 (comment
 
@@ -71,7 +77,10 @@
   (def req {:uri "/cljs/app.js"})
 
   (request/path-info req)
+
   (-main)
+
+  (server/stop-server!)
 
   )
 

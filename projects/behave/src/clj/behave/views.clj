@@ -25,7 +25,7 @@
    [:meta {:name    "viewport"
            :content "width=device-width, initial-scale=1, shrink-to-fit=no"}]
    [:link {:rel "icon" :type "image/png" :href "/images/favicon.png"}]
-   (include-css "/css/style.css")])
+   (include-css "/css/component-style.css" "/css/app-style.css")])
 
 (defn- cljs-init
   "A JavaScript script that calls the `init` function in `client.cljs`.
@@ -43,5 +43,5 @@
                 (head-meta-css)
                 [:body
                  [:div#app]
-                 (include-js (find-app-js) "/js/katex.min.js")
+                 (include-js "/js/out/app.js" "/js/katex.min.js")
                  (cljs-init (merge route-params params))])}))

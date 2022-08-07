@@ -33,5 +33,5 @@
 
 (defn stop-server! []
   (when @server
-    (@server)
+    (.stop @server)
     (reset! server nil)))
