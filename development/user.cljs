@@ -5,7 +5,7 @@
             [re-frisk.core :as re-frisk]
             [datom-compressor.interface :as c]
             [ds-schema-utils.interface :refer [->ds-schema]]
-            [ajax.core :refer [ajax-request raw-request-format raw-response-format]]
+            [ajax.core :refer [ajax-request]]
             [ajax.protocols :as pr]
             [behave.schema.core :refer [all-schemas]]))
 

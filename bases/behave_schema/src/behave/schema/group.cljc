@@ -45,7 +45,15 @@
     :db/cardinality :db.cardinality/one}
    {:db/ident       :group/order
     :db/doc         "Group's order."
-    :db/valueType   :db.type/number
+    :db/valueType   :db.type/long
+    :db/cardinality :db.cardinality/one}
+   {:db/ident       :group/repeat?
+    :db/doc         "Whether a Group repeats."
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
+   {:db/ident       :group/max-repeat
+    :db/doc         "Group's maximum number of repeats."
+    :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
    {:db/ident       :group/translation-key
     :db/doc         "Group's translation key."

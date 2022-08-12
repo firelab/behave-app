@@ -122,10 +122,10 @@
 
 (rp/reg-sub
   :pull-children
-  (fn [[_ child-attr id]]
+  (fn [[_ child-attr id pattern]]
     (rf/subscribe [:children-ids child-attr id]))
 
-  (fn [eids _]
-    {:type     :pull-many
-     :pattern '[*]
-     :ids      (reduce into [] eids)}))
+  (fn [eids [_ _ _ pattern]]
+    {:type    :pull-many
+     :pattern (or pattern '[*])
+     :ids     (reduce into [] eids)}))

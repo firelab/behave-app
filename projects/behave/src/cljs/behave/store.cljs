@@ -24,8 +24,8 @@
 
 (defn- load-data-handler [[ok body]]
   (when ok
-    (println "GOT BODY" body)
-    (rf/dispatch-sync [:ds/initialize (->ds-schema all-schemas) (mapv #(apply d/datom %) (c/unpack body))])))
+    (rf/dispatch-sync [:ds/initialize (->ds-schema all-schemas) (mapv #(apply d/datom %) (c/unpack body))])
+    (rf/dispatch-sync [:state/set :loaded? true])))
 
 (defn load-store! []
   (ajax-request {:uri "/layout.msgpack"

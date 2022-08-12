@@ -8,11 +8,12 @@
             [datascript.core :as d]
             [datahike.api :as dh]
             [datahike.core :as dc]
-            [string-utils.interface :refer [->kebab]]
+            [string-utils.interface :refer [->kebab ->snake]]
             [config.interface :refer [load-config get-config]]
             [ds-schema-utils.interface :refer [->ds-schema]]
             [datom-utils.interface :as du]
             [datom-compressor.interface :as c]
+            [datom-store.main :as ds]
             [behave.schema.core :refer [all-schemas]]))
 
 (defn num-str? [s]

@@ -1,12 +1,11 @@
 (ns behave.events
-  (:require [re-frame.core :as rf]
-            [re-posh.core :as rp]))
+  (:require [re-frame.core :as rf]))
 
 ;;; Initialization
 
-(def initial-state {:router       {:history       ["/"]
+(def initial-state {:router       {:history       []
                                    :curr-position 0}
-                    :state        {}
+                    :state        {:io :output}
                     :translations {"en-US" {"behaveplus" "BehavePlus"}}
                     :settings     {:language "en-US"}})
 

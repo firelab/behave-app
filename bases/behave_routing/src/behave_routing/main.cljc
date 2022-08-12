@@ -25,17 +25,17 @@
 
 (def ^:private module-routes
   ["/modules"
-   [[["/" [keyword :module]]
+   [[["/" :module]
      [[["/" [keyword :io]]
-       [[["/" [keyword :submodule]] :ws/wizard]]]]]]])
+       [[["/" :submodule] :ws/wizard]]]]]]])
 
 (def ^:private worksheet-routes
   ["worksheets"
-   {""           :ws/all
-    ["/" :db/id] [["" :ws/overview]
-                  module-routes
-                  result-routes
-                  ["/review" :ws/review]]}])
+   {""        :ws/all
+    ["/" :id] [["" :ws/overview]
+               module-routes
+               result-routes
+               ["/review" :ws/review]]}])
 
 (def ^:private settings-routes
   ["settings"
