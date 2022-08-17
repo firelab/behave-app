@@ -15,26 +15,21 @@
   (and (= io (:submodule/io submodule))
        (= slug (:slug submodule))))
 
-
 (defmulti submodule-page (fn [params] (:submodule/io params)))
 
 (defmethod submodule-page :input [{groups :submodule/groups}]
   [:div
    [:h4 @(<t (bp "inputs"))]
    (for [group groups]
-     (let [id (:db/id group)
-           group (rf/subscribe [:pull '[* {:group/variables [*]}] id])]
-       ^{:key id}
-       [input-group @group]))])
+     ^{:key (:db/id group)}
+     [input-group group])])
 
 (defmethod submodule-page :output [{groups :submodule/groups}]
   [:div
    [:h4 @(<t (bp "outputs"))]
    (for [group groups]
-     (let [id    (:db/id group)
-           group @(rf/subscribe [:pull '[* {:group/variables [*]}] id])]
-       ^{:key id}
-       [output-group group]))])
+     ^{:key (:db/id group)}
+     [output-group group])])
 
 (defn- io-tabs [submodules {:keys [io] :as params}]
   (let [[i-subs o-subs] (partition-by #(:submodule/io %) submodules)

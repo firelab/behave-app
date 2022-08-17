@@ -31,4 +31,4 @@
     [:div.wizard-group
      [:div.wizard-group__header group-name]
      [:div.wizard-group__inputs
-      (for [variable variables] (wizard-input variable))]]))
+      #_(for [variable variables] (wizard-input variable))]]))

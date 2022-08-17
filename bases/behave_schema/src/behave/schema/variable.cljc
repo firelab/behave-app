@@ -20,15 +20,15 @@
 (s/def :variable/groups           (s/and set? #(every? integer? %)))
 
 ;; Continuous Variables
-(s/def :variable/default_value    (s/nilable float?))
-(s/def :variable/english_decimals (s/nilable integer?))
-(s/def :variable/english_units    (s/nilable string?))
+(s/def :variable/default-value    (s/nilable float?))
+(s/def :variable/english-decimals (s/nilable integer?))
+(s/def :variable/english-units    (s/nilable string?))
 (s/def :variable/maximum          float?)
 (s/def :variable/minimum          float?)
-(s/def :variable/metric_decimals  (s/nilable integer?))
-(s/def :variable/metric_units     (s/nilable string?))
-(s/def :variable/native_decimals  (s/nilable integer?))
-(s/def :variable/native_units     (s/nilable string?))
+(s/def :variable/metric-decimals  (s/nilable integer?))
+(s/def :variable/metric-units     (s/nilable string?))
+(s/def :variable/native-decimals  (s/nilable integer?))
+(s/def :variable/native-units     (s/nilable string?))
 
 ;; Discrete Variables
 (s/def :variable/list             (s/or :int integer? :str string?))
@@ -92,6 +92,12 @@
     :db/valueType   :db.type/string
     :db/unique      :db.unique/identity
     :db/cardinality :db.cardinality/one}
+
+   ;; Associated with Group Variables
+   {:db/ident       :variable/group-variables
+    :db/doc         "Relationship to group."
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many}
 
    ;; Continuous Variables
    {:db/ident       :variable/maximum

@@ -17,11 +17,7 @@
                                   :help/content]))
 
 (def schema
-  [{:db/ident       :help/language
-    :db/doc         "Reference to language."
-    :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/one}
-   {:db/ident       :help/key
+  [{:db/ident       :help/key
     :db/doc         "Help page's key."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}

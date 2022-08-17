@@ -23,7 +23,15 @@
    {:db/ident       :language/shortcode
     :db/doc         "Language's short code (e.g. 'en-US')."
     :db/valueType   :db.type/string
-    :db/cardinality :db.cardinality/one}])
+    :db/cardinality :db.cardinality/one}
+   {:db/ident       :language/translations
+    :db/doc         "Language's translations."
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many}
+   {:db/ident       :language/help
+    :db/doc         "Language's help pages."
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many}])
 
 ;;; Testing
 

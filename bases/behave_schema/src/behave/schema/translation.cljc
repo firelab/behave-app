@@ -27,16 +27,6 @@
    {:db/ident       :translation/translation
     :db/doc         "Translation's content."
     :db/valueType   :db.type/string
-    :db/cardinality :db.cardinality/one}
-   {:db/ident       :translation/language
-    :db/doc         "Reference to language."
-    :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/one}
-   {:db/ident       :translation/language+key
-    :db/doc         "Unique constraint on language and key."
-    :db/valueType   :db.type/tuple
-    :db/tupleAttrs  [:translation/language :translation/key]
-    :db/unique      :db.unique/identity
     :db/cardinality :db.cardinality/one}])
 
 ;;; Testing

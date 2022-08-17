@@ -59,12 +59,10 @@
    {:db/ident       :submodule/translation-key
     :db/doc         "Submodule's translation key."
     :db/valueType   :db.type/string
-    :db/unique      :db.unique/identity
     :db/cardinality :db.cardinality/one}
    {:db/ident       :submodule/help-key
     :db/doc         "Submodule's help key."
     :db/valueType   :db.type/string
-    :db/unique      :db.unique/identity
     :db/cardinality :db.cardinality/one}])
 
 ;;; Testing

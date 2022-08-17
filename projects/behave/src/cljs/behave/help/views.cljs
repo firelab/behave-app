@@ -23,7 +23,7 @@
   ;                                                  [?e :help/content ?help]] help-key])]
     [:div.help-area__content [children]])
 
-(defn help-area [help-key]
+(defn help-area [{:keys [io module submodule] :as params}]
   (let [current-tab (rf/subscribe [:help/current-tab])]
     [:div.help-area
      [:div.help-area__tabs

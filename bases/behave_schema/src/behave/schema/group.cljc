@@ -27,16 +27,12 @@
 ;;; Schema
 
 (def schema
-  [{:db/ident       :group/submodule
-    :db/doc         "Group's submodule."
-    :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/one}
-   {:db/ident       :group/children
+  [{:db/ident       :group/children
     :db/doc         "Group's children groups."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
-   {:db/ident       :group/variables
-    :db/doc         "Group's variables."
+   {:db/ident       :group/group-variables
+    :db/doc         "Group's group variables."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
    {:db/ident       :group/name
