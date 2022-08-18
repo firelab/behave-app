@@ -26,9 +26,11 @@
    [:label {:for var-name} var-name
     [:input {:type "text"}]]])
 
-(defn input-group [props]
-  (let [{group-name :group/name variables :group/variables} props]
+(defn input-group [group variables]
+  (let [{group-name :group/name} group]
     [:div.wizard-group
      [:div.wizard-group__header group-name]
      [:div.wizard-group__inputs
-      #_(for [variable variables] (wizard-input variable))]]))
+      (for [variable variables]
+        ^{:key (:db/id variable)}
+        [wizard-input variable])]]))

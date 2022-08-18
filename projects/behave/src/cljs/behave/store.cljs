@@ -28,7 +28,7 @@
 (defn- load-data-handler [[ok body]]
   (when ok
     (let [datoms (mapv #(apply d/datom %) (c/unpack body))]
-      (println "-- First Datoms" datoms)
+      #_(println "-- First Datoms" datoms)
       (swap! sync-txs union (txs datoms))
       (rf/dispatch-sync [:ds/initialize (->ds-schema all-schemas) datoms])
       (rf/dispatch-sync [:state/set :loaded? true]))))
@@ -71,7 +71,7 @@
     (let [datoms (->> (c/unpack body)
                       (filter new-datom?)
                       (map (partial apply d/datom)))]
-      (println "-- Latest Datoms" datoms)
+      #_(println "-- Latest Datoms" datoms)
       (when (seq datoms)
         (swap! sync-txs union (txs datoms))
         (d/transact @conn datoms)))))

@@ -816,6 +816,10 @@ p {
   transform: rotate(45deg)
 }
 
+.input-checkbox--checked .input-checkbox__label {
+  font-weight: var(--font-weight-bold);
+}
+
 .input-checkbox--disabled {
   cursor: default;
 }

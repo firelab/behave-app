@@ -12,4 +12,5 @@
             :tls      true
             :port     587
             :site-url "https://behave.sig-gis.com"}
- :secret-token "883kljlsl36dnll9s9l2ls8xksl"}
+ :secret-token "883kljlsl36dnll9s9l2ls8xksl"
+ :vms      {:secret-token "b4c8a1048d5e406c93cc828e34ac9fc6"}}

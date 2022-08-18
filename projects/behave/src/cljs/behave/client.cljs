@@ -44,7 +44,7 @@
       (if loaded?
         [page params]
         [:h3 "Loading..."])
-      [help-area]]]))
+      [help-area params]]]))
 
 (defn- ^:export init
   "Defines the init function to be called from window.onload()."

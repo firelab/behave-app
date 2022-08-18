@@ -7,12 +7,11 @@
             [ring.middleware.resource :refer [wrap-resource]]
             [ring.middleware.reload   :refer [wrap-reload]]
             [ring.util.codec          :refer [url-decode]]
-            [ring.util.request        :as request]
             [ring.util.response       :refer [not-found]]
             [server.interface         :as server]
             [config.interface         :refer [get-config load-config]]
             [transport.interface      :refer [->clj mime->type]]
-            [triangulum.logging       :refer [log-str set-log-path!]]
+            [triangulum.logging       :refer [log-str]]
             [behave-routing.main      :refer [routes]]
             [behave.store             :as store]
             [behave.sync              :refer [sync-handler]]
@@ -21,8 +20,8 @@
   (:gen-class))
 
 (defn init! []
-  (export-from-vms "b4c8a1048d5e406c93cc828e34ac9fc6")
   (load-config (io/resource "config.edn"))
+  (export-from-vms (get-config :vms :secret-token))
   (store/connect! (get-config :database :config)))
 
 (defn bad-uri?
@@ -92,29 +91,11 @@
   (create-handler-stack))
 
 (defn -main [& _args]
-  (server/start-server! {:handler development-app :port 8003}))
+  (init!)
+  (server/start-server! {:handler development-app :port 8002}))
 
 (comment
-
-
-  (require '[ring.mock.request :refer [request header]])
-  (require '[clojure.java.io :as io])
-
-  (def app (create-handler-stack))
-
-  (development-app {:uri "/js/out/app.js"})
-  (development-app {:uri "/cljs/app.js" :request-method :get})
-  (development-app {:uri "/index.html" :request-method :get})
-
-  (io/resource "public/cljs/app.js")
-
-  (def req {:uri "/cljs/app.js"})
-
-  (request/path-info req)
-
   (-main)
-
   (server/stop-server!)
-
   )
 

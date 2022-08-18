@@ -21,7 +21,7 @@
 (def ^:private result-routes
   ["/results"
    [["" :ws/results]
-    [["/" :page] :ws/results]]])
+    [["/" :results-page] :ws/results]]])
 
 (def ^:private module-routes
   ["/modules"

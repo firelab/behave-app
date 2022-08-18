@@ -11,20 +11,49 @@
      [:h1 @guides-manuals]
      [:h2 "Here are some guides."]]))
 
-(defn test-content []
-  [:div
-   [:h1 "Help Area"]
-   [:h2 "Here is help content."]])
+(defn get-help-keys [params]
+  (cond
+    (:page params)
+    (:page params)
 
-(defn help-content [help-key & [children]]
-  ;(let [help-content (rf/subscribe [:query '[:find ?help
-  ;                                           :in $ ?help-key
-  ;                                           :where [?e :help/key ?help-key]
-  ;                                                  [?e :help/content ?help]] help-key])]
-    [:div.help-area__content [children]])
+    (and (:module params) (:submodule params))
+    (let [{:keys [module submodule io]} params
+          *module (rf/subscribe [:wizard/*module module])
+          *submodule (rf/subscribe [:wizard/*submodule (:db/id @*module) submodule io])
+          submodule-help-keys (rf/subscribe [:help/submodule-help-keys (:db/id @*submodule)])]
+      [(:module/help-key @*module) @submodule-help-keys])
 
-(defn help-area [{:keys [io module submodule] :as params}]
-  (let [current-tab (rf/subscribe [:help/current-tab])]
+    :else
+    "behaveplus:help"))
+
+(defn help-section [[help-key & content]]
+  (let [help-content (rf/subscribe [:help/content help-key])]
+    [:div {} (first @help-content)
+     (cond
+       (nil? content)
+       nil
+
+       (vector? (first content))
+       [help-section (first content)]
+
+       :else
+       [help-section content])]))
+
+(defn help-content [help-keys & [children]]
+  [:div.help-area__content
+   (cond
+     (vector? children)
+     [children]
+
+     (string? help-keys)
+     [help-section [help-keys]]
+
+     :else
+     [help-section help-keys])])
+
+(defn help-area [params]
+  (let [current-tab (rf/subscribe [:help/current-tab])
+        loaded? (rf/subscribe [:state :loaded?])]
     [:div.help-area
      [:div.help-area__tabs
       [c/tab-group {:variant     "help"
@@ -36,8 +65,6 @@
        (= @current-tab :guides)
        [help-content "behaveplus:guides" test-guides]
 
-       (and (= @current-tab :help) (some? help-key))
-       [help-content help-key test-content]
-
        :else
-       [help-content nil test-content])]))
+       (when @loaded?
+         [help-content (get-help-keys params)]))]))

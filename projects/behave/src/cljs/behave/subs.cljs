@@ -122,7 +122,7 @@
 
 (rp/reg-sub
   :pull-children
-  (fn [[_ child-attr id pattern]]
+  (fn [[_ child-attr id _]]
     (rf/subscribe [:children-ids child-attr id]))
 
   (fn [eids [_ _ _ pattern]]
