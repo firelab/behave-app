@@ -1,17 +1,18 @@
 (ns behave.help.views
   (:require [re-frame.core :as rf]
+            [markdown2hiccup.interface :refer [md->hiccup]]
             [behave.components.core :as c]
-            [behave.translate       :refer [<t]]
+            [behave.translate :refer [<t]]
             [behave.help.events]
             [behave.help.subs]))
 
-(defn test-guides []
+(defn- test-guides []
   (let [guides-manuals (<t "behaveplus:guides_and_manuals")]
     [:div
      [:h1 @guides-manuals]
      [:h2 "Here are some guides."]]))
 
-(defn get-help-keys [params]
+(defn- get-help-keys [params]
   (cond
     (:page params)
     (:page params)
@@ -26,9 +27,12 @@
     :else
     "behaveplus:help"))
 
-(defn help-section [[help-key & content]]
+(defn- help-section [[help-key & content]]
   (let [help-content (rf/subscribe [:help/content help-key])]
-    [:div {} (first @help-content)
+    [:<>
+     (when (not-empty @help-content)
+       (md->hiccup (first @help-content)))
+
      (cond
        (nil? content)
        nil
@@ -39,7 +43,7 @@
        :else
        [help-section content])]))
 
-(defn help-content [help-keys & [children]]
+(defn- help-content [help-keys & [children]]
   [:div.help-area__content
    (cond
      (vector? children)

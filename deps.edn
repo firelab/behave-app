@@ -12,6 +12,7 @@
                                "components/server/src"
                                "components/string_utils/src"
                                "components/transport/src"
+                               "components/markdown2hiccup/src"
 
                                ;; Bases
                                "bases/behave_components/src"
