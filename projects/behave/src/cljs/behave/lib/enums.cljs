@@ -1,6 +1,5 @@
 (ns behave.lib.enums
-  (:require [clojure.string :as str]
-            [string-utils.interface :as su]))
+  (:require [clojure.string :as str]))
 
 (defonce all-enums (atom {}))
 
@@ -25,111 +24,12 @@
          "AreaUnits::SquareMiles"
          "AreaUnits::SquareKilometers"]))
 
-(def length-units
-  (enum "LengthUnits_LengthUnitsEnum"
-        ["LengthUnits::Feet"
-         "LengthUnits::Inches"
-         "LengthUnits::Centimeters"
-         "LengthUnits::Meters"
-         "LengthUnits::Chains"
-         "LengthUnits::Miles"
-         "LengthUnits::Kilometers"]))
-
-(def loading-units
-  (enum "LoadingUnits_LoadingUnitsEnum"
-        ["LoadingUnits::PoundsPerSquareFoot"
-         "LoadingUnits::TonsPerAcre"
-         "LoadingUnits::TonnesPerHectare"
-         "LoadingUnits::KilogramsPerSquareMeter"]))
-
-(def surface-area-to-volume-units
-  (enum "SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum"
-        ["SurfaceAreaToVolumeUnits::SquareFeetOverCubicFeet"
-         "SurfaceAreaToVolumeUnits::SquareMetersOverCubicMeters"
-         "SurfaceAreaToVolumeUnits::SquareInchesOverCubicInches"
-         "SurfaceAreaToVolumeUnits::SquareCentimetersOverCubicCentimers"]))
-
-(def cover-units
-  (enum "CoverUnits_CoverUnitsEnum"
-        ["CoverUnits::Fraction"
-         "CoverUnits::Percent"]))
-
-(def speed-units
-  (enum "SpeedUnits_SpeedUnitsEnum"
-        ["SpeedUnits::FeetPerMinute"
-         "SpeedUnits::ChainsPerHour"
-         "SpeedUnits::MetersPerSecond"
-         "SpeedUnits::MetersPerMinute"
-         "SpeedUnits::MilesPerHour"
-         "SpeedUnits::KilometersPerHour"]))
-
-(def probability-units
-  (enum "ProbabilityUnits_ProbabilityUnitsEnum"
-        ["ProbabilityUnits::Fraction"
-         "ProbabilityUnits::Percent"]))
-
-(def moisture-units
-  (enum "MoistureUnits_MoistureUnitsEnum"
-        ["MoistureUnits::Fraction"
-         "MoistureUnits::Percent"]))
-
-(def slope-units
-  (enum "SlopeUnits_SlopeUnitsEnum"
-        ["SlopeUnits::Degrees"
-         "SlopeUnits::Percent"]))
-
-(def density-units
-  (enum "DensityUnits_DensityUnitsEnum"
-        ["DensityUnits::PoundsPerCubicFoot"
-         "DensityUnits::KilogramsPerCubicMeter"]))
-
-(def heat-combustion-units
-  (enum "HeatOfCombustionUnits_HeatOfCombustionUnitsEnum"
-        ["HeatOfCombustionUnits::BtusPerPound"
-         "HeatOfCombustionUnits::KilojoulesPerKilogram"]))
-
-(def heat-sink-units
-  (enum "HeatSinkUnits_HeatSinkUnitsEnum"
-        ["HeatSinkUnits::BtusPerCubicFoot"
-         "HeatSinkUnits::KilojoulesPerCubicMeter"]))
-
-(def heat-unit-area-units
-  (enum "HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum"
-        ["HeatPerUnitAreaUnits::BtusPerSquareFoot"
-         "HeatPerUnitAreaUnits::KilojoulesPerSquareMeterPerSecond"
-         "HeatPerUnitAreaUnits::KilowattsPerSquareMeter"]))
-
-(def heat-src-reaction-units (enum "HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum"
-                                   ["HeatSourceAndReactionIntensityUnits::BtusPerSquareFootPerMinute"
-                                    "HeatSourceAndReactionIntensityUnits::BtusPerSquareFootPerSecond"
-                                    "HeatSourceAndReactionIntensityUnits::KilojoulesPerSquareMeterPerSecond"
-                                    "HeatSourceAndReactionIntensityUnits::KilojoulesPerSquareMeterPerMinute"
-                                    "HeatSourceAndReactionIntensityUnits::KilowattsPerSquareMeter"]))
-
-(def fireline-intensity-units
-  (enum "FirelineIntensityUnits_FirelineIntensityUnitsEnum"
-        ["FirelineIntensityUnits::BtusPerFootPerSecond"
-         "FirelineIntensityUnits::BtusPerFootPerMinute"
-         "FirelineIntensityUnits::KilojoulesPerMeterPerSecond"
-         "FirelineIntensityUnits::KilojoulesPerMeterPerMinute"
-         "FirelineIntensityUnits::KilowattsPerMeter"]))
-
-(def temperature-units
-  (enum "TemperatureUnits_TemperatureUnitsEnum"
-        ["TemperatureUnits::Fahrenheit"
-         "TemperatureUnits::Celsius"
-         "TemperatureUnits::Kelvin"]))
-
-(def time-units
-  (enum "TimeUnits_TimeUnitsEnum"
-        ["TimeUnits::Minutes"
-         "TimeUnits::Seconds"
-         "TimeUnits::Hours"]))
-
-(def contain-tactic
-  (enum "ContainTactic"
-        ["HeadAttack"
-         "RearAttack"]))
+(def contain-flank
+  (enum "ContainFlank"
+        ["LeftFlank"
+         "RightFlank"
+         "BothFlanks"
+         "NeitherFlank"]))
 
 (def contain-status
   (enum "ContainStatus"
@@ -143,12 +43,52 @@
          "SizeLimitExceeded"
          "TimeLimitExceeded"]))
 
-(def contain-flank
-  (enum "ContainFlank"
-        ["LeftFlank"
-         "RightFlank"
-         "BothFlanks"
-         "NeitherFlank"]))
+(def contain-tactic
+  (enum "ContainTactic"
+        ["HeadAttack"
+         "RearAttack"]))
+
+(def cover-units
+  (enum "CoverUnits_CoverUnitsEnum"
+        ["CoverUnits::Fraction"
+         "CoverUnits::Percent"]))
+
+(def density-units
+  (enum "DensityUnits_DensityUnitsEnum"
+        ["DensityUnits::PoundsPerCubicFoot"
+         "DensityUnits::KilogramsPerCubicMeter"]))
+
+(def fireline-intensity-units
+  (enum "FirelineIntensityUnits_FirelineIntensityUnitsEnum"
+        ["FirelineIntensityUnits::BtusPerFootPerSecond"
+         "FirelineIntensityUnits::BtusPerFootPerMinute"
+         "FirelineIntensityUnits::KilojoulesPerMeterPerSecond"
+         "FirelineIntensityUnits::KilojoulesPerMeterPerMinute"
+         "FirelineIntensityUnits::KilowattsPerMeter"]))
+
+(def heat-combustion-units
+  (enum "HeatOfCombustionUnits_HeatOfCombustionUnitsEnum"
+        ["HeatOfCombustionUnits::BtusPerPound"
+         "HeatOfCombustionUnits::KilojoulesPerKilogram"]))
+
+(def heat-sink-units
+  (enum "HeatSinkUnits_HeatSinkUnitsEnum"
+        ["HeatSinkUnits::BtusPerCubicFoot"
+         "HeatSinkUnits::KilojoulesPerCubicMeter"]))
+
+(def heat-source-reaction-units
+  (enum "HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum"
+        ["HeatSourceAndReactionIntensityUnits::BtusPerSquareFootPerMinute"
+         "HeatSourceAndReactionIntensityUnits::BtusPerSquareFootPerSecond"
+         "HeatSourceAndReactionIntensityUnits::KilojoulesPerSquareMeterPerSecond"
+         "HeatSourceAndReactionIntensityUnits::KilojoulesPerSquareMeterPerMinute"
+         "HeatSourceAndReactionIntensityUnits::KilowattsPerSquareMeter"]))
+
+(def heat-unit-per-unit-area-units
+  (enum "HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum"
+        ["HeatPerUnitAreaUnits::BtusPerSquareFoot"
+         "HeatPerUnitAreaUnits::KilojoulesPerSquareMeterPerSecond"
+         "HeatPerUnitAreaUnits::KilowattsPerSquareMeter"]))
 
 (def ignition-fuel-bed-type
   (enum "IgnitionFuelBedType"
@@ -161,11 +101,47 @@
          "HighAltitudeMixed"
          "PeatMoss"]))
 
+(def length-units
+  (enum "LengthUnits_LengthUnitsEnum"
+        ["LengthUnits::Feet"
+         "LengthUnits::Inches"
+         "LengthUnits::Centimeters"
+         "LengthUnits::Meters"
+         "LengthUnits::Chains"
+         "LengthUnits::Miles"
+         "LengthUnits::Kilometers"]))
+
 (def lightning-charge
   (enum "LightningCharge"
         ["Negative"
          "Positive"
          "Unknown"]))
+
+(def loading-units
+  (enum "LoadingUnits_LoadingUnitsEnum"
+        ["LoadingUnits::PoundsPerSquareFoot"
+         "LoadingUnits::TonsPerAcre"
+         "LoadingUnits::TonnesPerHectare"
+         "LoadingUnits::KilogramsPerSquareMeter"]))
+
+(def probability-units
+  (enum "ProbabilityUnits_ProbabilityUnitsEnum"
+        ["ProbabilityUnits::Fraction"
+         "ProbabilityUnits::Percent"]))
+
+(def slope-units
+  (enum "SlopeUnits_SlopeUnitsEnum"
+        ["SlopeUnits::Degrees"
+         "SlopeUnits::Percent"]))
+
+(def speed-units
+  (enum "SpeedUnits_SpeedUnitsEnum"
+        ["SpeedUnits::FeetPerMinute"
+         "SpeedUnits::ChainsPerHour"
+         "SpeedUnits::MetersPerSecond"
+         "SpeedUnits::MetersPerMinute"
+         "SpeedUnits::MilesPerHour"
+         "SpeedUnits::KilometersPerHour"]))
 
 (def spot-tree-species
   (enum "SpotTreeSpecies"
@@ -196,3 +172,22 @@
         ["NUM_COLS"
          "NUM_FIREBRAND_ROWS"
          "NUM_SPECIES"]))
+
+(def surface-area-to-volume-units
+  (enum "SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum"
+        ["SurfaceAreaToVolumeUnits::SquareFeetOverCubicFeet"
+         "SurfaceAreaToVolumeUnits::SquareMetersOverCubicMeters"
+         "SurfaceAreaToVolumeUnits::SquareInchesOverCubicInches"
+         "SurfaceAreaToVolumeUnits::SquareCentimetersOverCubicCentimers"]))
+
+(def temperature-units
+  (enum "TemperatureUnits_TemperatureUnitsEnum"
+        ["TemperatureUnits::Fahrenheit"
+         "TemperatureUnits::Celsius"
+         "TemperatureUnits::Kelvin"]))
+
+(def time-units
+  (enum "TimeUnits_TimeUnitsEnum"
+        ["TimeUnits::Minutes"
+         "TimeUnits::Seconds"
+         "TimeUnits::Hours"]))

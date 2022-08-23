@@ -43,5 +43,5 @@
                 (head-meta-css)
                 [:body
                  [:div#app]
-                 (include-js "/js/out/app.js" "/js/katex.min.js")
+                 (include-js "/js/behave-min.js" "/js/katex.min.js" "/js/out/app.js")
                  (cljs-init (merge route-params params))])}))
