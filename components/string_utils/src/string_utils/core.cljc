@@ -33,6 +33,21 @@
       (remove-punctuation)
       (str/replace #"[\s_]" "-")))
 
+(defn camel->snake
+  "camelCase string to snake_case"
+  [s]
+  (str
+    (str/lower-case (first s))
+    (str/replace (subs s 1)
+                 #"([A-Z])" #(str "_" (str/lower-case (first %))))))
+
+(defn camel->kebab
+  "camelCase string to snake_case"
+  [s]
+  (str
+    (str/lower-case (first s))
+    (str/replace (subs s 1) #"([A-Z])" #(str "-" (str/lower-case (first %))))))
+
 (defn snake-key
   [& xs]
   (str/join ":" (map #(-> % (->str) (->snake)) xs)))

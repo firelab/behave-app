@@ -13,6 +13,14 @@
        :doc "Converts `s` to a a kebab-case string."}
   ->kebab c/->kebab)
 
+(def ^{:argslist '[s]
+       :doc "Converts `s` in camelCase to a a snake_case string."}
+  camel->snake c/camel->snake)
+
+(def ^{:argslist '[s]
+       :doc "Converts `s` in camelCase to a a kebab-case string."}
+  camel->kebab c/camel->kebab)
+
 (def ^{:argslist '[& s]
        :doc "Converts multiple strings into a snake-cased, colon-delimited string.
 
