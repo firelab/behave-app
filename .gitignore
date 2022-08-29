@@ -216,5 +216,9 @@ ModelManifest.xml
 *.swp
 /.vs
 
+# MessagePack
+*.msgpack
+#
+
 # Project builds
 projects/behave/resources/public/js/out/
