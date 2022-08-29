@@ -7,7 +7,7 @@
    :server-port  8080
    :nrepl-port   1337
    :builds       [{:id           "browser"
-                   :source-paths ["projects/behave/src/cljc" "projects/behave/src/cljs" "bases/behave_components/src"]
+                   :source-paths ["projects/behave/src/cljs" "bases/behave_components/src"]
                    :figwheel     true
                    :compiler     {;:preloads      ['devtools.preload]
                                   :main          "behave.client"

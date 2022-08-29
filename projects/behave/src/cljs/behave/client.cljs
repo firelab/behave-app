@@ -52,9 +52,11 @@
   (re-frisk/enable)
   (rf/dispatch-sync [:initialize])
   (rf/dispatch-sync [:navigate (-> js/window .-location .-pathname)])
+  (.addEventListener js/window "popstate" #(rf/dispatch [:popstate %]))
   (load-translations!)
   (load-store!)
-  (render [app-shell (js->clj params :keywordize-keys true)] (.getElementById js/document "app")))
+  (render [app-shell (js->clj params :keywordize-keys true)]
+          (.getElementById js/document "app")))
 
 (defn- ^:after-load mount-root!
   "A hook for figwheel to call the init function again."

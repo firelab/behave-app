@@ -60,11 +60,10 @@
         loaded? (rf/subscribe [:state :loaded?])]
     [:div.help-area
      [:div.help-area__tabs
-      [c/tab-group {:variant     "help"
-                    :selected-fn #(= @current-tab (:tab %))
-                    :on-select   #(rf/dispatch [:help/select-tab %])
-                    :tabs        [{:label "Help" :tab :help}
-                                  {:label "Guides & Manuals" :tab :guides}]}]]
+      [c/tab-group {:variant  "outline-secondary"
+                    :on-click #(rf/dispatch [:help/select-tab %])
+                    :tabs     [{:label "Help" :icon-name "help2" :tab :help}
+                               {:label "Guides & Manuals" :icon-name "help-manual" :tab :guides}]}]]
      (cond
        (= @current-tab :guides)
        [help-content "behaveplus:guides" test-guides]

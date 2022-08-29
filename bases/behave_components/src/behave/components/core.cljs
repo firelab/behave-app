@@ -251,6 +251,39 @@
                         :on-change #(println \"Changed!\")]"}
   radio-input radio/radio-input)
 
+(def ^{:argslist
+       '([props])
+
+       :doc
+       "Radio group input component which takes a `props` hash-map of:
+       - `:label`     Label for the group.
+       - `:options`   Vector of options for the group.
+       - `:name`      Name of the group.
+
+       Each option is a hash-map of:
+       - `:id`        Form element id for the label and input.
+       - `:name`      Form element name for the label and input.
+       - `:checked?`  Whether the input is checked.
+       - `:disabled?` Whether the input is disabled.
+       - `:error?`    Whether the input is in an error state.
+       - `:on-change` Function called with the change event.
+
+       Usage:
+
+       ```clojure
+       [radio-group {:label   \"Radio Group\"
+                     :name    \"radio-second\"
+                     :options [{:label     \"Radio First\"
+                                 :id        \"radio-first\"
+                                 :selected  true
+                                 :on-change #(println \"Changed!\")}
+                                {:label     \"Radio Second\"
+                                 :id        \"radio-second\"
+                                 :selected  false
+                                 :on-change #(println \"Changed!\")}]}]
+       ```"}
+  radio-group radio/radio-group)
+
 
 (def ^{:argslist
        '([props])

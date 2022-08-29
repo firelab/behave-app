@@ -1,4 +1,4 @@
-{:paths ["src/clj" "src/cljs" "src/cljc" "resources"]
+{:paths ["src/clj" "src/cljs" "resources"]
 
  :mvn/repos {"central" {:url "https://repo1.maven.org/maven2/"}
              "clojars" {:url "https://clojars.org/repo"}}
@@ -22,9 +22,14 @@
            reagent/reagent           {:mvn/version "0.10.0"}
 
            ;; Components
-           sig/devtools              {:local/root "../../components/devtools"}
+           sig/async-utils           {:local/root "../../components/async_utils"}
+           sig/browser-utils         {:local/root "../../components/browser_utils"}
            sig/config                {:local/root "../../components/config"}
+           sig/data-utils            {:local/root "../../components/data_utils"}
+           sig/datom-utils           {:local/root "../../components/datom_utils"}
+           sig/dom-utils             {:local/root "../../components/dom_utils"}
            sig/ds-schema-utils       {:local/root "../../components/ds_schema_utils"}
+           sig/number-utils          {:local/root "../../components/number_utils"}
            sig/markdown2hiccup       {:local/root "../../components/markdown2hiccup"}
            sig/server                {:local/root "../../components/server"}
            sig/string-utiles         {:local/root "../../components/string_utils"}

@@ -12,16 +12,14 @@
 (defmulti submodule-page (fn [io _ _] io))
 
 (defmethod submodule-page :input [_ groups]
-  [:div
-   [:h4 @(<t (bp "inputs"))]
+  [:div.wizard-io
    (for [group groups]
      (let [variables (:group/group-variables group)]
        ^{:key (:db/id group)}
        [input-group group variables]))])
 
 (defmethod submodule-page :output [_ groups]
-  [:div
-   [:h4 @(<t (bp "outputs"))]
+  [:div.wizard-io
    (for [group groups]
      (let [variables (:group/group-variables group)]
        ^{:key (:db/id group)}
@@ -31,27 +29,41 @@
   (let [[i-subs o-subs] (partition-by #(:submodule/io %) submodules)
         first-submodule (:slug (first (if (= io :input) o-subs i-subs)))]
     [:div.wizard-header__io-tabs
-     [c/tab-group {:variant     "io"
-                   :selected-fn #(= io (:tab %))
-                   :on-select   #(when (not= io (:tab %))
-                                   (rf/dispatch [:wizard/select-tab (assoc params
-                                                                           :io (:tab %)
-                                                                           :submodule first-submodule)]))
-                   :tabs        [{:label "Outputs" :tab :output}
-                                 {:label "Inputs" :tab :input}]}]]))
+     [c/tab-group {:variant   "outline-primary"
+                   :flat-edge "top"
+                   :align     "right"
+                   :on-click  #(when (not= io (:tab %))
+                                 (rf/dispatch [:wizard/select-tab (assoc params
+                                                                         :io (:tab %)
+                                                                         :submodule first-submodule)]))
+                   :tabs      [{:label "Outputs" :tab :output :selected? (= io :output)}
+                               {:label "Inputs" :tab :input :selected? (= io :input)}]}]]))
 
 (defn- wizard-header [{module-name :module/name} all-submodules {:keys [io submodule] :as params}]
   (let [submodules (filter #(= (:submodule/io %) io) all-submodules)]
     [:div.wizard-header
+     [io-tabs all-submodules params]
      [:div.wizard-header__title
       [:h1 module-name]]
-     [io-tabs all-submodules params]
      [:div.wizard-header__submodule-tabs
-      [c/tab-group {:variant     "io"
-                    :selected-fn #(= submodule (:tab %))
-                    :on-select   #(rf/dispatch [:wizard/select-tab (assoc params :submodule (:tab %))])
-                    :tabs        (map (fn [{s-name :submodule/name slug :slug}]
-                                       {:label s-name :tab slug}) submodules)}]]]))
+      [c/tab-group {:variant  "outline-primary"
+                    :on-click #(rf/dispatch [:wizard/select-tab (assoc params :submodule (:tab %))])
+                    :tabs     (map (fn [{s-name :submodule/name slug :slug}]
+                                     {:label     s-name
+                                      :tab       slug
+                                      :selected? (= submodule slug)}) submodules)}]]]))
+
+(defn- wizard-navigation [*module *submodule all-submodules params]
+  [:div.wizard-navigation
+   [c/button {:label         "Back"
+              :variant       "secondary"
+              :on-click      #(rf/dispatch [:wizard/prev-tab params])}]
+
+   [c/button {:label         "Next"
+              :variant       "highlight"
+              :icon-name     "arrow2"
+              :icon-position "right"
+              :on-click      #(rf/dispatch [:wizard/next-tab *module *submodule all-submodules params])}]])
 
 (defn wizard-page [{:keys [module io submodule] :as params}]
   (let [*module    (rf/subscribe [:wizard/*module module])
@@ -61,7 +73,8 @@
 
     [:div.wizard-page
      [wizard-header @*module @submodules params]
-     [submodule-page io @*groups]]))
+     [submodule-page io @*groups]
+     [wizard-navigation @*module @*submodule @submodules params]]))
 
 ;;; Public Components
 

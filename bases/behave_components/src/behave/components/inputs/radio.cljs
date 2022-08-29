@@ -17,7 +17,9 @@
      :on-change on-change}]
    [:span {:class "input-radio__label"} label]])
 
-(defn radio-group [{:keys [label]} & options]
+(defn radio-group [{:keys [label options name]}]
   [:div {:class "input-radio-group"}
    [:label {:class "input-radio-group__label"} label]
-   [:div {:class "input-radio-group__options"} options]])
+   (for [{:keys [id] :as option} options]
+     ^{:keys id}
+     [radio-input (merge option {:name name})])])

@@ -1,5 +1,5 @@
 (ns behave.components.inputs.browse
-  (:require [behave.components.button :refer [button]]))
+  (:require [behave.components.core :refer [button]]))
 
 (defn browse-input [{:keys [label button-label focus? error? disabled? on-click]}]
   [:div

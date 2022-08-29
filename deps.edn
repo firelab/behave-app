@@ -5,10 +5,13 @@
 
                                ;; Components
                                "components/config/src"
-                               "components/datom_utils/src"
+                               "components/browser_utils/src"
+                               "components/data_utils/src"
                                "components/datom_compressor/src"
-                               "components/devtools/src"
+                               "components/datom_utils/src"
+                               "components/dom_utils/src"
                                "components/ds_schema_utils/src"
+                               "components/number_utils/src"
                                "components/server/src"
                                "components/string_utils/src"
                                "components/transport/src"

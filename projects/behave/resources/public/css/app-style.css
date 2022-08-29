@@ -86,8 +86,13 @@
 .sidebar-group {
   display: flex;
   flex-direction: column;
-  margin: 20px 0px;
+  align-items: center;
   background-color: var(--white);
+  box-shadow: 0px 2px 3px var(--black);
+}
+
+.sidebar-group:not(:first-child) {
+  margin-top: 20px;
 }
 
 .sidebar-group__module {
@@ -121,9 +126,7 @@
 /* -- End Working Area -- */
 
 /* -- Work Style Select -- */
-.workflow-select {
-
-}
+.workflow-select {}
 
 .workflow-select__header {
   padding: 30px;
@@ -135,6 +138,68 @@
   padding: 30px 20px;;
 }
 /* -- End Work Style Select -- */
+
+/* - Wizard - */
+
+.wizard {
+  background-color: var(--white);
+  box-shadow: 0px 2px 3px var(--black);
+}
+
+.wizard-header {
+  margin-bottom: 40px;
+}
+
+.wizard-header__submodule-tabs > .tab-group > .tab:first-child {
+  margin-left: 20px;
+}
+
+.wizard-navigation {
+  display: flex;
+  flex-direction: row;
+  padding: 10px;
+  justify-content: space-between;
+}
+
+.wizard-group__header {
+  padding: 5px 18px;
+  color: white;
+  background-color: var(--darkblue-4);
+}
+
+.wizard-group__inputs {
+  padding: 25px 30px;
+}
+
+.wizard-group__outputs {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  padding-bottom: 20px;
+}
+
+.wizard-output {
+  padding: 25px 20px 0px;
+}
+
+.wizard-input {
+  display:flex;
+}
+
+.wizard-input__input {
+  width: 70%;
+}
+
+.wizard-input__description {
+  width: 30%;
+}
+
+.wizard-input__description__units {
+  color: var(--gray-5);
+  font-size: var(--font-size-14);
+}
+
+/* - End Wizard - */
 
 /* -- Help Area -- */
 .help-area {

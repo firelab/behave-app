@@ -87,8 +87,8 @@
 (def heat-unit-per-unit-area-units
   (enum "HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum"
         ["HeatPerUnitAreaUnits::BtusPerSquareFoot"
-         "HeatPerUnitAreaUnits::KilojoulesPerSquareMeterPerSecond"
-         "HeatPerUnitAreaUnits::KilowattsPerSquareMeter"]))
+         "HeatPerUnitAreaUnits::KilojoulesPerSquareMeter"
+         "HeatPerUnitAreaUnits::KilowattsPerSquareMeterPerSecond"]))
 
 (def ignition-fuel-bed-type
   (enum "IgnitionFuelBedType"
@@ -140,6 +140,7 @@
          "SpeedUnits::ChainsPerHour"
          "SpeedUnits::MetersPerSecond"
          "SpeedUnits::MetersPerMinute"
+         "SpeedUnits::MetersPerHour"
          "SpeedUnits::MilesPerHour"
          "SpeedUnits::KilometersPerHour"]))
 

@@ -1,12 +1,13 @@
 (ns behave.components.button
   (:require [behave.components.icon :refer [icon]]))
 
-(defn button [& [{:keys [variant size icon-name icon-position label on-click disabled? flat-edge]
+(defn button [& [{:keys [variant size icon-name icon-position label on-click disabled? flat-edge selected?]
                   :or   {icon-position "left"}}]]
   [:button {:class    ["button"
                        (when variant (str "button--" variant))
                        (when size (str "button--" size))
-                       (when flat-edge (str "button--flat-edge-" flat-edge))]
+                       (when flat-edge (str "button--flat-edge-" flat-edge))
+                       (when selected? (str "button--selected"))]
             :disabled disabled?
             :on-click on-click}
    (when (and icon-name (= icon-position "left"))

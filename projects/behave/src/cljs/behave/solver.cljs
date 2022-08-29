@@ -1,7 +1,12 @@
 (ns behave.solver
-  (:require [behave.lib.core :as lib]
-            [behave.lib.contain :as contain]
-            [behave.lib.enums :as enum]))
+  (:require [behave.lib.core       :as lib]
+            [behave.lib.contain    :as contain]
+            [behave.lib.enums      :as enum]
+            [datascript.core       :as d]
+            [datom-utils.interface :as du]))
+
+
+(defn input-variables [worksheet])
 
 (defn surface-solver [worksheet]
   (assoc-in worksheet [:results :surface] []))
@@ -10,12 +15,10 @@
   (assoc-in worksheet [:results :crown] []))
 
 (defn contain-solver [worksheet]
-  (let [results (contain/init)])
   (assoc-in worksheet [:results :contain] []))
 
 (defn mortality-solver [worksheet]
   (assoc-in worksheet [:results :mortality] []))
-
 
 (defn solve-worksheet [{:keys [modules] :as worksheet}]
   (cond-> worksheet

@@ -1,15 +1,34 @@
-(ns behave.components.tab)
+(ns behave.components.tab
+  (:require [behave.components.button :refer [button]]))
 
-(defn tab [{:keys [label variant selected? selected-fn on-select] :or {selected? false} :as t}]
-  (let [selected? (if (fn? selected-fn) (selected-fn t) selected?)]
-    [:div {:class ["tab"
-                   (when variant (str "tab--" variant))
-                   (when selected? "tab--selected")]
-           :on-click #(when (fn? on-select) (on-select t))}
-     [:div {:class "tab__label"} label]]))
+(defn tab [{:keys [label variant selected? on-click icon-name disabled? flat-edge size]
+            :or   {flat-edge "bottom"
+                   size      "normal"}
+            :as   t}]
+  [:div {:class ["tab"
+                 (when variant (str "tab--" variant))
+                 (when selected? "tab--selected")]}
+   [button (cond-> {:variant   variant
+                    :label     label
+                    :flat-edge flat-edge
+                    :size      size
+                    :selected? selected?
+                    :disabled? disabled?
+                    :on-click  #(on-click t)}
+             icon-name (assoc :icon-name icon-name :icon-position "left"))]])
 
-(defn tab-group [{:keys [tabs variant on-select selected-fn]}]
-  [:div {:class "tab-group"}
-   (for [t (sort-by :order tabs)]
-     ^{:key (:label t)}
-     [tab (merge t {:variant variant :on-select on-select :selected-fn selected-fn})])])
+(defn tab-group [{:keys [tabs variant flat-edge size on-click align]
+                  :or   {variant   "outline-primary"
+                         flat-edge "bottom"
+                         size      "normal"
+                         align     "left"}}]
+  (let [tabs (js->clj tabs :keywordize-keys true)]
+    [:div {:class ["tab-group"
+                   (str "tab-group--" variant)
+                   (str "tab-group--flat-edge-" flat-edge)
+                   (str "tab-group--align-" align)]}
+     (for [t (sort-by :order-id tabs)]
+       [tab (merge t {:variant   variant
+                      :flat-edge flat-edge
+                      :size      size
+                      :on-click  on-click})])]))
