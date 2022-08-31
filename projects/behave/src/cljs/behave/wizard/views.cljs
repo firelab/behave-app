@@ -43,8 +43,11 @@
   (let [submodules (filter #(= (:submodule/io %) io) all-submodules)]
     [:div.wizard-header
      [io-tabs all-submodules params]
-     [:div.wizard-header__title
-      [:h1 module-name]]
+     [:div.wizard-header__banner
+      [:div.wizard-header__banner__icon
+       [c/icon :modules]]
+      [:div.wizard-header__banner__title
+       (str module-name " Module")]]
      [:div.wizard-header__submodule-tabs
       [c/tab-group {:variant  "outline-primary"
                     :on-click #(rf/dispatch [:wizard/select-tab (assoc params :submodule (:tab %))])
@@ -76,13 +79,37 @@
      [submodule-page io @*groups]
      [wizard-navigation @*module @*submodule @submodules params]]))
 
+(defn wizard-review-page [params]
+  [:div.accordion
+   [:div.accordion__header
+    [:div.accordion__header__title @(<t (bp "working_area"))]]
+   [:div.wizard-page
+    [:div.wizard-header
+     [:div.wizard-header__banner {:style {:margin-top "20px"}}
+      [:div.wizard-header__banner__icon
+       [c/icon :modules]]
+      [:div.wizard-header__banner__title "Review Modules"]]
+     [:div.wizard-review
+      "TODO: Add table of current values"]
+     [:div.wizard-navigation
+      [c/button {:label   "Back"
+                 :variant "secondary"}]
+      [c/button {:label   "Run"
+                 :variant       "highlight"
+                 :icon-name     "arrow2"
+                 :icon-position "right"
+                 :on-click      #(rf/dispatch [:wizard/solve params])}]]]]])
+
 ;;; Public Components
 
 (defn root-component [params]
   (let [loaded? (rf/subscribe [:state :loaded?])]
-    [:div.wizard
-     (if @loaded?
-       [wizard-page params]
-       [:div.wizard__loading
-        [:h2 "Loading..."]])]))
+    [:div.accordion
+     [:div.accordion__header
+      [:div.accordion__header__title @(<t (bp "working_area"))]]
+     [:div.wizard
+      (if @loaded?
+        [wizard-page params]
+        [:div.wizard__loading
+         [:h2 "Loading..."]])]]))
 

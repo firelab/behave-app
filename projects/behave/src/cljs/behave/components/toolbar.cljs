@@ -3,13 +3,14 @@
             [behave.translate       :refer [<t]]))
 
 (defn toolbar-tool [{icon-name :icon translation-key :label}]
-  (let [translation (<t translation-key)]
-    [:div.toolbar__tool
-     [:div.toolbar__tool__icon [c/icon icon-name]]
-     [:div.toolbar__tool__label @translation]]))
+  [:div.toolbar__tool
+   [:div.toolbar__tool__icon
+    [c/button {:variant   "transparent-primary"
+               :title     @(<t translation-key)
+               :icon-name icon-name}]]])
 
 (defn toolbar []
-  (let [tools [{:icon :help  :label "behaveplus:help"}
+  (let [tools [{:icon :home  :label "behaveplus:home"}
                {:icon :save  :label "behaveplus:save"}
                {:icon :print :label "behaveplus:print"}
                {:icon :share :label "behaveplus:share"}]]
@@ -18,7 +19,7 @@
       (for [tool tools]
         ^{:key (:label tool)}
         [toolbar-tool tool])]
-     [:div.progress-indicator
+     #_[:div.progress-indicator
       [c/progress {:steps [{:label     "Work Style"
                             :selected? true
                             :order     0}]}]]]))

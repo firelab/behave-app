@@ -8,17 +8,19 @@
      [:div.sidebar-group__module__icon [icon icon-name]]
      [:div.sidebar-group__module__label @translation]]))
 
-(defn sidebar-group [modules]
+(defn sidebar-group [{:keys [modules]}]
   [:div.sidebar-group
+   [:div.sidebar-group__header "Modules"]
    (for [module modules]
      ^{:key (:label module)}
      [sidebar-module module])])
 
 (defn sidebar []
   [:div.sidebar-container
-   [sidebar-group [{:label "behaveplus:surface"   :icon :surface}
-                   {:label "behaveplus:crown"     :icon :crown}
-                   {:label "behaveplus:mortality" :icon :mortality}
-                   {:label "behaveplus:contain"   :icon :contain}]]
-   [sidebar-group [{:label "behaveplus:tools"     :icon :tools}
-                   {:label "behaveplus:settings"  :icon :settings}]]])
+   [sidebar-group {:modules [{:label "behaveplus:surface"   :icon :surface}
+                             {:label "behaveplus:crown"     :icon :crown}
+                             {:label "behaveplus:mortality" :icon :mortality}
+                             {:label "behaveplus:contain"   :icon :contain}]}]
+   [sidebar-group {:title   ""
+                   :modules [{:label "behaveplus:tools"     :icon :tools}
+                             {:label "behaveplus:settings"  :icon :settings}]}]])

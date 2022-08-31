@@ -28,6 +28,7 @@
                    (str "tab-group--flat-edge-" flat-edge)
                    (str "tab-group--align-" align)]}
      (for [t (sort-by :order-id tabs)]
+       ^{:key (:order-id t)}
        [tab (merge t {:variant   variant
                       :flat-edge flat-edge
                       :size      size

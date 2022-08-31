@@ -31,11 +31,14 @@
 
 (def ^:private worksheet-routes
   ["worksheets"
-   {""        :ws/all
-    ["/" :id] [["" :ws/overview]
-               module-routes
-               result-routes
-               ["/review" :ws/review]]}])
+   {""             :ws/all
+    "/guided"      :ws/guided
+    "/independent" :ws/independent
+    "/import"      :ws/import
+    ["/" :id]      [["" :ws/overview]
+                    module-routes
+                    result-routes
+                    ["/review" :ws/review]]}])
 
 (def ^:private settings-routes
   ["settings"

@@ -29,7 +29,7 @@
 
 (defn- help-section [[help-key & content]]
   (let [help-content (rf/subscribe [:help/content help-key])]
-    [:<>
+    [:div {:id help-key}
      (when (not-empty @help-content)
        (md->hiccup (first @help-content)))
 

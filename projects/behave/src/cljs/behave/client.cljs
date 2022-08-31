@@ -12,22 +12,29 @@
             [behave.tools              :as tools]
             [behave.translate          :refer [<t load-translations!]]
             [behave.wizard.views       :as wizard]
-            [behave.worksheet.views    :refer [worksheet-page]]
+            [behave.worksheet.views    :refer [new-worksheet-page
+                                               import-worksheet-page
+                                               guided-worksheet-page
+                                               independent-worksheet-page]]
             [behave.events]
             [behave.subs]))
 
 (defn not-found []
   [:div
-   [:h1 (str (<t "notfound") " :(")]])
+   [:h1 (str @(<t "notfound") " :(")]])
 
-(def handler->page {:home          worksheet-page
-                    :ws/wizard     wizard/root-component
-                    :ws/review     review/root-component
-                    :ws/results    results/root-component
-                    :settings/all  settings/root-component
-                    :settings/page settings/root-component
-                    :tools/all     tools/root-component
-                    :tools/page    tools/root-component})
+(def handler->page {:home           new-worksheet-page
+                    :ws/all         new-worksheet-page
+                    :ws/import      import-worksheet-page
+                    :ws/guided      guided-worksheet-page
+                    :ws/independent independent-worksheet-page
+                    :ws/wizard      wizard/root-component
+                    :ws/review      wizard/wizard-review-page
+                    :ws/results     results/root-component
+                    :settings/all   settings/root-component
+                    :settings/page  settings/root-component
+                    :tools/all      tools/root-component
+                    :tools/page     tools/root-component})
 
 (defn app-shell [params]
   (let [route   (rf/subscribe [:handler])

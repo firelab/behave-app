@@ -17,11 +17,8 @@
 
 (rf/reg-event-fx
   :wizard/prev-tab
-  (fn [cofx _]
-
-    (let [history   (get-in cofx [:db :router :history])
-          prev-page (second (reverse history))]
-      {:fx [[:dispatch [:navigate prev-page]]]})))
+  (fn [_ _]
+    (.back js/history)))
 
 (rf/reg-event-fx
   :wizard/next-tab
@@ -55,3 +52,25 @@
                                       :ws/review
                                       :id id))]
       {:fx [[:dispatch [:navigate path]]]})))
+
+(comment
+
+  (rf/clear-sub :wizard/next-tab)
+  (rf/clear-subscription-cache!)
+  (rf/dispatch [:wizard/next-tab
+                nil
+                nil
+                [{:slug "first" :submodule/io :input}
+                 {:slug "second" :submodule/io :input}]
+                {:submodule "first" :io :input}])
+
+  (rf/dispatch [:wizard/next-tab
+                nil
+                nil
+                [{:slug "zero" :submodule/io :output}
+                 {:slug "first" :submodule/io :input}
+                 {:slug "second" :submodule/io :input}]
+                {:submodule "zero" :io :output}])
+
+
+  )

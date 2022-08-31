@@ -95,8 +95,15 @@
   margin-top: 20px;
 }
 
+.sidebar-group__header {
+
+}
+
 .sidebar-group__module {
   height: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .sidebar-group__module__icon {
@@ -135,7 +142,7 @@
 }
 
 .workflow-select__content {
-  padding: 30px 20px;;
+  padding-top: 30px;
 }
 /* -- End Work Style Select -- */
 
@@ -143,11 +150,27 @@
 
 .wizard {
   background-color: var(--white);
-  box-shadow: 0px 2px 3px var(--black);
 }
 
 .wizard-header {
-  margin-bottom: 40px;
+  margin-bottom: 15px;
+}
+
+.wizard-header__banner {
+  display: flex;
+  align-items: center;
+  padding: 0px 20px 10px;
+  margin-top: -20px;
+}
+
+.wizard-header__banner__icon {
+  margin-right: 32px;
+}
+
+.wizard-header__banner__title {
+  margin-right: 32px;
+  font-size: var(--font-size-22);
+  font-weight: var(--font-weight-300);
 }
 
 .wizard-header__submodule-tabs > .tab-group > .tab:first-child {

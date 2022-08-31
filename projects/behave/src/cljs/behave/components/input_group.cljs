@@ -15,20 +15,22 @@
                                       native-units  :variable/native-units
                                       english-units :variable/english-units
                                       metric-units  :variable/metric-units}]
-  [:div.wizard-input
-   [:div.wizard-input__input
-    [c/number-input {:label       "Values:"
-                     :placeholder "Values"
-                     :id          (->kebab var-name)
-                     :required?   true
-                     :min         var-min
-                     :max         var-max
-                     :on-change   #(rf/dispatch [:state/set [:worksheet :inputs id] (input-float-value %)])}]]
-   [:div.wizard-input__description
-    (str "Units used: " native-units)
-    [:div.wizard-input__description__units
-     [:div (str "English Units: " english-units)]
-     [:div (str "Metric Units: " metric-units)]]]])
+  (let [value (rf/subscribe [:state [:worksheet :inputs id]])]
+    [:div.wizard-input
+     [:div.wizard-input__input
+      [c/number-input {:label       "Values:"
+                       :placeholder "Values"
+                       :id          (->kebab var-name)
+                       :value       @value
+                       :required?   true
+                       :min         var-min
+                       :max         var-max
+                       :on-change   #(rf/dispatch [:state/set [:worksheet :inputs id] (input-float-value %)])}]]
+     [:div.wizard-input__description
+      (str "Units used: " native-units)
+      [:div.wizard-input__description__units
+       [:div (str "English Units: " english-units)]
+       [:div (str "Metric Units: " metric-units)]]]]))
 
 (defmethod wizard-input :discrete [{var-name :variable/name
                                     options  :variable/options}]

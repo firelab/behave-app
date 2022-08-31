@@ -3,6 +3,7 @@
             [clojure.java.io   :as io]
             [clojure.string    :as str]
             [clojure.edn       :as edn]
+            [config.interface  :refer [get-config]]
             [hiccup.page       :refer [html5 include-css include-js]]))
 
 (defn- find-app-js []
@@ -17,9 +18,9 @@
   "Specifies head tag elements."
   []
   [:head
-   [:title "Behave CMS"]
+   [:title (get-config :site :title)]
    [:meta {:name    "description"
-           :content ""}]
+           :content (get-config :site :description)}]
    [:meta {:name "robots" :content "index, follow"}]
    [:meta {:charset "utf-8"}]
    [:meta {:name    "viewport"
@@ -43,5 +44,5 @@
                 (head-meta-css)
                 [:body
                  [:div#app]
-                 (include-js "/js/behave-min.js" "/js/katex.min.js" "/js/out/app.js")
+                 (include-js "/js/behave.js" "/js/katex.min.js" "/js/out/app.js")
                  (cljs-init (merge route-params params))])}))

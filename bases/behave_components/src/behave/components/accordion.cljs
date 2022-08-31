@@ -1,7 +1,7 @@
 (ns behave.components.accordion
   (:require [behave.components.icon :refer [icon]]))
 
-(defn accordion [{:keys [title icon-name variant opened? content on-toggle] :or {opened? false}}]
+(defn accordion [{:keys [title icon-name variant opened? on-toggle] :or {opened? false}} & [content]]
   [:div {:class (str "accordion"
                      (when variant (str " accordion--" variant))
                      (when opened? " accordion--opened"))}

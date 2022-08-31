@@ -392,7 +392,6 @@ p {
 .accordion__body {
   overflow: hidden;
   background: var(--white);
-  padding: 20px;
 }
 
 /* -- Accordion States --*/
@@ -631,7 +630,7 @@ p {
 /* -- Button Round Eges -- */
 
 .button--flat-edge-top {
-  border-radius: 0px 0px var(--border-radius) var(--border-radius);
+  border-radius: 0px 0px 8px 8px;
 }
 
 .button--flat-edge-right {
@@ -1497,18 +1496,21 @@ p {
   vertical-align: bottom;
 }
 
-.tab-group--align-right .tab,
-.tab-group.tab-group--align-right {
+.tab-group--align-right .tab {
   margin-left: 5px;
+}
+
+.tab-group--align-right .tab:last-child {
+  margin-right: 5px;
+}
+
+.tab-group.tab-group--align-right {
   justify-content: flex-end;
 }
 
-.tab-group--align-left .tab,
-.tab-group.tab-group--align-left {
+.tab-group--align-left .tab {
   margin-right: 5px;
-  justify-content: flex-start;
 }
-
 
 /* -- Tab Group Variants -- */
 
