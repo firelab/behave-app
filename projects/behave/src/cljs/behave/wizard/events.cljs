@@ -52,25 +52,3 @@
                                       :ws/review
                                       :id id))]
       {:fx [[:dispatch [:navigate path]]]})))
-
-(comment
-
-  (rf/clear-sub :wizard/next-tab)
-  (rf/clear-subscription-cache!)
-  (rf/dispatch [:wizard/next-tab
-                nil
-                nil
-                [{:slug "first" :submodule/io :input}
-                 {:slug "second" :submodule/io :input}]
-                {:submodule "first" :io :input}])
-
-  (rf/dispatch [:wizard/next-tab
-                nil
-                nil
-                [{:slug "zero" :submodule/io :output}
-                 {:slug "first" :submodule/io :input}
-                 {:slug "second" :submodule/io :input}]
-                {:submodule "zero" :io :output}])
-
-
-  )

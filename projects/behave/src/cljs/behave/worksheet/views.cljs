@@ -3,7 +3,9 @@
             [string-utils.interface :refer [->str]]
             [behave.components.core :as c]
             [behave.components.navigation :refer [wizard-navigation]]
-            [behave.translate       :refer [<t bp]]))
+            [behave.translate       :refer [<t bp]]
+            [behave.worksheet.events]
+            [behave.worksheet.subs]))
 
 (defn workflow-select [params]
   (let [*workflow (rf/subscribe [:state [:worksheet :*workflow]])]
@@ -39,7 +41,7 @@
                           :on-next #(rf/dispatch [:navigate (str "/worksheets/" (->str @*workflow))])}]]]))
 
 (defn independent-worksheet-page [params]
-  (let [*modules (rf/subscribe [:state [:worksheet :*modules]])]
+  (let [*modules (rf/subscribe [:state [:worksheet :modules]])]
     [c/accordion
      {:title @(<t "behaveplus:working_area")}
      [:<>
@@ -48,7 +50,7 @@
         [:h3 @(<t "behaveplus:module_selection")]
         [:p @(<t "behaveplus:please_select_from_the_following_options")]]
        [:div.workflow-select__content
-        [c/card-group {:on-select   #(rf/dispatch [:state/set [:worksheet :*modules] (:module %)])
+        [c/card-group {:on-select   #(rf/dispatch [:state/set [:worksheet :modules] (:module %)])
                        :cards       [{:title     @(<t (bp "contain"))
                                       :selected? (contains? @*modules :contain)
                                       :icon-name "contain"

@@ -98,7 +98,7 @@
                  :variant       "highlight"
                  :icon-name     "arrow2"
                  :icon-position "right"
-                 :on-click      #(rf/dispatch [:wizard/solve params])}]]]]])
+                 :on-click      #(rf/dispatch [:worksheet/solve params])}]]]]])
 
 ;;; Public Components
 
