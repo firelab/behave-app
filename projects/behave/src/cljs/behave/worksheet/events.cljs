@@ -6,7 +6,7 @@
   :worksheet/solve
   (fn [{:keys [state] :as db} _]
     (assoc-in db
-              [:state :worksheet :results]
+              [:state :worksheet]
               (solve-worksheet (:worksheet state)))))
 
 (comment

@@ -85,7 +85,33 @@
   (.getPerimeterAtContainment self LengthUnits_LengthUnitsEnum lengthUnits))
 
 (defn getPerimeterAtInitialAttack [self LengthUnits_LengthUnitsEnum lengthUnits]
-  (.getPerimiterAtInitialAttack self LengthUnits_LengthUnitsEnum lengthUnits))
+  (.getPerimeterAtInitialAttack self LengthUnits_LengthUnitsEnum lengthUnits))
+
+(def fns {"addResource" addResource
+          "setAttackDistance" setAttackDistance
+          "setFireStartTime" setFireStartTime
+          "setLwRatio" setLwRatio
+          "setMaxFireSize" setMaxFireSize
+          "setMaxFireTime" setMaxFireTime
+          "setMaxSteps" setMaxSteps
+          "setMinSteps" setMinSteps
+          "setReportRate" setReportRate
+          "setReportSize" setReportSize
+          "setRetry" setRetry
+          "setTactic" setTactic
+          "removeAllResources" removeAllResources
+          "removeResourceWithThisDesc" removeResourceWithThisDesc
+          "removeResourceAt" removeResourceAt
+          "removeAllResourcesWithThisDesc" removeAllResourcesWithThisDesc
+          "getContainmentStatus" getContainmentStatus
+          "getFinalContainmentArea" getFinalContainmentArea
+          "getFinalCost" getFinalCost
+          "getFinalFireLineLength" getFinalFireLineLength
+          "getFinalFireSize" getFinalFireSize
+          "getFinalTimeSinceReport" getFinalTimeSinceReport
+          "getFireSizeAtInitialAttack" getFireSizeAtInitialAttack
+          "getPerimeterAtContainment" getPerimeterAtContainment
+          "getPerimeterAtInitialAttack" getPerimeterAtInitialAttack})
 
 
 (comment
