@@ -1,5 +1,4 @@
-(ns behave.lib.contain
-  (:require [behave.lib.enums :as enum]))
+(ns behave.lib.contain)
 
 ;; Initializer
 (defn init []
@@ -58,7 +57,6 @@
 (defn removeAllResourcesWithThisDesc [self desc]
   (.removeAllResourcesWithThisDesc self desc))
 
-
 ; Outputs
 (defn getContainmentStatus [self]
   (.getContainmentStatus self))
@@ -86,67 +84,3 @@
 
 (defn getPerimeterAtInitialAttack [self LengthUnits_LengthUnitsEnum lengthUnits]
   (.getPerimeterAtInitialAttack self LengthUnits_LengthUnitsEnum lengthUnits))
-
-(def fns {"addResource" addResource
-          "setAttackDistance" setAttackDistance
-          "setFireStartTime" setFireStartTime
-          "setLwRatio" setLwRatio
-          "setMaxFireSize" setMaxFireSize
-          "setMaxFireTime" setMaxFireTime
-          "setMaxSteps" setMaxSteps
-          "setMinSteps" setMinSteps
-          "setReportRate" setReportRate
-          "setReportSize" setReportSize
-          "setRetry" setRetry
-          "setTactic" setTactic
-          "removeAllResources" removeAllResources
-          "removeResourceWithThisDesc" removeResourceWithThisDesc
-          "removeResourceAt" removeResourceAt
-          "removeAllResourcesWithThisDesc" removeAllResourcesWithThisDesc
-          "getContainmentStatus" getContainmentStatus
-          "getFinalContainmentArea" getFinalContainmentArea
-          "getFinalCost" getFinalCost
-          "getFinalFireLineLength" getFinalFireLineLength
-          "getFinalFireSize" getFinalFireSize
-          "getFinalTimeSinceReport" getFinalTimeSinceReport
-          "getFireSizeAtInitialAttack" getFireSizeAtInitialAttack
-          "getPerimeterAtContainment" getPerimeterAtContainment
-          "getPerimeterAtInitialAttack" getPerimeterAtInitialAttack})
-
-
-(comment
-
-  (get-in @enum/all-enums ["AreaUnits" "Acres"])
-
-  (def contain (js/Module.SIGContainAdapter.))
-
-  ;; Setters
-
-  (.setAttackDistance contain 0 (get enum/length-units "Chains"))
-  (.setReportRate contain 5 (get enum/speed-units "ChainsPerHour"))
-  (.setReportSize contain 1 (get enum/area-units "Acres"))
-  (.setLwRatio contain 3.0)
-  (.setTactic contain (get enum/contain-tactic "HeadAttack"))
-  (.addResource contain 2 8 (get enum/time-units "Hours") 20 (get enum/speed-units "ChainsPerHour") "test")
-
-  ; m.addResource(2, 8, 2, 20, 1, "test")
-  ;; Run
-  (.doContainRun contain)
-
-  ;; Get the Ouputs
-  (.getFinalFireLineLength contain (get enum/length-units "Chains"))
-
-  ; FIXME Not working
-  (.getPerimiterAtInitialAttack contain (get enum/length-units "Chains"))
-
-  (.getFinalFireSize contain (get enum/area-units "Acres"))
-
-  (.getFinalContainmentArea contain (get enum/area-units "Acres"))
-
-  (.getFinalTimeSinceReport contain (get enum/time-units "Hours"))
-
-  (.getContainmentStatus contain)
-
-  (.getResourcesUsed contain) ; TODO: Not working
-
-  )

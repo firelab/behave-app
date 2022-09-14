@@ -1,12 +1,9 @@
 (ns behave.solver
   (:require [re-frame.core :as rf]
             [clojure.string :as str]
-            [behave.lib.core       :as lib]
-            [behave.lib.contain    :as contain]
-            [behave.lib.enums      :as enum]
-            [behave.lib.units      :as units]
-            [datascript.core       :as d]
-            [datom-utils.interface :as du]))
+            [behave.lib.contain :as contain]
+            [behave.lib.enums   :as enum]
+            [behave.lib.units   :as units]))
 
 (defn is-enum? [parameter-type]
   (or (str/includes? parameter-type "Enum")
@@ -48,17 +45,6 @@
                  [group-variable-id]]))
 
 ;; Cannot use pull due to the use of UUID's to join CPP ns/class/fns/param
-(defn group-variable->parameter [group-variable-id]
-  @(rf/subscribe [:query '[:find  [?p ?p-name]
-                          :in    $ ?gv
-                          :where [?gv :group-variable/cpp-parameter ?p-uuid]
-                                 [?p :bp/uuid ?p-uuid]
-                                 [?p :parameter/name ?p-name]
-                                 [?p :parameter/type ?p-type]
-                                 [?p :parameter/order ?p-order]]
-                 [group-variable-id]]))
-
-;; Cannot use pull due to the use of UUID's to join CPP ns/class/fns/param
 (defn parameter->group-variable [parameter-id]
   @(rf/subscribe [:query '[:find  [?gv ...]
                            :in    $ ?p
@@ -76,12 +62,6 @@
                           [?g :group/group-variables ?gv]]
                  [module-name io]]))
 
-(defn all-input-variables [module-name]
-  (module-variables module-name :input))
-
-(defn all-output-variables [module-name]
-  (module-variables module-name :output))
-
 (defn surface-solver [worksheet]
   (assoc-in worksheet [:results :surface] []))
 
@@ -92,8 +72,7 @@
   (let [[fn-id fn-name] (group-variable->fn gv-id)
         value  (if (discrete? gv-id) (get enum/contain-tactic value) value)
         unit   (variable-units gv-id)
-        f      (get module-fns fn-name)
-        _      (println fn-name)
+        f      ((symbol fn-name) module-fns)
         params (fn-params fn-id)]
     (println "Input:" fn-name value unit)
     (cond
@@ -112,7 +91,7 @@
 (defn- apply-multi-cpp-fn [module-fns module repeat-group]
   (let [[gv-id _]       (first repeat-group)
         [fn-id fn-name] (group-variable->fn gv-id)
-        f               (get module-fns fn-name)
+        f               ((symbol fn-name) module-fns)
         ; Step 1 - Lookup parameters of function
         params          (fn-params fn-id)
 
@@ -134,7 +113,7 @@
 (defn apply-output-cpp-fn [module-fns module gv-id]
   (let [[fn-id fn-name] (group-variable->fn gv-id)
         unit            (variable-units gv-id)
-        f               (get module-fns fn-name)
+        f               ((symbol fn-name) module-fns)
         params          (fn-params fn-id)]
     (println "Output:" fn-name unit)
     (cond
@@ -155,19 +134,19 @@
         ; Single Group w/ Single Variable
         (and (= 1 (count repeats)) (count (vals repeats)))
         (let [[gv-id value] (ffirst (vals repeats))]
-          (apply-single-cpp-fn contain/fns module gv-id value))
+          (apply-single-cpp-fn (ns-publics 'behave.lib.contain) module gv-id value))
 
         ; Multiple Groups w/ Single Variable
         (every? #(= 1 (count %)) (vals repeats))
         (doseq [[_ repeat-group] repeats]
           (let [[gv-id value] (first repeat-group)]
-            (apply-single-cpp-fn contain/fns module gv-id value)))
+            (apply-single-cpp-fn (ns-publics 'behave.lib.contain) module gv-id value)))
 
         ; Multiple Groups w/ Multiple Variables
         :else
         (doseq [[_ repeat-group] repeats]
           (println "MULTI" repeat-group)
-          (apply-multi-cpp-fn contain/fns module repeat-group))))
+          (apply-multi-cpp-fn (ns-publics 'behave.lib.contain) module repeat-group))))
 
     ; Run
     (contain/doContainRun module)
@@ -176,7 +155,7 @@
     (assoc-in worksheet
               [:results :contain]
               (reduce (fn [acc [gv-id]]
-                        (assoc acc gv-id (apply-output-cpp-fn contain/fns module gv-id)))
+                        (assoc acc gv-id (apply-output-cpp-fn (ns-publics 'behave.lib.contain) module gv-id)))
                       {}
                       outputs))))
 
