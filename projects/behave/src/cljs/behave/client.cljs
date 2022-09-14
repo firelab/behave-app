@@ -30,7 +30,7 @@
                     :ws/independent independent-worksheet-page
                     :ws/wizard      wizard/root-component
                     :ws/review      wizard/wizard-review-page
-                    :ws/results     results/root-component
+                    :ws/results     wizard/wizard-results-page
                     :settings/all   settings/root-component
                     :settings/page  settings/root-component
                     :tools/all      tools/root-component

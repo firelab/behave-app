@@ -17,26 +17,23 @@
       [:div.workflow-select__content
        [c/card-group {:on-select   #(rf/dispatch [:state/set [:worksheet :*workflow] (:workflow %)])
                       :cards       [{:title     @(<t "behaveplus:workflow:guided_title")
-                                     :selected? (= @*workflow :guided)
                                      :content   @(<t "behaveplus:workflow:guided_desc")
-                                     :icon-name {:icon-name "guided-work"
-                                                 :checked?  (= @*workflow :guided)}
+                                     :icons     [{:icon-name "guided-work"}]
+                                     :selected? (= @*workflow :guided)
                                      :order     0
                                      :workflow  :guided}
-                                    {:title    @(<t "behaveplus:workflow:independent_title")
-                                     :content  @(<t "behaveplus:workflow:independent_desc")
-                                     :icon-name {:icon-name "independent-work"
-                                                 :checked?  (= @*workflow :independent)}
+                                    {:title     @(<t "behaveplus:workflow:independent_title")
+                                     :content   @(<t "behaveplus:workflow:independent_desc")
+                                     :icons     [{:icon-name "independent-work"}]
                                      :selected? (= @*workflow :independent)
-                                     :order    1
-                                     :workflow :independent}
-                                    {:title    @(<t "behaveplus:workflow:import_title")
-                                     :content  @(<t "behaveplus:workflow:import_desc")
-                                     :icon-name {:icon-name "existing-run"
-                                                 :checked?  (= @*workflow :import)}
+                                     :order     1
+                                     :workflow  :independent}
+                                    {:title     @(<t "behaveplus:workflow:import_title")
+                                     :content   @(<t "behaveplus:workflow:import_desc")
+                                     :icons     [{:icon-name "existing-run"}]
                                      :selected? (= @*workflow :import)
-                                     :order    2
-                                     :workflow :import}]}]]
+                                     :order     2
+                                     :workflow  :import}]}]]
       [wizard-navigation {:next-label "Next"
                           :on-next #(rf/dispatch [:navigate (str "/worksheets/" (->str @*workflow))])}]]]))
 
@@ -51,11 +48,36 @@
         [:p @(<t "behaveplus:please_select_from_the_following_options")]]
        [:div.workflow-select__content
         [c/card-group {:on-select   #(rf/dispatch [:state/set [:worksheet :modules] (:module %)])
-                       :cards       [{:title     @(<t (bp "contain"))
-                                      :selected? (contains? @*modules :contain)
-                                      :icon-name "contain"
+                       :cards       [{:title     @(<t (bp "surface_and_crown"))
+                                      :content   "Lorem Ipsum"
+                                      :selected? (contains? @*modules :crown)
+                                      :icons     [{:icon-name "surface"} {:icon-name "crown"}]
                                       :order     0
-                                      :module    #{:contain}}]}]]
+                                      :module    #{:surface :crown}}
+                                     {:title     @(<t (bp "surface_only"))
+                                      :content   "Lorem Ipsum"
+                                      :selected? (and (= 1 (count @*modules)) (contains? @*modules :surface))
+                                      :icons     [{:icon-name "surface"}]
+                                      :order     1
+                                      :module    #{:surface}}
+                                     {:title     @(<t (bp "surface_and_contain"))
+                                      :content   "Lorem Ipsum"
+                                      :selected? (contains? @*modules :contain)
+                                      :icons     [{:icon-name "surface"} {:icon-name "contain"}]
+                                      :order     2
+                                      :module    #{:surface :contain}}
+                                     {:title     @(<t (bp "surface_and_mortality"))
+                                      :content   "Lorem Ipsum"
+                                      :selected? (and (contains? @*modules :mortality) (contains? @*modules :surface))
+                                      :icons     [{:icon-name "surface"} {:icon-name "mortality"}]
+                                      :order     3
+                                      :module    #{:surface :mortality}}
+                                     {:title     @(<t (bp "mortality_only"))
+                                      :content   "Lorem Ipsum"
+                                      :selected? (and (= 1 (count @*modules)) (contains? @*modules :mortality))
+                                      :icons     [{:icon-name "mortality"}]
+                                      :order     4
+                                      :module    #{:mortality}}]}]]
        [wizard-navigation {:next-label @(<t (bp "next"))
                            :back-label @(<t (bp "back"))
                            :on-back #(.back js/history)

@@ -68,24 +68,19 @@
 (defn repeat-group [{group-id :db/id} variables]
   (let [repeats (rf/subscribe [:state [:worksheet :repeat-groups group-id]])]
     [:<>
-     [c/button {:variant  "primary"
-                :label    "Add Resource"
-                :on-click #(rf/dispatch [:state/update [:worksheet :repeat-groups group-id] inc])}]
      (for [repeat-id (range (or @repeats 0))]
        ^{:key repeat-id}
        [:div.wizard-group__inputs
         (for [variable variables]
           ^{:key (:db/id variable)}
-          [wizard-input variable group-id repeat-id true])])]))
-
-(comment
-  (def worksheet @(rf/subscribe [:state :worksheet]))
-
-  (println worksheet)
-
-  ( worksheet-test)
-
-  )
+          [wizard-input variable group-id repeat-id true])])
+     [:div {:style {:display         "flex"
+                    :padding         "20px"
+                    :align-items     "center"
+                    :justify-content "center"}}
+      [c/button {:variant  "primary"
+                 :label    "Add Resource"
+                 :on-click #(rf/dispatch [:state/update [:worksheet :repeat-groups group-id] inc])}]]]))
 
 (defn input-group [group variables]
   (let [{group-name :group/name} group]

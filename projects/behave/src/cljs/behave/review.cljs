@@ -12,7 +12,7 @@
       [:div.wizard-header__banner
        [:div.wizard-header__banner__icon
         [c/icon :modules]]
-       [:div.wizard-header__banner__title (str "Contain Module: Review")]]]
+       [:div.wizard-header__banner__title "Contain Module: Review"]]]
      [:div.wizard-navigation
       [c/button {:label   "Back"
                  :variant "secondary"}]
