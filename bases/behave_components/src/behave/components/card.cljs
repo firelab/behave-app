@@ -1,27 +1,45 @@
 (ns behave.components.card
-  (:require [behave.components.icon :refer [icon]]))
+  (:require [behave.components.icon.default-icon :refer [icon]]))
 
-(defn card [{:keys [icon-name title content variant disabled? error? selected? on-select selected-fn] :as c}]
-  (let [selected? (if (fn? selected-fn) (selected-fn c) selected?)]
-    [:div {:class ["card"
-                   (when variant   (str "card--" variant))
-                   (when selected? "card--selected")
-                   (when disabled? "card--disabled")
-                   (when error?    "card--error")]
+(defn card [{:keys [title content size icons icon-position disabled? error? selected? on-select]
+             :as   c
+             :or   {icon-position "left"
+                    size          "normal"}}]
+  (let [icons-clj (js->clj icons :keywordize-keys true)]
+    [:div {:class    ["card"
+                      (str "card--" size)
+                      (when selected? "card--selected")
+                      (when disabled? "card--disabled")
+                      (when error?    "card--error")]
            :on-click #(on-select c)}
-     [:div {:class "card__icon"}
-      [icon icon-name]]
+     (when (= icon-position "top")
+       [:div {:class "card__header__icons"}
+        (for [icon-name icons-clj]
+          [:div {:class "card__header__icon"}
+           [icon (merge icon-name {:disabled? disabled?
+                                   :error?    error?
+                                   :selected? selected?})]])])
      [:div {:class "card__header"}
+      (when (= icon-position "left")
+        [:div {:class "card__header__icons"}
+         (for [icon-name icons-clj]
+           [:div {:class "card__header__icon"}
+            [icon (merge icon-name {:disabled? disabled?
+                                    :error?    error?
+                                    :selected? selected?})]])])
       [:div {:class "card__header__circle"}
        [:div {:class "card__header__circle__dot"}]]
       [:div {:class "card__header__title"} title]]
      [:p {:class "card__content"} content]]))
 
-(defn card-group [{:keys [cards on-select variant selected-fn]}]
-  [:div {:class "card-group"}
+(defn card-group [{:keys [cards card-size flex-direction icon-position on-select]
+                   :or   {flex-direction "row"
+                          card-size      "normal"
+                          icon-position  "left"}}]
+  [:div {:class ["card-group"
+                 (str "card-group--flex-direction-" flex-direction)]}
    (for [{:keys [order] :as c} (sort-by :order cards)]
-     ^{:key order}
      [:div {:class "card-group__card" :key order}
-      [card (merge c {:on-select on-select
-                      :variant variant
-                      :selected-fn selected-fn})]])])
+      [card (merge c {:on-select     on-select
+                      :size          card-size
+                      :icon-position icon-position})]])])

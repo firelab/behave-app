@@ -1,5 +1,5 @@
 (ns behave.components.button
-  (:require [behave.components.icon :refer [icon]]))
+  (:require [behave.components.icon.default-icon :refer [icon]]))
 
 (defn button [& [{:keys [variant size icon-name icon-position label on-click disabled? flat-edge selected?]
                   :or   {icon-position "left"}}]]
@@ -13,7 +13,8 @@
    (when (and icon-name (= icon-position "left"))
      [:div {:class "button__icon"}
       [icon icon-name]])
-   [:div {:class "button__label"} label]
+   (when (seq label)
+     [:div {:class "button__label"} label])
    (when (and icon-name (= icon-position "right"))
      [:div {:class "button__icon"}
       [icon icon-name]])])

@@ -1,8 +1,9 @@
 (ns behave.components.tab
   (:require [behave.components.button :refer [button]]))
 
-(defn tab [{:keys [label variant selected? on-click icon-name disabled? flat-edge size]
-            :or   {flat-edge "bottom"
+(defn tab [{:keys [label variant selected? on-click icon-name disabled? flat-edge size _order-id]
+            :or   {order-id  0
+                   flat-edge "bottom"
                    size      "normal"}
             :as   t}]
   [:div {:class ["tab"
@@ -28,7 +29,6 @@
                    (str "tab-group--flat-edge-" flat-edge)
                    (str "tab-group--align-" align)]}
      (for [t (sort-by :order-id tabs)]
-       ^{:key (:order-id t)}
        [tab (merge t {:variant   variant
                       :flat-edge flat-edge
                       :size      size
