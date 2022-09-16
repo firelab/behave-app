@@ -88,6 +88,8 @@
 
   (bidi/path-for routes :home)
 
+  (bidi/path-for routes :ws/results :id 1)
+
   (bidi/match-route routes "/")
   (bidi/match-route routes "/settings/")
   (bidi/match-route routes "/settings/derp")

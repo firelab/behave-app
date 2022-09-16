@@ -40,7 +40,7 @@
                               io.replikativ/datahike             {:mvn/version "0.5.1506"}
                               me.raynes/fs                       {:mvn/version "1.4.6"}
                               org.clojure/data.json              {:mvn/version "1.0.0"}
-                              org.clojure/data.xml               {:mvn/version "0.0.8"}
+                              org.clojure/data.xml               {:mvn/version "0.2.0-alpha7"}
                               ring/ring                          {:mvn/version "1.9.5"}
                               ring/ring-defaults                 {:mvn/version "0.3.3"}
                               ring/ring-headers                  {:mvn/version "0.3.0"}

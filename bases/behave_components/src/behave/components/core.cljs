@@ -160,6 +160,28 @@
        - `:label`     Label for the input.
        - `:id`        Form element id for the label and input.
        - `:name`      Form element name for the label and input.
+       - `:focus?`    Whether the input is focused.
+       - `:disabled?` Whether the input is disabled.
+       - `:error?`    Whether the input is in an error state.
+       - `:on-click`  Function called with the click event.
+       - `:on-load`   Function called with the load event.
+
+       Usage:
+          [number-input {:label    \"My Number\"
+                         :id       \"my-number\"
+                         :name     \"my-number\"
+                         :on-click #(println \"Changed!\")
+                         :on-load  #(println \"Changed!\")]"}
+  browse-input inputs/browse-input)
+
+(def ^{:argslist
+       '([config])
+
+       :doc
+       "Number input component which takes a hash-map of:
+       - `:label`     Label for the input.
+       - `:id`        Form element id for the label and input.
+       - `:name`      Form element name for the label and input.
        - `:min`       Minimum value.
        - `:max`       Maximum value.
        - `:disabled?` Whether the input is disabled.

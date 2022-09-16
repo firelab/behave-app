@@ -10,6 +10,7 @@ behaveplus:adding_moisture_scenarios,Adding Moisture Scenarios
 behaveplus:adding_notes,Adding Notes
 behaveplus:adding_resources,Adding Resources
 behaveplus:back,Back
+behaveplus:browse,Browse
 behaveplus:behaveplus_70,BehavePlus 7.0
 behaveplus:calculating_results,Calculating results
 behaveplus:change_module,Change Module
@@ -152,6 +153,7 @@ behaveplus:save,Save
 behaveplus:saved_warning,The progress made with the worksheet name is saved. Press below to start a new worksheet.
 behaveplus:search,Search
 behaveplus:second_resource,Second Resource
+behaveplus:select_a_file,Select a file.
 behaveplus:select_a_moisture_scenario,Select a Moisture Scenario
 behaveplus:select_graph_results,Select graph results
 behaveplus:select_range,Select Range

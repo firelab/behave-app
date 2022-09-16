@@ -962,23 +962,38 @@ p {
 /* -- Browse Input -- */
 
 .input-browse {
-  flex-direction: row;
+  position: relative;
   display: flex;
+  flex-direction: row;
   align-items: center;
   padding: 10px 20px;
   border: 1px solid var(--gray-3);
+  overflow: hidden;
+}
+
+
+.input-browse__input {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  opacity: 0;
+  right: 0px;
+  bottom: 0px;
+  cursor: pointer;
 }
 
 .input-browse__label {
   margin-left: 11px;
 }
 
+.input-browse:hover,
+.input-browse:focus,
 .input-browse--focused {
-  border: 1px solid var(--almost-black);
+  border-color: var(--almost-black);
 }
 
 .input-browse--error {
-  border: 1px solid var(--error);
+  border-color: var(--error);
 }
 
 .input-browse--error .input-browse__label {
