@@ -136,9 +136,32 @@
 .workflow-select {}
 
 .workflow-select__header {
+  display: flex;
+  flex-direction: column;
   padding: 30px;
   background-color: var(--gray-1);
   border-bottom: 1px solid var(--gray-3);
+}
+
+.workflow-select__header .tab {
+  display: flex;
+  flex-direction: column;
+}
+
+.workflow-select__header__title svg {
+  padding-right: 15px
+}
+
+.workflow-select__header > .tab .button {
+  cursor: default;
+  display: flex;
+  flex-direction: row;
+}
+
+.workflow-select__header__title {
+  padding: 13px;
+  display: flex;
+  flex-direction: row;
 }
 
 .workflow-select__content {
