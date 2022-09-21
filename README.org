@@ -1,0 +1,66 @@
+#+TITLE: Behave Polylith
+
+* Prerequisites
+
++ OpenJDK 17
++ [[https://clojure.org/guides/install_clojure][Clojure]]
+
+* Getting Started
+
+**  Emacs/CIDER
+
+1. Pull down the repository (~git clone git@gitlab.com:sig-gis/behave-polylith~)
+1. Pull down the submodules (~git submodule update --recursive --remote~)
+1. Open ~development/user.cljs~ in Emacs
+1. Start the CIDER nREPL ~cider-jack-in-clj&cljs~
+1. Choose ~figwheel-main~ and ~dev~ for the front-end build.
+1. Open ~http://localhost:8080~ in your browser.
+
+* Architecture
+
+** Polylith
+This project adopts a Polylith design, which allows both a mono-repo
+experience across mulitple projects.
+
+*** What is a Polylith?
+The [[https://polylith.gitbook.io/polylith/][Polylith]] project organization method attempts to marry the best parts of operating within a
+single Monorepo (single source of truth, DRY code, less repos to manage), with
+the benefits of having single repos for each project (customization).
+
+The Polylith design is made up of three parts: Components, Bases, and Projects.
+
+***  Components
+This is the most basic unit for Polylith. Ideally, Components require few, if
+any, dependencies. Each component always has an ~<component>.interface~
+namespace, which includes the public functions that are meant to be exported
+from the component. Components (ideally) are written in the Clojure Common (~*.cljc~)
+format so as to be used in both CLJ and CLJS environments.
+
+***  Bases
+Bases are groups of components and other dependencies that constitute a
+middle-tier of the Polylith. Bases can be project-specific, but ideally are
+general enough to be used across multiple projects. Bases typically
+only have a ~main.clj[sc]~ file.
+
+***  Projects
+Projects are made up of multiple bases and components. Many projects can exist
+within a Polylith, which enables a great deal of customization while also
+sharing components and bases across projects.
+
+** Components Library
+
+The projects take advantage of the [[https://gitlab.com/sig-gis/behave-components][Behave Components]] shared UI components
+library. Check out the docs on the Behave Components page to learn more.
+
+** Reagent & Re-Frame
+
+The projects use both [[https://reagent-project.github.io/][Reagent]] and [[https://day8.github.io/re-frame][Re-Frame]] to manage application state
+and application logic. Re-Frame was adopted to reduce tight coupling
+between views/components and the data/actions that are used within them.
+
+** Datalog & Datoms
+
+The projects store data in Datoms and performs queries using the
+Datalog syntax. The back-end access Datoms using [[https://github.com/replikativ/datahike][DataHike]], and the
+front-end accesses Datoms through [[https://github.com/tonsky/datascript][DataScript]]. [[https://github.com/denistakeda/re-posh][Re-Posh]] is also used to
+enable subscriptions on DataScript entities, reducing view logic.

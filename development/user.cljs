@@ -10,6 +10,7 @@
             [ajax.protocols :as pr]
             [behave.schema.core :refer [all-schemas]]))
 
+(.-location js/window)
 
 (re-frisk/enable)
 
