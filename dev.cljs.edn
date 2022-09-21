@@ -1,0 +1,7 @@
+{:main          "behave.client"
+ :output-dir    "projects/behave/resources/public/js/out"
+ :output-to     "projects/behave/resources/public/js/out/app.js"
+ :asset-path    "/js/out"
+ :source-map    true
+ :optimizations :none
+ :pretty-print  true}
