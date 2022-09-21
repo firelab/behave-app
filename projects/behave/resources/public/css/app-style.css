@@ -1,0 +1,370 @@
+@charset "UTF-8";
+
+/* -- App -- */
+#app {
+  width: 100%;
+  height: 100vh;
+}
+/* -- End App -- */
+
+/* -- Page -- */
+.page {
+  height: 100vh;
+  display: grid;
+  grid-template-columns: 2fr 14fr;
+  grid-auto-rows: 2fr 8fr;
+  column-gap: 60px;
+  row-gap: 30px;
+  background-color: var(--gray-2);
+}
+/* -- End Page -- */
+
+/* -- Sidebar Container -- */
+.sidebar-container {
+  width: 180px;
+  display: flex;
+  flex-direction: column;
+}
+/* -- End Sidebar Container -- */
+
+/* -- Container -- */
+.container {
+  display: grid;
+  grid-template-columns: 6fr 4fr;
+  column-gap: 30px;
+}
+/* -- End Container -- */
+
+/* -- Header -- */
+.header {
+  background-color: var(--white);
+}
+/* -- End Header -- */
+
+/* -- Top Bar -- */
+.top-bar {
+  width: 100%;
+}
+/* -- End Top Bar -- */
+
+.toolbar {
+  display: flex;
+  flex-direction: row;
+}
+
+/* -- Footer Area -- */
+.footer-bar {
+
+}
+/* -- End Footer Area -- */
+
+/* -- Progress Indicator -- */
+.progress-indicator {
+}
+/* -- End Progress Indicator -- */
+
+/* -- Sidebar -- */
+.sidebar__header {
+  height: 40px;
+  width: 100%;
+}
+/* -- End Sidebar -- */
+
+/* -- Identity -- */
+.behave-identity {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--white);
+}
+
+/* -- End Identity -- */
+
+/* -- Sidebar Group -- */
+.sidebar-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: var(--white);
+  box-shadow: 0px 2px 3px var(--black);
+}
+
+.sidebar-group:not(:first-child) {
+  margin-top: 20px;
+}
+
+.sidebar-group__header {
+
+}
+
+.sidebar-group__module {
+  height: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sidebar-group__module__icon {
+  height: 50px;
+  width: 50px;
+}
+
+.sidebar-group__module__label {
+
+}
+/* -- End Modules Group -- */
+
+/* -- Working Area -- */
+.working-area {
+  border-radius: 8px 8px 0px 0px;
+  background-color: var(--white);
+}
+
+.working-area__title {
+  padding: 10px 20px;
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  color: var(--white);
+  background-color: var(--darkblue-4);
+  border-radius: 8px 8px 0px 0px;
+}
+/* -- End Working Area -- */
+
+/* -- Work Style Select -- */
+.workflow-select {}
+
+.workflow-select__header {
+  display: flex;
+  flex-direction: column;
+  padding: 30px;
+  background-color: var(--gray-1);
+  border-bottom: 1px solid var(--gray-3);
+}
+
+.workflow-select__header .tab {
+  display: flex;
+  flex-direction: column;
+}
+
+.workflow-select__header__title svg {
+  padding-right: 15px
+}
+
+.workflow-select__header > .tab .button {
+  cursor: default;
+  display: flex;
+  flex-direction: row;
+}
+
+.workflow-select__header__title {
+  padding: 13px;
+  display: flex;
+  flex-direction: row;
+}
+
+.workflow-select__content {
+  padding-top: 30px;
+}
+/* -- End Work Style Select -- */
+
+/* - Wizard - */
+
+.wizard {
+  background-color: var(--white);
+}
+
+.wizard-header {
+  margin-bottom: 15px;
+}
+
+.wizard-header__banner {
+  display: flex;
+  align-items: center;
+  padding: 0px 20px 10px;
+  margin-top: -20px;
+}
+
+.wizard-header__banner__icon {
+  margin-right: 32px;
+}
+
+.wizard-header__banner__title {
+  margin-right: 32px;
+  font-size: var(--font-size-22);
+  font-weight: var(--font-weight-300);
+}
+
+.wizard-header__submodule-tabs > .tab-group > .tab:first-child {
+  margin-left: 20px;
+}
+
+.wizard-navigation {
+  display: flex;
+  flex-direction: row;
+  padding: 10px;
+  justify-content: space-between;
+}
+
+.wizard-group__header {
+  padding: 5px 18px;
+  color: white;
+  background-color: var(--darkblue-4);
+}
+
+.wizard-group__inputs {
+  padding: 25px 30px;
+}
+
+.wizard-group__outputs {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  padding-bottom: 20px;
+}
+
+.wizard-output {
+  padding: 25px 20px 0px;
+}
+
+.wizard-input {
+  display:flex;
+}
+
+.wizard-input__input {
+  width: 70%;
+}
+
+.wizard-input__description {
+  width: 30%;
+}
+
+.wizard-input__description__units {
+  color: var(--gray-5);
+  font-size: var(--font-size-14);
+}
+
+/* - End Wizard - */
+
+/* -- Help Area -- */
+.help-area {
+
+}
+
+.help-area__tab-group {
+
+}
+
+.help-area__tab-group__tab {
+
+}
+
+.help-area__content {
+  padding:2%;
+  font-family: 'Roboto', sans-serif;
+  background: var(--white);
+  overflow-x: hidden;
+  overflow-y: scroll;
+  height: 100%;
+}
+
+.help-area__content h1,
+.help-area__content h2,
+.help-area__content h3,
+.help-area__content h4,
+.help-area__content h5,
+.help-area__content h6 {
+    margin: 0px;
+}
+
+/* Help Headers */
+
+.help-area__content h1 {
+    font-size: 2em;
+    font-weight: 500;
+    line-height: 32px;
+    padding-bottom: 0px;
+}
+
+.help-area__content h2 {
+    font-size: 1.700em;
+    font-weight: 400;
+    line-height: 1.700em;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #707070;
+}
+
+.help-area__content h3 {
+    font-size: 1.300em;
+    font-weight: 300;
+    line-height: 1.600em;
+}
+
+.help-area__content h4 {
+    font-size: 1.200em;
+    font-weight: 500;
+    line-height: 18px;
+    margin-top: 20px;
+    color: #13486A;
+}
+
+.help-area__content h5 {
+    font-size: 1.200em;
+    font-weight: 500;
+    line-height: 18px;
+    color: white;
+    background: #3F454A;
+    padding: 10px 10px 10px 10px;
+    margin-bottom: 0px;
+}
+
+.help-area__content h6 {
+    color:black;
+    font-size: 1.200em;
+    font-weight: 400;
+    line-height: 18px;
+    margin-top: 20px;
+    text-decoration: underline;
+}
+
+.help-area__content p {
+    font-size: 1.000em;
+    font-weight: 400;
+    line-height: 26px;
+    margin-bottom: 30px;
+    margin-top: 12px;
+}
+
+.help-area__content hr {
+    padding-bottom: 6px;
+}
+
+/* Highlight */
+
+.help-area__content .highlight {
+    background: #EDF2F5;
+    width: 100%;
+    padding: 0px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.help-area__content .highlight h1,
+.help-area__content .highlight h2,
+.help-area__content .highlight h3,
+.help-area__content .highlight h4,
+.help-area__content .highlight h5,
+.help-area__content .highlight h6 {
+    color: white;
+    background: #5788A7;
+    padding: 10px 10px 10px 10px;
+    margin-bottom: 0px;
+    text-decoration: underline;
+}
+
+.help-area__content .highlight p {
+    padding: 10px 10px 20px 10px;
+    margin-top: 0px;
+}
+/* -- End Help Area -- */

@@ -1,0 +1,65 @@
+(ns behave.schema.module
+  (:require [clojure.spec.alpha :as s]))
+
+;;; Validation Fns
+
+(defn valid-key? [s]
+  (re-find #"^[a-z:]+$" s))
+
+;;; Spec
+
+(s/def :module/id              uuid?)
+(s/def :module/name            string?)
+(s/def :module/order           (s/and integer?
+                                      #(<= 0 %)))
+(s/def :module/translation-key (s/and string? valid-key?))
+(s/def :module/help-key        (s/and string? valid-key?))
+(s/def :module/submodules      set?)
+
+(s/def :behave/module (s/keys :req [:module/id
+                                    :module/name
+                                    :module/order
+                                    :module/translation-key
+                                    :module/help-key]
+                              :opt [:module/submodules]))
+
+;;; Schema
+
+(def schema
+  [{:db/ident       :module/id
+    :db/doc         "Module's ID."
+    :db/valueType   :db.type/uuid
+    :db/cardinality :db.cardinality/one}
+   {:db/ident       :module/name
+    :db/doc         "Module's name."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+   {:db/ident       :module/order
+    :db/doc         "Module's order."
+    :db/valueType   :db.type/number
+    :db/cardinality :db.cardinality/one}
+   {:db/ident       :module/submodules
+    :db/doc         "Module's submodules."
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many}
+   {:db/ident       :module/translation-key
+    :db/doc         "Module's translation key."
+    :db/valueType   :db.type/string
+    :db/unique      :db.unique/identity
+    :db/cardinality :db.cardinality/one}
+   {:db/ident       :module/help-key
+    :db/doc         "Module's help key."
+    :db/valueType   :db.type/string
+    :db/unique      :db.unique/identity
+    :db/cardinality :db.cardinality/one}])
+
+;;; Testing
+
+(comment
+  (s/valid? :behave/module {:module/id #uuid "5eb87bf7-9501-4d50-9eee-7d0ffadbb1d0"
+                            :module/name "Contain"
+                            :module/order 1
+                            :module/translation-key "behaveplus:contain"
+                            :module/help-key "behaveplus:contain:help"})
+
+)

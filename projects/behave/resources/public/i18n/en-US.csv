@@ -1,0 +1,201 @@
+behaveplus:24_hour_clock,24-hour clock
+behaveplus:a_brief_phrase_documenting_the_run,A brief phrase documenting the run
+behaveplus:about,About
+behaveplus:add,Add
+behaveplus:add_moisture_scenario,Add Moisture Scenario
+behaveplus:add_note,Add Note
+behaveplus:add_notes,Add Notes
+behaveplus:add_resources,Add Resources
+behaveplus:adding_moisture_scenarios,Adding Moisture Scenarios
+behaveplus:adding_notes,Adding Notes
+behaveplus:adding_resources,Adding Resources
+behaveplus:back,Back
+behaveplus:behaveplus_70,BehavePlus 7.0
+behaveplus:calculating_results,Calculating results
+behaveplus:change_module,Change Module
+behaveplus:change_units,Change Units
+behaveplus:change_values,Change Values
+behaveplus:characters_not_allowed,Characters not allowed
+behaveplus:close_notes,Close Notes
+behaveplus:contain,Contain
+behaveplus:contain_inputs,Contain Inputs
+behaveplus:contain_results,Contain Results
+behaveplus:contain_status,Contain Status
+behaveplus:contain_worksheet,Contain Worksheet
+behaveplus:contained_area,Contained Area
+behaveplus:containment,Containment
+behaveplus:containment_diagram,Containment Diagram
+behaveplus:crown,Crown
+behaveplus:dbh_diameter_at_breast_height,DBH - Diameter at Breast Height
+behaveplus:delete,Delete
+behaveplus:deleting_notes,Deleting Notes
+behaveplus:display_graph_results,Display Graph Results
+behaveplus:display_graph_y_axis_limits,Display Graph Y Axis Limits
+behaveplus:display_table_results,Display Table Results
+behaveplus:edit,Edit
+behaveplus:editing_notes,Editing Notes
+behaveplus:enter_description,Enter description.
+behaveplus:enter_notes_name_or_category,Enter note’s name or category
+behaveplus:enter_resources_name,Enter resource’s name.
+behaveplus:enter_values_or_click_the_button_to_select_the_range,Enter values or click the button to select the range.
+behaveplus:entire_file_name,Entire file name.
+behaveplus:example,Example
+behaveplus:extensions_supported,Extensions supported:
+behaveplus:file_name,File Name
+behaveplus:fire,Fire
+behaveplus:fire_area_at_initial_attack,Fire Area at Initial Attack
+behaveplus:fire_area_at_resource_arrival_time,Fire Area - at resource arrival time
+behaveplus:fire_containment,Fire Containment
+behaveplus:fire_management_system,Fire Management System
+behaveplus:fire_modeling_system,Fire Modeling System
+behaveplus:fire_perimeter_at_initial_attack_ch,Fire Perimeter at Initial Attack (ch)
+behaveplus:fire_perimeter_at_resource_arrival_time,Fire Perimeter - at resource arrival time
+behaveplus:fire_size_at_report,Fire Size at Report
+behaveplus:fire_size_at_resource_arrival_time,Fire Size - at resource arrival time
+behaveplus:fireline_constructed,Fireline Constructed
+behaveplus:first_resource,First Resource
+behaveplus:from,From
+behaveplus:fuel_d1l1,D1L1 - Very low dead, fully cured herb
+behaveplus:full_size_at_report,Full Size at Report
+behaveplus:get_range,Get Range
+behaveplus:graph,Graph
+behaveplus:graph_and_axis_limits,Graph & Axis Limits
+behaveplus:graph_contain_status,Graph Contain Status
+behaveplus:graph_y_variables,Graph Y variables
+behaveplus:graphs,Graphs
+behaveplus:graphs_and_axis_limits,Graphs & Axis Limits
+behaveplus:graphs_results,Graphs Results
+behaveplus:workflow:guided_title,Guided workflow
+behaveplus:workflow:guided_desc,Start from a template from our worksheet library.
+behaveplus:guides_and_manuals,Guides & Manuals
+behaveplus:head_attack,Head Attack
+behaveplus:help,Help
+behaveplus:home,Home
+behaveplus:home_screen,Home Screen
+behaveplus:hours,Hours
+behaveplus:imperial_units_ranges_are,Imperial units ranges are:
+behaveplus:workflow:independent_title,Independent workflow
+behaveplus:workflow:independent_desc,Recommended for experienced users of BehavePlus.
+behaveplus:index,Index
+behaveplus:info,Info
+behaveplus:information,Information
+behaveplus:input_selections,Input Selections
+behaveplus:inputs,Inputs
+behaveplus:inputs_selections,Inputs Selections
+behaveplus:length_to_width_ratio,Length-to-Width Ratio
+behaveplus:line_construction_offset,Line Construction Offset
+behaveplus:list_of_file_extensions_supported,List of file extensions supported:
+behaveplus:managing_resources,Managing Resources
+behaveplus:metric_units_ranges_are,Metric units: Ranges are:
+behaveplus:module,Module
+behaveplus:module_inputs_selections,Module Inputs Selections
+behaveplus:module_options,Module Options
+behaveplus:module_outputs_selections,Module Outputs Selections
+behaveplus:module_selection,Module Selection
+behaveplus:modules,Modules
+behaveplus:modules_selection,Modules Selection
+behaveplus:modules_selections,Modules Selections
+behaveplus:moisture_scenario,Moisture Scenario
+behaveplus:moisture_scenario_name_values,Moisture Scenario Name Values
+behaveplus:moisture_scenario_selection,Moisture Scenario Selection
+behaveplus:moisture_scenarios,Moisture Scenarios
+behaveplus:mortality,Mortality
+behaveplus:mortality_only,Mortality Only
+behaveplus:name_your_file,Name your file
+behaveplus:naming_resources,Naming Resources
+behaveplus:new_worksheet,New Worksheet
+behaveplus:next,Next
+behaveplus:note,Note
+behaveplus:notes,Notes
+behaveplus:number_of_characters,# of characters
+behaveplus:number_of_moisture_scenarios,Number of Moisture Scenario(s):
+behaveplus:number_of_resources,Number of Resources:
+behaveplus:number_of_resources_used,Number of Resources Used
+behaveplus:workflow:import_title,Open or import an existing file.
+behaveplus:workflow:import_desc,File extensions supported: *.bp6 (XML) or *.bp7 (SQLite)
+behaveplus:output_range,OUTPUT RANGE
+behaveplus:output_selections_fire,Output Selections: Fire
+behaveplus:outputs,Outputs
+behaveplus:outputs_selections,Outputs Selections
+behaveplus:please_complete_the_missing_information_andor_correct_the_errors,Please complete the missing information and/or correct the errors.
+behaveplus:please_select_a_work_style,Please select a work style.
+behaveplus:please_select_from_the_following_options,Please select from the following options
+behaveplus:please_select_from_the_following_templates,Please select from the following templates
+behaveplus:press_below_to_start_a_new_worksheet,Press below to start a new worksheet.
+behaveplus:previous_screen,Previous Screen
+behaveplus:print,Print
+behaveplus:production_rate_chh,Production Rate (ch/h)
+behaveplus:programming_notes,Programming Notes:
+behaveplus:range_fire_size_at_report,Range: Fire Size at Report
+behaveplus:range_length_to_width_ratio,Range: Length-to-Width Ratio
+behaveplus:range_line_construction_offset,Range: Line Construction Offset
+behaveplus:range_surface_rate_of_spread_maximum,Range: Surface Rate of Spread (maximum)
+behaveplus:rear_attack,Rear Attack
+behaveplus:required,Required
+behaveplus:reset_to_defaults,Reset to defaults
+behaveplus:resource,Resource
+behaveplus:resource_arrival_time,Resource Arrival Time
+behaveplus:resource_arrival_time_h,Resource Arrival Time (h)
+behaveplus:resource_duration,Resource Duration
+behaveplus:resource_line_production_rate,Resource Line Production Rate
+behaveplus:resources,Resources
+behaveplus:resources_name,Resource’s Name
+behaveplus:results_selections,Results Selections
+behaveplus:results_tables,Results Tables
+behaveplus:results_view,Results View
+behaveplus:return_to_current_workflow,Return to current workflow
+behaveplus:run_date,Run Date
+behaveplus:run_description,Run Description
+behaveplus:run_notes,Run Notes
+behaveplus:run_results,Run Results
+behaveplus:save,Save
+behaveplus:saved_warning,The progress made with the worksheet name is saved. Press below to start a new worksheet.
+behaveplus:search,Search
+behaveplus:second_resource,Second Resource
+behaveplus:select_a_moisture_scenario,Select a Moisture Scenario
+behaveplus:select_graph_results,Select graph results
+behaveplus:select_range,Select Range
+behaveplus:select_the_row_variable,Select the row variable
+behaveplus:selecting_axis,Selecting Axis
+behaveplus:selection,Selection
+behaveplus:settings,Settings
+behaveplus:share,Share
+behaveplus:skip,Skip
+behaveplus:steps,Steps
+behaveplus:suppression,Suppression
+behaveplus:suppression_inputs,Suppression Inputs
+behaveplus:suppression_tactic,Suppression Tactic
+behaveplus:surface,Surface
+behaveplus:surface_and_contain,Surface & Contain
+behaveplus:surface_and_crown,Surface & Crown
+behaveplus:surface_and_mortality,Surface & Mortality
+behaveplus:surface_module_options,Surface Module Options
+behaveplus:surface_only,Surface Only
+behaveplus:surface_rate_of_spread,Surface Rate of Spread
+behaveplus:surface_rate_of_spread_maximum,Surface Rate of Spread (maximum)
+behaveplus:table,Table
+behaveplus:tables,Tables
+behaveplus:tables_selections,Tables Selections
+behaveplus:thru,Thru
+behaveplus:time,Time
+behaveplus:time_from_report,Time from Report
+behaveplus:tip,Tip
+behaveplus:to,To
+behaveplus:tools,Tools
+behaveplus:tools_and_settings,Tools & Settings
+behaveplus:two_input_variables_have_multiple_values,Two input variables have multiple values.
+behaveplus:units_used,Units used
+behaveplus:values,Values
+behaveplus:variable,Variable
+behaveplus:viewing_graphs,Viewing Graphs
+behaveplus:viewing_tables,Viewing Tables
+behaveplus:welcome_message,Welcome to BehavePlus 7.0
+behaveplus:work_style,Work Style
+behaveplus:working_area,Working Area
+behaveplus:worksheet,Worksheet
+behaveplus:worksheet_review,Worksheet Review
+behaveplus:worksheet_templates,Worksheet Templates
+behaveplus:y_axis_maximum,Y Axis Maximum
+behaveplus:y_axis_minimum,Y Axis Minimum
+behaveplus:you_can_add_up_to_10_resources,You can add up to 10 resources.
+behaveplus:you_can_edit_andor_delete_resources,You can edit and/or delete resources

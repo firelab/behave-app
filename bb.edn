@@ -1,0 +1,19 @@
+{:paths ["scripts"]
+ :tasks
+ {:requires   ([babashka.fs :as fs]
+               [manage      :as m])
+
+  component   (let [component (first *command-line-args*)]
+                (println (format "Creating new component: %s" component))
+                (m/new-component component)
+                (println (format "Done! \n\n Please add \"components/%s/src\" to the :paths section of your deps.edn file." component)))
+
+  base        (let [base (first *command-line-args*)]
+                   (println (format "Creating new base: %s" base))
+                   (m/new-base base)
+                   (println (format "Done! \n\n Please add \"bases/%s/src\" to the :paths section of your deps.edn file." base)))
+
+  project     (let [project (first *command-line-args*)]
+                   (println (format "Creating new project: %s" project))
+                   (m/new-project project)
+                   (println (format "Done! \n\n Please add \"projects/%s/src\" to the :paths section of your deps.edn file." project)))}}

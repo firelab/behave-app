@@ -1,0 +1,18 @@
+{:database {:host     "localhost"
+            :port     5432
+            :dbname   "behave"
+            :user     "behave"
+            :password "behave"
+            :config {:store {:backend :file :path "/Users/rsheperd/Code/sig/behave-polylith/projects/behave/resources/db"}}}
+ :site     {:title       "BehavePlus 7"
+            :description "Wildfire Analysis toolkit."}
+ :server   {:http-port 8002
+            :mode      "dev"}
+ :mail     {:host     "smtp.gmail.com"
+            :user     "support@sig-gis.com"
+            :pass     "atfrxfmpqkkijjsn"
+            :tls      true
+            :port     587
+            :site-url "https://behave.sig-gis.com"}
+ :secret-token "883kljlsl36dnll9s9l2ls8xksl"
+ :vms      {:secret-token "b4c8a1048d5e406c93cc828e34ac9fc6"}}
