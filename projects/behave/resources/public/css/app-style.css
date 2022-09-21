@@ -143,10 +143,6 @@
   border-bottom: 1px solid var(--gray-3);
 }
 
-.workflow-select__header .tab {
-  display: flex;
-  flex-direction: column;
-}
 
 .workflow-select__header__title svg {
   padding-right: 15px
@@ -167,6 +163,22 @@
 .workflow-select__content {
   padding-top: 30px;
 }
+
+.workflow-select__content .module-icon__hover-mask {
+  visibility: hidden;
+}
+
+.workflow-select__content .module-icon {
+  width: 60px;
+  height: 60px;
+}
+
+.workflow-select__content .module-icon__hover-mask,
+.workflow-select__content .module-icon--selected .module-icon__hover-mask,
+.workflow-select__content .module-icon:hover .module-icon__hover-mask {
+  visibility: hidden;
+}
+
 /* -- End Work Style Select -- */
 
 /* - Wizard - */

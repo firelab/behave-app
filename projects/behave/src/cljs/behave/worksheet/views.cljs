@@ -50,22 +50,49 @@
 
 ;; TODO use title
 (defn independent-worksheet-page [params]
-  (let [*modules (rf/subscribe [:state [:worksheet :*modules]])
-        title    @(<t "behaveplus:working_area")]
-    [:<>
-     [:div.workflow-select
-      [workflow-select-header]
-      [:div.workflow-select__content
-       [c/card-group {:on-select #(rf/dispatch [:state/set [:worksheet :*modules] (:module %)])
-                      :cards     [{:title     @(<t (bp "contain"))
-                                   :selected? (contains? @*modules :contain)
-                                   :icon-name "contain"
-                                   :order     0
-                                   :module    #{:contain}}]}]]
-      [wizard-navigation {:next-label @(<t (bp "next"))
-                          :back-label @(<t (bp "back"))
-                          :on-back    #(.back js/history)
-                          :on-next    #(rf/dispatch [:navigate "/worksheets/1/modules/contain/output/fire"])}]]]))
+  (let [*modules (rf/subscribe [:state [:worksheet :*modules]])]
+    [:div.workflow-select
+     [workflow-select-header]
+     [:div.workflow-select__content
+      [c/card-group {:on-select      #(rf/dispatch [:state/set [:worksheet :*modules] (:module %)])
+                     :flex-direction "row"
+                     :cards          [{:order     1
+                                       :title     @(<t (bp "surface_and_crown"))
+                                       :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                                       :icons     [{:icon-name "surface"}
+                                                   {:icon-name "crown"}]
+                                       :selected? (= @*modules #{:surface :crown})
+                                       :module    #{:surface :crown}}
+                                      {:order     2
+                                       :title     @(<t (bp "surface_only"))
+                                       :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                                       :icons     [{:icon-name "surface"}]
+                                       :selected? (= @*modules #{:surface})
+                                       :module    #{:surface}}
+                                      {:order     3
+                                       :title     @(<t (bp "surface_and_contain"))
+                                       :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                                       :icons     [{:icon-name "surface"}
+                                                   {:icon-name "contain"}]
+                                       :selected? (= @*modules #{:surface :contain})
+                                       :module    #{:surface :contain}}
+                                      {:order     4
+                                       :title     @(<t (bp "surface_and_mortality"))
+                                       :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                                       :icons     [{:icon-name "surface"}
+                                                   {:icon-name "mortality"}]
+                                       :selected? (= @*modules #{:surface :mortality})
+                                       :module    #{:surface :mortality}}
+                                      {:order     5
+                                       :title     @(<t (bp "mortality_only"))
+                                       :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                                       :icons     [{:icon-name "mortality"}]
+                                       :selected? (= @*modules #{:mortality})
+                                       :module    #{:mortality}}]}]]
+     [wizard-navigation {:next-label @(<t (bp "next"))
+                         :back-label @(<t (bp "back"))
+                         :on-back    #(.back js/history)
+                         :on-next    #(rf/dispatch [:navigate "/worksheets/1/modules/contain/output/fire"])}]]))
 
 (defn guided-worksheet-page [params]
   [:<>
