@@ -1,0 +1,7 @@
+{:css-dirs            ["projects/behave/resources/public/css"]
+ :watch-dirs          ["projects/behave/src/cljs"
+                       "bases/behave_components/src"]
+ :ring-server-options {:port 8081 :join? false}
+ :ring-handler        behave.core/development-app
+ :open-url            "http://localhost:8081/worksheets"
+ :clean-outputs       true}
