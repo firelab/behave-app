@@ -9,29 +9,29 @@
 
 /* -- Page -- */
 .page {
-  height: 100vh;
-  display: grid;
   grid-template-columns: 2fr 14fr;
   grid-auto-rows: 2fr 8fr;
   column-gap: 60px;
   row-gap: 30px;
+  display: grid;
+  height: 100vh;
   background-color: var(--gray-2);
 }
 /* -- End Page -- */
 
 /* -- Sidebar Container -- */
 .sidebar-container {
-  width: 180px;
-  display: flex;
   flex-direction: column;
+  display: flex;
+  width: 180px;
 }
 /* -- End Sidebar Container -- */
 
 /* -- Container -- */
 .container {
-  display: grid;
   grid-template-columns: 6fr 4fr;
   column-gap: 30px;
+  display: grid;
 }
 /* -- End Container -- */
 
@@ -48,35 +48,24 @@
 /* -- End Top Bar -- */
 
 .toolbar {
-  display: flex;
   flex-direction: row;
+  display: flex;
 }
-
-/* -- Footer Area -- */
-.footer-bar {
-
-}
-/* -- End Footer Area -- */
-
-/* -- Progress Indicator -- */
-.progress-indicator {
-}
-/* -- End Progress Indicator -- */
 
 /* -- Sidebar -- */
 .sidebar__header {
-  height: 40px;
   width: 100%;
+  height: 40px;
 }
 /* -- End Sidebar -- */
 
 /* -- Identity -- */
 .behave-identity {
-  height: 100%;
-  width: 100%;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
   background-color: var(--white);
 }
 
@@ -84,8 +73,8 @@
 
 /* -- Sidebar Group -- */
 .sidebar-group {
-  display: flex;
   flex-direction: column;
+  display: flex;
   align-items: center;
   background-color: var(--white);
   box-shadow: 0px 2px 3px var(--black);
@@ -94,27 +83,17 @@
 .sidebar-group:not(:first-child) {
   margin-top: 20px;
 }
-
-.sidebar-group__header {
-
-}
-
 .sidebar-group__module {
-  height: 80px;
-  display: flex;
   flex-direction: column;
+  display: flex;
   align-items: center;
+  height: 80px;
 }
 
 .sidebar-group__module__icon {
-  height: 50px;
   width: 50px;
-}
-
-.sidebar-group__module__label {
-
-}
-/* -- End Modules Group -- */
+  height: 50px;
+}/* -- End Modules Group -- */
 
 /* -- Working Area -- */
 .working-area {
@@ -124,23 +103,21 @@
 
 .working-area__title {
   padding: 10px 20px;
+  border-radius: 8px 8px 0px 0px;
   font-weight: var(--font-weight-medium);
   text-transform: uppercase;
   color: var(--white);
   background-color: var(--darkblue-4);
-  border-radius: 8px 8px 0px 0px;
 }
 /* -- End Working Area -- */
 
 /* -- Work Style Select -- */
-.workflow-select {}
-
 .workflow-select__header {
-  display: flex;
   flex-direction: column;
+  display: flex;
   padding: 30px;
-  background-color: var(--gray-1);
   border-bottom: 1px solid var(--gray-3);
+  background-color: var(--gray-1);
 }
 
 
@@ -149,15 +126,15 @@
 }
 
 .workflow-select__header > .tab .button {
-  cursor: default;
-  display: flex;
   flex-direction: row;
+  display: flex;
+  cursor: default;
 }
 
 .workflow-select__header__title {
-  padding: 13px;
-  display: flex;
   flex-direction: row;
+  display: flex;
+  padding: 13px;
 }
 
 .workflow-select__content {
@@ -194,8 +171,8 @@
 .wizard-header__banner {
   display: flex;
   align-items: center;
-  padding: 0px 20px 10px;
   margin-top: -20px;
+  padding: 0px 20px 10px;
 }
 
 .wizard-header__banner__icon {
@@ -213,10 +190,10 @@
 }
 
 .wizard-navigation {
-  display: flex;
   flex-direction: row;
-  padding: 10px;
+  display: flex;
   justify-content: space-between;
+  padding: 10px;
 }
 
 .wizard-group__header {
@@ -230,9 +207,9 @@
 }
 
 .wizard-group__outputs {
-  display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  display: flex;
   padding-bottom: 20px;
 }
 
@@ -253,32 +230,20 @@
 }
 
 .wizard-input__description__units {
-  color: var(--gray-5);
   font-size: var(--font-size-14);
+  color: var(--gray-5);
 }
 
 /* - End Wizard - */
 
 /* -- Help Area -- */
-.help-area {
-
-}
-
-.help-area__tab-group {
-
-}
-
-.help-area__tab-group__tab {
-
-}
-
 .help-area__content {
-  padding:2%;
-  font-family: 'Roboto', sans-serif;
-  background: var(--white);
   overflow-x: hidden;
   overflow-y: scroll;
   height: 100%;
+  padding:2%;
+  font-family: 'Roboto', sans-serif;
+  background: var(--white);
 }
 
 .help-area__content h1,
@@ -293,18 +258,18 @@
 /* Help Headers */
 
 .help-area__content h1 {
+    padding-bottom: 0px;
     font-size: 2em;
     font-weight: 500;
     line-height: 32px;
-    padding-bottom: 0px;
 }
 
 .help-area__content h2 {
+    padding-bottom: 6px;
+    border-bottom: 1px solid #707070;
     font-size: 1.700em;
     font-weight: 400;
     line-height: 1.700em;
-    padding-bottom: 6px;
-    border-bottom: 1px solid #707070;
 }
 
 .help-area__content h3 {
@@ -314,38 +279,38 @@
 }
 
 .help-area__content h4 {
+    margin-top: 20px;
     font-size: 1.200em;
     font-weight: 500;
     line-height: 18px;
-    margin-top: 20px;
     color: #13486A;
 }
 
 .help-area__content h5 {
+    margin-bottom: 0px;
+    padding: 10px 10px 10px 10px;
     font-size: 1.200em;
     font-weight: 500;
     line-height: 18px;
     color: white;
     background: #3F454A;
-    padding: 10px 10px 10px 10px;
-    margin-bottom: 0px;
 }
 
 .help-area__content h6 {
-    color:black;
+    margin-top: 20px;
     font-size: 1.200em;
     font-weight: 400;
     line-height: 18px;
-    margin-top: 20px;
     text-decoration: underline;
+    color:black;
 }
 
 .help-area__content p {
+    margin-top: 12px;
+    margin-bottom: 30px;
     font-size: 1.000em;
     font-weight: 400;
     line-height: 26px;
-    margin-bottom: 30px;
-    margin-top: 12px;
 }
 
 .help-area__content hr {
@@ -355,11 +320,11 @@
 /* Highlight */
 
 .help-area__content .highlight {
-    background: #EDF2F5;
     width: 100%;
-    padding: 0px;
     margin-top: 20px;
     margin-bottom: 20px;
+    padding: 0px;
+    background: #EDF2F5;
 }
 
 .help-area__content .highlight h1,
@@ -368,15 +333,15 @@
 .help-area__content .highlight h4,
 .help-area__content .highlight h5,
 .help-area__content .highlight h6 {
+    margin-bottom: 0px;
+    padding: 10px 10px 10px 10px;
+    text-decoration: underline;
     color: white;
     background: #5788A7;
-    padding: 10px 10px 10px 10px;
-    margin-bottom: 0px;
-    text-decoration: underline;
 }
 
 .help-area__content .highlight p {
-    padding: 10px 10px 20px 10px;
     margin-top: 0px;
+    padding: 10px 10px 20px 10px;
 }
 /* -- End Help Area -- */
