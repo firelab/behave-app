@@ -1,1 +1,0 @@
-(ns behave-components.test)
