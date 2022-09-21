@@ -4,6 +4,7 @@
             [behave.translate             :refer [<t bp]]
             [behave.worksheet.events]
             [re-frame.core                :as rf]
+            [reagent.core                 :as r]
             [string-utils.interface       :refer [->str]]))
 
 (defn- workflow-select-header []
@@ -104,22 +105,19 @@
   (let [file (r/track #(or @(rf/subscribe [:state [:worksheet :file]])
                            @(<t (bp "select_a_file"))))]
     [:<>
-     [c/accordion
-      {:title @(<t (bp "working_area"))}
-      [:<>
-       [:div.workflow-select
-        [:div.workflow-select__header
-         [:h3 @(<t (bp "module_selection"))]
-         [:p @(<t (bp "please_select_from_the_following_options"))]]
-        [:div.workflow-select__content
-         [c/browse-input {:button-label @(<t (bp "browse"))
-                          :accept       ".bpr,bpw,.bp6,.bp7"
-                          :label        @file
-                          :on-change    #(rf/dispatch [:ws/worksheet-selected (.. % -target -files)])}]
-         [wizard-navigation {:next-label @(<t (bp "next"))
-                             :back-label @(<t (bp "back"))
-                             :on-back    #(.back js/history)
-                             :on-next    #(rf/dispatch [:navigate "/worksheets/1/modules/contain/output/fire"])}]]]]]]))
+     [:div.workflow-select
+      [:div.workflow-select__header
+       [:h3 @(<t (bp "module_selection"))]
+       [:p @(<t (bp "please_select_from_the_following_options"))]]
+      [:div.workflow-select__content
+       [c/browse-input {:button-label @(<t (bp "browse"))
+                        :accept       ".bpr,bpw,.bp6,.bp7"
+                        :label        @file
+                        :on-change    #(rf/dispatch [:ws/worksheet-selected (.. % -target -files)])}]
+       [wizard-navigation {:next-label @(<t (bp "next"))
+                           :back-label @(<t (bp "back"))
+                           :on-back    #(.back js/history)
+                           :on-next    #(rf/dispatch [:navigate "/worksheets/1/modules/contain/output/fire"])}]]]]))
 
 ;; TODO use title
 (defn new-worksheet-page [params]
