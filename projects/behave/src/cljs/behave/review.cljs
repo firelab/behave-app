@@ -3,21 +3,21 @@
             [behave.components.core :as c]
             [behave.translate :refer [<t bp]]))
 
+;; TODO use title
 (defn root-component [params]
-  [c/accordion
-   {:title @(<t (bp "working_area"))}
-   [:<>
-    [:div.workflow-select
-     [:div.workflow-select__header
-      [:div.wizard-header__banner
-       [:div.wizard-header__banner__icon
-        [c/icon :modules]]
-       [:div.wizard-header__banner__title (str "Contain Module: Review")]]]
-     [:div.wizard-navigation
-      [c/button {:label   "Back"
-                 :variant "secondary"}]
-      [c/button {:label   "Run"
-                 :variant       "highlight"
-                 :icon-name     "arrow2"
-                 :icon-position "right"
-                 :on-click      #(rf/dispatch [:wizard/solve params])}]]]]])
+  (let [title @(<t (bp "working_area"))]
+    [:<>
+     [:div.workflow-select
+      [:div.workflow-select__header
+       [:div.wizard-header__banner
+        [:div.wizard-header__banner__icon
+         [c/icon :modules]]
+        [:div.wizard-header__banner__title (str "Contain Module: Review")]]]
+      [:div.wizard-navigation
+       [c/button {:label   "Back"
+                  :variant "secondary"}]
+       [c/button {:label         "Run"
+                  :variant       "highlight"
+                  :icon-name     "arrow2"
+                  :icon-position "right"
+                  :on-click      #(rf/dispatch [:wizard/solve params])}]]]]))

@@ -31,7 +31,7 @@
   Example:
   ```
   (defn my-component []
-    [:btn (<t \"success\")])
+    [:btn @(<t \"success\")])
   ```"
   [translation-key]
   (subscribe [:t translation-key]))

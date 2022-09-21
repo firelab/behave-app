@@ -5,7 +5,7 @@
 (defn sidebar-module [{icon-name :icon translation-key :label}]
   (let [translation (<t translation-key)]
     [:div.sidebar-group__module
-     [:div.sidebar-group__module__icon [icon icon-name]]
+     [:div.sidebar-group__module__icon [icon {:icon-name icon-name}]]
      [:div.sidebar-group__module__label @translation]]))
 
 (defn sidebar-group [{:keys [modules]}]
