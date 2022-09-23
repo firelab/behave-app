@@ -48,8 +48,21 @@
 /* -- End Top Bar -- */
 
 .toolbar {
-  flex-direction: row;
+  flex-direction: column;
   display: flex;
+  height: 145px;
+  z-index: -2;
+}
+
+.toolbar__tools {
+  display: flex;
+  flex-direction: row;
+  padding: 22px;
+  margin-left: auto;
+}
+
+.toolbar__tools .input-text {
+  padding-left: 70px;
 }
 
 /* -- Sidebar -- */
