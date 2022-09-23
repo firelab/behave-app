@@ -50,15 +50,15 @@
 .toolbar {
   flex-direction: column;
   display: flex;
-  height: 145px;
   z-index: -2;
+  height: 145px;
 }
 
 .toolbar__tools {
-  display: flex;
   flex-direction: row;
-  padding: 22px;
+  display: flex;
   margin-left: auto;
+  padding: 22px;
 }
 
 .toolbar__tools .input-text {
