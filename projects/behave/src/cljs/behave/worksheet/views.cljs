@@ -8,10 +8,11 @@
 
 (defn- workflow-select-header [{:keys [icon header description]}]
   [:div.workflow-select__header
-   [c/tab {:variant   "outline-primary"
-           :selected? true
-           :label     @(<t "behaveplus:working_area")}]
    [:div.workflow-select__header__title
+    [c/tab {:variant   "outline-primary"
+           :selected? true
+           :label     @(<t "behaveplus:working_area")}]]
+   [:div.workflow-select__header__content
     [c/icon {:icon-name icon}]
     [:div
      [:h3 header]

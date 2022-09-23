@@ -119,18 +119,23 @@
   background-color: var(--gray-1);
 }
 
-.workflow-select__header__title svg {
+.workflow-select__header__content svg {
   padding-right: 15px
 }
 .accordion__header > .tab > .button,
-.workflow-select__header > .tab > .button {
+.workflow-select__header__title > .tab > .button {
   display: block;
   width: 100%;
   text-align: left;
   pointer-events: none;
 }
 
-.workflow-select__header__title {
+.accordion__header .button__label,
+.workflow-select__header__title .button__label {
+  text-transform: uppercase;
+}
+
+.workflow-select__header__content {
   flex-direction: row;
   display: flex;
   padding: 13px;
