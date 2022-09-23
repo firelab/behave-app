@@ -115,20 +115,19 @@
 .workflow-select__header {
   flex-direction: column;
   display: flex;
-  padding: 30px;
   border-bottom: 1px solid var(--gray-3);
   background-color: var(--gray-1);
 }
 
-
 .workflow-select__header__title svg {
   padding-right: 15px
 }
-
-.workflow-select__header > .tab .button {
-  flex-direction: row;
-  display: flex;
-  cursor: default;
+.accordion__header > .tab > .button,
+.workflow-select__header > .tab > .button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  pointer-events: none;
 }
 
 .workflow-select__header__title {
@@ -138,7 +137,7 @@
 }
 
 .workflow-select__content {
-  padding-top: 30px;
+  padding-top: 15px;
 }
 
 .workflow-select__content .module-icon__hover-mask {
