@@ -10,7 +10,7 @@
 **  Emacs/CIDER
 
 1. Pull down the repository (~git clone git@gitlab.com:sig-gis/behave-polylith~)
-1. Pull down the submodules (~git submodule update --recursive --remote~)
+1. Pull down the submodules (~git submodule update --init --remote~)
 1. Open ~development/user.cljs~ in Emacs
 1. Start the CIDER nREPL ~cider-jack-in-clj&cljs~
 1. Choose ~figwheel-main~ and ~dev~ for the front-end build.

@@ -7,45 +7,51 @@
             [reagent.core                 :as r]
             [string-utils.interface       :refer [->str]]))
 
-(defn- workflow-select-header []
+(defn- workflow-select-header [{:keys [icon header description]}]
   [:div.workflow-select__header
-   [c/tab {:variant   "outline-primary"
-           :selected? true
-           :label     @(<t "behaveplus:working_area")}]
    [:div.workflow-select__header__title
-    [c/icon "modules"]
+    [c/tab {:variant   "outline-primary"
+           :selected? true
+           :label     @(<t "behaveplus:working_area")}]]
+   [:div.workflow-select__header__content
+    [c/icon {:icon-name icon}]
     [:div
-     [:h3 @(<t "behaveplus:module_selection")]
-     [:p @(<t "behaveplus:please_select_from_the_following_options")]]]])
+     [:h3 header]
+     [:p description]]]])
 
 (defn workflow-select [params]
   (let [*workflow (rf/subscribe [:state [:worksheet :*workflow]])]
     [:<>
      [:div.workflow-select
-      [workflow-select-header]
+      [workflow-select-header
+       {:icon        "existing-run" ;TODO update when LOGO is available
+        :header      @(<t (bp "welcome_message"))
+        :description @(<t (bp "please_select_a_work_style"))}]
       [:div.workflow-select__content
-       [c/card-group {:on-select #(rf/dispatch [:state/set [:worksheet :*workflow] (:workflow %)])
-                      :cards     [{:title     @(<t "behaveplus:workflow:guided_title")
-                                   :selected? (= @*workflow :guided)
-                                   :content   @(<t "behaveplus:workflow:guided_desc")
-                                   :icons     [{:icon-name "guided-work"
-                                                :checked?  (= @*workflow :guided)}]
-                                   :order     0
-                                   :workflow  :guided}
-                                  {:title     @(<t "behaveplus:workflow:independent_title")
-                                   :content   @(<t "behaveplus:workflow:independent_desc")
-                                   :icons     [{:icon-name "independent-work"
-                                                :checked?  (= @*workflow :independent)}]
-                                   :selected? (= @*workflow :independent)
-                                   :order     1
-                                   :workflow  :independent}
-                                  {:title     @(<t "behaveplus:workflow:import_title")
-                                   :content   @(<t "behaveplus:workflow:import_desc")
-                                   :icons     [{:icon-name "existing-run"
-                                                :checked?  (= @*workflow :import)}]
-                                   :selected? (= @*workflow :import)
-                                   :order     2
-                                   :workflow  :import}]}]]
+       [c/card-group {:on-select      #(rf/dispatch [:state/set [:worksheet :*workflow] (:workflow %)])
+                      :flex-direction "column"
+                      :card-size      "large"
+                      :cards          [{:title     @(<t "behaveplus:workflow:guided_title")
+                                        :selected? (= @*workflow :guided)
+                                        :content   @(<t "behaveplus:workflow:guided_desc")
+                                        :icons     [{:icon-name "guided-work"
+                                                     :checked?  (= @*workflow :guided)}]
+                                        :order     0
+                                        :workflow  :guided}
+                                       {:title     @(<t "behaveplus:workflow:independent_title")
+                                        :content   @(<t "behaveplus:workflow:independent_desc")
+                                        :icons     [{:icon-name "independent-work"
+                                                     :checked?  (= @*workflow :independent)}]
+                                        :selected? (= @*workflow :independent)
+                                        :order     1
+                                        :workflow  :independent}
+                                       {:title     @(<t "behaveplus:workflow:import_title")
+                                        :content   @(<t "behaveplus:workflow:import_desc")
+                                        :icons     [{:icon-name "existing-run"
+                                                     :checked?  (= @*workflow :import)}]
+                                        :selected? (= @*workflow :import)
+                                        :order     2
+                                        :workflow  :import}]}]]
       [wizard-navigation {:next-label "Next"
                           :on-next    #(rf/dispatch [:navigate (str "/worksheets/" (->str @*workflow))])}]]]))
 
@@ -53,7 +59,10 @@
 (defn independent-worksheet-page [params]
   (let [*modules (rf/subscribe [:state [:worksheet :*modules]])]
     [:div.workflow-select
-     [workflow-select-header]
+     [workflow-select-header
+      {:icon        "modules"
+       :header      @(<t (bp "module_selection"))
+       :description @(<t (bp "please_select_from_the_following_options"))}]
      [:div.workflow-select__content
       [c/card-group {:on-select      #(rf/dispatch [:state/set [:worksheet :*modules] (:module %)])
                      :flex-direction "row"

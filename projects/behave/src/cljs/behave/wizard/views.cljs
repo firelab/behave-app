@@ -137,10 +137,11 @@
   (let [loaded? (rf/subscribe [:state :loaded?])]
     [:div.accordion
      [:div.accordion__header
-      [:div.accordion__header__title @(<t (bp "working_area"))]]
+      [c/tab {:variant   "outline-primary"
+              :selected? true
+              :label     @(<t "behaveplus:working_area")}]]
      [:div.wizard
       (if @loaded?
         [wizard-page params]
         [:div.wizard__loading
          [:h2 "Loading..."]])]]))
-
