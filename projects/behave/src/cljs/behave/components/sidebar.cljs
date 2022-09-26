@@ -1,26 +1,66 @@
 (ns behave.components.sidebar
-  (:require [behave.components.core :refer [icon]]
-            [behave.translate       :refer [<t]]))
+  (:require
+   [behave.components.core :as c]
+   [behave.translate       :refer [<t bp]]
+   [re-frame.core          :as rf]))
 
-(defn sidebar-module [{icon-name :icon translation-key :label}]
+(defn- sidebar-header [title]
+  [:div.sidebar-group__header
+   [c/tab {:variant "outline-primary"
+           :label   title}]])
+
+(defn- sidebar-module [{icon-name :icon translation-key :label on-select :on-select selected? :selected? :as c}]
   (let [translation (<t translation-key)]
-    [:div.sidebar-group__module
-     [:div.sidebar-group__module__icon [icon {:icon-name icon-name}]]
-     [:div.sidebar-group__module__label @translation]]))
+    [:div {:class    "sidebar-group__module"
+           :on-click #(on-select c)}
+     [:div.sidebar-group__module__icon
+      [c/icon {:icon-name icon-name
+               :selected? selected?}]]
+     [:div.sidebar-group__module__label
+      @translation]]))
 
-(defn sidebar-group [{:keys [modules]}]
+(defn- sidebar-group [{:keys [modules title]}]
   [:div.sidebar-group
-   [:div.sidebar-group__header "Modules"]
-   (for [module modules]
+   [sidebar-header title]
+   (for [module (sort-by :order-id modules)]
      ^{:key (:label module)}
      [sidebar-module module])])
 
 (defn sidebar []
-  [:div.sidebar-container
-   [sidebar-group {:modules [{:label "behaveplus:surface"   :icon :surface}
-                             {:label "behaveplus:crown"     :icon :crown}
-                             {:label "behaveplus:mortality" :icon :mortality}
-                             {:label "behaveplus:contain"   :icon :contain}]}]
-   [sidebar-group {:title   ""
-                   :modules [{:label "behaveplus:tools"     :icon :tools}
-                             {:label "behaveplus:settings"  :icon :settings}]}]])
+  (let [*sidebar-modules (rf/subscribe [:state [:sidebar :*modules]])
+        on-select        #(rf/dispatch [:state/set [:sidebar :*modules] (:module %)])]
+    [:div.sidebar-container
+     [sidebar-group {:title   @(<t (bp "modules"))
+                     :modules (if @*sidebar-modules
+                                (for [module @*sidebar-modules]
+                                  {:label     (str "behaveplus:" (name module))
+                                   :icon      (name module)
+                                   :selected? (contains? @*sidebar-modules module)
+                                   :module    #{module}})
+                                [{:label     "behaveplus:surface"
+                                  :icon      "surface"
+                                  :on-select on-select
+                                  :selected? (contains? @*sidebar-modules :surface)
+                                  :module    #{:surface}}
+
+                                 {:label     "behaveplus:crown"
+                                  :icon      "crown"
+                                  :on-select on-select
+                                  :selected? (contains? @*sidebar-modules :crown)
+                                  :module    #{:surface :crown}}
+
+                                 {:label     "behaveplus:contain"
+                                  :icon      "contain"
+                                  :on-select on-select
+                                  :selected? (contains? @*sidebar-modules :contain)
+                                  :module    #{:surface :contain}}
+
+                                 {:label     "behaveplus:mortality"
+                                  :icon      "mortality"
+                                  :on-select on-select
+                                  :selected? (contains? @*sidebar-modules :mortality)
+                                  :module    #{:mortality}}])}]
+     [sidebar-group {:title     @(<t (bp "tools_and_settings"))
+                     :modules   [{:label "behaveplus:tools" :icon "tools2"}
+                                 {:label "behaveplus:settings" :icon "settings2"}]
+                     :on-select on-select}]]))
