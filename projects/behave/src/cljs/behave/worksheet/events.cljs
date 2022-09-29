@@ -1,6 +1,7 @@
 (ns behave.worksheet.events
   (:require [re-frame.core   :as rf]
-            [behave.importer :refer [import-worksheet]]))
+            [behave.importer :refer [import-worksheet]]
+            [behave.solver   :refer [solve-worksheet]]))
 
 (rf/reg-fx :ws/import-worksheet import-worksheet)
 
@@ -11,11 +12,9 @@
       {:db                  (assoc-in db [:state :worksheet :file] (.-name file))
        :ws/import-worksheet (import-worksheet file)})))
 
-(comment
-
-  (rf/clear-sub :ws/worksheet-solve)
-  (rf/clear-subscription-cache!)
-
-  (rf/dispatch [:worksheet/solve])
-
-  )
+(rf/reg-event-db
+  :worksheet/solve
+  (fn [{:keys [state] :as db} _]
+    (assoc-in db
+              [:state :worksheet :results]
+              (solve-worksheet (:worksheet state)))))

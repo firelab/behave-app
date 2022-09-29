@@ -1,7 +1,7 @@
 (ns behave.wizard.views
-  (:require [re-frame.core :as rf]
-            [behave.translate :refer [<t bp]]
-            [behave.components.core :as c]
+  (:require [re-frame.core                  :refer [dispatch subscribe]]
+            [behave.translate               :refer [<t bp]]
+            [behave.components.core         :as c]
             [behave.components.output-group :refer [output-group]]
             [behave.components.input-group  :refer [input-group]]
             [behave.wizard.events]
@@ -33,9 +33,9 @@
                    :flat-edge "top"
                    :align     "right"
                    :on-click  #(when (not= io (:tab %))
-                                 (rf/dispatch [:wizard/select-tab (assoc params
-                                                                         :io (:tab %)
-                                                                         :submodule first-submodule)]))
+                                 (dispatch [:wizard/select-tab (assoc params
+                                                                      :io (:tab %)
+                                                                      :submodule first-submodule)]))
                    :tabs      [{:label "Outputs" :tab :output :selected? (= io :output)}
                                {:label "Inputs" :tab :input :selected? (= io :input)}]}]]))
 
@@ -50,7 +50,7 @@
        (str module-name " Module")]]
      [:div.wizard-header__submodule-tabs
       [c/tab-group {:variant  "outline-primary"
-                    :on-click #(rf/dispatch [:wizard/select-tab (assoc params :submodule (:tab %))])
+                    :on-click #(dispatch [:wizard/select-tab (assoc params :submodule (:tab %))])
                     :tabs     (map (fn [{s-name :submodule/name slug :slug}]
                                      {:label     s-name
                                       :tab       slug
@@ -60,19 +60,19 @@
   [:div.wizard-navigation
    [c/button {:label         "Back"
               :variant       "secondary"
-              :on-click      #(rf/dispatch [:wizard/prev-tab params])}]
+              :on-click      #(dispatch [:wizard/prev-tab params])}]
 
    [c/button {:label         "Next"
               :variant       "highlight"
               :icon-name     "arrow2"
               :icon-position "right"
-              :on-click      #(rf/dispatch [:wizard/next-tab *module *submodule all-submodules params])}]])
+              :on-click      #(dispatch [:wizard/next-tab *module *submodule all-submodules params])}]])
 
 (defn wizard-page [{:keys [module io submodule] :as params}]
-  (let [*module    (rf/subscribe [:wizard/*module module])
-        submodules (rf/subscribe [:wizard/submodules (:db/id @*module)])
-        *submodule (rf/subscribe [:wizard/*submodule (:db/id @*module) submodule io])
-        *groups    (rf/subscribe [:wizard/groups (:db/id @*submodule)])]
+  (let [*module    (subscribe [:wizard/*module module])
+        submodules (subscribe [:wizard/submodules (:db/id @*module)])
+        *submodule (subscribe [:wizard/*submodule (:db/id @*module) submodule io])
+        *groups    (subscribe [:wizard/groups (:db/id @*submodule)])]
 
     [:div.wizard-page
      [wizard-header @*module @submodules params]
@@ -99,7 +99,7 @@
                  :variant       "highlight"
                  :icon-name     "arrow2"
                  :icon-position "right"
-                 :on-click      #(rf/dispatch [:wizard/solve params])}]]]]])
+                 :on-click      #(dispatch [:worksheet/solve params])}]]]]])
 
 (defn wizard-results-page [_]
   (let [results   (rf/subscribe [:state [:worksheet :results]])
@@ -134,7 +134,7 @@
 ;;; Public Components
 
 (defn root-component [params]
-  (let [loaded? (rf/subscribe [:state :loaded?])]
+  (let [loaded? (subscribe [:state :loaded?])]
     [:div.accordion
      [:div.accordion__header
       [c/tab {:variant   "outline-primary"

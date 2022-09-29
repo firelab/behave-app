@@ -96,6 +96,4 @@
 
 (comment
   (-main)
-  (server/stop-server!)
-  )
-
+  (server/stop-server!))

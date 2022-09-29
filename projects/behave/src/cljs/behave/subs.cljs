@@ -1,8 +1,9 @@
 (ns behave.subs
-  (:require [bidi.bidi :refer [match-route]]
-            [re-frame.core :as rf]
-            [re-posh.core :as rp]
-            [behave-routing.main :refer [routes]]))
+  (:require [bidi.bidi           :refer [match-route]]
+            [re-frame.core       :as rf]
+            [re-posh.core        :as rp]
+            [behave-routing.main :refer [routes]]
+            [behave.vms.subs]))
 
 ;; Taken from https://lambdaisland.com/blog/11-02-2017-re-frame-form-1-subscriptions
 (def <sub (comp deref rf/subscribe))
