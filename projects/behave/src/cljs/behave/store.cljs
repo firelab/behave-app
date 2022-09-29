@@ -28,28 +28,18 @@
 (defn- load-data-handler [[ok body]]
   (when ok
     (let [datoms (mapv #(apply d/datom %) (c/unpack body))]
-      #_(println "-- First Datoms" datoms)
       (swap! sync-txs union (txs datoms))
       (rf/dispatch-sync [:ds/initialize (->ds-schema all-schemas) datoms])
       (rf/dispatch-sync [:state/set :loaded? true]))))
 
 (defn load-store! []
-  (ajax-request {:uri "/layout.msgpack"
-                 :handler load-data-handler
-                 :format {:content-type "application/text" :write str}
-                 :response-format {:description "ArrayBuffer"
-                                   :type :arraybuffer
+  (ajax-request {:uri             "/sync"
+                 :handler         load-data-handler
+                 :format          {:content-type "application/text" :write str}
+                 :response-format {:description  "ArrayBuffer"
+                                   :type         :arraybuffer
                                    :content-type "application/msgpack"
-                                   :read pr/-body}}))
-
-#_(defn load-store! []
-  (ajax-request {:uri "/sync"
-                 :handler load-data-handler
-                 :format {:content-type "application/text" :write str}
-                 :response-format {:description "ArrayBuffer"
-                                   :type :arraybuffer
-                                   :content-type "application/msgpack"
-                                   :read pr/-body}}))
+                                   :read         pr/-body}}))
 
 (defn sync-tx-data [{:keys [tx-data]}]
   (let [datoms (->> tx-data (filter new-datom?) (mapv split-datom))]

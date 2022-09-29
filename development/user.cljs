@@ -1,18 +1,7 @@
 (ns user
-  (:require [datascript.core :as d]
-            [re-frame.core :as rf]
-            [clojure.edn :as edn]
-            [re-posh.core :as rp]
-            [re-frisk.core :as re-frisk]
-            [datom-compressor.interface :as c]
-            [ds-schema-utils.interface :refer [->ds-schema]]
-            [ajax.core :refer [ajax-request GET]]
-            [ajax.protocols :as pr]
-            [behave.schema.core :refer [all-schemas]]))
+  (:require [re-frame.core :as rf]))
 
 (.-location js/window)
-
-(re-frisk/enable)
 
 (defn clear! [k]
   (rf/clear-sub k)
@@ -20,6 +9,9 @@
 
 (comment
 
+  (clear! :vms/pull-children)
+
+  (rf/subscribe [:vms/pull-children :module/name])
   (rf/subscribe [:query '[:find ?e ?name
                           :where [?e :submodule/name ?name]]])
   (rf/subscribe [:pull '[* {:submodule/groups [* {:group/group-variables [* {:variable/_group_variables [*]}]}]}] 2727])

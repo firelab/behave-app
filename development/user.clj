@@ -1,10 +1,10 @@
-(ns user)
+(ns user
+  (:require [behave.core :as core]
+            [fig-repl :as r]))
 
 (comment
-  (require '[behave.core :as core])
   (core/init!)
 
-  (require '[fig-repl :as r])
   (r/start-figwheel!)
 
   ;; Connect to 1337
