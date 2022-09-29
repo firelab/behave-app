@@ -1,6 +1,6 @@
 (ns behave.worksheet.events
-  (:require [re-frame.core :as rf]
-            [behave.import :refer [import-worksheet]]))
+  (:require [re-frame.core   :as rf]
+            [behave.importer :refer [import-worksheet]]))
 
 (rf/reg-fx :ws/import-worksheet import-worksheet)
 
