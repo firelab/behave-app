@@ -92,13 +92,44 @@
      [:div.wizard-review
       "TODO: Add table of current values"]
      [:div.wizard-navigation
-      [c/button {:label   "Back"
-                 :variant "secondary"}]
-      [c/button {:label   "Run"
+      [c/button {:label    "Back"
+                 :variant  "secondary"
+                 :on-click #(rf/dispatch [:wizard/prev-tab params])}]
+      [c/button {:label         "Run"
                  :variant       "highlight"
                  :icon-name     "arrow2"
                  :icon-position "right"
                  :on-click      #(dispatch [:worksheet/solve params])}]]]]])
+
+(defn wizard-results-page [_]
+  (let [results   (rf/subscribe [:state [:worksheet :results]])
+        variables (rf/subscribe [:pull-many '[* {:variable/_group-variables [*]}] (keys (:contain @results))])
+        results (map (fn [value v]
+                       {:name (-> v (:variable/_group-variables) (first) (:variable/name))
+                        :value value})
+                     (vals (:contain @results))
+                     @variables)]
+    [:div.accordion
+     [:div.accordion__header
+      [:div.accordion__header__title @(<t (bp "working_area"))]]
+     [:div.wizard-page
+      [:div.wizard-header
+       [:div.wizard-header__banner {:style {:margin-top "20px"}}
+        [:div.wizard-header__banner__icon
+         [c/icon :modules]]
+        [:div.wizard-header__banner__title "Results"]]
+       [:div.wizard-review
+        [c/table {:title "Contain Results"
+                  :headers ["Variable Name" "Value"]
+                  :columns [:name :value]
+                  :rows    results}]]
+        [:div.wizard-navigation
+         [c/button {:label   "Back"
+                    :variant "secondary"}]
+         [c/button {:label         "Next"
+                    :variant       "highlight"
+                    :icon-name     "arrow2"
+                    :icon-position "right"}]]]]]))
 
 ;;; Public Components
 

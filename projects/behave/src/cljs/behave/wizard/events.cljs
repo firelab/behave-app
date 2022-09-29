@@ -1,8 +1,8 @@
 (ns behave.wizard.events
   (:require [bidi.bidi :refer [path-for]]
             [re-frame.core :as rf]
-            [behave-routing.main :refer [routes]]))
-
+            [behave-routing.main :refer [routes]]
+            [behave.solver :refer [solve-worksheet]]))
 
 (rf/reg-event-fx
   :wizard/select-tab
@@ -52,3 +52,12 @@
                                       :ws/review
                                       :id id))]
       {:fx [[:dispatch [:navigate path]]]})))
+
+(rf/reg-event-fx
+  :wizard/solve
+  (fn [{db :db} [_ {:keys [id]}]]
+    (let [{:keys [state]} db
+          worksheet       (solve-worksheet (:worksheet state))
+          path            (path-for routes :ws/results :id id)]
+      {:fx [[:dispatch [:navigate path]]]
+       :db (assoc-in db [:state :worksheet] worksheet)})))

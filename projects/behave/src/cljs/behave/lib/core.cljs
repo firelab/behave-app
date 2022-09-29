@@ -4,9 +4,3 @@
 
 (defn get-enum [enum member]
   (get-in @enums/all-enums [enum member]))
-
-(comment
-
-  (get @enums/all-enums "AreaUnits" "Acres")
-
-  )

@@ -11,6 +11,7 @@
 
            ;; Common
            cljs-ajax/cljs-ajax       {:mvn/version "0.8.4"}
+           org.clojure/data.xml      {:mvn/version "0.2.0-alpha7"}
 
            ;; ClojureScript
            org.clojure/clojurescript {:mvn/version "1.10.866"}

@@ -5,7 +5,10 @@
 
 (def initial-state {:router       {:history       []
                                    :curr-position 0}
-                    :state        {:io :output}
+                    :state        {:io :output
+                                   :worksheet {:inputs        {}
+                                               :outputs       {}
+                                               :repeat-groups {}}}
                     :translations {"en-US" {"behaveplus" "BehavePlus"}}
                     :settings     {:language "en-US"}})
 
@@ -44,6 +47,20 @@
         (and (or (vector? orig-value) (seq? orig-value))
              (or (vector? value) (seq? orig-value)))
         (update-in state path into value)))))
+
+(rf/reg-event-db
+  :state/update
+  (rf/path :state)
+  (fn [db [_ path f & args]]
+    (cond
+      (or (vector? path) (list? path))
+      (update-in db path #(apply f % args))
+
+      (keyword? path)
+      (update db path #(apply f % args))
+
+      :else db)))
+
 
 ;;; Datascript
 

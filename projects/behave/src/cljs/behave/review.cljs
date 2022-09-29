@@ -3,7 +3,6 @@
             [behave.components.core :as c]
             [behave.translate :refer [<t bp]]))
 
-;; TODO use title
 (defn root-component [params]
   (let [title @(<t (bp "working_area"))]
     [:<>
