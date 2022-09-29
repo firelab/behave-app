@@ -84,7 +84,7 @@
 (defn getPerimeterAtContainment [self LengthUnits_LengthUnitsEnum lengthUnits]
   (.getPerimeterAtContainment self LengthUnits_LengthUnitsEnum lengthUnits))
 
-(defn getPerimiterAtInitialAttack [self LengthUnits_LengthUnitsEnum lengthUnits]
+(defn getPerimeterAtInitialAttack [self LengthUnits_LengthUnitsEnum lengthUnits]
   (.getPerimiterAtInitialAttack self LengthUnits_LengthUnitsEnum lengthUnits))
 
 
@@ -111,7 +111,7 @@
   (.getFinalFireLineLength contain (get enum/length-units "Chains"))
 
   ; FIXME Not working
-  (.getPerimeterAtInitialAttack contain (get enum/length-units "Chains"))
+  (.getPerimiterAtInitialAttack contain (get enum/length-units "Chains"))
 
   (.getFinalFireSize contain (get enum/area-units "Acres"))
 

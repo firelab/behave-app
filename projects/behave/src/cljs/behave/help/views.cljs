@@ -1,8 +1,8 @@
 (ns behave.help.views
-  (:require [re-frame.core :as rf]
+  (:require [re-frame.core             :refer [subscribe dispatch]]
             [markdown2hiccup.interface :refer [md->hiccup]]
-            [behave.components.core :as c]
-            [behave.translate :refer [<t]]
+            [behave.components.core    :as c]
+            [behave.translate          :refer [<t]]
             [behave.help.events]
             [behave.help.subs]))
 
@@ -19,16 +19,16 @@
 
     (and (:module params) (:submodule params))
     (let [{:keys [module submodule io]} params
-          *module (rf/subscribe [:wizard/*module module])
-          *submodule (rf/subscribe [:wizard/*submodule (:db/id @*module) submodule io])
-          submodule-help-keys (rf/subscribe [:help/submodule-help-keys (:db/id @*submodule)])]
+          *module             (subscribe [:wizard/*module module])
+          *submodule          (subscribe [:wizard/*submodule (:db/id @*module) submodule io])
+          submodule-help-keys (subscribe [:help/submodule-help-keys (:db/id @*submodule)])]
       [(:module/help-key @*module) @submodule-help-keys])
 
     :else
     "behaveplus:help"))
 
 (defn- help-section [[help-key & content]]
-  (let [help-content (rf/subscribe [:help/content help-key])]
+  (let [help-content (subscribe [:help/content help-key])]
     [:div {:id help-key}
      (when (not-empty @help-content)
        (md->hiccup (first @help-content)))
@@ -56,12 +56,12 @@
      [help-section help-keys])])
 
 (defn help-area [params]
-  (let [current-tab (rf/subscribe [:help/current-tab])
-        loaded? (rf/subscribe [:state :loaded?])]
+  (let [current-tab (subscribe [:help/current-tab])
+        loaded?     (subscribe [:state :loaded?])]
     [:div.help-area
      [:div.help-area__tabs
       [c/tab-group {:variant  "outline-secondary"
-                    :on-click #(rf/dispatch [:help/select-tab %])
+                    :on-click #(dispatch [:help/select-tab %])
                     :tabs     [{:label "Help" :icon-name "help2" :tab :help}
                                {:label "Guides & Manuals" :icon-name "help-manual" :tab :guides}]}]]
      (cond

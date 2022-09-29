@@ -1,32 +1,32 @@
 (ns behave.help.subs
-  (:require [re-frame.core :as rf]
-            [re-posh.core :as rp]))
+  (:require [re-frame.core    :as rf]
+            [behave.vms.store :refer [q pull]]))
 
 (rf/reg-sub
   :help/current-tab
   (fn [db _]
     (get-in db [:state :help-tab] :help)))
 
-(rp/reg-sub
+(rf/reg-sub
   :help/content
   (fn [_ [_ help-key]]
-    {:type :query
-     :query '[:find [?content]
-              :in $ ?help-key
-              :where [?e :help/key ?help-key]
-                     [?e :help/content ?content]]
-     :variables [help-key]}))
+    @(rf/subscribe [:vms/query
+                   '[:find  [?content]
+                     :in    $ ?help-key
+                     :where [?e :help/key ?help-key]
+                            [?e :help/content ?content]]
+                   help-key])))
 
 (rf/reg-sub
-  :help/submodule-help-keys
-  (fn [[_ submodule-id]]
-    (rf/subscribe [:pull
-                   '[:submodule/help-key
-                     {:submodule/groups
-                      [:group/help-key
-                       {:group/group-variables
-                        [:group-variable/help-key]}]}]
-                   submodule-id]))
+ :help/submodule-help-keys
+ (fn [[_ submodule-id]]
+   (rf/subscribe [:vms/pull
+                  '[:submodule/help-key
+                    {:submodule/groups
+                     [:group/help-key
+                      {:group/group-variables
+                       [:group-variable/help-key]}]}]
+                  submodule-id]))
 
   (fn [submodule]
     (persistent!

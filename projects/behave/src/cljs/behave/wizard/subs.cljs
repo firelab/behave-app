@@ -1,7 +1,7 @@
 (ns behave.wizard.subs
-  (:require [clojure.string :as str]
-            [clojure.set :refer [rename-keys]]
-            [re-frame.core :as rf]
+  (:require [clojure.string         :as str]
+            [clojure.set            :refer [rename-keys]]
+            [re-frame.core          :refer [reg-sub subscribe]]
             [string-utils.interface :refer [->kebab]]))
 
 ;;; Helpers
@@ -12,37 +12,38 @@
 
 ;;; Subscriptions
 
-(rf/reg-sub
+(reg-sub
   :wizard/*module
-  :<- [:pull-with-attr :module/name]
+  (fn [_]
+    (subscribe [:vms/pull-with-attr :module/name]))
   (fn [modules [_ selected-module]]
     (first (filter (fn [{m-name :module/name}]
               (= selected-module (str/lower-case m-name))) modules))))
 
-(rf/reg-sub
+(reg-sub
   :wizard/submodules
   (fn [[_ module-id]]
-    (rf/subscribe [:pull-children
-                   :module/submodules
-                   module-id]))
+    (subscribe [:vms/pull-children
+                :module/submodules
+                module-id]))
   (fn [submodules _]
     (map #(assoc % :slug (-> % (:submodule/name) (->kebab))) submodules)))
 
-(rf/reg-sub
+(reg-sub
   :wizard/*submodule
 
   (fn [[_ module-id _ _]]
-    (rf/subscribe [:wizard/submodules module-id]))
+    (subscribe [:wizard/submodules module-id]))
 
   (fn [submodules [_ _ slug io]]
     (let [[inputs outputs] (partition-by :submodules/io submodules)]
       (or (first (filter (partial matching-submodule? io slug) submodules))
           (first (if (= :input io) inputs outputs))))))
 
-(rf/reg-sub
+(reg-sub
   :wizard/groups
   (fn [[_ submodule-id]]
-    (rf/subscribe [:pull-children
+    (subscribe [:vms/pull-children
                    :submodule/groups
                    submodule-id
                    '[* {:group/group-variables [* {:variable/_group-variables [*]}]}]]))

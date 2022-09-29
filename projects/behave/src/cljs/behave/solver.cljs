@@ -8,9 +8,6 @@
             [datascript.core       :as d]
             [datom-utils.interface :as du]))
 
-; SOLVER DESIGN
-; - Worksheet is a Datascript DB
-; - Worksheet
 (defn is-enum? [parameter-type]
   (or (str/includes? parameter-type "Enum")
       (str/includes? parameter-type "Units")))
@@ -78,23 +75,18 @@
 (defn crown-solver [worksheet]
   (assoc-in worksheet [:results :crown] []))
 
-(defonce module (atom nil))
-
 (defn contain-solver [worksheet]
   (let [{:keys [inputs outputs]} worksheet
         input-vars  (map (fn [gv-id] [gv-id @(group-variable->fn gv-id)]) @(all-input-variables "Contain"))
         output-vars (map (fn [gv-id] [gv-id @(group-variable->fn gv-id)]) @(all-output-variables "Contain"))
         output-vars (filter #(get outputs (first %)) output-vars)
-        ;module      (contain/init)
-        ]
-
-    (reset! module (contain/init))
+        module      (contain/init)]
 
     ; Load Inputs
     (doseq [[gv-id [fn-id fn-name]] input-vars]
       (let [value  (if (discrete? gv-id) (get enum/contain-tactic "HeadAttack") (get inputs gv-id))
             unit   (variable-units gv-id)
-            f      (symbol (str "contain/" fn-name))
+            f      (aget module fn-name)
             params @(fn-params fn-id)]
         (println "Applying Input:" fn-name params value unit)
         (cond
@@ -102,15 +94,15 @@
           (println "Cannot process Contain Module with nil value for:" @(rf/subscribe [:pull '[{:variable/_group-variables [:variable/name]}] gv-id]))
 
           (= 1 (count params))
-          (apply f @module value)
+          (f value)
 
           (and (= 2 (count params)) (some? unit))
           (if (-> params (first) (last) (is-enum?))
-            (apply f @module unit value)
-            (apply f @module value unit)))))
+            (f unit value)
+            (f value unit)))))
 
     (contain/addResource
-      @module
+      module
       (get inputs 2903)
       (get inputs 2873)
       (get enum/time-units "Hours")
@@ -119,68 +111,40 @@
       "test")
 
     ; Run
-    (contain/doContainRun @module)
+    (contain/doContainRun module)
 
     ; Get Outputs
     (reduce (fn [acc [gv-id [fn-id fn-name]]]
               (let [unit   (variable-units gv-id)
-                    f      (symbol (str "contain/" fn-name))
-                    params @(fn-params fn-id)]
-                (println "Getting Ouputs:" fn-name params unit)
-                (assoc-in acc
-                          [:results gv-id]
-                          (cond
-                            (= 0 (count params))
-                            (apply f @module)
+                    f      (aget module fn-name)
+                    params @(fn-params fn-id)
+                    result (cond
+                             (empty? params)
+                             (f)
 
-                            (and (= 1 (count params)) (some? unit))
-                            (apply f @module unit)))))
-            worksheet
+                             (and (= 1 (count params)) (some? unit))
+                             (f unit)
+
+                             :else nil)]
+                (js/console.log f)
+                (println "Getting Ouputs:" fn-name f params unit result)
+                (assoc acc gv-id result)))
+            {}
             output-vars)))
-
-
-(comment
-
-  (rf/subscribe [:pull '[*] 2556])
-
-  (reset! module (contain/init))
-
-  (contain/setAttackDistance @module 0 (get enum/length-units "Chains"))
-  (contain/setReportRate @module 5 (get enum/speed-units "ChainsPerHour"))
-  (contain/setLwRatio @module 3.0)
-  (contain/setReportRate @module 5 (get enum/speed-units "ChainsPerHour"))
-  (contain/setReportSize @module 1 (get enum/area-units "Acres"))
-  (contain/setTactic @module (get enum/contain-tactic "HeadAttack"))
-  (contain/addResource @module 2 8 (get enum/time-units "Hours") 20 (get enum/speed-units "ChainsPerHour") "test")
-
-  (contain/doContainRun @module)
-
-  (contain-solver {:inputs {3005 3
-                            3004 2
-                            2905 1
-                            2875 3
-                            2873 3
-                            2903 2
-                            2264 1
-                            2904 1}
-                   :outputs {3007 true 3006 true}})
-
-  )
 
 (defn mortality-solver [worksheet]
   (assoc-in worksheet [:results :mortality] []))
 
 (defn solve-worksheet [{:keys [modules] :as worksheet}]
   (cond-> worksheet
-
-    (modules :surface)
+    (contains? modules :surface)
     (surface-solver)
 
-    (modules :crown)
+    (contains? modules :crown)
     (crown-solver)
 
-    (modules :contain)
+    (contains? modules :contain)
     (contain-solver)
 
-    (modules :mortality)
+    (contains? modules :mortality)
     (mortality-solver)))

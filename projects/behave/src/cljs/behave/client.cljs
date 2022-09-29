@@ -11,6 +11,7 @@
             [behave.store              :refer [load-store!]]
             [behave.tools              :as tools]
             [behave.translate          :refer [<t load-translations!]]
+            [behave.vms.store          :refer [load-vms!]]
             [behave.wizard.views       :as wizard]
             [behave.worksheet.views    :refer [new-worksheet-page
                                                import-worksheet-page
@@ -61,7 +62,7 @@
   (rf/dispatch-sync [:navigate (-> js/window .-location .-pathname)])
   (.addEventListener js/window "popstate" #(rf/dispatch [:popstate %]))
   (load-translations!)
-  (load-store!)
+  (load-vms!)
   (render [app-shell (js->clj params :keywordize-keys true)]
           (.getElementById js/document "app")))
 
