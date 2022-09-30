@@ -251,8 +251,10 @@
   background-color: var(--darkblue-4);
 }
 
-.wizard-group__inputs {
-  padding: 25px 30px;
+.wizard-repeat-group__header {
+  padding: 5px 18px;
+  font-weight: var(--font-weight-500);
+  background-color: var(--medblue-1);
 }
 
 .wizard-group__outputs {
@@ -268,6 +270,15 @@
 
 .wizard-input {
   display:flex;
+  padding: 25px 30px;
+}
+
+.wizard-input + .wizard-input {
+  border-top: dotted 1px var(--black);
+}
+
+.wizard-input + .wizard-input:last-child {
+  border-bottom: dotted 1px var(--black);
 }
 
 .wizard-input__input {

@@ -44,7 +44,7 @@
                        (rf/dispatch [:state/set [:worksheet :inputs group-id repeat-id id] (input-value %)]))]
     [:div.wizard-input
      [c/radio-group
-      {:label   (if repeat-group? var-name "Value:")
+      {:label   (when repeat-group? var-name)
        :name    (->kebab var-name)
        :options [{:value "HeadAttack" :label "Head Attack" :on-change on-change :checked? (= @selected "HeadAttack")}
                  {:value "RearAttack" :label "Rear Attack" :on-change on-change :checked? (= @selected "RearAttack")}]}]]))
@@ -65,15 +65,20 @@
                   :on-change   #(rf/dispatch [:state/set [:worksheet :inputs group-id repeat-id id] (input-value %)])
                   :required?   true}]])
 
-(defn repeat-group [{group-id :db/id} variables]
-  (let [repeats (rf/subscribe [:state [:worksheet :repeat-groups group-id]])]
+(defn repeat-group [group variables]
+  (let [{group-name :group/name group-id :db/id} group
+        repeats (rf/subscribe [:state [:worksheet :repeat-groups group-id]])]
     [:<>
      (for [repeat-id (range (or @repeats 0))]
        ^{:key repeat-id}
-       [:div.wizard-group__inputs
-        (for [variable variables]
-          ^{:key (:db/id variable)}
-          [wizard-input variable group-id repeat-id true])])
+       [:<> 
+        [:div.wizard-repeat-group
+         [:div.wizard-repeat-group__header
+          (str group-name " #" repeat-id)]]
+        [:div.wizard-group__inputs
+         (for [variable variables]
+           ^{:key (:db/id variable)}
+           [wizard-input variable group-id repeat-id true])]])
      [:div {:style {:display         "flex"
                     :padding         "20px"
                     :align-items     "center"
@@ -83,7 +88,8 @@
                  :on-click #(rf/dispatch [:state/update [:worksheet :repeat-groups group-id] inc])}]]]))
 
 (defn input-group [group variables]
-  (let [{group-name :group/name} group]
+  (let [{group-name :group/name} group
+        variables (sort-by :group-variable/variable-order variables)]
     [:div.wizard-group
      [:div.wizard-group__header group-name]
      (if (or (= 2849 (:db/id group)) (:group/repeat? group))
