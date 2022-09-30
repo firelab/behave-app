@@ -41,7 +41,7 @@
                                    repeat-group?]
   (let [selected  (rf/subscribe [:state [:worksheet :inputs group-id repeat-id id]])
         on-change #(do (println %)
-                       (rf/dispatch [:state/set [:worksheet :inputs group-id repeat-id id] %])) ]
+                       (rf/dispatch [:state/set [:worksheet :inputs group-id repeat-id id] (input-value %)]))]
     [:div.wizard-input
      [c/radio-group
       {:label   (if repeat-group? var-name "Value:")

@@ -18,6 +18,13 @@
         (assoc :submodule/io (keyword io)))
     entity))
 
+(defn ->repeat? [entity]
+  (if-let [{repeat? :group/repeat} entity]
+    (-> entity
+        (dissoc :group/repeatable :group/repeat)
+        (assoc :group/repeat? repeat?))
+    entity))
+
 (defn conn->msgpack [conn]
   (log-str "Transferring datoms to MessagePack...")
   (let [out-file     (io/resource "public/layout.msgpack")
@@ -35,6 +42,7 @@
                       (mapv #(-> %
                                  (->io)
                                  (dissoc-nil)
+                                 (->repeat?)
                                  (assoc :bp/uuid (:db/id %)))))
         conn     (dc/create-conn)]
     (dc/transact conn all-schemas)
