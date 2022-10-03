@@ -47,35 +47,37 @@
                                        (str/capitalize (second %))
                                        (last %))))
 
-(defn- value-accessor [kind]
-  (condp = kind
-    "continuous" :value
-    "discrete"   :code
-    "text"       :text))
+(def ^:private accessor {"continuous" :value
+                         "discrete"   :code
+                         "text"       :text})
+
+(def ^:private value-parser {"continuous" js/parseFloat
+                             "discrete"   identity
+                             "text"       identity})
 
 ;;; Worksheet Processing
 
 (defn- bp6-input->worksheet-input [{:keys [name] :as v}]
   (when-let [variable (bp6-name->variable name)]
     (when (= :input (:io variable))
-      (let [accessor (value-accessor (:kind variable))
-            value    (get v accessor)]
+      (let [value (get v (accessor (:kind variable)))]
         (cond
           (str/blank? value)
           nil
 
           (:group-repeat? variable)
-          (map-indexed (fn [idx val]
-                         [[:inputs (:group-id variable) idx (:group-var-id variable)] val])
+          (map-indexed (fn [idx value]
+                         [[:inputs (:group-id variable) idx (:group-var-id variable)]
+                          ((value-parser (:kind variable)) value)])
                        (str/split value #","))
 
           :else
-          [[[:inputs (:group-id variable) 0 (:group-var-id variable)] value]])))))
+          [[[:inputs (:group-id variable) 0 (:group-var-id variable)] ((value-parser (:kind variable)) value)]])))))
 
 (defn- bp6-output->worksheet-output [{:keys [name] :as v}]
   (when-let [variable (bp6-name->variable name)]
     (when (= :output (:io variable))
-      [[:outputs (:group-id variable)] true])))
+      [[:outputs (:group-var-id variable)] true])))
 
 
 (defn- create-worksheet [parsed-worksheet]

@@ -58,12 +58,14 @@
 ;       options)
 
 (defmethod wizard-input :text [{var-name :variable/name id :db/id} group-id repeat-id repeat-group?]
-  [:div.wizard-input
-   [c/text-input {:label       (if repeat-group? var-name "Values:")
-                  :placeholder (when repeat-group? "Value")
-                  :id          (->kebab var-name)
-                  :on-change   #(rf/dispatch [:state/set [:worksheet :inputs group-id repeat-id id] (input-value %)])
-                  :required?   true}]])
+  (let [value (rf/subscribe [:state [:worksheet :inputs group-id repeat-id id]])]
+    [:div.wizard-input
+     [c/text-input {:label       (if repeat-group? var-name "Values:")
+                    :placeholder (when repeat-group? "Value")
+                    :id          (->kebab var-name)
+                    :value       @value
+                    :on-change   #(rf/dispatch [:state/set [:worksheet :inputs group-id repeat-id id] (input-value %)])
+                    :required?   true}]]))
 
 (defn repeat-group [group variables]
   (let [{group-name :group/name group-id :db/id} group
@@ -74,7 +76,7 @@
        [:<> 
         [:div.wizard-repeat-group
          [:div.wizard-repeat-group__header
-          (str group-name " #" repeat-id)]]
+          (str group-name " #" (inc repeat-id))]]
         [:div.wizard-group__inputs
          (for [variable variables]
            ^{:key (:db/id variable)}
