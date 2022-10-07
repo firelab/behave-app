@@ -20,7 +20,7 @@
          :headers {"Content-Type" accepts}})
 
       :post
-      (let [tx-report (s/transact s/conn (:tx-data params))]
+      (let [tx-report (s/sync-datoms s/conn (:tx-data params))]
         {:status  201
          :body    (clj-> {:success true} res-type)
          :headers {"Content-Type" accepts}}))))

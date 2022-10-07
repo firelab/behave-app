@@ -63,6 +63,7 @@
   (.addEventListener js/window "popstate" #(rf/dispatch [:popstate %]))
   (load-translations!)
   (load-vms!)
+  (load-store!)
   (render [app-shell (js->clj params :keywordize-keys true)]
           (.getElementById js/document "app")))
 

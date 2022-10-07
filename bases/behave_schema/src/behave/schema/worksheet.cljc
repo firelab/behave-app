@@ -9,7 +9,7 @@
 
 ;;; Spec
 
-(s/def :worksheet/id            uuid?)
+(s/def :worksheet/uuid          string?)
 (s/def :worksheet/name          string?)
 (s/def :workshet/notes          many-ref?)
 (s/def :workshet/inputs         many-ref?)
@@ -21,9 +21,10 @@
 ;;; Schema
 
 (def schema
-  [{:db/ident       :worksheet/id
-    :db/doc         "Worksheet's ID."
-    :db/valueType   :db.type/uuid
+  [{:db/ident       :worksheet/uuid
+    :db/doc         "Worksheet's ID. UUID stored as a string."
+    :db/valueType   :db.type/string
+    :db/unique      :db.unique/identity
     :db/cardinality :db.cardinality/one}
    {:db/ident       :worksheet/name
     :db/doc         "Worksheet's name."
@@ -33,8 +34,16 @@
     :db/doc         "Worksheet's notes."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
-   {:db/ident       :worksheet/inputs
-    :db/doc         "Worksheet's inputs."
+   {:db/ident       :worksheet/modules
+    :db/doc         "Worksheet's modules."
+    :db/valueType   :db.type/keyword
+    :db/cardinality :db.cardinality/many}
+   {:db/ident       :worksheet/input-groups
+    :db/doc         "Worksheet's input groups."
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many}
+   {:db/ident       :worksheet/repeat-groups
+    :db/doc         "Worksheet's repeat groups."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
    {:db/ident       :worksheet/outputs
@@ -64,23 +73,22 @@
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
-   ;; Inputs
+   ;; Input Groups
+   
+
+   ;; Input Variables
    {:db/ident       :input/variable
     :db/doc         "Input's variable."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/one}
-   {:db/ident       :input/kind
-    :db/doc         "Input's kind."
-    :db/valueType   :db.type/keyword
-    :db/cardinality :db.cardinality/one}
    {:db/ident       :input/units
     :db/doc         "Input's units."
     :db/valueType   :db.type/string
-    :db/cardinality :db.cardinality/many}
+    :db/cardinality :db.cardinality/one}
    {:db/ident       :input/continuous-value
     :db/doc         "Input's continuous value."
     :db/valueType   :db.type/float
-    :db/cardinality :db.cardinality/many}
+    :db/cardinality :db.cardinality/one}
    {:db/ident       :input/discrete-value
     :db/doc         "Input's discrete value."
     :db/valueType   :db.type/string
@@ -92,7 +100,7 @@
 
    ;; Outputs
    {:db/ident       :output/variable
-    :db/doc         "Input's variable."
+    :db/doc         "Output's variable."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/one}
 
@@ -134,6 +142,10 @@
     :db/cardinality :db.cardinality/one}
    {:db/ident       :result-cell/discrete-value
     :db/doc         "Results cell's discrete value."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+   {:db/ident       :result-cell/text-value
+    :db/doc         "Results cell's text value."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 

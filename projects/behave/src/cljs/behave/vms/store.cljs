@@ -22,6 +22,12 @@
       (rf/dispatch-sync [:vms/initialize (->ds-schema all-schemas) datoms])
       (rf/dispatch-sync [:state/set :loaded? true]))))
 
+(defn- reloaded-vms-data [[ok body]]
+  (when ok
+    (rf/dispatch-sync [:state/set :vms-reloaded? true])))
+
+;;; Public Fns
+
 (defn load-vms! []
   (ajax-request {:uri             "/layout.msgpack"
                  :handler         load-data-handler
@@ -30,6 +36,10 @@
                                    :type         :arraybuffer
                                    :content-type "application/msgpack"
                                    :read         pr/-body}}))
+
+(defn reload-vms! []
+  (ajax-request {:uri     "/vms-sync"
+                 :handler reloaded-vms-data}))
 
 ;;; Public Fns
 
