@@ -74,34 +74,64 @@
     :db/cardinality :db.cardinality/one}
 
    ;; Input Groups
-   
+   {:db/ident       :input-group/group-uuid
+    :db/doc         "Input Group's reference to a Group's UUID."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+   {:db/ident       :input-group/repeat-id
+    :db/doc         "Input Group's reference to a Group's UUID."
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many}
+   {:db/ident       :input-group/inputs
+    :db/doc         "Input Group's reference to a Group's UUID."
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many}
+
+   ;; Repeat Grous
+   {:db/ident       :repeat-group/group-uuid
+    :db/doc         "Repeat Group's reference to a Group's UUID."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+   {:db/ident       :repeat-group/repeats
+    :db/doc         "Number of repeats."
+    :db/valueType   :db.type/long
+    :db/cardinality :db.cardinality/one}
 
    ;; Input Variables
-   {:db/ident       :input/variable
-    :db/doc         "Input's variable."
-    :db/valueType   :db.type/ref
+   {:db/ident       :input/group-variable-uuid
+    :db/doc         "Input's reference to a Group Variable's UUID."
+    :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
    {:db/ident       :input/units
     :db/doc         "Input's units."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
-   {:db/ident       :input/continuous-value
-    :db/doc         "Input's continuous value."
-    :db/valueType   :db.type/float
-    :db/cardinality :db.cardinality/one}
-   {:db/ident       :input/discrete-value
-    :db/doc         "Input's discrete value."
-    :db/valueType   :db.type/string
-    :db/cardinality :db.cardinality/one}
-   {:db/ident       :input/text-value
-    :db/doc         "Input's text value."
+   {:db/ident       :input/value
+    :db/doc         "Input's value."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
+   ;{:db/ident       :input/continuous-value
+   ; :db/doc         "Input's continuous value."
+   ; :db/valueType   :db.type/float
+   ; :db/cardinality :db.cardinality/one}
+   ;{:db/ident       :input/discrete-value
+   ; :db/doc         "Input's discrete value."
+   ; :db/valueType   :db.type/string
+   ; :db/cardinality :db.cardinality/one}
+   ;{:db/ident       :input/text-value
+   ; :db/doc         "Input's text value."
+   ; :db/valueType   :db.type/string
+   ; :db/cardinality :db.cardinality/one}
+
    ;; Outputs
-   {:db/ident       :output/variable
-    :db/doc         "Output's variable."
-    :db/valueType   :db.type/ref
+   {:db/ident       :output/variable-uuid
+    :db/doc         "Output's reference to Variable's UUID."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+   {:db/ident       :output/enabled?
+    :db/doc         "Whether an output is enabled."
+    :db/valueType   :db.type/boolean
     :db/cardinality :db.cardinality/one}
 
    ;; Result Table

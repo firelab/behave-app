@@ -1,9 +1,9 @@
 (ns behave.worksheet.events
  (:require [re-frame.core    :as rf]
-            [re-posh.core    :as rp]
-            [datascript.core :as d]
-            [behave.importer :refer [import-worksheet]]
-            [behave.solver   :refer [solve-worksheet]]))
+           [re-posh.core     :as rp]
+           [datascript.core  :as d]
+           [behave.importer  :refer [import-worksheet]]
+           [behave.solver    :refer [solve-worksheet]]))
 
 (rf/reg-fx :ws/import-worksheet import-worksheet)
 
@@ -30,8 +30,9 @@
 
 (rp/reg-event-fx
  :worksheet/new
- (fn [{:keys [ds]} [_ {:keys [name modules]}]]
-   {:transact [{:worksheet/name name
+ (fn [_ [_ {:keys [uuid name modules]}]]
+   {:transact [{:worksheet/uuid (or uuid (str (d/squuid)))
+                :worksheet/name name
                 :worksheet/modules modules}]}))
 
 (rp/reg-event-fx
@@ -47,9 +48,18 @@
 (rp/reg-event-fx
  :worksheet/update-output
  [(rp/inject-cofx :ds)]
- (fn [{:keys [ds]} [_ uuid attr value]]
-   (d/q ds)
-   {:transact [[:db/add id attr value]]}))
+ (fn [{:keys [ds]} [_ ws-uuid variable-uuid enabled?]]
+   (when-let [id (first (d/q '[:find  [?e ...]
+                               :in    $ ?uuid
+                               :where [?e :worksheet/uuid ?uuid]] ds ws-uuid))]
+     (if-let [output-id (first (d/q '[:find  [?o]
+                                      :in    $ ?ws ?var-uuid
+                                      :where [?ws :worksheet/outputs ?o]
+                                             [?o :output/variable-uuid ?var-uuid]] ds id variable-uuid))]
+     {:transact [{:db/id output-id :output/enabled? enabled?}]}
+     {:transact [{:worksheet/_outputs   id
+                  :output/variable-uuid variable-uuid
+                  :output/enabled?      enabled?}]}))))
 
 (comment
   (first @(rf/subscribe [:query '[:find [?name ...] :where [?e :worksheet/id ?name]]]))
