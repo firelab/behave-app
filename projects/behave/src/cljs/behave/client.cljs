@@ -38,10 +38,11 @@
                     :tools/page     tools/root-component})
 
 (defn app-shell [params]
-  (let [route   (rf/subscribe [:handler])
-        loaded? (rf/subscribe [:state :loaded?])
-        page    (get handler->page (:handler @route) not-found)
-        params  (merge params (:route-params @route))]
+  (let [route        (rf/subscribe [:handler])
+        sync-loaded? (rf/subscribe [:state :sync-loaded?])
+        vms-loaded?  (rf/subscribe [:state :vms-loaded?])
+        page         (get handler->page (:handler @route) not-found)
+        params       (merge params (:route-params @route))]
     [:div.page
      [:div.behave-identity
       [:h1 @(<t "behaveplus")]]
@@ -49,7 +50,7 @@
       [toolbar]]
      [sidebar]
      [:div.container
-      (if loaded?
+      (if (and @vms-loaded? @sync-loaded?)
         [page params]
         [:h3 "Loading..."])
       [help-area params]]]))

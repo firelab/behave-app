@@ -31,7 +31,7 @@
     (let [datoms (mapv #(apply d/datom %) (c/unpack body))]
       (swap! sync-txs union (txs datoms))
       (rf/dispatch-sync [:ds/initialize (->ds-schema all-schemas) datoms])
-      (rf/dispatch-sync [:state/set :loaded? true]))))
+      (rf/dispatch-sync [:state/set :sync-loaded? true]))))
 
 (defn- sync-tx-data-handler [[ok body]]
   (when ok

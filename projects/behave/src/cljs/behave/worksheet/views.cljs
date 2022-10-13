@@ -5,6 +5,7 @@
             [behave.worksheet.events]
             [re-frame.core                :as rf]
             [reagent.core                 :as r]
+            [dom-utils.interface          :refer [input-value]]
             [string-utils.interface       :refer [->str]]))
 
 (defn- workflow-select-header [{:keys [icon header description]}]
@@ -57,7 +58,8 @@
 
 ;; TODO use title
 (defn independent-worksheet-page [params]
-  (let [*modules (rf/subscribe [:state [:worksheet :*modules]])]
+  (let [*modules (rf/subscribe [:state [:worksheet :*modules]])
+        name     (rf/subscribe [:state [:worksheet :name]])]
     [:div.workflow-select
      [workflow-select-header
       {:icon        "modules"
@@ -98,11 +100,18 @@
                                        :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
                                        :icons     [{:icon-name "mortality"}]
                                        :selected? (= @*modules #{:mortality})
-                                       :module    #{:mortality}}]}]]
-     [wizard-navigation {:next-label @(<t (bp "next"))
-                         :back-label @(<t (bp "back"))
-                         :on-back    #(.back js/history)
-                         :on-next    #(rf/dispatch [:navigate "/worksheets/1/modules/contain/output/fire"])}]]))
+                                       :module    #{:mortality}}]}]
+      [:div.workflow-select__content__name
+
+       [c/text-input {:label "Worksheet Name"
+                      :on-change #(rf/dispatch [:state/set [:worksheet :name] (input-value %)])}]]]
+     [wizard-navigation {:next-label     @(<t (bp "next"))
+                         :back-label     @(<t (bp "back"))
+                         :next-disabled? (some empty? [@name @*modules])
+                         :on-back        #(.back js/history)
+                         :on-next        #(do
+                                            (rf/dispatch [:worksheet/new {:name @name :modules (vec @*modules)}])
+                                            (rf/dispatch [:navigate "/worksheets/1/modules/contain/output/fire"]))}]]))
 
 (defn guided-worksheet-page [params]
   [:<>

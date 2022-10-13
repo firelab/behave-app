@@ -20,7 +20,7 @@
   (when ok
     (let [datoms (mapv #(apply d/datom %) (c/unpack body))]
       (rf/dispatch-sync [:vms/initialize (->ds-schema all-schemas) datoms])
-      (rf/dispatch-sync [:state/set :loaded? true]))))
+      (rf/dispatch-sync [:state/set :vms-loaded? true]))))
 
 (defn- reloaded-vms-data [[ok body]]
   (when ok

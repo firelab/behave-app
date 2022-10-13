@@ -26,38 +26,53 @@
     :db/valueType   :db.type/string
     :db/unique      :db.unique/identity
     :db/cardinality :db.cardinality/one}
+
    {:db/ident       :worksheet/name
     :db/doc         "Worksheet's name."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
-   {:db/ident       :worksheet/notes
-    :db/doc         "Worksheet's notes."
-    :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/many}
+
+   {:db/ident       :worksheet/created
+    :db/doc         "Worksheet's creation time in milliseconds since Jan 1., 1970."
+    :db/valueType   :db.type/long
+    :db/cardinality :db.cardinality/one}
+
+   ; Relations
    {:db/ident       :worksheet/modules
     :db/doc         "Worksheet's modules."
     :db/valueType   :db.type/keyword
     :db/cardinality :db.cardinality/many}
+
+   {:db/ident       :worksheet/notes
+    :db/doc         "Worksheet's notes."
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many}
+
    {:db/ident       :worksheet/input-groups
     :db/doc         "Worksheet's input groups."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
+
    {:db/ident       :worksheet/repeat-groups
     :db/doc         "Worksheet's repeat groups."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
+
    {:db/ident       :worksheet/outputs
     :db/doc         "Worksheet's outputs."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
+
    {:db/ident       :worksheet/result-table
     :db/doc         "Worksheet's result table."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/one}
+
    {:db/ident       :worksheet/graph-settings
     :db/doc         "Worksheet's graph settings."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/one}
+
    {:db/ident       :worksheet/table-settings
     :db/doc         "Worksheet's table settings."
     :db/valueType   :db.type/ref
@@ -68,6 +83,7 @@
     :db/doc         "Note's submodule."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/one}
+
    {:db/ident       :note/content
     :db/doc         "Note's content."
     :db/valueType   :db.type/string
@@ -77,13 +93,16 @@
    {:db/ident       :input-group/group-uuid
     :db/doc         "Input Group's reference to a Group's UUID."
     :db/valueType   :db.type/string
+    :db/unique      :db.unique/identity
     :db/cardinality :db.cardinality/one}
+
    {:db/ident       :input-group/repeat-id
-    :db/doc         "Input Group's reference to a Group's UUID."
-    :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/many}
+    :db/doc         "Input Group's repeat identifier."
+    :db/valueType   :db.type/long
+    :db/cardinality :db.cardinality/one}
+
    {:db/ident       :input-group/inputs
-    :db/doc         "Input Group's reference to a Group's UUID."
+    :db/doc         "Input Group's input variables."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
 
@@ -91,7 +110,9 @@
    {:db/ident       :repeat-group/group-uuid
     :db/doc         "Repeat Group's reference to a Group's UUID."
     :db/valueType   :db.type/string
+    :db/unique      :db.unique/identity
     :db/cardinality :db.cardinality/one}
+
    {:db/ident       :repeat-group/repeats
     :db/doc         "Number of repeats."
     :db/valueType   :db.type/long
@@ -102,10 +123,12 @@
     :db/doc         "Input's reference to a Group Variable's UUID."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
+
    {:db/ident       :input/units
     :db/doc         "Input's units."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
+
    {:db/ident       :input/value
     :db/doc         "Input's value."
     :db/valueType   :db.type/string
@@ -129,6 +152,7 @@
     :db/doc         "Output's reference to Variable's UUID."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
+
    {:db/ident       :output/enabled?
     :db/doc         "Whether an output is enabled."
     :db/valueType   :db.type/boolean
@@ -139,6 +163,7 @@
     :db/doc         "Result table's heaers."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
+
    {:db/ident       :result-table/rows
     :db/doc         "Result table's rows."
     :db/valueType   :db.type/ref
@@ -166,14 +191,17 @@
     :db/doc         "Results cell's header."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/one}
+
    {:db/ident       :result-cell/continuous-value
     :db/doc         "Results cell's continuous value."
     :db/valueType   :db.type/float
     :db/cardinality :db.cardinality/one}
+
    {:db/ident       :result-cell/discrete-value
     :db/doc         "Results cell's discrete value."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
+
    {:db/ident       :result-cell/text-value
     :db/doc         "Results cell's text value."
     :db/valueType   :db.type/string
