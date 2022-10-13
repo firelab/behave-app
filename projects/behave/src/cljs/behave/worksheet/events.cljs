@@ -41,9 +41,10 @@
                         :in $ ?ws ?group-uuid ?repeat-id
                         :where [?ws :worksheet/input-groups ?g]
                                [?g :input-group/group-uuid ?group-uuid]
-                        [?g :input-group/repeat-id ?repeat-id]]
+                               [?g :input-group/repeat-id ?repeat-id]]
                       ds ws group-uuid repeat-id))
            {:transact [{:worksheet/_input-groups ws
+                        :db/id                   -1
                         :input-group/group-uuid  group-uuid
                         :input-group/repeat-id   repeat-id}]}))))
 

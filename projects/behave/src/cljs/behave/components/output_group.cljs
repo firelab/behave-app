@@ -2,12 +2,12 @@
   (:require [re-frame.core :as rf]
             [behave.components.core :as c]))
 
-(defn wizard-output [ws-uuid {id :variable/uuid var-name :variable/name}]
-  (let [checked? (rf/subscribe [:worksheet/output-enabled? ws-uuid id])]
+(defn wizard-output [ws-uuid {uuid :bp/uuid var-name :variable/name}]
+  (let [checked? (rf/subscribe [:worksheet/output-enabled? ws-uuid uuid])]
     [:div.wizard-output
      [c/checkbox {:label     var-name
                   :checked?  @checked?
-                  :on-change #(rf/dispatch [:worksheet/upsert-output ws-uuid id (not @checked?)])}]]))
+                  :on-change #(rf/dispatch [:worksheet/upsert-output ws-uuid uuid (not @checked?)])}]]))
 
 (defn output-group [ws-uuid group variables]
   (let [{group-name :group/name} group]

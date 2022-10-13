@@ -10,7 +10,7 @@
       (str/includes? parameter-type "Units")))
 
 (defn discrete? [group-variable-id]
-  (let [[kind] @(rf/subscribe [:query '[:find  [?kind]
+  (let [[kind] @(rf/subscribe [:vms/query '[:find  [?kind]
                                        :in    $ ?gv
                                        :where [?v :variable/group-variables ?gv]
                                               [?v :variable/kind ?kind]]
@@ -18,7 +18,7 @@
     (= kind "discrete")))
 
 (defn fn-params [function-id]
-  (sort-by #(nth % 3) @(rf/subscribe [:query '[:find ?p ?name ?type ?order
+  (sort-by #(nth % 3) @(rf/subscribe [:vms/query '[:find ?p ?name ?type ?order
                                 :keys [:db/id :name :type :order]
                                 :in $ ?fn
                                 :where [?fn :function/parameters ?p]
@@ -28,7 +28,7 @@
                        [function-id]])))
 
 (defn variable-units [group-variable-id]
-  (let [unit-short @(rf/subscribe [:query '[:find  [?units]
+  (let [unit-short @(rf/subscribe [:vms/query '[:find  [?units]
                                            :in    $ ?gv
                                            :where [?v :variable/group-variables ?gv]
                                                   [?v :variable/native-units ?units]]
@@ -37,7 +37,7 @@
 
 ;; Cannot use pull due to the use of UUID's to join CPP ns/class/fns
 (defn group-variable->fn [group-variable-id]
-  @(rf/subscribe [:query '[:find  [?fn ?fn-name]
+  @(rf/subscribe [:vms/query '[:find  [?fn ?fn-name]
                           :in    $ ?gv
                           :where [?gv :group-variable/cpp-function ?fn-uuid]
                                  [?fn :bp/uuid ?fn-uuid]
@@ -46,14 +46,14 @@
 
 ;; Cannot use pull due to the use of UUID's to join CPP ns/class/fns/param
 (defn parameter->group-variable [parameter-id]
-  @(rf/subscribe [:query '[:find  [?gv ...]
+  @(rf/subscribe [:vms/query '[:find  [?gv ...]
                            :in    $ ?p
                            :where [?p :bp/uuid ?p-uuid]
                            [?gv :group-variable/cpp-parameter ?p-uuid]]
                   [parameter-id]]))
 
 (defn module-variables [module-name io]
-  @(rf/subscribe [:query '[:find [?gv ...]
+  @(rf/subscribe [:vms/query '[:find [?gv ...]
                           :in $ ?module-name ?io
                           :where [?e :module/name ?module-name]
                           [?e :module/submodules ?s]
@@ -77,7 +77,7 @@
     (println "Input:" fn-name value unit)
     (cond
       (nil? value)
-      (js/console.error "Cannot process Contain Module with nil value for:" @(rf/subscribe [:pull '[{:variable/_group-variables [:variable/name]}] gv-id]))
+      (js/console.error "Cannot process Contain Module with nil value for:" @(rf/subscribe [:vms/pull '[{:variable/_group-variables [:variable/name]}] gv-id]))
 
       (= 1 (count params))
       (f module value)
@@ -125,9 +125,10 @@
 
       :else nil)))
 
-(defn contain-solver [worksheet]
-  (let [{:keys [inputs outputs]} worksheet
-        module (contain/init)]
+(defn contain-solver [ws-uuid]
+  (let [inputs  (rf/subscribe [:worksheet/all-inputs ws-uuid])
+        outputs (rf/subscribe [:worksheet/all-outputs ws-uuid])
+        module  (contain/init)]
 
     (doseq [[_ repeats] inputs]
       (cond

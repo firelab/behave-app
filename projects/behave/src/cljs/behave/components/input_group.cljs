@@ -31,7 +31,7 @@
       [c/text-input {:label       (if repeat-group? var-name "Values:")
                      :placeholder (when repeat-group? "Values")
                      :id          (->kebab var-name)
-                     :value       @value
+                     :value       (first @value)
                      :required?   true
                      :min         var-min
                      :max         var-max
@@ -53,8 +53,8 @@
      [c/radio-group
       {:label   (when repeat-group? var-name)
        :name    (->kebab var-name)
-       :options [{:value "HeadAttack" :label "Head Attack" :on-change on-change :checked? (= @selected "HeadAttack")}
-                 {:value "RearAttack" :label "Rear Attack" :on-change on-change :checked? (= @selected "RearAttack")}]}]]))
+       :options [{:value "HeadAttack" :label "Head Attack" :on-change on-change :checked? (= (first @selected) "HeadAttack")}
+                 {:value "RearAttack" :label "Rear Attack" :on-change on-change :checked? (= (first @selected) "RearAttack")}]}]]))
 
 ;#_(map (fn [{id :db/id value :option/value t-key :option/translation-key}]
 ;         {:label     @(<t t-key)
@@ -69,12 +69,13 @@
                                group-uuid
                                repeat-id
                                repeat-group?]
-  (let [value (rf/subscribe [:worksheet/input ws-uuid group-uuid repeat-id uuid])]
+  (let [value        (rf/subscribe [:worksheet/input ws-uuid group-uuid repeat-id uuid])
+        upsert-input (debounce #'upsert-input 1000)]
     [:div.wizard-input
      [c/text-input {:label       (if repeat-group? var-name "Values:")
                     :placeholder (when repeat-group? "Value")
                     :id          (->kebab var-name)
-                    :value       @value
+                    :value       (first @value)
                     :on-change   #(upsert-input ws-uuid group-uuid repeat-id uuid (input-value %))
                     :required?   true}]]))
 
@@ -98,7 +99,7 @@
                     :justify-content "center"}}
       [c/button {:variant  "primary"
                  :label    "Add Resource"
-                 :on-click #(rf/dispatch [:worksheet/add-input-group ws-uuid group-uuid (inc @repeats)])}]]]))
+                 :on-click #(rf/dispatch [:worksheet/add-input-group ws-uuid group-uuid (count @repeats)])}]]]))
 
 (defn input-group [ws-uuid group variables]
   (r/with-let [{group-name :group/name} group
