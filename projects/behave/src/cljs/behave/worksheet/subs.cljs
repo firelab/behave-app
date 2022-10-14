@@ -28,7 +28,7 @@
              :in    $ ?ws-uuid ?var-uuid
              :where [?w :worksheet/uuid ?ws-uuid]
                     [?w :worksheet/outputs ?o]
-                    [?o :output/variable-uuid ?var-uuid]
+                    [?o :output/group-variable-uuid ?var-uuid]
                     [?o :output/enabled? ?enabled]]
     :variables [ws-uuid variable-uuid]}))
 
@@ -87,7 +87,6 @@
              :in    $ ?ws-uuid
              :where [?w :worksheet/uuid ?ws-uuid]
                     [?w :worksheet/outputs ?o]
-                    [?o :output/variable-uuid ?uuid]
-                    ; [?o :output/group-variable-uuid ?uuid]
+                    [?o :output/group-variable-uuid ?uuid]
                     [?o :output/enabled? true]]
     :variables [ws-uuid]}))

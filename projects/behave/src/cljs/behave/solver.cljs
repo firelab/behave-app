@@ -1,6 +1,6 @@
 (ns behave.solver
-  (:require [re-frame.core :as rf]
-            [clojure.string :as str]
+  (:require [re-frame.core      :as rf]
+            [clojure.string     :as str]
             [behave.lib.contain :as contain]
             [behave.lib.enums   :as enum]
             [behave.lib.units   :as units]))
@@ -11,20 +11,20 @@
 
 (defn discrete? [group-variable-id]
   (let [[kind] @(rf/subscribe [:vms/query '[:find  [?kind]
-                                       :in    $ ?gv
-                                       :where [?v :variable/group-variables ?gv]
-                                              [?v :variable/kind ?kind]]
+                                            :in    $ ?gv
+                                            :where [?v :variable/group-variables ?gv]
+                                                   [?v :variable/kind ?kind]]
                               [group-variable-id]])]
     (= kind "discrete")))
 
 (defn fn-params [function-id]
   (sort-by #(nth % 3) @(rf/subscribe [:vms/query '[:find ?p ?name ?type ?order
-                                :keys [:db/id :name :type :order]
-                                :in $ ?fn
-                                :where [?fn :function/parameters ?p]
-                                       [?p :parameter/name ?name]
-                                       [?p :parameter/type ?type]
-                                       [?p :parameter/order ?order]]
+                                                   :keys [:db/id :name :type :order]
+                                                   :in $ ?fn
+                                                   :where [?fn :function/parameters ?p]
+                                                          [?p :parameter/name ?name]
+                                                          [?p :parameter/type ?type]
+                                                          [?p :parameter/order ?order]]
                        [function-id]])))
 
 (defn variable-units [group-variable-id]
@@ -38,35 +38,29 @@
 ;; Cannot use pull due to the use of UUID's to join CPP ns/class/fns
 (defn group-variable->fn [group-variable-id]
   @(rf/subscribe [:vms/query '[:find  [?fn ?fn-name]
-                          :in    $ ?gv
-                          :where [?gv :group-variable/cpp-function ?fn-uuid]
-                                 [?fn :bp/uuid ?fn-uuid]
-                                 [?fn :function/name ?fn-name]]
+                               :in    $ ?gv
+                               :where [?gv :group-variable/cpp-function ?fn-uuid]
+                                      [?fn :bp/uuid ?fn-uuid]
+                                      [?fn :function/name ?fn-name]]
                  [group-variable-id]]))
 
 ;; Cannot use pull due to the use of UUID's to join CPP ns/class/fns/param
 (defn parameter->group-variable [parameter-id]
   @(rf/subscribe [:vms/query '[:find  [?gv ...]
-                           :in    $ ?p
-                           :where [?p :bp/uuid ?p-uuid]
-                           [?gv :group-variable/cpp-parameter ?p-uuid]]
+                               :in    $ ?p
+                               :where [?p :bp/uuid ?p-uuid]
+                                      [?gv :group-variable/cpp-parameter ?p-uuid]]
                   [parameter-id]]))
 
 (defn module-variables [module-name io]
   @(rf/subscribe [:vms/query '[:find [?gv ...]
-                          :in $ ?module-name ?io
-                          :where [?e :module/name ?module-name]
-                          [?e :module/submodules ?s]
-                          [?s :submodule/io ?io]
-                          [?s :submodule/groups ?g]
-                          [?g :group/group-variables ?gv]]
+                               :in $ ?module-name ?io
+                               :where [?e :module/name ?module-name]
+                                      [?e :module/submodules ?s]
+                                      [?s :submodule/io ?io]
+                                      [?s :submodule/groups ?g]
+                                      [?g :group/group-variables ?gv]]
                  [module-name io]]))
-
-(defn surface-solver [worksheet]
-  (assoc-in worksheet [:results :surface] []))
-
-(defn crown-solver [worksheet]
-  (assoc-in worksheet [:results :crown] []))
 
 (defn- apply-single-cpp-fn [module-fns module gv-id value]
   (let [[fn-id fn-name] (group-variable->fn gv-id)
@@ -115,7 +109,6 @@
         unit            (variable-units gv-id)
         f               ((symbol fn-name) module-fns)
         params          (fn-params fn-id)]
-    (println "Output:" fn-name unit)
     (cond
       (empty? params)
       (f module)
@@ -125,7 +118,13 @@
 
       :else nil)))
 
-(defn contain-solver [ws-uuid]
+(defn surface-solver [ws-uuid results]
+  (assoc results :surface []))
+
+(defn crown-solver [ws-uuid results]
+  (assoc results :crown []))
+
+(defn contain-solver [ws-uuid results]
   (let [inputs  (rf/subscribe [:worksheet/all-inputs ws-uuid])
         outputs (rf/subscribe [:worksheet/all-outputs ws-uuid])
         module  (contain/init)]
@@ -153,26 +152,26 @@
     (contain/doContainRun module)
 
     ; Get Outputs
-    (assoc-in worksheet
-              [:results :contain]
-              (reduce (fn [acc [gv-id]]
-                        (assoc acc gv-id (apply-output-cpp-fn (ns-publics 'behave.lib.contain) module gv-id)))
-                      {}
-                      outputs))))
+    (doseq [group-variable-uuid outputs]
+      (let [result (apply-output-cpp-fn (ns-publics 'behave.lib.contain) module group-variable-uuid)]
+        (rf/dispatch [:worksheet/result ws-uuid group-variable-uuid result])))))
 
-(defn mortality-solver [worksheet]
-  (assoc-in worksheet [:results :mortality] []))
+(defn mortality-solver [ws-uuid results]
+  (assoc results :mortality []))
 
-(defn solve-worksheet [{:keys [modules] :as worksheet}]
-  (cond-> worksheet
-    (contains? modules :surface)
-    (surface-solver)
+(defn solve-worksheet [ws-uuid]
+  (let [modules (rf/subscribe [:worksheet/modules ws-uuid])
+        results {}]
 
-    (contains? modules :crown)
-    (crown-solver)
+    (cond->> results
+      (contains? modules :surface)
+      (surface-solver ws-uuid)
 
-    (contains? modules :contain)
-    (contain-solver)
+      (contains? modules :crown)
+      (crown-solver ws-uuid)
 
-    (contains? modules :mortality)
-    (mortality-solver)))
+      (contains? modules :contain)
+      (contain-solver ws-uuid)
+
+      (contains? modules :mortality)
+      (mortality-solver ws-uuid))))

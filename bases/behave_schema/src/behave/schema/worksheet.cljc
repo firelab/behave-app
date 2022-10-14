@@ -93,7 +93,6 @@
    {:db/ident       :input-group/group-uuid
     :db/doc         "Input Group's reference to a Group's UUID."
     :db/valueType   :db.type/string
-    :db/unique      :db.unique/identity
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :input-group/repeat-id
@@ -148,7 +147,7 @@
    ; :db/cardinality :db.cardinality/one}
 
    ;; Outputs
-   {:db/ident       :output/variable-uuid
+   {:db/ident       :output/group-variable-uuid
     :db/doc         "Output's reference to Variable's UUID."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
@@ -170,9 +169,14 @@
     :db/cardinality :db.cardinality/many}
 
    ;; Result Header
-   {:db/ident       :result-header/variable
-    :db/doc         "Result header's variable."
-    :db/valueType   :db.type/ref
+   {:db/ident       :result-header/group-variable-uuid
+    :db/doc         "Result header's group variable UUID."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :result-header/order
+    :db/doc         "Result header's order."
+    :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :result-header/units
@@ -181,8 +185,13 @@
     :db/cardinality :db.cardinality/one}
 
    ;; Result Row
-   {:db/ident       :result-row/cell
-    :db/doc         "Results row's cell."
+   {:db/ident       :result-row/id
+    :db/doc         "Results row's id."
+    :db/valueType   :db.type/long
+    :db/cardinality :db.cardinality/many}
+
+   {:db/ident       :result-row/cells
+    :db/doc         "Results row's cells."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
 
@@ -192,18 +201,8 @@
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :result-cell/continuous-value
-    :db/doc         "Results cell's continuous value."
-    :db/valueType   :db.type/float
-    :db/cardinality :db.cardinality/one}
-
-   {:db/ident       :result-cell/discrete-value
-    :db/doc         "Results cell's discrete value."
-    :db/valueType   :db.type/string
-    :db/cardinality :db.cardinality/one}
-
-   {:db/ident       :result-cell/text-value
-    :db/doc         "Results cell's text value."
+   {:db/ident       :result-cell/value
+    :db/doc         "Results cell's value."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
