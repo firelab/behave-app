@@ -50,8 +50,7 @@
             params (reduce (fn [params keyval]
                              (let [[k v] (str/split keyval #"=")]
                                (assoc params (keyword k) (edn/read-string v))))
-                           params keyvals)
-            _ (log-str "-- FOUND QUERY PARAMS:" params)]
+                           params keyvals)]
         (handler (assoc req :params params))))))
 
 (defn wrap-params [handler]
@@ -59,9 +58,6 @@
     (if-let [req-type (mime->type content-type)]
       (let [get-params  (->clj query-string req-type)
             post-params (->clj (slurp body) req-type)]
-        (log-str "---- PARAMS\n\n" (pr-str (:params req)))
-        (log-str "---- GET PARAMS\n\n" (pr-str get-params))
-        (log-str "---- POST PARAMS\n\n" (pr-str post-params))
         (handler (update req :params merge get-params post-params)))
       (handler req))))
 

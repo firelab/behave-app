@@ -19,6 +19,17 @@
  (fn [all-worksheets [_]]
    (last (last (sort-by first all-worksheets)))))
 
+; Retrieve latest worksheet UUID
+(rp/reg-sub
+ :worksheet/modules
+ (fn [_ [_ ws-uuid]]
+   {:type  :query
+    :query '[:find  [?modules ...]
+             :in    $ ?ws-uuid
+             :where [?w :worksheet/uuid ?ws-uuid]
+                    [?w :worksheet/modules ?modules]]
+    :variables [ws-uuid]}))
+
 ; Get state of a particular output
 (rp/reg-sub
  :worksheet/output-enabled?

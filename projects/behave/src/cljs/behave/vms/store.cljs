@@ -4,7 +4,6 @@
             [datascript.core            :as d]
             [posh.reagent               :refer [pull pull-many q posh!]
                                         :rename {q posh-query pull posh-pull pull-many posh-pull-many}]
-            [reagent.ratom              :refer-macros [reaction]]
             [re-frame.core              :as rf]
             [datom-compressor.interface :as c]
             [ds-schema-utils.interface  :refer [->ds-schema]]
@@ -22,7 +21,7 @@
       (rf/dispatch-sync [:vms/initialize (->ds-schema all-schemas) datoms])
       (rf/dispatch-sync [:state/set :vms-loaded? true]))))
 
-(defn- reloaded-vms-data [[ok body]]
+(defn- reloaded-vms-data [[ok _]]
   (when ok
     (rf/dispatch-sync [:state/set :vms-reloaded? true])))
 

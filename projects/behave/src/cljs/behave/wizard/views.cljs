@@ -82,21 +82,22 @@
      [submodule-page io @worksheet @*groups on-back on-next]]))
 
 (defn wizard-review-page [params]
-  [:div.accordion
-   [:div.accordion__header
-    [:div.accordion__header__title @(<t (bp "working_area"))]]
-   [:div.wizard-page
-    [:div.wizard-header
-     [:div.wizard-header__banner {:style {:margin-top "20px"}}
-      [:div.wizard-header__banner__icon
-       [c/icon :modules]]
-      [:div.wizard-header__banner__title "Review Modules"]]
-     [:div.wizard-review
-      "TODO: Add table of current values"]
-     [wizard-navigation {:next-label @(<t (bp "next"))
-                         :back-label @(<t (bp "back"))
-                         :on-back    #(dispatch [:wizard/prev-tab params])
-                         :on-next    #(dispatch [:worksheet/solve params])}]]]])
+  (let [worksheet (subscribe [:worksheet/latest])]
+    [:div.accordion
+     [:div.accordion__header
+      [:div.accordion__header__title @(<t (bp "working_area"))]]
+     [:div.wizard-page
+      [:div.wizard-header
+       [:div.wizard-header__banner {:style {:margin-top "20px"}}
+        [:div.wizard-header__banner__icon
+         [c/icon :modules]]
+        [:div.wizard-header__banner__title "Review Modules"]]
+       [:div.wizard-review
+        "TODO: Add table of current values"]
+       [wizard-navigation {:next-label @(<t (bp "next"))
+                           :back-label @(<t (bp "back"))
+                           :on-back    #(dispatch [:wizard/prev-tab params])
+                           :on-next    #(dispatch [:worksheet/solve @worksheet])}]]]]))
 
 (defn wizard-results-page [_]
   (let [results   (subscribe [:state [:worksheet :results]])

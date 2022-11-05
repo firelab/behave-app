@@ -14,13 +14,10 @@
       {:db                  (assoc-in db [:state :worksheet :file] (.-name file))
        :ws/import-worksheet (import-worksheet file)})))
 
-(rf/reg-event-db
+(rf/reg-event-fx
   :worksheet/solve
-  (fn [{:keys [state] :as db} _]
-    (assoc-in db
-              [:state :worksheet :results]
-              (solve-worksheet (:worksheet state)))))
-
+  (fn [_ [_ ws-uuid]]
+    (solve-worksheet ws-uuid)))
 
 (rp/reg-event-fx
  :worksheet/new
