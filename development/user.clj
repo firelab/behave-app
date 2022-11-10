@@ -1,11 +1,5 @@
 (ns user
-  (:require [behave.core :as core]
-            [fig-repl :as r]))
+  (:require [behave.core :as core]))
 
 (comment
-  (core/init!)
-
-  (r/start-figwheel!)
-
-  ;; Connect to 1337
-  (r/start-repl!))
+  (core/init!))
