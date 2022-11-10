@@ -71,31 +71,3 @@
                             (rf/dispatch))]
       (.addEventListener reader "load" on-read)
       (.readAsText reader file))))
-
-
-(comment
-
-  @previous-file
-
-  (def run-1-data (parse-worksheet @previous-file))
-
-  run-1-data
-  (let [[properties variables] (partition-by :tag run-1-data)
-        inputs (->> variables (map bp6-input->worksheet-input) (filter some?) (flatten))
-        outputs (->> properties (filter output-var?) (bp6-output->worksheet-output) (filter some?))]
-    (reduce (fn [acc [path value]] (assoc-in acc path value)) {} (concat inputs outputs)))
-
-  (map :name (:outputs *1))
-
-  (->> run-1-data
-       (filter output-var?))
-       (map (fn [{:keys [name value]}]
-              (let [[module var-name] (str/split name #"Calc")]
-                {:name (str "v" (str/capitalize module) var-name)
-                 :value value
-                 :io :output}))))
-
-  (def test-name (-> *1 (first) :name))
-
-
-  )
