@@ -4,7 +4,7 @@
 
 (defn wizard-output [{id :db/id var-name :variable/name help-key :group-variable/help-key}]
   (let [checked? (rf/subscribe [:state [:worksheet :outputs id]])]
-    [:div.wizard-output {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])} ;should set the alignToTop=true but not working atm.
+    [:div.wizard-output {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
      [c/checkbox {:label     var-name
                   :checked?  @checked?
                   :on-change #(rf/dispatch [:state/set [:worksheet :outputs id] (not @checked?)])}]]))
