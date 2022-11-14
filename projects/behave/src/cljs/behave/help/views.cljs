@@ -19,19 +19,22 @@
 
     (and (:module params) (:submodule params))
     (let [{:keys [module submodule io]} params
-          *module             (subscribe [:wizard/*module module])
-          *submodule          (subscribe [:wizard/*submodule (:db/id @*module) submodule io])
-          submodule-help-keys (subscribe [:help/submodule-help-keys (:db/id @*submodule)])]
+          *module                       (subscribe [:wizard/*module module])
+          *submodule                    (subscribe [:wizard/*submodule (:db/id @*module) submodule io])
+          submodule-help-keys           (subscribe [:help/submodule-help-keys (:db/id @*submodule)])]
       [(:module/help-key @*module) @submodule-help-keys])
 
     :else
     "behaveplus:help"))
 
 (defn- help-section [[help-key & content]]
-  (let [help-content (subscribe [:help/content help-key])]
-    [:div {:id help-key}
-     (when (not-empty @help-content)
-       (md->hiccup (first @help-content)))
+  (let [help-content         (subscribe [:help/content help-key])
+        help-highlighted-key (subscribe [:help/current-highlighted-key])]
+    [:div {:id    help-key
+           :class [(when (= @help-highlighted-key help-key) "highlight")]}
+     [:div.help-section__content
+      (when (not-empty @help-content)
+       (md->hiccup (first @help-content)))]
 
      (cond
        (nil? content)
@@ -43,10 +46,12 @@
        :else
        [help-section content])]))
 
+
+
 (defn- help-content [help-keys & [children]]
   [:div.help-area__content
    (cond
-     (vector? children)
+     children
      [children]
 
      (string? help-keys)

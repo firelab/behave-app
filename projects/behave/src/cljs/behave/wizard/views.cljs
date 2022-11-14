@@ -94,7 +94,7 @@
      [:div.wizard-navigation
       [c/button {:label    "Back"
                  :variant  "secondary"
-                 :on-click #(rf/dispatch [:wizard/prev-tab params])}]
+                 :on-click #(dispatch [:wizard/prev-tab params])}]
       [c/button {:label         "Run"
                  :variant       "highlight"
                  :icon-name     "arrow2"
@@ -102,8 +102,8 @@
                  :on-click      #(dispatch [:worksheet/solve params])}]]]]])
 
 (defn wizard-results-page [_]
-  (let [results   (rf/subscribe [:state [:worksheet :results]])
-        variables (rf/subscribe [:pull-many '[* {:variable/_group-variables [*]}] (keys (:contain @results))])
+  (let [results   (subscribe [:state [:worksheet :results]])
+        variables (subscribe [:pull-many '[* {:variable/_group-variables [*]}] (keys (:contain @results))])
         results (map (fn [value v]
                        {:name (-> v (:variable/_group-variables) (first) (:variable/name))
                         :value value})
