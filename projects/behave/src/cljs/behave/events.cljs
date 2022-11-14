@@ -64,6 +64,23 @@
 
 ;;; Datascript
 
+;;; Help
+
+(rf/reg-event-fx
+ :help/highlight-section
+ (fn [{:keys [db]} [_ help-key]]
+   {:db db
+    :fx [[:dispatch [:state/set :help-current-highlighted-key help-key]]
+         [:help/scroll-into-view help-key]]}))
+
+(rf/reg-fx
+ :help/scroll-into-view
+ (fn [help-key]
+   (-> (.getElementById js/document help-key)
+       (.scrollIntoView true)))) ;should set the alignToTop=true but not working atm.
+
+;;; Help
+
 ;;; Navigation
 
 (rf/reg-fx
