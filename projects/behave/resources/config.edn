@@ -3,7 +3,7 @@
             :dbname   "behave"
             :user     "behave"
             :password "behave"
-            :config {:store {:backend :file :path "/Users/rsheperd/Code/sig/behave-polylith/projects/behave/resources/db"}}}}
+            :config {:store {:backend :file :path "./projects/behave/resources/db"}}}
  :site     {:title       "BehavePlus 7"
             :description "Wildfire Analysis toolkit."}
  :server   {:http-port 8002
