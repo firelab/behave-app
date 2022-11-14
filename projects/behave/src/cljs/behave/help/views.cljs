@@ -46,8 +46,6 @@
        :else
        [help-section content])]))
 
-
-
 (defn- help-content [help-keys & [children]]
   [:div.help-area__content
    (cond
