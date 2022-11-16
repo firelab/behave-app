@@ -302,6 +302,9 @@
 .help-area__content h5,
 .help-area__content h6 {
     margin: 0px;
+    transition: color .1s ease-in-out,
+                background .2s ease-in-out,
+                padding .2s ease-in-out;
 }
 
 /* Help Headers */
@@ -376,21 +379,21 @@
     background: #EDF2F5;
 }
 
-.help-area__content .highlight > .help-section__content  h1,
+.help-area__content .highlight > .help-section__content h1,
 .help-area__content .highlight > .help-section__content h2,
 .help-area__content .highlight > .help-section__content h3,
 .help-area__content .highlight > .help-section__content h4,
 .help-area__content .highlight > .help-section__content h5,
 .help-area__content .highlight > .help-section__content h6 {
     margin-bottom: 0px;
-    padding: 10px 10px 10px 10px;
     text-decoration: underline;
+    padding: 10px;
     color: white;
     background: #5788A7;
 }
 
 .help-area__content .highlight > .help-section__content p {
     margin-top: 0px;
-    padding: 10px 10px 20px 10px;
+    padding: 10px;
 }
 /* -- End Help Area -- */
