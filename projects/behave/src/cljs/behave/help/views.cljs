@@ -27,24 +27,32 @@
     :else
     "behaveplus:help"))
 
-(defn- help-section [[help-key & content]]
-  (let [help-content         (subscribe [:help/content help-key])
+(defn- help-section
+  "Recursivley builds a tree of elements given a nested vector of keywords.
+  (i.e. [a [b [c d]] [e [f g]]]).
+
+      a
+  ---------
+   |  |  |
+   b  c  e
+      | ---
+      | | |
+      d f g
+
+  Elements will be built using preorder depth first search traversal.
+  For the above example the order is: a b c d e f g."
+  [current-node]
+  (let [last-child?          (string? current-node)
+        current-key          (if last-child? current-node (first current-node))
+        help-contents        (subscribe [:help/content current-key])
         help-highlighted-key (subscribe [:help/current-highlighted-key])]
-    [:div {:id    help-key
-           :class [(when (= @help-highlighted-key help-key) "highlight")]}
-     [:div.help-section__content
-      (when (not-empty @help-content)
-       (md->hiccup (first @help-content)))]
-
-     (cond
-       (nil? content)
-       nil
-
-       (vector? (first content))
-       [help-section (first content)]
-
-       :else
-       [help-section content])]))
+    [:div {:id    current-key
+           :class [(when (= @help-highlighted-key current-key) "highlight")]}
+     (when (not-empty @help-contents)
+       [:div.help-section__content
+        (md->hiccup (first @help-contents))])
+     (when (not last-child?)
+       (map help-section (next current-node)))]))
 
 (defn- help-content [help-keys & [children]]
   [:div.help-area__content
