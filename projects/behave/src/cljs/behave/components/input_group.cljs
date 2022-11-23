@@ -18,6 +18,7 @@
                                      repeat-id
                                      repeat-group?]
   (let [value                 (rf/subscribe [:state [:worksheet :inputs group-id repeat-id id]])
+        warn-limit?           (true? @(rf/subscribe [:state :warn-continuous-input-limit]))
         acceptable-char-codes (set (map #(.charCodeAt % 0) "0123456789., "))]
     [:div.wizard-input
      [:div.wizard-input__input
@@ -29,6 +30,7 @@
                      :required?    true
                      :min          var-min
                      :max          var-max
+                     :error?       warn-limit?
                      :on-key-press (fn [event]
                                      (when-not (contains? acceptable-char-codes (.-charCode event))
                                        (.preventDefault event)))

@@ -71,20 +71,26 @@
               :on-click      #(dispatch [:wizard/next-tab *module *submodule all-submodules params])}]])
 
 (defn wizard-page [{:keys [module io submodule] :as params}]
-  (let [*module    (subscribe [:wizard/*module module])
-        submodules (subscribe [:wizard/submodules (:db/id @*module)])
-        *submodule (subscribe [:wizard/*submodule (:db/id @*module) submodule io])
-        *groups    (subscribe [:wizard/groups (:db/id @*submodule)])]
+  (let [*module                 (subscribe [:wizard/*module module])
+        submodules              (subscribe [:wizard/submodules (:db/id @*module)])
+        *submodule              (subscribe [:wizard/*submodule (:db/id @*module) submodule io])
+        *groups                 (subscribe [:wizard/groups (:db/id @*submodule)])
+        *warn-limit?            (subscribe [:state :warn-continuous-input-limit])
+        *continuous-input-limit (subscribe [:state [:worksheet :continuous-input-limit]])
+        *continuous-input-count (subscribe [:state [:worksheet :continuous-input-count]])]
 
     [:div.wizard-page
      [wizard-header @*module @submodules params]
      [submodule-page io @*groups]
+     (when (true? @*warn-limit?)
+       [:div.wizard-warning
+        (gstring/format  "Number of inputs with a range of values exceeded the allowed limit (%d/%d), Please remove some." @*continuous-input-count @*continuous-input-limit)])
      [wizard-navigation @*module @*submodule @submodules params]]))
 
 (defn wizard-review-page [params]
-  (let [warn-limit?            (true? @(subscribe [:state :warn-continuous-input-limit]))
-        continuous-input-limit @(subscribe [:state [:worksheet :continuous-input-limit]])
-        continuous-input-count @(subscribe [:state [:worksheet :continuous-input-count]])]
+  (let [*warn-limit?            (subscribe [:state :warn-continuous-input-limit])
+        *continuous-input-limit (subscribe [:state [:worksheet :continuous-input-limit]])
+        *continuous-input-count (subscribe [:state [:worksheet :continuous-input-count]])]
     [:div.accordion
      [:div.accordion__header
       [:div.accordion__header__title @(<t (bp "working_area"))]]
@@ -96,15 +102,15 @@
         [:div.wizard-header__banner__title "Review Modules"]]
        [:div.wizard-review
         "TODO: Add table of current values"]
-       (when (true? warn-limit?)
+       (when (true? @*warn-limit?)
          [:div.wizard-warning
-          (gstring/format  "Number of inputs with a range of values exceeded the allowed limit (%d/%d), Please remove some." continuous-input-count continuous-input-limit)])
+          (gstring/format  "Number of inputs with a range of values exceeded the allowed limit (%d/%d), Please remove some." @*continuous-input-count @*continuous-input-limit)])
        [:div.wizard-navigation
         [c/button {:label    "Back"
                    :variant  "secondary"
                    :on-click #(dispatch [:wizard/prev-tab params])}]
         [c/button {:label         "Run"
-                   :disabled?     warn-limit?
+                   :disabled?     (true? @*warn-limit?)
                    :variant       "highlight"
                    :icon-name     "arrow2"
                    :icon-position "right"
