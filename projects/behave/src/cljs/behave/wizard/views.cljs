@@ -82,7 +82,7 @@
     [:div.wizard-page
      [wizard-header @*module @submodules params]
      [submodule-page io @*groups]
-     (when (true? @*warn-limit?)
+     (when @*warn-limit?
        [:div.wizard-warning
         (gstring/format  "Number of inputs with a range of values exceeded the allowed limit (%d/%d), Please remove some." @*continuous-input-count @*continuous-input-limit)])
      [wizard-navigation @*module @*submodule @submodules params]]))
@@ -102,7 +102,7 @@
         [:div.wizard-header__banner__title "Review Modules"]]
        [:div.wizard-review
         "TODO: Add table of current values"]
-       (when (true? @*warn-limit?)
+       (when @*warn-limit?
          [:div.wizard-warning
           (gstring/format  "Number of inputs with a range of values exceeded the allowed limit (%d/%d), Please remove some." @*continuous-input-count @*continuous-input-limit)])
        [:div.wizard-navigation
@@ -110,7 +110,7 @@
                    :variant  "secondary"
                    :on-click #(dispatch [:wizard/prev-tab params])}]
         [c/button {:label         "Run"
-                   :disabled?     (true? @*warn-limit?)
+                   :disabled?     @*warn-limit?
                    :variant       "highlight"
                    :icon-name     "arrow2"
                    :icon-position "right"
