@@ -80,25 +80,20 @@
   (fn [{:keys [db] :as _cfx} [_event-id path]]
     {:db (update-in db path remove-nils)}))
 
-(def ^:const continuous-input-limit 2)
-
 (def ->check-limit
   (re-frame.core/->interceptor
     :id     :check-limit
     :after  (fn [context]
               (let [{:keys [event db]}              (:coeffects context)
                     [_ group-id repeat-id id value] event
+                    continuous-input-limit          (get-in db [:state :worksheet :continuous-input-limit])
                     limit-reached?                  (>= (get-in db [:state :worksheet :continuous-input-count])
                                                         continuous-input-limit)]
                 (if (and limit-reached?
                          (seq value)
                          (not (some? (get-in db [:state :worksheet :inputs group-id repeat-id id]))))
                   (-> context
-                      (assoc-in [:effects :dispatch] [:state/set :warn-continuous-input-limit true])
-                      #_(update-in [:effects :fx] #(remove (fn [[_fx-id event]]
-                                                             (let [[event-id & _args] event]
-                                                               (= event-id :state/set)))
-                                                           %)))
+                      (assoc-in [:effects :dispatch] [:state/set :warn-continuous-input-limit true]))
                   (assoc-in context [:effects :dispatch] [:state/set :warn-continuous-input-limit false]))))))
 
 (defn- count-continusous-variable-inputs
