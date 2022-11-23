@@ -1,7 +1,7 @@
 (ns behave.components.input-group
   (:require [re-frame.core          :as rf]
             [behave.components.core :as c]
-            [dom-utils.interface    :refer [input-float-value input-value]]
+            [dom-utils.interface    :refer [input-float-values input-value]]
             [string-utils.interface :refer [->kebab]]))
 
 (defmulti wizard-input (fn [variable _ _] (:variable/kind variable)))
@@ -17,18 +17,27 @@
                                      group-id
                                      repeat-id
                                      repeat-group?]
-  (let [value (rf/subscribe [:state [:worksheet :inputs group-id repeat-id id]])]
+  (let [value                 (rf/subscribe [:state [:worksheet :inputs group-id repeat-id id]])
+        acceptable-char-codes (set (map #(.charCodeAt % 0) "0123456789., "))]
     [:div.wizard-input
      [:div.wizard-input__input
       {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
-      [c/number-input {:label       (if repeat-group? var-name "Values:")
-                       :placeholder (when repeat-group? "Values")
-                       :id          (->kebab var-name)
-                       :value       @value
-                       :required?   true
-                       :min         var-min
-                       :max         var-max
-                       :on-change   #(rf/dispatch [:state/set [:worksheet :inputs group-id repeat-id id] (input-float-value %)])}]]
+      [c/text-input {:label        (if repeat-group? var-name "Values:")
+                     :placeholder  (when repeat-group? "Values")
+                     :id           (->kebab var-name)
+                     :value        @value
+                     :required?    true
+                     :min          var-min
+                     :max          var-max
+                     :on-key-press (fn [event]
+                                     (when-not (contains? acceptable-char-codes (.-charCode event))
+                                       (.preventDefault event)))
+                     :on-change    (fn [event]
+                                     (rf/dispatch [:wizard/update-inputs
+                                                   group-id
+                                                   repeat-id
+                                                   id
+                                                   (input-float-values event)]))}]]
      [:div.wizard-input__description
       (str "Units used: " native-units)
       [:div.wizard-input__description__units
@@ -43,7 +52,8 @@
                                    repeat-group?]
   (let [selected  (rf/subscribe [:state [:worksheet :inputs group-id repeat-id id]])
         on-change #(do (println %)
-                       (rf/dispatch [:state/set [:worksheet :inputs group-id repeat-id id] %])) ]
+                       (rf/dispatch [:state/set [:worksheet :inputs group-id repeat-id id]
+                                     (input-value %)]))]
     [:div.wizard-input
      {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
      [c/radio-group
@@ -64,13 +74,19 @@
                                 var-name :variable/name
                                 help-key :group-variable/help-key}
                                group-id repeat-id repeat-group?]
-  [:div.wizard-input
-   {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
-   [c/text-input {:label       (if repeat-group? var-name "Values:")
-                  :placeholder (when repeat-group? "Value")
-                  :id          (->kebab var-name)
-                  :on-change   #(rf/dispatch [:state/set [:worksheet :inputs group-id repeat-id id] (input-value %)])
-                  :required?   true}]])
+  (let [value (rf/subscribe [:state [:worksheet :inputs group-id repeat-id id]])]
+    [:div.wizard-input
+     {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
+     [c/text-input {:label       (if repeat-group? var-name "Values:")
+                    :placeholder (when repeat-group? "Value")
+                    :value       @value
+                    :id          (->kebab var-name)
+                    :on-change   #(rf/dispatch [:wizard/update-inputs
+                                                group-id
+                                                repeat-id
+                                                id
+                                                (input-value %)])
+                    :required?   true}]]))
 
 (defn repeat-group [{group-id :db/id} variables]
   (let [repeats (rf/subscribe [:state [:worksheet :repeat-groups group-id]])]

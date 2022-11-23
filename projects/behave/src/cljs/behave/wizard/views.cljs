@@ -1,11 +1,13 @@
 (ns behave.wizard.views
-  (:require [re-frame.core                  :refer [dispatch subscribe]]
-            [behave.translate               :refer [<t bp]]
-            [behave.components.core         :as c]
-            [behave.components.output-group :refer [output-group]]
+  (:require [behave.components.core         :as c]
             [behave.components.input-group  :refer [input-group]]
+            [behave.components.output-group :refer [output-group]]
+            [behave.translate               :refer [<t bp]]
             [behave.wizard.events]
-            [behave.wizard.subs]))
+            [behave.wizard.subs]
+            [goog.string                    :as gstring]
+            [goog.string.format]
+            [re-frame.core                  :refer [dispatch subscribe]]))
 
 ;;; Components
 
@@ -58,9 +60,9 @@
 
 (defn- wizard-navigation [*module *submodule all-submodules params]
   [:div.wizard-navigation
-   [c/button {:label         "Back"
-              :variant       "secondary"
-              :on-click      #(dispatch [:wizard/prev-tab params])}]
+   [c/button {:label    "Back"
+              :variant  "secondary"
+              :on-click #(dispatch [:wizard/prev-tab params])}]
 
    [c/button {:label         "Next"
               :variant       "highlight"
@@ -80,35 +82,42 @@
      [wizard-navigation @*module @*submodule @submodules params]]))
 
 (defn wizard-review-page [params]
-  [:div.accordion
-   [:div.accordion__header
-    [:div.accordion__header__title @(<t (bp "working_area"))]]
-   [:div.wizard-page
-    [:div.wizard-header
-     [:div.wizard-header__banner {:style {:margin-top "20px"}}
-      [:div.wizard-header__banner__icon
-       [c/icon :modules]]
-      [:div.wizard-header__banner__title "Review Modules"]]
-     [:div.wizard-review
-      "TODO: Add table of current values"]
-     [:div.wizard-navigation
-      [c/button {:label    "Back"
-                 :variant  "secondary"
-                 :on-click #(dispatch [:wizard/prev-tab params])}]
-      [c/button {:label         "Run"
-                 :variant       "highlight"
-                 :icon-name     "arrow2"
-                 :icon-position "right"
-                 :on-click      #(dispatch [:worksheet/solve params])}]]]]])
+  (let [warn-limit?            (true? @(subscribe [:state :warn-continuous-input-limit]))
+        continuous-input-limit @(subscribe [:state [:worksheet :continuous-input-limit]])
+        continuous-input-count @(subscribe [:state [:worksheet :continuous-input-count]])]
+    [:div.accordion
+     [:div.accordion__header
+      [:div.accordion__header__title @(<t (bp "working_area"))]]
+     [:div.wizard-page
+      [:div.wizard-header
+       [:div.wizard-header__banner {:style {:margin-top "20px"}}
+        [:div.wizard-header__banner__icon
+         [c/icon :modules]]
+        [:div.wizard-header__banner__title "Review Modules"]]
+       [:div.wizard-review
+        "TODO: Add table of current values"]
+       (when (true? warn-limit?)
+         [:div.wizard-warning
+          (gstring/format  "Number of inputs with a range of values exceeded the allowed limit (%d/%d), Please remove some." continuous-input-count continuous-input-limit)])
+       [:div.wizard-navigation
+        [c/button {:label    "Back"
+                   :variant  "secondary"
+                   :on-click #(dispatch [:wizard/prev-tab params])}]
+        [c/button {:label         "Run"
+                   :disabled?     warn-limit?
+                   :variant       "highlight"
+                   :icon-name     "arrow2"
+                   :icon-position "right"
+                   :on-click      #(dispatch [:worksheet/solve params])}]]]]]))
 
 (defn wizard-results-page [_]
   (let [results   (subscribe [:state [:worksheet :results]])
         variables (subscribe [:pull-many '[* {:variable/_group-variables [*]}] (keys (:contain @results))])
-        results (map (fn [value v]
-                       {:name (-> v (:variable/_group-variables) (first) (:variable/name))
-                        :value value})
-                     (vals (:contain @results))
-                     @variables)]
+        results   (map (fn [value v]
+                         {:name  (-> v (:variable/_group-variables) (first) (:variable/name))
+                          :value value})
+                       (vals (:contain @results))
+                       @variables)]
     [:div.accordion
      [:div.accordion__header
       [:div.accordion__header__title @(<t (bp "working_area"))]]
@@ -119,22 +128,25 @@
          [c/icon :modules]]
         [:div.wizard-header__banner__title "Results"]]
        [:div.wizard-review
-        [c/table {:title "Contain Results"
+        [c/table {:title   "Contain Results"
                   :headers ["Variable Name" "Value"]
                   :columns [:name :value]
                   :rows    results}]]
-        [:div.wizard-navigation
-         [c/button {:label   "Back"
-                    :variant "secondary"}]
-         [c/button {:label         "Next"
-                    :variant       "highlight"
-                    :icon-name     "arrow2"
-                    :icon-position "right"}]]]]]))
+       [:div.wizard-navigation
+        [c/button {:label   "Back"
+                   :variant "secondary"}]
+        [c/button {:label         "Next"
+                   :variant       "highlight"
+                   :icon-name     "arrow2"
+                   :icon-position "right"}]]]]]))
+
+(def ^:const continuous-input-limit 2)
 
 ;;; Public Components
-
 (defn root-component [params]
-  (let [loaded? (subscribe [:state :loaded?])]
+  (let [loaded? (subscribe [:state :loaded?])
+        _       (dispatch [:state/set [:worksheet :continuous-input-limit]
+                           continuous-input-limit])]
     [:div.accordion
      [:div.accordion__header
       [c/tab {:variant   "outline-primary"
