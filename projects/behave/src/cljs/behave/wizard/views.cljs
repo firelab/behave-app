@@ -140,7 +140,8 @@
                    :icon-name     "arrow2"
                    :icon-position "right"}]]]]]))
 
-(def ^:const continuous-input-limit 2)
+;; TODO Might want to set this in a config file to the application
+(def ^:const continuous-input-limit 3)
 
 ;;; Public Components
 (defn root-component [params]
