@@ -87,12 +87,11 @@
               (let [{:keys [event db]}              (:coeffects context)
                     continuous-input-limit          (get-in db [:state :worksheet :continuous-input-limit])
                     continuous-input-count          (get-in db [:state :worksheet :continuous-input-count])
-                    limit-reached?                  (>= continuous-input-count continuous-input-limit)
                     [_ group-id repeat-id id value] event
-                    input-exists?                   (some? (get-in db [:state :worksheet :inputs group-id repeat-id id]))]
-                (if (and limit-reached?
-                         (seq value)
-                         (not input-exists?))
+                    input-exists?                   (some? (get-in db [:state :worksheet :inputs group-id repeat-id id]))
+                    limit-exceeded?                 (or (> continuous-input-count continuous-input-limit)
+                                                        (and (not input-exists?) (= continuous-input-count continuous-input-limit)))]
+                (if (and limit-exceeded? (seq value))
                   (-> context
                       (assoc-in [:effects :dispatch] [:state/set :warn-continuous-input-limit true]))
                   (assoc-in context [:effects :dispatch] [:state/set :warn-continuous-input-limit false]))))))
