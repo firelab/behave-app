@@ -151,9 +151,13 @@
 
 ;;; Public Components
 (defn root-component [params]
-  (let [loaded? (subscribe [:state :loaded?])
-        _       (dispatch [:state/set [:worksheet :continuous-input-limit]
-                           continuous-input-limit])]
+  (let [loaded?                 (subscribe [:state :loaded?])
+        _                       (dispatch [:state/set [:worksheet :continuous-input-limit]
+                                           continuous-input-limit])
+        *continuous-input-limit (subscribe [:state [:worksheet :continuous-input-limit]])
+        *continuous-input-count (subscribe [:state [:worksheet :continuous-input-count]])
+        _                       (dispatch [:state/set :warn-continuous-input-limit
+                                           (> @*continuous-input-count @*continuous-input-limit)])]
     [:div.accordion
      [:div.accordion__header
       [c/tab {:variant   "outline-primary"
