@@ -80,7 +80,7 @@
   (fn [{:keys [db] :as _cfx} [_event-id path]]
     {:db (update-in db path remove-nils)}))
 
-(defn- count-continusous-variable-inputs
+(defn- count-continuous-variable-inputs
   [k->v depth-to-count]
   (letfn [(dfs-walk [k->v cur-depth]
             (when-let [map-entries (seq k->v)]
@@ -101,7 +101,7 @@
   :wizard/update-input-count
   (fn [_cfx [_event-id]]
     (let [inputs   (rf/subscribe [:state [:worksheet :inputs]])
-          id-count (count-continusous-variable-inputs @inputs 2)]
+          id-count (count-continuous-variable-inputs @inputs 2)]
       {:dispatch [:state/set [:worksheet :continuous-input-count] id-count]})))
 
 (rf/reg-event-fx

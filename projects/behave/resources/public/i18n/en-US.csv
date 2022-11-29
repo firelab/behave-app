@@ -191,6 +191,7 @@ behaveplus:values,Values
 behaveplus:variable,Variable
 behaveplus:viewing_graphs,Viewing Graphs
 behaveplus:viewing_tables,Viewing Tables
+behaveplus:warn_input_limit,Number of inputs with a range of values exceeded the allowed limit (%d/%d), Please remove some.
 behaveplus:welcome_message,Welcome to BehavePlus 7.0
 behaveplus:work_style,Work Style
 behaveplus:working_area,Working Area

@@ -84,7 +84,7 @@
      [submodule-page io @*groups]
      (when @*warn-limit?
        [:div.wizard-warning
-        (gstring/format  "Number of inputs with a range of values exceeded the allowed limit (%d/%d), Please remove some." @*continuous-input-count @*continuous-input-limit)])
+        (gstring/format  @(<t (bp "warn_input_limit")) @*continuous-input-count @*continuous-input-limit)])
      [wizard-navigation @*module @*submodule @submodules params]]))
 
 (defn wizard-review-page [params]
@@ -104,7 +104,7 @@
         "TODO: Add table of current values"]
        (when @*warn-limit?
          [:div.wizard-warning
-          (gstring/format  "Number of inputs with a range of values exceeded the allowed limit (%d/%d), Please remove some." @*continuous-input-count @*continuous-input-limit)])
+          (gstring/format  @(<t (bp "warn_input_limit")) @*continuous-input-count @*continuous-input-limit)])
        [:div.wizard-navigation
         [c/button {:label    "Back"
                    :variant  "secondary"
