@@ -64,7 +64,8 @@
        :header      @(<t (bp "module_selection"))
        :description @(<t (bp "please_select_from_the_following_options"))}]
      [:div.workflow-select__content
-      [c/card-group {:on-select      #(rf/dispatch [:state/set [:worksheet :*modules] (:module %)])
+      [c/card-group {:on-select      #(do (rf/dispatch [:state/set [:worksheet :*modules] (:module %)])
+                                          (rf/dispatch [:state/set [:sidebar :*modules] (:module %)]))
                      :flex-direction "row"
                      :cards          [{:order     1
                                        :title     @(<t (bp "surface_and_crown"))
