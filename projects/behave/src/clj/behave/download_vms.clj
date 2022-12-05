@@ -12,11 +12,20 @@
   (apply dissoc m (for [[k v] m :when (nil? v)] k)))
 
 (defn- ->io [entity]
-  (if-let [{io :submodule/input-output} entity]
-    (-> entity
-        (dissoc :submodule/input-output)
-        (assoc :submodule/io (keyword io)))
-    entity))
+  (let [io (:submodule/input-output entity)]
+    (if (nil? io)
+      entity
+      (-> entity
+          (dissoc :submodule/input-output)
+          (assoc :submodule/io (keyword io))))))
+
+(defn ->repeat? [entity]
+  (let [repeat (:group/repeat entity)]
+    (if (nil? repeat)
+      entity
+      (-> entity
+          (dissoc :group/repeatable :group/repeat)
+          (assoc :group/repeat? (boolean repeat))))))
 
 (defn conn->msgpack [conn]
   (log-str "Transferring datoms to MessagePack...")
@@ -34,6 +43,7 @@
                       (apply concat)
                       (mapv #(-> %
                                  (->io)
+                                 (->repeat?)
                                  (dissoc-nil)
                                  (assoc :bp/uuid (:db/id %)))))
         conn     (dc/create-conn)]
