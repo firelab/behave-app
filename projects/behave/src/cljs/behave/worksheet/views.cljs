@@ -64,8 +64,7 @@
        :header      @(<t (bp "module_selection"))
        :description @(<t (bp "please_select_from_the_following_options"))}]
      [:div.workflow-select__content
-      [c/card-group {:on-select      #(do (rf/dispatch [:state/set [:worksheet :*modules] (:module %)])
-                                          (rf/dispatch [:state/set [:sidebar :*modules] (:module %)]))
+      [c/card-group {:on-select      #(rf/dispatch [:state/set [:worksheet :*modules] (:module %)])
                      :flex-direction "row"
                      :cards          [{:order     1
                                        :title     @(<t (bp "surface_and_crown"))
@@ -103,7 +102,9 @@
      [wizard-navigation {:next-label @(<t (bp "next"))
                          :back-label @(<t (bp "back"))
                          :on-back    #(.back js/history)
-                         :on-next    #(rf/dispatch [:navigate "/worksheets/1/modules/contain/output/fire"])}]]))
+                         :on-next    #(do (rf/dispatch [:navigate "/worksheets/1/modules/contain/output/fire"])
+                                          (let [*module (rf/subscribe [:state [:worksheet :*modules]])]
+                                            (rf/dispatch [:state/set [:sidebar :*modules] @*module])))}]]))
 
 (defn guided-worksheet-page [params]
   [:<>
