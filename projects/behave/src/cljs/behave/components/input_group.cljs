@@ -35,8 +35,10 @@
                                      (when-not (contains? acceptable-char-codes (.-charCode event))
                                        (.preventDefault event)))
                      :on-change    (fn [event]
-                                     (rf/dispatch [:state/set
-                                                   [:worksheet :inputs group-id repeat-id id]
+                                     (rf/dispatch [:wizard/update-inputs
+                                                   group-id
+                                                   repeat-id
+                                                   id
                                                    (input-float-values event)]))}]]
      [:div.wizard-input__description
       (str "Units used: " native-units)
@@ -81,8 +83,10 @@
                     :placeholder (when repeat-group? "Value")
                     :value       @value
                     :id          (->kebab var-name)
-                    :on-change   #(rf/dispatch [:state/set
-                                                [:worksheet :inputs group-id repeat-id id]
+                    :on-change   #(rf/dispatch [:wizard/update-inputs
+                                                group-id
+                                                repeat-id
+                                                id
                                                 (input-value %)])
                     :required?   true}]]))
 

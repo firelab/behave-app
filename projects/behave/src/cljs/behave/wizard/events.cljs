@@ -63,3 +63,27 @@
           path            (path-for routes :ws/results :id id)]
       {:fx [[:dispatch [:navigate path]]]
        :db (assoc-in db [:state :worksheet] worksheet)})))
+
+(defn- remove-nils
+  "remove pairs of key-value that has nil value from a (possibly nested) map. also transform map to
+  nil if all of its value are nil"
+  [nm]
+  (postwalk
+    (fn [el]
+      (if (map? el)
+        (not-empty (into {} (remove (comp nil? second)) el))
+        el))
+    nm))
+
+(rf/reg-event-fx
+  :wizard/remove-nils
+  (fn [{:keys [db] :as _cfx} [_event-id path]]
+    {:db (update-in db path remove-nils)}))
+
+(rf/reg-event-fx
+  :wizard/update-inputs
+  (fn [_cfx [_event-id group-id repeat-id id value]]
+    {:fx [(if (empty? value)
+            [:dispatch [:state/update [:worksheet :inputs group-id repeat-id] dissoc id]]
+            [:dispatch [:state/set [:worksheet :inputs group-id repeat-id id] value]])
+          [:dispatch [:wizard/remove-nils [:state :worksheet :inputs]]]]}))
