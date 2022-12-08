@@ -71,26 +71,26 @@
               :on-click      #(dispatch [:wizard/next-tab *module *submodule all-submodules params])}]])
 
 (defn wizard-page [{:keys [module io submodule] :as params}]
-  (let [*module                 (subscribe [:wizard/*module module])
-        submodules              (subscribe [:wizard/submodules (:db/id @*module)])
-        *submodule              (subscribe [:wizard/*submodule (:db/id @*module) submodule io])
-        *groups                 (subscribe [:wizard/groups (:db/id @*submodule)])
-        *warn-limit?            (subscribe [:state :warn-continuous-input-limit])
-        *continuous-input-limit (subscribe [:state [:worksheet :continuous-input-limit]])
-        *continuous-input-count (subscribe [:state [:worksheet :continuous-input-count]])]
+  (let [*module                  (subscribe [:wizard/*module module])
+        submodules               (subscribe [:wizard/submodules (:db/id @*module)])
+        *submodule               (subscribe [:wizard/*submodule (:db/id @*module) submodule io])
+        *groups                  (subscribe [:wizard/groups (:db/id @*submodule)])
+        *warn-limit?             (subscribe [:wizard/warn-limit?])
+        *multi-value-input-limit (subscribe [:wizard/multi-value-input-limit])
+        *multi-value-input-count (subscribe [:wizard/multi-value-input-count])]
 
     [:div.wizard-page
      [wizard-header @*module @submodules params]
      [submodule-page io @*groups]
      (when @*warn-limit?
        [:div.wizard-warning
-        (gstring/format  @(<t (bp "warn_input_limit")) @*continuous-input-count @*continuous-input-limit)])
+        (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])
      [wizard-navigation @*module @*submodule @submodules params]]))
 
 (defn wizard-review-page [params]
-  (let [*warn-limit?            (subscribe [:state :warn-continuous-input-limit])
-        *continuous-input-limit (subscribe [:state [:worksheet :continuous-input-limit]])
-        *continuous-input-count (subscribe [:state [:worksheet :continuous-input-count]])]
+  (let [*warn-limit?             (subscribe [:wizard/warn-limit?])
+        *multi-value-input-limit (subscribe [:wizard/multi-value-input-limit])
+        *multi-value-input-count (subscribe [:wizard/multi-value-input-count])]
     [:div.accordion
      [:div.accordion__header
       [:div.accordion__header__title @(<t (bp "working_area"))]]
@@ -104,7 +104,7 @@
         "TODO: Add table of current values"]
        (when @*warn-limit?
          [:div.wizard-warning
-          (gstring/format  @(<t (bp "warn_input_limit")) @*continuous-input-count @*continuous-input-limit)])
+          (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])
        [:div.wizard-navigation
         [c/button {:label    "Back"
                    :variant  "secondary"
@@ -151,13 +151,7 @@
 
 ;;; Public Components
 (defn root-component [params]
-  (let [loaded?                 (subscribe [:state :loaded?])
-        _                       (dispatch [:state/set [:worksheet :continuous-input-limit]
-                                           continuous-input-limit])
-        *continuous-input-limit (subscribe [:state [:worksheet :continuous-input-limit]])
-        *continuous-input-count (subscribe [:state [:worksheet :continuous-input-count]])
-        _                       (dispatch [:state/set :warn-continuous-input-limit
-                                           (> @*continuous-input-count @*continuous-input-limit)])]
+  (let [loaded? (subscribe [:state :loaded?])]
     [:div.accordion
      [:div.accordion__header
       [c/tab {:variant   "outline-primary"

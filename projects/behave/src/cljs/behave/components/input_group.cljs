@@ -17,8 +17,8 @@
                                      group-id
                                      repeat-id
                                      repeat-group?]
-  (let [value                 (rf/subscribe [:state [:worksheet :inputs group-id repeat-id id]])
-        warn-limit?           (true? @(rf/subscribe [:state :warn-continuous-input-limit]))
+  (let [*value                (rf/subscribe [:state [:worksheet :inputs group-id repeat-id id]])
+        *warn-limit?          (rf/subscribe [:wizard/warn-limit?])
         acceptable-char-codes (set (map #(.charCodeAt % 0) "0123456789., "))]
     [:div.wizard-input
      [:div.wizard-input__input
@@ -26,19 +26,17 @@
       [c/text-input {:label        (if repeat-group? var-name "Values:")
                      :placeholder  (when repeat-group? "Values")
                      :id           (->kebab var-name)
-                     :value        @value
+                     :value        @*value
                      :required?    true
                      :min          var-min
                      :max          var-max
-                     :error?       warn-limit?
+                     :error?       (and @*warn-limit? (> (count @*value) 1))
                      :on-key-press (fn [event]
                                      (when-not (contains? acceptable-char-codes (.-charCode event))
                                        (.preventDefault event)))
                      :on-change    (fn [event]
-                                     (rf/dispatch [:wizard/update-inputs
-                                                   group-id
-                                                   repeat-id
-                                                   id
+                                     (rf/dispatch [:state/set
+                                                   [:worksheet :inputs group-id repeat-id id]
                                                    (input-float-values event)]))}]]
      [:div.wizard-input__description
       (str "Units used: " native-units)
@@ -83,10 +81,8 @@
                     :placeholder (when repeat-group? "Value")
                     :value       @value
                     :id          (->kebab var-name)
-                    :on-change   #(rf/dispatch [:wizard/update-inputs
-                                                group-id
-                                                repeat-id
-                                                id
+                    :on-change   #(rf/dispatch [:state/set
+                                                [:worksheet :inputs group-id repeat-id id]
                                                 (input-value %)])
                     :required?   true}]]))
 

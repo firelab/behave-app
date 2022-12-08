@@ -18,7 +18,7 @@
     (subscribe [:vms/pull-with-attr :module/name]))
   (fn [modules [_ selected-module]]
     (first (filter (fn [{m-name :module/name}]
-              (= selected-module (str/lower-case m-name))) modules))))
+                     (= selected-module (str/lower-case m-name))) modules))))
 
 (reg-sub
   :wizard/submodules
@@ -44,9 +44,9 @@
   :wizard/groups
   (fn [[_ submodule-id]]
     (subscribe [:vms/pull-children
-                   :submodule/groups
-                   submodule-id
-                   '[* {:group/group-variables [* {:variable/_group-variables [*]}]}]]))
+                :submodule/groups
+                submodule-id
+                '[* {:group/group-variables [* {:variable/_group-variables [*]}]}]]))
 
   (fn [groups]
     (mapv (fn [group]
@@ -59,3 +59,38 @@
                                 (merge variable-data)
                                 (dissoc :variable/group-variables)
                                 (update :variable/kind keyword))) (:group/group-variables group)))) groups)))
+
+
+(defn- dfs-walk [k->v cur-depth]
+  (when-let [map-entries (seq k->v)]
+    (if (zero? cur-depth)
+      (map val map-entries)
+      (into (dfs-walk (-> map-entries first val) (dec cur-depth))
+            (dfs-walk (rest map-entries) cur-depth)))))
+
+(reg-sub
+  :wizard/multi-value-input-count
+  (fn [db _query]
+    (let [inputs                  (get-in db [:state :worksheet :inputs])
+          multi-value-input-count (->> (dfs-walk inputs 2)
+                                       (filter (fn multiple-values? [input]
+                                                 (and (coll? input)
+                                                      (> (count input) 1))))
+                                       (count))]
+      multi-value-input-count)))
+
+;; TODO Might want to set this in a config file to the application
+(def ^:const continuous-input-limit 3)
+
+(reg-sub
+  :wizard/multi-value-input-limit
+  (fn [_db _query]
+    continuous-input-limit))
+
+(reg-sub
+  :wizard/warn-limit?
+  (fn [_query]
+    (subscribe [:wizard/multi-value-input-count]))
+
+  (fn [multi-value-input-count _query]
+    (> multi-value-input-count continuous-input-limit)))
