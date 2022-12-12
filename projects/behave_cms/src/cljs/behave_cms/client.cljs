@@ -1,0 +1,107 @@
+(ns ^:figwheel-hooks behave-cms.client
+  (:require [bidi.bidi                        :refer [match-route]]
+            [reagent.dom                      :refer [render]]
+            [re-frame.core                    :as rf]
+            [behave-cms.events]
+            [behave-cms.subs]
+            [behave-cms.store                 :as    store]
+            [behave-cms.routes                :refer [app-routes]]
+            [behave-cms.components.menu       :refer [menu]]
+            [behave-cms.pages.dashboard       :as dashboard]
+            [behave-cms.applications.views    :refer [list-applications-page]]
+            [behave-cms.authentication.views  :refer [invite-user-page
+                                                      login-page
+                                                      reset-password-page
+                                                      verify-email-page]]
+            [behave-cms.groups.views          :refer [list-groups-page]]
+            [behave-cms.group-variables.views :refer [group-variable-page]]
+            [behave-cms.languages.views       :refer [list-languages-page]]
+            [behave-cms.modules.views         :refer [list-modules-page]]
+            [behave-cms.subgroups.views       :refer [list-subgroups-page]]
+            [behave-cms.submodules.views      :refer [list-submodules-page]]
+            [behave-cms.variables.views       :refer [list-variables-page]]))
+
+(declare render-page!)
+
+(defonce original-params (atom {}))
+(defonce history         (atom []))
+(defonce *current-path   (atom nil))
+
+(def menu-pages
+  [{:page "Applications"   :path "/applications"}
+   {:page "Variables"      :path "/variables"}
+   {:page "Languages"      :path "/languages"}
+   {:page "Invite User"    :path "/invite-user"}])
+
+(def app-pages {:applications       list-applications-page
+                :dashboard          dashboard/root-component
+                :get-application    list-modules-page
+                :get-group          list-subgroups-page
+                :get-group-variable group-variable-page
+                :get-module         list-submodules-page
+                :get-submodule      list-groups-page
+                :languages          list-languages-page
+                :variables          list-variables-page})
+
+(def system-pages {:login          login-page
+                   :verify-email   verify-email-page
+                   :invite-user    invite-user-page
+                   :reset-password reset-password-page})
+
+(def handler->root-component (merge app-pages system-pages))
+
+(defn not-found
+  "The root component for the 404 page."
+  [_]
+  [:div {:style {:margin-top "100px"}}
+   [:div {:style {:align-content   "center"
+                  :display         "flex"
+                  :justify-content "center"
+                  :margin-bottom   "6rem"}}
+    [:h1 {:style {:text-align "center"}}
+     "404 - Page Not Found"]]])
+
+(defn page-component [params]
+  (let [current-route                  (rf/subscribe [:route])
+        {:keys [handler route-params]} (match-route app-routes @current-route)]
+    [:div
+     [(get handler->root-component handler not-found) (merge route-params params)]]))
+
+(defn render-page! [path & [params]]
+  (rf/dispatch [:navigate path])
+  (render (cond
+            (match-route app-routes path)
+            [:div
+             [menu menu-pages #(rf/dispatch [:navigate %])]
+             [page-component (or params @original-params)]]
+
+            :else
+            (not-found @original-params))
+          (.getElementById js/document "app")))
+
+
+(defn- render-root
+  "Renders the root component for the current URI."
+  [params]
+  (let [uri (-> js/window .-location .-pathname)]
+    (reset! *current-path {:path uri :position 0})
+    (swap! history conj @*current-path)
+    (render-page! uri params)))
+
+(defn- ^:export init
+  "Defines the init function to be called from window.onload()."
+  [params]
+  (.addEventListener js/window "popstate" #(rf/dispatch [:popstate %]))
+  (let [clj-params (js->clj params :keywordize-keys true)
+        cur-params (if (seq clj-params)
+                     (reset! original-params
+                             (js->clj params :keywordize-keys true))
+                     @original-params)]
+    (store/connect!)
+    (render-root cur-params)
+    (rf/dispatch-sync [:initialize])))
+
+(defn- ^:after-load mount-root!
+  "A hook for figwheel to call the init function again."
+  []
+  (init {}))

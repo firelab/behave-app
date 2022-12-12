@@ -24,10 +24,17 @@
          "bases/datom_store/src"
 
          ;; Projects
+
+         ;; Behave
          "projects/behave/src/clj"
          "projects/behave/src/cljs"
+         "projects/behave/resources"
 
-         "projects/behave/resources"]
+         ;; Behave CMS
+         "projects/behave_cms/src/clj"
+         "projects/behave_cms/src/cljc"
+         "projects/behave_cms/src/cljs"
+         "projects/behave_cms/resources"]
 
  :deps {;; Clojure Deps
         bidi/bidi                          {:mvn/version "2.1.6"}
@@ -40,6 +47,7 @@
         me.raynes/fs                       {:mvn/version "1.4.6"}
         org.clojure/data.json              {:mvn/version "1.0.0"}
         org.clojure/data.xml               {:mvn/version "0.2.0-alpha7"}
+        org.mindrot/jbcrypt                {:mvn/version "0.4"}
         ring/ring                          {:mvn/version "1.9.5"}
         ring/ring-defaults                 {:mvn/version "0.3.3"}
         ring/ring-headers                  {:mvn/version "0.3.0"}
