@@ -6,6 +6,8 @@
             [behave.translate               :refer [<t bp]]
             [behave.wizard.events]
             [behave.wizard.subs]
+            [behave.worksheet.events]
+            [behave.worksheet.subs]
             [goog.string                    :as gstring]
             [goog.string.format]
             [re-frame.core                  :refer [dispatch subscribe]]))
@@ -20,12 +22,7 @@
     (for [group groups]
       (let [variables (:group/group-variables group)]
         ^{:key (:db/id group)}
-        [input-group ws-uuid group variables]))]
-   [wizard-navigation {:next-label @(<t (bp "next"))
-                       :back-label @(<t (bp "back"))
-                       :on-back    on-back
-                       :on-next    on-next}]])
-
+        [input-group ws-uuid group variables]))]])
 
 (defmethod submodule-page :output [_ ws-uuid groups on-back on-next]
   [:<>
@@ -33,11 +30,7 @@
     (for [group groups]
       (let [variables (:group/group-variables group)]
         ^{:key (:db/id group)}
-        [output-group ws-uuid group variables]))]
-   [wizard-navigation {:next-label @(<t (bp "next"))
-                       :back-label @(<t (bp "back"))
-                       :on-back    on-back
-                       :on-next    on-next}]])
+        [output-group ws-uuid group variables]))]])
 
 (defn- io-tabs [submodules {:keys [io] :as params}]
   (let [[i-subs o-subs] (partition-by #(:submodule/io %) submodules)
@@ -151,7 +144,7 @@
 
 ;;; Public Components
 (defn root-component [params]
-  (let [loaded?                 (subscribe [:state :loaded?])
+  (let [loaded?                 (subscribe [:app/loaded?])
         _                       (dispatch [:state/set [:worksheet :continuous-input-limit]
                                            continuous-input-limit])
         *continuous-input-limit (subscribe [:state [:worksheet :continuous-input-limit]])
