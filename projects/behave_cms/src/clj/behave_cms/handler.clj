@@ -71,6 +71,14 @@
 ;; Custom Middlewares
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defn wrap-req-content-type [handler]
+  (fn [{:keys [headers] :as req}]
+    (handler (assoc req :content-type (get headers "content-type")))))
+
+(defn wrap-accept [handler]
+  (fn [{:keys [headers] :as req}]
+    (handler (assoc req :accepts (get headers "accept")))))
+
 (defn wrap-request-logging [handler]
   (fn [request]
     (let [{:keys [uri request-method params]} request
@@ -165,6 +173,8 @@
       wrap-nested-params
       wrap-multipart-params
       wrap-session-params
+      wrap-req-content-type
+      wrap-accept
       wrap-params
       wrap-session
       wrap-absolute-redirects

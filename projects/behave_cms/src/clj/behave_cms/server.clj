@@ -5,8 +5,8 @@
             [clojure.string      :as str]
             [clojure.tools.cli   :refer [parse-opts]]
             [ring.adapter.jetty  :refer [run-jetty]]
-            [triangulum.config   :refer [get-config]]
             [triangulum.logging  :refer [log-str set-log-path!]]
+            [config.interface    :refer [load-config get-config]]
             [behave.store        :as store]
             [behave-cms.handler  :refer [create-handler-stack]])
   (:gen-class))

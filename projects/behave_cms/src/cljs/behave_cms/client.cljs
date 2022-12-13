@@ -2,9 +2,10 @@
   (:require [bidi.bidi                        :refer [match-route]]
             [reagent.dom                      :refer [render]]
             [re-frame.core                    :as rf]
+            [re-frisk.core                    :as re-frisk]
+            [behave-cms.store                 :as s]
             [behave-cms.events]
             [behave-cms.subs]
-            [behave-cms.store                 :as    store]
             [behave-cms.routes                :refer [app-routes]]
             [behave-cms.components.menu       :refer [menu]]
             [behave-cms.pages.dashboard       :as dashboard]
@@ -69,6 +70,7 @@
 
 (defn render-page! [path & [params]]
   (rf/dispatch [:navigate path])
+  (when (not= path "/login") (rf/dispatch-sync [:store/connect]))
   (render (cond
             (match-route app-routes path)
             [:div
@@ -83,10 +85,10 @@
 (defn- render-root
   "Renders the root component for the current URI."
   [params]
-  (let [uri (-> js/window .-location .-pathname)]
-    (reset! *current-path {:path uri :position 0})
+  (let [path (-> js/window .-location .-pathname)]
+    (reset! *current-path {:path path :position 0})
     (swap! history conj @*current-path)
-    (render-page! uri params)))
+    (render-page! path params)))
 
 (defn- ^:export init
   "Defines the init function to be called from window.onload()."
@@ -97,7 +99,6 @@
                      (reset! original-params
                              (js->clj params :keywordize-keys true))
                      @original-params)]
-    (store/connect!)
     (render-root cur-params)
     (rf/dispatch-sync [:initialize])))
 

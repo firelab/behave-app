@@ -22,7 +22,8 @@
 (def initial-state {:router   {:history       ["/"]
                                :curr-position 0}
                     :state    {:editors {}
-                               :sidebar {}}
+                               :sidebar {}
+                               :loading? true}
                     :entities {:applications {}
                                :functions    {}
                                :groups       {}

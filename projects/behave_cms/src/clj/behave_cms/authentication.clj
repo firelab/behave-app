@@ -1,9 +1,9 @@
 (ns behave-cms.authentication
   (:require [datahike.api          :as d]
-            [behave-cms.db.core    :refer [default-conn get-entity create-entity! update-entity!]]
-            [behave.db.utils       :refer [safe-deref]]
+            [behave-cms.store      :refer [default-conn get-entity create-entity! update-entity!]]
             [behave-cms.utils.mail :refer [get-site-url email? send-mail]]
-            [behave-cms.views      :refer [data-response]])
+            [behave-cms.views      :refer [data-response]]
+            [datom-utils.interface :refer [safe-deref]])
   (:import [org.mindrot.jbcrypt BCrypt]
            [java.util Random]
            [java.net URLEncoder]))

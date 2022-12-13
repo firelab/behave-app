@@ -51,17 +51,20 @@
                           :required? true}]}])
 
 (defn list-applications-page [{:keys [id]}]
-  (let [application (rf/subscribe [:state :application])]
+  (let [loading? (rf/subscribe [:state :loading?])
+        application (rf/subscribe [:state :application])]
     (when (and id (nil? @application))
       (rf/dispatch [:state/set-state :application id]))
-    [:<>
-     [sidebar "Applications" @(rf/subscribe [:sidebar/applications])]
-     [window sidebar-width
-      [:div.container
-       [:div.row
-        [:div.col-6
-         [:h3 "Applications"]
-         [applications-table]]
-        [:div.col-6
-         [:h3 "Manage"]
-         [application-form @application]]]]]]))
+    (if @loading?
+      [:div "Loading..."]
+      [:<>
+       [sidebar "Applications" @(rf/subscribe [:sidebar/applications])]
+       [window sidebar-width
+        [:div.container
+         [:div.row
+          [:div.col-6
+           [:h3 "Applications"]
+           [applications-table]]
+          [:div.col-6
+           [:h3 "Manage"]
+           [application-form @application]]]]]])))
