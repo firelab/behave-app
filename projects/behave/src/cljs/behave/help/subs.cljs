@@ -15,22 +15,23 @@
 (rf/reg-sub
   :help/content
   (fn [_ [_ help-key]]
-   (q '[:find  [?content]
-       :in    $ ?help-key
-       :where [?e :help/key ?help-key]
-              [?e :help/content ?content]]
-      help-key)))
+    @(rf/subscribe [:vms/query
+                   '[:find  [?content]
+                     :in    $ ?help-key
+                     :where [?e :help/key ?help-key]
+                            [?e :help/content ?content]]
+                   help-key])))
 
 (rf/reg-sub
  :help/submodule-help-keys
  (fn [[_ submodule-id]]
-   (pull '[:submodule/help-key
-           {:submodule/groups
-            [:group/help-key
-             {:group/group-variables
-              [:group-variable/help-key]}]}]
-         submodule-id))
-
+   (rf/subscribe [:vms/pull
+                  '[:submodule/help-key
+                    {:submodule/groups
+                     [:group/help-key
+                      {:group/group-variables
+                       [:group-variable/help-key]}]}]
+                  submodule-id]))
   (fn [submodule]
     (persistent!
       (reduce (fn [acc group]
