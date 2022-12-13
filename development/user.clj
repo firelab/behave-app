@@ -1,9 +1,5 @@
-(ns user)
+(ns user
+  (:require [behave.core :as core]))
 
 (comment
-
-  (require '[behave.core :refer [init!]])
-
-  (init!)
-
-  )
+  (core/init!))

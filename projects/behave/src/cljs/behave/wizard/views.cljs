@@ -1,13 +1,14 @@
 (ns behave.wizard.views
-  (:require [re-frame.core                  :refer [dispatch subscribe]]
-            [behave.translate               :refer [<t bp]]
-            [behave.components.core         :as c]
+  (:require [behave.components.core         :as c]
             [behave.components.input-group  :refer [input-group]]
             [behave.components.navigation   :refer [wizard-navigation]]
             [behave.components.output-group :refer [output-group]]
+            [behave.translate               :refer [<t bp]]
             [behave.wizard.events]
             [behave.wizard.subs]
-            [behave.worksheet.subs]))
+            [goog.string                    :as gstring]
+            [goog.string.format]
+            [re-frame.core                  :refer [dispatch subscribe]]))
 
 ;;; Components
 
@@ -70,19 +71,32 @@
                                       :selected? (= submodule slug)}) submodules)}]]]))
 
 (defn wizard-page [{:keys [module io submodule] :as params}]
-  (let [*module    (subscribe [:wizard/*module module])
-        submodules (subscribe [:wizard/submodules (:db/id @*module)])
-        *submodule (subscribe [:wizard/*submodule (:db/id @*module) submodule io])
-        *groups    (subscribe [:wizard/groups (:db/id @*submodule)])
-        on-back    #(dispatch [:wizard/prev-tab params])
-        on-next    #(dispatch [:wizard/next-tab @*module @*submodule @submodules params])
+  (let [*module                 (subscribe [:wizard/*module module])
+        submodules              (subscribe [:wizard/submodules (:db/id @*module)])
+        *submodule              (subscribe [:wizard/*submodule (:db/id @*module) submodule io])
+        *groups                 (subscribe [:wizard/groups (:db/id @*submodule)])
+        *warn-limit?            (subscribe [:state :warn-continuous-input-limit])
+        *continuous-input-limit (subscribe [:state [:worksheet :continuous-input-limit]])
+        *continuous-input-count (subscribe [:state [:worksheet :continuous-input-count]])
+        on-back                 #(dispatch [:wizard/prev-tab params])
+        on-next                 #(dispatch [:wizard/next-tab @*module @*submodule @submodules params])
         worksheet  (subscribe [:worksheet/latest])]
     [:div.wizard-page
      [wizard-header @*module @submodules params]
-     [submodule-page io @worksheet @*groups on-back on-next]]))
+     [submodule-page io @worksheet @*groups on-back on-next]
+     (when @*warn-limit?
+       [:div.wizard-warning
+        (gstring/format  @(<t (bp "warn_input_limit")) @*continuous-input-count @*continuous-input-limit)])
+     [wizard-navigation {:next-label @(<t (bp "next"))
+                         :on-next    on-next
+                         :back-label @(<t (bp "back"))
+                         :on-back    on-back}]]))
 
 (defn wizard-review-page [params]
-  (let [worksheet (subscribe [:worksheet/latest])]
+  (let [worksheet              (subscribe [:worksheet/latest])
+        *warn-limit?            (subscribe [:state :warn-continuous-input-limit])
+        *continuous-input-limit (subscribe [:state [:worksheet :continuous-input-limit]])
+        *continuous-input-count (subscribe [:state [:worksheet :continuous-input-count]])]
     [:div.accordion
      [:div.accordion__header
       [:div.accordion__header__title @(<t (bp "working_area"))]]
@@ -94,6 +108,9 @@
         [:div.wizard-header__banner__title "Review Modules"]]
        [:div.wizard-review
         "TODO: Add table of current values"]
+       (when @*warn-limit?
+         [:div.wizard-warning
+          (gstring/format  @(<t (bp "warn_input_limit")) @*continuous-input-count @*continuous-input-limit)])
        [wizard-navigation {:next-label @(<t (bp "next"))
                            :back-label @(<t (bp "back"))
                            :on-back    #(dispatch [:wizard/prev-tab params])
@@ -102,11 +119,11 @@
 (defn wizard-results-page [_]
   (let [results   (subscribe [:state [:worksheet :results]])
         variables (subscribe [:pull-many '[* {:variable/_group-variables [*]}] (keys (:contain @results))])
-        results (map (fn [value v]
-                       {:name (-> v (:variable/_group-variables) (first) (:variable/name))
-                        :value value})
-                     (vals (:contain @results))
-                     @variables)]
+        results   (map (fn [value v]
+                         {:name  (-> v (:variable/_group-variables) (first) (:variable/name))
+                          :value value})
+                       (vals (:contain @results))
+                       @variables)]
     [:div.accordion
      [:div.accordion__header
       [:div.accordion__header__title @(<t (bp "working_area"))]]
@@ -117,25 +134,37 @@
          [c/icon :modules]]
         [:div.wizard-header__banner__title "Results"]]
        [:div.wizard-review
-        [c/table {:title "Contain Results"
+        [c/table {:title   "Contain Results"
                   :headers ["Variable Name" "Value"]
                   :columns [:name :value]
                   :rows    results}]]
-        [:div.wizard-navigation
-         [c/button {:label   "Back"
-                    :variant "secondary"}]
-         [c/button {:label         "Next"
-                    :variant       "highlight"
-                    :icon-name     "arrow2"
-                    :icon-position "right"}]]]]]))
+       [:div.wizard-navigation
+        [c/button {:label   "Back"
+                   :variant "secondary"}]
+        [c/button {:label         "Next"
+                   :variant       "highlight"
+                   :icon-name     "arrow2"
+                   :icon-position "right"}]]]]]))
+
+;; TODO Might want to set this in a config file to the application
+(def ^:const continuous-input-limit 3)
 
 ;;; Public Components
-
 (defn root-component [params]
-  [:div.accordion
-   [:div.accordion__header
-    [c/tab {:variant   "outline-primary"
-            :selected? true
-            :label     @(<t "behaveplus:working_area")}]]
-   [:div.wizard
-    [wizard-page params]]])
+  (let [loaded?                 (subscribe [:state :loaded?])
+        _                       (dispatch [:state/set [:worksheet :continuous-input-limit]
+                                           continuous-input-limit])
+        *continuous-input-limit (subscribe [:state [:worksheet :continuous-input-limit]])
+        *continuous-input-count (subscribe [:state [:worksheet :continuous-input-count]])
+        _                       (dispatch [:state/set :warn-continuous-input-limit
+                                           (> @*continuous-input-count @*continuous-input-limit)])]
+    [:div.accordion
+     [:div.accordion__header
+      [c/tab {:variant   "outline-primary"
+              :selected? true
+              :label     @(<t "behaveplus:working_area")}]]
+     [:div.wizard
+      (if @loaded?
+        [wizard-page params]
+        [:div.wizard__loading
+         [:h2 "Loading..."]])]]))

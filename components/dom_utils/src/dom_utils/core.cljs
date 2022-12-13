@@ -1,4 +1,5 @@
-(ns dom-utils.core)
+(ns dom-utils.core
+  (:require [clojure.string :as s]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Utility Functions - Browser DOM and Event Utils
@@ -18,6 +19,13 @@
   "Given an event, returns the value as a float."
   [event]
   (js/parseFloat (input-value event)))
+
+(defn input-float-values
+  "Given an event, returns the value as a sequence of floats."
+  [event]
+  (->> (s/split (input-value event) #"[,|\s]")
+       (map js/parseFloat)
+       (remove js/isNaN)))
 
 (defn input-keyword
   "Given an event, returns the value as a Clojure keyword."

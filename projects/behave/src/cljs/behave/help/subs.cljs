@@ -8,6 +8,11 @@
     (get-in db [:state :help-tab] :help)))
 
 (rf/reg-sub
+ :help/current-highlighted-key
+ (fn [db _]
+   (get-in db [:state :help-current-highlighted-key])))
+
+(rf/reg-sub
   :help/content
   (fn [_ [_ help-key]]
     @(rf/subscribe [:vms/query
