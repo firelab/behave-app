@@ -45,10 +45,10 @@
                                      (when-not (contains? acceptable-char-codes (.-charCode event))
                                        (.preventDefault event)))
                      :on-change    #(on-change ws-uuid
-                                               group-id
+                                               group-uuid
                                                repeat-id
-                                               id
-                                               (input-float-values %))}]]
+                                               uuid
+                                               (input-value %))}]]
      [:div.wizard-input__description
       (str "Units used: " native-units)
       [:div.wizard-input__description__units

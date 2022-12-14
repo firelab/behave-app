@@ -188,7 +188,7 @@
    {:db/ident       :result-row/id
     :db/doc         "Results row's id."
     :db/valueType   :db.type/long
-    :db/cardinality :db.cardinality/many}
+    :db/cardinality :db.cardinality/one}
 
    {:db/ident       :result-row/cells
     :db/doc         "Results row's cells."
