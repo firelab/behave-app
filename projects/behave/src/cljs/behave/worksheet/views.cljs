@@ -102,7 +102,9 @@
      [wizard-navigation {:next-label @(<t (bp "next"))
                          :back-label @(<t (bp "back"))
                          :on-back    #(.back js/history)
-                         :on-next    #(rf/dispatch [:navigate "/worksheets/1/modules/contain/output/fire"])}]]))
+                         :on-next    #(do (rf/dispatch [:navigate "/worksheets/1/modules/contain/output/fire"])
+                                          (let [*module (rf/subscribe [:state [:worksheet :*modules]])]
+                                            (rf/dispatch [:state/set [:sidebar :*modules] @*module])))}]]))
 
 (defn guided-worksheet-page [params]
   [:<>
