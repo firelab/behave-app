@@ -58,6 +58,11 @@
        (d/listen conn :record-tx record-tx)
        conn)))
 
+#?(:clj
+   (defn delete-datahike! [cfg]
+     (d/delete-database cfg)
+     (reset! conn nil)))
+
 #?(:cljs
    (defn connect-datascript! [schema & [setup-fn]]
      (reset! stored-unsafe-attrs (unsafe-attrs schema))
