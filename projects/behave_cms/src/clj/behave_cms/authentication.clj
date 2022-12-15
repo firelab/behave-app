@@ -1,6 +1,9 @@
 (ns behave-cms.authentication
   (:require [datahike.api          :as d]
-            [behave-cms.store      :refer [default-conn get-entity create-entity! update-entity!]]
+            [behave-cms.store      :as s :refer [default-conn
+                                                 get-entity
+                                                 create-entity!
+                                                 update-entity!]]
             [behave-cms.utils.mail :refer [get-site-url email? send-mail]]
             [behave-cms.views      :refer [data-response]]
             [datom-utils.interface :refer [safe-deref]])
@@ -74,7 +77,8 @@
     (get-entity db {:db/id user-id})))
 
 (defn- create-user! [db email first-name last-name]
-  (create-entity! db {:user/email        email
+  (create-entity! db {:user/uuid         (str (random-uuid))
+                      :user/email        email
                       :user/first-name   first-name
                       :user/last-name    last-name
                       :user/verified?    false
@@ -128,6 +132,12 @@
                           name (get-site-url) email reset-key)]
     (send-mail email nil nil "[FireLab] Password reset request" email-msg "text/plain")))
 
+(defn- success [data & [status]]
+  (data-response data {:status (or status 200) :type :edn}))
+
+(defn- unathorized [message]
+  (data-response {:message message} {:status 403 :type :edn}))
+
 ;;; Public Fns
 
 (defn login! [{:keys [email password]}]
@@ -135,7 +145,7 @@
     (if (valid-password? db email password)
       (let [user (get-user db email)]
         (data-response (only-public-cols user) {:session {:user-uuid (str (:user/id user))}}))
-      (data-response "Invalid email/password." {:status 403}))))
+      (unathorized "Invalid email/password."))))
 
 (defn logout! [] (data-response "" {:session nil}))
 
@@ -143,35 +153,35 @@
   (let [db (default-conn)]
     (update-email! db old-email new-email)
     (data-response (only-public-cols (get-user db new-email)))
-    (data-response "" {:status 403})))
+    (unathorized "Invalid email/password.")))
 
 (defn reset-password! [{:keys [email password reset-key]}]
   (if (update-password! (default-conn) email password reset-key)
-    (data-response "Updated password.")
-    (data-response "" {:status 403})))
+    (data-response {:message "Updated password."})
+    (unathorized "Invalid email/password.")))
 
 (defn reset-key! [{:keys [email]}]
   (let [db (default-conn)]
     (if (update-reset-key! db email)
       (let [user (get-user db email)]
         (send-reset-email! (:user/first-name user) email (:user/reset-key user))
-        (data-response (only-public-cols user)))
-      (data-response "" {:status 403}))))
+        (success (only-public-cols user)))
+      (unathorized ""))))
 
 (defn verify-email! [{:keys [email reset-key]}]
   (let [db (default-conn)]
     (if (update-verify! db email reset-key)
-      (data-response (only-public-cols (get-user db email)))
-      (data-response "" {:status 403}))))
+      (success (only-public-cols (get-user db email)))
+      (unathorized ""))))
 
 (defn invite-user! [{:keys [email first-name last-name]}]
   (let [db (default-conn)]
     (if (email-taken? db email)
-      (data-response (format "Email '%s' has been taken." email) {:status 403})
+      (unathorized (format "Email '%s' has been taken." email))
       (let [_    (create-user! db email first-name last-name)
             user (get-user db email)]
         (send-invite-email! (:user/first-name user)
                             email
                             (:user/created user)
                             (:user/reset-key user))
-        (data-response (only-public-cols user))))))
+        (success (only-public-cols user))))))

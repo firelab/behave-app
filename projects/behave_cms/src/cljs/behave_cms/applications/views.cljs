@@ -51,12 +51,11 @@
                           :required? true}]}])
 
 (defn list-applications-page [{:keys [id]}]
-  (let [loading? (rf/subscribe [:state :loading?])
+  (let [loaded? (rf/subscribe [:state :loaded?])
         application (rf/subscribe [:state :application])]
     (when (and id (nil? @application))
       (rf/dispatch [:state/set-state :application id]))
-    (if @loading?
-      [:div "Loading..."]
+    (if @loaded?
       [:<>
        [sidebar "Applications" @(rf/subscribe [:sidebar/applications])]
        [window sidebar-width
@@ -67,4 +66,5 @@
            [applications-table]]
           [:div.col-6
            [:h3 "Manage"]
-           [application-form @application]]]]]])))
+           [application-form @application]]]]]]
+      [:div "Loading ..."])))

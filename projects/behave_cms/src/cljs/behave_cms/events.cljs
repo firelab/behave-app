@@ -1,6 +1,8 @@
 (ns behave-cms.events
   (:require [clojure.string     :as str]
             [clojure.core.async :refer [go <!]]
+            [ajax.core          :refer [ajax-request]]
+            [ajax.edn           :refer [edn-request-format edn-response-format]]
             [bidi.bidi          :refer [path-for]]
             [re-frame.core      :refer [dispatch
                                         path
@@ -23,7 +25,7 @@
                                :curr-position 0}
                     :state    {:editors {}
                                :sidebar {}
-                               :loading? true}
+                               :loaded? false}
                     :entities {:applications {}
                                :functions    {}
                                :groups       {}
@@ -144,10 +146,16 @@
 ;;; AJAX/Fetch Effects
 
 (defn request [{:keys [uri method data on-success on-error fn-args]}]
-  (go (let [response (<! (u/call-remote! method uri {:api-args data}))]
-        (if (= 200 (:status response))
-          (dispatch (conj [on-success response] fn-args))
-          (dispatch (conj [on-error response] fn-args))))))
+  (let [handler (fn [[ok result]]
+                  (dispatch [(if ok on-success on-error)
+                             result
+                             fn-args]))]
+    (ajax-request {:uri             uri
+                   :method          method
+                   :handler         handler
+                   :params          {:api-args data}
+                   :format          (edn-request-format)
+                   :response-format (edn-response-format)})))
 
 (reg-fx :api/request request)
 

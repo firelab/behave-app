@@ -4,6 +4,7 @@
             [behave.schema.group-variable  :as group-variable]
             [behave.schema.help            :as help]
             [behave.schema.language        :as language]
+            [behave.schema.list            :as behave-list]
             [behave.schema.module          :as module]
             [behave.schema.submodule       :as submodule]
             [behave.schema.translation     :as translation]
@@ -30,6 +31,7 @@
                                 group-variable/schema
                                 help/schema
                                 language/schema
+                                behave-list/schema
                                 module/schema
                                 submodule/schema
                                 translation/schema

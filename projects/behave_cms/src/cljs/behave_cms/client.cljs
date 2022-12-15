@@ -70,7 +70,7 @@
 
 (defn render-page! [path & [params]]
   (rf/dispatch [:navigate path])
-  (when (not= path "/login") (rf/dispatch-sync [:store/connect]))
+  (when (not= path "/login") (s/load-store!))
   (render (cond
             (match-route app-routes path)
             [:div

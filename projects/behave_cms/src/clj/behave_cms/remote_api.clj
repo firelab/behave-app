@@ -3,6 +3,7 @@
             [clojure.repl      :refer [demunge]]
             [clojure.string    :as str]
             [bidi.bidi         :refer [match-route]]
+            [config.interface  :refer [get-config]]
             [behave-cms.authentication  :refer [invite-user!
                                                 login!
                                                 logout!
@@ -13,7 +14,9 @@
             [behave-cms.routes          :refer [api-routes]]
             [behave-cms.views           :refer [data-response]]))
 
-(def log-str println)
+(defn log-str [& args]
+  (when (= "dev" (get-config :server :mode))
+    (apply println args)))
 
 (def name->fn {})
 
@@ -35,7 +38,7 @@
 
 ;; Handlers
 (defn api-handler [{:keys [uri params content-type]}]
-  (println "--- URI" uri)
+  (log-str "--- URI:" uri " Params: " params " Content Type: " content-type)
   (if-let [{:keys [handler route-params]} (match-route api-routes uri)]
     (let [function   (get api-handlers handler)
           _          (log-str "API Route: " handler ", Route Params: " route-params)
@@ -50,7 +53,7 @@
           response   (if (and (map? api-result) (:status api-result))
                        api-result
                        (data-response api-result {:type (if (= content-type "application/edn") :edn :json)}))]
-      (println response)
+      (log-str response)
       response)
     (data-response "There is no valid handler with this name." {:status 400})))
 
@@ -68,6 +71,3 @@
         clj-result
         (data-response clj-result {:type (if (= content-type "application/edn") :edn :json)})))
     (data-response "There is no valid function with this name." {:status 400})))
-
-(comment
-  )
