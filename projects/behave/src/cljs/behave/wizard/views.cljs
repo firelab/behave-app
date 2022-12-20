@@ -94,7 +94,8 @@
     [:div.wizard-review__run-desciption
      [:div.wizard-review__run-description__header
       @(<t "behaveplus:run_description")]
-     [:div.wizard-review__run-description__input
+     [:div.wizard-review-group__inputs
+      [:div.wizard-review__run-description__input
       [c/text-input {:label       @(<t (bp "run_description"))
                      :placeholder @(<t (bp "type_description"))
                      :id          (->kebab @(<t (bp "run_description")))
@@ -105,7 +106,7 @@
                   :variant       "transparent-highlight"
                   :icon-name     :help2
                   :icon-position "left"}]
-       @(<t (bp "a_brief_phrase_documenting_the_run"))]]]))
+       @(<t (bp "a_brief_phrase_documenting_the_run"))]]]]))
 
 (defn wizard-review-page [{:keys [id] :as params}]
   (let [*ws-uuid                (subscribe [:worksheet/latest])
@@ -134,7 +135,7 @@
             (gstring/format "%s Inputs"  @(<t (:module/translation-key module)))]
            [:div.wizard-review__submodule
             (for [submodule @(subscribe [:wizard/submodules-io-input-only (:db/id module)])]
-              [:div.wizard-review__input
+              [:<>
                [:div.wizard-review__submodule-header (:submodule/name submodule)]
                (for [group (:submodule/groups submodule)
                      :when (seq (:group/group-variables group))

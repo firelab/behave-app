@@ -17,7 +17,7 @@
   (let [values      (rf/subscribe [:worksheet/input ws-uuid group-uuid repeat-id uuid])
         warn-limit? (true? @(rf/subscribe [:state :warn-continuous-input-limit]))]
     [:div.wizard-input
-     [:div.wizard-input__input--review
+     [:div.wizard-review__input
       {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
       [c/text-input {:label     var-name
                      :value     (first @values)
@@ -38,10 +38,10 @@
                                    edit-route]
   (let [values (rf/subscribe [:worksheet/input ws-uuid group-uuid repeat-id uuid])]
     [:div.wizard-input {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
-     [:div.wizard-input__input--review
-      [:div.wizard-input--discrete--review
-       [:div.wizard-input--discrete--review__label (str var-name ":")]
-       [:div.wizard-input--discrete--review__value (first @values)]
+     [:div.wizard-review__input
+      [:div.wizard-review__input--discrete
+       [:div.wizard-review__input--discrete__label (str var-name ":")]
+       [:div.wizard-review__input--discrete__value (first @values)]
        [c/button {:variant  "primary"
                   :label    @(<t (bp "change_selection"))
                   :size     "small"
@@ -69,15 +69,15 @@
                   :on-click #(rf/dispatch [:wizard/edit edit-route repeat-id uuid])}])]))
 
 (defn- repeat-group-input [variable ws-uuid group-uuid repeat-id route]
-  [:div.wizard-repeat-group--review__input
+  [:div.wizard-review-repeat-group__input
    [wizard-input variable ws-uuid group-uuid repeat-id true route]
-   [:div.wizard-repeat-group--review__message
+   [:div.wizard-review-repeat-group__message
     [c/button {:label         @(<t (bp "managing_resources"))
                :variant       "transparent-highlight"
                :icon-name     :help2
                :icon-position "left"}]
     @(<t (bp "you_can_edit_andor_delete_resources"))
-    [:div.wizard-repeat-group--review__manage
+    [:div.wizard-review-repeat-group__manage
      [c/button {:variant   "primary"
                 :label     @(<t (bp "delete"))
                 :size      "small"
@@ -103,7 +103,7 @@
             (str group-name " #" (inc index))]]
           [:div.wizard-group__inputs
            (let [variable (first (sort-by :group-variable/variable-order variables))]
-             [:div.wizard-repeat-group--review
+             [:div.wizard-input
               [repeat-group-input variable ws-uuid group-uuid repeat-id edit-route]])]])
        @*repeat-ids)
      [:div {:style {:display         "flex"
@@ -113,7 +113,7 @@
 
 (defn input-group [ws-uuid group variables edit-route]
   (r/with-let [variables (sort-by :group-variable/variable-order variables)]
-    [:div.wizard-group
+    [:<>
      (if (:group/repeat? group)
        [repeat-group ws-uuid group variables edit-route]
        [:div.wizard-review-group__inputs
