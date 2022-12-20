@@ -73,6 +73,14 @@
        :options [{:value "HeadAttack" :label "Head Attack" :on-change on-change :checked? (= (first @selected) "HeadAttack")}
                  {:value "RearAttack" :label "Rear Attack" :on-change on-change :checked? (= (first @selected) "RearAttack")}]}]]))
 
+;; #_(map (fn [{id :db/id value :option/value t-key :option/translation-key}]
+;;         {:label     @(<t t-key)
+;;          :id        id
+;;          :selected  (= @selected value)
+;;          :name      var-name
+;;          :on-change })
+;;       options)
+
 (defmethod wizard-input :text [{uuid     :bp/uuid
                                 var-name :variable/name
                                 help-key :group-variable/help-key}
