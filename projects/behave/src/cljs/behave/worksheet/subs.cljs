@@ -71,6 +71,56 @@
                     [?g :input-group/group-uuid ?group-uuid]]
     :variables [ws-uuid group-uuid]}))
 
+;; Find inputs for a given group-uuid and repeat-id
+(rp/reg-sub
+  :worksheet/input-ids
+  (fn [_ [_ ws-uuid group-uuid repeat-id]]
+    {:type      :query
+     :query     '[:find [?i ...]
+                  :in  $ ?ws-uuid ?group-uuid ?repeat-id
+                  :where
+                  [?w :worksheet/uuid ?ws-uuid]
+                  [?w :worksheet/input-groups ?g]
+                  [?g :input-group/group-uuid ?group-uuid]
+                  [?g :input-group/repeat-id ?repeat-id]
+                  [?g :input-group/inputs ?i]]
+     :variables [ws-uuid group-uuid repeat-id]}))
+
+(rp/reg-sub
+  :worksheet/group-repeat-ids
+  (fn [_ [_ ws-uuid group-uuid]]
+    {:type      :query
+     :query     '[:find  [?rid ...]
+                  :in    $ ?ws-uuid ?group-uuid
+                  :where
+                  [?w :worksheet/uuid ?ws-uuid]
+                  [?w :worksheet/input-groups ?ig]
+                  [?ig :input-group/group-uuid ?group-uuid]
+                  [?ig :input-group/repeat-id ?rid]]
+     :variables [ws-uuid group-uuid]}))
+
+(comment
+  (let [ws-uuid    @(rf/subscribe [:worksheet/latest])
+        group-uuid "0fccfc94-f1f2-4d33-8fd7-b2257c414cfa"
+        repeat-id  0]
+
+    (rf/subscribe [:worksheet/repeat-groups ws-uuid group-uuid])
+
+    ;; (rf/subscribe [:worksheet/input-ids ws-uuid group-uuid repeat-id])
+
+    (rf/subscribe [:worksheet/group-repeat-ids ws-uuid group-uuid])
+
+    ;; (rf/subscribe [:worksheet/all-inputs ws-uuid])
+
+    ;; (rf/subscribe [:worksheet/repeat-groups ws-uuid group-uuid])
+    #_(rf/subscribe [:query '[:find [?i ...]
+                              :in  $ ?ws-uuid ?group-uuid ?repeat-id
+                              :where
+                              [?w :worksheet/uuid ?ws-uuid]
+                              [?w :worksheet/input-groups ?g]
+                              [?g :input-group/group-uuid ?group-uuid]
+                              [?g :input-group/repeat-id ?repeat-id]]])))
+
 (rf/reg-sub
  :worksheet/all-inputs
  (fn [_ [_ ws-uuid]]

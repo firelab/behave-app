@@ -112,3 +112,26 @@
             [:dispatch [:state/set [:worksheet :inputs group-id repeat-id id] value]])
           [:dispatch [:wizard/update-input-count]]
           [:dispatch [:wizard/remove-nils [:state :worksheet :inputs]]]]}))
+
+(rf/reg-event-fx
+  :wizard/edit
+  (fn [_cfx [_event-id route repeat-id var-uuid]]
+    {:fx [[:dispatch [:navigate route]]
+          [:dispatch-later {:ms       200
+                            :dispatch [:wizard/scroll-into-view repeat-id var-uuid]}]]}))
+
+(rf/reg-event-fx
+  :wizard/scroll-into-view
+  (fn [_cfx [_event-id repeat-id var-uuid]]
+    (let [content (first (.getElementsByClassName js/document "wizard-io"))
+          section (.getElementById js/document (str repeat-id  "-" var-uuid))
+          _       (println "scroll-into-vew id:" (str repeat-id  "-" var-uuid))
+          buffer  (* 0.10 (.-offsetHeight content))
+          top     (- (.-offsetTop section) (.-offsetTop content) buffer)]
+      (.scroll content #js {:top top :behavior "smooth"}))))
+
+(rf/reg-event-fx
+  :wizard/delete
+  (fn [_cfx [_event-id group-id repeat-id]]
+    {:fx [[:dispatch [:state/update [:worksheet :inputs group-id] dissoc repeat-id]]
+          [:dispatch [:state/update [:worksheet :repeat-groups group-id] disj repeat-id]]]}))

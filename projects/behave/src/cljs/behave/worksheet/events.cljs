@@ -70,6 +70,22 @@
                       :input/value               value}]})))))
 
 (rp/reg-event-fx
+  :worksheet/delete-repeat-input-group
+  [(rp/inject-cofx :ds)]
+  (fn [{:keys [ds]} [_ ws-uuid group-uuid repeat-id]]
+    (let [input-ids (d/q '[:find [?g ...]
+                           :in  $ ?ws-uuid ?group-uuid ?repeat-id
+                           :where
+                           [?w :worksheet/uuid ?ws-uuid]
+                           [?w :worksheet/input-groups ?g]
+                           [?g :input-group/group-uuid ?group-uuid]
+                           [?g :input-group/repeat-id ?repeat-id]]
+                         ds ws-uuid group-uuid repeat-id)]
+      (when (seq input-ids)
+        (let [payload (mapv (fn [id] [:db.fn/retractEntity id]) input-ids)]
+          {:transact payload})))))
+
+(rp/reg-event-fx
  :worksheet/upsert-output
  [(rp/inject-cofx :ds)]
  (fn [{:keys [ds]} [_ ws-uuid group-variable-uuid enabled?]]

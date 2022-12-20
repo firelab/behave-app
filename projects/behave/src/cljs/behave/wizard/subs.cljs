@@ -18,7 +18,7 @@
     (subscribe [:vms/pull-with-attr :module/name]))
   (fn [modules [_ selected-module]]
     (first (filter (fn [{m-name :module/name}]
-              (= selected-module (str/lower-case m-name))) modules))))
+                     (= selected-module (str/lower-case m-name))) modules))))
 
 (reg-sub
   :wizard/submodules
@@ -27,7 +27,19 @@
                 :module/submodules
                 module-id]))
   (fn [submodules _]
-    (map #(assoc % :slug (-> % (:submodule/name) (->kebab))) submodules)))
+    (map (fn [submodule]
+           (-> submodule
+               (assoc :slug (-> submodule (:submodule/name) (->kebab)))
+               (assoc :submodule/groups @(subscribe [:wizard/groups (:db/id submodule)]))))
+         submodules)))
+
+(reg-sub
+  :wizard/submodules-io-input-only
+  (fn [[_ module-id]]
+    (subscribe [:wizard/submodules module-id]))
+
+  (fn [submodules _]
+    (filter (fn [submodule] (= (:submodule/io submodule) :input)) submodules)))
 
 (reg-sub
   :wizard/*submodule
@@ -44,9 +56,9 @@
   :wizard/groups
   (fn [[_ submodule-id]]
     (subscribe [:vms/pull-children
-                   :submodule/groups
-                   submodule-id
-                   '[* {:group/group-variables [* {:variable/_group-variables [*]}]}]]))
+                :submodule/groups
+                submodule-id
+                '[* {:group/group-variables [* {:variable/_group-variables [*]}]}]]))
 
   (fn [groups]
     (mapv (fn [group]
