@@ -28,6 +28,11 @@
                 :worksheet/created (.now js/Date)}]}))
 
 (rp/reg-event-fx
+  :worksheet/update-attr
+  (fn [_ [_ ws-uuid attr value]]
+    {:transact [(assoc {:db/id [:worksheet/uuid ws-uuid]} attr value)]}))
+
+(rp/reg-event-fx
  :worksheet/add-input-group
  [(rp/inject-cofx :ds)]
  (fn [{:keys [ds]} [_ ws-uuid group-uuid repeat-id]]

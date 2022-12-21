@@ -30,6 +30,16 @@
                     [?w :worksheet/modules ?modules]]
     :variables [ws-uuid]}))
 
+(rp/reg-sub
+  :worksheet/get-attr
+  (fn [_ [_ ws-uuid attr]]
+    {:type      :query
+     :query     '[:find [?value ...]
+                  :in    $ ?ws-uuid ?attr
+                  :where [?w :worksheet/uuid ?ws-uuid]
+                  [?w ?attr ?value]]
+     :variables [ws-uuid attr]}))
+
 ; Get state of a particular output
 (rp/reg-sub
  :worksheet/output-enabled?

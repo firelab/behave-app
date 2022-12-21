@@ -90,23 +90,27 @@
                          :on-back    on-back}]]))
 
 (defn run-description []
-  (let [value (subscribe [:state [:worksheet :description]])]
+  (let [*ws-uuid (subscribe [:worksheet/latest])
+        *values  (subscribe [:worksheet/get-attr @*ws-uuid :worksheet/run-description])]
     [:div.wizard-review__run-desciption
      [:div.wizard-review__run-description__header
       @(<t "behaveplus:run_description")]
      [:div.wizard-review-group__inputs
       [:div.wizard-review__run-description__input
-      [c/text-input {:label       @(<t (bp "run_description"))
-                     :placeholder @(<t (bp "type_description"))
-                     :id          (->kebab @(<t (bp "run_description")))
-                     :value       @value
-                     :on-change   #(dispatch [:state/set [:worksheet :description] (-> % .-target .-value)])}]
-      [:div.wizard-review__run-description__message
-       [c/button {:label         (gstring/format "*%s"  @(<t (bp "optional")))
-                  :variant       "transparent-highlight"
-                  :icon-name     :help2
-                  :icon-position "left"}]
-       @(<t (bp "a_brief_phrase_documenting_the_run"))]]]]))
+       [c/text-input {:label       @(<t (bp "run_description"))
+                      :placeholder @(<t (bp "type_description"))
+                      :id          (->kebab @(<t (bp "run_description")))
+                      :value       (or (first @*values) "")
+                      :on-change   #(dispatch [:worksheet/update-attr
+                                               @*ws-uuid
+                                               :worksheet/run-description
+                                               (-> % .-target .-value)])}]
+       [:div.wizard-review__run-description__message
+        [c/button {:label         (gstring/format "*%s"  @(<t (bp "optional")))
+                   :variant       "transparent-highlight"
+                   :icon-name     :help2
+                   :icon-position "left"}]
+        @(<t (bp "a_brief_phrase_documenting_the_run"))]]]]))
 
 (defn wizard-review-page [{:keys [id] :as params}]
   (let [*ws-uuid                (subscribe [:worksheet/latest])

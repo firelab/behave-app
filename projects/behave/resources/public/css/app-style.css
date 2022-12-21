@@ -167,9 +167,11 @@
 .workflow-select__header__content svg {
   padding-right: 15px
 }
+
 .accordion__header > .tab > .button,
 .workflow-select__header__title > .tab > .button {
   display: block;
+  height: 41px;
   width: 100%;
   text-align: left;
   pointer-events: none;
@@ -315,7 +317,7 @@
 
 .wizard-review-group__inputs {
   padding: 25px 30px;
-  border-bottom: 0.75mm dotted var(--gray-4);
+  border-bottom: 2px dotted var(--gray-4);
 }
 
 .wizard-review__run-description__header {
@@ -369,7 +371,7 @@
 
 .wizard-review__submodule-header {
   padding: 27px 0px 0px 0px;
-  border-bottom: 0.75mm solid var(--gray-4);
+  border-bottom: 2px solid var(--gray-4);
   font-size: var(--font-size-22);
   font-weight: var(--font-weight-bold);
 }
