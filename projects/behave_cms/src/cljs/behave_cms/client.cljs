@@ -2,7 +2,6 @@
   (:require [bidi.bidi                        :refer [match-route]]
             [reagent.dom                      :refer [render]]
             [re-frame.core                    :as rf]
-            [re-frisk.core                    :as re-frisk]
             [behave-cms.store                 :as s]
             [behave-cms.events]
             [behave-cms.subs]

@@ -4,6 +4,7 @@
             [re-posh.core  :as rp]
             [behave-cms.routes :refer [app-routes]]
             [behave-cms.applications.subs]
+            [behave-cms.languages.subs]
             [behave-cms.modules.subs]
             [behave-cms.submodules.subs]
             [behave-cms.groups.subs]

@@ -1,15 +1,17 @@
 (ns behave-cms.store
-  (:require [clojure.set :refer [union]]
-            [clojure.edn :as edn]
-            [ajax.core :refer [ajax-request]]
-            [ajax.protocols :as pr]
-            [datascript.core :as d]
-            [re-frame.core :as rf]
-            [re-posh.core :as rp]
+  (:require [clojure.set                :refer [union]]
+            [clojure.edn                :as edn]
+            [ajax.core                  :refer [ajax-request]]
+            [ajax.edn                   :refer [edn-request-format
+                                                edn-response-format]]
+            [ajax.protocols             :as pr]
+            [datascript.core            :as d]
+            [re-frame.core              :as rf]
+            [re-posh.core               :as rp]
             [datom-compressor.interface :as c]
-            [ds-schema-utils.interface :refer [->ds-schema]]
-            [datom-utils.interface :refer [split-datom]]
-            [behave.schema.core :refer [all-schemas]]))
+            [ds-schema-utils.interface  :refer [->ds-schema]]
+            [datom-utils.interface      :refer [split-datom]]
+            [behave.schema.core         :refer [all-schemas]]))
 
 ;;; State
 
@@ -30,7 +32,7 @@
     (let [datoms (mapv #(apply d/datom %) (c/unpack body))]
       (swap! sync-txs union (txs datoms))
       (rf/dispatch-sync [:ds/initialize (->ds-schema all-schemas) datoms])
-      (rf/dispatch-sync [:state/set :loaded? true]))))
+      (rf/dispatch-sync [:state/set-state :loaded? true]))))
 
 (defn load-store! []
   (ajax-request {:uri             "/sync"
@@ -45,49 +47,44 @@
   (let [datoms (->> tx-data (filter new-datom?) (mapv split-datom))]
     (when-not (empty? datoms)
       (swap! my-txs union (txs datoms))
-      (ajax-request {:uri "/sync"
-                     :params {:tx-data datoms}
-                     :method :post
-                     :handler nil
-                     :format {:content-type "application/edn" :write pr-str}
-                     :response-format {:description "EDN"
-                                       :format :text
-                                       :type :text
-                                       :content-type "application/edn"
-                                       :read edn/read-string}}))))
+      (ajax-request {:uri             "/sync"
+                     :params          {:tx-data datoms}
+                     :method          :post
+                     :handler         println
+                     :format          (edn-request-format)
+                     :response-format (edn-response-format)}))))
 
 (defn apply-latest-datoms [[ok body]]
   (when ok
     (let [datoms (->> (c/unpack body)
                       (filter new-datom?)
                       (map (partial apply d/datom)))]
-      #_(println "-- Latest Datoms" datoms)
       (when (seq datoms)
         (swap! sync-txs union (txs datoms))
         (d/transact @conn datoms)))))
 
 (defn sync-latest-datoms! []
-  (ajax-request {:uri "/sync"
-                 :params {:tx (:max-tx @@conn)}
-                 :method :get
-                 :handler apply-latest-datoms
-                 :format {:content-type "plain/text" :write str}
-                 :response-format {:description "ArrayBuffer"
-                                   :type :arraybuffer
+  (ajax-request {:uri             "/sync"
+                 :params          {:tx (:max-tx @@conn)}
+                 :method          :get
+                 :handler         apply-latest-datoms
+                 :format          {:content-type "plain/text" :write str}
+                 :response-format {:description  "ArrayBuffer"
+                                   :type         :arraybuffer
                                    :content-type "application/msgpack"
-                                   :read pr/-body}}))
+                                   :read         pr/-body}}))
 
 ;;; Public Fns
 
 (defn init! [{:keys [datoms schema]}]
   (if @conn
-   @conn
-   (do
-     (reset! conn (d/conn-from-datoms datoms schema))
-     (d/listen! @conn :sync-tx-data sync-tx-data)
-     (rp/connect! @conn)
-     (js/setInterval sync-latest-datoms! 5000)
-     @conn)))
+    @conn
+    (do
+      (reset! conn (d/conn-from-datoms datoms schema))
+      (d/listen! @conn :sync-tx-data sync-tx-data)
+      (rp/connect! @conn)
+      (js/setInterval sync-latest-datoms! 5000)
+      @conn)))
 
 ;;; Effects
 
@@ -96,11 +93,11 @@
 ;;; Events
 
 (rf/reg-event-fx
-  :ds/initialize
-  (fn [_ [_ schema datoms]]
-    {:ds/init {:datoms datoms :schema schema}}))
+ :ds/initialize
+ (fn [_ [_ schema datoms]]
+   {:ds/init {:datoms datoms :schema schema}}))
 
 (rp/reg-event-ds
-  :ds/transact
-  (fn [_ [_ tx-data]]
-    (first tx-data)))
+ :ds/transact
+ (fn [_ [_ tx-data]]
+   (first tx-data)))

@@ -3,39 +3,41 @@
             [behave-cms.components.common :refer [simple-table]]
             [behave-cms.components.entity-form :refer [entity-form]]))
 
-(def columns [:shortcode :language ])
+(def columns [:language/name :language/shortcode])
 
-(defn languages-table []
-  (let [languages (rf/subscribe [:entities :languages])
-        on-select #(rf/dispatch [:state/set-state :language (:uuid %)])
+(defn languages-table [languages]
+  (let [on-select #(rf/dispatch [:state/set-state :language (:db/id %)])
         on-delete #(when (js/confirm (str "Are you sure you want to delete the language " (:language %) "?"))
-                     (rf/dispatch [:api/delete-entity :languages %]))]
+                     (rf/dispatch [:api/delete-entity %]))]
     [simple-table
      columns
-     (->> @languages (vals) (sort-by :shortcode))
+     (sort-by :language/shortcode languages)
      on-select
      on-delete]))
 
-(defn language-form [uuid]
+(defn language-form [id]
   [entity-form {:entity :languages
-                :uuid   uuid
+                :id     id
                 :fields [{:label     "Language"
                           :required? true
-                          :field-key :language}
+                          :field-key :language/name}
                          {:label     "Shortcode"
-                          :field-key :shortcode
+                          :field-key :language/shortcode
                           :required? true}]}])
 
-(defn list-languages-page [{:keys [uuid]}]
-  (let [language (rf/subscribe [:state :language])]
-    (when (nil? @language)
-      (rf/dispatch [:state/set-state :language uuid]))
-    (rf/dispatch [:api/entities :languages])
-    [:div.container
-     [:div.row
-      [:div.col
-       [:h3 "Languages"]
-       [languages-table]]
-      [:div.col
-       [:h3 "Manage"]
-       [language-form @language]]]]))
+(defn list-languages-page [{:keys [id]}]
+  (let [loaded? (rf/subscribe [:state :loaded?])]
+    (if @loaded?
+      (let [languages (rf/subscribe [:languages])
+            language  (rf/subscribe [:state :language])]
+        (when (nil? @language)
+          (rf/dispatch [:state/set-state :language id]))
+        [:div.container
+         [:div.row
+          [:div.col
+           [:h3 "Languages"]
+           [languages-table @languages]]
+          [:div.col
+           [:h3 "Manage"]
+           [language-form @language]]]])
+      [:div "Loading..."])))

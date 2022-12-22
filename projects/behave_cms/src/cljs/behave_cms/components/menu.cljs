@@ -14,4 +14,5 @@
    [:ul.nav
     [nav-link "FireLab VMS" "/" navigate!]
     (for [{:keys [page path]} pages]
+      ^{:key path}
       [nav-link page path navigate!])]])

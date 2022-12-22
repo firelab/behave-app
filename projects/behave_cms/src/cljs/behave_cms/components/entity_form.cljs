@@ -13,6 +13,7 @@
     [:option {:key "none" :value nil :selected? true}
      (str "Select " label "...")]
     (for [[uuid {value value-id}] options]
+      ^{:key uuid}
       [:option {:key uuid :value uuid} value])]])
 
 (defn entity-selector [entity-label entity-type name-key & [data]]
@@ -37,6 +38,7 @@
      [:label.form-label group-label]
      (for [{:keys [label value]} options]
        (let [id (u/sentence->kebab (str group-label ":" value))]
+         ^{:key id}
          [:div.form-check
           [:input.form-check-input
            {:type      "checkbox"
@@ -52,6 +54,7 @@
      [:label.form-label group-label]
      (for [{:keys [label value]} options]
        (let [id (u/sentence->kebab (str group-label ":" value))]
+         ^{:key id}
          [:div.form-check
           [:input.form-check-input
            {:type      "radio"
@@ -115,7 +118,10 @@
                                        (rf/dispatch [:state/set-state [:editors entity] {}])))]
     [:form {:on-submit on-submit}
      (for [{:keys [field-key] :as field} fields]
+       ^{:key field-key}
        [field-input (assoc field
                            :on-change (update-state field-key)
                            :state     (get-state field-key))])
-     [:button.btn.btn-sm.btn-outline-primary {:type "submit"} (if id "Update" "Create")]]))
+     [:button.btn.btn-sm.btn-outline-primary
+      {:type "submit"}
+      (if id "Update" "Create")]]))

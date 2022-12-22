@@ -1,64 +1,76 @@
 (ns behave-cms.modules.views
-  (:require [reagent.core   :as r]
-            [re-frame.core  :as rf]
+  (:require [reagent.core                       :as r]
+            [re-frame.core                      :as rf]
+            [data-utils.core                    :refer [parse-int]]
             [behave-cms.components.common       :refer [accordion simple-table window]]
             [behave-cms.components.sidebar      :refer [sidebar sidebar-width]]
             [behave-cms.components.translations :refer [app-translations]]
             [behave-cms.components.help-editor  :refer [help-editor]]
             [behave-cms.components.entity-form  :refer [entity-form]]
-            [behave-cms.modules.subs]))
+            [behave-cms.subs]))
 
 (defn module-form [application-id module-id]
-  [entity-form {:parent-field  :application/modules
-                :parent-id     application-id
-                :id            module-id
-                :fields        [{:label     "Name"
-                                 :required? true
-                                 :field-key :module/name}]}])
+  [entity-form {:parent-field :application/modules
+                :parent-id    application-id
+                :id           module-id
+                :fields       [{:label     "Name"
+                                :required? true
+                                :field-key :module/name}]}])
 
-(defn manage-module [{id :db/id}]
-  (let [module (rf/subscribe [:state :module])]
-    [:div.col-6
-     [:h4 (str (if @module "Edit" "Add") " Module")
-      [module-form id @module]]]))
-
-(defn application-translations [_]
-  [app-translations "behaveplus"])
-
-(defn modules-table [{modules :modules}]
+(defn manage-module [application-id *module]
   [:div.col-6
-   [simple-table
-    [:module/name]
-    (sort-by :module/order @modules)
-    {:on-select   #(rf/dispatch [:state/set-state :module (:db/id %)])
-     :on-delete   #(when (js/confirm (str "Are you sure you want to delete the module " (:module/name %) "?"))
-                     (rf/dispatch [:api/delete-entity %]))
-     :on-increase #(rf/dispatch [:module/reorder % :up modules])
-     :on-decrease #(rf/dispatch [:module/reorder % :down modules])}]])
+   [:h4 (str (if *module "Edit" "Add") " Module")
+    [module-form application-id *module]]])
+
+(defn modules-table [application-id]
+  (let [modules (rf/subscribe [:modules application-id])]
+    [:div.col-6
+     [simple-table
+      [:module/name]
+      (sort-by :module/order @modules)
+      {:on-select   #(rf/dispatch [:state/set-state :module (:db/id %)])
+       :on-delete   #(when (js/confirm (str "Are you sure you want to delete the module " (:module/name %) "?"))
+                       (rf/dispatch [:api/delete-entity %]))
+       :on-increase #(rf/dispatch [:module/reorder % :up modules])
+       :on-decrease #(rf/dispatch [:module/reorder % :down modules])}]]))
 
 (defn list-modules-page [{:keys [id]}]
-  (r/with-let [application (rf/subscribe [:entity id '[* {:application/modules [*]}]])
-               module      (rf/subscribe [:state :module])]
-    [:<>
-     [sidebar
-      "Modules"
-      @(rf/subscribe [:sidebar/modules id])
-      "Applications"
-      "/applications"]
-     [window sidebar-width
-      [:div.container
-       [:div.row.mb-3.mt-4
-        [:h2 (:application/name @application)]]
-       [accordion
-        "Modules"
-        [modules-table @application]
-        [manage-module @application @module]]
-       [:hr]
-       [accordion
-        "Help Page"
-        [:div.col-12
-         [help-editor (:application/help-key @application)]]]
-       [:hr]
-       [accordion
-        "Application Translations"
-        [application-translations @application]]]]]))
+  (let [loaded? (rf/subscribe [:state :loaded?])
+        id      (parse-int id)]
+    (if @loaded?
+      (let [application (rf/subscribe [:application id])
+            modules     (rf/subscribe [:sidebar/modules id])
+            *module     (rf/subscribe [:state :module])]
+        [:<>
+         [sidebar
+          "Modules"
+          @modules
+          "Applications"
+          "/applications"]
+         [window sidebar-width
+          [:div.container
+           [:div.row.mb-3.mt-4
+            [:h2 (:application/name @application)]]
+           [accordion
+            "Modules"
+            [modules-table id]
+            [manage-module id @*module]]
+           [:hr]
+           [accordion
+            "Help Page"
+            [:div.col-12
+             [help-editor (:application/help-key @application)]]]
+           [:hr]
+           [accordion
+            "Application Translations"
+            [app-translations (:application/translation-key @application)]]]]])
+      [:div "Loading ..."])))
+
+(comment
+
+  (def id 78)
+  (rf/subscribe [:sidebar/modules id])
+  (rf/subscribe [:sidebar/modules id])
+  (rf/subscribe [:entity id '[*]])
+
+  )

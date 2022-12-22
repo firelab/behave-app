@@ -4,6 +4,7 @@
             [ajax.core          :refer [ajax-request]]
             [ajax.edn           :refer [edn-request-format edn-response-format]]
             [bidi.bidi          :refer [path-for]]
+            [datascript.core    :refer [squuid]]
             [re-frame.core      :refer [dispatch
                                         path
                                         reg-event-db
@@ -206,51 +207,25 @@
                {:upload-error (:error body)
                 :uploading?   false})))
 
-;;; Data Sync
-
-(reg-event-ds
-  :transact
-  (fn [_ [_ tx]]
-    (when (coll? tx) tx)))
-
-(reg-event-fx
-  :sync
-  (fn [_ [_ _]]
-    (println "Successfully transacted!")
-    nil))
-
-(reg-event-fx
-  :transact/error
-  (fn [_ [_ {body :body}]]
-    (println "Unable to transact:" body)
-    nil))
-
-(reg-event-fx
-  :transact
-  (fn [_ [_ tx-data]]
-    {:http/request {:uri        "/sync"
-                    :body       {:tx-data tx-data}
-                    :method     :post
-                    :on-success :sync
-                    :on-error   :transact/error}}))
-
 ;;; Entities API
 
 (reg-event-fx
   :api/create-entity
   (fn [_ [_ data]]
-    {:fx [[:dispatch [:transact [(assoc data :db/id -1)]]]]}))
+    {:transact [(merge {:db/id   -1
+                        :bp/uuid (str (squuid))}
+                       data)]}))
 
 (reg-event-fx
   :api/update-entity
   (fn [_ [_ data]]
     (when (:db/id data)
-      {:fx [[:dispatch [:transact [data]]]]})))
+      {:transact [data]})))
 
 (reg-event-fx
   :api/delete-entity
   (fn [_ [_ {id :db/id}]]
-    {:fx [[:dispatch [:transact [[:db.fn/retractEntity id]]]]]}))
+    {:transact [[:db.fn/retractEntity id]]}))
 
 (reg-event-fx
   :reorder

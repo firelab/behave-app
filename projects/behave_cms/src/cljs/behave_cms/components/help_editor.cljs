@@ -25,14 +25,14 @@
       (rf/dispatch [:files/upload file [:state :editors :help-page]]))))
 
 (defn file->url [file callback]
-  (let [reader    (js/FileReader.)
-        on-load   #(callback (j/get reader :result))]
+  (let [reader  (js/FileReader.)
+        on-load #(callback (j/get reader :result))]
     (.addEventListener reader "load" on-load)
     (.readAsDataURL reader file)))
 
 (defn file->blob [file callback]
-  (let [reader    (js/FileReader.)
-        on-load   #(callback (j/get reader :result))]
+  (let [reader  (js/FileReader.)
+        on-load #(callback (j/get reader :result))]
     (.addEventListener reader "load" on-load)
     (.readAsArrayBuffer reader file)))
 
@@ -166,10 +166,10 @@
 
 (defn str->style-map [s]
   (persistent!
-    (as-> s $
-      (str/split $ #";")
-      (map #(str/split % #":") $)
-      (reduce (fn [acc [k v]] (assoc! acc (keyword k) (str/trim v))) (transient {}) $))))
+   (as-> s $
+     (str/split $ #";")
+     (map #(str/split % #":") $)
+     (reduce (fn [acc [k v]] (assoc! acc (keyword k) (str/trim v))) (transient {}) $))))
 
 (defn fix-svg-attrs [el]
   (if (= :svg (first el))
@@ -205,8 +205,7 @@
       (rf/dispatch [:api/create-entity :help-pages data]))))
 
 (defn language-selector [on-select]
-  (rf/dispatch [:api/entities :languages])
-  (r/with-let [languages (rf/subscribe [:entities :languages])
+  (r/with-let [languages (rf/subscribe [:languages])
                on-select #(rf/dispatch [:state/set-state [:editors :help-page :language_rid] (-> % (u/input-value) (uuid))])]
     [:div.mb-3
      [:label.form-label "Language"]
@@ -218,23 +217,23 @@
 
 (defn help-preview []
   (let [content (rf/subscribe [:state [:editors :help-page :content]])]
-  [:div.col-6
-   [:h6.mb-3 "Preview"]
-   (when (some? @content)
-     [:div {:class "help"} (md->hiccup @content)])]))
+    [:div.col-6
+     [:h6.mb-3 "Preview"]
+     (when (some? @content)
+       [:div {:class "help"} (md->hiccup @content)])]))
 
 (defn help-text-editor [help-key save-page!]
   (let [language  (rf/subscribe [:state [:editors :help-page :language_rid]])
         help-page (first (filter (fn [{:keys [key language_rid]}]
-                            (and (= help-key key)
-                                 (= @language language_rid)))
-                          (vals @(rf/subscribe [:entities :help-pages]))))
+                                   (and (= help-key key)
+                                        (= @language language_rid)))
+                                 (vals @(rf/subscribe [:entities :help-pages]))))
         _         (if (some? help-page)
                     (rf/dispatch [:state/merge [:editors :help-page] help-page])
-                    (rf/dispatch [:state/set-state [:editors :help-page] {:key help-key
+                    (rf/dispatch [:state/set-state [:editors :help-page] {:key          help-key
                                                                           :language_rid @language
-                                                                          :content ""
-                                                                          :cursor [0 0]}]))
+                                                                          :content      ""
+                                                                          :cursor       [0 0]}]))
         content   (rf/subscribe [:state [:editors :help-page :content]])
         dirty?    (rf/subscribe [:state [:editors :help-page :dirty?]])
         autosave! (u/debounce #(when @dirty? (save-page!)) 3000)
@@ -248,7 +247,6 @@
                        :on-drop       on-drop-image!}]))
 
 (defn help-editor [help-key]
-  (rf/dispatch [:api/entities :help-pages {:help-key help-key}])
   (rf/dispatch [:state/set-state [:editors :help-page :key] help-key])
   (r/with-let [dirty?      (rf/subscribe [:state [:editors :help-page :dirty?]])
                save-page!  #(do
@@ -264,7 +262,7 @@
        [language-selector]
        [help-text-editor help-key save-page!]
        [:button.my-3.btn.btn-sm.btn-outline-primary
-        {:type "submit"
+        {:type     "submit"
          :disabled (not @dirty?)}
         "Save"]]]
      [help-preview]]))

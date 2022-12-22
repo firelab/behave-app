@@ -7,11 +7,10 @@
   :submodules
   (fn [[_ module-id]]
     (subscribe [:pull-children :module/submodules module-id]))
-
   identity)
 
 (reg-sub
-  :sidebar/modules
+  :sidebar/submodules
   (fn [[_ module-id]]
     (subscribe [:submodules module-id]))
 

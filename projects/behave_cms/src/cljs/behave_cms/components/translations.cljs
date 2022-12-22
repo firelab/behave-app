@@ -19,14 +19,12 @@
                         :value @state}])
 
 (defn app-translations [translation-prefix]
-  (rf/dispatch [:api/entities :languages])
-  (rf/dispatch [:api/entities :translations {:translation-prefix translation-prefix}])
   (r/with-let [languages       (rf/subscribe [:entities :languages])
                *language       (r/atom nil)
                new-key         (r/atom "")
                new-translation (r/atom "")
                update-field    (fn [field] #(rf/dispatch [:state/set-state [:editors :translation field] %]))
-               translations    (rf/subscribe [:entities :translations])
+               translations    (rf/subscribe [:translations])
                on-submit       #(do
                                   (rf/dispatch [:api/create-entity
                                                 :translations
@@ -84,7 +82,7 @@
          (let [translation (r/atom (:translation entry))]
            [:tr {:key uuid}
             [:td (:language entry)]
-            [:td (:translation_key entry)]
+            [:td (:translation/key entry)]
             [:td
              [translation-editor
               @*language
@@ -93,13 +91,13 @@
               translation]]]))]]]))
 
 (defn all-translations [translation-key]
-  (rf/dispatch [:api/entities :languages])
-  (rf/dispatch [:api/entities :translations {:translation-key translation-key}])
-  (let [languages          (rf/subscribe [:entities :languages])
-        translations       @(rf/subscribe [:entities :translations])
-        translation-lookup (some->> translations
-                                    (vals)
-                                    (group-by (juxt :shortcode :translation_key)))]
+  (let [languages          (rf/subscribe [:languages])
+        translations       (rf/subscribe [:translations translation-key])
+        translation-lookup (group-by
+                            (fn [t]
+                              [(get-in t [:language/_translations :language/shortcode])
+                               (:translation/key t)])
+                            @translations)]
     [:table.table.table-hover
      [:thead
       [:tr
@@ -107,7 +105,7 @@
        [:th "Key"]
        [:th "Translation"]]]
      [:tbody
-      (for [[language-uuid {:keys [language shortcode]}] @languages]
+      (for [{language-id :db/id language :language/name shortcode :language/shortcode} @languages]
         (let [translation-entry (get-in translation-lookup [[shortcode translation-key] 0] {})
               translation (r/atom (:translation translation-entry))]
           [:tr {:key uuid}
@@ -115,7 +113,7 @@
            [:td translation-key]
            [:td
             [translation-editor
-             language-uuid
+             language-id
              translation-key
-             (:uuid translation-entry)
+             (:db/id translation-entry)
              translation]]]))]]))

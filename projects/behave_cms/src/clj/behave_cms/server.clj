@@ -7,7 +7,7 @@
             [ring.adapter.jetty  :refer [run-jetty]]
             [triangulum.logging  :refer [log-str set-log-path!]]
             [config.interface    :refer [load-config get-config]]
-            [behave.store        :as store]
+            [behave-cms.store    :as store]
             [behave-cms.handler  :refer [create-handler-stack]])
   (:gen-class))
 
