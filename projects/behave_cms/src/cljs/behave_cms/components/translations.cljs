@@ -1,36 +1,36 @@
 (ns behave-cms.components.translations
   (:require [reagent.core :as r]
             [re-frame.core :as rf]
+            [data-utils.interface :refer [parse-int]]
             [behave-cms.utils :as u]))
 
-(defn- upsert-translation! [{:keys [uuid] :as data}]
-  (let [rf-event (if (nil? uuid) :api/create-entity :api/update-entity)]
-    (rf/dispatch [rf-event :translations data])))
+(defn- upsert-translation! [data]
+  (let [rf-event (if (nil? (:db/id data)) :api/create-entity :api/update-entity)]
+    (rf/dispatch [rf-event data])))
 
-(defn translation-editor [language-uuid translation-key translation-uuid state]
-  [:input.form-control {:type "text"
+(defn translation-editor [language-id translation-key translation-id state]
+  [:input.form-control {:type      "text"
                         :on-change #(reset! state (u/input-value %))
-                        :on-blur #(upsert-translation!
-                                    (merge
-                                      {:translation-key translation-key
-                                       :language-rid (uuid language-uuid)
-                                       :translation @state}
-                                      (when translation-uuid {:uuid translation-uuid})))
-                        :value @state}])
+                        :on-blur   #(upsert-translation!
+                                     (merge
+                                      {:translation/key         translation-key
+                                       :language/_translations  language-id
+                                       :translation/translation @state}
+                                      (when translation-id {:db/id translation-id})))
+                        :value     @state}])
 
 (defn app-translations [translation-prefix]
-  (r/with-let [languages       (rf/subscribe [:entities :languages])
+  (r/with-let [languages       (rf/subscribe [:languages])
                *language       (r/atom nil)
                new-key         (r/atom "")
                new-translation (r/atom "")
                update-field    (fn [field] #(rf/dispatch [:state/set-state [:editors :translation field] %]))
-               translations    (rf/subscribe [:translations])
+               translations    (rf/subscribe [:all-translations])
                on-submit       #(do
                                   (rf/dispatch [:api/create-entity
-                                                :translations
-                                                {:language_rid    (uuid @*language)
-                                                 :translation_key @new-key
-                                                 :translation     @new-translation}])
+                                                {:language/_translations  @*language
+                                                 :translation/key         @new-key
+                                                 :translation/translation @new-translation}])
                                   (reset! new-key "")
                                   (reset! new-translation ""))]
     [:div
@@ -38,10 +38,10 @@
       [:div {:style {:visibility "hidden" :height "0px"}} @*language]
       [:label.form-label "Language:"]
       [:select.form-select
-       {:on-change #(reset! *language (u/input-value %))}
+       {:on-change #(reset! *language (parse-int (u/input-value %)))}
        [:option "Select a language..."]
-       (for [{:keys [uuid language shortcode]} (vals @languages)]
-         [:option {:value uuid :selected (= @*language uuid)} (str language " (" shortcode ")")])]]
+       (for [{id :db/id language :language/name shortcode :language/shortcode} @languages]
+         [:option {:value id :selected (= @*language id)} (str language " (" shortcode ")")])]]
 
      [:form.row.mb-3
       {:on-submit (u/on-submit on-submit)}
@@ -49,26 +49,26 @@
       [:div.col-5
        [:label.form-label {:id "translation-key"} "Key"]
        [:input.form-control
-        {:id "translation-key"
-         :disabled (nil? @*language)
-         :type "text"
-         :required true
-         :value @new-key
+        {:id        "translation-key"
+         :disabled  (nil? @*language)
+         :type      "text"
+         :required  true
+         :value     @new-key
          :on-change #(->> % (u/input-value) (reset! new-key))}]]
       [:div.col-6
        [:label.form-label {:id "translation"} "Translation"]
        [:input.form-control
-        {:id "translation"
-         :disabled (nil? @*language)
-         :type "text"
-         :required true
-         :value @new-translation
+        {:id        "translation"
+         :disabled  (nil? @*language)
+         :type      "text"
+         :required  true
+         :value     @new-translation
          :on-change #(->> % (u/input-value) (reset! new-translation))}]]
       [:div.col-1
        {:style {:display "flex" :align-items "end"}}
        [:button.btn.btn-sm.btn-outline-primary
         {:type     "submit"
-         :disabled (or (empty? @*language) (empty? @new-key) (empty? @new-translation))}
+         :disabled (not (or @*language @new-key @new-translation))}
         "Create"]]]
 
      [:table.table.table-hover
@@ -78,16 +78,20 @@
         [:th "Key"]
         [:th "Translation"]]]
       [:tbody
-       (for [entry (->> @translations (vals) (filter #(= @*language (str (:language_rid %)))) (sort-by :translation_key))]
-         (let [translation (r/atom (:translation entry))]
-           [:tr {:key uuid}
-            [:td (:language entry)]
-            [:td (:translation/key entry)]
+       (for [entry (->> @translations (filter #(= @*language (get-in % [:language/_translations 0 :db/id]))) (sort-by :translation/key))]
+         (let [id            (:db/id entry)
+               language-name (get-in entry [:language/_translations 0 :language/name])
+               translation   (r/atom (:translation/translation entry))
+               key           (:translation/key entry)]
+           
+           [:tr {:key id}
+            [:td language-name]
+            [:td key]
             [:td
              [translation-editor
               @*language
-              (:translation_key entry)
-              (:uuid entry)
+              key
+              id
               translation]]]))]]]))
 
 (defn all-translations [translation-key]
@@ -95,7 +99,7 @@
         translations       (rf/subscribe [:translations translation-key])
         translation-lookup (group-by
                             (fn [t]
-                              [(get-in t [:language/_translations :language/shortcode])
+                              [(get-in t [:language/_translations 0 :language/shortcode])
                                (:translation/key t)])
                             @translations)]
     [:table.table.table-hover
@@ -107,7 +111,7 @@
      [:tbody
       (for [{language-id :db/id language :language/name shortcode :language/shortcode} @languages]
         (let [translation-entry (get-in translation-lookup [[shortcode translation-key] 0] {})
-              translation (r/atom (:translation translation-entry))]
+              translation       (r/atom (:translation/translation translation-entry))]
           [:tr {:key uuid}
            [:td language]
            [:td translation-key]

@@ -13,6 +13,12 @@
 ;;; Translations
 
 (rf/reg-sub
+ :all-translations
+ (fn [_]
+   (rf/subscribe [:pull-with-attr :translation/key '[* {:language/_translations [*]}]]))
+ identity)
+
+(rf/reg-sub
  :translation-ids
  (fn [[_ translation-key]]
    (rf/subscribe [:query
