@@ -13,16 +13,16 @@
 (def columns [:variable/name :variable/kind])
 
 (defn variables-table []
-  (r/with-let [variables (rf/subscribe [:variables])
-               on-select #(do
-                            (rf/dispatch [:state/set-state :variable (:db/id %)]))
-               on-delete #(when (js/confirm (str "Are you sure you want to delete the variable " (:variable_name %) "?"))
-                            (rf/dispatch [:api/delete-entity %]))]
+  (let [variables (rf/subscribe [:pull-with-attr :variable/name])
+        on-select #(do
+                     (rf/dispatch [:state/set-state :variable (:db/id %)]))
+        on-delete #(when (js/confirm (str "Are you sure you want to delete the variable " (:variable_name %) "?"))
+                     (rf/dispatch [:api/delete-entity %]))]
     [simple-table
      columns
-     (->> @variables (vals) (sort-by :variable_name))
-     on-select
-     on-delete]))
+     (sort-by :variable/name @variables)
+     {:on-select on-select
+      :on-delete on-delete}]))
 
 (def continuous-variable-properties
   [{:label "Default Value  " :field-key :variable/default-value    :type :float}
@@ -39,41 +39,50 @@
 
 (defmethod properties-form
   :continuous
-  [_ props update-props]
+  [_ get-field set-field]
   [:div
    (for [{:keys [label field-key type]} continuous-variable-properties]
-     [:div.mb-3 {:keys field-key}
-      [:label.form-label label]
-      (condp = type
-        :float
-        [:input.form-control {:type      "number"
-                              :value     (get @props field-key)
-                              :on-change #(update-props {field-key (u/input-float-value %)})}]
+     (let [value     (get-field field-key)
+           on-change (set-field field-key)]
+       [:div.mb-3 {:keys field-key}
+        [:label.form-label label]
+        (condp = type
+          :float
+          [:input.form-control {:type          "number"
+                                :default-value @value
+                                :on-change     #(on-change (u/input-float-value %))}]
 
-        :int
-        [:input.form-control {:type      "number"
-                              :value     (get @props field-key)
-                              :on-change #(update-props {field-key (u/input-int-value %)})}]
+          :int
+          [:input.form-control {:type          "number"
+                                :default-value @value
+                                :on-change     #(on-change (u/input-int-value %))}]
 
-        ; default
-        [:input.form-control {:type      "text"
-                              :value     (get @props field-key)
-                              :on-change #(update-props {field-key (u/input-value %)})}])])])
+          ; default
+          [:input.form-control {:type          "text"
+                                :default-value @value
+                                :on-change     #(on-change (u/input-value %))}])]))])
 
+;; TODO: Provide some way of passing the :db/id of list to the editor state
 (defmethod properties-form
   :discrete
-  [_ props update-props]
-  [:div.mb-3
-   [:label.form-label "List"]
-   [:input.form-control {:type      "text"
-                         :value     (get @props :list)
-                         :on-change #(update-props {:variable/list (u/input-value %)})}]])
+  [_ get-field set-field]
+  (let [value     (get-field :variable/list :list/name)
+        on-change (set-field :variable/list :list/name)]
+    [:div.mb-3
+     [:label.form-label "List"]
+     [:input.form-control {:type          "text"
+                           :default-value @value
+                           :on-change     #(on-change (u/input-value %))}]]))
 
 (defn variable-form [id]
-  (let [variable     (rf/subscribe [:entity id])
-        var-editor   (rf/subscribe [:state [:editors :variables]])
-        update-props #(rf/dispatch [:state/merge [:editors :variables :properties] %])
-        props        (rf/subscribe [:state [:editors :variables :properties]])]
+  (let [variable  (rf/subscribe [:entity id '[* {:variable/list [*]}]])
+        editor    (rf/subscribe [:state [:editors :variables]])
+        get-field (fn [& fields]
+                    (r/track #(or (get-in @editor fields) (get-in @variable fields))))
+        set-field (fn [& fields]
+                    (fn [value]
+                      (rf/dispatch [:state/set-state (apply conj [:editors :variables] fields) value])))
+        kind      (get-field :variable/kind)]
     [:<>
      [:div.row
       [:h3 (if id
@@ -90,15 +99,15 @@
                                :field-key :variable/kind
                                :required? true
                                :type      :radio
-                               :options   [{:label "Continuous" :value "continuous"}
-                                           {:label "Discrete" :value "discrete"}
-                                           {:label "Text" :value "text"}]}]}]]
+                               :options   [{:label "Continuous" :value :continuous}
+                                           {:label "Discrete" :value :discrete}
+                                           {:label "Text" :value :text}]}]}]]
 
       [:div.col-6
-       (when (#{"continuous" "discrete"} (:variable/kind @var-editor))
+       (when (#{:continuous :discrete} @kind)
          [:div
           [:h6 "Properties"]
-          [properties-form (:variable/kind @var-editor) props update-props]])]]]))
+          [properties-form @kind get-field set-field]])]]]))
 
 (defn list-variables-page [_]
   (let [loaded?   (rf/subscribe [:state :loaded?])

@@ -1,6 +1,7 @@
 (ns behave-cms.subgroups.views
   (:require [reagent.core  :as r]
             [re-frame.core :as rf]
+            [data-utils.interface :refer [parse-int]]
             [behave-cms.components.common          :refer [accordion simple-table window]]
             [behave-cms.components.entity-form     :refer [entity-form]]
             [behave-cms.components.help-editor     :refer [help-editor]]
@@ -13,7 +14,7 @@
 
 (defn- subgroup-form [group-id subgroup-id]
   [entity-form {:entity        :groups
-                :parent-entity :group/children
+                :parent-entity :group/_children
                 :parent-id     group-id
                 :id            subgroup-id
                 :fields        [{:label     "Name"
@@ -24,36 +25,37 @@
   (let [subgroup (rf/subscribe [:state :subgroup])]
     [subgroup-form id @subgroup]))
 
-(defn- subgroups-table [{id :db/id}]
-  (r/with-let [subgroups (rf/subscribe [:entities :subgroups])]
+(defn- subgroups-table [{group-id :db/id}]
+  (r/with-let [subgroups (rf/subscribe [:group/subgroups group-id])]
     [simple-table
      [:group/name]
-     (->> @subgroups (vals) (sort-by :group/name))
-     {:on-select #(rf/dispatch [:state/set-state :subgroup (:id %)])
+     (sort-by :group/name @subgroups)
+     {:on-select #(rf/dispatch [:state/set-state :subgroup (:db/id %)])
       :on-delete #(when (js/confirm (str "Are you sure you want to delete the subgroup " (:group/name %) "?"))
-                    (rf/dispatch [:api/delete-entity :groups (:id %)]))}]))
+                    (rf/dispatch [:api/delete-entity %]))}]))
 
-(defn- variables-table [{id :db/id}]
-  (r/with-let [group-variables (rf/subscribe [:group-variables id])]
+(defn- variables-table [{group-id :db/id}]
+  (r/with-let [group-variables (rf/subscribe [:group/variables group-id])]
     [simple-table
      [:variable/name]
-     (->> @group-variables (vals) (sort-by :variable/order))
+     (sort-by :group-variable/order @group-variables)
      {:on-delete   #(when (js/confirm (str "Are you sure you want to delete the variable " (:variable/name %) "?"))
-                      (rf/dispatch [:api/delete-entity :group-variables %]))
-      :on-increase #(rf/dispatch [:group-variable/reorder % :up @group-variables])
-      :on-decrease #(rf/dispatch [:group-variable/reorder % :down @group-variables])}]))
+                      (rf/dispatch [:api/delete-entity %]))
+      :on-increase #(rf/dispatch [:api/reorder :variable/order % :up @group-variables])
+      :on-decrease #(rf/dispatch [:api/reorder :variable/order % :down @group-variables])}]))
 
-(defn- add-variable [{id :db/id group-variables :group/variables}]
-  (let [all-variables (rf/subscribe [:pull-with-attr :variable/name])]
+(defn- add-variable [{id :db/id group-variables :group/group-variables}]
+  (let [query         (rf/subscribe [:state [:search :variables]])
+        all-variables (rf/subscribe [:group/search-variables query])]
     [:div.row
      [:h4 "Add Variable:"]
      [variable-search
       @all-variables
-      (u/debounce #(rf/dispatch [:groups/search-variables %]) 1000)
-      #(rf/dispatch [:api/update-entity
-                     {:db/id           id
-                      :group/variables [%]
-                      :variable/order  (count @group-variables)}])
+      (u/debounce #(rf/dispatch [:state/set-state [:search :variables] %]) 1000)
+      #(rf/dispatch [:api/create-entity
+                     {:group/_group-variables id
+                      :variable/_group-variables %
+                      :group-variable/order (count @group-variables)}])
       #(rf/dispatch [:state/set-state [:search :variables] nil])]]))
 
 ;;; Public Views
@@ -61,14 +63,15 @@
 (defn list-subgroups-page
   "Renders the subgroups page. Takes in a group UUID."
   [{:keys [id]}]
-  (let [group           (rf/subscribe [:entity id])
-        group-variables (rf/subscribe [:sidebar/variables id])]
+  (let [group-id        (parse-int id)
+        group           (rf/subscribe [:entity group-id '[* {:submodule/_groups [*]}]])
+        group-variables (rf/subscribe [:sidebar/variables group-id])]
     [:<>
      [sidebar
       "Variables"
       @group-variables
       "Groups"
-      (str "/submodules/" (:submodule/rid @group))]
+      (str "/submodules/" (get-in @group [:submodule/_groups 0 :db/id]))]
      [window
       sidebar-width
       [:div.container

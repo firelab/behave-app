@@ -8,6 +8,7 @@
             [herb.core                  :refer [<class]]
             [hickory.core               :refer [parse-fragment as-hiccup]]
             [behave-cms.markdown.core   :refer [md->html]]
+            [data-utils.interface       :refer [parse-int]]
             [behave-cms.utils           :as u]))
 
 (defn get-files [data-tx]
@@ -198,48 +199,50 @@
                         (add-key-attr))
                     %))))
 
-(defn upsert-help-page! [help-page]
-  (let [data (select-keys help-page [:uuid :key :language_rid :content])]
-    (if (:uuid data)
-      (rf/dispatch [:api/update-entity :help-pages data])
-      (rf/dispatch [:api/create-entity :help-pages data]))))
+(defn upsert-help-page! [{:keys [language] :as help-page}]
+  (let [data (select-keys help-page [:bp/uuid :help/key :help/content])]
+    (if (:bp/uuid data)
+      (rf/dispatch [:api/update-entity data])
+      (rf/dispatch [:api/create-entity {:db/id language :language/help-pages [data]}]))))
 
 (defn language-selector [on-select]
   (r/with-let [languages (rf/subscribe [:languages])
-               on-select #(rf/dispatch [:state/set-state [:editors :help-page :language_rid] (-> % (u/input-value) (uuid))])]
+               on-select #(rf/dispatch [:state/set-state [:editors :help-page :language] (parse-int (u/input-value %))])]
     [:div.mb-3
      [:label.form-label "Language"]
      [:select.form-select {:on-change on-select}
-      [:option {:key "none" :value nil :selected? true}
+      [:option {:key "none" :value nil :selected true}
        (str "Select language...")]
-      (for [[uuid {:keys [shortcode language]}] @languages]
-        [:option {:key uuid :value uuid} (str language " (" shortcode ")")])]]))
+      (for [{id :db/id shortcode :language/shortcode language :language/name} @languages]
+        ^{:key id}
+        [:option {:value id} (str language " (" shortcode ")")])]]))
 
 (defn help-preview []
-  (let [content (rf/subscribe [:state [:editors :help-page :content]])]
+  (let [content (rf/subscribe [:state [:editors :help-page :help/content]])]
     [:div.col-6
      [:h6.mb-3 "Preview"]
      (when (some? @content)
        [:div {:class "help"} (md->hiccup @content)])]))
 
 (defn help-text-editor [help-key save-page!]
-  (let [language  (rf/subscribe [:state [:editors :help-page :language_rid]])
-        help-page (first (filter (fn [{:keys [key language_rid]}]
-                                   (and (= help-key key)
-                                        (= @language language_rid)))
-                                 (vals @(rf/subscribe [:entities :help-pages]))))
-        _         (if (some? help-page)
+  (let [language   (rf/subscribe [:state [:editors :help-page :language]])
+        help-pages (rf/subscribe [:pull-with-attr :help/key '[* {:language/_help-pages [*]}]])
+        help-page  (first (filter (fn [help-page]
+                                    (and (= (:help/key help-page) key)
+                                         (= (get-in help-page [:language/_help-pages 0 :db/id]) @language)))
+                                  @help-pages))
+        _          (if (some? help-page)
                     (rf/dispatch [:state/merge [:editors :help-page] help-page])
-                    (rf/dispatch [:state/set-state [:editors :help-page] {:key          help-key
-                                                                          :language_rid @language
-                                                                          :content      ""
+                    (rf/dispatch [:state/set-state [:editors :help-page] {:help/key     help-key
+                                                                          :language     @language
+                                                                          :help/content ""
                                                                           :cursor       [0 0]}]))
-        content   (rf/subscribe [:state [:editors :help-page :content]])
-        dirty?    (rf/subscribe [:state [:editors :help-page :dirty?]])
-        autosave! (u/debounce #(when @dirty? (save-page!)) 3000)
-        on-change #(do
+        content    (rf/subscribe [:state [:editors :help-page :help/content]])
+        dirty?     (rf/subscribe [:state [:editors :help-page :dirty?]])
+        autosave!  (u/debounce #(when @dirty? (save-page!)) 3000)
+        on-change  #(do
                      (rf/dispatch [:state/set-state [:editors :help-page :dirty?] true])
-                     (rf/dispatch [:state/set-state [:editors :help-page :content] %])
+                     (rf/dispatch [:state/set-state [:editors :help-page :help/content] %])
                      (autosave!))]
     [textarea content {:disabled?     (nil? @language)
                        :on-change     on-change
@@ -247,7 +250,7 @@
                        :on-drop       on-drop-image!}]))
 
 (defn help-editor [help-key]
-  (rf/dispatch [:state/set-state [:editors :help-page :key] help-key])
+  (rf/dispatch [:state/set-state [:editors :help-page :help/key] help-key])
   (r/with-let [dirty?      (rf/subscribe [:state [:editors :help-page :dirty?]])
                save-page!  #(do
                               (rf/dispatch [:state/set-state [:editors :help-page :dirty?] false])

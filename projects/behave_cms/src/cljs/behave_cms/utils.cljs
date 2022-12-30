@@ -2,6 +2,7 @@
   (:require [cljs.reader        :as edn]
             [clojure.string     :as str]
             [clojure.set        :as sets]
+            [applied-science.js-interop :as j]
             [clojure.core.async :refer [alts! go <! timeout go-loop chan put!]]
             [cljs.core.async.interop :refer-macros [<p!]])
   (:import  [goog.async Debouncer]))
@@ -46,6 +47,50 @@
     (.preventDefault event)
     (.stopPropagation event)
     (f)))
+
+(defn cursor-location
+  "Returns the start/end of the selection of the cursor inside a textbox."
+  [event]
+  (let [input (j/get event :target)
+        start (j/get input :selectionStart)
+        end   (j/get input :selectionEnd)]
+    [start end]))
+
+;;; Uploading Images
+
+(defn- get-files [data-tx]
+  (if-let [items (.-items data-tx)]
+    (keep #(when (= (.-kind %) "file")
+        (.getAsFile %)) items)
+    (.-files data-tx)))
+
+(defn on-drop-image [event f]
+   ; Prevent default behavior (Prevent file from being opened)
+   (.preventDefault event)
+   (let [files (get-files (j/get event :dataTransfer))
+         file  (first files)]
+     (when (str/starts-with? (j/get file :type) "image/")
+       (f file))))
+
+(defn file->url [file callback]
+  (let [reader  (js/FileReader.)
+        on-load #(callback (j/get reader :result))]
+    (.addEventListener reader "load" on-load)
+    (.readAsDataURL reader file)))
+
+(defn file->blob [file callback]
+  (let [reader  (js/FileReader.)
+        on-load #(callback (j/get reader :result))]
+    (.addEventListener reader "load" on-load)
+    (.readAsArrayBuffer reader file)))
+
+(defn on-select-image [e f & [convert-to convert-callback]]
+  (let [file (first (array-seq (j/get-in e [:target :files])))]
+    (f file)
+    (when convert-to
+      (if (= type :blob)
+        (file->blob file convert-callback)
+        (file->url file convert-callback)))))
 
 ;;; Text
 

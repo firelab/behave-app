@@ -33,10 +33,10 @@
 
 (defn sidebar-header [title parent-title parent-link]
   [:div
-   {:style {:display "flex"
+   {:style {:display       "flex"
             :flex-direction "column"
-            :background "rgb(245, 245, 245)"
-            :padding "10px"}}
+            :background    "rgb(245, 245, 245)"
+            :padding       "10px"}}
    (when (some? parent-title)
      [:div
       {:class    (<class $sidebar-back)

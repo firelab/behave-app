@@ -39,6 +39,7 @@
 
 (defn accordion [title & content]
   (r/with-let [expanded? (r/atom false)]
+    ^{:key title}
     [:div.row.accordion {:class (<class $accordion @expanded?)}
      [:div.accordion__title  {:style {:display "flex" :flex-direction "row" :width "100%" :justify-content "space-between"}}
       [:h4 title]

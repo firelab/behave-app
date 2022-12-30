@@ -50,13 +50,21 @@
        conn)))
 
 #?(:clj
-   (defn connect-datahike! [cfg schema & [setup-fn]]
+   (defn connect-datahike! [config schema & [setup-fn]]
      (reset! stored-unsafe-attrs (unsafe-attrs schema))
-     (let [conn (if (d/database-exists? cfg) (d/connect cfg) (create-db! cfg schema))]
+     (let [conn (if (d/database-exists? config)
+                  (d/connect config)
+                  (create-db! config schema))]
        (when (fn? setup-fn) (setup-fn conn))
        (build-tx-index! conn)
        (d/listen conn :record-tx record-tx)
        conn)))
+
+#?(:clj
+   (defn reset-datahike! [config schema & [setup-fn]]
+     (when (d/database-exists? config)
+       (d/delete-database config))
+     (connect-datahike! config schema)))
 
 #?(:cljs
    (defn connect-datascript! [schema & [setup-fn]]

@@ -1,5 +1,6 @@
 (ns behave-cms.components.entity-form
-  (:require [reagent.core      :as r]
+  (:require [datascript.core   :refer [squuid]]
+            [reagent.core      :as r]
             [re-frame.core     :as rf]
             [behave-cms.routes :refer [singular]]
             [behave-cms.utils  :as u]))
@@ -18,7 +19,7 @@
 
 (defn entity-selector [entity-label entity-type name-key & [data]]
   (let [_        (when (or (nil? data) (some vals data))
-                   (rf/dispatch [:api/entities entity-type data]))
+                   (rf/dispatch [:api/entities data]))
         entities (rf/subscribe [:entities entity-type])]
     [dropdown
      entity-label
@@ -52,6 +53,7 @@
   (let [group-label label]
     [:div.mb-3
      [:label.form-label group-label]
+     [:input {:type "hidden" :value (str @state)}]
      (for [{:keys [label value]} options]
        (let [id (u/sentence->kebab (str group-label ":" value))]
          ^{:key id}
@@ -60,8 +62,8 @@
            {:type      "radio"
             :name      (u/sentence->kebab group-label)
             :id        id
-            :value     value
-            :checked   (when @state (= @state value))
+            :value     (str value)
+            :checked   (= @state value)
             :on-change #(on-change value)}]
           [:label.form-check-label {:for id} label]]))]))
 
@@ -102,16 +104,18 @@
       (str "-uuid")
       (keyword)))
 
-(defn entity-form [{:keys [entity parent-field parent-id fields id]}]
+(defn entity-form
+  ""
+  [{:keys [entity parent-field parent-id fields id]}]
   (let [original       @(rf/subscribe [:entity id])
         update-state   (fn [field] (fn [value] (rf/dispatch [:state/set-state [:editors entity field] value])))
         get-state      (fn [field] (r/track #(or @(rf/subscribe [:state [:editors entity field]]) (get original field) "")))
         on-submit      (u/on-submit #(let [state @(rf/subscribe [:state [:editors entity]])]
                                        (upsert-entity! (cond id
-                                                             (assoc state :db/id id)
+                                                             (merge {:db/id id} state)
 
-                                                             parent-field
-                                                             (assoc {:db/id parent-id} parent-field (assoc state :db/id -1))
+                                                             (and parent-field parent-id)
+                                                             (assoc state parent-field parent-id)
 
                                                              :else state))
                                        (rf/dispatch [:state/set-state (singular entity) nil])

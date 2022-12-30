@@ -10,10 +10,6 @@
   parse-float c/parse-float)
 
 (def ^{:argslist '([x])
-       :doc      "Checks if a value has no data. Can check strings, numbers, and dates as strings."}
-  no-data? c/no-data?)
-
-(def ^{:argslist '([x])
        :doc      "Checks if a value no data. Can check strings, numbers, and dates as strings."}
   has-data? c/has-data?)
 

@@ -172,7 +172,7 @@
 
 (reg-event-fx
   :files/upload
-  (fn [{db :db} [_ file editor-path]]
+  (fn [{db :db} [_ file editor-path on-success]]
     (let [form-data (js/FormData.)]
       (.append form-data "file" file)
       {:db (assoc-in db (into editor-path [:uploading?]) true)
@@ -181,22 +181,24 @@
                       :method     :post
                       :on-success :files/upload-success
                       :on-error   :files/upload-error
-                      :fn-args    editor-path}})))
+                      :fn-args    [editor-path on-success]}})))
 
 (reg-event-db
-  :files/upload-success
-  (fn [db [_ {body :body} editor-path]]
-    (let [{:keys [cursor content]
-           :or {content "" cursor [0 0]}} (get-in db editor-path)
-          path    (get-in body [:results :path])
-          img-md  (str "![](" path ")")
-          [c1 c2] (split-at (first cursor) content)]
-      (update-in db
-                 editor-path
-                 merge
-                 {:content         (str (str/join "" c1) "\n" img-md "\n" (str/join "" c2))
-                  :upload-filename (get-in body [:results :path])
-                  :uploading?      false}))))
+ :files/upload-success
+ (fn [db [_ {body :body} [editor-path on-success]]]
+   (let [editor  (get-in db editor-path)
+         cursor  (get editor :cursor [0 0])
+         content (get editor :help/content "")
+         path    (get-in body [:results :path])
+         img-md  (str "![](" path ")")
+         [c1 c2] (split-at (first cursor) content)]
+     (js/setTimeout on-success 1000)
+     (update-in db
+                editor-path
+                merge
+                {:help/content    (str (str/join "" c1) "\n" img-md "\n" (str/join "" c2))
+                 :upload-filename (get-in body [:results :path])
+                 :uploading?      false}))))
 
 (reg-event-db
   :files/upload-error

@@ -1,0 +1,41 @@
+#+TITLE: Behave Variable Management System
+#+AUTHOR: RJ Sheperd
+
+* Setup
+
+
+** Interactive REPL Setup
+
+#+BEGIN_SRC
+
+#+END_SRC
+
+* COMMENT To-Do's
+
+** TODO Fix reordering 
+[[file:src/cljs/behave_cms/events.cljs::reg-event-fx
+ :reorder
+ (fn \[_ \[_ all-entities entity order-field direction\]\]
+ (let \[curr-order (get entity order-field)
+ sorted (sort-by order-field all-entities)
+ next-order (condp = direction
+ :down (when (< curr-order (dec (count sorted)))
+ (inc curr-order))
+ :up (when (> curr-order 0)
+ (dec curr-order)))\]
+ (println "--- REORDERING:" all-entities entity curr-order next-order)
+ #_(when next-order
+ \[{:db/id (:db/id (nth all-entities next-order))
+ :module/order curr-order}
+ {:db/id (:db/id entity)
+ :module/order next-order}\])))][behave-cms.events/:reorder]]
+
+- [x] Add invitation user flow
+- [x] Add email verification flow
+- [ ] Add selector to Variables to associated class functions / argument
+- [ ] Add ability to re-order Variables
+- [ ] Add searching for other help pages when creating a link (Custom popover when inserting a link)
+- [ ] Add warning to Help editor (when "dirty", warn the user when attempting to navigate away from the page)
+- [ ] Enable Groups to be "repeatable" (Add Checkbox for Subgroups)
+
+

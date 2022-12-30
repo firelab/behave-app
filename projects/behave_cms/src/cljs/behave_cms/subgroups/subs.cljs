@@ -1,5 +1,8 @@
 (ns behave-cms.subgroups.subs
-  (:require [bidi.bidi :refer [path-for]]
+  (:require [clojure.string    :as str]
+            [bidi.bidi         :refer [path-for]]
+            [datascript.core   :as d]
+            [behave-cms.store  :refer [conn]]
             [re-frame.core     :refer [reg-sub subscribe]]
             [behave-cms.routes :refer [app-routes]]))
 
@@ -25,21 +28,46 @@
 (reg-sub
   :variables
   (fn [[_ group-id]]
-    (subscribe [:pull-children :group/variables group-id]))
+    (subscribe [:pull-children :group/group-variables group-id '[* {:variable/_group-variables [*]}]]))
 
-  (fn [result _] result))
+  identity)
+
+(reg-sub
+  :group/variables
+  (fn [[_ group-id]]
+    (subscribe [:variables group-id]))
+
+  (fn [variables]
+    (map (fn [group-variable]
+           (let [variable (get-in group-variable [:variables/_group-variables 0])]
+             (merge group-variable variable))) variables)))
 
 (reg-sub
   :sidebar/variables
   (fn [[_ group-id]]
-    (subscribe [:subgroups group-id]))
+    (subscribe [:variables group-id]))
 
   (fn [variables]
     (->> variables
-         (map (fn [{id :db/id name :variable/name}]
+         (map (fn [variable]
+                (let [id (:db/id variable)
+                      name (get-in variable [:variables/_group-variables 0 :variable/name])]
                 {:label name
-                 :link  (path-for app-routes :get-group-variable :id id)}))
+                 :link  (path-for app-routes :get-group-variable :id id)})))
          (sort-by :label))))
+
+;;; Variables Search
+
+(reg-sub
+  :group/search-variables
+  (fn [_ [_ query]]
+    (let [variables (d/datoms @@conn :avet :variable/name)]
+      (take 20 (filter #(-> %
+                            (nth 3)
+                            (str/lower-case)
+                            (str/includes? query)) variables)))))
+
+;;; CPP Operations
 
 (reg-sub
   :cpp/namespaces

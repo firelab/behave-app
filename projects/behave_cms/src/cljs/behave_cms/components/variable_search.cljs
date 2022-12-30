@@ -11,11 +11,11 @@
        :on-change   #(-> % (u/input-value) (on-change))}]
      [:div.list-group
       {:on-mouse-leave (reset! selected nil)}
-      (for [{:keys [uuid variable_name]} results]
-        ^{:key uuid}
+      (for [{id :db/id v-name :variable/name} results]
+        ^{:key id}
         [:button
-         {:class ["list-group-item" "list-group-item-action" (when (= uuid @selected) "active")]
-          :on-click       #(on-click (str uuid))
+         {:class ["list-group-item" "list-group-item-action" (when (= id @selected) "active")]
+          :on-click       #(on-click id)
           :on-blur        on-blur
-          :on-mouse-enter #(reset! selected uuid)}
-         variable_name])]]))
+          :on-mouse-enter #(reset! selected id)}
+         v-name])]]))

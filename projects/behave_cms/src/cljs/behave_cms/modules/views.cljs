@@ -5,12 +5,13 @@
             [behave-cms.components.common       :refer [accordion simple-table window]]
             [behave-cms.components.sidebar      :refer [sidebar sidebar-width]]
             [behave-cms.components.translations :refer [app-translations]]
-            [behave-cms.components.help-editor  :refer [help-editor]]
+            [behave-cms.help.views              :refer [help-editor]]
             [behave-cms.components.entity-form  :refer [entity-form]]
             [behave-cms.subs]))
 
 (defn module-form [application-id module-id]
-  [entity-form {:parent-field :application/modules
+  [entity-form {:entity       :modules
+                :parent-field :application/_modules
                 :parent-id    application-id
                 :id           module-id
                 :fields       [{:label     "Name"

@@ -5,8 +5,10 @@
             [config.interface      :refer [get-config]]
             [datom-utils.interface :refer [safe-deref unwrap]]))
 
-(defn connect! [config]
-  (s/default-conn all-schemas config))
+(defn connect! [config & [reset?]]
+  (if reset?
+    (s/reset-datahike! config all-schemas)
+    (s/default-conn all-schemas config)))
 
 (defn default-conn []
   (if (nil? @s/conn)

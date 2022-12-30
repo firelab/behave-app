@@ -79,6 +79,7 @@
    {:db/ident       :variable/name
     :db/doc         "Variable's name."
     :db/valueType   :db.type/string
+    :db/index       true
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :variable/kind
@@ -107,17 +108,17 @@
    ;; Continuous Variables
    {:db/ident       :variable/maximum
     :db/doc         "Variable's maximum value."
-    :db/valueType   :db.type/float
+    :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :variable/minimum
     :db/doc         "Variable's minimum value."
-    :db/valueType   :db.type/float
+    :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :variable/default-value
     :db/doc         "Variable's default value."
-    :db/valueType   :db.type/float
+    :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :variable/english-decimals
@@ -176,6 +177,7 @@
    {:db/ident       :list-option/name
     :db/doc         "List option's name."
     :db/valueType   :db.type/string
+    :db/unique      :db.unique/identity
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :list-option/default

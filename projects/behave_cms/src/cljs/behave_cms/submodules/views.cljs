@@ -4,14 +4,14 @@
             [data-utils.core                    :refer [parse-int]]
             [behave-cms.components.common       :refer [accordion simple-table window]]
             [behave-cms.components.entity-form  :refer [entity-form]]
-            [behave-cms.components.help-editor  :refer [help-editor]]
             [behave-cms.components.sidebar      :refer [sidebar sidebar-width]]
             [behave-cms.components.translations :refer [all-translations]]
+            [behave-cms.help.views              :refer [help-editor]]
             [behave-cms.submodules.subs]))
 
 (defn submodule-form [module-id id]
   [entity-form {:entity        :submodules
-                :parent-field  :module/submodules
+                :parent-field  :module/_submodules
                 :parent-id     module-id
                 :id            id
                 :fields        [{:label     "Name"
@@ -20,13 +20,13 @@
                                 {:label     "I/O"
                                  :field-key :submodule/io
                                  :type      :radio
-                                 :options   [{:label "Input" :value "input"}
-                                             {:label "Output" :value "output"}]}]}])
+                                 :options   [{:label "Input" :value :input}
+                                             {:label "Output" :value :output}]}]}])
 
 (defn manage-submodule [module-id]
   (let [submodule (rf/subscribe [:state :submodule])]
     [:div.col-6
-     [:h5 (if (nil? module-id) "Add" "Edit") "Submodule"
+     [:h5 (if (nil? module-id) "Add" "Edit") " Submodule"
       [submodule-form module-id @submodule]]]))
 
 (defn submodules-table [label submodules]
@@ -35,7 +35,7 @@
    [simple-table
     [:submodule/name]
     (->> submodules (sort-by :submodule/order))
-    {:on-select   #(rf/dispatch [:state/set-state :submodule (:id %)])
+    {:on-select   #(rf/dispatch [:state/set-state :submodule (:db/id %)])
      :on-delete   #(when (js/confirm (str "Are you sure you want to delete the submodule "
                                           (:submodule/name %) "?"))
                      (rf/dispatch [:api/delete-entity %]))

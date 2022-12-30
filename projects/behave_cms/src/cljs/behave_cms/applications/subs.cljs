@@ -31,4 +31,3 @@
                 {:label app-name
                  :link  (path-for app-routes :get-application :id id)}))
          (sort-by :label))))
-

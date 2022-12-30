@@ -9,7 +9,8 @@
 
 ;;; Constants
 
-(def files-dir (io/file "resources" "public" "files" "users"))
+(def public-dir (io/file (io/resource "public")))
+(def files-dir (io/file public-dir "files" "users"))
 
 (def ^:private extensions {:tables    #{"csv" "xlsx"}
                            :databases #{"db"}
