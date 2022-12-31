@@ -36,29 +36,32 @@
        :on-decrease #(rf/dispatch [:group/reorder % :down @groups])}]]))
 
 (defn list-groups-page [{id :id}]
-  (let [submodule-id (parse-int id)
-        submodule    (rf/subscribe [:entity submodule-id '[* {:module/_submodules [*]}]])
-        groups       (rf/subscribe [:sidebar/groups submodule-id])]
-    [:<>
-     [sidebar
-      "Groups"
-      @groups
-      "Submodules"
-      (str "/modules/" (get-in @submodule [:module/_submodules 0 :db/id]))]
-     [window sidebar-width
-      [:div.container
-       [:div.row.mb-3.mt-4
-        [:h2 (str (:submodule/name @submodule) " (" (name (:submodule/io @submodule)) ")")]]
-       [accordion
-        "Groups"
-        [groups-table @submodule]
-        [manage-group @submodule]]
-       [:hr]
-       [accordion
-        "Translations"
-        [:div.col-12
-         [all-translations (:submodule/translation-key @submodule)]]]
-       [:hr]
-       [accordion
-        "Help Page"
-        [help-editor (:submodule/help-key @submodule)]]]]]))
+  (let [loaded? (rf/subscribe [:state :loaded?])]
+    (if (not loaded?)
+      [:div "Loading ..."]
+      (let [submodule-id (parse-int id)
+            submodule    (rf/subscribe [:entity submodule-id '[* {:module/_submodules [*]}]])
+            groups       (rf/subscribe [:sidebar/groups submodule-id])]
+        [:<>
+         [sidebar
+          "Groups"
+          @groups
+          "Submodules"
+          (str "/modules/" (get-in @submodule [:module/_submodules 0 :db/id]))]
+         [window sidebar-width
+          [:div.container
+           [:div.row.mb-3.mt-4
+            [:h2 (str (:submodule/name @submodule) " (" (name (:submodule/io @submodule)) ")")]]
+           [accordion
+            "Groups"
+            [groups-table @submodule]
+            [manage-group @submodule]]
+           [:hr]
+           [accordion
+            "Translations"
+            [:div.col-12
+             [all-translations (:submodule/translation-key @submodule)]]]
+           [:hr]
+           [accordion
+            "Help Page"
+            [help-editor (:submodule/help-key @submodule)]]]]]))))

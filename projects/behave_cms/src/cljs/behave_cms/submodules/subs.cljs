@@ -17,8 +17,8 @@
   (fn [submodules _]
     (->> submodules
          (map (fn [{id   :db/id
-                    name :submodule/name
+                    s-name :submodule/name
                     io   :submodule/io}]
-                {:label (str name " (" io ")")
+                {:label (str s-name " (" (name io) ")")
                  :link  (path-for app-routes :get-submodule :id id)}))
          (sort-by :label))))

@@ -1,6 +1,7 @@
 (ns behave-cms.group-variables.views
   (:require [reagent.core                       :as r]
             [re-frame.core                      :as rf]
+            [data-utils.interface               :refer [parse-int]]
             [behave-cms.components.common       :refer [accordion
                                                         labeled-text-input
                                                         labeled-float-input
@@ -38,7 +39,7 @@
     {:disabled  disabled?
      :on-change #(on-change (u/input-value %))}
     [:option {:key 0 :value nil} "Select..."]
-    (for [{uuid :bp/uuid option-label name-attr} @options]
+    (for [{uuid :bp/uuid option-label name-attr} options]
       ^{:key uuid}
       [:option {:value uuid :selected (= @*uuid uuid)} option-label])]])
 
@@ -65,30 +66,34 @@
 
 (defn group-variable-page
   "Renders the group-variable page. Takes in a group-variable UUID."
-  [{:keys [uuid]}]
-  (let [group-variable  (rf/subscribe [:entity uuid])
-        group-variables (rf/subscribe [:sidebar/variables (:group-uuid @group-variable)])]
+  [{:keys [id]}]
+  (let [gv-id           (parse-int id)
+        group-variable  (rf/subscribe [:entity gv-id '[* {:variable/_group-variables [*]
+                                                          :group/_group-variables    [*]}]])
+        group           (get-in @group-variable [:group/_group-variables 0])
+        variable        (get-in @group-variable [:variable/_group-variables 0])
+        group-variables (rf/subscribe [:sidebar/variables (:db/id group)])]
     [:<>
      [sidebar
       "Variables"
       @group-variables
       "Groups"
-      (str "/groups/" (:group-uuid @group-variable))]
+      (str "/groups/" (:db/id group))]
      [window
       sidebar-width
       [:div.container
        [:div.row.mb-3.mt-4
-        [:h2 (:variable_name @group-variable)]]
+        [:h2 (:variable/name variable)]]
        [accordion
         "Translations"
-        [all-translations (:translation_key @group-variable)]]
+        [all-translations (:translation/key @group-variable)]]
        [:hr]
        [accordion
         "Help Page"
         [:div.col-12
-         [help-editor (:help_key @group-variable)]]]
+         [help-editor (:help/key @group-variable)]]]
        [:hr]
        [accordion
         "CPP Functions"
         [:div.col-6
-         [edit-variable uuid]]]]]]))
+         [edit-variable gv-id]]]]]]))

@@ -39,7 +39,7 @@
 
   (fn [variables]
     (map (fn [group-variable]
-           (let [variable (get-in group-variable [:variables/_group-variables 0])]
+           (let [variable (get-in group-variable [:variable/_group-variables 0])]
              (merge group-variable variable))) variables)))
 
 (reg-sub
@@ -51,21 +51,35 @@
     (->> variables
          (map (fn [variable]
                 (let [id (:db/id variable)
-                      name (get-in variable [:variables/_group-variables 0 :variable/name])]
+                      name (get-in variable [:variable/_group-variables 0 :variable/name])]
                 {:label name
                  :link  (path-for app-routes :get-group-variable :id id)})))
          (sort-by :label))))
 
 ;;; Variables Search
 
+(defn- match-query? [query datom]
+  (-> datom
+      (nth 2)
+      (str/lower-case)
+      (str/includes? query)))
+
 (reg-sub
-  :group/search-variables
+  :group/search-variable-ids
   (fn [_ [_ query]]
     (let [variables (d/datoms @@conn :avet :variable/name)]
-      (take 20 (filter #(-> %
-                            (nth 3)
-                            (str/lower-case)
-                            (str/includes? query)) variables)))))
+      (as-> variables $
+        (filter #(match-query? query %) $)
+        (take 20 $)
+        (map first $)))))
+
+(reg-sub
+  :group/search-variables
+  (fn [[_ query]]
+    (subscribe [:group/search-variable-ids query]))
+
+  (fn [eids]
+    @(subscribe [:pull-many '[*] (into [] eids)])))
 
 ;;; CPP Operations
 

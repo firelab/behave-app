@@ -1,5 +1,6 @@
 (ns behave-cms.subgroups.views
-  (:require [reagent.core  :as r]
+  (:require [clojure.set   :refer [difference]]
+            [reagent.core  :as r]
             [re-frame.core :as rf]
             [data-utils.interface :refer [parse-int]]
             [behave-cms.components.common          :refer [accordion simple-table window]]
@@ -45,17 +46,21 @@
       :on-decrease #(rf/dispatch [:api/reorder :variable/order % :down @group-variables])}]))
 
 (defn- add-variable [{id :db/id group-variables :group/group-variables}]
-  (let [query         (rf/subscribe [:state [:search :variables]])
-        all-variables (rf/subscribe [:group/search-variables query])]
+  (let [query            (rf/subscribe [:state [:search :variables]])
+        all-variables    (rf/subscribe [:group/search-variables @query])
+        all-variable-ids (set (map :db/id @all-variables))
+        gv-ids           (set (map #(get-in % [:variable/_group-variables 0 :db/id]) group-variables))
+        remaining-ids    (difference all-variable-ids gv-ids)
+        remaining        (filter #(-> % (:db/id) (remaining-ids)) @all-variables)]
     [:div.row
      [:h4 "Add Variable:"]
      [variable-search
-      @all-variables
+      remaining
       (u/debounce #(rf/dispatch [:state/set-state [:search :variables] %]) 1000)
       #(rf/dispatch [:api/create-entity
-                     {:group/_group-variables id
+                     {:group/_group-variables    id
                       :variable/_group-variables %
-                      :group-variable/order (count @group-variables)}])
+                      :group-variable/order      (count group-variables)}])
       #(rf/dispatch [:state/set-state [:search :variables] nil])]]))
 
 ;;; Public Views
@@ -63,32 +68,36 @@
 (defn list-subgroups-page
   "Renders the subgroups page. Takes in a group UUID."
   [{:keys [id]}]
-  (let [group-id        (parse-int id)
-        group           (rf/subscribe [:entity group-id '[* {:submodule/_groups [*]}]])
-        group-variables (rf/subscribe [:sidebar/variables group-id])]
-    [:<>
-     [sidebar
-      "Variables"
-      @group-variables
-      "Groups"
-      (str "/submodules/" (get-in @group [:submodule/_groups 0 :db/id]))]
-     [window
-      sidebar-width
-      [:div.container
-       [:div.row.mb-3.mt-4
-        [:h2 (:group/name @group)]]
-       [accordion
-        "Variables"
-        [:div.col-6
-         [variables-table @group]]
-        [:div.col-6
-         [add-variable @group]]]
-       [:hr]
-       [accordion
-        "Translations"
-        [all-translations (:group/translation-key @group)]]
-       [:hr]
-       [accordion
-        "Help Page"
-        [:div.col-12
-         [help-editor (:group/help-key @group)]]]]]]))
+  (let [loaded? (rf/subscribe [:state :loaded?])]
+    (if (not @loaded?)
+      [:div "Loading..."]
+      (let [group-id        (parse-int id)
+            group           (rf/subscribe [:entity group-id '[* {:submodule/_groups [*]
+                                                                 :group/group-variables [* {:variable/_group-variables [*]}]}]])
+            group-variables (rf/subscribe [:sidebar/variables group-id])]
+        [:<>
+         [sidebar
+          "Variables"
+          @group-variables
+          "Groups"
+          (str "/submodules/" (get-in @group [:submodule/_groups 0 :db/id]))]
+         [window
+          sidebar-width
+          [:div.container
+           [:div.row.mb-3.mt-4
+            [:h2 (:group/name @group)]]
+           [accordion
+            "Variables"
+            [:div.col-6
+             [variables-table @group]]
+            [:div.col-6
+             [add-variable @group]]]
+           [:hr]
+           [accordion
+            "Translations"
+            [all-translations (:group/translation-key @group)]]
+           [:hr]
+           [accordion
+            "Help Page"
+            [:div.col-12
+             [help-editor (:group/help-key @group)]]]]]]))))
