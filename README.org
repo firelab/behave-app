@@ -64,3 +64,32 @@ The projects store data in Datoms and performs queries using the
 Datalog syntax. The back-end access Datoms using [[https://github.com/replikativ/datahike][DataHike]], and the
 front-end accesses Datoms through [[https://github.com/tonsky/datascript][DataScript]]. [[https://github.com/denistakeda/re-posh][Re-Posh]] is also used to
 enable subscriptions on DataScript entities, reducing view logic.
+
+
+* Building the Behave UberJAR
+
+1. Add/edit the ~resources/config.edn~ for your deployment. Below is
+   an example file:
+
+#+BEGIN_SRC clojure
+  ;; resources/config.edn
+  {:database {:config {:store {:backend :file
+                               :path    "~/.behave/db"}}}
+   :site     {:title       "BehavePlus 7"
+              :description "Wildfire Analysis toolkit."}
+   :server   {:http-port 8007 
+              :mode      "prod"}
+   :vms      {:secret-token "<vms-secret-token>"}}
+#+END_SRC
+
+2. Compile ClojureScript
+#+BEGIN_SRC bash
+  clj -M:compile-cljs compile-prod.cljs.edn
+#+END_SRC
+
+3. Build the UberJAR
+#+BEGIN_SRC bash
+  clj -T:build org.corfield.build/uber :lib sig-gis/behave :main behave.core
+#+END_SRC
+
+4. Congratulations! You're now the owner of an UberJAR (inside ~target/behave-standalone.jar~)
