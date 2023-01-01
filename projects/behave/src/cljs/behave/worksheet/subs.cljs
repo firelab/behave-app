@@ -30,6 +30,16 @@
                     [?w :worksheet/modules ?modules]]
     :variables [ws-uuid]}))
 
+(rp/reg-sub
+  :worksheet/get-attr
+  (fn [_ [_ ws-uuid attr]]
+    {:type      :query
+     :query     '[:find [?value ...]
+                  :in    $ ?ws-uuid ?attr
+                  :where [?w :worksheet/uuid ?ws-uuid]
+                  [?w ?attr ?value]]
+     :variables [ws-uuid attr]}))
+
 ; Get state of a particular output
 (rp/reg-sub
  :worksheet/output-enabled?
@@ -70,6 +80,34 @@
                     [?w :worksheet/input-groups ?g]
                     [?g :input-group/group-uuid ?group-uuid]]
     :variables [ws-uuid group-uuid]}))
+
+;; Find inputs for a given group-uuid and repeat-id
+(rp/reg-sub
+  :worksheet/input-ids
+  (fn [_ [_ ws-uuid group-uuid repeat-id]]
+    {:type      :query
+     :query     '[:find [?i ...]
+                  :in  $ ?ws-uuid ?group-uuid ?repeat-id
+                  :where
+                  [?w :worksheet/uuid ?ws-uuid]
+                  [?w :worksheet/input-groups ?g]
+                  [?g :input-group/group-uuid ?group-uuid]
+                  [?g :input-group/repeat-id ?repeat-id]
+                  [?g :input-group/inputs ?i]]
+     :variables [ws-uuid group-uuid repeat-id]}))
+
+(rp/reg-sub
+  :worksheet/group-repeat-ids
+  (fn [_ [_ ws-uuid group-uuid]]
+    {:type      :query
+     :query     '[:find  [?rid ...]
+                  :in    $ ?ws-uuid ?group-uuid
+                  :where
+                  [?w :worksheet/uuid ?ws-uuid]
+                  [?w :worksheet/input-groups ?ig]
+                  [?ig :input-group/group-uuid ?group-uuid]
+                  [?ig :input-group/repeat-id ?rid]]
+     :variables [ws-uuid group-uuid]}))
 
 (rf/reg-sub
  :worksheet/all-inputs

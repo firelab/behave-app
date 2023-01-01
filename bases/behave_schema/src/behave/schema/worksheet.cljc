@@ -27,6 +27,11 @@
     :db/unique      :db.unique/identity
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident       :worksheet/run-description
+    :db/doc         "Worksheet's run description."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
    {:db/ident       :worksheet/name
     :db/doc         "Worksheet's name."
     :db/valueType   :db.type/string
