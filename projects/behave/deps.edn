@@ -42,5 +42,5 @@
            sig/behave-schema         {:local/root "../../bases/behave_schema"}
            sig/datom_store           {:local/root "../../bases/datom_store"}}
 
- :aliases {:test {:extra-paths []
+ :aliases {:test {:extra-paths ["test/cljs"]
                   :extra-deps {}}}}

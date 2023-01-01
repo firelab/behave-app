@@ -53,7 +53,7 @@
             (assoc group
                    :group/group-variables
                    (mapv #(let [variable-data (rename-keys (first (:variable/_group-variables %))
-                                                           {:db/id :variable/id})]
+                                                           {:bp/uuid :variable/uuid})]
                             (-> %
                                 (dissoc :variable/_group-variables)
                                 (merge variable-data)

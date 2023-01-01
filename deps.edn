@@ -5,6 +5,7 @@
 
          ;; Components
          "components/browser_utils/src"
+         "components/csv_parser/src"
          "components/config/src"
          "components/data_utils/src"
          "components/datom_compressor/src"
@@ -26,7 +27,7 @@
          ;; Projects
          "projects/behave/src/clj"
          "projects/behave/src/cljs"
-
+         "projects/behave/test/cljs"
          "projects/behave/resources"]
 
  :deps {;; Clojure Deps

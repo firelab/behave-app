@@ -24,16 +24,21 @@
   (export-from-vms (get-config :vms :secret-token))
   (store/connect! (get-config :database :config)))
 
+(defn vms-sync-handler [req]
+  (export-from-vms (get-config :vms :secret-token))
+  {:status 200 :body "OK"})
+
 (defn bad-uri?
   [uri]
   (str/includes? (str/lower-case uri) "php"))
 
 (defn routing-handler [{:keys [uri] :as request}]
   (let [next-handler (cond
-                       (bad-uri? uri)                 (not-found "404 Not Found")
-                       (str/starts-with? uri "/sync") #'sync-handler
-                       (match-route routes uri)       (render-page (match-route routes uri))
-                       :else                          (not-found "404 Not Found"))]
+                       (bad-uri? uri)                     (not-found "404 Not Found")
+                       (str/starts-with? uri "/vms-sync") #'vms-sync-handler
+                       (str/starts-with? uri "/sync")     #'sync-handler
+                       (match-route routes uri)           (render-page (match-route routes uri))
+                       :else                              (not-found "404 Not Found"))]
     (next-handler request)))
 
 (defn wrap-query-params [handler]
@@ -45,20 +50,20 @@
             params (reduce (fn [params keyval]
                              (let [[k v] (str/split keyval #"=")]
                                (assoc params (keyword k) (edn/read-string v))))
-                           params keyvals)
-
-            _ (log-str "-- FOUND QUERY PARAMS:" params)]
+                           params keyvals)]
         (handler (assoc req :params params))))))
 
 (defn wrap-params [handler]
-  (fn [{:keys [body content-type params] :as req}]
+  (fn [{:keys [request-method content-type body query-string] :as req}]
     (if-let [req-type (mime->type content-type)]
-      (handler (assoc req :params (merge params (->clj body req-type))))
+      (let [get-params  (->clj query-string req-type)
+            post-params (->clj (slurp body) req-type)]
+        (handler (update req :params merge get-params post-params)))
       (handler req))))
 
 (defn wrap-content-type [handler]
   (fn [{:keys [headers] :as req}]
-    (handler (assoc req :content-type (get headers "Content-Type")))))
+    (handler (assoc req :content-type (get headers "content-type")))))
 
 (defn wrap-accept [handler]
   (fn [{:keys [headers] :as req}]
@@ -84,7 +89,7 @@
       wrap-accept
       wrap-content-type
       wrap-exceptions
-      wrap-reload))
+      (wrap-reload {:dirs ["projects/behave/src/clj"]})))
 
 ;; This is for Figwheel
 (def development-app

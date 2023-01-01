@@ -32,7 +32,6 @@
                       {:group/group-variables
                        [:group-variable/help-key]}]}]
                   submodule-id]))
-
   (fn [submodule]
     (persistent!
       (reduce (fn [acc group]

@@ -1,3 +1,7 @@
+^{:extra-main-files {:testing {:main behave.test-runner}}
+  :watch-dirs   ["projects/behave/src/cljs"
+                 "projects/behave/test/cljs"
+                 "bases/behave_components/src"]}
 {:main          "behave.client"
  :output-dir    "projects/behave/resources/public/js/out"
  :output-to     "projects/behave/resources/public/js/out/app.js"

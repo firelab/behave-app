@@ -1,10 +1,13 @@
 (ns behave.wizard.views
   (:require [behave.components.core         :as c]
             [behave.components.input-group  :refer [input-group]]
+            [behave.components.navigation   :refer [wizard-navigation]]
             [behave.components.output-group :refer [output-group]]
             [behave.translate               :refer [<t bp]]
             [behave.wizard.events]
             [behave.wizard.subs]
+            [behave.worksheet.events]
+            [behave.worksheet.subs]
             [goog.string                    :as gstring]
             [goog.string.format]
             [re-frame.core                  :refer [dispatch subscribe]]))
@@ -13,19 +16,21 @@
 
 (defmulti submodule-page (fn [io _ _] io))
 
-(defmethod submodule-page :input [_ groups]
-  [:div.wizard-io
-   (for [group groups]
-     (let [variables (:group/group-variables group)]
-       ^{:key (:db/id group)}
-       [input-group group variables]))])
+(defmethod submodule-page :input [_ ws-uuid groups on-back on-next]
+  [:<>
+   [:div.wizard-io
+    (for [group groups]
+      (let [variables (:group/group-variables group)]
+        ^{:key (:db/id group)}
+        [input-group ws-uuid group variables]))]])
 
-(defmethod submodule-page :output [_ groups]
-  [:div.wizard-io
-   (for [group groups]
-     (let [variables (:group/group-variables group)]
-       ^{:key (:db/id group)}
-       [output-group group variables]))])
+(defmethod submodule-page :output [_ ws-uuid groups on-back on-next]
+  [:<>
+   [:div.wizard-io
+    (for [group groups]
+      (let [variables (:group/group-variables group)]
+        ^{:key (:db/id group)}
+        [output-group ws-uuid group variables]))]])
 
 (defn- io-tabs [submodules {:keys [io] :as params}]
   (let [[i-subs o-subs] (partition-by #(:submodule/io %) submodules)
@@ -58,18 +63,6 @@
                                       :tab       slug
                                       :selected? (= submodule slug)}) submodules)}]]]))
 
-(defn- wizard-navigation [*module *submodule all-submodules params]
-  [:div.wizard-navigation
-   [c/button {:label    "Back"
-              :variant  "secondary"
-              :on-click #(dispatch [:wizard/prev-tab params])}]
-
-   [c/button {:label         "Next"
-              :variant       "highlight"
-              :icon-name     "arrow2"
-              :icon-position "right"
-              :on-click      #(dispatch [:wizard/next-tab *module *submodule all-submodules params])}]])
-
 (defn wizard-page [{:keys [module io submodule] :as params}]
   (let [*module                 (subscribe [:wizard/*module module])
         submodules              (subscribe [:wizard/submodules (:db/id @*module)])
@@ -77,18 +70,24 @@
         *groups                 (subscribe [:wizard/groups (:db/id @*submodule)])
         *warn-limit?            (subscribe [:state :warn-continuous-input-limit])
         *continuous-input-limit (subscribe [:state [:worksheet :continuous-input-limit]])
-        *continuous-input-count (subscribe [:state [:worksheet :continuous-input-count]])]
-
+        *continuous-input-count (subscribe [:state [:worksheet :continuous-input-count]])
+        on-back                 #(dispatch [:wizard/prev-tab params])
+        on-next                 #(dispatch [:wizard/next-tab @*module @*submodule @submodules params])
+        worksheet  (subscribe [:worksheet/latest])]
     [:div.wizard-page
      [wizard-header @*module @submodules params]
-     [submodule-page io @*groups]
+     [submodule-page io @worksheet @*groups on-back on-next]
      (when @*warn-limit?
        [:div.wizard-warning
         (gstring/format  @(<t (bp "warn_input_limit")) @*continuous-input-count @*continuous-input-limit)])
-     [wizard-navigation @*module @*submodule @submodules params]]))
+     [wizard-navigation {:next-label @(<t (bp "next"))
+                         :on-next    on-next
+                         :back-label @(<t (bp "back"))
+                         :on-back    on-back}]]))
 
 (defn wizard-review-page [params]
-  (let [*warn-limit?            (subscribe [:state :warn-continuous-input-limit])
+  (let [worksheet              (subscribe [:worksheet/latest])
+        *warn-limit?            (subscribe [:state :warn-continuous-input-limit])
         *continuous-input-limit (subscribe [:state [:worksheet :continuous-input-limit]])
         *continuous-input-count (subscribe [:state [:worksheet :continuous-input-count]])]
     [:div.accordion
@@ -105,16 +104,10 @@
        (when @*warn-limit?
          [:div.wizard-warning
           (gstring/format  @(<t (bp "warn_input_limit")) @*continuous-input-count @*continuous-input-limit)])
-       [:div.wizard-navigation
-        [c/button {:label    "Back"
-                   :variant  "secondary"
-                   :on-click #(dispatch [:wizard/prev-tab params])}]
-        [c/button {:label         "Run"
-                   :disabled?     @*warn-limit?
-                   :variant       "highlight"
-                   :icon-name     "arrow2"
-                   :icon-position "right"
-                   :on-click      #(dispatch [:worksheet/solve params])}]]]]]))
+       [wizard-navigation {:next-label @(<t (bp "next"))
+                           :back-label @(<t (bp "back"))
+                           :on-back    #(dispatch [:wizard/prev-tab params])
+                           :on-next    #(dispatch [:worksheet/solve @worksheet])}]]]]))
 
 (defn wizard-results-page [_]
   (let [results   (subscribe [:state [:worksheet :results]])
@@ -151,7 +144,7 @@
 
 ;;; Public Components
 (defn root-component [params]
-  (let [loaded?                 (subscribe [:state :loaded?])
+  (let [loaded?                 (subscribe [:app/loaded?])
         _                       (dispatch [:state/set [:worksheet :continuous-input-limit]
                                            continuous-input-limit])
         *continuous-input-limit (subscribe [:state [:worksheet :continuous-input-limit]])

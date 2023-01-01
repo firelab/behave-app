@@ -68,7 +68,7 @@
 
 (defn help-area [params]
   (let [current-tab (subscribe [:help/current-tab])
-        loaded?     (subscribe [:state :loaded?])]
+        loaded?     (subscribe [:app/loaded?])]
     [:div.help-area
      [:div.help-area__tabs
       [c/tab-group {:variant  "outline-secondary"

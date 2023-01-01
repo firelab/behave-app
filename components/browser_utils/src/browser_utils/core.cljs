@@ -1,6 +1,7 @@
 (ns browser-utils.core
   (:require [cljs.reader    :as edn]
-            [clojure.string :as str]))
+            [clojure.string :as str])
+  (:import  [goog.async Debouncer]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Utility Functions - Browser Session
@@ -92,3 +93,12 @@
 (defn redirect-to-login! [from-page]
   (set-session-storage! {:redirect-from from-page})
   (jump-to-url! "/login"))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Utility Functions - Debouncers
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn debounce [f interval]
+  (let [dbnc (Debouncer. f interval)]
+    ;; We use apply here to support functions of various arities
+    (fn [& args] (.apply (.-fire dbnc) dbnc (to-array args)))))
