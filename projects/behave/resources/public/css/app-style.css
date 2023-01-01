@@ -167,9 +167,11 @@
 .workflow-select__header__content svg {
   padding-right: 15px
 }
+
 .accordion__header > .tab > .button,
 .workflow-select__header__title > .tab > .button {
   display: block;
+  height: 41px;
   width: 100%;
   text-align: left;
   pointer-events: none;
@@ -251,6 +253,16 @@
   background-color: var(--darkblue-4);
 }
 
+.wizard-io {
+  overflow-x: hidden;
+  overflow-y: scroll;
+  height: 600px;
+}
+
+.wizard-group__inputs {
+  padding: 25px 30px;
+}
+
 .wizard-repeat-group__header {
   padding: 5px 18px;
   font-weight: var(--font-weight-500);
@@ -283,6 +295,7 @@
 
 .wizard-input__input {
   width: 70%;
+  padding: 5px;
 }
 
 .wizard-input__description {
@@ -293,6 +306,111 @@
   font-size: var(--font-size-14);
   color: var(--gray-5);
 }
+
+/* -- Wizard review -- */
+
+.wizard-review {
+  overflow-x: hidden;
+  overflow-y: scroll;
+  height: 600px;
+}
+
+.wizard-review-group__inputs {
+  padding: 25px 30px;
+  border-bottom: 2px dotted var(--gray-4);
+}
+
+.wizard-review__run-description__header {
+  padding: 10px;
+  color: var(--white);
+  background: var(--darkblue-3);
+}
+
+.wizard-review__run-description__input {
+  flex-direction: row;
+  display: flex;
+  padding: 25px 30px;
+}
+
+.wizard-review-repeat-group__message,
+.wizard-review__run-description__message {
+  padding-left: 24px;
+  font-size: var(--font-size-14);
+  color: var(--gray-5)
+}
+
+.wizard-review-repeat-group__message > .button,
+.wizard-review__run-description__message .button {
+  padding-left: 0px;
+}
+
+.wizard-review-repeat-group__message > .button:hover,
+.wizard-review__run-description__message .button:hover {
+  color: var(--orange-4);
+  background: transparent;
+  cursor: default;
+}
+
+.wizard-review__module {
+  padding: 10px;
+  color: var(--white);
+  background: var(--darkblue-3);
+}
+
+.wizard-review-repeat-group__input {
+  display: flex;
+  flex-direction: row;
+}
+
+.wizard-review-repeat-group__manage {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.wizard-review__submodule-header {
+  padding: 27px 0px 0px 0px;
+  border-bottom: 2px solid var(--gray-4);
+  font-size: var(--font-size-22);
+  font-weight: var(--font-weight-bold);
+}
+
+.wizard-review .input-text__input {
+  width: 250px;
+}
+
+.wizard-review .input-text {
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.wizard-review__input {
+  display: flex;
+  width: 100%;
+  padding: 5px;
+}
+
+.wizard-review__input .button {
+  margin: 5px;
+}
+
+.wizard-review__input--discrete {
+  flex-direction: row;
+  align-items: center;
+  display: flex;
+}
+
+.wizard-review__input--discrete__label {
+  color: var(--gray-4);
+}
+
+.wizard-review__input--discrete__value {
+  padding-left: 5px;
+  text-decoration: underline;
+}
+/* -- End Wizard review -- */
+
 
 /* - End Wizard - */
 
@@ -397,8 +515,8 @@
 .help-area__content .highlight > .help-section__content h5,
 .help-area__content .highlight > .help-section__content h6 {
     margin-bottom: 0px;
-    text-decoration: underline;
     padding: 10px;
+    text-decoration: underline;
     color: white;
     background: #5788A7;
 }
