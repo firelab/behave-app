@@ -162,27 +162,6 @@
                                                                      var-uuid   (:bp/uuid variable)]]
                                                        (get-in all-inputs [group-uuid 0 var-uuid]))
                                                      (every? seq))
-          group-uuid->vars-needed               (reduce (fn [acc group]
-                                                          (let [group-uuid (:bp/uuid group)]
-                                                            (assoc acc
-                                                                   (:bp/uuid group)
-                                                                   (* (count (:group/group-variables group))
-                                                                      (count @(rf/subscribe [:worksheet/group-repeat-ids ws-uuid group-uuid]))))))
-                                                        {}
-                                                        groups-repeat)
-          group-uuid->vars-entered              (reduce (fn [acc group]
-                                                          (let [group-uuid (:bp/uuid group)]
-                                                            (assoc acc
-                                                                   (:bp/uuid group)
-                                                                   (reduce (fn [acc [_repeat-id variables]]
-                                                                             (+ acc (count (filter (fn has-value? [[_variable-id val]]
-                                                                                                     (seq val))
-                                                                                                   variables))))
-                                                                           0
-                                                                           (get all-inputs group-uuid)))))
-                                                        {}
-                                                        groups-repeat)
-
           groups-repeat-all-values-entered?     (every? (fn [group]
                                                           (let [group-uuid   (:bp/uuid group)
                                                                 vars-needed  (* (count (:group/group-variables group))
