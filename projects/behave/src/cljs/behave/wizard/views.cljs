@@ -68,26 +68,30 @@
                                       :selected? (= submodule slug)}) submodules)}]]]))
 
 (defn wizard-page [{:keys [module io submodule] :as params}]
-  (let [*module                 (subscribe [:wizard/*module module])
-        *submodules             (subscribe [:wizard/submodules (:db/id @*module)])
-        *submodule              (subscribe [:wizard/*submodule (:db/id @*module) submodule io])
+  (let [worksheet               (subscribe [:worksheet/latest])
+        *module                 (subscribe [:wizard/*module module])
+        module-id               (:db/id @*module)
+        *submodules             (subscribe [:wizard/submodules module-id])
+        *submodule              (subscribe [:wizard/*submodule module-id submodule io])
         *groups                 (subscribe [:wizard/groups (:db/id @*submodule)])
         *warn-limit?            (subscribe [:state :warn-continuous-input-limit])
         *continuous-input-limit (subscribe [:state [:worksheet :continuous-input-limit]])
         *continuous-input-count (subscribe [:state [:worksheet :continuous-input-count]])
+        *all-inputs-entered?    (subscribe [:worksheet/all-inputs-entered? @worksheet module-id submodule])
         on-back                 #(dispatch [:wizard/prev-tab params])
-        on-next                 #(dispatch [:wizard/next-tab @*module @*submodule @*submodules params])
-        worksheet               (subscribe [:worksheet/latest])]
+        on-next                 #(dispatch [:wizard/next-tab @*module @*submodule @*submodules params])]
+    (println "all-inputs-entered?:" @*all-inputs-entered?)
     [:div.wizard-page
      [wizard-header @*module @*submodules params]
      [submodule-page io @worksheet @*groups on-back on-next]
      (when @*warn-limit?
        [:div.wizard-warning
         (gstring/format  @(<t (bp "warn_input_limit")) @*continuous-input-count @*continuous-input-limit)])
-     [wizard-navigation {:next-label @(<t (bp "next"))
-                         :on-next    on-next
-                         :back-label @(<t (bp "back"))
-                         :on-back    on-back}]]))
+     [wizard-navigation {:next-label     @(<t (bp "next"))
+                         :on-next        on-next
+                         :next-disabled? (not @*all-inputs-entered?)
+                         :back-label     @(<t (bp "back"))
+                         :on-back        on-back}]]))
 
 (defn run-description []
   (let [*ws-uuid (subscribe [:worksheet/latest])

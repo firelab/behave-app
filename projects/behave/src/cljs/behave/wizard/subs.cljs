@@ -2,7 +2,8 @@
   (:require [clojure.string         :as str]
             [clojure.set            :refer [rename-keys]]
             [re-frame.core          :refer [reg-sub subscribe]]
-            [string-utils.interface :refer [->kebab]]))
+            [string-utils.interface :refer [->kebab]]
+            [re-frame.core :as rf]))
 
 ;;; Helpers
 
@@ -71,3 +72,9 @@
                                 (merge variable-data)
                                 (dissoc :variable/group-variables)
                                 (update :variable/kind keyword))) (:group/group-variables group)))) groups)))
+
+(comment
+  (let [module-id    (:db/id @(rf/subscribe [:wizard/*module "contain"]))
+        submodule-id (:db/id @(subscribe [:wizard/*submodule module-id "suppression" :input]))]
+    (rf/subscribe [:wizard/groups submodule-id]))
+  )
