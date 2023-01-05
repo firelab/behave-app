@@ -103,13 +103,15 @@
                                        :module    #{:mortality}}]}]
       [:div.workflow-select__content__name
 
-       [c/text-input {:label "Worksheet Name"
+       [c/text-input {:label     "Worksheet Name"
                       :on-change #(rf/dispatch [:state/set [:worksheet :name] (input-value %)])}]]]
+
      [wizard-navigation {:next-label     @(<t (bp "next"))
                          :back-label     @(<t (bp "back"))
                          :next-disabled? (some empty? [@name @*modules])
                          :on-back        #(.back js/history)
                          :on-next        #(do
+                                            (rf/dispatch [:state/set [:sidebar :*modules] @*modules])
                                             (rf/dispatch [:worksheet/new {:name @name :modules (vec @*modules)}])
                                             (rf/dispatch [:navigate "/worksheets/1/modules/contain/output/fire"]))}]]))
 
