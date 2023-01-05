@@ -81,15 +81,15 @@
             (dfs-walk (rest map-entries) cur-depth)))))
 
 (reg-sub
-  :wizard/multi-value-input-count
-  (fn [db _query]
-    (let [inputs                  (get-in db [:state :worksheet :inputs])
-          multi-value-input-count (->> (dfs-walk inputs 2)
-                                       (filter (fn multiple-values? [input]
-                                                 (and (coll? input)
-                                                      (> (count input) 1))))
-                                       (count))]
-      multi-value-input-count)))
+ :wizard/multi-value-input-count
+
+ (fn [[_ ws-uuid]]
+   (subscribe [:worksheet/all-input-values ws-uuid]))
+
+ (fn [all-input-values _query]
+   (count (filter (fn multiple-values? [value]
+                    (str/includes? value ","))
+                  all-input-values))))
 
 ;; TODO Might want to set this in a config file to the application
 (def ^:const continuous-input-limit 3)
