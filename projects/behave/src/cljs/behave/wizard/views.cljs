@@ -83,7 +83,7 @@
      [submodule-page io @worksheet @*groups on-back on-next]
      (when @*warn-limit?
        [:div.wizard-warning
-        (gstring/format  @(<t (bp "warn_input_limit")) @*continuous-input-count @*continuous-input-limit)])
+        (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])
      [wizard-navigation {:next-label @(<t (bp "next"))
                          :on-next    on-next
                          :back-label @(<t (bp "back"))
