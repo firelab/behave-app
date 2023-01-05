@@ -132,7 +132,7 @@
  :worksheet/all-input-values
  (fn [_ [_ ws-uuid]]
    @(rf/subscribe [:query
-                   '[:find ?value
+                   '[:find [?value ...]
                      :in $ ?ws-uuid
                      :where
                      [?w :worksheet/uuid ?ws-uuid]
