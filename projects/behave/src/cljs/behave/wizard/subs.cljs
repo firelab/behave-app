@@ -72,14 +72,6 @@
                                 (dissoc :variable/group-variables)
                                 (update :variable/kind keyword))) (:group/group-variables group)))) groups)))
 
-
-(defn- dfs-walk [k->v cur-depth]
-  (when-let [map-entries (seq k->v)]
-    (if (zero? cur-depth)
-      (map val map-entries)
-      (into (dfs-walk (-> map-entries first val) (dec cur-depth))
-            (dfs-walk (rest map-entries) cur-depth)))))
-
 (reg-sub
  :wizard/multi-value-input-count
 
