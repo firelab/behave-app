@@ -4,8 +4,8 @@
 
 (reg-sub
  :vms/query
- (fn [_ [_ query variables]]
-   @(q query variables)))
+ (fn [_ [_ query & variables]]
+   @(apply q query variables)))
 
 (reg-sub
  :vms/pull

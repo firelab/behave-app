@@ -1,7 +1,9 @@
 (ns behave.worksheet.events
-  (:require [re-frame.core   :as rf]
-            [behave.importer :refer [import-worksheet]]
-            [behave.solver   :refer [solve-worksheet]]))
+ (:require [re-frame.core    :as rf]
+           [re-posh.core     :as rp]
+           [datascript.core  :as d]
+           [behave.importer  :refer [import-worksheet]]
+           [behave.solver    :refer [solve-worksheet]]))
 
 (rf/reg-fx :ws/import-worksheet import-worksheet)
 
@@ -12,9 +14,254 @@
       {:db                  (assoc-in db [:state :worksheet :file] (.-name file))
        :ws/import-worksheet (import-worksheet file)})))
 
-(rf/reg-event-db
+(rf/reg-event-fx
   :worksheet/solve
-  (fn [{:keys [state] :as db} _]
-    (assoc-in db
-              [:state :worksheet :results]
-              (solve-worksheet (:worksheet state)))))
+  (fn [_ [_ ws-uuid]]
+    (solve-worksheet ws-uuid)))
+
+(rp/reg-event-fx
+ :worksheet/new
+ (fn [_ [_ {:keys [uuid name modules]}]]
+   {:transact [{:worksheet/uuid (or uuid (str (d/squuid)))
+                :worksheet/name name
+                :worksheet/modules modules
+                :worksheet/created (.now js/Date)}]}))
+
+(rp/reg-event-fx
+  :worksheet/update-attr
+  (fn [_ [_ ws-uuid attr value]]
+    {:transact [(assoc {:db/id [:worksheet/uuid ws-uuid]} attr value)]}))
+
+(rp/reg-event-fx
+ :worksheet/add-input-group
+ [(rp/inject-cofx :ds)]
+ (fn [{:keys [ds]} [_ ws-uuid group-uuid repeat-id]]
+   (when-let [ws (first (d/q '[:find  [?ws ...]
+                               :in    $ ?uuid
+                               :where [?ws :worksheet/uuid ?uuid]] ds ws-uuid))]
+     (when (nil? (d/q '[:find [?g]
+                        :in $ ?ws ?group-uuid ?repeat-id
+                        :where [?ws :worksheet/input-groups ?g]
+                               [?g :input-group/group-uuid ?group-uuid]
+                               [?g :input-group/repeat-id ?repeat-id]]
+                      ds ws group-uuid repeat-id))
+           {:transact [{:worksheet/_input-groups ws
+                        :db/id                   -1
+                        :input-group/group-uuid  group-uuid
+                        :input-group/repeat-id   repeat-id}]}))))
+
+(rp/reg-event-fx
+ :worksheet/upsert-input-variable
+ [(rp/inject-cofx :ds)]
+ (fn [{:keys [ds]} [_ ws-uuid group-uuid repeat-id group-variable-uuid value units]]
+   (when-let [ws (first (d/q '[:find  [?ws ...]
+                               :in    $ ?uuid
+                               :where [?ws :worksheet/uuid ?uuid]] ds ws-uuid))]
+     (when-let [group-id (first (d/q '[:find  [?ig]
+                                       :in    $ ?ws ?group-uuid ?repeat-id
+                                       :where [?ws :worksheet/input-groups ?ig]
+                                              [?ig :input-group/group-uuid ?group-uuid]
+                                              [?ig :input-group/repeat-id  ?repeat-id]]
+                                     ds ws group-uuid repeat-id))]
+       (if-let [var-id (first (d/q '[:find  [?i]
+                                     :in    $ ?ig ?uuid
+                                     :where [?ig :input-group/inputs ?i]
+                                            [?i :input/group-variable-uuid ?uuid]]
+                                   ds group-id group-variable-uuid))]
+         {:transact [{:db/id       var-id
+                      :input/value value}]}
+         {:transact [{:input-group/_inputs       group-id
+                      :input/group-variable-uuid group-variable-uuid
+                      :input/value               value}]})))))
+
+(rp/reg-event-fx
+  :worksheet/delete-repeat-input-group
+  [(rp/inject-cofx :ds)]
+  (fn [{:keys [ds]} [_ ws-uuid group-uuid repeat-id]]
+    (let [input-ids (d/q '[:find [?g ...]
+                           :in  $ ?ws-uuid ?group-uuid ?repeat-id
+                           :where
+                           [?w :worksheet/uuid ?ws-uuid]
+                           [?w :worksheet/input-groups ?g]
+                           [?g :input-group/group-uuid ?group-uuid]
+                           [?g :input-group/repeat-id ?repeat-id]]
+                         ds ws-uuid group-uuid repeat-id)]
+      (when (seq input-ids)
+        (let [payload (mapv (fn [id] [:db.fn/retractEntity id]) input-ids)]
+          {:transact payload})))))
+
+(rp/reg-event-fx
+ :worksheet/upsert-output
+ [(rp/inject-cofx :ds)]
+ (fn [{:keys [ds]} [_ ws-uuid group-variable-uuid enabled?]]
+   (when-let [ws (first (d/q '[:find  [?e ...]
+                               :in    $ ?uuid
+                               :where [?e :worksheet/uuid ?uuid]] ds ws-uuid))]
+     (if-let [output-id (first (d/q '[:find  [?o]
+                                      :in    $ ?ws ?var-uuid
+                                      :where [?ws :worksheet/outputs ?o]
+                                             [?o :output/group-variable-uuid ?var-uuid]] ds ws group-variable-uuid))]
+       {:transact [{:db/id output-id :output/enabled? enabled?}]}
+       {:transact [{:worksheet/_outputs   ws
+                    :output/group-variable-uuid group-variable-uuid
+                    :output/enabled?      enabled?}]}))))
+
+(rp/reg-event-fx
+ :worksheet/add-result-table
+ [(rp/inject-cofx :ds)]
+ (fn [{:keys [ds]} [_ ws-uuid]]
+   (when-let [ws (first (d/q '[:find  [?e ...]
+                               :in    $ ?uuid
+                               :where [?e :worksheet/uuid ?uuid]] ds ws-uuid))]
+     {:transact [{:worksheet/_result-table ws}]})))
+
+(rp/reg-event-fx
+ :worksheet/add-result-table-header
+ [(rp/inject-cofx :ds)]
+ (fn [{:keys [ds]} [_ ws-uuid group-variable-uuid units]]
+   (when-let [table (first (d/q '[:find  [?table]
+                                  :in    $ ?uuid
+                                  :where [?w :worksheet/uuid ?uuid]
+                                         [?w :worksheet/result-table ?table]] ds ws-uuid))]
+     (let [headers (count (d/q '[:find [?h ...]
+                                 :in $ ?t
+                                 :where [?t :result-table/headers ?h]]
+                               ds table))]
+       {:transact [{:db/id                table
+                    :result-table/headers [{:result-header/group-variable-uuid group-variable-uuid
+                                            :result-header/order               headers
+                                            :result-header/units               units}]}]}))))
+
+(rp/reg-event-fx
+ :worksheet/add-result-table-row
+ [(rp/inject-cofx :ds)]
+ (fn [{:keys [ds]} [_ ws-uuid row-id]]
+   (when-let [table (first (d/q '[:find  [?table]
+                                       :in    $ ?uuid
+                                       :where [?w :worksheet/uuid ?uuid]
+                                              [?w :worksheet/result-table ?table]] ds ws-uuid))]
+     {:transact [{:db/id table
+                  :result-table/rows [{:result-row/id row-id}]}]})))
+
+(rp/reg-event-fx
+ :worksheet/add-result-table-cell
+ [(rp/inject-cofx :ds)]
+ (fn [{:keys [ds]} [_ ws-uuid row-id group-variable-uuid value]]
+   (when-let [table (first (d/q '[:find  [?table]
+                                  :in    $ ?uuid
+                                  :where [?e :worksheet/uuid ?uuid]
+                                         [?w :worksheet/result-table ?table]]
+                                ds ws-uuid))]
+     (when-let [row (first (d/q '[:find  [?r]
+                                  :in    $ ?table ?row-id
+                                  :where [?t :result-table/rows ?r]
+                                         [?r :result-row/id ?row-id]]
+                                ds table row-id))]
+       (when-let [header (first (d/q '[:find  [?h]
+                                       :in    $ ?table ?group-var-uuid
+                                       :where [?t :result-table/headers ?h]
+                                              [?h :result-header/group-variable-uuid ?group-var-uuid]]
+                                     ds table group-variable-uuid))]
+         {:transact [{:result-row/_cells  row
+                      :result-cell/header header
+                      :result-cell/value  value}]})))))
+
+(comment
+
+
+  (require '[datascript.core :as d])
+  (require '[behave.store :as s])
+  (require '[behave.vms.store :as vms])
+
+  (defn clear! [k]
+    (rf/clear-sub k)
+    (rf/clear-subscription-cache!))
+
+  (clear! :worksheet/upsert-result)
+
+  (def ws-uuid @(rf/subscribe [:worksheet/latest]))
+
+  (def ws-id (first (d/q '[:find [?w]
+                           :in    $ ?ws-uuid
+                           :where [?w :worksheet/uuid ?ws-uuid]]
+                         @@s/conn ws-uuid)))
+
+  ws-uuid
+
+  (def gv-1 "6348a027-79b0-4123-8d62-3c0cf99dbe18")
+  (def gv-2 (str (d/squuid)))
+
+  (rf/dispatch [:worksheet/add-result-table ws-uuid])
+  (rf/dispatch [:worksheet/add-result-table-header ws-uuid (str (d/squuid)) "m"])
+  (rf/dispatch [:worksheet/add-result-table-header ws-uuid gv-2 "kg"])
+
+  (rf/dispatch [:worksheet/add-result-table-row ws-uuid 0])
+
+  (rf/dispatch [:worksheet/add-result-table-cell ws-uuid 0 gv-1 "100"])
+  (rf/dispatch [:worksheet/add-result-table-cell ws-uuid 0 gv-2 "20"])
+
+  (d/q '[:find ?row-id ?c ?v ?h ?units ?gv
+         :in $ ?ws-uuid
+         :where [?w :worksheet/uuid ?ws-uuid]
+         [?w :worksheet/result-table ?t]
+         [?t :result-table/rows ?r]
+         [?r :result-row/id ?row-id]
+         [?r :result-row/cells ?c]
+         [?c :result-cell/value ?v]
+         [?c :result-cell/header ?h]
+         [?h :result-header/group-variable-uuid ?gv]
+         [?h :result-header/units ?units]]
+       @@s/conn ws-uuid)
+
+  (d/transact @s/conn [{:worksheet/_result-table ws-id
+                        :db/id                   -1
+                        :result-table/headers   [{:result-header/group-variable-uuid (str (d/squuid))}]}])
+
+  (d/pull @@s/conn '[{:worksheet/result-table [{:result-table/headers [*]}]}] ws-id)
+
+  (d/pull @@s/conn '[{:worksheet/result-table [{:result-table/headers [*]}]}] ws-id)
+
+  (def group-uuid "0fccfc94-f1f2-4d33-8fd7-b2257c414cfa")
+
+  (def group-var-uuid "d5f5cc0a-5ff6-4fcd-b88d-51cd6e6b76f1")
+
+
+  (d/q '[:find [?g ...]
+         :in    $ ?ws-uuid ?group-uuid
+         :where [?w :worksheet/uuid ?ws-uuid]
+                [?w :worksheet/input-groups ?g]
+                [?g :input-group/group-uuid ?group-uuid]]
+       @@s/conn ws-uuid group-uuid)
+
+  (d/q '[:find ?i ?v
+         :in    $ ?ws-uuid ?group-uuid ?repeat-id ?group-var-uuid
+         :where [?w :worksheet/uuid ?ws-uuid]
+                [?w :worksheet/input-groups ?g]
+                [?g :input-group/group-uuid ?group-uuid]
+                [?g :input-group/repeat-id ?repeat-id]
+                [?g :input-group/inputs ?i]
+                [?i :input/group-variable-uuid ?group-var-uuid]
+                [?i :input/value ?v]]
+       @@s/conn ws-uuid group-uuid 2 group-var-uuid)
+
+  (rf/subscribe [:worksheet/input ws-uuid group-uuid 0 group-var-uuid])
+
+  (d/pull @@s/conn '[* {:input-group/inputs [*]}] 139)
+
+  (d/transact @s/conn [{:db/id 135 :input-group/repeat-id 0}])
+
+  (d/transact @s/conn [{:db/id -1
+                        :input-group/repeat-id 2
+                        :input-group/group-uuid group-uuid}
+                       {:worksheet/_input-groups -1}])
+
+  (rf/subscribe [:worksheet/repeat-groups ws-uuid group-uuid])
+
+  (d/pull-many @@s/conn '[*]
+               (d/q '[:find [?g ...]
+                                   :in    $ ?uuid
+                                   :where [?w :worksheet/uuid ?uuid]
+                                          [?w :worksheet/input-groups ?g]]
+                                  @@s/conn ws-uuid))
+
+  )

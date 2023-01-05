@@ -27,7 +27,19 @@
                 :module/submodules
                 module-id]))
   (fn [submodules _]
-    (map #(assoc % :slug (-> % (:submodule/name) (->kebab))) submodules)))
+    (map (fn [submodule]
+           (-> submodule
+               (assoc :slug (-> submodule (:submodule/name) (->kebab)))
+               (assoc :submodule/groups @(subscribe [:wizard/groups (:db/id submodule)]))))
+         submodules)))
+
+(reg-sub
+  :wizard/submodules-io-input-only
+  (fn [[_ module-id]]
+    (subscribe [:wizard/submodules module-id]))
+
+  (fn [submodules _]
+    (filter (fn [submodule] (= (:submodule/io submodule) :input)) submodules)))
 
 (reg-sub
   :wizard/*submodule
@@ -53,7 +65,7 @@
             (assoc group
                    :group/group-variables
                    (mapv #(let [variable-data (rename-keys (first (:variable/_group-variables %))
-                                                           {:db/id :variable/id})]
+                                                           {:bp/uuid :variable/uuid})]
                             (-> %
                                 (dissoc :variable/_group-variables)
                                 (merge variable-data)
