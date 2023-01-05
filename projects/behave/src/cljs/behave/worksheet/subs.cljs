@@ -33,7 +33,7 @@
                  [?w :worksheet/modules ?modules]]
     :variables [ws-uuid]}))
 
-                                        ; Get state of a particular output
+;; Get state of a particular output
 (rp/reg-sub
  :worksheet/get-attr
  (fn [_ [_ ws-uuid attr]]
