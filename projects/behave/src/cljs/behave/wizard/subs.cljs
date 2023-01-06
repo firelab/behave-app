@@ -81,21 +81,23 @@
  (fn [all-input-values _query]
    (count
     (filter (fn multiple-values? [value]
-              (str/includes? value ","))
+              (> (count (str/split value #",|\s"))
+                 1))
             all-input-values))))
 
 ;; TODO Might want to set this in a config file to the application
-(def ^:const continuous-input-limit 3)
+(def ^:const multi-value-input-limit 3)
 
 (reg-sub
   :wizard/multi-value-input-limit
   (fn [_db _query]
-    continuous-input-limit))
+    multi-value-input-limit))
 
 (reg-sub
   :wizard/warn-limit?
-  (fn [_query]
-    (subscribe [:wizard/multi-value-input-count]))
+  (fn [[_ ws-uuid]]
+    (subscribe [:wizard/multi-value-input-count ws-uuid]))
 
   (fn [multi-value-input-count _query]
-    (> multi-value-input-count continuous-input-limit)))
+    (println multi-value-input-count)
+    (> multi-value-input-count multi-value-input-limit)))

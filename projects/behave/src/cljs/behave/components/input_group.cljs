@@ -25,7 +25,7 @@
                                      repeat-id
                                      repeat-group?]
   (let [value                 (rf/subscribe [:worksheet/input ws-uuid group-uuid repeat-id uuid])
-        warn-limit?           (true? @(rf/subscribe [:state :warn-continuous-input-limit]))
+        warn-limit?           (true? @(rf/subscribe [:state :warn-multi-value-input-limit]))
         acceptable-char-codes (set (map #(.charCodeAt % 0) "0123456789., "))
         on-change             (debounce #'upsert-input 1000)]
     [:div.wizard-input

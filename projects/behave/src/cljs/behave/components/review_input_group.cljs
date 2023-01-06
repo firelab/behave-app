@@ -15,7 +15,7 @@
                                      _repeat-group?
                                      edit-route]
   (let [values      (rf/subscribe [:worksheet/input ws-uuid group-uuid repeat-id uuid])
-        warn-limit? (true? @(rf/subscribe [:state :warn-continuous-input-limit]))]
+        warn-limit? (true? @(rf/subscribe [:state :warn-multi-value-input-limit]))]
     [:div.wizard-input
      [:div.wizard-review__input
       {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
