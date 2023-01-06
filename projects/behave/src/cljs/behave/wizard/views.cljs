@@ -195,7 +195,7 @@
 
 ;;; Public Components
 (defn root-component [params]
-  (let [loaded? (subscribe [:state :loaded?])]
+  (let [loaded? (subscribe [:app/loaded?])]
     [:div.accordion
      [:div.accordion__header
       [c/tab {:variant   "outline-primary"
