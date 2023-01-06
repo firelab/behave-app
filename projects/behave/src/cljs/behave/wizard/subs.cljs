@@ -99,5 +99,4 @@
     (subscribe [:wizard/multi-value-input-count ws-uuid]))
 
   (fn [multi-value-input-count _query]
-    (println multi-value-input-count)
     (> multi-value-input-count multi-value-input-limit)))
