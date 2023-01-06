@@ -79,9 +79,10 @@
    (subscribe [:worksheet/all-input-values ws-uuid]))
 
  (fn [all-input-values _query]
-   (count (filter (fn multiple-values? [value]
-                    (str/includes? value ","))
-                  all-input-values))))
+   (count
+    (filter (fn multiple-values? [value]
+              (str/includes? value ","))
+            all-input-values))))
 
 ;; TODO Might want to set this in a config file to the application
 (def ^:const continuous-input-limit 3)
