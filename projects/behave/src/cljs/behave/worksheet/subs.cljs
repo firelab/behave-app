@@ -128,14 +128,27 @@
              {}
              inputs))))
 
+(rf/reg-sub
+ :worksheet/all-input-values
+ (fn [_ [_ ws-uuid]]
+   @(rf/subscribe [:query
+                   '[:find [?value ...]
+                     :in $ ?ws-uuid
+                     :where
+                     [?w :worksheet/uuid ?ws-uuid]
+                     [?w :worksheet/input-groups ?g]
+                     [?g :input-group/inputs ?i]
+                     [?i :input/value ?value]]
+                   [ws-uuid]])))
+
 (rp/reg-sub
  :worksheet/all-outputs
  (fn [_ [_ ws-uuid]]
-   {:type  :query
-    :query '[:find  [?uuid ...]
-             :in    $ ?ws-uuid
-             :where [?w :worksheet/uuid ?ws-uuid]
-                    [?w :worksheet/outputs ?o]
-                    [?o :output/group-variable-uuid ?uuid]
-                    [?o :output/enabled? true]]
+   {:type      :query
+    :query     '[:find  [?uuid ...]
+                 :in    $ ?ws-uuid
+                 :where [?w :worksheet/uuid ?ws-uuid]
+                 [?w :worksheet/outputs ?o]
+                 [?o :output/group-variable-uuid ?uuid]
+                 [?o :output/enabled? true]]
     :variables [ws-uuid]}))

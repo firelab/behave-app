@@ -68,22 +68,23 @@
                                       :selected? (= submodule slug)}) submodules)}]]]))
 
 (defn wizard-page [{:keys [module io submodule] :as params}]
-  (let [*module                 (subscribe [:wizard/*module module])
-        *submodules             (subscribe [:wizard/submodules (:db/id @*module)])
-        *submodule              (subscribe [:wizard/*submodule (:db/id @*module) submodule io])
-        *groups                 (subscribe [:wizard/groups (:db/id @*submodule)])
-        *warn-limit?            (subscribe [:state :warn-continuous-input-limit])
-        *continuous-input-limit (subscribe [:state [:worksheet :continuous-input-limit]])
-        *continuous-input-count (subscribe [:state [:worksheet :continuous-input-count]])
-        on-back                 #(dispatch [:wizard/prev-tab params])
-        on-next                 #(dispatch [:wizard/next-tab @*module @*submodule @*submodules params])
-        worksheet               (subscribe [:worksheet/latest])]
+  (let [*ws-uuid                 (subscribe [:worksheet/latest])
+        *module                  (subscribe [:wizard/*module module])
+        *submodules              (subscribe [:wizard/submodules (:db/id @*module)])
+        *submodule               (subscribe [:wizard/*submodule (:db/id @*module) submodule io])
+        *groups                  (subscribe [:wizard/groups (:db/id @*submodule)])
+        *warn-limit?             (subscribe [:wizard/warn-limit? @*ws-uuid])
+        *multi-value-input-limit (subscribe [:wizard/multi-value-input-limit])
+        *multi-value-input-count (subscribe [:wizard/multi-value-input-count @*ws-uuid])
+        on-back                  #(dispatch [:wizard/prev-tab params])
+        on-next                  #(dispatch [:wizard/next-tab @*module @*submodule @*submodules params])
+        worksheet                (subscribe [:worksheet/latest])]
     [:div.wizard-page
      [wizard-header @*module @*submodules params]
      [submodule-page io @worksheet @*groups on-back on-next]
-     (when @*warn-limit?
+     (when (true? @*warn-limit?)
        [:div.wizard-warning
-        (gstring/format  @(<t (bp "warn_input_limit")) @*continuous-input-count @*continuous-input-limit)])
+        (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])
      [wizard-navigation {:next-label @(<t (bp "next"))
                          :on-next    on-next
                          :back-label @(<t (bp "back"))
@@ -113,11 +114,11 @@
         @(<t (bp "a_brief_phrase_documenting_the_run"))]]]]))
 
 (defn wizard-review-page [{:keys [id] :as params}]
-  (let [*ws-uuid                (subscribe [:worksheet/latest])
-        *modules                (subscribe [:worksheet/modules @*ws-uuid])
-        *warn-limit?            (subscribe [:state :warn-continuous-input-limit])
-        *continuous-input-limit (subscribe [:state [:worksheet :continuous-input-limit]])
-        *continuous-input-count (subscribe [:state [:worksheet :continuous-input-count]])]
+  (let [*ws-uuid                 (subscribe [:worksheet/latest])
+        *modules                 (subscribe [:worksheet/modules @*ws-uuid])
+        *warn-limit?             (subscribe [:wizard/warn-limit? @*ws-uuid])
+        *multi-value-input-limit (subscribe [:wizard/multi-value-input-limit])
+        *multi-value-input-count (subscribe [:wizard/multi-value-input-count @*ws-uuid])]
     [:div.accordion
      [:div.accordion__header
       [c/tab {:variant   "outline-primary"
@@ -152,9 +153,9 @@
                                                  :submodule (:slug submodule))]]
                  ^{:key (:db/id group)}
                  [review/input-group @*ws-uuid group variables edit-route])])]])]
-       (when @*warn-limit?
+       (when (true? @*warn-limit?)
          [:div.wizard-warning
-          (gstring/format  @(<t (bp "warn_input_limit")) @*continuous-input-count @*continuous-input-limit)])
+          (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])
        [wizard-navigation {:next-label @(<t (bp "next"))
                            :back-label @(<t (bp "back"))
                            :on-back    #(dispatch [:wizard/prev-tab params])
@@ -191,17 +192,11 @@
                    :icon-position "right"}]]]]]))
 
 ;; TODO Might want to set this in a config file to the application
-(def ^:const continuous-input-limit 3)
+(def ^:const multi-value-input-limit 3)
 
 ;;; Public Components
 (defn root-component [params]
-  (let [loaded?                 (subscribe [:app/loaded?])
-        _                       (dispatch [:state/set [:worksheet :continuous-input-limit]
-                                           continuous-input-limit])
-        *continuous-input-limit (subscribe [:state [:worksheet :continuous-input-limit]])
-        *continuous-input-count (subscribe [:state [:worksheet :continuous-input-count]])
-        _                       (dispatch [:state/set :warn-continuous-input-limit
-                                           (> @*continuous-input-count @*continuous-input-limit)])]
+  (let [loaded? (subscribe [:app/loaded?])]
     [:div.accordion
      [:div.accordion__header
       [c/tab {:variant   "outline-primary"
