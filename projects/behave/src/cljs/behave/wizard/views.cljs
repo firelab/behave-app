@@ -89,7 +89,7 @@
         (gstring/format  @(<t (bp "warn_input_limit")) @*continuous-input-count @*continuous-input-limit)])
      [wizard-navigation {:next-label     @(<t (bp "next"))
                          :on-next        on-next
-                         :next-disabled? (not @*all-inputs-entered?)
+                         :next-disabled? (and (= io :input) (not @*all-inputs-entered?))
                          :back-label     @(<t (bp "back"))
                          :on-back        on-back}]]))
 
