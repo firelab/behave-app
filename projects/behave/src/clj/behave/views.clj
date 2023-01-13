@@ -46,6 +46,5 @@
                 (head-meta-css)
                 [:body
                  [:div#app]
-                 (include-js "/js/behave.js" "/js/katex.min.js" "/js/out/app.js")
-                 (include-js "/js/behave.js" "/js/katex.min.js" (find-app-js)) ;TODO Not working
+                 (include-js "/js/behave.js" "/js/katex.min.js" (find-app-js))
                  (cljs-init (merge route-params params))])}))
