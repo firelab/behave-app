@@ -85,6 +85,20 @@
                  1))
             all-input-values))))
 
+(reg-sub
+  :wizard/group-variable
+  (fn [[_ gv-uuid]]
+    (subscribe [:vms/pull '[* {:variable/_group-variables [:variable/name]}] [:bp/uuid gv-uuid]]))
+
+  (fn [group-variable _query]
+    (let [variable-data (rename-keys (first (:variable/_group-variables group-variable))
+                                     {:db/id :variable/id})]
+      (-> group-variable
+          (dissoc :variable/_group-variables)
+          (merge variable-data)
+          (dissoc :variable/group-variables)
+          (update :variable/kind keyword)))))
+
 ;; TODO Might want to set this in a config file to the application
 (def ^:const multi-value-input-limit 3)
 

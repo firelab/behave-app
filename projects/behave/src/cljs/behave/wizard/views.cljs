@@ -11,6 +11,7 @@
             [bidi.bidi                      :refer [path-for]]
             [behave.worksheet.events]
             [behave.worksheet.subs]
+            [dom-utils.interface            :refer [input-int-value]]
             [goog.string                    :as gstring]
             [goog.string.format]
             [re-frame.core                  :refer [dispatch subscribe]]
@@ -156,40 +157,159 @@
        (when (true? @*warn-limit?)
          [:div.wizard-warning
           (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])
-       [wizard-navigation {:next-label @(<t (bp "next"))
-                           :back-label @(<t (bp "back"))
-                           :on-back    #(dispatch [:wizard/prev-tab params])
-                           :on-next    #(dispatch [:worksheet/solve @*ws-uuid])}]]]]))
+       [:div.wizard-navigation
+        [c/button {:label    "Back"
+                   :variant  "secondary"
+                   :on-click #(dispatch [:wizard/prev-tab params])}]
+        [c/button {:label         "Run"
+                   :disabled?     @*warn-limit?
+                   :variant       "highlight"
+                   :icon-name     "arrow2"
+                   :icon-position "right"
+                   :on-click      #(dispatch [:wizard/solve params])}]]]]]))
 
-(defn wizard-results-page [_]
-  (let [results   (subscribe [:state [:worksheet :results]])
-        variables (subscribe [:pull-many '[* {:variable/_group-variables [*]}] (keys (:contain @results))])
-        results   (map (fn [value v]
-                         {:name  (-> v (:variable/_group-variables) (first) (:variable/name))
-                          :value value})
-                       (vals (:contain @results))
-                       @variables)]
+;; Wizard Results Settings
+
+(defn y-axis-limit-table [ws-uuid]
+  (letfn [(number-inputs [min-or-max y-axis-limits]
+            (map (fn [[gv-uuid saved-min saved-max]]
+                   (c/number-input {:disabled? false
+                                    :on-change #(dispatch [:worksheet/update-y-axis-limit-attr
+                                                           ws-uuid
+                                                           gv-uuid
+                                                           (if (= min-or-max :min)
+                                                             :y-axis-limit/min
+                                                             :y-axis-limit/max)
+                                                           (input-int-value %)])
+                                    :value     (if (= min-or-max :min) saved-min saved-max)
+                                    :min       10     ;TODO compute from results
+                                    :max       100})) ;TODO compute from results
+                 y-axis-limits))]
+    (let [*y-axis-limits  (subscribe [:worksheet/graph-settings-y-axis-limits ws-uuid])
+          names           (map (fn uuid->name [[uuid _]]
+                                 (:variable/name
+                                  @(subscribe [:wizard/group-variable uuid])))
+                               @*y-axis-limits)
+          output-ranges   (repeat (count @*y-axis-limits) "TODO compute from results")
+          y-axis-minimums (number-inputs :min @*y-axis-limits)
+          y-axis-maximums (number-inputs :max @*y-axis-limits)
+          column-keys     [:col1 :col2 :col3 :col4]
+          row-data        (map (fn [& args]
+                                 (into {}
+                                       (map (fn [x y] [x y])
+                                            column-keys args)))
+                               names
+                               output-ranges
+                               y-axis-minimums
+                               y-axis-maximums)]
+      [:div.y-axis-limit-table
+       (c/table {:title   "Graph and Axis Limit"
+                :headers ["GRAPH Y VARIABLES" "OUTPUT RANGE" "Y AXIS MINIMUM" "Y AXIS MAXIMUM"]
+                :columns column-keys
+                :rows    row-data})])))
+
+(defn wizard-results-settings-page [{:keys [id] :as params}]
+  (let [*ws-uuid                 (subscribe [:worksheet/latest])
+        *multi-value-input-uuids (subscribe [:worksheet/multi-value-input-uuids @*ws-uuid])
+        group-variables          (map #(deref (subscribe [:wizard/group-variable %])) @*multi-value-input-uuids)
+        on-back                  #(dispatch [:wizard/prev-tab params])
+        on-next                  #(dispatch [:navigate (path-for routes :ws/results :id id)])]
+    (letfn [(radio-group [{:keys [label attr variables]}]
+              (let [*values   (subscribe [:worksheet/get-graph-settings-attr @*ws-uuid attr])
+                    selected? (first @*values)]
+                [c/radio-group {:label   label
+                                :options (mapv (fn [{group-var-uuid :bp/uuid
+                                                     var-name       :variable/name}]
+                                                 {:value     var-name
+                                                  :label     var-name
+                                                  :on-change #(dispatch [:worksheet/update-graph-settings-attr
+                                                                         @*ws-uuid
+                                                                         attr
+                                                                         group-var-uuid])
+                                                  :checked?  (= selected? group-var-uuid)})
+                                               variables)}]))]
+      [:div.accordion
+       [:div.accordion__header
+        [c/tab {:variant   "outline-primary"
+                :selected? true
+                :label     @(<t "behaveplus:working_area")}]]
+       [:div.wizard-page
+        [:div.wizard-header
+         [:div.wizard-header__banner {:style {:margin-top "20px"}}
+          [:div.wizard-header__banner__icon
+           [c/icon :modules]]
+          "Results Selection"]]
+        [:div.wizard-results__table-settings
+         [:div.wizard-results__table-settings__header "Table Settings"]
+         [:div.wizard-results__table-settings__content
+          (let [enabled? (first @(subscribe [:worksheet/get-table-settings-attr
+                                             @*ws-uuid
+                                             :table-settings/enabled?]))]
+            [c/checkbox {:label     "Display Table Results"
+                         :checked?  (true? enabled?)
+                         :on-change #(dispatch [:worksheet/toggle-table-settings @*ws-uuid])}])]]
+        [:div.wizard-results__graph-settings
+         [:div.wizard-results__graph-settings__header "Graph Settings"]
+         [:div.wizard-results__graph-settings__content
+          (let [enabled? (first @(subscribe [:worksheet/get-graph-settings-attr
+                                             @*ws-uuid
+                                             :graph-settings/enabled?]))]
+            [:<>
+             [c/checkbox {:label     "Display Graph Results"
+                          :checked?  (true? enabled?)
+                          :on-change #(dispatch [:worksheet/toggle-graph-settings @*ws-uuid])}]
+             (when (true? enabled?)
+               [:<>
+                [radio-group {:label     "Select X axis variable:"
+                              :attr      :graph-settings/x-axis-group-variable-uuid
+                              :variables group-variables}]
+                [radio-group {:label     "Select Z axis variable:"
+                              :attr      :graph-settings/z-axis-group-variable-uuid
+                              :variables group-variables}]
+                [y-axis-limit-table @*ws-uuid]])])]]]
+       [wizard-navigation {:next-label @(<t (bp "next"))
+                           :on-next    on-next
+                           :back-label @(<t (bp "back"))
+                           :on-back    on-back}]])))
+
+;; Wizard Results
+
+(defn wizard-results-page [params]
+  (let [*ws-uuid     (subscribe [:worksheet/latest])
+        *warn-limit? (subscribe [:wizard/warn-limit? @*ws-uuid])]
     [:div.accordion
      [:div.accordion__header
-      [:div.accordion__header__title @(<t (bp "working_area"))]]
+      [c/tab {:variant   "outline-primary"
+              :selected? true
+              :label     @(<t "behaveplus:working_area")}]]
      [:div.wizard-page
       [:div.wizard-header
        [:div.wizard-header__banner {:style {:margin-top "20px"}}
         [:div.wizard-header__banner__icon
          [c/icon :modules]]
-        [:div.wizard-header__banner__title "Results"]]
-       [:div.wizard-review
-        [c/table {:title   "Contain Results"
-                  :headers ["Variable Name" "Value"]
-                  :columns [:name :value]
-                  :rows    results}]]
-       [:div.wizard-navigation
-        [c/button {:label   "Back"
-                   :variant "secondary"}]
-        [c/button {:label         "Next"
-                   :variant       "highlight"
-                   :icon-name     "arrow2"
-                   :icon-position "right"}]]]]]))
+        "Results"]]
+      (when-let [results @(subscribe [:state [:worksheet :results]])]
+        (let [variables (subscribe [:pull-many '[* {:variable/_group-variables [*]}] (keys (:contain results))])
+              results   (map (fn [value v]
+                               {:name  (-> v (:variable/_group-variables) (first) (:variable/name))
+                                :value value})
+                             (vals (:contain @results))
+                             @variables)]
+          [:div.wizard-review
+           [c/table {:title   "Contain Results"
+                     :headers ["Variable Name" "Value"]
+                     :columns [:name :value]
+                     :rows    results}]]))]
+     [:div.wizard-navigation
+      [c/button {:label    "Back"
+                 :variant  "secondary"
+                 :on-click #(dispatch [:wizard/prev-tab params])}]
+      [c/button {:label         "Run"
+                 :disabled?     @*warn-limit?
+                 :variant       "highlight"
+                 :icon-name     "arrow2"
+                 :icon-position "right"
+                 :on-click      #(dispatch [:wizard/solve params])}]]]))
 
 ;; TODO Might want to set this in a config file to the application
 (def ^:const multi-value-input-limit 3)
