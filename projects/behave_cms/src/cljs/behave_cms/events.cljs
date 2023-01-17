@@ -230,18 +230,16 @@
     {:transact [[:db.fn/retractEntity id]]}))
 
 (reg-event-fx
-  :reorder
-  (fn [_ [_ all-entities entity order-field direction]]
+  :api/reorder
+  (fn [_ [_ entity all-entities order-field direction]]
     (let [curr-order (get entity order-field)
           sorted     (sort-by order-field all-entities)
           next-order (condp = direction
-                       :down (when (< curr-order (dec (count sorted)))
+                       :up   (when (< curr-order (dec (count sorted)))
                                (inc curr-order))
-                       :up   (when (> curr-order 0)
+                       :down (when (> curr-order 0)
                                (dec curr-order)))]
-      (println "--- REORDERING:" all-entities entity curr-order next-order)
-      #_(when next-order
-        [{:db/id (:db/id (nth all-entities next-order))
-          :module/order curr-order}
-         {:db/id (:db/id entity)
-          :module/order next-order}]))))
+      (when next-order
+        (let [swap (nth sorted next-order)]
+          {:transact [(assoc (select-keys swap [:db/id]) order-field curr-order)
+                      (assoc (select-keys entity [:db/id]) order-field next-order)]})))))
