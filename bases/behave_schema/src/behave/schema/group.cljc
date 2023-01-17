@@ -34,7 +34,7 @@
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
 
-   {:db/ident       :group/group-variables
+   {:db/ident       :group/group-variable
     :db/doc         "Group's group variables."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}

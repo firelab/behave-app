@@ -100,7 +100,7 @@
     :db/cardinality :db.cardinality/one}
 
    ;; Associated with Group Variables
-   {:db/ident       :variable/group-variables
+   {:db/ident       :variable/group-variable
     :db/doc         "Relationship to group."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}

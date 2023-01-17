@@ -37,7 +37,7 @@
     :db/valueType   :db.type/number
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :module/submodules
+   {:db/ident       :module/submodule
     :db/doc         "Module's submodules."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}

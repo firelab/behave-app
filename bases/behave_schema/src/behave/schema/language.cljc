@@ -11,15 +11,15 @@
 (s/def :language/uuid         uuid-string?)
 (s/def :language/name         string?)
 (s/def :language/shortcode    valid-shortcode?)
-(s/def :language/translations many-ref?)
-(s/def :language/help         many-ref?)
+(s/def :language/translation  many-ref?)
+(s/def :language/help-page    many-ref?)
 
 
 (s/def :behave/language (s/keys :req [:language/uuid
                                       :language/name
                                       :language/shortcode]
-                                :opt [:language/translations
-                                      :language/help]))
+                                :opt [:language/translation
+                                      :language/help-page]))
 
 ;;; Schema
 
@@ -40,12 +40,12 @@
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :language/translations
+   {:db/ident       :language/translation
     :db/doc         "Language's translations."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
 
-   {:db/ident       :language/help-pages
+   {:db/ident       :language/help-page
     :db/doc         "Language's help pages."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}])

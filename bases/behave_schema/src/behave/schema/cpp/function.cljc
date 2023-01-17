@@ -18,7 +18,7 @@
     :db/doc         "Function's return type."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
-   {:db/ident       :cpp.function/parameters
+   {:db/ident       :cpp.function/parameter
     :db/doc         "Function's parameters."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}])

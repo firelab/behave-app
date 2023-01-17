@@ -2,7 +2,7 @@
   (:require [behave.schema.application     :as application]
             [behave.schema.group           :as group]
             [behave.schema.group-variable  :as group-variable]
-            [behave.schema.help            :as help]
+            [behave.schema.help-page       :as help-page]
             [behave.schema.language        :as language]
             [behave.schema.list            :as behave-list]
             [behave.schema.module          :as module]
@@ -29,7 +29,7 @@
                                 application/schema
                                 group/schema
                                 group-variable/schema
-                                help/schema
+                                help-page/schema
                                 language/schema
                                 behave-list/schema
                                 module/schema

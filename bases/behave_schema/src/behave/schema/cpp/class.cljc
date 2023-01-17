@@ -9,11 +9,11 @@
 
 (def schema
   [{:db/ident       :cpp.class/name
-    :db/doc         "Classes's name."
+    :db/doc         "Class name."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :cpp.class/functions
-    :db/doc         "Classes's functions."
+   {:db/ident       :cpp.class/function
+    :db/doc         "Class functions."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}])

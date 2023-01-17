@@ -14,10 +14,12 @@
     :db/doc         "Parameter's name."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
+
    {:db/ident       :cpp.parameter/order
     :db/doc         "Parameter's order."
     :db/valueType   :db.type/number
     :db/cardinality :db.cardinality/one}
+
    {:db/ident       :cpp.parameter/type
     :db/doc         "Parameter's return type."
     :db/valueType   :db.type/string
