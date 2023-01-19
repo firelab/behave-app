@@ -32,8 +32,8 @@
       {:on-select   #(rf/dispatch [:state/set-state :module (:db/id %)])
        :on-delete   #(when (js/confirm (str "Are you sure you want to delete the module " (:module/name %) "?"))
                        (rf/dispatch [:api/delete-entity %]))
-       :on-increase #(rf/dispatch [:module/reorder % :up modules])
-       :on-decrease #(rf/dispatch [:module/reorder % :down modules])}]]))
+       :on-increase #(rf/dispatch [:api/reorder % @modules :module/order :inc])
+       :on-decrease #(rf/dispatch [:api/reorder % @modules :module/order :dec])}]]))
 
 (defn list-modules-page [{:keys [id]}]
   (let [loaded? (rf/subscribe [:state :loaded?])

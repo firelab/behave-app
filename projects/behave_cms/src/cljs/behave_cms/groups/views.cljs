@@ -32,8 +32,8 @@
       {:on-select   #(rf/dispatch [:state/set-state :group (:db/id %)])
        :on-delete   #(when (js/confirm (str "Are you sure you want to delete the group " (:group/name %) "?"))
                        (rf/dispatch [:api/delete-entity %]))
-       :on-increase #(rf/dispatch [:group/reorder % :up @groups])
-       :on-decrease #(rf/dispatch [:group/reorder % :down @groups])}]]))
+       :on-increase #(rf/dispatch [:api/reorder % @groups :group/order :inc])
+       :on-decrease #(rf/dispatch [:api/reorder % @groups :group/order :dec])}]]))
 
 (defn list-groups-page [{id :id}]
   (let [loaded? (rf/subscribe [:state :loaded?])]

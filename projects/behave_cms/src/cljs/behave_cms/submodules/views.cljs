@@ -39,8 +39,8 @@
      :on-delete   #(when (js/confirm (str "Are you sure you want to delete the submodule "
                                           (:submodule/name %) "?"))
                      (rf/dispatch [:api/delete-entity %]))
-     :on-increase #(rf/dispatch [:submodule/reorder % :up submodules])
-     :on-decrease #(rf/dispatch [:submodule/reorder % :down submodules])}]])
+     :on-increase #(rf/dispatch [:api/reorder % submodules :submodule/order :inc])
+     :on-decrease #(rf/dispatch [:api/reorder % submodules :submodule/order :dec])}]])
 
 (defn all-submodule-tables [module-id]
   (let [submodules       (rf/subscribe [:submodules module-id])

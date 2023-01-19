@@ -33,7 +33,9 @@
      (sort-by :group/name @subgroups)
      {:on-select #(rf/dispatch [:state/set-state :subgroup (:db/id %)])
       :on-delete #(when (js/confirm (str "Are you sure you want to delete the subgroup " (:group/name %) "?"))
-                    (rf/dispatch [:api/delete-entity %]))}]))
+                    (rf/dispatch [:api/delete-entity %]))
+      :on-increase #(rf/dispatch [:api/reorder % @subgroups :group/order :inc])
+      :on-decrease #(rf/dispatch [:api/reorder % @subgroups :group/order :dec])}]))
 
 (defn- variables-table [{group-id :db/id}]
   (r/with-let [group-variables (rf/subscribe [:group/variables group-id])]
@@ -42,8 +44,8 @@
      (sort-by :group-variable/order @group-variables)
      {:on-delete   #(when (js/confirm (str "Are you sure you want to delete the variable " (:variable/name %) "?"))
                       (rf/dispatch [:api/delete-entity %]))
-      :on-increase #(rf/dispatch [:api/reorder :variable/order % :up @group-variables])
-      :on-decrease #(rf/dispatch [:api/reorder :variable/order % :down @group-variables])}]))
+      :on-increase #(rf/dispatch [:api/reorder % @group-variables :group-variable/order :inc])
+      :on-decrease #(rf/dispatch [:api/reorder % @group-variables :group-variable/order :dec])}]))
 
 (defn- add-variable [{id :db/id group-variables :group/group-variables}]
   (let [query            (rf/subscribe [:state [:search :variables]])
