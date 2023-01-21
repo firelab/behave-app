@@ -201,20 +201,21 @@
   [:table.table.table-hover
    [:thead
     [:tr
-     (for [column (map #(-> % (name) (str/replace #"_" " ") (str/capitalize)) columns)]
+     (for [column (map #(-> % (name) (str/replace #"[_-]" " ") (str/capitalize)) columns)]
        [:th {:key column} column])
-     (when (or on-select on-delete) [:th "Modify"])
+     (when (or on-select on-delete) [:th {:style {:whitespace "nowrap"}} "Modify"])
      (when (or on-increase on-decrease) [:th "Reorder"])]]
 
    [:tbody
-    (for [{:keys [uuid] :as row} rows]
-      [:tr {:key uuid}
+    (for [row rows]
+      ^{:key (:db/id row)}
+      [:tr
        (for [column columns]
          [:td {:key column} (get row column "")])
-       [:td
-        (when on-select   [btn-sm :outline-secondary "Edit"   #(on-select row)])
-        (when on-delete   [btn-sm :outline-danger    "Delete" #(on-delete row)])
-        ]
+       (when (or on-select on-delete)
+         [:td {:class "td" :style {:white-space "nowrap"}}
+          (when on-select [btn-sm :outline-secondary "Edit"   #(on-select row)])
+          (when on-delete [btn-sm :outline-danger    "Delete" #(on-delete row)])])
        [:td
         (when on-increase [btn-sm :outline-secondary nil #(on-increase row) {:icon "arrow-up"}])
         (when on-decrease [btn-sm :outline-secondary nil #(on-decrease row) {:icon "arrow-down"}])]])]])

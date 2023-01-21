@@ -14,7 +14,7 @@
                         :on-blur   #(upsert-translation!
                                      (merge
                                       {:translation/key         translation-key
-                                       :language/_translations  language-id
+                                       :language/_translation   language-id
                                        :translation/translation @state}
                                       (when translation-id {:db/id translation-id})))
                         :value     @state}])
@@ -28,7 +28,7 @@
                translations    (rf/subscribe [:all-translations])
                on-submit       #(do
                                   (rf/dispatch [:api/create-entity
-                                                {:language/_translations  @*language
+                                                {:language/_translation   @*language
                                                  :translation/key         @new-key
                                                  :translation/translation @new-translation}])
                                   (reset! new-key "")
@@ -40,8 +40,9 @@
       [:select.form-select
        {:on-change #(reset! *language (parse-int (u/input-value %)))}
        [:option "Select a language..."]
-       (for [{id :db/id language :language/name shortcode :language/shortcode} @languages]
-         [:option {:value id :selected (= @*language id)} (str language " (" shortcode ")")])]]
+       (doall (for [{id :db/id language :language/name shortcode :language/shortcode} @languages]
+                ^{:key id}
+                [:option {:value id :selected (= @*language id)} (str language " (" shortcode ")")]))]]
 
      [:form.row.mb-3
       {:on-submit (u/on-submit on-submit)}
@@ -78,13 +79,13 @@
         [:th "Key"]
         [:th "Translation"]]]
       [:tbody
-       (for [entry (->> @translations (filter #(= @*language (get-in % [:language/_translations 0 :db/id]))) (sort-by :translation/key))]
+       (for [entry (->> @translations (filter #(= @*language (get-in % [:language/_translation 0 :db/id]))) (sort-by :translation/key))]
          (let [id            (:db/id entry)
-               language-name (get-in entry [:language/_translations 0 :language/name])
+               language-name (get-in entry [:language/_translation 0 :language/name])
                translation   (r/atom (:translation/translation entry))
                key           (:translation/key entry)]
-           
-           [:tr {:key id}
+           ^{:key id}
+           [:tr
             [:td language-name]
             [:td key]
             [:td
@@ -99,7 +100,7 @@
         translations       (rf/subscribe [:translations translation-key])
         translation-lookup (group-by
                             (fn [t]
-                              [(get-in t [:language/_translations 0 :language/shortcode])
+                              [(get-in t [:language/_translation 0 :language/shortcode])
                                (:translation/key t)])
                             @translations)]
     [:table.table.table-hover
@@ -111,13 +112,15 @@
      [:tbody
       (for [{language-id :db/id language :language/name shortcode :language/shortcode} @languages]
         (let [translation-entry (get-in translation-lookup [[shortcode translation-key] 0] {})
+              id                (:db/id translation-entry)
               translation       (r/atom (:translation/translation translation-entry))]
-          [:tr {:key uuid}
+          ^{:key id}
+          [:tr
            [:td language]
            [:td translation-key]
            [:td
             [translation-editor
              language-id
              translation-key
-             (:db/id translation-entry)
+             id
              translation]]]))]]))

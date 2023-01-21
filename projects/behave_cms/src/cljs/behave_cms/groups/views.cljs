@@ -9,8 +9,8 @@
             [behave-cms.help.views                 :refer [help-editor]]))
 
 (defn group-form [submodule-id group-id]
-  [entity-form {:entity        :groups
-                :parent-field  :submodule/_groups
+  [entity-form {:entity        :group
+                :parent-field  :submodule/_group
                 :parent-id     submodule-id
                 :id            group-id
                 :fields        [{:label     "Name"
@@ -40,7 +40,7 @@
     (if (not loaded?)
       [:div "Loading ..."]
       (let [submodule-id (parse-int id)
-            submodule    (rf/subscribe [:entity submodule-id '[* {:module/_submodules [*]}]])
+            submodule    (rf/subscribe [:entity submodule-id '[* {:module/_submodule [*]}]])
             groups       (rf/subscribe [:sidebar/groups submodule-id])]
         [:<>
          [sidebar

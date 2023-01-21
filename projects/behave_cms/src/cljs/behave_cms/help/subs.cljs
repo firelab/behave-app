@@ -7,8 +7,7 @@
             [re-frame.core              :as rf]
             [re-posh.core               :as rp]
             [herb.core                  :refer [<class]]
-            [hickory.core               :refer [parse-fragment as-hiccup]]
-            [behave-cms.markdown.core   :refer [md->html]]
+            [markdown2hiccup.interface  :refer [md->hiccup]]
             [data-utils.interface       :refer [parse-int]]
             [behave-cms.utils           :as u]))
 
@@ -18,21 +17,21 @@
  :help/_page
  (fn [_ [_ help-key language]]
    {:type      :query
-    :query     '[:find  [?h]
+    :query     '[:find  ?h .
                  :in    $ ?l ?help-key
-                 :where [?h :help/key ?help-key]
-                        [?l :language/help-pages ?h]]
+                 :where [?h :help-page/key ?help-key]
+                        [?l :language/help-page ?h]]
     :variables [language help-key]}))
 
 (rp/reg-sub
  :help/content
  (fn [_ [_ help-key language]]
    {:type      :query
-    :query     '[:find  [?content]
+    :query     '[:find  ?content .
                  :in    $ ?l ?help-key
-                 :where [?h :help/key ?help-key]
-                        [?l :language/help-pages ?h]
-                        [?h :help/content ?content]]
+                 :where [?h :help-page/key ?help-key]
+                        [?l :language/help-page ?h]
+                        [?h :help-page/content ?content]]
     :variables [language help-key]}))
 
 (rf/reg-sub
@@ -40,9 +39,9 @@
  (fn [[_ help-key language]]
    (rf/subscribe [:help/_page help-key language]))
 
- (fn [& args]
-   (when (some? (ffirst args))
-     @(rf/subscribe [:pull '[*] (ffirst args)]))))
+ (fn [id]
+   (when id
+     @(rf/subscribe [:pull '[*] id]))))
 
 ;;; Editor
 
@@ -54,7 +53,6 @@
  (fn [db [_ & keys]]
    (get-in (editor db) keys)))
 
-
 (rf/reg-sub
  :help-editor/content-as-hiccup
  (fn [_]
@@ -62,20 +60,3 @@
 
  (fn [{:keys [content]}]
    (md->hiccup content)))
-
-(comment
-
-  (rf/subscribe [:help/content "behaveplus:help" "en-US"])
-  (rf/subscribe [:help/content-as-hiccup "behaveplus:help" "en-US"])
-
-  (rf/subscribe [
-                 :query '[:find  [?content]
-                          :in    $ ?language-shortcode ?help-key
-                          :where [?h :help/key ?help-key]
-                          [?l :language/shortcode ?language-shortcode]
-                          [?l :language/help-pages ?h]
-                          [?h :help/content ?content]]
-                 ["en-US" "behaveplus:help"]])
-
-  )
-

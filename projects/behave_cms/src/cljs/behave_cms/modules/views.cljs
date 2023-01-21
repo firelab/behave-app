@@ -10,8 +10,8 @@
             [behave-cms.subs]))
 
 (defn module-form [application-id module-id]
-  [entity-form {:entity       :modules
-                :parent-field :application/_modules
+  [entity-form {:entity       :module
+                :parent-field :application/_module
                 :parent-id    application-id
                 :id           module-id
                 :fields       [{:label     "Name"
@@ -66,12 +66,3 @@
             "Application Translations"
             [app-translations (:application/translation-key @application)]]]]])
       [:div "Loading ..."])))
-
-(comment
-
-  (def id 78)
-  (rf/subscribe [:sidebar/modules id])
-  (rf/subscribe [:sidebar/modules id])
-  (rf/subscribe [:entity id '[*]])
-
-  )

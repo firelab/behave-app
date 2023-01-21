@@ -8,19 +8,17 @@
 (reg-sub
  :modules
  (fn [[_ application-id]]
-   (subscribe [:pull-children :application/modules application-id]))
-
- (fn [result _]
-   result))
+   (subscribe [:pull-children :application/module application-id]))
+ identity)
 
 (reg-sub
  :module
  (fn [[_ id]]
-   (subscribe [:entity id '[* {:application/_modules [*]}]]))
+   (subscribe [:entity id '[* {:application/_module [*]}]]))
 
  (fn [result _]
    (let [application-name (-> result
-                              (:application/_modules)
+                              (:application/_module)
                               (first)
                               (:application/name))
          module-name      (:module/name result)

@@ -15,7 +15,7 @@
 (rf/reg-sub
  :all-translations
  (fn [_]
-   (rf/subscribe [:pull-with-attr :translation/key '[* {:language/_translations [*]}]]))
+   (rf/subscribe [:pull-with-attr :translation/key '[* {:language/_translation [*]}]]))
  identity)
 
 (rf/reg-sub
@@ -34,4 +34,4 @@
    (rf/subscribe [:translation-ids translation-key]))
 
  (fn [results]
-   @(rf/subscribe [:pull-many '[* {:language/_translations [*]}] results])))
+   @(rf/subscribe [:pull-many '[* {:language/_translation [*]}] results])))

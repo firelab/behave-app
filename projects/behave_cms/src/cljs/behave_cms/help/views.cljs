@@ -83,20 +83,20 @@
         [:option {:value id} (str language " (" shortcode ")")])]]))
 
 (defn help-preview [page]
-  (let [content (r/track #(or @(rf/subscribe [:help-editor/state :help/content]) (:help/content page) ""))]
+  (let [content (r/track #(or @(rf/subscribe [:help-editor/state :help-page/content]) (:help-page/content page) ""))]
         [:div.col-6
          [:h6.mb-3 "Preview"]
          (when (some? @content)
            [:div {:class "help"} (md->hiccup @content)])]))
 
 (defn help-text-editor [help-key language page save-page!]
-  (rf/dispatch [:help-editor/set :help/content (:help/content page)])
-  (r/with-let [content   (rf/subscribe [:help-editor/state :help/content])
+  (rf/dispatch [:help-editor/set :help-page/content (:help-page/content page)])
+  (r/with-let [content   (rf/subscribe [:help-editor/state :help-page/content])
                dirty?    (rf/subscribe [:help-editor/state :dirty?])
                autosave! (u/debounce #(when @dirty? (save-page!)) 3000)
                on-change #(do
                             (rf/dispatch [:help-editor/set :dirty? true])
-                            (rf/dispatch [:help-editor/set :help/content %])
+                            (rf/dispatch [:help-editor/set :help-page/content %])
                             (autosave!))
                on-drop   (fn [e]
                            (u/on-drop-image e #(rf/dispatch [:files/upload % [:state :editors :help-page] save-page!])))]
@@ -106,7 +106,7 @@
                        :on-drop       on-drop}]))
 
 (defn help-editor [help-key]
-  (rf/dispatch [:help-editor/set :help/key help-key])
+  (rf/dispatch [:help-editor/set :help-page/key help-key])
   (let [dirty?     (rf/subscribe [:help-editor/state :dirty?])
         language   (rf/subscribe [:help-editor/state :language])
         page       (rf/subscribe [:help/page help-key @language])
@@ -131,22 +131,14 @@
 
 (comment
 
-  (rf/dispatch [:help-editor/set :language 91])
   (rf/subscribe [:state :editors])
-  (rf/subscribe [:help-editor/state])
-  
-  (rf/subscribe [:help/content "behaveplus:help" 129])
-  (rf/subscribe [:help/_page "behaveplus:help" 129])
-  (rf/subscribe [:pull '[*] 131])
-  (rf/subscribe [:help/page "behaveplus:help" 129])
-  (rf/subscribe [:pull-with-attr :help/key])
+
+  (rf/subscribe [:pull '[*] 2968])
   (rf/subscribe [:query
-                 '[:find  [?content]
-                   :in    $ ?l ?help-key
-                   :where [?h :help/key ?help-key]
-                   [?l :language/help-pages ?h]
-                   [?h :help/content ?content]]
-                 [129 "behaveplus:help"]])
+                 '[:find  ?h .
+                   :in    $ ?help-key
+                   :where [?h :help/key ?help-key]]
+                 ["test-app:help"]])
 
   (def help-key "behaveplus:help")
   (def language 129)

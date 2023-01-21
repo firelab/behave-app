@@ -8,10 +8,9 @@
 
 (reg-sub
   :subgroups
-  (fn [[_ submodule-id]]
-    (subscribe [:pull-children :submodule/groups submodule-id]))
-
-  (fn [result _] result))
+  (fn [[_ group-id]]
+    (subscribe [:pull-children :group/children group-id]))
+  identity)
 
 (reg-sub
   :sidebar/subgroups
@@ -28,7 +27,7 @@
 (reg-sub
   :variables
   (fn [[_ group-id]]
-    (subscribe [:pull-children :group/group-variables group-id '[* {:variable/_group-variables [*]}]]))
+    (subscribe [:pull-children :group/group-variable group-id '[* {:variable/_group-variable [*]}]]))
 
   identity)
 
@@ -39,7 +38,8 @@
 
   (fn [variables]
     (map (fn [group-variable]
-           (let [variable (get-in group-variable [:variable/_group-variables 0])]
+           (let [variable (get-in group-variable [:variable/_group-variable 0])
+                 variable (dissoc variable :db/id :bp/uuid)]
              (merge group-variable variable))) variables)))
 
 (reg-sub
@@ -51,7 +51,7 @@
     (->> variables
          (map (fn [variable]
                 (let [id (:db/id variable)
-                      name (get-in variable [:variable/_group-variables 0 :variable/name])]
+                      name (get-in variable [:variable/_group-variable 0 :variable/name])]
                 {:label name
                  :link  (path-for app-routes :get-group-variable :id id)})))
          (sort-by :label))))
@@ -93,7 +93,7 @@
 (reg-sub
   :cpp/enums
   (fn [[_ namespace-id]]
-    (subscribe [:pull-children :cpp.namespace/enums namespace-id]))
+    (subscribe [:pull-children :cpp.namespace/enum namespace-id]))
 
   (fn [results _]
     (sort-by :cpp.enum/name results)))
@@ -101,7 +101,7 @@
 (reg-sub
   :cpp/enum-members
   (fn [[_ enum-id]]
-    (subscribe [:pull-children :cpp.enum/enum-members enum-id]))
+    (subscribe [:pull-children :cpp.enum/enum-member enum-id]))
 
   (fn [results _]
     (sort-by :cpp.enum-member/name results)))
@@ -109,7 +109,7 @@
 (reg-sub
   :cpp/classes
   (fn [[_ namespace-id]]
-    (subscribe [:pull-children :cpp.namespace/classes namespace-id]))
+    (subscribe [:pull-children :cpp.namespace/class namespace-id]))
 
   (fn [results _]
     (sort-by :cpp.class/name results)))
@@ -117,7 +117,7 @@
 (reg-sub
   :cpp/functions
   (fn [[_ class-id]]
-    (subscribe [:pull-children :cpp.class/functions class-id]))
+    (subscribe [:pull-children :cpp.class/function class-id]))
 
   (fn [results _]
     (sort-by :cpp.function/name results)))
@@ -125,7 +125,7 @@
 (reg-sub
   :cpp/parameters
   (fn [[_ function-id]]
-    (subscribe [:pull-children :cpp.function/parameters function-id]))
+    (subscribe [:pull-children :cpp.function/parameter function-id]))
 
   (fn [results _]
     (sort-by :cpp.parameter/name results)))

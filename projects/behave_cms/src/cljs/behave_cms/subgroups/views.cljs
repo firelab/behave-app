@@ -14,7 +14,7 @@
 ;;; Private Views
 
 (defn- subgroup-form [group-id subgroup-id]
-  [entity-form {:entity        :groups
+  [entity-form {:entity        :group
                 :parent-entity :group/_children
                 :parent-id     group-id
                 :id            subgroup-id
@@ -47,11 +47,11 @@
       :on-increase #(rf/dispatch [:api/reorder % @group-variables :group-variable/order :inc])
       :on-decrease #(rf/dispatch [:api/reorder % @group-variables :group-variable/order :dec])}]))
 
-(defn- add-variable [{id :db/id group-variables :group/group-variables}]
+(defn- add-variable [{id :db/id group-variables :group/translation-key translation-key :group/group-variables}]
   (let [query            (rf/subscribe [:state [:search :variables]])
         all-variables    (rf/subscribe [:group/search-variables @query])
         all-variable-ids (set (map :db/id @all-variables))
-        gv-ids           (set (map #(get-in % [:variable/_group-variables 0 :db/id]) group-variables))
+        gv-ids           (set (map #(get-in % [:variable/_group-variable 0 :db/id]) group-variables))
         remaining-ids    (difference all-variable-ids gv-ids)
         remaining        (filter #(-> % (:db/id) (remaining-ids)) @all-variables)]
     [:div.row
@@ -60,9 +60,11 @@
       remaining
       (u/debounce #(rf/dispatch [:state/set-state [:search :variables] %]) 1000)
       #(rf/dispatch [:api/create-entity
-                     {:group/_group-variables    id
-                      :variable/_group-variables %
-                      :group-variable/order      (count group-variables)}])
+                     {:group/_group-variable    id
+                      :variable/_group-variable %
+                      :group-variable/translation-key  
+                      :group-variable/help-key  
+                      :group-variable/order     (count group-variables)}])
       #(rf/dispatch [:state/set-state [:search :variables] nil])]]))
 
 ;;; Public Views
@@ -74,15 +76,15 @@
     (if (not @loaded?)
       [:div "Loading..."]
       (let [group-id        (parse-int id)
-            group           (rf/subscribe [:entity group-id '[* {:submodule/_groups [*]
-                                                                 :group/group-variables [* {:variable/_group-variables [*]}]}]])
+            group           (rf/subscribe [:entity group-id '[* {:submodule/_group [*]
+                                                                 :group/group-variable [* {:variable/_group-variable [*]}]}]])
             group-variables (rf/subscribe [:sidebar/variables group-id])]
         [:<>
          [sidebar
           "Variables"
           @group-variables
           "Groups"
-          (str "/submodules/" (get-in @group [:submodule/_groups 0 :db/id]))]
+          (str "/submodules/" (get-in @group [:submodule/_group 0 :db/id]))]
          [window
           sidebar-width
           [:div.container

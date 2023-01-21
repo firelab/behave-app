@@ -32,7 +32,7 @@
       :on-delete on-delete}]))
 
 (defn application-form [id]
-  [entity-form {:entity :applications
+  [entity-form {:entity :application
                 :id     id
                 :fields [{:label     "Name"
                           :required? true

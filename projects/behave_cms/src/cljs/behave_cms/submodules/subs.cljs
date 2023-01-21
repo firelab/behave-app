@@ -6,7 +6,7 @@
 (reg-sub
   :submodules
   (fn [[_ module-id]]
-    (subscribe [:pull-children :module/submodules module-id]))
+    (subscribe [:pull-children :module/submodule module-id]))
   identity)
 
 (reg-sub
@@ -16,9 +16,9 @@
 
   (fn [submodules _]
     (->> submodules
-         (map (fn [{id   :db/id
+         (map (fn [{id     :db/id
                     s-name :submodule/name
-                    io   :submodule/io}]
+                    io     :submodule/io}]
                 {:label (str s-name " (" (name io) ")")
                  :link  (path-for app-routes :get-submodule :id id)}))
          (sort-by :label))))

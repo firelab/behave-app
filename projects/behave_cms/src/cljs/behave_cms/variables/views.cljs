@@ -10,7 +10,7 @@
             [behave-cms.events]
             [behave-cms.subs]))
 
-(def columns [:variable/name :variable/kind])
+(def columns [:variable/name :variable/bp6-label :variable/bp6-code :variable/kind])
 
 (defn variables-table []
   (let [variables (rf/subscribe [:pull-with-attr :variable/name])
@@ -95,6 +95,12 @@
                      :fields [{:label     "Name"
                                :required? true
                                :field-key :variable/name}
+                              {:label     "BP6 Label"
+                               :disabled? true
+                               :field-key :variable/bp6-label}
+                              {:label     "BP6 Code"
+                               :disabled? true
+                               :field-key :variable/bp6-code}
                               {:label     "Kind"
                                :field-key :variable/kind
                                :required? true

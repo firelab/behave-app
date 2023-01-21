@@ -114,6 +114,19 @@
       :else db)))
 
 (reg-event-db
+  :state/update
+  (path :state)
+  (fn [db [_ path f]]
+    (cond
+      (or (vector? path) (list? path))
+      (update-in db path f)
+
+      (keyword? path)
+      (update db path f)
+
+      :else db)))
+
+(reg-event-db
   :state/merge
   (path :state)
   (fn [state [_ path value]]

@@ -33,9 +33,10 @@
  (fn [{db :db} [_ latest-help-page]]
    (let [edited-page (get-in db [:state :editors :help-page])
          language    (:language edited-page)
-         data        (merge latest-help-page
-                            (select-keys edited-page [:help/key :help/content]))]
-     {:fx [[:dispatch [:api/update-entity {:db/id language :language/help-pages [data]}]]]})))
-
-;;; Uploading Images
-
+         event       (if (:db/id latest-help-page)
+                       :api/update-entity
+                       :api/create-entity)
+         data        (merge (select-keys latest-help-page [:db/id])
+                            (select-keys edited-page [:help-page/key :help-page/content])
+                            {:language/_help-page language})]
+     {:fx [[:dispatch [event data]]]})))

@@ -10,8 +10,8 @@
             [behave-cms.submodules.subs]))
 
 (defn submodule-form [module-id id]
-  [entity-form {:entity        :submodules
-                :parent-field  :module/_submodules
+  [entity-form {:entity        :submodule
+                :parent-field  :module/_submodule
                 :parent-id     module-id
                 :id            id
                 :fields        [{:label     "Name"
@@ -55,7 +55,7 @@
         module-id (parse-int id)]
     (if @loaded?
       (let [module         (rf/subscribe [:module module-id])
-            application-id (get-in @module [:application/_modules 0 :db/id])
+            application-id (get-in @module [:application/_module 0 :db/id])
             submodules     (rf/subscribe [:sidebar/submodules module-id])
             submodule      (rf/subscribe [:state :submodule])]
         [:<>

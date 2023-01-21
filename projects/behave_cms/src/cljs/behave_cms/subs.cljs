@@ -1,5 +1,6 @@
 (ns behave-cms.subs
-  (:require [bidi.bidi :refer (match-route)]
+  (:require [clojure.string :as str]
+            [bidi.bidi :refer (match-route)]
             [re-frame.core :as rf]
             [re-posh.core  :as rp]
             [behave-cms.routes :refer [app-routes]]
@@ -75,6 +76,28 @@
     {:type    :pull-many
      :pattern pattern
      :ids     ids}))
+
+(rp/reg-query-sub
+  :parent-id
+  '[:find  ?e .
+    :in    $ ?parent-attr ?child-id
+    :where [?e ?parent-attr ?child-id]])
+
+(defn- simple-parent-attr [parent-attr]
+  (-> (str parent-attr)
+      (subs 1)
+      (str/replace #"/_" "/")
+      (keyword)))
+
+(rp/reg-sub
+  :pull-parent
+  (fn [[_ parent-attr child-id _]]
+    (rf/subscribe [:parent-id (simple-parent-attr parent-attr) child-id]))
+
+  (fn [parent-id [_ _ _ pattern]]
+    {:type    :pull
+     :pattern (or pattern '[*])
+     :id      parent-id}))
 
 (rp/reg-query-sub
   :ids-with-attr
