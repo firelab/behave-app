@@ -130,3 +130,11 @@
     {:type    :pull-many
      :pattern (or pattern '[*])
      :ids     (reduce into [] eids)}))
+
+;;; Lookup
+
+(rp/reg-query-sub
+ :bp/lookup
+ '[:find  ?id .
+   :in    $ ?uuid
+   :where [?id :bp/uuid ?uuid]])

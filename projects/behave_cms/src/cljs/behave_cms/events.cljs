@@ -248,10 +248,10 @@
     (let [curr-order (get entity order-field)
           sorted     (sort-by order-field all-entities)
           next-order (condp = direction
-                       :up   (when (< curr-order (dec (count sorted)))
-                               (inc curr-order))
-                       :down (when (> curr-order 0)
-                               (dec curr-order)))]
+                       :inc (when (< curr-order (dec (count sorted)))
+                              (inc curr-order))
+                       :dec (when (> curr-order 0)
+                              (dec curr-order)))]
       (when next-order
         (let [swap (nth sorted next-order)]
           {:transact [(assoc (select-keys swap [:db/id]) order-field curr-order)

@@ -31,8 +31,7 @@
   (when ok
     (let [datoms (mapv #(apply d/datom %) (c/unpack body))]
       (swap! sync-txs union (txs datoms))
-      (rf/dispatch-sync [:ds/initialize (->ds-schema all-schemas) datoms])
-      (rf/dispatch-sync [:state/set-state :loaded? true]))))
+      (rf/dispatch-sync [:ds/initialize (->ds-schema all-schemas) datoms]))))
 
 (defn load-store! []
   (ajax-request {:uri             "/sync"
@@ -83,7 +82,8 @@
       (reset! conn (d/conn-from-datoms datoms schema))
       (d/listen! @conn :sync-tx-data sync-tx-data)
       (rp/connect! @conn)
-      (js/setInterval sync-latest-datoms! 5000)
+      #_(js/setInterval sync-latest-datoms! 5000)
+      (rf/dispatch [:state/set-state :loaded? true])
       @conn)))
 
 ;;; Effects

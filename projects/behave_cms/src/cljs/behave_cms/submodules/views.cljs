@@ -9,7 +9,7 @@
             [behave-cms.help.views              :refer [help-editor]]
             [behave-cms.submodules.subs]))
 
-(defn submodule-form [module-id id]
+(defn submodule-form [module-id id num-submodules]
   [entity-form {:entity        :submodule
                 :parent-field  :module/_submodule
                 :parent-id     module-id
@@ -21,13 +21,13 @@
                                  :field-key :submodule/io
                                  :type      :radio
                                  :options   [{:label "Input" :value :input}
-                                             {:label "Output" :value :output}]}]}])
+                                             {:label "Output" :value :output}]}]
+                :on-create     #(assoc % :submodule/order num-submodules)}])
 
-(defn manage-submodule [module-id]
-  (let [submodule (rf/subscribe [:state :submodule])]
-    [:div.col-6
-     [:h5 (if (nil? module-id) "Add" "Edit") " Submodule"
-      [submodule-form module-id @submodule]]]))
+(defn manage-submodule [module-id *submodule num-submodules]
+  [:div.col-6
+   [:h5 (if (nil? module-id) "Add" "Edit") " Submodule"
+    [submodule-form module-id *submodule num-submodules]]])
 
 (defn submodules-table [label submodules]
   [:<>
@@ -51,12 +51,11 @@
       [submodules-table "Input Submodules" inputs]]]))
 
 (defn list-submodules-page [{:keys [id]}]
-  (let [loaded?   (rf/subscribe [:state :loaded?])
-        module-id (parse-int id)]
+  (let [loaded? (rf/subscribe [:state :loaded?])]
     (if @loaded?
-      (let [module         (rf/subscribe [:module module-id])
+      (let [module         (rf/subscribe [:entity id '[* {:application/_module [:db/id]}]])
             application-id (get-in @module [:application/_module 0 :db/id])
-            submodules     (rf/subscribe [:sidebar/submodules module-id])
+            submodules     (rf/subscribe [:sidebar/submodules id])
             submodule      (rf/subscribe [:state :submodule])]
         [:<>
          [sidebar
@@ -70,8 +69,8 @@
             [:h2 (:module/name @module)]]
            [accordion
             "Submodules"
-            [all-submodule-tables module-id]
-            [manage-submodule module-id @submodule]]
+            [all-submodule-tables id]
+            [manage-submodule id @submodule (count @submodules)]]
            [:hr]
            [accordion
             "Translations"

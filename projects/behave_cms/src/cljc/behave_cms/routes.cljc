@@ -51,28 +51,12 @@
 (defn- ->kw [& s]
   (keyword (apply str s)))
 
-
 (defn- entity-route [entity]
   (let [entity-str     (-> entity (singular) (name))
         entities-route (name entity)
         get-entity     (->kw "get-" entity-str)]
     [entities-route [["" (->kw entities-route)]
-                     [["/" :id] get-entity]]]))
-
-(defn- api-entity-route [entities] ;; Possibly convert to 'entities'
-  (let [entities-str   (name entities)
-        entity-str     (-> entities (singular) (name))
-        list-entities  (->kw "api/list-" entities-str)
-        get-entity     (->kw "api/get-" entity-str)
-        create-entity  (->kw "api/create-" entity-str)
-        update-entity  (->kw "api/update-" entity-str)
-        delete-entity  (->kw "api/delete-" entity-str)]
-
-    [entities-str [["" list-entities]
-                   ["/create" create-entity]
-                   [["/" :id] get-entity]
-                   [["/" :id "/update"] update-entity]
-                   [["/" :id "/delete"] delete-entity]]]))
+                     [["/" [long :id]] get-entity]]]))
 
 (def api-routes
   (add-trailing-slashes-to-roots
@@ -87,15 +71,6 @@
 
             ;; Custom API routes
             ["variables/search" :api/search-variables]]]]]))
-
-(defn entity->uri [method entities & [id]]
-  (let [entity-str (if (= method :list)
-                     (name entities)
-                     (-> entities (singular) (name)))]
-    (apply bidi/path-for
-           api-routes
-           (->kw "api/" (name method) "-" entity-str)
-           (when id [:id id]))))
 
 (def app-routes
   (add-trailing-slashes-to-roots

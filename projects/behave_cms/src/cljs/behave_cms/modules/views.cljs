@@ -9,19 +9,20 @@
             [behave-cms.components.entity-form  :refer [entity-form]]
             [behave-cms.subs]))
 
-(defn module-form [application-id module-id]
+(defn module-form [application-id module-id num-modules]
   [entity-form {:entity       :module
                 :parent-field :application/_module
                 :parent-id    application-id
                 :id           module-id
                 :fields       [{:label     "Name"
                                 :required? true
-                                :field-key :module/name}]}])
+                                :field-key :module/name}]
+                :on-create    #(assoc % :module/order num-modules)}])
 
-(defn manage-module [application-id *module]
+(defn manage-module [application-id *module num-modules]
   [:div.col-6
    [:h4 (str (if *module "Edit" "Add") " Module")
-    [module-form application-id *module]]])
+    [module-form application-id *module num-modules]]])
 
 (defn modules-table [application-id]
   (let [modules (rf/subscribe [:modules application-id])]
@@ -55,7 +56,7 @@
            [accordion
             "Modules"
             [modules-table id]
-            [manage-module id @*module]]
+            [manage-module id @*module (count @modules)]]
            [:hr]
            [accordion
             "Help Page"

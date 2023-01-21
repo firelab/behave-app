@@ -12,23 +12,6 @@
  identity)
 
 (reg-sub
- :module
- (fn [[_ id]]
-   (subscribe [:entity id '[* {:application/_module [*]}]]))
-
- (fn [result _]
-   (let [application-name (-> result
-                              (:application/_module)
-                              (first)
-                              (:application/name))
-         module-name      (:module/name result)
-         translation-key  (kebab-key application-name module-name)
-         help-key         (str translation-key ":help")]
-     (assoc result
-            :module/translation-key translation-key
-            :module/help-key help-key))))
-
-(reg-sub
  :sidebar/modules
  (fn [[_ id]]
    (subscribe [:modules id]))

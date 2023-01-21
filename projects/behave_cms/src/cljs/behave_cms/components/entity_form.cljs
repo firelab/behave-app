@@ -13,6 +13,46 @@
   (let [rf-event (if (nil? (:db/id data)) :api/create-entity :api/update-entity)]
     (rf/dispatch [rf-event data])))
 
+(defn- parent-translation-key
+  "Gets the translation key from `:<parent>/translation-key`,
+  `:<parent>/help-key`, or generates it from the `<parent>/name` attribute."
+  [parent]
+  (let [attrs      (map ->str (keys parent))
+        h-or-t-key (->> attrs
+                        (filter #(or (str/ends-with? % "/translation-key")
+                                     (str/ends-with? % "/help-key")))
+                        (first)
+                        (keyword))
+        name-key   (->> attrs
+                        (filter #(str/ends-with? % "/name"))
+                        (first)
+                        (keyword))
+        name-kebab (->kebab (get parent name-key))]
+    (str/replace (get parent h-or-t-key name-kebab) #":help$" "")))
+
+(defn- merge-parent-fields [state original entity parent-field parent-id parent]
+  (let [gen-attr           #(keyword (str (->str entity) "/" %))
+        name-attr          (gen-attr "name")
+        translation-attr   (gen-attr "translation-key")
+        help-attr          (gen-attr "help-key")
+        parent-translation (parent-translation-key parent)
+        translation-key    (str parent-translation ":" (->kebab (get state name-attr)))
+        help-key           (str translation-key ":help")]
+
+    (merge state
+           {parent-field     parent-id
+            translation-attr translation-key
+            help-attr        help-key}
+           ;; Prevent overwriting the translation/help keys once assigned
+           (select-keys original [translation-attr help-attr]))))
+
+(defn entity-uuid-kw [entity-type]
+  (-> entity-type
+      (singular)
+      (name)
+      (str "-uuid")
+      (keyword)))
+
 ;;; Sub-components
 
 (defn dropdown
@@ -93,61 +133,29 @@
      :value         @state
      :on-change     #(on-change (u/input-value %))}]])
 
-(defn- parent-translation-key
-  "Gets the translation key from `:<parent>/translation-key`,
-  `:<parent>/help-key`, or generates it from the `<parent>/name` attribute."
-  [parent]
-  (let [attrs      (map ->str (keys parent))
-        h-or-t-key (->> attrs
-                        (filter #(or (str/ends-with? % "/translation-key")
-                                     (str/ends-with? % "/help-key")))
-                        (first)
-                        (keyword))
-        name-key   (->> attrs
-                        (filter #(str/ends-with? % "/name"))
-                        (first)
-                        (keyword))
-        name-kebab (->kebab (get parent name-key))]
-    (str/replace (get parent h-or-t-key name-kebab) #":help$" "")))
 
-(defn- merge-parent-fields [original state entity parent-field parent-id parent]
-  (let [gen-attr           #(keyword (str (->str entity) "/" %))
-        name-attr          (gen-attr "name")
-        translation-attr   (gen-attr "translation-key")
-        help-attr          (gen-attr "help-key")
-        parent-translation (parent-translation-key parent)
-        translation-key    (str parent-translation ":" (->kebab (get state name-attr)))
-        help-key           (str translation-key ":help")]
-
-    (merge state
-           {parent-field     parent-id
-            translation-attr translation-key
-            help-attr        help-key}
-           ;; Prevent overwriting the translation/help keys once assigned
-           (select-keys original [translation-attr help-attr]))))
-
-(defn entity-uuid-kw [entity-type]
-  (-> entity-type
-      (singular)
-      (name)
-      (str "-uuid")
-      (keyword)))
+;;; Public Fns
 
 (defn entity-form
   ""
-  [{:keys [entity parent-field parent-id fields id] :as opts}]
+  [{:keys [entity parent-field parent-id fields id on-create] :as opts}]
   (let [original     @(rf/subscribe [:entity id])
         parent       @(rf/subscribe [:entity parent-id])
         update-state (fn [field] (fn [value] (rf/dispatch [:state/set-state [:editors entity field] value])))
         get-state    (fn [field] (r/track #(or @(rf/subscribe [:state [:editors entity field]]) (get original field) "")))
         on-submit    (u/on-submit #(let [state @(rf/subscribe [:state [:editors entity]])]
-                                     (upsert-entity! (cond id
-                                                           (merge {:db/id id} state)
+                                     (cond-> state
+                                       id
+                                       (merge {:db/id id})
 
-                                                           (and parent-field parent-id)
-                                                           (merge-parent-fields original state entity parent-field parent-id parent)
+                                       (and (nil? id) parent-field parent-id)
+                                       (merge-parent-fields original entity parent-field parent-id parent)
 
-                                                           :else state))
+                                       (and (nil? id) (fn? on-create))
+                                       (on-create)
+
+                                       true
+                                       (upsert-entity!))
                                      (rf/dispatch [:state/set-state entity nil])
                                      (rf/dispatch [:state/set-state [:editors entity] {}])))]
     [:form {:on-submit on-submit}

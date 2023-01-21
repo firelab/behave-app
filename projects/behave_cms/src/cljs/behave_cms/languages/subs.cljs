@@ -1,5 +1,6 @@
 (ns behave-cms.languages.subs
-  (:require [re-frame.core :as rf]
+  (:require [clojure.string :as str]
+            [re-frame.core :as rf]
             [re-posh.core :as rp]))
 
 ;;; Languages
@@ -15,8 +16,9 @@
 (rf/reg-sub
  :all-translations
  (fn [_]
-   (rf/subscribe [:pull-with-attr :translation/key '[* {:language/_translation [*]}]]))
- identity)
+   (rf/subscribe [:pull-with-attr :translation/key '[* {:language/_translation [:language/shortcode :language/name :db/id]}]]))
+ (fn [translations [_ prefix]]
+   (filter #(str/starts-with? (:translation/key %) prefix) translations)))
 
 (rf/reg-sub
  :translation-ids

@@ -2,26 +2,30 @@
   (:require [reagent.core :as r]
             [re-frame.core :as rf]
             [data-utils.interface :refer [parse-int]]
+            [string-utils.interface :refer [->str]]
             [behave-cms.components.common          :refer [accordion simple-table window]]
             [behave-cms.components.entity-form     :refer [entity-form]]
             [behave-cms.components.sidebar         :refer [sidebar sidebar-width]]
             [behave-cms.components.translations    :refer [all-translations]]
-            [behave-cms.help.views                 :refer [help-editor]]))
+            [behave-cms.help.views                 :refer [help-editor]]
+            [behave-cms.groups.subs]))
 
-(defn group-form [submodule-id group-id]
+(defn group-form [submodule-id group-id num-groups]
   [entity-form {:entity        :group
                 :parent-field  :submodule/_group
                 :parent-id     submodule-id
                 :id            group-id
                 :fields        [{:label     "Name"
                                  :required? true
-                                 :field-key :group/name}]}])
+                                 :field-key :group/name}]
+                :on-create     #(assoc % :group/order num-groups)}])
 
 (defn manage-group [{submodule-id :db/id}]
-  (let [group (rf/subscribe [:state :group])]
+  (let [groups (rf/subscribe [:groups submodule-id])
+        *group (rf/subscribe [:state :group])]
     [:div.col-6
-     [:h3 (str (if @group "Update" "Add") " Group")
-      [group-form submodule-id @group]]]))
+     [:h3 (str (if @*group "Update" "Add") " Group")
+      [group-form submodule-id @*group (count @groups)]]]))
 
 (defn groups-table [{submodule-id :db/id}]
   (let [groups (rf/subscribe [:groups submodule-id])]
@@ -35,33 +39,36 @@
        :on-increase #(rf/dispatch [:api/reorder % @groups :group/order :inc])
        :on-decrease #(rf/dispatch [:api/reorder % @groups :group/order :dec])}]]))
 
+(defn loaded-page [submodule-id]
+  (println "Initiliazed here")
+  (let [submodule      (rf/subscribe [:entity submodule-id '[* {:module/_submodule [*]}]])
+        sidebar-groups (rf/subscribe [:sidebar/groups submodule-id])]
+    [:<>
+     [sidebar
+      "Groups"
+      @sidebar-groups
+      "Submodules"
+      (str "/modules/" (get-in @submodule [:module/_submodule 0 :db/id]))]
+     [window sidebar-width
+      [:div.container
+       [:div.row.mb-3.mt-4
+        [:h2 (str (:submodule/name @submodule) " (" (->str (:submodule/io @submodule)) ")")]]
+       [accordion
+        "Groups"
+        [groups-table @submodule]
+        [manage-group @submodule]]
+       [:hr]
+       [accordion
+        "Translations"
+        [:div.col-12
+         [all-translations (:submodule/translation-key @submodule)]]]
+       [:hr]
+       [accordion
+        "Help Page"
+        [help-editor (:submodule/help-key @submodule)]]]]]))
+
 (defn list-groups-page [{id :id}]
   (let [loaded? (rf/subscribe [:state :loaded?])]
-    (if (not loaded?)
-      [:div "Loading ..."]
-      (let [submodule-id (parse-int id)
-            submodule    (rf/subscribe [:entity submodule-id '[* {:module/_submodule [*]}]])
-            groups       (rf/subscribe [:sidebar/groups submodule-id])]
-        [:<>
-         [sidebar
-          "Groups"
-          @groups
-          "Submodules"
-          (str "/modules/" (get-in @submodule [:module/_submodules 0 :db/id]))]
-         [window sidebar-width
-          [:div.container
-           [:div.row.mb-3.mt-4
-            [:h2 (str (:submodule/name @submodule) " (" (name (:submodule/io @submodule)) ")")]]
-           [accordion
-            "Groups"
-            [groups-table @submodule]
-            [manage-group @submodule]]
-           [:hr]
-           [accordion
-            "Translations"
-            [:div.col-12
-             [all-translations (:submodule/translation-key @submodule)]]]
-           [:hr]
-           [accordion
-            "Help Page"
-            [help-editor (:submodule/help-key @submodule)]]]]]))))
+    (if @loaded?
+      (loaded-page id)
+      [:div "Loading ..."])))

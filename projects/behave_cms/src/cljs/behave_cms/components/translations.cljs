@@ -25,7 +25,7 @@
                new-key         (r/atom "")
                new-translation (r/atom "")
                update-field    (fn [field] #(rf/dispatch [:state/set-state [:editors :translation field] %]))
-               translations    (rf/subscribe [:all-translations])
+               translations    (rf/subscribe [:all-translations translation-prefix])
                on-submit       #(do
                                   (rf/dispatch [:api/create-entity
                                                 {:language/_translation   @*language

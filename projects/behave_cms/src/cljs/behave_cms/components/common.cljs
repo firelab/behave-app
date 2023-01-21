@@ -217,8 +217,8 @@
           (when on-select [btn-sm :outline-secondary "Edit"   #(on-select row)])
           (when on-delete [btn-sm :outline-danger    "Delete" #(on-delete row)])])
        [:td
-        (when on-increase [btn-sm :outline-secondary nil #(on-increase row) {:icon "arrow-up"}])
-        (when on-decrease [btn-sm :outline-secondary nil #(on-decrease row) {:icon "arrow-down"}])]])]])
+        (when on-decrease [btn-sm :outline-secondary nil #(on-decrease row) {:icon "arrow-up"}])
+        (when on-increase [btn-sm :outline-secondary nil #(on-increase row) {:icon "arrow-down"}])]])]])
 
 (defn window [sidebar-width & children]
   [:div.window {:style {:position "fixed"

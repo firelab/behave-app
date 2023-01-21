@@ -3,9 +3,10 @@
             [reagent.core  :as r]
             [re-frame.core :as rf]
             [data-utils.interface :refer [parse-int]]
+            [string-utils.interface :refer [->kebab]]
             [behave-cms.components.common          :refer [accordion simple-table window]]
             [behave-cms.components.entity-form     :refer [entity-form]]
-            [behave-cms.components.help-editor     :refer [help-editor]]
+            [behave-cms.help.views                 :refer [help-editor]]
             [behave-cms.components.sidebar         :refer [sidebar sidebar-width]]
             [behave-cms.components.translations    :refer [all-translations]]
             [behave-cms.components.variable-search :refer [variable-search]]
@@ -37,7 +38,7 @@
       :on-increase #(rf/dispatch [:api/reorder % @subgroups :group/order :inc])
       :on-decrease #(rf/dispatch [:api/reorder % @subgroups :group/order :dec])}]))
 
-(defn- variables-table [{group-id :db/id}]
+(defn- variables-table [{group-id :db/id translation-key :group/translation-key}]
   (r/with-let [group-variables (rf/subscribe [:group/variables group-id])]
     [simple-table
      [:variable/name]
@@ -47,7 +48,7 @@
       :on-increase #(rf/dispatch [:api/reorder % @group-variables :group-variable/order :inc])
       :on-decrease #(rf/dispatch [:api/reorder % @group-variables :group-variable/order :dec])}]))
 
-(defn- add-variable [{id :db/id group-variables :group/translation-key translation-key :group/group-variables}]
+(defn- add-variable [{id :db/id group-variables :group/group-variables translation-key :group/translation-key}]
   (let [query            (rf/subscribe [:state [:search :variables]])
         all-variables    (rf/subscribe [:group/search-variables @query])
         all-variable-ids (set (map :db/id @all-variables))
@@ -59,12 +60,13 @@
      [variable-search
       remaining
       (u/debounce #(rf/dispatch [:state/set-state [:search :variables] %]) 1000)
-      #(rf/dispatch [:api/create-entity
-                     {:group/_group-variable    id
-                      :variable/_group-variable %
-                      :group-variable/translation-key  
-                      :group-variable/help-key  
-                      :group-variable/order     (count group-variables)}])
+      #(let [variable @(rf/subscribe [:pull '[:variable/name] %])]
+         (rf/dispatch [:api/create-entity
+                       {:group/_group-variable          id
+                        :variable/_group-variable       %
+                        :group-variable/translation-key (str translation-key ":" (->kebab (:variable/name variable)))
+                        :group-variable/help-key        (str translation-key ":" (->kebab (:variable/name variable)) ":help")
+                        :group-variable/order           (count group-variables)}]))
       #(rf/dispatch [:state/set-state [:search :variables] nil])]]))
 
 ;;; Public Views
@@ -75,10 +77,9 @@
   (let [loaded? (rf/subscribe [:state :loaded?])]
     (if (not @loaded?)
       [:div "Loading..."]
-      (let [group-id        (parse-int id)
-            group           (rf/subscribe [:entity group-id '[* {:submodule/_group [*]
-                                                                 :group/group-variable [* {:variable/_group-variable [*]}]}]])
-            group-variables (rf/subscribe [:sidebar/variables group-id])]
+      (let [group           (rf/subscribe [:entity id '[* {:submodule/_group     [*]
+                                                           :group/group-variable [* {:variable/_group-variable [*]}]}]])
+            group-variables (rf/subscribe [:sidebar/variables id])]
         [:<>
          [sidebar
           "Variables"
@@ -88,8 +89,10 @@
          [window
           sidebar-width
           [:div.container
+           ^{:key "name"}
            [:div.row.mb-3.mt-4
             [:h2 (:group/name @group)]]
+           ^{:key "variables"}
            [accordion
             "Variables"
             [:div.col-6
@@ -97,10 +100,12 @@
             [:div.col-6
              [add-variable @group]]]
            [:hr]
+           ^{:key "translations"}
            [accordion
             "Translations"
             [all-translations (:group/translation-key @group)]]
            [:hr]
+           ^{:key "help"}
            [accordion
             "Help Page"
             [:div.col-12

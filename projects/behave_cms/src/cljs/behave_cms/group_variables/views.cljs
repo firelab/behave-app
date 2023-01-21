@@ -22,9 +22,9 @@
 
 ;;; Helpers
 
-(defn- save-group-variable! []
-  (let [state          (rf/subscribe [:state [:editors :group-variables]])
-        group-variable (select-keys state (concat cpp-attrs [:db/id :bp/uuid]))]
+(defn- save-group-variable! [id]
+  (let [state          @(rf/subscribe [:state [:editors :group-variables]])
+        group-variable (merge {:db/id id} (select-keys state cpp-attrs))]
     (rf/dispatch [:api/update-entity group-variable])
     (rf/dispatch [:state/set-state :group-variable nil])
     (rf/dispatch [:state/set-state [:editors :group-variables] {}])))
@@ -44,12 +44,12 @@
       [:option {:value uuid :selected (= @*uuid uuid)} option-label])]])
 
 (defn- edit-variable [id]
-  (let [original   (rf/subscribe [:entity id])
+  (let [original   @(rf/subscribe [:entity id])
         get-field  (fn [field]
-                     (r/track #(or (rf/subscribe [:state [:editors :group-variables field]]) (get original field ""))))
+                     (r/track #(or @(rf/subscribe [:state [:editors :group-variables field]]) (get original field ""))))
         set-field  (fn [field]
                      (fn [new-value] (rf/dispatch [:state/set-state [:editors :group-variables field] new-value])))
-        on-submit  #(save-group-variable!)
+        on-submit  #(save-group-variable! id)
         namespaces (rf/subscribe [:cpp/namespaces])
         classes    (rf/subscribe [:cpp/classes @(get-field cpp-ns)])
         functions  (rf/subscribe [:cpp/functions @(get-field cpp-class)])
@@ -67,33 +67,36 @@
 (defn group-variable-page
   "Renders the group-variable page. Takes in a group-variable UUID."
   [{:keys [id]}]
-  (let [gv-id           (parse-int id)
-        group-variable  (rf/subscribe [:entity gv-id '[* {:variable/_group-variable [*]
-                                                          :group/_group-variable    [*]}]])
-        group           (get-in @group-variable [:group/_group-variable 0])
-        variable        (get-in @group-variable [:variable/_group-variable 0])
-        group-variables (rf/subscribe [:sidebar/variables (:db/id group)])]
-    [:<>
-     [sidebar
-      "Variables"
-      @group-variables
-      "Groups"
-      (str "/groups/" (:db/id group))]
-     [window
-      sidebar-width
-      [:div.container
-       [:div.row.mb-3.mt-4
-        [:h2 (:variable/name variable)]]
-       [accordion
-        "Translations"
-        [all-translations (:translation/key @group-variable)]]
-       [:hr]
-       [accordion
-        "Help Page"
-        [:div.col-12
-         [help-editor (:help/key @group-variable)]]]
-       [:hr]
-       [accordion
-        "CPP Functions"
-        [:div.col-6
-         [edit-variable gv-id]]]]]]))
+  (let [loaded? (rf/subscribe [:state :loaded?])]
+    (if (not @loaded?)
+      [:div "Loading ..."]
+      (let [gv-id           (parse-int id)
+            group-variable  (rf/subscribe [:entity gv-id '[* {:variable/_group-variable [*]
+                                                              :group/_group-variable    [*]}]])
+            group           (get-in @group-variable [:group/_group-variable 0])
+            variable        (get-in @group-variable [:variable/_group-variable 0])
+            group-variables (rf/subscribe [:sidebar/variables (:db/id group)])]
+        [:<>
+         [sidebar
+          "Variables"
+          @group-variables
+          "Groups"
+          (str "/groups/" (:db/id group))]
+         [window
+          sidebar-width
+          [:div.container
+           [:div.row.mb-3.mt-4
+            [:h2 (:variable/name variable)]]
+           [accordion
+            "Translations"
+            [all-translations (:translation/key @group-variable)]]
+           [:hr]
+           [accordion
+            "Help Page"
+            [:div.col-12
+             [help-editor (:help/key @group-variable)]]]
+           [:hr]
+           [accordion
+            "CPP Functions"
+            [:div.col-6
+             [edit-variable gv-id]]]]]]))))
