@@ -40,20 +40,9 @@
     :db/unique      :db.unique/identity
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :user/first-name
-    :db/doc         "User's first name."
+   {:db/ident       :user/name
+    :db/doc         "User's name."
     :db/valueType   :db.type/string
-    :db/cardinality :db.cardinality/one}
-
-   {:db/ident       :user/last-name
-    :db/doc         "User's last name."
-    :db/valueType   :db.type/string
-    :db/cardinality :db.cardinality/one}
-
-   {:db/ident       :user/first+last-name
-    :db/doc         "User's first and last name."
-    :db/valueType   :db.type/tuple
-    :db/tupleAttrs  [:user/first-name :user/last-name]
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :user/email

@@ -5,30 +5,49 @@
 
 ;;; Entity to Tables Mapping
 
-(def ^:private entity->tables
+(def ^:private entity->table
   {:application     :applications
    :module          :modules
    :submodule       :submodules
    :group           :groups
    :group-variable  :group_variables
    :variable        :variables
-   :help-page       :help_pages
    :language        :languages
+   :help-page       :help_pages
    :translation     :translations
    :cpp.namespace   :cpp.namespaces
    :cpp.enum        :cpp.enums
    :cpp.enum-member :cpp.enum_members
    :cpp.class       :cpp.classes
    :cpp.function    :cpp.functions
-   :cpp.parameter   :cpp.function_parameters})
+   :cpp.parameter   :cpp.function_parameters
+   :user            :users})
+
+(def ordered-entities
+  [:user
+   :application
+   :module
+   :submodule
+   :group
+   :variable
+   :group-variable
+   :language
+   :help-page
+   :translation
+   :cpp.namespace
+   :cpp.enum
+   :cpp.enum-member
+   :cpp.class
+   :cpp.function
+   :cpp.parameter])
 
 (def ^:private entity-translations
-  {"namespace"   "cpp.namespace"
-   "enum"        "cpp.enum"
-   "enum-member" "cpp.enum-member"
-   "class"       "cpp.class"
-   "function"    "cpp.function"
-   "parameter"   "cpp.parameter"})
+  {"namespace"    "cpp.namespace"
+   "enum"         "cpp.enum"
+   "enum-member"  "cpp.enum-member"
+   "class"        "cpp.class"
+   "function"     "cpp.function"
+   "parameter"    "cpp.parameter"})
 
 ;;; Helper Fns
 
@@ -70,7 +89,7 @@
 
 (defn export-table
   ([{:keys [entity]}]
-   (export-table (keyword entity) (get entity->tables (keyword entity))))
+   (export-table (keyword entity) (get entity->table (keyword entity))))
   ([entity table-name]
    (let [cols     (keys (db/exec-one! {:select [:*] :from table-name :limit 1}))
          cols     (filterv #(not (contains? #{:updated_at :created_at} %)) cols)
@@ -83,11 +102,11 @@
            (db/exec! {:select cols :from table-name})))))
 
 (defn export-all []
-  (mapv (fn [[entity table]] (export-table entity table)) entity->tables))
+  (mapv (fn [entity] (export-table entity (get entity->table entity))) ordered-entities))
 
 (defn export-table-triples
   ([{:keys [entity]}]
-   (export-table-triples (keyword entity) (get entity->tables (keyword entity))))
+   (export-table-triples (keyword entity) (get entity->table (keyword entity))))
   ([entity table-name]
    (let [rows     (export-table entity table-name)
          uuid-key (keyword (str (subs (str entity) 1) "/uuid"))]
@@ -98,5 +117,80 @@
                           rows))))))
 
 (defn export-all-triples []
-  (apply concat (mapv (fn [[entity table]]
-                        (export-table-triples entity table)) entity->tables)))
+  (apply concat (mapv (fn [entity]
+                        (export-table-triples (get entity->table entity))) ordered-entities)))
+
+
+(comment
+
+  (require '[clojure.java.io :as io])
+  (require '[behave.schema.core :refer [all-schemas]])
+  (require '[datahike.api :as d])
+  (require '[datahike.core :as dc])
+  (require '[datom-store.main :as s])
+  (require '[behave-cms.store :as store])
+  (require '[config.interface :refer [get-config load-config]])
+  (require '[behave.download-vms :refer [->io
+                                         ->kind
+                                         ->rename-keys
+                                         ->repeat?
+                                         dissoc-nil
+                                         ->longify]])
+
+  (def exported-entities (export-all))
+
+  (def users 
+    (map #(-> %
+              (rename-keys {:user/verified :user/verified? :user/super-admin :user/super-admin?})
+              (dissoc :user/otp-code :user/settings :user/reset-key)) (first exported-entities)))
+  users
+
+  (def applications (map #(dissoc % :application/settings) (second exported-entities)))
+
+  (def processed-entities (->> (drop 2 exported-entities)
+                               (apply concat)
+                               (mapv #(-> %
+                                          (->io)
+                                          (->kind)
+                                          (->repeat?)
+                                          (->longify)
+                                          (->rename-keys)
+                                          (dissoc-nil)))))
+
+
+  (count processed-entities)
+
+  ; Real DB
+  (load-config (io/resource "cms-config.edn"))
+  (def conn (store/connect! (get-config :database :config) true))
+
+  (s/transact conn (vec users))
+  (s/transact conn applications)
+  (s/transact conn processed-entities)
+
+  ; Testing after restart
+  (def conn (store/default-conn))
+
+  (d/q '[:find ?e :where [?e :user/name ?name]] @conn)
+
+  (d/q '[:find ?e :where [?e :application/name ?name]] @conn)
+  
+  (d/q '[:find ?e
+          :where
+          [?a :application/name ?name]
+          [?a :application/module ?e]] @conn)
+
+  (d/q '[:find ?e
+          :where
+          [?e :language/name ?name]] @conn)
+
+  (d/q '[:find ?e
+          :where
+          [?e :variable/bp6-code ?name]] @conn)
+  
+  (d/pull @conn '[*] 251)
+  (dc/pull @conn '[*] 705)
+  )
+
+
+

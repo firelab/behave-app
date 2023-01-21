@@ -56,12 +56,17 @@
         ring/ring-json                     {:mvn/version "0.5.0"}
         ring/ring-ssl                      {:mvn/version "0.3.0"}
 
+        seancorfield/next.jdbc             {:mvn/version "1.1.569"}
+        com.github.seancorfield/honeysql   {:mvn/version "2.2.891"}
+        nilenso/honeysql-postgres          {:mvn/version "0.4.112"}
+        org.postgresql/postgresql          {:mvn/version "42.2.14"}
+
         ;; Clojure Commons Deps
         cljs-ajax/cljs-ajax                {:mvn/version "0.8.4"}
         markdown-clj/markdown-clj          {:mvn/version "1.11.1"}
         org.clojure/tools.cli              {:mvn/version "1.0.194"}
         sig-gis/triangulum                 {:git/url "https://github.com/sig-gis/triangulum"
-                                            :sha "acb80fc5c99cc2f3eba516fdb2317eb28629c3a4"}
+                                            :sha     "acb80fc5c99cc2f3eba516fdb2317eb28629c3a4"}
 
         ;; ClojureScript Deps
         applied-science/js-interop         {:mvn/version "0.3.3"}

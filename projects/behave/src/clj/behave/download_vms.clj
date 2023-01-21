@@ -1,5 +1,6 @@
 (ns behave.download-vms
   (:require [clojure.java.io            :as io]
+            [clojure.set                :refer [rename-keys]]
             [ajax.core                  :as http]
             [behave.schema.core         :refer [all-schemas]]
             [datahike.core              :as dc]
@@ -8,16 +9,29 @@
             [triangulum.logging         :refer [log-str]])
   (:import [java.io FileOutputStream]))
 
-(defn- dissoc-nil [m]
-  (apply dissoc m (for [[k v] m :when (nil? v)] k)))
+(defn dissoc-nil [m]
+  (apply dissoc m (for [[k v] m :when (or (nil? v) (= [:bp/uuid nil] v))] k)))
 
-(defn- ->io [entity]
-  (let [io (:submodule/input-output entity)]
-    (if (nil? io)
-      entity
-      (-> entity
-          (dissoc :submodule/input-output)
-          (assoc :submodule/io (keyword io))))))
+(defn ->rename-keys [m]
+  (rename-keys m {:group-variable/variable-order :group-variable/order
+                  :language/language             :language/name
+                  :cpp.parameter/parameter-order :cpp.parameter/order
+                  :cpp.parameter/parameter-type  :cpp.parameter/type}))
+
+(defn ->kind [m]
+  (if-let [kind (:variable/kind m)]
+    (assoc m :variable/kind (keyword kind))
+    m))
+
+(defn ->longify [m]
+  (update-vals m #(if (= java.lang.Integer (class %)) (long %) %)))
+
+(defn ->io [entity]
+  (if-let [io (:submodule/input-output entity)]
+    (-> entity
+        (dissoc :submodule/input-output)
+        (assoc :submodule/io (keyword io)))
+    entity))
 
 (defn ->repeat? [entity]
   (let [repeat (:group/repeat entity)]

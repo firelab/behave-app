@@ -82,6 +82,16 @@
     :db/index       true
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident       :variable/bp6-label
+    :db/doc         "Variable's BehavePlus 6 name."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :variable/bp6-code
+    :db/doc         "Variable's BehavePlus 6 code name."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
    {:db/ident       :variable/kind
     :db/doc         "Kind of variable. Can be :continuous, :discrete, or :text."
     :db/valueType   :db.type/keyword
