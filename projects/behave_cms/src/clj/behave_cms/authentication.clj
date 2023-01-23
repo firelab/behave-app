@@ -76,11 +76,10 @@
   (when-let [user-id (get-user-id db email)]
     (get-entity db {:db/id user-id})))
 
-(defn- create-user! [db email first-name last-name]
+(defn- create-user! [db email name]
   (create-entity! db {:user/uuid         (str (random-uuid))
                       :user/email        email
-                      :user/first-name   first-name
-                      :user/last-name    last-name
+                      :user/name         name
                       :user/verified?    false
                       :user/super-admin? false
                       :user/reset-key    (rand-string 32)}))
@@ -144,7 +143,7 @@
   (let [db (default-conn)]
     (if (valid-password? db email password)
       (let [user (get-user db email)]
-        (data-response (only-public-cols user) {:session {:user-uuid (str (:user/id user))}}))
+        (data-response (only-public-cols user) {:session {:user-uuid (str (:bp/uuid user))}}))
       (unathorized "Invalid email/password."))))
 
 (defn logout! [] (data-response "" {:session nil}))
@@ -164,7 +163,7 @@
   (let [db (default-conn)]
     (if (update-reset-key! db email)
       (let [user (get-user db email)]
-        (send-reset-email! (:user/first-name user) email (:user/reset-key user))
+        (send-reset-email! (:user/name user) email (:user/reset-key user))
         (success (only-public-cols user)))
       (unathorized ""))))
 
@@ -174,13 +173,13 @@
       (success (only-public-cols (get-user db email)))
       (unathorized ""))))
 
-(defn invite-user! [{:keys [email first-name last-name]}]
+(defn invite-user! [{:keys [email name]}]
   (let [db (default-conn)]
     (if (email-taken? db email)
       (unathorized (format "Email '%s' has been taken." email))
-      (let [_    (create-user! db email first-name last-name)
+      (let [_    (create-user! db email name)
             user (get-user db email)]
-        (send-invite-email! (:user/first-name user)
+        (send-invite-email! (:user/name user)
                             email
                             (:user/created user)
                             (:user/reset-key user))

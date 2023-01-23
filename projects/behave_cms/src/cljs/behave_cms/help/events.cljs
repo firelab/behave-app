@@ -17,21 +17,15 @@
 (rf/reg-event-db
  :help-editor/set
  (path :state :editors :help-page)
- (fn [page [_ k v]]
-   (assoc page k v)))
-
-(rf/reg-event-db
- :help-editor/select-language
- (path :state :editors :help-page)
- (fn [page [_ language]]
-   (assoc page :language language)))
+ (fn [page [_ help-key k v]]
+   (assoc-in page [help-key k] v)))
 
 ;; Saving to DataScript
 
 (rf/reg-event-fx
  :help-editor/save
- (fn [{db :db} [_ latest-help-page]]
-   (let [edited-page (get-in db [:state :editors :help-page])
+ (fn [{db :db} [_ help-key latest-help-page]]
+   (let [edited-page (get-in db [:state :editors :help-page help-key])
          language    (:language edited-page)
          event       (if (:db/id latest-help-page)
                        :api/update-entity

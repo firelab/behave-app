@@ -55,8 +55,8 @@
 
 (rf/reg-sub
  :help-editor/content-as-hiccup
- (fn [_]
-   (rf/subscribe [:help-editor/state]))
+ (fn [[_ help-key]]
+   (rf/subscribe [:help-editor/state help-key]))
 
  (fn [{:keys [content]}]
    (md->hiccup content)))

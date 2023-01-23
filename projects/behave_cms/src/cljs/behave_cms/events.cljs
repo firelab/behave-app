@@ -199,18 +199,12 @@
 (reg-event-db
  :files/upload-success
  (fn [db [_ {body :body} [editor-path on-success]]]
-   (let [editor  (get-in db editor-path)
-         cursor  (get editor :cursor [0 0])
-         content (get editor :help/content "")
-         path    (get-in body [:results :path])
-         img-md  (str "![](" path ")")
-         [c1 c2] (split-at (first cursor) content)]
-     (js/setTimeout on-success 1000)
+   (let [file-path (get-in body [:results :path])]
+     (js/setTimeout #(on-success file-path) 200)
      (update-in db
                 editor-path
                 merge
-                {:help/content    (str (str/join "" c1) "\n" img-md "\n" (str/join "" c2))
-                 :upload-filename (get-in body [:results :path])
+                {:upload-filename file-path
                  :uploading?      false}))))
 
 (reg-event-db
