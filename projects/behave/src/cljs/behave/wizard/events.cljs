@@ -56,13 +56,11 @@
       {:fx [[:dispatch [:navigate path]]]})))
 
 (rf/reg-event-fx
-  :wizard/solve
-  (fn [{db :db} [_ {:keys [id]}]]
-    (let [{:keys [state]} db
-          worksheet       (solve-worksheet (:worksheet state))
-          path            (path-for routes :ws/results-settings :id id :results-page :settings)]
-      {:fx [[:dispatch [:navigate path]]]
-       :db (assoc-in db [:state :worksheet] worksheet)})))
+ :wizard/solve
+ (fn [_ [_ {:keys [id]} ws-uuid]]
+   (let [path (path-for routes :ws/results-settings :id id :results-page :settings)]
+     {:fx [[:dispatch [:worksheet/solve ws-uuid]]
+           [:dispatch [:navigate path]]]})))
 
 (defn- remove-nils
   "remove pairs of key-value that has nil value from a (possibly nested) map. also transform map to
@@ -89,7 +87,7 @@
           [:dispatch [:wizard/remove-nils [:state :worksheet :inputs]]]]}))
 
 (rf/reg-event-fx
-  :wizard/edit
+  :wizard/edit-input
   (fn [_cfx [_event-id route repeat-id var-uuid]]
     {:fx [[:dispatch [:navigate route]]
           [:dispatch-later {:ms       200
@@ -110,3 +108,14 @@
   (fn [_cfx [_event-id group-id repeat-id]]
     {:fx [[:dispatch [:state/update [:worksheet :inputs group-id] dissoc repeat-id]]
           [:dispatch [:state/update [:worksheet :repeat-groups group-id] disj repeat-id]]]}))
+
+(rf/reg-event-fx
+ :wizard/edit-note
+ (fn [_cfx [_id group-uuid]]
+   {:fx [[:dispatch [:state/set [:worksheet :notes group-uuid :edit?] true]]]}))
+
+(rf/reg-event-fx
+ :wizard/save-note
+ (fn [_cfx [_id ws-uuid group-uuid payload]]
+   {:fx [[:dispatch [:worksheet/save-note ws-uuid group-uuid payload]]
+         [:dispatch [:state/set [:worksheet :notes group-uuid :edit?] false]]]}))

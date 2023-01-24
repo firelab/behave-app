@@ -119,3 +119,36 @@
   (let [*ws-uuid (rf/subscribe [:worksheet/latest])]
     (rf/dispatch [:worksheet/update-attr @*ws-uuid :worksheet/run-description "blah"]))
 )
+
+(comment
+  ;; Use this to test the sub :worksheet/notes with stubbed data
+  ;; First you must Use the UI to create a worksheet. Independent Workflow > Surface & Contain
+  ;; You can skip all output and input entries. Continue until you see the results page
+  ;; Run the following code to input some dummy notes.
+  (do
+    (require '[re-frame.core    :as rf])
+    (require '[behave.store :as s])
+    (require '[datascript.core :as d])
+    (def ws-uuid @(rf/subscribe [:worksheet/latest]))
+
+    (def ws-id (first (d/q '[:find [?w]
+                             :in    $ ?ws-uuid
+                             :where [?w :worksheet/uuid ?ws-uuid]]
+                           @@s/conn ws-uuid)))
+    (def module @(rf/subscribe [:wizard/*module "contain"]))
+
+    (def submodules @(rf/subscribe [:wizard/submodules (:db/id module)]))
+
+    (def groups (:submodule/groups (first submodules)))
+
+    (def group-uuids (map :bp/uuid groups))
+
+    (let [content "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo."]
+      (d/transact @s/conn [{:db/id           ws-id
+                            :worksheet/notes [{:note/group   (first group-uuids)
+                                               :note/content content}
+                                              {:note/group   (second group-uuids)
+                                               :note/content content}
+                                              {:note/group   (nth group-uuids 2)
+                                               :note/content content}]}]))
+    @(rf/subscribe [:wizard/notes ws-uuid])))

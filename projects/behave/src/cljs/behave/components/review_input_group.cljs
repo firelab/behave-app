@@ -26,7 +26,7 @@
       [c/button {:variant  "primary"
                  :label    @(<t (bp "change_values"))
                  :size     "small"
-                 :on-click #(rf/dispatch [:wizard/edit edit-route repeat-id uuid])}]]]))
+                 :on-click #(rf/dispatch [:wizard/edit-input edit-route repeat-id uuid])}]]]))
 
 (defmethod wizard-input :discrete [{uuid     :bp/uuid
                                     var-name :variable/name
@@ -45,7 +45,7 @@
        [c/button {:variant  "primary"
                   :label    @(<t (bp "change_selection"))
                   :size     "small"
-                  :on-click #(rf/dispatch [:wizard/edit edit-route repeat-id uuid])}]]]]))
+                  :on-click #(rf/dispatch [:wizard/edit-input edit-route repeat-id uuid])}]]]]))
 
 (defmethod wizard-input :text [{uuid     :bp/uuid
                                 var-name :variable/name
@@ -66,7 +66,7 @@
        [c/button {:variant  "primary"
                   :label    @(<t (bp "change_text"))
                   :size     "small"
-                  :on-click #(rf/dispatch [:wizard/edit edit-route repeat-id uuid])}])]))
+                  :on-click #(rf/dispatch [:wizard/edit-input edit-route repeat-id uuid])}])]))
 
 (defn- repeat-group-input [variable ws-uuid group-uuid repeat-id route]
   [:div.wizard-review-repeat-group__input
@@ -87,7 +87,7 @@
                 :label     @(<t (bp "edit"))
                 :size      "small"
                 :icon-name "edit"
-                :on-click  #(rf/dispatch [:wizard/edit route repeat-id (:bp/uuid variable)])}]]]])
+                :on-click  #(rf/dispatch [:wizard/edit-input route repeat-id (:bp/uuid variable)])}]]]])
 
 (defn repeat-group [ws-uuid group variables edit-route]
   (let [{group-name :group/name
