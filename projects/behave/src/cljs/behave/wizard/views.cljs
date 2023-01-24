@@ -275,31 +275,32 @@
 
 ;; Wizard Results
 (defn note
-  [ws-uuid [module io group-uuid group-name content]]
-  (let [edit? (subscribe [:wizard/edit-note? group-uuid])]
+  [[note-id note-name note-content submodule-name submodule-io]]
+  (let [edit? (subscribe [:wizard/edit-note? note-id])]
+    (println "note-id:" note-id " edit?:"(true? @edit?))
     (if (true? @edit?)
       [:div.wizard-results__note
-       [:div.wizard-results__note__module (str "Note: " module "'s " (name io))]
+       [:div.wizard-results__note__module (str "Note: " submodule-name "'s " (name submodule-io))]
        [c/note {:title-label       "Note's Name / Category"
                 :title-placeholder "Enter note's name or category"
-                :title-value       group-name
-                :body-value        content
-                :on-save           #(dispatch [:wizard/save-note ws-uuid group-uuid %])}]]
+                :title-value       note-name
+                :body-value        note-content
+                :on-save           #(dispatch [:wizard/save-note note-id %])}]]
       [:div.wizard-results__note
-       [:div.wizard-results__note__module (str "Note: " module "'s " (name io))]
-       [:div.wizard-results__note__group-name group-name]
-       [:div.wizard-results__note__content content]
+       [:div.wizard-results__note__module (str "Note: " submodule-name "'s " (name submodule-io))]
+       [:div.wizard-results__note__group-name note-name]
+       [:div.wizard-results__note__content note-content]
        [:div.wizard-results__note__manage
         [c/button {:variant   "primary"
                    :label     @(<t (bp "delete"))
                    :size      "small"
                    :icon-name "delete"
-                   :on-click  #(dispatch [:worksheet/delete-note ws-uuid group-uuid])}]
+                   :on-click  #(dispatch [:worksheet/delete-note note-id])}]
         [c/button {:variant   "secondary"
                    :label     @(<t (bp "edit"))
                    :size      "small"
                    :icon-name "edit"
-                   :on-click  #(dispatch [:wizard/edit-note group-uuid])}]]])))
+                   :on-click  #(dispatch [:wizard/edit-note note-id])}]]])))
 
 (defn wizard-results-page [params]
   (let [*ws-uuid      (subscribe [:worksheet/latest])
@@ -334,9 +335,9 @@
        (when (seq @*notes)
          [:div.wizard-results__notes
           [:div.wizard-results__notes__header "Run's Notes"]
-          (doall (for [[_module _io group-uuid _group-name _content :as n] @*notes]
-                   ^{:key group-uuid}
-                   (note @*ws-uuid n)))])]]
+          (doall (for [[id & _rest :as n] @*notes]
+                   ^{:key id}
+                   (note n)))])]]
      [:div.wizard-navigation
       [c/button {:label    "Back"
                  :variant  "secondary"

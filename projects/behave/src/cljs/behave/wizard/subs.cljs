@@ -116,31 +116,29 @@
     (> multi-value-input-count multi-value-input-limit)))
 
 (reg-sub
- :wizard/module+io+group-name
- (fn [_ [_ group-uuid]]
-   @(subscribe [:vms/query '[:find [?m-name ?io ?uuid ?g-name]
+ :wizard/submodule-name+io
+ (fn [_ [_ submodule-uuid]]
+   @(subscribe [:vms/query '[:find [?s-name ?io]
                              :in    $ ?uuid
                              :where
-                             [?g :bp/uuid ?uuid]
-                             [?g :group/name ?g-name]
-                             [?s :submodule/groups ?g]
-                             [?s :submodule/io ?io]
-                             [?m :module/submodules ?s]
-                             [?m :module/name ?m-name]]
-                group-uuid])))
+                             [?s :bp/uuid ?uuid]
+                             [?s :submodule/name ?s-name]
+                             [?s :submodule/io ?io]]
+                submodule-uuid])))
 
-;; returns a collection of [module-name io group-name note-content]
+;; returns a collection of [note-id note-name note-content submodule-name submodule-io]
 (reg-sub
  :wizard/notes
  (fn [[_id ws-uuid]]
    (subscribe [:worksheet/notes ws-uuid]))
 
  (fn [notes _query]
-   (map (fn [[group-uuid content]]
-          (conj @(subscribe [:wizard/module+io+group-name group-uuid]) content))
+   (map (fn resolve-uuid [[id name content submodule-uuid]]
+          (into   [id name content]
+                  @(subscribe [:wizard/submodule-name+io submodule-uuid])))
         notes)))
 
 (reg-sub
  :wizard/edit-note?
- (fn [{:keys [state]} [_ group-uuid]]
-   (true? (get-in state [:worksheet :notes group-uuid :edit?]))))
+ (fn [{:keys [state]} [_ note-id]]
+   (true? (get-in state [:worksheet :notes note-id :edit?]))))

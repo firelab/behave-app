@@ -229,12 +229,13 @@
  :worksheet/notes
  (fn [_ [_ ws-uuid]]
    {:type      :query
-    :query     '[:find ?g-uuid ?content
+    :query     '[:find ?n ?name ?content ?s-uuid
                  :in   $ ?ws-uuid
                  :where
                  [?w :worksheet/uuid ?ws-uuid]
                  [?w :worksheet/notes ?n]
-                 [?n :note/group ?g-uuid]
+                 [?n :note/submodule ?s-uuid]
+                 [?n :note/name ?name]
                  [?n :note/content ?content]]
     :variables [ws-uuid]}))
 

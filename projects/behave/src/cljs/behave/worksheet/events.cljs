@@ -273,29 +273,15 @@
 (rp/reg-event-fx
  :worksheet/delete-note
  [(rp/inject-cofx :ds)]
- (fn [{:keys [ds]} [_ ws-uuid group-uuid]]
-   (when-let [id (d/q '[:find ?n .
-                        :in  $ ?ws-uuid ?group-uuid
-                        :where
-                        [?w :worksheet/uuid ?ws-uuid]
-                        [?w :worksheet/notes ?n]
-                        [?n :note/group ?group-uuid]]
-                      ds ws-uuid group-uuid)]
-     {:transact [[:db.fn/retractEntity id]]})))
+ (fn [_ [_ note-id]]
+   {:transact [[:db.fn/retractEntity note-id]]}))
 
 (rp/reg-event-fx
  :worksheet/save-note
- [(rp/inject-cofx :ds)]
- (fn [{:keys [ds]} [_ ws-uuid group-uuid {:keys [body] :as _payload}]]
-   (when-let [id (d/q '[:find ?n .
-                        :in  $ ?ws-uuid ?group-uuid
-                        :where
-                        [?w :worksheet/uuid ?ws-uuid]
-                        [?w :worksheet/notes ?n]
-                        [?n :note/group ?group-uuid]]
-                      ds ws-uuid group-uuid)]
-     {:transact [{:db/id        id
-                  :note/content body}]})))
+ (fn [_ [_  note-id {:keys [title body] :as _payload}]]
+   {:transact [{:db/id        note-id
+                :note/name    title
+                :note/content body}]}))
 
 (comment
 

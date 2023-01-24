@@ -111,11 +111,12 @@
 
 (rf/reg-event-fx
  :wizard/edit-note
- (fn [_cfx [_id group-uuid]]
-   {:fx [[:dispatch [:state/set [:worksheet :notes group-uuid :edit?] true]]]}))
+ (fn [_cfx [_id note-id]]
+   {:fx [[:dispatch [:state/set [:worksheet :notes note-id :edit?] true]]]}))
 
 (rf/reg-event-fx
  :wizard/save-note
- (fn [_cfx [_id ws-uuid group-uuid payload]]
-   {:fx [[:dispatch [:worksheet/save-note ws-uuid group-uuid payload]]
-         [:dispatch [:state/set [:worksheet :notes group-uuid :edit?] false]]]}))
+ (fn [_cfx [_id note-id payload]]
+   (println "saving-note note-id:" note-id "payload:" payload)
+   {:fx [[:dispatch [:worksheet/save-note note-id payload]]
+         [:dispatch [:state/set [:worksheet :notes note-id :edit?] false]]]}))
