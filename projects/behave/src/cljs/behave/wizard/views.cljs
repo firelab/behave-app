@@ -24,19 +24,17 @@
 
 (defmethod submodule-page :input [_ ws-uuid groups on-back on-next]
   [:<>
-   [:div.wizard-io
-    (for [group groups]
-      (let [variables (:group/group-variables group)]
-        ^{:key (:db/id group)}
-        [input-group ws-uuid group variables]))]])
+   (for [group groups]
+     (let [variables (:group/group-variables group)]
+       ^{:key (:db/id group)}
+       [input-group ws-uuid group variables]))])
 
 (defmethod submodule-page :output [_ ws-uuid groups on-back on-next]
   [:<>
-   [:div.wizard-io
-    (for [group groups]
-      (let [variables (:group/group-variables group)]
-        ^{:key (:db/id group)}
-        [output-group ws-uuid group variables]))]])
+   (for [group groups]
+     (let [variables (:group/group-variables group)]
+       ^{:key (:db/id group)}
+       [output-group ws-uuid group variables]))])
 
 (defn- io-tabs [submodules {:keys [io] :as params}]
   (let [[i-subs o-subs] (partition-by #(:submodule/io %) submodules)
@@ -53,14 +51,29 @@
                                {:label "Inputs" :tab :input :selected? (= io :input)}]}]]))
 
 (defn- wizard-header [{module-name :module/name} all-submodules {:keys [io submodule] :as params}]
-  (let [submodules (filter #(= (:submodule/io %) io) all-submodules)]
+  (let [submodules   (filter #(= (:submodule/io %) io) all-submodules)
+        *show-notes? (subscribe [:wizard/show-notes?])]
     [:div.wizard-header
      [io-tabs all-submodules params]
      [:div.wizard-header__banner
       [:div.wizard-header__banner__icon
        [c/icon :modules]]
       [:div.wizard-header__banner__title
-       (str module-name " Module")]]
+       (str module-name " Module")]
+      [:div.wizard-header__banner__notes-button
+       (if @*show-notes?
+         [:div.wizard-header__banner__notes-button--minus
+          [c/button {:label         "Close Notes"
+                    :variant       "secondary"
+                    :icon-name     :minus
+                    :icon-position "left"
+                    :on-click      #(dispatch [:wizard/toggle-show-notes])}]]
+         [:div.wizard-header__banner__notes-button--plus
+          [c/button {:label         "Show Notes"
+                    :variant       "outline-primary"
+                    :icon-name     :plus
+                    :icon-position "left"
+                    :on-click      #(dispatch [:wizard/toggle-show-notes])}]])]]
      [:div.wizard-header__submodule-tabs
       [c/tab-group {:variant  "outline-primary"
                     :on-click #(dispatch [:wizard/select-tab (assoc params :submodule (:tab %))])
@@ -69,24 +82,88 @@
                                       :tab       slug
                                       :selected? (= submodule slug)}) submodules)}]]]))
 
+(defn wizard-note
+  [{:keys [note display-submodule-headers?]}]
+  (let [[note-id note-name note-content submodule-name submodule-io] note]
+    (if @(subscribe [:wizard/edit-note? note-id])
+      [:div.wizard-note
+       [:div.wizard-note__content
+        (when display-submodule-headers?
+          [:div.wizard-note__module (str "Note: " submodule-name "'s " (name submodule-io))])
+        [c/note {:title-label       "Note's Name / Category"
+                 :title-placeholder "Enter note's name or category"
+                 :title-value       note-name
+                 :body-value        note-content
+                 :on-save           #(dispatch [:wizard/update-note note-id %])}]]]
+      [:div.wizard-note
+       (when display-submodule-headers?
+         [:div.wizard-note__module (str "Note: " submodule-name "'s " (name submodule-io))])
+       [:div.wizard-note__name note-name]
+       [:div.wizard-note__content note-content]
+       [:div.wizard-note__manage
+        [c/button {:variant   "primary"
+                   :label     @(<t (bp "delete"))
+                   :size      "small"
+                   :icon-name "delete"
+                   :on-click  #(dispatch [:worksheet/delete-note note-id])}]
+        [c/button {:variant   "secondary"
+                   :label     @(<t (bp "edit"))
+                   :size      "small"
+                   :icon-name "edit"
+                   :on-click  #(dispatch [:wizard/edit-note note-id])}]]])))
+
+(defn wizard-notes [notes]
+  (when (seq notes)
+    [:div.wizard-notes
+     [:div.wizard-notes__header "Run's Notes"]
+     (doall (for [[id & _rest :as n] notes]
+              ^{:key id}
+              (wizard-note {:note                       n
+                            :display-submodule-headers? false})))]))
+
 (defn wizard-page [{:keys [module io submodule] :as params}]
   (let [*ws-uuid                 (subscribe [:worksheet/latest])
         *module                  (subscribe [:wizard/*module module])
         *submodules              (subscribe [:wizard/submodules (:db/id @*module)])
         *submodule               (subscribe [:wizard/*submodule (:db/id @*module) submodule io])
+        submodule-uuid           (:bp/uuid @*submodule)
+        *notes                   (subscribe [:wizard/notes @*ws-uuid submodule-uuid])
         *groups                  (subscribe [:wizard/groups (:db/id @*submodule)])
         *warn-limit?             (subscribe [:wizard/warn-limit? @*ws-uuid])
         *multi-value-input-limit (subscribe [:wizard/multi-value-input-limit])
         *multi-value-input-count (subscribe [:wizard/multi-value-input-count @*ws-uuid])
+        *show-notes?             (subscribe [:wizard/show-notes?])
+        *show-add-note-form?     (subscribe [:wizard/show-add-note-form?])
         on-back                  #(dispatch [:wizard/prev-tab params])
         on-next                  #(dispatch [:wizard/next-tab @*module @*submodule @*submodules params])
         worksheet                (subscribe [:worksheet/latest])]
     [:div.wizard-page
      [wizard-header @*module @*submodules params]
-     [submodule-page io @worksheet @*groups on-back on-next]
-     (when (true? @*warn-limit?)
-       [:div.wizard-warning
-        (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])
+     [:div.wizard-page__body
+      (when @*show-notes?
+        [:<>
+         [:div.wizard-add-notes
+          [c/button {:label         "Add Notes"
+                     :variant       "outline-primary"
+                     :icon-name     :plus
+                     :icon-position "left"
+                     :on-click      #(dispatch [:wizard/toggle-show-add-note-form])}]
+          (when @*show-add-note-form?
+            [c/note {:title-label       "Note's Name / Category"
+                     :title-placeholder "Enter note's name or category"
+                     :title-value       ""
+                     :body-value        ""
+                     :on-save           #(dispatch [:wizard/create-note
+                                                    @*ws-uuid
+                                                    submodule-uuid
+                                                    (:submodule/name @*submodule)
+                                                    (name (:submodule/io @*submodule))
+                                                    %])}])]
+         (wizard-notes @*notes)])
+      [submodule-page io @worksheet @*groups on-back on-next]
+      (when (true? @*warn-limit?)
+        [:div.wizard-warning
+         (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])]
      [wizard-navigation {:next-label @(<t (bp "next"))
                          :on-next    on-next
                          :back-label @(<t (bp "back"))
@@ -120,7 +197,9 @@
         *modules                 (subscribe [:worksheet/modules @*ws-uuid])
         *warn-limit?             (subscribe [:wizard/warn-limit? @*ws-uuid])
         *multi-value-input-limit (subscribe [:wizard/multi-value-input-limit])
-        *multi-value-input-count (subscribe [:wizard/multi-value-input-count @*ws-uuid])]
+        *multi-value-input-count (subscribe [:wizard/multi-value-input-count @*ws-uuid])
+        *notes                   (subscribe [:wizard/notes @*ws-uuid])
+        *show-notes?             (subscribe [:wizard/show-notes?])]
     [:div.accordion
      [:div.accordion__header
       [c/tab {:variant   "outline-primary"
@@ -131,9 +210,22 @@
        [:div.wizard-header__banner {:style {:margin-top "20px"}}
         [:div.wizard-header__banner__icon
          [c/icon :modules]]
-        [:div.wizard-header__banner__title "Review Modules"]]
+        [:div.wizard-header__banner__title "Review Modules"]
+        (if @*show-notes?
+          [c/button {:label         "Close Notes"
+                     :variant       "secondary"
+                     :icon-name     :minus
+                     :icon-position "left"
+                     :on-click      #(dispatch [:wizard/toggle-show-notes])}]
+          [c/button {:label         "Show Notes"
+                     :variant       "outline-primary"
+                     :icon-name     :plus
+                     :icon-position "left"
+                     :on-click      #(dispatch [:wizard/toggle-show-notes])}])]
        [:div.wizard-review
         [run-description]
+        (when @*show-notes?
+          (wizard-notes @*notes))
         (for [module-kw @*modules
               :let      [module-name (name module-kw)
                          module @(subscribe [:wizard/*module module-name])]]
@@ -274,34 +366,6 @@
                            :on-back    on-back}]])))
 
 ;; Wizard Results
-(defn note
-  [[note-id note-name note-content submodule-name submodule-io]]
-  (let [edit? (subscribe [:wizard/edit-note? note-id])]
-    (println "note-id:" note-id " edit?:"(true? @edit?))
-    (if (true? @edit?)
-      [:div.wizard-results__note
-       [:div.wizard-results__note__module (str "Note: " submodule-name "'s " (name submodule-io))]
-       [c/note {:title-label       "Note's Name / Category"
-                :title-placeholder "Enter note's name or category"
-                :title-value       note-name
-                :body-value        note-content
-                :on-save           #(dispatch [:wizard/save-note note-id %])}]]
-      [:div.wizard-results__note
-       [:div.wizard-results__note__module (str "Note: " submodule-name "'s " (name submodule-io))]
-       [:div.wizard-results__note__group-name note-name]
-       [:div.wizard-results__note__content note-content]
-       [:div.wizard-results__note__manage
-        [c/button {:variant   "primary"
-                   :label     @(<t (bp "delete"))
-                   :size      "small"
-                   :icon-name "delete"
-                   :on-click  #(dispatch [:worksheet/delete-note note-id])}]
-        [c/button {:variant   "secondary"
-                   :label     @(<t (bp "edit"))
-                   :size      "small"
-                   :icon-name "edit"
-                   :on-click  #(dispatch [:wizard/edit-note note-id])}]]])))
-
 (defn wizard-results-page [params]
   (let [*ws-uuid      (subscribe [:worksheet/latest])
         *notes        (subscribe [:wizard/notes @*ws-uuid])
@@ -332,12 +396,7 @@
                                 :icon-name :graphs
                                 :selected? (= @*tab-selected :graph)}]}]
       [:div.wizard-results__content
-       (when (seq @*notes)
-         [:div.wizard-results__notes
-          [:div.wizard-results__notes__header "Run's Notes"]
-          (doall (for [[id & _rest :as n] @*notes]
-                   ^{:key id}
-                   (note n)))])]]
+       (wizard-notes @*notes)]]
      [:div.wizard-navigation
       [c/button {:label    "Back"
                  :variant  "secondary"

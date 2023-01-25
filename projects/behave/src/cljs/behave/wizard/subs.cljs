@@ -127,18 +127,33 @@
                 submodule-uuid])))
 
 ;; returns a collection of [note-id note-name note-content submodule-name submodule-io]
+;; Optionally filter notes using submodule-uuid
 (reg-sub
  :wizard/notes
+
  (fn [[_id ws-uuid]]
    (subscribe [:worksheet/notes ws-uuid]))
 
- (fn [notes _query]
-   (map (fn resolve-uuid [[id name content submodule-uuid]]
-          (into   [id name content]
-                  @(subscribe [:wizard/submodule-name+io submodule-uuid])))
-        notes)))
+ (fn [notes [_ _ws-uuid submodule-uuid]]
+   (cond->> notes
+     submodule-uuid (filter (fn [[_id _name _content s-uuid]]
+                              (= s-uuid submodule-uuid)))
+     :always        (map (fn resolve-uuid [[id name content s-uuid]]
+                           (into   [id name content]
+                                   @(subscribe [:wizard/submodule-name+io s-uuid])))))))
 
 (reg-sub
  :wizard/edit-note?
  (fn [{:keys [state]} [_ note-id]]
    (true? (get-in state [:worksheet :notes note-id :edit?]))))
+
+
+(reg-sub
+ :wizard/show-notes?
+ (fn [{:keys [state]} _]
+   (true? (get-in state [:worksheet :show-notes?]))))
+
+(reg-sub
+ :wizard/show-add-note-form?
+ (fn [{:keys [state]} _]
+   (true? (get-in state [:worksheet :show-add-note-form?]))))

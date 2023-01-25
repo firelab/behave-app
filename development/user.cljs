@@ -1,5 +1,6 @@
 (ns user
-  (:require [re-frame.core :as rf]))
+  (:require [re-frame.core :as rf]
+            [behave.schema.submodule :as submodule]))
 
 (.-location js/window)
 
@@ -144,15 +145,17 @@
 
     (def submodule-uuids (map :bp/uuid submodules))
 
-    (let [content "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo."]
-      (d/transact @s/conn [{:db/id           ws-id
-                            :worksheet/notes [{:note/submodule   (first submodule-uuids)
-                                               :note/name    "Some Name"
-                                               :note/content content}
-                                              {:note/submodule   (second submodule-uuids)
-                                               :note/name    "Some Other Name"
-                                               :note/content content}
-                                              {:note/submodule   (nth submodule-uuids 2)
-                                               :note/name    "Some other other Name"
-                                               :note/content content}]}]))
+    (letfn [(build-name [submodule]
+              (str (:submodule/name submodule) " " (:submodule/io submodule)))]
+     (let [content "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo."]
+       (d/transact @s/conn [{:db/id           ws-id
+                             :worksheet/notes [{:note/submodule (first submodule-uuids)
+                                                :note/name      (build-name (first submodules))
+                                                :note/content   content}
+                                               {:note/submodule (second submodule-uuids)
+                                                :note/name      (build-name (second submodules))
+                                                :note/content   content}
+                                               {:note/submodule (nth submodule-uuids 2)
+                                                :note/name      (build-name (nth submodules 2))
+                                                :note/content   content}]}])))
     @(rf/subscribe [:wizard/notes ws-uuid])))
