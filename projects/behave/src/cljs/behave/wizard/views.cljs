@@ -50,6 +50,21 @@
                    :tabs      [{:label "Outputs" :tab :output :selected? (= io :output)}
                                {:label "Inputs" :tab :input :selected? (= io :input)}]}]]))
 
+(defn- show-or-close-notes-button [show-notes?]
+  (if show-notes?
+    [:div.wizard-header__banner__notes-button--minus
+     [c/button {:label         "Close Notes"
+                :variant       "secondary"
+                :icon-name     :minus
+                :icon-position "left"
+                :on-click      #(dispatch [:wizard/toggle-show-notes])}]]
+    [:div.wizard-header__banner__notes-button--plus
+     [c/button {:label         "Show Notes"
+                :variant       "outline-primary"
+                :icon-name     :plus
+                :icon-position "left"
+                :on-click      #(dispatch [:wizard/toggle-show-notes])}]]))
+
 (defn- wizard-header [{module-name :module/name} all-submodules {:keys [io submodule] :as params}]
   (let [submodules   (filter #(= (:submodule/io %) io) all-submodules)
         *show-notes? (subscribe [:wizard/show-notes?])]
@@ -61,19 +76,7 @@
       [:div.wizard-header__banner__title
        (str module-name " Module")]
       [:div.wizard-header__banner__notes-button
-       (if @*show-notes?
-         [:div.wizard-header__banner__notes-button--minus
-          [c/button {:label         "Close Notes"
-                    :variant       "secondary"
-                    :icon-name     :minus
-                    :icon-position "left"
-                    :on-click      #(dispatch [:wizard/toggle-show-notes])}]]
-         [:div.wizard-header__banner__notes-button--plus
-          [c/button {:label         "Show Notes"
-                    :variant       "outline-primary"
-                    :icon-name     :plus
-                    :icon-position "left"
-                    :on-click      #(dispatch [:wizard/toggle-show-notes])}]])]]
+       (show-or-close-notes-button @*show-notes?)]]
      [:div.wizard-header__submodule-tabs
       [c/tab-group {:variant  "outline-primary"
                     :on-click #(dispatch [:wizard/select-tab (assoc params :submodule (:tab %))])
@@ -211,17 +214,7 @@
         [:div.wizard-header__banner__icon
          [c/icon :modules]]
         [:div.wizard-header__banner__title "Review Modules"]
-        (if @*show-notes?
-          [c/button {:label         "Close Notes"
-                     :variant       "secondary"
-                     :icon-name     :minus
-                     :icon-position "left"
-                     :on-click      #(dispatch [:wizard/toggle-show-notes])}]
-          [c/button {:label         "Show Notes"
-                     :variant       "outline-primary"
-                     :icon-name     :plus
-                     :icon-position "left"
-                     :on-click      #(dispatch [:wizard/toggle-show-notes])}])]
+        (show-or-close-notes-button @*show-notes?)]
        [:div.wizard-review
         [run-description]
         (when @*show-notes?
@@ -305,6 +298,8 @@
   (let [*ws-uuid                 (subscribe [:worksheet/latest])
         *multi-value-input-uuids (subscribe [:worksheet/multi-value-input-uuids @*ws-uuid])
         group-variables          (map #(deref (subscribe [:wizard/group-variable %])) @*multi-value-input-uuids)
+        *notes                   (subscribe [:wizard/notes @*ws-uuid])
+        *show-notes?             (subscribe [:wizard/show-notes?])
         on-back                  #(dispatch [:wizard/prev-tab params])
         on-next                  #(dispatch [:navigate (path-for routes :ws/results :id id)])]
     (letfn [(radio-group [{:keys [label attr variables]}]
@@ -331,7 +326,11 @@
          [:div.wizard-header__banner {:style {:margin-top "20px"}}
           [:div.wizard-header__banner__icon
            [c/icon :modules]]
-          "Results Selection"]]
+          [:div.wizard-header__banner__title
+           "Results Selection"]
+          (show-or-close-notes-button @*show-notes?)]]
+        (when @*show-notes?
+          (wizard-notes @*notes))
         [:div.wizard-results__table-settings
          [:div.wizard-results__table-settings__header "Table Settings"]
          [:div.wizard-results__table-settings__content

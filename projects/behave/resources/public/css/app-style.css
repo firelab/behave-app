@@ -240,6 +240,10 @@
   top: -4px;
 }
 
+.wizard-add-notes {
+  padding: 5px;
+}
+
 .wizard-add-notes .button__icon,
 .wizard-header__banner__notes-button--plus .button__icon {
   top: -2px;
