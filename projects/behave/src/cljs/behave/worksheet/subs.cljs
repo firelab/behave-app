@@ -1,7 +1,8 @@
 (ns behave.worksheet.subs
   (:require [clojure.string   :as str]
             [re-posh.core     :as rp]
-            [re-frame.core    :as rf]))
+            [re-frame.core    :as rf]
+            [datascript.core :as d]))
 
 ;; Retrieve all worksheet UUID's
 (rp/reg-sub
@@ -238,6 +239,47 @@
                  [?n :note/name ?name]
                  [?n :note/content ?content]]
     :variables [ws-uuid]}))
+
+(rp/reg-sub
+ :worksheet/result-table-row-data
+ (fn [_ [_ ws-uuid]]
+   {:type  :query
+    :query '[:find ?row ?col-uuid ?value
+             :in $ ?ws-uuid
+             :where
+             [?w :worksheet/uuid ?ws-uuid]
+             [?w :worksheet/result-table ?rt]
+             [?rt :result-table/rows ?r]
+
+             ;;get row
+             [?r :result-row/id ?row]
+
+             ;;get-header
+             [?r :result-row/cells ?c]
+             [?c :result-cell/header ?h]
+             [?h :result-header/group-variable-uuid ?col-uuid]
+
+             ;;get value
+             [?c :result-cell/value ?value]]
+    :variables [ws-uuid]}))
+
+;; returns headers of table in sorted order
+(rf/reg-sub
+ :worksheet/result-table-headers-sorted
+ (fn [_ [_ ws-uuid]]
+   (let [headers @(rf/subscribe [:query
+                                 '[:find ?order ?uuid ?units
+                                   :in $ ?ws-uuid
+                                   :where
+                                   [?w :worksheet/uuid ?ws-uuid]
+                                   [?w :worksheet/result-table ?r]
+                                   [?r :result-table/headers ?h]
+                                   [?h :result-header/order ?order]
+                                   [?h :result-header/group-variable-uuid ?uuid]
+                                   [?h :result-header/units ?units]]
+                                 [ws-uuid]])]
+     (->> headers
+          (sort-by first)))))
 
 (comment
   (let [ws-uuid @(rf/subscribe [:worksheet/latest])]

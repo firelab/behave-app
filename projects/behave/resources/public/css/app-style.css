@@ -475,6 +475,10 @@
   overflow-y: scroll;
 }
 
+.wizard-results__table {
+  padding: 20px 0px 20px;
+}
+
 .wizard-notes__header {
   padding: 5px 18px;
   margin-bottom: 33px;
