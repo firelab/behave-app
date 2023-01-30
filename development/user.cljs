@@ -166,7 +166,9 @@
   ;; 1. Create WS
   ;; 2. navigate to settings page. You do not have to enter any output or inputs.
   ;; 3. check "Display Table Results"
-  ;; 4. run the following code to insert some dummy data:
+  ;; 4. navigate to results page
+  ;; 5. run the following code to insert some dummy data:
+  ;; 6. Check that you see a table with 2 rows and 5 columns.
   (do
     (ns user)
     (require '[re-frame.core    :as rf])
