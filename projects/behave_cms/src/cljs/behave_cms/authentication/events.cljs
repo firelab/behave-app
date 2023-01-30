@@ -22,7 +22,7 @@
     {:db (-> (:db cofx)
              (assoc :loading? false)
              (assoc :user body))
-     :fx [[:dispatch [:navigate redirect-to]]]}))
+     :fx [[:dispatch [:refresh (or redirect-to "/applications")]]]}))
 
 (rf/reg-event-db
   :auth/login-error

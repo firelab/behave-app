@@ -21,9 +21,15 @@
 
 ;; Helper functions
 
-(defn init! []
-  (load-config (io/resource "cms-config.edn"))
-  (store/connect! (get-config :database :config)))
+(defn expand-home [s]
+  (str/replace s #"^~" (System/getProperty "user.home")))
+
+(defn init-datahike! []
+  (load-config (io/resource "config.edn"))
+  (let [config (update-in (get-config :database :config) [:store :path] expand-home)]
+    (println "Connecting to Datahike DB at: " config)
+    (io/make-parents (get-in config [:store :path]))
+    (store/connect! config)))
 
 (defn- expired? [last-mod-time]
   (let [current-time (System/currentTimeMillis)]
@@ -109,6 +115,7 @@
         (when repl
           (println "Starting REPL server on port 5555")
           (reset! repl-server (start-server {:name :pyr-repl :port 5555 :accept 'clojure.core.server/repl})))
+        (init-datahike!)
         (reset! server (run-jetty handler config))
         (reset! clean-up-service (start-clean-up-service!))
         (set-log-path! log-dir)

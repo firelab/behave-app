@@ -10,12 +10,14 @@
             [hiccup.page       :refer [html5 include-css include-js]]))
 
 (defn- find-app-js []
-  (as-> (slurp (io/resource "public/cljs/manifest.edn")) app
-    (edn/read-string app)
-    (get app "resources/public/cljs/app.js" "target/public/cljs/app.js")
-    (str/split app #"/")
-    (last app)
-    (str "/cljs/" app)))
+  (if-let [manifest (io/resource "public/cljs/manifest.edn")]
+    (as-> (slurp manifest) app
+      (edn/read-string app)
+      (get app "resources/public/cljs/app.js" "resources/public/cljs/app.js")
+      (str/split app #"/")
+      (last app)
+      (str "/cljs/" app))
+     "/cljs/app.js"))
 
 (defn head-meta-css
   "Specifies head tag elements."
@@ -30,7 +32,7 @@
            :content "width=device-width, initial-scale=1, shrink-to-fit=no"}]
    [:link {:rel "icon" :type "image/png" :href "/images/favicon.png"}]
    (include-css "/css/bootstrap.min.css" "/css/katex.min.css" "/css/help.css")
-   (include-js "/cljs/app.js" "/js/katex.min.js" "/js/fontawesome.js")])
+   (include-js (find-app-js) "/js/katex.min.js" "/js/fontawesome.js")])
 
 (defn- cljs-init
   "A JavaScript script that calls the `init` function in `client.cljs`.

@@ -91,6 +91,11 @@
        :history/push-state {:position new-position
                             :route new-route}})))
 
+(reg-event-fx
+  :refresh
+  (fn [{db :db} [_ new-route]]
+    (set! (.-location js/window) new-route)))
+
 (reg-event-db
   :popstate
   (path :router)
