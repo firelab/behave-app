@@ -1,4 +1,4 @@
-{:tasks 
+{:tasks
  {-project  "cljweb-behave-cms"
   reload    (shell "systemctl --user daemon-reload")
   status    {:depends [-project]
@@ -14,5 +14,4 @@
               (run 'stop)
               (run 'pull)
               (run 'build-js)
-              (run 'uber)
               (run 'start))}}
