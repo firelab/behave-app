@@ -1,6 +1,5 @@
 (ns behave-cms.server
   (:require [clojure.core.server :refer [start-server]]
-            [clojure.java.browse :refer [browse-url]]
             [clojure.java.io     :as io]
             [clojure.string      :as str]
             [clojure.tools.cli   :refer [parse-opts]]
@@ -118,9 +117,7 @@
         (init-datahike!)
         (reset! server (run-jetty handler config))
         (reset! clean-up-service (start-clean-up-service!))
-        (set-log-path! log-dir)
-        (when (= mode "prod")
-          (browse-url (str "http://localhost:" http-port)))))))
+        (set-log-path! log-dir)))))
 
 (defn -main [& args]
   (let [{:keys [options defaults]} (separate-options-defaults cli-options)

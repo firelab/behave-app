@@ -3,11 +3,13 @@
 
 * Setup
 
-To Run:
+To compile CLJS and UberJar:
 #+BEGIN_SRC bash
-  bb compile-js
+  bb build-js
   bb uber
 #+END_SRC
+
+Then start the program: ~java --jar target/behave-cms-standalone.jar~
 
 * COMMENT To-Do's
 
