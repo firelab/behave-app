@@ -33,7 +33,6 @@
         img-md      (str "![](" file-path ")")
         [c1 c2]     (split-at (first cursor) content)
         content     (str (str/join "" c1) "\n" img-md "\n" (str/join "" c2))]
-    (println [:UPLOADED editor-path content])
     (rf/dispatch-sync [:state/merge
                        [:editors :help-page help-key]
                        {:images            [file-path]
