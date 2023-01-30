@@ -208,15 +208,15 @@
                                            :result-table/headers [{:db/id                             -2
                                                                    :result-header/order               0
                                                                    :result-header/group-variable-uuid (get input-name->uuid "Contain Surface Fire Rate of Spread (maximum)")
-                                                                   :result-header/units               "ft"}
+                                                                   :result-header/units               "ch/h"}
                                                                   {:db/id                             -3
                                                                    :result-header/order               1
                                                                    :result-header/group-variable-uuid (get input-name->uuid "Fire Size at Report")
-                                                                   :result-header/units               "ft"}
+                                                                   :result-header/units               "ac"}
                                                                   {:db/id                             -4
                                                                    :result-header/order               1
                                                                    :result-header/group-variable-uuid (get input-name->uuid "Length-to-Width Ratio")
-                                                                   :result-header/units               "ft"}
+                                                                   :result-header/units               "ratio"}
                                                                   {:db/id                             -5
                                                                    :result-header/order               2
                                                                    :result-header/group-variable-uuid (get output-name->uuid "Fire Perimeter - at resource arrival time")
@@ -224,7 +224,7 @@
                                                                   {:db/id                             -6
                                                                    :result-header/order               3
                                                                    :result-header/group-variable-uuid (get output-name->uuid "Fire Area at Initial Attack")
-                                                                   :result-header/units               "ft"}]
+                                                                   :result-header/units               "ac"}]
                                            :result-table/rows    [{:result-row/id    0
                                                                    :result-row/cells [{:result-cell/header -2
                                                                                        :result-cell/value  "100"}
