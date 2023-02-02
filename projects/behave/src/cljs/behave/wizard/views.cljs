@@ -401,7 +401,7 @@
                                 :selected? (= @*tab-selected :graph)}]}]
       [:div.wizard-results__content
        (wizard-notes @*notes)
-       (when (and table-enabled? (seq @*row-data))
+       (when (and table-enabled? (seq @*cell-data))
          [:div.wizard-results__table
           (c/table {:title   "Results Table"
                     :headers (mapv (fn resolve-uuid [[_order uuid units]]
@@ -410,7 +410,7 @@
                                                      units))
                                    @*headers)
                     :columns (map second @*headers)
-                    :rows    (->> (group-by first @*row-data)
+                    :rows    (->> (group-by first @*cell-data)
                                   (sort-by key)
                                   (map (fn [[_ data]]
                                          (reduce (fn [acc [_row-id uuid value]]
