@@ -370,7 +370,7 @@
         *notes          (subscribe [:wizard/notes @*ws-uuid])
         *tab-selected   (subscribe [:worksheet/results-tab-selected])
         *headers        (subscribe [:worksheet/result-table-headers-sorted @*ws-uuid])
-        *row-data       (subscribe [:worksheet/result-table-row-data @*ws-uuid])
+        *cell-data       (subscribe [:worksheet/result-table-cell-data @*ws-uuid])
         table-enabled? (first @(subscribe [:worksheet/get-table-settings-attr
                                             @*ws-uuid
                                             :table-settings/enabled?]))]

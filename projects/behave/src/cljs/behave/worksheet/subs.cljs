@@ -241,7 +241,7 @@
     :variables [ws-uuid]}))
 
 (rp/reg-sub
- :worksheet/result-table-row-data
+ :worksheet/result-table-cell-data
  (fn [_ [_ ws-uuid]]
    {:type  :query
     :query '[:find ?row ?col-uuid ?value
