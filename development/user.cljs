@@ -1,7 +1,8 @@
 (ns user
   (:require [re-frame.core :as rf]
             [datascript.core :as d]
-            [behave.schema.variable :as variable]))
+            [behave.schema.variable :as variable]
+            [clojure.string :as str]))
 
 (.-location js/window)
 
@@ -174,6 +175,7 @@
     (require '[re-frame.core    :as rf])
     (require '[datascript.core :as d])
     (require '[behave.store :as s])
+    (require '[clojure.string :as str])
 
     (def ws-uuid @(rf/subscribe [:worksheet/latest]))
 
@@ -188,7 +190,7 @@
 
     (def submodule-inputs (filter #(= (:submodule/io %) :input) submodules))
 
-    ;; sample input group-variable-uuids to use. See submodule-outputs
+    ;; sample output group-variable-uuids to use. See submodule-outputs
     (def output-name->uuid
       {"Fire Perimeter - at resource arrival time" "b7873139-659e-4475-8d41-0cf6c36da893"
        "Fire Area at Initial Attack"               "7eaf10d0-1dae-445d-b8ad-257f431894aa"
@@ -205,7 +207,8 @@
     (d/transact @s/conn
                 [{:db/id                  ws-id
                   :worksheet/result-table {:db/id                -1
-                                           :result-table/headers [{:db/id                             -2
+                                           :result-table/headers [; inputs
+                                                                  {:db/id                             -2
                                                                    :result-header/order               0
                                                                    :result-header/group-variable-uuid (get input-name->uuid "Contain Surface Fire Rate of Spread (maximum)")
                                                                    :result-header/units               "ch/h"}
@@ -217,6 +220,9 @@
                                                                    :result-header/order               1
                                                                    :result-header/group-variable-uuid (get input-name->uuid "Length-to-Width Ratio")
                                                                    :result-header/units               "ratio"}
+
+
+                                                                  ;; outputs
                                                                   {:db/id                             -5
                                                                    :result-header/order               2
                                                                    :result-header/group-variable-uuid (get output-name->uuid "Fire Perimeter - at resource arrival time")
@@ -226,24 +232,44 @@
                                                                    :result-header/group-variable-uuid (get output-name->uuid "Fire Area at Initial Attack")
                                                                    :result-header/units               "ac"}]
                                            :result-table/rows    [{:result-row/id    0
-                                                                   :result-row/cells [{:result-cell/header -2
-                                                                                       :result-cell/value  "100"}
+                                                                   :result-row/cells [;inputs
+                                                                                      {:result-cell/header -2
+                                                                                       :result-cell/value  "100,200,300,400,500"}
                                                                                       {:result-cell/header -3
-                                                                                       :result-cell/value  "101"}
+                                                                                       :result-cell/value  "101,201,301"}
                                                                                       {:result-cell/header -4
-                                                                                       :result-cell/value  "102"}
+                                                                                       :result-cell/value  "102,103,104"}
+
+                                                                                      ;;outputs
                                                                                       {:result-cell/header -5
                                                                                        :result-cell/value  "103"}
                                                                                       {:result-cell/header -6
                                                                                        :result-cell/value  "104"}]}
                                                                   {:result-row/id    1
-                                                                   :result-row/cells [{:result-cell/header -2
+                                                                   :result-row/cells [;inputs
+                                                                                      {:result-cell/header -2
                                                                                        :result-cell/value  "105"}
                                                                                       {:result-cell/header -3
                                                                                        :result-cell/value  "106"}
                                                                                       {:result-cell/header -4
                                                                                        :result-cell/value  "107"}
+
+                                                                                      ;outputs
                                                                                       {:result-cell/header -5
                                                                                        :result-cell/value  "108"}
                                                                                       {:result-cell/header -6
-                                                                                       :result-cell/value  "109"}]}]}}])))
+                                                                                       :result-cell/value  "109"}]}]}}]
+                (let [ws-uuid @(rf/subscribe [:worksheet/latest])]
+                  (->> (rf/subscribe [:worksheet/result-table-cell-data ws-uuid])
+                       deref
+                       (filter (fn has-multiple-values [[_row-id _col-uuid val]]
+                                 (> (count (str/split val #","))
+                                    1)))
+                       (group-by first)
+                       (reduce (fn [acc [_row-id cell-data]]
+                                   (conj acc
+                                         (reduce (fn [acc [_row-id col-id value]]
+                                                   (assoc acc col-id value))
+                                                 {}
+                                                 cell-data)))
+                                 []))))))
