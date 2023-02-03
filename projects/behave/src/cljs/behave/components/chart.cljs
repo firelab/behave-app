@@ -130,21 +130,22 @@
   (let [data (build-dummy-data (range 10)
                                (range 5)
                                (range 4))]
+    ;TODO remove examples
     [:div
-     [:div "2 dimension"
+     [:div "2 dimension example"
       [vega-box (build-line-chart {:data data
                                    :x    "input-1"
                                    :y    "output-1"})
        100 100]]
 
-     [:div "3 dimensions"
+     [:div "3 dimensions example"
       [vega-box (build-line-chart {:data data
                                    :x    "input-1"
                                    :y    "output-1"
                                    :z    "input-2"})
        100 100]]
 
-     [:div "4 dimensions"
+     [:div "4 dimensions example"
       [vega-box (build-line-chart {:data data
                                    :x    "input-1"
                                    :y    "output-1"
