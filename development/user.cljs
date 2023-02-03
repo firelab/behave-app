@@ -231,45 +231,35 @@
                                                                    :result-header/order               3
                                                                    :result-header/group-variable-uuid (get output-name->uuid "Fire Area at Initial Attack")
                                                                    :result-header/units               "ac"}]
-                                           :result-table/rows    [{:result-row/id    0
-                                                                   :result-row/cells [;inputs
-                                                                                      {:result-cell/header -2
-                                                                                       :result-cell/value  "100,200,300,400,500"}
-                                                                                      {:result-cell/header -3
-                                                                                       :result-cell/value  "101,201,301"}
-                                                                                      {:result-cell/header -4
-                                                                                       :result-cell/value  "102,103,104"}
+                                           :result-table/rows (->> (for [i (range 3)
+                                                                         j (range 3)
+                                                                         k (range 3)]
+                                                                     {:result-row/cells [;inputs
+                                                                                         {:result-cell/header -2
+                                                                                          :result-cell/value  (str i)}
+                                                                                         {:result-cell/header -3
+                                                                                          :result-cell/value  (str j)}
+                                                                                         {:result-cell/header -4
+                                                                                          :result-cell/value  (str k)}
 
-                                                                                      ;;outputs
-                                                                                      {:result-cell/header -5
-                                                                                       :result-cell/value  "103"}
-                                                                                      {:result-cell/header -6
-                                                                                       :result-cell/value  "104"}]}
-                                                                  {:result-row/id    1
-                                                                   :result-row/cells [;inputs
-                                                                                      {:result-cell/header -2
-                                                                                       :result-cell/value  "105"}
-                                                                                      {:result-cell/header -3
-                                                                                       :result-cell/value  "106"}
-                                                                                      {:result-cell/header -4
-                                                                                       :result-cell/value  "107"}
+                                                                                         ;;outputs
+                                                                                         {:result-cell/header -5
+                                                                                          :result-cell/value  (str (* (+ i j k) 42))}
+                                                                                         {:result-cell/header -6
+                                                                                          :result-cell/value  (str (* (+ i j k) 42))}]})
+                                                                    (map-indexed (fn [idx v]
+                                                                                   (assoc v :result-row/id idx))))}}])
 
-                                                                                      ;outputs
-                                                                                      {:result-cell/header -5
-                                                                                       :result-cell/value  "108"}
-                                                                                      {:result-cell/header -6
-                                                                                       :result-cell/value  "109"}]}]}}]
-                (let [ws-uuid @(rf/subscribe [:worksheet/latest])]
-                  (->> (rf/subscribe [:worksheet/result-table-cell-data ws-uuid])
-                       deref
-                       (filter (fn has-multiple-values [[_row-id _col-uuid val]]
-                                 (> (count (str/split val #","))
-                                    1)))
-                       (group-by first)
-                       (reduce (fn [acc [_row-id cell-data]]
-                                   (conj acc
-                                         (reduce (fn [acc [_row-id col-id value]]
-                                                   (assoc acc col-id value))
-                                                 {}
-                                                 cell-data)))
-                                 []))))))
+
+    #_(let [ws-uuid @(rf/subscribe [:worksheet/latest])]
+      (->> (rf/subscribe [:worksheet/result-table-cell-data ws-uuid])
+           deref
+           (group-by first)
+           (reduce (fn [acc [_row-id cell-data]]
+                     (conj acc
+                           (reduce (fn [acc [_row-id col-uuid value]]
+                                     (assoc acc
+                                            (:variable/name @(rf/subscribe [:wizard/group-variable col-uuid])) value))
+                                   {}
+                                   cell-data)))
+                   [])))))

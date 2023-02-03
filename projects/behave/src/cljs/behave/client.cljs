@@ -3,7 +3,6 @@
             [re-frame.core             :as rf]
             [behave.components.sidebar :refer [sidebar]]
             [behave.components.toolbar :refer [toolbar]]
-            [behave.components.chart   :refer [wrapper]]
             [behave.help.views         :refer [help-area]]
             [behave.settings           :as settings]
             [behave.store              :refer [load-store!]]
@@ -23,7 +22,6 @@
    [:h1 (str @(<t "notfound") " :(")]])
 
 (def handler->page {:home                new-worksheet-page
-                    :chart               wrapper
                     :ws/all              new-worksheet-page
                     :ws/import           import-worksheet-page
                     :ws/guided           guided-worksheet-page

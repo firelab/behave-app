@@ -1,6 +1,7 @@
 (ns behave.wizard.views
   (:require [behave.components.core         :as c]
             [behave.components.input-group  :refer [input-group]]
+            [behave.components.chart         :refer [chart]]
             [behave.components.review-input-group  :as review]
             [behave.components.navigation   :refer [wizard-navigation]]
             [behave.components.output-group :refer [output-group]]
@@ -366,14 +367,27 @@
 
 ;; Wizard Results
 (defn wizard-results-page [params]
-  (let [*ws-uuid        (subscribe [:worksheet/latest])
-        *notes          (subscribe [:wizard/notes @*ws-uuid])
-        *tab-selected   (subscribe [:worksheet/results-tab-selected])
-        *headers        (subscribe [:worksheet/result-table-headers-sorted @*ws-uuid])
-        *cell-data       (subscribe [:worksheet/result-table-cell-data @*ws-uuid])
+  (let [*ws-uuid       (subscribe [:worksheet/latest])
+        *notes         (subscribe [:wizard/notes @*ws-uuid])
+        *tab-selected  (subscribe [:worksheet/results-tab-selected])
+        *headers       (subscribe [:worksheet/result-table-headers-sorted @*ws-uuid])
+        *cell-data     (subscribe [:worksheet/result-table-cell-data @*ws-uuid])
+        graph-data     (->> @*cell-data
+                            (group-by first)
+                            (reduce (fn [acc [_row-id cell-data]]
+                                      (conj acc
+                                            (reduce (fn [acc [_row-id col-uuid value]]
+                                                      (assoc acc
+                                                             (-> (subscribe [:wizard/group-variable col-uuid])
+                                                                 deref
+                                                                 :variable/name)
+                                                             value))
+                                                    {}
+                                                    cell-data)))
+                                    []))
         table-enabled? (first @(subscribe [:worksheet/get-table-settings-attr
-                                            @*ws-uuid
-                                            :table-settings/enabled?]))]
+                                           @*ws-uuid
+                                           :table-settings/enabled?]))]
     [:div.accordion
      [:div.accordion__header
       [c/tab {:variant   "outline-primary"
@@ -416,7 +430,13 @@
                                          (reduce (fn [acc [_row-id uuid value]]
                                                    (assoc acc (keyword uuid) value))
                                                  {}
-                                                 data))))})])]]
+                                                 data))))})])
+       (chart {:data   graph-data
+               :x      (:variable/name @(subscribe [:wizard/group-variable "fbbf73f6-3a0e-4fdd-b913-dcc50d2db311"])) ;TODO read value from datahike
+               :y      (:variable/name @(subscribe [:wizard/group-variable "b7873139-659e-4475-8d41-0cf6c36da893"])) ;TODO read value from datahike
+               :z      (:variable/name @(subscribe [:wizard/group-variable "41503286-dfe4-457a-9b68-41832e049cc9"])) ;TODO read value from datahike
+               :width  500
+               :height 500})]]
      [:div.wizard-navigation
       [c/button {:label    "Back"
                  :variant  "secondary"
