@@ -248,18 +248,4 @@
                                                                                          {:result-cell/header -6
                                                                                           :result-cell/value  (str (* (+ i j k) 42))}]})
                                                                     (map-indexed (fn [idx v]
-                                                                                   (assoc v :result-row/id idx))))}}])
-
-
-    #_(let [ws-uuid @(rf/subscribe [:worksheet/latest])]
-      (->> (rf/subscribe [:worksheet/result-table-cell-data ws-uuid])
-           deref
-           (group-by first)
-           (reduce (fn [acc [_row-id cell-data]]
-                     (conj acc
-                           (reduce (fn [acc [_row-id col-uuid value]]
-                                     (assoc acc
-                                            (:variable/name @(rf/subscribe [:wizard/group-variable col-uuid])) value))
-                                   {}
-                                   cell-data)))
-                   [])))))
+                                                                                   (assoc v :result-row/id idx))))}}])))
