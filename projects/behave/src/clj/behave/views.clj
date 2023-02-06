@@ -7,12 +7,14 @@
             [hiccup.page       :refer [html5 include-css include-js]]))
 
 (defn- find-app-js []
-  (as-> (slurp (io/resource "public/cljs/manifest.edn")) app
-    (edn/read-string app)
-    (get app "resources/public/cljs/app.js" "resources/public/cljs/app.js")
-    (str/split app #"/")
-    (last app)
-    (str "/cljs/" app)))
+  (if-let [manifest (io/resource "public/cljs/manifest.edn")]
+    (as-> (slurp manifest) app
+      (edn/read-string app)
+      (get app "resources/public/cljs/app.js" "resources/public/cljs/app.js")
+      (str/split app #"/")
+      (last app)
+      (str "/cljs/" app))
+    "/cljs/app.js"))
 
 (defn head-meta-css
   "Specifies head tag elements."

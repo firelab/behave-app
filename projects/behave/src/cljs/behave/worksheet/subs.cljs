@@ -160,10 +160,18 @@
              {}
              inputs))))
 
-(comment
-  (let [ws-id @(rf/subscribe [:worksheet/latest])]
-    (rf/subscribe [:worksheet/all-inputs ws-id]))
-  )
+(rf/reg-sub
+ :worksheet/all-input-values
+ (fn [_ [_ ws-uuid]]
+   @(rf/subscribe [:query
+                   '[:find [?value ...]
+                     :in $ ?ws-uuid
+                     :where
+                     [?w :worksheet/uuid ?ws-uuid]
+                     [?w :worksheet/input-groups ?g]
+                     [?g :input-group/inputs ?i]
+                     [?i :input/value ?value]]
+                   [ws-uuid]])))
 
 (rp/reg-sub
  :worksheet/all-outputs

@@ -80,37 +80,12 @@
   (fn [{:keys [db] :as _cfx} [_event-id path]]
     {:db (update-in db path remove-nils)}))
 
-(defn- count-continuous-variable-inputs
-  [k->v depth-to-count]
-  (letfn [(dfs-walk [k->v cur-depth]
-            (when-let [map-entries (seq k->v)]
-              (if (zero? cur-depth)
-                (map key map-entries)
-                (into (dfs-walk (-> map-entries first val) (dec cur-depth))
-                      (dfs-walk (rest map-entries) cur-depth)))))]
-    (let [variable-ids (dfs-walk k->v depth-to-count)
-          variables    @(rf/subscribe [:vms/pull-many '[{:variable/_group-variables [:variable/kind]}]
-                                       variable-ids])]
-      (->> variables
-           (filter (fn continuous? [variable]
-                     (= (-> variable :variable/_group-variables first :variable/kind)
-                        "continuous")))
-           (count)))))
-
-(rf/reg-event-fx
-  :wizard/update-input-count
-  (fn [_cfx [_event-id]]
-    (let [inputs   (rf/subscribe [:state [:worksheet :inputs]])
-          id-count (count-continuous-variable-inputs @inputs 2)]
-      {:dispatch [:state/set [:worksheet :continuous-input-count] id-count]})))
-
 (rf/reg-event-fx
   :wizard/update-inputs
   (fn [_cfx [_event-id group-id repeat-id id value]]
     {:fx [(if (empty? value)
             [:dispatch [:state/update [:worksheet :inputs group-id repeat-id] dissoc id]]
             [:dispatch [:state/set [:worksheet :inputs group-id repeat-id id] value]])
-          [:dispatch [:wizard/update-input-count]]
           [:dispatch [:wizard/remove-nils [:state :worksheet :inputs]]]]}))
 
 (rf/reg-event-fx

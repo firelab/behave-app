@@ -73,8 +73,31 @@
                                 (dissoc :variable/group-variables)
                                 (update :variable/kind keyword))) (:group/group-variables group)))) groups)))
 
-(comment
-  (let [module-id    (:db/id @(rf/subscribe [:wizard/*module "contain"]))
-        submodule-id (:db/id @(subscribe [:wizard/*submodule module-id "suppression" :input]))]
-    (rf/subscribe [:wizard/groups submodule-id]))
-  )
+(reg-sub
+ :wizard/multi-value-input-count
+
+ (fn [[_ ws-uuid]]
+   (subscribe [:worksheet/all-input-values ws-uuid]))
+
+ (fn [all-input-values _query]
+   (count
+    (filter (fn multiple-values? [value]
+              (> (count (str/split value #",|\s"))
+                 1))
+            all-input-values))))
+
+;; TODO Might want to set this in a config file to the application
+(def ^:const multi-value-input-limit 3)
+
+(reg-sub
+  :wizard/multi-value-input-limit
+  (fn [_db _query]
+    multi-value-input-limit))
+
+(reg-sub
+  :wizard/warn-limit?
+  (fn [[_ ws-uuid]]
+    (subscribe [:wizard/multi-value-input-count ws-uuid]))
+
+  (fn [multi-value-input-count _query]
+    (> multi-value-input-count multi-value-input-limit)))
