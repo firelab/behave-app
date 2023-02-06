@@ -68,18 +68,18 @@
                                       :selected? (= submodule slug)}) submodules)}]]]))
 
 (defn wizard-page [{:keys [module io submodule] :as params}]
-  (let [*ws-uuid                (subscribe [:worksheet/latest])
-        *module                 (subscribe [:wizard/*module module])
-        module-id               (:db/id @*module)
-        *submodules             (subscribe [:wizard/submodules module-id])
-        *submodule              (subscribe [:wizard/*submodule module-id submodule io])
-        *groups                 (subscribe [:wizard/groups (:db/id @*submodule)])
-        *warn-limit?            (subscribe [:state :warn-continuous-input-limit])
+  (let [*ws-uuid                 (subscribe [:worksheet/latest])
+        *module                  (subscribe [:wizard/*module module])
+        module-id                (:db/id @*module)
+        *submodules              (subscribe [:wizard/submodules module-id])
+        *submodule               (subscribe [:wizard/*submodule module-id submodule io])
+        *groups                  (subscribe [:wizard/groups (:db/id @*submodule)])
+        *warn-limit?             (subscribe [:wizard/warn-limit? @*ws-uuid])
         *multi-value-input-limit (subscribe [:wizard/multi-value-input-limit])
         *multi-value-input-count (subscribe [:wizard/multi-value-input-count @*ws-uuid])
-        *all-inputs-entered?    (subscribe [:worksheet/all-inputs-entered? @*ws-uuid module-id submodule])
-        on-back                 #(dispatch [:wizard/prev-tab params])
-        on-next                 #(dispatch [:wizard/next-tab @*module @*submodule @*submodules params])]
+        *all-inputs-entered?     (subscribe [:worksheet/all-inputs-entered? @*ws-uuid module-id submodule])
+        on-back                  #(dispatch [:wizard/prev-tab params])
+        on-next                  #(dispatch [:wizard/next-tab @*module @*submodule @*submodules params])]
     [:div.wizard-page
      [wizard-header @*module @*submodules params]
      [submodule-page io @*ws-uuid @*groups on-back on-next]
