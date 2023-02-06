@@ -8,50 +8,58 @@
 (defn build-line-chart
   "Given a map of with the following entries:
    data: sequence of maps with shape {:key1 val1 :key2 val2 :key3 val3 ... etc}
-   x: lookup key for the maps in data to use for the x axis
-   y: lookup key for the maps in data to use for the y axis
+   x: a map with the key :name who's value is used to look up values in data for the x-axis
+   y: a map with the key :name who's value is used to look up values in data for the x-axis
+      - Optionally set y-axis-limits using :scale -> tuple (i.e. [0 100])
 
    Optional
-   z: lookup key for the maps in data to use for the z axis
-   z2: lookup key for the maps in data to use for the z2 axis"
-  [{:keys [data x y z z2 width height z2-columns]}]
+   y: a map with the key :name who's value is used to look up values in data for the z-axis
+   z2: a map with the key :name who's value is used to look up values in data for the z2-axis
+      - Optionally set the number of columns of subplots to display usin :columns -> long.
+        (defaults to 1)."
+  [{:keys [data x y z z2 width height]}]
   (when (and x y)
-    (let [line-chart {:mark     {:type "line"}
-                      :encoding (cond-> {:x     {:field x
+    (let [line-chart {:mark     (cond-> {:type "line"}
+                                  (:scale y)
+                                  (assoc :clip true))
+                      :encoding (cond-> {:x     {:field (:name x)
                                                  :type "nominal"}
-                                         :y     {:field     y
-                                                 :type      "quantitative"
-                                                 :aggregate "average"}}
+                                         :y     (cond-> {:field     (:name y)
+                                                         :type      "quantitative"
+                                                         :aggregate "average"}
+                                                  (:scale y)
+                                                  (assoc :scale {:domain (:scale y)}))}
                                   z
-                                  (-> (assoc :shape {:field  z
+                                  (-> (assoc :shape {:field  (:name z)
                                                      :type   "nominal"
                                                      :legend nil})
-                                      (assoc :color {:field  z
+                                      (assoc :color {:field  (:name z)
                                                      :type   "nominal"
                                                      :legend nil}))
 
                                   z2
-                                  (assoc :facet {:field   z2
+                                  (assoc :facet {:field   (:name z2)
                                                  :type    "nominal"
                                                  :legend  nil
-                                                 :columns (or z2-columns 1)})) ;TODO parameterize columns
+                                                 :columns (or (:columns z2) 1)})) ;TODO parameterize columns
                       :width  width
                       :height height}
+          z-name   (:name z)
           z-legend {:mark     {:type "point"}
-                    :title    z
-                    :encoding {:shape {:field     z
+                    :title    z-name
+                    :encoding {:shape {:field     z-name
                                        :type      "nominal"
                                        :aggregate "min"
                                        :legend    nil}
-                               :color {:field     z
+                               :color {:field     z-name
                                        :type      "nominal"
                                        :aggregate "min"
                                        :legend    nil}
-                               :fill  {:field     z
+                               :fill  {:field     z-name
                                        :type      "nominal"
                                        :aggregate "min"
                                        :legend    nil}
-                               :y     {:field z
+                               :y     {:field z-name
                                        :type  "nominal"
                                        :title nil}}} ]
       (cond-> {:$schema     "https://vega.github.io/schema/vega-lite/v2.json"

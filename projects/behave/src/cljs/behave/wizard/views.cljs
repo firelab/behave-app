@@ -291,9 +291,9 @@
                                y-axis-maximums)]
       [:div.y-axis-limit-table
        (c/table {:title   "Graph and Axis Limit"
-                :headers ["GRAPH Y VARIABLES" "OUTPUT RANGE" "Y AXIS MINIMUM" "Y AXIS MAXIMUM"]
-                :columns column-keys
-                :rows    row-data})])))
+                 :headers ["GRAPH Y VARIABLES" "OUTPUT RANGE" "Y AXIS MINIMUM" "Y AXIS MAXIMUM"]
+                 :columns column-keys
+                 :rows    row-data})])))
 
 (defn wizard-results-settings-page [{:keys [id] :as params}]
   (let [*ws-uuid                 (subscribe [:worksheet/latest])
@@ -432,10 +432,12 @@
                                                  {}
                                                  data))))})])
        (chart {:data   graph-data
-               :x      (:variable/name @(subscribe [:wizard/group-variable "fbbf73f6-3a0e-4fdd-b913-dcc50d2db311"])) ;TODO read value from datahike
-               :y      (:variable/name @(subscribe [:wizard/group-variable "b7873139-659e-4475-8d41-0cf6c36da893"])) ;TODO read value from datahike
-               :z      (:variable/name @(subscribe [:wizard/group-variable "41503286-dfe4-457a-9b68-41832e049cc9"])) ;TODO read value from datahike
-               :z2     (:variable/name @(subscribe [:wizard/group-variable "30493fc2-a231-41ee-a16a-875f00cf853f"]))
+               :x      {:name (:variable/name @(subscribe [:wizard/group-variable "fbbf73f6-3a0e-4fdd-b913-dcc50d2db311"]))}       ;TODO read value from datahike
+               :y      {:name  (:variable/name @(subscribe [:wizard/group-variable "b7873139-659e-4475-8d41-0cf6c36da893"]))
+                        :scale [0 120]}                                                                                      ;TODO read value from datahike
+               :z      {:name (:variable/name @(subscribe [:wizard/group-variable "41503286-dfe4-457a-9b68-41832e049cc9"]))} ;TODO read value from datahike
+               :z2     {:name    (:variable/name @(subscribe [:wizard/group-variable "30493fc2-a231-41ee-a16a-875f00cf853f"]))
+                        :columns 2}
                :width  500
                :height 500})]]
      [:div.wizard-navigation
