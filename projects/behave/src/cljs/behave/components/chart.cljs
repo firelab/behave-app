@@ -14,7 +14,7 @@
    Optional
    z: lookup key for the maps in data to use for the z axis
    z2: lookup key for the maps in data to use for the z2 axis"
-  [{:keys [data x y z z2 width height]}]
+  [{:keys [data x y z z2 width height z2-columns]}]
   (when (and x y)
     (let [line-chart {:mark     {:type "line"}
                       :encoding (cond-> {:x     {:field x
@@ -31,7 +31,10 @@
                                                      :legend nil}))
 
                                   z2
-                                  (assoc :facet {:field z2 :type "nominal" :legend nil :columns 2}))
+                                  (assoc :facet {:field   z2
+                                                 :type    "nominal"
+                                                 :legend  nil
+                                                 :columns (or z2-columns 1)})) ;TODO parameterize columns
                       :width  width
                       :height height}
           z-legend {:mark     {:type "point"}
@@ -92,16 +95,10 @@
                 :box-height box-height
                 :box-width  box-width}])
 
-(defn chart [{:keys [data x y z z2 width height]}]
+(defn chart [{:keys [width height] :as params}]
   [:div
    [vega-box
-    (build-line-chart {:data data
-                       :x    x
-                       :y    y
-                       :z    z
-                       :z2   z2
-                       :width width
-                       :height height})
+    (build-line-chart params)
     height
     width]])
 
