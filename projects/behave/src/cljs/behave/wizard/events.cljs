@@ -60,7 +60,7 @@
   (fn [{db :db} [_ {:keys [id]}]]
     (let [{:keys [state]} db
           worksheet       (solve-worksheet (:worksheet state))
-          path            (path-for routes :ws/results :id id)]
+          path            (path-for routes :ws/results-settings :id id :results-page :settings)]
       {:fx [[:dispatch [:navigate path]]]
        :db (assoc-in db [:state :worksheet] worksheet)})))
 

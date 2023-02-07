@@ -1,9 +1,7 @@
 (ns behave.worksheet.subs
-  (:require [behave.store     :as store]
-            [behave.vms.store :as vms]
-            [datascript.core  :as d]
-            [re-frame.core    :as rf]
-            [re-posh.core     :as rp]))
+  (:require [clojure.string :as str]
+            [re-posh.core   :as rp]
+            [re-frame.core  :as rf]))
 
 ;; Retrieve all worksheet UUID's
 (rp/reg-sub
@@ -35,14 +33,14 @@
 
 ;; Get state of a particular output
 (rp/reg-sub
- :worksheet/get-attr
- (fn [_ [_ ws-uuid attr]]
-   {:type      :query
-    :query     '[:find [?value ...]
-                 :in    $ ?ws-uuid ?attr
-                 :where [?w :worksheet/uuid ?ws-uuid]
-                 [?w ?attr ?value]]
-    :variables [ws-uuid attr]}))
+  :worksheet/get-attr
+  (fn [_ [_ ws-uuid attr]]
+    {:type      :query
+     :query     '[:find [?value ...]
+                  :in    $ ?ws-uuid ?attr
+                  :where [?w :worksheet/uuid ?ws-uuid]
+                         [?w ?attr ?value]]
+     :variables [ws-uuid attr]}))
 
 ;; Get state of a particular output
 (rp/reg-sub
@@ -173,17 +171,97 @@
                      [?i :input/value ?value]]
                    [ws-uuid]])))
 
+(rf/reg-sub
+ :worksheet/input-id+value
+ (fn [_ [_ ws-uuid]]
+   @(rf/subscribe [:query
+                   '[:find ?group-var-uuid ?value
+                     :in $ ?ws-uuid
+                     :where
+                     [?w :worksheet/uuid ?ws-uuid]
+                     [?w :worksheet/input-groups ?g]
+                     [?g :input-group/inputs ?i]
+                     [?i :input/group-variable-uuid ?group-var-uuid]
+                     [?i :input/value ?value]]
+                   [ws-uuid]])))
+
+(rf/reg-sub
+ :worksheet/multi-value-input-uuids
+ (fn [[_ ws-uuid]]
+   (rf/subscribe [:worksheet/input-id+value ws-uuid]))
+
+ (fn [inputs _query]
+   (->> inputs
+        (filter (fn multiple-values? [[_uuid value]]
+                  (> (count (str/split value #",|\s"))
+                     1)))
+        (map first))))
+
 (rp/reg-sub
- :worksheet/all-outputs
+ :worksheet/all-output-uuids
  (fn [_ [_ ws-uuid]]
    {:type      :query
     :query     '[:find  [?uuid ...]
                  :in    $ ?ws-uuid
-                 :where [?w :worksheet/uuid ?ws-uuid]
+                 :where
+                 [?w :worksheet/uuid ?ws-uuid]
                  [?w :worksheet/outputs ?o]
                  [?o :output/group-variable-uuid ?uuid]
                  [?o :output/enabled? true]]
     :variables [ws-uuid]}))
+
+(rp/reg-sub
+ :worksheet/get-table-settings-attr
+ (fn [_ [_ ws-uuid attr]]
+   {:type      :query
+    :query     '[:find  [?value ...]
+                 :in    $ ?ws-uuid ?attr
+                 :where
+                 [?w :worksheet/uuid ?ws-uuid]
+                 [?w :worksheet/table-settings ?t]
+                 [?t ?attr ?value]]
+    :variables [ws-uuid attr]}))
+
+(rp/reg-sub
+ :worksheet/get-graph-settings-attr
+ (fn [_ [_ ws-uuid attr]]
+   {:type      :query
+    :query     '[:find  [?value ...]
+                 :in    $ ?ws-uuid ?attr
+                 :where
+                 [?w :worksheet/uuid ?ws-uuid]
+                 [?w :worksheet/graph-settings ?g]
+                 [?g ?attr ?value]]
+    :variables [ws-uuid attr]}))
+
+(rp/reg-sub
+ :worksheet/graph-settings-y-axis-limits
+ (fn [_ [_ ws-uuid]]
+   {:type  :query
+    :query '[:find ?group-var-uuid ?min ?max
+             :in   $ ?ws-uuid
+             :where
+             [?w :worksheet/uuid ?ws-uuid]
+             [?w :worksheet/graph-settings ?g]
+             [?g :graph-settings/y-axis-limits ?y]
+             [?y :y-axis-limit/group-variable-uuid ?group-var-uuid]
+             [?y :y-axis-limit/min ?min]
+             [?y :y-axis-limit/max ?max]]
+    :variables [ws-uuid]}))
+
+(comment
+  (let [ws-uuid @(rf/subscribe [:worksheet/latest])]
+    (rf/subscribe [:worksheet/graph-settings-y-axis-limits ws-uuid])))
+
+(comment
+  (let [ws-uuid @(rf/subscribe [:worksheet/latest])]
+    @(rf/subscribe [:worksheet/table-settings-enabled? ws-uuid]))
+
+  (let [ws-uuid @(rf/subscribe [:worksheet/latest])]
+    (rf/subscribe [:worksheet/all-output-names ws-uuid]))
+
+  (let [ws-uuid @(rf/subscribe [:worksheet/latest])]
+    (rf/subscribe [:worksheet/get-attr ws-uuid :graph-settings/enabled?])))
 
 (rf/reg-sub
  :worksheet/all-inputs-entered?

@@ -21,7 +21,7 @@
 (def ^:private result-routes
   ["/results"
    [["" :ws/results]
-    [["/" :results-page] :ws/results]]])
+    [["/" [keyword :results-page]] :ws/results-settings]]])
 
 (def ^:private module-routes
   ["/modules"
@@ -105,5 +105,8 @@
 
   (bidi/match-route routes "/worksheets/1/modules/contain/output/fire")
   (bidi/match-route routes "/worksheets/2/modules/surface/input/fire")
+
+  (bidi/match-route routes "/worksheets/1/results")
+  (bidi/match-route routes "/worksheets/1/results/settings")
 
   )
