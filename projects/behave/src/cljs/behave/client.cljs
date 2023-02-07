@@ -4,8 +4,6 @@
             [behave.components.sidebar :refer [sidebar]]
             [behave.components.toolbar :refer [toolbar]]
             [behave.help.views         :refer [help-area]]
-            [behave.results            :as results]
-            [behave.review             :as review]
             [behave.settings           :as settings]
             [behave.store              :refer [load-store!]]
             [behave.tools              :as tools]
@@ -23,18 +21,19 @@
   [:div
    [:h1 (str @(<t "notfound") " :(")]])
 
-(def handler->page {:home           new-worksheet-page
-                    :ws/all         new-worksheet-page
-                    :ws/import      import-worksheet-page
-                    :ws/guided      guided-worksheet-page
-                    :ws/independent independent-worksheet-page
-                    :ws/wizard      wizard/root-component
-                    :ws/review      wizard/wizard-review-page
-                    :ws/results     wizard/wizard-results-page
-                    :settings/all   settings/root-component
-                    :settings/page  settings/root-component
-                    :tools/all      tools/root-component
-                    :tools/page     tools/root-component})
+(def handler->page {:home                new-worksheet-page
+                    :ws/all              new-worksheet-page
+                    :ws/import           import-worksheet-page
+                    :ws/guided           guided-worksheet-page
+                    :ws/independent      independent-worksheet-page
+                    :ws/wizard           wizard/root-component
+                    :ws/review           wizard/wizard-review-page
+                    :ws/results-settings wizard/wizard-results-settings-page
+                    :ws/results          wizard/wizard-results-page
+                    :settings/all        settings/root-component
+                    :settings/page       settings/root-component
+                    :tools/all           tools/root-component
+                    :tools/page          tools/root-component})
 
 (defn app-shell [params]
   (let [route        (rf/subscribe [:handler])

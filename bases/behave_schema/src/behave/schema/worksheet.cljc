@@ -11,12 +11,12 @@
 
 (s/def :worksheet/uuid          string?)
 (s/def :worksheet/name          string?)
-(s/def :workshet/notes          many-ref?)
-(s/def :workshet/inputs         many-ref?)
-(s/def :workshet/outputs        many-ref?)
-(s/def :workshet/result-table   single-ref?)
-(s/def :workshet/graph-settings single-ref?)
-(s/def :workshet/table-settings single-ref?)
+(s/def :worksheet/notes          many-ref?)
+(s/def :worksheet/inputs         many-ref?)
+(s/def :worksheet/outputs        many-ref?)
+(s/def :worksheet/result-table   single-ref?)
+(s/def :worksheet/graph-settings single-ref?)
+(s/def :worksheet/table-settings single-ref?)
 
 ;;; Schema
 
@@ -42,7 +42,7 @@
     :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 
-   ; Relations
+   ;; Relations
    {:db/ident       :worksheet/modules
     :db/doc         "Worksheet's modules."
     :db/valueType   :db.type/keyword
@@ -138,18 +138,18 @@
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
-   ;{:db/ident       :input/continuous-value
-   ; :db/doc         "Input's continuous value."
-   ; :db/valueType   :db.type/float
-   ; :db/cardinality :db.cardinality/one}
-   ;{:db/ident       :input/discrete-value
-   ; :db/doc         "Input's discrete value."
-   ; :db/valueType   :db.type/string
-   ; :db/cardinality :db.cardinality/one}
-   ;{:db/ident       :input/text-value
-   ; :db/doc         "Input's text value."
-   ; :db/valueType   :db.type/string
-   ; :db/cardinality :db.cardinality/one}
+   ;;{:db/ident       :input/continuous-value
+   ;; :db/doc         "Input's continuous value."
+   ;; :db/valueType   :db.type/float
+   ;; :db/cardinality :db.cardinality/one}
+   ;;{:db/ident       :input/discrete-value
+   ;; :db/doc         "Input's discrete value."
+   ;; :db/valueType   :db.type/string
+   ;; :db/cardinality :db.cardinality/one}
+   ;;{:db/ident       :input/text-value
+   ;; :db/doc         "Input's text value."
+   ;; :db/valueType   :db.type/string
+   ;; :db/cardinality :db.cardinality/one}
 
    ;; Outputs
    {:db/ident       :output/group-variable-uuid
@@ -211,18 +211,49 @@
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
-   ;; TODO Graph Settings
-   ;{:db/ident       :graph-settings/<setting>
-   ; :db/doc         "Graph setting's <setting>."
-   ; :db/valueType   :db.type/ref
-   ; :db/cardinality :db.cardinality/one}
+   ;; Results Table Settings
+   {:db/ident       :table-settings/enabled?
+    :db/doc         "Whether table results are enabled."
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
 
-   ;; TODO Table Settings
-   ;{:db/ident       :table-settings/<setting>
-   ; :db/doc         "Table setting's <setting>."
-   ; :db/valueType   :db.type/ref
-   ; :db/cardinality :db.cardinality/one}
+   ;; Results Graph Settings
+   {:db/ident       :graph-settings/enabled?
+    :db/doc         "Whether graph results are enabled."
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
 
-   ; Table Shading
+   {:db/ident       :graph-settings/x-axis-group-variable-uuid
+    :db/doc         "Graph's x-axis variable."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
 
-])
+   {:db/ident       :graph-settings/z-axis-group-variable-uuid
+    :db/doc         "Graph's z-axis variable."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :graph-settings/y-axis-limits
+    :db/doc         "Graph's y-axis limits."
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many}
+
+   ;; y-axis-limit
+   {:db/ident       :y-axis-limit/group-variable-uuid
+    :db/doc         "Y-axis's group variable uuid."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :y-axis-limit/min
+    :db/doc         "Y axis's minimum value."
+    :db/valueType   :db.type/long
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :y-axis-limit/max
+    :db/doc         "Y axis's maximum value."
+    :db/valueType   :db.type/long
+    :db/cardinality :db.cardinality/one}
+
+   ;; Table Shading
+
+   ])
