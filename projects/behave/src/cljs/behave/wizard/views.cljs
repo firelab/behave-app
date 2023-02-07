@@ -359,6 +359,9 @@
                 [radio-group {:label     "Select Z axis variable:"
                               :attr      :graph-settings/z-axis-group-variable-uuid
                               :variables group-variables}]
+                [radio-group {:label     "Select Z2 axis variable:"
+                              :attr      :graph-settings/z2-axis-group-variable-uuid
+                              :variables group-variables}]
                 [y-axis-limit-table @*ws-uuid]])])]]]
        [wizard-navigation {:next-label @(<t (bp "next"))
                            :on-next    on-next
@@ -367,12 +370,14 @@
 
 ;; Wizard Results
 (defn wizard-results-page [params]
-  (let [*ws-uuid       (subscribe [:worksheet/latest])
-        *notes         (subscribe [:wizard/notes @*ws-uuid])
-        *tab-selected  (subscribe [:worksheet/results-tab-selected])
-        *headers       (subscribe [:worksheet/result-table-headers-sorted @*ws-uuid])
-        *cell-data     (subscribe [:worksheet/result-table-cell-data @*ws-uuid])
-        graph-data     (->> @*cell-data
+  (let [*ws-uuid        (subscribe [:worksheet/latest])
+        *notes          (subscribe [:wizard/notes @*ws-uuid])
+        *tab-selected   (subscribe [:worksheet/results-tab-selected])
+        *headers        (subscribe [:worksheet/result-table-headers-sorted @*ws-uuid])
+        *cell-data      (subscribe [:worksheet/result-table-cell-data @*ws-uuid])
+        *graph-settings (subscribe [:worksheet/graph-settings @*ws-uuid])
+        *output-uuids   (subscribe [:worksheet/all-output-uuids @*ws-uuid])
+        graph-data      (->> @*cell-data
                             (group-by first)
                             (reduce (fn [acc [_row-id cell-data]]
                                       (conj acc
@@ -385,7 +390,7 @@
                                                     {}
                                                     cell-data)))
                                     []))
-        table-enabled? (first @(subscribe [:worksheet/get-table-settings-attr
+        table-enabled?  (first @(subscribe [:worksheet/get-table-settings-attr
                                            @*ws-uuid
                                            :table-settings/enabled?]))]
     [:div.accordion
@@ -431,15 +436,27 @@
                                                    (assoc acc (keyword uuid) value))
                                                  {}
                                                  data))))})])
-       (chart {:data   graph-data
-               :x      {:name (:variable/name @(subscribe [:wizard/group-variable "fbbf73f6-3a0e-4fdd-b913-dcc50d2db311"]))}       ;TODO read value from datahike
-               :y      {:name  (:variable/name @(subscribe [:wizard/group-variable "b7873139-659e-4475-8d41-0cf6c36da893"]))
-                        :scale [0 120]}                                                                                      ;TODO read value from datahike
-               :z      {:name (:variable/name @(subscribe [:wizard/group-variable "41503286-dfe4-457a-9b68-41832e049cc9"]))} ;TODO read value from datahike
-               :z2     {:name    (:variable/name @(subscribe [:wizard/group-variable "30493fc2-a231-41ee-a16a-875f00cf853f"]))
-                        :columns 2}
-               :width  500
-               :height 500})]]
+       (letfn [(uuid->variable-name [uuid]
+                 (:variable/name @(subscribe [:wizard/group-variable uuid])))]
+         (when (:graph-settings/enabled? @*graph-settings)
+           (for [output-uuid @*output-uuids
+                 :let        [y-axis-limit (->> (:graph-settings/y-axis-limits @*graph-settings)
+                                                (filter #(= output-uuid (:y-axis-limit/group-variable-uuid %)))
+                                                (first))
+                              y-min (:y-axis-limit/min y-axis-limit)
+                              y-max (:y-axis-limit/max y-axis-limit)]]
+             [:div.wizard-results__graph
+              (chart {:data   graph-data
+                      :x      {:name (-> (:graph-settings/x-axis-group-variable-uuid @*graph-settings)
+                                         (uuid->variable-name))}
+                      :y      {:name  (:variable/name @(subscribe [:wizard/group-variable output-uuid]))
+                               :scale [y-min y-max]}
+                      :z      {:name (-> (:graph-settings/z-axis-group-variable-uuid @*graph-settings)
+                                         (uuid->variable-name))}
+                      :z2     {:name (-> (:graph-settings/z2-axis-group-variable-uuid @*graph-settings)
+                                         (uuid->variable-name))}
+                      :width  500
+                      :height 500})])))]]
      [:div.wizard-navigation
       [c/button {:label    "Back"
                  :variant  "secondary"

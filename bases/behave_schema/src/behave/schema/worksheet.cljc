@@ -238,6 +238,11 @@
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident       :graph-settings/z2-axis-group-variable-uuid
+    :db/doc         "Graph's z2-axis variable."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
    {:db/ident       :graph-settings/y-axis-limits
     :db/doc         "Graph's y-axis limits."
     :db/valueType   :db.type/ref
