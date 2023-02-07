@@ -1,5 +1,5 @@
 (ns behave.components.chart
-  (:require [cljs.vega-embed]
+  (:require [cljsjs.vega-embed]
             [cljs.core.async.interop :refer-macros [<p!]]
             [clojure.core.async :refer [go]]
             [reagent.core :as r]
