@@ -15,6 +15,7 @@
             [goog.string                    :as gstring]
             [goog.string.format]
             [re-frame.core                  :refer [dispatch subscribe]]
+            [reagent.core                   :as r]
             [string-utils.interface         :refer [->kebab]]))
 
 ;;; Components
@@ -275,10 +276,38 @@
                            :on-back    on-back}]])))
 
 ;; Wizard Results
+(defn note
+  [[note-id note-name note-content submodule-name submodule-io]]
+  (let [edit? (subscribe [:wizard/edit-note? note-id])]
+    (println "note-id:" note-id " edit?:"(true? @edit?))
+    (if (true? @edit?)
+      [:div.wizard-results__note
+       [:div.wizard-results__note__module (str "Note: " submodule-name "'s " (name submodule-io))]
+       [c/note {:title-label       "Note's Name / Category"
+                :title-placeholder "Enter note's name or category"
+                :title-value       note-name
+                :body-value        note-content
+                :on-save           #(dispatch [:wizard/save-note note-id %])}]]
+      [:div.wizard-results__note
+       [:div.wizard-results__note__module (str "Note: " submodule-name "'s " (name submodule-io))]
+       [:div.wizard-results__note__group-name note-name]
+       [:div.wizard-results__note__content note-content]
+       [:div.wizard-results__note__manage
+        [c/button {:variant   "primary"
+                   :label     @(<t (bp "delete"))
+                   :size      "small"
+                   :icon-name "delete"
+                   :on-click  #(dispatch [:worksheet/delete-note note-id])}]
+        [c/button {:variant   "secondary"
+                   :label     @(<t (bp "edit"))
+                   :size      "small"
+                   :icon-name "edit"
+                   :on-click  #(dispatch [:wizard/edit-note note-id])}]]])))
 
 (defn wizard-results-page [params]
-  (let [*ws-uuid     (subscribe [:worksheet/latest])
-        *warn-limit? (subscribe [:wizard/warn-limit? @*ws-uuid])]
+  (let [*ws-uuid      (subscribe [:worksheet/latest])
+        *notes        (subscribe [:wizard/notes @*ws-uuid])
+        *tab-selected (subscribe [:worksheet/results-tab-selected])]
     [:div.accordion
      [:div.accordion__header
       [c/tab {:variant   "outline-primary"
@@ -290,28 +319,31 @@
         [:div.wizard-header__banner__icon
          [c/icon :modules]]
         "Results"]]
-      (when-let [results @(subscribe [:state [:worksheet :results]])]
-        (let [variables (subscribe [:pull-many '[* {:variable/_group-variables [*]}] (keys (:contain results))])
-              results   (map (fn [value v]
-                               {:name  (-> v (:variable/_group-variables) (first) (:variable/name))
-                                :value value})
-                             (vals (:contain @results))
-                             @variables)]
-          [:div.wizard-review
-           [c/table {:title   "Contain Results"
-                     :headers ["Variable Name" "Value"]
-                     :columns [:name :value]
-                     :rows    results}]]))]
+      [c/tab-group {:variant  "outline-highlight"
+                    :on-click #(dispatch [:wizard/results-scroll-into-view :tab])
+                    :tabs     [{:label     "Notes"
+                                :tab       :notes
+                                :selected? (= @*tab-selected :notes)
+                                :icon-name :notes}
+                               {:label     "Table"
+                                :tab       :table
+                                :icon-name :tables
+                                :selected? (= @*tab-selected :table)}
+                               {:label     "Graph"
+                                :tab       :graph
+                                :icon-name :graphs
+                                :selected? (= @*tab-selected :graph)}]}]
+      [:div.wizard-results__content
+       (when (seq @*notes)
+         [:div.wizard-results__notes
+          [:div.wizard-results__notes__header "Run's Notes"]
+          (doall (for [[id & _rest :as n] @*notes]
+                   ^{:key id}
+                   (note n)))])]]
      [:div.wizard-navigation
       [c/button {:label    "Back"
                  :variant  "secondary"
-                 :on-click #(dispatch [:wizard/prev-tab params])}]
-      [c/button {:label         "Run"
-                 :disabled?     @*warn-limit?
-                 :variant       "highlight"
-                 :icon-name     "arrow2"
-                 :icon-position "right"
-                 :on-click      #(dispatch [:wizard/solve params])}]]]))
+                 :on-click #(dispatch [:wizard/prev-tab params])}]]]))
 
 ;; TODO Might want to set this in a config file to the application
 (def ^:const multi-value-input-limit 3)

@@ -249,6 +249,25 @@
              [?y :y-axis-limit/max ?max]]
     :variables [ws-uuid]}))
 
+(rf/reg-sub
+ :worksheet/results-tab-selected
+ (fn [_ _]
+   :notes)) ;TODO update when more results tabs are are added.
+
+(rp/reg-sub
+ :worksheet/notes
+ (fn [_ [_ ws-uuid]]
+   {:type      :query
+    :query     '[:find ?n ?name ?content ?s-uuid
+                 :in   $ ?ws-uuid
+                 :where
+                 [?w :worksheet/uuid ?ws-uuid]
+                 [?w :worksheet/notes ?n]
+                 [?n :note/submodule ?s-uuid]
+                 [?n :note/name ?name]
+                 [?n :note/content ?content]]
+    :variables [ws-uuid]}))
+
 (comment
   (let [ws-uuid @(rf/subscribe [:worksheet/latest])]
     (rf/subscribe [:worksheet/graph-settings-y-axis-limits ws-uuid])))

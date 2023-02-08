@@ -91,6 +91,8 @@
         (let [payload (mapv (fn [id] [:db.fn/retractEntity id]) input-ids)]
           {:transact payload})))))
 
+
+
 (rp/reg-event-fx
  :worksheet/upsert-output
  [(rp/inject-cofx :ds)]
@@ -265,6 +267,21 @@
                              ds
                              ws-uuid))]
      {:transact [(assoc {:db/id g} attr value)]})))
+
+;;Notes
+
+(rp/reg-event-fx
+ :worksheet/delete-note
+ [(rp/inject-cofx :ds)]
+ (fn [_ [_ note-id]]
+   {:transact [[:db.fn/retractEntity note-id]]}))
+
+(rp/reg-event-fx
+ :worksheet/save-note
+ (fn [_ [_  note-id {:keys [title body] :as _payload}]]
+   {:transact [{:db/id        note-id
+                :note/name    title
+                :note/content body}]}))
 
 (comment
 

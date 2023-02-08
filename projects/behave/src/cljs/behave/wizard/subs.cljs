@@ -110,8 +110,36 @@
 
 (reg-sub
   :wizard/warn-limit?
-  (fn [[_ ws-uuid]]
+  (fn [[_id ws-uuid]]
     (subscribe [:wizard/multi-value-input-count ws-uuid]))
 
   (fn [multi-value-input-count _query]
     (> multi-value-input-count multi-value-input-limit)))
+
+(reg-sub
+ :wizard/submodule-name+io
+ (fn [_ [_ submodule-uuid]]
+   @(subscribe [:vms/query '[:find [?s-name ?io]
+                             :in    $ ?uuid
+                             :where
+                             [?s :bp/uuid ?uuid]
+                             [?s :submodule/name ?s-name]
+                             [?s :submodule/io ?io]]
+                submodule-uuid])))
+
+;; returns a collection of [note-id note-name note-content submodule-name submodule-io]
+(reg-sub
+ :wizard/notes
+ (fn [[_id ws-uuid]]
+   (subscribe [:worksheet/notes ws-uuid]))
+
+ (fn [notes _query]
+   (map (fn resolve-uuid [[id name content submodule-uuid]]
+          (into   [id name content]
+                  @(subscribe [:wizard/submodule-name+io submodule-uuid])))
+        notes)))
+
+(reg-sub
+ :wizard/edit-note?
+ (fn [{:keys [state]} [_ note-id]]
+   (true? (get-in state [:worksheet :notes note-id :edit?]))))

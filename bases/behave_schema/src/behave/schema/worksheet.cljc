@@ -84,13 +84,18 @@
     :db/cardinality :db.cardinality/one}
 
    ;; Notes
-   {:db/ident       :note/submodule
-    :db/doc         "Note's submodule."
-    :db/valueType   :db.type/ref
+   {:db/ident       :note/name
+    :db/doc         "Note's name"
+    :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :note/content
     :db/doc         "Note's content."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :note/submodule
+    :db/doc         "Note's reference to a submodule's UUID"
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 

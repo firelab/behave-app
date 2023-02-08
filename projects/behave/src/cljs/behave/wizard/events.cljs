@@ -89,7 +89,7 @@
           [:dispatch [:wizard/remove-nils [:state :worksheet :inputs]]]]}))
 
 (rf/reg-event-fx
-  :wizard/edit
+  :wizard/edit-input
   (fn [_cfx [_event-id route repeat-id var-uuid]]
     {:fx [[:dispatch [:navigate route]]
           [:dispatch-later {:ms       200
@@ -110,3 +110,15 @@
   (fn [_cfx [_event-id group-id repeat-id]]
     {:fx [[:dispatch [:state/update [:worksheet :inputs group-id] dissoc repeat-id]]
           [:dispatch [:state/update [:worksheet :repeat-groups group-id] disj repeat-id]]]}))
+
+(rf/reg-event-fx
+ :wizard/edit-note
+ (fn [_cfx [_id note-id]]
+   {:fx [[:dispatch [:state/set [:worksheet :notes note-id :edit?] true]]]}))
+
+(rf/reg-event-fx
+ :wizard/save-note
+ (fn [_cfx [_id note-id payload]]
+   (println "saving-note note-id:" note-id "payload:" payload)
+   {:fx [[:dispatch [:worksheet/save-note note-id payload]]
+         [:dispatch [:state/set [:worksheet :notes note-id :edit?] false]]]}))
