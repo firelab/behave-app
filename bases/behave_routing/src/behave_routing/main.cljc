@@ -59,6 +59,7 @@
 (def routes
   (add-trailing-slashes-to-roots
     ["/" [["" :home]
+          ["chart" :chart]
           workflow-routes
           worksheet-routes
           settings-routes
