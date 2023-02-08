@@ -266,4 +266,4 @@
                                                                                          {:result-cell/header -6
                                                                                           :result-cell/value  (str (* (+ i j k) 42))}]})
                                                                    (map-indexed (fn [idx v]
-                                                                                  (assoc v :result-row/id idx))))}}])))
+                                                                                  (assoc v :result-row/id idx))))}}])),)
