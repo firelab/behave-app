@@ -401,9 +401,10 @@
                    :z      {:name (-> (:graph-settings/z-axis-group-variable-uuid graph-settings)
                                       (uuid->variable-name))}
                    :z2     {:name (-> (:graph-settings/z2-axis-group-variable-uuid graph-settings)
-                                      (uuid->variable-name))}
-                   :width  500
-                   :height 500})])))))
+                                      (uuid->variable-name))
+                            :columns 2}
+                   :width  250
+                   :height 250})])))))
 
 ;; Wizard Results
 (defn wizard-results-page [params]
