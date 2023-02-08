@@ -407,14 +407,14 @@
 
 ;; Wizard Results
 (defn wizard-results-page [params]
-  (let [*ws-uuid        (subscribe [:worksheet/latest])
-        *notes          (subscribe [:wizard/notes @*ws-uuid])
-        *tab-selected   (subscribe [:worksheet/results-tab-selected])
-        *headers        (subscribe [:worksheet/result-table-headers-sorted @*ws-uuid])
-        *cell-data      (subscribe [:worksheet/result-table-cell-data @*ws-uuid])
-        table-enabled?  (first @(subscribe [:worksheet/get-table-settings-attr
-                                            @*ws-uuid
-                                            :table-settings/enabled?]))]
+  (let [*ws-uuid       (subscribe [:worksheet/latest])
+        *notes         (subscribe [:wizard/notes @*ws-uuid])
+        *tab-selected  (subscribe [:worksheet/results-tab-selected])
+        *headers       (subscribe [:worksheet/result-table-headers-sorted @*ws-uuid])
+        *cell-data     (subscribe [:worksheet/result-table-cell-data @*ws-uuid])
+        table-enabled? (first @(subscribe [:worksheet/get-table-settings-attr
+                                           @*ws-uuid
+                                           :table-settings/enabled?]))]
     [:div.accordion
      [:div.accordion__header
       [c/tab {:variant   "outline-primary"
