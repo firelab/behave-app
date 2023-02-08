@@ -117,8 +117,23 @@
    {:fx [[:dispatch [:state/set [:worksheet :notes note-id :edit?] true]]]}))
 
 (rf/reg-event-fx
- :wizard/save-note
+ :wizard/create-note
+ (fn [_cfx [_id ws-uuid submodule-uuid submodule-name submodule-io payload]]
+   {:fx [[:dispatch [:worksheet/create-note ws-uuid submodule-uuid submodule-name submodule-io payload]]
+         [:dispatch [:wizard/toggle-show-add-note-form]]]}))
+
+(rf/reg-event-fx
+ :wizard/update-note
  (fn [_cfx [_id note-id payload]]
-   (println "saving-note note-id:" note-id "payload:" payload)
-   {:fx [[:dispatch [:worksheet/save-note note-id payload]]
+   {:fx [[:dispatch [:worksheet/update-note note-id payload]]
          [:dispatch [:state/set [:worksheet :notes note-id :edit?] false]]]}))
+
+(rf/reg-event-fx
+ :wizard/toggle-show-notes
+ (fn [_ _]
+   {:fx [[:dispatch [:state/update [:worksheet :show-notes?] not]]]}))
+
+(rf/reg-event-fx
+ :wizard/toggle-show-add-note-form
+ (fn [_cfx _query]
+   {:fx [[:dispatch [:state/update [:worksheet :show-add-note-form?] not]]]}))

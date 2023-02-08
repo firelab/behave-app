@@ -271,17 +271,37 @@
 ;;Notes
 
 (rp/reg-event-fx
+ :worksheet/create-note
+ [(rp/inject-cofx :ds)]
+ (fn [{:keys [ds]} [_id
+                    ws-uuid
+                    submodule-uuid
+                    submodule-name
+                    submodule-io
+                    {:keys [title body] :as _payload}]]
+   (when-let [ws-id (d/entid ds [:worksheet/uuid ws-uuid])]
+     {:transact [{:db/id            -1
+                  :worksheet/_notes ws-id
+                  :note/name        (if (empty? title)
+                                      (str submodule-name " " submodule-io)
+                                      title)
+                  :note/content     body
+                  :note/submodule   submodule-uuid}]})))
+
+(rp/reg-event-fx
+ :worksheet/update-note
+ [(rp/inject-cofx :ds)]
+ (fn [{:keys [ds]} [_  note-id {:keys [title body] :as _payload}]]
+   (when-let [note (d/entity ds note-id)]
+     {:transact [{:db/id        (:db/id note)
+                  :note/name    title
+                  :note/content body}]})))
+
+(rp/reg-event-fx
  :worksheet/delete-note
  [(rp/inject-cofx :ds)]
  (fn [_ [_ note-id]]
    {:transact [[:db.fn/retractEntity note-id]]}))
-
-(rp/reg-event-fx
- :worksheet/save-note
- (fn [_ [_  note-id {:keys [title body] :as _payload}]]
-   {:transact [{:db/id        note-id
-                :note/name    title
-                :note/content body}]}))
 
 (comment
 

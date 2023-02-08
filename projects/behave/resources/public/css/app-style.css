@@ -236,6 +236,19 @@
   font-weight: var(--font-weight-300);
 }
 
+.wizard-header__banner__notes-button--minus .button__icon {
+  top: -4px;
+}
+
+.wizard-add-notes {
+  padding: 5px;
+}
+
+.wizard-add-notes .button__icon,
+.wizard-header__banner__notes-button--plus .button__icon {
+  top: -2px;
+}
+
 .wizard-header__submodule-tabs > .tab-group > .tab:first-child {
   margin-left: 20px;
 }
@@ -253,11 +266,17 @@
   background-color: var(--darkblue-4);
 }
 
-.wizard-io {
+.wizard-page__body {
   overflow-x: hidden;
   overflow-y: scroll;
   height: 600px;
 }
+
+/* .wizard-io { */
+/*   overflow-x: hidden; */
+/*   overflow-y: scroll; */
+/*   height: 600px; */
+/* } */
 
 .wizard-group__inputs {
   padding: 25px 30px;
@@ -456,11 +475,7 @@
   overflow-y: scroll;
 }
 
-.wizard-results__note {
-  padding-bottom: 10px;
-}
-
-.wizard-results__notes__header {
+.wizard-notes__header {
   padding: 5px 18px;
   margin-bottom: 33px;
   margin-top: 30px;
@@ -469,7 +484,11 @@
   background-color: var(--darkblue-3);
 }
 
-.wizard-results__note__module {
+.wizard-note {
+  padding-bottom: 10px;
+}
+
+.wizard-note__module {
   padding: 5px 18px;
   margin-bottom: 20px;
   font-size: var(--font-size-18);
@@ -477,7 +496,7 @@
   background-color: var(--darkblue-2);
 }
 
-.wizard-results__note__group-name {
+.wizard-note__name {
   padding: 5px 18px;
   color: var(--medblue-3);
   font-weight: var(--font-weight-bold);
@@ -485,7 +504,15 @@
   background-color: none;
 }
 
-.wizard-results__note__content {
+.wizard-note .note__input-title {
+  padding: 5px 18px;
+}
+
+.wizard-note .note textarea {
+  margin: 18px 0px 18px 0px;
+}
+
+.wizard-note__content {
   font-family: 'Roboto', sans-serif;
   margin: 5px 0px 5px 18px;
   padding: 18px 0px 18px 0px;
@@ -495,18 +522,18 @@
   border-bottom: dashed 1px var(--gray-4);
 }
 
-.wizard-results__note__manage {
+.wizard-note__manage {
   padding: 18px 33px 18px 0px;
   display: flex;
   flex-direction: row;
   justify-content: right;
 }
 
-.wizard-results__note__manage .button +.button {
+.wizard-note__manage .button +.button {
   margin-left: 60px;
 }
 
-.wizard-results__note .note > textarea {
+.wizard-note .note > textarea {
   font-size: var(--font-size-16);
   height: 100px;
 }
