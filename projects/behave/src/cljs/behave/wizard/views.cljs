@@ -368,6 +368,43 @@
                            :back-label @(<t (bp "back"))
                            :on-back    on-back}]])))
 
+(defn- wizard-graph [ws-uuid cell-data]
+  (letfn [(uuid->variable-name [uuid]
+            (:variable/name @(subscribe [:wizard/group-variable uuid])))]
+    (when-let [graph-settings @(subscribe [:worksheet/graph-settings ws-uuid])]
+      (let [*output-uuids (subscribe [:worksheet/all-output-uuids ws-uuid])
+            graph-data    (->> cell-data
+                               (group-by first)
+                               (reduce (fn [acc [_row-id cell-data]]
+                                         (conj acc
+                                               (reduce (fn [acc [_row-id col-uuid value]]
+                                                         (assoc acc
+                                                                (-> (subscribe [:wizard/group-variable col-uuid])
+                                                                    deref
+                                                                    :variable/name)
+                                                                value))
+                                                       {}
+                                                       cell-data)))
+                                       []))]
+        (for [output-uuid @*output-uuids
+              :let        [y-axis-limit (->> (:graph-settings/y-axis-limits graph-settings)
+                                             (filter #(= output-uuid (:y-axis-limit/group-variable-uuid %)))
+                                             (first))
+                           y-min (:y-axis-limit/min y-axis-limit)
+                           y-max (:y-axis-limit/max y-axis-limit)]]
+          [:div.wizard-results__graph
+           (chart {:data   graph-data
+                   :x      {:name (-> (:graph-settings/x-axis-group-variable-uuid graph-settings)
+                                      (uuid->variable-name))}
+                   :y      {:name  (:variable/name @(subscribe [:wizard/group-variable output-uuid]))
+                            :scale [y-min y-max]}
+                   :z      {:name (-> (:graph-settings/z-axis-group-variable-uuid graph-settings)
+                                      (uuid->variable-name))}
+                   :z2     {:name (-> (:graph-settings/z2-axis-group-variable-uuid graph-settings)
+                                      (uuid->variable-name))}
+                   :width  500
+                   :height 500})])))))
+
 ;; Wizard Results
 (defn wizard-results-page [params]
   (let [*ws-uuid        (subscribe [:worksheet/latest])
@@ -375,24 +412,9 @@
         *tab-selected   (subscribe [:worksheet/results-tab-selected])
         *headers        (subscribe [:worksheet/result-table-headers-sorted @*ws-uuid])
         *cell-data      (subscribe [:worksheet/result-table-cell-data @*ws-uuid])
-        *graph-settings (subscribe [:worksheet/graph-settings @*ws-uuid])
-        *output-uuids   (subscribe [:worksheet/all-output-uuids @*ws-uuid])
-        graph-data      (->> @*cell-data
-                            (group-by first)
-                            (reduce (fn [acc [_row-id cell-data]]
-                                      (conj acc
-                                            (reduce (fn [acc [_row-id col-uuid value]]
-                                                      (assoc acc
-                                                             (-> (subscribe [:wizard/group-variable col-uuid])
-                                                                 deref
-                                                                 :variable/name)
-                                                             value))
-                                                    {}
-                                                    cell-data)))
-                                    []))
         table-enabled?  (first @(subscribe [:worksheet/get-table-settings-attr
-                                           @*ws-uuid
-                                           :table-settings/enabled?]))]
+                                            @*ws-uuid
+                                            :table-settings/enabled?]))]
     [:div.accordion
      [:div.accordion__header
       [c/tab {:variant   "outline-primary"
@@ -436,27 +458,7 @@
                                                    (assoc acc (keyword uuid) value))
                                                  {}
                                                  data))))})])
-       (letfn [(uuid->variable-name [uuid]
-                 (:variable/name @(subscribe [:wizard/group-variable uuid])))]
-         (when (:graph-settings/enabled? @*graph-settings)
-           (for [output-uuid @*output-uuids
-                 :let        [y-axis-limit (->> (:graph-settings/y-axis-limits @*graph-settings)
-                                                (filter #(= output-uuid (:y-axis-limit/group-variable-uuid %)))
-                                                (first))
-                              y-min (:y-axis-limit/min y-axis-limit)
-                              y-max (:y-axis-limit/max y-axis-limit)]]
-             [:div.wizard-results__graph
-              (chart {:data   graph-data
-                      :x      {:name (-> (:graph-settings/x-axis-group-variable-uuid @*graph-settings)
-                                         (uuid->variable-name))}
-                      :y      {:name  (:variable/name @(subscribe [:wizard/group-variable output-uuid]))
-                               :scale [y-min y-max]}
-                      :z      {:name (-> (:graph-settings/z-axis-group-variable-uuid @*graph-settings)
-                                         (uuid->variable-name))}
-                      :z2     {:name (-> (:graph-settings/z2-axis-group-variable-uuid @*graph-settings)
-                                         (uuid->variable-name))}
-                      :width  500
-                      :height 500})])))]]
+       (wizard-graph @*ws-uuid @*cell-data)]]
      [:div.wizard-navigation
       [c/button {:label    "Back"
                  :variant  "secondary"
