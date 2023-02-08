@@ -56,11 +56,13 @@
       {:fx [[:dispatch [:navigate path]]]})))
 
 (rf/reg-event-fx
- :wizard/solve
- (fn [_ [_ {:keys [id]} ws-uuid]]
-   (let [path (path-for routes :ws/results-settings :id id :results-page :settings)]
-     {:fx [[:dispatch [:worksheet/solve ws-uuid]]
-           [:dispatch [:navigate path]]]})))
+  :wizard/solve
+  (fn [{db :db} [_ {:keys [id]}]]
+    (let [{:keys [state]} db
+          worksheet       (solve-worksheet (:worksheet state))
+          path            (path-for routes :ws/results-settings :id id :results-page :settings)]
+      {:fx [[:dispatch [:navigate path]]]
+       :db (assoc-in db [:state :worksheet] worksheet)})))
 
 (defn- remove-nils
   "remove pairs of key-value that has nil value from a (possibly nested) map. also transform map to

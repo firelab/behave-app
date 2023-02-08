@@ -128,8 +128,9 @@
 (defn wizard-page [{:keys [module io submodule] :as params}]
   (let [*ws-uuid                 (subscribe [:worksheet/latest])
         *module                  (subscribe [:wizard/*module module])
-        *submodules              (subscribe [:wizard/submodules (:db/id @*module)])
-        *submodule               (subscribe [:wizard/*submodule (:db/id @*module) submodule io])
+        module-id                (:db/id @*module)
+        *submodules              (subscribe [:wizard/submodules module-id])
+        *submodule               (subscribe [:wizard/*submodule module-id submodule io])
         submodule-uuid           (:bp/uuid @*submodule)
         *notes                   (subscribe [:wizard/notes @*ws-uuid submodule-uuid])
         *groups                  (subscribe [:wizard/groups (:db/id @*submodule)])
@@ -139,8 +140,7 @@
         *show-notes?             (subscribe [:wizard/show-notes?])
         *show-add-note-form?     (subscribe [:wizard/show-add-note-form?])
         on-back                  #(dispatch [:wizard/prev-tab params])
-        on-next                  #(dispatch [:wizard/next-tab @*module @*submodule @*submodules params])
-        worksheet                (subscribe [:worksheet/latest])]
+        on-next                  #(dispatch [:wizard/next-tab @*module @*submodule @*submodules params])]
     [:div.wizard-page
      [wizard-header @*module @*submodules params]
      [:div.wizard-page__body
@@ -164,7 +164,7 @@
                                                     (name (:submodule/io @*submodule))
                                                     %])}])]
          (wizard-notes @*notes)])
-      [submodule-page io @worksheet @*groups on-back on-next]
+      [submodule-page io @*ws-uuid @*groups on-back on-next]
       (when (true? @*warn-limit?)
         [:div.wizard-warning
          (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])]
