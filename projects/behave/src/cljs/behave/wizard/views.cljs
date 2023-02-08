@@ -366,9 +366,14 @@
 
 ;; Wizard Results
 (defn wizard-results-page [params]
-  (let [*ws-uuid      (subscribe [:worksheet/latest])
-        *notes        (subscribe [:wizard/notes @*ws-uuid])
-        *tab-selected (subscribe [:worksheet/results-tab-selected])]
+  (let [*ws-uuid        (subscribe [:worksheet/latest])
+        *notes          (subscribe [:wizard/notes @*ws-uuid])
+        *tab-selected   (subscribe [:worksheet/results-tab-selected])
+        *headers        (subscribe [:worksheet/result-table-headers-sorted @*ws-uuid])
+        *cell-data       (subscribe [:worksheet/result-table-cell-data @*ws-uuid])
+        table-enabled? (first @(subscribe [:worksheet/get-table-settings-attr
+                                            @*ws-uuid
+                                            :table-settings/enabled?]))]
     [:div.accordion
      [:div.accordion__header
       [c/tab {:variant   "outline-primary"
@@ -395,7 +400,23 @@
                                 :icon-name :graphs
                                 :selected? (= @*tab-selected :graph)}]}]
       [:div.wizard-results__content
-       (wizard-notes @*notes)]]
+       (wizard-notes @*notes)
+       (when (and table-enabled? (seq @*cell-data))
+         [:div.wizard-results__table
+          (c/table {:title   "Results Table"
+                    :headers (mapv (fn resolve-uuid [[_order uuid units]]
+                                     (gstring/format "%s (%s)"
+                                                     (:variable/name @(subscribe [:wizard/group-variable uuid]))
+                                                     units))
+                                   @*headers)
+                    :columns (map second @*headers)
+                    :rows    (->> (group-by first @*cell-data)
+                                  (sort-by key)
+                                  (map (fn [[_ data]]
+                                         (reduce (fn [acc [_row-id uuid value]]
+                                                   (assoc acc (keyword uuid) value))
+                                                 {}
+                                                 data))))})])]]
      [:div.wizard-navigation
       [c/button {:label    "Back"
                  :variant  "secondary"
