@@ -368,6 +368,10 @@
 ;; Wizard Results
 (defn wizard-results-page [params]
   (let [*ws-uuid       (subscribe [:worksheet/latest])
+        *worksheet     (subscribe [:worksheet @*ws-uuid])
+        ws-date-str    (let [d (js/Date.)]
+                         (.setTime d 1676391828168)
+                         (.toLocaleDateString d))
         *notes         (subscribe [:wizard/notes @*ws-uuid])
         *tab-selected  (subscribe [:worksheet/results-tab-selected])
         *headers       (subscribe [:worksheet/result-table-headers-sorted @*ws-uuid])
@@ -398,21 +402,29 @@
        [:div.wizard-header__banner {:style {:margin-top "20px"}}
         [:div.wizard-header__banner__icon
          [c/icon :modules]]
-        "Results"]]
-      [c/tab-group {:variant  "outline-highlight"
-                    :on-click #(dispatch [:wizard/results-scroll-into-view :tab])
-                    :tabs     [{:label     "Notes"
-                                :tab       :notes
-                                :selected? (= @*tab-selected :notes)
-                                :icon-name :notes}
-                               {:label     "Table"
-                                :tab       :table
-                                :icon-name :tables
-                                :selected? (= @*tab-selected :table)}
-                               {:label     "Graph"
-                                :tab       :graph
-                                :icon-name :graphs
-                                :selected? (= @*tab-selected :graph)}]}]
+        "Results"]
+       [:div.wizard-header__results-toolbar
+        [:div.wizard-header__results-toolbar__file-name
+         [:div.wizard-header__results-toolbar__file-name__label (str @(<t (bp "file_name")) ":")]
+         [:div.wizard-header__results-toolbar__file-name__value (:worksheet/name @*worksheet)]]
+        [:div.wizard-header__results-toolbar__date
+         [:div.wizard-header__results-toolbar__date__label (str @(<t (bp "run_date")) ":")]
+         [:div.wizard-header__results-toolbar__date__value ws-date-str]]]
+       [:div.wizard-header__results-tabs
+        [c/tab-group {:variant  "outline-highlight"
+                      :on-click #(dispatch [:wizard/results-scroll-into-view :tab])
+                      :tabs     [{:label     "Notes"
+                                  :tab       :notes
+                                  :selected? (= @*tab-selected :notes)
+                                  :icon-name :notes}
+                                 {:label     "Table"
+                                  :tab       :table
+                                  :icon-name :tables
+                                  :selected? (= @*tab-selected :table)}
+                                 {:label     "Graph"
+                                  :tab       :graph
+                                  :icon-name :graphs
+                                  :selected? (= @*tab-selected :graph)}]}]]]
       [:div.wizard-results__content
        (wizard-notes @*notes)
        (when (and table-enabled? (seq @*cell-data))
