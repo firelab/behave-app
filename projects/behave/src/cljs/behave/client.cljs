@@ -40,12 +40,13 @@
         sync-loaded? (rf/subscribe [:state :sync-loaded?])
         vms-loaded?  (rf/subscribe [:state :vms-loaded?])
         page         (get handler->page (:handler @route) not-found)
-        params       (merge params (:route-params @route))]
+        params       (-> (merge params (:route-params @route))
+                         (assoc :route-handler (:handler @route)))]
     [:div.page
      [:div.behave-identity
       [:h1 @(<t "behaveplus")]]
      [:div.header
-      [toolbar]]
+      [toolbar params]]
      [sidebar]
      [:div.container
       (if (and @vms-loaded? @sync-loaded?)

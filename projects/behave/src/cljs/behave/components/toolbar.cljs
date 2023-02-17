@@ -20,28 +20,38 @@
           (assoc :completed? (>= progress id))
           (assoc :selected?  (= selected-step id))))))
 
-(defn toolbar []
-  (let [on-click       #(js/console.log (str "Selected!" %))
-        tools          [{:icon     :home
-                         :label    (bp "home")
-                         :on-click on-click}
-                        {:icon     :save
-                         :label    (bp "save")
-                         :on-click on-click}
-                        {:icon     :print
-                         :label    (bp "print")
-                         :on-click on-click}
-                        {:icon     :share
-                         :label    (bp "share")
-                         :on-click on-click}
-                        {:icon     :zoom-in
-                         :label    (bp "zoom-in")
-                         :on-click on-click}
-                        {:icon     :zoom-out
-                         :label    (bp "zoom-out")
-                         :on-click on-click}]
+(defn toolbar [{:keys [id module io submodule route-handler] :as params}]
+  (println "params:" params)
+  (let [on-click      #(js/console.log (str "Selected!" %))
+        tools         [{:icon     :home
+                        :label    (bp "home")
+                        :on-click on-click}
+                       {:icon     :save
+                        :label    (bp "save")
+                        :on-click on-click}
+                       {:icon     :print
+                        :label    (bp "print")
+                        :on-click on-click}
+                       {:icon     :share
+                        :label    (bp "share")
+                        :on-click on-click}
+                       {:icon     :zoom-in
+                        :label    (bp "zoom-in")
+                        :on-click on-click}
+                       {:icon     :zoom-out
+                        :label    (bp "zoom-out")
+                        :on-click on-click}]
         progress      @(rf/subscribe [:state [:toolbar :*progress]])
-        selected-step @(rf/subscribe [:state [:toolbar :*selected-step]])]
+        selected-step (cond
+                        (or (and (nil? id)
+                                 (= route-handler :ws/all))
+                            (= io :output))                    1
+                        (or (nil? id)
+                            (= io :input))                     2
+                        (= :ws/review route-handler)           3
+                        (= :ws/results-settings route-handler) 4
+                        (= :ws/results route-handler)          5
+                        :else                                  0)]
     [:div.toolbar
      [:div.toolbar__tools
       (for [tool tools]
@@ -56,10 +66,20 @@
                                              (rf/dispatch [:state/set [:toolbar :*progress] (:step-id %)])
                                              (rf/dispatch [:state/set [:toolbar :*selected-step] (:step-id %)]))
                   :completed-last-step-id progress
-                  :steps                  (map-indexed (enrich-step progress selected-step)
-                                                       [{:label      @(<t (bp "work_style"))
-                                                         :completed? true}
-                                                        {:label      @(<t (bp "modules_selection"))
-                                                         :completed? true}
-                                                        {:label      @(<t (bp "module_outputs_selections"))
-                                                         :completed? false}])}]]))
+                  :steps                  (if id
+                                            (map-indexed (enrich-step progress selected-step)
+                                                         [{:label      @(<t (bp "module_outputs_selections"))
+                                                           :completed? false}
+                                                          {:label      @(<t (bp "module_inputs_selections"))
+                                                           :completed? false}
+                                                          {:label      @(<t (bp "worksheet_review"))
+                                                           :completed? false}
+                                                          {:label      @(<t (bp "result_settings"))
+                                                           :completed? false}
+                                                          {:label      @(<t (bp "run_results"))
+                                                           :completed? false}])
+                                            (map-indexed (enrich-step progress selected-step)
+                                                         [{:label      @(<t (bp "work_style"))
+                                                           :completed? true}
+                                                          {:label      @(<t (bp "modules_selection"))
+                                                           :completed? true}]))}]]))
