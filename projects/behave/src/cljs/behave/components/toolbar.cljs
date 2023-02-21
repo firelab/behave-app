@@ -42,9 +42,14 @@
                         :label    (bp "zoom-out")
                         :on-click on-click}]
         selected-step (cond
-                        (and (= route-handler :ws/wizard) (= io :output)) 1
-                        (and (= route-handler :ws/wizard) (= io :input))  2
-                        :else                                             (get handler->step-number route-handler 0))
+                        (and (= route-handler :ws/wizard) (= io :output))
+                        1
+
+                        (and (= route-handler :ws/wizard) (= io :input))
+                        2
+
+                        :else
+                        (get handler->step-number route-handler 0))
         progress      selected-step
         steps         (if id
                         [{:label      @(<t (bp "module_outputs_selections"))
