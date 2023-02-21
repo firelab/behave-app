@@ -40,7 +40,6 @@
                        {:icon     :zoom-out
                         :label    (bp "zoom-out")
                         :on-click on-click}]
-        progress      @(rf/subscribe [:state [:toolbar :*progress]])
         selected-step (cond
                         (or (and (nil? id)
                                  (= route-handler :ws/all))
@@ -51,6 +50,7 @@
                         (= :ws/results-settings route-handler) 4
                         (= :ws/results route-handler)          5
                         :else                                  0)
+        progress      selected-step
         steps         (if id
                         [{:label      @(<t (bp "module_outputs_selections"))
                           :completed? false}
