@@ -21,6 +21,19 @@
           (assoc :completed? (>= progress id))
           (assoc :selected?  (= selected-step id))))))
 
+(defn- get-step-number [route-handler io]
+  (cond
+    (and (= route-handler :ws/wizard)
+         (= io :output))
+    1
+
+    (and (= route-handler :ws/wizard)
+         (= io :input))
+    2
+
+    :else
+    (get handler->step-number route-handler 0)))
+
 (defn toolbar [{:keys [id io route-handler] :as _params}]
   (let [on-click      #(js/console.log (str "Selected!" %))
         tools         [{:icon     :home
@@ -41,33 +54,23 @@
                        {:icon     :zoom-out
                         :label    (bp "zoom-out")
                         :on-click on-click}]
-        selected-step (cond
-                        (and (= route-handler :ws/wizard)
-                             (= io :output))
-                        1
-
-                        (and (= route-handler :ws/wizard)
-                             (= io :input))
-                        2
-
-                        :else
-                        (get handler->step-number route-handler 0))
-        progress selected-step
-        steps    (if id
-                   [{:label      @(<t (bp "module_outputs_selections"))
-                     :completed? false}
-                    {:label      @(<t (bp "module_inputs_selections"))
-                     :completed? false}
-                    {:label      @(<t (bp "worksheet_review"))
-                     :completed? false}
-                    {:label      @(<t (bp "result_settings"))
-                     :completed? false}
-                    {:label      @(<t (bp "run_results"))
-                     :completed? false}]
-                   [{:label      @(<t (bp "work_style"))
-                     :completed? true}
-                    {:label      @(<t (bp "modules_selection"))
-                     :completed? true}])]
+        selected-step (get-step-number route-handler io)
+        progress      selected-step
+        steps         (if id
+                        [{:label      @(<t (bp "module_outputs_selections"))
+                          :completed? false}
+                         {:label      @(<t (bp "module_inputs_selections"))
+                          :completed? false}
+                         {:label      @(<t (bp "worksheet_review"))
+                          :completed? false}
+                         {:label      @(<t (bp "result_settings"))
+                          :completed? false}
+                         {:label      @(<t (bp "run_results"))
+                          :completed? false}]
+                        [{:label      @(<t (bp "work_style"))
+                          :completed? true}
+                         {:label      @(<t (bp "modules_selection"))
+                          :completed? true}])]
     [:div.toolbar
      [:div.toolbar__tools
       (for [tool tools]
