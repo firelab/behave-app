@@ -1,5 +1,6 @@
 (ns behave.components.toolbar
   (:require [behave.components.core :as c]
+            [behave.client :refer [handler->step-number]]
             [re-frame.core          :as rf]
             [behave.translate       :refer [<t bp]]))
 
@@ -41,15 +42,9 @@
                         :label    (bp "zoom-out")
                         :on-click on-click}]
         selected-step (cond
-                        (or (and (nil? id)
-                                 (= route-handler :ws/all))
-                            (= io :output))                    1
-                        (or (nil? id)
-                            (= io :input))                     2
-                        (= :ws/review route-handler)           3
-                        (= :ws/results-settings route-handler) 4
-                        (= :ws/results route-handler)          5
-                        :else                                  0)
+                        (and (= route-handler :ws/wizard) (= io :output)) 1
+                        (and (= route-handler :ws/wizard) (= io :input))  2
+                        :else                                             (get handler->step-number route-handler 0))
         progress      selected-step
         steps         (if id
                         [{:label      @(<t (bp "module_outputs_selections"))
