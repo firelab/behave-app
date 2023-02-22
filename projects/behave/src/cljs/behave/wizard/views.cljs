@@ -140,7 +140,8 @@
         *show-notes?             (subscribe [:wizard/show-notes?])
         *show-add-note-form?     (subscribe [:wizard/show-add-note-form?])
         on-back                  #(dispatch [:wizard/prev-tab params])
-        on-next                  #(dispatch [:wizard/next-tab @*module @*submodule @*submodules params])]
+        on-next                  #(dispatch [:wizard/next-tab @*module @*submodule @*submodules params])
+        *all-inputs-entered?     (subscribe [:worksheet/all-inputs-entered? @*ws-uuid module-id submodule])]
     [:div.wizard-page
      [wizard-header @*module @*submodules params]
      [:div.wizard-page__body
@@ -168,10 +169,11 @@
       (when (true? @*warn-limit?)
         [:div.wizard-warning
          (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])]
-     [wizard-navigation {:next-label @(<t (bp "next"))
-                         :on-next    on-next
-                         :back-label @(<t (bp "back"))
-                         :on-back    on-back}]]))
+     [wizard-navigation {:next-label     @(<t (bp "next"))
+                         :on-next        on-next
+                         :back-label     @(<t (bp "back"))
+                         :on-back        on-back
+                         :next-disabled? (not @*all-inputs-entered?)}]]))
 
 (defn run-description []
   (let [*ws-uuid (subscribe [:worksheet/latest])
