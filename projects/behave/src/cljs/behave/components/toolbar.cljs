@@ -1,8 +1,15 @@
 (ns behave.components.toolbar
   (:require [behave.components.core :as c]
-            [behave.client :refer [handler->step-number]]
             [re-frame.core          :as rf]
             [behave.translate       :refer [<t bp]]))
+
+(def handler->step-number {:ws/all              1
+                           :ws/import           2
+                           :ws/guided           2
+                           :ws/independent      2
+                           :ws/review           3
+                           :ws/results-settings 4
+                           :ws/results          5})
 
 (defn toolbar-tool [{icon-name :icon translation-key :label on-click :on-click :as s}]
   [:div.toolbar__tool
