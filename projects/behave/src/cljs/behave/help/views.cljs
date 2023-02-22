@@ -56,6 +56,7 @@
 
 (defn- help-content [help-keys & [children]]
   [:div.help-area__content
+   {:tabindex 0}
    (cond
      children
      [children]

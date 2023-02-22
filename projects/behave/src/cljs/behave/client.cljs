@@ -46,15 +46,18 @@
       [:tr
        [:td.page__top__logo
         [:div.behave-identity
+         {:href     "#"
+          :on-click #(rf/dispatch [:navigate "/"])
+          :tabindex 0}
          [:h1 @(<t "behaveplus")]]]
        [:td.page__top__toolbar-container
-        [toolbar]]]]
+        [toolbar params]]]]
      [:div.page__main
       [sidebar]
       [:div.container
        [:div.working-area
         (if (and @vms-loaded? @sync-loaded?)
-          [page params]
+          [page params
           [:h3 "Loading..."])]
        [help-area params]]]]))
 
