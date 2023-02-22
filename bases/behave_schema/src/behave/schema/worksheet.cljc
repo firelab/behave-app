@@ -9,8 +9,9 @@
 
 ;;; Spec
 
-(s/def :worksheet/uuid          string?)
-(s/def :worksheet/name          string?)
+(s/def :worksheet/uuid           string?)
+(s/def :worksheet/name           string?)
+(s/def :worksheet/current_step   keyword?)
 (s/def :worksheet/notes          many-ref?)
 (s/def :worksheet/inputs         many-ref?)
 (s/def :worksheet/outputs        many-ref?)
@@ -40,6 +41,11 @@
    {:db/ident       :worksheet/created
     :db/doc         "Worksheet's creation time in milliseconds since Jan 1., 1970."
     :db/valueType   :db.type/long
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :worksheet/completed-step
+    :db/doc         "Worksheet's furthest completed step."
+    :db/valueType   :db.type/keyword
     :db/cardinality :db.cardinality/one}
 
    ;; Relations

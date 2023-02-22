@@ -35,14 +35,6 @@
                     :tools/all           tools/root-component
                     :tools/page          tools/root-component})
 
-(def handler->step-number {:ws/all              1
-                           :ws/import           2
-                           :ws/guided           2
-                           :ws/independent      2
-                           :ws/review           3
-                           :ws/results-settings 4
-                           :ws/results          5})
-
 (defn app-shell [params]
   (let [route        (rf/subscribe [:handler])
         sync-loaded? (rf/subscribe [:state :sync-loaded?])
