@@ -43,7 +43,7 @@
     :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :worksheet/completed-step
+   {:db/ident       :worksheet/furthest-visited-step
     :db/doc         "Worksheet's furthest completed step."
     :db/valueType   :db.type/keyword
     :db/cardinality :db.cardinality/one}

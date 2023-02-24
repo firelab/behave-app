@@ -1,5 +1,7 @@
 (ns behave.worksheet.subs
-  (:require [clojure.string  :as str]
+  (:require [behave.store    :as s]
+            [clojure.string  :as str]
+            [datascript.core :as d]
             [re-posh.core    :as rp]
             [re-frame.core   :as rf]))
 
@@ -19,6 +21,11 @@
    (rf/subscribe [:worksheet/all]))
  (fn [all-worksheets [_]]
    (last (last (sort-by first all-worksheets)))))
+
+(rf/reg-sub
+ :worksheet
+ (fn [_ [_ ws-uuid]]
+   (d/entity @@s/conn [:worksheet/uuid ws-uuid])))
 
 ;; Retrieve latest worksheet UUID
 (rp/reg-sub
@@ -357,3 +364,14 @@
         module    @(rf/subscribe [:wizard/*module "contain"])
         module-id (:db/id module)]
     (rf/subscribe [:worksheet/all-inputs-entered? ws-id  module-id "suppression"])))
+
+(rp/reg-sub
+ :worksheet/furthest-visited-step
+ (fn [_ [_ ws-uuid]]
+   {:type      :query
+    :query     '[:find  ?furthest-visited-step .
+                 :in    $ ?ws-uuid
+                 :where
+                 [?w :worksheet/uuid ?ws-uuid]
+                 [?w :worksheet/furthest-visited-step ?furthest-visited-step]]
+    :variables [ws-uuid]}))

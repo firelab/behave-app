@@ -158,3 +158,23 @@
  :wizard/show-add-note-form?
  (fn [{:keys [state]} _]
    (true? (get-in state [:worksheet :show-add-note-form?]))))
+
+
+(reg-sub
+ :wizard/first-module+submodule
+ (fn [_]
+   (subscribe [:worksheet/latest])) ;TODO Get uuid as a param
+
+ (fn [ws-uuid [_ io]]
+   (let [worksheet @(subscribe [:worksheet ws-uuid])]
+     (when-let [module-kw (first (:worksheet/modules worksheet))]
+       (let [module          @(subscribe [:wizard/*module (name module-kw)])
+             module-id       (:db/id module)
+             submodules      @(subscribe [:wizard/submodules module-id])
+             [i-subs o-subs] (partition-by #(:submodule/io %) (sort-by :submodule/io submodules))
+             submodules      (if (= io :input) i-subs o-subs)]
+
+         [(name module-kw) (:slug (first submodules))])))))
+
+(comment
+  (subscribe [:wizard/first-module+submodule]))
