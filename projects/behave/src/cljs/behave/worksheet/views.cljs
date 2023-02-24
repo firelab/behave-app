@@ -3,6 +3,7 @@
             [behave.components.navigation :refer [wizard-navigation]]
             [behave.translate             :refer [<t bp]]
             [behave.worksheet.events]
+            [datascript.core              :refer [squuid]]
             [re-frame.core                :as rf]
             [reagent.core                 :as r]
             [dom-utils.interface          :refer [input-value]]
@@ -105,15 +106,19 @@
 
        [c/text-input {:label     "Worksheet Name"
                       :on-change #(rf/dispatch [:state/set [:worksheet :name] (input-value %)])}]]]
-
      [wizard-navigation {:next-label     @(<t (bp "next"))
                          :back-label     @(<t (bp "back"))
                          :next-disabled? (some empty? [@name @*modules])
                          :on-back        #(.back js/history)
                          :on-next        #(do
-                                            (rf/dispatch [:state/set [:sidebar :*modules] @*modules])
-                                            (rf/dispatch [:worksheet/new {:name @name :modules (vec @*modules)}])
-                                            (rf/dispatch [:navigate "/worksheets/1/modules/contain/output/fire"]))}]]))
+                                            ;; Generate UUID
+                                            (let [ws-uuid (str (squuid))]
+
+                                              ;; Create the Worksheet
+                                              (rf/dispatch [:worksheet/new {:name @name :modules (vec @*modules) :uuid ws-uuid}])
+
+                                              ;; Look at modules that user has selected, find the first output submodule
+                                              (rf/dispatch [:navigate (str "/worksheets/" ws-uuid "/modules/contain/output/fire")])))}]]))
 
 (defn guided-worksheet-page [params]
   [:<>

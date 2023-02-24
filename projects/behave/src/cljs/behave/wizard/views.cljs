@@ -125,23 +125,24 @@
               (wizard-note {:note                       n
                             :display-submodule-headers? false})))]))
 
-(defn wizard-page [{:keys [module io submodule] :as params}]
-  (let [*ws-uuid                 (subscribe [:worksheet/latest])
-        *module                  (subscribe [:wizard/*module module])
+(defn wizard-page [{:keys [module io submodule ws-uuid] :as params}]
+  (let [*module                  (subscribe [:wizard/*module module])
         module-id                (:db/id @*module)
         *submodules              (subscribe [:wizard/submodules module-id])
         *submodule               (subscribe [:wizard/*submodule module-id submodule io])
         submodule-uuid           (:bp/uuid @*submodule)
-        *notes                   (subscribe [:wizard/notes @*ws-uuid submodule-uuid])
+        *notes                   (subscribe [:wizard/notes ws-uuid submodule-uuid])
         *groups                  (subscribe [:wizard/groups (:db/id @*submodule)])
-        *warn-limit?             (subscribe [:wizard/warn-limit? @*ws-uuid])
+        *warn-limit?             (subscribe [:wizard/warn-limit? ws-uuid])
         *multi-value-input-limit (subscribe [:wizard/multi-value-input-limit])
-        *multi-value-input-count (subscribe [:wizard/multi-value-input-count @*ws-uuid])
+        *multi-value-input-count (subscribe [:wizard/multi-value-input-count ws-uuid])
         *show-notes?             (subscribe [:wizard/show-notes?])
         *show-add-note-form?     (subscribe [:wizard/show-add-note-form?])
         on-back                  #(dispatch [:wizard/prev-tab params])
         on-next                  #(dispatch [:wizard/next-tab @*module @*submodule @*submodules params])
-        *all-inputs-entered?     (subscribe [:worksheet/all-inputs-entered? @*ws-uuid module-id submodule])]
+        *all-inputs-entered?     (subscribe [:worksheet/all-inputs-entered? ws-uuid module-id submodule])
+        *some-outputs-entered?   (subscribe [:worksheet/some-outputs-entered? ws-uuid module-id submodule])
+        next-disabled?           (not (if (= io :input) @*all-inputs-entered? @*some-outputs-entered?))]
     [:div.wizard-page
      [wizard-header @*module @*submodules params]
      [:div.wizard-page__body
@@ -159,13 +160,13 @@
                      :title-value       ""
                      :body-value        ""
                      :on-save           #(dispatch [:wizard/create-note
-                                                    @*ws-uuid
+                                                    ws-uuid
                                                     submodule-uuid
                                                     (:submodule/name @*submodule)
                                                     (name (:submodule/io @*submodule))
                                                     %])}])]
          (wizard-notes @*notes)])
-      [submodule-page io @*ws-uuid @*groups on-back on-next]
+      [submodule-page io ws-uuid @*groups on-back on-next]
       (when (true? @*warn-limit?)
         [:div.wizard-warning
          (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])]
@@ -173,11 +174,10 @@
                          :on-next        on-next
                          :back-label     @(<t (bp "back"))
                          :on-back        on-back
-                         :next-disabled? (not @*all-inputs-entered?)}]]))
+                         :next-disabled? next-disabled?}]]))
 
-(defn run-description []
-  (let [*ws-uuid (subscribe [:worksheet/latest])
-        *values  (subscribe [:worksheet/get-attr @*ws-uuid :worksheet/run-description])]
+(defn run-description [ws-uuid]
+  (let [*values  (subscribe [:worksheet/get-attr ws-uuid :worksheet/run-description])]
     [:div.wizard-review__run-desciption
      [:div.wizard-review__run-description__header
       @(<t "behaveplus:run_description")]
@@ -188,7 +188,7 @@
                       :id          (->kebab @(<t (bp "run_description")))
                       :value       (or (first @*values) "")
                       :on-change   #(dispatch [:worksheet/update-attr
-                                               @*ws-uuid
+                                               ws-uuid
                                                :worksheet/run-description
                                                (-> % .-target .-value)])}]
        [:div.wizard-review__run-description__message
@@ -198,13 +198,12 @@
                    :icon-position "left"}]
         @(<t (bp "a_brief_phrase_documenting_the_run"))]]]]))
 
-(defn wizard-review-page [{:keys [id] :as params}]
-  (let [*ws-uuid                 (subscribe [:worksheet/latest])
-        *modules                 (subscribe [:worksheet/modules @*ws-uuid])
-        *warn-limit?             (subscribe [:wizard/warn-limit? @*ws-uuid])
+(defn wizard-review-page [{:keys [ws-uuid] :as params}]
+  (let [*modules                 (subscribe [:worksheet/modules ws-uuid])
+        *warn-limit?             (subscribe [:wizard/warn-limit? ws-uuid])
         *multi-value-input-limit (subscribe [:wizard/multi-value-input-limit])
-        *multi-value-input-count (subscribe [:wizard/multi-value-input-count @*ws-uuid])
-        *notes                   (subscribe [:wizard/notes @*ws-uuid])
+        *multi-value-input-count (subscribe [:wizard/multi-value-input-count ws-uuid])
+        *notes                   (subscribe [:wizard/notes ws-uuid])
         *show-notes?             (subscribe [:wizard/show-notes?])]
     [:div.accordion
      [:div.accordion__header
@@ -219,7 +218,7 @@
         [:div.wizard-header__banner__title "Review Modules"]
         (show-or-close-notes-button @*show-notes?)]
        [:div.wizard-review
-        [run-description]
+        [run-description ws-uuid]
         (when @*show-notes?
           (wizard-notes @*notes))
         (for [module-kw @*modules
@@ -237,12 +236,12 @@
                      :let  [variables  (:group/group-variables group)
                             edit-route (path-for routes
                                                  :ws/wizard
-                                                 :id        id
+                                                 :ws-uuid   ws-uuid
                                                  :module    module-name
                                                  :io        :input
                                                  :submodule (:slug submodule))]]
                  ^{:key (:db/id group)}
-                 [review/input-group @*ws-uuid group variables edit-route])])]])]
+                 [review/input-group ws-uuid group variables edit-route])])]])]
        (when (true? @*warn-limit?)
          [:div.wizard-warning
           (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])
@@ -297,16 +296,15 @@
                  :columns column-keys
                  :rows    row-data})])))
 
-(defn wizard-results-settings-page [{:keys [id] :as params}]
-  (let [*ws-uuid                 (subscribe [:worksheet/latest])
-        *multi-value-input-uuids (subscribe [:worksheet/multi-value-input-uuids @*ws-uuid])
+(defn wizard-results-settings-page [{:keys [ws-uuid] :as params}]
+  (let [*multi-value-input-uuids (subscribe [:worksheet/multi-value-input-uuids ws-uuid])
         group-variables          (map #(deref (subscribe [:wizard/group-variable %])) @*multi-value-input-uuids)
-        *notes                   (subscribe [:wizard/notes @*ws-uuid])
+        *notes                   (subscribe [:wizard/notes ws-uuid])
         *show-notes?             (subscribe [:wizard/show-notes?])
         on-back                  #(dispatch [:wizard/prev-tab params])
-        on-next                  #(dispatch [:navigate (path-for routes :ws/results :id id)])]
+        on-next                  #(dispatch [:navigate (path-for routes :ws/results :ws-uuid ws-uuid)])]
     (letfn [(radio-group [{:keys [label attr variables]}]
-              (let [*values   (subscribe [:worksheet/get-graph-settings-attr @*ws-uuid attr])
+              (let [*values   (subscribe [:worksheet/get-graph-settings-attr ws-uuid attr])
                     selected? (first @*values)]
                 [c/radio-group {:label   label
                                 :options (mapv (fn [{group-var-uuid :bp/uuid
@@ -314,7 +312,7 @@
                                                  {:value     var-name
                                                   :label     var-name
                                                   :on-change #(dispatch [:worksheet/update-graph-settings-attr
-                                                                         @*ws-uuid
+                                                                         ws-uuid
                                                                          attr
                                                                          group-var-uuid])
                                                   :checked?  (= selected? group-var-uuid)})
@@ -338,21 +336,21 @@
          [:div.wizard-results__table-settings__header "Table Settings"]
          [:div.wizard-results__table-settings__content
           (let [enabled? (first @(subscribe [:worksheet/get-table-settings-attr
-                                             @*ws-uuid
+                                             ws-uuid
                                              :table-settings/enabled?]))]
             [c/checkbox {:label     "Display Table Results"
                          :checked?  (true? enabled?)
-                         :on-change #(dispatch [:worksheet/toggle-table-settings @*ws-uuid])}])]]
+                         :on-change #(dispatch [:worksheet/toggle-table-settings ws-uuid])}])]]
         [:div.wizard-results__graph-settings
          [:div.wizard-results__graph-settings__header "Graph Settings"]
          [:div.wizard-results__graph-settings__content
           (let [enabled? (first @(subscribe [:worksheet/get-graph-settings-attr
-                                             @*ws-uuid
+                                             ws-uuid
                                              :graph-settings/enabled?]))]
             [:<>
              [c/checkbox {:label     "Display Graph Results"
                           :checked?  (true? enabled?)
-                          :on-change #(dispatch [:worksheet/toggle-graph-settings @*ws-uuid])}]
+                          :on-change #(dispatch [:worksheet/toggle-graph-settings ws-uuid])}]
              (when (true? enabled?)
                [:<>
                 [radio-group {:label     "Select X axis variable:"
@@ -361,19 +359,18 @@
                 [radio-group {:label     "Select Z axis variable:"
                               :attr      :graph-settings/z-axis-group-variable-uuid
                               :variables group-variables}]
-                [y-axis-limit-table @*ws-uuid]])])]]]
+                [y-axis-limit-table ws-uuid]])])]]]
        [wizard-navigation {:next-label @(<t (bp "next"))
                            :on-next    on-next
                            :back-label @(<t (bp "back"))
                            :on-back    on-back}]])))
 
 ;; Wizard Results
-(defn wizard-results-page [params]
-  (let [*ws-uuid       (subscribe [:worksheet/latest])
-        *notes         (subscribe [:wizard/notes @*ws-uuid])
+(defn wizard-results-page [{:keys [ws-uuid] :as params}]
+  (let [*notes         (subscribe [:wizard/notes ws-uuid])
         *tab-selected  (subscribe [:worksheet/results-tab-selected])
-        *headers       (subscribe [:worksheet/result-table-headers-sorted @*ws-uuid])
-        *cell-data     (subscribe [:worksheet/result-table-cell-data @*ws-uuid])
+        *headers       (subscribe [:worksheet/result-table-headers-sorted ws-uuid])
+        *cell-data     (subscribe [:worksheet/result-table-cell-data ws-uuid])
         graph-data     (->> @*cell-data
                             (group-by first)
                             (reduce (fn [acc [_row-id cell-data]]
@@ -388,7 +385,7 @@
                                                     cell-data)))
                                     []))
         table-enabled? (first @(subscribe [:worksheet/get-table-settings-attr
-                                           @*ws-uuid
+                                           ws-uuid
                                            :table-settings/enabled?]))]
     [:div.accordion
      [:div.accordion__header

@@ -7,10 +7,10 @@
 
 (rf/reg-event-fx
   :wizard/select-tab
-  (fn [_ [_ {:keys [id module io submodule]}]]
+  (fn [_ [_ {:keys [ws-uuid module io submodule]}]]
     (let [path (path-for routes
                          :ws/wizard
-                         :id id
+                         :ws-uuid ws-uuid
                          :module module
                          :io io
                          :submodule submodule)]
@@ -28,7 +28,7 @@
           _*module
           _*submodule
           all-submodules
-          {:keys [id module io submodule]}]]
+          {:keys [ws-uuid module io submodule]}]]
     (let [[i-subs o-subs] (partition-by #(:submodule/io %) (sort-by :submodule/io all-submodules))
           submodules      (if (= io :input) i-subs o-subs)
           next-submodules (rest (drop-while #(not= (:slug %) submodule) (sort-by :submodule/order submodules)))
@@ -36,7 +36,7 @@
                             (seq next-submodules)
                             (path-for routes
                                       :ws/wizard
-                                      :id id
+                                      :ws-uuid ws-uuid
                                       :module module
                                       :io io
                                       :submodule (:slug (first next-submodules)))
@@ -44,7 +44,7 @@
                             (and (= io :output) (empty? next-submodules))
                             (path-for routes
                                       :ws/wizard
-                                      :id id
+                                      :ws-uuid ws-uuid
                                       :module module
                                       :io :input
                                       :submodule (:slug (first i-subs)))
@@ -52,15 +52,15 @@
                             (and (= io :input) (empty? next-submodules))
                             (path-for routes
                                       :ws/review
-                                      :id id))]
+                                      :ws-uuid ws-uuid))]
       {:fx [[:dispatch [:navigate path]]]})))
 
 (rf/reg-event-fx
   :wizard/solve
-  (fn [{db :db} [_ {:keys [id]}]]
+  (fn [{db :db} [_ {:keys [ws-uuid]}]]
     (let [{:keys [state]} db
           worksheet       (solve-worksheet (:worksheet state))
-          path            (path-for routes :ws/results-settings :id id :results-page :settings)]
+          path            (path-for routes :ws/results-settings :ws-uuid ws-uuid :results-page :settings)]
       {:fx [[:dispatch [:navigate path]]]
        :db (assoc-in db [:state :worksheet] worksheet)})))
 

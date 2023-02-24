@@ -1,5 +1,6 @@
 (ns behave.worksheet.subs
   (:require [clojure.string  :as str]
+            [clojure.set     :as set]
             [re-posh.core    :as rp]
             [re-frame.core   :as rf]))
 
@@ -47,12 +48,12 @@
  :worksheet/output-enabled?
  (fn [_ [_ ws-uuid variable-uuid]]
    {:type      :query
-    :query     '[:find  [?enabled]
+    :query     '[:find  ?enabled .
                  :in    $ ?ws-uuid ?var-uuid
                  :where [?w :worksheet/uuid ?ws-uuid]
-                 [?w :worksheet/outputs ?o]
-                 [?o :output/group-variable-uuid ?var-uuid]
-                 [?o :output/enabled? ?enabled]]
+                        [?w :worksheet/outputs ?o]
+                        [?o :output/group-variable-uuid ?var-uuid]
+                        [?o :output/enabled? ?enabled]]
     :variables [ws-uuid variable-uuid]}))
 
 ;; Get the value of a particular input
@@ -309,20 +310,6 @@
      (->> headers
           (sort-by first)))))
 
-(comment
-  (let [ws-uuid @(rf/subscribe [:worksheet/latest])]
-    (rf/subscribe [:worksheet/graph-settings-y-axis-limits ws-uuid])))
-
-(comment
-  (let [ws-uuid @(rf/subscribe [:worksheet/latest])]
-    @(rf/subscribe [:worksheet/table-settings-enabled? ws-uuid]))
-
-  (let [ws-uuid @(rf/subscribe [:worksheet/latest])]
-    (rf/subscribe [:worksheet/all-output-names ws-uuid]))
-
-  (let [ws-uuid @(rf/subscribe [:worksheet/latest])]
-    (rf/subscribe [:worksheet/get-attr ws-uuid :graph-settings/enabled?])))
-
 (rf/reg-sub
  :worksheet/all-inputs-entered?
  (fn [_ [_ ws-uuid module-id submodule]]
@@ -352,8 +339,15 @@
 
      (and groups-not-repeat-all-values-entered? groups-repeat-all-values-entered?))))
 
-(comment
-  (let [ws-id     @(rf/subscribe [:worksheet/latest])
-        module    @(rf/subscribe [:wizard/*module "contain"])
-        module-id (:db/id module)]
-    (rf/subscribe [:worksheet/all-inputs-entered? ws-id  module-id "suppression"])))
+(rf/reg-sub
+ :worksheet/some-outputs-entered?
+ (fn [[_ ws-uuid]]
+   (rf/subscribe [:worksheet/all-output-uuids ws-uuid]))
+
+ (fn [all-output-uuids [_ ws-uuid module-id submodule-slug]]
+   (if (seq all-output-uuids)
+     (let [submodule       @(rf/subscribe [:wizard/*submodule module-id submodule-slug :output])
+           groups          (:submodule/groups submodule)
+           group-variables (set (flatten (map #(map :bp/uuid (:group/group-variables %)) groups)))]
+       (boolean (seq (set/intersection (set all-output-uuids)))))
+     false)))

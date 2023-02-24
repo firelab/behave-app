@@ -43,6 +43,14 @@
     (filter (fn [submodule] (= (:submodule/io submodule) :input)) submodules)))
 
 (reg-sub
+  :wizard/submodules-io-output-only
+  (fn [[_ module-id]]
+    (subscribe [:wizard/submodules module-id]))
+
+  (fn [submodules _]
+    (filter (fn [submodule] (= (:submodule/io submodule) :output)) submodules)))
+
+(reg-sub
   :wizard/*submodule
 
   (fn [[_ module-id _ _]]
