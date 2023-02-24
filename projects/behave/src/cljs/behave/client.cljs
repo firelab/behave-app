@@ -51,13 +51,14 @@
           :tabindex 0}
          [:h1 @(<t "behaveplus")]]]
        [:td.page__top__toolbar-container
-        [toolbar params]]]]
+        [toolbar]]]]
      [:div.page__main
       [sidebar]
       [:div.container
        [:div.working-area
+        {:area-live "assertive"}
         (if (and @vms-loaded? @sync-loaded?)
-          [page params
+          [page params]
           [:h3 "Loading..."])]
        [help-area params]]]]))
 
