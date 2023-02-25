@@ -41,9 +41,10 @@
                                   (assoc :facet {:field   (:name z2)
                                                  :type    "nominal"
                                                  :legend  nil
-                                                 :columns (or (:columns z2) 1)})) ;TODO parameterize columns
-                      :width  width
-                      :height height}
+                                                 :columns (or (:columns z2) 1)}))
+                      :resolve {:axis {:x "independent" :y "independent"}}
+                      :width   width
+                      :height  height}
           z-name   (:name z)
           z-legend {:mark     {:type "point"}
                     :title    z-name

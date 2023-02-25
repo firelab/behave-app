@@ -163,7 +163,7 @@
     @(rf/subscribe [:wizard/notes ws-uuid])))
 
 (comment
-  ;; Use this to test the table tab in the results page
+  ;; Use this to test the table and graph tab in the results page
   ;; 1. Create WS
   ;; 2. navigate to settings page. You do not have to enter any output or inputs.
   ;; 3. check "Display Table Results"
@@ -203,9 +203,27 @@
        "Fire Size at Report"                           "30493fc2-a231-41ee-a16a-875f00cf853f"
        "Length-to-Width Ratio"                         "41503286-dfe4-457a-9b68-41832e049cc9"})
 
-    ;; insert table with 4 columns and 1 row of data
     (d/transact @s/conn
-                [{:db/id                  ws-id
+                [{:db/id ws-id
+
+                  :worksheet/outputs [{:output/group-variable-uuid (get output-name->uuid "Fire Perimeter - at resource arrival time")
+                                       :output/enabled?            true}
+                                      {:output/group-variable-uuid (get output-name->uuid "Fire Area at Initial Attack")
+                                       :output/enabled?            true}]
+
+                  :worksheet/graph-settings {:graph-settings/enabled?                   true
+                                             :graph-settings/x-axis-group-variable-uuid (get input-name->uuid "Contain Surface Fire Rate of Spread (maximum)")
+                                             :graph-settings/z-axis-group-variable-uuid (get input-name->uuid "Length-to-Width Ratio")
+                                             :graph-settings/z2-axis-group-variable-uuid (get input-name->uuid "Fire Size at Report")
+                                             :graph-settings/y-axis-limits              [{:y-axis-limit/group-variable-uuid (get output-name->uuid "Fire Perimeter - at resource arrival time")
+                                                                                          :y-axis-limit/min                 0
+                                                                                          :y-axis-limit/max                 120}
+                                                                                         {:y-axis-limit/group-variable-uuid (get output-name->uuid "Fire Area at Initial Attack")
+                                                                                          :y-axis-limit/min                 0
+                                                                                          :y-axis-limit/max                 200}]}
+
+                  ;; Insert table 3 input columns and 2 output columns
+                  ;; Each input have 3 possible values and every combination is generated as a separate row.
                   :worksheet/result-table {:db/id                -1
                                            :result-table/headers [; inputs
                                                                   {:db/id                             -2
@@ -247,5 +265,5 @@
                                                                                           :result-cell/value  (str (* (+ i j k) 42))}
                                                                                          {:result-cell/header -6
                                                                                           :result-cell/value  (str (* (+ i j k) 42))}]})
-                                                                    (map-indexed (fn [idx v]
-                                                                                   (assoc v :result-row/id idx))))}}])))
+                                                                   (map-indexed (fn [idx v]
+                                                                                  (assoc v :result-row/id idx))))}}])),)
