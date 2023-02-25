@@ -388,31 +388,33 @@
                                                        {}
                                                        cell-data)))
                                        []))]
-        (for [output-uuid @*output-uuids
-              :let        [y-axis-limit (->> (:graph-settings/y-axis-limits graph-settings)
-                                             (filter #(= output-uuid (:y-axis-limit/group-variable-uuid %)))
-                                             (first))
-                           y-min (:y-axis-limit/min y-axis-limit)
-                           y-max (:y-axis-limit/max y-axis-limit)]]
-          [:div.wizard-results__graph
-           (chart {:data   graph-data
-                   :x      {:name (-> (:graph-settings/x-axis-group-variable-uuid graph-settings)
-                                      (uuid->variable-name))}
-                   :y      {:name  (:variable/name @(subscribe [:wizard/group-variable output-uuid]))
-                            :scale [y-min y-max]}
-                   :z      {:name (-> (:graph-settings/z-axis-group-variable-uuid graph-settings)
-                                      (uuid->variable-name))}
-                   :z2     {:name (-> (:graph-settings/z2-axis-group-variable-uuid graph-settings)
-                                      (uuid->variable-name))
-                            :columns 2}
-                   :width  250
-                   :height 250})])))))
+        [:div.wizard-results__graphs {:id "graph"}
+         [:div.wizard-notes__header "Graph"]
+         (for [output-uuid @*output-uuids
+               :let        [y-axis-limit (->> (:graph-settings/y-axis-limits graph-settings)
+                                              (filter #(= output-uuid (:y-axis-limit/group-variable-uuid %)))
+                                              (first))
+                            y-min (:y-axis-limit/min y-axis-limit)
+                            y-max (:y-axis-limit/max y-axis-limit)]]
+           [:div.wizard-results__graph
+            (chart {:data   graph-data
+                    :x      {:name (-> (:graph-settings/x-axis-group-variable-uuid graph-settings)
+                                       (uuid->variable-name))}
+                    :y      {:name  (:variable/name @(subscribe [:wizard/group-variable output-uuid]))
+                             :scale [y-min y-max]}
+                    :z      {:name (-> (:graph-settings/z-axis-group-variable-uuid graph-settings)
+                                       (uuid->variable-name))}
+                    :z2     {:name    (-> (:graph-settings/z2-axis-group-variable-uuid graph-settings)
+                                       (uuid->variable-name))
+                             :columns 2}
+                    :width  250
+                    :height 250})])]))))
 
 ;; Wizard Results
 (defn wizard-results-page [params]
   (let [*ws-uuid       (subscribe [:worksheet/latest])
         *notes         (subscribe [:wizard/notes @*ws-uuid])
-        *tab-selected  (subscribe [:worksheet/results-tab-selected])
+        *tab-selected  (subscribe [:wizard/results-tab-selected])
         *headers       (subscribe [:worksheet/result-table-headers-sorted @*ws-uuid])
         *cell-data     (subscribe [:worksheet/result-table-cell-data @*ws-uuid])
         table-enabled? (first @(subscribe [:worksheet/get-table-settings-attr
@@ -430,11 +432,11 @@
          [c/icon :modules]]
         "Results"]]
       [c/tab-group {:variant  "outline-highlight"
-                    :on-click #(dispatch [:wizard/results-scroll-into-view :tab])
+                    :on-click #(dispatch [:wizard/results-select-tab %])
                     :tabs     [{:label     "Notes"
                                 :tab       :notes
-                                :selected? (= @*tab-selected :notes)
-                                :icon-name :notes}
+                                :icon-name :notes
+                                :selected? (= @*tab-selected :notes)}
                                {:label     "Table"
                                 :tab       :table
                                 :icon-name :tables
@@ -443,10 +445,12 @@
                                 :tab       :graph
                                 :icon-name :graphs
                                 :selected? (= @*tab-selected :graph)}]}]
-      [:div.wizard-results__content
-       (wizard-notes @*notes)
+      [:div.wizard-page__body
+       [:div.wizard-results__notes {:id "notes"}
+        (wizard-notes @*notes)]
        (when (and table-enabled? (seq @*cell-data))
-         [:div.wizard-results__table
+         [:div.wizard-results__table {:id "table"}
+          [:div.wizard-notes__header "Table"]
           (c/table {:title   "Results Table"
                     :headers (mapv (fn resolve-uuid [[_order uuid units]]
                                      (gstring/format "%s (%s)"

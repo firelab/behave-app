@@ -251,11 +251,6 @@
              [?y :y-axis-limit/max ?max]]
     :variables [ws-uuid]}))
 
-(rf/reg-sub
- :worksheet/results-tab-selected
- (fn [_ _]
-   :notes)) ;TODO update when more results tabs are are added.
-
 (rp/reg-sub
  :worksheet/notes
  (fn [_ [_ ws-uuid]]
