@@ -158,3 +158,11 @@
  :wizard/show-add-note-form?
  (fn [{:keys [state]} _]
    (true? (get-in state [:worksheet :show-add-note-form?]))))
+
+
+(reg-sub
+ :wizard/results-tab-selected
+ (fn [_ _]
+  (subscribe [:state [:worksheet :results :tab-selected]]))
+ (fn [tab-selected _]
+   tab-selected))

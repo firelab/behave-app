@@ -231,6 +231,10 @@
                      (second multi-value-input-uuids)
                      (assoc :graph-settings/z-axis-group-variable-uuid (second multi-value-input-uuids))
 
+                     ;; sets default z2-axis selection if available
+                     (nth multi-value-input-uuids 2 nil)
+                     (assoc :graph-settings/z2-axis-group-variable-uuid (nth multi-value-input-uuids 2))
+
                      (seq output-uuids)
                      (assoc :graph-settings/y-axis-limits
                             (mapv (fn [output-uuid]

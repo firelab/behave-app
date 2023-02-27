@@ -140,7 +140,8 @@
         *show-notes?             (subscribe [:wizard/show-notes?])
         *show-add-note-form?     (subscribe [:wizard/show-add-note-form?])
         on-back                  #(dispatch [:wizard/prev-tab params])
-        on-next                  #(dispatch [:wizard/next-tab @*module @*submodule @*submodules params])]
+        on-next                  #(dispatch [:wizard/next-tab @*module @*submodule @*submodules params])
+        *all-inputs-entered?     (subscribe [:worksheet/all-inputs-entered? @*ws-uuid module-id submodule])]
     [:div.wizard-page
      [wizard-header @*module @*submodules params]
      [:div.wizard-page__body
@@ -168,10 +169,11 @@
       (when (true? @*warn-limit?)
         [:div.wizard-warning
          (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])]
-     [wizard-navigation {:next-label @(<t (bp "next"))
-                         :on-next    on-next
-                         :back-label @(<t (bp "back"))
-                         :on-back    on-back}]]))
+     [wizard-navigation {:next-label     @(<t (bp "next"))
+                         :on-next        on-next
+                         :back-label     @(<t (bp "back"))
+                         :on-back        on-back
+                         :next-disabled? (not @*all-inputs-entered?)}]]))
 
 (defn run-description []
   (let [*ws-uuid (subscribe [:worksheet/latest])
@@ -359,11 +361,54 @@
                 [radio-group {:label     "Select Z axis variable:"
                               :attr      :graph-settings/z-axis-group-variable-uuid
                               :variables group-variables}]
+                [radio-group {:label     "Select Z2 axis variable:"
+                              :attr      :graph-settings/z2-axis-group-variable-uuid
+                              :variables group-variables}]
                 [y-axis-limit-table @*ws-uuid]])])]]]
        [wizard-navigation {:next-label @(<t (bp "next"))
                            :on-next    on-next
                            :back-label @(<t (bp "back"))
                            :on-back    on-back}]])))
+
+(defn- wizard-graph [ws-uuid cell-data]
+  (letfn [(uuid->variable-name [uuid]
+            (:variable/name @(subscribe [:wizard/group-variable uuid])))]
+    (when-let [graph-settings @(subscribe [:worksheet/graph-settings ws-uuid])]
+      (let [*output-uuids (subscribe [:worksheet/all-output-uuids ws-uuid])
+            graph-data    (->> cell-data
+                               (group-by first)
+                               (reduce (fn [acc [_row-id cell-data]]
+                                         (conj acc
+                                               (reduce (fn [acc [_row-id col-uuid value]]
+                                                         (assoc acc
+                                                                (-> (subscribe [:wizard/group-variable col-uuid])
+                                                                    deref
+                                                                    :variable/name)
+                                                                value))
+                                                       {}
+                                                       cell-data)))
+                                       []))]
+        [:div.wizard-results__graphs {:id "graph"}
+         [:div.wizard-notes__header "Graph"]
+         (for [output-uuid @*output-uuids
+               :let        [y-axis-limit (->> (:graph-settings/y-axis-limits graph-settings)
+                                              (filter #(= output-uuid (:y-axis-limit/group-variable-uuid %)))
+                                              (first))
+                            y-min (:y-axis-limit/min y-axis-limit)
+                            y-max (:y-axis-limit/max y-axis-limit)]]
+           [:div.wizard-results__graph
+            (chart {:data   graph-data
+                    :x      {:name (-> (:graph-settings/x-axis-group-variable-uuid graph-settings)
+                                       (uuid->variable-name))}
+                    :y      {:name  (:variable/name @(subscribe [:wizard/group-variable output-uuid]))
+                             :scale [y-min y-max]}
+                    :z      {:name (-> (:graph-settings/z-axis-group-variable-uuid graph-settings)
+                                       (uuid->variable-name))}
+                    :z2     {:name    (-> (:graph-settings/z2-axis-group-variable-uuid graph-settings)
+                                       (uuid->variable-name))
+                             :columns 2}
+                    :width  250
+                    :height 250})])]))))
 
 ;; Wizard Results
 (defn wizard-results-page [params]
@@ -373,22 +418,9 @@
                          (.setTime d 1676391828168)
                          (.toLocaleDateString d))
         *notes         (subscribe [:wizard/notes @*ws-uuid])
-        *tab-selected  (subscribe [:worksheet/results-tab-selected])
+        *tab-selected  (subscribe [:wizard/results-tab-selected])
         *headers       (subscribe [:worksheet/result-table-headers-sorted @*ws-uuid])
         *cell-data     (subscribe [:worksheet/result-table-cell-data @*ws-uuid])
-        graph-data     (->> @*cell-data
-                            (group-by first)
-                            (reduce (fn [acc [_row-id cell-data]]
-                                      (conj acc
-                                            (reduce (fn [acc [_row-id col-uuid value]]
-                                                      (assoc acc
-                                                             (-> (subscribe [:wizard/group-variable col-uuid])
-                                                                 deref
-                                                                 :variable/name)
-                                                             value))
-                                                    {}
-                                                    cell-data)))
-                                    []))
         table-enabled? (first @(subscribe [:worksheet/get-table-settings-attr
                                            @*ws-uuid
                                            :table-settings/enabled?]))]
@@ -412,11 +444,11 @@
          [:div.wizard-header__results-toolbar__date__value ws-date-str]]]
        [:div.wizard-header__results-tabs
         [c/tab-group {:variant  "outline-highlight"
-                      :on-click #(dispatch [:wizard/results-scroll-into-view :tab])
+                      :on-click #(dispatch [:wizard/results-select-tab %])
                       :tabs     [{:label     "Notes"
                                   :tab       :notes
-                                  :selected? (= @*tab-selected :notes)
-                                  :icon-name :notes}
+                                  :icon-name :notes
+                                  :selected? (= @*tab-selected :notes)}
                                  {:label     "Table"
                                   :tab       :table
                                   :icon-name :tables
@@ -425,10 +457,12 @@
                                   :tab       :graph
                                   :icon-name :graphs
                                   :selected? (= @*tab-selected :graph)}]}]]]
-      [:div.wizard-results__content
-       (wizard-notes @*notes)
+      [:div.wizard-page__body
+       [:div.wizard-results__notes {:id "notes"}
+        (wizard-notes @*notes)]
        (when (and table-enabled? (seq @*cell-data))
-         [:div.wizard-results__table
+         [:div.wizard-results__table {:id "table"}
+          [:div.wizard-notes__header "Table"]
           (c/table {:title   "Results Table"
                     :headers (mapv (fn resolve-uuid [[_order uuid units]]
                                      (gstring/format "%s (%s)"
@@ -443,15 +477,7 @@
                                                    (assoc acc (keyword uuid) value))
                                                  {}
                                                  data))))})])
-       (chart {:data   graph-data
-               :x      {:name (:variable/name @(subscribe [:wizard/group-variable "fbbf73f6-3a0e-4fdd-b913-dcc50d2db311"]))}       ;TODO read value from datahike
-               :y      {:name  (:variable/name @(subscribe [:wizard/group-variable "b7873139-659e-4475-8d41-0cf6c36da893"]))
-                        :scale [0 120]}                                                                                      ;TODO read value from datahike
-               :z      {:name (:variable/name @(subscribe [:wizard/group-variable "41503286-dfe4-457a-9b68-41832e049cc9"]))} ;TODO read value from datahike
-               :z2     {:name    (:variable/name @(subscribe [:wizard/group-variable "30493fc2-a231-41ee-a16a-875f00cf853f"]))
-                        :columns 2}
-               :width  500
-               :height 500})]]
+       (wizard-graph @*ws-uuid @*cell-data)]]
      [:div.wizard-navigation
       [c/button {:label    "Back"
                  :variant  "secondary"

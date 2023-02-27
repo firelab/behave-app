@@ -93,15 +93,14 @@
   (fn [_cfx [_event-id route repeat-id var-uuid]]
     {:fx [[:dispatch [:navigate route]]
           [:dispatch-later {:ms       200
-                            :dispatch [:wizard/scroll-into-view repeat-id var-uuid]}]]}))
+                            :dispatch [:wizard/scroll-into-view (str repeat-id  "-" var-uuid)]}]]}))
 
 (rf/reg-event-fx
   :wizard/scroll-into-view
-  (fn [_cfx [_event-id repeat-id var-uuid]]
-    (let [content (first (.getElementsByClassName js/document "wizard-io"))
-          section (.getElementById js/document (str repeat-id  "-" var-uuid))
-          _       (println "scroll-into-vew id:" (str repeat-id  "-" var-uuid))
-          buffer  (* 0.10 (.-offsetHeight content))
+  (fn [_cfx [_event-id id]]
+    (let [content (first (.getElementsByClassName js/document "wizard-page__body"))
+          section (.getElementById js/document id)
+          buffer  (* 0.01 (.-offsetHeight content))
           top     (- (.-offsetTop section) (.-offsetTop content) buffer)]
       (.scroll content #js {:top top :behavior "smooth"}))))
 
@@ -137,3 +136,11 @@
  :wizard/toggle-show-add-note-form
  (fn [_cfx _query]
    {:fx [[:dispatch [:state/update [:worksheet :show-add-note-form?] not]]]}))
+
+
+
+(rf/reg-event-fx
+ :wizard/results-select-tab
+ (fn [_cfx [_ {:keys [tab]}]]
+   {:fx [[:dispatch [:state/set [:worksheet :results :tab-selected] tab]]
+         [:dispatch [:wizard/scroll-into-view (name tab)]]]}))

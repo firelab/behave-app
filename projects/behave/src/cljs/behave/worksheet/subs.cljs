@@ -3,7 +3,9 @@
             [clojure.string  :as str]
             [datascript.core :as d]
             [re-posh.core    :as rp]
-            [re-frame.core   :as rf]))
+            [re-frame.core   :as rf]
+            [behave.store    :as s]
+            [datascript.core :as d]))
 
 ;; Retrieve all worksheet UUID's
 (rp/reg-sub
@@ -257,11 +259,6 @@
              [?y :y-axis-limit/max ?max]]
     :variables [ws-uuid]}))
 
-(rf/reg-sub
- :worksheet/results-tab-selected
- (fn [_ _]
-   :notes)) ;TODO update when more results tabs are are added.
-
 (rp/reg-sub
  :worksheet/notes
  (fn [_ [_ ws-uuid]]
@@ -317,9 +314,25 @@
      (->> headers
           (sort-by first)))))
 
+(rf/reg-sub
+ :worksheet/graph-settings
+ (fn [[_ ws-uuid]]
+   (rf/subscribe [:query '[:find ?gs .
+                           :in $ ?ws-uuid
+                           :where
+                           [?w :worksheet/uuid ?ws-uuid]
+                           [?w :worksheet/graph-settings ?gs]]
+                  [ws-uuid]]))
+ (fn [id _]
+   (d/entity @@s/conn id)))
+
 (comment
   (let [ws-uuid @(rf/subscribe [:worksheet/latest])]
-    (rf/subscribe [:worksheet/graph-settings-y-axis-limits ws-uuid])))
+    (rf/subscribe [:worksheet/graph-settings-y-axis-limits ws-uuid]))
+
+  (let [ws-uuid @(rf/subscribe [:worksheet/latest])]
+    (:y-axis-limit/min (first (:graph-settings/y-axis-limits @(rf/subscribe [:worksheet/graph-settings ws-uuid])))))
+  )
 
 (comment
   (let [ws-uuid @(rf/subscribe [:worksheet/latest])]
