@@ -303,7 +303,7 @@
 .wizard-page__body {
   overflow-x: hidden;
   overflow-y: scroll;
-  height: 600px;
+  height: 540px;
 }
 
 /* .wizard-io { */
