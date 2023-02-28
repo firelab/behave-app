@@ -125,7 +125,7 @@
               (wizard-note {:note                       n
                             :display-submodule-headers? false})))]))
 
-(defn wizard-page [{:keys [module io submodule] :as params}]
+(defn wizard-page [{:keys [module io submodule route-handler] :as params}]
   (let [*ws-uuid                 (subscribe [:worksheet/latest])
         *module                  (subscribe [:wizard/*module module])
         module-id                (:db/id @*module)
@@ -140,7 +140,8 @@
         *show-notes?             (subscribe [:wizard/show-notes?])
         *show-add-note-form?     (subscribe [:wizard/show-add-note-form?])
         on-back                  #(dispatch [:wizard/prev-tab params])
-        on-next                  #(dispatch [:wizard/next-tab @*module @*submodule @*submodules params])]
+        on-next                  #(do (dispatch [:wizard/next-tab @*module @*submodule @*submodules params])
+                                      (dispatch [:worksheet/update-completed-step @*ws-uuid route-handler io]))]
     [:div.wizard-page
      [wizard-header @*module @*submodules params]
      [:div.wizard-page__body
@@ -196,7 +197,7 @@
                    :icon-position "left"}]
         @(<t (bp "a_brief_phrase_documenting_the_run"))]]]]))
 
-(defn wizard-review-page [{:keys [id] :as params}]
+(defn wizard-review-page [{:keys [id io route-handler] :as params}]
   (let [*ws-uuid                 (subscribe [:worksheet/latest])
         *modules                 (subscribe [:worksheet/modules @*ws-uuid])
         *warn-limit?             (subscribe [:wizard/warn-limit? @*ws-uuid])
@@ -253,7 +254,8 @@
                    :variant       "highlight"
                    :icon-name     "arrow2"
                    :icon-position "right"
-                   :on-click      #(dispatch [:wizard/solve params])}]]]]]))
+                   :on-click      #(do (dispatch [:wizard/solve params])
+                                       (dispatch [:worksheet/update-completed-step @*ws-uuid route-handler io]))}]]]]]))
 
 ;; Wizard Results Settings
 
@@ -295,14 +297,15 @@
                  :columns column-keys
                  :rows    row-data})])))
 
-(defn wizard-results-settings-page [{:keys [id] :as params}]
+(defn wizard-results-settings-page [{:keys [id route-handler io] :as params}]
   (let [*ws-uuid                 (subscribe [:worksheet/latest])
         *multi-value-input-uuids (subscribe [:worksheet/multi-value-input-uuids @*ws-uuid])
         group-variables          (map #(deref (subscribe [:wizard/group-variable %])) @*multi-value-input-uuids)
         *notes                   (subscribe [:wizard/notes @*ws-uuid])
         *show-notes?             (subscribe [:wizard/show-notes?])
         on-back                  #(dispatch [:wizard/prev-tab params])
-        on-next                  #(dispatch [:navigate (path-for routes :ws/results :id id)])]
+        on-next                  #(do (dispatch [:navigate (path-for routes :ws/results :id id)])
+                                      (dispatch [:worksheet/update-completed-step @*ws-uuid route-handler io]))]
     (letfn [(radio-group [{:keys [label attr variables]}]
               (let [*values   (subscribe [:worksheet/get-graph-settings-attr @*ws-uuid attr])
                     selected? (first @*values)]
