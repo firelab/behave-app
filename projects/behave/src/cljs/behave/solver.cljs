@@ -237,7 +237,7 @@
               units         (or (variable-units gv-id) "")]
           (println "-- SINGLE VAR" gv-id value units)
           (rf/dispatch [:worksheet/add-result-table-header ws-uuid gv-id units])
-          (rf/dispatch [:worksheet/add-result-table-cell ws-uuid gv-id value])
+          (rf/dispatch [:worksheet/add-result-table-cell ws-uuid 0 gv-id value])
           (apply-single-cpp-fn (ns-publics 'behave.lib.contain) module gv-id value units))
 
         ; Multiple Groups w/ Single Variable
@@ -246,7 +246,7 @@
           (let [[gv-id value] (first repeat-group)
                 units         (or (variable-units gv-id) "")]
             (rf/dispatch [:worksheet/add-result-table-header ws-uuid gv-id units])
-            (rf/dispatch [:worksheet/add-result-table-cell ws-uuid gv-id value])
+            (rf/dispatch [:worksheet/add-result-table-cell ws-uuid 0 gv-id value])
             (apply-single-cpp-fn (ns-publics 'behave.lib.contain) module gv-id value units)))
 
         ; Multiple Groups w/ Multiple Variables
@@ -263,7 +263,7 @@
       (let [units  (variable-units group-variable-uuid) 
             result (apply-output-cpp-fn (ns-publics 'behave.lib.contain) module group-variable-uuid)]
         (rf/dispatch [:worksheet/add-result-table-header ws-uuid group-variable-uuid units])
-        (rf/dispatch [:worksheet/add-result-table-cell ws-uuid group-variable-uuid result])))))
+        (rf/dispatch [:worksheet/add-result-table-cell ws-uuid 0 group-variable-uuid result])))))
 
 (defn mortality-solver [ws-uuid results]
   (assoc results :mortality []))
