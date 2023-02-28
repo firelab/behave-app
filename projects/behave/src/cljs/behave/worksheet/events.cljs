@@ -309,11 +309,11 @@
  [(rp/inject-cofx :ds)]
  (fn [{:keys [ds]} [_ ws-uuid route-handler io]]
    (when-let [worksheet (d/entity ds [:worksheet/uuid ws-uuid])]
-     (let [worksheet-current-step (get step-kw->number (:worksheet/furthest-visited-step worksheet))
+     (let [worksheet-visited-step (get step-kw->number (:worksheet/furthest-visited-step worksheet))
            current-step           (get-step-number route-handler io)]
-       (when (or (nil? worksheet-current-step)
-                 (< worksheet-current-step current-step))
-         {:transact [{:db/id                    (:db/id worksheet)
+       (when (or (nil? worksheet-visited-step)
+                 (< worksheet-visited-step current-step))
+         {:transact [{:db/id                           [:worksheet/uuid ws-uuid]
                       :worksheet/furthest-visited-step (get-step-kw route-handler io)}]})))))
 
 (comment

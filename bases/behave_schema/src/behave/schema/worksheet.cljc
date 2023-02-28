@@ -11,7 +11,7 @@
 
 (s/def :worksheet/uuid           string?)
 (s/def :worksheet/name           string?)
-(s/def :worksheet/current_step   keyword?)
+(s/def :worksheet/completed-step keyword?)
 (s/def :worksheet/notes          many-ref?)
 (s/def :worksheet/inputs         many-ref?)
 (s/def :worksheet/outputs        many-ref?)
