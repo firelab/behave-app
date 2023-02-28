@@ -166,3 +166,14 @@
   (subscribe [:state [:worksheet :results :tab-selected]]))
  (fn [tab-selected _]
    tab-selected))
+
+(reg-sub
+ :wizard/worksheet-date
+
+ (fn [[_ ws-uuid]]
+   (subscribe [:worksheet ws-uuid]))
+
+ (fn [worksheet _]
+   (let [d (js/Date.)]
+     (.setTime d (:worksheet/created worksheet))
+     (.toLocaleDateString d))))

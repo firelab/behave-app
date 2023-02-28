@@ -414,9 +414,7 @@
 (defn wizard-results-page [params]
   (let [*ws-uuid       (subscribe [:worksheet/latest])
         *worksheet     (subscribe [:worksheet @*ws-uuid])
-        ws-date-str    (let [d (js/Date.)]
-                         (.setTime d 1676391828168)
-                         (.toLocaleDateString d))
+        *ws-date       (subscribe [:wizard/worksheet-date @*ws-uuid])
         *notes         (subscribe [:wizard/notes @*ws-uuid])
         *tab-selected  (subscribe [:wizard/results-tab-selected])
         *headers       (subscribe [:worksheet/result-table-headers-sorted @*ws-uuid])
@@ -441,7 +439,7 @@
          [:div.wizard-header__results-toolbar__file-name__value (:worksheet/name @*worksheet)]]
         [:div.wizard-header__results-toolbar__date
          [:div.wizard-header__results-toolbar__date__label (str @(<t (bp "run_date")) ":")]
-         [:div.wizard-header__results-toolbar__date__value ws-date-str]]]
+         [:div.wizard-header__results-toolbar__date__value @*ws-date]]]
        [:div.wizard-header__results-tabs
         [c/tab-group {:variant  "outline-highlight"
                       :on-click #(dispatch [:wizard/results-select-tab %])
