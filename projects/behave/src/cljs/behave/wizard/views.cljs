@@ -142,7 +142,7 @@
         *show-add-note-form?     (subscribe [:wizard/show-add-note-form?])
         on-back                  #(dispatch [:wizard/prev-tab params])
         on-next                  #(do (dispatch [:wizard/next-tab @*module @*submodule @*submodules params])
-                                      (dispatch [:worksheet/update-completed-step @*ws-uuid route-handler io]))]
+                                      (dispatch [:worksheet/update-furthest-visited-step @*ws-uuid route-handler io]))]
     [:div.wizard-page
      [wizard-header @*module @*submodules params]
      [:div.wizard-page__body
@@ -257,7 +257,7 @@
                    :icon-name     "arrow2"
                    :icon-position "right"
                    :on-click      #(do (dispatch [:wizard/solve params])
-                                       (dispatch [:worksheet/update-completed-step @*ws-uuid route-handler io]))}]]]]]))
+                                       (dispatch [:worksheet/update-furthest-visited-step @*ws-uuid route-handler io]))}]]]]]))
 
 ;; Wizard Results Settings
 
@@ -308,7 +308,7 @@
         *show-notes?             (subscribe [:wizard/show-notes?])
         on-back                  #(dispatch [:wizard/prev-tab params])
         on-next                  #(do (dispatch [:navigate (path-for routes :ws/results :id id)])
-                                      (dispatch [:worksheet/update-completed-step @*ws-uuid route-handler io]))]
+                                      (dispatch [:worksheet/update-furthest-visited-step @*ws-uuid route-handler io]))]
     (letfn [(radio-group [{:keys [label attr variables]}]
               (let [*values   (subscribe [:worksheet/get-graph-settings-attr @*ws-uuid attr])
                     selected? (first @*values)]
