@@ -171,10 +171,9 @@
        (let [module          @(subscribe [:wizard/*module (name module-kw)])
              module-id       (:db/id module)
              submodules      @(subscribe [:wizard/submodules module-id])
-             [i-subs o-subs] (partition-by #(:submodule/io %) (sort-by :submodule/io submodules))
+             [i-subs o-subs] (->> submodules
+                                  (sort-by :submodule/order)
+                                  (partition-by #(:submodule/io %)))
              submodules      (if (= io :input) i-subs o-subs)]
 
          [(name module-kw) (:slug (first submodules))])))))
-
-(comment
-  (subscribe [:wizard/first-module+submodule]))

@@ -9,15 +9,15 @@
 
 ;;; Spec
 
-(s/def :worksheet/uuid           string?)
-(s/def :worksheet/name           string?)
-(s/def :worksheet/completed-step keyword?)
-(s/def :worksheet/notes          many-ref?)
-(s/def :worksheet/inputs         many-ref?)
-(s/def :worksheet/outputs        many-ref?)
-(s/def :worksheet/result-table   single-ref?)
-(s/def :worksheet/graph-settings single-ref?)
-(s/def :worksheet/table-settings single-ref?)
+(s/def :worksheet/uuid                  string?)
+(s/def :worksheet/name                  string?)
+(s/def :worksheet/furthest-visited-step keyword?)
+(s/def :worksheet/notes                 many-ref?)
+(s/def :worksheet/inputs                many-ref?)
+(s/def :worksheet/outputs               many-ref?)
+(s/def :worksheet/result-table          single-ref?)
+(s/def :worksheet/graph-settings        single-ref?)
+(s/def :worksheet/table-settings        single-ref?)
 
 ;;; Schema
 

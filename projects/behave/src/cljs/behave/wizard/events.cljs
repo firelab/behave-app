@@ -150,7 +150,7 @@
                     [:wizard/first-module+submodule io]))]
  (fn [{module                 :state
        first-module+submodule :wizard/first-module+submodule} [_ id route-handler+io]]
-   (let [[handler io] route-handler+io
+   (let [[handler io]          route-handler+io
          [ws-module submodule] first-module+submodule]
      (when-let [path (cond
                        (= handler :ws/independent)
