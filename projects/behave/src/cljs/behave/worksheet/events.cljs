@@ -305,15 +305,15 @@
    {:transact [[:db.fn/retractEntity note-id]]}))
 
 (rp/reg-event-fx
- :worksheet/update-current-step
+ :worksheet/update-completed-step
  [(rp/inject-cofx :ds)]
  (fn [{:keys [ds]} [_ ws-uuid route-handler io]]
    (when-let [worksheet (d/entity ds [:worksheet/uuid ws-uuid])]
-     (let [worksheet-current-step (get step-kw->number (:worksheet/completed-step worksheet))
-           current-step           (get-step-number route-handler io)]
-       (when (or (nil? worksheet-current-step)
-                 (< worksheet-current-step current-step))
-         {:transact [{:db/id                    (:db/id worksheet)
+     (let [worksheet-completed-step (get step-kw->number (:worksheet/completed-step worksheet))
+           current-step             (get-step-number route-handler io)]
+       (when (or (nil? worksheet-completed-step)
+                 (< worksheet-completed-step current-step))
+         {:transact [{:db/id                    [:worksheet/uuid ws-uuid]
                       :worksheet/completed-step (get-step-kw route-handler io)}]})))))
 
 (comment
