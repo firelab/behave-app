@@ -20,7 +20,7 @@
      [:h3 header]
      [:p description]]]])
 
-(defn workflow-select [params]
+(defn workflow-select [_params]
   (let [*workflow (rf/subscribe [:state [:worksheet :*workflow]])]
     [:<>
      [:div.workflow-select
@@ -57,7 +57,7 @@
                           :on-next    #(rf/dispatch [:navigate (str "/worksheets/" (->str @*workflow))])}]]]))
 
 ;; TODO use title
-(defn independent-worksheet-page [params]
+(defn independent-worksheet-page [_params]
   (let [*modules (rf/subscribe [:state [:worksheet :*modules]])
         name     (rf/subscribe [:state [:worksheet :name]])]
     [:div.workflow-select
@@ -115,13 +115,13 @@
                                             (rf/dispatch [:worksheet/new {:name @name :modules (vec @*modules)}])
                                             (rf/dispatch [:navigate "/worksheets/1/modules/contain/output/fire"]))}]]))
 
-(defn guided-worksheet-page [params]
+(defn guided-worksheet-page [_params]
   [:<>
    [:div.workflow-select
     [:div.workflow-select__header
      [:h3 "TODO: FLESH OUT GUIDED WORKSHEET"]]]])
 
-(defn import-worksheet-page [params]
+(defn import-worksheet-page [_params]
   (let [file (r/track #(or @(rf/subscribe [:state [:worksheet :file]])
                            @(<t (bp "select_a_file"))))]
     [:<>

@@ -125,8 +125,9 @@
               (wizard-note {:note                       n
                             :display-submodule-headers? false})))]))
 
-(defn wizard-page [{:keys [module io submodule] :as params}]
+(defn wizard-page [{:keys [module io submodule route-handler] :as params}]
   (let [*ws-uuid                 (subscribe [:worksheet/latest])
+        _                        (dispatch [:worksheet/update-furthest-visited-step @*ws-uuid route-handler io])
         *module                  (subscribe [:wizard/*module module])
         module-id                (:db/id @*module)
         *submodules              (subscribe [:wizard/submodules module-id])
@@ -198,8 +199,9 @@
                    :icon-position "left"}]
         @(<t (bp "a_brief_phrase_documenting_the_run"))]]]]))
 
-(defn wizard-review-page [{:keys [id] :as params}]
+(defn wizard-review-page [{:keys [id io route-handler] :as params}]
   (let [*ws-uuid                 (subscribe [:worksheet/latest])
+        _                        (dispatch [:worksheet/update-furthest-visited-step @*ws-uuid route-handler io])
         *modules                 (subscribe [:worksheet/modules @*ws-uuid])
         *warn-limit?             (subscribe [:wizard/warn-limit? @*ws-uuid])
         *multi-value-input-limit (subscribe [:wizard/multi-value-input-limit])
@@ -297,8 +299,9 @@
                  :columns column-keys
                  :rows    row-data})])))
 
-(defn wizard-results-settings-page [{:keys [id] :as params}]
+(defn wizard-results-settings-page [{:keys [id route-handler io] :as params}]
   (let [*ws-uuid                 (subscribe [:worksheet/latest])
+        _                        (dispatch [:worksheet/update-furthest-visited-step @*ws-uuid route-handler io])
         *multi-value-input-uuids (subscribe [:worksheet/multi-value-input-uuids @*ws-uuid])
         group-variables          (map #(deref (subscribe [:wizard/group-variable %])) @*multi-value-input-uuids)
         *notes                   (subscribe [:wizard/notes @*ws-uuid])
@@ -411,10 +414,11 @@
                     :height 250})])]))))
 
 ;; Wizard Results
-(defn wizard-results-page [params]
+(defn wizard-results-page [{:keys [route-handler io] :as params}]
   (let [*ws-uuid       (subscribe [:worksheet/latest])
         *worksheet     (subscribe [:worksheet @*ws-uuid])
         *ws-date       (subscribe [:wizard/worksheet-date @*ws-uuid])
+        _              (dispatch [:worksheet/update-furthest-visited-step @*ws-uuid route-handler io])
         *notes         (subscribe [:wizard/notes @*ws-uuid])
         *tab-selected  (subscribe [:wizard/results-tab-selected])
         *headers       (subscribe [:worksheet/result-table-headers-sorted @*ws-uuid])

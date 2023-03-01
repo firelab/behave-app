@@ -378,3 +378,14 @@
         module    @(rf/subscribe [:wizard/*module "contain"])
         module-id (:db/id module)]
     (rf/subscribe [:worksheet/all-inputs-entered? ws-id  module-id "suppression"])))
+
+(rp/reg-sub
+ :worksheet/furthest-visited-step
+ (fn [_ [_ ws-uuid]]
+   {:type      :query
+    :query     '[:find  ?furthest-visited-step .
+                 :in    $ ?ws-uuid
+                 :where
+                 [?w :worksheet/uuid ?ws-uuid]
+                 [?w :worksheet/furthest-visited-step ?furthest-visited-step]]
+    :variables [ws-uuid]}))

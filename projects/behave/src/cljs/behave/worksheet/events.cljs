@@ -2,6 +2,7 @@
   (:require [re-frame.core    :as rf]
             [re-posh.core     :as rp]
             [datascript.core  :as d]
+            [behave.components.toolbar :refer [get-step-number step-kw->number get-step-kw]]
             [behave.importer  :refer [import-worksheet]]
             [behave.solver    :refer [solve-worksheet]]
             [vimsical.re-frame.cofx.inject :as inject]))
@@ -306,6 +307,18 @@
  [(rp/inject-cofx :ds)]
  (fn [_ [_ note-id]]
    {:transact [[:db.fn/retractEntity note-id]]}))
+
+(rp/reg-event-fx
+ :worksheet/update-furthest-visited-step
+ [(rp/inject-cofx :ds)]
+ (fn [{:keys [ds]} [_ ws-uuid route-handler io]]
+   (when-let [worksheet (d/entity ds [:worksheet/uuid ws-uuid])]
+     (let [worksheet-visited-step (get step-kw->number (:worksheet/furthest-visited-step worksheet))
+           current-step           (get-step-number route-handler io)]
+       (when (or (nil? worksheet-visited-step)
+                 (< worksheet-visited-step current-step))
+         {:transact [{:db/id                           [:worksheet/uuid ws-uuid]
+                      :worksheet/furthest-visited-step (get-step-kw route-handler io)}]})))))
 
 (comment
 
