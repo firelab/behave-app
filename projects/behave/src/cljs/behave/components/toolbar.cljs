@@ -65,13 +65,13 @@
     (get route-handler->step-number route-handler 0)))
 
 (defmulti progress-bar
-  (fn [{:keys [id]}]
-    (if id
+  (fn [{:keys [ws-uuid]}]
+    (if ws-uuid
       :post-worksheet-creation
       :pre-worksheet-creation)))
 
 (defmethod progress-bar :pre-worksheet-creation
-  [{:keys [id io route-handler] :as _params}]
+  [{:keys [ws-uuid io route-handler] :as _params}]
   (let [selected-step (get-step-number route-handler io)
         progress      selected-step
         steps         [{:label            @(<t (bp "work_style"))
@@ -80,7 +80,7 @@
                        {:label            @(<t (bp "modules_selection"))
                         :completed?       true
                         :route-handler+io [:ws/independent nil]}]]
-    [c/progress {:on-select              #(rf/dispatch [:wizard/progress-bar-navigate id (:route-handler+io %)])
+    [c/progress {:on-select              #(rf/dispatch [:wizard/progress-bar-navigate ws-uuid (:route-handler+io %)])
                  :completed-last-step-id progress
                  :steps                  (map-indexed (enrich-step progress
                                                                    selected-step
@@ -88,7 +88,7 @@
                                                       steps)}]))
 
 (defmethod progress-bar :post-worksheet-creation
-  [{:keys [id io route-handler] :as _params}]
+  [{:keys [ws-uuid io route-handler] :as _params}]
   (let [selected-step            (get-step-number route-handler io)
         steps                    [{:label            @(<t (bp "module_outputs_selections"))
                                    :completed?       false
@@ -105,12 +105,11 @@
                                   {:label            @(<t (bp "run_results"))
                                    :completed?       false
                                    :route-handler+io [:ws/results nil]}]
-        furthest-visited-step-id (let [*ws-uuid (rf/subscribe [:worksheet/latest])]
-                                   (->> (rf/subscribe [:worksheet/furthest-visited-step @*ws-uuid])
-                                        (deref)
-                                        (get step-kw->number)))
+        furthest-visited-step-id (->> (rf/subscribe [:worksheet/furthest-visited-step ws-uuid])
+                                      (deref)
+                                      (get step-kw->number))
         progress                 furthest-visited-step-id]
-    [c/progress {:on-select              #(rf/dispatch [:wizard/progress-bar-navigate id (:route-handler+io %)])
+    [c/progress {:on-select              #(rf/dispatch [:wizard/progress-bar-navigate ws-uuid (:route-handler+io %)])
                  :completed-last-step-id progress
                  :steps                  (map-indexed (enrich-step progress
                                                                    selected-step
