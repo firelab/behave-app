@@ -344,10 +344,10 @@
  (fn [[_ ws-uuid]]
    (rf/subscribe [:worksheet/all-output-uuids ws-uuid]))
 
- (fn [all-output-uuids [_ ws-uuid module-id submodule-slug]]
+ (fn [all-output-uuids [_ _ws-uuid module-id submodule-slug]]
    (if (seq all-output-uuids)
      (let [submodule       @(rf/subscribe [:wizard/*submodule module-id submodule-slug :output])
            groups          (:submodule/groups submodule)
            group-variables (set (flatten (map #(map :bp/uuid (:group/group-variables %)) groups)))]
-       (boolean (seq (set/intersection (set all-output-uuids)))))
+       (boolean (seq (set/intersection (set all-output-uuids) group-variables))))
      false)))
