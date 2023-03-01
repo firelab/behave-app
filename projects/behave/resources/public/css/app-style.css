@@ -249,6 +249,40 @@
   top: -2px;
 }
 
+.wizard-header__results-toolbar {
+  display: flex;
+  flex-direction: row;
+  padding: 12px;
+  border-top: 2px dotted var(--gray-4);
+  border-bottom: 2px dotted var(--gray-4);
+}
+
+.wizard-header__results-tabs {
+  padding-top: 30px;
+}
+
+.wizard-header__results-toolbar__date,
+.wizard-header__results-toolbar__file-name {
+  display: flex;
+  flex-direction: row;
+  padding-right: 20px;
+}
+
+.wizard-header__results-toolbar__date__label,
+.wizard-header__results-toolbar__file-name__label {
+  font-weight: var(--font-weight-bold)
+}
+
+.wizard-header__results-toolbar__date__value,
+.wizard-header__results-toolbar__file-name__value {
+  padding-left: 5px
+}
+
+.wizard-header__results-toolbar__tools {
+  margin-left: auto;
+  padding-right: 100px;
+}
+
 .wizard-header__submodule-tabs > .tab-group > .tab:first-child {
   margin-left: 20px;
 }
@@ -269,7 +303,7 @@
 .wizard-page__body {
   overflow-x: hidden;
   overflow-y: scroll;
-  height: 600px;
+  height: 540px;
 }
 
 /* .wizard-io { */
@@ -468,15 +502,6 @@
 
 .wizard-results__graph-settings__content .y-axis-limit-table .table{
   width: 100%;
-}
-
-.wizard-results__content {
-  overflow-x: hidden;
-  overflow-y: scroll;
-}
-
-.wizard-results__table {
-  padding: 20px 0px 20px;
 }
 
 .wizard-notes__header {

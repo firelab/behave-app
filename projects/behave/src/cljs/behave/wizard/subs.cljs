@@ -166,3 +166,40 @@
  :wizard/show-add-note-form?
  (fn [{:keys [state]} _]
    (true? (get-in state [:worksheet :show-add-note-form?]))))
+
+
+(reg-sub
+ :wizard/results-tab-selected
+ (fn [_ _]
+  (subscribe [:state [:worksheet :results :tab-selected]]))
+ (fn [tab-selected _]
+   tab-selected))
+
+(reg-sub
+ :wizard/worksheet-date
+
+ (fn [[_ ws-uuid]]
+   (subscribe [:worksheet ws-uuid]))
+
+ (fn [worksheet _]
+   (let [d (js/Date.)]
+     (.setTime d (:worksheet/created worksheet))
+     (.toLocaleDateString d))))
+
+(reg-sub
+ :wizard/first-module+submodule
+ (fn [_]
+   (subscribe [:worksheet/latest])) ;TODO Get uuid as a param
+
+ (fn [ws-uuid [_ io]]
+   (let [worksheet @(subscribe [:worksheet ws-uuid])]
+     (when-let [module-kw (first (:worksheet/modules worksheet))]
+       (let [module          @(subscribe [:wizard/*module (name module-kw)])
+             module-id       (:db/id module)
+             submodules      @(subscribe [:wizard/submodules module-id])
+             [i-subs o-subs] (->> submodules
+                                  (sort-by :submodule/order)
+                                  (partition-by #(:submodule/io %)))
+             submodules      (if (= io :input) i-subs o-subs)]
+
+         [(name module-kw) (:slug (first submodules))])))))
