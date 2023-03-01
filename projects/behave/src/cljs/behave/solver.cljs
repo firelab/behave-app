@@ -155,7 +155,7 @@
         value           (parsed-value gv-id value)
         unit-enum       (units/get-unit units)
         f               ((symbol fn-name) module-fns)
-         params          (fn-params fn-id)]
+        params          (fn-params fn-id)]
      (println "Input:" fn-name value unit-enum)
 
     (cond
@@ -168,7 +168,7 @@
 
       (and (= 2 (count params)) (some? unit-enum))
       (let [[_ _ param-type] (first params)]
-      (if (is-enum? param-type)
+        (if (is-enum? param-type)
           (f module unit-enum value)
           (f module value unit-enum))))))
 
@@ -183,8 +183,8 @@
       ; Step 2 - Match the parameters to group inputs/units
         fn-args (map-indexed (fn [idx [param-id _ param-type]]
                                (if (is-enum? param-type)
-                                   (let [[param-id] (nth params (dec idx))
-                                         [gv-uuid]  (parameter->group-variable param-id)]
+                                 (let [[param-id] (nth params (dec idx))
+                                       [gv-uuid]  (parameter->group-variable param-id)]
                                    (units/get-unit (variable-units gv-id)))
                                  (let [[gv-uuid] (parameter->group-variable param-id)]
                                    (get repeat-group gv-uuid))))
