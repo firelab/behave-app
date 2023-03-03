@@ -15,6 +15,8 @@ behaveplus:behaveplus_70,BehavePlus 7.0
 behaveplus:calculating_results,Calculating results
 behaveplus:change_module,Change Module
 behaveplus:change_units,Change Units
+behaveplus:change_selection,Change Selection
+behaveplus:change_text,Change Text
 behaveplus:change_values,Change Values
 behaveplus:characters_not_allowed,Characters not allowed
 behaveplus:close_notes,Close Notes
@@ -93,6 +95,7 @@ behaveplus:module_inputs_selections,Module Inputs Selections
 behaveplus:module_options,Module Options
 behaveplus:module_outputs_selections,Module Outputs Selections
 behaveplus:module_selection,Module Selection
+behaveplus:module_review_inputs,%s Inputs
 behaveplus:modules,Modules
 behaveplus:modules_selection,Modules Selection
 behaveplus:modules_selections,Modules Selections
@@ -118,6 +121,7 @@ behaveplus:output_range,OUTPUT RANGE
 behaveplus:output_selections_fire,Output Selections: Fire
 behaveplus:outputs,Outputs
 behaveplus:outputs_selections,Outputs Selections
+behaveplus:optional,Optional
 behaveplus:please_complete_the_missing_information_andor_correct_the_errors,Please complete the missing information and/or correct the errors.
 behaveplus:please_select_a_work_style,Please select a work style.
 behaveplus:please_select_from_the_following_options,Please select from the following options
@@ -146,7 +150,7 @@ behaveplus:results_tables,Results Tables
 behaveplus:results_view,Results View
 behaveplus:return_to_current_workflow,Return to current workflow
 behaveplus:run_date,Run Date
-behaveplus:run_description,Run Description
+behaveplus:run_description,Run's Description
 behaveplus:run_notes,Run Notes
 behaveplus:run_results,Run Results
 behaveplus:save,Save
@@ -178,6 +182,7 @@ behaveplus:surface_rate_of_spread_maximum,Surface Rate of Spread (maximum)
 behaveplus:table,Table
 behaveplus:tables,Tables
 behaveplus:tables_selections,Tables Selections
+behaveplus:result_settings, Result Settings
 behaveplus:thru,Thru
 behaveplus:time,Time
 behaveplus:time_from_report,Time from Report
@@ -186,6 +191,7 @@ behaveplus:to,To
 behaveplus:tools,Tools
 behaveplus:tools_and_settings,Tools & Settings
 behaveplus:two_input_variables_have_multiple_values,Two input variables have multiple values.
+behaveplus:type_description,Type Description
 behaveplus:units_used,Units used
 behaveplus:values,Values
 behaveplus:variable,Variable

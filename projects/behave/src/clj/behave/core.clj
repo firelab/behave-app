@@ -19,10 +19,15 @@
             [behave.views             :refer [render-page]])
   (:gen-class))
 
+(defn expand-home [s]
+  (str/replace s #"^~" (System/getProperty "user.home")))
+
 (defn init! []
   (load-config (io/resource "config.edn"))
-  (export-from-vms (get-config :vms :secret-token))
-  (store/connect! (get-config :database :config)))
+  (let [config (update-in (get-config :database :config) [:store :path] expand-home)]
+    (println "LOADED CONFIG" (get-config :database :config))
+    (io/make-parents (get-in config [:store :path]))
+    (store/connect! config)))
 
 (defn vms-sync-handler [req]
   (export-from-vms (get-config :vms :secret-token))
@@ -80,7 +85,25 @@
           (log-str (st/print-stack-trace e))
           {:status (or status 500) :body cause})))))
 
-(defn create-handler-stack []
+(defn reloadable-clj-files
+  []
+  (let [m       (meta #'reloadable-clj-files)
+        ns      (:ns m)
+        ns-file (-> ns
+                    (str/replace "-" "_")
+                    (str/replace "." "/")
+                    (->> (format "/%s.clj")))
+        path    (:file m)]
+    [(str/replace path #"/projects/.*" "/components")
+     (str/replace path #"/projects/.*" "/bases")
+     (str/replace path ns-file "")]))
+
+(defn optional-middleware [handler mw use?]
+  (if use?
+    (mw handler)
+    handler))
+
+(defn create-handler-stack [reload?]
   (-> routing-handler
       wrap-params
       wrap-query-params
@@ -89,15 +112,16 @@
       wrap-accept
       wrap-content-type
       wrap-exceptions
-      (wrap-reload {:dirs ["projects/behave/src/clj"]})))
+      (optional-middleware #(wrap-reload % {:dirs (reloadable-clj-files)}) reload?)))
 
 ;; This is for Figwheel
 (def development-app
-  (create-handler-stack))
+  (create-handler-stack true))
 
 (defn -main [& _args]
   (init!)
-  (server/start-server! {:handler development-app :port 8002}))
+  (server/start-server! {:handler (create-handler-stack (= (get-config :server :mode) "dev"))
+                         :port    (or (get-config :server :http-port) 8080)}))
 
 (comment
   (-main)
