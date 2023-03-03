@@ -261,7 +261,7 @@
     ; Get Outputs
     (doseq [group-variable-uuid outputs]
       (let [units  (variable-units group-variable-uuid)
-            result (apply-output-cpp-fn (ns-publics 'behave.lib.contain) module group-variable-uuid)]
+            result (str (apply-output-cpp-fn (ns-publics 'behave.lib.contain) module group-variable-uuid))]
         (rf/dispatch [:worksheet/add-result-table-header ws-uuid group-variable-uuid units])
         (rf/dispatch [:worksheet/add-result-table-cell ws-uuid 0 group-variable-uuid result])))))
 
