@@ -57,10 +57,9 @@
 
 (rf/reg-event-fx
   :wizard/solve
-  (fn [{db :db} [_ {:keys [id]}]]
-    (let [{:keys [state]} db
-          worksheet       (solve-worksheet (:worksheet state))
-          path            (path-for routes :ws/results :id id)]
+  (fn [{db :db} [_ {:keys [ws-uuid]}]]
+    (let [worksheet (solve-worksheet ws-uuid)
+          path      (path-for routes :ws/results-settings :ws-uuid ws-uuid :results-page :settings)]
       {:fx [[:dispatch [:navigate path]]]
        :db (assoc-in db [:state :worksheet] worksheet)})))
 
