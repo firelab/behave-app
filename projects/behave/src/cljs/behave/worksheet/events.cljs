@@ -153,12 +153,12 @@
  (fn [{:keys [ds]} [_ ws-uuid row-id group-variable-uuid value]]
    (when-let [table (first (d/q '[:find  [?table]
                                   :in    $ ?uuid
-                                  :where [?e :worksheet/uuid ?uuid]
+                                  :where [?w :worksheet/uuid ?uuid]
                                          [?w :worksheet/result-table ?table]]
                                 ds ws-uuid))]
      (when-let [row (first (d/q '[:find  [?r]
                                   :in    $ ?table ?row-id
-                                  :where [?t :result-table/rows ?r]
+                                  :where [?table :result-table/rows ?r]
                                          [?r :result-row/id ?row-id]]
                                 ds table row-id))]
        (when-let [header (first (d/q '[:find  [?h]

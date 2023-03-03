@@ -223,7 +223,7 @@
 
 (defn contain-solver [ws-uuid results]
   (let [inputs  @(rf/subscribe [:worksheet/all-inputs ws-uuid])
-        outputs @(rf/subscribe [:worksheet/all-outputs ws-uuid])
+        outputs @(rf/subscribe [:worksheet/all-output-uuids ws-uuid])
         module  (contain/init)]
 
     (rf/dispatch [:worksheet/add-result-table-row ws-uuid 0])
@@ -232,7 +232,7 @@
     (doseq [[_ repeats] inputs]
       (cond
         ; Single Group w/ Single Variable
-        (and (= 1 (count repeats)) (count (vals repeats)))
+        (and (= 1 (count repeats) (count (vals repeats))))
         (let [[gv-id value] (ffirst (vals repeats))
               units         (or (variable-units gv-id) "")]
           (println "-- SINGLE VAR" gv-id value units)
@@ -260,8 +260,8 @@
 
     ; Get Outputs
     (doseq [group-variable-uuid outputs]
-      (let [units  (variable-units group-variable-uuid) 
-            result (apply-output-cpp-fn (ns-publics 'behave.lib.contain) module group-variable-uuid)]
+      (let [units  (variable-units group-variable-uuid)
+            result (str (apply-output-cpp-fn (ns-publics 'behave.lib.contain) module group-variable-uuid))]
         (rf/dispatch [:worksheet/add-result-table-header ws-uuid group-variable-uuid units])
         (rf/dispatch [:worksheet/add-result-table-cell ws-uuid 0 group-variable-uuid result])))))
 
