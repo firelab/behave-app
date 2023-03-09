@@ -155,18 +155,18 @@
    (when-let [table (first (d/q '[:find  [?table]
                                   :in    $ ?uuid
                                   :where [?w :worksheet/uuid ?uuid]
-                                  [?w :worksheet/result-table ?table]]
-                                 ds ws-uuid))]
+                                         [?w :worksheet/result-table ?table]]
+                                ds ws-uuid))]
      (when-let [row (first (d/q '[:find  [?r]
                                   :in    $ ?table ?row-id
                                   :where [?table :result-table/rows ?r]
-                                  [?r :result-row/id ?row-id]]
-                                 ds table row-id))]
+                                         [?r :result-row/id ?row-id]]
+                                ds table row-id))]
        (when-let [header (first (d/q '[:find  [?h]
                                        :in    $ ?table ?group-var-uuid
                                        :where [?t :result-table/headers ?h]
-                                       [?h :result-header/group-variable-uuid ?group-var-uuid]]
-                                      ds table group-variable-uuid))]
+                                              [?h :result-header/group-variable-uuid ?group-var-uuid]]
+                                     ds table group-variable-uuid))]
          {:transact [{:result-row/_cells  row
                       :result-cell/header header
                       :result-cell/value  value}]})))))
