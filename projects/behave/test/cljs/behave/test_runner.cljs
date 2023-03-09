@@ -8,6 +8,7 @@
             [behave.wizard.subs]
             [behave.worksheet-test]
             [behave.worksheet-events-test]
+            [behave.worksheet-subs-test]
             [behave.worksheet.events]
             [behave.worksheet.subs]
             [cljs-test-display.core]
@@ -24,7 +25,8 @@
 (defn run-the-tests []
   (run-tests (cljs-test-display.core/init! "app-testing")
              'behave.worksheet-test
-             'behave.worksheet-events-test))
+             'behave.worksheet-events-test
+             'behave.worksheet-subs-test))
 
 (defn add-script [js-path]
   (let [script-el (.createElement js/document "script")]
