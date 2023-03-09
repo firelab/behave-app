@@ -483,7 +483,7 @@
 
        (is (seq result-table-cell-data))
 
-       (is (= 4 (inc (apply max (map first result-table-cell-data))))
+       (is (= 4 (inc (apply max (map first result-table-cell-data)))) ;TODO currently failing until solver is updated
            "should only have four rows of data")))))
 
 ;; =================================================================================================
