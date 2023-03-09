@@ -323,7 +323,7 @@
 ;; =================================================================================================
 
 ;; TODO add debug printout for uuid->entity
-(deftest solver-test-single-row
+(deftest solver-test-single-row-results-table
   (rf-test/run-test-sync
    (let [uuid          fx/test-ws-uuid
          event-to-test [:worksheet/solve uuid]
@@ -411,7 +411,7 @@
                 [0 "b7873139-659e-4475-8d41-0cf6c36da893" "0"]})
            "should have these values from setup-events")))))
 
-(deftest solver-test-multi-row
+(deftest solver-test-multi-row-results-table
   (rf-test/run-test-sync
    (let [uuid          fx/test-ws-uuid
          event-to-test [:worksheet/solve uuid]
