@@ -73,9 +73,9 @@
     (rf/dispatch-sync setup-event)
 
     (is (seq (->> *worksheet
-                   deref
-                   :worksheet/input-groups
-                   (filterv #(= (:input-group/group-uuid %) input-group-uuid))))
+                  deref
+                  :worksheet/input-groups
+                  (filterv #(= (:input-group/group-uuid %) input-group-uuid))))
         "should have the input-group-uuid in the worksheet before dispatching event-to-test")
 
     (rf/dispatch-sync event-to-test)
@@ -127,7 +127,7 @@
 (deftest delete-repeat-input-group-test
   (let [*worksheet    (rf/subscribe [:worksheet fx/test-ws-uuid])
         setup-events  (for [repeat-id (range 0)]
-                       [:worksheet/add-input-group fx/test-ws-uuid "group-uuid" repeat-id])
+                        [:worksheet/add-input-group fx/test-ws-uuid "group-uuid" repeat-id])
         event-to-test [:worksheet/delete-repeat-input-group fx/test-ws-uuid 1]]
 
     (is (some? (:worksheet/input-groups @*worksheet)))
@@ -265,9 +265,9 @@
 ;; =================================================================================================
 
 (deftest add-result-table-row-single-test
-  (let [*worksheet          (rf/subscribe [:worksheet fx/test-ws-uuid])
-        setup-event         [:worksheet/add-result-table fx/test-ws-uuid]
-        event-to-test       [:worksheet/add-result-table-row fx/test-ws-uuid 0]]
+  (let [*worksheet    (rf/subscribe [:worksheet fx/test-ws-uuid])
+        setup-event   [:worksheet/add-result-table fx/test-ws-uuid]
+        event-to-test [:worksheet/add-result-table-row fx/test-ws-uuid 0]]
 
     (rf/dispatch-sync setup-event)
 
@@ -323,10 +323,10 @@
 
 ;; TODO add debug printout for uuid->entity
 (deftest solver-test
-  (let [uuid          uuid
+  (let [*worksheet    (rf/subscribe [:worksheet fx/test-ws-uuid])
+        uuid          fx/test-ws-uuid
         event-to-test [:worksheet/solve uuid]
-        setup-events  [[:worksheet/new {:name "test", :modules [:contain :surface], :uuid uuid}]
-                       [:worksheet/upsert-output
+        setup-events  [[:worksheet/upsert-output
                         uuid
                         "b7873139-659e-4475-8d41-0cf6c36da893"
                         true]
@@ -389,12 +389,20 @@
     (doseq [event setup-events]
       (rf/dispatch-sync event))
 
-    (rf/dispatch-sync event-to-test))
+    (rf/dispatch-sync event-to-test)
 
-  ;; 1 row exist
-  ;; all inputs and outputs headers and values are recorded
-  ;; Use CSV to populate inputs and outputs and test against csv results -> GET FROM CONTAIN_TESTING
-  (is (= 1 1)))
+    ;; 1 row exist
+    ;; all inputs and outputs headers and values are recorded
+    ;; Use CSV to populate inputs and outputs and test against csv results -> GET FROM CONTAIN_TESTING
+    (is (some? (:worksheet/result-table-cell-data @*worksheet) ))
+
+    (is (= (:worksheet/result-table-cell-data @*worksheet)
+           [[0 "fbbf73f6-3a0e-4fdd-b913-dcc50d2db311" "1"]
+            [0 "30493fc2-a231-41ee-a16a-875f00cf853f" "2"]
+            [0 "41503286-dfe4-457a-9b68-41832e049cc9" "3"]
+            [0 "de9df9ee-dfe5-42fe-b43c-fc1f54f99186" "HeadAttack"]
+            [0 "6577589c-947f-4c0c-9fca-181d3dd7fb7c" "4"]]))
+    ))
 
 ;; =================================================================================================
 ;; :worksheet/toggle-table-settings
