@@ -360,8 +360,6 @@
                             (upsert-input-events fx/test-ws-uuid input-args))
          event-to-test [:worksheet/solve fx/test-ws-uuid]]
 
-     (println "setup-events:" setup-events)
-
      (doseq [event setup-events]
        (rf/dispatch event))
 
