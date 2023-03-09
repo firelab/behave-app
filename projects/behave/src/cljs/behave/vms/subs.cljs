@@ -1,6 +1,6 @@
 (ns behave.vms.subs
   (:require [re-frame.core    :refer [reg-sub subscribe]]
-            [behave.vms.store :refer [pull pull-many q]]))
+            [behave.vms.store :refer [pull pull-many q entity]]))
 
 (reg-sub
  :vms/query
@@ -49,3 +49,8 @@
 
  (fn [eids [_ _ _ pattern]]
    @(pull-many (or pattern '[*]) (reduce into [] eids))))
+
+(reg-sub
+ :vms/entity-from-uuid
+ (fn [_ [_ uuid]]
+   (entity uuid)))

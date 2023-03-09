@@ -70,3 +70,6 @@
 
 (defn pull-many [pattern ids]
   (posh-pull-many @vms-conn pattern ids))
+
+(defn entity [uuid]
+  (d/entity @@vms-conn [:bp/uuid uuid]))
