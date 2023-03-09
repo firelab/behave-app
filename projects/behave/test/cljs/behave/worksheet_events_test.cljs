@@ -3,7 +3,8 @@
    [cljs.test :refer [deftest is join-fixtures testing use-fixtures] :include-macros true]
    [re-frame.core :as rf]
    [behave.fixtures :as fx]
-   [behave.test-utils :as utils]))
+   [behave.test-utils :as utils]
+   [day8.re-frame.test :as rf-test]))
 
 ;; =================================================================================================
 ;; Fixtures
@@ -323,86 +324,92 @@
 
 ;; TODO add debug printout for uuid->entity
 (deftest solver-test
-  (let [*worksheet    (rf/subscribe [:worksheet fx/test-ws-uuid])
-        uuid          fx/test-ws-uuid
-        event-to-test [:worksheet/solve uuid]
-        setup-events  [[:worksheet/upsert-output
-                        uuid
-                        "b7873139-659e-4475-8d41-0cf6c36da893"
-                        true]
-                       [:worksheet/add-input-group
-                        uuid
-                        "a1b35161-e60b-47e7-aad3-b99fbb107784"
-                        0]
-                       [:worksheet/upsert-input-variable
-                        uuid
-                        "a1b35161-e60b-47e7-aad3-b99fbb107784"
-                        0
-                        "fbbf73f6-3a0e-4fdd-b913-dcc50d2db311"
-                        "1"
-                        nil]
-                       [:worksheet/add-input-group
-                        uuid
-                        "1b13a28a-bc30-4c76-827e-e052ab325d67"
-                        0]
-                       [:worksheet/upsert-input-variable
-                        uuid
-                        "1b13a28a-bc30-4c76-827e-e052ab325d67"
-                        0
-                        "30493fc2-a231-41ee-a16a-875f00cf853f"
-                        "2"
-                        nil]
-                       [:worksheet/add-input-group
-                        uuid
-                        "79429082-3217-4c62-b90e-4559de5cbaa7"
-                        0]
-                       [:worksheet/upsert-input-variable
-                        uuid
-                        "79429082-3217-4c62-b90e-4559de5cbaa7"
-                        0
-                        "41503286-dfe4-457a-9b68-41832e049cc9"
-                        "3"
-                        nil]
-                       [:worksheet/add-input-group
-                        uuid
-                        "fedf0a53-e12c-4504-afc0-af294c96c641"
-                        0]
-                       [:worksheet/upsert-input-variable
-                        uuid
-                        "fedf0a53-e12c-4504-afc0-af294c96c641"
-                        0
-                        "de9df9ee-dfe5-42fe-b43c-fc1f54f99186"
-                        "HeadAttack"
-                        nil]
-                       [:worksheet/add-input-group
-                        uuid
-                        "d88be382-e59a-4648-94a8-44253710148d"
-                        0]
-                       [:worksheet/upsert-input-variable
-                        uuid
-                        "d88be382-e59a-4648-94a8-44253710148d"
-                        0
-                        "6577589c-947f-4c0c-9fca-181d3dd7fb7c"
-                        "4"
-                        nil]]]
+  (rf-test/run-test-sync
+   (let [uuid          fx/test-ws-uuid
+         event-to-test [:worksheet/solve uuid]
+         setup-events  [[:worksheet/upsert-output uuid
+                         "b7873139-659e-4475-8d41-0cf6c36da893"
+                         true]
+                        [:worksheet/add-input-group
+                         uuid
+                         "a1b35161-e60b-47e7-aad3-b99fbb107784"
+                         0]
+                        [:worksheet/upsert-input-variable
+                         uuid
+                         "a1b35161-e60b-47e7-aad3-b99fbb107784"
+                         0
+                         "fbbf73f6-3a0e-4fdd-b913-dcc50d2db311"
+                         "1"
+                         nil]
+                        [:worksheet/add-input-group
+                         uuid
+                         "1b13a28a-bc30-4c76-827e-e052ab325d67"
+                         0]
+                        [:worksheet/upsert-input-variable
+                         uuid
+                         "1b13a28a-bc30-4c76-827e-e052ab325d67"
+                         0
+                         "30493fc2-a231-41ee-a16a-875f00cf853f"
+                         "2"
+                         nil]
+                        [:worksheet/add-input-group
+                         uuid
+                         "79429082-3217-4c62-b90e-4559de5cbaa7"
+                         0]
+                        [:worksheet/upsert-input-variable
+                         uuid
+                         "79429082-3217-4c62-b90e-4559de5cbaa7"
+                         0
+                         "41503286-dfe4-457a-9b68-41832e049cc9"
+                         "3"
+                         nil]
+                        [:worksheet/add-input-group
+                         uuid
+                         "fedf0a53-e12c-4504-afc0-af294c96c641"
+                         0]
+                        [:worksheet/upsert-input-variable
+                         uuid
+                         "fedf0a53-e12c-4504-afc0-af294c96c641"
+                         0
+                         "de9df9ee-dfe5-42fe-b43c-fc1f54f99186"
+                         "HeadAttack"
+                         nil]
+                        [:worksheet/add-input-group
+                         uuid
+                         "d88be382-e59a-4648-94a8-44253710148d"
+                         0]
+                        [:worksheet/upsert-input-variable
+                         uuid
+                         "d88be382-e59a-4648-94a8-44253710148d"
+                         0
+                         "6577589c-947f-4c0c-9fca-181d3dd7fb7c"
+                         "4"
+                         nil]]]
 
-    (doseq [event setup-events]
-      (rf/dispatch-sync event))
+     (doseq [event setup-events]
+       (rf/dispatch event))
 
-    (rf/dispatch-sync event-to-test)
+     (rf/dispatch event-to-test)
 
-    ;; 1 row exist
-    ;; all inputs and outputs headers and values are recorded
-    ;; Use CSV to populate inputs and outputs and test against csv results -> GET FROM CONTAIN_TESTING
-    (is (seq @(rf/subscribe [:worksheet/result-table-cell-data fx/test-ws-uuid])))
+     ;; 1 row exist
+     ;; all inputs and outputs headers and values are recorded
+     ;; Use CSV to populate inputs and outputs and test against csv results -> GET FROM CONTAIN_TESTING
 
-    (is (= @(rf/subscribe [:worksheet/result-table-cell-data fx/test-ws-uuid])
-           [[0 "fbbf73f6-3a0e-4fdd-b913-dcc50d2db311" "1"]
-            [0 "30493fc2-a231-41ee-a16a-875f00cf853f" "2"]
-            [0 "41503286-dfe4-457a-9b68-41832e049cc9" "3"]
-            [0 "de9df9ee-dfe5-42fe-b43c-fc1f54f99186" "HeadAttack"]
-            [0 "6577589c-947f-4c0c-9fca-181d3dd7fb7c" "4"]]))
-    ))
+     (let [result-table-cell-data @(rf/subscribe [:worksheet/result-table-cell-data fx/test-ws-uuid])]
+
+       (is (seq result-table-cell-data))
+
+       (is (= 1 (inc (apply max (map first result-table-cell-data))))
+           "should only have one row of data")
+
+       (is (= result-table-cell-data
+              #{[0 "fbbf73f6-3a0e-4fdd-b913-dcc50d2db311" "1"]
+                [0 "30493fc2-a231-41ee-a16a-875f00cf853f" "2"]
+                [0 "41503286-dfe4-457a-9b68-41832e049cc9" "3"]
+                [0 "de9df9ee-dfe5-42fe-b43c-fc1f54f99186" "HeadAttack"]
+                [0 "6577589c-947f-4c0c-9fca-181d3dd7fb7c" "4"]
+                [0 "b7873139-659e-4475-8d41-0cf6c36da893" "0"]})
+           "should have these values from setup-events")))))
 
 ;; =================================================================================================
 ;; :worksheet/toggle-table-settings
