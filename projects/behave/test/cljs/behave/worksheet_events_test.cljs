@@ -414,12 +414,25 @@
 
      (rf/dispatch event-to-test)
 
-     (let [result-table-cell-data @(rf/subscribe [:worksheet/result-table-cell-data fx/test-ws-uuid])]
+     (let [result-table-cell-data  @(rf/subscribe [:worksheet/result-table-cell-data fx/test-ws-uuid])
+           result-header-uuids-set (into #{}
+                                         (map second)
+                                         result-table-cell-data)]
 
        (is (seq result-table-cell-data))
 
        (is (= 4 (inc (apply max (map first result-table-cell-data)))) ;TODO currently failing until solver is updated
-           "should only have four rows of data")))))
+           "should only have four rows of data")
+
+       (is (every? (fn [[_ group-variable-uuid _]]
+                     (contains? result-header-uuids-set group-variable-uuid))
+                   input-args)
+           "all input-uuids should be in the table")
+
+       (is (every? (fn [[_ group-variable-uuid _]]
+                     (contains? result-header-uuids-set group-variable-uuid))
+                   input-args)
+           "all input-uuids should be in the table")))))
 
 ;; =================================================================================================
 ;; :worksheet/toggle-table-settings
