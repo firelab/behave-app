@@ -345,6 +345,7 @@
         input-args))
 
 ;; TODO add debug printout for uuid->entity
+;; TODO Use CSV to populate inputs and outputs and test against csv results -> GET FROM CONTAIN_TESTING
 (deftest solver-test-single-row-results-table
   (rf-test/run-test-sync
    (let [output-args   ["b7873139-659e-4475-8d41-0cf6c36da893"]
@@ -366,16 +367,26 @@
 
      (rf/dispatch event-to-test)
 
-     ;; 1 row exist
-     ;; all inputs and outputs headers and values are recorded
-     ;; Use CSV to populate inputs and outputs and test against csv results -> GET FROM CONTAIN_TESTING
 
-     (let [result-table-cell-data @(rf/subscribe [:worksheet/result-table-cell-data fx/test-ws-uuid])]
+     (let [result-table-cell-data  @(rf/subscribe [:worksheet/result-table-cell-data fx/test-ws-uuid])
+           result-header-uuids-set (into #{}
+                                         (map second)
+                                         result-table-cell-data)]
 
        (is (seq result-table-cell-data))
 
        (is (= 1 (inc (apply max (map first result-table-cell-data))))
            "should only have one row of data")
+
+       (is (every? (fn [[_ group-variable-uuid _]]
+                     (contains? result-header-uuids-set group-variable-uuid))
+                   input-args)
+           "all input-uuids should be in the table")
+
+       (is (every? (fn [output-uuids]
+                     (contains? result-header-uuids-set output-uuids))
+                   output-args)
+           "all output-uuids should be in the table")
 
        (is (= result-table-cell-data
               #{[0 "fbbf73f6-3a0e-4fdd-b913-dcc50d2db311" "1"]
