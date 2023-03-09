@@ -6,7 +6,7 @@
             [behave.vms.subs]
             [behave.wizard.events]
             [behave.wizard.subs]
-            [behave.worksheet-test]
+            [behave.tests-used-in-fixtures]
             [behave.worksheet-events-test]
             [behave.worksheet-subs-test]
             [behave.worksheet.events]
@@ -24,7 +24,7 @@
 
 (defn run-the-tests []
   (run-tests (cljs-test-display.core/init! "app-testing")
-             'behave.worksheet-test
+             'behave.tests-used-in-fixtures
              'behave.worksheet-events-test
              'behave.worksheet-subs-test))
 
