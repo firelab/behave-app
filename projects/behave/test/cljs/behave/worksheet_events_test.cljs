@@ -394,7 +394,7 @@
     ;; 1 row exist
     ;; all inputs and outputs headers and values are recorded
     ;; Use CSV to populate inputs and outputs and test against csv results -> GET FROM CONTAIN_TESTING
-    (is (some? @(rf/subscribe [:worksheet/result-table-cell-data fx/test-ws-uuid])))
+    (is (seq @(rf/subscribe [:worksheet/result-table-cell-data fx/test-ws-uuid])))
 
     (is (= @(rf/subscribe [:worksheet/result-table-cell-data fx/test-ws-uuid])
            [[0 "fbbf73f6-3a0e-4fdd-b913-dcc50d2db311" "1"]
