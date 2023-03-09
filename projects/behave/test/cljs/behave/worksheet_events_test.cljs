@@ -322,69 +322,44 @@
 ;; :worksheet/solve
 ;; =================================================================================================
 
+(defn upsert-output-events
+  [ws-uuid output-uuids setup-events]
+  (into setup-events
+        (map (fn [output-uuid] [:worksheet/upsert-output ws-uuid output-uuid true]))
+        output-uuids))
+
+(defn add-input-group-events [ws-uuid input-args setup-events]
+  (into setup-events
+        (map (fn [[group-uuid & _rest]]
+               (let [repeat-id 0]
+                 [:worksheet/add-input-group ws-uuid group-uuid repeat-id])))
+        input-args))
+
+(defn upsert-input-events
+  [ws-uuid input-args setup-events]
+  (into setup-events
+        (map (fn [[group-uuid group-variable-uuid value]]
+               (let [repeat-id 0
+                     units     nil]
+                 [:worksheet/upsert-input-variable ws-uuid group-uuid repeat-id group-variable-uuid value units])))
+        input-args))
+
 ;; TODO add debug printout for uuid->entity
 (deftest solver-test-single-row-results-table
   (rf-test/run-test-sync
-   (let [uuid          fx/test-ws-uuid
-         event-to-test [:worksheet/solve uuid]
-         setup-events  [[:worksheet/upsert-output uuid
-                         "b7873139-659e-4475-8d41-0cf6c36da893"
-                         true]
-                        [:worksheet/add-input-group
-                         uuid
-                         "a1b35161-e60b-47e7-aad3-b99fbb107784"
-                         0]
-                        [:worksheet/upsert-input-variable
-                         uuid
-                         "a1b35161-e60b-47e7-aad3-b99fbb107784"
-                         0
-                         "fbbf73f6-3a0e-4fdd-b913-dcc50d2db311"
-                         "1"
-                         nil]
-                        [:worksheet/add-input-group
-                         uuid
-                         "1b13a28a-bc30-4c76-827e-e052ab325d67"
-                         0]
-                        [:worksheet/upsert-input-variable
-                         uuid
-                         "1b13a28a-bc30-4c76-827e-e052ab325d67"
-                         0
-                         "30493fc2-a231-41ee-a16a-875f00cf853f"
-                         "2"
-                         nil]
-                        [:worksheet/add-input-group
-                         uuid
-                         "79429082-3217-4c62-b90e-4559de5cbaa7"
-                         0]
-                        [:worksheet/upsert-input-variable
-                         uuid
-                         "79429082-3217-4c62-b90e-4559de5cbaa7"
-                         0
-                         "41503286-dfe4-457a-9b68-41832e049cc9"
-                         "3"
-                         nil]
-                        [:worksheet/add-input-group
-                         uuid
-                         "fedf0a53-e12c-4504-afc0-af294c96c641"
-                         0]
-                        [:worksheet/upsert-input-variable
-                         uuid
-                         "fedf0a53-e12c-4504-afc0-af294c96c641"
-                         0
-                         "de9df9ee-dfe5-42fe-b43c-fc1f54f99186"
-                         "HeadAttack"
-                         nil]
-                        [:worksheet/add-input-group
-                         uuid
-                         "d88be382-e59a-4648-94a8-44253710148d"
-                         0]
-                        [:worksheet/upsert-input-variable
-                         uuid
-                         "d88be382-e59a-4648-94a8-44253710148d"
-                         0
-                         "6577589c-947f-4c0c-9fca-181d3dd7fb7c"
-                         "4"
-                         nil]]]
+   (let [output-args   ["b7873139-659e-4475-8d41-0cf6c36da893"]
+         input-args    [["a1b35161-e60b-47e7-aad3-b99fbb107784" "fbbf73f6-3a0e-4fdd-b913-dcc50d2db311" "1"] ; [group-uuid group-variable-uuid value]
+                        ["1b13a28a-bc30-4c76-827e-e052ab325d67" "30493fc2-a231-41ee-a16a-875f00cf853f" "2"]
+                        ["79429082-3217-4c62-b90e-4559de5cbaa7" "41503286-dfe4-457a-9b68-41832e049cc9" "3"]
+                        ["fedf0a53-e12c-4504-afc0-af294c96c641" "de9df9ee-dfe5-42fe-b43c-fc1f54f99186" "HeadAttack"]
+                        ["d88be382-e59a-4648-94a8-44253710148d" "6577589c-947f-4c0c-9fca-181d3dd7fb7c" "4"]]
+         setup-events  (->> []
+                            (upsert-output-events fx/test-ws-uuid output-args)
+                            (add-input-group-events fx/test-ws-uuid input-args)
+                            (upsert-input-events fx/test-ws-uuid input-args))
+         event-to-test [:worksheet/solve fx/test-ws-uuid]]
+
+     (println "setup-events:" setup-events)
 
      (doseq [event setup-events]
        (rf/dispatch event))
@@ -413,66 +388,17 @@
 
 (deftest solver-test-multi-row-results-table
   (rf-test/run-test-sync
-   (let [uuid          fx/test-ws-uuid
-         event-to-test [:worksheet/solve uuid]
-         setup-events  [[:worksheet/upsert-output uuid
-                         "b7873139-659e-4475-8d41-0cf6c36da893"
-                         true]
-                        [:worksheet/add-input-group
-                         uuid
-                         "a1b35161-e60b-47e7-aad3-b99fbb107784"
-                         0]
-                        [:worksheet/upsert-input-variable
-                         uuid
-                         "a1b35161-e60b-47e7-aad3-b99fbb107784"
-                         0
-                         "fbbf73f6-3a0e-4fdd-b913-dcc50d2db311"
-                         "1,2,3,4"
-                         nil]
-                        [:worksheet/add-input-group
-                         uuid
-                         "1b13a28a-bc30-4c76-827e-e052ab325d67"
-                         0]
-                        [:worksheet/upsert-input-variable
-                         uuid
-                         "1b13a28a-bc30-4c76-827e-e052ab325d67"
-                         0
-                         "30493fc2-a231-41ee-a16a-875f00cf853f"
-                         "2"
-                         nil]
-                        [:worksheet/add-input-group
-                         uuid
-                         "79429082-3217-4c62-b90e-4559de5cbaa7"
-                         0]
-                        [:worksheet/upsert-input-variable
-                         uuid
-                         "79429082-3217-4c62-b90e-4559de5cbaa7"
-                         0
-                         "41503286-dfe4-457a-9b68-41832e049cc9"
-                         "3"
-                         nil]
-                        [:worksheet/add-input-group
-                         uuid
-                         "fedf0a53-e12c-4504-afc0-af294c96c641"
-                         0]
-                        [:worksheet/upsert-input-variable
-                         uuid
-                         "fedf0a53-e12c-4504-afc0-af294c96c641"
-                         0
-                         "de9df9ee-dfe5-42fe-b43c-fc1f54f99186"
-                         "HeadAttack"
-                         nil]
-                        [:worksheet/add-input-group
-                         uuid
-                         "d88be382-e59a-4648-94a8-44253710148d"
-                         0]
-                        [:worksheet/upsert-input-variable
-                         uuid
-                         "d88be382-e59a-4648-94a8-44253710148d"
-                         0
-                         "6577589c-947f-4c0c-9fca-181d3dd7fb7c"
-                         "4"
-                         nil]]]
+   (let [output-args   ["b7873139-659e-4475-8d41-0cf6c36da893"]
+         input-args    [["a1b35161-e60b-47e7-aad3-b99fbb107784" "fbbf73f6-3a0e-4fdd-b913-dcc50d2db311" "1,2,3,4"] ; [group-uuid group-variable-uuid value]
+                        ["1b13a28a-bc30-4c76-827e-e052ab325d67" "30493fc2-a231-41ee-a16a-875f00cf853f" "2"]
+                        ["79429082-3217-4c62-b90e-4559de5cbaa7" "41503286-dfe4-457a-9b68-41832e049cc9" "3"]
+                        ["fedf0a53-e12c-4504-afc0-af294c96c641" "de9df9ee-dfe5-42fe-b43c-fc1f54f99186" "HeadAttack"]
+                        ["d88be382-e59a-4648-94a8-44253710148d" "6577589c-947f-4c0c-9fca-181d3dd7fb7c" "4"]]
+         setup-events  (->> []
+                            (upsert-output-events fx/test-ws-uuid output-args)
+                            (add-input-group-events fx/test-ws-uuid input-args)
+                            (upsert-input-events fx/test-ws-uuid input-args))
+         event-to-test [:worksheet/solve fx/test-ws-uuid]]
 
      (doseq [event setup-events]
        (rf/dispatch event))
