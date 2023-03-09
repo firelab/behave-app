@@ -323,7 +323,7 @@
 ;; =================================================================================================
 
 ;; TODO add debug printout for uuid->entity
-(deftest solver-test
+(deftest solver-test-single-row
   (rf-test/run-test-sync
    (let [uuid          fx/test-ws-uuid
          event-to-test [:worksheet/solve uuid]
