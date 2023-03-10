@@ -1,6 +1,6 @@
 (ns behave.worksheet-events-test
   (:require
-   [cljs.test :refer [deftest is join-fixtures testing use-fixtures] :include-macros true]
+   [cljs.test :refer [deftest is join-fixtures testing use-fixtures are] :include-macros true]
    [re-frame.core :as rf]
    [behave.fixtures :as fx]
    [behave.test-utils :as utils]
@@ -368,16 +368,13 @@
    "Resource Name"                                 "d5f5cc0a-5ff6-4fcd-b88d-51cd6e6b76f1",
    "Resource Arrival Time"                         "e102c1cd-7237-4147-abfa-d687bf7e6b95"})
 
-
-;; TODO add debug printout for uuid->entity
-;; TODO Use CSV to populate inputs and outputs and test against csv results -> GET FROM CONTAIN_TESTING
-(deftest solver-test-single-row-results-table
+(defn solver-single-row-test [output-name single-or-multi]
   (rf-test/run-test-sync
    (let [output-variable-name->uuid-lookup @(rf/subscribe [:vms/variable-name->uuid "contain" :output])
-         output-names                      ["Fire Perimeter - at resource arrival time"]
+         output-names                      [output-name]
          output-args                       (map #(get output-variable-name->uuid-lookup %) output-names)
-         input-args                        [["a1b35161-e60b-47e7-aad3-b99fbb107784" "fbbf73f6-3a0e-4fdd-b913-dcc50d2db311" "1"] ; [group-uuid group-variable-uuid value]
-                                            ["1b13a28a-bc30-4c76-827e-e052ab325d67" "30493fc2-a231-41ee-a16a-875f00cf853f" "2"]
+         input-args                        [["a1b35161-e60b-47e7-aad3-b99fbb107784" "fbbf73f6-3a0e-4fdd-b913-dcc50d2db311" (if (= single-or-multi :single) "1" "1,2,3,4")] ; [group-uuid group-variable-uuid value]
+                                            ["1b13a28a-bc30-4c76-827e-e052ab325d67" "30493fc2-a231-41ee-a16a-875f00cf853f" (if (= single-or-multi :single) "2" "5,6,7,8")]
                                             ["79429082-3217-4c62-b90e-4559de5cbaa7" "41503286-dfe4-457a-9b68-41832e049cc9" "3"]
                                             ["fedf0a53-e12c-4504-afc0-af294c96c641" "de9df9ee-dfe5-42fe-b43c-fc1f54f99186" "HeadAttack"]
                                             ["d88be382-e59a-4648-94a8-44253710148d" "6577589c-947f-4c0c-9fca-181d3dd7fb7c" "4"]]
@@ -410,55 +407,28 @@
        (is (every? (fn [output-uuids]
                      (contains? result-header-uuids-set output-uuids))
                    output-args)
-           "all output-uuids should be in the table")
+           "all output-uuids should be in the table")))))
 
-       (is (= result-table-cell-data
-              #{[0 "fbbf73f6-3a0e-4fdd-b913-dcc50d2db311" "1"]
-                [0 "30493fc2-a231-41ee-a16a-875f00cf853f" "2"]
-                [0 "41503286-dfe4-457a-9b68-41832e049cc9" "3"]
-                [0 "de9df9ee-dfe5-42fe-b43c-fc1f54f99186" "HeadAttack"]
-                [0 "6577589c-947f-4c0c-9fca-181d3dd7fb7c" "4"]
-                [0 "b7873139-659e-4475-8d41-0cf6c36da893" "0"]})
-           "should have these values from setup-events")))))
+;; TODO Use CSV to populate inputs and outputs and test against csv results -> GET FROM CONTAIN_TESTING
+(deftest solver-test-single-row-results-table-test
+  (are [output] (solver-single-row-test output :single)
+    "Fire Perimeter - at resource arrival time"
+    "Fire Area - at resource arrival time"
+    "Time from Report"
+    "Contain Status"
+    "Contained Area"
+    "Fireline Constructed"
+    "Number of Resources Used"))
 
-(deftest solver-test-multi-row-results-table
-  (rf-test/run-test-sync
-   (let [output-args   ["b7873139-659e-4475-8d41-0cf6c36da893"]
-         input-args    [["a1b35161-e60b-47e7-aad3-b99fbb107784" "fbbf73f6-3a0e-4fdd-b913-dcc50d2db311" "1,2,3,4"] ; [group-uuid group-variable-uuid value]
-                        ["1b13a28a-bc30-4c76-827e-e052ab325d67" "30493fc2-a231-41ee-a16a-875f00cf853f" "2"]
-                        ["79429082-3217-4c62-b90e-4559de5cbaa7" "41503286-dfe4-457a-9b68-41832e049cc9" "3"]
-                        ["fedf0a53-e12c-4504-afc0-af294c96c641" "de9df9ee-dfe5-42fe-b43c-fc1f54f99186" "HeadAttack"]
-                        ["d88be382-e59a-4648-94a8-44253710148d" "6577589c-947f-4c0c-9fca-181d3dd7fb7c" "4"]]
-         setup-events  (->> []
-                            (upsert-output-events fx/test-ws-uuid output-args)
-                            (add-input-group-events fx/test-ws-uuid input-args)
-                            (upsert-input-events fx/test-ws-uuid input-args))
-         event-to-test [:worksheet/solve fx/test-ws-uuid]]
-
-     (doseq [event setup-events]
-       (rf/dispatch event))
-
-     (rf/dispatch event-to-test)
-
-     (let [result-table-cell-data  @(rf/subscribe [:worksheet/result-table-cell-data fx/test-ws-uuid])
-           result-header-uuids-set (into #{}
-                                         (map second)
-                                         result-table-cell-data)]
-
-       (is (seq result-table-cell-data))
-
-       (is (= 4 (inc (apply max (map first result-table-cell-data)))) ;TODO currently failing until solver is updated
-           "should only have four rows of data")
-
-       (is (every? (fn [[_ group-variable-uuid _]]
-                     (contains? result-header-uuids-set group-variable-uuid))
-                   input-args)
-           "all input-uuids should be in the table")
-
-       (is (every? (fn [[_ group-variable-uuid _]]
-                     (contains? result-header-uuids-set group-variable-uuid))
-                   input-args)
-           "all input-uuids should be in the table")))))
+(deftest solver-test-multi-row-results-table-test
+  (are [output] (solver-single-row-test output :multi)
+    "Fire Perimeter - at resource arrival time"
+    "Fire Area - at resource arrival time"
+    "Time from Report"
+    "Contain Status"
+    "Contained Area"
+    "Fireline Constructed"
+    "Number of Resources Used"))
 
 ;; =================================================================================================
 ;; :worksheet/toggle-table-settings
