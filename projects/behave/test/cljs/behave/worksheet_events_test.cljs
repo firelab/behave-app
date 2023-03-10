@@ -368,6 +368,8 @@
     (into {} (drill-in submodule-io-output-only))))
 
 (comment
+  (build-output-variable-name->uuid-lookup "contain")
+
   ;; output variable names -> uuid for "contain" module
   {"Fire Perimeter - at resource arrival time" "b7873139-659e-4475-8d41-0cf6c36da893",
    "Fire Area - at resource arrival time"      "7eaf10d0-1dae-445d-b8ad-257f431894aa",
