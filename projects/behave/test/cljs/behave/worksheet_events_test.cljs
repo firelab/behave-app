@@ -328,7 +328,8 @@
         (map (fn [output-uuid] [:worksheet/upsert-output ws-uuid output-uuid true]))
         output-uuids))
 
-(defn add-input-group-events [ws-uuid input-args setup-events]
+(defn add-input-group-events
+  [ws-uuid input-args setup-events]
   (into setup-events
         (map (fn [[group-uuid & _rest]]
                (let [repeat-id 0]
@@ -344,27 +345,61 @@
                  [:worksheet/upsert-input-variable ws-uuid group-uuid repeat-id group-variable-uuid value units])))
         input-args))
 
+(defn- drill-in [entity]
+  (cond
+    (map? entity)
+    (cond
+      (:submodule/name entity)        (drill-in (:submodule/groups entity))
+      (:group/group-variables entity) (drill-in (:group/group-variables entity))
+      (:variable/name entity)         [(:variable/name entity) (:bp/uuid entity)])
+
+    (and (coll? entity) (map? (first entity)) (:variable/name (first entity)))
+    (map #(drill-in %) entity)
+
+    (coll? entity)
+    (mapcat #(drill-in %) entity)
+
+    :else nil))
+
+(defn- build-output-variable-name->uuid-lookup [module-name]
+  (let [module                   @(rf/subscribe [:wizard/*module module-name])
+        submodules               @(rf/subscribe [:wizard/submodules (:db/id module)])
+        submodule-io-output-only (filter #(= (:submodule/io %) :output) submodules)]
+    (into {} (drill-in submodule-io-output-only))))
+
+(comment
+  ;; output variable names -> uuid for "contain" module
+  {"Fire Perimeter - at resource arrival time" "b7873139-659e-4475-8d41-0cf6c36da893",
+   "Fire Area - at resource arrival time"      "7eaf10d0-1dae-445d-b8ad-257f431894aa",
+   "Time from Report"                          "0e9457cb-33cb-4fce-a4b6-165fa1fd60a5",
+   "Contain Status"                            "7fe3de90-6207-4200-9b0c-2112d6e5cf09",
+   "Contained Area"                            "19e71ac2-1c30-4f6b-9d8a-5d7e208e0ff0",
+   "Fireline Constructed"                      "32078406-4117-47b0-8cef-2b395c869ff6",
+   "Number of Resources Used"                  "84015e74-32c4-4a02-9717-5ac33d4e3f9c"})
+
 ;; TODO add debug printout for uuid->entity
 ;; TODO Use CSV to populate inputs and outputs and test against csv results -> GET FROM CONTAIN_TESTING
 (deftest solver-test-single-row-results-table
   (rf-test/run-test-sync
-   (let [output-args   ["b7873139-659e-4475-8d41-0cf6c36da893"]
-         input-args    [["a1b35161-e60b-47e7-aad3-b99fbb107784" "fbbf73f6-3a0e-4fdd-b913-dcc50d2db311" "1"] ; [group-uuid group-variable-uuid value]
-                        ["1b13a28a-bc30-4c76-827e-e052ab325d67" "30493fc2-a231-41ee-a16a-875f00cf853f" "2"]
-                        ["79429082-3217-4c62-b90e-4559de5cbaa7" "41503286-dfe4-457a-9b68-41832e049cc9" "3"]
-                        ["fedf0a53-e12c-4504-afc0-af294c96c641" "de9df9ee-dfe5-42fe-b43c-fc1f54f99186" "HeadAttack"]
-                        ["d88be382-e59a-4648-94a8-44253710148d" "6577589c-947f-4c0c-9fca-181d3dd7fb7c" "4"]]
-         setup-events  (->> []
-                            (upsert-output-events fx/test-ws-uuid output-args)
-                            (add-input-group-events fx/test-ws-uuid input-args)
-                            (upsert-input-events fx/test-ws-uuid input-args))
-         event-to-test [:worksheet/solve fx/test-ws-uuid]]
+   (let [output-variable-name->uuid-lookup (build-output-variable-name->uuid-lookup "contain")
+         ;; _                              (prn output-variable-name->uuid-lookup) ;TODO find another entry point to print out these values. Preferrably outside of tests (Kenny, March 3 2023)
+         output-names                      ["Fire Perimeter - at resource arrival time"]
+         output-args                       (map #(get output-variable-name->uuid-lookup %) output-names)
+         input-args                        [["a1b35161-e60b-47e7-aad3-b99fbb107784" "fbbf73f6-3a0e-4fdd-b913-dcc50d2db311" "1"] ; [group-uuid group-variable-uuid value]
+                                            ["1b13a28a-bc30-4c76-827e-e052ab325d67" "30493fc2-a231-41ee-a16a-875f00cf853f" "2"]
+                                            ["79429082-3217-4c62-b90e-4559de5cbaa7" "41503286-dfe4-457a-9b68-41832e049cc9" "3"]
+                                            ["fedf0a53-e12c-4504-afc0-af294c96c641" "de9df9ee-dfe5-42fe-b43c-fc1f54f99186" "HeadAttack"]
+                                            ["d88be382-e59a-4648-94a8-44253710148d" "6577589c-947f-4c0c-9fca-181d3dd7fb7c" "4"]]
+         setup-events                      (->> []
+                                                (upsert-output-events fx/test-ws-uuid output-args)
+                                                (add-input-group-events fx/test-ws-uuid input-args)
+                                                (upsert-input-events fx/test-ws-uuid input-args))
+         event-to-test                     [:worksheet/solve fx/test-ws-uuid]]
 
      (doseq [event setup-events]
        (rf/dispatch event))
 
      (rf/dispatch event-to-test)
-
 
      (let [result-table-cell-data  @(rf/subscribe [:worksheet/result-table-cell-data fx/test-ws-uuid])
            result-header-uuids-set (into #{}
