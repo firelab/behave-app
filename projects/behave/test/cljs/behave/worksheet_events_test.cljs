@@ -368,7 +368,7 @@
    "Resource Name"                                 "d5f5cc0a-5ff6-4fcd-b88d-51cd6e6b76f1",
    "Resource Arrival Time"                         "e102c1cd-7237-4147-abfa-d687bf7e6b95"})
 
-(defn solver-single-row-test [output-name single-or-multi]
+(defn run-solver-test-suite [output-name single-or-multi]
   (rf-test/run-test-sync
    (let [output-variable-name->uuid-lookup @(rf/subscribe [:vms/variable-name->uuid "contain" :output])
          output-names                      [output-name]
@@ -411,7 +411,7 @@
 
 ;; TODO Use CSV to populate inputs and outputs and test against csv results -> GET FROM CONTAIN_TESTING
 (deftest solver-test-single-row-results-table-test
-  (are [output] (solver-single-row-test output :single)
+  (are [output] (run-solver-test-suite output :single)
     "Fire Perimeter - at resource arrival time"
     "Fire Area - at resource arrival time"
     "Time from Report"
@@ -421,7 +421,7 @@
     "Number of Resources Used"))
 
 (deftest solver-test-multi-row-results-table-test
-  (are [output] (solver-single-row-test output :multi)
+  (are [output] (run-solver-test-suite output :multi)
     "Fire Perimeter - at resource arrival time"
     "Fire Area - at resource arrival time"
     "Time from Report"
