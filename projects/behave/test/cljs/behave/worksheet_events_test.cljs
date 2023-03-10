@@ -372,7 +372,10 @@
   (rf-test/run-test-sync
    (let [output-variable-name->uuid-lookup @(rf/subscribe [:vms/variable-name->uuid "contain" :output])
          output-names                      [output-name]
-         output-args                       (map #(get output-variable-name->uuid-lookup %) output-names)
+         output-args                       (map (fn resolve-name-to-uuid
+                                                  [output-name]
+                                                  get output-variable-name->uuid-lookup output-name)
+                                                output-names)
          input-args                        [["a1b35161-e60b-47e7-aad3-b99fbb107784" "fbbf73f6-3a0e-4fdd-b913-dcc50d2db311" (if (= single-or-multi :single) "1" "1,2,3,4")] ; [group-uuid group-variable-uuid value]
                                             ["1b13a28a-bc30-4c76-827e-e052ab325d67" "30493fc2-a231-41ee-a16a-875f00cf853f" (if (= single-or-multi :single) "2" "5,6,7,8")]
                                             ["79429082-3217-4c62-b90e-4559de5cbaa7" "41503286-dfe4-457a-9b68-41832e049cc9" "3"]
