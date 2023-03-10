@@ -382,7 +382,7 @@
                                                   (get output-variable-name->uuid-lookup output-name))
                                                 output-names)
          input-args                        [["a1b35161-e60b-47e7-aad3-b99fbb107784" "fbbf73f6-3a0e-4fdd-b913-dcc50d2db311" (if (= single-or-multi :single) "1" "1,2,3,4")] ; [group-uuid group-variable-uuid value]
-                                            ["1b13a28a-bc30-4c76-827e-e052ab325d67" "30493fc2-a231-41ee-a16a-875f00cf853f" (if (= single-or-multi :single) "2" "5,6,7,8")]
+                                            ["1b13a28a-bc30-4c76-827e-e052ab325d67" "30493fc2-a231-41ee-a16a-875f00cf853f" "2"]
                                             ["79429082-3217-4c62-b90e-4559de5cbaa7" "41503286-dfe4-457a-9b68-41832e049cc9" "3"]
                                             ["fedf0a53-e12c-4504-afc0-af294c96c641" "de9df9ee-dfe5-42fe-b43c-fc1f54f99186" "HeadAttack"]
                                             ["d88be382-e59a-4648-94a8-44253710148d" "6577589c-947f-4c0c-9fca-181d3dd7fb7c" "4"]]
@@ -404,8 +404,11 @@
 
        (is (seq result-table-cell-data))
 
-       (is (= 1 (inc (apply max (map first result-table-cell-data))))
-           "should only have one row of data")
+       (if (= type :single)
+        (is (= 1 (inc (apply max (map first result-table-cell-data))))
+            "should only have one row of data")
+        (is (= 4 (inc (apply max (map first result-table-cell-data))))
+            "should only have four rows of data"))
 
        (is (every? (fn [[_ group-variable-uuid _]]
                      (contains? result-header-uuids-set group-variable-uuid))
