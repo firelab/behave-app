@@ -66,6 +66,10 @@
         day8.re-frame/http-fx              {:mvn/version "0.2.4"}
         re-posh/re-posh                    {:mvn/version "0.3.3"}
         reagent/reagent                    {:mvn/version "0.10.0"}
+        re-frame-utils/re-frame-utils      {:mvn/version "0.1.0"}
+        cljsjs/vega                        {:mvn/version "5.20.2-0"}
+        cljsjs/vega-embed                  {:mvn/version "6.0.0-0"}
+        cljsjs/vega-lite                   {:mvn/version "5.1.1-0"}
 
         ;; Behave CMS
         applied-science/js-interop         {:mvn/version "0.3.3"}

@@ -9,14 +9,15 @@
 
 ;;; Spec
 
-(s/def :worksheet/uuid          string?)
-(s/def :worksheet/name          string?)
-(s/def :workshet/notes          many-ref?)
-(s/def :workshet/inputs         many-ref?)
-(s/def :workshet/outputs        many-ref?)
-(s/def :workshet/result-table   single-ref?)
-(s/def :workshet/graph-settings single-ref?)
-(s/def :workshet/table-settings single-ref?)
+(s/def :worksheet/uuid                  string?)
+(s/def :worksheet/name                  string?)
+(s/def :worksheet/furthest-visited-step keyword?)
+(s/def :worksheet/notes                 many-ref?)
+(s/def :worksheet/inputs                many-ref?)
+(s/def :worksheet/outputs               many-ref?)
+(s/def :worksheet/result-table          single-ref?)
+(s/def :worksheet/graph-settings        single-ref?)
+(s/def :worksheet/table-settings        single-ref?)
 
 ;;; Schema
 
@@ -25,6 +26,11 @@
     :db/doc         "Worksheet's ID. UUID stored as a string."
     :db/valueType   :db.type/string
     :db/unique      :db.unique/identity
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :worksheet/run-description
+    :db/doc         "Worksheet's run description."
+    :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :worksheet/name
@@ -37,7 +43,12 @@
     :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 
-   ; Relations
+   {:db/ident       :worksheet/furthest-visited-step
+    :db/doc         "Worksheet's furthest completed step."
+    :db/valueType   :db.type/keyword
+    :db/cardinality :db.cardinality/one}
+
+   ;; Relations
    {:db/ident       :worksheet/modules
     :db/doc         "Worksheet's modules."
     :db/valueType   :db.type/keyword
@@ -79,13 +90,18 @@
     :db/cardinality :db.cardinality/one}
 
    ;; Notes
-   {:db/ident       :note/submodule
-    :db/doc         "Note's submodule."
-    :db/valueType   :db.type/ref
+   {:db/ident       :note/name
+    :db/doc         "Note's name"
+    :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :note/content
     :db/doc         "Note's content."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :note/submodule
+    :db/doc         "Note's reference to a submodule's UUID"
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
@@ -133,18 +149,18 @@
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
-   ;{:db/ident       :input/continuous-value
-   ; :db/doc         "Input's continuous value."
-   ; :db/valueType   :db.type/float
-   ; :db/cardinality :db.cardinality/one}
-   ;{:db/ident       :input/discrete-value
-   ; :db/doc         "Input's discrete value."
-   ; :db/valueType   :db.type/string
-   ; :db/cardinality :db.cardinality/one}
-   ;{:db/ident       :input/text-value
-   ; :db/doc         "Input's text value."
-   ; :db/valueType   :db.type/string
-   ; :db/cardinality :db.cardinality/one}
+   ;;{:db/ident       :input/continuous-value
+   ;; :db/doc         "Input's continuous value."
+   ;; :db/valueType   :db.type/float
+   ;; :db/cardinality :db.cardinality/one}
+   ;;{:db/ident       :input/discrete-value
+   ;; :db/doc         "Input's discrete value."
+   ;; :db/valueType   :db.type/string
+   ;; :db/cardinality :db.cardinality/one}
+   ;;{:db/ident       :input/text-value
+   ;; :db/doc         "Input's text value."
+   ;; :db/valueType   :db.type/string
+   ;; :db/cardinality :db.cardinality/one}
 
    ;; Outputs
    {:db/ident       :output/group-variable-uuid
@@ -211,18 +227,54 @@
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
-   ;; TODO Graph Settings
-   ;{:db/ident       :graph-settings/<setting>
-   ; :db/doc         "Graph setting's <setting>."
-   ; :db/valueType   :db.type/ref
-   ; :db/cardinality :db.cardinality/one}
+   ;; Results Table Settings
+   {:db/ident       :table-settings/enabled?
+    :db/doc         "Whether table results are enabled."
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
 
-   ;; TODO Table Settings
-   ;{:db/ident       :table-settings/<setting>
-   ; :db/doc         "Table setting's <setting>."
-   ; :db/valueType   :db.type/ref
-   ; :db/cardinality :db.cardinality/one}
+   ;; Results Graph Settings
+   {:db/ident       :graph-settings/enabled?
+    :db/doc         "Whether graph results are enabled."
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
 
-   ; Table Shading
+   {:db/ident       :graph-settings/x-axis-group-variable-uuid
+    :db/doc         "Graph's x-axis variable."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
 
-])
+   {:db/ident       :graph-settings/z-axis-group-variable-uuid
+    :db/doc         "Graph's z-axis variable."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :graph-settings/z2-axis-group-variable-uuid
+    :db/doc         "Graph's z2-axis variable."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :graph-settings/y-axis-limits
+    :db/doc         "Graph's y-axis limits."
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many}
+
+   ;; y-axis-limit
+   {:db/ident       :y-axis-limit/group-variable-uuid
+    :db/doc         "Y-axis's group variable uuid."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :y-axis-limit/min
+    :db/doc         "Y axis's minimum value."
+    :db/valueType   :db.type/long
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :y-axis-limit/max
+    :db/doc         "Y axis's maximum value."
+    :db/valueType   :db.type/long
+    :db/cardinality :db.cardinality/one}
+
+   ;; Table Shading
+
+   ])

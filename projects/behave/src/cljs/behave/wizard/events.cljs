@@ -1,16 +1,18 @@
 (ns behave.wizard.events
-  (:require [behave-routing.main :refer [routes]]
-            [behave.solver       :refer [solve-worksheet]]
-            [bidi.bidi           :refer [path-for]]
-            [clojure.walk        :refer [postwalk]]
-            [re-frame.core       :as rf]))
+  (:require [behave-routing.main           :refer [routes]]
+            [behave.solver                 :refer [solve-worksheet]]
+            [bidi.bidi                     :refer [path-for]]
+            [clojure.walk                  :refer [postwalk]]
+            [re-frame.core                 :as rf]
+            [string-utils.interface        :refer [->str]]
+            [vimsical.re-frame.cofx.inject :as inject]))
 
 (rf/reg-event-fx
   :wizard/select-tab
-  (fn [_ [_ {:keys [id module io submodule]}]]
+  (fn [_ [_ {:keys [ws-uuid module io submodule]}]]
     (let [path (path-for routes
                          :ws/wizard
-                         :id id
+                         :ws-uuid ws-uuid
                          :module module
                          :io io
                          :submodule submodule)]
@@ -28,7 +30,7 @@
           _*module
           _*submodule
           all-submodules
-          {:keys [id module io submodule]}]]
+          {:keys [ws-uuid module io submodule]}]]
     (let [[i-subs o-subs] (partition-by #(:submodule/io %) (sort-by :submodule/io all-submodules))
           submodules      (if (= io :input) i-subs o-subs)
           next-submodules (rest (drop-while #(not= (:slug %) submodule) (sort-by :submodule/order submodules)))
@@ -36,7 +38,7 @@
                             (seq next-submodules)
                             (path-for routes
                                       :ws/wizard
-                                      :id id
+                                      :ws-uuid ws-uuid
                                       :module module
                                       :io io
                                       :submodule (:slug (first next-submodules)))
@@ -44,7 +46,7 @@
                             (and (= io :output) (empty? next-submodules))
                             (path-for routes
                                       :ws/wizard
-                                      :id id
+                                      :ws-uuid ws-uuid
                                       :module module
                                       :io :input
                                       :submodule (:slug (first i-subs)))
@@ -52,7 +54,7 @@
                             (and (= io :input) (empty? next-submodules))
                             (path-for routes
                                       :ws/review
-                                      :id id))]
+                                      :ws-uuid ws-uuid))]
       {:fx [[:dispatch [:navigate path]]]})))
 
 (rf/reg-event-fx
@@ -79,35 +81,96 @@
   (fn [{:keys [db] :as _cfx} [_event-id path]]
     {:db (update-in db path remove-nils)}))
 
-(defn- count-continuous-variable-inputs
-  [k->v depth-to-count]
-  (letfn [(dfs-walk [k->v cur-depth]
-            (when-let [map-entries (seq k->v)]
-              (if (zero? cur-depth)
-                (map key map-entries)
-                (into (dfs-walk (-> map-entries first val) (dec cur-depth))
-                      (dfs-walk (rest map-entries) cur-depth)))))]
-    (let [variable-ids (dfs-walk k->v depth-to-count)
-          variables    @(rf/subscribe [:vms/pull-many '[{:variable/_group-variables [:variable/kind]}]
-                                       variable-ids])]
-      (->> variables
-           (filter (fn continuous? [variable]
-                     (= (-> variable :variable/_group-variables first :variable/kind)
-                        "continuous")))
-           (count)))))
-
-(rf/reg-event-fx
-  :wizard/update-input-count
-  (fn [_cfx [_event-id]]
-    (let [inputs   (rf/subscribe [:state [:worksheet :inputs]])
-          id-count (count-continuous-variable-inputs @inputs 2)]
-      {:dispatch [:state/set [:worksheet :continuous-input-count] id-count]})))
-
 (rf/reg-event-fx
   :wizard/update-inputs
   (fn [_cfx [_event-id group-id repeat-id id value]]
     {:fx [(if (empty? value)
             [:dispatch [:state/update [:worksheet :inputs group-id repeat-id] dissoc id]]
             [:dispatch [:state/set [:worksheet :inputs group-id repeat-id id] value]])
-          [:dispatch [:wizard/update-input-count]]
           [:dispatch [:wizard/remove-nils [:state :worksheet :inputs]]]]}))
+
+(rf/reg-event-fx
+  :wizard/edit-input
+  (fn [_cfx [_event-id route repeat-id var-uuid]]
+    {:fx [[:dispatch [:navigate route]]
+          [:dispatch-later {:ms       200
+                            :dispatch [:wizard/scroll-into-view (str repeat-id  "-" var-uuid)]}]]}))
+
+(rf/reg-event-fx
+  :wizard/scroll-into-view
+  (fn [_cfx [_event-id id]]
+    (let [content (first (.getElementsByClassName js/document "wizard-page__body"))
+          section (.getElementById js/document id)
+          buffer  (* 0.01 (.-offsetHeight content))
+          top     (- (.-offsetTop section) (.-offsetTop content) buffer)]
+      (.scroll content #js {:top top :behavior "smooth"}))))
+
+(rf/reg-event-fx
+  :wizard/delete
+  (fn [_cfx [_event-id group-id repeat-id]]
+    {:fx [[:dispatch [:state/update [:worksheet :inputs group-id] dissoc repeat-id]]
+          [:dispatch [:state/update [:worksheet :repeat-groups group-id] disj repeat-id]]]}))
+
+(rf/reg-event-fx
+ :wizard/edit-note
+ (fn [_cfx [_id note-id]]
+   {:fx [[:dispatch [:state/set [:worksheet :notes note-id :edit?] true]]]}))
+
+(rf/reg-event-fx
+ :wizard/create-note
+ (fn [_cfx [_id ws-uuid submodule-uuid submodule-name submodule-io payload]]
+   {:fx [[:dispatch [:worksheet/create-note ws-uuid submodule-uuid submodule-name submodule-io payload]]
+         [:dispatch [:wizard/toggle-show-add-note-form]]]}))
+
+(rf/reg-event-fx
+ :wizard/update-note
+ (fn [_cfx [_id note-id payload]]
+   {:fx [[:dispatch [:worksheet/update-note note-id payload]]
+         [:dispatch [:state/set [:worksheet :notes note-id :edit?] false]]]}))
+
+(rf/reg-event-fx
+ :wizard/toggle-show-notes
+ (fn [_ _]
+   {:fx [[:dispatch [:state/update [:worksheet :show-notes?] not]]]}))
+
+(rf/reg-event-fx
+ :wizard/toggle-show-add-note-form
+ (fn [_cfx _query]
+   {:fx [[:dispatch [:state/update [:worksheet :show-add-note-form?] not]]]}))
+
+
+(rf/reg-event-fx
+ :wizard/results-select-tab
+ (fn [_cfx [_ {:keys [tab]}]]
+   {:fx [[:dispatch [:state/set [:worksheet :results :tab-selected] tab]]
+         [:dispatch [:wizard/scroll-into-view (name tab)]]]}))
+(rf/reg-event-fx
+ :wizard/progress-bar-navigate
+ [(rf/inject-cofx ::inject/sub
+                  (fn [_]
+                    [:state [:worksheet :*workflow]]))
+  (rf/inject-cofx ::inject/sub
+                  (fn [[_ io]]
+                    [:wizard/first-module+submodule io]))]
+ (fn [{module                 :state
+       first-module+submodule :wizard/first-module+submodule} [_ id route-handler+io]]
+   (let [[handler io]          route-handler+io
+         [ws-module submodule] first-module+submodule]
+     (when-let [path (cond
+                       (= handler :ws/independent)
+                       (str "/worksheets/" (->str module))
+
+                       io
+                       (path-for routes
+                                 :ws/wizard
+                                 :id id
+                                 :module ws-module
+                                 :io io
+                                 :submodule submodule)
+
+                       (= handler :ws/result-settings)
+                       (path-for routes :ws/results-settings :id id :results-page :settings)
+
+                       :else
+                       (path-for routes handler :id id))]
+       {:fx [[:dispatch [:navigate path]]]}))))

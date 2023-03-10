@@ -28,7 +28,8 @@
 
 (defn sidebar []
   (let [*sidebar-modules (rf/subscribe [:state [:sidebar :*modules]])
-        on-select        #(rf/dispatch [:state/set [:sidebar :*modules] (:module %)])]
+        on-select        #(do (rf/dispatch [:state/set [:sidebar :*modules] (:module %)])
+                              (rf/dispatch [:state/set [:worksheet :*modules] (:module %)]))]
     [:div.sidebar-container
      [sidebar-group {:title   @(<t (bp "modules"))
                      :modules (if @*sidebar-modules

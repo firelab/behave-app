@@ -17,6 +17,8 @@ projects/behave/resources/db
 
 # Configuration files
 /config.edn
+**/config.edn
+**/*-config.edn
 announcement.txt
 
 ## Ignore Visual Studio temporary files, build results, and
@@ -223,3 +225,5 @@ ModelManifest.xml
 
 # Project builds
 projects/behave/resources/public/js/out/
+projects/behave/resources/public/cljs/
+**/target

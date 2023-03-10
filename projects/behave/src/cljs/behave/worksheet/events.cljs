@@ -1,9 +1,11 @@
 (ns behave.worksheet.events
- (:require [re-frame.core    :as rf]
-           [re-posh.core     :as rp]
-           [datascript.core  :as d]
-           [behave.importer  :refer [import-worksheet]]
-           [behave.solver    :refer [solve-worksheet]]))
+  (:require [re-frame.core    :as rf]
+            [re-posh.core     :as rp]
+            [datascript.core  :as d]
+            [behave.components.toolbar :refer [get-step-number step-kw->number get-step-kw]]
+            [behave.importer  :refer [import-worksheet]]
+            [behave.solver    :refer [solve-worksheet]]
+            [vimsical.re-frame.cofx.inject :as inject]))
 
 (rf/reg-fx :ws/import-worksheet import-worksheet)
 
@@ -26,6 +28,11 @@
                 :worksheet/name name
                 :worksheet/modules modules
                 :worksheet/created (.now js/Date)}]}))
+
+(rp/reg-event-fx
+  :worksheet/update-attr
+  (fn [_ [_ ws-uuid attr value]]
+    {:transact [(assoc {:db/id [:worksheet/uuid ws-uuid]} attr value)]}))
 
 (rp/reg-event-fx
  :worksheet/add-input-group
@@ -68,6 +75,24 @@
          {:transact [{:input-group/_inputs       group-id
                       :input/group-variable-uuid group-variable-uuid
                       :input/value               value}]})))))
+
+(rp/reg-event-fx
+  :worksheet/delete-repeat-input-group
+  [(rp/inject-cofx :ds)]
+  (fn [{:keys [ds]} [_ ws-uuid group-uuid repeat-id]]
+    (let [input-ids (d/q '[:find [?g ...]
+                           :in  $ ?ws-uuid ?group-uuid ?repeat-id
+                           :where
+                           [?w :worksheet/uuid ?ws-uuid]
+                           [?w :worksheet/input-groups ?g]
+                           [?g :input-group/group-uuid ?group-uuid]
+                           [?g :input-group/repeat-id ?repeat-id]]
+                         ds ws-uuid group-uuid repeat-id)]
+      (when (seq input-ids)
+        (let [payload (mapv (fn [id] [:db.fn/retractEntity id]) input-ids)]
+          {:transact payload})))))
+
+
 
 (rp/reg-event-fx
  :worksheet/upsert-output
@@ -144,6 +169,152 @@
          {:transact [{:result-row/_cells  row
                       :result-cell/header header
                       :result-cell/value  value}]})))))
+
+(rp/reg-event-fx
+ :worksheet/toggle-table-settings
+ [(rp/inject-cofx :ds)]
+ (fn [{:keys [ds]} [_ ws-uuid]]
+   (when-let [ws (d/q '[:find  [?ws]
+                        :in    $ ?uuid
+                        :where [?ws :worksheet/uuid ?uuid]] ds ws-uuid)]
+     (if-let [[id enabled?] (d/q '[:find [?t ?enabled]
+                                   :in    $ ?uuid
+                                   :where
+                                   [?w :worksheet/uuid ?uuid]
+                                   [?w :worksheet/table-settings ?t]
+                                   [?t :table-settings/enabled? ?enabled]]
+                                  ds
+                                  ws-uuid)]
+       {:transact [{:db/id                   id
+                    :table-settings/enabled? (not enabled?)}]}
+       {:transact [{:worksheet/_table-settings ws
+                    :db/id                     -1
+                    :table-settings/enabled?   true}]}))))
+
+(rp/reg-event-fx
+ :worksheet/toggle-graph-settings
+ [(rp/inject-cofx :ds)
+  (rf/inject-cofx ::inject/sub
+                  (fn [[_ ws-uuid]]
+                    [:worksheet/all-output-uuids ws-uuid]))
+  (rf/inject-cofx ::inject/sub
+                  (fn [[_ ws-uuid]]
+                    [:worksheet/multi-value-input-uuids ws-uuid]))]
+ (fn [{ds                      :ds
+       output-uuids            :worksheet/all-output-uuids
+       multi-value-input-uuids :worksheet/multi-value-input-uuids} [_ ws-uuid]]
+   (when-let [ws (d/q '[:find  [?ws]
+                        :in    $ ?uuid
+                        :where [?ws :worksheet/uuid ?uuid]] ds ws-uuid)]
+     (if-let [[id enabled?] (d/q '[:find [?t ?enabled]
+                                   :in    $ ?uuid
+                                   :where
+                                   [?w :worksheet/uuid ?uuid]
+                                   [?w :worksheet/graph-settings ?t]
+                                   [?t :graph-settings/enabled? ?enabled]]
+                                  ds
+                                  ws-uuid)]
+       {:transact [{:db/id                   id
+                    :graph-settings/enabled? (not enabled?)}]}
+       {:transact [(cond-> {:worksheet/_graph-settings ws
+                            :db/id                     -1
+                            :graph-settings/enabled?   true}
+
+                     ;; sets default x-axis selection if available
+                     (first multi-value-input-uuids)
+                     (assoc :graph-settings/x-axis-group-variable-uuid (first multi-value-input-uuids))
+
+                     ;; sets default z-axis selection if available
+                     (second multi-value-input-uuids)
+                     (assoc :graph-settings/z-axis-group-variable-uuid (second multi-value-input-uuids))
+
+                     ;; sets default z2-axis selection if available
+                     (nth multi-value-input-uuids 2 nil)
+                     (assoc :graph-settings/z2-axis-group-variable-uuid (nth multi-value-input-uuids 2))
+
+                     (seq output-uuids)
+                     (assoc :graph-settings/y-axis-limits
+                            (mapv (fn [output-uuid]
+                                    {:y-axis-limit/group-variable-uuid output-uuid
+                                     :y-axis-limit/min                 0     ;TODO compute from results
+                                     :y-axis-limit/max                 100}) ;TODO compute from results
+                                  output-uuids)))]}))))
+
+(rp/reg-event-fx
+ :worksheet/update-y-axis-limit-attr
+ [(rp/inject-cofx :ds)]
+ (fn [{:keys [ds]} [_ ws-uuid group-var-uuid attr value]]
+   (when-let [y (first (d/q '[:find [?y]
+                              :in    $ ?ws-uuid ?group-var-uuid
+                              :where
+                              [?w :worksheet/uuid ?ws-uuid]
+                              [?w :worksheet/graph-settings ?g]
+                              [?g :graph-settings/y-axis-limits ?y]
+                              [?y :y-axis-limit/group-variable-uuid ?group-var-uuid]]
+                            ds
+                            ws-uuid
+                            group-var-uuid))]
+     {:transact [(assoc {:db/id y} attr value)]})))
+
+(rp/reg-event-fx
+ :worksheet/update-graph-settings-attr
+ [(rp/inject-cofx :ds)]
+ (fn [{:keys [ds]} [_ ws-uuid attr value]]
+   (when-let [g (first (d/q '[:find [?g]
+                              :in    $ ?uuid
+                              :where
+                              [?w :worksheet/uuid ?uuid]
+                              [?w :worksheet/graph-settings ?g]]
+                             ds
+                             ws-uuid))]
+     {:transact [(assoc {:db/id g} attr value)]})))
+
+;;Notes
+
+(rp/reg-event-fx
+ :worksheet/create-note
+ [(rp/inject-cofx :ds)]
+ (fn [{:keys [ds]} [_id
+                    ws-uuid
+                    submodule-uuid
+                    submodule-name
+                    submodule-io
+                    {:keys [title body] :as _payload}]]
+   (when-let [ws-id (d/entid ds [:worksheet/uuid ws-uuid])]
+     {:transact [{:db/id            -1
+                  :worksheet/_notes ws-id
+                  :note/name        (if (empty? title)
+                                      (str submodule-name " " submodule-io)
+                                      title)
+                  :note/content     body
+                  :note/submodule   submodule-uuid}]})))
+
+(rp/reg-event-fx
+ :worksheet/update-note
+ [(rp/inject-cofx :ds)]
+ (fn [{:keys [ds]} [_  note-id {:keys [title body] :as _payload}]]
+   (when-let [note (d/entity ds note-id)]
+     {:transact [{:db/id        (:db/id note)
+                  :note/name    title
+                  :note/content body}]})))
+
+(rp/reg-event-fx
+ :worksheet/delete-note
+ [(rp/inject-cofx :ds)]
+ (fn [_ [_ note-id]]
+   {:transact [[:db.fn/retractEntity note-id]]}))
+
+(rp/reg-event-fx
+ :worksheet/update-furthest-visited-step
+ [(rp/inject-cofx :ds)]
+ (fn [{:keys [ds]} [_ ws-uuid route-handler io]]
+   (when-let [worksheet (d/entity ds [:worksheet/uuid ws-uuid])]
+     (let [worksheet-visited-step (get step-kw->number (:worksheet/furthest-visited-step worksheet))
+           current-step           (get-step-number route-handler io)]
+       (when (or (nil? worksheet-visited-step)
+                 (< worksheet-visited-step current-step))
+         {:transact [{:db/id                           [:worksheet/uuid ws-uuid]
+                      :worksheet/furthest-visited-step (get-step-kw route-handler io)}]})))))
 
 (comment
 
@@ -242,5 +413,8 @@
                                    :where [?w :worksheet/uuid ?uuid]
                                           [?w :worksheet/input-groups ?g]]
                                   @@s/conn ws-uuid))
+
+  (let [ws-uuid @(rf/subscribe [:worksheet/latest])]
+    (rf/subscirbe [:worksheet/table-settings-enabled? ws-uuid]))
 
   )
