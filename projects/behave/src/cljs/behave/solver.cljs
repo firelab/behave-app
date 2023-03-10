@@ -5,7 +5,8 @@
             [behave.lib.contain :as contain]
             [behave.lib.enums   :as enum]
             [behave.lib.units   :as units]
-            [behave.vms.store :refer [vms-conn]]))
+            [behave.vms.store :refer [vms-conn]]
+            [map-utils.interface :refer [index-by]]))
 
 ;; VMS Data Queries
 
@@ -92,19 +93,63 @@
            (module-input-fns ?m ?fn ?fn-name)
            [?fn :function/parameters ?p]])
 
-  (def input-uuid+fn+params
-    (q-vms '[:find ?uuid ?fn ?fn-name (count ?all-params) ?p-name ?p-type ?p-order
-             :keys group-var-uuid fn fn-name total-params param-name param-type param-order
+  (q-vms '[:find ?fn ?fn-name (count ?p)
+           :where [?m :module/name "Contain"]
+           (module-input-fns ?m ?fn ?fn-name)
+           [?fn :function/parameters ?p]])
+
+  (def inputs+units
+    (q-vms '[:find ?uuid ?units
+             :keys gv/uuid gv/units
              :where [?m :module/name "Contain"]
              (module-input-vars ?m ?gv)
              (lookup ?uuid ?gv)
+             (var-units ?uuid ?units)]))
+
+  (def inputs+units+fn+params
+    (q-vms '[:find ?uuid ?units ?fn ?fn-name (count ?all-params) ?p-name ?p-type ?p-order
+             :keys
+             group-variable/uuid
+             group-variable/units
+             function/id
+             function/name
+             function/num-params
+             param/name
+             param/type
+             param/order
+
+             :where
+             [?m :module/name "Contain"]
+             (module-input-vars ?m ?gv)
+             (lookup ?uuid ?gv)
              (var->fn ?uuid ?fn)
+             (var-units ?uuid ?units)
              (var->param ?uuid ?p)
              [?fn :function/name ?fn-name]
              (param-attrs ?p ?p-name ?p-type ?p-order)
              [?fn :function/parameters ?all-params]]))
 
-  (def ws-uuid @(rf/subscribe [:worksheet/latest])))
+  (index-by :group-variable/uuid inputs+units+fn+params)
+
+  (<= 0 2)
+  (def simple-vars (filter #(<= (:function/num-params %) 2) inputs+units+fn+params))
+
+  (first simple-vars)
+
+
+  (def ws-uuid @(rf/subscribe [:worksheet/latest]))
+
+  ws-uuid
+
+  (def ws-inputs @(rf/subscribe [:worksheet/all-inputs ws-uuid]))
+
+  (filter #() ws-inputs)
+
+
+
+
+
+  )
 
 (defn- is-enum? [parameter-type]
   (or (str/includes? parameter-type "Enum")
