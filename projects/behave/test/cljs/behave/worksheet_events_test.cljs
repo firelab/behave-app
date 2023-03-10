@@ -355,14 +355,25 @@
    "Contain Status"                            "7fe3de90-6207-4200-9b0c-2112d6e5cf09",
    "Contained Area"                            "19e71ac2-1c30-4f6b-9d8a-5d7e208e0ff0",
    "Fireline Constructed"                      "32078406-4117-47b0-8cef-2b395c869ff6",
-   "Number of Resources Used"                  "84015e74-32c4-4a02-9717-5ac33d4e3f9c"})
+   "Number of Resources Used"                  "84015e74-32c4-4a02-9717-5ac33d4e3f9c"}
+
+  ;; inputs
+  {"Fire Size at Report"                           "30493fc2-a231-41ee-a16a-875f00cf853f",
+   "Length-to-Width Ratio"                         "41503286-dfe4-457a-9b68-41832e049cc9",
+   "Resource Line Production Rate"                 "29dbe7d2-bb05-4744-8624-034636b31cfb",
+   "Line Construction Offset"                      "6577589c-947f-4c0c-9fca-181d3dd7fb7c",
+   "Resource Duration"                             "495e3a6a-5a55-4fbb-822c-7ee614f5ad6f",
+   "Suppression Tactic"                            "de9df9ee-dfe5-42fe-b43c-fc1f54f99186",
+   "Contain Surface Fire Rate of Spread (maximum)" "fbbf73f6-3a0e-4fdd-b913-dcc50d2db311",
+   "Resource Name"                                 "d5f5cc0a-5ff6-4fcd-b88d-51cd6e6b76f1",
+   "Resource Arrival Time"                         "e102c1cd-7237-4147-abfa-d687bf7e6b95"})
+
 
 ;; TODO add debug printout for uuid->entity
 ;; TODO Use CSV to populate inputs and outputs and test against csv results -> GET FROM CONTAIN_TESTING
 (deftest solver-test-single-row-results-table
   (rf-test/run-test-sync
    (let [output-variable-name->uuid-lookup @(rf/subscribe [:vms/variable-name->uuid "contain" :output])
-         ;; _                              (prn output-variable-name->uuid-lookup) ;TODO find another entry point to print out these values. Preferrably outside of tests (Kenny, March 3 2023)
          output-names                      ["Fire Perimeter - at resource arrival time"]
          output-args                       (map #(get output-variable-name->uuid-lookup %) output-names)
          input-args                        [["a1b35161-e60b-47e7-aad3-b99fbb107784" "fbbf73f6-3a0e-4fdd-b913-dcc50d2db311" "1"] ; [group-uuid group-variable-uuid value]
