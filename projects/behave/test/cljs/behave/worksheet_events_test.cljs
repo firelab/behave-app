@@ -4,7 +4,8 @@
    [re-frame.core :as rf]
    [behave.fixtures :as fx]
    [behave.test-utils :as utils]
-   [day8.re-frame.test :as rf-test]))
+   [day8.re-frame.test :as rf-test]
+   [datascript.core :as d]))
 
 ;; =================================================================================================
 ;; Fixtures
@@ -370,11 +371,15 @@
 
 (defn run-solver-test-suite [output-name single-or-multi]
   (rf-test/run-test-sync
-   (let [output-variable-name->uuid-lookup @(rf/subscribe [:vms/variable-name->uuid "contain" :output])
+   (let [ws-uuid                           (str (d/squuid))
+         _                                 (rf/dispatch [:worksheet/new {:name    "test-solver"
+                                                                         :modules [:contain :surface]
+                                                                         :uuid    ws-uuid}])
+         output-variable-name->uuid-lookup @(rf/subscribe [:vms/variable-name->uuid "contain" :output])
          output-names                      [output-name]
          output-args                       (map (fn resolve-name-to-uuid
                                                   [output-name]
-                                                  get output-variable-name->uuid-lookup output-name)
+                                                  (get output-variable-name->uuid-lookup output-name))
                                                 output-names)
          input-args                        [["a1b35161-e60b-47e7-aad3-b99fbb107784" "fbbf73f6-3a0e-4fdd-b913-dcc50d2db311" (if (= single-or-multi :single) "1" "1,2,3,4")] ; [group-uuid group-variable-uuid value]
                                             ["1b13a28a-bc30-4c76-827e-e052ab325d67" "30493fc2-a231-41ee-a16a-875f00cf853f" (if (= single-or-multi :single) "2" "5,6,7,8")]
@@ -382,17 +387,17 @@
                                             ["fedf0a53-e12c-4504-afc0-af294c96c641" "de9df9ee-dfe5-42fe-b43c-fc1f54f99186" "HeadAttack"]
                                             ["d88be382-e59a-4648-94a8-44253710148d" "6577589c-947f-4c0c-9fca-181d3dd7fb7c" "4"]]
          setup-events                      (->> []
-                                                (upsert-output-events fx/test-ws-uuid output-args)
-                                                (add-input-group-events fx/test-ws-uuid input-args)
-                                                (upsert-input-events fx/test-ws-uuid input-args))
-         event-to-test                     [:worksheet/solve fx/test-ws-uuid]]
+                                                (upsert-output-events ws-uuid output-args)
+                                                (add-input-group-events ws-uuid input-args)
+                                                (upsert-input-events ws-uuid input-args))
+         event-to-test                     [:worksheet/solve ws-uuid]]
 
      (doseq [event setup-events]
        (rf/dispatch event))
 
      (rf/dispatch event-to-test)
 
-     (let [result-table-cell-data  @(rf/subscribe [:worksheet/result-table-cell-data fx/test-ws-uuid])
+     (let [result-table-cell-data  @(rf/subscribe [:worksheet/result-table-cell-data ws-uuid])
            result-header-uuids-set (into #{}
                                          (map second)
                                          result-table-cell-data)]
