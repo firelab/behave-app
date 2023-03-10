@@ -21,5 +21,5 @@
 
     (is (= (:worksheet/name @*worksheet) worksheet-name))))
 
-(deftest result-table-cell-data-test
-  (is (= 1 "TODO")))
+;; (deftest result-table-cell-data-test
+;;   (is (= 1 "TODO")))

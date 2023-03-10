@@ -19,9 +19,9 @@
 ;; Tests
 ;; =================================================================================================
 
-(deftest update-attr
-  (is (= 1 0)
-      "TODO"))
+;; (deftest update-attr
+;;   (is (= 1 0)
+;;       "TODO"))
 
 ;; =================================================================================================
 ;; :worksheet/add-input-group
@@ -369,6 +369,9 @@
    "Resource Name"                                 "d5f5cc0a-5ff6-4fcd-b88d-51cd6e6b76f1",
    "Resource Arrival Time"                         "e102c1cd-7237-4147-abfa-d687bf7e6b95"})
 
+(defn- with-output-name [output-name msg]
+  (str "Fail found with output(" output-name "):" msg))
+
 (defn run-solver-test-suite [output-name single-or-multi]
   (rf-test/run-test-sync
    (let [ws-uuid                           (str (d/squuid))
@@ -404,21 +407,21 @@
 
        (is (seq result-table-cell-data))
 
-       (if (= type :single)
+       (if (= single-or-multi :single)
         (is (= 1 (inc (apply max (map first result-table-cell-data))))
-            "should only have one row of data")
+            (with-output-name output-name "should only have one row of data"))
         (is (= 4 (inc (apply max (map first result-table-cell-data))))
-            "should only have four rows of data"))
+            (with-output-name output-name "should only have four rows of data")))
 
        (is (every? (fn [[_ group-variable-uuid _]]
                      (contains? result-header-uuids-set group-variable-uuid))
                    input-args)
-           "all input-uuids should be in the table")
+           (with-output-name output-name "all input-uuids should be in the table"))
 
        (is (every? (fn [output-uuids]
                      (contains? result-header-uuids-set output-uuids))
                    output-args)
-           "all output-uuids should be in the table")))))
+           (with-output-name output-name "all output-uuids should be in the table"))))))
 
 ;; TODO Use CSV to populate inputs and outputs and test against csv results -> GET FROM CONTAIN_TESTING
 (deftest solver-test-single-row-results-table-test
@@ -445,54 +448,50 @@
 ;; :worksheet/toggle-table-settings
 ;; =================================================================================================
 
-(deftest toggle-table-settings-test
-  (is (= 1 0)
-      "TODO"))
+;; (deftest toggle-table-settings-test
+;;   (is (= 1 0)
+;;       "TODO"))
 
 ;; =================================================================================================
 ;; :worksheet/update-y-axis-limit-attr
 ;; =================================================================================================
 
-(deftest update-y-axis-limit-attr-test
-  (is (= 1 0)
-      "TODO"))
+;; (deftest update-y-axis-limit-attr-test
+;;   (is (= 1 0)
+;;       "TODO"))
 
 ;; =================================================================================================
 ;; :worksheet/update-graph-settings-attr
 ;; =================================================================================================
 
-(deftest update-graph-settings-attr-test
-  (is (= 1 0)
-      "TODO"))
+;; (deftest update-graph-settings-attr-test
+;;   (is (= 1 0)
+;;       "TODO"))
 
 ;; =================================================================================================
 ;; :worksheet/create-note
 ;; =================================================================================================
 
-(deftest create-note-test
-  (is (= 1 0)
-      "TODO"))
+;; (deftest create-note-test
+;;   (is (= 1 0)
+;;       "TODO"))
 
 ;; =================================================================================================
 ;; :worksheet/update-note
 ;; =================================================================================================
 
-(deftest update-note-test
-  (is (= 1 0)
-      "TODO"))
+;; (deftest update-note-test
+;;   (is (= 1 0)
+;;       "TODO"))
 
 ;; =================================================================================================
 ;; :worksheet/delete-note-test
 ;; =================================================================================================
 
-(deftest delete-note-test
-  (is (= 1 0)
-      "TODO"))
+;; (deftest delete-note-test
+;;   (is (= 1 0)
+;;       "TODO"))
 
 ;; =================================================================================================
 ;; :worksheet/update-furthest-visited-step
 ;; =================================================================================================
-
-(deftest update-furthest-visited-step-test
-  (is (= 1 0)
-      "TODO"))
