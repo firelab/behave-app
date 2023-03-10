@@ -54,3 +54,27 @@
  :vms/entity-from-uuid
  (fn [_ [_ uuid]]
    (entity uuid)))
+
+(defn- drill-in [entity]
+  (cond
+    (map? entity)
+    (cond
+      (:submodule/name entity)        (drill-in (:submodule/groups entity))
+      (:group/group-variables entity) (drill-in (:group/group-variables entity))
+      (:variable/name entity)         [(:variable/name entity) (:bp/uuid entity)])
+
+    (and (coll? entity) (map? (first entity)) (:variable/name (first entity)))
+    (map #(drill-in %) entity)
+
+    (coll? entity)
+    (mapcat #(drill-in %) entity)
+
+    :else nil))
+
+(reg-sub
+ :vms/variable-name->uuid
+ (fn [_ [_ module-name io]]
+   (let [module                   @(subscribe [:wizard/*module module-name])
+         submodules               @(subscribe [:wizard/submodules (:db/id module)])
+         submodule-io-output-only (filter #(= (:submodule/io %) io) submodules)]
+     (into {} (drill-in submodule-io-output-only)))))

@@ -345,30 +345,8 @@
                  [:worksheet/upsert-input-variable ws-uuid group-uuid repeat-id group-variable-uuid value units])))
         input-args))
 
-(defn- drill-in [entity]
-  (cond
-    (map? entity)
-    (cond
-      (:submodule/name entity)        (drill-in (:submodule/groups entity))
-      (:group/group-variables entity) (drill-in (:group/group-variables entity))
-      (:variable/name entity)         [(:variable/name entity) (:bp/uuid entity)])
-
-    (and (coll? entity) (map? (first entity)) (:variable/name (first entity)))
-    (map #(drill-in %) entity)
-
-    (coll? entity)
-    (mapcat #(drill-in %) entity)
-
-    :else nil))
-
-(defn- build-output-variable-name->uuid-lookup [module-name]
-  (let [module                   @(rf/subscribe [:wizard/*module module-name])
-        submodules               @(rf/subscribe [:wizard/submodules (:db/id module)])
-        submodule-io-output-only (filter #(= (:submodule/io %) :output) submodules)]
-    (into {} (drill-in submodule-io-output-only))))
-
 (comment
-  (build-output-variable-name->uuid-lookup "contain")
+  @(rf/subscribe [:vms/variable-name->uuid "contain" :output])
 
   ;; output variable names -> uuid for "contain" module
   {"Fire Perimeter - at resource arrival time" "b7873139-659e-4475-8d41-0cf6c36da893",
@@ -383,7 +361,7 @@
 ;; TODO Use CSV to populate inputs and outputs and test against csv results -> GET FROM CONTAIN_TESTING
 (deftest solver-test-single-row-results-table
   (rf-test/run-test-sync
-   (let [output-variable-name->uuid-lookup (build-output-variable-name->uuid-lookup "contain")
+   (let [output-variable-name->uuid-lookup @(rf/subscribe [:vms/variable-name->uuid "contain" :output])
          ;; _                              (prn output-variable-name->uuid-lookup) ;TODO find another entry point to print out these values. Preferrably outside of tests (Kenny, March 3 2023)
          output-names                      ["Fire Perimeter - at resource arrival time"]
          output-args                       (map #(get output-variable-name->uuid-lookup %) output-names)

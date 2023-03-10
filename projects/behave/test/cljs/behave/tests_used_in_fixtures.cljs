@@ -32,10 +32,6 @@
                                         :where [?e :user/name ?name]]])]
     (is (= result "RJ"))))
 
-;; =================================================================================================
-;; behave.worksheet.events tests
-;; =================================================================================================
-
 (deftest worksheet-new-test
   (let [uuid           "test-ws-uuid"
         worksheet-name "test"
