@@ -86,70 +86,66 @@
         query-after     (vec (concat find '(:in $ %) (rest in) where))]
     (apply d/q query-after @@vms-conn rules args)))
 
-(comment
+(defn separate-multi-values [ws-uuid]
+  (mapv (fn [[uuid values]]
+          (map (fn [s] [uuid (str/trim s)]) (str/split values #",")))
+        @(rf/subscribe [:worksheet/multi-value-input-uuids+values ws-uuid])))
 
-  (q-vms '[:find ?fn ?fn-name (count ?p)
-           :where [?m :module/name "Contain"]
-           (module-input-fns ?m ?fn ?fn-name)
-           [?fn :function/parameters ?p]])
+(defn inputs+units+fn+params [module-name]
+  (q-vms '[:find ?uuid ?units ?fn ?fn-name (count ?all-params) ?p-name ?p-type ?p-order
+           :keys
+           group-variable/uuid
+           group-variable/units
+           function/id
+           function/name
+           function/num-params
+           param/name
+           param/type
+           param/order
 
-  (q-vms '[:find ?fn ?fn-name (count ?p)
-           :where [?m :module/name "Contain"]
-           (module-input-fns ?m ?fn ?fn-name)
-           [?fn :function/parameters ?p]])
+           :in ?module-name
 
-  (def inputs+units
-    (q-vms '[:find ?uuid ?units
-             :keys gv/uuid gv/units
-             :where [?m :module/name "Contain"]
-             (module-input-vars ?m ?gv)
-             (lookup ?uuid ?gv)
-             (var-units ?uuid ?units)]))
+           :where
+           [?m :module/name ?module-name]
+           (module-input-vars ?m ?gv)
+           (lookup ?uuid ?gv)
+           (var->fn ?uuid ?fn)
+           (var-units ?uuid ?units)
+           (var->param ?uuid ?p)
+           [?fn :function/name ?fn-name]
+           (param-attrs ?p ?p-name ?p-type ?p-order)
+           [?fn :function/parameters ?all-params]]
+         module-name))
 
-  (def inputs+units+fn+params
-    (q-vms '[:find ?uuid ?units ?fn ?fn-name (count ?all-params) ?p-name ?p-type ?p-order
-             :keys
-             group-variable/uuid
-             group-variable/units
-             function/id
-             function/name
-             function/num-params
-             param/name
-             param/type
-             param/order
+(defn- permutations [single-inputs range-inputs]
+  (case (count range-inputs)
+    0 single-inputs
+    1 (for [x (first range-inputs)]
+        (conj single-inputs x))
+    2 (for [x (first range-inputs)
+            y (second range-inputs)]
+        (conj single-inputs x y))
+    3 (for [x (first range-inputs)
+            y (second range-inputs)
+            z (nth range-inputs 2)]
+        (conj single-inputs x y z))))
 
-             :where
-             [?m :module/name "Contain"]
-             (module-input-vars ?m ?gv)
-             (lookup ?uuid ?gv)
-             (var->fn ?uuid ?fn)
-             (var-units ?uuid ?units)
-             (var->param ?uuid ?p)
-             [?fn :function/name ?fn-name]
-             (param-attrs ?p ?p-name ?p-type ?p-order)
-             [?fn :function/parameters ?all-params]]))
+(defn- csv? [s] (< 1 (count (str/split s #","))))
 
-  (index-by :group-variable/uuid inputs+units+fn+params)
+(defn- ->run-plan [inputs]
+  (reduce (fn [acc [group-uuid repeat-id group-var-uuid value]]
+            (assoc-in acc [group-uuid repeat-id group-var-uuid] value))
+          {}
+          inputs))
 
-  (<= 0 2)
-  (def simple-vars (filter #(<= (:function/num-params %) 2) inputs+units+fn+params))
+(defn- generate-runs [all-inputs-vector]
+  (let [single-inputs          (remove #(-> % (last) (csv?)) all-inputs-vector)
+        range-inputs           (filter #(-> % (last) (csv?)) all-inputs-vector)
+        separated-range-inputs (map #(let [result (vec (butlast %))
+                                           values (map str/trim (str/split  (last %) #","))]
+                                       (mapv (fn [v] (conj result v)) values)) range-inputs)]
 
-  (first simple-vars)
-
-
-  (def ws-uuid @(rf/subscribe [:worksheet/latest]))
-
-  ws-uuid
-
-  (def ws-inputs @(rf/subscribe [:worksheet/all-inputs ws-uuid]))
-
-  (filter #() ws-inputs)
-
-
-
-
-
-  )
+    (map ->run-plan (permutations (vec single-inputs) separated-range-inputs))))
 
 (defn- is-enum? [parameter-type]
   (or (str/includes? parameter-type "Enum")
@@ -237,7 +233,7 @@
 
     (println "MULTI INPUT:" fn-name fn-args)
 
-    (tap> [:MULTI-INPUT fn-name params fn-args])
+    (println [:SOLVER] [:MULTI-INPUT fn-name params fn-args])
 
   ; Step 3 - Call function with all parameters
     (apply f module fn-args)))
@@ -249,7 +245,7 @@
         f               ((symbol fn-name) module-fns)
         params          (fn-params fn-id)]
 
-    (tap> [:OUTPUT fn-name unit f params])
+    (println [:SOLVER] [:OUTPUT fn-name unit f params])
 
     (cond
       (empty? params)
@@ -260,6 +256,40 @@
 
       :else nil)))
 
+(defn- apply-inputs [module fns inputs]
+  (doseq [[_ repeats] inputs]
+    (cond
+      ;; Single Group w/ Single Variable
+      (and (= 1 (count repeats) (count (vals repeats))))
+      (let [[gv-id value] (ffirst (vals repeats))
+            units         (or (variable-units gv-id) "")]
+        (println "-- [SOLVER] SINGLE VAR" gv-id value units)
+        (apply-single-cpp-fn fns module gv-id value units))
+
+      ;; Multiple Groups w/ Single Variable
+      (every? #(= 1 (count %)) (vals repeats))
+      (doseq [[_ repeat-group] repeats]
+        (let [[gv-id value] (first repeat-group)
+              units         (or (variable-units gv-id) "")]
+          (println "-- [SOLVER] SINGLE VAR (MULTIPLE)" gv-id value units)
+          (apply-single-cpp-fn fns module gv-id value units)))
+
+      ;; Multiple Groups w/ Multiple Variables
+      :else
+      (doseq [[_ repeat-group] repeats]
+        (println "-- [SOLVER] MULTI" repeat-group)
+        (apply-multi-cpp-fn fns module repeat-group)))))
+
+(defn- get-outputs [module fns outputs]
+  (reduce
+   (fn [acc group-variable-uuid]
+     (let [units  (variable-units group-variable-uuid)
+           result (str (apply-output-cpp-fn fns module group-variable-uuid))]
+       (println [:GET-OUTPUTS group-variable-uuid result units])
+       (assoc acc group-variable-uuid [result units])))
+   {}
+   outputs))
+
 (defn surface-solver [ws-uuid results]
   (assoc results :surface []))
 
@@ -267,48 +297,42 @@
   (assoc results :crown []))
 
 (defn contain-solver [ws-uuid results]
-  (let [inputs  @(rf/subscribe [:worksheet/all-inputs ws-uuid])
-        outputs @(rf/subscribe [:worksheet/all-output-uuids ws-uuid])
-        module  (contain/init)]
+  (let [all-inputs @(rf/subscribe [:worksheet/all-inputs-vector ws-uuid])
+        outputs    @(rf/subscribe [:worksheet/all-output-uuids ws-uuid])
+        fns        (ns-publics 'behave.lib.contain)
+        counter    (atom 0)]
 
-    (rf/dispatch [:worksheet/add-result-table-row ws-uuid 0])
-    (println inputs outputs)
+    (->> (generate-runs all-inputs)
+         (reduce (fn [acc inputs]
+                   (let [row    @counter
+                         module (contain/init)]
 
-    (doseq [[_ repeats] inputs]
-      (cond
-        ; Single Group w/ Single Variable
-        (and (= 1 (count repeats) (count (vals repeats))))
-        (let [[gv-id value] (ffirst (vals repeats))
-              units         (or (variable-units gv-id) "")]
-          (println "-- SINGLE VAR" gv-id value units)
-          (rf/dispatch [:worksheet/add-result-table-header ws-uuid gv-id units])
-          (rf/dispatch [:worksheet/add-result-table-cell ws-uuid 0 gv-id value])
-          (apply-single-cpp-fn (ns-publics 'behave.lib.contain) module gv-id value units))
+                     ;; Increase counter
+                     (swap! counter inc)
 
-        ; Multiple Groups w/ Single Variable
-        (every? #(= 1 (count %)) (vals repeats))
-        (doseq [[_ repeat-group] repeats]
-          (let [[gv-id value] (first repeat-group)
-                units         (or (variable-units gv-id) "")]
-            (rf/dispatch [:worksheet/add-result-table-header ws-uuid gv-id units])
-            (rf/dispatch [:worksheet/add-result-table-cell ws-uuid 0 gv-id value])
-            (apply-single-cpp-fn (ns-publics 'behave.lib.contain) module gv-id value units)))
+                     ;; Apply Inputs
+                     (apply-inputs module fns inputs)
 
-        ; Multiple Groups w/ Multiple Variables
-        :else
-        (doseq [[_ repeat-group] repeats]
-          (println "MULTI" repeat-group)
-          (apply-multi-cpp-fn (ns-publics 'behave.lib.contain) module repeat-group))))
+                     ;; Run
+                     (contain/doContainRun module)
 
-    ; Run
-    (contain/doContainRun module)
+                     ;; Get Outputs
+                     (conj acc
+                           {:row     @counter
+                            :inputs  inputs
+                            :outputs (get-outputs module fns outputs)})))
+                 '())
+         (reverse)
+         (assoc results :contain))))
 
-    ; Get Outputs
-    (doseq [group-variable-uuid outputs]
-      (let [units  (variable-units group-variable-uuid)
-            result (str (apply-output-cpp-fn (ns-publics 'behave.lib.contain) module group-variable-uuid))]
-        (rf/dispatch [:worksheet/add-result-table-header ws-uuid group-variable-uuid units])
-        (rf/dispatch [:worksheet/add-result-table-cell ws-uuid 0 group-variable-uuid result])))))
+(comment
+
+  (def ws-uuid "640bea87-9cc6-4de2-b44b-30bb9cc9f552")
+
+  (contain-solver ws-uuid {})
+
+  )
+
 
 (defn mortality-solver [ws-uuid results]
   (assoc results :mortality []))
@@ -332,42 +356,3 @@
 
       (contains? modules :mortality)
       (mortality-solver ws-uuid))))
-
-(comment
-
-  (require '[portal.web :as p])
-  (p/open) ; Open portal
-  (add-tap #'p/submit) ; Add portal as a tap> target
-  (p/clear)
-  (tap> :hello)
-
-  (def ws-uuid @(rf/subscribe [:worksheet/latest]))
-  (rf/dispatch [:worksheet/solve ws-uuid])
-
-;; First: 
-
-  (doseq [[_ repeats] @(rf/subscribe [:worksheet/all-inputs ws-uuid])]
-    (doseq [[_repeat-id variables] repeats]
-      (let [var-count (count variables)]
-        (if (= 1 var-count)
-          (tap> [:SINGLE variables])
-          (tap> [:MULTI variables])))))
-
-;;; New Solver
-;; 1. Find functions and parameters
-
-;; 2. Create run 'template' from funcs / params
-;; 3. Split inputs (single, range, multi)
-;; 4. Build runs from Create run template
-;; 5. Execute runs
-;; 6. Store values in DS
-
-  (parsed-value "29dbe7d2-bb05-4744-8624-034636b31cfb" "3.0")
-  (group-variable->fn "29dbe7d2-bb05-4744-8624-034636b31cfb")
-  (variable-units "29dbe7d2-bb05-4744-8624-034636b31cfb")
-
-  )
-
-
-
-
