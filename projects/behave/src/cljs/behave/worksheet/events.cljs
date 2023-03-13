@@ -122,7 +122,7 @@
 (rp/reg-event-fx
  :worksheet/add-result-table-header
  [(rp/inject-cofx :ds)]
- (fn [{:keys [ds]} [_ ws-uuid group-variable-uuid units]]
+ (fn [{:keys [ds]} [_ ws-uuid group-variable-uuid repeat-id units]]
    (when-let [table (first (d/q '[:find  [?table]
                                   :in    $ ?uuid
                                   :where [?w :worksheet/uuid ?uuid]
@@ -133,6 +133,7 @@
                                ds table))]
        {:transact [{:db/id                table
                     :result-table/headers [{:result-header/group-variable-uuid group-variable-uuid
+                                            :result-header/repeat-id           repeat-id
                                             :result-header/order               headers
                                             :result-header/units               units}]}]}))))
 
@@ -150,22 +151,26 @@
 (rp/reg-event-fx
  :worksheet/add-result-table-cell
  [(rp/inject-cofx :ds)]
- (fn [{:keys [ds]} [_ ws-uuid row-id group-variable-uuid value]]
-   (when-let [table (first (d/q '[:find  [?table]
-                                  :in    $ ?uuid
-                                  :where [?w :worksheet/uuid ?uuid]
-                                         [?w :worksheet/result-table ?table]]
-                                ds ws-uuid))]
-     (when-let [row (first (d/q '[:find  [?r]
-                                  :in    $ ?table ?row-id
-                                  :where [?table :result-table/rows ?r]
-                                         [?r :result-row/id ?row-id]]
-                                ds table row-id))]
-       (when-let [header (first (d/q '[:find  [?h]
-                                       :in    $ ?table ?group-var-uuid
-                                       :where [?t :result-table/headers ?h]
-                                              [?h :result-header/group-variable-uuid ?group-var-uuid]]
-                                     ds table group-variable-uuid))]
+ (fn [{:keys [ds]} [_ ws-uuid row-id group-variable-uuid repeat-id value]]
+   (when-let [table (d/q '[:find  ?table .
+                           :in    $ ?uuid
+                           :where
+                           [?w :worksheet/uuid ?uuid]
+                           [?w :worksheet/result-table ?table]]
+                         ds ws-uuid)]
+     (when-let [row (d/q '[:find  ?r .
+                           :in    $ ?table ?row-id
+                           :where
+                           [?table :result-table/rows ?r]
+                           [?r :result-row/id ?row-id]]
+                         ds table row-id)]
+       (when-let [header (d/q '[:find  ?h .
+                                :in    $ ?table ?group-var-uuid
+                                :where
+                                [?t :result-table/headers ?h]
+                                [?h :result-header/group-variable-uuid ?group-var-uuid]
+                                [?h :result-header/repeat-id ?repeat-id]]
+                              ds table group-variable-uuid repeat-id)]
          {:transact [{:result-row/_cells  row
                       :result-cell/header header
                       :result-cell/value  value}]})))))

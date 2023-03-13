@@ -361,7 +361,7 @@
             units         (or (variable-units gv-id) "")]
         (log [:ADDING-INPUT ws-uuid row-id gv-id value units])
         (add-header ws-uuid gv-id 0 units)
-        (add-cell ws-uuid gv-id row-id units))
+        (add-cell ws-uuid gv-id row-id 0 value))
 
       ;; Multiple Groups w/ Single Variable
       (every? #(= 1 (count %)) (vals repeats))
@@ -371,8 +371,8 @@
 
           (log [:ADDING-INPUT ws-uuid row-id gv-id value units])
           (add-header ws-uuid gv-id repeat-id units)
-          (add-cell ws-uuid gv-id row-id units)))
-
+          (add-cell ws-uuid gv-id row-id repeat-id value)))
+      
       ;; Multiple Groups w/ Multiple Variables
       :else
       (doseq [[repeat-id [_ repeat-group]] (map list repeats (range (count repeats)))]
@@ -380,7 +380,7 @@
           (let [units (or (variable-units gv-id) "")]
             (log [:ADDING-INPUT ws-uuid row-id gv-id value units])
             (add-header ws-uuid gv-id repeat-id units)
-            (add-cell ws-uuid gv-id row-id units)))))))
+            (add-cell ws-uuid gv-id row-id repeat-id value)))))))
 
 (defn add-outputs-to-results-table [ws-uuid row-id outputs]
   (doseq [[gv-id [value units]] outputs]
