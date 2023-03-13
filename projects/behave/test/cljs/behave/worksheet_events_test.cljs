@@ -128,18 +128,23 @@
 
 (deftest delete-repeat-input-group-test
   (let [*worksheet    (rf/subscribe [:worksheet fx/test-ws-uuid])
-        setup-events  (for [repeat-id (range 0)]
-                        [:worksheet/add-input-group fx/test-ws-uuid "group-uuid" repeat-id])
-        event-to-test [:worksheet/delete-repeat-input-group fx/test-ws-uuid 1]]
-
-    (is (some? (:worksheet/input-groups @*worksheet)))
+        group-uuid    "some-group-uuid"
+        setup-events  (for [repeat-id (range 0 4)]
+                        [:worksheet/add-input-group fx/test-ws-uuid group-uuid repeat-id])
+        event-to-test [:worksheet/delete-repeat-input-group fx/test-ws-uuid group-uuid 1]]
 
     (doseq [event setup-events]
       (rf/dispatch-sync event))
 
+    (is (= (count (:worksheet/input-groups @*worksheet))
+           4)
+        "should exist 4 repeat input-groups before dispatching event-to-test")
+
     (rf/dispatch-sync event-to-test)
 
-    (is (= 1 "TODO"))))
+    (is (= (count (:worksheet/input-groups @*worksheet))
+           3)
+        "should now have 3 repeat input-groups after deleting one")))
 
 ;; =================================================================================================
 ;; worksheet/upsert-output
@@ -315,9 +320,9 @@
 ;; :worksheet/add-result-table-cell
 ;; =================================================================================================
 
-(deftest add-result-table-cell
-  (is (= 1 0)
-      "TODO"))
+;; (deftest add-result-table-cell
+;;   (is (= 1 0)
+;;       "TODO"))
 
 ;; =================================================================================================
 ;; :worksheet/solve
