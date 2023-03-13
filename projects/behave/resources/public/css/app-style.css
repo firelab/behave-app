@@ -1,5 +1,9 @@
 @charset "UTF-8";
 
+body {
+  background-color: var(--gray-2);
+}
+
 /* -- App -- */
 #app {
   width: 100%;
@@ -8,15 +12,42 @@
 /* -- End App -- */
 
 /* -- Page -- */
-.page {
-  grid-template-columns: 2fr 14fr;
-  grid-auto-rows: 2fr 8fr;
-  column-gap: 60px;
-  row-gap: 30px;
-  display: grid;
-  height: 100vh;
-  background-color: var(--gray-2);
+.page:after {
+  display: block;
+  position: fixed;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+  height: 6px;
+  border-top: 6px solid var(--lightblue-2);
+  border-bottom: 12px solid var(--darkblue-5);
+  background-color: var(--medblue-1);
+  content: '';
 }
+
+.page__top {
+  border-spacing: 0px;
+  position: fixed;
+  top: 0px;
+  z-index: 100;
+  width: 100%;
+  margin-bottom: 30px;
+  border: 0px;
+}
+
+.page__top__logo {
+  vertical-align: top;
+}
+
+.page__top__toolbar-container {
+  width: 100%;
+}
+
+.page__main {
+  display: flex;
+  padding: 170px 0px 40px;
+}
+
 /* -- End Page -- */
 
 /* -- Sidebar Container -- */
@@ -24,14 +55,15 @@
   flex-direction: column;
   display: flex;
   width: 180px;
+  min-width: 180px;
 }
 /* -- End Sidebar Container -- */
 
 /* -- Container -- */
 .container {
-  grid-template-columns: 6fr 4fr;
-  column-gap: 30px;
-  display: grid;
+  display: flex;
+  justify-content: space-between;
+  margin: 0 30px 0 60px;
 }
 /* -- End Container -- */
 
@@ -51,7 +83,9 @@
   flex-direction: column;
   display: flex;
   z-index: -2;
-  height: 145px;
+  margin-left: 60px;
+  background: var(--white);
+  box-shadow: 0px 1px 1px var(--gray-4);
 }
 
 .toolbar__tools {
@@ -66,6 +100,10 @@
 }
 
 /* -- Sidebar -- */
+.sidebar {
+  width: 180px;
+}
+
 .sidebar__header {
   width: 100%;
   height: 40px;
@@ -77,9 +115,10 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100%;
-  height: 100%;
+  width: 180px;
+  height: 140px;
   background-color: var(--white);
+  box-shadow: 1px 2px 2px var(--gray-4);
 }
 
 /* -- End Identity -- */
@@ -89,7 +128,7 @@
   flex-direction: column;
   display: flex;
   align-items: center;
-  padding-bottom: 50px;
+  padding-bottom: 10px;
   border-radius: 8px 8px 0px 0px;
   background-color: var(--white);
   box-shadow: 0px 2px 3px var(--gray-4);
@@ -142,8 +181,9 @@
 
 /* -- Working Area -- */
 .working-area {
+  width: 70%;
+  margin-right: 30px;
   border-radius: 8px 8px 0px 0px;
-  background-color: var(--white);
 }
 
 .working-area__title {
@@ -157,6 +197,7 @@
 /* -- End Working Area -- */
 
 /* -- Work Style Select -- */
+
 .workflow-select__header {
   flex-direction: column;
   display: flex;
@@ -189,7 +230,18 @@
 }
 
 .workflow-select__content {
+  overflow-x: hidden;
+  overflow-y: scroll;
   padding-top: 15px;
+  background-color: var(--white);
+}
+
+.workflow-select__content__name {
+  padding: 15px;
+}
+
+.workflow-select__content .card-group__card .card {
+  min-width: 70%;
 }
 
 .workflow-select__content .module-icon__hover-mask {
@@ -292,6 +344,7 @@
   display: flex;
   justify-content: space-between;
   padding: 10px;
+  background-color: var(--white);
 }
 
 .wizard-group__header {
@@ -505,9 +558,9 @@
 }
 
 .wizard-notes__header {
-  padding: 5px 18px;
-  margin-bottom: 33px;
   margin-top: 30px;
+  margin-bottom: 33px;
+  padding: 5px 18px;
   font-size: var(--font-size-18);
   color: white;
   background-color: var(--darkblue-3);
@@ -518,8 +571,8 @@
 }
 
 .wizard-note__module {
-  padding: 5px 18px;
   margin-bottom: 20px;
+  padding: 5px 18px;
   font-size: var(--font-size-18);
   color: white;
   background-color: var(--darkblue-2);
@@ -527,9 +580,9 @@
 
 .wizard-note__name {
   padding: 5px 18px;
-  color: var(--medblue-3);
-  font-weight: var(--font-weight-bold);
   font-size: var(--font-size-18);
+  font-weight: var(--font-weight-bold);
+  color: var(--medblue-3);
   background-color: none;
 }
 
@@ -542,20 +595,20 @@
 }
 
 .wizard-note__content {
-  font-family: 'Roboto', sans-serif;
   margin: 5px 0px 5px 18px;
   padding: 18px 0px 18px 0px;
-  font-size: var(--font-size-16);
-  color: var(--black);
   border-top: solid 1px var(--gray-4);
   border-bottom: dashed 1px var(--gray-4);
+  font-family: 'Roboto', sans-serif;
+  font-size: var(--font-size-16);
+  color: var(--black);
 }
 
 .wizard-note__manage {
-  padding: 18px 33px 18px 0px;
-  display: flex;
   flex-direction: row;
+  display: flex;
   justify-content: right;
+  padding: 18px 33px 18px 0px;
 }
 
 .wizard-note__manage .button +.button {
@@ -563,18 +616,24 @@
 }
 
 .wizard-note .note > textarea {
-  font-size: var(--font-size-16);
   height: 100px;
+  font-size: var(--font-size-16);
 }
 
 /* - End Wizard - */
 
 /* -- Help Area -- */
+
+.help-area {
+  width: 30%;
+  min-width: 20%;
+}
+
 .help-area__content {
   overflow-x: hidden;
   overflow-y: scroll;
-  height: 600px;
-  padding:2%;
+  max-height: 480px;
+  padding: 5.5%;
   font-family: 'Roboto', sans-serif;
   background: var(--white);
 }
