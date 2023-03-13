@@ -121,7 +121,7 @@
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
 
-   ;; Repeat Grous
+   ;; Repeat Groups
    {:db/ident       :repeat-group/group-uuid
     :db/doc         "Repeat Group's reference to a Group's UUID."
     :db/valueType   :db.type/string

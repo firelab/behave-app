@@ -151,6 +151,22 @@
     :variables [ws-uuid group-uuid]}))
 
 (rf/reg-sub
+ :worksheet/all-inputs-vector
+ (fn [_ [_ ws-uuid]]
+   (let [inputs @(rf/subscribe [:query
+                                '[:find  ?group-uuid ?repeat-id ?group-var-uuid ?value
+                                  :in    $ ?ws-uuid
+                                  :where [?w :worksheet/uuid ?ws-uuid]
+                                  [?w :worksheet/input-groups ?g]
+                                  [?g :input-group/group-uuid ?group-uuid]
+                                  [?g :input-group/repeat-id ?repeat-id]
+                                  [?g :input-group/inputs ?i]
+                                  [?i :input/group-variable-uuid ?group-var-uuid]
+                                  [?i :input/value ?value]]
+                                [ws-uuid]])]
+     (into [] inputs))))
+
+(rf/reg-sub
  :worksheet/all-inputs
  (fn [_ [_ ws-uuid]]
    (let [inputs @(rf/subscribe [:query
