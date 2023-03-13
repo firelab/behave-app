@@ -463,17 +463,18 @@
          [:div.wizard-results__table {:id "table"}
           [:div.wizard-notes__header "Table"]
           (c/table {:title   "Results Table"
-                    :headers (mapv (fn resolve-uuid [[_order uuid units]]
+                    :headers (mapv (fn resolve-uuid [[_order uuid _repeat-id units]]
                                      (gstring/format "%s (%s)"
                                                      (:variable/name @(subscribe [:wizard/group-variable uuid]))
                                                      units))
                                    @*headers)
-                    :columns (map second @*headers)
+                    :columns (mapv (fn [[_order uuid repeat-id units]]
+                                     (str uuid "-" repeat-id)) @*headers)
                     :rows    (->> (group-by first @*cell-data)
                                   (sort-by key)
                                   (map (fn [[_ data]]
-                                         (reduce (fn [acc [_row-id uuid value]]
-                                                   (assoc acc (keyword uuid) value))
+                                         (reduce (fn [acc [_row-id uuid repeat-id value]]
+                                                   (assoc acc (str uuid "-" repeat-id) value))
                                                  {}
                                                  data))))})])
        (wizard-graph ws-uuid @*cell-data)]]
