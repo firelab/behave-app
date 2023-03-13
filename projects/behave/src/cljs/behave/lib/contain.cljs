@@ -84,3 +84,6 @@
 
 (defn getPerimeterAtInitialAttack [self LengthUnits_LengthUnitsEnum lengthUnits]
   (.getPerimeterAtInitialAttack self LengthUnits_LengthUnitsEnum lengthUnits))
+
+(defn getResourcesUsed [self]
+  (.getResourcesUsed self))

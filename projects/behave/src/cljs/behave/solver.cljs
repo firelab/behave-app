@@ -136,12 +136,18 @@
 
 ;; Cannot use pull due to the use of UUID's to join CPP ns/class/fns
 (defn- group-variable->fn [group-variable-uuid]
-  (q-vms '[:find  [?fn ?fn-name (count ?p)]
-           :in    ?gv-uuid
-           :where (var->fn ?gv-uuid ?fn)
-                  [?fn :function/name ?fn-name]
-                  [?fn :function/parameters ?p]]
-         group-variable-uuid))
+  (or (q-vms '[:find  [?fn ?fn-name (count ?p)]
+               :in    ?gv-uuid
+               :where (var->fn ?gv-uuid ?fn)
+                      [?fn :function/name ?fn-name]
+                      [?fn :function/parameters ?p]]
+             group-variable-uuid)
+      (-> (q-vms '[:find  [?fn ?fn-name]
+                   :in    ?gv-uuid
+                   :where (var->fn ?gv-uuid ?fn)
+                          [?fn :function/name ?fn-name]]
+                 group-variable-uuid)
+          (conj 0))))
 
 ;; Cannot use pull due to the use of UUID's to join CPP ns/class/fns/param
 (defn- parameter->group-variable [parameter-id]
@@ -260,7 +266,7 @@
 
     ; Get Outputs
     (doseq [group-variable-uuid outputs]
-      (let [units  (variable-units group-variable-uuid)
+      (let [units  (or (variable-units group-variable-uuid) "")
             result (str (apply-output-cpp-fn (ns-publics 'behave.lib.contain) module group-variable-uuid))]
         (rf/dispatch [:worksheet/add-result-table-header ws-uuid group-variable-uuid units])
         (rf/dispatch [:worksheet/add-result-table-cell ws-uuid 0 group-variable-uuid result])))))
