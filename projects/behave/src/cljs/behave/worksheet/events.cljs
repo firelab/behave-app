@@ -127,15 +127,22 @@
                                   :in    $ ?uuid
                                   :where [?w :worksheet/uuid ?uuid]
                                   [?w :worksheet/result-table ?table]] ds ws-uuid))]
-     (let [headers (count (d/q '[:find [?h ...]
-                                 :in $ ?t
-                                 :where [?t :result-table/headers ?h]]
-                                ds table))]
-       {:transact [{:db/id                table
-                    :result-table/headers [{:result-header/group-variable-uuid group-variable-uuid
-                                            :result-header/repeat-id           repeat-id
-                                            :result-header/order               headers
-                                            :result-header/units               units}]}]}))))
+     ;; header with gv-uuid and repeat-id does not already exist
+     (when-not (d/q '[:find ?h .
+                      :in $ ?t ?group-variable-uuid ?repeat-id
+                      :where [?t :result-table/headers ?h]
+                             [?h :result-header/group-variable-uuid ?group-variable-uuid]
+                             [?h :result-header/repeat-id ?repeat-id]]
+                    ds table group-variable-uuid repeat-id)
+       (let [headers (count (d/q '[:find [?h ...]
+                                   :in $ ?t
+                                   :where [?t :result-table/headers ?h]]
+                                 ds table))]
+         {:transact [{:db/id                table
+                      :result-table/headers [{:result-header/group-variable-uuid group-variable-uuid
+                                              :result-header/repeat-id           repeat-id
+                                              :result-header/order               headers
+                                              :result-header/units               units}]}]})))))
 
 (rp/reg-event-fx
  :worksheet/add-result-table-row

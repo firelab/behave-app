@@ -422,6 +422,11 @@
         (is (= 4 (inc (apply max (map first result-table-cell-data))))
             (with-output-name output-name "should only have four rows of data")))
 
+       (is (= 6 (count (into #{} (map (fn [[_row col-uuid repeat-id _value]]
+                                        (str col-uuid "-" repeat-id)))
+                             result-table-cell-data)))
+           (with-output-name output-name "should have 6 columns of data"))
+
        (is (every? (fn [[_ group-variable-uuid _]]
                      (contains? result-header-uuids-set group-variable-uuid))
                    input-args)

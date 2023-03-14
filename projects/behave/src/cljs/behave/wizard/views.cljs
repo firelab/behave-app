@@ -468,13 +468,13 @@
                                                      (:variable/name @(subscribe [:wizard/group-variable uuid]))
                                                      units))
                                    @*headers)
-                    :columns (mapv (fn [[_order uuid repeat-id units]]
-                                     (str uuid "-" repeat-id)) @*headers)
+                    :columns (mapv (fn [[_order uuid repeat-id _units]]
+                                     (keyword (str uuid "-" repeat-id))) @*headers)
                     :rows    (->> (group-by first @*cell-data)
                                   (sort-by key)
                                   (map (fn [[_ data]]
                                          (reduce (fn [acc [_row-id uuid repeat-id value]]
-                                                   (assoc acc (str uuid "-" repeat-id) value))
+                                                   (assoc acc (keyword (str uuid "-" repeat-id)) value))
                                                  {}
                                                  data))))})])
        (wizard-graph ws-uuid @*cell-data)]]
