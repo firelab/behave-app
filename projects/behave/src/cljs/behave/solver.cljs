@@ -14,7 +14,7 @@
 (defonce ^:private DEBUG true)
 
 (defn- log [& s]
-  (when DEBUG 
+  (when DEBUG
     (println (apply str ">> [Log - Debug] " (str/join " " s)))))
 
 ;;; Helpers
@@ -130,9 +130,9 @@
          module-name))
 
 (defn- parsed-value [group-variable-uuid value]
-  (let [[kind] (q-vms '[:find  [?kind]
-                        :in    ?gv-uuid
-                        :where (kind ?gv-uuid ?kind)]
+  (let [kind (q-vms '[:find  ?kind .
+                      :in    ?gv-uuid
+                      :where (kind ?gv-uuid ?kind)]
                     group-variable-uuid)]
     (condp = kind
       "discrete"   (get enum/contain-tactic value)
@@ -170,9 +170,11 @@
 
 ;; Cannot use pull due to the use of UUID's to join CPP ns/class/fns/param
 (defn- parameter->group-variable [parameter-id]
-  (q-vms '[:find  [?gv-uuid ...]
+  (q-vms '[:find  ?gv-uuid .
            :in    ?p
-           :where (ref ?p :group-variable/cpp-parameter ?gv-uuid)]
+           :where [?p :bp/uuid ?p-uuid]
+                  [?gv :group-variable/cpp-parameter ?p-uuid]
+                  [?gv :bp/uuid ?gv-uuid]]
          parameter-id))
 
 ;;; Run Generation
@@ -242,10 +244,10 @@
         fn-args (map-indexed (fn [idx [param-id _ param-type]]
                                (if (is-enum? param-type)
                                  (let [[param-id] (nth params (dec idx))
-                                       [gv-uuid]  (parameter->group-variable param-id)]
-                                   (units/get-unit (variable-units gv-id)))
-                                 (let [[gv-uuid] (parameter->group-variable param-id)]
-                                   (get repeat-group gv-uuid))))
+                                       gv-uuid    (parameter->group-variable param-id)]
+                                   (units/get-unit (variable-units gv-uuid)))
+                                 (let [gv-uuid (parameter->group-variable param-id)]
+                                   (parsed-value gv-uuid (get repeat-group gv-uuid)))))
                              params)]
 
     (log "MULTI INPUT:" fn-name fn-args)
@@ -277,7 +279,7 @@
   (doseq [[_ repeats] inputs]
     (cond
       ;; Single Group w/ Single Variable
-      (and (= 1 (count repeats) (count (vals repeats))))
+      (and (= 1 (count repeats) (count (first (vals repeats)))))
       (let [[gv-id value] (ffirst (vals repeats))
             units         (or (variable-units gv-id) "")]
         (log "-- [SOLVER] SINGLE VAR" gv-id value units)

@@ -117,7 +117,8 @@
                                                       steps)}]))
 
 (defn toolbar [params]
-  (let [on-click #(js/console.log (str "Selected!" %))
+  (let [*loaded? (rf/subscribe [:app/loaded?])
+        on-click #(js/console.log (str "Selected!" %))
         tools    [{:icon     :home
                    :label    (bp "home")
                    :on-click on-click}
@@ -145,4 +146,5 @@
                      :error?      false
                      :focused?    false
                      :placeholder "Search"}]]
-     [progress-bar params]]))
+     (when @*loaded?
+       [progress-bar params])]))
