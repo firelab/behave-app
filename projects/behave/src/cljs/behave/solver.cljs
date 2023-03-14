@@ -172,7 +172,7 @@
 (defn- parameter->group-variable [parameter-id]
   (q-vms '[:find  [?gv-uuid ...]
            :in    ?p
-           :where (ref ?p-uuid :group-variable/cpp-parameter ?gv)]
+           :where (ref ?p :group-variable/cpp-parameter ?gv-uuid)]
          parameter-id))
 
 ;;; Run Generation
@@ -356,7 +356,7 @@
   (rf/dispatch [:worksheet/add-result-table-header ws-uuid gv-id repeat-id units]))
 
 (defn- add-cell [ws-uuid row-id gv-id repeat-id value]
-  (rf/dispatch [:worksheet/add-result-table-cell ws-uuid row-id gv-id repeat-id value]))
+  (rf/dispatch [:worksheet/add-result-table-cell ws-uuid row-id gv-id repeat-id (str value)]))
 
 (defn- add-inputs-to-results-table [ws-uuid row-id inputs]
   (doseq [[_ repeats] inputs]
@@ -378,10 +378,10 @@
           (log [:ADDING-INPUT ws-uuid row-id gv-id value units])
           (add-header ws-uuid gv-id repeat-id units)
           (add-cell ws-uuid row-id gv-id repeat-id value)))
-      
+
       ;; Multiple Groups w/ Multiple Variables
       :else
-      (doseq [[repeat-id [_ repeat-group]] (map list repeats (range (count repeats)))]
+      (doseq [[[_ repeat-group] repeat-id] (map list repeats (range (count repeats)))]
         (doseq [[gv-id value] (first repeat-group)]
           (let [units (or (variable-units gv-id) "")]
             (log [:ADDING-INPUT ws-uuid row-id gv-id value units])

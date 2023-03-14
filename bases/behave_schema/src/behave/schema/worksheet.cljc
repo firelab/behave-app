@@ -192,7 +192,7 @@
 
    {:db/ident       :result-header/repeat-id
     :db/doc         "Result header's repeat ID."
-    :db/valueType   :db.type/string
+    :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :result-header/order
