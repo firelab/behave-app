@@ -362,7 +362,7 @@
   (doseq [[_ repeats] inputs]
     (cond
       ;; Single Group w/ Single Variable
-      (and (= 1 (count repeats) (count (vals repeats))))
+      (and (= 1 (count repeats) (count (first (vals repeats)))))
       (let [[gv-id value] (ffirst (vals repeats))
             units         (or (variable-units gv-id) "")]
         (log [:ADDING-INPUT ws-uuid row-id gv-id value units])
@@ -382,7 +382,7 @@
       ;; Multiple Groups w/ Multiple Variables
       :else
       (doseq [[[_ repeat-group] repeat-id] (map list repeats (range (count repeats)))]
-        (doseq [[gv-id value] (first repeat-group)]
+        (doseq [[gv-id value] repeat-group]
           (let [units (or (variable-units gv-id) "")]
             (log [:ADDING-INPUT ws-uuid row-id gv-id value units])
             (add-header ws-uuid gv-id repeat-id units)
