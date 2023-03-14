@@ -179,7 +179,7 @@
 
 (defn- permutations [single-inputs range-inputs]
   (case (count range-inputs)
-    0 single-inputs
+    0 [single-inputs]
     1 (for [x (first range-inputs)]
         (conj single-inputs x))
     2 (for [x (first range-inputs)
@@ -319,7 +319,7 @@
   (let [all-inputs @(rf/subscribe [:worksheet/all-inputs-vector ws-uuid])
         outputs    @(rf/subscribe [:worksheet/all-output-uuids ws-uuid])
         fns        (ns-publics 'behave.lib.contain)
-        counter    (atom 0)]
+        counter    (atom -1)]
 
     (->> (generate-runs all-inputs)
          (reduce (fn [acc inputs]
@@ -393,7 +393,7 @@
     (let [units (or (variable-units gv-id) "")]
       (log [:ADDING-OUTPUT ws-uuid row-id gv-id value units])
       (add-header ws-uuid gv-id 0 units)
-      (add-cell ws-uuid gv-id row-id value))))
+      (add-cell ws-uuid row-id gv-id 0 value))))
 
 (defn- add-to-results-table [ws-uuid results]
   (add-table ws-uuid)

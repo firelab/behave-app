@@ -5,15 +5,17 @@
    [behave.fixtures :as fx]
    [behave.test-utils :as utils]
    [day8.re-frame.test :as rf-test]
-   [datascript.core :as d]))
+   [datascript.core :as d]
+   [behave.worksheet.events]
+   [behave.worksheet.subs]))
 
 ;; =================================================================================================
 ;; Fixtures
 ;; =================================================================================================
 
 (use-fixtures :each
-  {:before (join-fixtures [fx/setup-empty-db fx/with-new-worksheet])
-   :after  (join-fixtures [fx/teardown-db])})
+  {:before (join-fixtures [fx/setup-empty-db fx/with-new-worksheet fx/log-rf-events])
+   :after  (join-fixtures [fx/teardown-db fx/stop-logging-rf-events])})
 
 ;; =================================================================================================
 ;; Tests
@@ -63,7 +65,7 @@
         value               "some-value"
         units               "some-units"
         repeat-id           0
-        setup-event         [:worksheet/add-input-group fx/test-ws-uuid input-group-uuid 0]
+        setup-event         [:worksheet/add-input-group fx/test-ws-uuid input-group-uuid repeat-id]
         event-to-test       [:worksheet/upsert-input-variable
                              fx/test-ws-uuid
                              input-group-uuid
@@ -216,9 +218,10 @@
 (deftest add-result-table-header-test
   (let [*worksheet          (rf/subscribe [:worksheet fx/test-ws-uuid])
         group-variable-uuid "some-group-variable-uuid"
+        repeat-id           0
         units               "some-units"
         setup-event         [:worksheet/add-result-table fx/test-ws-uuid]
-        event-to-test       [:worksheet/add-result-table-header fx/test-ws-uuid group-variable-uuid units]]
+        event-to-test       [:worksheet/add-result-table-header fx/test-ws-uuid group-variable-uuid repeat-id units]]
 
     (rf/dispatch-sync setup-event)
 
@@ -241,14 +244,15 @@
   (let [*worksheet           (rf/subscribe [:worksheet fx/test-ws-uuid])
         group-variable-uuids ["1" "2" "3" "4"]
         new-gv-uuid          "5"
+        repeat-id            0
         units                "some-units"
         setup-event          [:worksheet/add-result-table fx/test-ws-uuid]
-        event-to-test        [:worksheet/add-result-table-header fx/test-ws-uuid new-gv-uuid units]]
+        event-to-test        [:worksheet/add-result-table-header fx/test-ws-uuid new-gv-uuid repeat-id units]]
 
     (rf/dispatch-sync setup-event)
 
     (doseq [uuid group-variable-uuids]
-      (rf/dispatch-sync [:worksheet/add-result-table-header fx/test-ws-uuid uuid units]))
+      (rf/dispatch-sync [:worksheet/add-result-table-header fx/test-ws-uuid repeat-id uuid units]))
 
     (is (= (count (-> @*worksheet
                       :worksheet/result-table
