@@ -155,12 +155,18 @@
 
 ;; Cannot use pull due to the use of UUID's to join CPP ns/class/fns
 (defn- group-variable->fn [group-variable-uuid]
-  (q-vms '[:find  [?fn ?fn-name (count ?p)]
-           :in    ?gv-uuid
-           :where (var->fn ?gv-uuid ?fn)
-                  [?fn :function/name ?fn-name]
-                  [?fn :function/parameters ?p]]
-         group-variable-uuid))
+  (or (q-vms '[:find  [?fn ?fn-name (count ?p)]
+               :in    ?gv-uuid
+               :where (var->fn ?gv-uuid ?fn)
+                      [?fn :function/name ?fn-name]
+                      [?fn :function/parameters ?p]]
+             group-variable-uuid)
+      (-> (q-vms '[:find  [?fn ?fn-name]
+                   :in    ?gv-uuid
+                   :where (var->fn ?gv-uuid ?fn)
+                          [?fn :function/name ?fn-name]]
+                 group-variable-uuid)
+          (conj 0))))
 
 ;; Cannot use pull due to the use of UUID's to join CPP ns/class/fns/param
 (defn- parameter->group-variable [parameter-id]
@@ -384,9 +390,10 @@
 
 (defn add-outputs-to-results-table [ws-uuid row-id outputs]
   (doseq [[gv-id [value units]] outputs]
-    (log [:ADDING-OUTPUT ws-uuid row-id gv-id value units])
-    (add-header ws-uuid gv-id 0 units)
-    (add-cell ws-uuid gv-id row-id value)))
+    (let [units (or (variable-units gv-id) "")]
+      (log [:ADDING-OUTPUT ws-uuid row-id gv-id value units])
+      (add-header ws-uuid gv-id 0 units)
+      (add-cell ws-uuid gv-id row-id value))))
 
 (defn- add-to-results-table [ws-uuid results]
   (add-table ws-uuid)
