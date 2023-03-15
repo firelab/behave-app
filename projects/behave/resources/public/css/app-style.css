@@ -359,7 +359,7 @@ body {
   overflow-x: scroll;
   overflow-y: scroll;
   height: 540px;
-  width: 1000px;
+  width: 100%;
 }
 
 /* .wizard-io { */
