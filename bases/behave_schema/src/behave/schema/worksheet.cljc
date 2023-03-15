@@ -9,14 +9,15 @@
 
 ;;; Spec
 
-(s/def :worksheet/uuid          string?)
-(s/def :worksheet/name          string?)
-(s/def :worksheet/notes          many-ref?)
-(s/def :worksheet/inputs         many-ref?)
-(s/def :worksheet/outputs        many-ref?)
-(s/def :worksheet/result-table   single-ref?)
-(s/def :worksheet/graph-settings single-ref?)
-(s/def :worksheet/table-settings single-ref?)
+(s/def :worksheet/uuid                  string?)
+(s/def :worksheet/name                  string?)
+(s/def :worksheet/furthest-visited-step keyword?)
+(s/def :worksheet/notes                 many-ref?)
+(s/def :worksheet/inputs                many-ref?)
+(s/def :worksheet/outputs               many-ref?)
+(s/def :worksheet/result-table          single-ref?)
+(s/def :worksheet/graph-settings        single-ref?)
+(s/def :worksheet/table-settings        single-ref?)
 
 ;;; Schema
 
@@ -40,6 +41,11 @@
    {:db/ident       :worksheet/created
     :db/doc         "Worksheet's creation time in milliseconds since Jan 1., 1970."
     :db/valueType   :db.type/long
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :worksheet/furthest-visited-step
+    :db/doc         "Worksheet's furthest completed step."
+    :db/valueType   :db.type/keyword
     :db/cardinality :db.cardinality/one}
 
    ;; Relations
@@ -115,7 +121,7 @@
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
 
-   ;; Repeat Grous
+   ;; Repeat Groups
    {:db/ident       :repeat-group/group-uuid
     :db/doc         "Repeat Group's reference to a Group's UUID."
     :db/valueType   :db.type/string
@@ -184,6 +190,11 @@
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident       :result-header/repeat-id
+    :db/doc         "Result header's repeat ID."
+    :db/valueType   :db.type/long
+    :db/cardinality :db.cardinality/one}
+
    {:db/ident       :result-header/order
     :db/doc         "Result header's order."
     :db/valueType   :db.type/long
@@ -235,6 +246,11 @@
 
    {:db/ident       :graph-settings/z-axis-group-variable-uuid
     :db/doc         "Graph's z-axis variable."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :graph-settings/z2-axis-group-variable-uuid
+    :db/doc         "Graph's z2-axis variable."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 

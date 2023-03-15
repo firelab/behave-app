@@ -13,6 +13,7 @@
          "components/dom_utils/src"
          "components/ds_schema_utils/src"
          "components/markdown2hiccup/src"
+         "components/map_utils/src"
          "components/number_utils/src"
          "components/server/src"
          "components/string_utils/src"
@@ -66,6 +67,10 @@
         re-posh/re-posh                    {:mvn/version "0.3.3"}
         reagent/reagent                    {:mvn/version "0.10.0"}
         re-frame-utils/re-frame-utils      {:mvn/version "0.1.0"}
+        cljsjs/vega                        {:mvn/version "5.20.2-0"}
+        cljsjs/vega-embed                  {:mvn/version "6.0.0-0"}
+        cljsjs/vega-lite                   {:mvn/version "5.1.1-0"}
+        day8.re-frame/test                 {:mvn/version "0.1.5"}
 
         ;; Behave CMS
         applied-science/js-interop         {:mvn/version "0.3.3"}

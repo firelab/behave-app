@@ -1,7 +1,11 @@
 (ns behave.worksheet.subs
-  (:require [clojure.string   :as str]
-            [re-posh.core     :as rp]
-            [re-frame.core    :as rf]
+  (:require [behave.store    :as s]
+            [clojure.string  :as str]
+            [clojure.set     :as set]
+            [datascript.core :as d]
+            [re-posh.core    :as rp]
+            [re-frame.core   :as rf]
+            [behave.store    :as s]
             [datascript.core :as d]))
 
 ;; Retrieve all worksheet UUID's
@@ -11,7 +15,7 @@
    {:type  :query
     :query '[:find  ?created ?uuid
              :where [?ws :worksheet/uuid ?uuid]
-                    [?ws :worksheet/created ?created]]}))
+             [?ws :worksheet/created ?created]]}))
 
 ;; Retrieve latest worksheet UUID
 (rf/reg-sub
@@ -21,17 +25,24 @@
  (fn [all-worksheets [_]]
    (last (last (sort-by first all-worksheets)))))
 
+;; Retrieve worksheet
+(rf/reg-sub
+ :worksheet
+ (fn [_ [_ ws-uuid]]
+   (d/entity @@s/conn [:worksheet/uuid ws-uuid])))
+
 ;; Retrieve latest worksheet UUID
 (rp/reg-sub
  :worksheet/modules
  (fn [_ [_ ws-uuid]]
-   {:type  :query
-    :query '[:find  [?modules ...]
-             :in    $ ?ws-uuid
-             :where [?w :worksheet/uuid ?ws-uuid]
-                    [?w :worksheet/modules ?modules]]
+   {:type      :query
+    :query     '[:find  [?modules ...]
+                 :in    $ ?ws-uuid
+                 :where [?w :worksheet/uuid ?ws-uuid]
+                 [?w :worksheet/modules ?modules]]
     :variables [ws-uuid]}))
 
+;; Get state of a particular output
 (rp/reg-sub
   :worksheet/get-attr
   (fn [_ [_ ws-uuid attr]]
@@ -46,84 +57,128 @@
 (rp/reg-sub
  :worksheet/output-enabled?
  (fn [_ [_ ws-uuid variable-uuid]]
-   {:type  :query
-    :query '[:find  [?enabled]
-             :in    $ ?ws-uuid ?var-uuid
-             :where [?w :worksheet/uuid ?ws-uuid]
-                    [?w :worksheet/outputs ?o]
-                    [?o :output/group-variable-uuid ?var-uuid]
-                    [?o :output/enabled? ?enabled]]
+   {:type      :query
+    :query     '[:find  ?enabled .
+                 :in    $ ?ws-uuid ?var-uuid
+                 :where [?w :worksheet/uuid ?ws-uuid]
+                        [?w :worksheet/outputs ?o]
+                        [?o :output/group-variable-uuid ?var-uuid]
+                        [?o :output/enabled? ?enabled]]
     :variables [ws-uuid variable-uuid]}))
 
 ;; Get the value of a particular input
 (rp/reg-sub
  :worksheet/input
  (fn [_ [_ ws-uuid group-uuid repeat-id group-variable-uuid]]
-   {:type  :query
-    :query '[:find  [?value]
-             :in    $ ?ws-uuid ?group-uuid ?repeat-id ?group-var-uuid
-             :where [?w :worksheet/uuid ?ws-uuid]
-                    [?w :worksheet/input-groups ?g]
-                    [?g :input-group/group-uuid ?group-uuid]
-                    [?g :input-group/repeat-id ?repeat-id]
-                    [?g :input-group/inputs ?i]
-                    [?i :input/group-variable-uuid ?group-var-uuid]
-                    [?i :input/value ?value]]
+   {:type      :query
+    :query     '[:find  [?value]
+                 :in    $ ?ws-uuid ?group-uuid ?repeat-id ?group-var-uuid
+                 :where [?w :worksheet/uuid ?ws-uuid]
+                 [?w :worksheet/input-groups ?g]
+                 [?g :input-group/group-uuid ?group-uuid]
+                 [?g :input-group/repeat-id ?repeat-id]
+                 [?g :input-group/inputs ?i]
+                 [?i :input/group-variable-uuid ?group-var-uuid]
+                 [?i :input/value ?value]]
     :variables [ws-uuid group-uuid repeat-id group-variable-uuid]}))
 
 ;; Find groups matching a group-uuid
 (rp/reg-sub
  :worksheet/repeat-groups
  (fn [_ [_ ws-uuid group-uuid]]
-   {:type  :query
-    :query '[:find  [?g ...]
-             :in    $ ?ws-uuid ?group-uuid
-             :where [?w :worksheet/uuid ?ws-uuid]
-                    [?w :worksheet/input-groups ?g]
-                    [?g :input-group/group-uuid ?group-uuid]]
+   {:type      :query
+    :query     '[:find  [?g ...]
+                 :in    $ ?ws-uuid ?group-uuid
+                 :where [?w :worksheet/uuid ?ws-uuid]
+                 [?w :worksheet/input-groups ?g]
+                 [?g :input-group/group-uuid ?group-uuid]]
     :variables [ws-uuid group-uuid]}))
 
 ;; Find inputs for a given group-uuid and repeat-id
 (rp/reg-sub
-  :worksheet/input-ids
-  (fn [_ [_ ws-uuid group-uuid repeat-id]]
-    {:type      :query
-     :query     '[:find [?i ...]
-                  :in  $ ?ws-uuid ?group-uuid ?repeat-id
-                  :where
-                  [?w :worksheet/uuid ?ws-uuid]
-                  [?w :worksheet/input-groups ?g]
-                  [?g :input-group/group-uuid ?group-uuid]
-                  [?g :input-group/repeat-id ?repeat-id]
-                  [?g :input-group/inputs ?i]]
-     :variables [ws-uuid group-uuid repeat-id]}))
+ :worksheet/input-ids
+ (fn [_ [_ ws-uuid group-uuid repeat-id]]
+   {:type      :query
+    :query     '[:find [?i ...]
+                 :in  $ ?ws-uuid ?group-uuid ?repeat-id
+                 :where
+                 [?w :worksheet/uuid ?ws-uuid]
+                 [?w :worksheet/input-groups ?g]
+                 [?g :input-group/group-uuid ?group-uuid]
+                 [?g :input-group/repeat-id ?repeat-id]
+                 [?g :input-group/inputs ?i]]
+    :variables [ws-uuid group-uuid repeat-id]}))
 
 (rp/reg-sub
-  :worksheet/group-repeat-ids
-  (fn [_ [_ ws-uuid group-uuid]]
-    {:type      :query
-     :query     '[:find  [?rid ...]
-                  :in    $ ?ws-uuid ?group-uuid
-                  :where
-                  [?w :worksheet/uuid ?ws-uuid]
-                  [?w :worksheet/input-groups ?ig]
-                  [?ig :input-group/group-uuid ?group-uuid]
-                  [?ig :input-group/repeat-id ?rid]]
-     :variables [ws-uuid group-uuid]}))
+ :worksheet/group-repeat-ids
+ (fn [_ [_ ws-uuid group-uuid]]
+   {:type      :query
+    :query     '[:find  [?rid ...]
+                 :in    $ ?ws-uuid ?group-uuid
+                 :where
+                 [?w :worksheet/uuid ?ws-uuid]
+                 [?w :worksheet/input-groups ?ig]
+                 [?ig :input-group/group-uuid ?group-uuid]
+                 [?ig :input-group/repeat-id ?rid]]
+    :variables [ws-uuid group-uuid]}))
+
+;; Find inputs for a given group-uuid and repeat-id
+(rp/reg-sub
+ :worksheet/input-ids
+ (fn [_ [_ ws-uuid group-uuid repeat-id]]
+   {:type      :query
+    :query     '[:find [?i ...]
+                 :in  $ ?ws-uuid ?group-uuid ?repeat-id
+                 :where
+                 [?w :worksheet/uuid ?ws-uuid]
+                 [?w :worksheet/input-groups ?g]
+                 [?g :input-group/group-uuid ?group-uuid]
+                 [?g :input-group/repeat-id ?repeat-id]
+                 [?g :input-group/inputs ?i]]
+    :variables [ws-uuid group-uuid repeat-id]}))
+
+(rp/reg-sub
+ :worksheet/group-repeat-ids
+ (fn [_ [_ ws-uuid group-uuid]]
+   {:type      :query
+    :query     '[:find  [?rid ...]
+                 :in    $ ?ws-uuid ?group-uuid
+                 :where
+                 [?w :worksheet/uuid ?ws-uuid]
+                 [?w :worksheet/input-groups ?ig]
+                 [?ig :input-group/group-uuid ?group-uuid]
+                 [?ig :input-group/repeat-id ?rid]]
+    :variables [ws-uuid group-uuid]}))
+
+(rf/reg-sub
+ :worksheet/all-inputs-vector
+ (fn [_ [_ ws-uuid]]
+   (let [inputs @(rf/subscribe [:query
+                                '[:find  ?group-uuid ?repeat-id ?group-var-uuid ?value
+                                  :in    $ ?ws-uuid
+                                  :where [?w :worksheet/uuid ?ws-uuid]
+                                  [?w :worksheet/input-groups ?g]
+                                  [?g :input-group/group-uuid ?group-uuid]
+                                  [?g :input-group/repeat-id ?repeat-id]
+                                  [?g :input-group/inputs ?i]
+                                  [?i :input/group-variable-uuid ?group-var-uuid]
+                                  [?i :input/value ?value]]
+                                [ws-uuid]])]
+     (into [] inputs))))
 
 (rf/reg-sub
  :worksheet/all-inputs
  (fn [_ [_ ws-uuid]]
    (let [inputs @(rf/subscribe [:query
                                 '[:find  ?group-uuid ?repeat-id ?group-var-uuid ?value
-                                    :in    $ ?ws-uuid
-                                    :where [?w :worksheet/uuid ?ws-uuid]
-                                            [?w :worksheet/input-groups ?g]
-                                            [?g :input-group/group-uuid ?group-uuid]
-                                            [?g :input-group/repeat-id ?repeat-id]
-                                            [?g :input-group/inputs ?i]
-                                            [?i :input/group-variable-uuid ?group-var-uuid]
-                                            [?i :input/value ?value]]
+                                  :in    $ ?ws-uuid
+                                  :where [?w :worksheet/uuid ?ws-uuid]
+                                  [?w :worksheet/input-groups ?g]
+                                  [?g :input-group/group-uuid ?group-uuid]
+                                  [?g :input-group/repeat-id ?repeat-id]
+                                  [?g :input-group/inputs ?i]
+                                  [?i :input/group-variable-uuid ?group-var-uuid]
+                                  [?i :input/value ?value]]
                                 [ws-uuid]])]
      (reduce (fn [acc [group-uuid repeat-id group-var-uuid value]]
                (assoc-in acc [group-uuid repeat-id group-var-uuid] value))
@@ -221,11 +276,6 @@
              [?y :y-axis-limit/max ?max]]
     :variables [ws-uuid]}))
 
-(rf/reg-sub
- :worksheet/results-tab-selected
- (fn [_ _]
-   :notes)) ;TODO update when more results tabs are are added.
-
 (rp/reg-sub
  :worksheet/notes
  (fn [_ [_ ws-uuid]]
@@ -241,10 +291,10 @@
     :variables [ws-uuid]}))
 
 (rp/reg-sub
- :worksheet/result-table-row-data
+ :worksheet/result-table-cell-data
  (fn [_ [_ ws-uuid]]
    {:type  :query
-    :query '[:find ?row ?col-uuid ?value
+    :query '[:find ?row ?col-uuid ?repeat-id ?value
              :in $ ?ws-uuid
              :where
              [?w :worksheet/uuid ?ws-uuid]
@@ -258,6 +308,7 @@
              [?r :result-row/cells ?c]
              [?c :result-cell/header ?h]
              [?h :result-header/group-variable-uuid ?col-uuid]
+             [?h :result-header/repeat-id ?repeat-id]
 
              ;;get value
              [?c :result-cell/value ?value]]
@@ -268,30 +319,81 @@
  :worksheet/result-table-headers-sorted
  (fn [_ [_ ws-uuid]]
    (let [headers @(rf/subscribe [:query
-                                 '[:find ?order ?uuid ?units
+                                 '[:find ?order ?uuid ?repeat-id ?units
                                    :in $ ?ws-uuid
                                    :where
                                    [?w :worksheet/uuid ?ws-uuid]
                                    [?w :worksheet/result-table ?r]
                                    [?r :result-table/headers ?h]
                                    [?h :result-header/order ?order]
+                                   [?h :result-header/repeat-id ?repeat-id]
                                    [?h :result-header/group-variable-uuid ?uuid]
                                    [?h :result-header/units ?units]]
                                  [ws-uuid]])]
      (->> headers
-          (sort-by first)))))
+          (sort-by (juxt first #(nth % 2)))))))
 
-(comment
-  (let [ws-uuid @(rf/subscribe [:worksheet/latest])]
-    (rf/subscribe [:worksheet/graph-settings-y-axis-limits ws-uuid])))
+(rf/reg-sub
+ :worksheet/graph-settings
+ (fn [[_ ws-uuid]]
+   (rf/subscribe [:query '[:find ?gs .
+                           :in $ ?ws-uuid
+                           :where
+                           [?w :worksheet/uuid ?ws-uuid]
+                           [?w :worksheet/graph-settings ?gs]]
+                  [ws-uuid]]))
+ (fn [id _]
+   (d/entity @@s/conn id)))
 
-(comment
-  (let [ws-uuid @(rf/subscribe [:worksheet/latest])]
-    @(rf/subscribe [:worksheet/table-settings-enabled? ws-uuid]))
+(rf/reg-sub
+ :worksheet/all-inputs-entered?
+ (fn [_ [_ ws-uuid module-id submodule]]
+   (let [submodule                             @(rf/subscribe [:wizard/*submodule module-id submodule :input])
+         groups                                @(rf/subscribe [:wizard/groups (:db/id submodule)])
+         groups-repeat                         (filter #(true? (:group/repeat? %)) groups)
+         groups-not-repeat                     (remove #(true? (:group/repeat? %)) groups)
+         all-inputs                            @(rf/subscribe [:worksheet/all-inputs ws-uuid])
+         groups-not-repeat-all-values-entered? (->> (for [group    groups-not-repeat
+                                                          variable (:group/group-variables group)
+                                                          :let     [group-uuid (:bp/uuid group)
+                                                                    var-uuid   (:bp/uuid variable)]]
+                                                      (get-in all-inputs [group-uuid 0 var-uuid]))
+                                                    (every? seq))
+         groups-repeat-all-values-entered?     (every? (fn [group]
+                                                         (let [group-uuid   (:bp/uuid group)
+                                                               vars-needed  (* (count (:group/group-variables group))
+                                                                               (count @(rf/subscribe [:worksheet/group-repeat-ids ws-uuid group-uuid])))
+                                                               vars-entered (reduce (fn [acc [_repeat-id variables]]
+                                                                                      (+ acc (count (filter (fn has-value? [[_variable-id val]]
+                                                                                                              (seq val))
+                                                                                                            variables))))
+                                                                                    0
+                                                                                    (get all-inputs group-uuid))]
+                                                           (= vars-needed vars-entered)))
+                                                       groups-repeat)]
 
-  (let [ws-uuid @(rf/subscribe [:worksheet/latest])]
-    (rf/subscribe [:worksheet/all-output-names ws-uuid]))
+     (and groups-not-repeat-all-values-entered? groups-repeat-all-values-entered?))))
 
-  (let [ws-uuid @(rf/subscribe [:worksheet/latest])]
-    (rf/subscribe [:worksheet/get-attr ws-uuid :graph-settings/enabled?]))
-  )
+(rf/reg-sub
+ :worksheet/some-outputs-entered?
+ (fn [[_ ws-uuid]]
+   (rf/subscribe [:worksheet/all-output-uuids ws-uuid]))
+
+ (fn [all-output-uuids [_ _ws-uuid module-id submodule-slug]]
+   (if (seq all-output-uuids)
+     (let [submodule       @(rf/subscribe [:wizard/*submodule module-id submodule-slug :output])
+           groups          (:submodule/groups submodule)
+           group-variables (set (flatten (map #(map :bp/uuid (:group/group-variables %)) groups)))]
+       (boolean (seq (set/intersection (set all-output-uuids) group-variables))))
+     false)))
+
+(rp/reg-sub
+ :worksheet/furthest-visited-step
+ (fn [_ [_ ws-uuid]]
+   {:type      :query
+    :query     '[:find  ?furthest-visited-step .
+                 :in    $ ?ws-uuid
+                 :where
+                 [?w :worksheet/uuid ?ws-uuid]
+                 [?w :worksheet/furthest-visited-step ?furthest-visited-step]]
+    :variables [ws-uuid]}))

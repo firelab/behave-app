@@ -1,6 +1,7 @@
 (ns ^:figwheel-hooks behave.client
   (:require [reagent.dom               :refer [render]]
             [re-frame.core             :as rf]
+            [re-frisk.core             :as re-frisk]
             [behave.components.sidebar :refer [sidebar]]
             [behave.components.toolbar :refer [toolbar]]
             [behave.help.views         :refer [help-area]]
@@ -40,7 +41,8 @@
         sync-loaded? (rf/subscribe [:state :sync-loaded?])
         vms-loaded?  (rf/subscribe [:state :vms-loaded?])
         page         (get handler->page (:handler @route) not-found)
-        params       (merge params (:route-params @route))]
+        params       (-> (merge params (:route-params @route))
+                         (assoc :route-handler (:handler @route)))]
     [:div.page
      [:table.page__top
       [:tr
@@ -51,7 +53,7 @@
           :tabindex 0}
          [:h1 @(<t "behaveplus")]]]
        [:td.page__top__toolbar-container
-        [toolbar]]]]
+        [toolbar params]]]]
      [:div.page__main
       [sidebar]
       [:div.container
@@ -65,8 +67,11 @@
 (defn- ^:export init
   "Defines the init function to be called from window.onload()."
   [params]
+  (re-frisk/enable)
   (rf/dispatch-sync [:initialize])
   (rf/dispatch-sync [:navigate (-> js/window .-location .-pathname)])
+  (rf/add-post-event-callback :post-event-callback (fn [event _queue]
+                                                     (swap! rf-post-event-queue conj event)))
   (.addEventListener js/window "popstate" #(rf/dispatch [:popstate %]))
   (load-translations!)
   (load-vms!)

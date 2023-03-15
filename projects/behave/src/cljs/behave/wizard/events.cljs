@@ -1,16 +1,18 @@
 (ns behave.wizard.events
-  (:require [behave-routing.main :refer [routes]]
-            [behave.solver       :refer [solve-worksheet]]
-            [bidi.bidi           :refer [path-for]]
-            [clojure.walk        :refer [postwalk]]
-            [re-frame.core       :as rf]))
+  (:require [behave-routing.main           :refer [routes]]
+            [behave.solver                 :refer [solve-worksheet]]
+            [bidi.bidi                     :refer [path-for]]
+            [clojure.walk                  :refer [postwalk]]
+            [re-frame.core                 :as rf]
+            [string-utils.interface        :refer [->str]]
+            [vimsical.re-frame.cofx.inject :as inject]))
 
 (rf/reg-event-fx
   :wizard/select-tab
-  (fn [_ [_ {:keys [id module io submodule]}]]
+  (fn [_ [_ {:keys [ws-uuid module io submodule]}]]
     (let [path (path-for routes
                          :ws/wizard
-                         :id id
+                         :ws-uuid ws-uuid
                          :module module
                          :io io
                          :submodule submodule)]
@@ -28,7 +30,7 @@
           _*module
           _*submodule
           all-submodules
-          {:keys [id module io submodule]}]]
+          {:keys [ws-uuid module io submodule]}]]
     (let [[i-subs o-subs] (partition-by #(:submodule/io %) (sort-by :submodule/io all-submodules))
           submodules      (if (= io :input) i-subs o-subs)
           next-submodules (rest (drop-while #(not= (:slug %) submodule) (sort-by :submodule/order submodules)))
@@ -36,7 +38,7 @@
                             (seq next-submodules)
                             (path-for routes
                                       :ws/wizard
-                                      :id id
+                                      :ws-uuid ws-uuid
                                       :module module
                                       :io io
                                       :submodule (:slug (first next-submodules)))
@@ -44,7 +46,7 @@
                             (and (= io :output) (empty? next-submodules))
                             (path-for routes
                                       :ws/wizard
-                                      :id id
+                                      :ws-uuid ws-uuid
                                       :module module
                                       :io :input
                                       :submodule (:slug (first i-subs)))
@@ -52,15 +54,16 @@
                             (and (= io :input) (empty? next-submodules))
                             (path-for routes
                                       :ws/review
-                                      :id id))]
+                                      :ws-uuid ws-uuid))]
       {:fx [[:dispatch [:navigate path]]]})))
 
 (rf/reg-event-fx
- :wizard/solve
- (fn [_ [_ {:keys [id]} ws-uuid]]
-   (let [path (path-for routes :ws/results-settings :id id :results-page :settings)]
-     {:fx [[:dispatch [:worksheet/solve ws-uuid]]
-           [:dispatch [:navigate path]]]})))
+  :wizard/solve
+  (fn [{db :db} [_ {:keys [ws-uuid]}]]
+    (let [worksheet (solve-worksheet ws-uuid)
+          path      (path-for routes :ws/results-settings :ws-uuid ws-uuid :results-page :settings)]
+      {:fx [[:dispatch [:navigate path]]]
+       :db (assoc-in db [:state :worksheet] worksheet)})))
 
 (defn- remove-nils
   "remove pairs of key-value that has nil value from a (possibly nested) map. also transform map to
@@ -91,15 +94,14 @@
   (fn [_cfx [_event-id route repeat-id var-uuid]]
     {:fx [[:dispatch [:navigate route]]
           [:dispatch-later {:ms       200
-                            :dispatch [:wizard/scroll-into-view repeat-id var-uuid]}]]}))
+                            :dispatch [:wizard/scroll-into-view (str repeat-id  "-" var-uuid)]}]]}))
 
 (rf/reg-event-fx
   :wizard/scroll-into-view
-  (fn [_cfx [_event-id repeat-id var-uuid]]
-    (let [content (first (.getElementsByClassName js/document "wizard-io"))
-          section (.getElementById js/document (str repeat-id  "-" var-uuid))
-          _       (println "scroll-into-vew id:" (str repeat-id  "-" var-uuid))
-          buffer  (* 0.10 (.-offsetHeight content))
+  (fn [_cfx [_event-id id]]
+    (let [content (first (.getElementsByClassName js/document "wizard-page__body"))
+          section (.getElementById js/document id)
+          buffer  (* 0.01 (.-offsetHeight content))
           top     (- (.-offsetTop section) (.-offsetTop content) buffer)]
       (.scroll content #js {:top top :behavior "smooth"}))))
 
@@ -135,3 +137,40 @@
  :wizard/toggle-show-add-note-form
  (fn [_cfx _query]
    {:fx [[:dispatch [:state/update [:worksheet :show-add-note-form?] not]]]}))
+
+
+(rf/reg-event-fx
+ :wizard/results-select-tab
+ (fn [_cfx [_ {:keys [tab]}]]
+   {:fx [[:dispatch [:state/set [:worksheet :results :tab-selected] tab]]
+         [:dispatch [:wizard/scroll-into-view (name tab)]]]}))
+(rf/reg-event-fx
+ :wizard/progress-bar-navigate
+ [(rf/inject-cofx ::inject/sub
+                  (fn [_]
+                    [:state [:worksheet :*workflow]]))
+  (rf/inject-cofx ::inject/sub
+                  (fn [[_ io]]
+                    [:wizard/first-module+submodule io]))]
+ (fn [{module                 :state
+       first-module+submodule :wizard/first-module+submodule} [_ ws-uuid route-handler+io]]
+   (let [[handler io]          route-handler+io
+         [ws-module submodule] first-module+submodule]
+     (when-let [path (cond
+                       (= handler :ws/independent)
+                       (str "/worksheets/" (->str module))
+
+                       io
+                       (path-for routes
+                                 :ws/wizard
+                                 :ws-uuid  ws-uuid
+                                 :module ws-module
+                                 :io io
+                                 :submodule submodule)
+
+                       (= handler :ws/result-settings)
+                       (path-for routes :ws/results-settings :ws-uuid ws-uuid :results-page :settings)
+
+                       :else
+                       (path-for routes handler :ws-uuid ws-uuid))]
+       {:fx [[:dispatch [:navigate path]]]}))))

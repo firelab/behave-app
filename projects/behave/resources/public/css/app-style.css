@@ -12,29 +12,27 @@ body {
 /* -- End App -- */
 
 /* -- Page -- */
-.page {}
-
 .page:after {
-  content: '';
   display: block;
   position: fixed;
+  right: 0px;
   bottom: 0px;
   left: 0px;
-  right: 0px;
   height: 6px;
-  background-color: var(--medblue-1);
   border-top: 6px solid var(--lightblue-2);
   border-bottom: 12px solid var(--darkblue-5);
+  background-color: var(--medblue-1);
+  content: '';
 }
 
 .page__top {
+  border-spacing: 0px;
   position: fixed;
   top: 0px;
-  width: 100%;
   z-index: 100;
-  border: 0px;
-  border-spacing: 0px;
+  width: 100%;
   margin-bottom: 30px;
+  border: 0px;
 }
 
 .page__top__logo {
@@ -64,8 +62,8 @@ body {
 /* -- Container -- */
 .container {
   display: flex;
-  margin: 0 30px 0 60px;
   justify-content: space-between;
+  margin: 0 30px 0 60px;
 }
 /* -- End Container -- */
 
@@ -85,8 +83,8 @@ body {
   flex-direction: column;
   display: flex;
   z-index: -2;
-  background: var(--white);
   margin-left: 60px;
+  background: var(--white);
   box-shadow: 0px 1px 1px var(--gray-4);
 }
 
@@ -119,6 +117,8 @@ body {
   height: 140px;
   justify-content: center;
   align-items: center;
+  width: 180px;
+  height: 140px;
   background-color: var(--white);
   box-shadow: 1px 2px 2px var(--gray-4);
 }
@@ -184,8 +184,8 @@ body {
 /* -- Working Area -- */
 .working-area {
   width: 70%;
-  border-radius: 8px 8px 0px 0px;
   margin-right: 30px;
+  border-radius: 8px 8px 0px 0px;
 }
 
 .working-area__title {
@@ -232,9 +232,9 @@ body {
 }
 
 .workflow-select__content {
-  padding-top: 15px;
   overflow-x: hidden;
   overflow-y: scroll;
+  padding-top: 15px;
   background-color: var(--white);
 }
 
@@ -303,6 +303,40 @@ body {
   top: -2px;
 }
 
+.wizard-header__results-toolbar {
+  display: flex;
+  flex-direction: row;
+  padding: 12px;
+  border-top: 2px dotted var(--gray-4);
+  border-bottom: 2px dotted var(--gray-4);
+}
+
+.wizard-header__results-tabs {
+  padding-top: 30px;
+}
+
+.wizard-header__results-toolbar__date,
+.wizard-header__results-toolbar__file-name {
+  display: flex;
+  flex-direction: row;
+  padding-right: 20px;
+}
+
+.wizard-header__results-toolbar__date__label,
+.wizard-header__results-toolbar__file-name__label {
+  font-weight: var(--font-weight-bold)
+}
+
+.wizard-header__results-toolbar__date__value,
+.wizard-header__results-toolbar__file-name__value {
+  padding-left: 5px
+}
+
+.wizard-header__results-toolbar__tools {
+  margin-left: auto;
+  padding-right: 100px;
+}
+
 .wizard-header__submodule-tabs > .tab-group > .tab:first-child {
   margin-left: 20px;
 }
@@ -322,9 +356,10 @@ body {
 }
 
 .wizard-page__body {
-  overflow-x: hidden;
+  overflow-x: scroll;
   overflow-y: scroll;
-  max-height: 480px;
+  height: 540px;
+  width: 1000px;
 }
 
 /* .wizard-io { */
@@ -525,19 +560,10 @@ body {
   width: 100%;
 }
 
-.wizard-results__content {
-  overflow-x: hidden;
-  overflow-y: scroll;
-}
-
-.wizard-results__table {
-  padding: 20px 0px 20px;
-}
-
 .wizard-notes__header {
-  padding: 5px 18px;
-  margin-bottom: 33px;
   margin-top: 30px;
+  margin-bottom: 33px;
+  padding: 5px 18px;
   font-size: var(--font-size-18);
   color: white;
   background-color: var(--darkblue-3);
@@ -548,8 +574,8 @@ body {
 }
 
 .wizard-note__module {
-  padding: 5px 18px;
   margin-bottom: 20px;
+  padding: 5px 18px;
   font-size: var(--font-size-18);
   color: white;
   background-color: var(--darkblue-2);
@@ -557,9 +583,9 @@ body {
 
 .wizard-note__name {
   padding: 5px 18px;
-  color: var(--medblue-3);
-  font-weight: var(--font-weight-bold);
   font-size: var(--font-size-18);
+  font-weight: var(--font-weight-bold);
+  color: var(--medblue-3);
   background-color: none;
 }
 
@@ -572,20 +598,20 @@ body {
 }
 
 .wizard-note__content {
-  font-family: 'Roboto', sans-serif;
   margin: 5px 0px 5px 18px;
   padding: 18px 0px 18px 0px;
-  font-size: var(--font-size-16);
-  color: var(--black);
   border-top: solid 1px var(--gray-4);
   border-bottom: dashed 1px var(--gray-4);
+  font-family: 'Roboto', sans-serif;
+  font-size: var(--font-size-16);
+  color: var(--black);
 }
 
 .wizard-note__manage {
-  padding: 18px 33px 18px 0px;
-  display: flex;
   flex-direction: row;
+  display: flex;
   justify-content: right;
+  padding: 18px 33px 18px 0px;
 }
 
 .wizard-note__manage .button +.button {
@@ -593,8 +619,8 @@ body {
 }
 
 .wizard-note .note > textarea {
-  font-size: var(--font-size-16);
   height: 100px;
+  font-size: var(--font-size-16);
 }
 
 /* - End Wizard - */
