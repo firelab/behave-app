@@ -99,6 +99,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn debounce [f interval]
-  (let [dbnc (Debouncer. f interval)]
+  (let [js-f (fn [& args] (apply f (js->clj args)))
+        dbnc (Debouncer. js-f interval)]
     ;; We use apply here to support functions of various arities
     (fn [& args] (.apply (.-fire dbnc) dbnc (to-array args)))))
