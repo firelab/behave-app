@@ -2,6 +2,7 @@
  :output-dir      "resources/public/cljs"
  :output-to       "resources/public/cljs/app.js"
  :source-map      "resources/public/cljs/app.js.map"
+ :externs         ["resources/behave_externs.js" "resources/katex_externs.js"]
  :fingerprint     true
  :optimizations   :advanced
  :pretty-print    false
