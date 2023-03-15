@@ -113,6 +113,8 @@ body {
 /* -- Identity -- */
 .behave-identity {
   display: flex;
+  width: 180px;
+  height: 140px;
   justify-content: center;
   align-items: center;
   width: 180px;

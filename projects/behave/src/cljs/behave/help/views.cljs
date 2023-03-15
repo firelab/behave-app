@@ -56,6 +56,7 @@
 
 (defn- help-content [help-keys & [children]]
   [:div.help-area__content
+   {:tabindex 0}
    (cond
      children
      [children]
@@ -70,6 +71,7 @@
   (let [current-tab (subscribe [:help/current-tab])
         loaded?     (subscribe [:app/loaded?])]
     [:div.help-area
+     {:aria-live "polite"}
      [:div.help-area__tabs
       [c/tab-group {:variant  "outline-secondary"
                     :on-click #(dispatch [:help/select-tab %])

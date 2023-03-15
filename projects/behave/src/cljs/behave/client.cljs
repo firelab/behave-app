@@ -48,6 +48,9 @@
       [:tr
        [:td.page__top__logo
         [:div.behave-identity
+         {:href     "#"
+          :on-click #(rf/dispatch [:navigate "/"])
+          :tabindex 0}
          [:h1 @(<t "behaveplus")]]]
        [:td.page__top__toolbar-container
         [toolbar params]]]]
@@ -55,29 +58,11 @@
       [sidebar]
       [:div.container
        [:div.working-area
+        {:area-live "assertive"}
         (if (and @vms-loaded? @sync-loaded?)
           [page params]
           [:h3 "Loading..."])]
        [help-area params]]]]))
-
-(def rf-post-event-queue (atom []))
-
-(def event-white-list
-  #{:translations/load
-    :initialize
-    :vms/initialize
-    :ds/initialize
-    :help/highlight-section})
-
-(def set-state-white-list
-  #{:help-current-highlighted-key})
-
-(comment
-  (->> @rf-post-event-queue
-       (remove (fn [[event-id arg1 _rest]]
-                 (or (contains? event-white-list event-id)
-                     (and (= event-id :state/set)
-                          (contains? set-state-white-list arg1)))))))
 
 (defn- ^:export init
   "Defines the init function to be called from window.onload()."
