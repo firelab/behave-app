@@ -151,6 +151,22 @@
     :variables [ws-uuid group-uuid]}))
 
 (rf/reg-sub
+ :worksheet/all-inputs-vector
+ (fn [_ [_ ws-uuid]]
+   (let [inputs @(rf/subscribe [:query
+                                '[:find  ?group-uuid ?repeat-id ?group-var-uuid ?value
+                                  :in    $ ?ws-uuid
+                                  :where [?w :worksheet/uuid ?ws-uuid]
+                                  [?w :worksheet/input-groups ?g]
+                                  [?g :input-group/group-uuid ?group-uuid]
+                                  [?g :input-group/repeat-id ?repeat-id]
+                                  [?g :input-group/inputs ?i]
+                                  [?i :input/group-variable-uuid ?group-var-uuid]
+                                  [?i :input/value ?value]]
+                                [ws-uuid]])]
+     (into [] inputs))))
+
+(rf/reg-sub
  :worksheet/all-inputs
  (fn [_ [_ ws-uuid]]
    (let [inputs @(rf/subscribe [:query
@@ -278,7 +294,7 @@
  :worksheet/result-table-cell-data
  (fn [_ [_ ws-uuid]]
    {:type  :query
-    :query '[:find ?row ?col-uuid ?value
+    :query '[:find ?row ?col-uuid ?repeat-id ?value
              :in $ ?ws-uuid
              :where
              [?w :worksheet/uuid ?ws-uuid]
@@ -292,6 +308,7 @@
              [?r :result-row/cells ?c]
              [?c :result-cell/header ?h]
              [?h :result-header/group-variable-uuid ?col-uuid]
+             [?h :result-header/repeat-id ?repeat-id]
 
              ;;get value
              [?c :result-cell/value ?value]]
@@ -302,18 +319,19 @@
  :worksheet/result-table-headers-sorted
  (fn [_ [_ ws-uuid]]
    (let [headers @(rf/subscribe [:query
-                                 '[:find ?order ?uuid ?units
+                                 '[:find ?order ?uuid ?repeat-id ?units
                                    :in $ ?ws-uuid
                                    :where
                                    [?w :worksheet/uuid ?ws-uuid]
                                    [?w :worksheet/result-table ?r]
                                    [?r :result-table/headers ?h]
                                    [?h :result-header/order ?order]
+                                   [?h :result-header/repeat-id ?repeat-id]
                                    [?h :result-header/group-variable-uuid ?uuid]
                                    [?h :result-header/units ?units]]
                                  [ws-uuid]])]
      (->> headers
-          (sort-by first)))))
+          (sort-by (juxt first #(nth % 2)))))))
 
 (rf/reg-sub
  :worksheet/graph-settings

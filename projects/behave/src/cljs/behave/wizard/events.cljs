@@ -60,9 +60,8 @@
 (rf/reg-event-fx
   :wizard/solve
   (fn [{db :db} [_ {:keys [ws-uuid]}]]
-    (let [{:keys [state]} db
-          worksheet       (solve-worksheet (:worksheet state))
-          path            (path-for routes :ws/results-settings :ws-uuid ws-uuid :results-page :settings)]
+    (let [worksheet (solve-worksheet ws-uuid)
+          path      (path-for routes :ws/results-settings :ws-uuid ws-uuid :results-page :settings)]
       {:fx [[:dispatch [:navigate path]]]
        :db (assoc-in db [:state :worksheet] worksheet)})))
 
@@ -154,7 +153,7 @@
                   (fn [[_ io]]
                     [:wizard/first-module+submodule io]))]
  (fn [{module                 :state
-       first-module+submodule :wizard/first-module+submodule} [_ id route-handler+io]]
+       first-module+submodule :wizard/first-module+submodule} [_ ws-uuid route-handler+io]]
    (let [[handler io]          route-handler+io
          [ws-module submodule] first-module+submodule]
      (when-let [path (cond
@@ -164,14 +163,14 @@
                        io
                        (path-for routes
                                  :ws/wizard
-                                 :id id
+                                 :ws-uuid  ws-uuid
                                  :module ws-module
                                  :io io
                                  :submodule submodule)
 
                        (= handler :ws/result-settings)
-                       (path-for routes :ws/results-settings :id id :results-page :settings)
+                       (path-for routes :ws/results-settings :ws-uuid ws-uuid :results-page :settings)
 
                        :else
-                       (path-for routes handler :id id))]
+                       (path-for routes handler :ws-uuid ws-uuid))]
        {:fx [[:dispatch [:navigate path]]]}))))

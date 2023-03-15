@@ -354,9 +354,10 @@ body {
 }
 
 .wizard-page__body {
-  overflow-x: hidden;
+  overflow-x: scroll;
   overflow-y: scroll;
   height: 540px;
+  width: 1000px;
 }
 
 /* .wizard-io { */

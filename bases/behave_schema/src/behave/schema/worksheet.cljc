@@ -121,7 +121,7 @@
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
 
-   ;; Repeat Grous
+   ;; Repeat Groups
    {:db/ident       :repeat-group/group-uuid
     :db/doc         "Repeat Group's reference to a Group's UUID."
     :db/valueType   :db.type/string
@@ -188,6 +188,11 @@
    {:db/ident       :result-header/group-variable-uuid
     :db/doc         "Result header's group variable UUID."
     :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :result-header/repeat-id
+    :db/doc         "Result header's repeat ID."
+    :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :result-header/order
