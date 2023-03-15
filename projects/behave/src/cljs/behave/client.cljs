@@ -44,16 +44,21 @@
         params       (-> (merge params (:route-params @route))
                          (assoc :route-handler (:handler @route)))]
     [:div.page
-     [:div.behave-identity
-      [:h1 @(<t "behaveplus")]]
-     [:div.header
-      [toolbar params]]
-     [sidebar]
-     [:div.container
-      (if (and @vms-loaded? @sync-loaded?)
-        [page params]
-        [:h3 "Loading..."])
-      [help-area params]]]))
+     [:table.page__top
+      [:tr
+       [:td.page__top__logo
+        [:div.behave-identity
+         [:h1 @(<t "behaveplus")]]]
+       [:td.page__top__toolbar-container
+        [toolbar params]]]]
+     [:div.page__main
+      [sidebar]
+      [:div.container
+       [:div.working-area
+        (if (and @vms-loaded? @sync-loaded?)
+          [page params]
+          [:h3 "Loading..."])]
+       [help-area params]]]]))
 
 (def rf-post-event-queue (atom []))
 

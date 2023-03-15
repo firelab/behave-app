@@ -199,7 +199,7 @@
                    :icon-position "left"}]
         @(<t (bp "a_brief_phrase_documenting_the_run"))]]]]))
 
-(defn wizard-review-page [{:keys [id io route-handler ws-uuid] :as params}]
+(defn wizard-review-page [{:keys [io route-handler ws-uuid] :as params}]
   (let [_                        (dispatch [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
         *modules                 (subscribe [:worksheet/modules ws-uuid])
         *warn-limit?             (subscribe [:wizard/warn-limit? ws-uuid])
@@ -212,51 +212,53 @@
       [c/tab {:variant   "outline-primary"
               :selected? true
               :label     @(<t (bp "working_area"))}]]
-     [:div.wizard-page
-      [:div.wizard-header
-       [:div.wizard-header__banner {:style {:margin-top "20px"}}
-        [:div.wizard-header__banner__icon
-         [c/icon :modules]]
-        [:div.wizard-header__banner__title "Review Modules"]
-        (show-or-close-notes-button @*show-notes?)]
-       [:div.wizard-review
-        [run-description ws-uuid]
-        (when @*show-notes?
-          (wizard-notes @*notes))
-        (for [module-kw @*modules
-              :let      [module-name (name module-kw)
-                         module @(subscribe [:wizard/*module module-name])]]
-          [:div
-           [:div.wizard-review__module
-            (gstring/format "%s Inputs"  @(<t (:module/translation-key module)))]
-           [:div.wizard-review__submodule
-            (for [submodule @(subscribe [:wizard/submodules-io-input-only (:db/id module)])]
-              [:<>
-               [:div.wizard-review__submodule-header (:submodule/name submodule)]
-               (for [group (:submodule/groups submodule)
-                     :when (seq (:group/group-variables group))
-                     :let  [variables  (:group/group-variables group)
-                            edit-route (path-for routes
-                                                 :ws/wizard
-                                                 :ws-uuid   ws-uuid
-                                                 :module    module-name
-                                                 :io        :input
-                                                 :submodule (:slug submodule))]]
-                 ^{:key (:db/id group)}
-                 [review/input-group ws-uuid group variables edit-route])])]])]
-       (when (true? @*warn-limit?)
-         [:div.wizard-warning
-          (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])
-       [:div.wizard-navigation
-        [c/button {:label    "Back"
-                   :variant  "secondary"
-                   :on-click #(dispatch [:wizard/prev-tab params])}]
-        [c/button {:label         "Run"
-                   :disabled?     @*warn-limit?
-                   :variant       "highlight"
-                   :icon-name     "arrow2"
-                   :icon-position "right"
-                   :on-click      #(dispatch [:wizard/solve params])}]]]]]))
+
+     [:div.wizard
+      [:div.wizard-page
+       [:div.wizard-header
+        [:div.wizard-header__banner {:style {:margin-top "20px"}}
+         [:div.wizard-header__banner__icon
+          [c/icon :modules]]
+         [:div.wizard-header__banner__title "Review Modules"]
+         (show-or-close-notes-button @*show-notes?)]
+        [:div.wizard-review
+         [run-description ws-uuid]
+         (when @*show-notes?
+           (wizard-notes @*notes))
+         (for [module-kw @*modules
+               :let      [module-name (name module-kw)
+                          module @(subscribe [:wizard/*module module-name])]]
+           [:div
+            [:div.wizard-review__module
+             (gstring/format "%s Inputs"  @(<t (:module/translation-key module)))]
+            [:div.wizard-review__submodule
+             (for [submodule @(subscribe [:wizard/submodules-io-input-only (:db/id module)])]
+               [:<>
+                [:div.wizard-review__submodule-header (:submodule/name submodule)]
+                (for [group (:submodule/groups submodule)
+                      :when (seq (:group/group-variables group))
+                      :let  [variables  (:group/group-variables group)
+                             edit-route (path-for routes
+                                                  :ws/wizard
+                                                  :ws-uuid   ws-uuid
+                                                  :module    module-name
+                                                  :io        :input
+                                                  :submodule (:slug submodule))]]
+                  ^{:key (:db/id group)}
+                  [review/input-group ws-uuid group variables edit-route])])]])]
+        (when (true? @*warn-limit?)
+          [:div.wizard-warning
+           (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])
+        [:div.wizard-navigation
+         [c/button {:label    "Back"
+                    :variant  "secondary"
+                    :on-click #(dispatch [:wizard/prev-tab params])}]
+         [c/button {:label         "Run"
+                    :disabled?     @*warn-limit?
+                    :variant       "highlight"
+                    :icon-name     "arrow2"
+                    :icon-position "right"
+                    :on-click      #(dispatch [:wizard/solve params])}]]]]]]))
 
 ;; Wizard Results Settings
 
@@ -298,7 +300,7 @@
                  :columns column-keys
                  :rows    row-data})])))
 
-(defn wizard-results-settings-page [{:keys [id route-handler io ws-uuid] :as params}]
+(defn wizard-results-settings-page [{:keys [route-handler io ws-uuid] :as params}]
   (let [_                        (dispatch [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
         *multi-value-input-uuids (subscribe [:worksheet/multi-value-input-uuids ws-uuid])
         group-variables          (map #(deref (subscribe [:wizard/group-variable %])) @*multi-value-input-uuids)
@@ -325,47 +327,48 @@
         [c/tab {:variant   "outline-primary"
                 :selected? true
                 :label     @(<t "behaveplus:working_area")}]]
-       [:div.wizard-page
-        [:div.wizard-header
-         [:div.wizard-header__banner {:style {:margin-top "20px"}}
-          [:div.wizard-header__banner__icon
-           [c/icon :modules]]
-          [:div.wizard-header__banner__title
-           "Results Selection"]
-          (show-or-close-notes-button @*show-notes?)]]
-        (when @*show-notes?
-          (wizard-notes @*notes))
-        [:div.wizard-results__table-settings
-         [:div.wizard-results__table-settings__header "Table Settings"]
-         [:div.wizard-results__table-settings__content
-          (let [enabled? (first @(subscribe [:worksheet/get-table-settings-attr
-                                             ws-uuid
-                                             :table-settings/enabled?]))]
-            [c/checkbox {:label     "Display Table Results"
-                         :checked?  (true? enabled?)
-                         :on-change #(dispatch [:worksheet/toggle-table-settings ws-uuid])}])]]
-        [:div.wizard-results__graph-settings
-         [:div.wizard-results__graph-settings__header "Graph Settings"]
-         [:div.wizard-results__graph-settings__content
-          (let [enabled? (first @(subscribe [:worksheet/get-graph-settings-attr
-                                             ws-uuid
-                                             :graph-settings/enabled?]))]
-            [:<>
-             [c/checkbox {:label     "Display Graph Results"
+       [:div.wizard
+        [:div.wizard-page
+         [:div.wizard-header
+          [:div.wizard-header__banner {:style {:margin-top "20px"}}
+           [:div.wizard-header__banner__icon
+            [c/icon :modules]]
+           [:div.wizard-header__banner__title
+            "Results Selection"]
+           (show-or-close-notes-button @*show-notes?)]]
+         (when @*show-notes?
+           (wizard-notes @*notes))
+         [:div.wizard-results__table-settings
+          [:div.wizard-results__table-settings__header "Table Settings"]
+          [:div.wizard-results__table-settings__content
+           (let [enabled? (first @(subscribe [:worksheet/get-table-settings-attr
+                                              ws-uuid
+                                              :table-settings/enabled?]))]
+             [c/checkbox {:label     "Display Table Results"
                           :checked?  (true? enabled?)
-                          :on-change #(dispatch [:worksheet/toggle-graph-settings ws-uuid])}]
-             (when (true? enabled?)
-               [:<>
-                [radio-group {:label     "Select X axis variable:"
-                              :attr      :graph-settings/x-axis-group-variable-uuid
-                              :variables group-variables}]
-                [radio-group {:label     "Select Z axis variable:"
-                              :attr      :graph-settings/z-axis-group-variable-uuid
-                              :variables group-variables}]
-                [radio-group {:label     "Select Z2 axis variable:"
-                              :attr      :graph-settings/z2-axis-group-variable-uuid
-                              :variables group-variables}]
-                [y-axis-limit-table ws-uuid]])])]]]
+                          :on-change #(dispatch [:worksheet/toggle-table-settings ws-uuid])}])]]
+         [:div.wizard-results__graph-settings
+          [:div.wizard-results__graph-settings__header "Graph Settings"]
+          [:div.wizard-results__graph-settings__content
+           (let [enabled? (first @(subscribe [:worksheet/get-graph-settings-attr
+                                              ws-uuid
+                                              :graph-settings/enabled?]))]
+             [:<>
+              [c/checkbox {:label     "Display Graph Results"
+                           :checked?  (true? enabled?)
+                           :on-change #(dispatch [:worksheet/toggle-graph-settings ws-uuid])}]
+              (when (true? enabled?)
+                [:<>
+                 [radio-group {:label     "Select X axis variable:"
+                               :attr      :graph-settings/x-axis-group-variable-uuid
+                               :variables group-variables}]
+                 [radio-group {:label     "Select Z axis variable:"
+                               :attr      :graph-settings/z-axis-group-variable-uuid
+                               :variables group-variables}]
+                 [radio-group {:label     "Select Z2 axis variable:"
+                               :attr      :graph-settings/z2-axis-group-variable-uuid
+                               :variables group-variables}]
+                 [y-axis-limit-table ws-uuid]])])]]]]
        [wizard-navigation {:next-label @(<t (bp "next"))
                            :on-next    on-next
                            :back-label @(<t (bp "back"))
@@ -428,60 +431,61 @@
       [c/tab {:variant   "outline-primary"
               :selected? true
               :label     @(<t "behaveplus:working_area")}]]
-     [:div.wizard-page
-      [:div.wizard-header
-       [:div.wizard-header__banner {:style {:margin-top "20px"}}
-        [:div.wizard-header__banner__icon
-         [c/icon :modules]]
-        "Results"]
-       [:div.wizard-header__results-toolbar
-        [:div.wizard-header__results-toolbar__file-name
-         [:div.wizard-header__results-toolbar__file-name__label (str @(<t (bp "file_name")) ":")]
-         [:div.wizard-header__results-toolbar__file-name__value (:worksheet/name @*worksheet)]]
-        [:div.wizard-header__results-toolbar__date
-         [:div.wizard-header__results-toolbar__date__label (str @(<t (bp "run_date")) ":")]
-         [:div.wizard-header__results-toolbar__date__value @*ws-date]]]
-       [:div.wizard-header__results-tabs
-        [c/tab-group {:variant  "outline-highlight"
-                      :on-click #(dispatch [:wizard/results-select-tab %])
-                      :tabs     [{:label     "Notes"
-                                  :tab       :notes
-                                  :icon-name :notes
-                                  :selected? (= @*tab-selected :notes)}
-                                 {:label     "Table"
-                                  :tab       :table
-                                  :icon-name :tables
-                                  :selected? (= @*tab-selected :table)}
-                                 {:label     "Graph"
-                                  :tab       :graph
-                                  :icon-name :graphs
-                                  :selected? (= @*tab-selected :graph)}]}]]]
-      [:div.wizard-page__body
-       [:div.wizard-results__notes {:id "notes"}
-        (wizard-notes @*notes)]
-       (when (and table-enabled? (seq @*cell-data))
-         [:div.wizard-results__table {:id "table"}
-          [:div.wizard-notes__header "Table"]
-          (c/table {:title   "Results Table"
-                    :headers (mapv (fn resolve-uuid [[_order uuid _repeat-id units]]
-                                     (gstring/format "%s (%s)"
-                                                     (:variable/name @(subscribe [:wizard/group-variable uuid]))
-                                                     units))
-                                   @*headers)
-                    :columns (mapv (fn [[_order uuid repeat-id _units]]
-                                     (keyword (str uuid "-" repeat-id))) @*headers)
-                    :rows    (->> (group-by first @*cell-data)
-                                  (sort-by key)
-                                  (map (fn [[_ data]]
-                                         (reduce (fn [acc [_row-id uuid repeat-id value]]
-                                                   (assoc acc (keyword (str uuid "-" repeat-id)) value))
-                                                 {}
-                                                 data))))})])
-       (wizard-graph ws-uuid @*cell-data)]]
-     [:div.wizard-navigation
-      [c/button {:label    "Back"
-                 :variant  "secondary"
-                 :on-click #(dispatch [:wizard/prev-tab params])}]]]))
+     [:div.wizard
+      [:div.wizard-page
+       [:div.wizard-header
+        [:div.wizard-header__banner {:style {:margin-top "20px"}}
+         [:div.wizard-header__banner__icon
+          [c/icon :modules]]
+         "Results"]
+        [:div.wizard-header__results-toolbar
+         [:div.wizard-header__results-toolbar__file-name
+          [:div.wizard-header__results-toolbar__file-name__label (str @(<t (bp "file_name")) ":")]
+          [:div.wizard-header__results-toolbar__file-name__value (:worksheet/name @*worksheet)]]
+         [:div.wizard-header__results-toolbar__date
+          [:div.wizard-header__results-toolbar__date__label (str @(<t (bp "run_date")) ":")]
+          [:div.wizard-header__results-toolbar__date__value @*ws-date]]]
+        [:div.wizard-header__results-tabs
+         [c/tab-group {:variant  "outline-highlight"
+                       :on-click #(dispatch [:wizard/results-select-tab %])
+                       :tabs     [{:label     "Notes"
+                                   :tab       :notes
+                                   :icon-name :notes
+                                   :selected? (= @*tab-selected :notes)}
+                                  {:label     "Table"
+                                   :tab       :table
+                                   :icon-name :tables
+                                   :selected? (= @*tab-selected :table)}
+                                  {:label     "Graph"
+                                   :tab       :graph
+                                   :icon-name :graphs
+                                   :selected? (= @*tab-selected :graph)}]}]]]
+       [:div.wizard-page__body
+        [:div.wizard-results__notes {:id "notes"}
+         (wizard-notes @*notes)]
+        (when (and table-enabled? (seq @*cell-data))
+          [:div.wizard-results__table {:id "table"}
+           [:div.wizard-notes__header "Table"]
+           (c/table {:title   "Results Table"
+                     :headers (mapv (fn resolve-uuid [[_order uuid _repeat-id units]]
+                                      (gstring/format "%s (%s)"
+                                                      (:variable/name @(subscribe [:wizard/group-variable uuid]))
+                                                      units))
+                                    @*headers)
+                     :columns (mapv (fn [[_order uuid repeat-id _units]]
+                                      (keyword (str uuid "-" repeat-id))) @*headers)
+                     :rows    (->> (group-by first @*cell-data)
+                                   (sort-by key)
+                                   (map (fn [[_ data]]
+                                          (reduce (fn [acc [_row-id uuid repeat-id value]]
+                                                    (assoc acc (keyword (str uuid "-" repeat-id)) value))
+                                                  {}
+                                                  data))))})])
+        (wizard-graph ws-uuid @*cell-data)]]
+      [:div.wizard-navigation
+       [c/button {:label    "Back"
+                  :variant  "secondary"
+                  :on-click #(dispatch [:wizard/prev-tab params])}]]]]))
 
 ;; TODO Might want to set this in a config file to the application
 (def ^:const multi-value-input-limit 3)
