@@ -383,7 +383,7 @@
                                (group-by first)
                                (reduce (fn [acc [_row-id cell-data]]
                                          (conj acc
-                                               (reduce (fn [acc [_row-id col-uuid value]]
+                                               (reduce (fn [acc [_row-id col-uuid _repeat-id value]]
                                                          (assoc acc
                                                                 (-> (subscribe [:wizard/group-variable col-uuid])
                                                                     deref
