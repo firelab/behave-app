@@ -6,8 +6,7 @@
             [behave.lib.enums    :as enum]
             [behave.lib.units    :as units]
             [behave.store        :as store]
-            [behave.vms.store    :refer [vms-conn]]
-            [map-utils.interface :refer [index-by]]))
+            [behave.vms.store    :refer [vms-conn]]))
 
 ;;; Logging
 
