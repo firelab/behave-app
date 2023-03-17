@@ -417,8 +417,9 @@
   (assoc results :mortality []))
 
 (defn solve-worksheet [ws-uuid]
-  (let [modules (set @(rf/subscribe [:worksheet/modules ws-uuid]))
-        results {}]
+  (let [*worksheet (rf/subscribe [:worksheet ws-uuid])
+        modules    (set (:worksheet/modules @*worksheet))
+        results    {}]
 
     (log modules)
     (cond->> results

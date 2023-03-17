@@ -2,8 +2,7 @@
   (:require [clojure.string         :as str]
             [clojure.set            :refer [rename-keys]]
             [re-frame.core          :refer [reg-sub subscribe]]
-            [string-utils.interface :refer [->kebab]]
-            [re-frame.core :as rf]))
+            [string-utils.interface :refer [->kebab]]))
 
 ;;; Helpers
 
@@ -141,15 +140,19 @@
  :wizard/notes
 
  (fn [[_id ws-uuid]]
-   (subscribe [:worksheet/notes ws-uuid]))
+   (subscribe [:worksheet ws-uuid]))
 
- (fn [notes [_ _ws-uuid submodule-uuid]]
-   (cond->> notes
-     submodule-uuid (filter (fn [[_id _name _content s-uuid]]
-                              (= s-uuid submodule-uuid)))
-     :always        (map (fn resolve-uuid [[id name content s-uuid]]
-                           (into   [id name content]
-                                   @(subscribe [:wizard/submodule-name+io s-uuid])))))))
+ (fn [worksheet [_ _ws-uuid submodule-uuid]]
+   (let [notes (:worksheet/notes worksheet)]
+     (cond->> notes
+       submodule-uuid (filter (fn [{s-uuid :note/submodule}]
+                                (= s-uuid submodule-uuid)))
+       :always        (map (fn resolve-uuid [{id      :db/id
+                                              name    :note/name
+                                              content :note/content
+                                              s-uuid  :note/submodule}]
+                             (into   [id name content]
+                                     @(subscribe [:wizard/submodule-name+io s-uuid]))))))))
 
 (reg-sub
  :wizard/edit-note?
@@ -182,8 +185,9 @@
    (subscribe [:worksheet ws-uuid]))
 
  (fn [worksheet _]
-   (let [d (js/Date.)]
-     (.setTime d (:worksheet/created worksheet))
+   (let [created-date (:worksheet/created worksheet)
+         d            (js/Date.)]
+     (.setTime d created-date)
      (.toLocaleDateString d))))
 
 (reg-sub

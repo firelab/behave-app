@@ -7,7 +7,8 @@
    [day8.re-frame.test :as rf-test]
    [datascript.core :as d]
    [behave.worksheet.events]
-   [behave.worksheet.subs]))
+   [behave.worksheet.subs]
+   [austinbirch.reactive-entity :as re]))
 
 ;; =================================================================================================
 ;; Fixtures
@@ -88,7 +89,7 @@
                 deref
                 :worksheet/input-groups
                 first
-                utils/entity->cljs)
+                utils/re-entity->cljs)
            {:input-group/group-uuid input-group-uuid
             :input-group/repeat-id  repeat-id
             :input-group/inputs     [{:input/group-variable-uuid group-variable-uuid
@@ -170,8 +171,10 @@
       (let [outputs (->> *worksheet
                          deref
                          :worksheet/outputs
-                         first)]
-        (is (= (into {} outputs)
+                         first
+                         utils/re-entity->cljs)]
+
+        (is (= outputs
                {:output/group-variable-uuid output-uuid
                 :output/enabled?            enabled?})
             "first output should be what we've passed in the event vector")))))

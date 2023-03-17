@@ -114,14 +114,7 @@
 
   (rf/subscribe [:help/content "behaveplus:contain:help"])
   (rf/subscribe [:help/content "behaveplus:contain:input:fire:help"])
-  (rf/subscribe [:help/content "behaveplus:contain:input:fire:help"])
-
-  (let [*ws-uuid (rf/subscribe [:worksheet/latest])]
-    (rf/subscribe [:worksheet/get-attr @*ws-uuid :worksheet/run-description]))
-
-  (let [*ws-uuid (rf/subscribe [:worksheet/latest])]
-    (rf/dispatch [:worksheet/update-attr @*ws-uuid :worksheet/run-description "blah"]))
-  )
+  (rf/subscribe [:help/content "behaveplus:contain:input:fire:help"]))
 
 (comment
   ;; Use this to test the sub :worksheet/notes with stubbed data
