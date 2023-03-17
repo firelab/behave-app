@@ -6,7 +6,8 @@
    [ds-schema-utils.interface :refer [->ds-schema]]
    [re-frame.core :as rf]
    [re-posh.core :as rp]
-   [re-posh.db :as rpdb]))
+   [re-posh.db :as rpdb]
+   [austinbirch.reactive-entity :as re]))
 
 ;;; Re-Frame Event Logging
 
@@ -26,6 +27,7 @@
 (defn setup-empty-db [& [f]]
   (let [conn (d/create-conn (->ds-schema all-schemas))]
     (reset! bs/conn conn)
+    (re/init! conn)
     (rp/connect! conn))
   (when (fn? f) (f))) ; necessary for allowing composition of fixtures
 

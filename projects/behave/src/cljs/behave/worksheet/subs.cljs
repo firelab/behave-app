@@ -5,8 +5,7 @@
             [datascript.core :as d]
             [re-posh.core    :as rp]
             [re-frame.core   :as rf]
-            [behave.store    :as s]
-            [datascript.core :as d]))
+            [austinbirch.reactive-entity :as re]))
 
 ;; Retrieve all worksheet UUID's
 (rp/reg-sub
@@ -29,42 +28,24 @@
 (rf/reg-sub
  :worksheet
  (fn [_ [_ ws-uuid]]
-   (d/entity @@s/conn [:worksheet/uuid ws-uuid])))
-
-;; Retrieve latest worksheet UUID
-(rp/reg-sub
- :worksheet/modules
- (fn [_ [_ ws-uuid]]
-   {:type      :query
-    :query     '[:find  [?modules ...]
-                 :in    $ ?ws-uuid
-                 :where [?w :worksheet/uuid ?ws-uuid]
-                 [?w :worksheet/modules ?modules]]
-    :variables [ws-uuid]}))
+   (when-let [eid (d/entid @@s/conn [:worksheet/uuid ws-uuid])]
+     (let [worksheet (re/entity eid)]
+       (when (re/exists? worksheet)
+         worksheet)))))
 
 ;; Get state of a particular output
-(rp/reg-sub
-  :worksheet/get-attr
-  (fn [_ [_ ws-uuid attr]]
-    {:type      :query
-     :query     '[:find [?value ...]
-                  :in    $ ?ws-uuid ?attr
-                  :where [?w :worksheet/uuid ?ws-uuid]
-                         [?w ?attr ?value]]
-     :variables [ws-uuid attr]}))
-
-;; Get state of a particular output
-(rp/reg-sub
+(rf/reg-sub
  :worksheet/output-enabled?
- (fn [_ [_ ws-uuid variable-uuid]]
-   {:type      :query
-    :query     '[:find  ?enabled .
-                 :in    $ ?ws-uuid ?var-uuid
-                 :where [?w :worksheet/uuid ?ws-uuid]
-                        [?w :worksheet/outputs ?o]
-                        [?o :output/group-variable-uuid ?var-uuid]
-                        [?o :output/enabled? ?enabled]]
-    :variables [ws-uuid variable-uuid]}))
+ (fn [[_ ws-uuid _variable-uuid]]
+   (rf/subscribe [:worksheet ws-uuid]))
+
+ (fn [worksheet [_ _ws-uuid variable-uuid]]
+   (->> worksheet
+        (:worksheet/outputs)
+        (filter (fn matching-uuid [output]
+                  (= (:output/group-variable-uuid output) variable-uuid)))
+        (first)
+        (:output/enabled?))))
 
 ;; Get the value of a particular input
 (rp/reg-sub
@@ -277,20 +258,6 @@
     :variables [ws-uuid]}))
 
 (rp/reg-sub
- :worksheet/notes
- (fn [_ [_ ws-uuid]]
-   {:type      :query
-    :query     '[:find ?n ?name ?content ?s-uuid
-                 :in   $ ?ws-uuid
-                 :where
-                 [?w :worksheet/uuid ?ws-uuid]
-                 [?w :worksheet/notes ?n]
-                 [?n :note/submodule ?s-uuid]
-                 [?n :note/name ?name]
-                 [?n :note/content ?content]]
-    :variables [ws-uuid]}))
-
-(rp/reg-sub
  :worksheet/result-table-cell-data
  (fn [_ [_ ws-uuid]]
    {:type  :query
@@ -386,14 +353,3 @@
            group-variables (set (flatten (map #(map :bp/uuid (:group/group-variables %)) groups)))]
        (boolean (seq (set/intersection (set all-output-uuids) group-variables))))
      false)))
-
-(rp/reg-sub
- :worksheet/furthest-visited-step
- (fn [_ [_ ws-uuid]]
-   {:type      :query
-    :query     '[:find  ?furthest-visited-step .
-                 :in    $ ?ws-uuid
-                 :where
-                 [?w :worksheet/uuid ?ws-uuid]
-                 [?w :worksheet/furthest-visited-step ?furthest-visited-step]]
-    :variables [ws-uuid]}))

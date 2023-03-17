@@ -105,8 +105,10 @@
                                   {:label            @(<t (bp "run_results"))
                                    :completed?       false
                                    :route-handler+io [:ws/results nil]}]
-        furthest-visited-step-id (->> (rf/subscribe [:worksheet/furthest-visited-step ws-uuid])
+        *worksheet               (rf/subscribe [:worksheet ws-uuid])
+        furthest-visited-step-id (->> *worksheet
                                       (deref)
+                                      (:worksheet/furthest-visited-step)
                                       (get step-kw->number))
         progress                 furthest-visited-step-id]
     [c/progress {:on-select              #(rf/dispatch [:wizard/progress-bar-navigate ws-uuid (:route-handler+io %)])
