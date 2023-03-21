@@ -105,15 +105,18 @@
                                (:db/id))]
      (cond-> {:transact [{:db/id output-id :output/enabled? enabled?}]}
        (true? enabled?)
-       (update :fx #(conj (vec %) [:dispatch [:worksheet/add-table-filter ws-uuid group-variable-uuid]]))
+       (update :fx #(into (vec %) [[:dispatch [:worksheet/add-table-filter ws-uuid group-variable-uuid]]
+                                   [:dispatch [:worksheet/add-y-axis-limit ws-uuid group-variable-uuid]]]))
 
        (false? enabled?)
-       (update :fx #(conj (vec %) [:dispatch [:worksheet/remove-table-filter ws-uuid group-variable-uuid]])))
+       (update :fx #(into (vec %) [[:dispatch [:worksheet/remove-table-filter ws-uuid group-variable-uuid]]
+                                   [:dispatch [:worksheet/remove-y-axis-limit ws-uuid group-variable-uuid]]])))
      ;;else
      {:transact [{:worksheet/_outputs         [:worksheet/uuid ws-uuid]
                   :output/group-variable-uuid group-variable-uuid
                   :output/enabled?            enabled?}]
-      :fx       [[:dispatch [:worksheet/add-table-filter ws-uuid group-variable-uuid]]]})))
+      :fx       [[:dispatch [:worksheet/add-table-filter ws-uuid group-variable-uuid]]
+                 [:dispatch [:worksheet/add-y-axis-limit ws-uuid group-variable-uuid]]]})))
 
 (rp/reg-event-fx
  :worksheet/add-result-table
@@ -198,53 +201,54 @@
                   :table-settings/enabled? (not enabled?)}]})))
 
 (rp/reg-event-fx
+ :worksheet/add-y-axis-limit
+ [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet ws-uuid]))]
+ (fn [{:keys [worksheet]} [_ ws-uuid gv-uuid]]
+   (let [limit {:y-axis-limit/group-variable-uuid gv-uuid
+                :y-axis-limit/min                 -999999999
+                :y-axis-limit/max                 999999999}]
+     (if-let [id (get-in worksheet [:worksheet/graph-settings :db/id])]
+       {:transact [{:db/id                  id
+                    :graph-settings/y-axis-limits [limit]}]}
+       {:transact [{:worksheet/_graph-settings    [:worksheet/uuid ws-uuid]
+                    :graph-settings/y-axis-limits [limit]}]}))))
+
+(rp/reg-event-fx
+ :worksheet/remove-y-axis-limit
+ [(rp/inject-cofx :ds)]
+ (fn [{:keys [ds]} [_ ws-uuid gv-uuid]]
+   (when-let [eid (d/q '[:find  ?y .
+                         :in    $ ?uuid ?gv-uuid
+                         :where
+                         [?w :worksheet/uuid ?uuid]
+                         [?w :worksheet/graph-settings ?g]
+                         [?g :graph-settings/y-axis-limits ?y]
+                         [?y :y-axis-limit/group-variable-uuid ?gv-uuid]]
+                       ds ws-uuid gv-uuid)]
+     {:transact [[:db.fn/retractEntity eid]]})))
+
+(rp/reg-event-fx
  :worksheet/toggle-graph-settings
- [(rp/inject-cofx :ds)
-  (rf/inject-cofx ::inject/sub
-                  (fn [[_ ws-uuid]]
-                    [:worksheet/all-output-uuids ws-uuid]))
-  (rf/inject-cofx ::inject/sub
-                  (fn [[_ ws-uuid]]
-                    [:worksheet/multi-value-input-uuids ws-uuid]))]
- (fn [{ds                      :ds
-       output-uuids            :worksheet/all-output-uuids
-       multi-value-input-uuids :worksheet/multi-value-input-uuids} [_ ws-uuid]]
-   (when-let [ws (d/q '[:find  [?ws]
-                        :in    $ ?uuid
-                        :where [?ws :worksheet/uuid ?uuid]] ds ws-uuid)]
-     (if-let [[id enabled?] (d/q '[:find [?t ?enabled]
-                                   :in    $ ?uuid
-                                   :where
-                                   [?w :worksheet/uuid ?uuid]
-                                   [?w :worksheet/graph-settings ?t]
-                                   [?t :graph-settings/enabled? ?enabled]]
-                                  ds
-                                  ws-uuid)]
-       {:transact [{:db/id                   id
-                    :graph-settings/enabled? (not enabled?)}]}
-       {:transact [(cond-> {:worksheet/_graph-settings ws
-                            :db/id                     -1
-                            :graph-settings/enabled?   true}
+ [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet/multi-value-input-uuids ws-uuid]))
+  (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet ws-uuid]))]
+ (fn [{worksheet               :worksheet
+       multi-value-input-uuids :worksheet/multi-value-input-uuids} _]
+   (let [graph-setting-id (get-in worksheet [:worksheet/graph-settings :db/id])
+         enabled?         (get-in worksheet [:worksheet/graph-settings :graph-settings/enabled?])]
+     {:transact [(cond-> {:db/id                   graph-setting-id
+                          :graph-settings/enabled? (not enabled?)}
 
-                     ;; sets default x-axis selection if available
-                     (first multi-value-input-uuids)
-                     (assoc :graph-settings/x-axis-group-variable-uuid (first multi-value-input-uuids))
+                   ;; sets default x-axis selection if available
+                   (first multi-value-input-uuids)
+                   (assoc :graph-settings/x-axis-group-variable-uuid (first multi-value-input-uuids))
 
-                     ;; sets default z-axis selection if available
-                     (second multi-value-input-uuids)
-                     (assoc :graph-settings/z-axis-group-variable-uuid (second multi-value-input-uuids))
+                   ;; sets default z-axis selection if available
+                   (second multi-value-input-uuids)
+                   (assoc :graph-settings/z-axis-group-variable-uuid (second multi-value-input-uuids))
 
-                     ;; sets default z2-axis selection if available
-                     (nth multi-value-input-uuids 2 nil)
-                     (assoc :graph-settings/z2-axis-group-variable-uuid (nth multi-value-input-uuids 2))
-
-                     (seq output-uuids)
-                     (assoc :graph-settings/y-axis-limits
-                            (mapv (fn [output-uuid]
-                                    {:y-axis-limit/group-variable-uuid output-uuid
-                                     :y-axis-limit/min                 0     ;TODO compute from results
-                                     :y-axis-limit/max                 100}) ;TODO compute from results
-                                  output-uuids)))]}))))
+                   ;; sets default z2-axis selection if available
+                   (nth multi-value-input-uuids 2 nil)
+                   (assoc :graph-settings/z2-axis-group-variable-uuid (nth multi-value-input-uuids 2)))]})))
 
 (rp/reg-event-fx
  :worksheet/update-y-axis-limit-attr
