@@ -276,12 +276,10 @@
                                    ds
                                    ws-uuid
                                    group-var-uuid)]
-     ;; {:transact [(assoc {:db/id table-filter-id} attr value)]}
-     (let [v (if (js/isNaN value)
-               (if (= attr :table-filter/min)
-                 -99999
-                 999999)
-               value)]
+     (let [v (cond
+               (and (js/isNaN value) (= attr :table-filter/min)) -999999999
+               (and (js/isNaN value) (= attr :table-filter/max)) 999999999
+               :else                                             value)]
        {:transact [(assoc {:db/id table-filter-id} attr v)]}))))
 
 (rp/reg-event-fx
