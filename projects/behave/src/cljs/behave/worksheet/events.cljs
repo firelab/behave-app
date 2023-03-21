@@ -298,7 +298,7 @@
        {:transact [{:worksheet/_table-settings [:worksheet/uuid ws-uuid]
                     :table-settings/filters    [{:table-filter/group-variable-uuid gv-uuid
                                                  :table-filter/min                 default-min
-                                                 :table-filter/max                 default-min}]}]}))))
+                                                 :table-filter/max                 default-max}]}]}))))
 
 (rp/reg-event-fx
  :remove-table-filter
