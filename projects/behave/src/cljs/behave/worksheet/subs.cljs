@@ -42,8 +42,8 @@
  (fn [worksheet [_ _ws-uuid variable-uuid]]
    (->> worksheet
         (:worksheet/outputs)
-        (filter (fn matching-uuid [uuid]
-                  (= (:output/group-variable-uuid uuid) variable-uuid)))
+        (filter (fn matching-uuid [output]
+                  (= (:output/group-variable-uuid output) variable-uuid)))
         (first)
         (:output/enabled?))))
 
