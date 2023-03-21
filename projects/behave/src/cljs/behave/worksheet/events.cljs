@@ -98,11 +98,11 @@
  :worksheet/upsert-output
  [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet ws-uuid]))]
  (fn [{:keys [worksheet]} [_ ws-uuid group-variable-uuid enabled?]]
-   (if-let [output-id (->> worksheet
-                           (:worksheet/outputs)
-                           (filter #(= (:output/group-variable-uuid %) group-variable-uuid))
-                           (first)
-                           (:db/id))]
+   (if-let [output-id (some->> worksheet
+                               (:worksheet/outputs)
+                               (filter #(= (:output/group-variable-uuid %) group-variable-uuid))
+                               (first)
+                               (:db/id))]
      (cond-> {:transact [{:db/id output-id :output/enabled? enabled?}]}
        (true? enabled?)
        (update :fx #(conj (vec %) [:dispatch [:worksheet/add-table-filter ws-uuid group-variable-uuid]]))
