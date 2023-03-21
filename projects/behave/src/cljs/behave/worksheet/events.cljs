@@ -205,8 +205,8 @@
  [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet ws-uuid]))]
  (fn [{:keys [worksheet]} [_ ws-uuid gv-uuid]]
    (let [limit {:y-axis-limit/group-variable-uuid gv-uuid
-                :y-axis-limit/min                 -999999999
-                :y-axis-limit/max                 999999999}]
+                :y-axis-limit/min                 0
+                :y-axis-limit/max                 100}]
      (if-let [id (get-in worksheet [:worksheet/graph-settings :db/id])]
        {:transact [{:db/id                  id
                     :graph-settings/y-axis-limits [limit]}]}
