@@ -552,11 +552,13 @@ body {
   margin-left: 30px;
 }
 
-.wizard-results__graph-settings__content .y-axis-limit-table {
+.wizard-results__table-settings__content .settings-form,
+.wizard-results__graph-settings__content .settings-form {
   padding: 20px 0px 20px 0px;
 }
 
-.wizard-results__graph-settings__content .y-axis-limit-table .table{
+.wizard-results__table-settings__content .settings-form,
+.wizard-results__graph-settings__content .settings-form .table{
   width: 100%;
 }
 
