@@ -105,15 +105,15 @@
                            (:db/id))]
      (cond-> {:transact [{:db/id output-id :output/enabled? enabled?}]}
        (true? enabled?)
-       (update :fx #(conj (vec %) [:dispatch [:add-table-filter ws-uuid group-variable-uuid]]))
+       (update :fx #(conj (vec %) [:dispatch [:worksheet/add-table-filter ws-uuid group-variable-uuid]]))
 
        (false? enabled?)
-       (update :fx #(conj (vec %) [:dispatch [:remove-table-filter ws-uuid group-variable-uuid]])))
+       (update :fx #(conj (vec %) [:dispatch [:worksheet/remove-table-filter ws-uuid group-variable-uuid]])))
      ;;else
      {:transact [{:worksheet/_outputs         [:worksheet/uuid ws-uuid]
                   :output/group-variable-uuid group-variable-uuid
                   :output/enabled?            enabled?}]
-      :fx       [[:dispatch [:add-table-filter ws-uuid group-variable-uuid]]]})))
+      :fx       [[:dispatch [:worksheet/add-table-filter ws-uuid group-variable-uuid]]]})))
 
 (rp/reg-event-fx
  :worksheet/add-result-table
@@ -283,7 +283,7 @@
        {:transact [(assoc {:db/id table-filter-id} attr v)]}))))
 
 (rp/reg-event-fx
- :add-table-filter
+ :worksheet/add-table-filter
  [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet ws-uuid]))]
  (fn [{:keys [worksheet]} [_ ws-uuid gv-uuid]]
    (let [default-min -999999999
@@ -299,7 +299,7 @@
                                                  :table-filter/max                 default-max}]}]}))))
 
 (rp/reg-event-fx
- :remove-table-filter
+ :worksheet/remove-table-filter
  [(rp/inject-cofx :ds)]
  (fn [{:keys [ds]} [_ ws-uuid gv-uuid]]
    (when-let [eid (d/q '[:find  ?f .
