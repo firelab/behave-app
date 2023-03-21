@@ -286,17 +286,14 @@
  :worksheet/add-table-filter
  [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet ws-uuid]))]
  (fn [{:keys [worksheet]} [_ ws-uuid gv-uuid]]
-   (let [default-min -999999999
-         default-max 999999999]
+   (let [filter {:table-filter/group-variable-uuid gv-uuid
+                 :table-filter/min                 -999999999
+                 :table-filter/max                 999999999}]
      (if-let [id (get-in worksheet [:worksheet/table-settings :db/id])]
        {:transact [{:db/id                  id
-                    :table-settings/filters [{:table-filter/group-variable-uuid gv-uuid
-                                              :table-filter/min                 default-min
-                                              :table-filter/max                 default-max}]}]}
+                    :table-settings/filters [filter]}]}
        {:transact [{:worksheet/_table-settings [:worksheet/uuid ws-uuid]
-                    :table-settings/filters    [{:table-filter/group-variable-uuid gv-uuid
-                                                 :table-filter/min                 default-min
-                                                 :table-filter/max                 default-max}]}]}))))
+                    :table-settings/filters    [filter]}]}))))
 
 (rp/reg-event-fx
  :worksheet/remove-table-filter
