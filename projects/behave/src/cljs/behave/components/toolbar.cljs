@@ -105,7 +105,7 @@
                                   {:label            @(<t (bp "run_results"))
                                    :completed?       false
                                    :route-handler+io [:ws/results nil]}]
-        *worksheet     (rf/subscribe [:worksheet ws-uuid])
+        *worksheet               (rf/subscribe [:worksheet ws-uuid])
         furthest-visited-step-id (->> *worksheet
                                       (deref)
                                       (:worksheet/furthest-visited-step)

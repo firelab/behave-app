@@ -144,15 +144,15 @@
 
  (fn [worksheet [_ _ws-uuid submodule-uuid]]
    (let [notes (:worksheet/notes worksheet)]
-    (cond->> notes
-      submodule-uuid (filter (fn [{s-uuid :note/submodule}]
-                               (= s-uuid submodule-uuid)))
-      :always        (map (fn resolve-uuid [{id      :db/id
-                                             name    :note/name
-                                             content :note/content
-                                             s-uuid  :note/submodule}]
-                            (into   [id name content]
-                                    @(subscribe [:wizard/submodule-name+io s-uuid]))))))))
+     (cond->> notes
+       submodule-uuid (filter (fn [{s-uuid :note/submodule}]
+                                (= s-uuid submodule-uuid)))
+       :always        (map (fn resolve-uuid [{id      :db/id
+                                              name    :note/name
+                                              content :note/content
+                                              s-uuid  :note/submodule}]
+                             (into   [id name content]
+                                     @(subscribe [:wizard/submodule-name+io s-uuid]))))))))
 
 (reg-sub
  :wizard/edit-note?
