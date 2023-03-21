@@ -195,7 +195,7 @@
    (let [table-setting-id (get-in worksheet [:worksheet/table-settings :db/id])
          enabled?         (get-in worksheet [:worksheet/table-settings :table-settings/enabled?])]
      {:transact [{:db/id                   table-setting-id
-                  :table-settings/enabled? (or (not enabled?) false)}]})))
+                  :table-settings/enabled? (not enabled?)}]})))
 
 (rp/reg-event-fx
  :worksheet/toggle-graph-settings
