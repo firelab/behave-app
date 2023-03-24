@@ -261,7 +261,7 @@
  :worksheet/table-settings-filters
  (fn [_ [_ ws-uuid]]
    {:type      :query
-    :query     '[:find ?group-var-uuid ?min ?max
+    :query     '[:find ?group-var-uuid ?min ?max ?enabled
                  :in   $ ?ws-uuid
                  :where
                  [?w :worksheet/uuid ?ws-uuid]
@@ -270,6 +270,7 @@
                  [?tf :table-filter/group-variable-uuid ?group-var-uuid]
                  [?tf :table-filter/min ?min]
                  [?tf :table-filter/max ?max]
+                 [?tf :table-filter/enabled? ?enabled]
                  [?w :worksheet/outputs ?o]
                  [?o :output/group-variable-uuid ?group-var-uuid]
                  [?o :output/enabled? true]]

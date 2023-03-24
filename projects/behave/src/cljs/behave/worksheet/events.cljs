@@ -288,7 +288,8 @@
  (fn [{:keys [worksheet]} [_ ws-uuid gv-uuid]]
    (let [filter {:table-filter/group-variable-uuid gv-uuid
                  :table-filter/min                 -999999999
-                 :table-filter/max                 999999999}]
+                 :table-filter/max                 999999999
+                 :table-filter/enabled?            false}]
      (if-let [id (get-in worksheet [:worksheet/table-settings :db/id])]
        {:transact [{:db/id                  id
                     :table-settings/filters [filter]}]}
@@ -308,6 +309,22 @@
                          [?f :table-filter/group-variable-uuid ?gv-uuid]]
                        ds ws-uuid gv-uuid)]
      {:transact [[:db.fn/retractEntity eid]]})))
+
+(rp/reg-event-fx
+ :worksheet/toggle-enable-filter
+ [(rp/inject-cofx :ds)]
+ (fn [{:keys [ds]} [_ ws-uuid gv-uuid]]
+   (when-let [eid (d/q '[:find  ?f .
+                         :in    $ ?uuid ?gv-uuid
+                         :where
+                         [?w :worksheet/uuid ?uuid]
+                         [?w :worksheet/table-settings ?t]
+                         [?t :table-settings/filters ?f]
+                         [?f :table-filter/group-variable-uuid ?gv-uuid]]
+                       ds ws-uuid gv-uuid)]
+     (let [enabled? (:table-filter/enabled? (d/entity ds eid))]
+       {:transact [{:db/id                 eid
+                    :table-filter/enabled? (not enabled?)}]}))))
 
 (rp/reg-event-fx
  :worksheet/update-graph-settings-attr
