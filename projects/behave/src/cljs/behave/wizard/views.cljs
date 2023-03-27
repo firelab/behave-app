@@ -306,7 +306,7 @@
                                           @*gv-uuid+min+max-entries)
             output-ranges            (map (fn [[gv-uuid & _rest]]
                                             (let [[min-val max-val] (get @*output-min+max-values gv-uuid)]
-                                              (gstring/format "%s - %s" min-val max-val)))
+                                              (gstring/format "%.2f - %.2f" min-val max-val))) ;TODO BHP1-257: Worksheet Settings for units and decimals
                                           @*gv-uuid+min+max-entries)
             minimums                 (number-inputs :min @*gv-uuid+min+max-entries)
             maximums                 (number-inputs :max @*gv-uuid+min+max-entries)
