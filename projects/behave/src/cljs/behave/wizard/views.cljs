@@ -294,6 +294,7 @@
                                         :value        value})))
                      gv-uuid+min+max-entries)))]
       (let [*gv-uuid+min+max-entries (subscribe [rf-sub-id ws-uuid])
+            *output-min+max-values   (subscribe [:worksheet/output-min+max-values ws-uuid])
             enabled-check-boxes      (when (= rf-event-id :worksheet/update-table-filter-attr)
                                        (map (fn [[uuid _min _max enabled?]]
                                               [c/checkbox {:checked?  enabled?
@@ -303,7 +304,10 @@
                                             (:variable/name
                                              @(subscribe [:wizard/group-variable uuid])))
                                           @*gv-uuid+min+max-entries)
-            output-ranges            (repeat (count @*gv-uuid+min+max-entries) "TODO compute from results")
+            output-ranges            (map (fn [[gv-uuid & _rest]]
+                                            (let [[min-val max-val] (get @*output-min+max-values gv-uuid)]
+                                              (gstring/format "%s - %s" min-val max-val)))
+                                          @*gv-uuid+min+max-entries)
             minimums                 (number-inputs :min @*gv-uuid+min+max-entries)
             maximums                 (number-inputs :max @*gv-uuid+min+max-entries)
             column-keys              (mapv (fn [idx]

@@ -37,7 +37,9 @@
   (rf/clear-subscription-cache!)
   (when (fn? f) (f)))
 
-;;; Worksheets
+;; =================================================================================================
+;; with-new-worksheet
+;; =================================================================================================
 
 (def test-ws-uuid "test-ws-uuid")
 
@@ -48,4 +50,84 @@
    [:worksheet/new {:uuid    test-ws-uuid
                     :name    test-ws-name
                     :modules [:contain :surface]}])
+  (when (fn? f) (f)))
+
+;; =================================================================================================
+;; with-dummy-results-table
+;; =================================================================================================
+
+(defn with-dummy-results-table [& [f]]
+  (d/transact @bs/conn
+              [{:db/id                  [:worksheet/uuid test-ws-uuid]
+                ;; Insert table 3 input columns, 1 output column, and 3 rows of data
+
+                :worksheet/outputs [{:output/group-variable-uuid "output1"
+                                     :output/enabled?            true}
+                                    {:output/group-variable-uuid "output2"
+                                     :output/enabled?            true}]
+
+                :worksheet/result-table {:result-table/headers [{:db/id                             -2
+                                                                 :result-header/order               0
+                                                                 :result-header/group-variable-uuid "Input1"
+                                                                 :result-header/units               "ch/h"
+                                                                 :result-header/repeat-id           0}
+                                                                {:db/id                             -3
+                                                                 :result-header/order               1
+                                                                 :result-header/group-variable-uuid "Input2"
+                                                                 :result-header/units               "ac"
+                                                                 :result-header/repeat-id           0}
+                                                                {:db/id                             -4
+                                                                 :result-header/order               1
+                                                                 :result-header/group-variable-uuid "Input3"
+                                                                 :result-header/units               "ratio"
+                                                                 :result-header/repeat-id           0}
+                                                                {:db/id                             -5
+                                                                 :result-header/order               2
+                                                                 :result-header/group-variable-uuid "output1"
+                                                                 :result-header/units               "ft"
+                                                                 :result-header/repeat-id           0}
+                                                                {:db/id                             -6
+                                                                 :result-header/order               3
+                                                                 :result-header/group-variable-uuid "output2"
+                                                                 :result-header/units               "ft"
+                                                                 :result-header/repeat-id           0}]
+                                         :result-table/rows [{:result-row/id    0
+                                                              :result-row/cells [;inputs
+                                                                                 {:result-cell/header -2
+                                                                                  :result-cell/value  10}
+                                                                                 {:result-cell/header -3
+                                                                                  :result-cell/value  10}
+                                                                                 {:result-cell/header -4
+                                                                                  :result-cell/value  10}
+                                                                                 ;;outputs
+                                                                                 {:result-cell/header -5
+                                                                                  :result-cell/value  10}
+                                                                                 {:result-cell/header -6
+                                                                                  :result-cell/value  100}]}
+                                                             {:result-row/id    1
+                                                              :result-row/cells [;inputs
+                                                                                 {:result-cell/header -2
+                                                                                  :result-cell/value  20}
+                                                                                 {:result-cell/header -3
+                                                                                  :result-cell/value  20}
+                                                                                 {:result-cell/header -4
+                                                                                  :result-cell/value  20}
+                                                                                 ;;outputs
+                                                                                 {:result-cell/header -5
+                                                                                  :result-cell/value  20}
+                                                                                 {:result-cell/header -6
+                                                                                  :result-cell/value  200}]}
+                                                             {:result-row/id    2
+                                                              :result-row/cells [;inputs
+                                                                                 {:result-cell/header -2
+                                                                                  :result-cell/value  30}
+                                                                                 {:result-cell/header -3
+                                                                                  :result-cell/value  30}
+                                                                                 {:result-cell/header -4
+                                                                                  :result-cell/value  30}
+                                                                                 ;;outputs
+                                                                                 {:result-cell/header -5
+                                                                                  :result-cell/value  30}
+                                                                                 {:result-cell/header -6
+                                                                                  :result-cell/value  300}]}]}}])
   (when (fn? f) (f)))

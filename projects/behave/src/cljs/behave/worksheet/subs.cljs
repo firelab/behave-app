@@ -303,6 +303,22 @@
              [?c :result-cell/value ?value]]
     :variables [ws-uuid]}))
 
+(rf/reg-sub
+ :worksheet/output-min+max-values
+ (fn [[_ ws-uuid]]
+   [(rf/subscribe [:worksheet/result-table-cell-data ws-uuid])
+    (rf/subscribe [:worksheet/all-output-uuids ws-uuid])])
+ (fn [[result-table-cell-data all-output-uuids] _]
+   (reduce
+    (fn [acc [_row-id gv-uuid _repeat-id value]]
+      (if (contains? (set all-output-uuids) gv-uuid )
+        (update acc gv-uuid (fn [[min-v max-v]]
+                              [(min (or min-v ##Inf) value)
+                               (max (or max-v ##-Inf) value)]))
+        acc))
+    {}
+    result-table-cell-data)))
+
 ;; returns headers of table in sorted order
 (rf/reg-sub
  :worksheet/result-table-headers-sorted
