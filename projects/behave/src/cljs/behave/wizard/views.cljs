@@ -275,7 +275,7 @@
 (defn settings-form [{:keys [ws-uuid title headers rf-event-id rf-sub-id min-attr-id max-attr-id]}]
   (let [on-change (debounce #'update-setting-input 1000)]
     (letfn [(number-inputs [min-or-max gv-uuid+min+max-entries]
-              (let [acceptable-char-codes    (set (map #(.charCodeAt % 0) "0123456789-"))]
+              (let [acceptable-char-codes (set (map #(.charCodeAt % 0) "0123456789-"))]
                 (map (fn [[gv-uuid saved-min saved-max enabled?]]
                        (let [value (if (= min-or-max :min) saved-min saved-max)]
                          (c/text-input {:disabled?    (if (= rf-event-id :worksheet/update-table-filter-attr)
