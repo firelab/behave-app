@@ -313,8 +313,14 @@
     (fn [acc [_row-id gv-uuid _repeat-id value]]
       (if (contains? (set all-output-uuids) gv-uuid )
         (update acc gv-uuid (fn [[min-v max-v]]
-                              [(min (or min-v ##Inf) value)
-                               (max (or max-v ##-Inf) value)]))
+                              (prn ":val" value)
+                              (prn ":min-v" min-v)
+                              (prn ":max-v" max-v)
+                              (let [min-flaot   (js/parseFloat min-v)
+                                    max-flaot   (js/parseFloat max-v)
+                                    value-float (js/parseFloat value)]
+                                [(min (or min-flaot ##Inf) value-float)
+                                 (max (or max-flaot ##-Inf) value-float)])))
         acc))
     {}
     result-table-cell-data)))
