@@ -274,9 +274,8 @@
 
 (defn settings-form [{:keys [ws-uuid title headers rf-event-id rf-sub-id min-attr-id max-attr-id]}]
   (let [on-change (debounce #'update-setting-input 1000)]
-    (letfn [(number-inputs [min-or-max ws-uuid rf-sub-id]
-              (let [*gv-uuid+min+max-entries (subscribe [rf-sub-id ws-uuid])
-                    acceptable-char-codes    (set (map #(.charCodeAt % 0) "0123456789-"))]
+    (letfn [(number-inputs [min-or-max gv-uuid+min+max-entries]
+              (let [acceptable-char-codes    (set (map #(.charCodeAt % 0) "0123456789-"))]
                 (map (fn [[gv-uuid saved-min saved-max enabled?]]
                        (let [value (if (= min-or-max :min) saved-min saved-max)]
                          (c/text-input {:disabled?    (if (= rf-event-id :worksheet/update-table-filter-attr)
@@ -293,7 +292,7 @@
                                                                   (input-int-value %))
                                         :placeholder  value
                                         :value        value})))
-                     @*gv-uuid+min+max-entries)))]
+                     gv-uuid+min+max-entries)))]
       (let [*gv-uuid+min+max-entries (subscribe [rf-sub-id ws-uuid])
             enabled-check-boxes      (when (= rf-event-id :worksheet/update-table-filter-attr)
                                        (map (fn [[uuid _min _max enabled?]]
@@ -305,8 +304,8 @@
                                              @(subscribe [:wizard/group-variable uuid])))
                                           @*gv-uuid+min+max-entries)
             output-ranges            (repeat (count @*gv-uuid+min+max-entries) "TODO compute from results")
-            minimums                 (number-inputs :min ws-uuid rf-sub-id)
-            maximums                 (number-inputs :max ws-uuid rf-sub-id)
+            minimums                 (number-inputs :min @*gv-uuid+min+max-entries)
+            maximums                 (number-inputs :max @*gv-uuid+min+max-entries)
             column-keys              (mapv (fn [idx]
                                              (keyword (str "col" idx)))
                                            (range (count headers)))
