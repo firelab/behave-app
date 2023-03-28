@@ -105,6 +105,7 @@
       [:div.workflow-select__content__name
 
        [c/text-input {:label     "Worksheet Name"
+                      :value     @name
                       :on-change #(rf/dispatch [:state/set [:worksheet :name] (input-value %)])}]]]
      [wizard-navigation {:next-label     @(<t (bp "next"))
                          :back-label     @(<t (bp "back"))

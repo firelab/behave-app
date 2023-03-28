@@ -267,6 +267,25 @@
      {:transact [(assoc {:db/id y} attr value)]})))
 
 (rp/reg-event-fx
+ :worksheet/update-all-y-axis-limits-from-results
+ [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet/output-min+max-values ws-uuid]))]
+ (fn [{output-min-max-values :worksheet/output-min+max-values} [_ ws-uuid]]
+   {:fx (reduce (fn [acc [gv-uuid [min-val max-val]]]
+                  (-> acc
+                      (conj [:dispatch [:worksheet/update-y-axis-limit-attr
+                                        ws-uuid
+                                        gv-uuid
+                                        :y-axis-limit/min
+                                        (long min-val)]])
+                      (conj [:dispatch [:worksheet/update-y-axis-limit-attr
+                                        ws-uuid
+                                        gv-uuid
+                                        :y-axis-limit/max
+                                        (long max-val)]])))
+                []
+                output-min-max-values)}))
+
+(rp/reg-event-fx
  :worksheet/update-table-filter-attr
  [(rp/inject-cofx :ds)]
  (fn [{:keys [ds]} [_ ws-uuid group-var-uuid attr value]]
@@ -299,6 +318,25 @@
                     :table-settings/filters [filter]}]}
        {:transact [{:worksheet/_table-settings [:worksheet/uuid ws-uuid]
                     :table-settings/filters    [filter]}]}))))
+
+(rp/reg-event-fx
+ :worksheet/update-all-table-filters-from-results
+ [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet/output-min+max-values ws-uuid]))]
+ (fn [{output-min-max-values :worksheet/output-min+max-values} [_ ws-uuid]]
+   {:fx (reduce (fn [acc [gv-uuid [min-val max-val]]]
+                  (-> acc
+                      (conj [:dispatch [:worksheet/update-table-filter-attr
+                                        ws-uuid
+                                        gv-uuid
+                                        :table-filter/min
+                                        (long min-val)]])
+                      (conj [:dispatch [:worksheet/update-table-filter-attr
+                                        ws-uuid
+                                        gv-uuid
+                                        :table-filter/max
+                                        (long max-val)]])))
+                []
+                output-min-max-values)}))
 
 (rp/reg-event-fx
  :worksheet/remove-table-filter

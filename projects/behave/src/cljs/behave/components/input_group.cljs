@@ -31,13 +31,14 @@
     [:div.wizard-input
      [:div.wizard-input__input
       {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
-      [c/text-input {:id          (str repeat-id "-" uuid)
-                     :label       (if repeat-group? var-name "Values:")
-                     :placeholder (when repeat-group? "Values")
-                     :value       (first @value)
-                     :required?   true
-                     :min         var-min
-                     :max         var-max
+      [c/text-input {:id            (str repeat-id "-" uuid)
+                     :label         (if repeat-group? var-name "Values:")
+                     :placeholder   (when repeat-group? "Values")
+                     ;;NOTE Using default-value instead of value so we can use debounced on-change fn.
+                     :default-value (first @value)
+                     :required?     true
+                     :min           var-min
+                     :max           var-max
 
                      :error?       warn-limit?
                      :on-key-press (fn [event]
@@ -91,12 +92,13 @@
         upsert-input (debounce #'upsert-input 1000)]
     [:div.wizard-input
      {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
-     [c/text-input {:id          (str repeat-id "-" uuid)
-                    :label       (if repeat-group? var-name "Values:")
-                    :placeholder (when repeat-group? "Value")
-                    :value       (first @value)
-                    :on-change   #(upsert-input ws-uuid group-uuid repeat-id uuid (input-value %))
-                    :required?   true}]]))
+     [c/text-input {:id            (str repeat-id "-" uuid)
+                    :label         (if repeat-group? var-name "Values:")
+                    :placeholder   (when repeat-group? "Value")
+                    ;;NOTE Using default-value instead of value so we can use debounced on-change fn.
+                    :default-value (first @value)
+                    :on-change     #(upsert-input ws-uuid group-uuid repeat-id uuid (input-value %))
+                    :required?     true}]]))
 
 (defn repeat-group [ws-uuid group variables]
   (let [{group-name :group/name
