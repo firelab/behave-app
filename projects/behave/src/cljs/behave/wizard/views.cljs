@@ -299,9 +299,10 @@
                                         (let [[min-val max-val] (get @*output-min+max-values gv-uuid)]
                                           (gstring/format "%.2f - %.2f" min-val max-val))) ;TODO BHP1-257: Worksheet Settings for units and decimals
                                       @*gv-uuid+min+max-entries)
-        names                    (map (fn uuid->name [[uuid _min _max]]
-                                        (:variable/name
-                                         @(subscribe [:wizard/group-variable uuid])))
+        names                    (map (fn get-variable-name [[uuid _min _max]]
+                                        (->> (subscribe [:wizard/group-variable uuid])
+                                             deref
+                                             :variable/name))
                                       @*gv-uuid+min+max-entries)
         enabled-check-boxes      (when (= rf-event-id :worksheet/update-table-filter-attr)
                                    (map (fn [[uuid _min _max enabled?]]
