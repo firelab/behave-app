@@ -296,7 +296,7 @@
                                         (let [[min-val max-val] (get @*output-min+max-values gv-uuid)]
                                           (gstring/format "%.2f - %.2f" min-val max-val))) ;TODO BHP1-257: Worksheet Settings for units and decimals
                                       @*gv-uuid+min+max-entries)
-        minimums                 (number-inputs {:saved-entries (map (fn [[gv-uuid min-val _max-val enabled?]]
+        minimums                 (number-inputs {:saved-entries (map (fn remove-max-val [[gv-uuid min-val _max-val enabled?]]
                                                                        [gv-uuid min-val enabled?])
                                                                      @*gv-uuid+min+max-entries)
                                                  :rf-event-id   rf-event-id
@@ -304,7 +304,7 @@
                                                  :attr-id       min-attr-id
                                                  ;; on-change  (debounce #'update-setting-input 1000) TODO BHP1-272: Use Debouncer in settings-form component
                                                  :on-change     update-setting-input})
-        maximums                 (number-inputs {:saved-entries (map (fn [[gv-uuid _min-val max-val enabled?]]
+        maximums                 (number-inputs {:saved-entries (map (fn remove-min-val[[gv-uuid _min-val max-val enabled?]]
                                                                        [gv-uuid max-val enabled?])
                                                                      @*gv-uuid+min+max-entries)
                                                  :rf-event-id   rf-event-id
