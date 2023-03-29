@@ -298,11 +298,6 @@
   [{:keys [ws-uuid title headers rf-event-id rf-sub-id min-attr-id max-attr-id]}]
   (let [*gv-uuid+min+max-entries (subscribe [rf-sub-id ws-uuid])
         *output-min+max-values   (subscribe [:worksheet/output-min+max-values ws-uuid])
-        enabled-check-boxes      (when (= rf-event-id :worksheet/update-table-filter-attr)
-                                   (map (fn [[uuid _min _max enabled?]]
-                                          [c/checkbox {:checked?  enabled?
-                                                       :on-change #(dispatch [:worksheet/toggle-enable-filter ws-uuid uuid])}])
-                                        @*gv-uuid+min+max-entries))
         names                    (map (fn uuid->name [[uuid _min _max]]
                                         (:variable/name
                                          @(subscribe [:wizard/group-variable uuid])))
@@ -321,6 +316,11 @@
         minimums                 (number-inputs (assoc number-input-params :min-or-max :min))
         maximums                 (number-inputs (assoc number-input-params :min-or-max :max))
         column-keys              (mapv (fn [idx] (keyword (str "col" idx))) (range (count headers)))
+        enabled-check-boxes      (when (= rf-event-id :worksheet/update-table-filter-attr)
+                                   (map (fn [[uuid _min _max enabled?]]
+                                          [c/checkbox {:checked?  enabled?
+                                                       :on-change #(dispatch [:worksheet/toggle-enable-filter ws-uuid uuid])}])
+                                        @*gv-uuid+min+max-entries))
         row-data                 (if enabled-check-boxes
                                    (map (fn [& args]
                                           (into {}
