@@ -310,7 +310,7 @@
                                         @*gv-uuid+min+max-entries))
         column-keys              (mapv (fn [idx] (keyword (str "col" idx))) (range (count headers)))
         row-data                 (if enabled-check-boxes
-                                   (map (fn [& args]
+                                   (map (fn build-row [& args]
                                           (into {}
                                                 (map (fn [x y] [x y])
                                                      column-keys args)))
@@ -319,7 +319,7 @@
                                         output-ranges
                                         minimums
                                         maximums)
-                                   (map (fn [& args]
+                                   (map (fn build-row [& args]
                                           (into {}
                                                 (map (fn [x y] [x y])
                                                      column-keys args)))
