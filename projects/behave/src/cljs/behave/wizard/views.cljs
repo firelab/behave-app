@@ -265,12 +265,8 @@
 
 ;; Wizard Results Settings
 
-(defn update-setting-input [ws-uuid rf-event-id min-attr-id max-attr-id gv-uuid min-or-max value]
-  (dispatch [rf-event-id
-             ws-uuid
-             gv-uuid
-             (if (= min-or-max :min) min-attr-id max-attr-id)
-             value]))
+(defn update-setting-input [ws-uuid rf-event-id attr-id gv-uuid value]
+  (dispatch [rf-event-id ws-uuid gv-uuid attr-id value]))
 
 (defn number-input [{:keys [init-value rf-event-id enabled? on-change]}]
   (c/number-input {:disabled? (if (= rf-event-id :worksheet/update-table-filter-attr)
@@ -280,19 +276,13 @@
                    :value     init-value}))
 
 (defn number-inputs
-  [{:keys [min-or-max gv-uuid+min+max-entries rf-event-id ws-uuid min-attr-id max-attr-id on-change]}]
-  (map (fn [[gv-uuid saved-min saved-max enabled?]]
-         [number-input {:init-value  (if (= min-or-max :min) saved-min saved-max)
+  [{:keys [saved-entries rf-event-id ws-uuid attr-id on-change]}]
+  (map (fn [[gv-uuid saved-value enabled?]]
+         [number-input {:init-value  saved-value
                         :rf-event-id rf-event-id
                         :enabled?    enabled?
-                        :on-change   #(on-change ws-uuid
-                                                 rf-event-id
-                                                 min-attr-id
-                                                 max-attr-id
-                                                 gv-uuid
-                                                 min-or-max
-                                                 %)}])
-       gv-uuid+min+max-entries))
+                        :on-change   #(on-change ws-uuid rf-event-id attr-id gv-uuid %)}])
+       saved-entries))
 
 (defn settings-form
   [{:keys [ws-uuid title headers rf-event-id rf-sub-id min-attr-id max-attr-id]}]
@@ -306,15 +296,22 @@
                                         (let [[min-val max-val] (get @*output-min+max-values gv-uuid)]
                                           (gstring/format "%.2f - %.2f" min-val max-val))) ;TODO BHP1-257: Worksheet Settings for units and decimals
                                       @*gv-uuid+min+max-entries)
-        number-input-params      {:gv-uuid+min+max-entries @*gv-uuid+min+max-entries
-                                  :rf-event-id             rf-event-id
-                                  :ws-uuid                 ws-uuid
-                                  :min-attr-id             min-attr-id
-                                  :max-attr-id             max-attr-id
-                                  ;; on-change             (debounce #'update-setting-input 1000)
-                                  :on-change               update-setting-input} ;TODO BHP1-272: Use Debouncer in settings-form component
-        minimums                 (number-inputs (assoc number-input-params :min-or-max :min))
-        maximums                 (number-inputs (assoc number-input-params :min-or-max :max))
+        minimums                 (number-inputs {:saved-entries (map (fn [[gv-uuid min-val _max-val enabled?]]
+                                                                       [gv-uuid min-val enabled?])
+                                                                     @*gv-uuid+min+max-entries)
+                                                 :rf-event-id   rf-event-id
+                                                 :ws-uuid       ws-uuid
+                                                 :attr-id       min-attr-id
+                                                 ;; on-change  (debounce #'update-setting-input 1000) TODO BHP1-272: Use Debouncer in settings-form component
+                                                 :on-change     update-setting-input})
+        maximums                 (number-inputs {:saved-entries (map (fn [[gv-uuid _min-val max-val enabled?]]
+                                                                       [gv-uuid max-val enabled?])
+                                                                     @*gv-uuid+min+max-entries)
+                                                 :rf-event-id   rf-event-id
+                                                 :ws-uuid       ws-uuid
+                                                 :attr-id       max-attr-id
+                                                 ;; on-change  (debounce #'update-setting-input 1000) TODO BHP1-272: Use Debouncer in settings-form component
+                                                 :on-change     update-setting-input})
         column-keys              (mapv (fn [idx] (keyword (str "col" idx))) (range (count headers)))
         enabled-check-boxes      (when (= rf-event-id :worksheet/update-table-filter-attr)
                                    (map (fn [[uuid _min _max enabled?]]
