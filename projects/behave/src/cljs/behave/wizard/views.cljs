@@ -12,11 +12,13 @@
             [bidi.bidi                      :refer [path-for]]
             [behave.worksheet.events]
             [behave.worksheet.subs]
-            [dom-utils.interface            :refer [input-int-value]]
+            [browser-utils.interface        :refer [debounce]]
+            [dom-utils.interface            :refer [input-int-value input-value]]
             [goog.string                    :as gstring]
             [goog.string.format]
             [re-frame.core                  :refer [dispatch subscribe]]
-            [string-utils.interface         :refer [->kebab]]))
+            [string-utils.interface         :refer [->kebab]]
+            [reagent.core :as r]))
 
 ;;; Components
 
@@ -178,7 +180,8 @@
 
 (defn run-description [ws-uuid]
   (let [*worksheet  (subscribe [:worksheet ws-uuid])
-        description (:worksheet/run-description @*worksheet)]
+        description (:worksheet/run-description @*worksheet)
+        value-atom  (r/atom (or description ""))]
     [:div.wizard-review__run-desciption
      [:div.wizard-review__run-description__header
       @(<t "behaveplus:run_description")]
@@ -187,11 +190,12 @@
        [c/text-input {:label       @(<t (bp "run_description"))
                       :placeholder @(<t (bp "type_description"))
                       :id          (->kebab @(<t (bp "run_description")))
-                      :value       (or description "")
-                      :on-change   #(dispatch [:worksheet/update-attr
-                                               ws-uuid
-                                               :worksheet/run-description
-                                               (-> % .-target .-value)])}]
+                      :value-atom  value-atom
+                      :on-change   #(reset! value-atom (input-value %))
+                      :on-blur     #(dispatch [:worksheet/update-attr
+                                             ws-uuid
+                                             :worksheet/run-description
+                                             (-> % .-target .-value)])}]
        [:div.wizard-review__run-description__message
         [c/button {:label         (gstring/format "*%s"  @(<t (bp "optional")))
                    :variant       "transparent-highlight"
@@ -266,34 +270,36 @@
 (defn update-setting-input [ws-uuid rf-event-id attr-id gv-uuid value]
   (dispatch [rf-event-id ws-uuid gv-uuid attr-id value]))
 
-(defn number-input [{:keys [init-value rf-event-id enabled? on-change]}]
-  (c/number-input {:disabled? (if (= rf-event-id :worksheet/update-table-filter-attr)
-                                (not enabled?)
-                                false)
-                   :on-change #(on-change (input-int-value %))
-                   :value     init-value}))
+(defn number-input [{:keys [rf-event-id enabled? on-change value-atom]}]
+  (c/number-input {:disabled?  (if (= rf-event-id :worksheet/update-table-filter-attr)
+                                 (not enabled?)
+                                 false)
+                   :on-change  #(reset! value-atom (input-int-value %))
+                   :on-blur    #(on-change @value-atom)
+                   :value-atom value-atom}))
 
 (defn number-inputs
   [{:keys [saved-entries rf-event-id on-change]}]
   (map (fn [[gv-uuid saved-value enabled?]]
-         [number-input {:init-value  saved-value
-                        :rf-event-id rf-event-id
+         [number-input {:rf-event-id rf-event-id
                         :enabled?    enabled?
-                        :on-change   #(on-change gv-uuid %)}])
+                        :on-change   #(on-change gv-uuid %)
+                        :value-atom  (r/atom saved-value)}])
        saved-entries))
 
 (defn settings-form
   [{:keys [ws-uuid title headers rf-event-id rf-sub-id min-attr-id max-attr-id]}]
   (let [*gv-uuid+min+max-entries (subscribe [rf-sub-id ws-uuid])
         *output-min+max-values   (subscribe [:worksheet/output-min+max-values ws-uuid])
+        on-change                (debounce #'update-setting-input 1000)
         maximums                 (number-inputs {:saved-entries (map (fn remove-min-val[[gv-uuid _min-val max-val enabled?]]
                                                                        [gv-uuid max-val enabled?])
                                                                      @*gv-uuid+min+max-entries)
-                                                 :on-change     #(update-setting-input ws-uuid rf-event-id max-attr-id %1 %2)}) ;TODO BHP1-272: Use Debouncer in settings-form component
+                                                 :on-change     #(on-change ws-uuid rf-event-id max-attr-id %1 %2)})
         minimums                 (number-inputs {:saved-entries (map (fn remove-max-val [[gv-uuid min-val _max-val enabled?]]
                                                                        [gv-uuid min-val enabled?])
                                                                      @*gv-uuid+min+max-entries)
-                                                 :on-change     #(update-setting-input ws-uuid rf-event-id min-attr-id %1 %2)}) ;TODO BHP1-272: Use Debouncer in settings-form component
+                                                 :on-change     #(on-change ws-uuid rf-event-id min-attr-id %1 %2)})
         output-ranges            (map (fn [[gv-uuid & _rest]]
                                         (let [[min-val max-val] (get @*output-min+max-values gv-uuid)]
                                           (gstring/format "%.2f - %.2f" min-val max-val))) ;TODO BHP1-257: Worksheet Settings for units and decimals
