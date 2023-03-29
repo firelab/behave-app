@@ -272,16 +272,15 @@
              (if (= min-or-max :min) min-attr-id max-attr-id)
              value]))
 
-(defn number-input [{:keys [init-value rf-event-id enabled? on-change on-key-press]}]
-  (c/text-input {:disabled?    (if (= rf-event-id :worksheet/update-table-filter-attr)
-                                 (not enabled?)
-                                 false)
-                 :on-key-press on-key-press
-                 :on-change    #(on-change (input-int-value %))
-                 :value        init-value}))
+(defn number-input [{:keys [init-value rf-event-id enabled? on-change]}]
+  (c/number-input {:disabled?    (if (= rf-event-id :worksheet/update-table-filter-attr)
+                                   (not enabled?)
+                                   false)
+                   :on-change    #(on-change (input-int-value %))
+                   :value        init-value}))
 
 (defn number-inputs
-  [min-or-max gv-uuid+min+max-entries rf-event-id ws-uuid min-attr-id max-attr-id on-change on-key-press]
+  [min-or-max gv-uuid+min+max-entries rf-event-id ws-uuid min-attr-id max-attr-id on-change]
   (map (fn [[gv-uuid saved-min saved-max enabled?]]
          [number-input {:init-value   (if (= min-or-max :min) saved-min saved-max)
                         :rf-event-id  rf-event-id
@@ -292,15 +291,11 @@
                                                   max-attr-id
                                                   gv-uuid
                                                   min-or-max
-                                                  %)
-                        :on-key-press on-key-press}])
+                                                  %)}])
        gv-uuid+min+max-entries))
 
 (defn settings-form [{:keys [ws-uuid title headers rf-event-id rf-sub-id min-attr-id max-attr-id]}]
   (let [;; on-change                (debounce #'update-setting-input 1000) TODO BHP1-272: Use Debouncer in settings-form component
-        acceptable-char-codes    (set (map #(.charCodeAt % 0) "0123456789-"))
-        on-key-press             #(when-not (contains? acceptable-char-codes (.-charCode %))
-                                    (.preventDefault %))
         *gv-uuid+min+max-entries (subscribe [rf-sub-id ws-uuid])
         *output-min+max-values   (subscribe [:worksheet/output-min+max-values ws-uuid])
         enabled-check-boxes      (when (= rf-event-id :worksheet/update-table-filter-attr)
@@ -322,8 +317,7 @@
                                                 ws-uuid
                                                 min-attr-id
                                                 max-attr-id
-                                                update-setting-input
-                                                on-key-press)
+                                                update-setting-input)
         maximums                 (number-inputs :max
                                                 @*gv-uuid+min+max-entries
                                                 rf-event-id
