@@ -273,19 +273,19 @@
              value]))
 
 (defn number-input [{:keys [init-value rf-event-id enabled? on-change]}]
-  (c/number-input {:disabled?    (if (= rf-event-id :worksheet/update-table-filter-attr)
-                                   (not enabled?)
-                                   false)
-                   :on-change    #(on-change (input-int-value %))
-                   :value        init-value}))
+  (c/number-input {:disabled? (if (= rf-event-id :worksheet/update-table-filter-attr)
+                                (not enabled?)
+                                false)
+                   :on-change #(on-change (input-int-value %))
+                   :value     init-value}))
 
 (defn number-inputs
   [min-or-max gv-uuid+min+max-entries rf-event-id ws-uuid min-attr-id max-attr-id on-change]
   (map (fn [[gv-uuid saved-min saved-max enabled?]]
-         [number-input {:init-value   (if (= min-or-max :min) saved-min saved-max)
-                        :rf-event-id  rf-event-id
-                        :enabled?     enabled?
-                        :on-change    #(on-change ws-uuid
+         [number-input {:init-value  (if (= min-or-max :min) saved-min saved-max)
+                        :rf-event-id rf-event-id
+                        :enabled?    enabled?
+                        :on-change   #(on-change ws-uuid
                                                   rf-event-id
                                                   min-attr-id
                                                   max-attr-id
