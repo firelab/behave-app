@@ -12,7 +12,6 @@
             [bidi.bidi                      :refer [path-for]]
             [behave.worksheet.events]
             [behave.worksheet.subs]
-            [browser-utils.interface        :refer [debounce]]
             [dom-utils.interface            :refer [input-int-value input-value]]
             [goog.string                    :as gstring]
             [goog.string.format]
@@ -291,7 +290,7 @@
   [{:keys [ws-uuid title headers rf-event-id rf-sub-id min-attr-id max-attr-id]}]
   (let [*gv-uuid+min+max-entries (subscribe [rf-sub-id ws-uuid])
         *output-min+max-values   (subscribe [:worksheet/output-min+max-values ws-uuid])
-        on-change                (debounce #'update-setting-input 1000)
+        on-change                #'update-setting-input
         maximums                 (number-inputs {:saved-entries (map (fn remove-min-val[[gv-uuid _min-val max-val enabled?]]
                                                                        [gv-uuid max-val enabled?])
                                                                      @*gv-uuid+min+max-entries)
