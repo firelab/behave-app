@@ -288,22 +288,6 @@
   [{:keys [ws-uuid title headers rf-event-id rf-sub-id min-attr-id max-attr-id]}]
   (let [*gv-uuid+min+max-entries (subscribe [rf-sub-id ws-uuid])
         *output-min+max-values   (subscribe [:worksheet/output-min+max-values ws-uuid])
-        names                    (map (fn uuid->name [[uuid _min _max]]
-                                        (:variable/name
-                                         @(subscribe [:wizard/group-variable uuid])))
-                                      @*gv-uuid+min+max-entries)
-        output-ranges            (map (fn [[gv-uuid & _rest]]
-                                        (let [[min-val max-val] (get @*output-min+max-values gv-uuid)]
-                                          (gstring/format "%.2f - %.2f" min-val max-val))) ;TODO BHP1-257: Worksheet Settings for units and decimals
-                                      @*gv-uuid+min+max-entries)
-        minimums                 (number-inputs {:saved-entries (map (fn remove-max-val [[gv-uuid min-val _max-val enabled?]]
-                                                                       [gv-uuid min-val enabled?])
-                                                                     @*gv-uuid+min+max-entries)
-                                                 :rf-event-id   rf-event-id
-                                                 :ws-uuid       ws-uuid
-                                                 :attr-id       min-attr-id
-                                                 ;; on-change  (debounce #'update-setting-input 1000) TODO BHP1-272: Use Debouncer in settings-form component
-                                                 :on-change     update-setting-input})
         maximums                 (number-inputs {:saved-entries (map (fn remove-min-val[[gv-uuid _min-val max-val enabled?]]
                                                                        [gv-uuid max-val enabled?])
                                                                      @*gv-uuid+min+max-entries)
@@ -312,12 +296,28 @@
                                                  :attr-id       max-attr-id
                                                  ;; on-change  (debounce #'update-setting-input 1000) TODO BHP1-272: Use Debouncer in settings-form component
                                                  :on-change     update-setting-input})
-        column-keys              (mapv (fn [idx] (keyword (str "col" idx))) (range (count headers)))
+        minimums                 (number-inputs {:saved-entries (map (fn remove-max-val [[gv-uuid min-val _max-val enabled?]]
+                                                                       [gv-uuid min-val enabled?])
+                                                                     @*gv-uuid+min+max-entries)
+                                                 :rf-event-id   rf-event-id
+                                                 :ws-uuid       ws-uuid
+                                                 :attr-id       min-attr-id
+                                                 ;; on-change  (debounce #'update-setting-input 1000) TODO BHP1-272: Use Debouncer in settings-form component
+                                                 :on-change     update-setting-input})
+        output-ranges            (map (fn [[gv-uuid & _rest]]
+                                        (let [[min-val max-val] (get @*output-min+max-values gv-uuid)]
+                                          (gstring/format "%.2f - %.2f" min-val max-val))) ;TODO BHP1-257: Worksheet Settings for units and decimals
+                                      @*gv-uuid+min+max-entries)
+        names                    (map (fn uuid->name [[uuid _min _max]]
+                                        (:variable/name
+                                         @(subscribe [:wizard/group-variable uuid])))
+                                      @*gv-uuid+min+max-entries)
         enabled-check-boxes      (when (= rf-event-id :worksheet/update-table-filter-attr)
                                    (map (fn [[uuid _min _max enabled?]]
                                           [c/checkbox {:checked?  enabled?
                                                        :on-change #(dispatch [:worksheet/toggle-enable-filter ws-uuid uuid])}])
                                         @*gv-uuid+min+max-entries))
+        column-keys              (mapv (fn [idx] (keyword (str "col" idx))) (range (count headers)))
         row-data                 (if enabled-check-boxes
                                    (map (fn [& args]
                                           (into {}
