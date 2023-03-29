@@ -12,12 +12,10 @@
             [bidi.bidi                      :refer [path-for]]
             [behave.worksheet.events]
             [behave.worksheet.subs]
-            [browser-utils.interface        :refer [debounce]]
-            [dom-utils.interface            :refer [input-value input-int-value]]
+            [dom-utils.interface            :refer [input-int-value]]
             [goog.string                    :as gstring]
             [goog.string.format]
             [re-frame.core                  :refer [dispatch subscribe]]
-            [reagent.core                   :as r]
             [string-utils.interface         :refer [->kebab]]))
 
 ;;; Components
@@ -276,12 +274,12 @@
                    :value     init-value}))
 
 (defn number-inputs
-  [{:keys [saved-entries rf-event-id ws-uuid attr-id on-change]}]
+  [{:keys [saved-entries rf-event-id on-change]}]
   (map (fn [[gv-uuid saved-value enabled?]]
          [number-input {:init-value  saved-value
                         :rf-event-id rf-event-id
                         :enabled?    enabled?
-                        :on-change   #(on-change ws-uuid rf-event-id attr-id gv-uuid %)}])
+                        :on-change   #(on-change gv-uuid %)}])
        saved-entries))
 
 (defn settings-form
@@ -291,19 +289,12 @@
         maximums                 (number-inputs {:saved-entries (map (fn remove-min-val[[gv-uuid _min-val max-val enabled?]]
                                                                        [gv-uuid max-val enabled?])
                                                                      @*gv-uuid+min+max-entries)
-                                                 :rf-event-id   rf-event-id
-                                                 :ws-uuid       ws-uuid
-                                                 :attr-id       max-attr-id
-                                                 ;; on-change  (debounce #'update-setting-input 1000) TODO BHP1-272: Use Debouncer in settings-form component
-                                                 :on-change     update-setting-input})
+                                                 :on-change     #(update-setting-input ws-uuid rf-event-id max-attr-id %1 %2)}) ;TODO BHP1-272: Use Debouncer in settings-form component
         minimums                 (number-inputs {:saved-entries (map (fn remove-max-val [[gv-uuid min-val _max-val enabled?]]
                                                                        [gv-uuid min-val enabled?])
                                                                      @*gv-uuid+min+max-entries)
                                                  :rf-event-id   rf-event-id
-                                                 :ws-uuid       ws-uuid
-                                                 :attr-id       min-attr-id
-                                                 ;; on-change  (debounce #'update-setting-input 1000) TODO BHP1-272: Use Debouncer in settings-form component
-                                                 :on-change     update-setting-input})
+                                                 :on-change     #(update-setting-input ws-uuid rf-event-id min-attr-id %1 %2)}) ;TODO BHP1-272: Use Debouncer in settings-form component
         output-ranges            (map (fn [[gv-uuid & _rest]]
                                         (let [[min-val max-val] (get @*output-min+max-values gv-uuid)]
                                           (gstring/format "%.2f - %.2f" min-val max-val))) ;TODO BHP1-257: Worksheet Settings for units and decimals
