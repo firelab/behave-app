@@ -1,0 +1,15 @@
+interface CrownInputs {
+  void CrownInputs();
+  void updateCrownInputs(double canopyBaseHeight, LengthUnits_LengthUnitsEnum heightUnits, double canopyBulkDensity, DensityUnits_DensityUnitsEnum densityUnits, double moistureFoliar, MoistureUnits_MoistureUnitsEnum moistureUnits);
+  double getCanopyFirelineIntensity();
+  void setCanopyBulkDensity(double canopyBulkDensity, DensityUnits_DensityUnitsEnum densityUnits);
+  void setCanopyBaseHeight(double canopyBaseHeight, LengthUnits_LengthUnitsEnum canopyBaseHeightUnits);
+  void setCanopyFlameLength(double canopyUserProvidedFlameLength);
+  double getCanopyBulkDensity(DensityUnits_DensityUnitsEnum densityUnits);
+  void initializeMembers();
+  double getCanopyBaseHeight(LengthUnits_LengthUnitsEnum heightUnits);
+  double getMoistureFoliar(MoistureUnits_MoistureUnitsEnum moistureUnits);
+  void setMoistureFoliar(double moistureFoliar, MoistureUnits_MoistureUnitsEnum moistureUnits);
+  void setCanopyFirelineIntensity(double canopyUserProvidedFirelineIntensity);
+  double getCanopyFlameLength();
+};

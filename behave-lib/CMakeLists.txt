@@ -1,0 +1,157 @@
+cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
+
+# Emscripten Compilation
+set(WRAPPER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/include/cpp/emscripten/wrapper.cpp)
+set(ENUM_CPP_FILE ${CMAKE_CURRENT_SOURCE_DIR}/include/cpp/emscripten/enum.cpp)
+set(GLUE_CPP_FILE ${CMAKE_CURRENT_SOURCE_DIR}/include/cpp/emscripten/glue.cpp)
+set(GLUE_JS_FILE ${CMAKE_CURRENT_SOURCE_DIR}/include/js/glue.js)
+set(BEHAVE_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/behave-mirror/src/behave/)
+set(SIG_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include/cpp/sig-adapters/)
+set(BEHAVE_LIB libbehave.a)
+
+set(EMCC_ARGS
+  -I${BEHAVE_SRC_DIR}
+  -I${SIG_SRC_DIR}
+  -I${GLUE_CPP_FILE}
+  -I${ENUM_CPP_FILE}
+  -L${BEHAVE_LIB}
+  --post-js ${GLUE_JS_FILE}
+  -s NO_DISABLE_EXCEPTION_CATCHING
+  -s EXPORTED_FUNCTIONS=["_malloc","_free"]
+  -s EXPORTED_RUNTIME_METHODS=["UTF8ToString","allocateUTF8","addFunction"])
+
+set(EMCC_JS_ARGS ${EMCC_ARGS} -s WASM=0)
+
+set(EMCC_WASM_ARGS ${EMCC_ARGS}
+  -O2
+  --closure 1
+  -s BINARYEN_IGNORE_IMPLICIT_TRAPS=1
+  -s WASM=1)
+
+# Make use of c++11
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+
+project(behave LANGUAGES CXX)
+
+include_directories(${CMAKE_SOURCE_DIR}/behave-mirror/src/behave)
+include_directories(${CMAKE_SOURCE_DIR}/include/cpp/sig-adapters)
+include_directories(${CMAKE_SOURCE_DIR}/include/cpp/emscripten)
+
+SET(SOURCE
+    behave-mirror/src/behave/behaveRun.cpp
+    behave-mirror/src/behave/behaveUnits.cpp
+    behave-mirror/src/behave/canopy_coefficient_table.cpp
+    behave-mirror/src/behave/Contain.cpp
+    behave-mirror/src/behave/ContainAdapter.cpp
+    behave-mirror/src/behave/ContainForce.cpp
+    behave-mirror/src/behave/ContainForceAdapter.cpp
+    behave-mirror/src/behave/ContainResource.cpp
+    behave-mirror/src/behave/ContainSim.cpp
+    behave-mirror/src/behave/crown.cpp
+    behave-mirror/src/behave/crownInputs.cpp
+    behave-mirror/src/behave/fireSize.cpp
+    behave-mirror/src/behave/fuelModels.cpp
+    behave-mirror/src/behave/ignite.cpp
+    behave-mirror/src/behave/igniteInputs.cpp
+    behave-mirror/src/behave/mortality.cpp
+    behave-mirror/src/behave/mortality_equation_table.cpp
+    behave-mirror/src/behave/mortality_inputs.cpp
+    behave-mirror/src/behave/newext.cpp
+    behave-mirror/src/behave/palmettoGallberry.cpp
+    behave-mirror/src/behave/randfuel.cpp
+    behave-mirror/src/behave/randthread.cpp
+    behave-mirror/src/behave/safety.cpp
+    behave-mirror/src/behave/species_master_table.cpp
+    behave-mirror/src/behave/spot.cpp
+    behave-mirror/src/behave/spotInputs.cpp
+    behave-mirror/src/behave/surface.cpp
+    behave-mirror/src/behave/surfaceFireReactionIntensity.cpp
+    behave-mirror/src/behave/surfaceFuelbedIntermediates.cpp
+    behave-mirror/src/behave/surfaceInputs.cpp
+    behave-mirror/src/behave/surfaceFire.cpp
+    behave-mirror/src/behave/surfaceTwoFuelModels.cpp
+    behave-mirror/src/behave/westernAspen.cpp
+    behave-mirror/src/behave/windAdjustmentFactor.cpp
+    behave-mirror/src/behave/windSpeedUtility.cpp
+
+    include/cpp/sig-adapters/SIGContain.cpp
+    include/cpp/sig-adapters/SIGContainAdapter.cpp
+    include/cpp/sig-adapters/SIGContainForce.cpp
+    include/cpp/sig-adapters/SIGContainForceAdapter.cpp
+    include/cpp/sig-adapters/SIGContainResource.cpp
+    include/cpp/sig-adapters/SIGContainSim.cpp
+    include/cpp/sig-adapters/SIGIgnite.cpp
+    include/cpp/sig-adapters/SIGIgniteInputs.cpp
+    include/cpp/sig-adapters/SIGSpot.cpp
+    include/cpp/sig-adapters/SIGSpotInputs.cpp)
+
+SET(HEADERS
+    behave-mirror/src/behave/behaveRun.h
+    behave-mirror/src/behave/behaveUnits.h
+    behave-mirror/src/behave/canopy_coefficient_table.h
+    behave-mirror/src/behave/Contain.h
+    behave-mirror/src/behave/ContainAdapter.h
+    behave-mirror/src/behave/ContainForce.h
+    behave-mirror/src/behave/ContainForceAdapter.h
+    behave-mirror/src/behave/ContainResource.h
+    behave-mirror/src/behave/ContainSim.h
+    behave-mirror/src/behave/crown.h
+    behave-mirror/src/behave/crownInputs.h
+    behave-mirror/src/behave/fireSize.h
+    behave-mirror/src/behave/fuelModels.h
+    behave-mirror/src/behave/ignite.h
+    behave-mirror/src/behave/igniteInputs.h
+    behave-mirror/src/behave/mortality.h
+    behave-mirror/src/behave/mortality_equation_table.h
+    behave-mirror/src/behave/mortality_inputs.h
+    behave-mirror/src/behave/newext.h
+    behave-mirror/src/behave/palmettoGallberry.h
+    behave-mirror/src/behave/randfuel.h
+    behave-mirror/src/behave/randthread.h
+    behave-mirror/src/behave/safety.h
+    behave-mirror/src/behave/species_master_table.h
+    behave-mirror/src/behave/spot.h
+    behave-mirror/src/behave/spotInputs.h
+    behave-mirror/src/behave/surface.h
+    behave-mirror/src/behave/surfaceFireReactionIntensity.h
+    behave-mirror/src/behave/surfaceFuelbedIntermediates.h
+    behave-mirror/src/behave/surfaceInputs.h
+    behave-mirror/src/behave/surfaceFire.h
+    behave-mirror/src/behave/surfaceTwoFuelModels.h
+    behave-mirror/src/behave/westernAspen.h
+    behave-mirror/src/behave/windAdjustmentFactor.h
+    behave-mirror/src/behave/windSpeedUtility.h
+
+    include/cpp/sig-adapters/SIGDiurnalROS.h
+    include/cpp/sig-adapters/SIGContain.h
+    include/cpp/sig-adapters/SIGContainAdapter.h
+    include/cpp/sig-adapters/SIGContainForce.h
+    include/cpp/sig-adapters/SIGContainForceAdapter.h
+    include/cpp/sig-adapters/SIGContainResource.h
+    include/cpp/sig-adapters/SIGContainSim.h
+    include/cpp/sig-adapters/SIGIgnite.h
+    include/cpp/sig-adapters/SIGIgniteInputs.h
+    include/cpp/sig-adapters/SIGSpot.h
+    include/cpp/sig-adapters/SIGSpotInputs.h)
+
+source_group("Behave Core Source Files" FILES ${SOURCE})
+
+source_group("Behave Core Header Files" FILES ${HEADERS})
+
+add_library(behave STATIC ${SOURCE} ${HEADERS})
+
+add_custom_command(
+  OUTPUT behave.js
+  COMMAND emcc ${WRAPPER_FILE} ${EMCC_JS_ARGS} -o behave.js
+  DEPENDS behave
+  COMMENT "Building javascript"
+  VERBATIM)
+add_custom_target(behave-javascript ALL DEPENDS behave.js)
+
+add_custom_command(
+  OUTPUT behave.wasm
+  COMMAND emcc ${WRAPPER_FILE} ${EMCC_WASM_ARGS} -o behave-min.js
+  DEPENDS behave
+  COMMENT "Building webassembly"
+  VERBATIM)
+add_custom_target(behave-webassembly ALL DEPENDS behave.wasm)

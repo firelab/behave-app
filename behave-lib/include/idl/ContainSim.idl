@@ -1,0 +1,36 @@
+[Prefix="Sem::"]
+interface ContainSim {
+  void ContainSim(double reportSize, double reportRate, double diurnalROS, long fireStartMinutesStartTime, double lwRatio, ContainForce force, Contain_ContainTactic tactic, double attackDist, boolean retry, long minSteps, long maxSteps, long maxFireSize, long maxFireTime);
+  ContainForce force();
+  Contain_ContainStatus status();
+  Contain_ContainTactic tactic();
+  double UncontainedArea(double head, double lwRatio, double x, double y, Sem_Contain_ContainTactic tactic);
+  double attackDistance();
+  double attackPointX();
+  double attackPointY();
+  double attackTime();
+  double distanceStep();
+  double finalFireCost();
+  double finalFireLine();
+  double finalFirePerimeter();
+  double finalFireSize();
+  double finalFireSweep();
+  double finalFireTime();
+  double fireBackAtAttack();
+  double fireBackAtReport();
+  double fireHeadAtAttack();
+  double fireHeadAtReport();
+  double fireHeadX();
+  double fireLwRatioAtReport();
+  double firePerimeterX();
+  double firePerimeterY();
+  double fireReportTime();
+  double fireSizeAtReport();
+  double fireSpreadRateAtBack();
+  double fireSpreadRateAtReport();
+  long finalResourcesUsed();
+  long firePoints();
+  long maximumSimulationSteps();
+  long minimumSimulationSteps();
+  void run();
+};

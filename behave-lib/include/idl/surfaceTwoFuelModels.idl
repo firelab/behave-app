@@ -1,0 +1,17 @@
+interface SurfaceTwoFuelModels {
+  void SurfaceTwoFuelModels(SurfaceFire surfaceFireSpread);
+  boolean getWindLimitExceeded();
+  double WindAdjustmentFactor();
+  double getDirectionOfMaxSpread();
+  double getEffectiveWind();
+  double getFireLengthToWidthRatio();
+  double getFireLineIntensity();
+  double getFuelbedDepth();
+  double getHeatPerUnitArea();
+  double getMidFlameWindSpeed();
+  double getReactionIntensity();
+  double getSpreadRate();
+  double getWindSpeedLimit();
+  double getflameLength();
+  void calculateWeightedSpreadRate(TwoFuelModelsMethod_TwoFuelModelsMethodEnum twoFuelModelsMethod, long firstFuelModelNumber, double firstFuelModelCoverage, long secondFuelModelNumber, boolean hasDirectionOfInterest, double directionOfInterest);
+};
