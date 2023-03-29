@@ -280,21 +280,22 @@
                    :value     init-value}))
 
 (defn number-inputs
-  [min-or-max gv-uuid+min+max-entries rf-event-id ws-uuid min-attr-id max-attr-id on-change]
+  [{:keys [min-or-max gv-uuid+min+max-entries rf-event-id ws-uuid min-attr-id max-attr-id on-change]}]
   (map (fn [[gv-uuid saved-min saved-max enabled?]]
          [number-input {:init-value  (if (= min-or-max :min) saved-min saved-max)
                         :rf-event-id rf-event-id
                         :enabled?    enabled?
                         :on-change   #(on-change ws-uuid
-                                                  rf-event-id
-                                                  min-attr-id
-                                                  max-attr-id
-                                                  gv-uuid
-                                                  min-or-max
-                                                  %)}])
+                                                 rf-event-id
+                                                 min-attr-id
+                                                 max-attr-id
+                                                 gv-uuid
+                                                 min-or-max
+                                                 %)}])
        gv-uuid+min+max-entries))
 
-(defn settings-form [{:keys [ws-uuid title headers rf-event-id rf-sub-id min-attr-id max-attr-id]}]
+(defn settings-form
+  [{:keys [ws-uuid title headers rf-event-id rf-sub-id min-attr-id max-attr-id]}]
   (let [;; on-change                (debounce #'update-setting-input 1000) TODO BHP1-272: Use Debouncer in settings-form component
         *gv-uuid+min+max-entries (subscribe [rf-sub-id ws-uuid])
         *output-min+max-values   (subscribe [:worksheet/output-min+max-values ws-uuid])
@@ -311,21 +312,20 @@
                                         (let [[min-val max-val] (get @*output-min+max-values gv-uuid)]
                                           (gstring/format "%.2f - %.2f" min-val max-val))) ;TODO BHP1-257: Worksheet Settings for units and decimals
                                       @*gv-uuid+min+max-entries)
-        minimums                 (number-inputs :min
-                                                @*gv-uuid+min+max-entries
-                                                rf-event-id
-                                                ws-uuid
-                                                min-attr-id
-                                                max-attr-id
-                                                update-setting-input)
-        maximums                 (number-inputs :max
-                                                @*gv-uuid+min+max-entries
-                                                rf-event-id
-                                                ws-uuid
-                                                min-attr-id
-                                                max-attr-id
-                                                update-setting-input
-                                                on-key-press)
+        minimums                 (number-inputs {:min-or-max              :min
+                                                 :gv-uuid+min+max-entries @*gv-uuid+min+max-entries
+                                                 :rf-event-id             rf-event-id
+                                                 :ws-uuid                 ws-uuid
+                                                 :mmin-attr-id            min-attr-id
+                                                 :max-attr-id             max-attr-id
+                                                 :on-change               update-setting-input})
+        maximums                 (number-inputs {:min-or-max              :max
+                                                 :gv-uuid+min+max-entries @*gv-uuid+min+max-entries
+                                                 :rf-event-id             rf-event-id
+                                                 :ws-uuid                 ws-uuid
+                                                 :mmin-attr-id            min-attr-id
+                                                 :max-attr-id             max-attr-id
+                                                 :on-change               update-setting-input})
         column-keys              (mapv (fn [idx]
                                          (keyword (str "col" idx)))
                                        (range (count headers)))

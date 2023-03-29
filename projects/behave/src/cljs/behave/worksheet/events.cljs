@@ -276,12 +276,12 @@
                                         ws-uuid
                                         gv-uuid
                                         :y-axis-limit/min
-                                        (long min-val)]])
+                                        (.floor js/Math min-val)]])
                       (conj [:dispatch [:worksheet/update-y-axis-limit-attr
                                         ws-uuid
                                         gv-uuid
                                         :y-axis-limit/max
-                                        (long max-val)]])))
+                                        (.ceil js/Math max-val)]])))
                 []
                 output-min-max-values)}))
 
@@ -329,12 +329,12 @@
                                         ws-uuid
                                         gv-uuid
                                         :table-filter/min
-                                        (long min-val)]])
+                                        (.floor js/Math min-val)]])
                       (conj [:dispatch [:worksheet/update-table-filter-attr
                                         ws-uuid
                                         gv-uuid
                                         :table-filter/max
-                                        (long max-val)]])))
+                                        (.ceil js/Math max-val)]])))
                 []
                 output-min-max-values)}))
 
