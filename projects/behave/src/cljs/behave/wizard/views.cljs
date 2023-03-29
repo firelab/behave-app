@@ -293,7 +293,6 @@
         minimums                 (number-inputs {:saved-entries (map (fn remove-max-val [[gv-uuid min-val _max-val enabled?]]
                                                                        [gv-uuid min-val enabled?])
                                                                      @*gv-uuid+min+max-entries)
-                                                 :rf-event-id   rf-event-id
                                                  :on-change     #(update-setting-input ws-uuid rf-event-id min-attr-id %1 %2)}) ;TODO BHP1-272: Use Debouncer in settings-form component
         output-ranges            (map (fn [[gv-uuid & _rest]]
                                         (let [[min-val max-val] (get @*output-min+max-values gv-uuid)]
