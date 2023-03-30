@@ -290,15 +290,14 @@
   [{:keys [ws-uuid title headers rf-event-id rf-sub-id min-attr-id max-attr-id]}]
   (let [*gv-uuid+min+max-entries (subscribe [rf-sub-id ws-uuid])
         *output-min+max-values   (subscribe [:worksheet/output-min+max-values ws-uuid])
-        on-change                #'update-setting-input
         maximums                 (number-inputs {:saved-entries (map (fn remove-min-val[[gv-uuid _min-val max-val enabled?]]
                                                                        [gv-uuid max-val enabled?])
                                                                      @*gv-uuid+min+max-entries)
-                                                 :on-change     #(on-change ws-uuid rf-event-id max-attr-id %1 %2)})
+                                                 :on-change     #(update-setting-input ws-uuid rf-event-id max-attr-id %1 %2)})
         minimums                 (number-inputs {:saved-entries (map (fn remove-max-val [[gv-uuid min-val _max-val enabled?]]
                                                                        [gv-uuid min-val enabled?])
                                                                      @*gv-uuid+min+max-entries)
-                                                 :on-change     #(on-change ws-uuid rf-event-id min-attr-id %1 %2)})
+                                                 :on-change     #(update-setting-input ws-uuid rf-event-id min-attr-id %1 %2)})
         output-ranges            (map (fn [[gv-uuid & _rest]]
                                         (let [[min-val max-val] (get @*output-min+max-values gv-uuid)]
                                           (gstring/format "%.2f - %.2f" min-val max-val))) ;TODO BHP1-257: Worksheet Settings for units and decimals
