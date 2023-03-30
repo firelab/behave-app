@@ -16,9 +16,10 @@ set(EMCC_ARGS
   -I${ENUM_CPP_FILE}
   -L${BEHAVE_LIB}
   --post-js ${GLUE_JS_FILE}
-  -s NO_DISABLE_EXCEPTION_CATCHING
-  -s EXPORTED_FUNCTIONS=["_malloc","_free"]
-  -s EXPORTED_RUNTIME_METHODS=["UTF8ToString","allocateUTF8","addFunction"])
+  -sMODULARIZE
+  -sNO_DISABLE_EXCEPTION_CATCHING
+  -sEXPORTED_FUNCTIONS=["_malloc","_free"]
+  -sEXPORTED_RUNTIME_METHODS=["UTF8ToString","allocateUTF8","addFunction"])
 
 set(EMCC_JS_ARGS ${EMCC_ARGS} -s WASM=0)
 
@@ -148,10 +149,10 @@ add_custom_command(
   VERBATIM)
 add_custom_target(behave-javascript ALL DEPENDS behave.js)
 
-add_custom_command(
-  OUTPUT behave.wasm
-  COMMAND emcc ${WRAPPER_FILE} ${EMCC_WASM_ARGS} -o behave-min.js
-  DEPENDS behave
-  COMMENT "Building webassembly"
-  VERBATIM)
-add_custom_target(behave-webassembly ALL DEPENDS behave.wasm)
+# add_custom_command(
+#   OUTPUT behave.wasm
+#   COMMAND emcc ${WRAPPER_FILE} ${EMCC_WASM_ARGS} -o behave-min.js
+#   DEPENDS behave
+#   COMMENT "Building webassembly"
+#   VERBATIM)
+# add_custom_target(behave-webassembly ALL DEPENDS behave.wasm)

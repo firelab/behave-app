@@ -459,6 +459,61 @@ interface SIGSpot {
   double getWindSpeedAtTwentyFeet(SpeedUnits_SpeedUnitsEnum windSpeedUnits);
 };
 
+enum AspenFireSeverity_AspenFireSeverityEnum {
+  "AspenFireSeverity::Low",
+  "AspenFireSeverity::Medium"
+};
+
+enum TwoFuelModelsMethod_TwoFuelModelsMethodEnum {
+  "TwoFuelModelsMethod::NoMethod",
+  "TwoFuelModelsMethod::Arithmetic",
+  "TwoFuelModelsMethod::Harmonic",
+  "TwoFuelModelsMethod::TwoDimensional"
+};
+
+enum WindAdjustmentFactorShelterMethod_WindAdjustmentFactorShelterMethodEnum {
+  "WindAdjustmentFactorShelterMethod::Unsheltered",
+  "WindAdjustmentFactorShelterMethod::Sheltered"
+};
+
+enum WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum {
+  "WindAdjustmentFactorCalculationMethod::UserInput",
+  "WindAdjustmentFactorCalculationMethod::UseCrownRatio",
+  "WindAdjustmentFactorCalculationMethod::DontUseCrownRatio"
+};
+
+enum WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum {
+  "WindAndSpreadOrientationMode::RelativeToUpslope",
+  "WindAndSpreadOrientationMode::RelativeToNorth"
+};
+
+enum WindHeightInputMode_WindHeightInputModeEnum {
+  "WindHeightInputMode::DirectMidflame",
+  "WindHeightInputMode::TwentyFoot",
+  "WindHeightInputMode::TenMeter"
+};
+
+interface FuelModelSet {
+  double getHeatOfCombustionLive(long fuelModelNumber, HeatOfCombustionUnits_HeatOfCombustionUnitsEnum heatOfCombustionUnits);
+  byte getFuelName(long fuelModelNumber);
+  double getFuelLoadLiveWoody(long fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits);
+  double getSavrLiveHerbaceous(long fuelModelNumber, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum savrUnits);
+  double getHeatOfCombustionDead(long fuelModelNumber, HeatOfCombustionUnits_HeatOfCombustionUnitsEnum heatOfCombustionUnits);
+  byte getFuelCode(long fuelModelNumber);
+  double getMoistureOfExtinctionDead(long fuelModelNumber, MoistureUnits_MoistureUnitsEnum moistureUnits);
+  boolean setCustomFuelModel(long fuelModelNumberIn, byte code, byte name, double fuelBedDepth, LengthUnits_LengthUnitsEnum lengthUnits, double moistureOfExtinctionDead, MoistureUnits_MoistureUnitsEnum moistureUnits, double heatOfCombustionDead, double heatOfCombustionLive, HeatOfCombustionUnits_HeatOfCombustionUnitsEnum heatOfCombustionUnits, double fuelLoadOneHour, double fuelLoadTenHour, double fuelLoadHundredHour, double fuelLoadLiveHerbaceous, double fuelLoadLiveWoody, LoadingUnits_LoadingUnitsEnum loadingUnits, double savrOneHour, double savrLiveHerbaceous, double savrLiveWoody, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum savrUnits, boolean isDynamic);
+  boolean clearCustomFuelModel(long fuelModelNumber);
+  double getFuelLoadLiveHerbaceous(long fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits);
+  double getSavrOneHour(long fuelModelNumber, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum savrUnits);
+  double getFuelLoadTenHour(long fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits);
+  boolean getIsDynamic(long fuelModelNumber);
+  double getFuelLoadOneHour(long fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits);
+  double getFuelLoadHundredHour(long fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits);
+  boolean isFuelModelDefined(long fuelModelNumber);
+  double getFuelbedDepth(long fuelModelNumber, LengthUnits_LengthUnitsEnum lengthUnits);
+  double getSavrLiveWoody(long fuelModelNumber, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum savrUnits);
+};
+
 interface Surface {
   void setFuelModelNumber(long fuelModelNumber);
   double getSlopeFactor();
