@@ -266,8 +266,8 @@
 (defn update-setting-input [ws-uuid rf-event-id attr-id gv-uuid value]
   (dispatch [rf-event-id ws-uuid gv-uuid attr-id value]))
 
-(defn number-input [{:keys [init-value rf-event-id enabled? on-change]}]
-  (c/number-input {:disabled? (if (= rf-event-id :worksheet/update-table-filter-attr)
+(defn number-input [{:keys [init-value enabled? on-change]}]
+  (c/number-input {:disabled? (if (some? enabled?)
                                 (not enabled?)
                                 false)
                    :on-change #(on-change (input-int-value %))
