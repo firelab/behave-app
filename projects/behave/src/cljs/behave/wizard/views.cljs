@@ -269,7 +269,7 @@
 (defn update-setting-input [ws-uuid rf-event-id attr-id gv-uuid value]
   (dispatch [rf-event-id ws-uuid gv-uuid attr-id value]))
 
-(defn number-input [{:keys [rf-event-id enabled? on-change value-atom]}]
+(defn number-input [{:keys [enabled? on-change value-atom]}]
   (c/number-input {:disabled?  (if (some? enabled?)
                                  (not enabled?)
                                  false)
