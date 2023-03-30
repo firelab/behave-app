@@ -12,6 +12,7 @@
 #include "SIGSpot.cpp"
 #include "surfaceInputs.cpp"
 #include "surface.cpp"
+#include "crown.cpp"
 #include "palmettoGallberry.cpp"
 #include "westernAspen.cpp"
 #include "windSpeedUtility.cpp"

@@ -9,3 +9,6 @@ bind:
 compile: bind
 	emcmake cmake -B build
 	cmake --build build
+
+ctags:
+	ctags -e -R --exclude=.git --exclude=build --exclude .ccls-cache .

@@ -494,95 +494,95 @@ enum WindHeightInputMode_WindHeightInputModeEnum {
 };
 
 interface FuelModelSet {
-  double getHeatOfCombustionLive(long fuelModelNumber, HeatOfCombustionUnits_HeatOfCombustionUnitsEnum heatOfCombustionUnits);
-  byte getFuelName(long fuelModelNumber);
-  double getFuelLoadLiveWoody(long fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits);
-  double getSavrLiveHerbaceous(long fuelModelNumber, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum savrUnits);
-  double getHeatOfCombustionDead(long fuelModelNumber, HeatOfCombustionUnits_HeatOfCombustionUnitsEnum heatOfCombustionUnits);
-  byte getFuelCode(long fuelModelNumber);
-  double getMoistureOfExtinctionDead(long fuelModelNumber, MoistureUnits_MoistureUnitsEnum moistureUnits);
-  boolean setCustomFuelModel(long fuelModelNumberIn, byte code, byte name, double fuelBedDepth, LengthUnits_LengthUnitsEnum lengthUnits, double moistureOfExtinctionDead, MoistureUnits_MoistureUnitsEnum moistureUnits, double heatOfCombustionDead, double heatOfCombustionLive, HeatOfCombustionUnits_HeatOfCombustionUnitsEnum heatOfCombustionUnits, double fuelLoadOneHour, double fuelLoadTenHour, double fuelLoadHundredHour, double fuelLoadLiveHerbaceous, double fuelLoadLiveWoody, LoadingUnits_LoadingUnitsEnum loadingUnits, double savrOneHour, double savrLiveHerbaceous, double savrLiveWoody, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum savrUnits, boolean isDynamic);
   boolean clearCustomFuelModel(long fuelModelNumber);
-  double getFuelLoadLiveHerbaceous(long fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits);
-  double getSavrOneHour(long fuelModelNumber, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum savrUnits);
-  double getFuelLoadTenHour(long fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits);
   boolean getIsDynamic(long fuelModelNumber);
-  double getFuelLoadOneHour(long fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits);
-  double getFuelLoadHundredHour(long fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits);
   boolean isFuelModelDefined(long fuelModelNumber);
+  boolean setCustomFuelModel(long fuelModelNumberIn, byte code, byte name, double fuelBedDepth, LengthUnits_LengthUnitsEnum lengthUnits, double moistureOfExtinctionDead, MoistureUnits_MoistureUnitsEnum moistureUnits, double heatOfCombustionDead, double heatOfCombustionLive, HeatOfCombustionUnits_HeatOfCombustionUnitsEnum heatOfCombustionUnits, double fuelLoadOneHour, double fuelLoadTenHour, double fuelLoadHundredHour, double fuelLoadLiveHerbaceous, double fuelLoadLiveWoody, LoadingUnits_LoadingUnitsEnum loadingUnits, double savrOneHour, double savrLiveHerbaceous, double savrLiveWoody, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum savrUnits, boolean isDynamic);
+  byte getFuelCode(long fuelModelNumber);
+  byte getFuelName(long fuelModelNumber);
+  double getFuelLoadHundredHour(long fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits);
+  double getFuelLoadLiveHerbaceous(long fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits);
+  double getFuelLoadLiveWoody(long fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits);
+  double getFuelLoadOneHour(long fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits);
+  double getFuelLoadTenHour(long fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits);
   double getFuelbedDepth(long fuelModelNumber, LengthUnits_LengthUnitsEnum lengthUnits);
+  double getHeatOfCombustionDead(long fuelModelNumber, HeatOfCombustionUnits_HeatOfCombustionUnitsEnum heatOfCombustionUnits);
+  double getHeatOfCombustionLive(long fuelModelNumber, HeatOfCombustionUnits_HeatOfCombustionUnitsEnum heatOfCombustionUnits);
+  double getMoistureOfExtinctionDead(long fuelModelNumber, MoistureUnits_MoistureUnitsEnum moistureUnits);
+  double getSavrLiveHerbaceous(long fuelModelNumber, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum savrUnits);
   double getSavrLiveWoody(long fuelModelNumber, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum savrUnits);
+  double getSavrOneHour(long fuelModelNumber, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum savrUnits);
 };
 
 interface Surface {
-  void setFuelModelNumber(long fuelModelNumber);
-  double getSlopeFactor();
-  double getFireEccentricity();
-  void setWindAdjustmentFactorCalculationMethod(WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum windAdjustmentFactorCalculationMethod);
-  double getMoistureHundredHour(MoistureUnits_MoistureUnitsEnum moistureUnits);
-  long getFuelModelNumber();
-  void setWindHeightInputMode(WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode);
-  void setTwoFuelModelsMethod(TwoFuelModelsMethod_TwoFuelModelsMethodEnum twoFuelModelsMethod);
-  double getWindDirection();
-  double getHeatPerUnitArea();
-  void setMoistureOneHour(double moistureOneHour, MoistureUnits_MoistureUnitsEnum moistureUnits);
-  void setSlope(double slope, SlopeUnits_SlopeUnitsEnum slopeUnits);
-  void setCanopyHeight(double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits);
-  double getMoistureLiveWoody(MoistureUnits_MoistureUnitsEnum moistureUnits);
-  boolean isAllFuelLoadZero(long fuelModelNumber);
-  WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum getWindAndSpreadOrientationMode();
-  double getDirectionOfMaxSpread();
-  double getSpreadRateInDirectionOfInterest(SpeedUnits_SpeedUnitsEnum spreadRateUnits);
-  double getEllipticalA(LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime);
-  double getWindSpeed(SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode);
-  void setMoistureTenHour(double moistureTenHour, MoistureUnits_MoistureUnitsEnum moistureUnits);
-  double getEllipticalB(LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime);
-  double getReactionIntensity(HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum reactiontionIntensityUnits);
-  double getAspect();
-  double getMoistureLiveHerbaceous(MoistureUnits_MoistureUnitsEnum moistureUnits);
-  void setMoistureLiveHerbaceous(double moistureLiveHerbaceous, MoistureUnits_MoistureUnitsEnum moistureUnits);
-  boolean isUsingTwoFuelModels();
-  void setUserProvidedWindAdjustmentFactor(double userProvidedWindAdjustmentFactor);
-  void updateSurfaceInputsForTwoFuelModels(long firstfuelModelNumber, long secondFuelModelNumber, double moistureOneHour, double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody, MoistureUnits_MoistureUnitsEnum moistureUnits, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double windDirection, WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double firstFuelModelCoverage, CoverUnits_CoverUnitsEnum firstFuelModelCoverageUnits, TwoFuelModelsMethod_TwoFuelModelsMethodEnum twoFuelModelsMethod, double slope, SlopeUnits_SlopeUnitsEnum slopeUnits, double aspect, double canopyCover, CoverUnits_CoverUnitsEnum canopyCoverUnits, double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits, double crownRatio);
-  WindHeightInputMode_WindHeightInputModeEnum getWindHeightInputMode();
-  double getEllipticalC(LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime);
-  void setWindDirection(double windDirection);
-  double getResidenceTime();
-  void Surface(Surface rhs);
-  void setWindAndSpreadOrientationMode(WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode);
-  double getFirePerimeter(LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime);
-  void setAspect(double aspect);
-  void setMoistureHundredHour(double moistureHundredHour, MoistureUnits_MoistureUnitsEnum moistureUnits);
-  double getBulkDensity(DensityUnits_DensityUnitsEnum densityUnits);
-  double getFireArea(AreaUnits_AreaUnitsEnum areaUnits, double elapsedTime);
-  double getHeatSink(HeatSinkUnits_HeatSinkUnitsEnum heatSinkUnits);
-  void setCrownRatio(double crownRatio);
-  void initializeMembers();
-  double getSlope(SlopeUnits_SlopeUnitsEnum slopeUnits);
-  double calculateFlameLength(double firelineIntensity);
-  void doSurfaceRunInDirectionOfInterest(double directionOfinterest);
-  void setMoistureLiveWoody(double moistureLiveWoody, MoistureUnits_MoistureUnitsEnum moistureUnits);
-  double getCrownRatio();
-  double getCanopyHeight(LengthUnits_LengthUnitsEnum canopyHeightUnits);
-  void setSecondFuelModelNumber(long secondFuelModelNumber);
-  void setCanopyCover(double canopyCover, CoverUnits_CoverUnitsEnum coverUnits);
-  void setWindSpeed(double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode);
-  double getMoistureOneHour(MoistureUnits_MoistureUnitsEnum moistureUnits);
-  void doSurfaceRunInDirectionOfMaxSpread();
-  void updateSurfaceInputs(long fuelModelNumber, double moistureOneHour, double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody, MoistureUnits_MoistureUnitsEnum moistureUnits, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double windDirection, WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double slope, SlopeUnits_SlopeUnitsEnum slopeUnits, double aspect, double canopyCover, CoverUnits_CoverUnitsEnum coverUnits, double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits, double crownRatio);
-  double getMoistureTenHour(MoistureUnits_MoistureUnitsEnum moistureUnits);
-  double getSpreadRate(SpeedUnits_SpeedUnitsEnum spreadRateUnits);
-  double getFirelineIntensity(FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits);
-  void setFuelModelSet(FuelModelSet fuelModelSet);
-  double getFireLengthToWidthRatio();
-  void setFirstFuelModelNumber(long firstFuelModelNumber);
-  void setTwoFuelModelsFirstFuelModelCoverage(double firstFuelModelCoverage, CoverUnits_CoverUnitsEnum coverUnits);
   WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum getWindAdjustmentFactorCalculationMethod();
-  double getFlameLength(LengthUnits_LengthUnitsEnum flameLengthUnits);
-  void updateSurfaceInputsForPalmettoGallbery(double moistureOneHour, double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody, MoistureUnits_MoistureUnitsEnum moistureUnits, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double windDirection, WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double ageOfRough, double heightOfUnderstory, double palmettoCoverage, double overstoryBasalArea, double slope, SlopeUnits_SlopeUnitsEnum slopeUnits, double aspect, double canopyCover, CoverUnits_CoverUnitsEnum coverUnits, double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits, double crownRatio);
+  WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum getWindAndSpreadOrientationMode();
+  WindHeightInputMode_WindHeightInputModeEnum getWindHeightInputMode();
+  boolean isAllFuelLoadZero(long fuelModelNumber);
+  boolean isUsingTwoFuelModels();
+  double calculateFlameLength(double firelineIntensity);
+  double getAspect();
+  double getBulkDensity(DensityUnits_DensityUnitsEnum densityUnits);
   double getCanopyCover(CoverUnits_CoverUnitsEnum coverUnits);
-  void updateSurfaceInputsForWesternAspen(long aspenFuelModelNumber, double aspenCuringLevel, AspenFireSeverity_AspenFireSeverityEnum aspenFireSeverity, double DBH, double moistureOneHour, double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody, MoistureUnits_MoistureUnitsEnum moistureUnits, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double windDirection, WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double slope, SlopeUnits_SlopeUnitsEnum slopeUnits, double aspect, double canopyCover, CoverUnits_CoverUnitsEnum coverUnits, double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits, double crownRatio);
+  double getCanopyHeight(LengthUnits_LengthUnitsEnum canopyHeightUnits);
+  double getCrownRatio();
+  double getDirectionOfMaxSpread();
+  double getEllipticalA(LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime);
+  double getEllipticalB(LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime);
+  double getEllipticalC(LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime);
+  double getFireArea(AreaUnits_AreaUnitsEnum areaUnits, double elapsedTime);
+  double getFireEccentricity();
+  double getFireLengthToWidthRatio();
+  double getFirePerimeter(LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime);
+  double getFirelineIntensity(FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits);
+  double getFlameLength(LengthUnits_LengthUnitsEnum flameLengthUnits);
+  double getHeatPerUnitArea();
+  double getHeatSink(HeatSinkUnits_HeatSinkUnitsEnum heatSinkUnits);
   double getMidflameWindspeed();
+  double getMoistureHundredHour(MoistureUnits_MoistureUnitsEnum moistureUnits);
+  double getMoistureLiveHerbaceous(MoistureUnits_MoistureUnitsEnum moistureUnits);
+  double getMoistureLiveWoody(MoistureUnits_MoistureUnitsEnum moistureUnits);
+  double getMoistureOneHour(MoistureUnits_MoistureUnitsEnum moistureUnits);
+  double getMoistureTenHour(MoistureUnits_MoistureUnitsEnum moistureUnits);
+  double getReactionIntensity(HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum reactiontionIntensityUnits);
+  double getResidenceTime();
+  double getSlope(SlopeUnits_SlopeUnitsEnum slopeUnits);
+  double getSlopeFactor();
+  double getSpreadRate(SpeedUnits_SpeedUnitsEnum spreadRateUnits);
+  double getSpreadRateInDirectionOfInterest(SpeedUnits_SpeedUnitsEnum spreadRateUnits);
+  double getWindDirection();
+  double getWindSpeed(SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode);
+  long getFuelModelNumber();
+  void Surface(Surface rhs);
+  void doSurfaceRunInDirectionOfInterest(double directionOfinterest);
+  void doSurfaceRunInDirectionOfMaxSpread();
+  void initializeMembers();
+  void setAspect(double aspect);
+  void setCanopyCover(double canopyCover, CoverUnits_CoverUnitsEnum coverUnits);
+  void setCanopyHeight(double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits);
+  void setCrownRatio(double crownRatio);
+  void setFirstFuelModelNumber(long firstFuelModelNumber);
+  void setFuelModelNumber(long fuelModelNumber);
+  void setFuelModelSet(FuelModelSet fuelModelSet);
+  void setMoistureHundredHour(double moistureHundredHour, MoistureUnits_MoistureUnitsEnum moistureUnits);
+  void setMoistureLiveHerbaceous(double moistureLiveHerbaceous, MoistureUnits_MoistureUnitsEnum moistureUnits);
+  void setMoistureLiveWoody(double moistureLiveWoody, MoistureUnits_MoistureUnitsEnum moistureUnits);
+  void setMoistureOneHour(double moistureOneHour, MoistureUnits_MoistureUnitsEnum moistureUnits);
+  void setMoistureTenHour(double moistureTenHour, MoistureUnits_MoistureUnitsEnum moistureUnits);
+  void setSecondFuelModelNumber(long secondFuelModelNumber);
+  void setSlope(double slope, SlopeUnits_SlopeUnitsEnum slopeUnits);
+  void setTwoFuelModelsFirstFuelModelCoverage(double firstFuelModelCoverage, CoverUnits_CoverUnitsEnum coverUnits);
+  void setTwoFuelModelsMethod(TwoFuelModelsMethod_TwoFuelModelsMethodEnum twoFuelModelsMethod);
+  void setUserProvidedWindAdjustmentFactor(double userProvidedWindAdjustmentFactor);
+  void setWindAdjustmentFactorCalculationMethod(WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum windAdjustmentFactorCalculationMethod);
+  void setWindAndSpreadOrientationMode(WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode);
+  void setWindDirection(double windDirection);
+  void setWindHeightInputMode(WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode);
+  void setWindSpeed(double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode);
+  void updateSurfaceInputs(long fuelModelNumber, double moistureOneHour, double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody, MoistureUnits_MoistureUnitsEnum moistureUnits, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double windDirection, WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double slope, SlopeUnits_SlopeUnitsEnum slopeUnits, double aspect, double canopyCover, CoverUnits_CoverUnitsEnum coverUnits, double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits, double crownRatio);
+  void updateSurfaceInputsForPalmettoGallbery(double moistureOneHour, double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody, MoistureUnits_MoistureUnitsEnum moistureUnits, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double windDirection, WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double ageOfRough, double heightOfUnderstory, double palmettoCoverage, double overstoryBasalArea, double slope, SlopeUnits_SlopeUnitsEnum slopeUnits, double aspect, double canopyCover, CoverUnits_CoverUnitsEnum coverUnits, double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits, double crownRatio);
+  void updateSurfaceInputsForTwoFuelModels(long firstfuelModelNumber, long secondFuelModelNumber, double moistureOneHour, double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody, MoistureUnits_MoistureUnitsEnum moistureUnits, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double windDirection, WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double firstFuelModelCoverage, CoverUnits_CoverUnitsEnum firstFuelModelCoverageUnits, TwoFuelModelsMethod_TwoFuelModelsMethodEnum twoFuelModelsMethod, double slope, SlopeUnits_SlopeUnitsEnum slopeUnits, double aspect, double canopyCover, CoverUnits_CoverUnitsEnum canopyCoverUnits, double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits, double crownRatio);
+  void updateSurfaceInputsForWesternAspen(long aspenFuelModelNumber, double aspenCuringLevel, AspenFireSeverity_AspenFireSeverityEnum aspenFireSeverity, double DBH, double moistureOneHour, double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody, MoistureUnits_MoistureUnitsEnum moistureUnits, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double windDirection, WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double slope, SlopeUnits_SlopeUnitsEnum slopeUnits, double aspect, double canopyCover, CoverUnits_CoverUnitsEnum coverUnits, double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits, double crownRatio);
 };
 
 interface PalmettoGallberry {
@@ -627,6 +627,221 @@ interface WesternAspen {
   double getAspenSavrDeadTenHour();
   double getAspenSavrLiveHerbaceous();
   double getAspenSavrLiveWoody(long aspenFuelModelNumber, double aspenCuringLevel);
+};
+
+/* Crown */
+
+enum FireType_FireTypeEnum {
+  "FireType::Surface",
+  "FireType::Torching",
+  "FireType::ConditionalCrownFire",
+  "FireType::Crowning"
+};
+
+interface Crown {
+  FireType_FireTypeEnum getFireType();
+  double getAspect();
+  double getCanopyBaseHeight(LengthUnits_LengthUnitsEnum canopyHeightUnits);
+  double getCanopyBulkDensity(DensityUnits_DensityUnitsEnum canopyBulkDensityUnits);
+  double getCanopyCover(CoverUnits_CoverUnitsEnum canopyCoverUnits);
+  double getCanopyHeight(LengthUnits_LengthUnitsEnum canopyHeighUnits);
+  double getCriticalOpenWindSpeed(SpeedUnits_SpeedUnitsEnum speedUnits);
+  double getCrownFireLengthToWidthRatio();
+  double getCrownFireSpreadRate(SpeedUnits_SpeedUnitsEnum spreadRateUnits);
+  double getCrownFirelineIntensity();
+  double getCrownFlameLength(LengthUnits_LengthUnitsEnum flameLengthUnits);
+  double getCrownRatio();
+  double getFinalFirelineIntesity(FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits);
+  double getFinalFlameLength(LengthUnits_LengthUnitsEnum flameLengthUnits);
+  double getFinalHeatPerUnitArea();
+  double getFinalSpreadRate(SpeedUnits_SpeedUnitsEnum spreadRateUnits);
+  double getMoistureFoliar(MoistureUnits_MoistureUnitsEnum moistureUnits);
+  double getMoistureHundredHour(MoistureUnits_MoistureUnitsEnum moistureUnits);
+  double getMoistureLiveHerbaceous(MoistureUnits_MoistureUnitsEnum moistureUnits);
+  double getMoistureLiveWoody(MoistureUnits_MoistureUnitsEnum moistureUnits);
+  double getMoistureOneHour(MoistureUnits_MoistureUnitsEnum moistureUnits);
+  double getMoistureTenHour(MoistureUnits_MoistureUnitsEnum moistureUnits);
+  double getSlope(SlopeUnits_SlopeUnitsEnum slopeUnits);
+  double getSurfaceFireSpreadRate(SpeedUnits_SpeedUnitsEnum spreadRateUnits);
+  double getWindDirection();
+  double getWindSpeed(SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode);
+  long getFuelModelNumber();
+
+  void doCrownRunRothermel();
+  void doCrownRunScottAndReinhardt();
+
+  void initializeMembers();
+
+  void setAspect(double aspect);
+  void setCanopyBaseHeight(double canopyBaseHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits);
+  void setCanopyBulkDensity(double canopyBulkDensity, DensityUnits_DensityUnitsEnum densityUnits);
+  void setCanopyCover(double canopyCover, CoverUnits_CoverUnitsEnum coverUnits);
+  void setCanopyHeight(double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits);
+  void setCrownRatio(double crownRatio);
+  void setFuelModelNumber(long fuelModelNumber);
+  void setFuelModelSet(FuelModelSet fuelModelSet);
+  void setMoistureFoliar(double foliarMoisture, MoistureUnits_MoistureUnitsEnum moistureUnits);
+  void setMoistureHundredHour(double moistureHundredHour, MoistureUnits_MoistureUnitsEnum moistureUnits);
+  void setMoistureLiveHerbaceous(double moistureLiveHerbaceous, MoistureUnits_MoistureUnitsEnum moistureUnits);
+  void setMoistureLiveWoody(double moistureLiveWoody, MoistureUnits_MoistureUnitsEnum moistureUnits);
+  void setMoistureOneHour(double moistureOneHour, MoistureUnits_MoistureUnitsEnum moistureUnits);
+  void setMoistureTenHour(double moistureTenHour, MoistureUnits_MoistureUnitsEnum moistureUnits);
+  void setSlope(double slope, SlopeUnits_SlopeUnitsEnum slopeUnits);
+  void setUserProvidedWindAdjustmentFactor(double userProvidedWindAdjustmentFactor);
+  void setWindAdjustmentFactorCalculationMethod(WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum windAdjustmentFactorCalculationMethod);
+  void setWindAndSpreadOrientationMode(WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadAngleMode);
+  void setWindDirection(double windDirection);
+  void setWindHeightInputMode(WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode);
+  void setWindSpeed(double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode);
+  void updateCrownInputs(long fuelModelNumber, double moistureOneHour, double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody, double moistureFoliar, MoistureUnits_MoistureUnitsEnum moistureUnits, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double windDirection, WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double slope, SlopeUnits_SlopeUnitsEnum slopeUnits, double aspect, double canopyCover, CoverUnits_CoverUnitsEnum coverUnits, double canopyHeight, double canopyBaseHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits, double crownRatio, double canopyBulkDensity, DensityUnits_DensityUnitsEnum densityUnits);
+  void updateCrownsSurfaceInputs(long fuelModelNumber, double moistureOneHour, double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody, MoistureUnits_MoistureUnitsEnum moistureUnits, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double windDirection, WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double slope, SlopeUnits_SlopeUnitsEnum slopeUnits, double aspect, double canopyCover, CoverUnits_CoverUnitsEnum coverUnits, double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits, double crownRatio);
+};
+
+/* Mortality */
+
+enum BeetleDamage {
+  "not_set",
+  "no",
+  "yes"
+};
+
+enum FireSeverity {
+  "not_set",
+  "empty",
+  "low"
+};
+
+enum FlameLengthOrScorchHeightSwitch{
+  "flame_length",
+  "scorch_height"
+};
+
+enum RegionCode {
+  "interior_west",
+  "pacific_west",
+  "north_east",
+  "south_east"
+};
+
+enum CrownDamageType {
+  "not_set",
+  "crown_length",
+  "crown_volume",
+  "crown_kill"
+};
+
+enum RequiredFieldNames {
+  "region",  
+  "flame_length_or_scorch_height_switch",  
+  "flame_length_or_scorch_height_value",  
+  "equation_type",  
+  "dbh",  
+  "tree_height",  
+  "crown_ratio",  
+  "crown_damage",  
+  "cambium_kill_rating",  
+  "beetle_damage",  
+  "bole_char_height",  
+  "bark_thickness",  
+  "fire_severity",  
+  "num_inputs"
+};
+
+enum CrownDamageEquationCode {
+  "not_set",  
+  "white_fir",  
+  "subalpine_fir",  
+  "incense_cedar",  
+  "western_larch",  
+  "whitebark_pine",  
+  "engelmann_spruce",  
+  "sugar_pine",  
+  "red_fir",  
+  "ponderosa_pine",  
+  "ponderosa_kill",  
+  "douglas_fir"
+};
+
+enum EquationType {
+  "not_set",  
+  "crown_scorch",  
+  "bole_char",  
+  "crown_damage"  
+};
+
+interface Mortality {
+  void Mortality(Mortality rhs);
+  [Operator="="] Mortality equals(Mortality rhs);
+
+  [Const] BeetleDamage getBeetleDamage();
+  [Const] CrownDamageEquationCode getCrownDamageEquationCode();
+  [Const] CrownDamageEquationCode getCrownDamageEquationCodeAtSpeciesTableIndex(long index);
+  [Const] CrownDamageEquationCode getCrownDamageEquationCodeFromSpeciesCode(DOMString speciesCode);
+  [Const] CrownDamageType getCrownDamageType();
+  [Const] EquationType getEquationType();
+  [Const] EquationType getEquationTypeAtSpeciesTableIndex(long index);
+  [Const] EquationType getEquationTypeFromSpeciesCode(DOMString speciesCode);
+  [Const] FireSeverity getFireSeverity();
+  [Const] FlameLengthOrScorchHeightSwitch getFlameLengthOrScorchHeightSwitch();
+  [Const] RegionCode getRegion();
+  [Const] SpeciesMasterTableRecord getSpeciesRecordAtIndex(long index);
+  [Const] SpeciesMasterTableRecord getSpeciesRecordBySpeciesCodeAndEquationType(DOMString speciesCode, EquationType equationType);
+  [Const] boolean checkIsInRegionAtSpeciesTableIndex(long index, RegionCode region);
+  [Const] boolean checkIsInRegionFromSpeciesCode(DOMString speciesCode, RegionCode region);
+  [Const] double getBarkThickness(LengthUnits_LengthUnitsEnum barkThicknessUnits);
+  [Const] double getBasalAreaKillled();
+  [Const] double getBasalAreaPostfire();
+  [Const] double getBasalAreaPrefire();
+  [Const] double getBoleCharHeight(LengthUnits_LengthUnitsEnum boleCharHeightUnits);
+  [Const] double getCambiumKillRating();
+  [Const] double getCrownDamage();
+  [Const] double getCrownRatio();
+  [Const] double getDBH(LengthUnits_LengthUnitsEnum diameterUnits);
+  [Const] double getFlameLengthOrScorchHeightValue(LengthUnits_LengthUnitsEnum flameLengthOrScorchHeightUnits);
+  [Const] double getKilledTrees();
+  [Const] double getProbabilityOfMortality(ProbabilityUnits_ProbabilityUnitsEnum probabilityUnits);
+  [Const] double getTotalPrefireTrees();
+  [Const] double getTreeDensityPerUnitArea(AreaUnits_AreaUnitsEnum areaUnits);
+  [Const] double getTreeHeight(LengthUnits_LengthUnitsEnum treeHeightUnits);
+  [Const] double postfireCanopyCover();
+  [Const] double prefireCanopyCover();
+  [Const] long getBarkEquationNumberAtSpeciesTableIndex(long index);
+  [Const] long getBarkEquationNumberFromSpeciesCode(DOMString speciesCode);
+  [Const] long getCrownCoefficientCodeAtSpeciesTableIndex(long index);
+  [Const] long getCrownCoefficientCodeFromSpeciesCode(DOMString speciesCode);
+  [Const] long getCrownScorchOrBoleCharEquationNumber();
+  [Const] long getMortalityEquationNumberAtSpeciesTableIndex(long index);
+  [Const] long getMortalityEquationNumberFromSpeciesCode(DOMString speciesCode);
+  [Const] long getNumberOfRecordsInSpeciesTable();
+  [Const] long getSpeciesTableIndexFromSpeciesCode(DOMString speciesNameCode);
+  [Const] long getSpeciesTableIndexFromSpeciesCodeAndEquationType(DOMString speciesNameCode, EquationType equationType);
+  [Const] DOMString getSpeciesCode();
+  [Const] sequence<SpeciesMasterTableRecord> getSpeciesRecordVectorForRegion(RegionCode region);
+  [Const] sequence<SpeciesMasterTableRecord> getSpeciesRecordVectorForRegionAndEquationType(RegionCode region, EquationType equationType);
+  [Const] DOMString getCommonNameAtSpeciesTableIndex(long index);
+  [Const] DOMString getCommonNameFromSpeciesCode(DOMString speciesCode);
+  [Const] DOMString getScientificNameAtSpeciesTableIndex(long index);
+  [Const] DOMString getScientificNameFromSpeciesCode(DOMString speciesCode);
+  [Const] DOMString getSpeciesCodeAtSpeciesTableIndex(long index);
+  sequence<bool> getRequiredFieldVector();
+
+  double calculateMortality(ProbabilityUnits_ProbabilityUnitsEnum probablityUnits);
+
+  void setBeetleDamage(BeetleDamage beetleDamage);
+  void setBoleCharHeight(double boleCharHeight, LengthUnits_LengthUnitsEnum boleCharHeightUnits);
+  void setCambiumKillRating(double cambiumKillRating);
+  void setCrownDamage(double crownDamage);
+  void setCrownRatio(double crownRatio);
+  void setDBH(double dbh, LengthUnits_LengthUnitsEnum diameterUnits);
+  void setEquationType(EquationType equationType);
+  void setFireSeverity(FireSeverity fireSeverity);
+  void setFlameLengthOrScorchHeightSwitch(FlameLengthOrScorchHeightSwitch flameLengthOrScorchHeightSwitch);
+  void setFlameLengthOrScorchHeightValue(double flameLengthOrScorchHeightValue, LengthUnits_LengthUnitsEnum flameLengthOrScorchHeightUnits);
+  void setRegion(RegionCode region);
+  void setSpeciesCode(byte speciesCode);
+  void setTreeDensityPerUnitArea(double numberOfTrees, AreaUnits_AreaUnitsEnum areaUnits);
+  void setTreeHeight(double treeHeight, LengthUnits_LengthUnitsEnum treeHeightUnits);
+  boolean updateInputsForSpeciesCodeAndEquationType(byte speciesCode, EquationType equationType);
 };
 
 interface WindSpeedUtility {

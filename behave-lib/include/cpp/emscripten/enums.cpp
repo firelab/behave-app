@@ -25,5 +25,8 @@ typedef WindAdjustmentFactorCalculationMethod::WindAdjustmentFactorCalculationMe
 typedef WindAndSpreadOrientationMode::WindAndSpreadOrientationModeEnum WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum;
 typedef WindHeightInputMode::WindHeightInputModeEnum WindHeightInputMode_WindHeightInputModeEnum;
 
+// crown.h
+enum FireType_FireTypeEnum FireType::FireTypeEnum;
+
 //
 typedef double* DoublePtr;
