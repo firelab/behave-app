@@ -158,6 +158,7 @@ interface SIGContainResource {
   double duration();
   double production();
   double baseCost();
+  [Const] DOMString description();
   ContainFlank flank();
 };
 
@@ -459,6 +460,8 @@ interface SIGSpot {
   double getWindSpeedAtTwentyFeet(SpeedUnits_SpeedUnitsEnum windSpeedUnits);
 };
 
+/* Surface */
+
 enum AspenFireSeverity_AspenFireSeverityEnum {
   "AspenFireSeverity::Low",
   "AspenFireSeverity::Medium"
@@ -515,6 +518,12 @@ interface FuelModelSet {
 };
 
 interface Surface {
+  oid Surface(Surface rhs);
+  void initializeMembers();
+
+  void doSurfaceRunInDirectionOfInterest(double directionOfinterest);
+  void doSurfaceRunInDirectionOfMaxSpread();
+
   WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum getWindAdjustmentFactorCalculationMethod();
   WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum getWindAndSpreadOrientationMode();
   WindHeightInputMode_WindHeightInputModeEnum getWindHeightInputMode();
@@ -553,10 +562,7 @@ interface Surface {
   double getWindDirection();
   double getWindSpeed(SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode);
   long getFuelModelNumber();
-  void Surface(Surface rhs);
-  void doSurfaceRunInDirectionOfInterest(double directionOfinterest);
-  void doSurfaceRunInDirectionOfMaxSpread();
-  void initializeMembers();
+
   void setAspect(double aspect);
   void setCanopyCover(double canopyCover, CoverUnits_CoverUnitsEnum coverUnits);
   void setCanopyHeight(double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits);
@@ -639,6 +645,11 @@ enum FireType_FireTypeEnum {
 };
 
 interface Crown {
+  void initializeMembers();
+
+  void doCrownRunRothermel();
+  void doCrownRunScottAndReinhardt();
+
   FireType_FireTypeEnum getFireType();
   double getAspect();
   double getCanopyBaseHeight(LengthUnits_LengthUnitsEnum canopyHeightUnits);
@@ -666,11 +677,6 @@ interface Crown {
   double getWindDirection();
   double getWindSpeed(SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode);
   long getFuelModelNumber();
-
-  void doCrownRunRothermel();
-  void doCrownRunScottAndReinhardt();
-
-  void initializeMembers();
 
   void setAspect(double aspect);
   void setCanopyBaseHeight(double canopyBaseHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits);
