@@ -26,7 +26,7 @@ typedef WindAndSpreadOrientationMode::WindAndSpreadOrientationModeEnum WindAndSp
 typedef WindHeightInputMode::WindHeightInputModeEnum WindHeightInputMode_WindHeightInputModeEnum;
 
 // crown.h
-enum FireType_FireTypeEnum FireType::FireTypeEnum;
+typedef FireType::FireTypeEnum FireType_FireTypeEnum;
 
 //
 typedef double* DoublePtr;

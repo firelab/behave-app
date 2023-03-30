@@ -151,7 +151,6 @@ enum ContainFlank {
 interface SIGContainResource {
   void SIGContainResource();
   void SIGContainResource(double arrival, double production, double duration, ContainFlank flank, [Const] DOMString desc, double baseCost, double hourCost);
-  [Const] DOMString description();
   void print(DOMString buf, long buflen);
   double arrival();
   double hourCost();
@@ -518,7 +517,7 @@ interface FuelModelSet {
 };
 
 interface Surface {
-  oid Surface(Surface rhs);
+  void Surface(Surface rhs);
   void initializeMembers();
 
   void doSurfaceRunInDirectionOfInterest(double directionOfinterest);
@@ -775,6 +774,19 @@ enum EquationType {
   "crown_damage"  
 };
 
+interface SpeciesMasterTableRecord {
+  void SpeciesMasterTableRecord(SpeciesMasterTableRecord rhs);
+  [Operator="="] SpeciesMasterTableRecord equals(SpeciesMasterTableRecord rhs);
+};
+
+interface SpeciesMasterTable {
+  void SpeciesMasterTable();
+  void initializeMasterTable();
+  long getSpeciesTableIndexFromSpeciesCode(DOMString speciesCode);
+  long getSpeciesTableIndexFromSpeciesCodeAndEquationType(DOMString speciesCode, EquationType equationType);
+  void insertRecord(DOMString speciesCode, DOMString scientificName, DOMString commonName, long mortalityEquation, long brkEqu, long crownCoefficientCode, long region1, long region2, long region3, long region4, EquationType equationType, CrownDamageEquationCode crownDamageEquationCode);
+};
+
 interface Mortality {
   void Mortality(Mortality rhs);
   [Operator="="] Mortality equals(Mortality rhs);
@@ -829,7 +841,7 @@ interface Mortality {
   [Const] DOMString getScientificNameAtSpeciesTableIndex(long index);
   [Const] DOMString getScientificNameFromSpeciesCode(DOMString speciesCode);
   [Const] DOMString getSpeciesCodeAtSpeciesTableIndex(long index);
-  sequence<bool> getRequiredFieldVector();
+  sequence<boolean> getRequiredFieldVector();
 
   double calculateMortality(ProbabilityUnits_ProbabilityUnitsEnum probablityUnits);
 
