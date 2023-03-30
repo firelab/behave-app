@@ -270,7 +270,7 @@
   (dispatch [rf-event-id ws-uuid gv-uuid attr-id value]))
 
 (defn number-input [{:keys [rf-event-id enabled? on-change value-atom]}]
-  (c/number-input {:disabled?  (if (= rf-event-id :worksheet/update-table-filter-attr)
+  (c/number-input {:disabled?  (if (some? enabled?)
                                  (not enabled?)
                                  false)
                    :on-change  #(reset! value-atom (input-int-value %))
