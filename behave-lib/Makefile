@@ -2,7 +2,7 @@
 WEBIDL := /opt/homebrew/opt/emscripten/libexec/tools/webidl_binder
 INSTALL_DIR := /opt/homebrew/opt/emscripten/libexec/tools/webidl_binder
 
-all: compile
+all: install
 
 bind:
 	${WEBIDL} include/idl/behave.idl include/js/glue
@@ -13,7 +13,7 @@ compile: bind
 	cmake --build build
 
 install: compile
-	cp build/behave.js 
+  cp build/behave.js ../projects/behave/resources/public/js
 
 ctags:
 	ctags -e -R --exclude=.git --exclude=build --exclude .ccls-cache .
