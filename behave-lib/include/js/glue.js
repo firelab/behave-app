@@ -2203,11 +2203,12 @@ SIGSurface.prototype['getEllipticalC'] = SIGSurface.prototype.getEllipticalC = /
   return _emscripten_bind_SIGSurface_getEllipticalC_3(self, lengthUnits, elapsedTime, timeUnits);
 };;
 
-SIGSurface.prototype['getFireArea'] = SIGSurface.prototype.getFireArea = /** @suppress {undefinedVars, duplicate} @this{Object} */function(areaUnits, elapsedTime) {
+SIGSurface.prototype['getFireArea'] = SIGSurface.prototype.getFireArea = /** @suppress {undefinedVars, duplicate} @this{Object} */function(areaUnits, elapsedTime, timeUnits) {
   var self = this.ptr;
   if (areaUnits && typeof areaUnits === 'object') areaUnits = areaUnits.ptr;
   if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
-  return _emscripten_bind_SIGSurface_getFireArea_2(self, areaUnits, elapsedTime);
+  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
+  return _emscripten_bind_SIGSurface_getFireArea_3(self, areaUnits, elapsedTime, timeUnits);
 };;
 
 SIGSurface.prototype['getFireEccentricity'] = SIGSurface.prototype.getFireEccentricity = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
@@ -2220,11 +2221,12 @@ SIGSurface.prototype['getFireLengthToWidthRatio'] = SIGSurface.prototype.getFire
   return _emscripten_bind_SIGSurface_getFireLengthToWidthRatio_0(self);
 };;
 
-SIGSurface.prototype['getFirePerimeter'] = SIGSurface.prototype.getFirePerimeter = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime) {
+SIGSurface.prototype['getFirePerimeter'] = SIGSurface.prototype.getFirePerimeter = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
   var self = this.ptr;
   if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
   if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
-  return _emscripten_bind_SIGSurface_getFirePerimeter_2(self, lengthUnits, elapsedTime);
+  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
+  return _emscripten_bind_SIGSurface_getFirePerimeter_3(self, lengthUnits, elapsedTime, timeUnits);
 };;
 
 SIGSurface.prototype['getFirelineIntensity'] = SIGSurface.prototype.getFirelineIntensity = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firelineIntensityUnits) {
@@ -3217,6 +3219,7 @@ SIGCrown.prototype['updateCrownsSurfaceInputs'] = SIGCrown.prototype.updateCrown
 // SpeciesMasterTableRecord
 /** @suppress {undefinedVars, duplicate} @this{Object} */function SpeciesMasterTableRecord(rhs) {
   if (rhs && typeof rhs === 'object') rhs = rhs.ptr;
+  if (rhs === undefined) { this.ptr = _emscripten_bind_SpeciesMasterTableRecord_SpeciesMasterTableRecord_0(); getCache(SpeciesMasterTableRecord)[this.ptr] = this;return }
   this.ptr = _emscripten_bind_SpeciesMasterTableRecord_SpeciesMasterTableRecord_1(rhs);
   getCache(SpeciesMasterTableRecord)[this.ptr] = this;
 };;
@@ -3289,18 +3292,16 @@ SpeciesMasterTable.prototype['insertRecord'] = SpeciesMasterTable.prototype.inse
   _emscripten_bind_SpeciesMasterTable___destroy___0(self);
 };
 // SIGMortality
-/** @suppress {undefinedVars, duplicate} @this{Object} */function SIGMortality() { throw "cannot construct a SIGMortality, no constructor in IDL" }
+/** @suppress {undefinedVars, duplicate} @this{Object} */function SIGMortality(speciesMasterTable) {
+  if (speciesMasterTable && typeof speciesMasterTable === 'object') speciesMasterTable = speciesMasterTable.ptr;
+  this.ptr = _emscripten_bind_SIGMortality_SIGMortality_1(speciesMasterTable);
+  getCache(SIGMortality)[this.ptr] = this;
+};;
 SIGMortality.prototype = Object.create(WrapperObject.prototype);
 SIGMortality.prototype.constructor = SIGMortality;
 SIGMortality.prototype.__class__ = SIGMortality;
 SIGMortality.__cache__ = {};
 Module['SIGMortality'] = SIGMortality;
-
-SIGMortality.prototype['Mortality'] = SIGMortality.prototype.Mortality = /** @suppress {undefinedVars, duplicate} @this{Object} */function(speciesMasterTable) {
-  var self = this.ptr;
-  if (speciesMasterTable && typeof speciesMasterTable === 'object') speciesMasterTable = speciesMasterTable.ptr;
-  _emscripten_bind_SIGMortality_Mortality_1(self, speciesMasterTable);
-};;
 
 SIGMortality.prototype['getBeetleDamage'] = SIGMortality.prototype.getBeetleDamage = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
@@ -3363,21 +3364,6 @@ SIGMortality.prototype['getFlameLengthOrScorchHeightSwitch'] = SIGMortality.prot
 SIGMortality.prototype['getRegion'] = SIGMortality.prototype.getRegion = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   return _emscripten_bind_SIGMortality_getRegion_0(self);
-};;
-
-SIGMortality.prototype['getSpeciesRecordAtIndex'] = SIGMortality.prototype.getSpeciesRecordAtIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
-  var self = this.ptr;
-  if (index && typeof index === 'object') index = index.ptr;
-  return wrapPointer(_emscripten_bind_SIGMortality_getSpeciesRecordAtIndex_1(self, index), SpeciesMasterTableRecord);
-};;
-
-SIGMortality.prototype['getSpeciesRecordBySpeciesCodeAndEquationType'] = SIGMortality.prototype.getSpeciesRecordBySpeciesCodeAndEquationType = /** @suppress {undefinedVars, duplicate} @this{Object} */function(speciesCode, equationType) {
-  var self = this.ptr;
-  ensureCache.prepare();
-  if (speciesCode && typeof speciesCode === 'object') speciesCode = speciesCode.ptr;
-  else speciesCode = ensureString(speciesCode);
-  if (equationType && typeof equationType === 'object') equationType = equationType.ptr;
-  return wrapPointer(_emscripten_bind_SIGMortality_getSpeciesRecordBySpeciesCodeAndEquationType_2(self, speciesCode, equationType), SpeciesMasterTableRecord);
 };;
 
 SIGMortality.prototype['checkIsInRegionAtSpeciesTableIndex'] = SIGMortality.prototype.checkIsInRegionAtSpeciesTableIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index, region) {
@@ -3562,19 +3548,6 @@ SIGMortality.prototype['getSpeciesCode'] = SIGMortality.prototype.getSpeciesCode
   return UTF8ToString(_emscripten_bind_SIGMortality_getSpeciesCode_0(self));
 };;
 
-SIGMortality.prototype['getSpeciesRecordVectorForRegion'] = SIGMortality.prototype.getSpeciesRecordVectorForRegion = /** @suppress {undefinedVars, duplicate} @this{Object} */function(region) {
-  var self = this.ptr;
-  if (region && typeof region === 'object') region = region.ptr;
-  return wrapPointer(_emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegion_1(self, region), SpeciesMasterTableRecord);
-};;
-
-SIGMortality.prototype['getSpeciesRecordVectorForRegionAndEquationType'] = SIGMortality.prototype.getSpeciesRecordVectorForRegionAndEquationType = /** @suppress {undefinedVars, duplicate} @this{Object} */function(region, equationType) {
-  var self = this.ptr;
-  if (region && typeof region === 'object') region = region.ptr;
-  if (equationType && typeof equationType === 'object') equationType = equationType.ptr;
-  return wrapPointer(_emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegionAndEquationType_2(self, region, equationType), SpeciesMasterTableRecord);
-};;
-
 SIGMortality.prototype['getCommonNameAtSpeciesTableIndex'] = SIGMortality.prototype.getCommonNameAtSpeciesTableIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
   var self = this.ptr;
   if (index && typeof index === 'object') index = index.ptr;
@@ -3607,11 +3580,6 @@ SIGMortality.prototype['getSpeciesCodeAtSpeciesTableIndex'] = SIGMortality.proto
   var self = this.ptr;
   if (index && typeof index === 'object') index = index.ptr;
   return UTF8ToString(_emscripten_bind_SIGMortality_getSpeciesCodeAtSpeciesTableIndex_1(self, index));
-};;
-
-SIGMortality.prototype['getRequiredFieldVector'] = SIGMortality.prototype.getRequiredFieldVector = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return !!(_emscripten_bind_SIGMortality_getRequiredFieldVector_0(self));
 };;
 
 SIGMortality.prototype['calculateMortality'] = SIGMortality.prototype.calculateMortality = /** @suppress {undefinedVars, duplicate} @this{Object} */function(probablityUnits) {
@@ -3810,7 +3778,7 @@ WindSpeedUtility.prototype['windSpeedAtTwentyFeetFromTenMeter'] = WindSpeedUtili
 
     Module['SquareInchesOverCubicInches'] = _emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareInchesOverCubicInches();
 
-    Module['SquareCentimetersOverCubicCentimers'] = _emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareCentimetersOverCubicCentimers();
+    Module['SquareCentimetersOverCubicCentimeters'] = _emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareCentimetersOverCubicCentimeters();
 
     
 
@@ -3890,9 +3858,9 @@ WindSpeedUtility.prototype['windSpeedAtTwentyFeetFromTenMeter'] = WindSpeedUtili
 
     Module['BtusPerSquareFoot'] = _emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_BtusPerSquareFoot();
 
-    Module['KilojoulesPerSquareMeterPerSecond'] = _emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_KilojoulesPerSquareMeterPerSecond();
+    Module['KilojoulesPerSquareMeter'] = _emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_KilojoulesPerSquareMeter();
 
-    Module['KilowattsPerSquareMeter'] = _emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_KilowattsPerSquareMeter();
+    Module['KilowattSecondsPerSquareMeter'] = _emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_KilowattSecondsPerSquareMeter();
 
     
 
@@ -4074,7 +4042,7 @@ WindSpeedUtility.prototype['windSpeedAtTwentyFeetFromTenMeter'] = WindSpeedUtili
 
     Module['Low'] = _emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Low();
 
-    Module['Medium'] = _emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Medium();
+    Module['Moderate'] = _emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Moderate();
 
     
 

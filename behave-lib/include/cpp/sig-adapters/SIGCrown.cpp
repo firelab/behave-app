@@ -33,20 +33,24 @@
 
 #include <cmath>
 #include "fuelModels.h"
+#include "SIGFuelModels.h"
 #include "windSpeedUtility.h"
 #include "SIGString.h"
 
-SIGCrown::SIGCrown(SIGFuelModels& fuelModels) {
-  return Crown::Crown(static_cast FuelModels fuelModels)
-}
+// SIGCrown::SIGCrown(SIGFuelModels& fuelModels) {
+//   return static_cast <SIGCrown> (Crown::Crown(static_cast <FuelModels> (fuelModels)));
+// }
 
-SIGCrown::SIGCrown(const SIGCrown& rhs) {
-  return Crown::Crown(static_cast Crown (rhs));
-}
+SIGCrown::SIGCrown(SIGFuelModels& fuelModels) : Crown(fuelModels) {}
 
 SIGCrown::~SIGCrown() {
   Crown::~Crown();
 };
+
+void SIGCrown::setFuelModels(SIGFuelModels& fuelModels) {
+  FuelModels baseFuelModels = static_cast <FuelModels> (fuelModels);
+  Crown::setFuelModels(baseFuelModels);
+}
 
 char* SIGCrown::getFuelCode(int fuelModelNumber) const
 {

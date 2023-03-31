@@ -46,6 +46,7 @@ class SIGSurface : public Surface
 public:
   SIGSurface() = delete; // No default constructor
   SIGSurface(SIGFuelModels& fuelModels);
+  SIGSurface(const SIGSurface& rhs);
   ~SIGSurface();
 
   // Fuel Model Getter Methods

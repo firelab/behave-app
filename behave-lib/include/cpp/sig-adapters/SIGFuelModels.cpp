@@ -38,31 +38,28 @@
 SIGFuelModels::SIGFuelModels() : FuelModels() {}
 
 // TODO: Implement similar to SI
-SIGFuelModels::SIGFuelModels& operator=(const SIGFuelModels& rhs) {
-    if(this != &rhs)
-    {
-      static_cast SIGFuelModels FuelModels::memberwiseCopyAssignment(static_cast FuelModels rhs);
-    }
-    return *this;
+
+SIGFuelModels& SIGFuelModels::operator=(const SIGFuelModels& rhs) {
+  FuelModels::operator=(rhs);
 }
 
-SIGFuelModels::SIGFuelModels(const SIGFuelModels& rhs) {
-  return static_cast SIGFuelModels FuelModels::FuelModels(static_cast FuelModels rhs);
-}
+SIGFuelModels::SIGFuelModels(const SIGFuelModels& rhs) : FuelModels::FuelModels(static_cast <FuelModels> (rhs)) {}
 
-SIGFuelModels::~SIGFuelModels();
-
-void SIGFuelModels::setFuelModelRecord(int fuelModelNumber, char* c_code, char* c_name,
-                                       double fuelBedDepth, double moistureOfExtinctionDead, double heatOfCombustionDead, double heatOfCombustionLive,
-                                       double fuelLoadOneHour, double fuelLoadTenHour, double fuelLoadHundredHour, double fuelLoadliveHerbaceous,
-                                       double fuelLoadliveWoody, double savrOneHour, double savrLiveHerbaceous, double savrLiveWoody,
-                                       bool isDynamic, bool isReserved)
+bool SIGFuelModels::setCustomFuelModel(int fuelModelNumber, char* code, char* name,
+                                       double fuelBedDepth, LengthUnits::LengthUnitsEnum lengthUnits, double moistureOfExtinctionDead,
+                                       MoistureUnits::MoistureUnitsEnum moistureUnits, double heatOfCombustionDead, double heatOfCombustionLive,
+                                       HeatOfCombustionUnits::HeatOfCombustionUnitsEnum heatOfCombustionUnits,
+                                       double fuelLoadOneHour, double fuelLoadTenHour, double fuelLoadHundredHour, double fuelLoadLiveHerbaceous,
+                                       double fuelLoadLiveWoody, LoadingUnits::LoadingUnitsEnum loadingUnits, double savrOneHour, double savrLiveHerbaceous,
+                                       double savrLiveWoody, SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum savrUnits, bool isDynamic)
 {
-  FuelModels::setFuelModelRecord(fuelModelNumber, std::string(c_code), std::string(c_name),
-                                 fuelBedDepth, moistureOfExtinctionDead, heatOfCombustionDead, heatOfCombustionLive,
-                                 fuelLoadOneHour, fuelLoadTenHour, fuelLoadHundredHour, fuelLoadliveHerbaceous,
-                                 fuelLoadliveWoody, savrOneHour, savrLiveHerbaceous, savrLiveWoody,
-                                 isDynamic, isReserved);
+  return FuelModels::setCustomFuelModel(fuelModelNumber, std::string(code), std::string(name),
+                                        fuelBedDepth, lengthUnits, moistureOfExtinctionDead,
+                                        moistureUnits, heatOfCombustionDead, heatOfCombustionLive,
+                                        heatOfCombustionUnits, fuelLoadOneHour, fuelLoadTenHour,
+                                        fuelLoadHundredHour, fuelLoadLiveHerbaceous, fuelLoadLiveWoody,
+                                        loadingUnits, savrOneHour, savrLiveHerbaceous, savrLiveWoody,
+                                        savrUnits, isDynamic);
 }
 
 char* SIGFuelModels::getFuelCode(int fuelModelNumber) const

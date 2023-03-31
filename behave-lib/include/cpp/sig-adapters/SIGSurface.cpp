@@ -37,13 +37,9 @@
 #include "surfaceInputs.h"
 #include "SIGString.h"
 
-SIGSurface::SIGSurface(SIGFuelModels& fuelModels) {
-  return Surface::Surface(static_cast FuelModels fuelModels)
-}
+SIGSurface::SIGSurface(SIGFuelModels& fuelModels) : Surface(static_cast <FuelModels> (fuelModels)) {}
 
-SIGSurface::SIGSurface(const SIGSurface& rhs) {
-  return Surface::Surface(static_cast Surface (rhs));
-}
+SIGSurface::SIGSurface(const SIGSurface& rhs) : Surface(static_cast <Surface> (rhs)) {}
 
 SIGSurface::~SIGSurface() {
   Surface::~Surface();

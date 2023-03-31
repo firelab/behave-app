@@ -12,24 +12,9 @@
 #include "species_master_table.h"
 #include "mortality_equation_table.h"
 
-SIGMortality::SIGMortality(SpeciesMasterTable& speciesMasterTable) : Mortality(SpeciesMasterTable& speciesMasterTable) {}
+SIGMortality::SIGMortality(SpeciesMasterTable& speciesMasterTable) : Mortality(speciesMasterTable) {}
 
-SIGMortality::SIGMortality(const SIGMortality& rhs) {
-  return Mortality::Mortality(static_cast Mortality (rhs));
-}
-
-SIGMortality& SIGMortality::operator=(const SIGMortality& rhs)
-{
-    if(this != &rhs)
-    {
-        memberwiseCopyAssignment(rhs);
-    }
-    return *this;
-}
-
-SIGMortality::~SIGMortality() {
-  Mortality::~Mortality();
-}; 
+SIGMortality::SIGMortality(const SIGMortality& rhs) : Mortality(static_cast <Mortality> (rhs)) {}
 
 void SIGMortality::setSpeciesCode(char* speciesCode)
 {
@@ -99,29 +84,6 @@ int SIGMortality::getSpeciesTableIndexFromSpeciesCode(char* speciesCode) const
 int SIGMortality::getSpeciesTableIndexFromSpeciesCodeAndEquationType(char* speciesNameCode, EquationType equationType) const
 {
   return Mortality::getSpeciesTableIndexFromSpeciesCodeAndEquationType(std::string(speciesNameCode), equationType);
-}
-
-bool* SIGMortality::getRequiredFieldVector()
-{
-  std::vector<bool> result = Mortality::getRequiredFieldVector();
-  return static_cast bool[] (&result[0]);
-}
-
-SpeciesMasterTableRecord SIGMortality::getSpeciesRecordBySpeciesCodeAndEquationType(char* speciesCode, EquationType equationType) const
-{
-  return Mortality::getSpeciesRecordBySpeciesCodeAndEquationType(std::string(speciesCode), equationType);
-}
-
-SpeciesMasterTableRecord* SIGMortality::getSpeciesRecordVectorForRegion(RegionCode region) const
-{
-  std::vector<SpeciesMasterTableRecord> result = Mortality::getSpeciesRecordVectorForRegion(region);
-  return static_cast SpeciesMasterTableRecord[] (&result[0]);
-}
-
-SpeciesMasterTableRecord* SIGMortality::getSpeciesRecordVectorForRegionAndEquationType(RegionCode region, EquationType equationType) const
-{
-  std::vector<SpeciesMasterTableRecord> result = Mortality::getSpeciesRecordVectorForRegionAndEquationType(region, equationType);
-  return static_cast SpeciesMasterTableRecord[] (&result[0]);
 }
 
 bool SIGMortality::updateInputsForSpeciesCodeAndEquationType(char* speciesCode, EquationType equationType)

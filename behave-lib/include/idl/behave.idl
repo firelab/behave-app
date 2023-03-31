@@ -31,7 +31,7 @@ enum SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum {
   "SurfaceAreaToVolumeUnits::SquareFeetOverCubicFeet",
   "SurfaceAreaToVolumeUnits::SquareMetersOverCubicMeters",
   "SurfaceAreaToVolumeUnits::SquareInchesOverCubicInches",
-  "SurfaceAreaToVolumeUnits::SquareCentimetersOverCubicCentimers"
+  "SurfaceAreaToVolumeUnits::SquareCentimetersOverCubicCentimeters"
 };
 
 enum CoverUnits_CoverUnitsEnum {
@@ -80,8 +80,8 @@ enum HeatSinkUnits_HeatSinkUnitsEnum {
 
 enum HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum {
   "HeatPerUnitAreaUnits::BtusPerSquareFoot",
-  "HeatPerUnitAreaUnits::KilojoulesPerSquareMeterPerSecond",
-  "HeatPerUnitAreaUnits::KilowattsPerSquareMeter"
+  "HeatPerUnitAreaUnits::KilojoulesPerSquareMeter",
+  "HeatPerUnitAreaUnits::KilowattSecondsPerSquareMeter"
 };
 
 enum HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum {
@@ -463,7 +463,7 @@ interface SIGSpot {
 
 enum AspenFireSeverity_AspenFireSeverityEnum {
   "AspenFireSeverity::Low",
-  "AspenFireSeverity::Medium"
+  "AspenFireSeverity::Moderate"
 };
 
 enum TwoFuelModelsMethod_TwoFuelModelsMethodEnum {
@@ -542,10 +542,10 @@ interface SIGSurface {
   [Const] double getEllipticalA(LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits_TimeUnitsEnum timeUnits);
   [Const] double getEllipticalB(LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits_TimeUnitsEnum timeUnits);
   [Const] double getEllipticalC(LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits_TimeUnitsEnum timeUnits);
-  [Const] double getFireArea(AreaUnits_AreaUnitsEnum areaUnits, double elapsedTime);
+  [Const] double getFireArea(AreaUnits_AreaUnitsEnum areaUnits, double elapsedTime, TimeUnits_TimeUnitsEnum timeUnits);
   [Const] double getFireEccentricity();
   [Const] double getFireLengthToWidthRatio();
-  [Const] double getFirePerimeter(LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime);
+  [Const] double getFirePerimeter(LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits_TimeUnitsEnum timeUnits);
   [Const] double getFirelineIntensity(FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits);
   [Const] double getFlameLength(LengthUnits_LengthUnitsEnum flameLengthUnits);
   [Const] double getHeatPerUnitArea(HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum heatPerUnitAreaUnits);
@@ -709,77 +709,78 @@ interface SIGCrown {
 /* Mortality */
 
 enum BeetleDamage {
-  "not_set",
-  "no",
-  "yes"
+  "BeetleDamage::not_set",
+  "BeetleDamage::no",
+  "BeetleDamage::yes"
 };
 
 enum FireSeverity {
-  "not_set",
-  "empty",
-  "low"
+  "FireSeverity::not_set",
+  "FireSeverity::empty",
+  "FireSeverity::low"
 };
 
-enum FlameLengthOrScorchHeightSwitch{
-  "flame_length",
-  "scorch_height"
+enum FlameLengthOrScorchHeightSwitch {
+  "FlameLengthOrScorchHeightSwitch::flame_length",
+  "FlameLengthOrScorchHeightSwitch::scorch_height"
 };
 
 enum RegionCode {
-  "interior_west",
-  "pacific_west",
-  "north_east",
-  "south_east"
+  "RegionCode::interior_west",
+  "RegionCode::pacific_west",
+  "RegionCode::north_east",
+  "RegionCode::south_east"
 };
 
 enum CrownDamageType {
-  "not_set",
-  "crown_length",
-  "crown_volume",
-  "crown_kill"
+  "CrownDamageType::not_set",
+  "CrownDamageType::crown_length",
+  "CrownDamageType::crown_volume",
+  "CrownDamageType::crown_kill"
 };
 
 enum RequiredFieldNames {
-  "region",  
-  "flame_length_or_scorch_height_switch",  
-  "flame_length_or_scorch_height_value",  
-  "equation_type",  
-  "dbh",  
-  "tree_height",  
-  "crown_ratio",  
-  "crown_damage",  
-  "cambium_kill_rating",  
-  "beetle_damage",  
-  "bole_char_height",  
-  "bark_thickness",  
-  "fire_severity",  
-  "num_inputs"
+  "RequiredFieldNames::region",
+  "RequiredFieldNames::flame_length_or_scorch_height_switch",
+  "RequiredFieldNames::flame_length_or_scorch_height_value",
+  "RequiredFieldNames::equation_type",
+  "RequiredFieldNames::dbh",
+  "RequiredFieldNames::tree_height",
+  "RequiredFieldNames::crown_ratio",
+  "RequiredFieldNames::crown_damage",
+  "RequiredFieldNames::cambium_kill_rating",
+  "RequiredFieldNames::beetle_damage",
+  "RequiredFieldNames::bole_char_height",
+  "RequiredFieldNames::bark_thickness",
+  "RequiredFieldNames::fire_severity",
+  "RequiredFieldNames::num_inputs"
 };
 
 enum CrownDamageEquationCode {
-  "not_set",  
-  "white_fir",  
-  "subalpine_fir",  
-  "incense_cedar",  
-  "western_larch",  
-  "whitebark_pine",  
-  "engelmann_spruce",  
-  "sugar_pine",  
-  "red_fir",  
-  "ponderosa_pine",  
-  "ponderosa_kill",  
-  "douglas_fir"
+  "CrownDamageEquationCode::not_set",
+  "CrownDamageEquationCode::white_fir",
+  "CrownDamageEquationCode::subalpine_fir",
+  "CrownDamageEquationCode::incense_cedar",
+  "CrownDamageEquationCode::western_larch",
+  "CrownDamageEquationCode::whitebark_pine",
+  "CrownDamageEquationCode::engelmann_spruce",
+  "CrownDamageEquationCode::sugar_pine",
+  "CrownDamageEquationCode::red_fir",
+  "CrownDamageEquationCode::ponderosa_pine",
+  "CrownDamageEquationCode::ponderosa_kill",
+  "CrownDamageEquationCode::douglas_fir"
 };
 
 enum EquationType {
-  "not_set",  
-  "crown_scorch",  
-  "bole_char",  
-  "crown_damage"  
+  "EquationType::not_set",
+  "EquationType::crown_scorch",
+  "EquationType::bole_char",
+  "EquationType::crown_damage"
 };
 
 interface SpeciesMasterTableRecord {
-  void SpeciesMasterTableRecord([Const] SpeciesMasterTableRecord rhs);
+  void SpeciesMasterTableRecord();
+  void SpeciesMasterTableRecord([Const, Ref] SpeciesMasterTableRecord rhs);
 };
 
 interface SpeciesMasterTable {
@@ -791,7 +792,7 @@ interface SpeciesMasterTable {
 };
 
 interface SIGMortality {
-  void Mortality([Ref] SpeciesMasterTable speciesMasterTable);
+  void SIGMortality([Ref] SpeciesMasterTable speciesMasterTable);
 
   [Const] BeetleDamage getBeetleDamage();
   [Const] CrownDamageEquationCode getCrownDamageEquationCode();
@@ -804,8 +805,8 @@ interface SIGMortality {
   [Const] FireSeverity getFireSeverity();
   [Const] FlameLengthOrScorchHeightSwitch getFlameLengthOrScorchHeightSwitch();
   [Const] RegionCode getRegion();
-  [Const] SpeciesMasterTableRecord getSpeciesRecordAtIndex(long index);
-  [Const] SpeciesMasterTableRecord getSpeciesRecordBySpeciesCodeAndEquationType(DOMString speciesCode, EquationType equationType);
+  // SpeciesMasterTableRecord getSpeciesRecordAtIndex(long index);
+  // SpeciesMasterTableRecord getSpeciesRecordBySpeciesCodeAndEquationType(DOMString speciesCode, EquationType equationType);
   [Const] boolean checkIsInRegionAtSpeciesTableIndex(long index, RegionCode region);
   [Const] boolean checkIsInRegionFromSpeciesCode(DOMString speciesCode, RegionCode region);
   [Const] double getBarkThickness(LengthUnits_LengthUnitsEnum barkThicknessUnits);
@@ -836,14 +837,14 @@ interface SIGMortality {
   [Const] long getSpeciesTableIndexFromSpeciesCode(DOMString speciesNameCode);
   [Const] long getSpeciesTableIndexFromSpeciesCodeAndEquationType(DOMString speciesNameCode, EquationType equationType);
   DOMString getSpeciesCode();
-  [Const] sequence<SpeciesMasterTableRecord> getSpeciesRecordVectorForRegion(RegionCode region);
-  [Const] sequence<SpeciesMasterTableRecord> getSpeciesRecordVectorForRegionAndEquationType(RegionCode region, EquationType equationType);
+  // sequence<SpeciesMasterTableRecord> getSpeciesRecordVectorForRegion(RegionCode region);
+  // sequence<SpeciesMasterTableRecord> getSpeciesRecordVectorForRegionAndEquationType(RegionCode region, EquationType equationType);
   [Const] DOMString getCommonNameAtSpeciesTableIndex(long index);
   [Const] DOMString getCommonNameFromSpeciesCode(DOMString speciesCode);
   [Const] DOMString getScientificNameAtSpeciesTableIndex(long index);
   [Const] DOMString getScientificNameFromSpeciesCode(DOMString speciesCode);
   [Const] DOMString getSpeciesCodeAtSpeciesTableIndex(long index);
-  sequence<boolean> getRequiredFieldVector();
+  // sequence<boolean> getRequiredFieldVector();
 
   double calculateMortality(ProbabilityUnits_ProbabilityUnitsEnum probablityUnits);
 

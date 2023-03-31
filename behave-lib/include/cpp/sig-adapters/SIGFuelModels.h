@@ -40,6 +40,10 @@
 class SIGFuelModels : public FuelModels
 {
 public:
+    SIGFuelModels();
+    SIGFuelModels& operator=(const SIGFuelModels& rhs);
+    SIGFuelModels(const SIGFuelModels& rhs);
+
     bool setCustomFuelModel(int fuelModelNumber, char* code, char* name,
         double fuelBedDepth, LengthUnits::LengthUnitsEnum lengthUnits, double moistureOfExtinctionDead,
         MoistureUnits::MoistureUnitsEnum moistureUnits, double heatOfCombustionDead, double heatOfCombustionLive,

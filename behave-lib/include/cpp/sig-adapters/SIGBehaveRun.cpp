@@ -28,8 +28,6 @@
 
 #include "SIGBehaveRun.h"
 
-#include "SIGFuelModels.h"
-
 SIGBehaveRun::SIGBehaveRun(SIGFuelModels& fuelModels, SpeciesMasterTable& speciesMasterTable)
     : surface(fuelModels),
     crown(fuelModels),

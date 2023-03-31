@@ -2,8 +2,7 @@ cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 
 # Emscripten Compilation
 set(WRAPPER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/include/cpp/emscripten/wrapper.cpp)
-set(ENUM_CPP_FILE ${CMAKE_CURRENT_SOURCE_DIR}/include/cpp/emscripten/enum.cpp)
-set(GLUE_CPP_FILE ${CMAKE_CURRENT_SOURCE_DIR}/include/cpp/emscripten/glue.cpp)
+set(EMSCRIPTEN_CPP_FILE ${CMAKE_CURRENT_SOURCE_DIR}/include/cpp/emscripten/)
 set(GLUE_JS_FILE ${CMAKE_CURRENT_SOURCE_DIR}/include/js/glue.js)
 set(BEHAVE_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/behave-mirror/src/behave/)
 set(SIG_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include/cpp/sig-adapters/)
@@ -12,8 +11,7 @@ set(BEHAVE_LIB libbehave.a)
 set(EMCC_ARGS
   -I${BEHAVE_SRC_DIR}
   -I${SIG_SRC_DIR}
-  -I${GLUE_CPP_FILE}
-  -I${ENUM_CPP_FILE}
+  -I${EMSCRIPTEN_SRC_FILE}
   -L${BEHAVE_LIB}
   --post-js ${GLUE_JS_FILE}
   -sNO_DISABLE_EXCEPTION_CATCHING

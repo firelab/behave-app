@@ -1256,8 +1256,8 @@ const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getEllipticalC_3(SI
   return self->getEllipticalC(lengthUnits, elapsedTime, timeUnits);
 }
 
-const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getFireArea_2(SIGSurface* self, AreaUnits_AreaUnitsEnum areaUnits, double elapsedTime) {
-  return self->getFireArea(areaUnits, elapsedTime);
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getFireArea_3(SIGSurface* self, AreaUnits_AreaUnitsEnum areaUnits, double elapsedTime, TimeUnits_TimeUnitsEnum timeUnits) {
+  return self->getFireArea(areaUnits, elapsedTime, timeUnits);
 }
 
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getFireEccentricity_0(SIGSurface* self) {
@@ -1268,8 +1268,8 @@ const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getFireLengthToWidt
   return self->getFireLengthToWidthRatio();
 }
 
-const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getFirePerimeter_2(SIGSurface* self, LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime) {
-  return self->getFirePerimeter(lengthUnits, elapsedTime);
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getFirePerimeter_3(SIGSurface* self, LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits_TimeUnitsEnum timeUnits) {
+  return self->getFirePerimeter(lengthUnits, elapsedTime, timeUnits);
 }
 
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getFirelineIntensity_1(SIGSurface* self, FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits) {
@@ -1840,8 +1840,12 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown___destroy___0(SIGCrown* self)
 
 // SpeciesMasterTableRecord
 
+SpeciesMasterTableRecord* EMSCRIPTEN_KEEPALIVE emscripten_bind_SpeciesMasterTableRecord_SpeciesMasterTableRecord_0() {
+  return new SpeciesMasterTableRecord();
+}
+
 SpeciesMasterTableRecord* EMSCRIPTEN_KEEPALIVE emscripten_bind_SpeciesMasterTableRecord_SpeciesMasterTableRecord_1(const SpeciesMasterTableRecord* rhs) {
-  return new SpeciesMasterTableRecord(rhs);
+  return new SpeciesMasterTableRecord(*rhs);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SpeciesMasterTableRecord___destroy___0(SpeciesMasterTableRecord* self) {
@@ -1876,8 +1880,8 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SpeciesMasterTable___destroy___0(Speci
 
 // SIGMortality
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_Mortality_1(SIGMortality* self, SpeciesMasterTable* speciesMasterTable) {
-  self->Mortality(*speciesMasterTable);
+SIGMortality* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_SIGMortality_1(SpeciesMasterTable* speciesMasterTable) {
+  return new SIGMortality(*speciesMasterTable);
 }
 
 const BeetleDamage EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getBeetleDamage_0(SIGMortality* self) {
@@ -1922,14 +1926,6 @@ const FlameLengthOrScorchHeightSwitch EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMo
 
 const RegionCode EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getRegion_0(SIGMortality* self) {
   return self->getRegion();
-}
-
-const SpeciesMasterTableRecord* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getSpeciesRecordAtIndex_1(SIGMortality* self, int index) {
-  return self->getSpeciesRecordAtIndex(index);
-}
-
-const SpeciesMasterTableRecord* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getSpeciesRecordBySpeciesCodeAndEquationType_2(SIGMortality* self, char* speciesCode, EquationType equationType) {
-  return self->getSpeciesRecordBySpeciesCodeAndEquationType(speciesCode, equationType);
 }
 
 const bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_checkIsInRegionAtSpeciesTableIndex_2(SIGMortality* self, int index, RegionCode region) {
@@ -2052,14 +2048,6 @@ char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getSpeciesCode_0(SIGMort
   return self->getSpeciesCode();
 }
 
-const SpeciesMasterTableRecord* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegion_1(SIGMortality* self, RegionCode region) {
-  return self->getSpeciesRecordVectorForRegion(region);
-}
-
-const SpeciesMasterTableRecord* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegionAndEquationType_2(SIGMortality* self, RegionCode region, EquationType equationType) {
-  return self->getSpeciesRecordVectorForRegionAndEquationType(region, equationType);
-}
-
 const char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getCommonNameAtSpeciesTableIndex_1(SIGMortality* self, int index) {
   return self->getCommonNameAtSpeciesTableIndex(index);
 }
@@ -2078,10 +2066,6 @@ const char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getScientificNameF
 
 const char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getSpeciesCodeAtSpeciesTableIndex_1(SIGMortality* self, int index) {
   return self->getSpeciesCodeAtSpeciesTableIndex(index);
-}
-
-bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getRequiredFieldVector_0(SIGMortality* self) {
-  return self->getRequiredFieldVector();
 }
 
 double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_calculateMortality_1(SIGMortality* self, ProbabilityUnits_ProbabilityUnitsEnum probablityUnits) {
@@ -2237,8 +2221,8 @@ SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum EMSCRIPTEN_KEEPALIVE emscr
 SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareInchesOverCubicInches() {
   return SurfaceAreaToVolumeUnits::SquareInchesOverCubicInches;
 }
-SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareCentimetersOverCubicCentimers() {
-  return SurfaceAreaToVolumeUnits::SquareCentimetersOverCubicCentimers;
+SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareCentimetersOverCubicCentimeters() {
+  return SurfaceAreaToVolumeUnits::SquareCentimetersOverCubicCentimeters;
 }
 
 // CoverUnits_CoverUnitsEnum
@@ -2321,11 +2305,11 @@ HeatSinkUnits_HeatSinkUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_HeatSinkUni
 HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_BtusPerSquareFoot() {
   return HeatPerUnitAreaUnits::BtusPerSquareFoot;
 }
-HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_KilojoulesPerSquareMeterPerSecond() {
-  return HeatPerUnitAreaUnits::KilojoulesPerSquareMeterPerSecond;
+HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_KilojoulesPerSquareMeter() {
+  return HeatPerUnitAreaUnits::KilojoulesPerSquareMeter;
 }
-HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_KilowattsPerSquareMeter() {
-  return HeatPerUnitAreaUnits::KilowattsPerSquareMeter;
+HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_KilowattSecondsPerSquareMeter() {
+  return HeatPerUnitAreaUnits::KilowattSecondsPerSquareMeter;
 }
 
 // HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum
@@ -2545,8 +2529,8 @@ SpotArrayConstants EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotArrayConstants_NUM_S
 AspenFireSeverity_AspenFireSeverityEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Low() {
   return AspenFireSeverity::Low;
 }
-AspenFireSeverity_AspenFireSeverityEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Medium() {
-  return AspenFireSeverity::Medium;
+AspenFireSeverity_AspenFireSeverityEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Moderate() {
+  return AspenFireSeverity::Moderate;
 }
 
 // TwoFuelModelsMethod_TwoFuelModelsMethodEnum
@@ -2617,156 +2601,156 @@ FireType_FireTypeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FireType_FireTypeEnum
 
 // BeetleDamage
 BeetleDamage EMSCRIPTEN_KEEPALIVE emscripten_enum_BeetleDamage_not_set() {
-  return not_set;
+  return BeetleDamage::not_set;
 }
 BeetleDamage EMSCRIPTEN_KEEPALIVE emscripten_enum_BeetleDamage_no() {
-  return no;
+  return BeetleDamage::no;
 }
 BeetleDamage EMSCRIPTEN_KEEPALIVE emscripten_enum_BeetleDamage_yes() {
-  return yes;
+  return BeetleDamage::yes;
 }
 
 // FireSeverity
 FireSeverity EMSCRIPTEN_KEEPALIVE emscripten_enum_FireSeverity_not_set() {
-  return not_set;
+  return FireSeverity::not_set;
 }
 FireSeverity EMSCRIPTEN_KEEPALIVE emscripten_enum_FireSeverity_empty() {
-  return empty;
+  return FireSeverity::empty;
 }
 FireSeverity EMSCRIPTEN_KEEPALIVE emscripten_enum_FireSeverity_low() {
-  return low;
+  return FireSeverity::low;
 }
 
 // FlameLengthOrScorchHeightSwitch
 FlameLengthOrScorchHeightSwitch EMSCRIPTEN_KEEPALIVE emscripten_enum_FlameLengthOrScorchHeightSwitch_flame_length() {
-  return flame_length;
+  return FlameLengthOrScorchHeightSwitch::flame_length;
 }
 FlameLengthOrScorchHeightSwitch EMSCRIPTEN_KEEPALIVE emscripten_enum_FlameLengthOrScorchHeightSwitch_scorch_height() {
-  return scorch_height;
+  return FlameLengthOrScorchHeightSwitch::scorch_height;
 }
 
 // RegionCode
 RegionCode EMSCRIPTEN_KEEPALIVE emscripten_enum_RegionCode_interior_west() {
-  return interior_west;
+  return RegionCode::interior_west;
 }
 RegionCode EMSCRIPTEN_KEEPALIVE emscripten_enum_RegionCode_pacific_west() {
-  return pacific_west;
+  return RegionCode::pacific_west;
 }
 RegionCode EMSCRIPTEN_KEEPALIVE emscripten_enum_RegionCode_north_east() {
-  return north_east;
+  return RegionCode::north_east;
 }
 RegionCode EMSCRIPTEN_KEEPALIVE emscripten_enum_RegionCode_south_east() {
-  return south_east;
+  return RegionCode::south_east;
 }
 
 // CrownDamageType
 CrownDamageType EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageType_not_set() {
-  return not_set;
+  return CrownDamageType::not_set;
 }
 CrownDamageType EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageType_crown_length() {
-  return crown_length;
+  return CrownDamageType::crown_length;
 }
 CrownDamageType EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageType_crown_volume() {
-  return crown_volume;
+  return CrownDamageType::crown_volume;
 }
 CrownDamageType EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageType_crown_kill() {
-  return crown_kill;
+  return CrownDamageType::crown_kill;
 }
 
 // RequiredFieldNames
 RequiredFieldNames EMSCRIPTEN_KEEPALIVE emscripten_enum_RequiredFieldNames_region() {
-  return region;
+  return RequiredFieldNames::region;
 }
 RequiredFieldNames EMSCRIPTEN_KEEPALIVE emscripten_enum_RequiredFieldNames_flame_length_or_scorch_height_switch() {
-  return flame_length_or_scorch_height_switch;
+  return RequiredFieldNames::flame_length_or_scorch_height_switch;
 }
 RequiredFieldNames EMSCRIPTEN_KEEPALIVE emscripten_enum_RequiredFieldNames_flame_length_or_scorch_height_value() {
-  return flame_length_or_scorch_height_value;
+  return RequiredFieldNames::flame_length_or_scorch_height_value;
 }
 RequiredFieldNames EMSCRIPTEN_KEEPALIVE emscripten_enum_RequiredFieldNames_equation_type() {
-  return equation_type;
+  return RequiredFieldNames::equation_type;
 }
 RequiredFieldNames EMSCRIPTEN_KEEPALIVE emscripten_enum_RequiredFieldNames_dbh() {
-  return dbh;
+  return RequiredFieldNames::dbh;
 }
 RequiredFieldNames EMSCRIPTEN_KEEPALIVE emscripten_enum_RequiredFieldNames_tree_height() {
-  return tree_height;
+  return RequiredFieldNames::tree_height;
 }
 RequiredFieldNames EMSCRIPTEN_KEEPALIVE emscripten_enum_RequiredFieldNames_crown_ratio() {
-  return crown_ratio;
+  return RequiredFieldNames::crown_ratio;
 }
 RequiredFieldNames EMSCRIPTEN_KEEPALIVE emscripten_enum_RequiredFieldNames_crown_damage() {
-  return crown_damage;
+  return RequiredFieldNames::crown_damage;
 }
 RequiredFieldNames EMSCRIPTEN_KEEPALIVE emscripten_enum_RequiredFieldNames_cambium_kill_rating() {
-  return cambium_kill_rating;
+  return RequiredFieldNames::cambium_kill_rating;
 }
 RequiredFieldNames EMSCRIPTEN_KEEPALIVE emscripten_enum_RequiredFieldNames_beetle_damage() {
-  return beetle_damage;
+  return RequiredFieldNames::beetle_damage;
 }
 RequiredFieldNames EMSCRIPTEN_KEEPALIVE emscripten_enum_RequiredFieldNames_bole_char_height() {
-  return bole_char_height;
+  return RequiredFieldNames::bole_char_height;
 }
 RequiredFieldNames EMSCRIPTEN_KEEPALIVE emscripten_enum_RequiredFieldNames_bark_thickness() {
-  return bark_thickness;
+  return RequiredFieldNames::bark_thickness;
 }
 RequiredFieldNames EMSCRIPTEN_KEEPALIVE emscripten_enum_RequiredFieldNames_fire_severity() {
-  return fire_severity;
+  return RequiredFieldNames::fire_severity;
 }
 RequiredFieldNames EMSCRIPTEN_KEEPALIVE emscripten_enum_RequiredFieldNames_num_inputs() {
-  return num_inputs;
+  return RequiredFieldNames::num_inputs;
 }
 
 // CrownDamageEquationCode
 CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageEquationCode_not_set() {
-  return not_set;
+  return CrownDamageEquationCode::not_set;
 }
 CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageEquationCode_white_fir() {
-  return white_fir;
+  return CrownDamageEquationCode::white_fir;
 }
 CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageEquationCode_subalpine_fir() {
-  return subalpine_fir;
+  return CrownDamageEquationCode::subalpine_fir;
 }
 CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageEquationCode_incense_cedar() {
-  return incense_cedar;
+  return CrownDamageEquationCode::incense_cedar;
 }
 CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageEquationCode_western_larch() {
-  return western_larch;
+  return CrownDamageEquationCode::western_larch;
 }
 CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageEquationCode_whitebark_pine() {
-  return whitebark_pine;
+  return CrownDamageEquationCode::whitebark_pine;
 }
 CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageEquationCode_engelmann_spruce() {
-  return engelmann_spruce;
+  return CrownDamageEquationCode::engelmann_spruce;
 }
 CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageEquationCode_sugar_pine() {
-  return sugar_pine;
+  return CrownDamageEquationCode::sugar_pine;
 }
 CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageEquationCode_red_fir() {
-  return red_fir;
+  return CrownDamageEquationCode::red_fir;
 }
 CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageEquationCode_ponderosa_pine() {
-  return ponderosa_pine;
+  return CrownDamageEquationCode::ponderosa_pine;
 }
 CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageEquationCode_ponderosa_kill() {
-  return ponderosa_kill;
+  return CrownDamageEquationCode::ponderosa_kill;
 }
 CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageEquationCode_douglas_fir() {
-  return douglas_fir;
+  return CrownDamageEquationCode::douglas_fir;
 }
 
 // EquationType
 EquationType EMSCRIPTEN_KEEPALIVE emscripten_enum_EquationType_not_set() {
-  return not_set;
+  return EquationType::not_set;
 }
 EquationType EMSCRIPTEN_KEEPALIVE emscripten_enum_EquationType_crown_scorch() {
-  return crown_scorch;
+  return EquationType::crown_scorch;
 }
 EquationType EMSCRIPTEN_KEEPALIVE emscripten_enum_EquationType_bole_char() {
-  return bole_char;
+  return EquationType::bole_char;
 }
 EquationType EMSCRIPTEN_KEEPALIVE emscripten_enum_EquationType_crown_damage() {
-  return crown_damage;
+  return EquationType::crown_damage;
 }
 
 }

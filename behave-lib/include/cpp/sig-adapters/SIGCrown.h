@@ -39,6 +39,7 @@
 #include "crownInputs.h"
 #include "surface.h"
 #include "crown.h"
+#include "SIGFuelModels.h"
 
 class SIGCrown : public Crown
 {

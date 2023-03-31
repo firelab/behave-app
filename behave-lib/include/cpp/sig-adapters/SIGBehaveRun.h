@@ -29,6 +29,7 @@
 #pragma once
 
 #include "behaveUnits.h"
+#include "SIGFuelModels.h"
 #include "SIGContainAdapter.h"
 #include "SIGCrown.h"
 #include "SIGIgnite.h"
