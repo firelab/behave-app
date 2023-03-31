@@ -13,7 +13,7 @@ compile: bind
 	cmake --build build
 
 install: compile
-  cp build/behave.js ../projects/behave/resources/public/js
+	cp build/behave.js ../projects/behave/resources/public/js
 
 ctags:
 	ctags -e -R --exclude=.git --exclude=build --exclude .ccls-cache .
