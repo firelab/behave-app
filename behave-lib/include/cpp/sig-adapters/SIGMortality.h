@@ -13,6 +13,7 @@
 #include "mortality_inputs.h"
 #include "mortality.h"
 #include "SIGString.h"
+#include "SIGCollections.h"
 
 class SIGMortality : public Mortality
 {
@@ -37,4 +38,7 @@ class SIGMortality : public Mortality
   int getSpeciesTableIndexFromSpeciesCode(char* speciesNameCode) const;
   int getSpeciesTableIndexFromSpeciesCodeAndEquationType(char* speciesNameCode, EquationType equationType) const;
   SpeciesMasterTableRecord getSpeciesRecordBySpeciesCodeAndEquationType(char* speciesCode, EquationType equationType) const;
+  BoolVector* getRequiredFieldVector();
+  SpeciesMasterTableRecordVector* getSpeciesRecordVectorForRegion(RegionCode region);
+  SpeciesMasterTableRecordVector* getSpeciesRecordVectorForRegionAndEquationType(RegionCode region, EquationType equationType);
 };

@@ -1,6 +1,24 @@
 
 interface DoublePtr {};
 
+interface BoolVector {
+  void BoolVector();
+  void BoolVector(long size);
+  void resize(long size);
+  boolean get(long i);
+  void set(long i, boolean val);
+  long size();
+};
+
+interface SpeciesMasterTableRecordVector {
+  void SpeciesMasterTableRecordVector();
+  void SpeciesMasterTableRecordVector(long size);
+  void resize(long size);
+  SpeciesMasterTableRecord get(long i);
+  void set(long i, SpeciesMasterTableRecord val);
+  long size();
+};
+
 enum AreaUnits_AreaUnitsEnum {
   "AreaUnits::SquareFeet",
   "AreaUnits::Acres",
@@ -837,14 +855,14 @@ interface SIGMortality {
   [Const] long getSpeciesTableIndexFromSpeciesCode(DOMString speciesNameCode);
   [Const] long getSpeciesTableIndexFromSpeciesCodeAndEquationType(DOMString speciesNameCode, EquationType equationType);
   DOMString getSpeciesCode();
-  // sequence<SpeciesMasterTableRecord> getSpeciesRecordVectorForRegion(RegionCode region);
-  // sequence<SpeciesMasterTableRecord> getSpeciesRecordVectorForRegionAndEquationType(RegionCode region, EquationType equationType);
+  SpeciesMasterTableRecordVector getSpeciesRecordVectorForRegion(RegionCode region);
+  SpeciesMasterTableRecordVector getSpeciesRecordVectorForRegionAndEquationType(RegionCode region, EquationType equationType);
   [Const] DOMString getCommonNameAtSpeciesTableIndex(long index);
   [Const] DOMString getCommonNameFromSpeciesCode(DOMString speciesCode);
   [Const] DOMString getScientificNameAtSpeciesTableIndex(long index);
   [Const] DOMString getScientificNameFromSpeciesCode(DOMString speciesCode);
   [Const] DOMString getSpeciesCodeAtSpeciesTableIndex(long index);
-  // sequence<boolean> getRequiredFieldVector();
+  BoolVector getRequiredFieldVector();
 
   double calculateMortality(ProbabilityUnits_ProbabilityUnitsEnum probablityUnits);
 

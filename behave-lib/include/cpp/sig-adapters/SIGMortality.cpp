@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
+#include <memory>
 
 #include <algorithm>
 #include <functional>
@@ -11,6 +12,7 @@
 #include "SIGMortality.h"
 #include "species_master_table.h"
 #include "mortality_equation_table.h"
+#include "SIGCollections.h"
 
 SIGMortality::SIGMortality(SpeciesMasterTable& speciesMasterTable) : Mortality(speciesMasterTable) {}
 
@@ -89,4 +91,23 @@ int SIGMortality::getSpeciesTableIndexFromSpeciesCodeAndEquationType(char* speci
 bool SIGMortality::updateInputsForSpeciesCodeAndEquationType(char* speciesCode, EquationType equationType)
 {
   return Mortality::updateInputsForSpeciesCodeAndEquationType(std::string(speciesCode), equationType);
+}
+
+BoolVector* SIGMortality::getRequiredFieldVector()
+{
+    vector<bool> results = Mortality::getRequiredFieldVector();
+    BoolVector* ptr = new BoolVector(results);
+    return ptr;
+}
+
+SpeciesMasterTableRecordVector* SIGMortality::getSpeciesRecordVectorForRegion(RegionCode region) {
+  vector<SpeciesMasterTableRecord> results = Mortality::getSpeciesRecordVectorForRegion(region);
+  SpeciesMasterTableRecordVector *ptr = new SpeciesMasterTableRecordVector(results);
+  return ptr;
+}
+
+SpeciesMasterTableRecordVector* SIGMortality::getSpeciesRecordVectorForRegionAndEquationType(RegionCode region, EquationType equationType) {
+  vector<SpeciesMasterTableRecord> results = Mortality::getSpeciesRecordVectorForRegionAndEquationType(region, equationType);
+  SpeciesMasterTableRecordVector *ptr = new SpeciesMasterTableRecordVector(results);
+  return ptr;
 }

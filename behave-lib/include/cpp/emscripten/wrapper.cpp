@@ -1,4 +1,5 @@
 #include "SIGString.h"
+#include "SIGCollections.h"
 #include "behaveUnits.cpp"
 #include "fireSize.cpp"
 #include "fuelModels.cpp"

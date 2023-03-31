@@ -209,6 +209,88 @@ Module['DoublePtr'] = DoublePtr;
   var self = this.ptr;
   _emscripten_bind_DoublePtr___destroy___0(self);
 };
+// BoolVector
+/** @suppress {undefinedVars, duplicate} @this{Object} */function BoolVector(size) {
+  if (size && typeof size === 'object') size = size.ptr;
+  if (size === undefined) { this.ptr = _emscripten_bind_BoolVector_BoolVector_0(); getCache(BoolVector)[this.ptr] = this;return }
+  this.ptr = _emscripten_bind_BoolVector_BoolVector_1(size);
+  getCache(BoolVector)[this.ptr] = this;
+};;
+BoolVector.prototype = Object.create(WrapperObject.prototype);
+BoolVector.prototype.constructor = BoolVector;
+BoolVector.prototype.__class__ = BoolVector;
+BoolVector.__cache__ = {};
+Module['BoolVector'] = BoolVector;
+
+BoolVector.prototype['resize'] = BoolVector.prototype.resize = /** @suppress {undefinedVars, duplicate} @this{Object} */function(size) {
+  var self = this.ptr;
+  if (size && typeof size === 'object') size = size.ptr;
+  _emscripten_bind_BoolVector_resize_1(self, size);
+};;
+
+BoolVector.prototype['get'] = BoolVector.prototype.get = /** @suppress {undefinedVars, duplicate} @this{Object} */function(i) {
+  var self = this.ptr;
+  if (i && typeof i === 'object') i = i.ptr;
+  return !!(_emscripten_bind_BoolVector_get_1(self, i));
+};;
+
+BoolVector.prototype['set'] = BoolVector.prototype.set = /** @suppress {undefinedVars, duplicate} @this{Object} */function(i, val) {
+  var self = this.ptr;
+  if (i && typeof i === 'object') i = i.ptr;
+  if (val && typeof val === 'object') val = val.ptr;
+  _emscripten_bind_BoolVector_set_2(self, i, val);
+};;
+
+BoolVector.prototype['size'] = BoolVector.prototype.size = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_BoolVector_size_0(self);
+};;
+
+  BoolVector.prototype['__destroy__'] = BoolVector.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_BoolVector___destroy___0(self);
+};
+// SpeciesMasterTableRecordVector
+/** @suppress {undefinedVars, duplicate} @this{Object} */function SpeciesMasterTableRecordVector(size) {
+  if (size && typeof size === 'object') size = size.ptr;
+  if (size === undefined) { this.ptr = _emscripten_bind_SpeciesMasterTableRecordVector_SpeciesMasterTableRecordVector_0(); getCache(SpeciesMasterTableRecordVector)[this.ptr] = this;return }
+  this.ptr = _emscripten_bind_SpeciesMasterTableRecordVector_SpeciesMasterTableRecordVector_1(size);
+  getCache(SpeciesMasterTableRecordVector)[this.ptr] = this;
+};;
+SpeciesMasterTableRecordVector.prototype = Object.create(WrapperObject.prototype);
+SpeciesMasterTableRecordVector.prototype.constructor = SpeciesMasterTableRecordVector;
+SpeciesMasterTableRecordVector.prototype.__class__ = SpeciesMasterTableRecordVector;
+SpeciesMasterTableRecordVector.__cache__ = {};
+Module['SpeciesMasterTableRecordVector'] = SpeciesMasterTableRecordVector;
+
+SpeciesMasterTableRecordVector.prototype['resize'] = SpeciesMasterTableRecordVector.prototype.resize = /** @suppress {undefinedVars, duplicate} @this{Object} */function(size) {
+  var self = this.ptr;
+  if (size && typeof size === 'object') size = size.ptr;
+  _emscripten_bind_SpeciesMasterTableRecordVector_resize_1(self, size);
+};;
+
+SpeciesMasterTableRecordVector.prototype['get'] = SpeciesMasterTableRecordVector.prototype.get = /** @suppress {undefinedVars, duplicate} @this{Object} */function(i) {
+  var self = this.ptr;
+  if (i && typeof i === 'object') i = i.ptr;
+  return wrapPointer(_emscripten_bind_SpeciesMasterTableRecordVector_get_1(self, i), SpeciesMasterTableRecord);
+};;
+
+SpeciesMasterTableRecordVector.prototype['set'] = SpeciesMasterTableRecordVector.prototype.set = /** @suppress {undefinedVars, duplicate} @this{Object} */function(i, val) {
+  var self = this.ptr;
+  if (i && typeof i === 'object') i = i.ptr;
+  if (val && typeof val === 'object') val = val.ptr;
+  _emscripten_bind_SpeciesMasterTableRecordVector_set_2(self, i, val);
+};;
+
+SpeciesMasterTableRecordVector.prototype['size'] = SpeciesMasterTableRecordVector.prototype.size = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SpeciesMasterTableRecordVector_size_0(self);
+};;
+
+  SpeciesMasterTableRecordVector.prototype['__destroy__'] = SpeciesMasterTableRecordVector.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_SpeciesMasterTableRecordVector___destroy___0(self);
+};
 // FireSize
 /** @suppress {undefinedVars, duplicate} @this{Object} */function FireSize() {
   this.ptr = _emscripten_bind_FireSize_FireSize_0();
@@ -3548,6 +3630,19 @@ SIGMortality.prototype['getSpeciesCode'] = SIGMortality.prototype.getSpeciesCode
   return UTF8ToString(_emscripten_bind_SIGMortality_getSpeciesCode_0(self));
 };;
 
+SIGMortality.prototype['getSpeciesRecordVectorForRegion'] = SIGMortality.prototype.getSpeciesRecordVectorForRegion = /** @suppress {undefinedVars, duplicate} @this{Object} */function(region) {
+  var self = this.ptr;
+  if (region && typeof region === 'object') region = region.ptr;
+  return wrapPointer(_emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegion_1(self, region), SpeciesMasterTableRecordVector);
+};;
+
+SIGMortality.prototype['getSpeciesRecordVectorForRegionAndEquationType'] = SIGMortality.prototype.getSpeciesRecordVectorForRegionAndEquationType = /** @suppress {undefinedVars, duplicate} @this{Object} */function(region, equationType) {
+  var self = this.ptr;
+  if (region && typeof region === 'object') region = region.ptr;
+  if (equationType && typeof equationType === 'object') equationType = equationType.ptr;
+  return wrapPointer(_emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegionAndEquationType_2(self, region, equationType), SpeciesMasterTableRecordVector);
+};;
+
 SIGMortality.prototype['getCommonNameAtSpeciesTableIndex'] = SIGMortality.prototype.getCommonNameAtSpeciesTableIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
   var self = this.ptr;
   if (index && typeof index === 'object') index = index.ptr;
@@ -3580,6 +3675,11 @@ SIGMortality.prototype['getSpeciesCodeAtSpeciesTableIndex'] = SIGMortality.proto
   var self = this.ptr;
   if (index && typeof index === 'object') index = index.ptr;
   return UTF8ToString(_emscripten_bind_SIGMortality_getSpeciesCodeAtSpeciesTableIndex_1(self, index));
+};;
+
+SIGMortality.prototype['getRequiredFieldVector'] = SIGMortality.prototype.getRequiredFieldVector = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return wrapPointer(_emscripten_bind_SIGMortality_getRequiredFieldVector_0(self), BoolVector);
 };;
 
 SIGMortality.prototype['calculateMortality'] = SIGMortality.prototype.calculateMortality = /** @suppress {undefinedVars, duplicate} @this{Object} */function(probablityUnits) {

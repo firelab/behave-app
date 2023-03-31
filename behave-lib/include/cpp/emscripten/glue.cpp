@@ -29,6 +29,66 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_DoublePtr___destroy___0(DoublePtr* sel
   delete self;
 }
 
+// BoolVector
+
+BoolVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_BoolVector_BoolVector_0() {
+  return new BoolVector();
+}
+
+BoolVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_BoolVector_BoolVector_1(int size) {
+  return new BoolVector(size);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_BoolVector_resize_1(BoolVector* self, int size) {
+  self->resize(size);
+}
+
+bool EMSCRIPTEN_KEEPALIVE emscripten_bind_BoolVector_get_1(BoolVector* self, int i) {
+  return self->get(i);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_BoolVector_set_2(BoolVector* self, int i, bool val) {
+  self->set(i, val);
+}
+
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_BoolVector_size_0(BoolVector* self) {
+  return self->size();
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_BoolVector___destroy___0(BoolVector* self) {
+  delete self;
+}
+
+// SpeciesMasterTableRecordVector
+
+SpeciesMasterTableRecordVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_SpeciesMasterTableRecordVector_SpeciesMasterTableRecordVector_0() {
+  return new SpeciesMasterTableRecordVector();
+}
+
+SpeciesMasterTableRecordVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_SpeciesMasterTableRecordVector_SpeciesMasterTableRecordVector_1(int size) {
+  return new SpeciesMasterTableRecordVector(size);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SpeciesMasterTableRecordVector_resize_1(SpeciesMasterTableRecordVector* self, int size) {
+  self->resize(size);
+}
+
+SpeciesMasterTableRecord* EMSCRIPTEN_KEEPALIVE emscripten_bind_SpeciesMasterTableRecordVector_get_1(SpeciesMasterTableRecordVector* self, int i) {
+  return self->get(i);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SpeciesMasterTableRecordVector_set_2(SpeciesMasterTableRecordVector* self, int i, SpeciesMasterTableRecord* val) {
+  self->set(i, val);
+}
+
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_SpeciesMasterTableRecordVector_size_0(SpeciesMasterTableRecordVector* self) {
+  return self->size();
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SpeciesMasterTableRecordVector___destroy___0(SpeciesMasterTableRecordVector* self) {
+  delete self;
+}
+
 // FireSize
 
 FireSize* EMSCRIPTEN_KEEPALIVE emscripten_bind_FireSize_FireSize_0() {
@@ -2048,6 +2108,14 @@ char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getSpeciesCode_0(SIGMort
   return self->getSpeciesCode();
 }
 
+SpeciesMasterTableRecordVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegion_1(SIGMortality* self, RegionCode region) {
+  return self->getSpeciesRecordVectorForRegion(region);
+}
+
+SpeciesMasterTableRecordVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegionAndEquationType_2(SIGMortality* self, RegionCode region, EquationType equationType) {
+  return self->getSpeciesRecordVectorForRegionAndEquationType(region, equationType);
+}
+
 const char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getCommonNameAtSpeciesTableIndex_1(SIGMortality* self, int index) {
   return self->getCommonNameAtSpeciesTableIndex(index);
 }
@@ -2066,6 +2134,10 @@ const char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getScientificNameF
 
 const char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getSpeciesCodeAtSpeciesTableIndex_1(SIGMortality* self, int index) {
   return self->getSpeciesCodeAtSpeciesTableIndex(index);
+}
+
+BoolVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getRequiredFieldVector_0(SIGMortality* self) {
+  return self->getRequiredFieldVector();
 }
 
 double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_calculateMortality_1(SIGMortality* self, ProbabilityUnits_ProbabilityUnitsEnum probablityUnits) {
