@@ -495,13 +495,16 @@ enum WindHeightInputMode_WindHeightInputModeEnum {
   "WindHeightInputMode::TenMeter"
 };
 
-interface FuelModelSet {
+interface SIGFuelModels {
+  void SIGFuelModels();
+  [Operator="=", Ref] SIGFuelModels equal([Const, Ref] FuelModels rhs);
+  void SIGFuelModels([Const, Ref] FuelModels rhs);
   boolean clearCustomFuelModel(long fuelModelNumber);
   boolean getIsDynamic(long fuelModelNumber);
   boolean isFuelModelDefined(long fuelModelNumber);
-  boolean setCustomFuelModel(long fuelModelNumberIn, byte code, byte name, double fuelBedDepth, LengthUnits_LengthUnitsEnum lengthUnits, double moistureOfExtinctionDead, MoistureUnits_MoistureUnitsEnum moistureUnits, double heatOfCombustionDead, double heatOfCombustionLive, HeatOfCombustionUnits_HeatOfCombustionUnitsEnum heatOfCombustionUnits, double fuelLoadOneHour, double fuelLoadTenHour, double fuelLoadHundredHour, double fuelLoadLiveHerbaceous, double fuelLoadLiveWoody, LoadingUnits_LoadingUnitsEnum loadingUnits, double savrOneHour, double savrLiveHerbaceous, double savrLiveWoody, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum savrUnits, boolean isDynamic);
-  byte getFuelCode(long fuelModelNumber);
-  byte getFuelName(long fuelModelNumber);
+  boolean setCustomFuelModel(long fuelModelNumberIn, DOMString code, DOMString name, double fuelBedDepth, LengthUnits_LengthUnitsEnum lengthUnits, double moistureOfExtinctionDead, MoistureUnits_MoistureUnitsEnum moistureUnits, double heatOfCombustionDead, double heatOfCombustionLive, HeatOfCombustionUnits_HeatOfCombustionUnitsEnum heatOfCombustionUnits, double fuelLoadOneHour, double fuelLoadTenHour, double fuelLoadHundredHour, double fuelLoadLiveHerbaceous, double fuelLoadLiveWoody, LoadingUnits_LoadingUnitsEnum loadingUnits, double savrOneHour, double savrLiveHerbaceous, double savrLiveWoody, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum savrUnits, boolean isDynamic);
+  DOMString getFuelCode(long fuelModelNumber);
+  DOMString getFuelName(long fuelModelNumber);
   double getFuelLoadHundredHour(long fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits);
   double getFuelLoadLiveHerbaceous(long fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits);
   double getFuelLoadLiveWoody(long fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits);
@@ -516,8 +519,8 @@ interface FuelModelSet {
   double getSavrOneHour(long fuelModelNumber, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum savrUnits);
 };
 
-interface Surface {
-  void Surface(Surface rhs);
+interface SIGSurface {
+  void SIGSurface([Ref] SIGSurface rhs);
   void initializeMembers();
 
   void doSurfaceRunInDirectionOfInterest(double directionOfinterest);
@@ -529,35 +532,36 @@ interface Surface {
   boolean isAllFuelLoadZero(long fuelModelNumber);
   boolean isUsingTwoFuelModels();
   double calculateFlameLength(double firelineIntensity);
-  double getAspect();
-  double getBulkDensity(DensityUnits_DensityUnitsEnum densityUnits);
-  double getCanopyCover(CoverUnits_CoverUnitsEnum coverUnits);
-  double getCanopyHeight(LengthUnits_LengthUnitsEnum canopyHeightUnits);
-  double getCrownRatio();
-  double getDirectionOfMaxSpread();
-  double getEllipticalA(LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime);
-  double getEllipticalB(LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime);
-  double getEllipticalC(LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime);
-  double getFireArea(AreaUnits_AreaUnitsEnum areaUnits, double elapsedTime);
-  double getFireEccentricity();
-  double getFireLengthToWidthRatio();
-  double getFirePerimeter(LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime);
-  double getFirelineIntensity(FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits);
-  double getFlameLength(LengthUnits_LengthUnitsEnum flameLengthUnits);
-  double getHeatPerUnitArea();
-  double getHeatSink(HeatSinkUnits_HeatSinkUnitsEnum heatSinkUnits);
-  double getMidflameWindspeed();
-  double getMoistureHundredHour(MoistureUnits_MoistureUnitsEnum moistureUnits);
-  double getMoistureLiveHerbaceous(MoistureUnits_MoistureUnitsEnum moistureUnits);
-  double getMoistureLiveWoody(MoistureUnits_MoistureUnitsEnum moistureUnits);
-  double getMoistureOneHour(MoistureUnits_MoistureUnitsEnum moistureUnits);
-  double getMoistureTenHour(MoistureUnits_MoistureUnitsEnum moistureUnits);
-  double getReactionIntensity(HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum reactiontionIntensityUnits);
-  double getResidenceTime();
-  double getSlope(SlopeUnits_SlopeUnitsEnum slopeUnits);
-  double getSlopeFactor();
-  double getSpreadRate(SpeedUnits_SpeedUnitsEnum spreadRateUnits);
-  double getSpreadRateInDirectionOfInterest(SpeedUnits_SpeedUnitsEnum spreadRateUnits);
+
+  [Const] double getAspect();
+  [Const] double getBulkDensity(DensityUnits_DensityUnitsEnum densityUnits);
+  [Const] double getCanopyCover(CoverUnits_CoverUnitsEnum coverUnits);
+  [Const] double getCanopyHeight(LengthUnits_LengthUnitsEnum canopyHeightUnits);
+  [Const] double getCrownRatio();
+  [Const] double getDirectionOfMaxSpread();
+  [Const] double getEllipticalA(LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits_TimeUnitsEnum timeUnits);
+  [Const] double getEllipticalB(LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits_TimeUnitsEnum timeUnits);
+  [Const] double getEllipticalC(LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits_TimeUnitsEnum timeUnits);
+  [Const] double getFireArea(AreaUnits_AreaUnitsEnum areaUnits, double elapsedTime);
+  [Const] double getFireEccentricity();
+  [Const] double getFireLengthToWidthRatio();
+  [Const] double getFirePerimeter(LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime);
+  [Const] double getFirelineIntensity(FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits);
+  [Const] double getFlameLength(LengthUnits_LengthUnitsEnum flameLengthUnits);
+  [Const] double getHeatPerUnitArea(HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum heatPerUnitAreaUnits);
+  [Const] double getHeatSink(HeatSinkUnits_HeatSinkUnitsEnum heatSinkUnits);
+  [Const] double getMidflameWindspeed(SpeedUnits_SpeedUnitsEnum windSpeedUnits);
+  [Const] double getMoistureHundredHour(MoistureUnits_MoistureUnitsEnum moistureUnits);
+  [Const] double getMoistureLiveHerbaceous(MoistureUnits_MoistureUnitsEnum moistureUnits);
+  [Const] double getMoistureLiveWoody(MoistureUnits_MoistureUnitsEnum moistureUnits);
+  [Const] double getMoistureOneHour(MoistureUnits_MoistureUnitsEnum moistureUnits);
+  [Const] double getMoistureTenHour(MoistureUnits_MoistureUnitsEnum moistureUnits);
+  [Const] double getReactionIntensity(HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum reactiontionIntensityUnits);
+  [Const] double getResidenceTime(TimeUnits_TimeUnitsEnum timeUnits);
+  [Const] double getSlope(SlopeUnits_SlopeUnitsEnum slopeUnits);
+  [Const] double getSlopeFactor();
+  [Const] double getSpreadRate(SpeedUnits_SpeedUnitsEnum spreadRateUnits);
+  [Const] double getSpreadRateInDirectionOfInterest(SpeedUnits_SpeedUnitsEnum spreadRateUnits);
   double getWindDirection();
   double getWindSpeed(SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode);
   long getFuelModelNumber();
@@ -568,7 +572,7 @@ interface Surface {
   void setCrownRatio(double crownRatio);
   void setFirstFuelModelNumber(long firstFuelModelNumber);
   void setFuelModelNumber(long fuelModelNumber);
-  void setFuelModelSet(FuelModelSet fuelModelSet);
+  void setFuelModels([Ref] SIGFuelModels fuelModels);
   void setMoistureHundredHour(double moistureHundredHour, MoistureUnits_MoistureUnitsEnum moistureUnits);
   void setMoistureLiveHerbaceous(double moistureLiveHerbaceous, MoistureUnits_MoistureUnitsEnum moistureUnits);
   void setMoistureLiveWoody(double moistureLiveWoody, MoistureUnits_MoistureUnitsEnum moistureUnits);
@@ -643,7 +647,7 @@ enum FireType_FireTypeEnum {
   "FireType::Crowning"
 };
 
-interface Crown {
+interface SIGCrown {
   void initializeMembers();
 
   void doCrownRunRothermel();
@@ -658,12 +662,12 @@ interface Crown {
   double getCriticalOpenWindSpeed(SpeedUnits_SpeedUnitsEnum speedUnits);
   double getCrownFireLengthToWidthRatio();
   double getCrownFireSpreadRate(SpeedUnits_SpeedUnitsEnum spreadRateUnits);
-  double getCrownFirelineIntensity();
+  double getCrownFirelineIntensity(FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits);
   double getCrownFlameLength(LengthUnits_LengthUnitsEnum flameLengthUnits);
   double getCrownRatio();
   double getFinalFirelineIntesity(FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits);
   double getFinalFlameLength(LengthUnits_LengthUnitsEnum flameLengthUnits);
-  double getFinalHeatPerUnitArea();
+  double getFinalHeatPerUnitArea(HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum heatPerUnitAreaUnits);
   double getFinalSpreadRate(SpeedUnits_SpeedUnitsEnum spreadRateUnits);
   double getMoistureFoliar(MoistureUnits_MoistureUnitsEnum moistureUnits);
   double getMoistureHundredHour(MoistureUnits_MoistureUnitsEnum moistureUnits);
@@ -684,7 +688,7 @@ interface Crown {
   void setCanopyHeight(double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits);
   void setCrownRatio(double crownRatio);
   void setFuelModelNumber(long fuelModelNumber);
-  void setFuelModelSet(FuelModelSet fuelModelSet);
+  void setFuelModels([Ref] SIGFuelModels fuelModels);
   void setMoistureFoliar(double foliarMoisture, MoistureUnits_MoistureUnitsEnum moistureUnits);
   void setMoistureHundredHour(double moistureHundredHour, MoistureUnits_MoistureUnitsEnum moistureUnits);
   void setMoistureLiveHerbaceous(double moistureLiveHerbaceous, MoistureUnits_MoistureUnitsEnum moistureUnits);
@@ -775,8 +779,7 @@ enum EquationType {
 };
 
 interface SpeciesMasterTableRecord {
-  void SpeciesMasterTableRecord(SpeciesMasterTableRecord rhs);
-  [Operator="="] SpeciesMasterTableRecord equals(SpeciesMasterTableRecord rhs);
+  void SpeciesMasterTableRecord([Const] SpeciesMasterTableRecord rhs);
 };
 
 interface SpeciesMasterTable {
@@ -787,9 +790,8 @@ interface SpeciesMasterTable {
   void insertRecord(DOMString speciesCode, DOMString scientificName, DOMString commonName, long mortalityEquation, long brkEqu, long crownCoefficientCode, long region1, long region2, long region3, long region4, EquationType equationType, CrownDamageEquationCode crownDamageEquationCode);
 };
 
-interface Mortality {
-  void Mortality(Mortality rhs);
-  [Operator="="] Mortality equals(Mortality rhs);
+interface SIGMortality {
+  void Mortality([Ref] SpeciesMasterTable speciesMasterTable);
 
   [Const] BeetleDamage getBeetleDamage();
   [Const] CrownDamageEquationCode getCrownDamageEquationCode();
@@ -833,7 +835,7 @@ interface Mortality {
   [Const] long getNumberOfRecordsInSpeciesTable();
   [Const] long getSpeciesTableIndexFromSpeciesCode(DOMString speciesNameCode);
   [Const] long getSpeciesTableIndexFromSpeciesCodeAndEquationType(DOMString speciesNameCode, EquationType equationType);
-  [Const] DOMString getSpeciesCode();
+  DOMString getSpeciesCode();
   [Const] sequence<SpeciesMasterTableRecord> getSpeciesRecordVectorForRegion(RegionCode region);
   [Const] sequence<SpeciesMasterTableRecord> getSpeciesRecordVectorForRegionAndEquationType(RegionCode region, EquationType equationType);
   [Const] DOMString getCommonNameAtSpeciesTableIndex(long index);
@@ -856,10 +858,10 @@ interface Mortality {
   void setFlameLengthOrScorchHeightSwitch(FlameLengthOrScorchHeightSwitch flameLengthOrScorchHeightSwitch);
   void setFlameLengthOrScorchHeightValue(double flameLengthOrScorchHeightValue, LengthUnits_LengthUnitsEnum flameLengthOrScorchHeightUnits);
   void setRegion(RegionCode region);
-  void setSpeciesCode(byte speciesCode);
+  void setSpeciesCode(DOMString speciesCode);
   void setTreeDensityPerUnitArea(double numberOfTrees, AreaUnits_AreaUnitsEnum areaUnits);
   void setTreeHeight(double treeHeight, LengthUnits_LengthUnitsEnum treeHeightUnits);
-  boolean updateInputsForSpeciesCodeAndEquationType(byte speciesCode, EquationType equationType);
+  boolean updateInputsForSpeciesCodeAndEquationType(DOMString speciesCode, EquationType equationType);
 };
 
 interface WindSpeedUtility {

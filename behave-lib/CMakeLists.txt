@@ -16,7 +16,6 @@ set(EMCC_ARGS
   -I${ENUM_CPP_FILE}
   -L${BEHAVE_LIB}
   --post-js ${GLUE_JS_FILE}
-  -sMODULARIZE
   -sNO_DISABLE_EXCEPTION_CATCHING
   -sEXPORTED_FUNCTIONS=["_malloc","_free"]
   -sEXPORTED_RUNTIME_METHODS=["UTF8ToString","allocateUTF8","addFunction"])
@@ -42,18 +41,9 @@ SET(SOURCE
     behave-mirror/src/behave/behaveRun.cpp
     behave-mirror/src/behave/behaveUnits.cpp
     behave-mirror/src/behave/canopy_coefficient_table.cpp
-    behave-mirror/src/behave/Contain.cpp
-    behave-mirror/src/behave/ContainAdapter.cpp
-    behave-mirror/src/behave/ContainForce.cpp
-    behave-mirror/src/behave/ContainForceAdapter.cpp
-    behave-mirror/src/behave/ContainResource.cpp
-    behave-mirror/src/behave/ContainSim.cpp
     behave-mirror/src/behave/crown.cpp
     behave-mirror/src/behave/crownInputs.cpp
     behave-mirror/src/behave/fireSize.cpp
-    behave-mirror/src/behave/fuelModels.cpp
-    behave-mirror/src/behave/ignite.cpp
-    behave-mirror/src/behave/igniteInputs.cpp
     behave-mirror/src/behave/mortality.cpp
     behave-mirror/src/behave/mortality_equation_table.cpp
     behave-mirror/src/behave/mortality_inputs.cpp
@@ -63,8 +53,6 @@ SET(SOURCE
     behave-mirror/src/behave/randthread.cpp
     behave-mirror/src/behave/safety.cpp
     behave-mirror/src/behave/species_master_table.cpp
-    behave-mirror/src/behave/spot.cpp
-    behave-mirror/src/behave/spotInputs.cpp
     behave-mirror/src/behave/surface.cpp
     behave-mirror/src/behave/surfaceFireReactionIntensity.cpp
     behave-mirror/src/behave/surfaceFuelbedIntermediates.cpp
@@ -81,27 +69,21 @@ SET(SOURCE
     include/cpp/sig-adapters/SIGContainForceAdapter.cpp
     include/cpp/sig-adapters/SIGContainResource.cpp
     include/cpp/sig-adapters/SIGContainSim.cpp
+    include/cpp/sig-adapters/SIGFuelModels.cpp
     include/cpp/sig-adapters/SIGIgnite.cpp
     include/cpp/sig-adapters/SIGIgniteInputs.cpp
+    include/cpp/sig-adapters/SIGMortality.cpp
     include/cpp/sig-adapters/SIGSpot.cpp
-    include/cpp/sig-adapters/SIGSpotInputs.cpp)
+    include/cpp/sig-adapters/SIGSpotInputs.cpp
+    include/cpp/sig-adapters/SIGSurface.cpp)
 
 SET(HEADERS
     behave-mirror/src/behave/behaveRun.h
     behave-mirror/src/behave/behaveUnits.h
     behave-mirror/src/behave/canopy_coefficient_table.h
-    behave-mirror/src/behave/Contain.h
-    behave-mirror/src/behave/ContainAdapter.h
-    behave-mirror/src/behave/ContainForce.h
-    behave-mirror/src/behave/ContainForceAdapter.h
-    behave-mirror/src/behave/ContainResource.h
-    behave-mirror/src/behave/ContainSim.h
     behave-mirror/src/behave/crown.h
     behave-mirror/src/behave/crownInputs.h
     behave-mirror/src/behave/fireSize.h
-    behave-mirror/src/behave/fuelModels.h
-    behave-mirror/src/behave/ignite.h
-    behave-mirror/src/behave/igniteInputs.h
     behave-mirror/src/behave/mortality.h
     behave-mirror/src/behave/mortality_equation_table.h
     behave-mirror/src/behave/mortality_inputs.h
@@ -111,8 +93,6 @@ SET(HEADERS
     behave-mirror/src/behave/randthread.h
     behave-mirror/src/behave/safety.h
     behave-mirror/src/behave/species_master_table.h
-    behave-mirror/src/behave/spot.h
-    behave-mirror/src/behave/spotInputs.h
     behave-mirror/src/behave/surface.h
     behave-mirror/src/behave/surfaceFireReactionIntensity.h
     behave-mirror/src/behave/surfaceFuelbedIntermediates.h
@@ -130,10 +110,14 @@ SET(HEADERS
     include/cpp/sig-adapters/SIGContainForceAdapter.h
     include/cpp/sig-adapters/SIGContainResource.h
     include/cpp/sig-adapters/SIGContainSim.h
+    include/cpp/sig-adapters/SIGFuelModels.cpp
     include/cpp/sig-adapters/SIGIgnite.h
     include/cpp/sig-adapters/SIGIgniteInputs.h
+    include/cpp/sig-adapters/SIGMortality.h
     include/cpp/sig-adapters/SIGSpot.h
-    include/cpp/sig-adapters/SIGSpotInputs.h)
+    include/cpp/sig-adapters/SIGSpotInputs.h
+    include/cpp/sig-adapters/SIGString.h
+    include/cpp/sig-adapters/SIGSurface.h)
 
 source_group("Behave Core Source Files" FILES ${SOURCE})
 
@@ -149,10 +133,10 @@ add_custom_command(
   VERBATIM)
 add_custom_target(behave-javascript ALL DEPENDS behave.js)
 
-# add_custom_command(
-#   OUTPUT behave.wasm
-#   COMMAND emcc ${WRAPPER_FILE} ${EMCC_WASM_ARGS} -o behave-min.js
-#   DEPENDS behave
-#   COMMENT "Building webassembly"
-#   VERBATIM)
-# add_custom_target(behave-webassembly ALL DEPENDS behave.wasm)
+add_custom_command(
+  OUTPUT behave.wasm
+  COMMAND emcc ${WRAPPER_FILE} ${EMCC_WASM_ARGS} -o behave-min.js
+  DEPENDS behave
+  COMMENT "Building webassembly"
+  VERBATIM)
+add_custom_target(behave-webassembly ALL DEPENDS behave.wasm)
