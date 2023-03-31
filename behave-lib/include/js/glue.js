@@ -250,6 +250,129 @@ BoolVector.prototype['size'] = BoolVector.prototype.size = /** @suppress {undefi
   var self = this.ptr;
   _emscripten_bind_BoolVector___destroy___0(self);
 };
+// CharVector
+/** @suppress {undefinedVars, duplicate} @this{Object} */function CharVector(size) {
+  if (size && typeof size === 'object') size = size.ptr;
+  if (size === undefined) { this.ptr = _emscripten_bind_CharVector_CharVector_0(); getCache(CharVector)[this.ptr] = this;return }
+  this.ptr = _emscripten_bind_CharVector_CharVector_1(size);
+  getCache(CharVector)[this.ptr] = this;
+};;
+CharVector.prototype = Object.create(WrapperObject.prototype);
+CharVector.prototype.constructor = CharVector;
+CharVector.prototype.__class__ = CharVector;
+CharVector.__cache__ = {};
+Module['CharVector'] = CharVector;
+
+CharVector.prototype['resize'] = CharVector.prototype.resize = /** @suppress {undefinedVars, duplicate} @this{Object} */function(size) {
+  var self = this.ptr;
+  if (size && typeof size === 'object') size = size.ptr;
+  _emscripten_bind_CharVector_resize_1(self, size);
+};;
+
+CharVector.prototype['get'] = CharVector.prototype.get = /** @suppress {undefinedVars, duplicate} @this{Object} */function(i) {
+  var self = this.ptr;
+  if (i && typeof i === 'object') i = i.ptr;
+  return _emscripten_bind_CharVector_get_1(self, i);
+};;
+
+CharVector.prototype['set'] = CharVector.prototype.set = /** @suppress {undefinedVars, duplicate} @this{Object} */function(i, val) {
+  var self = this.ptr;
+  if (i && typeof i === 'object') i = i.ptr;
+  if (val && typeof val === 'object') val = val.ptr;
+  _emscripten_bind_CharVector_set_2(self, i, val);
+};;
+
+CharVector.prototype['size'] = CharVector.prototype.size = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_CharVector_size_0(self);
+};;
+
+  CharVector.prototype['__destroy__'] = CharVector.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_CharVector___destroy___0(self);
+};
+// IntVector
+/** @suppress {undefinedVars, duplicate} @this{Object} */function IntVector(size) {
+  if (size && typeof size === 'object') size = size.ptr;
+  if (size === undefined) { this.ptr = _emscripten_bind_IntVector_IntVector_0(); getCache(IntVector)[this.ptr] = this;return }
+  this.ptr = _emscripten_bind_IntVector_IntVector_1(size);
+  getCache(IntVector)[this.ptr] = this;
+};;
+IntVector.prototype = Object.create(WrapperObject.prototype);
+IntVector.prototype.constructor = IntVector;
+IntVector.prototype.__class__ = IntVector;
+IntVector.__cache__ = {};
+Module['IntVector'] = IntVector;
+
+IntVector.prototype['resize'] = IntVector.prototype.resize = /** @suppress {undefinedVars, duplicate} @this{Object} */function(size) {
+  var self = this.ptr;
+  if (size && typeof size === 'object') size = size.ptr;
+  _emscripten_bind_IntVector_resize_1(self, size);
+};;
+
+IntVector.prototype['get'] = IntVector.prototype.get = /** @suppress {undefinedVars, duplicate} @this{Object} */function(i) {
+  var self = this.ptr;
+  if (i && typeof i === 'object') i = i.ptr;
+  return _emscripten_bind_IntVector_get_1(self, i);
+};;
+
+IntVector.prototype['set'] = IntVector.prototype.set = /** @suppress {undefinedVars, duplicate} @this{Object} */function(i, val) {
+  var self = this.ptr;
+  if (i && typeof i === 'object') i = i.ptr;
+  if (val && typeof val === 'object') val = val.ptr;
+  _emscripten_bind_IntVector_set_2(self, i, val);
+};;
+
+IntVector.prototype['size'] = IntVector.prototype.size = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_IntVector_size_0(self);
+};;
+
+  IntVector.prototype['__destroy__'] = IntVector.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_IntVector___destroy___0(self);
+};
+// DoubleVector
+/** @suppress {undefinedVars, duplicate} @this{Object} */function DoubleVector(size) {
+  if (size && typeof size === 'object') size = size.ptr;
+  if (size === undefined) { this.ptr = _emscripten_bind_DoubleVector_DoubleVector_0(); getCache(DoubleVector)[this.ptr] = this;return }
+  this.ptr = _emscripten_bind_DoubleVector_DoubleVector_1(size);
+  getCache(DoubleVector)[this.ptr] = this;
+};;
+DoubleVector.prototype = Object.create(WrapperObject.prototype);
+DoubleVector.prototype.constructor = DoubleVector;
+DoubleVector.prototype.__class__ = DoubleVector;
+DoubleVector.__cache__ = {};
+Module['DoubleVector'] = DoubleVector;
+
+DoubleVector.prototype['resize'] = DoubleVector.prototype.resize = /** @suppress {undefinedVars, duplicate} @this{Object} */function(size) {
+  var self = this.ptr;
+  if (size && typeof size === 'object') size = size.ptr;
+  _emscripten_bind_DoubleVector_resize_1(self, size);
+};;
+
+DoubleVector.prototype['get'] = DoubleVector.prototype.get = /** @suppress {undefinedVars, duplicate} @this{Object} */function(i) {
+  var self = this.ptr;
+  if (i && typeof i === 'object') i = i.ptr;
+  return _emscripten_bind_DoubleVector_get_1(self, i);
+};;
+
+DoubleVector.prototype['set'] = DoubleVector.prototype.set = /** @suppress {undefinedVars, duplicate} @this{Object} */function(i, val) {
+  var self = this.ptr;
+  if (i && typeof i === 'object') i = i.ptr;
+  if (val && typeof val === 'object') val = val.ptr;
+  _emscripten_bind_DoubleVector_set_2(self, i, val);
+};;
+
+DoubleVector.prototype['size'] = DoubleVector.prototype.size = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_DoubleVector_size_0(self);
+};;
+
+  DoubleVector.prototype['__destroy__'] = DoubleVector.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_DoubleVector___destroy___0(self);
+};
 // SpeciesMasterTableRecordVector
 /** @suppress {undefinedVars, duplicate} @this{Object} */function SpeciesMasterTableRecordVector(size) {
   if (size && typeof size === 'object') size = size.ptr;
@@ -2169,9 +2292,9 @@ SIGFuelModels.prototype['getSavrOneHour'] = SIGFuelModels.prototype.getSavrOneHo
   _emscripten_bind_SIGFuelModels___destroy___0(self);
 };
 // SIGSurface
-/** @suppress {undefinedVars, duplicate} @this{Object} */function SIGSurface(rhs) {
-  if (rhs && typeof rhs === 'object') rhs = rhs.ptr;
-  this.ptr = _emscripten_bind_SIGSurface_SIGSurface_1(rhs);
+/** @suppress {undefinedVars, duplicate} @this{Object} */function SIGSurface(fuelModels) {
+  if (fuelModels && typeof fuelModels === 'object') fuelModels = fuelModels.ptr;
+  this.ptr = _emscripten_bind_SIGSurface_SIGSurface_1(fuelModels);
   getCache(SIGSurface)[this.ptr] = this;
 };;
 SIGSurface.prototype = Object.create(WrapperObject.prototype);

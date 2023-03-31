@@ -52,8 +52,23 @@
     (is (within-millionth? (get row "fireLineLength")           (contain/getFinalFireLineLength module (get-unit "ch"))))
     (is (within-millionth? (get row "perimeterAtInitialAttack") (contain/getPerimeterAtInitialAttack module (get-unit "ch"))))
     (is (within-millionth? (get row "perimeterAtContainment")   (contain/getPerimeterAtContainment module (get-unit "ch"))))
-    (is (within-millionth? (get row "fireSizeAtInitialAttack")  (contain/getFireSizeAtInitialAttack module (get-unit "ac"))))
+    (let [expected (get row "fireSizeAtInitialAttack")
+          observed (contain/getFireSizeAtInitialAttack module (get-unit "ac"))]
+      (is (within-millionth? expected observed)
+          (str "Fire Size at Initial Attack"
+               "\n-- Expected: "
+               expected
+               "\n-- Observed: "
+               observed)))
     (is (within-millionth? (get row "fireSize")                 (contain/getFinalFireSize module (get-unit "ac"))))
     (is (within-millionth? (get row "containmentArea")          (contain/getFinalContainmentArea module (get-unit "ac"))))
-    (is (within-millionth? (get row "timeSinceReport")          (contain/getFinalTimeSinceReport module (get-unit "m"))))
+
+    (let [expected (get row "timeSinceReport")
+          observed (contain/getFinalTimeSinceReport module (get-unit "m"))]
+      (is (within-millionth? (get row "timeSinceReport")          (contain/getFinalTimeSinceReport module (get-unit "m")))
+          (str "Time Since Report"
+               "\n-- Expected: "
+               expected
+               "\n-- Observed: "
+               observed)))
     (is (= (enums/contain-status (get row "containmentStatus")) (contain/getContainmentStatus module)))))

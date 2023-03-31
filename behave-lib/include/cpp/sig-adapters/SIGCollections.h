@@ -22,11 +22,11 @@ struct SimpleVector {
   }
 
   T get(size_t i) const {
-    return vec[i];
+    return vec.at(i);
   }
 
   void set(size_t i, T val) {
-    vec[i] = val;
+    vec.at(i) = val;
   }
 
   size_t size() const {
@@ -35,6 +35,9 @@ struct SimpleVector {
 };
 
 typedef SimpleVector<bool> BoolVector;
+typedef SimpleVector<char> CharVector;
+typedef SimpleVector<int> IntVector;
+typedef SimpleVector<double> DoubleVector;
 
 // ClassVectors
 template <typename T>

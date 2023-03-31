@@ -39,8 +39,6 @@
 
 SIGSurface::SIGSurface(SIGFuelModels& fuelModels) : Surface(static_cast <FuelModels> (fuelModels)) {}
 
-SIGSurface::SIGSurface(const SIGSurface& rhs) : Surface(static_cast <Surface> (rhs)) {}
-
 SIGSurface::~SIGSurface() {
   Surface::~Surface();
 };

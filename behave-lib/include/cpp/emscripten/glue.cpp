@@ -59,6 +59,96 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_BoolVector___destroy___0(BoolVector* s
   delete self;
 }
 
+// CharVector
+
+CharVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_CharVector_CharVector_0() {
+  return new CharVector();
+}
+
+CharVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_CharVector_CharVector_1(int size) {
+  return new CharVector(size);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_CharVector_resize_1(CharVector* self, int size) {
+  self->resize(size);
+}
+
+char EMSCRIPTEN_KEEPALIVE emscripten_bind_CharVector_get_1(CharVector* self, int i) {
+  return self->get(i);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_CharVector_set_2(CharVector* self, int i, char val) {
+  self->set(i, val);
+}
+
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_CharVector_size_0(CharVector* self) {
+  return self->size();
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_CharVector___destroy___0(CharVector* self) {
+  delete self;
+}
+
+// IntVector
+
+IntVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_IntVector_IntVector_0() {
+  return new IntVector();
+}
+
+IntVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_IntVector_IntVector_1(int size) {
+  return new IntVector(size);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_IntVector_resize_1(IntVector* self, int size) {
+  self->resize(size);
+}
+
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_IntVector_get_1(IntVector* self, int i) {
+  return self->get(i);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_IntVector_set_2(IntVector* self, int i, int val) {
+  self->set(i, val);
+}
+
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_IntVector_size_0(IntVector* self) {
+  return self->size();
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_IntVector___destroy___0(IntVector* self) {
+  delete self;
+}
+
+// DoubleVector
+
+DoubleVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_DoubleVector_DoubleVector_0() {
+  return new DoubleVector();
+}
+
+DoubleVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_DoubleVector_DoubleVector_1(int size) {
+  return new DoubleVector(size);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_DoubleVector_resize_1(DoubleVector* self, int size) {
+  self->resize(size);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_DoubleVector_get_1(DoubleVector* self, int i) {
+  return self->get(i);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_DoubleVector_set_2(DoubleVector* self, int i, double val) {
+  self->set(i, val);
+}
+
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_DoubleVector_size_0(DoubleVector* self) {
+  return self->size();
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_DoubleVector___destroy___0(DoubleVector* self) {
+  delete self;
+}
+
 // SpeciesMasterTableRecordVector
 
 SpeciesMasterTableRecordVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_SpeciesMasterTableRecordVector_SpeciesMasterTableRecordVector_0() {
@@ -1240,8 +1330,8 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFuelModels___destroy___0(SIGFuelMod
 
 // SIGSurface
 
-SIGSurface* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_SIGSurface_1(SIGSurface* rhs) {
-  return new SIGSurface(*rhs);
+SIGSurface* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_SIGSurface_1(SIGFuelModels* fuelModels) {
+  return new SIGSurface(*fuelModels);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_initializeMembers_0(SIGSurface* self) {

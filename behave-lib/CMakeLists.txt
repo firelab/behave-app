@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 
+# Optional JS
+OPTION(BEHAVE_JS "Enable compiling to .js (WARNING: Emits a large file)" OFF)
+OPTION(BEHAVE_WASM "Enable compiling to .wasm" ON)
+
 # Emscripten Compilation
 set(WRAPPER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/include/cpp/emscripten/wrapper.cpp)
 set(EMSCRIPTEN_CPP_FILE ${CMAKE_CURRENT_SOURCE_DIR}/include/cpp/emscripten/)
@@ -23,6 +27,9 @@ set(EMCC_JS_ARGS ${EMCC_ARGS} -s WASM=0)
 set(EMCC_WASM_ARGS ${EMCC_ARGS}
   -O2
   --closure 1
+  -g3
+  -gsource-map
+  --source-map-base "locahost:8080/js/"
   -s BINARYEN_IGNORE_IMPLICIT_TRAPS=1
   -s WASM=1)
 
@@ -127,18 +134,22 @@ source_group("Behave Core Header Files" FILES ${HEADERS})
 
 add_library(behave STATIC ${SOURCE} ${HEADERS})
 
-add_custom_command(
-  OUTPUT behave.js
-  COMMAND emcc ${WRAPPER_FILE} ${EMCC_JS_ARGS} -o behave.js
-  DEPENDS behave
-  COMMENT "Building javascript"
-  VERBATIM)
-add_custom_target(behave-javascript ALL DEPENDS behave.js)
+IF(BEHAVE_JS)
+    add_custom_command(
+        OUTPUT behave.js
+        COMMAND emcc ${WRAPPER_FILE} ${EMCC_JS_ARGS} -o behave.js
+        DEPENDS behave
+        COMMENT "Building javascript"
+        VERBATIM)
+    add_custom_target(behave-javascript ALL DEPENDS behave.js)
+ENDIF()
 
-add_custom_command(
-  OUTPUT behave.wasm
-  COMMAND emcc ${WRAPPER_FILE} ${EMCC_WASM_ARGS} -o behave-min.js
-  DEPENDS behave
-  COMMENT "Building webassembly"
-  VERBATIM)
-add_custom_target(behave-webassembly ALL DEPENDS behave.wasm)
+IF(BEHAVE_WASM)
+    add_custom_command(
+        OUTPUT behave.wasm
+        COMMAND emcc ${WRAPPER_FILE} ${EMCC_WASM_ARGS} -o behave-min.js
+        DEPENDS behave
+        COMMENT "Building webassembly"
+        VERBATIM)
+    add_custom_target(behave-webassembly ALL DEPENDS behave.wasm)
+ENDIF()

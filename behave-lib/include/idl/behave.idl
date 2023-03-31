@@ -10,6 +10,33 @@ interface BoolVector {
   long size();
 };
 
+interface CharVector {
+  void CharVector();
+  void CharVector(long size);
+  void resize(long size);
+  byte get(long i);
+  void set(long i, byte val);
+  long size();
+};
+
+interface IntVector {
+  void IntVector();
+  void IntVector(long size);
+  void resize(long size);
+  long get(long i);
+  void set(long i, long val);
+  long size();
+};
+
+interface DoubleVector {
+  void DoubleVector();
+  void DoubleVector(long size);
+  void resize(long size);
+  double get(long i);
+  void set(long i, double val);
+  long size();
+};
+
 interface SpeciesMasterTableRecordVector {
   void SpeciesMasterTableRecordVector();
   void SpeciesMasterTableRecordVector(long size);
@@ -538,7 +565,7 @@ interface SIGFuelModels {
 };
 
 interface SIGSurface {
-  void SIGSurface([Ref] SIGSurface rhs);
+  void SIGSurface([Ref] SIGFuelModels fuelModels);
   void initializeMembers();
 
   void doSurfaceRunInDirectionOfInterest(double directionOfinterest);

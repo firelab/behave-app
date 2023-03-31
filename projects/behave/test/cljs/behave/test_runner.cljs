@@ -45,7 +45,7 @@
     (cond
 
       (not module-loaded?)
-      (do (add-script "/js/behave.js")
+      (do (add-script "/js/behave-min.js")
           (js/setTimeout #(init) 100))
 
       (not vms-loaded?)
