@@ -30,153 +30,25 @@
 *
 ******************************************************************************/
 
-#ifndef SIGSURFACE_H
-#define SIGSURFACE_H
+#pragma once
 
 // The SURFACE module of BehavePlus
 #include "behaveUnits.h"
 #include "fireSize.h"
 #include "surfaceFire.h"
 #include "surfaceInputs.h"
+#include "surface.h"
+#include "SIGFuelModels.h"
+#include "SIGString.h"
 
-class SIGSurface
+class SIGSurface : public Surface
 {
 public:
-    SIGSurface() = delete; // no default constructor
-    SIGSurface(const FuelModels& fuelModels);
-    SIGSurface(const SIGSurface& rhs);
-    SIGSurface& operator=(const SIGSurface& rhs);
+  SIGSurface() = delete; // No default constructor
+  SIGSurface(SIGFuelModels& fuelModels);
+  ~SIGSurface();
 
-    bool isAllFuelLoadZero(int fuelModelNumber);
-    void doSurfaceRunInDirectionOfMaxSpread();
-    void doSurfaceRunInDirectionOfInterest(double directionOfInterest);
-
-    double calculateFlameLength(double firelineIntensity);
-
-    void setFuelModels(FuelModels& fuelModels);
-    void initializeMembers();
-
-    // SurfaceFire getters
-    double getSpreadRate(SpeedUnits::SpeedUnitsEnum spreadRateUnits) const;
-    double getSpreadRateInDirectionOfInterest(SpeedUnits::SpeedUnitsEnum spreadRateUnits) const;
-    double getDirectionOfMaxSpread() const;
-    double getFlameLength(LengthUnits::LengthUnitsEnum flameLengthUnits) const;
-    double getFireLengthToWidthRatio() const;
-    double getFireEccentricity() const;
-    double getFirelineIntensity(FirelineIntensityUnits::FirelineIntensityUnitsEnum firelineIntensityUnits) const;
-    double getHeatPerUnitArea(HeatPerUnitAreaUnits::HeatPerUnitAreaUnitsEnum heatPerUnitAreaUnits) const;
-    double getMidflameWindspeed(SpeedUnits::SpeedUnitsEnum windSpeedUnits) const;
-    double getResidenceTime(TimeUnits::TimeUnitsEnum timeUnits) const;
-    double getReactionIntensity(HeatSourceAndReactionIntensityUnits::HeatSourceAndReactionIntensityUnitsEnum reactiontionIntensityUnits) const;
-    double getEllipticalA(LengthUnits::LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits) const;
-    double getEllipticalB(LengthUnits::LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits) const;
-    double getEllipticalC(LengthUnits::LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits) const;
-    double getSlopeFactor() const;
-    double getBulkDensity(DensityUnits::DensityUnitsEnum densityUnits) const;
-    double getHeatSink(HeatSinkUnits::HeatSinkUnitsEnum heatSinkUnits) const;
-
-    double getFirePerimeter(LengthUnits::LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits) const;
-    double getFireArea(AreaUnits::AreaUnitsEnum areaUnits, double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits) const;
-
-    // SurfaceInputs setters
-    void setCanopyHeight(double canopyHeight, LengthUnits::LengthUnitsEnum canopyHeightUnits);
-    void setCanopyCover(double canopyCover, CoverUnits::CoverUnitsEnum coverUnits);
-    void setCrownRatio(double crownRatio);
-    void setFuelModelNumber(int fuelModelNumber);
-    void setMoistureOneHour(double moistureOneHour, MoistureUnits::MoistureUnitsEnum moistureUnits);
-    void setMoistureTenHour(double moistureTenHour, MoistureUnits::MoistureUnitsEnum moistureUnits);
-    void setMoistureHundredHour(double moistureHundredHour, MoistureUnits::MoistureUnitsEnum moistureUnits);
-    void setMoistureLiveHerbaceous(double moistureLiveHerbaceous, MoistureUnits::MoistureUnitsEnum moistureUnits);
-    void setMoistureLiveWoody(double moistureLiveWoody, MoistureUnits::MoistureUnitsEnum moistureUnits);
-    void setSlope(double slope, SlopeUnits::SlopeUnitsEnum slopeUnits);
-    void setAspect(double aspect);
-    void setWindSpeed(double windSpeed, SpeedUnits::SpeedUnitsEnum windSpeedUnits, WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode);
-    void setUserProvidedWindAdjustmentFactor(double userProvidedWindAdjustmentFactor);
-    void setWindDirection(double windDirection);
-    void setWindAndSpreadOrientationMode(WindAndSpreadOrientationMode::WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode);
-    void setWindHeightInputMode(WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode);
-    void setFirstFuelModelNumber(int firstFuelModelNumber);
-    void setSecondFuelModelNumber(int secondFuelModelNumber);
-    void setTwoFuelModelsMethod(TwoFuelModelsMethod::TwoFuelModelsMethodEnum  twoFuelModelsMethod);
-    void setTwoFuelModelsFirstFuelModelCoverage(double firstFuelModelCoverage, CoverUnits::CoverUnitsEnum coverUnits);
-    void setWindAdjustmentFactorCalculationMethod(WindAdjustmentFactorCalculationMethod::WindAdjustmentFactorCalculationMethodEnum windAdjustmentFactorCalculationMethod);
-    void updateSurfaceInputs(int fuelModelNumber, double moistureOneHour, double moistureTenHour, double moistureHundredHour,
-        double moistureLiveHerbaceous, double moistureLiveWoody, MoistureUnits::MoistureUnitsEnum moistureUnits, double windSpeed, SpeedUnits::SpeedUnitsEnum windSpeedUnits, 
-        WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode, double windDirection, 
-        WindAndSpreadOrientationMode::WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double slope, SlopeUnits::SlopeUnitsEnum slopeUnits, double aspect,
-        double canopyCover, CoverUnits::CoverUnitsEnum coverUnits, double canopyHeight, LengthUnits::LengthUnitsEnum canopyHeightUnits, double crownRatio);
-    void updateSurfaceInputsForTwoFuelModels(int firstFuelModelNumber, int secondFuelModelNumber, double moistureOneHour,
-        double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody,
-        MoistureUnits::MoistureUnitsEnum moistureUnits, double windSpeed, SpeedUnits::SpeedUnitsEnum windSpeedUnits,
-        WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode, double windDirection,
-        WindAndSpreadOrientationMode::WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double firstFuelModelCoverage,
-        CoverUnits::CoverUnitsEnum firstFuelModelCoverageUnits, TwoFuelModelsMethod::TwoFuelModelsMethodEnum twoFuelModelsMethod,
-        double slope, SlopeUnits::SlopeUnitsEnum slopeUnits, double aspect, double canopyCover,
-        CoverUnits::CoverUnitsEnum canopyCoverUnits, double canopyHeight, LengthUnits::LengthUnitsEnum canopyHeightUnits, double crownRatio);
-    void updateSurfaceInputsForPalmettoGallbery(double moistureOneHour, double moistureTenHour, double moistureHundredHour,
-        double moistureLiveHerbaceous, double moistureLiveWoody, MoistureUnits::MoistureUnitsEnum moistureUnits, double windSpeed, SpeedUnits::SpeedUnitsEnum windSpeedUnits, 
-         WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode, double windDirection, 
-        WindAndSpreadOrientationMode::WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double ageOfRough, double heightOfUnderstory, double palmettoCoverage,
-        double overstoryBasalArea, double slope, SlopeUnits::SlopeUnitsEnum slopeUnits, double aspect, double canopyCover, CoverUnits::CoverUnitsEnum coverUnits, double canopyHeight,
-        LengthUnits::LengthUnitsEnum canopyHeightUnits, double crownRatio);
-    void updateSurfaceInputsForWesternAspen(int aspenFuelModelNumber, double aspenCuringLevel, AspenFireSeverity::AspenFireSeverityEnum aspenFireSeverity, double DBH,
-        double moistureOneHour, double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody, 
-        MoistureUnits::MoistureUnitsEnum moistureUnits, double windSpeed, SpeedUnits::SpeedUnitsEnum windSpeedUnits, 
-        WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode, double windDirection,
-        WindAndSpreadOrientationMode::WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double slope, SlopeUnits::SlopeUnitsEnum slopeUnits, double aspect,
-        double canopyCover, CoverUnits::CoverUnitsEnum coverUnits, double canopyHeight, LengthUnits::LengthUnitsEnum canopyHeightUnits, double crownRatio);
-
-    // Fuel Model Getter Methods
-    char* getFuelCode(int fuelModelNumber) const;
-    char* getFuelName(int fuelModelNumber) const;
-    double getFuelbedDepth(int fuelModelNumber, LengthUnits::LengthUnitsEnum lengthUnits) const;
-    double getFuelMoistureOfExtinctionDead(int fuelModelNumber, MoistureUnits::MoistureUnitsEnum moistureUnits) const;;
-    double getFuelHeatOfCombustionDead(int fuelModelNumber, HeatOfCombustionUnits::HeatOfCombustionUnitsEnum heatOfCombustionUnits) const;
-    double getFuelHeatOfCombustionLive(int fuelModelNumber, HeatOfCombustionUnits::HeatOfCombustionUnitsEnum heatOfCombustionUnits) const;
-    double getFuelLoadOneHour(int fuelModelNumber, LoadingUnits::LoadingUnitsEnum loadingUnits) const;
-    double getFuelLoadTenHour(int fuelModelNumber, LoadingUnits::LoadingUnitsEnum loadingUnits) const;
-    double getFuelLoadHundredHour(int fuelModelNumber, LoadingUnits::LoadingUnitsEnum loadingUnits) const;
-    double getFuelLoadLiveHerbaceous(int fuelModelNumber, LoadingUnits::LoadingUnitsEnum loadingUnits) const;
-    double getFuelLoadLiveWoody(int fuelModelNumber, LoadingUnits::LoadingUnitsEnum loadingUnits) const;
-    double getFuelSavrOneHour(int fuelModelNumber, SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum savrUnits) const;
-    double getFuelSavrLiveHerbaceous(int fuelModelNumber, SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum savrUnits) const;
-    double getFuelSavrLiveWoody(int fuelModelNumber, SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum savrUnits) const;
-    bool isFuelDynamic(int fuelModelNumber) const;
-    bool isFuelModelDefined(int fuelModelNumber) const;
-    bool isFuelModelReserved(int fuelModelNumber) const;
-    bool isAllFuelLoadZero(int fuelModelNumber) const;
-
-    // SurfaceInputs getters
-    bool isUsingTwoFuelModels() const;
-    int getFuelModelNumber() const;
-    double getMoistureOneHour(MoistureUnits::MoistureUnitsEnum moistureUnits) const;
-    double getMoistureTenHour(MoistureUnits::MoistureUnitsEnum moistureUnits) const;
-    double getMoistureHundredHour(MoistureUnits::MoistureUnitsEnum moistureUnits) const;
-    double getMoistureLiveHerbaceous(MoistureUnits::MoistureUnitsEnum moistureUnits) const;
-    double getMoistureLiveWoody(MoistureUnits::MoistureUnitsEnum moistureUnits) const;
-    double getWindSpeed(SpeedUnits::SpeedUnitsEnum windSpeedUnits, WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode) const;
-    double getWindDirection() const;
-    double getSlope(SlopeUnits::SlopeUnitsEnum slopeUnits) const;
-    double getAspect() const;
-    double getCanopyCover(CoverUnits::CoverUnitsEnum coverUnits) const;
-    double getCanopyHeight(LengthUnits::LengthUnitsEnum canopyHeightUnits) const;
-    double getCrownRatio() const;
-    WindAndSpreadOrientationMode::WindAndSpreadOrientationModeEnum getWindAndSpreadOrientationMode() const;
-    WindHeightInputMode::WindHeightInputModeEnum getWindHeightInputMode() const;
-    WindAdjustmentFactorCalculationMethod::WindAdjustmentFactorCalculationMethodEnum getWindAdjustmentFactorCalculationMethod() const;
-
-private:
-    void memberwiseCopyAssignment(const Surface& rhs);
-    double calculateSpreadRateAtVector(double directionOfinterest);
-
-    const FuelModels* fuelModels_;
-
-    // Surface Module components
-    SurfaceInputs surfaceInputs_;
-    SurfaceFire surfaceFire_;
-
-    // Size Module
-    FireSize size_;
+  // Fuel Model Getter Methods
+  char* getFuelCode(int fuelModelNumber) const;
+  char* getFuelName(int fuelModelNumber) const;
 };
-
-#endif // SIGSURFACE_H

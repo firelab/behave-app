@@ -38,7 +38,6 @@ include_directories(${CMAKE_SOURCE_DIR}/include/cpp/sig-adapters)
 include_directories(${CMAKE_SOURCE_DIR}/include/cpp/emscripten)
 
 SET(SOURCE
-    behave-mirror/src/behave/behaveRun.cpp
     behave-mirror/src/behave/behaveUnits.cpp
     behave-mirror/src/behave/canopy_coefficient_table.cpp
     behave-mirror/src/behave/crown.cpp
@@ -63,22 +62,24 @@ SET(SOURCE
     behave-mirror/src/behave/windAdjustmentFactor.cpp
     behave-mirror/src/behave/windSpeedUtility.cpp
 
+    include/cpp/sig-adapters/SIGBehaveRun.cpp
     include/cpp/sig-adapters/SIGContain.cpp
     include/cpp/sig-adapters/SIGContainAdapter.cpp
     include/cpp/sig-adapters/SIGContainForce.cpp
     include/cpp/sig-adapters/SIGContainForceAdapter.cpp
     include/cpp/sig-adapters/SIGContainResource.cpp
     include/cpp/sig-adapters/SIGContainSim.cpp
+    include/cpp/sig-adapters/SIGCrown.cpp
     include/cpp/sig-adapters/SIGFuelModels.cpp
     include/cpp/sig-adapters/SIGIgnite.cpp
     include/cpp/sig-adapters/SIGIgniteInputs.cpp
     include/cpp/sig-adapters/SIGMortality.cpp
+    include/cpp/sig-adapters/SIGSurface.h
     include/cpp/sig-adapters/SIGSpot.cpp
     include/cpp/sig-adapters/SIGSpotInputs.cpp
     include/cpp/sig-adapters/SIGSurface.cpp)
 
 SET(HEADERS
-    behave-mirror/src/behave/behaveRun.h
     behave-mirror/src/behave/behaveUnits.h
     behave-mirror/src/behave/canopy_coefficient_table.h
     behave-mirror/src/behave/crown.h
@@ -103,6 +104,7 @@ SET(HEADERS
     behave-mirror/src/behave/windAdjustmentFactor.h
     behave-mirror/src/behave/windSpeedUtility.h
 
+    include/cpp/sig-adapters/SIGBehaveRun.h
     include/cpp/sig-adapters/SIGDiurnalROS.h
     include/cpp/sig-adapters/SIGContain.h
     include/cpp/sig-adapters/SIGContainAdapter.h
@@ -110,12 +112,14 @@ SET(HEADERS
     include/cpp/sig-adapters/SIGContainForceAdapter.h
     include/cpp/sig-adapters/SIGContainResource.h
     include/cpp/sig-adapters/SIGContainSim.h
+    include/cpp/sig-adapters/SIGCrown.h
     include/cpp/sig-adapters/SIGFuelModels.cpp
     include/cpp/sig-adapters/SIGIgnite.h
     include/cpp/sig-adapters/SIGIgniteInputs.h
     include/cpp/sig-adapters/SIGMortality.h
     include/cpp/sig-adapters/SIGSpot.h
     include/cpp/sig-adapters/SIGSpotInputs.h
+    include/cpp/sig-adapters/SIGSurface.h
     include/cpp/sig-adapters/SIGString.h
     include/cpp/sig-adapters/SIGSurface.h)
 

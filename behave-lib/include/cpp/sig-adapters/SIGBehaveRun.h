@@ -26,17 +26,17 @@
 *
 ******************************************************************************/
 
-#ifndef BEHAVERUN_H
-#define BEHAVERUN_H
+#pragma once
 
-#include "SIGBehaveUnits.h"
+#include "behaveUnits.h"
 #include "SIGContainAdapter.h"
-#include "crown.h"
+#include "SIGCrown.h"
 #include "SIGIgnite.h"
-#include "mortality.h"
+#include "SIGMortality.h"
 #include "safety.h"
 #include "SIGSpot.h"
 #include "SIGSurface.h"
+#include "SIGString.h"
 
 class SIGFuelModels;
 
@@ -52,11 +52,11 @@ public:
 
     void reinitialize();
 
-    void setFuelModels(FuelModels& fuelModels);
+    void setFuelModels(SIGFuelModels& fuelModels);
 
     // Fuel Model Getter Methods
-    std::string getFuelCode(int fuelModelNumber) const;
-    std::string getFuelName(int fuelModelNumber) const;
+    char* getFuelCode(int fuelModelNumber) const;
+    char* getFuelName(int fuelModelNumber) const;
     double getFuelbedDepth(int fuelModelNumber, LengthUnits::LengthUnitsEnum lengthUnits) const;
     double getFuelMoistureOfExtinctionDead(int fuelModelNumber, MoistureUnits::MoistureUnitsEnum moistureUnits) const;;
     double getFuelHeatOfCombustionDead(int fuelModelNumber, HeatOfCombustionUnits::HeatOfCombustionUnitsEnum heatOfCombustionUnits) const;
@@ -78,7 +78,7 @@ public:
     SIGSurface surface;
 
     // CROWN Module
-    Crown crown;
+    SIGCrown crown;
 
     // SPOT Module
     SIGSpot spot;
@@ -93,10 +93,10 @@ public:
     Safety safety;
 
     // Mortality Module
-    Mortality mortality;
+    SIGMortality mortality;
 
  private:
-    void memberwiseCopyAssignment(const BehaveRun& rhs);
+    void memberwiseCopyAssignment(const SIGBehaveRun& rhs);
 
     // Fuel models (orginal 13, 40 and custom)
     SIGFuelModels* fuelModels_;
@@ -104,5 +104,3 @@ public:
     // Tree species data for Mortality Module
     SpeciesMasterTable* speciesMasterTable_;
 };
-
-#endif //BEHAVERUN_H

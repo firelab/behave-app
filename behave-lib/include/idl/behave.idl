@@ -497,8 +497,8 @@ enum WindHeightInputMode_WindHeightInputModeEnum {
 
 interface SIGFuelModels {
   void SIGFuelModels();
-  [Operator="=", Ref] SIGFuelModels equal([Const, Ref] FuelModels rhs);
-  void SIGFuelModels([Const, Ref] FuelModels rhs);
+  [Operator="=", Ref] SIGFuelModels equal([Const, Ref] SIGFuelModels rhs);
+  void SIGFuelModels([Const, Ref] SIGFuelModels rhs);
   boolean clearCustomFuelModel(long fuelModelNumber);
   boolean getIsDynamic(long fuelModelNumber);
   boolean isFuelModelDefined(long fuelModelNumber);

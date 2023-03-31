@@ -28,7 +28,7 @@
 
 #include "SIGBehaveRun.h"
 
-#include "fuelModels.h"
+#include "SIGFuelModels.h"
 
 SIGBehaveRun::SIGBehaveRun(SIGFuelModels& fuelModels, SpeciesMasterTable& speciesMasterTable)
     : surface(fuelModels),
@@ -47,7 +47,7 @@ SIGBehaveRun::SIGBehaveRun(const SIGBehaveRun& rhs)
     memberwiseCopyAssignment(rhs);
 }
 
-BehaveRun& SIGBehaveRun::operator=(const SIGBehaveRun& rhs)
+SIGBehaveRun& SIGBehaveRun::operator=(const SIGBehaveRun& rhs)
 {
     if (this != &rhs)
     {
@@ -86,12 +86,12 @@ void SIGBehaveRun::setFuelModels(SIGFuelModels& fuelModels)
     crown.setFuelModels(fuelModels);
 }
 
-std::string SIGBehaveRun::getFuelCode(int fuelModelNumber) const
+char* SIGBehaveRun::getFuelCode(int fuelModelNumber) const
 {
     return fuelModels_->getFuelCode(fuelModelNumber);
 }
 
-std::string SIGBehaveRun::getFuelName(int fuelModelNumber) const
+char* SIGBehaveRun::getFuelName(int fuelModelNumber) const
 {
     return fuelModels_->getFuelName(fuelModelNumber);
 }
