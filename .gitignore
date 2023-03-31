@@ -227,3 +227,4 @@ ModelManifest.xml
 projects/behave/resources/public/js/out/
 projects/behave/resources/public/cljs/
 **/target
+projects/behave/resources/public/js/behave.js
