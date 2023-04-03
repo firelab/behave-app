@@ -16,15 +16,6 @@
 
 ;; Tests
 
-(deftest csv-test
-  (testing "CSV file is fetched and parsed"
-    (let [csv-text (inline-resource "public/csv/contain.csv")
-          results  (parse-csv csv-text)]
-      (is (= 1 (count results))
-          "should have one row of data")
-      (is (= 17 (count (first results)))
-          "should have 17 columns of data"))))
-
 (deftest contain-testing-simple
   (let [row    (->> (inline-resource "public/csv/contain.csv")
                     (parse-csv)

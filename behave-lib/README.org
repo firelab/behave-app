@@ -4,35 +4,30 @@
 A new implementation of the extended Rothermel model.
 
 ** Requirements
-* [[https://cmake.org/][CMake]] 
-* [[https://gcc.gnu.org/][GCC]] 
+* [[https://cmake.org/][CMake]]
+* [[https://gcc.gnu.org/][GCC]]
 * [[https://emscripten.org][Emscripten]]
 
 ** Installation
-*** MacOS
 #+begin_src sh
-  # Enable XCode
-  xcode-install --install
+# Enable XCode (for MacOS)
+xcode-install --install
 
-  # Install Homebrew
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" 
+# Install Homebrew
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-  # Install dependencies via Homebrew (https://brew.sh/)
-  brew install python cmake emscripten
-#+end_src
+# Install dependencies via Homebrew (https://brew.sh/)
+brew install python cmake emscripten llvm
 
-*** Ubuntu Linux
-#+begin_src sh
-  # Install Homebrew
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" 
-
-  # Install dependencies via Homebrew (https://brew.sh/)
-  brew install python cmake emscripten
+# Export environment variables or add it to your bashrc
+export CC=$(which clang)
+export CXX=$(which clang++)
+export WEBIDL=$(brew --prefix emscripten)/libexec/tools/webidl_binder
 #+end_src
 
 ** Building
 #+BEGIN_SRC sh
-  make build
+make build
 #+END_SRC
 
 ** Process
