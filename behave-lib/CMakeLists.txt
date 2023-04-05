@@ -7,11 +7,14 @@ OPTION(BEHAVE_HTML "Enable compiling to .html" ON)
 
 # Emscripten Compilation
 set(WRAPPER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/include/cpp/emscripten/wrapper.cpp)
-set(EMSCRIPTEN_CPP_FILE ${CMAKE_CURRENT_SOURCE_DIR}/include/cpp/emscripten/)
+set(EMSCRIPTEN_CPP_FILE ${CMAKE_SOURCE_DIR}/include/cpp/emscripten/)
 set(GLUE_JS_FILE ${CMAKE_CURRENT_SOURCE_DIR}/include/js/glue.js)
-set(BEHAVE_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/behave-mirror/src/behave/)
-set(SIG_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include/cpp/sig-adapters/)
+set(BEHAVE_SRC_DIR ${CMAKE_SOURCE_DIR}/behave-mirror/src/behave/)
+set(SIG_SRC_DIR ${CMAKE_SOURCE_DIR}/include/cpp/sig-adapters/)
 set(BEHAVE_LIB libbehave.a)
+
+# TODO: Kenny to the directories for DWARF compatiblity using -fdebug-prefix-map flag
+set(DWARF_DIR ${CMAKE_SOURCE_DIR}) # Replace with /path-to-current-dir/ for Windows WSL
 
 set(EMCC_ARGS
   -I${BEHAVE_SRC_DIR}
@@ -39,10 +42,7 @@ set(EMCC_WASM_ARGS ${EMCC_ARGS}
   # -gsplit-dwarf build/behave.dwp
   # -gdwarf-5
   -gpubnames
-  # -ffile-compilation-dir=build
-  # -fdebug-compilation-dir=build
-  -fcoverage-compilation-dir=build
-  )
+  -fdebug-prefix-map=${CMAKE_SOURCE_DIR}=${DWARF_DIR})
 
 # Make use of c++11
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
