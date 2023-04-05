@@ -31,6 +31,6 @@
                        :api/update-entity
                        :api/create-entity)
          data        (merge (select-keys latest-help-page [:db/id])
-                            (select-keys edited-page [:help-page/key :help-page/content])
-                            {:language/_help-page language})]
+                            (select-keys edited-page [:help-page/content])
+                            {:help-page/key help-key :language/_help-page language})]
      {:fx [[:dispatch [event data]]]})))
