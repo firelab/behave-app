@@ -24,12 +24,8 @@
                  [key val])))
         row))
 
-(deftest surface-simple-test
-  (let [row            (->> (inline-resource "public/csv/surface.csv")
-                            (parse-csv)
-                            (first)
-                            (clean-values))
-        module         (surface/init (fuel-models/init))
+(defn- test-surface [row]
+  (let [module         (surface/init (fuel-models/init))
         moisture-units (enums/moisture-units (get row "moistureUnits"))]
 
     ;; Arrange
@@ -64,3 +60,9 @@
             observed (surface/getSpreadRate module (get-unit "ch/h"))]
         (is (within-millionth? expected observed)
             (str "spreadRate Expected: " expected "  Observed: " observed))))))
+
+(deftest surface-simple-test
+  (let [rows (->> (inline-resource "public/csv/surface.csv")
+                  (parse-csv)
+                  (map clean-values))]
+    (doall (map test-surface rows))))
