@@ -1,4 +1,7 @@
-INSTALL_DIR := /opt/homebrew/opt/emscripten/libexec/tools/webidl_binder
+ifndef WEBIDL
+    WEBIDL := $(shell brew --prefix emscripten)/libexec/tools/webidl_binder
+endif
+
 .DEFAULT_GOAL := install
 
 all: install

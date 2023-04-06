@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 
 # Optional JS
 OPTION(BEHAVE_JS "Enable compiling to .js (WARNING: Emits a large file)" OFF)
-OPTION(BEHAVE_WASM "Enable compiling to .wasm" OFF)
-OPTION(BEHAVE_HTML "Enable compiling to .html" ON)
+OPTION(BEHAVE_WASM "Enable compiling to .wasm" ON)
+OPTION(BEHAVE_HTML "Enable compiling to .html" OFF)
 
 # Emscripten Compilation
 set(WRAPPER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/include/cpp/emscripten/wrapper.cpp)
@@ -29,20 +29,21 @@ set(EMCC_ARGS
 set(EMCC_JS_ARGS ${EMCC_ARGS} -s WASM=0)
 
 set(EMCC_WASM_ARGS ${EMCC_ARGS}
-  -O2
+  # -O2
   --closure 1
   -g
   # -gsource-map
   # --source-map-base "locahost:8080/js/"
   # -s BINARYEN_IGNORE_IMPLICIT_TRAPS=1
   -s WASM=1
-  -sALLOW_MEMORY_GROWTH
-  -sWASM_BIGINT
-  # -sERROR_ON_WASM_CHANGES_AFTER_LINK
+  -s ALLOW_MEMORY_GROWTH
+  # -s WASM_BIGINT
+  # -s ERROR_ON_WASM_CHANGES_AFTER_LINK
   # -gsplit-dwarf build/behave.dwp
   # -gdwarf-5
-  -gpubnames
-  -fdebug-prefix-map=${CMAKE_SOURCE_DIR}=${DWARF_DIR})
+  # -gpubnames
+  # -fdebug-prefix-map=${CMAKE_SOURCE_DIR}=${DWARF_DIR}
+  )
 
 # Make use of c++11
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
