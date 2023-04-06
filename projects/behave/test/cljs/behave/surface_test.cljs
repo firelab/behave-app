@@ -25,8 +25,7 @@
         row))
 
 (defn- test-surface [row]
-  (let [module         (surface/init (fuel-models/init))
-        moisture-units (enums/moisture-units (get row "moistureUnits"))]
+  (let [module         (surface/init (fuel-models/init))]
 
     ;; Arrange
     (doto module

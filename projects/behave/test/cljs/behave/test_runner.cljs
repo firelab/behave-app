@@ -26,12 +26,11 @@
 
 (defn run-the-tests []
   (run-tests (cljs-test-display.core/init! "app-testing")
-             ;; 'behave.contain-test
+             'behave.contain-test
              'behave.surface-test
-             ;; 'behave.tests-used-in-fixtures
-             ;; 'behave.worksheet-events-test
-             ;; 'behave.worksheet-subs-test
-             ))
+             'behave.tests-used-in-fixtures
+             'behave.worksheet-events-test
+             'behave.worksheet-subs-test))
 
 (defn add-script [js-path]
   (let [script-el (.createElement js/document "script")]
