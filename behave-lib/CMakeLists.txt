@@ -15,8 +15,7 @@ set(BEHAVE_LIB libbehave.a)
 
 set(DWARF_DIR ${CMAKE_SOURCE_DIR})
 # NOTE: If you are using ubuntu through windows WSL set the DWARF_DIR to the
-# file path to the WSL full path. Dont' forget to also set -fdebug-prefix-map
-# flag. See setting EMCC_WASM_ARGS section. Here's an example:
+# file path to the WSL full path.
 
 # set(DWARF_DIR //wsl%24/Ubuntu/home/kcheung/work/code/behave-polylith/behave-lib)
 
