@@ -27,7 +27,7 @@ export WEBIDL=$(brew --prefix emscripten)/libexec/tools/webidl_binder
 
 *** Building
 #+BEGIN_SRC sh
-make build
+make install
 #+END_SRC
 
 *** Process
