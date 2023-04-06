@@ -13,8 +13,12 @@ set(BEHAVE_SRC_DIR ${CMAKE_SOURCE_DIR}/behave-mirror/src/behave/)
 set(SIG_SRC_DIR ${CMAKE_SOURCE_DIR}/include/cpp/sig-adapters/)
 set(BEHAVE_LIB libbehave.a)
 
-# TODO: Kenny to the directories for DWARF compatiblity using -fdebug-prefix-map flag
-set(DWARF_DIR ${CMAKE_SOURCE_DIR}) # Replace with /path-to-current-dir/ for Windows WSL
+set(DWARF_DIR ${CMAKE_SOURCE_DIR})
+# NOTE: If you are using ubuntu through windows WSL set the DWARF_DIR to the
+# file path to the WSL full path. Dont' forget to also set -fdebug-prefix-map
+# flag. See setting EMCC_WASM_ARGS section. Here's an example:
+
+# set(DWARF_DIR //wsl%24/Ubuntu/home/kcheung/work/code/behave-polylith/behave-lib)
 
 set(EMCC_ARGS
   -I${BEHAVE_SRC_DIR}
@@ -29,21 +33,11 @@ set(EMCC_ARGS
 set(EMCC_JS_ARGS ${EMCC_ARGS} -s WASM=0)
 
 set(EMCC_WASM_ARGS ${EMCC_ARGS}
-  # -O2
   --closure 1
   -g
-  # -gsource-map
-  # --source-map-base "locahost:8080/js/"
-  # -s BINARYEN_IGNORE_IMPLICIT_TRAPS=1
   -s WASM=1
   -s ALLOW_MEMORY_GROWTH
-  # -s WASM_BIGINT
-  # -s ERROR_ON_WASM_CHANGES_AFTER_LINK
-  # -gsplit-dwarf build/behave.dwp
-  # -gdwarf-5
-  # -gpubnames
-  # -fdebug-prefix-map=${CMAKE_SOURCE_DIR}=${DWARF_DIR}
-  )
+  -fdebug-prefix-map=${CMAKE_SOURCE_DIR}=${DWARF_DIR})
 
 # Make use of c++11
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
