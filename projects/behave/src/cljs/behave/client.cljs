@@ -1,7 +1,7 @@
 (ns ^:figwheel-hooks behave.client
   (:require [reagent.dom               :refer [render]]
             [re-frame.core             :as rf]
-            ; [re-frisk.core             :as re-frisk]
+                                        ; [re-frisk.core             :as re-frisk]
             [behave.components.sidebar :refer [sidebar]]
             [behave.components.toolbar :refer [toolbar]]
             [behave.help.views         :refer [help-area]]
@@ -16,7 +16,8 @@
                                                guided-worksheet-page
                                                independent-worksheet-page]]
             [behave.events]
-            [behave.subs]))
+            [behave.subs]
+            [behave.utils :refer [add-script]]))
 
 (defn not-found []
   [:div
@@ -67,7 +68,7 @@
 (defn- ^:export init
   "Defines the init function to be called from window.onload()."
   [params]
-  ; (re-frisk/enable)
+  ;; (re-frisk/enable)
   (rf/dispatch-sync [:initialize])
   (rf/dispatch-sync [:navigate (-> js/window .-location .-pathname)])
   (.addEventListener js/window "popstate" #(rf/dispatch [:popstate %]))
@@ -75,7 +76,8 @@
   (load-vms!)
   (load-store!)
   (render [app-shell (js->clj params :keywordize-keys true)]
-          (.getElementById js/document "app")))
+          (.getElementById js/document "app"))
+  (add-script "https://sig-gis.atlassian.net/s/d41d8cd98f00b204e9800998ecf8427e-T/1abpwv/b/8/c95134bc67d3a521bb3f4331beb9b804/_/download/batch/com.atlassian.jira.collector.plugin.jira-issue-collector-plugin:issuecollector/com.atlassian.jira.collector.plugin.jira-issue-collector-plugin:issuecollector.js?locale=en-US&collectorId=5afb263b"))
 
 (defn- ^:after-load mount-root!
   "A hook for figwheel to call the init function again."

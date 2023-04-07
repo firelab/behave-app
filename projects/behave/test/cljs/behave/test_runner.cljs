@@ -12,6 +12,7 @@
             [behave.worksheet-subs-test]
             [behave.worksheet.events]
             [behave.worksheet.subs]
+            [behave.utils :refer [add-script]]
             [cljs-test-display.core]
             [clojure.string :as str]
             [figwheel.main.testing :refer [run-tests]]
@@ -29,14 +30,6 @@
              'behave.tests-used-in-fixtures
              'behave.worksheet-events-test
              'behave.worksheet-subs-test))
-
-(defn add-script [js-path]
-  (let [script-el (.createElement js/document "script")]
-    (set! (.-src script-el) js-path)
-    (set! (.-type script-el) "text/javascript")
-    (-> js/document
-        (.-body)
-        (.appendChild script-el))))
 
 (defn ^:after-load init []
   (let [window-keys    (js->clj (.keys js/Object js/window))

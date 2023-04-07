@@ -743,4 +743,7 @@ body {
     padding: 10px;
 }
 
+.atlwdg-trigger.atlwdg-TOP {
+  z-index: 100;
+}
 /* -- End Help Area -- */
