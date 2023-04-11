@@ -1,5 +1,5 @@
 (ns behave.events
-  (:require [behave.utils :refer [add-script]]
+  (:require [browser-utils.core :refer [add-script script-exist?]]
             [re-frame.core :as rf]))
 
 ;;; Initialization
@@ -115,8 +115,9 @@
 
 (rf/reg-event-fx
  :system/add-script
- (fn [_ [_ script]]
-   (add-script script)))
+ (fn [_ [_ src]]
+   (when-not (script-exist? src)
+     (add-script src))))
 
 ;;; Translations
 

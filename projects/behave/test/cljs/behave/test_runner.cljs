@@ -12,7 +12,7 @@
             [behave.worksheet-subs-test]
             [behave.worksheet.events]
             [behave.worksheet.subs]
-            [behave.utils :refer [add-script]]
+            [browser-utils.core :refer [add-script]]
             [cljs-test-display.core]
             [clojure.string :as str]
             [figwheel.main.testing :refer [run-tests]]
