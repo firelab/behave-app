@@ -254,7 +254,29 @@
              [?g :graph-settings/y-axis-limits ?y]
              [?y :y-axis-limit/group-variable-uuid ?group-var-uuid]
              [?y :y-axis-limit/min ?min]
-             [?y :y-axis-limit/max ?max]]
+             [?y :y-axis-limit/max ?max]
+             [?w :worksheet/outputs ?o]
+             [?o :output/group-variable-uuid ?group-var-uuid]
+             [?o :output/enabled? true]]
+    :variables [ws-uuid]}))
+
+(rp/reg-sub
+ :worksheet/table-settings-filters
+ (fn [_ [_ ws-uuid]]
+   {:type      :query
+    :query     '[:find ?group-var-uuid ?min ?max ?enabled
+                 :in   $ ?ws-uuid
+                 :where
+                 [?w :worksheet/uuid ?ws-uuid]
+                 [?w :worksheet/table-settings ?ts]
+                 [?ts :table-settings/filters ?tf]
+                 [?tf :table-filter/group-variable-uuid ?group-var-uuid]
+                 [?tf :table-filter/min ?min]
+                 [?tf :table-filter/max ?max]
+                 [?tf :table-filter/enabled? ?enabled]
+                 [?w :worksheet/outputs ?o]
+                 [?o :output/group-variable-uuid ?group-var-uuid]
+                 [?o :output/enabled? true]]
     :variables [ws-uuid]}))
 
 (rp/reg-sub
@@ -280,6 +302,59 @@
              ;;get value
              [?c :result-cell/value ?value]]
     :variables [ws-uuid]}))
+
+(rf/reg-sub
+ :worksheet/output-uuid->result-min-values
+ (fn [[_ ws-uuid]]
+   [(rf/subscribe [:worksheet/result-table-cell-data ws-uuid])
+    (rf/subscribe [:worksheet/all-output-uuids ws-uuid])])
+ (fn [[result-table-cell-data all-output-uuids] _]
+   (reduce
+    (fn [acc [_row-id gv-uuid _repeat-id value]]
+      (if (contains? (set all-output-uuids) gv-uuid )
+        (update acc gv-uuid (fn [min-v]
+                              (let [min-float   (js/parseFloat min-v)
+                                    value-float (js/parseFloat value)]
+                                (min (or min-float ##Inf) value-float))))
+        acc))
+    {}
+    result-table-cell-data)))
+
+(rf/reg-sub
+ :worksheet/output-min+max-values
+ (fn [[_ ws-uuid]]
+   [(rf/subscribe [:worksheet/result-table-cell-data ws-uuid])
+    (rf/subscribe [:worksheet/all-output-uuids ws-uuid])])
+ (fn [[result-table-cell-data all-output-uuids] _]
+   (reduce
+    (fn [acc [_row-id gv-uuid _repeat-id value]]
+      (if (contains? (set all-output-uuids) gv-uuid )
+        (update acc gv-uuid (fn [[min-v max-v]]
+                              (let [min-float   (js/parseFloat min-v)
+                                    max-float   (js/parseFloat max-v)
+                                    value-float (js/parseFloat value)]
+                                [(min (or min-float ##Inf) value-float)
+                                 (max (or max-float ##-Inf) value-float)])))
+        acc))
+    {}
+    result-table-cell-data)))
+
+(rf/reg-sub
+ :worksheet/output-uuid->result-max-values
+ (fn [[_ ws-uuid]]
+   [(rf/subscribe [:worksheet/result-table-cell-data ws-uuid])
+    (rf/subscribe [:worksheet/all-output-uuids ws-uuid])])
+ (fn [[result-table-cell-data all-output-uuids] _]
+   (reduce
+    (fn [acc [_row-id gv-uuid _repeat-id value]]
+      (if (contains? (set all-output-uuids) gv-uuid )
+        (update acc gv-uuid (fn [max-v]
+                              (let [max-float   (js/parseFloat max-v)
+                                    value-float (js/parseFloat value)]
+                                (max (or max-float ##-Inf) value-float))))
+        acc))
+    {}
+    result-table-cell-data)))
 
 ;; returns headers of table in sorted order
 (rf/reg-sub

@@ -96,19 +96,27 @@
 
 (rp/reg-event-fx
  :worksheet/upsert-output
- [(rp/inject-cofx :ds)]
- (fn [{:keys [ds]} [_ ws-uuid group-variable-uuid enabled?]]
-   (when-let [ws (first (d/q '[:find  [?e ...]
-                               :in    $ ?uuid
-                               :where [?e :worksheet/uuid ?uuid]] ds ws-uuid))]
-     (if-let [output-id (first (d/q '[:find  [?o]
-                                      :in    $ ?ws ?var-uuid
-                                      :where [?ws :worksheet/outputs ?o]
-                                      [?o :output/group-variable-uuid ?var-uuid]] ds ws group-variable-uuid))]
-       {:transact [{:db/id output-id :output/enabled? enabled?}]}
-       {:transact [{:worksheet/_outputs         ws
-                    :output/group-variable-uuid group-variable-uuid
-                    :output/enabled?            enabled?}]}))))
+ [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet ws-uuid]))]
+ (fn [{:keys [worksheet]} [_ ws-uuid group-variable-uuid enabled?]]
+   (if-let [output-id (some->> worksheet
+                               (:worksheet/outputs)
+                               (filter #(= (:output/group-variable-uuid %) group-variable-uuid))
+                               (first)
+                               (:db/id))]
+     (cond-> {:transact [{:db/id output-id :output/enabled? enabled?}]}
+       (true? enabled?)
+       (update :fx #(into (vec %) [[:dispatch [:worksheet/add-table-filter ws-uuid group-variable-uuid]]
+                                   [:dispatch [:worksheet/add-y-axis-limit ws-uuid group-variable-uuid]]]))
+
+       (false? enabled?)
+       (update :fx #(into (vec %) [[:dispatch [:worksheet/remove-table-filter ws-uuid group-variable-uuid]]
+                                   [:dispatch [:worksheet/remove-y-axis-limit ws-uuid group-variable-uuid]]])))
+     ;;else
+     {:transact [{:worksheet/_outputs         [:worksheet/uuid ws-uuid]
+                  :output/group-variable-uuid group-variable-uuid
+                  :output/enabled?            enabled?}]
+      :fx       [[:dispatch [:worksheet/add-table-filter ws-uuid group-variable-uuid]]
+                 [:dispatch [:worksheet/add-y-axis-limit ws-uuid group-variable-uuid]]]})))
 
 (rp/reg-event-fx
  :worksheet/add-result-table
@@ -185,73 +193,60 @@
 
 (rp/reg-event-fx
  :worksheet/toggle-table-settings
+ [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet ws-uuid]))]
+ (fn [{:keys [worksheet]} _]
+   (let [table-setting-id (get-in worksheet [:worksheet/table-settings :db/id])
+         enabled?         (get-in worksheet [:worksheet/table-settings :table-settings/enabled?])]
+     {:transact [{:db/id                   table-setting-id
+                  :table-settings/enabled? (not enabled?)}]})))
+
+(rp/reg-event-fx
+ :worksheet/add-y-axis-limit
+ [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet ws-uuid]))]
+ (fn [{:keys [worksheet]} [_ ws-uuid gv-uuid]]
+   (let [limit {:y-axis-limit/group-variable-uuid gv-uuid}]
+     (if-let [id (get-in worksheet [:worksheet/graph-settings :db/id])]
+       {:transact [{:db/id                  id
+                    :graph-settings/y-axis-limits [limit]}]}
+       {:transact [{:worksheet/_graph-settings    [:worksheet/uuid ws-uuid]
+                    :graph-settings/y-axis-limits [limit]}]}))))
+
+(rp/reg-event-fx
+ :worksheet/remove-y-axis-limit
  [(rp/inject-cofx :ds)]
- (fn [{:keys [ds]} [_ ws-uuid]]
-   (when-let [ws (d/q '[:find  [?ws]
-                        :in    $ ?uuid
-                        :where [?ws :worksheet/uuid ?uuid]] ds ws-uuid)]
-     (if-let [[id enabled?] (d/q '[:find [?t ?enabled]
-                                   :in    $ ?uuid
-                                   :where
-                                   [?w :worksheet/uuid ?uuid]
-                                   [?w :worksheet/table-settings ?t]
-                                   [?t :table-settings/enabled? ?enabled]]
-                                  ds
-                                  ws-uuid)]
-       {:transact [{:db/id                   id
-                    :table-settings/enabled? (not enabled?)}]}
-       {:transact [{:worksheet/_table-settings ws
-                    :db/id                     -1
-                    :table-settings/enabled?   true}]}))))
+ (fn [{:keys [ds]} [_ ws-uuid gv-uuid]]
+   (when-let [eid (d/q '[:find  ?y .
+                         :in    $ ?uuid ?gv-uuid
+                         :where
+                         [?w :worksheet/uuid ?uuid]
+                         [?w :worksheet/graph-settings ?g]
+                         [?g :graph-settings/y-axis-limits ?y]
+                         [?y :y-axis-limit/group-variable-uuid ?gv-uuid]]
+                       ds ws-uuid gv-uuid)]
+     {:transact [[:db.fn/retractEntity eid]]})))
 
 (rp/reg-event-fx
  :worksheet/toggle-graph-settings
- [(rp/inject-cofx :ds)
-  (rf/inject-cofx ::inject/sub
-                  (fn [[_ ws-uuid]]
-                    [:worksheet/all-output-uuids ws-uuid]))
-  (rf/inject-cofx ::inject/sub
-                  (fn [[_ ws-uuid]]
-                    [:worksheet/multi-value-input-uuids ws-uuid]))]
- (fn [{ds                      :ds
-       output-uuids            :worksheet/all-output-uuids
-       multi-value-input-uuids :worksheet/multi-value-input-uuids} [_ ws-uuid]]
-   (when-let [ws (d/q '[:find  [?ws]
-                        :in    $ ?uuid
-                        :where [?ws :worksheet/uuid ?uuid]] ds ws-uuid)]
-     (if-let [[id enabled?] (d/q '[:find [?t ?enabled]
-                                   :in    $ ?uuid
-                                   :where
-                                   [?w :worksheet/uuid ?uuid]
-                                   [?w :worksheet/graph-settings ?t]
-                                   [?t :graph-settings/enabled? ?enabled]]
-                                  ds
-                                  ws-uuid)]
-       {:transact [{:db/id                   id
-                    :graph-settings/enabled? (not enabled?)}]}
-       {:transact [(cond-> {:worksheet/_graph-settings ws
-                            :db/id                     -1
-                            :graph-settings/enabled?   true}
+ [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet/multi-value-input-uuids ws-uuid]))
+  (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet ws-uuid]))]
+ (fn [{worksheet               :worksheet
+       multi-value-input-uuids :worksheet/multi-value-input-uuids} _]
+   (let [graph-setting-id (get-in worksheet [:worksheet/graph-settings :db/id])
+         enabled?         (get-in worksheet [:worksheet/graph-settings :graph-settings/enabled?])]
+     {:transact [(cond-> {:db/id                   graph-setting-id
+                          :graph-settings/enabled? (not enabled?)}
 
-                     ;; sets default x-axis selection if available
-                     (first multi-value-input-uuids)
-                     (assoc :graph-settings/x-axis-group-variable-uuid (first multi-value-input-uuids))
+                   ;; sets default x-axis selection if available
+                   (first multi-value-input-uuids)
+                   (assoc :graph-settings/x-axis-group-variable-uuid (first multi-value-input-uuids))
 
-                     ;; sets default z-axis selection if available
-                     (second multi-value-input-uuids)
-                     (assoc :graph-settings/z-axis-group-variable-uuid (second multi-value-input-uuids))
+                   ;; sets default z-axis selection if available
+                   (second multi-value-input-uuids)
+                   (assoc :graph-settings/z-axis-group-variable-uuid (second multi-value-input-uuids))
 
-                     ;; sets default z2-axis selection if available
-                     (nth multi-value-input-uuids 2 nil)
-                     (assoc :graph-settings/z2-axis-group-variable-uuid (nth multi-value-input-uuids 2))
-
-                     (seq output-uuids)
-                     (assoc :graph-settings/y-axis-limits
-                            (mapv (fn [output-uuid]
-                                    {:y-axis-limit/group-variable-uuid output-uuid
-                                     :y-axis-limit/min                 0     ;TODO compute from results
-                                     :y-axis-limit/max                 100}) ;TODO compute from results
-                                  output-uuids)))]}))))
+                   ;; sets default z2-axis selection if available
+                   (nth multi-value-input-uuids 2 nil)
+                   (assoc :graph-settings/z2-axis-group-variable-uuid (nth multi-value-input-uuids 2)))]})))
 
 (rp/reg-event-fx
  :worksheet/update-y-axis-limit-attr
@@ -264,10 +259,112 @@
                               [?w :worksheet/graph-settings ?g]
                               [?g :graph-settings/y-axis-limits ?y]
                               [?y :y-axis-limit/group-variable-uuid ?group-var-uuid]]
-                             ds
-                             ws-uuid
-                             group-var-uuid))]
+                            ds
+                            ws-uuid
+                            group-var-uuid))]
      {:transact [(assoc {:db/id y} attr value)]})))
+
+(rp/reg-event-fx
+ :worksheet/update-all-y-axis-limits-from-results
+ [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet/output-uuid->result-min-values ws-uuid]))
+  (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet/output-uuid->result-max-values ws-uuid]))]
+ (fn [{output-uuid->result-min-values :worksheet/output-uuid->result-min-values
+       output-uuid->result-max-values :worksheet/output-uuid->result-max-values}
+      [_ ws-uuid]]
+   (let [gv-uuids (keys output-uuid->result-min-values)]
+     {:fx (reduce (fn [acc gv-uuid]
+                    (let [min-val (get output-uuid->result-min-values gv-uuid)
+                          max-val (get output-uuid->result-max-values gv-uuid)]
+                      (-> acc
+                          (conj [:dispatch [:worksheet/update-y-axis-limit-attr
+                                            ws-uuid
+                                            gv-uuid
+                                            :y-axis-limit/min
+                                            (.floor js/Math min-val)]])
+                          (conj [:dispatch [:worksheet/update-y-axis-limit-attr
+                                            ws-uuid
+                                            gv-uuid
+                                            :y-axis-limit/max
+                                            (.ceil js/Math max-val)]]))))
+                  []
+                  gv-uuids)})))
+
+(rp/reg-event-fx
+ :worksheet/update-table-filter-attr
+ [(rp/inject-cofx :ds)]
+ (fn [{ds :ds} [_ ws-uuid group-var-uuid attr value]]
+   (when-let [table-filter-id (d/q '[:find ?f .
+                                     :in    $ ?ws-uuid ?group-var-uuid
+                                     :where
+                                     [?w :worksheet/uuid ?ws-uuid]
+                                     [?w :worksheet/table-settings ?t]
+                                     [?t :table-settings/filters ?f]
+                                     [?f :table-filter/group-variable-uuid ?group-var-uuid]]
+                                   ds
+                                   ws-uuid
+                                   group-var-uuid)]
+     {:transact [(assoc {:db/id table-filter-id} attr value)]})))
+
+(rp/reg-event-fx
+ :worksheet/add-table-filter
+ [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet ws-uuid]))]
+ (fn [{:keys [worksheet]} [_ ws-uuid gv-uuid]]
+   (let [filter {:table-filter/group-variable-uuid gv-uuid
+                 :table-filter/enabled?            false}]
+     (if-let [id (get-in worksheet [:worksheet/table-settings :db/id])]
+       {:transact [{:db/id                  id
+                    :table-settings/filters [filter]}]}
+       {:transact [{:worksheet/_table-settings [:worksheet/uuid ws-uuid]
+                    :table-settings/filters    [filter]}]}))))
+
+(rp/reg-event-fx
+ :worksheet/update-all-table-filters-from-results
+ [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet/output-min+max-values ws-uuid]))]
+ (fn [{output-min-max-values :worksheet/output-min+max-values} [_ ws-uuid]]
+   {:fx (reduce (fn [acc [gv-uuid [min-val max-val]]]
+                  (-> acc
+                      (conj [:dispatch [:worksheet/update-table-filter-attr
+                                        ws-uuid
+                                        gv-uuid
+                                        :table-filter/min
+                                        (.floor js/Math min-val)]])
+                      (conj [:dispatch [:worksheet/update-table-filter-attr
+                                        ws-uuid
+                                        gv-uuid
+                                        :table-filter/max
+                                        (.ceil js/Math max-val)]])))
+                []
+                output-min-max-values)}))
+
+(rp/reg-event-fx
+ :worksheet/remove-table-filter
+ [(rp/inject-cofx :ds)]
+ (fn [{:keys [ds]} [_ ws-uuid gv-uuid]]
+   (when-let [eid (d/q '[:find  ?f .
+                         :in    $ ?uuid ?gv-uuid
+                         :where
+                         [?w :worksheet/uuid ?uuid]
+                         [?w :worksheet/table-settings ?t]
+                         [?t :table-settings/filters ?f]
+                         [?f :table-filter/group-variable-uuid ?gv-uuid]]
+                       ds ws-uuid gv-uuid)]
+     {:transact [[:db.fn/retractEntity eid]]})))
+
+(rp/reg-event-fx
+ :worksheet/toggle-enable-filter
+ [(rp/inject-cofx :ds)]
+ (fn [{:keys [ds]} [_ ws-uuid gv-uuid]]
+   (when-let [eid (d/q '[:find  ?f .
+                         :in    $ ?uuid ?gv-uuid
+                         :where
+                         [?w :worksheet/uuid ?uuid]
+                         [?w :worksheet/table-settings ?t]
+                         [?t :table-settings/filters ?f]
+                         [?f :table-filter/group-variable-uuid ?gv-uuid]]
+                       ds ws-uuid gv-uuid)]
+     (let [enabled? (:table-filter/enabled? (d/entity ds eid))]
+       {:transact [{:db/id                 eid
+                    :table-filter/enabled? (not enabled?)}]}))))
 
 (rp/reg-event-fx
  :worksheet/update-graph-settings-attr
