@@ -7,6 +7,7 @@
             [behave.wizard.events]
             [behave.wizard.subs]
             [behave.contain-test]
+            [behave.surface-test]
             [behave.tests-used-in-fixtures]
             [behave.worksheet-events-test]
             [behave.worksheet-subs-test]
@@ -26,6 +27,7 @@
 (defn run-the-tests []
   (run-tests (cljs-test-display.core/init! "app-testing")
              'behave.contain-test
+             'behave.surface-test
              'behave.tests-used-in-fixtures
              'behave.worksheet-events-test
              'behave.worksheet-subs-test))
@@ -46,7 +48,7 @@
 
       (not module-loaded?)
       (do (add-script "/js/behave-min.js")
-          (js/setTimeout #(init) 100))
+          (js/setTimeout #(init) 1000))
 
       (not vms-loaded?)
       (do

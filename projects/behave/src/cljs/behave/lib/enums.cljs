@@ -124,6 +124,11 @@
          "LoadingUnits::TonnesPerHectare"
          "LoadingUnits::KilogramsPerSquareMeter"]))
 
+(def moisture-units
+  (enum "MoistureUnits_MoistureUnitsEnum"
+        ["MoistureUnits::Fraction"
+         "MoistureUnits::Percent"]))
+
 (def probability-units
   (enum "ProbabilityUnits_ProbabilityUnitsEnum"
         ["ProbabilityUnits::Fraction"
@@ -192,3 +197,14 @@
         ["TimeUnits::Minutes"
          "TimeUnits::Seconds"
          "TimeUnits::Hours"]))
+
+(def wind-and-spread-orientation-mode
+  (enum "WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum"
+        ["WindAndSpreadOrientationMode::RelativeToUpslope"
+         "WindAndSpreadOrientationMode::RelativeToNorth"]))
+
+(def wind-height-input-mode
+  (enum "WindHeightInputMode_WindHeightInputModeEnum"
+        ["WindHeightInputMode::DirectMidflame"
+         "WindHeightInputMode::TwentyFoot"
+         "WindHeightInputMode::TenMeter"]))
