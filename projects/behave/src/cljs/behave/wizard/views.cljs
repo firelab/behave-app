@@ -12,13 +12,12 @@
             [bidi.bidi                      :refer [path-for]]
             [behave.worksheet.events]
             [behave.worksheet.subs]
-            [browser-utils.interface        :refer [debounce]]
-            [dom-utils.interface            :refer [input-value input-int-value]]
+            [dom-utils.interface            :refer [input-int-value input-value]]
             [goog.string                    :as gstring]
             [goog.string.format]
             [re-frame.core                  :refer [dispatch subscribe]]
-            [reagent.core                   :as r]
-            [string-utils.interface         :refer [->kebab]]))
+            [string-utils.interface         :refer [->kebab]]
+            [reagent.core :as r]))
 
 ;;; Components
 
@@ -180,7 +179,8 @@
 
 (defn run-description [ws-uuid]
   (let [*worksheet  (subscribe [:worksheet ws-uuid])
-        description (:worksheet/run-description @*worksheet)]
+        description (:worksheet/run-description @*worksheet)
+        value-atom  (r/atom (or description ""))]
     [:div.wizard-review__run-desciption
      [:div.wizard-review__run-description__header
       @(<t "behaveplus:run_description")]
@@ -189,11 +189,12 @@
        [c/text-input {:label       @(<t (bp "run_description"))
                       :placeholder @(<t (bp "type_description"))
                       :id          (->kebab @(<t (bp "run_description")))
-                      :value       (or description "")
-                      :on-change   #(dispatch [:worksheet/update-attr
-                                               ws-uuid
-                                               :worksheet/run-description
-                                               (-> % .-target .-value)])}]
+                      :value-atom  value-atom
+                      :on-change   #(reset! value-atom (input-value %))
+                      :on-blur     #(dispatch [:worksheet/update-attr
+                                             ws-uuid
+                                             :worksheet/run-description
+                                             (-> % .-target .-value)])}]
        [:div.wizard-review__run-description__message
         [c/button {:label         (gstring/format "*%s"  @(<t (bp "optional")))
                    :variant       "transparent-highlight"
@@ -265,77 +266,90 @@
 
 ;; Wizard Results Settings
 
-(defn update-setting-input [ws-uuid rf-event-id min-attr-id max-attr-id gv-uuid min-or-max value]
-  (dispatch [rf-event-id
-             ws-uuid
-             gv-uuid
-             (if (= min-or-max :min) min-attr-id max-attr-id)
-             value]))
+(defn update-setting-input [ws-uuid rf-event-id attr-id gv-uuid value]
+  (dispatch [rf-event-id ws-uuid gv-uuid attr-id value]))
 
-(defn settings-form [{:keys [ws-uuid title headers rf-event-id rf-sub-id min-attr-id max-attr-id]}]
-  (let [on-change (debounce #'update-setting-input 1000)]
-    (letfn [(number-inputs [min-or-max gv-uuid+min+max-entries]
-              (let [acceptable-char-codes (set (map #(.charCodeAt % 0) "0123456789-"))]
-                (map (fn [[gv-uuid saved-min saved-max enabled?]]
-                       (let [value (if (= min-or-max :min) saved-min saved-max)]
-                         (c/text-input {:disabled?    (if (= rf-event-id :worksheet/update-table-filter-attr)
-                                                        (not enabled?)
-                                                        false)
-                                        :on-key-press #(when-not (contains? acceptable-char-codes (.-charCode %))
-                                                         (.preventDefault %))
-                                        :on-change    #(on-change ws-uuid
-                                                                  rf-event-id
-                                                                  min-attr-id
-                                                                  max-attr-id
-                                                                  gv-uuid
-                                                                  min-or-max
-                                                                  (input-int-value %))
-                                        :placeholder  value
-                                        :value        value})))
-                     gv-uuid+min+max-entries)))]
-      (let [*gv-uuid+min+max-entries (subscribe [rf-sub-id ws-uuid])
-            *output-min+max-values   (subscribe [:worksheet/output-min+max-values ws-uuid])
-            enabled-check-boxes      (when (= rf-event-id :worksheet/update-table-filter-attr)
-                                       (map (fn [[uuid _min _max enabled?]]
-                                              [c/checkbox {:checked?  enabled?
-                                                           :on-change #(dispatch [:worksheet/toggle-enable-filter ws-uuid uuid])}])
-                                            @*gv-uuid+min+max-entries))
-            names                    (map (fn uuid->name [[uuid _min _max]]
-                                            (:variable/name
-                                             @(subscribe [:wizard/group-variable uuid])))
-                                          @*gv-uuid+min+max-entries)
-            output-ranges            (map (fn [[gv-uuid & _rest]]
-                                            (let [[min-val max-val] (get @*output-min+max-values gv-uuid)]
-                                              (gstring/format "%.2f - %.2f" min-val max-val))) ;TODO BHP1-257: Worksheet Settings for units and decimals
-                                          @*gv-uuid+min+max-entries)
-            minimums                 (number-inputs :min @*gv-uuid+min+max-entries)
-            maximums                 (number-inputs :max @*gv-uuid+min+max-entries)
-            column-keys              (mapv (fn [idx]
-                                             (keyword (str "col" idx)))
-                                           (range (count headers)))
-            row-data                 (if enabled-check-boxes
-                                       (map (fn [& args]
-                                              (into {}
-                                                    (map (fn [x y] [x y])
-                                                         column-keys args)))
-                                            enabled-check-boxes
-                                            names
-                                            output-ranges
-                                            minimums
-                                            maximums)
-                                       (map (fn [& args]
-                                              (into {}
-                                                    (map (fn [x y] [x y])
-                                                         column-keys args)))
-                                            names
-                                            output-ranges
-                                            minimums
-                                            maximums))]
-        [:div.settings-form
-         (c/table {:title   title
-                   :headers headers
-                   :columns column-keys
-                   :rows    row-data})]))))
+(defn number-input [{:keys [enabled? on-change value-atom default-value]}]
+  (c/number-input {:disabled?  (if (some? enabled?)
+                                 (not enabled?)
+                                 false)
+                   :on-change  #(let [v (input-int-value %)]
+                                  (reset! value-atom (if (js/isNaN v) default-value v)))
+                   :on-blur    #(on-change @value-atom)
+                   :value-atom value-atom}))
+
+(defn number-inputs
+  [{:keys [saved-entries on-change uuid->default-values]}]
+  (map (fn [[gv-uuid saved-value enabled?]]
+         [number-input {:enabled?      enabled?
+                        :default-value (uuid->default-values gv-uuid)
+                        :on-change     #(on-change gv-uuid %)
+                        :value-atom    (r/atom saved-value)}])
+       saved-entries))
+
+(defn settings-form
+  [{:keys [ws-uuid title headers rf-event-id rf-sub-id min-attr-id max-attr-id]}]
+  (let [*gv-uuid+min+max-entries   (subscribe [rf-sub-id ws-uuid])
+        *default-max-values        (subscribe [:worksheet/output-uuid->result-max-values ws-uuid])
+        *default-min-values        (subscribe [:worksheet/output-uuid->result-min-values ws-uuid])
+        default-max-values-rounded (into {}
+                                         (map (fn round-down [[uuid value]]
+                                                [uuid (.ceil js/Math value)]))
+                                         @*default-max-values)
+        default-min-values-rounded (into {}
+                                         (map (fn round-up [[uuid value]]
+                                                [uuid (.floor js/Math value)]))
+                                         @*default-min-values)
+        maximums                   (number-inputs {:saved-entries        (map (fn remove-min-val[[gv-uuid _min-val max-val enabled?]]
+                                                                                [gv-uuid max-val enabled?])
+                                                                              @*gv-uuid+min+max-entries)
+                                                   :uuid->default-values default-max-values-rounded
+                                                   :on-change            #(update-setting-input ws-uuid rf-event-id max-attr-id %1 %2)})
+        minimums                   (number-inputs {:saved-entries        (map (fn remove-max-val [[gv-uuid min-val _max-val enabled?]]
+                                                                                [gv-uuid min-val enabled?])
+                                                                              @*gv-uuid+min+max-entries)
+                                                   :uuid->default-values default-min-values-rounded
+                                                   :min-attr-id          max-attr-id
+                                                   :on-change            #(update-setting-input ws-uuid rf-event-id min-attr-id %1 %2)})
+        output-ranges              (map (fn [[gv-uuid & _rest]]
+                                          (let [min-val (get @*default-min-values gv-uuid)
+                                                max-val (get @*default-max-values gv-uuid)]
+                                            (gstring/format "%.2f - %.2f" min-val max-val))) ;TODO BHP1-257: Worksheet Settings for units and decimals
+                                        @*gv-uuid+min+max-entries)
+        names                      (map (fn get-variable-name [[uuid _min _max]]
+                                          (->> (subscribe [:wizard/group-variable uuid])
+                                               deref
+                                               :variable/name))
+                                        @*gv-uuid+min+max-entries)
+        enabled-check-boxes        (when (= rf-event-id :worksheet/update-table-filter-attr)
+                                     (map (fn [[uuid _min _max enabled?]]
+                                            [c/checkbox {:checked?  enabled?
+                                                         :on-change #(dispatch [:worksheet/toggle-enable-filter ws-uuid uuid])}])
+                                          @*gv-uuid+min+max-entries))
+        column-keys                (mapv (fn [idx] (keyword (str "col" idx))) (range (count headers)))
+        row-data                   (if enabled-check-boxes
+                                     (map (fn build-row [& args]
+                                            (into {}
+                                                  (map (fn [x y] [x y])
+                                                       column-keys args)))
+                                          enabled-check-boxes
+                                          names
+                                          output-ranges
+                                          minimums
+                                          maximums)
+                                     (map (fn build-row [& args]
+                                            (into {}
+                                                  (map (fn [x y] [x y])
+                                                       column-keys args)))
+                                          names
+                                          output-ranges
+                                          minimums
+                                          maximums))]
+    [:div.settings-form
+     (c/table {:title   title
+               :headers headers
+               :columns column-keys
+               :rows    row-data})]))
 
 (defn- graph-settings [ws-uuid]
   (let [*multi-value-input-uuids (subscribe [:worksheet/multi-value-input-uuids ws-uuid])

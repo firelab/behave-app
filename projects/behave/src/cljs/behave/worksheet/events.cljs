@@ -204,9 +204,7 @@
  :worksheet/add-y-axis-limit
  [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet ws-uuid]))]
  (fn [{:keys [worksheet]} [_ ws-uuid gv-uuid]]
-   (let [limit {:y-axis-limit/group-variable-uuid gv-uuid
-                :y-axis-limit/min                 0
-                :y-axis-limit/max                 100}]
+   (let [limit {:y-axis-limit/group-variable-uuid gv-uuid}]
      (if-let [id (get-in worksheet [:worksheet/graph-settings :db/id])]
        {:transact [{:db/id                  id
                     :graph-settings/y-axis-limits [limit]}]}
@@ -267,9 +265,34 @@
      {:transact [(assoc {:db/id y} attr value)]})))
 
 (rp/reg-event-fx
+ :worksheet/update-all-y-axis-limits-from-results
+ [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet/output-uuid->result-min-values ws-uuid]))
+  (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet/output-uuid->result-max-values ws-uuid]))]
+ (fn [{output-uuid->result-min-values :worksheet/output-uuid->result-min-values
+       output-uuid->result-max-values :worksheet/output-uuid->result-max-values}
+      [_ ws-uuid]]
+   (let [gv-uuids (keys output-uuid->result-min-values)]
+     {:fx (reduce (fn [acc gv-uuid]
+                    (let [min-val (get output-uuid->result-min-values gv-uuid)
+                          max-val (get output-uuid->result-max-values gv-uuid)]
+                      (-> acc
+                          (conj [:dispatch [:worksheet/update-y-axis-limit-attr
+                                            ws-uuid
+                                            gv-uuid
+                                            :y-axis-limit/min
+                                            (.floor js/Math min-val)]])
+                          (conj [:dispatch [:worksheet/update-y-axis-limit-attr
+                                            ws-uuid
+                                            gv-uuid
+                                            :y-axis-limit/max
+                                            (.ceil js/Math max-val)]]))))
+                  []
+                  gv-uuids)})))
+
+(rp/reg-event-fx
  :worksheet/update-table-filter-attr
  [(rp/inject-cofx :ds)]
- (fn [{:keys [ds]} [_ ws-uuid group-var-uuid attr value]]
+ (fn [{ds :ds} [_ ws-uuid group-var-uuid attr value]]
    (when-let [table-filter-id (d/q '[:find ?f .
                                      :in    $ ?ws-uuid ?group-var-uuid
                                      :where
@@ -280,25 +303,38 @@
                                    ds
                                    ws-uuid
                                    group-var-uuid)]
-     (let [v (cond
-               (and (js/isNaN value) (= attr :table-filter/min)) -999999999
-               (and (js/isNaN value) (= attr :table-filter/max)) 999999999
-               :else                                             value)]
-       {:transact [(assoc {:db/id table-filter-id} attr v)]}))))
+     {:transact [(assoc {:db/id table-filter-id} attr value)]})))
 
 (rp/reg-event-fx
  :worksheet/add-table-filter
  [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet ws-uuid]))]
  (fn [{:keys [worksheet]} [_ ws-uuid gv-uuid]]
    (let [filter {:table-filter/group-variable-uuid gv-uuid
-                 :table-filter/min                 -999999999
-                 :table-filter/max                 999999999
                  :table-filter/enabled?            false}]
      (if-let [id (get-in worksheet [:worksheet/table-settings :db/id])]
        {:transact [{:db/id                  id
                     :table-settings/filters [filter]}]}
        {:transact [{:worksheet/_table-settings [:worksheet/uuid ws-uuid]
                     :table-settings/filters    [filter]}]}))))
+
+(rp/reg-event-fx
+ :worksheet/update-all-table-filters-from-results
+ [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet/output-min+max-values ws-uuid]))]
+ (fn [{output-min-max-values :worksheet/output-min+max-values} [_ ws-uuid]]
+   {:fx (reduce (fn [acc [gv-uuid [min-val max-val]]]
+                  (-> acc
+                      (conj [:dispatch [:worksheet/update-table-filter-attr
+                                        ws-uuid
+                                        gv-uuid
+                                        :table-filter/min
+                                        (.floor js/Math min-val)]])
+                      (conj [:dispatch [:worksheet/update-table-filter-attr
+                                        ws-uuid
+                                        gv-uuid
+                                        :table-filter/max
+                                        (.ceil js/Math max-val)]])))
+                []
+                output-min-max-values)}))
 
 (rp/reg-event-fx
  :worksheet/remove-table-filter
