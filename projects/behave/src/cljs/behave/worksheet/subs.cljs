@@ -254,7 +254,10 @@
              [?g :graph-settings/y-axis-limits ?y]
              [?y :y-axis-limit/group-variable-uuid ?group-var-uuid]
              [?y :y-axis-limit/min ?min]
-             [?y :y-axis-limit/max ?max]]
+             [?y :y-axis-limit/max ?max]
+             [?w :worksheet/outputs ?o]
+             [?o :output/group-variable-uuid ?group-var-uuid]
+             [?o :output/enabled? true]]
     :variables [ws-uuid]}))
 
 (rp/reg-sub
