@@ -254,6 +254,11 @@
     :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident       :table-filter/enabled?
+    :db/doc         "Whether the table filter is enabled"
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
+
    ;; Results Graph Settings
    {:db/ident       :graph-settings/enabled?
     :db/doc         "Whether graph results are enabled."
