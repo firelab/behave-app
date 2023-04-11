@@ -1,5 +1,6 @@
 (ns behave.events
-  (:require [re-frame.core :as rf]))
+  (:require [behave.utils :refer [add-script]]
+            [re-frame.core :as rf]))
 
 ;;; Initialization
 
@@ -109,6 +110,13 @@
 
       (vector? k)
       (assoc-in settings k v))))
+
+;;; System
+
+(rf/reg-event-fx
+ :system/add-script
+ (fn [_ [_ script]]
+   (add-script script)))
 
 ;;; Translations
 

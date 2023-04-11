@@ -47,4 +47,4 @@
                 [:body
                  [:div#app]
                  (include-js "/js/behave.js" "/js/katex.min.js" (find-app-js))
-                 (cljs-init (merge route-params params))])}))
+                 (cljs-init (merge route-params params (get-config :client)))])}))

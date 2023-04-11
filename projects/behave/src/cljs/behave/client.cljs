@@ -16,8 +16,7 @@
                                                guided-worksheet-page
                                                independent-worksheet-page]]
             [behave.events]
-            [behave.subs]
-            [behave.utils :refer [add-script]]))
+            [behave.subs]))
 
 (defn not-found []
   [:div
@@ -37,6 +36,9 @@
                     :tools/all           tools/root-component
                     :tools/page          tools/root-component})
 
+(defn load-scripts! [{:keys [issue-collector]}]
+  (rf/dispatch [:system/add-script issue-collector]))
+
 (defn app-shell [params]
   (let [route        (rf/subscribe [:handler])
         sync-loaded? (rf/subscribe [:state :sync-loaded?])
@@ -44,6 +46,7 @@
         page         (get handler->page (:handler @route) not-found)
         params       (-> (merge params (:route-params @route))
                          (assoc :route-handler (:handler @route)))]
+    (load-scripts! params)
     [:div.page
      [:table.page__top
       [:tr
@@ -76,8 +79,7 @@
   (load-vms!)
   (load-store!)
   (render [app-shell (js->clj params :keywordize-keys true)]
-          (.getElementById js/document "app"))
-  (add-script "https://sig-gis.atlassian.net/s/d41d8cd98f00b204e9800998ecf8427e-T/1abpwv/b/8/c95134bc67d3a521bb3f4331beb9b804/_/download/batch/com.atlassian.jira.collector.plugin.jira-issue-collector-plugin:issuecollector/com.atlassian.jira.collector.plugin.jira-issue-collector-plugin:issuecollector.js?locale=en-US&collectorId=5afb263b"))
+          (.getElementById js/document "app")))
 
 (defn- ^:after-load mount-root!
   "A hook for figwheel to call the init function again."
