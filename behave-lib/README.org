@@ -3,12 +3,12 @@
 
 A new implementation of the extended Rothermel model.
 
-** Requirements
-* [[https://cmake.org/][CMake]]
-* [[https://gcc.gnu.org/][GCC]]
-* [[https://emscripten.org][Emscripten]]
+* Requirements
+** [[https://cmake.org/][CMake]]
+** [[https://gcc.gnu.org/][GCC]]
+** [[https://emscripten.org][Emscripten]]
 
-** Installation
+*** Installation
 #+begin_src sh
 # Enable XCode (for MacOS)
 xcode-install --install
@@ -25,12 +25,12 @@ export CXX=$(which clang++)
 export WEBIDL=$(brew --prefix emscripten)/libexec/tools/webidl_binder
 #+end_src
 
-** Building
+*** Building
 #+BEGIN_SRC sh
-make build
+make install
 #+END_SRC
 
-** Process
+*** Process
 
 The process of building this library takes multiple steps. At a high
 level overview, we have leveraged two major tools:
@@ -76,3 +76,13 @@ The process is outlined in the [[https://gitlab.sig-gis.com/sig-gis/simple-emscr
 
 #+RESULTS:
 [[file:docs/behave-flow.png]]
+
+***
+* Debugging WASM (DWARF)
+
+1. Install the chrome extension [[https://chrome.google.com/webstore/detail/cc%20%20-devtools-support-dwa/pdcpmagijalfljmkmjngeonclgbbannb][C/C++ DevTools Support (DWARF)]] mentioned [[https://developer.chrome.com/blog/wasm-debugging-2020/][here]].
+   (For WSL ubuntu users, see comment in CMakeLists.txt about setting the proper DWARF_DIR)
+2. Open up browser's devtools and now you should be able to set breakpoints in your c++ files.
+3. If you run into an error when trying to open your c++ file /(Loading from a
+   remote file path is prohibited for security reasons)/ follow [[https://developer.chrome.com/docs/devtools/workspaces/#devtools][instructions]] to
+   add a folder to your browser's workspace.

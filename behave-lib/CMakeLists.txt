@@ -3,14 +3,20 @@ cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 # Optional JS
 OPTION(BEHAVE_JS "Enable compiling to .js (WARNING: Emits a large file)" OFF)
 OPTION(BEHAVE_WASM "Enable compiling to .wasm" ON)
+OPTION(BEHAVE_HTML "Enable compiling to .html" OFF)
 
 # Emscripten Compilation
 set(WRAPPER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/include/cpp/emscripten/wrapper.cpp)
-set(EMSCRIPTEN_CPP_FILE ${CMAKE_CURRENT_SOURCE_DIR}/include/cpp/emscripten/)
+set(EMSCRIPTEN_CPP_FILE ${CMAKE_SOURCE_DIR}/include/cpp/emscripten/)
 set(GLUE_JS_FILE ${CMAKE_CURRENT_SOURCE_DIR}/include/js/glue.js)
-set(BEHAVE_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/behave-mirror/src/behave/)
-set(SIG_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include/cpp/sig-adapters/)
+set(BEHAVE_SRC_DIR ${CMAKE_SOURCE_DIR}/behave-mirror/src/behave/)
+set(SIG_SRC_DIR ${CMAKE_SOURCE_DIR}/include/cpp/sig-adapters/)
 set(BEHAVE_LIB libbehave.a)
+
+set(DWARF_DIR ${CMAKE_SOURCE_DIR})
+# NOTE: If you are using ubuntu through windows WSL set the DWARF_DIR to the
+# file path to the WSL full path. Here's an example:
+# set(DWARF_DIR //wsl%24/Ubuntu/home/kcheung/work/code/behave-polylith/behave-lib)
 
 set(EMCC_ARGS
   -I${BEHAVE_SRC_DIR}
@@ -25,13 +31,11 @@ set(EMCC_ARGS
 set(EMCC_JS_ARGS ${EMCC_ARGS} -s WASM=0)
 
 set(EMCC_WASM_ARGS ${EMCC_ARGS}
-  -O2
   --closure 1
-  -g3
-  -gsource-map
-  --source-map-base "locahost:8080/js/"
-  -s BINARYEN_IGNORE_IMPLICIT_TRAPS=1
-  -s WASM=1)
+  -g
+  -s WASM=1
+  -s ALLOW_MEMORY_GROWTH
+  -fdebug-prefix-map=${CMAKE_SOURCE_DIR}=${DWARF_DIR})
 
 # Make use of c++11
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
@@ -152,4 +156,14 @@ IF(BEHAVE_WASM)
         COMMENT "Building webassembly"
         VERBATIM)
     add_custom_target(behave-webassembly ALL DEPENDS behave.wasm)
+ENDIF()
+
+IF(BEHAVE_HTML)
+    add_custom_command(
+        OUTPUT behave.html
+        COMMAND emcc ${WRAPPER_FILE} ${EMCC_WASM_ARGS} -o behave.html
+        DEPENDS behave
+        COMMENT "Building html"
+        VERBATIM)
+    add_custom_target(behave-html ALL DEPENDS behave.html)
 ENDIF()
