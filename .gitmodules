@@ -4,4 +4,4 @@
 	branch = main
 [submodule "behave-lib/behave-mirror"]
 	path = behave-lib/behave-mirror
-	url = git@gitlab.sig-gis.com:sig-gis/behave-mirror.git
+	url = git@github.com:firelab/behave.git
