@@ -66,7 +66,7 @@ if (ENVIRONMENT_IS_NODE) {
 
   var nodeVersion = process.versions.node;
   var numericVersion = nodeVersion.split('.').slice(0, 3);
-  numericVersion = (numericVersion[0] * 10000) + (numericVersion[1] * 100) + (numericVersion[2].split('-')[0] * 1);
+  numericVersion = (numericVersion[0] * 10000) + (numericVersion[1] * 100) + numericVersion[2] * 1;
   var minVersion = 101900;
   if (numericVersion < 101900) {
     throw new Error('This emscripten-generated code requires node v10.19.19.0 (detected v' + nodeVersion + ')');
@@ -114,7 +114,7 @@ readAsync = (filename, onload, onerror) => {
 };
 
 // end include: node_shell_read.js
-  if (!Module['thisProgram'] && process.argv.length > 1) {
+  if (process.argv.length > 1) {
     thisProgram = process.argv[1].replace(/\\/g, '/');
   }
 
@@ -376,6 +376,196 @@ function assert(condition, text) {
 // We used to include malloc/free by default in the past. Show a helpful error in
 // builds with assertions.
 
+// include: runtime_strings.js
+// runtime_strings.js: String related runtime functions that are part of both
+// MINIMAL_RUNTIME and regular runtime.
+
+var UTF8Decoder = typeof TextDecoder != 'undefined' ? new TextDecoder('utf8') : undefined;
+
+/**
+ * Given a pointer 'idx' to a null-terminated UTF8-encoded string in the given
+ * array that contains uint8 values, returns a copy of that string as a
+ * Javascript String object.
+ * heapOrArray is either a regular array, or a JavaScript typed array view.
+ * @param {number} idx
+ * @param {number=} maxBytesToRead
+ * @return {string}
+ */
+function UTF8ArrayToString(heapOrArray, idx, maxBytesToRead) {
+  var endIdx = idx + maxBytesToRead;
+  var endPtr = idx;
+  // TextDecoder needs to know the byte length in advance, it doesn't stop on
+  // null terminator by itself.  Also, use the length info to avoid running tiny
+  // strings through TextDecoder, since .subarray() allocates garbage.
+  // (As a tiny code save trick, compare endPtr against endIdx using a negation,
+  // so that undefined means Infinity)
+  while (heapOrArray[endPtr] && !(endPtr >= endIdx)) ++endPtr;
+
+  if (endPtr - idx > 16 && heapOrArray.buffer && UTF8Decoder) {
+    return UTF8Decoder.decode(heapOrArray.subarray(idx, endPtr));
+  }
+  var str = '';
+  // If building with TextDecoder, we have already computed the string length
+  // above, so test loop end condition against that
+  while (idx < endPtr) {
+    // For UTF8 byte structure, see:
+    // http://en.wikipedia.org/wiki/UTF-8#Description
+    // https://www.ietf.org/rfc/rfc2279.txt
+    // https://tools.ietf.org/html/rfc3629
+    var u0 = heapOrArray[idx++];
+    if (!(u0 & 0x80)) { str += String.fromCharCode(u0); continue; }
+    var u1 = heapOrArray[idx++] & 63;
+    if ((u0 & 0xE0) == 0xC0) { str += String.fromCharCode(((u0 & 31) << 6) | u1); continue; }
+    var u2 = heapOrArray[idx++] & 63;
+    if ((u0 & 0xF0) == 0xE0) {
+      u0 = ((u0 & 15) << 12) | (u1 << 6) | u2;
+    } else {
+      if ((u0 & 0xF8) != 0xF0) warnOnce('Invalid UTF-8 leading byte ' + ptrToString(u0) + ' encountered when deserializing a UTF-8 string in wasm memory to a JS string!');
+      u0 = ((u0 & 7) << 18) | (u1 << 12) | (u2 << 6) | (heapOrArray[idx++] & 63);
+    }
+
+    if (u0 < 0x10000) {
+      str += String.fromCharCode(u0);
+    } else {
+      var ch = u0 - 0x10000;
+      str += String.fromCharCode(0xD800 | (ch >> 10), 0xDC00 | (ch & 0x3FF));
+    }
+  }
+  return str;
+}
+
+/**
+ * Given a pointer 'ptr' to a null-terminated UTF8-encoded string in the
+ * emscripten HEAP, returns a copy of that string as a Javascript String object.
+ *
+ * @param {number} ptr
+ * @param {number=} maxBytesToRead - An optional length that specifies the
+ *   maximum number of bytes to read. You can omit this parameter to scan the
+ *   string until the first \0 byte. If maxBytesToRead is passed, and the string
+ *   at [ptr, ptr+maxBytesToReadr[ contains a null byte in the middle, then the
+ *   string will cut short at that byte index (i.e. maxBytesToRead will not
+ *   produce a string of exact length [ptr, ptr+maxBytesToRead[) N.B. mixing
+ *   frequent uses of UTF8ToString() with and without maxBytesToRead may throw
+ *   JS JIT optimizations off, so it is worth to consider consistently using one
+ * @return {string}
+ */
+function UTF8ToString(ptr, maxBytesToRead) {
+  assert(typeof ptr == 'number');
+  return ptr ? UTF8ArrayToString(HEAPU8, ptr, maxBytesToRead) : '';
+}
+
+/**
+ * Copies the given Javascript String object 'str' to the given byte array at
+ * address 'outIdx', encoded in UTF8 form and null-terminated. The copy will
+ * require at most str.length*4+1 bytes of space in the HEAP.  Use the function
+ * lengthBytesUTF8 to compute the exact number of bytes (excluding null
+ * terminator) that this function will write.
+ *
+ * @param {string} str - The Javascript string to copy.
+ * @param {ArrayBufferView|Array<number>} heap - The array to copy to. Each
+ *                                               index in this array is assumed
+ *                                               to be one 8-byte element.
+ * @param {number} outIdx - The starting offset in the array to begin the copying.
+ * @param {number} maxBytesToWrite - The maximum number of bytes this function
+ *                                   can write to the array.  This count should
+ *                                   include the null terminator, i.e. if
+ *                                   maxBytesToWrite=1, only the null terminator
+ *                                   will be written and nothing else.
+ *                                   maxBytesToWrite=0 does not write any bytes
+ *                                   to the output, not even the null
+ *                                   terminator.
+ * @return {number} The number of bytes written, EXCLUDING the null terminator.
+ */
+function stringToUTF8Array(str, heap, outIdx, maxBytesToWrite) {
+  // Parameter maxBytesToWrite is not optional. Negative values, 0, null,
+  // undefined and false each don't write out any bytes.
+  if (!(maxBytesToWrite > 0))
+    return 0;
+
+  var startIdx = outIdx;
+  var endIdx = outIdx + maxBytesToWrite - 1; // -1 for string null terminator.
+  for (var i = 0; i < str.length; ++i) {
+    // Gotcha: charCodeAt returns a 16-bit word that is a UTF-16 encoded code
+    // unit, not a Unicode code point of the character! So decode
+    // UTF16->UTF32->UTF8.
+    // See http://unicode.org/faq/utf_bom.html#utf16-3
+    // For UTF8 byte structure, see http://en.wikipedia.org/wiki/UTF-8#Description
+    // and https://www.ietf.org/rfc/rfc2279.txt
+    // and https://tools.ietf.org/html/rfc3629
+    var u = str.charCodeAt(i); // possibly a lead surrogate
+    if (u >= 0xD800 && u <= 0xDFFF) {
+      var u1 = str.charCodeAt(++i);
+      u = 0x10000 + ((u & 0x3FF) << 10) | (u1 & 0x3FF);
+    }
+    if (u <= 0x7F) {
+      if (outIdx >= endIdx) break;
+      heap[outIdx++] = u;
+    } else if (u <= 0x7FF) {
+      if (outIdx + 1 >= endIdx) break;
+      heap[outIdx++] = 0xC0 | (u >> 6);
+      heap[outIdx++] = 0x80 | (u & 63);
+    } else if (u <= 0xFFFF) {
+      if (outIdx + 2 >= endIdx) break;
+      heap[outIdx++] = 0xE0 | (u >> 12);
+      heap[outIdx++] = 0x80 | ((u >> 6) & 63);
+      heap[outIdx++] = 0x80 | (u & 63);
+    } else {
+      if (outIdx + 3 >= endIdx) break;
+      if (u > 0x10FFFF) warnOnce('Invalid Unicode code point ' + ptrToString(u) + ' encountered when serializing a JS string to a UTF-8 string in wasm memory! (Valid unicode code points should be in range 0-0x10FFFF).');
+      heap[outIdx++] = 0xF0 | (u >> 18);
+      heap[outIdx++] = 0x80 | ((u >> 12) & 63);
+      heap[outIdx++] = 0x80 | ((u >> 6) & 63);
+      heap[outIdx++] = 0x80 | (u & 63);
+    }
+  }
+  // Null-terminate the pointer to the buffer.
+  heap[outIdx] = 0;
+  return outIdx - startIdx;
+}
+
+/**
+ * Copies the given Javascript String object 'str' to the emscripten HEAP at
+ * address 'outPtr', null-terminated and encoded in UTF8 form. The copy will
+ * require at most str.length*4+1 bytes of space in the HEAP.
+ * Use the function lengthBytesUTF8 to compute the exact number of bytes
+ * (excluding null terminator) that this function will write.
+ *
+ * @return {number} The number of bytes written, EXCLUDING the null terminator.
+ */
+function stringToUTF8(str, outPtr, maxBytesToWrite) {
+  assert(typeof maxBytesToWrite == 'number', 'stringToUTF8(str, outPtr, maxBytesToWrite) is missing the third parameter that specifies the length of the output buffer!');
+  return stringToUTF8Array(str, HEAPU8,outPtr, maxBytesToWrite);
+}
+
+/**
+ * Returns the number of bytes the given Javascript string takes if encoded as a
+ * UTF8 byte array, EXCLUDING the null terminator byte.
+ *
+ * @param {string} str - JavaScript string to operator on
+ * @return {number} Length, in bytes, of the UTF8 encoded string.
+ */
+function lengthBytesUTF8(str) {
+  var len = 0;
+  for (var i = 0; i < str.length; ++i) {
+    // Gotcha: charCodeAt returns a 16-bit word that is a UTF-16 encoded code
+    // unit, not a Unicode code point of the character! So decode
+    // UTF16->UTF32->UTF8.
+    // See http://unicode.org/faq/utf_bom.html#utf16-3
+    var c = str.charCodeAt(i); // possibly a lead surrogate
+    if (c <= 0x7F) {
+      len++;
+    } else if (c <= 0x7FF) {
+      len += 2;
+    } else if (c >= 0xD800 && c <= 0xDFFF) {
+      len += 4; ++i;
+    } else {
+      len += 3;
+    }
+  }
+  return len;
+}
+
+// end include: runtime_strings.js
 // Memory management
 
 var HEAP,
@@ -682,6 +872,7 @@ var FS = {
   mkdev: function() { FS.error() },
   registerDevice: function() { FS.error() },
   analyzePath: function() { FS.error() },
+  loadFilesFromDB: function() { FS.error() },
 
   ErrnoError: function ErrnoError() { FS.error() },
 };
@@ -729,7 +920,6 @@ class EmscriptenSjLj extends EmscriptenEH {}
 class CppException extends EmscriptenEH {
   constructor(excPtr) {
     super(excPtr);
-    this.excPtr = excPtr;
     const excInfo = getExceptionMessage(excPtr);
     this.name = excInfo[0];
     this.message = excInfo[1];
@@ -759,7 +949,7 @@ function getBinary(file) {
 }
 
 function getBinaryPromise(binaryFile) {
-  // If we don't have the binary yet, try to load it asynchronously.
+  // If we don't have the binary yet, try to to load it asynchronously.
   // Fetch has some additional restrictions over XHR, like it can't be used on a file:// url.
   // See https://github.com/github/fetch/pull/92#issuecomment-140665932
   // Cordova or Electron apps are typically loaded from a file:// url.
@@ -897,13 +1087,10 @@ function createWasm() {
   }
 
   // User shell pages can write their own Module.instantiateWasm = function(imports, successCallback) callback
-  // to manually instantiate the Wasm module themselves. This allows pages to
-  // run the instantiation parallel to any other async startup actions they are
-  // performing.
-  // Also pthreads and wasm workers initialize the wasm instance through this
-  // path.
+  // to manually instantiate the Wasm module themselves. This allows pages to run the instantiation parallel
+  // to any other async startup actions they are performing.
+  // Also pthreads and wasm workers initialize the wasm instance through this path.
   if (Module['instantiateWasm']) {
-
     try {
       return Module['instantiateWasm'](info, receiveInstance);
     } catch(e) {
@@ -1171,81 +1358,6 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
       stackRestore(stack);
       return ret;
     }
-  
-  var UTF8Decoder = typeof TextDecoder != 'undefined' ? new TextDecoder('utf8') : undefined;
-  
-    /**
-     * Given a pointer 'idx' to a null-terminated UTF8-encoded string in the given
-     * array that contains uint8 values, returns a copy of that string as a
-     * Javascript String object.
-     * heapOrArray is either a regular array, or a JavaScript typed array view.
-     * @param {number} idx
-     * @param {number=} maxBytesToRead
-     * @return {string}
-     */
-  function UTF8ArrayToString(heapOrArray, idx, maxBytesToRead) {
-      var endIdx = idx + maxBytesToRead;
-      var endPtr = idx;
-      // TextDecoder needs to know the byte length in advance, it doesn't stop on
-      // null terminator by itself.  Also, use the length info to avoid running tiny
-      // strings through TextDecoder, since .subarray() allocates garbage.
-      // (As a tiny code save trick, compare endPtr against endIdx using a negation,
-      // so that undefined means Infinity)
-      while (heapOrArray[endPtr] && !(endPtr >= endIdx)) ++endPtr;
-  
-      if (endPtr - idx > 16 && heapOrArray.buffer && UTF8Decoder) {
-        return UTF8Decoder.decode(heapOrArray.subarray(idx, endPtr));
-      }
-      var str = '';
-      // If building with TextDecoder, we have already computed the string length
-      // above, so test loop end condition against that
-      while (idx < endPtr) {
-        // For UTF8 byte structure, see:
-        // http://en.wikipedia.org/wiki/UTF-8#Description
-        // https://www.ietf.org/rfc/rfc2279.txt
-        // https://tools.ietf.org/html/rfc3629
-        var u0 = heapOrArray[idx++];
-        if (!(u0 & 0x80)) { str += String.fromCharCode(u0); continue; }
-        var u1 = heapOrArray[idx++] & 63;
-        if ((u0 & 0xE0) == 0xC0) { str += String.fromCharCode(((u0 & 31) << 6) | u1); continue; }
-        var u2 = heapOrArray[idx++] & 63;
-        if ((u0 & 0xF0) == 0xE0) {
-          u0 = ((u0 & 15) << 12) | (u1 << 6) | u2;
-        } else {
-          if ((u0 & 0xF8) != 0xF0) warnOnce('Invalid UTF-8 leading byte ' + ptrToString(u0) + ' encountered when deserializing a UTF-8 string in wasm memory to a JS string!');
-          u0 = ((u0 & 7) << 18) | (u1 << 12) | (u2 << 6) | (heapOrArray[idx++] & 63);
-        }
-  
-        if (u0 < 0x10000) {
-          str += String.fromCharCode(u0);
-        } else {
-          var ch = u0 - 0x10000;
-          str += String.fromCharCode(0xD800 | (ch >> 10), 0xDC00 | (ch & 0x3FF));
-        }
-      }
-      return str;
-    }
-  
-  
-    /**
-     * Given a pointer 'ptr' to a null-terminated UTF8-encoded string in the
-     * emscripten HEAP, returns a copy of that string as a Javascript String object.
-     *
-     * @param {number} ptr
-     * @param {number=} maxBytesToRead - An optional length that specifies the
-     *   maximum number of bytes to read. You can omit this parameter to scan the
-     *   string until the first   byte. If maxBytesToRead is passed, and the string
-     *   at [ptr, ptr+maxBytesToReadr[ contains a null byte in the middle, then the
-     *   string will cut short at that byte index (i.e. maxBytesToRead will not
-     *   produce a string of exact length [ptr, ptr+maxBytesToRead[) N.B. mixing
-     *   frequent uses of UTF8ToString() with and without maxBytesToRead may throw
-     *   JS JIT optimizations off, so it is worth to consider consistently using one
-     * @return {string}
-     */
-  function UTF8ToString(ptr, maxBytesToRead) {
-      assert(typeof ptr == 'number');
-      return ptr ? UTF8ArrayToString(HEAPU8, ptr, maxBytesToRead) : '';
-    }
   function getExceptionMessageCommon(ptr) {
       return withStackSave(function() {
         var type_addr_addr = stackAlloc(4);
@@ -1372,17 +1484,13 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
   
   
   function ___resumeException(ptr) {
-      if (!exceptionLast) { 
-        exceptionLast = new CppException(ptr);
-      }
-      throw exceptionLast;
+      if (!exceptionLast) { exceptionLast = ptr; }
+      throw new CppException(ptr);
     }
   
   
-  /** @suppress {duplicate } */
   function ___cxa_find_matching_catch() {
-      var thrown = 
-        exceptionLast && exceptionLast.excPtr;
+      var thrown = exceptionLast;
       if (!thrown) {
         // just pass through the null ptr
         setTempRet0(0);
@@ -1436,8 +1544,8 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         info.set_caught(false);
         uncaughtExceptionCount++;
       }
-      exceptionLast = new CppException(ptr);
-      throw exceptionLast;
+      exceptionLast = ptr;
+      throw new CppException(ptr);
     }
 
   
@@ -1446,9 +1554,9 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
       var info = new ExceptionInfo(ptr);
       // Initialize ExceptionInfo content after it was allocated in __cxa_allocate_exception.
       info.init(type, destructor);
-      exceptionLast = new CppException(ptr);
+      exceptionLast = ptr;
       uncaughtExceptionCount++;
-      throw exceptionLast;
+      throw new CppException(ptr);
     }
 
 
@@ -1562,7 +1670,6 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
     }
 
   var printCharBuffers = [null,[],[]];
-  
   function printChar(stream, curr) {
       var buffer = printCharBuffers[stream];
       assert(buffer);
@@ -1598,73 +1705,6 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
       return 0;
     }
 
-  function lengthBytesUTF8(str) {
-      var len = 0;
-      for (var i = 0; i < str.length; ++i) {
-        // Gotcha: charCodeAt returns a 16-bit word that is a UTF-16 encoded code
-        // unit, not a Unicode code point of the character! So decode
-        // UTF16->UTF32->UTF8.
-        // See http://unicode.org/faq/utf_bom.html#utf16-3
-        var c = str.charCodeAt(i); // possibly a lead surrogate
-        if (c <= 0x7F) {
-          len++;
-        } else if (c <= 0x7FF) {
-          len += 2;
-        } else if (c >= 0xD800 && c <= 0xDFFF) {
-          len += 4; ++i;
-        } else {
-          len += 3;
-        }
-      }
-      return len;
-    }
-  
-  function stringToUTF8Array(str, heap, outIdx, maxBytesToWrite) {
-      // Parameter maxBytesToWrite is not optional. Negative values, 0, null,
-      // undefined and false each don't write out any bytes.
-      if (!(maxBytesToWrite > 0))
-        return 0;
-  
-      var startIdx = outIdx;
-      var endIdx = outIdx + maxBytesToWrite - 1; // -1 for string null terminator.
-      for (var i = 0; i < str.length; ++i) {
-        // Gotcha: charCodeAt returns a 16-bit word that is a UTF-16 encoded code
-        // unit, not a Unicode code point of the character! So decode
-        // UTF16->UTF32->UTF8.
-        // See http://unicode.org/faq/utf_bom.html#utf16-3
-        // For UTF8 byte structure, see http://en.wikipedia.org/wiki/UTF-8#Description
-        // and https://www.ietf.org/rfc/rfc2279.txt
-        // and https://tools.ietf.org/html/rfc3629
-        var u = str.charCodeAt(i); // possibly a lead surrogate
-        if (u >= 0xD800 && u <= 0xDFFF) {
-          var u1 = str.charCodeAt(++i);
-          u = 0x10000 + ((u & 0x3FF) << 10) | (u1 & 0x3FF);
-        }
-        if (u <= 0x7F) {
-          if (outIdx >= endIdx) break;
-          heap[outIdx++] = u;
-        } else if (u <= 0x7FF) {
-          if (outIdx + 1 >= endIdx) break;
-          heap[outIdx++] = 0xC0 | (u >> 6);
-          heap[outIdx++] = 0x80 | (u & 63);
-        } else if (u <= 0xFFFF) {
-          if (outIdx + 2 >= endIdx) break;
-          heap[outIdx++] = 0xE0 | (u >> 12);
-          heap[outIdx++] = 0x80 | ((u >> 6) & 63);
-          heap[outIdx++] = 0x80 | (u & 63);
-        } else {
-          if (outIdx + 3 >= endIdx) break;
-          if (u > 0x10FFFF) warnOnce('Invalid Unicode code point ' + ptrToString(u) + ' encountered when serializing a JS string to a UTF-8 string in wasm memory! (Valid unicode code points should be in range 0-0x10FFFF).');
-          heap[outIdx++] = 0xF0 | (u >> 18);
-          heap[outIdx++] = 0x80 | ((u >> 12) & 63);
-          heap[outIdx++] = 0x80 | ((u >> 6) & 63);
-          heap[outIdx++] = 0x80 | (u & 63);
-        }
-      }
-      // Null-terminate the pointer to the buffer.
-      heap[outIdx] = 0;
-      return outIdx - startIdx;
-    }
   /** @type {function(string, boolean=, number=)} */
   function intArrayFromString(stringy, dontAddNull, length) {
     var len = length > 0 ? length : lengthBytesUTF8(stringy)+1;
@@ -1675,20 +1715,12 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
   }
 
 
-
-  
-  function stringToUTF8(str, outPtr, maxBytesToWrite) {
-      assert(typeof maxBytesToWrite == 'number', 'stringToUTF8(str, outPtr, maxBytesToWrite) is missing the third parameter that specifies the length of the output buffer!');
-      return stringToUTF8Array(str, HEAPU8,outPtr, maxBytesToWrite);
-    }
-  /** @suppress {duplicate } */
-  function stringToNewUTF8(str) {
+  function allocateUTF8(str) {
       var size = lengthBytesUTF8(str) + 1;
       var ret = _malloc(size);
-      if (ret) stringToUTF8(str, ret, size);
+      if (ret) stringToUTF8Array(str, HEAP8, ret, size);
       return ret;
     }
-  var allocateUTF8 = stringToNewUTF8;
 
   function uleb128Encode(n, target) {
       assert(n < 16384);
@@ -2773,6 +2805,8 @@ var _emscripten_bind_WesternAspen_getAspenSavrLiveWoody_2 = Module["_emscripten_
 /** @type {function(...*):?} */
 var _emscripten_bind_WesternAspen___destroy___0 = Module["_emscripten_bind_WesternAspen___destroy___0"] = createExportWrapper("emscripten_bind_WesternAspen___destroy___0");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_SIGCrown_1 = Module["_emscripten_bind_SIGCrown_SIGCrown_1"] = createExportWrapper("emscripten_bind_SIGCrown_SIGCrown_1");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_initializeMembers_0 = Module["_emscripten_bind_SIGCrown_initializeMembers_0"] = createExportWrapper("emscripten_bind_SIGCrown_initializeMembers_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_doCrownRunRothermel_0 = Module["_emscripten_bind_SIGCrown_doCrownRunRothermel_0"] = createExportWrapper("emscripten_bind_SIGCrown_doCrownRunRothermel_0");
@@ -3437,8 +3471,8 @@ var ___cxa_can_catch = createExportWrapper("__cxa_can_catch");
 var ___cxa_is_pointer_type = createExportWrapper("__cxa_is_pointer_type");
 /** @type {function(...*):?} */
 var dynCall_jiji = Module["dynCall_jiji"] = createExportWrapper("dynCall_jiji");
-var ___start_em_js = Module['___start_em_js'] = 111912;
-var ___stop_em_js = Module['___stop_em_js'] = 112010;
+var ___start_em_js = Module['___start_em_js'] = 111960;
+var ___stop_em_js = Module['___stop_em_js'] = 112058;
 function invoke_vii(index,a1,a2) {
   var sp = stackSave();
   try {
@@ -3652,16 +3686,13 @@ function invoke_v(index) {
 // include: postamble.js
 // === Auto-generated postamble setup entry stuff ===
 
-Module["addFunction"] = addFunction;
 Module["UTF8ToString"] = UTF8ToString;
+Module["addFunction"] = addFunction;
 Module["allocateUTF8"] = allocateUTF8;
 var missingLibrarySymbols = [
   'zeroMemory',
+  'stringToNewUTF8',
   'exitJS',
-  'isLeapYear',
-  'ydayFromDate',
-  'arraySum',
-  'addDays',
   'setErrNo',
   'inetPton4',
   'inetNtop4',
@@ -3670,11 +3701,8 @@ var missingLibrarySymbols = [
   'readSockaddr',
   'writeSockaddr',
   'getHostByName',
-  'initRandomFill',
-  'randomFill',
+  'getRandomDevice',
   'traverseStack',
-  'getCallstack',
-  'emscriptenLog',
   'convertPCtoSourceLocation',
   'readEmAsmArgs',
   'jstoi_q',
@@ -3728,8 +3756,10 @@ var missingLibrarySymbols = [
   'UTF32ToString',
   'stringToUTF32',
   'lengthBytesUTF32',
-  'stringToUTF8OnStack',
+  'allocateUTF8OnStack',
+  'writeStringToMemory',
   'writeArrayToMemory',
+  'writeAsciiToMemory',
   'getSocketFromFD',
   'getSocketAddress',
   'registerKeyEventCallback',
@@ -3780,8 +3810,6 @@ var missingLibrarySymbols = [
   'stackTrace',
   'getEnvStrings',
   'checkWasiClock',
-  'wasiRightsToMuslOFlags',
-  'wasiOFlagsToMuslOFlags',
   'createDyncallWrapper',
   'setImmediateWrapped',
   'clearImmediateWrapped',
@@ -3793,38 +3821,32 @@ var missingLibrarySymbols = [
   '_setNetworkCallback',
   'heapObjectForWebGLType',
   'heapAccessShiftForWebGLHeap',
-  'webgl_enable_ANGLE_instanced_arrays',
-  'webgl_enable_OES_vertex_array_object',
-  'webgl_enable_WEBGL_draw_buffers',
-  'webgl_enable_WEBGL_multi_draw',
   'emscriptenWebGLGet',
   'computeUnpackAlignedImageSize',
-  'colorChannelsInGlTextureFormat',
   'emscriptenWebGLGetTexPixelData',
-  '__glGenObject',
   'emscriptenWebGLGetUniform',
   'webglGetUniformLocation',
   'webglPrepareUniformLocationsBeforeFirstUse',
   'webglGetLeftBracePos',
   'emscriptenWebGLGetVertexAttrib',
-  '__glGetActiveAttribOrUniform',
   'writeGLArray',
-  'registerWebGlEventCallback',
-  'runAndAbortIfError',
   'SDL_unicode',
   'SDL_ttfContext',
   'SDL_audio',
   'GLFW_Window',
+  'runAndAbortIfError',
   'ALLOC_NORMAL',
   'ALLOC_STACK',
   'allocate',
-  'writeStringToMemory',
-  'writeAsciiToMemory',
 ];
 missingLibrarySymbols.forEach(missingLibrarySymbol)
 
 var unexportedSymbols = [
   'run',
+  'UTF8ArrayToString',
+  'stringToUTF8Array',
+  'stringToUTF8',
+  'lengthBytesUTF8',
   'addOnPreRun',
   'addOnInit',
   'addOnPreMain',
@@ -3857,10 +3879,6 @@ var unexportedSymbols = [
   'getHeapMax',
   'emscripten_realloc_buffer',
   'ENV',
-  'MONTH_DAYS_REGULAR',
-  'MONTH_DAYS_LEAP',
-  'MONTH_DAYS_REGULAR_CUMULATIVE',
-  'MONTH_DAYS_LEAP_CUMULATIVE',
   'ERRNO_CODES',
   'ERRNO_MESSAGES',
   'DNS',
@@ -3884,14 +3902,8 @@ var unexportedSymbols = [
   'getValue',
   'PATH',
   'PATH_FS',
-  'UTF8Decoder',
-  'UTF8ArrayToString',
-  'stringToUTF8Array',
-  'stringToUTF8',
-  'lengthBytesUTF8',
   'intArrayFromString',
   'UTF16Decoder',
-  'stringToNewUTF8',
   'SYSCALLS',
   'JSEvents',
   'specialHTMLTargets',
@@ -3920,18 +3932,15 @@ var unexportedSymbols = [
   'SOCKFS',
   'tempFixedLengthArray',
   'miniTempWebGLFloatBuffers',
-  'miniTempWebGLIntBuffers',
   'GL',
-  'emscripten_webgl_power_preferences',
   'AL',
-  'GLUT',
-  'EGL',
-  'GLEW',
-  'IDBStore',
   'SDL',
   'SDL_gfx',
+  'GLUT',
+  'EGL',
   'GLFW',
-  'allocateUTF8OnStack',
+  'GLEW',
+  'IDBStore',
 ];
 unexportedSymbols.forEach(unexportedRuntimeSymbol);
 
@@ -4042,7 +4051,7 @@ run();
 
 
 // end include: postamble.js
-// include: /Users/rsheperd/Code/sig/behave-polylith/behave-lib/include/js/glue.js
+// include: /home/kcheung/work/code/behave-polylith/behave-lib/include/js/glue.js
 
 // Bindings utilities
 
@@ -4228,7 +4237,6 @@ function ensureFloat64(value) {
   }
   return value;
 }
-
 
 // VoidPtr
 /** @suppress {undefinedVars, duplicate} @this{Object} */function VoidPtr() { throw "cannot construct a VoidPtr, no constructor in IDL" }
@@ -7090,7 +7098,11 @@ WesternAspen.prototype['getAspenSavrLiveWoody'] = WesternAspen.prototype.getAspe
   _emscripten_bind_WesternAspen___destroy___0(self);
 };
 // SIGCrown
-/** @suppress {undefinedVars, duplicate} @this{Object} */function SIGCrown() { throw "cannot construct a SIGCrown, no constructor in IDL" }
+/** @suppress {undefinedVars, duplicate} @this{Object} */function SIGCrown(fuelModels) {
+  if (fuelModels && typeof fuelModels === 'object') fuelModels = fuelModels.ptr;
+  this.ptr = _emscripten_bind_SIGCrown_SIGCrown_1(fuelModels);
+  getCache(SIGCrown)[this.ptr] = this;
+};;
 SIGCrown.prototype = Object.create(WrapperObject.prototype);
 SIGCrown.prototype.constructor = SIGCrown;
 SIGCrown.prototype.__class__ = SIGCrown;
@@ -8501,4 +8513,5 @@ WindSpeedUtility.prototype['windSpeedAtTwentyFeetFromTenMeter'] = WindSpeedUtili
   else addOnInit(setupEnums);
 })();
 
-// end include: /Users/rsheperd/Code/sig/behave-polylith/behave-lib/include/js/glue.js
+
+// end include: /home/kcheung/work/code/behave-polylith/behave-lib/include/js/glue.js

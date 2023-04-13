@@ -3045,7 +3045,11 @@ WesternAspen.prototype['getAspenSavrLiveWoody'] = WesternAspen.prototype.getAspe
   _emscripten_bind_WesternAspen___destroy___0(self);
 };
 // SIGCrown
-/** @suppress {undefinedVars, duplicate} @this{Object} */function SIGCrown() { throw "cannot construct a SIGCrown, no constructor in IDL" }
+/** @suppress {undefinedVars, duplicate} @this{Object} */function SIGCrown(fuelModels) {
+  if (fuelModels && typeof fuelModels === 'object') fuelModels = fuelModels.ptr;
+  this.ptr = _emscripten_bind_SIGCrown_SIGCrown_1(fuelModels);
+  getCache(SIGCrown)[this.ptr] = this;
+};;
 SIGCrown.prototype = Object.create(WrapperObject.prototype);
 SIGCrown.prototype.constructor = SIGCrown;
 SIGCrown.prototype.__class__ = SIGCrown;

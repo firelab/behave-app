@@ -1,4 +1,3 @@
-
 interface DoublePtr {};
 
 interface BoolVector {
@@ -693,6 +692,7 @@ enum FireType_FireTypeEnum {
 };
 
 interface SIGCrown {
+  void SIGCrown([Ref] SIGFuelModels fuelModels);
   void initializeMembers();
 
   void doCrownRunRothermel();

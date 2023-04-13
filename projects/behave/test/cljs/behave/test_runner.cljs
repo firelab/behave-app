@@ -6,6 +6,7 @@
             [behave.vms.subs]
             [behave.wizard.events]
             [behave.wizard.subs]
+            [behave.crown-test]
             [behave.contain-test]
             [behave.surface-test]
             [behave.tests-used-in-fixtures]
@@ -26,6 +27,7 @@
 
 (defn run-the-tests []
   (run-tests (cljs-test-display.core/init! "app-testing")
+             'behave.crown-test
              'behave.contain-test
              'behave.surface-test
              'behave.tests-used-in-fixtures

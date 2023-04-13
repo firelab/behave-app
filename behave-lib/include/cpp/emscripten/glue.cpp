@@ -1772,6 +1772,10 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_WesternAspen___destroy___0(WesternAspe
 
 // SIGCrown
 
+SIGCrown* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_SIGCrown_1(SIGFuelModels* fuelModels) {
+  return new SIGCrown(*fuelModels);
+}
+
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_initializeMembers_0(SIGCrown* self) {
   self->initializeMembers();
 }
