@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include <cstring>
 #include <string>
 
 class SIGString
@@ -12,7 +13,7 @@ class SIGString
 public:
   static char* str2charptr(std::string str) {
     char* c_str = new char[str.length() + 1];
-    strcpy(c_str, str.c_str());
+    std::strcpy(c_str, str.c_str());
     return c_str;
   };
 };

@@ -33,6 +33,7 @@
 #define CONTAINFORCEADAPTER_H
 
 #include <string>
+#include <cstring>
 #include <vector>
 #include "SIGContainResource.h"
 
