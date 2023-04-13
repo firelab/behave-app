@@ -89,12 +89,12 @@
             [:h2 (:variable/name variable)]]
            [accordion
             "Translations"
-            [all-translations (:translation/key @group-variable)]]
+            [all-translations (:group-variable/translation-key @group-variable)]]
            [:hr]
            [accordion
             "Help Page"
             [:div.col-12
-             [help-editor (:help/key @group-variable)]]]
+             [help-editor (:group-variable/help-key @group-variable)]]]
            [:hr]
            [accordion
             "CPP Functions"

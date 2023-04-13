@@ -1,5 +1,9 @@
-(ns user
-  (:require [behave.core :as core]))
+(ns user)
 
 (comment
-  (core/init!))
+  (require '[behave.core :as core])
+  (core/init!)
+
+  (require '[behave-cms.server :as cms])
+  (cms/init-datahike!)
+  )

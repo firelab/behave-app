@@ -1,0 +1,15 @@
+^{:css-dirs            ["bases/behave_components/resources/public/css"
+                        "projects/behave_cms/resources/public/css"]
+  :watch-dirs          ["projects/behave_cms/src/cljs"
+                        "bases/behave_components/src"]
+  :ring-server-options {:port 8081 :join? false}
+  :ring-handler        behave-cms.handler/development-app
+  :open-url            "http://localhost:8081/login"
+  :clean-outputs       true}
+{:main          behave-cms.client
+ :output-dir    "projects/behave_cms/resources/public/cljs"
+ :output-to     "projects/behave_cms/resources/public/cljs/app.js"
+ :asset-path    "/cljs"
+ :source-map    true
+ :optimizations :none
+ :pretty-print  true}

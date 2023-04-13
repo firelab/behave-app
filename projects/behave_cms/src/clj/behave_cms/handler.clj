@@ -178,7 +178,7 @@
       wrap-params
       wrap-session
       wrap-absolute-redirects
-      (wrap-resource "public")
+      (wrap-resource (if reload? "projects/behave_cms/resources/public" "public"))
       wrap-content-type
       (wrap-default-charset "utf-8")
       wrap-not-modified
