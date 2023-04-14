@@ -5,7 +5,8 @@
             [behave.lib.fuel-models   :as fuel-models]
             [behave.lib.enums     :as enums]
             [behave.lib.units     :refer [get-unit]]
-            [clojure.string :as str])
+            [clojure.string :as str]
+            [behave.lib.enums :as enum])
   (:require-macros [behave.macros :refer [inline-resource]]))
 
 ;; Helpers
@@ -104,12 +105,25 @@
           (when expected
             (let [observed (crown/getCrownFirelineIntensity module (get-unit "Btu/ft/s"))]
               (is (within-millionth? expected observed)
+                  (str "Expected: " expected "  Observed: " observed))))))
+
+      (testing "Fire Type Result"
+        (let [header   "fireType"
+              expected (enum/fire-type (get row header))]
+
+          (is (contains? row header)
+              (str "header not in csv: " header))
+
+          (when expected
+            (let [observed (crown/getFireType module)]
+              (is (within-millionth? expected observed)
                   (str "Expected: " expected "  Observed: " observed)))))))))
 
 (deftest crown-simple-test
   (let [rows (->> (inline-resource "public/csv/crown.csv")
                   (parse-csv)
                   (map clean-values))]
-    (doall (map-indexed (fn [idx row-data]
-                          (test-crown idx row-data))
-                        rows)))) ;TODO process all rows
+    (doall
+     (map-indexed (fn [idx row-data]
+                    (test-crown idx row-data))
+                  rows))))
