@@ -61,48 +61,48 @@
     (testing (str "csv row idx:" row-idx)
       (testing "lengthToWidthRatio Result"
         (let [header   "lengthToWidthRatio"
-              expected (get row header)]
+              expected (js/parseFloat (get row header))]
 
           (is (contains? row header)
               (str "header not in csv: " header))
 
-          (when expected
+          (when (not (js/isNaN expected))
             (let [observed (crown/getCrownFireLengthToWidthRatio module)]
               (is (within-millionth? expected observed)
                   (str "Expected: " expected "  Observed: " observed))))))
 
       (testing "Spread Rate Result"
         (let [header   "crownFireSpreadRate"
-              expected (get row header)]
+              expected (js/parseFloat (get row header))]
 
           (is (contains? row header)
               (str "header not in csv: " header))
 
-          (when expected
+          (when (not (js/isNaN expected))
             (let [observed (crown/getCrownFireSpreadRate module (get-unit "ch/h"))]
               (is (within-millionth? expected observed)
                   (str "Expected: " expected "  Observed: " observed))))))
 
       (testing "Flame Length Result"
         (let [header   "crownFlameLength"
-              expected (get row header)]
+              expected (js/parseFloat (get row header))]
 
           (is (contains? row header)
               (str "header not in csv: " header))
 
-          (when expected
+          (when (not (js/isNaN expected))
             (let [observed (crown/getCrownFlameLength module (get-unit "ft"))]
               (is (within-millionth? expected observed)
                   (str "Expected: " expected "  Observed: " observed))))))
 
       (testing "Fire Line Intensity Result"
         (let [header   "crownFirelineIntensity"
-              expected (get row header)]
+              expected (js/parseFloat (get row header))]
 
           (is (contains? row header)
               (str "header not in csv: " header))
 
-          (when expected
+          (when (not (js/isNaN expected))
             (let [observed (crown/getCrownFirelineIntensity module (get-unit "Btu/ft/s"))]
               (is (within-millionth? expected observed)
                   (str "Expected: " expected "  Observed: " observed))))))
@@ -116,7 +116,7 @@
 
           (when expected
             (let [observed (crown/getFireType module)]
-              (is (within-millionth? expected observed)
+              (is (= expected observed)
                   (str "Expected: " expected "  Observed: " observed)))))))))
 
 (deftest crown-simple-test
