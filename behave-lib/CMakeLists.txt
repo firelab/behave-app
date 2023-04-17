@@ -184,6 +184,8 @@ add_library(behave STATIC ${SOURCE} ${HEADERS})
 
 IF(TEST_BEHAVE)
 
+    add_library(testUtils STATIC test/cpp/testUtils.cpp test/cpp/testUtils.h)
+
     SET(BEHAVE_TEST_SOURCE
         behave-mirror/src/testBehave/testBehave.cpp)
     ADD_COMPILE_DEFINITIONS(NDEBUG=FALSE)
@@ -215,7 +217,7 @@ IF(TEST_BEHAVE)
         ${SOURCE}
         ${CROWN_TEST_SOURCE}
         ${HEADERS})
-    TARGET_LINK_LIBRARIES(testCrown)
+    TARGET_LINK_LIBRARIES(testCrown testUtils)
 ENDIF()
 
 IF(BEHAVE_JS)
