@@ -1,6 +1,5 @@
-
 ifndef WEBIDL
-    WEBIDL := $(shell brew --prefix emscripten)/libexec/tools/webidl_binder
+		WEBIDL := $(shell brew --prefix emscripten)/libexec/tools/webidl_binder
 endif
 
 BUILD_DIR = build
@@ -33,6 +32,7 @@ test:
 	./${TEST_DIR}/testBehave
 	./${TEST_DIR}/testSurface test/csv/surface.csv
 	./${TEST_DIR}/testContain test/csv/contain.csv
+	./${TEST_DIR}/testCrown test/csv/crown.csv
 
 ctags:
 	ctags -e -R --exclude=.git --exclude=build --exclude .ccls-cache .
