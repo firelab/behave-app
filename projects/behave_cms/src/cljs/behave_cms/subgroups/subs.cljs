@@ -6,6 +6,8 @@
             [re-frame.core     :refer [reg-sub subscribe]]
             [behave-cms.routes :refer [app-routes]]))
 
+;;; Subgroups
+
 (reg-sub
  :subgroups
  (fn [[_ group-id]]
@@ -24,12 +26,75 @@
                 :link  (path-for app-routes :get-group :id id)}))
         (sort-by :label))))
 
+;;; Conditionals
+
+(reg-sub
+ :group/conditionals
+ (fn [[_ group-id]]
+   (subscribe [:query
+               '[:find ?c ?name ?op ?values ?g ?v ?gv-uuid
+                 :keys db/id variable/name conditional/op conditional/values g v gv-uuid
+                 :in  $ ?g
+                 :where
+                 [?g  :group/conditionals ?c]
+                 [?c  :conditional/group-variable-uuid ?gv-uuid]
+                 [?v  :variable/group-variables ?gv-uuid]
+                 [?v  :variable/name ?name]
+                 [?c  :conditional/operator ?op]
+                 [?c  :conditional/values ?values]]
+               [group-id]]))
+ identity)
+
+(comment
+
+  (require '[re-frame.core :as rf])
+
+  (defn clear! [k]
+    (rf/clear-sub k)
+    (rf/clear-subscription-cache!))
+
+  (clear! :group/conditionals)
+
+  (subscribe [:group/conditionals 170])
+
+  (rf/subscribe [:query '[:find ?e ?n ?gv ?sm ?m
+                          :where
+                          [?e :variable/name ?n]
+                          [?e :variable/kind :discrete]
+                          [?e :variable/group-variable ?gv]
+                          [?g :group/group-variable ?gv]
+                          [?sm :submodule/group ?g]
+                          [?m :module/submodule ?sm]]])
+
+  (rf/subscribe [:query '[:find ?e ?n ?gv
+                          :where
+                          [?e :variable/name ?n]
+                          [?e :variable/kind :discrete]
+                          [?e :variable/group-variable ?gv]]])
+
+  (rf/subscribe [:query '[:find :cpp/enum]])
+
+
+  )
+
+;;; Variables
+
 (reg-sub
  :variables
  (fn [[_ group-id]]
    (subscribe [:pull-children :group/group-variable group-id '[* {:variable/_group-variable [*]}]]))
-
  identity)
+
+(reg-sub
+ :group/variables
+ (fn [[_ group-id]]
+   (subscribe [:variables group-id]))
+
+ (fn [variables]
+   (map (fn [group-variable]
+          (let [variable (get-in group-variable [:variable/_group-variable 0])
+                variable (dissoc variable :db/id :bp/uuid)]
+            (merge group-variable variable))) variables)))
 
 (reg-sub
  :group/variables

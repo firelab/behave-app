@@ -69,6 +69,7 @@
                                             :sha     "acb80fc5c99cc2f3eba516fdb2317eb28629c3a4"}
 
         ;; ClojureScript Deps
+        austinbirch/reactive-entity        {:mvn/version "0.2.0"}
         applied-science/js-interop         {:mvn/version "0.3.3"}
         binaryage/devtools                 {:mvn/version "1.0.5"}
         com.bhauman/figwheel-main          {:mvn/version "0.2.18"}

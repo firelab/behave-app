@@ -74,12 +74,12 @@
        (d/listen! conn :record-tx record-tx)
        conn)))
 
-(defn default-conn [schemas & [config]]
+(defn default-conn [schemas & [config setup-fn]]
   (if @conn
     @conn
     (reset! conn
-            #?(:clj (connect-datahike! config schemas)
-               :cljs (connect-datascript! schemas)))))
+            #?(:clj (connect-datahike! config schemas setup-fn)
+               :cljs (connect-datascript! schemas setup-fn)))))
 
 ;;; Sync datoms
 

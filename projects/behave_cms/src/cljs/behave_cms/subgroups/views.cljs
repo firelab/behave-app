@@ -69,6 +69,73 @@
                         :group-variable/order           (count group-variables)}]))
       #(rf/dispatch [:state/set-state [:search :variables] nil])]]))
 
+;;; Conditionals
+
+(defn- conditionals-table [{group-id :db/id}]
+  (r/with-let [group-variables (rf/subscribe [:group/conditionals group-id])]
+    [simple-table
+     [:variable/name :conditional/op :conditional/values]
+     (sort-by :variable/name @group-variables)
+     {:on-delete   #(when (js/confirm (str "Are you sure you want to delete the conditional " (:variable/name %) "?"))
+                      (rf/dispatch [:api/delete-entity %]))}]))
+
+(defn- manage-conditionals [{id :db/id} selected-conditional-id]
+  (let [conditional @(rf/subscribe [:conditional selected-conditional-id])
+        get-field  (fn [field]
+                     (r/track #(or @(rf/subscribe [:state [:editors :conditional field]]) (get original field ""))))
+        set-field  (fn [field]
+                     (fn [new-value] (rf/dispatch [:state/set-state [:editors :conditional field] new-value])))
+        )]
+    [:div.row
+     [:h4 (str (if selected-conditional "Edit" "Add") " Conditional:")]
+     [:form
+      [:div.form-group.mt-2
+       [:label.form-label {:id "module"} "Module:"]
+       [:input.form-control
+        {:id        "module"
+         :type      "text"
+         :required  true
+         :on-change #(reset! module (u/input-value %))}]]
+
+      [:div.form-group.mt-2
+       [:label.form-label {:id "submodule"} "Submodule:"]
+       [:input.form-control
+        {:id        "module"
+         :type      "text"
+         :required  true
+         :on-change #(reset! submodule (u/input-value %))}]]
+
+      [:div.form-group.mt-2
+       [:label.form-label {:id "variable-name"} "Variable Name:"]
+       [:input.form-control
+        {:id        "variable-name"
+         :type      "text"
+         :required  true
+         :on-change #(reset! new-variable (u/input-value %))}]]
+
+      [:div.form-group.mt-2
+       [:label.form-label {:id "operation"} "Operation:"]
+       [:select.form-control
+        {:id        "operation"
+         :type      "text"
+         :required  true
+         :on-change #(reset! operation (u/input-value %))}
+        [:option {:value :equals} "="]
+        [:option {:value :not-equals} "not="]
+        [:option {:value :in} "in"]]]
+
+      [:div.form-group.mt-2
+       [:label.form-label {:id "values"} "Values:"]
+       [:input.form-control
+        {:id        "values"
+         :type      "text"
+         :required  true
+         :on-change #(reset! values (u/input-value %))}]]
+
+      [:button.btn.btn-sm.btn-outline-primary.mt-4
+       {:type "submit"}
+       "Save"]]]))
+
 ;;; Public Views
 
 (defn list-subgroups-page
@@ -99,6 +166,14 @@
              [variables-table @group]]
             [:div.col-6
              [add-variable @group]]]
+           [:hr]
+           ^{:key "conditionals"}
+           [accordion
+            "Conditionals"
+            [:div.col-6
+             [conditionals-table @group]]
+            [:div.col-6
+             [manage-conditionals @group]]]
            [:hr]
            ^{:key "translations"}
            [accordion

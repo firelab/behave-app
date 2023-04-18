@@ -69,7 +69,17 @@
     :db/doc         "Group's help key."
     :db/valueType   :db.type/string
     :db/unique      :db.unique/identity
-    :db/cardinality :db.cardinality/one}])
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :group/conditionals
+    :db/doc         "Group's conditionals. Determines whether the Group should be displayed based on the conditional."
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many}
+
+   {:db/ident       :group/conditionals-operator
+    :db/doc         "Group's conditional operator, which only applies for multiple conditionals. Can be either: `:and`, `:or`."
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many}])
 
 ;;; Testing
 
