@@ -20,6 +20,16 @@
   [event]
   (-> event .-target .-value))
 
+(defn input-multi-select
+  [event]
+  (let [options (-> event .-target .-options)]
+    (reduce (fn [acc option]
+              (if (.-selected option)
+                (conj acc (or (.-value option) (.-text option)))
+                acc))
+            []
+            options)))
+
 (defn input-int-value
   "Given an event, returns the value as an integer."
   [event]

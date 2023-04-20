@@ -12,14 +12,59 @@
  :subgroup/app-modules
  (fn [[_ group-id]]
    (subscribe [:query '[:find ?a .
-                           :in $ ?g
-                           :where
-                           [?sm :submodule/group ?g]
-                           [?m :module/submodule ?sm]
-                           [?a :application/module ?m]]
-                  [group-id]]))
+                        :in $ ?g
+                        :where
+                        [?sm :submodule/group ?g]
+                        [?m :module/submodule ?sm]
+                        [?a :application/module ?m]]
+               [group-id]]))
  (fn [app-id]
    @(subscribe [:pull-children :application/module app-id])))
+
+;;; Discrete Variables
+
+(reg-sub
+ :group/discrete-variables
+ (fn [[_ group-id]]
+   (subscribe [:query '[:find [?gv ...]
+                        :in $ ?g
+                        :where
+                        [?g :group/group-variable ?gv]
+                        [?v :variable/group-variable ?gv]
+                        [?v :variable/kind :discrete]]
+               [group-id]]))
+ (fn [results]
+   (->> @(subscribe [:pull-many '[* {:variable/_group-variable [*]}] results])
+        (map (fn [group-variable]
+               (let [variable (get-in group-variable [:variable/_group-variable 0])
+                     variable (dissoc variable :db/id :bp/uuid)]
+                 (merge group-variable variable)))))))
+
+(reg-sub
+ :group/discrete-variable-options
+  (fn [[_ gv-uuid]]
+    (subscribe [:query
+                   '[:find ?l .
+                     :in $ ?gv-uuid
+                     :where
+                     [?gv :bp/uuid ?gv-uuid]
+                     [?v :variable/group-variable ?gv]
+                     [?v :variable/list ?l]]
+                   [gv-uuid]]))
+  (fn [list]
+    @(subscribe [:pull-children :list/options list])))
+
+(reg-sub
+ :submodule/is-output? 
+  (fn [[_ submodule-id]]
+    (subscribe [:query
+                   '[:find ?io .
+                     :in $ ?sm
+                     :where
+                     [?sm :submodule/io ?io]]
+                   [submodule-id]]))
+  (fn [io]
+    (= io :output)))
 
 ;;; Subgroups
 
@@ -47,19 +92,24 @@
  :group/conditionals
  (fn [[_ group-id]]
    (subscribe [:query
-               '[:find ?c ?top-op ?name ?c-op ?values ?g ?v ?gv-uuid
-                 :keys db/id group-variable/conditional-operator variable/name conditional/op conditional/values g v gv-uuid
+               '[:find ?c ?gv-uuid ?name ?operator ?values
                  :in  $ ?g
                  :where
-                 [?g  :group/conditionals ?c]
-                 [?g  :group/conditional-operator ?top-op]
-                 [?c  :conditional/group-variable-uuid ?gv-uuid]
-                 [?v  :variable/group-variables ?gv-uuid]
-                 [?v  :variable/name ?name]
-                 [?c  :conditional/operator ?c-op]
-                 [?c  :conditional/values ?values]]
+                 [?g :group/conditionals ?c]
+                 [?c :conditional/group-variable-uuid ?gv-uuid]
+                 [?gv :bp/uuid ?gv-uuid]
+                 [?v :variable/group-variable ?gv]
+                 [?v :variable/name ?name]
+                 [?c :conditional/operator ?operator]
+                 [?c :conditional/values ?values]]
                [group-id]]))
- identity)
+ (fn [results]
+   (mapv (fn [[id gv-uuid name operator values]]
+           {:db/id                           id
+            :variable/name                   name
+            :conditional/group-variable-uuid gv-uuid
+            :conditional/operator            operator
+            :conditional/values              values}) results)))
 
 ;;; Variables
 
@@ -68,17 +118,6 @@
  (fn [[_ group-id]]
    (subscribe [:pull-children :group/group-variable group-id '[* {:variable/_group-variable [*]}]]))
  identity)
-
-(reg-sub
- :group/variables
- (fn [[_ group-id]]
-   (subscribe [:variables group-id]))
-
- (fn [variables]
-   (map (fn [group-variable]
-          (let [variable (get-in group-variable [:variable/_group-variable 0])
-                variable (dissoc variable :db/id :bp/uuid)]
-            (merge group-variable variable))) variables)))
 
 (reg-sub
  :group/variables

@@ -49,14 +49,19 @@
 
 (defn dropdown
   "A component for dropdowns."
-  [label on-select options]
+  [{:keys [label on-select options disabled? multiple? selected]}]
   [:div.mb-3
    [:label.form-label label]
-   [:select.form-select {:on-change on-select}
-    [:option {:key "none" :value nil :selected? true}
-     (str "Select " label "...")]
+   [:select.form-select
+    {:on-change on-select
+     :disabled  disabled?
+     :multiple  multiple?}
+    (when-not multiple?
+      [:option
+       {:key "none" :value nil :selected (when-not selected true)}
+       (str "Select " label "...")])
     (for [{:keys [value label]} options]
-      [:option {:key value :value value} label])]])
+      [:option {:key value :value value :selected (= value selected)} label])]])
 
 (defn radio-buttons
   "A component for radio button."
