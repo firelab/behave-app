@@ -5,11 +5,12 @@
             [re-posh.core  :as rp]
             [behave-cms.routes :refer [app-routes]]
             [behave-cms.applications.subs]
-            [behave-cms.languages.subs]
-            [behave-cms.modules.subs]
-            [behave-cms.submodules.subs]
             [behave-cms.groups.subs]
-            [behave-cms.subgroups.subs]))
+            [behave-cms.languages.subs]
+            [behave-cms.lists.subs]
+            [behave-cms.modules.subs]
+            [behave-cms.subgroups.subs]
+            [behave-cms.submodules.subs]))
 
 ;; Taken from https://lambdaisland.com/blog/11-02-2017-re-frame-form-1-subscriptions
 (def <sub (comp deref rf/subscribe))

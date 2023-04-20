@@ -78,8 +78,8 @@
 
    {:db/ident       :group/conditionals-operator
     :db/doc         "Group's conditional operator, which only applies for multiple conditionals. Can be either: `:and`, `:or`."
-    :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/many}])
+    :db/valueType   :db.type/keyword
+    :db/cardinality :db.cardinality/one}])
 
 ;;; Testing
 

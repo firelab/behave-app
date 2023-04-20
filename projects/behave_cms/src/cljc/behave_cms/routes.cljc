@@ -18,6 +18,7 @@
                      :enums           :enum
                      :functions       :function
                      :groups          :group
+                     :lists           :list
                      :group-variables :group-variable
                      :help-pages      :help-page
                      :languages       :language
@@ -95,6 +96,7 @@
       (entity-route :subgroups)
       (entity-route :group-variables)
       (entity-route :variables)
+      (entity-route :lists)
       (entity-route :help-pages)
 
       ;; CPP

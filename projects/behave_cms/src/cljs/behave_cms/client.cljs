@@ -16,6 +16,7 @@
             [behave-cms.groups.views          :refer [list-groups-page]]
             [behave-cms.group-variables.views :refer [group-variable-page]]
             [behave-cms.languages.views       :refer [list-languages-page]]
+            [behave-cms.lists.views           :refer [list-lists-page]]
             [behave-cms.modules.views         :refer [list-modules-page]]
             [behave-cms.subgroups.views       :refer [list-subgroups-page]]
             [behave-cms.submodules.views      :refer [list-submodules-page]]
@@ -30,6 +31,7 @@
 (def menu-pages
   [{:page "Applications"   :path "/applications"}
    {:page "Variables"      :path "/variables"}
+   {:page "Lists"          :path "/lists"}
    {:page "Languages"      :path "/languages"}
    {:page "Invite User"    :path "/invite-user"}])
 
@@ -41,6 +43,7 @@
                 :get-module         list-submodules-page
                 :get-submodule      list-groups-page
                 :languages          list-languages-page
+                :lists              list-lists-page
                 :variables          list-variables-page})
 
 (def system-pages {:login          login-page

@@ -1,2 +1,2 @@
-(ns behave-cms.subgroups.events
+(ns behave-cms.lists.events
   (:require [re-frame.core :as rf]))

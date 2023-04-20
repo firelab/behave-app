@@ -6,6 +6,21 @@
             [re-frame.core     :refer [reg-sub subscribe]]
             [behave-cms.routes :refer [app-routes]]))
 
+;;; Applications, Modules, Submodules
+
+(reg-sub
+ :subgroup/app-modules
+ (fn [[_ group-id]]
+   (subscribe [:query '[:find ?a .
+                           :in $ ?g
+                           :where
+                           [?sm :submodule/group ?g]
+                           [?m :module/submodule ?sm]
+                           [?a :application/module ?m]]
+                  [group-id]]))
+ (fn [app-id]
+   @(subscribe [:pull-children :application/module app-id])))
+
 ;;; Subgroups
 
 (reg-sub
@@ -32,50 +47,19 @@
  :group/conditionals
  (fn [[_ group-id]]
    (subscribe [:query
-               '[:find ?c ?name ?op ?values ?g ?v ?gv-uuid
-                 :keys db/id variable/name conditional/op conditional/values g v gv-uuid
+               '[:find ?c ?top-op ?name ?c-op ?values ?g ?v ?gv-uuid
+                 :keys db/id group-variable/conditional-operator variable/name conditional/op conditional/values g v gv-uuid
                  :in  $ ?g
                  :where
                  [?g  :group/conditionals ?c]
+                 [?g  :group/conditional-operator ?top-op]
                  [?c  :conditional/group-variable-uuid ?gv-uuid]
                  [?v  :variable/group-variables ?gv-uuid]
                  [?v  :variable/name ?name]
-                 [?c  :conditional/operator ?op]
+                 [?c  :conditional/operator ?c-op]
                  [?c  :conditional/values ?values]]
                [group-id]]))
  identity)
-
-(comment
-
-  (require '[re-frame.core :as rf])
-
-  (defn clear! [k]
-    (rf/clear-sub k)
-    (rf/clear-subscription-cache!))
-
-  (clear! :group/conditionals)
-
-  (subscribe [:group/conditionals 170])
-
-  (rf/subscribe [:query '[:find ?e ?n ?gv ?sm ?m
-                          :where
-                          [?e :variable/name ?n]
-                          [?e :variable/kind :discrete]
-                          [?e :variable/group-variable ?gv]
-                          [?g :group/group-variable ?gv]
-                          [?sm :submodule/group ?g]
-                          [?m :module/submodule ?sm]]])
-
-  (rf/subscribe [:query '[:find ?e ?n ?gv
-                          :where
-                          [?e :variable/name ?n]
-                          [?e :variable/kind :discrete]
-                          [?e :variable/group-variable ?gv]]])
-
-  (rf/subscribe [:query '[:find :cpp/enum]])
-
-
-  )
 
 ;;; Variables
 

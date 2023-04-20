@@ -4,8 +4,22 @@
             [reagent.core      :as r]
             [re-frame.core     :as rf]
             [string-utils.interface :refer [->kebab ->str]]
+            [behave.schema.core :refer [all-schemas]]
             [behave-cms.routes :refer [singular]]
             [behave-cms.utils  :as u]))
+
+;;; Constants
+(def ^:private db-attrs             (map :db/ident all-schemas))
+(def ^:private db-translation-attrs (->> db-attrs
+                                         (filter #(-> %
+                                                      (->str)
+                                                      (str/ends-with? "translation-key")))
+                                         (set)))
+(def ^:private db-help-attrs        (->> db-attrs
+                                         (filter #(-> %
+                                                      (->str)
+                                                      (str/ends-with? "help-key")))
+                                         (set)))
 
 ;;; Helpers
 
@@ -40,32 +54,13 @@
         help-key           (str translation-key ":help")]
 
     (merge state
-           {parent-field     parent-id
-            translation-attr translation-key
-            help-attr        help-key}
+           {parent-field     parent-id}
+           (when (db-translation-attrs translation-attr) {translation-attr translation-key})
+           (when (db-help-attrs help-attr) {help-attr help-key})
            ;; Prevent overwriting the translation/help keys once assigned
            (select-keys original [translation-attr help-attr]))))
 
-(defn entity-uuid-kw [entity-type]
-  (-> entity-type
-      (singular)
-      (name)
-      (str "-uuid")
-      (keyword)))
-
 ;;; Sub-components
-
-(defn dropdown
-  "A component for dropdowns."
-  [label options value-id on-select]
-  [:div.mb-3
-   [:label.form-label label]
-   [:select.form-select {:on-change on-select}
-    [:option {:key "none" :value nil :selected? true}
-     (str "Select " label "...")]
-    (for [[uuid {value value-id}] options]
-      ^{:key uuid}
-      [:option {:key uuid :value uuid} value])]])
 
 (defmulti field-input (fn [{type :type}] type))
 
@@ -137,7 +132,34 @@
 ;;; Public Fns
 
 (defn entity-form
-  ""
+  "Supports simple forms to add/edit a new entity. Takes a map with the keys:
+  - :entity         Used to create an editor in the app db ({:state {:editor {<:entity> ...}}})
+  - :parent-field   Used in association with `:parent-id` to create a reverse parent relation
+                    (e.g. A blog with many posts would `:parent-field` `:blog/_posts`,
+                    with `:parent-id` set to `<blog-entity-id>` in DataScript.)
+  - :parent-id      Used in association with `:parent-field` to create a reverse parent relation.
+  - :fields         A vector of field maps. Uses text fields by default. Field can have a `:type`
+                    of: `:number` `:radio`, `:checkbox`.
+  - :on-create      Takes a function which is passed the state in the editor, whose result is
+                    then to the default `:api/create-entity` event. Used to perform minor changes
+                    before an entity is created.
+  
+  For example:
+  ```clj
+  [entity-form {:entity        :submodule
+                :parent-field  :module/_submodule
+                :parent-id     module-id
+                :id            id
+                :fields        [{:label     \"Name\"
+                                 :required? true
+                                 :field-key :submodule/name}
+                                {:label     \"I/O\"
+                                 :field-key :submodule/io
+                                 :type      :radio
+                                 :options   [{:label \"Input\" :value :input}
+                                             {:label \"Output\" :value :output}]}]
+                :on-create     #(assoc % :submodule/order num-submodules)})
+  ```"
   [{:keys [entity parent-field parent-id fields id on-create] :as opts}]
   (let [original     @(rf/subscribe [:entity id])
         parent       @(rf/subscribe [:entity parent-id])

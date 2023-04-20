@@ -62,20 +62,26 @@
                                 :default-value @value
                                 :on-change     #(on-change (u/input-value %))}])]))])
 
-;; TODO: Provide some way of passing the :db/id of list to the editor state
 (defmethod properties-form
   :discrete
   [_ get-field set-field]
-  (let [value     (get-field :variable/list :list/name)
-        on-change (set-field :variable/list :list/name)]
+  (let [lists     (rf/subscribe [:lists])
+        value     (get-field :variable/list :db/id)
+        on-change (set-field :variable/list :db/id)]
     [:div.mb-3
-     [:label.form-label "List"]
-     [:input.form-control {:type          "text"
-                           :default-value @value
-                           :on-change     #(on-change (u/input-value %))}]]))
+     [:div.form-group.mt-2
+      [:label.form-label "List"]
+      [:select
+       {:on-change     #(on-change (u/input-int-value %))
+        :default-value @value}
+       (doall
+        (for [list @lists]
+          (let [list-name (:list/name list)
+                id        (:db/id list)]
+            [:option {:key id :value id} list-name])))]]]))
 
 (defn variable-form [id]
-  (let [variable  (rf/subscribe [:entity id '[* {:variable/list [*]}]])
+  (let [variable  (rf/subscribe [:entity id])
         editor    (rf/subscribe [:state [:editors :variables]])
         get-field (fn [& fields]
                     (r/track #(or (get-in @editor fields) (get-in @variable fields))))

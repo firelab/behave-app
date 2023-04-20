@@ -1,9 +1,10 @@
 (ns behave-cms.components.common
-  (:require [clojure.string    :as str]
-            [herb.core         :refer [<class]]
-            [reagent.core      :as r]
-            [behave-cms.styles :as $]
-            [behave-cms.utils  :as u]))
+  (:require [clojure.string         :as str]
+            [herb.core              :refer [<class]]
+            [reagent.core           :as r]
+            [string-utils.interface :refer [->str]]
+            [behave-cms.styles      :as $]
+            [behave-cms.utils       :as u]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; UI Styles
@@ -45,6 +46,17 @@
       [:h4 title]
       [:button.btn.btn-sm.btn-outline-secondary {:on-click #(swap! expanded? not)} (if @expanded? "Collapse" "Expand")]]
      [:div.row.accordion__content content]]))
+
+(defn dropdown
+  "A component for dropdowns."
+  [label on-select options]
+  [:div.mb-3
+   [:label.form-label label]
+   [:select.form-select {:on-change on-select}
+    [:option {:key "none" :value nil :selected? true}
+     (str "Select " label "...")]
+    (for [{:keys [value label]} options]
+      [:option {:key value :value value} label])]])
 
 (defn radio-buttons
   "A component for radio button."
@@ -211,12 +223,13 @@
       ^{:key (:db/id row)}
       [:tr
        (for [column columns]
-         [:td {:key column} (get row column "")])
+         [:td {:key column} (->str (get row column ""))])
        (when (or on-select on-delete)
-         [:td {:class "td" :style {:white-space "nowrap"}}
+         [:td {:key "modify" :class "td" :style {:white-space "nowrap"}}
           (when on-select [btn-sm :outline-secondary "Edit"   #(on-select row)])
           (when on-delete [btn-sm :outline-danger    "Delete" #(on-delete row)])])
        [:td
+        {:key "order"}
         (when on-decrease [btn-sm :outline-secondary nil #(on-decrease row) {:icon "arrow-up"}])
         (when on-increase [btn-sm :outline-secondary nil #(on-increase row) {:icon "arrow-down"}])]])]])
 

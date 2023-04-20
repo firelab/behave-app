@@ -4,19 +4,21 @@
             [re-frame.core :as rf]
             [data-utils.interface :refer [parse-int]]
             [string-utils.interface :refer [->kebab]]
-            [behave-cms.components.common          :refer [accordion simple-table window]]
+            [behave-cms.components.common          :refer [accordion dropdown simple-table window]]
             [behave-cms.components.entity-form     :refer [entity-form]]
             [behave-cms.help.views                 :refer [help-editor]]
             [behave-cms.components.sidebar         :refer [sidebar sidebar-width]]
             [behave-cms.components.translations    :refer [all-translations]]
             [behave-cms.components.variable-search :refer [variable-search]]
-            [behave-cms.utils :as u]))
+            [behave-cms.utils :as u]
+            [behave-cms.subs]
+            [behave-cms.events]))
 
 ;;; Private Views
 
 (defn- subgroup-form [group-id subgroup-id]
   [entity-form {:entity        :group
-                :parent-entity :group/_children
+                :parent-field  :group/_children
                 :parent-id     group-id
                 :id            subgroup-id
                 :fields        [{:label     "Name"
@@ -80,57 +82,56 @@
                       (rf/dispatch [:api/delete-entity %]))}]))
 
 (defn- manage-conditionals [{id :db/id} selected-conditional-id]
-  (let [conditional @(rf/subscribe [:conditional selected-conditional-id])
-        get-field  (fn [field]
-                     (r/track #(or @(rf/subscribe [:state [:editors :conditional field]]) (get original field ""))))
-        set-field  (fn [field]
-                     (fn [new-value] (rf/dispatch [:state/set-state [:editors :conditional field] new-value])))
-        )]
+  (let [modules    (rf/subscribe [:subgroup/app-modules id])
+        *module    (r/atom nil)
+        submodules (rf/subscribe [:pull-children :module/submodule @*module])
+        *submodule (r/atom nil)
+        groups     (rf/subscribe [:pull-children :submodule/group @*submodule])
+        *group     (r/atom nil)
+        variables  (rf/subscribe [:pull-children :group/group-variable @*group])
+        *variable  (r/atom nil)
+        operation  (r/atom nil)]
+    (println @modules @*module @submodules @*submodule)
     [:div.row
-     [:h4 (str (if selected-conditional "Edit" "Add") " Conditional:")]
+     [:h4 "Manage Conditionals:"]
      [:form
-      [:div.form-group.mt-2
-       [:label.form-label {:id "module"} "Module:"]
-       [:input.form-control
-        {:id        "module"
-         :type      "text"
-         :required  true
-         :on-change #(reset! module (u/input-value %))}]]
+      ;; TODO: Move this above the table
+      [dropdown
+       "Top Operation:"
+       #(reset! operation (u/input-value %))
+       [{:value :and :label "AND"}
+        {:value :and :label "OR"}]]
 
-      [:div.form-group.mt-2
-       [:label.form-label {:id "submodule"} "Submodule:"]
-       [:input.form-control
-        {:id        "module"
-         :type      "text"
-         :required  true
-         :on-change #(reset! submodule (u/input-value %))}]]
+      [dropdown
+       "Module:"
+       #(reset! *module (u/input-int-value %))
+       (map (fn [{value :db/id label :module/name}]
+              {:value value :label label}) @modules)]
 
-      [:div.form-group.mt-2
-       [:label.form-label {:id "variable-name"} "Variable Name:"]
-       [:input.form-control
-        {:id        "variable-name"
-         :type      "text"
-         :required  true
-         :on-change #(reset! new-variable (u/input-value %))}]]
+      [dropdown
+       "Submodule:"
+       #(reset! *submodule (u/input-int-value %))
+       (map (fn [{value :db/id label :submodule/name}]
+              {:value value :label label}) @submodules)]
 
-      [:div.form-group.mt-2
-       [:label.form-label {:id "operation"} "Operation:"]
-       [:select.form-control
-        {:id        "operation"
-         :type      "text"
-         :required  true
-         :on-change #(reset! operation (u/input-value %))}
-        [:option {:value :equals} "="]
-        [:option {:value :not-equals} "not="]
-        [:option {:value :in} "in"]]]
+      [dropdown
+       "Group:"
+       #(reset! *group (u/input-int-value %))
+       (map (fn [{value :db/id label :group/name}]
+              {:value value :label label}) @groups)]
 
-      [:div.form-group.mt-2
-       [:label.form-label {:id "values"} "Values:"]
-       [:input.form-control
-        {:id        "values"
-         :type      "text"
-         :required  true
-         :on-change #(reset! values (u/input-value %))}]]
+      [dropdown
+       "Variable:"
+       #(reset! *variable (u/input-int-value %))
+       (map (fn [{value :db/id label :variable/name}]
+              {:value value :label label}) @variables)]
+
+      [dropdown
+       "Operation:"
+       #(reset! operation (u/input-value %))
+       [{:value :equal :label "="}
+        {:value :not-equal :label "!="}
+        {:value :in :label "IN"}]]
 
       [:button.btn.btn-sm.btn-outline-primary.mt-4
        {:type "submit"}

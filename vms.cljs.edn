@@ -1,6 +1,7 @@
 ^{:css-dirs            ["bases/behave_components/resources/public/css"
                         "projects/behave_cms/resources/public/css"]
   :watch-dirs          ["projects/behave_cms/src/cljs"
+                        "projects/behave_cms/src/cljc"
                         "bases/behave_schema/src/"
                         "bases/behave_components/src"]
   :ring-server-options {:port 8081 :join? false}
