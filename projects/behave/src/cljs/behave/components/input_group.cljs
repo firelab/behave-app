@@ -3,7 +3,6 @@
             [re-frame.core           :as rf]
             [behave.components.core  :as c]
             [dom-utils.interface    :refer [input-value]]
-            [browser-utils.interface :refer [debounce]]
             [string-utils.interface  :refer [->kebab]]))
 
 (defn upsert-input [ws-uuid group-uuid repeat-id gv-uuid value & [units]]
@@ -25,29 +24,29 @@
                                      repeat-id
                                      repeat-group?]
   (let [value                 (rf/subscribe [:worksheet/input ws-uuid group-uuid repeat-id uuid])
+        value-atom            (r/atom (first @value))
         warn-limit?           (true? @(rf/subscribe [:state :warn-multi-value-input-limit]))
-        acceptable-char-codes (set (map #(.charCodeAt % 0) "0123456789., "))
-        on-change             (debounce #'upsert-input 1000)]
+        acceptable-char-codes (set (map #(.charCodeAt % 0) "0123456789., "))]
     [:div.wizard-input
      [:div.wizard-input__input
       {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
-      [c/text-input {:id          (str repeat-id "-" uuid)
-                     :label       (if repeat-group? var-name "Values:")
-                     :placeholder (when repeat-group? "Values")
-                     :value       (first @value)
-                     :required?   true
-                     :min         var-min
-                     :max         var-max
-
+      [c/text-input {:id           (str repeat-id "-" uuid)
+                     :label        (if repeat-group? var-name "Values:")
+                     :placeholder  (when repeat-group? "Values")
+                     :value-atom   value-atom
+                     :required?    true
+                     :min          var-min
+                     :max          var-max
                      :error?       warn-limit?
+                     :on-change    #(reset! value-atom (input-value %))
                      :on-key-press (fn [event]
                                      (when-not (contains? acceptable-char-codes (.-charCode event))
                                        (.preventDefault event)))
-                     :on-change    #(on-change ws-uuid
-                                               group-uuid
-                                               repeat-id
-                                               uuid
-                                               (input-value %))}]]
+                     :on-blur      #(upsert-input ws-uuid
+                                                  group-uuid
+                                                  repeat-id
+                                                  uuid
+                                                  @value-atom)}]]
      [:div.wizard-input__description
       (str "Units used: " native-units)
       [:div.wizard-input__description__units
@@ -87,16 +86,17 @@
                                group-uuid
                                repeat-id
                                repeat-group?]
-  (let [value        (rf/subscribe [:worksheet/input ws-uuid group-uuid repeat-id uuid])
-        upsert-input (debounce #'upsert-input 1000)]
+  (let [value      (rf/subscribe [:worksheet/input ws-uuid group-uuid repeat-id uuid])
+        value-atom (r/atom (first @value))]
     [:div.wizard-input
      {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
-     [c/text-input {:id          (str repeat-id "-" uuid)
-                    :label       (if repeat-group? var-name "Values:")
-                    :placeholder (when repeat-group? "Value")
-                    :value       (first @value)
-                    :on-change   #(upsert-input ws-uuid group-uuid repeat-id uuid (input-value %))
-                    :required?   true}]]))
+     [c/text-input {:id            (str repeat-id "-" uuid)
+                    :label         (if repeat-group? var-name "Values:")
+                    :placeholder   (when repeat-group? "Value")
+                    :default-value (first @value)
+                    :on-change     #(reset! value-atom (input-value %))
+                    :on-blur       #(upsert-input ws-uuid group-uuid repeat-id uuid (input-value %))
+                    :required?     true}]]))
 
 (defn repeat-group [ws-uuid group variables]
   (let [{group-name :group/name

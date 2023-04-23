@@ -1,7 +1,7 @@
 (ns ^:figwheel-hooks behave.client
   (:require [reagent.dom               :refer [render]]
             [re-frame.core             :as rf]
-            ; [re-frisk.core             :as re-frisk]
+                                        ; [re-frisk.core             :as re-frisk]
             [behave.components.sidebar :refer [sidebar]]
             [behave.components.toolbar :refer [toolbar]]
             [behave.help.views         :refer [help-area]]
@@ -36,6 +36,9 @@
                     :tools/all           tools/root-component
                     :tools/page          tools/root-component})
 
+(defn load-scripts! [{:keys [issue-collector]}]
+  (rf/dispatch [:system/add-script issue-collector]))
+
 (defn app-shell [params]
   (let [route        (rf/subscribe [:handler])
         sync-loaded? (rf/subscribe [:state :sync-loaded?])
@@ -43,6 +46,7 @@
         page         (get handler->page (:handler @route) not-found)
         params       (-> (merge params (:route-params @route))
                          (assoc :route-handler (:handler @route)))]
+    (load-scripts! params)
     [:div.page
      [:table.page__top
       [:tr
@@ -67,7 +71,7 @@
 (defn- ^:export init
   "Defines the init function to be called from window.onload()."
   [params]
-  ; (re-frisk/enable)
+  ;; (re-frisk/enable)
   (rf/dispatch-sync [:initialize])
   (rf/dispatch-sync [:navigate (-> js/window .-location .-pathname)])
   (.addEventListener js/window "popstate" #(rf/dispatch [:popstate %]))

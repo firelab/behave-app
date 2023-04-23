@@ -233,6 +233,32 @@
     :db/valueType   :db.type/boolean
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident       :table-settings/filters
+    :db/doc         "Filters for the table."
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many}
+
+   ;; Table filters
+   {:db/ident       :table-filter/group-variable-uuid
+    :db/doc         "Table filter's variable"
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :table-filter/min
+    :db/doc         "Table filter's min value"
+    :db/valueType   :db.type/long
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :table-filter/max
+    :db/doc         "Table filter's max value"
+    :db/valueType   :db.type/long
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :table-filter/enabled?
+    :db/doc         "Whether the table filter is enabled"
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
+
    ;; Results Graph Settings
    {:db/ident       :graph-settings/enabled?
     :db/doc         "Whether graph results are enabled."

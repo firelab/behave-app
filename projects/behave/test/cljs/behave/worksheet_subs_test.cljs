@@ -2,11 +2,11 @@
   (:require
    [cljs.test :refer [use-fixtures deftest is join-fixtures] :include-macros true]
    [re-frame.core :as rf]
-   [behave.fixtures :refer [setup-empty-db teardown-db]]))
+   [behave.fixtures :as fx]))
 
 (use-fixtures :each
-  {:before (join-fixtures [setup-empty-db])
-   :after  (join-fixtures [teardown-db])})
+  {:before (join-fixtures [fx/setup-empty-db fx/with-new-worksheet fx/with-dummy-results-table])
+   :after  (join-fixtures [fx/teardown-db])})
 
 (deftest sub-worksheet-test
   (let [uuid           "test-ws-uuid"
@@ -21,5 +21,27 @@
 
     (is (= (:worksheet/name @*worksheet) worksheet-name))))
 
-;; (deftest result-table-cell-data-test
-;;   (is (= 1 "TODO")))
+(deftest result-table-cell-data-test
+  (is (= @(rf/subscribe [:worksheet/result-table-cell-data fx/test-ws-uuid])
+         #{[0 "Input1"  0 10] ; [row-id col-uuid repeat-id value]
+           [0 "Input2"  0 10]
+           [0 "Input3"  0 10]
+           [0 "output1" 0 10]
+           [0 "output2" 0 100]
+
+           [1 "Input1"  0 20]
+           [1 "Input2"  0 20]
+           [1 "Input3"  0 20]
+           [1 "output1" 0 20]
+           [1 "output2" 0 200]
+
+           [2 "Input1"  0 30]
+           [2 "Input2"  0 30]
+           [2 "Input3"  0 30]
+           [2 "output1" 0 30]
+           [2 "output2" 0 300]})))
+
+(deftest output-min+max-values-test
+  (is (= @(rf/subscribe [:worksheet/output-min+max-values fx/test-ws-uuid])
+         {"output1" [10 30]
+          "output2" [100 300]})))

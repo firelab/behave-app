@@ -58,12 +58,14 @@
       {:fx [[:dispatch [:navigate path]]]})))
 
 (rf/reg-event-fx
-  :wizard/solve
-  (fn [{db :db} [_ {:keys [ws-uuid]}]]
-    (let [worksheet (solve-worksheet ws-uuid)
-          path      (path-for routes :ws/results-settings :ws-uuid ws-uuid :results-page :settings)]
-      {:fx [[:dispatch [:navigate path]]]
-       :db (assoc-in db [:state :worksheet] worksheet)})))
+ :wizard/solve
+ (fn [{db :db} [_ {:keys [ws-uuid]}]]
+   (let [worksheet (solve-worksheet ws-uuid)
+         path      (path-for routes :ws/results-settings :ws-uuid ws-uuid :results-page :settings)]
+     {:fx [[:dispatch [:navigate path]]
+           [:dispatch [:worksheet/update-all-table-filters-from-results ws-uuid]]
+           [:dispatch [:worksheet/update-all-y-axis-limits-from-results ws-uuid]]]
+      :db (assoc-in db [:state :worksheet] worksheet)})))
 
 (defn- remove-nils
   "remove pairs of key-value that has nil value from a (possibly nested) map. also transform map to
