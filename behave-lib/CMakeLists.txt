@@ -39,23 +39,23 @@ set(DWARF_DIR ${CMAKE_SOURCE_DIR})
 # set(DWARF_DIR //wsl%24/Ubuntu/home/kcheung/work/code/behave-polylith/behave-lib)
 
 set(EMCC_ARGS
-  -I${BEHAVE_SRC_DIR}
-  -I${SIG_SRC_DIR}
-  -I${EMSCRIPTEN_SRC_FILE}
-  -L${BEHAVE_LIB}
-  --post-js ${GLUE_JS_FILE}
-  -sNO_DISABLE_EXCEPTION_CATCHING
-  -sEXPORTED_FUNCTIONS=["_malloc","_free"]
-  -sEXPORTED_RUNTIME_METHODS=["UTF8ToString","allocateUTF8","addFunction"])
+    -I${BEHAVE_SRC_DIR}
+    -I${SIG_SRC_DIR}
+    -I${EMSCRIPTEN_SRC_FILE}
+    -L${BEHAVE_LIB}
+    --post-js ${GLUE_JS_FILE}
+    -sNO_DISABLE_EXCEPTION_CATCHING
+    -sEXPORTED_FUNCTIONS=["_malloc","_free"]
+    -sEXPORTED_RUNTIME_METHODS=["UTF8ToString","allocateUTF8","addFunction"])
 
 set(EMCC_JS_ARGS ${EMCC_ARGS} -s WASM=0)
 
 set(EMCC_WASM_ARGS ${EMCC_ARGS}
-  --closure 1
-  -g
-  -s WASM=1
-  -s ALLOW_MEMORY_GROWTH
-  -fdebug-prefix-map=${CMAKE_SOURCE_DIR}=${DWARF_DIR})
+    --closure 1
+    -g
+    -s WASM=1
+    -s ALLOW_MEMORY_GROWTH
+    -fdebug-prefix-map=${CMAKE_SOURCE_DIR}=${DWARF_DIR})
 
 # Make use of c++11
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
@@ -184,31 +184,40 @@ add_library(behave STATIC ${SOURCE} ${HEADERS})
 
 IF(TEST_BEHAVE)
 
-  SET(BEHAVE_TEST_SOURCE
-    behave-mirror/src/testBehave/testBehave.cpp)
-  ADD_COMPILE_DEFINITIONS(NDEBUG=FALSE)
-  ADD_EXECUTABLE(testBehave
-    ${SOURCE}
-    ${BEHAVE_TEST_SOURCE}
-    ${HEADERS})
-  TARGET_LINK_LIBRARIES(testBehave)
+    add_library(testUtils STATIC test/cpp/testUtils.cpp test/cpp/testUtils.h)
 
-  SET(SURFACE_TEST_SOURCE
-    test/cpp/testSurface.cpp)
-  ADD_EXECUTABLE(testSurface
-    ${SOURCE}
-    ${SURFACE_TEST_SOURCE}
-    ${HEADERS})
-  TARGET_LINK_LIBRARIES(testSurface)
+    SET(BEHAVE_TEST_SOURCE
+        behave-mirror/src/testBehave/testBehave.cpp)
+    ADD_COMPILE_DEFINITIONS(NDEBUG=FALSE)
+    ADD_EXECUTABLE(testBehave
+        ${SOURCE}
+        ${BEHAVE_TEST_SOURCE}
+        ${HEADERS})
+    TARGET_LINK_LIBRARIES(testBehave)
 
-  SET(CONTAIN_TEST_SOURCE
-    test/cpp/testContain.cpp)
-  ADD_EXECUTABLE(testContain
-    ${SOURCE}
-    ${CONTAIN_TEST_SOURCE}
-    ${HEADERS})
-  TARGET_LINK_LIBRARIES(testContain)
+    SET(SURFACE_TEST_SOURCE
+        test/cpp/testSurface.cpp)
+    ADD_EXECUTABLE(testSurface
+        ${SOURCE}
+        ${SURFACE_TEST_SOURCE}
+        ${HEADERS})
+    TARGET_LINK_LIBRARIES(testSurface)
 
+    SET(CONTAIN_TEST_SOURCE
+        test/cpp/testContain.cpp)
+    ADD_EXECUTABLE(testContain
+        ${SOURCE}
+        ${CONTAIN_TEST_SOURCE}
+        ${HEADERS})
+    TARGET_LINK_LIBRARIES(testContain)
+
+    SET(CROWN_TEST_SOURCE
+        test/cpp/testCrown.cpp)
+    ADD_EXECUTABLE(testCrown
+        ${SOURCE}
+        ${CROWN_TEST_SOURCE}
+        ${HEADERS})
+    TARGET_LINK_LIBRARIES(testCrown testUtils)
 ENDIF()
 
 IF(BEHAVE_JS)
