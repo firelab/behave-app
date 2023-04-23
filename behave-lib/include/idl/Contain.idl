@@ -1,0 +1,34 @@
+[Prefix="Sem"]
+interface Contain {
+  ContainForce force();
+  ContainStatus status();
+  ContainTactic tactic();
+  boolean setDiurnalSpreadRates(double rates);
+  byte printStatus();
+  byte resourceDescription(long index);
+  double attackDistance();
+  double attackPointX();
+  double attackPointY();
+  double attackTime();
+  double distanceStep();
+  double exhaustedTime();
+  double fireBackAtAttack();
+  double fireBackAtReport();
+  double fireHeadAtAttack();
+  double fireHeadAtReport();
+  double fireLwRatioAtReport();
+  double fireReportTime();
+  double fireSizeAtReport();
+  double fireSpreadRateAtBack();
+  double fireSpreadRateAtReport();
+  double resourceArrival(long index);
+  double resourceBaseCost(long index);
+  double resourceDuration(long index);
+  double resourceHourCost(long index);
+  double resourceProduction(long index);
+  double setFireStartTimeMinutes(long starttime);
+  double simulationTime();
+  long resources();
+  long simulationStep();
+  void Contain(double reportSize, double reportRate, double diurnalROS, long fireStartMinutesStartTime, double lwRatio, double distStep, ContainFlank flank, ContainForce force, double attackTime, ContainTactic tactic, double attackDist);
+};

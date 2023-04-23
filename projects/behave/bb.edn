@@ -1,0 +1,22 @@
+{:tasks 
+ {-project  "cljweb-behave"
+  reload    (shell "systemctl --user daemon-reload")
+  status    {:depends [-project]
+             :task (shell (format "systemctl --user status %s" -project))}
+  start     {:depends [-project]
+             :task (shell (format "systemctl --user start %s" -project))}
+  stop      {:depends [-project]
+             :task (shell (format "systemctl --user stop %s" -project))}
+  build-js  (clojure "-M:compile-cljs")
+  uber      (clojure "-T:build org.corfield.build/uber :lib sig-gis/behave :main behave.core")
+  pull      (do
+              (shell "git pull")
+              (shell "git submodule init")
+              (shell "git submodule update")
+              (shell "git submodule status"))
+  deploy    (do
+              (run 'stop)
+              (run 'pull)
+              (run 'build-js)
+              (run 'uber)
+              (run 'start))}}

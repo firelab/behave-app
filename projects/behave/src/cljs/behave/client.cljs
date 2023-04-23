@@ -1,12 +1,10 @@
 (ns ^:figwheel-hooks behave.client
   (:require [reagent.dom               :refer [render]]
             [re-frame.core             :as rf]
-            [re-frisk.core             :as re-frisk]
+                                        ; [re-frisk.core             :as re-frisk]
             [behave.components.sidebar :refer [sidebar]]
             [behave.components.toolbar :refer [toolbar]]
             [behave.help.views         :refer [help-area]]
-            [behave.results            :as results]
-            [behave.review             :as review]
             [behave.settings           :as settings]
             [behave.store              :refer [load-store!]]
             [behave.tools              :as tools]
@@ -24,45 +22,62 @@
   [:div
    [:h1 (str @(<t "notfound") " :(")]])
 
-(def handler->page {:home           new-worksheet-page
-                    :ws/all         new-worksheet-page
-                    :ws/import      import-worksheet-page
-                    :ws/guided      guided-worksheet-page
-                    :ws/independent independent-worksheet-page
-                    :ws/wizard      wizard/root-component
-                    :ws/review      wizard/wizard-review-page
-                    :ws/results     wizard/wizard-results-page
-                    :settings/all   settings/root-component
-                    :settings/page  settings/root-component
-                    :tools/all      tools/root-component
-                    :tools/page     tools/root-component})
+(def handler->page {:home                new-worksheet-page
+                    :ws/all              new-worksheet-page
+                    :ws/import           import-worksheet-page
+                    :ws/guided           guided-worksheet-page
+                    :ws/independent      independent-worksheet-page
+                    :ws/wizard           wizard/root-component
+                    :ws/review           wizard/wizard-review-page
+                    :ws/results-settings wizard/wizard-results-settings-page
+                    :ws/results          wizard/wizard-results-page
+                    :settings/all        settings/root-component
+                    :settings/page       settings/root-component
+                    :tools/all           tools/root-component
+                    :tools/page          tools/root-component})
+
+(defn load-scripts! [{:keys [issue-collector]}]
+  (rf/dispatch [:system/add-script issue-collector]))
 
 (defn app-shell [params]
-  (let [route   (rf/subscribe [:handler])
-        loaded? (rf/subscribe [:state :loaded?])
-        page    (get handler->page (:handler @route) not-found)
-        params  (merge params (:route-params @route))]
+  (let [route        (rf/subscribe [:handler])
+        sync-loaded? (rf/subscribe [:state :sync-loaded?])
+        vms-loaded?  (rf/subscribe [:state :vms-loaded?])
+        page         (get handler->page (:handler @route) not-found)
+        params       (-> (merge params (:route-params @route))
+                         (assoc :route-handler (:handler @route)))]
+    (load-scripts! params)
     [:div.page
-     [:div.behave-identity
-      [:h1 @(<t "behaveplus")]]
-     [:div.header
-      [toolbar]]
-     [sidebar]
-     [:div.container
-      (if loaded?
-        [page params]
-        [:h3 "Loading..."])
-      [help-area params]]]))
+     [:table.page__top
+      [:tr
+       [:td.page__top__logo
+        [:div.behave-identity
+         {:href     "#"
+          :on-click #(rf/dispatch [:navigate "/"])
+          :tabindex 0}
+         [:h1 @(<t "behaveplus")]]]
+       [:td.page__top__toolbar-container
+        [toolbar params]]]]
+     [:div.page__main
+      [sidebar]
+      [:div.container
+       [:div.working-area
+        {:area-live "assertive"}
+        (if (and @vms-loaded? @sync-loaded?)
+          [page params]
+          [:h3 "Loading..."])]
+       [help-area params]]]]))
 
 (defn- ^:export init
   "Defines the init function to be called from window.onload()."
   [params]
-  (re-frisk/enable)
+  ;; (re-frisk/enable)
   (rf/dispatch-sync [:initialize])
   (rf/dispatch-sync [:navigate (-> js/window .-location .-pathname)])
   (.addEventListener js/window "popstate" #(rf/dispatch [:popstate %]))
   (load-translations!)
   (load-vms!)
+  (load-store!)
   (render [app-shell (js->clj params :keywordize-keys true)]
           (.getElementById js/document "app")))
 

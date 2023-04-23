@@ -21,7 +21,7 @@
 (def ^:private result-routes
   ["/results"
    [["" :ws/results]
-    [["/" :results-page] :ws/results]]])
+    [["/" [keyword :results-page]] :ws/results-settings]]])
 
 (def ^:private module-routes
   ["/modules"
@@ -31,14 +31,14 @@
 
 (def ^:private worksheet-routes
   ["worksheets"
-   {""             :ws/all
-    "/guided"      :ws/guided
-    "/independent" :ws/independent
-    "/import"      :ws/import
-    ["/" :id]      [["" :ws/overview]
-                    module-routes
-                    result-routes
-                    ["/review" :ws/review]]}])
+   {""              :ws/all
+    "/guided"       :ws/guided
+    "/independent"  :ws/independent
+    "/import"       :ws/import
+    ["/" :ws-uuid] [["" :ws/overview]
+                     module-routes
+                     result-routes
+                     ["/review" :ws/review]]}])
 
 (def ^:private settings-routes
   ["settings"
@@ -59,16 +59,17 @@
 (def routes
   (add-trailing-slashes-to-roots
     ["/" [["" :home]
+          ["chart" :chart]
           workflow-routes
           worksheet-routes
           settings-routes
           tools-routes]]))
 
-(defn results-path [ws-id]
-  (bidi/path-for routes :ws/results :db/id ws-id))
+(defn results-path [ws-uuid]
+  (bidi/path-for routes :ws/results :ws-uuid ws-uuid))
 
-(defn review-path [ws-id]
-  (bidi/path-for routes :ws/review :db/id ws-id))
+(defn review-path [ws-uuid]
+  (bidi/path-for routes :ws/review :ws-uuid ws-uuid))
 
 (defn settings-path [page]
   (bidi/path-for routes :settings/page :page page))
@@ -76,11 +77,11 @@
 (defn tools-path [page]
   (bidi/path-for routes :tools/page :page page))
 
-(defn worksheet-path [ws-id]
-  (bidi/path-for routes :ws/overview :db/id ws-id))
+(defn worksheet-path [ws-uuid]
+  (bidi/path-for routes :ws/overview :ws-uuid ws-uuid))
 
-(defn wizard-path [ws-id module io submodule]
-  (bidi/path-for routes :ws/wizard :db/id ws-id :module module :io io :submodule submodule))
+(defn wizard-path [ws-uuid module io submodule]
+  (bidi/path-for routes :ws/wizard :ws-uuid ws-uuid :module module :io io :submodule submodule))
 
 (comment
   (bidi/path-for result-routes :results)
@@ -105,5 +106,8 @@
 
   (bidi/match-route routes "/worksheets/1/modules/contain/output/fire")
   (bidi/match-route routes "/worksheets/2/modules/surface/input/fire")
+
+  (bidi/match-route routes "/worksheets/1/results")
+  (bidi/match-route routes "/worksheets/1/results/settings")
 
   )

@@ -66,6 +66,13 @@
          "FirelineIntensityUnits::KilojoulesPerMeterPerMinute"
          "FirelineIntensityUnits::KilowattsPerMeter"]))
 
+(def fire-type
+  (enum "FireType_FireTypeEnum"
+        ["FireType::Surface"
+         "FireType::Torching"
+         "FireType::ConditionalCrownFire"
+         "FireType::Crowning"]))
+
 (def heat-combustion-units
   (enum "HeatOfCombustionUnits_HeatOfCombustionUnitsEnum"
         ["HeatOfCombustionUnits::BtusPerPound"
@@ -123,6 +130,11 @@
          "LoadingUnits::TonsPerAcre"
          "LoadingUnits::TonnesPerHectare"
          "LoadingUnits::KilogramsPerSquareMeter"]))
+
+(def moisture-units
+  (enum "MoistureUnits_MoistureUnitsEnum"
+        ["MoistureUnits::Fraction"
+         "MoistureUnits::Percent"]))
 
 (def probability-units
   (enum "ProbabilityUnits_ProbabilityUnitsEnum"
@@ -192,3 +204,14 @@
         ["TimeUnits::Minutes"
          "TimeUnits::Seconds"
          "TimeUnits::Hours"]))
+
+(def wind-and-spread-orientation-mode
+  (enum "WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum"
+        ["WindAndSpreadOrientationMode::RelativeToUpslope"
+         "WindAndSpreadOrientationMode::RelativeToNorth"]))
+
+(def wind-height-input-mode
+  (enum "WindHeightInputMode_WindHeightInputModeEnum"
+        ["WindHeightInputMode::DirectMidflame"
+         "WindHeightInputMode::TwentyFoot"
+         "WindHeightInputMode::TenMeter"]))

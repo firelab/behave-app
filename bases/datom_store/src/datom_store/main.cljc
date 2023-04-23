@@ -61,9 +61,14 @@
        conn)))
 
 #?(:clj
+   (defn delete-datahike! [cfg]
+     (d/delete-database cfg)
+     (reset! conn nil)))
+
+#?(:clj
    (defn reset-datahike! [config schema & [setup-fn]]
      (when (d/database-exists? config)
-       (d/delete-database config))
+       (delete-datahike! config))
      (connect-datahike! config schema)))
 
 #?(:cljs

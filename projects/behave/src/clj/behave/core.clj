@@ -19,10 +19,19 @@
             [behave.views             :refer [render-page]])
   (:gen-class))
 
+(defn expand-home [s]
+  (str/replace s #"^~" (System/getProperty "user.home")))
+
 (defn init! []
   (load-config (io/resource "config.edn"))
+  (let [config (update-in (get-config :database :config) [:store :path] expand-home)]
+    (println "LOADED CONFIG" (get-config :database :config))
+    (io/make-parents (get-in config [:store :path]))
+    (store/connect! config)))
+
+(defn vms-sync-handler [req]
   (export-from-vms (get-config :vms :secret-token))
-  (store/connect! (get-config :database :config)))
+  {:status 200 :body "OK"})
 
 (defn bad-uri?
   [uri]
@@ -30,10 +39,11 @@
 
 (defn routing-handler [{:keys [uri] :as request}]
   (let [next-handler (cond
-                       (bad-uri? uri)                 (not-found "404 Not Found")
-                       (str/starts-with? uri "/sync") #'sync-handler
-                       (match-route routes uri)       (render-page (match-route routes uri))
-                       :else                          (not-found "404 Not Found"))]
+                       (bad-uri? uri)                     (not-found "404 Not Found")
+                       (str/starts-with? uri "/vms-sync") #'vms-sync-handler
+                       (str/starts-with? uri "/sync")     #'sync-handler
+                       (match-route routes uri)           (render-page (match-route routes uri))
+                       :else                              (not-found "404 Not Found"))]
     (next-handler request)))
 
 (defn wrap-query-params [handler]
@@ -45,20 +55,20 @@
             params (reduce (fn [params keyval]
                              (let [[k v] (str/split keyval #"=")]
                                (assoc params (keyword k) (edn/read-string v))))
-                           params keyvals)
-
-            _ (log-str "-- FOUND QUERY PARAMS:" params)]
+                           params keyvals)]
         (handler (assoc req :params params))))))
 
 (defn wrap-params [handler]
-  (fn [{:keys [body content-type params] :as req}]
+  (fn [{:keys [request-method content-type body query-string] :as req}]
     (if-let [req-type (mime->type content-type)]
-      (handler (assoc req :params (merge params (->clj body req-type))))
+      (let [get-params  (->clj query-string req-type)
+            post-params (->clj (slurp body) req-type)]
+        (handler (update req :params merge get-params post-params)))
       (handler req))))
 
 (defn wrap-content-type [handler]
   (fn [{:keys [headers] :as req}]
-    (handler (assoc req :content-type (get headers "Content-Type")))))
+    (handler (assoc req :content-type (get headers "content-type")))))
 
 (defn wrap-accept [handler]
   (fn [{:keys [headers] :as req}]
@@ -75,7 +85,25 @@
           (log-str (st/print-stack-trace e))
           {:status (or status 500) :body cause})))))
 
-(defn create-handler-stack []
+(defn reloadable-clj-files
+  []
+  (let [m       (meta #'reloadable-clj-files)
+        ns      (:ns m)
+        ns-file (-> ns
+                    (str/replace "-" "_")
+                    (str/replace "." "/")
+                    (->> (format "/%s.clj")))
+        path    (:file m)]
+    [(str/replace path #"/projects/.*" "/components")
+     (str/replace path #"/projects/.*" "/bases")
+     (str/replace path ns-file "")]))
+
+(defn optional-middleware [handler mw use?]
+  (if use?
+    (mw handler)
+    handler))
+
+(defn create-handler-stack [reload?]
   (-> routing-handler
       wrap-params
       wrap-query-params
@@ -84,15 +112,16 @@
       wrap-accept
       wrap-content-type
       wrap-exceptions
-      wrap-reload))
+      (optional-middleware #(wrap-reload % {:dirs (reloadable-clj-files)}) reload?)))
 
 ;; This is for Figwheel
 (def development-app
-  (create-handler-stack))
+  (create-handler-stack true))
 
 (defn -main [& _args]
   (init!)
-  (server/start-server! {:handler development-app :port 8002}))
+  (server/start-server! {:handler (create-handler-stack (= (get-config :server :mode) "dev"))
+                         :port    (or (get-config :server :http-port) 8080)}))
 
 (comment
   (-main)

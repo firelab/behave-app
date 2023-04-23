@@ -1,0 +1,27 @@
+interface IgnitionFuelBedType {
+  void null();
+};
+
+interface LightningCharge {
+  void null();
+};
+
+interface IgniteInputs {
+  void setAirTemperature(double airTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnits);
+  double getMoistureHundredHour(MoistureUnits_MoistureUnitsEnum desiredUnits);
+  LightningCharge_LightningChargeEnum getLightningChargeType();
+  void setMoistureOneHour(double moistureOneHour, MoistureUnits_MoistureUnitsEnum moistureUnits);
+  double getDuffDepth(LengthUnits_LengthUnitsEnum desiredUnits);
+  void setIgnitionFuelBedType(IgnitionFuelBedType_IgnitionFuelBedTypeEnum fuelBedType_);
+  void setSunShade(double sunShade, CoverUnits_CoverUnitsEnum sunShadeUnits);
+  double getAirTemperature(TemperatureUnits_TemperatureUnitsEnum desiredUnits);
+  void setMoistureHundredHour(double hundredHourMoisture, MoistureUnits_MoistureUnitsEnum moistureUnits);
+  double getSunShade(CoverUnits_CoverUnitsEnum desiredUnits);
+  void initializeMembers();
+  double getMoistureOneHour(MoistureUnits_MoistureUnitsEnum desiredUnits);
+  void setLightningChargeType(LightningCharge_LightningChargeEnum lightningChargeType);
+  void setDuffDepth(double duffDepth, LengthUnits_LengthUnitsEnum lengthUnits);
+  void IgniteInputs();
+  void updateIgniteInputs(double moistureOneHour, double moistureHundredHour, MoistureUnits_MoistureUnitsEnum moistureUnits, double airTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnits, double sunShade, CoverUnits_CoverUnitsEnum sunShadeUnits, IgnitionFuelBedType_IgnitionFuelBedTypeEnum fuelBedType, double duffDepth, LengthUnits_LengthUnitsEnum duffDepthUnits, LightningCharge_LightningChargeEnum lightningChargeType);
+  IgnitionFuelBedType_IgnitionFuelBedTypeEnum getIgnitionFuelBedType();
+};

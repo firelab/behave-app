@@ -1,0 +1,23 @@
+interface PalmettoGallberry {
+  void initializeMembers();
+  void PalmettoGallberry();
+  double getHeatOfCombustionLive();
+  double calculatePalmettoGallberyLitterLoad(double ageOfRough, double overstoryBasalArea);
+  double getPalmettoGallberyLiveOneHourLoad();
+  double getPalmettoGallberyDeadFoliageLoad();
+  double getHeatOfCombustionDead();
+  double calculatePalmettoGallberyLiveFoliageLoad(double ageOfRough, double palmettoCoverage, double heightOfUnderstory);
+  double calculatePalmettoGallberyLiveTenHourLoad(double ageOfRough, double heightOfUnderstory);
+  double getPalmettoGallberyDeadTenHourLoad();
+  double getMoistureOfExtinctionDead();
+  double getPalmettoGallberyLiveFoliageLoad();
+  double getPalmettoGallberyLitterLoad();
+  double calculatePalmettoGallberyDeadTenHourLoad(double ageOfRough, double palmettoCoverage);
+  double calculatePalmettoGallberyLiveOneHourLoad(double ageOfRough, double heightOfUnderstory);
+  double getPalmettoGallberyFuelBedDepth();
+  double calculatePalmettoGallberyDeadFoliageLoad(double ageOfRough, double palmettoCoverage);
+  double calculatePalmettoGallberyDeadOneHourLoad(double ageOfRough, double heightOfUnderstory);
+  double getPalmettoGallberyLiveTenHourLoad();
+  double getPalmettoGallberyDeadOneHourLoad();
+  double calculatePalmettoGallberyFuelBedDepth(double heightOfUnderstory);
+};

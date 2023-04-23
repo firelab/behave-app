@@ -1,88 +1,120 @@
 {:mvn/repos {"central" {:url "https://repo1.maven.org/maven2/"}
              "clojars" {:url "https://clojars.org/repo"}}
+ :aliases
+ {:dev
+  {:extra-paths ["development"
 
- :paths ["development"
+                 ;; Components
+                 "components/async_utils/src"
+                 "components/browser_utils/src"
+                 "components/csv_parser/src"
+                 "components/config/src"
+                 "components/data_utils/src"
+                 "components/datom_compressor/src"
+                 "components/datom_utils/src"
+                 "components/dom_utils/src"
+                 "components/ds_schema_utils/src"
+                 "components/markdown2hiccup/src"
+                 "components/map_utils/src"
+                 "components/number_utils/src"
+                 "components/server/src"
+                 "components/string_utils/src"
+                 "components/transport/src"
 
-         ;; Components
-         "components/browser_utils/src"
-         "components/config/src"
-         "components/data_utils/src"
-         "components/datom_compressor/src"
-         "components/datom_utils/src"
-         "components/dom_utils/src"
-         "components/ds_schema_utils/src"
-         "components/markdown2hiccup/src"
-         "components/number_utils/src"
-         "components/server/src"
-         "components/string_utils/src"
-         "components/transport/src"
+                 ;; Bases
+                 "bases/behave_components/src"
+                 "bases/behave_routing/src"
+                 "bases/behave_schema/src"
+                 "bases/datom_store/src"]
 
-         ;; Bases
-         "bases/behave_components/src"
-         "bases/behave_routing/src"
-         "bases/behave_schema/src"
-         "bases/datom_store/src"
 
-         ;; Projects
+   :extra-deps {;; Clojure Deps
+                clj-http/clj-http               {:mvn/version "3.10.1"}
+                bk/ring-gzip                    {:mvn/version "0.3.0"}
+                clojure-msgpack/clojure-msgpack {:mvn/version "1.2.1"}
+                com.cognitect/transit-clj       {:mvn/version "1.0.324"}
+                hiccup/hiccup                   {:mvn/version "2.0.0-alpha2"}
+                io.replikativ/datahike          {:mvn/version "0.5.1506"}
+                me.raynes/fs                    {:mvn/version "1.4.6"}
+                org.clojure/data.json           {:mvn/version "1.0.0"}
+                org.clojure/data.xml            {:mvn/version "0.2.0-alpha7"}
+                ring/ring                       {:mvn/version "1.9.5"}
+                ring/ring-defaults              {:mvn/version "0.3.3"}
+                ring/ring-headers               {:mvn/version "0.3.0"}
+                ring/ring-json                  {:mvn/version "0.5.0"}
+                ring/ring-ssl                   {:mvn/version "0.3.0"}
 
-         ;; Behave
-         "projects/behave/src/clj"
-         "projects/behave/src/cljs"
-         "projects/behave/resources"
+                ;; Clojure Common
+                bidi/bidi           {:mvn/version "2.1.6"}
+                cljs-ajax/cljs-ajax {:mvn/version "0.8.4"}
+                sig-gis/triangulum  {:git/url "https://github.com/sig-gis/triangulum"
+                                     :sha     "acb80fc5c99cc2f3eba516fdb2317eb28629c3a4"}
 
-         ;; Behave CMS
-         "projects/behave_cms/src/clj"
-         "projects/behave_cms/src/cljc"
-         "projects/behave_cms/src/cljs"
-         "projects/behave_cms/resources"]
+                ;; ClojureScript Deps
+                com.bhauman/figwheel-main          {:mvn/version "0.2.18"}
+                org.clojure/clojurescript          {:mvn/version "1.10.866"}
+                org.clojure/core.async             {:mvn/version "1.2.603"}
+                binaryage/devtools                 {:mvn/version "1.0.5"}
+                re-frisk/re-frisk                  {:mvn/version "1.3.2"}
+                org.clojars.ertucetin/msgpack-cljs {:mvn/version "0.1.2"}
+                com.cognitect/transit-cljs         {:mvn/version "0.8.264"}
+                datascript/datascript              {:mvn/version "1.3.13"}
+                re-frame/re-frame                  {:mvn/version "1.3.0-rc3"}
+                day8.re-frame/http-fx              {:mvn/version "0.2.4"}
+                re-posh/re-posh                    {:mvn/version "0.3.3"}
+                reagent/reagent                    {:mvn/version "0.10.0"}
+                re-frame-utils/re-frame-utils      {:mvn/version "0.1.0"}
+                cljsjs/vega                        {:mvn/version "5.20.2-0"}
+                cljsjs/vega-embed                  {:mvn/version "6.0.0-0"}
+                cljsjs/vega-lite                   {:mvn/version "5.1.1-0"}
+                day8.re-frame/test                 {:mvn/version "0.1.5"}
+                austinbirch/reactive-entity        {:mvn/version "0.2.0"}
 
- :deps {;; Clojure Deps
-        bidi/bidi                          {:mvn/version "2.1.6"}
-        bk/ring-gzip                       {:mvn/version "0.3.0"}
-        clj-http/clj-http                  {:mvn/version "3.10.1"}
-        clojure-msgpack/clojure-msgpack    {:mvn/version "1.2.1"}
-        com.cognitect/transit-clj          {:mvn/version "1.0.324"}
-        com.draines/postal                 {:mvn/version "2.0.3"}
-        hiccup/hiccup                      {:mvn/version "2.0.0-alpha2"}
-        io.replikativ/datahike             {:mvn/version "0.5.1506"}
-        me.raynes/fs                       {:mvn/version "1.4.6"}
-        org.clojure/clojure                {:mvn/version "1.11.1"}
-        org.clojure/data.json              {:mvn/version "1.0.0"}
-        org.clojure/data.xml               {:mvn/version "0.2.0-alpha7"}
-        org.mindrot/jbcrypt                {:mvn/version "0.4"}
-        ring/ring                          {:mvn/version "1.9.5"}
-        ring/ring-defaults                 {:mvn/version "0.3.3"}
-        ring/ring-headers                  {:mvn/version "0.3.0"}
-        ring/ring-json                     {:mvn/version "0.5.0"}
-        ring/ring-ssl                      {:mvn/version "0.3.0"}
+                ;; Behave CMS
+                applied-science/js-interop {:mvn/version "0.3.3"}
+                com.draines/postal         {:mvn/version "2.0.3"}
+                garden/garden              {:mvn/version "1.3.10"}
+                herb/herb                  {:mvn/version "0.10.0"}
+                hiccup/hiccup              {:mvn/version "2.0.0-alpha2"}
+                hickory/hickory            {:mvn/version "0.7.1"}
+                markdown-clj/markdown-clj  {:mvn/version "1.11.1"}
+                org.clojure/tools.cli      {:mvn/version "1.0.194"}}}
 
-        seancorfield/next.jdbc             {:mvn/version "1.1.569"}
-        com.github.seancorfield/honeysql   {:mvn/version "2.2.891"}
-        nilenso/honeysql-postgres          {:mvn/version "0.4.112"}
-        org.postgresql/postgresql          {:mvn/version "42.2.14"}
+  :test {:extra-paths [;; Components
+                       "components/browser_utils/test"
+                       "components/csv_parser/test"
+                       "components/config/test"
+                       "components/data_utils/test"
+                       "components/datom_compressor/test"
+                       "components/datom_utils/test"
+                       "components/dom_utils/test"
+                       "components/ds_schema_utils/test"
+                       "components/markdown2hiccup/test"
+                       "components/map_utils/test"
+                       "components/number_utils/test"
+                       "components/server/test"
+                       "components/string_utils/test"
+                       "components/transport/test"
 
-        ;; Clojure Commons Deps
-        cljs-ajax/cljs-ajax                {:mvn/version "0.8.4"}
-        markdown-clj/markdown-clj          {:mvn/version "1.11.1"}
-        org.clojure/tools.cli              {:mvn/version "1.0.194"}
-        sig-gis/triangulum                 {:git/url "https://github.com/sig-gis/triangulum"
-                                            :sha     "acb80fc5c99cc2f3eba516fdb2317eb28629c3a4"}
+                       ;; Bases
+                       "bases/behave_routing/test"
+                       "bases/behave_schema/test"
+                       "bases/datom_store/test"]}
 
-        ;; ClojureScript Deps
-        austinbirch/reactive-entity        {:mvn/version "0.2.0"}
-        applied-science/js-interop         {:mvn/version "0.3.3"}
-        binaryage/devtools                 {:mvn/version "1.0.5"}
-        com.bhauman/figwheel-main          {:mvn/version "0.2.18"}
-        com.cognitect/transit-cljs         {:mvn/version "0.8.264"}
-        datascript/datascript              {:mvn/version "1.3.13"}
-        day8.re-frame/http-fx              {:mvn/version "0.2.4"}
-        garden/garden                      {:mvn/version "1.3.10"}
-        herb/herb                          {:mvn/version "0.10.0"}
-        hickory/hickory                    {:mvn/version "0.7.1"}
-        org.clojars.ertucetin/msgpack-cljs {:mvn/version "0.1.2"}
-        org.clojure/clojurescript          {:mvn/version "1.11.54"}
-        org.clojure/core.async             {:mvn/version "1.2.603"}
-        re-frame/re-frame                  {:mvn/version "1.3.0-rc3"}
-        re-frisk/re-frisk                  {:mvn/version "1.3.2"}
-        re-posh/re-posh                    {:mvn/version "0.3.3"}
-        reagent/reagent                    {:mvn/version "0.10.0"}}}
+  :behave/app
+  {:extra-paths
+   ["projects/behave/src/clj"
+    "projects/behave/src/cljs"
+    "projects/behave/test/cljs"
+    "projects/behave/resources"]}
+
+  :behave/cms
+  {:extra-paths
+   ["projects/behave_cms/src/clj"
+    "projects/behave_cms/src/cljs"
+    "projects/behave_cms/test/cljs"
+    "projects/behave_cms/resources"]}
+
+  :poly {:extra-deps {polylith/clj-poly
+                      {:mvn/version "0.2.17-alpha"}}
+         :main-opts  ["-m" "polylith.clj.core.poly-cli.core"]}}}

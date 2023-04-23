@@ -2,6 +2,7 @@
   (:require [clojure.set :refer [union]]
             [clojure.edn :as edn]
             [ajax.core :refer [ajax-request]]
+            [ajax.edn  :refer [edn-request-format]]
             [ajax.protocols :as pr]
             [datascript.core :as d]
             [re-frame.core :as rf]
@@ -9,7 +10,8 @@
             [datom-compressor.interface :as c]
             [ds-schema-utils.interface :refer [->ds-schema]]
             [datom-utils.interface :refer [split-datom]]
-            [behave.schema.core :refer [all-schemas]]))
+            [behave.schema.core :refer [all-schemas]]
+            [austinbirch.reactive-entity :as re]))
 
 ;;; State
 
@@ -30,7 +32,11 @@
     (let [datoms (mapv #(apply d/datom %) (c/unpack body))]
       (swap! sync-txs union (txs datoms))
       (rf/dispatch-sync [:ds/initialize (->ds-schema all-schemas) datoms])
-      (rf/dispatch-sync [:state/set :loaded? true]))))
+      (rf/dispatch-sync [:state/set :sync-loaded? true]))))
+
+(defn- sync-tx-data-handler [[ok body]]
+  (when ok
+    (println ok body)))
 
 (defn load-store! []
   (ajax-request {:uri             "/sync"
@@ -45,23 +51,22 @@
   (let [datoms (->> tx-data (filter new-datom?) (mapv split-datom))]
     (when-not (empty? datoms)
       (swap! my-txs union (txs datoms))
-      (ajax-request {:uri "/sync"
-                     :params {:tx-data datoms}
-                     :method :post
-                     :handler nil
-                     :format {:content-type "application/edn" :write pr-str}
-                     :response-format {:description "EDN"
-                                       :format :text
-                                       :type :text
+      (ajax-request {:uri             "/sync"
+                     :params          {:tx-data datoms}
+                     :method          :post
+                     :handler         sync-tx-data-handler
+                     :format          (edn-request-format)
+                     :response-format {:description  "EDN"
+                                       :format       :text
+                                       :type         :text
                                        :content-type "application/edn"
-                                       :read edn/read-string}}))))
+                                       :read         edn/read-string}}))))
 
 (defn apply-latest-datoms [[ok body]]
   (when ok
     (let [datoms (->> (c/unpack body)
                       (filter new-datom?)
                       (map (partial apply d/datom)))]
-      #_(println "-- Latest Datoms" datoms)
       (when (seq datoms)
         (swap! sync-txs union (txs datoms))
         (d/transact @conn datoms)))))
@@ -86,6 +91,7 @@
      (reset! conn (d/conn-from-datoms datoms schema))
      (d/listen! @conn :sync-tx-data sync-tx-data)
      (rp/connect! @conn)
+     (re/init! @conn)
      #_(js/setInterval sync-latest-datoms! 5000)
      @conn)))
 

@@ -1,6 +1,7 @@
 (ns behave.components.sidebar
   (:require
    [behave.components.core :as c]
+   [behave.components.a11y :refer [on-enter]]
    [behave.translate       :refer [<t bp]]
    [re-frame.core          :as rf]))
 
@@ -11,8 +12,10 @@
 
 (defn- sidebar-module [{icon-name :icon translation-key :label on-select :on-select selected? :selected? :as c}]
   (let [translation (<t translation-key)]
-    [:div {:class    "sidebar-group__module"
-           :on-click #(on-select c)}
+    [:div {:class        "sidebar-group__module"
+           :on-click     #(on-select c)
+           :tabindex     0
+           :on-key-press (on-enter #(on-select c))}
      [:div.sidebar-group__module__icon
       [c/icon {:icon-name icon-name
                :selected? selected?}]]
@@ -28,7 +31,8 @@
 
 (defn sidebar []
   (let [*sidebar-modules (rf/subscribe [:state [:sidebar :*modules]])
-        on-select        #(rf/dispatch [:state/set [:sidebar :*modules] (:module %)])]
+        on-select        #(do (rf/dispatch [:state/set [:sidebar :*modules] (:module %)])
+                              (rf/dispatch [:state/set [:worksheet :*modules] (:module %)]))]
     [:div.sidebar-container
      [sidebar-group {:title   @(<t (bp "modules"))
                      :modules (if @*sidebar-modules

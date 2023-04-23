@@ -1,6 +1,7 @@
 (ns browser-utils.core
   (:require [cljs.reader    :as edn]
-            [clojure.string :as str]))
+            [clojure.string :as str])
+  (:import  [goog.async Debouncer]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Utility Functions - Browser Session
@@ -92,3 +93,32 @@
 (defn redirect-to-login! [from-page]
   (set-session-storage! {:redirect-from from-page})
   (jump-to-url! "/login"))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Utility Functions - Debouncers
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn debounce [f interval]
+  (let [js-f (fn [& args] (apply f (js->clj args)))
+        dbnc (Debouncer. js-f interval)]
+    ;; We use apply here to support functions of various arities
+    (fn [& args] (.apply (.-fire dbnc) dbnc (to-array args)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Utility Functions - Add dynamic script
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn add-script [js-path]
+  (let [script-el (.createElement js/document "script")]
+    (set! (.-src script-el) js-path)
+    (set! (.-type script-el) "text/javascript")
+    (-> js/document
+        (.-body)
+        (.appendChild script-el))))
+
+(defn script-exist? [js-path]
+  (->> (js/document.getElementsByTagName "script")
+      (js/Array.from)
+      (filter #(= js-path (.-src %)))
+      (count)
+      (pos?)))

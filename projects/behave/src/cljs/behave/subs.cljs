@@ -34,6 +34,14 @@
       (or (vector? path) (list? path))
       (get-in state path))))
 
+;;; Loading
+
+(rf/reg-sub
+  :app/loaded?
+  (fn [{state :state} [_]]
+    (and (:vms-loaded? state)
+         (:sync-loaded? state))))
+
 ;;; Settings
 
 (rf/reg-sub

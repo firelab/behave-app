@@ -1,0 +1,19 @@
+interface WesternAspen {
+  void WesternAspen();
+  void initializeMembers();
+  double calculateAspenMortality(long severity, double flameLength, double DBH);
+  double getAspenDBH();
+  double getAspenFuelBedDepth(long typeIndex);
+  double getAspenHeatOfCombustionDead();
+  double getAspenHeatOfCombustionLive();
+  double getAspenLoadDeadOneHour(long aspenFuelModelNumber, double aspenCuringLevel);
+  double getAspenLoadDeadTenHour(long aspenFuelModelNumber);
+  double getAspenLoadLiveHerbaceous(long aspenFuelModelNumber, double aspenCuringLevel);
+  double getAspenLoadLiveWoody(long aspenFuelModelNumber, double aspenCuringLevel);
+  double getAspenMoistureOfExtinctionDead();
+  double getAspenMortality();
+  double getAspenSavrDeadOneHour(long aspenFuelModelNumber, double aspenCuringLevel);
+  double getAspenSavrDeadTenHour();
+  double getAspenSavrLiveHerbaceous();
+  double getAspenSavrLiveWoody(long aspenFuelModelNumber, double aspenCuringLevel);
+};

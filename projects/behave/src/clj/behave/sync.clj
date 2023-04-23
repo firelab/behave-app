@@ -6,7 +6,6 @@
   (:import  [java.io ByteArrayInputStream]))
 
 (defn sync-handler [{:keys [request-method params accepts] :as req}]
-  (log-str "--- Sync Params" params (:params req))
   (let [res-type (or (mime->type accepts) :edn)]
     (condp = request-method
       :get
@@ -20,7 +19,7 @@
          :headers {"Content-Type" accepts}})
 
       :post
-      (let [tx-report (s/transact s/conn (:tx-data params))]
+      (let [tx-report (s/sync-datoms s/conn (:tx-data params))]
         {:status  201
          :body    (clj-> {:success true} res-type)
          :headers {"Content-Type" accepts}}))))
