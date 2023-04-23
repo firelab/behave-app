@@ -52,7 +52,7 @@ int SIGContainForceAdapter::removeResourceWithThisDesc(const char * desc)
     for (int i = 0; i < resourceVector.size(); i++)
     {
         descriptionString = resourceVector[i].description();
-        if (strcmp(descriptionString.c_str(), desc) == 0)
+        if (std::strcmp(descriptionString.c_str(), desc) == 0)
         {
             removeResourceAt(i);
             return 0; // success
@@ -72,4 +72,3 @@ int SIGContainForceAdapter::removeAllResourcesWithThisDesc(const char * desc)
     }
     return success;
 }
-

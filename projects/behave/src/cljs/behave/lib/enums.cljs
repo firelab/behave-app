@@ -66,6 +66,13 @@
          "FirelineIntensityUnits::KilojoulesPerMeterPerMinute"
          "FirelineIntensityUnits::KilowattsPerMeter"]))
 
+(def fire-type
+  (enum "FireType_FireTypeEnum"
+        ["FireType::Surface"
+         "FireType::Torching"
+         "FireType::ConditionalCrownFire"
+         "FireType::Crowning"]))
+
 (def heat-combustion-units
   (enum "HeatOfCombustionUnits_HeatOfCombustionUnitsEnum"
         ["HeatOfCombustionUnits::BtusPerPound"
