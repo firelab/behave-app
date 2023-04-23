@@ -1,0 +1,17 @@
+[Prefix="Sem"]
+enum Sem_ContainFlank {
+  "Sem::LeftFlank", "Sem::RightFlank", "Sem::BothFlanks", "Sem::NeitherFlank"
+};
+
+[Prefix="Sem"]
+interface ContainResource {
+  void ContainResource(double arrival, double production, double duration, Sem_ContainFlank flank, byte desc, double baseCost, double hourCost);
+  byte description();
+  void buf(long buflen);
+  double arrival();
+  double hourCost();
+  double duration();
+  double production();
+  double baseCost();
+  Sem_ContainFlank flank();
+};

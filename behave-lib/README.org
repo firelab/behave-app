@@ -1,0 +1,88 @@
+#+TITLE: Behave Lib
+#+AUTHOR: RJ Sheperd
+
+A new implementation of the extended Rothermel model.
+
+* Requirements
+** [[https://cmake.org/][CMake]]
+** [[https://gcc.gnu.org/][GCC]]
+** [[https://emscripten.org][Emscripten]]
+
+*** Installation
+#+begin_src sh
+# Enable XCode (for MacOS)
+xcode-install --install
+
+# Install Homebrew
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Install dependencies via Homebrew (https://brew.sh/)
+brew install python cmake emscripten llvm
+
+# Export environment variables or add it to your bashrc
+export CC=$(which clang)
+export CXX=$(which clang++)
+export WEBIDL=$(brew --prefix emscripten)/libexec/tools/webidl_binder
+#+end_src
+
+*** Building
+#+BEGIN_SRC sh
+make install
+#+END_SRC
+
+*** Process
+
+The process of building this library takes multiple steps. At a high
+level overview, we have leveraged two major tools:
+- Hatchet (with the use of ANTLR)
+- Emscripten
+
+The process is outlined in the [[https://gitlab.sig-gis.com/sig-gis/simple-emscripten][Simple Emscripten Example project]]. See the diagram below for a visual explanation.
+
+#+BEGIN_SRC dot :file docs/behave-flow.png
+
+  digraph {
+    wrapper_cpp[label="wrapper.cpp (#includes of C++ header files"]
+    glue_cpp[label="glue.cpp (C Externs File)"]
+    glue_js[label="glue.js (WebAssembly/C++ Interface)"]
+    simple_js[label="simple.js (JS Glue Code + WebAssembly)"]
+    hatchet[label="Hatchet (ANTLR)"]
+
+    BehaveLib -> hatchet
+
+    hatchet -> WebIDL
+    hatchet -> CLJS
+    hatchet -> EDN
+
+    EDN -> BehaveVMS
+    CLJS -> BehaveApp
+
+    WebIDL -> WebIDLBinder
+    WebIDLBinder -> glue_cpp
+    WebIDLBinder -> glue_js
+
+    glue_cpp -> Emscripten
+    wrapper_cpp -> Emscripten
+    glue_js -> Emscripten
+
+    BehaveLib -> Emscripten
+    Emscripten -> simple_js
+
+    BehaveApp -> Browser
+    simple_js -> Browser
+  }
+
+#+END_SRC
+
+#+RESULTS:
+[[file:docs/behave-flow.png]]
+
+***
+* Debugging WASM (DWARF)
+
+1. Install the chrome extension [[https://chrome.google.com/webstore/detail/cc%20%20-devtools-support-dwa/pdcpmagijalfljmkmjngeonclgbbannb][C/C++ DevTools Support (DWARF)]] mentioned [[https://developer.chrome.com/blog/wasm-debugging-2020/][here]].
+   (For WSL ubuntu users, see comment in CMakeLists.txt about setting the proper DWARF_DIR)
+2. Open up browser's devtools and now you should be able to set breakpoints in your c++ files.
+3. If you run into an error when trying to open your c++ file /(Loading from a
+   remote file path is prohibited for security reasons)/ follow [[https://developer.chrome.com/docs/devtools/workspaces/#devtools][instructions]] to
+   add a folder to your browser's workspace.

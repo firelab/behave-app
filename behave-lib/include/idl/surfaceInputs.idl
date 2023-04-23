@@ -1,0 +1,96 @@
+interface AspenFireSeverity {
+  void null();
+};
+
+interface TwoFuelModelsMethod {
+  void null();
+};
+
+interface WindAdjustmentFactorShelterMethod {
+  void null();
+};
+
+interface WindAdjustmentFactorCalculationMethod {
+  void null();
+};
+
+interface WindAndSpreadOrientationMode {
+  void null();
+};
+
+interface WindHeightInputMode {
+  void null();
+};
+
+interface SurfaceInputs {
+  void setFuelModelNumber(long fuelModelNumber);
+  void setAspenFuelModelNumber(long aspenFuelModelNumber);
+  double getHeightOfUnderstory();
+  long getSecondFuelModelNumber();
+  void setAgeOfRough(double ageOfRough);
+  double getFirstFuelModelCoverage();
+  void setWindAdjustmentFactorCalculationMethod(WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum windAdjustmentFactorCalculationMethod);
+  double getMoistureHundredHour(MoistureUnits_MoistureUnitsEnum moistureUnits);
+  double getElapsedTime();
+  long getFuelModelNumber();
+  void setWindHeightInputMode(WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode);
+  void setOverstoryBasalArea(double overstoryBasalArea);
+  void setTwoFuelModelsMethod(TwoFuelModelsMethod_TwoFuelModelsMethodEnum twoFuelModelsMethod);
+  double getWindDirection();
+  void setMoistureOneHour(double moistureOneHour, MoistureUnits_MoistureUnitsEnum moistureUnits);
+  void setSlope(double slope, SlopeUnits_SlopeUnitsEnum slopeUnits);
+  void setCanopyHeight(double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits);
+  double getMoistureLiveWoody(MoistureUnits_MoistureUnitsEnum moistureUnits);
+  long getFirstFuelModelNumber();
+  double getOverstoryBasalArea();
+  void setElapsedTime(double elapsedTime, TimeUnits_TimeUnitsEnum timeUnits);
+  WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum getWindAndSpreadOrientationMode();
+  double getWindSpeed();
+  void setMoistureTenHour(double moistureTenHour, MoistureUnits_MoistureUnitsEnum moistureUnits);
+  double getUserProvidedWindAdjustmentFactor();
+  double getAspect();
+  double getMoistureLiveHerbaceous(MoistureUnits_MoistureUnitsEnum moistureUnits);
+  void SurfaceInputs();
+  void setMoistureLiveHerbaceous(double moistureLiveHerbaceous, MoistureUnits_MoistureUnitsEnum moistureUnits);
+  void setPalmettoCoverage(double palmettoCoverage);
+//  SurfaceInputs operator=(SurfaceInputs rhs);
+  boolean isUsingTwoFuelModels();
+  void setUserProvidedWindAdjustmentFactor(double userProvidedWindAdjustmentFactor);
+  void updateSurfaceInputsForTwoFuelModels(long firstfuelModelNumber, long secondFuelModelNumber, double moistureOneHour, double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody, MoistureUnits_MoistureUnitsEnum moistureUnits, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double windDirection, WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double firstFuelModelCoverage, CoverUnits_CoverUnitsEnum firstFuelModelCoverageUnits, TwoFuelModelsMethod_TwoFuelModelsMethodEnum twoFuelModelsMethod, double slope, SlopeUnits_SlopeUnitsEnum slopeUnits, double aspect, double canopyCover, CoverUnits_CoverUnitsEnum canopyCoverUnits, double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits, double crownRatio);
+  WindHeightInputMode_WindHeightInputModeEnum getWindHeightInputMode();
+  void setWindDirection(double windDirection);
+  void setWindAndSpreadOrientationMode(WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode);
+  void setHeightOfUnderstory(double heightOfUnderstory);
+  boolean isUsingPalmettoGallberry();
+  void setAspect(double aspect);
+  void setMoistureHundredHour(double moistureHundredHour, MoistureUnits_MoistureUnitsEnum moistureUnits);
+  double getAspenDBH();
+  void setCrownRatio(double crownRatio);
+  void initializeMembers();
+  void setAspenCuringLevel(double aspenCuringLevel);
+  double getSlope();
+  long getAspenFuelModelNumber();
+  void setMoistureLiveWoody(double moistureLiveWoody, MoistureUnits_MoistureUnitsEnum moistureUnits);
+  double getCrownRatio();
+  double getCanopyHeight();
+  void setSecondFuelModelNumber(long secondFuelModelNumber);
+  void setCanopyCover(double canopyCover, CoverUnits_CoverUnitsEnum coverUnits);
+  void setWindSpeed(double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode);
+  double getMoistureOneHour(MoistureUnits_MoistureUnitsEnum moistureUnits);
+  void updateSurfaceInputs(long fuelModelNumber, double moistureOneHour, double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody, MoistureUnits_MoistureUnitsEnum moistureUnits, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double windDirection, WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double slope, SlopeUnits_SlopeUnitsEnum slopeUnits, double aspect, double canopyCover, CoverUnits_CoverUnitsEnum coverUnits, double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits, double crownRatio);
+  double getMoistureTenHour(MoistureUnits_MoistureUnitsEnum moistureUnits);
+  AspenFireSeverity_AspenFireSeverityEnum getAspenFireSeverity();
+  double getAgeOfRough();
+  void setAspenDBH(double DBH);
+  TwoFuelModelsMethod_TwoFuelModelsMethodEnum getTwoFuelModelsMethod();
+  double getAspenCuringLevel();
+  boolean isUsingWesternAspen();
+  void setFirstFuelModelNumber(long firstFuelModelNumber);
+  void setTwoFuelModelsFirstFuelModelCoverage(double firstFuelModelCoverage, CoverUnits_CoverUnitsEnum coverUnits);
+  WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum getWindAdjustmentFactorCalculationMethod();
+  void updateSurfaceInputsForPalmettoGallbery(double moistureOneHour, double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody, MoistureUnits_MoistureUnitsEnum moistureUnits, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double windDirection, WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double ageOfRough, double heightOfUnderstory, double palmettoCoverage, double overstoryBasalArea, double slope, SlopeUnits_SlopeUnitsEnum slopeUnits, double aspect, double canopyCover, CoverUnits_CoverUnitsEnum coverUnits, double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits, double crownRatio);
+  double getPalmettoCoverage();
+  void setAspenFireSeverity(AspenFireSeverity_AspenFireSeverityEnum aspenFireSeverity);
+  double getCanopyCover();
+  void updateSurfaceInputsForWesternAspen(long aspenFuelModelNumber, double aspenCuringLevel, AspenFireSeverity_AspenFireSeverityEnum aspenFireSeverity, double DBH, double moistureOneHour, double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody, MoistureUnits_MoistureUnitsEnum moistureUnits, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double windDirection, WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double slope, SlopeUnits_SlopeUnitsEnum slopeUnits, double aspect, double canopyCover, CoverUnits_CoverUnitsEnum coverUnits, double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits, double crownRatio);
+};

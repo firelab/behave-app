@@ -1,0 +1,26 @@
+interface Ignite {
+  void Ignite();
+  void initializeMembers();
+
+  IgnitionFuelBedType getFuelBedType();
+  LightningCharge getLightningChargeType();
+  double calculateFirebrandIgnitionProbability(ProbabilityUnits_ProbabilityUnitsEnum desiredUnits);
+  double calculateLightningIgnitionProbability(ProbabilityUnits_ProbabilityUnitsEnum desiredUnits);
+
+  void setAirTemperature(double airTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnites);
+  void setDuffDepth(double duffDepth, LengthUnits_LengthUnitsEnum lengthUnits);
+  void setIgnitionFuelBedType(IgnitionFuelBedType fuelBedType_);
+  void setLightningChargeType(LightningCharge lightningChargeType);
+  void setMoistureHundredHour(double moistureHundredHour, MoistureUnits_MoistureUnitsEnum moistureUnits);
+  void setMoistureOneHour(double moistureOneHour, MoistureUnits_MoistureUnitsEnum moistureUnits);
+  void setSunShade(double sunShade, CoverUnits_CoverUnitsEnum sunShadeUnits);
+  void updateIgniteInputs(double moistureOneHour, double moistureHundredHour, MoistureUnits_MoistureUnitsEnum moistureUnits, double airTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnits, double sunShade, CoverUnits_CoverUnitsEnum sunShadeUnits, IgnitionFuelBedType fuelBedType, double duffDepth, LengthUnits_LengthUnitsEnum duffDepthUnits, LightningCharge lightningChargeType);
+
+  double getAirTemperature(TemperatureUnits_TemperatureUnitsEnum desiredUnits);
+  double getDuffDepth(LengthUnits_LengthUnitsEnum desiredUnits);
+  double getFuelTemperature(TemperatureUnits_TemperatureUnitsEnum desiredUnits);
+  double getMoistureHundredHour(MoistureUnits_MoistureUnitsEnum desiredUnits);
+  double getMoistureOneHour(MoistureUnits_MoistureUnitsEnum desiredUnits);
+  double getSunShade(CoverUnits_CoverUnitsEnum desiredUnits);
+  boolean isFuelDepthNeeded();
+};

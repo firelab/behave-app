@@ -6,7 +6,9 @@
             [behave.vms.subs]
             [behave.wizard.events]
             [behave.wizard.subs]
+            [behave.crown-test]
             [behave.contain-test]
+            [behave.surface-test]
             [behave.tests-used-in-fixtures]
             [behave.worksheet-events-test]
             [behave.worksheet-subs-test]
@@ -26,10 +28,13 @@
 
 (defn run-the-tests []
   (run-tests (cljs-test-display.core/init! "app-testing")
+             'behave.crown-test
              'behave.contain-test
+             'behave.surface-test
              'behave.tests-used-in-fixtures
              'behave.worksheet-events-test
-             'behave.worksheet-subs-test))
+             'behave.worksheet-subs-test
+             ))
 
 (defn ^:after-load init []
   (let [window-keys    (js->clj (.keys js/Object js/window))
@@ -38,8 +43,8 @@
     (cond
 
       (not module-loaded?)
-      (do (add-script "/js/behave.js")
-          (js/setTimeout #(init) 100))
+      (do (add-script "/js/behave-min.js")
+          (js/setTimeout #(init) 1000))
 
       (not vms-loaded?)
       (do

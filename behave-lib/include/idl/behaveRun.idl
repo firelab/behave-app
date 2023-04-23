@@ -1,0 +1,13 @@
+interface BehaveRun {
+  void BehaveRun(BehaveRun rhs);
+  void reinitialize();
+  void setFuelModelSet(FuelModelSet fuelModelSet);
+
+  boolean isFuelModelDefined(long fuelModelNumber);
+
+  double getFuelLoadHundredHour(long fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits);
+  double getFuelLoadLiveHerbaceous(long fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits);
+  double getFuelLoadLiveWoody(long fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits);
+  double getFuelLoadOneHour(long fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits);
+  double getFuelLoadTenHour(long fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits);
+};
