@@ -1,6 +1,5 @@
 ((nil . ((cider-clojure-cli-aliases . "-A:dev:behave/app")
-         (cider-default-cljs-repl . figwheel-main)
-         (cider-figwheel-main-default-options . "dev"))))
+         (cider-default-cljs-repl . figwheel-main))))
 
 ;; VMS Configuration
 ;; TODO: Fix to avoid having two separate aliases for projects
