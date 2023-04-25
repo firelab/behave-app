@@ -14,7 +14,7 @@
 (s/def :submodule/order           zero-pos?)
 (s/def :submodule/translation-key valid-key?)
 (s/def :submodule/help-key        valid-key?)
-(s/def :submodule/groups          set?)
+(s/def :submodule/group           set?)
 
 (s/def :behave/submodule (s/keys :req [:submodule/uuid
                                        :submodule/io

@@ -396,14 +396,14 @@
          groups-not-repeat                     (remove #(true? (:group/repeat? %)) groups)
          all-inputs                            @(rf/subscribe [:worksheet/all-inputs ws-uuid])
          groups-not-repeat-all-values-entered? (->> (for [group    groups-not-repeat
-                                                          variable (:group/group-variables group)
+                                                          variable (:group/group-variable group)
                                                           :let     [group-uuid (:bp/uuid group)
                                                                     var-uuid   (:bp/uuid variable)]]
                                                       (get-in all-inputs [group-uuid 0 var-uuid]))
                                                     (every? seq))
          groups-repeat-all-values-entered?     (every? (fn [group]
                                                          (let [group-uuid   (:bp/uuid group)
-                                                               vars-needed  (* (count (:group/group-variables group))
+                                                               vars-needed  (* (count (:group/group-variable group))
                                                                                (count @(rf/subscribe [:worksheet/group-repeat-ids ws-uuid group-uuid])))
                                                                vars-entered (reduce (fn [acc [_repeat-id variables]]
                                                                                       (+ acc (count (filter (fn has-value? [[_variable-id val]]
@@ -424,7 +424,7 @@
  (fn [all-output-uuids [_ _ws-uuid module-id submodule-slug]]
    (if (seq all-output-uuids)
      (let [submodule       @(rf/subscribe [:wizard/*submodule module-id submodule-slug :output])
-           groups          (:submodule/groups submodule)
-           group-variables (set (flatten (map #(map :bp/uuid (:group/group-variables %)) groups)))]
+           groups          (:submodule/group submodule)
+           group-variables (set (flatten (map #(map :bp/uuid (:group/group-variable %)) groups)))]
        (boolean (seq (set/intersection (set all-output-uuids) group-variables))))
      false)))

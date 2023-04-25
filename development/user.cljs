@@ -17,11 +17,11 @@
   (rf/subscribe [:vms/pull-children :module/name])
   (rf/subscribe [:query '[:find ?e ?name
                           :where [?e :submodule/name ?name]]])
-  (rf/subscribe [:pull '[* {:submodule/groups [* {:group/group-variables [* {:variable/_group_variables [*]}]}]}] 2727])
+  (rf/subscribe [:pull '[* {:submodule/group [* {:group/group-variable [* {:variable/_group_variables [*]}]}]}] 2727])
 
-  (rf/subscribe [:query '[:find ?e :where [?e :variable/group-variables]]])
+  (rf/subscribe [:query '[:find ?e :where [?e :variable/group-variable]]])
 
-  (rf/subscribe [:pull '[* {:variable/_group-variables [*]}] 2908])
+  (rf/subscribe [:pull '[* {:variable/_group-variable [*]}] 2908])
   (rf/subscribe [:query '[:find ?e ?key
                           :where [?e :help/key ?key]]])
 
@@ -59,12 +59,12 @@
 
   (rf/subscribe [:query '[:find ?v ?v-name ?fn-name ?p-name ?p-type
                           :where [?e :module/name "Contain"]
-                          [?e :module/submodules ?s]
+                          [?e :module/submodule ?s]
                           [?s :submodule/io :input]
                           [?s :submodule/name ?s-name]
-                          [?s :submodule/groups ?g]
-                          [?g :group/group-variables ?gv]
-                          [?v :variable/group-variables ?gv]
+                          [?s :submodule/group ?g]
+                          [?g :group/group-variable ?gv]
+                          [?v :variable/group-variable ?gv]
                           [?v :variable/name ?v-name]
                           [?gv :group-variable/cpp-namespace ?ns-id]
                           [?gv :group-variable/cpp-class ?class-id]
@@ -81,12 +81,12 @@
 
   (rf/subscribe [:query '[:find ?v ?v-name ?ns-name ?class-name ?fn-name
                           :where [?e :module/name "Contain"]
-                          [?e :module/submodules ?s]
+                          [?e :module/submodule ?s]
                           [?s :submodule/io :input]
                           [?s :submodule/name ?s-name]
-                          [?s :submodule/groups ?g]
-                          [?g :group/group-variables ?gv]
-                          [?v :variable/group-variables ?gv]
+                          [?s :submodule/group ?g]
+                          [?g :group/group-variable ?gv]
+                          [?v :variable/group-variable ?gv]
                           [?v :variable/name ?v-name]
                           [?gv :group-variable/cpp-namespace ?ns-id]
                           [?gv :group-variable/cpp-class ?class-id]

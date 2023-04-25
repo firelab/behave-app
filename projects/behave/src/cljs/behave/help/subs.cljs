@@ -27,15 +27,15 @@
  (fn [[_ submodule-id]]
    (rf/subscribe [:vms/pull
                   '[:submodule/help-key
-                    {:submodule/groups
+                    {:submodule/group
                      [:group/help-key
-                      {:group/group-variables
+                      {:group/group-variable
                        [:group-variable/help-key]}]}]
                   submodule-id]))
   (fn [submodule]
     (persistent!
       (reduce (fn [acc group]
                 (conj! acc [(:group/help-key group)
-                            (mapv :group-variable/help-key (:group/group-variables group))]))
+                            (mapv :group-variable/help-key (:group/group-variable group))]))
               (transient [(:submodule/help-key submodule)])
-              (:submodule/groups submodule)))))
+              (:submodule/group submodule)))))

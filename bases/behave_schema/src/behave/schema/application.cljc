@@ -10,7 +10,7 @@
 (s/def :application/version-minor   integer?)
 (s/def :application/version-patch   integer?)
 (s/def :application/help-key        valid-key?)
-(s/def :application/modules         set?)
+(s/def :application/module          set?)
 
 (s/def :behave/application (s/keys :req [:application/uuid
                                          :application/name
@@ -19,7 +19,7 @@
                                          :application/version-patch
                                          :application/translation-key
                                          :application/help-key]
-                                   :opt [:application/modules]))
+                                   :opt [:application/module]))
 
 ;;; Schema
 

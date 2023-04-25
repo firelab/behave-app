@@ -51,7 +51,7 @@
       :on-increase #(rf/dispatch [:api/reorder % @group-variables :group-variable/order :inc])
       :on-decrease #(rf/dispatch [:api/reorder % @group-variables :group-variable/order :dec])}]))
 
-(defn- add-variable [{id :db/id group-variables :group/group-variables translation-key :group/translation-key}]
+(defn- add-variable [{id :db/id group-variables :group/group-variable translation-key :group/translation-key}]
   (let [query            (rf/subscribe [:state [:search :variables]])
         all-variables    (rf/subscribe [:group/search-variables @query])
         all-variable-ids (set (map :db/id @all-variables))

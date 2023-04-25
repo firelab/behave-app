@@ -4,11 +4,11 @@
                :clj  [datahike.api :as d])))
 
 (def rules
-  '[[(module ?a ?m) [?e :application/modules ?m]]
-    [(submodule ?m ?s) [?m :module/submodules ?s]]
-    [(group ?s ?g) [?m :submodule/groups ?s]]
+  '[[(module ?a ?m) [?e :application/module ?m]]
+    [(submodule ?m ?s) [?m :module/submodule ?s]]
+    [(group ?s ?g) [?m :submodule/group ?s]]
     [(subgroup ?g ?sg) [?g :group/children ?sg]]
-    [(variable ?g ?v) [?g :group/variables ?v]]
+    [(variable ?g ?v) [?g :group/group-variable ?v]]
     [(language ?code ?l) [?l :language/shortcode ?code]]
     [(translation ?k ?t) [?t :translation/key ?k]]])
 
@@ -82,7 +82,8 @@
 
   (d/q '[:find ?m ?translation
          :in $ ?e
-         :where [?e :application/modules ?m]
+         :where
+         [?e :application/module ?m]
          [?m :module/name ?name]
          [?m :module/translation-key ?key]
          [?t :translation/key ?key]
@@ -101,8 +102,8 @@
   (def submodule-translations
     '[:find ?translation
       :in $ ?e
-      :where [?e :application/modules ?m]
-      [?m :module/submodules ?s]
+      :where [?e :application/module ?m]
+      [?m :module/submodule ?s]
       [?s :submodule/translation-key ?key]
       [?t :translation/key ?key]
       [?t :translation/translation ?translation]])
@@ -110,10 +111,9 @@
   (def group-translations
     '[:find ?translation
       :in $ ?e
-      :where [?e :application/modules ?m]
-      [?m :module/submodules ?s]
-      [?m :module/submodules ?s]
-      [?s :submodules/group ?g]
+      :where [?e :application/module ?m]
+      [?m :module/submodule ?s]
+      [?s :submodule/group ?g]
       [?g :group/translation-key ?key]
       [?t :translation/key ?key]
       [?t :translation/translation ?translation]])
@@ -121,10 +121,9 @@
   (def variable-translations
     '[:find ?translation
       :in $ ?e
-      :where [?e :application/modules ?m]
-      [?m :module/submodules ?s]
-      [?m :module/submodules ?s]
-      [?s :submodules/group ?g]
+      :where [?e :application/module ?m]
+      [?m :module/submodule ?s]
+      [?s :submodule/group ?g]
       [?v :group/variable ?g]
       [?g :group/translation-key ?key]
       [?t :translation/key ?key]

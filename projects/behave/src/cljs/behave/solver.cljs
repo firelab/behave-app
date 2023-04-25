@@ -38,7 +38,7 @@
              ;; Find a group variable's variable
              [(gv->var ?uuid ?v)
               (lookup ?uuid ?gv)
-              [?v :variable/group-variables ?gv]]
+              [?v :variable/group-variable ?gv]]
 
              ;; Find a variable's units
              [(var-units ?uuid ?units)
@@ -71,10 +71,10 @@
              [(subgroup ?g ?sg) [?g :group/children ?sg]]
 
              [(module-output-vars ?m ?gv)
-              [?m :module/submodules ?s]
+              [?m :module/submodule ?s]
               [?s :submodule/io :output]
-              [?s :submodule/groups ?g]
-              [?g :group/group-variables ?gv]]
+              [?s :submodule/group ?g]
+              [?g :group/group-variable ?gv]]
 
              [(module-output-fns ?m ?fn ?fn-name)
               (module-output-vars ?m ?gv)
@@ -83,10 +83,10 @@
               [?fn :function/name ?fn-name]]
 
              [(module-input-vars ?m ?gv)
-              [?m :module/submodules ?s]
+              [?m :module/submodule ?s]
               [?s :submodule/io :input]
-              [?s :submodule/groups ?g]
-              [?g :group/group-variables ?gv]]
+              [?s :submodule/group ?g]
+              [?g :group/group-variable ?gv]]
 
              [(module-input-fns ?m ?fn ?fn-name)
               (module-input-vars ?m ?gv)
@@ -220,7 +220,7 @@
     (cond
       (nil? value)
       (js/console.error "Cannot process Contain Module with nil value for:"
-                        (d/pull @@vms-conn '[{:variable/_group-variables [:variable/name]}] gv-id))
+                        (d/pull @@vms-conn '[{:variable/_group-variable [:variable/name]}] gv-id))
 
       (= 1 (count params))
       (f module value)

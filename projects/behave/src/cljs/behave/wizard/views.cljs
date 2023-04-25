@@ -26,14 +26,14 @@
 (defmethod submodule-page :input [_ ws-uuid groups on-back on-next]
   [:<>
    (for [group groups]
-     (let [variables (:group/group-variables group)]
+     (let [variables (:group/group-variable group)]
        ^{:key (:db/id group)}
        [input-group ws-uuid group variables]))])
 
 (defmethod submodule-page :output [_ ws-uuid groups on-back on-next]
   [:<>
    (for [group groups]
-     (let [variables (:group/group-variables group)]
+     (let [variables (:group/group-variable group)]
        ^{:key (:db/id group)}
        [output-group ws-uuid group variables]))])
 
@@ -239,9 +239,9 @@
              (for [submodule @(subscribe [:wizard/submodules-io-input-only (:db/id module)])]
                [:<>
                 [:div.wizard-review__submodule-header (:submodule/name submodule)]
-                (for [group (:submodule/groups submodule)
-                      :when (seq (:group/group-variables group))
-                      :let  [variables  (:group/group-variables group)
+                (for [group (:submodule/group submodule)
+                      :when (seq (:group/group-variable group))
+                      :let  [variables  (:group/group-variable group)
                              edit-route (path-for routes
                                                   :ws/wizard
                                                   :ws-uuid   ws-uuid
