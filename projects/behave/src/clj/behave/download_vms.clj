@@ -7,12 +7,8 @@
   (log-str "Beginning download from VMS...")
   (let [{:keys [status body]} (client/get (or url "https://behave.sig-gis.com/sync")
                                           {:as      :byte-array
-                                           :headers {"Content-Type" "application/msgpack"}})
+                                           :headers {"Accept" "application/msgpack"}})
         file                  (io/file (io/resource "public") "layout-test.msgpack")]
     (when (= status 200)
       (io/copy body file)
       (log-str "Completed downloading from VMS!"))))
-
-(comment
-  (export-from-vms "derp" "http://localhost:8082/sync")
-  )
