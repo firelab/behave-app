@@ -131,24 +131,25 @@
         cy  (str "CY_" id)
         phi (str "PHI_" id)]
     (-> config
-        (update :layer #(conj % {:mark      "line"
-                                 :data      {:sequence {:start -1.00
-                                                        :stop  1.01
-                                                        :step  0.01
-                                                        :as    "t"}}
-                                 :transform [{:calculate (gstring/format  "(%s * cos(datum.t * PI) * sin(%s * (PI / 180))) + (%s * sin(datum.t * PI) * cos(%s * (PI / 180))) + %s"
-                                                                          a phi b phi cx)
-                                              :as        "x"}
-                                             {:calculate (gstring/format "(%s * cos(datum.t * PI) * cos(%s * (PI / 180))) - (%s * sin(datum.t * PI) * sin(%s * (PI / 180))) + %s"
-                                                                         a phi b phi cy)
-                                              :as        "y"}]
-                                 :encoding  {:color {:value color}
-                                             :x     {:field "x"
-                                                     :type  "quantitative"}
-                                             :y     {:field "y"
-                                                     :type  "quantitative"}
-                                             :order {:field "t"
-                                                     :type  "quantitative"}}}))
+        (update :layer
+                #(conj % {:mark      "line"
+                          :data      {:sequence {:start -1.00
+                                                 :stop  1.01
+                                                 :step  0.01
+                                                 :as    "t"}}
+                          :transform [{:calculate (gstring/format  "(%s * cos(datum.t * PI) * sin(%s * (PI / 180))) + (%s * sin(datum.t * PI) * cos(%s * (PI / 180))) + %s"
+                                                                   a phi b phi cx)
+                                       :as        "x"}
+                                      {:calculate (gstring/format "(%s * cos(datum.t * PI) * cos(%s * (PI / 180))) - (%s * sin(datum.t * PI) * sin(%s * (PI / 180))) + %s"
+                                                                  a phi b phi cy)
+                                       :as        "y"}]
+                          :encoding  {:color {:datum color}
+                                      :x     {:field "x"
+                                              :type  "quantitative"}
+                                      :y     {:field "y"
+                                              :type  "quantitative"}
+                                      :order {:field "t"
+                                              :type  "quantitative"}}}))
         (update :params #(into %  [{:name  a
                                     :value 50
                                     :bind  {:input "range" :min 0 :max 1000 :step 1}}
@@ -182,7 +183,7 @@
                                                      :color  color
                                                      :angle  {:expr theta}
                                                      :size   {:expr "isDefined(datum.origin) ? 0 : 200"}}}
-                                 :encoding  {:color {:value color}
+                                 :encoding  {:color {:datum color}
                                              :x     {:field "x"
                                                      :type  "quantitative"}
                                              :y     {:field "y"
@@ -201,18 +202,21 @@
          :description "diagram"
          :width       width
          :height      height
-         :encoding    {:x {:axis  {:title  "x"
-                                   :offset (:offset x-axis)}
-                           :scale {:domain (:scale x-axis)}}
-                       :y {:axis  {:title  "y"
-                                   :offset (:offset y-axis)}
-                           :scale {:domain (:scale y-axis)}}}
+         :encoding    {:x     {:axis  {:title  "x"
+                                       :offset (:offset x-axis)}
+                               :scale {:domain (:scale x-axis)}}
+                       :y     {:axis  {:title  "y"
+                                       :offset (:offset y-axis)}
+                               :scale {:domain (:scale y-axis)}}
+                       :color {:type  "nominal"
+                               :scale {:domain ["series1" "series2" "series3" "series4"]
+                                       :range  ["blue" "red" "black" "orange"]}}}
          :layer       []
          :params      []}
-        (add-ellipse {:id "1" :color "black"})
-        (add-ellipse {:id "2" :color "red"})
-        (add-arrow {:id "1" :color "blue"})
-        (add-arrow {:id "2" :color "red"}))]])
+        (add-ellipse {:id "1" :color "series1"})
+        (add-ellipse {:id "2" :color "series2"})
+        (add-arrow {:id "1" :color "series3"})
+        (add-arrow {:id "2" :color "series4"}))]])
 
 ;;; WORKSPACE
 
