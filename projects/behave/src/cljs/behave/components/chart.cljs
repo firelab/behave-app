@@ -2,6 +2,7 @@
   (:require [cljsjs.vega-embed]
             [cljs.core.async.interop :refer-macros [<p!]]
             [clojure.core.async :refer [go]]
+            [goog.string                    :as gstring]
             [reagent.core :as r]
             [reagent.dom  :as rd]))
 
@@ -110,6 +111,107 @@
     (build-line-chart params)
     height
     width]])
+
+(comment
+  {:width    300
+   :height   300
+   :ellipses [{:name       "fl-constructed"
+               :major-axis 6
+               :minor-axis 4
+               :rotation   45}
+              {:name       "perim-at-init-attack"
+               :major-axis 6
+               :minor-axis 4
+               :rotation   45}]})
+
+(defn add-ellipse [config {:keys [color id] :as _params}]
+  (let [a   (str "A_" id)
+        b   (str "B_" id)
+        cx  (str "CX_" id)
+        cy  (str "CY_" id)
+        phi (str "PHI_" id)]
+    (-> config
+        (update :layer #(conj % {:mark      "line"
+                                 :data      {:sequence {:start -1.00
+                                                        :stop  1.01
+                                                        :step  0.01
+                                                        :as    "t"}}
+                                 :transform [{:calculate (gstring/format  "(%s * cos(datum.t * PI) * sin(%s * (PI / 180))) + (%s * sin(datum.t * PI) * cos(%s * (PI / 180))) + %s"
+                                                                          a phi b phi cx)
+                                              :as        "x"}
+                                             {:calculate (gstring/format "(%s * cos(datum.t * PI) * cos(%s * (PI / 180))) - (%s * sin(datum.t * PI) * sin(%s * (PI / 180))) + %s"
+                                                                         a phi b phi cy)
+                                              :as        "y"}]
+                                 :encoding  {:color {:value color}
+                                             :x     {:field "x"
+                                                     :type  "quantitative"}
+                                             :y     {:field "y"
+                                                     :type  "quantitative"}
+                                             :order {:field "t"
+                                                     :type  "quantitative"}}}))
+        (update :params #(into %  [{:name  a
+                                    :value 50
+                                    :bind  {:input "range" :min 0 :max 1000 :step 1}}
+                                   {:name  b
+                                    :value 25
+                                    :bind  {:input "range" :min 0 :max 100 :step 1}}
+                                   {:name cx
+                                    :expr (gstring/format "(%s * -sin(%s * (PI / 180) - PI))" a phi)}
+                                   {:name cy
+                                    :expr (gstring/format "(%s * -cos(%s * (PI / 180) - PI))" a phi)}
+                                   {:name  phi
+                                    :value 0
+                                    :bind  {:input "range" :min 0 :max 360 :step 1}}])))))
+
+(defn add-arrow [config {:keys [color id] :as _params}]
+  (let [r     (str "R_" id)
+        theta (str "THETA_" id)]
+    (-> config
+        (update :layer #(conj % {:data      {:values [{r 0.0 "origin" true}
+                                                      {r 0.5}]}
+                                 :transform [{:calculate (gstring/format "isDefined(datum.origin) ? 0 : %s * -sin(%s * (PI/180) - PI)"
+                                                                         r theta)
+                                              :as        "x"}
+                                             {:calculate (gstring/format "isDefined(datum.origin)? 0 : %s * -cos(%s * (PI/180) - PI)"
+                                                                         r theta)
+                                              :as        "y"}]
+                                 :mark      {:type  "line"
+                                             :color color
+                                             :point {:shape  "arrow"
+                                                     :filled true
+                                                     :color  color
+                                                     :angle  {:expr theta}
+                                                     :size   {:expr "isDefined(datum.origin) ? 0 : 200"}}}
+                                 :encoding  {:x {:field "x"
+                                                 :type  "quantitative"}
+                                             :y {:field "y"
+                                                 :type  "quantitative"}}}))
+        (update :params #(into %  [{:name  r
+                                    :value 50
+                                    :bind  {:input "range" :min 0 :max 100 :step 1}}
+                                   {:name  theta
+                                    :value 0.0
+                                    :bind  {:input "range" :min 0 :max 360 :step 1}}])))))
+
+(defn demo-output-diagram [{:keys [width height x-axis y-axis]}]
+  [:div
+   [vega-box
+    (-> {:$schema     "https://vega.github.io/schema/vega-lite/v5.1.1.json"
+         :description "diagram"
+         :width       width
+         :height      height
+         :encoding    {:x {:axis  {:title  "x"
+                                   :offset (:offset x-axis)}
+                           :scale {:domain (:scale x-axis)}}
+                       :y {:axis  {:title  "y"
+                                   :offset (:offset y-axis)}
+                           :scale {:domain (:scale y-axis)}}}
+         :layer       []
+         :params      []}
+        (add-ellipse {:id "1" :color "black"})
+        (add-ellipse {:id "2" :color "red"})
+        (add-arrow {:id "1" :color "blue"})
+        (add-arrow {:id "2" :color "red"}))]])
 
 ;;; WORKSPACE
 

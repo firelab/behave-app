@@ -23,6 +23,7 @@
    [:h1 (str @(<t "notfound") " :(")]])
 
 (def handler->page {:home                new-worksheet-page
+                    :chart               wizard/chart-demo-page
                     :ws/all              new-worksheet-page
                     :ws/import           import-worksheet-page
                     :ws/guided           guided-worksheet-page

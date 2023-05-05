@@ -1,7 +1,7 @@
 (ns behave.wizard.views
   (:require [behave.components.core         :as c]
             [behave.components.input-group  :refer [input-group]]
-            [behave.components.chart         :refer [chart]]
+            [behave.components.chart         :refer [chart demo-output-diagram]]
             [behave.components.review-input-group  :as review]
             [behave.components.navigation   :refer [wizard-navigation]]
             [behave.components.output-group :refer [output-group]]
@@ -192,9 +192,9 @@
                       :value-atom  value-atom
                       :on-change   #(reset! value-atom (input-value %))
                       :on-blur     #(dispatch [:worksheet/update-attr
-                                             ws-uuid
-                                             :worksheet/run-description
-                                             (-> % .-target .-value)])}]
+                                               ws-uuid
+                                               :worksheet/run-description
+                                               (-> % .-target .-value)])}]
        [:div.wizard-review__run-description__message
         [c/button {:label         (gstring/format "*%s"  @(<t (bp "optional")))
                    :variant       "transparent-highlight"
@@ -549,9 +549,9 @@
                                    (map (fn [[_ data]]
                                           (reduce (fn [acc [_row-id uuid repeat-id value]]
                                                     (let [[_ min max enabled?] (first (filter
-                                                                              (fn [[gv-uuid]]
-                                                                                (= gv-uuid uuid))
-                                                                              @table-setting-filters))]
+                                                                                       (fn [[gv-uuid]]
+                                                                                         (= gv-uuid uuid))
+                                                                                       @table-setting-filters))]
                                                       (cond-> acc
                                                         (and min max (not (<= min value max)) enabled?)
                                                         (assoc :shaded? true)
@@ -565,6 +565,21 @@
        [c/button {:label    "Back"
                   :variant  "secondary"
                   :on-click #(dispatch [:wizard/prev-tab params])}]]]]))
+
+(defn chart-demo-page [params]
+  [:div
+   (let [width  500
+         height 500]
+     [demo-output-diagram {:width  width
+                           :height height
+                           :x-axis {:scale  [-100 100]
+                                    :title  "x"
+                                    :offset (-> (/ height 2)
+                                                (* -1)) }
+                           :y-axis {:scale  [-100 100]
+                                    :title  "y"
+                                    :offset (-> (/ width 2)
+                                                (* -1)) }}])])
 
 ;; TODO Might want to set this in a config file to the application
 (def ^:const multi-value-input-limit 3)
