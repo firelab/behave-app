@@ -124,7 +124,7 @@
                :minor-axis 4
                :rotation   45}]})
 
-(defn add-ellipse [config {:keys [color id] :as _params}]
+(defn add-ellipse [config {:keys [id color] :as _params}]
   (let [a   (str "A_" id)
         b   (str "B_" id)
         cx  (str "CX_" id)
@@ -163,7 +163,7 @@
                                     :value 0
                                     :bind  {:input "range" :min 0 :max 360 :step 1}}])))))
 
-(defn add-arrow [config {:keys [color id] :as _params}]
+(defn add-arrow [config {:keys [id color] :as _params}]
   (let [r     (str "R_" id)
         theta (str "THETA_" id)]
     (-> config
@@ -182,10 +182,11 @@
                                                      :color  color
                                                      :angle  {:expr theta}
                                                      :size   {:expr "isDefined(datum.origin) ? 0 : 200"}}}
-                                 :encoding  {:x {:field "x"
-                                                 :type  "quantitative"}
-                                             :y {:field "y"
-                                                 :type  "quantitative"}}}))
+                                 :encoding  {:color {:value color}
+                                             :x     {:field "x"
+                                                     :type  "quantitative"}
+                                             :y     {:field "y"
+                                                     :type  "quantitative"}}}))
         (update :params #(into %  [{:name  r
                                     :value 50
                                     :bind  {:input "range" :min 0 :max 100 :step 1}}

@@ -568,6 +568,7 @@
 
 (defn chart-demo-page [params]
   [:div
+   [:div
    (let [width  500
          height 500]
      [demo-output-diagram {:width  width
@@ -579,7 +580,16 @@
                            :y-axis {:scale  [-100 100]
                                     :title  "y"
                                     :offset (-> (/ width 2)
-                                                (* -1)) }}])])
+                                                (* -1)) }}])]
+   [:div
+    (let [width  500
+          height 500]
+      [demo-output-diagram {:width  width
+                            :height height
+                            :x-axis {:scale  [-100 100]
+                                     :title  "x"}
+                            :y-axis {:scale  [-100 100]
+                                     :title  "y"}}])]])
 
 ;; TODO Might want to set this in a config file to the application
 (def ^:const multi-value-input-limit 3)
