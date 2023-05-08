@@ -212,13 +212,16 @@
                        :y     {:axis  {:title  "y"
                                        :offset (:offset y-axis)}
                                :scale {:domain (:scale y-axis)}}
-                       :color {:type  "nominal"
-                               :scale {:domain []
-                                       :range  []}}}
+                       :color {:type   "nominal"
+                               :scale  {:domain []
+                                        :range  []}
+                               :legend {:labelFontSize 20
+                                        :symbolSize 1000}}}
          :layer       []
          :params      []}
         (add-ellipse {:id "1" :color-encoding "series1" :color "blue"})
         (add-ellipse {:id "2" :color-encoding "series2" :color "red"})
+        (add-ellipse {:id "3" :color-encoding "series3" :color "purple"})
         (add-arrow {:id "1" :color-encoding "series3" :color "black"})
         (add-arrow {:id "2" :color-encoding "series4 " :color "orange"}))]])
 
