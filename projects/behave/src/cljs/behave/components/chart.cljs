@@ -124,7 +124,7 @@
                :minor-axis 4
                :rotation   45}]})
 
-(defn add-ellipse [config {:keys [id color] :as _params}]
+(defn add-ellipse [config {:keys [id color color-encoding] :as _params}]
   (let [a   (str "A_" id)
         b   (str "B_" id)
         cx  (str "CX_" id)
@@ -143,7 +143,7 @@
                                       {:calculate (gstring/format "(%s * cos(datum.t * PI) * cos(%s * (PI / 180))) - (%s * sin(datum.t * PI) * sin(%s * (PI / 180))) + %s"
                                                                   a phi b phi cy)
                                        :as        "y"}]
-                          :encoding  {:color {:datum color}
+                          :encoding  {:color {:datum color-encoding}
                                       :x     {:field "x"
                                               :type  "quantitative"}
                                       :y     {:field "y"
@@ -162,9 +162,11 @@
                                     :expr (gstring/format "(%s * -cos(%s * (PI / 180) - PI))" a phi)}
                                    {:name  phi
                                     :value 0
-                                    :bind  {:input "range" :min 0 :max 360 :step 1}}])))))
+                                    :bind  {:input "range" :min 0 :max 360 :step 1}}]))
+        (update-in [:encoding :color :scale :domain] #(conj % color-encoding))
+        (update-in [:encoding :color :scale :range] #(conj % color)))))
 
-(defn add-arrow [config {:keys [id color] :as _params}]
+(defn add-arrow [config {:keys [id color-encoding color] :as _params}]
   (let [r     (str "R_" id)
         theta (str "THETA_" id)]
     (-> config
@@ -177,13 +179,13 @@
                                                                          r theta)
                                               :as        "y"}]
                                  :mark      {:type  "line"
-                                             :color color
+                                             :color color-encoding
                                              :point {:shape  "arrow"
                                                      :filled true
-                                                     :color  color
+                                                     :color  color-encoding
                                                      :angle  {:expr theta}
                                                      :size   {:expr "isDefined(datum.origin) ? 0 : 200"}}}
-                                 :encoding  {:color {:datum color}
+                                 :encoding  {:color {:datum color-encoding}
                                              :x     {:field "x"
                                                      :type  "quantitative"}
                                              :y     {:field "y"
@@ -193,7 +195,9 @@
                                     :bind  {:input "range" :min 0 :max 100 :step 1}}
                                    {:name  theta
                                     :value 0.0
-                                    :bind  {:input "range" :min 0 :max 360 :step 1}}])))))
+                                    :bind  {:input "range" :min 0 :max 360 :step 1}}]))
+        (update-in [:encoding :color :scale :domain] #(conj % color-encoding))
+        (update-in [:encoding :color :scale :range] #(conj % color)))))
 
 (defn demo-output-diagram [{:keys [width height x-axis y-axis]}]
   [:div
@@ -209,14 +213,14 @@
                                        :offset (:offset y-axis)}
                                :scale {:domain (:scale y-axis)}}
                        :color {:type  "nominal"
-                               :scale {:domain ["series1" "series2" "series3" "series4"]
-                                       :range  ["blue" "red" "black" "orange"]}}}
+                               :scale {:domain []
+                                       :range  []}}}
          :layer       []
          :params      []}
-        (add-ellipse {:id "1" :color "series1"})
-        (add-ellipse {:id "2" :color "series2"})
-        (add-arrow {:id "1" :color "series3"})
-        (add-arrow {:id "2" :color "series4"}))]])
+        (add-ellipse {:id "1" :color-encoding "series1" :color "blue"})
+        (add-ellipse {:id "2" :color-encoding "series2" :color "red"})
+        (add-arrow {:id "1" :color-encoding "series3" :color "black"})
+        (add-arrow {:id "2" :color-encoding "series4 " :color "orange"}))]])
 
 ;;; WORKSPACE
 
