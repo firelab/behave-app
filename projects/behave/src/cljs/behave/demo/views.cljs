@@ -45,4 +45,25 @@
                       :arrows   [{:id    "WindDriection"
                                   :color "blue"
                                   :r     50
-                                  :theta 45}]}])])
+                                  :theta 45}]}])
+   (let [width  800
+         height 800]
+     [output-diagram {:title    "Wind/Slope/Spread Direction Diagram"
+                      :width    width
+                      :height   height
+                      :x-axis   {:domain [-60 60]
+                                 :title  "x"}
+                      :y-axis   {:domain [-60 60]
+                                 :title  "y"}
+                      :arrows   [{:id    "WindDriection"
+                                  :color "blue"
+                                  :r     20
+                                  :theta 135}
+                                 {:id    "SurfaceSpreadDireciton"
+                                  :color "orange"
+                                  :r     30
+                                  :theta 75}
+                                 {:id    "DirectionOfMaxSpread"
+                                  :color "red"
+                                  :r     50
+                                  :theta 123}]}])])
