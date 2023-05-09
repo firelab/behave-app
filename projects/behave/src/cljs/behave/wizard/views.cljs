@@ -1,22 +1,22 @@
 (ns behave.wizard.views
-  (:require [behave.components.core         :as c]
-            [behave.components.input-group  :refer [input-group]]
-            [behave.components.chart         :refer [chart demo-output-diagram]]
+  (:require [behave.components.core                :as c]
+            [behave.components.input-group         :refer [input-group]]
             [behave.components.review-input-group  :as review]
-            [behave.components.navigation   :refer [wizard-navigation]]
-            [behave.components.output-group :refer [output-group]]
-            [behave-routing.main            :refer [routes]]
-            [behave.translate               :refer [<t bp]]
+            [behave.components.navigation          :refer [wizard-navigation]]
+            [behave.components.output-group        :refer [output-group]]
+            [behave.components.vega.result-chart   :refer [result-chart]]
+            [behave-routing.main                   :refer [routes]]
+            [behave.translate                      :refer [<t bp]]
             [behave.wizard.events]
             [behave.wizard.subs]
-            [bidi.bidi                      :refer [path-for]]
+            [bidi.bidi                             :refer [path-for]]
             [behave.worksheet.events]
             [behave.worksheet.subs]
-            [dom-utils.interface            :refer [input-int-value input-value]]
-            [goog.string                    :as gstring]
+            [dom-utils.interface                   :refer [input-int-value input-value]]
+            [goog.string                           :as gstring]
             [goog.string.format]
-            [re-frame.core                  :refer [dispatch subscribe]]
-            [string-utils.interface         :refer [->kebab]]
+            [re-frame.core                         :refer [dispatch subscribe]]
+            [string-utils.interface                :refer [->kebab]]
             [reagent.core :as r]))
 
 ;;; Components
@@ -472,18 +472,18 @@
                             y-min (:y-axis-limit/min y-axis-limit)
                             y-max (:y-axis-limit/max y-axis-limit)]]
            [:div.wizard-results__graph
-            (chart {:data   graph-data
-                    :x      {:name (-> (:graph-settings/x-axis-group-variable-uuid graph-settings)
-                                       (uuid->variable-name))}
-                    :y      {:name  (:variable/name @(subscribe [:wizard/group-variable output-uuid]))
-                             :scale [y-min y-max]}
-                    :z      {:name (-> (:graph-settings/z-axis-group-variable-uuid graph-settings)
-                                       (uuid->variable-name))}
-                    :z2     {:name    (-> (:graph-settings/z2-axis-group-variable-uuid graph-settings)
-                                          (uuid->variable-name))
-                             :columns 2}
-                    :width  250
-                    :height 250})])]))))
+            (result-chart {:data   graph-data
+                           :x      {:name (-> (:graph-settings/x-axis-group-variable-uuid graph-settings)
+                                              (uuid->variable-name))}
+                           :y      {:name  (:variable/name @(subscribe [:wizard/group-variable output-uuid]))
+                                    :scale [y-min y-max]}
+                           :z      {:name (-> (:graph-settings/z-axis-group-variable-uuid graph-settings)
+                                              (uuid->variable-name))}
+                           :z2     {:name    (-> (:graph-settings/z2-axis-group-variable-uuid graph-settings)
+                                                 (uuid->variable-name))
+                                    :columns 2}
+                           :width  250
+                           :height 250})])]))))
 
 ;; Wizard Results
 (defn wizard-results-page [{:keys [route-handler io ws-uuid] :as params}]
