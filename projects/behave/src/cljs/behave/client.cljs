@@ -11,6 +11,7 @@
             [behave.translate          :refer [<t load-translations!]]
             [behave.vms.store          :refer [load-vms!]]
             [behave.wizard.views       :as wizard]
+            [behave.demo.views         :refer [demo-output-diagram-page]]
             [behave.worksheet.views    :refer [new-worksheet-page
                                                import-worksheet-page
                                                guided-worksheet-page
@@ -23,7 +24,7 @@
    [:h1 (str @(<t "notfound") " :(")]])
 
 (def handler->page {:home                new-worksheet-page
-                    :chart               wizard/chart-demo-page
+                    :demo/diagram        demo-output-diagram-page
                     :ws/all              new-worksheet-page
                     :ws/import           import-worksheet-page
                     :ws/guided           guided-worksheet-page
