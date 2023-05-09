@@ -199,31 +199,36 @@
         (update-in [:encoding :color :scale :domain] #(conj % color-encoding))
         (update-in [:encoding :color :scale :range] #(conj % color)))))
 
-(defn demo-output-diagram [{:keys [width height x-axis y-axis]}]
-  [:div
-   [vega-box
-    (-> {:$schema     "https://vega.github.io/schema/vega-lite/v5.1.1.json"
-         :description "diagram"
-         :width       width
-         :height      height
-         :encoding    {:x     {:axis  {:title  "x"
-                                       :offset (:offset x-axis)}
-                               :scale {:domain (:scale x-axis)}}
-                       :y     {:axis  {:title  "y"
-                                       :offset (:offset y-axis)}
-                               :scale {:domain (:scale y-axis)}}
-                       :color {:type   "nominal"
-                               :scale  {:domain []
-                                        :range  []}
-                               :legend {:labelFontSize 20
-                                        :symbolSize 1000}}}
-         :layer       []
-         :params      []}
-        (add-ellipse {:id "1" :color-encoding "series1" :color "blue"})
-        (add-ellipse {:id "2" :color-encoding "series2" :color "red"})
-        (add-ellipse {:id "3" :color-encoding "series3" :color "purple"})
-        (add-arrow {:id "1" :color-encoding "series3" :color "black"})
-        (add-arrow {:id "2" :color-encoding "series4 " :color "orange"}))]])
+(defn demo-output-diagram [{:keys [width height x-axis y-axis ellipses arrows]}]
+  (let [base-config {:$schema     "https://vega.github.io/schema/vega-lite/v5.1.1.json"
+                     :description "diagram"
+                     :width       width
+                     :height      height
+                     :encoding    {:x     {:axis  {:title  "x"
+                                                   :offset (:offset x-axis)}
+                                           :scale {:domain (:scale x-axis)}}
+                                   :y     {:axis  {:title  "y"
+                                                   :offset (:offset y-axis)}
+                                           :scale {:domain (:scale y-axis)}}
+                                   :color {:type   "nominal"
+                                           :scale  {:domain []
+                                                    :range  []}
+                                           :legend {:symbolSize        500
+                                                    :symbolStrokeWidth 5.0
+                                                    :labelFontSize     20}}}
+                     :layer       []
+                     :params      []}]
+    [:div
+     [vega-box
+      (as-> base-config $
+        (reduce (fn [acc ellipse]
+                  (add-ellipse acc ellipse))
+                $
+                ellipses)
+        (reduce (fn [acc ellipse]
+                  (add-arrow acc ellipse))
+                $
+                arrows))]]))
 
 ;;; WORKSPACE
 
