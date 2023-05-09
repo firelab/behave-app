@@ -1,22 +1,49 @@
 (ns behave.demo.views
-  (:require [behave.components.vega.diagram :refer [demo-output-diagram]]))
+  (:require [behave.components.vega.diagram :refer [output-diagram]]))
 
 (defn demo-output-diagram-page [_params]
   [:div
-   [:div
-    (let [width  500
-          height 500]
-      [demo-output-diagram {:width    width
-                            :height   height
-                            :x-axis   {:scale  [-100 100]
-                                       :title  "x"
-                                       :offset (-> (/ height 2)
-                                                   (* -1)) }
-                            :y-axis   {:scale  [-100 100]
-                                       :title  "y"
-                                       :offset (-> (/ width 2)
-                                                   (* -1)) }
-                            :ellipses [{:id "series1" :color "blue"}
-                                       {:id "series2" :color "red"}]
-                            :arrows   [{:id "series3" :color "green"}
-                                       {:id "series4" :color "black"}]}])]])
+   (let [width  800
+         height 800]
+     [output-diagram {:title    "Contain Diagram"
+                      :width    width
+                      :height   height
+                      :x-axis   {:domain [-20 100]
+                                 :title  "x"}
+                      :y-axis   {:domain [-100 100]
+                                 :title  "y"}
+                      :ellipses [{:id    "FirePerimeterAtReport"
+                                  :color "blue"
+                                  :a     15
+                                  :b     10
+                                  :phi   90}
+                                 {:id          "FirePerimeterAtAttack"
+                                  :color       "red"
+                                  :a           15
+                                  :b           10
+                                  :phi         90
+                                  :stroke-dash [5 2]}
+                                 {:id       "FireLineConstructed"
+                                  :color    "black"
+                                  :a        50
+                                  :b        25
+                                  :phi      90
+                                  :x-offset -10}]}])
+   (let [width  800
+         height 800]
+     [output-diagram {:title    "Fire Shape Diagram"
+                      :width    width
+                      :height   height
+                      :x-axis   {:domain [-100 100]
+                                 :title  "x"}
+                      :y-axis   {:domain [-100 100]
+                                 :title  "y"}
+                      :ellipses [{:id    "SurfaceFire"
+                                  :color "red"
+                                  :a     50
+                                  :b     25
+                                  :phi   45}]
+                      :arrows   [{:id    "WindDriection"
+                                  :color "blue"
+                                  :r     50
+                                  :theta 45}]}])])
