@@ -22,7 +22,7 @@
             [ring.middleware.x-headers          :refer [wrap-frame-options wrap-content-type-options wrap-xss-protection]]
             [ring.util.codec                    :refer [url-decode url-encode]]
             [ring.util.response                 :refer [redirect]]
-            [triangulum.config                  :refer [get-config]]
+            [config.interface                   :refer [get-config]]
             [triangulum.logging                 :refer [log-str]]
             [behave-cms.file-io                 :refer [file-handler]]
             [behave-cms.remote-api              :refer [api-handler clj-handler]]
@@ -60,7 +60,7 @@
 (defn routing-handler [{:keys [uri session params] :as request}]
   (let [next-handler (cond
                        (bad-uri? uri)                  (constantly (data-response "Forbidden" {:status 403}))
-                       (str/starts-with? uri "/sync")  #'sync-handler
+                       (str/starts-with? uri "/sync")  (token-resp params sync-handler)
                        (match-route api-routes uri)    (authenticated-api uri session api-handler)
                        (str/starts-with? uri "/clj/")  (token-resp params clj-handler)
                        (str/starts-with? uri "/file/") #'file-handler

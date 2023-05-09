@@ -7,6 +7,7 @@
             [cognitect.transit :as transit]
             [msgpack.core      :as msg]
             [msgpack.clojure-extensions]
+            [config.interface  :refer [get-config]]
             [hiccup.page       :refer [html5 include-css include-js]]))
 
 (defn- find-app-js []
@@ -39,8 +40,13 @@
   Provides the entry point for rendering the content on a page."
   [params]
   [:script {:type "text/javascript"}
-   (str "window.onload = function () {
-        behave_cms.client.init(" (json/write-str params) "); };")])
+   (str "window.onload = function () {"
+        "behave_cms.client.init("
+        (json/write-str
+         (merge params
+                {:client-config
+                 {:secret-token (get-config :secret-token)}}))
+        "); };")])
 
 (defn render-page [{:keys [route-params] :as match}]
   (fn [{:keys [params]}]

@@ -3,6 +3,7 @@
             [reagent.dom                      :refer [render]]
             [re-frame.core                    :as rf]
             [behave-cms.store                 :as s]
+            [behave-cms.config                :refer [update-config]]
             [behave-cms.events]
             [behave-cms.subs]
             [behave-cms.routes                :refer [app-routes]]
@@ -101,6 +102,7 @@
                      (reset! original-params
                              (js->clj params :keywordize-keys true))
                      @original-params)]
+    (update-config (:client-config clj-params))
     (render-root cur-params)
     (rf/dispatch-sync [:initialize])))
 

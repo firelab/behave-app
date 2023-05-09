@@ -11,7 +11,8 @@
             [datom-compressor.interface :as c]
             [ds-schema-utils.interface  :refer [->ds-schema]]
             [datom-utils.interface      :refer [split-datom]]
-            [behave.schema.core         :refer [all-schemas]]))
+            [behave.schema.core         :refer [all-schemas]]
+            [behave-cms.config          :refer [get-config]]))
 
 ;;; State
 
@@ -34,7 +35,8 @@
       (rf/dispatch-sync [:ds/initialize (->ds-schema all-schemas) datoms]))))
 
 (defn load-store! []
-  (ajax-request {:uri             "/sync"
+  (ajax-request {:uri             (str "/sync?auth-token="
+                                       (get-config :secret-token))
                  :handler         load-data-handler
                  :format          {:content-type "application/text" :write str}
                  :response-format {:description  "ArrayBuffer"
@@ -46,7 +48,8 @@
   (let [datoms (->> tx-data (filter new-datom?) (mapv split-datom))]
     (when-not (empty? datoms)
       (swap! my-txs union (txs datoms))
-      (ajax-request {:uri             "/sync"
+      (ajax-request {:uri             (str "/sync?auth-token="
+                                           (get-config :secret-token))
                      :params          {:tx-data datoms}
                      :method          :post
                      :handler         println
