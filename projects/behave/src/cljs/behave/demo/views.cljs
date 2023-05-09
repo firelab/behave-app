@@ -21,14 +21,13 @@
                                   :color       "red"
                                   :a           15
                                   :b           10
-                                  :phi         90
-                                  :stroke-dash [5 2]}
+                                  :phi         90}
                                  {:id       "FireLineConstructed"
                                   :color    "black"
                                   :a        50
                                   :b        25
                                   :phi      90
-                                  :x-offset -10}]}])
+                                  :x-offset -5}]}])
    (let [width  800
          height 800]
      [output-diagram {:title    "Fire Shape Diagram"

@@ -18,8 +18,7 @@
     (-> config
         (update :layer
                 #(conj % {:mark      {:type       "line"
-                                      :strokeDash stroke-dash
-                                      :stroke     color}
+                                      :strokeDash stroke-dash}
                           :data      {:sequence {:start -1.00
                                                  :stop  1.01
                                                  :step  0.01
