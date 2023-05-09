@@ -3,7 +3,12 @@
             [behave.components.vega.core :refer [vega-box]]
             [goog.string                    :as gstring]))
 
-(defn- add-ellipse [config {:keys [id color a b phi x-offset stroke-dash] :as _params}]
+(defn- add-ellipse
+  [config {:keys [id color a b phi x-offset stroke-dash]
+           :or   {a        0
+                  b        0
+                  phi      0
+                  x-offset 0}}]
   (let [a-name   (str "A_" id)
         b-name   (str "B_" id)
         phi-name (str "PHI_" id)
@@ -34,12 +39,14 @@
         (update :params #(into %  [{:name a-name :value a}
                                    {:name b-name :value b}
                                    {:name phi-name :value phi}
-                                   {:name cx-name :expr (gstring/format "(%s * -sin(%s * (PI / 180) - PI) + %s)" a phi (or x-offset 0))}
+                                   {:name cx-name :expr (gstring/format "(%s * -sin(%s * (PI / 180) - PI) + %s)" a phi x-offset)}
                                    {:name cy-name :expr (gstring/format "(%s * -cos(%s * (PI / 180) - PI))" a phi)}]))
         (update-in [:encoding :color :scale :domain] #(conj % id))
         (update-in [:encoding :color :scale :range] #(conj % color)))))
 
-(defn- add-arrow [config {:keys [id color r theta] :as _params}]
+(defn- add-arrow [config {:keys [id color r theta]
+                          :or   {r     0
+                                 theta 0}}]
   (let [r-name     (str "R_" id)
         theta-name (str "THETA_" id)]
     (-> config
