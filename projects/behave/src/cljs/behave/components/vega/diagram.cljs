@@ -5,10 +5,11 @@
 
 (defn- add-ellipse
   [config {:keys [id color a b phi x-offset stroke-dash]
-           :or   {a        0
-                  b        0
-                  phi      0
-                  x-offset 0}}]
+           :or   {a           0
+                  b           0
+                  phi         0
+                  x-offset    0
+                  stroke-dash [1 0]}}]
   (let [a-name   (str "A_" id)
         b-name   (str "B_" id)
         phi-name (str "PHI_" id)
@@ -17,7 +18,7 @@
     (-> config
         (update :layer
                 #(conj % {:mark      {:type       "line"
-                                      :strokeDash (or stroke-dash [1 0])
+                                      :strokeDash stroke-dash
                                       :stroke     color}
                           :data      {:sequence {:start -1.00
                                                  :stop  1.01
