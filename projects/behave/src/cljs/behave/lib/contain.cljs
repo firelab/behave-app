@@ -8,7 +8,7 @@
 (defn doContainRun [self]
   (.doContainRun self))
 
-; Inputs
+                                        ; Inputs
 (defn addResource [self arrival duration timeUnit productionRate productionRateUnits description]
   (.addResource self arrival duration timeUnit productionRate productionRateUnits description))
 
@@ -57,7 +57,7 @@
 (defn removeAllResourcesWithThisDesc [self desc]
   (.removeAllResourcesWithThisDesc self desc))
 
-; Outputs
+                                        ; Outputs
 (defn getContainmentStatus [self]
   (.getContainmentStatus self))
 
@@ -87,3 +87,12 @@
 
 (defn getResourcesUsed [self]
   (.getResourcesUsed self))
+
+(defn firePerimeterX [self]
+  (.firePerimeterX self))
+
+(defn firePerimeterY [self]
+  (.firePerimeterY self))
+
+(defn firePoints [self]
+  (.firePoints self))

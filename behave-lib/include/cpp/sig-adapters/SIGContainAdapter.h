@@ -34,7 +34,7 @@
 #include "SIGContainSim.h"
 #include "SIGContainForceAdapter.h"
 #include "SIGDiurnalROS.h"
-
+#include "SIGCollections.h"
 #include "behaveUnits.h"
 #include "fireSize.h"
 
@@ -84,6 +84,10 @@ public:
     double getFinalTimeSinceReport(TimeUnits::TimeUnitsEnum timeUnits) const;
     ContainStatus getContainmentStatus() const;
 
+    DoubleVector firePerimeterX( void ) const;
+    DoubleVector firePerimeterY( void ) const;
+    int firePoints( void ) const;
+
 private:
     FireSize size_;
 
@@ -103,6 +107,9 @@ private:
 
     // Intermediate Variables
     SIGDiurnalROS * diurnalROS_;
+    DoubleVector m_x;           //!< Array of perimeter x coordinates (ch)
+    DoubleVector m_y;           //!< Array of perimeter y coordinates (ch)
+    int  m_size;            //!< Size of the arrays (m_maxSteps or 2*m_maxSteps)
 
     // Contain Outputs
     double finalCost_; // Final total cost of all resources used
@@ -114,7 +121,7 @@ private:
     double finalContainmentArea_; // Final containment area at containment or escape
     double finalTime_; // Containment or escape time since report
     ContainStatus containmentStatus_;
+
 };
 
 #endif //CONTAINADAPTER_H
-

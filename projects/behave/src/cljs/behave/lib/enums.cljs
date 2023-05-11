@@ -5,21 +5,16 @@
 
 (defn- enum-value [enum-name idx member]
   (let [member (last (str/split member #"::"))
-        f      (when (aget js/window "Module")
+        f      (when (aget js/window "runtimeInitialized")
                  (aget js/Module (str "_emscripten_enum_" enum-name "_" member)))
         value  (if (fn? f) (f) idx)]
     [member value]))
 
-(defn setup-enum [enum-name members]
+(defn enum [enum-name members]
   (let [member-vals (into {} (map-indexed (partial enum-value enum-name) members))
         enum-name   (first (str/split enum-name #"_"))]
     (swap! all-enums assoc enum-name member-vals)
     member-vals))
-
-(defn enum [enum-name members]
-  (if (true? (aget js/window "runtimeInitialized"))
-    (setup-enum enum-name members)
-    (js/setTimeout #(enum enum-name members) 1000)))
 
 (def area-units
   (enum "AreaUnits_AreaUnitsEnum"
