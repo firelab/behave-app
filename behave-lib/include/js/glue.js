@@ -1335,6 +1335,21 @@ SIGContainAdapter.prototype['setTactic'] = SIGContainAdapter.prototype.setTactic
   _emscripten_bind_SIGContainAdapter_setTactic_1(self, tactic);
 };;
 
+SIGContainAdapter.prototype['firePerimeterX'] = SIGContainAdapter.prototype.firePerimeterX = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGContainAdapter_firePerimeterX_0(self);
+};;
+
+SIGContainAdapter.prototype['firePerimeterY'] = SIGContainAdapter.prototype.firePerimeterY = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGContainAdapter_firePerimeterY_0(self);
+};;
+
+SIGContainAdapter.prototype['firePoints'] = SIGContainAdapter.prototype.firePoints = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGContainAdapter_firePoints_0(self);
+};;
+
   SIGContainAdapter.prototype['__destroy__'] = SIGContainAdapter.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   _emscripten_bind_SIGContainAdapter___destroy___0(self);

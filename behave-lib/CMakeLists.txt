@@ -46,7 +46,7 @@ set(EMCC_ARGS
     --post-js ${GLUE_JS_FILE}
     -sNO_DISABLE_EXCEPTION_CATCHING
     -sEXPORTED_FUNCTIONS=["_malloc","_free"]
-    -sEXPORTED_RUNTIME_METHODS=["UTF8ToString","allocateUTF8","addFunction"])
+    -sEXPORTED_RUNTIME_METHODS=["UTF8ToString","allocateUTF8","addFunction","cwrap","ccall"])
 
 set(EMCC_JS_ARGS ${EMCC_ARGS} -s WASM=0)
 

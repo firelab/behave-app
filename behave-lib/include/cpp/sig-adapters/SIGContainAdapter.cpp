@@ -211,6 +211,11 @@ void SIGContainAdapter::doContainRun()
         // Do Contain simulation
         containSim.run();
 
+        // Store m_x m_y
+        m_size = containSim.firePoints();
+        m_x = DoubleVector(containSim.firePerimeterX());
+        m_y = DoubleVector(containSim.firePerimeterY());
+
         // Get results from Contain simulation
         finalCost_ = containSim.finalFireCost();
         finalFireLineLength_ = LengthUnits::toBaseUnits(containSim.finalFireLine(), LengthUnits::Chains);
@@ -304,4 +309,19 @@ double SIGContainAdapter::getFinalTimeSinceReport(TimeUnits::TimeUnitsEnum timeU
 ContainStatus SIGContainAdapter::getContainmentStatus() const
 {
     return containmentStatus_;
+}
+
+DoubleVector SIGContainAdapter::firePerimeterX( void ) const
+{
+  return( m_x );
+}
+
+DoubleVector SIGContainAdapter::firePerimeterY( void ) const
+{
+  return( m_y );
+}
+
+int SIGContainAdapter::firePoints( void ) const
+{
+  return( m_size );
 }

@@ -1907,6 +1907,90 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
   
       return ret;
     }
+
+  function getCFunc(ident) {
+      var func = Module['_' + ident]; // closure exported function
+      assert(func, 'Cannot call unknown function ' + ident + ', make sure it is exported');
+      return func;
+    }
+  
+  
+  function writeArrayToMemory(array, buffer) {
+      assert(array.length >= 0, 'writeArrayToMemory array must have a length (should be an array or typed array)')
+      HEAP8.set(array, buffer);
+    }
+  
+    /**
+     * @param {string|null=} returnType
+     * @param {Array=} argTypes
+     * @param {Arguments|Array=} args
+     * @param {Object=} opts
+     */
+  function ccall(ident, returnType, argTypes, args, opts) {
+      // For fast lookup of conversion functions
+      var toC = {
+        'string': (str) => {
+          var ret = 0;
+          if (str !== null && str !== undefined && str !== 0) { // null string
+            // at most 4 bytes per UTF-8 code point, +1 for the trailing '\0'
+            var len = (str.length << 2) + 1;
+            ret = stackAlloc(len);
+            stringToUTF8(str, ret, len);
+          }
+          return ret;
+        },
+        'array': (arr) => {
+          var ret = stackAlloc(arr.length);
+          writeArrayToMemory(arr, ret);
+          return ret;
+        }
+      };
+  
+      function convertReturnValue(ret) {
+        if (returnType === 'string') {
+          
+          return UTF8ToString(ret);
+        }
+        if (returnType === 'boolean') return Boolean(ret);
+        return ret;
+      }
+  
+      var func = getCFunc(ident);
+      var cArgs = [];
+      var stack = 0;
+      assert(returnType !== 'array', 'Return type should not be "array".');
+      if (args) {
+        for (var i = 0; i < args.length; i++) {
+          var converter = toC[argTypes[i]];
+          if (converter) {
+            if (stack === 0) stack = stackSave();
+            cArgs[i] = converter(args[i]);
+          } else {
+            cArgs[i] = args[i];
+          }
+        }
+      }
+      var ret = func.apply(null, cArgs);
+      function onDone(ret) {
+        if (stack !== 0) stackRestore(stack);
+        return convertReturnValue(ret);
+      }
+  
+      ret = onDone(ret);
+      return ret;
+    }
+  
+    /**
+     * @param {string=} returnType
+     * @param {Array=} argTypes
+     * @param {Object=} opts
+     */
+  function cwrap(ident, returnType, argTypes, opts) {
+      return function() {
+        return ccall(ident, returnType, argTypes, arguments, opts);
+      }
+    }
+
 function checkIncomingModuleAPI() {
   ignoredModuleProp('fetchSettings');
 }
@@ -2314,6 +2398,12 @@ var _emscripten_bind_SIGContainAdapter_setReportSize_2 = Module["_emscripten_bin
 var _emscripten_bind_SIGContainAdapter_setRetry_1 = Module["_emscripten_bind_SIGContainAdapter_setRetry_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_setRetry_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGContainAdapter_setTactic_1 = Module["_emscripten_bind_SIGContainAdapter_setTactic_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_setTactic_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_firePerimeterX_0 = Module["_emscripten_bind_SIGContainAdapter_firePerimeterX_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_firePerimeterX_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_firePerimeterY_0 = Module["_emscripten_bind_SIGContainAdapter_firePerimeterY_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_firePerimeterY_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_firePoints_0 = Module["_emscripten_bind_SIGContainAdapter_firePoints_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_firePoints_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGContainAdapter___destroy___0 = Module["_emscripten_bind_SIGContainAdapter___destroy___0"] = createExportWrapper("emscripten_bind_SIGContainAdapter___destroy___0");
 /** @type {function(...*):?} */
@@ -3687,6 +3777,8 @@ function invoke_v(index) {
 // === Auto-generated postamble setup entry stuff ===
 
 Module["UTF8ToString"] = UTF8ToString;
+Module["ccall"] = ccall;
+Module["cwrap"] = cwrap;
 Module["addFunction"] = addFunction;
 Module["allocateUTF8"] = allocateUTF8;
 var missingLibrarySymbols = [
@@ -3738,9 +3830,6 @@ var missingLibrarySymbols = [
   'readI53FromU64',
   'convertI32PairToI53',
   'convertU32PairToI53',
-  'getCFunc',
-  'ccall',
-  'cwrap',
   'removeFunction',
   'reallyNegative',
   'unSign',
@@ -3758,7 +3847,6 @@ var missingLibrarySymbols = [
   'lengthBytesUTF32',
   'allocateUTF8OnStack',
   'writeStringToMemory',
-  'writeArrayToMemory',
   'writeAsciiToMemory',
   'getSocketFromFD',
   'getSocketAddress',
@@ -3889,6 +3977,7 @@ var unexportedSymbols = [
   'UNWIND_CACHE',
   'readEmAsmArgsArray',
   'convertI32PairToI53Checked',
+  'getCFunc',
   'uleb128Encode',
   'sigToWasmTypes',
   'generateFuncType',
@@ -3904,6 +3993,7 @@ var unexportedSymbols = [
   'PATH_FS',
   'intArrayFromString',
   'UTF16Decoder',
+  'writeArrayToMemory',
   'SYSCALLS',
   'JSEvents',
   'specialHTMLTargets',
@@ -5386,6 +5476,21 @@ SIGContainAdapter.prototype['setTactic'] = SIGContainAdapter.prototype.setTactic
   var self = this.ptr;
   if (tactic && typeof tactic === 'object') tactic = tactic.ptr;
   _emscripten_bind_SIGContainAdapter_setTactic_1(self, tactic);
+};;
+
+SIGContainAdapter.prototype['firePerimeterX'] = SIGContainAdapter.prototype.firePerimeterX = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return wrapPointer(_emscripten_bind_SIGContainAdapter_firePerimeterX_0(self), DoublePtr);
+};;
+
+SIGContainAdapter.prototype['firePerimeterY'] = SIGContainAdapter.prototype.firePerimeterY = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return wrapPointer(_emscripten_bind_SIGContainAdapter_firePerimeterY_0(self), DoublePtr);
+};;
+
+SIGContainAdapter.prototype['firePoints'] = SIGContainAdapter.prototype.firePoints = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGContainAdapter_firePoints_0(self);
 };;
 
   SIGContainAdapter.prototype['__destroy__'] = SIGContainAdapter.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {

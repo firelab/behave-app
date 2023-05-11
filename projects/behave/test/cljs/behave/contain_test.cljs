@@ -35,7 +35,8 @@
 
     ;; Act
     (contain/doContainRun module)
-
+    (js/console.log "firePerimeterX:" (contain/firePerimeterX module))
+    (js/console.log  module)
     ;; Assert
     (testing (str "csv row idx:" row-idx)
       (is (within? (get row "fireLineLength")           (contain/getFinalFireLineLength module (get-unit "ch")) 1e-6))
@@ -45,7 +46,10 @@
       (is (within? (get row "fireSize")                 (contain/getFinalFireSize module (get-unit "ac")) 1e-6))
       (is (within? (get row "containmentArea")          (contain/getFinalContainmentArea module (get-unit "ac")) 1e-6))
       (is (within? (get row "timeSinceReport")          (contain/getFinalTimeSinceReport module (get-unit "min")) 1e-6))
-      (is (= (enums/contain-status (get row "containmentStatus")) (contain/getContainmentStatus module))))))
+      (is (= (enums/contain-status (get row "containmentStatus")) (contain/getContainmentStatus module)))
+      (is (= [] (contain/firePerimeterX module)))
+
+      )))
 
 (deftest contain-testing-simple
   (let [rows (->> (inline-resource "public/csv/contain.csv")
