@@ -5480,12 +5480,12 @@ SIGContainAdapter.prototype['setTactic'] = SIGContainAdapter.prototype.setTactic
 
 SIGContainAdapter.prototype['firePerimeterX'] = SIGContainAdapter.prototype.firePerimeterX = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  return wrapPointer(_emscripten_bind_SIGContainAdapter_firePerimeterX_0(self), DoublePtr);
+  return wrapPointer(_emscripten_bind_SIGContainAdapter_firePerimeterX_0(self), DoubleVector);
 };;
 
 SIGContainAdapter.prototype['firePerimeterY'] = SIGContainAdapter.prototype.firePerimeterY = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  return wrapPointer(_emscripten_bind_SIGContainAdapter_firePerimeterY_0(self), DoublePtr);
+  return wrapPointer(_emscripten_bind_SIGContainAdapter_firePerimeterY_0(self), DoubleVector);
 };;
 
 SIGContainAdapter.prototype['firePoints'] = SIGContainAdapter.prototype.firePoints = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {

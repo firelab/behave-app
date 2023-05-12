@@ -774,12 +774,14 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_setTactic_1(SIGConta
   self->setTactic(tactic);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_firePerimeterX_0(SIGContainAdapter* self) {
-  return self->firePerimeterX();
+DoubleVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_firePerimeterX_0(SIGContainAdapter* self) {
+  static DoubleVector temp;
+  return (temp = self->firePerimeterX(), &temp);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_firePerimeterY_0(SIGContainAdapter* self) {
-  return self->firePerimeterY();
+DoubleVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_firePerimeterY_0(SIGContainAdapter* self) {
+  static DoubleVector temp;
+  return (temp = self->firePerimeterY(), &temp);
 }
 
 int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_firePoints_0(SIGContainAdapter* self) {

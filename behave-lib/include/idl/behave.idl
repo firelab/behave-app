@@ -347,8 +347,8 @@ interface SIGContainAdapter {
   void setReportSize(double reportSize, AreaUnits_AreaUnitsEnum areaUnits);
   void setRetry(boolean retry);
   void setTactic(ContainTactic tactic);
-  double[] firePerimeterX();
-  double[] firePerimeterY();
+  [Value] DoubleVector firePerimeterX();
+  [Value] DoubleVector firePerimeterY();
   long firePoints();
 };
 
