@@ -14,6 +14,7 @@
                  "components/datom_utils/src"
                  "components/dom_utils/src"
                  "components/ds_schema_utils/src"
+                 "components/file_utils/src"
                  "components/markdown2hiccup/src"
                  "components/map_utils/src"
                  "components/number_utils/src"

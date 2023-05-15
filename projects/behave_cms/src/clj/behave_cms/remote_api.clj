@@ -12,13 +12,14 @@
                                                 reset-key!
                                                 verify-email!]]
             [behave-cms.routes          :refer [api-routes]]
-            [behave-cms.views           :refer [data-response]]))
+            [behave-cms.views           :refer [data-response]]
+            [behave-cms.export          :refer [sync-images]]))
 
 (defn log-str [& args]
   (when (= "dev" (get-config :server :mode))
     (apply println args)))
 
-(def name->fn {})
+(def name->fn {"sync-images" sync-images})
 
 (def api-handlers {; Authorization
                    :api/login                  login!

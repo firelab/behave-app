@@ -49,15 +49,16 @@
              sig/browser-utils                  {:local/root "../../components/browser_utils"}
              sig/config                         {:local/root "../../components/config"}
              sig/data-utils                     {:local/root "../../components/data_utils"}
+             sig/datom-compressor               {:local/root "../../components/datom_compressor" :exclusions [datascript/datascript io.replikativ/datahike]}
              sig/datom-utils                    {:local/root "../../components/datom_utils" :exclusions [datascript/datascript io.replikativ/datahike]}
              sig/dom-utils                      {:local/root "../../components/dom_utils"}
              sig/ds-schema-utils                {:local/root "../../components/ds_schema_utils"}
-             sig/number-utils                   {:local/root "../../components/number_utils"}
+             sig/file-utils                     {:local/root "../../components/file_utils"}
              sig/markdown2hiccup                {:local/root "../../components/markdown2hiccup"}
+             sig/number-utils                   {:local/root "../../components/number_utils"}
              sig/server                         {:local/root "../../components/server"}
              sig/string-utils                   {:local/root "../../components/string_utils"}
              sig/transport                      {:local/root "../../components/transport"}
-             sig/datom-compressor               {:local/root "../../components/datom_compressor" :exclusions [datascript/datascript io.replikativ/datahike]}
 
              ;; Bases
              sig/behave-components              {:local/root "../../bases/behave_components" :exclusions [org.clojure/clojurescript
