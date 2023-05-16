@@ -2,7 +2,7 @@
   (:require [clojure.java.io :refer [file output-stream input-stream] :as io]
             [clojure.string  :as str]
             [me.raynes.fs    :as fs])
-  (:import [java.io File FileInputStream OutputStream ByteArrayInputStream ByteArrayOutputStream]
+  (:import [java.io File OutputStream ByteArrayInputStream ByteArrayOutputStream]
            [javax.imageio ImageIO]
            [java.awt.image BufferedImage]
            [java.util.zip ZipEntry ZipOutputStream ZipInputStream]

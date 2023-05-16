@@ -1,5 +1,7 @@
 (ns behave-cms.export
-  (:require [file-utils.interface :refer [zip-file unzip-file resize-image]]))
+  (:require [clojure.java.io :as io]
+            [file-utils.interface :refer [zip-file unzip-file resize-image]])
+  (:import [java.io FileInputStream]))
 
 ;;; Constants
 

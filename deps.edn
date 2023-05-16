@@ -37,6 +37,7 @@
                 hiccup/hiccup                   {:mvn/version "2.0.0-alpha2"}
                 io.replikativ/datahike          {:mvn/version "0.5.1506"}
                 me.raynes/fs                    {:mvn/version "1.4.6"}
+                net.coobird/thumbnailator       {:mvn/version "0.4.19"}
                 org.clojure/clojure             {:mvn/version "1.11.1"}
                 org.clojure/data.json           {:mvn/version "1.0.0"}
                 org.clojure/data.xml            {:mvn/version "0.2.0-alpha7"}
