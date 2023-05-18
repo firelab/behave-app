@@ -15,23 +15,23 @@
                                       :variable/bp6-code-name
                                       [:variable/bp6-code-name
                                        :variable/kind
-                                       {:variable/group-variable
-                                        [{:group/_group-variable
+                                       {:variable/group-variables
+                                        [{:group/_group-variables
                                           [:group/repeat?
-                                           {:submodule/_group
+                                           {:submodule/_groups
                                             [:submodule/io]}]}]}]])]
     (->> bp6-variables
-         (filter :variable/group-variable)
+         (filter :variable/group-variables)
          (reduce (fn [acc cur]
-                   (let [group-var (get-in cur [:variable/group-variable 0])
-                         group     (get-in group-var [:group/_group-variable 0])]
+                   (let [group-var (get-in cur [:variable/group-variables 0])
+                         group     (get-in group-var [:group/_group-variables 0])]
                      (assoc! acc
                              (:variable/bp6-code-name cur)
                              {:group-id      (:db/id group)
                               :group-var-id  (:db/id group-var)
                               :group-repeat? (:group/repeat? group)
                               :id            (:db/id cur)
-                              :io            (get-in group [:submodule/_group 0 :submodule/io])
+                              :io            (get-in group [:submodule/_groups 0 :submodule/io])
                               :kind          (:variable/kind cur)})))
                  (transient {}))
          (persistent!)

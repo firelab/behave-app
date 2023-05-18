@@ -9,14 +9,14 @@
 (s/def :module/order           zero-pos?)
 (s/def :module/translation-key valid-key?)
 (s/def :module/help-key        valid-key?)
-(s/def :module/submodule       set?)
+(s/def :module/submodules      set?)
 
 (s/def :behave/module (s/keys :req [:module/uuid
                                     :module/name
                                     :module/order
                                     :module/translation-key
                                     :module/help-key]
-                              :opt [:module/submodule]))
+                              :opt [:module/submodules]))
 
 ;;; Schema
 

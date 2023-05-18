@@ -59,9 +59,9 @@
   (cond
     (map? entity)
     (cond
-      (:submodule/name entity)       (drill-in (:submodule/group entity))
-      (:group/group-variable entity) (drill-in (:group/group-variable entity))
-      (:variable/name entity)        [(:variable/name entity) (:bp/uuid entity)])
+      (:submodule/name entity)        (drill-in (:submodule/groups entity))
+      (:group/group-variables entity) (drill-in (:group/group-variables entity))
+      (:variable/name entity)         [(:variable/name entity) (:bp/uuid entity)])
 
     (and (coll? entity) (map? (first entity)) (:variable/name (first entity)))
     (map #(drill-in %) entity)

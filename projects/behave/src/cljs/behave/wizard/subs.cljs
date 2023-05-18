@@ -24,13 +24,13 @@
   :wizard/submodules
   (fn [[_ module-id]]
     (subscribe [:vms/pull-children
-                :module/submodule
+                :module/submodules
                 module-id]))
   (fn [submodules _]
     (map (fn [submodule]
            (-> submodule
                (assoc :slug (-> submodule (:submodule/name) (->kebab)))
-               (assoc :submodule/group @(subscribe [:wizard/groups (:db/id submodule)]))))
+               (assoc :submodule/groups @(subscribe [:wizard/groups (:db/id submodule)]))))
          submodules)))
 
 (reg-sub
@@ -64,21 +64,21 @@
   :wizard/groups
   (fn [[_ submodule-id]]
     (subscribe [:vms/pull-children
-                :submodule/group
+                :submodule/groups
                 submodule-id
-                '[* {:group/group-variable [* {:variable/_group-variable [*]}]}]]))
+                '[* {:group/group-variables [* {:variable/_group-variables [*]}]}]]))
 
   (fn [groups]
     (mapv (fn [group]
             (assoc group
-                   :group/group-variable
-                   (mapv #(let [variable-data (rename-keys (first (:variable/_group-variable %))
+                   :group/group-variables
+                   (mapv #(let [variable-data (rename-keys (first (:variable/_group-variables %))
                                                            {:bp/uuid :variable/uuid})]
                             (-> %
-                                (dissoc :variable/_group-variable)
+                                (dissoc :variable/_group-variables)
                                 (merge variable-data)
-                                (dissoc :variable/group-variable)
-                                (update :variable/kind keyword))) (:group/group-variable group)))) groups)))
+                                (dissoc :variable/group-variables)
+                                (update :variable/kind keyword))) (:group/group-variables group)))) groups)))
 
 (reg-sub
  :wizard/multi-value-input-count
@@ -96,15 +96,15 @@
 (reg-sub
   :wizard/group-variable
   (fn [[_ gv-uuid]]
-    (subscribe [:vms/pull '[* {:variable/_group-variable [:variable/name]}] [:bp/uuid gv-uuid]]))
+    (subscribe [:vms/pull '[* {:variable/_group-variables [:variable/name]}] [:bp/uuid gv-uuid]]))
 
   (fn [group-variable _query]
-    (let [variable-data (rename-keys (first (:variable/_group-variable group-variable))
+    (let [variable-data (rename-keys (first (:variable/_group-variables group-variable))
                                      {:db/id :variable/id})]
       (-> group-variable
-          (dissoc :variable/_group-variable)
+          (dissoc :variable/_group-variables)
           (merge variable-data)
-          (dissoc :variable/group-variable)
+          (dissoc :variable/group-variables)
           (update :variable/kind keyword)))))
 
 ;; TODO Might want to set this in a config file to the application
