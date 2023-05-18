@@ -6,7 +6,7 @@
 (reg-sub
   :submodules
   (fn [[_ module-id]]
-    (subscribe [:pull-children :module/submodule module-id]))
+    (subscribe [:pull-children :module/submodules module-id]))
   identity)
 
 (reg-sub

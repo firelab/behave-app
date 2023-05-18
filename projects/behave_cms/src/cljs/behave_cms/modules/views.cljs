@@ -11,7 +11,7 @@
 
 (defn module-form [application-id module-id num-modules]
   [entity-form {:entity       :module
-                :parent-field :application/_module
+                :parent-field :application/_modules
                 :parent-id    application-id
                 :id           module-id
                 :fields       [{:label     "Name"

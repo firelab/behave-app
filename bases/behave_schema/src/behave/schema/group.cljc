@@ -10,7 +10,7 @@
 (s/def :group/translation-key (s/and string? valid-key?))
 (s/def :group/help-key        (s/and string? valid-key?))
 (s/def :group/children        set?)
-(s/def :group/variables       set?)
+(s/def :group/group-variables set?)
 
 (s/def :behave/group (s/keys :req [:group/uuid
                                    :group/name
@@ -18,7 +18,7 @@
                                    :group/translation-key
                                    :group/help-key]
                              :opt [:group/children
-                                   :group/variables]))
+                                   :group/group-variables]))
 
 ;;; Schema
 
@@ -34,7 +34,7 @@
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
 
-   {:db/ident       :group/group-variable
+   {:db/ident       :group/group-variables
     :db/doc         "Group's group variables."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}

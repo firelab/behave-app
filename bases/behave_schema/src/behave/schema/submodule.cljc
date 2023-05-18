@@ -47,7 +47,7 @@
     :db/valueType   :db.type/number
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :submodule/group
+   {:db/ident       :submodule/groups
     :db/doc         "Subodule's groups."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}

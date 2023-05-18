@@ -11,7 +11,7 @@
 
 (defn submodule-form [module-id id num-submodules]
   [entity-form {:entity        :submodule
-                :parent-field  :module/_submodule
+                :parent-field  :module/_submodules
                 :parent-id     module-id
                 :id            id
                 :fields        [{:label     "Name"
@@ -53,8 +53,8 @@
 (defn list-submodules-page [{:keys [id]}]
   (let [loaded? (rf/subscribe [:state :loaded?])]
     (if @loaded?
-      (let [module         (rf/subscribe [:entity id '[* {:application/_module [:db/id]}]])
-            application-id (get-in @module [:application/_module 0 :db/id])
+      (let [module         (rf/subscribe [:entity id '[* {:application/_modules [:db/id]}]])
+            application-id (get-in @module [:application/_modules 0 :db/id])
             submodules     (rf/subscribe [:sidebar/submodules id])
             submodule      (rf/subscribe [:state :submodule])]
         [:<>

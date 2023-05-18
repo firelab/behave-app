@@ -12,7 +12,7 @@
 
 (defn group-form [submodule-id group-id num-groups]
   [entity-form {:entity        :group
-                :parent-field  :submodule/_group
+                :parent-field  :submodule/_groups
                 :parent-id     submodule-id
                 :id            group-id
                 :fields        [{:label     "Name"
@@ -41,14 +41,14 @@
 
 (defn loaded-page [submodule-id]
   (println "Initiliazed here")
-  (let [submodule      (rf/subscribe [:entity submodule-id '[* {:module/_submodule [*]}]])
+  (let [submodule      (rf/subscribe [:entity submodule-id '[* {:module/_submodules [*]}]])
         sidebar-groups (rf/subscribe [:sidebar/groups submodule-id])]
     [:<>
      [sidebar
       "Groups"
       @sidebar-groups
       "Submodules"
-      (str "/modules/" (get-in @submodule [:module/_submodule 0 :db/id]))]
+      (str "/modules/" (get-in @submodule [:module/_submodules 0 :db/id]))]
      [window sidebar-width
       [:div.container
        [:div.row.mb-3.mt-4

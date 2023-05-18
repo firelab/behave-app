@@ -8,7 +8,7 @@
 (reg-sub
  :modules
  (fn [[_ application-id]]
-   (subscribe [:pull-children :application/module application-id]))
+   (subscribe [:pull-children :application/modules application-id]))
  identity)
 
 (reg-sub

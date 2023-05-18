@@ -14,12 +14,12 @@
    (subscribe [:query '[:find ?a .
                         :in $ ?g
                         :where
-                        [?sm :submodule/group ?g]
-                        [?m :module/submodule ?sm]
-                        [?a :application/module ?m]]
+                        [?sm :submodule/groups ?g]
+                        [?m :module/submodules ?sm]
+                        [?a :application/modules ?m]]
                [group-id]]))
  (fn [app-id]
-   @(subscribe [:pull-children :application/module app-id])))
+   @(subscribe [:pull-children :application/modules app-id])))
 
 ;;; Discrete Variables
 
@@ -29,14 +29,14 @@
    (subscribe [:query '[:find [?gv ...]
                         :in $ ?g
                         :where
-                        [?g :group/group-variable ?gv]
-                        [?v :variable/group-variable ?gv]
+                        [?g :group/group-variables ?gv]
+                        [?v :variable/group-variables ?gv]
                         [?v :variable/kind :discrete]]
                [group-id]]))
  (fn [results]
-   (->> @(subscribe [:pull-many '[* {:variable/_group-variable [*]}] results])
+   (->> @(subscribe [:pull-many '[* {:variable/_group-variables [*]}] results])
         (map (fn [group-variable]
-               (let [variable (get-in group-variable [:variable/_group-variable 0])
+               (let [variable (get-in group-variable [:variable/_group-variables 0])
                      variable (dissoc variable :db/id :bp/uuid)]
                  (merge group-variable variable)))))))
 
@@ -48,7 +48,7 @@
                      :in $ ?gv-uuid
                      :where
                      [?gv :bp/uuid ?gv-uuid]
-                     [?v :variable/group-variable ?gv]
+                     [?v :variable/group-variables ?gv]
                      [?v :variable/list ?l]]
                    [gv-uuid]]))
   (fn [list]
@@ -98,7 +98,7 @@
                  [?g :group/conditionals ?c]
                  [?c :conditional/group-variable-uuid ?gv-uuid]
                  [?gv :bp/uuid ?gv-uuid]
-                 [?v :variable/group-variable ?gv]
+                 [?v :variable/group-variables ?gv]
                  [?v :variable/name ?name]
                  [?c :conditional/operator ?operator]
                  [?c :conditional/values ?values]]
@@ -116,7 +116,7 @@
 (reg-sub
  :variables
  (fn [[_ group-id]]
-   (subscribe [:pull-children :group/group-variable group-id '[* {:variable/_group-variable [*]}]]))
+   (subscribe [:pull-children :group/group-variables group-id '[* {:variable/_group-variables [*]}]]))
  identity)
 
 (reg-sub
@@ -126,7 +126,7 @@
 
  (fn [variables]
    (map (fn [group-variable]
-          (let [variable (get-in group-variable [:variable/_group-variable 0])
+          (let [variable (get-in group-variable [:variable/_group-variables 0])
                 variable (dissoc variable :db/id :bp/uuid)]
             (merge group-variable variable))) variables)))
 
@@ -139,7 +139,7 @@
    (->> variables
         (map (fn [variable]
                (let [id   (:db/id variable)
-                     name (get-in variable [:variable/_group-variable 0 :variable/name])]
+                     name (get-in variable [:variable/_group-variables 0 :variable/name])]
                  {:label name
                   :link  (path-for app-routes :get-group-variable :id id)})))
         (sort-by :label))))

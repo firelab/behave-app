@@ -58,7 +58,7 @@
                      :application/version-patch]
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :application/module
+   {:db/ident       :application/modules
     :db/doc         "Application's modules."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}

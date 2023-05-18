@@ -55,7 +55,7 @@
   (let [query            (rf/subscribe [:state [:search :variables]])
         all-variables    (rf/subscribe [:group/search-variables @query])
         all-variable-ids (set (map :db/id @all-variables))
-        gv-ids           (set (map #(get-in % [:variable/_group-variable 0 :db/id]) group-variables))
+        gv-ids           (set (map #(get-in % [:variable/_group-variables 0 :db/id]) group-variables))
         remaining-ids    (difference all-variable-ids gv-ids)
         remaining        (filter #(-> % (:db/id) (remaining-ids)) @all-variables)]
     [:div.row
@@ -65,8 +65,8 @@
       (u/debounce #(rf/dispatch [:state/set-state [:search :variables] %]) 1000)
       #(let [variable @(rf/subscribe [:pull '[:variable/name] %])]
          (rf/dispatch [:api/create-entity
-                       {:group/_group-variable          id
-                        :variable/_group-variable       %
+                       {:group/_group-variables         id
+                        :variable/_group-variables      %
                         :group-variable/translation-key (str translation-key ":" (->kebab (:variable/name variable)))
                         :group-variable/help-key        (str translation-key ":" (->kebab (:variable/name variable)) ":help")
                         :group-variable/order           (count group-variables)}]))
@@ -102,7 +102,7 @@
                                          {:group/_conditionals id})])
 
         modules    (rf/subscribe [:subgroup/app-modules id])
-        submodules (rf/subscribe [:pull-children :module/submodule @(get-field (conj var-path :module))])
+        submodules (rf/subscribe [:pull-children :module/submodules @(get-field (conj var-path :module))])
         groups     (rf/subscribe [:pull-children :submodule/group @(get-field (conj var-path :submodule))])
         is-output? (rf/subscribe [:submodule/is-output? @(get-field (conj var-path :submodule))]) 
         variables  (rf/subscribe [(if @is-output? :group/variables :group/discrete-variables) @(get-field (conj var-path :group))])
@@ -181,15 +181,15 @@
   (let [loaded? (rf/subscribe [:state :loaded?])]
     (if (not @loaded?)
       [:div "Loading..."]
-      (let [group           (rf/subscribe [:entity id '[* {:submodule/_group     [*]
-                                                           :group/group-variable [* {:variable/_group-variable [*]}]}]])
+      (let [group           (rf/subscribe [:entity id '[* {:submodule/_groups     [*]
+                                                           :group/group-variables [* {:variable/_group-variables [*]}]}]])
             group-variables (rf/subscribe [:sidebar/variables id])]
         [:<>
          [sidebar
           "Variables"
           @group-variables
           "Groups"
-          (str "/submodules/" (get-in @group [:submodule/_group 0 :db/id]))]
+          (str "/submodules/" (get-in @group [:submodule/_groups 0 :db/id]))]
          [window
           sidebar-width
           [:div.container

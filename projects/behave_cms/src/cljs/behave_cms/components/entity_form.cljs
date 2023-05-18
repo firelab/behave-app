@@ -147,7 +147,7 @@
   For example:
   ```clj
   [entity-form {:entity        :submodule
-                :parent-field  :module/_submodule
+                :parent-field  :module/_submodules
                 :parent-id     module-id
                 :id            id
                 :fields        [{:label     \"Name\"

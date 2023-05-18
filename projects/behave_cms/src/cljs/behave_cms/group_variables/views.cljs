@@ -71,10 +71,10 @@
     (if (not @loaded?)
       [:div "Loading ..."]
       (let [gv-id           (parse-int id)
-            group-variable  (rf/subscribe [:entity gv-id '[* {:variable/_group-variable [*]
-                                                              :group/_group-variable    [*]}]])
-            group           (get-in @group-variable [:group/_group-variable 0])
-            variable        (get-in @group-variable [:variable/_group-variable 0])
+            group-variable  (rf/subscribe [:entity gv-id '[* {:variable/_group-variables [*]
+                                                              :group/_group-variables    [*]}]])
+            group           (get-in @group-variable [:group/_group-variables 0])
+            variable        (get-in @group-variable [:variable/_group-variables 0])
             group-variables (rf/subscribe [:sidebar/variables (:db/id group)])]
         [:<>
          [sidebar
