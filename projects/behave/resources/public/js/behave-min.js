@@ -3471,8 +3471,8 @@ var ___cxa_can_catch = createExportWrapper("__cxa_can_catch");
 var ___cxa_is_pointer_type = createExportWrapper("__cxa_is_pointer_type");
 /** @type {function(...*):?} */
 var dynCall_jiji = Module["dynCall_jiji"] = createExportWrapper("dynCall_jiji");
-var ___start_em_js = Module['___start_em_js'] = 111960;
-var ___stop_em_js = Module['___stop_em_js'] = 112058;
+var ___start_em_js = Module['___start_em_js'] = 112088;
+var ___stop_em_js = Module['___stop_em_js'] = 112186;
 function invoke_vii(index,a1,a2) {
   var sp = stackSave();
   try {

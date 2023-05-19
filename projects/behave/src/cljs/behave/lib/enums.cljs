@@ -5,21 +5,17 @@
 
 (defn- enum-value [enum-name idx member]
   (let [member (last (str/split member #"::"))
-        f      (when (aget js/window "Module")
+        f      (when (and (aget js/window "Module")
+                          (aget js/window "runtimeInitialized"))
                  (aget js/Module (str "_emscripten_enum_" enum-name "_" member)))
         value  (if (fn? f) (f) idx)]
     [member value]))
 
-(defn setup-enum [enum-name members]
+(defn enum [enum-name members]
   (let [member-vals (into {} (map-indexed (partial enum-value enum-name) members))
         enum-name   (first (str/split enum-name #"_"))]
     (swap! all-enums assoc enum-name member-vals)
     member-vals))
-
-(defn enum [enum-name members]
-  (if (true? (aget js/window "runtimeInitialized"))
-    (setup-enum enum-name members)
-    (js/setTimeout #(enum enum-name members) 1000)))
 
 (def area-units
   (enum "AreaUnits_AreaUnitsEnum"
@@ -29,6 +25,11 @@
          "AreaUnits::SquareMeters"
          "AreaUnits::SquareMiles"
          "AreaUnits::SquareKilometers"]))
+
+(def beetle-damage
+  (enum "BeetleDamage_BeetleDamageEnum"
+        ["BeetleDamage::no"
+         "BeetleDamage::yes"]))
 
 (def contain-flank
   (enum "ContainFlank"
@@ -64,6 +65,13 @@
         ["DensityUnits::PoundsPerCubicFoot"
          "DensityUnits::KilogramsPerCubicMeter"]))
 
+(def equation-type
+  (enum "EquationType::EquationTypeEnum"
+        ["EquationType::crown_scorch"
+         "EquationType::crown_damage"
+         "EquationType::bole_char"
+         "EquationType::not_set"]))
+
 (def fireline-intensity-units
   (enum "FirelineIntensityUnits_FirelineIntensityUnitsEnum"
         ["FirelineIntensityUnits::BtusPerFootPerSecond"
@@ -78,6 +86,11 @@
          "FireType::Torching"
          "FireType::ConditionalCrownFire"
          "FireType::Crowning"]))
+
+(def flame-length-or-scorch-height-switch
+  (enum "FlameLengthOrScorchHeightSwitch_FlameLengthOrScorchHeightSwitchEnum"
+        ["FlameLengthOrScorchHeightSwitch::scorch_height"
+         "FlameLengthOrScorchHeightSwitch::flame_length"]))
 
 (def heat-combustion-units
   (enum "HeatOfCombustionUnits_HeatOfCombustionUnitsEnum"
@@ -146,6 +159,14 @@
   (enum "ProbabilityUnits_ProbabilityUnitsEnum"
         ["ProbabilityUnits::Fraction"
          "ProbabilityUnits::Percent"]))
+
+(def region-code
+  (enum "RegionCode_RegionCodeEnum"
+        ["RegionCode::none"
+         "RegionCode::interior_west"
+         "RegionCode::pacific_east"
+         "RegionCode::south_east"
+         "RegionCode::north_east"]))
 
 (def slope-units
   (enum "SlopeUnits_SlopeUnitsEnum"
