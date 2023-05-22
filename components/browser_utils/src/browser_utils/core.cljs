@@ -142,7 +142,7 @@
     (js/setTimeout
      #(do (.removeChild body a)
           (js/URL.revokeObjectURL url)) 0)))
-;; i.e.
+;; Usage
 #_(download (str/join "\n" ["Header1,Header2" "1,2"])
             "example.csv"
             "application/text")
