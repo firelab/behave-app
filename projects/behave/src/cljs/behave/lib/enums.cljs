@@ -68,9 +68,8 @@
 (def equation-type
   (enum "EquationType::EquationTypeEnum"
         ["EquationType::crown_scorch"
-         "EquationType::crown_damage"
          "EquationType::bole_char"
-         "EquationType::not_set"]))
+         "EquationType::crown_damage"]))
 
 (def fireline-intensity-units
   (enum "FirelineIntensityUnits_FirelineIntensityUnitsEnum"
@@ -89,8 +88,8 @@
 
 (def flame-length-or-scorch-height-switch
   (enum "FlameLengthOrScorchHeightSwitch_FlameLengthOrScorchHeightSwitchEnum"
-        ["FlameLengthOrScorchHeightSwitch::scorch_height"
-         "FlameLengthOrScorchHeightSwitch::flame_length"]))
+        ["FlameLengthOrScorchHeightSwitch::flame_length"
+         "FlameLengthOrScorchHeightSwitch::scorch_height"]))
 
 (def heat-combustion-units
   (enum "HeatOfCombustionUnits_HeatOfCombustionUnitsEnum"

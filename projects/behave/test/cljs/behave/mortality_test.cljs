@@ -48,12 +48,15 @@
 (defn- run-test [row-idx row]
   (let[module        (mortality/init (species-master-table/init))
        equation-type (if (get row "EquationType")
-                       (enums/equation-type (get row "EquationType"))
+                       (->> (get row "EquationType")
+                            (get equation-type-lookup)
+                            enums/equation-type)
                        -1)
        species-code  (get row "TreeSpecies")
        FS            (if (= (get row "FS") "S")
                        (enums/flame-length-or-scorch-height-switch "scorch_height")
                        (enums/flame-length-or-scorch-height-switch "flame_length"))]
+
     (mortality/setRegion module (enums/region-code "south_east"))
 
     (mortality/setEquationType module  equation-type)
