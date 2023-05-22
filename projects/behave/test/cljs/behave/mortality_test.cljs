@@ -22,7 +22,7 @@
      #(do (.removeChild body a)
           (js/URL.revokeObjectURL url)) 0)))
 
-(defonce failing-tests (atom ["line,expected,observed"]))
+(defonce failing-tests (atom ["line,expected,observed,difference"]))
 
 (defn within? [precision a b]
   (> precision (Math/abs (- a b))))
@@ -56,6 +56,16 @@
        FS            (if (= (get row "FS") "S")
                        (enums/flame-length-or-scorch-height-switch "scorch_height")
                        (enums/flame-length-or-scorch-height-switch "flame_length"))]
+
+    ;; (println "TreeSpecies: " (get row "TreeSpecies"))
+    ;; (println "TreeExpansionFactor: " (get row "TreeExpansionFactor"))
+    ;; (println "Diameter: " (get row "Diameter"))
+    ;; (println "TreeHeight: " (get row "TreeHeight"))
+    ;; (println "CrownRatio: " (get row "CrownRatio"))
+    ;; (println "EquationType: " (->> (get row "EquationType")
+    ;;                                (get equation-type-lookup)))
+    ;; (println "FS:" FS)
+
 
     (mortality/setRegion module (enums/region-code "south_east"))
 
@@ -116,7 +126,7 @@
         (when (not (within-a-percent? expected observed))
           (swap! failing-tests
                  conj
-                 (str (+ row-idx 2) "," expected "," observed)))
+                 (str/join "," [(+ row-idx 2) expected observed (Math/abs (- expected observed))])))
 
         (is (within-a-percent? expected observed)
             (str "Expected: " expected "  Observed: " observed))))))
