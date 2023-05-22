@@ -2,25 +2,11 @@
   (:require [behave.lib.enums                :as enums]
             [behave.lib.mortality            :as mortality]
             [behave.lib.species-master-table :as species-master-table]
+            [browser-utils.core              :refer [download]]
             [clojure.string                  :as str]
             [csv-parser.interface            :refer [parse-csv]]
             [cljs.test                       :refer [is deftest testing]])
   (:require-macros [behave.macros :refer [inline-resource]]))
-
-(defn download
-  "Function to download data to a file"
-  [data filename type]
-  (let [body (.-body js/document)
-        file (js/Blob. #js [data] #js {:type type})
-        a    (.createElement js/document "a")
-        url  (.createObjectURL js/URL file)]
-    (set! (.-href a) url)
-    (set! (.-download a) filename)
-    (.appendChild body a)
-    (.click a)
-    (js/setTimeout
-     #(do (.removeChild body a)
-          (js/URL.revokeObjectURL url)) 0)))
 
 (defonce failing-tests (atom ["line,expected,observed,difference"]))
 

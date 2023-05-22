@@ -118,7 +118,31 @@
 
 (defn script-exist? [js-path]
   (->> (js/document.getElementsByTagName "script")
-      (js/Array.from)
-      (filter #(= js-path (.-src %)))
-      (count)
-      (pos?)))
+       (js/Array.from)
+       (filter #(= js-path (.-src %)))
+       (count)
+       (pos?)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Download
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn download
+  "Function to download data to a file"
+  [data filename type]
+  (let [body (.-body js/document)
+        file (js/Blob. #js [data] #js {:type type})
+        a    (.createElement js/document "a")
+        url  (.createObjectURL js/URL file)]
+    (set! (.-href a) url)
+    (set! (.-download a) filename)
+    (.appendChild body a)
+    (.click a)
+    (js/setTimeout
+     #(do (.removeChild body a)
+          (js/URL.revokeObjectURL url)) 0)))
+;; i.e.
+#_(download (str/join "\n" ["Header1,Header2" "1,2"])
+            "example.csv"
+            "application/text")
