@@ -28,6 +28,7 @@ void setSurfaceFireFlameLength(double value, LengthUnits::LengthUnitsEnum length
   setFlameLengthOrScorchHeightSwitch(FlameLengthOrScorchHeightSwitch::flame_length);
   setFlameLengthOrScorchHeightValue(value, lengthUnits);
 };
+
 void setSurfaceFireScorchHeight(double value, LengthUnits::LengthUnitsEnum lengthUnits)
 {
   setFlameLengthOrScorchHeightSwitch(FlameLengthOrScorchHeightSwitch::scorch_height);
