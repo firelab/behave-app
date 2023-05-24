@@ -53,7 +53,8 @@
                 ;; Clojure Common
                 cljs-ajax/cljs-ajax {:mvn/version "0.8.4"}
                 sig-gis/triangulum  {:git/url "https://github.com/sig-gis/triangulum"
-                                     :sha     "acb80fc5c99cc2f3eba516fdb2317eb28629c3a4"}
+                                     :git/tag "2023.05.15"
+                                     :sha     "6a92593c2764060a3a8d0e6db72e5a8b411b1655"}
 
                 ;; ClojureScript Deps
                 com.bhauman/figwheel-main          {:mvn/version "0.2.18"}
