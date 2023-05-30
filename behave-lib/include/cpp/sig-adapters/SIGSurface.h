@@ -51,6 +51,4 @@ public:
   // Fuel Model Getter Methods
   char* getFuelCode(int fuelModelNumber) const;
   char* getFuelName(int fuelModelNumber) const;
-
-
 };
