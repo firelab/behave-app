@@ -52,6 +52,5 @@ public:
   char* getFuelCode(int fuelModelNumber) const;
   char* getFuelName(int fuelModelNumber) const;
 
-private:
 
 };
