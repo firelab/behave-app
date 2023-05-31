@@ -4,6 +4,7 @@
              "clojars" {:url "https://clojars.org/repo"}}
 
  :deps      {;; Clojure
+             clj-http/clj-http             {:mvn/version "3.10.1"}
              org.clojure/clojure           {:mvn/version "1.11.1"}
              ring/ring                     {:mvn/version "1.9.5"}
              ring/ring-defaults            {:mvn/version "0.3.3"}
