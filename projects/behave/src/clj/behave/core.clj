@@ -29,8 +29,11 @@
     (io/make-parents (get-in config [:store :path]))
     (store/connect! config)))
 
-(defn vms-sync-handler [req]
-  (export-from-vms (get-config :vms :secret-token))
+(defn vms-sync! []
+  (export-from-vms (get-config :vms :secret-token)))
+
+(defn vms-sync-handler [_]
+  (vms-sync!)
   {:status 200 :body "OK"})
 
 (defn bad-uri?
@@ -120,6 +123,7 @@
 
 (defn -main [& _args]
   (init!)
+  (vms-sync!)
   (server/start-server! {:handler (create-handler-stack (= (get-config :server :mode) "dev"))
                          :port    (or (get-config :server :http-port) 8080)}))
 

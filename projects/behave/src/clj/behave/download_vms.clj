@@ -8,7 +8,7 @@
   (let [{:keys [status body]} (client/get (or url (str "https://behave.sig-gis.com/sync?auth-token=" auth-token))
                                           {:as      :byte-array
                                            :headers {"Accept" "application/msgpack"}})
-        file                  (io/file (io/resource "public") "layout-test.msgpack")]
+        file                  (io/file (io/resource "public") "layout.msgpack")]
     (when (= status 200)
       (io/copy body file)
       (log-str "Completed downloading from VMS!"))))
