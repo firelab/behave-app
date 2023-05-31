@@ -1,4 +1,4 @@
-((nil . ((cider-clojure-cli-aliases . "-A:dev:behave/app")
+((nil . ((cider-clojure-cli-aliases . ":dev:behave/app")
          (cider-default-cljs-repl . figwheel-main))))
 
 ;; VMS Configuration
