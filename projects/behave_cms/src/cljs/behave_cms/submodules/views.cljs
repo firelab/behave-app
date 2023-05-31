@@ -43,8 +43,9 @@
      :on-decrease #(rf/dispatch [:api/reorder % submodules :submodule/order :dec])}]])
 
 (defn all-submodule-tables [module-id]
-  (let [submodules       (rf/subscribe [:submodules module-id])
-        [inputs outputs] (partition-by #(= :input (:submodule/io %)) @submodules)]
+  (let [submodules (rf/subscribe [:submodules module-id])
+        inputs     (filter #(= :input (:submodule/io %)) @submodules)
+        outputs    (filter #(= :output (:submodule/io %)) @submodules)]
     [:div.col-6
      [:row
       [submodules-table "Output Submodules" outputs]
