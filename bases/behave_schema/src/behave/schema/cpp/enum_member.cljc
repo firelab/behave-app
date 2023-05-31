@@ -12,6 +12,7 @@
     :db/doc         "Enum member name."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
+
    {:db/ident       :cpp.enum-member/value
     :db/doc         "Enum member value."
     :db/valueType   :db.type/number

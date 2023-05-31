@@ -14,10 +14,12 @@
     :db/doc         "Namespace's name."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
+
    {:db/ident       :cpp.namespace/class
     :db/doc         "Namespace's classes."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
+
    {:db/ident       :cpp.namespace/enum
     :db/doc         "Namespace's enums."
     :db/valueType   :db.type/ref

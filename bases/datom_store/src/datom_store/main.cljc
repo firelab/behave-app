@@ -1,6 +1,6 @@
 (ns datom-store.main
   (:require [#?(:clj datahike.api   :cljs datascript.core) :as d]
-            [#?(:clj datahike.datom :cljs datascript.db) :refer [datom]]
+            [#?(:clj datahike.datom :cljs datascript.db)   :refer [datom]]
             [ds-schema-utils.interface :refer [->ds-schema]]
             [datom-utils.interface     :refer [safe-attr?
                                                safe-deref
