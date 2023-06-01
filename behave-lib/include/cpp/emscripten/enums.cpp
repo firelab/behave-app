@@ -1,3 +1,6 @@
+// Follows this pattern
+// typedef <struct::enum> <struct_enum>;
+
 // Behave Units Enums
 typedef AreaUnits::AreaUnitsEnum AreaUnits_AreaUnitsEnum;
 typedef LengthUnits::LengthUnitsEnum LengthUnits_LengthUnitsEnum;
@@ -16,6 +19,11 @@ typedef HeatSourceAndReactionIntensityUnits::HeatSourceAndReactionIntensityUnits
 typedef FirelineIntensityUnits::FirelineIntensityUnitsEnum FirelineIntensityUnits_FirelineIntensityUnitsEnum;
 typedef TemperatureUnits::TemperatureUnitsEnum TemperatureUnits_TemperatureUnitsEnum;
 typedef TimeUnits::TimeUnitsEnum TimeUnits_TimeUnitsEnum;
+
+// containAdapter.h
+typedef ContainAdapterEnums::ContainTactic::ContainTacticEnum ContainTactic_ContainTacticEnum;
+typedef ContainAdapterEnums::ContainStatus::ContainStatusEnum ContainStatus_ContainStatusEnum;
+typedef ContainAdapterEnums::ContainFlank::ContainFlankEnum ContainFlank_ContainFlankEnum;
 
 // surfaceInputs.h
 typedef AspenFireSeverity::AspenFireSeverityEnum AspenFireSeverity_AspenFireSeverityEnum;

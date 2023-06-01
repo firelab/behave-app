@@ -233,444 +233,13 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_FireSize___destroy___0(FireSize* self)
   delete self;
 }
 
-// SIGContainResource
-
-SIGContainResource* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainResource_SIGContainResource_0() {
-  return new SIGContainResource();
-}
-
-SIGContainResource* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainResource_SIGContainResource_7(double arrival, double production, double duration, ContainFlank flank, const char* desc, double baseCost, double hourCost) {
-  return new SIGContainResource(arrival, production, duration, flank, desc, baseCost, hourCost);
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainResource_print_2(SIGContainResource* self, char* buf, int buflen) {
-  self->print(buf, buflen);
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainResource_arrival_0(SIGContainResource* self) {
-  return self->arrival();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainResource_hourCost_0(SIGContainResource* self) {
-  return self->hourCost();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainResource_duration_0(SIGContainResource* self) {
-  return self->duration();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainResource_production_0(SIGContainResource* self) {
-  return self->production();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainResource_baseCost_0(SIGContainResource* self) {
-  return self->baseCost();
-}
-
-const char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainResource_description_0(SIGContainResource* self) {
-  return self->description();
-}
-
-ContainFlank EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainResource_flank_0(SIGContainResource* self) {
-  return self->flank();
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainResource___destroy___0(SIGContainResource* self) {
-  delete self;
-}
-
-// SIGContainForce
-
-SIGContainForce* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainForce_SIGContainForce_0() {
-  return new SIGContainForce();
-}
-
-SIGContainResource* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainForce_addResource_1(SIGContainForce* self, SIGContainResource* arrival) {
-  return self->addResource(arrival);
-}
-
-SIGContainResource* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainForce_addResource_7(SIGContainForce* self, double arrival, double production, double duration, ContainFlank flank, const char* desc, double baseCost, double hourCost) {
-  return self->addResource(arrival, production, duration, flank, desc, baseCost, hourCost);
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainForce_exhausted_1(SIGContainForce* self, ContainFlank flank) {
-  return self->exhausted(flank);
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainForce_firstArrival_1(SIGContainForce* self, ContainFlank flank) {
-  return self->firstArrival(flank);
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainForce_nextArrival_3(SIGContainForce* self, double after, double until, ContainFlank flank) {
-  return self->nextArrival(after, until, flank);
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainForce_productionRate_2(SIGContainForce* self, double minutesSinceReport, ContainFlank flank) {
-  return self->productionRate(minutesSinceReport, flank);
-}
-
-int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainForce_resources_0(SIGContainForce* self) {
-  return self->resources();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainForce_resourceArrival_1(SIGContainForce* self, int index) {
-  return self->resourceArrival(index);
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainForce_resourceBaseCost_1(SIGContainForce* self, int index) {
-  return self->resourceBaseCost(index);
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainForce_resourceCost_2(SIGContainForce* self, int index, double finalTime) {
-  return self->resourceCost(index, finalTime);
-}
-
-const char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainForce_resourceDescription_1(SIGContainForce* self, int index) {
-  return self->resourceDescription(index);
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainForce_resourceDuration_1(SIGContainForce* self, int index) {
-  return self->resourceDuration(index);
-}
-
-ContainFlank EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainForce_resourceFlank_1(SIGContainForce* self, int index) {
-  return self->resourceFlank(index);
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainForce_resourceHourCost_1(SIGContainForce* self, int index) {
-  return self->resourceHourCost(index);
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainForce_resourceProduction_1(SIGContainForce* self, int index) {
-  return self->resourceProduction(index);
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainForce___destroy___0(SIGContainForce* self) {
-  delete self;
-}
-
-// SIGContainForceAdapter
-
-SIGContainForceAdapter* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainForceAdapter_SIGContainForceAdapter_0() {
-  return new SIGContainForceAdapter();
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainForceAdapter_addResource_7(SIGContainForceAdapter* self, double arrival, double production, double duration, ContainFlank flank, const char* desc, double baseCost, double hourCost) {
-  self->addResource(arrival, production, duration, flank, desc, baseCost, hourCost);
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainForceAdapter_firstArrival_1(SIGContainForceAdapter* self, ContainFlank flank) {
-  return self->firstArrival(flank);
-}
-
-int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainForceAdapter_removeResourceAt_1(SIGContainForceAdapter* self, int index) {
-  return self->removeResourceAt(index);
-}
-
-int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainForceAdapter_removeResourceWithThisDesc_1(SIGContainForceAdapter* self, const char* desc) {
-  return self->removeResourceWithThisDesc(desc);
-}
-
-int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainForceAdapter_removeAllResourcesWithThisDesc_1(SIGContainForceAdapter* self, const char* desc) {
-  return self->removeAllResourcesWithThisDesc(desc);
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainForceAdapter___destroy___0(SIGContainForceAdapter* self) {
-  delete self;
-}
-
-// SIGContainSim
-
-SIGContainSim* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainSim_SIGContainSim_13(double reportSize, double reportRate, SIGDiurnalROS* diurnalROS, int fireStartMinutesStartTime, double lwRatio, SIGContainForce* force, ContainTactic tactic, double attackDist, bool retry, int minSteps, int maxSteps, int maxFireSize, int maxFireTime) {
-  return new SIGContainSim(reportSize, reportRate, diurnalROS, fireStartMinutesStartTime, lwRatio, force, tactic, attackDist, retry, minSteps, maxSteps, maxFireSize, maxFireTime);
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainSim_attackDistance_0(SIGContainSim* self) {
-  return self->attackDistance();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainSim_attackPointX_0(SIGContainSim* self) {
-  return self->attackPointX();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainSim_attackPointY_0(SIGContainSim* self) {
-  return self->attackPointY();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainSim_attackTime_0(SIGContainSim* self) {
-  return self->attackTime();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainSim_distanceStep_0(SIGContainSim* self) {
-  return self->distanceStep();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainSim_fireBackAtAttack_0(SIGContainSim* self) {
-  return self->fireBackAtAttack();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainSim_fireBackAtReport_0(SIGContainSim* self) {
-  return self->fireBackAtReport();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainSim_fireHeadAtAttack_0(SIGContainSim* self) {
-  return self->fireHeadAtAttack();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainSim_fireHeadAtReport_0(SIGContainSim* self) {
-  return self->fireHeadAtReport();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainSim_fireLwRatioAtReport_0(SIGContainSim* self) {
-  return self->fireLwRatioAtReport();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainSim_fireReportTime_0(SIGContainSim* self) {
-  return self->fireReportTime();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainSim_fireSizeAtReport_0(SIGContainSim* self) {
-  return self->fireSizeAtReport();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainSim_fireSpreadRateAtBack_0(SIGContainSim* self) {
-  return self->fireSpreadRateAtBack();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainSim_fireSpreadRateAtReport_0(SIGContainSim* self) {
-  return self->fireSpreadRateAtReport();
-}
-
-SIGContainForce* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainSim_force_0(SIGContainSim* self) {
-  return self->force();
-}
-
-int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainSim_maximumSimulationSteps_0(SIGContainSim* self) {
-  return self->maximumSimulationSteps();
-}
-
-int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainSim_minimumSimulationSteps_0(SIGContainSim* self) {
-  return self->minimumSimulationSteps();
-}
-
-ContainStatus EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainSim_status_0(SIGContainSim* self) {
-  return self->status();
-}
-
-ContainTactic EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainSim_tactic_0(SIGContainSim* self) {
-  return self->tactic();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainSim_finalFireCost_0(SIGContainSim* self) {
-  return self->finalFireCost();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainSim_finalFireLine_0(SIGContainSim* self) {
-  return self->finalFireLine();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainSim_finalFirePerimeter_0(SIGContainSim* self) {
-  return self->finalFirePerimeter();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainSim_finalFireSize_0(SIGContainSim* self) {
-  return self->finalFireSize();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainSim_finalFireSweep_0(SIGContainSim* self) {
-  return self->finalFireSweep();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainSim_finalFireTime_0(SIGContainSim* self) {
-  return self->finalFireTime();
-}
-
-int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainSim_finalResourcesUsed_0(SIGContainSim* self) {
-  return self->finalResourcesUsed();
-}
-
-DoublePtr* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainSim_fireHeadX_0(SIGContainSim* self) {
-  static DoublePtr temp;
-  return (temp = self->fireHeadX(), &temp);
-}
-
-DoublePtr* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainSim_firePerimeterY_0(SIGContainSim* self) {
-  static DoublePtr temp;
-  return (temp = self->firePerimeterY(), &temp);
-}
-
-DoublePtr* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainSim_firePerimeterX_0(SIGContainSim* self) {
-  static DoublePtr temp;
-  return (temp = self->firePerimeterX(), &temp);
-}
-
-int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainSim_firePoints_0(SIGContainSim* self) {
-  return self->firePoints();
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainSim_run_0(SIGContainSim* self) {
-  self->run();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainSim_UncontainedArea_5(SIGContainSim* self, double head, double lwRatio, double x, double y, ContainTactic tactic) {
-  return self->UncontainedArea(head, lwRatio, x, y, tactic);
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainSim___destroy___0(SIGContainSim* self) {
-  delete self;
-}
-
-// SIGDiurnalROS
-
-SIGDiurnalROS* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGDiurnalROS_SIGDiurnalROS_0() {
-  return new SIGDiurnalROS();
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGDiurnalROS_push_1(SIGDiurnalROS* self, double v) {
-  self->push(v);
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGDiurnalROS_at_1(SIGDiurnalROS* self, int i) {
-  return self->at(i);
-}
-
-int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGDiurnalROS_size_0(SIGDiurnalROS* self) {
-  return self->size();
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGDiurnalROS___destroy___0(SIGDiurnalROS* self) {
-  delete self;
-}
-
-// SIGContain
-
-SIGContain* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContain_SIGContain_11(double reportSize, double reportRate, SIGDiurnalROS* diurnalROS, int fireStartMinutesStartTime, double lwRatio, double distStep, ContainFlank flank, SIGContainForce* force, double attackTime, ContainTactic tactic, double attackDist) {
-  return new SIGContain(reportSize, reportRate, diurnalROS, fireStartMinutesStartTime, lwRatio, distStep, flank, force, attackTime, tactic, attackDist);
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContain_simulationTime_0(SIGContain* self) {
-  return self->simulationTime();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContain_fireSpreadRateAtBack_0(SIGContain* self) {
-  return self->fireSpreadRateAtBack();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContain_fireLwRatioAtReport_0(SIGContain* self) {
-  return self->fireLwRatioAtReport();
-}
-
-SIGContainForce* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContain_force_0(SIGContain* self) {
-  return self->force();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContain_resourceHourCost_1(SIGContain* self, int index) {
-  return self->resourceHourCost(index);
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContain_attackDistance_0(SIGContain* self) {
-  return self->attackDistance();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContain_attackPointX_0(SIGContain* self) {
-  return self->attackPointX();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContain_fireHeadAtAttack_0(SIGContain* self) {
-  return self->fireHeadAtAttack();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContain_attackPointY_0(SIGContain* self) {
-  return self->attackPointY();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContain_attackTime_0(SIGContain* self) {
-  return self->attackTime();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContain_resourceBaseCost_1(SIGContain* self, int index) {
-  return self->resourceBaseCost(index);
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContain_fireSpreadRateAtReport_0(SIGContain* self) {
-  return self->fireSpreadRateAtReport();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContain_fireHeadAtReport_0(SIGContain* self) {
-  return self->fireHeadAtReport();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContain_fireReportTime_0(SIGContain* self) {
-  return self->fireReportTime();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContain_resourceProduction_1(SIGContain* self, int index) {
-  return self->resourceProduction(index);
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContain_fireBackAtAttack_0(SIGContain* self) {
-  return self->fireBackAtAttack();
-}
-
-int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContain_simulationStep_0(SIGContain* self) {
-  return self->simulationStep();
-}
-
-ContainTactic EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContain_tactic_0(SIGContain* self) {
-  return self->tactic();
-}
-
-const char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContain_resourceDescription_1(SIGContain* self, int index) {
-  return self->resourceDescription(index);
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContain_distanceStep_0(SIGContain* self) {
-  return self->distanceStep();
-}
-
-ContainStatus EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContain_status_0(SIGContain* self) {
-  return self->status();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContain_resourceArrival_1(SIGContain* self, int index) {
-  return self->resourceArrival(index);
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContain_fireSizeAtReport_0(SIGContain* self) {
-  return self->fireSizeAtReport();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContain_setFireStartTimeMinutes_1(SIGContain* self, int starttime) {
-  return self->setFireStartTimeMinutes(starttime);
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContain_fireBackAtReport_0(SIGContain* self) {
-  return self->fireBackAtReport();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContain_resourceDuration_1(SIGContain* self, int index) {
-  return self->resourceDuration(index);
-}
-
-int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContain_resources_0(SIGContain* self) {
-  return self->resources();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContain_exhaustedTime_0(SIGContain* self) {
-  return self->exhaustedTime();
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContain___destroy___0(SIGContain* self) {
-  delete self;
-}
-
 // SIGContainAdapter
 
 SIGContainAdapter* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_SIGContainAdapter_0() {
   return new SIGContainAdapter();
 }
 
-ContainStatus EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getContainmentStatus_0(SIGContainAdapter* self) {
+ContainStatus_ContainStatusEnum EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getContainmentStatus_0(SIGContainAdapter* self) {
   return self->getContainmentStatus();
 }
 
@@ -770,7 +339,7 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_setRetry_1(SIGContai
   self->setRetry(retry);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_setTactic_1(SIGContainAdapter* self, ContainTactic tactic) {
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_setTactic_1(SIGContainAdapter* self, ContainTactic_ContainTacticEnum tactic) {
   self->setTactic(tactic);
 }
 
@@ -2534,55 +2103,55 @@ TimeUnits_TimeUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_TimeUnits_TimeUnits
   return TimeUnits::Hours;
 }
 
-// ContainTactic
-ContainTactic EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainTactic_HeadAttack() {
-  return HeadAttack;
+// ContainTactic_ContainTacticEnum
+ContainTactic_ContainTacticEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainTactic_ContainTacticEnum_HeadAttack() {
+  return ContainTactic::HeadAttack;
 }
-ContainTactic EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainTactic_RearAttack() {
-  return RearAttack;
-}
-
-// ContainStatus
-ContainStatus EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainStatus_Unreported() {
-  return Unreported;
-}
-ContainStatus EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainStatus_Reported() {
-  return Reported;
-}
-ContainStatus EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainStatus_Attacked() {
-  return Attacked;
-}
-ContainStatus EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainStatus_Contained() {
-  return Contained;
-}
-ContainStatus EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainStatus_Overrun() {
-  return Overrun;
-}
-ContainStatus EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainStatus_Exhausted() {
-  return Exhausted;
-}
-ContainStatus EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainStatus_Overflow() {
-  return Overflow;
-}
-ContainStatus EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainStatus_SizeLimitExceeded() {
-  return SizeLimitExceeded;
-}
-ContainStatus EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainStatus_TimeLimitExceeded() {
-  return TimeLimitExceeded;
+ContainTactic_ContainTacticEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainTactic_ContainTacticEnum_RearAttack() {
+  return ContainTactic::RearAttack;
 }
 
-// ContainFlank
-ContainFlank EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainFlank_LeftFlank() {
-  return LeftFlank;
+// ContainStatus_ContainStatusEnum
+ContainStatus_ContainStatusEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainStatus_ContainStatusEnum_Unreported() {
+  return ContainStatus::Unreported;
 }
-ContainFlank EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainFlank_RightFlank() {
-  return RightFlank;
+ContainStatus_ContainStatusEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainStatus_ContainStatusEnum_Reported() {
+  return ContainStatus::Reported;
 }
-ContainFlank EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainFlank_BothFlanks() {
-  return BothFlanks;
+ContainStatus_ContainStatusEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainStatus_ContainStatusEnum_Attacked() {
+  return ContainStatus::Attacked;
 }
-ContainFlank EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainFlank_NeitherFlank() {
-  return NeitherFlank;
+ContainStatus_ContainStatusEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainStatus_ContainStatusEnum_Contained() {
+  return ContainStatus::Contained;
+}
+ContainStatus_ContainStatusEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainStatus_ContainStatusEnum_Overrun() {
+  return ContainStatus::Overrun;
+}
+ContainStatus_ContainStatusEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainStatus_ContainStatusEnum_Exhausted() {
+  return ContainStatus::Exhausted;
+}
+ContainStatus_ContainStatusEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainStatus_ContainStatusEnum_Overflow() {
+  return ContainStatus::Overflow;
+}
+ContainStatus_ContainStatusEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainStatus_ContainStatusEnum_SizeLimitExceeded() {
+  return ContainStatus::SizeLimitExceeded;
+}
+ContainStatus_ContainStatusEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainStatus_ContainStatusEnum_TimeLimitExceeded() {
+  return ContainStatus::TimeLimitExceeded;
+}
+
+// ContainFlank_ContainFlankEnum
+ContainFlank_ContainFlankEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainFlank_ContainFlankEnum_LeftFlank() {
+  return ContainFlank::LeftFlank;
+}
+ContainFlank_ContainFlankEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainFlank_ContainFlankEnum_RightFlank() {
+  return ContainFlank::RightFlank;
+}
+ContainFlank_ContainFlankEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainFlank_ContainFlankEnum_BothFlanks() {
+  return ContainFlank::BothFlanks;
+}
+ContainFlank_ContainFlankEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainFlank_ContainFlankEnum_NeitherFlank() {
+  return ContainFlank::NeitherFlank;
 }
 
 // IgnitionFuelBedType

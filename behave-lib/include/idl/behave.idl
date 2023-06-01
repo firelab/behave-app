@@ -172,156 +172,34 @@ interface FireSize {
   double getFireArea(AreaUnits_AreaUnitsEnum areaUnits, double elapsedTime, TimeUnits_TimeUnitsEnum timeUnits);
 };
 
-enum ContainTactic {
-  "HeadAttack", "RearAttack"
+enum ContainTactic_ContainTacticEnum {
+  "ContainTactic::HeadAttack",
+  "ContainTactic::RearAttack"
 };
 
-enum ContainStatus {
-  "Unreported",
-  "Reported",
-  "Attacked",
-  "Contained",
-  "Overrun",
-  "Exhausted",
-  "Overflow",
-  "SizeLimitExceeded",
-  "TimeLimitExceeded"
+enum ContainStatus_ContainStatusEnum {
+  "ContainStatus::Unreported",
+  "ContainStatus::Reported",
+  "ContainStatus::Attacked",
+  "ContainStatus::Contained",
+  "ContainStatus::Overrun",
+  "ContainStatus::Exhausted",
+  "ContainStatus::Overflow",
+  "ContainStatus::SizeLimitExceeded",
+  "ContainStatus::TimeLimitExceeded"
 };
 
-enum ContainFlank {
-  "LeftFlank", "RightFlank", "BothFlanks", "NeitherFlank"
+enum ContainFlank_ContainFlankEnum {
+  "ContainFlank::LeftFlank",
+  "ContainFlank::RightFlank",
+  "ContainFlank::BothFlanks",
+  "ContainFlank::NeitherFlank"
 };
 
-interface SIGContainResource {
-  void SIGContainResource();
-  void SIGContainResource(double arrival, double production, double duration, ContainFlank flank, [Const] DOMString desc, double baseCost, double hourCost);
-  void print(DOMString buf, long buflen);
-  double arrival();
-  double hourCost();
-  double duration();
-  double production();
-  double baseCost();
-  [Const] DOMString description();
-  ContainFlank flank();
-};
-
-interface SIGContainForce {
-  void SIGContainForce();
-  SIGContainResource addResource( SIGContainResource resource ) ;
-  SIGContainResource addResource(double arrival, double production, double duration, ContainFlank flank, [Const] DOMString desc, double baseCost, double hourCost);
-
-  double exhausted(ContainFlank flank);
-  double firstArrival(ContainFlank flank);
-  double nextArrival(double after, double until, ContainFlank flank);
-  double productionRate(double minutesSinceReport, ContainFlank flank);
-
-  long resources();
-  double resourceArrival(long index);
-  double resourceBaseCost(long index);
-  double resourceCost(long index, double finalTime);
-  [Const] DOMString resourceDescription(long index);
-  double resourceDuration(long index);
-  ContainFlank resourceFlank(long index);
-  double resourceHourCost(long index);
-  double resourceProduction(long index);
-};
-
-interface SIGContainForceAdapter {
-  void SIGContainForceAdapter();
-  void addResource(double arrival, double production, double duration, ContainFlank flank, [Const] DOMString desc, double baseCost, double hourCost);
-  double firstArrival(ContainFlank flank);
-  long removeResourceAt(long index);
-  long removeResourceWithThisDesc([Const] DOMString desc);
-  long removeAllResourcesWithThisDesc([Const] DOMString desc);
-};
-
-interface SIGContainSim {
-  void SIGContainSim(double reportSize, double reportRate, SIGDiurnalROS diurnalROS, long fireStartMinutesStartTime, double lwRatio, SIGContainForce force, ContainTactic tactic, double attackDist, boolean retry, long minSteps, long maxSteps, long maxFireSize, long maxFireTime);
-
-  // Input accessors
-  double attackDistance();
-  double attackPointX();
-  double attackPointY();
-  double attackTime();
-  double distanceStep();
-  double fireBackAtAttack();
-  double fireBackAtReport();
-  double fireHeadAtAttack();
-  double fireHeadAtReport();
-  double fireLwRatioAtReport();
-  double fireReportTime();
-  double fireSizeAtReport();
-  double fireSpreadRateAtBack();
-  double fireSpreadRateAtReport();
-  SIGContainForce force();
-  long maximumSimulationSteps();
-  long minimumSimulationSteps();
-  ContainStatus status();
-  ContainTactic tactic();
-
-  // Output accessors
-  double finalFireCost();
-  double finalFireLine();
-  double finalFirePerimeter();
-  double finalFireSize();
-  double finalFireSweep();
-  double finalFireTime();
-  long finalResourcesUsed();
-
-  // Coordinate Array
-  [Value] DoublePtr fireHeadX();
-  [Value] DoublePtr firePerimeterY();
-  [Value] DoublePtr firePerimeterX();
-  long firePoints();
-
-  void run();
-
-  // Area of the uncontained portion of the ellipse
-  double UncontainedArea(double head, double lwRatio, double x, double y, ContainTactic tactic);
-};
-
-interface SIGDiurnalROS {
-  void SIGDiurnalROS();
-  void push(double v);
-  double at(long i);
-  long size();
-};
-
-interface SIGContain {
-  void SIGContain(double reportSize, double reportRate, SIGDiurnalROS diurnalROS, long fireStartMinutesStartTime, double lwRatio, double distStep, ContainFlank flank, SIGContainForce force, double attackTime, ContainTactic tactic, double attackDist);
-  double simulationTime();
-  double fireSpreadRateAtBack();
-  double fireLwRatioAtReport();
-  SIGContainForce force();
-  double resourceHourCost(long index);
-  double attackDistance();
-  double attackPointX();
-  double fireHeadAtAttack();
-  double attackPointY();
-  double attackTime();
-  double resourceBaseCost(long index);
-  double fireSpreadRateAtReport();
-  double fireHeadAtReport();
-  double fireReportTime();
-  double resourceProduction(long index);
-  double fireBackAtAttack();
-  long simulationStep();
-  ContainTactic tactic();
-  [Const] DOMString resourceDescription(long index);
-  double distanceStep();
-  ContainStatus status();
-  double resourceArrival(long index);
-  double fireSizeAtReport();
-  double setFireStartTimeMinutes(long starttime);
-  double fireBackAtReport();
-  double resourceDuration(long index);
-  long resources();
-  double exhaustedTime();
-};
-
+// Adapter to the ContainAdapter
 interface SIGContainAdapter {
   void SIGContainAdapter();
-  ContainStatus getContainmentStatus();
+  ContainStatus_ContainStatusEnum getContainmentStatus();
   double getFinalContainmentArea(AreaUnits_AreaUnitsEnum areaUnits);
   double getFinalCost();
   double getFinalFireLineLength(LengthUnits_LengthUnitsEnum lengthUnits);
@@ -346,7 +224,7 @@ interface SIGContainAdapter {
   void setReportRate(double reportRate, SpeedUnits_SpeedUnitsEnum speedUnits);
   void setReportSize(double reportSize, AreaUnits_AreaUnitsEnum areaUnits);
   void setRetry(boolean retry);
-  void setTactic(ContainTactic tactic);
+  void setTactic(ContainTactic_ContainTacticEnum tactic);
 };
 
 enum IgnitionFuelBedType {
