@@ -3,7 +3,7 @@
 // Desc: Main interface for Morality CodeBlock
 // Author: Richard J. Sheperd, Spatial Informatics Group
 //*}{*}{*}{*}{*}{*}{*}{*}{*}{*}{*}{*}{*}{*}{*}{*}{*}{*}{*}{*}{*}{*}{*}{*}{*}{*}
-#pragma once 
+#pragma once
 
 #include <string>
 #include <vector>
@@ -17,12 +17,14 @@
 
 class SIGMortality : public Mortality
 {
- public:
+public:
   SIGMortality() = delete; // There is no default constructor
   explicit SIGMortality(SpeciesMasterTable& speciesMasterTable);
   SIGMortality(const SIGMortality& rhs);
 
   void setSpeciesCode(char* speciesCode);
+  void setSurfaceFireFlameLength(double value, LengthUnits::LengthUnitsEnum lengthUnits);
+  void setSurfaceFireScorchHeight(double value, LengthUnits::LengthUnitsEnum lengthUnits);
   bool updateInputsForSpeciesCodeAndEquationType(char* speciesCode, EquationType equationType);
   char* getSpeciesCode() const;
   char* getSpeciesCodeAtSpeciesTableIndex(int index) const;

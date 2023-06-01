@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <functional>
 
-#include "mortality_inputs.h" 
+#include "mortality_inputs.h"
 #include "mortality.h"
 #include "SIGMortality.h"
 #include "species_master_table.h"
@@ -22,6 +22,18 @@ void SIGMortality::setSpeciesCode(char* speciesCode)
 {
   return Mortality::setSpeciesCode(std::string(speciesCode));
 }
+
+void setSurfaceFireFlameLength(double value, LengthUnits::LengthUnitsEnum lengthUnits)
+{
+  setFlameLengthOrScorchHeightSwitch(FlameLengthOrScorchHeightSwitch::flame_length);
+  setFlameLengthOrScorchHeightValue(value, lengthUnits);
+};
+
+void setSurfaceFireScorchHeight(double value, LengthUnits::LengthUnitsEnum lengthUnits)
+{
+  setFlameLengthOrScorchHeightSwitch(FlameLengthOrScorchHeightSwitch::scorch_height);
+  setFlameLengthOrScorchHeightValue(value, lengthUnits);
+};
 
 char* SIGMortality::getSpeciesCode() const
 {
