@@ -30,7 +30,7 @@
 ******************************************************************************/
 
 // TODO: Add unit conversions for energy and incorporate into calculateCrownCriticalSurfaceFireIntensity() - WMC 11/16
-// TODO: Allow for use case in which Crown is run completely without Surface, will involve allowing direct input of HPUA 
+// TODO: Allow for use case in which Crown is run completely without Surface, will involve allowing direct input of HPUA
 //       and surface flame length, as well as setting all other pertinent surface inputs in Crown's copy of Surface - WMC 11/16
 
 #pragma once
@@ -56,7 +56,7 @@ public:
 
   void setFuelModels(SIGFuelModels& fuelModels);
   void setCrownFireCalculationMethod(CrownFireCalculationMethod CrownFireCalculationMethod);
-  void doCrownRun()
+  void doCrownRun();
 
   char* getFuelCode(int fuelModelNumber) const;
   char* getFuelName(int fuelModelNumber) const;
