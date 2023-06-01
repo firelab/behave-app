@@ -41,6 +41,12 @@
 #include "crown.h"
 #include "SIGFuelModels.h"
 
+enum class CrownFireCalculationMethod
+  {
+    rothermel,
+    scott_and_reinhardt
+  };
+
 class SIGCrown : public Crown
 {
 public:
@@ -49,7 +55,12 @@ public:
   ~SIGCrown();
 
   void setFuelModels(SIGFuelModels& fuelModels);
+  void setCrownFireCalculationMethod(CrownFireCalculationMethod CrownFireCalculationMethod);
+  void doCrownRun()
 
   char* getFuelCode(int fuelModelNumber) const;
   char* getFuelName(int fuelModelNumber) const;
+
+private:
+  CrownFireCalculationMethod crownFireCalculationMethod_;
 };

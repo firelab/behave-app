@@ -47,10 +47,24 @@ SIGCrown::~SIGCrown() {
   Crown::~Crown();
 };
 
+void SIGCrown::doCrownRun()
+{
+  if (crownFireCalculationMethod_ == CrownFireCalculationMethod::rothermel) {
+    doCrownRunRothermel();
+  } else {
+    doCrownRunScottAndReinhardt();
+  }
+}
+
 void SIGCrown::setFuelModels(SIGFuelModels& fuelModels) {
   FuelModels baseFuelModels = static_cast <FuelModels> (fuelModels);
   Crown::setFuelModels(baseFuelModels);
 }
+
+void SIGCrown::setCrownFireCalculationMethod(CrownFireCalculationMethod CrownFireCalculationMethod)
+{
+  crownFireCalculationMethod_ = CrownFireCalculationMethod CrownFireCalculationMethod;
+};
 
 char* SIGCrown::getFuelCode(int fuelModelNumber) const
 {
