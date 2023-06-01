@@ -23,16 +23,16 @@ void SIGMortality::setSpeciesCode(char* speciesCode)
   return Mortality::setSpeciesCode(std::string(speciesCode));
 }
 
-void setSurfaceFireFlameLength(double value, LengthUnits::LengthUnitsEnum lengthUnits)
+void SIGMortality::setSurfaceFireFlameLength(double value, LengthUnits::LengthUnitsEnum lengthUnits)
 {
-  setFlameLengthOrScorchHeightSwitch(FlameLengthOrScorchHeightSwitch::flame_length);
-  setFlameLengthOrScorchHeightValue(value, lengthUnits);
+  Mortality::setFlameLengthOrScorchHeightSwitch(FlameLengthOrScorchHeightSwitch::flame_length);
+  Mortality::setFlameLengthOrScorchHeightValue(value, lengthUnits);
 };
 
-void setSurfaceFireScorchHeight(double value, LengthUnits::LengthUnitsEnum lengthUnits)
+void SIGMortality::setSurfaceFireScorchHeight(double value, LengthUnits::LengthUnitsEnum lengthUnits)
 {
-  setFlameLengthOrScorchHeightSwitch(FlameLengthOrScorchHeightSwitch::scorch_height);
-  setFlameLengthOrScorchHeightValue(value, lengthUnits);
+  Mortality::setFlameLengthOrScorchHeightSwitch(FlameLengthOrScorchHeightSwitch::scorch_height);
+  Mortality::setFlameLengthOrScorchHeightValue(value, lengthUnits);
 };
 
 char* SIGMortality::getSpeciesCode() const

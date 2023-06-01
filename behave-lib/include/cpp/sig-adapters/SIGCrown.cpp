@@ -63,7 +63,7 @@ void SIGCrown::setFuelModels(SIGFuelModels& fuelModels) {
 
 void SIGCrown::setCrownFireCalculationMethod(CrownFireCalculationMethod CrownFireCalculationMethod)
 {
-  crownFireCalculationMethod_ = CrownFireCalculationMethod CrownFireCalculationMethod;
+  crownFireCalculationMethod_ = CrownFireCalculationMethod;
 };
 
 char* SIGCrown::getFuelCode(int fuelModelNumber) const
