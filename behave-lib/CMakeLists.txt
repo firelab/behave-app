@@ -108,7 +108,6 @@ SET(SOURCE
     include/cpp/sig-adapters/SIGCrown.cpp
     include/cpp/sig-adapters/SIGFuelModels.cpp
     include/cpp/sig-adapters/SIGIgnite.cpp
-    include/cpp/sig-adapters/SIGIgniteInputs.cpp
     include/cpp/sig-adapters/SIGMortality.cpp
     include/cpp/sig-adapters/SIGSurface.cpp
     include/cpp/sig-adapters/SIGSpot.cpp
@@ -158,7 +157,6 @@ SET(HEADERS
     include/cpp/sig-adapters/SIGCrown.h
     include/cpp/sig-adapters/SIGFuelModels.cpp
     include/cpp/sig-adapters/SIGIgnite.h
-    include/cpp/sig-adapters/SIGIgniteInputs.h
     include/cpp/sig-adapters/SIGMortality.h
     include/cpp/sig-adapters/SIGSpot.h
     include/cpp/sig-adapters/SIGSpotInputs.h

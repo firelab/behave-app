@@ -116,7 +116,7 @@
          "HeatPerUnitAreaUnits::KilowattsPerSquareMeterPerSecond"]))
 
 (def ignition-fuel-bed-type
-  (enum "IgnitionFuelBedType"
+  (enum "IgnitionFuelBedType_IgnitionFuelBedTypeEnum"
         ["PonderosaPineLitter"
          "PunkyWoodRottenChunky"
          "PunkyWoodPowderDeep"

@@ -38,3 +38,7 @@ typedef FireType::FireTypeEnum FireType_FireTypeEnum;
 
 //
 typedef double* DoublePtr;
+
+// igniteInputs.h
+typedef LightningCharge::LightningChargeEnum LightningCharge_LightningChargeEnum;
+typedef IgnitionFuelBedType::IgnitionFuelBedTypeEnum IgnitionFuelBedType_IgnitionFuelBedTypeEnum;

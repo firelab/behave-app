@@ -347,80 +347,6 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter___destroy___0(SIGCon
   delete self;
 }
 
-// SIGIgniteInputs
-
-SIGIgniteInputs* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgniteInputs_SIGIgniteInputs_0() {
-  return new SIGIgniteInputs();
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgniteInputs_initializeMembers_0(SIGIgniteInputs* self) {
-  self->initializeMembers();
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgniteInputs_setAirTemperature_2(SIGIgniteInputs* self, double airTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnits) {
-  self->setAirTemperature(airTemperature, temperatureUnits);
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgniteInputs_setDuffDepth_2(SIGIgniteInputs* self, double duffDepth, LengthUnits_LengthUnitsEnum lengthUnits) {
-  self->setDuffDepth(duffDepth, lengthUnits);
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgniteInputs_setIgnitionFuelBedType_1(SIGIgniteInputs* self, IgnitionFuelBedType fuelBedType) {
-  self->setIgnitionFuelBedType(fuelBedType);
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgniteInputs_setLightningChargeType_1(SIGIgniteInputs* self, LightningCharge lightningChargeType) {
-  self->setLightningChargeType(lightningChargeType);
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgniteInputs_setMoistureHundredHour_2(SIGIgniteInputs* self, double hundredHourMoisture, MoistureUnits_MoistureUnitsEnum moistureUnits) {
-  self->setMoistureHundredHour(hundredHourMoisture, moistureUnits);
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgniteInputs_setMoistureOneHour_2(SIGIgniteInputs* self, double moistureOneHour, MoistureUnits_MoistureUnitsEnum moistureUnits) {
-  self->setMoistureOneHour(moistureOneHour, moistureUnits);
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgniteInputs_setSunShade_2(SIGIgniteInputs* self, double sunShade, CoverUnits_CoverUnitsEnum sunShadeUnits) {
-  self->setSunShade(sunShade, sunShadeUnits);
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgniteInputs_updateIgniteInputs_11(SIGIgniteInputs* self, double moistureOneHour, double moistureHundredHour, MoistureUnits_MoistureUnitsEnum moistureUnits, double airTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnits, double sunShade, CoverUnits_CoverUnitsEnum sunShadeUnits, IgnitionFuelBedType fuelBedType, double duffDepth, LengthUnits_LengthUnitsEnum duffDepthUnits, LightningCharge lightningChargeType) {
-  self->updateIgniteInputs(moistureOneHour, moistureHundredHour, moistureUnits, airTemperature, temperatureUnits, sunShade, sunShadeUnits, fuelBedType, duffDepth, duffDepthUnits, lightningChargeType);
-}
-
-IgnitionFuelBedType EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgniteInputs_getIgnitionFuelBedType_0(SIGIgniteInputs* self) {
-  return self->getIgnitionFuelBedType();
-}
-
-LightningCharge EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgniteInputs_getLightningChargeType_0(SIGIgniteInputs* self) {
-  return self->getLightningChargeType();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgniteInputs_getAirTemperature_1(SIGIgniteInputs* self, TemperatureUnits_TemperatureUnitsEnum desiredUnits) {
-  return self->getAirTemperature(desiredUnits);
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgniteInputs_getDuffDepth_1(SIGIgniteInputs* self, LengthUnits_LengthUnitsEnum desiredUnits) {
-  return self->getDuffDepth(desiredUnits);
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgniteInputs_getMoistureHundredHour_1(SIGIgniteInputs* self, MoistureUnits_MoistureUnitsEnum desiredUnits) {
-  return self->getMoistureHundredHour(desiredUnits);
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgniteInputs_getMoistureOneHour_1(SIGIgniteInputs* self, MoistureUnits_MoistureUnitsEnum desiredUnits) {
-  return self->getMoistureOneHour(desiredUnits);
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgniteInputs_getSunShade_1(SIGIgniteInputs* self, CoverUnits_CoverUnitsEnum desiredUnits) {
-  return self->getSunShade(desiredUnits);
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgniteInputs___destroy___0(SIGIgniteInputs* self) {
-  delete self;
-}
-
 // SIGIgnite
 
 SIGIgnite* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgnite_SIGIgnite_0() {
@@ -431,11 +357,11 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgnite_initializeMembers_0(SIGIgnit
   self->initializeMembers();
 }
 
-IgnitionFuelBedType EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgnite_getFuelBedType_0(SIGIgnite* self) {
+IgnitionFuelBedType_IgnitionFuelBedTypeEnum EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgnite_getFuelBedType_0(SIGIgnite* self) {
   return self->getFuelBedType();
 }
 
-LightningCharge EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgnite_getLightningChargeType_0(SIGIgnite* self) {
+LightningCharge_LightningChargeEnum EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgnite_getLightningChargeType_0(SIGIgnite* self) {
   return self->getLightningChargeType();
 }
 
@@ -455,11 +381,11 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgnite_setDuffDepth_2(SIGIgnite* se
   self->setDuffDepth(duffDepth, lengthUnits);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgnite_setIgnitionFuelBedType_1(SIGIgnite* self, IgnitionFuelBedType fuelBedType_) {
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgnite_setIgnitionFuelBedType_1(SIGIgnite* self, IgnitionFuelBedType_IgnitionFuelBedTypeEnum fuelBedType_) {
   self->setIgnitionFuelBedType(fuelBedType_);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgnite_setLightningChargeType_1(SIGIgnite* self, LightningCharge lightningChargeType) {
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgnite_setLightningChargeType_1(SIGIgnite* self, LightningCharge_LightningChargeEnum lightningChargeType) {
   self->setLightningChargeType(lightningChargeType);
 }
 
@@ -475,7 +401,7 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgnite_setSunShade_2(SIGIgnite* sel
   self->setSunShade(sunShade, sunShadeUnits);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgnite_updateIgniteInputs_11(SIGIgnite* self, double moistureOneHour, double moistureHundredHour, MoistureUnits_MoistureUnitsEnum moistureUnits, double airTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnits, double sunShade, CoverUnits_CoverUnitsEnum sunShadeUnits, IgnitionFuelBedType fuelBedType, double duffDepth, LengthUnits_LengthUnitsEnum duffDepthUnits, LightningCharge lightningChargeType) {
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgnite_updateIgniteInputs_11(SIGIgnite* self, double moistureOneHour, double moistureHundredHour, MoistureUnits_MoistureUnitsEnum moistureUnits, double airTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnits, double sunShade, CoverUnits_CoverUnitsEnum sunShadeUnits, IgnitionFuelBedType_IgnitionFuelBedTypeEnum fuelBedType, double duffDepth, LengthUnits_LengthUnitsEnum duffDepthUnits, LightningCharge_LightningChargeEnum lightningChargeType) {
   self->updateIgniteInputs(moistureOneHour, moistureHundredHour, moistureUnits, airTemperature, temperatureUnits, sunShade, sunShadeUnits, fuelBedType, duffDepth, duffDepthUnits, lightningChargeType);
 }
 
@@ -2154,41 +2080,41 @@ ContainFlank_ContainFlankEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainFlank_
   return ContainFlank::NeitherFlank;
 }
 
-// IgnitionFuelBedType
-IgnitionFuelBedType EMSCRIPTEN_KEEPALIVE emscripten_enum_IgnitionFuelBedType_PonderosaPineLitter() {
-  return PonderosaPineLitter;
+// IgnitionFuelBedType_IgnitionFuelBedTypeEnum
+IgnitionFuelBedType_IgnitionFuelBedTypeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PonderosaPineLitter() {
+  return IgnitionFuelBedType::PonderosaPineLitter;
 }
-IgnitionFuelBedType EMSCRIPTEN_KEEPALIVE emscripten_enum_IgnitionFuelBedType_PunkyWoodRottenChunky() {
-  return PunkyWoodRottenChunky;
+IgnitionFuelBedType_IgnitionFuelBedTypeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodRottenChunky() {
+  return IgnitionFuelBedType::PunkyWoodRottenChunky;
 }
-IgnitionFuelBedType EMSCRIPTEN_KEEPALIVE emscripten_enum_IgnitionFuelBedType_PunkyWoodPowderDeep() {
-  return PunkyWoodPowderDeep;
+IgnitionFuelBedType_IgnitionFuelBedTypeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodPowderDeep() {
+  return IgnitionFuelBedType::PunkyWoodPowderDeep;
 }
-IgnitionFuelBedType EMSCRIPTEN_KEEPALIVE emscripten_enum_IgnitionFuelBedType_PunkWoodPowderShallow() {
-  return PunkWoodPowderShallow;
+IgnitionFuelBedType_IgnitionFuelBedTypeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkWoodPowderShallow() {
+  return IgnitionFuelBedType::PunkWoodPowderShallow;
 }
-IgnitionFuelBedType EMSCRIPTEN_KEEPALIVE emscripten_enum_IgnitionFuelBedType_LodgepolePineDuff() {
-  return LodgepolePineDuff;
+IgnitionFuelBedType_IgnitionFuelBedTypeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_LodgepolePineDuff() {
+  return IgnitionFuelBedType::LodgepolePineDuff;
 }
-IgnitionFuelBedType EMSCRIPTEN_KEEPALIVE emscripten_enum_IgnitionFuelBedType_DouglasFirDuff() {
-  return DouglasFirDuff;
+IgnitionFuelBedType_IgnitionFuelBedTypeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_DouglasFirDuff() {
+  return IgnitionFuelBedType::DouglasFirDuff;
 }
-IgnitionFuelBedType EMSCRIPTEN_KEEPALIVE emscripten_enum_IgnitionFuelBedType_HighAltitudeMixed() {
-  return HighAltitudeMixed;
+IgnitionFuelBedType_IgnitionFuelBedTypeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_HighAltitudeMixed() {
+  return IgnitionFuelBedType::HighAltitudeMixed;
 }
-IgnitionFuelBedType EMSCRIPTEN_KEEPALIVE emscripten_enum_IgnitionFuelBedType_PeatMoss() {
-  return PeatMoss;
+IgnitionFuelBedType_IgnitionFuelBedTypeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PeatMoss() {
+  return IgnitionFuelBedType::PeatMoss;
 }
 
-// LightningCharge
-LightningCharge EMSCRIPTEN_KEEPALIVE emscripten_enum_LightningCharge_Negative() {
-  return Negative;
+// LightningCharge_LightningChargeEnum
+LightningCharge_LightningChargeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_LightningCharge_LightningChargeEnum_Negative() {
+  return LightningCharge::Negative;
 }
-LightningCharge EMSCRIPTEN_KEEPALIVE emscripten_enum_LightningCharge_Positive() {
-  return Positive;
+LightningCharge_LightningChargeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_LightningCharge_LightningChargeEnum_Positive() {
+  return LightningCharge::Positive;
 }
-LightningCharge EMSCRIPTEN_KEEPALIVE emscripten_enum_LightningCharge_Unknown() {
-  return Unknown;
+LightningCharge_LightningChargeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_LightningCharge_LightningChargeEnum_Unknown() {
+  return LightningCharge::Unknown;
 }
 
 // SpotTreeSpecies

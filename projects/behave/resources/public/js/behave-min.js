@@ -4714,42 +4714,6 @@ var _emscripten_bind_SIGContainAdapter_setTactic_1 = Module["_emscripten_bind_SI
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGContainAdapter___destroy___0 = Module["_emscripten_bind_SIGContainAdapter___destroy___0"] = createExportWrapper("emscripten_bind_SIGContainAdapter___destroy___0");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGIgniteInputs_SIGIgniteInputs_0 = Module["_emscripten_bind_SIGIgniteInputs_SIGIgniteInputs_0"] = createExportWrapper("emscripten_bind_SIGIgniteInputs_SIGIgniteInputs_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGIgniteInputs_initializeMembers_0 = Module["_emscripten_bind_SIGIgniteInputs_initializeMembers_0"] = createExportWrapper("emscripten_bind_SIGIgniteInputs_initializeMembers_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGIgniteInputs_setAirTemperature_2 = Module["_emscripten_bind_SIGIgniteInputs_setAirTemperature_2"] = createExportWrapper("emscripten_bind_SIGIgniteInputs_setAirTemperature_2");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGIgniteInputs_setDuffDepth_2 = Module["_emscripten_bind_SIGIgniteInputs_setDuffDepth_2"] = createExportWrapper("emscripten_bind_SIGIgniteInputs_setDuffDepth_2");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGIgniteInputs_setIgnitionFuelBedType_1 = Module["_emscripten_bind_SIGIgniteInputs_setIgnitionFuelBedType_1"] = createExportWrapper("emscripten_bind_SIGIgniteInputs_setIgnitionFuelBedType_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGIgniteInputs_setLightningChargeType_1 = Module["_emscripten_bind_SIGIgniteInputs_setLightningChargeType_1"] = createExportWrapper("emscripten_bind_SIGIgniteInputs_setLightningChargeType_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGIgniteInputs_setMoistureHundredHour_2 = Module["_emscripten_bind_SIGIgniteInputs_setMoistureHundredHour_2"] = createExportWrapper("emscripten_bind_SIGIgniteInputs_setMoistureHundredHour_2");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGIgniteInputs_setMoistureOneHour_2 = Module["_emscripten_bind_SIGIgniteInputs_setMoistureOneHour_2"] = createExportWrapper("emscripten_bind_SIGIgniteInputs_setMoistureOneHour_2");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGIgniteInputs_setSunShade_2 = Module["_emscripten_bind_SIGIgniteInputs_setSunShade_2"] = createExportWrapper("emscripten_bind_SIGIgniteInputs_setSunShade_2");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGIgniteInputs_updateIgniteInputs_11 = Module["_emscripten_bind_SIGIgniteInputs_updateIgniteInputs_11"] = createExportWrapper("emscripten_bind_SIGIgniteInputs_updateIgniteInputs_11");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGIgniteInputs_getIgnitionFuelBedType_0 = Module["_emscripten_bind_SIGIgniteInputs_getIgnitionFuelBedType_0"] = createExportWrapper("emscripten_bind_SIGIgniteInputs_getIgnitionFuelBedType_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGIgniteInputs_getLightningChargeType_0 = Module["_emscripten_bind_SIGIgniteInputs_getLightningChargeType_0"] = createExportWrapper("emscripten_bind_SIGIgniteInputs_getLightningChargeType_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGIgniteInputs_getAirTemperature_1 = Module["_emscripten_bind_SIGIgniteInputs_getAirTemperature_1"] = createExportWrapper("emscripten_bind_SIGIgniteInputs_getAirTemperature_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGIgniteInputs_getDuffDepth_1 = Module["_emscripten_bind_SIGIgniteInputs_getDuffDepth_1"] = createExportWrapper("emscripten_bind_SIGIgniteInputs_getDuffDepth_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGIgniteInputs_getMoistureHundredHour_1 = Module["_emscripten_bind_SIGIgniteInputs_getMoistureHundredHour_1"] = createExportWrapper("emscripten_bind_SIGIgniteInputs_getMoistureHundredHour_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGIgniteInputs_getMoistureOneHour_1 = Module["_emscripten_bind_SIGIgniteInputs_getMoistureOneHour_1"] = createExportWrapper("emscripten_bind_SIGIgniteInputs_getMoistureOneHour_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGIgniteInputs_getSunShade_1 = Module["_emscripten_bind_SIGIgniteInputs_getSunShade_1"] = createExportWrapper("emscripten_bind_SIGIgniteInputs_getSunShade_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGIgniteInputs___destroy___0 = Module["_emscripten_bind_SIGIgniteInputs___destroy___0"] = createExportWrapper("emscripten_bind_SIGIgniteInputs___destroy___0");
-/** @type {function(...*):?} */
 var _emscripten_bind_SIGIgnite_SIGIgnite_0 = Module["_emscripten_bind_SIGIgnite_SIGIgnite_0"] = createExportWrapper("emscripten_bind_SIGIgnite_SIGIgnite_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGIgnite_initializeMembers_0 = Module["_emscripten_bind_SIGIgnite_initializeMembers_0"] = createExportWrapper("emscripten_bind_SIGIgnite_initializeMembers_0");
@@ -5622,27 +5586,27 @@ var _emscripten_enum_ContainFlank_ContainFlankEnum_BothFlanks = Module["_emscrip
 /** @type {function(...*):?} */
 var _emscripten_enum_ContainFlank_ContainFlankEnum_NeitherFlank = Module["_emscripten_enum_ContainFlank_ContainFlankEnum_NeitherFlank"] = createExportWrapper("emscripten_enum_ContainFlank_ContainFlankEnum_NeitherFlank");
 /** @type {function(...*):?} */
-var _emscripten_enum_IgnitionFuelBedType_PonderosaPineLitter = Module["_emscripten_enum_IgnitionFuelBedType_PonderosaPineLitter"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_PonderosaPineLitter");
+var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PonderosaPineLitter = Module["_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PonderosaPineLitter"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PonderosaPineLitter");
 /** @type {function(...*):?} */
-var _emscripten_enum_IgnitionFuelBedType_PunkyWoodRottenChunky = Module["_emscripten_enum_IgnitionFuelBedType_PunkyWoodRottenChunky"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_PunkyWoodRottenChunky");
+var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodRottenChunky = Module["_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodRottenChunky"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodRottenChunky");
 /** @type {function(...*):?} */
-var _emscripten_enum_IgnitionFuelBedType_PunkyWoodPowderDeep = Module["_emscripten_enum_IgnitionFuelBedType_PunkyWoodPowderDeep"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_PunkyWoodPowderDeep");
+var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodPowderDeep = Module["_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodPowderDeep"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodPowderDeep");
 /** @type {function(...*):?} */
-var _emscripten_enum_IgnitionFuelBedType_PunkWoodPowderShallow = Module["_emscripten_enum_IgnitionFuelBedType_PunkWoodPowderShallow"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_PunkWoodPowderShallow");
+var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkWoodPowderShallow = Module["_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkWoodPowderShallow"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkWoodPowderShallow");
 /** @type {function(...*):?} */
-var _emscripten_enum_IgnitionFuelBedType_LodgepolePineDuff = Module["_emscripten_enum_IgnitionFuelBedType_LodgepolePineDuff"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_LodgepolePineDuff");
+var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_LodgepolePineDuff = Module["_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_LodgepolePineDuff"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_LodgepolePineDuff");
 /** @type {function(...*):?} */
-var _emscripten_enum_IgnitionFuelBedType_DouglasFirDuff = Module["_emscripten_enum_IgnitionFuelBedType_DouglasFirDuff"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_DouglasFirDuff");
+var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_DouglasFirDuff = Module["_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_DouglasFirDuff"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_DouglasFirDuff");
 /** @type {function(...*):?} */
-var _emscripten_enum_IgnitionFuelBedType_HighAltitudeMixed = Module["_emscripten_enum_IgnitionFuelBedType_HighAltitudeMixed"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_HighAltitudeMixed");
+var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_HighAltitudeMixed = Module["_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_HighAltitudeMixed"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_HighAltitudeMixed");
 /** @type {function(...*):?} */
-var _emscripten_enum_IgnitionFuelBedType_PeatMoss = Module["_emscripten_enum_IgnitionFuelBedType_PeatMoss"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_PeatMoss");
+var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PeatMoss = Module["_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PeatMoss"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PeatMoss");
 /** @type {function(...*):?} */
-var _emscripten_enum_LightningCharge_Negative = Module["_emscripten_enum_LightningCharge_Negative"] = createExportWrapper("emscripten_enum_LightningCharge_Negative");
+var _emscripten_enum_LightningCharge_LightningChargeEnum_Negative = Module["_emscripten_enum_LightningCharge_LightningChargeEnum_Negative"] = createExportWrapper("emscripten_enum_LightningCharge_LightningChargeEnum_Negative");
 /** @type {function(...*):?} */
-var _emscripten_enum_LightningCharge_Positive = Module["_emscripten_enum_LightningCharge_Positive"] = createExportWrapper("emscripten_enum_LightningCharge_Positive");
+var _emscripten_enum_LightningCharge_LightningChargeEnum_Positive = Module["_emscripten_enum_LightningCharge_LightningChargeEnum_Positive"] = createExportWrapper("emscripten_enum_LightningCharge_LightningChargeEnum_Positive");
 /** @type {function(...*):?} */
-var _emscripten_enum_LightningCharge_Unknown = Module["_emscripten_enum_LightningCharge_Unknown"] = createExportWrapper("emscripten_enum_LightningCharge_Unknown");
+var _emscripten_enum_LightningCharge_LightningChargeEnum_Unknown = Module["_emscripten_enum_LightningCharge_LightningChargeEnum_Unknown"] = createExportWrapper("emscripten_enum_LightningCharge_LightningChargeEnum_Unknown");
 /** @type {function(...*):?} */
 var _emscripten_enum_SpotTreeSpecies_ENGELMANN_SPRUCE = Module["_emscripten_enum_SpotTreeSpecies_ENGELMANN_SPRUCE"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_ENGELMANN_SPRUCE");
 /** @type {function(...*):?} */
@@ -7164,129 +7128,6 @@ SIGContainAdapter.prototype['setTactic'] = SIGContainAdapter.prototype.setTactic
   SIGContainAdapter.prototype['__destroy__'] = SIGContainAdapter.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   _emscripten_bind_SIGContainAdapter___destroy___0(self);
-};
-// SIGIgniteInputs
-/** @suppress {undefinedVars, duplicate} @this{Object} */function SIGIgniteInputs() {
-  this.ptr = _emscripten_bind_SIGIgniteInputs_SIGIgniteInputs_0();
-  getCache(SIGIgniteInputs)[this.ptr] = this;
-};;
-SIGIgniteInputs.prototype = Object.create(WrapperObject.prototype);
-SIGIgniteInputs.prototype.constructor = SIGIgniteInputs;
-SIGIgniteInputs.prototype.__class__ = SIGIgniteInputs;
-SIGIgniteInputs.__cache__ = {};
-Module['SIGIgniteInputs'] = SIGIgniteInputs;
-
-SIGIgniteInputs.prototype['initializeMembers'] = SIGIgniteInputs.prototype.initializeMembers = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  _emscripten_bind_SIGIgniteInputs_initializeMembers_0(self);
-};;
-
-SIGIgniteInputs.prototype['setAirTemperature'] = SIGIgniteInputs.prototype.setAirTemperature = /** @suppress {undefinedVars, duplicate} @this{Object} */function(airTemperature, temperatureUnits) {
-  var self = this.ptr;
-  if (airTemperature && typeof airTemperature === 'object') airTemperature = airTemperature.ptr;
-  if (temperatureUnits && typeof temperatureUnits === 'object') temperatureUnits = temperatureUnits.ptr;
-  _emscripten_bind_SIGIgniteInputs_setAirTemperature_2(self, airTemperature, temperatureUnits);
-};;
-
-SIGIgniteInputs.prototype['setDuffDepth'] = SIGIgniteInputs.prototype.setDuffDepth = /** @suppress {undefinedVars, duplicate} @this{Object} */function(duffDepth, lengthUnits) {
-  var self = this.ptr;
-  if (duffDepth && typeof duffDepth === 'object') duffDepth = duffDepth.ptr;
-  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
-  _emscripten_bind_SIGIgniteInputs_setDuffDepth_2(self, duffDepth, lengthUnits);
-};;
-
-SIGIgniteInputs.prototype['setIgnitionFuelBedType'] = SIGIgniteInputs.prototype.setIgnitionFuelBedType = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelBedType) {
-  var self = this.ptr;
-  if (fuelBedType && typeof fuelBedType === 'object') fuelBedType = fuelBedType.ptr;
-  _emscripten_bind_SIGIgniteInputs_setIgnitionFuelBedType_1(self, fuelBedType);
-};;
-
-SIGIgniteInputs.prototype['setLightningChargeType'] = SIGIgniteInputs.prototype.setLightningChargeType = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lightningChargeType) {
-  var self = this.ptr;
-  if (lightningChargeType && typeof lightningChargeType === 'object') lightningChargeType = lightningChargeType.ptr;
-  _emscripten_bind_SIGIgniteInputs_setLightningChargeType_1(self, lightningChargeType);
-};;
-
-SIGIgniteInputs.prototype['setMoistureHundredHour'] = SIGIgniteInputs.prototype.setMoistureHundredHour = /** @suppress {undefinedVars, duplicate} @this{Object} */function(hundredHourMoisture, moistureUnits) {
-  var self = this.ptr;
-  if (hundredHourMoisture && typeof hundredHourMoisture === 'object') hundredHourMoisture = hundredHourMoisture.ptr;
-  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
-  _emscripten_bind_SIGIgniteInputs_setMoistureHundredHour_2(self, hundredHourMoisture, moistureUnits);
-};;
-
-SIGIgniteInputs.prototype['setMoistureOneHour'] = SIGIgniteInputs.prototype.setMoistureOneHour = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureOneHour, moistureUnits) {
-  var self = this.ptr;
-  if (moistureOneHour && typeof moistureOneHour === 'object') moistureOneHour = moistureOneHour.ptr;
-  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
-  _emscripten_bind_SIGIgniteInputs_setMoistureOneHour_2(self, moistureOneHour, moistureUnits);
-};;
-
-SIGIgniteInputs.prototype['setSunShade'] = SIGIgniteInputs.prototype.setSunShade = /** @suppress {undefinedVars, duplicate} @this{Object} */function(sunShade, sunShadeUnits) {
-  var self = this.ptr;
-  if (sunShade && typeof sunShade === 'object') sunShade = sunShade.ptr;
-  if (sunShadeUnits && typeof sunShadeUnits === 'object') sunShadeUnits = sunShadeUnits.ptr;
-  _emscripten_bind_SIGIgniteInputs_setSunShade_2(self, sunShade, sunShadeUnits);
-};;
-
-SIGIgniteInputs.prototype['updateIgniteInputs'] = SIGIgniteInputs.prototype.updateIgniteInputs = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureOneHour, moistureHundredHour, moistureUnits, airTemperature, temperatureUnits, sunShade, sunShadeUnits, fuelBedType, duffDepth, duffDepthUnits, lightningChargeType) {
-  var self = this.ptr;
-  if (moistureOneHour && typeof moistureOneHour === 'object') moistureOneHour = moistureOneHour.ptr;
-  if (moistureHundredHour && typeof moistureHundredHour === 'object') moistureHundredHour = moistureHundredHour.ptr;
-  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
-  if (airTemperature && typeof airTemperature === 'object') airTemperature = airTemperature.ptr;
-  if (temperatureUnits && typeof temperatureUnits === 'object') temperatureUnits = temperatureUnits.ptr;
-  if (sunShade && typeof sunShade === 'object') sunShade = sunShade.ptr;
-  if (sunShadeUnits && typeof sunShadeUnits === 'object') sunShadeUnits = sunShadeUnits.ptr;
-  if (fuelBedType && typeof fuelBedType === 'object') fuelBedType = fuelBedType.ptr;
-  if (duffDepth && typeof duffDepth === 'object') duffDepth = duffDepth.ptr;
-  if (duffDepthUnits && typeof duffDepthUnits === 'object') duffDepthUnits = duffDepthUnits.ptr;
-  if (lightningChargeType && typeof lightningChargeType === 'object') lightningChargeType = lightningChargeType.ptr;
-  _emscripten_bind_SIGIgniteInputs_updateIgniteInputs_11(self, moistureOneHour, moistureHundredHour, moistureUnits, airTemperature, temperatureUnits, sunShade, sunShadeUnits, fuelBedType, duffDepth, duffDepthUnits, lightningChargeType);
-};;
-
-SIGIgniteInputs.prototype['getIgnitionFuelBedType'] = SIGIgniteInputs.prototype.getIgnitionFuelBedType = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGIgniteInputs_getIgnitionFuelBedType_0(self);
-};;
-
-SIGIgniteInputs.prototype['getLightningChargeType'] = SIGIgniteInputs.prototype.getLightningChargeType = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGIgniteInputs_getLightningChargeType_0(self);
-};;
-
-SIGIgniteInputs.prototype['getAirTemperature'] = SIGIgniteInputs.prototype.getAirTemperature = /** @suppress {undefinedVars, duplicate} @this{Object} */function(desiredUnits) {
-  var self = this.ptr;
-  if (desiredUnits && typeof desiredUnits === 'object') desiredUnits = desiredUnits.ptr;
-  return _emscripten_bind_SIGIgniteInputs_getAirTemperature_1(self, desiredUnits);
-};;
-
-SIGIgniteInputs.prototype['getDuffDepth'] = SIGIgniteInputs.prototype.getDuffDepth = /** @suppress {undefinedVars, duplicate} @this{Object} */function(desiredUnits) {
-  var self = this.ptr;
-  if (desiredUnits && typeof desiredUnits === 'object') desiredUnits = desiredUnits.ptr;
-  return _emscripten_bind_SIGIgniteInputs_getDuffDepth_1(self, desiredUnits);
-};;
-
-SIGIgniteInputs.prototype['getMoistureHundredHour'] = SIGIgniteInputs.prototype.getMoistureHundredHour = /** @suppress {undefinedVars, duplicate} @this{Object} */function(desiredUnits) {
-  var self = this.ptr;
-  if (desiredUnits && typeof desiredUnits === 'object') desiredUnits = desiredUnits.ptr;
-  return _emscripten_bind_SIGIgniteInputs_getMoistureHundredHour_1(self, desiredUnits);
-};;
-
-SIGIgniteInputs.prototype['getMoistureOneHour'] = SIGIgniteInputs.prototype.getMoistureOneHour = /** @suppress {undefinedVars, duplicate} @this{Object} */function(desiredUnits) {
-  var self = this.ptr;
-  if (desiredUnits && typeof desiredUnits === 'object') desiredUnits = desiredUnits.ptr;
-  return _emscripten_bind_SIGIgniteInputs_getMoistureOneHour_1(self, desiredUnits);
-};;
-
-SIGIgniteInputs.prototype['getSunShade'] = SIGIgniteInputs.prototype.getSunShade = /** @suppress {undefinedVars, duplicate} @this{Object} */function(desiredUnits) {
-  var self = this.ptr;
-  if (desiredUnits && typeof desiredUnits === 'object') desiredUnits = desiredUnits.ptr;
-  return _emscripten_bind_SIGIgniteInputs_getSunShade_1(self, desiredUnits);
-};;
-
-  SIGIgniteInputs.prototype['__destroy__'] = SIGIgniteInputs.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  _emscripten_bind_SIGIgniteInputs___destroy___0(self);
 };
 // SIGIgnite
 /** @suppress {undefinedVars, duplicate} @this{Object} */function SIGIgnite() {
@@ -10007,33 +9848,33 @@ WindSpeedUtility.prototype['windSpeedAtTwentyFeetFromTenMeter'] = WindSpeedUtili
 
     
 
-    // IgnitionFuelBedType
+    // IgnitionFuelBedType_IgnitionFuelBedTypeEnum
 
-    Module['PonderosaPineLitter'] = _emscripten_enum_IgnitionFuelBedType_PonderosaPineLitter();
+    Module['PonderosaPineLitter'] = _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PonderosaPineLitter();
 
-    Module['PunkyWoodRottenChunky'] = _emscripten_enum_IgnitionFuelBedType_PunkyWoodRottenChunky();
+    Module['PunkyWoodRottenChunky'] = _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodRottenChunky();
 
-    Module['PunkyWoodPowderDeep'] = _emscripten_enum_IgnitionFuelBedType_PunkyWoodPowderDeep();
+    Module['PunkyWoodPowderDeep'] = _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodPowderDeep();
 
-    Module['PunkWoodPowderShallow'] = _emscripten_enum_IgnitionFuelBedType_PunkWoodPowderShallow();
+    Module['PunkWoodPowderShallow'] = _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkWoodPowderShallow();
 
-    Module['LodgepolePineDuff'] = _emscripten_enum_IgnitionFuelBedType_LodgepolePineDuff();
+    Module['LodgepolePineDuff'] = _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_LodgepolePineDuff();
 
-    Module['DouglasFirDuff'] = _emscripten_enum_IgnitionFuelBedType_DouglasFirDuff();
+    Module['DouglasFirDuff'] = _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_DouglasFirDuff();
 
-    Module['HighAltitudeMixed'] = _emscripten_enum_IgnitionFuelBedType_HighAltitudeMixed();
+    Module['HighAltitudeMixed'] = _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_HighAltitudeMixed();
 
-    Module['PeatMoss'] = _emscripten_enum_IgnitionFuelBedType_PeatMoss();
+    Module['PeatMoss'] = _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PeatMoss();
 
     
 
-    // LightningCharge
+    // LightningCharge_LightningChargeEnum
 
-    Module['Negative'] = _emscripten_enum_LightningCharge_Negative();
+    Module['Negative'] = _emscripten_enum_LightningCharge_LightningChargeEnum_Negative();
 
-    Module['Positive'] = _emscripten_enum_LightningCharge_Positive();
+    Module['Positive'] = _emscripten_enum_LightningCharge_LightningChargeEnum_Positive();
 
-    Module['Unknown'] = _emscripten_enum_LightningCharge_Unknown();
+    Module['Unknown'] = _emscripten_enum_LightningCharge_LightningChargeEnum_Unknown();
 
     
 
