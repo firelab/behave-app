@@ -1283,6 +1283,10 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_doCrownRunScottAndReinhardt_0
   self->doCrownRunScottAndReinhardt();
 }
 
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_doCrownRun_0(SIGCrown* self) {
+  self->doCrownRun();
+}
+
 FireType_FireTypeEnum EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFireType_0(SIGCrown* self) {
   return self->getFireType();
 }

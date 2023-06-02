@@ -2302,6 +2302,11 @@ SIGCrown.prototype['doCrownRunScottAndReinhardt'] = SIGCrown.prototype.doCrownRu
   _emscripten_bind_SIGCrown_doCrownRunScottAndReinhardt_0(self);
 };;
 
+SIGCrown.prototype['doCrownRun'] = SIGCrown.prototype.doCrownRun = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_SIGCrown_doCrownRun_0(self);
+};;
+
 SIGCrown.prototype['getFireType'] = SIGCrown.prototype.getFireType = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   return _emscripten_bind_SIGCrown_getFireType_0(self);

@@ -5174,6 +5174,8 @@ var _emscripten_bind_SIGCrown_doCrownRunRothermel_0 = Module["_emscripten_bind_S
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_doCrownRunScottAndReinhardt_0 = Module["_emscripten_bind_SIGCrown_doCrownRunScottAndReinhardt_0"] = createExportWrapper("emscripten_bind_SIGCrown_doCrownRunScottAndReinhardt_0");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_doCrownRun_0 = Module["_emscripten_bind_SIGCrown_doCrownRun_0"] = createExportWrapper("emscripten_bind_SIGCrown_doCrownRun_0");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_getFireType_0 = Module["_emscripten_bind_SIGCrown_getFireType_0"] = createExportWrapper("emscripten_bind_SIGCrown_getFireType_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_getAspect_0 = Module["_emscripten_bind_SIGCrown_getAspect_0"] = createExportWrapper("emscripten_bind_SIGCrown_getAspect_0");
@@ -8736,6 +8738,11 @@ SIGCrown.prototype['doCrownRunRothermel'] = SIGCrown.prototype.doCrownRunRotherm
 SIGCrown.prototype['doCrownRunScottAndReinhardt'] = SIGCrown.prototype.doCrownRunScottAndReinhardt = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   _emscripten_bind_SIGCrown_doCrownRunScottAndReinhardt_0(self);
+};;
+
+SIGCrown.prototype['doCrownRun'] = SIGCrown.prototype.doCrownRun = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_SIGCrown_doCrownRun_0(self);
 };;
 
 SIGCrown.prototype['getFireType'] = SIGCrown.prototype.getFireType = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {

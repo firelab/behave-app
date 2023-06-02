@@ -562,6 +562,7 @@ interface SIGCrown {
 
   void doCrownRunRothermel();
   void doCrownRunScottAndReinhardt();
+  void doCrownRun();
 
   FireType_FireTypeEnum getFireType();
   double getAspect();

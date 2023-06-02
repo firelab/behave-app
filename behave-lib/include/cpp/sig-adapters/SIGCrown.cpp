@@ -43,10 +43,6 @@
 
 SIGCrown::SIGCrown(SIGFuelModels& fuelModels) : Crown(fuelModels) {}
 
-SIGCrown::~SIGCrown() {
-  Crown::~Crown();
-};
-
 void SIGCrown::doCrownRun()
 {
   if (crownFireCalculationMethod_ == CrownFireCalculationMethod::rothermel) {
