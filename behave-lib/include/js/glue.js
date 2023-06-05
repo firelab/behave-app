@@ -839,210 +839,6 @@ SIGIgnite.prototype['isFuelDepthNeeded'] = SIGIgnite.prototype.isFuelDepthNeeded
   var self = this.ptr;
   _emscripten_bind_SIGIgnite___destroy___0(self);
 };
-// SIGSpotInputs
-/** @suppress {undefinedVars, duplicate} @this{Object} */function SIGSpotInputs() {
-  this.ptr = _emscripten_bind_SIGSpotInputs_SIGSpotInputs_0();
-  getCache(SIGSpotInputs)[this.ptr] = this;
-};;
-SIGSpotInputs.prototype = Object.create(WrapperObject.prototype);
-SIGSpotInputs.prototype.constructor = SIGSpotInputs;
-SIGSpotInputs.prototype.__class__ = SIGSpotInputs;
-SIGSpotInputs.__cache__ = {};
-Module['SIGSpotInputs'] = SIGSpotInputs;
-
-SIGSpotInputs.prototype['getLocation'] = SIGSpotInputs.prototype.getLocation = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGSpotInputs_getLocation_0(self);
-};;
-
-SIGSpotInputs.prototype['getTreeSpecies'] = SIGSpotInputs.prototype.getTreeSpecies = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGSpotInputs_getTreeSpecies_0(self);
-};;
-
-SIGSpotInputs.prototype['setBurningPileFlameHeight'] = SIGSpotInputs.prototype.setBurningPileFlameHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(buringPileFlameHeight, flameHeightUnits) {
-  var self = this.ptr;
-  if (buringPileFlameHeight && typeof buringPileFlameHeight === 'object') buringPileFlameHeight = buringPileFlameHeight.ptr;
-  if (flameHeightUnits && typeof flameHeightUnits === 'object') flameHeightUnits = flameHeightUnits.ptr;
-  _emscripten_bind_SIGSpotInputs_setBurningPileFlameHeight_2(self, buringPileFlameHeight, flameHeightUnits);
-};;
-
-SIGSpotInputs.prototype['setDBH'] = SIGSpotInputs.prototype.setDBH = /** @suppress {undefinedVars, duplicate} @this{Object} */function(DBH, DBHUnits) {
-  var self = this.ptr;
-  if (DBH && typeof DBH === 'object') DBH = DBH.ptr;
-  if (DBHUnits && typeof DBHUnits === 'object') DBHUnits = DBHUnits.ptr;
-  _emscripten_bind_SIGSpotInputs_setDBH_2(self, DBH, DBHUnits);
-};;
-
-SIGSpotInputs.prototype['setDownwindCoverHeight'] = SIGSpotInputs.prototype.setDownwindCoverHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(downwindCoverHeight, coverHeightUnits) {
-  var self = this.ptr;
-  if (downwindCoverHeight && typeof downwindCoverHeight === 'object') downwindCoverHeight = downwindCoverHeight.ptr;
-  if (coverHeightUnits && typeof coverHeightUnits === 'object') coverHeightUnits = coverHeightUnits.ptr;
-  _emscripten_bind_SIGSpotInputs_setDownwindCoverHeight_2(self, downwindCoverHeight, coverHeightUnits);
-};;
-
-SIGSpotInputs.prototype['setLocation'] = SIGSpotInputs.prototype.setLocation = /** @suppress {undefinedVars, duplicate} @this{Object} */function(location) {
-  var self = this.ptr;
-  if (location && typeof location === 'object') location = location.ptr;
-  _emscripten_bind_SIGSpotInputs_setLocation_1(self, location);
-};;
-
-SIGSpotInputs.prototype['setRidgeToValleyDistance'] = SIGSpotInputs.prototype.setRidgeToValleyDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ridgeToValleyDistance, ridgeToValleyDistanceUnits) {
-  var self = this.ptr;
-  if (ridgeToValleyDistance && typeof ridgeToValleyDistance === 'object') ridgeToValleyDistance = ridgeToValleyDistance.ptr;
-  if (ridgeToValleyDistanceUnits && typeof ridgeToValleyDistanceUnits === 'object') ridgeToValleyDistanceUnits = ridgeToValleyDistanceUnits.ptr;
-  _emscripten_bind_SIGSpotInputs_setRidgeToValleyDistance_2(self, ridgeToValleyDistance, ridgeToValleyDistanceUnits);
-};;
-
-SIGSpotInputs.prototype['setRidgeToValleyElevation'] = SIGSpotInputs.prototype.setRidgeToValleyElevation = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ridgeToValleyElevation, elevationUnits) {
-  var self = this.ptr;
-  if (ridgeToValleyElevation && typeof ridgeToValleyElevation === 'object') ridgeToValleyElevation = ridgeToValleyElevation.ptr;
-  if (elevationUnits && typeof elevationUnits === 'object') elevationUnits = elevationUnits.ptr;
-  _emscripten_bind_SIGSpotInputs_setRidgeToValleyElevation_2(self, ridgeToValleyElevation, elevationUnits);
-};;
-
-SIGSpotInputs.prototype['setSurfaceFlameLength'] = SIGSpotInputs.prototype.setSurfaceFlameLength = /** @suppress {undefinedVars, duplicate} @this{Object} */function(surfaceFlameLength, flameLengthUnits) {
-  var self = this.ptr;
-  if (surfaceFlameLength && typeof surfaceFlameLength === 'object') surfaceFlameLength = surfaceFlameLength.ptr;
-  if (flameLengthUnits && typeof flameLengthUnits === 'object') flameLengthUnits = flameLengthUnits.ptr;
-  _emscripten_bind_SIGSpotInputs_setSurfaceFlameLength_2(self, surfaceFlameLength, flameLengthUnits);
-};;
-
-SIGSpotInputs.prototype['setTorchingTrees'] = SIGSpotInputs.prototype.setTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function(torchingTrees) {
-  var self = this.ptr;
-  if (torchingTrees && typeof torchingTrees === 'object') torchingTrees = torchingTrees.ptr;
-  _emscripten_bind_SIGSpotInputs_setTorchingTrees_1(self, torchingTrees);
-};;
-
-SIGSpotInputs.prototype['setTreeHeight'] = SIGSpotInputs.prototype.setTreeHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(treeHeight, treeHeightUnits) {
-  var self = this.ptr;
-  if (treeHeight && typeof treeHeight === 'object') treeHeight = treeHeight.ptr;
-  if (treeHeightUnits && typeof treeHeightUnits === 'object') treeHeightUnits = treeHeightUnits.ptr;
-  _emscripten_bind_SIGSpotInputs_setTreeHeight_2(self, treeHeight, treeHeightUnits);
-};;
-
-SIGSpotInputs.prototype['setTreeSpecies'] = SIGSpotInputs.prototype.setTreeSpecies = /** @suppress {undefinedVars, duplicate} @this{Object} */function(treeSpecies) {
-  var self = this.ptr;
-  if (treeSpecies && typeof treeSpecies === 'object') treeSpecies = treeSpecies.ptr;
-  _emscripten_bind_SIGSpotInputs_setTreeSpecies_1(self, treeSpecies);
-};;
-
-SIGSpotInputs.prototype['setWindSpeedAtTwentyFeet'] = SIGSpotInputs.prototype.setWindSpeedAtTwentyFeet = /** @suppress {undefinedVars, duplicate} @this{Object} */function(windSpeedAtTwentyFeet, windSpeedUnits) {
-  var self = this.ptr;
-  if (windSpeedAtTwentyFeet && typeof windSpeedAtTwentyFeet === 'object') windSpeedAtTwentyFeet = windSpeedAtTwentyFeet.ptr;
-  if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
-  _emscripten_bind_SIGSpotInputs_setWindSpeedAtTwentyFeet_2(self, windSpeedAtTwentyFeet, windSpeedUnits);
-};;
-
-SIGSpotInputs.prototype['updateSpotInputsForBurningPile'] = SIGSpotInputs.prototype.updateSpotInputsForBurningPile = /** @suppress {undefinedVars, duplicate} @this{Object} */function(location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, buringPileFlameHeight, flameHeightUnits, windSpeedAtTwentyFeet, windSpeedUnits) {
-  var self = this.ptr;
-  if (location && typeof location === 'object') location = location.ptr;
-  if (ridgeToValleyDistance && typeof ridgeToValleyDistance === 'object') ridgeToValleyDistance = ridgeToValleyDistance.ptr;
-  if (ridgeToValleyDistanceUnits && typeof ridgeToValleyDistanceUnits === 'object') ridgeToValleyDistanceUnits = ridgeToValleyDistanceUnits.ptr;
-  if (ridgeToValleyElevation && typeof ridgeToValleyElevation === 'object') ridgeToValleyElevation = ridgeToValleyElevation.ptr;
-  if (elevationUnits && typeof elevationUnits === 'object') elevationUnits = elevationUnits.ptr;
-  if (downwindCoverHeight && typeof downwindCoverHeight === 'object') downwindCoverHeight = downwindCoverHeight.ptr;
-  if (coverHeightUnits && typeof coverHeightUnits === 'object') coverHeightUnits = coverHeightUnits.ptr;
-  if (buringPileFlameHeight && typeof buringPileFlameHeight === 'object') buringPileFlameHeight = buringPileFlameHeight.ptr;
-  if (flameHeightUnits && typeof flameHeightUnits === 'object') flameHeightUnits = flameHeightUnits.ptr;
-  if (windSpeedAtTwentyFeet && typeof windSpeedAtTwentyFeet === 'object') windSpeedAtTwentyFeet = windSpeedAtTwentyFeet.ptr;
-  if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
-  _emscripten_bind_SIGSpotInputs_updateSpotInputsForBurningPile_11(self, location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, buringPileFlameHeight, flameHeightUnits, windSpeedAtTwentyFeet, windSpeedUnits);
-};;
-
-SIGSpotInputs.prototype['updateSpotInputsForSurfaceFire'] = SIGSpotInputs.prototype.updateSpotInputsForSurfaceFire = /** @suppress {undefinedVars, duplicate} @this{Object} */function(location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, windSpeedAtTwentyFeet, windSpeedUnits, surfaceFlameLength, flameLengthUnits) {
-  var self = this.ptr;
-  if (location && typeof location === 'object') location = location.ptr;
-  if (ridgeToValleyDistance && typeof ridgeToValleyDistance === 'object') ridgeToValleyDistance = ridgeToValleyDistance.ptr;
-  if (ridgeToValleyDistanceUnits && typeof ridgeToValleyDistanceUnits === 'object') ridgeToValleyDistanceUnits = ridgeToValleyDistanceUnits.ptr;
-  if (ridgeToValleyElevation && typeof ridgeToValleyElevation === 'object') ridgeToValleyElevation = ridgeToValleyElevation.ptr;
-  if (elevationUnits && typeof elevationUnits === 'object') elevationUnits = elevationUnits.ptr;
-  if (downwindCoverHeight && typeof downwindCoverHeight === 'object') downwindCoverHeight = downwindCoverHeight.ptr;
-  if (coverHeightUnits && typeof coverHeightUnits === 'object') coverHeightUnits = coverHeightUnits.ptr;
-  if (windSpeedAtTwentyFeet && typeof windSpeedAtTwentyFeet === 'object') windSpeedAtTwentyFeet = windSpeedAtTwentyFeet.ptr;
-  if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
-  if (surfaceFlameLength && typeof surfaceFlameLength === 'object') surfaceFlameLength = surfaceFlameLength.ptr;
-  if (flameLengthUnits && typeof flameLengthUnits === 'object') flameLengthUnits = flameLengthUnits.ptr;
-  _emscripten_bind_SIGSpotInputs_updateSpotInputsForSurfaceFire_11(self, location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, windSpeedAtTwentyFeet, windSpeedUnits, surfaceFlameLength, flameLengthUnits);
-};;
-
-SIGSpotInputs.prototype['updateSpotInputsForTorchingTrees'] = SIGSpotInputs.prototype.updateSpotInputsForTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function(location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, torchingTrees, DBH, DBHUnits, treeHeight, treeHeightUnits, treeSpecies, windSpeedAtTwentyFeet, windSpeedUnits) {
-  var self = this.ptr;
-  if (location && typeof location === 'object') location = location.ptr;
-  if (ridgeToValleyDistance && typeof ridgeToValleyDistance === 'object') ridgeToValleyDistance = ridgeToValleyDistance.ptr;
-  if (ridgeToValleyDistanceUnits && typeof ridgeToValleyDistanceUnits === 'object') ridgeToValleyDistanceUnits = ridgeToValleyDistanceUnits.ptr;
-  if (ridgeToValleyElevation && typeof ridgeToValleyElevation === 'object') ridgeToValleyElevation = ridgeToValleyElevation.ptr;
-  if (elevationUnits && typeof elevationUnits === 'object') elevationUnits = elevationUnits.ptr;
-  if (downwindCoverHeight && typeof downwindCoverHeight === 'object') downwindCoverHeight = downwindCoverHeight.ptr;
-  if (coverHeightUnits && typeof coverHeightUnits === 'object') coverHeightUnits = coverHeightUnits.ptr;
-  if (torchingTrees && typeof torchingTrees === 'object') torchingTrees = torchingTrees.ptr;
-  if (DBH && typeof DBH === 'object') DBH = DBH.ptr;
-  if (DBHUnits && typeof DBHUnits === 'object') DBHUnits = DBHUnits.ptr;
-  if (treeHeight && typeof treeHeight === 'object') treeHeight = treeHeight.ptr;
-  if (treeHeightUnits && typeof treeHeightUnits === 'object') treeHeightUnits = treeHeightUnits.ptr;
-  if (treeSpecies && typeof treeSpecies === 'object') treeSpecies = treeSpecies.ptr;
-  if (windSpeedAtTwentyFeet && typeof windSpeedAtTwentyFeet === 'object') windSpeedAtTwentyFeet = windSpeedAtTwentyFeet.ptr;
-  if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
-  _emscripten_bind_SIGSpotInputs_updateSpotInputsForTorchingTrees_15(self, location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, torchingTrees, DBH, DBHUnits, treeHeight, treeHeightUnits, treeSpecies, windSpeedAtTwentyFeet, windSpeedUnits);
-};;
-
-SIGSpotInputs.prototype['getBurningPileFlameHeight'] = SIGSpotInputs.prototype.getBurningPileFlameHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameHeightUnits) {
-  var self = this.ptr;
-  if (flameHeightUnits && typeof flameHeightUnits === 'object') flameHeightUnits = flameHeightUnits.ptr;
-  return _emscripten_bind_SIGSpotInputs_getBurningPileFlameHeight_1(self, flameHeightUnits);
-};;
-
-SIGSpotInputs.prototype['getDBH'] = SIGSpotInputs.prototype.getDBH = /** @suppress {undefinedVars, duplicate} @this{Object} */function(DBHUnits) {
-  var self = this.ptr;
-  if (DBHUnits && typeof DBHUnits === 'object') DBHUnits = DBHUnits.ptr;
-  return _emscripten_bind_SIGSpotInputs_getDBH_1(self, DBHUnits);
-};;
-
-SIGSpotInputs.prototype['getDownwindCoverHeight'] = SIGSpotInputs.prototype.getDownwindCoverHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(coverHeightUnits) {
-  var self = this.ptr;
-  if (coverHeightUnits && typeof coverHeightUnits === 'object') coverHeightUnits = coverHeightUnits.ptr;
-  return _emscripten_bind_SIGSpotInputs_getDownwindCoverHeight_1(self, coverHeightUnits);
-};;
-
-SIGSpotInputs.prototype['getRidgeToValleyDistance'] = SIGSpotInputs.prototype.getRidgeToValleyDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ridgeToValleyDistanceUnits) {
-  var self = this.ptr;
-  if (ridgeToValleyDistanceUnits && typeof ridgeToValleyDistanceUnits === 'object') ridgeToValleyDistanceUnits = ridgeToValleyDistanceUnits.ptr;
-  return _emscripten_bind_SIGSpotInputs_getRidgeToValleyDistance_1(self, ridgeToValleyDistanceUnits);
-};;
-
-SIGSpotInputs.prototype['getRidgeToValleyElevation'] = SIGSpotInputs.prototype.getRidgeToValleyElevation = /** @suppress {undefinedVars, duplicate} @this{Object} */function(elevationUnits) {
-  var self = this.ptr;
-  if (elevationUnits && typeof elevationUnits === 'object') elevationUnits = elevationUnits.ptr;
-  return _emscripten_bind_SIGSpotInputs_getRidgeToValleyElevation_1(self, elevationUnits);
-};;
-
-SIGSpotInputs.prototype['getSurfaceFlameLength'] = SIGSpotInputs.prototype.getSurfaceFlameLength = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameLengthUnits) {
-  var self = this.ptr;
-  if (flameLengthUnits && typeof flameLengthUnits === 'object') flameLengthUnits = flameLengthUnits.ptr;
-  return _emscripten_bind_SIGSpotInputs_getSurfaceFlameLength_1(self, flameLengthUnits);
-};;
-
-SIGSpotInputs.prototype['getTreeHeight'] = SIGSpotInputs.prototype.getTreeHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(treeHeightUnits) {
-  var self = this.ptr;
-  if (treeHeightUnits && typeof treeHeightUnits === 'object') treeHeightUnits = treeHeightUnits.ptr;
-  return _emscripten_bind_SIGSpotInputs_getTreeHeight_1(self, treeHeightUnits);
-};;
-
-SIGSpotInputs.prototype['getWindSpeedAtTwentyFeet'] = SIGSpotInputs.prototype.getWindSpeedAtTwentyFeet = /** @suppress {undefinedVars, duplicate} @this{Object} */function(windSpeedUnits) {
-  var self = this.ptr;
-  if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
-  return _emscripten_bind_SIGSpotInputs_getWindSpeedAtTwentyFeet_1(self, windSpeedUnits);
-};;
-
-SIGSpotInputs.prototype['getTorchingTrees'] = SIGSpotInputs.prototype.getTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGSpotInputs_getTorchingTrees_0(self);
-};;
-
-  SIGSpotInputs.prototype['__destroy__'] = SIGSpotInputs.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  _emscripten_bind_SIGSpotInputs___destroy___0(self);
-};
 // SIGSpot
 /** @suppress {undefinedVars, duplicate} @this{Object} */function SIGSpot() {
   this.ptr = _emscripten_bind_SIGSpot_SIGSpot_0();
@@ -3447,57 +3243,47 @@ WindSpeedUtility.prototype['windSpeedAtTwentyFeetFromTenMeter'] = WindSpeedUtili
 
     
 
-    // SpotTreeSpecies
+    // SpotTreeSpecies_SpotTreeSpeciesEnum
 
-    Module['ENGELMANN_SPRUCE'] = _emscripten_enum_SpotTreeSpecies_ENGELMANN_SPRUCE();
+    Module['ENGELMANN_SPRUCE'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_ENGELMANN_SPRUCE();
 
-    Module['DOUGLAS_FIR'] = _emscripten_enum_SpotTreeSpecies_DOUGLAS_FIR();
+    Module['DOUGLAS_FIR'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_DOUGLAS_FIR();
 
-    Module['SUBALPINE_FIR'] = _emscripten_enum_SpotTreeSpecies_SUBALPINE_FIR();
+    Module['SUBALPINE_FIR'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SUBALPINE_FIR();
 
-    Module['WESTERN_HEMLOCK'] = _emscripten_enum_SpotTreeSpecies_WESTERN_HEMLOCK();
+    Module['WESTERN_HEMLOCK'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_WESTERN_HEMLOCK();
 
-    Module['PONDEROSA_PINE'] = _emscripten_enum_SpotTreeSpecies_PONDEROSA_PINE();
+    Module['PONDEROSA_PINE'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_PONDEROSA_PINE();
 
-    Module['LODGEPOLE_PINE'] = _emscripten_enum_SpotTreeSpecies_LODGEPOLE_PINE();
+    Module['LODGEPOLE_PINE'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LODGEPOLE_PINE();
 
-    Module['WESTERN_WHITE_PINE'] = _emscripten_enum_SpotTreeSpecies_WESTERN_WHITE_PINE();
+    Module['WESTERN_WHITE_PINE'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_WESTERN_WHITE_PINE();
 
-    Module['GRAND_FIR'] = _emscripten_enum_SpotTreeSpecies_GRAND_FIR();
+    Module['GRAND_FIR'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_GRAND_FIR();
 
-    Module['BALSAM_FIR'] = _emscripten_enum_SpotTreeSpecies_BALSAM_FIR();
+    Module['BALSAM_FIR'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_BALSAM_FIR();
 
-    Module['SLASH_PINE'] = _emscripten_enum_SpotTreeSpecies_SLASH_PINE();
+    Module['SLASH_PINE'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SLASH_PINE();
 
-    Module['LONGLEAF_PINE'] = _emscripten_enum_SpotTreeSpecies_LONGLEAF_PINE();
+    Module['LONGLEAF_PINE'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LONGLEAF_PINE();
 
-    Module['POND_PINE'] = _emscripten_enum_SpotTreeSpecies_POND_PINE();
+    Module['POND_PINE'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_POND_PINE();
 
-    Module['SHORTLEAF_PINE'] = _emscripten_enum_SpotTreeSpecies_SHORTLEAF_PINE();
+    Module['SHORTLEAF_PINE'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SHORTLEAF_PINE();
 
-    Module['LOBLOLLY_PINE'] = _emscripten_enum_SpotTreeSpecies_LOBLOLLY_PINE();
-
-    
-
-    // SpotFireLocation
-
-    Module['MIDSLOPE_WINDWARD'] = _emscripten_enum_SpotFireLocation_MIDSLOPE_WINDWARD();
-
-    Module['VALLEY_BOTTOM'] = _emscripten_enum_SpotFireLocation_VALLEY_BOTTOM();
-
-    Module['MIDSLOPE_LEEWARD'] = _emscripten_enum_SpotFireLocation_MIDSLOPE_LEEWARD();
-
-    Module['RIDGE_TOP'] = _emscripten_enum_SpotFireLocation_RIDGE_TOP();
+    Module['LOBLOLLY_PINE'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LOBLOLLY_PINE();
 
     
 
-    // SpotArrayConstants
+    // SpotFireLocation_SpotFireLocationEnum
 
-    Module['NUM_COLS'] = _emscripten_enum_SpotArrayConstants_NUM_COLS();
+    Module['MIDSLOPE_WINDWARD'] = _emscripten_enum_SpotFireLocation_SpotFireLocationEnum_MIDSLOPE_WINDWARD();
 
-    Module['NUM_FIREBRAND_ROWS'] = _emscripten_enum_SpotArrayConstants_NUM_FIREBRAND_ROWS();
+    Module['VALLEY_BOTTOM'] = _emscripten_enum_SpotFireLocation_SpotFireLocationEnum_VALLEY_BOTTOM();
 
-    Module['NUM_SPECIES'] = _emscripten_enum_SpotArrayConstants_NUM_SPECIES();
+    Module['MIDSLOPE_LEEWARD'] = _emscripten_enum_SpotFireLocation_SpotFireLocationEnum_MIDSLOPE_LEEWARD();
+
+    Module['RIDGE_TOP'] = _emscripten_enum_SpotFireLocation_SpotFireLocationEnum_RIDGE_TOP();
 
     
 

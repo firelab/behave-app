@@ -437,116 +437,6 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgnite___destroy___0(SIGIgnite* sel
   delete self;
 }
 
-// SIGSpotInputs
-
-SIGSpotInputs* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpotInputs_SIGSpotInputs_0() {
-  return new SIGSpotInputs();
-}
-
-SpotFireLocation EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpotInputs_getLocation_0(SIGSpotInputs* self) {
-  return self->getLocation();
-}
-
-SpotTreeSpecies EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpotInputs_getTreeSpecies_0(SIGSpotInputs* self) {
-  return self->getTreeSpecies();
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpotInputs_setBurningPileFlameHeight_2(SIGSpotInputs* self, double buringPileFlameHeight, LengthUnits_LengthUnitsEnum flameHeightUnits) {
-  self->setBurningPileFlameHeight(buringPileFlameHeight, flameHeightUnits);
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpotInputs_setDBH_2(SIGSpotInputs* self, double DBH, LengthUnits_LengthUnitsEnum DBHUnits) {
-  self->setDBH(DBH, DBHUnits);
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpotInputs_setDownwindCoverHeight_2(SIGSpotInputs* self, double downwindCoverHeight, LengthUnits_LengthUnitsEnum coverHeightUnits) {
-  self->setDownwindCoverHeight(downwindCoverHeight, coverHeightUnits);
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpotInputs_setLocation_1(SIGSpotInputs* self, SpotFireLocation location) {
-  self->setLocation(location);
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpotInputs_setRidgeToValleyDistance_2(SIGSpotInputs* self, double ridgeToValleyDistance, LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits) {
-  self->setRidgeToValleyDistance(ridgeToValleyDistance, ridgeToValleyDistanceUnits);
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpotInputs_setRidgeToValleyElevation_2(SIGSpotInputs* self, double ridgeToValleyElevation, LengthUnits_LengthUnitsEnum elevationUnits) {
-  self->setRidgeToValleyElevation(ridgeToValleyElevation, elevationUnits);
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpotInputs_setSurfaceFlameLength_2(SIGSpotInputs* self, double surfaceFlameLength, LengthUnits_LengthUnitsEnum flameLengthUnits) {
-  self->setSurfaceFlameLength(surfaceFlameLength, flameLengthUnits);
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpotInputs_setTorchingTrees_1(SIGSpotInputs* self, int torchingTrees) {
-  self->setTorchingTrees(torchingTrees);
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpotInputs_setTreeHeight_2(SIGSpotInputs* self, double treeHeight, LengthUnits_LengthUnitsEnum treeHeightUnits) {
-  self->setTreeHeight(treeHeight, treeHeightUnits);
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpotInputs_setTreeSpecies_1(SIGSpotInputs* self, SpotTreeSpecies treeSpecies) {
-  self->setTreeSpecies(treeSpecies);
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpotInputs_setWindSpeedAtTwentyFeet_2(SIGSpotInputs* self, double windSpeedAtTwentyFeet, SpeedUnits_SpeedUnitsEnum windSpeedUnits) {
-  self->setWindSpeedAtTwentyFeet(windSpeedAtTwentyFeet, windSpeedUnits);
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpotInputs_updateSpotInputsForBurningPile_11(SIGSpotInputs* self, SpotFireLocation location, double ridgeToValleyDistance, LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits, double ridgeToValleyElevation, LengthUnits_LengthUnitsEnum elevationUnits, double downwindCoverHeight, LengthUnits_LengthUnitsEnum coverHeightUnits, double buringPileFlameHeight, LengthUnits_LengthUnitsEnum flameHeightUnits, double windSpeedAtTwentyFeet, SpeedUnits_SpeedUnitsEnum windSpeedUnits) {
-  self->updateSpotInputsForBurningPile(location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, buringPileFlameHeight, flameHeightUnits, windSpeedAtTwentyFeet, windSpeedUnits);
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpotInputs_updateSpotInputsForSurfaceFire_11(SIGSpotInputs* self, SpotFireLocation location, double ridgeToValleyDistance, LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits, double ridgeToValleyElevation, LengthUnits_LengthUnitsEnum elevationUnits, double downwindCoverHeight, LengthUnits_LengthUnitsEnum coverHeightUnits, double windSpeedAtTwentyFeet, SpeedUnits_SpeedUnitsEnum windSpeedUnits, double surfaceFlameLength, LengthUnits_LengthUnitsEnum flameLengthUnits) {
-  self->updateSpotInputsForSurfaceFire(location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, windSpeedAtTwentyFeet, windSpeedUnits, surfaceFlameLength, flameLengthUnits);
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpotInputs_updateSpotInputsForTorchingTrees_15(SIGSpotInputs* self, SpotFireLocation location, double ridgeToValleyDistance, LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits, double ridgeToValleyElevation, LengthUnits_LengthUnitsEnum elevationUnits, double downwindCoverHeight, LengthUnits_LengthUnitsEnum coverHeightUnits, int torchingTrees, double DBH, LengthUnits_LengthUnitsEnum DBHUnits, double treeHeight, LengthUnits_LengthUnitsEnum treeHeightUnits, SpotTreeSpecies treeSpecies, double windSpeedAtTwentyFeet, SpeedUnits_SpeedUnitsEnum windSpeedUnits) {
-  self->updateSpotInputsForTorchingTrees(location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, torchingTrees, DBH, DBHUnits, treeHeight, treeHeightUnits, treeSpecies, windSpeedAtTwentyFeet, windSpeedUnits);
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpotInputs_getBurningPileFlameHeight_1(SIGSpotInputs* self, LengthUnits_LengthUnitsEnum flameHeightUnits) {
-  return self->getBurningPileFlameHeight(flameHeightUnits);
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpotInputs_getDBH_1(SIGSpotInputs* self, LengthUnits_LengthUnitsEnum DBHUnits) {
-  return self->getDBH(DBHUnits);
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpotInputs_getDownwindCoverHeight_1(SIGSpotInputs* self, LengthUnits_LengthUnitsEnum coverHeightUnits) {
-  return self->getDownwindCoverHeight(coverHeightUnits);
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpotInputs_getRidgeToValleyDistance_1(SIGSpotInputs* self, LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits) {
-  return self->getRidgeToValleyDistance(ridgeToValleyDistanceUnits);
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpotInputs_getRidgeToValleyElevation_1(SIGSpotInputs* self, LengthUnits_LengthUnitsEnum elevationUnits) {
-  return self->getRidgeToValleyElevation(elevationUnits);
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpotInputs_getSurfaceFlameLength_1(SIGSpotInputs* self, LengthUnits_LengthUnitsEnum flameLengthUnits) {
-  return self->getSurfaceFlameLength(flameLengthUnits);
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpotInputs_getTreeHeight_1(SIGSpotInputs* self, LengthUnits_LengthUnitsEnum treeHeightUnits) {
-  return self->getTreeHeight(treeHeightUnits);
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpotInputs_getWindSpeedAtTwentyFeet_1(SIGSpotInputs* self, SpeedUnits_SpeedUnitsEnum windSpeedUnits) {
-  return self->getWindSpeedAtTwentyFeet(windSpeedUnits);
-}
-
-int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpotInputs_getTorchingTrees_0(SIGSpotInputs* self) {
-  return self->getTorchingTrees();
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpotInputs___destroy___0(SIGSpotInputs* self) {
-  delete self;
-}
-
 // SIGSpot
 
 SIGSpot* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_SIGSpot_0() {
@@ -585,7 +475,7 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_setFlameLength_2(SIGSpot* self
   self->setFlameLength(flameLength, flameLengthUnits);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_setLocation_1(SIGSpot* self, SpotFireLocation location) {
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_setLocation_1(SIGSpot* self, SpotFireLocation_SpotFireLocationEnum location) {
   self->setLocation(location);
 }
 
@@ -605,7 +495,7 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_setTreeHeight_2(SIGSpot* self,
   self->setTreeHeight(treeHeight, treeHeightUnits);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_setTreeSpecies_1(SIGSpot* self, SpotTreeSpecies treeSpecies) {
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_setTreeSpecies_1(SIGSpot* self, SpotTreeSpecies_SpotTreeSpeciesEnum treeSpecies) {
   self->setTreeSpecies(treeSpecies);
 }
 
@@ -613,15 +503,15 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_setWindSpeedAtTwentyFeet_2(SIG
   self->setWindSpeedAtTwentyFeet(windSpeedAtTwentyFeet, windSpeedUnits);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_updateSpotInputsForBurningPile_11(SIGSpot* self, SpotFireLocation location, double ridgeToValleyDistance, LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits, double ridgeToValleyElevation, LengthUnits_LengthUnitsEnum elevationUnits, double downwindCoverHeight, LengthUnits_LengthUnitsEnum coverHeightUnits, double buringPileFlameHeight, LengthUnits_LengthUnitsEnum flameHeightUnits, double windSpeedAtTwentyFeet, SpeedUnits_SpeedUnitsEnum windSpeedUnits) {
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_updateSpotInputsForBurningPile_11(SIGSpot* self, SpotFireLocation_SpotFireLocationEnum location, double ridgeToValleyDistance, LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits, double ridgeToValleyElevation, LengthUnits_LengthUnitsEnum elevationUnits, double downwindCoverHeight, LengthUnits_LengthUnitsEnum coverHeightUnits, double buringPileFlameHeight, LengthUnits_LengthUnitsEnum flameHeightUnits, double windSpeedAtTwentyFeet, SpeedUnits_SpeedUnitsEnum windSpeedUnits) {
   self->updateSpotInputsForBurningPile(location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, buringPileFlameHeight, flameHeightUnits, windSpeedAtTwentyFeet, windSpeedUnits);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_updateSpotInputsForSurfaceFire_11(SIGSpot* self, SpotFireLocation location, double ridgeToValleyDistance, LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits, double ridgeToValleyElevation, LengthUnits_LengthUnitsEnum elevationUnits, double downwindCoverHeight, LengthUnits_LengthUnitsEnum coverHeightUnits, double windSpeedAtTwentyFeet, SpeedUnits_SpeedUnitsEnum windSpeedUnits, double flameLength, LengthUnits_LengthUnitsEnum flameLengthUnits) {
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_updateSpotInputsForSurfaceFire_11(SIGSpot* self, SpotFireLocation_SpotFireLocationEnum location, double ridgeToValleyDistance, LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits, double ridgeToValleyElevation, LengthUnits_LengthUnitsEnum elevationUnits, double downwindCoverHeight, LengthUnits_LengthUnitsEnum coverHeightUnits, double windSpeedAtTwentyFeet, SpeedUnits_SpeedUnitsEnum windSpeedUnits, double flameLength, LengthUnits_LengthUnitsEnum flameLengthUnits) {
   self->updateSpotInputsForSurfaceFire(location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, windSpeedAtTwentyFeet, windSpeedUnits, flameLength, flameLengthUnits);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_updateSpotInputsForTorchingTrees_15(SIGSpot* self, SpotFireLocation location, double ridgeToValleyDistance, LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits, double ridgeToValleyElevation, LengthUnits_LengthUnitsEnum elevationUnits, double downwindCoverHeight, LengthUnits_LengthUnitsEnum coverHeightUnits, int torchingTrees, double DBH, LengthUnits_LengthUnitsEnum DBHUnits, double treeHeight, LengthUnits_LengthUnitsEnum treeHeightUnits, SpotTreeSpecies treeSpecies, double windSpeedAtTwentyFeet, SpeedUnits_SpeedUnitsEnum windSpeedUnits) {
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_updateSpotInputsForTorchingTrees_15(SIGSpot* self, SpotFireLocation_SpotFireLocationEnum location, double ridgeToValleyDistance, LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits, double ridgeToValleyElevation, LengthUnits_LengthUnitsEnum elevationUnits, double downwindCoverHeight, LengthUnits_LengthUnitsEnum coverHeightUnits, int torchingTrees, double DBH, LengthUnits_LengthUnitsEnum DBHUnits, double treeHeight, LengthUnits_LengthUnitsEnum treeHeightUnits, SpotTreeSpecies_SpotTreeSpeciesEnum treeSpecies, double windSpeedAtTwentyFeet, SpeedUnits_SpeedUnitsEnum windSpeedUnits) {
   self->updateSpotInputsForTorchingTrees(location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, torchingTrees, DBH, DBHUnits, treeHeight, treeHeightUnits, treeSpecies, windSpeedAtTwentyFeet, windSpeedUnits);
 }
 
@@ -629,11 +519,11 @@ int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_getTorchingTrees_0(SIGSpot* sel
   return self->getTorchingTrees();
 }
 
-SpotFireLocation EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_getLocation_0(SIGSpot* self) {
+SpotFireLocation_SpotFireLocationEnum EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_getLocation_0(SIGSpot* self) {
   return self->getLocation();
 }
 
-SpotTreeSpecies EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_getTreeSpecies_0(SIGSpot* self) {
+SpotTreeSpecies_SpotTreeSpeciesEnum EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_getTreeSpecies_0(SIGSpot* self) {
   return self->getTreeSpecies();
 }
 
@@ -2121,73 +2011,62 @@ LightningCharge_LightningChargeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_Lightni
   return LightningCharge::Unknown;
 }
 
-// SpotTreeSpecies
-SpotTreeSpecies EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotTreeSpecies_ENGELMANN_SPRUCE() {
-  return ENGELMANN_SPRUCE;
+// SpotTreeSpecies_SpotTreeSpeciesEnum
+SpotTreeSpecies_SpotTreeSpeciesEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_ENGELMANN_SPRUCE() {
+  return SpotTreeSpecies::ENGELMANN_SPRUCE;
 }
-SpotTreeSpecies EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotTreeSpecies_DOUGLAS_FIR() {
-  return DOUGLAS_FIR;
+SpotTreeSpecies_SpotTreeSpeciesEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_DOUGLAS_FIR() {
+  return SpotTreeSpecies::DOUGLAS_FIR;
 }
-SpotTreeSpecies EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotTreeSpecies_SUBALPINE_FIR() {
-  return SUBALPINE_FIR;
+SpotTreeSpecies_SpotTreeSpeciesEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SUBALPINE_FIR() {
+  return SpotTreeSpecies::SUBALPINE_FIR;
 }
-SpotTreeSpecies EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotTreeSpecies_WESTERN_HEMLOCK() {
-  return WESTERN_HEMLOCK;
+SpotTreeSpecies_SpotTreeSpeciesEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_WESTERN_HEMLOCK() {
+  return SpotTreeSpecies::WESTERN_HEMLOCK;
 }
-SpotTreeSpecies EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotTreeSpecies_PONDEROSA_PINE() {
-  return PONDEROSA_PINE;
+SpotTreeSpecies_SpotTreeSpeciesEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_PONDEROSA_PINE() {
+  return SpotTreeSpecies::PONDEROSA_PINE;
 }
-SpotTreeSpecies EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotTreeSpecies_LODGEPOLE_PINE() {
-  return LODGEPOLE_PINE;
+SpotTreeSpecies_SpotTreeSpeciesEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LODGEPOLE_PINE() {
+  return SpotTreeSpecies::LODGEPOLE_PINE;
 }
-SpotTreeSpecies EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotTreeSpecies_WESTERN_WHITE_PINE() {
-  return WESTERN_WHITE_PINE;
+SpotTreeSpecies_SpotTreeSpeciesEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_WESTERN_WHITE_PINE() {
+  return SpotTreeSpecies::WESTERN_WHITE_PINE;
 }
-SpotTreeSpecies EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotTreeSpecies_GRAND_FIR() {
-  return GRAND_FIR;
+SpotTreeSpecies_SpotTreeSpeciesEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_GRAND_FIR() {
+  return SpotTreeSpecies::GRAND_FIR;
 }
-SpotTreeSpecies EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotTreeSpecies_BALSAM_FIR() {
-  return BALSAM_FIR;
+SpotTreeSpecies_SpotTreeSpeciesEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_BALSAM_FIR() {
+  return SpotTreeSpecies::BALSAM_FIR;
 }
-SpotTreeSpecies EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotTreeSpecies_SLASH_PINE() {
-  return SLASH_PINE;
+SpotTreeSpecies_SpotTreeSpeciesEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SLASH_PINE() {
+  return SpotTreeSpecies::SLASH_PINE;
 }
-SpotTreeSpecies EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotTreeSpecies_LONGLEAF_PINE() {
-  return LONGLEAF_PINE;
+SpotTreeSpecies_SpotTreeSpeciesEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LONGLEAF_PINE() {
+  return SpotTreeSpecies::LONGLEAF_PINE;
 }
-SpotTreeSpecies EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotTreeSpecies_POND_PINE() {
-  return POND_PINE;
+SpotTreeSpecies_SpotTreeSpeciesEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_POND_PINE() {
+  return SpotTreeSpecies::POND_PINE;
 }
-SpotTreeSpecies EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotTreeSpecies_SHORTLEAF_PINE() {
-  return SHORTLEAF_PINE;
+SpotTreeSpecies_SpotTreeSpeciesEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SHORTLEAF_PINE() {
+  return SpotTreeSpecies::SHORTLEAF_PINE;
 }
-SpotTreeSpecies EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotTreeSpecies_LOBLOLLY_PINE() {
-  return LOBLOLLY_PINE;
-}
-
-// SpotFireLocation
-SpotFireLocation EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotFireLocation_MIDSLOPE_WINDWARD() {
-  return MIDSLOPE_WINDWARD;
-}
-SpotFireLocation EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotFireLocation_VALLEY_BOTTOM() {
-  return VALLEY_BOTTOM;
-}
-SpotFireLocation EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotFireLocation_MIDSLOPE_LEEWARD() {
-  return MIDSLOPE_LEEWARD;
-}
-SpotFireLocation EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotFireLocation_RIDGE_TOP() {
-  return RIDGE_TOP;
+SpotTreeSpecies_SpotTreeSpeciesEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LOBLOLLY_PINE() {
+  return SpotTreeSpecies::LOBLOLLY_PINE;
 }
 
-// SpotArrayConstants
-SpotArrayConstants EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotArrayConstants_NUM_COLS() {
-  return NUM_COLS;
+// SpotFireLocation_SpotFireLocationEnum
+SpotFireLocation_SpotFireLocationEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotFireLocation_SpotFireLocationEnum_MIDSLOPE_WINDWARD() {
+  return SpotFireLocation::MIDSLOPE_WINDWARD;
 }
-SpotArrayConstants EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotArrayConstants_NUM_FIREBRAND_ROWS() {
-  return NUM_FIREBRAND_ROWS;
+SpotFireLocation_SpotFireLocationEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotFireLocation_SpotFireLocationEnum_VALLEY_BOTTOM() {
+  return SpotFireLocation::VALLEY_BOTTOM;
 }
-SpotArrayConstants EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotArrayConstants_NUM_SPECIES() {
-  return NUM_SPECIES;
+SpotFireLocation_SpotFireLocationEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotFireLocation_SpotFireLocationEnum_MIDSLOPE_LEEWARD() {
+  return SpotFireLocation::MIDSLOPE_LEEWARD;
+}
+SpotFireLocation_SpotFireLocationEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotFireLocation_SpotFireLocationEnum_RIDGE_TOP() {
+  return SpotFireLocation::RIDGE_TOP;
 }
 
 // AspenFireSeverity_AspenFireSeverityEnum

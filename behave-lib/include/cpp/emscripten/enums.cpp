@@ -42,3 +42,8 @@ typedef double* DoublePtr;
 // igniteInputs.h
 typedef LightningCharge::LightningChargeEnum LightningCharge_LightningChargeEnum;
 typedef IgnitionFuelBedType::IgnitionFuelBedTypeEnum IgnitionFuelBedType_IgnitionFuelBedTypeEnum;
+
+
+// spotInputs.h
+typedef SpotTreeSpecies::SpotTreeSpeciesEnum SpotTreeSpecies_SpotTreeSpeciesEnum;
+typedef SpotFireLocation::SpotFireLocationEnum SpotFireLocation_SpotFireLocationEnum;

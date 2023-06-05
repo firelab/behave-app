@@ -111,7 +111,6 @@ SET(SOURCE
     include/cpp/sig-adapters/SIGMortality.cpp
     include/cpp/sig-adapters/SIGSurface.cpp
     include/cpp/sig-adapters/SIGSpot.cpp
-    include/cpp/sig-adapters/SIGSpotInputs.cpp
     include/cpp/sig-adapters/SIGSurface.cpp)
 
 SET(HEADERS
@@ -159,7 +158,6 @@ SET(HEADERS
     include/cpp/sig-adapters/SIGIgnite.h
     include/cpp/sig-adapters/SIGMortality.h
     include/cpp/sig-adapters/SIGSpot.h
-    include/cpp/sig-adapters/SIGSpotInputs.h
     include/cpp/sig-adapters/SIGSurface.h
     include/cpp/sig-adapters/SIGString.h
     include/cpp/sig-adapters/SIGSurface.h)

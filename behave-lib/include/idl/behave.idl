@@ -198,7 +198,7 @@ enum ContainFlank_ContainFlankEnum {
 
 // Adapter to the ContainAdapter
 interface SIGContainAdapter {
-  void SIGContainAdapter();
+    void SIGContainAdapter();
   ContainStatus_ContainStatusEnum getContainmentStatus();
   double getFinalContainmentArea(AreaUnits_AreaUnitsEnum areaUnits);
   double getFinalCost();
@@ -271,50 +271,29 @@ interface SIGIgnite {
   boolean isFuelDepthNeeded();
 };
 
-enum SpotTreeSpecies {
-  "ENGELMANN_SPRUCE", "DOUGLAS_FIR", "SUBALPINE_FIR", "WESTERN_HEMLOCK", "PONDEROSA_PINE", "LODGEPOLE_PINE", "WESTERN_WHITE_PINE", "GRAND_FIR", "BALSAM_FIR", "SLASH_PINE", "LONGLEAF_PINE", "POND_PINE", "SHORTLEAF_PINE", "LOBLOLLY_PINE"
+enum SpotTreeSpecies_SpotTreeSpeciesEnum {
+  "SpotTreeSpecies::ENGELMANN_SPRUCE",
+  "SpotTreeSpecies::DOUGLAS_FIR",
+  "SpotTreeSpecies::SUBALPINE_FIR",
+  "SpotTreeSpecies::WESTERN_HEMLOCK",
+  "SpotTreeSpecies::PONDEROSA_PINE",
+  "SpotTreeSpecies::LODGEPOLE_PINE",
+  "SpotTreeSpecies::WESTERN_WHITE_PINE",
+  "SpotTreeSpecies::GRAND_FIR",
+  "SpotTreeSpecies::BALSAM_FIR",
+  "SpotTreeSpecies::SLASH_PINE",
+  "SpotTreeSpecies::LONGLEAF_PINE",
+  "SpotTreeSpecies::POND_PINE",
+  "SpotTreeSpecies::SHORTLEAF_PINE",
+  "SpotTreeSpecies::LOBLOLLY_PINE"
 };
 
-enum SpotFireLocation {
-  "MIDSLOPE_WINDWARD", "VALLEY_BOTTOM", "MIDSLOPE_LEEWARD", "RIDGE_TOP"
+enum SpotFireLocation_SpotFireLocationEnum {
+  "SpotFireLocation::MIDSLOPE_WINDWARD",
+  "SpotFireLocation::VALLEY_BOTTOM",
+  "SpotFireLocation::MIDSLOPE_LEEWARD",
+  "SpotFireLocation::RIDGE_TOP"
 };
-
-enum SpotArrayConstants {
-  "NUM_COLS", "NUM_FIREBRAND_ROWS", "NUM_SPECIES",
-};
-
-interface SIGSpotInputs {
-  void SIGSpotInputs();
-  SpotFireLocation getLocation();
-  SpotTreeSpecies getTreeSpecies();
-
-  void setBurningPileFlameHeight(double buringPileFlameHeight, LengthUnits_LengthUnitsEnum flameHeightUnits);
-  void setDBH(double DBH, LengthUnits_LengthUnitsEnum DBHUnits);
-  void setDownwindCoverHeight(double downwindCoverHeight, LengthUnits_LengthUnitsEnum coverHeightUnits);
-  void setLocation(SpotFireLocation location);
-  void setRidgeToValleyDistance(double ridgeToValleyDistance, LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits);
-  void setRidgeToValleyElevation(double ridgeToValleyElevation, LengthUnits_LengthUnitsEnum elevationUnits);
-  void setSurfaceFlameLength(double surfaceFlameLength, LengthUnits_LengthUnitsEnum flameLengthUnits);
-  void setTorchingTrees(long torchingTrees);
-  void setTreeHeight(double treeHeight, LengthUnits_LengthUnitsEnum treeHeightUnits);
-  void setTreeSpecies(SpotTreeSpecies treeSpecies);
-  void setWindSpeedAtTwentyFeet(double windSpeedAtTwentyFeet, SpeedUnits_SpeedUnitsEnum windSpeedUnits);
-
-  void updateSpotInputsForBurningPile(SpotFireLocation location, double ridgeToValleyDistance, LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits, double ridgeToValleyElevation, LengthUnits_LengthUnitsEnum elevationUnits, double downwindCoverHeight, LengthUnits_LengthUnitsEnum coverHeightUnits, double buringPileFlameHeight, LengthUnits_LengthUnitsEnum flameHeightUnits, double windSpeedAtTwentyFeet, SpeedUnits_SpeedUnitsEnum windSpeedUnits);
-  void updateSpotInputsForSurfaceFire(SpotFireLocation location, double ridgeToValleyDistance, LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits, double ridgeToValleyElevation, LengthUnits_LengthUnitsEnum elevationUnits, double downwindCoverHeight, LengthUnits_LengthUnitsEnum coverHeightUnits, double windSpeedAtTwentyFeet, SpeedUnits_SpeedUnitsEnum windSpeedUnits, double surfaceFlameLength, LengthUnits_LengthUnitsEnum flameLengthUnits);
-  void updateSpotInputsForTorchingTrees(SpotFireLocation location, double ridgeToValleyDistance, LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits, double ridgeToValleyElevation, LengthUnits_LengthUnitsEnum elevationUnits, double downwindCoverHeight, LengthUnits_LengthUnitsEnum coverHeightUnits, long torchingTrees, double DBH, LengthUnits_LengthUnitsEnum DBHUnits, double treeHeight, LengthUnits_LengthUnitsEnum treeHeightUnits, SpotTreeSpecies treeSpecies, double windSpeedAtTwentyFeet, SpeedUnits_SpeedUnitsEnum windSpeedUnits);
-
-  double getBurningPileFlameHeight(LengthUnits_LengthUnitsEnum flameHeightUnits);
-  double getDBH(LengthUnits_LengthUnitsEnum DBHUnits);
-  double getDownwindCoverHeight(LengthUnits_LengthUnitsEnum coverHeightUnits);
-  double getRidgeToValleyDistance(LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits);
-  double getRidgeToValleyElevation(LengthUnits_LengthUnitsEnum elevationUnits);
-  double getSurfaceFlameLength(LengthUnits_LengthUnitsEnum flameLengthUnits);
-  double getTreeHeight(LengthUnits_LengthUnitsEnum treeHeightUnits);
-  double getWindSpeedAtTwentyFeet(SpeedUnits_SpeedUnitsEnum windSpeedUnits);
-  long getTorchingTrees();
-};
-
 
 interface SIGSpot {
   void SIGSpot();
@@ -328,21 +307,21 @@ interface SIGSpot {
   void setDBH(double DBH, LengthUnits_LengthUnitsEnum DBHUnits);
   void setDownwindCoverHeight(double downwindCoverHeight, LengthUnits_LengthUnitsEnum coverHeightUnits);
   void setFlameLength(double flameLength, LengthUnits_LengthUnitsEnum flameLengthUnits);
-  void setLocation(SpotFireLocation location);
+  void setLocation(SpotFireLocation_SpotFireLocationEnum location);
   void setRidgeToValleyDistance(double ridgeToValleyDistance, LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits);
   void setRidgeToValleyElevation(double ridgeToValleyElevation, LengthUnits_LengthUnitsEnum elevationUnits);
   void setTorchingTrees(long torchingTrees);
   void setTreeHeight(double treeHeight, LengthUnits_LengthUnitsEnum treeHeightUnits);
-  void setTreeSpecies(SpotTreeSpecies treeSpecies);
+  void setTreeSpecies(SpotTreeSpecies_SpotTreeSpeciesEnum treeSpecies);
   void setWindSpeedAtTwentyFeet(double windSpeedAtTwentyFeet, SpeedUnits_SpeedUnitsEnum windSpeedUnits);
 
-  void updateSpotInputsForBurningPile(SpotFireLocation location, double ridgeToValleyDistance, LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits, double ridgeToValleyElevation, LengthUnits_LengthUnitsEnum elevationUnits, double downwindCoverHeight, LengthUnits_LengthUnitsEnum coverHeightUnits, double buringPileFlameHeight, LengthUnits_LengthUnitsEnum flameHeightUnits, double windSpeedAtTwentyFeet, SpeedUnits_SpeedUnitsEnum windSpeedUnits);
-  void updateSpotInputsForSurfaceFire(SpotFireLocation location, double ridgeToValleyDistance, LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits, double ridgeToValleyElevation, LengthUnits_LengthUnitsEnum elevationUnits, double downwindCoverHeight, LengthUnits_LengthUnitsEnum coverHeightUnits, double windSpeedAtTwentyFeet, SpeedUnits_SpeedUnitsEnum windSpeedUnits, double flameLength, LengthUnits_LengthUnitsEnum flameLengthUnits);
-  void updateSpotInputsForTorchingTrees(SpotFireLocation location, double ridgeToValleyDistance, LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits, double ridgeToValleyElevation, LengthUnits_LengthUnitsEnum elevationUnits, double downwindCoverHeight, LengthUnits_LengthUnitsEnum coverHeightUnits, long torchingTrees, double DBH, LengthUnits_LengthUnitsEnum DBHUnits, double treeHeight, LengthUnits_LengthUnitsEnum treeHeightUnits, SpotTreeSpecies treeSpecies, double windSpeedAtTwentyFeet, SpeedUnits_SpeedUnitsEnum windSpeedUnits);
+  void updateSpotInputsForBurningPile(SpotFireLocation_SpotFireLocationEnum location, double ridgeToValleyDistance, LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits, double ridgeToValleyElevation, LengthUnits_LengthUnitsEnum elevationUnits, double downwindCoverHeight, LengthUnits_LengthUnitsEnum coverHeightUnits, double buringPileFlameHeight, LengthUnits_LengthUnitsEnum flameHeightUnits, double windSpeedAtTwentyFeet, SpeedUnits_SpeedUnitsEnum windSpeedUnits);
+  void updateSpotInputsForSurfaceFire(SpotFireLocation_SpotFireLocationEnum location, double ridgeToValleyDistance, LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits, double ridgeToValleyElevation, LengthUnits_LengthUnitsEnum elevationUnits, double downwindCoverHeight, LengthUnits_LengthUnitsEnum coverHeightUnits, double windSpeedAtTwentyFeet, SpeedUnits_SpeedUnitsEnum windSpeedUnits, double flameLength, LengthUnits_LengthUnitsEnum flameLengthUnits);
+  void updateSpotInputsForTorchingTrees(SpotFireLocation_SpotFireLocationEnum location, double ridgeToValleyDistance, LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits, double ridgeToValleyElevation, LengthUnits_LengthUnitsEnum elevationUnits, double downwindCoverHeight, LengthUnits_LengthUnitsEnum coverHeightUnits, long torchingTrees, double DBH, LengthUnits_LengthUnitsEnum DBHUnits, double treeHeight, LengthUnits_LengthUnitsEnum treeHeightUnits, SpotTreeSpecies_SpotTreeSpeciesEnum treeSpecies, double windSpeedAtTwentyFeet, SpeedUnits_SpeedUnitsEnum windSpeedUnits);
 
   long getTorchingTrees();
-  SpotFireLocation getLocation();
-  SpotTreeSpecies getTreeSpecies();
+  SpotFireLocation_SpotFireLocationEnum getLocation();
+  SpotTreeSpecies_SpotTreeSpeciesEnum getTreeSpecies();
   double getBurningPileFlameHeight(LengthUnits_LengthUnitsEnum flameHeightUnits);
   double getCoverHeightUsedForBurningPile(LengthUnits_LengthUnitsEnum coverHeightUnits);
   double getCoverHeightUsedForSurfaceFire(LengthUnits_LengthUnitsEnum coverHeightUnits);
