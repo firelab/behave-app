@@ -39,8 +39,7 @@
        :on-increase #(rf/dispatch [:api/reorder % @groups :group/order :inc])
        :on-decrease #(rf/dispatch [:api/reorder % @groups :group/order :dec])}]]))
 
-(defn loaded-page [submodule-id]
-  (println "Initiliazed here")
+(defn list-groups-page [{submodule-id :id}]
   (let [submodule      (rf/subscribe [:entity submodule-id '[* {:module/_submodules [*]}]])
         sidebar-groups (rf/subscribe [:sidebar/groups submodule-id])]
     [:<>
@@ -66,9 +65,3 @@
        [accordion
         "Help Page"
         [help-editor (:submodule/help-key @submodule)]]]]]))
-
-(defn list-groups-page [{id :id}]
-  (let [loaded? (rf/subscribe [:state :loaded?])]
-    (if @loaded?
-      (loaded-page id)
-      [:div "Loading ..."])))

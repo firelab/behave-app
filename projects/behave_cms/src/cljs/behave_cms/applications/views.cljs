@@ -50,21 +50,16 @@
                           :type      :number
                           :required? true}]}])
 
-(defn list-applications-page [{:keys [id]}]
-  (let [loaded? (rf/subscribe [:state :loaded?])
-        application (rf/subscribe [:state :application])]
-    (when (and id (nil? @application))
-      (rf/dispatch [:state/set-state :application id]))
-    (if @loaded?
-      [:<>
-       [sidebar "Applications" @(rf/subscribe [:sidebar/applications])]
-       [window sidebar-width
-        [:div.container
-         [:div.row
-          [:div.col-6
-           [:h3 "Applications"]
-           [applications-table]]
-          [:div.col-6
-           [:h3 "Manage"]
-           [application-form @application]]]]]]
-      [:div "Loading ..."])))
+(defn list-applications-page [{id :id}]
+  (let [application (rf/subscribe [:state :application])]
+    [:<>
+     [sidebar "Applications" @(rf/subscribe [:sidebar/applications])]
+     [window sidebar-width
+      [:div.container
+       [:div.row.mb-3.mt-4
+        [:div.col-6
+         [:h3 "Applications"]
+         [applications-table]]
+        [:div.col-6
+         [:h3 (str (if @application "Manage" "Add") " Application")]
+         [application-form @application]]]]]]))

@@ -1,23 +1,26 @@
 (ns behave-cms.subgroups.subs
-  (:require [clojure.string    :as str]
-            [bidi.bidi         :refer [path-for]]
-            [datascript.core   :as d]
-            [behave-cms.store  :refer [conn]]
-            [re-frame.core     :refer [reg-sub subscribe]]
-            [behave-cms.routes :refer [app-routes]]))
+  (:require [clojure.string     :as str]
+            [bidi.bidi          :refer [path-for]]
+            [datascript.core    :as d]
+            [behave-cms.store   :refer [conn]]
+            [behave-cms.queries :refer [rules]]
+            [re-frame.core      :refer [reg-sub subscribe]]
+            [behave-cms.routes  :refer [app-routes]]))
 
 ;;; Applications, Modules, Submodules
 
 (reg-sub
+ :subgroup/_app-module-id
+ (fn [_ [_ group-id]]
+   (d/q '[:find ?a .
+          :in $ % ?s
+          :where (app-root ?a ?s)]
+        @@conn rules group-id)))
+
+(reg-sub
  :subgroup/app-modules
  (fn [[_ group-id]]
-   (subscribe [:query '[:find ?a .
-                        :in $ ?g
-                        :where
-                        [?sm :submodule/groups ?g]
-                        [?m :module/submodules ?sm]
-                        [?a :application/modules ?m]]
-               [group-id]]))
+   (subscribe [:subgroup/_app-module-id group-id]))
  (fn [app-id]
    @(subscribe [:pull-children :application/modules app-id])))
 
@@ -75,7 +78,7 @@
  identity)
 
 (reg-sub
- :subgroup/parent-id
+ :subgroup/parent
  (fn [[_ group-id]]
    (println group-id)
    (subscribe [:query
@@ -83,7 +86,8 @@
                  :in $ ?c
                  :where [?g :group/children ?c]]
                [group-id]]))
- identity)
+ (fn [id]
+   (when id @(subscribe [:entity id]))))
 
 (reg-sub
  :group/subgroups
@@ -94,7 +98,7 @@
 (reg-sub
  :sidebar/subgroups
  (fn [[_ group-id]]
-   (subscribe [:groups group-id]))
+   (subscribe [:group/subgroups group-id]))
 
  (fn [groups _]
    (->> groups

@@ -36,34 +36,30 @@
        :on-increase #(rf/dispatch [:api/reorder % @modules :module/order :inc])
        :on-decrease #(rf/dispatch [:api/reorder % @modules :module/order :dec])}]]))
 
-(defn list-modules-page [{:keys [id]}]
-  (let [loaded? (rf/subscribe [:state :loaded?])
-        id      (parse-int id)]
-    (if @loaded?
-      (let [application (rf/subscribe [:application id])
-            modules     (rf/subscribe [:sidebar/modules id])
-            *module     (rf/subscribe [:state :module])]
-        [:<>
-         [sidebar
-          "Modules"
-          @modules
-          "Applications"
-          "/applications"]
-         [window sidebar-width
-          [:div.container
-           [:div.row.mb-3.mt-4
-            [:h2 (:application/name @application)]]
-           [accordion
-            "Modules"
-            [modules-table id]
-            [manage-module id @*module (count @modules)]]
-           [:hr]
-           [accordion
-            "Help Page"
-            [:div.col-12
-             [help-editor (:application/help-key @application)]]]
-           [:hr]
-           [accordion
-            "Application Translations"
-            [app-translations (:application/translation-key @application)]]]]])
-      [:div "Loading ..."])))
+(defn list-modules-page [{id :id}]
+  (let [application (rf/subscribe [:application id])
+        modules     (rf/subscribe [:sidebar/modules id])
+        *module     (rf/subscribe [:state :module])]
+    [:<>
+     [sidebar
+      "Modules"
+      @modules
+      "Applications"
+      "/applications"]
+     [window sidebar-width
+      [:div.container
+       [:div.row.mb-3.mt-4
+        [:h2 (:application/name @application)]]
+       [accordion
+        "Modules"
+        [modules-table id]
+        [manage-module id @*module (count @modules)]]
+       [:hr]
+       [accordion
+        "Help Page"
+        [:div.col-12
+         [help-editor (:application/help-key @application)]]]
+       [:hr]
+       [accordion
+        "Application Translations"
+        [app-translations (:application/translation-key @application)]]]]]))

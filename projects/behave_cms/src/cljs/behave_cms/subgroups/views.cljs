@@ -26,12 +26,12 @@
                                  :required? true
                                  :field-key :group/name}]}])
 
-(defn- manage-subgroup [{id :db/id}]
+(defn- manage-subgroup [group-id]
   (let [subgroup (rf/subscribe [:state :subgroup])]
-    [subgroup-form id @subgroup]))
+    [subgroup-form group-id @subgroup]))
 
-(defn- subgroups-table [{group-id :db/id}]
-  (r/with-let [subgroups (rf/subscribe [:group/subgroups group-id])]
+(defn- subgroups-table [group-id]
+  (let [subgroups (rf/subscribe [:group/subgroups group-id])]
     [simple-table
      [:group/name]
      (sort-by :group/name @subgroups)
@@ -41,8 +41,9 @@
       :on-increase #(rf/dispatch [:api/reorder % @subgroups :group/order :inc])
       :on-decrease #(rf/dispatch [:api/reorder % @subgroups :group/order :dec])}]))
 
-(defn- variables-table [{group-id :db/id translation-key :group/translation-key}]
-  (r/with-let [group-variables (rf/subscribe [:group/variables group-id])]
+(defn- variables-table [group-id]
+  (let [translation-key (rf/subscribe [:entity group-id] '[:group/translation-key])
+        group-variables (rf/subscribe [:group/variables group-id])]
     [simple-table
      [:variable/name]
      (sort-by :group-variable/order @group-variables)
@@ -51,11 +52,13 @@
       :on-increase #(rf/dispatch [:api/reorder % @group-variables :group-variable/order :inc])
       :on-decrease #(rf/dispatch [:api/reorder % @group-variables :group-variable/order :dec])}]))
 
-(defn- add-variable [{id :db/id group-variables :group/group-variables translation-key :group/translation-key}]
-  (let [query            (rf/subscribe [:state [:search :variables]])
+(defn- add-variable [group-id]
+  (let [translation-key  (rf/subscribe [:entity-attr group-id :group/translation-key])
+        group-variables  (rf/subscribe [:group/variables group-id])
+        query            (rf/subscribe [:state [:search :variables]])
         all-variables    (rf/subscribe [:group/search-variables @query])
         all-variable-ids (set (map :db/id @all-variables))
-        gv-ids           (set (map #(get-in % [:variable/_group-variables 0 :db/id]) group-variables))
+        gv-ids           (set (map #(get-in % [:variable/_group-variables 0 :db/id]) @group-variables))
         remaining-ids    (difference all-variable-ids gv-ids)
         remaining        (filter #(-> % (:db/id) (remaining-ids)) @all-variables)]
     [:div.row
@@ -65,21 +68,22 @@
       (u/debounce #(rf/dispatch [:state/set-state [:search :variables] %]) 1000)
       #(let [variable @(rf/subscribe [:pull '[:variable/name] %])]
          (rf/dispatch [:api/create-entity
-                       {:group/_group-variables         id
+                       {:group/_group-variables         group-id
                         :variable/_group-variables      %
-                        :group-variable/translation-key (str translation-key ":" (->kebab (:variable/name variable)))
-                        :group-variable/help-key        (str translation-key ":" (->kebab (:variable/name variable)) ":help")
-                        :group-variable/order           (count group-variables)}]))
+                        :group-variable/translation-key (str @translation-key ":" (->kebab (:variable/name variable)))
+                        :group-variable/help-key        (str @translation-key ":" (->kebab (:variable/name variable)) ":help")
+                        :group-variable/order           (count @group-variables)}]))
       #(rf/dispatch [:state/set-state [:search :variables] nil])]]))
 
 ;;; Conditionals
 
-(defn- conditionals-table [{group-id :db/id conditional :group/conditionals-operator}]
-  (r/with-let [group-variables (rf/subscribe [:group/conditionals group-id])]
+(defn- conditionals-table [group-id]
+  (let [group           (rf/subscribe [:entity group-id])
+        group-variables (rf/subscribe [:group/conditionals group-id])]
     [:<>
      [dropdown
       {:label     "Combined Operator:"
-       :selected  conditional
+       :selected  (:group/conditionals-operator @group)
        :on-select #(rf/dispatch [:api/update-entity
                                  {:db/id group-id :group/conditionals-operator (keyword (u/input-value %))}])
        :options   [{:value :and :label "AND"}
@@ -90,7 +94,7 @@
       {:on-delete #(when (js/confirm (str "Are you sure you want to delete the conditional " (:variable/name %) "?"))
                      (rf/dispatch [:api/delete-entity %]))}]]))
 
-(defn- manage-conditionals [{id :db/id}]
+(defn- manage-conditionals [group-id]
   (let [var-path   [:editors :variable-lookup]
         group-path [:editors :groups]
         cond-path  [:editors :groups :group/conditional]
@@ -99,11 +103,11 @@
         set-field  (fn [path v] (rf/dispatch [:state/set-state path v]))
         on-submit  #(rf/dispatch [:api/create-entity
                                   (merge @(rf/subscribe [:state cond-path])
-                                         {:group/_conditionals id})])
+                                         {:group/_conditionals group-id})])
 
-        modules    (rf/subscribe [:subgroup/app-modules id])
+        modules    (rf/subscribe [:subgroup/app-modules group-id])
         submodules (rf/subscribe [:pull-children :module/submodules @(get-field (conj var-path :module))])
-        groups     (rf/subscribe [:pull-children :submodule/group @(get-field (conj var-path :submodule))])
+        groups     (rf/subscribe [:pull-children :submodule/groups @(get-field (conj var-path :submodule))])
         is-output? (rf/subscribe [:submodule/is-output? @(get-field (conj var-path :submodule))]) 
         variables  (rf/subscribe [(if @is-output? :group/variables :group/discrete-variables) @(get-field (conj var-path :group))])
         options    (rf/subscribe [:group/discrete-variable-options @(get-field (conj cond-path :conditional/group-variable-uuid))])]
@@ -178,59 +182,66 @@
 (defn list-subgroups-page
   "Renders the subgroups page. Takes in a group UUID."
   [{:keys [id]}]
-  (let [loaded? (rf/subscribe [:state :loaded?])]
-    (if (not @loaded?)
-      [:div "Loading..."]
-      (let [parent-group    (rf/subscribe [:subgroup/parent-id id])
-            group           (rf/subscribe [:entity id '[* {:submodule/_groups     [*]
-                                                           :group/children        [*]
-                                                           :group/_children       [*]
-                                                           :group/group-variables [* {:variable/_group-variables [*]}]}]])
-            subgroups       (:group/children @group)
-            group-variables (rf/subscribe [:sidebar/variables id])]
-        [:<>
-         [sidebar
-          "Variables"
-          @group-variables
-          "Groups"
-          (str "/submodules/" (get-in @group [:submodule/_groups 0 :db/id]))]
-         [window
-          sidebar-width
-          [:div.container
-           ^{:key "name"}
-           [:div.row.mb-3.mt-4
-            [:h2 (:group/name @group)]]
-           ^{:key "variables"}
-           [accordion
-            "Variables"
-            [:div.col-6
-             [variables-table @group]]
-            [:div.col-6
-             [add-variable @group]]]
-           [:hr]
-           ^{:key "subgroups"}
-           [accordion
-            "Subgroups"
-            [:div.col-6
-             [subgroups-table @group]]
-            [:div.col-6
-             [manage-subgroup @group]]]
-           [:hr]
-           ^{:key "conditionals"}
-           [accordion
-            "Conditionals"
-            [:div.col-6
-             [conditionals-table @group]]
-            [:div.col-6
-             [manage-conditionals @group]]]
-           [:hr]
-           ^{:key "translations"}
-           [accordion
-            "Translations"
-            [all-translations (:group/translation-key @group)]]
-           [:hr]
-           ^{:key "help"}
-           [accordion
-            "Help Page"
-            [:div.col-12
-             [help-editor (:group/help-key @group)]]]]]]))))
+  (let [parent-group    (rf/subscribe [:subgroup/parent id])
+        group           (rf/subscribe [:entity id '[:group/name
+                                                    :group/help-key
+                                                    :group/translation-key
+                                                    {:submodule/_groups [:db/id]}]])
+        group-variables (rf/subscribe [:sidebar/variables id])
+        subgroups       (rf/subscribe [:sidebar/subgroups id])]
+    (println (str :PG @parent-group "\n\n" :G @group "\n\n" :SG @subgroups "\n\n" :GV @group-variables))
+
+    [:div
+     {:id (str id)}
+     [sidebar
+      "Variables"
+      @group-variables
+      (if @parent-group
+        (:group/name @parent-group)
+        "Groups")
+      (if @parent-group
+        (str "/groups/" (:db/id @parent-group))
+        (str "/submodules/" (get-in @group [:submodule/_groups 0 :db/id])))
+      (when (seq @subgroups) @subgroups)]
+     [window
+      sidebar-width
+      [:div.container
+       ^{:key "name"}
+       [:div.row.mb-3.mt-4
+        [:h2 (:group/name @group)]]
+       ^{:key "variables"}
+       [accordion
+        "Variables"
+        [:div.col-6
+         [variables-table id]]
+        [:div.col-6
+         [add-variable id]]]
+       [:hr]
+       ^{:key "subgroups"}
+       [accordion
+        "Subgroups"
+        [:div.col-6
+         [subgroups-table id]]
+        [:div.col-6
+         [manage-subgroup id]]]
+       [:hr]
+       ^{:key "conditionals"}
+       [accordion
+        "Conditionals"
+        [:div.col-6
+         [conditionals-table id]]
+        [:div.col-6
+         [manage-conditionals id]]]
+       [:hr]
+       ^{:key "translations"}
+       [accordion
+        "Translations"
+        [all-translations (:group/translation-key @group)]]
+       [:hr]
+       ^{:key "help"}
+       [accordion
+        "Help Page"
+        [:div.col-12
+         [help-editor (:group/help-key @group)]]]]]]))
+
+(def list-subsubgroups-page #'list-subgroups-page)
