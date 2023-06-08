@@ -75,6 +75,23 @@
  identity)
 
 (reg-sub
+ :subgroup/parent-id
+ (fn [[_ group-id]]
+   (println group-id)
+   (subscribe [:query
+               '[:find ?g .
+                 :in $ ?c
+                 :where [?g :group/children ?c]]
+               [group-id]]))
+ identity)
+
+(reg-sub
+ :group/subgroups
+ (fn [[_ group-id]]
+   (subscribe [:pull-children :group/children group-id]))
+ identity)
+
+(reg-sub
  :sidebar/subgroups
  (fn [[_ group-id]]
    (subscribe [:groups group-id]))

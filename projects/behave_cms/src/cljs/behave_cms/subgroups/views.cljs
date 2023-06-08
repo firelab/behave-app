@@ -24,7 +24,7 @@
                 :id            subgroup-id
                 :fields        [{:label     "Name"
                                  :required? true
-                                 :field-key :group-name}]}])
+                                 :field-key :group/name}]}])
 
 (defn- manage-subgroup [{id :db/id}]
   (let [subgroup (rf/subscribe [:state :subgroup])]
@@ -181,8 +181,12 @@
   (let [loaded? (rf/subscribe [:state :loaded?])]
     (if (not @loaded?)
       [:div "Loading..."]
-      (let [group           (rf/subscribe [:entity id '[* {:submodule/_groups     [*]
+      (let [parent-group    (rf/subscribe [:subgroup/parent-id id])
+            group           (rf/subscribe [:entity id '[* {:submodule/_groups     [*]
+                                                           :group/children        [*]
+                                                           :group/_children       [*]
                                                            :group/group-variables [* {:variable/_group-variables [*]}]}]])
+            subgroups       (:group/children @group)
             group-variables (rf/subscribe [:sidebar/variables id])]
         [:<>
          [sidebar
@@ -203,6 +207,14 @@
              [variables-table @group]]
             [:div.col-6
              [add-variable @group]]]
+           [:hr]
+           ^{:key "subgroups"}
+           [accordion
+            "Subgroups"
+            [:div.col-6
+             [subgroups-table @group]]
+            [:div.col-6
+             [manage-subgroup @group]]]
            [:hr]
            ^{:key "conditionals"}
            [accordion

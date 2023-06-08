@@ -33,6 +33,9 @@
   (fn [{state :state} [_ path]]
 
     (cond
+      (nil? path)
+      state
+
       (keyword? path)
       (get state path)
 
