@@ -53,6 +53,8 @@
                    :invite-user    invite-user-page
                    :reset-password reset-password-page})
 
+(def system-page-handlers (set (keys system-pages)))
+
 (def handler->root-component (merge app-pages system-pages))
 
 (defn not-found
@@ -70,7 +72,8 @@
   (fn [params]
     (let [current-route                  (rf/subscribe [:route])
           {:keys [handler route-params]} (match-route app-routes @current-route)
-          loaded?                        (rf/subscribe [:state :loaded?])
+          system-route?                  (system-page-handlers handler)
+          loaded?                        (r/track #(or system-route? @(rf/subscribe [:state :loaded?])))
           component                      (get handler->root-component handler not-found)]
       (if (not @loaded?)
         [:div "Loading..."]

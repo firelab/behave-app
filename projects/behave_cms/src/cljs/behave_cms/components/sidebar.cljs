@@ -37,7 +37,6 @@
   {:font-weight      "bold"
    :font-size        "0.8rem"})
 
-
 ;;; Helpers
 
 (defn navigate [path]
