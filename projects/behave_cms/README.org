@@ -1,0 +1,24 @@
+#+TITLE: Behave Variable Management System
+#+AUTHOR: RJ Sheperd
+
+* Setup
+
+To compile CLJS and UberJar:
+#+BEGIN_SRC bash
+  bb build-js
+  bb uber
+#+END_SRC
+
+Then start the program: ~java --jar target/behave-cms-standalone.jar~
+
+* COMMENT To-Do's
+
+- [x] Add invitation user flow
+- [x] Add email verification flow
+- [ ] Add selector to Variables to associated class functions / argument
+- [ ] Add ability to re-order Variables
+- [ ] Add searching for other help pages when creating a link (Custom popover when inserting a link)
+- [ ] Add warning to Help editor (when "dirty", warn the user when attempting to navigate away from the page)
+- [ ] Enable Groups to be "repeatable" (Add Checkbox for Subgroups)
+
+
