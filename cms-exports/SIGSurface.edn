@@ -628,6 +628,13 @@
    {:type "double",
     :id "getChaparralDaysSinceMayFirst",
     :parameters []},
+   :setChaparralFuelLoadInputMode
+   {:type "void",
+    :id "setChaparralFuelLoadInputMode",
+    :parameters
+    [{:id "fuelLoadInputMode",
+      :type
+      "ChaparralFuelLoadInputMode::ChaparralFuelInputLoadModeEnum"}]},
    :setMoistureHundredHour
    {:type "void",
     :id "setMoistureHundredHour",
