@@ -69,4 +69,10 @@
                :from-key         :BehaveRun
                :to-key           :SIGBehaveRun})
 
+  (cms-import {:behave-file      "~/work/code/hatchet/behave/mortality.edn"
+               :sig-adapter-file "~/work/code/hatchet/sig-adapters/SIGMortality.edn"
+               :out-file-name    "SIGMortality.edn"
+               :from-key         :Mortality
+               :to-key           :SIGMortality})
+
   )
