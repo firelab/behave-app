@@ -33,12 +33,9 @@
 #pragma once
 
 // The SURFACE module of BehavePlus
-#include "behaveUnits.h"
-#include "fireSize.h"
-#include "surfaceFire.h"
-#include "surfaceInputs.h"
 #include "surface.h"
 #include "SIGFuelModels.h"
+#include "SIGMoistureScenarios.h"
 #include "SIGString.h"
 
 class SIGSurface : public Surface
@@ -51,4 +48,9 @@ public:
   // Fuel Model Getter Methods
   char* getFuelCode(int fuelModelNumber) const;
   char* getFuelName(int fuelModelNumber) const;
+  char* getMoistureScenarioDescriptionByName(const char* name);
+  char* getMoistureScenarioNameByIndex(const int index);
+  char* getMoistureScenarioDescriptionByIndex(const int index);
+  void setMoistureScenarios(SIGMoistureScenarios& moistureScenarios);
+
 };

@@ -53,3 +53,18 @@ char* SIGSurface::getFuelName(int fuelModelNumber) const
   return SIGString::str2charptr(Surface::getFuelName(fuelModelNumber));
 }
 
+char* SIGSurface::getMoistureScenarioDescriptionByName(const char* name) {
+  return SIGString::str2charptr(Surface::getMoistureScenarioDescriptionByName(std::string(name)));
+}
+
+char* SIGSurface::getMoistureScenarioNameByIndex(const int index) {
+  return SIGString::str2charptr(Surface::getMoistureScenarioNameByIndex(index));
+}
+
+char* SIGSurface::getMoistureScenarioDescriptionByIndex(const int index) {
+  return SIGString::str2charptr(Surface::getMoistureScenarioDescriptionByIndex(index));
+}
+
+void SIGSurface::setMoistureScenarios(SIGMoistureScenarios& moistureScenarios){
+  Surface::setMoistureScenarios(moistureScenarios);
+}

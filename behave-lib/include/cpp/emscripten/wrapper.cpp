@@ -13,6 +13,8 @@
 #include "mortality_inputs.cpp"
 #include "mortality_equation_table.cpp"
 #include "mortality.cpp"
+#include "moistureScenarios.cpp"
+#include "SIGMoistureScenarios.cpp"
 #include "surfaceFire.cpp"
 #include "surfaceInputs.cpp"
 #include "surfaceFuelbedIntermediates.cpp"

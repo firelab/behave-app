@@ -4529,6 +4529,7 @@ var wasmImports = {
   "fd_read": _fd_read,
   "fd_seek": _fd_seek,
   "fd_write": _fd_write,
+  "invoke_dii": invoke_dii,
   "invoke_diiidiiiii": invoke_diiidiiiii,
   "invoke_ii": invoke_ii,
   "invoke_iidddiidd": invoke_iidddiidd,
@@ -4543,8 +4544,10 @@ var wasmImports = {
   "invoke_vi": invoke_vi,
   "invoke_viddidiidd": invoke_viddidiidd,
   "invoke_vididi": invoke_vididi,
+  "invoke_vidii": invoke_vidii,
   "invoke_vii": invoke_vii,
   "invoke_viii": invoke_viii,
+  "invoke_viiiddddd": invoke_viiiddddd,
   "invoke_viiii": invoke_viiii,
   "invoke_viiiiddddddddddddii": invoke_viiiiddddddddddddii,
   "invoke_viiiii": invoke_viiiii,
@@ -4634,13 +4637,9 @@ var _emscripten_bind_SpeciesMasterTableRecordVector___destroy___0 = Module["_ems
 /** @type {function(...*):?} */
 var _emscripten_bind_FireSize_FireSize_0 = Module["_emscripten_bind_FireSize_FireSize_0"] = createExportWrapper("emscripten_bind_FireSize_FireSize_0");
 /** @type {function(...*):?} */
-var _emscripten_bind_FireSize_calculateFireBasicDimensions_4 = Module["_emscripten_bind_FireSize_calculateFireBasicDimensions_4"] = createExportWrapper("emscripten_bind_FireSize_calculateFireBasicDimensions_4");
-/** @type {function(...*):?} */
-var _emscripten_bind_FireSize_getFireLengthToWidthRatio_0 = Module["_emscripten_bind_FireSize_getFireLengthToWidthRatio_0"] = createExportWrapper("emscripten_bind_FireSize_getFireLengthToWidthRatio_0");
+var _emscripten_bind_FireSize_getBackingSpreadRate_1 = Module["_emscripten_bind_FireSize_getBackingSpreadRate_1"] = createExportWrapper("emscripten_bind_FireSize_getBackingSpreadRate_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_FireSize_getEccentricity_0 = Module["_emscripten_bind_FireSize_getEccentricity_0"] = createExportWrapper("emscripten_bind_FireSize_getEccentricity_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_FireSize_getBackingSpreadRate_1 = Module["_emscripten_bind_FireSize_getBackingSpreadRate_1"] = createExportWrapper("emscripten_bind_FireSize_getBackingSpreadRate_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_FireSize_getEllipticalA_3 = Module["_emscripten_bind_FireSize_getEllipticalA_3"] = createExportWrapper("emscripten_bind_FireSize_getEllipticalA_3");
 /** @type {function(...*):?} */
@@ -4648,13 +4647,17 @@ var _emscripten_bind_FireSize_getEllipticalB_3 = Module["_emscripten_bind_FireSi
 /** @type {function(...*):?} */
 var _emscripten_bind_FireSize_getEllipticalC_3 = Module["_emscripten_bind_FireSize_getEllipticalC_3"] = createExportWrapper("emscripten_bind_FireSize_getEllipticalC_3");
 /** @type {function(...*):?} */
+var _emscripten_bind_FireSize_getFireArea_3 = Module["_emscripten_bind_FireSize_getFireArea_3"] = createExportWrapper("emscripten_bind_FireSize_getFireArea_3");
+/** @type {function(...*):?} */
 var _emscripten_bind_FireSize_getFireLength_3 = Module["_emscripten_bind_FireSize_getFireLength_3"] = createExportWrapper("emscripten_bind_FireSize_getFireLength_3");
 /** @type {function(...*):?} */
-var _emscripten_bind_FireSize_getMaxFireWidth_3 = Module["_emscripten_bind_FireSize_getMaxFireWidth_3"] = createExportWrapper("emscripten_bind_FireSize_getMaxFireWidth_3");
+var _emscripten_bind_FireSize_getFireLengthToWidthRatio_0 = Module["_emscripten_bind_FireSize_getFireLengthToWidthRatio_0"] = createExportWrapper("emscripten_bind_FireSize_getFireLengthToWidthRatio_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_FireSize_getFirePerimeter_3 = Module["_emscripten_bind_FireSize_getFirePerimeter_3"] = createExportWrapper("emscripten_bind_FireSize_getFirePerimeter_3");
 /** @type {function(...*):?} */
-var _emscripten_bind_FireSize_getFireArea_3 = Module["_emscripten_bind_FireSize_getFireArea_3"] = createExportWrapper("emscripten_bind_FireSize_getFireArea_3");
+var _emscripten_bind_FireSize_getMaxFireWidth_3 = Module["_emscripten_bind_FireSize_getMaxFireWidth_3"] = createExportWrapper("emscripten_bind_FireSize_getMaxFireWidth_3");
+/** @type {function(...*):?} */
+var _emscripten_bind_FireSize_calculateFireBasicDimensions_4 = Module["_emscripten_bind_FireSize_calculateFireBasicDimensions_4"] = createExportWrapper("emscripten_bind_FireSize_calculateFireBasicDimensions_4");
 /** @type {function(...*):?} */
 var _emscripten_bind_FireSize___destroy___0 = Module["_emscripten_bind_FireSize___destroy___0"] = createExportWrapper("emscripten_bind_FireSize___destroy___0");
 /** @type {function(...*):?} */
@@ -4758,97 +4761,139 @@ var _emscripten_bind_SIGIgnite_isFuelDepthNeeded_0 = Module["_emscripten_bind_SI
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGIgnite___destroy___0 = Module["_emscripten_bind_SIGIgnite___destroy___0"] = createExportWrapper("emscripten_bind_SIGIgnite___destroy___0");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_SIGSpot_0 = Module["_emscripten_bind_SIGSpot_SIGSpot_0"] = createExportWrapper("emscripten_bind_SIGSpot_SIGSpot_0");
+var _emscripten_bind_SIGMoistureScenarios_SIGMoistureScenarios_0 = Module["_emscripten_bind_SIGMoistureScenarios_SIGMoistureScenarios_0"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_SIGMoistureScenarios_0");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_initializeMembers_0 = Module["_emscripten_bind_SIGSpot_initializeMembers_0"] = createExportWrapper("emscripten_bind_SIGSpot_initializeMembers_0");
+var _emscripten_bind_SIGMoistureScenarios_getIsMoistureScenarioDefinedByIndex_1 = Module["_emscripten_bind_SIGMoistureScenarios_getIsMoistureScenarioDefinedByIndex_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getIsMoistureScenarioDefinedByIndex_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_calculateSpottingDistanceFromBurningPile_0 = Module["_emscripten_bind_SIGSpot_calculateSpottingDistanceFromBurningPile_0"] = createExportWrapper("emscripten_bind_SIGSpot_calculateSpottingDistanceFromBurningPile_0");
+var _emscripten_bind_SIGMoistureScenarios_getIsMoistureScenarioDefinedByName_1 = Module["_emscripten_bind_SIGMoistureScenarios_getIsMoistureScenarioDefinedByName_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getIsMoistureScenarioDefinedByName_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_calculateSpottingDistanceFromSurfaceFire_0 = Module["_emscripten_bind_SIGSpot_calculateSpottingDistanceFromSurfaceFire_0"] = createExportWrapper("emscripten_bind_SIGSpot_calculateSpottingDistanceFromSurfaceFire_0");
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByIndex_1 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByIndex_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByIndex_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_calculateSpottingDistanceFromTorchingTrees_0 = Module["_emscripten_bind_SIGSpot_calculateSpottingDistanceFromTorchingTrees_0"] = createExportWrapper("emscripten_bind_SIGSpot_calculateSpottingDistanceFromTorchingTrees_0");
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByName_1 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByName_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByName_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_setBurningPileFlameHeight_2 = Module["_emscripten_bind_SIGSpot_setBurningPileFlameHeight_2"] = createExportWrapper("emscripten_bind_SIGSpot_setBurningPileFlameHeight_2");
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByIndex_1 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByIndex_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByIndex_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_setDBH_2 = Module["_emscripten_bind_SIGSpot_setDBH_2"] = createExportWrapper("emscripten_bind_SIGSpot_setDBH_2");
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByName_1 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByName_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByName_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_setDownwindCoverHeight_2 = Module["_emscripten_bind_SIGSpot_setDownwindCoverHeight_2"] = createExportWrapper("emscripten_bind_SIGSpot_setDownwindCoverHeight_2");
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByIndex_1 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByIndex_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByIndex_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_setFlameLength_2 = Module["_emscripten_bind_SIGSpot_setFlameLength_2"] = createExportWrapper("emscripten_bind_SIGSpot_setFlameLength_2");
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByName_1 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByName_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByName_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_setLocation_1 = Module["_emscripten_bind_SIGSpot_setLocation_1"] = createExportWrapper("emscripten_bind_SIGSpot_setLocation_1");
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByIndex_1 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByIndex_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByIndex_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_setRidgeToValleyDistance_2 = Module["_emscripten_bind_SIGSpot_setRidgeToValleyDistance_2"] = createExportWrapper("emscripten_bind_SIGSpot_setRidgeToValleyDistance_2");
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByName_1 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByName_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByName_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_setRidgeToValleyElevation_2 = Module["_emscripten_bind_SIGSpot_setRidgeToValleyElevation_2"] = createExportWrapper("emscripten_bind_SIGSpot_setRidgeToValleyElevation_2");
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByIndex_1 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByIndex_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByIndex_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_setTorchingTrees_1 = Module["_emscripten_bind_SIGSpot_setTorchingTrees_1"] = createExportWrapper("emscripten_bind_SIGSpot_setTorchingTrees_1");
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByName_1 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByName_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByName_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_setTreeHeight_2 = Module["_emscripten_bind_SIGSpot_setTreeHeight_2"] = createExportWrapper("emscripten_bind_SIGSpot_setTreeHeight_2");
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioIndexByName_1 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioIndexByName_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioIndexByName_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_setTreeSpecies_1 = Module["_emscripten_bind_SIGSpot_setTreeSpecies_1"] = createExportWrapper("emscripten_bind_SIGSpot_setTreeSpecies_1");
+var _emscripten_bind_SIGMoistureScenarios_getNumberOfMoistureScenarios_0 = Module["_emscripten_bind_SIGMoistureScenarios_getNumberOfMoistureScenarios_0"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getNumberOfMoistureScenarios_0");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_setWindSpeedAtTwentyFeet_2 = Module["_emscripten_bind_SIGSpot_setWindSpeedAtTwentyFeet_2"] = createExportWrapper("emscripten_bind_SIGSpot_setWindSpeedAtTwentyFeet_2");
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioDescriptionByIndex_1 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioDescriptionByIndex_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioDescriptionByIndex_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_updateSpotInputsForBurningPile_11 = Module["_emscripten_bind_SIGSpot_updateSpotInputsForBurningPile_11"] = createExportWrapper("emscripten_bind_SIGSpot_updateSpotInputsForBurningPile_11");
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioDescriptionByName_1 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioDescriptionByName_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioDescriptionByName_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_updateSpotInputsForSurfaceFire_11 = Module["_emscripten_bind_SIGSpot_updateSpotInputsForSurfaceFire_11"] = createExportWrapper("emscripten_bind_SIGSpot_updateSpotInputsForSurfaceFire_11");
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioNameByIndex_1 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioNameByIndex_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioNameByIndex_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_updateSpotInputsForTorchingTrees_15 = Module["_emscripten_bind_SIGSpot_updateSpotInputsForTorchingTrees_15"] = createExportWrapper("emscripten_bind_SIGSpot_updateSpotInputsForTorchingTrees_15");
+var _emscripten_bind_SIGMoistureScenarios___destroy___0 = Module["_emscripten_bind_SIGMoistureScenarios___destroy___0"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios___destroy___0");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_getTorchingTrees_0 = Module["_emscripten_bind_SIGSpot_getTorchingTrees_0"] = createExportWrapper("emscripten_bind_SIGSpot_getTorchingTrees_0");
+var _emscripten_bind_Spot_Spot_0 = Module["_emscripten_bind_Spot_Spot_0"] = createExportWrapper("emscripten_bind_Spot_Spot_0");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_getLocation_0 = Module["_emscripten_bind_SIGSpot_getLocation_0"] = createExportWrapper("emscripten_bind_SIGSpot_getLocation_0");
+var _emscripten_bind_Spot_getDownwindCanopyMode_0 = Module["_emscripten_bind_Spot_getDownwindCanopyMode_0"] = createExportWrapper("emscripten_bind_Spot_getDownwindCanopyMode_0");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_getTreeSpecies_0 = Module["_emscripten_bind_SIGSpot_getTreeSpecies_0"] = createExportWrapper("emscripten_bind_SIGSpot_getTreeSpecies_0");
+var _emscripten_bind_Spot_getLocation_0 = Module["_emscripten_bind_Spot_getLocation_0"] = createExportWrapper("emscripten_bind_Spot_getLocation_0");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_getBurningPileFlameHeight_1 = Module["_emscripten_bind_SIGSpot_getBurningPileFlameHeight_1"] = createExportWrapper("emscripten_bind_SIGSpot_getBurningPileFlameHeight_1");
+var _emscripten_bind_Spot_getTreeSpecies_0 = Module["_emscripten_bind_Spot_getTreeSpecies_0"] = createExportWrapper("emscripten_bind_Spot_getTreeSpecies_0");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_getCoverHeightUsedForBurningPile_1 = Module["_emscripten_bind_SIGSpot_getCoverHeightUsedForBurningPile_1"] = createExportWrapper("emscripten_bind_SIGSpot_getCoverHeightUsedForBurningPile_1");
+var _emscripten_bind_Spot_getBurningPileFlameHeight_1 = Module["_emscripten_bind_Spot_getBurningPileFlameHeight_1"] = createExportWrapper("emscripten_bind_Spot_getBurningPileFlameHeight_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_getCoverHeightUsedForSurfaceFire_1 = Module["_emscripten_bind_SIGSpot_getCoverHeightUsedForSurfaceFire_1"] = createExportWrapper("emscripten_bind_SIGSpot_getCoverHeightUsedForSurfaceFire_1");
+var _emscripten_bind_Spot_getCoverHeightUsedForBurningPile_1 = Module["_emscripten_bind_Spot_getCoverHeightUsedForBurningPile_1"] = createExportWrapper("emscripten_bind_Spot_getCoverHeightUsedForBurningPile_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_getCoverHeightUsedForTorchingTrees_1 = Module["_emscripten_bind_SIGSpot_getCoverHeightUsedForTorchingTrees_1"] = createExportWrapper("emscripten_bind_SIGSpot_getCoverHeightUsedForTorchingTrees_1");
+var _emscripten_bind_Spot_getCoverHeightUsedForSurfaceFire_1 = Module["_emscripten_bind_Spot_getCoverHeightUsedForSurfaceFire_1"] = createExportWrapper("emscripten_bind_Spot_getCoverHeightUsedForSurfaceFire_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_getDBH_1 = Module["_emscripten_bind_SIGSpot_getDBH_1"] = createExportWrapper("emscripten_bind_SIGSpot_getDBH_1");
+var _emscripten_bind_Spot_getCoverHeightUsedForTorchingTrees_1 = Module["_emscripten_bind_Spot_getCoverHeightUsedForTorchingTrees_1"] = createExportWrapper("emscripten_bind_Spot_getCoverHeightUsedForTorchingTrees_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_getDownwindCoverHeight_1 = Module["_emscripten_bind_SIGSpot_getDownwindCoverHeight_1"] = createExportWrapper("emscripten_bind_SIGSpot_getDownwindCoverHeight_1");
+var _emscripten_bind_Spot_getDBH_1 = Module["_emscripten_bind_Spot_getDBH_1"] = createExportWrapper("emscripten_bind_Spot_getDBH_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_getFlameDurationForTorchingTrees_1 = Module["_emscripten_bind_SIGSpot_getFlameDurationForTorchingTrees_1"] = createExportWrapper("emscripten_bind_SIGSpot_getFlameDurationForTorchingTrees_1");
+var _emscripten_bind_Spot_getDownwindCoverHeight_1 = Module["_emscripten_bind_Spot_getDownwindCoverHeight_1"] = createExportWrapper("emscripten_bind_Spot_getDownwindCoverHeight_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_getFlameHeightForTorchingTrees_1 = Module["_emscripten_bind_SIGSpot_getFlameHeightForTorchingTrees_1"] = createExportWrapper("emscripten_bind_SIGSpot_getFlameHeightForTorchingTrees_1");
+var _emscripten_bind_Spot_getFlameDurationForTorchingTrees_1 = Module["_emscripten_bind_Spot_getFlameDurationForTorchingTrees_1"] = createExportWrapper("emscripten_bind_Spot_getFlameDurationForTorchingTrees_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_getFlameRatioForTorchingTrees_0 = Module["_emscripten_bind_SIGSpot_getFlameRatioForTorchingTrees_0"] = createExportWrapper("emscripten_bind_SIGSpot_getFlameRatioForTorchingTrees_0");
+var _emscripten_bind_Spot_getFlameHeightForTorchingTrees_1 = Module["_emscripten_bind_Spot_getFlameHeightForTorchingTrees_1"] = createExportWrapper("emscripten_bind_Spot_getFlameHeightForTorchingTrees_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_getMaxFirebrandHeightFromBurningPile_1 = Module["_emscripten_bind_SIGSpot_getMaxFirebrandHeightFromBurningPile_1"] = createExportWrapper("emscripten_bind_SIGSpot_getMaxFirebrandHeightFromBurningPile_1");
+var _emscripten_bind_Spot_getFlameRatioForTorchingTrees_0 = Module["_emscripten_bind_Spot_getFlameRatioForTorchingTrees_0"] = createExportWrapper("emscripten_bind_Spot_getFlameRatioForTorchingTrees_0");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_getMaxFirebrandHeightFromSurfaceFire_1 = Module["_emscripten_bind_SIGSpot_getMaxFirebrandHeightFromSurfaceFire_1"] = createExportWrapper("emscripten_bind_SIGSpot_getMaxFirebrandHeightFromSurfaceFire_1");
+var _emscripten_bind_Spot_getMaxFirebrandHeightFromBurningPile_1 = Module["_emscripten_bind_Spot_getMaxFirebrandHeightFromBurningPile_1"] = createExportWrapper("emscripten_bind_Spot_getMaxFirebrandHeightFromBurningPile_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_getMaxFirebrandHeightFromTorchingTrees_1 = Module["_emscripten_bind_SIGSpot_getMaxFirebrandHeightFromTorchingTrees_1"] = createExportWrapper("emscripten_bind_SIGSpot_getMaxFirebrandHeightFromTorchingTrees_1");
+var _emscripten_bind_Spot_getMaxFirebrandHeightFromSurfaceFire_1 = Module["_emscripten_bind_Spot_getMaxFirebrandHeightFromSurfaceFire_1"] = createExportWrapper("emscripten_bind_Spot_getMaxFirebrandHeightFromSurfaceFire_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromBurningPile_1 = Module["_emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromBurningPile_1"] = createExportWrapper("emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromBurningPile_1");
+var _emscripten_bind_Spot_getMaxFirebrandHeightFromTorchingTrees_1 = Module["_emscripten_bind_Spot_getMaxFirebrandHeightFromTorchingTrees_1"] = createExportWrapper("emscripten_bind_Spot_getMaxFirebrandHeightFromTorchingTrees_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromSurfaceFire_1 = Module["_emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromSurfaceFire_1"] = createExportWrapper("emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromSurfaceFire_1");
+var _emscripten_bind_Spot_getMaxFlatTerrainSpottingDistanceFromBurningPile_1 = Module["_emscripten_bind_Spot_getMaxFlatTerrainSpottingDistanceFromBurningPile_1"] = createExportWrapper("emscripten_bind_Spot_getMaxFlatTerrainSpottingDistanceFromBurningPile_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromTorchingTrees_1 = Module["_emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromTorchingTrees_1"] = createExportWrapper("emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromTorchingTrees_1");
+var _emscripten_bind_Spot_getMaxFlatTerrainSpottingDistanceFromSurfaceFire_1 = Module["_emscripten_bind_Spot_getMaxFlatTerrainSpottingDistanceFromSurfaceFire_1"] = createExportWrapper("emscripten_bind_Spot_getMaxFlatTerrainSpottingDistanceFromSurfaceFire_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromBurningPile_1 = Module["_emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromBurningPile_1"] = createExportWrapper("emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromBurningPile_1");
+var _emscripten_bind_Spot_getMaxFlatTerrainSpottingDistanceFromTorchingTrees_1 = Module["_emscripten_bind_Spot_getMaxFlatTerrainSpottingDistanceFromTorchingTrees_1"] = createExportWrapper("emscripten_bind_Spot_getMaxFlatTerrainSpottingDistanceFromTorchingTrees_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromSurfaceFire_1 = Module["_emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromSurfaceFire_1"] = createExportWrapper("emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromSurfaceFire_1");
+var _emscripten_bind_Spot_getMaxMountainousTerrainSpottingDistanceFromBurningPile_1 = Module["_emscripten_bind_Spot_getMaxMountainousTerrainSpottingDistanceFromBurningPile_1"] = createExportWrapper("emscripten_bind_Spot_getMaxMountainousTerrainSpottingDistanceFromBurningPile_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromTorchingTrees_1 = Module["_emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromTorchingTrees_1"] = createExportWrapper("emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromTorchingTrees_1");
+var _emscripten_bind_Spot_getMaxMountainousTerrainSpottingDistanceFromSurfaceFire_1 = Module["_emscripten_bind_Spot_getMaxMountainousTerrainSpottingDistanceFromSurfaceFire_1"] = createExportWrapper("emscripten_bind_Spot_getMaxMountainousTerrainSpottingDistanceFromSurfaceFire_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_getRidgeToValleyDistance_1 = Module["_emscripten_bind_SIGSpot_getRidgeToValleyDistance_1"] = createExportWrapper("emscripten_bind_SIGSpot_getRidgeToValleyDistance_1");
+var _emscripten_bind_Spot_getMaxMountainousTerrainSpottingDistanceFromTorchingTrees_1 = Module["_emscripten_bind_Spot_getMaxMountainousTerrainSpottingDistanceFromTorchingTrees_1"] = createExportWrapper("emscripten_bind_Spot_getMaxMountainousTerrainSpottingDistanceFromTorchingTrees_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_getRidgeToValleyElevation_1 = Module["_emscripten_bind_SIGSpot_getRidgeToValleyElevation_1"] = createExportWrapper("emscripten_bind_SIGSpot_getRidgeToValleyElevation_1");
+var _emscripten_bind_Spot_getRidgeToValleyDistance_1 = Module["_emscripten_bind_Spot_getRidgeToValleyDistance_1"] = createExportWrapper("emscripten_bind_Spot_getRidgeToValleyDistance_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_getSurfaceFlameLength_1 = Module["_emscripten_bind_SIGSpot_getSurfaceFlameLength_1"] = createExportWrapper("emscripten_bind_SIGSpot_getSurfaceFlameLength_1");
+var _emscripten_bind_Spot_getRidgeToValleyElevation_1 = Module["_emscripten_bind_Spot_getRidgeToValleyElevation_1"] = createExportWrapper("emscripten_bind_Spot_getRidgeToValleyElevation_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_getTreeHeight_1 = Module["_emscripten_bind_SIGSpot_getTreeHeight_1"] = createExportWrapper("emscripten_bind_SIGSpot_getTreeHeight_1");
+var _emscripten_bind_Spot_getSurfaceFlameLength_1 = Module["_emscripten_bind_Spot_getSurfaceFlameLength_1"] = createExportWrapper("emscripten_bind_Spot_getSurfaceFlameLength_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot_getWindSpeedAtTwentyFeet_1 = Module["_emscripten_bind_SIGSpot_getWindSpeedAtTwentyFeet_1"] = createExportWrapper("emscripten_bind_SIGSpot_getWindSpeedAtTwentyFeet_1");
+var _emscripten_bind_Spot_getTreeHeight_1 = Module["_emscripten_bind_Spot_getTreeHeight_1"] = createExportWrapper("emscripten_bind_Spot_getTreeHeight_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSpot___destroy___0 = Module["_emscripten_bind_SIGSpot___destroy___0"] = createExportWrapper("emscripten_bind_SIGSpot___destroy___0");
+var _emscripten_bind_Spot_getWindSpeedAtTwentyFeet_1 = Module["_emscripten_bind_Spot_getWindSpeedAtTwentyFeet_1"] = createExportWrapper("emscripten_bind_Spot_getWindSpeedAtTwentyFeet_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_Spot_getTorchingTrees_0 = Module["_emscripten_bind_Spot_getTorchingTrees_0"] = createExportWrapper("emscripten_bind_Spot_getTorchingTrees_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_Spot_calculateSpottingDistanceFromBurningPile_0 = Module["_emscripten_bind_Spot_calculateSpottingDistanceFromBurningPile_0"] = createExportWrapper("emscripten_bind_Spot_calculateSpottingDistanceFromBurningPile_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_Spot_calculateSpottingDistanceFromSurfaceFire_0 = Module["_emscripten_bind_Spot_calculateSpottingDistanceFromSurfaceFire_0"] = createExportWrapper("emscripten_bind_Spot_calculateSpottingDistanceFromSurfaceFire_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_Spot_calculateSpottingDistanceFromTorchingTrees_0 = Module["_emscripten_bind_Spot_calculateSpottingDistanceFromTorchingTrees_0"] = createExportWrapper("emscripten_bind_Spot_calculateSpottingDistanceFromTorchingTrees_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_Spot_initializeMembers_0 = Module["_emscripten_bind_Spot_initializeMembers_0"] = createExportWrapper("emscripten_bind_Spot_initializeMembers_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_Spot_setBurningPileFlameHeight_2 = Module["_emscripten_bind_Spot_setBurningPileFlameHeight_2"] = createExportWrapper("emscripten_bind_Spot_setBurningPileFlameHeight_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_Spot_setDBH_2 = Module["_emscripten_bind_Spot_setDBH_2"] = createExportWrapper("emscripten_bind_Spot_setDBH_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_Spot_setDownwindCanopyMode_1 = Module["_emscripten_bind_Spot_setDownwindCanopyMode_1"] = createExportWrapper("emscripten_bind_Spot_setDownwindCanopyMode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_Spot_setDownwindCoverHeight_2 = Module["_emscripten_bind_Spot_setDownwindCoverHeight_2"] = createExportWrapper("emscripten_bind_Spot_setDownwindCoverHeight_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_Spot_setFlameLength_2 = Module["_emscripten_bind_Spot_setFlameLength_2"] = createExportWrapper("emscripten_bind_Spot_setFlameLength_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_Spot_setLocation_1 = Module["_emscripten_bind_Spot_setLocation_1"] = createExportWrapper("emscripten_bind_Spot_setLocation_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_Spot_setRidgeToValleyDistance_2 = Module["_emscripten_bind_Spot_setRidgeToValleyDistance_2"] = createExportWrapper("emscripten_bind_Spot_setRidgeToValleyDistance_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_Spot_setRidgeToValleyElevation_2 = Module["_emscripten_bind_Spot_setRidgeToValleyElevation_2"] = createExportWrapper("emscripten_bind_Spot_setRidgeToValleyElevation_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_Spot_setTorchingTrees_1 = Module["_emscripten_bind_Spot_setTorchingTrees_1"] = createExportWrapper("emscripten_bind_Spot_setTorchingTrees_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_Spot_setTreeHeight_2 = Module["_emscripten_bind_Spot_setTreeHeight_2"] = createExportWrapper("emscripten_bind_Spot_setTreeHeight_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_Spot_setTreeSpecies_1 = Module["_emscripten_bind_Spot_setTreeSpecies_1"] = createExportWrapper("emscripten_bind_Spot_setTreeSpecies_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_Spot_setWindSpeedAtTwentyFeet_2 = Module["_emscripten_bind_Spot_setWindSpeedAtTwentyFeet_2"] = createExportWrapper("emscripten_bind_Spot_setWindSpeedAtTwentyFeet_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_Spot_updateSpotInputsForBurningPile_12 = Module["_emscripten_bind_Spot_updateSpotInputsForBurningPile_12"] = createExportWrapper("emscripten_bind_Spot_updateSpotInputsForBurningPile_12");
+/** @type {function(...*):?} */
+var _emscripten_bind_Spot_updateSpotInputsForSurfaceFire_12 = Module["_emscripten_bind_Spot_updateSpotInputsForSurfaceFire_12"] = createExportWrapper("emscripten_bind_Spot_updateSpotInputsForSurfaceFire_12");
+/** @type {function(...*):?} */
+var _emscripten_bind_Spot_updateSpotInputsForTorchingTrees_16 = Module["_emscripten_bind_Spot_updateSpotInputsForTorchingTrees_16"] = createExportWrapper("emscripten_bind_Spot_updateSpotInputsForTorchingTrees_16");
+/** @type {function(...*):?} */
+var _emscripten_bind_Spot___destroy___0 = Module["_emscripten_bind_Spot___destroy___0"] = createExportWrapper("emscripten_bind_Spot___destroy___0");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGFuelModels_SIGFuelModels_0 = Module["_emscripten_bind_SIGFuelModels_SIGFuelModels_0"] = createExportWrapper("emscripten_bind_SIGFuelModels_SIGFuelModels_0");
 /** @type {function(...*):?} */
@@ -4860,7 +4905,11 @@ var _emscripten_bind_SIGFuelModels_clearCustomFuelModel_1 = Module["_emscripten_
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGFuelModels_getIsDynamic_1 = Module["_emscripten_bind_SIGFuelModels_getIsDynamic_1"] = createExportWrapper("emscripten_bind_SIGFuelModels_getIsDynamic_1");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_isAllFuelLoadZero_1 = Module["_emscripten_bind_SIGFuelModels_isAllFuelLoadZero_1"] = createExportWrapper("emscripten_bind_SIGFuelModels_isAllFuelLoadZero_1");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGFuelModels_isFuelModelDefined_1 = Module["_emscripten_bind_SIGFuelModels_isFuelModelDefined_1"] = createExportWrapper("emscripten_bind_SIGFuelModels_isFuelModelDefined_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_isFuelModelReserved_1 = Module["_emscripten_bind_SIGFuelModels_isFuelModelReserved_1"] = createExportWrapper("emscripten_bind_SIGFuelModels_isFuelModelReserved_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGFuelModels_setCustomFuelModel_21 = Module["_emscripten_bind_SIGFuelModels_setCustomFuelModel_21"] = createExportWrapper("emscripten_bind_SIGFuelModels_setCustomFuelModel_21");
 /** @type {function(...*):?} */
@@ -4882,8 +4931,6 @@ var _emscripten_bind_SIGFuelModels_getFuelbedDepth_2 = Module["_emscripten_bind_
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGFuelModels_getHeatOfCombustionDead_2 = Module["_emscripten_bind_SIGFuelModels_getHeatOfCombustionDead_2"] = createExportWrapper("emscripten_bind_SIGFuelModels_getHeatOfCombustionDead_2");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGFuelModels_getHeatOfCombustionLive_2 = Module["_emscripten_bind_SIGFuelModels_getHeatOfCombustionLive_2"] = createExportWrapper("emscripten_bind_SIGFuelModels_getHeatOfCombustionLive_2");
-/** @type {function(...*):?} */
 var _emscripten_bind_SIGFuelModels_getMoistureOfExtinctionDead_2 = Module["_emscripten_bind_SIGFuelModels_getMoistureOfExtinctionDead_2"] = createExportWrapper("emscripten_bind_SIGFuelModels_getMoistureOfExtinctionDead_2");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGFuelModels_getSavrLiveHerbaceous_2 = Module["_emscripten_bind_SIGFuelModels_getSavrLiveHerbaceous_2"] = createExportWrapper("emscripten_bind_SIGFuelModels_getSavrLiveHerbaceous_2");
@@ -4892,15 +4939,15 @@ var _emscripten_bind_SIGFuelModels_getSavrLiveWoody_2 = Module["_emscripten_bind
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGFuelModels_getSavrOneHour_2 = Module["_emscripten_bind_SIGFuelModels_getSavrOneHour_2"] = createExportWrapper("emscripten_bind_SIGFuelModels_getSavrOneHour_2");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_getHeatOfCombustionLive_2 = Module["_emscripten_bind_SIGFuelModels_getHeatOfCombustionLive_2"] = createExportWrapper("emscripten_bind_SIGFuelModels_getHeatOfCombustionLive_2");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGFuelModels___destroy___0 = Module["_emscripten_bind_SIGFuelModels___destroy___0"] = createExportWrapper("emscripten_bind_SIGFuelModels___destroy___0");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_SIGSurface_1 = Module["_emscripten_bind_SIGSurface_SIGSurface_1"] = createExportWrapper("emscripten_bind_SIGSurface_SIGSurface_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSurface_initializeMembers_0 = Module["_emscripten_bind_SIGSurface_initializeMembers_0"] = createExportWrapper("emscripten_bind_SIGSurface_initializeMembers_0");
+var _emscripten_bind_SIGSurface_getAspenFireSeverity_0 = Module["_emscripten_bind_SIGSurface_getAspenFireSeverity_0"] = createExportWrapper("emscripten_bind_SIGSurface_getAspenFireSeverity_0");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfInterest_1 = Module["_emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfInterest_1"] = createExportWrapper("emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfInterest_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfMaxSpread_0 = Module["_emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfMaxSpread_0"] = createExportWrapper("emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfMaxSpread_0");
+var _emscripten_bind_SIGSurface_getMoistureInputMode_0 = Module["_emscripten_bind_SIGSurface_getMoistureInputMode_0"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureInputMode_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getWindAdjustmentFactorCalculationMethod_0 = Module["_emscripten_bind_SIGSurface_getWindAdjustmentFactorCalculationMethod_0"] = createExportWrapper("emscripten_bind_SIGSurface_getWindAdjustmentFactorCalculationMethod_0");
 /** @type {function(...*):?} */
@@ -4908,19 +4955,55 @@ var _emscripten_bind_SIGSurface_getWindAndSpreadOrientationMode_0 = Module["_ems
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getWindHeightInputMode_0 = Module["_emscripten_bind_SIGSurface_getWindHeightInputMode_0"] = createExportWrapper("emscripten_bind_SIGSurface_getWindHeightInputMode_0");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByIndex_1 = Module["_emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByIndex_1"] = createExportWrapper("emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByName_1 = Module["_emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByName_1"] = createExportWrapper("emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getIsUsingPalmettoGallberry_0 = Module["_emscripten_bind_SIGSurface_getIsUsingPalmettoGallberry_0"] = createExportWrapper("emscripten_bind_SIGSurface_getIsUsingPalmettoGallberry_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getIsUsingWesternAspen_0 = Module["_emscripten_bind_SIGSurface_getIsUsingWesternAspen_0"] = createExportWrapper("emscripten_bind_SIGSurface_getIsUsingWesternAspen_0");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_isAllFuelLoadZero_1 = Module["_emscripten_bind_SIGSurface_isAllFuelLoadZero_1"] = createExportWrapper("emscripten_bind_SIGSurface_isAllFuelLoadZero_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_isFuelDynamic_1 = Module["_emscripten_bind_SIGSurface_isFuelDynamic_1"] = createExportWrapper("emscripten_bind_SIGSurface_isFuelDynamic_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_isFuelModelDefined_1 = Module["_emscripten_bind_SIGSurface_isFuelModelDefined_1"] = createExportWrapper("emscripten_bind_SIGSurface_isFuelModelDefined_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_isFuelModelReserved_1 = Module["_emscripten_bind_SIGSurface_isFuelModelReserved_1"] = createExportWrapper("emscripten_bind_SIGSurface_isFuelModelReserved_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_isMoistureClassInputNeededForCurrentFuelModel_1 = Module["_emscripten_bind_SIGSurface_isMoistureClassInputNeededForCurrentFuelModel_1"] = createExportWrapper("emscripten_bind_SIGSurface_isMoistureClassInputNeededForCurrentFuelModel_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_isUsingTwoFuelModels_0 = Module["_emscripten_bind_SIGSurface_isUsingTwoFuelModels_0"] = createExportWrapper("emscripten_bind_SIGSurface_isUsingTwoFuelModels_0");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSurface_calculateFlameLength_1 = Module["_emscripten_bind_SIGSurface_calculateFlameLength_1"] = createExportWrapper("emscripten_bind_SIGSurface_calculateFlameLength_1");
+var _emscripten_bind_SIGSurface_setMoistureScenarioByIndex_1 = Module["_emscripten_bind_SIGSurface_setMoistureScenarioByIndex_1"] = createExportWrapper("emscripten_bind_SIGSurface_setMoistureScenarioByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setMoistureScenarioByName_1 = Module["_emscripten_bind_SIGSurface_setMoistureScenarioByName_1"] = createExportWrapper("emscripten_bind_SIGSurface_setMoistureScenarioByName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_calculateFlameLength_3 = Module["_emscripten_bind_SIGSurface_calculateFlameLength_3"] = createExportWrapper("emscripten_bind_SIGSurface_calculateFlameLength_3");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_calculateScorchHeight_7 = Module["_emscripten_bind_SIGSurface_calculateScorchHeight_7"] = createExportWrapper("emscripten_bind_SIGSurface_calculateScorchHeight_7");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getAgeOfRough_0 = Module["_emscripten_bind_SIGSurface_getAgeOfRough_0"] = createExportWrapper("emscripten_bind_SIGSurface_getAgeOfRough_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getAspect_0 = Module["_emscripten_bind_SIGSurface_getAspect_0"] = createExportWrapper("emscripten_bind_SIGSurface_getAspect_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getAspenCuringLevel_1 = Module["_emscripten_bind_SIGSurface_getAspenCuringLevel_1"] = createExportWrapper("emscripten_bind_SIGSurface_getAspenCuringLevel_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getAspenDBH_1 = Module["_emscripten_bind_SIGSurface_getAspenDBH_1"] = createExportWrapper("emscripten_bind_SIGSurface_getAspenDBH_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getBackingSpreadDistance_3 = Module["_emscripten_bind_SIGSurface_getBackingSpreadDistance_3"] = createExportWrapper("emscripten_bind_SIGSurface_getBackingSpreadDistance_3");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getBackingSpreadRate_1 = Module["_emscripten_bind_SIGSurface_getBackingSpreadRate_1"] = createExportWrapper("emscripten_bind_SIGSurface_getBackingSpreadRate_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getBulkDensity_1 = Module["_emscripten_bind_SIGSurface_getBulkDensity_1"] = createExportWrapper("emscripten_bind_SIGSurface_getBulkDensity_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getCanopyCover_1 = Module["_emscripten_bind_SIGSurface_getCanopyCover_1"] = createExportWrapper("emscripten_bind_SIGSurface_getCanopyCover_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getCanopyHeight_1 = Module["_emscripten_bind_SIGSurface_getCanopyHeight_1"] = createExportWrapper("emscripten_bind_SIGSurface_getCanopyHeight_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getCharacteristicMoistureByLifeState_2 = Module["_emscripten_bind_SIGSurface_getCharacteristicMoistureByLifeState_2"] = createExportWrapper("emscripten_bind_SIGSurface_getCharacteristicMoistureByLifeState_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getCharacteristicSAVR_1 = Module["_emscripten_bind_SIGSurface_getCharacteristicSAVR_1"] = createExportWrapper("emscripten_bind_SIGSurface_getCharacteristicSAVR_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getCrownRatio_0 = Module["_emscripten_bind_SIGSurface_getCrownRatio_0"] = createExportWrapper("emscripten_bind_SIGSurface_getCrownRatio_0");
 /** @type {function(...*):?} */
@@ -4944,13 +5027,53 @@ var _emscripten_bind_SIGSurface_getFirelineIntensity_1 = Module["_emscripten_bin
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getFlameLength_1 = Module["_emscripten_bind_SIGSurface_getFlameLength_1"] = createExportWrapper("emscripten_bind_SIGSurface_getFlameLength_1");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFlankingSpreadDistance_3 = Module["_emscripten_bind_SIGSurface_getFlankingSpreadDistance_3"] = createExportWrapper("emscripten_bind_SIGSurface_getFlankingSpreadDistance_3");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFlankingSpreadRate_1 = Module["_emscripten_bind_SIGSurface_getFlankingSpreadRate_1"] = createExportWrapper("emscripten_bind_SIGSurface_getFlankingSpreadRate_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelHeatOfCombustionDead_2 = Module["_emscripten_bind_SIGSurface_getFuelHeatOfCombustionDead_2"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelHeatOfCombustionDead_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelHeatOfCombustionLive_2 = Module["_emscripten_bind_SIGSurface_getFuelHeatOfCombustionLive_2"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelHeatOfCombustionLive_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelLoadHundredHour_2 = Module["_emscripten_bind_SIGSurface_getFuelLoadHundredHour_2"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelLoadHundredHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelLoadLiveHerbaceous_2 = Module["_emscripten_bind_SIGSurface_getFuelLoadLiveHerbaceous_2"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelLoadLiveHerbaceous_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelLoadLiveWoody_2 = Module["_emscripten_bind_SIGSurface_getFuelLoadLiveWoody_2"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelLoadLiveWoody_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelLoadOneHour_2 = Module["_emscripten_bind_SIGSurface_getFuelLoadOneHour_2"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelLoadOneHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelLoadTenHour_2 = Module["_emscripten_bind_SIGSurface_getFuelLoadTenHour_2"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelLoadTenHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelMoistureOfExtinctionDead_2 = Module["_emscripten_bind_SIGSurface_getFuelMoistureOfExtinctionDead_2"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelMoistureOfExtinctionDead_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelSavrLiveHerbaceous_2 = Module["_emscripten_bind_SIGSurface_getFuelSavrLiveHerbaceous_2"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelSavrLiveHerbaceous_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelSavrLiveWoody_2 = Module["_emscripten_bind_SIGSurface_getFuelSavrLiveWoody_2"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelSavrLiveWoody_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelSavrOneHour_2 = Module["_emscripten_bind_SIGSurface_getFuelSavrOneHour_2"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelSavrOneHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelbedDepth_2 = Module["_emscripten_bind_SIGSurface_getFuelbedDepth_2"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelbedDepth_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getHeadingToBackingRatio_0 = Module["_emscripten_bind_SIGSurface_getHeadingToBackingRatio_0"] = createExportWrapper("emscripten_bind_SIGSurface_getHeadingToBackingRatio_0");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getHeatPerUnitArea_1 = Module["_emscripten_bind_SIGSurface_getHeatPerUnitArea_1"] = createExportWrapper("emscripten_bind_SIGSurface_getHeatPerUnitArea_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getHeatSink_1 = Module["_emscripten_bind_SIGSurface_getHeatSink_1"] = createExportWrapper("emscripten_bind_SIGSurface_getHeatSink_1");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getHeatSource_1 = Module["_emscripten_bind_SIGSurface_getHeatSource_1"] = createExportWrapper("emscripten_bind_SIGSurface_getHeatSource_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getHeightOfUnderstory_1 = Module["_emscripten_bind_SIGSurface_getHeightOfUnderstory_1"] = createExportWrapper("emscripten_bind_SIGSurface_getHeightOfUnderstory_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getLiveFuelMoistureOfExtinction_1 = Module["_emscripten_bind_SIGSurface_getLiveFuelMoistureOfExtinction_1"] = createExportWrapper("emscripten_bind_SIGSurface_getLiveFuelMoistureOfExtinction_1");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getMidflameWindspeed_1 = Module["_emscripten_bind_SIGSurface_getMidflameWindspeed_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMidflameWindspeed_1");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureDeadAggregateValue_1 = Module["_emscripten_bind_SIGSurface_getMoistureDeadAggregateValue_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureDeadAggregateValue_1");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getMoistureHundredHour_1 = Module["_emscripten_bind_SIGSurface_getMoistureHundredHour_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureHundredHour_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureLiveAggregateValue_1 = Module["_emscripten_bind_SIGSurface_getMoistureLiveAggregateValue_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureLiveAggregateValue_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getMoistureLiveHerbaceous_1 = Module["_emscripten_bind_SIGSurface_getMoistureLiveHerbaceous_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureLiveHerbaceous_1");
 /** @type {function(...*):?} */
@@ -4958,7 +5081,31 @@ var _emscripten_bind_SIGSurface_getMoistureLiveWoody_1 = Module["_emscripten_bin
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getMoistureOneHour_1 = Module["_emscripten_bind_SIGSurface_getMoistureOneHour_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureOneHour_1");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByIndex_1 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByIndex_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByName_1 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByName_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByIndex_1 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByIndex_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByName_1 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByName_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByIndex_1 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByIndex_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByName_1 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByName_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioOneHourByIndex_1 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioOneHourByIndex_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioOneHourByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioOneHourByName_1 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioOneHourByName_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioOneHourByName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioTenHourByIndex_1 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioTenHourByIndex_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioTenHourByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioTenHourByName_1 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioTenHourByName_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioTenHourByName_1");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getMoistureTenHour_1 = Module["_emscripten_bind_SIGSurface_getMoistureTenHour_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureTenHour_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getOverstoryBasalArea_1 = Module["_emscripten_bind_SIGSurface_getOverstoryBasalArea_1"] = createExportWrapper("emscripten_bind_SIGSurface_getOverstoryBasalArea_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getPalmettoCoverage_1 = Module["_emscripten_bind_SIGSurface_getPalmettoCoverage_1"] = createExportWrapper("emscripten_bind_SIGSurface_getPalmettoCoverage_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getReactionIntensity_1 = Module["_emscripten_bind_SIGSurface_getReactionIntensity_1"] = createExportWrapper("emscripten_bind_SIGSurface_getReactionIntensity_1");
 /** @type {function(...*):?} */
@@ -4968,17 +5115,55 @@ var _emscripten_bind_SIGSurface_getSlope_1 = Module["_emscripten_bind_SIGSurface
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getSlopeFactor_0 = Module["_emscripten_bind_SIGSurface_getSlopeFactor_0"] = createExportWrapper("emscripten_bind_SIGSurface_getSlopeFactor_0");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getSpreadDistance_3 = Module["_emscripten_bind_SIGSurface_getSpreadDistance_3"] = createExportWrapper("emscripten_bind_SIGSurface_getSpreadDistance_3");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getSpreadDistanceInDirectionOfInterest_3 = Module["_emscripten_bind_SIGSurface_getSpreadDistanceInDirectionOfInterest_3"] = createExportWrapper("emscripten_bind_SIGSurface_getSpreadDistanceInDirectionOfInterest_3");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getSpreadRate_1 = Module["_emscripten_bind_SIGSurface_getSpreadRate_1"] = createExportWrapper("emscripten_bind_SIGSurface_getSpreadRate_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getSpreadRateInDirectionOfInterest_1 = Module["_emscripten_bind_SIGSurface_getSpreadRateInDirectionOfInterest_1"] = createExportWrapper("emscripten_bind_SIGSurface_getSpreadRateInDirectionOfInterest_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getSurfaceFireReactionIntensityForLifeState_1 = Module["_emscripten_bind_SIGSurface_getSurfaceFireReactionIntensityForLifeState_1"] = createExportWrapper("emscripten_bind_SIGSurface_getSurfaceFireReactionIntensityForLifeState_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getWindDirection_0 = Module["_emscripten_bind_SIGSurface_getWindDirection_0"] = createExportWrapper("emscripten_bind_SIGSurface_getWindDirection_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getWindSpeed_2 = Module["_emscripten_bind_SIGSurface_getWindSpeed_2"] = createExportWrapper("emscripten_bind_SIGSurface_getWindSpeed_2");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getAspenFuelModelNumber_0 = Module["_emscripten_bind_SIGSurface_getAspenFuelModelNumber_0"] = createExportWrapper("emscripten_bind_SIGSurface_getAspenFuelModelNumber_0");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getFuelModelNumber_0 = Module["_emscripten_bind_SIGSurface_getFuelModelNumber_0"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelModelNumber_0");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioIndexByName_1 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioIndexByName_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioIndexByName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getNumberOfMoistureScenarios_0 = Module["_emscripten_bind_SIGSurface_getNumberOfMoistureScenarios_0"] = createExportWrapper("emscripten_bind_SIGSurface_getNumberOfMoistureScenarios_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelCode_1 = Module["_emscripten_bind_SIGSurface_getFuelCode_1"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelCode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelName_1 = Module["_emscripten_bind_SIGSurface_getFuelName_1"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioDescriptionByIndex_1 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioDescriptionByIndex_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioDescriptionByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioDescriptionByName_1 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioDescriptionByName_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioDescriptionByName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioNameByIndex_1 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioNameByIndex_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioNameByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfInterest_2 = Module["_emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfInterest_2"] = createExportWrapper("emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfInterest_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfMaxSpread_0 = Module["_emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfMaxSpread_0"] = createExportWrapper("emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfMaxSpread_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_initializeMembers_0 = Module["_emscripten_bind_SIGSurface_initializeMembers_0"] = createExportWrapper("emscripten_bind_SIGSurface_initializeMembers_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setAgeOfRough_1 = Module["_emscripten_bind_SIGSurface_setAgeOfRough_1"] = createExportWrapper("emscripten_bind_SIGSurface_setAgeOfRough_1");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_setAspect_1 = Module["_emscripten_bind_SIGSurface_setAspect_1"] = createExportWrapper("emscripten_bind_SIGSurface_setAspect_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setAspenCuringLevel_2 = Module["_emscripten_bind_SIGSurface_setAspenCuringLevel_2"] = createExportWrapper("emscripten_bind_SIGSurface_setAspenCuringLevel_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setAspenDBH_2 = Module["_emscripten_bind_SIGSurface_setAspenDBH_2"] = createExportWrapper("emscripten_bind_SIGSurface_setAspenDBH_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setAspenFireSeverity_1 = Module["_emscripten_bind_SIGSurface_setAspenFireSeverity_1"] = createExportWrapper("emscripten_bind_SIGSurface_setAspenFireSeverity_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setAspenFuelModelNumber_1 = Module["_emscripten_bind_SIGSurface_setAspenFuelModelNumber_1"] = createExportWrapper("emscripten_bind_SIGSurface_setAspenFuelModelNumber_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_setCanopyCover_2 = Module["_emscripten_bind_SIGSurface_setCanopyCover_2"] = createExportWrapper("emscripten_bind_SIGSurface_setCanopyCover_2");
 /** @type {function(...*):?} */
@@ -4992,7 +5177,19 @@ var _emscripten_bind_SIGSurface_setFuelModelNumber_1 = Module["_emscripten_bind_
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_setFuelModels_1 = Module["_emscripten_bind_SIGSurface_setFuelModels_1"] = createExportWrapper("emscripten_bind_SIGSurface_setFuelModels_1");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setHeightOfUnderstory_2 = Module["_emscripten_bind_SIGSurface_setHeightOfUnderstory_2"] = createExportWrapper("emscripten_bind_SIGSurface_setHeightOfUnderstory_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setIsUsingPalmettoGallberry_1 = Module["_emscripten_bind_SIGSurface_setIsUsingPalmettoGallberry_1"] = createExportWrapper("emscripten_bind_SIGSurface_setIsUsingPalmettoGallberry_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setIsUsingWesternAspen_1 = Module["_emscripten_bind_SIGSurface_setIsUsingWesternAspen_1"] = createExportWrapper("emscripten_bind_SIGSurface_setIsUsingWesternAspen_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setMoistureDeadAggregate_2 = Module["_emscripten_bind_SIGSurface_setMoistureDeadAggregate_2"] = createExportWrapper("emscripten_bind_SIGSurface_setMoistureDeadAggregate_2");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_setMoistureHundredHour_2 = Module["_emscripten_bind_SIGSurface_setMoistureHundredHour_2"] = createExportWrapper("emscripten_bind_SIGSurface_setMoistureHundredHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setMoistureInputMode_1 = Module["_emscripten_bind_SIGSurface_setMoistureInputMode_1"] = createExportWrapper("emscripten_bind_SIGSurface_setMoistureInputMode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setMoistureLiveAggregate_2 = Module["_emscripten_bind_SIGSurface_setMoistureLiveAggregate_2"] = createExportWrapper("emscripten_bind_SIGSurface_setMoistureLiveAggregate_2");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_setMoistureLiveHerbaceous_2 = Module["_emscripten_bind_SIGSurface_setMoistureLiveHerbaceous_2"] = createExportWrapper("emscripten_bind_SIGSurface_setMoistureLiveHerbaceous_2");
 /** @type {function(...*):?} */
@@ -5000,7 +5197,13 @@ var _emscripten_bind_SIGSurface_setMoistureLiveWoody_2 = Module["_emscripten_bin
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_setMoistureOneHour_2 = Module["_emscripten_bind_SIGSurface_setMoistureOneHour_2"] = createExportWrapper("emscripten_bind_SIGSurface_setMoistureOneHour_2");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setMoistureScenarios_1 = Module["_emscripten_bind_SIGSurface_setMoistureScenarios_1"] = createExportWrapper("emscripten_bind_SIGSurface_setMoistureScenarios_1");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_setMoistureTenHour_2 = Module["_emscripten_bind_SIGSurface_setMoistureTenHour_2"] = createExportWrapper("emscripten_bind_SIGSurface_setMoistureTenHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setOverstoryBasalArea_2 = Module["_emscripten_bind_SIGSurface_setOverstoryBasalArea_2"] = createExportWrapper("emscripten_bind_SIGSurface_setOverstoryBasalArea_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setPalmettoCoverage_2 = Module["_emscripten_bind_SIGSurface_setPalmettoCoverage_2"] = createExportWrapper("emscripten_bind_SIGSurface_setPalmettoCoverage_2");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_setSecondFuelModelNumber_1 = Module["_emscripten_bind_SIGSurface_setSecondFuelModelNumber_1"] = createExportWrapper("emscripten_bind_SIGSurface_setSecondFuelModelNumber_1");
 /** @type {function(...*):?} */
@@ -5024,11 +5227,11 @@ var _emscripten_bind_SIGSurface_setWindSpeed_3 = Module["_emscripten_bind_SIGSur
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_updateSurfaceInputs_20 = Module["_emscripten_bind_SIGSurface_updateSurfaceInputs_20"] = createExportWrapper("emscripten_bind_SIGSurface_updateSurfaceInputs_20");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSurface_updateSurfaceInputsForPalmettoGallbery_23 = Module["_emscripten_bind_SIGSurface_updateSurfaceInputsForPalmettoGallbery_23"] = createExportWrapper("emscripten_bind_SIGSurface_updateSurfaceInputsForPalmettoGallbery_23");
+var _emscripten_bind_SIGSurface_updateSurfaceInputsForPalmettoGallbery_24 = Module["_emscripten_bind_SIGSurface_updateSurfaceInputsForPalmettoGallbery_24"] = createExportWrapper("emscripten_bind_SIGSurface_updateSurfaceInputsForPalmettoGallbery_24");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_updateSurfaceInputsForTwoFuelModels_24 = Module["_emscripten_bind_SIGSurface_updateSurfaceInputsForTwoFuelModels_24"] = createExportWrapper("emscripten_bind_SIGSurface_updateSurfaceInputsForTwoFuelModels_24");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSurface_updateSurfaceInputsForWesternAspen_23 = Module["_emscripten_bind_SIGSurface_updateSurfaceInputsForWesternAspen_23"] = createExportWrapper("emscripten_bind_SIGSurface_updateSurfaceInputsForWesternAspen_23");
+var _emscripten_bind_SIGSurface_updateSurfaceInputsForWesternAspen_25 = Module["_emscripten_bind_SIGSurface_updateSurfaceInputsForWesternAspen_25"] = createExportWrapper("emscripten_bind_SIGSurface_updateSurfaceInputsForWesternAspen_25");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface___destroy___0 = Module["_emscripten_bind_SIGSurface___destroy___0"] = createExportWrapper("emscripten_bind_SIGSurface___destroy___0");
 /** @type {function(...*):?} */
@@ -5090,39 +5293,47 @@ var _emscripten_bind_WesternAspen_getAspenHeatOfCombustionDead_0 = Module["_emsc
 /** @type {function(...*):?} */
 var _emscripten_bind_WesternAspen_getAspenHeatOfCombustionLive_0 = Module["_emscripten_bind_WesternAspen_getAspenHeatOfCombustionLive_0"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenHeatOfCombustionLive_0");
 /** @type {function(...*):?} */
-var _emscripten_bind_WesternAspen_getAspenLoadDeadOneHour_2 = Module["_emscripten_bind_WesternAspen_getAspenLoadDeadOneHour_2"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenLoadDeadOneHour_2");
+var _emscripten_bind_WesternAspen_getAspenLoadDeadOneHour_0 = Module["_emscripten_bind_WesternAspen_getAspenLoadDeadOneHour_0"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenLoadDeadOneHour_0");
 /** @type {function(...*):?} */
-var _emscripten_bind_WesternAspen_getAspenLoadDeadTenHour_1 = Module["_emscripten_bind_WesternAspen_getAspenLoadDeadTenHour_1"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenLoadDeadTenHour_1");
+var _emscripten_bind_WesternAspen_getAspenLoadDeadTenHour_0 = Module["_emscripten_bind_WesternAspen_getAspenLoadDeadTenHour_0"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenLoadDeadTenHour_0");
 /** @type {function(...*):?} */
-var _emscripten_bind_WesternAspen_getAspenLoadLiveHerbaceous_2 = Module["_emscripten_bind_WesternAspen_getAspenLoadLiveHerbaceous_2"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenLoadLiveHerbaceous_2");
+var _emscripten_bind_WesternAspen_getAspenLoadLiveHerbaceous_0 = Module["_emscripten_bind_WesternAspen_getAspenLoadLiveHerbaceous_0"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenLoadLiveHerbaceous_0");
 /** @type {function(...*):?} */
-var _emscripten_bind_WesternAspen_getAspenLoadLiveWoody_2 = Module["_emscripten_bind_WesternAspen_getAspenLoadLiveWoody_2"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenLoadLiveWoody_2");
+var _emscripten_bind_WesternAspen_getAspenLoadLiveWoody_0 = Module["_emscripten_bind_WesternAspen_getAspenLoadLiveWoody_0"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenLoadLiveWoody_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_WesternAspen_getAspenMoistureOfExtinctionDead_0 = Module["_emscripten_bind_WesternAspen_getAspenMoistureOfExtinctionDead_0"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenMoistureOfExtinctionDead_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_WesternAspen_getAspenMortality_0 = Module["_emscripten_bind_WesternAspen_getAspenMortality_0"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenMortality_0");
 /** @type {function(...*):?} */
-var _emscripten_bind_WesternAspen_getAspenSavrDeadOneHour_2 = Module["_emscripten_bind_WesternAspen_getAspenSavrDeadOneHour_2"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenSavrDeadOneHour_2");
+var _emscripten_bind_WesternAspen_getAspenSavrDeadOneHour_0 = Module["_emscripten_bind_WesternAspen_getAspenSavrDeadOneHour_0"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenSavrDeadOneHour_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_WesternAspen_getAspenSavrDeadTenHour_0 = Module["_emscripten_bind_WesternAspen_getAspenSavrDeadTenHour_0"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenSavrDeadTenHour_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_WesternAspen_getAspenSavrLiveHerbaceous_0 = Module["_emscripten_bind_WesternAspen_getAspenSavrLiveHerbaceous_0"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenSavrLiveHerbaceous_0");
 /** @type {function(...*):?} */
-var _emscripten_bind_WesternAspen_getAspenSavrLiveWoody_2 = Module["_emscripten_bind_WesternAspen_getAspenSavrLiveWoody_2"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenSavrLiveWoody_2");
+var _emscripten_bind_WesternAspen_getAspenSavrLiveWoody_0 = Module["_emscripten_bind_WesternAspen_getAspenSavrLiveWoody_0"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenSavrLiveWoody_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_WesternAspen___destroy___0 = Module["_emscripten_bind_WesternAspen___destroy___0"] = createExportWrapper("emscripten_bind_WesternAspen___destroy___0");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_SIGCrown_1 = Module["_emscripten_bind_SIGCrown_SIGCrown_1"] = createExportWrapper("emscripten_bind_SIGCrown_SIGCrown_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGCrown_initializeMembers_0 = Module["_emscripten_bind_SIGCrown_initializeMembers_0"] = createExportWrapper("emscripten_bind_SIGCrown_initializeMembers_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGCrown_doCrownRunRothermel_0 = Module["_emscripten_bind_SIGCrown_doCrownRunRothermel_0"] = createExportWrapper("emscripten_bind_SIGCrown_doCrownRunRothermel_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGCrown_doCrownRunScottAndReinhardt_0 = Module["_emscripten_bind_SIGCrown_doCrownRunScottAndReinhardt_0"] = createExportWrapper("emscripten_bind_SIGCrown_doCrownRunScottAndReinhardt_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGCrown_doCrownRun_0 = Module["_emscripten_bind_SIGCrown_doCrownRun_0"] = createExportWrapper("emscripten_bind_SIGCrown_doCrownRun_0");
-/** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_getFireType_0 = Module["_emscripten_bind_SIGCrown_getFireType_0"] = createExportWrapper("emscripten_bind_SIGCrown_getFireType_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getIsMoistureScenarioDefinedByIndex_1 = Module["_emscripten_bind_SIGCrown_getIsMoistureScenarioDefinedByIndex_1"] = createExportWrapper("emscripten_bind_SIGCrown_getIsMoistureScenarioDefinedByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getIsMoistureScenarioDefinedByName_1 = Module["_emscripten_bind_SIGCrown_getIsMoistureScenarioDefinedByName_1"] = createExportWrapper("emscripten_bind_SIGCrown_getIsMoistureScenarioDefinedByName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_isAllFuelLoadZero_1 = Module["_emscripten_bind_SIGCrown_isAllFuelLoadZero_1"] = createExportWrapper("emscripten_bind_SIGCrown_isAllFuelLoadZero_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_isFuelDynamic_1 = Module["_emscripten_bind_SIGCrown_isFuelDynamic_1"] = createExportWrapper("emscripten_bind_SIGCrown_isFuelDynamic_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_isFuelModelDefined_1 = Module["_emscripten_bind_SIGCrown_isFuelModelDefined_1"] = createExportWrapper("emscripten_bind_SIGCrown_isFuelModelDefined_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_isFuelModelReserved_1 = Module["_emscripten_bind_SIGCrown_isFuelModelReserved_1"] = createExportWrapper("emscripten_bind_SIGCrown_isFuelModelReserved_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setMoistureScenarioByIndex_1 = Module["_emscripten_bind_SIGCrown_setMoistureScenarioByIndex_1"] = createExportWrapper("emscripten_bind_SIGCrown_setMoistureScenarioByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setMoistureScenarioByName_1 = Module["_emscripten_bind_SIGCrown_setMoistureScenarioByName_1"] = createExportWrapper("emscripten_bind_SIGCrown_setMoistureScenarioByName_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_getAspect_0 = Module["_emscripten_bind_SIGCrown_getAspect_0"] = createExportWrapper("emscripten_bind_SIGCrown_getAspect_0");
 /** @type {function(...*):?} */
@@ -5138,21 +5349,47 @@ var _emscripten_bind_SIGCrown_getCriticalOpenWindSpeed_1 = Module["_emscripten_b
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_getCrownFireLengthToWidthRatio_0 = Module["_emscripten_bind_SIGCrown_getCrownFireLengthToWidthRatio_0"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownFireLengthToWidthRatio_0");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCrownFireSpreadDistance_3 = Module["_emscripten_bind_SIGCrown_getCrownFireSpreadDistance_3"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownFireSpreadDistance_3");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_getCrownFireSpreadRate_1 = Module["_emscripten_bind_SIGCrown_getCrownFireSpreadRate_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownFireSpreadRate_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_getCrownFirelineIntensity_1 = Module["_emscripten_bind_SIGCrown_getCrownFirelineIntensity_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownFirelineIntensity_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_getCrownFlameLength_1 = Module["_emscripten_bind_SIGCrown_getCrownFlameLength_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownFlameLength_1");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCrownFractionBurned_0 = Module["_emscripten_bind_SIGCrown_getCrownFractionBurned_0"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownFractionBurned_0");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_getCrownRatio_0 = Module["_emscripten_bind_SIGCrown_getCrownRatio_0"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownRatio_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_getFinalFirelineIntesity_1 = Module["_emscripten_bind_SIGCrown_getFinalFirelineIntesity_1"] = createExportWrapper("emscripten_bind_SIGCrown_getFinalFirelineIntesity_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGCrown_getFinalFlameLength_1 = Module["_emscripten_bind_SIGCrown_getFinalFlameLength_1"] = createExportWrapper("emscripten_bind_SIGCrown_getFinalFlameLength_1");
-/** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_getFinalHeatPerUnitArea_1 = Module["_emscripten_bind_SIGCrown_getFinalHeatPerUnitArea_1"] = createExportWrapper("emscripten_bind_SIGCrown_getFinalHeatPerUnitArea_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_getFinalSpreadRate_1 = Module["_emscripten_bind_SIGCrown_getFinalSpreadRate_1"] = createExportWrapper("emscripten_bind_SIGCrown_getFinalSpreadRate_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelHeatOfCombustionDead_2 = Module["_emscripten_bind_SIGCrown_getFuelHeatOfCombustionDead_2"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelHeatOfCombustionDead_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelHeatOfCombustionLive_2 = Module["_emscripten_bind_SIGCrown_getFuelHeatOfCombustionLive_2"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelHeatOfCombustionLive_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelLoadHundredHour_2 = Module["_emscripten_bind_SIGCrown_getFuelLoadHundredHour_2"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelLoadHundredHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelLoadLiveHerbaceous_2 = Module["_emscripten_bind_SIGCrown_getFuelLoadLiveHerbaceous_2"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelLoadLiveHerbaceous_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelLoadLiveWoody_2 = Module["_emscripten_bind_SIGCrown_getFuelLoadLiveWoody_2"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelLoadLiveWoody_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelLoadOneHour_2 = Module["_emscripten_bind_SIGCrown_getFuelLoadOneHour_2"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelLoadOneHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelLoadTenHour_2 = Module["_emscripten_bind_SIGCrown_getFuelLoadTenHour_2"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelLoadTenHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelMoistureOfExtinctionDead_2 = Module["_emscripten_bind_SIGCrown_getFuelMoistureOfExtinctionDead_2"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelMoistureOfExtinctionDead_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelSavrLiveHerbaceous_2 = Module["_emscripten_bind_SIGCrown_getFuelSavrLiveHerbaceous_2"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelSavrLiveHerbaceous_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelSavrLiveWoody_2 = Module["_emscripten_bind_SIGCrown_getFuelSavrLiveWoody_2"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelSavrLiveWoody_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelSavrOneHour_2 = Module["_emscripten_bind_SIGCrown_getFuelSavrOneHour_2"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelSavrOneHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelbedDepth_2 = Module["_emscripten_bind_SIGCrown_getFuelbedDepth_2"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelbedDepth_2");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_getMoistureFoliar_1 = Module["_emscripten_bind_SIGCrown_getMoistureFoliar_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureFoliar_1");
 /** @type {function(...*):?} */
@@ -5164,9 +5401,31 @@ var _emscripten_bind_SIGCrown_getMoistureLiveWoody_1 = Module["_emscripten_bind_
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_getMoistureOneHour_1 = Module["_emscripten_bind_SIGCrown_getMoistureOneHour_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureOneHour_1");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByIndex_1 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByIndex_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByName_1 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByName_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByIndex_1 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByIndex_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByName_1 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByName_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByIndex_1 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByIndex_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByName_1 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByName_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioOneHourByIndex_1 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioOneHourByIndex_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioOneHourByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioOneHourByName_1 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioOneHourByName_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioOneHourByName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioTenHourByIndex_1 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioTenHourByIndex_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioTenHourByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioTenHourByName_1 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioTenHourByName_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioTenHourByName_1");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_getMoistureTenHour_1 = Module["_emscripten_bind_SIGCrown_getMoistureTenHour_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureTenHour_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_getSlope_1 = Module["_emscripten_bind_SIGCrown_getSlope_1"] = createExportWrapper("emscripten_bind_SIGCrown_getSlope_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getSurfaceFireSpreadDistance_3 = Module["_emscripten_bind_SIGCrown_getSurfaceFireSpreadDistance_3"] = createExportWrapper("emscripten_bind_SIGCrown_getSurfaceFireSpreadDistance_3");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_getSurfaceFireSpreadRate_1 = Module["_emscripten_bind_SIGCrown_getSurfaceFireSpreadRate_1"] = createExportWrapper("emscripten_bind_SIGCrown_getSurfaceFireSpreadRate_1");
 /** @type {function(...*):?} */
@@ -5175,6 +5434,26 @@ var _emscripten_bind_SIGCrown_getWindDirection_0 = Module["_emscripten_bind_SIGC
 var _emscripten_bind_SIGCrown_getWindSpeed_2 = Module["_emscripten_bind_SIGCrown_getWindSpeed_2"] = createExportWrapper("emscripten_bind_SIGCrown_getWindSpeed_2");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_getFuelModelNumber_0 = Module["_emscripten_bind_SIGCrown_getFuelModelNumber_0"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelModelNumber_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioIndexByName_1 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioIndexByName_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioIndexByName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getNumberOfMoistureScenarios_0 = Module["_emscripten_bind_SIGCrown_getNumberOfMoistureScenarios_0"] = createExportWrapper("emscripten_bind_SIGCrown_getNumberOfMoistureScenarios_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelCode_1 = Module["_emscripten_bind_SIGCrown_getFuelCode_1"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelCode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelName_1 = Module["_emscripten_bind_SIGCrown_getFuelName_1"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioDescriptionByIndex_1 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioDescriptionByIndex_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioDescriptionByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioDescriptionByName_1 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioDescriptionByName_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioDescriptionByName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioNameByIndex_1 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioNameByIndex_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioNameByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_doCrownRunRothermel_0 = Module["_emscripten_bind_SIGCrown_doCrownRunRothermel_0"] = createExportWrapper("emscripten_bind_SIGCrown_doCrownRunRothermel_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_doCrownRunScottAndReinhardt_0 = Module["_emscripten_bind_SIGCrown_doCrownRunScottAndReinhardt_0"] = createExportWrapper("emscripten_bind_SIGCrown_doCrownRunScottAndReinhardt_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_initializeMembers_0 = Module["_emscripten_bind_SIGCrown_initializeMembers_0"] = createExportWrapper("emscripten_bind_SIGCrown_initializeMembers_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_setAspect_1 = Module["_emscripten_bind_SIGCrown_setAspect_1"] = createExportWrapper("emscripten_bind_SIGCrown_setAspect_1");
 /** @type {function(...*):?} */
@@ -5192,15 +5471,23 @@ var _emscripten_bind_SIGCrown_setFuelModelNumber_1 = Module["_emscripten_bind_SI
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_setFuelModels_1 = Module["_emscripten_bind_SIGCrown_setFuelModels_1"] = createExportWrapper("emscripten_bind_SIGCrown_setFuelModels_1");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setMoistureDeadAggregate_2 = Module["_emscripten_bind_SIGCrown_setMoistureDeadAggregate_2"] = createExportWrapper("emscripten_bind_SIGCrown_setMoistureDeadAggregate_2");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_setMoistureFoliar_2 = Module["_emscripten_bind_SIGCrown_setMoistureFoliar_2"] = createExportWrapper("emscripten_bind_SIGCrown_setMoistureFoliar_2");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_setMoistureHundredHour_2 = Module["_emscripten_bind_SIGCrown_setMoistureHundredHour_2"] = createExportWrapper("emscripten_bind_SIGCrown_setMoistureHundredHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setMoistureInputMode_1 = Module["_emscripten_bind_SIGCrown_setMoistureInputMode_1"] = createExportWrapper("emscripten_bind_SIGCrown_setMoistureInputMode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setMoistureLiveAggregate_2 = Module["_emscripten_bind_SIGCrown_setMoistureLiveAggregate_2"] = createExportWrapper("emscripten_bind_SIGCrown_setMoistureLiveAggregate_2");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_setMoistureLiveHerbaceous_2 = Module["_emscripten_bind_SIGCrown_setMoistureLiveHerbaceous_2"] = createExportWrapper("emscripten_bind_SIGCrown_setMoistureLiveHerbaceous_2");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_setMoistureLiveWoody_2 = Module["_emscripten_bind_SIGCrown_setMoistureLiveWoody_2"] = createExportWrapper("emscripten_bind_SIGCrown_setMoistureLiveWoody_2");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_setMoistureOneHour_2 = Module["_emscripten_bind_SIGCrown_setMoistureOneHour_2"] = createExportWrapper("emscripten_bind_SIGCrown_setMoistureOneHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setMoistureScenarios_1 = Module["_emscripten_bind_SIGCrown_setMoistureScenarios_1"] = createExportWrapper("emscripten_bind_SIGCrown_setMoistureScenarios_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_setMoistureTenHour_2 = Module["_emscripten_bind_SIGCrown_setMoistureTenHour_2"] = createExportWrapper("emscripten_bind_SIGCrown_setMoistureTenHour_2");
 /** @type {function(...*):?} */
@@ -5221,6 +5508,8 @@ var _emscripten_bind_SIGCrown_setWindSpeed_3 = Module["_emscripten_bind_SIGCrown
 var _emscripten_bind_SIGCrown_updateCrownInputs_24 = Module["_emscripten_bind_SIGCrown_updateCrownInputs_24"] = createExportWrapper("emscripten_bind_SIGCrown_updateCrownInputs_24");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_updateCrownsSurfaceInputs_20 = Module["_emscripten_bind_SIGCrown_updateCrownsSurfaceInputs_20"] = createExportWrapper("emscripten_bind_SIGCrown_updateCrownsSurfaceInputs_20");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFinalFlameLength_1 = Module["_emscripten_bind_SIGCrown_getFinalFlameLength_1"] = createExportWrapper("emscripten_bind_SIGCrown_getFinalFlameLength_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown___destroy___0 = Module["_emscripten_bind_SIGCrown___destroy___0"] = createExportWrapper("emscripten_bind_SIGCrown___destroy___0");
 /** @type {function(...*):?} */
@@ -5270,6 +5559,10 @@ var _emscripten_bind_SIGMortality_checkIsInRegionAtSpeciesTableIndex_2 = Module[
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_checkIsInRegionFromSpeciesCode_2 = Module["_emscripten_bind_SIGMortality_checkIsInRegionFromSpeciesCode_2"] = createExportWrapper("emscripten_bind_SIGMortality_checkIsInRegionFromSpeciesCode_2");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_updateInputsForSpeciesCodeAndEquationType_2 = Module["_emscripten_bind_SIGMortality_updateInputsForSpeciesCodeAndEquationType_2"] = createExportWrapper("emscripten_bind_SIGMortality_updateInputsForSpeciesCodeAndEquationType_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_calculateMortality_1 = Module["_emscripten_bind_SIGMortality_calculateMortality_1"] = createExportWrapper("emscripten_bind_SIGMortality_calculateMortality_1");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getBarkThickness_1 = Module["_emscripten_bind_SIGMortality_getBarkThickness_1"] = createExportWrapper("emscripten_bind_SIGMortality_getBarkThickness_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getBasalAreaKillled_0 = Module["_emscripten_bind_SIGMortality_getBasalAreaKillled_0"] = createExportWrapper("emscripten_bind_SIGMortality_getBasalAreaKillled_0");
@@ -5295,6 +5588,10 @@ var _emscripten_bind_SIGMortality_getKilledTrees_0 = Module["_emscripten_bind_SI
 var _emscripten_bind_SIGMortality_getProbabilityOfMortality_1 = Module["_emscripten_bind_SIGMortality_getProbabilityOfMortality_1"] = createExportWrapper("emscripten_bind_SIGMortality_getProbabilityOfMortality_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getTotalPrefireTrees_0 = Module["_emscripten_bind_SIGMortality_getTotalPrefireTrees_0"] = createExportWrapper("emscripten_bind_SIGMortality_getTotalPrefireTrees_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getTreeCrownLengthScorched_1 = Module["_emscripten_bind_SIGMortality_getTreeCrownLengthScorched_1"] = createExportWrapper("emscripten_bind_SIGMortality_getTreeCrownLengthScorched_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getTreeCrownVolumeScorched_1 = Module["_emscripten_bind_SIGMortality_getTreeCrownVolumeScorched_1"] = createExportWrapper("emscripten_bind_SIGMortality_getTreeCrownVolumeScorched_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getTreeDensityPerUnitArea_1 = Module["_emscripten_bind_SIGMortality_getTreeDensityPerUnitArea_1"] = createExportWrapper("emscripten_bind_SIGMortality_getTreeDensityPerUnitArea_1");
 /** @type {function(...*):?} */
@@ -5342,8 +5639,6 @@ var _emscripten_bind_SIGMortality_getSpeciesCodeAtSpeciesTableIndex_1 = Module["
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getRequiredFieldVector_0 = Module["_emscripten_bind_SIGMortality_getRequiredFieldVector_0"] = createExportWrapper("emscripten_bind_SIGMortality_getRequiredFieldVector_0");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGMortality_calculateMortality_1 = Module["_emscripten_bind_SIGMortality_calculateMortality_1"] = createExportWrapper("emscripten_bind_SIGMortality_calculateMortality_1");
-/** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_setBeetleDamage_1 = Module["_emscripten_bind_SIGMortality_setBeetleDamage_1"] = createExportWrapper("emscripten_bind_SIGMortality_setBeetleDamage_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_setBoleCharHeight_2 = Module["_emscripten_bind_SIGMortality_setBoleCharHeight_2"] = createExportWrapper("emscripten_bind_SIGMortality_setBoleCharHeight_2");
@@ -5372,8 +5667,6 @@ var _emscripten_bind_SIGMortality_setTreeDensityPerUnitArea_2 = Module["_emscrip
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_setTreeHeight_2 = Module["_emscripten_bind_SIGMortality_setTreeHeight_2"] = createExportWrapper("emscripten_bind_SIGMortality_setTreeHeight_2");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGMortality_updateInputsForSpeciesCodeAndEquationType_2 = Module["_emscripten_bind_SIGMortality_updateInputsForSpeciesCodeAndEquationType_2"] = createExportWrapper("emscripten_bind_SIGMortality_updateInputsForSpeciesCodeAndEquationType_2");
-/** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality___destroy___0 = Module["_emscripten_bind_SIGMortality___destroy___0"] = createExportWrapper("emscripten_bind_SIGMortality___destroy___0");
 /** @type {function(...*):?} */
 var _emscripten_bind_WindSpeedUtility_WindSpeedUtility_0 = Module["_emscripten_bind_WindSpeedUtility_WindSpeedUtility_0"] = createExportWrapper("emscripten_bind_WindSpeedUtility_WindSpeedUtility_0");
@@ -5395,6 +5688,14 @@ var _emscripten_enum_AreaUnits_AreaUnitsEnum_SquareMeters = Module["_emscripten_
 var _emscripten_enum_AreaUnits_AreaUnitsEnum_SquareMiles = Module["_emscripten_enum_AreaUnits_AreaUnitsEnum_SquareMiles"] = createExportWrapper("emscripten_enum_AreaUnits_AreaUnitsEnum_SquareMiles");
 /** @type {function(...*):?} */
 var _emscripten_enum_AreaUnits_AreaUnitsEnum_SquareKilometers = Module["_emscripten_enum_AreaUnits_AreaUnitsEnum_SquareKilometers"] = createExportWrapper("emscripten_enum_AreaUnits_AreaUnitsEnum_SquareKilometers");
+/** @type {function(...*):?} */
+var _emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareFeetPerAcre = Module["_emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareFeetPerAcre"] = createExportWrapper("emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareFeetPerAcre");
+/** @type {function(...*):?} */
+var _emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareMetersPerHectare = Module["_emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareMetersPerHectare"] = createExportWrapper("emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareMetersPerHectare");
+/** @type {function(...*):?} */
+var _emscripten_enum_CuringLevelUnits_CuringLevelEnum_Fraction = Module["_emscripten_enum_CuringLevelUnits_CuringLevelEnum_Fraction"] = createExportWrapper("emscripten_enum_CuringLevelUnits_CuringLevelEnum_Fraction");
+/** @type {function(...*):?} */
+var _emscripten_enum_CuringLevelUnits_CuringLevelEnum_Percent = Module["_emscripten_enum_CuringLevelUnits_CuringLevelEnum_Percent"] = createExportWrapper("emscripten_enum_CuringLevelUnits_CuringLevelEnum_Percent");
 /** @type {function(...*):?} */
 var _emscripten_enum_LengthUnits_LengthUnitsEnum_Feet = Module["_emscripten_enum_LengthUnits_LengthUnitsEnum_Feet"] = createExportWrapper("emscripten_enum_LengthUnits_LengthUnitsEnum_Feet");
 /** @type {function(...*):?} */
@@ -5556,6 +5857,10 @@ var _emscripten_enum_LightningCharge_LightningChargeEnum_Positive = Module["_ems
 /** @type {function(...*):?} */
 var _emscripten_enum_LightningCharge_LightningChargeEnum_Unknown = Module["_emscripten_enum_LightningCharge_LightningChargeEnum_Unknown"] = createExportWrapper("emscripten_enum_LightningCharge_LightningChargeEnum_Unknown");
 /** @type {function(...*):?} */
+var _emscripten_enum_SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum_CLOSED = Module["_emscripten_enum_SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum_CLOSED"] = createExportWrapper("emscripten_enum_SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum_CLOSED");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum_OPEN = Module["_emscripten_enum_SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum_OPEN"] = createExportWrapper("emscripten_enum_SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum_OPEN");
+/** @type {function(...*):?} */
 var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_ENGELMANN_SPRUCE = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_ENGELMANN_SPRUCE"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_ENGELMANN_SPRUCE");
 /** @type {function(...*):?} */
 var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_DOUGLAS_FIR = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_DOUGLAS_FIR"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_DOUGLAS_FIR");
@@ -5592,9 +5897,53 @@ var _emscripten_enum_SpotFireLocation_SpotFireLocationEnum_MIDSLOPE_LEEWARD = Mo
 /** @type {function(...*):?} */
 var _emscripten_enum_SpotFireLocation_SpotFireLocationEnum_RIDGE_TOP = Module["_emscripten_enum_SpotFireLocation_SpotFireLocationEnum_RIDGE_TOP"] = createExportWrapper("emscripten_enum_SpotFireLocation_SpotFireLocationEnum_RIDGE_TOP");
 /** @type {function(...*):?} */
+var _emscripten_enum_FuelLifeState_FuelLifeStateEnum_DEAD = Module["_emscripten_enum_FuelLifeState_FuelLifeStateEnum_DEAD"] = createExportWrapper("emscripten_enum_FuelLifeState_FuelLifeStateEnum_DEAD");
+/** @type {function(...*):?} */
+var _emscripten_enum_FuelLifeState_FuelLifeStateEnum_LIVE = Module["_emscripten_enum_FuelLifeState_FuelLifeStateEnum_LIVE"] = createExportWrapper("emscripten_enum_FuelLifeState_FuelLifeStateEnum_LIVE");
+/** @type {function(...*):?} */
+var _emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MAX_LIFE_STATES = Module["_emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MAX_LIFE_STATES"] = createExportWrapper("emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MAX_LIFE_STATES");
+/** @type {function(...*):?} */
+var _emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MAX_LIVE_SIZE_CLASSES = Module["_emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MAX_LIVE_SIZE_CLASSES"] = createExportWrapper("emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MAX_LIVE_SIZE_CLASSES");
+/** @type {function(...*):?} */
+var _emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MAX_DEAD_SIZE_CLASSES = Module["_emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MAX_DEAD_SIZE_CLASSES"] = createExportWrapper("emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MAX_DEAD_SIZE_CLASSES");
+/** @type {function(...*):?} */
+var _emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MAX_PARTICLES = Module["_emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MAX_PARTICLES"] = createExportWrapper("emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MAX_PARTICLES");
+/** @type {function(...*):?} */
+var _emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MAX_SAVR_SIZE_CLASSES = Module["_emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MAX_SAVR_SIZE_CLASSES"] = createExportWrapper("emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MAX_SAVR_SIZE_CLASSES");
+/** @type {function(...*):?} */
+var _emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_NUM_FUEL_MODELS = Module["_emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_NUM_FUEL_MODELS"] = createExportWrapper("emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_NUM_FUEL_MODELS");
+/** @type {function(...*):?} */
 var _emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Low = Module["_emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Low"] = createExportWrapper("emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Low");
 /** @type {function(...*):?} */
 var _emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Moderate = Module["_emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Moderate"] = createExportWrapper("emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Moderate");
+/** @type {function(...*):?} */
+var _emscripten_enum_MoistureInputMode_MoistureInputModeEnum_BySizeClass = Module["_emscripten_enum_MoistureInputMode_MoistureInputModeEnum_BySizeClass"] = createExportWrapper("emscripten_enum_MoistureInputMode_MoistureInputModeEnum_BySizeClass");
+/** @type {function(...*):?} */
+var _emscripten_enum_MoistureInputMode_MoistureInputModeEnum_AllAggregate = Module["_emscripten_enum_MoistureInputMode_MoistureInputModeEnum_AllAggregate"] = createExportWrapper("emscripten_enum_MoistureInputMode_MoistureInputModeEnum_AllAggregate");
+/** @type {function(...*):?} */
+var _emscripten_enum_MoistureInputMode_MoistureInputModeEnum_DeadAggregateAndLiveSizeClass = Module["_emscripten_enum_MoistureInputMode_MoistureInputModeEnum_DeadAggregateAndLiveSizeClass"] = createExportWrapper("emscripten_enum_MoistureInputMode_MoistureInputModeEnum_DeadAggregateAndLiveSizeClass");
+/** @type {function(...*):?} */
+var _emscripten_enum_MoistureInputMode_MoistureInputModeEnum_LiveAggregateAndDeadSizeClass = Module["_emscripten_enum_MoistureInputMode_MoistureInputModeEnum_LiveAggregateAndDeadSizeClass"] = createExportWrapper("emscripten_enum_MoistureInputMode_MoistureInputModeEnum_LiveAggregateAndDeadSizeClass");
+/** @type {function(...*):?} */
+var _emscripten_enum_MoistureInputMode_MoistureInputModeEnum_MoistureScenario = Module["_emscripten_enum_MoistureInputMode_MoistureInputModeEnum_MoistureScenario"] = createExportWrapper("emscripten_enum_MoistureInputMode_MoistureInputModeEnum_MoistureScenario");
+/** @type {function(...*):?} */
+var _emscripten_enum_MoistureClassInput_MoistureClassInputEnum_OneHour = Module["_emscripten_enum_MoistureClassInput_MoistureClassInputEnum_OneHour"] = createExportWrapper("emscripten_enum_MoistureClassInput_MoistureClassInputEnum_OneHour");
+/** @type {function(...*):?} */
+var _emscripten_enum_MoistureClassInput_MoistureClassInputEnum_TenHour = Module["_emscripten_enum_MoistureClassInput_MoistureClassInputEnum_TenHour"] = createExportWrapper("emscripten_enum_MoistureClassInput_MoistureClassInputEnum_TenHour");
+/** @type {function(...*):?} */
+var _emscripten_enum_MoistureClassInput_MoistureClassInputEnum_HundredHour = Module["_emscripten_enum_MoistureClassInput_MoistureClassInputEnum_HundredHour"] = createExportWrapper("emscripten_enum_MoistureClassInput_MoistureClassInputEnum_HundredHour");
+/** @type {function(...*):?} */
+var _emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveHerbaceous = Module["_emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveHerbaceous"] = createExportWrapper("emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveHerbaceous");
+/** @type {function(...*):?} */
+var _emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveWoody = Module["_emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveWoody"] = createExportWrapper("emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveWoody");
+/** @type {function(...*):?} */
+var _emscripten_enum_MoistureClassInput_MoistureClassInputEnum_DeadAggregate = Module["_emscripten_enum_MoistureClassInput_MoistureClassInputEnum_DeadAggregate"] = createExportWrapper("emscripten_enum_MoistureClassInput_MoistureClassInputEnum_DeadAggregate");
+/** @type {function(...*):?} */
+var _emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveAggregate = Module["_emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveAggregate"] = createExportWrapper("emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveAggregate");
+/** @type {function(...*):?} */
+var _emscripten_enum_SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum_FromIgnitionPoint = Module["_emscripten_enum_SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum_FromIgnitionPoint"] = createExportWrapper("emscripten_enum_SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum_FromIgnitionPoint");
+/** @type {function(...*):?} */
+var _emscripten_enum_SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum_FromPerimeter = Module["_emscripten_enum_SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum_FromPerimeter"] = createExportWrapper("emscripten_enum_SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum_FromPerimeter");
 /** @type {function(...*):?} */
 var _emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_NoMethod = Module["_emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_NoMethod"] = createExportWrapper("emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_NoMethod");
 /** @type {function(...*):?} */
@@ -5638,6 +5987,46 @@ var _emscripten_enum_BeetleDamage_no = Module["_emscripten_enum_BeetleDamage_no"
 /** @type {function(...*):?} */
 var _emscripten_enum_BeetleDamage_yes = Module["_emscripten_enum_BeetleDamage_yes"] = createExportWrapper("emscripten_enum_BeetleDamage_yes");
 /** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageEquationCode_not_set = Module["_emscripten_enum_CrownDamageEquationCode_not_set"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_not_set");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageEquationCode_white_fir = Module["_emscripten_enum_CrownDamageEquationCode_white_fir"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_white_fir");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageEquationCode_subalpine_fir = Module["_emscripten_enum_CrownDamageEquationCode_subalpine_fir"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_subalpine_fir");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageEquationCode_incense_cedar = Module["_emscripten_enum_CrownDamageEquationCode_incense_cedar"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_incense_cedar");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageEquationCode_western_larch = Module["_emscripten_enum_CrownDamageEquationCode_western_larch"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_western_larch");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageEquationCode_whitebark_pine = Module["_emscripten_enum_CrownDamageEquationCode_whitebark_pine"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_whitebark_pine");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageEquationCode_engelmann_spruce = Module["_emscripten_enum_CrownDamageEquationCode_engelmann_spruce"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_engelmann_spruce");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageEquationCode_sugar_pine = Module["_emscripten_enum_CrownDamageEquationCode_sugar_pine"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_sugar_pine");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageEquationCode_red_fir = Module["_emscripten_enum_CrownDamageEquationCode_red_fir"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_red_fir");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageEquationCode_ponderosa_pine = Module["_emscripten_enum_CrownDamageEquationCode_ponderosa_pine"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_ponderosa_pine");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageEquationCode_ponderosa_kill = Module["_emscripten_enum_CrownDamageEquationCode_ponderosa_kill"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_ponderosa_kill");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageEquationCode_douglas_fir = Module["_emscripten_enum_CrownDamageEquationCode_douglas_fir"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_douglas_fir");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageType_not_set = Module["_emscripten_enum_CrownDamageType_not_set"] = createExportWrapper("emscripten_enum_CrownDamageType_not_set");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageType_crown_length = Module["_emscripten_enum_CrownDamageType_crown_length"] = createExportWrapper("emscripten_enum_CrownDamageType_crown_length");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageType_crown_volume = Module["_emscripten_enum_CrownDamageType_crown_volume"] = createExportWrapper("emscripten_enum_CrownDamageType_crown_volume");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageType_crown_kill = Module["_emscripten_enum_CrownDamageType_crown_kill"] = createExportWrapper("emscripten_enum_CrownDamageType_crown_kill");
+/** @type {function(...*):?} */
+var _emscripten_enum_EquationType_not_set = Module["_emscripten_enum_EquationType_not_set"] = createExportWrapper("emscripten_enum_EquationType_not_set");
+/** @type {function(...*):?} */
+var _emscripten_enum_EquationType_crown_scorch = Module["_emscripten_enum_EquationType_crown_scorch"] = createExportWrapper("emscripten_enum_EquationType_crown_scorch");
+/** @type {function(...*):?} */
+var _emscripten_enum_EquationType_bole_char = Module["_emscripten_enum_EquationType_bole_char"] = createExportWrapper("emscripten_enum_EquationType_bole_char");
+/** @type {function(...*):?} */
+var _emscripten_enum_EquationType_crown_damage = Module["_emscripten_enum_EquationType_crown_damage"] = createExportWrapper("emscripten_enum_EquationType_crown_damage");
+/** @type {function(...*):?} */
 var _emscripten_enum_FireSeverity_not_set = Module["_emscripten_enum_FireSeverity_not_set"] = createExportWrapper("emscripten_enum_FireSeverity_not_set");
 /** @type {function(...*):?} */
 var _emscripten_enum_FireSeverity_empty = Module["_emscripten_enum_FireSeverity_empty"] = createExportWrapper("emscripten_enum_FireSeverity_empty");
@@ -5648,6 +6037,10 @@ var _emscripten_enum_FlameLengthOrScorchHeightSwitch_flame_length = Module["_ems
 /** @type {function(...*):?} */
 var _emscripten_enum_FlameLengthOrScorchHeightSwitch_scorch_height = Module["_emscripten_enum_FlameLengthOrScorchHeightSwitch_scorch_height"] = createExportWrapper("emscripten_enum_FlameLengthOrScorchHeightSwitch_scorch_height");
 /** @type {function(...*):?} */
+var _emscripten_enum_MortalityRateUnits_MortalityRateUnitsEnum_Fraction = Module["_emscripten_enum_MortalityRateUnits_MortalityRateUnitsEnum_Fraction"] = createExportWrapper("emscripten_enum_MortalityRateUnits_MortalityRateUnitsEnum_Fraction");
+/** @type {function(...*):?} */
+var _emscripten_enum_MortalityRateUnits_MortalityRateUnitsEnum_Percent = Module["_emscripten_enum_MortalityRateUnits_MortalityRateUnitsEnum_Percent"] = createExportWrapper("emscripten_enum_MortalityRateUnits_MortalityRateUnitsEnum_Percent");
+/** @type {function(...*):?} */
 var _emscripten_enum_RegionCode_interior_west = Module["_emscripten_enum_RegionCode_interior_west"] = createExportWrapper("emscripten_enum_RegionCode_interior_west");
 /** @type {function(...*):?} */
 var _emscripten_enum_RegionCode_pacific_west = Module["_emscripten_enum_RegionCode_pacific_west"] = createExportWrapper("emscripten_enum_RegionCode_pacific_west");
@@ -5655,14 +6048,6 @@ var _emscripten_enum_RegionCode_pacific_west = Module["_emscripten_enum_RegionCo
 var _emscripten_enum_RegionCode_north_east = Module["_emscripten_enum_RegionCode_north_east"] = createExportWrapper("emscripten_enum_RegionCode_north_east");
 /** @type {function(...*):?} */
 var _emscripten_enum_RegionCode_south_east = Module["_emscripten_enum_RegionCode_south_east"] = createExportWrapper("emscripten_enum_RegionCode_south_east");
-/** @type {function(...*):?} */
-var _emscripten_enum_CrownDamageType_not_set = Module["_emscripten_enum_CrownDamageType_not_set"] = createExportWrapper("emscripten_enum_CrownDamageType_not_set");
-/** @type {function(...*):?} */
-var _emscripten_enum_CrownDamageType_crown_length = Module["_emscripten_enum_CrownDamageType_crown_length"] = createExportWrapper("emscripten_enum_CrownDamageType_crown_length");
-/** @type {function(...*):?} */
-var _emscripten_enum_CrownDamageType_crown_volume = Module["_emscripten_enum_CrownDamageType_crown_volume"] = createExportWrapper("emscripten_enum_CrownDamageType_crown_volume");
-/** @type {function(...*):?} */
-var _emscripten_enum_CrownDamageType_crown_kill = Module["_emscripten_enum_CrownDamageType_crown_kill"] = createExportWrapper("emscripten_enum_CrownDamageType_crown_kill");
 /** @type {function(...*):?} */
 var _emscripten_enum_RequiredFieldNames_region = Module["_emscripten_enum_RequiredFieldNames_region"] = createExportWrapper("emscripten_enum_RequiredFieldNames_region");
 /** @type {function(...*):?} */
@@ -5691,38 +6076,6 @@ var _emscripten_enum_RequiredFieldNames_bark_thickness = Module["_emscripten_enu
 var _emscripten_enum_RequiredFieldNames_fire_severity = Module["_emscripten_enum_RequiredFieldNames_fire_severity"] = createExportWrapper("emscripten_enum_RequiredFieldNames_fire_severity");
 /** @type {function(...*):?} */
 var _emscripten_enum_RequiredFieldNames_num_inputs = Module["_emscripten_enum_RequiredFieldNames_num_inputs"] = createExportWrapper("emscripten_enum_RequiredFieldNames_num_inputs");
-/** @type {function(...*):?} */
-var _emscripten_enum_CrownDamageEquationCode_not_set = Module["_emscripten_enum_CrownDamageEquationCode_not_set"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_not_set");
-/** @type {function(...*):?} */
-var _emscripten_enum_CrownDamageEquationCode_white_fir = Module["_emscripten_enum_CrownDamageEquationCode_white_fir"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_white_fir");
-/** @type {function(...*):?} */
-var _emscripten_enum_CrownDamageEquationCode_subalpine_fir = Module["_emscripten_enum_CrownDamageEquationCode_subalpine_fir"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_subalpine_fir");
-/** @type {function(...*):?} */
-var _emscripten_enum_CrownDamageEquationCode_incense_cedar = Module["_emscripten_enum_CrownDamageEquationCode_incense_cedar"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_incense_cedar");
-/** @type {function(...*):?} */
-var _emscripten_enum_CrownDamageEquationCode_western_larch = Module["_emscripten_enum_CrownDamageEquationCode_western_larch"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_western_larch");
-/** @type {function(...*):?} */
-var _emscripten_enum_CrownDamageEquationCode_whitebark_pine = Module["_emscripten_enum_CrownDamageEquationCode_whitebark_pine"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_whitebark_pine");
-/** @type {function(...*):?} */
-var _emscripten_enum_CrownDamageEquationCode_engelmann_spruce = Module["_emscripten_enum_CrownDamageEquationCode_engelmann_spruce"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_engelmann_spruce");
-/** @type {function(...*):?} */
-var _emscripten_enum_CrownDamageEquationCode_sugar_pine = Module["_emscripten_enum_CrownDamageEquationCode_sugar_pine"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_sugar_pine");
-/** @type {function(...*):?} */
-var _emscripten_enum_CrownDamageEquationCode_red_fir = Module["_emscripten_enum_CrownDamageEquationCode_red_fir"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_red_fir");
-/** @type {function(...*):?} */
-var _emscripten_enum_CrownDamageEquationCode_ponderosa_pine = Module["_emscripten_enum_CrownDamageEquationCode_ponderosa_pine"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_ponderosa_pine");
-/** @type {function(...*):?} */
-var _emscripten_enum_CrownDamageEquationCode_ponderosa_kill = Module["_emscripten_enum_CrownDamageEquationCode_ponderosa_kill"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_ponderosa_kill");
-/** @type {function(...*):?} */
-var _emscripten_enum_CrownDamageEquationCode_douglas_fir = Module["_emscripten_enum_CrownDamageEquationCode_douglas_fir"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_douglas_fir");
-/** @type {function(...*):?} */
-var _emscripten_enum_EquationType_not_set = Module["_emscripten_enum_EquationType_not_set"] = createExportWrapper("emscripten_enum_EquationType_not_set");
-/** @type {function(...*):?} */
-var _emscripten_enum_EquationType_crown_scorch = Module["_emscripten_enum_EquationType_crown_scorch"] = createExportWrapper("emscripten_enum_EquationType_crown_scorch");
-/** @type {function(...*):?} */
-var _emscripten_enum_EquationType_bole_char = Module["_emscripten_enum_EquationType_bole_char"] = createExportWrapper("emscripten_enum_EquationType_bole_char");
-/** @type {function(...*):?} */
-var _emscripten_enum_EquationType_crown_damage = Module["_emscripten_enum_EquationType_crown_damage"] = createExportWrapper("emscripten_enum_EquationType_crown_damage");
 /** @type {function(...*):?} */
 var ___cxa_free_exception = createExportWrapper("__cxa_free_exception");
 /** @type {function(...*):?} */
@@ -5774,8 +6127,8 @@ var ___cxa_can_catch = createExportWrapper("__cxa_can_catch");
 var ___cxa_is_pointer_type = createExportWrapper("__cxa_is_pointer_type");
 /** @type {function(...*):?} */
 var dynCall_jiji = Module["dynCall_jiji"] = createExportWrapper("dynCall_jiji");
-var ___start_em_js = Module['___start_em_js'] = 112472;
-var ___stop_em_js = Module['___stop_em_js'] = 112570;
+var ___start_em_js = Module['___start_em_js'] = 113848;
+var ___stop_em_js = Module['___stop_em_js'] = 113946;
 function invoke_vii(index,a1,a2) {
   var sp = stackSave();
   try {
@@ -5842,6 +6195,39 @@ function invoke_ii(index,a1) {
   }
 }
 
+function invoke_vidii(index,a1,a2,a3,a4) {
+  var sp = stackSave();
+  try {
+    getWasmTableEntry(index)(a1,a2,a3,a4);
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viii(index,a1,a2,a3) {
+  var sp = stackSave();
+  try {
+    getWasmTableEntry(index)(a1,a2,a3);
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_dii(index,a1,a2) {
+  var sp = stackSave();
+  try {
+    return getWasmTableEntry(index)(a1,a2);
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
 function invoke_viiii(index,a1,a2,a3,a4) {
   var sp = stackSave();
   try {
@@ -5875,10 +6261,10 @@ function invoke_iiiiii(index,a1,a2,a3,a4,a5) {
   }
 }
 
-function invoke_viii(index,a1,a2,a3) {
+function invoke_viiiii(index,a1,a2,a3,a4,a5) {
   var sp = stackSave();
   try {
-    getWasmTableEntry(index)(a1,a2,a3);
+    getWasmTableEntry(index)(a1,a2,a3,a4,a5);
   } catch(e) {
     stackRestore(sp);
     if (!(e instanceof EmscriptenEH)) throw e;
@@ -5886,10 +6272,10 @@ function invoke_viii(index,a1,a2,a3) {
   }
 }
 
-function invoke_viiiii(index,a1,a2,a3,a4,a5) {
+function invoke_viiiddddd(index,a1,a2,a3,a4,a5,a6,a7,a8) {
   var sp = stackSave();
   try {
-    getWasmTableEntry(index)(a1,a2,a3,a4,a5);
+    getWasmTableEntry(index)(a1,a2,a3,a4,a5,a6,a7,a8);
   } catch(e) {
     stackRestore(sp);
     if (!(e instanceof EmscriptenEH)) throw e;
@@ -6803,29 +7189,15 @@ FireSize.prototype.__class__ = FireSize;
 FireSize.__cache__ = {};
 Module['FireSize'] = FireSize;
 
-FireSize.prototype['calculateFireBasicDimensions'] = FireSize.prototype.calculateFireBasicDimensions = /** @suppress {undefinedVars, duplicate} @this{Object} */function(effectiveWindSpeed, windSpeedRateUnits, forwardSpreadRate, spreadRateUnits) {
+FireSize.prototype['getBackingSpreadRate'] = FireSize.prototype.getBackingSpreadRate = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spreadRateUnits) {
   var self = this.ptr;
-  if (effectiveWindSpeed && typeof effectiveWindSpeed === 'object') effectiveWindSpeed = effectiveWindSpeed.ptr;
-  if (windSpeedRateUnits && typeof windSpeedRateUnits === 'object') windSpeedRateUnits = windSpeedRateUnits.ptr;
-  if (forwardSpreadRate && typeof forwardSpreadRate === 'object') forwardSpreadRate = forwardSpreadRate.ptr;
   if (spreadRateUnits && typeof spreadRateUnits === 'object') spreadRateUnits = spreadRateUnits.ptr;
-  _emscripten_bind_FireSize_calculateFireBasicDimensions_4(self, effectiveWindSpeed, windSpeedRateUnits, forwardSpreadRate, spreadRateUnits);
-};;
-
-FireSize.prototype['getFireLengthToWidthRatio'] = FireSize.prototype.getFireLengthToWidthRatio = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_FireSize_getFireLengthToWidthRatio_0(self);
+  return _emscripten_bind_FireSize_getBackingSpreadRate_1(self, spreadRateUnits);
 };;
 
 FireSize.prototype['getEccentricity'] = FireSize.prototype.getEccentricity = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   return _emscripten_bind_FireSize_getEccentricity_0(self);
-};;
-
-FireSize.prototype['getBackingSpreadRate'] = FireSize.prototype.getBackingSpreadRate = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spreadRateUnits) {
-  var self = this.ptr;
-  if (spreadRateUnits && typeof spreadRateUnits === 'object') spreadRateUnits = spreadRateUnits.ptr;
-  return _emscripten_bind_FireSize_getBackingSpreadRate_1(self, spreadRateUnits);
 };;
 
 FireSize.prototype['getEllipticalA'] = FireSize.prototype.getEllipticalA = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
@@ -6852,6 +7224,14 @@ FireSize.prototype['getEllipticalC'] = FireSize.prototype.getEllipticalC = /** @
   return _emscripten_bind_FireSize_getEllipticalC_3(self, lengthUnits, elapsedTime, timeUnits);
 };;
 
+FireSize.prototype['getFireArea'] = FireSize.prototype.getFireArea = /** @suppress {undefinedVars, duplicate} @this{Object} */function(areaUnits, elapsedTime, timeUnits) {
+  var self = this.ptr;
+  if (areaUnits && typeof areaUnits === 'object') areaUnits = areaUnits.ptr;
+  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
+  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
+  return _emscripten_bind_FireSize_getFireArea_3(self, areaUnits, elapsedTime, timeUnits);
+};;
+
 FireSize.prototype['getFireLength'] = FireSize.prototype.getFireLength = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
   var self = this.ptr;
   if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
@@ -6860,12 +7240,9 @@ FireSize.prototype['getFireLength'] = FireSize.prototype.getFireLength = /** @su
   return _emscripten_bind_FireSize_getFireLength_3(self, lengthUnits, elapsedTime, timeUnits);
 };;
 
-FireSize.prototype['getMaxFireWidth'] = FireSize.prototype.getMaxFireWidth = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
+FireSize.prototype['getFireLengthToWidthRatio'] = FireSize.prototype.getFireLengthToWidthRatio = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
-  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
-  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
-  return _emscripten_bind_FireSize_getMaxFireWidth_3(self, lengthUnits, elapsedTime, timeUnits);
+  return _emscripten_bind_FireSize_getFireLengthToWidthRatio_0(self);
 };;
 
 FireSize.prototype['getFirePerimeter'] = FireSize.prototype.getFirePerimeter = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
@@ -6876,12 +7253,21 @@ FireSize.prototype['getFirePerimeter'] = FireSize.prototype.getFirePerimeter = /
   return _emscripten_bind_FireSize_getFirePerimeter_3(self, lengthUnits, elapsedTime, timeUnits);
 };;
 
-FireSize.prototype['getFireArea'] = FireSize.prototype.getFireArea = /** @suppress {undefinedVars, duplicate} @this{Object} */function(areaUnits, elapsedTime, timeUnits) {
+FireSize.prototype['getMaxFireWidth'] = FireSize.prototype.getMaxFireWidth = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
   var self = this.ptr;
-  if (areaUnits && typeof areaUnits === 'object') areaUnits = areaUnits.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
   if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
   if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
-  return _emscripten_bind_FireSize_getFireArea_3(self, areaUnits, elapsedTime, timeUnits);
+  return _emscripten_bind_FireSize_getMaxFireWidth_3(self, lengthUnits, elapsedTime, timeUnits);
+};;
+
+FireSize.prototype['calculateFireBasicDimensions'] = FireSize.prototype.calculateFireBasicDimensions = /** @suppress {undefinedVars, duplicate} @this{Object} */function(effectiveWindSpeed, windSpeedRateUnits, forwardSpreadRate, spreadRateUnits) {
+  var self = this.ptr;
+  if (effectiveWindSpeed && typeof effectiveWindSpeed === 'object') effectiveWindSpeed = effectiveWindSpeed.ptr;
+  if (windSpeedRateUnits && typeof windSpeedRateUnits === 'object') windSpeedRateUnits = windSpeedRateUnits.ptr;
+  if (forwardSpreadRate && typeof forwardSpreadRate === 'object') forwardSpreadRate = forwardSpreadRate.ptr;
+  if (spreadRateUnits && typeof spreadRateUnits === 'object') spreadRateUnits = spreadRateUnits.ptr;
+  _emscripten_bind_FireSize_calculateFireBasicDimensions_4(self, effectiveWindSpeed, windSpeedRateUnits, forwardSpreadRate, spreadRateUnits);
 };;
 
   FireSize.prototype['__destroy__'] = FireSize.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
@@ -7217,112 +7603,407 @@ SIGIgnite.prototype['isFuelDepthNeeded'] = SIGIgnite.prototype.isFuelDepthNeeded
   var self = this.ptr;
   _emscripten_bind_SIGIgnite___destroy___0(self);
 };
-// SIGSpot
-/** @suppress {undefinedVars, duplicate} @this{Object} */function SIGSpot() {
-  this.ptr = _emscripten_bind_SIGSpot_SIGSpot_0();
-  getCache(SIGSpot)[this.ptr] = this;
+// SIGMoistureScenarios
+/** @suppress {undefinedVars, duplicate} @this{Object} */function SIGMoistureScenarios() {
+  this.ptr = _emscripten_bind_SIGMoistureScenarios_SIGMoistureScenarios_0();
+  getCache(SIGMoistureScenarios)[this.ptr] = this;
 };;
-SIGSpot.prototype = Object.create(WrapperObject.prototype);
-SIGSpot.prototype.constructor = SIGSpot;
-SIGSpot.prototype.__class__ = SIGSpot;
-SIGSpot.__cache__ = {};
-Module['SIGSpot'] = SIGSpot;
+SIGMoistureScenarios.prototype = Object.create(WrapperObject.prototype);
+SIGMoistureScenarios.prototype.constructor = SIGMoistureScenarios;
+SIGMoistureScenarios.prototype.__class__ = SIGMoistureScenarios;
+SIGMoistureScenarios.__cache__ = {};
+Module['SIGMoistureScenarios'] = SIGMoistureScenarios;
 
-SIGSpot.prototype['initializeMembers'] = SIGSpot.prototype.initializeMembers = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+SIGMoistureScenarios.prototype['getIsMoistureScenarioDefinedByIndex'] = SIGMoistureScenarios.prototype.getIsMoistureScenarioDefinedByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
   var self = this.ptr;
-  _emscripten_bind_SIGSpot_initializeMembers_0(self);
+  if (index && typeof index === 'object') index = index.ptr;
+  return !!(_emscripten_bind_SIGMoistureScenarios_getIsMoistureScenarioDefinedByIndex_1(self, index));
 };;
 
-SIGSpot.prototype['calculateSpottingDistanceFromBurningPile'] = SIGSpot.prototype.calculateSpottingDistanceFromBurningPile = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+SIGMoistureScenarios.prototype['getIsMoistureScenarioDefinedByName'] = SIGMoistureScenarios.prototype.getIsMoistureScenarioDefinedByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
   var self = this.ptr;
-  _emscripten_bind_SIGSpot_calculateSpottingDistanceFromBurningPile_0(self);
+  ensureCache.prepare();
+  if (name && typeof name === 'object') name = name.ptr;
+  else name = ensureString(name);
+  return !!(_emscripten_bind_SIGMoistureScenarios_getIsMoistureScenarioDefinedByName_1(self, name));
 };;
 
-SIGSpot.prototype['calculateSpottingDistanceFromSurfaceFire'] = SIGSpot.prototype.calculateSpottingDistanceFromSurfaceFire = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+SIGMoistureScenarios.prototype['getMoistureScenarioHundredHourByIndex'] = SIGMoistureScenarios.prototype.getMoistureScenarioHundredHourByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
   var self = this.ptr;
-  _emscripten_bind_SIGSpot_calculateSpottingDistanceFromSurfaceFire_0(self);
+  if (index && typeof index === 'object') index = index.ptr;
+  return _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByIndex_1(self, index);
 };;
 
-SIGSpot.prototype['calculateSpottingDistanceFromTorchingTrees'] = SIGSpot.prototype.calculateSpottingDistanceFromTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+SIGMoistureScenarios.prototype['getMoistureScenarioHundredHourByName'] = SIGMoistureScenarios.prototype.getMoistureScenarioHundredHourByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
   var self = this.ptr;
-  _emscripten_bind_SIGSpot_calculateSpottingDistanceFromTorchingTrees_0(self);
+  ensureCache.prepare();
+  if (name && typeof name === 'object') name = name.ptr;
+  else name = ensureString(name);
+  return _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByName_1(self, name);
 };;
 
-SIGSpot.prototype['setBurningPileFlameHeight'] = SIGSpot.prototype.setBurningPileFlameHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(buringPileflameHeight, flameHeightUnits) {
+SIGMoistureScenarios.prototype['getMoistureScenarioLiveHerbaceousByIndex'] = SIGMoistureScenarios.prototype.getMoistureScenarioLiveHerbaceousByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+  var self = this.ptr;
+  if (index && typeof index === 'object') index = index.ptr;
+  return _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByIndex_1(self, index);
+};;
+
+SIGMoistureScenarios.prototype['getMoistureScenarioLiveHerbaceousByName'] = SIGMoistureScenarios.prototype.getMoistureScenarioLiveHerbaceousByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
+  var self = this.ptr;
+  ensureCache.prepare();
+  if (name && typeof name === 'object') name = name.ptr;
+  else name = ensureString(name);
+  return _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByName_1(self, name);
+};;
+
+SIGMoistureScenarios.prototype['getMoistureScenarioLiveWoodyByIndex'] = SIGMoistureScenarios.prototype.getMoistureScenarioLiveWoodyByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+  var self = this.ptr;
+  if (index && typeof index === 'object') index = index.ptr;
+  return _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByIndex_1(self, index);
+};;
+
+SIGMoistureScenarios.prototype['getMoistureScenarioLiveWoodyByName'] = SIGMoistureScenarios.prototype.getMoistureScenarioLiveWoodyByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
+  var self = this.ptr;
+  ensureCache.prepare();
+  if (name && typeof name === 'object') name = name.ptr;
+  else name = ensureString(name);
+  return _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByName_1(self, name);
+};;
+
+SIGMoistureScenarios.prototype['getMoistureScenarioOneHourByIndex'] = SIGMoistureScenarios.prototype.getMoistureScenarioOneHourByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+  var self = this.ptr;
+  if (index && typeof index === 'object') index = index.ptr;
+  return _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByIndex_1(self, index);
+};;
+
+SIGMoistureScenarios.prototype['getMoistureScenarioOneHourByName'] = SIGMoistureScenarios.prototype.getMoistureScenarioOneHourByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
+  var self = this.ptr;
+  ensureCache.prepare();
+  if (name && typeof name === 'object') name = name.ptr;
+  else name = ensureString(name);
+  return _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByName_1(self, name);
+};;
+
+SIGMoistureScenarios.prototype['getMoistureScenarioTenHourByIndex'] = SIGMoistureScenarios.prototype.getMoistureScenarioTenHourByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+  var self = this.ptr;
+  if (index && typeof index === 'object') index = index.ptr;
+  return _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByIndex_1(self, index);
+};;
+
+SIGMoistureScenarios.prototype['getMoistureScenarioTenHourByName'] = SIGMoistureScenarios.prototype.getMoistureScenarioTenHourByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
+  var self = this.ptr;
+  ensureCache.prepare();
+  if (name && typeof name === 'object') name = name.ptr;
+  else name = ensureString(name);
+  return _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByName_1(self, name);
+};;
+
+SIGMoistureScenarios.prototype['getMoistureScenarioIndexByName'] = SIGMoistureScenarios.prototype.getMoistureScenarioIndexByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
+  var self = this.ptr;
+  ensureCache.prepare();
+  if (name && typeof name === 'object') name = name.ptr;
+  else name = ensureString(name);
+  return _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioIndexByName_1(self, name);
+};;
+
+SIGMoistureScenarios.prototype['getNumberOfMoistureScenarios'] = SIGMoistureScenarios.prototype.getNumberOfMoistureScenarios = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGMoistureScenarios_getNumberOfMoistureScenarios_0(self);
+};;
+
+SIGMoistureScenarios.prototype['getMoistureScenarioDescriptionByIndex'] = SIGMoistureScenarios.prototype.getMoistureScenarioDescriptionByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+  var self = this.ptr;
+  if (index && typeof index === 'object') index = index.ptr;
+  return UTF8ToString(_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioDescriptionByIndex_1(self, index));
+};;
+
+SIGMoistureScenarios.prototype['getMoistureScenarioDescriptionByName'] = SIGMoistureScenarios.prototype.getMoistureScenarioDescriptionByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
+  var self = this.ptr;
+  ensureCache.prepare();
+  if (name && typeof name === 'object') name = name.ptr;
+  else name = ensureString(name);
+  return UTF8ToString(_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioDescriptionByName_1(self, name));
+};;
+
+SIGMoistureScenarios.prototype['getMoistureScenarioNameByIndex'] = SIGMoistureScenarios.prototype.getMoistureScenarioNameByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+  var self = this.ptr;
+  if (index && typeof index === 'object') index = index.ptr;
+  return UTF8ToString(_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioNameByIndex_1(self, index));
+};;
+
+  SIGMoistureScenarios.prototype['__destroy__'] = SIGMoistureScenarios.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_SIGMoistureScenarios___destroy___0(self);
+};
+// Spot
+/** @suppress {undefinedVars, duplicate} @this{Object} */function Spot() {
+  this.ptr = _emscripten_bind_Spot_Spot_0();
+  getCache(Spot)[this.ptr] = this;
+};;
+Spot.prototype = Object.create(WrapperObject.prototype);
+Spot.prototype.constructor = Spot;
+Spot.prototype.__class__ = Spot;
+Spot.__cache__ = {};
+Module['Spot'] = Spot;
+
+Spot.prototype['getDownwindCanopyMode'] = Spot.prototype.getDownwindCanopyMode = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_Spot_getDownwindCanopyMode_0(self);
+};;
+
+Spot.prototype['getLocation'] = Spot.prototype.getLocation = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_Spot_getLocation_0(self);
+};;
+
+Spot.prototype['getTreeSpecies'] = Spot.prototype.getTreeSpecies = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_Spot_getTreeSpecies_0(self);
+};;
+
+Spot.prototype['getBurningPileFlameHeight'] = Spot.prototype.getBurningPileFlameHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameHeightUnits) {
+  var self = this.ptr;
+  if (flameHeightUnits && typeof flameHeightUnits === 'object') flameHeightUnits = flameHeightUnits.ptr;
+  return _emscripten_bind_Spot_getBurningPileFlameHeight_1(self, flameHeightUnits);
+};;
+
+Spot.prototype['getCoverHeightUsedForBurningPile'] = Spot.prototype.getCoverHeightUsedForBurningPile = /** @suppress {undefinedVars, duplicate} @this{Object} */function(coverHeightUnits) {
+  var self = this.ptr;
+  if (coverHeightUnits && typeof coverHeightUnits === 'object') coverHeightUnits = coverHeightUnits.ptr;
+  return _emscripten_bind_Spot_getCoverHeightUsedForBurningPile_1(self, coverHeightUnits);
+};;
+
+Spot.prototype['getCoverHeightUsedForSurfaceFire'] = Spot.prototype.getCoverHeightUsedForSurfaceFire = /** @suppress {undefinedVars, duplicate} @this{Object} */function(coverHeightUnits) {
+  var self = this.ptr;
+  if (coverHeightUnits && typeof coverHeightUnits === 'object') coverHeightUnits = coverHeightUnits.ptr;
+  return _emscripten_bind_Spot_getCoverHeightUsedForSurfaceFire_1(self, coverHeightUnits);
+};;
+
+Spot.prototype['getCoverHeightUsedForTorchingTrees'] = Spot.prototype.getCoverHeightUsedForTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function(coverHeightUnits) {
+  var self = this.ptr;
+  if (coverHeightUnits && typeof coverHeightUnits === 'object') coverHeightUnits = coverHeightUnits.ptr;
+  return _emscripten_bind_Spot_getCoverHeightUsedForTorchingTrees_1(self, coverHeightUnits);
+};;
+
+Spot.prototype['getDBH'] = Spot.prototype.getDBH = /** @suppress {undefinedVars, duplicate} @this{Object} */function(DBHUnits) {
+  var self = this.ptr;
+  if (DBHUnits && typeof DBHUnits === 'object') DBHUnits = DBHUnits.ptr;
+  return _emscripten_bind_Spot_getDBH_1(self, DBHUnits);
+};;
+
+Spot.prototype['getDownwindCoverHeight'] = Spot.prototype.getDownwindCoverHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(coverHeightUnits) {
+  var self = this.ptr;
+  if (coverHeightUnits && typeof coverHeightUnits === 'object') coverHeightUnits = coverHeightUnits.ptr;
+  return _emscripten_bind_Spot_getDownwindCoverHeight_1(self, coverHeightUnits);
+};;
+
+Spot.prototype['getFlameDurationForTorchingTrees'] = Spot.prototype.getFlameDurationForTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function(durationUnits) {
+  var self = this.ptr;
+  if (durationUnits && typeof durationUnits === 'object') durationUnits = durationUnits.ptr;
+  return _emscripten_bind_Spot_getFlameDurationForTorchingTrees_1(self, durationUnits);
+};;
+
+Spot.prototype['getFlameHeightForTorchingTrees'] = Spot.prototype.getFlameHeightForTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameHeightUnits) {
+  var self = this.ptr;
+  if (flameHeightUnits && typeof flameHeightUnits === 'object') flameHeightUnits = flameHeightUnits.ptr;
+  return _emscripten_bind_Spot_getFlameHeightForTorchingTrees_1(self, flameHeightUnits);
+};;
+
+Spot.prototype['getFlameRatioForTorchingTrees'] = Spot.prototype.getFlameRatioForTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_Spot_getFlameRatioForTorchingTrees_0(self);
+};;
+
+Spot.prototype['getMaxFirebrandHeightFromBurningPile'] = Spot.prototype.getMaxFirebrandHeightFromBurningPile = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firebrandHeightUnits) {
+  var self = this.ptr;
+  if (firebrandHeightUnits && typeof firebrandHeightUnits === 'object') firebrandHeightUnits = firebrandHeightUnits.ptr;
+  return _emscripten_bind_Spot_getMaxFirebrandHeightFromBurningPile_1(self, firebrandHeightUnits);
+};;
+
+Spot.prototype['getMaxFirebrandHeightFromSurfaceFire'] = Spot.prototype.getMaxFirebrandHeightFromSurfaceFire = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firebrandHeightUnits) {
+  var self = this.ptr;
+  if (firebrandHeightUnits && typeof firebrandHeightUnits === 'object') firebrandHeightUnits = firebrandHeightUnits.ptr;
+  return _emscripten_bind_Spot_getMaxFirebrandHeightFromSurfaceFire_1(self, firebrandHeightUnits);
+};;
+
+Spot.prototype['getMaxFirebrandHeightFromTorchingTrees'] = Spot.prototype.getMaxFirebrandHeightFromTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firebrandHeightUnits) {
+  var self = this.ptr;
+  if (firebrandHeightUnits && typeof firebrandHeightUnits === 'object') firebrandHeightUnits = firebrandHeightUnits.ptr;
+  return _emscripten_bind_Spot_getMaxFirebrandHeightFromTorchingTrees_1(self, firebrandHeightUnits);
+};;
+
+Spot.prototype['getMaxFlatTerrainSpottingDistanceFromBurningPile'] = Spot.prototype.getMaxFlatTerrainSpottingDistanceFromBurningPile = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spottingDistanceUnits) {
+  var self = this.ptr;
+  if (spottingDistanceUnits && typeof spottingDistanceUnits === 'object') spottingDistanceUnits = spottingDistanceUnits.ptr;
+  return _emscripten_bind_Spot_getMaxFlatTerrainSpottingDistanceFromBurningPile_1(self, spottingDistanceUnits);
+};;
+
+Spot.prototype['getMaxFlatTerrainSpottingDistanceFromSurfaceFire'] = Spot.prototype.getMaxFlatTerrainSpottingDistanceFromSurfaceFire = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spottingDistanceUnits) {
+  var self = this.ptr;
+  if (spottingDistanceUnits && typeof spottingDistanceUnits === 'object') spottingDistanceUnits = spottingDistanceUnits.ptr;
+  return _emscripten_bind_Spot_getMaxFlatTerrainSpottingDistanceFromSurfaceFire_1(self, spottingDistanceUnits);
+};;
+
+Spot.prototype['getMaxFlatTerrainSpottingDistanceFromTorchingTrees'] = Spot.prototype.getMaxFlatTerrainSpottingDistanceFromTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spottingDistanceUnits) {
+  var self = this.ptr;
+  if (spottingDistanceUnits && typeof spottingDistanceUnits === 'object') spottingDistanceUnits = spottingDistanceUnits.ptr;
+  return _emscripten_bind_Spot_getMaxFlatTerrainSpottingDistanceFromTorchingTrees_1(self, spottingDistanceUnits);
+};;
+
+Spot.prototype['getMaxMountainousTerrainSpottingDistanceFromBurningPile'] = Spot.prototype.getMaxMountainousTerrainSpottingDistanceFromBurningPile = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spottingDistanceUnits) {
+  var self = this.ptr;
+  if (spottingDistanceUnits && typeof spottingDistanceUnits === 'object') spottingDistanceUnits = spottingDistanceUnits.ptr;
+  return _emscripten_bind_Spot_getMaxMountainousTerrainSpottingDistanceFromBurningPile_1(self, spottingDistanceUnits);
+};;
+
+Spot.prototype['getMaxMountainousTerrainSpottingDistanceFromSurfaceFire'] = Spot.prototype.getMaxMountainousTerrainSpottingDistanceFromSurfaceFire = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spottingDistanceUnits) {
+  var self = this.ptr;
+  if (spottingDistanceUnits && typeof spottingDistanceUnits === 'object') spottingDistanceUnits = spottingDistanceUnits.ptr;
+  return _emscripten_bind_Spot_getMaxMountainousTerrainSpottingDistanceFromSurfaceFire_1(self, spottingDistanceUnits);
+};;
+
+Spot.prototype['getMaxMountainousTerrainSpottingDistanceFromTorchingTrees'] = Spot.prototype.getMaxMountainousTerrainSpottingDistanceFromTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spottingDistanceUnits) {
+  var self = this.ptr;
+  if (spottingDistanceUnits && typeof spottingDistanceUnits === 'object') spottingDistanceUnits = spottingDistanceUnits.ptr;
+  return _emscripten_bind_Spot_getMaxMountainousTerrainSpottingDistanceFromTorchingTrees_1(self, spottingDistanceUnits);
+};;
+
+Spot.prototype['getRidgeToValleyDistance'] = Spot.prototype.getRidgeToValleyDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ridgeToValleyDistanceUnits) {
+  var self = this.ptr;
+  if (ridgeToValleyDistanceUnits && typeof ridgeToValleyDistanceUnits === 'object') ridgeToValleyDistanceUnits = ridgeToValleyDistanceUnits.ptr;
+  return _emscripten_bind_Spot_getRidgeToValleyDistance_1(self, ridgeToValleyDistanceUnits);
+};;
+
+Spot.prototype['getRidgeToValleyElevation'] = Spot.prototype.getRidgeToValleyElevation = /** @suppress {undefinedVars, duplicate} @this{Object} */function(elevationUnits) {
+  var self = this.ptr;
+  if (elevationUnits && typeof elevationUnits === 'object') elevationUnits = elevationUnits.ptr;
+  return _emscripten_bind_Spot_getRidgeToValleyElevation_1(self, elevationUnits);
+};;
+
+Spot.prototype['getSurfaceFlameLength'] = Spot.prototype.getSurfaceFlameLength = /** @suppress {undefinedVars, duplicate} @this{Object} */function(surfaceFlameLengthUnits) {
+  var self = this.ptr;
+  if (surfaceFlameLengthUnits && typeof surfaceFlameLengthUnits === 'object') surfaceFlameLengthUnits = surfaceFlameLengthUnits.ptr;
+  return _emscripten_bind_Spot_getSurfaceFlameLength_1(self, surfaceFlameLengthUnits);
+};;
+
+Spot.prototype['getTreeHeight'] = Spot.prototype.getTreeHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(treeHeightUnits) {
+  var self = this.ptr;
+  if (treeHeightUnits && typeof treeHeightUnits === 'object') treeHeightUnits = treeHeightUnits.ptr;
+  return _emscripten_bind_Spot_getTreeHeight_1(self, treeHeightUnits);
+};;
+
+Spot.prototype['getWindSpeedAtTwentyFeet'] = Spot.prototype.getWindSpeedAtTwentyFeet = /** @suppress {undefinedVars, duplicate} @this{Object} */function(windSpeedUnits) {
+  var self = this.ptr;
+  if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
+  return _emscripten_bind_Spot_getWindSpeedAtTwentyFeet_1(self, windSpeedUnits);
+};;
+
+Spot.prototype['getTorchingTrees'] = Spot.prototype.getTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_Spot_getTorchingTrees_0(self);
+};;
+
+Spot.prototype['calculateSpottingDistanceFromBurningPile'] = Spot.prototype.calculateSpottingDistanceFromBurningPile = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_Spot_calculateSpottingDistanceFromBurningPile_0(self);
+};;
+
+Spot.prototype['calculateSpottingDistanceFromSurfaceFire'] = Spot.prototype.calculateSpottingDistanceFromSurfaceFire = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_Spot_calculateSpottingDistanceFromSurfaceFire_0(self);
+};;
+
+Spot.prototype['calculateSpottingDistanceFromTorchingTrees'] = Spot.prototype.calculateSpottingDistanceFromTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_Spot_calculateSpottingDistanceFromTorchingTrees_0(self);
+};;
+
+Spot.prototype['initializeMembers'] = Spot.prototype.initializeMembers = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_Spot_initializeMembers_0(self);
+};;
+
+Spot.prototype['setBurningPileFlameHeight'] = Spot.prototype.setBurningPileFlameHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(buringPileflameHeight, flameHeightUnits) {
   var self = this.ptr;
   if (buringPileflameHeight && typeof buringPileflameHeight === 'object') buringPileflameHeight = buringPileflameHeight.ptr;
   if (flameHeightUnits && typeof flameHeightUnits === 'object') flameHeightUnits = flameHeightUnits.ptr;
-  _emscripten_bind_SIGSpot_setBurningPileFlameHeight_2(self, buringPileflameHeight, flameHeightUnits);
+  _emscripten_bind_Spot_setBurningPileFlameHeight_2(self, buringPileflameHeight, flameHeightUnits);
 };;
 
-SIGSpot.prototype['setDBH'] = SIGSpot.prototype.setDBH = /** @suppress {undefinedVars, duplicate} @this{Object} */function(DBH, DBHUnits) {
+Spot.prototype['setDBH'] = Spot.prototype.setDBH = /** @suppress {undefinedVars, duplicate} @this{Object} */function(DBH, DBHUnits) {
   var self = this.ptr;
   if (DBH && typeof DBH === 'object') DBH = DBH.ptr;
   if (DBHUnits && typeof DBHUnits === 'object') DBHUnits = DBHUnits.ptr;
-  _emscripten_bind_SIGSpot_setDBH_2(self, DBH, DBHUnits);
+  _emscripten_bind_Spot_setDBH_2(self, DBH, DBHUnits);
 };;
 
-SIGSpot.prototype['setDownwindCoverHeight'] = SIGSpot.prototype.setDownwindCoverHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(downwindCoverHeight, coverHeightUnits) {
+Spot.prototype['setDownwindCanopyMode'] = Spot.prototype.setDownwindCanopyMode = /** @suppress {undefinedVars, duplicate} @this{Object} */function(downwindCanopyMode) {
+  var self = this.ptr;
+  if (downwindCanopyMode && typeof downwindCanopyMode === 'object') downwindCanopyMode = downwindCanopyMode.ptr;
+  _emscripten_bind_Spot_setDownwindCanopyMode_1(self, downwindCanopyMode);
+};;
+
+Spot.prototype['setDownwindCoverHeight'] = Spot.prototype.setDownwindCoverHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(downwindCoverHeight, coverHeightUnits) {
   var self = this.ptr;
   if (downwindCoverHeight && typeof downwindCoverHeight === 'object') downwindCoverHeight = downwindCoverHeight.ptr;
   if (coverHeightUnits && typeof coverHeightUnits === 'object') coverHeightUnits = coverHeightUnits.ptr;
-  _emscripten_bind_SIGSpot_setDownwindCoverHeight_2(self, downwindCoverHeight, coverHeightUnits);
+  _emscripten_bind_Spot_setDownwindCoverHeight_2(self, downwindCoverHeight, coverHeightUnits);
 };;
 
-SIGSpot.prototype['setFlameLength'] = SIGSpot.prototype.setFlameLength = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameLength, flameLengthUnits) {
+Spot.prototype['setFlameLength'] = Spot.prototype.setFlameLength = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameLength, flameLengthUnits) {
   var self = this.ptr;
   if (flameLength && typeof flameLength === 'object') flameLength = flameLength.ptr;
   if (flameLengthUnits && typeof flameLengthUnits === 'object') flameLengthUnits = flameLengthUnits.ptr;
-  _emscripten_bind_SIGSpot_setFlameLength_2(self, flameLength, flameLengthUnits);
+  _emscripten_bind_Spot_setFlameLength_2(self, flameLength, flameLengthUnits);
 };;
 
-SIGSpot.prototype['setLocation'] = SIGSpot.prototype.setLocation = /** @suppress {undefinedVars, duplicate} @this{Object} */function(location) {
+Spot.prototype['setLocation'] = Spot.prototype.setLocation = /** @suppress {undefinedVars, duplicate} @this{Object} */function(location) {
   var self = this.ptr;
   if (location && typeof location === 'object') location = location.ptr;
-  _emscripten_bind_SIGSpot_setLocation_1(self, location);
+  _emscripten_bind_Spot_setLocation_1(self, location);
 };;
 
-SIGSpot.prototype['setRidgeToValleyDistance'] = SIGSpot.prototype.setRidgeToValleyDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ridgeToValleyDistance, ridgeToValleyDistanceUnits) {
+Spot.prototype['setRidgeToValleyDistance'] = Spot.prototype.setRidgeToValleyDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ridgeToValleyDistance, ridgeToValleyDistanceUnits) {
   var self = this.ptr;
   if (ridgeToValleyDistance && typeof ridgeToValleyDistance === 'object') ridgeToValleyDistance = ridgeToValleyDistance.ptr;
   if (ridgeToValleyDistanceUnits && typeof ridgeToValleyDistanceUnits === 'object') ridgeToValleyDistanceUnits = ridgeToValleyDistanceUnits.ptr;
-  _emscripten_bind_SIGSpot_setRidgeToValleyDistance_2(self, ridgeToValleyDistance, ridgeToValleyDistanceUnits);
+  _emscripten_bind_Spot_setRidgeToValleyDistance_2(self, ridgeToValleyDistance, ridgeToValleyDistanceUnits);
 };;
 
-SIGSpot.prototype['setRidgeToValleyElevation'] = SIGSpot.prototype.setRidgeToValleyElevation = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ridgeToValleyElevation, elevationUnits) {
+Spot.prototype['setRidgeToValleyElevation'] = Spot.prototype.setRidgeToValleyElevation = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ridgeToValleyElevation, elevationUnits) {
   var self = this.ptr;
   if (ridgeToValleyElevation && typeof ridgeToValleyElevation === 'object') ridgeToValleyElevation = ridgeToValleyElevation.ptr;
   if (elevationUnits && typeof elevationUnits === 'object') elevationUnits = elevationUnits.ptr;
-  _emscripten_bind_SIGSpot_setRidgeToValleyElevation_2(self, ridgeToValleyElevation, elevationUnits);
+  _emscripten_bind_Spot_setRidgeToValleyElevation_2(self, ridgeToValleyElevation, elevationUnits);
 };;
 
-SIGSpot.prototype['setTorchingTrees'] = SIGSpot.prototype.setTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function(torchingTrees) {
+Spot.prototype['setTorchingTrees'] = Spot.prototype.setTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function(torchingTrees) {
   var self = this.ptr;
   if (torchingTrees && typeof torchingTrees === 'object') torchingTrees = torchingTrees.ptr;
-  _emscripten_bind_SIGSpot_setTorchingTrees_1(self, torchingTrees);
+  _emscripten_bind_Spot_setTorchingTrees_1(self, torchingTrees);
 };;
 
-SIGSpot.prototype['setTreeHeight'] = SIGSpot.prototype.setTreeHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(treeHeight, treeHeightUnits) {
+Spot.prototype['setTreeHeight'] = Spot.prototype.setTreeHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(treeHeight, treeHeightUnits) {
   var self = this.ptr;
   if (treeHeight && typeof treeHeight === 'object') treeHeight = treeHeight.ptr;
   if (treeHeightUnits && typeof treeHeightUnits === 'object') treeHeightUnits = treeHeightUnits.ptr;
-  _emscripten_bind_SIGSpot_setTreeHeight_2(self, treeHeight, treeHeightUnits);
+  _emscripten_bind_Spot_setTreeHeight_2(self, treeHeight, treeHeightUnits);
 };;
 
-SIGSpot.prototype['setTreeSpecies'] = SIGSpot.prototype.setTreeSpecies = /** @suppress {undefinedVars, duplicate} @this{Object} */function(treeSpecies) {
+Spot.prototype['setTreeSpecies'] = Spot.prototype.setTreeSpecies = /** @suppress {undefinedVars, duplicate} @this{Object} */function(treeSpecies) {
   var self = this.ptr;
   if (treeSpecies && typeof treeSpecies === 'object') treeSpecies = treeSpecies.ptr;
-  _emscripten_bind_SIGSpot_setTreeSpecies_1(self, treeSpecies);
+  _emscripten_bind_Spot_setTreeSpecies_1(self, treeSpecies);
 };;
 
-SIGSpot.prototype['setWindSpeedAtTwentyFeet'] = SIGSpot.prototype.setWindSpeedAtTwentyFeet = /** @suppress {undefinedVars, duplicate} @this{Object} */function(windSpeedAtTwentyFeet, windSpeedUnits) {
+Spot.prototype['setWindSpeedAtTwentyFeet'] = Spot.prototype.setWindSpeedAtTwentyFeet = /** @suppress {undefinedVars, duplicate} @this{Object} */function(windSpeedAtTwentyFeet, windSpeedUnits) {
   var self = this.ptr;
   if (windSpeedAtTwentyFeet && typeof windSpeedAtTwentyFeet === 'object') windSpeedAtTwentyFeet = windSpeedAtTwentyFeet.ptr;
   if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
-  _emscripten_bind_SIGSpot_setWindSpeedAtTwentyFeet_2(self, windSpeedAtTwentyFeet, windSpeedUnits);
+  _emscripten_bind_Spot_setWindSpeedAtTwentyFeet_2(self, windSpeedAtTwentyFeet, windSpeedUnits);
 };;
 
-SIGSpot.prototype['updateSpotInputsForBurningPile'] = SIGSpot.prototype.updateSpotInputsForBurningPile = /** @suppress {undefinedVars, duplicate} @this{Object} */function(location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, buringPileFlameHeight, flameHeightUnits, windSpeedAtTwentyFeet, windSpeedUnits) {
+Spot.prototype['updateSpotInputsForBurningPile'] = Spot.prototype.updateSpotInputsForBurningPile = /** @suppress {undefinedVars, duplicate} @this{Object} */function(location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, downwindCanopyMode, buringPileFlameHeight, flameHeightUnits, windSpeedAtTwentyFeet, windSpeedUnits) {
   var self = this.ptr;
   if (location && typeof location === 'object') location = location.ptr;
   if (ridgeToValleyDistance && typeof ridgeToValleyDistance === 'object') ridgeToValleyDistance = ridgeToValleyDistance.ptr;
@@ -7331,14 +8012,15 @@ SIGSpot.prototype['updateSpotInputsForBurningPile'] = SIGSpot.prototype.updateSp
   if (elevationUnits && typeof elevationUnits === 'object') elevationUnits = elevationUnits.ptr;
   if (downwindCoverHeight && typeof downwindCoverHeight === 'object') downwindCoverHeight = downwindCoverHeight.ptr;
   if (coverHeightUnits && typeof coverHeightUnits === 'object') coverHeightUnits = coverHeightUnits.ptr;
+  if (downwindCanopyMode && typeof downwindCanopyMode === 'object') downwindCanopyMode = downwindCanopyMode.ptr;
   if (buringPileFlameHeight && typeof buringPileFlameHeight === 'object') buringPileFlameHeight = buringPileFlameHeight.ptr;
   if (flameHeightUnits && typeof flameHeightUnits === 'object') flameHeightUnits = flameHeightUnits.ptr;
   if (windSpeedAtTwentyFeet && typeof windSpeedAtTwentyFeet === 'object') windSpeedAtTwentyFeet = windSpeedAtTwentyFeet.ptr;
   if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
-  _emscripten_bind_SIGSpot_updateSpotInputsForBurningPile_11(self, location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, buringPileFlameHeight, flameHeightUnits, windSpeedAtTwentyFeet, windSpeedUnits);
+  _emscripten_bind_Spot_updateSpotInputsForBurningPile_12(self, location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, downwindCanopyMode, buringPileFlameHeight, flameHeightUnits, windSpeedAtTwentyFeet, windSpeedUnits);
 };;
 
-SIGSpot.prototype['updateSpotInputsForSurfaceFire'] = SIGSpot.prototype.updateSpotInputsForSurfaceFire = /** @suppress {undefinedVars, duplicate} @this{Object} */function(location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, windSpeedAtTwentyFeet, windSpeedUnits, flameLength, flameLengthUnits) {
+Spot.prototype['updateSpotInputsForSurfaceFire'] = Spot.prototype.updateSpotInputsForSurfaceFire = /** @suppress {undefinedVars, duplicate} @this{Object} */function(location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, downwindCanopyMode, windSpeedAtTwentyFeet, windSpeedUnits, flameLength, flameLengthUnits) {
   var self = this.ptr;
   if (location && typeof location === 'object') location = location.ptr;
   if (ridgeToValleyDistance && typeof ridgeToValleyDistance === 'object') ridgeToValleyDistance = ridgeToValleyDistance.ptr;
@@ -7347,14 +8029,15 @@ SIGSpot.prototype['updateSpotInputsForSurfaceFire'] = SIGSpot.prototype.updateSp
   if (elevationUnits && typeof elevationUnits === 'object') elevationUnits = elevationUnits.ptr;
   if (downwindCoverHeight && typeof downwindCoverHeight === 'object') downwindCoverHeight = downwindCoverHeight.ptr;
   if (coverHeightUnits && typeof coverHeightUnits === 'object') coverHeightUnits = coverHeightUnits.ptr;
+  if (downwindCanopyMode && typeof downwindCanopyMode === 'object') downwindCanopyMode = downwindCanopyMode.ptr;
   if (windSpeedAtTwentyFeet && typeof windSpeedAtTwentyFeet === 'object') windSpeedAtTwentyFeet = windSpeedAtTwentyFeet.ptr;
   if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
   if (flameLength && typeof flameLength === 'object') flameLength = flameLength.ptr;
   if (flameLengthUnits && typeof flameLengthUnits === 'object') flameLengthUnits = flameLengthUnits.ptr;
-  _emscripten_bind_SIGSpot_updateSpotInputsForSurfaceFire_11(self, location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, windSpeedAtTwentyFeet, windSpeedUnits, flameLength, flameLengthUnits);
+  _emscripten_bind_Spot_updateSpotInputsForSurfaceFire_12(self, location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, downwindCanopyMode, windSpeedAtTwentyFeet, windSpeedUnits, flameLength, flameLengthUnits);
 };;
 
-SIGSpot.prototype['updateSpotInputsForTorchingTrees'] = SIGSpot.prototype.updateSpotInputsForTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function(location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, torchingTrees, DBH, DBHUnits, treeHeight, treeHeightUnits, treeSpecies, windSpeedAtTwentyFeet, windSpeedUnits) {
+Spot.prototype['updateSpotInputsForTorchingTrees'] = Spot.prototype.updateSpotInputsForTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function(location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, downwindCanopyMode, torchingTrees, DBH, DBHUnits, treeHeight, treeHeightUnits, treeSpecies, windSpeedAtTwentyFeet, windSpeedUnits) {
   var self = this.ptr;
   if (location && typeof location === 'object') location = location.ptr;
   if (ridgeToValleyDistance && typeof ridgeToValleyDistance === 'object') ridgeToValleyDistance = ridgeToValleyDistance.ptr;
@@ -7363,6 +8046,7 @@ SIGSpot.prototype['updateSpotInputsForTorchingTrees'] = SIGSpot.prototype.update
   if (elevationUnits && typeof elevationUnits === 'object') elevationUnits = elevationUnits.ptr;
   if (downwindCoverHeight && typeof downwindCoverHeight === 'object') downwindCoverHeight = downwindCoverHeight.ptr;
   if (coverHeightUnits && typeof coverHeightUnits === 'object') coverHeightUnits = coverHeightUnits.ptr;
+  if (downwindCanopyMode && typeof downwindCanopyMode === 'object') downwindCanopyMode = downwindCanopyMode.ptr;
   if (torchingTrees && typeof torchingTrees === 'object') torchingTrees = torchingTrees.ptr;
   if (DBH && typeof DBH === 'object') DBH = DBH.ptr;
   if (DBHUnits && typeof DBHUnits === 'object') DBHUnits = DBHUnits.ptr;
@@ -7371,164 +8055,12 @@ SIGSpot.prototype['updateSpotInputsForTorchingTrees'] = SIGSpot.prototype.update
   if (treeSpecies && typeof treeSpecies === 'object') treeSpecies = treeSpecies.ptr;
   if (windSpeedAtTwentyFeet && typeof windSpeedAtTwentyFeet === 'object') windSpeedAtTwentyFeet = windSpeedAtTwentyFeet.ptr;
   if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
-  _emscripten_bind_SIGSpot_updateSpotInputsForTorchingTrees_15(self, location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, torchingTrees, DBH, DBHUnits, treeHeight, treeHeightUnits, treeSpecies, windSpeedAtTwentyFeet, windSpeedUnits);
+  _emscripten_bind_Spot_updateSpotInputsForTorchingTrees_16(self, location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, downwindCanopyMode, torchingTrees, DBH, DBHUnits, treeHeight, treeHeightUnits, treeSpecies, windSpeedAtTwentyFeet, windSpeedUnits);
 };;
 
-SIGSpot.prototype['getTorchingTrees'] = SIGSpot.prototype.getTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  Spot.prototype['__destroy__'] = Spot.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  return _emscripten_bind_SIGSpot_getTorchingTrees_0(self);
-};;
-
-SIGSpot.prototype['getLocation'] = SIGSpot.prototype.getLocation = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGSpot_getLocation_0(self);
-};;
-
-SIGSpot.prototype['getTreeSpecies'] = SIGSpot.prototype.getTreeSpecies = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGSpot_getTreeSpecies_0(self);
-};;
-
-SIGSpot.prototype['getBurningPileFlameHeight'] = SIGSpot.prototype.getBurningPileFlameHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameHeightUnits) {
-  var self = this.ptr;
-  if (flameHeightUnits && typeof flameHeightUnits === 'object') flameHeightUnits = flameHeightUnits.ptr;
-  return _emscripten_bind_SIGSpot_getBurningPileFlameHeight_1(self, flameHeightUnits);
-};;
-
-SIGSpot.prototype['getCoverHeightUsedForBurningPile'] = SIGSpot.prototype.getCoverHeightUsedForBurningPile = /** @suppress {undefinedVars, duplicate} @this{Object} */function(coverHeightUnits) {
-  var self = this.ptr;
-  if (coverHeightUnits && typeof coverHeightUnits === 'object') coverHeightUnits = coverHeightUnits.ptr;
-  return _emscripten_bind_SIGSpot_getCoverHeightUsedForBurningPile_1(self, coverHeightUnits);
-};;
-
-SIGSpot.prototype['getCoverHeightUsedForSurfaceFire'] = SIGSpot.prototype.getCoverHeightUsedForSurfaceFire = /** @suppress {undefinedVars, duplicate} @this{Object} */function(coverHeightUnits) {
-  var self = this.ptr;
-  if (coverHeightUnits && typeof coverHeightUnits === 'object') coverHeightUnits = coverHeightUnits.ptr;
-  return _emscripten_bind_SIGSpot_getCoverHeightUsedForSurfaceFire_1(self, coverHeightUnits);
-};;
-
-SIGSpot.prototype['getCoverHeightUsedForTorchingTrees'] = SIGSpot.prototype.getCoverHeightUsedForTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function(coverHeightUnits) {
-  var self = this.ptr;
-  if (coverHeightUnits && typeof coverHeightUnits === 'object') coverHeightUnits = coverHeightUnits.ptr;
-  return _emscripten_bind_SIGSpot_getCoverHeightUsedForTorchingTrees_1(self, coverHeightUnits);
-};;
-
-SIGSpot.prototype['getDBH'] = SIGSpot.prototype.getDBH = /** @suppress {undefinedVars, duplicate} @this{Object} */function(DBHUnits) {
-  var self = this.ptr;
-  if (DBHUnits && typeof DBHUnits === 'object') DBHUnits = DBHUnits.ptr;
-  return _emscripten_bind_SIGSpot_getDBH_1(self, DBHUnits);
-};;
-
-SIGSpot.prototype['getDownwindCoverHeight'] = SIGSpot.prototype.getDownwindCoverHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(coverHeightUnits) {
-  var self = this.ptr;
-  if (coverHeightUnits && typeof coverHeightUnits === 'object') coverHeightUnits = coverHeightUnits.ptr;
-  return _emscripten_bind_SIGSpot_getDownwindCoverHeight_1(self, coverHeightUnits);
-};;
-
-SIGSpot.prototype['getFlameDurationForTorchingTrees'] = SIGSpot.prototype.getFlameDurationForTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function(durationUnits) {
-  var self = this.ptr;
-  if (durationUnits && typeof durationUnits === 'object') durationUnits = durationUnits.ptr;
-  return _emscripten_bind_SIGSpot_getFlameDurationForTorchingTrees_1(self, durationUnits);
-};;
-
-SIGSpot.prototype['getFlameHeightForTorchingTrees'] = SIGSpot.prototype.getFlameHeightForTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameHeightUnits) {
-  var self = this.ptr;
-  if (flameHeightUnits && typeof flameHeightUnits === 'object') flameHeightUnits = flameHeightUnits.ptr;
-  return _emscripten_bind_SIGSpot_getFlameHeightForTorchingTrees_1(self, flameHeightUnits);
-};;
-
-SIGSpot.prototype['getFlameRatioForTorchingTrees'] = SIGSpot.prototype.getFlameRatioForTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGSpot_getFlameRatioForTorchingTrees_0(self);
-};;
-
-SIGSpot.prototype['getMaxFirebrandHeightFromBurningPile'] = SIGSpot.prototype.getMaxFirebrandHeightFromBurningPile = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firebrandHeightUnits) {
-  var self = this.ptr;
-  if (firebrandHeightUnits && typeof firebrandHeightUnits === 'object') firebrandHeightUnits = firebrandHeightUnits.ptr;
-  return _emscripten_bind_SIGSpot_getMaxFirebrandHeightFromBurningPile_1(self, firebrandHeightUnits);
-};;
-
-SIGSpot.prototype['getMaxFirebrandHeightFromSurfaceFire'] = SIGSpot.prototype.getMaxFirebrandHeightFromSurfaceFire = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firebrandHeightUnits) {
-  var self = this.ptr;
-  if (firebrandHeightUnits && typeof firebrandHeightUnits === 'object') firebrandHeightUnits = firebrandHeightUnits.ptr;
-  return _emscripten_bind_SIGSpot_getMaxFirebrandHeightFromSurfaceFire_1(self, firebrandHeightUnits);
-};;
-
-SIGSpot.prototype['getMaxFirebrandHeightFromTorchingTrees'] = SIGSpot.prototype.getMaxFirebrandHeightFromTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firebrandHeightUnits) {
-  var self = this.ptr;
-  if (firebrandHeightUnits && typeof firebrandHeightUnits === 'object') firebrandHeightUnits = firebrandHeightUnits.ptr;
-  return _emscripten_bind_SIGSpot_getMaxFirebrandHeightFromTorchingTrees_1(self, firebrandHeightUnits);
-};;
-
-SIGSpot.prototype['getMaxFlatTerrainSpottingDistanceFromBurningPile'] = SIGSpot.prototype.getMaxFlatTerrainSpottingDistanceFromBurningPile = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spottingDistanceUnits) {
-  var self = this.ptr;
-  if (spottingDistanceUnits && typeof spottingDistanceUnits === 'object') spottingDistanceUnits = spottingDistanceUnits.ptr;
-  return _emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromBurningPile_1(self, spottingDistanceUnits);
-};;
-
-SIGSpot.prototype['getMaxFlatTerrainSpottingDistanceFromSurfaceFire'] = SIGSpot.prototype.getMaxFlatTerrainSpottingDistanceFromSurfaceFire = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spottingDistanceUnits) {
-  var self = this.ptr;
-  if (spottingDistanceUnits && typeof spottingDistanceUnits === 'object') spottingDistanceUnits = spottingDistanceUnits.ptr;
-  return _emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromSurfaceFire_1(self, spottingDistanceUnits);
-};;
-
-SIGSpot.prototype['getMaxFlatTerrainSpottingDistanceFromTorchingTrees'] = SIGSpot.prototype.getMaxFlatTerrainSpottingDistanceFromTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spottingDistanceUnits) {
-  var self = this.ptr;
-  if (spottingDistanceUnits && typeof spottingDistanceUnits === 'object') spottingDistanceUnits = spottingDistanceUnits.ptr;
-  return _emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromTorchingTrees_1(self, spottingDistanceUnits);
-};;
-
-SIGSpot.prototype['getMaxMountainousTerrainSpottingDistanceFromBurningPile'] = SIGSpot.prototype.getMaxMountainousTerrainSpottingDistanceFromBurningPile = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spottingDistanceUnits) {
-  var self = this.ptr;
-  if (spottingDistanceUnits && typeof spottingDistanceUnits === 'object') spottingDistanceUnits = spottingDistanceUnits.ptr;
-  return _emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromBurningPile_1(self, spottingDistanceUnits);
-};;
-
-SIGSpot.prototype['getMaxMountainousTerrainSpottingDistanceFromSurfaceFire'] = SIGSpot.prototype.getMaxMountainousTerrainSpottingDistanceFromSurfaceFire = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spottingDistanceUnits) {
-  var self = this.ptr;
-  if (spottingDistanceUnits && typeof spottingDistanceUnits === 'object') spottingDistanceUnits = spottingDistanceUnits.ptr;
-  return _emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromSurfaceFire_1(self, spottingDistanceUnits);
-};;
-
-SIGSpot.prototype['getMaxMountainousTerrainSpottingDistanceFromTorchingTrees'] = SIGSpot.prototype.getMaxMountainousTerrainSpottingDistanceFromTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spottingDistanceUnits) {
-  var self = this.ptr;
-  if (spottingDistanceUnits && typeof spottingDistanceUnits === 'object') spottingDistanceUnits = spottingDistanceUnits.ptr;
-  return _emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromTorchingTrees_1(self, spottingDistanceUnits);
-};;
-
-SIGSpot.prototype['getRidgeToValleyDistance'] = SIGSpot.prototype.getRidgeToValleyDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ridgeToValleyDistanceUnits) {
-  var self = this.ptr;
-  if (ridgeToValleyDistanceUnits && typeof ridgeToValleyDistanceUnits === 'object') ridgeToValleyDistanceUnits = ridgeToValleyDistanceUnits.ptr;
-  return _emscripten_bind_SIGSpot_getRidgeToValleyDistance_1(self, ridgeToValleyDistanceUnits);
-};;
-
-SIGSpot.prototype['getRidgeToValleyElevation'] = SIGSpot.prototype.getRidgeToValleyElevation = /** @suppress {undefinedVars, duplicate} @this{Object} */function(elevationUnits) {
-  var self = this.ptr;
-  if (elevationUnits && typeof elevationUnits === 'object') elevationUnits = elevationUnits.ptr;
-  return _emscripten_bind_SIGSpot_getRidgeToValleyElevation_1(self, elevationUnits);
-};;
-
-SIGSpot.prototype['getSurfaceFlameLength'] = SIGSpot.prototype.getSurfaceFlameLength = /** @suppress {undefinedVars, duplicate} @this{Object} */function(surfaceFlameLengthUnits) {
-  var self = this.ptr;
-  if (surfaceFlameLengthUnits && typeof surfaceFlameLengthUnits === 'object') surfaceFlameLengthUnits = surfaceFlameLengthUnits.ptr;
-  return _emscripten_bind_SIGSpot_getSurfaceFlameLength_1(self, surfaceFlameLengthUnits);
-};;
-
-SIGSpot.prototype['getTreeHeight'] = SIGSpot.prototype.getTreeHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(treeHeightUnits) {
-  var self = this.ptr;
-  if (treeHeightUnits && typeof treeHeightUnits === 'object') treeHeightUnits = treeHeightUnits.ptr;
-  return _emscripten_bind_SIGSpot_getTreeHeight_1(self, treeHeightUnits);
-};;
-
-SIGSpot.prototype['getWindSpeedAtTwentyFeet'] = SIGSpot.prototype.getWindSpeedAtTwentyFeet = /** @suppress {undefinedVars, duplicate} @this{Object} */function(windSpeedUnits) {
-  var self = this.ptr;
-  if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
-  return _emscripten_bind_SIGSpot_getWindSpeedAtTwentyFeet_1(self, windSpeedUnits);
-};;
-
-  SIGSpot.prototype['__destroy__'] = SIGSpot.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  _emscripten_bind_SIGSpot___destroy___0(self);
+  _emscripten_bind_Spot___destroy___0(self);
 };
 // SIGFuelModels
 /** @suppress {undefinedVars, duplicate} @this{Object} */function SIGFuelModels(rhs) {
@@ -7561,16 +8093,28 @@ SIGFuelModels.prototype['getIsDynamic'] = SIGFuelModels.prototype.getIsDynamic =
   return !!(_emscripten_bind_SIGFuelModels_getIsDynamic_1(self, fuelModelNumber));
 };;
 
+SIGFuelModels.prototype['isAllFuelLoadZero'] = SIGFuelModels.prototype.isAllFuelLoadZero = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber) {
+  var self = this.ptr;
+  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
+  return !!(_emscripten_bind_SIGFuelModels_isAllFuelLoadZero_1(self, fuelModelNumber));
+};;
+
 SIGFuelModels.prototype['isFuelModelDefined'] = SIGFuelModels.prototype.isFuelModelDefined = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber) {
   var self = this.ptr;
   if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
   return !!(_emscripten_bind_SIGFuelModels_isFuelModelDefined_1(self, fuelModelNumber));
 };;
 
-SIGFuelModels.prototype['setCustomFuelModel'] = SIGFuelModels.prototype.setCustomFuelModel = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumberIn, code, name, fuelBedDepth, lengthUnits, moistureOfExtinctionDead, moistureUnits, heatOfCombustionDead, heatOfCombustionLive, heatOfCombustionUnits, fuelLoadOneHour, fuelLoadTenHour, fuelLoadHundredHour, fuelLoadLiveHerbaceous, fuelLoadLiveWoody, loadingUnits, savrOneHour, savrLiveHerbaceous, savrLiveWoody, savrUnits, isDynamic) {
+SIGFuelModels.prototype['isFuelModelReserved'] = SIGFuelModels.prototype.isFuelModelReserved = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber) {
+  var self = this.ptr;
+  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
+  return !!(_emscripten_bind_SIGFuelModels_isFuelModelReserved_1(self, fuelModelNumber));
+};;
+
+SIGFuelModels.prototype['setCustomFuelModel'] = SIGFuelModels.prototype.setCustomFuelModel = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, code, name, fuelBedDepth, lengthUnits, moistureOfExtinctionDead, moistureUnits, heatOfCombustionDead, heatOfCombustionLive, heatOfCombustionUnits, fuelLoadOneHour, fuelLoadTenHour, fuelLoadHundredHour, fuelLoadLiveHerbaceous, fuelLoadLiveWoody, loadingUnits, savrOneHour, savrLiveHerbaceous, savrLiveWoody, savrUnits, isDynamic) {
   var self = this.ptr;
   ensureCache.prepare();
-  if (fuelModelNumberIn && typeof fuelModelNumberIn === 'object') fuelModelNumberIn = fuelModelNumberIn.ptr;
+  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
   if (code && typeof code === 'object') code = code.ptr;
   else code = ensureString(code);
   if (name && typeof name === 'object') name = name.ptr;
@@ -7593,7 +8137,7 @@ SIGFuelModels.prototype['setCustomFuelModel'] = SIGFuelModels.prototype.setCusto
   if (savrLiveWoody && typeof savrLiveWoody === 'object') savrLiveWoody = savrLiveWoody.ptr;
   if (savrUnits && typeof savrUnits === 'object') savrUnits = savrUnits.ptr;
   if (isDynamic && typeof isDynamic === 'object') isDynamic = isDynamic.ptr;
-  return !!(_emscripten_bind_SIGFuelModels_setCustomFuelModel_21(self, fuelModelNumberIn, code, name, fuelBedDepth, lengthUnits, moistureOfExtinctionDead, moistureUnits, heatOfCombustionDead, heatOfCombustionLive, heatOfCombustionUnits, fuelLoadOneHour, fuelLoadTenHour, fuelLoadHundredHour, fuelLoadLiveHerbaceous, fuelLoadLiveWoody, loadingUnits, savrOneHour, savrLiveHerbaceous, savrLiveWoody, savrUnits, isDynamic));
+  return !!(_emscripten_bind_SIGFuelModels_setCustomFuelModel_21(self, fuelModelNumber, code, name, fuelBedDepth, lengthUnits, moistureOfExtinctionDead, moistureUnits, heatOfCombustionDead, heatOfCombustionLive, heatOfCombustionUnits, fuelLoadOneHour, fuelLoadTenHour, fuelLoadHundredHour, fuelLoadLiveHerbaceous, fuelLoadLiveWoody, loadingUnits, savrOneHour, savrLiveHerbaceous, savrLiveWoody, savrUnits, isDynamic));
 };;
 
 SIGFuelModels.prototype['getFuelCode'] = SIGFuelModels.prototype.getFuelCode = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber) {
@@ -7657,13 +8201,6 @@ SIGFuelModels.prototype['getHeatOfCombustionDead'] = SIGFuelModels.prototype.get
   return _emscripten_bind_SIGFuelModels_getHeatOfCombustionDead_2(self, fuelModelNumber, heatOfCombustionUnits);
 };;
 
-SIGFuelModels.prototype['getHeatOfCombustionLive'] = SIGFuelModels.prototype.getHeatOfCombustionLive = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, heatOfCombustionUnits) {
-  var self = this.ptr;
-  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
-  if (heatOfCombustionUnits && typeof heatOfCombustionUnits === 'object') heatOfCombustionUnits = heatOfCombustionUnits.ptr;
-  return _emscripten_bind_SIGFuelModels_getHeatOfCombustionLive_2(self, fuelModelNumber, heatOfCombustionUnits);
-};;
-
 SIGFuelModels.prototype['getMoistureOfExtinctionDead'] = SIGFuelModels.prototype.getMoistureOfExtinctionDead = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, moistureUnits) {
   var self = this.ptr;
   if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
@@ -7692,6 +8229,13 @@ SIGFuelModels.prototype['getSavrOneHour'] = SIGFuelModels.prototype.getSavrOneHo
   return _emscripten_bind_SIGFuelModels_getSavrOneHour_2(self, fuelModelNumber, savrUnits);
 };;
 
+SIGFuelModels.prototype['getHeatOfCombustionLive'] = SIGFuelModels.prototype.getHeatOfCombustionLive = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, heatOfCombustionUnits) {
+  var self = this.ptr;
+  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
+  if (heatOfCombustionUnits && typeof heatOfCombustionUnits === 'object') heatOfCombustionUnits = heatOfCombustionUnits.ptr;
+  return _emscripten_bind_SIGFuelModels_getHeatOfCombustionLive_2(self, fuelModelNumber, heatOfCombustionUnits);
+};;
+
   SIGFuelModels.prototype['__destroy__'] = SIGFuelModels.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   _emscripten_bind_SIGFuelModels___destroy___0(self);
@@ -7708,20 +8252,14 @@ SIGSurface.prototype.__class__ = SIGSurface;
 SIGSurface.__cache__ = {};
 Module['SIGSurface'] = SIGSurface;
 
-SIGSurface.prototype['initializeMembers'] = SIGSurface.prototype.initializeMembers = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+SIGSurface.prototype['getAspenFireSeverity'] = SIGSurface.prototype.getAspenFireSeverity = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  _emscripten_bind_SIGSurface_initializeMembers_0(self);
+  return _emscripten_bind_SIGSurface_getAspenFireSeverity_0(self);
 };;
 
-SIGSurface.prototype['doSurfaceRunInDirectionOfInterest'] = SIGSurface.prototype.doSurfaceRunInDirectionOfInterest = /** @suppress {undefinedVars, duplicate} @this{Object} */function(directionOfinterest) {
+SIGSurface.prototype['getMoistureInputMode'] = SIGSurface.prototype.getMoistureInputMode = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  if (directionOfinterest && typeof directionOfinterest === 'object') directionOfinterest = directionOfinterest.ptr;
-  _emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfInterest_1(self, directionOfinterest);
-};;
-
-SIGSurface.prototype['doSurfaceRunInDirectionOfMaxSpread'] = SIGSurface.prototype.doSurfaceRunInDirectionOfMaxSpread = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  _emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfMaxSpread_0(self);
+  return _emscripten_bind_SIGSurface_getMoistureInputMode_0(self);
 };;
 
 SIGSurface.prototype['getWindAdjustmentFactorCalculationMethod'] = SIGSurface.prototype.getWindAdjustmentFactorCalculationMethod = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
@@ -7739,10 +8277,58 @@ SIGSurface.prototype['getWindHeightInputMode'] = SIGSurface.prototype.getWindHei
   return _emscripten_bind_SIGSurface_getWindHeightInputMode_0(self);
 };;
 
+SIGSurface.prototype['getIsMoistureScenarioDefinedByIndex'] = SIGSurface.prototype.getIsMoistureScenarioDefinedByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+  var self = this.ptr;
+  if (index && typeof index === 'object') index = index.ptr;
+  return !!(_emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByIndex_1(self, index));
+};;
+
+SIGSurface.prototype['getIsMoistureScenarioDefinedByName'] = SIGSurface.prototype.getIsMoistureScenarioDefinedByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
+  var self = this.ptr;
+  ensureCache.prepare();
+  if (name && typeof name === 'object') name = name.ptr;
+  else name = ensureString(name);
+  return !!(_emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByName_1(self, name));
+};;
+
+SIGSurface.prototype['getIsUsingPalmettoGallberry'] = SIGSurface.prototype.getIsUsingPalmettoGallberry = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return !!(_emscripten_bind_SIGSurface_getIsUsingPalmettoGallberry_0(self));
+};;
+
+SIGSurface.prototype['getIsUsingWesternAspen'] = SIGSurface.prototype.getIsUsingWesternAspen = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return !!(_emscripten_bind_SIGSurface_getIsUsingWesternAspen_0(self));
+};;
+
 SIGSurface.prototype['isAllFuelLoadZero'] = SIGSurface.prototype.isAllFuelLoadZero = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber) {
   var self = this.ptr;
   if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
   return !!(_emscripten_bind_SIGSurface_isAllFuelLoadZero_1(self, fuelModelNumber));
+};;
+
+SIGSurface.prototype['isFuelDynamic'] = SIGSurface.prototype.isFuelDynamic = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber) {
+  var self = this.ptr;
+  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
+  return !!(_emscripten_bind_SIGSurface_isFuelDynamic_1(self, fuelModelNumber));
+};;
+
+SIGSurface.prototype['isFuelModelDefined'] = SIGSurface.prototype.isFuelModelDefined = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber) {
+  var self = this.ptr;
+  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
+  return !!(_emscripten_bind_SIGSurface_isFuelModelDefined_1(self, fuelModelNumber));
+};;
+
+SIGSurface.prototype['isFuelModelReserved'] = SIGSurface.prototype.isFuelModelReserved = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber) {
+  var self = this.ptr;
+  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
+  return !!(_emscripten_bind_SIGSurface_isFuelModelReserved_1(self, fuelModelNumber));
+};;
+
+SIGSurface.prototype['isMoistureClassInputNeededForCurrentFuelModel'] = SIGSurface.prototype.isMoistureClassInputNeededForCurrentFuelModel = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureClass) {
+  var self = this.ptr;
+  if (moistureClass && typeof moistureClass === 'object') moistureClass = moistureClass.ptr;
+  return !!(_emscripten_bind_SIGSurface_isMoistureClassInputNeededForCurrentFuelModel_1(self, moistureClass));
 };;
 
 SIGSurface.prototype['isUsingTwoFuelModels'] = SIGSurface.prototype.isUsingTwoFuelModels = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
@@ -7750,15 +8336,74 @@ SIGSurface.prototype['isUsingTwoFuelModels'] = SIGSurface.prototype.isUsingTwoFu
   return !!(_emscripten_bind_SIGSurface_isUsingTwoFuelModels_0(self));
 };;
 
-SIGSurface.prototype['calculateFlameLength'] = SIGSurface.prototype.calculateFlameLength = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firelineIntensity) {
+SIGSurface.prototype['setMoistureScenarioByIndex'] = SIGSurface.prototype.setMoistureScenarioByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureScenarioIndex) {
+  var self = this.ptr;
+  if (moistureScenarioIndex && typeof moistureScenarioIndex === 'object') moistureScenarioIndex = moistureScenarioIndex.ptr;
+  return !!(_emscripten_bind_SIGSurface_setMoistureScenarioByIndex_1(self, moistureScenarioIndex));
+};;
+
+SIGSurface.prototype['setMoistureScenarioByName'] = SIGSurface.prototype.setMoistureScenarioByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureScenarioName) {
+  var self = this.ptr;
+  ensureCache.prepare();
+  if (moistureScenarioName && typeof moistureScenarioName === 'object') moistureScenarioName = moistureScenarioName.ptr;
+  else moistureScenarioName = ensureString(moistureScenarioName);
+  return !!(_emscripten_bind_SIGSurface_setMoistureScenarioByName_1(self, moistureScenarioName));
+};;
+
+SIGSurface.prototype['calculateFlameLength'] = SIGSurface.prototype.calculateFlameLength = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firelineIntensity, firelineIntensityUnits, flameLengthUnits) {
   var self = this.ptr;
   if (firelineIntensity && typeof firelineIntensity === 'object') firelineIntensity = firelineIntensity.ptr;
-  return _emscripten_bind_SIGSurface_calculateFlameLength_1(self, firelineIntensity);
+  if (firelineIntensityUnits && typeof firelineIntensityUnits === 'object') firelineIntensityUnits = firelineIntensityUnits.ptr;
+  if (flameLengthUnits && typeof flameLengthUnits === 'object') flameLengthUnits = flameLengthUnits.ptr;
+  return _emscripten_bind_SIGSurface_calculateFlameLength_3(self, firelineIntensity, firelineIntensityUnits, flameLengthUnits);
+};;
+
+SIGSurface.prototype['calculateScorchHeight'] = SIGSurface.prototype.calculateScorchHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firelineIntensity, firelineIntensityUnits, midFlameWindSpeed, windSpeedUnits, airTemperature, temperatureUnits, scorchHeightUnits) {
+  var self = this.ptr;
+  if (firelineIntensity && typeof firelineIntensity === 'object') firelineIntensity = firelineIntensity.ptr;
+  if (firelineIntensityUnits && typeof firelineIntensityUnits === 'object') firelineIntensityUnits = firelineIntensityUnits.ptr;
+  if (midFlameWindSpeed && typeof midFlameWindSpeed === 'object') midFlameWindSpeed = midFlameWindSpeed.ptr;
+  if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
+  if (airTemperature && typeof airTemperature === 'object') airTemperature = airTemperature.ptr;
+  if (temperatureUnits && typeof temperatureUnits === 'object') temperatureUnits = temperatureUnits.ptr;
+  if (scorchHeightUnits && typeof scorchHeightUnits === 'object') scorchHeightUnits = scorchHeightUnits.ptr;
+  return _emscripten_bind_SIGSurface_calculateScorchHeight_7(self, firelineIntensity, firelineIntensityUnits, midFlameWindSpeed, windSpeedUnits, airTemperature, temperatureUnits, scorchHeightUnits);
+};;
+
+SIGSurface.prototype['getAgeOfRough'] = SIGSurface.prototype.getAgeOfRough = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGSurface_getAgeOfRough_0(self);
 };;
 
 SIGSurface.prototype['getAspect'] = SIGSurface.prototype.getAspect = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   return _emscripten_bind_SIGSurface_getAspect_0(self);
+};;
+
+SIGSurface.prototype['getAspenCuringLevel'] = SIGSurface.prototype.getAspenCuringLevel = /** @suppress {undefinedVars, duplicate} @this{Object} */function(curingLevelUnits) {
+  var self = this.ptr;
+  if (curingLevelUnits && typeof curingLevelUnits === 'object') curingLevelUnits = curingLevelUnits.ptr;
+  return _emscripten_bind_SIGSurface_getAspenCuringLevel_1(self, curingLevelUnits);
+};;
+
+SIGSurface.prototype['getAspenDBH'] = SIGSurface.prototype.getAspenDBH = /** @suppress {undefinedVars, duplicate} @this{Object} */function(dbhUnits) {
+  var self = this.ptr;
+  if (dbhUnits && typeof dbhUnits === 'object') dbhUnits = dbhUnits.ptr;
+  return _emscripten_bind_SIGSurface_getAspenDBH_1(self, dbhUnits);
+};;
+
+SIGSurface.prototype['getBackingSpreadDistance'] = SIGSurface.prototype.getBackingSpreadDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
+  var self = this.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
+  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
+  return _emscripten_bind_SIGSurface_getBackingSpreadDistance_3(self, lengthUnits, elapsedTime, timeUnits);
+};;
+
+SIGSurface.prototype['getBackingSpreadRate'] = SIGSurface.prototype.getBackingSpreadRate = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spreadRateUnits) {
+  var self = this.ptr;
+  if (spreadRateUnits && typeof spreadRateUnits === 'object') spreadRateUnits = spreadRateUnits.ptr;
+  return _emscripten_bind_SIGSurface_getBackingSpreadRate_1(self, spreadRateUnits);
 };;
 
 SIGSurface.prototype['getBulkDensity'] = SIGSurface.prototype.getBulkDensity = /** @suppress {undefinedVars, duplicate} @this{Object} */function(densityUnits) {
@@ -7777,6 +8422,19 @@ SIGSurface.prototype['getCanopyHeight'] = SIGSurface.prototype.getCanopyHeight =
   var self = this.ptr;
   if (canopyHeightUnits && typeof canopyHeightUnits === 'object') canopyHeightUnits = canopyHeightUnits.ptr;
   return _emscripten_bind_SIGSurface_getCanopyHeight_1(self, canopyHeightUnits);
+};;
+
+SIGSurface.prototype['getCharacteristicMoistureByLifeState'] = SIGSurface.prototype.getCharacteristicMoistureByLifeState = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lifeState, moistureUnits) {
+  var self = this.ptr;
+  if (lifeState && typeof lifeState === 'object') lifeState = lifeState.ptr;
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGSurface_getCharacteristicMoistureByLifeState_2(self, lifeState, moistureUnits);
+};;
+
+SIGSurface.prototype['getCharacteristicSAVR'] = SIGSurface.prototype.getCharacteristicSAVR = /** @suppress {undefinedVars, duplicate} @this{Object} */function(savrUnits) {
+  var self = this.ptr;
+  if (savrUnits && typeof savrUnits === 'object') savrUnits = savrUnits.ptr;
+  return _emscripten_bind_SIGSurface_getCharacteristicSAVR_1(self, savrUnits);
 };;
 
 SIGSurface.prototype['getCrownRatio'] = SIGSurface.prototype.getCrownRatio = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
@@ -7851,6 +8509,109 @@ SIGSurface.prototype['getFlameLength'] = SIGSurface.prototype.getFlameLength = /
   return _emscripten_bind_SIGSurface_getFlameLength_1(self, flameLengthUnits);
 };;
 
+SIGSurface.prototype['getFlankingSpreadDistance'] = SIGSurface.prototype.getFlankingSpreadDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
+  var self = this.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
+  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
+  return _emscripten_bind_SIGSurface_getFlankingSpreadDistance_3(self, lengthUnits, elapsedTime, timeUnits);
+};;
+
+SIGSurface.prototype['getFlankingSpreadRate'] = SIGSurface.prototype.getFlankingSpreadRate = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spreadRateUnits) {
+  var self = this.ptr;
+  if (spreadRateUnits && typeof spreadRateUnits === 'object') spreadRateUnits = spreadRateUnits.ptr;
+  return _emscripten_bind_SIGSurface_getFlankingSpreadRate_1(self, spreadRateUnits);
+};;
+
+SIGSurface.prototype['getFuelHeatOfCombustionDead'] = SIGSurface.prototype.getFuelHeatOfCombustionDead = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, heatOfCombustionUnits) {
+  var self = this.ptr;
+  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
+  if (heatOfCombustionUnits && typeof heatOfCombustionUnits === 'object') heatOfCombustionUnits = heatOfCombustionUnits.ptr;
+  return _emscripten_bind_SIGSurface_getFuelHeatOfCombustionDead_2(self, fuelModelNumber, heatOfCombustionUnits);
+};;
+
+SIGSurface.prototype['getFuelHeatOfCombustionLive'] = SIGSurface.prototype.getFuelHeatOfCombustionLive = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, heatOfCombustionUnits) {
+  var self = this.ptr;
+  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
+  if (heatOfCombustionUnits && typeof heatOfCombustionUnits === 'object') heatOfCombustionUnits = heatOfCombustionUnits.ptr;
+  return _emscripten_bind_SIGSurface_getFuelHeatOfCombustionLive_2(self, fuelModelNumber, heatOfCombustionUnits);
+};;
+
+SIGSurface.prototype['getFuelLoadHundredHour'] = SIGSurface.prototype.getFuelLoadHundredHour = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, loadingUnits) {
+  var self = this.ptr;
+  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
+  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
+  return _emscripten_bind_SIGSurface_getFuelLoadHundredHour_2(self, fuelModelNumber, loadingUnits);
+};;
+
+SIGSurface.prototype['getFuelLoadLiveHerbaceous'] = SIGSurface.prototype.getFuelLoadLiveHerbaceous = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, loadingUnits) {
+  var self = this.ptr;
+  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
+  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
+  return _emscripten_bind_SIGSurface_getFuelLoadLiveHerbaceous_2(self, fuelModelNumber, loadingUnits);
+};;
+
+SIGSurface.prototype['getFuelLoadLiveWoody'] = SIGSurface.prototype.getFuelLoadLiveWoody = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, loadingUnits) {
+  var self = this.ptr;
+  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
+  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
+  return _emscripten_bind_SIGSurface_getFuelLoadLiveWoody_2(self, fuelModelNumber, loadingUnits);
+};;
+
+SIGSurface.prototype['getFuelLoadOneHour'] = SIGSurface.prototype.getFuelLoadOneHour = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, loadingUnits) {
+  var self = this.ptr;
+  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
+  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
+  return _emscripten_bind_SIGSurface_getFuelLoadOneHour_2(self, fuelModelNumber, loadingUnits);
+};;
+
+SIGSurface.prototype['getFuelLoadTenHour'] = SIGSurface.prototype.getFuelLoadTenHour = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, loadingUnits) {
+  var self = this.ptr;
+  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
+  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
+  return _emscripten_bind_SIGSurface_getFuelLoadTenHour_2(self, fuelModelNumber, loadingUnits);
+};;
+
+SIGSurface.prototype['getFuelMoistureOfExtinctionDead'] = SIGSurface.prototype.getFuelMoistureOfExtinctionDead = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, moistureUnits) {
+  var self = this.ptr;
+  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGSurface_getFuelMoistureOfExtinctionDead_2(self, fuelModelNumber, moistureUnits);
+};;
+
+SIGSurface.prototype['getFuelSavrLiveHerbaceous'] = SIGSurface.prototype.getFuelSavrLiveHerbaceous = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, savrUnits) {
+  var self = this.ptr;
+  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
+  if (savrUnits && typeof savrUnits === 'object') savrUnits = savrUnits.ptr;
+  return _emscripten_bind_SIGSurface_getFuelSavrLiveHerbaceous_2(self, fuelModelNumber, savrUnits);
+};;
+
+SIGSurface.prototype['getFuelSavrLiveWoody'] = SIGSurface.prototype.getFuelSavrLiveWoody = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, savrUnits) {
+  var self = this.ptr;
+  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
+  if (savrUnits && typeof savrUnits === 'object') savrUnits = savrUnits.ptr;
+  return _emscripten_bind_SIGSurface_getFuelSavrLiveWoody_2(self, fuelModelNumber, savrUnits);
+};;
+
+SIGSurface.prototype['getFuelSavrOneHour'] = SIGSurface.prototype.getFuelSavrOneHour = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, savrUnits) {
+  var self = this.ptr;
+  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
+  if (savrUnits && typeof savrUnits === 'object') savrUnits = savrUnits.ptr;
+  return _emscripten_bind_SIGSurface_getFuelSavrOneHour_2(self, fuelModelNumber, savrUnits);
+};;
+
+SIGSurface.prototype['getFuelbedDepth'] = SIGSurface.prototype.getFuelbedDepth = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, lengthUnits) {
+  var self = this.ptr;
+  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  return _emscripten_bind_SIGSurface_getFuelbedDepth_2(self, fuelModelNumber, lengthUnits);
+};;
+
+SIGSurface.prototype['getHeadingToBackingRatio'] = SIGSurface.prototype.getHeadingToBackingRatio = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGSurface_getHeadingToBackingRatio_0(self);
+};;
+
 SIGSurface.prototype['getHeatPerUnitArea'] = SIGSurface.prototype.getHeatPerUnitArea = /** @suppress {undefinedVars, duplicate} @this{Object} */function(heatPerUnitAreaUnits) {
   var self = this.ptr;
   if (heatPerUnitAreaUnits && typeof heatPerUnitAreaUnits === 'object') heatPerUnitAreaUnits = heatPerUnitAreaUnits.ptr;
@@ -7863,16 +8624,46 @@ SIGSurface.prototype['getHeatSink'] = SIGSurface.prototype.getHeatSink = /** @su
   return _emscripten_bind_SIGSurface_getHeatSink_1(self, heatSinkUnits);
 };;
 
+SIGSurface.prototype['getHeatSource'] = SIGSurface.prototype.getHeatSource = /** @suppress {undefinedVars, duplicate} @this{Object} */function(heatSourceUnits) {
+  var self = this.ptr;
+  if (heatSourceUnits && typeof heatSourceUnits === 'object') heatSourceUnits = heatSourceUnits.ptr;
+  return _emscripten_bind_SIGSurface_getHeatSource_1(self, heatSourceUnits);
+};;
+
+SIGSurface.prototype['getHeightOfUnderstory'] = SIGSurface.prototype.getHeightOfUnderstory = /** @suppress {undefinedVars, duplicate} @this{Object} */function(heightUnits) {
+  var self = this.ptr;
+  if (heightUnits && typeof heightUnits === 'object') heightUnits = heightUnits.ptr;
+  return _emscripten_bind_SIGSurface_getHeightOfUnderstory_1(self, heightUnits);
+};;
+
+SIGSurface.prototype['getLiveFuelMoistureOfExtinction'] = SIGSurface.prototype.getLiveFuelMoistureOfExtinction = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureUnits) {
+  var self = this.ptr;
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGSurface_getLiveFuelMoistureOfExtinction_1(self, moistureUnits);
+};;
+
 SIGSurface.prototype['getMidflameWindspeed'] = SIGSurface.prototype.getMidflameWindspeed = /** @suppress {undefinedVars, duplicate} @this{Object} */function(windSpeedUnits) {
   var self = this.ptr;
   if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
   return _emscripten_bind_SIGSurface_getMidflameWindspeed_1(self, windSpeedUnits);
 };;
 
+SIGSurface.prototype['getMoistureDeadAggregateValue'] = SIGSurface.prototype.getMoistureDeadAggregateValue = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureUnits) {
+  var self = this.ptr;
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGSurface_getMoistureDeadAggregateValue_1(self, moistureUnits);
+};;
+
 SIGSurface.prototype['getMoistureHundredHour'] = SIGSurface.prototype.getMoistureHundredHour = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureUnits) {
   var self = this.ptr;
   if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
   return _emscripten_bind_SIGSurface_getMoistureHundredHour_1(self, moistureUnits);
+};;
+
+SIGSurface.prototype['getMoistureLiveAggregateValue'] = SIGSurface.prototype.getMoistureLiveAggregateValue = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureUnits) {
+  var self = this.ptr;
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGSurface_getMoistureLiveAggregateValue_1(self, moistureUnits);
 };;
 
 SIGSurface.prototype['getMoistureLiveHerbaceous'] = SIGSurface.prototype.getMoistureLiveHerbaceous = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureUnits) {
@@ -7893,10 +8684,92 @@ SIGSurface.prototype['getMoistureOneHour'] = SIGSurface.prototype.getMoistureOne
   return _emscripten_bind_SIGSurface_getMoistureOneHour_1(self, moistureUnits);
 };;
 
+SIGSurface.prototype['getMoistureScenarioHundredHourByIndex'] = SIGSurface.prototype.getMoistureScenarioHundredHourByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+  var self = this.ptr;
+  if (index && typeof index === 'object') index = index.ptr;
+  return _emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByIndex_1(self, index);
+};;
+
+SIGSurface.prototype['getMoistureScenarioHundredHourByName'] = SIGSurface.prototype.getMoistureScenarioHundredHourByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
+  var self = this.ptr;
+  ensureCache.prepare();
+  if (name && typeof name === 'object') name = name.ptr;
+  else name = ensureString(name);
+  return _emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByName_1(self, name);
+};;
+
+SIGSurface.prototype['getMoistureScenarioLiveHerbaceousByIndex'] = SIGSurface.prototype.getMoistureScenarioLiveHerbaceousByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+  var self = this.ptr;
+  if (index && typeof index === 'object') index = index.ptr;
+  return _emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByIndex_1(self, index);
+};;
+
+SIGSurface.prototype['getMoistureScenarioLiveHerbaceousByName'] = SIGSurface.prototype.getMoistureScenarioLiveHerbaceousByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
+  var self = this.ptr;
+  ensureCache.prepare();
+  if (name && typeof name === 'object') name = name.ptr;
+  else name = ensureString(name);
+  return _emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByName_1(self, name);
+};;
+
+SIGSurface.prototype['getMoistureScenarioLiveWoodyByIndex'] = SIGSurface.prototype.getMoistureScenarioLiveWoodyByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+  var self = this.ptr;
+  if (index && typeof index === 'object') index = index.ptr;
+  return _emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByIndex_1(self, index);
+};;
+
+SIGSurface.prototype['getMoistureScenarioLiveWoodyByName'] = SIGSurface.prototype.getMoistureScenarioLiveWoodyByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
+  var self = this.ptr;
+  ensureCache.prepare();
+  if (name && typeof name === 'object') name = name.ptr;
+  else name = ensureString(name);
+  return _emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByName_1(self, name);
+};;
+
+SIGSurface.prototype['getMoistureScenarioOneHourByIndex'] = SIGSurface.prototype.getMoistureScenarioOneHourByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+  var self = this.ptr;
+  if (index && typeof index === 'object') index = index.ptr;
+  return _emscripten_bind_SIGSurface_getMoistureScenarioOneHourByIndex_1(self, index);
+};;
+
+SIGSurface.prototype['getMoistureScenarioOneHourByName'] = SIGSurface.prototype.getMoistureScenarioOneHourByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
+  var self = this.ptr;
+  ensureCache.prepare();
+  if (name && typeof name === 'object') name = name.ptr;
+  else name = ensureString(name);
+  return _emscripten_bind_SIGSurface_getMoistureScenarioOneHourByName_1(self, name);
+};;
+
+SIGSurface.prototype['getMoistureScenarioTenHourByIndex'] = SIGSurface.prototype.getMoistureScenarioTenHourByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+  var self = this.ptr;
+  if (index && typeof index === 'object') index = index.ptr;
+  return _emscripten_bind_SIGSurface_getMoistureScenarioTenHourByIndex_1(self, index);
+};;
+
+SIGSurface.prototype['getMoistureScenarioTenHourByName'] = SIGSurface.prototype.getMoistureScenarioTenHourByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
+  var self = this.ptr;
+  ensureCache.prepare();
+  if (name && typeof name === 'object') name = name.ptr;
+  else name = ensureString(name);
+  return _emscripten_bind_SIGSurface_getMoistureScenarioTenHourByName_1(self, name);
+};;
+
 SIGSurface.prototype['getMoistureTenHour'] = SIGSurface.prototype.getMoistureTenHour = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureUnits) {
   var self = this.ptr;
   if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
   return _emscripten_bind_SIGSurface_getMoistureTenHour_1(self, moistureUnits);
+};;
+
+SIGSurface.prototype['getOverstoryBasalArea'] = SIGSurface.prototype.getOverstoryBasalArea = /** @suppress {undefinedVars, duplicate} @this{Object} */function(basalAreaUnits) {
+  var self = this.ptr;
+  if (basalAreaUnits && typeof basalAreaUnits === 'object') basalAreaUnits = basalAreaUnits.ptr;
+  return _emscripten_bind_SIGSurface_getOverstoryBasalArea_1(self, basalAreaUnits);
+};;
+
+SIGSurface.prototype['getPalmettoCoverage'] = SIGSurface.prototype.getPalmettoCoverage = /** @suppress {undefinedVars, duplicate} @this{Object} */function(coverUnits) {
+  var self = this.ptr;
+  if (coverUnits && typeof coverUnits === 'object') coverUnits = coverUnits.ptr;
+  return _emscripten_bind_SIGSurface_getPalmettoCoverage_1(self, coverUnits);
 };;
 
 SIGSurface.prototype['getReactionIntensity'] = SIGSurface.prototype.getReactionIntensity = /** @suppress {undefinedVars, duplicate} @this{Object} */function(reactiontionIntensityUnits) {
@@ -7922,6 +8795,22 @@ SIGSurface.prototype['getSlopeFactor'] = SIGSurface.prototype.getSlopeFactor = /
   return _emscripten_bind_SIGSurface_getSlopeFactor_0(self);
 };;
 
+SIGSurface.prototype['getSpreadDistance'] = SIGSurface.prototype.getSpreadDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
+  var self = this.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
+  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
+  return _emscripten_bind_SIGSurface_getSpreadDistance_3(self, lengthUnits, elapsedTime, timeUnits);
+};;
+
+SIGSurface.prototype['getSpreadDistanceInDirectionOfInterest'] = SIGSurface.prototype.getSpreadDistanceInDirectionOfInterest = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
+  var self = this.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
+  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
+  return _emscripten_bind_SIGSurface_getSpreadDistanceInDirectionOfInterest_3(self, lengthUnits, elapsedTime, timeUnits);
+};;
+
 SIGSurface.prototype['getSpreadRate'] = SIGSurface.prototype.getSpreadRate = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spreadRateUnits) {
   var self = this.ptr;
   if (spreadRateUnits && typeof spreadRateUnits === 'object') spreadRateUnits = spreadRateUnits.ptr;
@@ -7932,6 +8821,12 @@ SIGSurface.prototype['getSpreadRateInDirectionOfInterest'] = SIGSurface.prototyp
   var self = this.ptr;
   if (spreadRateUnits && typeof spreadRateUnits === 'object') spreadRateUnits = spreadRateUnits.ptr;
   return _emscripten_bind_SIGSurface_getSpreadRateInDirectionOfInterest_1(self, spreadRateUnits);
+};;
+
+SIGSurface.prototype['getSurfaceFireReactionIntensityForLifeState'] = SIGSurface.prototype.getSurfaceFireReactionIntensityForLifeState = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lifeState) {
+  var self = this.ptr;
+  if (lifeState && typeof lifeState === 'object') lifeState = lifeState.ptr;
+  return _emscripten_bind_SIGSurface_getSurfaceFireReactionIntensityForLifeState_1(self, lifeState);
 };;
 
 SIGSurface.prototype['getWindDirection'] = SIGSurface.prototype.getWindDirection = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
@@ -7946,15 +8841,114 @@ SIGSurface.prototype['getWindSpeed'] = SIGSurface.prototype.getWindSpeed = /** @
   return _emscripten_bind_SIGSurface_getWindSpeed_2(self, windSpeedUnits, windHeightInputMode);
 };;
 
+SIGSurface.prototype['getAspenFuelModelNumber'] = SIGSurface.prototype.getAspenFuelModelNumber = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGSurface_getAspenFuelModelNumber_0(self);
+};;
+
 SIGSurface.prototype['getFuelModelNumber'] = SIGSurface.prototype.getFuelModelNumber = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   return _emscripten_bind_SIGSurface_getFuelModelNumber_0(self);
+};;
+
+SIGSurface.prototype['getMoistureScenarioIndexByName'] = SIGSurface.prototype.getMoistureScenarioIndexByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
+  var self = this.ptr;
+  ensureCache.prepare();
+  if (name && typeof name === 'object') name = name.ptr;
+  else name = ensureString(name);
+  return _emscripten_bind_SIGSurface_getMoistureScenarioIndexByName_1(self, name);
+};;
+
+SIGSurface.prototype['getNumberOfMoistureScenarios'] = SIGSurface.prototype.getNumberOfMoistureScenarios = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGSurface_getNumberOfMoistureScenarios_0(self);
+};;
+
+SIGSurface.prototype['getFuelCode'] = SIGSurface.prototype.getFuelCode = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber) {
+  var self = this.ptr;
+  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
+  return UTF8ToString(_emscripten_bind_SIGSurface_getFuelCode_1(self, fuelModelNumber));
+};;
+
+SIGSurface.prototype['getFuelName'] = SIGSurface.prototype.getFuelName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber) {
+  var self = this.ptr;
+  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
+  return UTF8ToString(_emscripten_bind_SIGSurface_getFuelName_1(self, fuelModelNumber));
+};;
+
+SIGSurface.prototype['getMoistureScenarioDescriptionByIndex'] = SIGSurface.prototype.getMoistureScenarioDescriptionByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+  var self = this.ptr;
+  if (index && typeof index === 'object') index = index.ptr;
+  return UTF8ToString(_emscripten_bind_SIGSurface_getMoistureScenarioDescriptionByIndex_1(self, index));
+};;
+
+SIGSurface.prototype['getMoistureScenarioDescriptionByName'] = SIGSurface.prototype.getMoistureScenarioDescriptionByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
+  var self = this.ptr;
+  ensureCache.prepare();
+  if (name && typeof name === 'object') name = name.ptr;
+  else name = ensureString(name);
+  return UTF8ToString(_emscripten_bind_SIGSurface_getMoistureScenarioDescriptionByName_1(self, name));
+};;
+
+SIGSurface.prototype['getMoistureScenarioNameByIndex'] = SIGSurface.prototype.getMoistureScenarioNameByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+  var self = this.ptr;
+  if (index && typeof index === 'object') index = index.ptr;
+  return UTF8ToString(_emscripten_bind_SIGSurface_getMoistureScenarioNameByIndex_1(self, index));
+};;
+
+SIGSurface.prototype['doSurfaceRunInDirectionOfInterest'] = SIGSurface.prototype.doSurfaceRunInDirectionOfInterest = /** @suppress {undefinedVars, duplicate} @this{Object} */function(directionOfInterest, directionMode) {
+  var self = this.ptr;
+  if (directionOfInterest && typeof directionOfInterest === 'object') directionOfInterest = directionOfInterest.ptr;
+  if (directionMode && typeof directionMode === 'object') directionMode = directionMode.ptr;
+  _emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfInterest_2(self, directionOfInterest, directionMode);
+};;
+
+SIGSurface.prototype['doSurfaceRunInDirectionOfMaxSpread'] = SIGSurface.prototype.doSurfaceRunInDirectionOfMaxSpread = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfMaxSpread_0(self);
+};;
+
+SIGSurface.prototype['initializeMembers'] = SIGSurface.prototype.initializeMembers = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_SIGSurface_initializeMembers_0(self);
+};;
+
+SIGSurface.prototype['setAgeOfRough'] = SIGSurface.prototype.setAgeOfRough = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ageOfRough) {
+  var self = this.ptr;
+  if (ageOfRough && typeof ageOfRough === 'object') ageOfRough = ageOfRough.ptr;
+  _emscripten_bind_SIGSurface_setAgeOfRough_1(self, ageOfRough);
 };;
 
 SIGSurface.prototype['setAspect'] = SIGSurface.prototype.setAspect = /** @suppress {undefinedVars, duplicate} @this{Object} */function(aspect) {
   var self = this.ptr;
   if (aspect && typeof aspect === 'object') aspect = aspect.ptr;
   _emscripten_bind_SIGSurface_setAspect_1(self, aspect);
+};;
+
+SIGSurface.prototype['setAspenCuringLevel'] = SIGSurface.prototype.setAspenCuringLevel = /** @suppress {undefinedVars, duplicate} @this{Object} */function(aspenCuringLevel, curingLevelUnits) {
+  var self = this.ptr;
+  if (aspenCuringLevel && typeof aspenCuringLevel === 'object') aspenCuringLevel = aspenCuringLevel.ptr;
+  if (curingLevelUnits && typeof curingLevelUnits === 'object') curingLevelUnits = curingLevelUnits.ptr;
+  _emscripten_bind_SIGSurface_setAspenCuringLevel_2(self, aspenCuringLevel, curingLevelUnits);
+};;
+
+SIGSurface.prototype['setAspenDBH'] = SIGSurface.prototype.setAspenDBH = /** @suppress {undefinedVars, duplicate} @this{Object} */function(dbh, dbhUnits) {
+  var self = this.ptr;
+  if (dbh && typeof dbh === 'object') dbh = dbh.ptr;
+  if (dbhUnits && typeof dbhUnits === 'object') dbhUnits = dbhUnits.ptr;
+  _emscripten_bind_SIGSurface_setAspenDBH_2(self, dbh, dbhUnits);
+};;
+
+SIGSurface.prototype['setAspenFireSeverity'] = SIGSurface.prototype.setAspenFireSeverity = /** @suppress {undefinedVars, duplicate} @this{Object} */function(aspenFireSeverity) {
+  var self = this.ptr;
+  if (aspenFireSeverity && typeof aspenFireSeverity === 'object') aspenFireSeverity = aspenFireSeverity.ptr;
+  _emscripten_bind_SIGSurface_setAspenFireSeverity_1(self, aspenFireSeverity);
+};;
+
+SIGSurface.prototype['setAspenFuelModelNumber'] = SIGSurface.prototype.setAspenFuelModelNumber = /** @suppress {undefinedVars, duplicate} @this{Object} */function(aspenFuelModelNumber) {
+  var self = this.ptr;
+  if (aspenFuelModelNumber && typeof aspenFuelModelNumber === 'object') aspenFuelModelNumber = aspenFuelModelNumber.ptr;
+  _emscripten_bind_SIGSurface_setAspenFuelModelNumber_1(self, aspenFuelModelNumber);
 };;
 
 SIGSurface.prototype['setCanopyCover'] = SIGSurface.prototype.setCanopyCover = /** @suppress {undefinedVars, duplicate} @this{Object} */function(canopyCover, coverUnits) {
@@ -7995,11 +8989,50 @@ SIGSurface.prototype['setFuelModels'] = SIGSurface.prototype.setFuelModels = /**
   _emscripten_bind_SIGSurface_setFuelModels_1(self, fuelModels);
 };;
 
+SIGSurface.prototype['setHeightOfUnderstory'] = SIGSurface.prototype.setHeightOfUnderstory = /** @suppress {undefinedVars, duplicate} @this{Object} */function(heightOfUnderstory, heightUnits) {
+  var self = this.ptr;
+  if (heightOfUnderstory && typeof heightOfUnderstory === 'object') heightOfUnderstory = heightOfUnderstory.ptr;
+  if (heightUnits && typeof heightUnits === 'object') heightUnits = heightUnits.ptr;
+  _emscripten_bind_SIGSurface_setHeightOfUnderstory_2(self, heightOfUnderstory, heightUnits);
+};;
+
+SIGSurface.prototype['setIsUsingPalmettoGallberry'] = SIGSurface.prototype.setIsUsingPalmettoGallberry = /** @suppress {undefinedVars, duplicate} @this{Object} */function(isUsingPalmettoGallberry) {
+  var self = this.ptr;
+  if (isUsingPalmettoGallberry && typeof isUsingPalmettoGallberry === 'object') isUsingPalmettoGallberry = isUsingPalmettoGallberry.ptr;
+  _emscripten_bind_SIGSurface_setIsUsingPalmettoGallberry_1(self, isUsingPalmettoGallberry);
+};;
+
+SIGSurface.prototype['setIsUsingWesternAspen'] = SIGSurface.prototype.setIsUsingWesternAspen = /** @suppress {undefinedVars, duplicate} @this{Object} */function(isUsingWesternAspen) {
+  var self = this.ptr;
+  if (isUsingWesternAspen && typeof isUsingWesternAspen === 'object') isUsingWesternAspen = isUsingWesternAspen.ptr;
+  _emscripten_bind_SIGSurface_setIsUsingWesternAspen_1(self, isUsingWesternAspen);
+};;
+
+SIGSurface.prototype['setMoistureDeadAggregate'] = SIGSurface.prototype.setMoistureDeadAggregate = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureDead, moistureUnits) {
+  var self = this.ptr;
+  if (moistureDead && typeof moistureDead === 'object') moistureDead = moistureDead.ptr;
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  _emscripten_bind_SIGSurface_setMoistureDeadAggregate_2(self, moistureDead, moistureUnits);
+};;
+
 SIGSurface.prototype['setMoistureHundredHour'] = SIGSurface.prototype.setMoistureHundredHour = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureHundredHour, moistureUnits) {
   var self = this.ptr;
   if (moistureHundredHour && typeof moistureHundredHour === 'object') moistureHundredHour = moistureHundredHour.ptr;
   if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
   _emscripten_bind_SIGSurface_setMoistureHundredHour_2(self, moistureHundredHour, moistureUnits);
+};;
+
+SIGSurface.prototype['setMoistureInputMode'] = SIGSurface.prototype.setMoistureInputMode = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureInputMode) {
+  var self = this.ptr;
+  if (moistureInputMode && typeof moistureInputMode === 'object') moistureInputMode = moistureInputMode.ptr;
+  _emscripten_bind_SIGSurface_setMoistureInputMode_1(self, moistureInputMode);
+};;
+
+SIGSurface.prototype['setMoistureLiveAggregate'] = SIGSurface.prototype.setMoistureLiveAggregate = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureLive, moistureUnits) {
+  var self = this.ptr;
+  if (moistureLive && typeof moistureLive === 'object') moistureLive = moistureLive.ptr;
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  _emscripten_bind_SIGSurface_setMoistureLiveAggregate_2(self, moistureLive, moistureUnits);
 };;
 
 SIGSurface.prototype['setMoistureLiveHerbaceous'] = SIGSurface.prototype.setMoistureLiveHerbaceous = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureLiveHerbaceous, moistureUnits) {
@@ -8023,11 +9056,31 @@ SIGSurface.prototype['setMoistureOneHour'] = SIGSurface.prototype.setMoistureOne
   _emscripten_bind_SIGSurface_setMoistureOneHour_2(self, moistureOneHour, moistureUnits);
 };;
 
+SIGSurface.prototype['setMoistureScenarios'] = SIGSurface.prototype.setMoistureScenarios = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureScenarios) {
+  var self = this.ptr;
+  if (moistureScenarios && typeof moistureScenarios === 'object') moistureScenarios = moistureScenarios.ptr;
+  _emscripten_bind_SIGSurface_setMoistureScenarios_1(self, moistureScenarios);
+};;
+
 SIGSurface.prototype['setMoistureTenHour'] = SIGSurface.prototype.setMoistureTenHour = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureTenHour, moistureUnits) {
   var self = this.ptr;
   if (moistureTenHour && typeof moistureTenHour === 'object') moistureTenHour = moistureTenHour.ptr;
   if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
   _emscripten_bind_SIGSurface_setMoistureTenHour_2(self, moistureTenHour, moistureUnits);
+};;
+
+SIGSurface.prototype['setOverstoryBasalArea'] = SIGSurface.prototype.setOverstoryBasalArea = /** @suppress {undefinedVars, duplicate} @this{Object} */function(overstoryBasalArea, basalAreaUnits) {
+  var self = this.ptr;
+  if (overstoryBasalArea && typeof overstoryBasalArea === 'object') overstoryBasalArea = overstoryBasalArea.ptr;
+  if (basalAreaUnits && typeof basalAreaUnits === 'object') basalAreaUnits = basalAreaUnits.ptr;
+  _emscripten_bind_SIGSurface_setOverstoryBasalArea_2(self, overstoryBasalArea, basalAreaUnits);
+};;
+
+SIGSurface.prototype['setPalmettoCoverage'] = SIGSurface.prototype.setPalmettoCoverage = /** @suppress {undefinedVars, duplicate} @this{Object} */function(palmettoCoverage, coverUnits) {
+  var self = this.ptr;
+  if (palmettoCoverage && typeof palmettoCoverage === 'object') palmettoCoverage = palmettoCoverage.ptr;
+  if (coverUnits && typeof coverUnits === 'object') coverUnits = coverUnits.ptr;
+  _emscripten_bind_SIGSurface_setPalmettoCoverage_2(self, palmettoCoverage, coverUnits);
 };;
 
 SIGSurface.prototype['setSecondFuelModelNumber'] = SIGSurface.prototype.setSecondFuelModelNumber = /** @suppress {undefinedVars, duplicate} @this{Object} */function(secondFuelModelNumber) {
@@ -8119,7 +9172,7 @@ SIGSurface.prototype['updateSurfaceInputs'] = SIGSurface.prototype.updateSurface
   _emscripten_bind_SIGSurface_updateSurfaceInputs_20(self, fuelModelNumber, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyHeightUnits, crownRatio);
 };;
 
-SIGSurface.prototype['updateSurfaceInputsForPalmettoGallbery'] = SIGSurface.prototype.updateSurfaceInputsForPalmettoGallbery = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, ageOfRough, heightOfUnderstory, palmettoCoverage, overstoryBasalArea, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyHeightUnits, crownRatio) {
+SIGSurface.prototype['updateSurfaceInputsForPalmettoGallbery'] = SIGSurface.prototype.updateSurfaceInputsForPalmettoGallbery = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, ageOfRough, heightOfUnderstory, palmettoCoverage, overstoryBasalArea, basalAreaUnits, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyHeightUnits, crownRatio) {
   var self = this.ptr;
   if (moistureOneHour && typeof moistureOneHour === 'object') moistureOneHour = moistureOneHour.ptr;
   if (moistureTenHour && typeof moistureTenHour === 'object') moistureTenHour = moistureTenHour.ptr;
@@ -8136,6 +9189,7 @@ SIGSurface.prototype['updateSurfaceInputsForPalmettoGallbery'] = SIGSurface.prot
   if (heightOfUnderstory && typeof heightOfUnderstory === 'object') heightOfUnderstory = heightOfUnderstory.ptr;
   if (palmettoCoverage && typeof palmettoCoverage === 'object') palmettoCoverage = palmettoCoverage.ptr;
   if (overstoryBasalArea && typeof overstoryBasalArea === 'object') overstoryBasalArea = overstoryBasalArea.ptr;
+  if (basalAreaUnits && typeof basalAreaUnits === 'object') basalAreaUnits = basalAreaUnits.ptr;
   if (slope && typeof slope === 'object') slope = slope.ptr;
   if (slopeUnits && typeof slopeUnits === 'object') slopeUnits = slopeUnits.ptr;
   if (aspect && typeof aspect === 'object') aspect = aspect.ptr;
@@ -8144,12 +9198,12 @@ SIGSurface.prototype['updateSurfaceInputsForPalmettoGallbery'] = SIGSurface.prot
   if (canopyHeight && typeof canopyHeight === 'object') canopyHeight = canopyHeight.ptr;
   if (canopyHeightUnits && typeof canopyHeightUnits === 'object') canopyHeightUnits = canopyHeightUnits.ptr;
   if (crownRatio && typeof crownRatio === 'object') crownRatio = crownRatio.ptr;
-  _emscripten_bind_SIGSurface_updateSurfaceInputsForPalmettoGallbery_23(self, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, ageOfRough, heightOfUnderstory, palmettoCoverage, overstoryBasalArea, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyHeightUnits, crownRatio);
+  _emscripten_bind_SIGSurface_updateSurfaceInputsForPalmettoGallbery_24(self, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, ageOfRough, heightOfUnderstory, palmettoCoverage, overstoryBasalArea, basalAreaUnits, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyHeightUnits, crownRatio);
 };;
 
-SIGSurface.prototype['updateSurfaceInputsForTwoFuelModels'] = SIGSurface.prototype.updateSurfaceInputsForTwoFuelModels = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firstfuelModelNumber, secondFuelModelNumber, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, firstFuelModelCoverage, firstFuelModelCoverageUnits, twoFuelModelsMethod, slope, slopeUnits, aspect, canopyCover, canopyCoverUnits, canopyHeight, canopyHeightUnits, crownRatio) {
+SIGSurface.prototype['updateSurfaceInputsForTwoFuelModels'] = SIGSurface.prototype.updateSurfaceInputsForTwoFuelModels = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firstFuelModelNumber, secondFuelModelNumber, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, firstFuelModelCoverage, firstFuelModelCoverageUnits, twoFuelModelsMethod, slope, slopeUnits, aspect, canopyCover, canopyCoverUnits, canopyHeight, canopyHeightUnits, crownRatio) {
   var self = this.ptr;
-  if (firstfuelModelNumber && typeof firstfuelModelNumber === 'object') firstfuelModelNumber = firstfuelModelNumber.ptr;
+  if (firstFuelModelNumber && typeof firstFuelModelNumber === 'object') firstFuelModelNumber = firstFuelModelNumber.ptr;
   if (secondFuelModelNumber && typeof secondFuelModelNumber === 'object') secondFuelModelNumber = secondFuelModelNumber.ptr;
   if (moistureOneHour && typeof moistureOneHour === 'object') moistureOneHour = moistureOneHour.ptr;
   if (moistureTenHour && typeof moistureTenHour === 'object') moistureTenHour = moistureTenHour.ptr;
@@ -8173,15 +9227,17 @@ SIGSurface.prototype['updateSurfaceInputsForTwoFuelModels'] = SIGSurface.prototy
   if (canopyHeight && typeof canopyHeight === 'object') canopyHeight = canopyHeight.ptr;
   if (canopyHeightUnits && typeof canopyHeightUnits === 'object') canopyHeightUnits = canopyHeightUnits.ptr;
   if (crownRatio && typeof crownRatio === 'object') crownRatio = crownRatio.ptr;
-  _emscripten_bind_SIGSurface_updateSurfaceInputsForTwoFuelModels_24(self, firstfuelModelNumber, secondFuelModelNumber, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, firstFuelModelCoverage, firstFuelModelCoverageUnits, twoFuelModelsMethod, slope, slopeUnits, aspect, canopyCover, canopyCoverUnits, canopyHeight, canopyHeightUnits, crownRatio);
+  _emscripten_bind_SIGSurface_updateSurfaceInputsForTwoFuelModels_24(self, firstFuelModelNumber, secondFuelModelNumber, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, firstFuelModelCoverage, firstFuelModelCoverageUnits, twoFuelModelsMethod, slope, slopeUnits, aspect, canopyCover, canopyCoverUnits, canopyHeight, canopyHeightUnits, crownRatio);
 };;
 
-SIGSurface.prototype['updateSurfaceInputsForWesternAspen'] = SIGSurface.prototype.updateSurfaceInputsForWesternAspen = /** @suppress {undefinedVars, duplicate} @this{Object} */function(aspenFuelModelNumber, aspenCuringLevel, aspenFireSeverity, DBH, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyHeightUnits, crownRatio) {
+SIGSurface.prototype['updateSurfaceInputsForWesternAspen'] = SIGSurface.prototype.updateSurfaceInputsForWesternAspen = /** @suppress {undefinedVars, duplicate} @this{Object} */function(aspenFuelModelNumber, aspenCuringLevel, curingLevelUnits, aspenFireSeverity, dbh, dbhUnits, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyHeightUnits, crownRatio) {
   var self = this.ptr;
   if (aspenFuelModelNumber && typeof aspenFuelModelNumber === 'object') aspenFuelModelNumber = aspenFuelModelNumber.ptr;
   if (aspenCuringLevel && typeof aspenCuringLevel === 'object') aspenCuringLevel = aspenCuringLevel.ptr;
+  if (curingLevelUnits && typeof curingLevelUnits === 'object') curingLevelUnits = curingLevelUnits.ptr;
   if (aspenFireSeverity && typeof aspenFireSeverity === 'object') aspenFireSeverity = aspenFireSeverity.ptr;
-  if (DBH && typeof DBH === 'object') DBH = DBH.ptr;
+  if (dbh && typeof dbh === 'object') dbh = dbh.ptr;
+  if (dbhUnits && typeof dbhUnits === 'object') dbhUnits = dbhUnits.ptr;
   if (moistureOneHour && typeof moistureOneHour === 'object') moistureOneHour = moistureOneHour.ptr;
   if (moistureTenHour && typeof moistureTenHour === 'object') moistureTenHour = moistureTenHour.ptr;
   if (moistureHundredHour && typeof moistureHundredHour === 'object') moistureHundredHour = moistureHundredHour.ptr;
@@ -8201,7 +9257,7 @@ SIGSurface.prototype['updateSurfaceInputsForWesternAspen'] = SIGSurface.prototyp
   if (canopyHeight && typeof canopyHeight === 'object') canopyHeight = canopyHeight.ptr;
   if (canopyHeightUnits && typeof canopyHeightUnits === 'object') canopyHeightUnits = canopyHeightUnits.ptr;
   if (crownRatio && typeof crownRatio === 'object') crownRatio = crownRatio.ptr;
-  _emscripten_bind_SIGSurface_updateSurfaceInputsForWesternAspen_23(self, aspenFuelModelNumber, aspenCuringLevel, aspenFireSeverity, DBH, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyHeightUnits, crownRatio);
+  _emscripten_bind_SIGSurface_updateSurfaceInputsForWesternAspen_25(self, aspenFuelModelNumber, aspenCuringLevel, curingLevelUnits, aspenFireSeverity, dbh, dbhUnits, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyHeightUnits, crownRatio);
 };;
 
   SIGSurface.prototype['__destroy__'] = SIGSurface.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
@@ -8384,31 +9440,24 @@ WesternAspen.prototype['getAspenHeatOfCombustionLive'] = WesternAspen.prototype.
   return _emscripten_bind_WesternAspen_getAspenHeatOfCombustionLive_0(self);
 };;
 
-WesternAspen.prototype['getAspenLoadDeadOneHour'] = WesternAspen.prototype.getAspenLoadDeadOneHour = /** @suppress {undefinedVars, duplicate} @this{Object} */function(aspenFuelModelNumber, aspenCuringLevel) {
+WesternAspen.prototype['getAspenLoadDeadOneHour'] = WesternAspen.prototype.getAspenLoadDeadOneHour = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  if (aspenFuelModelNumber && typeof aspenFuelModelNumber === 'object') aspenFuelModelNumber = aspenFuelModelNumber.ptr;
-  if (aspenCuringLevel && typeof aspenCuringLevel === 'object') aspenCuringLevel = aspenCuringLevel.ptr;
-  return _emscripten_bind_WesternAspen_getAspenLoadDeadOneHour_2(self, aspenFuelModelNumber, aspenCuringLevel);
+  return _emscripten_bind_WesternAspen_getAspenLoadDeadOneHour_0(self);
 };;
 
-WesternAspen.prototype['getAspenLoadDeadTenHour'] = WesternAspen.prototype.getAspenLoadDeadTenHour = /** @suppress {undefinedVars, duplicate} @this{Object} */function(aspenFuelModelNumber) {
+WesternAspen.prototype['getAspenLoadDeadTenHour'] = WesternAspen.prototype.getAspenLoadDeadTenHour = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  if (aspenFuelModelNumber && typeof aspenFuelModelNumber === 'object') aspenFuelModelNumber = aspenFuelModelNumber.ptr;
-  return _emscripten_bind_WesternAspen_getAspenLoadDeadTenHour_1(self, aspenFuelModelNumber);
+  return _emscripten_bind_WesternAspen_getAspenLoadDeadTenHour_0(self);
 };;
 
-WesternAspen.prototype['getAspenLoadLiveHerbaceous'] = WesternAspen.prototype.getAspenLoadLiveHerbaceous = /** @suppress {undefinedVars, duplicate} @this{Object} */function(aspenFuelModelNumber, aspenCuringLevel) {
+WesternAspen.prototype['getAspenLoadLiveHerbaceous'] = WesternAspen.prototype.getAspenLoadLiveHerbaceous = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  if (aspenFuelModelNumber && typeof aspenFuelModelNumber === 'object') aspenFuelModelNumber = aspenFuelModelNumber.ptr;
-  if (aspenCuringLevel && typeof aspenCuringLevel === 'object') aspenCuringLevel = aspenCuringLevel.ptr;
-  return _emscripten_bind_WesternAspen_getAspenLoadLiveHerbaceous_2(self, aspenFuelModelNumber, aspenCuringLevel);
+  return _emscripten_bind_WesternAspen_getAspenLoadLiveHerbaceous_0(self);
 };;
 
-WesternAspen.prototype['getAspenLoadLiveWoody'] = WesternAspen.prototype.getAspenLoadLiveWoody = /** @suppress {undefinedVars, duplicate} @this{Object} */function(aspenFuelModelNumber, aspenCuringLevel) {
+WesternAspen.prototype['getAspenLoadLiveWoody'] = WesternAspen.prototype.getAspenLoadLiveWoody = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  if (aspenFuelModelNumber && typeof aspenFuelModelNumber === 'object') aspenFuelModelNumber = aspenFuelModelNumber.ptr;
-  if (aspenCuringLevel && typeof aspenCuringLevel === 'object') aspenCuringLevel = aspenCuringLevel.ptr;
-  return _emscripten_bind_WesternAspen_getAspenLoadLiveWoody_2(self, aspenFuelModelNumber, aspenCuringLevel);
+  return _emscripten_bind_WesternAspen_getAspenLoadLiveWoody_0(self);
 };;
 
 WesternAspen.prototype['getAspenMoistureOfExtinctionDead'] = WesternAspen.prototype.getAspenMoistureOfExtinctionDead = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
@@ -8421,11 +9470,9 @@ WesternAspen.prototype['getAspenMortality'] = WesternAspen.prototype.getAspenMor
   return _emscripten_bind_WesternAspen_getAspenMortality_0(self);
 };;
 
-WesternAspen.prototype['getAspenSavrDeadOneHour'] = WesternAspen.prototype.getAspenSavrDeadOneHour = /** @suppress {undefinedVars, duplicate} @this{Object} */function(aspenFuelModelNumber, aspenCuringLevel) {
+WesternAspen.prototype['getAspenSavrDeadOneHour'] = WesternAspen.prototype.getAspenSavrDeadOneHour = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  if (aspenFuelModelNumber && typeof aspenFuelModelNumber === 'object') aspenFuelModelNumber = aspenFuelModelNumber.ptr;
-  if (aspenCuringLevel && typeof aspenCuringLevel === 'object') aspenCuringLevel = aspenCuringLevel.ptr;
-  return _emscripten_bind_WesternAspen_getAspenSavrDeadOneHour_2(self, aspenFuelModelNumber, aspenCuringLevel);
+  return _emscripten_bind_WesternAspen_getAspenSavrDeadOneHour_0(self);
 };;
 
 WesternAspen.prototype['getAspenSavrDeadTenHour'] = WesternAspen.prototype.getAspenSavrDeadTenHour = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
@@ -8438,11 +9485,9 @@ WesternAspen.prototype['getAspenSavrLiveHerbaceous'] = WesternAspen.prototype.ge
   return _emscripten_bind_WesternAspen_getAspenSavrLiveHerbaceous_0(self);
 };;
 
-WesternAspen.prototype['getAspenSavrLiveWoody'] = WesternAspen.prototype.getAspenSavrLiveWoody = /** @suppress {undefinedVars, duplicate} @this{Object} */function(aspenFuelModelNumber, aspenCuringLevel) {
+WesternAspen.prototype['getAspenSavrLiveWoody'] = WesternAspen.prototype.getAspenSavrLiveWoody = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  if (aspenFuelModelNumber && typeof aspenFuelModelNumber === 'object') aspenFuelModelNumber = aspenFuelModelNumber.ptr;
-  if (aspenCuringLevel && typeof aspenCuringLevel === 'object') aspenCuringLevel = aspenCuringLevel.ptr;
-  return _emscripten_bind_WesternAspen_getAspenSavrLiveWoody_2(self, aspenFuelModelNumber, aspenCuringLevel);
+  return _emscripten_bind_WesternAspen_getAspenSavrLiveWoody_0(self);
 };;
 
   WesternAspen.prototype['__destroy__'] = WesternAspen.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
@@ -8461,29 +9506,61 @@ SIGCrown.prototype.__class__ = SIGCrown;
 SIGCrown.__cache__ = {};
 Module['SIGCrown'] = SIGCrown;
 
-SIGCrown.prototype['initializeMembers'] = SIGCrown.prototype.initializeMembers = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  _emscripten_bind_SIGCrown_initializeMembers_0(self);
-};;
-
-SIGCrown.prototype['doCrownRunRothermel'] = SIGCrown.prototype.doCrownRunRothermel = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  _emscripten_bind_SIGCrown_doCrownRunRothermel_0(self);
-};;
-
-SIGCrown.prototype['doCrownRunScottAndReinhardt'] = SIGCrown.prototype.doCrownRunScottAndReinhardt = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  _emscripten_bind_SIGCrown_doCrownRunScottAndReinhardt_0(self);
-};;
-
-SIGCrown.prototype['doCrownRun'] = SIGCrown.prototype.doCrownRun = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  _emscripten_bind_SIGCrown_doCrownRun_0(self);
-};;
-
 SIGCrown.prototype['getFireType'] = SIGCrown.prototype.getFireType = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   return _emscripten_bind_SIGCrown_getFireType_0(self);
+};;
+
+SIGCrown.prototype['getIsMoistureScenarioDefinedByIndex'] = SIGCrown.prototype.getIsMoistureScenarioDefinedByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+  var self = this.ptr;
+  if (index && typeof index === 'object') index = index.ptr;
+  return !!(_emscripten_bind_SIGCrown_getIsMoistureScenarioDefinedByIndex_1(self, index));
+};;
+
+SIGCrown.prototype['getIsMoistureScenarioDefinedByName'] = SIGCrown.prototype.getIsMoistureScenarioDefinedByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
+  var self = this.ptr;
+  ensureCache.prepare();
+  if (name && typeof name === 'object') name = name.ptr;
+  else name = ensureString(name);
+  return !!(_emscripten_bind_SIGCrown_getIsMoistureScenarioDefinedByName_1(self, name));
+};;
+
+SIGCrown.prototype['isAllFuelLoadZero'] = SIGCrown.prototype.isAllFuelLoadZero = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber) {
+  var self = this.ptr;
+  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
+  return !!(_emscripten_bind_SIGCrown_isAllFuelLoadZero_1(self, fuelModelNumber));
+};;
+
+SIGCrown.prototype['isFuelDynamic'] = SIGCrown.prototype.isFuelDynamic = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber) {
+  var self = this.ptr;
+  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
+  return !!(_emscripten_bind_SIGCrown_isFuelDynamic_1(self, fuelModelNumber));
+};;
+
+SIGCrown.prototype['isFuelModelDefined'] = SIGCrown.prototype.isFuelModelDefined = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber) {
+  var self = this.ptr;
+  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
+  return !!(_emscripten_bind_SIGCrown_isFuelModelDefined_1(self, fuelModelNumber));
+};;
+
+SIGCrown.prototype['isFuelModelReserved'] = SIGCrown.prototype.isFuelModelReserved = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber) {
+  var self = this.ptr;
+  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
+  return !!(_emscripten_bind_SIGCrown_isFuelModelReserved_1(self, fuelModelNumber));
+};;
+
+SIGCrown.prototype['setMoistureScenarioByIndex'] = SIGCrown.prototype.setMoistureScenarioByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureScenarioIndex) {
+  var self = this.ptr;
+  if (moistureScenarioIndex && typeof moistureScenarioIndex === 'object') moistureScenarioIndex = moistureScenarioIndex.ptr;
+  return !!(_emscripten_bind_SIGCrown_setMoistureScenarioByIndex_1(self, moistureScenarioIndex));
+};;
+
+SIGCrown.prototype['setMoistureScenarioByName'] = SIGCrown.prototype.setMoistureScenarioByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureScenarioName) {
+  var self = this.ptr;
+  ensureCache.prepare();
+  if (moistureScenarioName && typeof moistureScenarioName === 'object') moistureScenarioName = moistureScenarioName.ptr;
+  else moistureScenarioName = ensureString(moistureScenarioName);
+  return !!(_emscripten_bind_SIGCrown_setMoistureScenarioByName_1(self, moistureScenarioName));
 };;
 
 SIGCrown.prototype['getAspect'] = SIGCrown.prototype.getAspect = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
@@ -8526,6 +9603,14 @@ SIGCrown.prototype['getCrownFireLengthToWidthRatio'] = SIGCrown.prototype.getCro
   return _emscripten_bind_SIGCrown_getCrownFireLengthToWidthRatio_0(self);
 };;
 
+SIGCrown.prototype['getCrownFireSpreadDistance'] = SIGCrown.prototype.getCrownFireSpreadDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
+  var self = this.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
+  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
+  return _emscripten_bind_SIGCrown_getCrownFireSpreadDistance_3(self, lengthUnits, elapsedTime, timeUnits);
+};;
+
 SIGCrown.prototype['getCrownFireSpreadRate'] = SIGCrown.prototype.getCrownFireSpreadRate = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spreadRateUnits) {
   var self = this.ptr;
   if (spreadRateUnits && typeof spreadRateUnits === 'object') spreadRateUnits = spreadRateUnits.ptr;
@@ -8544,6 +9629,11 @@ SIGCrown.prototype['getCrownFlameLength'] = SIGCrown.prototype.getCrownFlameLeng
   return _emscripten_bind_SIGCrown_getCrownFlameLength_1(self, flameLengthUnits);
 };;
 
+SIGCrown.prototype['getCrownFractionBurned'] = SIGCrown.prototype.getCrownFractionBurned = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGCrown_getCrownFractionBurned_0(self);
+};;
+
 SIGCrown.prototype['getCrownRatio'] = SIGCrown.prototype.getCrownRatio = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   return _emscripten_bind_SIGCrown_getCrownRatio_0(self);
@@ -8553,12 +9643,6 @@ SIGCrown.prototype['getFinalFirelineIntesity'] = SIGCrown.prototype.getFinalFire
   var self = this.ptr;
   if (firelineIntensityUnits && typeof firelineIntensityUnits === 'object') firelineIntensityUnits = firelineIntensityUnits.ptr;
   return _emscripten_bind_SIGCrown_getFinalFirelineIntesity_1(self, firelineIntensityUnits);
-};;
-
-SIGCrown.prototype['getFinalFlameLength'] = SIGCrown.prototype.getFinalFlameLength = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameLengthUnits) {
-  var self = this.ptr;
-  if (flameLengthUnits && typeof flameLengthUnits === 'object') flameLengthUnits = flameLengthUnits.ptr;
-  return _emscripten_bind_SIGCrown_getFinalFlameLength_1(self, flameLengthUnits);
 };;
 
 SIGCrown.prototype['getFinalHeatPerUnitArea'] = SIGCrown.prototype.getFinalHeatPerUnitArea = /** @suppress {undefinedVars, duplicate} @this{Object} */function(heatPerUnitAreaUnits) {
@@ -8571,6 +9655,90 @@ SIGCrown.prototype['getFinalSpreadRate'] = SIGCrown.prototype.getFinalSpreadRate
   var self = this.ptr;
   if (spreadRateUnits && typeof spreadRateUnits === 'object') spreadRateUnits = spreadRateUnits.ptr;
   return _emscripten_bind_SIGCrown_getFinalSpreadRate_1(self, spreadRateUnits);
+};;
+
+SIGCrown.prototype['getFuelHeatOfCombustionDead'] = SIGCrown.prototype.getFuelHeatOfCombustionDead = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, heatOfCombustionUnits) {
+  var self = this.ptr;
+  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
+  if (heatOfCombustionUnits && typeof heatOfCombustionUnits === 'object') heatOfCombustionUnits = heatOfCombustionUnits.ptr;
+  return _emscripten_bind_SIGCrown_getFuelHeatOfCombustionDead_2(self, fuelModelNumber, heatOfCombustionUnits);
+};;
+
+SIGCrown.prototype['getFuelHeatOfCombustionLive'] = SIGCrown.prototype.getFuelHeatOfCombustionLive = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, heatOfCombustionUnits) {
+  var self = this.ptr;
+  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
+  if (heatOfCombustionUnits && typeof heatOfCombustionUnits === 'object') heatOfCombustionUnits = heatOfCombustionUnits.ptr;
+  return _emscripten_bind_SIGCrown_getFuelHeatOfCombustionLive_2(self, fuelModelNumber, heatOfCombustionUnits);
+};;
+
+SIGCrown.prototype['getFuelLoadHundredHour'] = SIGCrown.prototype.getFuelLoadHundredHour = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, loadingUnits) {
+  var self = this.ptr;
+  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
+  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
+  return _emscripten_bind_SIGCrown_getFuelLoadHundredHour_2(self, fuelModelNumber, loadingUnits);
+};;
+
+SIGCrown.prototype['getFuelLoadLiveHerbaceous'] = SIGCrown.prototype.getFuelLoadLiveHerbaceous = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, loadingUnits) {
+  var self = this.ptr;
+  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
+  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
+  return _emscripten_bind_SIGCrown_getFuelLoadLiveHerbaceous_2(self, fuelModelNumber, loadingUnits);
+};;
+
+SIGCrown.prototype['getFuelLoadLiveWoody'] = SIGCrown.prototype.getFuelLoadLiveWoody = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, loadingUnits) {
+  var self = this.ptr;
+  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
+  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
+  return _emscripten_bind_SIGCrown_getFuelLoadLiveWoody_2(self, fuelModelNumber, loadingUnits);
+};;
+
+SIGCrown.prototype['getFuelLoadOneHour'] = SIGCrown.prototype.getFuelLoadOneHour = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, loadingUnits) {
+  var self = this.ptr;
+  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
+  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
+  return _emscripten_bind_SIGCrown_getFuelLoadOneHour_2(self, fuelModelNumber, loadingUnits);
+};;
+
+SIGCrown.prototype['getFuelLoadTenHour'] = SIGCrown.prototype.getFuelLoadTenHour = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, loadingUnits) {
+  var self = this.ptr;
+  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
+  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
+  return _emscripten_bind_SIGCrown_getFuelLoadTenHour_2(self, fuelModelNumber, loadingUnits);
+};;
+
+SIGCrown.prototype['getFuelMoistureOfExtinctionDead'] = SIGCrown.prototype.getFuelMoistureOfExtinctionDead = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, moistureUnits) {
+  var self = this.ptr;
+  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGCrown_getFuelMoistureOfExtinctionDead_2(self, fuelModelNumber, moistureUnits);
+};;
+
+SIGCrown.prototype['getFuelSavrLiveHerbaceous'] = SIGCrown.prototype.getFuelSavrLiveHerbaceous = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, savrUnits) {
+  var self = this.ptr;
+  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
+  if (savrUnits && typeof savrUnits === 'object') savrUnits = savrUnits.ptr;
+  return _emscripten_bind_SIGCrown_getFuelSavrLiveHerbaceous_2(self, fuelModelNumber, savrUnits);
+};;
+
+SIGCrown.prototype['getFuelSavrLiveWoody'] = SIGCrown.prototype.getFuelSavrLiveWoody = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, savrUnits) {
+  var self = this.ptr;
+  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
+  if (savrUnits && typeof savrUnits === 'object') savrUnits = savrUnits.ptr;
+  return _emscripten_bind_SIGCrown_getFuelSavrLiveWoody_2(self, fuelModelNumber, savrUnits);
+};;
+
+SIGCrown.prototype['getFuelSavrOneHour'] = SIGCrown.prototype.getFuelSavrOneHour = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, savrUnits) {
+  var self = this.ptr;
+  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
+  if (savrUnits && typeof savrUnits === 'object') savrUnits = savrUnits.ptr;
+  return _emscripten_bind_SIGCrown_getFuelSavrOneHour_2(self, fuelModelNumber, savrUnits);
+};;
+
+SIGCrown.prototype['getFuelbedDepth'] = SIGCrown.prototype.getFuelbedDepth = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, lengthUnits) {
+  var self = this.ptr;
+  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  return _emscripten_bind_SIGCrown_getFuelbedDepth_2(self, fuelModelNumber, lengthUnits);
 };;
 
 SIGCrown.prototype['getMoistureFoliar'] = SIGCrown.prototype.getMoistureFoliar = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureUnits) {
@@ -8603,6 +9771,76 @@ SIGCrown.prototype['getMoistureOneHour'] = SIGCrown.prototype.getMoistureOneHour
   return _emscripten_bind_SIGCrown_getMoistureOneHour_1(self, moistureUnits);
 };;
 
+SIGCrown.prototype['getMoistureScenarioHundredHourByIndex'] = SIGCrown.prototype.getMoistureScenarioHundredHourByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+  var self = this.ptr;
+  if (index && typeof index === 'object') index = index.ptr;
+  return _emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByIndex_1(self, index);
+};;
+
+SIGCrown.prototype['getMoistureScenarioHundredHourByName'] = SIGCrown.prototype.getMoistureScenarioHundredHourByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
+  var self = this.ptr;
+  ensureCache.prepare();
+  if (name && typeof name === 'object') name = name.ptr;
+  else name = ensureString(name);
+  return _emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByName_1(self, name);
+};;
+
+SIGCrown.prototype['getMoistureScenarioLiveHerbaceousByIndex'] = SIGCrown.prototype.getMoistureScenarioLiveHerbaceousByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+  var self = this.ptr;
+  if (index && typeof index === 'object') index = index.ptr;
+  return _emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByIndex_1(self, index);
+};;
+
+SIGCrown.prototype['getMoistureScenarioLiveHerbaceousByName'] = SIGCrown.prototype.getMoistureScenarioLiveHerbaceousByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
+  var self = this.ptr;
+  ensureCache.prepare();
+  if (name && typeof name === 'object') name = name.ptr;
+  else name = ensureString(name);
+  return _emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByName_1(self, name);
+};;
+
+SIGCrown.prototype['getMoistureScenarioLiveWoodyByIndex'] = SIGCrown.prototype.getMoistureScenarioLiveWoodyByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+  var self = this.ptr;
+  if (index && typeof index === 'object') index = index.ptr;
+  return _emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByIndex_1(self, index);
+};;
+
+SIGCrown.prototype['getMoistureScenarioLiveWoodyByName'] = SIGCrown.prototype.getMoistureScenarioLiveWoodyByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
+  var self = this.ptr;
+  ensureCache.prepare();
+  if (name && typeof name === 'object') name = name.ptr;
+  else name = ensureString(name);
+  return _emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByName_1(self, name);
+};;
+
+SIGCrown.prototype['getMoistureScenarioOneHourByIndex'] = SIGCrown.prototype.getMoistureScenarioOneHourByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+  var self = this.ptr;
+  if (index && typeof index === 'object') index = index.ptr;
+  return _emscripten_bind_SIGCrown_getMoistureScenarioOneHourByIndex_1(self, index);
+};;
+
+SIGCrown.prototype['getMoistureScenarioOneHourByName'] = SIGCrown.prototype.getMoistureScenarioOneHourByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
+  var self = this.ptr;
+  ensureCache.prepare();
+  if (name && typeof name === 'object') name = name.ptr;
+  else name = ensureString(name);
+  return _emscripten_bind_SIGCrown_getMoistureScenarioOneHourByName_1(self, name);
+};;
+
+SIGCrown.prototype['getMoistureScenarioTenHourByIndex'] = SIGCrown.prototype.getMoistureScenarioTenHourByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+  var self = this.ptr;
+  if (index && typeof index === 'object') index = index.ptr;
+  return _emscripten_bind_SIGCrown_getMoistureScenarioTenHourByIndex_1(self, index);
+};;
+
+SIGCrown.prototype['getMoistureScenarioTenHourByName'] = SIGCrown.prototype.getMoistureScenarioTenHourByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
+  var self = this.ptr;
+  ensureCache.prepare();
+  if (name && typeof name === 'object') name = name.ptr;
+  else name = ensureString(name);
+  return _emscripten_bind_SIGCrown_getMoistureScenarioTenHourByName_1(self, name);
+};;
+
 SIGCrown.prototype['getMoistureTenHour'] = SIGCrown.prototype.getMoistureTenHour = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureUnits) {
   var self = this.ptr;
   if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
@@ -8613,6 +9851,14 @@ SIGCrown.prototype['getSlope'] = SIGCrown.prototype.getSlope = /** @suppress {un
   var self = this.ptr;
   if (slopeUnits && typeof slopeUnits === 'object') slopeUnits = slopeUnits.ptr;
   return _emscripten_bind_SIGCrown_getSlope_1(self, slopeUnits);
+};;
+
+SIGCrown.prototype['getSurfaceFireSpreadDistance'] = SIGCrown.prototype.getSurfaceFireSpreadDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
+  var self = this.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
+  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
+  return _emscripten_bind_SIGCrown_getSurfaceFireSpreadDistance_3(self, lengthUnits, elapsedTime, timeUnits);
 };;
 
 SIGCrown.prototype['getSurfaceFireSpreadRate'] = SIGCrown.prototype.getSurfaceFireSpreadRate = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spreadRateUnits) {
@@ -8636,6 +9882,66 @@ SIGCrown.prototype['getWindSpeed'] = SIGCrown.prototype.getWindSpeed = /** @supp
 SIGCrown.prototype['getFuelModelNumber'] = SIGCrown.prototype.getFuelModelNumber = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   return _emscripten_bind_SIGCrown_getFuelModelNumber_0(self);
+};;
+
+SIGCrown.prototype['getMoistureScenarioIndexByName'] = SIGCrown.prototype.getMoistureScenarioIndexByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
+  var self = this.ptr;
+  ensureCache.prepare();
+  if (name && typeof name === 'object') name = name.ptr;
+  else name = ensureString(name);
+  return _emscripten_bind_SIGCrown_getMoistureScenarioIndexByName_1(self, name);
+};;
+
+SIGCrown.prototype['getNumberOfMoistureScenarios'] = SIGCrown.prototype.getNumberOfMoistureScenarios = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGCrown_getNumberOfMoistureScenarios_0(self);
+};;
+
+SIGCrown.prototype['getFuelCode'] = SIGCrown.prototype.getFuelCode = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber) {
+  var self = this.ptr;
+  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
+  return UTF8ToString(_emscripten_bind_SIGCrown_getFuelCode_1(self, fuelModelNumber));
+};;
+
+SIGCrown.prototype['getFuelName'] = SIGCrown.prototype.getFuelName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber) {
+  var self = this.ptr;
+  if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
+  return UTF8ToString(_emscripten_bind_SIGCrown_getFuelName_1(self, fuelModelNumber));
+};;
+
+SIGCrown.prototype['getMoistureScenarioDescriptionByIndex'] = SIGCrown.prototype.getMoistureScenarioDescriptionByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+  var self = this.ptr;
+  if (index && typeof index === 'object') index = index.ptr;
+  return UTF8ToString(_emscripten_bind_SIGCrown_getMoistureScenarioDescriptionByIndex_1(self, index));
+};;
+
+SIGCrown.prototype['getMoistureScenarioDescriptionByName'] = SIGCrown.prototype.getMoistureScenarioDescriptionByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
+  var self = this.ptr;
+  ensureCache.prepare();
+  if (name && typeof name === 'object') name = name.ptr;
+  else name = ensureString(name);
+  return UTF8ToString(_emscripten_bind_SIGCrown_getMoistureScenarioDescriptionByName_1(self, name));
+};;
+
+SIGCrown.prototype['getMoistureScenarioNameByIndex'] = SIGCrown.prototype.getMoistureScenarioNameByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+  var self = this.ptr;
+  if (index && typeof index === 'object') index = index.ptr;
+  return UTF8ToString(_emscripten_bind_SIGCrown_getMoistureScenarioNameByIndex_1(self, index));
+};;
+
+SIGCrown.prototype['doCrownRunRothermel'] = SIGCrown.prototype.doCrownRunRothermel = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_SIGCrown_doCrownRunRothermel_0(self);
+};;
+
+SIGCrown.prototype['doCrownRunScottAndReinhardt'] = SIGCrown.prototype.doCrownRunScottAndReinhardt = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_SIGCrown_doCrownRunScottAndReinhardt_0(self);
+};;
+
+SIGCrown.prototype['initializeMembers'] = SIGCrown.prototype.initializeMembers = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_SIGCrown_initializeMembers_0(self);
 };;
 
 SIGCrown.prototype['setAspect'] = SIGCrown.prototype.setAspect = /** @suppress {undefinedVars, duplicate} @this{Object} */function(aspect) {
@@ -8690,6 +9996,13 @@ SIGCrown.prototype['setFuelModels'] = SIGCrown.prototype.setFuelModels = /** @su
   _emscripten_bind_SIGCrown_setFuelModels_1(self, fuelModels);
 };;
 
+SIGCrown.prototype['setMoistureDeadAggregate'] = SIGCrown.prototype.setMoistureDeadAggregate = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureDead, moistureUnits) {
+  var self = this.ptr;
+  if (moistureDead && typeof moistureDead === 'object') moistureDead = moistureDead.ptr;
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  _emscripten_bind_SIGCrown_setMoistureDeadAggregate_2(self, moistureDead, moistureUnits);
+};;
+
 SIGCrown.prototype['setMoistureFoliar'] = SIGCrown.prototype.setMoistureFoliar = /** @suppress {undefinedVars, duplicate} @this{Object} */function(foliarMoisture, moistureUnits) {
   var self = this.ptr;
   if (foliarMoisture && typeof foliarMoisture === 'object') foliarMoisture = foliarMoisture.ptr;
@@ -8702,6 +10015,19 @@ SIGCrown.prototype['setMoistureHundredHour'] = SIGCrown.prototype.setMoistureHun
   if (moistureHundredHour && typeof moistureHundredHour === 'object') moistureHundredHour = moistureHundredHour.ptr;
   if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
   _emscripten_bind_SIGCrown_setMoistureHundredHour_2(self, moistureHundredHour, moistureUnits);
+};;
+
+SIGCrown.prototype['setMoistureInputMode'] = SIGCrown.prototype.setMoistureInputMode = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureInputMode) {
+  var self = this.ptr;
+  if (moistureInputMode && typeof moistureInputMode === 'object') moistureInputMode = moistureInputMode.ptr;
+  _emscripten_bind_SIGCrown_setMoistureInputMode_1(self, moistureInputMode);
+};;
+
+SIGCrown.prototype['setMoistureLiveAggregate'] = SIGCrown.prototype.setMoistureLiveAggregate = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureLive, moistureUnits) {
+  var self = this.ptr;
+  if (moistureLive && typeof moistureLive === 'object') moistureLive = moistureLive.ptr;
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  _emscripten_bind_SIGCrown_setMoistureLiveAggregate_2(self, moistureLive, moistureUnits);
 };;
 
 SIGCrown.prototype['setMoistureLiveHerbaceous'] = SIGCrown.prototype.setMoistureLiveHerbaceous = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureLiveHerbaceous, moistureUnits) {
@@ -8723,6 +10049,12 @@ SIGCrown.prototype['setMoistureOneHour'] = SIGCrown.prototype.setMoistureOneHour
   if (moistureOneHour && typeof moistureOneHour === 'object') moistureOneHour = moistureOneHour.ptr;
   if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
   _emscripten_bind_SIGCrown_setMoistureOneHour_2(self, moistureOneHour, moistureUnits);
+};;
+
+SIGCrown.prototype['setMoistureScenarios'] = SIGCrown.prototype.setMoistureScenarios = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureScenarios) {
+  var self = this.ptr;
+  if (moistureScenarios && typeof moistureScenarios === 'object') moistureScenarios = moistureScenarios.ptr;
+  _emscripten_bind_SIGCrown_setMoistureScenarios_1(self, moistureScenarios);
 };;
 
 SIGCrown.prototype['setMoistureTenHour'] = SIGCrown.prototype.setMoistureTenHour = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureTenHour, moistureUnits) {
@@ -8829,6 +10161,12 @@ SIGCrown.prototype['updateCrownsSurfaceInputs'] = SIGCrown.prototype.updateCrown
   if (canopyHeightUnits && typeof canopyHeightUnits === 'object') canopyHeightUnits = canopyHeightUnits.ptr;
   if (crownRatio && typeof crownRatio === 'object') crownRatio = crownRatio.ptr;
   _emscripten_bind_SIGCrown_updateCrownsSurfaceInputs_20(self, fuelModelNumber, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyHeightUnits, crownRatio);
+};;
+
+SIGCrown.prototype['getFinalFlameLength'] = SIGCrown.prototype.getFinalFlameLength = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameLengthUnits) {
+  var self = this.ptr;
+  if (flameLengthUnits && typeof flameLengthUnits === 'object') flameLengthUnits = flameLengthUnits.ptr;
+  return _emscripten_bind_SIGCrown_getFinalFlameLength_1(self, flameLengthUnits);
 };;
 
   SIGCrown.prototype['__destroy__'] = SIGCrown.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
@@ -9001,6 +10339,21 @@ SIGMortality.prototype['checkIsInRegionFromSpeciesCode'] = SIGMortality.prototyp
   return !!(_emscripten_bind_SIGMortality_checkIsInRegionFromSpeciesCode_2(self, speciesCode, region));
 };;
 
+SIGMortality.prototype['updateInputsForSpeciesCodeAndEquationType'] = SIGMortality.prototype.updateInputsForSpeciesCodeAndEquationType = /** @suppress {undefinedVars, duplicate} @this{Object} */function(speciesCode, equationType) {
+  var self = this.ptr;
+  ensureCache.prepare();
+  if (speciesCode && typeof speciesCode === 'object') speciesCode = speciesCode.ptr;
+  else speciesCode = ensureString(speciesCode);
+  if (equationType && typeof equationType === 'object') equationType = equationType.ptr;
+  return !!(_emscripten_bind_SIGMortality_updateInputsForSpeciesCodeAndEquationType_2(self, speciesCode, equationType));
+};;
+
+SIGMortality.prototype['calculateMortality'] = SIGMortality.prototype.calculateMortality = /** @suppress {undefinedVars, duplicate} @this{Object} */function(probablityUnits) {
+  var self = this.ptr;
+  if (probablityUnits && typeof probablityUnits === 'object') probablityUnits = probablityUnits.ptr;
+  return _emscripten_bind_SIGMortality_calculateMortality_1(self, probablityUnits);
+};;
+
 SIGMortality.prototype['getBarkThickness'] = SIGMortality.prototype.getBarkThickness = /** @suppress {undefinedVars, duplicate} @this{Object} */function(barkThicknessUnits) {
   var self = this.ptr;
   if (barkThicknessUnits && typeof barkThicknessUnits === 'object') barkThicknessUnits = barkThicknessUnits.ptr;
@@ -9069,6 +10422,18 @@ SIGMortality.prototype['getProbabilityOfMortality'] = SIGMortality.prototype.get
 SIGMortality.prototype['getTotalPrefireTrees'] = SIGMortality.prototype.getTotalPrefireTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   return _emscripten_bind_SIGMortality_getTotalPrefireTrees_0(self);
+};;
+
+SIGMortality.prototype['getTreeCrownLengthScorched'] = SIGMortality.prototype.getTreeCrownLengthScorched = /** @suppress {undefinedVars, duplicate} @this{Object} */function(mortalityRateUnits) {
+  var self = this.ptr;
+  if (mortalityRateUnits && typeof mortalityRateUnits === 'object') mortalityRateUnits = mortalityRateUnits.ptr;
+  return _emscripten_bind_SIGMortality_getTreeCrownLengthScorched_1(self, mortalityRateUnits);
+};;
+
+SIGMortality.prototype['getTreeCrownVolumeScorched'] = SIGMortality.prototype.getTreeCrownVolumeScorched = /** @suppress {undefinedVars, duplicate} @this{Object} */function(mortalityRateUnits) {
+  var self = this.ptr;
+  if (mortalityRateUnits && typeof mortalityRateUnits === 'object') mortalityRateUnits = mortalityRateUnits.ptr;
+  return _emscripten_bind_SIGMortality_getTreeCrownVolumeScorched_1(self, mortalityRateUnits);
 };;
 
 SIGMortality.prototype['getTreeDensityPerUnitArea'] = SIGMortality.prototype.getTreeDensityPerUnitArea = /** @suppress {undefinedVars, duplicate} @this{Object} */function(areaUnits) {
@@ -9219,12 +10584,6 @@ SIGMortality.prototype['getRequiredFieldVector'] = SIGMortality.prototype.getReq
   return wrapPointer(_emscripten_bind_SIGMortality_getRequiredFieldVector_0(self), BoolVector);
 };;
 
-SIGMortality.prototype['calculateMortality'] = SIGMortality.prototype.calculateMortality = /** @suppress {undefinedVars, duplicate} @this{Object} */function(probablityUnits) {
-  var self = this.ptr;
-  if (probablityUnits && typeof probablityUnits === 'object') probablityUnits = probablityUnits.ptr;
-  return _emscripten_bind_SIGMortality_calculateMortality_1(self, probablityUnits);
-};;
-
 SIGMortality.prototype['setBeetleDamage'] = SIGMortality.prototype.setBeetleDamage = /** @suppress {undefinedVars, duplicate} @this{Object} */function(beetleDamage) {
   var self = this.ptr;
   if (beetleDamage && typeof beetleDamage === 'object') beetleDamage = beetleDamage.ptr;
@@ -9316,15 +10675,6 @@ SIGMortality.prototype['setTreeHeight'] = SIGMortality.prototype.setTreeHeight =
   _emscripten_bind_SIGMortality_setTreeHeight_2(self, treeHeight, treeHeightUnits);
 };;
 
-SIGMortality.prototype['updateInputsForSpeciesCodeAndEquationType'] = SIGMortality.prototype.updateInputsForSpeciesCodeAndEquationType = /** @suppress {undefinedVars, duplicate} @this{Object} */function(speciesCode, equationType) {
-  var self = this.ptr;
-  ensureCache.prepare();
-  if (speciesCode && typeof speciesCode === 'object') speciesCode = speciesCode.ptr;
-  else speciesCode = ensureString(speciesCode);
-  if (equationType && typeof equationType === 'object') equationType = equationType.ptr;
-  return !!(_emscripten_bind_SIGMortality_updateInputsForSpeciesCodeAndEquationType_2(self, speciesCode, equationType));
-};;
-
   SIGMortality.prototype['__destroy__'] = SIGMortality.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   _emscripten_bind_SIGMortality___destroy___0(self);
@@ -9374,6 +10724,22 @@ WindSpeedUtility.prototype['windSpeedAtTwentyFeetFromTenMeter'] = WindSpeedUtili
     Module['SquareMiles'] = _emscripten_enum_AreaUnits_AreaUnitsEnum_SquareMiles();
 
     Module['SquareKilometers'] = _emscripten_enum_AreaUnits_AreaUnitsEnum_SquareKilometers();
+
+    
+
+    // BasalAreaUnits_BasalAreaUnitsEnum
+
+    Module['SquareFeetPerAcre'] = _emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareFeetPerAcre();
+
+    Module['SquareMetersPerHectare'] = _emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareMetersPerHectare();
+
+    
+
+    // CuringLevelUnits_CuringLevelEnum
+
+    Module['Fraction'] = _emscripten_enum_CuringLevelUnits_CuringLevelEnum_Fraction();
+
+    Module['Percent'] = _emscripten_enum_CuringLevelUnits_CuringLevelEnum_Percent();
 
     
 
@@ -9621,6 +10987,14 @@ WindSpeedUtility.prototype['windSpeedAtTwentyFeetFromTenMeter'] = WindSpeedUtili
 
     
 
+    // SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum
+
+    Module['CLOSED'] = _emscripten_enum_SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum_CLOSED();
+
+    Module['OPEN'] = _emscripten_enum_SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum_OPEN();
+
+    
+
     // SpotTreeSpecies_SpotTreeSpeciesEnum
 
     Module['ENGELMANN_SPRUCE'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_ENGELMANN_SPRUCE();
@@ -9665,11 +11039,75 @@ WindSpeedUtility.prototype['windSpeedAtTwentyFeetFromTenMeter'] = WindSpeedUtili
 
     
 
+    // FuelLifeState_FuelLifeStateEnum
+
+    Module['DEAD'] = _emscripten_enum_FuelLifeState_FuelLifeStateEnum_DEAD();
+
+    Module['LIVE'] = _emscripten_enum_FuelLifeState_FuelLifeStateEnum_LIVE();
+
+    
+
+    // FuelConstantsEnum_FuelConstantsEnum
+
+    Module['MAX_LIFE_STATES'] = _emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MAX_LIFE_STATES();
+
+    Module['MAX_LIVE_SIZE_CLASSES'] = _emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MAX_LIVE_SIZE_CLASSES();
+
+    Module['MAX_DEAD_SIZE_CLASSES'] = _emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MAX_DEAD_SIZE_CLASSES();
+
+    Module['MAX_PARTICLES'] = _emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MAX_PARTICLES();
+
+    Module['MAX_SAVR_SIZE_CLASSES'] = _emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MAX_SAVR_SIZE_CLASSES();
+
+    Module['NUM_FUEL_MODELS'] = _emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_NUM_FUEL_MODELS();
+
+    
+
     // AspenFireSeverity_AspenFireSeverityEnum
 
     Module['Low'] = _emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Low();
 
     Module['Moderate'] = _emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Moderate();
+
+    
+
+    // MoistureInputMode_MoistureInputModeEnum
+
+    Module['BySizeClass'] = _emscripten_enum_MoistureInputMode_MoistureInputModeEnum_BySizeClass();
+
+    Module['AllAggregate'] = _emscripten_enum_MoistureInputMode_MoistureInputModeEnum_AllAggregate();
+
+    Module['DeadAggregateAndLiveSizeClass'] = _emscripten_enum_MoistureInputMode_MoistureInputModeEnum_DeadAggregateAndLiveSizeClass();
+
+    Module['LiveAggregateAndDeadSizeClass'] = _emscripten_enum_MoistureInputMode_MoistureInputModeEnum_LiveAggregateAndDeadSizeClass();
+
+    Module['MoistureScenario'] = _emscripten_enum_MoistureInputMode_MoistureInputModeEnum_MoistureScenario();
+
+    
+
+    // MoistureClassInput_MoistureClassInputEnum
+
+    Module['OneHour'] = _emscripten_enum_MoistureClassInput_MoistureClassInputEnum_OneHour();
+
+    Module['TenHour'] = _emscripten_enum_MoistureClassInput_MoistureClassInputEnum_TenHour();
+
+    Module['HundredHour'] = _emscripten_enum_MoistureClassInput_MoistureClassInputEnum_HundredHour();
+
+    Module['LiveHerbaceous'] = _emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveHerbaceous();
+
+    Module['LiveWoody'] = _emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveWoody();
+
+    Module['DeadAggregate'] = _emscripten_enum_MoistureClassInput_MoistureClassInputEnum_DeadAggregate();
+
+    Module['LiveAggregate'] = _emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveAggregate();
+
+    
+
+    // SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum
+
+    Module['FromIgnitionPoint'] = _emscripten_enum_SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum_FromIgnitionPoint();
+
+    Module['FromPerimeter'] = _emscripten_enum_SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum_FromPerimeter();
 
     
 
@@ -9743,6 +11181,58 @@ WindSpeedUtility.prototype['windSpeedAtTwentyFeetFromTenMeter'] = WindSpeedUtili
 
     
 
+    // CrownDamageEquationCode
+
+    Module['not_set'] = _emscripten_enum_CrownDamageEquationCode_not_set();
+
+    Module['white_fir'] = _emscripten_enum_CrownDamageEquationCode_white_fir();
+
+    Module['subalpine_fir'] = _emscripten_enum_CrownDamageEquationCode_subalpine_fir();
+
+    Module['incense_cedar'] = _emscripten_enum_CrownDamageEquationCode_incense_cedar();
+
+    Module['western_larch'] = _emscripten_enum_CrownDamageEquationCode_western_larch();
+
+    Module['whitebark_pine'] = _emscripten_enum_CrownDamageEquationCode_whitebark_pine();
+
+    Module['engelmann_spruce'] = _emscripten_enum_CrownDamageEquationCode_engelmann_spruce();
+
+    Module['sugar_pine'] = _emscripten_enum_CrownDamageEquationCode_sugar_pine();
+
+    Module['red_fir'] = _emscripten_enum_CrownDamageEquationCode_red_fir();
+
+    Module['ponderosa_pine'] = _emscripten_enum_CrownDamageEquationCode_ponderosa_pine();
+
+    Module['ponderosa_kill'] = _emscripten_enum_CrownDamageEquationCode_ponderosa_kill();
+
+    Module['douglas_fir'] = _emscripten_enum_CrownDamageEquationCode_douglas_fir();
+
+    
+
+    // CrownDamageType
+
+    Module['not_set'] = _emscripten_enum_CrownDamageType_not_set();
+
+    Module['crown_length'] = _emscripten_enum_CrownDamageType_crown_length();
+
+    Module['crown_volume'] = _emscripten_enum_CrownDamageType_crown_volume();
+
+    Module['crown_kill'] = _emscripten_enum_CrownDamageType_crown_kill();
+
+    
+
+    // EquationType
+
+    Module['not_set'] = _emscripten_enum_EquationType_not_set();
+
+    Module['crown_scorch'] = _emscripten_enum_EquationType_crown_scorch();
+
+    Module['bole_char'] = _emscripten_enum_EquationType_bole_char();
+
+    Module['crown_damage'] = _emscripten_enum_EquationType_crown_damage();
+
+    
+
     // FireSeverity
 
     Module['not_set'] = _emscripten_enum_FireSeverity_not_set();
@@ -9761,6 +11251,14 @@ WindSpeedUtility.prototype['windSpeedAtTwentyFeetFromTenMeter'] = WindSpeedUtili
 
     
 
+    // MortalityRateUnits_MortalityRateUnitsEnum
+
+    Module['Fraction'] = _emscripten_enum_MortalityRateUnits_MortalityRateUnitsEnum_Fraction();
+
+    Module['Percent'] = _emscripten_enum_MortalityRateUnits_MortalityRateUnitsEnum_Percent();
+
+    
+
     // RegionCode
 
     Module['interior_west'] = _emscripten_enum_RegionCode_interior_west();
@@ -9770,18 +11268,6 @@ WindSpeedUtility.prototype['windSpeedAtTwentyFeetFromTenMeter'] = WindSpeedUtili
     Module['north_east'] = _emscripten_enum_RegionCode_north_east();
 
     Module['south_east'] = _emscripten_enum_RegionCode_south_east();
-
-    
-
-    // CrownDamageType
-
-    Module['not_set'] = _emscripten_enum_CrownDamageType_not_set();
-
-    Module['crown_length'] = _emscripten_enum_CrownDamageType_crown_length();
-
-    Module['crown_volume'] = _emscripten_enum_CrownDamageType_crown_volume();
-
-    Module['crown_kill'] = _emscripten_enum_CrownDamageType_crown_kill();
 
     
 
@@ -9814,46 +11300,6 @@ WindSpeedUtility.prototype['windSpeedAtTwentyFeetFromTenMeter'] = WindSpeedUtili
     Module['fire_severity'] = _emscripten_enum_RequiredFieldNames_fire_severity();
 
     Module['num_inputs'] = _emscripten_enum_RequiredFieldNames_num_inputs();
-
-    
-
-    // CrownDamageEquationCode
-
-    Module['not_set'] = _emscripten_enum_CrownDamageEquationCode_not_set();
-
-    Module['white_fir'] = _emscripten_enum_CrownDamageEquationCode_white_fir();
-
-    Module['subalpine_fir'] = _emscripten_enum_CrownDamageEquationCode_subalpine_fir();
-
-    Module['incense_cedar'] = _emscripten_enum_CrownDamageEquationCode_incense_cedar();
-
-    Module['western_larch'] = _emscripten_enum_CrownDamageEquationCode_western_larch();
-
-    Module['whitebark_pine'] = _emscripten_enum_CrownDamageEquationCode_whitebark_pine();
-
-    Module['engelmann_spruce'] = _emscripten_enum_CrownDamageEquationCode_engelmann_spruce();
-
-    Module['sugar_pine'] = _emscripten_enum_CrownDamageEquationCode_sugar_pine();
-
-    Module['red_fir'] = _emscripten_enum_CrownDamageEquationCode_red_fir();
-
-    Module['ponderosa_pine'] = _emscripten_enum_CrownDamageEquationCode_ponderosa_pine();
-
-    Module['ponderosa_kill'] = _emscripten_enum_CrownDamageEquationCode_ponderosa_kill();
-
-    Module['douglas_fir'] = _emscripten_enum_CrownDamageEquationCode_douglas_fir();
-
-    
-
-    // EquationType
-
-    Module['not_set'] = _emscripten_enum_EquationType_not_set();
-
-    Module['crown_scorch'] = _emscripten_enum_EquationType_crown_scorch();
-
-    Module['bole_char'] = _emscripten_enum_EquationType_bole_char();
-
-    Module['crown_damage'] = _emscripten_enum_EquationType_crown_damage();
 
   }
   if (runtimeInitialized) setupEnums();

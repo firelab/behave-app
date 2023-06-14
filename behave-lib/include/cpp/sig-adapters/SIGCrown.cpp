@@ -71,3 +71,15 @@ char* SIGCrown::getFuelName(int fuelModelNumber) const
 {
   return SIGString::str2charptr(Crown::getFuelName(fuelModelNumber));
 }
+
+char* SIGCrown::getMoistureScenarioDescriptionByName(const char* name) {
+  return SIGString::str2charptr(Crown::getMoistureScenarioDescriptionByName(std::string(name)));
+}
+
+char* SIGCrown::getMoistureScenarioNameByIndex(const int index) {
+  return SIGString::str2charptr(Crown::getMoistureScenarioNameByIndex(index));
+}
+
+char* SIGCrown::getMoistureScenarioDescriptionByIndex(const int index) {
+  return SIGString::str2charptr(Crown::getMoistureScenarioDescriptionByIndex(index));
+}

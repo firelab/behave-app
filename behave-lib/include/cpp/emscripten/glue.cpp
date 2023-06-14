@@ -185,20 +185,12 @@ FireSize* EMSCRIPTEN_KEEPALIVE emscripten_bind_FireSize_FireSize_0() {
   return new FireSize();
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_FireSize_calculateFireBasicDimensions_4(FireSize* self, double effectiveWindSpeed, SpeedUnits_SpeedUnitsEnum windSpeedRateUnits, double forwardSpreadRate, SpeedUnits_SpeedUnitsEnum spreadRateUnits) {
-  self->calculateFireBasicDimensions(effectiveWindSpeed, windSpeedRateUnits, forwardSpreadRate, spreadRateUnits);
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_FireSize_getFireLengthToWidthRatio_0(FireSize* self) {
-  return self->getFireLengthToWidthRatio();
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_FireSize_getBackingSpreadRate_1(FireSize* self, SpeedUnits_SpeedUnitsEnum spreadRateUnits) {
+  return self->getBackingSpreadRate(spreadRateUnits);
 }
 
 double EMSCRIPTEN_KEEPALIVE emscripten_bind_FireSize_getEccentricity_0(FireSize* self) {
   return self->getEccentricity();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_FireSize_getBackingSpreadRate_1(FireSize* self, SpeedUnits_SpeedUnitsEnum spreadRateUnits) {
-  return self->getBackingSpreadRate(spreadRateUnits);
 }
 
 double EMSCRIPTEN_KEEPALIVE emscripten_bind_FireSize_getEllipticalA_3(FireSize* self, LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits_TimeUnitsEnum timeUnits) {
@@ -213,20 +205,28 @@ double EMSCRIPTEN_KEEPALIVE emscripten_bind_FireSize_getEllipticalC_3(FireSize* 
   return self->getEllipticalC(lengthUnits, elapsedTime, timeUnits);
 }
 
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_FireSize_getFireArea_3(FireSize* self, AreaUnits_AreaUnitsEnum areaUnits, double elapsedTime, TimeUnits_TimeUnitsEnum timeUnits) {
+  return self->getFireArea(areaUnits, elapsedTime, timeUnits);
+}
+
 double EMSCRIPTEN_KEEPALIVE emscripten_bind_FireSize_getFireLength_3(FireSize* self, LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits_TimeUnitsEnum timeUnits) {
   return self->getFireLength(lengthUnits, elapsedTime, timeUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_FireSize_getMaxFireWidth_3(FireSize* self, LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits_TimeUnitsEnum timeUnits) {
-  return self->getMaxFireWidth(lengthUnits, elapsedTime, timeUnits);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_FireSize_getFireLengthToWidthRatio_0(FireSize* self) {
+  return self->getFireLengthToWidthRatio();
 }
 
 double EMSCRIPTEN_KEEPALIVE emscripten_bind_FireSize_getFirePerimeter_3(FireSize* self, LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits_TimeUnitsEnum timeUnits) {
   return self->getFirePerimeter(lengthUnits, elapsedTime, timeUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_FireSize_getFireArea_3(FireSize* self, AreaUnits_AreaUnitsEnum areaUnits, double elapsedTime, TimeUnits_TimeUnitsEnum timeUnits) {
-  return self->getFireArea(areaUnits, elapsedTime, timeUnits);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_FireSize_getMaxFireWidth_3(FireSize* self, LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits_TimeUnitsEnum timeUnits) {
+  return self->getMaxFireWidth(lengthUnits, elapsedTime, timeUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_FireSize_calculateFireBasicDimensions_4(FireSize* self, double effectiveWindSpeed, SpeedUnits_SpeedUnitsEnum windSpeedRateUnits, double forwardSpreadRate, SpeedUnits_SpeedUnitsEnum spreadRateUnits) {
+  self->calculateFireBasicDimensions(effectiveWindSpeed, windSpeedRateUnits, forwardSpreadRate, spreadRateUnits);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_FireSize___destroy___0(FireSize* self) {
@@ -437,189 +437,275 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgnite___destroy___0(SIGIgnite* sel
   delete self;
 }
 
-// SIGSpot
+// SIGMoistureScenarios
 
-SIGSpot* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_SIGSpot_0() {
-  return new SIGSpot();
+SIGMoistureScenarios* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_SIGMoistureScenarios_0() {
+  return new SIGMoistureScenarios();
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_initializeMembers_0(SIGSpot* self) {
-  self->initializeMembers();
+bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_getIsMoistureScenarioDefinedByIndex_1(SIGMoistureScenarios* self, int index) {
+  return self->getIsMoistureScenarioDefinedByIndex(index);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_calculateSpottingDistanceFromBurningPile_0(SIGSpot* self) {
-  self->calculateSpottingDistanceFromBurningPile();
+bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_getIsMoistureScenarioDefinedByName_1(SIGMoistureScenarios* self, const char* name) {
+  return self->getIsMoistureScenarioDefinedByName(name);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_calculateSpottingDistanceFromSurfaceFire_0(SIGSpot* self) {
-  self->calculateSpottingDistanceFromSurfaceFire();
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByIndex_1(SIGMoistureScenarios* self, int index) {
+  return self->getMoistureScenarioHundredHourByIndex(index);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_calculateSpottingDistanceFromTorchingTrees_0(SIGSpot* self) {
-  self->calculateSpottingDistanceFromTorchingTrees();
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByName_1(SIGMoistureScenarios* self, const char* name) {
+  return self->getMoistureScenarioHundredHourByName(name);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_setBurningPileFlameHeight_2(SIGSpot* self, double buringPileflameHeight, LengthUnits_LengthUnitsEnum flameHeightUnits) {
-  self->setBurningPileFlameHeight(buringPileflameHeight, flameHeightUnits);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByIndex_1(SIGMoistureScenarios* self, int index) {
+  return self->getMoistureScenarioLiveHerbaceousByIndex(index);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_setDBH_2(SIGSpot* self, double DBH, LengthUnits_LengthUnitsEnum DBHUnits) {
-  self->setDBH(DBH, DBHUnits);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByName_1(SIGMoistureScenarios* self, const char* name) {
+  return self->getMoistureScenarioLiveHerbaceousByName(name);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_setDownwindCoverHeight_2(SIGSpot* self, double downwindCoverHeight, LengthUnits_LengthUnitsEnum coverHeightUnits) {
-  self->setDownwindCoverHeight(downwindCoverHeight, coverHeightUnits);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByIndex_1(SIGMoistureScenarios* self, int index) {
+  return self->getMoistureScenarioLiveWoodyByIndex(index);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_setFlameLength_2(SIGSpot* self, double flameLength, LengthUnits_LengthUnitsEnum flameLengthUnits) {
-  self->setFlameLength(flameLength, flameLengthUnits);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByName_1(SIGMoistureScenarios* self, const char* name) {
+  return self->getMoistureScenarioLiveWoodyByName(name);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_setLocation_1(SIGSpot* self, SpotFireLocation_SpotFireLocationEnum location) {
-  self->setLocation(location);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByIndex_1(SIGMoistureScenarios* self, int index) {
+  return self->getMoistureScenarioOneHourByIndex(index);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_setRidgeToValleyDistance_2(SIGSpot* self, double ridgeToValleyDistance, LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits) {
-  self->setRidgeToValleyDistance(ridgeToValleyDistance, ridgeToValleyDistanceUnits);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByName_1(SIGMoistureScenarios* self, const char* name) {
+  return self->getMoistureScenarioOneHourByName(name);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_setRidgeToValleyElevation_2(SIGSpot* self, double ridgeToValleyElevation, LengthUnits_LengthUnitsEnum elevationUnits) {
-  self->setRidgeToValleyElevation(ridgeToValleyElevation, elevationUnits);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByIndex_1(SIGMoistureScenarios* self, int index) {
+  return self->getMoistureScenarioTenHourByIndex(index);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_setTorchingTrees_1(SIGSpot* self, int torchingTrees) {
-  self->setTorchingTrees(torchingTrees);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByName_1(SIGMoistureScenarios* self, const char* name) {
+  return self->getMoistureScenarioTenHourByName(name);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_setTreeHeight_2(SIGSpot* self, double treeHeight, LengthUnits_LengthUnitsEnum treeHeightUnits) {
-  self->setTreeHeight(treeHeight, treeHeightUnits);
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_getMoistureScenarioIndexByName_1(SIGMoistureScenarios* self, const char* name) {
+  return self->getMoistureScenarioIndexByName(name);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_setTreeSpecies_1(SIGSpot* self, SpotTreeSpecies_SpotTreeSpeciesEnum treeSpecies) {
-  self->setTreeSpecies(treeSpecies);
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_getNumberOfMoistureScenarios_0(SIGMoistureScenarios* self) {
+  return self->getNumberOfMoistureScenarios();
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_setWindSpeedAtTwentyFeet_2(SIGSpot* self, double windSpeedAtTwentyFeet, SpeedUnits_SpeedUnitsEnum windSpeedUnits) {
-  self->setWindSpeedAtTwentyFeet(windSpeedAtTwentyFeet, windSpeedUnits);
+char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_getMoistureScenarioDescriptionByIndex_1(SIGMoistureScenarios* self, int index) {
+  return self->getMoistureScenarioDescriptionByIndex(index);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_updateSpotInputsForBurningPile_11(SIGSpot* self, SpotFireLocation_SpotFireLocationEnum location, double ridgeToValleyDistance, LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits, double ridgeToValleyElevation, LengthUnits_LengthUnitsEnum elevationUnits, double downwindCoverHeight, LengthUnits_LengthUnitsEnum coverHeightUnits, double buringPileFlameHeight, LengthUnits_LengthUnitsEnum flameHeightUnits, double windSpeedAtTwentyFeet, SpeedUnits_SpeedUnitsEnum windSpeedUnits) {
-  self->updateSpotInputsForBurningPile(location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, buringPileFlameHeight, flameHeightUnits, windSpeedAtTwentyFeet, windSpeedUnits);
+char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_getMoistureScenarioDescriptionByName_1(SIGMoistureScenarios* self, const char* name) {
+  return self->getMoistureScenarioDescriptionByName(name);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_updateSpotInputsForSurfaceFire_11(SIGSpot* self, SpotFireLocation_SpotFireLocationEnum location, double ridgeToValleyDistance, LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits, double ridgeToValleyElevation, LengthUnits_LengthUnitsEnum elevationUnits, double downwindCoverHeight, LengthUnits_LengthUnitsEnum coverHeightUnits, double windSpeedAtTwentyFeet, SpeedUnits_SpeedUnitsEnum windSpeedUnits, double flameLength, LengthUnits_LengthUnitsEnum flameLengthUnits) {
-  self->updateSpotInputsForSurfaceFire(location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, windSpeedAtTwentyFeet, windSpeedUnits, flameLength, flameLengthUnits);
+char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_getMoistureScenarioNameByIndex_1(SIGMoistureScenarios* self, int index) {
+  return self->getMoistureScenarioNameByIndex(index);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_updateSpotInputsForTorchingTrees_15(SIGSpot* self, SpotFireLocation_SpotFireLocationEnum location, double ridgeToValleyDistance, LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits, double ridgeToValleyElevation, LengthUnits_LengthUnitsEnum elevationUnits, double downwindCoverHeight, LengthUnits_LengthUnitsEnum coverHeightUnits, int torchingTrees, double DBH, LengthUnits_LengthUnitsEnum DBHUnits, double treeHeight, LengthUnits_LengthUnitsEnum treeHeightUnits, SpotTreeSpecies_SpotTreeSpeciesEnum treeSpecies, double windSpeedAtTwentyFeet, SpeedUnits_SpeedUnitsEnum windSpeedUnits) {
-  self->updateSpotInputsForTorchingTrees(location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, torchingTrees, DBH, DBHUnits, treeHeight, treeHeightUnits, treeSpecies, windSpeedAtTwentyFeet, windSpeedUnits);
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios___destroy___0(SIGMoistureScenarios* self) {
+  delete self;
 }
 
-int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_getTorchingTrees_0(SIGSpot* self) {
-  return self->getTorchingTrees();
+// Spot
+
+Spot* EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_Spot_0() {
+  return new Spot();
 }
 
-SpotFireLocation_SpotFireLocationEnum EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_getLocation_0(SIGSpot* self) {
+SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_getDownwindCanopyMode_0(Spot* self) {
+  return self->getDownwindCanopyMode();
+}
+
+SpotFireLocation_SpotFireLocationEnum EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_getLocation_0(Spot* self) {
   return self->getLocation();
 }
 
-SpotTreeSpecies_SpotTreeSpeciesEnum EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_getTreeSpecies_0(SIGSpot* self) {
+SpotTreeSpecies_SpotTreeSpeciesEnum EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_getTreeSpecies_0(Spot* self) {
   return self->getTreeSpecies();
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_getBurningPileFlameHeight_1(SIGSpot* self, LengthUnits_LengthUnitsEnum flameHeightUnits) {
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_getBurningPileFlameHeight_1(Spot* self, LengthUnits_LengthUnitsEnum flameHeightUnits) {
   return self->getBurningPileFlameHeight(flameHeightUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_getCoverHeightUsedForBurningPile_1(SIGSpot* self, LengthUnits_LengthUnitsEnum coverHeightUnits) {
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_getCoverHeightUsedForBurningPile_1(Spot* self, LengthUnits_LengthUnitsEnum coverHeightUnits) {
   return self->getCoverHeightUsedForBurningPile(coverHeightUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_getCoverHeightUsedForSurfaceFire_1(SIGSpot* self, LengthUnits_LengthUnitsEnum coverHeightUnits) {
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_getCoverHeightUsedForSurfaceFire_1(Spot* self, LengthUnits_LengthUnitsEnum coverHeightUnits) {
   return self->getCoverHeightUsedForSurfaceFire(coverHeightUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_getCoverHeightUsedForTorchingTrees_1(SIGSpot* self, LengthUnits_LengthUnitsEnum coverHeightUnits) {
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_getCoverHeightUsedForTorchingTrees_1(Spot* self, LengthUnits_LengthUnitsEnum coverHeightUnits) {
   return self->getCoverHeightUsedForTorchingTrees(coverHeightUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_getDBH_1(SIGSpot* self, LengthUnits_LengthUnitsEnum DBHUnits) {
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_getDBH_1(Spot* self, LengthUnits_LengthUnitsEnum DBHUnits) {
   return self->getDBH(DBHUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_getDownwindCoverHeight_1(SIGSpot* self, LengthUnits_LengthUnitsEnum coverHeightUnits) {
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_getDownwindCoverHeight_1(Spot* self, LengthUnits_LengthUnitsEnum coverHeightUnits) {
   return self->getDownwindCoverHeight(coverHeightUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_getFlameDurationForTorchingTrees_1(SIGSpot* self, TimeUnits_TimeUnitsEnum durationUnits) {
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_getFlameDurationForTorchingTrees_1(Spot* self, TimeUnits_TimeUnitsEnum durationUnits) {
   return self->getFlameDurationForTorchingTrees(durationUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_getFlameHeightForTorchingTrees_1(SIGSpot* self, LengthUnits_LengthUnitsEnum flameHeightUnits) {
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_getFlameHeightForTorchingTrees_1(Spot* self, LengthUnits_LengthUnitsEnum flameHeightUnits) {
   return self->getFlameHeightForTorchingTrees(flameHeightUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_getFlameRatioForTorchingTrees_0(SIGSpot* self) {
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_getFlameRatioForTorchingTrees_0(Spot* self) {
   return self->getFlameRatioForTorchingTrees();
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_getMaxFirebrandHeightFromBurningPile_1(SIGSpot* self, LengthUnits_LengthUnitsEnum firebrandHeightUnits) {
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_getMaxFirebrandHeightFromBurningPile_1(Spot* self, LengthUnits_LengthUnitsEnum firebrandHeightUnits) {
   return self->getMaxFirebrandHeightFromBurningPile(firebrandHeightUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_getMaxFirebrandHeightFromSurfaceFire_1(SIGSpot* self, LengthUnits_LengthUnitsEnum firebrandHeightUnits) {
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_getMaxFirebrandHeightFromSurfaceFire_1(Spot* self, LengthUnits_LengthUnitsEnum firebrandHeightUnits) {
   return self->getMaxFirebrandHeightFromSurfaceFire(firebrandHeightUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_getMaxFirebrandHeightFromTorchingTrees_1(SIGSpot* self, LengthUnits_LengthUnitsEnum firebrandHeightUnits) {
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_getMaxFirebrandHeightFromTorchingTrees_1(Spot* self, LengthUnits_LengthUnitsEnum firebrandHeightUnits) {
   return self->getMaxFirebrandHeightFromTorchingTrees(firebrandHeightUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromBurningPile_1(SIGSpot* self, LengthUnits_LengthUnitsEnum spottingDistanceUnits) {
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_getMaxFlatTerrainSpottingDistanceFromBurningPile_1(Spot* self, LengthUnits_LengthUnitsEnum spottingDistanceUnits) {
   return self->getMaxFlatTerrainSpottingDistanceFromBurningPile(spottingDistanceUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromSurfaceFire_1(SIGSpot* self, LengthUnits_LengthUnitsEnum spottingDistanceUnits) {
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_getMaxFlatTerrainSpottingDistanceFromSurfaceFire_1(Spot* self, LengthUnits_LengthUnitsEnum spottingDistanceUnits) {
   return self->getMaxFlatTerrainSpottingDistanceFromSurfaceFire(spottingDistanceUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromTorchingTrees_1(SIGSpot* self, LengthUnits_LengthUnitsEnum spottingDistanceUnits) {
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_getMaxFlatTerrainSpottingDistanceFromTorchingTrees_1(Spot* self, LengthUnits_LengthUnitsEnum spottingDistanceUnits) {
   return self->getMaxFlatTerrainSpottingDistanceFromTorchingTrees(spottingDistanceUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromBurningPile_1(SIGSpot* self, LengthUnits_LengthUnitsEnum spottingDistanceUnits) {
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_getMaxMountainousTerrainSpottingDistanceFromBurningPile_1(Spot* self, LengthUnits_LengthUnitsEnum spottingDistanceUnits) {
   return self->getMaxMountainousTerrainSpottingDistanceFromBurningPile(spottingDistanceUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromSurfaceFire_1(SIGSpot* self, LengthUnits_LengthUnitsEnum spottingDistanceUnits) {
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_getMaxMountainousTerrainSpottingDistanceFromSurfaceFire_1(Spot* self, LengthUnits_LengthUnitsEnum spottingDistanceUnits) {
   return self->getMaxMountainousTerrainSpottingDistanceFromSurfaceFire(spottingDistanceUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromTorchingTrees_1(SIGSpot* self, LengthUnits_LengthUnitsEnum spottingDistanceUnits) {
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_getMaxMountainousTerrainSpottingDistanceFromTorchingTrees_1(Spot* self, LengthUnits_LengthUnitsEnum spottingDistanceUnits) {
   return self->getMaxMountainousTerrainSpottingDistanceFromTorchingTrees(spottingDistanceUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_getRidgeToValleyDistance_1(SIGSpot* self, LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits) {
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_getRidgeToValleyDistance_1(Spot* self, LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits) {
   return self->getRidgeToValleyDistance(ridgeToValleyDistanceUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_getRidgeToValleyElevation_1(SIGSpot* self, LengthUnits_LengthUnitsEnum elevationUnits) {
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_getRidgeToValleyElevation_1(Spot* self, LengthUnits_LengthUnitsEnum elevationUnits) {
   return self->getRidgeToValleyElevation(elevationUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_getSurfaceFlameLength_1(SIGSpot* self, LengthUnits_LengthUnitsEnum surfaceFlameLengthUnits) {
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_getSurfaceFlameLength_1(Spot* self, LengthUnits_LengthUnitsEnum surfaceFlameLengthUnits) {
   return self->getSurfaceFlameLength(surfaceFlameLengthUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_getTreeHeight_1(SIGSpot* self, LengthUnits_LengthUnitsEnum treeHeightUnits) {
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_getTreeHeight_1(Spot* self, LengthUnits_LengthUnitsEnum treeHeightUnits) {
   return self->getTreeHeight(treeHeightUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_getWindSpeedAtTwentyFeet_1(SIGSpot* self, SpeedUnits_SpeedUnitsEnum windSpeedUnits) {
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_getWindSpeedAtTwentyFeet_1(Spot* self, SpeedUnits_SpeedUnitsEnum windSpeedUnits) {
   return self->getWindSpeedAtTwentyFeet(windSpeedUnits);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot___destroy___0(SIGSpot* self) {
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_getTorchingTrees_0(Spot* self) {
+  return self->getTorchingTrees();
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_calculateSpottingDistanceFromBurningPile_0(Spot* self) {
+  self->calculateSpottingDistanceFromBurningPile();
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_calculateSpottingDistanceFromSurfaceFire_0(Spot* self) {
+  self->calculateSpottingDistanceFromSurfaceFire();
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_calculateSpottingDistanceFromTorchingTrees_0(Spot* self) {
+  self->calculateSpottingDistanceFromTorchingTrees();
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_initializeMembers_0(Spot* self) {
+  self->initializeMembers();
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_setBurningPileFlameHeight_2(Spot* self, double buringPileflameHeight, LengthUnits_LengthUnitsEnum flameHeightUnits) {
+  self->setBurningPileFlameHeight(buringPileflameHeight, flameHeightUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_setDBH_2(Spot* self, double DBH, LengthUnits_LengthUnitsEnum DBHUnits) {
+  self->setDBH(DBH, DBHUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_setDownwindCanopyMode_1(Spot* self, SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum downwindCanopyMode) {
+  self->setDownwindCanopyMode(downwindCanopyMode);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_setDownwindCoverHeight_2(Spot* self, double downwindCoverHeight, LengthUnits_LengthUnitsEnum coverHeightUnits) {
+  self->setDownwindCoverHeight(downwindCoverHeight, coverHeightUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_setFlameLength_2(Spot* self, double flameLength, LengthUnits_LengthUnitsEnum flameLengthUnits) {
+  self->setFlameLength(flameLength, flameLengthUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_setLocation_1(Spot* self, SpotFireLocation_SpotFireLocationEnum location) {
+  self->setLocation(location);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_setRidgeToValleyDistance_2(Spot* self, double ridgeToValleyDistance, LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits) {
+  self->setRidgeToValleyDistance(ridgeToValleyDistance, ridgeToValleyDistanceUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_setRidgeToValleyElevation_2(Spot* self, double ridgeToValleyElevation, LengthUnits_LengthUnitsEnum elevationUnits) {
+  self->setRidgeToValleyElevation(ridgeToValleyElevation, elevationUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_setTorchingTrees_1(Spot* self, int torchingTrees) {
+  self->setTorchingTrees(torchingTrees);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_setTreeHeight_2(Spot* self, double treeHeight, LengthUnits_LengthUnitsEnum treeHeightUnits) {
+  self->setTreeHeight(treeHeight, treeHeightUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_setTreeSpecies_1(Spot* self, SpotTreeSpecies_SpotTreeSpeciesEnum treeSpecies) {
+  self->setTreeSpecies(treeSpecies);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_setWindSpeedAtTwentyFeet_2(Spot* self, double windSpeedAtTwentyFeet, SpeedUnits_SpeedUnitsEnum windSpeedUnits) {
+  self->setWindSpeedAtTwentyFeet(windSpeedAtTwentyFeet, windSpeedUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_updateSpotInputsForBurningPile_12(Spot* self, SpotFireLocation_SpotFireLocationEnum location, double ridgeToValleyDistance, LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits, double ridgeToValleyElevation, LengthUnits_LengthUnitsEnum elevationUnits, double downwindCoverHeight, LengthUnits_LengthUnitsEnum coverHeightUnits, SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum downwindCanopyMode, double buringPileFlameHeight, LengthUnits_LengthUnitsEnum flameHeightUnits, double windSpeedAtTwentyFeet, SpeedUnits_SpeedUnitsEnum windSpeedUnits) {
+  self->updateSpotInputsForBurningPile(location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, downwindCanopyMode, buringPileFlameHeight, flameHeightUnits, windSpeedAtTwentyFeet, windSpeedUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_updateSpotInputsForSurfaceFire_12(Spot* self, SpotFireLocation_SpotFireLocationEnum location, double ridgeToValleyDistance, LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits, double ridgeToValleyElevation, LengthUnits_LengthUnitsEnum elevationUnits, double downwindCoverHeight, LengthUnits_LengthUnitsEnum coverHeightUnits, SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum downwindCanopyMode, double windSpeedAtTwentyFeet, SpeedUnits_SpeedUnitsEnum windSpeedUnits, double flameLength, LengthUnits_LengthUnitsEnum flameLengthUnits) {
+  self->updateSpotInputsForSurfaceFire(location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, downwindCanopyMode, windSpeedAtTwentyFeet, windSpeedUnits, flameLength, flameLengthUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot_updateSpotInputsForTorchingTrees_16(Spot* self, SpotFireLocation_SpotFireLocationEnum location, double ridgeToValleyDistance, LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits, double ridgeToValleyElevation, LengthUnits_LengthUnitsEnum elevationUnits, double downwindCoverHeight, LengthUnits_LengthUnitsEnum coverHeightUnits, SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum downwindCanopyMode, int torchingTrees, double DBH, LengthUnits_LengthUnitsEnum DBHUnits, double treeHeight, LengthUnits_LengthUnitsEnum treeHeightUnits, SpotTreeSpecies_SpotTreeSpeciesEnum treeSpecies, double windSpeedAtTwentyFeet, SpeedUnits_SpeedUnitsEnum windSpeedUnits) {
+  self->updateSpotInputsForTorchingTrees(location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, downwindCanopyMode, torchingTrees, DBH, DBHUnits, treeHeight, treeHeightUnits, treeSpecies, windSpeedAtTwentyFeet, windSpeedUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_Spot___destroy___0(Spot* self) {
   delete self;
 }
 
@@ -645,12 +731,20 @@ bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFuelModels_getIsDynamic_1(SIGFuelMo
   return self->getIsDynamic(fuelModelNumber);
 }
 
+bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFuelModels_isAllFuelLoadZero_1(SIGFuelModels* self, int fuelModelNumber) {
+  return self->isAllFuelLoadZero(fuelModelNumber);
+}
+
 bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFuelModels_isFuelModelDefined_1(SIGFuelModels* self, int fuelModelNumber) {
   return self->isFuelModelDefined(fuelModelNumber);
 }
 
-bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFuelModels_setCustomFuelModel_21(SIGFuelModels* self, int fuelModelNumberIn, char* code, char* name, double fuelBedDepth, LengthUnits_LengthUnitsEnum lengthUnits, double moistureOfExtinctionDead, MoistureUnits_MoistureUnitsEnum moistureUnits, double heatOfCombustionDead, double heatOfCombustionLive, HeatOfCombustionUnits_HeatOfCombustionUnitsEnum heatOfCombustionUnits, double fuelLoadOneHour, double fuelLoadTenHour, double fuelLoadHundredHour, double fuelLoadLiveHerbaceous, double fuelLoadLiveWoody, LoadingUnits_LoadingUnitsEnum loadingUnits, double savrOneHour, double savrLiveHerbaceous, double savrLiveWoody, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum savrUnits, bool isDynamic) {
-  return self->setCustomFuelModel(fuelModelNumberIn, code, name, fuelBedDepth, lengthUnits, moistureOfExtinctionDead, moistureUnits, heatOfCombustionDead, heatOfCombustionLive, heatOfCombustionUnits, fuelLoadOneHour, fuelLoadTenHour, fuelLoadHundredHour, fuelLoadLiveHerbaceous, fuelLoadLiveWoody, loadingUnits, savrOneHour, savrLiveHerbaceous, savrLiveWoody, savrUnits, isDynamic);
+bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFuelModels_isFuelModelReserved_1(SIGFuelModels* self, int fuelModelNumber) {
+  return self->isFuelModelReserved(fuelModelNumber);
+}
+
+bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFuelModels_setCustomFuelModel_21(SIGFuelModels* self, int fuelModelNumber, char* code, char* name, double fuelBedDepth, LengthUnits_LengthUnitsEnum lengthUnits, double moistureOfExtinctionDead, MoistureUnits_MoistureUnitsEnum moistureUnits, double heatOfCombustionDead, double heatOfCombustionLive, HeatOfCombustionUnits_HeatOfCombustionUnitsEnum heatOfCombustionUnits, double fuelLoadOneHour, double fuelLoadTenHour, double fuelLoadHundredHour, double fuelLoadLiveHerbaceous, double fuelLoadLiveWoody, LoadingUnits_LoadingUnitsEnum loadingUnits, double savrOneHour, double savrLiveHerbaceous, double savrLiveWoody, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum savrUnits, bool isDynamic) {
+  return self->setCustomFuelModel(fuelModelNumber, code, name, fuelBedDepth, lengthUnits, moistureOfExtinctionDead, moistureUnits, heatOfCombustionDead, heatOfCombustionLive, heatOfCombustionUnits, fuelLoadOneHour, fuelLoadTenHour, fuelLoadHundredHour, fuelLoadLiveHerbaceous, fuelLoadLiveWoody, loadingUnits, savrOneHour, savrLiveHerbaceous, savrLiveWoody, savrUnits, isDynamic);
 }
 
 char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFuelModels_getFuelCode_1(SIGFuelModels* self, int fuelModelNumber) {
@@ -689,10 +783,6 @@ double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFuelModels_getHeatOfCombustionDea
   return self->getHeatOfCombustionDead(fuelModelNumber, heatOfCombustionUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFuelModels_getHeatOfCombustionLive_2(SIGFuelModels* self, int fuelModelNumber, HeatOfCombustionUnits_HeatOfCombustionUnitsEnum heatOfCombustionUnits) {
-  return self->getHeatOfCombustionLive(fuelModelNumber, heatOfCombustionUnits);
-}
-
 double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFuelModels_getMoistureOfExtinctionDead_2(SIGFuelModels* self, int fuelModelNumber, MoistureUnits_MoistureUnitsEnum moistureUnits) {
   return self->getMoistureOfExtinctionDead(fuelModelNumber, moistureUnits);
 }
@@ -709,6 +799,10 @@ double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFuelModels_getSavrOneHour_2(SIGFu
   return self->getSavrOneHour(fuelModelNumber, savrUnits);
 }
 
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFuelModels_getHeatOfCombustionLive_2(SIGFuelModels* self, int fuelModelNumber, HeatOfCombustionUnits_HeatOfCombustionUnitsEnum heatOfCombustionUnits) {
+  return self->getHeatOfCombustionLive(fuelModelNumber, heatOfCombustionUnits);
+}
+
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFuelModels___destroy___0(SIGFuelModels* self) {
   delete self;
 }
@@ -719,16 +813,12 @@ SIGSurface* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_SIGSurface_1(SIGFuel
   return new SIGSurface(*fuelModels);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_initializeMembers_0(SIGSurface* self) {
-  self->initializeMembers();
+AspenFireSeverity_AspenFireSeverityEnum EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getAspenFireSeverity_0(SIGSurface* self) {
+  return self->getAspenFireSeverity();
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfInterest_1(SIGSurface* self, double directionOfinterest) {
-  self->doSurfaceRunInDirectionOfInterest(directionOfinterest);
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfMaxSpread_0(SIGSurface* self) {
-  self->doSurfaceRunInDirectionOfMaxSpread();
+MoistureInputMode_MoistureInputModeEnum EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureInputMode_0(SIGSurface* self) {
+  return self->getMoistureInputMode();
 }
 
 WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getWindAdjustmentFactorCalculationMethod_0(SIGSurface* self) {
@@ -743,20 +833,84 @@ WindHeightInputMode_WindHeightInputModeEnum EMSCRIPTEN_KEEPALIVE emscripten_bind
   return self->getWindHeightInputMode();
 }
 
+bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByIndex_1(SIGSurface* self, int index) {
+  return self->getIsMoistureScenarioDefinedByIndex(index);
+}
+
+bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByName_1(SIGSurface* self, char* name) {
+  return self->getIsMoistureScenarioDefinedByName(name);
+}
+
+bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getIsUsingPalmettoGallberry_0(SIGSurface* self) {
+  return self->getIsUsingPalmettoGallberry();
+}
+
+bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getIsUsingWesternAspen_0(SIGSurface* self) {
+  return self->getIsUsingWesternAspen();
+}
+
 bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_isAllFuelLoadZero_1(SIGSurface* self, int fuelModelNumber) {
   return self->isAllFuelLoadZero(fuelModelNumber);
+}
+
+bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_isFuelDynamic_1(SIGSurface* self, int fuelModelNumber) {
+  return self->isFuelDynamic(fuelModelNumber);
+}
+
+bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_isFuelModelDefined_1(SIGSurface* self, int fuelModelNumber) {
+  return self->isFuelModelDefined(fuelModelNumber);
+}
+
+bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_isFuelModelReserved_1(SIGSurface* self, int fuelModelNumber) {
+  return self->isFuelModelReserved(fuelModelNumber);
+}
+
+bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_isMoistureClassInputNeededForCurrentFuelModel_1(SIGSurface* self, MoistureClassInput_MoistureClassInputEnum moistureClass) {
+  return self->isMoistureClassInputNeededForCurrentFuelModel(moistureClass);
 }
 
 bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_isUsingTwoFuelModels_0(SIGSurface* self) {
   return self->isUsingTwoFuelModels();
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_calculateFlameLength_1(SIGSurface* self, double firelineIntensity) {
-  return self->calculateFlameLength(firelineIntensity);
+bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_setMoistureScenarioByIndex_1(SIGSurface* self, int moistureScenarioIndex) {
+  return self->setMoistureScenarioByIndex(moistureScenarioIndex);
+}
+
+bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_setMoistureScenarioByName_1(SIGSurface* self, char* moistureScenarioName) {
+  return self->setMoistureScenarioByName(moistureScenarioName);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_calculateFlameLength_3(SIGSurface* self, double firelineIntensity, FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits, LengthUnits_LengthUnitsEnum flameLengthUnits) {
+  return self->calculateFlameLength(firelineIntensity, firelineIntensityUnits, flameLengthUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_calculateScorchHeight_7(SIGSurface* self, double firelineIntensity, FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits, double midFlameWindSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, double airTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnits, LengthUnits_LengthUnitsEnum scorchHeightUnits) {
+  return self->calculateScorchHeight(firelineIntensity, firelineIntensityUnits, midFlameWindSpeed, windSpeedUnits, airTemperature, temperatureUnits, scorchHeightUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getAgeOfRough_0(SIGSurface* self) {
+  return self->getAgeOfRough();
 }
 
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getAspect_0(SIGSurface* self) {
   return self->getAspect();
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getAspenCuringLevel_1(SIGSurface* self, CuringLevelUnits_CuringLevelEnum curingLevelUnits) {
+  return self->getAspenCuringLevel(curingLevelUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getAspenDBH_1(SIGSurface* self, LengthUnits_LengthUnitsEnum dbhUnits) {
+  return self->getAspenDBH(dbhUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getBackingSpreadDistance_3(SIGSurface* self, LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits_TimeUnitsEnum timeUnits) {
+  return self->getBackingSpreadDistance(lengthUnits, elapsedTime, timeUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getBackingSpreadRate_1(SIGSurface* self, SpeedUnits_SpeedUnitsEnum spreadRateUnits) {
+  return self->getBackingSpreadRate(spreadRateUnits);
 }
 
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getBulkDensity_1(SIGSurface* self, DensityUnits_DensityUnitsEnum densityUnits) {
@@ -769,6 +923,14 @@ const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getCanopyCover_1(SI
 
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getCanopyHeight_1(SIGSurface* self, LengthUnits_LengthUnitsEnum canopyHeightUnits) {
   return self->getCanopyHeight(canopyHeightUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getCharacteristicMoistureByLifeState_2(SIGSurface* self, FuelLifeState_FuelLifeStateEnum lifeState, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  return self->getCharacteristicMoistureByLifeState(lifeState, moistureUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getCharacteristicSAVR_1(SIGSurface* self, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum savrUnits) {
+  return self->getCharacteristicSAVR(savrUnits);
 }
 
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getCrownRatio_0(SIGSurface* self) {
@@ -815,6 +977,66 @@ const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getFlameLength_1(SI
   return self->getFlameLength(flameLengthUnits);
 }
 
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getFlankingSpreadDistance_3(SIGSurface* self, LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits_TimeUnitsEnum timeUnits) {
+  return self->getFlankingSpreadDistance(lengthUnits, elapsedTime, timeUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getFlankingSpreadRate_1(SIGSurface* self, SpeedUnits_SpeedUnitsEnum spreadRateUnits) {
+  return self->getFlankingSpreadRate(spreadRateUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getFuelHeatOfCombustionDead_2(SIGSurface* self, int fuelModelNumber, HeatOfCombustionUnits_HeatOfCombustionUnitsEnum heatOfCombustionUnits) {
+  return self->getFuelHeatOfCombustionDead(fuelModelNumber, heatOfCombustionUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getFuelHeatOfCombustionLive_2(SIGSurface* self, int fuelModelNumber, HeatOfCombustionUnits_HeatOfCombustionUnitsEnum heatOfCombustionUnits) {
+  return self->getFuelHeatOfCombustionLive(fuelModelNumber, heatOfCombustionUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getFuelLoadHundredHour_2(SIGSurface* self, int fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits) {
+  return self->getFuelLoadHundredHour(fuelModelNumber, loadingUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getFuelLoadLiveHerbaceous_2(SIGSurface* self, int fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits) {
+  return self->getFuelLoadLiveHerbaceous(fuelModelNumber, loadingUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getFuelLoadLiveWoody_2(SIGSurface* self, int fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits) {
+  return self->getFuelLoadLiveWoody(fuelModelNumber, loadingUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getFuelLoadOneHour_2(SIGSurface* self, int fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits) {
+  return self->getFuelLoadOneHour(fuelModelNumber, loadingUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getFuelLoadTenHour_2(SIGSurface* self, int fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits) {
+  return self->getFuelLoadTenHour(fuelModelNumber, loadingUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getFuelMoistureOfExtinctionDead_2(SIGSurface* self, int fuelModelNumber, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  return self->getFuelMoistureOfExtinctionDead(fuelModelNumber, moistureUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getFuelSavrLiveHerbaceous_2(SIGSurface* self, int fuelModelNumber, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum savrUnits) {
+  return self->getFuelSavrLiveHerbaceous(fuelModelNumber, savrUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getFuelSavrLiveWoody_2(SIGSurface* self, int fuelModelNumber, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum savrUnits) {
+  return self->getFuelSavrLiveWoody(fuelModelNumber, savrUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getFuelSavrOneHour_2(SIGSurface* self, int fuelModelNumber, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum savrUnits) {
+  return self->getFuelSavrOneHour(fuelModelNumber, savrUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getFuelbedDepth_2(SIGSurface* self, int fuelModelNumber, LengthUnits_LengthUnitsEnum lengthUnits) {
+  return self->getFuelbedDepth(fuelModelNumber, lengthUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getHeadingToBackingRatio_0(SIGSurface* self) {
+  return self->getHeadingToBackingRatio();
+}
+
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getHeatPerUnitArea_1(SIGSurface* self, HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum heatPerUnitAreaUnits) {
   return self->getHeatPerUnitArea(heatPerUnitAreaUnits);
 }
@@ -823,12 +1045,32 @@ const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getHeatSink_1(SIGSu
   return self->getHeatSink(heatSinkUnits);
 }
 
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getHeatSource_1(SIGSurface* self, HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum heatSourceUnits) {
+  return self->getHeatSource(heatSourceUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getHeightOfUnderstory_1(SIGSurface* self, LengthUnits_LengthUnitsEnum heightUnits) {
+  return self->getHeightOfUnderstory(heightUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getLiveFuelMoistureOfExtinction_1(SIGSurface* self, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  return self->getLiveFuelMoistureOfExtinction(moistureUnits);
+}
+
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMidflameWindspeed_1(SIGSurface* self, SpeedUnits_SpeedUnitsEnum windSpeedUnits) {
   return self->getMidflameWindspeed(windSpeedUnits);
 }
 
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureDeadAggregateValue_1(SIGSurface* self, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  return self->getMoistureDeadAggregateValue(moistureUnits);
+}
+
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureHundredHour_1(SIGSurface* self, MoistureUnits_MoistureUnitsEnum moistureUnits) {
   return self->getMoistureHundredHour(moistureUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureLiveAggregateValue_1(SIGSurface* self, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  return self->getMoistureLiveAggregateValue(moistureUnits);
 }
 
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureLiveHerbaceous_1(SIGSurface* self, MoistureUnits_MoistureUnitsEnum moistureUnits) {
@@ -843,8 +1085,56 @@ const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureOneHour_
   return self->getMoistureOneHour(moistureUnits);
 }
 
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByIndex_1(SIGSurface* self, int index) {
+  return self->getMoistureScenarioHundredHourByIndex(index);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByName_1(SIGSurface* self, char* name) {
+  return self->getMoistureScenarioHundredHourByName(name);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByIndex_1(SIGSurface* self, int index) {
+  return self->getMoistureScenarioLiveHerbaceousByIndex(index);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByName_1(SIGSurface* self, char* name) {
+  return self->getMoistureScenarioLiveHerbaceousByName(name);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByIndex_1(SIGSurface* self, int index) {
+  return self->getMoistureScenarioLiveWoodyByIndex(index);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByName_1(SIGSurface* self, char* name) {
+  return self->getMoistureScenarioLiveWoodyByName(name);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureScenarioOneHourByIndex_1(SIGSurface* self, int index) {
+  return self->getMoistureScenarioOneHourByIndex(index);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureScenarioOneHourByName_1(SIGSurface* self, char* name) {
+  return self->getMoistureScenarioOneHourByName(name);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureScenarioTenHourByIndex_1(SIGSurface* self, int index) {
+  return self->getMoistureScenarioTenHourByIndex(index);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureScenarioTenHourByName_1(SIGSurface* self, char* name) {
+  return self->getMoistureScenarioTenHourByName(name);
+}
+
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureTenHour_1(SIGSurface* self, MoistureUnits_MoistureUnitsEnum moistureUnits) {
   return self->getMoistureTenHour(moistureUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getOverstoryBasalArea_1(SIGSurface* self, BasalAreaUnits_BasalAreaUnitsEnum basalAreaUnits) {
+  return self->getOverstoryBasalArea(basalAreaUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getPalmettoCoverage_1(SIGSurface* self, CoverUnits_CoverUnitsEnum coverUnits) {
+  return self->getPalmettoCoverage(coverUnits);
 }
 
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getReactionIntensity_1(SIGSurface* self, HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum reactiontionIntensityUnits) {
@@ -863,6 +1153,14 @@ const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getSlopeFactor_0(SI
   return self->getSlopeFactor();
 }
 
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getSpreadDistance_3(SIGSurface* self, LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits_TimeUnitsEnum timeUnits) {
+  return self->getSpreadDistance(lengthUnits, elapsedTime, timeUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getSpreadDistanceInDirectionOfInterest_3(SIGSurface* self, LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits_TimeUnitsEnum timeUnits) {
+  return self->getSpreadDistanceInDirectionOfInterest(lengthUnits, elapsedTime, timeUnits);
+}
+
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getSpreadRate_1(SIGSurface* self, SpeedUnits_SpeedUnitsEnum spreadRateUnits) {
   return self->getSpreadRate(spreadRateUnits);
 }
@@ -871,20 +1169,88 @@ const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getSpreadRateInDire
   return self->getSpreadRateInDirectionOfInterest(spreadRateUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getWindDirection_0(SIGSurface* self) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getSurfaceFireReactionIntensityForLifeState_1(SIGSurface* self, FuelLifeState_FuelLifeStateEnum lifeState) {
+  return self->getSurfaceFireReactionIntensityForLifeState(lifeState);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getWindDirection_0(SIGSurface* self) {
   return self->getWindDirection();
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getWindSpeed_2(SIGSurface* self, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getWindSpeed_2(SIGSurface* self, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode) {
   return self->getWindSpeed(windSpeedUnits, windHeightInputMode);
 }
 
-int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getFuelModelNumber_0(SIGSurface* self) {
+const int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getAspenFuelModelNumber_0(SIGSurface* self) {
+  return self->getAspenFuelModelNumber();
+}
+
+const int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getFuelModelNumber_0(SIGSurface* self) {
   return self->getFuelModelNumber();
+}
+
+const int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureScenarioIndexByName_1(SIGSurface* self, char* name) {
+  return self->getMoistureScenarioIndexByName(name);
+}
+
+const int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getNumberOfMoistureScenarios_0(SIGSurface* self) {
+  return self->getNumberOfMoistureScenarios();
+}
+
+const char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getFuelCode_1(SIGSurface* self, int fuelModelNumber) {
+  return self->getFuelCode(fuelModelNumber);
+}
+
+const char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getFuelName_1(SIGSurface* self, int fuelModelNumber) {
+  return self->getFuelName(fuelModelNumber);
+}
+
+char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureScenarioDescriptionByIndex_1(SIGSurface* self, int index) {
+  return self->getMoistureScenarioDescriptionByIndex(index);
+}
+
+char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureScenarioDescriptionByName_1(SIGSurface* self, char* name) {
+  return self->getMoistureScenarioDescriptionByName(name);
+}
+
+char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureScenarioNameByIndex_1(SIGSurface* self, int index) {
+  return self->getMoistureScenarioNameByIndex(index);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfInterest_2(SIGSurface* self, double directionOfInterest, SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum directionMode) {
+  self->doSurfaceRunInDirectionOfInterest(directionOfInterest, directionMode);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfMaxSpread_0(SIGSurface* self) {
+  self->doSurfaceRunInDirectionOfMaxSpread();
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_initializeMembers_0(SIGSurface* self) {
+  self->initializeMembers();
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_setAgeOfRough_1(SIGSurface* self, double ageOfRough) {
+  self->setAgeOfRough(ageOfRough);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_setAspect_1(SIGSurface* self, double aspect) {
   self->setAspect(aspect);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_setAspenCuringLevel_2(SIGSurface* self, double aspenCuringLevel, CuringLevelUnits_CuringLevelEnum curingLevelUnits) {
+  self->setAspenCuringLevel(aspenCuringLevel, curingLevelUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_setAspenDBH_2(SIGSurface* self, double dbh, LengthUnits_LengthUnitsEnum dbhUnits) {
+  self->setAspenDBH(dbh, dbhUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_setAspenFireSeverity_1(SIGSurface* self, AspenFireSeverity_AspenFireSeverityEnum aspenFireSeverity) {
+  self->setAspenFireSeverity(aspenFireSeverity);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_setAspenFuelModelNumber_1(SIGSurface* self, int aspenFuelModelNumber) {
+  self->setAspenFuelModelNumber(aspenFuelModelNumber);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_setCanopyCover_2(SIGSurface* self, double canopyCover, CoverUnits_CoverUnitsEnum coverUnits) {
@@ -911,8 +1277,32 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_setFuelModels_1(SIGSurface*
   self->setFuelModels(*fuelModels);
 }
 
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_setHeightOfUnderstory_2(SIGSurface* self, double heightOfUnderstory, LengthUnits_LengthUnitsEnum heightUnits) {
+  self->setHeightOfUnderstory(heightOfUnderstory, heightUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_setIsUsingPalmettoGallberry_1(SIGSurface* self, bool isUsingPalmettoGallberry) {
+  self->setIsUsingPalmettoGallberry(isUsingPalmettoGallberry);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_setIsUsingWesternAspen_1(SIGSurface* self, bool isUsingWesternAspen) {
+  self->setIsUsingWesternAspen(isUsingWesternAspen);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_setMoistureDeadAggregate_2(SIGSurface* self, double moistureDead, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  self->setMoistureDeadAggregate(moistureDead, moistureUnits);
+}
+
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_setMoistureHundredHour_2(SIGSurface* self, double moistureHundredHour, MoistureUnits_MoistureUnitsEnum moistureUnits) {
   self->setMoistureHundredHour(moistureHundredHour, moistureUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_setMoistureInputMode_1(SIGSurface* self, MoistureInputMode_MoistureInputModeEnum moistureInputMode) {
+  self->setMoistureInputMode(moistureInputMode);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_setMoistureLiveAggregate_2(SIGSurface* self, double moistureLive, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  self->setMoistureLiveAggregate(moistureLive, moistureUnits);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_setMoistureLiveHerbaceous_2(SIGSurface* self, double moistureLiveHerbaceous, MoistureUnits_MoistureUnitsEnum moistureUnits) {
@@ -927,8 +1317,20 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_setMoistureOneHour_2(SIGSur
   self->setMoistureOneHour(moistureOneHour, moistureUnits);
 }
 
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_setMoistureScenarios_1(SIGSurface* self, SIGMoistureScenarios* moistureScenarios) {
+  self->setMoistureScenarios(*moistureScenarios);
+}
+
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_setMoistureTenHour_2(SIGSurface* self, double moistureTenHour, MoistureUnits_MoistureUnitsEnum moistureUnits) {
   self->setMoistureTenHour(moistureTenHour, moistureUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_setOverstoryBasalArea_2(SIGSurface* self, double overstoryBasalArea, BasalAreaUnits_BasalAreaUnitsEnum basalAreaUnits) {
+  self->setOverstoryBasalArea(overstoryBasalArea, basalAreaUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_setPalmettoCoverage_2(SIGSurface* self, double palmettoCoverage, CoverUnits_CoverUnitsEnum coverUnits) {
+  self->setPalmettoCoverage(palmettoCoverage, coverUnits);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_setSecondFuelModelNumber_1(SIGSurface* self, int secondFuelModelNumber) {
@@ -975,16 +1377,16 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_updateSurfaceInputs_20(SIGS
   self->updateSurfaceInputs(fuelModelNumber, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyHeightUnits, crownRatio);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_updateSurfaceInputsForPalmettoGallbery_23(SIGSurface* self, double moistureOneHour, double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody, MoistureUnits_MoistureUnitsEnum moistureUnits, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double windDirection, WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double ageOfRough, double heightOfUnderstory, double palmettoCoverage, double overstoryBasalArea, double slope, SlopeUnits_SlopeUnitsEnum slopeUnits, double aspect, double canopyCover, CoverUnits_CoverUnitsEnum coverUnits, double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits, double crownRatio) {
-  self->updateSurfaceInputsForPalmettoGallbery(moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, ageOfRough, heightOfUnderstory, palmettoCoverage, overstoryBasalArea, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyHeightUnits, crownRatio);
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_updateSurfaceInputsForPalmettoGallbery_24(SIGSurface* self, double moistureOneHour, double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody, MoistureUnits_MoistureUnitsEnum moistureUnits, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double windDirection, WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double ageOfRough, double heightOfUnderstory, double palmettoCoverage, double overstoryBasalArea, BasalAreaUnits_BasalAreaUnitsEnum basalAreaUnits, double slope, SlopeUnits_SlopeUnitsEnum slopeUnits, double aspect, double canopyCover, CoverUnits_CoverUnitsEnum coverUnits, double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits, double crownRatio) {
+  self->updateSurfaceInputsForPalmettoGallbery(moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, ageOfRough, heightOfUnderstory, palmettoCoverage, overstoryBasalArea, basalAreaUnits, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyHeightUnits, crownRatio);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_updateSurfaceInputsForTwoFuelModels_24(SIGSurface* self, int firstfuelModelNumber, int secondFuelModelNumber, double moistureOneHour, double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody, MoistureUnits_MoistureUnitsEnum moistureUnits, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double windDirection, WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double firstFuelModelCoverage, CoverUnits_CoverUnitsEnum firstFuelModelCoverageUnits, TwoFuelModelsMethod_TwoFuelModelsMethodEnum twoFuelModelsMethod, double slope, SlopeUnits_SlopeUnitsEnum slopeUnits, double aspect, double canopyCover, CoverUnits_CoverUnitsEnum canopyCoverUnits, double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits, double crownRatio) {
-  self->updateSurfaceInputsForTwoFuelModels(firstfuelModelNumber, secondFuelModelNumber, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, firstFuelModelCoverage, firstFuelModelCoverageUnits, twoFuelModelsMethod, slope, slopeUnits, aspect, canopyCover, canopyCoverUnits, canopyHeight, canopyHeightUnits, crownRatio);
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_updateSurfaceInputsForTwoFuelModels_24(SIGSurface* self, int firstFuelModelNumber, int secondFuelModelNumber, double moistureOneHour, double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody, MoistureUnits_MoistureUnitsEnum moistureUnits, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double windDirection, WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double firstFuelModelCoverage, CoverUnits_CoverUnitsEnum firstFuelModelCoverageUnits, TwoFuelModelsMethod_TwoFuelModelsMethodEnum twoFuelModelsMethod, double slope, SlopeUnits_SlopeUnitsEnum slopeUnits, double aspect, double canopyCover, CoverUnits_CoverUnitsEnum canopyCoverUnits, double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits, double crownRatio) {
+  self->updateSurfaceInputsForTwoFuelModels(firstFuelModelNumber, secondFuelModelNumber, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, firstFuelModelCoverage, firstFuelModelCoverageUnits, twoFuelModelsMethod, slope, slopeUnits, aspect, canopyCover, canopyCoverUnits, canopyHeight, canopyHeightUnits, crownRatio);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_updateSurfaceInputsForWesternAspen_23(SIGSurface* self, int aspenFuelModelNumber, double aspenCuringLevel, AspenFireSeverity_AspenFireSeverityEnum aspenFireSeverity, double DBH, double moistureOneHour, double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody, MoistureUnits_MoistureUnitsEnum moistureUnits, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double windDirection, WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double slope, SlopeUnits_SlopeUnitsEnum slopeUnits, double aspect, double canopyCover, CoverUnits_CoverUnitsEnum coverUnits, double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits, double crownRatio) {
-  self->updateSurfaceInputsForWesternAspen(aspenFuelModelNumber, aspenCuringLevel, aspenFireSeverity, DBH, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyHeightUnits, crownRatio);
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_updateSurfaceInputsForWesternAspen_25(SIGSurface* self, int aspenFuelModelNumber, double aspenCuringLevel, CuringLevelUnits_CuringLevelEnum curingLevelUnits, AspenFireSeverity_AspenFireSeverityEnum aspenFireSeverity, double dbh, LengthUnits_LengthUnitsEnum dbhUnits, double moistureOneHour, double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody, MoistureUnits_MoistureUnitsEnum moistureUnits, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double windDirection, WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double slope, SlopeUnits_SlopeUnitsEnum slopeUnits, double aspect, double canopyCover, CoverUnits_CoverUnitsEnum coverUnits, double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits, double crownRatio) {
+  self->updateSurfaceInputsForWesternAspen(aspenFuelModelNumber, aspenCuringLevel, curingLevelUnits, aspenFireSeverity, dbh, dbhUnits, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyHeightUnits, crownRatio);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface___destroy___0(SIGSurface* self) {
@@ -1111,20 +1513,20 @@ double EMSCRIPTEN_KEEPALIVE emscripten_bind_WesternAspen_getAspenHeatOfCombustio
   return self->getAspenHeatOfCombustionLive();
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_WesternAspen_getAspenLoadDeadOneHour_2(WesternAspen* self, int aspenFuelModelNumber, double aspenCuringLevel) {
-  return self->getAspenLoadDeadOneHour(aspenFuelModelNumber, aspenCuringLevel);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_WesternAspen_getAspenLoadDeadOneHour_0(WesternAspen* self) {
+  return self->getAspenLoadDeadOneHour();
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_WesternAspen_getAspenLoadDeadTenHour_1(WesternAspen* self, int aspenFuelModelNumber) {
-  return self->getAspenLoadDeadTenHour(aspenFuelModelNumber);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_WesternAspen_getAspenLoadDeadTenHour_0(WesternAspen* self) {
+  return self->getAspenLoadDeadTenHour();
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_WesternAspen_getAspenLoadLiveHerbaceous_2(WesternAspen* self, int aspenFuelModelNumber, double aspenCuringLevel) {
-  return self->getAspenLoadLiveHerbaceous(aspenFuelModelNumber, aspenCuringLevel);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_WesternAspen_getAspenLoadLiveHerbaceous_0(WesternAspen* self) {
+  return self->getAspenLoadLiveHerbaceous();
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_WesternAspen_getAspenLoadLiveWoody_2(WesternAspen* self, int aspenFuelModelNumber, double aspenCuringLevel) {
-  return self->getAspenLoadLiveWoody(aspenFuelModelNumber, aspenCuringLevel);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_WesternAspen_getAspenLoadLiveWoody_0(WesternAspen* self) {
+  return self->getAspenLoadLiveWoody();
 }
 
 double EMSCRIPTEN_KEEPALIVE emscripten_bind_WesternAspen_getAspenMoistureOfExtinctionDead_0(WesternAspen* self) {
@@ -1135,8 +1537,8 @@ double EMSCRIPTEN_KEEPALIVE emscripten_bind_WesternAspen_getAspenMortality_0(Wes
   return self->getAspenMortality();
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_WesternAspen_getAspenSavrDeadOneHour_2(WesternAspen* self, int aspenFuelModelNumber, double aspenCuringLevel) {
-  return self->getAspenSavrDeadOneHour(aspenFuelModelNumber, aspenCuringLevel);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_WesternAspen_getAspenSavrDeadOneHour_0(WesternAspen* self) {
+  return self->getAspenSavrDeadOneHour();
 }
 
 double EMSCRIPTEN_KEEPALIVE emscripten_bind_WesternAspen_getAspenSavrDeadTenHour_0(WesternAspen* self) {
@@ -1147,8 +1549,8 @@ double EMSCRIPTEN_KEEPALIVE emscripten_bind_WesternAspen_getAspenSavrLiveHerbace
   return self->getAspenSavrLiveHerbaceous();
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_WesternAspen_getAspenSavrLiveWoody_2(WesternAspen* self, int aspenFuelModelNumber, double aspenCuringLevel) {
-  return self->getAspenSavrLiveWoody(aspenFuelModelNumber, aspenCuringLevel);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_WesternAspen_getAspenSavrLiveWoody_0(WesternAspen* self) {
+  return self->getAspenSavrLiveWoody();
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_WesternAspen___destroy___0(WesternAspen* self) {
@@ -1161,24 +1563,40 @@ SIGCrown* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_SIGCrown_1(SIGFuelModels
   return new SIGCrown(*fuelModels);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_initializeMembers_0(SIGCrown* self) {
-  self->initializeMembers();
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_doCrownRunRothermel_0(SIGCrown* self) {
-  self->doCrownRunRothermel();
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_doCrownRunScottAndReinhardt_0(SIGCrown* self) {
-  self->doCrownRunScottAndReinhardt();
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_doCrownRun_0(SIGCrown* self) {
-  self->doCrownRun();
-}
-
 FireType_FireTypeEnum EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFireType_0(SIGCrown* self) {
   return self->getFireType();
+}
+
+bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getIsMoistureScenarioDefinedByIndex_1(SIGCrown* self, int index) {
+  return self->getIsMoistureScenarioDefinedByIndex(index);
+}
+
+bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getIsMoistureScenarioDefinedByName_1(SIGCrown* self, const char* name) {
+  return self->getIsMoistureScenarioDefinedByName(name);
+}
+
+bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_isAllFuelLoadZero_1(SIGCrown* self, int fuelModelNumber) {
+  return self->isAllFuelLoadZero(fuelModelNumber);
+}
+
+bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_isFuelDynamic_1(SIGCrown* self, int fuelModelNumber) {
+  return self->isFuelDynamic(fuelModelNumber);
+}
+
+bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_isFuelModelDefined_1(SIGCrown* self, int fuelModelNumber) {
+  return self->isFuelModelDefined(fuelModelNumber);
+}
+
+bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_isFuelModelReserved_1(SIGCrown* self, int fuelModelNumber) {
+  return self->isFuelModelReserved(fuelModelNumber);
+}
+
+bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setMoistureScenarioByIndex_1(SIGCrown* self, int moistureScenarioIndex) {
+  return self->setMoistureScenarioByIndex(moistureScenarioIndex);
+}
+
+bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setMoistureScenarioByName_1(SIGCrown* self, const char* moistureScenarioName) {
+  return self->setMoistureScenarioByName(moistureScenarioName);
 }
 
 double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getAspect_0(SIGCrown* self) {
@@ -1209,6 +1627,10 @@ double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCrownFireLengthToWidthRa
   return self->getCrownFireLengthToWidthRatio();
 }
 
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCrownFireSpreadDistance_3(SIGCrown* self, LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits_TimeUnitsEnum timeUnits) {
+  return self->getCrownFireSpreadDistance(lengthUnits, elapsedTime, timeUnits);
+}
+
 double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCrownFireSpreadRate_1(SIGCrown* self, SpeedUnits_SpeedUnitsEnum spreadRateUnits) {
   return self->getCrownFireSpreadRate(spreadRateUnits);
 }
@@ -1221,6 +1643,10 @@ double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCrownFlameLength_1(SIGCr
   return self->getCrownFlameLength(flameLengthUnits);
 }
 
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCrownFractionBurned_0(SIGCrown* self) {
+  return self->getCrownFractionBurned();
+}
+
 double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCrownRatio_0(SIGCrown* self) {
   return self->getCrownRatio();
 }
@@ -1229,16 +1655,60 @@ double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFinalFirelineIntesity_1(
   return self->getFinalFirelineIntesity(firelineIntensityUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFinalFlameLength_1(SIGCrown* self, LengthUnits_LengthUnitsEnum flameLengthUnits) {
-  return self->getFinalFlameLength(flameLengthUnits);
-}
-
 double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFinalHeatPerUnitArea_1(SIGCrown* self, HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum heatPerUnitAreaUnits) {
   return self->getFinalHeatPerUnitArea(heatPerUnitAreaUnits);
 }
 
 double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFinalSpreadRate_1(SIGCrown* self, SpeedUnits_SpeedUnitsEnum spreadRateUnits) {
   return self->getFinalSpreadRate(spreadRateUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelHeatOfCombustionDead_2(SIGCrown* self, int fuelModelNumber, HeatOfCombustionUnits_HeatOfCombustionUnitsEnum heatOfCombustionUnits) {
+  return self->getFuelHeatOfCombustionDead(fuelModelNumber, heatOfCombustionUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelHeatOfCombustionLive_2(SIGCrown* self, int fuelModelNumber, HeatOfCombustionUnits_HeatOfCombustionUnitsEnum heatOfCombustionUnits) {
+  return self->getFuelHeatOfCombustionLive(fuelModelNumber, heatOfCombustionUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelLoadHundredHour_2(SIGCrown* self, int fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits) {
+  return self->getFuelLoadHundredHour(fuelModelNumber, loadingUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelLoadLiveHerbaceous_2(SIGCrown* self, int fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits) {
+  return self->getFuelLoadLiveHerbaceous(fuelModelNumber, loadingUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelLoadLiveWoody_2(SIGCrown* self, int fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits) {
+  return self->getFuelLoadLiveWoody(fuelModelNumber, loadingUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelLoadOneHour_2(SIGCrown* self, int fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits) {
+  return self->getFuelLoadOneHour(fuelModelNumber, loadingUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelLoadTenHour_2(SIGCrown* self, int fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits) {
+  return self->getFuelLoadTenHour(fuelModelNumber, loadingUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelMoistureOfExtinctionDead_2(SIGCrown* self, int fuelModelNumber, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  return self->getFuelMoistureOfExtinctionDead(fuelModelNumber, moistureUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelSavrLiveHerbaceous_2(SIGCrown* self, int fuelModelNumber, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum savrUnits) {
+  return self->getFuelSavrLiveHerbaceous(fuelModelNumber, savrUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelSavrLiveWoody_2(SIGCrown* self, int fuelModelNumber, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum savrUnits) {
+  return self->getFuelSavrLiveWoody(fuelModelNumber, savrUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelSavrOneHour_2(SIGCrown* self, int fuelModelNumber, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum savrUnits) {
+  return self->getFuelSavrOneHour(fuelModelNumber, savrUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelbedDepth_2(SIGCrown* self, int fuelModelNumber, LengthUnits_LengthUnitsEnum lengthUnits) {
+  return self->getFuelbedDepth(fuelModelNumber, lengthUnits);
 }
 
 double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureFoliar_1(SIGCrown* self, MoistureUnits_MoistureUnitsEnum moistureUnits) {
@@ -1261,12 +1731,56 @@ double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureOneHour_1(SIGCro
   return self->getMoistureOneHour(moistureUnits);
 }
 
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByIndex_1(SIGCrown* self, int index) {
+  return self->getMoistureScenarioHundredHourByIndex(index);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByName_1(SIGCrown* self, const char* name) {
+  return self->getMoistureScenarioHundredHourByName(name);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByIndex_1(SIGCrown* self, int index) {
+  return self->getMoistureScenarioLiveHerbaceousByIndex(index);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByName_1(SIGCrown* self, const char* name) {
+  return self->getMoistureScenarioLiveHerbaceousByName(name);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByIndex_1(SIGCrown* self, int index) {
+  return self->getMoistureScenarioLiveWoodyByIndex(index);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByName_1(SIGCrown* self, const char* name) {
+  return self->getMoistureScenarioLiveWoodyByName(name);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioOneHourByIndex_1(SIGCrown* self, int index) {
+  return self->getMoistureScenarioOneHourByIndex(index);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioOneHourByName_1(SIGCrown* self, const char* name) {
+  return self->getMoistureScenarioOneHourByName(name);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioTenHourByIndex_1(SIGCrown* self, int index) {
+  return self->getMoistureScenarioTenHourByIndex(index);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioTenHourByName_1(SIGCrown* self, const char* name) {
+  return self->getMoistureScenarioTenHourByName(name);
+}
+
 double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureTenHour_1(SIGCrown* self, MoistureUnits_MoistureUnitsEnum moistureUnits) {
   return self->getMoistureTenHour(moistureUnits);
 }
 
 double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getSlope_1(SIGCrown* self, SlopeUnits_SlopeUnitsEnum slopeUnits) {
   return self->getSlope(slopeUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getSurfaceFireSpreadDistance_3(SIGCrown* self, LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits_TimeUnitsEnum timeUnits) {
+  return self->getSurfaceFireSpreadDistance(lengthUnits, elapsedTime, timeUnits);
 }
 
 double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getSurfaceFireSpreadRate_1(SIGCrown* self, SpeedUnits_SpeedUnitsEnum spreadRateUnits) {
@@ -1283,6 +1797,46 @@ double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getWindSpeed_2(SIGCrown* se
 
 int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelModelNumber_0(SIGCrown* self) {
   return self->getFuelModelNumber();
+}
+
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioIndexByName_1(SIGCrown* self, const char* name) {
+  return self->getMoistureScenarioIndexByName(name);
+}
+
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getNumberOfMoistureScenarios_0(SIGCrown* self) {
+  return self->getNumberOfMoistureScenarios();
+}
+
+const char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelCode_1(SIGCrown* self, int fuelModelNumber) {
+  return self->getFuelCode(fuelModelNumber);
+}
+
+const char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelName_1(SIGCrown* self, int fuelModelNumber) {
+  return self->getFuelName(fuelModelNumber);
+}
+
+const char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioDescriptionByIndex_1(SIGCrown* self, int index) {
+  return self->getMoistureScenarioDescriptionByIndex(index);
+}
+
+const char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioDescriptionByName_1(SIGCrown* self, const char* name) {
+  return self->getMoistureScenarioDescriptionByName(name);
+}
+
+const char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioNameByIndex_1(SIGCrown* self, int index) {
+  return self->getMoistureScenarioNameByIndex(index);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_doCrownRunRothermel_0(SIGCrown* self) {
+  self->doCrownRunRothermel();
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_doCrownRunScottAndReinhardt_0(SIGCrown* self) {
+  self->doCrownRunScottAndReinhardt();
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_initializeMembers_0(SIGCrown* self) {
+  self->initializeMembers();
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setAspect_1(SIGCrown* self, double aspect) {
@@ -1317,12 +1871,24 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setFuelModels_1(SIGCrown* sel
   self->setFuelModels(*fuelModels);
 }
 
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setMoistureDeadAggregate_2(SIGCrown* self, double moistureDead, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  self->setMoistureDeadAggregate(moistureDead, moistureUnits);
+}
+
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setMoistureFoliar_2(SIGCrown* self, double foliarMoisture, MoistureUnits_MoistureUnitsEnum moistureUnits) {
   self->setMoistureFoliar(foliarMoisture, moistureUnits);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setMoistureHundredHour_2(SIGCrown* self, double moistureHundredHour, MoistureUnits_MoistureUnitsEnum moistureUnits) {
   self->setMoistureHundredHour(moistureHundredHour, moistureUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setMoistureInputMode_1(SIGCrown* self, MoistureInputMode_MoistureInputModeEnum moistureInputMode) {
+  self->setMoistureInputMode(moistureInputMode);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setMoistureLiveAggregate_2(SIGCrown* self, double moistureLive, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  self->setMoistureLiveAggregate(moistureLive, moistureUnits);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setMoistureLiveHerbaceous_2(SIGCrown* self, double moistureLiveHerbaceous, MoistureUnits_MoistureUnitsEnum moistureUnits) {
@@ -1335,6 +1901,10 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setMoistureLiveWoody_2(SIGCro
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setMoistureOneHour_2(SIGCrown* self, double moistureOneHour, MoistureUnits_MoistureUnitsEnum moistureUnits) {
   self->setMoistureOneHour(moistureOneHour, moistureUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setMoistureScenarios_1(SIGCrown* self, SIGMoistureScenarios* moistureScenarios) {
+  self->setMoistureScenarios(*moistureScenarios);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setMoistureTenHour_2(SIGCrown* self, double moistureTenHour, MoistureUnits_MoistureUnitsEnum moistureUnits) {
@@ -1375,6 +1945,10 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_updateCrownInputs_24(SIGCrown
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_updateCrownsSurfaceInputs_20(SIGCrown* self, int fuelModelNumber, double moistureOneHour, double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody, MoistureUnits_MoistureUnitsEnum moistureUnits, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double windDirection, WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double slope, SlopeUnits_SlopeUnitsEnum slopeUnits, double aspect, double canopyCover, CoverUnits_CoverUnitsEnum coverUnits, double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits, double crownRatio) {
   self->updateCrownsSurfaceInputs(fuelModelNumber, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyHeightUnits, crownRatio);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFinalFlameLength_1(SIGCrown* self, LengthUnits_LengthUnitsEnum flameLengthUnits) {
+  return self->getFinalFlameLength(flameLengthUnits);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown___destroy___0(SIGCrown* self) {
@@ -1479,6 +2053,14 @@ const bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_checkIsInRegionFrom
   return self->checkIsInRegionFromSpeciesCode(speciesCode, region);
 }
 
+bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_updateInputsForSpeciesCodeAndEquationType_2(SIGMortality* self, char* speciesCode, EquationType equationType) {
+  return self->updateInputsForSpeciesCodeAndEquationType(speciesCode, equationType);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_calculateMortality_1(SIGMortality* self, ProbabilityUnits_ProbabilityUnitsEnum probablityUnits) {
+  return self->calculateMortality(probablityUnits);
+}
+
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getBarkThickness_1(SIGMortality* self, LengthUnits_LengthUnitsEnum barkThicknessUnits) {
   return self->getBarkThickness(barkThicknessUnits);
 }
@@ -1531,6 +2113,14 @@ const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getTotalPrefireTr
   return self->getTotalPrefireTrees();
 }
 
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getTreeCrownLengthScorched_1(SIGMortality* self, MortalityRateUnits_MortalityRateUnitsEnum mortalityRateUnits) {
+  return self->getTreeCrownLengthScorched(mortalityRateUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getTreeCrownVolumeScorched_1(SIGMortality* self, MortalityRateUnits_MortalityRateUnitsEnum mortalityRateUnits) {
+  return self->getTreeCrownVolumeScorched(mortalityRateUnits);
+}
+
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getTreeDensityPerUnitArea_1(SIGMortality* self, AreaUnits_AreaUnitsEnum areaUnits) {
   return self->getTreeDensityPerUnitArea(areaUnits);
 }
@@ -1539,51 +2129,51 @@ const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getTreeHeight_1(S
   return self->getTreeHeight(treeHeightUnits);
 }
 
-const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_postfireCanopyCover_0(SIGMortality* self) {
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_postfireCanopyCover_0(SIGMortality* self) {
   return self->postfireCanopyCover();
 }
 
-const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_prefireCanopyCover_0(SIGMortality* self) {
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_prefireCanopyCover_0(SIGMortality* self) {
   return self->prefireCanopyCover();
 }
 
-const int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getBarkEquationNumberAtSpeciesTableIndex_1(SIGMortality* self, int index) {
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getBarkEquationNumberAtSpeciesTableIndex_1(SIGMortality* self, int index) {
   return self->getBarkEquationNumberAtSpeciesTableIndex(index);
 }
 
-const int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getBarkEquationNumberFromSpeciesCode_1(SIGMortality* self, char* speciesCode) {
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getBarkEquationNumberFromSpeciesCode_1(SIGMortality* self, char* speciesCode) {
   return self->getBarkEquationNumberFromSpeciesCode(speciesCode);
 }
 
-const int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getCrownCoefficientCodeAtSpeciesTableIndex_1(SIGMortality* self, int index) {
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getCrownCoefficientCodeAtSpeciesTableIndex_1(SIGMortality* self, int index) {
   return self->getCrownCoefficientCodeAtSpeciesTableIndex(index);
 }
 
-const int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getCrownCoefficientCodeFromSpeciesCode_1(SIGMortality* self, char* speciesCode) {
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getCrownCoefficientCodeFromSpeciesCode_1(SIGMortality* self, char* speciesCode) {
   return self->getCrownCoefficientCodeFromSpeciesCode(speciesCode);
 }
 
-const int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getCrownScorchOrBoleCharEquationNumber_0(SIGMortality* self) {
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getCrownScorchOrBoleCharEquationNumber_0(SIGMortality* self) {
   return self->getCrownScorchOrBoleCharEquationNumber();
 }
 
-const int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getMortalityEquationNumberAtSpeciesTableIndex_1(SIGMortality* self, int index) {
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getMortalityEquationNumberAtSpeciesTableIndex_1(SIGMortality* self, int index) {
   return self->getMortalityEquationNumberAtSpeciesTableIndex(index);
 }
 
-const int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getMortalityEquationNumberFromSpeciesCode_1(SIGMortality* self, char* speciesCode) {
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getMortalityEquationNumberFromSpeciesCode_1(SIGMortality* self, char* speciesCode) {
   return self->getMortalityEquationNumberFromSpeciesCode(speciesCode);
 }
 
-const int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getNumberOfRecordsInSpeciesTable_0(SIGMortality* self) {
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getNumberOfRecordsInSpeciesTable_0(SIGMortality* self) {
   return self->getNumberOfRecordsInSpeciesTable();
 }
 
-const int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getSpeciesTableIndexFromSpeciesCode_1(SIGMortality* self, char* speciesNameCode) {
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getSpeciesTableIndexFromSpeciesCode_1(SIGMortality* self, char* speciesNameCode) {
   return self->getSpeciesTableIndexFromSpeciesCode(speciesNameCode);
 }
 
-const int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getSpeciesTableIndexFromSpeciesCodeAndEquationType_2(SIGMortality* self, char* speciesNameCode, EquationType equationType) {
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getSpeciesTableIndexFromSpeciesCodeAndEquationType_2(SIGMortality* self, char* speciesNameCode, EquationType equationType) {
   return self->getSpeciesTableIndexFromSpeciesCodeAndEquationType(speciesNameCode, equationType);
 }
 
@@ -1621,10 +2211,6 @@ const char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getSpeciesCodeAtSp
 
 BoolVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getRequiredFieldVector_0(SIGMortality* self) {
   return self->getRequiredFieldVector();
-}
-
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_calculateMortality_1(SIGMortality* self, ProbabilityUnits_ProbabilityUnitsEnum probablityUnits) {
-  return self->calculateMortality(probablityUnits);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setBeetleDamage_1(SIGMortality* self, BeetleDamage beetleDamage) {
@@ -1683,10 +2269,6 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setTreeHeight_2(SIGMortal
   self->setTreeHeight(treeHeight, treeHeightUnits);
 }
 
-bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_updateInputsForSpeciesCodeAndEquationType_2(SIGMortality* self, char* speciesCode, EquationType equationType) {
-  return self->updateInputsForSpeciesCodeAndEquationType(speciesCode, equationType);
-}
-
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality___destroy___0(SIGMortality* self) {
   delete self;
 }
@@ -1727,6 +2309,22 @@ AreaUnits_AreaUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_AreaUnits_AreaUnits
 }
 AreaUnits_AreaUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_AreaUnits_AreaUnitsEnum_SquareKilometers() {
   return AreaUnits::SquareKilometers;
+}
+
+// BasalAreaUnits_BasalAreaUnitsEnum
+BasalAreaUnits_BasalAreaUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareFeetPerAcre() {
+  return BasalAreaUnits::SquareFeetPerAcre;
+}
+BasalAreaUnits_BasalAreaUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareMetersPerHectare() {
+  return BasalAreaUnits::SquareMetersPerHectare;
+}
+
+// CuringLevelUnits_CuringLevelEnum
+CuringLevelUnits_CuringLevelEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_CuringLevelUnits_CuringLevelEnum_Fraction() {
+  return CuringLevelUnits::Fraction;
+}
+CuringLevelUnits_CuringLevelEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_CuringLevelUnits_CuringLevelEnum_Percent() {
+  return CuringLevelUnits::Percent;
 }
 
 // LengthUnits_LengthUnitsEnum
@@ -2011,6 +2609,14 @@ LightningCharge_LightningChargeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_Lightni
   return LightningCharge::Unknown;
 }
 
+// SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum
+SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum_CLOSED() {
+  return SpotDownWindCanopyMode::CLOSED;
+}
+SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum_OPEN() {
+  return SpotDownWindCanopyMode::OPEN;
+}
+
 // SpotTreeSpecies_SpotTreeSpeciesEnum
 SpotTreeSpecies_SpotTreeSpeciesEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_ENGELMANN_SPRUCE() {
   return SpotTreeSpecies::ENGELMANN_SPRUCE;
@@ -2069,12 +2675,88 @@ SpotFireLocation_SpotFireLocationEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SpotF
   return SpotFireLocation::RIDGE_TOP;
 }
 
+// FuelLifeState_FuelLifeStateEnum
+FuelLifeState_FuelLifeStateEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FuelLifeState_FuelLifeStateEnum_DEAD() {
+  return FuelLifeState::DEAD;
+}
+FuelLifeState_FuelLifeStateEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FuelLifeState_FuelLifeStateEnum_LIVE() {
+  return FuelLifeState::LIVE;
+}
+
+// FuelConstantsEnum_FuelConstantsEnum
+FuelConstantsEnum_FuelConstantsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MAX_LIFE_STATES() {
+  return FuelConstants::MAX_LIFE_STATES;
+}
+FuelConstantsEnum_FuelConstantsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MAX_LIVE_SIZE_CLASSES() {
+  return FuelConstants::MAX_LIVE_SIZE_CLASSES;
+}
+FuelConstantsEnum_FuelConstantsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MAX_DEAD_SIZE_CLASSES() {
+  return FuelConstants::MAX_DEAD_SIZE_CLASSES;
+}
+FuelConstantsEnum_FuelConstantsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MAX_PARTICLES() {
+  return FuelConstants::MAX_PARTICLES;
+}
+FuelConstantsEnum_FuelConstantsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MAX_SAVR_SIZE_CLASSES() {
+  return FuelConstants::MAX_SAVR_SIZE_CLASSES;
+}
+FuelConstantsEnum_FuelConstantsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_NUM_FUEL_MODELS() {
+  return FuelConstants::NUM_FUEL_MODELS;
+}
+
 // AspenFireSeverity_AspenFireSeverityEnum
 AspenFireSeverity_AspenFireSeverityEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Low() {
   return AspenFireSeverity::Low;
 }
 AspenFireSeverity_AspenFireSeverityEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Moderate() {
   return AspenFireSeverity::Moderate;
+}
+
+// MoistureInputMode_MoistureInputModeEnum
+MoistureInputMode_MoistureInputModeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_MoistureInputMode_MoistureInputModeEnum_BySizeClass() {
+  return MoistureInputMode::BySizeClass;
+}
+MoistureInputMode_MoistureInputModeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_MoistureInputMode_MoistureInputModeEnum_AllAggregate() {
+  return MoistureInputMode::AllAggregate;
+}
+MoistureInputMode_MoistureInputModeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_MoistureInputMode_MoistureInputModeEnum_DeadAggregateAndLiveSizeClass() {
+  return MoistureInputMode::DeadAggregateAndLiveSizeClass;
+}
+MoistureInputMode_MoistureInputModeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_MoistureInputMode_MoistureInputModeEnum_LiveAggregateAndDeadSizeClass() {
+  return MoistureInputMode::LiveAggregateAndDeadSizeClass;
+}
+MoistureInputMode_MoistureInputModeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_MoistureInputMode_MoistureInputModeEnum_MoistureScenario() {
+  return MoistureInputMode::MoistureScenario;
+}
+
+// MoistureClassInput_MoistureClassInputEnum
+MoistureClassInput_MoistureClassInputEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_MoistureClassInput_MoistureClassInputEnum_OneHour() {
+  return MoistureClassInput::OneHour;
+}
+MoistureClassInput_MoistureClassInputEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_MoistureClassInput_MoistureClassInputEnum_TenHour() {
+  return MoistureClassInput::TenHour;
+}
+MoistureClassInput_MoistureClassInputEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_MoistureClassInput_MoistureClassInputEnum_HundredHour() {
+  return MoistureClassInput::HundredHour;
+}
+MoistureClassInput_MoistureClassInputEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveHerbaceous() {
+  return MoistureClassInput::LiveHerbaceous;
+}
+MoistureClassInput_MoistureClassInputEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveWoody() {
+  return MoistureClassInput::LiveWoody;
+}
+MoistureClassInput_MoistureClassInputEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_MoistureClassInput_MoistureClassInputEnum_DeadAggregate() {
+  return MoistureClassInput::DeadAggregate;
+}
+MoistureClassInput_MoistureClassInputEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveAggregate() {
+  return MoistureClassInput::LiveAggregate;
+}
+
+// SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum
+SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum_FromIgnitionPoint() {
+  return SurfaceFireSpreadDirectionMode::FromIgnitionPoint;
+}
+SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum_FromPerimeter() {
+  return SurfaceFireSpreadDirectionMode::FromPerimeter;
 }
 
 // TwoFuelModelsMethod_TwoFuelModelsMethodEnum
@@ -2154,6 +2836,72 @@ BeetleDamage EMSCRIPTEN_KEEPALIVE emscripten_enum_BeetleDamage_yes() {
   return BeetleDamage::yes;
 }
 
+// CrownDamageEquationCode
+CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageEquationCode_not_set() {
+  return CrownDamageEquationCode::not_set;
+}
+CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageEquationCode_white_fir() {
+  return CrownDamageEquationCode::white_fir;
+}
+CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageEquationCode_subalpine_fir() {
+  return CrownDamageEquationCode::subalpine_fir;
+}
+CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageEquationCode_incense_cedar() {
+  return CrownDamageEquationCode::incense_cedar;
+}
+CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageEquationCode_western_larch() {
+  return CrownDamageEquationCode::western_larch;
+}
+CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageEquationCode_whitebark_pine() {
+  return CrownDamageEquationCode::whitebark_pine;
+}
+CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageEquationCode_engelmann_spruce() {
+  return CrownDamageEquationCode::engelmann_spruce;
+}
+CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageEquationCode_sugar_pine() {
+  return CrownDamageEquationCode::sugar_pine;
+}
+CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageEquationCode_red_fir() {
+  return CrownDamageEquationCode::red_fir;
+}
+CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageEquationCode_ponderosa_pine() {
+  return CrownDamageEquationCode::ponderosa_pine;
+}
+CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageEquationCode_ponderosa_kill() {
+  return CrownDamageEquationCode::ponderosa_kill;
+}
+CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageEquationCode_douglas_fir() {
+  return CrownDamageEquationCode::douglas_fir;
+}
+
+// CrownDamageType
+CrownDamageType EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageType_not_set() {
+  return CrownDamageType::not_set;
+}
+CrownDamageType EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageType_crown_length() {
+  return CrownDamageType::crown_length;
+}
+CrownDamageType EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageType_crown_volume() {
+  return CrownDamageType::crown_volume;
+}
+CrownDamageType EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageType_crown_kill() {
+  return CrownDamageType::crown_kill;
+}
+
+// EquationType
+EquationType EMSCRIPTEN_KEEPALIVE emscripten_enum_EquationType_not_set() {
+  return EquationType::not_set;
+}
+EquationType EMSCRIPTEN_KEEPALIVE emscripten_enum_EquationType_crown_scorch() {
+  return EquationType::crown_scorch;
+}
+EquationType EMSCRIPTEN_KEEPALIVE emscripten_enum_EquationType_bole_char() {
+  return EquationType::bole_char;
+}
+EquationType EMSCRIPTEN_KEEPALIVE emscripten_enum_EquationType_crown_damage() {
+  return EquationType::crown_damage;
+}
+
 // FireSeverity
 FireSeverity EMSCRIPTEN_KEEPALIVE emscripten_enum_FireSeverity_not_set() {
   return FireSeverity::not_set;
@@ -2173,6 +2921,14 @@ FlameLengthOrScorchHeightSwitch EMSCRIPTEN_KEEPALIVE emscripten_enum_FlameLength
   return FlameLengthOrScorchHeightSwitch::scorch_height;
 }
 
+// MortalityRateUnits_MortalityRateUnitsEnum
+MortalityRateUnits_MortalityRateUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_MortalityRateUnits_MortalityRateUnitsEnum_Fraction() {
+  return MortalityRateUnits::Fraction;
+}
+MortalityRateUnits_MortalityRateUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_MortalityRateUnits_MortalityRateUnitsEnum_Percent() {
+  return MortalityRateUnits::Percent;
+}
+
 // RegionCode
 RegionCode EMSCRIPTEN_KEEPALIVE emscripten_enum_RegionCode_interior_west() {
   return RegionCode::interior_west;
@@ -2185,20 +2941,6 @@ RegionCode EMSCRIPTEN_KEEPALIVE emscripten_enum_RegionCode_north_east() {
 }
 RegionCode EMSCRIPTEN_KEEPALIVE emscripten_enum_RegionCode_south_east() {
   return RegionCode::south_east;
-}
-
-// CrownDamageType
-CrownDamageType EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageType_not_set() {
-  return CrownDamageType::not_set;
-}
-CrownDamageType EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageType_crown_length() {
-  return CrownDamageType::crown_length;
-}
-CrownDamageType EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageType_crown_volume() {
-  return CrownDamageType::crown_volume;
-}
-CrownDamageType EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageType_crown_kill() {
-  return CrownDamageType::crown_kill;
 }
 
 // RequiredFieldNames
@@ -2243,58 +2985,6 @@ RequiredFieldNames EMSCRIPTEN_KEEPALIVE emscripten_enum_RequiredFieldNames_fire_
 }
 RequiredFieldNames EMSCRIPTEN_KEEPALIVE emscripten_enum_RequiredFieldNames_num_inputs() {
   return RequiredFieldNames::num_inputs;
-}
-
-// CrownDamageEquationCode
-CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageEquationCode_not_set() {
-  return CrownDamageEquationCode::not_set;
-}
-CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageEquationCode_white_fir() {
-  return CrownDamageEquationCode::white_fir;
-}
-CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageEquationCode_subalpine_fir() {
-  return CrownDamageEquationCode::subalpine_fir;
-}
-CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageEquationCode_incense_cedar() {
-  return CrownDamageEquationCode::incense_cedar;
-}
-CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageEquationCode_western_larch() {
-  return CrownDamageEquationCode::western_larch;
-}
-CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageEquationCode_whitebark_pine() {
-  return CrownDamageEquationCode::whitebark_pine;
-}
-CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageEquationCode_engelmann_spruce() {
-  return CrownDamageEquationCode::engelmann_spruce;
-}
-CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageEquationCode_sugar_pine() {
-  return CrownDamageEquationCode::sugar_pine;
-}
-CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageEquationCode_red_fir() {
-  return CrownDamageEquationCode::red_fir;
-}
-CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageEquationCode_ponderosa_pine() {
-  return CrownDamageEquationCode::ponderosa_pine;
-}
-CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageEquationCode_ponderosa_kill() {
-  return CrownDamageEquationCode::ponderosa_kill;
-}
-CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_enum_CrownDamageEquationCode_douglas_fir() {
-  return CrownDamageEquationCode::douglas_fir;
-}
-
-// EquationType
-EquationType EMSCRIPTEN_KEEPALIVE emscripten_enum_EquationType_not_set() {
-  return EquationType::not_set;
-}
-EquationType EMSCRIPTEN_KEEPALIVE emscripten_enum_EquationType_crown_scorch() {
-  return EquationType::crown_scorch;
-}
-EquationType EMSCRIPTEN_KEEPALIVE emscripten_enum_EquationType_bole_char() {
-  return EquationType::bole_char;
-}
-EquationType EMSCRIPTEN_KEEPALIVE emscripten_enum_EquationType_crown_damage() {
-  return EquationType::crown_damage;
 }
 
 }

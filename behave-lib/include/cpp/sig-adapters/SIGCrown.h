@@ -55,9 +55,11 @@ public:
   void setFuelModels(SIGFuelModels& fuelModels);
   void setCrownFireCalculationMethod(CrownFireCalculationMethod CrownFireCalculationMethod);
   void doCrownRun();
-
   char* getFuelCode(int fuelModelNumber) const;
   char* getFuelName(int fuelModelNumber) const;
+  char* getMoistureScenarioDescriptionByName(const char* name);
+  char* getMoistureScenarioNameByIndex(const int index);
+  char* getMoistureScenarioDescriptionByIndex(const int index);
 
 private:
   CrownFireCalculationMethod crownFireCalculationMethod_;
