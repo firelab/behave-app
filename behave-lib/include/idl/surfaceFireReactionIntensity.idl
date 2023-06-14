@@ -1,8 +1,0 @@
-interface SurfaceFireReactionIntensity {
-  void SurfaceFireReactionIntensity(SurfaceFuelbedIntermediates surfaceFuelbedIntermediates);
-  //SurfaceFireReactionIntensity operator=(SurfaceFireReactionIntensity rhs);
-  double calculateReactionIntensity();
-  double getReactionIntensity(HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum reactiontionIntensityUnits);
-  void calculateEtaM();
-  void calculateEtaS();
-};

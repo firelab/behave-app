@@ -1,7 +1,0 @@
-interface WindAjustmentFactor {
-  void WindAjustmentFactor();
-  double calculateWindAdjustmentFactorWithCrownRatio(double canopyCover, double canopyHeight, double crownRatio, double fuelBedDepth);
-  double calculateWindAdjustmentFactorWithoutCrownRatio(double canopyCover, double canopyHeight, double fuelBedDepth);
-  double getCanopyCrownFraction();
-  WindAdjustmentFactorShelterMethod_WindAdjustmentFactorShelterMethodEnum getWindAdjustmentFactorShelterMethod();
-};
