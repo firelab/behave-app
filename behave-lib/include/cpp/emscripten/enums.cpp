@@ -1,3 +1,6 @@
+// Follows this pattern
+// typedef <struct::enum> <struct_enum>;
+
 // Behave Units Enums
 typedef AreaUnits::AreaUnitsEnum AreaUnits_AreaUnitsEnum;
 typedef LengthUnits::LengthUnitsEnum LengthUnits_LengthUnitsEnum;
@@ -17,6 +20,11 @@ typedef FirelineIntensityUnits::FirelineIntensityUnitsEnum FirelineIntensityUnit
 typedef TemperatureUnits::TemperatureUnitsEnum TemperatureUnits_TemperatureUnitsEnum;
 typedef TimeUnits::TimeUnitsEnum TimeUnits_TimeUnitsEnum;
 
+// containAdapter.h
+typedef ContainAdapterEnums::ContainTactic::ContainTacticEnum ContainTactic_ContainTacticEnum;
+typedef ContainAdapterEnums::ContainStatus::ContainStatusEnum ContainStatus_ContainStatusEnum;
+typedef ContainAdapterEnums::ContainFlank::ContainFlankEnum ContainFlank_ContainFlankEnum;
+
 // surfaceInputs.h
 typedef AspenFireSeverity::AspenFireSeverityEnum AspenFireSeverity_AspenFireSeverityEnum;
 typedef TwoFuelModelsMethod::TwoFuelModelsMethodEnum TwoFuelModelsMethod_TwoFuelModelsMethodEnum;
@@ -30,3 +38,12 @@ typedef FireType::FireTypeEnum FireType_FireTypeEnum;
 
 //
 typedef double* DoublePtr;
+
+// igniteInputs.h
+typedef LightningCharge::LightningChargeEnum LightningCharge_LightningChargeEnum;
+typedef IgnitionFuelBedType::IgnitionFuelBedTypeEnum IgnitionFuelBedType_IgnitionFuelBedTypeEnum;
+
+
+// spotInputs.h
+typedef SpotTreeSpecies::SpotTreeSpeciesEnum SpotTreeSpecies_SpotTreeSpeciesEnum;
+typedef SpotFireLocation::SpotFireLocationEnum SpotFireLocation_SpotFireLocationEnum;

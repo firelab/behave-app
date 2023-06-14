@@ -104,20 +104,13 @@ SET(SOURCE
     behave-mirror/src/behave/windSpeedUtility.cpp
 
     include/cpp/sig-adapters/SIGBehaveRun.cpp
-    include/cpp/sig-adapters/SIGContain.cpp
     include/cpp/sig-adapters/SIGContainAdapter.cpp
-    include/cpp/sig-adapters/SIGContainForce.cpp
-    include/cpp/sig-adapters/SIGContainForceAdapter.cpp
-    include/cpp/sig-adapters/SIGContainResource.cpp
-    include/cpp/sig-adapters/SIGContainSim.cpp
     include/cpp/sig-adapters/SIGCrown.cpp
     include/cpp/sig-adapters/SIGFuelModels.cpp
     include/cpp/sig-adapters/SIGIgnite.cpp
-    include/cpp/sig-adapters/SIGIgniteInputs.cpp
     include/cpp/sig-adapters/SIGMortality.cpp
-    include/cpp/sig-adapters/SIGSurface.h
+    include/cpp/sig-adapters/SIGSurface.cpp
     include/cpp/sig-adapters/SIGSpot.cpp
-    include/cpp/sig-adapters/SIGSpotInputs.cpp
     include/cpp/sig-adapters/SIGSurface.cpp)
 
 SET(HEADERS
@@ -159,19 +152,12 @@ SET(HEADERS
 
     include/cpp/sig-adapters/SIGBehaveRun.h
     include/cpp/sig-adapters/SIGDiurnalROS.h
-    include/cpp/sig-adapters/SIGContain.h
     include/cpp/sig-adapters/SIGContainAdapter.h
-    include/cpp/sig-adapters/SIGContainForce.h
-    include/cpp/sig-adapters/SIGContainForceAdapter.h
-    include/cpp/sig-adapters/SIGContainResource.h
-    include/cpp/sig-adapters/SIGContainSim.h
     include/cpp/sig-adapters/SIGCrown.h
     include/cpp/sig-adapters/SIGFuelModels.cpp
     include/cpp/sig-adapters/SIGIgnite.h
-    include/cpp/sig-adapters/SIGIgniteInputs.h
     include/cpp/sig-adapters/SIGMortality.h
     include/cpp/sig-adapters/SIGSpot.h
-    include/cpp/sig-adapters/SIGSpotInputs.h
     include/cpp/sig-adapters/SIGSurface.h
     include/cpp/sig-adapters/SIGString.h
     include/cpp/sig-adapters/SIGSurface.h)

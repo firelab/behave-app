@@ -32,28 +32,28 @@
          "BeetleDamage::yes"]))
 
 (def contain-flank
-  (enum "ContainFlank"
-        ["LeftFlank"
-         "RightFlank"
-         "BothFlanks"
-         "NeitherFlank"]))
+  (enum "ContainFlank_ContainFlankEnum"
+        ["ContainFlank::LeftFlank"
+         "ContainFlank::RightFlank"
+         "ContainFlank::BothFlanks"
+         "ContainFlank::NeitherFlank"]))
 
 (def contain-status
-  (enum "ContainStatus"
-        ["Unreported"
-         "Reported"
-         "Attacked"
-         "Contained"
-         "Overrun"
-         "Exhausted"
-         "Overflow"
-         "SizeLimitExceeded"
-         "TimeLimitExceeded"]))
+  (enum "ContainStatus_ContainStatusEnum"
+        ["ContainStatus::Unreported"
+         "ContainStatus::Reported"
+         "ContainStatus::Attacked"
+         "ContainStatus::Contained"
+         "ContainStatus::Overrun"
+         "ContainStatus::Exhausted"
+         "ContainStatus::Overflow"
+         "ContainStatus::SizeLimitExceeded"
+         "ContainStatus::TimeLimitExceeded"]))
 
 (def contain-tactic
-  (enum "ContainTactic"
-        ["HeadAttack"
-         "RearAttack"]))
+  (enum "ContainTactic_ContainTacticEnum"
+        ["ContainTactic::HeadAttack"
+         "ContainTactic::RearAttack"]))
 
 (def cover-units
   (enum "CoverUnits_CoverUnitsEnum"
@@ -116,7 +116,7 @@
          "HeatPerUnitAreaUnits::KilowattsPerSquareMeterPerSecond"]))
 
 (def ignition-fuel-bed-type
-  (enum "IgnitionFuelBedType"
+  (enum "IgnitionFuelBedType_IgnitionFuelBedTypeEnum"
         ["PonderosaPineLitter"
          "PunkyWoodRottenChunky"
          "PunkyWoodPowderDeep"
@@ -137,7 +137,7 @@
          "LengthUnits::Kilometers"]))
 
 (def lightning-charge
-  (enum "LightningCharge"
+  (enum "LightningCharge_LightningChargeEnum"
         ["Negative"
          "Positive"
          "Unknown"]))
@@ -183,34 +183,34 @@
          "SpeedUnits::KilometersPerHour"]))
 
 (def spot-tree-species
-  (enum "SpotTreeSpecies"
-        ["ENGELMANN_SPRUCE"
-         "DOUGLAS_FIR"
-         "SUBALPINE_FIR"
-         "WESTERN_HEMLOCK"
-         "PONDEROSA_PINE"
-         "LODGEPOLE_PINE"
-         "WESTERN_WHITE_PINE"
-         "GRAND_FIR"
-         "BALSAM_FIR"
-         "SLASH_PINE"
-         "LONGLEAF_PINE"
-         "POND_PINE"
-         "SHORTLEAF_PINE"
-         "LOBLOLLY_PINE"]))
+  (enum "SpotTreeSpecies_SpotTreeSpeciesEnum"
+        ["SpotTreeSpecies::ENGELMANN_SPRUCE"
+         "SpotTreeSpecies::DOUGLAS_FIR"
+         "SpotTreeSpecies::SUBALPINE_FIR"
+         "SpotTreeSpecies::WESTERN_HEMLOCK"
+         "SpotTreeSpecies::PONDEROSA_PINE"
+         "SpotTreeSpecies::LODGEPOLE_PINE"
+         "SpotTreeSpecies::WESTERN_WHITE_PINE"
+         "SpotTreeSpecies::GRAND_FIR"
+         "SpotTreeSpecies::BALSAM_FIR"
+         "SpotTreeSpecies::SLASH_PINE"
+         "SpotTreeSpecies::LONGLEAF_PINE"
+         "SpotTreeSpecies::POND_PINE"
+         "SpotTreeSpecies::SHORTLEAF_PINE"
+         "SpotTreeSpecies::LOBLOLLY_PINE"]))
 
 (def spot-fire-location
-  (enum "SpotFireLocation"
-        ["MIDSLOPE_WINDWARD"
-         "VALLEY_BOTTOM"
-         "MIDSLOPE_LEEWARD"
-         "RIDGE_TOP"]))
+  (enum "SpotFireLocation_SpotFireLocationEnum"
+        ["SpotFireLocation::MIDSLOPE_WINDWARD"
+         "SpotFireLocation::VALLEY_BOTTOM"
+         "SpotFireLocation::MIDSLOPE_LEEWARD"
+         "SpotFireLocation::RIDGE_TOP"]))
 
 (def spot-array-constants
-  (enum "SpotArrayConstants"
-        ["NUM_COLS"
-         "NUM_FIREBRAND_ROWS"
-         "NUM_SPECIES"]))
+  (enum "SpotArrayConstants_SpotArrayConstantsEnum"
+        ["SpotArrayConstants::NUM_COLS"
+         "SpotArrayConstants::NUM_FIREBRAND_ROWS"
+         "SpotArrayConstants::NUM_SPECIES"]))
 
 (def surface-area-to-volume-units
   (enum "SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum"

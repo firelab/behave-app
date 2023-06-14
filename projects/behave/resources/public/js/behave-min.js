@@ -693,6 +693,11 @@ function initRuntime() {
   checkStackCookie();
 
   
+if (!Module["noFSInit"] && !FS.init.initialized)
+  FS.init();
+FS.ignorePermissions = false;
+
+TTY.init();
   callRuntimeCallbacks(__ATINIT__);
 }
 
@@ -859,26 +864,6 @@ function abort(what) {
 
 // include: memoryprofiler.js
 // end include: memoryprofiler.js
-// show errors on likely calls to FS when it was not included
-var FS = {
-  error: function() {
-    abort('Filesystem support (FS) was not included. The problem is that you are using files from JS, but files were not used from C/C++, so filesystem support was not auto-included. You can force-include filesystem support with -sFORCE_FILESYSTEM');
-  },
-  init: function() { FS.error() },
-  createDataFile: function() { FS.error() },
-  createPreloadedFile: function() { FS.error() },
-  createLazyFile: function() { FS.error() },
-  open: function() { FS.error() },
-  mkdev: function() { FS.error() },
-  registerDevice: function() { FS.error() },
-  analyzePath: function() { FS.error() },
-  loadFilesFromDB: function() { FS.error() },
-
-  ErrnoError: function ErrnoError() { FS.error() },
-};
-Module['FS_createDataFile'] = FS.createDataFile;
-Module['FS_createPreloadedFile'] = FS.createPreloadedFile;
-
 // include: URIUtils.js
 // Prefix of data URIs emitted by SINGLE_FILE and related options.
 var dataURIPrefix = 'data:application/octet-stream;base64,';
@@ -1560,6 +1545,2424 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
     }
 
 
+  function setErrNo(value) {
+      HEAP32[((___errno_location())>>2)] = value;
+      return value;
+    }
+  
+  var PATH = {isAbs:(path) => path.charAt(0) === '/',splitPath:(filename) => {
+        var splitPathRe = /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/;
+        return splitPathRe.exec(filename).slice(1);
+      },normalizeArray:(parts, allowAboveRoot) => {
+        // if the path tries to go above the root, `up` ends up > 0
+        var up = 0;
+        for (var i = parts.length - 1; i >= 0; i--) {
+          var last = parts[i];
+          if (last === '.') {
+            parts.splice(i, 1);
+          } else if (last === '..') {
+            parts.splice(i, 1);
+            up++;
+          } else if (up) {
+            parts.splice(i, 1);
+            up--;
+          }
+        }
+        // if the path is allowed to go above the root, restore leading ..s
+        if (allowAboveRoot) {
+          for (; up; up--) {
+            parts.unshift('..');
+          }
+        }
+        return parts;
+      },normalize:(path) => {
+        var isAbsolute = PATH.isAbs(path),
+            trailingSlash = path.substr(-1) === '/';
+        // Normalize the path
+        path = PATH.normalizeArray(path.split('/').filter((p) => !!p), !isAbsolute).join('/');
+        if (!path && !isAbsolute) {
+          path = '.';
+        }
+        if (path && trailingSlash) {
+          path += '/';
+        }
+        return (isAbsolute ? '/' : '') + path;
+      },dirname:(path) => {
+        var result = PATH.splitPath(path),
+            root = result[0],
+            dir = result[1];
+        if (!root && !dir) {
+          // No dirname whatsoever
+          return '.';
+        }
+        if (dir) {
+          // It has a dirname, strip trailing slash
+          dir = dir.substr(0, dir.length - 1);
+        }
+        return root + dir;
+      },basename:(path) => {
+        // EMSCRIPTEN return '/'' for '/', not an empty string
+        if (path === '/') return '/';
+        path = PATH.normalize(path);
+        path = path.replace(/\/$/, "");
+        var lastSlash = path.lastIndexOf('/');
+        if (lastSlash === -1) return path;
+        return path.substr(lastSlash+1);
+      },join:function() {
+        var paths = Array.prototype.slice.call(arguments);
+        return PATH.normalize(paths.join('/'));
+      },join2:(l, r) => {
+        return PATH.normalize(l + '/' + r);
+      }};
+  
+  function getRandomDevice() {
+      if (typeof crypto == 'object' && typeof crypto['getRandomValues'] == 'function') {
+        // for modern web browsers
+        var randomBuffer = new Uint8Array(1);
+        return () => { crypto.getRandomValues(randomBuffer); return randomBuffer[0]; };
+      } else
+      if (ENVIRONMENT_IS_NODE) {
+        // for nodejs with or without crypto support included
+        try {
+          var crypto_module = require('crypto');
+          // nodejs has crypto support
+          return () => crypto_module['randomBytes'](1)[0];
+        } catch (e) {
+          // nodejs doesn't have crypto support
+        }
+      }
+      // we couldn't find a proper implementation, as Math.random() is not suitable for /dev/random, see emscripten-core/emscripten/pull/7096
+      return () => abort("no cryptographic support found for randomDevice. consider polyfilling it if you want to use something insecure like Math.random(), e.g. put this in a --pre-js: var crypto = { getRandomValues: function(array) { for (var i = 0; i < array.length; i++) array[i] = (Math.random()*256)|0 } };");
+    }
+  
+  
+  
+  var PATH_FS = {resolve:function() {
+        var resolvedPath = '',
+          resolvedAbsolute = false;
+        for (var i = arguments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
+          var path = (i >= 0) ? arguments[i] : FS.cwd();
+          // Skip empty and invalid entries
+          if (typeof path != 'string') {
+            throw new TypeError('Arguments to path.resolve must be strings');
+          } else if (!path) {
+            return ''; // an invalid portion invalidates the whole thing
+          }
+          resolvedPath = path + '/' + resolvedPath;
+          resolvedAbsolute = PATH.isAbs(path);
+        }
+        // At this point the path should be resolved to a full absolute path, but
+        // handle relative paths to be safe (might happen when process.cwd() fails)
+        resolvedPath = PATH.normalizeArray(resolvedPath.split('/').filter((p) => !!p), !resolvedAbsolute).join('/');
+        return ((resolvedAbsolute ? '/' : '') + resolvedPath) || '.';
+      },relative:(from, to) => {
+        from = PATH_FS.resolve(from).substr(1);
+        to = PATH_FS.resolve(to).substr(1);
+        function trim(arr) {
+          var start = 0;
+          for (; start < arr.length; start++) {
+            if (arr[start] !== '') break;
+          }
+          var end = arr.length - 1;
+          for (; end >= 0; end--) {
+            if (arr[end] !== '') break;
+          }
+          if (start > end) return [];
+          return arr.slice(start, end - start + 1);
+        }
+        var fromParts = trim(from.split('/'));
+        var toParts = trim(to.split('/'));
+        var length = Math.min(fromParts.length, toParts.length);
+        var samePartsLength = length;
+        for (var i = 0; i < length; i++) {
+          if (fromParts[i] !== toParts[i]) {
+            samePartsLength = i;
+            break;
+          }
+        }
+        var outputParts = [];
+        for (var i = samePartsLength; i < fromParts.length; i++) {
+          outputParts.push('..');
+        }
+        outputParts = outputParts.concat(toParts.slice(samePartsLength));
+        return outputParts.join('/');
+      }};
+  
+  
+  /** @type {function(string, boolean=, number=)} */
+  function intArrayFromString(stringy, dontAddNull, length) {
+    var len = length > 0 ? length : lengthBytesUTF8(stringy)+1;
+    var u8array = new Array(len);
+    var numBytesWritten = stringToUTF8Array(stringy, u8array, 0, u8array.length);
+    if (dontAddNull) u8array.length = numBytesWritten;
+    return u8array;
+  }
+  var TTY = {ttys:[],init:function () {
+        // https://github.com/emscripten-core/emscripten/pull/1555
+        // if (ENVIRONMENT_IS_NODE) {
+        //   // currently, FS.init does not distinguish if process.stdin is a file or TTY
+        //   // device, it always assumes it's a TTY device. because of this, we're forcing
+        //   // process.stdin to UTF8 encoding to at least make stdin reading compatible
+        //   // with text files until FS.init can be refactored.
+        //   process.stdin.setEncoding('utf8');
+        // }
+      },shutdown:function() {
+        // https://github.com/emscripten-core/emscripten/pull/1555
+        // if (ENVIRONMENT_IS_NODE) {
+        //   // inolen: any idea as to why node -e 'process.stdin.read()' wouldn't exit immediately (with process.stdin being a tty)?
+        //   // isaacs: because now it's reading from the stream, you've expressed interest in it, so that read() kicks off a _read() which creates a ReadReq operation
+        //   // inolen: I thought read() in that case was a synchronous operation that just grabbed some amount of buffered data if it exists?
+        //   // isaacs: it is. but it also triggers a _read() call, which calls readStart() on the handle
+        //   // isaacs: do process.stdin.pause() and i'd think it'd probably close the pending call
+        //   process.stdin.pause();
+        // }
+      },register:function(dev, ops) {
+        TTY.ttys[dev] = { input: [], output: [], ops: ops };
+        FS.registerDevice(dev, TTY.stream_ops);
+      },stream_ops:{open:function(stream) {
+          var tty = TTY.ttys[stream.node.rdev];
+          if (!tty) {
+            throw new FS.ErrnoError(43);
+          }
+          stream.tty = tty;
+          stream.seekable = false;
+        },close:function(stream) {
+          // flush any pending line data
+          stream.tty.ops.fsync(stream.tty);
+        },fsync:function(stream) {
+          stream.tty.ops.fsync(stream.tty);
+        },read:function(stream, buffer, offset, length, pos /* ignored */) {
+          if (!stream.tty || !stream.tty.ops.get_char) {
+            throw new FS.ErrnoError(60);
+          }
+          var bytesRead = 0;
+          for (var i = 0; i < length; i++) {
+            var result;
+            try {
+              result = stream.tty.ops.get_char(stream.tty);
+            } catch (e) {
+              throw new FS.ErrnoError(29);
+            }
+            if (result === undefined && bytesRead === 0) {
+              throw new FS.ErrnoError(6);
+            }
+            if (result === null || result === undefined) break;
+            bytesRead++;
+            buffer[offset+i] = result;
+          }
+          if (bytesRead) {
+            stream.node.timestamp = Date.now();
+          }
+          return bytesRead;
+        },write:function(stream, buffer, offset, length, pos) {
+          if (!stream.tty || !stream.tty.ops.put_char) {
+            throw new FS.ErrnoError(60);
+          }
+          try {
+            for (var i = 0; i < length; i++) {
+              stream.tty.ops.put_char(stream.tty, buffer[offset+i]);
+            }
+          } catch (e) {
+            throw new FS.ErrnoError(29);
+          }
+          if (length) {
+            stream.node.timestamp = Date.now();
+          }
+          return i;
+        }},default_tty_ops:{get_char:function(tty) {
+          if (!tty.input.length) {
+            var result = null;
+            if (ENVIRONMENT_IS_NODE) {
+              // we will read data by chunks of BUFSIZE
+              var BUFSIZE = 256;
+              var buf = Buffer.alloc(BUFSIZE);
+              var bytesRead = 0;
+  
+              try {
+                bytesRead = fs.readSync(process.stdin.fd, buf, 0, BUFSIZE, -1);
+              } catch(e) {
+                // Cross-platform differences: on Windows, reading EOF throws an exception, but on other OSes,
+                // reading EOF returns 0. Uniformize behavior by treating the EOF exception to return 0.
+                if (e.toString().includes('EOF')) bytesRead = 0;
+                else throw e;
+              }
+  
+              if (bytesRead > 0) {
+                result = buf.slice(0, bytesRead).toString('utf-8');
+              } else {
+                result = null;
+              }
+            } else
+            if (typeof window != 'undefined' &&
+              typeof window.prompt == 'function') {
+              // Browser.
+              result = window.prompt('Input: ');  // returns null on cancel
+              if (result !== null) {
+                result += '\n';
+              }
+            } else if (typeof readline == 'function') {
+              // Command line.
+              result = readline();
+              if (result !== null) {
+                result += '\n';
+              }
+            }
+            if (!result) {
+              return null;
+            }
+            tty.input = intArrayFromString(result, true);
+          }
+          return tty.input.shift();
+        },put_char:function(tty, val) {
+          if (val === null || val === 10) {
+            out(UTF8ArrayToString(tty.output, 0));
+            tty.output = [];
+          } else {
+            if (val != 0) tty.output.push(val); // val == 0 would cut text output off in the middle.
+          }
+        },fsync:function(tty) {
+          if (tty.output && tty.output.length > 0) {
+            out(UTF8ArrayToString(tty.output, 0));
+            tty.output = [];
+          }
+        }},default_tty1_ops:{put_char:function(tty, val) {
+          if (val === null || val === 10) {
+            err(UTF8ArrayToString(tty.output, 0));
+            tty.output = [];
+          } else {
+            if (val != 0) tty.output.push(val);
+          }
+        },fsync:function(tty) {
+          if (tty.output && tty.output.length > 0) {
+            err(UTF8ArrayToString(tty.output, 0));
+            tty.output = [];
+          }
+        }}};
+  
+  
+  function zeroMemory(address, size) {
+      HEAPU8.fill(0, address, address + size);
+      return address;
+    }
+  
+  function alignMemory(size, alignment) {
+      assert(alignment, "alignment argument is required");
+      return Math.ceil(size / alignment) * alignment;
+    }
+  function mmapAlloc(size) {
+      abort('internal error: mmapAlloc called but `emscripten_builtin_memalign` native symbol not exported');
+    }
+  var MEMFS = {ops_table:null,mount:function(mount) {
+        return MEMFS.createNode(null, '/', 16384 | 511 /* 0777 */, 0);
+      },createNode:function(parent, name, mode, dev) {
+        if (FS.isBlkdev(mode) || FS.isFIFO(mode)) {
+          // no supported
+          throw new FS.ErrnoError(63);
+        }
+        if (!MEMFS.ops_table) {
+          MEMFS.ops_table = {
+            dir: {
+              node: {
+                getattr: MEMFS.node_ops.getattr,
+                setattr: MEMFS.node_ops.setattr,
+                lookup: MEMFS.node_ops.lookup,
+                mknod: MEMFS.node_ops.mknod,
+                rename: MEMFS.node_ops.rename,
+                unlink: MEMFS.node_ops.unlink,
+                rmdir: MEMFS.node_ops.rmdir,
+                readdir: MEMFS.node_ops.readdir,
+                symlink: MEMFS.node_ops.symlink
+              },
+              stream: {
+                llseek: MEMFS.stream_ops.llseek
+              }
+            },
+            file: {
+              node: {
+                getattr: MEMFS.node_ops.getattr,
+                setattr: MEMFS.node_ops.setattr
+              },
+              stream: {
+                llseek: MEMFS.stream_ops.llseek,
+                read: MEMFS.stream_ops.read,
+                write: MEMFS.stream_ops.write,
+                allocate: MEMFS.stream_ops.allocate,
+                mmap: MEMFS.stream_ops.mmap,
+                msync: MEMFS.stream_ops.msync
+              }
+            },
+            link: {
+              node: {
+                getattr: MEMFS.node_ops.getattr,
+                setattr: MEMFS.node_ops.setattr,
+                readlink: MEMFS.node_ops.readlink
+              },
+              stream: {}
+            },
+            chrdev: {
+              node: {
+                getattr: MEMFS.node_ops.getattr,
+                setattr: MEMFS.node_ops.setattr
+              },
+              stream: FS.chrdev_stream_ops
+            }
+          };
+        }
+        var node = FS.createNode(parent, name, mode, dev);
+        if (FS.isDir(node.mode)) {
+          node.node_ops = MEMFS.ops_table.dir.node;
+          node.stream_ops = MEMFS.ops_table.dir.stream;
+          node.contents = {};
+        } else if (FS.isFile(node.mode)) {
+          node.node_ops = MEMFS.ops_table.file.node;
+          node.stream_ops = MEMFS.ops_table.file.stream;
+          node.usedBytes = 0; // The actual number of bytes used in the typed array, as opposed to contents.length which gives the whole capacity.
+          // When the byte data of the file is populated, this will point to either a typed array, or a normal JS array. Typed arrays are preferred
+          // for performance, and used by default. However, typed arrays are not resizable like normal JS arrays are, so there is a small disk size
+          // penalty involved for appending file writes that continuously grow a file similar to std::vector capacity vs used -scheme.
+          node.contents = null; 
+        } else if (FS.isLink(node.mode)) {
+          node.node_ops = MEMFS.ops_table.link.node;
+          node.stream_ops = MEMFS.ops_table.link.stream;
+        } else if (FS.isChrdev(node.mode)) {
+          node.node_ops = MEMFS.ops_table.chrdev.node;
+          node.stream_ops = MEMFS.ops_table.chrdev.stream;
+        }
+        node.timestamp = Date.now();
+        // add the new node to the parent
+        if (parent) {
+          parent.contents[name] = node;
+          parent.timestamp = node.timestamp;
+        }
+        return node;
+      },getFileDataAsTypedArray:function(node) {
+        if (!node.contents) return new Uint8Array(0);
+        if (node.contents.subarray) return node.contents.subarray(0, node.usedBytes); // Make sure to not return excess unused bytes.
+        return new Uint8Array(node.contents);
+      },expandFileStorage:function(node, newCapacity) {
+        var prevCapacity = node.contents ? node.contents.length : 0;
+        if (prevCapacity >= newCapacity) return; // No need to expand, the storage was already large enough.
+        // Don't expand strictly to the given requested limit if it's only a very small increase, but instead geometrically grow capacity.
+        // For small filesizes (<1MB), perform size*2 geometric increase, but for large sizes, do a much more conservative size*1.125 increase to
+        // avoid overshooting the allocation cap by a very large margin.
+        var CAPACITY_DOUBLING_MAX = 1024 * 1024;
+        newCapacity = Math.max(newCapacity, (prevCapacity * (prevCapacity < CAPACITY_DOUBLING_MAX ? 2.0 : 1.125)) >>> 0);
+        if (prevCapacity != 0) newCapacity = Math.max(newCapacity, 256); // At minimum allocate 256b for each file when expanding.
+        var oldContents = node.contents;
+        node.contents = new Uint8Array(newCapacity); // Allocate new storage.
+        if (node.usedBytes > 0) node.contents.set(oldContents.subarray(0, node.usedBytes), 0); // Copy old data over to the new storage.
+      },resizeFileStorage:function(node, newSize) {
+        if (node.usedBytes == newSize) return;
+        if (newSize == 0) {
+          node.contents = null; // Fully decommit when requesting a resize to zero.
+          node.usedBytes = 0;
+        } else {
+          var oldContents = node.contents;
+          node.contents = new Uint8Array(newSize); // Allocate new storage.
+          if (oldContents) {
+            node.contents.set(oldContents.subarray(0, Math.min(newSize, node.usedBytes))); // Copy old data over to the new storage.
+          }
+          node.usedBytes = newSize;
+        }
+      },node_ops:{getattr:function(node) {
+          var attr = {};
+          // device numbers reuse inode numbers.
+          attr.dev = FS.isChrdev(node.mode) ? node.id : 1;
+          attr.ino = node.id;
+          attr.mode = node.mode;
+          attr.nlink = 1;
+          attr.uid = 0;
+          attr.gid = 0;
+          attr.rdev = node.rdev;
+          if (FS.isDir(node.mode)) {
+            attr.size = 4096;
+          } else if (FS.isFile(node.mode)) {
+            attr.size = node.usedBytes;
+          } else if (FS.isLink(node.mode)) {
+            attr.size = node.link.length;
+          } else {
+            attr.size = 0;
+          }
+          attr.atime = new Date(node.timestamp);
+          attr.mtime = new Date(node.timestamp);
+          attr.ctime = new Date(node.timestamp);
+          // NOTE: In our implementation, st_blocks = Math.ceil(st_size/st_blksize),
+          //       but this is not required by the standard.
+          attr.blksize = 4096;
+          attr.blocks = Math.ceil(attr.size / attr.blksize);
+          return attr;
+        },setattr:function(node, attr) {
+          if (attr.mode !== undefined) {
+            node.mode = attr.mode;
+          }
+          if (attr.timestamp !== undefined) {
+            node.timestamp = attr.timestamp;
+          }
+          if (attr.size !== undefined) {
+            MEMFS.resizeFileStorage(node, attr.size);
+          }
+        },lookup:function(parent, name) {
+          throw FS.genericErrors[44];
+        },mknod:function(parent, name, mode, dev) {
+          return MEMFS.createNode(parent, name, mode, dev);
+        },rename:function(old_node, new_dir, new_name) {
+          // if we're overwriting a directory at new_name, make sure it's empty.
+          if (FS.isDir(old_node.mode)) {
+            var new_node;
+            try {
+              new_node = FS.lookupNode(new_dir, new_name);
+            } catch (e) {
+            }
+            if (new_node) {
+              for (var i in new_node.contents) {
+                throw new FS.ErrnoError(55);
+              }
+            }
+          }
+          // do the internal rewiring
+          delete old_node.parent.contents[old_node.name];
+          old_node.parent.timestamp = Date.now()
+          old_node.name = new_name;
+          new_dir.contents[new_name] = old_node;
+          new_dir.timestamp = old_node.parent.timestamp;
+          old_node.parent = new_dir;
+        },unlink:function(parent, name) {
+          delete parent.contents[name];
+          parent.timestamp = Date.now();
+        },rmdir:function(parent, name) {
+          var node = FS.lookupNode(parent, name);
+          for (var i in node.contents) {
+            throw new FS.ErrnoError(55);
+          }
+          delete parent.contents[name];
+          parent.timestamp = Date.now();
+        },readdir:function(node) {
+          var entries = ['.', '..'];
+          for (var key in node.contents) {
+            if (!node.contents.hasOwnProperty(key)) {
+              continue;
+            }
+            entries.push(key);
+          }
+          return entries;
+        },symlink:function(parent, newname, oldpath) {
+          var node = MEMFS.createNode(parent, newname, 511 /* 0777 */ | 40960, 0);
+          node.link = oldpath;
+          return node;
+        },readlink:function(node) {
+          if (!FS.isLink(node.mode)) {
+            throw new FS.ErrnoError(28);
+          }
+          return node.link;
+        }},stream_ops:{read:function(stream, buffer, offset, length, position) {
+          var contents = stream.node.contents;
+          if (position >= stream.node.usedBytes) return 0;
+          var size = Math.min(stream.node.usedBytes - position, length);
+          assert(size >= 0);
+          if (size > 8 && contents.subarray) { // non-trivial, and typed array
+            buffer.set(contents.subarray(position, position + size), offset);
+          } else {
+            for (var i = 0; i < size; i++) buffer[offset + i] = contents[position + i];
+          }
+          return size;
+        },write:function(stream, buffer, offset, length, position, canOwn) {
+          // The data buffer should be a typed array view
+          assert(!(buffer instanceof ArrayBuffer));
+          // If the buffer is located in main memory (HEAP), and if
+          // memory can grow, we can't hold on to references of the
+          // memory buffer, as they may get invalidated. That means we
+          // need to do copy its contents.
+          if (buffer.buffer === HEAP8.buffer) {
+            canOwn = false;
+          }
+  
+          if (!length) return 0;
+          var node = stream.node;
+          node.timestamp = Date.now();
+  
+          if (buffer.subarray && (!node.contents || node.contents.subarray)) { // This write is from a typed array to a typed array?
+            if (canOwn) {
+              assert(position === 0, 'canOwn must imply no weird position inside the file');
+              node.contents = buffer.subarray(offset, offset + length);
+              node.usedBytes = length;
+              return length;
+            } else if (node.usedBytes === 0 && position === 0) { // If this is a simple first write to an empty file, do a fast set since we don't need to care about old data.
+              node.contents = buffer.slice(offset, offset + length);
+              node.usedBytes = length;
+              return length;
+            } else if (position + length <= node.usedBytes) { // Writing to an already allocated and used subrange of the file?
+              node.contents.set(buffer.subarray(offset, offset + length), position);
+              return length;
+            }
+          }
+  
+          // Appending to an existing file and we need to reallocate, or source data did not come as a typed array.
+          MEMFS.expandFileStorage(node, position+length);
+          if (node.contents.subarray && buffer.subarray) {
+            // Use typed array write which is available.
+            node.contents.set(buffer.subarray(offset, offset + length), position);
+          } else {
+            for (var i = 0; i < length; i++) {
+             node.contents[position + i] = buffer[offset + i]; // Or fall back to manual write if not.
+            }
+          }
+          node.usedBytes = Math.max(node.usedBytes, position + length);
+          return length;
+        },llseek:function(stream, offset, whence) {
+          var position = offset;
+          if (whence === 1) {
+            position += stream.position;
+          } else if (whence === 2) {
+            if (FS.isFile(stream.node.mode)) {
+              position += stream.node.usedBytes;
+            }
+          }
+          if (position < 0) {
+            throw new FS.ErrnoError(28);
+          }
+          return position;
+        },allocate:function(stream, offset, length) {
+          MEMFS.expandFileStorage(stream.node, offset + length);
+          stream.node.usedBytes = Math.max(stream.node.usedBytes, offset + length);
+        },mmap:function(stream, length, position, prot, flags) {
+          if (!FS.isFile(stream.node.mode)) {
+            throw new FS.ErrnoError(43);
+          }
+          var ptr;
+          var allocated;
+          var contents = stream.node.contents;
+          // Only make a new copy when MAP_PRIVATE is specified.
+          if (!(flags & 2) && contents.buffer === HEAP8.buffer) {
+            // We can't emulate MAP_SHARED when the file is not backed by the
+            // buffer we're mapping to (e.g. the HEAP buffer).
+            allocated = false;
+            ptr = contents.byteOffset;
+          } else {
+            // Try to avoid unnecessary slices.
+            if (position > 0 || position + length < contents.length) {
+              if (contents.subarray) {
+                contents = contents.subarray(position, position + length);
+              } else {
+                contents = Array.prototype.slice.call(contents, position, position + length);
+              }
+            }
+            allocated = true;
+            ptr = mmapAlloc(length);
+            if (!ptr) {
+              throw new FS.ErrnoError(48);
+            }
+            HEAP8.set(contents, ptr);
+          }
+          return { ptr: ptr, allocated: allocated };
+        },msync:function(stream, buffer, offset, length, mmapFlags) {
+          MEMFS.stream_ops.write(stream, buffer, 0, length, offset, false);
+          // should we check if bytesWritten and length are the same?
+          return 0;
+        }}};
+  
+  /** @param {boolean=} noRunDep */
+  function asyncLoad(url, onload, onerror, noRunDep) {
+      var dep = !noRunDep ? getUniqueRunDependency('al ' + url) : '';
+      readAsync(url, (arrayBuffer) => {
+        assert(arrayBuffer, 'Loading data file "' + url + '" failed (no arrayBuffer).');
+        onload(new Uint8Array(arrayBuffer));
+        if (dep) removeRunDependency(dep);
+      }, (event) => {
+        if (onerror) {
+          onerror();
+        } else {
+          throw 'Loading data file "' + url + '" failed.';
+        }
+      });
+      if (dep) addRunDependency(dep);
+    }
+  
+  
+  var ERRNO_MESSAGES = {0:"Success",1:"Arg list too long",2:"Permission denied",3:"Address already in use",4:"Address not available",5:"Address family not supported by protocol family",6:"No more processes",7:"Socket already connected",8:"Bad file number",9:"Trying to read unreadable message",10:"Mount device busy",11:"Operation canceled",12:"No children",13:"Connection aborted",14:"Connection refused",15:"Connection reset by peer",16:"File locking deadlock error",17:"Destination address required",18:"Math arg out of domain of func",19:"Quota exceeded",20:"File exists",21:"Bad address",22:"File too large",23:"Host is unreachable",24:"Identifier removed",25:"Illegal byte sequence",26:"Connection already in progress",27:"Interrupted system call",28:"Invalid argument",29:"I/O error",30:"Socket is already connected",31:"Is a directory",32:"Too many symbolic links",33:"Too many open files",34:"Too many links",35:"Message too long",36:"Multihop attempted",37:"File or path name too long",38:"Network interface is not configured",39:"Connection reset by network",40:"Network is unreachable",41:"Too many open files in system",42:"No buffer space available",43:"No such device",44:"No such file or directory",45:"Exec format error",46:"No record locks available",47:"The link has been severed",48:"Not enough core",49:"No message of desired type",50:"Protocol not available",51:"No space left on device",52:"Function not implemented",53:"Socket is not connected",54:"Not a directory",55:"Directory not empty",56:"State not recoverable",57:"Socket operation on non-socket",59:"Not a typewriter",60:"No such device or address",61:"Value too large for defined data type",62:"Previous owner died",63:"Not super-user",64:"Broken pipe",65:"Protocol error",66:"Unknown protocol",67:"Protocol wrong type for socket",68:"Math result not representable",69:"Read only file system",70:"Illegal seek",71:"No such process",72:"Stale file handle",73:"Connection timed out",74:"Text file busy",75:"Cross-device link",100:"Device not a stream",101:"Bad font file fmt",102:"Invalid slot",103:"Invalid request code",104:"No anode",105:"Block device required",106:"Channel number out of range",107:"Level 3 halted",108:"Level 3 reset",109:"Link number out of range",110:"Protocol driver not attached",111:"No CSI structure available",112:"Level 2 halted",113:"Invalid exchange",114:"Invalid request descriptor",115:"Exchange full",116:"No data (for no delay io)",117:"Timer expired",118:"Out of streams resources",119:"Machine is not on the network",120:"Package not installed",121:"The object is remote",122:"Advertise error",123:"Srmount error",124:"Communication error on send",125:"Cross mount point (not really error)",126:"Given log. name not unique",127:"f.d. invalid for this operation",128:"Remote address changed",129:"Can   access a needed shared lib",130:"Accessing a corrupted shared lib",131:".lib section in a.out corrupted",132:"Attempting to link in too many libs",133:"Attempting to exec a shared library",135:"Streams pipe error",136:"Too many users",137:"Socket type not supported",138:"Not supported",139:"Protocol family not supported",140:"Can't send after socket shutdown",141:"Too many references",142:"Host is down",148:"No medium (in tape drive)",156:"Level 2 not synchronized"};
+  
+  var ERRNO_CODES = {};
+  
+  function demangle(func) {
+      warnOnce('warning: build with -sDEMANGLE_SUPPORT to link in libcxxabi demangling');
+      return func;
+    }
+  function demangleAll(text) {
+      var regex =
+        /\b_Z[\w\d_]+/g;
+      return text.replace(regex,
+        function(x) {
+          var y = demangle(x);
+          return x === y ? x : (y + ' [' + x + ']');
+        });
+    }
+  var FS = {root:null,mounts:[],devices:{},streams:[],nextInode:1,nameTable:null,currentPath:"/",initialized:false,ignorePermissions:true,ErrnoError:null,genericErrors:{},filesystems:null,syncFSRequests:0,lookupPath:(path, opts = {}) => {
+        path = PATH_FS.resolve(path);
+  
+        if (!path) return { path: '', node: null };
+  
+        var defaults = {
+          follow_mount: true,
+          recurse_count: 0
+        };
+        opts = Object.assign(defaults, opts)
+  
+        if (opts.recurse_count > 8) {  // max recursive lookup of 8
+          throw new FS.ErrnoError(32);
+        }
+  
+        // split the absolute path
+        var parts = path.split('/').filter((p) => !!p);
+  
+        // start at the root
+        var current = FS.root;
+        var current_path = '/';
+  
+        for (var i = 0; i < parts.length; i++) {
+          var islast = (i === parts.length-1);
+          if (islast && opts.parent) {
+            // stop resolving
+            break;
+          }
+  
+          current = FS.lookupNode(current, parts[i]);
+          current_path = PATH.join2(current_path, parts[i]);
+  
+          // jump to the mount's root node if this is a mountpoint
+          if (FS.isMountpoint(current)) {
+            if (!islast || (islast && opts.follow_mount)) {
+              current = current.mounted.root;
+            }
+          }
+  
+          // by default, lookupPath will not follow a symlink if it is the final path component.
+          // setting opts.follow = true will override this behavior.
+          if (!islast || opts.follow) {
+            var count = 0;
+            while (FS.isLink(current.mode)) {
+              var link = FS.readlink(current_path);
+              current_path = PATH_FS.resolve(PATH.dirname(current_path), link);
+  
+              var lookup = FS.lookupPath(current_path, { recurse_count: opts.recurse_count + 1 });
+              current = lookup.node;
+  
+              if (count++ > 40) {  // limit max consecutive symlinks to 40 (SYMLOOP_MAX).
+                throw new FS.ErrnoError(32);
+              }
+            }
+          }
+        }
+  
+        return { path: current_path, node: current };
+      },getPath:(node) => {
+        var path;
+        while (true) {
+          if (FS.isRoot(node)) {
+            var mount = node.mount.mountpoint;
+            if (!path) return mount;
+            return mount[mount.length-1] !== '/' ? mount + '/' + path : mount + path;
+          }
+          path = path ? node.name + '/' + path : node.name;
+          node = node.parent;
+        }
+      },hashName:(parentid, name) => {
+        var hash = 0;
+  
+        for (var i = 0; i < name.length; i++) {
+          hash = ((hash << 5) - hash + name.charCodeAt(i)) | 0;
+        }
+        return ((parentid + hash) >>> 0) % FS.nameTable.length;
+      },hashAddNode:(node) => {
+        var hash = FS.hashName(node.parent.id, node.name);
+        node.name_next = FS.nameTable[hash];
+        FS.nameTable[hash] = node;
+      },hashRemoveNode:(node) => {
+        var hash = FS.hashName(node.parent.id, node.name);
+        if (FS.nameTable[hash] === node) {
+          FS.nameTable[hash] = node.name_next;
+        } else {
+          var current = FS.nameTable[hash];
+          while (current) {
+            if (current.name_next === node) {
+              current.name_next = node.name_next;
+              break;
+            }
+            current = current.name_next;
+          }
+        }
+      },lookupNode:(parent, name) => {
+        var errCode = FS.mayLookup(parent);
+        if (errCode) {
+          throw new FS.ErrnoError(errCode, parent);
+        }
+        var hash = FS.hashName(parent.id, name);
+        for (var node = FS.nameTable[hash]; node; node = node.name_next) {
+          var nodeName = node.name;
+          if (node.parent.id === parent.id && nodeName === name) {
+            return node;
+          }
+        }
+        // if we failed to find it in the cache, call into the VFS
+        return FS.lookup(parent, name);
+      },createNode:(parent, name, mode, rdev) => {
+        assert(typeof parent == 'object')
+        var node = new FS.FSNode(parent, name, mode, rdev);
+  
+        FS.hashAddNode(node);
+  
+        return node;
+      },destroyNode:(node) => {
+        FS.hashRemoveNode(node);
+      },isRoot:(node) => {
+        return node === node.parent;
+      },isMountpoint:(node) => {
+        return !!node.mounted;
+      },isFile:(mode) => {
+        return (mode & 61440) === 32768;
+      },isDir:(mode) => {
+        return (mode & 61440) === 16384;
+      },isLink:(mode) => {
+        return (mode & 61440) === 40960;
+      },isChrdev:(mode) => {
+        return (mode & 61440) === 8192;
+      },isBlkdev:(mode) => {
+        return (mode & 61440) === 24576;
+      },isFIFO:(mode) => {
+        return (mode & 61440) === 4096;
+      },isSocket:(mode) => {
+        return (mode & 49152) === 49152;
+      },flagModes:{"r":0,"r+":2,"w":577,"w+":578,"a":1089,"a+":1090},modeStringToFlags:(str) => {
+        var flags = FS.flagModes[str];
+        if (typeof flags == 'undefined') {
+          throw new Error('Unknown file open mode: ' + str);
+        }
+        return flags;
+      },flagsToPermissionString:(flag) => {
+        var perms = ['r', 'w', 'rw'][flag & 3];
+        if ((flag & 512)) {
+          perms += 'w';
+        }
+        return perms;
+      },nodePermissions:(node, perms) => {
+        if (FS.ignorePermissions) {
+          return 0;
+        }
+        // return 0 if any user, group or owner bits are set.
+        if (perms.includes('r') && !(node.mode & 292)) {
+          return 2;
+        } else if (perms.includes('w') && !(node.mode & 146)) {
+          return 2;
+        } else if (perms.includes('x') && !(node.mode & 73)) {
+          return 2;
+        }
+        return 0;
+      },mayLookup:(dir) => {
+        var errCode = FS.nodePermissions(dir, 'x');
+        if (errCode) return errCode;
+        if (!dir.node_ops.lookup) return 2;
+        return 0;
+      },mayCreate:(dir, name) => {
+        try {
+          var node = FS.lookupNode(dir, name);
+          return 20;
+        } catch (e) {
+        }
+        return FS.nodePermissions(dir, 'wx');
+      },mayDelete:(dir, name, isdir) => {
+        var node;
+        try {
+          node = FS.lookupNode(dir, name);
+        } catch (e) {
+          return e.errno;
+        }
+        var errCode = FS.nodePermissions(dir, 'wx');
+        if (errCode) {
+          return errCode;
+        }
+        if (isdir) {
+          if (!FS.isDir(node.mode)) {
+            return 54;
+          }
+          if (FS.isRoot(node) || FS.getPath(node) === FS.cwd()) {
+            return 10;
+          }
+        } else {
+          if (FS.isDir(node.mode)) {
+            return 31;
+          }
+        }
+        return 0;
+      },mayOpen:(node, flags) => {
+        if (!node) {
+          return 44;
+        }
+        if (FS.isLink(node.mode)) {
+          return 32;
+        } else if (FS.isDir(node.mode)) {
+          if (FS.flagsToPermissionString(flags) !== 'r' || // opening for write
+              (flags & 512)) { // TODO: check for O_SEARCH? (== search for dir only)
+            return 31;
+          }
+        }
+        return FS.nodePermissions(node, FS.flagsToPermissionString(flags));
+      },MAX_OPEN_FDS:4096,nextfd:(fd_start = 0, fd_end = FS.MAX_OPEN_FDS) => {
+        for (var fd = fd_start; fd <= fd_end; fd++) {
+          if (!FS.streams[fd]) {
+            return fd;
+          }
+        }
+        throw new FS.ErrnoError(33);
+      },getStream:(fd) => FS.streams[fd],createStream:(stream, fd_start, fd_end) => {
+        if (!FS.FSStream) {
+          FS.FSStream = /** @constructor */ function() {
+            this.shared = { };
+          };
+          FS.FSStream.prototype = {};
+          Object.defineProperties(FS.FSStream.prototype, {
+            object: {
+              /** @this {FS.FSStream} */
+              get: function() { return this.node; },
+              /** @this {FS.FSStream} */
+              set: function(val) { this.node = val; }
+            },
+            isRead: {
+              /** @this {FS.FSStream} */
+              get: function() { return (this.flags & 2097155) !== 1; }
+            },
+            isWrite: {
+              /** @this {FS.FSStream} */
+              get: function() { return (this.flags & 2097155) !== 0; }
+            },
+            isAppend: {
+              /** @this {FS.FSStream} */
+              get: function() { return (this.flags & 1024); }
+            },
+            flags: {
+              /** @this {FS.FSStream} */
+              get: function() { return this.shared.flags; },
+              /** @this {FS.FSStream} */
+              set: function(val) { this.shared.flags = val; },
+            },
+            position : {
+              /** @this {FS.FSStream} */
+              get: function() { return this.shared.position; },
+              /** @this {FS.FSStream} */
+              set: function(val) { this.shared.position = val; },
+            },
+          });
+        }
+        // clone it, so we can return an instance of FSStream
+        stream = Object.assign(new FS.FSStream(), stream);
+        var fd = FS.nextfd(fd_start, fd_end);
+        stream.fd = fd;
+        FS.streams[fd] = stream;
+        return stream;
+      },closeStream:(fd) => {
+        FS.streams[fd] = null;
+      },chrdev_stream_ops:{open:(stream) => {
+          var device = FS.getDevice(stream.node.rdev);
+          // override node's stream ops with the device's
+          stream.stream_ops = device.stream_ops;
+          // forward the open call
+          if (stream.stream_ops.open) {
+            stream.stream_ops.open(stream);
+          }
+        },llseek:() => {
+          throw new FS.ErrnoError(70);
+        }},major:(dev) => ((dev) >> 8),minor:(dev) => ((dev) & 0xff),makedev:(ma, mi) => ((ma) << 8 | (mi)),registerDevice:(dev, ops) => {
+        FS.devices[dev] = { stream_ops: ops };
+      },getDevice:(dev) => FS.devices[dev],getMounts:(mount) => {
+        var mounts = [];
+        var check = [mount];
+  
+        while (check.length) {
+          var m = check.pop();
+  
+          mounts.push(m);
+  
+          check.push.apply(check, m.mounts);
+        }
+  
+        return mounts;
+      },syncfs:(populate, callback) => {
+        if (typeof populate == 'function') {
+          callback = populate;
+          populate = false;
+        }
+  
+        FS.syncFSRequests++;
+  
+        if (FS.syncFSRequests > 1) {
+          err('warning: ' + FS.syncFSRequests + ' FS.syncfs operations in flight at once, probably just doing extra work');
+        }
+  
+        var mounts = FS.getMounts(FS.root.mount);
+        var completed = 0;
+  
+        function doCallback(errCode) {
+          assert(FS.syncFSRequests > 0);
+          FS.syncFSRequests--;
+          return callback(errCode);
+        }
+  
+        function done(errCode) {
+          if (errCode) {
+            if (!done.errored) {
+              done.errored = true;
+              return doCallback(errCode);
+            }
+            return;
+          }
+          if (++completed >= mounts.length) {
+            doCallback(null);
+          }
+        };
+  
+        // sync all mounts
+        mounts.forEach((mount) => {
+          if (!mount.type.syncfs) {
+            return done(null);
+          }
+          mount.type.syncfs(mount, populate, done);
+        });
+      },mount:(type, opts, mountpoint) => {
+        if (typeof type == 'string') {
+          // The filesystem was not included, and instead we have an error
+          // message stored in the variable.
+          throw type;
+        }
+        var root = mountpoint === '/';
+        var pseudo = !mountpoint;
+        var node;
+  
+        if (root && FS.root) {
+          throw new FS.ErrnoError(10);
+        } else if (!root && !pseudo) {
+          var lookup = FS.lookupPath(mountpoint, { follow_mount: false });
+  
+          mountpoint = lookup.path;  // use the absolute path
+          node = lookup.node;
+  
+          if (FS.isMountpoint(node)) {
+            throw new FS.ErrnoError(10);
+          }
+  
+          if (!FS.isDir(node.mode)) {
+            throw new FS.ErrnoError(54);
+          }
+        }
+  
+        var mount = {
+          type: type,
+          opts: opts,
+          mountpoint: mountpoint,
+          mounts: []
+        };
+  
+        // create a root node for the fs
+        var mountRoot = type.mount(mount);
+        mountRoot.mount = mount;
+        mount.root = mountRoot;
+  
+        if (root) {
+          FS.root = mountRoot;
+        } else if (node) {
+          // set as a mountpoint
+          node.mounted = mount;
+  
+          // add the new mount to the current mount's children
+          if (node.mount) {
+            node.mount.mounts.push(mount);
+          }
+        }
+  
+        return mountRoot;
+      },unmount:(mountpoint) => {
+        var lookup = FS.lookupPath(mountpoint, { follow_mount: false });
+  
+        if (!FS.isMountpoint(lookup.node)) {
+          throw new FS.ErrnoError(28);
+        }
+  
+        // destroy the nodes for this mount, and all its child mounts
+        var node = lookup.node;
+        var mount = node.mounted;
+        var mounts = FS.getMounts(mount);
+  
+        Object.keys(FS.nameTable).forEach((hash) => {
+          var current = FS.nameTable[hash];
+  
+          while (current) {
+            var next = current.name_next;
+  
+            if (mounts.includes(current.mount)) {
+              FS.destroyNode(current);
+            }
+  
+            current = next;
+          }
+        });
+  
+        // no longer a mountpoint
+        node.mounted = null;
+  
+        // remove this mount from the child mounts
+        var idx = node.mount.mounts.indexOf(mount);
+        assert(idx !== -1);
+        node.mount.mounts.splice(idx, 1);
+      },lookup:(parent, name) => {
+        return parent.node_ops.lookup(parent, name);
+      },mknod:(path, mode, dev) => {
+        var lookup = FS.lookupPath(path, { parent: true });
+        var parent = lookup.node;
+        var name = PATH.basename(path);
+        if (!name || name === '.' || name === '..') {
+          throw new FS.ErrnoError(28);
+        }
+        var errCode = FS.mayCreate(parent, name);
+        if (errCode) {
+          throw new FS.ErrnoError(errCode);
+        }
+        if (!parent.node_ops.mknod) {
+          throw new FS.ErrnoError(63);
+        }
+        return parent.node_ops.mknod(parent, name, mode, dev);
+      },create:(path, mode) => {
+        mode = mode !== undefined ? mode : 438 /* 0666 */;
+        mode &= 4095;
+        mode |= 32768;
+        return FS.mknod(path, mode, 0);
+      },mkdir:(path, mode) => {
+        mode = mode !== undefined ? mode : 511 /* 0777 */;
+        mode &= 511 | 512;
+        mode |= 16384;
+        return FS.mknod(path, mode, 0);
+      },mkdirTree:(path, mode) => {
+        var dirs = path.split('/');
+        var d = '';
+        for (var i = 0; i < dirs.length; ++i) {
+          if (!dirs[i]) continue;
+          d += '/' + dirs[i];
+          try {
+            FS.mkdir(d, mode);
+          } catch(e) {
+            if (e.errno != 20) throw e;
+          }
+        }
+      },mkdev:(path, mode, dev) => {
+        if (typeof dev == 'undefined') {
+          dev = mode;
+          mode = 438 /* 0666 */;
+        }
+        mode |= 8192;
+        return FS.mknod(path, mode, dev);
+      },symlink:(oldpath, newpath) => {
+        if (!PATH_FS.resolve(oldpath)) {
+          throw new FS.ErrnoError(44);
+        }
+        var lookup = FS.lookupPath(newpath, { parent: true });
+        var parent = lookup.node;
+        if (!parent) {
+          throw new FS.ErrnoError(44);
+        }
+        var newname = PATH.basename(newpath);
+        var errCode = FS.mayCreate(parent, newname);
+        if (errCode) {
+          throw new FS.ErrnoError(errCode);
+        }
+        if (!parent.node_ops.symlink) {
+          throw new FS.ErrnoError(63);
+        }
+        return parent.node_ops.symlink(parent, newname, oldpath);
+      },rename:(old_path, new_path) => {
+        var old_dirname = PATH.dirname(old_path);
+        var new_dirname = PATH.dirname(new_path);
+        var old_name = PATH.basename(old_path);
+        var new_name = PATH.basename(new_path);
+        // parents must exist
+        var lookup, old_dir, new_dir;
+  
+        // let the errors from non existant directories percolate up
+        lookup = FS.lookupPath(old_path, { parent: true });
+        old_dir = lookup.node;
+        lookup = FS.lookupPath(new_path, { parent: true });
+        new_dir = lookup.node;
+  
+        if (!old_dir || !new_dir) throw new FS.ErrnoError(44);
+        // need to be part of the same mount
+        if (old_dir.mount !== new_dir.mount) {
+          throw new FS.ErrnoError(75);
+        }
+        // source must exist
+        var old_node = FS.lookupNode(old_dir, old_name);
+        // old path should not be an ancestor of the new path
+        var relative = PATH_FS.relative(old_path, new_dirname);
+        if (relative.charAt(0) !== '.') {
+          throw new FS.ErrnoError(28);
+        }
+        // new path should not be an ancestor of the old path
+        relative = PATH_FS.relative(new_path, old_dirname);
+        if (relative.charAt(0) !== '.') {
+          throw new FS.ErrnoError(55);
+        }
+        // see if the new path already exists
+        var new_node;
+        try {
+          new_node = FS.lookupNode(new_dir, new_name);
+        } catch (e) {
+          // not fatal
+        }
+        // early out if nothing needs to change
+        if (old_node === new_node) {
+          return;
+        }
+        // we'll need to delete the old entry
+        var isdir = FS.isDir(old_node.mode);
+        var errCode = FS.mayDelete(old_dir, old_name, isdir);
+        if (errCode) {
+          throw new FS.ErrnoError(errCode);
+        }
+        // need delete permissions if we'll be overwriting.
+        // need create permissions if new doesn't already exist.
+        errCode = new_node ?
+          FS.mayDelete(new_dir, new_name, isdir) :
+          FS.mayCreate(new_dir, new_name);
+        if (errCode) {
+          throw new FS.ErrnoError(errCode);
+        }
+        if (!old_dir.node_ops.rename) {
+          throw new FS.ErrnoError(63);
+        }
+        if (FS.isMountpoint(old_node) || (new_node && FS.isMountpoint(new_node))) {
+          throw new FS.ErrnoError(10);
+        }
+        // if we are going to change the parent, check write permissions
+        if (new_dir !== old_dir) {
+          errCode = FS.nodePermissions(old_dir, 'w');
+          if (errCode) {
+            throw new FS.ErrnoError(errCode);
+          }
+        }
+        // remove the node from the lookup hash
+        FS.hashRemoveNode(old_node);
+        // do the underlying fs rename
+        try {
+          old_dir.node_ops.rename(old_node, new_dir, new_name);
+        } catch (e) {
+          throw e;
+        } finally {
+          // add the node back to the hash (in case node_ops.rename
+          // changed its name)
+          FS.hashAddNode(old_node);
+        }
+      },rmdir:(path) => {
+        var lookup = FS.lookupPath(path, { parent: true });
+        var parent = lookup.node;
+        var name = PATH.basename(path);
+        var node = FS.lookupNode(parent, name);
+        var errCode = FS.mayDelete(parent, name, true);
+        if (errCode) {
+          throw new FS.ErrnoError(errCode);
+        }
+        if (!parent.node_ops.rmdir) {
+          throw new FS.ErrnoError(63);
+        }
+        if (FS.isMountpoint(node)) {
+          throw new FS.ErrnoError(10);
+        }
+        parent.node_ops.rmdir(parent, name);
+        FS.destroyNode(node);
+      },readdir:(path) => {
+        var lookup = FS.lookupPath(path, { follow: true });
+        var node = lookup.node;
+        if (!node.node_ops.readdir) {
+          throw new FS.ErrnoError(54);
+        }
+        return node.node_ops.readdir(node);
+      },unlink:(path) => {
+        var lookup = FS.lookupPath(path, { parent: true });
+        var parent = lookup.node;
+        if (!parent) {
+          throw new FS.ErrnoError(44);
+        }
+        var name = PATH.basename(path);
+        var node = FS.lookupNode(parent, name);
+        var errCode = FS.mayDelete(parent, name, false);
+        if (errCode) {
+          // According to POSIX, we should map EISDIR to EPERM, but
+          // we instead do what Linux does (and we must, as we use
+          // the musl linux libc).
+          throw new FS.ErrnoError(errCode);
+        }
+        if (!parent.node_ops.unlink) {
+          throw new FS.ErrnoError(63);
+        }
+        if (FS.isMountpoint(node)) {
+          throw new FS.ErrnoError(10);
+        }
+        parent.node_ops.unlink(parent, name);
+        FS.destroyNode(node);
+      },readlink:(path) => {
+        var lookup = FS.lookupPath(path);
+        var link = lookup.node;
+        if (!link) {
+          throw new FS.ErrnoError(44);
+        }
+        if (!link.node_ops.readlink) {
+          throw new FS.ErrnoError(28);
+        }
+        return PATH_FS.resolve(FS.getPath(link.parent), link.node_ops.readlink(link));
+      },stat:(path, dontFollow) => {
+        var lookup = FS.lookupPath(path, { follow: !dontFollow });
+        var node = lookup.node;
+        if (!node) {
+          throw new FS.ErrnoError(44);
+        }
+        if (!node.node_ops.getattr) {
+          throw new FS.ErrnoError(63);
+        }
+        return node.node_ops.getattr(node);
+      },lstat:(path) => {
+        return FS.stat(path, true);
+      },chmod:(path, mode, dontFollow) => {
+        var node;
+        if (typeof path == 'string') {
+          var lookup = FS.lookupPath(path, { follow: !dontFollow });
+          node = lookup.node;
+        } else {
+          node = path;
+        }
+        if (!node.node_ops.setattr) {
+          throw new FS.ErrnoError(63);
+        }
+        node.node_ops.setattr(node, {
+          mode: (mode & 4095) | (node.mode & ~4095),
+          timestamp: Date.now()
+        });
+      },lchmod:(path, mode) => {
+        FS.chmod(path, mode, true);
+      },fchmod:(fd, mode) => {
+        var stream = FS.getStream(fd);
+        if (!stream) {
+          throw new FS.ErrnoError(8);
+        }
+        FS.chmod(stream.node, mode);
+      },chown:(path, uid, gid, dontFollow) => {
+        var node;
+        if (typeof path == 'string') {
+          var lookup = FS.lookupPath(path, { follow: !dontFollow });
+          node = lookup.node;
+        } else {
+          node = path;
+        }
+        if (!node.node_ops.setattr) {
+          throw new FS.ErrnoError(63);
+        }
+        node.node_ops.setattr(node, {
+          timestamp: Date.now()
+          // we ignore the uid / gid for now
+        });
+      },lchown:(path, uid, gid) => {
+        FS.chown(path, uid, gid, true);
+      },fchown:(fd, uid, gid) => {
+        var stream = FS.getStream(fd);
+        if (!stream) {
+          throw new FS.ErrnoError(8);
+        }
+        FS.chown(stream.node, uid, gid);
+      },truncate:(path, len) => {
+        if (len < 0) {
+          throw new FS.ErrnoError(28);
+        }
+        var node;
+        if (typeof path == 'string') {
+          var lookup = FS.lookupPath(path, { follow: true });
+          node = lookup.node;
+        } else {
+          node = path;
+        }
+        if (!node.node_ops.setattr) {
+          throw new FS.ErrnoError(63);
+        }
+        if (FS.isDir(node.mode)) {
+          throw new FS.ErrnoError(31);
+        }
+        if (!FS.isFile(node.mode)) {
+          throw new FS.ErrnoError(28);
+        }
+        var errCode = FS.nodePermissions(node, 'w');
+        if (errCode) {
+          throw new FS.ErrnoError(errCode);
+        }
+        node.node_ops.setattr(node, {
+          size: len,
+          timestamp: Date.now()
+        });
+      },ftruncate:(fd, len) => {
+        var stream = FS.getStream(fd);
+        if (!stream) {
+          throw new FS.ErrnoError(8);
+        }
+        if ((stream.flags & 2097155) === 0) {
+          throw new FS.ErrnoError(28);
+        }
+        FS.truncate(stream.node, len);
+      },utime:(path, atime, mtime) => {
+        var lookup = FS.lookupPath(path, { follow: true });
+        var node = lookup.node;
+        node.node_ops.setattr(node, {
+          timestamp: Math.max(atime, mtime)
+        });
+      },open:(path, flags, mode) => {
+        if (path === "") {
+          throw new FS.ErrnoError(44);
+        }
+        flags = typeof flags == 'string' ? FS.modeStringToFlags(flags) : flags;
+        mode = typeof mode == 'undefined' ? 438 /* 0666 */ : mode;
+        if ((flags & 64)) {
+          mode = (mode & 4095) | 32768;
+        } else {
+          mode = 0;
+        }
+        var node;
+        if (typeof path == 'object') {
+          node = path;
+        } else {
+          path = PATH.normalize(path);
+          try {
+            var lookup = FS.lookupPath(path, {
+              follow: !(flags & 131072)
+            });
+            node = lookup.node;
+          } catch (e) {
+            // ignore
+          }
+        }
+        // perhaps we need to create the node
+        var created = false;
+        if ((flags & 64)) {
+          if (node) {
+            // if O_CREAT and O_EXCL are set, error out if the node already exists
+            if ((flags & 128)) {
+              throw new FS.ErrnoError(20);
+            }
+          } else {
+            // node doesn't exist, try to create it
+            node = FS.mknod(path, mode, 0);
+            created = true;
+          }
+        }
+        if (!node) {
+          throw new FS.ErrnoError(44);
+        }
+        // can't truncate a device
+        if (FS.isChrdev(node.mode)) {
+          flags &= ~512;
+        }
+        // if asked only for a directory, then this must be one
+        if ((flags & 65536) && !FS.isDir(node.mode)) {
+          throw new FS.ErrnoError(54);
+        }
+        // check permissions, if this is not a file we just created now (it is ok to
+        // create and write to a file with read-only permissions; it is read-only
+        // for later use)
+        if (!created) {
+          var errCode = FS.mayOpen(node, flags);
+          if (errCode) {
+            throw new FS.ErrnoError(errCode);
+          }
+        }
+        // do truncation if necessary
+        if ((flags & 512) && !created) {
+          FS.truncate(node, 0);
+        }
+        // we've already handled these, don't pass down to the underlying vfs
+        flags &= ~(128 | 512 | 131072);
+  
+        // register the stream with the filesystem
+        var stream = FS.createStream({
+          node: node,
+          path: FS.getPath(node),  // we want the absolute path to the node
+          flags: flags,
+          seekable: true,
+          position: 0,
+          stream_ops: node.stream_ops,
+          // used by the file family libc calls (fopen, fwrite, ferror, etc.)
+          ungotten: [],
+          error: false
+        });
+        // call the new stream's open function
+        if (stream.stream_ops.open) {
+          stream.stream_ops.open(stream);
+        }
+        if (Module['logReadFiles'] && !(flags & 1)) {
+          if (!FS.readFiles) FS.readFiles = {};
+          if (!(path in FS.readFiles)) {
+            FS.readFiles[path] = 1;
+          }
+        }
+        return stream;
+      },close:(stream) => {
+        if (FS.isClosed(stream)) {
+          throw new FS.ErrnoError(8);
+        }
+        if (stream.getdents) stream.getdents = null; // free readdir state
+        try {
+          if (stream.stream_ops.close) {
+            stream.stream_ops.close(stream);
+          }
+        } catch (e) {
+          throw e;
+        } finally {
+          FS.closeStream(stream.fd);
+        }
+        stream.fd = null;
+      },isClosed:(stream) => {
+        return stream.fd === null;
+      },llseek:(stream, offset, whence) => {
+        if (FS.isClosed(stream)) {
+          throw new FS.ErrnoError(8);
+        }
+        if (!stream.seekable || !stream.stream_ops.llseek) {
+          throw new FS.ErrnoError(70);
+        }
+        if (whence != 0 && whence != 1 && whence != 2) {
+          throw new FS.ErrnoError(28);
+        }
+        stream.position = stream.stream_ops.llseek(stream, offset, whence);
+        stream.ungotten = [];
+        return stream.position;
+      },read:(stream, buffer, offset, length, position) => {
+        if (length < 0 || position < 0) {
+          throw new FS.ErrnoError(28);
+        }
+        if (FS.isClosed(stream)) {
+          throw new FS.ErrnoError(8);
+        }
+        if ((stream.flags & 2097155) === 1) {
+          throw new FS.ErrnoError(8);
+        }
+        if (FS.isDir(stream.node.mode)) {
+          throw new FS.ErrnoError(31);
+        }
+        if (!stream.stream_ops.read) {
+          throw new FS.ErrnoError(28);
+        }
+        var seeking = typeof position != 'undefined';
+        if (!seeking) {
+          position = stream.position;
+        } else if (!stream.seekable) {
+          throw new FS.ErrnoError(70);
+        }
+        var bytesRead = stream.stream_ops.read(stream, buffer, offset, length, position);
+        if (!seeking) stream.position += bytesRead;
+        return bytesRead;
+      },write:(stream, buffer, offset, length, position, canOwn) => {
+        if (length < 0 || position < 0) {
+          throw new FS.ErrnoError(28);
+        }
+        if (FS.isClosed(stream)) {
+          throw new FS.ErrnoError(8);
+        }
+        if ((stream.flags & 2097155) === 0) {
+          throw new FS.ErrnoError(8);
+        }
+        if (FS.isDir(stream.node.mode)) {
+          throw new FS.ErrnoError(31);
+        }
+        if (!stream.stream_ops.write) {
+          throw new FS.ErrnoError(28);
+        }
+        if (stream.seekable && stream.flags & 1024) {
+          // seek to the end before writing in append mode
+          FS.llseek(stream, 0, 2);
+        }
+        var seeking = typeof position != 'undefined';
+        if (!seeking) {
+          position = stream.position;
+        } else if (!stream.seekable) {
+          throw new FS.ErrnoError(70);
+        }
+        var bytesWritten = stream.stream_ops.write(stream, buffer, offset, length, position, canOwn);
+        if (!seeking) stream.position += bytesWritten;
+        return bytesWritten;
+      },allocate:(stream, offset, length) => {
+        if (FS.isClosed(stream)) {
+          throw new FS.ErrnoError(8);
+        }
+        if (offset < 0 || length <= 0) {
+          throw new FS.ErrnoError(28);
+        }
+        if ((stream.flags & 2097155) === 0) {
+          throw new FS.ErrnoError(8);
+        }
+        if (!FS.isFile(stream.node.mode) && !FS.isDir(stream.node.mode)) {
+          throw new FS.ErrnoError(43);
+        }
+        if (!stream.stream_ops.allocate) {
+          throw new FS.ErrnoError(138);
+        }
+        stream.stream_ops.allocate(stream, offset, length);
+      },mmap:(stream, length, position, prot, flags) => {
+        // User requests writing to file (prot & PROT_WRITE != 0).
+        // Checking if we have permissions to write to the file unless
+        // MAP_PRIVATE flag is set. According to POSIX spec it is possible
+        // to write to file opened in read-only mode with MAP_PRIVATE flag,
+        // as all modifications will be visible only in the memory of
+        // the current process.
+        if ((prot & 2) !== 0
+            && (flags & 2) === 0
+            && (stream.flags & 2097155) !== 2) {
+          throw new FS.ErrnoError(2);
+        }
+        if ((stream.flags & 2097155) === 1) {
+          throw new FS.ErrnoError(2);
+        }
+        if (!stream.stream_ops.mmap) {
+          throw new FS.ErrnoError(43);
+        }
+        return stream.stream_ops.mmap(stream, length, position, prot, flags);
+      },msync:(stream, buffer, offset, length, mmapFlags) => {
+        if (!stream.stream_ops.msync) {
+          return 0;
+        }
+        return stream.stream_ops.msync(stream, buffer, offset, length, mmapFlags);
+      },munmap:(stream) => 0,ioctl:(stream, cmd, arg) => {
+        if (!stream.stream_ops.ioctl) {
+          throw new FS.ErrnoError(59);
+        }
+        return stream.stream_ops.ioctl(stream, cmd, arg);
+      },readFile:(path, opts = {}) => {
+        opts.flags = opts.flags || 0;
+        opts.encoding = opts.encoding || 'binary';
+        if (opts.encoding !== 'utf8' && opts.encoding !== 'binary') {
+          throw new Error('Invalid encoding type "' + opts.encoding + '"');
+        }
+        var ret;
+        var stream = FS.open(path, opts.flags);
+        var stat = FS.stat(path);
+        var length = stat.size;
+        var buf = new Uint8Array(length);
+        FS.read(stream, buf, 0, length, 0);
+        if (opts.encoding === 'utf8') {
+          ret = UTF8ArrayToString(buf, 0);
+        } else if (opts.encoding === 'binary') {
+          ret = buf;
+        }
+        FS.close(stream);
+        return ret;
+      },writeFile:(path, data, opts = {}) => {
+        opts.flags = opts.flags || 577;
+        var stream = FS.open(path, opts.flags, opts.mode);
+        if (typeof data == 'string') {
+          var buf = new Uint8Array(lengthBytesUTF8(data)+1);
+          var actualNumBytes = stringToUTF8Array(data, buf, 0, buf.length);
+          FS.write(stream, buf, 0, actualNumBytes, undefined, opts.canOwn);
+        } else if (ArrayBuffer.isView(data)) {
+          FS.write(stream, data, 0, data.byteLength, undefined, opts.canOwn);
+        } else {
+          throw new Error('Unsupported data type');
+        }
+        FS.close(stream);
+      },cwd:() => FS.currentPath,chdir:(path) => {
+        var lookup = FS.lookupPath(path, { follow: true });
+        if (lookup.node === null) {
+          throw new FS.ErrnoError(44);
+        }
+        if (!FS.isDir(lookup.node.mode)) {
+          throw new FS.ErrnoError(54);
+        }
+        var errCode = FS.nodePermissions(lookup.node, 'x');
+        if (errCode) {
+          throw new FS.ErrnoError(errCode);
+        }
+        FS.currentPath = lookup.path;
+      },createDefaultDirectories:() => {
+        FS.mkdir('/tmp');
+        FS.mkdir('/home');
+        FS.mkdir('/home/web_user');
+      },createDefaultDevices:() => {
+        // create /dev
+        FS.mkdir('/dev');
+        // setup /dev/null
+        FS.registerDevice(FS.makedev(1, 3), {
+          read: () => 0,
+          write: (stream, buffer, offset, length, pos) => length,
+        });
+        FS.mkdev('/dev/null', FS.makedev(1, 3));
+        // setup /dev/tty and /dev/tty1
+        // stderr needs to print output using err() rather than out()
+        // so we register a second tty just for it.
+        TTY.register(FS.makedev(5, 0), TTY.default_tty_ops);
+        TTY.register(FS.makedev(6, 0), TTY.default_tty1_ops);
+        FS.mkdev('/dev/tty', FS.makedev(5, 0));
+        FS.mkdev('/dev/tty1', FS.makedev(6, 0));
+        // setup /dev/[u]random
+        var random_device = getRandomDevice();
+        FS.createDevice('/dev', 'random', random_device);
+        FS.createDevice('/dev', 'urandom', random_device);
+        // we're not going to emulate the actual shm device,
+        // just create the tmp dirs that reside in it commonly
+        FS.mkdir('/dev/shm');
+        FS.mkdir('/dev/shm/tmp');
+      },createSpecialDirectories:() => {
+        // create /proc/self/fd which allows /proc/self/fd/6 => readlink gives the
+        // name of the stream for fd 6 (see test_unistd_ttyname)
+        FS.mkdir('/proc');
+        var proc_self = FS.mkdir('/proc/self');
+        FS.mkdir('/proc/self/fd');
+        FS.mount({
+          mount: () => {
+            var node = FS.createNode(proc_self, 'fd', 16384 | 511 /* 0777 */, 73);
+            node.node_ops = {
+              lookup: (parent, name) => {
+                var fd = +name;
+                var stream = FS.getStream(fd);
+                if (!stream) throw new FS.ErrnoError(8);
+                var ret = {
+                  parent: null,
+                  mount: { mountpoint: 'fake' },
+                  node_ops: { readlink: () => stream.path },
+                };
+                ret.parent = ret; // make it look like a simple root node
+                return ret;
+              }
+            };
+            return node;
+          }
+        }, {}, '/proc/self/fd');
+      },createStandardStreams:() => {
+        // TODO deprecate the old functionality of a single
+        // input / output callback and that utilizes FS.createDevice
+        // and instead require a unique set of stream ops
+  
+        // by default, we symlink the standard streams to the
+        // default tty devices. however, if the standard streams
+        // have been overwritten we create a unique device for
+        // them instead.
+        if (Module['stdin']) {
+          FS.createDevice('/dev', 'stdin', Module['stdin']);
+        } else {
+          FS.symlink('/dev/tty', '/dev/stdin');
+        }
+        if (Module['stdout']) {
+          FS.createDevice('/dev', 'stdout', null, Module['stdout']);
+        } else {
+          FS.symlink('/dev/tty', '/dev/stdout');
+        }
+        if (Module['stderr']) {
+          FS.createDevice('/dev', 'stderr', null, Module['stderr']);
+        } else {
+          FS.symlink('/dev/tty1', '/dev/stderr');
+        }
+  
+        // open default streams for the stdin, stdout and stderr devices
+        var stdin = FS.open('/dev/stdin', 0);
+        var stdout = FS.open('/dev/stdout', 1);
+        var stderr = FS.open('/dev/stderr', 1);
+        assert(stdin.fd === 0, 'invalid handle for stdin (' + stdin.fd + ')');
+        assert(stdout.fd === 1, 'invalid handle for stdout (' + stdout.fd + ')');
+        assert(stderr.fd === 2, 'invalid handle for stderr (' + stderr.fd + ')');
+      },ensureErrnoError:() => {
+        if (FS.ErrnoError) return;
+        FS.ErrnoError = /** @this{Object} */ function ErrnoError(errno, node) {
+          // We set the `name` property to be able to identify `FS.ErrnoError`
+          // - the `name` is a standard ECMA-262 property of error objects. Kind of good to have it anyway.
+          // - when using PROXYFS, an error can come from an underlying FS
+          // as different FS objects have their own FS.ErrnoError each,
+          // the test `err instanceof FS.ErrnoError` won't detect an error coming from another filesystem, causing bugs.
+          // we'll use the reliable test `err.name == "ErrnoError"` instead
+          this.name = 'ErrnoError';
+          this.node = node;
+          this.setErrno = /** @this{Object} */ function(errno) {
+            this.errno = errno;
+            for (var key in ERRNO_CODES) {
+              if (ERRNO_CODES[key] === errno) {
+                this.code = key;
+                break;
+              }
+            }
+          };
+          this.setErrno(errno);
+          this.message = ERRNO_MESSAGES[errno];
+  
+          // Try to get a maximally helpful stack trace. On Node.js, getting Error.stack
+          // now ensures it shows what we want.
+          if (this.stack) {
+            // Define the stack property for Node.js 4, which otherwise errors on the next line.
+            Object.defineProperty(this, "stack", { value: (new Error).stack, writable: true });
+            this.stack = demangleAll(this.stack);
+          }
+        };
+        FS.ErrnoError.prototype = new Error();
+        FS.ErrnoError.prototype.constructor = FS.ErrnoError;
+        // Some errors may happen quite a bit, to avoid overhead we reuse them (and suffer a lack of stack info)
+        [44].forEach((code) => {
+          FS.genericErrors[code] = new FS.ErrnoError(code);
+          FS.genericErrors[code].stack = '<generic error, no stack>';
+        });
+      },staticInit:() => {
+        FS.ensureErrnoError();
+  
+        FS.nameTable = new Array(4096);
+  
+        FS.mount(MEMFS, {}, '/');
+  
+        FS.createDefaultDirectories();
+        FS.createDefaultDevices();
+        FS.createSpecialDirectories();
+  
+        FS.filesystems = {
+          'MEMFS': MEMFS,
+        };
+      },init:(input, output, error) => {
+        assert(!FS.init.initialized, 'FS.init was previously called. If you want to initialize later with custom parameters, remove any earlier calls (note that one is automatically added to the generated code)');
+        FS.init.initialized = true;
+  
+        FS.ensureErrnoError();
+  
+        // Allow Module.stdin etc. to provide defaults, if none explicitly passed to us here
+        Module['stdin'] = input || Module['stdin'];
+        Module['stdout'] = output || Module['stdout'];
+        Module['stderr'] = error || Module['stderr'];
+  
+        FS.createStandardStreams();
+      },quit:() => {
+        FS.init.initialized = false;
+        // force-flush all streams, so we get musl std streams printed out
+        _fflush(0);
+        // close all of our streams
+        for (var i = 0; i < FS.streams.length; i++) {
+          var stream = FS.streams[i];
+          if (!stream) {
+            continue;
+          }
+          FS.close(stream);
+        }
+      },getMode:(canRead, canWrite) => {
+        var mode = 0;
+        if (canRead) mode |= 292 | 73;
+        if (canWrite) mode |= 146;
+        return mode;
+      },findObject:(path, dontResolveLastLink) => {
+        var ret = FS.analyzePath(path, dontResolveLastLink);
+        if (!ret.exists) {
+          return null;
+        }
+        return ret.object;
+      },analyzePath:(path, dontResolveLastLink) => {
+        // operate from within the context of the symlink's target
+        try {
+          var lookup = FS.lookupPath(path, { follow: !dontResolveLastLink });
+          path = lookup.path;
+        } catch (e) {
+        }
+        var ret = {
+          isRoot: false, exists: false, error: 0, name: null, path: null, object: null,
+          parentExists: false, parentPath: null, parentObject: null
+        };
+        try {
+          var lookup = FS.lookupPath(path, { parent: true });
+          ret.parentExists = true;
+          ret.parentPath = lookup.path;
+          ret.parentObject = lookup.node;
+          ret.name = PATH.basename(path);
+          lookup = FS.lookupPath(path, { follow: !dontResolveLastLink });
+          ret.exists = true;
+          ret.path = lookup.path;
+          ret.object = lookup.node;
+          ret.name = lookup.node.name;
+          ret.isRoot = lookup.path === '/';
+        } catch (e) {
+          ret.error = e.errno;
+        };
+        return ret;
+      },createPath:(parent, path, canRead, canWrite) => {
+        parent = typeof parent == 'string' ? parent : FS.getPath(parent);
+        var parts = path.split('/').reverse();
+        while (parts.length) {
+          var part = parts.pop();
+          if (!part) continue;
+          var current = PATH.join2(parent, part);
+          try {
+            FS.mkdir(current);
+          } catch (e) {
+            // ignore EEXIST
+          }
+          parent = current;
+        }
+        return current;
+      },createFile:(parent, name, properties, canRead, canWrite) => {
+        var path = PATH.join2(typeof parent == 'string' ? parent : FS.getPath(parent), name);
+        var mode = FS.getMode(canRead, canWrite);
+        return FS.create(path, mode);
+      },createDataFile:(parent, name, data, canRead, canWrite, canOwn) => {
+        var path = name;
+        if (parent) {
+          parent = typeof parent == 'string' ? parent : FS.getPath(parent);
+          path = name ? PATH.join2(parent, name) : parent;
+        }
+        var mode = FS.getMode(canRead, canWrite);
+        var node = FS.create(path, mode);
+        if (data) {
+          if (typeof data == 'string') {
+            var arr = new Array(data.length);
+            for (var i = 0, len = data.length; i < len; ++i) arr[i] = data.charCodeAt(i);
+            data = arr;
+          }
+          // make sure we can write to the file
+          FS.chmod(node, mode | 146);
+          var stream = FS.open(node, 577);
+          FS.write(stream, data, 0, data.length, 0, canOwn);
+          FS.close(stream);
+          FS.chmod(node, mode);
+        }
+        return node;
+      },createDevice:(parent, name, input, output) => {
+        var path = PATH.join2(typeof parent == 'string' ? parent : FS.getPath(parent), name);
+        var mode = FS.getMode(!!input, !!output);
+        if (!FS.createDevice.major) FS.createDevice.major = 64;
+        var dev = FS.makedev(FS.createDevice.major++, 0);
+        // Create a fake device that a set of stream ops to emulate
+        // the old behavior.
+        FS.registerDevice(dev, {
+          open: (stream) => {
+            stream.seekable = false;
+          },
+          close: (stream) => {
+            // flush any pending line data
+            if (output && output.buffer && output.buffer.length) {
+              output(10);
+            }
+          },
+          read: (stream, buffer, offset, length, pos /* ignored */) => {
+            var bytesRead = 0;
+            for (var i = 0; i < length; i++) {
+              var result;
+              try {
+                result = input();
+              } catch (e) {
+                throw new FS.ErrnoError(29);
+              }
+              if (result === undefined && bytesRead === 0) {
+                throw new FS.ErrnoError(6);
+              }
+              if (result === null || result === undefined) break;
+              bytesRead++;
+              buffer[offset+i] = result;
+            }
+            if (bytesRead) {
+              stream.node.timestamp = Date.now();
+            }
+            return bytesRead;
+          },
+          write: (stream, buffer, offset, length, pos) => {
+            for (var i = 0; i < length; i++) {
+              try {
+                output(buffer[offset+i]);
+              } catch (e) {
+                throw new FS.ErrnoError(29);
+              }
+            }
+            if (length) {
+              stream.node.timestamp = Date.now();
+            }
+            return i;
+          }
+        });
+        return FS.mkdev(path, mode, dev);
+      },forceLoadFile:(obj) => {
+        if (obj.isDevice || obj.isFolder || obj.link || obj.contents) return true;
+        if (typeof XMLHttpRequest != 'undefined') {
+          throw new Error("Lazy loading should have been performed (contents set) in createLazyFile, but it was not. Lazy loading only works in web workers. Use --embed-file or --preload-file in emcc on the main thread.");
+        } else if (read_) {
+          // Command-line.
+          try {
+            // WARNING: Can't read binary files in V8's d8 or tracemonkey's js, as
+            //          read() will try to parse UTF8.
+            obj.contents = intArrayFromString(read_(obj.url), true);
+            obj.usedBytes = obj.contents.length;
+          } catch (e) {
+            throw new FS.ErrnoError(29);
+          }
+        } else {
+          throw new Error('Cannot load without read() or XMLHttpRequest.');
+        }
+      },createLazyFile:(parent, name, url, canRead, canWrite) => {
+        // Lazy chunked Uint8Array (implements get and length from Uint8Array). Actual getting is abstracted away for eventual reuse.
+        /** @constructor */
+        function LazyUint8Array() {
+          this.lengthKnown = false;
+          this.chunks = []; // Loaded chunks. Index is the chunk number
+        }
+        LazyUint8Array.prototype.get = /** @this{Object} */ function LazyUint8Array_get(idx) {
+          if (idx > this.length-1 || idx < 0) {
+            return undefined;
+          }
+          var chunkOffset = idx % this.chunkSize;
+          var chunkNum = (idx / this.chunkSize)|0;
+          return this.getter(chunkNum)[chunkOffset];
+        };
+        LazyUint8Array.prototype.setDataGetter = function LazyUint8Array_setDataGetter(getter) {
+          this.getter = getter;
+        };
+        LazyUint8Array.prototype.cacheLength = function LazyUint8Array_cacheLength() {
+          // Find length
+          var xhr = new XMLHttpRequest();
+          xhr.open('HEAD', url, false);
+          xhr.send(null);
+          if (!(xhr.status >= 200 && xhr.status < 300 || xhr.status === 304)) throw new Error("Couldn't load " + url + ". Status: " + xhr.status);
+          var datalength = Number(xhr.getResponseHeader("Content-length"));
+          var header;
+          var hasByteServing = (header = xhr.getResponseHeader("Accept-Ranges")) && header === "bytes";
+          var usesGzip = (header = xhr.getResponseHeader("Content-Encoding")) && header === "gzip";
+  
+          var chunkSize = 1024*1024; // Chunk size in bytes
+  
+          if (!hasByteServing) chunkSize = datalength;
+  
+          // Function to get a range from the remote URL.
+          var doXHR = (from, to) => {
+            if (from > to) throw new Error("invalid range (" + from + ", " + to + ") or no bytes requested!");
+            if (to > datalength-1) throw new Error("only " + datalength + " bytes available! programmer error!");
+  
+            // TODO: Use mozResponseArrayBuffer, responseStream, etc. if available.
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', url, false);
+            if (datalength !== chunkSize) xhr.setRequestHeader("Range", "bytes=" + from + "-" + to);
+  
+            // Some hints to the browser that we want binary data.
+            xhr.responseType = 'arraybuffer';
+            if (xhr.overrideMimeType) {
+              xhr.overrideMimeType('text/plain; charset=x-user-defined');
+            }
+  
+            xhr.send(null);
+            if (!(xhr.status >= 200 && xhr.status < 300 || xhr.status === 304)) throw new Error("Couldn't load " + url + ". Status: " + xhr.status);
+            if (xhr.response !== undefined) {
+              return new Uint8Array(/** @type{Array<number>} */(xhr.response || []));
+            }
+            return intArrayFromString(xhr.responseText || '', true);
+          };
+          var lazyArray = this;
+          lazyArray.setDataGetter((chunkNum) => {
+            var start = chunkNum * chunkSize;
+            var end = (chunkNum+1) * chunkSize - 1; // including this byte
+            end = Math.min(end, datalength-1); // if datalength-1 is selected, this is the last block
+            if (typeof lazyArray.chunks[chunkNum] == 'undefined') {
+              lazyArray.chunks[chunkNum] = doXHR(start, end);
+            }
+            if (typeof lazyArray.chunks[chunkNum] == 'undefined') throw new Error('doXHR failed!');
+            return lazyArray.chunks[chunkNum];
+          });
+  
+          if (usesGzip || !datalength) {
+            // if the server uses gzip or doesn't supply the length, we have to download the whole file to get the (uncompressed) length
+            chunkSize = datalength = 1; // this will force getter(0)/doXHR do download the whole file
+            datalength = this.getter(0).length;
+            chunkSize = datalength;
+            out("LazyFiles on gzip forces download of the whole file when length is accessed");
+          }
+  
+          this._length = datalength;
+          this._chunkSize = chunkSize;
+          this.lengthKnown = true;
+        };
+        if (typeof XMLHttpRequest != 'undefined') {
+          if (!ENVIRONMENT_IS_WORKER) throw 'Cannot do synchronous binary XHRs outside webworkers in modern browsers. Use --embed-file or --preload-file in emcc';
+          var lazyArray = new LazyUint8Array();
+          Object.defineProperties(lazyArray, {
+            length: {
+              get: /** @this{Object} */ function() {
+                if (!this.lengthKnown) {
+                  this.cacheLength();
+                }
+                return this._length;
+              }
+            },
+            chunkSize: {
+              get: /** @this{Object} */ function() {
+                if (!this.lengthKnown) {
+                  this.cacheLength();
+                }
+                return this._chunkSize;
+              }
+            }
+          });
+  
+          var properties = { isDevice: false, contents: lazyArray };
+        } else {
+          var properties = { isDevice: false, url: url };
+        }
+  
+        var node = FS.createFile(parent, name, properties, canRead, canWrite);
+        // This is a total hack, but I want to get this lazy file code out of the
+        // core of MEMFS. If we want to keep this lazy file concept I feel it should
+        // be its own thin LAZYFS proxying calls to MEMFS.
+        if (properties.contents) {
+          node.contents = properties.contents;
+        } else if (properties.url) {
+          node.contents = null;
+          node.url = properties.url;
+        }
+        // Add a function that defers querying the file size until it is asked the first time.
+        Object.defineProperties(node, {
+          usedBytes: {
+            get: /** @this {FSNode} */ function() { return this.contents.length; }
+          }
+        });
+        // override each stream op with one that tries to force load the lazy file first
+        var stream_ops = {};
+        var keys = Object.keys(node.stream_ops);
+        keys.forEach((key) => {
+          var fn = node.stream_ops[key];
+          stream_ops[key] = function forceLoadLazyFile() {
+            FS.forceLoadFile(node);
+            return fn.apply(null, arguments);
+          };
+        });
+        function writeChunks(stream, buffer, offset, length, position) {
+          var contents = stream.node.contents;
+          if (position >= contents.length)
+            return 0;
+          var size = Math.min(contents.length - position, length);
+          assert(size >= 0);
+          if (contents.slice) { // normal array
+            for (var i = 0; i < size; i++) {
+              buffer[offset + i] = contents[position + i];
+            }
+          } else {
+            for (var i = 0; i < size; i++) { // LazyUint8Array from sync binary XHR
+              buffer[offset + i] = contents.get(position + i);
+            }
+          }
+          return size;
+        }
+        // use a custom read function
+        stream_ops.read = (stream, buffer, offset, length, position) => {
+          FS.forceLoadFile(node);
+          return writeChunks(stream, buffer, offset, length, position)
+        };
+        // use a custom mmap function
+        stream_ops.mmap = (stream, length, position, prot, flags) => {
+          FS.forceLoadFile(node);
+          var ptr = mmapAlloc(length);
+          if (!ptr) {
+            throw new FS.ErrnoError(48);
+          }
+          writeChunks(stream, HEAP8, ptr, length, position);
+          return { ptr: ptr, allocated: true };
+        };
+        node.stream_ops = stream_ops;
+        return node;
+      },createPreloadedFile:(parent, name, url, canRead, canWrite, onload, onerror, dontCreateFile, canOwn, preFinish) => {
+        // TODO we should allow people to just pass in a complete filename instead
+        // of parent and name being that we just join them anyways
+        var fullname = name ? PATH_FS.resolve(PATH.join2(parent, name)) : parent;
+        var dep = getUniqueRunDependency('cp ' + fullname); // might have several active requests for the same fullname
+        function processData(byteArray) {
+          function finish(byteArray) {
+            if (preFinish) preFinish();
+            if (!dontCreateFile) {
+              FS.createDataFile(parent, name, byteArray, canRead, canWrite, canOwn);
+            }
+            if (onload) onload();
+            removeRunDependency(dep);
+          }
+          if (Browser.handledByPreloadPlugin(byteArray, fullname, finish, () => {
+            if (onerror) onerror();
+            removeRunDependency(dep);
+          })) {
+            return;
+          }
+          finish(byteArray);
+        }
+        addRunDependency(dep);
+        if (typeof url == 'string') {
+          asyncLoad(url, (byteArray) => processData(byteArray), onerror);
+        } else {
+          processData(url);
+        }
+      },indexedDB:() => {
+        return window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
+      },DB_NAME:() => {
+        return 'EM_FS_' + window.location.pathname;
+      },DB_VERSION:20,DB_STORE_NAME:"FILE_DATA",saveFilesToDB:(paths, onload = (() => {}), onerror = (() => {})) => {
+        var indexedDB = FS.indexedDB();
+        try {
+          var openRequest = indexedDB.open(FS.DB_NAME(), FS.DB_VERSION);
+        } catch (e) {
+          return onerror(e);
+        }
+        openRequest.onupgradeneeded = () => {
+          out('creating db');
+          var db = openRequest.result;
+          db.createObjectStore(FS.DB_STORE_NAME);
+        };
+        openRequest.onsuccess = () => {
+          var db = openRequest.result;
+          var transaction = db.transaction([FS.DB_STORE_NAME], 'readwrite');
+          var files = transaction.objectStore(FS.DB_STORE_NAME);
+          var ok = 0, fail = 0, total = paths.length;
+          function finish() {
+            if (fail == 0) onload(); else onerror();
+          }
+          paths.forEach((path) => {
+            var putRequest = files.put(FS.analyzePath(path).object.contents, path);
+            putRequest.onsuccess = () => { ok++; if (ok + fail == total) finish() };
+            putRequest.onerror = () => { fail++; if (ok + fail == total) finish() };
+          });
+          transaction.onerror = onerror;
+        };
+        openRequest.onerror = onerror;
+      },loadFilesFromDB:(paths, onload = (() => {}), onerror = (() => {})) => {
+        var indexedDB = FS.indexedDB();
+        try {
+          var openRequest = indexedDB.open(FS.DB_NAME(), FS.DB_VERSION);
+        } catch (e) {
+          return onerror(e);
+        }
+        openRequest.onupgradeneeded = onerror; // no database to load from
+        openRequest.onsuccess = () => {
+          var db = openRequest.result;
+          try {
+            var transaction = db.transaction([FS.DB_STORE_NAME], 'readonly');
+          } catch(e) {
+            onerror(e);
+            return;
+          }
+          var files = transaction.objectStore(FS.DB_STORE_NAME);
+          var ok = 0, fail = 0, total = paths.length;
+          function finish() {
+            if (fail == 0) onload(); else onerror();
+          }
+          paths.forEach((path) => {
+            var getRequest = files.get(path);
+            getRequest.onsuccess = () => {
+              if (FS.analyzePath(path).exists) {
+                FS.unlink(path);
+              }
+              FS.createDataFile(PATH.dirname(path), PATH.basename(path), getRequest.result, true, true, true);
+              ok++;
+              if (ok + fail == total) finish();
+            };
+            getRequest.onerror = () => { fail++; if (ok + fail == total) finish() };
+          });
+          transaction.onerror = onerror;
+        };
+        openRequest.onerror = onerror;
+      },absolutePath:() => {
+        abort('FS.absolutePath has been removed; use PATH_FS.resolve instead');
+      },createFolder:() => {
+        abort('FS.createFolder has been removed; use FS.mkdir instead');
+      },createLink:() => {
+        abort('FS.createLink has been removed; use FS.symlink instead');
+      },joinPath:() => {
+        abort('FS.joinPath has been removed; use PATH.join instead');
+      },mmapAlloc:() => {
+        abort('FS.mmapAlloc has been replaced by the top level function mmapAlloc');
+      },standardizePath:() => {
+        abort('FS.standardizePath has been removed; use PATH.normalize instead');
+      }};
+  var SYSCALLS = {DEFAULT_POLLMASK:5,calculateAt:function(dirfd, path, allowEmpty) {
+        if (PATH.isAbs(path)) {
+          return path;
+        }
+        // relative path
+        var dir;
+        if (dirfd === -100) {
+          dir = FS.cwd();
+        } else {
+          var dirstream = SYSCALLS.getStreamFromFD(dirfd);
+          dir = dirstream.path;
+        }
+        if (path.length == 0) {
+          if (!allowEmpty) {
+            throw new FS.ErrnoError(44);;
+          }
+          return dir;
+        }
+        return PATH.join2(dir, path);
+      },doStat:function(func, path, buf) {
+        try {
+          var stat = func(path);
+        } catch (e) {
+          if (e && e.node && PATH.normalize(path) !== PATH.normalize(FS.getPath(e.node))) {
+            // an error occurred while trying to look up the path; we should just report ENOTDIR
+            return -54;
+          }
+          throw e;
+        }
+        HEAP32[((buf)>>2)] = stat.dev;
+        HEAP32[(((buf)+(8))>>2)] = stat.ino;
+        HEAP32[(((buf)+(12))>>2)] = stat.mode;
+        HEAPU32[(((buf)+(16))>>2)] = stat.nlink;
+        HEAP32[(((buf)+(20))>>2)] = stat.uid;
+        HEAP32[(((buf)+(24))>>2)] = stat.gid;
+        HEAP32[(((buf)+(28))>>2)] = stat.rdev;
+        (tempI64 = [stat.size>>>0,(tempDouble=stat.size,(+(Math.abs(tempDouble))) >= 1.0 ? (tempDouble > 0.0 ? ((Math.min((+(Math.floor((tempDouble)/4294967296.0))), 4294967295.0))|0)>>>0 : (~~((+(Math.ceil((tempDouble - +(((~~(tempDouble)))>>>0))/4294967296.0)))))>>>0) : 0)],HEAP32[(((buf)+(40))>>2)] = tempI64[0],HEAP32[(((buf)+(44))>>2)] = tempI64[1]);
+        HEAP32[(((buf)+(48))>>2)] = 4096;
+        HEAP32[(((buf)+(52))>>2)] = stat.blocks;
+        var atime = stat.atime.getTime();
+        var mtime = stat.mtime.getTime();
+        var ctime = stat.ctime.getTime();
+        (tempI64 = [Math.floor(atime / 1000)>>>0,(tempDouble=Math.floor(atime / 1000),(+(Math.abs(tempDouble))) >= 1.0 ? (tempDouble > 0.0 ? ((Math.min((+(Math.floor((tempDouble)/4294967296.0))), 4294967295.0))|0)>>>0 : (~~((+(Math.ceil((tempDouble - +(((~~(tempDouble)))>>>0))/4294967296.0)))))>>>0) : 0)],HEAP32[(((buf)+(56))>>2)] = tempI64[0],HEAP32[(((buf)+(60))>>2)] = tempI64[1]);
+        HEAPU32[(((buf)+(64))>>2)] = (atime % 1000) * 1000;
+        (tempI64 = [Math.floor(mtime / 1000)>>>0,(tempDouble=Math.floor(mtime / 1000),(+(Math.abs(tempDouble))) >= 1.0 ? (tempDouble > 0.0 ? ((Math.min((+(Math.floor((tempDouble)/4294967296.0))), 4294967295.0))|0)>>>0 : (~~((+(Math.ceil((tempDouble - +(((~~(tempDouble)))>>>0))/4294967296.0)))))>>>0) : 0)],HEAP32[(((buf)+(72))>>2)] = tempI64[0],HEAP32[(((buf)+(76))>>2)] = tempI64[1]);
+        HEAPU32[(((buf)+(80))>>2)] = (mtime % 1000) * 1000;
+        (tempI64 = [Math.floor(ctime / 1000)>>>0,(tempDouble=Math.floor(ctime / 1000),(+(Math.abs(tempDouble))) >= 1.0 ? (tempDouble > 0.0 ? ((Math.min((+(Math.floor((tempDouble)/4294967296.0))), 4294967295.0))|0)>>>0 : (~~((+(Math.ceil((tempDouble - +(((~~(tempDouble)))>>>0))/4294967296.0)))))>>>0) : 0)],HEAP32[(((buf)+(88))>>2)] = tempI64[0],HEAP32[(((buf)+(92))>>2)] = tempI64[1]);
+        HEAPU32[(((buf)+(96))>>2)] = (ctime % 1000) * 1000;
+        (tempI64 = [stat.ino>>>0,(tempDouble=stat.ino,(+(Math.abs(tempDouble))) >= 1.0 ? (tempDouble > 0.0 ? ((Math.min((+(Math.floor((tempDouble)/4294967296.0))), 4294967295.0))|0)>>>0 : (~~((+(Math.ceil((tempDouble - +(((~~(tempDouble)))>>>0))/4294967296.0)))))>>>0) : 0)],HEAP32[(((buf)+(104))>>2)] = tempI64[0],HEAP32[(((buf)+(108))>>2)] = tempI64[1]);
+        return 0;
+      },doMsync:function(addr, stream, len, flags, offset) {
+        if (!FS.isFile(stream.node.mode)) {
+          throw new FS.ErrnoError(43);
+        }
+        if (flags & 2) {
+          // MAP_PRIVATE calls need not to be synced back to underlying fs
+          return 0;
+        }
+        var buffer = HEAPU8.slice(addr, addr + len);
+        FS.msync(stream, buffer, offset, len, flags);
+      },varargs:undefined,get:function() {
+        assert(SYSCALLS.varargs != undefined);
+        SYSCALLS.varargs += 4;
+        var ret = HEAP32[(((SYSCALLS.varargs)-(4))>>2)];
+        return ret;
+      },getStr:function(ptr) {
+        var ret = UTF8ToString(ptr);
+        return ret;
+      },getStreamFromFD:function(fd) {
+        var stream = FS.getStream(fd);
+        if (!stream) throw new FS.ErrnoError(8);
+        return stream;
+      }};
+  function ___syscall_fcntl64(fd, cmd, varargs) {
+  SYSCALLS.varargs = varargs;
+  try {
+  
+      var stream = SYSCALLS.getStreamFromFD(fd);
+      switch (cmd) {
+        case 0: {
+          var arg = SYSCALLS.get();
+          if (arg < 0) {
+            return -28;
+          }
+          var newStream;
+          newStream = FS.createStream(stream, arg);
+          return newStream.fd;
+        }
+        case 1:
+        case 2:
+          return 0;  // FD_CLOEXEC makes no sense for a single process.
+        case 3:
+          return stream.flags;
+        case 4: {
+          var arg = SYSCALLS.get();
+          stream.flags |= arg;
+          return 0;
+        }
+        case 5:
+        /* case 5: Currently in musl F_GETLK64 has same value as F_GETLK, so omitted to avoid duplicate case blocks. If that changes, uncomment this */ {
+          
+          var arg = SYSCALLS.get();
+          var offset = 0;
+          // We're always unlocked.
+          HEAP16[(((arg)+(offset))>>1)] = 2;
+          return 0;
+        }
+        case 6:
+        case 7:
+        /* case 6: Currently in musl F_SETLK64 has same value as F_SETLK, so omitted to avoid duplicate case blocks. If that changes, uncomment this */
+        /* case 7: Currently in musl F_SETLKW64 has same value as F_SETLKW, so omitted to avoid duplicate case blocks. If that changes, uncomment this */
+          
+          
+          return 0; // Pretend that the locking is successful.
+        case 16:
+        case 8:
+          return -28; // These are for sockets. We don't have them fully implemented yet.
+        case 9:
+          // musl trusts getown return values, due to a bug where they must be, as they overlap with errors. just return -1 here, so fcntl() returns that, and we set errno ourselves.
+          setErrNo(28);
+          return -1;
+        default: {
+          return -28;
+        }
+      }
+    } catch (e) {
+    if (typeof FS == 'undefined' || !(e.name === 'ErrnoError')) throw e;
+    return -e.errno;
+  }
+  }
+
+  function ___syscall_ioctl(fd, op, varargs) {
+  SYSCALLS.varargs = varargs;
+  try {
+  
+      var stream = SYSCALLS.getStreamFromFD(fd);
+      switch (op) {
+        case 21509:
+        case 21505: {
+          if (!stream.tty) return -59;
+          return 0;
+        }
+        case 21510:
+        case 21511:
+        case 21512:
+        case 21506:
+        case 21507:
+        case 21508: {
+          if (!stream.tty) return -59;
+          return 0; // no-op, not actually adjusting terminal settings
+        }
+        case 21519: {
+          if (!stream.tty) return -59;
+          var argp = SYSCALLS.get();
+          HEAP32[((argp)>>2)] = 0;
+          return 0;
+        }
+        case 21520: {
+          if (!stream.tty) return -59;
+          return -28; // not supported
+        }
+        case 21531: {
+          var argp = SYSCALLS.get();
+          return FS.ioctl(stream, op, argp);
+        }
+        case 21523: {
+          // TODO: in theory we should write to the winsize struct that gets
+          // passed in, but for now musl doesn't read anything on it
+          if (!stream.tty) return -59;
+          return 0;
+        }
+        case 21524: {
+          // TODO: technically, this ioctl call should change the window size.
+          // but, since emscripten doesn't have any concept of a terminal window
+          // yet, we'll just silently throw it away as we do TIOCGWINSZ
+          if (!stream.tty) return -59;
+          return 0;
+        }
+        default: return -28; // not supported
+      }
+    } catch (e) {
+    if (typeof FS == 'undefined' || !(e.name === 'ErrnoError')) throw e;
+    return -e.errno;
+  }
+  }
+
+  function ___syscall_openat(dirfd, path, flags, varargs) {
+  SYSCALLS.varargs = varargs;
+  try {
+  
+      path = SYSCALLS.getStr(path);
+      path = SYSCALLS.calculateAt(dirfd, path);
+      var mode = varargs ? SYSCALLS.get() : 0;
+      return FS.open(path, flags, mode).fd;
+    } catch (e) {
+    if (typeof FS == 'undefined' || !(e.name === 'ErrnoError')) throw e;
+    return -e.errno;
+  }
+  }
+
   function _abort() {
       abort('native code called abort()');
     }
@@ -1643,18 +4046,48 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
       return false;
     }
 
-  var SYSCALLS = {varargs:undefined,get:function() {
-        assert(SYSCALLS.varargs != undefined);
-        SYSCALLS.varargs += 4;
-        var ret = HEAP32[(((SYSCALLS.varargs)-(4))>>2)];
-        return ret;
-      },getStr:function(ptr) {
-        var ret = UTF8ToString(ptr);
-        return ret;
-      }};
   function _fd_close(fd) {
-      abort('fd_close called without SYSCALLS_REQUIRE_FILESYSTEM');
+  try {
+  
+      var stream = SYSCALLS.getStreamFromFD(fd);
+      FS.close(stream);
+      return 0;
+    } catch (e) {
+    if (typeof FS == 'undefined' || !(e.name === 'ErrnoError')) throw e;
+    return e.errno;
+  }
+  }
+
+  /** @param {number=} offset */
+  function doReadv(stream, iov, iovcnt, offset) {
+      var ret = 0;
+      for (var i = 0; i < iovcnt; i++) {
+        var ptr = HEAPU32[((iov)>>2)];
+        var len = HEAPU32[(((iov)+(4))>>2)];
+        iov += 8;
+        var curr = FS.read(stream, HEAP8,ptr, len, offset);
+        if (curr < 0) return -1;
+        ret += curr;
+        if (curr < len) break; // nothing more to read
+        if (typeof offset !== 'undefined') {
+          offset += curr;
+        }
+      }
+      return ret;
     }
+  
+  function _fd_read(fd, iov, iovcnt, pnum) {
+  try {
+  
+      var stream = SYSCALLS.getStreamFromFD(fd);
+      var num = doReadv(stream, iov, iovcnt);
+      HEAPU32[((pnum)>>2)] = num;
+      return 0;
+    } catch (e) {
+    if (typeof FS == 'undefined' || !(e.name === 'ErrnoError')) throw e;
+    return e.errno;
+  }
+  }
 
   function convertI32PairToI53Checked(lo, hi) {
       assert(lo == (lo >>> 0) || lo == (lo|0)); // lo should either be a i32 or a u32
@@ -1666,53 +4099,50 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
   
   
   function _fd_seek(fd, offset_low, offset_high, whence, newOffset) {
-      return 70;
-    }
+  try {
+  
+      var offset = convertI32PairToI53Checked(offset_low, offset_high); if (isNaN(offset)) return 61;
+      var stream = SYSCALLS.getStreamFromFD(fd);
+      FS.llseek(stream, offset, whence);
+      (tempI64 = [stream.position>>>0,(tempDouble=stream.position,(+(Math.abs(tempDouble))) >= 1.0 ? (tempDouble > 0.0 ? ((Math.min((+(Math.floor((tempDouble)/4294967296.0))), 4294967295.0))|0)>>>0 : (~~((+(Math.ceil((tempDouble - +(((~~(tempDouble)))>>>0))/4294967296.0)))))>>>0) : 0)],HEAP32[((newOffset)>>2)] = tempI64[0],HEAP32[(((newOffset)+(4))>>2)] = tempI64[1]);
+      if (stream.getdents && offset === 0 && whence === 0) stream.getdents = null; // reset readdir state
+      return 0;
+    } catch (e) {
+    if (typeof FS == 'undefined' || !(e.name === 'ErrnoError')) throw e;
+    return e.errno;
+  }
+  }
 
-  var printCharBuffers = [null,[],[]];
-  function printChar(stream, curr) {
-      var buffer = printCharBuffers[stream];
-      assert(buffer);
-      if (curr === 0 || curr === 10) {
-        (stream === 1 ? out : err)(UTF8ArrayToString(buffer, 0));
-        buffer.length = 0;
-      } else {
-        buffer.push(curr);
-      }
-    }
-  
-  function flush_NO_FILESYSTEM() {
-      // flush anything remaining in the buffers during shutdown
-      _fflush(0);
-      if (printCharBuffers[1].length) printChar(1, 10);
-      if (printCharBuffers[2].length) printChar(2, 10);
-    }
-  
-  
-  function _fd_write(fd, iov, iovcnt, pnum) {
-      // hack to support printf in SYSCALLS_REQUIRE_FILESYSTEM=0
-      var num = 0;
+  /** @param {number=} offset */
+  function doWritev(stream, iov, iovcnt, offset) {
+      var ret = 0;
       for (var i = 0; i < iovcnt; i++) {
         var ptr = HEAPU32[((iov)>>2)];
         var len = HEAPU32[(((iov)+(4))>>2)];
         iov += 8;
-        for (var j = 0; j < len; j++) {
-          printChar(fd, HEAPU8[ptr+j]);
+        var curr = FS.write(stream, HEAP8,ptr, len, offset);
+        if (curr < 0) return -1;
+        ret += curr;
+        if (typeof offset !== 'undefined') {
+          offset += curr;
         }
-        num += len;
       }
+      return ret;
+    }
+  
+  function _fd_write(fd, iov, iovcnt, pnum) {
+  try {
+  
+      var stream = SYSCALLS.getStreamFromFD(fd);
+      var num = doWritev(stream, iov, iovcnt);
       HEAPU32[((pnum)>>2)] = num;
       return 0;
-    }
-
-  /** @type {function(string, boolean=, number=)} */
-  function intArrayFromString(stringy, dontAddNull, length) {
-    var len = length > 0 ? length : lengthBytesUTF8(stringy)+1;
-    var u8array = new Array(len);
-    var numBytesWritten = stringToUTF8Array(stringy, u8array, 0, u8array.length);
-    if (dontAddNull) u8array.length = numBytesWritten;
-    return u8array;
+    } catch (e) {
+    if (typeof FS == 'undefined' || !(e.name === 'ErrnoError')) throw e;
+    return e.errno;
   }
+  }
+
 
 
   function allocateUTF8(str) {
@@ -1907,6 +4337,176 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
   
       return ret;
     }
+
+  var FSNode = /** @constructor */ function(parent, name, mode, rdev) {
+    if (!parent) {
+      parent = this;  // root node sets parent to itself
+    }
+    this.parent = parent;
+    this.mount = parent.mount;
+    this.mounted = null;
+    this.id = FS.nextInode++;
+    this.name = name;
+    this.mode = mode;
+    this.node_ops = {};
+    this.stream_ops = {};
+    this.rdev = rdev;
+  };
+  var readMode = 292/*292*/ | 73/*73*/;
+  var writeMode = 146/*146*/;
+  Object.defineProperties(FSNode.prototype, {
+   read: {
+    get: /** @this{FSNode} */function() {
+     return (this.mode & readMode) === readMode;
+    },
+    set: /** @this{FSNode} */function(val) {
+     val ? this.mode |= readMode : this.mode &= ~readMode;
+    }
+   },
+   write: {
+    get: /** @this{FSNode} */function() {
+     return (this.mode & writeMode) === writeMode;
+    },
+    set: /** @this{FSNode} */function(val) {
+     val ? this.mode |= writeMode : this.mode &= ~writeMode;
+    }
+   },
+   isFolder: {
+    get: /** @this{FSNode} */function() {
+     return FS.isDir(this.mode);
+    }
+   },
+   isDevice: {
+    get: /** @this{FSNode} */function() {
+     return FS.isChrdev(this.mode);
+    }
+   }
+  });
+  FS.FSNode = FSNode;
+  FS.staticInit();;
+ERRNO_CODES = {
+      'EPERM': 63,
+      'ENOENT': 44,
+      'ESRCH': 71,
+      'EINTR': 27,
+      'EIO': 29,
+      'ENXIO': 60,
+      'E2BIG': 1,
+      'ENOEXEC': 45,
+      'EBADF': 8,
+      'ECHILD': 12,
+      'EAGAIN': 6,
+      'EWOULDBLOCK': 6,
+      'ENOMEM': 48,
+      'EACCES': 2,
+      'EFAULT': 21,
+      'ENOTBLK': 105,
+      'EBUSY': 10,
+      'EEXIST': 20,
+      'EXDEV': 75,
+      'ENODEV': 43,
+      'ENOTDIR': 54,
+      'EISDIR': 31,
+      'EINVAL': 28,
+      'ENFILE': 41,
+      'EMFILE': 33,
+      'ENOTTY': 59,
+      'ETXTBSY': 74,
+      'EFBIG': 22,
+      'ENOSPC': 51,
+      'ESPIPE': 70,
+      'EROFS': 69,
+      'EMLINK': 34,
+      'EPIPE': 64,
+      'EDOM': 18,
+      'ERANGE': 68,
+      'ENOMSG': 49,
+      'EIDRM': 24,
+      'ECHRNG': 106,
+      'EL2NSYNC': 156,
+      'EL3HLT': 107,
+      'EL3RST': 108,
+      'ELNRNG': 109,
+      'EUNATCH': 110,
+      'ENOCSI': 111,
+      'EL2HLT': 112,
+      'EDEADLK': 16,
+      'ENOLCK': 46,
+      'EBADE': 113,
+      'EBADR': 114,
+      'EXFULL': 115,
+      'ENOANO': 104,
+      'EBADRQC': 103,
+      'EBADSLT': 102,
+      'EDEADLOCK': 16,
+      'EBFONT': 101,
+      'ENOSTR': 100,
+      'ENODATA': 116,
+      'ETIME': 117,
+      'ENOSR': 118,
+      'ENONET': 119,
+      'ENOPKG': 120,
+      'EREMOTE': 121,
+      'ENOLINK': 47,
+      'EADV': 122,
+      'ESRMNT': 123,
+      'ECOMM': 124,
+      'EPROTO': 65,
+      'EMULTIHOP': 36,
+      'EDOTDOT': 125,
+      'EBADMSG': 9,
+      'ENOTUNIQ': 126,
+      'EBADFD': 127,
+      'EREMCHG': 128,
+      'ELIBACC': 129,
+      'ELIBBAD': 130,
+      'ELIBSCN': 131,
+      'ELIBMAX': 132,
+      'ELIBEXEC': 133,
+      'ENOSYS': 52,
+      'ENOTEMPTY': 55,
+      'ENAMETOOLONG': 37,
+      'ELOOP': 32,
+      'EOPNOTSUPP': 138,
+      'EPFNOSUPPORT': 139,
+      'ECONNRESET': 15,
+      'ENOBUFS': 42,
+      'EAFNOSUPPORT': 5,
+      'EPROTOTYPE': 67,
+      'ENOTSOCK': 57,
+      'ENOPROTOOPT': 50,
+      'ESHUTDOWN': 140,
+      'ECONNREFUSED': 14,
+      'EADDRINUSE': 3,
+      'ECONNABORTED': 13,
+      'ENETUNREACH': 40,
+      'ENETDOWN': 38,
+      'ETIMEDOUT': 73,
+      'EHOSTDOWN': 142,
+      'EHOSTUNREACH': 23,
+      'EINPROGRESS': 26,
+      'EALREADY': 7,
+      'EDESTADDRREQ': 17,
+      'EMSGSIZE': 35,
+      'EPROTONOSUPPORT': 66,
+      'ESOCKTNOSUPPORT': 137,
+      'EADDRNOTAVAIL': 4,
+      'ENETRESET': 39,
+      'EISCONN': 30,
+      'ENOTCONN': 53,
+      'ETOOMANYREFS': 141,
+      'EUSERS': 136,
+      'EDQUOT': 19,
+      'ESTALE': 72,
+      'ENOTSUP': 138,
+      'ENOMEDIUM': 148,
+      'EILSEQ': 25,
+      'EOVERFLOW': 61,
+      'ECANCELED': 11,
+      'ENOTRECOVERABLE': 56,
+      'EOWNERDEAD': 62,
+      'ESTRPIPE': 135,
+    };;
 function checkIncomingModuleAPI() {
   ignoredModuleProp('fetchSettings');
 }
@@ -1919,10 +4519,14 @@ var wasmImports = {
   "__cxa_rethrow": ___cxa_rethrow,
   "__cxa_throw": ___cxa_throw,
   "__resumeException": ___resumeException,
+  "__syscall_fcntl64": ___syscall_fcntl64,
+  "__syscall_ioctl": ___syscall_ioctl,
+  "__syscall_openat": ___syscall_openat,
   "abort": _abort,
   "emscripten_memcpy_big": _emscripten_memcpy_big,
   "emscripten_resize_heap": _emscripten_resize_heap,
   "fd_close": _fd_close,
+  "fd_read": _fd_read,
   "fd_seek": _fd_seek,
   "fd_write": _fd_write,
   "invoke_diiidiiiii": invoke_diiidiiiii,
@@ -1937,6 +4541,7 @@ var wasmImports = {
   "invoke_iiiiii": invoke_iiiiii,
   "invoke_v": invoke_v,
   "invoke_vi": invoke_vi,
+  "invoke_viddidiidd": invoke_viddidiidd,
   "invoke_vididi": invoke_vididi,
   "invoke_vii": invoke_vii,
   "invoke_viii": invoke_viii,
@@ -2053,214 +4658,6 @@ var _emscripten_bind_FireSize_getFireArea_3 = Module["_emscripten_bind_FireSize_
 /** @type {function(...*):?} */
 var _emscripten_bind_FireSize___destroy___0 = Module["_emscripten_bind_FireSize___destroy___0"] = createExportWrapper("emscripten_bind_FireSize___destroy___0");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGContainResource_SIGContainResource_0 = Module["_emscripten_bind_SIGContainResource_SIGContainResource_0"] = createExportWrapper("emscripten_bind_SIGContainResource_SIGContainResource_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainResource_SIGContainResource_7 = Module["_emscripten_bind_SIGContainResource_SIGContainResource_7"] = createExportWrapper("emscripten_bind_SIGContainResource_SIGContainResource_7");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainResource_print_2 = Module["_emscripten_bind_SIGContainResource_print_2"] = createExportWrapper("emscripten_bind_SIGContainResource_print_2");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainResource_arrival_0 = Module["_emscripten_bind_SIGContainResource_arrival_0"] = createExportWrapper("emscripten_bind_SIGContainResource_arrival_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainResource_hourCost_0 = Module["_emscripten_bind_SIGContainResource_hourCost_0"] = createExportWrapper("emscripten_bind_SIGContainResource_hourCost_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainResource_duration_0 = Module["_emscripten_bind_SIGContainResource_duration_0"] = createExportWrapper("emscripten_bind_SIGContainResource_duration_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainResource_production_0 = Module["_emscripten_bind_SIGContainResource_production_0"] = createExportWrapper("emscripten_bind_SIGContainResource_production_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainResource_baseCost_0 = Module["_emscripten_bind_SIGContainResource_baseCost_0"] = createExportWrapper("emscripten_bind_SIGContainResource_baseCost_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainResource_description_0 = Module["_emscripten_bind_SIGContainResource_description_0"] = createExportWrapper("emscripten_bind_SIGContainResource_description_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainResource_flank_0 = Module["_emscripten_bind_SIGContainResource_flank_0"] = createExportWrapper("emscripten_bind_SIGContainResource_flank_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainResource___destroy___0 = Module["_emscripten_bind_SIGContainResource___destroy___0"] = createExportWrapper("emscripten_bind_SIGContainResource___destroy___0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainForce_SIGContainForce_0 = Module["_emscripten_bind_SIGContainForce_SIGContainForce_0"] = createExportWrapper("emscripten_bind_SIGContainForce_SIGContainForce_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainForce_addResource_1 = Module["_emscripten_bind_SIGContainForce_addResource_1"] = createExportWrapper("emscripten_bind_SIGContainForce_addResource_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainForce_addResource_7 = Module["_emscripten_bind_SIGContainForce_addResource_7"] = createExportWrapper("emscripten_bind_SIGContainForce_addResource_7");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainForce_exhausted_1 = Module["_emscripten_bind_SIGContainForce_exhausted_1"] = createExportWrapper("emscripten_bind_SIGContainForce_exhausted_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainForce_firstArrival_1 = Module["_emscripten_bind_SIGContainForce_firstArrival_1"] = createExportWrapper("emscripten_bind_SIGContainForce_firstArrival_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainForce_nextArrival_3 = Module["_emscripten_bind_SIGContainForce_nextArrival_3"] = createExportWrapper("emscripten_bind_SIGContainForce_nextArrival_3");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainForce_productionRate_2 = Module["_emscripten_bind_SIGContainForce_productionRate_2"] = createExportWrapper("emscripten_bind_SIGContainForce_productionRate_2");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainForce_resources_0 = Module["_emscripten_bind_SIGContainForce_resources_0"] = createExportWrapper("emscripten_bind_SIGContainForce_resources_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainForce_resourceArrival_1 = Module["_emscripten_bind_SIGContainForce_resourceArrival_1"] = createExportWrapper("emscripten_bind_SIGContainForce_resourceArrival_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainForce_resourceBaseCost_1 = Module["_emscripten_bind_SIGContainForce_resourceBaseCost_1"] = createExportWrapper("emscripten_bind_SIGContainForce_resourceBaseCost_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainForce_resourceCost_2 = Module["_emscripten_bind_SIGContainForce_resourceCost_2"] = createExportWrapper("emscripten_bind_SIGContainForce_resourceCost_2");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainForce_resourceDescription_1 = Module["_emscripten_bind_SIGContainForce_resourceDescription_1"] = createExportWrapper("emscripten_bind_SIGContainForce_resourceDescription_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainForce_resourceDuration_1 = Module["_emscripten_bind_SIGContainForce_resourceDuration_1"] = createExportWrapper("emscripten_bind_SIGContainForce_resourceDuration_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainForce_resourceFlank_1 = Module["_emscripten_bind_SIGContainForce_resourceFlank_1"] = createExportWrapper("emscripten_bind_SIGContainForce_resourceFlank_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainForce_resourceHourCost_1 = Module["_emscripten_bind_SIGContainForce_resourceHourCost_1"] = createExportWrapper("emscripten_bind_SIGContainForce_resourceHourCost_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainForce_resourceProduction_1 = Module["_emscripten_bind_SIGContainForce_resourceProduction_1"] = createExportWrapper("emscripten_bind_SIGContainForce_resourceProduction_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainForce___destroy___0 = Module["_emscripten_bind_SIGContainForce___destroy___0"] = createExportWrapper("emscripten_bind_SIGContainForce___destroy___0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainForceAdapter_SIGContainForceAdapter_0 = Module["_emscripten_bind_SIGContainForceAdapter_SIGContainForceAdapter_0"] = createExportWrapper("emscripten_bind_SIGContainForceAdapter_SIGContainForceAdapter_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainForceAdapter_addResource_7 = Module["_emscripten_bind_SIGContainForceAdapter_addResource_7"] = createExportWrapper("emscripten_bind_SIGContainForceAdapter_addResource_7");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainForceAdapter_firstArrival_1 = Module["_emscripten_bind_SIGContainForceAdapter_firstArrival_1"] = createExportWrapper("emscripten_bind_SIGContainForceAdapter_firstArrival_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainForceAdapter_removeResourceAt_1 = Module["_emscripten_bind_SIGContainForceAdapter_removeResourceAt_1"] = createExportWrapper("emscripten_bind_SIGContainForceAdapter_removeResourceAt_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainForceAdapter_removeResourceWithThisDesc_1 = Module["_emscripten_bind_SIGContainForceAdapter_removeResourceWithThisDesc_1"] = createExportWrapper("emscripten_bind_SIGContainForceAdapter_removeResourceWithThisDesc_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainForceAdapter_removeAllResourcesWithThisDesc_1 = Module["_emscripten_bind_SIGContainForceAdapter_removeAllResourcesWithThisDesc_1"] = createExportWrapper("emscripten_bind_SIGContainForceAdapter_removeAllResourcesWithThisDesc_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainForceAdapter___destroy___0 = Module["_emscripten_bind_SIGContainForceAdapter___destroy___0"] = createExportWrapper("emscripten_bind_SIGContainForceAdapter___destroy___0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainSim_SIGContainSim_13 = Module["_emscripten_bind_SIGContainSim_SIGContainSim_13"] = createExportWrapper("emscripten_bind_SIGContainSim_SIGContainSim_13");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainSim_attackDistance_0 = Module["_emscripten_bind_SIGContainSim_attackDistance_0"] = createExportWrapper("emscripten_bind_SIGContainSim_attackDistance_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainSim_attackPointX_0 = Module["_emscripten_bind_SIGContainSim_attackPointX_0"] = createExportWrapper("emscripten_bind_SIGContainSim_attackPointX_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainSim_attackPointY_0 = Module["_emscripten_bind_SIGContainSim_attackPointY_0"] = createExportWrapper("emscripten_bind_SIGContainSim_attackPointY_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainSim_attackTime_0 = Module["_emscripten_bind_SIGContainSim_attackTime_0"] = createExportWrapper("emscripten_bind_SIGContainSim_attackTime_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainSim_distanceStep_0 = Module["_emscripten_bind_SIGContainSim_distanceStep_0"] = createExportWrapper("emscripten_bind_SIGContainSim_distanceStep_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainSim_fireBackAtAttack_0 = Module["_emscripten_bind_SIGContainSim_fireBackAtAttack_0"] = createExportWrapper("emscripten_bind_SIGContainSim_fireBackAtAttack_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainSim_fireBackAtReport_0 = Module["_emscripten_bind_SIGContainSim_fireBackAtReport_0"] = createExportWrapper("emscripten_bind_SIGContainSim_fireBackAtReport_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainSim_fireHeadAtAttack_0 = Module["_emscripten_bind_SIGContainSim_fireHeadAtAttack_0"] = createExportWrapper("emscripten_bind_SIGContainSim_fireHeadAtAttack_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainSim_fireHeadAtReport_0 = Module["_emscripten_bind_SIGContainSim_fireHeadAtReport_0"] = createExportWrapper("emscripten_bind_SIGContainSim_fireHeadAtReport_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainSim_fireLwRatioAtReport_0 = Module["_emscripten_bind_SIGContainSim_fireLwRatioAtReport_0"] = createExportWrapper("emscripten_bind_SIGContainSim_fireLwRatioAtReport_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainSim_fireReportTime_0 = Module["_emscripten_bind_SIGContainSim_fireReportTime_0"] = createExportWrapper("emscripten_bind_SIGContainSim_fireReportTime_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainSim_fireSizeAtReport_0 = Module["_emscripten_bind_SIGContainSim_fireSizeAtReport_0"] = createExportWrapper("emscripten_bind_SIGContainSim_fireSizeAtReport_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainSim_fireSpreadRateAtBack_0 = Module["_emscripten_bind_SIGContainSim_fireSpreadRateAtBack_0"] = createExportWrapper("emscripten_bind_SIGContainSim_fireSpreadRateAtBack_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainSim_fireSpreadRateAtReport_0 = Module["_emscripten_bind_SIGContainSim_fireSpreadRateAtReport_0"] = createExportWrapper("emscripten_bind_SIGContainSim_fireSpreadRateAtReport_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainSim_force_0 = Module["_emscripten_bind_SIGContainSim_force_0"] = createExportWrapper("emscripten_bind_SIGContainSim_force_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainSim_maximumSimulationSteps_0 = Module["_emscripten_bind_SIGContainSim_maximumSimulationSteps_0"] = createExportWrapper("emscripten_bind_SIGContainSim_maximumSimulationSteps_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainSim_minimumSimulationSteps_0 = Module["_emscripten_bind_SIGContainSim_minimumSimulationSteps_0"] = createExportWrapper("emscripten_bind_SIGContainSim_minimumSimulationSteps_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainSim_status_0 = Module["_emscripten_bind_SIGContainSim_status_0"] = createExportWrapper("emscripten_bind_SIGContainSim_status_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainSim_tactic_0 = Module["_emscripten_bind_SIGContainSim_tactic_0"] = createExportWrapper("emscripten_bind_SIGContainSim_tactic_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainSim_finalFireCost_0 = Module["_emscripten_bind_SIGContainSim_finalFireCost_0"] = createExportWrapper("emscripten_bind_SIGContainSim_finalFireCost_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainSim_finalFireLine_0 = Module["_emscripten_bind_SIGContainSim_finalFireLine_0"] = createExportWrapper("emscripten_bind_SIGContainSim_finalFireLine_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainSim_finalFirePerimeter_0 = Module["_emscripten_bind_SIGContainSim_finalFirePerimeter_0"] = createExportWrapper("emscripten_bind_SIGContainSim_finalFirePerimeter_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainSim_finalFireSize_0 = Module["_emscripten_bind_SIGContainSim_finalFireSize_0"] = createExportWrapper("emscripten_bind_SIGContainSim_finalFireSize_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainSim_finalFireSweep_0 = Module["_emscripten_bind_SIGContainSim_finalFireSweep_0"] = createExportWrapper("emscripten_bind_SIGContainSim_finalFireSweep_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainSim_finalFireTime_0 = Module["_emscripten_bind_SIGContainSim_finalFireTime_0"] = createExportWrapper("emscripten_bind_SIGContainSim_finalFireTime_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainSim_finalResourcesUsed_0 = Module["_emscripten_bind_SIGContainSim_finalResourcesUsed_0"] = createExportWrapper("emscripten_bind_SIGContainSim_finalResourcesUsed_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainSim_fireHeadX_0 = Module["_emscripten_bind_SIGContainSim_fireHeadX_0"] = createExportWrapper("emscripten_bind_SIGContainSim_fireHeadX_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainSim_firePerimeterY_0 = Module["_emscripten_bind_SIGContainSim_firePerimeterY_0"] = createExportWrapper("emscripten_bind_SIGContainSim_firePerimeterY_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainSim_firePerimeterX_0 = Module["_emscripten_bind_SIGContainSim_firePerimeterX_0"] = createExportWrapper("emscripten_bind_SIGContainSim_firePerimeterX_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainSim_firePoints_0 = Module["_emscripten_bind_SIGContainSim_firePoints_0"] = createExportWrapper("emscripten_bind_SIGContainSim_firePoints_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainSim_run_0 = Module["_emscripten_bind_SIGContainSim_run_0"] = createExportWrapper("emscripten_bind_SIGContainSim_run_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainSim_UncontainedArea_5 = Module["_emscripten_bind_SIGContainSim_UncontainedArea_5"] = createExportWrapper("emscripten_bind_SIGContainSim_UncontainedArea_5");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainSim___destroy___0 = Module["_emscripten_bind_SIGContainSim___destroy___0"] = createExportWrapper("emscripten_bind_SIGContainSim___destroy___0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGDiurnalROS_SIGDiurnalROS_0 = Module["_emscripten_bind_SIGDiurnalROS_SIGDiurnalROS_0"] = createExportWrapper("emscripten_bind_SIGDiurnalROS_SIGDiurnalROS_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGDiurnalROS_push_1 = Module["_emscripten_bind_SIGDiurnalROS_push_1"] = createExportWrapper("emscripten_bind_SIGDiurnalROS_push_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGDiurnalROS_at_1 = Module["_emscripten_bind_SIGDiurnalROS_at_1"] = createExportWrapper("emscripten_bind_SIGDiurnalROS_at_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGDiurnalROS_size_0 = Module["_emscripten_bind_SIGDiurnalROS_size_0"] = createExportWrapper("emscripten_bind_SIGDiurnalROS_size_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGDiurnalROS___destroy___0 = Module["_emscripten_bind_SIGDiurnalROS___destroy___0"] = createExportWrapper("emscripten_bind_SIGDiurnalROS___destroy___0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContain_SIGContain_11 = Module["_emscripten_bind_SIGContain_SIGContain_11"] = createExportWrapper("emscripten_bind_SIGContain_SIGContain_11");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContain_simulationTime_0 = Module["_emscripten_bind_SIGContain_simulationTime_0"] = createExportWrapper("emscripten_bind_SIGContain_simulationTime_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContain_fireSpreadRateAtBack_0 = Module["_emscripten_bind_SIGContain_fireSpreadRateAtBack_0"] = createExportWrapper("emscripten_bind_SIGContain_fireSpreadRateAtBack_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContain_fireLwRatioAtReport_0 = Module["_emscripten_bind_SIGContain_fireLwRatioAtReport_0"] = createExportWrapper("emscripten_bind_SIGContain_fireLwRatioAtReport_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContain_force_0 = Module["_emscripten_bind_SIGContain_force_0"] = createExportWrapper("emscripten_bind_SIGContain_force_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContain_resourceHourCost_1 = Module["_emscripten_bind_SIGContain_resourceHourCost_1"] = createExportWrapper("emscripten_bind_SIGContain_resourceHourCost_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContain_attackDistance_0 = Module["_emscripten_bind_SIGContain_attackDistance_0"] = createExportWrapper("emscripten_bind_SIGContain_attackDistance_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContain_attackPointX_0 = Module["_emscripten_bind_SIGContain_attackPointX_0"] = createExportWrapper("emscripten_bind_SIGContain_attackPointX_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContain_fireHeadAtAttack_0 = Module["_emscripten_bind_SIGContain_fireHeadAtAttack_0"] = createExportWrapper("emscripten_bind_SIGContain_fireHeadAtAttack_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContain_attackPointY_0 = Module["_emscripten_bind_SIGContain_attackPointY_0"] = createExportWrapper("emscripten_bind_SIGContain_attackPointY_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContain_attackTime_0 = Module["_emscripten_bind_SIGContain_attackTime_0"] = createExportWrapper("emscripten_bind_SIGContain_attackTime_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContain_resourceBaseCost_1 = Module["_emscripten_bind_SIGContain_resourceBaseCost_1"] = createExportWrapper("emscripten_bind_SIGContain_resourceBaseCost_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContain_fireSpreadRateAtReport_0 = Module["_emscripten_bind_SIGContain_fireSpreadRateAtReport_0"] = createExportWrapper("emscripten_bind_SIGContain_fireSpreadRateAtReport_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContain_fireHeadAtReport_0 = Module["_emscripten_bind_SIGContain_fireHeadAtReport_0"] = createExportWrapper("emscripten_bind_SIGContain_fireHeadAtReport_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContain_fireReportTime_0 = Module["_emscripten_bind_SIGContain_fireReportTime_0"] = createExportWrapper("emscripten_bind_SIGContain_fireReportTime_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContain_resourceProduction_1 = Module["_emscripten_bind_SIGContain_resourceProduction_1"] = createExportWrapper("emscripten_bind_SIGContain_resourceProduction_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContain_fireBackAtAttack_0 = Module["_emscripten_bind_SIGContain_fireBackAtAttack_0"] = createExportWrapper("emscripten_bind_SIGContain_fireBackAtAttack_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContain_simulationStep_0 = Module["_emscripten_bind_SIGContain_simulationStep_0"] = createExportWrapper("emscripten_bind_SIGContain_simulationStep_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContain_tactic_0 = Module["_emscripten_bind_SIGContain_tactic_0"] = createExportWrapper("emscripten_bind_SIGContain_tactic_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContain_resourceDescription_1 = Module["_emscripten_bind_SIGContain_resourceDescription_1"] = createExportWrapper("emscripten_bind_SIGContain_resourceDescription_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContain_distanceStep_0 = Module["_emscripten_bind_SIGContain_distanceStep_0"] = createExportWrapper("emscripten_bind_SIGContain_distanceStep_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContain_status_0 = Module["_emscripten_bind_SIGContain_status_0"] = createExportWrapper("emscripten_bind_SIGContain_status_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContain_resourceArrival_1 = Module["_emscripten_bind_SIGContain_resourceArrival_1"] = createExportWrapper("emscripten_bind_SIGContain_resourceArrival_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContain_fireSizeAtReport_0 = Module["_emscripten_bind_SIGContain_fireSizeAtReport_0"] = createExportWrapper("emscripten_bind_SIGContain_fireSizeAtReport_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContain_setFireStartTimeMinutes_1 = Module["_emscripten_bind_SIGContain_setFireStartTimeMinutes_1"] = createExportWrapper("emscripten_bind_SIGContain_setFireStartTimeMinutes_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContain_fireBackAtReport_0 = Module["_emscripten_bind_SIGContain_fireBackAtReport_0"] = createExportWrapper("emscripten_bind_SIGContain_fireBackAtReport_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContain_resourceDuration_1 = Module["_emscripten_bind_SIGContain_resourceDuration_1"] = createExportWrapper("emscripten_bind_SIGContain_resourceDuration_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContain_resources_0 = Module["_emscripten_bind_SIGContain_resources_0"] = createExportWrapper("emscripten_bind_SIGContain_resources_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContain_exhaustedTime_0 = Module["_emscripten_bind_SIGContain_exhaustedTime_0"] = createExportWrapper("emscripten_bind_SIGContain_exhaustedTime_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContain___destroy___0 = Module["_emscripten_bind_SIGContain___destroy___0"] = createExportWrapper("emscripten_bind_SIGContain___destroy___0");
-/** @type {function(...*):?} */
 var _emscripten_bind_SIGContainAdapter_SIGContainAdapter_0 = Module["_emscripten_bind_SIGContainAdapter_SIGContainAdapter_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_SIGContainAdapter_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGContainAdapter_getContainmentStatus_0 = Module["_emscripten_bind_SIGContainAdapter_getContainmentStatus_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getContainmentStatus_0");
@@ -2317,42 +4714,6 @@ var _emscripten_bind_SIGContainAdapter_setTactic_1 = Module["_emscripten_bind_SI
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGContainAdapter___destroy___0 = Module["_emscripten_bind_SIGContainAdapter___destroy___0"] = createExportWrapper("emscripten_bind_SIGContainAdapter___destroy___0");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGIgniteInputs_SIGIgniteInputs_0 = Module["_emscripten_bind_SIGIgniteInputs_SIGIgniteInputs_0"] = createExportWrapper("emscripten_bind_SIGIgniteInputs_SIGIgniteInputs_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGIgniteInputs_initializeMembers_0 = Module["_emscripten_bind_SIGIgniteInputs_initializeMembers_0"] = createExportWrapper("emscripten_bind_SIGIgniteInputs_initializeMembers_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGIgniteInputs_setAirTemperature_2 = Module["_emscripten_bind_SIGIgniteInputs_setAirTemperature_2"] = createExportWrapper("emscripten_bind_SIGIgniteInputs_setAirTemperature_2");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGIgniteInputs_setDuffDepth_2 = Module["_emscripten_bind_SIGIgniteInputs_setDuffDepth_2"] = createExportWrapper("emscripten_bind_SIGIgniteInputs_setDuffDepth_2");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGIgniteInputs_setIgnitionFuelBedType_1 = Module["_emscripten_bind_SIGIgniteInputs_setIgnitionFuelBedType_1"] = createExportWrapper("emscripten_bind_SIGIgniteInputs_setIgnitionFuelBedType_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGIgniteInputs_setLightningChargeType_1 = Module["_emscripten_bind_SIGIgniteInputs_setLightningChargeType_1"] = createExportWrapper("emscripten_bind_SIGIgniteInputs_setLightningChargeType_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGIgniteInputs_setMoistureHundredHour_2 = Module["_emscripten_bind_SIGIgniteInputs_setMoistureHundredHour_2"] = createExportWrapper("emscripten_bind_SIGIgniteInputs_setMoistureHundredHour_2");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGIgniteInputs_setMoistureOneHour_2 = Module["_emscripten_bind_SIGIgniteInputs_setMoistureOneHour_2"] = createExportWrapper("emscripten_bind_SIGIgniteInputs_setMoistureOneHour_2");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGIgniteInputs_setSunShade_2 = Module["_emscripten_bind_SIGIgniteInputs_setSunShade_2"] = createExportWrapper("emscripten_bind_SIGIgniteInputs_setSunShade_2");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGIgniteInputs_updateIgniteInputs_11 = Module["_emscripten_bind_SIGIgniteInputs_updateIgniteInputs_11"] = createExportWrapper("emscripten_bind_SIGIgniteInputs_updateIgniteInputs_11");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGIgniteInputs_getIgnitionFuelBedType_0 = Module["_emscripten_bind_SIGIgniteInputs_getIgnitionFuelBedType_0"] = createExportWrapper("emscripten_bind_SIGIgniteInputs_getIgnitionFuelBedType_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGIgniteInputs_getLightningChargeType_0 = Module["_emscripten_bind_SIGIgniteInputs_getLightningChargeType_0"] = createExportWrapper("emscripten_bind_SIGIgniteInputs_getLightningChargeType_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGIgniteInputs_getAirTemperature_1 = Module["_emscripten_bind_SIGIgniteInputs_getAirTemperature_1"] = createExportWrapper("emscripten_bind_SIGIgniteInputs_getAirTemperature_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGIgniteInputs_getDuffDepth_1 = Module["_emscripten_bind_SIGIgniteInputs_getDuffDepth_1"] = createExportWrapper("emscripten_bind_SIGIgniteInputs_getDuffDepth_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGIgniteInputs_getMoistureHundredHour_1 = Module["_emscripten_bind_SIGIgniteInputs_getMoistureHundredHour_1"] = createExportWrapper("emscripten_bind_SIGIgniteInputs_getMoistureHundredHour_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGIgniteInputs_getMoistureOneHour_1 = Module["_emscripten_bind_SIGIgniteInputs_getMoistureOneHour_1"] = createExportWrapper("emscripten_bind_SIGIgniteInputs_getMoistureOneHour_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGIgniteInputs_getSunShade_1 = Module["_emscripten_bind_SIGIgniteInputs_getSunShade_1"] = createExportWrapper("emscripten_bind_SIGIgniteInputs_getSunShade_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGIgniteInputs___destroy___0 = Module["_emscripten_bind_SIGIgniteInputs___destroy___0"] = createExportWrapper("emscripten_bind_SIGIgniteInputs___destroy___0");
-/** @type {function(...*):?} */
 var _emscripten_bind_SIGIgnite_SIGIgnite_0 = Module["_emscripten_bind_SIGIgnite_SIGIgnite_0"] = createExportWrapper("emscripten_bind_SIGIgnite_SIGIgnite_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGIgnite_initializeMembers_0 = Module["_emscripten_bind_SIGIgnite_initializeMembers_0"] = createExportWrapper("emscripten_bind_SIGIgnite_initializeMembers_0");
@@ -2396,60 +4757,6 @@ var _emscripten_bind_SIGIgnite_getSunShade_1 = Module["_emscripten_bind_SIGIgnit
 var _emscripten_bind_SIGIgnite_isFuelDepthNeeded_0 = Module["_emscripten_bind_SIGIgnite_isFuelDepthNeeded_0"] = createExportWrapper("emscripten_bind_SIGIgnite_isFuelDepthNeeded_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGIgnite___destroy___0 = Module["_emscripten_bind_SIGIgnite___destroy___0"] = createExportWrapper("emscripten_bind_SIGIgnite___destroy___0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGSpotInputs_SIGSpotInputs_0 = Module["_emscripten_bind_SIGSpotInputs_SIGSpotInputs_0"] = createExportWrapper("emscripten_bind_SIGSpotInputs_SIGSpotInputs_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGSpotInputs_getLocation_0 = Module["_emscripten_bind_SIGSpotInputs_getLocation_0"] = createExportWrapper("emscripten_bind_SIGSpotInputs_getLocation_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGSpotInputs_getTreeSpecies_0 = Module["_emscripten_bind_SIGSpotInputs_getTreeSpecies_0"] = createExportWrapper("emscripten_bind_SIGSpotInputs_getTreeSpecies_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGSpotInputs_setBurningPileFlameHeight_2 = Module["_emscripten_bind_SIGSpotInputs_setBurningPileFlameHeight_2"] = createExportWrapper("emscripten_bind_SIGSpotInputs_setBurningPileFlameHeight_2");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGSpotInputs_setDBH_2 = Module["_emscripten_bind_SIGSpotInputs_setDBH_2"] = createExportWrapper("emscripten_bind_SIGSpotInputs_setDBH_2");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGSpotInputs_setDownwindCoverHeight_2 = Module["_emscripten_bind_SIGSpotInputs_setDownwindCoverHeight_2"] = createExportWrapper("emscripten_bind_SIGSpotInputs_setDownwindCoverHeight_2");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGSpotInputs_setLocation_1 = Module["_emscripten_bind_SIGSpotInputs_setLocation_1"] = createExportWrapper("emscripten_bind_SIGSpotInputs_setLocation_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGSpotInputs_setRidgeToValleyDistance_2 = Module["_emscripten_bind_SIGSpotInputs_setRidgeToValleyDistance_2"] = createExportWrapper("emscripten_bind_SIGSpotInputs_setRidgeToValleyDistance_2");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGSpotInputs_setRidgeToValleyElevation_2 = Module["_emscripten_bind_SIGSpotInputs_setRidgeToValleyElevation_2"] = createExportWrapper("emscripten_bind_SIGSpotInputs_setRidgeToValleyElevation_2");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGSpotInputs_setSurfaceFlameLength_2 = Module["_emscripten_bind_SIGSpotInputs_setSurfaceFlameLength_2"] = createExportWrapper("emscripten_bind_SIGSpotInputs_setSurfaceFlameLength_2");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGSpotInputs_setTorchingTrees_1 = Module["_emscripten_bind_SIGSpotInputs_setTorchingTrees_1"] = createExportWrapper("emscripten_bind_SIGSpotInputs_setTorchingTrees_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGSpotInputs_setTreeHeight_2 = Module["_emscripten_bind_SIGSpotInputs_setTreeHeight_2"] = createExportWrapper("emscripten_bind_SIGSpotInputs_setTreeHeight_2");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGSpotInputs_setTreeSpecies_1 = Module["_emscripten_bind_SIGSpotInputs_setTreeSpecies_1"] = createExportWrapper("emscripten_bind_SIGSpotInputs_setTreeSpecies_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGSpotInputs_setWindSpeedAtTwentyFeet_2 = Module["_emscripten_bind_SIGSpotInputs_setWindSpeedAtTwentyFeet_2"] = createExportWrapper("emscripten_bind_SIGSpotInputs_setWindSpeedAtTwentyFeet_2");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGSpotInputs_updateSpotInputsForBurningPile_11 = Module["_emscripten_bind_SIGSpotInputs_updateSpotInputsForBurningPile_11"] = createExportWrapper("emscripten_bind_SIGSpotInputs_updateSpotInputsForBurningPile_11");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGSpotInputs_updateSpotInputsForSurfaceFire_11 = Module["_emscripten_bind_SIGSpotInputs_updateSpotInputsForSurfaceFire_11"] = createExportWrapper("emscripten_bind_SIGSpotInputs_updateSpotInputsForSurfaceFire_11");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGSpotInputs_updateSpotInputsForTorchingTrees_15 = Module["_emscripten_bind_SIGSpotInputs_updateSpotInputsForTorchingTrees_15"] = createExportWrapper("emscripten_bind_SIGSpotInputs_updateSpotInputsForTorchingTrees_15");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGSpotInputs_getBurningPileFlameHeight_1 = Module["_emscripten_bind_SIGSpotInputs_getBurningPileFlameHeight_1"] = createExportWrapper("emscripten_bind_SIGSpotInputs_getBurningPileFlameHeight_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGSpotInputs_getDBH_1 = Module["_emscripten_bind_SIGSpotInputs_getDBH_1"] = createExportWrapper("emscripten_bind_SIGSpotInputs_getDBH_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGSpotInputs_getDownwindCoverHeight_1 = Module["_emscripten_bind_SIGSpotInputs_getDownwindCoverHeight_1"] = createExportWrapper("emscripten_bind_SIGSpotInputs_getDownwindCoverHeight_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGSpotInputs_getRidgeToValleyDistance_1 = Module["_emscripten_bind_SIGSpotInputs_getRidgeToValleyDistance_1"] = createExportWrapper("emscripten_bind_SIGSpotInputs_getRidgeToValleyDistance_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGSpotInputs_getRidgeToValleyElevation_1 = Module["_emscripten_bind_SIGSpotInputs_getRidgeToValleyElevation_1"] = createExportWrapper("emscripten_bind_SIGSpotInputs_getRidgeToValleyElevation_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGSpotInputs_getSurfaceFlameLength_1 = Module["_emscripten_bind_SIGSpotInputs_getSurfaceFlameLength_1"] = createExportWrapper("emscripten_bind_SIGSpotInputs_getSurfaceFlameLength_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGSpotInputs_getTreeHeight_1 = Module["_emscripten_bind_SIGSpotInputs_getTreeHeight_1"] = createExportWrapper("emscripten_bind_SIGSpotInputs_getTreeHeight_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGSpotInputs_getWindSpeedAtTwentyFeet_1 = Module["_emscripten_bind_SIGSpotInputs_getWindSpeedAtTwentyFeet_1"] = createExportWrapper("emscripten_bind_SIGSpotInputs_getWindSpeedAtTwentyFeet_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGSpotInputs_getTorchingTrees_0 = Module["_emscripten_bind_SIGSpotInputs_getTorchingTrees_0"] = createExportWrapper("emscripten_bind_SIGSpotInputs_getTorchingTrees_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGSpotInputs___destroy___0 = Module["_emscripten_bind_SIGSpotInputs___destroy___0"] = createExportWrapper("emscripten_bind_SIGSpotInputs___destroy___0");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSpot_SIGSpot_0 = Module["_emscripten_bind_SIGSpot_SIGSpot_0"] = createExportWrapper("emscripten_bind_SIGSpot_SIGSpot_0");
 /** @type {function(...*):?} */
@@ -2812,6 +5119,8 @@ var _emscripten_bind_SIGCrown_initializeMembers_0 = Module["_emscripten_bind_SIG
 var _emscripten_bind_SIGCrown_doCrownRunRothermel_0 = Module["_emscripten_bind_SIGCrown_doCrownRunRothermel_0"] = createExportWrapper("emscripten_bind_SIGCrown_doCrownRunRothermel_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_doCrownRunScottAndReinhardt_0 = Module["_emscripten_bind_SIGCrown_doCrownRunScottAndReinhardt_0"] = createExportWrapper("emscripten_bind_SIGCrown_doCrownRunScottAndReinhardt_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_doCrownRun_0 = Module["_emscripten_bind_SIGCrown_doCrownRun_0"] = createExportWrapper("emscripten_bind_SIGCrown_doCrownRun_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_getFireType_0 = Module["_emscripten_bind_SIGCrown_getFireType_0"] = createExportWrapper("emscripten_bind_SIGCrown_getFireType_0");
 /** @type {function(...*):?} */
@@ -3195,99 +5504,93 @@ var _emscripten_enum_TimeUnits_TimeUnitsEnum_Seconds = Module["_emscripten_enum_
 /** @type {function(...*):?} */
 var _emscripten_enum_TimeUnits_TimeUnitsEnum_Hours = Module["_emscripten_enum_TimeUnits_TimeUnitsEnum_Hours"] = createExportWrapper("emscripten_enum_TimeUnits_TimeUnitsEnum_Hours");
 /** @type {function(...*):?} */
-var _emscripten_enum_ContainTactic_HeadAttack = Module["_emscripten_enum_ContainTactic_HeadAttack"] = createExportWrapper("emscripten_enum_ContainTactic_HeadAttack");
+var _emscripten_enum_ContainTactic_ContainTacticEnum_HeadAttack = Module["_emscripten_enum_ContainTactic_ContainTacticEnum_HeadAttack"] = createExportWrapper("emscripten_enum_ContainTactic_ContainTacticEnum_HeadAttack");
 /** @type {function(...*):?} */
-var _emscripten_enum_ContainTactic_RearAttack = Module["_emscripten_enum_ContainTactic_RearAttack"] = createExportWrapper("emscripten_enum_ContainTactic_RearAttack");
+var _emscripten_enum_ContainTactic_ContainTacticEnum_RearAttack = Module["_emscripten_enum_ContainTactic_ContainTacticEnum_RearAttack"] = createExportWrapper("emscripten_enum_ContainTactic_ContainTacticEnum_RearAttack");
 /** @type {function(...*):?} */
-var _emscripten_enum_ContainStatus_Unreported = Module["_emscripten_enum_ContainStatus_Unreported"] = createExportWrapper("emscripten_enum_ContainStatus_Unreported");
+var _emscripten_enum_ContainStatus_ContainStatusEnum_Unreported = Module["_emscripten_enum_ContainStatus_ContainStatusEnum_Unreported"] = createExportWrapper("emscripten_enum_ContainStatus_ContainStatusEnum_Unreported");
 /** @type {function(...*):?} */
-var _emscripten_enum_ContainStatus_Reported = Module["_emscripten_enum_ContainStatus_Reported"] = createExportWrapper("emscripten_enum_ContainStatus_Reported");
+var _emscripten_enum_ContainStatus_ContainStatusEnum_Reported = Module["_emscripten_enum_ContainStatus_ContainStatusEnum_Reported"] = createExportWrapper("emscripten_enum_ContainStatus_ContainStatusEnum_Reported");
 /** @type {function(...*):?} */
-var _emscripten_enum_ContainStatus_Attacked = Module["_emscripten_enum_ContainStatus_Attacked"] = createExportWrapper("emscripten_enum_ContainStatus_Attacked");
+var _emscripten_enum_ContainStatus_ContainStatusEnum_Attacked = Module["_emscripten_enum_ContainStatus_ContainStatusEnum_Attacked"] = createExportWrapper("emscripten_enum_ContainStatus_ContainStatusEnum_Attacked");
 /** @type {function(...*):?} */
-var _emscripten_enum_ContainStatus_Contained = Module["_emscripten_enum_ContainStatus_Contained"] = createExportWrapper("emscripten_enum_ContainStatus_Contained");
+var _emscripten_enum_ContainStatus_ContainStatusEnum_Contained = Module["_emscripten_enum_ContainStatus_ContainStatusEnum_Contained"] = createExportWrapper("emscripten_enum_ContainStatus_ContainStatusEnum_Contained");
 /** @type {function(...*):?} */
-var _emscripten_enum_ContainStatus_Overrun = Module["_emscripten_enum_ContainStatus_Overrun"] = createExportWrapper("emscripten_enum_ContainStatus_Overrun");
+var _emscripten_enum_ContainStatus_ContainStatusEnum_Overrun = Module["_emscripten_enum_ContainStatus_ContainStatusEnum_Overrun"] = createExportWrapper("emscripten_enum_ContainStatus_ContainStatusEnum_Overrun");
 /** @type {function(...*):?} */
-var _emscripten_enum_ContainStatus_Exhausted = Module["_emscripten_enum_ContainStatus_Exhausted"] = createExportWrapper("emscripten_enum_ContainStatus_Exhausted");
+var _emscripten_enum_ContainStatus_ContainStatusEnum_Exhausted = Module["_emscripten_enum_ContainStatus_ContainStatusEnum_Exhausted"] = createExportWrapper("emscripten_enum_ContainStatus_ContainStatusEnum_Exhausted");
 /** @type {function(...*):?} */
-var _emscripten_enum_ContainStatus_Overflow = Module["_emscripten_enum_ContainStatus_Overflow"] = createExportWrapper("emscripten_enum_ContainStatus_Overflow");
+var _emscripten_enum_ContainStatus_ContainStatusEnum_Overflow = Module["_emscripten_enum_ContainStatus_ContainStatusEnum_Overflow"] = createExportWrapper("emscripten_enum_ContainStatus_ContainStatusEnum_Overflow");
 /** @type {function(...*):?} */
-var _emscripten_enum_ContainStatus_SizeLimitExceeded = Module["_emscripten_enum_ContainStatus_SizeLimitExceeded"] = createExportWrapper("emscripten_enum_ContainStatus_SizeLimitExceeded");
+var _emscripten_enum_ContainStatus_ContainStatusEnum_SizeLimitExceeded = Module["_emscripten_enum_ContainStatus_ContainStatusEnum_SizeLimitExceeded"] = createExportWrapper("emscripten_enum_ContainStatus_ContainStatusEnum_SizeLimitExceeded");
 /** @type {function(...*):?} */
-var _emscripten_enum_ContainStatus_TimeLimitExceeded = Module["_emscripten_enum_ContainStatus_TimeLimitExceeded"] = createExportWrapper("emscripten_enum_ContainStatus_TimeLimitExceeded");
+var _emscripten_enum_ContainStatus_ContainStatusEnum_TimeLimitExceeded = Module["_emscripten_enum_ContainStatus_ContainStatusEnum_TimeLimitExceeded"] = createExportWrapper("emscripten_enum_ContainStatus_ContainStatusEnum_TimeLimitExceeded");
 /** @type {function(...*):?} */
-var _emscripten_enum_ContainFlank_LeftFlank = Module["_emscripten_enum_ContainFlank_LeftFlank"] = createExportWrapper("emscripten_enum_ContainFlank_LeftFlank");
+var _emscripten_enum_ContainFlank_ContainFlankEnum_LeftFlank = Module["_emscripten_enum_ContainFlank_ContainFlankEnum_LeftFlank"] = createExportWrapper("emscripten_enum_ContainFlank_ContainFlankEnum_LeftFlank");
 /** @type {function(...*):?} */
-var _emscripten_enum_ContainFlank_RightFlank = Module["_emscripten_enum_ContainFlank_RightFlank"] = createExportWrapper("emscripten_enum_ContainFlank_RightFlank");
+var _emscripten_enum_ContainFlank_ContainFlankEnum_RightFlank = Module["_emscripten_enum_ContainFlank_ContainFlankEnum_RightFlank"] = createExportWrapper("emscripten_enum_ContainFlank_ContainFlankEnum_RightFlank");
 /** @type {function(...*):?} */
-var _emscripten_enum_ContainFlank_BothFlanks = Module["_emscripten_enum_ContainFlank_BothFlanks"] = createExportWrapper("emscripten_enum_ContainFlank_BothFlanks");
+var _emscripten_enum_ContainFlank_ContainFlankEnum_BothFlanks = Module["_emscripten_enum_ContainFlank_ContainFlankEnum_BothFlanks"] = createExportWrapper("emscripten_enum_ContainFlank_ContainFlankEnum_BothFlanks");
 /** @type {function(...*):?} */
-var _emscripten_enum_ContainFlank_NeitherFlank = Module["_emscripten_enum_ContainFlank_NeitherFlank"] = createExportWrapper("emscripten_enum_ContainFlank_NeitherFlank");
+var _emscripten_enum_ContainFlank_ContainFlankEnum_NeitherFlank = Module["_emscripten_enum_ContainFlank_ContainFlankEnum_NeitherFlank"] = createExportWrapper("emscripten_enum_ContainFlank_ContainFlankEnum_NeitherFlank");
 /** @type {function(...*):?} */
-var _emscripten_enum_IgnitionFuelBedType_PonderosaPineLitter = Module["_emscripten_enum_IgnitionFuelBedType_PonderosaPineLitter"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_PonderosaPineLitter");
+var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PonderosaPineLitter = Module["_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PonderosaPineLitter"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PonderosaPineLitter");
 /** @type {function(...*):?} */
-var _emscripten_enum_IgnitionFuelBedType_PunkyWoodRottenChunky = Module["_emscripten_enum_IgnitionFuelBedType_PunkyWoodRottenChunky"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_PunkyWoodRottenChunky");
+var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodRottenChunky = Module["_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodRottenChunky"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodRottenChunky");
 /** @type {function(...*):?} */
-var _emscripten_enum_IgnitionFuelBedType_PunkyWoodPowderDeep = Module["_emscripten_enum_IgnitionFuelBedType_PunkyWoodPowderDeep"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_PunkyWoodPowderDeep");
+var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodPowderDeep = Module["_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodPowderDeep"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodPowderDeep");
 /** @type {function(...*):?} */
-var _emscripten_enum_IgnitionFuelBedType_PunkWoodPowderShallow = Module["_emscripten_enum_IgnitionFuelBedType_PunkWoodPowderShallow"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_PunkWoodPowderShallow");
+var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkWoodPowderShallow = Module["_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkWoodPowderShallow"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkWoodPowderShallow");
 /** @type {function(...*):?} */
-var _emscripten_enum_IgnitionFuelBedType_LodgepolePineDuff = Module["_emscripten_enum_IgnitionFuelBedType_LodgepolePineDuff"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_LodgepolePineDuff");
+var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_LodgepolePineDuff = Module["_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_LodgepolePineDuff"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_LodgepolePineDuff");
 /** @type {function(...*):?} */
-var _emscripten_enum_IgnitionFuelBedType_DouglasFirDuff = Module["_emscripten_enum_IgnitionFuelBedType_DouglasFirDuff"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_DouglasFirDuff");
+var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_DouglasFirDuff = Module["_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_DouglasFirDuff"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_DouglasFirDuff");
 /** @type {function(...*):?} */
-var _emscripten_enum_IgnitionFuelBedType_HighAltitudeMixed = Module["_emscripten_enum_IgnitionFuelBedType_HighAltitudeMixed"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_HighAltitudeMixed");
+var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_HighAltitudeMixed = Module["_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_HighAltitudeMixed"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_HighAltitudeMixed");
 /** @type {function(...*):?} */
-var _emscripten_enum_IgnitionFuelBedType_PeatMoss = Module["_emscripten_enum_IgnitionFuelBedType_PeatMoss"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_PeatMoss");
+var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PeatMoss = Module["_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PeatMoss"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PeatMoss");
 /** @type {function(...*):?} */
-var _emscripten_enum_LightningCharge_Negative = Module["_emscripten_enum_LightningCharge_Negative"] = createExportWrapper("emscripten_enum_LightningCharge_Negative");
+var _emscripten_enum_LightningCharge_LightningChargeEnum_Negative = Module["_emscripten_enum_LightningCharge_LightningChargeEnum_Negative"] = createExportWrapper("emscripten_enum_LightningCharge_LightningChargeEnum_Negative");
 /** @type {function(...*):?} */
-var _emscripten_enum_LightningCharge_Positive = Module["_emscripten_enum_LightningCharge_Positive"] = createExportWrapper("emscripten_enum_LightningCharge_Positive");
+var _emscripten_enum_LightningCharge_LightningChargeEnum_Positive = Module["_emscripten_enum_LightningCharge_LightningChargeEnum_Positive"] = createExportWrapper("emscripten_enum_LightningCharge_LightningChargeEnum_Positive");
 /** @type {function(...*):?} */
-var _emscripten_enum_LightningCharge_Unknown = Module["_emscripten_enum_LightningCharge_Unknown"] = createExportWrapper("emscripten_enum_LightningCharge_Unknown");
+var _emscripten_enum_LightningCharge_LightningChargeEnum_Unknown = Module["_emscripten_enum_LightningCharge_LightningChargeEnum_Unknown"] = createExportWrapper("emscripten_enum_LightningCharge_LightningChargeEnum_Unknown");
 /** @type {function(...*):?} */
-var _emscripten_enum_SpotTreeSpecies_ENGELMANN_SPRUCE = Module["_emscripten_enum_SpotTreeSpecies_ENGELMANN_SPRUCE"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_ENGELMANN_SPRUCE");
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_ENGELMANN_SPRUCE = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_ENGELMANN_SPRUCE"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_ENGELMANN_SPRUCE");
 /** @type {function(...*):?} */
-var _emscripten_enum_SpotTreeSpecies_DOUGLAS_FIR = Module["_emscripten_enum_SpotTreeSpecies_DOUGLAS_FIR"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_DOUGLAS_FIR");
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_DOUGLAS_FIR = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_DOUGLAS_FIR"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_DOUGLAS_FIR");
 /** @type {function(...*):?} */
-var _emscripten_enum_SpotTreeSpecies_SUBALPINE_FIR = Module["_emscripten_enum_SpotTreeSpecies_SUBALPINE_FIR"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SUBALPINE_FIR");
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SUBALPINE_FIR = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SUBALPINE_FIR"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SUBALPINE_FIR");
 /** @type {function(...*):?} */
-var _emscripten_enum_SpotTreeSpecies_WESTERN_HEMLOCK = Module["_emscripten_enum_SpotTreeSpecies_WESTERN_HEMLOCK"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_WESTERN_HEMLOCK");
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_WESTERN_HEMLOCK = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_WESTERN_HEMLOCK"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_WESTERN_HEMLOCK");
 /** @type {function(...*):?} */
-var _emscripten_enum_SpotTreeSpecies_PONDEROSA_PINE = Module["_emscripten_enum_SpotTreeSpecies_PONDEROSA_PINE"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_PONDEROSA_PINE");
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_PONDEROSA_PINE = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_PONDEROSA_PINE"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_PONDEROSA_PINE");
 /** @type {function(...*):?} */
-var _emscripten_enum_SpotTreeSpecies_LODGEPOLE_PINE = Module["_emscripten_enum_SpotTreeSpecies_LODGEPOLE_PINE"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_LODGEPOLE_PINE");
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LODGEPOLE_PINE = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LODGEPOLE_PINE"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LODGEPOLE_PINE");
 /** @type {function(...*):?} */
-var _emscripten_enum_SpotTreeSpecies_WESTERN_WHITE_PINE = Module["_emscripten_enum_SpotTreeSpecies_WESTERN_WHITE_PINE"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_WESTERN_WHITE_PINE");
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_WESTERN_WHITE_PINE = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_WESTERN_WHITE_PINE"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_WESTERN_WHITE_PINE");
 /** @type {function(...*):?} */
-var _emscripten_enum_SpotTreeSpecies_GRAND_FIR = Module["_emscripten_enum_SpotTreeSpecies_GRAND_FIR"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_GRAND_FIR");
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_GRAND_FIR = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_GRAND_FIR"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_GRAND_FIR");
 /** @type {function(...*):?} */
-var _emscripten_enum_SpotTreeSpecies_BALSAM_FIR = Module["_emscripten_enum_SpotTreeSpecies_BALSAM_FIR"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_BALSAM_FIR");
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_BALSAM_FIR = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_BALSAM_FIR"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_BALSAM_FIR");
 /** @type {function(...*):?} */
-var _emscripten_enum_SpotTreeSpecies_SLASH_PINE = Module["_emscripten_enum_SpotTreeSpecies_SLASH_PINE"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SLASH_PINE");
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SLASH_PINE = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SLASH_PINE"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SLASH_PINE");
 /** @type {function(...*):?} */
-var _emscripten_enum_SpotTreeSpecies_LONGLEAF_PINE = Module["_emscripten_enum_SpotTreeSpecies_LONGLEAF_PINE"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_LONGLEAF_PINE");
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LONGLEAF_PINE = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LONGLEAF_PINE"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LONGLEAF_PINE");
 /** @type {function(...*):?} */
-var _emscripten_enum_SpotTreeSpecies_POND_PINE = Module["_emscripten_enum_SpotTreeSpecies_POND_PINE"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_POND_PINE");
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_POND_PINE = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_POND_PINE"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_POND_PINE");
 /** @type {function(...*):?} */
-var _emscripten_enum_SpotTreeSpecies_SHORTLEAF_PINE = Module["_emscripten_enum_SpotTreeSpecies_SHORTLEAF_PINE"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SHORTLEAF_PINE");
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SHORTLEAF_PINE = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SHORTLEAF_PINE"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SHORTLEAF_PINE");
 /** @type {function(...*):?} */
-var _emscripten_enum_SpotTreeSpecies_LOBLOLLY_PINE = Module["_emscripten_enum_SpotTreeSpecies_LOBLOLLY_PINE"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_LOBLOLLY_PINE");
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LOBLOLLY_PINE = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LOBLOLLY_PINE"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LOBLOLLY_PINE");
 /** @type {function(...*):?} */
-var _emscripten_enum_SpotFireLocation_MIDSLOPE_WINDWARD = Module["_emscripten_enum_SpotFireLocation_MIDSLOPE_WINDWARD"] = createExportWrapper("emscripten_enum_SpotFireLocation_MIDSLOPE_WINDWARD");
+var _emscripten_enum_SpotFireLocation_SpotFireLocationEnum_MIDSLOPE_WINDWARD = Module["_emscripten_enum_SpotFireLocation_SpotFireLocationEnum_MIDSLOPE_WINDWARD"] = createExportWrapper("emscripten_enum_SpotFireLocation_SpotFireLocationEnum_MIDSLOPE_WINDWARD");
 /** @type {function(...*):?} */
-var _emscripten_enum_SpotFireLocation_VALLEY_BOTTOM = Module["_emscripten_enum_SpotFireLocation_VALLEY_BOTTOM"] = createExportWrapper("emscripten_enum_SpotFireLocation_VALLEY_BOTTOM");
+var _emscripten_enum_SpotFireLocation_SpotFireLocationEnum_VALLEY_BOTTOM = Module["_emscripten_enum_SpotFireLocation_SpotFireLocationEnum_VALLEY_BOTTOM"] = createExportWrapper("emscripten_enum_SpotFireLocation_SpotFireLocationEnum_VALLEY_BOTTOM");
 /** @type {function(...*):?} */
-var _emscripten_enum_SpotFireLocation_MIDSLOPE_LEEWARD = Module["_emscripten_enum_SpotFireLocation_MIDSLOPE_LEEWARD"] = createExportWrapper("emscripten_enum_SpotFireLocation_MIDSLOPE_LEEWARD");
+var _emscripten_enum_SpotFireLocation_SpotFireLocationEnum_MIDSLOPE_LEEWARD = Module["_emscripten_enum_SpotFireLocation_SpotFireLocationEnum_MIDSLOPE_LEEWARD"] = createExportWrapper("emscripten_enum_SpotFireLocation_SpotFireLocationEnum_MIDSLOPE_LEEWARD");
 /** @type {function(...*):?} */
-var _emscripten_enum_SpotFireLocation_RIDGE_TOP = Module["_emscripten_enum_SpotFireLocation_RIDGE_TOP"] = createExportWrapper("emscripten_enum_SpotFireLocation_RIDGE_TOP");
-/** @type {function(...*):?} */
-var _emscripten_enum_SpotArrayConstants_NUM_COLS = Module["_emscripten_enum_SpotArrayConstants_NUM_COLS"] = createExportWrapper("emscripten_enum_SpotArrayConstants_NUM_COLS");
-/** @type {function(...*):?} */
-var _emscripten_enum_SpotArrayConstants_NUM_FIREBRAND_ROWS = Module["_emscripten_enum_SpotArrayConstants_NUM_FIREBRAND_ROWS"] = createExportWrapper("emscripten_enum_SpotArrayConstants_NUM_FIREBRAND_ROWS");
-/** @type {function(...*):?} */
-var _emscripten_enum_SpotArrayConstants_NUM_SPECIES = Module["_emscripten_enum_SpotArrayConstants_NUM_SPECIES"] = createExportWrapper("emscripten_enum_SpotArrayConstants_NUM_SPECIES");
+var _emscripten_enum_SpotFireLocation_SpotFireLocationEnum_RIDGE_TOP = Module["_emscripten_enum_SpotFireLocation_SpotFireLocationEnum_RIDGE_TOP"] = createExportWrapper("emscripten_enum_SpotFireLocation_SpotFireLocationEnum_RIDGE_TOP");
 /** @type {function(...*):?} */
 var _emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Low = Module["_emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Low"] = createExportWrapper("emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Low");
 /** @type {function(...*):?} */
@@ -3471,8 +5774,8 @@ var ___cxa_can_catch = createExportWrapper("__cxa_can_catch");
 var ___cxa_is_pointer_type = createExportWrapper("__cxa_is_pointer_type");
 /** @type {function(...*):?} */
 var dynCall_jiji = Module["dynCall_jiji"] = createExportWrapper("dynCall_jiji");
-var ___start_em_js = Module['___start_em_js'] = 112088;
-var ___stop_em_js = Module['___stop_em_js'] = 112186;
+var ___start_em_js = Module['___start_em_js'] = 112472;
+var ___stop_em_js = Module['___stop_em_js'] = 112570;
 function invoke_vii(index,a1,a2) {
   var sp = stackSave();
   try {
@@ -3660,6 +5963,17 @@ function invoke_vididi(index,a1,a2,a3,a4,a5) {
   }
 }
 
+function invoke_viddidiidd(index,a1,a2,a3,a4,a5,a6,a7,a8,a9) {
+  var sp = stackSave();
+  try {
+    getWasmTableEntry(index)(a1,a2,a3,a4,a5,a6,a7,a8,a9);
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
 function invoke_viiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13) {
   var sp = stackSave();
   try {
@@ -3690,10 +6004,8 @@ Module["UTF8ToString"] = UTF8ToString;
 Module["addFunction"] = addFunction;
 Module["allocateUTF8"] = allocateUTF8;
 var missingLibrarySymbols = [
-  'zeroMemory',
   'stringToNewUTF8',
   'exitJS',
-  'setErrNo',
   'inetPton4',
   'inetNtop4',
   'inetPton6',
@@ -3701,7 +6013,6 @@ var missingLibrarySymbols = [
   'readSockaddr',
   'writeSockaddr',
   'getHostByName',
-  'getRandomDevice',
   'traverseStack',
   'convertPCtoSourceLocation',
   'readEmAsmArgs',
@@ -3720,9 +6031,6 @@ var missingLibrarySymbols = [
   'maybeExit',
   'safeSetTimeout',
   'asmjsMangle',
-  'asyncLoad',
-  'alignMemory',
-  'mmapAlloc',
   'HandleAllocator',
   'getNativeTypeSize',
   'STACK_SIZE',
@@ -3804,8 +6112,6 @@ var missingLibrarySymbols = [
   'registerBatteryEventCallback',
   'setCanvasElementSize',
   'getCanvasElementSize',
-  'demangle',
-  'demangleAll',
   'jsStackTrace',
   'stackTrace',
   'getEnvStrings',
@@ -3876,18 +6182,24 @@ var unexportedSymbols = [
   'writeStackCookie',
   'checkStackCookie',
   'ptrToString',
+  'zeroMemory',
   'getHeapMax',
   'emscripten_realloc_buffer',
   'ENV',
   'ERRNO_CODES',
   'ERRNO_MESSAGES',
+  'setErrNo',
   'DNS',
   'Protocols',
   'Sockets',
+  'getRandomDevice',
   'timers',
   'warnOnce',
   'UNWIND_CACHE',
   'readEmAsmArgsArray',
+  'asyncLoad',
+  'alignMemory',
+  'mmapAlloc',
   'convertI32PairToI53Checked',
   'uleb128Encode',
   'sigToWasmTypes',
@@ -3909,8 +6221,11 @@ var unexportedSymbols = [
   'specialHTMLTargets',
   'currentFullscreenStrategy',
   'restoreOldWindowedStyle',
+  'demangle',
+  'demangleAll',
   'ExitStatus',
-  'flush_NO_FILESYSTEM',
+  'doReadv',
+  'doWritev',
   'dlopenMissingError',
   'promiseMap',
   'uncaughtExceptionCount',
@@ -4030,13 +6345,23 @@ function checkUnflushedContent() {
     has = true;
   }
   try { // it doesn't matter if it fails
-    flush_NO_FILESYSTEM();
+    _fflush(0);
+    // also flush in the JS FS layer
+    ['stdout', 'stderr'].forEach(function(name) {
+      var info = FS.analyzePath('/dev/' + name);
+      if (!info) return;
+      var stream = info.object;
+      var rdev = stream.rdev;
+      var tty = TTY.ttys[rdev];
+      if (tty && tty.output && tty.output.length) {
+        has = true;
+      }
+    });
   } catch(e) {}
   out = oldOut;
   err = oldErr;
   if (has) {
     warnOnce('stdio streams had content in them that was not flushed. you should set EXIT_RUNTIME to 1 (see the FAQ), or make sure to emit a newline when you printf etc.');
-    warnOnce('(this may also be due to not including full filesystem support - try building with -sFORCE_FILESYSTEM)');
   }
 }
 
@@ -4563,652 +6888,6 @@ FireSize.prototype['getFireArea'] = FireSize.prototype.getFireArea = /** @suppre
   var self = this.ptr;
   _emscripten_bind_FireSize___destroy___0(self);
 };
-// SIGContainResource
-/** @suppress {undefinedVars, duplicate} @this{Object} */function SIGContainResource(arrival, production, duration, flank, desc, baseCost, hourCost) {
-  ensureCache.prepare();
-  if (arrival && typeof arrival === 'object') arrival = arrival.ptr;
-  if (production && typeof production === 'object') production = production.ptr;
-  if (duration && typeof duration === 'object') duration = duration.ptr;
-  if (flank && typeof flank === 'object') flank = flank.ptr;
-  if (desc && typeof desc === 'object') desc = desc.ptr;
-  else desc = ensureString(desc);
-  if (baseCost && typeof baseCost === 'object') baseCost = baseCost.ptr;
-  if (hourCost && typeof hourCost === 'object') hourCost = hourCost.ptr;
-  if (arrival === undefined) { this.ptr = _emscripten_bind_SIGContainResource_SIGContainResource_0(); getCache(SIGContainResource)[this.ptr] = this;return }
-  if (production === undefined) { this.ptr = _emscripten_bind_SIGContainResource_SIGContainResource_1(arrival); getCache(SIGContainResource)[this.ptr] = this;return }
-  if (duration === undefined) { this.ptr = _emscripten_bind_SIGContainResource_SIGContainResource_2(arrival, production); getCache(SIGContainResource)[this.ptr] = this;return }
-  if (flank === undefined) { this.ptr = _emscripten_bind_SIGContainResource_SIGContainResource_3(arrival, production, duration); getCache(SIGContainResource)[this.ptr] = this;return }
-  if (desc === undefined) { this.ptr = _emscripten_bind_SIGContainResource_SIGContainResource_4(arrival, production, duration, flank); getCache(SIGContainResource)[this.ptr] = this;return }
-  if (baseCost === undefined) { this.ptr = _emscripten_bind_SIGContainResource_SIGContainResource_5(arrival, production, duration, flank, desc); getCache(SIGContainResource)[this.ptr] = this;return }
-  if (hourCost === undefined) { this.ptr = _emscripten_bind_SIGContainResource_SIGContainResource_6(arrival, production, duration, flank, desc, baseCost); getCache(SIGContainResource)[this.ptr] = this;return }
-  this.ptr = _emscripten_bind_SIGContainResource_SIGContainResource_7(arrival, production, duration, flank, desc, baseCost, hourCost);
-  getCache(SIGContainResource)[this.ptr] = this;
-};;
-SIGContainResource.prototype = Object.create(WrapperObject.prototype);
-SIGContainResource.prototype.constructor = SIGContainResource;
-SIGContainResource.prototype.__class__ = SIGContainResource;
-SIGContainResource.__cache__ = {};
-Module['SIGContainResource'] = SIGContainResource;
-
-SIGContainResource.prototype['print'] = SIGContainResource.prototype.print = /** @suppress {undefinedVars, duplicate} @this{Object} */function(buf, buflen) {
-  var self = this.ptr;
-  ensureCache.prepare();
-  if (buf && typeof buf === 'object') buf = buf.ptr;
-  else buf = ensureString(buf);
-  if (buflen && typeof buflen === 'object') buflen = buflen.ptr;
-  _emscripten_bind_SIGContainResource_print_2(self, buf, buflen);
-};;
-
-SIGContainResource.prototype['arrival'] = SIGContainResource.prototype.arrival = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainResource_arrival_0(self);
-};;
-
-SIGContainResource.prototype['hourCost'] = SIGContainResource.prototype.hourCost = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainResource_hourCost_0(self);
-};;
-
-SIGContainResource.prototype['duration'] = SIGContainResource.prototype.duration = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainResource_duration_0(self);
-};;
-
-SIGContainResource.prototype['production'] = SIGContainResource.prototype.production = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainResource_production_0(self);
-};;
-
-SIGContainResource.prototype['baseCost'] = SIGContainResource.prototype.baseCost = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainResource_baseCost_0(self);
-};;
-
-SIGContainResource.prototype['description'] = SIGContainResource.prototype.description = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return UTF8ToString(_emscripten_bind_SIGContainResource_description_0(self));
-};;
-
-SIGContainResource.prototype['flank'] = SIGContainResource.prototype.flank = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainResource_flank_0(self);
-};;
-
-  SIGContainResource.prototype['__destroy__'] = SIGContainResource.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  _emscripten_bind_SIGContainResource___destroy___0(self);
-};
-// SIGContainForce
-/** @suppress {undefinedVars, duplicate} @this{Object} */function SIGContainForce() {
-  this.ptr = _emscripten_bind_SIGContainForce_SIGContainForce_0();
-  getCache(SIGContainForce)[this.ptr] = this;
-};;
-SIGContainForce.prototype = Object.create(WrapperObject.prototype);
-SIGContainForce.prototype.constructor = SIGContainForce;
-SIGContainForce.prototype.__class__ = SIGContainForce;
-SIGContainForce.__cache__ = {};
-Module['SIGContainForce'] = SIGContainForce;
-
-SIGContainForce.prototype['addResource'] = SIGContainForce.prototype.addResource = /** @suppress {undefinedVars, duplicate} @this{Object} */function(arrival, production, duration, flank, desc, baseCost, hourCost) {
-  var self = this.ptr;
-  ensureCache.prepare();
-  if (arrival && typeof arrival === 'object') arrival = arrival.ptr;
-  if (production && typeof production === 'object') production = production.ptr;
-  if (duration && typeof duration === 'object') duration = duration.ptr;
-  if (flank && typeof flank === 'object') flank = flank.ptr;
-  if (desc && typeof desc === 'object') desc = desc.ptr;
-  else desc = ensureString(desc);
-  if (baseCost && typeof baseCost === 'object') baseCost = baseCost.ptr;
-  if (hourCost && typeof hourCost === 'object') hourCost = hourCost.ptr;
-  if (production === undefined) { return wrapPointer(_emscripten_bind_SIGContainForce_addResource_1(self, arrival), SIGContainResource) }
-  if (duration === undefined) { return wrapPointer(_emscripten_bind_SIGContainForce_addResource_2(self, arrival, production), SIGContainResource) }
-  if (flank === undefined) { return wrapPointer(_emscripten_bind_SIGContainForce_addResource_3(self, arrival, production, duration), SIGContainResource) }
-  if (desc === undefined) { return wrapPointer(_emscripten_bind_SIGContainForce_addResource_4(self, arrival, production, duration, flank), SIGContainResource) }
-  if (baseCost === undefined) { return wrapPointer(_emscripten_bind_SIGContainForce_addResource_5(self, arrival, production, duration, flank, desc), SIGContainResource) }
-  if (hourCost === undefined) { return wrapPointer(_emscripten_bind_SIGContainForce_addResource_6(self, arrival, production, duration, flank, desc, baseCost), SIGContainResource) }
-  return wrapPointer(_emscripten_bind_SIGContainForce_addResource_7(self, arrival, production, duration, flank, desc, baseCost, hourCost), SIGContainResource);
-};;
-
-SIGContainForce.prototype['exhausted'] = SIGContainForce.prototype.exhausted = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flank) {
-  var self = this.ptr;
-  if (flank && typeof flank === 'object') flank = flank.ptr;
-  return _emscripten_bind_SIGContainForce_exhausted_1(self, flank);
-};;
-
-SIGContainForce.prototype['firstArrival'] = SIGContainForce.prototype.firstArrival = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flank) {
-  var self = this.ptr;
-  if (flank && typeof flank === 'object') flank = flank.ptr;
-  return _emscripten_bind_SIGContainForce_firstArrival_1(self, flank);
-};;
-
-SIGContainForce.prototype['nextArrival'] = SIGContainForce.prototype.nextArrival = /** @suppress {undefinedVars, duplicate} @this{Object} */function(after, until, flank) {
-  var self = this.ptr;
-  if (after && typeof after === 'object') after = after.ptr;
-  if (until && typeof until === 'object') until = until.ptr;
-  if (flank && typeof flank === 'object') flank = flank.ptr;
-  return _emscripten_bind_SIGContainForce_nextArrival_3(self, after, until, flank);
-};;
-
-SIGContainForce.prototype['productionRate'] = SIGContainForce.prototype.productionRate = /** @suppress {undefinedVars, duplicate} @this{Object} */function(minutesSinceReport, flank) {
-  var self = this.ptr;
-  if (minutesSinceReport && typeof minutesSinceReport === 'object') minutesSinceReport = minutesSinceReport.ptr;
-  if (flank && typeof flank === 'object') flank = flank.ptr;
-  return _emscripten_bind_SIGContainForce_productionRate_2(self, minutesSinceReport, flank);
-};;
-
-SIGContainForce.prototype['resources'] = SIGContainForce.prototype.resources = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainForce_resources_0(self);
-};;
-
-SIGContainForce.prototype['resourceArrival'] = SIGContainForce.prototype.resourceArrival = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
-  var self = this.ptr;
-  if (index && typeof index === 'object') index = index.ptr;
-  return _emscripten_bind_SIGContainForce_resourceArrival_1(self, index);
-};;
-
-SIGContainForce.prototype['resourceBaseCost'] = SIGContainForce.prototype.resourceBaseCost = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
-  var self = this.ptr;
-  if (index && typeof index === 'object') index = index.ptr;
-  return _emscripten_bind_SIGContainForce_resourceBaseCost_1(self, index);
-};;
-
-SIGContainForce.prototype['resourceCost'] = SIGContainForce.prototype.resourceCost = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index, finalTime) {
-  var self = this.ptr;
-  if (index && typeof index === 'object') index = index.ptr;
-  if (finalTime && typeof finalTime === 'object') finalTime = finalTime.ptr;
-  return _emscripten_bind_SIGContainForce_resourceCost_2(self, index, finalTime);
-};;
-
-SIGContainForce.prototype['resourceDescription'] = SIGContainForce.prototype.resourceDescription = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
-  var self = this.ptr;
-  if (index && typeof index === 'object') index = index.ptr;
-  return UTF8ToString(_emscripten_bind_SIGContainForce_resourceDescription_1(self, index));
-};;
-
-SIGContainForce.prototype['resourceDuration'] = SIGContainForce.prototype.resourceDuration = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
-  var self = this.ptr;
-  if (index && typeof index === 'object') index = index.ptr;
-  return _emscripten_bind_SIGContainForce_resourceDuration_1(self, index);
-};;
-
-SIGContainForce.prototype['resourceFlank'] = SIGContainForce.prototype.resourceFlank = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
-  var self = this.ptr;
-  if (index && typeof index === 'object') index = index.ptr;
-  return _emscripten_bind_SIGContainForce_resourceFlank_1(self, index);
-};;
-
-SIGContainForce.prototype['resourceHourCost'] = SIGContainForce.prototype.resourceHourCost = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
-  var self = this.ptr;
-  if (index && typeof index === 'object') index = index.ptr;
-  return _emscripten_bind_SIGContainForce_resourceHourCost_1(self, index);
-};;
-
-SIGContainForce.prototype['resourceProduction'] = SIGContainForce.prototype.resourceProduction = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
-  var self = this.ptr;
-  if (index && typeof index === 'object') index = index.ptr;
-  return _emscripten_bind_SIGContainForce_resourceProduction_1(self, index);
-};;
-
-  SIGContainForce.prototype['__destroy__'] = SIGContainForce.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  _emscripten_bind_SIGContainForce___destroy___0(self);
-};
-// SIGContainForceAdapter
-/** @suppress {undefinedVars, duplicate} @this{Object} */function SIGContainForceAdapter() {
-  this.ptr = _emscripten_bind_SIGContainForceAdapter_SIGContainForceAdapter_0();
-  getCache(SIGContainForceAdapter)[this.ptr] = this;
-};;
-SIGContainForceAdapter.prototype = Object.create(WrapperObject.prototype);
-SIGContainForceAdapter.prototype.constructor = SIGContainForceAdapter;
-SIGContainForceAdapter.prototype.__class__ = SIGContainForceAdapter;
-SIGContainForceAdapter.__cache__ = {};
-Module['SIGContainForceAdapter'] = SIGContainForceAdapter;
-
-SIGContainForceAdapter.prototype['addResource'] = SIGContainForceAdapter.prototype.addResource = /** @suppress {undefinedVars, duplicate} @this{Object} */function(arrival, production, duration, flank, desc, baseCost, hourCost) {
-  var self = this.ptr;
-  ensureCache.prepare();
-  if (arrival && typeof arrival === 'object') arrival = arrival.ptr;
-  if (production && typeof production === 'object') production = production.ptr;
-  if (duration && typeof duration === 'object') duration = duration.ptr;
-  if (flank && typeof flank === 'object') flank = flank.ptr;
-  if (desc && typeof desc === 'object') desc = desc.ptr;
-  else desc = ensureString(desc);
-  if (baseCost && typeof baseCost === 'object') baseCost = baseCost.ptr;
-  if (hourCost && typeof hourCost === 'object') hourCost = hourCost.ptr;
-  _emscripten_bind_SIGContainForceAdapter_addResource_7(self, arrival, production, duration, flank, desc, baseCost, hourCost);
-};;
-
-SIGContainForceAdapter.prototype['firstArrival'] = SIGContainForceAdapter.prototype.firstArrival = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flank) {
-  var self = this.ptr;
-  if (flank && typeof flank === 'object') flank = flank.ptr;
-  return _emscripten_bind_SIGContainForceAdapter_firstArrival_1(self, flank);
-};;
-
-SIGContainForceAdapter.prototype['removeResourceAt'] = SIGContainForceAdapter.prototype.removeResourceAt = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
-  var self = this.ptr;
-  if (index && typeof index === 'object') index = index.ptr;
-  return _emscripten_bind_SIGContainForceAdapter_removeResourceAt_1(self, index);
-};;
-
-SIGContainForceAdapter.prototype['removeResourceWithThisDesc'] = SIGContainForceAdapter.prototype.removeResourceWithThisDesc = /** @suppress {undefinedVars, duplicate} @this{Object} */function(desc) {
-  var self = this.ptr;
-  ensureCache.prepare();
-  if (desc && typeof desc === 'object') desc = desc.ptr;
-  else desc = ensureString(desc);
-  return _emscripten_bind_SIGContainForceAdapter_removeResourceWithThisDesc_1(self, desc);
-};;
-
-SIGContainForceAdapter.prototype['removeAllResourcesWithThisDesc'] = SIGContainForceAdapter.prototype.removeAllResourcesWithThisDesc = /** @suppress {undefinedVars, duplicate} @this{Object} */function(desc) {
-  var self = this.ptr;
-  ensureCache.prepare();
-  if (desc && typeof desc === 'object') desc = desc.ptr;
-  else desc = ensureString(desc);
-  return _emscripten_bind_SIGContainForceAdapter_removeAllResourcesWithThisDesc_1(self, desc);
-};;
-
-  SIGContainForceAdapter.prototype['__destroy__'] = SIGContainForceAdapter.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  _emscripten_bind_SIGContainForceAdapter___destroy___0(self);
-};
-// SIGContainSim
-/** @suppress {undefinedVars, duplicate} @this{Object} */function SIGContainSim(reportSize, reportRate, diurnalROS, fireStartMinutesStartTime, lwRatio, force, tactic, attackDist, retry, minSteps, maxSteps, maxFireSize, maxFireTime) {
-  if (reportSize && typeof reportSize === 'object') reportSize = reportSize.ptr;
-  if (reportRate && typeof reportRate === 'object') reportRate = reportRate.ptr;
-  if (diurnalROS && typeof diurnalROS === 'object') diurnalROS = diurnalROS.ptr;
-  if (fireStartMinutesStartTime && typeof fireStartMinutesStartTime === 'object') fireStartMinutesStartTime = fireStartMinutesStartTime.ptr;
-  if (lwRatio && typeof lwRatio === 'object') lwRatio = lwRatio.ptr;
-  if (force && typeof force === 'object') force = force.ptr;
-  if (tactic && typeof tactic === 'object') tactic = tactic.ptr;
-  if (attackDist && typeof attackDist === 'object') attackDist = attackDist.ptr;
-  if (retry && typeof retry === 'object') retry = retry.ptr;
-  if (minSteps && typeof minSteps === 'object') minSteps = minSteps.ptr;
-  if (maxSteps && typeof maxSteps === 'object') maxSteps = maxSteps.ptr;
-  if (maxFireSize && typeof maxFireSize === 'object') maxFireSize = maxFireSize.ptr;
-  if (maxFireTime && typeof maxFireTime === 'object') maxFireTime = maxFireTime.ptr;
-  this.ptr = _emscripten_bind_SIGContainSim_SIGContainSim_13(reportSize, reportRate, diurnalROS, fireStartMinutesStartTime, lwRatio, force, tactic, attackDist, retry, minSteps, maxSteps, maxFireSize, maxFireTime);
-  getCache(SIGContainSim)[this.ptr] = this;
-};;
-SIGContainSim.prototype = Object.create(WrapperObject.prototype);
-SIGContainSim.prototype.constructor = SIGContainSim;
-SIGContainSim.prototype.__class__ = SIGContainSim;
-SIGContainSim.__cache__ = {};
-Module['SIGContainSim'] = SIGContainSim;
-
-SIGContainSim.prototype['attackDistance'] = SIGContainSim.prototype.attackDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_attackDistance_0(self);
-};;
-
-SIGContainSim.prototype['attackPointX'] = SIGContainSim.prototype.attackPointX = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_attackPointX_0(self);
-};;
-
-SIGContainSim.prototype['attackPointY'] = SIGContainSim.prototype.attackPointY = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_attackPointY_0(self);
-};;
-
-SIGContainSim.prototype['attackTime'] = SIGContainSim.prototype.attackTime = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_attackTime_0(self);
-};;
-
-SIGContainSim.prototype['distanceStep'] = SIGContainSim.prototype.distanceStep = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_distanceStep_0(self);
-};;
-
-SIGContainSim.prototype['fireBackAtAttack'] = SIGContainSim.prototype.fireBackAtAttack = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_fireBackAtAttack_0(self);
-};;
-
-SIGContainSim.prototype['fireBackAtReport'] = SIGContainSim.prototype.fireBackAtReport = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_fireBackAtReport_0(self);
-};;
-
-SIGContainSim.prototype['fireHeadAtAttack'] = SIGContainSim.prototype.fireHeadAtAttack = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_fireHeadAtAttack_0(self);
-};;
-
-SIGContainSim.prototype['fireHeadAtReport'] = SIGContainSim.prototype.fireHeadAtReport = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_fireHeadAtReport_0(self);
-};;
-
-SIGContainSim.prototype['fireLwRatioAtReport'] = SIGContainSim.prototype.fireLwRatioAtReport = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_fireLwRatioAtReport_0(self);
-};;
-
-SIGContainSim.prototype['fireReportTime'] = SIGContainSim.prototype.fireReportTime = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_fireReportTime_0(self);
-};;
-
-SIGContainSim.prototype['fireSizeAtReport'] = SIGContainSim.prototype.fireSizeAtReport = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_fireSizeAtReport_0(self);
-};;
-
-SIGContainSim.prototype['fireSpreadRateAtBack'] = SIGContainSim.prototype.fireSpreadRateAtBack = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_fireSpreadRateAtBack_0(self);
-};;
-
-SIGContainSim.prototype['fireSpreadRateAtReport'] = SIGContainSim.prototype.fireSpreadRateAtReport = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_fireSpreadRateAtReport_0(self);
-};;
-
-SIGContainSim.prototype['force'] = SIGContainSim.prototype.force = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return wrapPointer(_emscripten_bind_SIGContainSim_force_0(self), SIGContainForce);
-};;
-
-SIGContainSim.prototype['maximumSimulationSteps'] = SIGContainSim.prototype.maximumSimulationSteps = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_maximumSimulationSteps_0(self);
-};;
-
-SIGContainSim.prototype['minimumSimulationSteps'] = SIGContainSim.prototype.minimumSimulationSteps = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_minimumSimulationSteps_0(self);
-};;
-
-SIGContainSim.prototype['status'] = SIGContainSim.prototype.status = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_status_0(self);
-};;
-
-SIGContainSim.prototype['tactic'] = SIGContainSim.prototype.tactic = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_tactic_0(self);
-};;
-
-SIGContainSim.prototype['finalFireCost'] = SIGContainSim.prototype.finalFireCost = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_finalFireCost_0(self);
-};;
-
-SIGContainSim.prototype['finalFireLine'] = SIGContainSim.prototype.finalFireLine = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_finalFireLine_0(self);
-};;
-
-SIGContainSim.prototype['finalFirePerimeter'] = SIGContainSim.prototype.finalFirePerimeter = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_finalFirePerimeter_0(self);
-};;
-
-SIGContainSim.prototype['finalFireSize'] = SIGContainSim.prototype.finalFireSize = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_finalFireSize_0(self);
-};;
-
-SIGContainSim.prototype['finalFireSweep'] = SIGContainSim.prototype.finalFireSweep = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_finalFireSweep_0(self);
-};;
-
-SIGContainSim.prototype['finalFireTime'] = SIGContainSim.prototype.finalFireTime = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_finalFireTime_0(self);
-};;
-
-SIGContainSim.prototype['finalResourcesUsed'] = SIGContainSim.prototype.finalResourcesUsed = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_finalResourcesUsed_0(self);
-};;
-
-SIGContainSim.prototype['fireHeadX'] = SIGContainSim.prototype.fireHeadX = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return wrapPointer(_emscripten_bind_SIGContainSim_fireHeadX_0(self), DoublePtr);
-};;
-
-SIGContainSim.prototype['firePerimeterY'] = SIGContainSim.prototype.firePerimeterY = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return wrapPointer(_emscripten_bind_SIGContainSim_firePerimeterY_0(self), DoublePtr);
-};;
-
-SIGContainSim.prototype['firePerimeterX'] = SIGContainSim.prototype.firePerimeterX = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return wrapPointer(_emscripten_bind_SIGContainSim_firePerimeterX_0(self), DoublePtr);
-};;
-
-SIGContainSim.prototype['firePoints'] = SIGContainSim.prototype.firePoints = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_firePoints_0(self);
-};;
-
-SIGContainSim.prototype['run'] = SIGContainSim.prototype.run = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  _emscripten_bind_SIGContainSim_run_0(self);
-};;
-
-SIGContainSim.prototype['UncontainedArea'] = SIGContainSim.prototype.UncontainedArea = /** @suppress {undefinedVars, duplicate} @this{Object} */function(head, lwRatio, x, y, tactic) {
-  var self = this.ptr;
-  if (head && typeof head === 'object') head = head.ptr;
-  if (lwRatio && typeof lwRatio === 'object') lwRatio = lwRatio.ptr;
-  if (x && typeof x === 'object') x = x.ptr;
-  if (y && typeof y === 'object') y = y.ptr;
-  if (tactic && typeof tactic === 'object') tactic = tactic.ptr;
-  return _emscripten_bind_SIGContainSim_UncontainedArea_5(self, head, lwRatio, x, y, tactic);
-};;
-
-  SIGContainSim.prototype['__destroy__'] = SIGContainSim.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  _emscripten_bind_SIGContainSim___destroy___0(self);
-};
-// SIGDiurnalROS
-/** @suppress {undefinedVars, duplicate} @this{Object} */function SIGDiurnalROS() {
-  this.ptr = _emscripten_bind_SIGDiurnalROS_SIGDiurnalROS_0();
-  getCache(SIGDiurnalROS)[this.ptr] = this;
-};;
-SIGDiurnalROS.prototype = Object.create(WrapperObject.prototype);
-SIGDiurnalROS.prototype.constructor = SIGDiurnalROS;
-SIGDiurnalROS.prototype.__class__ = SIGDiurnalROS;
-SIGDiurnalROS.__cache__ = {};
-Module['SIGDiurnalROS'] = SIGDiurnalROS;
-
-SIGDiurnalROS.prototype['push'] = SIGDiurnalROS.prototype.push = /** @suppress {undefinedVars, duplicate} @this{Object} */function(v) {
-  var self = this.ptr;
-  if (v && typeof v === 'object') v = v.ptr;
-  _emscripten_bind_SIGDiurnalROS_push_1(self, v);
-};;
-
-SIGDiurnalROS.prototype['at'] = SIGDiurnalROS.prototype.at = /** @suppress {undefinedVars, duplicate} @this{Object} */function(i) {
-  var self = this.ptr;
-  if (i && typeof i === 'object') i = i.ptr;
-  return _emscripten_bind_SIGDiurnalROS_at_1(self, i);
-};;
-
-SIGDiurnalROS.prototype['size'] = SIGDiurnalROS.prototype.size = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGDiurnalROS_size_0(self);
-};;
-
-  SIGDiurnalROS.prototype['__destroy__'] = SIGDiurnalROS.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  _emscripten_bind_SIGDiurnalROS___destroy___0(self);
-};
-// SIGContain
-/** @suppress {undefinedVars, duplicate} @this{Object} */function SIGContain(reportSize, reportRate, diurnalROS, fireStartMinutesStartTime, lwRatio, distStep, flank, force, attackTime, tactic, attackDist) {
-  if (reportSize && typeof reportSize === 'object') reportSize = reportSize.ptr;
-  if (reportRate && typeof reportRate === 'object') reportRate = reportRate.ptr;
-  if (diurnalROS && typeof diurnalROS === 'object') diurnalROS = diurnalROS.ptr;
-  if (fireStartMinutesStartTime && typeof fireStartMinutesStartTime === 'object') fireStartMinutesStartTime = fireStartMinutesStartTime.ptr;
-  if (lwRatio && typeof lwRatio === 'object') lwRatio = lwRatio.ptr;
-  if (distStep && typeof distStep === 'object') distStep = distStep.ptr;
-  if (flank && typeof flank === 'object') flank = flank.ptr;
-  if (force && typeof force === 'object') force = force.ptr;
-  if (attackTime && typeof attackTime === 'object') attackTime = attackTime.ptr;
-  if (tactic && typeof tactic === 'object') tactic = tactic.ptr;
-  if (attackDist && typeof attackDist === 'object') attackDist = attackDist.ptr;
-  this.ptr = _emscripten_bind_SIGContain_SIGContain_11(reportSize, reportRate, diurnalROS, fireStartMinutesStartTime, lwRatio, distStep, flank, force, attackTime, tactic, attackDist);
-  getCache(SIGContain)[this.ptr] = this;
-};;
-SIGContain.prototype = Object.create(WrapperObject.prototype);
-SIGContain.prototype.constructor = SIGContain;
-SIGContain.prototype.__class__ = SIGContain;
-SIGContain.__cache__ = {};
-Module['SIGContain'] = SIGContain;
-
-SIGContain.prototype['simulationTime'] = SIGContain.prototype.simulationTime = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_simulationTime_0(self);
-};;
-
-SIGContain.prototype['fireSpreadRateAtBack'] = SIGContain.prototype.fireSpreadRateAtBack = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_fireSpreadRateAtBack_0(self);
-};;
-
-SIGContain.prototype['fireLwRatioAtReport'] = SIGContain.prototype.fireLwRatioAtReport = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_fireLwRatioAtReport_0(self);
-};;
-
-SIGContain.prototype['force'] = SIGContain.prototype.force = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return wrapPointer(_emscripten_bind_SIGContain_force_0(self), SIGContainForce);
-};;
-
-SIGContain.prototype['resourceHourCost'] = SIGContain.prototype.resourceHourCost = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
-  var self = this.ptr;
-  if (index && typeof index === 'object') index = index.ptr;
-  return _emscripten_bind_SIGContain_resourceHourCost_1(self, index);
-};;
-
-SIGContain.prototype['attackDistance'] = SIGContain.prototype.attackDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_attackDistance_0(self);
-};;
-
-SIGContain.prototype['attackPointX'] = SIGContain.prototype.attackPointX = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_attackPointX_0(self);
-};;
-
-SIGContain.prototype['fireHeadAtAttack'] = SIGContain.prototype.fireHeadAtAttack = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_fireHeadAtAttack_0(self);
-};;
-
-SIGContain.prototype['attackPointY'] = SIGContain.prototype.attackPointY = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_attackPointY_0(self);
-};;
-
-SIGContain.prototype['attackTime'] = SIGContain.prototype.attackTime = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_attackTime_0(self);
-};;
-
-SIGContain.prototype['resourceBaseCost'] = SIGContain.prototype.resourceBaseCost = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
-  var self = this.ptr;
-  if (index && typeof index === 'object') index = index.ptr;
-  return _emscripten_bind_SIGContain_resourceBaseCost_1(self, index);
-};;
-
-SIGContain.prototype['fireSpreadRateAtReport'] = SIGContain.prototype.fireSpreadRateAtReport = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_fireSpreadRateAtReport_0(self);
-};;
-
-SIGContain.prototype['fireHeadAtReport'] = SIGContain.prototype.fireHeadAtReport = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_fireHeadAtReport_0(self);
-};;
-
-SIGContain.prototype['fireReportTime'] = SIGContain.prototype.fireReportTime = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_fireReportTime_0(self);
-};;
-
-SIGContain.prototype['resourceProduction'] = SIGContain.prototype.resourceProduction = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
-  var self = this.ptr;
-  if (index && typeof index === 'object') index = index.ptr;
-  return _emscripten_bind_SIGContain_resourceProduction_1(self, index);
-};;
-
-SIGContain.prototype['fireBackAtAttack'] = SIGContain.prototype.fireBackAtAttack = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_fireBackAtAttack_0(self);
-};;
-
-SIGContain.prototype['simulationStep'] = SIGContain.prototype.simulationStep = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_simulationStep_0(self);
-};;
-
-SIGContain.prototype['tactic'] = SIGContain.prototype.tactic = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_tactic_0(self);
-};;
-
-SIGContain.prototype['resourceDescription'] = SIGContain.prototype.resourceDescription = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
-  var self = this.ptr;
-  if (index && typeof index === 'object') index = index.ptr;
-  return UTF8ToString(_emscripten_bind_SIGContain_resourceDescription_1(self, index));
-};;
-
-SIGContain.prototype['distanceStep'] = SIGContain.prototype.distanceStep = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_distanceStep_0(self);
-};;
-
-SIGContain.prototype['status'] = SIGContain.prototype.status = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_status_0(self);
-};;
-
-SIGContain.prototype['resourceArrival'] = SIGContain.prototype.resourceArrival = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
-  var self = this.ptr;
-  if (index && typeof index === 'object') index = index.ptr;
-  return _emscripten_bind_SIGContain_resourceArrival_1(self, index);
-};;
-
-SIGContain.prototype['fireSizeAtReport'] = SIGContain.prototype.fireSizeAtReport = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_fireSizeAtReport_0(self);
-};;
-
-SIGContain.prototype['setFireStartTimeMinutes'] = SIGContain.prototype.setFireStartTimeMinutes = /** @suppress {undefinedVars, duplicate} @this{Object} */function(starttime) {
-  var self = this.ptr;
-  if (starttime && typeof starttime === 'object') starttime = starttime.ptr;
-  return _emscripten_bind_SIGContain_setFireStartTimeMinutes_1(self, starttime);
-};;
-
-SIGContain.prototype['fireBackAtReport'] = SIGContain.prototype.fireBackAtReport = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_fireBackAtReport_0(self);
-};;
-
-SIGContain.prototype['resourceDuration'] = SIGContain.prototype.resourceDuration = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
-  var self = this.ptr;
-  if (index && typeof index === 'object') index = index.ptr;
-  return _emscripten_bind_SIGContain_resourceDuration_1(self, index);
-};;
-
-SIGContain.prototype['resources'] = SIGContain.prototype.resources = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_resources_0(self);
-};;
-
-SIGContain.prototype['exhaustedTime'] = SIGContain.prototype.exhaustedTime = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_exhaustedTime_0(self);
-};;
-
-  SIGContain.prototype['__destroy__'] = SIGContain.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  _emscripten_bind_SIGContain___destroy___0(self);
-};
 // SIGContainAdapter
 /** @suppress {undefinedVars, duplicate} @this{Object} */function SIGContainAdapter() {
   this.ptr = _emscripten_bind_SIGContainAdapter_SIGContainAdapter_0();
@@ -5392,129 +7071,6 @@ SIGContainAdapter.prototype['setTactic'] = SIGContainAdapter.prototype.setTactic
   var self = this.ptr;
   _emscripten_bind_SIGContainAdapter___destroy___0(self);
 };
-// SIGIgniteInputs
-/** @suppress {undefinedVars, duplicate} @this{Object} */function SIGIgniteInputs() {
-  this.ptr = _emscripten_bind_SIGIgniteInputs_SIGIgniteInputs_0();
-  getCache(SIGIgniteInputs)[this.ptr] = this;
-};;
-SIGIgniteInputs.prototype = Object.create(WrapperObject.prototype);
-SIGIgniteInputs.prototype.constructor = SIGIgniteInputs;
-SIGIgniteInputs.prototype.__class__ = SIGIgniteInputs;
-SIGIgniteInputs.__cache__ = {};
-Module['SIGIgniteInputs'] = SIGIgniteInputs;
-
-SIGIgniteInputs.prototype['initializeMembers'] = SIGIgniteInputs.prototype.initializeMembers = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  _emscripten_bind_SIGIgniteInputs_initializeMembers_0(self);
-};;
-
-SIGIgniteInputs.prototype['setAirTemperature'] = SIGIgniteInputs.prototype.setAirTemperature = /** @suppress {undefinedVars, duplicate} @this{Object} */function(airTemperature, temperatureUnits) {
-  var self = this.ptr;
-  if (airTemperature && typeof airTemperature === 'object') airTemperature = airTemperature.ptr;
-  if (temperatureUnits && typeof temperatureUnits === 'object') temperatureUnits = temperatureUnits.ptr;
-  _emscripten_bind_SIGIgniteInputs_setAirTemperature_2(self, airTemperature, temperatureUnits);
-};;
-
-SIGIgniteInputs.prototype['setDuffDepth'] = SIGIgniteInputs.prototype.setDuffDepth = /** @suppress {undefinedVars, duplicate} @this{Object} */function(duffDepth, lengthUnits) {
-  var self = this.ptr;
-  if (duffDepth && typeof duffDepth === 'object') duffDepth = duffDepth.ptr;
-  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
-  _emscripten_bind_SIGIgniteInputs_setDuffDepth_2(self, duffDepth, lengthUnits);
-};;
-
-SIGIgniteInputs.prototype['setIgnitionFuelBedType'] = SIGIgniteInputs.prototype.setIgnitionFuelBedType = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelBedType) {
-  var self = this.ptr;
-  if (fuelBedType && typeof fuelBedType === 'object') fuelBedType = fuelBedType.ptr;
-  _emscripten_bind_SIGIgniteInputs_setIgnitionFuelBedType_1(self, fuelBedType);
-};;
-
-SIGIgniteInputs.prototype['setLightningChargeType'] = SIGIgniteInputs.prototype.setLightningChargeType = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lightningChargeType) {
-  var self = this.ptr;
-  if (lightningChargeType && typeof lightningChargeType === 'object') lightningChargeType = lightningChargeType.ptr;
-  _emscripten_bind_SIGIgniteInputs_setLightningChargeType_1(self, lightningChargeType);
-};;
-
-SIGIgniteInputs.prototype['setMoistureHundredHour'] = SIGIgniteInputs.prototype.setMoistureHundredHour = /** @suppress {undefinedVars, duplicate} @this{Object} */function(hundredHourMoisture, moistureUnits) {
-  var self = this.ptr;
-  if (hundredHourMoisture && typeof hundredHourMoisture === 'object') hundredHourMoisture = hundredHourMoisture.ptr;
-  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
-  _emscripten_bind_SIGIgniteInputs_setMoistureHundredHour_2(self, hundredHourMoisture, moistureUnits);
-};;
-
-SIGIgniteInputs.prototype['setMoistureOneHour'] = SIGIgniteInputs.prototype.setMoistureOneHour = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureOneHour, moistureUnits) {
-  var self = this.ptr;
-  if (moistureOneHour && typeof moistureOneHour === 'object') moistureOneHour = moistureOneHour.ptr;
-  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
-  _emscripten_bind_SIGIgniteInputs_setMoistureOneHour_2(self, moistureOneHour, moistureUnits);
-};;
-
-SIGIgniteInputs.prototype['setSunShade'] = SIGIgniteInputs.prototype.setSunShade = /** @suppress {undefinedVars, duplicate} @this{Object} */function(sunShade, sunShadeUnits) {
-  var self = this.ptr;
-  if (sunShade && typeof sunShade === 'object') sunShade = sunShade.ptr;
-  if (sunShadeUnits && typeof sunShadeUnits === 'object') sunShadeUnits = sunShadeUnits.ptr;
-  _emscripten_bind_SIGIgniteInputs_setSunShade_2(self, sunShade, sunShadeUnits);
-};;
-
-SIGIgniteInputs.prototype['updateIgniteInputs'] = SIGIgniteInputs.prototype.updateIgniteInputs = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureOneHour, moistureHundredHour, moistureUnits, airTemperature, temperatureUnits, sunShade, sunShadeUnits, fuelBedType, duffDepth, duffDepthUnits, lightningChargeType) {
-  var self = this.ptr;
-  if (moistureOneHour && typeof moistureOneHour === 'object') moistureOneHour = moistureOneHour.ptr;
-  if (moistureHundredHour && typeof moistureHundredHour === 'object') moistureHundredHour = moistureHundredHour.ptr;
-  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
-  if (airTemperature && typeof airTemperature === 'object') airTemperature = airTemperature.ptr;
-  if (temperatureUnits && typeof temperatureUnits === 'object') temperatureUnits = temperatureUnits.ptr;
-  if (sunShade && typeof sunShade === 'object') sunShade = sunShade.ptr;
-  if (sunShadeUnits && typeof sunShadeUnits === 'object') sunShadeUnits = sunShadeUnits.ptr;
-  if (fuelBedType && typeof fuelBedType === 'object') fuelBedType = fuelBedType.ptr;
-  if (duffDepth && typeof duffDepth === 'object') duffDepth = duffDepth.ptr;
-  if (duffDepthUnits && typeof duffDepthUnits === 'object') duffDepthUnits = duffDepthUnits.ptr;
-  if (lightningChargeType && typeof lightningChargeType === 'object') lightningChargeType = lightningChargeType.ptr;
-  _emscripten_bind_SIGIgniteInputs_updateIgniteInputs_11(self, moistureOneHour, moistureHundredHour, moistureUnits, airTemperature, temperatureUnits, sunShade, sunShadeUnits, fuelBedType, duffDepth, duffDepthUnits, lightningChargeType);
-};;
-
-SIGIgniteInputs.prototype['getIgnitionFuelBedType'] = SIGIgniteInputs.prototype.getIgnitionFuelBedType = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGIgniteInputs_getIgnitionFuelBedType_0(self);
-};;
-
-SIGIgniteInputs.prototype['getLightningChargeType'] = SIGIgniteInputs.prototype.getLightningChargeType = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGIgniteInputs_getLightningChargeType_0(self);
-};;
-
-SIGIgniteInputs.prototype['getAirTemperature'] = SIGIgniteInputs.prototype.getAirTemperature = /** @suppress {undefinedVars, duplicate} @this{Object} */function(desiredUnits) {
-  var self = this.ptr;
-  if (desiredUnits && typeof desiredUnits === 'object') desiredUnits = desiredUnits.ptr;
-  return _emscripten_bind_SIGIgniteInputs_getAirTemperature_1(self, desiredUnits);
-};;
-
-SIGIgniteInputs.prototype['getDuffDepth'] = SIGIgniteInputs.prototype.getDuffDepth = /** @suppress {undefinedVars, duplicate} @this{Object} */function(desiredUnits) {
-  var self = this.ptr;
-  if (desiredUnits && typeof desiredUnits === 'object') desiredUnits = desiredUnits.ptr;
-  return _emscripten_bind_SIGIgniteInputs_getDuffDepth_1(self, desiredUnits);
-};;
-
-SIGIgniteInputs.prototype['getMoistureHundredHour'] = SIGIgniteInputs.prototype.getMoistureHundredHour = /** @suppress {undefinedVars, duplicate} @this{Object} */function(desiredUnits) {
-  var self = this.ptr;
-  if (desiredUnits && typeof desiredUnits === 'object') desiredUnits = desiredUnits.ptr;
-  return _emscripten_bind_SIGIgniteInputs_getMoistureHundredHour_1(self, desiredUnits);
-};;
-
-SIGIgniteInputs.prototype['getMoistureOneHour'] = SIGIgniteInputs.prototype.getMoistureOneHour = /** @suppress {undefinedVars, duplicate} @this{Object} */function(desiredUnits) {
-  var self = this.ptr;
-  if (desiredUnits && typeof desiredUnits === 'object') desiredUnits = desiredUnits.ptr;
-  return _emscripten_bind_SIGIgniteInputs_getMoistureOneHour_1(self, desiredUnits);
-};;
-
-SIGIgniteInputs.prototype['getSunShade'] = SIGIgniteInputs.prototype.getSunShade = /** @suppress {undefinedVars, duplicate} @this{Object} */function(desiredUnits) {
-  var self = this.ptr;
-  if (desiredUnits && typeof desiredUnits === 'object') desiredUnits = desiredUnits.ptr;
-  return _emscripten_bind_SIGIgniteInputs_getSunShade_1(self, desiredUnits);
-};;
-
-  SIGIgniteInputs.prototype['__destroy__'] = SIGIgniteInputs.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  _emscripten_bind_SIGIgniteInputs___destroy___0(self);
-};
 // SIGIgnite
 /** @suppress {undefinedVars, duplicate} @this{Object} */function SIGIgnite() {
   this.ptr = _emscripten_bind_SIGIgnite_SIGIgnite_0();
@@ -5660,210 +7216,6 @@ SIGIgnite.prototype['isFuelDepthNeeded'] = SIGIgnite.prototype.isFuelDepthNeeded
   SIGIgnite.prototype['__destroy__'] = SIGIgnite.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   _emscripten_bind_SIGIgnite___destroy___0(self);
-};
-// SIGSpotInputs
-/** @suppress {undefinedVars, duplicate} @this{Object} */function SIGSpotInputs() {
-  this.ptr = _emscripten_bind_SIGSpotInputs_SIGSpotInputs_0();
-  getCache(SIGSpotInputs)[this.ptr] = this;
-};;
-SIGSpotInputs.prototype = Object.create(WrapperObject.prototype);
-SIGSpotInputs.prototype.constructor = SIGSpotInputs;
-SIGSpotInputs.prototype.__class__ = SIGSpotInputs;
-SIGSpotInputs.__cache__ = {};
-Module['SIGSpotInputs'] = SIGSpotInputs;
-
-SIGSpotInputs.prototype['getLocation'] = SIGSpotInputs.prototype.getLocation = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGSpotInputs_getLocation_0(self);
-};;
-
-SIGSpotInputs.prototype['getTreeSpecies'] = SIGSpotInputs.prototype.getTreeSpecies = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGSpotInputs_getTreeSpecies_0(self);
-};;
-
-SIGSpotInputs.prototype['setBurningPileFlameHeight'] = SIGSpotInputs.prototype.setBurningPileFlameHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(buringPileFlameHeight, flameHeightUnits) {
-  var self = this.ptr;
-  if (buringPileFlameHeight && typeof buringPileFlameHeight === 'object') buringPileFlameHeight = buringPileFlameHeight.ptr;
-  if (flameHeightUnits && typeof flameHeightUnits === 'object') flameHeightUnits = flameHeightUnits.ptr;
-  _emscripten_bind_SIGSpotInputs_setBurningPileFlameHeight_2(self, buringPileFlameHeight, flameHeightUnits);
-};;
-
-SIGSpotInputs.prototype['setDBH'] = SIGSpotInputs.prototype.setDBH = /** @suppress {undefinedVars, duplicate} @this{Object} */function(DBH, DBHUnits) {
-  var self = this.ptr;
-  if (DBH && typeof DBH === 'object') DBH = DBH.ptr;
-  if (DBHUnits && typeof DBHUnits === 'object') DBHUnits = DBHUnits.ptr;
-  _emscripten_bind_SIGSpotInputs_setDBH_2(self, DBH, DBHUnits);
-};;
-
-SIGSpotInputs.prototype['setDownwindCoverHeight'] = SIGSpotInputs.prototype.setDownwindCoverHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(downwindCoverHeight, coverHeightUnits) {
-  var self = this.ptr;
-  if (downwindCoverHeight && typeof downwindCoverHeight === 'object') downwindCoverHeight = downwindCoverHeight.ptr;
-  if (coverHeightUnits && typeof coverHeightUnits === 'object') coverHeightUnits = coverHeightUnits.ptr;
-  _emscripten_bind_SIGSpotInputs_setDownwindCoverHeight_2(self, downwindCoverHeight, coverHeightUnits);
-};;
-
-SIGSpotInputs.prototype['setLocation'] = SIGSpotInputs.prototype.setLocation = /** @suppress {undefinedVars, duplicate} @this{Object} */function(location) {
-  var self = this.ptr;
-  if (location && typeof location === 'object') location = location.ptr;
-  _emscripten_bind_SIGSpotInputs_setLocation_1(self, location);
-};;
-
-SIGSpotInputs.prototype['setRidgeToValleyDistance'] = SIGSpotInputs.prototype.setRidgeToValleyDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ridgeToValleyDistance, ridgeToValleyDistanceUnits) {
-  var self = this.ptr;
-  if (ridgeToValleyDistance && typeof ridgeToValleyDistance === 'object') ridgeToValleyDistance = ridgeToValleyDistance.ptr;
-  if (ridgeToValleyDistanceUnits && typeof ridgeToValleyDistanceUnits === 'object') ridgeToValleyDistanceUnits = ridgeToValleyDistanceUnits.ptr;
-  _emscripten_bind_SIGSpotInputs_setRidgeToValleyDistance_2(self, ridgeToValleyDistance, ridgeToValleyDistanceUnits);
-};;
-
-SIGSpotInputs.prototype['setRidgeToValleyElevation'] = SIGSpotInputs.prototype.setRidgeToValleyElevation = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ridgeToValleyElevation, elevationUnits) {
-  var self = this.ptr;
-  if (ridgeToValleyElevation && typeof ridgeToValleyElevation === 'object') ridgeToValleyElevation = ridgeToValleyElevation.ptr;
-  if (elevationUnits && typeof elevationUnits === 'object') elevationUnits = elevationUnits.ptr;
-  _emscripten_bind_SIGSpotInputs_setRidgeToValleyElevation_2(self, ridgeToValleyElevation, elevationUnits);
-};;
-
-SIGSpotInputs.prototype['setSurfaceFlameLength'] = SIGSpotInputs.prototype.setSurfaceFlameLength = /** @suppress {undefinedVars, duplicate} @this{Object} */function(surfaceFlameLength, flameLengthUnits) {
-  var self = this.ptr;
-  if (surfaceFlameLength && typeof surfaceFlameLength === 'object') surfaceFlameLength = surfaceFlameLength.ptr;
-  if (flameLengthUnits && typeof flameLengthUnits === 'object') flameLengthUnits = flameLengthUnits.ptr;
-  _emscripten_bind_SIGSpotInputs_setSurfaceFlameLength_2(self, surfaceFlameLength, flameLengthUnits);
-};;
-
-SIGSpotInputs.prototype['setTorchingTrees'] = SIGSpotInputs.prototype.setTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function(torchingTrees) {
-  var self = this.ptr;
-  if (torchingTrees && typeof torchingTrees === 'object') torchingTrees = torchingTrees.ptr;
-  _emscripten_bind_SIGSpotInputs_setTorchingTrees_1(self, torchingTrees);
-};;
-
-SIGSpotInputs.prototype['setTreeHeight'] = SIGSpotInputs.prototype.setTreeHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(treeHeight, treeHeightUnits) {
-  var self = this.ptr;
-  if (treeHeight && typeof treeHeight === 'object') treeHeight = treeHeight.ptr;
-  if (treeHeightUnits && typeof treeHeightUnits === 'object') treeHeightUnits = treeHeightUnits.ptr;
-  _emscripten_bind_SIGSpotInputs_setTreeHeight_2(self, treeHeight, treeHeightUnits);
-};;
-
-SIGSpotInputs.prototype['setTreeSpecies'] = SIGSpotInputs.prototype.setTreeSpecies = /** @suppress {undefinedVars, duplicate} @this{Object} */function(treeSpecies) {
-  var self = this.ptr;
-  if (treeSpecies && typeof treeSpecies === 'object') treeSpecies = treeSpecies.ptr;
-  _emscripten_bind_SIGSpotInputs_setTreeSpecies_1(self, treeSpecies);
-};;
-
-SIGSpotInputs.prototype['setWindSpeedAtTwentyFeet'] = SIGSpotInputs.prototype.setWindSpeedAtTwentyFeet = /** @suppress {undefinedVars, duplicate} @this{Object} */function(windSpeedAtTwentyFeet, windSpeedUnits) {
-  var self = this.ptr;
-  if (windSpeedAtTwentyFeet && typeof windSpeedAtTwentyFeet === 'object') windSpeedAtTwentyFeet = windSpeedAtTwentyFeet.ptr;
-  if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
-  _emscripten_bind_SIGSpotInputs_setWindSpeedAtTwentyFeet_2(self, windSpeedAtTwentyFeet, windSpeedUnits);
-};;
-
-SIGSpotInputs.prototype['updateSpotInputsForBurningPile'] = SIGSpotInputs.prototype.updateSpotInputsForBurningPile = /** @suppress {undefinedVars, duplicate} @this{Object} */function(location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, buringPileFlameHeight, flameHeightUnits, windSpeedAtTwentyFeet, windSpeedUnits) {
-  var self = this.ptr;
-  if (location && typeof location === 'object') location = location.ptr;
-  if (ridgeToValleyDistance && typeof ridgeToValleyDistance === 'object') ridgeToValleyDistance = ridgeToValleyDistance.ptr;
-  if (ridgeToValleyDistanceUnits && typeof ridgeToValleyDistanceUnits === 'object') ridgeToValleyDistanceUnits = ridgeToValleyDistanceUnits.ptr;
-  if (ridgeToValleyElevation && typeof ridgeToValleyElevation === 'object') ridgeToValleyElevation = ridgeToValleyElevation.ptr;
-  if (elevationUnits && typeof elevationUnits === 'object') elevationUnits = elevationUnits.ptr;
-  if (downwindCoverHeight && typeof downwindCoverHeight === 'object') downwindCoverHeight = downwindCoverHeight.ptr;
-  if (coverHeightUnits && typeof coverHeightUnits === 'object') coverHeightUnits = coverHeightUnits.ptr;
-  if (buringPileFlameHeight && typeof buringPileFlameHeight === 'object') buringPileFlameHeight = buringPileFlameHeight.ptr;
-  if (flameHeightUnits && typeof flameHeightUnits === 'object') flameHeightUnits = flameHeightUnits.ptr;
-  if (windSpeedAtTwentyFeet && typeof windSpeedAtTwentyFeet === 'object') windSpeedAtTwentyFeet = windSpeedAtTwentyFeet.ptr;
-  if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
-  _emscripten_bind_SIGSpotInputs_updateSpotInputsForBurningPile_11(self, location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, buringPileFlameHeight, flameHeightUnits, windSpeedAtTwentyFeet, windSpeedUnits);
-};;
-
-SIGSpotInputs.prototype['updateSpotInputsForSurfaceFire'] = SIGSpotInputs.prototype.updateSpotInputsForSurfaceFire = /** @suppress {undefinedVars, duplicate} @this{Object} */function(location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, windSpeedAtTwentyFeet, windSpeedUnits, surfaceFlameLength, flameLengthUnits) {
-  var self = this.ptr;
-  if (location && typeof location === 'object') location = location.ptr;
-  if (ridgeToValleyDistance && typeof ridgeToValleyDistance === 'object') ridgeToValleyDistance = ridgeToValleyDistance.ptr;
-  if (ridgeToValleyDistanceUnits && typeof ridgeToValleyDistanceUnits === 'object') ridgeToValleyDistanceUnits = ridgeToValleyDistanceUnits.ptr;
-  if (ridgeToValleyElevation && typeof ridgeToValleyElevation === 'object') ridgeToValleyElevation = ridgeToValleyElevation.ptr;
-  if (elevationUnits && typeof elevationUnits === 'object') elevationUnits = elevationUnits.ptr;
-  if (downwindCoverHeight && typeof downwindCoverHeight === 'object') downwindCoverHeight = downwindCoverHeight.ptr;
-  if (coverHeightUnits && typeof coverHeightUnits === 'object') coverHeightUnits = coverHeightUnits.ptr;
-  if (windSpeedAtTwentyFeet && typeof windSpeedAtTwentyFeet === 'object') windSpeedAtTwentyFeet = windSpeedAtTwentyFeet.ptr;
-  if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
-  if (surfaceFlameLength && typeof surfaceFlameLength === 'object') surfaceFlameLength = surfaceFlameLength.ptr;
-  if (flameLengthUnits && typeof flameLengthUnits === 'object') flameLengthUnits = flameLengthUnits.ptr;
-  _emscripten_bind_SIGSpotInputs_updateSpotInputsForSurfaceFire_11(self, location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, windSpeedAtTwentyFeet, windSpeedUnits, surfaceFlameLength, flameLengthUnits);
-};;
-
-SIGSpotInputs.prototype['updateSpotInputsForTorchingTrees'] = SIGSpotInputs.prototype.updateSpotInputsForTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function(location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, torchingTrees, DBH, DBHUnits, treeHeight, treeHeightUnits, treeSpecies, windSpeedAtTwentyFeet, windSpeedUnits) {
-  var self = this.ptr;
-  if (location && typeof location === 'object') location = location.ptr;
-  if (ridgeToValleyDistance && typeof ridgeToValleyDistance === 'object') ridgeToValleyDistance = ridgeToValleyDistance.ptr;
-  if (ridgeToValleyDistanceUnits && typeof ridgeToValleyDistanceUnits === 'object') ridgeToValleyDistanceUnits = ridgeToValleyDistanceUnits.ptr;
-  if (ridgeToValleyElevation && typeof ridgeToValleyElevation === 'object') ridgeToValleyElevation = ridgeToValleyElevation.ptr;
-  if (elevationUnits && typeof elevationUnits === 'object') elevationUnits = elevationUnits.ptr;
-  if (downwindCoverHeight && typeof downwindCoverHeight === 'object') downwindCoverHeight = downwindCoverHeight.ptr;
-  if (coverHeightUnits && typeof coverHeightUnits === 'object') coverHeightUnits = coverHeightUnits.ptr;
-  if (torchingTrees && typeof torchingTrees === 'object') torchingTrees = torchingTrees.ptr;
-  if (DBH && typeof DBH === 'object') DBH = DBH.ptr;
-  if (DBHUnits && typeof DBHUnits === 'object') DBHUnits = DBHUnits.ptr;
-  if (treeHeight && typeof treeHeight === 'object') treeHeight = treeHeight.ptr;
-  if (treeHeightUnits && typeof treeHeightUnits === 'object') treeHeightUnits = treeHeightUnits.ptr;
-  if (treeSpecies && typeof treeSpecies === 'object') treeSpecies = treeSpecies.ptr;
-  if (windSpeedAtTwentyFeet && typeof windSpeedAtTwentyFeet === 'object') windSpeedAtTwentyFeet = windSpeedAtTwentyFeet.ptr;
-  if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
-  _emscripten_bind_SIGSpotInputs_updateSpotInputsForTorchingTrees_15(self, location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, torchingTrees, DBH, DBHUnits, treeHeight, treeHeightUnits, treeSpecies, windSpeedAtTwentyFeet, windSpeedUnits);
-};;
-
-SIGSpotInputs.prototype['getBurningPileFlameHeight'] = SIGSpotInputs.prototype.getBurningPileFlameHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameHeightUnits) {
-  var self = this.ptr;
-  if (flameHeightUnits && typeof flameHeightUnits === 'object') flameHeightUnits = flameHeightUnits.ptr;
-  return _emscripten_bind_SIGSpotInputs_getBurningPileFlameHeight_1(self, flameHeightUnits);
-};;
-
-SIGSpotInputs.prototype['getDBH'] = SIGSpotInputs.prototype.getDBH = /** @suppress {undefinedVars, duplicate} @this{Object} */function(DBHUnits) {
-  var self = this.ptr;
-  if (DBHUnits && typeof DBHUnits === 'object') DBHUnits = DBHUnits.ptr;
-  return _emscripten_bind_SIGSpotInputs_getDBH_1(self, DBHUnits);
-};;
-
-SIGSpotInputs.prototype['getDownwindCoverHeight'] = SIGSpotInputs.prototype.getDownwindCoverHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(coverHeightUnits) {
-  var self = this.ptr;
-  if (coverHeightUnits && typeof coverHeightUnits === 'object') coverHeightUnits = coverHeightUnits.ptr;
-  return _emscripten_bind_SIGSpotInputs_getDownwindCoverHeight_1(self, coverHeightUnits);
-};;
-
-SIGSpotInputs.prototype['getRidgeToValleyDistance'] = SIGSpotInputs.prototype.getRidgeToValleyDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ridgeToValleyDistanceUnits) {
-  var self = this.ptr;
-  if (ridgeToValleyDistanceUnits && typeof ridgeToValleyDistanceUnits === 'object') ridgeToValleyDistanceUnits = ridgeToValleyDistanceUnits.ptr;
-  return _emscripten_bind_SIGSpotInputs_getRidgeToValleyDistance_1(self, ridgeToValleyDistanceUnits);
-};;
-
-SIGSpotInputs.prototype['getRidgeToValleyElevation'] = SIGSpotInputs.prototype.getRidgeToValleyElevation = /** @suppress {undefinedVars, duplicate} @this{Object} */function(elevationUnits) {
-  var self = this.ptr;
-  if (elevationUnits && typeof elevationUnits === 'object') elevationUnits = elevationUnits.ptr;
-  return _emscripten_bind_SIGSpotInputs_getRidgeToValleyElevation_1(self, elevationUnits);
-};;
-
-SIGSpotInputs.prototype['getSurfaceFlameLength'] = SIGSpotInputs.prototype.getSurfaceFlameLength = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameLengthUnits) {
-  var self = this.ptr;
-  if (flameLengthUnits && typeof flameLengthUnits === 'object') flameLengthUnits = flameLengthUnits.ptr;
-  return _emscripten_bind_SIGSpotInputs_getSurfaceFlameLength_1(self, flameLengthUnits);
-};;
-
-SIGSpotInputs.prototype['getTreeHeight'] = SIGSpotInputs.prototype.getTreeHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(treeHeightUnits) {
-  var self = this.ptr;
-  if (treeHeightUnits && typeof treeHeightUnits === 'object') treeHeightUnits = treeHeightUnits.ptr;
-  return _emscripten_bind_SIGSpotInputs_getTreeHeight_1(self, treeHeightUnits);
-};;
-
-SIGSpotInputs.prototype['getWindSpeedAtTwentyFeet'] = SIGSpotInputs.prototype.getWindSpeedAtTwentyFeet = /** @suppress {undefinedVars, duplicate} @this{Object} */function(windSpeedUnits) {
-  var self = this.ptr;
-  if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
-  return _emscripten_bind_SIGSpotInputs_getWindSpeedAtTwentyFeet_1(self, windSpeedUnits);
-};;
-
-SIGSpotInputs.prototype['getTorchingTrees'] = SIGSpotInputs.prototype.getTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGSpotInputs_getTorchingTrees_0(self);
-};;
-
-  SIGSpotInputs.prototype['__destroy__'] = SIGSpotInputs.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  _emscripten_bind_SIGSpotInputs___destroy___0(self);
 };
 // SIGSpot
 /** @suppress {undefinedVars, duplicate} @this{Object} */function SIGSpot() {
@@ -7124,6 +8476,11 @@ SIGCrown.prototype['doCrownRunScottAndReinhardt'] = SIGCrown.prototype.doCrownRu
   _emscripten_bind_SIGCrown_doCrownRunScottAndReinhardt_0(self);
 };;
 
+SIGCrown.prototype['doCrownRun'] = SIGCrown.prototype.doCrownRun = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_SIGCrown_doCrownRun_0(self);
+};;
+
 SIGCrown.prototype['getFireType'] = SIGCrown.prototype.getFireType = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   return _emscripten_bind_SIGCrown_getFireType_0(self);
@@ -8192,129 +9549,119 @@ WindSpeedUtility.prototype['windSpeedAtTwentyFeetFromTenMeter'] = WindSpeedUtili
 
     
 
-    // ContainTactic
+    // ContainTactic_ContainTacticEnum
 
-    Module['HeadAttack'] = _emscripten_enum_ContainTactic_HeadAttack();
+    Module['HeadAttack'] = _emscripten_enum_ContainTactic_ContainTacticEnum_HeadAttack();
 
-    Module['RearAttack'] = _emscripten_enum_ContainTactic_RearAttack();
-
-    
-
-    // ContainStatus
-
-    Module['Unreported'] = _emscripten_enum_ContainStatus_Unreported();
-
-    Module['Reported'] = _emscripten_enum_ContainStatus_Reported();
-
-    Module['Attacked'] = _emscripten_enum_ContainStatus_Attacked();
-
-    Module['Contained'] = _emscripten_enum_ContainStatus_Contained();
-
-    Module['Overrun'] = _emscripten_enum_ContainStatus_Overrun();
-
-    Module['Exhausted'] = _emscripten_enum_ContainStatus_Exhausted();
-
-    Module['Overflow'] = _emscripten_enum_ContainStatus_Overflow();
-
-    Module['SizeLimitExceeded'] = _emscripten_enum_ContainStatus_SizeLimitExceeded();
-
-    Module['TimeLimitExceeded'] = _emscripten_enum_ContainStatus_TimeLimitExceeded();
+    Module['RearAttack'] = _emscripten_enum_ContainTactic_ContainTacticEnum_RearAttack();
 
     
 
-    // ContainFlank
+    // ContainStatus_ContainStatusEnum
 
-    Module['LeftFlank'] = _emscripten_enum_ContainFlank_LeftFlank();
+    Module['Unreported'] = _emscripten_enum_ContainStatus_ContainStatusEnum_Unreported();
 
-    Module['RightFlank'] = _emscripten_enum_ContainFlank_RightFlank();
+    Module['Reported'] = _emscripten_enum_ContainStatus_ContainStatusEnum_Reported();
 
-    Module['BothFlanks'] = _emscripten_enum_ContainFlank_BothFlanks();
+    Module['Attacked'] = _emscripten_enum_ContainStatus_ContainStatusEnum_Attacked();
 
-    Module['NeitherFlank'] = _emscripten_enum_ContainFlank_NeitherFlank();
+    Module['Contained'] = _emscripten_enum_ContainStatus_ContainStatusEnum_Contained();
 
-    
+    Module['Overrun'] = _emscripten_enum_ContainStatus_ContainStatusEnum_Overrun();
 
-    // IgnitionFuelBedType
+    Module['Exhausted'] = _emscripten_enum_ContainStatus_ContainStatusEnum_Exhausted();
 
-    Module['PonderosaPineLitter'] = _emscripten_enum_IgnitionFuelBedType_PonderosaPineLitter();
+    Module['Overflow'] = _emscripten_enum_ContainStatus_ContainStatusEnum_Overflow();
 
-    Module['PunkyWoodRottenChunky'] = _emscripten_enum_IgnitionFuelBedType_PunkyWoodRottenChunky();
+    Module['SizeLimitExceeded'] = _emscripten_enum_ContainStatus_ContainStatusEnum_SizeLimitExceeded();
 
-    Module['PunkyWoodPowderDeep'] = _emscripten_enum_IgnitionFuelBedType_PunkyWoodPowderDeep();
-
-    Module['PunkWoodPowderShallow'] = _emscripten_enum_IgnitionFuelBedType_PunkWoodPowderShallow();
-
-    Module['LodgepolePineDuff'] = _emscripten_enum_IgnitionFuelBedType_LodgepolePineDuff();
-
-    Module['DouglasFirDuff'] = _emscripten_enum_IgnitionFuelBedType_DouglasFirDuff();
-
-    Module['HighAltitudeMixed'] = _emscripten_enum_IgnitionFuelBedType_HighAltitudeMixed();
-
-    Module['PeatMoss'] = _emscripten_enum_IgnitionFuelBedType_PeatMoss();
+    Module['TimeLimitExceeded'] = _emscripten_enum_ContainStatus_ContainStatusEnum_TimeLimitExceeded();
 
     
 
-    // LightningCharge
+    // ContainFlank_ContainFlankEnum
 
-    Module['Negative'] = _emscripten_enum_LightningCharge_Negative();
+    Module['LeftFlank'] = _emscripten_enum_ContainFlank_ContainFlankEnum_LeftFlank();
 
-    Module['Positive'] = _emscripten_enum_LightningCharge_Positive();
+    Module['RightFlank'] = _emscripten_enum_ContainFlank_ContainFlankEnum_RightFlank();
 
-    Module['Unknown'] = _emscripten_enum_LightningCharge_Unknown();
+    Module['BothFlanks'] = _emscripten_enum_ContainFlank_ContainFlankEnum_BothFlanks();
 
-    
-
-    // SpotTreeSpecies
-
-    Module['ENGELMANN_SPRUCE'] = _emscripten_enum_SpotTreeSpecies_ENGELMANN_SPRUCE();
-
-    Module['DOUGLAS_FIR'] = _emscripten_enum_SpotTreeSpecies_DOUGLAS_FIR();
-
-    Module['SUBALPINE_FIR'] = _emscripten_enum_SpotTreeSpecies_SUBALPINE_FIR();
-
-    Module['WESTERN_HEMLOCK'] = _emscripten_enum_SpotTreeSpecies_WESTERN_HEMLOCK();
-
-    Module['PONDEROSA_PINE'] = _emscripten_enum_SpotTreeSpecies_PONDEROSA_PINE();
-
-    Module['LODGEPOLE_PINE'] = _emscripten_enum_SpotTreeSpecies_LODGEPOLE_PINE();
-
-    Module['WESTERN_WHITE_PINE'] = _emscripten_enum_SpotTreeSpecies_WESTERN_WHITE_PINE();
-
-    Module['GRAND_FIR'] = _emscripten_enum_SpotTreeSpecies_GRAND_FIR();
-
-    Module['BALSAM_FIR'] = _emscripten_enum_SpotTreeSpecies_BALSAM_FIR();
-
-    Module['SLASH_PINE'] = _emscripten_enum_SpotTreeSpecies_SLASH_PINE();
-
-    Module['LONGLEAF_PINE'] = _emscripten_enum_SpotTreeSpecies_LONGLEAF_PINE();
-
-    Module['POND_PINE'] = _emscripten_enum_SpotTreeSpecies_POND_PINE();
-
-    Module['SHORTLEAF_PINE'] = _emscripten_enum_SpotTreeSpecies_SHORTLEAF_PINE();
-
-    Module['LOBLOLLY_PINE'] = _emscripten_enum_SpotTreeSpecies_LOBLOLLY_PINE();
+    Module['NeitherFlank'] = _emscripten_enum_ContainFlank_ContainFlankEnum_NeitherFlank();
 
     
 
-    // SpotFireLocation
+    // IgnitionFuelBedType_IgnitionFuelBedTypeEnum
 
-    Module['MIDSLOPE_WINDWARD'] = _emscripten_enum_SpotFireLocation_MIDSLOPE_WINDWARD();
+    Module['PonderosaPineLitter'] = _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PonderosaPineLitter();
 
-    Module['VALLEY_BOTTOM'] = _emscripten_enum_SpotFireLocation_VALLEY_BOTTOM();
+    Module['PunkyWoodRottenChunky'] = _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodRottenChunky();
 
-    Module['MIDSLOPE_LEEWARD'] = _emscripten_enum_SpotFireLocation_MIDSLOPE_LEEWARD();
+    Module['PunkyWoodPowderDeep'] = _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodPowderDeep();
 
-    Module['RIDGE_TOP'] = _emscripten_enum_SpotFireLocation_RIDGE_TOP();
+    Module['PunkWoodPowderShallow'] = _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkWoodPowderShallow();
+
+    Module['LodgepolePineDuff'] = _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_LodgepolePineDuff();
+
+    Module['DouglasFirDuff'] = _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_DouglasFirDuff();
+
+    Module['HighAltitudeMixed'] = _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_HighAltitudeMixed();
+
+    Module['PeatMoss'] = _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PeatMoss();
 
     
 
-    // SpotArrayConstants
+    // LightningCharge_LightningChargeEnum
 
-    Module['NUM_COLS'] = _emscripten_enum_SpotArrayConstants_NUM_COLS();
+    Module['Negative'] = _emscripten_enum_LightningCharge_LightningChargeEnum_Negative();
 
-    Module['NUM_FIREBRAND_ROWS'] = _emscripten_enum_SpotArrayConstants_NUM_FIREBRAND_ROWS();
+    Module['Positive'] = _emscripten_enum_LightningCharge_LightningChargeEnum_Positive();
 
-    Module['NUM_SPECIES'] = _emscripten_enum_SpotArrayConstants_NUM_SPECIES();
+    Module['Unknown'] = _emscripten_enum_LightningCharge_LightningChargeEnum_Unknown();
+
+    
+
+    // SpotTreeSpecies_SpotTreeSpeciesEnum
+
+    Module['ENGELMANN_SPRUCE'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_ENGELMANN_SPRUCE();
+
+    Module['DOUGLAS_FIR'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_DOUGLAS_FIR();
+
+    Module['SUBALPINE_FIR'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SUBALPINE_FIR();
+
+    Module['WESTERN_HEMLOCK'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_WESTERN_HEMLOCK();
+
+    Module['PONDEROSA_PINE'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_PONDEROSA_PINE();
+
+    Module['LODGEPOLE_PINE'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LODGEPOLE_PINE();
+
+    Module['WESTERN_WHITE_PINE'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_WESTERN_WHITE_PINE();
+
+    Module['GRAND_FIR'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_GRAND_FIR();
+
+    Module['BALSAM_FIR'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_BALSAM_FIR();
+
+    Module['SLASH_PINE'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SLASH_PINE();
+
+    Module['LONGLEAF_PINE'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LONGLEAF_PINE();
+
+    Module['POND_PINE'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_POND_PINE();
+
+    Module['SHORTLEAF_PINE'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SHORTLEAF_PINE();
+
+    Module['LOBLOLLY_PINE'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LOBLOLLY_PINE();
+
+    
+
+    // SpotFireLocation_SpotFireLocationEnum
+
+    Module['MIDSLOPE_WINDWARD'] = _emscripten_enum_SpotFireLocation_SpotFireLocationEnum_MIDSLOPE_WINDWARD();
+
+    Module['VALLEY_BOTTOM'] = _emscripten_enum_SpotFireLocation_SpotFireLocationEnum_VALLEY_BOTTOM();
+
+    Module['MIDSLOPE_LEEWARD'] = _emscripten_enum_SpotFireLocation_SpotFireLocationEnum_MIDSLOPE_LEEWARD();
+
+    Module['RIDGE_TOP'] = _emscripten_enum_SpotFireLocation_SpotFireLocationEnum_RIDGE_TOP();
 
     
 

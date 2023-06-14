@@ -50,9 +50,7 @@ enum class CrownFireCalculationMethod
 class SIGCrown : public Crown
 {
 public:
-  SIGCrown() = delete; // No default constructor
   SIGCrown(SIGFuelModels& fuelModels);
-  ~SIGCrown();
 
   void setFuelModels(SIGFuelModels& fuelModels);
   void setCrownFireCalculationMethod(CrownFireCalculationMethod CrownFireCalculationMethod);

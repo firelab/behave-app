@@ -510,652 +510,6 @@ FireSize.prototype['getFireArea'] = FireSize.prototype.getFireArea = /** @suppre
   var self = this.ptr;
   _emscripten_bind_FireSize___destroy___0(self);
 };
-// SIGContainResource
-/** @suppress {undefinedVars, duplicate} @this{Object} */function SIGContainResource(arrival, production, duration, flank, desc, baseCost, hourCost) {
-  ensureCache.prepare();
-  if (arrival && typeof arrival === 'object') arrival = arrival.ptr;
-  if (production && typeof production === 'object') production = production.ptr;
-  if (duration && typeof duration === 'object') duration = duration.ptr;
-  if (flank && typeof flank === 'object') flank = flank.ptr;
-  if (desc && typeof desc === 'object') desc = desc.ptr;
-  else desc = ensureString(desc);
-  if (baseCost && typeof baseCost === 'object') baseCost = baseCost.ptr;
-  if (hourCost && typeof hourCost === 'object') hourCost = hourCost.ptr;
-  if (arrival === undefined) { this.ptr = _emscripten_bind_SIGContainResource_SIGContainResource_0(); getCache(SIGContainResource)[this.ptr] = this;return }
-  if (production === undefined) { this.ptr = _emscripten_bind_SIGContainResource_SIGContainResource_1(arrival); getCache(SIGContainResource)[this.ptr] = this;return }
-  if (duration === undefined) { this.ptr = _emscripten_bind_SIGContainResource_SIGContainResource_2(arrival, production); getCache(SIGContainResource)[this.ptr] = this;return }
-  if (flank === undefined) { this.ptr = _emscripten_bind_SIGContainResource_SIGContainResource_3(arrival, production, duration); getCache(SIGContainResource)[this.ptr] = this;return }
-  if (desc === undefined) { this.ptr = _emscripten_bind_SIGContainResource_SIGContainResource_4(arrival, production, duration, flank); getCache(SIGContainResource)[this.ptr] = this;return }
-  if (baseCost === undefined) { this.ptr = _emscripten_bind_SIGContainResource_SIGContainResource_5(arrival, production, duration, flank, desc); getCache(SIGContainResource)[this.ptr] = this;return }
-  if (hourCost === undefined) { this.ptr = _emscripten_bind_SIGContainResource_SIGContainResource_6(arrival, production, duration, flank, desc, baseCost); getCache(SIGContainResource)[this.ptr] = this;return }
-  this.ptr = _emscripten_bind_SIGContainResource_SIGContainResource_7(arrival, production, duration, flank, desc, baseCost, hourCost);
-  getCache(SIGContainResource)[this.ptr] = this;
-};;
-SIGContainResource.prototype = Object.create(WrapperObject.prototype);
-SIGContainResource.prototype.constructor = SIGContainResource;
-SIGContainResource.prototype.__class__ = SIGContainResource;
-SIGContainResource.__cache__ = {};
-Module['SIGContainResource'] = SIGContainResource;
-
-SIGContainResource.prototype['print'] = SIGContainResource.prototype.print = /** @suppress {undefinedVars, duplicate} @this{Object} */function(buf, buflen) {
-  var self = this.ptr;
-  ensureCache.prepare();
-  if (buf && typeof buf === 'object') buf = buf.ptr;
-  else buf = ensureString(buf);
-  if (buflen && typeof buflen === 'object') buflen = buflen.ptr;
-  _emscripten_bind_SIGContainResource_print_2(self, buf, buflen);
-};;
-
-SIGContainResource.prototype['arrival'] = SIGContainResource.prototype.arrival = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainResource_arrival_0(self);
-};;
-
-SIGContainResource.prototype['hourCost'] = SIGContainResource.prototype.hourCost = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainResource_hourCost_0(self);
-};;
-
-SIGContainResource.prototype['duration'] = SIGContainResource.prototype.duration = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainResource_duration_0(self);
-};;
-
-SIGContainResource.prototype['production'] = SIGContainResource.prototype.production = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainResource_production_0(self);
-};;
-
-SIGContainResource.prototype['baseCost'] = SIGContainResource.prototype.baseCost = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainResource_baseCost_0(self);
-};;
-
-SIGContainResource.prototype['description'] = SIGContainResource.prototype.description = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return UTF8ToString(_emscripten_bind_SIGContainResource_description_0(self));
-};;
-
-SIGContainResource.prototype['flank'] = SIGContainResource.prototype.flank = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainResource_flank_0(self);
-};;
-
-  SIGContainResource.prototype['__destroy__'] = SIGContainResource.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  _emscripten_bind_SIGContainResource___destroy___0(self);
-};
-// SIGContainForce
-/** @suppress {undefinedVars, duplicate} @this{Object} */function SIGContainForce() {
-  this.ptr = _emscripten_bind_SIGContainForce_SIGContainForce_0();
-  getCache(SIGContainForce)[this.ptr] = this;
-};;
-SIGContainForce.prototype = Object.create(WrapperObject.prototype);
-SIGContainForce.prototype.constructor = SIGContainForce;
-SIGContainForce.prototype.__class__ = SIGContainForce;
-SIGContainForce.__cache__ = {};
-Module['SIGContainForce'] = SIGContainForce;
-
-SIGContainForce.prototype['addResource'] = SIGContainForce.prototype.addResource = /** @suppress {undefinedVars, duplicate} @this{Object} */function(arrival, production, duration, flank, desc, baseCost, hourCost) {
-  var self = this.ptr;
-  ensureCache.prepare();
-  if (arrival && typeof arrival === 'object') arrival = arrival.ptr;
-  if (production && typeof production === 'object') production = production.ptr;
-  if (duration && typeof duration === 'object') duration = duration.ptr;
-  if (flank && typeof flank === 'object') flank = flank.ptr;
-  if (desc && typeof desc === 'object') desc = desc.ptr;
-  else desc = ensureString(desc);
-  if (baseCost && typeof baseCost === 'object') baseCost = baseCost.ptr;
-  if (hourCost && typeof hourCost === 'object') hourCost = hourCost.ptr;
-  if (production === undefined) { return wrapPointer(_emscripten_bind_SIGContainForce_addResource_1(self, arrival), SIGContainResource) }
-  if (duration === undefined) { return wrapPointer(_emscripten_bind_SIGContainForce_addResource_2(self, arrival, production), SIGContainResource) }
-  if (flank === undefined) { return wrapPointer(_emscripten_bind_SIGContainForce_addResource_3(self, arrival, production, duration), SIGContainResource) }
-  if (desc === undefined) { return wrapPointer(_emscripten_bind_SIGContainForce_addResource_4(self, arrival, production, duration, flank), SIGContainResource) }
-  if (baseCost === undefined) { return wrapPointer(_emscripten_bind_SIGContainForce_addResource_5(self, arrival, production, duration, flank, desc), SIGContainResource) }
-  if (hourCost === undefined) { return wrapPointer(_emscripten_bind_SIGContainForce_addResource_6(self, arrival, production, duration, flank, desc, baseCost), SIGContainResource) }
-  return wrapPointer(_emscripten_bind_SIGContainForce_addResource_7(self, arrival, production, duration, flank, desc, baseCost, hourCost), SIGContainResource);
-};;
-
-SIGContainForce.prototype['exhausted'] = SIGContainForce.prototype.exhausted = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flank) {
-  var self = this.ptr;
-  if (flank && typeof flank === 'object') flank = flank.ptr;
-  return _emscripten_bind_SIGContainForce_exhausted_1(self, flank);
-};;
-
-SIGContainForce.prototype['firstArrival'] = SIGContainForce.prototype.firstArrival = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flank) {
-  var self = this.ptr;
-  if (flank && typeof flank === 'object') flank = flank.ptr;
-  return _emscripten_bind_SIGContainForce_firstArrival_1(self, flank);
-};;
-
-SIGContainForce.prototype['nextArrival'] = SIGContainForce.prototype.nextArrival = /** @suppress {undefinedVars, duplicate} @this{Object} */function(after, until, flank) {
-  var self = this.ptr;
-  if (after && typeof after === 'object') after = after.ptr;
-  if (until && typeof until === 'object') until = until.ptr;
-  if (flank && typeof flank === 'object') flank = flank.ptr;
-  return _emscripten_bind_SIGContainForce_nextArrival_3(self, after, until, flank);
-};;
-
-SIGContainForce.prototype['productionRate'] = SIGContainForce.prototype.productionRate = /** @suppress {undefinedVars, duplicate} @this{Object} */function(minutesSinceReport, flank) {
-  var self = this.ptr;
-  if (minutesSinceReport && typeof minutesSinceReport === 'object') minutesSinceReport = minutesSinceReport.ptr;
-  if (flank && typeof flank === 'object') flank = flank.ptr;
-  return _emscripten_bind_SIGContainForce_productionRate_2(self, minutesSinceReport, flank);
-};;
-
-SIGContainForce.prototype['resources'] = SIGContainForce.prototype.resources = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainForce_resources_0(self);
-};;
-
-SIGContainForce.prototype['resourceArrival'] = SIGContainForce.prototype.resourceArrival = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
-  var self = this.ptr;
-  if (index && typeof index === 'object') index = index.ptr;
-  return _emscripten_bind_SIGContainForce_resourceArrival_1(self, index);
-};;
-
-SIGContainForce.prototype['resourceBaseCost'] = SIGContainForce.prototype.resourceBaseCost = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
-  var self = this.ptr;
-  if (index && typeof index === 'object') index = index.ptr;
-  return _emscripten_bind_SIGContainForce_resourceBaseCost_1(self, index);
-};;
-
-SIGContainForce.prototype['resourceCost'] = SIGContainForce.prototype.resourceCost = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index, finalTime) {
-  var self = this.ptr;
-  if (index && typeof index === 'object') index = index.ptr;
-  if (finalTime && typeof finalTime === 'object') finalTime = finalTime.ptr;
-  return _emscripten_bind_SIGContainForce_resourceCost_2(self, index, finalTime);
-};;
-
-SIGContainForce.prototype['resourceDescription'] = SIGContainForce.prototype.resourceDescription = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
-  var self = this.ptr;
-  if (index && typeof index === 'object') index = index.ptr;
-  return UTF8ToString(_emscripten_bind_SIGContainForce_resourceDescription_1(self, index));
-};;
-
-SIGContainForce.prototype['resourceDuration'] = SIGContainForce.prototype.resourceDuration = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
-  var self = this.ptr;
-  if (index && typeof index === 'object') index = index.ptr;
-  return _emscripten_bind_SIGContainForce_resourceDuration_1(self, index);
-};;
-
-SIGContainForce.prototype['resourceFlank'] = SIGContainForce.prototype.resourceFlank = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
-  var self = this.ptr;
-  if (index && typeof index === 'object') index = index.ptr;
-  return _emscripten_bind_SIGContainForce_resourceFlank_1(self, index);
-};;
-
-SIGContainForce.prototype['resourceHourCost'] = SIGContainForce.prototype.resourceHourCost = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
-  var self = this.ptr;
-  if (index && typeof index === 'object') index = index.ptr;
-  return _emscripten_bind_SIGContainForce_resourceHourCost_1(self, index);
-};;
-
-SIGContainForce.prototype['resourceProduction'] = SIGContainForce.prototype.resourceProduction = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
-  var self = this.ptr;
-  if (index && typeof index === 'object') index = index.ptr;
-  return _emscripten_bind_SIGContainForce_resourceProduction_1(self, index);
-};;
-
-  SIGContainForce.prototype['__destroy__'] = SIGContainForce.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  _emscripten_bind_SIGContainForce___destroy___0(self);
-};
-// SIGContainForceAdapter
-/** @suppress {undefinedVars, duplicate} @this{Object} */function SIGContainForceAdapter() {
-  this.ptr = _emscripten_bind_SIGContainForceAdapter_SIGContainForceAdapter_0();
-  getCache(SIGContainForceAdapter)[this.ptr] = this;
-};;
-SIGContainForceAdapter.prototype = Object.create(WrapperObject.prototype);
-SIGContainForceAdapter.prototype.constructor = SIGContainForceAdapter;
-SIGContainForceAdapter.prototype.__class__ = SIGContainForceAdapter;
-SIGContainForceAdapter.__cache__ = {};
-Module['SIGContainForceAdapter'] = SIGContainForceAdapter;
-
-SIGContainForceAdapter.prototype['addResource'] = SIGContainForceAdapter.prototype.addResource = /** @suppress {undefinedVars, duplicate} @this{Object} */function(arrival, production, duration, flank, desc, baseCost, hourCost) {
-  var self = this.ptr;
-  ensureCache.prepare();
-  if (arrival && typeof arrival === 'object') arrival = arrival.ptr;
-  if (production && typeof production === 'object') production = production.ptr;
-  if (duration && typeof duration === 'object') duration = duration.ptr;
-  if (flank && typeof flank === 'object') flank = flank.ptr;
-  if (desc && typeof desc === 'object') desc = desc.ptr;
-  else desc = ensureString(desc);
-  if (baseCost && typeof baseCost === 'object') baseCost = baseCost.ptr;
-  if (hourCost && typeof hourCost === 'object') hourCost = hourCost.ptr;
-  _emscripten_bind_SIGContainForceAdapter_addResource_7(self, arrival, production, duration, flank, desc, baseCost, hourCost);
-};;
-
-SIGContainForceAdapter.prototype['firstArrival'] = SIGContainForceAdapter.prototype.firstArrival = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flank) {
-  var self = this.ptr;
-  if (flank && typeof flank === 'object') flank = flank.ptr;
-  return _emscripten_bind_SIGContainForceAdapter_firstArrival_1(self, flank);
-};;
-
-SIGContainForceAdapter.prototype['removeResourceAt'] = SIGContainForceAdapter.prototype.removeResourceAt = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
-  var self = this.ptr;
-  if (index && typeof index === 'object') index = index.ptr;
-  return _emscripten_bind_SIGContainForceAdapter_removeResourceAt_1(self, index);
-};;
-
-SIGContainForceAdapter.prototype['removeResourceWithThisDesc'] = SIGContainForceAdapter.prototype.removeResourceWithThisDesc = /** @suppress {undefinedVars, duplicate} @this{Object} */function(desc) {
-  var self = this.ptr;
-  ensureCache.prepare();
-  if (desc && typeof desc === 'object') desc = desc.ptr;
-  else desc = ensureString(desc);
-  return _emscripten_bind_SIGContainForceAdapter_removeResourceWithThisDesc_1(self, desc);
-};;
-
-SIGContainForceAdapter.prototype['removeAllResourcesWithThisDesc'] = SIGContainForceAdapter.prototype.removeAllResourcesWithThisDesc = /** @suppress {undefinedVars, duplicate} @this{Object} */function(desc) {
-  var self = this.ptr;
-  ensureCache.prepare();
-  if (desc && typeof desc === 'object') desc = desc.ptr;
-  else desc = ensureString(desc);
-  return _emscripten_bind_SIGContainForceAdapter_removeAllResourcesWithThisDesc_1(self, desc);
-};;
-
-  SIGContainForceAdapter.prototype['__destroy__'] = SIGContainForceAdapter.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  _emscripten_bind_SIGContainForceAdapter___destroy___0(self);
-};
-// SIGContainSim
-/** @suppress {undefinedVars, duplicate} @this{Object} */function SIGContainSim(reportSize, reportRate, diurnalROS, fireStartMinutesStartTime, lwRatio, force, tactic, attackDist, retry, minSteps, maxSteps, maxFireSize, maxFireTime) {
-  if (reportSize && typeof reportSize === 'object') reportSize = reportSize.ptr;
-  if (reportRate && typeof reportRate === 'object') reportRate = reportRate.ptr;
-  if (diurnalROS && typeof diurnalROS === 'object') diurnalROS = diurnalROS.ptr;
-  if (fireStartMinutesStartTime && typeof fireStartMinutesStartTime === 'object') fireStartMinutesStartTime = fireStartMinutesStartTime.ptr;
-  if (lwRatio && typeof lwRatio === 'object') lwRatio = lwRatio.ptr;
-  if (force && typeof force === 'object') force = force.ptr;
-  if (tactic && typeof tactic === 'object') tactic = tactic.ptr;
-  if (attackDist && typeof attackDist === 'object') attackDist = attackDist.ptr;
-  if (retry && typeof retry === 'object') retry = retry.ptr;
-  if (minSteps && typeof minSteps === 'object') minSteps = minSteps.ptr;
-  if (maxSteps && typeof maxSteps === 'object') maxSteps = maxSteps.ptr;
-  if (maxFireSize && typeof maxFireSize === 'object') maxFireSize = maxFireSize.ptr;
-  if (maxFireTime && typeof maxFireTime === 'object') maxFireTime = maxFireTime.ptr;
-  this.ptr = _emscripten_bind_SIGContainSim_SIGContainSim_13(reportSize, reportRate, diurnalROS, fireStartMinutesStartTime, lwRatio, force, tactic, attackDist, retry, minSteps, maxSteps, maxFireSize, maxFireTime);
-  getCache(SIGContainSim)[this.ptr] = this;
-};;
-SIGContainSim.prototype = Object.create(WrapperObject.prototype);
-SIGContainSim.prototype.constructor = SIGContainSim;
-SIGContainSim.prototype.__class__ = SIGContainSim;
-SIGContainSim.__cache__ = {};
-Module['SIGContainSim'] = SIGContainSim;
-
-SIGContainSim.prototype['attackDistance'] = SIGContainSim.prototype.attackDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_attackDistance_0(self);
-};;
-
-SIGContainSim.prototype['attackPointX'] = SIGContainSim.prototype.attackPointX = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_attackPointX_0(self);
-};;
-
-SIGContainSim.prototype['attackPointY'] = SIGContainSim.prototype.attackPointY = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_attackPointY_0(self);
-};;
-
-SIGContainSim.prototype['attackTime'] = SIGContainSim.prototype.attackTime = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_attackTime_0(self);
-};;
-
-SIGContainSim.prototype['distanceStep'] = SIGContainSim.prototype.distanceStep = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_distanceStep_0(self);
-};;
-
-SIGContainSim.prototype['fireBackAtAttack'] = SIGContainSim.prototype.fireBackAtAttack = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_fireBackAtAttack_0(self);
-};;
-
-SIGContainSim.prototype['fireBackAtReport'] = SIGContainSim.prototype.fireBackAtReport = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_fireBackAtReport_0(self);
-};;
-
-SIGContainSim.prototype['fireHeadAtAttack'] = SIGContainSim.prototype.fireHeadAtAttack = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_fireHeadAtAttack_0(self);
-};;
-
-SIGContainSim.prototype['fireHeadAtReport'] = SIGContainSim.prototype.fireHeadAtReport = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_fireHeadAtReport_0(self);
-};;
-
-SIGContainSim.prototype['fireLwRatioAtReport'] = SIGContainSim.prototype.fireLwRatioAtReport = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_fireLwRatioAtReport_0(self);
-};;
-
-SIGContainSim.prototype['fireReportTime'] = SIGContainSim.prototype.fireReportTime = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_fireReportTime_0(self);
-};;
-
-SIGContainSim.prototype['fireSizeAtReport'] = SIGContainSim.prototype.fireSizeAtReport = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_fireSizeAtReport_0(self);
-};;
-
-SIGContainSim.prototype['fireSpreadRateAtBack'] = SIGContainSim.prototype.fireSpreadRateAtBack = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_fireSpreadRateAtBack_0(self);
-};;
-
-SIGContainSim.prototype['fireSpreadRateAtReport'] = SIGContainSim.prototype.fireSpreadRateAtReport = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_fireSpreadRateAtReport_0(self);
-};;
-
-SIGContainSim.prototype['force'] = SIGContainSim.prototype.force = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return wrapPointer(_emscripten_bind_SIGContainSim_force_0(self), SIGContainForce);
-};;
-
-SIGContainSim.prototype['maximumSimulationSteps'] = SIGContainSim.prototype.maximumSimulationSteps = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_maximumSimulationSteps_0(self);
-};;
-
-SIGContainSim.prototype['minimumSimulationSteps'] = SIGContainSim.prototype.minimumSimulationSteps = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_minimumSimulationSteps_0(self);
-};;
-
-SIGContainSim.prototype['status'] = SIGContainSim.prototype.status = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_status_0(self);
-};;
-
-SIGContainSim.prototype['tactic'] = SIGContainSim.prototype.tactic = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_tactic_0(self);
-};;
-
-SIGContainSim.prototype['finalFireCost'] = SIGContainSim.prototype.finalFireCost = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_finalFireCost_0(self);
-};;
-
-SIGContainSim.prototype['finalFireLine'] = SIGContainSim.prototype.finalFireLine = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_finalFireLine_0(self);
-};;
-
-SIGContainSim.prototype['finalFirePerimeter'] = SIGContainSim.prototype.finalFirePerimeter = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_finalFirePerimeter_0(self);
-};;
-
-SIGContainSim.prototype['finalFireSize'] = SIGContainSim.prototype.finalFireSize = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_finalFireSize_0(self);
-};;
-
-SIGContainSim.prototype['finalFireSweep'] = SIGContainSim.prototype.finalFireSweep = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_finalFireSweep_0(self);
-};;
-
-SIGContainSim.prototype['finalFireTime'] = SIGContainSim.prototype.finalFireTime = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_finalFireTime_0(self);
-};;
-
-SIGContainSim.prototype['finalResourcesUsed'] = SIGContainSim.prototype.finalResourcesUsed = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_finalResourcesUsed_0(self);
-};;
-
-SIGContainSim.prototype['fireHeadX'] = SIGContainSim.prototype.fireHeadX = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return wrapPointer(_emscripten_bind_SIGContainSim_fireHeadX_0(self), DoublePtr);
-};;
-
-SIGContainSim.prototype['firePerimeterY'] = SIGContainSim.prototype.firePerimeterY = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return wrapPointer(_emscripten_bind_SIGContainSim_firePerimeterY_0(self), DoublePtr);
-};;
-
-SIGContainSim.prototype['firePerimeterX'] = SIGContainSim.prototype.firePerimeterX = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return wrapPointer(_emscripten_bind_SIGContainSim_firePerimeterX_0(self), DoublePtr);
-};;
-
-SIGContainSim.prototype['firePoints'] = SIGContainSim.prototype.firePoints = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainSim_firePoints_0(self);
-};;
-
-SIGContainSim.prototype['run'] = SIGContainSim.prototype.run = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  _emscripten_bind_SIGContainSim_run_0(self);
-};;
-
-SIGContainSim.prototype['UncontainedArea'] = SIGContainSim.prototype.UncontainedArea = /** @suppress {undefinedVars, duplicate} @this{Object} */function(head, lwRatio, x, y, tactic) {
-  var self = this.ptr;
-  if (head && typeof head === 'object') head = head.ptr;
-  if (lwRatio && typeof lwRatio === 'object') lwRatio = lwRatio.ptr;
-  if (x && typeof x === 'object') x = x.ptr;
-  if (y && typeof y === 'object') y = y.ptr;
-  if (tactic && typeof tactic === 'object') tactic = tactic.ptr;
-  return _emscripten_bind_SIGContainSim_UncontainedArea_5(self, head, lwRatio, x, y, tactic);
-};;
-
-  SIGContainSim.prototype['__destroy__'] = SIGContainSim.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  _emscripten_bind_SIGContainSim___destroy___0(self);
-};
-// SIGDiurnalROS
-/** @suppress {undefinedVars, duplicate} @this{Object} */function SIGDiurnalROS() {
-  this.ptr = _emscripten_bind_SIGDiurnalROS_SIGDiurnalROS_0();
-  getCache(SIGDiurnalROS)[this.ptr] = this;
-};;
-SIGDiurnalROS.prototype = Object.create(WrapperObject.prototype);
-SIGDiurnalROS.prototype.constructor = SIGDiurnalROS;
-SIGDiurnalROS.prototype.__class__ = SIGDiurnalROS;
-SIGDiurnalROS.__cache__ = {};
-Module['SIGDiurnalROS'] = SIGDiurnalROS;
-
-SIGDiurnalROS.prototype['push'] = SIGDiurnalROS.prototype.push = /** @suppress {undefinedVars, duplicate} @this{Object} */function(v) {
-  var self = this.ptr;
-  if (v && typeof v === 'object') v = v.ptr;
-  _emscripten_bind_SIGDiurnalROS_push_1(self, v);
-};;
-
-SIGDiurnalROS.prototype['at'] = SIGDiurnalROS.prototype.at = /** @suppress {undefinedVars, duplicate} @this{Object} */function(i) {
-  var self = this.ptr;
-  if (i && typeof i === 'object') i = i.ptr;
-  return _emscripten_bind_SIGDiurnalROS_at_1(self, i);
-};;
-
-SIGDiurnalROS.prototype['size'] = SIGDiurnalROS.prototype.size = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGDiurnalROS_size_0(self);
-};;
-
-  SIGDiurnalROS.prototype['__destroy__'] = SIGDiurnalROS.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  _emscripten_bind_SIGDiurnalROS___destroy___0(self);
-};
-// SIGContain
-/** @suppress {undefinedVars, duplicate} @this{Object} */function SIGContain(reportSize, reportRate, diurnalROS, fireStartMinutesStartTime, lwRatio, distStep, flank, force, attackTime, tactic, attackDist) {
-  if (reportSize && typeof reportSize === 'object') reportSize = reportSize.ptr;
-  if (reportRate && typeof reportRate === 'object') reportRate = reportRate.ptr;
-  if (diurnalROS && typeof diurnalROS === 'object') diurnalROS = diurnalROS.ptr;
-  if (fireStartMinutesStartTime && typeof fireStartMinutesStartTime === 'object') fireStartMinutesStartTime = fireStartMinutesStartTime.ptr;
-  if (lwRatio && typeof lwRatio === 'object') lwRatio = lwRatio.ptr;
-  if (distStep && typeof distStep === 'object') distStep = distStep.ptr;
-  if (flank && typeof flank === 'object') flank = flank.ptr;
-  if (force && typeof force === 'object') force = force.ptr;
-  if (attackTime && typeof attackTime === 'object') attackTime = attackTime.ptr;
-  if (tactic && typeof tactic === 'object') tactic = tactic.ptr;
-  if (attackDist && typeof attackDist === 'object') attackDist = attackDist.ptr;
-  this.ptr = _emscripten_bind_SIGContain_SIGContain_11(reportSize, reportRate, diurnalROS, fireStartMinutesStartTime, lwRatio, distStep, flank, force, attackTime, tactic, attackDist);
-  getCache(SIGContain)[this.ptr] = this;
-};;
-SIGContain.prototype = Object.create(WrapperObject.prototype);
-SIGContain.prototype.constructor = SIGContain;
-SIGContain.prototype.__class__ = SIGContain;
-SIGContain.__cache__ = {};
-Module['SIGContain'] = SIGContain;
-
-SIGContain.prototype['simulationTime'] = SIGContain.prototype.simulationTime = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_simulationTime_0(self);
-};;
-
-SIGContain.prototype['fireSpreadRateAtBack'] = SIGContain.prototype.fireSpreadRateAtBack = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_fireSpreadRateAtBack_0(self);
-};;
-
-SIGContain.prototype['fireLwRatioAtReport'] = SIGContain.prototype.fireLwRatioAtReport = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_fireLwRatioAtReport_0(self);
-};;
-
-SIGContain.prototype['force'] = SIGContain.prototype.force = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return wrapPointer(_emscripten_bind_SIGContain_force_0(self), SIGContainForce);
-};;
-
-SIGContain.prototype['resourceHourCost'] = SIGContain.prototype.resourceHourCost = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
-  var self = this.ptr;
-  if (index && typeof index === 'object') index = index.ptr;
-  return _emscripten_bind_SIGContain_resourceHourCost_1(self, index);
-};;
-
-SIGContain.prototype['attackDistance'] = SIGContain.prototype.attackDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_attackDistance_0(self);
-};;
-
-SIGContain.prototype['attackPointX'] = SIGContain.prototype.attackPointX = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_attackPointX_0(self);
-};;
-
-SIGContain.prototype['fireHeadAtAttack'] = SIGContain.prototype.fireHeadAtAttack = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_fireHeadAtAttack_0(self);
-};;
-
-SIGContain.prototype['attackPointY'] = SIGContain.prototype.attackPointY = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_attackPointY_0(self);
-};;
-
-SIGContain.prototype['attackTime'] = SIGContain.prototype.attackTime = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_attackTime_0(self);
-};;
-
-SIGContain.prototype['resourceBaseCost'] = SIGContain.prototype.resourceBaseCost = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
-  var self = this.ptr;
-  if (index && typeof index === 'object') index = index.ptr;
-  return _emscripten_bind_SIGContain_resourceBaseCost_1(self, index);
-};;
-
-SIGContain.prototype['fireSpreadRateAtReport'] = SIGContain.prototype.fireSpreadRateAtReport = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_fireSpreadRateAtReport_0(self);
-};;
-
-SIGContain.prototype['fireHeadAtReport'] = SIGContain.prototype.fireHeadAtReport = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_fireHeadAtReport_0(self);
-};;
-
-SIGContain.prototype['fireReportTime'] = SIGContain.prototype.fireReportTime = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_fireReportTime_0(self);
-};;
-
-SIGContain.prototype['resourceProduction'] = SIGContain.prototype.resourceProduction = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
-  var self = this.ptr;
-  if (index && typeof index === 'object') index = index.ptr;
-  return _emscripten_bind_SIGContain_resourceProduction_1(self, index);
-};;
-
-SIGContain.prototype['fireBackAtAttack'] = SIGContain.prototype.fireBackAtAttack = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_fireBackAtAttack_0(self);
-};;
-
-SIGContain.prototype['simulationStep'] = SIGContain.prototype.simulationStep = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_simulationStep_0(self);
-};;
-
-SIGContain.prototype['tactic'] = SIGContain.prototype.tactic = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_tactic_0(self);
-};;
-
-SIGContain.prototype['resourceDescription'] = SIGContain.prototype.resourceDescription = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
-  var self = this.ptr;
-  if (index && typeof index === 'object') index = index.ptr;
-  return UTF8ToString(_emscripten_bind_SIGContain_resourceDescription_1(self, index));
-};;
-
-SIGContain.prototype['distanceStep'] = SIGContain.prototype.distanceStep = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_distanceStep_0(self);
-};;
-
-SIGContain.prototype['status'] = SIGContain.prototype.status = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_status_0(self);
-};;
-
-SIGContain.prototype['resourceArrival'] = SIGContain.prototype.resourceArrival = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
-  var self = this.ptr;
-  if (index && typeof index === 'object') index = index.ptr;
-  return _emscripten_bind_SIGContain_resourceArrival_1(self, index);
-};;
-
-SIGContain.prototype['fireSizeAtReport'] = SIGContain.prototype.fireSizeAtReport = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_fireSizeAtReport_0(self);
-};;
-
-SIGContain.prototype['setFireStartTimeMinutes'] = SIGContain.prototype.setFireStartTimeMinutes = /** @suppress {undefinedVars, duplicate} @this{Object} */function(starttime) {
-  var self = this.ptr;
-  if (starttime && typeof starttime === 'object') starttime = starttime.ptr;
-  return _emscripten_bind_SIGContain_setFireStartTimeMinutes_1(self, starttime);
-};;
-
-SIGContain.prototype['fireBackAtReport'] = SIGContain.prototype.fireBackAtReport = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_fireBackAtReport_0(self);
-};;
-
-SIGContain.prototype['resourceDuration'] = SIGContain.prototype.resourceDuration = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
-  var self = this.ptr;
-  if (index && typeof index === 'object') index = index.ptr;
-  return _emscripten_bind_SIGContain_resourceDuration_1(self, index);
-};;
-
-SIGContain.prototype['resources'] = SIGContain.prototype.resources = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_resources_0(self);
-};;
-
-SIGContain.prototype['exhaustedTime'] = SIGContain.prototype.exhaustedTime = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContain_exhaustedTime_0(self);
-};;
-
-  SIGContain.prototype['__destroy__'] = SIGContain.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  _emscripten_bind_SIGContain___destroy___0(self);
-};
 // SIGContainAdapter
 /** @suppress {undefinedVars, duplicate} @this{Object} */function SIGContainAdapter() {
   this.ptr = _emscripten_bind_SIGContainAdapter_SIGContainAdapter_0();
@@ -1339,129 +693,6 @@ SIGContainAdapter.prototype['setTactic'] = SIGContainAdapter.prototype.setTactic
   var self = this.ptr;
   _emscripten_bind_SIGContainAdapter___destroy___0(self);
 };
-// SIGIgniteInputs
-/** @suppress {undefinedVars, duplicate} @this{Object} */function SIGIgniteInputs() {
-  this.ptr = _emscripten_bind_SIGIgniteInputs_SIGIgniteInputs_0();
-  getCache(SIGIgniteInputs)[this.ptr] = this;
-};;
-SIGIgniteInputs.prototype = Object.create(WrapperObject.prototype);
-SIGIgniteInputs.prototype.constructor = SIGIgniteInputs;
-SIGIgniteInputs.prototype.__class__ = SIGIgniteInputs;
-SIGIgniteInputs.__cache__ = {};
-Module['SIGIgniteInputs'] = SIGIgniteInputs;
-
-SIGIgniteInputs.prototype['initializeMembers'] = SIGIgniteInputs.prototype.initializeMembers = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  _emscripten_bind_SIGIgniteInputs_initializeMembers_0(self);
-};;
-
-SIGIgniteInputs.prototype['setAirTemperature'] = SIGIgniteInputs.prototype.setAirTemperature = /** @suppress {undefinedVars, duplicate} @this{Object} */function(airTemperature, temperatureUnits) {
-  var self = this.ptr;
-  if (airTemperature && typeof airTemperature === 'object') airTemperature = airTemperature.ptr;
-  if (temperatureUnits && typeof temperatureUnits === 'object') temperatureUnits = temperatureUnits.ptr;
-  _emscripten_bind_SIGIgniteInputs_setAirTemperature_2(self, airTemperature, temperatureUnits);
-};;
-
-SIGIgniteInputs.prototype['setDuffDepth'] = SIGIgniteInputs.prototype.setDuffDepth = /** @suppress {undefinedVars, duplicate} @this{Object} */function(duffDepth, lengthUnits) {
-  var self = this.ptr;
-  if (duffDepth && typeof duffDepth === 'object') duffDepth = duffDepth.ptr;
-  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
-  _emscripten_bind_SIGIgniteInputs_setDuffDepth_2(self, duffDepth, lengthUnits);
-};;
-
-SIGIgniteInputs.prototype['setIgnitionFuelBedType'] = SIGIgniteInputs.prototype.setIgnitionFuelBedType = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelBedType) {
-  var self = this.ptr;
-  if (fuelBedType && typeof fuelBedType === 'object') fuelBedType = fuelBedType.ptr;
-  _emscripten_bind_SIGIgniteInputs_setIgnitionFuelBedType_1(self, fuelBedType);
-};;
-
-SIGIgniteInputs.prototype['setLightningChargeType'] = SIGIgniteInputs.prototype.setLightningChargeType = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lightningChargeType) {
-  var self = this.ptr;
-  if (lightningChargeType && typeof lightningChargeType === 'object') lightningChargeType = lightningChargeType.ptr;
-  _emscripten_bind_SIGIgniteInputs_setLightningChargeType_1(self, lightningChargeType);
-};;
-
-SIGIgniteInputs.prototype['setMoistureHundredHour'] = SIGIgniteInputs.prototype.setMoistureHundredHour = /** @suppress {undefinedVars, duplicate} @this{Object} */function(hundredHourMoisture, moistureUnits) {
-  var self = this.ptr;
-  if (hundredHourMoisture && typeof hundredHourMoisture === 'object') hundredHourMoisture = hundredHourMoisture.ptr;
-  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
-  _emscripten_bind_SIGIgniteInputs_setMoistureHundredHour_2(self, hundredHourMoisture, moistureUnits);
-};;
-
-SIGIgniteInputs.prototype['setMoistureOneHour'] = SIGIgniteInputs.prototype.setMoistureOneHour = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureOneHour, moistureUnits) {
-  var self = this.ptr;
-  if (moistureOneHour && typeof moistureOneHour === 'object') moistureOneHour = moistureOneHour.ptr;
-  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
-  _emscripten_bind_SIGIgniteInputs_setMoistureOneHour_2(self, moistureOneHour, moistureUnits);
-};;
-
-SIGIgniteInputs.prototype['setSunShade'] = SIGIgniteInputs.prototype.setSunShade = /** @suppress {undefinedVars, duplicate} @this{Object} */function(sunShade, sunShadeUnits) {
-  var self = this.ptr;
-  if (sunShade && typeof sunShade === 'object') sunShade = sunShade.ptr;
-  if (sunShadeUnits && typeof sunShadeUnits === 'object') sunShadeUnits = sunShadeUnits.ptr;
-  _emscripten_bind_SIGIgniteInputs_setSunShade_2(self, sunShade, sunShadeUnits);
-};;
-
-SIGIgniteInputs.prototype['updateIgniteInputs'] = SIGIgniteInputs.prototype.updateIgniteInputs = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureOneHour, moistureHundredHour, moistureUnits, airTemperature, temperatureUnits, sunShade, sunShadeUnits, fuelBedType, duffDepth, duffDepthUnits, lightningChargeType) {
-  var self = this.ptr;
-  if (moistureOneHour && typeof moistureOneHour === 'object') moistureOneHour = moistureOneHour.ptr;
-  if (moistureHundredHour && typeof moistureHundredHour === 'object') moistureHundredHour = moistureHundredHour.ptr;
-  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
-  if (airTemperature && typeof airTemperature === 'object') airTemperature = airTemperature.ptr;
-  if (temperatureUnits && typeof temperatureUnits === 'object') temperatureUnits = temperatureUnits.ptr;
-  if (sunShade && typeof sunShade === 'object') sunShade = sunShade.ptr;
-  if (sunShadeUnits && typeof sunShadeUnits === 'object') sunShadeUnits = sunShadeUnits.ptr;
-  if (fuelBedType && typeof fuelBedType === 'object') fuelBedType = fuelBedType.ptr;
-  if (duffDepth && typeof duffDepth === 'object') duffDepth = duffDepth.ptr;
-  if (duffDepthUnits && typeof duffDepthUnits === 'object') duffDepthUnits = duffDepthUnits.ptr;
-  if (lightningChargeType && typeof lightningChargeType === 'object') lightningChargeType = lightningChargeType.ptr;
-  _emscripten_bind_SIGIgniteInputs_updateIgniteInputs_11(self, moistureOneHour, moistureHundredHour, moistureUnits, airTemperature, temperatureUnits, sunShade, sunShadeUnits, fuelBedType, duffDepth, duffDepthUnits, lightningChargeType);
-};;
-
-SIGIgniteInputs.prototype['getIgnitionFuelBedType'] = SIGIgniteInputs.prototype.getIgnitionFuelBedType = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGIgniteInputs_getIgnitionFuelBedType_0(self);
-};;
-
-SIGIgniteInputs.prototype['getLightningChargeType'] = SIGIgniteInputs.prototype.getLightningChargeType = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGIgniteInputs_getLightningChargeType_0(self);
-};;
-
-SIGIgniteInputs.prototype['getAirTemperature'] = SIGIgniteInputs.prototype.getAirTemperature = /** @suppress {undefinedVars, duplicate} @this{Object} */function(desiredUnits) {
-  var self = this.ptr;
-  if (desiredUnits && typeof desiredUnits === 'object') desiredUnits = desiredUnits.ptr;
-  return _emscripten_bind_SIGIgniteInputs_getAirTemperature_1(self, desiredUnits);
-};;
-
-SIGIgniteInputs.prototype['getDuffDepth'] = SIGIgniteInputs.prototype.getDuffDepth = /** @suppress {undefinedVars, duplicate} @this{Object} */function(desiredUnits) {
-  var self = this.ptr;
-  if (desiredUnits && typeof desiredUnits === 'object') desiredUnits = desiredUnits.ptr;
-  return _emscripten_bind_SIGIgniteInputs_getDuffDepth_1(self, desiredUnits);
-};;
-
-SIGIgniteInputs.prototype['getMoistureHundredHour'] = SIGIgniteInputs.prototype.getMoistureHundredHour = /** @suppress {undefinedVars, duplicate} @this{Object} */function(desiredUnits) {
-  var self = this.ptr;
-  if (desiredUnits && typeof desiredUnits === 'object') desiredUnits = desiredUnits.ptr;
-  return _emscripten_bind_SIGIgniteInputs_getMoistureHundredHour_1(self, desiredUnits);
-};;
-
-SIGIgniteInputs.prototype['getMoistureOneHour'] = SIGIgniteInputs.prototype.getMoistureOneHour = /** @suppress {undefinedVars, duplicate} @this{Object} */function(desiredUnits) {
-  var self = this.ptr;
-  if (desiredUnits && typeof desiredUnits === 'object') desiredUnits = desiredUnits.ptr;
-  return _emscripten_bind_SIGIgniteInputs_getMoistureOneHour_1(self, desiredUnits);
-};;
-
-SIGIgniteInputs.prototype['getSunShade'] = SIGIgniteInputs.prototype.getSunShade = /** @suppress {undefinedVars, duplicate} @this{Object} */function(desiredUnits) {
-  var self = this.ptr;
-  if (desiredUnits && typeof desiredUnits === 'object') desiredUnits = desiredUnits.ptr;
-  return _emscripten_bind_SIGIgniteInputs_getSunShade_1(self, desiredUnits);
-};;
-
-  SIGIgniteInputs.prototype['__destroy__'] = SIGIgniteInputs.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  _emscripten_bind_SIGIgniteInputs___destroy___0(self);
-};
 // SIGIgnite
 /** @suppress {undefinedVars, duplicate} @this{Object} */function SIGIgnite() {
   this.ptr = _emscripten_bind_SIGIgnite_SIGIgnite_0();
@@ -1607,210 +838,6 @@ SIGIgnite.prototype['isFuelDepthNeeded'] = SIGIgnite.prototype.isFuelDepthNeeded
   SIGIgnite.prototype['__destroy__'] = SIGIgnite.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   _emscripten_bind_SIGIgnite___destroy___0(self);
-};
-// SIGSpotInputs
-/** @suppress {undefinedVars, duplicate} @this{Object} */function SIGSpotInputs() {
-  this.ptr = _emscripten_bind_SIGSpotInputs_SIGSpotInputs_0();
-  getCache(SIGSpotInputs)[this.ptr] = this;
-};;
-SIGSpotInputs.prototype = Object.create(WrapperObject.prototype);
-SIGSpotInputs.prototype.constructor = SIGSpotInputs;
-SIGSpotInputs.prototype.__class__ = SIGSpotInputs;
-SIGSpotInputs.__cache__ = {};
-Module['SIGSpotInputs'] = SIGSpotInputs;
-
-SIGSpotInputs.prototype['getLocation'] = SIGSpotInputs.prototype.getLocation = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGSpotInputs_getLocation_0(self);
-};;
-
-SIGSpotInputs.prototype['getTreeSpecies'] = SIGSpotInputs.prototype.getTreeSpecies = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGSpotInputs_getTreeSpecies_0(self);
-};;
-
-SIGSpotInputs.prototype['setBurningPileFlameHeight'] = SIGSpotInputs.prototype.setBurningPileFlameHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(buringPileFlameHeight, flameHeightUnits) {
-  var self = this.ptr;
-  if (buringPileFlameHeight && typeof buringPileFlameHeight === 'object') buringPileFlameHeight = buringPileFlameHeight.ptr;
-  if (flameHeightUnits && typeof flameHeightUnits === 'object') flameHeightUnits = flameHeightUnits.ptr;
-  _emscripten_bind_SIGSpotInputs_setBurningPileFlameHeight_2(self, buringPileFlameHeight, flameHeightUnits);
-};;
-
-SIGSpotInputs.prototype['setDBH'] = SIGSpotInputs.prototype.setDBH = /** @suppress {undefinedVars, duplicate} @this{Object} */function(DBH, DBHUnits) {
-  var self = this.ptr;
-  if (DBH && typeof DBH === 'object') DBH = DBH.ptr;
-  if (DBHUnits && typeof DBHUnits === 'object') DBHUnits = DBHUnits.ptr;
-  _emscripten_bind_SIGSpotInputs_setDBH_2(self, DBH, DBHUnits);
-};;
-
-SIGSpotInputs.prototype['setDownwindCoverHeight'] = SIGSpotInputs.prototype.setDownwindCoverHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(downwindCoverHeight, coverHeightUnits) {
-  var self = this.ptr;
-  if (downwindCoverHeight && typeof downwindCoverHeight === 'object') downwindCoverHeight = downwindCoverHeight.ptr;
-  if (coverHeightUnits && typeof coverHeightUnits === 'object') coverHeightUnits = coverHeightUnits.ptr;
-  _emscripten_bind_SIGSpotInputs_setDownwindCoverHeight_2(self, downwindCoverHeight, coverHeightUnits);
-};;
-
-SIGSpotInputs.prototype['setLocation'] = SIGSpotInputs.prototype.setLocation = /** @suppress {undefinedVars, duplicate} @this{Object} */function(location) {
-  var self = this.ptr;
-  if (location && typeof location === 'object') location = location.ptr;
-  _emscripten_bind_SIGSpotInputs_setLocation_1(self, location);
-};;
-
-SIGSpotInputs.prototype['setRidgeToValleyDistance'] = SIGSpotInputs.prototype.setRidgeToValleyDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ridgeToValleyDistance, ridgeToValleyDistanceUnits) {
-  var self = this.ptr;
-  if (ridgeToValleyDistance && typeof ridgeToValleyDistance === 'object') ridgeToValleyDistance = ridgeToValleyDistance.ptr;
-  if (ridgeToValleyDistanceUnits && typeof ridgeToValleyDistanceUnits === 'object') ridgeToValleyDistanceUnits = ridgeToValleyDistanceUnits.ptr;
-  _emscripten_bind_SIGSpotInputs_setRidgeToValleyDistance_2(self, ridgeToValleyDistance, ridgeToValleyDistanceUnits);
-};;
-
-SIGSpotInputs.prototype['setRidgeToValleyElevation'] = SIGSpotInputs.prototype.setRidgeToValleyElevation = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ridgeToValleyElevation, elevationUnits) {
-  var self = this.ptr;
-  if (ridgeToValleyElevation && typeof ridgeToValleyElevation === 'object') ridgeToValleyElevation = ridgeToValleyElevation.ptr;
-  if (elevationUnits && typeof elevationUnits === 'object') elevationUnits = elevationUnits.ptr;
-  _emscripten_bind_SIGSpotInputs_setRidgeToValleyElevation_2(self, ridgeToValleyElevation, elevationUnits);
-};;
-
-SIGSpotInputs.prototype['setSurfaceFlameLength'] = SIGSpotInputs.prototype.setSurfaceFlameLength = /** @suppress {undefinedVars, duplicate} @this{Object} */function(surfaceFlameLength, flameLengthUnits) {
-  var self = this.ptr;
-  if (surfaceFlameLength && typeof surfaceFlameLength === 'object') surfaceFlameLength = surfaceFlameLength.ptr;
-  if (flameLengthUnits && typeof flameLengthUnits === 'object') flameLengthUnits = flameLengthUnits.ptr;
-  _emscripten_bind_SIGSpotInputs_setSurfaceFlameLength_2(self, surfaceFlameLength, flameLengthUnits);
-};;
-
-SIGSpotInputs.prototype['setTorchingTrees'] = SIGSpotInputs.prototype.setTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function(torchingTrees) {
-  var self = this.ptr;
-  if (torchingTrees && typeof torchingTrees === 'object') torchingTrees = torchingTrees.ptr;
-  _emscripten_bind_SIGSpotInputs_setTorchingTrees_1(self, torchingTrees);
-};;
-
-SIGSpotInputs.prototype['setTreeHeight'] = SIGSpotInputs.prototype.setTreeHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(treeHeight, treeHeightUnits) {
-  var self = this.ptr;
-  if (treeHeight && typeof treeHeight === 'object') treeHeight = treeHeight.ptr;
-  if (treeHeightUnits && typeof treeHeightUnits === 'object') treeHeightUnits = treeHeightUnits.ptr;
-  _emscripten_bind_SIGSpotInputs_setTreeHeight_2(self, treeHeight, treeHeightUnits);
-};;
-
-SIGSpotInputs.prototype['setTreeSpecies'] = SIGSpotInputs.prototype.setTreeSpecies = /** @suppress {undefinedVars, duplicate} @this{Object} */function(treeSpecies) {
-  var self = this.ptr;
-  if (treeSpecies && typeof treeSpecies === 'object') treeSpecies = treeSpecies.ptr;
-  _emscripten_bind_SIGSpotInputs_setTreeSpecies_1(self, treeSpecies);
-};;
-
-SIGSpotInputs.prototype['setWindSpeedAtTwentyFeet'] = SIGSpotInputs.prototype.setWindSpeedAtTwentyFeet = /** @suppress {undefinedVars, duplicate} @this{Object} */function(windSpeedAtTwentyFeet, windSpeedUnits) {
-  var self = this.ptr;
-  if (windSpeedAtTwentyFeet && typeof windSpeedAtTwentyFeet === 'object') windSpeedAtTwentyFeet = windSpeedAtTwentyFeet.ptr;
-  if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
-  _emscripten_bind_SIGSpotInputs_setWindSpeedAtTwentyFeet_2(self, windSpeedAtTwentyFeet, windSpeedUnits);
-};;
-
-SIGSpotInputs.prototype['updateSpotInputsForBurningPile'] = SIGSpotInputs.prototype.updateSpotInputsForBurningPile = /** @suppress {undefinedVars, duplicate} @this{Object} */function(location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, buringPileFlameHeight, flameHeightUnits, windSpeedAtTwentyFeet, windSpeedUnits) {
-  var self = this.ptr;
-  if (location && typeof location === 'object') location = location.ptr;
-  if (ridgeToValleyDistance && typeof ridgeToValleyDistance === 'object') ridgeToValleyDistance = ridgeToValleyDistance.ptr;
-  if (ridgeToValleyDistanceUnits && typeof ridgeToValleyDistanceUnits === 'object') ridgeToValleyDistanceUnits = ridgeToValleyDistanceUnits.ptr;
-  if (ridgeToValleyElevation && typeof ridgeToValleyElevation === 'object') ridgeToValleyElevation = ridgeToValleyElevation.ptr;
-  if (elevationUnits && typeof elevationUnits === 'object') elevationUnits = elevationUnits.ptr;
-  if (downwindCoverHeight && typeof downwindCoverHeight === 'object') downwindCoverHeight = downwindCoverHeight.ptr;
-  if (coverHeightUnits && typeof coverHeightUnits === 'object') coverHeightUnits = coverHeightUnits.ptr;
-  if (buringPileFlameHeight && typeof buringPileFlameHeight === 'object') buringPileFlameHeight = buringPileFlameHeight.ptr;
-  if (flameHeightUnits && typeof flameHeightUnits === 'object') flameHeightUnits = flameHeightUnits.ptr;
-  if (windSpeedAtTwentyFeet && typeof windSpeedAtTwentyFeet === 'object') windSpeedAtTwentyFeet = windSpeedAtTwentyFeet.ptr;
-  if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
-  _emscripten_bind_SIGSpotInputs_updateSpotInputsForBurningPile_11(self, location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, buringPileFlameHeight, flameHeightUnits, windSpeedAtTwentyFeet, windSpeedUnits);
-};;
-
-SIGSpotInputs.prototype['updateSpotInputsForSurfaceFire'] = SIGSpotInputs.prototype.updateSpotInputsForSurfaceFire = /** @suppress {undefinedVars, duplicate} @this{Object} */function(location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, windSpeedAtTwentyFeet, windSpeedUnits, surfaceFlameLength, flameLengthUnits) {
-  var self = this.ptr;
-  if (location && typeof location === 'object') location = location.ptr;
-  if (ridgeToValleyDistance && typeof ridgeToValleyDistance === 'object') ridgeToValleyDistance = ridgeToValleyDistance.ptr;
-  if (ridgeToValleyDistanceUnits && typeof ridgeToValleyDistanceUnits === 'object') ridgeToValleyDistanceUnits = ridgeToValleyDistanceUnits.ptr;
-  if (ridgeToValleyElevation && typeof ridgeToValleyElevation === 'object') ridgeToValleyElevation = ridgeToValleyElevation.ptr;
-  if (elevationUnits && typeof elevationUnits === 'object') elevationUnits = elevationUnits.ptr;
-  if (downwindCoverHeight && typeof downwindCoverHeight === 'object') downwindCoverHeight = downwindCoverHeight.ptr;
-  if (coverHeightUnits && typeof coverHeightUnits === 'object') coverHeightUnits = coverHeightUnits.ptr;
-  if (windSpeedAtTwentyFeet && typeof windSpeedAtTwentyFeet === 'object') windSpeedAtTwentyFeet = windSpeedAtTwentyFeet.ptr;
-  if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
-  if (surfaceFlameLength && typeof surfaceFlameLength === 'object') surfaceFlameLength = surfaceFlameLength.ptr;
-  if (flameLengthUnits && typeof flameLengthUnits === 'object') flameLengthUnits = flameLengthUnits.ptr;
-  _emscripten_bind_SIGSpotInputs_updateSpotInputsForSurfaceFire_11(self, location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, windSpeedAtTwentyFeet, windSpeedUnits, surfaceFlameLength, flameLengthUnits);
-};;
-
-SIGSpotInputs.prototype['updateSpotInputsForTorchingTrees'] = SIGSpotInputs.prototype.updateSpotInputsForTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function(location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, torchingTrees, DBH, DBHUnits, treeHeight, treeHeightUnits, treeSpecies, windSpeedAtTwentyFeet, windSpeedUnits) {
-  var self = this.ptr;
-  if (location && typeof location === 'object') location = location.ptr;
-  if (ridgeToValleyDistance && typeof ridgeToValleyDistance === 'object') ridgeToValleyDistance = ridgeToValleyDistance.ptr;
-  if (ridgeToValleyDistanceUnits && typeof ridgeToValleyDistanceUnits === 'object') ridgeToValleyDistanceUnits = ridgeToValleyDistanceUnits.ptr;
-  if (ridgeToValleyElevation && typeof ridgeToValleyElevation === 'object') ridgeToValleyElevation = ridgeToValleyElevation.ptr;
-  if (elevationUnits && typeof elevationUnits === 'object') elevationUnits = elevationUnits.ptr;
-  if (downwindCoverHeight && typeof downwindCoverHeight === 'object') downwindCoverHeight = downwindCoverHeight.ptr;
-  if (coverHeightUnits && typeof coverHeightUnits === 'object') coverHeightUnits = coverHeightUnits.ptr;
-  if (torchingTrees && typeof torchingTrees === 'object') torchingTrees = torchingTrees.ptr;
-  if (DBH && typeof DBH === 'object') DBH = DBH.ptr;
-  if (DBHUnits && typeof DBHUnits === 'object') DBHUnits = DBHUnits.ptr;
-  if (treeHeight && typeof treeHeight === 'object') treeHeight = treeHeight.ptr;
-  if (treeHeightUnits && typeof treeHeightUnits === 'object') treeHeightUnits = treeHeightUnits.ptr;
-  if (treeSpecies && typeof treeSpecies === 'object') treeSpecies = treeSpecies.ptr;
-  if (windSpeedAtTwentyFeet && typeof windSpeedAtTwentyFeet === 'object') windSpeedAtTwentyFeet = windSpeedAtTwentyFeet.ptr;
-  if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
-  _emscripten_bind_SIGSpotInputs_updateSpotInputsForTorchingTrees_15(self, location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, torchingTrees, DBH, DBHUnits, treeHeight, treeHeightUnits, treeSpecies, windSpeedAtTwentyFeet, windSpeedUnits);
-};;
-
-SIGSpotInputs.prototype['getBurningPileFlameHeight'] = SIGSpotInputs.prototype.getBurningPileFlameHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameHeightUnits) {
-  var self = this.ptr;
-  if (flameHeightUnits && typeof flameHeightUnits === 'object') flameHeightUnits = flameHeightUnits.ptr;
-  return _emscripten_bind_SIGSpotInputs_getBurningPileFlameHeight_1(self, flameHeightUnits);
-};;
-
-SIGSpotInputs.prototype['getDBH'] = SIGSpotInputs.prototype.getDBH = /** @suppress {undefinedVars, duplicate} @this{Object} */function(DBHUnits) {
-  var self = this.ptr;
-  if (DBHUnits && typeof DBHUnits === 'object') DBHUnits = DBHUnits.ptr;
-  return _emscripten_bind_SIGSpotInputs_getDBH_1(self, DBHUnits);
-};;
-
-SIGSpotInputs.prototype['getDownwindCoverHeight'] = SIGSpotInputs.prototype.getDownwindCoverHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(coverHeightUnits) {
-  var self = this.ptr;
-  if (coverHeightUnits && typeof coverHeightUnits === 'object') coverHeightUnits = coverHeightUnits.ptr;
-  return _emscripten_bind_SIGSpotInputs_getDownwindCoverHeight_1(self, coverHeightUnits);
-};;
-
-SIGSpotInputs.prototype['getRidgeToValleyDistance'] = SIGSpotInputs.prototype.getRidgeToValleyDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ridgeToValleyDistanceUnits) {
-  var self = this.ptr;
-  if (ridgeToValleyDistanceUnits && typeof ridgeToValleyDistanceUnits === 'object') ridgeToValleyDistanceUnits = ridgeToValleyDistanceUnits.ptr;
-  return _emscripten_bind_SIGSpotInputs_getRidgeToValleyDistance_1(self, ridgeToValleyDistanceUnits);
-};;
-
-SIGSpotInputs.prototype['getRidgeToValleyElevation'] = SIGSpotInputs.prototype.getRidgeToValleyElevation = /** @suppress {undefinedVars, duplicate} @this{Object} */function(elevationUnits) {
-  var self = this.ptr;
-  if (elevationUnits && typeof elevationUnits === 'object') elevationUnits = elevationUnits.ptr;
-  return _emscripten_bind_SIGSpotInputs_getRidgeToValleyElevation_1(self, elevationUnits);
-};;
-
-SIGSpotInputs.prototype['getSurfaceFlameLength'] = SIGSpotInputs.prototype.getSurfaceFlameLength = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameLengthUnits) {
-  var self = this.ptr;
-  if (flameLengthUnits && typeof flameLengthUnits === 'object') flameLengthUnits = flameLengthUnits.ptr;
-  return _emscripten_bind_SIGSpotInputs_getSurfaceFlameLength_1(self, flameLengthUnits);
-};;
-
-SIGSpotInputs.prototype['getTreeHeight'] = SIGSpotInputs.prototype.getTreeHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(treeHeightUnits) {
-  var self = this.ptr;
-  if (treeHeightUnits && typeof treeHeightUnits === 'object') treeHeightUnits = treeHeightUnits.ptr;
-  return _emscripten_bind_SIGSpotInputs_getTreeHeight_1(self, treeHeightUnits);
-};;
-
-SIGSpotInputs.prototype['getWindSpeedAtTwentyFeet'] = SIGSpotInputs.prototype.getWindSpeedAtTwentyFeet = /** @suppress {undefinedVars, duplicate} @this{Object} */function(windSpeedUnits) {
-  var self = this.ptr;
-  if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
-  return _emscripten_bind_SIGSpotInputs_getWindSpeedAtTwentyFeet_1(self, windSpeedUnits);
-};;
-
-SIGSpotInputs.prototype['getTorchingTrees'] = SIGSpotInputs.prototype.getTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGSpotInputs_getTorchingTrees_0(self);
-};;
-
-  SIGSpotInputs.prototype['__destroy__'] = SIGSpotInputs.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  _emscripten_bind_SIGSpotInputs___destroy___0(self);
 };
 // SIGSpot
 /** @suppress {undefinedVars, duplicate} @this{Object} */function SIGSpot() {
@@ -3071,6 +2098,11 @@ SIGCrown.prototype['doCrownRunScottAndReinhardt'] = SIGCrown.prototype.doCrownRu
   _emscripten_bind_SIGCrown_doCrownRunScottAndReinhardt_0(self);
 };;
 
+SIGCrown.prototype['doCrownRun'] = SIGCrown.prototype.doCrownRun = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_SIGCrown_doCrownRun_0(self);
+};;
+
 SIGCrown.prototype['getFireType'] = SIGCrown.prototype.getFireType = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   return _emscripten_bind_SIGCrown_getFireType_0(self);
@@ -4139,129 +3171,119 @@ WindSpeedUtility.prototype['windSpeedAtTwentyFeetFromTenMeter'] = WindSpeedUtili
 
     
 
-    // ContainTactic
+    // ContainTactic_ContainTacticEnum
 
-    Module['HeadAttack'] = _emscripten_enum_ContainTactic_HeadAttack();
+    Module['HeadAttack'] = _emscripten_enum_ContainTactic_ContainTacticEnum_HeadAttack();
 
-    Module['RearAttack'] = _emscripten_enum_ContainTactic_RearAttack();
-
-    
-
-    // ContainStatus
-
-    Module['Unreported'] = _emscripten_enum_ContainStatus_Unreported();
-
-    Module['Reported'] = _emscripten_enum_ContainStatus_Reported();
-
-    Module['Attacked'] = _emscripten_enum_ContainStatus_Attacked();
-
-    Module['Contained'] = _emscripten_enum_ContainStatus_Contained();
-
-    Module['Overrun'] = _emscripten_enum_ContainStatus_Overrun();
-
-    Module['Exhausted'] = _emscripten_enum_ContainStatus_Exhausted();
-
-    Module['Overflow'] = _emscripten_enum_ContainStatus_Overflow();
-
-    Module['SizeLimitExceeded'] = _emscripten_enum_ContainStatus_SizeLimitExceeded();
-
-    Module['TimeLimitExceeded'] = _emscripten_enum_ContainStatus_TimeLimitExceeded();
+    Module['RearAttack'] = _emscripten_enum_ContainTactic_ContainTacticEnum_RearAttack();
 
     
 
-    // ContainFlank
+    // ContainStatus_ContainStatusEnum
 
-    Module['LeftFlank'] = _emscripten_enum_ContainFlank_LeftFlank();
+    Module['Unreported'] = _emscripten_enum_ContainStatus_ContainStatusEnum_Unreported();
 
-    Module['RightFlank'] = _emscripten_enum_ContainFlank_RightFlank();
+    Module['Reported'] = _emscripten_enum_ContainStatus_ContainStatusEnum_Reported();
 
-    Module['BothFlanks'] = _emscripten_enum_ContainFlank_BothFlanks();
+    Module['Attacked'] = _emscripten_enum_ContainStatus_ContainStatusEnum_Attacked();
 
-    Module['NeitherFlank'] = _emscripten_enum_ContainFlank_NeitherFlank();
+    Module['Contained'] = _emscripten_enum_ContainStatus_ContainStatusEnum_Contained();
 
-    
+    Module['Overrun'] = _emscripten_enum_ContainStatus_ContainStatusEnum_Overrun();
 
-    // IgnitionFuelBedType
+    Module['Exhausted'] = _emscripten_enum_ContainStatus_ContainStatusEnum_Exhausted();
 
-    Module['PonderosaPineLitter'] = _emscripten_enum_IgnitionFuelBedType_PonderosaPineLitter();
+    Module['Overflow'] = _emscripten_enum_ContainStatus_ContainStatusEnum_Overflow();
 
-    Module['PunkyWoodRottenChunky'] = _emscripten_enum_IgnitionFuelBedType_PunkyWoodRottenChunky();
+    Module['SizeLimitExceeded'] = _emscripten_enum_ContainStatus_ContainStatusEnum_SizeLimitExceeded();
 
-    Module['PunkyWoodPowderDeep'] = _emscripten_enum_IgnitionFuelBedType_PunkyWoodPowderDeep();
-
-    Module['PunkWoodPowderShallow'] = _emscripten_enum_IgnitionFuelBedType_PunkWoodPowderShallow();
-
-    Module['LodgepolePineDuff'] = _emscripten_enum_IgnitionFuelBedType_LodgepolePineDuff();
-
-    Module['DouglasFirDuff'] = _emscripten_enum_IgnitionFuelBedType_DouglasFirDuff();
-
-    Module['HighAltitudeMixed'] = _emscripten_enum_IgnitionFuelBedType_HighAltitudeMixed();
-
-    Module['PeatMoss'] = _emscripten_enum_IgnitionFuelBedType_PeatMoss();
+    Module['TimeLimitExceeded'] = _emscripten_enum_ContainStatus_ContainStatusEnum_TimeLimitExceeded();
 
     
 
-    // LightningCharge
+    // ContainFlank_ContainFlankEnum
 
-    Module['Negative'] = _emscripten_enum_LightningCharge_Negative();
+    Module['LeftFlank'] = _emscripten_enum_ContainFlank_ContainFlankEnum_LeftFlank();
 
-    Module['Positive'] = _emscripten_enum_LightningCharge_Positive();
+    Module['RightFlank'] = _emscripten_enum_ContainFlank_ContainFlankEnum_RightFlank();
 
-    Module['Unknown'] = _emscripten_enum_LightningCharge_Unknown();
+    Module['BothFlanks'] = _emscripten_enum_ContainFlank_ContainFlankEnum_BothFlanks();
 
-    
-
-    // SpotTreeSpecies
-
-    Module['ENGELMANN_SPRUCE'] = _emscripten_enum_SpotTreeSpecies_ENGELMANN_SPRUCE();
-
-    Module['DOUGLAS_FIR'] = _emscripten_enum_SpotTreeSpecies_DOUGLAS_FIR();
-
-    Module['SUBALPINE_FIR'] = _emscripten_enum_SpotTreeSpecies_SUBALPINE_FIR();
-
-    Module['WESTERN_HEMLOCK'] = _emscripten_enum_SpotTreeSpecies_WESTERN_HEMLOCK();
-
-    Module['PONDEROSA_PINE'] = _emscripten_enum_SpotTreeSpecies_PONDEROSA_PINE();
-
-    Module['LODGEPOLE_PINE'] = _emscripten_enum_SpotTreeSpecies_LODGEPOLE_PINE();
-
-    Module['WESTERN_WHITE_PINE'] = _emscripten_enum_SpotTreeSpecies_WESTERN_WHITE_PINE();
-
-    Module['GRAND_FIR'] = _emscripten_enum_SpotTreeSpecies_GRAND_FIR();
-
-    Module['BALSAM_FIR'] = _emscripten_enum_SpotTreeSpecies_BALSAM_FIR();
-
-    Module['SLASH_PINE'] = _emscripten_enum_SpotTreeSpecies_SLASH_PINE();
-
-    Module['LONGLEAF_PINE'] = _emscripten_enum_SpotTreeSpecies_LONGLEAF_PINE();
-
-    Module['POND_PINE'] = _emscripten_enum_SpotTreeSpecies_POND_PINE();
-
-    Module['SHORTLEAF_PINE'] = _emscripten_enum_SpotTreeSpecies_SHORTLEAF_PINE();
-
-    Module['LOBLOLLY_PINE'] = _emscripten_enum_SpotTreeSpecies_LOBLOLLY_PINE();
+    Module['NeitherFlank'] = _emscripten_enum_ContainFlank_ContainFlankEnum_NeitherFlank();
 
     
 
-    // SpotFireLocation
+    // IgnitionFuelBedType_IgnitionFuelBedTypeEnum
 
-    Module['MIDSLOPE_WINDWARD'] = _emscripten_enum_SpotFireLocation_MIDSLOPE_WINDWARD();
+    Module['PonderosaPineLitter'] = _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PonderosaPineLitter();
 
-    Module['VALLEY_BOTTOM'] = _emscripten_enum_SpotFireLocation_VALLEY_BOTTOM();
+    Module['PunkyWoodRottenChunky'] = _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodRottenChunky();
 
-    Module['MIDSLOPE_LEEWARD'] = _emscripten_enum_SpotFireLocation_MIDSLOPE_LEEWARD();
+    Module['PunkyWoodPowderDeep'] = _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodPowderDeep();
 
-    Module['RIDGE_TOP'] = _emscripten_enum_SpotFireLocation_RIDGE_TOP();
+    Module['PunkWoodPowderShallow'] = _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkWoodPowderShallow();
+
+    Module['LodgepolePineDuff'] = _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_LodgepolePineDuff();
+
+    Module['DouglasFirDuff'] = _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_DouglasFirDuff();
+
+    Module['HighAltitudeMixed'] = _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_HighAltitudeMixed();
+
+    Module['PeatMoss'] = _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PeatMoss();
 
     
 
-    // SpotArrayConstants
+    // LightningCharge_LightningChargeEnum
 
-    Module['NUM_COLS'] = _emscripten_enum_SpotArrayConstants_NUM_COLS();
+    Module['Negative'] = _emscripten_enum_LightningCharge_LightningChargeEnum_Negative();
 
-    Module['NUM_FIREBRAND_ROWS'] = _emscripten_enum_SpotArrayConstants_NUM_FIREBRAND_ROWS();
+    Module['Positive'] = _emscripten_enum_LightningCharge_LightningChargeEnum_Positive();
 
-    Module['NUM_SPECIES'] = _emscripten_enum_SpotArrayConstants_NUM_SPECIES();
+    Module['Unknown'] = _emscripten_enum_LightningCharge_LightningChargeEnum_Unknown();
+
+    
+
+    // SpotTreeSpecies_SpotTreeSpeciesEnum
+
+    Module['ENGELMANN_SPRUCE'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_ENGELMANN_SPRUCE();
+
+    Module['DOUGLAS_FIR'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_DOUGLAS_FIR();
+
+    Module['SUBALPINE_FIR'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SUBALPINE_FIR();
+
+    Module['WESTERN_HEMLOCK'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_WESTERN_HEMLOCK();
+
+    Module['PONDEROSA_PINE'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_PONDEROSA_PINE();
+
+    Module['LODGEPOLE_PINE'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LODGEPOLE_PINE();
+
+    Module['WESTERN_WHITE_PINE'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_WESTERN_WHITE_PINE();
+
+    Module['GRAND_FIR'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_GRAND_FIR();
+
+    Module['BALSAM_FIR'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_BALSAM_FIR();
+
+    Module['SLASH_PINE'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SLASH_PINE();
+
+    Module['LONGLEAF_PINE'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LONGLEAF_PINE();
+
+    Module['POND_PINE'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_POND_PINE();
+
+    Module['SHORTLEAF_PINE'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SHORTLEAF_PINE();
+
+    Module['LOBLOLLY_PINE'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LOBLOLLY_PINE();
+
+    
+
+    // SpotFireLocation_SpotFireLocationEnum
+
+    Module['MIDSLOPE_WINDWARD'] = _emscripten_enum_SpotFireLocation_SpotFireLocationEnum_MIDSLOPE_WINDWARD();
+
+    Module['VALLEY_BOTTOM'] = _emscripten_enum_SpotFireLocation_SpotFireLocationEnum_VALLEY_BOTTOM();
+
+    Module['MIDSLOPE_LEEWARD'] = _emscripten_enum_SpotFireLocation_SpotFireLocationEnum_MIDSLOPE_LEEWARD();
+
+    Module['RIDGE_TOP'] = _emscripten_enum_SpotFireLocation_SpotFireLocationEnum_RIDGE_TOP();
 
     
 
