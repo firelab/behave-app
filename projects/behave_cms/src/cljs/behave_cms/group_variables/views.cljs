@@ -66,37 +66,34 @@
 
 (defn group-variable-page
   "Renders the group-variable page. Takes in a group-variable UUID."
-  [{:keys [id]}]
-  (let [loaded? (rf/subscribe [:state :loaded?])]
-    (if (not @loaded?)
-      [:div "Loading ..."]
-      (let [gv-id           (parse-int id)
-            group-variable  (rf/subscribe [:entity gv-id '[* {:variable/_group-variables [*]
-                                                              :group/_group-variables    [*]}]])
-            group           (get-in @group-variable [:group/_group-variables 0])
-            variable        (get-in @group-variable [:variable/_group-variables 0])
-            group-variables (rf/subscribe [:sidebar/variables (:db/id group)])]
-        [:<>
-         [sidebar
-          "Variables"
-          @group-variables
-          "Groups"
-          (str "/groups/" (:db/id group))]
-         [window
-          sidebar-width
-          [:div.container
-           [:div.row.mb-3.mt-4
-            [:h2 (:variable/name variable)]]
-           [accordion
-            "Translations"
-            [all-translations (:group-variable/translation-key @group-variable)]]
-           [:hr]
-           [accordion
-            "Help Page"
-            [:div.col-12
-             [help-editor (:group-variable/help-key @group-variable)]]]
-           [:hr]
-           [accordion
-            "CPP Functions"
-            [:div.col-6
-             [edit-variable gv-id]]]]]]))))
+  [{id :id}]
+  (let [gv-id           (parse-int id)
+        group-variable  (rf/subscribe [:entity gv-id '[* {:variable/_group-variables [*]
+                                                          :group/_group-variables    [*]}]])
+        group           (get-in @group-variable [:group/_group-variables 0])
+        variable        (get-in @group-variable [:variable/_group-variables 0])
+        group-variables (rf/subscribe [:sidebar/variables (:db/id group)])]
+    [:<>
+     [sidebar
+      "Variables"
+      @group-variables
+      (:group/name group)
+      (str "/groups/" (:db/id group))]
+     [window
+      sidebar-width
+      [:div.container
+       [:div.row.mb-3.mt-4
+        [:h2 (:variable/name variable)]]
+       [accordion
+        "Translations"
+        [all-translations (:group-variable/translation-key @group-variable)]]
+       [:hr]
+       [accordion
+        "Help Page"
+        [:div.col-12
+         [help-editor (:group-variable/help-key @group-variable)]]]
+       [:hr]
+       [accordion
+        "CPP Functions"
+        [:div.col-6
+         [edit-variable gv-id]]]]]]))

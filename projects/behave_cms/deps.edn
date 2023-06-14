@@ -31,6 +31,7 @@
              org.clojure/data.xml               {:mvn/version "0.2.0-alpha7"}
 
              ;; ClojureScript
+             austinbirch/reactive-entity        {:mvn/version "0.2.0"}
              applied-science/js-interop         {:mvn/version "0.3.3"}
              binaryage/devtools                 {:mvn/version "1.0.5"}
              cljsjs/react                       {:mvn/version "16.13.0-0" :exclusions [cljsjs/react-dom]}

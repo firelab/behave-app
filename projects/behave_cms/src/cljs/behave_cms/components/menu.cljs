@@ -3,7 +3,9 @@
 (defn- nav-link [label path navigate!]
   [:li.nav-item
    [:a.nav-link
-    {:on-click #(navigate! path)
+    {:on-click #(do (.preventDefault %)
+                    (navigate! path))
+     :href     path
      :style    {:color  "white"
                 :cursor "pointer"}}
     label]])

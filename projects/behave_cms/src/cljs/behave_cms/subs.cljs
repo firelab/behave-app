@@ -33,6 +33,9 @@
   (fn [{state :state} [_ path]]
 
     (cond
+      (nil? path)
+      state
+
       (keyword? path)
       (get state path)
 
@@ -54,6 +57,12 @@
     {:type    :pull
      :pattern (or pattern '[*])
      :id      eid}))
+
+(rp/reg-query-sub
+  :entity-attr
+  '[:find  ?v .
+    :in    $ ?e ?a
+    :where [?e ?a ?v]])
 
 ;;; DataScript Queries
 

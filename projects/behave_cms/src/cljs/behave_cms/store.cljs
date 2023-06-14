@@ -12,7 +12,8 @@
             [ds-schema-utils.interface  :refer [->ds-schema]]
             [datom-utils.interface      :refer [split-datom]]
             [behave.schema.core         :refer [all-schemas]]
-            [behave-cms.config          :refer [get-config]]))
+            [behave-cms.config          :refer [get-config]]
+            [austinbirch.reactive-entity :as re]))
 
 ;;; State
 
@@ -85,6 +86,7 @@
       (reset! conn (d/conn-from-datoms datoms schema))
       (d/listen! @conn :sync-tx-data sync-tx-data)
       (rp/connect! @conn)
+      (re/init! @conn)
       #_(js/setInterval sync-latest-datoms! 5000)
       (rf/dispatch [:state/set-state :loaded? true])
       @conn)))

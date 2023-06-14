@@ -1,5 +1,6 @@
 (ns ^:figwheel-hooks behave-cms.client
   (:require [bidi.bidi                        :refer [match-route]]
+            [reagent.core                     :as r]
             [reagent.dom                      :refer [render]]
             [re-frame.core                    :as rf]
             [behave-cms.store                 :as s]
@@ -52,6 +53,8 @@
                    :invite-user    invite-user-page
                    :reset-password reset-password-page})
 
+(def system-page-handlers (set (keys system-pages)))
+
 (def handler->root-component (merge app-pages system-pages))
 
 (defn not-found
@@ -66,10 +69,15 @@
      "404 - Page Not Found"]]])
 
 (defn page-component [params]
-  (let [current-route                  (rf/subscribe [:route])
-        {:keys [handler route-params]} (match-route app-routes @current-route)]
-    [:div
-     [(get handler->root-component handler not-found) (merge route-params params)]]))
+  (fn [params]
+    (let [current-route                  (rf/subscribe [:route])
+          {:keys [handler route-params]} (match-route app-routes @current-route)
+          system-route?                  (system-page-handlers handler)
+          loaded?                        (r/track #(or system-route? @(rf/subscribe [:state :loaded?])))
+          component                      (get handler->root-component handler not-found)]
+      (if (not @loaded?)
+        [:div "Loading..."]
+        [:div [component (merge params route-params)]]))))
 
 (defn render-page! [path & [params]]
   (rf/dispatch [:navigate path])
@@ -83,7 +91,6 @@
             :else
             (not-found @original-params))
           (.getElementById js/document "app")))
-
 
 (defn- render-root
   "Renders the root component for the current URI."
