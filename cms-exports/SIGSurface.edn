@@ -1,0 +1,1074 @@
+{:global
+ {:SIGSurface
+  {:setFuelModelNumber
+   {:type "void",
+    :id "setFuelModelNumber",
+    :parameters [{:id "fuelModelNumber", :type "int"}]},
+   :getChaparralFuelBedDepth
+   {:type "double",
+    :id "getChaparralFuelBedDepth",
+    :parameters
+    [{:id "depthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :setAspenFuelModelNumber
+   {:type "void",
+    :id "setAspenFuelModelNumber",
+    :parameters [{:id "aspenFuelModelNumber", :type "int"}]},
+   :getHeightOfUnderstory
+   {:type "double",
+    :id "getHeightOfUnderstory",
+    :parameters
+    [{:id "heightUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getSurfaceFireReactionIntensityForLifeState
+   {:type "double",
+    :id "getSurfaceFireReactionIntensityForLifeState",
+    :parameters
+    [{:id "lifeState", :type "FuelLifeState::FuelLifeStateEnum"}]},
+   :setAgeOfRough
+   {:type "void",
+    :id "setAgeOfRough",
+    :parameters [{:id "ageOfRough", :type "double"}]},
+   :getSlopeFactor
+   {:type "double", :id "getSlopeFactor", :parameters []},
+   :SIGSurface
+   {:id "SIGSurface",
+    :parameters [{:id "fuelModels", :type "SIGFuelModels"}]},
+   :getChaparralTotalSilicaContent
+   {:type "double",
+    :id "getChaparralTotalSilicaContent",
+    :parameters
+    [{:id "lifeState", :type "FuelLifeState::FuelLifeStateEnum"}
+     {:id "sizeClass", :type "int"}]},
+   :getFireEccentricity
+   {:type "double", :id "getFireEccentricity", :parameters []},
+   :setWindAdjustmentFactorCalculationMethod
+   {:type "void",
+    :id "setWindAdjustmentFactorCalculationMethod",
+    :parameters
+    [{:id "windAdjustmentFactorCalculationMethod",
+      :type
+      "WindAdjustmentFactorCalculationMethod::WindAdjustmentFactorCalculationMethodEnum"}]},
+   :getMoistureHundredHour
+   {:type "double",
+    :id "getMoistureHundredHour",
+    :parameters
+    [{:id "moistureUnits", :type "MoistureUnits::MoistureUnitsEnum"}]},
+   :isFuelDynamic
+   {:type "bool",
+    :id "isFuelDynamic",
+    :parameters [{:id "fuelModelNumber", :type "int"}]},
+   :getMoistureScenarioLiveHerbaceousByIndex
+   {:type "double",
+    :id "getMoistureScenarioLiveHerbaceousByIndex",
+    :parameters [{:id "index", :type "int"}]},
+   :getPalmettoGallberryHeatOfCombustionDead
+   {:type "double",
+    :id "getPalmettoGallberryHeatOfCombustionDead",
+    :parameters
+    [{:id "heatOfCombustionUnits",
+      :type "HeatOfCombustionUnits::HeatOfCombustionUnitsEnum"}]},
+   :getPalmettoGallberryMoistureOfExtinctionDead
+   {:type "double",
+    :id "getPalmettoGallberryMoistureOfExtinctionDead",
+    :parameters
+    [{:id "moistureUnits", :type "MoistureUnits::MoistureUnitsEnum"}]},
+   :getFuelModelNumber
+   {:type "int", :id "getFuelModelNumber", :parameters []},
+   :setWindHeightInputMode
+   {:type "void",
+    :id "setWindHeightInputMode",
+    :parameters
+    [{:id "windHeightInputMode",
+      :type "WindHeightInputMode::WindHeightInputModeEnum"}]},
+   :setOverstoryBasalArea
+   {:type "void",
+    :id "setOverstoryBasalArea",
+    :parameters
+    [{:id "overstoryBasalArea", :type "double"}
+     {:id "basalAreaUnits",
+      :type "BasalAreaUnits::BasalAreaUnitsEnum"}]},
+   :setMoistureDeadAggregate
+   {:type "void",
+    :id "setMoistureDeadAggregate",
+    :parameters
+    [{:id "moistureDead", :type "double"}
+     {:id "moistureUnits", :type "MoistureUnits::MoistureUnitsEnum"}]},
+   :setTwoFuelModelsMethod
+   {:type "void",
+    :id "setTwoFuelModelsMethod",
+    :parameters
+    [{:id "twoFuelModelsMethod",
+      :type "TwoFuelModelsMethod::TwoFuelModelsMethodEnum"}]},
+   :getWindDirection
+   {:type "double", :id "getWindDirection", :parameters []},
+   :getHeatPerUnitArea
+   {:type "double",
+    :id "getHeatPerUnitArea",
+    :parameters
+    [{:id "heatPerUnitAreaUnits",
+      :type "HeatPerUnitAreaUnits::HeatPerUnitAreaUnitsEnum"}]},
+   :getMoistureScenarioHundredHourByIndex
+   {:type "double",
+    :id "getMoistureScenarioHundredHourByIndex",
+    :parameters [{:id "index", :type "int"}]},
+   :getFuelSavrLiveWoody
+   {:type "double",
+    :id "getFuelSavrLiveWoody",
+    :parameters
+    [{:id "fuelModelNumber", :type "int"}
+     {:id "savrUnits",
+      :type
+      "SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum"}]},
+   :setMoistureOneHour
+   {:type "void",
+    :id "setMoistureOneHour",
+    :parameters
+    [{:id "moistureOneHour", :type "double"}
+     {:id "moistureUnits", :type "MoistureUnits::MoistureUnitsEnum"}]},
+   :getFuelName
+   {:type "char",
+    :id "getFuelName",
+    :parameters [{:id "fuelModelNumber", :type "int"}]},
+   :getChaparralTotalDeadFuelLoad
+   {:type "double",
+    :id "getChaparralTotalDeadFuelLoad",
+    :parameters
+    [{:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :getBackingSpreadDistance
+   {:type "double",
+    :id "getBackingSpreadDistance",
+    :parameters
+    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}
+     {:id "elapsedTime", :type "double"}
+     {:id "timeUnits", :type "TimeUnits::TimeUnitsEnum"}]},
+   :setSlope
+   {:type "void",
+    :id "setSlope",
+    :parameters
+    [{:id "slope", :type "double"}
+     {:id "slopeUnits", :type "SlopeUnits::SlopeUnitsEnum"}]},
+   :setCanopyHeight
+   {:type "void",
+    :id "setCanopyHeight",
+    :parameters
+    [{:id "canopyHeight", :type "double"}
+     {:id "canopyHeightUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getMoistureScenarioLiveWoodyByIndex
+   {:type "double",
+    :id "getMoistureScenarioLiveWoodyByIndex",
+    :parameters [{:id "index", :type "int"}]},
+   :getPalmettoGallberyLiveOneHourLoad
+   {:type "double",
+    :id "getPalmettoGallberyLiveOneHourLoad",
+    :parameters
+    [{:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :getMoistureLiveWoody
+   {:type "double",
+    :id "getMoistureLiveWoody",
+    :parameters
+    [{:id "moistureUnits", :type "MoistureUnits::MoistureUnitsEnum"}]},
+   :getFuelLoadLiveWoody
+   {:type "double",
+    :id "getFuelLoadLiveWoody",
+    :parameters
+    [{:id "fuelModelNumber", :type "int"}
+     {:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :getChaparralFuelType
+   {:type "ChaparralFuelType::ChaparralFuelTypeEnum",
+    :id "getChaparralFuelType",
+    :parameters []},
+   :getMoistureScenarioIndexByName
+   {:type "int",
+    :id "getMoistureScenarioIndexByName",
+    :parameters [{:id "name", :type "std::string"}]},
+   :getAspenLoadLiveHerbaceous
+   {:type "double",
+    :id "getAspenLoadLiveHerbaceous",
+    :parameters
+    [{:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :getAspenLoadLiveWoody
+   {:type "double",
+    :id "getAspenLoadLiveWoody",
+    :parameters
+    [{:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :getAspenSavrLiveWoody
+   {:type "double",
+    :id "getAspenSavrLiveWoody",
+    :parameters
+    [{:id "savrUnits",
+      :type
+      "SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum"}]},
+   :getOverstoryBasalArea
+   {:type "double",
+    :id "getOverstoryBasalArea",
+    :parameters
+    [{:id "basalAreaUnits",
+      :type "BasalAreaUnits::BasalAreaUnitsEnum"}]},
+   :setMoistureScenarioByName
+   {:type "bool",
+    :id "setMoistureScenarioByName",
+    :parameters [{:id "moistureScenarioName", :type "std::string"}]},
+   :isAllFuelLoadZero
+   {:type "bool",
+    :id "isAllFuelLoadZero",
+    :parameters [{:id "fuelModelNumber", :type "int"}]},
+   :getWindAndSpreadOrientationMode
+   {:type
+    "WindAndSpreadOrientationMode::WindAndSpreadOrientationModeEnum",
+    :id "getWindAndSpreadOrientationMode",
+    :parameters []},
+   :getAspenSavrLiveHerbaceous
+   {:type "double",
+    :id "getAspenSavrLiveHerbaceous",
+    :parameters
+    [{:id "savrUnits",
+      :type
+      "SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum"}]},
+   :getPalmettoGallberyDeadFoliageLoad
+   {:type "double",
+    :id "getPalmettoGallberyDeadFoliageLoad",
+    :parameters
+    [{:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :getMoistureScenarioHundredHourByName
+   {:type "double",
+    :id "getMoistureScenarioHundredHourByName",
+    :parameters [{:id "name", :type "std::string"}]},
+   :getAspenSavrDeadTenHour
+   {:type "double",
+    :id "getAspenSavrDeadTenHour",
+    :parameters
+    [{:id "savrUnits",
+      :type
+      "SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum"}]},
+   :getMoistureScenarioOneHourByName
+   {:type "double",
+    :id "getMoistureScenarioOneHourByName",
+    :parameters [{:id "name", :type "std::string"}]},
+   :getNumberOfMoistureScenarios
+   {:type "int", :id "getNumberOfMoistureScenarios", :parameters []},
+   :setIsUsingChaparral
+   {:type "void",
+    :id "setIsUsingChaparral",
+    :parameters [{:id "isUsingChaparral", :type "bool"}]},
+   :getPalmettoGallberryHeatOfCombustionLive
+   {:type "double",
+    :id "getPalmettoGallberryHeatOfCombustionLive",
+    :parameters
+    [{:id "heatOfCombustionUnits",
+      :type "HeatOfCombustionUnits::HeatOfCombustionUnitsEnum"}]},
+   :calculateScorchHeight
+   {:type "double",
+    :id "calculateScorchHeight",
+    :parameters
+    [{:id "firelineIntensity", :type "double"}
+     {:id "firelineIntensityUnits",
+      :type "FirelineIntensityUnits::FirelineIntensityUnitsEnum"}
+     {:id "midFlameWindSpeed", :type "double"}
+     {:id "windSpeedUnits", :type "SpeedUnits::SpeedUnitsEnum"}
+     {:id "airTemperature", :type "double"}
+     {:id "temperatureUnits",
+      :type "TemperatureUnits::TemperatureUnitsEnum"}
+     {:id "scorchHeightUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getDirectionOfMaxSpread
+   {:type "double", :id "getDirectionOfMaxSpread", :parameters []},
+   :getSpreadRateInDirectionOfInterest
+   {:type "double",
+    :id "getSpreadRateInDirectionOfInterest",
+    :parameters
+    [{:id "spreadRateUnits", :type "SpeedUnits::SpeedUnitsEnum"}]},
+   :getEllipticalA
+   {:type "double",
+    :id "getEllipticalA",
+    :parameters
+    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}
+     {:id "elapsedTime", :type "double"}
+     {:id "timeUnits", :type "TimeUnits::TimeUnitsEnum"}]},
+   :getWindSpeed
+   {:type "double",
+    :id "getWindSpeed",
+    :parameters
+    [{:id "windSpeedUnits", :type "SpeedUnits::SpeedUnitsEnum"}
+     {:id "windHeightInputMode",
+      :type "WindHeightInputMode::WindHeightInputModeEnum"}]},
+   :setChaparralFuelBedDepth
+   {:type "void",
+    :id "setChaparralFuelBedDepth",
+    :parameters
+    [{:id "chaparralFuelBedDepth", :type "double"}
+     {:id "depthUnts", :type "LengthUnits::LengthUnitsEnum"}]},
+   :setMoistureTenHour
+   {:type "void",
+    :id "setMoistureTenHour",
+    :parameters
+    [{:id "moistureTenHour", :type "double"}
+     {:id "moistureUnits", :type "MoistureUnits::MoistureUnitsEnum"}]},
+   :getChaparralDeadMoistureOfExtinction
+   {:type "double",
+    :id "getChaparralDeadMoistureOfExtinction",
+    :parameters
+    [{:id "moistureUnits", :type "MoistureUnits::MoistureUnitsEnum"}]},
+   :getFuelHeatOfCombustionLive
+   {:type "double",
+    :id "getFuelHeatOfCombustionLive",
+    :parameters
+    [{:id "fuelModelNumber", :type "int"}
+     {:id "heatOfCombustionUnits",
+      :type "HeatOfCombustionUnits::HeatOfCombustionUnitsEnum"}]},
+   :getCharacteristicMoistureByLifeState
+   {:type "double",
+    :id "getCharacteristicMoistureByLifeState",
+    :parameters
+    [{:id "lifeState", :type "FuelLifeState::FuelLifeStateEnum"}
+     {:id "moistureUnits", :type "MoistureUnits::MoistureUnitsEnum"}]},
+   :getIsMoistureScenarioDefinedByName
+   {:type "bool",
+    :id "getIsMoistureScenarioDefinedByName",
+    :parameters [{:id "name", :type "std::string"}]},
+   :getFuelHeatOfCombustionDead
+   {:type "double",
+    :id "getFuelHeatOfCombustionDead",
+    :parameters
+    [{:id "fuelModelNumber", :type "int"}
+     {:id "heatOfCombustionUnits",
+      :type "HeatOfCombustionUnits::HeatOfCombustionUnitsEnum"}]},
+   :getFlankingSpreadRate
+   {:type "double",
+    :id "getFlankingSpreadRate",
+    :parameters
+    [{:id "spreadRateUnits", :type "SpeedUnits::SpeedUnitsEnum"}]},
+   :getFuelMoistureOfExtinctionDead
+   {:type "double",
+    :id "getFuelMoistureOfExtinctionDead",
+    :parameters
+    [{:id "fuelModelNumber", :type "int"}
+     {:id "moistureUnits", :type "MoistureUnits::MoistureUnitsEnum"}]},
+   :setChaparralFuelType
+   {:type "void",
+    :id "setChaparralFuelType",
+    :parameters
+    [{:id "chaparralFuelType",
+      :type "ChaparralFuelType::ChaparralFuelTypeEnum"}]},
+   :getCharacteristicSAVR
+   {:type "double",
+    :id "getCharacteristicSAVR",
+    :parameters
+    [{:id "savrUnits",
+      :type
+      "SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum"}]},
+   :getEllipticalB
+   {:type "double",
+    :id "getEllipticalB",
+    :parameters
+    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}
+     {:id "elapsedTime", :type "double"}
+     {:id "timeUnits", :type "TimeUnits::TimeUnitsEnum"}]},
+   :getReactionIntensity
+   {:type "double",
+    :id "getReactionIntensity",
+    :parameters
+    [{:id "reactiontionIntensityUnits",
+      :type
+      "HeatSourceAndReactionIntensityUnits::HeatSourceAndReactionIntensityUnitsEnum"}]},
+   :getAspect {:type "double", :id "getAspect", :parameters []},
+   :getAspenSavrDeadOneHour
+   {:type "double",
+    :id "getAspenSavrDeadOneHour",
+    :parameters
+    [{:id "savrUnits",
+      :type
+      "SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum"}]},
+   :getMoistureLiveHerbaceous
+   {:type "double",
+    :id "getMoistureLiveHerbaceous",
+    :parameters
+    [{:id "moistureUnits", :type "MoistureUnits::MoistureUnitsEnum"}]},
+   :getChaparralLiveMoistureOfExtinction
+   {:type "double",
+    :id "getChaparralLiveMoistureOfExtinction",
+    :parameters
+    [{:id "moistureUnits", :type "MoistureUnits::MoistureUnitsEnum"}]},
+   :getFuelCode
+   {:type "char",
+    :id "getFuelCode",
+    :parameters [{:id "fuelModelNumber", :type "int"}]},
+   :setChaparralTotalFuelLoad
+   {:type "void",
+    :id "setChaparralTotalFuelLoad",
+    :parameters
+    [{:id "chaparralTotalFuelLoad", :type "double"}
+     {:id "fuelLoadUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :setMoistureLiveHerbaceous
+   {:type "void",
+    :id "setMoistureLiveHerbaceous",
+    :parameters
+    [{:id "moistureLiveHerbaceous", :type "double"}
+     {:id "moistureUnits", :type "MoistureUnits::MoistureUnitsEnum"}]},
+   :setPalmettoCoverage
+   {:type "void",
+    :id "setPalmettoCoverage",
+    :parameters
+    [{:id "palmettoCoverage", :type "double"}
+     {:id "coverUnits", :type "CoverUnits::CoverUnitsEnum"}]},
+   :getSpreadDistance
+   {:type "double",
+    :id "getSpreadDistance",
+    :parameters
+    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}
+     {:id "elapsedTime", :type "double"}
+     {:id "timeUnits", :type "TimeUnits::TimeUnitsEnum"}]},
+   :getChaparralDensity
+   {:type "double",
+    :id "getChaparralDensity",
+    :parameters
+    [{:id "lifeState", :type "FuelLifeState::FuelLifeStateEnum"}
+     {:id "sizeClass", :type "int"}
+     {:id "densityUnits", :type "DensityUnits::DensityUnitsEnum"}]},
+   :operator=
+   {:type "Surface",
+    :id "operator=",
+    :parameters [{:id "rhs", :type "Surface"}]},
+   :getHeatSource
+   {:type "double",
+    :id "getHeatSource",
+    :parameters
+    [{:id "heatSourceUnits",
+      :type
+      "HeatSourceAndReactionIntensityUnits::HeatSourceAndReactionIntensityUnitsEnum"}]},
+   :getAspenLoadDeadTenHour
+   {:type "double",
+    :id "getAspenLoadDeadTenHour",
+    :parameters
+    [{:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :isUsingTwoFuelModels
+   {:type "bool", :id "isUsingTwoFuelModels", :parameters []},
+   :setUserProvidedWindAdjustmentFactor
+   {:type "void",
+    :id "setUserProvidedWindAdjustmentFactor",
+    :parameters
+    [{:id "userProvidedWindAdjustmentFactor", :type "double"}]},
+   :updateSurfaceInputsForTwoFuelModels
+   {:type "void",
+    :id "updateSurfaceInputsForTwoFuelModels",
+    :parameters
+    [{:id "firstFuelModelNumber", :type "int"}
+     {:id "secondFuelModelNumber", :type "int"}
+     {:id "moistureOneHour", :type "double"}
+     {:id "moistureTenHour", :type "double"}
+     {:id "moistureHundredHour", :type "double"}
+     {:id "moistureLiveHerbaceous", :type "double"}
+     {:id "moistureLiveWoody", :type "double"}
+     {:id "moistureUnits", :type "MoistureUnits::MoistureUnitsEnum"}
+     {:id "windSpeed", :type "double"}
+     {:id "windSpeedUnits", :type "SpeedUnits::SpeedUnitsEnum"}
+     {:id "windHeightInputMode",
+      :type "WindHeightInputMode::WindHeightInputModeEnum"}
+     {:id "windDirection", :type "double"}
+     {:id "windAndSpreadOrientationMode",
+      :type
+      "WindAndSpreadOrientationMode::WindAndSpreadOrientationModeEnum"}
+     {:id "firstFuelModelCoverage", :type "double"}
+     {:id "firstFuelModelCoverageUnits",
+      :type "CoverUnits::CoverUnitsEnum"}
+     {:id "twoFuelModelsMethod",
+      :type "TwoFuelModelsMethod::TwoFuelModelsMethodEnum"}
+     {:id "slope", :type "double"}
+     {:id "slopeUnits", :type "SlopeUnits::SlopeUnitsEnum"}
+     {:id "aspect", :type "double"}
+     {:id "canopyCover", :type "double"}
+     {:id "canopyCoverUnits", :type "CoverUnits::CoverUnitsEnum"}
+     {:id "canopyHeight", :type "double"}
+     {:id "canopyHeightUnits", :type "LengthUnits::LengthUnitsEnum"}
+     {:id "crownRatio", :type "double"}]},
+   :getChaparralLoad
+   {:type "double",
+    :id "getChaparralLoad",
+    :parameters
+    [{:id "lifeState", :type "FuelLifeState::FuelLifeStateEnum"}
+     {:id "sizeClass", :type "int"}
+     {:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :isFuelModelReserved
+   {:type "bool",
+    :id "isFuelModelReserved",
+    :parameters [{:id "fuelModelNumber", :type "int"}]},
+   :getPalmettoGallberyDeadTenHourLoad
+   {:type "double",
+    :id "getPalmettoGallberyDeadTenHourLoad",
+    :parameters
+    [{:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :getMoistureInputMode
+   {:type "MoistureInputMode::MoistureInputModeEnum",
+    :id "getMoistureInputMode",
+    :parameters []},
+   :setMoistureScenarios
+   {:type "void",
+    :id "setMoistureScenarios",
+    :parameters
+    [{:id "moistureScenarios", :type "SIGMoistureScenarios"}]},
+   :getMoistureScenarioNameByIndex
+   {:type "char",
+    :id "getMoistureScenarioNameByIndex",
+    :parameters [{:id "index", :type "int"}]},
+   :getWindHeightInputMode
+   {:type "WindHeightInputMode::WindHeightInputModeEnum",
+    :id "getWindHeightInputMode",
+    :parameters []},
+   :getSpreadDistanceInDirectionOfInterest
+   {:type "double",
+    :id "getSpreadDistanceInDirectionOfInterest",
+    :parameters
+    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}
+     {:id "elapsedTime", :type "double"}
+     {:id "timeUnits", :type "TimeUnits::TimeUnitsEnum"}]},
+   :getEllipticalC
+   {:type "double",
+    :id "getEllipticalC",
+    :parameters
+    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}
+     {:id "elapsedTime", :type "double"}
+     {:id "timeUnits", :type "TimeUnits::TimeUnitsEnum"}]},
+   :setWindDirection
+   {:type "void",
+    :id "setWindDirection",
+    :parameters [{:id "windDirection", :type "double"}]},
+   :getFlankingSpreadDistance
+   {:type "double",
+    :id "getFlankingSpreadDistance",
+    :parameters
+    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}
+     {:id "elapsedTime", :type "double"}
+     {:id "timeUnits", :type "TimeUnits::TimeUnitsEnum"}]},
+   :getResidenceTime
+   {:type "double",
+    :id "getResidenceTime",
+    :parameters [{:id "timeUnits", :type "TimeUnits::TimeUnitsEnum"}]},
+   :getFuelSavrOneHour
+   {:type "double",
+    :id "getFuelSavrOneHour",
+    :parameters
+    [{:id "fuelModelNumber", :type "int"}
+     {:id "savrUnits",
+      :type
+      "SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum"}]},
+   :getMoistureScenarioLiveWoodyByName
+   {:type "double",
+    :id "getMoistureScenarioLiveWoodyByName",
+    :parameters [{:id "name", :type "std::string"}]},
+   :setWindAndSpreadOrientationMode
+   {:type "void",
+    :id "setWindAndSpreadOrientationMode",
+    :parameters
+    [{:id "windAndSpreadOrientationMode",
+      :type
+      "WindAndSpreadOrientationMode::WindAndSpreadOrientationModeEnum"}]},
+   :setChaparralFuelDeadLoadFraction
+   {:type "void",
+    :id "setChaparralFuelDeadLoadFraction",
+    :parameters
+    [{:id "chaparralFuelDeadLoadFraction", :type "double"}]},
+   :getChaparralHeatOfCombustion
+   {:type "double",
+    :id "getChaparralHeatOfCombustion",
+    :parameters
+    [{:id "lifeState", :type "FuelLifeState::FuelLifeStateEnum"}
+     {:id "sizeClass", :type "int"}
+     {:id "heatOfCombustionUnits",
+      :type "HeatOfCombustionUnits::HeatOfCombustionUnitsEnum"}]},
+   :getFirePerimeter
+   {:type "double",
+    :id "getFirePerimeter",
+    :parameters
+    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}
+     {:id "elapsedTime", :type "double"}
+     {:id "timeUnits", :type "TimeUnits::TimeUnitsEnum"}]},
+   :getMoistureScenarioLiveHerbaceousByName
+   {:type "double",
+    :id "getMoistureScenarioLiveHerbaceousByName",
+    :parameters [{:id "name", :type "std::string"}]},
+   :setHeightOfUnderstory
+   {:type "void",
+    :id "setHeightOfUnderstory",
+    :parameters
+    [{:id "heightOfUnderstory", :type "double"}
+     {:id "heightUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getChaparralMoisture
+   {:type "double",
+    :id "getChaparralMoisture",
+    :parameters
+    [{:id "lifeState", :type "FuelLifeState::FuelLifeStateEnum"}
+     {:id "sizeClass", :type "int"}
+     {:id "moistureUnits", :type "MoistureUnits::MoistureUnitsEnum"}]},
+   :getFuelSavrLiveHerbaceous
+   {:type "double",
+    :id "getFuelSavrLiveHerbaceous",
+    :parameters
+    [{:id "fuelModelNumber", :type "int"}
+     {:id "savrUnits",
+      :type
+      "SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum"}]},
+   :setAspect
+   {:type "void",
+    :id "setAspect",
+    :parameters [{:id "aspect", :type "double"}]},
+   :getPalmettoGallberyLiveFoliageLoad
+   {:type "double",
+    :id "getPalmettoGallberyLiveFoliageLoad",
+    :parameters
+    [{:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :getPalmettoGallberyLitterLoad
+   {:type "double",
+    :id "getPalmettoGallberyLitterLoad",
+    :parameters
+    [{:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :getFuelLoadLiveHerbaceous
+   {:type "double",
+    :id "getFuelLoadLiveHerbaceous",
+    :parameters
+    [{:id "fuelModelNumber", :type "int"}
+     {:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :getChaparralDaysSinceMayFirst
+   {:type "double",
+    :id "getChaparralDaysSinceMayFirst",
+    :parameters []},
+   :setMoistureHundredHour
+   {:type "void",
+    :id "setMoistureHundredHour",
+    :parameters
+    [{:id "moistureHundredHour", :type "double"}
+     {:id "moistureUnits", :type "MoistureUnits::MoistureUnitsEnum"}]},
+   :getAspenDBH
+   {:type "double",
+    :id "getAspenDBH",
+    :parameters
+    [{:id "dbhUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getBulkDensity
+   {:type "double",
+    :id "getBulkDensity",
+    :parameters
+    [{:id "densityUnits", :type "DensityUnits::DensityUnitsEnum"}]},
+   :getChaparralTotalLiveFuelLoad
+   {:type "double",
+    :id "getChaparralTotalLiveFuelLoad",
+    :parameters
+    [{:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :getFireArea
+   {:type "double",
+    :id "getFireArea",
+    :parameters
+    [{:id "areaUnits", :type "AreaUnits::AreaUnitsEnum"}
+     {:id "elapsedTime", :type "double"}
+     {:id "timeUnits", :type "TimeUnits::TimeUnitsEnum"}]},
+   :getHeatSink
+   {:type "double",
+    :id "getHeatSink",
+    :parameters
+    [{:id "heatSinkUnits", :type "HeatSinkUnits::HeatSinkUnitsEnum"}]},
+   :getIsUsingWesternAspen
+   {:type "bool", :id "getIsUsingWesternAspen", :parameters []},
+   :setCrownRatio
+   {:type "void",
+    :id "setCrownRatio",
+    :parameters [{:id "crownRatio", :type "double"}]},
+   :getFuelLoadTenHour
+   {:type "double",
+    :id "getFuelLoadTenHour",
+    :parameters
+    [{:id "fuelModelNumber", :type "int"}
+     {:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :initializeMembers
+   {:type "void", :id "initializeMembers", :parameters []},
+   :setAspenCuringLevel
+   {:type "void",
+    :id "setAspenCuringLevel",
+    :parameters
+    [{:id "aspenCuringLevel", :type "double"}
+     {:id "curingLevelUnits",
+      :type "CuringLevelUnits::CuringLevelEnum"}]},
+   :getSlope
+   {:type "double",
+    :id "getSlope",
+    :parameters
+    [{:id "slopeUnits", :type "SlopeUnits::SlopeUnitsEnum"}]},
+   :calculateFlameLength
+   {:type "double",
+    :id "calculateFlameLength",
+    :parameters
+    [{:id "firelineIntensity", :type "double"}
+     {:id "firelineIntensityUnits",
+      :type "FirelineIntensityUnits::FirelineIntensityUnitsEnum"}
+     {:id "flameLengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :doSurfaceRunInDirectionOfInterest
+   {:type "void",
+    :id "doSurfaceRunInDirectionOfInterest",
+    :parameters
+    [{:id "directionOfInterest", :type "double"}
+     {:id "directionMode",
+      :type
+      "SurfaceFireSpreadDirectionMode::SurfaceFireSpreadDirectionModeEnum"}]},
+   :getAspenFuelModelNumber
+   {:type "int", :id "getAspenFuelModelNumber", :parameters []},
+   :getPalmettoGallberyFuelBedDepth
+   {:type "double",
+    :id "getPalmettoGallberyFuelBedDepth",
+    :parameters
+    [{:id "depthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getPalmettoGallberryCoverage
+   {:type "double",
+    :id "getPalmettoGallberryCoverage",
+    :parameters
+    [{:id "coverUnits", :type "CoverUnits::CoverUnitsEnum"}]},
+   :setMoistureLiveWoody
+   {:type "void",
+    :id "setMoistureLiveWoody",
+    :parameters
+    [{:id "moistureLiveWoody", :type "double"}
+     {:id "moistureUnits", :type "MoistureUnits::MoistureUnitsEnum"}]},
+   :setIsUsingWesternAspen
+   {:type "void",
+    :id "setIsUsingWesternAspen",
+    :parameters [{:id "isUsingWesternAspen", :type "bool"}]},
+   :getChaparralSavr
+   {:type "double",
+    :id "getChaparralSavr",
+    :parameters
+    [{:id "lifeState", :type "FuelLifeState::FuelLifeStateEnum"}
+     {:id "sizeClass", :type "int"}
+     {:id "savrUnits",
+      :type
+      "SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum"}]},
+   :getAspenLoadDeadOneHour
+   {:type "double",
+    :id "getAspenLoadDeadOneHour",
+    :parameters
+    [{:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :getCrownRatio
+   {:type "double", :id "getCrownRatio", :parameters []},
+   :getIsUsingChaparral
+   {:type "bool", :id "getIsUsingChaparral", :parameters []},
+   :getMoistureScenarioDescriptionByIndex
+   {:type "char",
+    :id "getMoistureScenarioDescriptionByIndex",
+    :parameters [{:id "index", :type "int"}]},
+   :getChaparralTotalFuelLoad
+   {:type "double",
+    :id "getChaparralTotalFuelLoad",
+    :parameters
+    [{:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :getLiveFuelMoistureOfExtinction
+   {:type "double",
+    :id "getLiveFuelMoistureOfExtinction",
+    :parameters
+    [{:id "moistureUnits", :type "MoistureUnits::MoistureUnitsEnum"}]},
+   :getCanopyHeight
+   {:type "double",
+    :id "getCanopyHeight",
+    :parameters
+    [{:id "canopyHeightUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :setSecondFuelModelNumber
+   {:type "void",
+    :id "setSecondFuelModelNumber",
+    :parameters [{:id "secondFuelModelNumber", :type "int"}]},
+   :setMoistureLiveAggregate
+   {:type "void",
+    :id "setMoistureLiveAggregate",
+    :parameters
+    [{:id "moistureLive", :type "double"}
+     {:id "moistureUnits", :type "MoistureUnits::MoistureUnitsEnum"}]},
+   :setCanopyCover
+   {:type "void",
+    :id "setCanopyCover",
+    :parameters
+    [{:id "canopyCover", :type "double"}
+     {:id "coverUnits", :type "CoverUnits::CoverUnitsEnum"}]},
+   :getChaparralEffectiveSilicaContent
+   {:type "double",
+    :id "getChaparralEffectiveSilicaContent",
+    :parameters
+    [{:id "lifeState", :type "FuelLifeState::FuelLifeStateEnum"}
+     {:id "sizeClass", :type "int"}]},
+   :setWindSpeed
+   {:type "void",
+    :id "setWindSpeed",
+    :parameters
+    [{:id "windSpeed", :type "double"}
+     {:id "windSpeedUnits", :type "SpeedUnits::SpeedUnitsEnum"}
+     {:id "windHeightInputMode",
+      :type "WindHeightInputMode::WindHeightInputModeEnum"}]},
+   :getMoistureOneHour
+   {:type "double",
+    :id "getMoistureOneHour",
+    :parameters
+    [{:id "moistureUnits", :type "MoistureUnits::MoistureUnitsEnum"}]},
+   :getMoistureDeadAggregateValue
+   {:type "double",
+    :id "getMoistureDeadAggregateValue",
+    :parameters
+    [{:id "moistureUnits", :type "MoistureUnits::MoistureUnitsEnum"}]},
+   :getFuelLoadOneHour
+   {:type "double",
+    :id "getFuelLoadOneHour",
+    :parameters
+    [{:id "fuelModelNumber", :type "int"}
+     {:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :setFuelModels
+   {:type "void",
+    :id "setFuelModels",
+    :parameters [{:id "fuelModels", :type "FuelModels"}]},
+   :getHeadingToBackingRatio
+   {:type "double", :id "getHeadingToBackingRatio", :parameters []},
+   :isMoistureClassInputNeededForCurrentFuelModel
+   {:type "bool",
+    :id "isMoistureClassInputNeededForCurrentFuelModel",
+    :parameters
+    [{:id "moistureClass",
+      :type "MoistureClassInput::MoistureClassInputEnum"}]},
+   :doSurfaceRunInDirectionOfMaxSpread
+   {:type "void",
+    :id "doSurfaceRunInDirectionOfMaxSpread",
+    :parameters []},
+   :getIsUsingPalmettoGallberry
+   {:type "bool", :id "getIsUsingPalmettoGallberry", :parameters []},
+   :getChaparralDeadFuelFraction
+   {:type "double",
+    :id "getChaparralDeadFuelFraction",
+    :parameters []},
+   :updateSurfaceInputs
+   {:type "void",
+    :id "updateSurfaceInputs",
+    :parameters
+    [{:id "fuelModelNumber", :type "int"}
+     {:id "moistureOneHour", :type "double"}
+     {:id "moistureTenHour", :type "double"}
+     {:id "moistureHundredHour", :type "double"}
+     {:id "moistureLiveHerbaceous", :type "double"}
+     {:id "moistureLiveWoody", :type "double"}
+     {:id "moistureUnits", :type "MoistureUnits::MoistureUnitsEnum"}
+     {:id "windSpeed", :type "double"}
+     {:id "windSpeedUnits", :type "SpeedUnits::SpeedUnitsEnum"}
+     {:id "windHeightInputMode",
+      :type "WindHeightInputMode::WindHeightInputModeEnum"}
+     {:id "windDirection", :type "double"}
+     {:id "windAndSpreadOrientationMode",
+      :type
+      "WindAndSpreadOrientationMode::WindAndSpreadOrientationModeEnum"}
+     {:id "slope", :type "double"}
+     {:id "slopeUnits", :type "SlopeUnits::SlopeUnitsEnum"}
+     {:id "aspect", :type "double"}
+     {:id "canopyCover", :type "double"}
+     {:id "coverUnits", :type "CoverUnits::CoverUnitsEnum"}
+     {:id "canopyHeight", :type "double"}
+     {:id "canopyHeightUnits", :type "LengthUnits::LengthUnitsEnum"}
+     {:id "crownRatio", :type "double"}]},
+   :getMoistureTenHour
+   {:type "double",
+    :id "getMoistureTenHour",
+    :parameters
+    [{:id "moistureUnits", :type "MoistureUnits::MoistureUnitsEnum"}]},
+   :getMoistureScenarioTenHourByName
+   {:type "double",
+    :id "getMoistureScenarioTenHourByName",
+    :parameters [{:id "name", :type "std::string"}]},
+   :getAspenFireSeverity
+   {:type "AspenFireSeverity::AspenFireSeverityEnum",
+    :id "getAspenFireSeverity",
+    :parameters []},
+   :getMoistureScenarioOneHourByIndex
+   {:type "double",
+    :id "getMoistureScenarioOneHourByIndex",
+    :parameters [{:id "index", :type "int"}]},
+   :getMoistureScenarioTenHourByIndex
+   {:type "double",
+    :id "getMoistureScenarioTenHourByIndex",
+    :parameters [{:id "index", :type "int"}]},
+   :getBackingSpreadRate
+   {:type "double",
+    :id "getBackingSpreadRate",
+    :parameters
+    [{:id "spreadRateUnits", :type "SpeedUnits::SpeedUnitsEnum"}]},
+   :getAgeOfRough
+   {:type "double", :id "getAgeOfRough", :parameters []},
+   :getChaparralAge
+   {:type "double",
+    :id "getChaparralAge",
+    :parameters [{:id "ageUnits", :type "TimeUnits::TimeUnitsEnum"}]},
+   :getSpreadRate
+   {:type "double",
+    :id "getSpreadRate",
+    :parameters
+    [{:id "spreadRateUnits", :type "SpeedUnits::SpeedUnitsEnum"}]},
+   :getFuelLoadHundredHour
+   {:type "double",
+    :id "getFuelLoadHundredHour",
+    :parameters
+    [{:id "fuelModelNumber", :type "int"}
+     {:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :getFirelineIntensity
+   {:type "double",
+    :id "getFirelineIntensity",
+    :parameters
+    [{:id "firelineIntensityUnits",
+      :type "FirelineIntensityUnits::FirelineIntensityUnitsEnum"}]},
+   :getPalmettoGallberyLiveTenHourLoad
+   {:type "double",
+    :id "getPalmettoGallberyLiveTenHourLoad",
+    :parameters
+    [{:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :setAspenDBH
+   {:type "void",
+    :id "setAspenDBH",
+    :parameters
+    [{:id "dbh", :type "double"}
+     {:id "dbhUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getChaparralFuelDeadLoadFraction
+   {:type "double",
+    :id "getChaparralFuelDeadLoadFraction",
+    :parameters []},
+   :setMoistureScenarioByIndex
+   {:type "bool",
+    :id "setMoistureScenarioByIndex",
+    :parameters [{:id "moistureScenarioIndex", :type "int"}]},
+   :getAspenCuringLevel
+   {:type "double",
+    :id "getAspenCuringLevel",
+    :parameters
+    [{:id "curingLevelUnits",
+      :type "CuringLevelUnits::CuringLevelEnum"}]},
+   :getIsMoistureScenarioDefinedByIndex
+   {:type "bool",
+    :id "getIsMoistureScenarioDefinedByIndex",
+    :parameters [{:id "index", :type "int"}]},
+   :getFireLengthToWidthRatio
+   {:type "double", :id "getFireLengthToWidthRatio", :parameters []},
+   :setFirstFuelModelNumber
+   {:type "void",
+    :id "setFirstFuelModelNumber",
+    :parameters [{:id "firstFuelModelNumber", :type "int"}]},
+   :setMoistureInputMode
+   {:type "void",
+    :id "setMoistureInputMode",
+    :parameters
+    [{:id "moistureInputMode",
+      :type "MoistureInputMode::MoistureInputModeEnum"}]},
+   :setTwoFuelModelsFirstFuelModelCoverage
+   {:type "void",
+    :id "setTwoFuelModelsFirstFuelModelCoverage",
+    :parameters
+    [{:id "firstFuelModelCoverage", :type "double"}
+     {:id "coverUnits", :type "CoverUnits::CoverUnitsEnum"}]},
+   :getMoistureLiveAggregateValue
+   {:type "double",
+    :id "getMoistureLiveAggregateValue",
+    :parameters
+    [{:id "moistureUnits", :type "MoistureUnits::MoistureUnitsEnum"}]},
+   :isFuelModelDefined
+   {:type "bool",
+    :id "isFuelModelDefined",
+    :parameters [{:id "fuelModelNumber", :type "int"}]},
+   :getWindAdjustmentFactorCalculationMethod
+   {:type
+    "WindAdjustmentFactorCalculationMethod::WindAdjustmentFactorCalculationMethodEnum",
+    :id "getWindAdjustmentFactorCalculationMethod",
+    :parameters []},
+   :getPalmettoGallberyDeadOneHourLoad
+   {:type "double",
+    :id "getPalmettoGallberyDeadOneHourLoad",
+    :parameters
+    [{:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :getMoistureScenarioDescriptionByName
+   {:type "char",
+    :id "getMoistureScenarioDescriptionByName",
+    :parameters [{:id "name", :type "char"}]},
+   :getFuelbedDepth
+   {:type "double",
+    :id "getFuelbedDepth",
+    :parameters
+    [{:id "fuelModelNumber", :type "int"}
+     {:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getFlameLength
+   {:type "double",
+    :id "getFlameLength",
+    :parameters
+    [{:id "flameLengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :updateSurfaceInputsForPalmettoGallbery
+   {:type "void",
+    :id "updateSurfaceInputsForPalmettoGallbery",
+    :parameters
+    [{:id "moistureOneHour", :type "double"}
+     {:id "moistureTenHour", :type "double"}
+     {:id "moistureHundredHour", :type "double"}
+     {:id "moistureLiveHerbaceous", :type "double"}
+     {:id "moistureLiveWoody", :type "double"}
+     {:id "moistureUnits", :type "MoistureUnits::MoistureUnitsEnum"}
+     {:id "windSpeed", :type "double"}
+     {:id "windSpeedUnits", :type "SpeedUnits::SpeedUnitsEnum"}
+     {:id "windHeightInputMode",
+      :type "WindHeightInputMode::WindHeightInputModeEnum"}
+     {:id "windDirection", :type "double"}
+     {:id "windAndSpreadOrientationMode",
+      :type
+      "WindAndSpreadOrientationMode::WindAndSpreadOrientationModeEnum"}
+     {:id "ageOfRough", :type "double"}
+     {:id "heightOfUnderstory", :type "double"}
+     {:id "palmettoCoverage", :type "double"}
+     {:id "overstoryBasalArea", :type "double"}
+     {:id "basalAreaUnits", :type "BasalAreaUnits::BasalAreaUnitsEnum"}
+     {:id "slope", :type "double"}
+     {:id "slopeUnits", :type "SlopeUnits::SlopeUnitsEnum"}
+     {:id "aspect", :type "double"}
+     {:id "canopyCover", :type "double"}
+     {:id "coverUnits", :type "CoverUnits::CoverUnitsEnum"}
+     {:id "canopyHeight", :type "double"}
+     {:id "canopyHeightUnits", :type "LengthUnits::LengthUnitsEnum"}
+     {:id "crownRatio", :type "double"}]},
+   :setAspenFireSeverity
+   {:type "void",
+    :id "setAspenFireSeverity",
+    :parameters
+    [{:id "aspenFireSeverity",
+      :type "AspenFireSeverity::AspenFireSeverityEnum"}]},
+   :getCanopyCover
+   {:type "double",
+    :id "getCanopyCover",
+    :parameters
+    [{:id "coverUnits", :type "CoverUnits::CoverUnitsEnum"}]},
+   :updateSurfaceInputsForWesternAspen
+   {:type "void",
+    :id "updateSurfaceInputsForWesternAspen",
+    :parameters
+    [{:id "aspenFuelModelNumber", :type "int"}
+     {:id "aspenCuringLevel", :type "double"}
+     {:id "curingLevelUnits",
+      :type "CuringLevelUnits::CuringLevelEnum"}
+     {:id "aspenFireSeverity",
+      :type "AspenFireSeverity::AspenFireSeverityEnum"}
+     {:id "dbh", :type "double"}
+     {:id "dbhUnits", :type "LengthUnits::LengthUnitsEnum"}
+     {:id "moistureOneHour", :type "double"}
+     {:id "moistureTenHour", :type "double"}
+     {:id "moistureHundredHour", :type "double"}
+     {:id "moistureLiveHerbaceous", :type "double"}
+     {:id "moistureLiveWoody", :type "double"}
+     {:id "moistureUnits", :type "MoistureUnits::MoistureUnitsEnum"}
+     {:id "windSpeed", :type "double"}
+     {:id "windSpeedUnits", :type "SpeedUnits::SpeedUnitsEnum"}
+     {:id "windHeightInputMode",
+      :type "WindHeightInputMode::WindHeightInputModeEnum"}
+     {:id "windDirection", :type "double"}
+     {:id "windAndSpreadOrientationMode",
+      :type
+      "WindAndSpreadOrientationMode::WindAndSpreadOrientationModeEnum"}
+     {:id "slope", :type "double"}
+     {:id "slopeUnits", :type "SlopeUnits::SlopeUnitsEnum"}
+     {:id "aspect", :type "double"}
+     {:id "canopyCover", :type "double"}
+     {:id "coverUnits", :type "CoverUnits::CoverUnitsEnum"}
+     {:id "canopyHeight", :type "double"}
+     {:id "canopyHeightUnits", :type "LengthUnits::LengthUnitsEnum"}
+     {:id "crownRatio", :type "double"}]},
+   :setIsUsingPalmettoGallberry
+   {:type "void",
+    :id "setIsUsingPalmettoGallberry",
+    :parameters [{:id "isUsingPalmettoGallberry", :type "bool"}]},
+   :getMidflameWindspeed
+   {:type "double",
+    :id "getMidflameWindspeed",
+    :parameters
+    [{:id "windSpeedUnits", :type "SpeedUnits::SpeedUnitsEnum"}]}}}}
