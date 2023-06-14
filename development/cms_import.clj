@@ -1,8 +1,14 @@
 (ns cms-import
-  (:require [clojure.java.io :as io]
-            [me.raynes.fs :as fs]
-            [clojure.edn :refer [read-string]]
-            [clojure.set :refer [rename-keys]]))
+  (:require
+   [clojure.edn :refer [read-string]]
+   [clojure.java.io :as io]
+   [clojure.set :refer [rename-keys]]
+   [datom-store.main :as ds]
+   [datahike.api :as d]
+   [datahike.core :as dc]
+   [string-utils.interface :refer [->str]]
+   [datom-utils.interface :refer [safe-deref unwrap]]
+   [me.raynes.fs :as fs]))
 
 (defn dissoc-in [m keys]
   (update-in m (butlast keys) dissoc (last keys)))
@@ -27,8 +33,35 @@
 
     (write-pprint-edn merged-edn (str "cms-exports/" out-file-name))))
 
-(comment
+(defn ->class [[class-name methods]]
+  (let [->param (fn [i p] (merge {:cpp.parameter/order i}
+                                 (rename-keys p {:id   :cpp.parameter/name
+                                                 :type :cpp.parameter/type})))
+        ->fn    (fn [[_ {:keys [type id parameters]}]]
+                  (merge {:cpp.function/name      id
+                          :cpp.function/parameter (vec (map-indexed ->param parameters))}
+                         (when type {:cpp.function/return-type type})))]
+    {:cpp.class/name   class-name
+     :cpp.class/function   (mapv ->fn methods)}))
 
+(defn lookup-ns-id [ns-name conn]
+  (d/q '[:find ?e .
+         :in $ ?name
+         :where [?e :cpp.namespace/name ?name]]
+       (safe-deref conn) ns-name))
+
+(defn add-export-file-to-conn [f conn]
+  (let [source-edn (read-string (slurp (fs/expand-home f)))
+        namespaces (reduce (fn [acc ns] (assoc acc ns (lookup-ns-id (->str ns) conn))) {} (keys source-edn))
+        tx         (mapv (fn [[ns-key ns-id]]
+                           (println ns-key ns-id)
+                           (merge {:cpp.namespace/name  (->str ns-key)
+                                   :cpp.namespace/class (mapv ->class (get source-edn ns-key))}
+                                  (when ns-id {:db/id ns-id})))
+                         namespaces)]
+    (d/transact (unwrap conn) tx)))
+
+(comment
   (def surface-edn (read-string (slurp (fs/expand-home "~/Code/sig/hatchet/exports/surface.edn"))))
   (def sig-surface-edn (read-string (slurp (fs/expand-home "~/Code/sig/hatchet/exports/SIGSurface.edn"))))
 
@@ -45,6 +78,7 @@
   (spit "cms-exports/SIGSurface.edn" (str sig-surface))
   (write-pprint-edn sig-surface "cms-exports/SIGSurface.edn")
 
+  ;;; Combine exports
   (cms-import {:behave-file      "~/work/code/hatchet/behave/surface.edn"
                :sig-adapter-file "~/work/code/hatchet/sig-adapters/SIGSurface.edn"
                :out-file-name    "SIGSurface.edn"
@@ -75,4 +109,6 @@
                :from-key         :Mortality
                :to-key           :SIGMortality})
 
-  )
+  ;;; Add exports to CMS db
+  (add-export-file-to-conn "./cms-exports/SIGMortality.edn" nil)
+  (add-export-file-to-conn "./cms-exports/SIGMortality.edn" nil))
