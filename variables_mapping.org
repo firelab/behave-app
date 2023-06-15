@@ -88,7 +88,7 @@ Tags that need fixing:
 
 | IA Variable         | cpp code block                                                                                          |
 |---------------------+---------------------------------------------------------------------------------------------------------|
-| Canopy Height       | [[https://github.com/firelab/behave/blob/master/src/behave/crown.cpp#L756-L759][void  Crown::setCanopyHeight(double canopyHeight, LengthUnits::LengthUnitsEnum canopyHeightUnits)]]       |
+| Canopy Height       | [[https://github.com/firelab/behave/blob/master/src/behave/crown.cpp#L756-L759][void Crown::setCanopyHeight(double canopyHeight, LengthUnits::LengthUnitsEnum canopyHeightUnits)]]        |
 | Canopy Base Height  | [[https://github.com/firelab/behave/blob/master/src/behave/crown.cpp#L632-L635][void Crown::setCanopyBaseHeight(double canopyBaseHeight, LengthUnits::LengthUnitsEnum heightUnits)]]      |
 | Canopy Bulk Density | [[https://github.com/firelab/behave/blob/master/src/behave/crown.cpp#L637-L640][void Crown::setCanopyBulkDensity(double canopyBulkDensity, DensityUnits::DensityUnitsEnum densityUnits)]] |
 
@@ -237,66 +237,69 @@ Tags that need fixing:
 
 ***** Dead Fuel Load
 
-| IA Variable                     | cpp code block                             | Note     |
-|---------------------------------+--------------------------------------------+----------|
-| Less than: 0.25 Inches          | [[https://gitlab.com/sig-gis/behave6/-/blob/main/src/Bp6ChaparralFuel.cpp#L41-44][double Bp6ChaparralFuel::getFuelBedDepth()]] | #behave6 |
-| From 0.25 Inches to 0.50 inches | [[https://gitlab.com/sig-gis/behave6/-/blob/main/src/Bp6ChaparralFuel.cpp#L41-44][double Bp6ChaparralFuel::getFuelBedDepth()]] | #behave6 |
-| From 0.50 Inches to 1.0 inches  | [[https://gitlab.com/sig-gis/behave6/-/blob/main/src/Bp6ChaparralFuel.cpp#L41-44][double Bp6ChaparralFuel::getFuelBedDepth()]] | #behave6 |
-| From 1.0 Inches to 3.0 inches   | [[https://gitlab.com/sig-gis/behave6/-/blob/main/src/Bp6ChaparralFuel.cpp#L41-44][double Bp6ChaparralFuel::getFuelBedDepth()]] | #behave6 |
+| IA Variable                     | cpp code block                                                                                                                           | Note |
+|---------------------------------+------------------------------------------------------------------------------------------------------------------------------------------+------|
+| Less than: 0.25 Inches          | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surface.cpp#L1188-L1191][double Surface::getChaparralLoad(FuelLifeState::FuelLifeStateEnum lifeState, int sizeClass, LoadingUnits::LoadingUnitsEnum loadingUnits)]] |      |
+| From 0.25 Inches to 0.50 inches | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surface.cpp#L1188-L1191][double Surface::getChaparralLoad(FuelLifeState::FuelLifeStateEnum lifeState, int sizeClass, LoadingUnits::LoadingUnitsEnum loadingUnits)]] |      |
+| From 0.50 Inches to 1.0 inches  | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surface.cpp#L1188-L1191][double Surface::getChaparralLoad(FuelLifeState::FuelLifeStateEnum lifeState, int sizeClass, LoadingUnits::LoadingUnitsEnum loadingUnits)]] |      |
+| From 1.0 Inches to 3.0 inches   | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surface.cpp#L1188-L1191][double Surface::getChaparralLoad(FuelLifeState::FuelLifeStateEnum lifeState, int sizeClass, LoadingUnits::LoadingUnitsEnum loadingUnits)]] |      |
 
 ***** Live Fuel Load
 
-| IA Variable                      | cpp code block                             | Note     |
-|----------------------------------+--------------------------------------------+----------|
-| Leaves                           | [[https://gitlab.com/sig-gis/behave6/-/blob/main/src/Bp6ChaparralFuel.cpp#L41-44][double Bp6ChaparralFuel::getFuelBedDepth()]] | #behave6 |
-| Stems less than 0.25 inches      | [[https://gitlab.com/sig-gis/behave6/-/blob/main/src/Bp6ChaparralFuel.cpp#L41-44][double Bp6ChaparralFuel::getFuelBedDepth()]] | #behave6 |
-| Stems 0.25 Inches to 0.50 inches | [[https://gitlab.com/sig-gis/behave6/-/blob/main/src/Bp6ChaparralFuel.cpp#L41-44][double Bp6ChaparralFuel::getFuelBedDepth()]] | #behave6 |
-| Stems 0.5 to 1.0 inches          | [[https://gitlab.com/sig-gis/behave6/-/blob/main/src/Bp6ChaparralFuel.cpp#L41-44][double Bp6ChaparralFuel::getFuelBedDepth()]] | #behave6 |
-| Stems 1.0 to 3.0 inches          | [[https://gitlab.com/sig-gis/behave6/-/blob/main/src/Bp6ChaparralFuel.cpp#L41-44][double Bp6ChaparralFuel::getFuelBedDepth()]] | #behave6 |
+| IA Variable                      | cpp code block                                                                                                                           | Note |
+|----------------------------------+------------------------------------------------------------------------------------------------------------------------------------------+------|
+| Leaves                           | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surface.cpp#L1188-L1191][double Surface::getChaparralLoad(FuelLifeState::FuelLifeStateEnum lifeState, int sizeClass, LoadingUnits::LoadingUnitsEnum loadingUnits)]] |      |
+| Stems less than 0.25 inches      | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surface.cpp#L1188-L1191][double Surface::getChaparralLoad(FuelLifeState::FuelLifeStateEnum lifeState, int sizeClass, LoadingUnits::LoadingUnitsEnum loadingUnits)]] |      |
+| Stems 0.25 Inches to 0.50 inches | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surface.cpp#L1188-L1191][double Surface::getChaparralLoad(FuelLifeState::FuelLifeStateEnum lifeState, int sizeClass, LoadingUnits::LoadingUnitsEnum loadingUnits)]] |      |
+| Stems 0.5 to 1.0 inches          | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surface.cpp#L1188-L1191][double Surface::getChaparralLoad(FuelLifeState::FuelLifeStateEnum lifeState, int sizeClass, LoadingUnits::LoadingUnitsEnum loadingUnits)]] |      |
+| Stems 1.0 to 3.0 inches          | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surface.cpp#L1188-L1191][double Surface::getChaparralLoad(FuelLifeState::FuelLifeStateEnum lifeState, int sizeClass, LoadingUnits::LoadingUnitsEnum loadingUnits)]] |      |
+
 
 *** Palmetto-Galberry
 **** Dead Fuel Load
 
-| IA Variable                | cpp code block                                              | Note |
-|----------------------------+-------------------------------------------------------------+------|
-| Fine: 0 to 0.25 inches     | [[https://github.com/firelab/behave/blob/master/src/behave/palmettoGallberry.cpp#L159-L162][double PalmettoGallberry::getPalmettoGallberyFuelBedDepth()]] |      |
-| Medium: 0.25 to 1 inches   | [[https://github.com/firelab/behave/blob/master/src/behave/palmettoGallberry.cpp#L159-L162][double PalmettoGallberry::getPalmettoGallberyFuelBedDepth()]] |      |
-| Foliage Fuel Load: On Stem | [[https://github.com/firelab/behave/blob/master/src/behave/palmettoGallberry.cpp#L159-L162][double PalmettoGallberry::getPalmettoGallberyFuelBedDepth()]] |      |
-|                            |                                                             |      |
+| IA Variable                | cpp code block                                              | Note                        |
+|----------------------------+-------------------------------------------------------------+-----------------------------|
+| Fine: 0 to 0.25 inches     | [[https://github.com/firelab/behave/blob/master/src/behave/palmettoGallberry.cpp#L159-L162][double PalmettoGallberry::getPalmettoGallberyFuelBedDepth()]] | #bill need similar [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/chaparralFuel.cpp#L97-L107][see here]] |
+| Medium: 0.25 to 1 inches   | [[https://github.com/firelab/behave/blob/master/src/behave/palmettoGallberry.cpp#L159-L162][double PalmettoGallberry::getPalmettoGallberyFuelBedDepth()]] | #bill need similar [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/chaparralFuel.cpp#L97-L107][see here]] |
+| Foliage Fuel Load: On Stem | [[https://github.com/firelab/behave/blob/master/src/behave/palmettoGallberry.cpp#L159-L162][double PalmettoGallberry::getPalmettoGallberyFuelBedDepth()]] | #bill need similar [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/chaparralFuel.cpp#L97-L107][see here]] |
+|                            |                                                             |                             |
 
 **** Live Fuel Load
 
-| IA Variable                 | cpp code block                                              | Note |
-|-----------------------------+-------------------------------------------------------------+------|
-| Fine: 0 to 0.25 inches      | [[https://github.com/firelab/behave/blob/master/src/behave/palmettoGallberry.cpp#L159-L162][double PalmettoGallberry::getPalmettoGallberyFuelBedDepth()]] |      |
-| Medium: 0.25 to 1 inches    | [[https://github.com/firelab/behave/blob/master/src/behave/palmettoGallberry.cpp#L159-L162][double PalmettoGallberry::getPalmettoGallberyFuelBedDepth()]] |      |
-| Foliage Fuel Load : On Stem | [[https://github.com/firelab/behave/blob/master/src/behave/palmettoGallberry.cpp#L159-L162][double PalmettoGallberry::getPalmettoGallberyFuelBedDepth()]] |      |
+| IA Variable                 | cpp code block                                              | Note                        |
+|-----------------------------+-------------------------------------------------------------+-----------------------------|
+| Fine: 0 to 0.25 inches      | [[https://github.com/firelab/behave/blob/master/src/behave/palmettoGallberry.cpp#L159-L162][double PalmettoGallberry::getPalmettoGallberyFuelBedDepth()]] | #bill need similar [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/chaparralFuel.cpp#L97-L107][see here]] |
+| Medium: 0.25 to 1 inches    | [[https://github.com/firelab/behave/blob/master/src/behave/palmettoGallberry.cpp#L159-L162][double PalmettoGallberry::getPalmettoGallberyFuelBedDepth()]] | #bill need similar [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/chaparralFuel.cpp#L97-L107][see here]] |
+| Foliage Fuel Load : On Stem | [[https://github.com/firelab/behave/blob/master/src/behave/palmettoGallberry.cpp#L159-L162][double PalmettoGallberry::getPalmettoGallberyFuelBedDepth()]] | #bill need similar [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/chaparralFuel.cpp#L97-L107][see here]] |
+|                             |                                                             |                             |
 
 **** Fuelbed
 
-| IA Variable   | cpp code block                                              | Note |
-|---------------+-------------------------------------------------------------+------|
-| Fuelbed Depth | [[https://github.com/firelab/behave/blob/master/src/behave/palmettoGallberry.cpp#L159-L162][double PalmettoGallberry::getPalmettoGallberyFuelBedDepth()]] |      |
-|               |                                                             |      |
+| IA Variable   | cpp code block                                                                           | Note |
+|---------------+------------------------------------------------------------------------------------------+------|
+| Fuelbed Depth | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surface.cpp#L785-L788][double Surface::getPalmettoGallberyFuelBedDepth(LengthUnits::LengthUnitsEnum depthUnits)]] |      |
 
 *** Spot
 **** Maximum Spotting Distance
 
-| IA Variable              | cpp code block                                                                                                             | Note |
-|--------------------------+----------------------------------------------------------------------------------------------------------------------------+------|
-| Torching Trees           | [[https://github.com/firelab/behave/blob/master/src/behave/spot.cpp#L581-L584][double Spot::getMaxMountainousTerrainSpottingDistanceFromTorchingTrees(LengthUnits::LengthUnitsEnum spottingDistanceUnits)]] |      |
-| Burning Pile             | [[https://github.com/firelab/behave/blob/master/src/behave/spot.cpp#L581-L584][double Spot::getMaxMountainousTerrainSpottingDistanceFromTorchingTrees(LengthUnits::LengthUnitsEnum spottingDistanceUnits)]] |      |
-| Wind-Driven Surface Fire | [[https://github.com/firelab/behave/blob/master/src/behave/spot.cpp#L581-L584][double Spot::getMaxMountainousTerrainSpottingDistanceFromTorchingTrees(LengthUnits::LengthUnitsEnum spottingDistanceUnits)]] |      |
+| IA Variable              | cpp code block                                                                                                             | Note                  |
+|--------------------------+----------------------------------------------------------------------------------------------------------------------------+-----------------------|
+| Torching Trees           | [[https://github.com/firelab/behave/blob/master/src/behave/spot.cpp#L581-L584][double Spot::getMaxMountainousTerrainSpottingDistanceFromTorchingTrees(LengthUnits::LengthUnitsEnum spottingDistanceUnits)]] | #expose-or-new-solver |
+| Burning Pile             | [[https://github.com/firelab/behave/blob/master/src/behave/spot.cpp#L581-L584][double Spot::getMaxMountainousTerrainSpottingDistanceFromTorchingTrees(LengthUnits::LengthUnitsEnum spottingDistanceUnits)]] | #expose-or-new-solver |
+| Wind-Driven Surface Fire | [[https://github.com/firelab/behave/blob/master/src/behave/spot.cpp#L581-L584][double Spot::getMaxMountainousTerrainSpottingDistanceFromTorchingTrees(LengthUnits::LengthUnitsEnum spottingDistanceUnits)]] | #expose-or-new-solver |
 
 **** Burning Pile
 
-| IA Variable                          | cpp code block                                                                                       | Note |
-|--------------------------------------+------------------------------------------------------------------------------------------------------+------|
-| Firebrand Height from a Burning Pile | [[https://github.com/firelab/behave/blob/master/src/behave/spot.cpp#L541-L544][double Spot::getMaxFirebrandHeightFromBurningPile(LengthUnits::LengthUnitsEnum firebrandHeightUnits)]] |      |
+| IA Variable                          | cpp code block                                                                                       | Note                  |
+|--------------------------------------+------------------------------------------------------------------------------------------------------+-----------------------|
+| Firebrand Height from a Burning Pile | [[https://github.com/firelab/behave/blob/master/src/behave/spot.cpp#L541-L544][double Spot::getMaxFirebrandHeightFromBurningPile(LengthUnits::LengthUnitsEnum firebrandHeightUnits)]] | #expose-or-new-solver |
 
 ** Inputs
 *** Directions of Surface Spread & Wind
 **** Surface Spread Directions
+
+# ---- TODO Below this line ------ Kenny
 
 | IA Variable                   | cpp code block | Note         |
 |-------------------------------+----------------+--------------|
@@ -449,6 +452,7 @@ Tags that need fixing:
 ** Iutputs
 *** Scorch
 **** Fire
+
 
 | IA Variable                | cpp code block                             | Note                                                                      |
 |----------------------------+--------------------------------------------+---------------------------------------------------------------------------|
