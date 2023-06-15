@@ -6,6 +6,7 @@
    [datom-store.main :as ds]
    [datahike.api :as d]
    [datahike.core :as dc]
+   [datascript.core :refer [squuid]]
    [string-utils.interface :refer [->str]]
    [datom-utils.interface :refer [safe-deref unwrap]]
    [me.raynes.fs :as fs]))
@@ -34,15 +35,19 @@
     (write-pprint-edn merged-edn (str "cms-exports/" out-file-name))))
 
 (defn ->class [[class-name methods]]
-  (let [->param (fn [i p] (merge {:cpp.parameter/order i}
-                                 (rename-keys p {:id   :cpp.parameter/name
-                                                 :type :cpp.parameter/type})))
-        ->fn    (fn [[_ {:keys [type id parameters]}]]
-                  (merge {:cpp.function/name      id
-                          :cpp.function/parameter (vec (map-indexed ->param parameters))}
-                         (when type {:cpp.function/return-type type})))]
-    {:cpp.class/name   class-name
-     :cpp.class/function   (mapv ->fn methods)}))
+  (let [->param   (fn [i p] (merge {:cpp.parameter/order i
+                                    :bp/uuid             (str (squuid))}
+                                   (rename-keys p {:id   :cpp.parameter/name
+                                                   :type :cpp.parameter/type})))
+        ->fn      (fn [[_ {:keys [type id parameters]}]]
+                    (merge {:bp/uuid                (str (squuid))
+                            :cpp.function/name      id
+                            :cpp.function/parameter (vec (map-indexed ->param parameters))}
+                           (when type {:cpp.function/return-type type})))
+        has-name? (comp some? :cpp.function/name)]
+    {:bp/uuid            (str (squuid))
+     :cpp.class/name     (->str class-name)
+     :cpp.class/function (vec (filter has-name? (map ->fn methods)))}))
 
 (defn lookup-ns-id [ns-name conn]
   (d/q '[:find ?e .
@@ -54,7 +59,6 @@
   (let [source-edn (read-string (slurp (fs/expand-home f)))
         namespaces (reduce (fn [acc ns] (assoc acc ns (lookup-ns-id (->str ns) conn))) {} (keys source-edn))
         tx         (mapv (fn [[ns-key ns-id]]
-                           (println ns-key ns-id)
                            (merge {:cpp.namespace/name  (->str ns-key)
                                    :cpp.namespace/class (mapv ->class (get source-edn ns-key))}
                                   (when ns-id {:db/id ns-id})))
@@ -110,5 +114,40 @@
                :to-key           :SIGMortality})
 
   ;;; Add exports to CMS db
-  (add-export-file-to-conn "./cms-exports/SIGMortality.edn" nil)
-  (add-export-file-to-conn "./cms-exports/SIGMortality.edn" nil))
+  (require '[behave-cms.server :refer [init-datahike!]])
+
+  ;; Init Datahike Connection
+  (init-datahike!)
+
+  ;; Check connection is good
+  @ds/conn
+
+  ;; Verify that global namespace exists
+  (lookup-ns-id "global" @ds/conn)
+
+  ;; Commit exports
+  (add-export-file-to-conn "./cms-exports/SIGSurface.edn" ds/conn)
+  (add-export-file-to-conn "./cms-exports/SIGMoistureScenarios.edn" ds/conn)
+  (add-export-file-to-conn "./cms-exports/SIGCrown.edn" ds/conn)
+  (add-export-file-to-conn "./cms-exports/SIGBehaveRun.edn" ds/conn)
+  (add-export-file-to-conn "./cms-exports/SIGMortality.edn" ds/conn)
+
+  ;; Verify that SIGSurface exists
+  (sort (d/q '[:find [?c-name ...]
+               :in $ ?name
+               :where
+               [?e :cpp.namespace/name "global"]
+               [?e :cpp.namespace/class ?c]
+               [?c :cpp.class/name ?c-name]]
+             (safe-deref ds/conn)))
+
+  ;; Verify that SIGSurface functions exist
+  (sort (d/q '[:find [?f-name ...]
+               :where
+               [?c :cpp.class/name "SIGSurface"]
+               [?c :cpp.class/function ?f]
+               [?f :cpp.function/name ?f-name]]
+             (safe-deref ds/conn)))
+
+  )
+
