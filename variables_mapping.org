@@ -14,7 +14,12 @@ Tags that need fixing:
 6. #behave6: Code block is in the behave6 repo. Needs to be ported over to behave-mirror (16)
 7. #fix: Code block is wrong and need fixing, see notes. (1)
 8. #review: See notes (0)
-7. #diagram: related to the diagram work. (1)
+9. #diagram: related to the diagram work. (1)
+10. #expose: Code blocks exists in another class, but we need to expose this in the current class.
+    We may need to bubble up the getters/setters through multiple classes to get to the current
+    class. (i.e. SurfaceFuelbedIntermediates > SurfaceFire > Surface). Either update behave or SIG adapters.
+11. #expose-or-new-solver: Code block exists in another MODULE. Shoule we instantiate this module in
+    the current module's constructor or have the solver instantiate the module?
 
 * Crown
 ** Outputs
@@ -27,19 +32,19 @@ Tags that need fixing:
 
 **** Transition to Crown Fire
 
-| IA Variable                         | cpp code block                                           |
-|-------------------------------------+----------------------------------------------------------|
-| Transition Ratio                    | [[https://github.com/firelab/behave/blob/master/src/behave/crown.cpp#L448-L453][void Crown::calculateCrownFireTransitionRatio()]]          |
-| Critical Surface Flame Length       | [[https://github.com/firelab/behave/blob/master/src/behave/crown.cpp#L478-L481][void Crown::calculateCrownCriticalSurfaceFlameLength()]]   |
-| Critical Surface Rate of Spread     | [[https://github.com/firelab/behave/blob/master/src/behave/crown.cpp#L515-L523][void Crown::calculateCrownCriticalFireSpreadRate()]]       |
-| Critical Surface Fireline Intensity | [[https://github.com/firelab/behave/blob/master/src/behave/crown.cpp#L460-L476][void Crown::calculateCrownCriticalSurfaceFireIntensity()]] |
+| IA Variable                         | cpp code block                                           | Note         |
+|-------------------------------------+----------------------------------------------------------+--------------|
+| Transition Ratio                    | [[https://github.com/firelab/behave/blob/master/src/behave/crown.cpp#L448-L453][void Crown::calculateCrownFireTransitionRatio()]]          | #make-getter |
+| Critical Surface Flame Length       | [[https://github.com/firelab/behave/blob/master/src/behave/crown.cpp#L478-L481][void Crown::calculateCrownCriticalSurfaceFlameLength()]]   | #make-getter |
+| Critical Surface Rate of Spread     | [[https://github.com/firelab/behave/blob/master/src/behave/crown.cpp#L515-L523][void Crown::calculateCrownCriticalFireSpreadRate()]]       | #make-getter |
+| Critical Surface Fireline Intensity | [[https://github.com/firelab/behave/blob/master/src/behave/crown.cpp#L460-L476][void Crown::calculateCrownCriticalSurfaceFireIntensity()]] | #make-getter |
 
 **** Active or Independent Crown Fire
 
-| IA Variable                   | cpp code block                                     |
-|-------------------------------+----------------------------------------------------|
-| Active Ratio                  | [[https://github.com/firelab/behave/blob/master/src/behave/crown.cpp#L525-L530][void Crown::calculateCrownFireActiveRatio()]]        |
-| Critical Crown Rate of Spread | [[https://github.com/firelab/behave/blob/master/src/behave/crown.cpp#L515-L523][void Crown::calculateCrownCriticalFireSpreadRate()]] |
+| IA Variable                   | cpp code block                                     | Note         |
+|-------------------------------+----------------------------------------------------+--------------|
+| Active Ratio                  | [[https://github.com/firelab/behave/blob/master/src/behave/crown.cpp#L525-L530][void Crown::calculateCrownFireActiveRatio()]]        | #make-getter |
+| Critical Crown Rate of Spread | [[https://github.com/firelab/behave/blob/master/src/behave/crown.cpp#L515-L523][void Crown::calculateCrownCriticalFireSpreadRate()]] | #make-getter |
 
 *** Fire Behavior
 
@@ -50,28 +55,28 @@ Tags that need fixing:
 
 *** Size
 
-| IA Variable           | cpp code block                                                                                                                      | Note |
-|-----------------------+-------------------------------------------------------------------------------------------------------------------------------------+------|
-| Spread Distance       | [[https://github.com/firelab/behave/blob/master/src/behave/crown.h#L89][double getCrownFireSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits)]] |      |
-| Fire Area             | [[https://github.com/firelab/behave/blob/master/src/behave/fireSize.cpp#L154-L158][double FireSize::getFireArea(AreaUnits::AreaUnitsEnum areaUnits, double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits)]]            |      |
-| Fire Perimeter        | [[https://github.com/firelab/behave/blob/master/src/behave/fireSize.cpp#L131-L147][double FireSize::getFirePerimeter(LengthUnits::LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits)]] |      |
-| Length-to-Width Ratio | [[https://github.com/firelab/behave/blob/master/src/behave/fireSize.cpp#L35-L38][double FireSize::getFireLengthToWidthRatio()]]                                                                                        |      |
+| IA Variable           | cpp code block                                                                                                                      | Note    |
+|-----------------------+-------------------------------------------------------------------------------------------------------------------------------------+---------|
+| Spread Distance       | [[https://github.com/firelab/behave/blob/master/src/behave/crown.h#L89][double getCrownFireSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits)]] |         |
+| Fire Area             | [[https://github.com/firelab/behave/blob/master/src/behave/fireSize.cpp#L154-L158][double FireSize::getFireArea(AreaUnits::AreaUnitsEnum areaUnits, double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits)]]            | #expose |
+| Fire Perimeter        | [[https://github.com/firelab/behave/blob/master/src/behave/fireSize.cpp#L131-L147][double FireSize::getFirePerimeter(LengthUnits::LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits)]] | #expose |
+| Length-to-Width Ratio | [[https://github.com/firelab/behave/blob/master/src/behave/fireSize.cpp#L35-L38][double FireSize::getFireLengthToWidthRatio()]]                                                                                        | #expose |
 
 *** Spotting, Active Crown Fire
 
-| IA Variable               | cpp code block                                                                                                             |   |
-|---------------------------+----------------------------------------------------------------------------------------------------------------------------+---|
-| Maximum Spotting Distance | [[https://github.com/firelab/behave/blob/master/src/behave/spot.cpp#L581-L584][double Spot::getMaxMountainousTerrainSpottingDistanceFromTorchingTrees(LengthUnits::LengthUnitsEnum spottingDistanceUnits)]] |   |
-| Flame Height above Canopy | [[https://github.com/firelab/behave/blob/master/src/behave/spot.cpp#L526-L529][double Spot::getFlameHeightForTorchingTrees(LengthUnits::LengthUnitsEnum flameHeightUnits)]]                                 |   |
+| IA Variable               | cpp code block                                                                                                             |                       |
+|---------------------------+----------------------------------------------------------------------------------------------------------------------------+-----------------------|
+| Maximum Spotting Distance | [[https://github.com/firelab/behave/blob/master/src/behave/spot.cpp#L581-L584][double Spot::getMaxMountainousTerrainSpottingDistanceFromTorchingTrees(LengthUnits::LengthUnitsEnum spottingDistanceUnits)]] | #expose-or-new-solver |
+| Flame Height above Canopy | [[https://github.com/firelab/behave/blob/master/src/behave/spot.cpp#L526-L529][double Spot::getFlameHeightForTorchingTrees(LengthUnits::LengthUnitsEnum flameHeightUnits)]]                                 | #expose-or-new-solver |
 
 ** Inputs
 *** Calculations Options
 **** Calculate crown fire using:
 
-| IA Variable                | cpp code block | Note         |
-|----------------------------+----------------+--------------|
-| Rothermel (1991)           |                | #ws-variable |
-| Scott and Reinhardt (2001) |                | #ws-variable |
+| IA Variable                | cpp code block                                                                            | Note |
+|----------------------------+-------------------------------------------------------------------------------------------+------|
+| Rothermel (1991)           | [[https://gitlab.sig-gis.com/sig-gis/behave-polylith/blob/rj-add-cms-import/behave-lib/include/cpp/sig-adapters/SIGCrown.h#L56][void setCrownFireCalculationMethod(CrownFireCalculationMethod CrownFireCalculationMethod)]] |      |
+| Scott and Reinhardt (2001) | [[https://gitlab.sig-gis.com/sig-gis/behave-polylith/blob/rj-add-cms-import/behave-lib/include/cpp/sig-adapters/SIGCrown.h#L56][void setCrownFireCalculationMethod(CrownFireCalculationMethod CrownFireCalculationMethod)]] |      |
 
 *** Fuel Moisture
 
@@ -97,29 +102,29 @@ Tags that need fixing:
 *** Spotting
 **** Canopy Fuel
 
-| IA Variable   | cpp code block                                                                             |
-|---------------+--------------------------------------------------------------------------------------------|
-| Canopy Height | [[https://github.com/firelab/behave/blob/master/src/behave/spot.cpp#L411-L414][void Spot::setTreeHeight(double treeHeight, LengthUnits::LengthUnitsEnum  treeHeightUnits)]] |
+| IA Variable   | cpp code block                                                                             |     Note              |
+|---------------+--------------------------------------------------------------------------------------------+-----------------------|
+| Canopy Height | [[https://github.com/firelab/behave/blob/master/src/behave/spot.cpp#L411-L414][void Spot::setTreeHeight(double treeHeight, LengthUnits::LengthUnitsEnum  treeHeightUnits)]] | #expose-or-new-solver |
 
 **** Weather
 
-| IA Variable      | cpp code block                                                                                               |
-|------------------+--------------------------------------------------------------------------------------------------------------|
-| 20-ft Wind Speed | [[https://github.com/firelab/behave/blob/master/src/behave/spot.cpp#L421-L424][void Spot::setWindSpeedAtTwentyFeet(double windSpeedAtTwentyFeet, SpeedUnits::SpeedUnitsEnum windSpeedUnits)]] |
+| IA Variable      | cpp code block                                                                                               |        Note           |
+|------------------+--------------------------------------------------------------------------------------------------------------+-----------------------|
+| 20-ft Wind Speed | [[https://github.com/firelab/behave/blob/master/src/behave/spot.cpp#L421-L424][void Spot::setWindSpeedAtTwentyFeet(double windSpeedAtTwentyFeet, SpeedUnits::SpeedUnitsEnum windSpeedUnits)]] | #expose-or-new-solver |
 
 **** Topography
 
-| IA Variable                          | cpp code block                                                                                                             |
-|--------------------------------------+----------------------------------------------------------------------------------------------------------------------------|
-| Ridge-to-Valley Elevation Difference | [[https://github.com/firelab/behave/blob/master/src/behave/spot.cpp#L401-L404][void Spot::setRidgeToValleyElevation(double ridgeToValleyElevation, LengthUnits::LengthUnitsEnum elevationUnits)]]           |
-| Ridge-to-Valley Horizontal Distance  | [[https://github.com/firelab/behave/blob/master/src/behave/spot.cpp#L396-L399][void Spot::setRidgeToValleyDistance(double ridgeToValleyDistance, LengthUnits::LengthUnitsEnum ridgeToValleyDistanceUnits)]] |
-| Spotting Source Location             | [[https://github.com/firelab/behave/blob/master/src/behave/spot.cpp#L391-L394][void Spot::setLocation(SpotFireLocation::SpotFireLocationEnum location)]]                                                    |
+| IA Variable                          | cpp code block                                                                                                             | Note                  |
+|--------------------------------------+----------------------------------------------------------------------------------------------------------------------------+-----------------------|
+| Ridge-to-Valley Elevation Difference | [[https://github.com/firelab/behave/blob/master/src/behave/spot.cpp#L401-L404][void Spot::setRidgeToValleyElevation(double ridgeToValleyElevation, LengthUnits::LengthUnitsEnum elevationUnits)]]           | #expose-or-new-solver |
+| Ridge-to-Valley Horizontal Distance  | [[https://github.com/firelab/behave/blob/master/src/behave/spot.cpp#L396-L399][void Spot::setRidgeToValleyDistance(double ridgeToValleyDistance, LengthUnits::LengthUnitsEnum ridgeToValleyDistanceUnits)]] | #expose-or-new-solver |
+| Spotting Source Location             | [[https://github.com/firelab/behave/blob/master/src/behave/spot.cpp#L391-L394][void Spot::setLocation(SpotFireLocation::SpotFireLocationEnum location)]]                                                    | #expose-or-new-solver |
 
 **** Fire Behavior
 
-| IA Variable               | cpp code block                                                                               |
-|---------------------------+----------------------------------------------------------------------------------------------|
-| Active Crown Flame Length | [[https://github.com/firelab/behave/blob/master/src/behave/spot.cpp#L386-L389][void Spot::setFlameLength(double flameLength, LengthUnits::LengthUnitsEnum flameLengthUnits)]] |
+| IA Variable               | cpp code block                                                                               | Note                  |
+|---------------------------+----------------------------------------------------------------------------------------------+-----------------------|
+| Active Crown Flame Length | [[https://github.com/firelab/behave/blob/master/src/behave/spot.cpp#L386-L389][void Spot::setFlameLength(double flameLength, LengthUnits::LengthUnitsEnum flameLengthUnits)]] | #expose-or-new-solver |
 
 * Surface
 ** Outputs
@@ -139,54 +144,54 @@ Tags that need fixing:
 *** Intermediates
 **** Fuel Moisture
 
-| IA Variable                      | cpp code block                                                                                                                          | Note |
-|----------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------+------|
-| Characteristic Dead              | [[https://github.com/firelab/behave/blob/master/src/behave/surface.h#L90][double getCharacteristicMoistureByLifeState(FuelLifeState::FuelLifeStateEnum lifeState, MoistureUnits::MoistureUnitsEnum moistureUnits)]] |      |
-| Characteristic Live              | [[https://github.com/firelab/behave/blob/master/src/behave/surface.h#L90][double getCharacteristicMoistureByLifeState(FuelLifeState::FuelLifeStateEnum lifeState, MoistureUnits::MoistureUnitsEnum moistureUnits)]] |      |
-| Live Fuel Moisture of Extinction | [[https://github.com/firelab/behave/blob/master/src/behave/surface.h#L91][double getLiveFuelMoistureOfExtinction(MoistureUnits::MoistureUnitsEnum moistureUnits)]]                                                  |      |
+| IA Variable                      | cpp code block                                                                                                                                   | Note |
+|----------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------+------|
+| Characteristic Dead              | [[https://github.com/firelab/behave/blob/master/src/behave/surface.h#L90][double Surface::getCharacteristicMoistureByLifeState(FuelLifeState::FuelLifeStateEnum lifeState, MoistureUnits::MoistureUnitsEnum moistureUnits)]] |      |
+| Characteristic Live              | [[https://github.com/firelab/behave/blob/master/src/behave/surface.h#L90][double Surface::getCharacteristicMoistureByLifeState(FuelLifeState::FuelLifeStateEnum lifeState, MoistureUnits::MoistureUnitsEnum moistureUnits)]] |      |
+| Live Fuel Moisture of Extinction | [[https://github.com/firelab/behave/blob/master/src/behave/surface.h#L91][double Surface::getLiveFuelMoistureOfExtinction(MoistureUnits::MoistureUnitsEnum moistureUnits)]]                                                  |      |
 
 **** Fuel Characteristics
 
-| IA Variable            | cpp code block                                                                                 | Note |
-|------------------------+------------------------------------------------------------------------------------------------+------|
-| Characteristic SA/V    | [[https://github.com/firelab/behave/blob/master/src/behave/surface.h#L92][double getCharacteristicSAVR(SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum savrUnits)]] |      |
-| Bulk Density           | [[https://github.com/firelab/behave/blob/master/src/behave/surfaceFuelbedIntermediates.cpp#L817-L820][double SurfaceFuelbedIntermediates::getBulkDensity()]]                                           |      |
-| Packing Ratio          | [[https://github.com/firelab/behave/blob/master/src/behave/surfaceFuelbedIntermediates.cpp#L822-L825][double SurfaceFuelbedIntermediates::getPackingRatio()]]                                          |      |
-| Relative Packing Ratio | [[https://github.com/firelab/behave/blob/master/src/behave/surfaceFuelbedIntermediates.cpp#L832-L835][double SurfaceFuelbedIntermediates::getRelativePackingRatio()]]                                  |      |
+| IA Variable            | cpp code block                                                                                 | Note    |
+|------------------------+------------------------------------------------------------------------------------------------+---------|
+| Characteristic SA/V    | [[https://github.com/firelab/behave/blob/master/src/behave/surface.h#L92][double getCharacteristicSAVR(SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum savrUnits)]] |         |
+| Bulk Density           | [[https://github.com/firelab/behave/blob/master/src/behave/surface.h#L86][double getBulkDensity(DensityUnits::DensityUnitsEnum densityUnits)]]                             |         |
+| Packing Ratio          | [[https://github.com/firelab/behave/blob/master/src/behave/surfaceFuelbedIntermediates.cpp#L822-L825][double SurfaceFuelbedIntermediates::getPackingRatio()]]                                          | #expose |
+| Relative Packing Ratio | [[https://github.com/firelab/behave/blob/master/src/behave/surfaceFuelbedIntermediates.cpp#L832-L835][double SurfaceFuelbedIntermediates::getRelativePackingRatio()]]                                  | #expose |
 
 **** Heat Source
 
-| IA Variable                  | cpp code block                                                                                                     | Note                                                                          |
-|------------------------------+--------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------|
-| Heat Source                  | [[https://github.com/firelab/behave/blob/master/src/behave/surface.h#L87][double getHeatSource(HeatSourceAndReactionIntensityUnits::HeatSourceAndReactionIntensityUnitsEnum heatSourceUnits)]] |                                                                               |
-| Dead Fuel Reaction Intensity |                                                                                                                    | #make-getter ([[https://github.com/firelab/behave/blob/master/src/behave/surfaceFireReactionIntensity.h#L56][reactionIntensityForLifeState_[FuelConstants::MAX_LIFE_STATES]​]]) |
-| Live Fuel Reaction Intensity |                                                                                                                    | #make-getter ([[https://github.com/firelab/behave/blob/master/src/behave/surfaceFireReactionIntensity.h#L56][reactionIntensityForLifeState_[FuelConstants::MAX_LIFE_STATES]​]]) |
-| Wind Factor                  | [[https://github.com/firelab/behave/blob/master/src/behave/surfaceFire.cpp#L516-L519][double SurfaceFire::getWindAdjustmentFactor()]]                                                                      |                                                                               |
-| Slope Factor                 | [[https://github.com/firelab/behave/blob/master/src/behave/surfaceFire.cpp#L496-L499][double SurfaceFire::getSlopeFactor()]]                                                                               |                                                                               |
+| IA Variable                  | cpp code block                                                                                                     | Note    |
+|------------------------------+--------------------------------------------------------------------------------------------------------------------+---------|
+| Heat Source                  | [[https://github.com/firelab/behave/blob/master/src/behave/surface.h#L87][double getHeatSource(HeatSourceAndReactionIntensityUnits::HeatSourceAndReactionIntensityUnitsEnum heatSourceUnits)]] |         |
+| Dead Fuel Reaction Intensity | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surfaceFireReactionIntensity.cpp#L173-L176][double Surface::getSurfaceFireReactionIntensityForLifeState(FuelLifeState::FuelLifeStateEnum lifeState)]]            |         |
+| Live Fuel Reaction Intensity | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surfaceFireReactionIntensity.cpp#L173-L176][double Surface::getSurfaceFireReactionIntensityForLifeState(FuelLifeState::FuelLifeStateEnum lifeState)]]            |         |
+| Wind Factor                  | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surfaceFire.cpp#L609-L612][double SurfaceFire::getWindAdjustmentFactor()]]                                                                      | #expose |
+| Slope Factor                 | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surfaceFire.cpp#L569-L572][double SurfaceFire::getSlopeFactor()]]                                                                               | #expose |
 
 **** Heat Sink
 
-| IA Variable          | cpp code block                                    |
-|----------------------+---------------------------------------------------|
-| Heat Sink            | [[https://github.com/firelab/behave/blob/master/src/behave/surfaceFuelbedIntermediates.cpp#L842-L845][double SurfaceFuelbedIntermediates::getHeatSink()]] |
-| Flame Residence Time | [[https://github.com/firelab/behave/blob/master/src/behave/surfaceFire.cpp#L481-L484][double  SurfaceFire::getResidenceTime()]]           |
+| IA Variable          | cpp code block                                                              | Note |
+|----------------------+-----------------------------------------------------------------------------+------|
+| Heat Sink            | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surface.cpp#L337-L340][double Surface::getHeatSink(HeatSinkUnits::HeatSinkUnitsEnum heatSinkUnits)]] |      |
+| Flame Residence Time | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surface.cpp#L292-L295][double Surface::getResidenceTime(TimeUnits::TimeUnitsEnum timeUnits)]]        |      |
 
 *** Size
 **** Surface - Fire Size
 
 | IA Variable    | cpp code block                                                                                                                      |
 |----------------+-------------------------------------------------------------------------------------------------------------------------------------|
-| Fire Area      | [[https://github.com/firelab/behave/blob/master/src/behave/fireSize.cpp#L154-L158][double FireSize::getFireArea(AreaUnits::AreaUnitsEnum areaUnits, double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits)]]            |
-| Fire Perimeter | [[https://github.com/firelab/behave/blob/master/src/behave/fireSize.cpp#L131-L147][double FireSize::getFirePerimeter(LengthUnits::LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits)]] |
+| Fire Area      | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surface.cpp#L352-L355][double Surface::getFireArea(AreaUnits::AreaUnitsEnum areaUnits, double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits)]]             |
+| Fire Perimeter | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surface.cpp#L347-L350][double Surface::getFirePerimeter(LengthUnits::LengthUnitsEnum lengthUnits , double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits)]] |
 
 **** Surface (Dependency to fire type conditionals for display) (Supplimental)
 
-| IA Variable                | cpp code block                                                                                                                     | Note |
-|----------------------------+------------------------------------------------------------------------------------------------------------------------------------+------|
-| Fire Length-to-Width Ratio | [[https://github.com/firelab/behave/blob/master/src/behave/surfaceFire.cpp#L466-L469][double SurfaceFire::getFireLengthToWidthRatio()]]                                                                                    |      |
-| Heading Spread Distance    | [[https://github.com/firelab/behave/blob/master/src/behave/surface.h#L67][double getSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits)]]         |      |
-| Flanking Spread Distance   | [[https://github.com/firelab/behave/blob/master/src/behave/surface.h#L70][double getFlankingSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits)]] |      |
-| Backing Spread Distance    | [[https://github.com/firelab/behave/blob/master/src/behave/surface.h#L69][double getBackingSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits)]]  |      |
+| IA Variable                | cpp code block                                                                                                                              | Note    |
+|----------------------------+---------------------------------------------------------------------------------------------------------------------------------------------+---------|
+| Fire Length-to-Width Ratio | [[https://github.com/firelab/behave/blob/master/src/behave/surfaceFire.cpp#L466-L469][double SurfaceFire::getFireLengthToWidthRatio()]]                                                                                             | #expose |
+| Heading Spread Distance    | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surface.cpp#L224-L230][double Surface::getSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits)]]         |         |
+| Flanking Spread Distance   | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surface.cpp#L248-L254][double Surface::getFlankingSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits)]] |         |
+| Backing Spread Distance    | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surface.cpp#L240-L246][double Surface::getBackingSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits)]]  |         |
 
 *** Diagram (Supplimental)
 
@@ -198,35 +203,37 @@ Tags that need fixing:
 **** Western Aspen
 ***** Fuel Load
 
-| IA Variable                             | cpp code block                                                                                     | Note         |
-|-----------------------------------------+----------------------------------------------------------------------------------------------------+--------------|
-| Create output for fuel characteristics? |                                                                                                    | #ws-variable |
-| 1-h Fuel Load                           | [[https://github.com/firelab/behave/blob/master/src/behave/westernAspen.cpp#L102-L119][double WesternAspen::getAspenLoadDeadOneHour(int aspenFuelModelNumber, double aspenCuringLevel)]]    |              |
-| Live Woody Fuel Load                    | [[https://github.com/firelab/behave/blob/master/src/behave/westernAspen.cpp#L152-L169][double WesternAspen::getAspenLoadLiveWoody(int aspenFuelModelNumber, double aspenCuringLevel)]]      |              |
-| Live Herbaceous Fuel Load               | [[https://github.com/firelab/behave/blob/master/src/behave/westernAspen.cpp#L133-L150][double WesternAspen::getAspenLoadLiveHerbaceous(int aspenFuelModelNumber, double aspenCuringLevel)]] |              |
+| IA Variable                             | cpp code block                                                                          | Note         |
+|-----------------------------------------+-----------------------------------------------------------------------------------------+--------------|
+| Create output for fuel characteristics? |                                                                                         | #ws-variable |
+| 1-h Fuel Load                           | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surface.cpp#L815-L818][double Surface::getAspenLoadDeadOneHour(LoadingUnits::LoadingUnitsEnum loadingUnits)]]    |              |
+| Live Woody Fuel Load                    | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surface.cpp#L830-L833][double Surface::getAspenLoadDeadOneHour(LoadingUnits::LoadingUnitsEnum loadingUnits)]]    |              |
+| Live Herbaceous Fuel Load               | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surface.cpp#L825-L828][double Surface::getAspenLoadLiveHerbaceous(LoadingUnits::LoadingUnitsEnum loadingUnits)]] |              |
 
 ***** Surface Area-to-Volume Ratio (SA/V)
 
-| IA Variable     | cpp code block                                                                                  |
-|-----------------+-------------------------------------------------------------------------------------------------|
-| 1-h SA/V        | [[https://github.com/firelab/behave/blob/master/src/behave/westernAspen.cpp#L188-L205][double WesternAspen::getAspenSavrDeadOneHour(int aspenFuelModelNumber, double aspenCuringLevel)]] |
-| Live Woody SA/V | [[https://github.com/firelab/behave/blob/master/src/behave/westernAspen.cpp#L217-L234][double WesternAspen::getAspenSavrLiveWoody(int aspenFuelModelNumber, double aspenCuringLevel)]]   |
+| IA Variable     | cpp code block                                                                                            |
+|-----------------+-----------------------------------------------------------------------------------------------------------|
+| 1-h SA/V        | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surface.cpp#L835-L838][double Surface::getAspenSavrDeadOneHour(SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum savrUnits)]] |
+| Live Woody SA/V | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surface.cpp#L850-L853][double Surface::getAspenSavrLiveWoody(SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum savrUnits)]]   |
+|                 |                                                                                                           |
 
 **** Chaparral
 ***** Fuel Load
 
-| IA Variable                             | cpp code block                                  | Note         |
-|-----------------------------------------+-------------------------------------------------+--------------|
-| Create output for fuel characteristics? |                                                 | #ws-variable |
-| Total Dead Fuel Load                    | [[https://gitlab.com/sig-gis/behave6/-/blob/main/src/Bp6ChaparralFuel.cpp#L119-122][double Bp6ChaparralFuel::getTotalDeadFuelLoad()]] | #behave6     |
-| Total Live Fuel Load                    | [[https://gitlab.com/sig-gis/behave6/-/blob/main/src/Bp6ChaparralFuel.cpp#L135-138][double Bp6ChaparralFuel::getTotalLiveFuelLoad()]] | #behave6     |
+| IA Variable                             | cpp code block                                                                             | Note         |
+|-----------------------------------------+--------------------------------------------------------------------------------------------+--------------|
+| Create output for fuel characteristics? |                                                                                            | #ws-variable |
+| Total Dead Fuel Load                    | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surface.cpp#L1213-L1216][double Surface::getChaparralTotalDeadFuelLoad(LoadingUnits::LoadingUnitsEnum loadingUnits)]] |              |
+| Total Live Fuel Load                    | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surface.cpp#L1218-L1221][double Surface::getChaparralTotalLiveFuelLoad(LoadingUnits::LoadingUnitsEnum loadingUnits)]] |              |
+|                                         |                                                                                            |              |
 
 ****** Total Fuel Load
 
-| IA Variable                             | cpp code block | Note         |
-|-----------------------------------------+----------------+--------------|
-| Specified on the worksheet              |                | #ws-variable |
-| Calculated from fuel bed depth and type |                | #ws-variable |
+| IA Variable                             | cpp code block               | Note         |
+|-----------------------------------------+------------------------------+--------------|
+| Specified on the worksheet              | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surfaceInputs.h#L233][chaparralFuelLoadInputMode_;]] | #make-getter |
+| Calculated from fuel bed depth and type | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surfaceInputs.h#L233][chaparralFuelLoadInputMode_;]] | #make-getter |
 
 ***** Dead Fuel Load
 
