@@ -28,10 +28,11 @@
 (defn ->kebab
   "String to kebab-case"
   [s]
-  (-> s
-      (str/lower-case)
-      (remove-punctuation)
-      (str/replace #"[\s_]" "-")))
+  (when (seq s)
+    (-> s
+        (str/lower-case)
+        (remove-punctuation)
+        (str/replace #"[\s_]" "-"))))
 
 (defn camel->snake
   "camelCase string to snake_case"

@@ -5,6 +5,10 @@
        :doc      "Parses s into an integer."}
   parse-int c/parse-int)
 
+(def ^{:argslist '([s])
+       :doc      "Parses s into a long."}
+  parse-long c/parse-long)
+
 (def ^{:argslist '([units])
        :doc      "Parses s into a float."}
   parse-float c/parse-float)

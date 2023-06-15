@@ -59,13 +59,13 @@
               (ref ?uuid :group-variable/cpp-parameter ?p)]
 
              [(param-attrs ?p ?p-name ?p-type ?p-order)
-              [?p :parameter/name ?p-name]
-              [?p :parameter/type ?p-type]
-              [?p :parameter/order ?p-order]]
+              [?p cpp.parameter/name ?p-name]
+              [?p cpp.parameter/type ?p-type]
+              [?p cpp.parameter/order ?p-order]]
 
              ;; Find the function's parameters
              [(fn-params ?fn ?p ?p-name ?p-type ?p-order)
-              [?fn :function/parameters ?p]
+              [?fn :cpp.function/parameters ?p]
               (param-attrs ?p ?p-name ?p-type ?p-order)]
 
              [(subgroup ?g ?sg) [?g :group/children ?sg]]
@@ -80,7 +80,7 @@
               (module-output-vars ?m ?gv)
               (lookup ?uuid ?gv)
               (var->fn ?uuid ?fn)
-              [?fn :function/name ?fn-name]]
+              [?fn :cpp.function/name ?fn-name]]
 
              [(module-input-vars ?m ?gv)
               [?m :module/submodules ?s]
@@ -92,7 +92,7 @@
               (module-input-vars ?m ?gv)
               (lookup ?uuid ?gv)
               (var->fn ?uuid ?fn)
-              [?fn :function/name ?fn-name]]])
+              [?fn :cpp.function/name ?fn-name]]])
 
 ;;; VMS Queries
 
@@ -123,9 +123,9 @@
            (var->fn ?uuid ?fn)
            (var-units ?uuid ?units)
            (var->param ?uuid ?p)
-           [?fn :function/name ?fn-name]
+           [?fn :cpp.function/name ?fn-name]
            (param-attrs ?p ?p-name ?p-type ?p-order)
-           [?fn :function/parameters ?all-params]]
+           [?fn :cpp.function/parameters ?all-params]]
          module-name))
 
 (defn- parsed-value [group-variable-uuid value]
@@ -157,13 +157,13 @@
   (or (q-vms '[:find  [?fn ?fn-name (count ?p)]
                :in    ?gv-uuid
                :where (var->fn ?gv-uuid ?fn)
-                      [?fn :function/name ?fn-name]
-                      [?fn :function/parameters ?p]]
+                      [?fn :cpp.function/name ?fn-name]
+                      [?fn :cpp.function/parameters ?p]]
              group-variable-uuid)
       (-> (q-vms '[:find  [?fn ?fn-name]
                    :in    ?gv-uuid
                    :where (var->fn ?gv-uuid ?fn)
-                          [?fn :function/name ?fn-name]]
+                          [?fn :cpp.function/name ?fn-name]]
                  group-variable-uuid)
           (conj 0))))
 

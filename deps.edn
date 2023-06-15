@@ -3,8 +3,10 @@
  :aliases
  {:dev
   {:extra-paths ["development"
+                 "target"
 
                  ;; Components
+                 "components/async_utils/src"
                  "components/browser_utils/src"
                  "components/csv_parser/src"
                  "components/config/src"
@@ -13,6 +15,7 @@
                  "components/datom_utils/src"
                  "components/dom_utils/src"
                  "components/ds_schema_utils/src"
+                 "components/file_utils/src"
                  "components/markdown2hiccup/src"
                  "components/map_utils/src"
                  "components/number_utils/src"
@@ -24,17 +27,10 @@
                  "bases/behave_components/src"
                  "bases/behave_routing/src"
                  "bases/behave_schema/src"
-                 "bases/datom_store/src"
+                 "bases/datom_store/src"]
 
-                 ;; Projects
-                 "projects/behave/src/clj"
-                 "projects/behave/src/cljs"
-                 "projects/behave/test/cljs"
-                 "projects/behave/resources"
-                 ]
 
    :extra-deps {;; Clojure Deps
-                bidi/bidi                       {:mvn/version "2.1.6"}
                 clj-http/clj-http               {:mvn/version "3.10.1"}
                 bk/ring-gzip                    {:mvn/version "0.3.0"}
                 clojure-msgpack/clojure-msgpack {:mvn/version "1.2.1"}
@@ -42,8 +38,11 @@
                 hiccup/hiccup                   {:mvn/version "2.0.0-alpha2"}
                 io.replikativ/datahike          {:mvn/version "0.5.1506"}
                 me.raynes/fs                    {:mvn/version "1.4.6"}
+                net.coobird/thumbnailator       {:mvn/version "0.4.19"}
+                org.clojure/clojure             {:mvn/version "1.11.1"}
                 org.clojure/data.json           {:mvn/version "1.0.0"}
                 org.clojure/data.xml            {:mvn/version "0.2.0-alpha7"}
+                org.mindrot/jbcrypt             {:mvn/version "0.4"}
                 ring/ring                       {:mvn/version "1.9.5"}
                 ring/ring-defaults              {:mvn/version "0.3.3"}
                 ring/ring-headers               {:mvn/version "0.3.0"}
@@ -51,6 +50,7 @@
                 ring/ring-ssl                   {:mvn/version "0.3.0"}
 
                 ;; Clojure Common
+                bidi/bidi           {:mvn/version "2.1.6"}
                 cljs-ajax/cljs-ajax {:mvn/version "0.8.4"}
                 sig-gis/triangulum  {:git/url "https://github.com/sig-gis/triangulum"
                                      :git/tag "2023.05.15"
@@ -58,7 +58,7 @@
 
                 ;; ClojureScript Deps
                 com.bhauman/figwheel-main          {:mvn/version "0.2.18"}
-                org.clojure/clojurescript          {:mvn/version "1.10.866"}
+                org.clojure/clojurescript          {:mvn/version "1.11.54"}
                 org.clojure/core.async             {:mvn/version "1.2.603"}
                 binaryage/devtools                 {:mvn/version "1.0.5"}
                 re-frisk/re-frisk                  {:mvn/version "1.3.2"}
@@ -104,10 +104,31 @@
                        ;; Bases
                        "bases/behave_routing/test"
                        "bases/behave_schema/test"
-                       "bases/datom_store/test"
+                       "bases/datom_store/test"]}
 
-                       ;; Projects
-                       "projects/behave/test/cljs"]}
+  :behave/app
+  {:extra-paths
+   ["projects/behave/src/clj"
+    "projects/behave/src/cljs"
+    "projects/behave/test/cljs"
+    "projects/behave/resources"]}
+
+  :behave/cms
+  {:extra-paths
+   ["projects/behave_cms/src/clj"
+    "projects/behave_cms/src/cljc"
+    "projects/behave_cms/src/cljs"
+    "projects/behave_cms/test/cljs"
+    "projects/behave_cms/resources"]}
+
+  :behave/cms-test
+  {:extra-paths
+   ["projects/behave_cms/src/clj"
+    "projects/behave_cms/src/cljc"
+    "projects/behave_cms/src/cljs"
+    "projects/behave_cms/test/cljs"
+    "projects/behave_cms/resources"]
+   :main-opts ["-m" "figwheel.main" "-co" "cms-test.cljs.edn" "-m" "behave-cms.headless-test-runner"]}
 
   :poly {:extra-deps {polylith/clj-poly
                       {:mvn/version "0.2.17-alpha"}}

@@ -8,6 +8,10 @@
   #?(:clj  (Integer/parseInt s)
      :cljs (js/parseInt s)))
 
+(defn parse-long [s]
+  #?(:clj  (Long/parseLong s)
+     :cljs (js/parseLong s)))
+
 (defn parse-float [s]
   #?(:clj  (Float/parseFloat s)
      :cljs (js/parseFloat s)))

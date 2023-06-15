@@ -18,8 +18,8 @@
     @(rf/subscribe [:vms/query
                    '[:find  [?content]
                      :in    $ ?help-key
-                     :where [?e :help/key ?help-key]
-                            [?e :help/content ?content]]
+                     :where [?e :help-page/key ?help-key]
+                            [?e :help-page/content ?content]]
                    help-key])))
 
 (rf/reg-sub

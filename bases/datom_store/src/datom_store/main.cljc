@@ -1,12 +1,12 @@
 (ns datom-store.main
   (:require [#?(:clj datahike.api   :cljs datascript.core) :as d]
-            [#?(:clj datahike.datom :cljs datascript.db) :refer [datom]]
+            [#?(:clj datahike.datom :cljs datascript.db)   :refer [datom]]
             [ds-schema-utils.interface :refer [->ds-schema]]
-            [datom-utils.interface :refer [safe-attr?
-                                           safe-deref
-                                           split-datoms
-                                           unsafe-attrs
-                                           unwrap]]))
+            [datom-utils.interface     :refer [safe-attr?
+                                               safe-deref
+                                               split-datoms
+                                               unsafe-attrs
+                                               unwrap]]))
 
 ;;; Helpers
 
@@ -50,9 +50,11 @@
        conn)))
 
 #?(:clj
-   (defn connect-datahike! [cfg schema & [setup-fn]]
+   (defn connect-datahike! [config schema & [setup-fn]]
      (reset! stored-unsafe-attrs (unsafe-attrs schema))
-     (let [conn (if (d/database-exists? cfg) (d/connect cfg) (create-db! cfg schema))]
+     (let [conn (if (d/database-exists? config)
+                  (d/connect config)
+                  (create-db! config schema))]
        (when (fn? setup-fn) (setup-fn conn))
        (build-tx-index! conn)
        (d/listen conn :record-tx record-tx)
@@ -63,6 +65,12 @@
      (d/delete-database cfg)
      (reset! conn nil)))
 
+#?(:clj
+   (defn reset-datahike! [config schema & [setup-fn]]
+     (when (d/database-exists? config)
+       (delete-datahike! config))
+     (connect-datahike! config schema)))
+
 #?(:cljs
    (defn connect-datascript! [schema & [setup-fn]]
      (reset! stored-unsafe-attrs (unsafe-attrs schema))
@@ -71,12 +79,12 @@
        (d/listen! conn :record-tx record-tx)
        conn)))
 
-(defn default-conn [schemas & [config]]
+(defn default-conn [schemas & [config setup-fn]]
   (if @conn
     @conn
     (reset! conn
-            #?(:clj (connect-datahike! config schemas)
-               :cljs (connect-datascript! schemas)))))
+            #?(:clj (connect-datahike! config schemas setup-fn)
+               :cljs (connect-datascript! schemas setup-fn)))))
 
 ;;; Sync datoms
 

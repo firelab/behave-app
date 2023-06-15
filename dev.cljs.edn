@@ -1,7 +1,13 @@
-^{:extra-main-files {:testing {:main behave.test-runner}}
-  :watch-dirs   ["projects/behave/src/cljs"
-                 "projects/behave/test/cljs"
-                 "bases/behave_components/src"]}
+^{:extra-main-files    {:testing {:main behave.test-runner}}
+  :css-dirs            ["bases/behave_components/resources/public/css"
+                        "projects/behave/resources/public/css"]
+  :watch-dirs          ["projects/behave/src/cljs"
+                        "projects/behave/test/cljs"
+                        "bases/behave_components/src"]
+  :ring-server-options {:port 8081 :join? false}
+  :ring-handler        behave.core/development-app
+  :open-url            "http://localhost:8081/worksheets"
+  :clean-outputs       true}
 {:main          "behave.client"
  :output-dir    "projects/behave/resources/public/cljs/"
  :output-to     "projects/behave/resources/public/cljs/app.js"
