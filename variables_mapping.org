@@ -457,10 +457,10 @@
 
 **** Weather
 
-     | IA Variable         | cpp code block | Note         |
-     |---------------------+----------------+--------------|
-     | Midflame Wind Speed |                | #make-setter |
-     | Air Temperature     |                | #make-setter |
+     | IA Variable         | cpp code block | Note                   |
+     |---------------------+----------------+------------------------|
+     | Midflame Wind Speed |                | #make-setter [[https://sig-gis.atlassian.net/browse/BHP1-359][BHP1-359]]  |
+     | Air Temperature     |                | #make-setter  [[https://sig-gis.atlassian.net/browse/BHP1-360][BHP1-360]] |
 
 **** Fuel/Vegetation, Overstory
 
