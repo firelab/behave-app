@@ -8,8 +8,8 @@
   Tags that need fixing:
   1. #todos: could not find code block. Need to look into. (0)
   2. #compute: Need to compute from formula either in pdf or behave6. Aslso need to build setter/getter fns (0)
-  3. #make-getter: Variable exists, but need a public getter (4)
-  4. #make-setter: Need public setter fn. (4)
+  3. #make-getter: Variable exists, but need a public getter (20)
+  4. #make-setter: Need public setter fn. (6)
   5. #ws-variable: No need to update behave. Value should be stored in the worksheet and used to either toggle conditioned inputs/outputs ro passed to the solver (10)
   6. #behave6: Code block is in the behave6 repo. Needs to be ported over to behave-mirror (16)
   7. #fix: Code block is wrong and need fixing, see notes. (1)
@@ -17,10 +17,9 @@
   9. #diagram: related to the diagram work. (1)
   10. #expose: Code blocks exists in another class, but we need to expose this in the current class.
       We may need to bubble up the getters/setters through multiple classes to get to the current
-      class. (i.e. SurfaceFuelbedIntermediates > SurfaceFire > Surface). Either update behave or SIG adapters.
+      class. (i.e. SurfaceFuelbedIntermediates > SurfaceFire > Surface). Either update behave or SIG adapters. (8)
   11. #expose-or-new-solver: Code block exists in another MODULE. Shoule we instantiate this module in
-      the current module's constructor or have the solver instantiate the module?
-  12. #sig-adapter: Updates needed in SIGAdapter
+      the current module's constructor or have the solver instantiate the module? (21)
 
 * Crown
 ** Outputs
@@ -188,12 +187,12 @@
 
 **** Surface (Dependency to fire type conditionals for display) (Supplimental)
 
-     | IA Variable                | cpp code block                                                                                                                              | Note            |
-     |----------------------------+---------------------------------------------------------------------------------------------------------------------------------------------+-----------------|
-     | Fire Length-to-Width Ratio | [[https://github.com/firelab/behave/blob/master/src/behave/surfaceFire.cpp#L466-L469][double SurfaceFire::getFireLengthToWidthRatio()]]                                                                                             | #expose[[https://sig-gis.atlassian.net/browse/BHP1-371][BHP1-371]] |
-     | Heading Spread Distance    | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surface.cpp#L224-L230][double Surface::getSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits)]]         |                 |
-     | Flanking Spread Distance   | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surface.cpp#L248-L254][double Surface::getFlankingSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits)]] |                 |
-     | Backing Spread Distance    | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surface.cpp#L240-L246][double Surface::getBackingSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits)]]  |                 |
+     | IA Variable                | cpp code block                                                                                                                              | Note             |
+     |----------------------------+---------------------------------------------------------------------------------------------------------------------------------------------+------------------|
+     | Fire Length-to-Width Ratio | [[https://github.com/firelab/behave/blob/master/src/behave/surfaceFire.cpp#L466-L469][double SurfaceFire::getFireLengthToWidthRatio()]]                                                                                             | #expose [[https://sig-gis.atlassian.net/browse/BHP1-371][BHP1-371]] |
+     | Heading Spread Distance    | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surface.cpp#L224-L230][double Surface::getSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits)]]         |                  |
+     | Flanking Spread Distance   | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surface.cpp#L248-L254][double Surface::getFlankingSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits)]] |                  |
+     | Backing Spread Distance    | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surface.cpp#L240-L246][double Surface::getBackingSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits)]]  |                  |
 
 *** Diagram (Supplimental)
 
@@ -235,7 +234,7 @@
        | IA Variable                             | cpp code block               | Note                   |
        |-----------------------------------------+------------------------------+------------------------|
        | Specified on the worksheet              | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surfaceInputs.h#L233][chaparralFuelLoadInputMode_;]] | #make-getter [[https://sig-gis.atlassian.net/browse/BHP1-361][BHP1-361]]  |
-       | Calculated from fuel bed depth and type | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surfaceInputs.h#L233][chaparralFuelLoadInputMode_;]] | #make-getter  [[https://sig-gis.atlassian.net/browse/BHP1-361][BHP1-361]] |
+       | Calculated from fuel bed depth and type | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surfaceInputs.h#L233][chaparralFuelLoadInputMode_;]] | #make-getter [[https://sig-gis.atlassian.net/browse/BHP1-361][BHP1-361]]  |
 
 ***** Dead Fuel Load
 
@@ -300,10 +299,9 @@
 
      | IA Variable                   | cpp code block | Note                                                                                                            |
      |-------------------------------+----------------+-----------------------------------------------------------------------------------------------------------------|
-     | Heading Only                  |                | #sig-adapter                                                                                                    |
+     | Heading Only                  |                | #make-setter [[https://sig-gis.atlassian.net/browse/BHP1-338][BHP1-338]]                                                                                           |
      | Heading, Flanking and Backing |                | no longer needed, instead flanking and backing will be optional output variables whenever we do a heading fire. |
-     | User-Specified Directions     |                | #sig-adapter                                                                                                    |
-     |                               |                |                                                                                                                 |
+     | User-Specified Directions     |                | #make-setter  [[https://sig-gis.atlassian.net/browse/BHP1-338][BHP1-338]]                                                                                          |
 
 **** Surface Fire Wind & Spread
 ***** Wind Direction
