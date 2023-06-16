@@ -258,20 +258,19 @@
 **** Palmetto-Galberry
 ***** Dead Fuel Load
 
-      | IA Variable                | cpp code block | Note                        |
-      |----------------------------+----------------+-----------------------------|
-      | Fine: 0 to 0.25 inches     |                | #bill need similar [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/chaparralFuel.cpp#L97-L107][see here]] |
-      | Medium: 0.25 to 1 inches   |                | #bill need similar [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/chaparralFuel.cpp#L97-L107][see here]] |
-      | Foliage Fuel Load: On Stem |                | #bill need similar [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/chaparralFuel.cpp#L97-L107][see here]] |
-      |                            |                |                             |
+      | IA Variable                | cpp code block | Note                  |
+      |----------------------------+----------------+-----------------------|
+      | Fine: 0 to 0.25 inches     |                | #make-getter [[https://sig-gis.atlassian.net/browse/BHP1-337][BHP1-337]] |
+      | Medium: 0.25 to 1 inches   |                | #make-getter [[https://sig-gis.atlassian.net/browse/BHP1-337][BHP1-337]] |
+      | Foliage Fuel Load: On Stem |                | #make-getter [[https://sig-gis.atlassian.net/browse/BHP1-337][BHP1-337]] |
 
 ***** Live Fuel Load
 
-      | IA Variable                 | cpp code block | Note                        |
-      |-----------------------------+----------------+-----------------------------|
-      | Fine: 0 to 0.25 inches      |                | #bill need similar [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/chaparralFuel.cpp#L97-L107][see here]] |
-      | Medium: 0.25 to 1 inches    |                | #bill need similar [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/chaparralFuel.cpp#L97-L107][see here]] |
-      | Foliage Fuel Load : On Stem |                | #bill need similar [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/chaparralFuel.cpp#L97-L107][see here]] |
+      | IA Variable                 | cpp code block | Note                  |
+      |-----------------------------+----------------+-----------------------|
+      | Fine: 0 to 0.25 inches      |                | #make-getter [[https://sig-gis.atlassian.net/browse/BHP1-337][BHP1-337]] |
+      | Medium: 0.25 to 1 inches    |                | #make-getter [[https://sig-gis.atlassian.net/browse/BHP1-337][BHP1-337]] |
+      | Foliage Fuel Load : On Stem |                | #make-getter [[https://sig-gis.atlassian.net/browse/BHP1-337][BHP1-337]] |
 
 ***** Fuelbed
 
@@ -392,70 +391,70 @@
 *** Spot
 **** Canopy Fuel
 
-     | IA Variable            | cpp code block                                                                                                     | Note                                                                                                                         |
-     |------------------------+--------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------|
-     | Downwind Canopy Height | [[https://github.com/firelab/behave/blob/master/src/behave/spotInputs.cpp#L45-L48][void SpotInputs::setDownwindCoverHeight(double downwindCoverHeight, LengthUnits::LengthUnitsEnum coverHeightUnits)]] |                                                                                                                              |
-     | Downwind Canopy Cover  |                                                                                                                    | #behave6 #make-setter (aka downWindOpenCanopy. open or closed? if closed multiply downwind canopy height by 0.5. See [[https://gitlab.sig-gis.com/sig-gis/behave6/-/blob/main/src/xfblib624.cpp#L1853][here]]  ) |
+     | IA Variable            | cpp code block                                                                                               | Note                  |
+     |------------------------+--------------------------------------------------------------------------------------------------------------+-----------------------|
+     | Downwind Canopy Height | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/spot.cpp#L394-L397][void Spot::setDownwindCoverHeight(double downwindCoverHeight, LengthUnits::LengthUnitsEnum coverHeightUnits)]] | #expose-or-new-solver |
+     | Downwind Canopy Cover  | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/spot.cpp#L399-L402][void Spot::setDownwindCanopyMode(SpotDownWindCanopyMode::SpotDownWindCanopyModeEnum downwindCanopyMode)]]      | #expose-or-new-solver |
 
 **** Torching Trees
 
-     | IA Variable                            | cpp code block                                                                                   | Note |
-     |----------------------------------------+--------------------------------------------------------------------------------------------------+------|
-     | Torching Tree Height                   | [[https://github.com/firelab/behave/blob/master/src/behave/spotInputs.cpp#L75-L78][void SpotInputs::setTreeHeight(double treeHeight, LengthUnits::LengthUnitsEnum  treeHeightUnits)]] |      |
-     | Torching Tree Species                  | [[https://github.com/firelab/behave/blob/master/src/behave/spotInputs.cpp#L80-L83][void SpotInputs::setTreeSpecies(SpotTreeSpecies::SpotTreeSpeciesEnum treeSpecies)]]                |      |
-     | DBH (Diameter at Breast Height)        | [[https://github.com/firelab/behave/blob/master/src/behave/spotInputs.cpp#L40-L43][void SpotInputs::setDBH(double DBH, LengthUnits::LengthUnitsEnum DBHUnits)]]                       |      |
-     | Number of Torching Trees Numeric Value | [[https://github.com/firelab/behave/blob/master/src/behave/spotInputs.cpp#L70-L73][void SpotInputs::setTorchingTrees(int torchingTrees)]]                                             |      |
+     | IA Variable                            | cpp code block                                                                             | Note                  |
+     |----------------------------------------+--------------------------------------------------------------------------------------------+-----------------------|
+     | Torching Tree Height                   | [[ \[\[https://github.com/firelab/behave/blob/master/src/behave/spotInputs.cpp#L75-L78\]\[void SpotInputs::setTreeHeight(double treeHeight, LengthUnits::LengthUnitsEnum  treeHeightUnits)\]\] ][void Spot::setTreeHeight(double treeHeight, LengthUnits::LengthUnitsEnum  treeHeightUnits)]] | #expose-or-new-solver |
+     | Torching Tree Species                  | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/spot.cpp#L434-L437][void Spot::setTreeSpecies(SpotTreeSpecies::SpotTreeSpeciesEnum treeSpecies)]]                | #expose-or-new-solver |
+     | DBH (Diameter at Breast Height)        | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/spot.cpp#L389-L392][void Spot::setDBH(double DBH, LengthUnits::LengthUnitsEnum DBHUnits)]]                       | #expose-or-new-solver |
+     | Number of Torching Trees Numeric Value | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/spot.cpp#L424-L427][void Spot::setTorchingTrees(int torchingTrees)]]                                             | #expose-or-new-solver |
 
 **** Topography
 
-     | IA Variable                          | cpp code block                                                                                                                   | Note |
-     |--------------------------------------+----------------------------------------------------------------------------------------------------------------------------------+------|
-     | Ridge-to-Valley Elevation Difference | [[https://github.com/firelab/behave/blob/master/src/behave/spotInputs.cpp#L65-L68][void SpotInputs::setRidgeToValleyElevation(double ridgeToValleyElevation, LengthUnits::LengthUnitsEnum elevationUnits)]]           |      |
-     | Ridge-to-Valley Horizontal Distance  | [[https://github.com/firelab/behave/blob/master/src/behave/spotInputs.cpp#L60-L63][void SpotInputs::setRidgeToValleyDistance(double ridgeToValleyDistance, LengthUnits::LengthUnitsEnum ridgeToValleyDistanceUnits)]] |      |
-     | Spott List Source Location           | [[https://github.com/firelab/behave/blob/master/src/behave/spotInputs.cpp#L55-L58][void SpotInputs::setLocation(SpotFireLocation::SpotFireLocationEnum location)]]                                                    |      |
+     | IA Variable                          | cpp code block                                                                                                             | Note                  |
+     |--------------------------------------+----------------------------------------------------------------------------------------------------------------------------+-----------------------|
+     | Ridge-to-Valley Elevation Difference | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/spot.cpp#L419-L422][void Spot::setRidgeToValleyElevation(double ridgeToValleyElevation, LengthUnits::LengthUnitsEnum elevationUnits)]]           | #expose-or-new-solver |
+     | Ridge-to-Valley Horizontal Distance  | [[ \[\[https://github.com/firelab/behave/blob/master/src/behave/spotInputs.cpp#L60-L63\]\[void SpotInputs::setRidgeToValleyDistance(double ridgeToValleyDistance, LengthUnits::LengthUnitsEnum ridgeToValleyDistanceUnits)\]\] ][void Spot::setRidgeToValleyDistance(double ridgeToValleyDistance, LengthUnits::LengthUnitsEnum ridgeToValleyDistanceUnits)]] | #expose-or-new-solver |
+     | Spott List Source Location           | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/spot.cpp#L409-L412][void Spot::setLocation(SpotFireLocation::SpotFireLocationEnum location)]]                                                    | #expose-or-new-solver |
 
-**** Wind Speed
-***** Wind speed is entered as
+*** Wind Speed
+**** Wind speed is entered as
 
-      | IA Variable                           | cpp code block                                                                            | Note |
-      |---------------------------------------+-------------------------------------------------------------------------------------------+------|
-      | 20-ft Wind and Wind Adjustment Factor | [[https://github.com/firelab/behave/blob/master/src/behave/surface.h#L96][setWindHeightInputMode(WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode);]] |      |
-      | Midflame (eye level) Wind             | [[https://github.com/firelab/behave/blob/master/src/behave/surface.h#L96][setWindHeightInputMode(WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode);]] |      |
-      | 10-m Wind and Wind Adjustment Factor  | [[https://github.com/firelab/behave/blob/master/src/behave/surface.h#L96][setWindHeightInputMode(WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode);]] |      |
+     | IA Variable                           | cpp code block                                                                                         | Note |
+     |---------------------------------------+--------------------------------------------------------------------------------------------------------+------|
+     | 20-ft Wind and Wind Adjustment Factor | [[ \[\[https://github.com/firelab/behave/blob/master/src/behave/surface.h#L96\]\[setWindHeightInputMode(WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode);\]\] ][void Surface::setWindHeightInputMode(WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode)]] |      |
+     | Midflame (eye level) Wind             | [[ \[\[https://github.com/firelab/behave/blob/master/src/behave/surface.h#L96\]\[setWindHeightInputMode(WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode);\]\] ][void Surface::setWindHeightInputMode(WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode)]] |      |
+     | 10-m Wind and Wind Adjustment Factor  | [[ \[\[https://github.com/firelab/behave/blob/master/src/behave/surface.h#L96\]\[setWindHeightInputMode(WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode);\]\] ][void Surface::setWindHeightInputMode(WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode)]] |      |
 
-***** Wind and slope
+**** Wind and slope
 
-      | IA Variable                               | cpp code block | Note    |
-      |-------------------------------------------+----------------+---------|
-      | are aligned wind is +- 30 from upslope    |                | #thomas |
-      | are NOT aligned wind is > 30 from uplsope |                | #thomas |
+     | IA Variable                               | cpp code block | Note                               |
+     |-------------------------------------------+----------------+------------------------------------|
+     | are aligned wind is +- 30 from upslope    |                | #make-getter #make-setter [[https://sig-gis.atlassian.net/browse/BHP1-311][BHP1-311]] |
+     | are NOT aligned wind is > 30 from uplsope |                | #make-getter #make-setter [[https://sig-gis.atlassian.net/browse/BHP1-311][BHP1-311]] |
 
 * Mortality
 ** Outputs
 *** Scorch
     | IA Variable   | cpp code block                                                                                                   | Note |
     |---------------+------------------------------------------------------------------------------------------------------------------+------|
-    | Scorch Height | [[https://github.com/firelab/behave/blob/master/src/behave/mortality.cpp#L166-L169][double Mortality::getFlameLengthOrScorchHeightValue(LengthUnits::LengthUnitsEnum flameLengthOrScorchHeightUnits)]] |      |
+    | Scorch Height | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/mortality.cpp#L166-L169][double Mortality::getFlameLengthOrScorchHeightValue(LengthUnits::LengthUnitsEnum flameLengthOrScorchHeightUnits)]] |      |
 
 *** Tree Mortality
 
-    | IA Variable                | cpp code block                                                                                       | Note |
-    |----------------------------+------------------------------------------------------------------------------------------------------+------|
-    | Probability of Mortality   | [[https://github.com/firelab/behave/blob/master/src/behave/mortality.cpp#L1847-L1850][double Mortality::getProbabilityOfMortality(ProbabilityUnits::ProbabilityUnitsEnum probabilityUnits)]] |      |
-    | Bark Thickness             | [[https://github.com/firelab/behave/blob/master/src/behave/mortality.cpp#L231-L234][double Mortality::getBarkThickness(LengthUnits::LengthUnitsEnum barkThicknessUnits)]]                  |      |
-    | Tree Crown Length Scorched | [[https://github.com/firelab/behave/blob/master/src/behave/mortality.h#L101][double getTreeCrownLengthScorched(MortalityRateUnits::MortalityRateUnitsEnum mortalityRateUnits)]]     |      |
-    | Tree Crown Volume Scorched | [[https://github.com/firelab/behave/blob/master/src/behave/mortality.h#L102][double getTreeCrownVolumeScorched(MortalityRateUnits::MortalityRateUnitsEnum mortalityRateUnits)]]     |      |
+    | IA Variable                | cpp code block                                                                                              | Note |
+    |----------------------------+-------------------------------------------------------------------------------------------------------------+------|
+    | Probability of Mortality   | [[ \[\[https://github.com/firelab/behave/blob/master/src/behave/mortality.cpp#L1847-L1850\]\[double Mortality::getProbabilityOfMortality(ProbabilityUnits::ProbabilityUnitsEnum probabilityUnits)\]\] ][double Mortality::getProbabilityOfMortality(ProbabilityUnits::ProbabilityUnitsEnum probabilityUnits)]]        |      |
+    | Bark Thickness             | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/mortality.cpp#L231-L234][double Mortality::getBarkThickness(LengthUnits::LengthUnitsEnum barkThicknessUnits)]]                         |      |
+    | Tree Crown Length Scorched | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/mortality.cpp#L1866-L1869][double Mortality::getTreeCrownLengthScorched(MortalityRateUnits::MortalityRateUnitsEnum mortalityRateUnits)]] |      |
+    | Tree Crown Volume Scorched | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/mortality.cpp#L1871-L1874][double Mortality::getTreeCrownVolumeScorched(MortalityRateUnits::MortalityRateUnitsEnum mortalityRateUnits)]] |      |
 
 ** Iutputs
 *** Scorch
 **** Fire
 
 
-     | IA Variable                | cpp code block                             | Note                                                                      |
-     |----------------------------+--------------------------------------------+---------------------------------------------------------------------------|
-     | Surface Fire Flame Length  | [[https://github.com/firelab/behave/blob/master/src/behave/mortality.cpp#L1023-L1036][Mortality::Calc_Flame(double scorchHeight)]] | #make-setter                                                              |
-     | Scorch Height              | [[https://github.com/firelab/behave/blob/master/src/behave/mortality.cpp#L1007-L1021][Mortality::Calc_Scorch(double flame)]]       | #fix (update to also use midflame wind speed and temp as seen in behave6) |
-     | Surface Fireline Intensity |                                            |                                                                           |
+     | IA Variable                | cpp code block                                                                                       | Note |
+     |----------------------------+------------------------------------------------------------------------------------------------------+------|
+     | Surface Fire Flame Length  | [[https://gitlab.sig-gis.com/sig-gis/behave-polylith/blob/26f32a2f4c61cdecdffa40529911122becc2f0fe/behave-lib/include/cpp/sig-adapters/SIGMortality.cpp#L26-30][void SIGMortality::setSurfaceFireFlameLength(double value, LengthUnits::LengthUnitsEnum lengthUnits)]] |      |
+     | Scorch Height              | [[https://gitlab.sig-gis.com/sig-gis/behave-polylith/blob/26f32a2f4c61cdecdffa40529911122becc2f0fe/behave-lib/include/cpp/sig-adapters/SIGMortality.cpp#L26-30][void SIGMortality::setSurfaceFireFlameLength(double value, LengthUnits::LengthUnitsEnum lengthUnits)]] |      |
+     | Surface Fireline Intensity |                                                                                                      |      |
 
 **** Weather
 
@@ -468,7 +467,7 @@
 
      | IA Variable                     | cpp code block                                                                                 | Note |
      |---------------------------------+------------------------------------------------------------------------------------------------+------|
-     | Mortality Tree Species          | [[https://github.com/firelab/behave/blob/master/src/behave/mortality.cpp#L69-L78][void Mortality::setSpeciesCode(std::string speciesCode)]]                                        |      |
-     | Canopy Height                   | [[https://github.com/firelab/behave/blob/master/src/behave/mortality.cpp#L111-L114][void Mortality::setTreeHeight(double treeHeight, LengthUnits::LengthUnitsEnum treeHeightUnits)]] |      |
-     | Crown Ratio                     | [[https://github.com/firelab/behave/blob/master/src/behave/mortality.cpp#L116-L119][void Mortality::setCrownRatio(double crownRatio)]]                                               |      |
-     | DBH (Diameter at Breast Height) | [[https://github.com/firelab/behave/blob/master/src/behave/mortality.cpp#L106-L109][void Mortality::setDBH(double dbh, LengthUnits::LengthUnitsEnum diameterUnits)]]                 |      |
+     | Mortality Tree Species          | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/mortality.cpp#L69-L78][void Mortality::setSpeciesCode(std::string speciesCode)]]                                        |      |
+     | Canopy Height                   | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/mortality.cpp#L111-L114][void Mortality::setTreeHeight(double treeHeight, LengthUnits::LengthUnitsEnum treeHeightUnits)]] |      |
+     | Crown Ratio                     | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/mortality.cpp#L116-L119][void Mortality::setCrownRatio(double crownRatio)]]                                               |      |
+     | DBH (Diameter at Breast Height) | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/mortality.cpp#L106-L109][void Mortality::setDBH(double dbh, LengthUnits::LengthUnitsEnum diameterUnits)]]                 |      |
