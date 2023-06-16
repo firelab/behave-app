@@ -387,7 +387,7 @@
 
      | IA Variable  | cpp code block                                                                             | Note    |
      |--------------+--------------------------------------------------------------------------------------------+---------|
-     | Elapsed Time | [[https://github.com/firelab/behave/blob/master/src/behave/surfaceInputs.cpp#L535-L538][void SurfaceInputs::setElapsedTime(double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits)]] | #expose |
+     | Elapsed Time | [[https://github.com/firelab/behave/blob/b5f8bd4628dfa3f3451e61f00a9b85c656aecda5/src/behave/surfaceInputs.cpp#L757-L760][void SurfaceInputs::setElapsedTime(double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits)]] | #expose |
 
 *** Spot
 **** Canopy Fuel
