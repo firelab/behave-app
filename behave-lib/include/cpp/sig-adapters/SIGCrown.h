@@ -58,6 +58,11 @@ public:
 
   char* getFuelCode(int fuelModelNumber) const;
   char* getFuelName(int fuelModelNumber) const;
+  double getCrownCriticalFireSpreadRate(SpeedUnits::SpeedUnitsEnum spreadRateUnits) const;
+  double getCrownCriticalSurfaceFirelineIntensity(FirelineIntensityUnits::FirelineIntensityUnitsEnum firelineIntensityUnits) const;
+  double getCrownCriticalSurfaceFlameLength(LengthUnits::LengthUnitsEnum flameLengthUnits) const;
+  double getCrownFireActiveRatio() const;
+  double getCrownTransitionRatio() const;
 
 private:
   CrownFireCalculationMethod crownFireCalculationMethod_;
