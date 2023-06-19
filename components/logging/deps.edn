@@ -1,0 +1,5 @@
+{:paths ["src" "resources"]
+ :deps {sig-gis/triangulum {:git/url "https://github.com/sig-gis/triangulum"
+                            :git/tag "2023.05.15"
+                            :sha     "6a92593c2764060a3a8d0e6db72e5a8b411b1655"}}
+ :aliases {:test {:extra-paths ["test"]}}}

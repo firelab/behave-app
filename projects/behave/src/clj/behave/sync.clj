@@ -6,6 +6,7 @@
   (:import  [java.io ByteArrayInputStream]))
 
 (defn sync-handler [{:keys [request-method params accepts] :as req}]
+  (log-str "Request Received:" (select-keys req [:uri :request-method :params]))
   (let [res-type (or (mime->type accepts) :edn)]
     (condp = request-method
       :get

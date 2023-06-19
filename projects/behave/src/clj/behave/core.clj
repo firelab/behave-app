@@ -9,6 +9,7 @@
             [ring.util.codec          :refer [url-decode]]
             [ring.util.response       :refer [not-found]]
             [server.interface         :as server]
+            [logging.interface        :as logging]
             [config.interface         :refer [get-config load-config]]
             [transport.interface      :refer [->clj mime->type]]
             [triangulum.logging       :refer [log-str]]
@@ -25,14 +26,15 @@
 (defn init! []
   (load-config (io/resource "config.edn"))
   (let [config (update-in (get-config :database :config) [:store :path] expand-home)]
-    (println "LOADED CONFIG" (get-config :database :config))
+    (log-str "LOADED CONFIG" (get-config :database :config))
     (io/make-parents (get-in config [:store :path]))
     (store/connect! config)))
 
 (defn vms-sync! []
   (export-from-vms (get-config :vms :secret-token)))
 
-(defn vms-sync-handler [_]
+(defn vms-sync-handler [req]
+  (log-str "Request Received:" (select-keys req [:uri :request-method :params]))
   (vms-sync!)
   {:status 200 :body "OK"})
 
@@ -125,7 +127,9 @@
   (init!)
   (vms-sync!)
   (server/start-server! {:handler (create-handler-stack (= (get-config :server :mode) "dev"))
-                         :port    (or (get-config :server :http-port) 8080)}))
+                         :port    (or (get-config :server :http-port) 8080)})
+  (logging/start-logging! {:log-dir             (get-config :logging :log-dir)
+                           :log-memory-interval (get-config :logging :log-memory-interval)}))
 
 (comment
   (-main)

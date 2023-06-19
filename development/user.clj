@@ -102,6 +102,4 @@
          :where [?e :application/modules ?v]
                 [?e ?a ?v]]
        @conn)
-
-
   )
