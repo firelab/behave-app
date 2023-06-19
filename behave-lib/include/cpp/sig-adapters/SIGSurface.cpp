@@ -66,7 +66,10 @@ double getChaparralLoadDeadMedium(LoadingUnits::LoadingUnitsEnum loadingUnits) c
 }
 
 double getChaparralLoadDeadLarge(LoadingUnits::LoadingUnitsEnum loadingUnits) const {
-  return LoadingUnits::fromBaseUnits(surfaceFire_.getChaparralLoad(FuelLifeState::Dead, 2) , loadingUnits);
+  return LoadingUnits::fromBaseUnits(surfaceFire_.getChaparralLoad(FuelLifeState::Dead, 3) , loadingUnits);
+}
+double getChaparralLoadDeadVeryLarge(LoadingUnits::LoadingUnitsEnum loadingUnits) const {
+  return LoadingUnits::fromBaseUnits(surfaceFire_.getChaparralLoad(FuelLifeState::Dead, 4) , loadingUnits);
 }
 
 double getChaparralLoadLiveFine(LoadingUnits::LoadingUnitsEnum loadingUnits) const {
@@ -82,5 +85,9 @@ double getChaparralLoadLiveMedium(LoadingUnits::LoadingUnitsEnum loadingUnits) c
 }
 
 double getChaparralLoadLiveLarge(LoadingUnits::LoadingUnitsEnum loadingUnits) const {
-  return LoadingUnits::fromBaseUnits(surfaceFire_.getChaparralLoad(FuelLifeState::Live, 2) , loadingUnits);
+  return LoadingUnits::fromBaseUnits(surfaceFire_.getChaparralLoad(FuelLifeState::Live, 3) , loadingUnits);
+}
+
+double getChaparralLoadLiveLarge(LoadingUnits::LoadingUnitsEnum loadingUnits) const {
+  return LoadingUnits::fromBaseUnits(surfaceFire_.getChaparralLoad(FuelLifeState::Live, 4) , loadingUnits);
 }
