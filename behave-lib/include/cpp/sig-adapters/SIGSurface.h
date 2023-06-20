@@ -48,6 +48,17 @@ public:
   SIGSurface(SIGFuelModels& fuelModels);
   ~SIGSurface();
 
+  void doSurfaceRun();
+
+  // Settter Methods
+  void setDirectionOfInterest(double directionOfInterest);
+  void setSurfaceRunInDirectionOf(SurfaceRunInDirectionOf::SurfaceRunInDirectionOfEnum surfaceRunInDirectionOf);
+  void setSurfaceFireSpreadDirectionMode(SurfaceFireSpreadDirectionMode::SurfaceFireSpreadDirectionModeEnum
+                                         directionMode);
+
+  // Getter Methods
+  double getDirectionOfInterest();
+
   // Fuel Model Getter Methods
   char* getFuelCode(int fuelModelNumber) const;
   char* getFuelName(int fuelModelNumber) const;
@@ -62,4 +73,9 @@ public:
   double getChaparralLoadLiveMedium(LoadingUnits::LoadingUnitsEnum loadingUnits) const;
   double getChaparralLoadLiveLarge(LoadingUnits::LoadingUnitsEnum loadingUnits) const;
   double getChaparralLoadLiveVeryLarge(LoadingUnits::LoadingUnitsEnum loadingUnits) const;
+
+private:
+  double directionOfInterest_;
+  SurfaceRunInDirectionOf::SurfaceRunInDirectionOfEnum surfaceRunInDirectionOf_;
+  SurfaceFireSpreadDirectionMode::SurfaceFireSpreadDirectionModeEnum directionMode_;
 };
