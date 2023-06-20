@@ -75,5 +75,4 @@ public:
   double getPackingRatio() const;
   double getRelativePackingRatio() const;
   double getWindAdjustmentFactor() const;
-
 };
