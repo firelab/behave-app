@@ -40,6 +40,7 @@
 #include "surface.h"
 #include "SIGFuelModels.h"
 #include "SIGString.h"
+#include "SIGSurfaceInputEnums.h"
 
 class SIGSurface : public Surface
 {
@@ -47,6 +48,12 @@ public:
   SIGSurface() = delete; // No default constructor
   SIGSurface(SIGFuelModels& fuelModels);
   ~SIGSurface();
+
+  // SIGSurface Getter Methods
+  WindUpslopeAlignmentMode::WindUpslopeAlignmentModeEnum getWindUpslopeAlignmentMode() const;
+
+  // SIGSurface Setter Methods
+  void setWindUpslopeAlignmentMode(WindUpslopeAlignmentMode::WindUpslopeAlignmentModeEnum) const;
 
   // Fuel Model Getter Methods
   char* getFuelCode(int fuelModelNumber) const;
@@ -77,4 +84,6 @@ public:
   double getSlopeFactor() const;
   double getWindAdjustmentFactor() const;
 
+protected:
+  WindUpslopeAlignmentMode::WindUpslopeAlignmentModeEnum windUpslopeAlignmentMode_;
 };

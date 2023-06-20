@@ -130,3 +130,11 @@ double SIGSurface::getSlopeFactor() const {
 double SIGSurface::getWindAdjustmentFactor() const {
   return surfaceFire_.getWindAdjustmentFactor();
 }
+
+WindUpslopeAlignmentMode::WindUpslopeAlignmentModeEnum getWindUpslopeAlignmentMode() const {
+  return windUpslopeAlignmentMode_;
+}
+
+void setWindUpslopeAlignmentMode(WindUpslopeAlignmentMode::WindUpslopeAlignmentModeEnum WindUpslopeAlignmentMode) const {
+  return windUpslopeAlignmentMode_ = WindUpslopeAlignmentMode;
+}
