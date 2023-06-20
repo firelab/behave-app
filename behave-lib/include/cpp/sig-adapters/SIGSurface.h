@@ -52,4 +52,14 @@ public:
   char* getFuelCode(int fuelModelNumber) const;
   char* getFuelName(int fuelModelNumber) const;
   ChaparralFuelLoadInputMode::ChaparralFuelInputLoadModeEnum getChaparralFuelLoadInputMode();
+  double getChaparralLoadDeadFine(LoadingUnits::LoadingUnitsEnum loadingUnits) const;
+  double getChaparralLoadDeadSmall(LoadingUnits::LoadingUnitsEnum loadingUnits) const;
+  double getChaparralLoadDeadMedium(LoadingUnits::LoadingUnitsEnum loadingUnits) const;
+  double getChaparralLoadDeadLarge(LoadingUnits::LoadingUnitsEnum loadingUnits) const;
+  double getChaparralLoadDeadVeryLarge(LoadingUnits::LoadingUnitsEnum loadingUnits) const;
+  double getChaparralLoadLiveFine(LoadingUnits::LoadingUnitsEnum loadingUnits) const;
+  double getChaparralLoadLiveSmall(LoadingUnits::LoadingUnitsEnum loadingUnits) const;
+  double getChaparralLoadLiveMedium(LoadingUnits::LoadingUnitsEnum loadingUnits) const;
+  double getChaparralLoadLiveLarge(LoadingUnits::LoadingUnitsEnum loadingUnits) const;
+  double getChaparralLoadLiveVeryLarge(LoadingUnits::LoadingUnitsEnum loadingUnits) const;
 };
