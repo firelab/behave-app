@@ -113,10 +113,16 @@ double SIGSurface::getCharacteristicMoistureDead(MoistureUnits::MoistureUnitsEnu
 double SIGSurface::getCharacteristicMoistureLive(MoistureUnits::MoistureUnitsEnum moistureUnits) const {
   return MoistureUnits::fromBaseUnits(surfaceFire_.getWeightedMoistureByLifeState(FuelLifeState::Live),
                                       moistureUnits);
+}
 
 double SIGSurface::getRelativePackingRatio() const {
   return surfaceFire_.surfaceFuelbedIntermediates_.getRelativePackingRatio();
+}
 
 double SIGSurface::getPackingRatio() const {
   return surfaceFire_.surfaceFuelbedIntermediates_.getPackingRatio();
+}
+
+double SIGSurface::getWindAdjustmentFactor() const {
+  return surfaceFire_.getWindAdjustmentFactor();
 }
