@@ -97,6 +97,6 @@ double SIGSurface::getChaparralLoadLiveLarge(LoadingUnits::LoadingUnitsEnum load
   return LoadingUnits::fromBaseUnits(surfaceFire_.getChaparralLoad(FuelLifeState::Live, 4) , loadingUnits);
 }
 
-double SIGSurface::getPackingRatio() const {
+double SIGSurface::getRelativePackingRatio() const {
   return surfaceFire_.surfaceFuelbedIntermediates_.getRelativePackingRatio();
 }

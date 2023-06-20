@@ -61,5 +61,5 @@ public:
   double getChaparralLoadLiveSmall(LoadingUnits::LoadingUnitsEnum loadingUnits) const;
   double getChaparralLoadLiveMedium(LoadingUnits::LoadingUnitsEnum loadingUnits) const;
   double getChaparralLoadLiveLarge(LoadingUnits::LoadingUnitsEnum loadingUnits) const;
-  double getPackingRatio() const;
+  double getRelativePackingRatio() const;
 };
