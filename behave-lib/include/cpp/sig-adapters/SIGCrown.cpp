@@ -71,3 +71,26 @@ char* SIGCrown::getFuelName(int fuelModelNumber) const
 {
   return SIGString::str2charptr(Crown::getFuelName(fuelModelNumber));
 }
+
+double SIGCrown::getCrownCriticalFireSpreadRate(SpeedUnits::SpeedUnitsEnum spreadRateUnits) const
+{
+  return SpeedUnits::fromBaseUnits(crownCriticalFireSpreadRate_, spreadRateUnits);
+}
+
+double SIGCrown::getCrownCriticalSurfaceFirelineIntensity(FirelineIntensityUnits::FirelineIntensityUnitsEnum firelineIntensityUnits) const
+{
+  return FirelineIntensityUnits::fromBaseUnits(crownCriticalSurfaceFirelineIntensity_, firelineIntensityUnits);
+}
+
+double SIGCrown::getCrownCriticalSurfaceFlameLength(LengthUnits::LengthUnitsEnum flameLengthUnits) const
+{
+  return LengthUnits::fromBaseUnits(crownFlameLength_, flameLengthUnits);
+}
+
+double SIGCrown::getCrownFireActiveRatio() const {
+  return crownFireActiveRatio_;
+}
+
+double SIGCrown::getCrownTransitionRatio() const {
+  return crownFireTransitionRatio_;
+}
