@@ -74,5 +74,7 @@ public:
   double getCharacteristicMoistureLive(MoistureUnits::MoistureUnitsEnum moistureUnits) const;
   double getPackingRatio() const;
   double getRelativePackingRatio() const;
+  double getSlopeFactor() const;
   double getWindAdjustmentFactor() const;
+
 };

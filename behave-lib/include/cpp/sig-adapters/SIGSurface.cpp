@@ -123,6 +123,10 @@ double SIGSurface::getPackingRatio() const {
   return surfaceFire_.surfaceFuelbedIntermediates_.getPackingRatio();
 }
 
+double SIGSurface::getSlopeFactor() const {
+  return surfaceInputs_.getSlopeFactor();
+}
+
 double SIGSurface::getWindAdjustmentFactor() const {
   return surfaceFire_.getWindAdjustmentFactor();
 }
