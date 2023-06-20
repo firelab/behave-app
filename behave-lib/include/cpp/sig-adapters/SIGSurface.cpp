@@ -53,3 +53,6 @@ char* SIGSurface::getFuelName(int fuelModelNumber) const
   return SIGString::str2charptr(Surface::getFuelName(fuelModelNumber));
 }
 
+ChaparralFuelLoadInputMode::ChaparralFuelInputLoadModeEnum getChaparralFuelLoadInputMode() {
+  return surfaceInputs_.getChaparralFuelLoadInputMode()
+}
