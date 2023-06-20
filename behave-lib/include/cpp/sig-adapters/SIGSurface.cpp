@@ -97,6 +97,60 @@ double SIGSurface::getChaparralLoadLiveVeryLarge(LoadingUnits::LoadingUnitsEnum 
   return LoadingUnits::fromBaseUnits(surfaceFire_.getChaparralLoad(FuelLifeState::Live, 4) , loadingUnits);
 }
 
+double Surface::getEllipticalA(LengthUnits::LengthUnitsEnum lengthUnits, TimeUnits::TimeUnitsEnum timeUnits) const
+{
+  double elapsedTime = surfaceInputs_.getElapsedTime();
+  return getEllipticalA(lengthUnits, elapsedTime, timeUnits);
+}
+
+double Surface::getEllipticalB(LengthUnits::LengthUnitsEnum lengthUnits, TimeUnits::TimeUnitsEnum timeUnits) const
+{
+  double elapsedTime = surfaceInputs_.getElapsedTime();
+  return getEllipticalB(lengthUnits, elapsedTime, timeUnits);
+}
+
+double Surface::getEllipticalC(LengthUnits::LengthUnitsEnum lengthUnits, TimeUnits::TimeUnitsEnum timeUnits) const
+{
+  double elapsedTime = surfaceInputs_.getElapsedTime();
+  return getEllipticalC(lengthUnits, elapsedTime, timeUnits);
+}
+
+double Surface::getFireArea(AreaUnits::AreaUnitsEnum areaUnits, TimeUnits::TimeUnitsEnum timeUnits) const
+{
+  double elapsedTime = surfaceInputs_.getElapsedTime();
+  return getFireArea(lengthUnits, elapsedTime, timeUnits);
+}
+
+double Surface::getFirePerimeter(LengthUnits::LengthUnitsEnum lengthUnits , TimeUnits::TimeUnitsEnum timeUnits) const
+{
+  double elapsedTime = surfaceInputs_.getElapsedTime();
+  return getFirePerimeter(lengthUnits, elapsedTime, timeUnits);
+}
+
+double Surface::getBackingSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits, TimeUnits::TimeUnitsEnum timeUnits)
+{
+  double elapsedTime = surfaceInputs_.getElapsedTime();
+  return getBackingSpreadDistance(lengthUnits, elapsedTime, timeUnits);
+}
+
+double Surface::getFlankingSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits, TimeUnits::TimeUnitsEnum timeUnits) const
+{
+  double elapsedTime = surfaceInputs_.getElapsedTime();
+  return getFlankingSpreadDistance(lengthUnits, elapsedTime, timeUnits);
+}
+
+double Surface::getSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits, TimeUnits::TimeUnitsEnum timeUnits) const
+{
+  double elapsedTime = surfaceInputs_.getElapsedTime();
+  return getSpreadDistance(lengthUnits, elapsedTime, timeUnits);
+}
+
+double Surface::getSpreadDistanceInDirectionOfInterest(LengthUnits::LengthUnitsEnum lengthUnits, TimeUnits::TimeUnitsEnum timeUnits) const
+{
+  double elapsedTime = surfaceInputs_.getElapsedTime();
+  return getSpreadDistanceInDirectionOfInterest(lengthUnits, elapsedTime, timeUnits);
+}
+
 void SIGSurface::setElapsedTime(double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits) {
   surfaceInputs_.setElapsedTime(elapsedTime, timeUnits);
 }

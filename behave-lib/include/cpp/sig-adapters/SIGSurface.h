@@ -63,6 +63,17 @@ public:
   double getChaparralLoadLiveLarge(LoadingUnits::LoadingUnitsEnum loadingUnits) const;
   double getChaparralLoadLiveVeryLarge(LoadingUnits::LoadingUnitsEnum loadingUnits) const;
 
+  // Surface Getter Methods
+  double getEllipticalA(LengthUnits::LengthUnitsEnum lengthUnits, TimeUnits::TimeUnitsEnum timeUnits) const;
+  double getEllipticalB(LengthUnits::LengthUnitsEnum lengthUnits, TimeUnits::TimeUnitsEnum timeUnits) const;
+  double getEllipticalC(LengthUnits::LengthUnitsEnum lengthUnits, TimeUnits::TimeUnitsEnum timeUnits) const;
+  double getFireArea(AreaUnits::AreaUnitsEnum areaUnits, TimeUnits::TimeUnitsEnum timeUnits) const;
+  double getFirePerimeter(LengthUnits::LengthUnitsEnum lengthUnits, TimeUnits::TimeUnitsEnum timeUnits) const;
+  double getBackingSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits, TimeUnits::TimeUnitsEnum timeUnits);
+  double getFlankingSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits, TimeUnits::TimeUnitsEnum timeUnits);
+  double getSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits, TimeUnits::TimeUnitsEnum timeUnits) const;
+  double getSpreadDistanceInDirectionOfInterest(LengthUnits::LengthUnitsEnum lengthUnits, TimeUnits::TimeUnitsEnum timeUnits) const;
+
   // SurfaceInputs setter Methods
   void setElapsedTime(double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits);
 };
