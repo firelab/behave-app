@@ -96,3 +96,7 @@ double SIGSurface::getChaparralLoadLiveLarge(LoadingUnits::LoadingUnitsEnum load
 double SIGSurface::getChaparralLoadLiveVeryLarge(LoadingUnits::LoadingUnitsEnum loadingUnits) const {
   return LoadingUnits::fromBaseUnits(surfaceFire_.getChaparralLoad(FuelLifeState::Live, 4) , loadingUnits);
 }
+
+double SIGSurface::getSlopeFactor() const {
+  return surfaceInputs_.getSlopeFactor();
+}
