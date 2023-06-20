@@ -101,6 +101,6 @@ WindUpslopeAlignmentMode::WindUpslopeAlignmentModeEnum getWindUpslopeAlignmentMo
   return windUpslopeAlignmentMode_;
 }
 
-void getWindUpslopeAlignmentMode(WindUpslopeAlignmentMode::WindUpslopeAlignmentModeEnum WindUpslopeAlignmentMode) const {
+void setWindUpslopeAlignmentMode(WindUpslopeAlignmentMode::WindUpslopeAlignmentModeEnum WindUpslopeAlignmentMode) const {
   return windUpslopeAlignmentMode_ = WindUpslopeAlignmentMode;
 }
