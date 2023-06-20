@@ -51,6 +51,8 @@ public:
   // Fuel Model Getter Methods
   char* getFuelCode(int fuelModelNumber) const;
   char* getFuelName(int fuelModelNumber) const;
+
+  // ChaparralFuel Getter Methods
   ChaparralFuelLoadInputMode::ChaparralFuelInputLoadModeEnum getChaparralFuelLoadInputMode();
   double getChaparralLoadDeadFine(LoadingUnits::LoadingUnitsEnum loadingUnits) const;
   double getChaparralLoadDeadSmall(LoadingUnits::LoadingUnitsEnum loadingUnits) const;
@@ -63,9 +65,12 @@ public:
   double getChaparralLoadLiveLarge(LoadingUnits::LoadingUnitsEnum loadingUnits) const;
   double getChaparralLoadLiveVeryLarge(LoadingUnits::LoadingUnitsEnum loadingUnits) const;
 
+  // Surface Getter Methods
   double getSurfaceFireReactionIntensityDead() const;
   double getSurfaceFireReactionIntensityLive() const;
 
+  // SruFaceFire Getter Methods
   double getCharacteristicMoistureDead(MoistureUnits::MoistureUnitsEnum moistureUnits) const;
   double getCharacteristicMoistureLive(MoistureUnits::MoistureUnitsEnum moistureUnits) const;
+  double getRelativePackingRatio() const;
 };
