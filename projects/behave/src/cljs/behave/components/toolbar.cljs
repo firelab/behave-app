@@ -129,7 +129,7 @@
                    :on-click on-click}
                   {:icon     :print
                    :label    (bp "print")
-                   :on-click on-click}
+                   :on-click #(rf/dispatch [:dev/export-from-vms])}
                   {:icon     :share
                    :label    (bp "share")
                    :on-click on-click}
