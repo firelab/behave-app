@@ -96,3 +96,11 @@ double SIGSurface::getChaparralLoadLiveLarge(LoadingUnits::LoadingUnitsEnum load
 double SIGSurface::getChaparralLoadLiveVeryLarge(LoadingUnits::LoadingUnitsEnum loadingUnits) const {
   return LoadingUnits::fromBaseUnits(surfaceFire_.getChaparralLoad(FuelLifeState::Live, 4) , loadingUnits);
 }
+
+double SIGSurface::getSurfaceFireReactionIntensityDead const {
+  return getSurfaceFireReactionIntensityForLifeState(FuelLifeState::Dead);
+}
+
+double SIGSurface::getSurfaceFireReactionIntensityLive const {
+  return getSurfaceFireReactionIntensityForLifeState(FuelLifeState::Live);
+}
