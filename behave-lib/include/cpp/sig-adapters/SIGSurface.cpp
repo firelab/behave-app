@@ -97,10 +97,20 @@ double SIGSurface::getChaparralLoadLiveVeryLarge(LoadingUnits::LoadingUnitsEnum 
   return LoadingUnits::fromBaseUnits(surfaceFire_.getChaparralLoad(FuelLifeState::Live, 4) , loadingUnits);
 }
 
-double SIGSurface::getSurfaceFireReactionIntensityDead const {
+double SIGSurface::getSurfaceFireReactionIntensityDead() const {
   return getSurfaceFireReactionIntensityForLifeState(FuelLifeState::Dead);
 }
 
-double SIGSurface::getSurfaceFireReactionIntensityLive const {
+double SIGSurface::getSurfaceFireReactionIntensityLive() const {
   return getSurfaceFireReactionIntensityForLifeState(FuelLifeState::Live);
+}
+
+double SIGSurface::getCharacteristicMoistureDead(MoistureUnits::MoistureUnitsEnum moistureUnits) const {
+  return MoistureUnits::fromBaseUnits(surfaceFire_.getWeightedMoistureByLifeState(FuelLifeState::Dead),
+                                      moistureUnits);
+}
+
+double SIGSurface::getCharacteristicMoistureLive(MoistureUnits::MoistureUnitsEnum moistureUnits) const {
+  return MoistureUnits::fromBaseUnits(surfaceFire_.getWeightedMoistureByLifeState(FuelLifeState::Live),
+                                      moistureUnits);
 }
