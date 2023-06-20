@@ -72,5 +72,6 @@ public:
   // SruFaceFire Getter Methods
   double getCharacteristicMoistureDead(MoistureUnits::MoistureUnitsEnum moistureUnits) const;
   double getCharacteristicMoistureLive(MoistureUnits::MoistureUnitsEnum moistureUnits) const;
+  double getPackingRatio() const;
   double getRelativePackingRatio() const;
 };

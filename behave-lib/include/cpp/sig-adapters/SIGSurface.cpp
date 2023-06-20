@@ -116,4 +116,7 @@ double SIGSurface::getCharacteristicMoistureLive(MoistureUnits::MoistureUnitsEnu
 
 double SIGSurface::getRelativePackingRatio() const {
   return surfaceFire_.surfaceFuelbedIntermediates_.getRelativePackingRatio();
+
+double SIGSurface::getPackingRatio() const {
+  return surfaceFire_.surfaceFuelbedIntermediates_.getPackingRatio();
 }
