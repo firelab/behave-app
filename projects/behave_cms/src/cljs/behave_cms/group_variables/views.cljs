@@ -1,11 +1,14 @@
 (ns behave-cms.group-variables.views
-  (:require [reagent.core                       :as r]
+  (:require [clojure.set                        :refer [rename-keys]]
+            [reagent.core                       :as r]
             [re-frame.core                      :as rf]
             [data-utils.interface               :refer [parse-int]]
             [behave-cms.components.common       :refer [accordion
+                                                        dropdown
                                                         labeled-text-input
                                                         labeled-float-input
                                                         labeled-integer-input
+                                                        simple-table
                                                         window]]
             [behave-cms.components.sidebar      :refer [sidebar sidebar-width]]
             [behave-cms.components.translations :refer [all-translations]]
@@ -29,7 +32,7 @@
     (rf/dispatch [:state/set-state :group-variable nil])
     (rf/dispatch [:state/set-state [:editors :group-variables] {}])))
 
-;;; Private Views
+;;; Components
 
 (defn- selector [label *uuid on-change name-attr options disabled?]
   [:div.mb-3
@@ -42,6 +45,10 @@
     (for [{uuid :bp/uuid option-label name-attr} options]
       ^{:key uuid}
       [:option {:value uuid :selected (= @*uuid uuid)} option-label])]])
+
+
+
+;;; Variables Editor
 
 (defn- edit-variable [id]
   (let [original   @(rf/subscribe [:entity id])
@@ -61,6 +68,71 @@
      [selector "Function:"  (get-field cpp-fn)    (set-field cpp-fn)    :cpp.function/name   @functions  (nil? @(get-field cpp-class))]
      [selector "Parameter:" (get-field cpp-param) (set-field cpp-param) :cpp.parameter/name  @parameters (nil? @(get-field cpp-fn))]
      [:button.btn.btn-sm.btn-outline-primary {:type "submit"} "Save"]]))
+
+;; Links Editor/Table
+
+(defn links-table [gv-id]
+  (let [is-output? @(rf/subscribe [:group-variable/is-output? gv-id])
+        links      (rf/subscribe [(if is-output?
+                                    :group-variable/source-links
+                                    :group-variable/destination-links)
+                                  gv-id])]
+    [:div.col-6
+     [:h3 (str (if is-output? "Destination" "Source") " Links")]
+     [simple-table
+      [:variable/name]
+      (sort-by :variable/name @links)
+      {:on-select #(rf/dispatch [:state/set-state :link (:db/id %)])
+       :on-delete #(when (js/confirm (str "Are you sure you want to delete the link " (:variable/name %) "?"))
+
+                     (rf/dispatch [:api/delete-entity %]))}]]))
+
+(defn- ->option [name-key]
+  (fn [m]
+    (-> m
+        (select-keys [:db/id name-key])
+        (rename-keys {:db/id :value name-key :label}))))
+
+(defn links-editor [gv-id]
+  (let [links       (rf/subscribe [:group-variable/links gv-id])
+        *link       (rf/subscribe [:state :link])
+        is-output?  (rf/subscribe [:group-variable/is-output? gv-id])
+        opposite-io (fn [{io :submodule/io}] (= io (if is-output? :input :output)))
+
+        ;; Create a link. Links can only exist from an output variable (:link/source) to an input variable (:link/destination)
+        ->link      (fn [other-gv-id]
+                      {:link/source      (if is-output? gv-id other-gv-id)
+                       :link/destination (if is-output? other-gv-id gv-id)})
+        p           #(conj [:editors :variable-lookup] %)
+        get         #(rf/subscribe [:state %])
+        set         (fn [path v] (rf/dispatch [:state/set-state path v]))
+        modules     (rf/subscribe [:group-variable/app-modules gv-id])
+        submodules  (rf/subscribe [:pull-children :module/submodules @(get (p :module))])
+        groups      (rf/subscribe [:group-variable/submodule-groups-and-subgroups @(get (p :submodule))])
+        variables   (rf/subscribe [:group/variables @(get (p :group))])
+        disabled?   (r/track #(some nil? (map (fn [k] @(get (p k))) [:module :submodule :group :variable])))
+        on-submit   #(rf/dispatch [:api/upsert-entity
+                                   (merge
+                                    (->link @(get (p :variable)))
+                                    (when @*link {:db/id @*link}))])]
+    [:div.col-6
+     [:h3 (str (if @*link "Update" "Add") (if is-output? " 'Destination'" " 'Source'") " Link")]
+
+     [:form
+      {:on-submit (u/on-submit on-submit)}
+      [dropdown {:label     "Module:"
+                 :options   (map (->option :module/name) @modules)
+                 :on-select #(set (p :module) (u/input-int-value %))}]
+      [dropdown {:label     "Submodule:"
+                 :options   (map (->option :submodule/name) (filter opposite-io @submodules))
+                 :on-select #(set (p :submodule) (u/input-int-value %))}]
+      [dropdown {:label     "Groups:"
+                 :options   (map (->option :group/name) @groups)
+                 :on-select #(set (p :group) (u/input-int-value %))}]
+      [dropdown {:label     "Variable:"
+                 :options   (map (->option :variable/name) @variables)
+                 :on-select #(set (p :variable) (u/input-int-value %))}]
+      [:button.btn.btn-sm.btn-outline-primary {:type "submit" :disabled @disabled?} "Save"]]]))
 
 ;;; Public Views
 
@@ -92,8 +164,17 @@
         "Help Page"
         [:div.col-12
          [help-editor (:group-variable/help-key @group-variable)]]]
+
        [:hr]
        [accordion
         "CPP Functions"
         [:div.col-6
-         [edit-variable gv-id]]]]]]))
+         [edit-variable gv-id]]]
+
+       [:hr]
+       [accordion
+        "Links"
+        [:div.col-12
+         [:div.row
+          [links-table gv-id]
+          [links-editor gv-id]]]]]]]))

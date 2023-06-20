@@ -233,6 +233,13 @@
                        data)]}))
 
 (reg-event-fx
+ :api/upsert-entity
+ (fn [_ [_ data]]
+   {:transact
+    [(merge data
+            (when (nil? (:db/id data)) {:db/id -1}))]}))
+
+(reg-event-fx
   :api/update-entity
   (fn [_ [_ data]]
     (when (:db/id data)
