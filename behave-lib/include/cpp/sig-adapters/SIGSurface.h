@@ -40,6 +40,7 @@
 #include "surface.h"
 #include "SIGFuelModels.h"
 #include "SIGString.h"
+#include "SIGSurfaceInputEnums.h"
 
 class SIGSurface : public Surface
 {
@@ -62,4 +63,10 @@ public:
   double getChaparralLoadLiveMedium(LoadingUnits::LoadingUnitsEnum loadingUnits) const;
   double getChaparralLoadLiveLarge(LoadingUnits::LoadingUnitsEnum loadingUnits) const;
   double getChaparralLoadLiveVeryLarge(LoadingUnits::LoadingUnitsEnum loadingUnits) const;
+
+  WindUpslopeAlignmentMode::WindUpslopeAlignmentModeEnum getWindUpslopeAlignmentMode() const;
+  void setWindUpslopeAlignmentMode(WindUpslopeAlignmentMode::WindUpslopeAlignmentModeEnum) const;
+
+protected:
+  WindUpslopeAlignmentMode::WindUpslopeAlignmentModeEnum windUpslopeAlignmentMode_;
 };
