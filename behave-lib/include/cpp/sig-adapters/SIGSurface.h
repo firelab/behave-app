@@ -62,4 +62,7 @@ public:
   double getChaparralLoadLiveMedium(LoadingUnits::LoadingUnitsEnum loadingUnits) const;
   double getChaparralLoadLiveLarge(LoadingUnits::LoadingUnitsEnum loadingUnits) const;
   double getChaparralLoadLiveVeryLarge(LoadingUnits::LoadingUnitsEnum loadingUnits) const;
+
+  // SurfaceInputs setter Methods
+  void setElapsedTime(double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits);
 };
