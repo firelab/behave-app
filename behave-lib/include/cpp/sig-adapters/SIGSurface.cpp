@@ -97,6 +97,6 @@ double SIGSurface::getChaparralLoadLiveVeryLarge(LoadingUnits::LoadingUnitsEnum 
   return LoadingUnits::fromBaseUnits(surfaceFire_.getChaparralLoad(FuelLifeState::Live, 4) , loadingUnits);
 }
 
-double getWindAdjustmentFactor() const {
+double SIGSurface::getWindAdjustmentFactor() const {
   return surfaceFire_.getWindAdjustmentFactor();
 }
