@@ -96,3 +96,13 @@ double SIGSurface::getChaparralLoadLiveLarge(LoadingUnits::LoadingUnitsEnum load
 double SIGSurface::getChaparralLoadLiveLarge(LoadingUnits::LoadingUnitsEnum loadingUnits) const {
   return LoadingUnits::fromBaseUnits(surfaceFire_.getChaparralLoad(FuelLifeState::Live, 4) , loadingUnits);
 }
+
+double getCharacteristicMoistureDead(MoistureUnits::MoistureUnitsEnum moistureUnits) const {
+  return MoistureUnits::fromBaseUnits(surfaceFire_.getWeightedMoistureByLifeState(FuelLifeState::Dead),
+                                      moistureUnits);
+}
+
+double getCharacteristicMoistureLive(MoistureUnits::MoistureUnitsEnum moistureUnits) const {
+  return MoistureUnits::fromBaseUnits(surfaceFire_.getWeightedMoistureByLifeState(FuelLifeState::Live),
+                                      moistureUnits);
+}

@@ -62,4 +62,6 @@ public:
   double getChaparralLoadLiveMedium(LoadingUnits::LoadingUnitsEnum loadingUnits) const;
   double getChaparralLoadLiveLarge(LoadingUnits::LoadingUnitsEnum loadingUnits) const;
   double getChaparralLoadLiveVeryLarge(LoadingUnits::LoadingUnitsEnum loadingUnits) const;
+  double getCharacteristicMoistureDead(MoistureUnits::MoistureUnitsEnum moistureUnits) const;
+  double getCharacteristicMoistureLive(MoistureUnits::MoistureUnitsEnum moistureUnits) const;
 };
