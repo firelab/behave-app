@@ -64,15 +64,15 @@ public:
   double getChaparralLoadLiveVeryLarge(LoadingUnits::LoadingUnitsEnum loadingUnits) const;
 
   // Surface Getter Methods
-  double getEllipticalA(LengthUnits::LengthUnitsEnum lengthUnits, TimeUnits::TimeUnitsEnum timeUnits) const;
-  double getEllipticalB(LengthUnits::LengthUnitsEnum lengthUnits, TimeUnits::TimeUnitsEnum timeUnits) const;
-  double getEllipticalC(LengthUnits::LengthUnitsEnum lengthUnits, TimeUnits::TimeUnitsEnum timeUnits) const;
-  double getFireArea(AreaUnits::AreaUnitsEnum areaUnits, TimeUnits::TimeUnitsEnum timeUnits) const;
-  double getFirePerimeter(LengthUnits::LengthUnitsEnum lengthUnits, TimeUnits::TimeUnitsEnum timeUnits) const;
-  double getBackingSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits, TimeUnits::TimeUnitsEnum timeUnits);
-  double getFlankingSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits, TimeUnits::TimeUnitsEnum timeUnits);
-  double getSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits, TimeUnits::TimeUnitsEnum timeUnits) const;
-  double getSpreadDistanceInDirectionOfInterest(LengthUnits::LengthUnitsEnum lengthUnits, TimeUnits::TimeUnitsEnum timeUnits) const;
+  double getEllipticalA(LengthUnits::LengthUnitsEnum lengthUnits) const;
+  double getEllipticalB(LengthUnits::LengthUnitsEnum lengthUnits) const;
+  double getEllipticalC(LengthUnits::LengthUnitsEnum lengthUnits) const;
+  double getFireArea(AreaUnits::AreaUnitsEnum areaUnits) const;
+  double getFirePerimeter(LengthUnits::LengthUnitsEnum lengthUnits) const;
+  double getBackingSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits);
+  double getFlankingSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits);
+  double getSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits) const;
+  double getSpreadDistanceInDirectionOfInterest(LengthUnits::LengthUnitsEnum lengthUnits) const;
 
   // SurfaceInputs setter Methods
   void setElapsedTime(double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits);
