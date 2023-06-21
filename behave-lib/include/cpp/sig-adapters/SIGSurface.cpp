@@ -57,46 +57,6 @@ ChaparralFuelLoadInputMode::ChaparralFuelInputLoadModeEnum SIGSurface::getChapar
   return surfaceInputs_.getChaparralFuelLoadInputMode();
 }
 
-double SIGSurface::getChaparralLoadDeadFine(LoadingUnits::LoadingUnitsEnum loadingUnits) const {
-  return LoadingUnits::fromBaseUnits(surfaceFire_.getChaparralLoad(FuelLifeState::Dead, 0) , loadingUnits);
-}
-
-double SIGSurface::getChaparralLoadDeadSmall(LoadingUnits::LoadingUnitsEnum loadingUnits) const {
-  return LoadingUnits::fromBaseUnits(surfaceFire_.getChaparralLoad(FuelLifeState::Dead, 1) , loadingUnits);
-}
-
-double SIGSurface::getChaparralLoadDeadMedium(LoadingUnits::LoadingUnitsEnum loadingUnits) const {
-  return LoadingUnits::fromBaseUnits(surfaceFire_.getChaparralLoad(FuelLifeState::Dead, 2) , loadingUnits);
-}
-
-double SIGSurface::getChaparralLoadDeadLarge(LoadingUnits::LoadingUnitsEnum loadingUnits) const {
-  return LoadingUnits::fromBaseUnits(surfaceFire_.getChaparralLoad(FuelLifeState::Dead, 3) , loadingUnits);
-}
-
-double SIGSurface::getChaparralLoadDeadVeryLarge(LoadingUnits::LoadingUnitsEnum loadingUnits) const {
-  return LoadingUnits::fromBaseUnits(surfaceFire_.getChaparralLoad(FuelLifeState::Dead, 4) , loadingUnits);
-}
-
-double SIGSurface::getChaparralLoadLiveFine(LoadingUnits::LoadingUnitsEnum loadingUnits) const {
-  return LoadingUnits::fromBaseUnits(surfaceFire_.getChaparralLoad(FuelLifeState::Live, 0) , loadingUnits);
-}
-
-double SIGSurface::getChaparralLoadLiveSmall(LoadingUnits::LoadingUnitsEnum loadingUnits) const {
-  return LoadingUnits::fromBaseUnits(surfaceFire_.getChaparralLoad(FuelLifeState::Live, 1) , loadingUnits);
-}
-
-double SIGSurface::getChaparralLoadLiveMedium(LoadingUnits::LoadingUnitsEnum loadingUnits) const {
-  return LoadingUnits::fromBaseUnits(surfaceFire_.getChaparralLoad(FuelLifeState::Live, 2) , loadingUnits);
-}
-
-double SIGSurface::getChaparralLoadLiveLarge(LoadingUnits::LoadingUnitsEnum loadingUnits) const {
-  return LoadingUnits::fromBaseUnits(surfaceFire_.getChaparralLoad(FuelLifeState::Live, 3) , loadingUnits);
-}
-
-double SIGSurface::getChaparralLoadLiveVeryLarge(LoadingUnits::LoadingUnitsEnum loadingUnits) const {
-  return LoadingUnits::fromBaseUnits(surfaceFire_.getChaparralLoad(FuelLifeState::Live, 4) , loadingUnits);
-}
-
 double SIGSurface::getSurfaceFireReactionIntensityDead() const {
   return getSurfaceFireReactionIntensityForLifeState(FuelLifeState::Dead);
 }
