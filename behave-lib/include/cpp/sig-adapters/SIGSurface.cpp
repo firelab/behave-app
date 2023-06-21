@@ -102,12 +102,12 @@ double SIGSurface::getEllipticalA(LengthUnits::LengthUnitsEnum) const {
   return getEllipticalA(lengthUnits, elapsedTime, TimeUnits::Minutes);
 }
 
-double SIGSurface::getEllipticalB(LengthUnits::LengthUnitsEnum ) const {
+double SIGSurface::getEllipticalB(LengthUnits::LengthUnitsEnum) const {
   double elapsedTime = surfaceInputs_.getElapsedTime();
   return getEllipticalB(lengthUnits, elapsedTime, TimeUnits::Minutes);
 }
 
-double SIGSurface::getEllipticalC(LengthUnits::LengthUnitsEnum ) const {
+double SIGSurface::getEllipticalC(LengthUnits::LengthUnitsEnum) const {
   double elapsedTime = surfaceInputs_.getElapsedTime();
   return getEllipticalC(lengthUnits, elapsedTime, TimeUnits::Minutes);
 }
@@ -117,27 +117,27 @@ double SIGSurface::getFireArea(AreaUnits::AreaUnitsEnum areaUnits) const {
   return getFireArea(lengthUnits, elapsedTime, TimeUnits::Minutes);
 }
 
-double SIGSurface::getFirePerimeter(LengthUnits::LengthUnitsEnum lengthUnits ) const {
+double SIGSurface::getFirePerimeter(LengthUnits::LengthUnitsEnum lengthUnits) const {
   double elapsedTime = surfaceInputs_.getElapsedTime();
   return getFirePerimeter(lengthUnits, elapsedTime, TimeUnits::Minutes);
 }
 
-double SIGSurface::getBackingSpreadDistance(LengthUnits::LengthUnitsEnum ) const {
+double SIGSurface::getBackingSpreadDistance(LengthUnits::LengthUnitsEnum) const {
   double elapsedTime = surfaceInputs_.getElapsedTime();
   return getBackingSpreadDistance(lengthUnits, elapsedTime, TimeUnits::Minutes);
 }
 
-double SIGSurface::getFlankingSpreadDistance(LengthUnits::LengthUnitsEnum ) const {
+double SIGSurface::getFlankingSpreadDistance(LengthUnits::LengthUnitsEnum) const {
   double elapsedTime = surfaceInputs_.getElapsedTime();
   return getFlankingSpreadDistance(lengthUnits, elapsedTime, TimeUnits::Minutes);
 }
 
-double SIGSurface::getSpreadDistance(LengthUnits::LengthUnitsEnum ) const {
+double SIGSurface::getSpreadDistance(LengthUnits::LengthUnitsEnum) const {
   double elapsedTime = surfaceInputs_.getElapsedTime();
   return getSpreadDistance(lengthUnits, elapsedTime, TimeUnits::Minutes);
 }
 
-double SIGSurface::getSpreadDistanceInDirectionOfInterest(LengthUnits::LengthUnitsEnum ) const {
+double SIGSurface::getSpreadDistanceInDirectionOfInterest(LengthUnits::LengthUnitsEnum) const {
   double elapsedTime = surfaceInputs_.getElapsedTime();
   return getSpreadDistanceInDirectionOfInterest(lengthUnits, elapsedTime, TimeUnits::Minutes);
 }
