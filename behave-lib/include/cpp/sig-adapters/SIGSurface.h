@@ -49,11 +49,18 @@ public:
   SIGSurface(SIGFuelModels& fuelModels);
   ~SIGSurface();
 
+  void doSurfaceRun();
+
   // SIGSurface Getter Methods
   WindUpslopeAlignmentMode::WindUpslopeAlignmentModeEnum getWindUpslopeAlignmentMode() const;
+  double getDirectionOfInterest();
 
   // SIGSurface Setter Methods
   void setWindUpslopeAlignmentMode(WindUpslopeAlignmentMode::WindUpslopeAlignmentModeEnum) const;
+  void setDirectionOfInterest(double directionOfInterest);
+  void setSurfaceRunInDirectionOf(SurfaceRunInDirectionOf::SurfaceRunInDirectionOfEnum surfaceRunInDirectionOf);
+  void setSurfaceFireSpreadDirectionMode(SurfaceFireSpreadDirectionMode::SurfaceFireSpreadDirectionModeEnum
+                                         directionMode);
 
   // Fuel Model Getter Methods
   char* getFuelCode(int fuelModelNumber) const;
@@ -85,5 +92,8 @@ public:
   double getWindAdjustmentFactor() const;
 
 protected:
+  SurfaceFireSpreadDirectionMode::SurfaceFireSpreadDirectionModeEnum directionMode_;
+  SurfaceRunInDirectionOf::SurfaceRunInDirectionOfEnum surfaceRunInDirectionOf_;
   WindUpslopeAlignmentMode::WindUpslopeAlignmentModeEnum windUpslopeAlignmentMode_;
+  double directionOfInterest_;
 };

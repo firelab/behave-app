@@ -135,6 +135,29 @@ WindUpslopeAlignmentMode::WindUpslopeAlignmentModeEnum getWindUpslopeAlignmentMo
   return windUpslopeAlignmentMode_;
 }
 
-void setWindUpslopeAlignmentMode(WindUpslopeAlignmentMode::WindUpslopeAlignmentModeEnum WindUpslopeAlignmentMode) const {
+void SIGSurface::setWindUpslopeAlignmentMode(WindUpslopeAlignmentMode::WindUpslopeAlignmentModeEnum WindUpslopeAlignmentMode) const {
   return windUpslopeAlignmentMode_ = WindUpslopeAlignmentMode;
 }
+
+double SIGSurface::getDirectionOfInterest() {
+  return directionOfInterest_;
+}
+
+void SIGSurface::setDirectionOfInterest(double directionOfInterest) {
+  directionOfInterest_ = directionOfInterest;
+}
+
+void SIGSurface::setSurfaceRunInDirectionOf(SurfaceRunInDirectionOf::SurfaceRunInDirectionOfEnum surfaceRunInDirectionOf) {
+  surfaceRunInDirectionOf_ = surfaceRunInDirectionOf;
+}
+
+void SIGSurface::setSurfaceFireSpreadDirectionMode(SurfaceFireSpreadDirectionMode::SurfaceFireSpreadDirectionModeEnum directionMode) {
+  directionMode_ = directionMode;
+}
+
+void SIGSurface::doSurfaceRun() {
+  if surfaceRunInDirectionOf_ == SurfaceRunInDirectionOf::MaxSpread {
+      doSurfaceRunInDirectionOfMaxSpread();
+    } else {
+    doSurfaceRunInDirectionOfInterest(directionOfInterest_, directionMode_);
+  }
