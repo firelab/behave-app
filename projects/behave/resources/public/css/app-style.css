@@ -355,6 +355,18 @@ body {
   background-color: var(--darkblue-4);
 }
 
+.wizard-group--level-1 > .wizard-group__header {
+  padding: 5px 18px;
+  color: black;
+  background-color: var(--lightblue-2);
+}
+
+.wizard-group--level-2 > .wizard-group__header {
+  padding: 5px 18px;
+  color: black;
+  background-color: white;
+}
+
 .wizard-page__body {
   overflow-x: scroll;
   overflow-y: scroll;
