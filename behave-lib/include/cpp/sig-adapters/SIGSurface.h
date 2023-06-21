@@ -90,6 +90,18 @@ public:
   double getRelativePackingRatio() const;
   double getSlopeFactor() const;
   double getWindAdjustmentFactor() const;
+  double getEllipticalA(LengthUnits::LengthUnitsEnum lengthUnits) const;
+  double getEllipticalB(LengthUnits::LengthUnitsEnum lengthUnits) const;
+  double getEllipticalC(LengthUnits::LengthUnitsEnum lengthUnits) const;
+  double getFireArea(AreaUnits::AreaUnitsEnum areaUnits) const;
+  double getFirePerimeter(LengthUnits::LengthUnitsEnum lengthUnits) const;
+  double getBackingSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits);
+  double getFlankingSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits);
+  double getSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits) const;
+  double getSpreadDistanceInDirectionOfInterest(LengthUnits::LengthUnitsEnum lengthUnits) const;
+
+  // SurfaceInputs setter Methods
+  void setElapsedTime(double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits);
 
 protected:
   SurfaceFireSpreadDirectionMode::SurfaceFireSpreadDirectionModeEnum directionMode_;
