@@ -1,5 +1,5 @@
-#ifndef SIGSURFACEINPUTENUMS_H
-#define SIGSURFACEINPUTENUMS_H
+#ifndef SIGSURFACEENUMS_H
+#define SIGSURFACEENUMS_H
 
 struct WindUpslopeAlignmentMode
 {
@@ -19,4 +19,4 @@ struct SurfaceRunInDirectionOf
     };
 };
 
-#endif // SURFACEINPUTENUMS_H
+#endif // SURFACEENUMS_H

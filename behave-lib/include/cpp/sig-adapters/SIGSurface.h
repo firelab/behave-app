@@ -40,7 +40,7 @@
 #include "surface.h"
 #include "SIGFuelModels.h"
 #include "SIGString.h"
-#include "SIGSurfaceInputEnums.h"
+#include "SIGSurfaceEnums.h"
 
 class SIGSurface : public Surface
 {
