@@ -2,6 +2,7 @@
   (:require
    [behave.schema.core :refer [all-schemas]]
    [behave.store :as bs]
+   [behave.vms.store :as vms]
    [datascript.core :as d]
    [ds-schema-utils.interface :refer [->ds-schema]]
    [re-frame.core :as rf]
@@ -34,6 +35,16 @@
 (defn teardown-db [& [f]]
   (reset! rpdb/store nil)
   (reset! bs/conn nil)
+  (rf/clear-subscription-cache!)
+  (when (fn? f) (f)))
+
+(defn setup-empty-vms-db [& [f]]
+  (vms/init! {:datoms [] :schema (->ds-schema all-schemas)})
+  (when (fn? f) (f))) ; necessary for allowing composition of fixtures
+
+(defn teardown-vms-db [& [f]]
+  (reset! rpdb/store nil)
+  (reset! vms/conn nil)
   (rf/clear-subscription-cache!)
   (when (fn? f) (f)))
 
