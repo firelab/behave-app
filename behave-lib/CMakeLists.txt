@@ -76,6 +76,7 @@ SET(SOURCE
     behave-mirror/src/behave/ContainForceAdapter.cpp
     behave-mirror/src/behave/ContainResource.cpp
     behave-mirror/src/behave/ContainSim.cpp
+    behave-mirror/src/behave/chaparralFuel.cpp
     behave-mirror/src/behave/crown.cpp
     behave-mirror/src/behave/crownInputs.cpp
     behave-mirror/src/behave/fireSize.cpp
@@ -109,6 +110,7 @@ SET(SOURCE
     include/cpp/sig-adapters/SIGFuelModels.cpp
     include/cpp/sig-adapters/SIGIgnite.cpp
     include/cpp/sig-adapters/SIGMortality.cpp
+    include/cpp/sig-adapters/SIGMoistureScenarios.cpp
     include/cpp/sig-adapters/SIGSurface.cpp
     include/cpp/sig-adapters/SIGSpot.cpp
     include/cpp/sig-adapters/SIGSurface.cpp)
@@ -123,6 +125,7 @@ SET(HEADERS
     behave-mirror/src/behave/ContainForceAdapter.h
     behave-mirror/src/behave/ContainResource.h
     behave-mirror/src/behave/ContainSim.h
+    behave-mirror/src/behave/chaparralFuel.h
     behave-mirror/src/behave/crown.h
     behave-mirror/src/behave/crownInputs.h
     behave-mirror/src/behave/fireSize.h
@@ -157,6 +160,7 @@ SET(HEADERS
     include/cpp/sig-adapters/SIGFuelModels.cpp
     include/cpp/sig-adapters/SIGIgnite.h
     include/cpp/sig-adapters/SIGMortality.h
+    include/cpp/sig-adapters/SIGMoistureScenarios.h
     include/cpp/sig-adapters/SIGSpot.h
     include/cpp/sig-adapters/SIGSurface.h
     include/cpp/sig-adapters/SIGString.h

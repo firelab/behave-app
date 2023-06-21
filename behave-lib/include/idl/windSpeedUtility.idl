@@ -1,5 +1,0 @@
-interface WindSpeedUtility {
-  void WindSpeedUtility();
-  double windSpeedAtMidflame(double windSpeedAtTwentyFeet, double windAdjustmentFactor);
-  double windSpeedAtTwentyFeetFromTenMeter(double windSpeedAtTenMeters);
-};

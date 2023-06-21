@@ -55,7 +55,6 @@ public:
   void setFuelModels(SIGFuelModels& fuelModels);
   void setCrownFireCalculationMethod(CrownFireCalculationMethod CrownFireCalculationMethod);
   void doCrownRun();
-
   char* getFuelCode(int fuelModelNumber) const;
   char* getFuelName(int fuelModelNumber) const;
   double getCrownCriticalFireSpreadRate(SpeedUnits::SpeedUnitsEnum spreadRateUnits) const;
@@ -63,6 +62,9 @@ public:
   double getCrownCriticalSurfaceFlameLength(LengthUnits::LengthUnitsEnum flameLengthUnits) const;
   double getCrownFireActiveRatio() const;
   double getCrownTransitionRatio() const;
+  char* getMoistureScenarioDescriptionByName(const char* name);
+  char* getMoistureScenarioNameByIndex(const int index);
+  char* getMoistureScenarioDescriptionByIndex(const int index);
 
 private:
   CrownFireCalculationMethod crownFireCalculationMethod_;

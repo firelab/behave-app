@@ -8,224 +8,302 @@
 (defn init [fuelModels]
   (js/Module.SIGCrown. fuelModels))
 
-(defn getFinalFlameLength [self flameLengthUnits]
-  (.getFinalFlameLength self flameLengthUnits))
-
-(defn setFuelModelNumber [self fuelModelNumber]
-  (.setFuelModelNumber self fuelModelNumber))
-
-(defn getSurfaceFireSpreadRate [self spreadRateUnits]
-  (.getSurfaceFireSpreadRate self spreadRateUnits))
-
-(defn setWindAdjustmentFactorCalculationMethod [self windAdjustmentFactorCalculationMethod]
-  (.setWindAdjustmentFactorCalculationMethod self windAdjustmentFactorCalculationMethod))
-
-(defn getMoistureHundredHour [self moistureUnits]
-  (.getMoistureHundredHour self moistureUnits))
-
-(defn isFuelDynamic [self fuelModelNumber]
-  (.isFuelDynamic self fuelModelNumber))
-
-(defn updateCrownInputs [self fuelModelNumber moistureOneHour moistureTenHour moistureHundredHour moistureLiveHerbaceous moistureLiveWoody moistureFoliar moistureUnits windSpeed windSpeedUnits windHeightInputMode windDirection windAndSpreadOrientationMode slope slopeUnits aspect canopyCover coverUnits canopyHeight canopyBaseHeight canopyHeightUnits crownRatio canopyBulkDensity densityUnits]
-  (.updateCrownInputs self fuelModelNumber moistureOneHour moistureTenHour moistureHundredHour moistureLiveHerbaceous moistureLiveWoody moistureFoliar moistureUnits windSpeed windSpeedUnits windHeightInputMode windDirection windAndSpreadOrientationMode slope slopeUnits aspect canopyCover coverUnits canopyHeight canopyBaseHeight canopyHeightUnits crownRatio canopyBulkDensity densityUnits))
-
-(defn getFuelModelNumber [self]
-  (.getFuelModelNumber self))
-
-(defn setWindHeightInputMode [self windHeightInputMode]
-  (.setWindHeightInputMode self windHeightInputMode))
-
-(defn updateCrownsSurfaceInputs [self fuelModelNumber moistureOneHour moistureTenHour moistureHundredHour moistureLiveHerbaceous moistureLiveWoody moistureUnits windSpeed windSpeedUnits windHeightInputMode windDirection windAndSpreadOrientationMode slope slopeUnits aspect canopyCover coverUnits canopyHeight canopyHeightUnits crownRatio]
-  (.updateCrownsSurfaceInputs self fuelModelNumber moistureOneHour moistureTenHour moistureHundredHour moistureLiveHerbaceous moistureLiveWoody moistureUnits windSpeed windSpeedUnits windHeightInputMode windDirection windAndSpreadOrientationMode slope slopeUnits aspect canopyCover coverUnits canopyHeight canopyHeightUnits crownRatio))
-
-(defn doCrownRunScottAndReinhardt [self]
-  (.doCrownRunScottAndReinhardt self))
-
-(defn getWindDirection [self]
-  (.getWindDirection self))
-
-(defn null [self]
-  (.null self))
-
-(defn getFuelSavrLiveWoody [self fuelModelNumber savrUnits]
-  (.getFuelSavrLiveWoody self fuelModelNumber savrUnits))
-
-(defn setMoistureOneHour [self moistureOneHour moistureUnits]
-  (.setMoistureOneHour self moistureOneHour moistureUnits))
-
-(defn getFuelName [self fuelModelNumber]
-  (.getFuelName self fuelModelNumber))
-
-(defn setSlope [self slope slopeUnits]
-  (.setSlope self slope slopeUnits))
-
-(defn setCanopyHeight [self canopyHeight canopyHeightUnits]
-  (.setCanopyHeight self canopyHeight canopyHeightUnits))
-
-(defn getMoistureLiveWoody [self moistureUnits]
-  (.getMoistureLiveWoody self moistureUnits))
-
-(defn getFuelLoadLiveWoody [self fuelModelNumber loadingUnits]
-  (.getFuelLoadLiveWoody self fuelModelNumber loadingUnits))
-
-(defn getCrownFirelineIntensity [self firelineIntensityUnits]
-  (.getCrownFirelineIntensity self firelineIntensityUnits))
-
-(defn isAllFuelLoadZero [self fuelModelNumber]
-  (.isAllFuelLoadZero self fuelModelNumber))
-
-(defn getFinalHeatPerUnitArea [self heatPerUnitAreaUnits]
-  (.getFinalHeatPerUnitArea self heatPerUnitAreaUnits))
-
-(defn getCrownFractionBurned [self]
-  (.getCrownFractionBurned self))
-
-(defn setCanopyBulkDensity [self canopyBulkDensity densityUnits]
-  (.setCanopyBulkDensity self canopyBulkDensity densityUnits))
-
-(defn getWindSpeed [self windSpeedUnits windHeightInputMode]
-  (.getWindSpeed self windSpeedUnits windHeightInputMode))
-
-(defn setMoistureTenHour [self moistureTenHour moistureUnits]
-  (.setMoistureTenHour self moistureTenHour moistureUnits))
-
-(defn getFuelHeatOfCombustionLive [self fuelModelNumber heatOfCombustionUnits]
-  (.getFuelHeatOfCombustionLive self fuelModelNumber heatOfCombustionUnits))
-
-(defn getFuelHeatOfCombustionDead [self fuelModelNumber heatOfCombustionUnits]
-  (.getFuelHeatOfCombustionDead self fuelModelNumber heatOfCombustionUnits))
-
-(defn setCanopyBaseHeight [self canopyBaseHeight canopyHeightUnits]
-  (.setCanopyBaseHeight self canopyBaseHeight canopyHeightUnits))
-
-(defn getFuelMoistureOfExtinctionDead [self fuelModelNumber moistureUnits]
-  (.getFuelMoistureOfExtinctionDead self fuelModelNumber moistureUnits))
-
-(defn getFireType [self]
-  (.getFireType self))
-
-(defn getAspect [self]
-  (.getAspect self))
-
-(defn getMoistureLiveHerbaceous [self moistureUnits]
-  (.getMoistureLiveHerbaceous self moistureUnits))
-
-(defn getFuelCode [self fuelModelNumber]
-  (.getFuelCode self fuelModelNumber))
-
-(defn setMoistureLiveHerbaceous [self moistureLiveHerbaceous moistureUnits]
-  (.setMoistureLiveHerbaceous self moistureLiveHerbaceous moistureUnits))
-
-(defn operator= [self rhs]
-  (.operator= self rhs))
-
-(defn setUserProvidedWindAdjustmentFactor [self userProvidedWindAdjustmentFactor]
-  (.setUserProvidedWindAdjustmentFactor self userProvidedWindAdjustmentFactor))
-
-(defn isFuelModelReserved [self fuelModelNumber]
-  (.isFuelModelReserved self fuelModelNumber))
-
-(defn setWindDirection [self windDirection]
-  (.setWindDirection self windDirection))
-
-(defn getFuelSavrOneHour [self fuelModelNumber savrUnits]
-  (.getFuelSavrOneHour self fuelModelNumber savrUnits))
-
-(defn setWindAndSpreadOrientationMode [self windAndSpreadAngleMode]
-  (.setWindAndSpreadOrientationMode self windAndSpreadAngleMode))
-
-(defn getFuelSavrLiveHerbaceous [self fuelModelNumber savrUnits]
-  (.getFuelSavrLiveHerbaceous self fuelModelNumber savrUnits))
-
-(defn setAspect [self aspect]
-  (.setAspect self aspect))
-
-(defn getCrownFireSpreadRate [self spreadRateUnits]
-  (.getCrownFireSpreadRate self spreadRateUnits))
-
-(defn getFuelLoadLiveHerbaceous [self fuelModelNumber loadingUnits]
-  (.getFuelLoadLiveHerbaceous self fuelModelNumber loadingUnits))
-
-(defn setMoistureHundredHour [self moistureHundredHour moistureUnits]
-  (.setMoistureHundredHour self moistureHundredHour moistureUnits))
-
-(defn getCanopyBulkDensity [self canopyBulkDensityUnits]
-  (.getCanopyBulkDensity self canopyBulkDensityUnits))
-
-(defn getFinalSpreadRate [self spreadRateUnits]
-  (.getFinalSpreadRate self spreadRateUnits))
-
-(defn setCrownRatio [self crownRatio]
-  (.setCrownRatio self crownRatio))
-
-(defn getFuelLoadTenHour [self fuelModelNumber loadingUnits]
-  (.getFuelLoadTenHour self fuelModelNumber loadingUnits))
-
-(defn initializeMembers [self]
-  (.initializeMembers self))
-
-(defn getSlope [self slopeUnits]
-  (.getSlope self slopeUnits))
-
-(defn getCriticalOpenWindSpeed [self speedUnits]
-  (.getCriticalOpenWindSpeed self speedUnits))
-
-(defn setMoistureLiveWoody [self moistureLiveWoody moistureUnits]
-  (.setMoistureLiveWoody self moistureLiveWoody moistureUnits))
+(defn Crown [self rhs]
+  (.Crown self rhs))
 
 (defn doCrownRunRothermel [self]
   (.doCrownRunRothermel self))
 
-(defn getCrownRatio [self]
-  (.getCrownRatio self))
+(defn doCrownRunScottAndReinhardt [self]
+  (.doCrownRunScottAndReinhardt self))
+
+(defn getAspect [self]
+  (.getAspect self))
 
 (defn getCanopyBaseHeight [self canopyHeightUnits]
   (.getCanopyBaseHeight self canopyHeightUnits))
 
+(defn getCanopyBulkDensity [self canopyBulkDensityUnits]
+  (.getCanopyBulkDensity self canopyBulkDensityUnits))
+
+(defn getCanopyCover [self canopyCoverUnits]
+  (.getCanopyCover self canopyCoverUnits))
+
 (defn getCanopyHeight [self canopyHeighUnits]
   (.getCanopyHeight self canopyHeighUnits))
 
-(defn setCanopyCover [self canopyCover coverUnits]
-  (.setCanopyCover self canopyCover coverUnits))
-
-(defn getFinalFirelineIntesity [self firelineIntensityUnits]
-  (.getFinalFirelineIntesity self firelineIntensityUnits))
-
-(defn getMoistureFoliar [self moistureUnits]
-  (.getMoistureFoliar self moistureUnits))
-
-(defn setWindSpeed [self windSpeed windSpeedUnits windHeightInputMode]
-  (.setWindSpeed self windSpeed windSpeedUnits windHeightInputMode))
-
-(defn getMoistureOneHour [self moistureUnits]
-  (.getMoistureOneHour self moistureUnits))
-
-(defn getFuelLoadOneHour [self fuelModelNumber loadingUnits]
-  (.getFuelLoadOneHour self fuelModelNumber loadingUnits))
-
-(defn setFuelModels [self fuelModels]
-  (.setFuelModels self fuelModels))
-
-(defn setMoistureFoliar [self foliarMoisture moistureUnits]
-  (.setMoistureFoliar self foliarMoisture moistureUnits))
-
-(defn getMoistureTenHour [self moistureUnits]
-  (.getMoistureTenHour self moistureUnits))
+(defn getCriticalOpenWindSpeed [self speedUnits]
+  (.getCriticalOpenWindSpeed self speedUnits))
 
 (defn getCrownFireLengthToWidthRatio [self]
   (.getCrownFireLengthToWidthRatio self))
 
-(defn getFuelLoadHundredHour [self fuelModelNumber loadingUnits]
-  (.getFuelLoadHundredHour self fuelModelNumber loadingUnits))
+(defn getCrownFireSpreadDistance [self lengthUnits elapsedTime timeUnits]
+  (.getCrownFireSpreadDistance self lengthUnits elapsedTime timeUnits))
+
+(defn getCrownFireSpreadRate [self spreadRateUnits]
+  (.getCrownFireSpreadRate self spreadRateUnits))
+
+(defn getCrownFirelineIntensity [self firelineIntensityUnits]
+  (.getCrownFirelineIntensity self firelineIntensityUnits))
 
 (defn getCrownFlameLength [self flameLengthUnits]
   (.getCrownFlameLength self flameLengthUnits))
 
-(defn isFuelModelDefined [self fuelModelNumber]
-  (.isFuelModelDefined self fuelModelNumber))
+(defn getCrownFractionBurned [self]
+  (.getCrownFractionBurned self))
+
+(defn getCrownRatio [self]
+  (.getCrownRatio self))
+
+(defn getFinalFirelineIntesity [self firelineIntensityUnits]
+  (.getFinalFirelineIntesity self firelineIntensityUnits))
+
+(defn getFinalFlameLength [self flameLengthUnits]
+  (.getFinalFlameLength self flameLengthUnits))
+
+(defn getFinalHeatPerUnitArea [self heatPerUnitAreaUnits]
+  (.getFinalHeatPerUnitArea self heatPerUnitAreaUnits))
+
+(defn getFinalSpreadRate [self spreadRateUnits]
+  (.getFinalSpreadRate self spreadRateUnits))
+
+(defn getFireType [self]
+  (.getFireType self))
+
+(defn getFuelCode [self fuelModelNumber]
+  (.getFuelCode self fuelModelNumber))
+
+(defn getFuelHeatOfCombustionDead [self fuelModelNumber heatOfCombustionUnits]
+  (.getFuelHeatOfCombustionDead self fuelModelNumber heatOfCombustionUnits))
+
+(defn getFuelHeatOfCombustionLive [self fuelModelNumber heatOfCombustionUnits]
+  (.getFuelHeatOfCombustionLive self fuelModelNumber heatOfCombustionUnits))
+
+(defn getFuelLoadHundredHour [self fuelModelNumber loadingUnits]
+  (.getFuelLoadHundredHour self fuelModelNumber loadingUnits))
+
+(defn getFuelLoadLiveHerbaceous [self fuelModelNumber loadingUnits]
+  (.getFuelLoadLiveHerbaceous self fuelModelNumber loadingUnits))
+
+(defn getFuelLoadLiveWoody [self fuelModelNumber loadingUnits]
+  (.getFuelLoadLiveWoody self fuelModelNumber loadingUnits))
+
+(defn getFuelLoadOneHour [self fuelModelNumber loadingUnits]
+  (.getFuelLoadOneHour self fuelModelNumber loadingUnits))
+
+(defn getFuelLoadTenHour [self fuelModelNumber loadingUnits]
+  (.getFuelLoadTenHour self fuelModelNumber loadingUnits))
+
+(defn getFuelModelNumber [self]
+  (.getFuelModelNumber self))
+
+(defn getFuelMoistureOfExtinctionDead [self fuelModelNumber moistureUnits]
+  (.getFuelMoistureOfExtinctionDead self fuelModelNumber moistureUnits))
+
+(defn getFuelName [self fuelModelNumber]
+  (.getFuelName self fuelModelNumber))
+
+(defn getFuelSavrLiveHerbaceous [self fuelModelNumber savrUnits]
+  (.getFuelSavrLiveHerbaceous self fuelModelNumber savrUnits))
+
+(defn getFuelSavrLiveWoody [self fuelModelNumber savrUnits]
+  (.getFuelSavrLiveWoody self fuelModelNumber savrUnits))
+
+(defn getFuelSavrOneHour [self fuelModelNumber savrUnits]
+  (.getFuelSavrOneHour self fuelModelNumber savrUnits))
 
 (defn getFuelbedDepth [self fuelModelNumber lengthUnits]
   (.getFuelbedDepth self fuelModelNumber lengthUnits))
 
-(defn getCanopyCover [self canopyCoverUnits]
-  (.getCanopyCover self canopyCoverUnits))
+(defn getIsMoistureScenarioDefinedByIndex [self index]
+  (.getIsMoistureScenarioDefinedByIndex self index))
+
+(defn getIsMoistureScenarioDefinedByName [self name]
+  (.getIsMoistureScenarioDefinedByName self name))
+
+(defn getMoistureFoliar [self moistureUnits]
+  (.getMoistureFoliar self moistureUnits))
+
+(defn getMoistureHundredHour [self moistureUnits]
+  (.getMoistureHundredHour self moistureUnits))
+
+(defn getMoistureLiveHerbaceous [self moistureUnits]
+  (.getMoistureLiveHerbaceous self moistureUnits))
+
+(defn getMoistureLiveWoody [self moistureUnits]
+  (.getMoistureLiveWoody self moistureUnits))
+
+(defn getMoistureOneHour [self moistureUnits]
+  (.getMoistureOneHour self moistureUnits))
+
+(defn getMoistureScenarioDescriptionByIndex [self index]
+  (.getMoistureScenarioDescriptionByIndex self index))
+
+(defn getMoistureScenarioDescriptionByName [self name]
+  (.getMoistureScenarioDescriptionByName self name))
+
+(defn getMoistureScenarioHundredHourByIndex [self index]
+  (.getMoistureScenarioHundredHourByIndex self index))
+
+(defn getMoistureScenarioHundredHourByName [self name]
+  (.getMoistureScenarioHundredHourByName self name))
+
+(defn getMoistureScenarioIndexByName [self name]
+  (.getMoistureScenarioIndexByName self name))
+
+(defn getMoistureScenarioLiveHerbaceousByIndex [self index]
+  (.getMoistureScenarioLiveHerbaceousByIndex self index))
+
+(defn getMoistureScenarioLiveHerbaceousByName [self name]
+  (.getMoistureScenarioLiveHerbaceousByName self name))
+
+(defn getMoistureScenarioLiveWoodyByIndex [self index]
+  (.getMoistureScenarioLiveWoodyByIndex self index))
+
+(defn getMoistureScenarioLiveWoodyByName [self name]
+  (.getMoistureScenarioLiveWoodyByName self name))
+
+(defn getMoistureScenarioNameByIndex [self index]
+  (.getMoistureScenarioNameByIndex self index))
+
+(defn getMoistureScenarioOneHourByIndex [self index]
+  (.getMoistureScenarioOneHourByIndex self index))
+
+(defn getMoistureScenarioOneHourByName [self name]
+  (.getMoistureScenarioOneHourByName self name))
+
+(defn getMoistureScenarioTenHourByIndex [self index]
+  (.getMoistureScenarioTenHourByIndex self index))
+
+(defn getMoistureScenarioTenHourByName [self name]
+  (.getMoistureScenarioTenHourByName self name))
+
+(defn getMoistureTenHour [self moistureUnits]
+  (.getMoistureTenHour self moistureUnits))
+
+(defn getNumberOfMoistureScenarios [self]
+  (.getNumberOfMoistureScenarios self))
+
+(defn getSlope [self slopeUnits]
+  (.getSlope self slopeUnits))
+
+(defn getSurfaceFireSpreadDistance [self lengthUnits elapsedTime timeUnits]
+  (.getSurfaceFireSpreadDistance self lengthUnits elapsedTime timeUnits))
+
+(defn getSurfaceFireSpreadRate [self spreadRateUnits]
+  (.getSurfaceFireSpreadRate self spreadRateUnits))
+
+(defn getWindDirection [self]
+  (.getWindDirection self))
+
+(defn getWindSpeed [self windSpeedUnits windHeightInputMode]
+  (.getWindSpeed self windSpeedUnits windHeightInputMode))
+
+(defn initializeMembers [self]
+  (.initializeMembers self))
+
+(defn isAllFuelLoadZero [self fuelModelNumber]
+  (.isAllFuelLoadZero self fuelModelNumber))
+
+(defn isFuelDynamic [self fuelModelNumber]
+  (.isFuelDynamic self fuelModelNumber))
+
+(defn isFuelModelDefined [self fuelModelNumber]
+  (.isFuelModelDefined self fuelModelNumber))
+
+(defn isFuelModelReserved [self fuelModelNumber]
+  (.isFuelModelReserved self fuelModelNumber))
+
+(defn null [self]
+  (.null self))
+
+(defn operator= [self rhs]
+  (.operator= self rhs))
+
+(defn setAspect [self aspect]
+  (.setAspect self aspect))
+
+(defn setCanopyBaseHeight [self canopyBaseHeight canopyHeightUnits]
+  (.setCanopyBaseHeight self canopyBaseHeight canopyHeightUnits))
+
+(defn setCanopyBulkDensity [self canopyBulkDensity densityUnits]
+  (.setCanopyBulkDensity self canopyBulkDensity densityUnits))
+
+(defn setCanopyCover [self canopyCover coverUnits]
+  (.setCanopyCover self canopyCover coverUnits))
+
+(defn setCanopyHeight [self canopyHeight canopyHeightUnits]
+  (.setCanopyHeight self canopyHeight canopyHeightUnits))
+
+(defn setCrownRatio [self crownRatio]
+  (.setCrownRatio self crownRatio))
+
+(defn setFuelModelNumber [self fuelModelNumber]
+  (.setFuelModelNumber self fuelModelNumber))
+
+(defn setFuelModels [self fuelModels]
+  (.setFuelModels self fuelModels))
+
+(defn setMoistureDeadAggregate [self moistureDead moistureUnits]
+  (.setMoistureDeadAggregate self moistureDead moistureUnits))
+
+(defn setMoistureFoliar [self foliarMoisture moistureUnits]
+  (.setMoistureFoliar self foliarMoisture moistureUnits))
+
+(defn setMoistureHundredHour [self moistureHundredHour moistureUnits]
+  (.setMoistureHundredHour self moistureHundredHour moistureUnits))
+
+(defn setMoistureInputMode [self moistureInputMode]
+  (.setMoistureInputMode self moistureInputMode))
+
+(defn setMoistureLiveAggregate [self moistureLive moistureUnits]
+  (.setMoistureLiveAggregate self moistureLive moistureUnits))
+
+(defn setMoistureLiveHerbaceous [self moistureLiveHerbaceous moistureUnits]
+  (.setMoistureLiveHerbaceous self moistureLiveHerbaceous moistureUnits))
+
+(defn setMoistureLiveWoody [self moistureLiveWoody moistureUnits]
+  (.setMoistureLiveWoody self moistureLiveWoody moistureUnits))
+
+(defn setMoistureOneHour [self moistureOneHour moistureUnits]
+  (.setMoistureOneHour self moistureOneHour moistureUnits))
+
+(defn setMoistureScenarioByIndex [self moistureScenarioIndex]
+  (.setMoistureScenarioByIndex self moistureScenarioIndex))
+
+(defn setMoistureScenarioByName [self moistureScenarioName]
+  (.setMoistureScenarioByName self moistureScenarioName))
+
+(defn setMoistureScenarios [self moistureScenarios]
+  (.setMoistureScenarios self moistureScenarios))
+
+(defn setMoistureTenHour [self moistureTenHour moistureUnits]
+  (.setMoistureTenHour self moistureTenHour moistureUnits))
+
+(defn setSlope [self slope slopeUnits]
+  (.setSlope self slope slopeUnits))
+
+(defn setUserProvidedWindAdjustmentFactor [self userProvidedWindAdjustmentFactor]
+  (.setUserProvidedWindAdjustmentFactor self userProvidedWindAdjustmentFactor))
+
+(defn setWindAdjustmentFactorCalculationMethod [self windAdjustmentFactorCalculationMethod]
+  (.setWindAdjustmentFactorCalculationMethod self windAdjustmentFactorCalculationMethod))
+
+(defn setWindAndSpreadOrientationMode [self windAndSpreadAngleMode]
+  (.setWindAndSpreadOrientationMode self windAndSpreadAngleMode))
+
+(defn setWindDirection [self windDirection]
+  (.setWindDirection self windDirection))
+
+(defn setWindHeightInputMode [self windHeightInputMode]
+  (.setWindHeightInputMode self windHeightInputMode))
+
+(defn setWindSpeed [self windSpeed windSpeedUnits windHeightInputMode]
+  (.setWindSpeed self windSpeed windSpeedUnits windHeightInputMode))
+
+(defn updateCrownInputs [self fuelModelNumber moistureOneHour moistureTenHour moistureHundredHour moistureLiveHerbaceous moistureLiveWoody moistureFoliar moistureUnits windSpeed windSpeedUnits windHeightInputMode windDirection windAndSpreadOrientationMode slope slopeUnits aspect canopyCover coverUnits canopyHeight canopyBaseHeight canopyHeightUnits crownRatio canopyBulkDensity densityUnits]
+  (.updateCrownInputs self fuelModelNumber moistureOneHour moistureTenHour moistureHundredHour moistureLiveHerbaceous moistureLiveWoody moistureFoliar moistureUnits windSpeed windSpeedUnits windHeightInputMode windDirection windAndSpreadOrientationMode slope slopeUnits aspect canopyCover coverUnits canopyHeight canopyBaseHeight canopyHeightUnits crownRatio canopyBulkDensity densityUnits))
+
+(defn updateCrownsSurfaceInputs [self fuelModelNumber moistureOneHour moistureTenHour moistureHundredHour moistureLiveHerbaceous moistureLiveWoody moistureUnits windSpeed windSpeedUnits windHeightInputMode windDirection windAndSpreadOrientationMode slope slopeUnits aspect canopyCover coverUnits canopyHeight canopyHeightUnits crownRatio]
+  (.updateCrownsSurfaceInputs self fuelModelNumber moistureOneHour moistureTenHour moistureHundredHour moistureLiveHerbaceous moistureLiveWoody moistureUnits windSpeed windSpeedUnits windHeightInputMode windDirection windAndSpreadOrientationMode slope slopeUnits aspect canopyCover coverUnits canopyHeight canopyHeightUnits crownRatio))

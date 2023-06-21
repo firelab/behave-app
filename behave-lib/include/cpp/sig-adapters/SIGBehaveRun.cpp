@@ -84,6 +84,12 @@ void SIGBehaveRun::setFuelModels(SIGFuelModels& fuelModels)
     crown.setFuelModels(fuelModels);
 }
 
+void SIGBehaveRun::setMoistureScenarios(SIGMoistureScenarios& moistureScenarios)
+{
+  surface.setMoistureScenarios(moistureScenarios);
+  crown.setMoistureScenarios(moistureScenarios);
+}
+
 char* SIGBehaveRun::getFuelCode(int fuelModelNumber) const
 {
     return fuelModels_->getFuelCode(fuelModelNumber);

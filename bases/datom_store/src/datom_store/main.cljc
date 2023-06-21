@@ -86,6 +86,10 @@
             #?(:clj (connect-datahike! config schemas setup-fn)
                :cljs (connect-datascript! schemas setup-fn)))))
 
+(defn release-conn! []
+  #?(:clj (d/release @conn))
+  (reset! conn nil))
+
 ;;; Sync datoms
 
 (defn sync-datoms

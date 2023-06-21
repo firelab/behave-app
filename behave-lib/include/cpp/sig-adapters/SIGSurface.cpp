@@ -171,3 +171,18 @@ double SIGSurface::getSpreadDistanceInDirectionOfInterest(LengthUnits::LengthUni
 void SIGSurface::setElapsedTime(double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits) {
   surfaceInputs_.setElapsedTime(elapsedTime, timeUnits);
 }
+char* SIGSurface::getMoistureScenarioDescriptionByName(const char* name) {
+  return SIGString::str2charptr(Surface::getMoistureScenarioDescriptionByName(std::string(name)));
+}
+
+char* SIGSurface::getMoistureScenarioNameByIndex(const int index) {
+  return SIGString::str2charptr(Surface::getMoistureScenarioNameByIndex(index));
+}
+
+char* SIGSurface::getMoistureScenarioDescriptionByIndex(const int index) {
+  return SIGString::str2charptr(Surface::getMoistureScenarioDescriptionByIndex(index));
+}
+
+void SIGSurface::setMoistureScenarios(SIGMoistureScenarios& moistureScenarios){
+  Surface::setMoistureScenarios(moistureScenarios);
+}
