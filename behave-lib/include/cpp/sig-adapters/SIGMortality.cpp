@@ -136,14 +136,12 @@ void SIGMortality::setAirTemperature(double airTemperature,
   getAirTemperature_ = TemperatureUnits::toBaseUnits(airTemperature, temperatureUnits);
 }
 
-double SIGMortality::getFirelineIntensity() {
-  return fireLineIntensity_;
-}
-
-double SIGMortality::getMidFlameWindSpeed() {
-  return midFlameWindSpeed_;
-}
-
-double SIGMortality::getAirTemperature() {
-  return getAirTemperature_;
+double SIGMortality::getScorchHeight(LengthUnits::LengthUnitsEnum scorchHeightUnits) {
+  return calculateScorchHeight(fireLineIntensity_,
+                               FirelineIntensityUnits::BtusPerFootPerSecond,
+                               midFlameWindSpeed_,
+                               SpeedUnits::FeetPerMinute,
+                               getAirTemperature_,
+                               TemperatureUnits::Fahrenheit,
+                               scorchHeightUnits);
 }
