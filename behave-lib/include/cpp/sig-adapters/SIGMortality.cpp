@@ -133,7 +133,7 @@ void SIGMortality::setMidFlameWindSpeed(double midFlameWindSpeed, SpeedUnits::Sp
 }
 void SIGMortality::setAirTemperature(double airTemperature,
                                      TemperatureUnits::TemperatureUnitsEnum temperatureUnits) {
-  getAirTemperature_ = TemperatureUnits::toBaseUnits(airTemperature temperatureUnits);
+  getAirTemperature_ = TemperatureUnits::toBaseUnits(airTemperature, temperatureUnits);
 }
 
 double SIGMortality::getFirelineIntensity() {
