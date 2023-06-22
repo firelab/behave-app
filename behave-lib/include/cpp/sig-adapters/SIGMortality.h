@@ -52,7 +52,7 @@ public:
   SpeciesMasterTableRecordVector *getSpeciesRecordVectorForRegion(RegionCode region);
   SpeciesMasterTableRecordVector *getSpeciesRecordVectorForRegionAndEquationType(RegionCode region,
                                                                                  EquationType equationType);
-  double getScorchHeight();
+  double getCalculatedScorchHeight();
 
 protected:
   double fireLineIntensity_;
