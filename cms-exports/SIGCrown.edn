@@ -1,5 +1,8 @@
 {:global
- {:SIGCrown
+ {:FireType
+  {:FireTypeEnum
+   ["Surface" "Torching" "ConditionalCrownFire" "Crowning"]},
+  :SIGCrown
   {:getFinalFlameLength
    {:type "double",
     :id "getFinalFlameLength",
@@ -179,6 +182,13 @@
    {:type "bool",
     :id "setMoistureScenarioByName",
     :parameters [{:id "moistureScenarioName", :type "std::string"}]},
+   :getCrownFirePerimeter
+   {:type "double",
+    :id "getCrownFirePerimeter",
+    :parameters
+    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}
+     {:id "elapsedTime", :type "double"}
+     {:id "timeUnits", :type "TimeUnits::TimeUnitsEnum"}]},
    :isAllFuelLoadZero
    {:type "bool",
     :id "isAllFuelLoadZero",
@@ -214,6 +224,12 @@
     [{:id "windSpeedUnits", :type "SpeedUnits::SpeedUnitsEnum"}
      {:id "windHeightInputMode",
       :type "WindHeightInputMode::WindHeightInputModeEnum"}]},
+   :getCrownCriticalSurfaceFirelineIntensity
+   {:type "double",
+    :id "getCrownCriticalSurfaceFirelineIntensity",
+    :parameters
+    [{:id "firelineIntensityUnits",
+      :type "FirelineIntensityUnits::FirelineIntensityUnitsEnum"}]},
    :setMoistureTenHour
    {:type "void",
     :id "setMoistureTenHour",
@@ -294,6 +310,11 @@
    {:type "bool",
     :id "isFuelModelReserved",
     :parameters [{:id "fuelModelNumber", :type "int"}]},
+   :getCrownCriticalSurfaceFlameLength
+   {:type "double",
+    :id "getCrownCriticalSurfaceFlameLength",
+    :parameters
+    [{:id "flameLengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
    :setMoistureScenarios
    {:type "void",
     :id "setMoistureScenarios",
@@ -307,6 +328,8 @@
    {:type "void",
     :id "setWindDirection",
     :parameters [{:id "windDirection", :type "double"}]},
+   :getCrownTransitionRatio
+   {:type "double", :id "getCrownTransitionRatio", :parameters []},
    :getFuelSavrOneHour
    {:type "double",
     :id "getFuelSavrOneHour",
@@ -359,6 +382,8 @@
     :parameters
     [{:id "moistureHundredHour", :type "double"}
      {:id "moistureUnits", :type "MoistureUnits::MoistureUnitsEnum"}]},
+   :getCrownFireActiveRatio
+   {:type "double", :id "getCrownFireActiveRatio", :parameters []},
    :getCanopyBulkDensity
    {:type "double",
     :id "getCanopyBulkDensity",
@@ -502,6 +527,13 @@
     :parameters
     [{:id "fuelModelNumber", :type "int"}
      {:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :getCrownFireArea
+   {:type "double",
+    :id "getCrownFireArea",
+    :parameters
+    [{:id "areaUnits", :type "AreaUnits::AreaUnitsEnum"}
+     {:id "elapsedTime", :type "double"}
+     {:id "timeUnits", :type "TimeUnits::TimeUnitsEnum"}]},
    :setMoistureScenarioByIndex
    {:type "bool",
     :id "setMoistureScenarioByIndex",
@@ -535,6 +567,11 @@
     :parameters
     [{:id "fuelModelNumber", :type "int"}
      {:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getCrownCriticalFireSpreadRate
+   {:type "double",
+    :id "getCrownCriticalFireSpreadRate",
+    :parameters
+    [{:id "spreadRateUnits", :type "SpeedUnits::SpeedUnitsEnum"}]},
    :getCanopyCover
    {:type "double",
     :id "getCanopyCover",

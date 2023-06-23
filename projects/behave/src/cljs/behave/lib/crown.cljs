@@ -35,6 +35,18 @@
 (defn getCriticalOpenWindSpeed [self speedUnits]
   (.getCriticalOpenWindSpeed self speedUnits))
 
+(defn getCrownCriticalFireSpreadRate [self spreadRateUnits]
+  (.getCrownCriticalFireSpreadRate self spreadRateUnits))
+
+(defn getCrownCriticalSurfaceFirelineIntensity [self firelineIntensityUnits]
+  (.getCrownCriticalSurfaceFirelineIntensity self firelineIntensityUnits))
+
+(defn getCrownCriticalSurfaceFlameLength [self flameLengthUnits]
+  (.getCrownCriticalSurfaceFlameLength self flameLengthUnits))
+
+(defn getCrownFireActiveRatio [self]
+  (.getCrownFireActiveRatio self))
+
 (defn getCrownFireLengthToWidthRatio [self]
   (.getCrownFireLengthToWidthRatio self))
 
@@ -55,6 +67,9 @@
 
 (defn getCrownRatio [self]
   (.getCrownRatio self))
+
+(defn getCrownTransitionRatio [self]
+  (.getCrownTransitionRatio self))
 
 (defn getFinalFirelineIntesity [self firelineIntensityUnits]
   (.getFinalFirelineIntesity self firelineIntensityUnits))
@@ -235,6 +250,9 @@
 
 (defn setCanopyHeight [self canopyHeight canopyHeightUnits]
   (.setCanopyHeight self canopyHeight canopyHeightUnits))
+
+(defn setCrownFireCalculationMethod [self CrownFireCalculationMethod]
+  (.setCrownFireCalculationMethod self CrownFireCalculationMethod))
 
 (defn setCrownRatio [self crownRatio]
   (.setCrownRatio self crownRatio))

@@ -83,31 +83,31 @@
   (write-pprint-edn sig-surface "cms-exports/SIGSurface.edn")
 
   ;;; Combine exports
-  (cms-import {:behave-file      "~/work/code/hatchet/behave/surface.edn"
+  (cms-import {:behave-file      "~/work/code/hatchet/behave-mirror/surface.edn"
                :sig-adapter-file "~/work/code/hatchet/sig-adapters/SIGSurface.edn"
                :out-file-name    "SIGSurface.edn"
                :from-key         :Surface
                :to-key           :SIGSurface})
 
-  (cms-import {:behave-file      "~/work/code/hatchet/behave/moistureScenarios.edn"
+  (cms-import {:behave-file      "~/work/code/hatchet/behave-mirror/moistureScenarios.edn"
                :sig-adapter-file "~/work/code/hatchet/sig-adapters/SIGMoistureScenarios.edn"
                :out-file-name    "SIGMoistureScenarios.edn"
                :from-key         :MoistureScenarios
                :to-key           :SIGMoistureScenarios})
 
-  (cms-import {:behave-file      "~/work/code/hatchet/behave/crown.edn"
+  (cms-import {:behave-file      "~/work/code/hatchet/behave-mirror/crown.edn"
                :sig-adapter-file "~/work/code/hatchet/sig-adapters/SIGCrown.edn"
                :out-file-name    "SIGCrown.edn"
                :from-key         :Crown
                :to-key           :SIGCrown})
 
-  (cms-import {:behave-file      "~/work/code/hatchet/behave/behaveRun.edn"
+  (cms-import {:behave-file      "~/work/code/hatchet/behave-mirror/behaveRun.edn"
                :sig-adapter-file "~/work/code/hatchet/sig-adapters/SIGBehaveRun.edn"
                :out-file-name    "SIGBehaveRun.edn"
                :from-key         :BehaveRun
                :to-key           :SIGBehaveRun})
 
-  (cms-import {:behave-file      "~/work/code/hatchet/behave/mortality.edn"
+  (cms-import {:behave-file      "~/work/code/hatchet/behave-mirror/mortality.edn"
                :sig-adapter-file "~/work/code/hatchet/sig-adapters/SIGMortality.edn"
                :out-file-name    "SIGMortality.edn"
                :from-key         :Mortality
@@ -150,4 +150,3 @@
              (safe-deref ds/conn)))
 
   )
-

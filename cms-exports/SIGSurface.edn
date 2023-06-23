@@ -32,12 +32,6 @@
    :SIGSurface
    {:id "SIGSurface",
     :parameters [{:id "fuelModels", :type "SIGFuelModels"}]},
-   :getChaparralTotalSilicaContent
-   {:type "double",
-    :id "getChaparralTotalSilicaContent",
-    :parameters
-    [{:id "lifeState", :type "FuelLifeState::FuelLifeStateEnum"}
-     {:id "sizeClass", :type "int"}]},
    :getFireEccentricity
    {:type "double", :id "getFireEccentricity", :parameters []},
    :setWindAdjustmentFactorCalculationMethod
@@ -47,6 +41,11 @@
     [{:id "windAdjustmentFactorCalculationMethod",
       :type
       "WindAdjustmentFactorCalculationMethod::WindAdjustmentFactorCalculationMethodEnum"}]},
+   :getChaparralLoadDeadHalfInchToLessThanOneInch
+   {:type "double",
+    :id "getChaparralLoadDeadHalfInchToLessThanOneInch",
+    :parameters
+    [{:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
    :getMoistureHundredHour
    {:type "double",
     :id "getMoistureHundredHour",
@@ -137,9 +136,7 @@
    {:type "double",
     :id "getBackingSpreadDistance",
     :parameters
-    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}
-     {:id "elapsedTime", :type "double"}
-     {:id "timeUnits", :type "TimeUnits::TimeUnitsEnum"}]},
+    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
    :setSlope
    {:type "void",
     :id "setSlope",
@@ -156,11 +153,6 @@
    {:type "double",
     :id "getMoistureScenarioLiveWoodyByIndex",
     :parameters [{:id "index", :type "int"}]},
-   :getPalmettoGallberyLiveOneHourLoad
-   {:type "double",
-    :id "getPalmettoGallberyLiveOneHourLoad",
-    :parameters
-    [{:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
    :getMoistureLiveWoody
    {:type "double",
     :id "getMoistureLiveWoody",
@@ -185,6 +177,15 @@
     :id "getAspenLoadLiveHerbaceous",
     :parameters
     [{:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :getSurfaceFireReactionIntensityLive
+   {:type "double",
+    :id "getSurfaceFireReactionIntensityLive",
+    :parameters []},
+   :getBackingFlameLength
+   {:type "double",
+    :id "getBackingFlameLength",
+    :parameters
+    [{:id "flameLengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
    :getAspenLoadLiveWoody
    {:type "double",
     :id "getAspenLoadLiveWoody",
@@ -203,6 +204,12 @@
     :parameters
     [{:id "basalAreaUnits",
       :type "BasalAreaUnits::BasalAreaUnitsEnum"}]},
+   :setWindUpslopeAlignmentMode
+   {:type "void",
+    :id "setWindUpslopeAlignmentMode",
+    :parameters
+    [{:id "windUpslopeAlignmentMode",
+      :type "WindUpslopeAlignmentMode"}]},
    :setMoistureScenarioByName
    {:type "bool",
     :id "setMoistureScenarioByName",
@@ -211,6 +218,12 @@
    {:type "bool",
     :id "isAllFuelLoadZero",
     :parameters [{:id "fuelModelNumber", :type "int"}]},
+   :setElapsedTime
+   {:type "void",
+    :id "setElapsedTime",
+    :parameters
+    [{:id "elapsedTime", :type "double"}
+     {:id "timeUnits", :type "TimeUnits::TimeUnitsEnum"}]},
    :getWindAndSpreadOrientationMode
    {:type
     "WindAndSpreadOrientationMode::WindAndSpreadOrientationModeEnum",
@@ -255,19 +268,13 @@
     :parameters
     [{:id "heatOfCombustionUnits",
       :type "HeatOfCombustionUnits::HeatOfCombustionUnitsEnum"}]},
-   :calculateScorchHeight
-   {:type "double",
-    :id "calculateScorchHeight",
+   :setSurfaceFireSpreadDirectionMode
+   {:type "void",
+    :id "setSurfaceFireSpreadDirectionMode",
     :parameters
-    [{:id "firelineIntensity", :type "double"}
-     {:id "firelineIntensityUnits",
-      :type "FirelineIntensityUnits::FirelineIntensityUnitsEnum"}
-     {:id "midFlameWindSpeed", :type "double"}
-     {:id "windSpeedUnits", :type "SpeedUnits::SpeedUnitsEnum"}
-     {:id "airTemperature", :type "double"}
-     {:id "temperatureUnits",
-      :type "TemperatureUnits::TemperatureUnitsEnum"}
-     {:id "scorchHeightUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+    [{:id "directionMode",
+      :type
+      "SurfaceFireSpreadDirectionMode::SurfaceFireSpreadDirectionModeEnum"}]},
    :getDirectionOfMaxSpread
    {:type "double", :id "getDirectionOfMaxSpread", :parameters []},
    :getSpreadRateInDirectionOfInterest
@@ -279,9 +286,7 @@
    {:type "double",
     :id "getEllipticalA",
     :parameters
-    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}
-     {:id "elapsedTime", :type "double"}
-     {:id "timeUnits", :type "TimeUnits::TimeUnitsEnum"}]},
+    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
    :getWindSpeed
    {:type "double",
     :id "getWindSpeed",
@@ -347,6 +352,11 @@
     :parameters
     [{:id "chaparralFuelType",
       :type "ChaparralFuelType::ChaparralFuelTypeEnum"}]},
+   :getChaparralLoadLiveStemsLessThanQuaterInch
+   {:type "double",
+    :id "getChaparralLoadLiveStemsLessThanQuaterInch",
+    :parameters
+    [{:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
    :getCharacteristicSAVR
    {:type "double",
     :id "getCharacteristicSAVR",
@@ -358,9 +368,7 @@
    {:type "double",
     :id "getEllipticalB",
     :parameters
-    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}
-     {:id "elapsedTime", :type "double"}
-     {:id "timeUnits", :type "TimeUnits::TimeUnitsEnum"}]},
+    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
    :getReactionIntensity
    {:type "double",
     :id "getReactionIntensity",
@@ -412,9 +420,7 @@
    {:type "double",
     :id "getSpreadDistance",
     :parameters
-    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}
-     {:id "elapsedTime", :type "double"}
-     {:id "timeUnits", :type "TimeUnits::TimeUnitsEnum"}]},
+    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
    :getChaparralDensity
    {:type "double",
     :id "getChaparralDensity",
@@ -478,22 +484,17 @@
      {:id "canopyHeight", :type "double"}
      {:id "canopyHeightUnits", :type "LengthUnits::LengthUnitsEnum"}
      {:id "crownRatio", :type "double"}]},
-   :getChaparralLoad
+   :getPalmettoGallberyLiveMediumFuelLoad
    {:type "double",
-    :id "getChaparralLoad",
+    :id "getPalmettoGallberyLiveMediumFuelLoad",
     :parameters
-    [{:id "lifeState", :type "FuelLifeState::FuelLifeStateEnum"}
-     {:id "sizeClass", :type "int"}
-     {:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+    [{:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
    :isFuelModelReserved
    {:type "bool",
     :id "isFuelModelReserved",
     :parameters [{:id "fuelModelNumber", :type "int"}]},
-   :getPalmettoGallberyDeadTenHourLoad
-   {:type "double",
-    :id "getPalmettoGallberyDeadTenHourLoad",
-    :parameters
-    [{:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :getDirectionOfInterest
+   {:type "double", :id "getDirectionOfInterest", :parameters []},
    :getMoistureInputMode
    {:type "MoistureInputMode::MoistureInputModeEnum",
     :id "getMoistureInputMode",
@@ -503,6 +504,11 @@
     :id "setMoistureScenarios",
     :parameters
     [{:id "moistureScenarios", :type "SIGMoistureScenarios"}]},
+   :getChaparralLoadLiveHalfInchToLessThanOneInch
+   {:type "double",
+    :id "getChaparralLoadLiveHalfInchToLessThanOneInch",
+    :parameters
+    [{:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
    :getMoistureScenarioNameByIndex
    {:type "char",
     :id "getMoistureScenarioNameByIndex",
@@ -511,20 +517,26 @@
    {:type "WindHeightInputMode::WindHeightInputModeEnum",
     :id "getWindHeightInputMode",
     :parameters []},
+   :getChaparralLoadDeadOneInchToThreeInch
+   {:type "double",
+    :id "getChaparralLoadDeadOneInchToThreeInch",
+    :parameters
+    [{:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
    :getSpreadDistanceInDirectionOfInterest
    {:type "double",
     :id "getSpreadDistanceInDirectionOfInterest",
     :parameters
-    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}
-     {:id "elapsedTime", :type "double"}
-     {:id "timeUnits", :type "TimeUnits::TimeUnitsEnum"}]},
+    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
    :getEllipticalC
    {:type "double",
     :id "getEllipticalC",
     :parameters
-    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}
-     {:id "elapsedTime", :type "double"}
-     {:id "timeUnits", :type "TimeUnits::TimeUnitsEnum"}]},
+    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getChaparralLoadLiveOneInchToThreeInch
+   {:type "double",
+    :id "getChaparralLoadLiveOneInchToThreeInch",
+    :parameters
+    [{:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
    :setWindDirection
    {:type "void",
     :id "setWindDirection",
@@ -533,9 +545,7 @@
    {:type "double",
     :id "getFlankingSpreadDistance",
     :parameters
-    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}
-     {:id "elapsedTime", :type "double"}
-     {:id "timeUnits", :type "TimeUnits::TimeUnitsEnum"}]},
+    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
    :getResidenceTime
    {:type "double",
     :id "getResidenceTime",
@@ -552,6 +562,11 @@
    {:type "double",
     :id "getMoistureScenarioLiveWoodyByName",
     :parameters [{:id "name", :type "std::string"}]},
+   :getChaparralLoadLiveLeaves
+   {:type "double",
+    :id "getChaparralLoadLiveLeaves",
+    :parameters
+    [{:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
    :setWindAndSpreadOrientationMode
    {:type "void",
     :id "setWindAndSpreadOrientationMode",
@@ -576,9 +591,17 @@
    {:type "double",
     :id "getFirePerimeter",
     :parameters
-    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}
-     {:id "elapsedTime", :type "double"}
-     {:id "timeUnits", :type "TimeUnits::TimeUnitsEnum"}]},
+    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getCharacteristicMoistureLive
+   {:type "double",
+    :id "getCharacteristicMoistureLive",
+    :parameters
+    [{:id "moistureUnits", :type "MoistureUnits::MoistureUnitsEnum"}]},
+   :getChaparralLoadDeadQuarterInchToLessThanHalfInch
+   {:type "double",
+    :id "getChaparralLoadDeadQuarterInchToLessThanHalfInch",
+    :parameters
+    [{:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
    :getMoistureScenarioLiveHerbaceousByName
    {:type "double",
     :id "getMoistureScenarioLiveHerbaceousByName",
@@ -589,6 +612,17 @@
     :parameters
     [{:id "heightOfUnderstory", :type "double"}
      {:id "heightUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getChaparralLoadLiveQuarterInchToLessThanHalfInch
+   {:type "double",
+    :id "getChaparralLoadLiveQuarterInchToLessThanHalfInch",
+    :parameters
+    [{:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :getFlankingFirelineIntensity
+   {:type "double",
+    :id "getFlankingFirelineIntensity",
+    :parameters
+    [{:id "firelineIntensityUnits",
+      :type "FirelineIntensityUnits::FirelineIntensityUnitsEnum"}]},
    :getChaparralMoisture
    {:type "double",
     :id "getChaparralMoisture",
@@ -596,6 +630,11 @@
     [{:id "lifeState", :type "FuelLifeState::FuelLifeStateEnum"}
      {:id "sizeClass", :type "int"}
      {:id "moistureUnits", :type "MoistureUnits::MoistureUnitsEnum"}]},
+   :getPalmettoGallberyLiveFineFuelLoad
+   {:type "double",
+    :id "getPalmettoGallberyLiveFineFuelLoad",
+    :parameters
+    [{:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
    :getFuelSavrLiveHerbaceous
    {:type "double",
     :id "getFuelSavrLiveHerbaceous",
@@ -656,18 +695,34 @@
     :id "getChaparralTotalLiveFuelLoad",
     :parameters
     [{:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :getChaparralFuelLoadInputMode
+   {:type "ChaparralFuelLoadInputMode::ChaparralFuelInputLoadModeEnum",
+    :id "getChaparralFuelLoadInputMode",
+    :parameters []},
+   :setDirectionOfInterest
+   {:type "void",
+    :id "setDirectionOfInterest",
+    :parameters [{:id "directionOfInterest", :type "double"}]},
    :getFireArea
    {:type "double",
     :id "getFireArea",
+    :parameters [{:id "areaUnits", :type "AreaUnits::AreaUnitsEnum"}]},
+   :getPalmettoGallberyDeadMediumFuelLoad
+   {:type "double",
+    :id "getPalmettoGallberyDeadMediumFuelLoad",
     :parameters
-    [{:id "areaUnits", :type "AreaUnits::AreaUnitsEnum"}
-     {:id "elapsedTime", :type "double"}
-     {:id "timeUnits", :type "TimeUnits::TimeUnitsEnum"}]},
+    [{:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
    :getHeatSink
    {:type "double",
     :id "getHeatSink",
     :parameters
     [{:id "heatSinkUnits", :type "HeatSinkUnits::HeatSinkUnitsEnum"}]},
+   :getBackingFirelineIntensity
+   {:type "double",
+    :id "getBackingFirelineIntensity",
+    :parameters
+    [{:id "firelineIntensityUnits",
+      :type "FirelineIntensityUnits::FirelineIntensityUnitsEnum"}]},
    :getIsUsingWesternAspen
    {:type "bool", :id "getIsUsingWesternAspen", :parameters []},
    :setCrownRatio
@@ -680,6 +735,10 @@
     :parameters
     [{:id "fuelModelNumber", :type "int"}
      {:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :getWindUpslopeAlignmentMode
+   {:type "WindUpslopeAlignmentMode",
+    :id "getWindUpslopeAlignmentMode",
+    :parameters []},
    :initializeMembers
    {:type "void", :id "initializeMembers", :parameters []},
    :setAspenCuringLevel
@@ -722,6 +781,12 @@
     :id "getPalmettoGallberryCoverage",
     :parameters
     [{:id "coverUnits", :type "CoverUnits::CoverUnitsEnum"}]},
+   :setSurfaceRunInDirectionOf
+   {:type "void",
+    :id "setSurfaceRunInDirectionOf",
+    :parameters
+    [{:id "surfaceRunInDirectionOf",
+      :type "SurfaceRunInDirectionOf"}]},
    :setMoistureLiveWoody
    {:type "void",
     :id "setMoistureLiveWoody",
@@ -732,15 +797,11 @@
    {:type "void",
     :id "setIsUsingWesternAspen",
     :parameters [{:id "isUsingWesternAspen", :type "bool"}]},
-   :getChaparralSavr
+   :getFlankingFlameLength
    {:type "double",
-    :id "getChaparralSavr",
+    :id "getFlankingFlameLength",
     :parameters
-    [{:id "lifeState", :type "FuelLifeState::FuelLifeStateEnum"}
-     {:id "sizeClass", :type "int"}
-     {:id "savrUnits",
-      :type
-      "SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum"}]},
+    [{:id "flameLengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
    :getAspenLoadDeadOneHour
    {:type "double",
     :id "getAspenLoadDeadOneHour",
@@ -757,6 +818,11 @@
    :getChaparralTotalFuelLoad
    {:type "double",
     :id "getChaparralTotalFuelLoad",
+    :parameters
+    [{:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :getPalmettoGallberyDeadFineFuelLoad
+   {:type "double",
+    :id "getPalmettoGallberyDeadFineFuelLoad",
     :parameters
     [{:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
    :getLiveFuelMoistureOfExtinction
@@ -785,12 +851,10 @@
     :parameters
     [{:id "canopyCover", :type "double"}
      {:id "coverUnits", :type "CoverUnits::CoverUnitsEnum"}]},
-   :getChaparralEffectiveSilicaContent
+   :getSurfaceFireReactionIntensityDead
    {:type "double",
-    :id "getChaparralEffectiveSilicaContent",
-    :parameters
-    [{:id "lifeState", :type "FuelLifeState::FuelLifeStateEnum"}
-     {:id "sizeClass", :type "int"}]},
+    :id "getSurfaceFireReactionIntensityDead",
+    :parameters []},
    :setWindSpeed
    {:type "void",
     :id "setWindSpeed",
@@ -913,17 +977,15 @@
     :parameters
     [{:id "firelineIntensityUnits",
       :type "FirelineIntensityUnits::FirelineIntensityUnitsEnum"}]},
-   :getPalmettoGallberyLiveTenHourLoad
-   {:type "double",
-    :id "getPalmettoGallberyLiveTenHourLoad",
-    :parameters
-    [{:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :getWindAdjustmentFactor
+   {:type "double", :id "getWindAdjustmentFactor", :parameters []},
    :setAspenDBH
    {:type "void",
     :id "setAspenDBH",
     :parameters
     [{:id "dbh", :type "double"}
      {:id "dbhUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :doSurfaceRun {:type "void", :id "doSurfaceRun", :parameters []},
    :getChaparralFuelDeadLoadFraction
    {:type "double",
     :id "getChaparralFuelDeadLoadFraction",
@@ -974,11 +1036,6 @@
     "WindAdjustmentFactorCalculationMethod::WindAdjustmentFactorCalculationMethodEnum",
     :id "getWindAdjustmentFactorCalculationMethod",
     :parameters []},
-   :getPalmettoGallberyDeadOneHourLoad
-   {:type "double",
-    :id "getPalmettoGallberyDeadOneHourLoad",
-    :parameters
-    [{:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
    :getMoistureScenarioDescriptionByName
    {:type "char",
     :id "getMoistureScenarioDescriptionByName",
@@ -1025,6 +1082,16 @@
      {:id "canopyHeight", :type "double"}
      {:id "canopyHeightUnits", :type "LengthUnits::LengthUnitsEnum"}
      {:id "crownRatio", :type "double"}]},
+   :getChaparralLoadDeadLessThanQuarterInch
+   {:type "double",
+    :id "getChaparralLoadDeadLessThanQuarterInch",
+    :parameters
+    [{:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :getCharacteristicMoistureDead
+   {:type "double",
+    :id "getCharacteristicMoistureDead",
+    :parameters
+    [{:id "moistureUnits", :type "MoistureUnits::MoistureUnitsEnum"}]},
    :setAspenFireSeverity
    {:type "void",
     :id "setAspenFireSeverity",

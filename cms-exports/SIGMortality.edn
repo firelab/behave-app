@@ -111,6 +111,19 @@
    {:type "void",
     :id "setBeetleDamage",
     :parameters [{:id "beetleDamage", :type "BeetleDamage"}]},
+   :calculateScorchHeight
+   {:type "double",
+    :id "calculateScorchHeight",
+    :parameters
+    [{:id "firelineIntensity", :type "double"}
+     {:id "firelineIntensityUnits",
+      :type "FirelineIntensityUnits::FirelineIntensityUnitsEnum"}
+     {:id "midFlameWindSpeed", :type "double"}
+     {:id "windSpeedUnits", :type "SpeedUnits::SpeedUnitsEnum"}
+     {:id "airTemperature", :type "double"}
+     {:id "temperatureUnits",
+      :type "TemperatureUnits::TemperatureUnitsEnum"}
+     {:id "scorchHeightUnits", :type "LengthUnits::LengthUnitsEnum"}]},
    :getKilledTrees
    {:type "double", :id "getKilledTrees", :parameters []},
    :calculateMortality

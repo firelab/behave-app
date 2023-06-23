@@ -49,13 +49,13 @@ public:
   void doSurfaceRun();
 
   // SIGSurface Getter Methods
-  WindUpslopeAlignmentMode::WindUpslopeAlignmentModeEnum getWindUpslopeAlignmentMode() const;
+  WindUpslopeAlignmentMode getWindUpslopeAlignmentMode() const;
   double getDirectionOfInterest();
 
   // SIGSurface Setter Methods
-  void setWindUpslopeAlignmentMode(WindUpslopeAlignmentMode::WindUpslopeAlignmentModeEnum) const;
+  void setWindUpslopeAlignmentMode(WindUpslopeAlignmentMode windUpslopeAlignmentMode);
   void setDirectionOfInterest(double directionOfInterest);
-  void setSurfaceRunInDirectionOf(SurfaceRunInDirectionOf::SurfaceRunInDirectionOfEnum surfaceRunInDirectionOf);
+  void setSurfaceRunInDirectionOf(SurfaceRunInDirectionOf surfaceRunInDirectionOf);
   void setSurfaceFireSpreadDirectionMode(SurfaceFireSpreadDirectionMode::SurfaceFireSpreadDirectionModeEnum
                                          directionMode);
 
@@ -73,8 +73,6 @@ public:
   // SruFaceFire Getter Methods
   double getCharacteristicMoistureDead(MoistureUnits::MoistureUnitsEnum moistureUnits) const;
   double getCharacteristicMoistureLive(MoistureUnits::MoistureUnitsEnum moistureUnits) const;
-  double getPackingRatio() const;
-  double getRelativePackingRatio() const;
   double getSlopeFactor() const;
   double getWindAdjustmentFactor() const;
   double getEllipticalA(LengthUnits::LengthUnitsEnum lengthUnits) const;
@@ -101,7 +99,7 @@ public:
 
 protected:
   SurfaceFireSpreadDirectionMode::SurfaceFireSpreadDirectionModeEnum directionMode_;
-  SurfaceRunInDirectionOf::SurfaceRunInDirectionOfEnum surfaceRunInDirectionOf_;
-  WindUpslopeAlignmentMode::WindUpslopeAlignmentModeEnum windUpslopeAlignmentMode_;
+  SurfaceRunInDirectionOf surfaceRunInDirectionOf_;
+  WindUpslopeAlignmentMode windUpslopeAlignmentMode_;
   double directionOfInterest_;
 };

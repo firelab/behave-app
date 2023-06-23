@@ -75,28 +75,20 @@ double SIGSurface::getCharacteristicMoistureLive(MoistureUnits::MoistureUnitsEnu
                                       moistureUnits);
 }
 
-double SIGSurface::getRelativePackingRatio() const {
-  return surfaceFire_.surfaceFuelbedIntermediates_.getRelativePackingRatio();
-}
-
-double SIGSurface::getPackingRatio() const {
-  return surfaceFire_.surfaceFuelbedIntermediates_.getPackingRatio();
-}
-
 double SIGSurface::getSlopeFactor() const {
-  return surfaceInputs_.getSlopeFactor();
+  return surfaceFire_.getSlopeFactor();
 }
 
 double SIGSurface::getWindAdjustmentFactor() const {
   return surfaceFire_.getWindAdjustmentFactor();
 }
 
-WindUpslopeAlignmentMode::WindUpslopeAlignmentModeEnum getWindUpslopeAlignmentMode() const {
+WindUpslopeAlignmentMode SIGSurface::getWindUpslopeAlignmentMode() const {
   return windUpslopeAlignmentMode_;
 }
 
-void SIGSurface::setWindUpslopeAlignmentMode(WindUpslopeAlignmentMode::WindUpslopeAlignmentModeEnum WindUpslopeAlignmentMode) const {
-  return windUpslopeAlignmentMode_ = WindUpslopeAlignmentMode;
+void SIGSurface::setWindUpslopeAlignmentMode(WindUpslopeAlignmentMode windUpslopeAlignmentMode) {
+  windUpslopeAlignmentMode_ = windUpslopeAlignmentMode;
 }
 
 double SIGSurface::getDirectionOfInterest() {
@@ -107,7 +99,7 @@ void SIGSurface::setDirectionOfInterest(double directionOfInterest) {
   directionOfInterest_ = directionOfInterest;
 }
 
-void SIGSurface::setSurfaceRunInDirectionOf(SurfaceRunInDirectionOf::SurfaceRunInDirectionOfEnum surfaceRunInDirectionOf) {
+void SIGSurface::setSurfaceRunInDirectionOf(SurfaceRunInDirectionOf surfaceRunInDirectionOf) {
   surfaceRunInDirectionOf_ = surfaceRunInDirectionOf;
 }
 
@@ -116,56 +108,56 @@ void SIGSurface::setSurfaceFireSpreadDirectionMode(SurfaceFireSpreadDirectionMod
 }
 
 void SIGSurface::doSurfaceRun() {
-  if surfaceRunInDirectionOf_ == SurfaceRunInDirectionOf::MaxSpread {
+  if (surfaceRunInDirectionOf_ == SurfaceRunInDirectionOf::MaxSpread) {
       doSurfaceRunInDirectionOfMaxSpread();
     } else {
     doSurfaceRunInDirectionOfInterest(directionOfInterest_, directionMode_);
   }
 }
 
-double SIGSurface::getEllipticalA(LengthUnits::LengthUnitsEnum) const {
-  double elapsedTime = surfaceInputs_.getElapsedTime();
-  return getEllipticalA(lengthUnits, elapsedTime, TimeUnits::Minutes);
+double SIGSurface::getEllipticalA(LengthUnits::LengthUnitsEnum lengthUnits) const {
+  double elapsedTime = surfaceInputs_.getElapsedTime(TimeUnits::Minutes);
+  return Surface::getEllipticalA(lengthUnits, elapsedTime, TimeUnits::Minutes);
 }
 
-double SIGSurface::getEllipticalB(LengthUnits::LengthUnitsEnum) const {
-  double elapsedTime = surfaceInputs_.getElapsedTime();
-  return getEllipticalB(lengthUnits, elapsedTime, TimeUnits::Minutes);
+double SIGSurface::getEllipticalB(LengthUnits::LengthUnitsEnum lengthUnits) const {
+  double elapsedTime = surfaceInputs_.getElapsedTime(TimeUnits::Minutes);
+  return Surface::getEllipticalB(lengthUnits, elapsedTime, TimeUnits::Minutes);
 }
 
-double SIGSurface::getEllipticalC(LengthUnits::LengthUnitsEnum) const {
-  double elapsedTime = surfaceInputs_.getElapsedTime();
-  return getEllipticalC(lengthUnits, elapsedTime, TimeUnits::Minutes);
+double SIGSurface::getEllipticalC(LengthUnits::LengthUnitsEnum lengthUnits) const {
+  double elapsedTime = surfaceInputs_.getElapsedTime(TimeUnits::Minutes);
+  return Surface::getEllipticalC(lengthUnits, elapsedTime, TimeUnits::Minutes);
 }
 
 double SIGSurface::getFireArea(AreaUnits::AreaUnitsEnum areaUnits) const {
-  double elapsedTime = surfaceInputs_.getElapsedTime();
-  return getFireArea(lengthUnits, elapsedTime, TimeUnits::Minutes);
+  double elapsedTime = surfaceInputs_.getElapsedTime(TimeUnits::Minutes);
+  return Surface::getFireArea(areaUnits, elapsedTime, TimeUnits::Minutes);
 }
 
 double SIGSurface::getFirePerimeter(LengthUnits::LengthUnitsEnum lengthUnits) const {
-  double elapsedTime = surfaceInputs_.getElapsedTime();
-  return getFirePerimeter(lengthUnits, elapsedTime, TimeUnits::Minutes);
+  double elapsedTime = surfaceInputs_.getElapsedTime(TimeUnits::Minutes);
+  return Surface::getFirePerimeter(lengthUnits, elapsedTime, TimeUnits::Minutes);
 }
 
-double SIGSurface::getBackingSpreadDistance(LengthUnits::LengthUnitsEnum) const {
-  double elapsedTime = surfaceInputs_.getElapsedTime();
-  return getBackingSpreadDistance(lengthUnits, elapsedTime, TimeUnits::Minutes);
+double SIGSurface::getBackingSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits) {
+  double elapsedTime = surfaceInputs_.getElapsedTime(TimeUnits::Minutes);
+  return Surface::getBackingSpreadDistance(lengthUnits, elapsedTime, TimeUnits::Minutes);
 }
 
-double SIGSurface::getFlankingSpreadDistance(LengthUnits::LengthUnitsEnum) const {
-  double elapsedTime = surfaceInputs_.getElapsedTime();
-  return getFlankingSpreadDistance(lengthUnits, elapsedTime, TimeUnits::Minutes);
+double SIGSurface::getFlankingSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits) {
+  double elapsedTime = surfaceInputs_.getElapsedTime(TimeUnits::Minutes);
+  return Surface::getFlankingSpreadDistance(lengthUnits, elapsedTime, TimeUnits::Minutes);
 }
 
-double SIGSurface::getSpreadDistance(LengthUnits::LengthUnitsEnum) const {
-  double elapsedTime = surfaceInputs_.getElapsedTime();
-  return getSpreadDistance(lengthUnits, elapsedTime, TimeUnits::Minutes);
+double SIGSurface::getSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits) const {
+  double elapsedTime = surfaceInputs_.getElapsedTime(TimeUnits::Minutes);
+  return Surface::getSpreadDistance(lengthUnits, elapsedTime, TimeUnits::Minutes);
 }
 
-double SIGSurface::getSpreadDistanceInDirectionOfInterest(LengthUnits::LengthUnitsEnum) const {
-  double elapsedTime = surfaceInputs_.getElapsedTime();
-  return getSpreadDistanceInDirectionOfInterest(lengthUnits, elapsedTime, TimeUnits::Minutes);
+double SIGSurface::getSpreadDistanceInDirectionOfInterest(LengthUnits::LengthUnitsEnum lengthUnits) const {
+  double elapsedTime = surfaceInputs_.getElapsedTime(TimeUnits::Minutes);
+  return Surface::getSpreadDistanceInDirectionOfInterest(lengthUnits, elapsedTime, TimeUnits::Minutes);
 }
 
 void SIGSurface::setElapsedTime(double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits) {

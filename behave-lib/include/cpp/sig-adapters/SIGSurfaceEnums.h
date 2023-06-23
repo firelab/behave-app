@@ -1,22 +1,14 @@
 #ifndef SIGSURFACEENUMS_H
 #define SIGSURFACEENUMS_H
 
-struct WindUpslopeAlignmentMode
-{
-  enum WindUpslopeAlignmentModeEnum
-    {
-      NotAligned,
-      Aligned
-    };
+enum class WindUpslopeAlignmentMode {
+  NotAligned,
+  Aligned
 };
 
-struct SurfaceRunInDirectionOf
-{
-  enum SurfaceRunInDirectionOfEnum
-    {
-      MaxSpread,
-      DirectionOfInterest
-    };
+enum class SurfaceRunInDirectionOf {
+  MaxSpread,
+  DirectionOfInterest
 };
 
 #endif // SURFACEENUMS_H
