@@ -57,5 +57,5 @@ public:
 protected:
   double fireLineIntensity_;
   double midFlameWindSpeed_;
-  double getAirTemperature_;
+  double airTemperature_;
 }
