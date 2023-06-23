@@ -123,3 +123,25 @@ SpeciesMasterTableRecordVector* SIGMortality::getSpeciesRecordVectorForRegionAnd
   SpeciesMasterTableRecordVector *ptr = new SpeciesMasterTableRecordVector(results);
   return ptr;
 }
+
+void SIGMortality::setFirelineIntensity(double firelineIntensity,
+                          FirelineIntensityUnits::FirelineIntensityUnitsEnum firelineIntensityUnits) {
+  fireLineIntensity_ = FirelineIntensityUnits::toBaseUnits(firelineIntensity, firelineIntensityUnits)
+}
+void SIGMortality::setMidFlameWindSpeed(double midFlameWindSpeed, SpeedUnits::SpeedUnitsEnum windSpeedUnits) {
+  midFlameWindSpeed_ = SpeedUnits::toBaseUnits(midFlameWindSpeed, windSpeedUnits);
+}
+void SIGMortality::setAirTemperature(double airTemperature,
+                                     TemperatureUnits::TemperatureUnitsEnum temperatureUnits) {
+  airTemperature_ = TemperatureUnits::toBaseUnits(airTemperature, temperatureUnits);
+}
+
+double SIGMortality::getCalculatedScorchHeight(LengthUnits::LengthUnitsEnum scorchHeightUnits) {
+  return calculateScorchHeight(fireLineIntensity_,
+                               FirelineIntensityUnits::BtusPerFootPerSecond,
+                               midFlameWindSpeed_,
+                               SpeedUnits::FeetPerMinute,
+                               airTemperature_,
+                               TemperatureUnits::Fahrenheit,
+                               scorchHeightUnits);
+}
