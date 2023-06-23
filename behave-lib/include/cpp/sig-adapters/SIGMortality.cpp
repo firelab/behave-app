@@ -141,7 +141,7 @@ double SIGMortality::getCalculatedScorchHeight(LengthUnits::LengthUnitsEnum scor
                                FirelineIntensityUnits::BtusPerFootPerSecond,
                                midFlameWindSpeed_,
                                SpeedUnits::FeetPerMinute,
-                               getAirTemperature_,
+                               airTemperature_,
                                TemperatureUnits::Fahrenheit,
                                scorchHeightUnits);
 }
