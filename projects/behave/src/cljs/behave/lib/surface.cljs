@@ -604,8 +604,8 @@
 (defn setWindSpeed [self windSpeed windSpeedUnits windHeightInputMode]
   (.setWindSpeed self windSpeed windSpeedUnits windHeightInputMode))
 
-(defn setWindUpslopeAlignmentMode [self]
-  (.setWindUpslopeAlignmentMode self))
+(defn setWindUpslopeAlignmentMode [self windUpslopeAlignmentMode]
+  (.setWindUpslopeAlignmentMode self windUpslopeAlignmentMode))
 
 (defn updateSurfaceInputs [self fuelModelNumber moistureOneHour moistureTenHour moistureHundredHour moistureLiveHerbaceous moistureLiveWoody moistureUnits windSpeed windSpeedUnits windHeightInputMode windDirection windAndSpreadOrientationMode slope slopeUnits aspect canopyCover coverUnits canopyHeight canopyHeightUnits crownRatio]
   (.updateSurfaceInputs self fuelModelNumber moistureOneHour moistureTenHour moistureHundredHour moistureLiveHerbaceous moistureLiveWoody moistureUnits windSpeed windSpeedUnits windHeightInputMode windDirection windAndSpreadOrientationMode slope slopeUnits aspect canopyCover coverUnits canopyHeight canopyHeightUnits crownRatio))
