@@ -2365,6 +2365,10 @@ const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getCrownRatio_0(S
   return self->getCrownRatio();
 }
 
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getCalculatedScorchHeight_1(SIGMortality* self, LengthUnits_LengthUnitsEnum scorchHeightUnits) {
+  return self->getCalculatedScorchHeight(scorchHeightUnits);
+}
+
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getDBH_1(SIGMortality* self, LengthUnits_LengthUnitsEnum diameterUnits) {
   return self->getDBH(diameterUnits);
 }
@@ -2485,6 +2489,10 @@ BoolVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getRequiredFieldVe
   return self->getRequiredFieldVector();
 }
 
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setAirTemperature_2(SIGMortality* self, double airTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnits) {
+  self->setAirTemperature(airTemperature, temperatureUnits);
+}
+
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setBeetleDamage_1(SIGMortality* self, BeetleDamage beetleDamage) {
   self->setBeetleDamage(beetleDamage);
 }
@@ -2517,6 +2525,10 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setFireSeverity_1(SIGMort
   self->setFireSeverity(fireSeverity);
 }
 
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setFirelineIntensity_2(SIGMortality* self, double firelineIntensity, FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits) {
+  self->setFirelineIntensity(firelineIntensity, firelineIntensityUnits);
+}
+
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setFlameLengthOrScorchHeightSwitch_1(SIGMortality* self, FlameLengthOrScorchHeightSwitch flameLengthOrScorchHeightSwitch) {
   self->setFlameLengthOrScorchHeightSwitch(flameLengthOrScorchHeightSwitch);
 }
@@ -2527,6 +2539,14 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setFlameLengthOrScorchHei
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setRegion_1(SIGMortality* self, RegionCode region) {
   self->setRegion(region);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setSurfaceFireFlameLength_2(SIGMortality* self, double value, LengthUnits_LengthUnitsEnum lengthUnits) {
+  self->setSurfaceFireFlameLength(value, lengthUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setSurfaceFireScorchHeight_2(SIGMortality* self, double value, LengthUnits_LengthUnitsEnum lengthUnits) {
+  self->setSurfaceFireScorchHeight(value, lengthUnits);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setSpeciesCode_1(SIGMortality* self, char* speciesCode) {

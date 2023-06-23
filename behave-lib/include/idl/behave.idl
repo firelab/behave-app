@@ -1022,6 +1022,7 @@ interface SIGMortality {
   [Const] double getCambiumKillRating();
   [Const] double getCrownDamage();
   [Const] double getCrownRatio();
+  [Const] double getCalculatedScorchHeight(LengthUnits_LengthUnitsEnum scorchHeightUnits);
   [Const] double getDBH(LengthUnits_LengthUnitsEnum diameterUnits);
   [Const] double getFlameLengthOrScorchHeightValue(LengthUnits_LengthUnitsEnum flameLengthOrScorchHeightUnits);
   [Const] double getKilledTrees();
@@ -1052,6 +1053,7 @@ interface SIGMortality {
   [Const] DOMString getScientificNameFromSpeciesCode(DOMString speciesCode);
   [Const] DOMString getSpeciesCodeAtSpeciesTableIndex(long index);
   BoolVector getRequiredFieldVector();
+  void setAirTemperature(double airTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnits);
   void setBeetleDamage(BeetleDamage beetleDamage);
   void setBoleCharHeight(double boleCharHeight, LengthUnits_LengthUnitsEnum boleCharHeightUnits);
   void setCambiumKillRating(double cambiumKillRating);
@@ -1060,9 +1062,12 @@ interface SIGMortality {
   void setDBH(double dbh, LengthUnits_LengthUnitsEnum diameterUnits);
   void setEquationType(EquationType equationType);
   void setFireSeverity(FireSeverity fireSeverity);
+  void setFirelineIntensity(double firelineIntensity, FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits);
   void setFlameLengthOrScorchHeightSwitch(FlameLengthOrScorchHeightSwitch flameLengthOrScorchHeightSwitch);
   void setFlameLengthOrScorchHeightValue(double flameLengthOrScorchHeightValue, LengthUnits_LengthUnitsEnum flameLengthOrScorchHeightUnits);
   void setRegion(RegionCode region);
+  void setSurfaceFireFlameLength(double value, LengthUnits_LengthUnitsEnum lengthUnits);
+  void setSurfaceFireScorchHeight(double value, LengthUnits_LengthUnitsEnum lengthUnits);
   void setSpeciesCode(DOMString speciesCode);
   void setTreeDensityPerUnitArea(double numberOfTrees, AreaUnits_AreaUnitsEnum areaUnits);
   void setTreeHeight(double treeHeight, LengthUnits_LengthUnitsEnum treeHeightUnits);

@@ -23,6 +23,13 @@
     :parameters
     [{:id "treeHeight", :type "double"}
      {:id "treeHeightUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :setAirTemperature
+   {:type "void",
+    :id "setAirTemperature",
+    :parameters
+    [{:id "airTemperature", :type "double"}
+     {:id "temperatureUnits",
+      :type "TemperatureUnits::TemperatureUnitsEnum"}]},
    :getBasalAreaPrefire
    {:type "double", :id "getBasalAreaPrefire", :parameters []},
    :getBoleCharHeight
@@ -146,6 +153,13 @@
    {:type "SpeciesMasterTableRecordVector",
     :id "getSpeciesRecordVectorForRegion",
     :parameters [{:id "region", :type "RegionCode"}]},
+   :setFirelineIntensity
+   {:type "void",
+    :id "setFirelineIntensity",
+    :parameters
+    [{:id "firelineIntensity", :type "double"}
+     {:id "firelineIntensityUnits",
+      :type "FirelineIntensityUnits::FirelineIntensityUnitsEnum"}]},
    :getMortalityEquationNumberFromSpeciesCode
    {:type "int",
     :id "getMortalityEquationNumberFromSpeciesCode",
@@ -184,6 +198,11 @@
      {:id "areaUnits", :type "AreaUnits::AreaUnitsEnum"}]},
    :getEquationType
    {:type "EquationType", :id "getEquationType", :parameters []},
+   :getCalculatedScorchHeight
+   {:type "double",
+    :id "getCalculatedScorchHeight",
+    :parameters
+    [{:id "scorchHeightUnits", :type "LengthUnits::LengthUnitsEnum"}]},
    :getCrownDamage
    {:type "double", :id "getCrownDamage", :parameters []},
    :setSpeciesCode
@@ -219,6 +238,12 @@
     [{:id "boleCharHeight", :type "double"}
      {:id "boleCharHeightUnits",
       :type "LengthUnits::LengthUnitsEnum"}]},
+   :setMidFlameWindSpeed
+   {:type "void",
+    :id "setMidFlameWindSpeed",
+    :parameters
+    [{:id "midFlameWindSpeed", :type "double"}
+     {:id "windSpeedUnits", :type "SpeedUnits::SpeedUnitsEnum"}]},
    :checkIsInRegionFromSpeciesCode
    {:type "bool",
     :id "checkIsInRegionFromSpeciesCode",

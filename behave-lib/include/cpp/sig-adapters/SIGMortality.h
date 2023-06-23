@@ -28,8 +28,7 @@ public:
   void setFirelineIntensity(double firelineIntensity,
                             FirelineIntensityUnits::FirelineIntensityUnitsEnum firelineIntensityUnits);
   void setMidFlameWindSpeed(double midFlameWindSpeed, SpeedUnits::SpeedUnitsEnum windSpeedUnits);
-  void setAirTemperature(double airTemperature, TemperatureUnits::TemperatureUnitsEnum temperatureUnits,
-                         LengthUnits::LengthUnitsEnum scorchHeightUnits);
+  void setAirTemperature(double airTemperature, TemperatureUnits::TemperatureUnitsEnum temperatureUnits);
   bool updateInputsForSpeciesCodeAndEquationType(char *speciesCode, EquationType equationType);
 
   // SIGMortality Getters
@@ -52,10 +51,10 @@ public:
   SpeciesMasterTableRecordVector *getSpeciesRecordVectorForRegion(RegionCode region);
   SpeciesMasterTableRecordVector *getSpeciesRecordVectorForRegionAndEquationType(RegionCode region,
                                                                                  EquationType equationType);
-  double getCalculatedScorchHeight();
+  double getCalculatedScorchHeight(LengthUnits::LengthUnitsEnum scorchHeightUnits);
 
 protected:
   double fireLineIntensity_;
   double midFlameWindSpeed_;
   double airTemperature_;
-}
+};

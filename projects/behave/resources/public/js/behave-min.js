@@ -5715,6 +5715,8 @@ var _emscripten_bind_SIGMortality_getCrownDamage_0 = Module["_emscripten_bind_SI
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getCrownRatio_0 = Module["_emscripten_bind_SIGMortality_getCrownRatio_0"] = createExportWrapper("emscripten_bind_SIGMortality_getCrownRatio_0");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getCalculatedScorchHeight_1 = Module["_emscripten_bind_SIGMortality_getCalculatedScorchHeight_1"] = createExportWrapper("emscripten_bind_SIGMortality_getCalculatedScorchHeight_1");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getDBH_1 = Module["_emscripten_bind_SIGMortality_getDBH_1"] = createExportWrapper("emscripten_bind_SIGMortality_getDBH_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getFlameLengthOrScorchHeightValue_1 = Module["_emscripten_bind_SIGMortality_getFlameLengthOrScorchHeightValue_1"] = createExportWrapper("emscripten_bind_SIGMortality_getFlameLengthOrScorchHeightValue_1");
@@ -5775,6 +5777,8 @@ var _emscripten_bind_SIGMortality_getSpeciesCodeAtSpeciesTableIndex_1 = Module["
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getRequiredFieldVector_0 = Module["_emscripten_bind_SIGMortality_getRequiredFieldVector_0"] = createExportWrapper("emscripten_bind_SIGMortality_getRequiredFieldVector_0");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setAirTemperature_2 = Module["_emscripten_bind_SIGMortality_setAirTemperature_2"] = createExportWrapper("emscripten_bind_SIGMortality_setAirTemperature_2");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_setBeetleDamage_1 = Module["_emscripten_bind_SIGMortality_setBeetleDamage_1"] = createExportWrapper("emscripten_bind_SIGMortality_setBeetleDamage_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_setBoleCharHeight_2 = Module["_emscripten_bind_SIGMortality_setBoleCharHeight_2"] = createExportWrapper("emscripten_bind_SIGMortality_setBoleCharHeight_2");
@@ -5791,11 +5795,17 @@ var _emscripten_bind_SIGMortality_setEquationType_1 = Module["_emscripten_bind_S
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_setFireSeverity_1 = Module["_emscripten_bind_SIGMortality_setFireSeverity_1"] = createExportWrapper("emscripten_bind_SIGMortality_setFireSeverity_1");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setFirelineIntensity_2 = Module["_emscripten_bind_SIGMortality_setFirelineIntensity_2"] = createExportWrapper("emscripten_bind_SIGMortality_setFirelineIntensity_2");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_setFlameLengthOrScorchHeightSwitch_1 = Module["_emscripten_bind_SIGMortality_setFlameLengthOrScorchHeightSwitch_1"] = createExportWrapper("emscripten_bind_SIGMortality_setFlameLengthOrScorchHeightSwitch_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_setFlameLengthOrScorchHeightValue_2 = Module["_emscripten_bind_SIGMortality_setFlameLengthOrScorchHeightValue_2"] = createExportWrapper("emscripten_bind_SIGMortality_setFlameLengthOrScorchHeightValue_2");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_setRegion_1 = Module["_emscripten_bind_SIGMortality_setRegion_1"] = createExportWrapper("emscripten_bind_SIGMortality_setRegion_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setSurfaceFireFlameLength_2 = Module["_emscripten_bind_SIGMortality_setSurfaceFireFlameLength_2"] = createExportWrapper("emscripten_bind_SIGMortality_setSurfaceFireFlameLength_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setSurfaceFireScorchHeight_2 = Module["_emscripten_bind_SIGMortality_setSurfaceFireScorchHeight_2"] = createExportWrapper("emscripten_bind_SIGMortality_setSurfaceFireScorchHeight_2");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_setSpeciesCode_1 = Module["_emscripten_bind_SIGMortality_setSpeciesCode_1"] = createExportWrapper("emscripten_bind_SIGMortality_setSpeciesCode_1");
 /** @type {function(...*):?} */
@@ -10949,6 +10959,12 @@ SIGMortality.prototype['getCrownRatio'] = SIGMortality.prototype.getCrownRatio =
   return _emscripten_bind_SIGMortality_getCrownRatio_0(self);
 };;
 
+SIGMortality.prototype['getCalculatedScorchHeight'] = SIGMortality.prototype.getCalculatedScorchHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(scorchHeightUnits) {
+  var self = this.ptr;
+  if (scorchHeightUnits && typeof scorchHeightUnits === 'object') scorchHeightUnits = scorchHeightUnits.ptr;
+  return _emscripten_bind_SIGMortality_getCalculatedScorchHeight_1(self, scorchHeightUnits);
+};;
+
 SIGMortality.prototype['getDBH'] = SIGMortality.prototype.getDBH = /** @suppress {undefinedVars, duplicate} @this{Object} */function(diameterUnits) {
   var self = this.ptr;
   if (diameterUnits && typeof diameterUnits === 'object') diameterUnits = diameterUnits.ptr;
@@ -11137,6 +11153,13 @@ SIGMortality.prototype['getRequiredFieldVector'] = SIGMortality.prototype.getReq
   return wrapPointer(_emscripten_bind_SIGMortality_getRequiredFieldVector_0(self), BoolVector);
 };;
 
+SIGMortality.prototype['setAirTemperature'] = SIGMortality.prototype.setAirTemperature = /** @suppress {undefinedVars, duplicate} @this{Object} */function(airTemperature, temperatureUnits) {
+  var self = this.ptr;
+  if (airTemperature && typeof airTemperature === 'object') airTemperature = airTemperature.ptr;
+  if (temperatureUnits && typeof temperatureUnits === 'object') temperatureUnits = temperatureUnits.ptr;
+  _emscripten_bind_SIGMortality_setAirTemperature_2(self, airTemperature, temperatureUnits);
+};;
+
 SIGMortality.prototype['setBeetleDamage'] = SIGMortality.prototype.setBeetleDamage = /** @suppress {undefinedVars, duplicate} @this{Object} */function(beetleDamage) {
   var self = this.ptr;
   if (beetleDamage && typeof beetleDamage === 'object') beetleDamage = beetleDamage.ptr;
@@ -11187,6 +11210,13 @@ SIGMortality.prototype['setFireSeverity'] = SIGMortality.prototype.setFireSeveri
   _emscripten_bind_SIGMortality_setFireSeverity_1(self, fireSeverity);
 };;
 
+SIGMortality.prototype['setFirelineIntensity'] = SIGMortality.prototype.setFirelineIntensity = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firelineIntensity, firelineIntensityUnits) {
+  var self = this.ptr;
+  if (firelineIntensity && typeof firelineIntensity === 'object') firelineIntensity = firelineIntensity.ptr;
+  if (firelineIntensityUnits && typeof firelineIntensityUnits === 'object') firelineIntensityUnits = firelineIntensityUnits.ptr;
+  _emscripten_bind_SIGMortality_setFirelineIntensity_2(self, firelineIntensity, firelineIntensityUnits);
+};;
+
 SIGMortality.prototype['setFlameLengthOrScorchHeightSwitch'] = SIGMortality.prototype.setFlameLengthOrScorchHeightSwitch = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameLengthOrScorchHeightSwitch) {
   var self = this.ptr;
   if (flameLengthOrScorchHeightSwitch && typeof flameLengthOrScorchHeightSwitch === 'object') flameLengthOrScorchHeightSwitch = flameLengthOrScorchHeightSwitch.ptr;
@@ -11204,6 +11234,20 @@ SIGMortality.prototype['setRegion'] = SIGMortality.prototype.setRegion = /** @su
   var self = this.ptr;
   if (region && typeof region === 'object') region = region.ptr;
   _emscripten_bind_SIGMortality_setRegion_1(self, region);
+};;
+
+SIGMortality.prototype['setSurfaceFireFlameLength'] = SIGMortality.prototype.setSurfaceFireFlameLength = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, lengthUnits) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  _emscripten_bind_SIGMortality_setSurfaceFireFlameLength_2(self, value, lengthUnits);
+};;
+
+SIGMortality.prototype['setSurfaceFireScorchHeight'] = SIGMortality.prototype.setSurfaceFireScorchHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, lengthUnits) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  _emscripten_bind_SIGMortality_setSurfaceFireScorchHeight_2(self, value, lengthUnits);
 };;
 
 SIGMortality.prototype['setSpeciesCode'] = SIGMortality.prototype.setSpeciesCode = /** @suppress {undefinedVars, duplicate} @this{Object} */function(speciesCode) {
