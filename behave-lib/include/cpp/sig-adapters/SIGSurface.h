@@ -85,10 +85,6 @@ public:
   double getSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits) const;
   double getSpreadDistanceInDirectionOfInterest(LengthUnits::LengthUnitsEnum lengthUnits) const;
 
-  // SurfaceInputs setter Methods
-  void setElapsedTime(double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits);
-
-
   // MoistureScenario Getter Methods
   char* getMoistureScenarioDescriptionByName(const char* name);
   char* getMoistureScenarioNameByIndex(const int index);

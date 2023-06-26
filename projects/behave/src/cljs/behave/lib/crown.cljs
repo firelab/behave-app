@@ -47,11 +47,17 @@
 (defn getCrownFireActiveRatio [self]
   (.getCrownFireActiveRatio self))
 
+(defn getCrownFireArea [self areaUnits]
+  (.getCrownFireArea self areaUnits))
+
+(defn getCrownFirePerimeter [self lengthUnits]
+  (.getCrownFirePerimeter self lengthUnits))
+
 (defn getCrownFireLengthToWidthRatio [self]
   (.getCrownFireLengthToWidthRatio self))
 
-(defn getCrownFireSpreadDistance [self lengthUnits elapsedTime timeUnits]
-  (.getCrownFireSpreadDistance self lengthUnits elapsedTime timeUnits))
+(defn getCrownFireSpreadDistance [self lengthUnits]
+  (.getCrownFireSpreadDistance self lengthUnits))
 
 (defn getCrownFireSpreadRate [self spreadRateUnits]
   (.getCrownFireSpreadRate self spreadRateUnits))
@@ -70,6 +76,9 @@
 
 (defn getCrownTransitionRatio [self]
   (.getCrownTransitionRatio self))
+
+(defn getElapsedTime [self timeUnits]
+  (.getElapsedTime self timeUnits))
 
 (defn getFinalFirelineIntesity [self firelineIntensityUnits]
   (.getFinalFirelineIntesity self firelineIntensityUnits))
@@ -203,8 +212,8 @@
 (defn getSlope [self slopeUnits]
   (.getSlope self slopeUnits))
 
-(defn getSurfaceFireSpreadDistance [self lengthUnits elapsedTime timeUnits]
-  (.getSurfaceFireSpreadDistance self lengthUnits elapsedTime timeUnits))
+(defn getSurfaceFireSpreadDistance [self lengthUnits]
+  (.getSurfaceFireSpreadDistance self lengthUnits))
 
 (defn getSurfaceFireSpreadRate [self spreadRateUnits]
   (.getSurfaceFireSpreadRate self spreadRateUnits))
@@ -256,6 +265,9 @@
 
 (defn setCrownRatio [self crownRatio]
   (.setCrownRatio self crownRatio))
+
+(defn setElapsedTime [self elapsedTime timeUnits]
+  (.setElapsedTime self elapsedTime timeUnits))
 
 (defn setFuelModelNumber [self fuelModelNumber]
   (.setFuelModelNumber self fuelModelNumber))

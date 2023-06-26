@@ -65,6 +65,12 @@ public:
   char* getMoistureScenarioDescriptionByName(const char* name);
   char* getMoistureScenarioNameByIndex(const int index);
   char* getMoistureScenarioDescriptionByIndex(const int index);
+  double getCrownFireSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits) const;
+  double getSurfaceFireSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits) const;
+  double getCrownFireArea(AreaUnits::AreaUnitsEnum areaUnits) const;
+  double getCrownFirePerimeter(LengthUnits::LengthUnitsEnum lengthUnits) const;
+  void setElapsedTime(double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits);
+  double getElapsedTime(TimeUnits::TimeUnitsEnum timeUnits);
 
 private:
   CrownFireCalculationMethod crownFireCalculationMethod_;

@@ -65,6 +65,10 @@
     :parameters
     [{:id "heatOfCombustionUnits",
       :type "HeatOfCombustionUnits::HeatOfCombustionUnitsEnum"}]},
+   :getElapsedTime
+   {:type "double",
+    :id "getElapsedTime",
+    :parameters [{:id "timeUnits", :type "TimeUnits::TimeUnitsEnum"}]},
    :getPalmettoGallberryMoistureOfExtinctionDead
    {:type "double",
     :id "getPalmettoGallberryMoistureOfExtinctionDead",
@@ -300,6 +304,8 @@
     :parameters
     [{:id "chaparralFuelBedDepth", :type "double"}
      {:id "depthUnts", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getPackingRatio
+   {:type "double", :id "getPackingRatio", :parameters []},
    :setMoistureTenHour
    {:type "void",
     :id "setMoistureTenHour",
@@ -352,6 +358,8 @@
     :parameters
     [{:id "chaparralFuelType",
       :type "ChaparralFuelType::ChaparralFuelTypeEnum"}]},
+   :getRelativePackingRatio
+   {:type "double", :id "getRelativePackingRatio", :parameters []},
    :getChaparralLoadLiveStemsLessThanQuaterInch
    {:type "double",
     :id "getChaparralLoadLiveStemsLessThanQuaterInch",

@@ -1089,6 +1089,10 @@ const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getDirectionOfInter
   return self->getDirectionOfInterest();
 }
 
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getElapsedTime_1(SIGSurface* self, TimeUnits_TimeUnitsEnum timeUnits) {
+  return self->getElapsedTime(timeUnits);
+}
+
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getEllipticalA_1(SIGSurface* self, LengthUnits_LengthUnitsEnum lengthUnits) {
   return self->getEllipticalA(lengthUnits);
 }
@@ -1815,27 +1819,27 @@ FireType_FireTypeEnum EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFireType_
   return self->getFireType();
 }
 
-bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getIsMoistureScenarioDefinedByIndex_1(SIGCrown* self, int index) {
+const bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getIsMoistureScenarioDefinedByIndex_1(SIGCrown* self, int index) {
   return self->getIsMoistureScenarioDefinedByIndex(index);
 }
 
-bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getIsMoistureScenarioDefinedByName_1(SIGCrown* self, const char* name) {
+const bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getIsMoistureScenarioDefinedByName_1(SIGCrown* self, const char* name) {
   return self->getIsMoistureScenarioDefinedByName(name);
 }
 
-bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_isAllFuelLoadZero_1(SIGCrown* self, int fuelModelNumber) {
+const bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_isAllFuelLoadZero_1(SIGCrown* self, int fuelModelNumber) {
   return self->isAllFuelLoadZero(fuelModelNumber);
 }
 
-bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_isFuelDynamic_1(SIGCrown* self, int fuelModelNumber) {
+const bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_isFuelDynamic_1(SIGCrown* self, int fuelModelNumber) {
   return self->isFuelDynamic(fuelModelNumber);
 }
 
-bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_isFuelModelDefined_1(SIGCrown* self, int fuelModelNumber) {
+const bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_isFuelModelDefined_1(SIGCrown* self, int fuelModelNumber) {
   return self->isFuelModelDefined(fuelModelNumber);
 }
 
-bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_isFuelModelReserved_1(SIGCrown* self, int fuelModelNumber) {
+const bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_isFuelModelReserved_1(SIGCrown* self, int fuelModelNumber) {
   return self->isFuelModelReserved(fuelModelNumber);
 }
 
@@ -1847,231 +1851,243 @@ bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setMoistureScenarioByName_1(S
   return self->setMoistureScenarioByName(moistureScenarioName);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getAspect_0(SIGCrown* self) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getAspect_0(SIGCrown* self) {
   return self->getAspect();
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCanopyBaseHeight_1(SIGCrown* self, LengthUnits_LengthUnitsEnum canopyHeightUnits) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCanopyBaseHeight_1(SIGCrown* self, LengthUnits_LengthUnitsEnum canopyHeightUnits) {
   return self->getCanopyBaseHeight(canopyHeightUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCanopyBulkDensity_1(SIGCrown* self, DensityUnits_DensityUnitsEnum canopyBulkDensityUnits) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCanopyBulkDensity_1(SIGCrown* self, DensityUnits_DensityUnitsEnum canopyBulkDensityUnits) {
   return self->getCanopyBulkDensity(canopyBulkDensityUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCanopyCover_1(SIGCrown* self, CoverUnits_CoverUnitsEnum canopyCoverUnits) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCanopyCover_1(SIGCrown* self, CoverUnits_CoverUnitsEnum canopyCoverUnits) {
   return self->getCanopyCover(canopyCoverUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCanopyHeight_1(SIGCrown* self, LengthUnits_LengthUnitsEnum canopyHeighUnits) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCanopyHeight_1(SIGCrown* self, LengthUnits_LengthUnitsEnum canopyHeighUnits) {
   return self->getCanopyHeight(canopyHeighUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCriticalOpenWindSpeed_1(SIGCrown* self, SpeedUnits_SpeedUnitsEnum speedUnits) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCriticalOpenWindSpeed_1(SIGCrown* self, SpeedUnits_SpeedUnitsEnum speedUnits) {
   return self->getCriticalOpenWindSpeed(speedUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCrownCriticalFireSpreadRate_1(SIGCrown* self, SpeedUnits_SpeedUnitsEnum spreadRateUnits) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCrownCriticalFireSpreadRate_1(SIGCrown* self, SpeedUnits_SpeedUnitsEnum spreadRateUnits) {
   return self->getCrownCriticalFireSpreadRate(spreadRateUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCrownCriticalSurfaceFirelineIntensity_1(SIGCrown* self, FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCrownCriticalSurfaceFirelineIntensity_1(SIGCrown* self, FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits) {
   return self->getCrownCriticalSurfaceFirelineIntensity(firelineIntensityUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCrownCriticalSurfaceFlameLength_1(SIGCrown* self, LengthUnits_LengthUnitsEnum flameLengthUnits) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCrownCriticalSurfaceFlameLength_1(SIGCrown* self, LengthUnits_LengthUnitsEnum flameLengthUnits) {
   return self->getCrownCriticalSurfaceFlameLength(flameLengthUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCrownFireActiveRatio_0(SIGCrown* self) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCrownFireActiveRatio_0(SIGCrown* self) {
   return self->getCrownFireActiveRatio();
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCrownTransitionRatio_0(SIGCrown* self) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCrownFireArea_1(SIGCrown* self, AreaUnits_AreaUnitsEnum areaUnits) {
+  return self->getCrownFireArea(areaUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCrownFirePerimeter_1(SIGCrown* self, LengthUnits_LengthUnitsEnum lengthUnits) {
+  return self->getCrownFirePerimeter(lengthUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCrownTransitionRatio_0(SIGCrown* self) {
   return self->getCrownTransitionRatio();
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCrownFireLengthToWidthRatio_0(SIGCrown* self) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCrownFireLengthToWidthRatio_0(SIGCrown* self) {
   return self->getCrownFireLengthToWidthRatio();
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCrownFireSpreadDistance_3(SIGCrown* self, LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits_TimeUnitsEnum timeUnits) {
-  return self->getCrownFireSpreadDistance(lengthUnits, elapsedTime, timeUnits);
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCrownFireSpreadDistance_1(SIGCrown* self, LengthUnits_LengthUnitsEnum lengthUnits) {
+  return self->getCrownFireSpreadDistance(lengthUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCrownFireSpreadRate_1(SIGCrown* self, SpeedUnits_SpeedUnitsEnum spreadRateUnits) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCrownFireSpreadRate_1(SIGCrown* self, SpeedUnits_SpeedUnitsEnum spreadRateUnits) {
   return self->getCrownFireSpreadRate(spreadRateUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCrownFirelineIntensity_1(SIGCrown* self, FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCrownFirelineIntensity_1(SIGCrown* self, FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits) {
   return self->getCrownFirelineIntensity(firelineIntensityUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCrownFlameLength_1(SIGCrown* self, LengthUnits_LengthUnitsEnum flameLengthUnits) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCrownFlameLength_1(SIGCrown* self, LengthUnits_LengthUnitsEnum flameLengthUnits) {
   return self->getCrownFlameLength(flameLengthUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCrownFractionBurned_0(SIGCrown* self) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCrownFractionBurned_0(SIGCrown* self) {
   return self->getCrownFractionBurned();
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCrownRatio_0(SIGCrown* self) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCrownRatio_0(SIGCrown* self) {
   return self->getCrownRatio();
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFinalFirelineIntesity_1(SIGCrown* self, FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getElapsedTime_1(SIGCrown* self, TimeUnits_TimeUnitsEnum timeUnits) {
+  return self->getElapsedTime(timeUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFinalFirelineIntesity_1(SIGCrown* self, FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits) {
   return self->getFinalFirelineIntesity(firelineIntensityUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFinalHeatPerUnitArea_1(SIGCrown* self, HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum heatPerUnitAreaUnits) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFinalHeatPerUnitArea_1(SIGCrown* self, HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum heatPerUnitAreaUnits) {
   return self->getFinalHeatPerUnitArea(heatPerUnitAreaUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFinalSpreadRate_1(SIGCrown* self, SpeedUnits_SpeedUnitsEnum spreadRateUnits) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFinalSpreadRate_1(SIGCrown* self, SpeedUnits_SpeedUnitsEnum spreadRateUnits) {
   return self->getFinalSpreadRate(spreadRateUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelHeatOfCombustionDead_2(SIGCrown* self, int fuelModelNumber, HeatOfCombustionUnits_HeatOfCombustionUnitsEnum heatOfCombustionUnits) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelHeatOfCombustionDead_2(SIGCrown* self, int fuelModelNumber, HeatOfCombustionUnits_HeatOfCombustionUnitsEnum heatOfCombustionUnits) {
   return self->getFuelHeatOfCombustionDead(fuelModelNumber, heatOfCombustionUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelHeatOfCombustionLive_2(SIGCrown* self, int fuelModelNumber, HeatOfCombustionUnits_HeatOfCombustionUnitsEnum heatOfCombustionUnits) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelHeatOfCombustionLive_2(SIGCrown* self, int fuelModelNumber, HeatOfCombustionUnits_HeatOfCombustionUnitsEnum heatOfCombustionUnits) {
   return self->getFuelHeatOfCombustionLive(fuelModelNumber, heatOfCombustionUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelLoadHundredHour_2(SIGCrown* self, int fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelLoadHundredHour_2(SIGCrown* self, int fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits) {
   return self->getFuelLoadHundredHour(fuelModelNumber, loadingUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelLoadLiveHerbaceous_2(SIGCrown* self, int fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelLoadLiveHerbaceous_2(SIGCrown* self, int fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits) {
   return self->getFuelLoadLiveHerbaceous(fuelModelNumber, loadingUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelLoadLiveWoody_2(SIGCrown* self, int fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelLoadLiveWoody_2(SIGCrown* self, int fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits) {
   return self->getFuelLoadLiveWoody(fuelModelNumber, loadingUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelLoadOneHour_2(SIGCrown* self, int fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelLoadOneHour_2(SIGCrown* self, int fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits) {
   return self->getFuelLoadOneHour(fuelModelNumber, loadingUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelLoadTenHour_2(SIGCrown* self, int fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelLoadTenHour_2(SIGCrown* self, int fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits) {
   return self->getFuelLoadTenHour(fuelModelNumber, loadingUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelMoistureOfExtinctionDead_2(SIGCrown* self, int fuelModelNumber, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelMoistureOfExtinctionDead_2(SIGCrown* self, int fuelModelNumber, MoistureUnits_MoistureUnitsEnum moistureUnits) {
   return self->getFuelMoistureOfExtinctionDead(fuelModelNumber, moistureUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelSavrLiveHerbaceous_2(SIGCrown* self, int fuelModelNumber, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum savrUnits) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelSavrLiveHerbaceous_2(SIGCrown* self, int fuelModelNumber, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum savrUnits) {
   return self->getFuelSavrLiveHerbaceous(fuelModelNumber, savrUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelSavrLiveWoody_2(SIGCrown* self, int fuelModelNumber, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum savrUnits) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelSavrLiveWoody_2(SIGCrown* self, int fuelModelNumber, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum savrUnits) {
   return self->getFuelSavrLiveWoody(fuelModelNumber, savrUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelSavrOneHour_2(SIGCrown* self, int fuelModelNumber, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum savrUnits) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelSavrOneHour_2(SIGCrown* self, int fuelModelNumber, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum savrUnits) {
   return self->getFuelSavrOneHour(fuelModelNumber, savrUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelbedDepth_2(SIGCrown* self, int fuelModelNumber, LengthUnits_LengthUnitsEnum lengthUnits) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelbedDepth_2(SIGCrown* self, int fuelModelNumber, LengthUnits_LengthUnitsEnum lengthUnits) {
   return self->getFuelbedDepth(fuelModelNumber, lengthUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureFoliar_1(SIGCrown* self, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureFoliar_1(SIGCrown* self, MoistureUnits_MoistureUnitsEnum moistureUnits) {
   return self->getMoistureFoliar(moistureUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureHundredHour_1(SIGCrown* self, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureHundredHour_1(SIGCrown* self, MoistureUnits_MoistureUnitsEnum moistureUnits) {
   return self->getMoistureHundredHour(moistureUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureLiveHerbaceous_1(SIGCrown* self, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureLiveHerbaceous_1(SIGCrown* self, MoistureUnits_MoistureUnitsEnum moistureUnits) {
   return self->getMoistureLiveHerbaceous(moistureUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureLiveWoody_1(SIGCrown* self, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureLiveWoody_1(SIGCrown* self, MoistureUnits_MoistureUnitsEnum moistureUnits) {
   return self->getMoistureLiveWoody(moistureUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureOneHour_1(SIGCrown* self, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureOneHour_1(SIGCrown* self, MoistureUnits_MoistureUnitsEnum moistureUnits) {
   return self->getMoistureOneHour(moistureUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByIndex_1(SIGCrown* self, int index) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByIndex_1(SIGCrown* self, int index) {
   return self->getMoistureScenarioHundredHourByIndex(index);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByName_1(SIGCrown* self, const char* name) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByName_1(SIGCrown* self, const char* name) {
   return self->getMoistureScenarioHundredHourByName(name);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByIndex_1(SIGCrown* self, int index) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByIndex_1(SIGCrown* self, int index) {
   return self->getMoistureScenarioLiveHerbaceousByIndex(index);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByName_1(SIGCrown* self, const char* name) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByName_1(SIGCrown* self, const char* name) {
   return self->getMoistureScenarioLiveHerbaceousByName(name);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByIndex_1(SIGCrown* self, int index) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByIndex_1(SIGCrown* self, int index) {
   return self->getMoistureScenarioLiveWoodyByIndex(index);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByName_1(SIGCrown* self, const char* name) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByName_1(SIGCrown* self, const char* name) {
   return self->getMoistureScenarioLiveWoodyByName(name);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioOneHourByIndex_1(SIGCrown* self, int index) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioOneHourByIndex_1(SIGCrown* self, int index) {
   return self->getMoistureScenarioOneHourByIndex(index);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioOneHourByName_1(SIGCrown* self, const char* name) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioOneHourByName_1(SIGCrown* self, const char* name) {
   return self->getMoistureScenarioOneHourByName(name);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioTenHourByIndex_1(SIGCrown* self, int index) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioTenHourByIndex_1(SIGCrown* self, int index) {
   return self->getMoistureScenarioTenHourByIndex(index);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioTenHourByName_1(SIGCrown* self, const char* name) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioTenHourByName_1(SIGCrown* self, const char* name) {
   return self->getMoistureScenarioTenHourByName(name);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureTenHour_1(SIGCrown* self, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureTenHour_1(SIGCrown* self, MoistureUnits_MoistureUnitsEnum moistureUnits) {
   return self->getMoistureTenHour(moistureUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getSlope_1(SIGCrown* self, SlopeUnits_SlopeUnitsEnum slopeUnits) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getSlope_1(SIGCrown* self, SlopeUnits_SlopeUnitsEnum slopeUnits) {
   return self->getSlope(slopeUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getSurfaceFireSpreadDistance_3(SIGCrown* self, LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits_TimeUnitsEnum timeUnits) {
-  return self->getSurfaceFireSpreadDistance(lengthUnits, elapsedTime, timeUnits);
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getSurfaceFireSpreadDistance_1(SIGCrown* self, LengthUnits_LengthUnitsEnum lengthUnits) {
+  return self->getSurfaceFireSpreadDistance(lengthUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getSurfaceFireSpreadRate_1(SIGCrown* self, SpeedUnits_SpeedUnitsEnum spreadRateUnits) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getSurfaceFireSpreadRate_1(SIGCrown* self, SpeedUnits_SpeedUnitsEnum spreadRateUnits) {
   return self->getSurfaceFireSpreadRate(spreadRateUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getWindDirection_0(SIGCrown* self) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getWindDirection_0(SIGCrown* self) {
   return self->getWindDirection();
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getWindSpeed_2(SIGCrown* self, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getWindSpeed_2(SIGCrown* self, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode) {
   return self->getWindSpeed(windSpeedUnits, windHeightInputMode);
 }
 
-int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelModelNumber_0(SIGCrown* self) {
+const int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelModelNumber_0(SIGCrown* self) {
   return self->getFuelModelNumber();
 }
 
-int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioIndexByName_1(SIGCrown* self, const char* name) {
+const int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioIndexByName_1(SIGCrown* self, const char* name) {
   return self->getMoistureScenarioIndexByName(name);
 }
 
-int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getNumberOfMoistureScenarios_0(SIGCrown* self) {
+const int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getNumberOfMoistureScenarios_0(SIGCrown* self) {
   return self->getNumberOfMoistureScenarios();
 }
 
@@ -2137,6 +2153,10 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setFuelModelNumber_1(SIGCrown
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setCrownFireCalculationMethod_1(SIGCrown* self, CrownFireCalculationMethod CrownFireCalculationMethod) {
   self->setCrownFireCalculationMethod(CrownFireCalculationMethod);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setElapsedTime_2(SIGCrown* self, double elapsedTime, TimeUnits_TimeUnitsEnum timeUnits) {
+  self->setElapsedTime(elapsedTime, timeUnits);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setFuelModels_1(SIGCrown* self, SIGFuelModels* fuelModels) {

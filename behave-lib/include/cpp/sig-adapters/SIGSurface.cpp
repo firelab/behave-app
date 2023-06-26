@@ -160,9 +160,6 @@ double SIGSurface::getSpreadDistanceInDirectionOfInterest(LengthUnits::LengthUni
   return Surface::getSpreadDistanceInDirectionOfInterest(lengthUnits, elapsedTime, TimeUnits::Minutes);
 }
 
-void SIGSurface::setElapsedTime(double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits) {
-  surfaceInputs_.setElapsedTime(elapsedTime, timeUnits);
-}
 char* SIGSurface::getMoistureScenarioDescriptionByName(const char* name) {
   return SIGString::str2charptr(Surface::getMoistureScenarioDescriptionByName(std::string(name)));
 }

@@ -154,6 +154,9 @@
 (defn getDirectionOfMaxSpread [self]
   (.getDirectionOfMaxSpread self))
 
+(defn getElapsedTime [self timeUnits]
+  (.getElapsedTime self timeUnits))
+
 (defn getEllipticalA [self lengthUnits]
   (.getEllipticalA self lengthUnits))
 

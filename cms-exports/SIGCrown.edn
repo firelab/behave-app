@@ -69,6 +69,10 @@
    {:type "double",
     :id "getMoistureScenarioLiveHerbaceousByIndex",
     :parameters [{:id "index", :type "int"}]},
+   :getElapsedTime
+   {:type "double",
+    :id "getElapsedTime",
+    :parameters [{:id "timeUnits", :type "TimeUnits::TimeUnitsEnum"}]},
    :getFuelModelNumber
    {:type "int", :id "getFuelModelNumber", :parameters []},
    :setWindHeightInputMode
@@ -186,13 +190,17 @@
    {:type "double",
     :id "getCrownFirePerimeter",
     :parameters
-    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}
-     {:id "elapsedTime", :type "double"}
-     {:id "timeUnits", :type "TimeUnits::TimeUnitsEnum"}]},
+    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
    :isAllFuelLoadZero
    {:type "bool",
     :id "isAllFuelLoadZero",
     :parameters [{:id "fuelModelNumber", :type "int"}]},
+   :setElapsedTime
+   {:type "void",
+    :id "setElapsedTime",
+    :parameters
+    [{:id "elapsedTime", :type "double"}
+     {:id "timeUnits", :type "TimeUnits::TimeUnitsEnum"}]},
    :getFinalHeatPerUnitArea
    {:type "double",
     :id "getFinalHeatPerUnitArea",
@@ -279,9 +287,7 @@
    {:type "double",
     :id "getCrownFireSpreadDistance",
     :parameters
-    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}
-     {:id "elapsedTime", :type "double"}
-     {:id "timeUnits", :type "TimeUnits::TimeUnitsEnum"}]},
+    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
    :getMoistureLiveHerbaceous
    {:type "double",
     :id "getMoistureLiveHerbaceous",
@@ -468,9 +474,7 @@
    {:type "double",
     :id "getSurfaceFireSpreadDistance",
     :parameters
-    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}
-     {:id "elapsedTime", :type "double"}
-     {:id "timeUnits", :type "TimeUnits::TimeUnitsEnum"}]},
+    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
    :setWindSpeed
    {:type "void",
     :id "setWindSpeed",
@@ -530,10 +534,7 @@
    :getCrownFireArea
    {:type "double",
     :id "getCrownFireArea",
-    :parameters
-    [{:id "areaUnits", :type "AreaUnits::AreaUnitsEnum"}
-     {:id "elapsedTime", :type "double"}
-     {:id "timeUnits", :type "TimeUnits::TimeUnitsEnum"}]},
+    :parameters [{:id "areaUnits", :type "AreaUnits::AreaUnitsEnum"}]},
    :setMoistureScenarioByIndex
    {:type "bool",
     :id "setMoistureScenarioByIndex",

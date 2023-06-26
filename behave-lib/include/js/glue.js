@@ -1902,6 +1902,12 @@ SIGSurface.prototype['getDirectionOfInterest'] = SIGSurface.prototype.getDirecti
   return _emscripten_bind_SIGSurface_getDirectionOfInterest_0(self);
 };;
 
+SIGSurface.prototype['getElapsedTime'] = SIGSurface.prototype.getElapsedTime = /** @suppress {undefinedVars, duplicate} @this{Object} */function(timeUnits) {
+  var self = this.ptr;
+  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
+  return _emscripten_bind_SIGSurface_getElapsedTime_1(self, timeUnits);
+};;
+
 SIGSurface.prototype['getEllipticalA'] = SIGSurface.prototype.getEllipticalA = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
   var self = this.ptr;
   if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
@@ -3212,6 +3218,18 @@ SIGCrown.prototype['getCrownFireActiveRatio'] = SIGCrown.prototype.getCrownFireA
   return _emscripten_bind_SIGCrown_getCrownFireActiveRatio_0(self);
 };;
 
+SIGCrown.prototype['getCrownFireArea'] = SIGCrown.prototype.getCrownFireArea = /** @suppress {undefinedVars, duplicate} @this{Object} */function(areaUnits) {
+  var self = this.ptr;
+  if (areaUnits && typeof areaUnits === 'object') areaUnits = areaUnits.ptr;
+  return _emscripten_bind_SIGCrown_getCrownFireArea_1(self, areaUnits);
+};;
+
+SIGCrown.prototype['getCrownFirePerimeter'] = SIGCrown.prototype.getCrownFirePerimeter = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
+  var self = this.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  return _emscripten_bind_SIGCrown_getCrownFirePerimeter_1(self, lengthUnits);
+};;
+
 SIGCrown.prototype['getCrownTransitionRatio'] = SIGCrown.prototype.getCrownTransitionRatio = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   return _emscripten_bind_SIGCrown_getCrownTransitionRatio_0(self);
@@ -3222,12 +3240,10 @@ SIGCrown.prototype['getCrownFireLengthToWidthRatio'] = SIGCrown.prototype.getCro
   return _emscripten_bind_SIGCrown_getCrownFireLengthToWidthRatio_0(self);
 };;
 
-SIGCrown.prototype['getCrownFireSpreadDistance'] = SIGCrown.prototype.getCrownFireSpreadDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
+SIGCrown.prototype['getCrownFireSpreadDistance'] = SIGCrown.prototype.getCrownFireSpreadDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
   var self = this.ptr;
   if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
-  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
-  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
-  return _emscripten_bind_SIGCrown_getCrownFireSpreadDistance_3(self, lengthUnits, elapsedTime, timeUnits);
+  return _emscripten_bind_SIGCrown_getCrownFireSpreadDistance_1(self, lengthUnits);
 };;
 
 SIGCrown.prototype['getCrownFireSpreadRate'] = SIGCrown.prototype.getCrownFireSpreadRate = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spreadRateUnits) {
@@ -3256,6 +3272,12 @@ SIGCrown.prototype['getCrownFractionBurned'] = SIGCrown.prototype.getCrownFracti
 SIGCrown.prototype['getCrownRatio'] = SIGCrown.prototype.getCrownRatio = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   return _emscripten_bind_SIGCrown_getCrownRatio_0(self);
+};;
+
+SIGCrown.prototype['getElapsedTime'] = SIGCrown.prototype.getElapsedTime = /** @suppress {undefinedVars, duplicate} @this{Object} */function(timeUnits) {
+  var self = this.ptr;
+  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
+  return _emscripten_bind_SIGCrown_getElapsedTime_1(self, timeUnits);
 };;
 
 SIGCrown.prototype['getFinalFirelineIntesity'] = SIGCrown.prototype.getFinalFirelineIntesity = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firelineIntensityUnits) {
@@ -3472,12 +3494,10 @@ SIGCrown.prototype['getSlope'] = SIGCrown.prototype.getSlope = /** @suppress {un
   return _emscripten_bind_SIGCrown_getSlope_1(self, slopeUnits);
 };;
 
-SIGCrown.prototype['getSurfaceFireSpreadDistance'] = SIGCrown.prototype.getSurfaceFireSpreadDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
+SIGCrown.prototype['getSurfaceFireSpreadDistance'] = SIGCrown.prototype.getSurfaceFireSpreadDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
   var self = this.ptr;
   if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
-  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
-  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
-  return _emscripten_bind_SIGCrown_getSurfaceFireSpreadDistance_3(self, lengthUnits, elapsedTime, timeUnits);
+  return _emscripten_bind_SIGCrown_getSurfaceFireSpreadDistance_1(self, lengthUnits);
 };;
 
 SIGCrown.prototype['getSurfaceFireSpreadRate'] = SIGCrown.prototype.getSurfaceFireSpreadRate = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spreadRateUnits) {
@@ -3613,6 +3633,13 @@ SIGCrown.prototype['setCrownFireCalculationMethod'] = SIGCrown.prototype.setCrow
   var self = this.ptr;
   if (CrownFireCalculationMethod && typeof CrownFireCalculationMethod === 'object') CrownFireCalculationMethod = CrownFireCalculationMethod.ptr;
   _emscripten_bind_SIGCrown_setCrownFireCalculationMethod_1(self, CrownFireCalculationMethod);
+};;
+
+SIGCrown.prototype['setElapsedTime'] = SIGCrown.prototype.setElapsedTime = /** @suppress {undefinedVars, duplicate} @this{Object} */function(elapsedTime, timeUnits) {
+  var self = this.ptr;
+  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
+  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
+  _emscripten_bind_SIGCrown_setElapsedTime_2(self, elapsedTime, timeUnits);
 };;
 
 SIGCrown.prototype['setFuelModels'] = SIGCrown.prototype.setFuelModels = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModels) {
