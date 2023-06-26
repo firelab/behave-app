@@ -368,6 +368,16 @@
         ["WindAdjustmentFactorShelterMethod::Unsheltered"
          "WindAdjustmentFactorShelterMethod::Sheltered"]))
 
+(def wind-upslope-alignmentMode
+  (enum "WindUpslopeAlignmentMode"
+        ["WindUpslopeAlignmentMode::NotAligned"
+         "WindUpslopeAlignmentMode::Aligned"]))
+
+(def surface-run-in-direction-of
+  (enum "SurfaceRunInDirectionOf"
+        ["SurfaceRunInDirectionOf::MaxSpread"
+         "SurfaceRunInDirectionOf::DirectionOfInterest"]))
+
 (def wind-and-spread-orientation-mode
   (enum "WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum"
         ["WindAndSpreadOrientationMode::RelativeToUpslope"
