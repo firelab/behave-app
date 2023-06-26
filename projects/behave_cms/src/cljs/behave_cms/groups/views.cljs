@@ -4,6 +4,7 @@
             [data-utils.interface :refer [parse-int]]
             [string-utils.interface :refer [->str]]
             [behave-cms.components.common          :refer [accordion simple-table window]]
+            [behave-cms.components.conditionals    :refer [conditionals-table manage-conditionals]]
             [behave-cms.components.entity-form     :refer [entity-form]]
             [behave-cms.components.sidebar         :refer [sidebar sidebar-width]]
             [behave-cms.components.translations    :refer [all-translations]]
@@ -40,8 +41,10 @@
        :on-decrease #(rf/dispatch [:api/reorder % @groups :group/order :dec])}]]))
 
 (defn list-groups-page [{submodule-id :id}]
-  (let [submodule      (rf/subscribe [:entity submodule-id '[* {:module/_submodules [*]}]])
-        sidebar-groups (rf/subscribe [:sidebar/groups submodule-id])]
+  (let [submodule           (rf/subscribe [:entity submodule-id '[* {:module/_submodules [*]}]])
+        sidebar-groups      (rf/subscribe [:sidebar/groups submodule-id])
+        var-conditionals    (rf/subscribe [:submodule/variable-conditionals submodule-id])
+        module-conditionals (rf/subscribe [:submodule/module-conditionals submodule-id])]
     [:<>
      [sidebar
       "Groups"
@@ -56,6 +59,14 @@
         "Groups"
         [groups-table @submodule]
         [manage-group @submodule]]
+       [:hr]
+       ^{:key "conditionals"}
+       [accordion
+        "Conditionals"
+        [:div.col-6
+         [conditionals-table submodule-id (concat @var-conditionals @module-conditionals) :submodule/conditionals :submodule/conditionals-operator]]
+        [:div.col-6
+         [manage-conditionals submodule-id :submodule/conditionals]]]
        [:hr]
        [accordion
         "Translations"
