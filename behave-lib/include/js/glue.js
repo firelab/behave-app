@@ -3274,12 +3274,6 @@ SIGCrown.prototype['getCrownRatio'] = SIGCrown.prototype.getCrownRatio = /** @su
   return _emscripten_bind_SIGCrown_getCrownRatio_0(self);
 };;
 
-SIGCrown.prototype['getElapsedTime'] = SIGCrown.prototype.getElapsedTime = /** @suppress {undefinedVars, duplicate} @this{Object} */function(timeUnits) {
-  var self = this.ptr;
-  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
-  return _emscripten_bind_SIGCrown_getElapsedTime_1(self, timeUnits);
-};;
-
 SIGCrown.prototype['getFinalFirelineIntesity'] = SIGCrown.prototype.getFinalFirelineIntesity = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firelineIntensityUnits) {
   var self = this.ptr;
   if (firelineIntensityUnits && typeof firelineIntensityUnits === 'object') firelineIntensityUnits = firelineIntensityUnits.ptr;

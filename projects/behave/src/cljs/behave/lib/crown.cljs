@@ -77,9 +77,6 @@
 (defn getCrownTransitionRatio [self]
   (.getCrownTransitionRatio self))
 
-(defn getElapsedTime [self timeUnits]
-  (.getElapsedTime self timeUnits))
-
 (defn getFinalFirelineIntesity [self firelineIntensityUnits]
   (.getFinalFirelineIntesity self firelineIntensityUnits))
 

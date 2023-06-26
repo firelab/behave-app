@@ -1931,10 +1931,6 @@ const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getCrownRatio_0(SIGCr
   return self->getCrownRatio();
 }
 
-const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getElapsedTime_1(SIGCrown* self, TimeUnits_TimeUnitsEnum timeUnits) {
-  return self->getElapsedTime(timeUnits);
-}
-
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFinalFirelineIntesity_1(SIGCrown* self, FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits) {
   return self->getFinalFirelineIntesity(firelineIntensityUnits);
 }

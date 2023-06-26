@@ -905,7 +905,6 @@ interface SIGCrown {
   [Const] double getCrownFlameLength(LengthUnits_LengthUnitsEnum flameLengthUnits);
   [Const] double getCrownFractionBurned();
   [Const] double getCrownRatio();
-  [Const] double getElapsedTime(TimeUnits_TimeUnitsEnum timeUnits);
   [Const] double getFinalFirelineIntesity(FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits);
   [Const] double getFinalHeatPerUnitArea(HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum heatPerUnitAreaUnits);
   [Const] double getFinalSpreadRate(SpeedUnits_SpeedUnitsEnum spreadRateUnits);

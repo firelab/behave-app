@@ -70,7 +70,6 @@ public:
   double getCrownFireArea(AreaUnits::AreaUnitsEnum areaUnits) const;
   double getCrownFirePerimeter(LengthUnits::LengthUnitsEnum lengthUnits) const;
   void setElapsedTime(double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits);
-  double getElapsedTime(TimeUnits::TimeUnitsEnum timeUnits);
 
 private:
   CrownFireCalculationMethod crownFireCalculationMethod_;

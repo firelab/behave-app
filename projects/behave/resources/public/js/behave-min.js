@@ -5501,8 +5501,6 @@ var _emscripten_bind_SIGCrown_getCrownFractionBurned_0 = Module["_emscripten_bin
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_getCrownRatio_0 = Module["_emscripten_bind_SIGCrown_getCrownRatio_0"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownRatio_0");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGCrown_getElapsedTime_1 = Module["_emscripten_bind_SIGCrown_getElapsedTime_1"] = createExportWrapper("emscripten_bind_SIGCrown_getElapsedTime_1");
-/** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_getFinalFirelineIntesity_1 = Module["_emscripten_bind_SIGCrown_getFinalFirelineIntesity_1"] = createExportWrapper("emscripten_bind_SIGCrown_getFinalFirelineIntesity_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_getFinalHeatPerUnitArea_1 = Module["_emscripten_bind_SIGCrown_getFinalHeatPerUnitArea_1"] = createExportWrapper("emscripten_bind_SIGCrown_getFinalHeatPerUnitArea_1");
@@ -10216,12 +10214,6 @@ SIGCrown.prototype['getCrownFractionBurned'] = SIGCrown.prototype.getCrownFracti
 SIGCrown.prototype['getCrownRatio'] = SIGCrown.prototype.getCrownRatio = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   return _emscripten_bind_SIGCrown_getCrownRatio_0(self);
-};;
-
-SIGCrown.prototype['getElapsedTime'] = SIGCrown.prototype.getElapsedTime = /** @suppress {undefinedVars, duplicate} @this{Object} */function(timeUnits) {
-  var self = this.ptr;
-  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
-  return _emscripten_bind_SIGCrown_getElapsedTime_1(self, timeUnits);
 };;
 
 SIGCrown.prototype['getFinalFirelineIntesity'] = SIGCrown.prototype.getFinalFirelineIntesity = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firelineIntensityUnits) {

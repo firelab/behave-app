@@ -130,7 +130,3 @@ void SIGCrown::setElapsedTime(double elapsedTime, TimeUnits::TimeUnitsEnum timeU
 {
   surfaceFuel_.setElapsedTime(elapsedTime, timeUnits);
 }
-
-double SIGCrown::getElapsedTime(TimeUnits::TimeUnitsEnum timeUnits) {
-  return surfaceFuel_.getElapsedTime(timeUnits);
-}
