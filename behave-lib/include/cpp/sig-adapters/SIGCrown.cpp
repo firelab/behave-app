@@ -126,11 +126,11 @@ double SIGCrown::getCrownFirePerimeter(LengthUnits::LengthUnitsEnum lengthUnits)
   return Crown::getCrownFirePerimeter(lengthUnits, elapsedTime, TimeUnits::Minutes);
 }
 
-void Crown::setElapsedTime(double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits)
+void SIGCrown::setElapsedTime(double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits)
 {
   surfaceFuel_.setElapsedTime(elapsedTime, timeUnits);
 }
 
-double Crown::getElapsedTime(TimeUnits::TimeUnitsEnum timeUnits) {
+double SIGCrown::getElapsedTime(TimeUnits::TimeUnitsEnum timeUnits) {
   return surfaceFuel_.getElapsedTime(timeUnits);
 }
