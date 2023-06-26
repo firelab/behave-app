@@ -105,3 +105,28 @@ char* SIGCrown::getMoistureScenarioNameByIndex(const int index) {
 char* SIGCrown::getMoistureScenarioDescriptionByIndex(const int index) {
   return SIGString::str2charptr(Crown::getMoistureScenarioDescriptionByIndex(index));
 }
+
+double SIGCrown::getSurfaceFireSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits) const {
+  double elapsedTime = surfaceFuel_.getElapsedTime(TimeUnits::Minutes);
+  return Crown::getSurfaceFireSpreadDistance(lengthUnits, elapsedTime, TimeUnits::Minutes);
+}
+
+double SIGCrown::getCrownFireSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits) const {
+  double elapsedTime = surfaceFuel_.getElapsedTime(TimeUnits::Minutes);
+  return Crown::getCrownFireSpreadDistance(lengthUnits, elapsedTime, TimeUnits::Minutes);
+}
+
+double SIGCrown::getCrownFireArea(AreaUnits::AreaUnitsEnum areaUnits) const {
+  double elapsedTime = surfaceFuel_.getElapsedTime(TimeUnits::Minutes);
+  return Crown::getCrownFireArea(areaUnits, elapsedTime, TimeUnits::Minutes);
+}
+
+double SIGCrown::getCrownFirePerimeter(LengthUnits::LengthUnitsEnum lengthUnits) const {
+  double elapsedTime = surfaceFuel_.getElapsedTime(TimeUnits::Minutes);
+  return Crown::getCrownFirePerimeter(lengthUnits, elapsedTime, TimeUnits::Minutes);
+}
+
+void SIGCrown::setElapsedTime(double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits)
+{
+  surfaceFuel_.setElapsedTime(elapsedTime, timeUnits);
+}

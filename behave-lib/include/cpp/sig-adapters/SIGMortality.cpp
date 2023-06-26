@@ -126,7 +126,7 @@ SpeciesMasterTableRecordVector* SIGMortality::getSpeciesRecordVectorForRegionAnd
 
 void SIGMortality::setFirelineIntensity(double firelineIntensity,
                           FirelineIntensityUnits::FirelineIntensityUnitsEnum firelineIntensityUnits) {
-  fireLineIntensity_ = FirelineIntensityUnits::toBaseUnits(firelineIntensity, firelineIntensityUnits)
+  fireLineIntensity_ = FirelineIntensityUnits::toBaseUnits(firelineIntensity, firelineIntensityUnits);
 }
 void SIGMortality::setMidFlameWindSpeed(double midFlameWindSpeed, SpeedUnits::SpeedUnitsEnum windSpeedUnits) {
   midFlameWindSpeed_ = SpeedUnits::toBaseUnits(midFlameWindSpeed, windSpeedUnits);
