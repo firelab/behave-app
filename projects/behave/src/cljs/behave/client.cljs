@@ -1,7 +1,7 @@
 (ns ^:figwheel-hooks behave.client
   (:require [reagent.dom               :refer [render]]
             [re-frame.core             :as rf]
-                                        ; [re-frisk.core             :as re-frisk]
+            ;; [re-frisk.core             :as re-frisk]
             [behave.components.sidebar :refer [sidebar]]
             [behave.components.toolbar :refer [toolbar]]
             [behave.components.modal :refer [modal]]

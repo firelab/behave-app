@@ -31,7 +31,8 @@
     (store/connect! config)))
 
 (defn vms-sync! []
-  (export-from-vms (get-config :vms :secret-token)))
+  (export-from-vms (get-config :vms :secret-token)
+                   (get-config :vms :url)))
 
 (defn vms-sync-handler [req]
   (log-str "Request Received:" (select-keys req [:uri :request-method :params]))

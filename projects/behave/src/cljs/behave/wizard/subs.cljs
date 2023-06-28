@@ -1,8 +1,8 @@
 (ns behave.wizard.subs
   (:require [clojure.string         :as str]
             [clojure.set            :refer [rename-keys]]
-            [re-frame.core          :refer [reg-sub subscribe]]
-            [string-utils.interface :refer [->kebab]]))
+            [re-frame.core          :refer [reg-sub subscribe] :as rf]
+            [string-utils.interface :refer [->kebab]])
 
 ;;; Helpers
 
@@ -60,25 +60,35 @@
       (or (first (filter (partial matching-submodule? io slug) submodules))
           (first (if (= :input io) inputs outputs))))))
 
-(reg-sub
-  :wizard/groups
-  (fn [[_ submodule-id]]
-    (subscribe [:vms/pull-children
-                :submodule/groups
-                submodule-id
-                '[* {:group/group-variables [* {:variable/_group-variables [*]}]}]]))
+(defn edit-groups [group]
+  (when group
+    (cond-> group
+      (seq (:group/group-variables group))
+      (assoc :group/group-variables
+             (mapv #(let [variable-data (rename-keys (first (:variable/_group-variables %))
+                                                     {:bp/uuid :variable/uuid})]
+                      (-> %
+                          (dissoc :variable/_group-variables)
+                          (merge variable-data)
+                          (dissoc :variable/group-variables)
+                          (update :variable/kind keyword)))
+                   (:group/group-variables group)))
 
-  (fn [groups]
-    (mapv (fn [group]
-            (assoc group
-                   :group/group-variables
-                   (mapv #(let [variable-data (rename-keys (first (:variable/_group-variables %))
-                                                           {:bp/uuid :variable/uuid})]
-                            (-> %
-                                (dissoc :variable/_group-variables)
-                                (merge variable-data)
-                                (dissoc :variable/group-variables)
-                                (update :variable/kind keyword))) (:group/group-variables group)))) groups)))
+      (seq (:group/children group))
+      (assoc :group/children
+             (map edit-groups (:group/children group))))))
+
+(reg-sub
+ :wizard/groups
+ (fn [[_ submodule-id]]
+   (subscribe [:vms/pull-children
+               :submodule/groups
+               submodule-id
+               '[* {:group/group-variables [* {:variable/_group-variables [*]}]}
+                 {:group/children 6}]])) ;; recursively apply pattern up to 6 levels deep
+
+ (fn [groups]
+   (mapv edit-groups groups)))
 
 (reg-sub
  :wizard/multi-value-input-count

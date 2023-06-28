@@ -21,21 +21,23 @@
 
 ;;; Components
 
+(defn build-output-groups [ws-uuid groups component-fn]
+  (when groups
+    [:<>
+     (for [group groups]
+       (let [variables (:group/group-variables group)]
+         ^{:key (:db/id group)}
+         [:<>
+          [component-fn ws-uuid group variables]
+          (build-output-groups ws-uuid (:group/children group) component-fn)]))]))
+
 (defmulti submodule-page (fn [io _ _] io))
 
-(defmethod submodule-page :input [_ ws-uuid groups on-back on-next]
-  [:<>
-   (for [group groups]
-     (let [variables (:group/group-variables group)]
-       ^{:key (:db/id group)}
-       [input-group ws-uuid group variables]))])
+(defmethod submodule-page :input [_ ws-uuid groups]
+  [:<> (build-output-groups ws-uuid groups input-group)])
 
-(defmethod submodule-page :output [_ ws-uuid groups on-back on-next]
-  [:<>
-   (for [group groups]
-     (let [variables (:group/group-variables group)]
-       ^{:key (:db/id group)}
-       [output-group ws-uuid group variables]))])
+(defmethod submodule-page :output [_ ws-uuid groups]
+  [:<> (build-output-groups ws-uuid groups output-group)])
 
 (defn- io-tabs [submodules {:keys [io] :as params}]
   (let [[i-subs o-subs] (partition-by #(:submodule/io %) submodules)
@@ -126,6 +128,7 @@
                             :display-submodule-headers? false})))]))
 
 (defn wizard-page [{:keys [module io submodule route-handler ws-uuid] :as params}]
+  (prn params)
   (let [_                        (dispatch [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
         *module                  (subscribe [:wizard/*module module])
         module-id                (:db/id @*module)
@@ -167,7 +170,7 @@
                                                     (name (:submodule/io @*submodule))
                                                     %])}])]
          (wizard-notes @*notes)])
-      [submodule-page io ws-uuid @*groups on-back on-next]
+      [submodule-page io ws-uuid @*groups]
       (when (true? @*warn-limit?)
         [:div.wizard-warning
          (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])]
