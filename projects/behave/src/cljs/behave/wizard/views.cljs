@@ -128,7 +128,6 @@
                             :display-submodule-headers? false})))]))
 
 (defn wizard-page [{:keys [module io submodule route-handler ws-uuid] :as params}]
-  (prn params)
   (let [_                        (dispatch [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
         *module                  (subscribe [:wizard/*module module])
         module-id                (:db/id @*module)
