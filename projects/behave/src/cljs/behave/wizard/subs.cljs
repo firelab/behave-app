@@ -2,7 +2,7 @@
   (:require [clojure.string         :as str]
             [clojure.set            :refer [rename-keys]]
             [re-frame.core          :refer [reg-sub subscribe] :as rf]
-            [string-utils.interface :refer [->kebab]])
+            [string-utils.interface :refer [->kebab]]))
 
 ;;; Helpers
 
