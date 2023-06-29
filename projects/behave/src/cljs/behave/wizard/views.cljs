@@ -25,14 +25,12 @@
   (when groups
     [:<>
      (doall
-      (for [{variables    :group/group-variables
-             conditionals :group/conditionals
-             :as          group} groups]
-        (let [show-group? @(subscribe [:wizard/show-group? ws-uuid conditionals])]
+      (for [group groups]
+        (let [show-group?    @(subscribe [:wizard/show-group? ws-uuid (:db/id group)])]
           ^{:key (:db/id group)}
           (when show-group?
             [:<>
-             [component-fn ws-uuid group variables]
+             [component-fn ws-uuid group (:group/group-variables group)]
              [:div.wizard-subgroup__indent
               (build-groups ws-uuid (:group/children group) component-fn)]]))))]))
 

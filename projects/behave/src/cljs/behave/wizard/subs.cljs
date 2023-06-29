@@ -220,10 +220,6 @@
 
          [(name module-kw) (:slug (first submodules))])))))
 
-(def op->fn
-  {:equal (fn [values] #(= % (first values)))
-   :in    (fn [values] #(contains? values %))})
-
 (def str->bool
   {"true"  true
    "false" false})
@@ -239,15 +235,21 @@
           values  :conditional/values} conditional
          enabled?                      @(subscribe [:worksheet/output-enabled? ws-uuid gv-uuid])]
      (case op
-       :equal (= (str->bool (first values)) enabled?)))))
+       :equal     (= (str->bool (first values)) enabled?)
+       :not-equal (not= (str->bool (first values)) enabled?)))))
 
 (reg-sub
  :wizard/show-group?
- (fn [_ [_ ws-uuid conditionals]]
-   (println "conditionals:" conditionals)
-   (if (seq conditionals)
-     (every? true?
-             (map #(deref (subscribe [:wizard/resolve-conditional ws-uuid (:db/id %)])) conditionals))
+ (fn [[_ _ws-uuid group-id]]
+   (subscribe [:vms/entity-from-eid group-id]))
+
+ (fn [group [_ ws-uuid _group-id]]
+   (if-let [conditional-ids (->> (:group/conditionals group)
+                                 (map :db/id)
+                                 seq)]
+     (if (= (:group/conditionals-operator group) :or)
+       (some true? (map #(deref (subscribe [:wizard/resolve-conditional ws-uuid %])) conditional-ids))
+       (every? true? (map #(deref (subscribe [:wizard/resolve-conditional ws-uuid %])) conditional-ids)))
      true)))
 
 (comment
