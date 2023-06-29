@@ -21,7 +21,7 @@
 
 ;;; Components
 
-(defn build-output-groups [ws-uuid groups component-fn]
+(defn build-groups [ws-uuid groups component-fn]
   (when groups
     [:<>
      (for [group groups]
@@ -30,15 +30,15 @@
          [:<>
           [component-fn ws-uuid group variables]
           [:div.wizard-subgroup__indent
-           (build-output-groups ws-uuid (:group/children group) component-fn)]]))]))
+           (build-groups ws-uuid (:group/children group) component-fn)]]))]))
 
 (defmulti submodule-page (fn [io _ _] io))
 
 (defmethod submodule-page :input [_ ws-uuid groups]
-  [:<> (build-output-groups ws-uuid groups input-group)])
+  [:<> (build-groups ws-uuid groups input-group)])
 
 (defmethod submodule-page :output [_ ws-uuid groups]
-  [:<> (build-output-groups ws-uuid groups output-group)])
+  [:<> (build-groups ws-uuid groups output-group)])
 
 (defn- io-tabs [submodules {:keys [io] :as params}]
   (let [[i-subs o-subs] (partition-by #(:submodule/io %) submodules)
