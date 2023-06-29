@@ -363,6 +363,10 @@ body {
   background-color: var(--darkblue-4);
 }
 
+.wizard-subgroup__indent {
+  padding-left: 10px;
+}
+
 .wizard-page__body {
   overflow-x: scroll;
   overflow-y: scroll;

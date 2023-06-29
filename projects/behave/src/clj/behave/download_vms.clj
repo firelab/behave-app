@@ -6,7 +6,7 @@
 (defn export-from-vms [auth-token & [url]]
   (log-str "Beginning download from VMS...")
   (let [{:keys [status body] :as response}
-        (client/get (or url (str "https://behave.sig-gis.com/sync?auth-token=" auth-token))
+        (client/get (str (or url "https://behave.sig-gis.com") "/sync?auth-token=" auth-token)
                     {:as      :byte-array
                      :headers {"Accept" "application/msgpack"}})
         file (io/file (io/resource "public") "layout.msgpack")]
