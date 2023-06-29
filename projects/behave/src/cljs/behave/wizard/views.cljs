@@ -24,13 +24,17 @@
 (defn build-groups [ws-uuid groups component-fn]
   (when groups
     [:<>
-     (for [group groups]
-       (let [variables (:group/group-variables group)]
-         ^{:key (:db/id group)}
-         [:<>
-          [component-fn ws-uuid group variables]
-          [:div.wizard-subgroup__indent
-           (build-groups ws-uuid (:group/children group) component-fn)]]))]))
+     (doall
+      (for [{variables    :group/group-variables
+             conditionals :group/conditionals
+             :as          group} groups]
+        (let [show-group? @(subscribe [:wizard/show-group? ws-uuid conditionals])]
+          ^{:key (:db/id group)}
+          (when show-group?
+            [:<>
+             [component-fn ws-uuid group variables]
+             [:div.wizard-subgroup__indent
+              (build-groups ws-uuid (:group/children group) component-fn)]]))))]))
 
 (defmulti submodule-page (fn [io _ _] io))
 

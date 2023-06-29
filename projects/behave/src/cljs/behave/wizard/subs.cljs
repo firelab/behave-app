@@ -2,7 +2,9 @@
   (:require [clojure.string         :as str]
             [clojure.set            :refer [rename-keys]]
             [re-frame.core          :refer [reg-sub subscribe] :as rf]
-            [string-utils.interface :refer [->kebab]]))
+            [string-utils.interface :refer [->kebab]]
+            [datascript.core :as d]
+            [behave.vms.store :refer [vms-conn]]))
 
 ;;; Helpers
 
@@ -217,3 +219,48 @@
              submodules      (if (= io :input) i-subs o-subs)]
 
          [(name module-kw) (:slug (first submodules))])))))
+
+(def op->fn
+  {:equal (fn [values] #(= % (first values)))
+   :in    (fn [values] #(contains? values %))})
+
+(def str->bool
+  {"true"  true
+   "false" false})
+
+(reg-sub
+ :wizard/resolve-conditional
+ (fn [[_ _ eid]]
+   (subscribe [:vms/entity-from-eid eid]))
+
+ (fn [conditional [_ ws-uuid _conditional-id]]
+   (let [{gv-uuid :conditional/group-variable-uuid
+          op      :conditional/operator
+          values  :conditional/values} conditional
+         enabled?                      @(subscribe [:worksheet/output-enabled? ws-uuid gv-uuid])]
+     (case op
+       :equal (= (str->bool (first values)) enabled?)))))
+
+(reg-sub
+ :wizard/show-group?
+ (fn [_ [_ ws-uuid conditionals]]
+   (println "conditionals:" conditionals)
+   (if (seq conditionals)
+     (every? true?
+             (map #(deref (subscribe [:wizard/resolve-conditional ws-uuid (:db/id %)])) conditionals))
+     true)))
+
+(comment
+  (clear! :wizard/show-group?)
+
+  (clear! :wizard/resolve-conditional)
+
+  @(subscribe [:wizard/show-group? "649d7d69-ffff-40f8-8aa7-55d07eb9dbe7" [3536]])
+
+  @(subscribe [:wizard/resolve-conditional
+               "649d7d69-ffff-40f8-8aa7-55d07eb9dbe7" 3536])
+
+  @(subscribe [:worksheet/output-enabled?
+               "649d7d69-ffff-40f8-8aa7-55d07eb9dbe7" "b7873139-659e-4475-8d41-0cf6c36da893"])
+
+  )

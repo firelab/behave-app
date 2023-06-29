@@ -4,6 +4,9 @@
 
 (defn wizard-output [ws-uuid {uuid :bp/uuid var-name :variable/name help-key :group-variable/help-key}]
   (let [checked? (rf/subscribe [:worksheet/output-enabled? ws-uuid uuid])]
+    ;; (when checked?
+    ;;   (println "Variable checked for: worksheet" ws-uuid)
+    ;;   (println "uuid:" uuid))
     [:div.wizard-output {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
      [c/checkbox {:label     var-name
                   :checked?  @checked?
