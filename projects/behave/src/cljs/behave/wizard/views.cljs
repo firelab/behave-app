@@ -29,7 +29,8 @@
          ^{:key (:db/id group)}
          [:<>
           [component-fn ws-uuid group variables]
-          (build-output-groups ws-uuid (:group/children group) component-fn)]))]))
+          [:div.wizard-subgroup__indent
+           (build-output-groups ws-uuid (:group/children group) component-fn)]]))]))
 
 (defmulti submodule-page (fn [io _ _] io))
 
