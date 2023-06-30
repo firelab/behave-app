@@ -113,6 +113,12 @@
                :from-key         :Mortality
                :to-key           :SIGMortality})
 
+  (cms-import {:behave-file      "~/work/code/hatchet/behave-mirror/spot.edn"
+               :sig-adapter-file "~/work/code/hatchet/sig-adapters/SIGSpot.edn"
+               :out-file-name    "SIGSpot.edn"
+               :from-key         :Spot
+               :to-key           :SIGSpot})
+
   ;;; Add exports to CMS db
   (require '[behave-cms.server :refer [init-datahike!]])
 
