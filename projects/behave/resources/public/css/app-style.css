@@ -48,6 +48,14 @@ body {
   padding: 170px 0px 40px;
 }
 
+.page .modal{
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
 /* -- End Page -- */
 
 /* -- Sidebar Container -- */
@@ -365,6 +373,10 @@ body {
   padding: 5px 18px;
   color: black;
   background-color: white;
+}
+
+.wizard-subgroup__indent {
+  padding-left: 10px;
 }
 
 .wizard-page__body {

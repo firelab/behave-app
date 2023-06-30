@@ -1,0 +1,288 @@
+{:global
+ {:SIGSpot
+  {:setTreeHeight
+   {:type "void",
+    :id "setTreeHeight",
+    :parameters
+    [{:id "treeHeight", :type "double"}
+     {:id "treeHeightUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :setDownwindCanopyMode
+   {:type "void",
+    :id "setDownwindCanopyMode",
+    :parameters
+    [{:id "downwindCanopyMode",
+      :type "SpotDownWindCanopyMode::SpotDownWindCanopyModeEnum"}]},
+   :getMaxFlatTerrainSpottingDistanceFromSurfaceFire
+   {:type "double",
+    :id "getMaxFlatTerrainSpottingDistanceFromSurfaceFire",
+    :parameters
+    [{:id "spottingDistanceUnits",
+      :type "LengthUnits::LengthUnitsEnum"}]},
+   :getFlameHeightForTorchingTrees
+   {:type "double",
+    :id "getFlameHeightForTorchingTrees",
+    :parameters
+    [{:id "flameHeightUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getBurningPileFlameHeight
+   {:type "double",
+    :id "getBurningPileFlameHeight",
+    :parameters
+    [{:id "flameHeightUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getCoverHeightUsedForTorchingTrees
+   {:type "double",
+    :id "getCoverHeightUsedForTorchingTrees",
+    :parameters
+    [{:id "coverHeightUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :setWindSpeedAtTwentyFeet
+   {:type "void",
+    :id "setWindSpeedAtTwentyFeet",
+    :parameters
+    [{:id "windSpeedAtTwentyFeet", :type "double"}
+     {:id "windSpeedUnits", :type "SpeedUnits::SpeedUnitsEnum"}]},
+   :setDownwindCoverHeight
+   {:type "void",
+    :id "setDownwindCoverHeight",
+    :parameters
+    [{:id "downwindCoverHeight", :type "double"}
+     {:id "coverHeightUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getDBH
+   {:type "double",
+    :id "getDBH",
+    :parameters
+    [{:id "DBHUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getMaxFirebrandHeightFromBurningPile
+   {:type "double",
+    :id "getMaxFirebrandHeightFromBurningPile",
+    :parameters
+    [{:id "firebrandHeightUnits",
+      :type "LengthUnits::LengthUnitsEnum"}]},
+   :setTorchingTrees
+   {:type "void",
+    :id "setTorchingTrees",
+    :parameters [{:id "torchingTrees", :type "int"}]},
+   :getFlameRatioForTorchingTrees
+   {:type "double",
+    :id "getFlameRatioForTorchingTrees",
+    :parameters []},
+   :getMaxFirebrandHeightFromTorchingTrees
+   {:type "double",
+    :id "getMaxFirebrandHeightFromTorchingTrees",
+    :parameters
+    [{:id "firebrandHeightUnits",
+      :type "LengthUnits::LengthUnitsEnum"}]},
+   :getMaxFirebrandHeightFromSurfaceFire
+   {:type "double",
+    :id "getMaxFirebrandHeightFromSurfaceFire",
+    :parameters
+    [{:id "firebrandHeightUnits",
+      :type "LengthUnits::LengthUnitsEnum"}]},
+   :updateSpotInputsForTorchingTrees
+   {:type "void",
+    :id "updateSpotInputsForTorchingTrees",
+    :parameters
+    [{:id "location", :type "SpotFireLocation::SpotFireLocationEnum"}
+     {:id "ridgeToValleyDistance", :type "double"}
+     {:id "ridgeToValleyDistanceUnits",
+      :type "LengthUnits::LengthUnitsEnum"}
+     {:id "ridgeToValleyElevation", :type "double"}
+     {:id "elevationUnits", :type "LengthUnits::LengthUnitsEnum"}
+     {:id "downwindCoverHeight", :type "double"}
+     {:id "coverHeightUnits", :type "LengthUnits::LengthUnitsEnum"}
+     {:id "downwindCanopyMode",
+      :type "SpotDownWindCanopyMode::SpotDownWindCanopyModeEnum"}
+     {:id "torchingTrees", :type "int"}
+     {:id "DBH", :type "double"}
+     {:id "DBHUnits", :type "LengthUnits::LengthUnitsEnum"}
+     {:id "treeHeight", :type "double"}
+     {:id "treeHeightUnits", :type "LengthUnits::LengthUnitsEnum"}
+     {:id "treeSpecies", :type "SpotTreeSpecies::SpotTreeSpeciesEnum"}
+     {:id "windSpeedAtTwentyFeet", :type "double"}
+     {:id "windSpeedUnits", :type "SpeedUnits::SpeedUnitsEnum"}]},
+   :setTreeSpecies
+   {:type "void",
+    :id "setTreeSpecies",
+    :parameters
+    [{:id "treeSpecies",
+      :type "SpotTreeSpecies::SpotTreeSpeciesEnum"}]},
+   :calculateSpottingDistanceFromSurfaceFire
+   {:type "void",
+    :id "calculateSpottingDistanceFromSurfaceFire",
+    :parameters []},
+   :updateSpotInputsForBurningPile
+   {:type "void",
+    :id "updateSpotInputsForBurningPile",
+    :parameters
+    [{:id "location", :type "SpotFireLocation::SpotFireLocationEnum"}
+     {:id "ridgeToValleyDistance", :type "double"}
+     {:id "ridgeToValleyDistanceUnits",
+      :type "LengthUnits::LengthUnitsEnum"}
+     {:id "ridgeToValleyElevation", :type "double"}
+     {:id "elevationUnits", :type "LengthUnits::LengthUnitsEnum"}
+     {:id "downwindCoverHeight", :type "double"}
+     {:id "coverHeightUnits", :type "LengthUnits::LengthUnitsEnum"}
+     {:id "downwindCanopyMode",
+      :type "SpotDownWindCanopyMode::SpotDownWindCanopyModeEnum"}
+     {:id "buringPileFlameHeight", :type "double"}
+     {:id "flameHeightUnits", :type "LengthUnits::LengthUnitsEnum"}
+     {:id "windSpeedAtTwentyFeet", :type "double"}
+     {:id "windSpeedUnits", :type "SpeedUnits::SpeedUnitsEnum"}]},
+   :getCoverHeightUsedForSurfaceFire
+   {:type "double",
+    :id "getCoverHeightUsedForSurfaceFire",
+    :parameters
+    [{:id "coverHeightUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :setRidgeToValleyDistance
+   {:type "void",
+    :id "setRidgeToValleyDistance",
+    :parameters
+    [{:id "ridgeToValleyDistance", :type "double"}
+     {:id "ridgeToValleyDistanceUnits",
+      :type "LengthUnits::LengthUnitsEnum"}]},
+   :operator=
+   {:type "Spot",
+    :id "operator=",
+    :parameters [{:id "rhs", :type "Spot"}]},
+   :calculateSpottingDistanceFromBurningPile
+   {:type "void",
+    :id "calculateSpottingDistanceFromBurningPile",
+    :parameters []},
+   :getTorchingTrees
+   {:type "int", :id "getTorchingTrees", :parameters []},
+   :getMaxMountainousTerrainSpottingDistanceFromTorchingTrees
+   {:type "double",
+    :id "getMaxMountainousTerrainSpottingDistanceFromTorchingTrees",
+    :parameters
+    [{:id "spottingDistanceUnits",
+      :type "LengthUnits::LengthUnitsEnum"}]},
+   :getMaxFlatTerrainSpottingDistanceFromBurningPile
+   {:type "double",
+    :id "getMaxFlatTerrainSpottingDistanceFromBurningPile",
+    :parameters
+    [{:id "spottingDistanceUnits",
+      :type "LengthUnits::LengthUnitsEnum"}]},
+   :getDownwindCoverHeight
+   {:type "double",
+    :id "getDownwindCoverHeight",
+    :parameters
+    [{:id "coverHeightUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getMaxMountainousTerrainSpottingDistanceFromBurningPile
+   {:type "double",
+    :id "getMaxMountainousTerrainSpottingDistanceFromBurningPile",
+    :parameters
+    [{:id "spottingDistanceUnits",
+      :type "LengthUnits::LengthUnitsEnum"}]},
+   :getRidgeToValleyDistance
+   {:type "double",
+    :id "getRidgeToValleyDistance",
+    :parameters
+    [{:id "ridgeToValleyDistanceUnits",
+      :type "LengthUnits::LengthUnitsEnum"}]},
+   :getSurfaceFlameLength
+   {:type "double",
+    :id "getSurfaceFlameLength",
+    :parameters
+    [{:id "surfaceFlameLengthUnits",
+      :type "LengthUnits::LengthUnitsEnum"}]},
+   :getWindSpeedAtTwentyFeet
+   {:type "double",
+    :id "getWindSpeedAtTwentyFeet",
+    :parameters
+    [{:id "windSpeedUnits", :type "SpeedUnits::SpeedUnitsEnum"}]},
+   :initializeMembers
+   {:type "void", :id "initializeMembers", :parameters []},
+   :updateSpotInputsForSurfaceFire
+   {:type "void",
+    :id "updateSpotInputsForSurfaceFire",
+    :parameters
+    [{:id "location", :type "SpotFireLocation::SpotFireLocationEnum"}
+     {:id "ridgeToValleyDistance", :type "double"}
+     {:id "ridgeToValleyDistanceUnits",
+      :type "LengthUnits::LengthUnitsEnum"}
+     {:id "ridgeToValleyElevation", :type "double"}
+     {:id "elevationUnits", :type "LengthUnits::LengthUnitsEnum"}
+     {:id "downwindCoverHeight", :type "double"}
+     {:id "coverHeightUnits", :type "LengthUnits::LengthUnitsEnum"}
+     {:id "downwindCanopyMode",
+      :type "SpotDownWindCanopyMode::SpotDownWindCanopyModeEnum"}
+     {:id "windSpeedAtTwentyFeet", :type "double"}
+     {:id "windSpeedUnits", :type "SpeedUnits::SpeedUnitsEnum"}
+     {:id "flameLength", :type "double"}
+     {:id "flameLengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getTreeHeight
+   {:type "double",
+    :id "getTreeHeight",
+    :parameters
+    [{:id "treeHeightUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :setBurningPileFlameHeight
+   {:type "void",
+    :id "setBurningPileFlameHeight",
+    :parameters
+    [{:id "buringPileflameHeight", :type "double"}
+     {:id "flameHeightUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getMaxFlatTerrainSpottingDistanceFromTorchingTrees
+   {:type "double",
+    :id "getMaxFlatTerrainSpottingDistanceFromTorchingTrees",
+    :parameters
+    [{:id "spottingDistanceUnits",
+      :type "LengthUnits::LengthUnitsEnum"}]},
+   :getMaxMountainousTerrainSpottingDistanceFromSurfaceFire
+   {:type "double",
+    :id "getMaxMountainousTerrainSpottingDistanceFromSurfaceFire",
+    :parameters
+    [{:id "spottingDistanceUnits",
+      :type "LengthUnits::LengthUnitsEnum"}]},
+   :getLocation
+   {:type "SpotFireLocation::SpotFireLocationEnum",
+    :id "getLocation",
+    :parameters []},
+   :setRidgeToValleyElevation
+   {:type "void",
+    :id "setRidgeToValleyElevation",
+    :parameters
+    [{:id "ridgeToValleyElevation", :type "double"}
+     {:id "elevationUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getCoverHeightUsedForBurningPile
+   {:type "double",
+    :id "getCoverHeightUsedForBurningPile",
+    :parameters
+    [{:id "coverHeightUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :calculateSpottingDistanceFromTorchingTrees
+   {:type "void",
+    :id "calculateSpottingDistanceFromTorchingTrees",
+    :parameters []},
+   :setDBH
+   {:type "void",
+    :id "setDBH",
+    :parameters
+    [{:id "DBH", :type "double"}
+     {:id "DBHUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getDownwindCanopyMode
+   {:type "SpotDownWindCanopyMode::SpotDownWindCanopyModeEnum",
+    :id "getDownwindCanopyMode",
+    :parameters []},
+   :getTreeSpecies
+   {:type "SpotTreeSpecies::SpotTreeSpeciesEnum",
+    :id "getTreeSpecies",
+    :parameters []},
+   :setLocation
+   {:type "void",
+    :id "setLocation",
+    :parameters
+    [{:id "location",
+      :type "SpotFireLocation::SpotFireLocationEnum"}]},
+   :getFlameDurationForTorchingTrees
+   {:type "double",
+    :id "getFlameDurationForTorchingTrees",
+    :parameters
+    [{:id "durationUnits", :type "TimeUnits::TimeUnitsEnum"}]},
+   :setFlameLength
+   {:type "void",
+    :id "setFlameLength",
+    :parameters
+    [{:id "flameLength", :type "double"}
+     {:id "flameLengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getRidgeToValleyElevation
+   {:type "double",
+    :id "getRidgeToValleyElevation",
+    :parameters
+    [{:id "elevationUnits", :type "LengthUnits::LengthUnitsEnum"}]}}}}
