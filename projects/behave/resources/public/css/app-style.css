@@ -372,6 +372,7 @@ body {
 .wizard-group--level-2 > .wizard-group__header {
   padding: 5px 18px;
   color: black;
+  font-weight: var(--font-weight-500);
   background-color: white;
 }
 

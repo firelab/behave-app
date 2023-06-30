@@ -501,7 +501,10 @@ FireSize.prototype['getHeadingToBackingRatio'] = FireSize.prototype.getHeadingTo
 
 FireSize.prototype['getMaxFireWidth'] = FireSize.prototype.getMaxFireWidth = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
   var self = this.ptr;
-  return _emscripten_bind_FireSize_getFireLengthToWidthRatio_0(self);
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
+  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
+  return _emscripten_bind_FireSize_getMaxFireWidth_3(self, lengthUnits, elapsedTime, timeUnits);
 };;
 
 FireSize.prototype['calculateFireBasicDimensions'] = FireSize.prototype.calculateFireBasicDimensions = /** @suppress {undefinedVars, duplicate} @this{Object} */function(isCrown, effectiveWindSpeed, windSpeedRateUnits, forwardSpreadRate, spreadRateUnits) {
@@ -1504,6 +1507,11 @@ SIGSurface.prototype['getAspenFireSeverity'] = SIGSurface.prototype.getAspenFire
 SIGSurface.prototype['getChaparralFuelType'] = SIGSurface.prototype.getChaparralFuelType = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   return _emscripten_bind_SIGSurface_getChaparralFuelType_0(self);
+};;
+
+SIGSurface.prototype['getMoistureInputMode'] = SIGSurface.prototype.getMoistureInputMode = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGSurface_getMoistureInputMode_0(self);
 };;
 
 SIGSurface.prototype['getWindAdjustmentFactorCalculationMethod'] = SIGSurface.prototype.getWindAdjustmentFactorCalculationMethod = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {

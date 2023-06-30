@@ -1,7 +1,7 @@
 
 #include <emscripten.h>
 
-EM_JS_DEPS(webidl_binder, "$intArrayFromString");
+EM_JS_DEPS(webidl_binder, "$intArrayFromString,$UTF8ToString");
 
 extern "C" {
 
@@ -823,6 +823,10 @@ AspenFireSeverity_AspenFireSeverityEnum EMSCRIPTEN_KEEPALIVE emscripten_bind_SIG
 
 ChaparralFuelType_ChaparralFuelTypeEnum EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getChaparralFuelType_0(SIGSurface* self) {
   return self->getChaparralFuelType();
+}
+
+MoistureInputMode_MoistureInputModeEnum EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureInputMode_0(SIGSurface* self) {
+  return self->getMoistureInputMode();
 }
 
 WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getWindAdjustmentFactorCalculationMethod_0(SIGSurface* self) {
@@ -2119,46 +2123,6 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_initializeMembers_0(SIGCrown*
   self->initializeMembers();
 }
 
-int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioIndexByName_1(SIGCrown* self, const char* name) {
-  return self->getMoistureScenarioIndexByName(name);
-}
-
-int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getNumberOfMoistureScenarios_0(SIGCrown* self) {
-  return self->getNumberOfMoistureScenarios();
-}
-
-const char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelCode_1(SIGCrown* self, int fuelModelNumber) {
-  return self->getFuelCode(fuelModelNumber);
-}
-
-const char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelName_1(SIGCrown* self, int fuelModelNumber) {
-  return self->getFuelName(fuelModelNumber);
-}
-
-const char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioDescriptionByIndex_1(SIGCrown* self, int index) {
-  return self->getMoistureScenarioDescriptionByIndex(index);
-}
-
-const char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioDescriptionByName_1(SIGCrown* self, const char* name) {
-  return self->getMoistureScenarioDescriptionByName(name);
-}
-
-const char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioNameByIndex_1(SIGCrown* self, int index) {
-  return self->getMoistureScenarioNameByIndex(index);
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_doCrownRunRothermel_0(SIGCrown* self) {
-  self->doCrownRunRothermel();
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_doCrownRunScottAndReinhardt_0(SIGCrown* self) {
-  self->doCrownRunScottAndReinhardt();
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_initializeMembers_0(SIGCrown* self) {
-  self->initializeMembers();
-}
-
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setAspect_1(SIGCrown* self, double aspect) {
   self->setAspect(aspect);
 }
@@ -2469,43 +2433,43 @@ double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_prefireCanopyCover_0(SI
   return self->prefireCanopyCover();
 }
 
-int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getBarkEquationNumberAtSpeciesTableIndex_1(SIGMortality* self, int index) {
+const int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getBarkEquationNumberAtSpeciesTableIndex_1(SIGMortality* self, int index) {
   return self->getBarkEquationNumberAtSpeciesTableIndex(index);
 }
 
-int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getBarkEquationNumberFromSpeciesCode_1(SIGMortality* self, char* speciesCode) {
+const int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getBarkEquationNumberFromSpeciesCode_1(SIGMortality* self, char* speciesCode) {
   return self->getBarkEquationNumberFromSpeciesCode(speciesCode);
 }
 
-int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getCrownCoefficientCodeAtSpeciesTableIndex_1(SIGMortality* self, int index) {
+const int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getCrownCoefficientCodeAtSpeciesTableIndex_1(SIGMortality* self, int index) {
   return self->getCrownCoefficientCodeAtSpeciesTableIndex(index);
 }
 
-int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getCrownCoefficientCodeFromSpeciesCode_1(SIGMortality* self, char* speciesCode) {
+const int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getCrownCoefficientCodeFromSpeciesCode_1(SIGMortality* self, char* speciesCode) {
   return self->getCrownCoefficientCodeFromSpeciesCode(speciesCode);
 }
 
-int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getCrownScorchOrBoleCharEquationNumber_0(SIGMortality* self) {
+const int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getCrownScorchOrBoleCharEquationNumber_0(SIGMortality* self) {
   return self->getCrownScorchOrBoleCharEquationNumber();
 }
 
-int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getMortalityEquationNumberAtSpeciesTableIndex_1(SIGMortality* self, int index) {
+const int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getMortalityEquationNumberAtSpeciesTableIndex_1(SIGMortality* self, int index) {
   return self->getMortalityEquationNumberAtSpeciesTableIndex(index);
 }
 
-int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getMortalityEquationNumberFromSpeciesCode_1(SIGMortality* self, char* speciesCode) {
+const int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getMortalityEquationNumberFromSpeciesCode_1(SIGMortality* self, char* speciesCode) {
   return self->getMortalityEquationNumberFromSpeciesCode(speciesCode);
 }
 
-int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getNumberOfRecordsInSpeciesTable_0(SIGMortality* self) {
+const int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getNumberOfRecordsInSpeciesTable_0(SIGMortality* self) {
   return self->getNumberOfRecordsInSpeciesTable();
 }
 
-int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getSpeciesTableIndexFromSpeciesCode_1(SIGMortality* self, char* speciesNameCode) {
+const int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getSpeciesTableIndexFromSpeciesCode_1(SIGMortality* self, char* speciesNameCode) {
   return self->getSpeciesTableIndexFromSpeciesCode(speciesNameCode);
 }
 
-int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getSpeciesTableIndexFromSpeciesCodeAndEquationType_2(SIGMortality* self, char* speciesNameCode, EquationType equationType) {
+const int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getSpeciesTableIndexFromSpeciesCodeAndEquationType_2(SIGMortality* self, char* speciesNameCode, EquationType equationType) {
   return self->getSpeciesTableIndexFromSpeciesCodeAndEquationType(speciesNameCode, equationType);
 }
 
