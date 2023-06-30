@@ -262,33 +262,7 @@
      true)))
 
 (comment
-
-  ;; Debug why the groups uuid are different between what is stored on the worksheet and what is in groups
-
-  ;; coming from groups
-  "649e0d6e-ec50-4a5a-bed0-669d330a4457"
-
-  (into {} @(subscribe [:vms/entity-from-uuid "649e0d6e-ec50-4a5a-bed0-669d330a4457"]))
-
-  ;; stored in worksheet
-  "649e06f4-04c2-4bed-9e1a-7d8ecdfe285e"
-
-  (into {} @(subscribe [:vms/entity-from-uuid "649e06f4-04c2-4bed-9e1a-7d8ecdfe285e"]))
-
-  )
-
-(comment
-  ;; Debug ghost conditonals not fully removed
-
-  (def group-uuid "649ddc92-66c8-4527-a078-e0ce89ae6d4e")
-
-  (def group-entity @(subscribe [:vms/entity-from-uuid group-uuid]))
-
-  (:group/name group-entity)
-  ;;=> Show When Output Time from Report
-
-  ;; This should be 1 entry but there's two
-  (map #(into {} %) (:group/conditionals group-entity))
+  ;; Debug why there's a ghost conditonal on this group
 
   ;; OUTPUT Fire Size - at resource arrival time
   (def group-uuid "5e66e41a-236a-41c7-98d7-54edd15659a9")
