@@ -2,9 +2,7 @@
   (:require [clojure.string         :as str]
             [clojure.set            :refer [rename-keys]]
             [re-frame.core          :refer [reg-sub subscribe] :as rf]
-            [string-utils.interface :refer [->kebab]]
-            [datascript.core :as d]
-            [behave.vms.store :refer [vms-conn]]))
+            [string-utils.interface :refer [->kebab]]))
 
 ;;; Helpers
 
@@ -272,7 +270,7 @@
   (:group/name group-entity)
   ;;=> Fire Size - at resource arrival time
 
-  ;; This should be 0 entries but theres two.
+  ;; This should be 0 entries in this local vms but there's two.
   (map #(into {} %) (:group/conditionals group-entity))
 
   )
