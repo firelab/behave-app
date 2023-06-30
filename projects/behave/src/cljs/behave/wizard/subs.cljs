@@ -226,17 +226,20 @@
 
 (reg-sub
  :wizard/resolve-conditional
- (fn [[_ _ eid]]
-   (subscribe [:vms/entity-from-eid eid]))
+ (fn [[_ _ conditional-id]]
+   (subscribe [:vms/entity-from-eid conditional-id]))
 
- (fn [conditional [_ ws-uuid _conditional-id]]
-   (let [{gv-uuid :conditional/group-variable-uuid
-          op      :conditional/operator
-          values  :conditional/values} conditional
-         enabled?                      @(subscribe [:worksheet/output-enabled? ws-uuid gv-uuid])]
+ (fn [{gv-uuid          :conditional/group-variable-uuid
+       op               :conditional/operator
+       condition-values :conditional/values
+       :as              conditional}
+      [_ ws-uuid _conditional-id]]
+   (let [value @(subscribe [:worksheet/output-enabled? ws-uuid gv-uuid])]
+     (println "conditional:" (into {} conditional))
      (case op
-       :equal     (= (str->bool (first values)) enabled?)
-       :not-equal (not= (str->bool (first values)) enabled?)))))
+       :equal     (= (first condition-values) (str value))
+       :not-equal (not= (first condition-values) (str value))
+       :in        (contains? condition-values (str value))))))
 
 (reg-sub
  :wizard/show-group?
@@ -244,25 +247,58 @@
    (subscribe [:vms/entity-from-eid group-id]))
 
  (fn [group [_ ws-uuid _group-id]]
+   (println "==========================")
+   (println "show-group? processing:" (:group/name group))
+   (println "group:" (into {} group))
+   (println "group-conditonals:" (:group/conditionals group))
    (if-let [conditional-ids (->> (:group/conditionals group)
                                  (map :db/id)
                                  seq)]
-     (if (= (:group/conditionals-operator group) :or)
-       (some true? (map #(deref (subscribe [:wizard/resolve-conditional ws-uuid %])) conditional-ids))
-       (every? true? (map #(deref (subscribe [:wizard/resolve-conditional ws-uuid %])) conditional-ids)))
+     (let [resolved-conditions (map #(deref (subscribe [:wizard/resolve-conditional ws-uuid %]))
+                                    conditional-ids)]
+       (if (= (:group/conditionals-operator group) :or)
+         (some true? resolved-conditions)
+         (every? true? resolved-conditions)))
      true)))
 
 (comment
-  (clear! :wizard/show-group?)
 
-  (clear! :wizard/resolve-conditional)
+  ;; Debug why the groups uuid are different between what is stored on the worksheet and what is in groups
 
-  @(subscribe [:wizard/show-group? "649d7d69-ffff-40f8-8aa7-55d07eb9dbe7" [3536]])
+  ;; coming from groups
+  "649e0d6e-ec50-4a5a-bed0-669d330a4457"
 
-  @(subscribe [:wizard/resolve-conditional
-               "649d7d69-ffff-40f8-8aa7-55d07eb9dbe7" 3536])
+  (into {} @(subscribe [:vms/entity-from-uuid "649e0d6e-ec50-4a5a-bed0-669d330a4457"]))
 
-  @(subscribe [:worksheet/output-enabled?
-               "649d7d69-ffff-40f8-8aa7-55d07eb9dbe7" "b7873139-659e-4475-8d41-0cf6c36da893"])
+  ;; stored in worksheet
+  "649e06f4-04c2-4bed-9e1a-7d8ecdfe285e"
+
+  (into {} @(subscribe [:vms/entity-from-uuid "649e06f4-04c2-4bed-9e1a-7d8ecdfe285e"]))
+
+  )
+
+(comment
+  ;; Debug ghost conditonals not fully removed
+
+  (def group-uuid "649ddc92-66c8-4527-a078-e0ce89ae6d4e")
+
+  (def group-entity @(subscribe [:vms/entity-from-uuid group-uuid]))
+
+  (:group/name group-entity)
+  ;;=> Show When Output Time from Report
+
+  ;; This should be 1 entry but there's two
+  (map #(into {} %) (:group/conditionals group-entity))
+
+  ;; OUTPUT Fire Size - at resource arrival time
+  (def group-uuid "5e66e41a-236a-41c7-98d7-54edd15659a9")
+
+  (def group-entity @(subscribe [:vms/entity-from-uuid group-uuid]))
+
+  (:group/name group-entity)
+  ;;=> Fire Size - at resource arrival time
+
+  ;; This should be 0 entries but theres two.
+  (map #(into {} %) (:group/conditionals group-entity))
 
   )

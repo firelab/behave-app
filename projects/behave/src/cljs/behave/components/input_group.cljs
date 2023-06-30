@@ -134,4 +134,4 @@
        [:div.wizard-group__inputs
         (for [variable variables]
           ^{:key (:db/id variable)}
-          [wizard-input variable ws-uuid (:bp/uuid group) 0])])]))
+          [wizard-input variable ws-uuid (:bp/uuid group) 0 false])])]))

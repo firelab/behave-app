@@ -56,7 +56,6 @@
                                repeat-group?
                                edit-route]
   (let [values (rf/subscribe [:worksheet/input ws-uuid group-uuid repeat-id uuid])]
-    (println "worksheet/input args: " ws-uuid " " group-uuid " " repeat-id " " uuid)
     [:div.wizard-input--review
      {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
      [c/text-input {:label     var-name
