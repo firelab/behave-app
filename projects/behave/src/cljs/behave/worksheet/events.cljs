@@ -3,8 +3,8 @@
             [re-posh.core     :as rp]
             [datascript.core  :as d]
             [behave.components.toolbar :refer [get-step-number step-kw->number get-step-kw]]
-            [behave.importer  :refer [import-worksheet]]
-            [behave.solver    :refer [solve-worksheet]]
+            [behave.importer           :refer [import-worksheet]]
+            [behave.solver.core        :refer [solve-worksheet]]
             [vimsical.re-frame.cofx.inject :as inject]))
 
 (rf/reg-fx :ws/import-worksheet import-worksheet)
@@ -425,106 +425,3 @@
                  (< worksheet-visited-step current-step))
          {:transact [{:db/id                           [:worksheet/uuid ws-uuid]
                       :worksheet/furthest-visited-step (get-step-kw route-handler io)}]})))))
-
-(comment
-
-
-  (require '[datascript.core :as d])
-  (require '[behave.store :as s])
-  (require '[behave.vms.store :as vms])
-
-  (defn clear! [k]
-    (rf/clear-sub k)
-    (rf/clear-subscription-cache!))
-
-  (clear! :worksheet/upsert-result)
-
-  (def ws-uuid @(rf/subscribe [:worksheet/latest]))
-
-  (def ws-id (first (d/q '[:find [?w]
-                           :in    $ ?ws-uuid
-                           :where [?w :worksheet/uuid ?ws-uuid]]
-                          @@s/conn ws-uuid)))
-
-  ws-uuid
-
-  (def gv-1 "6348a027-79b0-4123-8d62-3c0cf99dbe18")
-  (def gv-2 (str (d/squuid)))
-
-  (rf/dispatch [:worksheet/add-result-table ws-uuid])
-  (rf/dispatch [:worksheet/add-result-table-header ws-uuid (str (d/squuid)) "m"])
-  (rf/dispatch [:worksheet/add-result-table-header ws-uuid gv-2 "kg"])
-
-  (rf/dispatch [:worksheet/add-result-table-row ws-uuid 0])
-
-  (rf/dispatch [:worksheet/add-result-table-cell ws-uuid 0 gv-1 "100"])
-  (rf/dispatch [:worksheet/add-result-table-cell ws-uuid 0 gv-2 "20"])
-
-  (d/q '[:find ?row-id ?c ?v ?h ?units ?gv
-         :in $ ?ws-uuid
-         :where [?w :worksheet/uuid ?ws-uuid]
-         [?w :worksheet/result-table ?t]
-         [?t :result-table/rows ?r]
-         [?r :result-row/id ?row-id]
-         [?r :result-row/cells ?c]
-         [?c :result-cell/value ?v]
-         [?c :result-cell/header ?h]
-         [?h :result-header/group-variable-uuid ?gv]
-         [?h :result-header/units ?units]]
-        @@s/conn ws-uuid)
-
-  (d/transact @s/conn [{:worksheet/_result-table ws-id
-                        :db/id                   -1
-                        :result-table/headers    [{:result-header/group-variable-uuid (str (d/squuid))}]}])
-
-  (d/pull @@s/conn '[{:worksheet/result-table [{:result-table/headers [*]}]}] ws-id)
-
-  (d/pull @@s/conn '[{:worksheet/result-table [{:result-table/headers [*]}]}] ws-id)
-
-  (def group-uuid "0fccfc94-f1f2-4d33-8fd7-b2257c414cfa")
-
-  (def group-var-uuid "d5f5cc0a-5ff6-4fcd-b88d-51cd6e6b76f1")
-
-
-  (d/q '[:find [?g ...]
-         :in    $ ?ws-uuid ?group-uuid
-         :where [?w :worksheet/uuid ?ws-uuid]
-         [?w :worksheet/input-groups ?g]
-         [?g :input-group/group-uuid ?group-uuid]]
-        @@s/conn ws-uuid group-uuid)
-
-  (d/q '[:find ?i ?v
-         :in    $ ?ws-uuid ?group-uuid ?repeat-id ?group-var-uuid
-         :where [?w :worksheet/uuid ?ws-uuid]
-         [?w :worksheet/input-groups ?g]
-         [?g :input-group/group-uuid ?group-uuid]
-         [?g :input-group/repeat-id ?repeat-id]
-         [?g :input-group/inputs ?i]
-         [?i :input/group-variable-uuid ?group-var-uuid]
-         [?i :input/value ?v]]
-        @@s/conn ws-uuid group-uuid 2 group-var-uuid)
-
-  (rf/subscribe [:worksheet/input ws-uuid group-uuid 0 group-var-uuid])
-
-  (d/pull @@s/conn '[* {:input-group/inputs [*]}] 139)
-
-  (d/transact @s/conn [{:db/id 135 :input-group/repeat-id 0}])
-
-  (d/transact @s/conn [{:db/id                  -1
-                        :input-group/repeat-id  2
-                        :input-group/group-uuid group-uuid}
-                       {:worksheet/_input-groups -1}])
-
-  (rf/subscribe [:worksheet/repeat-groups ws-uuid group-uuid])
-
-  (d/pull-many @@s/conn '[*]
-               (d/q '[:find [?g ...]
-                      :in    $ ?uuid
-                      :where [?w :worksheet/uuid ?uuid]
-                      [?w :worksheet/input-groups ?g]]
-                     @@s/conn ws-uuid))
-
-  (let [ws-uuid @(rf/subscribe [:worksheet/latest])]
-    (rf/subscirbe [:worksheet/table-settings-enabled? ws-uuid]))
-
-  )

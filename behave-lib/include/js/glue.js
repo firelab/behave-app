@@ -415,10 +415,7 @@ SpeciesMasterTableRecordVector.prototype['size'] = SpeciesMasterTableRecordVecto
   _emscripten_bind_SpeciesMasterTableRecordVector___destroy___0(self);
 };
 // FireSize
-/** @suppress {undefinedVars, duplicate} @this{Object} */function FireSize() {
-  this.ptr = _emscripten_bind_FireSize_FireSize_0();
-  getCache(FireSize)[this.ptr] = this;
-};;
+/** @suppress {undefinedVars, duplicate} @this{Object} */function FireSize() { throw "cannot construct a FireSize, no constructor in IDL" }
 FireSize.prototype = Object.create(WrapperObject.prototype);
 FireSize.prototype.constructor = FireSize;
 FireSize.prototype.__class__ = FireSize;
@@ -460,12 +457,13 @@ FireSize.prototype['getEllipticalC'] = FireSize.prototype.getEllipticalC = /** @
   return _emscripten_bind_FireSize_getEllipticalC_3(self, lengthUnits, elapsedTime, timeUnits);
 };;
 
-FireSize.prototype['getFireArea'] = FireSize.prototype.getFireArea = /** @suppress {undefinedVars, duplicate} @this{Object} */function(areaUnits, elapsedTime, timeUnits) {
+FireSize.prototype['getFireArea'] = FireSize.prototype.getFireArea = /** @suppress {undefinedVars, duplicate} @this{Object} */function(isCrown, areaUnits, elapsedTime, timeUnits) {
   var self = this.ptr;
+  if (isCrown && typeof isCrown === 'object') isCrown = isCrown.ptr;
   if (areaUnits && typeof areaUnits === 'object') areaUnits = areaUnits.ptr;
   if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
   if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
-  return _emscripten_bind_FireSize_getFireArea_3(self, areaUnits, elapsedTime, timeUnits);
+  return _emscripten_bind_FireSize_getFireArea_4(self, isCrown, areaUnits, elapsedTime, timeUnits);
 };;
 
 FireSize.prototype['getFireLength'] = FireSize.prototype.getFireLength = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
@@ -481,12 +479,24 @@ FireSize.prototype['getFireLengthToWidthRatio'] = FireSize.prototype.getFireLeng
   return _emscripten_bind_FireSize_getFireLengthToWidthRatio_0(self);
 };;
 
-FireSize.prototype['getFirePerimeter'] = FireSize.prototype.getFirePerimeter = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
+FireSize.prototype['getFirePerimeter'] = FireSize.prototype.getFirePerimeter = /** @suppress {undefinedVars, duplicate} @this{Object} */function(isCrown, lengthUnits, elapsedTime, timeUnits) {
   var self = this.ptr;
+  if (isCrown && typeof isCrown === 'object') isCrown = isCrown.ptr;
   if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
   if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
   if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
-  return _emscripten_bind_FireSize_getFirePerimeter_3(self, lengthUnits, elapsedTime, timeUnits);
+  return _emscripten_bind_FireSize_getFirePerimeter_4(self, isCrown, lengthUnits, elapsedTime, timeUnits);
+};;
+
+FireSize.prototype['getFlankingSpreadRate'] = FireSize.prototype.getFlankingSpreadRate = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spreadRateUnits) {
+  var self = this.ptr;
+  if (spreadRateUnits && typeof spreadRateUnits === 'object') spreadRateUnits = spreadRateUnits.ptr;
+  return _emscripten_bind_FireSize_getFlankingSpreadRate_1(self, spreadRateUnits);
+};;
+
+FireSize.prototype['getHeadingToBackingRatio'] = FireSize.prototype.getHeadingToBackingRatio = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_FireSize_getHeadingToBackingRatio_0(self);
 };;
 
 FireSize.prototype['getMaxFireWidth'] = FireSize.prototype.getMaxFireWidth = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
@@ -497,13 +507,14 @@ FireSize.prototype['getMaxFireWidth'] = FireSize.prototype.getMaxFireWidth = /**
   return _emscripten_bind_FireSize_getMaxFireWidth_3(self, lengthUnits, elapsedTime, timeUnits);
 };;
 
-FireSize.prototype['calculateFireBasicDimensions'] = FireSize.prototype.calculateFireBasicDimensions = /** @suppress {undefinedVars, duplicate} @this{Object} */function(effectiveWindSpeed, windSpeedRateUnits, forwardSpreadRate, spreadRateUnits) {
+FireSize.prototype['calculateFireBasicDimensions'] = FireSize.prototype.calculateFireBasicDimensions = /** @suppress {undefinedVars, duplicate} @this{Object} */function(isCrown, effectiveWindSpeed, windSpeedRateUnits, forwardSpreadRate, spreadRateUnits) {
   var self = this.ptr;
+  if (isCrown && typeof isCrown === 'object') isCrown = isCrown.ptr;
   if (effectiveWindSpeed && typeof effectiveWindSpeed === 'object') effectiveWindSpeed = effectiveWindSpeed.ptr;
   if (windSpeedRateUnits && typeof windSpeedRateUnits === 'object') windSpeedRateUnits = windSpeedRateUnits.ptr;
   if (forwardSpreadRate && typeof forwardSpreadRate === 'object') forwardSpreadRate = forwardSpreadRate.ptr;
   if (spreadRateUnits && typeof spreadRateUnits === 'object') spreadRateUnits = spreadRateUnits.ptr;
-  _emscripten_bind_FireSize_calculateFireBasicDimensions_4(self, effectiveWindSpeed, windSpeedRateUnits, forwardSpreadRate, spreadRateUnits);
+  _emscripten_bind_FireSize_calculateFireBasicDimensions_5(self, isCrown, effectiveWindSpeed, windSpeedRateUnits, forwardSpreadRate, spreadRateUnits);
 };;
 
   FireSize.prototype['__destroy__'] = FireSize.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
@@ -1518,6 +1529,11 @@ SIGSurface.prototype['getWindHeightInputMode'] = SIGSurface.prototype.getWindHei
   return _emscripten_bind_SIGSurface_getWindHeightInputMode_0(self);
 };;
 
+SIGSurface.prototype['getWindUpslopeAlignmentMode'] = SIGSurface.prototype.getWindUpslopeAlignmentMode = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGSurface_getWindUpslopeAlignmentMode_0(self);
+};;
+
 SIGSurface.prototype['getIsMoistureScenarioDefinedByIndex'] = SIGSurface.prototype.getIsMoistureScenarioDefinedByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
   var self = this.ptr;
   if (index && typeof index === 'object') index = index.ptr;
@@ -1604,18 +1620,6 @@ SIGSurface.prototype['calculateFlameLength'] = SIGSurface.prototype.calculateFla
   return _emscripten_bind_SIGSurface_calculateFlameLength_3(self, firelineIntensity, firelineIntensityUnits, flameLengthUnits);
 };;
 
-SIGSurface.prototype['calculateScorchHeight'] = SIGSurface.prototype.calculateScorchHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firelineIntensity, firelineIntensityUnits, midFlameWindSpeed, windSpeedUnits, airTemperature, temperatureUnits, scorchHeightUnits) {
-  var self = this.ptr;
-  if (firelineIntensity && typeof firelineIntensity === 'object') firelineIntensity = firelineIntensity.ptr;
-  if (firelineIntensityUnits && typeof firelineIntensityUnits === 'object') firelineIntensityUnits = firelineIntensityUnits.ptr;
-  if (midFlameWindSpeed && typeof midFlameWindSpeed === 'object') midFlameWindSpeed = midFlameWindSpeed.ptr;
-  if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
-  if (airTemperature && typeof airTemperature === 'object') airTemperature = airTemperature.ptr;
-  if (temperatureUnits && typeof temperatureUnits === 'object') temperatureUnits = temperatureUnits.ptr;
-  if (scorchHeightUnits && typeof scorchHeightUnits === 'object') scorchHeightUnits = scorchHeightUnits.ptr;
-  return _emscripten_bind_SIGSurface_calculateScorchHeight_7(self, firelineIntensity, firelineIntensityUnits, midFlameWindSpeed, windSpeedUnits, airTemperature, temperatureUnits, scorchHeightUnits);
-};;
-
 SIGSurface.prototype['getAgeOfRough'] = SIGSurface.prototype.getAgeOfRough = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   return _emscripten_bind_SIGSurface_getAgeOfRough_0(self);
@@ -1686,12 +1690,22 @@ SIGSurface.prototype['getAspenSavrLiveWoody'] = SIGSurface.prototype.getAspenSav
   return _emscripten_bind_SIGSurface_getAspenSavrLiveWoody_1(self, savrUnits);
 };;
 
-SIGSurface.prototype['getBackingSpreadDistance'] = SIGSurface.prototype.getBackingSpreadDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
+SIGSurface.prototype['getBackingFirelineIntensity'] = SIGSurface.prototype.getBackingFirelineIntensity = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firelineIntensityUnits) {
+  var self = this.ptr;
+  if (firelineIntensityUnits && typeof firelineIntensityUnits === 'object') firelineIntensityUnits = firelineIntensityUnits.ptr;
+  return _emscripten_bind_SIGSurface_getBackingFirelineIntensity_1(self, firelineIntensityUnits);
+};;
+
+SIGSurface.prototype['getBackingFlameLength'] = SIGSurface.prototype.getBackingFlameLength = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameLengthUnits) {
+  var self = this.ptr;
+  if (flameLengthUnits && typeof flameLengthUnits === 'object') flameLengthUnits = flameLengthUnits.ptr;
+  return _emscripten_bind_SIGSurface_getBackingFlameLength_1(self, flameLengthUnits);
+};;
+
+SIGSurface.prototype['getBackingSpreadDistance'] = SIGSurface.prototype.getBackingSpreadDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
   var self = this.ptr;
   if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
-  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
-  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
-  return _emscripten_bind_SIGSurface_getBackingSpreadDistance_3(self, lengthUnits, elapsedTime, timeUnits);
+  return _emscripten_bind_SIGSurface_getBackingSpreadDistance_1(self, lengthUnits);
 };;
 
 SIGSurface.prototype['getBackingSpreadRate'] = SIGSurface.prototype.getBackingSpreadRate = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spreadRateUnits) {
@@ -1748,13 +1762,6 @@ SIGSurface.prototype['getChaparralDensity'] = SIGSurface.prototype.getChaparralD
   return _emscripten_bind_SIGSurface_getChaparralDensity_3(self, lifeState, sizeClass, densityUnits);
 };;
 
-SIGSurface.prototype['getChaparralEffectiveSilicaContent'] = SIGSurface.prototype.getChaparralEffectiveSilicaContent = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lifeState, sizeClass) {
-  var self = this.ptr;
-  if (lifeState && typeof lifeState === 'object') lifeState = lifeState.ptr;
-  if (sizeClass && typeof sizeClass === 'object') sizeClass = sizeClass.ptr;
-  return _emscripten_bind_SIGSurface_getChaparralEffectiveSilicaContent_2(self, lifeState, sizeClass);
-};;
-
 SIGSurface.prototype['getChaparralFuelBedDepth'] = SIGSurface.prototype.getChaparralFuelBedDepth = /** @suppress {undefinedVars, duplicate} @this{Object} */function(depthUnits) {
   var self = this.ptr;
   if (depthUnits && typeof depthUnits === 'object') depthUnits = depthUnits.ptr;
@@ -1780,12 +1787,58 @@ SIGSurface.prototype['getChaparralLiveMoistureOfExtinction'] = SIGSurface.protot
   return _emscripten_bind_SIGSurface_getChaparralLiveMoistureOfExtinction_1(self, moistureUnits);
 };;
 
-SIGSurface.prototype['getChaparralLoad'] = SIGSurface.prototype.getChaparralLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lifeState, sizeClass, loadingUnits) {
+SIGSurface.prototype['getChaparralLoadDeadHalfInchToLessThanOneInch'] = SIGSurface.prototype.getChaparralLoadDeadHalfInchToLessThanOneInch = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
   var self = this.ptr;
-  if (lifeState && typeof lifeState === 'object') lifeState = lifeState.ptr;
-  if (sizeClass && typeof sizeClass === 'object') sizeClass = sizeClass.ptr;
   if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
-  return _emscripten_bind_SIGSurface_getChaparralLoad_3(self, lifeState, sizeClass, loadingUnits);
+  return _emscripten_bind_SIGSurface_getChaparralLoadDeadHalfInchToLessThanOneInch_1(self, loadingUnits);
+};;
+
+SIGSurface.prototype['getChaparralLoadDeadLessThanQuarterInch'] = SIGSurface.prototype.getChaparralLoadDeadLessThanQuarterInch = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
+  var self = this.ptr;
+  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
+  return _emscripten_bind_SIGSurface_getChaparralLoadDeadLessThanQuarterInch_1(self, loadingUnits);
+};;
+
+SIGSurface.prototype['getChaparralLoadDeadOneInchToThreeInch'] = SIGSurface.prototype.getChaparralLoadDeadOneInchToThreeInch = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
+  var self = this.ptr;
+  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
+  return _emscripten_bind_SIGSurface_getChaparralLoadDeadOneInchToThreeInch_1(self, loadingUnits);
+};;
+
+SIGSurface.prototype['getChaparralLoadDeadQuarterInchToLessThanHalfInch'] = SIGSurface.prototype.getChaparralLoadDeadQuarterInchToLessThanHalfInch = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
+  var self = this.ptr;
+  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
+  return _emscripten_bind_SIGSurface_getChaparralLoadDeadQuarterInchToLessThanHalfInch_1(self, loadingUnits);
+};;
+
+SIGSurface.prototype['getChaparralLoadLiveHalfInchToLessThanOneInch'] = SIGSurface.prototype.getChaparralLoadLiveHalfInchToLessThanOneInch = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
+  var self = this.ptr;
+  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
+  return _emscripten_bind_SIGSurface_getChaparralLoadLiveHalfInchToLessThanOneInch_1(self, loadingUnits);
+};;
+
+SIGSurface.prototype['getChaparralLoadLiveLeaves'] = SIGSurface.prototype.getChaparralLoadLiveLeaves = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
+  var self = this.ptr;
+  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
+  return _emscripten_bind_SIGSurface_getChaparralLoadLiveLeaves_1(self, loadingUnits);
+};;
+
+SIGSurface.prototype['getChaparralLoadLiveOneInchToThreeInch'] = SIGSurface.prototype.getChaparralLoadLiveOneInchToThreeInch = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
+  var self = this.ptr;
+  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
+  return _emscripten_bind_SIGSurface_getChaparralLoadLiveOneInchToThreeInch_1(self, loadingUnits);
+};;
+
+SIGSurface.prototype['getChaparralLoadLiveQuarterInchToLessThanHalfInch'] = SIGSurface.prototype.getChaparralLoadLiveQuarterInchToLessThanHalfInch = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
+  var self = this.ptr;
+  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
+  return _emscripten_bind_SIGSurface_getChaparralLoadLiveQuarterInchToLessThanHalfInch_1(self, loadingUnits);
+};;
+
+SIGSurface.prototype['getChaparralLoadLiveStemsLessThanQuaterInch'] = SIGSurface.prototype.getChaparralLoadLiveStemsLessThanQuaterInch = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
+  var self = this.ptr;
+  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
+  return _emscripten_bind_SIGSurface_getChaparralLoadLiveStemsLessThanQuaterInch_1(self, loadingUnits);
 };;
 
 SIGSurface.prototype['getChaparralMoisture'] = SIGSurface.prototype.getChaparralMoisture = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lifeState, sizeClass, moistureUnits) {
@@ -1794,14 +1847,6 @@ SIGSurface.prototype['getChaparralMoisture'] = SIGSurface.prototype.getChaparral
   if (sizeClass && typeof sizeClass === 'object') sizeClass = sizeClass.ptr;
   if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
   return _emscripten_bind_SIGSurface_getChaparralMoisture_3(self, lifeState, sizeClass, moistureUnits);
-};;
-
-SIGSurface.prototype['getChaparralSavr'] = SIGSurface.prototype.getChaparralSavr = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lifeState, sizeClass, savrUnits) {
-  var self = this.ptr;
-  if (lifeState && typeof lifeState === 'object') lifeState = lifeState.ptr;
-  if (sizeClass && typeof sizeClass === 'object') sizeClass = sizeClass.ptr;
-  if (savrUnits && typeof savrUnits === 'object') savrUnits = savrUnits.ptr;
-  return _emscripten_bind_SIGSurface_getChaparralSavr_3(self, lifeState, sizeClass, savrUnits);
 };;
 
 SIGSurface.prototype['getChaparralTotalDeadFuelLoad'] = SIGSurface.prototype.getChaparralTotalDeadFuelLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
@@ -1822,18 +1867,23 @@ SIGSurface.prototype['getChaparralTotalLiveFuelLoad'] = SIGSurface.prototype.get
   return _emscripten_bind_SIGSurface_getChaparralTotalLiveFuelLoad_1(self, loadingUnits);
 };;
 
-SIGSurface.prototype['getChaparralTotalSilicaContent'] = SIGSurface.prototype.getChaparralTotalSilicaContent = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lifeState, sizeClass) {
-  var self = this.ptr;
-  if (lifeState && typeof lifeState === 'object') lifeState = lifeState.ptr;
-  if (sizeClass && typeof sizeClass === 'object') sizeClass = sizeClass.ptr;
-  return _emscripten_bind_SIGSurface_getChaparralTotalSilicaContent_2(self, lifeState, sizeClass);
-};;
-
 SIGSurface.prototype['getCharacteristicMoistureByLifeState'] = SIGSurface.prototype.getCharacteristicMoistureByLifeState = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lifeState, moistureUnits) {
   var self = this.ptr;
   if (lifeState && typeof lifeState === 'object') lifeState = lifeState.ptr;
   if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
   return _emscripten_bind_SIGSurface_getCharacteristicMoistureByLifeState_2(self, lifeState, moistureUnits);
+};;
+
+SIGSurface.prototype['getCharacteristicMoistureDead'] = SIGSurface.prototype.getCharacteristicMoistureDead = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureUnits) {
+  var self = this.ptr;
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGSurface_getCharacteristicMoistureDead_1(self, moistureUnits);
+};;
+
+SIGSurface.prototype['getCharacteristicMoistureLive'] = SIGSurface.prototype.getCharacteristicMoistureLive = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureUnits) {
+  var self = this.ptr;
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGSurface_getCharacteristicMoistureLive_1(self, moistureUnits);
 };;
 
 SIGSurface.prototype['getCharacteristicSAVR'] = SIGSurface.prototype.getCharacteristicSAVR = /** @suppress {undefinedVars, duplicate} @this{Object} */function(savrUnits) {
@@ -1852,36 +1902,39 @@ SIGSurface.prototype['getDirectionOfMaxSpread'] = SIGSurface.prototype.getDirect
   return _emscripten_bind_SIGSurface_getDirectionOfMaxSpread_0(self);
 };;
 
-SIGSurface.prototype['getEllipticalA'] = SIGSurface.prototype.getEllipticalA = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
+SIGSurface.prototype['getDirectionOfInterest'] = SIGSurface.prototype.getDirectionOfInterest = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
-  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
-  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
-  return _emscripten_bind_SIGSurface_getEllipticalA_3(self, lengthUnits, elapsedTime, timeUnits);
+  return _emscripten_bind_SIGSurface_getDirectionOfInterest_0(self);
 };;
 
-SIGSurface.prototype['getEllipticalB'] = SIGSurface.prototype.getEllipticalB = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
+SIGSurface.prototype['getElapsedTime'] = SIGSurface.prototype.getElapsedTime = /** @suppress {undefinedVars, duplicate} @this{Object} */function(timeUnits) {
   var self = this.ptr;
-  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
-  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
   if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
-  return _emscripten_bind_SIGSurface_getEllipticalB_3(self, lengthUnits, elapsedTime, timeUnits);
+  return _emscripten_bind_SIGSurface_getElapsedTime_1(self, timeUnits);
 };;
 
-SIGSurface.prototype['getEllipticalC'] = SIGSurface.prototype.getEllipticalC = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
+SIGSurface.prototype['getEllipticalA'] = SIGSurface.prototype.getEllipticalA = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
   var self = this.ptr;
   if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
-  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
-  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
-  return _emscripten_bind_SIGSurface_getEllipticalC_3(self, lengthUnits, elapsedTime, timeUnits);
+  return _emscripten_bind_SIGSurface_getEllipticalA_1(self, lengthUnits);
 };;
 
-SIGSurface.prototype['getFireArea'] = SIGSurface.prototype.getFireArea = /** @suppress {undefinedVars, duplicate} @this{Object} */function(areaUnits, elapsedTime, timeUnits) {
+SIGSurface.prototype['getEllipticalB'] = SIGSurface.prototype.getEllipticalB = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
+  var self = this.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  return _emscripten_bind_SIGSurface_getEllipticalB_1(self, lengthUnits);
+};;
+
+SIGSurface.prototype['getEllipticalC'] = SIGSurface.prototype.getEllipticalC = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
+  var self = this.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  return _emscripten_bind_SIGSurface_getEllipticalC_1(self, lengthUnits);
+};;
+
+SIGSurface.prototype['getFireArea'] = SIGSurface.prototype.getFireArea = /** @suppress {undefinedVars, duplicate} @this{Object} */function(areaUnits) {
   var self = this.ptr;
   if (areaUnits && typeof areaUnits === 'object') areaUnits = areaUnits.ptr;
-  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
-  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
-  return _emscripten_bind_SIGSurface_getFireArea_3(self, areaUnits, elapsedTime, timeUnits);
+  return _emscripten_bind_SIGSurface_getFireArea_1(self, areaUnits);
 };;
 
 SIGSurface.prototype['getFireEccentricity'] = SIGSurface.prototype.getFireEccentricity = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
@@ -1894,12 +1947,10 @@ SIGSurface.prototype['getFireLengthToWidthRatio'] = SIGSurface.prototype.getFire
   return _emscripten_bind_SIGSurface_getFireLengthToWidthRatio_0(self);
 };;
 
-SIGSurface.prototype['getFirePerimeter'] = SIGSurface.prototype.getFirePerimeter = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
+SIGSurface.prototype['getFirePerimeter'] = SIGSurface.prototype.getFirePerimeter = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
   var self = this.ptr;
   if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
-  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
-  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
-  return _emscripten_bind_SIGSurface_getFirePerimeter_3(self, lengthUnits, elapsedTime, timeUnits);
+  return _emscripten_bind_SIGSurface_getFirePerimeter_1(self, lengthUnits);
 };;
 
 SIGSurface.prototype['getFirelineIntensity'] = SIGSurface.prototype.getFirelineIntensity = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firelineIntensityUnits) {
@@ -1914,18 +1965,28 @@ SIGSurface.prototype['getFlameLength'] = SIGSurface.prototype.getFlameLength = /
   return _emscripten_bind_SIGSurface_getFlameLength_1(self, flameLengthUnits);
 };;
 
-SIGSurface.prototype['getFlankingSpreadDistance'] = SIGSurface.prototype.getFlankingSpreadDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
+SIGSurface.prototype['getFlankingFirelineIntensity'] = SIGSurface.prototype.getFlankingFirelineIntensity = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firelineIntensityUnits) {
   var self = this.ptr;
-  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
-  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
-  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
-  return _emscripten_bind_SIGSurface_getFlankingSpreadDistance_3(self, lengthUnits, elapsedTime, timeUnits);
+  if (firelineIntensityUnits && typeof firelineIntensityUnits === 'object') firelineIntensityUnits = firelineIntensityUnits.ptr;
+  return _emscripten_bind_SIGSurface_getFlankingFirelineIntensity_1(self, firelineIntensityUnits);
+};;
+
+SIGSurface.prototype['getFlankingFlameLength'] = SIGSurface.prototype.getFlankingFlameLength = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameLengthUnits) {
+  var self = this.ptr;
+  if (flameLengthUnits && typeof flameLengthUnits === 'object') flameLengthUnits = flameLengthUnits.ptr;
+  return _emscripten_bind_SIGSurface_getFlankingFlameLength_1(self, flameLengthUnits);
 };;
 
 SIGSurface.prototype['getFlankingSpreadRate'] = SIGSurface.prototype.getFlankingSpreadRate = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spreadRateUnits) {
   var self = this.ptr;
   if (spreadRateUnits && typeof spreadRateUnits === 'object') spreadRateUnits = spreadRateUnits.ptr;
   return _emscripten_bind_SIGSurface_getFlankingSpreadRate_1(self, spreadRateUnits);
+};;
+
+SIGSurface.prototype['getFlankingSpreadDistance'] = SIGSurface.prototype.getFlankingSpreadDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
+  var self = this.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  return _emscripten_bind_SIGSurface_getFlankingSpreadDistance_1(self, lengthUnits);
 };;
 
 SIGSurface.prototype['getFuelHeatOfCombustionDead'] = SIGSurface.prototype.getFuelHeatOfCombustionDead = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, heatOfCombustionUnits) {
@@ -2195,22 +2256,22 @@ SIGSurface.prototype['getPalmettoGallberryMoistureOfExtinctionDead'] = SIGSurfac
   return _emscripten_bind_SIGSurface_getPalmettoGallberryMoistureOfExtinctionDead_1(self, moistureUnits);
 };;
 
+SIGSurface.prototype['getPalmettoGallberyDeadFineFuelLoad'] = SIGSurface.prototype.getPalmettoGallberyDeadFineFuelLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
+  var self = this.ptr;
+  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
+  return _emscripten_bind_SIGSurface_getPalmettoGallberyDeadFineFuelLoad_1(self, loadingUnits);
+};;
+
 SIGSurface.prototype['getPalmettoGallberyDeadFoliageLoad'] = SIGSurface.prototype.getPalmettoGallberyDeadFoliageLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
   var self = this.ptr;
   if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
   return _emscripten_bind_SIGSurface_getPalmettoGallberyDeadFoliageLoad_1(self, loadingUnits);
 };;
 
-SIGSurface.prototype['getPalmettoGallberyDeadOneHourLoad'] = SIGSurface.prototype.getPalmettoGallberyDeadOneHourLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
+SIGSurface.prototype['getPalmettoGallberyDeadMediumFuelLoad'] = SIGSurface.prototype.getPalmettoGallberyDeadMediumFuelLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
   var self = this.ptr;
   if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
-  return _emscripten_bind_SIGSurface_getPalmettoGallberyDeadOneHourLoad_1(self, loadingUnits);
-};;
-
-SIGSurface.prototype['getPalmettoGallberyDeadTenHourLoad'] = SIGSurface.prototype.getPalmettoGallberyDeadTenHourLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
-  var self = this.ptr;
-  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
-  return _emscripten_bind_SIGSurface_getPalmettoGallberyDeadTenHourLoad_1(self, loadingUnits);
+  return _emscripten_bind_SIGSurface_getPalmettoGallberyDeadMediumFuelLoad_1(self, loadingUnits);
 };;
 
 SIGSurface.prototype['getPalmettoGallberyFuelBedDepth'] = SIGSurface.prototype.getPalmettoGallberyFuelBedDepth = /** @suppress {undefinedVars, duplicate} @this{Object} */function(depthUnits) {
@@ -2225,22 +2286,22 @@ SIGSurface.prototype['getPalmettoGallberyLitterLoad'] = SIGSurface.prototype.get
   return _emscripten_bind_SIGSurface_getPalmettoGallberyLitterLoad_1(self, loadingUnits);
 };;
 
+SIGSurface.prototype['getPalmettoGallberyLiveFineFuelLoad'] = SIGSurface.prototype.getPalmettoGallberyLiveFineFuelLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
+  var self = this.ptr;
+  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
+  return _emscripten_bind_SIGSurface_getPalmettoGallberyLiveFineFuelLoad_1(self, loadingUnits);
+};;
+
 SIGSurface.prototype['getPalmettoGallberyLiveFoliageLoad'] = SIGSurface.prototype.getPalmettoGallberyLiveFoliageLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
   var self = this.ptr;
   if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
   return _emscripten_bind_SIGSurface_getPalmettoGallberyLiveFoliageLoad_1(self, loadingUnits);
 };;
 
-SIGSurface.prototype['getPalmettoGallberyLiveOneHourLoad'] = SIGSurface.prototype.getPalmettoGallberyLiveOneHourLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
+SIGSurface.prototype['getPalmettoGallberyLiveMediumFuelLoad'] = SIGSurface.prototype.getPalmettoGallberyLiveMediumFuelLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
   var self = this.ptr;
   if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
-  return _emscripten_bind_SIGSurface_getPalmettoGallberyLiveOneHourLoad_1(self, loadingUnits);
-};;
-
-SIGSurface.prototype['getPalmettoGallberyLiveTenHourLoad'] = SIGSurface.prototype.getPalmettoGallberyLiveTenHourLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
-  var self = this.ptr;
-  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
-  return _emscripten_bind_SIGSurface_getPalmettoGallberyLiveTenHourLoad_1(self, loadingUnits);
+  return _emscripten_bind_SIGSurface_getPalmettoGallberyLiveMediumFuelLoad_1(self, loadingUnits);
 };;
 
 SIGSurface.prototype['getReactionIntensity'] = SIGSurface.prototype.getReactionIntensity = /** @suppress {undefinedVars, duplicate} @this{Object} */function(reactiontionIntensityUnits) {
@@ -2266,20 +2327,16 @@ SIGSurface.prototype['getSlopeFactor'] = SIGSurface.prototype.getSlopeFactor = /
   return _emscripten_bind_SIGSurface_getSlopeFactor_0(self);
 };;
 
-SIGSurface.prototype['getSpreadDistance'] = SIGSurface.prototype.getSpreadDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
+SIGSurface.prototype['getSpreadDistance'] = SIGSurface.prototype.getSpreadDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
   var self = this.ptr;
   if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
-  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
-  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
-  return _emscripten_bind_SIGSurface_getSpreadDistance_3(self, lengthUnits, elapsedTime, timeUnits);
+  return _emscripten_bind_SIGSurface_getSpreadDistance_1(self, lengthUnits);
 };;
 
-SIGSurface.prototype['getSpreadDistanceInDirectionOfInterest'] = SIGSurface.prototype.getSpreadDistanceInDirectionOfInterest = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
+SIGSurface.prototype['getSpreadDistanceInDirectionOfInterest'] = SIGSurface.prototype.getSpreadDistanceInDirectionOfInterest = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
   var self = this.ptr;
   if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
-  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
-  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
-  return _emscripten_bind_SIGSurface_getSpreadDistanceInDirectionOfInterest_3(self, lengthUnits, elapsedTime, timeUnits);
+  return _emscripten_bind_SIGSurface_getSpreadDistanceInDirectionOfInterest_1(self, lengthUnits);
 };;
 
 SIGSurface.prototype['getSpreadRate'] = SIGSurface.prototype.getSpreadRate = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spreadRateUnits) {
@@ -2365,6 +2422,11 @@ SIGSurface.prototype['getMoistureScenarioNameByIndex'] = SIGSurface.prototype.ge
   var self = this.ptr;
   if (index && typeof index === 'object') index = index.ptr;
   return UTF8ToString(_emscripten_bind_SIGSurface_getMoistureScenarioNameByIndex_1(self, index));
+};;
+
+SIGSurface.prototype['doSurfaceRun'] = SIGSurface.prototype.doSurfaceRun = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_SIGSurface_doSurfaceRun_0(self);
 };;
 
 SIGSurface.prototype['doSurfaceRunInDirectionOfInterest'] = SIGSurface.prototype.doSurfaceRunInDirectionOfInterest = /** @suppress {undefinedVars, duplicate} @this{Object} */function(directionOfInterest, directionMode) {
@@ -2472,6 +2534,19 @@ SIGSurface.prototype['setCrownRatio'] = SIGSurface.prototype.setCrownRatio = /**
   var self = this.ptr;
   if (crownRatio && typeof crownRatio === 'object') crownRatio = crownRatio.ptr;
   _emscripten_bind_SIGSurface_setCrownRatio_1(self, crownRatio);
+};;
+
+SIGSurface.prototype['setDirectionOfInterest'] = SIGSurface.prototype.setDirectionOfInterest = /** @suppress {undefinedVars, duplicate} @this{Object} */function(directionOfInterest) {
+  var self = this.ptr;
+  if (directionOfInterest && typeof directionOfInterest === 'object') directionOfInterest = directionOfInterest.ptr;
+  _emscripten_bind_SIGSurface_setDirectionOfInterest_1(self, directionOfInterest);
+};;
+
+SIGSurface.prototype['setElapsedTime'] = SIGSurface.prototype.setElapsedTime = /** @suppress {undefinedVars, duplicate} @this{Object} */function(elapsedTime, timeUnits) {
+  var self = this.ptr;
+  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
+  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
+  _emscripten_bind_SIGSurface_setElapsedTime_2(self, elapsedTime, timeUnits);
 };;
 
 SIGSurface.prototype['setFirstFuelModelNumber'] = SIGSurface.prototype.setFirstFuelModelNumber = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firstFuelModelNumber) {
@@ -2599,6 +2674,18 @@ SIGSurface.prototype['setSlope'] = SIGSurface.prototype.setSlope = /** @suppress
   _emscripten_bind_SIGSurface_setSlope_2(self, slope, slopeUnits);
 };;
 
+SIGSurface.prototype['setSurfaceFireSpreadDirectionMode'] = SIGSurface.prototype.setSurfaceFireSpreadDirectionMode = /** @suppress {undefinedVars, duplicate} @this{Object} */function(directionMode) {
+  var self = this.ptr;
+  if (directionMode && typeof directionMode === 'object') directionMode = directionMode.ptr;
+  _emscripten_bind_SIGSurface_setSurfaceFireSpreadDirectionMode_1(self, directionMode);
+};;
+
+SIGSurface.prototype['setSurfaceRunInDirectionOf'] = SIGSurface.prototype.setSurfaceRunInDirectionOf = /** @suppress {undefinedVars, duplicate} @this{Object} */function(surfaceRunInDirectionOf) {
+  var self = this.ptr;
+  if (surfaceRunInDirectionOf && typeof surfaceRunInDirectionOf === 'object') surfaceRunInDirectionOf = surfaceRunInDirectionOf.ptr;
+  _emscripten_bind_SIGSurface_setSurfaceRunInDirectionOf_1(self, surfaceRunInDirectionOf);
+};;
+
 SIGSurface.prototype['setTwoFuelModelsFirstFuelModelCoverage'] = SIGSurface.prototype.setTwoFuelModelsFirstFuelModelCoverage = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firstFuelModelCoverage, coverUnits) {
   var self = this.ptr;
   if (firstFuelModelCoverage && typeof firstFuelModelCoverage === 'object') firstFuelModelCoverage = firstFuelModelCoverage.ptr;
@@ -2640,6 +2727,12 @@ SIGSurface.prototype['setWindHeightInputMode'] = SIGSurface.prototype.setWindHei
   var self = this.ptr;
   if (windHeightInputMode && typeof windHeightInputMode === 'object') windHeightInputMode = windHeightInputMode.ptr;
   _emscripten_bind_SIGSurface_setWindHeightInputMode_1(self, windHeightInputMode);
+};;
+
+SIGSurface.prototype['setWindUpslopeAlignmentMode'] = SIGSurface.prototype.setWindUpslopeAlignmentMode = /** @suppress {undefinedVars, duplicate} @this{Object} */function(WindUpslopeAlignmentMode) {
+  var self = this.ptr;
+  if (WindUpslopeAlignmentMode && typeof WindUpslopeAlignmentMode === 'object') WindUpslopeAlignmentMode = WindUpslopeAlignmentMode.ptr;
+  _emscripten_bind_SIGSurface_setWindUpslopeAlignmentMode_1(self, WindUpslopeAlignmentMode);
 };;
 
 SIGSurface.prototype['setWindSpeed'] = SIGSurface.prototype.setWindSpeed = /** @suppress {undefinedVars, duplicate} @this{Object} */function(windSpeed, windSpeedUnits, windHeightInputMode) {
@@ -2789,9 +2882,31 @@ PalmettoGallberry.prototype['initializeMembers'] = PalmettoGallberry.prototype.i
   _emscripten_bind_PalmettoGallberry_initializeMembers_0(self);
 };;
 
-PalmettoGallberry.prototype['getHeatOfCombustionLive'] = PalmettoGallberry.prototype.getHeatOfCombustionLive = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+PalmettoGallberry.prototype['calculatePalmettoGallberyDeadFineFuelLoad'] = PalmettoGallberry.prototype.calculatePalmettoGallberyDeadFineFuelLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ageOfRough, heightOfUnderstory) {
   var self = this.ptr;
-  return _emscripten_bind_PalmettoGallberry_getHeatOfCombustionLive_0(self);
+  if (ageOfRough && typeof ageOfRough === 'object') ageOfRough = ageOfRough.ptr;
+  if (heightOfUnderstory && typeof heightOfUnderstory === 'object') heightOfUnderstory = heightOfUnderstory.ptr;
+  return _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadFineFuelLoad_2(self, ageOfRough, heightOfUnderstory);
+};;
+
+PalmettoGallberry.prototype['calculatePalmettoGallberyDeadFoliageLoad'] = PalmettoGallberry.prototype.calculatePalmettoGallberyDeadFoliageLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ageOfRough, palmettoCoverage) {
+  var self = this.ptr;
+  if (ageOfRough && typeof ageOfRough === 'object') ageOfRough = ageOfRough.ptr;
+  if (palmettoCoverage && typeof palmettoCoverage === 'object') palmettoCoverage = palmettoCoverage.ptr;
+  return _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadFoliageLoad_2(self, ageOfRough, palmettoCoverage);
+};;
+
+PalmettoGallberry.prototype['calculatePalmettoGallberyDeadMediumFuelLoad'] = PalmettoGallberry.prototype.calculatePalmettoGallberyDeadMediumFuelLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ageOfRough, palmettoCoverage) {
+  var self = this.ptr;
+  if (ageOfRough && typeof ageOfRough === 'object') ageOfRough = ageOfRough.ptr;
+  if (palmettoCoverage && typeof palmettoCoverage === 'object') palmettoCoverage = palmettoCoverage.ptr;
+  return _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadMediumFuelLoad_2(self, ageOfRough, palmettoCoverage);
+};;
+
+PalmettoGallberry.prototype['calculatePalmettoGallberyFuelBedDepth'] = PalmettoGallberry.prototype.calculatePalmettoGallberyFuelBedDepth = /** @suppress {undefinedVars, duplicate} @this{Object} */function(heightOfUnderstory) {
+  var self = this.ptr;
+  if (heightOfUnderstory && typeof heightOfUnderstory === 'object') heightOfUnderstory = heightOfUnderstory.ptr;
+  return _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyFuelBedDepth_1(self, heightOfUnderstory);
 };;
 
 PalmettoGallberry.prototype['calculatePalmettoGallberyLitterLoad'] = PalmettoGallberry.prototype.calculatePalmettoGallberyLitterLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ageOfRough, overstoryBasalArea) {
@@ -2801,19 +2916,11 @@ PalmettoGallberry.prototype['calculatePalmettoGallberyLitterLoad'] = PalmettoGal
   return _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLitterLoad_2(self, ageOfRough, overstoryBasalArea);
 };;
 
-PalmettoGallberry.prototype['getPalmettoGallberyLiveOneHourLoad'] = PalmettoGallberry.prototype.getPalmettoGallberyLiveOneHourLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+PalmettoGallberry.prototype['calculatePalmettoGallberyLiveFineFuelLoad'] = PalmettoGallberry.prototype.calculatePalmettoGallberyLiveFineFuelLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ageOfRough, heightOfUnderstory) {
   var self = this.ptr;
-  return _emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveOneHourLoad_0(self);
-};;
-
-PalmettoGallberry.prototype['getPalmettoGallberyDeadFoliageLoad'] = PalmettoGallberry.prototype.getPalmettoGallberyDeadFoliageLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadFoliageLoad_0(self);
-};;
-
-PalmettoGallberry.prototype['getHeatOfCombustionDead'] = PalmettoGallberry.prototype.getHeatOfCombustionDead = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_PalmettoGallberry_getHeatOfCombustionDead_0(self);
+  if (ageOfRough && typeof ageOfRough === 'object') ageOfRough = ageOfRough.ptr;
+  if (heightOfUnderstory && typeof heightOfUnderstory === 'object') heightOfUnderstory = heightOfUnderstory.ptr;
+  return _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveFineFuelLoad_2(self, ageOfRough, heightOfUnderstory);
 };;
 
 PalmettoGallberry.prototype['calculatePalmettoGallberyLiveFoliageLoad'] = PalmettoGallberry.prototype.calculatePalmettoGallberyLiveFoliageLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ageOfRough, palmettoCoverage, heightOfUnderstory) {
@@ -2824,16 +2931,21 @@ PalmettoGallberry.prototype['calculatePalmettoGallberyLiveFoliageLoad'] = Palmet
   return _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveFoliageLoad_3(self, ageOfRough, palmettoCoverage, heightOfUnderstory);
 };;
 
-PalmettoGallberry.prototype['calculatePalmettoGallberyLiveTenHourLoad'] = PalmettoGallberry.prototype.calculatePalmettoGallberyLiveTenHourLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ageOfRough, heightOfUnderstory) {
+PalmettoGallberry.prototype['calculatePalmettoGallberyLiveMediumFuelLoad'] = PalmettoGallberry.prototype.calculatePalmettoGallberyLiveMediumFuelLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ageOfRough, heightOfUnderstory) {
   var self = this.ptr;
   if (ageOfRough && typeof ageOfRough === 'object') ageOfRough = ageOfRough.ptr;
   if (heightOfUnderstory && typeof heightOfUnderstory === 'object') heightOfUnderstory = heightOfUnderstory.ptr;
-  return _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveTenHourLoad_2(self, ageOfRough, heightOfUnderstory);
+  return _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveMediumFuelLoad_2(self, ageOfRough, heightOfUnderstory);
 };;
 
-PalmettoGallberry.prototype['getPalmettoGallberyDeadTenHourLoad'] = PalmettoGallberry.prototype.getPalmettoGallberyDeadTenHourLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+PalmettoGallberry.prototype['getHeatOfCombustionDead'] = PalmettoGallberry.prototype.getHeatOfCombustionDead = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  return _emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadTenHourLoad_0(self);
+  return _emscripten_bind_PalmettoGallberry_getHeatOfCombustionDead_0(self);
+};;
+
+PalmettoGallberry.prototype['getHeatOfCombustionLive'] = PalmettoGallberry.prototype.getHeatOfCombustionLive = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_PalmettoGallberry_getHeatOfCombustionLive_0(self);
 };;
 
 PalmettoGallberry.prototype['getMoistureOfExtinctionDead'] = PalmettoGallberry.prototype.getMoistureOfExtinctionDead = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
@@ -2841,28 +2953,19 @@ PalmettoGallberry.prototype['getMoistureOfExtinctionDead'] = PalmettoGallberry.p
   return _emscripten_bind_PalmettoGallberry_getMoistureOfExtinctionDead_0(self);
 };;
 
-PalmettoGallberry.prototype['getPalmettoGallberyLiveFoliageLoad'] = PalmettoGallberry.prototype.getPalmettoGallberyLiveFoliageLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+PalmettoGallberry.prototype['getPalmettoGallberyDeadFineFuelLoad'] = PalmettoGallberry.prototype.getPalmettoGallberyDeadFineFuelLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  return _emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveFoliageLoad_0(self);
+  return _emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadFineFuelLoad_0(self);
 };;
 
-PalmettoGallberry.prototype['getPalmettoGallberyLitterLoad'] = PalmettoGallberry.prototype.getPalmettoGallberyLitterLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+PalmettoGallberry.prototype['getPalmettoGallberyDeadFoliageLoad'] = PalmettoGallberry.prototype.getPalmettoGallberyDeadFoliageLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  return _emscripten_bind_PalmettoGallberry_getPalmettoGallberyLitterLoad_0(self);
+  return _emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadFoliageLoad_0(self);
 };;
 
-PalmettoGallberry.prototype['calculatePalmettoGallberyDeadTenHourLoad'] = PalmettoGallberry.prototype.calculatePalmettoGallberyDeadTenHourLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ageOfRough, palmettoCoverage) {
+PalmettoGallberry.prototype['getPalmettoGallberyDeadMediumFuelLoad'] = PalmettoGallberry.prototype.getPalmettoGallberyDeadMediumFuelLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  if (ageOfRough && typeof ageOfRough === 'object') ageOfRough = ageOfRough.ptr;
-  if (palmettoCoverage && typeof palmettoCoverage === 'object') palmettoCoverage = palmettoCoverage.ptr;
-  return _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadTenHourLoad_2(self, ageOfRough, palmettoCoverage);
-};;
-
-PalmettoGallberry.prototype['calculatePalmettoGallberyLiveOneHourLoad'] = PalmettoGallberry.prototype.calculatePalmettoGallberyLiveOneHourLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ageOfRough, heightOfUnderstory) {
-  var self = this.ptr;
-  if (ageOfRough && typeof ageOfRough === 'object') ageOfRough = ageOfRough.ptr;
-  if (heightOfUnderstory && typeof heightOfUnderstory === 'object') heightOfUnderstory = heightOfUnderstory.ptr;
-  return _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveOneHourLoad_2(self, ageOfRough, heightOfUnderstory);
+  return _emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadMediumFuelLoad_0(self);
 };;
 
 PalmettoGallberry.prototype['getPalmettoGallberyFuelBedDepth'] = PalmettoGallberry.prototype.getPalmettoGallberyFuelBedDepth = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
@@ -2870,34 +2973,24 @@ PalmettoGallberry.prototype['getPalmettoGallberyFuelBedDepth'] = PalmettoGallber
   return _emscripten_bind_PalmettoGallberry_getPalmettoGallberyFuelBedDepth_0(self);
 };;
 
-PalmettoGallberry.prototype['calculatePalmettoGallberyDeadFoliageLoad'] = PalmettoGallberry.prototype.calculatePalmettoGallberyDeadFoliageLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ageOfRough, palmettoCoverage) {
+PalmettoGallberry.prototype['getPalmettoGallberyLitterLoad'] = PalmettoGallberry.prototype.getPalmettoGallberyLitterLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  if (ageOfRough && typeof ageOfRough === 'object') ageOfRough = ageOfRough.ptr;
-  if (palmettoCoverage && typeof palmettoCoverage === 'object') palmettoCoverage = palmettoCoverage.ptr;
-  return _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadFoliageLoad_2(self, ageOfRough, palmettoCoverage);
+  return _emscripten_bind_PalmettoGallberry_getPalmettoGallberyLitterLoad_0(self);
 };;
 
-PalmettoGallberry.prototype['calculatePalmettoGallberyDeadOneHourLoad'] = PalmettoGallberry.prototype.calculatePalmettoGallberyDeadOneHourLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ageOfRough, heightOfUnderstory) {
+PalmettoGallberry.prototype['getPalmettoGallberyLiveFineFuelLoad'] = PalmettoGallberry.prototype.getPalmettoGallberyLiveFineFuelLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  if (ageOfRough && typeof ageOfRough === 'object') ageOfRough = ageOfRough.ptr;
-  if (heightOfUnderstory && typeof heightOfUnderstory === 'object') heightOfUnderstory = heightOfUnderstory.ptr;
-  return _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadOneHourLoad_2(self, ageOfRough, heightOfUnderstory);
+  return _emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveFineFuelLoad_0(self);
 };;
 
-PalmettoGallberry.prototype['getPalmettoGallberyLiveTenHourLoad'] = PalmettoGallberry.prototype.getPalmettoGallberyLiveTenHourLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+PalmettoGallberry.prototype['getPalmettoGallberyLiveFoliageLoad'] = PalmettoGallberry.prototype.getPalmettoGallberyLiveFoliageLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  return _emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveTenHourLoad_0(self);
+  return _emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveFoliageLoad_0(self);
 };;
 
-PalmettoGallberry.prototype['getPalmettoGallberyDeadOneHourLoad'] = PalmettoGallberry.prototype.getPalmettoGallberyDeadOneHourLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+PalmettoGallberry.prototype['getPalmettoGallberyLiveMediumFuelLoad'] = PalmettoGallberry.prototype.getPalmettoGallberyLiveMediumFuelLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  return _emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadOneHourLoad_0(self);
-};;
-
-PalmettoGallberry.prototype['calculatePalmettoGallberyFuelBedDepth'] = PalmettoGallberry.prototype.calculatePalmettoGallberyFuelBedDepth = /** @suppress {undefinedVars, duplicate} @this{Object} */function(heightOfUnderstory) {
-  var self = this.ptr;
-  if (heightOfUnderstory && typeof heightOfUnderstory === 'object') heightOfUnderstory = heightOfUnderstory.ptr;
-  return _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyFuelBedDepth_1(self, heightOfUnderstory);
+  return _emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveMediumFuelLoad_0(self);
 };;
 
   PalmettoGallberry.prototype['__destroy__'] = PalmettoGallberry.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
@@ -3107,17 +3200,55 @@ SIGCrown.prototype['getCriticalOpenWindSpeed'] = SIGCrown.prototype.getCriticalO
   return _emscripten_bind_SIGCrown_getCriticalOpenWindSpeed_1(self, speedUnits);
 };;
 
+SIGCrown.prototype['getCrownCriticalFireSpreadRate'] = SIGCrown.prototype.getCrownCriticalFireSpreadRate = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spreadRateUnits) {
+  var self = this.ptr;
+  if (spreadRateUnits && typeof spreadRateUnits === 'object') spreadRateUnits = spreadRateUnits.ptr;
+  return _emscripten_bind_SIGCrown_getCrownCriticalFireSpreadRate_1(self, spreadRateUnits);
+};;
+
+SIGCrown.prototype['getCrownCriticalSurfaceFirelineIntensity'] = SIGCrown.prototype.getCrownCriticalSurfaceFirelineIntensity = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firelineIntensityUnits) {
+  var self = this.ptr;
+  if (firelineIntensityUnits && typeof firelineIntensityUnits === 'object') firelineIntensityUnits = firelineIntensityUnits.ptr;
+  return _emscripten_bind_SIGCrown_getCrownCriticalSurfaceFirelineIntensity_1(self, firelineIntensityUnits);
+};;
+
+SIGCrown.prototype['getCrownCriticalSurfaceFlameLength'] = SIGCrown.prototype.getCrownCriticalSurfaceFlameLength = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameLengthUnits) {
+  var self = this.ptr;
+  if (flameLengthUnits && typeof flameLengthUnits === 'object') flameLengthUnits = flameLengthUnits.ptr;
+  return _emscripten_bind_SIGCrown_getCrownCriticalSurfaceFlameLength_1(self, flameLengthUnits);
+};;
+
+SIGCrown.prototype['getCrownFireActiveRatio'] = SIGCrown.prototype.getCrownFireActiveRatio = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGCrown_getCrownFireActiveRatio_0(self);
+};;
+
+SIGCrown.prototype['getCrownFireArea'] = SIGCrown.prototype.getCrownFireArea = /** @suppress {undefinedVars, duplicate} @this{Object} */function(areaUnits) {
+  var self = this.ptr;
+  if (areaUnits && typeof areaUnits === 'object') areaUnits = areaUnits.ptr;
+  return _emscripten_bind_SIGCrown_getCrownFireArea_1(self, areaUnits);
+};;
+
+SIGCrown.prototype['getCrownFirePerimeter'] = SIGCrown.prototype.getCrownFirePerimeter = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
+  var self = this.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  return _emscripten_bind_SIGCrown_getCrownFirePerimeter_1(self, lengthUnits);
+};;
+
+SIGCrown.prototype['getCrownTransitionRatio'] = SIGCrown.prototype.getCrownTransitionRatio = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGCrown_getCrownTransitionRatio_0(self);
+};;
+
 SIGCrown.prototype['getCrownFireLengthToWidthRatio'] = SIGCrown.prototype.getCrownFireLengthToWidthRatio = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   return _emscripten_bind_SIGCrown_getCrownFireLengthToWidthRatio_0(self);
 };;
 
-SIGCrown.prototype['getCrownFireSpreadDistance'] = SIGCrown.prototype.getCrownFireSpreadDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
+SIGCrown.prototype['getCrownFireSpreadDistance'] = SIGCrown.prototype.getCrownFireSpreadDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
   var self = this.ptr;
   if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
-  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
-  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
-  return _emscripten_bind_SIGCrown_getCrownFireSpreadDistance_3(self, lengthUnits, elapsedTime, timeUnits);
+  return _emscripten_bind_SIGCrown_getCrownFireSpreadDistance_1(self, lengthUnits);
 };;
 
 SIGCrown.prototype['getCrownFireSpreadRate'] = SIGCrown.prototype.getCrownFireSpreadRate = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spreadRateUnits) {
@@ -3362,12 +3493,10 @@ SIGCrown.prototype['getSlope'] = SIGCrown.prototype.getSlope = /** @suppress {un
   return _emscripten_bind_SIGCrown_getSlope_1(self, slopeUnits);
 };;
 
-SIGCrown.prototype['getSurfaceFireSpreadDistance'] = SIGCrown.prototype.getSurfaceFireSpreadDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
+SIGCrown.prototype['getSurfaceFireSpreadDistance'] = SIGCrown.prototype.getSurfaceFireSpreadDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
   var self = this.ptr;
   if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
-  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
-  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
-  return _emscripten_bind_SIGCrown_getSurfaceFireSpreadDistance_3(self, lengthUnits, elapsedTime, timeUnits);
+  return _emscripten_bind_SIGCrown_getSurfaceFireSpreadDistance_1(self, lengthUnits);
 };;
 
 SIGCrown.prototype['getSurfaceFireSpreadRate'] = SIGCrown.prototype.getSurfaceFireSpreadRate = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spreadRateUnits) {
@@ -3497,6 +3626,19 @@ SIGCrown.prototype['setFuelModelNumber'] = SIGCrown.prototype.setFuelModelNumber
   var self = this.ptr;
   if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
   _emscripten_bind_SIGCrown_setFuelModelNumber_1(self, fuelModelNumber);
+};;
+
+SIGCrown.prototype['setCrownFireCalculationMethod'] = SIGCrown.prototype.setCrownFireCalculationMethod = /** @suppress {undefinedVars, duplicate} @this{Object} */function(CrownFireCalculationMethod) {
+  var self = this.ptr;
+  if (CrownFireCalculationMethod && typeof CrownFireCalculationMethod === 'object') CrownFireCalculationMethod = CrownFireCalculationMethod.ptr;
+  _emscripten_bind_SIGCrown_setCrownFireCalculationMethod_1(self, CrownFireCalculationMethod);
+};;
+
+SIGCrown.prototype['setElapsedTime'] = SIGCrown.prototype.setElapsedTime = /** @suppress {undefinedVars, duplicate} @this{Object} */function(elapsedTime, timeUnits) {
+  var self = this.ptr;
+  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
+  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
+  _emscripten_bind_SIGCrown_setElapsedTime_2(self, elapsedTime, timeUnits);
 };;
 
 SIGCrown.prototype['setFuelModels'] = SIGCrown.prototype.setFuelModels = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModels) {
@@ -3809,14 +3951,6 @@ SIGMortality.prototype['getEquationTypeAtSpeciesTableIndex'] = SIGMortality.prot
   return _emscripten_bind_SIGMortality_getEquationTypeAtSpeciesTableIndex_1(self, index);
 };;
 
-SIGMortality.prototype['getEquationTypeFromSpeciesCode'] = SIGMortality.prototype.getEquationTypeFromSpeciesCode = /** @suppress {undefinedVars, duplicate} @this{Object} */function(speciesCode) {
-  var self = this.ptr;
-  ensureCache.prepare();
-  if (speciesCode && typeof speciesCode === 'object') speciesCode = speciesCode.ptr;
-  else speciesCode = ensureString(speciesCode);
-  return _emscripten_bind_SIGMortality_getEquationTypeFromSpeciesCode_1(self, speciesCode);
-};;
-
 SIGMortality.prototype['getFireSeverity'] = SIGMortality.prototype.getFireSeverity = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   return _emscripten_bind_SIGMortality_getFireSeverity_0(self);
@@ -3863,6 +3997,18 @@ SIGMortality.prototype['calculateMortality'] = SIGMortality.prototype.calculateM
   return _emscripten_bind_SIGMortality_calculateMortality_1(self, probablityUnits);
 };;
 
+SIGMortality.prototype['calculateScorchHeight'] = SIGMortality.prototype.calculateScorchHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firelineIntensity, firelineIntensityUnits, midFlameWindSpeed, windSpeedUnits, airTemperature, temperatureUnits, scorchHeightUnits) {
+  var self = this.ptr;
+  if (firelineIntensity && typeof firelineIntensity === 'object') firelineIntensity = firelineIntensity.ptr;
+  if (firelineIntensityUnits && typeof firelineIntensityUnits === 'object') firelineIntensityUnits = firelineIntensityUnits.ptr;
+  if (midFlameWindSpeed && typeof midFlameWindSpeed === 'object') midFlameWindSpeed = midFlameWindSpeed.ptr;
+  if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
+  if (airTemperature && typeof airTemperature === 'object') airTemperature = airTemperature.ptr;
+  if (temperatureUnits && typeof temperatureUnits === 'object') temperatureUnits = temperatureUnits.ptr;
+  if (scorchHeightUnits && typeof scorchHeightUnits === 'object') scorchHeightUnits = scorchHeightUnits.ptr;
+  return _emscripten_bind_SIGMortality_calculateScorchHeight_7(self, firelineIntensity, firelineIntensityUnits, midFlameWindSpeed, windSpeedUnits, airTemperature, temperatureUnits, scorchHeightUnits);
+};;
+
 SIGMortality.prototype['getBarkThickness'] = SIGMortality.prototype.getBarkThickness = /** @suppress {undefinedVars, duplicate} @this{Object} */function(barkThicknessUnits) {
   var self = this.ptr;
   if (barkThicknessUnits && typeof barkThicknessUnits === 'object') barkThicknessUnits = barkThicknessUnits.ptr;
@@ -3903,6 +4049,12 @@ SIGMortality.prototype['getCrownDamage'] = SIGMortality.prototype.getCrownDamage
 SIGMortality.prototype['getCrownRatio'] = SIGMortality.prototype.getCrownRatio = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   return _emscripten_bind_SIGMortality_getCrownRatio_0(self);
+};;
+
+SIGMortality.prototype['getCalculatedScorchHeight'] = SIGMortality.prototype.getCalculatedScorchHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(scorchHeightUnits) {
+  var self = this.ptr;
+  if (scorchHeightUnits && typeof scorchHeightUnits === 'object') scorchHeightUnits = scorchHeightUnits.ptr;
+  return _emscripten_bind_SIGMortality_getCalculatedScorchHeight_1(self, scorchHeightUnits);
 };;
 
 SIGMortality.prototype['getDBH'] = SIGMortality.prototype.getDBH = /** @suppress {undefinedVars, duplicate} @this{Object} */function(diameterUnits) {
@@ -4093,6 +4245,13 @@ SIGMortality.prototype['getRequiredFieldVector'] = SIGMortality.prototype.getReq
   return wrapPointer(_emscripten_bind_SIGMortality_getRequiredFieldVector_0(self), BoolVector);
 };;
 
+SIGMortality.prototype['setAirTemperature'] = SIGMortality.prototype.setAirTemperature = /** @suppress {undefinedVars, duplicate} @this{Object} */function(airTemperature, temperatureUnits) {
+  var self = this.ptr;
+  if (airTemperature && typeof airTemperature === 'object') airTemperature = airTemperature.ptr;
+  if (temperatureUnits && typeof temperatureUnits === 'object') temperatureUnits = temperatureUnits.ptr;
+  _emscripten_bind_SIGMortality_setAirTemperature_2(self, airTemperature, temperatureUnits);
+};;
+
 SIGMortality.prototype['setBeetleDamage'] = SIGMortality.prototype.setBeetleDamage = /** @suppress {undefinedVars, duplicate} @this{Object} */function(beetleDamage) {
   var self = this.ptr;
   if (beetleDamage && typeof beetleDamage === 'object') beetleDamage = beetleDamage.ptr;
@@ -4143,6 +4302,13 @@ SIGMortality.prototype['setFireSeverity'] = SIGMortality.prototype.setFireSeveri
   _emscripten_bind_SIGMortality_setFireSeverity_1(self, fireSeverity);
 };;
 
+SIGMortality.prototype['setFirelineIntensity'] = SIGMortality.prototype.setFirelineIntensity = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firelineIntensity, firelineIntensityUnits) {
+  var self = this.ptr;
+  if (firelineIntensity && typeof firelineIntensity === 'object') firelineIntensity = firelineIntensity.ptr;
+  if (firelineIntensityUnits && typeof firelineIntensityUnits === 'object') firelineIntensityUnits = firelineIntensityUnits.ptr;
+  _emscripten_bind_SIGMortality_setFirelineIntensity_2(self, firelineIntensity, firelineIntensityUnits);
+};;
+
 SIGMortality.prototype['setFlameLengthOrScorchHeightSwitch'] = SIGMortality.prototype.setFlameLengthOrScorchHeightSwitch = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameLengthOrScorchHeightSwitch) {
   var self = this.ptr;
   if (flameLengthOrScorchHeightSwitch && typeof flameLengthOrScorchHeightSwitch === 'object') flameLengthOrScorchHeightSwitch = flameLengthOrScorchHeightSwitch.ptr;
@@ -4160,6 +4326,20 @@ SIGMortality.prototype['setRegion'] = SIGMortality.prototype.setRegion = /** @su
   var self = this.ptr;
   if (region && typeof region === 'object') region = region.ptr;
   _emscripten_bind_SIGMortality_setRegion_1(self, region);
+};;
+
+SIGMortality.prototype['setSurfaceFireFlameLength'] = SIGMortality.prototype.setSurfaceFireFlameLength = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, lengthUnits) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  _emscripten_bind_SIGMortality_setSurfaceFireFlameLength_2(self, value, lengthUnits);
+};;
+
+SIGMortality.prototype['setSurfaceFireScorchHeight'] = SIGMortality.prototype.setSurfaceFireScorchHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, lengthUnits) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  _emscripten_bind_SIGMortality_setSurfaceFireScorchHeight_2(self, value, lengthUnits);
 };;
 
 SIGMortality.prototype['setSpeciesCode'] = SIGMortality.prototype.setSpeciesCode = /** @suppress {undefinedVars, duplicate} @this{Object} */function(speciesCode) {
@@ -4182,6 +4362,14 @@ SIGMortality.prototype['setTreeHeight'] = SIGMortality.prototype.setTreeHeight =
   if (treeHeight && typeof treeHeight === 'object') treeHeight = treeHeight.ptr;
   if (treeHeightUnits && typeof treeHeightUnits === 'object') treeHeightUnits = treeHeightUnits.ptr;
   _emscripten_bind_SIGMortality_setTreeHeight_2(self, treeHeight, treeHeightUnits);
+};;
+
+SIGMortality.prototype['getEquationTypeFromSpeciesCode'] = SIGMortality.prototype.getEquationTypeFromSpeciesCode = /** @suppress {undefinedVars, duplicate} @this{Object} */function(speciesCode) {
+  var self = this.ptr;
+  ensureCache.prepare();
+  if (speciesCode && typeof speciesCode === 'object') speciesCode = speciesCode.ptr;
+  else speciesCode = ensureString(speciesCode);
+  return _emscripten_bind_SIGMortality_getEquationTypeFromSpeciesCode_1(self, speciesCode);
 };;
 
   SIGMortality.prototype['__destroy__'] = SIGMortality.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
@@ -4686,6 +4874,22 @@ WindSpeedUtility.prototype['windSpeedAtTwentyFeetFromTenMeter'] = WindSpeedUtili
 
     
 
+    // WindUpslopeAlignmentMode
+
+    Module['NotAligned'] = _emscripten_enum_WindUpslopeAlignmentMode_NotAligned();
+
+    Module['Aligned'] = _emscripten_enum_WindUpslopeAlignmentMode_Aligned();
+
+    
+
+    // SurfaceRunInDirectionOf
+
+    Module['MaxSpread'] = _emscripten_enum_SurfaceRunInDirectionOf_MaxSpread();
+
+    Module['DirectionOfInterest'] = _emscripten_enum_SurfaceRunInDirectionOf_DirectionOfInterest();
+
+    
+
     // FireType_FireTypeEnum
 
     Module['Surface'] = _emscripten_enum_FireType_FireTypeEnum_Surface();
@@ -4705,6 +4909,14 @@ WindSpeedUtility.prototype['windSpeedAtTwentyFeetFromTenMeter'] = WindSpeedUtili
     Module['no'] = _emscripten_enum_BeetleDamage_no();
 
     Module['yes'] = _emscripten_enum_BeetleDamage_yes();
+
+    
+
+    // CrownFireCalculationMethod
+
+    Module['rothermel'] = _emscripten_enum_CrownFireCalculationMethod_rothermel();
+
+    Module['scott_and_reinhardt'] = _emscripten_enum_CrownFireCalculationMethod_scott_and_reinhardt();
 
     
 

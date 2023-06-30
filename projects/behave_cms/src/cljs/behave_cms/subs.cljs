@@ -7,6 +7,7 @@
             [behave-cms.applications.subs]
             [behave-cms.groups.subs]
             [behave-cms.languages.subs]
+            [behave-cms.group-variables.subs]
             [behave-cms.lists.subs]
             [behave-cms.modules.subs]
             [behave-cms.subgroups.subs]

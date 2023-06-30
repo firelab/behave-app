@@ -1,11 +1,12 @@
 (ns behave.worksheet.subs
-  (:require [behave.store    :as s]
-            [clojure.string  :as str]
-            [clojure.set     :as set]
-            [datascript.core :as d]
-            [re-posh.core    :as rp]
-            [re-frame.core   :as rf]
-            [austinbirch.reactive-entity :as re]))
+  (:require [behave.store                :as s]
+            [clojure.string              :as str]
+            [clojure.set                 :as set]
+            [datascript.core             :as d]
+            [re-posh.core                :as rp]
+            [re-frame.core               :as rf]
+            [austinbirch.reactive-entity :as re]
+            [string-utils.interface      :refer [->str ->kebab]]))
 
 ;; Retrieve all worksheet UUID's
 (rp/reg-sub
@@ -49,10 +50,10 @@
 
 ;; Get the value of a particular input
 (rp/reg-sub
- :worksheet/input
+ :worksheet/input-value
  (fn [_ [_ ws-uuid group-uuid repeat-id group-variable-uuid]]
    {:type      :query
-    :query     '[:find  [?value]
+    :query     '[:find  ?value .
                  :in    $ ?ws-uuid ?group-uuid ?repeat-id ?group-var-uuid
                  :where [?w :worksheet/uuid ?ws-uuid]
                  [?w :worksheet/input-groups ?g]
@@ -428,3 +429,19 @@
            group-variables (set (flatten (map #(map :bp/uuid (:group/group-variables %)) groups)))]
        (boolean (seq (set/intersection (set all-output-uuids) group-variables))))
      false)))
+
+(rf/reg-sub
+ :worksheet/first-output-submodule-slug
+ (fn [_]
+   (rf/subscribe [:vms/pull-with-attr :module/name]))
+ (fn [modules [_ module]]
+   (when module
+     (let [module     (first (filter (fn [{m-name :module/name}]
+                                   (= (->str module) (str/lower-case m-name))) modules))
+           submodules @(rf/subscribe [:vms/pull-children :module/submodules (:db/id module)])]
+       (as-> submodules $
+         (filter #(= :output (:submodule/io %)) $)
+         (sort-by :submodule/order $)
+         (first $)
+         (:submodule/name $)
+         (->kebab $))))))

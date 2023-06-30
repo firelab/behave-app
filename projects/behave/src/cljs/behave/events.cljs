@@ -1,5 +1,6 @@
 (ns behave.events
   (:require [browser-utils.core :refer [add-script script-exist?]]
+            [ajax.core :as ajax]
             [re-frame.core :as rf]))
 
 ;;; Initialization
@@ -126,3 +127,18 @@
   (rf/path [:translations])
   (fn [translations [_ language new-translations]]
     (update translations language merge new-translations)))
+
+;;; Dev
+(rf/reg-event-fx
+ :dev/export-from-vms
+ (fn [_ _]
+   {:http-xhrio {:method          :get
+                 :uri             "http://localhost:8081/vms-sync"
+                 :response-format (ajax/text-response-format)
+                 :on-success      [:state/set :vms-export-http-results]
+                 :on-failure      [:state/set :vms-export-http-results]}}))
+
+(rf/reg-event-fx
+ :app/reload
+ (fn [_ _]
+   (js/window.location.reload)))

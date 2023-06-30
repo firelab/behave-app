@@ -37,6 +37,9 @@
 (defn getBoleCharHeight [self boleCharHeightUnits]
   (.getBoleCharHeight self boleCharHeightUnits))
 
+(defn getCalculatedScorchHeight [self scorchHeightUnits]
+  (.getCalculatedScorchHeight self scorchHeightUnits))
+
 (defn getCambiumKillRating [self]
   (.getCambiumKillRating self))
 
@@ -169,6 +172,9 @@
 (defn prefireCanopyCover [self]
   (.prefireCanopyCover self))
 
+(defn setAirTemperature [self airTemperature temperatureUnits]
+  (.setAirTemperature self airTemperature temperatureUnits))
+
 (defn setBeetleDamage [self beetleDamage]
   (.setBeetleDamage self beetleDamage))
 
@@ -193,17 +199,26 @@
 (defn setFireSeverity [self fireSeverity]
   (.setFireSeverity self fireSeverity))
 
+(defn setFirelineIntensity [self firelineIntensity firelineIntensityUnits]
+  (.setFirelineIntensity self firelineIntensity firelineIntensityUnits))
+
 (defn setFlameLengthOrScorchHeightSwitch [self flameLengthOrScorchHeightSwitch]
   (.setFlameLengthOrScorchHeightSwitch self flameLengthOrScorchHeightSwitch))
 
 (defn setFlameLengthOrScorchHeightValue [self flameLengthOrScorchHeightValue flameLengthOrScorchHeightUnits]
   (.setFlameLengthOrScorchHeightValue self flameLengthOrScorchHeightValue flameLengthOrScorchHeightUnits))
 
+(defn setMidFlameWindSpeed [self midFlameWindSpeed windSpeedUnits]
+  (.setMidFlameWindSpeed self midFlameWindSpeed windSpeedUnits))
+
 (defn setRegion [self region]
   (.setRegion self region))
 
 (defn setSpeciesCode [self speciesCode]
   (.setSpeciesCode self speciesCode))
+
+(defn setSurfaceFireScorchHeight [self value lengthUnits]
+  (.setSurfaceFireScorchHeight self value lengthUnits))
 
 (defn setTreeDensityPerUnitArea [self numberOfTrees areaUnits]
   (.setTreeDensityPerUnitArea self numberOfTrees areaUnits))

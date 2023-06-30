@@ -43,6 +43,7 @@
              sig/dom-utils                 {:local/root "../../components/dom_utils"}
              sig/ds-schema-utils           {:local/root "../../components/ds_schema_utils"}
              sig/number-utils              {:local/root "../../components/number_utils"}
+             sig/logging                   {:local/root "../../components/logging"}
              sig/markdown2hiccup           {:local/root "../../components/markdown2hiccup"}
              sig/server                    {:local/root "../../components/server"}
              sig/string-utils              {:local/root "../../components/string_utils"}

@@ -4,12 +4,14 @@
 
 (defn init [fuelModels]
   (js/Module.SIGSurface. fuelModels))
-
 (defn calculateFlameLength [self firelineIntensity firelineIntensityUnits flameLengthUnits]
   (.calculateFlameLength self firelineIntensity firelineIntensityUnits flameLengthUnits))
 
 (defn calculateScorchHeight [self firelineIntensity firelineIntensityUnits midFlameWindSpeed windSpeedUnits airTemperature temperatureUnits scorchHeightUnits]
   (.calculateScorchHeight self firelineIntensity firelineIntensityUnits midFlameWindSpeed windSpeedUnits airTemperature temperatureUnits scorchHeightUnits))
+
+(defn doSurfaceRun [self]
+  (.doSurfaceRun self))
 
 (defn doSurfaceRunInDirectionOfInterest [self directionOfInterest directionMode]
   (.doSurfaceRunInDirectionOfInterest self directionOfInterest directionMode))
@@ -59,8 +61,8 @@
 (defn getAspenSavrLiveWoody [self savrUnits]
   (.getAspenSavrLiveWoody self savrUnits))
 
-(defn getBackingSpreadDistance [self lengthUnits elapsedTime timeUnits]
-  (.getBackingSpreadDistance self lengthUnits elapsedTime timeUnits))
+(defn getBackingSpreadDistance [self lengthUnits]
+  (.getBackingSpreadDistance self lengthUnits))
 
 (defn getBackingSpreadRate [self spreadRateUnits]
   (.getBackingSpreadRate self spreadRateUnits))
@@ -98,6 +100,9 @@
 (defn getChaparralFuelDeadLoadFraction [self]
   (.getChaparralFuelDeadLoadFraction self))
 
+(defn getChaparralFuelLoadInputMode [self]
+  (.getChaparralFuelLoadInputMode self))
+
 (defn getChaparralFuelType [self]
   (.getChaparralFuelType self))
 
@@ -131,26 +136,38 @@
 (defn getCharacteristicMoistureByLifeState [self lifeState moistureUnits]
   (.getCharacteristicMoistureByLifeState self lifeState moistureUnits))
 
+(defn getCharacteristicMoistureDead [self moistureUnits]
+  (.getCharacteristicMoistureDead self moistureUnits))
+
+(defn getCharacteristicMoistureLive [self moistureUnits]
+  (.getCharacteristicMoistureLive self moistureUnits))
+
 (defn getCharacteristicSAVR [self savrUnits]
   (.getCharacteristicSAVR self savrUnits))
 
 (defn getCrownRatio [self]
   (.getCrownRatio self))
 
+(defn getDirectionOfInterest [self]
+  (.getDirectionOfInterest self))
+
 (defn getDirectionOfMaxSpread [self]
   (.getDirectionOfMaxSpread self))
 
-(defn getEllipticalA [self lengthUnits elapsedTime timeUnits]
-  (.getEllipticalA self lengthUnits elapsedTime timeUnits))
+(defn getElapsedTime [self timeUnits]
+  (.getElapsedTime self timeUnits))
 
-(defn getEllipticalB [self lengthUnits elapsedTime timeUnits]
-  (.getEllipticalB self lengthUnits elapsedTime timeUnits))
+(defn getEllipticalA [self lengthUnits]
+  (.getEllipticalA self lengthUnits))
 
-(defn getEllipticalC [self lengthUnits elapsedTime timeUnits]
-  (.getEllipticalC self lengthUnits elapsedTime timeUnits))
+(defn getEllipticalB [self lengthUnits]
+  (.getEllipticalB self lengthUnits))
 
-(defn getFireArea [self areaUnits elapsedTime timeUnits]
-  (.getFireArea self areaUnits elapsedTime timeUnits))
+(defn getEllipticalC [self lengthUnits]
+  (.getEllipticalC self lengthUnits))
+
+(defn getFireArea [self areaUnits]
+  (.getFireArea self areaUnits))
 
 (defn getFireEccentricity [self]
   (.getFireEccentricity self))
@@ -158,8 +175,8 @@
 (defn getFireLengthToWidthRatio [self]
   (.getFireLengthToWidthRatio self))
 
-(defn getFirePerimeter [self lengthUnits elapsedTime timeUnits]
-  (.getFirePerimeter self lengthUnits elapsedTime timeUnits))
+(defn getFirePerimeter [self lengthUnits]
+  (.getFirePerimeter self lengthUnits))
 
 (defn getFirelineIntensity [self firelineIntensityUnits]
   (.getFirelineIntensity self firelineIntensityUnits))
@@ -167,8 +184,8 @@
 (defn getFlameLength [self flameLengthUnits]
   (.getFlameLength self flameLengthUnits))
 
-(defn getFlankingSpreadDistance [self lengthUnits elapsedTime timeUnits]
-  (.getFlankingSpreadDistance self lengthUnits elapsedTime timeUnits))
+(defn getFlankingSpreadDistance [self lengthUnits]
+  (.getFlankingSpreadDistance self lengthUnits))
 
 (defn getFlankingSpreadRate [self spreadRateUnits]
   (.getFlankingSpreadRate self spreadRateUnits))
@@ -326,6 +343,9 @@
 (defn getOverstoryBasalArea [self basalAreaUnits]
   (.getOverstoryBasalArea self basalAreaUnits))
 
+(defn getPackingRatio [self]
+  (.getPackingRatio self))
+
 (defn getPalmettoGallberryCoverage [self coverUnits]
   (.getPalmettoGallberryCoverage self coverUnits))
 
@@ -365,6 +385,9 @@
 (defn getReactionIntensity [self reactiontionIntensityUnits]
   (.getReactionIntensity self reactiontionIntensityUnits))
 
+(defn getRelativePackingRatio [self]
+  (.getRelativePackingRatio self))
+
 (defn getResidenceTime [self timeUnits]
   (.getResidenceTime self timeUnits))
 
@@ -374,11 +397,11 @@
 (defn getSlopeFactor [self]
   (.getSlopeFactor self))
 
-(defn getSpreadDistance [self lengthUnits elapsedTime timeUnits]
-  (.getSpreadDistance self lengthUnits elapsedTime timeUnits))
+(defn getSpreadDistance [self lengthUnits]
+  (.getSpreadDistance self lengthUnits))
 
-(defn getSpreadDistanceInDirectionOfInterest [self lengthUnits elapsedTime timeUnits]
-  (.getSpreadDistanceInDirectionOfInterest self lengthUnits elapsedTime timeUnits))
+(defn getSpreadDistanceInDirectionOfInterest [self lengthUnits]
+  (.getSpreadDistanceInDirectionOfInterest self lengthUnits))
 
 (defn getSpreadRate [self spreadRateUnits]
   (.getSpreadRate self spreadRateUnits))
@@ -386,8 +409,17 @@
 (defn getSpreadRateInDirectionOfInterest [self spreadRateUnits]
   (.getSpreadRateInDirectionOfInterest self spreadRateUnits))
 
+(defn getSurfaceFireReactionIntensityDead [self]
+  (.getSurfaceFireReactionIntensityDead self))
+
 (defn getSurfaceFireReactionIntensityForLifeState [self lifeState]
   (.getSurfaceFireReactionIntensityForLifeState self lifeState))
+
+(defn getSurfaceFireReactionIntensityLive [self]
+  (.getSurfaceFireReactionIntensityLive self))
+
+(defn getWindAdjustmentFactor [self]
+  (.getWindAdjustmentFactor self))
 
 (defn getWindAdjustmentFactorCalculationMethod [self]
   (.getWindAdjustmentFactorCalculationMethod self))
@@ -403,6 +435,9 @@
 
 (defn getWindSpeed [self windSpeedUnits windHeightInputMode]
   (.getWindSpeed self windSpeedUnits windHeightInputMode))
+
+(defn getWindUpslopeAlignmentMode [self]
+  (.getWindUpslopeAlignmentMode self))
 
 (defn initializeMembers [self]
   (.initializeMembers self))
@@ -470,6 +505,12 @@
 (defn setCrownRatio [self crownRatio]
   (.setCrownRatio self crownRatio))
 
+(defn setDirectionOfInterest [self directionOfInterest]
+  (.setDirectionOfInterest self directionOfInterest))
+
+(defn setElapsedTime [self elapsedTime timeUnits]
+  (.setElapsedTime self elapsedTime timeUnits))
+
 (defn setFirstFuelModelNumber [self firstFuelModelNumber]
   (.setFirstFuelModelNumber self firstFuelModelNumber))
 
@@ -536,6 +577,12 @@
 (defn setSlope [self slope slopeUnits]
   (.setSlope self slope slopeUnits))
 
+(defn setSurfaceFireSpreadDirectionMode [self directionMode]
+  (.setSurfaceFireSpreadDirectionMode self directionMode))
+
+(defn setSurfaceRunInDirectionOf [self surfaceRunInDirectionOf]
+  (.setSurfaceRunInDirectionOf self surfaceRunInDirectionOf))
+
 (defn setTwoFuelModelsFirstFuelModelCoverage [self firstFuelModelCoverage coverUnits]
   (.setTwoFuelModelsFirstFuelModelCoverage self firstFuelModelCoverage coverUnits))
 
@@ -559,6 +606,9 @@
 
 (defn setWindSpeed [self windSpeed windSpeedUnits windHeightInputMode]
   (.setWindSpeed self windSpeed windSpeedUnits windHeightInputMode))
+
+(defn setWindUpslopeAlignmentMode [self windUpslopeAlignmentMode]
+  (.setWindUpslopeAlignmentMode self windUpslopeAlignmentMode))
 
 (defn updateSurfaceInputs [self fuelModelNumber moistureOneHour moistureTenHour moistureHundredHour moistureLiveHerbaceous moistureLiveWoody moistureUnits windSpeed windSpeedUnits windHeightInputMode windDirection windAndSpreadOrientationMode slope slopeUnits aspect canopyCover coverUnits canopyHeight canopyHeightUnits crownRatio]
   (.updateSurfaceInputs self fuelModelNumber moistureOneHour moistureTenHour moistureHundredHour moistureLiveHerbaceous moistureLiveWoody moistureUnits windSpeed windSpeedUnits windHeightInputMode windDirection windAndSpreadOrientationMode slope slopeUnits aspect canopyCover coverUnits canopyHeight canopyHeightUnits crownRatio))

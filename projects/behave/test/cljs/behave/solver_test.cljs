@@ -5,7 +5,7 @@
             [behave.lib.contain :as contain]
             [behave.lib.enums   :as enums]
             [behave.lib.units   :refer [get-unit]]
-            [behave.solver      :as solver]))
+            [behave.solver.core :as solver]))
 
 (defn simple-solver [{:keys [inputs outputs]} results]
   (let [module (contain/init)]

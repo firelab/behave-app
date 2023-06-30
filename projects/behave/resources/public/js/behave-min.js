@@ -66,10 +66,10 @@ if (ENVIRONMENT_IS_NODE) {
 
   var nodeVersion = process.versions.node;
   var numericVersion = nodeVersion.split('.').slice(0, 3);
-  numericVersion = (numericVersion[0] * 10000) + (numericVersion[1] * 100) + numericVersion[2] * 1;
-  var minVersion = 101900;
-  if (numericVersion < 101900) {
-    throw new Error('This emscripten-generated code requires node v10.19.19.0 (detected v' + nodeVersion + ')');
+  numericVersion = (numericVersion[0] * 10000) + (numericVersion[1] * 100) + (numericVersion[2].split('-')[0] * 1);
+  var minVersion = 160000;
+  if (numericVersion < 160000) {
+    throw new Error('This emscripten-generated code requires node v16.0.0 (detected v' + nodeVersion + ')');
   }
 
   // `require()` is no-op in an ESM module, use `createRequire()` to construct
@@ -104,17 +104,16 @@ readBinary = (filename) => {
   return ret;
 };
 
-readAsync = (filename, onload, onerror) => {
+readAsync = (filename, onload, onerror, binary = true) => {
   // See the comment in the `read_` function.
   filename = isFileURI(filename) ? new URL(filename) : nodePath.normalize(filename);
-  fs.readFile(filename, function(err, data) {
+  fs.readFile(filename, binary ? undefined : 'utf8', (err, data) => {
     if (err) onerror(err);
-    else onload(data.buffer);
+    else onload(binary ? data.buffer : data);
   });
 };
-
 // end include: node_shell_read.js
-  if (process.argv.length > 1) {
+  if (!Module['thisProgram'] && process.argv.length > 1) {
     thisProgram = process.argv[1].replace(/\\/g, '/');
   }
 
@@ -124,29 +123,19 @@ readAsync = (filename, onload, onerror) => {
     module['exports'] = Module;
   }
 
-  process.on('uncaughtException', function(ex) {
+  process.on('uncaughtException', (ex) => {
     // suppress ExitStatus exceptions from showing an error
     if (ex !== 'unwind' && !(ex instanceof ExitStatus) && !(ex.context instanceof ExitStatus)) {
       throw ex;
     }
   });
 
-  // Without this older versions of node (< v15) will log unhandled rejections
-  // but return 0, which is not normally the desired behaviour.  This is
-  // not be needed with node v15 and about because it is now the default
-  // behaviour:
-  // See https://nodejs.org/api/cli.html#cli_unhandled_rejections_mode
-  var nodeMajor = process.versions.node.split(".")[0];
-  if (nodeMajor < 15) {
-    process.on('unhandledRejection', function(reason) { throw reason; });
-  }
-
   quit_ = (status, toThrow) => {
     process.exitCode = status;
     throw toThrow;
   };
 
-  Module['inspect'] = function () { return '[Emscripten Module object]'; };
+  Module['inspect'] = () => '[Emscripten Module object]';
 
 } else
 if (ENVIRONMENT_IS_SHELL) {
@@ -154,12 +143,12 @@ if (ENVIRONMENT_IS_SHELL) {
   if ((typeof process == 'object' && typeof require === 'function') || typeof window == 'object' || typeof importScripts == 'function') throw new Error('not compiled for this environment (did you build to HTML and try to run it not on the web, or set ENVIRONMENT to something - like node - and run it someplace else - like on the web?)');
 
   if (typeof read != 'undefined') {
-    read_ = function shell_read(f) {
+    read_ = (f) => {
       return read(f);
     };
   }
 
-  readBinary = function readBinary(f) {
+  readBinary = (f) => {
     let data;
     if (typeof readbuffer == 'function') {
       return new Uint8Array(readbuffer(f));
@@ -169,12 +158,17 @@ if (ENVIRONMENT_IS_SHELL) {
     return data;
   };
 
-  readAsync = function readAsync(f, onload, onerror) {
-    setTimeout(() => onload(readBinary(f)), 0);
+  readAsync = (f, onload, onerror) => {
+    setTimeout(() => onload(readBinary(f)));
   };
 
   if (typeof clearTimeout == 'undefined') {
     globalThis.clearTimeout = (id) => {};
+  }
+
+  if (typeof setTimeout == 'undefined') {
+    // spidermonkey lacks setTimeout but we use it above in readAsync.
+    globalThis.setTimeout = (f) => (typeof f == 'function') ? f() : abort();
   }
 
   if (typeof scriptArgs != 'undefined') {
@@ -200,7 +194,7 @@ if (ENVIRONMENT_IS_SHELL) {
           if (toThrow && typeof toThrow == 'object' && toThrow.stack) {
             toLog = [toThrow, toThrow.stack];
           }
-          err('exiting due to exception: ' + toLog);
+          err(`exiting due to exception: ${toLog}`);
         }
         quit(status);
       });
@@ -286,7 +280,7 @@ read_ = (url) => {
 }
 
 var out = Module['print'] || console.log.bind(console);
-var err = Module['printErr'] || console.warn.bind(console);
+var err = Module['printErr'] || console.error.bind(console);
 
 // Merge back in the overrides
 Object.assign(Module, moduleOverrides);
@@ -376,196 +370,6 @@ function assert(condition, text) {
 // We used to include malloc/free by default in the past. Show a helpful error in
 // builds with assertions.
 
-// include: runtime_strings.js
-// runtime_strings.js: String related runtime functions that are part of both
-// MINIMAL_RUNTIME and regular runtime.
-
-var UTF8Decoder = typeof TextDecoder != 'undefined' ? new TextDecoder('utf8') : undefined;
-
-/**
- * Given a pointer 'idx' to a null-terminated UTF8-encoded string in the given
- * array that contains uint8 values, returns a copy of that string as a
- * Javascript String object.
- * heapOrArray is either a regular array, or a JavaScript typed array view.
- * @param {number} idx
- * @param {number=} maxBytesToRead
- * @return {string}
- */
-function UTF8ArrayToString(heapOrArray, idx, maxBytesToRead) {
-  var endIdx = idx + maxBytesToRead;
-  var endPtr = idx;
-  // TextDecoder needs to know the byte length in advance, it doesn't stop on
-  // null terminator by itself.  Also, use the length info to avoid running tiny
-  // strings through TextDecoder, since .subarray() allocates garbage.
-  // (As a tiny code save trick, compare endPtr against endIdx using a negation,
-  // so that undefined means Infinity)
-  while (heapOrArray[endPtr] && !(endPtr >= endIdx)) ++endPtr;
-
-  if (endPtr - idx > 16 && heapOrArray.buffer && UTF8Decoder) {
-    return UTF8Decoder.decode(heapOrArray.subarray(idx, endPtr));
-  }
-  var str = '';
-  // If building with TextDecoder, we have already computed the string length
-  // above, so test loop end condition against that
-  while (idx < endPtr) {
-    // For UTF8 byte structure, see:
-    // http://en.wikipedia.org/wiki/UTF-8#Description
-    // https://www.ietf.org/rfc/rfc2279.txt
-    // https://tools.ietf.org/html/rfc3629
-    var u0 = heapOrArray[idx++];
-    if (!(u0 & 0x80)) { str += String.fromCharCode(u0); continue; }
-    var u1 = heapOrArray[idx++] & 63;
-    if ((u0 & 0xE0) == 0xC0) { str += String.fromCharCode(((u0 & 31) << 6) | u1); continue; }
-    var u2 = heapOrArray[idx++] & 63;
-    if ((u0 & 0xF0) == 0xE0) {
-      u0 = ((u0 & 15) << 12) | (u1 << 6) | u2;
-    } else {
-      if ((u0 & 0xF8) != 0xF0) warnOnce('Invalid UTF-8 leading byte ' + ptrToString(u0) + ' encountered when deserializing a UTF-8 string in wasm memory to a JS string!');
-      u0 = ((u0 & 7) << 18) | (u1 << 12) | (u2 << 6) | (heapOrArray[idx++] & 63);
-    }
-
-    if (u0 < 0x10000) {
-      str += String.fromCharCode(u0);
-    } else {
-      var ch = u0 - 0x10000;
-      str += String.fromCharCode(0xD800 | (ch >> 10), 0xDC00 | (ch & 0x3FF));
-    }
-  }
-  return str;
-}
-
-/**
- * Given a pointer 'ptr' to a null-terminated UTF8-encoded string in the
- * emscripten HEAP, returns a copy of that string as a Javascript String object.
- *
- * @param {number} ptr
- * @param {number=} maxBytesToRead - An optional length that specifies the
- *   maximum number of bytes to read. You can omit this parameter to scan the
- *   string until the first \0 byte. If maxBytesToRead is passed, and the string
- *   at [ptr, ptr+maxBytesToReadr[ contains a null byte in the middle, then the
- *   string will cut short at that byte index (i.e. maxBytesToRead will not
- *   produce a string of exact length [ptr, ptr+maxBytesToRead[) N.B. mixing
- *   frequent uses of UTF8ToString() with and without maxBytesToRead may throw
- *   JS JIT optimizations off, so it is worth to consider consistently using one
- * @return {string}
- */
-function UTF8ToString(ptr, maxBytesToRead) {
-  assert(typeof ptr == 'number');
-  return ptr ? UTF8ArrayToString(HEAPU8, ptr, maxBytesToRead) : '';
-}
-
-/**
- * Copies the given Javascript String object 'str' to the given byte array at
- * address 'outIdx', encoded in UTF8 form and null-terminated. The copy will
- * require at most str.length*4+1 bytes of space in the HEAP.  Use the function
- * lengthBytesUTF8 to compute the exact number of bytes (excluding null
- * terminator) that this function will write.
- *
- * @param {string} str - The Javascript string to copy.
- * @param {ArrayBufferView|Array<number>} heap - The array to copy to. Each
- *                                               index in this array is assumed
- *                                               to be one 8-byte element.
- * @param {number} outIdx - The starting offset in the array to begin the copying.
- * @param {number} maxBytesToWrite - The maximum number of bytes this function
- *                                   can write to the array.  This count should
- *                                   include the null terminator, i.e. if
- *                                   maxBytesToWrite=1, only the null terminator
- *                                   will be written and nothing else.
- *                                   maxBytesToWrite=0 does not write any bytes
- *                                   to the output, not even the null
- *                                   terminator.
- * @return {number} The number of bytes written, EXCLUDING the null terminator.
- */
-function stringToUTF8Array(str, heap, outIdx, maxBytesToWrite) {
-  // Parameter maxBytesToWrite is not optional. Negative values, 0, null,
-  // undefined and false each don't write out any bytes.
-  if (!(maxBytesToWrite > 0))
-    return 0;
-
-  var startIdx = outIdx;
-  var endIdx = outIdx + maxBytesToWrite - 1; // -1 for string null terminator.
-  for (var i = 0; i < str.length; ++i) {
-    // Gotcha: charCodeAt returns a 16-bit word that is a UTF-16 encoded code
-    // unit, not a Unicode code point of the character! So decode
-    // UTF16->UTF32->UTF8.
-    // See http://unicode.org/faq/utf_bom.html#utf16-3
-    // For UTF8 byte structure, see http://en.wikipedia.org/wiki/UTF-8#Description
-    // and https://www.ietf.org/rfc/rfc2279.txt
-    // and https://tools.ietf.org/html/rfc3629
-    var u = str.charCodeAt(i); // possibly a lead surrogate
-    if (u >= 0xD800 && u <= 0xDFFF) {
-      var u1 = str.charCodeAt(++i);
-      u = 0x10000 + ((u & 0x3FF) << 10) | (u1 & 0x3FF);
-    }
-    if (u <= 0x7F) {
-      if (outIdx >= endIdx) break;
-      heap[outIdx++] = u;
-    } else if (u <= 0x7FF) {
-      if (outIdx + 1 >= endIdx) break;
-      heap[outIdx++] = 0xC0 | (u >> 6);
-      heap[outIdx++] = 0x80 | (u & 63);
-    } else if (u <= 0xFFFF) {
-      if (outIdx + 2 >= endIdx) break;
-      heap[outIdx++] = 0xE0 | (u >> 12);
-      heap[outIdx++] = 0x80 | ((u >> 6) & 63);
-      heap[outIdx++] = 0x80 | (u & 63);
-    } else {
-      if (outIdx + 3 >= endIdx) break;
-      if (u > 0x10FFFF) warnOnce('Invalid Unicode code point ' + ptrToString(u) + ' encountered when serializing a JS string to a UTF-8 string in wasm memory! (Valid unicode code points should be in range 0-0x10FFFF).');
-      heap[outIdx++] = 0xF0 | (u >> 18);
-      heap[outIdx++] = 0x80 | ((u >> 12) & 63);
-      heap[outIdx++] = 0x80 | ((u >> 6) & 63);
-      heap[outIdx++] = 0x80 | (u & 63);
-    }
-  }
-  // Null-terminate the pointer to the buffer.
-  heap[outIdx] = 0;
-  return outIdx - startIdx;
-}
-
-/**
- * Copies the given Javascript String object 'str' to the emscripten HEAP at
- * address 'outPtr', null-terminated and encoded in UTF8 form. The copy will
- * require at most str.length*4+1 bytes of space in the HEAP.
- * Use the function lengthBytesUTF8 to compute the exact number of bytes
- * (excluding null terminator) that this function will write.
- *
- * @return {number} The number of bytes written, EXCLUDING the null terminator.
- */
-function stringToUTF8(str, outPtr, maxBytesToWrite) {
-  assert(typeof maxBytesToWrite == 'number', 'stringToUTF8(str, outPtr, maxBytesToWrite) is missing the third parameter that specifies the length of the output buffer!');
-  return stringToUTF8Array(str, HEAPU8,outPtr, maxBytesToWrite);
-}
-
-/**
- * Returns the number of bytes the given Javascript string takes if encoded as a
- * UTF8 byte array, EXCLUDING the null terminator byte.
- *
- * @param {string} str - JavaScript string to operator on
- * @return {number} Length, in bytes, of the UTF8 encoded string.
- */
-function lengthBytesUTF8(str) {
-  var len = 0;
-  for (var i = 0; i < str.length; ++i) {
-    // Gotcha: charCodeAt returns a 16-bit word that is a UTF-16 encoded code
-    // unit, not a Unicode code point of the character! So decode
-    // UTF16->UTF32->UTF8.
-    // See http://unicode.org/faq/utf_bom.html#utf16-3
-    var c = str.charCodeAt(i); // possibly a lead surrogate
-    if (c <= 0x7F) {
-      len++;
-    } else if (c <= 0x7FF) {
-      len += 2;
-    } else if (c >= 0xD800 && c <= 0xDFFF) {
-      len += 4; ++i;
-    } else {
-      len += 3;
-    }
-  }
-  return len;
-}
-
-// end include: runtime_strings.js
 // Memory management
 
 var HEAP,
@@ -612,7 +416,6 @@ assert(!Module['INITIAL_MEMORY'], 'Detected runtime INITIAL_MEMORY setting.  Use
 // from the wasm module and this will be assigned once
 // the exports are available.
 var wasmTable;
-
 // end include: runtime_init_table.js
 // include: runtime_stack_check.js
 // Initializes the stack cookie. Called at the startup of main and at the startup of each thread in pthreads mode.
@@ -620,8 +423,8 @@ function writeStackCookie() {
   var max = _emscripten_stack_get_end();
   assert((max & 3) == 0);
   // If the stack ends at address zero we write our cookies 4 bytes into the
-  // stack.  This prevents interference with the (separate) address-zero check
-  // below.
+  // stack.  This prevents interference with SAFE_HEAP and ASAN which also
+  // monitor writes to address zero.
   if (max == 0) {
     max += 4;
   }
@@ -631,7 +434,7 @@ function writeStackCookie() {
   HEAPU32[((max)>>2)] = 0x02135467;
   HEAPU32[(((max)+(4))>>2)] = 0x89BACDFE;
   // Also test the global address 0 for integrity.
-  HEAPU32[0] = 0x63736d65; /* 'emsc' */
+  HEAPU32[((0)>>2)] = 1668509029;
 }
 
 function checkStackCookie() {
@@ -644,14 +447,13 @@ function checkStackCookie() {
   var cookie1 = HEAPU32[((max)>>2)];
   var cookie2 = HEAPU32[(((max)+(4))>>2)];
   if (cookie1 != 0x02135467 || cookie2 != 0x89BACDFE) {
-    abort('Stack overflow! Stack cookie has been overwritten at ' + ptrToString(max) + ', expected hex dwords 0x89BACDFE and 0x2135467, but received ' + ptrToString(cookie2) + ' ' + ptrToString(cookie1));
+    abort(`Stack overflow! Stack cookie has been overwritten at ${ptrToString(max)}, expected hex dwords 0x89BACDFE and 0x2135467, but received ${ptrToString(cookie2)} ${ptrToString(cookie1)}`);
   }
   // Also test the global address 0 for integrity.
-  if (HEAPU32[0] !== 0x63736d65 /* 'emsc' */) {
+  if (HEAPU32[((0)>>2)] != 0x63736d65 /* 'emsc' */) {
     abort('Runtime error: The application has corrupted its heap memory area (address zero)!');
   }
 }
-
 // end include: runtime_stack_check.js
 // include: runtime_assertions.js
 // Endianness check
@@ -742,7 +544,6 @@ assert(Math.imul, 'This browser does not support Math.imul(), build with LEGACY_
 assert(Math.fround, 'This browser does not support Math.fround(), build with LEGACY_VM_SUPPORT or POLYFILL_OLD_MATH_FUNCTIONS to add in a polyfill');
 assert(Math.clz32, 'This browser does not support Math.clz32(), build with LEGACY_VM_SUPPORT or POLYFILL_OLD_MATH_FUNCTIONS to add in a polyfill');
 assert(Math.trunc, 'This browser does not support Math.trunc(), build with LEGACY_VM_SUPPORT or POLYFILL_OLD_MATH_FUNCTIONS to add in a polyfill');
-
 // end include: runtime_math.js
 // A counter of dependencies for calling run(). If we need to
 // do asynchronous work before running, increment this and
@@ -776,7 +577,7 @@ function addRunDependency(id) {
     runDependencyTracking[id] = 1;
     if (runDependencyWatcher === null && typeof setInterval != 'undefined') {
       // Check for missing dependencies every few seconds
-      runDependencyWatcher = setInterval(function() {
+      runDependencyWatcher = setInterval(() => {
         if (ABORT) {
           clearInterval(runDependencyWatcher);
           runDependencyWatcher = null;
@@ -878,7 +679,6 @@ function isDataURI(filename) {
 function isFileURI(filename) {
   return filename.startsWith('file://');
 }
-
 // end include: URIUtils.js
 /** @param {boolean=} fixedasm */
 function createExportWrapper(name, fixedasm) {
@@ -905,12 +705,12 @@ class EmscriptenSjLj extends EmscriptenEH {}
 class CppException extends EmscriptenEH {
   constructor(excPtr) {
     super(excPtr);
+    this.excPtr = excPtr;
     const excInfo = getExceptionMessage(excPtr);
     this.name = excInfo[0];
     this.message = excInfo[1];
   }
 }
-
 // end include: runtime_exceptions.js
 var wasmBinaryFile;
   wasmBinaryFile = 'behave-min.wasm';
@@ -934,7 +734,7 @@ function getBinary(file) {
 }
 
 function getBinaryPromise(binaryFile) {
-  // If we don't have the binary yet, try to to load it asynchronously.
+  // If we don't have the binary yet, try to load it asynchronously.
   // Fetch has some additional restrictions over XHR, like it can't be used on a file:// url.
   // See https://github.com/github/fetch/pull/92#issuecomment-140665932
   // Cordova or Electron apps are typically loaded from a file:// url.
@@ -943,35 +743,33 @@ function getBinaryPromise(binaryFile) {
     if (typeof fetch == 'function'
       && !isFileURI(binaryFile)
     ) {
-      return fetch(binaryFile, { credentials: 'same-origin' }).then(function(response) {
+      return fetch(binaryFile, { credentials: 'same-origin' }).then((response) => {
         if (!response['ok']) {
           throw "failed to load wasm binary file at '" + binaryFile + "'";
         }
         return response['arrayBuffer']();
-      }).catch(function () {
-          return getBinary(binaryFile);
-      });
+      }).catch(() => getBinary(binaryFile));
     }
     else {
       if (readAsync) {
         // fetch is not available or url is file => try XHR (readAsync uses XHR internally)
-        return new Promise(function(resolve, reject) {
-          readAsync(binaryFile, function(response) { resolve(new Uint8Array(/** @type{!ArrayBuffer} */(response))) }, reject)
+        return new Promise((resolve, reject) => {
+          readAsync(binaryFile, (response) => resolve(new Uint8Array(/** @type{!ArrayBuffer} */(response))), reject)
         });
       }
     }
   }
 
   // Otherwise, getBinary should be able to get it synchronously
-  return Promise.resolve().then(function() { return getBinary(binaryFile); });
+  return Promise.resolve().then(() => getBinary(binaryFile));
 }
 
 function instantiateArrayBuffer(binaryFile, imports, receiver) {
-  return getBinaryPromise(binaryFile).then(function(binary) {
+  return getBinaryPromise(binaryFile).then((binary) => {
     return WebAssembly.instantiate(binary, imports);
-  }).then(function (instance) {
+  }).then((instance) => {
     return instance;
-  }).then(receiver, function(reason) {
+  }).then(receiver, (reason) => {
     err('failed to asynchronously prepare wasm: ' + reason);
 
     // Warn on some common problems.
@@ -996,7 +794,7 @@ function instantiateAsync(binary, binaryFile, imports, callback) {
       //   https://github.com/emscripten-core/emscripten/pull/16917
       !ENVIRONMENT_IS_NODE &&
       typeof fetch == 'function') {
-    return fetch(binaryFile, { credentials: 'same-origin' }).then(function(response) {
+    return fetch(binaryFile, { credentials: 'same-origin' }).then((response) => {
       // Suppress closure warning here since the upstream definition for
       // instantiateStreaming only allows Promise<Repsponse> rather than
       // an actual Response.
@@ -1050,7 +848,6 @@ function createWasm() {
     addOnInit(Module['asm']['__wasm_call_ctors']);
 
     removeRunDependency('wasm-instantiate');
-
     return exports;
   }
   // wait for the pthread pool (if any)
@@ -1072,10 +869,13 @@ function createWasm() {
   }
 
   // User shell pages can write their own Module.instantiateWasm = function(imports, successCallback) callback
-  // to manually instantiate the Wasm module themselves. This allows pages to run the instantiation parallel
-  // to any other async startup actions they are performing.
-  // Also pthreads and wasm workers initialize the wasm instance through this path.
+  // to manually instantiate the Wasm module themselves. This allows pages to
+  // run the instantiation parallel to any other async startup actions they are
+  // performing.
+  // Also pthreads and wasm workers initialize the wasm instance through this
+  // path.
   if (Module['instantiateWasm']) {
+
     try {
       return Module['instantiateWasm'](info, receiveInstance);
     } catch(e) {
@@ -1152,7 +952,7 @@ function missingLibrarySymbol(sym) {
         if (!librarySymbol.startsWith('_')) {
           librarySymbol = '$' + sym;
         }
-        msg += " (e.g. -sDEFAULT_LIBRARY_FUNCS_TO_INCLUDE=" + librarySymbol + ")";
+        msg += " (e.g. -sDEFAULT_LIBRARY_FUNCS_TO_INCLUDE='" + librarySymbol + "')";
         if (isExportedByForceFilesystem(sym)) {
           msg += '. Alternatively, forcing filesystem support (-sFORCE_FILESYSTEM) can export this for you';
         }
@@ -1184,15 +984,13 @@ function unexportedRuntimeSymbol(sym) {
 // Used by XXXXX_DEBUG settings to output debug messages.
 function dbg(text) {
   // TODO(sbc): Make this configurable somehow.  Its not always convenient for
-  // logging to show up as errors.
-  console.error(text);
+  // logging to show up as warnings.
+  console.warn.apply(console, arguments);
 }
-
 // end include: runtime_debug.js
 // === Body ===
 
 function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out of bounds: [0,' + size + ')'; }
-
 
 
 // end include: preamble.js
@@ -1200,42 +998,203 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
   /** @constructor */
   function ExitStatus(status) {
       this.name = 'ExitStatus';
-      this.message = 'Program terminated with exit(' + status + ')';
+      this.message = `Program terminated with exit(${status})`;
       this.status = status;
     }
 
-  function callRuntimeCallbacks(callbacks) {
+  var callRuntimeCallbacks = (callbacks) => {
       while (callbacks.length > 0) {
         // Pass the module as the first argument.
         callbacks.shift()(Module);
       }
+    };
+
+  function decrementExceptionRefcount(ptr) {
+      ___cxa_decrement_exception_refcount(ptr);
     }
 
   
-  var wasmTableMirror = [];
   
-  function getWasmTableEntry(funcPtr) {
-      var func = wasmTableMirror[funcPtr];
-      if (!func) {
-        if (funcPtr >= wasmTableMirror.length) wasmTableMirror.length = funcPtr + 1;
-        wasmTableMirror[funcPtr] = func = wasmTable.get(funcPtr);
+  var withStackSave = (f) => {
+      var stack = stackSave();
+      var ret = f();
+      stackRestore(stack);
+      return ret;
+    };
+  
+  var UTF8Decoder = typeof TextDecoder != 'undefined' ? new TextDecoder('utf8') : undefined;
+  
+    /**
+     * Given a pointer 'idx' to a null-terminated UTF8-encoded string in the given
+     * array that contains uint8 values, returns a copy of that string as a
+     * Javascript String object.
+     * heapOrArray is either a regular array, or a JavaScript typed array view.
+     * @param {number} idx
+     * @param {number=} maxBytesToRead
+     * @return {string}
+     */
+  var UTF8ArrayToString = (heapOrArray, idx, maxBytesToRead) => {
+      var endIdx = idx + maxBytesToRead;
+      var endPtr = idx;
+      // TextDecoder needs to know the byte length in advance, it doesn't stop on
+      // null terminator by itself.  Also, use the length info to avoid running tiny
+      // strings through TextDecoder, since .subarray() allocates garbage.
+      // (As a tiny code save trick, compare endPtr against endIdx using a negation,
+      // so that undefined means Infinity)
+      while (heapOrArray[endPtr] && !(endPtr >= endIdx)) ++endPtr;
+  
+      if (endPtr - idx > 16 && heapOrArray.buffer && UTF8Decoder) {
+        return UTF8Decoder.decode(heapOrArray.subarray(idx, endPtr));
       }
-      assert(wasmTable.get(funcPtr) == func, "JavaScript-side Wasm function table mirror is out of date!");
-      return func;
-    }
-  function exception_decRef(info) {
-      // A rethrown exception can reach refcount 0; it must not be discarded
-      // Its next handler will clear the rethrown flag and addRef it, prior to
-      // final decRef and destruction here
-      if (info.release_ref() && !info.get_rethrown()) {
-        var destructor = info.get_destructor();
-        if (destructor) {
-          // In Wasm, destructors return 'this' as in ARM
-          getWasmTableEntry(destructor)(info.excPtr);
+      var str = '';
+      // If building with TextDecoder, we have already computed the string length
+      // above, so test loop end condition against that
+      while (idx < endPtr) {
+        // For UTF8 byte structure, see:
+        // http://en.wikipedia.org/wiki/UTF-8#Description
+        // https://www.ietf.org/rfc/rfc2279.txt
+        // https://tools.ietf.org/html/rfc3629
+        var u0 = heapOrArray[idx++];
+        if (!(u0 & 0x80)) { str += String.fromCharCode(u0); continue; }
+        var u1 = heapOrArray[idx++] & 63;
+        if ((u0 & 0xE0) == 0xC0) { str += String.fromCharCode(((u0 & 31) << 6) | u1); continue; }
+        var u2 = heapOrArray[idx++] & 63;
+        if ((u0 & 0xF0) == 0xE0) {
+          u0 = ((u0 & 15) << 12) | (u1 << 6) | u2;
+        } else {
+          if ((u0 & 0xF8) != 0xF0) warnOnce('Invalid UTF-8 leading byte ' + ptrToString(u0) + ' encountered when deserializing a UTF-8 string in wasm memory to a JS string!');
+          u0 = ((u0 & 7) << 18) | (u1 << 12) | (u2 << 6) | (heapOrArray[idx++] & 63);
         }
-        ___cxa_free_exception(info.excPtr);
+  
+        if (u0 < 0x10000) {
+          str += String.fromCharCode(u0);
+        } else {
+          var ch = u0 - 0x10000;
+          str += String.fromCharCode(0xD800 | (ch >> 10), 0xDC00 | (ch & 0x3FF));
+        }
       }
+      return str;
+    };
+  
+    /**
+     * Given a pointer 'ptr' to a null-terminated UTF8-encoded string in the
+     * emscripten HEAP, returns a copy of that string as a Javascript String object.
+     *
+     * @param {number} ptr
+     * @param {number=} maxBytesToRead - An optional length that specifies the
+     *   maximum number of bytes to read. You can omit this parameter to scan the
+     *   string until the first 0 byte. If maxBytesToRead is passed, and the string
+     *   at [ptr, ptr+maxBytesToReadr[ contains a null byte in the middle, then the
+     *   string will cut short at that byte index (i.e. maxBytesToRead will not
+     *   produce a string of exact length [ptr, ptr+maxBytesToRead[) N.B. mixing
+     *   frequent uses of UTF8ToString() with and without maxBytesToRead may throw
+     *   JS JIT optimizations off, so it is worth to consider consistently using one
+     * @return {string}
+     */
+  var UTF8ToString = (ptr, maxBytesToRead) => {
+      assert(typeof ptr == 'number');
+      return ptr ? UTF8ArrayToString(HEAPU8, ptr, maxBytesToRead) : '';
+    };
+  var getExceptionMessageCommon = (ptr) => withStackSave(() => {
+      var type_addr_addr = stackAlloc(4);
+      var message_addr_addr = stackAlloc(4);
+      ___get_exception_message(ptr, type_addr_addr, message_addr_addr);
+      var type_addr = HEAPU32[((type_addr_addr)>>2)];
+      var message_addr = HEAPU32[((message_addr_addr)>>2)];
+      var type = UTF8ToString(type_addr);
+      _free(type_addr);
+      var message;
+      if (message_addr) {
+        message = UTF8ToString(message_addr);
+        _free(message_addr);
+      }
+      return [type, message];
+    });
+  function getExceptionMessage(ptr) {
+      return getExceptionMessageCommon(ptr);
     }
+  Module["getExceptionMessage"] = getExceptionMessage;
+
+  
+    /**
+     * @param {number} ptr
+     * @param {string} type
+     */
+  function getValue(ptr, type = 'i8') {
+    if (type.endsWith('*')) type = '*';
+    switch (type) {
+      case 'i1': return HEAP8[((ptr)>>0)];
+      case 'i8': return HEAP8[((ptr)>>0)];
+      case 'i16': return HEAP16[((ptr)>>1)];
+      case 'i32': return HEAP32[((ptr)>>2)];
+      case 'i64': abort('to do getValue(i64) use WASM_BIGINT');
+      case 'float': return HEAPF32[((ptr)>>2)];
+      case 'double': return HEAPF64[((ptr)>>3)];
+      case '*': return HEAPU32[((ptr)>>2)];
+      default: abort(`invalid type for getValue: ${type}`);
+    }
+  }
+
+  function incrementExceptionRefcount(ptr) {
+      ___cxa_increment_exception_refcount(ptr);
+    }
+
+  var ptrToString = (ptr) => {
+      assert(typeof ptr === 'number');
+      return '0x' + ptr.toString(16).padStart(8, '0');
+    };
+
+  
+    /**
+     * @param {number} ptr
+     * @param {number} value
+     * @param {string} type
+     */
+  function setValue(ptr, value, type = 'i8') {
+    if (type.endsWith('*')) type = '*';
+    switch (type) {
+      case 'i1': HEAP8[((ptr)>>0)] = value; break;
+      case 'i8': HEAP8[((ptr)>>0)] = value; break;
+      case 'i16': HEAP16[((ptr)>>1)] = value; break;
+      case 'i32': HEAP32[((ptr)>>2)] = value; break;
+      case 'i64': abort('to do setValue(i64) use WASM_BIGINT');
+      case 'float': HEAPF32[((ptr)>>2)] = value; break;
+      case 'double': HEAPF64[((ptr)>>3)] = value; break;
+      case '*': HEAPU32[((ptr)>>2)] = value; break;
+      default: abort(`invalid type for setValue: ${type}`);
+    }
+  }
+
+  var warnOnce = (text) => {
+      if (!warnOnce.shown) warnOnce.shown = {};
+      if (!warnOnce.shown[text]) {
+        warnOnce.shown[text] = 1;
+        if (ENVIRONMENT_IS_NODE) text = 'warning: ' + text;
+        err(text);
+      }
+    };
+
+  var ___assert_fail = (condition, filename, line, func) => {
+      abort(`Assertion failed: ${UTF8ToString(condition)}, at: ` + [filename ? UTF8ToString(filename) : 'unknown filename', line, func ? UTF8ToString(func) : 'unknown function']);
+    };
+
+  var exceptionCaught =  [];
+  
+  
+  var uncaughtExceptionCount = 0;
+  function ___cxa_begin_catch(ptr) {
+      var info = new ExceptionInfo(ptr);
+      if (!info.get_caught()) {
+        info.set_caught(true);
+        uncaughtExceptionCount--;
+      }
+      info.set_rethrown(false);
+      exceptionCaught.push(info);
+      ___cxa_increment_exception_refcount(info.excPtr);
+      return info.get_exception_ptr();
+    }
+
+  var exceptionLast = 0;
   
   /** @constructor */
   function ExceptionInfo(excPtr) {
@@ -1256,10 +1215,6 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
   
       this.get_destructor = function() {
         return HEAPU32[(((this.ptr)+(8))>>2)];
-      };
-  
-      this.set_refcount = function(refcount) {
-        HEAP32[((this.ptr)>>2)] = refcount;
       };
   
       this.set_caught = function (caught) {
@@ -1285,23 +1240,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         this.set_adjusted_ptr(0);
         this.set_type(type);
         this.set_destructor(destructor);
-        this.set_refcount(0);
-        this.set_caught(false);
-        this.set_rethrown(false);
       }
-  
-      this.add_ref = function() {
-        var value = HEAP32[((this.ptr)>>2)];
-        HEAP32[((this.ptr)>>2)] = value + 1;
-      };
-  
-      // Returns true if last reference released.
-      this.release_ref = function() {
-        var prev = HEAP32[((this.ptr)>>2)];
-        HEAP32[((this.ptr)>>2)] = prev - 1;
-        assert(prev > 0);
-        return prev === 1;
-      };
   
       this.set_adjusted_ptr = function(adjustedPtr) {
         HEAPU32[(((this.ptr)+(16))>>2)] = adjustedPtr;
@@ -1327,155 +1266,23 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         return this.excPtr;
       };
     }
-  function ___cxa_decrement_exception_refcount(ptr) {
-      if (!ptr) return;
-      exception_decRef(new ExceptionInfo(ptr));
-    }
-  function decrementExceptionRefcount(ptr) {
-      ___cxa_decrement_exception_refcount(ptr);
-    }
-
-  
-  
-  function withStackSave(f) {
-      var stack = stackSave();
-      var ret = f();
-      stackRestore(stack);
-      return ret;
-    }
-  function getExceptionMessageCommon(ptr) {
-      return withStackSave(function() {
-        var type_addr_addr = stackAlloc(4);
-        var message_addr_addr = stackAlloc(4);
-        ___get_exception_message(ptr, type_addr_addr, message_addr_addr);
-        var type_addr = HEAPU32[((type_addr_addr)>>2)];
-        var message_addr = HEAPU32[((message_addr_addr)>>2)];
-        var type = UTF8ToString(type_addr);
-        _free(type_addr);
-        var message;
-        if (message_addr) {
-          message = UTF8ToString(message_addr);
-          _free(message_addr);
-        }
-        return [type, message];
-      });
-    }
-  function getExceptionMessage(ptr) {
-      return getExceptionMessageCommon(ptr);
-    }
-  Module["getExceptionMessage"] = getExceptionMessage;
-
-  
-    /**
-     * @param {number} ptr
-     * @param {string} type
-     */
-  function getValue(ptr, type = 'i8') {
-    if (type.endsWith('*')) type = '*';
-    switch (type) {
-      case 'i1': return HEAP8[((ptr)>>0)];
-      case 'i8': return HEAP8[((ptr)>>0)];
-      case 'i16': return HEAP16[((ptr)>>1)];
-      case 'i32': return HEAP32[((ptr)>>2)];
-      case 'i64': return HEAP32[((ptr)>>2)];
-      case 'float': return HEAPF32[((ptr)>>2)];
-      case 'double': return HEAPF64[((ptr)>>3)];
-      case '*': return HEAPU32[((ptr)>>2)];
-      default: abort('invalid type for getValue: ' + type);
-    }
-  }
-
-  function exception_addRef(info) {
-      info.add_ref();
-    }
-  
-  function ___cxa_increment_exception_refcount(ptr) {
-      if (!ptr) return;
-      exception_addRef(new ExceptionInfo(ptr));
-    }
-  function incrementExceptionRefcount(ptr) {
-      ___cxa_increment_exception_refcount(ptr);
-    }
-
-  function ptrToString(ptr) {
-      assert(typeof ptr === 'number');
-      return '0x' + ptr.toString(16).padStart(8, '0');
-    }
-
-  
-    /**
-     * @param {number} ptr
-     * @param {number} value
-     * @param {string} type
-     */
-  function setValue(ptr, value, type = 'i8') {
-    if (type.endsWith('*')) type = '*';
-    switch (type) {
-      case 'i1': HEAP8[((ptr)>>0)] = value; break;
-      case 'i8': HEAP8[((ptr)>>0)] = value; break;
-      case 'i16': HEAP16[((ptr)>>1)] = value; break;
-      case 'i32': HEAP32[((ptr)>>2)] = value; break;
-      case 'i64': (tempI64 = [value>>>0,(tempDouble=value,(+(Math.abs(tempDouble))) >= 1.0 ? (tempDouble > 0.0 ? ((Math.min((+(Math.floor((tempDouble)/4294967296.0))), 4294967295.0))|0)>>>0 : (~~((+(Math.ceil((tempDouble - +(((~~(tempDouble)))>>>0))/4294967296.0)))))>>>0) : 0)],HEAP32[((ptr)>>2)] = tempI64[0],HEAP32[(((ptr)+(4))>>2)] = tempI64[1]); break;
-      case 'float': HEAPF32[((ptr)>>2)] = value; break;
-      case 'double': HEAPF64[((ptr)>>3)] = value; break;
-      case '*': HEAPU32[((ptr)>>2)] = value; break;
-      default: abort('invalid type for setValue: ' + type);
-    }
-  }
-
-  function warnOnce(text) {
-      if (!warnOnce.shown) warnOnce.shown = {};
-      if (!warnOnce.shown[text]) {
-        warnOnce.shown[text] = 1;
-        if (ENVIRONMENT_IS_NODE) text = 'warning: ' + text;
-        err(text);
-      }
-    }
-
-  function ___assert_fail(condition, filename, line, func) {
-      abort('Assertion failed: ' + UTF8ToString(condition) + ', at: ' + [filename ? UTF8ToString(filename) : 'unknown filename', line, func ? UTF8ToString(func) : 'unknown function']);
-    }
-
-  var exceptionCaught =  [];
-  
-  
-  var uncaughtExceptionCount = 0;
-  function ___cxa_begin_catch(ptr) {
-      var info = new ExceptionInfo(ptr);
-      if (!info.get_caught()) {
-        info.set_caught(true);
-        uncaughtExceptionCount--;
-      }
-      info.set_rethrown(false);
-      exceptionCaught.push(info);
-      exception_addRef(info);
-      return info.get_exception_ptr();
-    }
-
-  
-  var exceptionLast = 0;
-  
-  function ___cxa_end_catch() {
-      // Clear state flag.
-      _setThrew(0);
-      assert(exceptionCaught.length > 0);
-      // Call destructor if one is registered then clear it.
-      var info = exceptionCaught.pop();
-  
-      exception_decRef(info);
-      exceptionLast = 0; // XXX in decRef?
-    }
-
-  
   
   function ___resumeException(ptr) {
-      if (!exceptionLast) { exceptionLast = ptr; }
-      throw new CppException(ptr);
+      if (!exceptionLast) { 
+        exceptionLast = new CppException(ptr);
+      }
+      throw exceptionLast;
     }
   
   
+  /** @suppress {duplicate } */
   function ___cxa_find_matching_catch() {
-      var thrown = exceptionLast;
+      // Here we use explicit calls to `from64`/`to64` rather then using the
+      // `__sig` attribute to perform these automatically.  This is because the
+      // `__sig` wrapper uses arrow function notation, which is not compatible
+      // with the use of `arguments` in this function.
+      var thrown =
+        exceptionLast && exceptionLast.excPtr;
       if (!thrown) {
         // just pass through the null ptr
         setTempRet0(0);
@@ -1497,6 +1304,8 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
       // return the type of the catch block which should be called.
       for (var i = 0; i < arguments.length; i++) {
         var caughtType = arguments[i];
+        ;
+  
         if (caughtType === 0 || caughtType === thrownType) {
           // Catch all clause matched or exactly the same type is caught
           break;
@@ -1516,39 +1325,20 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
 
   
   
-  function ___cxa_rethrow() {
-      var info = exceptionCaught.pop();
-      if (!info) {
-        abort('no exception to throw');
-      }
-      var ptr = info.excPtr;
-      if (!info.get_rethrown()) {
-        // Only pop if the corresponding push was through rethrow_primary_exception
-        exceptionCaught.push(info);
-        info.set_rethrown(true);
-        info.set_caught(false);
-        uncaughtExceptionCount++;
-      }
-      exceptionLast = ptr;
-      throw new CppException(ptr);
-    }
-
-  
-  
   function ___cxa_throw(ptr, type, destructor) {
       var info = new ExceptionInfo(ptr);
       // Initialize ExceptionInfo content after it was allocated in __cxa_allocate_exception.
       info.init(type, destructor);
-      exceptionLast = ptr;
+      exceptionLast = new CppException(ptr);
       uncaughtExceptionCount++;
-      throw new CppException(ptr);
+      throw exceptionLast;
     }
 
 
-  function setErrNo(value) {
+  var setErrNo = (value) => {
       HEAP32[((___errno_location())>>2)] = value;
       return value;
-    }
+    };
   
   var PATH = {isAbs:(path) => path.charAt(0) === '/',splitPath:(filename) => {
         var splitPathRe = /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/;
@@ -1615,25 +1405,38 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         return PATH.normalize(l + '/' + r);
       }};
   
-  function getRandomDevice() {
+  var initRandomFill = () => {
       if (typeof crypto == 'object' && typeof crypto['getRandomValues'] == 'function') {
         // for modern web browsers
-        var randomBuffer = new Uint8Array(1);
-        return () => { crypto.getRandomValues(randomBuffer); return randomBuffer[0]; };
+        return (view) => crypto.getRandomValues(view);
       } else
       if (ENVIRONMENT_IS_NODE) {
         // for nodejs with or without crypto support included
         try {
           var crypto_module = require('crypto');
-          // nodejs has crypto support
-          return () => crypto_module['randomBytes'](1)[0];
+          var randomFillSync = crypto_module['randomFillSync'];
+          if (randomFillSync) {
+            // nodejs with LTS crypto support
+            return (view) => crypto_module['randomFillSync'](view);
+          }
+          // very old nodejs with the original crypto API
+          var randomBytes = crypto_module['randomBytes'];
+          return (view) => (
+            view.set(randomBytes(view.byteLength)),
+            // Return the original view to match modern native implementations.
+            view
+          );
         } catch (e) {
           // nodejs doesn't have crypto support
         }
       }
       // we couldn't find a proper implementation, as Math.random() is not suitable for /dev/random, see emscripten-core/emscripten/pull/7096
-      return () => abort("no cryptographic support found for randomDevice. consider polyfilling it if you want to use something insecure like Math.random(), e.g. put this in a --pre-js: var crypto = { getRandomValues: function(array) { for (var i = 0; i < array.length; i++) array[i] = (Math.random()*256)|0 } };");
-    }
+      abort("no cryptographic support found for randomDevice. consider polyfilling it if you want to use something insecure like Math.random(), e.g. put this in a --pre-js: var crypto = { getRandomValues: (array) => { for (var i = 0; i < array.length; i++) array[i] = (Math.random()*256)|0 } };");
+    };
+  var randomFill = (view) => {
+      // Lazily init on the first invocation.
+      return (randomFill = initRandomFill())(view);
+    };
   
   
   
@@ -1689,6 +1492,74 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
       }};
   
   
+  var lengthBytesUTF8 = (str) => {
+      var len = 0;
+      for (var i = 0; i < str.length; ++i) {
+        // Gotcha: charCodeAt returns a 16-bit word that is a UTF-16 encoded code
+        // unit, not a Unicode code point of the character! So decode
+        // UTF16->UTF32->UTF8.
+        // See http://unicode.org/faq/utf_bom.html#utf16-3
+        var c = str.charCodeAt(i); // possibly a lead surrogate
+        if (c <= 0x7F) {
+          len++;
+        } else if (c <= 0x7FF) {
+          len += 2;
+        } else if (c >= 0xD800 && c <= 0xDFFF) {
+          len += 4; ++i;
+        } else {
+          len += 3;
+        }
+      }
+      return len;
+    };
+  
+  var stringToUTF8Array = (str, heap, outIdx, maxBytesToWrite) => {
+      assert(typeof str === 'string');
+      // Parameter maxBytesToWrite is not optional. Negative values, 0, null,
+      // undefined and false each don't write out any bytes.
+      if (!(maxBytesToWrite > 0))
+        return 0;
+  
+      var startIdx = outIdx;
+      var endIdx = outIdx + maxBytesToWrite - 1; // -1 for string null terminator.
+      for (var i = 0; i < str.length; ++i) {
+        // Gotcha: charCodeAt returns a 16-bit word that is a UTF-16 encoded code
+        // unit, not a Unicode code point of the character! So decode
+        // UTF16->UTF32->UTF8.
+        // See http://unicode.org/faq/utf_bom.html#utf16-3
+        // For UTF8 byte structure, see http://en.wikipedia.org/wiki/UTF-8#Description
+        // and https://www.ietf.org/rfc/rfc2279.txt
+        // and https://tools.ietf.org/html/rfc3629
+        var u = str.charCodeAt(i); // possibly a lead surrogate
+        if (u >= 0xD800 && u <= 0xDFFF) {
+          var u1 = str.charCodeAt(++i);
+          u = 0x10000 + ((u & 0x3FF) << 10) | (u1 & 0x3FF);
+        }
+        if (u <= 0x7F) {
+          if (outIdx >= endIdx) break;
+          heap[outIdx++] = u;
+        } else if (u <= 0x7FF) {
+          if (outIdx + 1 >= endIdx) break;
+          heap[outIdx++] = 0xC0 | (u >> 6);
+          heap[outIdx++] = 0x80 | (u & 63);
+        } else if (u <= 0xFFFF) {
+          if (outIdx + 2 >= endIdx) break;
+          heap[outIdx++] = 0xE0 | (u >> 12);
+          heap[outIdx++] = 0x80 | ((u >> 6) & 63);
+          heap[outIdx++] = 0x80 | (u & 63);
+        } else {
+          if (outIdx + 3 >= endIdx) break;
+          if (u > 0x10FFFF) warnOnce('Invalid Unicode code point ' + ptrToString(u) + ' encountered when serializing a JS string to a UTF-8 string in wasm memory! (Valid unicode code points should be in range 0-0x10FFFF).');
+          heap[outIdx++] = 0xF0 | (u >> 18);
+          heap[outIdx++] = 0x80 | ((u >> 12) & 63);
+          heap[outIdx++] = 0x80 | ((u >> 6) & 63);
+          heap[outIdx++] = 0x80 | (u & 63);
+        }
+      }
+      // Null-terminate the pointer to the buffer.
+      heap[outIdx] = 0;
+      return outIdx - startIdx;
+    };
   /** @type {function(string, boolean=, number=)} */
   function intArrayFromString(stringy, dontAddNull, length) {
     var len = length > 0 ? length : lengthBytesUTF8(stringy)+1;
@@ -1697,6 +1568,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
     if (dontAddNull) u8array.length = numBytesWritten;
     return u8array;
   }
+  
   var TTY = {ttys:[],init:function () {
         // https://github.com/emscripten-core/emscripten/pull/1555
         // if (ENVIRONMENT_IS_NODE) {
@@ -1825,6 +1697,24 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
             out(UTF8ArrayToString(tty.output, 0));
             tty.output = [];
           }
+        },ioctl_tcgets:function(tty) {
+          // typical setting
+          return {
+            c_iflag: 25856,
+            c_oflag: 5,
+            c_cflag: 191,
+            c_lflag: 35387,
+            c_cc: [
+              0x03, 0x1c, 0x7f, 0x15, 0x04, 0x00, 0x01, 0x00, 0x11, 0x13, 0x1a, 0x00,
+              0x12, 0x0f, 0x17, 0x16, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            ]
+          };
+        },ioctl_tcsets:function(tty, optional_actions, data) {
+          // currently just ignore
+          return 0;
+        },ioctl_tiocgwinsz:function(tty) {
+          return [24, 80];
         }},default_tty1_ops:{put_char:function(tty, val) {
           if (val === null || val === 10) {
             err(UTF8ArrayToString(tty.output, 0));
@@ -1840,18 +1730,18 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         }}};
   
   
-  function zeroMemory(address, size) {
+  var zeroMemory = (address, size) => {
       HEAPU8.fill(0, address, address + size);
       return address;
-    }
+    };
   
-  function alignMemory(size, alignment) {
+  var alignMemory = (size, alignment) => {
       assert(alignment, "alignment argument is required");
       return Math.ceil(size / alignment) * alignment;
-    }
-  function mmapAlloc(size) {
+    };
+  var mmapAlloc = (size) => {
       abort('internal error: mmapAlloc called but `emscripten_builtin_memalign` native symbol not exported');
-    }
+    };
   var MEMFS = {ops_table:null,mount:function(mount) {
         return MEMFS.createNode(null, '/', 16384 | 511 /* 0777 */, 0);
       },createNode:function(parent, name, mode, dev) {
@@ -2153,7 +2043,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
             }
             HEAP8.set(contents, ptr);
           }
-          return { ptr: ptr, allocated: allocated };
+          return { ptr, allocated };
         },msync:function(stream, buffer, offset, length, mmapFlags) {
           MEMFS.stream_ops.write(stream, buffer, 0, length, offset, false);
           // should we check if bytesWritten and length are the same?
@@ -2161,21 +2051,92 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         }}};
   
   /** @param {boolean=} noRunDep */
-  function asyncLoad(url, onload, onerror, noRunDep) {
-      var dep = !noRunDep ? getUniqueRunDependency('al ' + url) : '';
+  var asyncLoad = (url, onload, onerror, noRunDep) => {
+      var dep = !noRunDep ? getUniqueRunDependency(`al ${url}`) : '';
       readAsync(url, (arrayBuffer) => {
-        assert(arrayBuffer, 'Loading data file "' + url + '" failed (no arrayBuffer).');
+        assert(arrayBuffer, `Loading data file "${url}" failed (no arrayBuffer).`);
         onload(new Uint8Array(arrayBuffer));
         if (dep) removeRunDependency(dep);
       }, (event) => {
         if (onerror) {
           onerror();
         } else {
-          throw 'Loading data file "' + url + '" failed.';
+          throw `Loading data file "${url}" failed.`;
         }
       });
       if (dep) addRunDependency(dep);
+    };
+  
+  
+  var preloadPlugins = Module['preloadPlugins'] || [];
+  function FS_handledByPreloadPlugin(byteArray, fullname, finish, onerror) {
+      // Ensure plugins are ready.
+      if (typeof Browser != 'undefined') Browser.init();
+  
+      var handled = false;
+      preloadPlugins.forEach(function(plugin) {
+        if (handled) return;
+        if (plugin['canHandle'](fullname)) {
+          plugin['handle'](byteArray, fullname, finish, onerror);
+          handled = true;
+        }
+      });
+      return handled;
     }
+  function FS_createPreloadedFile(parent, name, url, canRead, canWrite, onload, onerror, dontCreateFile, canOwn, preFinish) {
+      // TODO we should allow people to just pass in a complete filename instead
+      // of parent and name being that we just join them anyways
+      var fullname = name ? PATH_FS.resolve(PATH.join2(parent, name)) : parent;
+      var dep = getUniqueRunDependency(`cp ${fullname}`); // might have several active requests for the same fullname
+      function processData(byteArray) {
+        function finish(byteArray) {
+          if (preFinish) preFinish();
+          if (!dontCreateFile) {
+            FS.createDataFile(parent, name, byteArray, canRead, canWrite, canOwn);
+          }
+          if (onload) onload();
+          removeRunDependency(dep);
+        }
+        if (FS_handledByPreloadPlugin(byteArray, fullname, finish, () => {
+          if (onerror) onerror();
+          removeRunDependency(dep);
+        })) {
+          return;
+        }
+        finish(byteArray);
+      }
+      addRunDependency(dep);
+      if (typeof url == 'string') {
+        asyncLoad(url, (byteArray) => processData(byteArray), onerror);
+      } else {
+        processData(url);
+      }
+    }
+  
+  function FS_modeStringToFlags(str) {
+      var flagModes = {
+        'r': 0,
+        'r+': 2,
+        'w': 512 | 64 | 1,
+        'w+': 512 | 64 | 2,
+        'a': 1024 | 64 | 1,
+        'a+': 1024 | 64 | 2,
+      };
+      var flags = flagModes[str];
+      if (typeof flags == 'undefined') {
+        throw new Error(`Unknown file open mode: ${str}`);
+      }
+      return flags;
+    }
+  
+  function FS_getMode(canRead, canWrite) {
+      var mode = 0;
+      if (canRead) mode |= 292 | 73;
+      if (canWrite) mode |= 146;
+      return mode;
+    }
+  
+  
   
   
   var ERRNO_MESSAGES = {0:"Success",1:"Arg list too long",2:"Permission denied",3:"Address already in use",4:"Address not available",5:"Address family not supported by protocol family",6:"No more processes",7:"Socket already connected",8:"Bad file number",9:"Trying to read unreadable message",10:"Mount device busy",11:"Operation canceled",12:"No children",13:"Connection aborted",14:"Connection refused",15:"Connection reset by peer",16:"File locking deadlock error",17:"Destination address required",18:"Math arg out of domain of func",19:"Quota exceeded",20:"File exists",21:"Bad address",22:"File too large",23:"Host is unreachable",24:"Identifier removed",25:"Illegal byte sequence",26:"Connection already in progress",27:"Interrupted system call",28:"Invalid argument",29:"I/O error",30:"Socket is already connected",31:"Is a directory",32:"Too many symbolic links",33:"Too many open files",34:"Too many links",35:"Message too long",36:"Multihop attempted",37:"File or path name too long",38:"Network interface is not configured",39:"Connection reset by network",40:"Network is unreachable",41:"Too many open files in system",42:"No buffer space available",43:"No such device",44:"No such file or directory",45:"Exec format error",46:"No record locks available",47:"The link has been severed",48:"Not enough core",49:"No message of desired type",50:"Protocol not available",51:"No space left on device",52:"Function not implemented",53:"Socket is not connected",54:"Not a directory",55:"Directory not empty",56:"State not recoverable",57:"Socket operation on non-socket",59:"Not a typewriter",60:"No such device or address",61:"Value too large for defined data type",62:"Previous owner died",63:"Not super-user",64:"Broken pipe",65:"Protocol error",66:"Unknown protocol",67:"Protocol wrong type for socket",68:"Math result not representable",69:"Read only file system",70:"Illegal seek",71:"No such process",72:"Stale file handle",73:"Connection timed out",74:"Text file busy",75:"Cross-device link",100:"Device not a stream",101:"Bad font file fmt",102:"Invalid slot",103:"Invalid request code",104:"No anode",105:"Block device required",106:"Channel number out of range",107:"Level 3 halted",108:"Level 3 reset",109:"Link number out of range",110:"Protocol driver not attached",111:"No CSI structure available",112:"Level 2 halted",113:"Invalid exchange",114:"Invalid request descriptor",115:"Exchange full",116:"No data (for no delay io)",117:"Timer expired",118:"Out of streams resources",119:"Machine is not on the network",120:"Package not installed",121:"The object is remote",122:"Advertise error",123:"Srmount error",124:"Communication error on send",125:"Cross mount point (not really error)",126:"Given log. name not unique",127:"f.d. invalid for this operation",128:"Remote address changed",129:"Can   access a needed shared lib",130:"Accessing a corrupted shared lib",131:".lib section in a.out corrupted",132:"Attempting to link in too many libs",133:"Attempting to exec a shared library",135:"Streams pipe error",136:"Too many users",137:"Socket type not supported",138:"Not supported",139:"Protocol family not supported",140:"Can't send after socket shutdown",141:"Too many references",142:"Host is down",148:"No medium (in tape drive)",156:"Level 2 not synchronized"};
@@ -2259,9 +2220,9 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           if (FS.isRoot(node)) {
             var mount = node.mount.mountpoint;
             if (!path) return mount;
-            return mount[mount.length-1] !== '/' ? mount + '/' + path : mount + path;
+            return mount[mount.length-1] !== '/' ? `${mount}/${path}` : mount + path;
           }
-          path = path ? node.name + '/' + path : node.name;
+          path = path ? `${node.name}/${path}` : node.name;
           node = node.parent;
         }
       },hashName:(parentid, name) => {
@@ -2330,12 +2291,6 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         return (mode & 61440) === 4096;
       },isSocket:(mode) => {
         return (mode & 49152) === 49152;
-      },flagModes:{"r":0,"r+":2,"w":577,"w+":578,"a":1089,"a+":1090},modeStringToFlags:(str) => {
-        var flags = FS.flagModes[str];
-        if (typeof flags == 'undefined') {
-          throw new Error('Unknown file open mode: ' + str);
-        }
-        return flags;
       },flagsToPermissionString:(flag) => {
         var perms = ['r', 'w', 'rw'][flag & 3];
         if ((flag & 512)) {
@@ -2404,14 +2359,20 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           }
         }
         return FS.nodePermissions(node, FS.flagsToPermissionString(flags));
-      },MAX_OPEN_FDS:4096,nextfd:(fd_start = 0, fd_end = FS.MAX_OPEN_FDS) => {
-        for (var fd = fd_start; fd <= fd_end; fd++) {
+      },MAX_OPEN_FDS:4096,nextfd:() => {
+        for (var fd = 0; fd <= FS.MAX_OPEN_FDS; fd++) {
           if (!FS.streams[fd]) {
             return fd;
           }
         }
         throw new FS.ErrnoError(33);
-      },getStream:(fd) => FS.streams[fd],createStream:(stream, fd_start, fd_end) => {
+      },getStreamChecked:(fd) => {
+        var stream = FS.getStream(fd);
+        if (!stream) {
+          throw new FS.ErrnoError(8);
+        }
+        return stream;
+      },getStream:(fd) => FS.streams[fd],createStream:(stream, fd = -1) => {
         if (!FS.FSStream) {
           FS.FSStream = /** @constructor */ function() {
             this.shared = { };
@@ -2452,7 +2413,9 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         }
         // clone it, so we can return an instance of FSStream
         stream = Object.assign(new FS.FSStream(), stream);
-        var fd = FS.nextfd(fd_start, fd_end);
+        if (fd == -1) {
+          fd = FS.nextfd();
+        }
         stream.fd = fd;
         FS.streams[fd] = stream;
         return stream;
@@ -2492,7 +2455,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         FS.syncFSRequests++;
   
         if (FS.syncFSRequests > 1) {
-          err('warning: ' + FS.syncFSRequests + ' FS.syncfs operations in flight at once, probably just doing extra work');
+          err(`warning: ${FS.syncFSRequests} FS.syncfs operations in flight at once, probably just doing extra work`);
         }
   
         var mounts = FS.getMounts(FS.root.mount);
@@ -2552,9 +2515,9 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         }
   
         var mount = {
-          type: type,
-          opts: opts,
-          mountpoint: mountpoint,
+          type,
+          opts,
+          mountpoint,
           mounts: []
         };
   
@@ -2841,10 +2804,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
       },lchmod:(path, mode) => {
         FS.chmod(path, mode, true);
       },fchmod:(fd, mode) => {
-        var stream = FS.getStream(fd);
-        if (!stream) {
-          throw new FS.ErrnoError(8);
-        }
+        var stream = FS.getStreamChecked(fd);
         FS.chmod(stream.node, mode);
       },chown:(path, uid, gid, dontFollow) => {
         var node;
@@ -2864,10 +2824,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
       },lchown:(path, uid, gid) => {
         FS.chown(path, uid, gid, true);
       },fchown:(fd, uid, gid) => {
-        var stream = FS.getStream(fd);
-        if (!stream) {
-          throw new FS.ErrnoError(8);
-        }
+        var stream = FS.getStreamChecked(fd);
         FS.chown(stream.node, uid, gid);
       },truncate:(path, len) => {
         if (len < 0) {
@@ -2898,10 +2855,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           timestamp: Date.now()
         });
       },ftruncate:(fd, len) => {
-        var stream = FS.getStream(fd);
-        if (!stream) {
-          throw new FS.ErrnoError(8);
-        }
+        var stream = FS.getStreamChecked(fd);
         if ((stream.flags & 2097155) === 0) {
           throw new FS.ErrnoError(28);
         }
@@ -2916,7 +2870,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         if (path === "") {
           throw new FS.ErrnoError(44);
         }
-        flags = typeof flags == 'string' ? FS.modeStringToFlags(flags) : flags;
+        flags = typeof flags == 'string' ? FS_modeStringToFlags(flags) : flags;
         mode = typeof mode == 'undefined' ? 438 /* 0666 */ : mode;
         if ((flags & 64)) {
           mode = (mode & 4095) | 32768;
@@ -2980,9 +2934,9 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
   
         // register the stream with the filesystem
         var stream = FS.createStream({
-          node: node,
+          node,
           path: FS.getPath(node),  // we want the absolute path to the node
-          flags: flags,
+          flags,
           seekable: true,
           position: 0,
           stream_ops: node.stream_ops,
@@ -3135,7 +3089,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         opts.flags = opts.flags || 0;
         opts.encoding = opts.encoding || 'binary';
         if (opts.encoding !== 'utf8' && opts.encoding !== 'binary') {
-          throw new Error('Invalid encoding type "' + opts.encoding + '"');
+          throw new Error(`Invalid encoding type "${opts.encoding}"`);
         }
         var ret;
         var stream = FS.open(path, opts.flags);
@@ -3197,9 +3151,16 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         FS.mkdev('/dev/tty', FS.makedev(5, 0));
         FS.mkdev('/dev/tty1', FS.makedev(6, 0));
         // setup /dev/[u]random
-        var random_device = getRandomDevice();
-        FS.createDevice('/dev', 'random', random_device);
-        FS.createDevice('/dev', 'urandom', random_device);
+        // use a buffer to avoid overhead of individual crypto calls per byte
+        var randomBuffer = new Uint8Array(1024), randomLeft = 0;
+        var randomByte = () => {
+          if (randomLeft === 0) {
+            randomLeft = randomFill(randomBuffer).byteLength;
+          }
+          return randomBuffer[--randomLeft];
+        };
+        FS.createDevice('/dev', 'random', randomByte);
+        FS.createDevice('/dev', 'urandom', randomByte);
         // we're not going to emulate the actual shm device,
         // just create the tmp dirs that reside in it commonly
         FS.mkdir('/dev/shm');
@@ -3216,8 +3177,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
             node.node_ops = {
               lookup: (parent, name) => {
                 var fd = +name;
-                var stream = FS.getStream(fd);
-                if (!stream) throw new FS.ErrnoError(8);
+                var stream = FS.getStreamChecked(fd);
                 var ret = {
                   parent: null,
                   mount: { mountpoint: 'fake' },
@@ -3259,9 +3219,9 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         var stdin = FS.open('/dev/stdin', 0);
         var stdout = FS.open('/dev/stdout', 1);
         var stderr = FS.open('/dev/stderr', 1);
-        assert(stdin.fd === 0, 'invalid handle for stdin (' + stdin.fd + ')');
-        assert(stdout.fd === 1, 'invalid handle for stdout (' + stdout.fd + ')');
-        assert(stderr.fd === 2, 'invalid handle for stderr (' + stderr.fd + ')');
+        assert(stdin.fd === 0, `invalid handle for stdin (${stdin.fd})`);
+        assert(stdout.fd === 1, `invalid handle for stdout (${stdout.fd})`);
+        assert(stderr.fd === 2, `invalid handle for stderr (${stderr.fd})`);
       },ensureErrnoError:() => {
         if (FS.ErrnoError) return;
         FS.ErrnoError = /** @this{Object} */ function ErrnoError(errno, node) {
@@ -3338,11 +3298,6 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           }
           FS.close(stream);
         }
-      },getMode:(canRead, canWrite) => {
-        var mode = 0;
-        if (canRead) mode |= 292 | 73;
-        if (canWrite) mode |= 146;
-        return mode;
       },findObject:(path, dontResolveLastLink) => {
         var ret = FS.analyzePath(path, dontResolveLastLink);
         if (!ret.exists) {
@@ -3393,7 +3348,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         return current;
       },createFile:(parent, name, properties, canRead, canWrite) => {
         var path = PATH.join2(typeof parent == 'string' ? parent : FS.getPath(parent), name);
-        var mode = FS.getMode(canRead, canWrite);
+        var mode = FS_getMode(canRead, canWrite);
         return FS.create(path, mode);
       },createDataFile:(parent, name, data, canRead, canWrite, canOwn) => {
         var path = name;
@@ -3401,7 +3356,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           parent = typeof parent == 'string' ? parent : FS.getPath(parent);
           path = name ? PATH.join2(parent, name) : parent;
         }
-        var mode = FS.getMode(canRead, canWrite);
+        var mode = FS_getMode(canRead, canWrite);
         var node = FS.create(path, mode);
         if (data) {
           if (typeof data == 'string') {
@@ -3419,7 +3374,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         return node;
       },createDevice:(parent, name, input, output) => {
         var path = PATH.join2(typeof parent == 'string' ? parent : FS.getPath(parent), name);
-        var mode = FS.getMode(!!input, !!output);
+        var mode = FS_getMode(!!input, !!output);
         if (!FS.createDevice.major) FS.createDevice.major = 64;
         var dev = FS.makedev(FS.createDevice.major++, 0);
         // Create a fake device that a set of stream ops to emulate
@@ -3650,106 +3605,10 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
             throw new FS.ErrnoError(48);
           }
           writeChunks(stream, HEAP8, ptr, length, position);
-          return { ptr: ptr, allocated: true };
+          return { ptr, allocated: true };
         };
         node.stream_ops = stream_ops;
         return node;
-      },createPreloadedFile:(parent, name, url, canRead, canWrite, onload, onerror, dontCreateFile, canOwn, preFinish) => {
-        // TODO we should allow people to just pass in a complete filename instead
-        // of parent and name being that we just join them anyways
-        var fullname = name ? PATH_FS.resolve(PATH.join2(parent, name)) : parent;
-        var dep = getUniqueRunDependency('cp ' + fullname); // might have several active requests for the same fullname
-        function processData(byteArray) {
-          function finish(byteArray) {
-            if (preFinish) preFinish();
-            if (!dontCreateFile) {
-              FS.createDataFile(parent, name, byteArray, canRead, canWrite, canOwn);
-            }
-            if (onload) onload();
-            removeRunDependency(dep);
-          }
-          if (Browser.handledByPreloadPlugin(byteArray, fullname, finish, () => {
-            if (onerror) onerror();
-            removeRunDependency(dep);
-          })) {
-            return;
-          }
-          finish(byteArray);
-        }
-        addRunDependency(dep);
-        if (typeof url == 'string') {
-          asyncLoad(url, (byteArray) => processData(byteArray), onerror);
-        } else {
-          processData(url);
-        }
-      },indexedDB:() => {
-        return window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
-      },DB_NAME:() => {
-        return 'EM_FS_' + window.location.pathname;
-      },DB_VERSION:20,DB_STORE_NAME:"FILE_DATA",saveFilesToDB:(paths, onload = (() => {}), onerror = (() => {})) => {
-        var indexedDB = FS.indexedDB();
-        try {
-          var openRequest = indexedDB.open(FS.DB_NAME(), FS.DB_VERSION);
-        } catch (e) {
-          return onerror(e);
-        }
-        openRequest.onupgradeneeded = () => {
-          out('creating db');
-          var db = openRequest.result;
-          db.createObjectStore(FS.DB_STORE_NAME);
-        };
-        openRequest.onsuccess = () => {
-          var db = openRequest.result;
-          var transaction = db.transaction([FS.DB_STORE_NAME], 'readwrite');
-          var files = transaction.objectStore(FS.DB_STORE_NAME);
-          var ok = 0, fail = 0, total = paths.length;
-          function finish() {
-            if (fail == 0) onload(); else onerror();
-          }
-          paths.forEach((path) => {
-            var putRequest = files.put(FS.analyzePath(path).object.contents, path);
-            putRequest.onsuccess = () => { ok++; if (ok + fail == total) finish() };
-            putRequest.onerror = () => { fail++; if (ok + fail == total) finish() };
-          });
-          transaction.onerror = onerror;
-        };
-        openRequest.onerror = onerror;
-      },loadFilesFromDB:(paths, onload = (() => {}), onerror = (() => {})) => {
-        var indexedDB = FS.indexedDB();
-        try {
-          var openRequest = indexedDB.open(FS.DB_NAME(), FS.DB_VERSION);
-        } catch (e) {
-          return onerror(e);
-        }
-        openRequest.onupgradeneeded = onerror; // no database to load from
-        openRequest.onsuccess = () => {
-          var db = openRequest.result;
-          try {
-            var transaction = db.transaction([FS.DB_STORE_NAME], 'readonly');
-          } catch(e) {
-            onerror(e);
-            return;
-          }
-          var files = transaction.objectStore(FS.DB_STORE_NAME);
-          var ok = 0, fail = 0, total = paths.length;
-          function finish() {
-            if (fail == 0) onload(); else onerror();
-          }
-          paths.forEach((path) => {
-            var getRequest = files.get(path);
-            getRequest.onsuccess = () => {
-              if (FS.analyzePath(path).exists) {
-                FS.unlink(path);
-              }
-              FS.createDataFile(PATH.dirname(path), PATH.basename(path), getRequest.result, true, true, true);
-              ok++;
-              if (ok + fail == total) finish();
-            };
-            getRequest.onerror = () => { fail++; if (ok + fail == total) finish() };
-          });
-          transaction.onerror = onerror;
-        };
-        openRequest.onerror = onerror;
       },absolutePath:() => {
         abort('FS.absolutePath has been removed; use PATH_FS.resolve instead');
       },createFolder:() => {
@@ -3763,6 +3622,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
       },standardizePath:() => {
         abort('FS.standardizePath has been removed; use PATH.normalize instead');
       }};
+  
   var SYSCALLS = {DEFAULT_POLLMASK:5,calculateAt:function(dirfd, path, allowEmpty) {
         if (PATH.isAbs(path)) {
           return path;
@@ -3793,25 +3653,24 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           throw e;
         }
         HEAP32[((buf)>>2)] = stat.dev;
-        HEAP32[(((buf)+(8))>>2)] = stat.ino;
-        HEAP32[(((buf)+(12))>>2)] = stat.mode;
-        HEAPU32[(((buf)+(16))>>2)] = stat.nlink;
-        HEAP32[(((buf)+(20))>>2)] = stat.uid;
-        HEAP32[(((buf)+(24))>>2)] = stat.gid;
-        HEAP32[(((buf)+(28))>>2)] = stat.rdev;
-        (tempI64 = [stat.size>>>0,(tempDouble=stat.size,(+(Math.abs(tempDouble))) >= 1.0 ? (tempDouble > 0.0 ? ((Math.min((+(Math.floor((tempDouble)/4294967296.0))), 4294967295.0))|0)>>>0 : (~~((+(Math.ceil((tempDouble - +(((~~(tempDouble)))>>>0))/4294967296.0)))))>>>0) : 0)],HEAP32[(((buf)+(40))>>2)] = tempI64[0],HEAP32[(((buf)+(44))>>2)] = tempI64[1]);
-        HEAP32[(((buf)+(48))>>2)] = 4096;
-        HEAP32[(((buf)+(52))>>2)] = stat.blocks;
+        HEAP32[(((buf)+(4))>>2)] = stat.mode;
+        HEAPU32[(((buf)+(8))>>2)] = stat.nlink;
+        HEAP32[(((buf)+(12))>>2)] = stat.uid;
+        HEAP32[(((buf)+(16))>>2)] = stat.gid;
+        HEAP32[(((buf)+(20))>>2)] = stat.rdev;
+        (tempI64 = [stat.size>>>0,(tempDouble=stat.size,(+(Math.abs(tempDouble))) >= 1.0 ? (tempDouble > 0.0 ? (+(Math.floor((tempDouble)/4294967296.0)))>>>0 : (~~((+(Math.ceil((tempDouble - +(((~~(tempDouble)))>>>0))/4294967296.0)))))>>>0) : 0)], HEAP32[(((buf)+(24))>>2)] = tempI64[0],HEAP32[(((buf)+(28))>>2)] = tempI64[1]);
+        HEAP32[(((buf)+(32))>>2)] = 4096;
+        HEAP32[(((buf)+(36))>>2)] = stat.blocks;
         var atime = stat.atime.getTime();
         var mtime = stat.mtime.getTime();
         var ctime = stat.ctime.getTime();
-        (tempI64 = [Math.floor(atime / 1000)>>>0,(tempDouble=Math.floor(atime / 1000),(+(Math.abs(tempDouble))) >= 1.0 ? (tempDouble > 0.0 ? ((Math.min((+(Math.floor((tempDouble)/4294967296.0))), 4294967295.0))|0)>>>0 : (~~((+(Math.ceil((tempDouble - +(((~~(tempDouble)))>>>0))/4294967296.0)))))>>>0) : 0)],HEAP32[(((buf)+(56))>>2)] = tempI64[0],HEAP32[(((buf)+(60))>>2)] = tempI64[1]);
-        HEAPU32[(((buf)+(64))>>2)] = (atime % 1000) * 1000;
-        (tempI64 = [Math.floor(mtime / 1000)>>>0,(tempDouble=Math.floor(mtime / 1000),(+(Math.abs(tempDouble))) >= 1.0 ? (tempDouble > 0.0 ? ((Math.min((+(Math.floor((tempDouble)/4294967296.0))), 4294967295.0))|0)>>>0 : (~~((+(Math.ceil((tempDouble - +(((~~(tempDouble)))>>>0))/4294967296.0)))))>>>0) : 0)],HEAP32[(((buf)+(72))>>2)] = tempI64[0],HEAP32[(((buf)+(76))>>2)] = tempI64[1]);
-        HEAPU32[(((buf)+(80))>>2)] = (mtime % 1000) * 1000;
-        (tempI64 = [Math.floor(ctime / 1000)>>>0,(tempDouble=Math.floor(ctime / 1000),(+(Math.abs(tempDouble))) >= 1.0 ? (tempDouble > 0.0 ? ((Math.min((+(Math.floor((tempDouble)/4294967296.0))), 4294967295.0))|0)>>>0 : (~~((+(Math.ceil((tempDouble - +(((~~(tempDouble)))>>>0))/4294967296.0)))))>>>0) : 0)],HEAP32[(((buf)+(88))>>2)] = tempI64[0],HEAP32[(((buf)+(92))>>2)] = tempI64[1]);
-        HEAPU32[(((buf)+(96))>>2)] = (ctime % 1000) * 1000;
-        (tempI64 = [stat.ino>>>0,(tempDouble=stat.ino,(+(Math.abs(tempDouble))) >= 1.0 ? (tempDouble > 0.0 ? ((Math.min((+(Math.floor((tempDouble)/4294967296.0))), 4294967295.0))|0)>>>0 : (~~((+(Math.ceil((tempDouble - +(((~~(tempDouble)))>>>0))/4294967296.0)))))>>>0) : 0)],HEAP32[(((buf)+(104))>>2)] = tempI64[0],HEAP32[(((buf)+(108))>>2)] = tempI64[1]);
+        (tempI64 = [Math.floor(atime / 1000)>>>0,(tempDouble=Math.floor(atime / 1000),(+(Math.abs(tempDouble))) >= 1.0 ? (tempDouble > 0.0 ? (+(Math.floor((tempDouble)/4294967296.0)))>>>0 : (~~((+(Math.ceil((tempDouble - +(((~~(tempDouble)))>>>0))/4294967296.0)))))>>>0) : 0)], HEAP32[(((buf)+(40))>>2)] = tempI64[0],HEAP32[(((buf)+(44))>>2)] = tempI64[1]);
+        HEAPU32[(((buf)+(48))>>2)] = (atime % 1000) * 1000;
+        (tempI64 = [Math.floor(mtime / 1000)>>>0,(tempDouble=Math.floor(mtime / 1000),(+(Math.abs(tempDouble))) >= 1.0 ? (tempDouble > 0.0 ? (+(Math.floor((tempDouble)/4294967296.0)))>>>0 : (~~((+(Math.ceil((tempDouble - +(((~~(tempDouble)))>>>0))/4294967296.0)))))>>>0) : 0)], HEAP32[(((buf)+(56))>>2)] = tempI64[0],HEAP32[(((buf)+(60))>>2)] = tempI64[1]);
+        HEAPU32[(((buf)+(64))>>2)] = (mtime % 1000) * 1000;
+        (tempI64 = [Math.floor(ctime / 1000)>>>0,(tempDouble=Math.floor(ctime / 1000),(+(Math.abs(tempDouble))) >= 1.0 ? (tempDouble > 0.0 ? (+(Math.floor((tempDouble)/4294967296.0)))>>>0 : (~~((+(Math.ceil((tempDouble - +(((~~(tempDouble)))>>>0))/4294967296.0)))))>>>0) : 0)], HEAP32[(((buf)+(72))>>2)] = tempI64[0],HEAP32[(((buf)+(76))>>2)] = tempI64[1]);
+        HEAPU32[(((buf)+(80))>>2)] = (ctime % 1000) * 1000;
+        (tempI64 = [stat.ino>>>0,(tempDouble=stat.ino,(+(Math.abs(tempDouble))) >= 1.0 ? (tempDouble > 0.0 ? (+(Math.floor((tempDouble)/4294967296.0)))>>>0 : (~~((+(Math.ceil((tempDouble - +(((~~(tempDouble)))>>>0))/4294967296.0)))))>>>0) : 0)], HEAP32[(((buf)+(88))>>2)] = tempI64[0],HEAP32[(((buf)+(92))>>2)] = tempI64[1]);
         return 0;
       },doMsync:function(addr, stream, len, flags, offset) {
         if (!FS.isFile(stream.node.mode)) {
@@ -3832,8 +3691,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         var ret = UTF8ToString(ptr);
         return ret;
       },getStreamFromFD:function(fd) {
-        var stream = FS.getStream(fd);
-        if (!stream) throw new FS.ErrnoError(8);
+        var stream = FS.getStreamChecked(fd);
         return stream;
       }};
   function ___syscall_fcntl64(fd, cmd, varargs) {
@@ -3900,18 +3758,48 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
   
       var stream = SYSCALLS.getStreamFromFD(fd);
       switch (op) {
-        case 21509:
+        case 21509: {
+          if (!stream.tty) return -59;
+          return 0;
+        }
         case 21505: {
           if (!stream.tty) return -59;
+          if (stream.tty.ops.ioctl_tcgets) {
+            var termios = stream.tty.ops.ioctl_tcgets(stream);
+            var argp = SYSCALLS.get();
+            HEAP32[((argp)>>2)] = termios.c_iflag || 0;
+            HEAP32[(((argp)+(4))>>2)] = termios.c_oflag || 0;
+            HEAP32[(((argp)+(8))>>2)] = termios.c_cflag || 0;
+            HEAP32[(((argp)+(12))>>2)] = termios.c_lflag || 0;
+            for (var i = 0; i < 32; i++) {
+              HEAP8[(((argp + i)+(17))>>0)] = termios.c_cc[i] || 0;
+            }
+            return 0;
+          }
           return 0;
         }
         case 21510:
         case 21511:
-        case 21512:
+        case 21512: {
+          if (!stream.tty) return -59;
+          return 0; // no-op, not actually adjusting terminal settings
+        }
         case 21506:
         case 21507:
         case 21508: {
           if (!stream.tty) return -59;
+          if (stream.tty.ops.ioctl_tcsets) {
+            var argp = SYSCALLS.get();
+            var c_iflag = HEAP32[((argp)>>2)];
+            var c_oflag = HEAP32[(((argp)+(4))>>2)];
+            var c_cflag = HEAP32[(((argp)+(8))>>2)];
+            var c_lflag = HEAP32[(((argp)+(12))>>2)];
+            var c_cc = []
+            for (var i = 0; i < 32; i++) {
+              c_cc.push(HEAP8[(((argp + i)+(17))>>0)]);
+            }
+            return stream.tty.ops.ioctl_tcsets(stream.tty, op, { c_iflag, c_oflag, c_cflag, c_lflag, c_cc });
+          }
           return 0; // no-op, not actually adjusting terminal settings
         }
         case 21519: {
@@ -3932,12 +3820,22 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           // TODO: in theory we should write to the winsize struct that gets
           // passed in, but for now musl doesn't read anything on it
           if (!stream.tty) return -59;
+          if (stream.tty.ops.ioctl_tiocgwinsz) {
+            var winsize = stream.tty.ops.ioctl_tiocgwinsz(stream.tty);
+            var argp = SYSCALLS.get();
+            HEAP16[((argp)>>1)] = winsize[0];
+            HEAP16[(((argp)+(2))>>1)] = winsize[1];
+          }
           return 0;
         }
         case 21524: {
           // TODO: technically, this ioctl call should change the window size.
           // but, since emscripten doesn't have any concept of a terminal window
           // yet, we'll just silently throw it away as we do TIOCGWINSZ
+          if (!stream.tty) return -59;
+          return 0;
+        }
+        case 21515: {
           if (!stream.tty) return -59;
           return 0;
         }
@@ -3963,36 +3861,34 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
   }
   }
 
-  function _abort() {
+  var _abort = () => {
       abort('native code called abort()');
-    }
+    };
 
-  function _emscripten_memcpy_big(dest, src, num) {
-      HEAPU8.copyWithin(dest, src, src + num);
-    }
+  var _emscripten_memcpy_big = (dest, src, num) => HEAPU8.copyWithin(dest, src, src + num);
 
-  function getHeapMax() {
+  var getHeapMax = () =>
       // Stay one Wasm page short of 4GB: while e.g. Chrome is able to allocate
       // full 4GB Wasm memories, the size will wrap back to 0 bytes in Wasm side
       // for any code that deals with heap sizes, which would require special
       // casing all heap size related code to treat 0 specially.
-      return 2147483648;
-    }
+      2147483648;
   
-  function emscripten_realloc_buffer(size) {
+  var growMemory = (size) => {
       var b = wasmMemory.buffer;
+      var pages = (size - b.byteLength + 65535) >>> 16;
       try {
         // round size grow request up to wasm page size (fixed 64KB per spec)
-        wasmMemory.grow((size - b.byteLength + 65535) >>> 16); // .grow() takes a delta compared to the previous size
+        wasmMemory.grow(pages); // .grow() takes a delta compared to the previous size
         updateMemoryViews();
         return 1 /*success*/;
       } catch(e) {
-        err('emscripten_realloc_buffer: Attempted to grow heap from ' + b.byteLength  + ' bytes to ' + size + ' bytes, but got error: ' + e);
+        err(`growMemory: Attempted to grow heap from ${b.byteLength} bytes to ${size} bytes, but got error: ${e}`);
       }
       // implicit 0 return to save code size (caller will cast "undefined" into 0
       // anyhow)
-    }
-  function _emscripten_resize_heap(requestedSize) {
+    };
+  var _emscripten_resize_heap = (requestedSize) => {
       var oldSize = HEAPU8.length;
       requestedSize = requestedSize >>> 0;
       // With multithreaded builds, races can happen (another thread might increase the size
@@ -4020,11 +3916,11 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
       // (the wasm binary specifies it, so if we tried, we'd fail anyhow).
       var maxHeapSize = getHeapMax();
       if (requestedSize > maxHeapSize) {
-        err('Cannot enlarge memory, asked to go up to ' + requestedSize + ' bytes, but the limit is ' + maxHeapSize + ' bytes!');
+        err(`Cannot enlarge memory, asked to go up to ${requestedSize} bytes, but the limit is ${maxHeapSize} bytes!`);
         return false;
       }
   
-      let alignUp = (x, multiple) => x + (multiple - x % multiple) % multiple;
+      var alignUp = (x, multiple) => x + (multiple - x % multiple) % multiple;
   
       // Loop through potential heap size increases. If we attempt a too eager
       // reservation that fails, cut down on the attempted size and reserve a
@@ -4036,15 +3932,15 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
   
         var newSize = Math.min(maxHeapSize, alignUp(Math.max(requestedSize, overGrownHeapSize), 65536));
   
-        var replacement = emscripten_realloc_buffer(newSize);
+        var replacement = growMemory(newSize);
         if (replacement) {
   
           return true;
         }
       }
-      err('Failed to grow the heap from ' + oldSize + ' bytes to ' + newSize + ' bytes, not enough memory!');
+      err(`Failed to grow the heap from ${oldSize} bytes to ${newSize} bytes, not enough memory!`);
       return false;
-    }
+    };
 
   function _fd_close(fd) {
   try {
@@ -4059,7 +3955,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
   }
 
   /** @param {number=} offset */
-  function doReadv(stream, iov, iovcnt, offset) {
+  var doReadv = (stream, iov, iovcnt, offset) => {
       var ret = 0;
       for (var i = 0; i < iovcnt; i++) {
         var ptr = HEAPU32[((iov)>>2)];
@@ -4074,7 +3970,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         }
       }
       return ret;
-    }
+    };
   
   function _fd_read(fd, iov, iovcnt, pnum) {
   try {
@@ -4098,13 +3994,14 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
   
   
   
+  
   function _fd_seek(fd, offset_low, offset_high, whence, newOffset) {
   try {
   
       var offset = convertI32PairToI53Checked(offset_low, offset_high); if (isNaN(offset)) return 61;
       var stream = SYSCALLS.getStreamFromFD(fd);
       FS.llseek(stream, offset, whence);
-      (tempI64 = [stream.position>>>0,(tempDouble=stream.position,(+(Math.abs(tempDouble))) >= 1.0 ? (tempDouble > 0.0 ? ((Math.min((+(Math.floor((tempDouble)/4294967296.0))), 4294967295.0))|0)>>>0 : (~~((+(Math.ceil((tempDouble - +(((~~(tempDouble)))>>>0))/4294967296.0)))))>>>0) : 0)],HEAP32[((newOffset)>>2)] = tempI64[0],HEAP32[(((newOffset)+(4))>>2)] = tempI64[1]);
+      (tempI64 = [stream.position>>>0,(tempDouble=stream.position,(+(Math.abs(tempDouble))) >= 1.0 ? (tempDouble > 0.0 ? (+(Math.floor((tempDouble)/4294967296.0)))>>>0 : (~~((+(Math.ceil((tempDouble - +(((~~(tempDouble)))>>>0))/4294967296.0)))))>>>0) : 0)], HEAP32[((newOffset)>>2)] = tempI64[0],HEAP32[(((newOffset)+(4))>>2)] = tempI64[1]);
       if (stream.getdents && offset === 0 && whence === 0) stream.getdents = null; // reset readdir state
       return 0;
     } catch (e) {
@@ -4114,7 +4011,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
   }
 
   /** @param {number=} offset */
-  function doWritev(stream, iov, iovcnt, offset) {
+  var doWritev = (stream, iov, iovcnt, offset) => {
       var ret = 0;
       for (var i = 0; i < iovcnt; i++) {
         var ptr = HEAPU32[((iov)>>2)];
@@ -4128,7 +4025,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         }
       }
       return ret;
-    }
+    };
   
   function _fd_write(fd, iov, iovcnt, pnum) {
   try {
@@ -4145,12 +4042,32 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
 
 
 
-  function allocateUTF8(str) {
+  var wasmTableMirror = [];
+  var getWasmTableEntry = (funcPtr) => {
+      var func = wasmTableMirror[funcPtr];
+      if (!func) {
+        if (funcPtr >= wasmTableMirror.length) wasmTableMirror.length = funcPtr + 1;
+        wasmTableMirror[funcPtr] = func = wasmTable.get(funcPtr);
+      }
+      assert(wasmTable.get(funcPtr) == func, "JavaScript-side Wasm function table mirror is out of date!");
+      return func;
+    };
+
+
+  
+  var stringToUTF8 = (str, outPtr, maxBytesToWrite) => {
+      assert(typeof maxBytesToWrite == 'number', 'stringToUTF8(str, outPtr, maxBytesToWrite) is missing the third parameter that specifies the length of the output buffer!');
+      return stringToUTF8Array(str, HEAPU8,outPtr, maxBytesToWrite);
+    };
+  
+  /** @suppress {duplicate } */
+  var stringToNewUTF8 = (str) => {
       var size = lengthBytesUTF8(str) + 1;
       var ret = _malloc(size);
-      if (ret) stringToUTF8Array(str, HEAP8, ret, size);
+      if (ret) stringToUTF8(str, ret, size);
       return ret;
-    }
+    };
+  var allocateUTF8 = stringToNewUTF8;
 
   function uleb128Encode(n, target) {
       assert(n < 16384);
@@ -4162,10 +4079,10 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
     }
   
   function sigToWasmTypes(sig) {
+      assert(!sig.includes('j'), 'i64 not permitted in function signatures when WASM_BIGINT is disabled');
       var typeNames = {
         'i': 'i32',
-        // i64 values will be split into two i32s.
-        'j': 'i32',
+        'j': 'i64',
         'f': 'f32',
         'd': 'f64',
         'p': 'i32',
@@ -4177,9 +4094,6 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
       for (var i = 1; i < sig.length; ++i) {
         assert(sig[i] in typeNames, 'invalid signature char: ' + sig[i]);
         type.parameters.push(typeNames[sig[i]]);
-        if (sig[i] === 'j') {
-          type.parameters.push('i32');
-        }
       }
       return type;
     }
@@ -4212,6 +4126,8 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
       }
     }
   function convertJsFunctionToWasm(func, sig) {
+  
+      assert(!sig.includes('j'), 'i64 not permitted in function signatures when WASM_BIGINT is disabled');
   
       // If the type reflection proposal is available, use the new
       // "WebAssembly.Function" constructor.
@@ -4299,13 +4215,13 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
     }
   
   
-  function setWasmTableEntry(idx, func) {
+  var setWasmTableEntry = (idx, func) => {
       wasmTable.set(idx, func);
       // With ABORT_ON_WASM_EXCEPTIONS wasmTable.get is overriden to return wrapped
       // functions so we need to call it here to retrieve the potential wrapper correctly
       // instead of just storing 'func' directly into wasmTableMirror
       wasmTableMirror[idx] = wasmTable.get(idx);
-    }
+    };
   /** @param {string=} sig */
   function addFunction(func, sig) {
       assert(typeof func != 'undefined');
@@ -4383,6 +4299,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
    }
   });
   FS.FSNode = FSNode;
+  FS.createPreloadedFile = FS_createPreloadedFile;
   FS.staticInit();;
 ERRNO_CODES = {
       'EPERM': 63,
@@ -4513,10 +4430,8 @@ function checkIncomingModuleAPI() {
 var wasmImports = {
   "__assert_fail": ___assert_fail,
   "__cxa_begin_catch": ___cxa_begin_catch,
-  "__cxa_end_catch": ___cxa_end_catch,
   "__cxa_find_matching_catch_2": ___cxa_find_matching_catch_2,
   "__cxa_find_matching_catch_3": ___cxa_find_matching_catch_3,
-  "__cxa_rethrow": ___cxa_rethrow,
   "__cxa_throw": ___cxa_throw,
   "__resumeException": ___resumeException,
   "__syscall_fcntl64": ___syscall_fcntl64,
@@ -4543,9 +4458,9 @@ var wasmImports = {
   "invoke_v": invoke_v,
   "invoke_vi": invoke_vi,
   "invoke_viddidiidd": invoke_viddidiidd,
-  "invoke_vididi": invoke_vididi,
   "invoke_vidii": invoke_vidii,
   "invoke_vii": invoke_vii,
+  "invoke_viididi": invoke_viididi,
   "invoke_viii": invoke_viii,
   "invoke_viiiddddd": invoke_viiiddddd,
   "invoke_viiii": invoke_viiii,
@@ -4556,8 +4471,6 @@ var wasmImports = {
 var asm = createWasm();
 /** @type {function(...*):?} */
 var ___wasm_call_ctors = createExportWrapper("__wasm_call_ctors");
-/** @type {function(...*):?} */
-var getTempRet0 = createExportWrapper("getTempRet0");
 /** @type {function(...*):?} */
 var _fflush = Module["_fflush"] = createExportWrapper("fflush");
 /** @type {function(...*):?} */
@@ -4635,8 +4548,6 @@ var _emscripten_bind_SpeciesMasterTableRecordVector_size_0 = Module["_emscripten
 /** @type {function(...*):?} */
 var _emscripten_bind_SpeciesMasterTableRecordVector___destroy___0 = Module["_emscripten_bind_SpeciesMasterTableRecordVector___destroy___0"] = createExportWrapper("emscripten_bind_SpeciesMasterTableRecordVector___destroy___0");
 /** @type {function(...*):?} */
-var _emscripten_bind_FireSize_FireSize_0 = Module["_emscripten_bind_FireSize_FireSize_0"] = createExportWrapper("emscripten_bind_FireSize_FireSize_0");
-/** @type {function(...*):?} */
 var _emscripten_bind_FireSize_getBackingSpreadRate_1 = Module["_emscripten_bind_FireSize_getBackingSpreadRate_1"] = createExportWrapper("emscripten_bind_FireSize_getBackingSpreadRate_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_FireSize_getEccentricity_0 = Module["_emscripten_bind_FireSize_getEccentricity_0"] = createExportWrapper("emscripten_bind_FireSize_getEccentricity_0");
@@ -4647,17 +4558,21 @@ var _emscripten_bind_FireSize_getEllipticalB_3 = Module["_emscripten_bind_FireSi
 /** @type {function(...*):?} */
 var _emscripten_bind_FireSize_getEllipticalC_3 = Module["_emscripten_bind_FireSize_getEllipticalC_3"] = createExportWrapper("emscripten_bind_FireSize_getEllipticalC_3");
 /** @type {function(...*):?} */
-var _emscripten_bind_FireSize_getFireArea_3 = Module["_emscripten_bind_FireSize_getFireArea_3"] = createExportWrapper("emscripten_bind_FireSize_getFireArea_3");
+var _emscripten_bind_FireSize_getFireArea_4 = Module["_emscripten_bind_FireSize_getFireArea_4"] = createExportWrapper("emscripten_bind_FireSize_getFireArea_4");
 /** @type {function(...*):?} */
 var _emscripten_bind_FireSize_getFireLength_3 = Module["_emscripten_bind_FireSize_getFireLength_3"] = createExportWrapper("emscripten_bind_FireSize_getFireLength_3");
 /** @type {function(...*):?} */
 var _emscripten_bind_FireSize_getFireLengthToWidthRatio_0 = Module["_emscripten_bind_FireSize_getFireLengthToWidthRatio_0"] = createExportWrapper("emscripten_bind_FireSize_getFireLengthToWidthRatio_0");
 /** @type {function(...*):?} */
-var _emscripten_bind_FireSize_getFirePerimeter_3 = Module["_emscripten_bind_FireSize_getFirePerimeter_3"] = createExportWrapper("emscripten_bind_FireSize_getFirePerimeter_3");
+var _emscripten_bind_FireSize_getFirePerimeter_4 = Module["_emscripten_bind_FireSize_getFirePerimeter_4"] = createExportWrapper("emscripten_bind_FireSize_getFirePerimeter_4");
+/** @type {function(...*):?} */
+var _emscripten_bind_FireSize_getFlankingSpreadRate_1 = Module["_emscripten_bind_FireSize_getFlankingSpreadRate_1"] = createExportWrapper("emscripten_bind_FireSize_getFlankingSpreadRate_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_FireSize_getHeadingToBackingRatio_0 = Module["_emscripten_bind_FireSize_getHeadingToBackingRatio_0"] = createExportWrapper("emscripten_bind_FireSize_getHeadingToBackingRatio_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_FireSize_getMaxFireWidth_3 = Module["_emscripten_bind_FireSize_getMaxFireWidth_3"] = createExportWrapper("emscripten_bind_FireSize_getMaxFireWidth_3");
 /** @type {function(...*):?} */
-var _emscripten_bind_FireSize_calculateFireBasicDimensions_4 = Module["_emscripten_bind_FireSize_calculateFireBasicDimensions_4"] = createExportWrapper("emscripten_bind_FireSize_calculateFireBasicDimensions_4");
+var _emscripten_bind_FireSize_calculateFireBasicDimensions_5 = Module["_emscripten_bind_FireSize_calculateFireBasicDimensions_5"] = createExportWrapper("emscripten_bind_FireSize_calculateFireBasicDimensions_5");
 /** @type {function(...*):?} */
 var _emscripten_bind_FireSize___destroy___0 = Module["_emscripten_bind_FireSize___destroy___0"] = createExportWrapper("emscripten_bind_FireSize___destroy___0");
 /** @type {function(...*):?} */
@@ -4957,6 +4872,8 @@ var _emscripten_bind_SIGSurface_getWindAndSpreadOrientationMode_0 = Module["_ems
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getWindHeightInputMode_0 = Module["_emscripten_bind_SIGSurface_getWindHeightInputMode_0"] = createExportWrapper("emscripten_bind_SIGSurface_getWindHeightInputMode_0");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getWindUpslopeAlignmentMode_0 = Module["_emscripten_bind_SIGSurface_getWindUpslopeAlignmentMode_0"] = createExportWrapper("emscripten_bind_SIGSurface_getWindUpslopeAlignmentMode_0");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByIndex_1 = Module["_emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByIndex_1"] = createExportWrapper("emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByIndex_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByName_1 = Module["_emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByName_1"] = createExportWrapper("emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByName_1");
@@ -4985,8 +4902,6 @@ var _emscripten_bind_SIGSurface_setMoistureScenarioByName_1 = Module["_emscripte
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_calculateFlameLength_3 = Module["_emscripten_bind_SIGSurface_calculateFlameLength_3"] = createExportWrapper("emscripten_bind_SIGSurface_calculateFlameLength_3");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSurface_calculateScorchHeight_7 = Module["_emscripten_bind_SIGSurface_calculateScorchHeight_7"] = createExportWrapper("emscripten_bind_SIGSurface_calculateScorchHeight_7");
-/** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getAgeOfRough_0 = Module["_emscripten_bind_SIGSurface_getAgeOfRough_0"] = createExportWrapper("emscripten_bind_SIGSurface_getAgeOfRough_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getAspect_0 = Module["_emscripten_bind_SIGSurface_getAspect_0"] = createExportWrapper("emscripten_bind_SIGSurface_getAspect_0");
@@ -5011,7 +4926,11 @@ var _emscripten_bind_SIGSurface_getAspenSavrLiveHerbaceous_1 = Module["_emscript
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getAspenSavrLiveWoody_1 = Module["_emscripten_bind_SIGSurface_getAspenSavrLiveWoody_1"] = createExportWrapper("emscripten_bind_SIGSurface_getAspenSavrLiveWoody_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSurface_getBackingSpreadDistance_3 = Module["_emscripten_bind_SIGSurface_getBackingSpreadDistance_3"] = createExportWrapper("emscripten_bind_SIGSurface_getBackingSpreadDistance_3");
+var _emscripten_bind_SIGSurface_getBackingFirelineIntensity_1 = Module["_emscripten_bind_SIGSurface_getBackingFirelineIntensity_1"] = createExportWrapper("emscripten_bind_SIGSurface_getBackingFirelineIntensity_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getBackingFlameLength_1 = Module["_emscripten_bind_SIGSurface_getBackingFlameLength_1"] = createExportWrapper("emscripten_bind_SIGSurface_getBackingFlameLength_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getBackingSpreadDistance_1 = Module["_emscripten_bind_SIGSurface_getBackingSpreadDistance_1"] = createExportWrapper("emscripten_bind_SIGSurface_getBackingSpreadDistance_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getBackingSpreadRate_1 = Module["_emscripten_bind_SIGSurface_getBackingSpreadRate_1"] = createExportWrapper("emscripten_bind_SIGSurface_getBackingSpreadRate_1");
 /** @type {function(...*):?} */
@@ -5031,8 +4950,6 @@ var _emscripten_bind_SIGSurface_getChaparralDeadMoistureOfExtinction_1 = Module[
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getChaparralDensity_3 = Module["_emscripten_bind_SIGSurface_getChaparralDensity_3"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralDensity_3");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSurface_getChaparralEffectiveSilicaContent_2 = Module["_emscripten_bind_SIGSurface_getChaparralEffectiveSilicaContent_2"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralEffectiveSilicaContent_2");
-/** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getChaparralFuelBedDepth_1 = Module["_emscripten_bind_SIGSurface_getChaparralFuelBedDepth_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralFuelBedDepth_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getChaparralFuelDeadLoadFraction_0 = Module["_emscripten_bind_SIGSurface_getChaparralFuelDeadLoadFraction_0"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralFuelDeadLoadFraction_0");
@@ -5041,11 +4958,25 @@ var _emscripten_bind_SIGSurface_getChaparralHeatOfCombustion_3 = Module["_emscri
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getChaparralLiveMoistureOfExtinction_1 = Module["_emscripten_bind_SIGSurface_getChaparralLiveMoistureOfExtinction_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralLiveMoistureOfExtinction_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSurface_getChaparralLoad_3 = Module["_emscripten_bind_SIGSurface_getChaparralLoad_3"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralLoad_3");
+var _emscripten_bind_SIGSurface_getChaparralLoadDeadHalfInchToLessThanOneInch_1 = Module["_emscripten_bind_SIGSurface_getChaparralLoadDeadHalfInchToLessThanOneInch_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralLoadDeadHalfInchToLessThanOneInch_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralLoadDeadLessThanQuarterInch_1 = Module["_emscripten_bind_SIGSurface_getChaparralLoadDeadLessThanQuarterInch_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralLoadDeadLessThanQuarterInch_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralLoadDeadOneInchToThreeInch_1 = Module["_emscripten_bind_SIGSurface_getChaparralLoadDeadOneInchToThreeInch_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralLoadDeadOneInchToThreeInch_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralLoadDeadQuarterInchToLessThanHalfInch_1 = Module["_emscripten_bind_SIGSurface_getChaparralLoadDeadQuarterInchToLessThanHalfInch_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralLoadDeadQuarterInchToLessThanHalfInch_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralLoadLiveHalfInchToLessThanOneInch_1 = Module["_emscripten_bind_SIGSurface_getChaparralLoadLiveHalfInchToLessThanOneInch_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralLoadLiveHalfInchToLessThanOneInch_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralLoadLiveLeaves_1 = Module["_emscripten_bind_SIGSurface_getChaparralLoadLiveLeaves_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralLoadLiveLeaves_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralLoadLiveOneInchToThreeInch_1 = Module["_emscripten_bind_SIGSurface_getChaparralLoadLiveOneInchToThreeInch_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralLoadLiveOneInchToThreeInch_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralLoadLiveQuarterInchToLessThanHalfInch_1 = Module["_emscripten_bind_SIGSurface_getChaparralLoadLiveQuarterInchToLessThanHalfInch_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralLoadLiveQuarterInchToLessThanHalfInch_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralLoadLiveStemsLessThanQuaterInch_1 = Module["_emscripten_bind_SIGSurface_getChaparralLoadLiveStemsLessThanQuaterInch_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralLoadLiveStemsLessThanQuaterInch_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getChaparralMoisture_3 = Module["_emscripten_bind_SIGSurface_getChaparralMoisture_3"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralMoisture_3");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGSurface_getChaparralSavr_3 = Module["_emscripten_bind_SIGSurface_getChaparralSavr_3"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralSavr_3");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getChaparralTotalDeadFuelLoad_1 = Module["_emscripten_bind_SIGSurface_getChaparralTotalDeadFuelLoad_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralTotalDeadFuelLoad_1");
 /** @type {function(...*):?} */
@@ -5053,9 +4984,11 @@ var _emscripten_bind_SIGSurface_getChaparralTotalFuelLoad_1 = Module["_emscripte
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getChaparralTotalLiveFuelLoad_1 = Module["_emscripten_bind_SIGSurface_getChaparralTotalLiveFuelLoad_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralTotalLiveFuelLoad_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSurface_getChaparralTotalSilicaContent_2 = Module["_emscripten_bind_SIGSurface_getChaparralTotalSilicaContent_2"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralTotalSilicaContent_2");
-/** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getCharacteristicMoistureByLifeState_2 = Module["_emscripten_bind_SIGSurface_getCharacteristicMoistureByLifeState_2"] = createExportWrapper("emscripten_bind_SIGSurface_getCharacteristicMoistureByLifeState_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getCharacteristicMoistureDead_1 = Module["_emscripten_bind_SIGSurface_getCharacteristicMoistureDead_1"] = createExportWrapper("emscripten_bind_SIGSurface_getCharacteristicMoistureDead_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getCharacteristicMoistureLive_1 = Module["_emscripten_bind_SIGSurface_getCharacteristicMoistureLive_1"] = createExportWrapper("emscripten_bind_SIGSurface_getCharacteristicMoistureLive_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getCharacteristicSAVR_1 = Module["_emscripten_bind_SIGSurface_getCharacteristicSAVR_1"] = createExportWrapper("emscripten_bind_SIGSurface_getCharacteristicSAVR_1");
 /** @type {function(...*):?} */
@@ -5063,27 +4996,35 @@ var _emscripten_bind_SIGSurface_getCrownRatio_0 = Module["_emscripten_bind_SIGSu
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getDirectionOfMaxSpread_0 = Module["_emscripten_bind_SIGSurface_getDirectionOfMaxSpread_0"] = createExportWrapper("emscripten_bind_SIGSurface_getDirectionOfMaxSpread_0");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSurface_getEllipticalA_3 = Module["_emscripten_bind_SIGSurface_getEllipticalA_3"] = createExportWrapper("emscripten_bind_SIGSurface_getEllipticalA_3");
+var _emscripten_bind_SIGSurface_getDirectionOfInterest_0 = Module["_emscripten_bind_SIGSurface_getDirectionOfInterest_0"] = createExportWrapper("emscripten_bind_SIGSurface_getDirectionOfInterest_0");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSurface_getEllipticalB_3 = Module["_emscripten_bind_SIGSurface_getEllipticalB_3"] = createExportWrapper("emscripten_bind_SIGSurface_getEllipticalB_3");
+var _emscripten_bind_SIGSurface_getElapsedTime_1 = Module["_emscripten_bind_SIGSurface_getElapsedTime_1"] = createExportWrapper("emscripten_bind_SIGSurface_getElapsedTime_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSurface_getEllipticalC_3 = Module["_emscripten_bind_SIGSurface_getEllipticalC_3"] = createExportWrapper("emscripten_bind_SIGSurface_getEllipticalC_3");
+var _emscripten_bind_SIGSurface_getEllipticalA_1 = Module["_emscripten_bind_SIGSurface_getEllipticalA_1"] = createExportWrapper("emscripten_bind_SIGSurface_getEllipticalA_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSurface_getFireArea_3 = Module["_emscripten_bind_SIGSurface_getFireArea_3"] = createExportWrapper("emscripten_bind_SIGSurface_getFireArea_3");
+var _emscripten_bind_SIGSurface_getEllipticalB_1 = Module["_emscripten_bind_SIGSurface_getEllipticalB_1"] = createExportWrapper("emscripten_bind_SIGSurface_getEllipticalB_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getEllipticalC_1 = Module["_emscripten_bind_SIGSurface_getEllipticalC_1"] = createExportWrapper("emscripten_bind_SIGSurface_getEllipticalC_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFireArea_1 = Module["_emscripten_bind_SIGSurface_getFireArea_1"] = createExportWrapper("emscripten_bind_SIGSurface_getFireArea_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getFireEccentricity_0 = Module["_emscripten_bind_SIGSurface_getFireEccentricity_0"] = createExportWrapper("emscripten_bind_SIGSurface_getFireEccentricity_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getFireLengthToWidthRatio_0 = Module["_emscripten_bind_SIGSurface_getFireLengthToWidthRatio_0"] = createExportWrapper("emscripten_bind_SIGSurface_getFireLengthToWidthRatio_0");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSurface_getFirePerimeter_3 = Module["_emscripten_bind_SIGSurface_getFirePerimeter_3"] = createExportWrapper("emscripten_bind_SIGSurface_getFirePerimeter_3");
+var _emscripten_bind_SIGSurface_getFirePerimeter_1 = Module["_emscripten_bind_SIGSurface_getFirePerimeter_1"] = createExportWrapper("emscripten_bind_SIGSurface_getFirePerimeter_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getFirelineIntensity_1 = Module["_emscripten_bind_SIGSurface_getFirelineIntensity_1"] = createExportWrapper("emscripten_bind_SIGSurface_getFirelineIntensity_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getFlameLength_1 = Module["_emscripten_bind_SIGSurface_getFlameLength_1"] = createExportWrapper("emscripten_bind_SIGSurface_getFlameLength_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSurface_getFlankingSpreadDistance_3 = Module["_emscripten_bind_SIGSurface_getFlankingSpreadDistance_3"] = createExportWrapper("emscripten_bind_SIGSurface_getFlankingSpreadDistance_3");
+var _emscripten_bind_SIGSurface_getFlankingFirelineIntensity_1 = Module["_emscripten_bind_SIGSurface_getFlankingFirelineIntensity_1"] = createExportWrapper("emscripten_bind_SIGSurface_getFlankingFirelineIntensity_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFlankingFlameLength_1 = Module["_emscripten_bind_SIGSurface_getFlankingFlameLength_1"] = createExportWrapper("emscripten_bind_SIGSurface_getFlankingFlameLength_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getFlankingSpreadRate_1 = Module["_emscripten_bind_SIGSurface_getFlankingSpreadRate_1"] = createExportWrapper("emscripten_bind_SIGSurface_getFlankingSpreadRate_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFlankingSpreadDistance_1 = Module["_emscripten_bind_SIGSurface_getFlankingSpreadDistance_1"] = createExportWrapper("emscripten_bind_SIGSurface_getFlankingSpreadDistance_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getFuelHeatOfCombustionDead_2 = Module["_emscripten_bind_SIGSurface_getFuelHeatOfCombustionDead_2"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelHeatOfCombustionDead_2");
 /** @type {function(...*):?} */
@@ -5167,21 +5108,21 @@ var _emscripten_bind_SIGSurface_getPalmettoGallberryHeatOfCombustionLive_1 = Mod
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getPalmettoGallberryMoistureOfExtinctionDead_1 = Module["_emscripten_bind_SIGSurface_getPalmettoGallberryMoistureOfExtinctionDead_1"] = createExportWrapper("emscripten_bind_SIGSurface_getPalmettoGallberryMoistureOfExtinctionDead_1");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getPalmettoGallberyDeadFineFuelLoad_1 = Module["_emscripten_bind_SIGSurface_getPalmettoGallberyDeadFineFuelLoad_1"] = createExportWrapper("emscripten_bind_SIGSurface_getPalmettoGallberyDeadFineFuelLoad_1");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getPalmettoGallberyDeadFoliageLoad_1 = Module["_emscripten_bind_SIGSurface_getPalmettoGallberyDeadFoliageLoad_1"] = createExportWrapper("emscripten_bind_SIGSurface_getPalmettoGallberyDeadFoliageLoad_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSurface_getPalmettoGallberyDeadOneHourLoad_1 = Module["_emscripten_bind_SIGSurface_getPalmettoGallberyDeadOneHourLoad_1"] = createExportWrapper("emscripten_bind_SIGSurface_getPalmettoGallberyDeadOneHourLoad_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGSurface_getPalmettoGallberyDeadTenHourLoad_1 = Module["_emscripten_bind_SIGSurface_getPalmettoGallberyDeadTenHourLoad_1"] = createExportWrapper("emscripten_bind_SIGSurface_getPalmettoGallberyDeadTenHourLoad_1");
+var _emscripten_bind_SIGSurface_getPalmettoGallberyDeadMediumFuelLoad_1 = Module["_emscripten_bind_SIGSurface_getPalmettoGallberyDeadMediumFuelLoad_1"] = createExportWrapper("emscripten_bind_SIGSurface_getPalmettoGallberyDeadMediumFuelLoad_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getPalmettoGallberyFuelBedDepth_1 = Module["_emscripten_bind_SIGSurface_getPalmettoGallberyFuelBedDepth_1"] = createExportWrapper("emscripten_bind_SIGSurface_getPalmettoGallberyFuelBedDepth_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getPalmettoGallberyLitterLoad_1 = Module["_emscripten_bind_SIGSurface_getPalmettoGallberyLitterLoad_1"] = createExportWrapper("emscripten_bind_SIGSurface_getPalmettoGallberyLitterLoad_1");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getPalmettoGallberyLiveFineFuelLoad_1 = Module["_emscripten_bind_SIGSurface_getPalmettoGallberyLiveFineFuelLoad_1"] = createExportWrapper("emscripten_bind_SIGSurface_getPalmettoGallberyLiveFineFuelLoad_1");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getPalmettoGallberyLiveFoliageLoad_1 = Module["_emscripten_bind_SIGSurface_getPalmettoGallberyLiveFoliageLoad_1"] = createExportWrapper("emscripten_bind_SIGSurface_getPalmettoGallberyLiveFoliageLoad_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSurface_getPalmettoGallberyLiveOneHourLoad_1 = Module["_emscripten_bind_SIGSurface_getPalmettoGallberyLiveOneHourLoad_1"] = createExportWrapper("emscripten_bind_SIGSurface_getPalmettoGallberyLiveOneHourLoad_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGSurface_getPalmettoGallberyLiveTenHourLoad_1 = Module["_emscripten_bind_SIGSurface_getPalmettoGallberyLiveTenHourLoad_1"] = createExportWrapper("emscripten_bind_SIGSurface_getPalmettoGallberyLiveTenHourLoad_1");
+var _emscripten_bind_SIGSurface_getPalmettoGallberyLiveMediumFuelLoad_1 = Module["_emscripten_bind_SIGSurface_getPalmettoGallberyLiveMediumFuelLoad_1"] = createExportWrapper("emscripten_bind_SIGSurface_getPalmettoGallberyLiveMediumFuelLoad_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getReactionIntensity_1 = Module["_emscripten_bind_SIGSurface_getReactionIntensity_1"] = createExportWrapper("emscripten_bind_SIGSurface_getReactionIntensity_1");
 /** @type {function(...*):?} */
@@ -5191,9 +5132,9 @@ var _emscripten_bind_SIGSurface_getSlope_1 = Module["_emscripten_bind_SIGSurface
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getSlopeFactor_0 = Module["_emscripten_bind_SIGSurface_getSlopeFactor_0"] = createExportWrapper("emscripten_bind_SIGSurface_getSlopeFactor_0");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSurface_getSpreadDistance_3 = Module["_emscripten_bind_SIGSurface_getSpreadDistance_3"] = createExportWrapper("emscripten_bind_SIGSurface_getSpreadDistance_3");
+var _emscripten_bind_SIGSurface_getSpreadDistance_1 = Module["_emscripten_bind_SIGSurface_getSpreadDistance_1"] = createExportWrapper("emscripten_bind_SIGSurface_getSpreadDistance_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSurface_getSpreadDistanceInDirectionOfInterest_3 = Module["_emscripten_bind_SIGSurface_getSpreadDistanceInDirectionOfInterest_3"] = createExportWrapper("emscripten_bind_SIGSurface_getSpreadDistanceInDirectionOfInterest_3");
+var _emscripten_bind_SIGSurface_getSpreadDistanceInDirectionOfInterest_1 = Module["_emscripten_bind_SIGSurface_getSpreadDistanceInDirectionOfInterest_1"] = createExportWrapper("emscripten_bind_SIGSurface_getSpreadDistanceInDirectionOfInterest_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getSpreadRate_1 = Module["_emscripten_bind_SIGSurface_getSpreadRate_1"] = createExportWrapper("emscripten_bind_SIGSurface_getSpreadRate_1");
 /** @type {function(...*):?} */
@@ -5222,6 +5163,8 @@ var _emscripten_bind_SIGSurface_getMoistureScenarioDescriptionByIndex_1 = Module
 var _emscripten_bind_SIGSurface_getMoistureScenarioDescriptionByName_1 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioDescriptionByName_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioDescriptionByName_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getMoistureScenarioNameByIndex_1 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioNameByIndex_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioNameByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_doSurfaceRun_0 = Module["_emscripten_bind_SIGSurface_doSurfaceRun_0"] = createExportWrapper("emscripten_bind_SIGSurface_doSurfaceRun_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfInterest_2 = Module["_emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfInterest_2"] = createExportWrapper("emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfInterest_2");
 /** @type {function(...*):?} */
@@ -5256,6 +5199,10 @@ var _emscripten_bind_SIGSurface_setChaparralFuelType_1 = Module["_emscripten_bin
 var _emscripten_bind_SIGSurface_setChaparralTotalFuelLoad_2 = Module["_emscripten_bind_SIGSurface_setChaparralTotalFuelLoad_2"] = createExportWrapper("emscripten_bind_SIGSurface_setChaparralTotalFuelLoad_2");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_setCrownRatio_1 = Module["_emscripten_bind_SIGSurface_setCrownRatio_1"] = createExportWrapper("emscripten_bind_SIGSurface_setCrownRatio_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setDirectionOfInterest_1 = Module["_emscripten_bind_SIGSurface_setDirectionOfInterest_1"] = createExportWrapper("emscripten_bind_SIGSurface_setDirectionOfInterest_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setElapsedTime_2 = Module["_emscripten_bind_SIGSurface_setElapsedTime_2"] = createExportWrapper("emscripten_bind_SIGSurface_setElapsedTime_2");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_setFirstFuelModelNumber_1 = Module["_emscripten_bind_SIGSurface_setFirstFuelModelNumber_1"] = createExportWrapper("emscripten_bind_SIGSurface_setFirstFuelModelNumber_1");
 /** @type {function(...*):?} */
@@ -5295,6 +5242,10 @@ var _emscripten_bind_SIGSurface_setSecondFuelModelNumber_1 = Module["_emscripten
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_setSlope_2 = Module["_emscripten_bind_SIGSurface_setSlope_2"] = createExportWrapper("emscripten_bind_SIGSurface_setSlope_2");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setSurfaceFireSpreadDirectionMode_1 = Module["_emscripten_bind_SIGSurface_setSurfaceFireSpreadDirectionMode_1"] = createExportWrapper("emscripten_bind_SIGSurface_setSurfaceFireSpreadDirectionMode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setSurfaceRunInDirectionOf_1 = Module["_emscripten_bind_SIGSurface_setSurfaceRunInDirectionOf_1"] = createExportWrapper("emscripten_bind_SIGSurface_setSurfaceRunInDirectionOf_1");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_setTwoFuelModelsFirstFuelModelCoverage_2 = Module["_emscripten_bind_SIGSurface_setTwoFuelModelsFirstFuelModelCoverage_2"] = createExportWrapper("emscripten_bind_SIGSurface_setTwoFuelModelsFirstFuelModelCoverage_2");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_setTwoFuelModelsMethod_1 = Module["_emscripten_bind_SIGSurface_setTwoFuelModelsMethod_1"] = createExportWrapper("emscripten_bind_SIGSurface_setTwoFuelModelsMethod_1");
@@ -5308,6 +5259,8 @@ var _emscripten_bind_SIGSurface_setWindAndSpreadOrientationMode_1 = Module["_ems
 var _emscripten_bind_SIGSurface_setWindDirection_1 = Module["_emscripten_bind_SIGSurface_setWindDirection_1"] = createExportWrapper("emscripten_bind_SIGSurface_setWindDirection_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_setWindHeightInputMode_1 = Module["_emscripten_bind_SIGSurface_setWindHeightInputMode_1"] = createExportWrapper("emscripten_bind_SIGSurface_setWindHeightInputMode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setWindUpslopeAlignmentMode_1 = Module["_emscripten_bind_SIGSurface_setWindUpslopeAlignmentMode_1"] = createExportWrapper("emscripten_bind_SIGSurface_setWindUpslopeAlignmentMode_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_setWindSpeed_3 = Module["_emscripten_bind_SIGSurface_setWindSpeed_3"] = createExportWrapper("emscripten_bind_SIGSurface_setWindSpeed_3");
 /** @type {function(...*):?} */
@@ -5327,43 +5280,43 @@ var _emscripten_bind_PalmettoGallberry_PalmettoGallberry_0 = Module["_emscripten
 /** @type {function(...*):?} */
 var _emscripten_bind_PalmettoGallberry_initializeMembers_0 = Module["_emscripten_bind_PalmettoGallberry_initializeMembers_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_initializeMembers_0");
 /** @type {function(...*):?} */
-var _emscripten_bind_PalmettoGallberry_getHeatOfCombustionLive_0 = Module["_emscripten_bind_PalmettoGallberry_getHeatOfCombustionLive_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getHeatOfCombustionLive_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLitterLoad_2 = Module["_emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLitterLoad_2"] = createExportWrapper("emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLitterLoad_2");
-/** @type {function(...*):?} */
-var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveOneHourLoad_0 = Module["_emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveOneHourLoad_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveOneHourLoad_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadFoliageLoad_0 = Module["_emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadFoliageLoad_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadFoliageLoad_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_PalmettoGallberry_getHeatOfCombustionDead_0 = Module["_emscripten_bind_PalmettoGallberry_getHeatOfCombustionDead_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getHeatOfCombustionDead_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveFoliageLoad_3 = Module["_emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveFoliageLoad_3"] = createExportWrapper("emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveFoliageLoad_3");
-/** @type {function(...*):?} */
-var _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveTenHourLoad_2 = Module["_emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveTenHourLoad_2"] = createExportWrapper("emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveTenHourLoad_2");
-/** @type {function(...*):?} */
-var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadTenHourLoad_0 = Module["_emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadTenHourLoad_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadTenHourLoad_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_PalmettoGallberry_getMoistureOfExtinctionDead_0 = Module["_emscripten_bind_PalmettoGallberry_getMoistureOfExtinctionDead_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getMoistureOfExtinctionDead_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveFoliageLoad_0 = Module["_emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveFoliageLoad_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveFoliageLoad_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyLitterLoad_0 = Module["_emscripten_bind_PalmettoGallberry_getPalmettoGallberyLitterLoad_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getPalmettoGallberyLitterLoad_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadTenHourLoad_2 = Module["_emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadTenHourLoad_2"] = createExportWrapper("emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadTenHourLoad_2");
-/** @type {function(...*):?} */
-var _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveOneHourLoad_2 = Module["_emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveOneHourLoad_2"] = createExportWrapper("emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveOneHourLoad_2");
-/** @type {function(...*):?} */
-var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyFuelBedDepth_0 = Module["_emscripten_bind_PalmettoGallberry_getPalmettoGallberyFuelBedDepth_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getPalmettoGallberyFuelBedDepth_0");
+var _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadFineFuelLoad_2 = Module["_emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadFineFuelLoad_2"] = createExportWrapper("emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadFineFuelLoad_2");
 /** @type {function(...*):?} */
 var _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadFoliageLoad_2 = Module["_emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadFoliageLoad_2"] = createExportWrapper("emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadFoliageLoad_2");
 /** @type {function(...*):?} */
-var _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadOneHourLoad_2 = Module["_emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadOneHourLoad_2"] = createExportWrapper("emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadOneHourLoad_2");
-/** @type {function(...*):?} */
-var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveTenHourLoad_0 = Module["_emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveTenHourLoad_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveTenHourLoad_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadOneHourLoad_0 = Module["_emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadOneHourLoad_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadOneHourLoad_0");
+var _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadMediumFuelLoad_2 = Module["_emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadMediumFuelLoad_2"] = createExportWrapper("emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadMediumFuelLoad_2");
 /** @type {function(...*):?} */
 var _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyFuelBedDepth_1 = Module["_emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyFuelBedDepth_1"] = createExportWrapper("emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyFuelBedDepth_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLitterLoad_2 = Module["_emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLitterLoad_2"] = createExportWrapper("emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLitterLoad_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveFineFuelLoad_2 = Module["_emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveFineFuelLoad_2"] = createExportWrapper("emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveFineFuelLoad_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveFoliageLoad_3 = Module["_emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveFoliageLoad_3"] = createExportWrapper("emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveFoliageLoad_3");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveMediumFuelLoad_2 = Module["_emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveMediumFuelLoad_2"] = createExportWrapper("emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveMediumFuelLoad_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_getHeatOfCombustionDead_0 = Module["_emscripten_bind_PalmettoGallberry_getHeatOfCombustionDead_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getHeatOfCombustionDead_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_getHeatOfCombustionLive_0 = Module["_emscripten_bind_PalmettoGallberry_getHeatOfCombustionLive_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getHeatOfCombustionLive_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_getMoistureOfExtinctionDead_0 = Module["_emscripten_bind_PalmettoGallberry_getMoistureOfExtinctionDead_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getMoistureOfExtinctionDead_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadFineFuelLoad_0 = Module["_emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadFineFuelLoad_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadFineFuelLoad_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadFoliageLoad_0 = Module["_emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadFoliageLoad_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadFoliageLoad_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadMediumFuelLoad_0 = Module["_emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadMediumFuelLoad_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadMediumFuelLoad_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyFuelBedDepth_0 = Module["_emscripten_bind_PalmettoGallberry_getPalmettoGallberyFuelBedDepth_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getPalmettoGallberyFuelBedDepth_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyLitterLoad_0 = Module["_emscripten_bind_PalmettoGallberry_getPalmettoGallberyLitterLoad_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getPalmettoGallberyLitterLoad_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveFineFuelLoad_0 = Module["_emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveFineFuelLoad_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveFineFuelLoad_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveFoliageLoad_0 = Module["_emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveFoliageLoad_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveFoliageLoad_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveMediumFuelLoad_0 = Module["_emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveMediumFuelLoad_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveMediumFuelLoad_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_PalmettoGallberry___destroy___0 = Module["_emscripten_bind_PalmettoGallberry___destroy___0"] = createExportWrapper("emscripten_bind_PalmettoGallberry___destroy___0");
 /** @type {function(...*):?} */
@@ -5435,9 +5388,23 @@ var _emscripten_bind_SIGCrown_getCanopyHeight_1 = Module["_emscripten_bind_SIGCr
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_getCriticalOpenWindSpeed_1 = Module["_emscripten_bind_SIGCrown_getCriticalOpenWindSpeed_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCriticalOpenWindSpeed_1");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCrownCriticalFireSpreadRate_1 = Module["_emscripten_bind_SIGCrown_getCrownCriticalFireSpreadRate_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownCriticalFireSpreadRate_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCrownCriticalSurfaceFirelineIntensity_1 = Module["_emscripten_bind_SIGCrown_getCrownCriticalSurfaceFirelineIntensity_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownCriticalSurfaceFirelineIntensity_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCrownCriticalSurfaceFlameLength_1 = Module["_emscripten_bind_SIGCrown_getCrownCriticalSurfaceFlameLength_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownCriticalSurfaceFlameLength_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCrownFireActiveRatio_0 = Module["_emscripten_bind_SIGCrown_getCrownFireActiveRatio_0"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownFireActiveRatio_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCrownFireArea_1 = Module["_emscripten_bind_SIGCrown_getCrownFireArea_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownFireArea_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCrownFirePerimeter_1 = Module["_emscripten_bind_SIGCrown_getCrownFirePerimeter_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownFirePerimeter_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCrownTransitionRatio_0 = Module["_emscripten_bind_SIGCrown_getCrownTransitionRatio_0"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownTransitionRatio_0");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_getCrownFireLengthToWidthRatio_0 = Module["_emscripten_bind_SIGCrown_getCrownFireLengthToWidthRatio_0"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownFireLengthToWidthRatio_0");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGCrown_getCrownFireSpreadDistance_3 = Module["_emscripten_bind_SIGCrown_getCrownFireSpreadDistance_3"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownFireSpreadDistance_3");
+var _emscripten_bind_SIGCrown_getCrownFireSpreadDistance_1 = Module["_emscripten_bind_SIGCrown_getCrownFireSpreadDistance_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownFireSpreadDistance_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_getCrownFireSpreadRate_1 = Module["_emscripten_bind_SIGCrown_getCrownFireSpreadRate_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownFireSpreadRate_1");
 /** @type {function(...*):?} */
@@ -5513,7 +5480,7 @@ var _emscripten_bind_SIGCrown_getMoistureTenHour_1 = Module["_emscripten_bind_SI
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_getSlope_1 = Module["_emscripten_bind_SIGCrown_getSlope_1"] = createExportWrapper("emscripten_bind_SIGCrown_getSlope_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGCrown_getSurfaceFireSpreadDistance_3 = Module["_emscripten_bind_SIGCrown_getSurfaceFireSpreadDistance_3"] = createExportWrapper("emscripten_bind_SIGCrown_getSurfaceFireSpreadDistance_3");
+var _emscripten_bind_SIGCrown_getSurfaceFireSpreadDistance_1 = Module["_emscripten_bind_SIGCrown_getSurfaceFireSpreadDistance_1"] = createExportWrapper("emscripten_bind_SIGCrown_getSurfaceFireSpreadDistance_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_getSurfaceFireSpreadRate_1 = Module["_emscripten_bind_SIGCrown_getSurfaceFireSpreadRate_1"] = createExportWrapper("emscripten_bind_SIGCrown_getSurfaceFireSpreadRate_1");
 /** @type {function(...*):?} */
@@ -5556,6 +5523,10 @@ var _emscripten_bind_SIGCrown_setCanopyHeight_2 = Module["_emscripten_bind_SIGCr
 var _emscripten_bind_SIGCrown_setCrownRatio_1 = Module["_emscripten_bind_SIGCrown_setCrownRatio_1"] = createExportWrapper("emscripten_bind_SIGCrown_setCrownRatio_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_setFuelModelNumber_1 = Module["_emscripten_bind_SIGCrown_setFuelModelNumber_1"] = createExportWrapper("emscripten_bind_SIGCrown_setFuelModelNumber_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setCrownFireCalculationMethod_1 = Module["_emscripten_bind_SIGCrown_setCrownFireCalculationMethod_1"] = createExportWrapper("emscripten_bind_SIGCrown_setCrownFireCalculationMethod_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setElapsedTime_2 = Module["_emscripten_bind_SIGCrown_setElapsedTime_2"] = createExportWrapper("emscripten_bind_SIGCrown_setElapsedTime_2");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_setFuelModels_1 = Module["_emscripten_bind_SIGCrown_setFuelModels_1"] = createExportWrapper("emscripten_bind_SIGCrown_setFuelModels_1");
 /** @type {function(...*):?} */
@@ -5635,8 +5606,6 @@ var _emscripten_bind_SIGMortality_getEquationType_0 = Module["_emscripten_bind_S
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getEquationTypeAtSpeciesTableIndex_1 = Module["_emscripten_bind_SIGMortality_getEquationTypeAtSpeciesTableIndex_1"] = createExportWrapper("emscripten_bind_SIGMortality_getEquationTypeAtSpeciesTableIndex_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGMortality_getEquationTypeFromSpeciesCode_1 = Module["_emscripten_bind_SIGMortality_getEquationTypeFromSpeciesCode_1"] = createExportWrapper("emscripten_bind_SIGMortality_getEquationTypeFromSpeciesCode_1");
-/** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getFireSeverity_0 = Module["_emscripten_bind_SIGMortality_getFireSeverity_0"] = createExportWrapper("emscripten_bind_SIGMortality_getFireSeverity_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getFlameLengthOrScorchHeightSwitch_0 = Module["_emscripten_bind_SIGMortality_getFlameLengthOrScorchHeightSwitch_0"] = createExportWrapper("emscripten_bind_SIGMortality_getFlameLengthOrScorchHeightSwitch_0");
@@ -5650,6 +5619,8 @@ var _emscripten_bind_SIGMortality_checkIsInRegionFromSpeciesCode_2 = Module["_em
 var _emscripten_bind_SIGMortality_updateInputsForSpeciesCodeAndEquationType_2 = Module["_emscripten_bind_SIGMortality_updateInputsForSpeciesCodeAndEquationType_2"] = createExportWrapper("emscripten_bind_SIGMortality_updateInputsForSpeciesCodeAndEquationType_2");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_calculateMortality_1 = Module["_emscripten_bind_SIGMortality_calculateMortality_1"] = createExportWrapper("emscripten_bind_SIGMortality_calculateMortality_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_calculateScorchHeight_7 = Module["_emscripten_bind_SIGMortality_calculateScorchHeight_7"] = createExportWrapper("emscripten_bind_SIGMortality_calculateScorchHeight_7");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getBarkThickness_1 = Module["_emscripten_bind_SIGMortality_getBarkThickness_1"] = createExportWrapper("emscripten_bind_SIGMortality_getBarkThickness_1");
 /** @type {function(...*):?} */
@@ -5666,6 +5637,8 @@ var _emscripten_bind_SIGMortality_getCambiumKillRating_0 = Module["_emscripten_b
 var _emscripten_bind_SIGMortality_getCrownDamage_0 = Module["_emscripten_bind_SIGMortality_getCrownDamage_0"] = createExportWrapper("emscripten_bind_SIGMortality_getCrownDamage_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getCrownRatio_0 = Module["_emscripten_bind_SIGMortality_getCrownRatio_0"] = createExportWrapper("emscripten_bind_SIGMortality_getCrownRatio_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getCalculatedScorchHeight_1 = Module["_emscripten_bind_SIGMortality_getCalculatedScorchHeight_1"] = createExportWrapper("emscripten_bind_SIGMortality_getCalculatedScorchHeight_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getDBH_1 = Module["_emscripten_bind_SIGMortality_getDBH_1"] = createExportWrapper("emscripten_bind_SIGMortality_getDBH_1");
 /** @type {function(...*):?} */
@@ -5727,6 +5700,8 @@ var _emscripten_bind_SIGMortality_getSpeciesCodeAtSpeciesTableIndex_1 = Module["
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getRequiredFieldVector_0 = Module["_emscripten_bind_SIGMortality_getRequiredFieldVector_0"] = createExportWrapper("emscripten_bind_SIGMortality_getRequiredFieldVector_0");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setAirTemperature_2 = Module["_emscripten_bind_SIGMortality_setAirTemperature_2"] = createExportWrapper("emscripten_bind_SIGMortality_setAirTemperature_2");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_setBeetleDamage_1 = Module["_emscripten_bind_SIGMortality_setBeetleDamage_1"] = createExportWrapper("emscripten_bind_SIGMortality_setBeetleDamage_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_setBoleCharHeight_2 = Module["_emscripten_bind_SIGMortality_setBoleCharHeight_2"] = createExportWrapper("emscripten_bind_SIGMortality_setBoleCharHeight_2");
@@ -5743,17 +5718,25 @@ var _emscripten_bind_SIGMortality_setEquationType_1 = Module["_emscripten_bind_S
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_setFireSeverity_1 = Module["_emscripten_bind_SIGMortality_setFireSeverity_1"] = createExportWrapper("emscripten_bind_SIGMortality_setFireSeverity_1");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setFirelineIntensity_2 = Module["_emscripten_bind_SIGMortality_setFirelineIntensity_2"] = createExportWrapper("emscripten_bind_SIGMortality_setFirelineIntensity_2");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_setFlameLengthOrScorchHeightSwitch_1 = Module["_emscripten_bind_SIGMortality_setFlameLengthOrScorchHeightSwitch_1"] = createExportWrapper("emscripten_bind_SIGMortality_setFlameLengthOrScorchHeightSwitch_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_setFlameLengthOrScorchHeightValue_2 = Module["_emscripten_bind_SIGMortality_setFlameLengthOrScorchHeightValue_2"] = createExportWrapper("emscripten_bind_SIGMortality_setFlameLengthOrScorchHeightValue_2");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_setRegion_1 = Module["_emscripten_bind_SIGMortality_setRegion_1"] = createExportWrapper("emscripten_bind_SIGMortality_setRegion_1");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setSurfaceFireFlameLength_2 = Module["_emscripten_bind_SIGMortality_setSurfaceFireFlameLength_2"] = createExportWrapper("emscripten_bind_SIGMortality_setSurfaceFireFlameLength_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setSurfaceFireScorchHeight_2 = Module["_emscripten_bind_SIGMortality_setSurfaceFireScorchHeight_2"] = createExportWrapper("emscripten_bind_SIGMortality_setSurfaceFireScorchHeight_2");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_setSpeciesCode_1 = Module["_emscripten_bind_SIGMortality_setSpeciesCode_1"] = createExportWrapper("emscripten_bind_SIGMortality_setSpeciesCode_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_setTreeDensityPerUnitArea_2 = Module["_emscripten_bind_SIGMortality_setTreeDensityPerUnitArea_2"] = createExportWrapper("emscripten_bind_SIGMortality_setTreeDensityPerUnitArea_2");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_setTreeHeight_2 = Module["_emscripten_bind_SIGMortality_setTreeHeight_2"] = createExportWrapper("emscripten_bind_SIGMortality_setTreeHeight_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getEquationTypeFromSpeciesCode_1 = Module["_emscripten_bind_SIGMortality_getEquationTypeFromSpeciesCode_1"] = createExportWrapper("emscripten_bind_SIGMortality_getEquationTypeFromSpeciesCode_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality___destroy___0 = Module["_emscripten_bind_SIGMortality___destroy___0"] = createExportWrapper("emscripten_bind_SIGMortality___destroy___0");
 /** @type {function(...*):?} */
@@ -6071,6 +6054,14 @@ var _emscripten_enum_WindHeightInputMode_WindHeightInputModeEnum_TwentyFoot = Mo
 /** @type {function(...*):?} */
 var _emscripten_enum_WindHeightInputMode_WindHeightInputModeEnum_TenMeter = Module["_emscripten_enum_WindHeightInputMode_WindHeightInputModeEnum_TenMeter"] = createExportWrapper("emscripten_enum_WindHeightInputMode_WindHeightInputModeEnum_TenMeter");
 /** @type {function(...*):?} */
+var _emscripten_enum_WindUpslopeAlignmentMode_NotAligned = Module["_emscripten_enum_WindUpslopeAlignmentMode_NotAligned"] = createExportWrapper("emscripten_enum_WindUpslopeAlignmentMode_NotAligned");
+/** @type {function(...*):?} */
+var _emscripten_enum_WindUpslopeAlignmentMode_Aligned = Module["_emscripten_enum_WindUpslopeAlignmentMode_Aligned"] = createExportWrapper("emscripten_enum_WindUpslopeAlignmentMode_Aligned");
+/** @type {function(...*):?} */
+var _emscripten_enum_SurfaceRunInDirectionOf_MaxSpread = Module["_emscripten_enum_SurfaceRunInDirectionOf_MaxSpread"] = createExportWrapper("emscripten_enum_SurfaceRunInDirectionOf_MaxSpread");
+/** @type {function(...*):?} */
+var _emscripten_enum_SurfaceRunInDirectionOf_DirectionOfInterest = Module["_emscripten_enum_SurfaceRunInDirectionOf_DirectionOfInterest"] = createExportWrapper("emscripten_enum_SurfaceRunInDirectionOf_DirectionOfInterest");
+/** @type {function(...*):?} */
 var _emscripten_enum_FireType_FireTypeEnum_Surface = Module["_emscripten_enum_FireType_FireTypeEnum_Surface"] = createExportWrapper("emscripten_enum_FireType_FireTypeEnum_Surface");
 /** @type {function(...*):?} */
 var _emscripten_enum_FireType_FireTypeEnum_Torching = Module["_emscripten_enum_FireType_FireTypeEnum_Torching"] = createExportWrapper("emscripten_enum_FireType_FireTypeEnum_Torching");
@@ -6084,6 +6075,10 @@ var _emscripten_enum_BeetleDamage_not_set = Module["_emscripten_enum_BeetleDamag
 var _emscripten_enum_BeetleDamage_no = Module["_emscripten_enum_BeetleDamage_no"] = createExportWrapper("emscripten_enum_BeetleDamage_no");
 /** @type {function(...*):?} */
 var _emscripten_enum_BeetleDamage_yes = Module["_emscripten_enum_BeetleDamage_yes"] = createExportWrapper("emscripten_enum_BeetleDamage_yes");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownFireCalculationMethod_rothermel = Module["_emscripten_enum_CrownFireCalculationMethod_rothermel"] = createExportWrapper("emscripten_enum_CrownFireCalculationMethod_rothermel");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownFireCalculationMethod_scott_and_reinhardt = Module["_emscripten_enum_CrownFireCalculationMethod_scott_and_reinhardt"] = createExportWrapper("emscripten_enum_CrownFireCalculationMethod_scott_and_reinhardt");
 /** @type {function(...*):?} */
 var _emscripten_enum_CrownDamageEquationCode_not_set = Module["_emscripten_enum_CrownDamageEquationCode_not_set"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_not_set");
 /** @type {function(...*):?} */
@@ -6218,6 +6213,10 @@ var _emscripten_stack_get_current = function() {
 };
 
 /** @type {function(...*):?} */
+var ___cxa_increment_exception_refcount = createExportWrapper("__cxa_increment_exception_refcount");
+/** @type {function(...*):?} */
+var ___cxa_decrement_exception_refcount = createExportWrapper("__cxa_decrement_exception_refcount");
+/** @type {function(...*):?} */
 var ___get_exception_message = Module["___get_exception_message"] = createExportWrapper("__get_exception_message");
 /** @type {function(...*):?} */
 var ___cxa_can_catch = createExportWrapper("__cxa_can_catch");
@@ -6225,8 +6224,8 @@ var ___cxa_can_catch = createExportWrapper("__cxa_can_catch");
 var ___cxa_is_pointer_type = createExportWrapper("__cxa_is_pointer_type");
 /** @type {function(...*):?} */
 var dynCall_jiji = Module["dynCall_jiji"] = createExportWrapper("dynCall_jiji");
-var ___start_em_js = Module['___start_em_js'] = 113880;
-var ___stop_em_js = Module['___stop_em_js'] = 113978;
+var ___start_em_js = Module['___start_em_js'] = 114230;
+var ___stop_em_js = Module['___stop_em_js'] = 114328;
 function invoke_vii(index,a1,a2) {
   var sp = stackSave();
   try {
@@ -6436,10 +6435,10 @@ function invoke_iiddiidiidiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13
   }
 }
 
-function invoke_vididi(index,a1,a2,a3,a4,a5) {
+function invoke_viididi(index,a1,a2,a3,a4,a5,a6) {
   var sp = stackSave();
   try {
-    getWasmTableEntry(index)(a1,a2,a3,a4,a5);
+    getWasmTableEntry(index)(a1,a2,a3,a4,a5,a6);
   } catch(e) {
     stackRestore(sp);
     if (!(e instanceof EmscriptenEH)) throw e;
@@ -6484,12 +6483,15 @@ function invoke_v(index) {
 // include: postamble.js
 // === Auto-generated postamble setup entry stuff ===
 
-Module["UTF8ToString"] = UTF8ToString;
 Module["addFunction"] = addFunction;
+Module["UTF8ToString"] = UTF8ToString;
 Module["allocateUTF8"] = allocateUTF8;
 var missingLibrarySymbols = [
-  'stringToNewUTF8',
   'exitJS',
+  'isLeapYear',
+  'ydayFromDate',
+  'arraySum',
+  'addDays',
   'inetPton4',
   'inetNtop4',
   'inetPton6',
@@ -6498,6 +6500,8 @@ var missingLibrarySymbols = [
   'writeSockaddr',
   'getHostByName',
   'traverseStack',
+  'getCallstack',
+  'emscriptenLog',
   'convertPCtoSourceLocation',
   'readEmAsmArgs',
   'jstoi_q',
@@ -6548,12 +6552,8 @@ var missingLibrarySymbols = [
   'UTF32ToString',
   'stringToUTF32',
   'lengthBytesUTF32',
-  'allocateUTF8OnStack',
-  'writeStringToMemory',
+  'stringToUTF8OnStack',
   'writeArrayToMemory',
-  'writeAsciiToMemory',
-  'getSocketFromFD',
-  'getSocketAddress',
   'registerKeyEventCallback',
   'maybeCStringToJsString',
   'findEventTarget',
@@ -6600,43 +6600,54 @@ var missingLibrarySymbols = [
   'stackTrace',
   'getEnvStrings',
   'checkWasiClock',
+  'wasiRightsToMuslOFlags',
+  'wasiOFlagsToMuslOFlags',
   'createDyncallWrapper',
   'setImmediateWrapped',
   'clearImmediateWrapped',
   'polyfillSetImmediate',
   'getPromise',
   'makePromise',
+  'idsToPromises',
   'makePromiseCallback',
   'setMainLoop',
+  'getSocketFromFD',
+  'getSocketAddress',
   '_setNetworkCallback',
   'heapObjectForWebGLType',
   'heapAccessShiftForWebGLHeap',
+  'webgl_enable_ANGLE_instanced_arrays',
+  'webgl_enable_OES_vertex_array_object',
+  'webgl_enable_WEBGL_draw_buffers',
+  'webgl_enable_WEBGL_multi_draw',
   'emscriptenWebGLGet',
   'computeUnpackAlignedImageSize',
+  'colorChannelsInGlTextureFormat',
   'emscriptenWebGLGetTexPixelData',
+  '__glGenObject',
   'emscriptenWebGLGetUniform',
   'webglGetUniformLocation',
   'webglPrepareUniformLocationsBeforeFirstUse',
   'webglGetLeftBracePos',
   'emscriptenWebGLGetVertexAttrib',
+  '__glGetActiveAttribOrUniform',
   'writeGLArray',
+  'registerWebGlEventCallback',
+  'runAndAbortIfError',
   'SDL_unicode',
   'SDL_ttfContext',
   'SDL_audio',
   'GLFW_Window',
-  'runAndAbortIfError',
   'ALLOC_NORMAL',
   'ALLOC_STACK',
   'allocate',
+  'writeStringToMemory',
+  'writeAsciiToMemory',
 ];
 missingLibrarySymbols.forEach(missingLibrarySymbol)
 
 var unexportedSymbols = [
   'run',
-  'UTF8ArrayToString',
-  'stringToUTF8Array',
-  'stringToUTF8',
-  'lengthBytesUTF8',
   'addOnPreRun',
   'addOnInit',
   'addOnPreMain',
@@ -6647,7 +6658,6 @@ var unexportedSymbols = [
   'FS_createFolder',
   'FS_createPath',
   'FS_createDataFile',
-  'FS_createPreloadedFile',
   'FS_createLazyFile',
   'FS_createLink',
   'FS_createDevice',
@@ -6668,15 +6678,20 @@ var unexportedSymbols = [
   'ptrToString',
   'zeroMemory',
   'getHeapMax',
-  'emscripten_realloc_buffer',
+  'growMemory',
   'ENV',
+  'MONTH_DAYS_REGULAR',
+  'MONTH_DAYS_LEAP',
+  'MONTH_DAYS_REGULAR_CUMULATIVE',
+  'MONTH_DAYS_LEAP_CUMULATIVE',
   'ERRNO_CODES',
   'ERRNO_MESSAGES',
   'setErrNo',
   'DNS',
   'Protocols',
   'Sockets',
-  'getRandomDevice',
+  'initRandomFill',
+  'randomFill',
   'timers',
   'warnOnce',
   'UNWIND_CACHE',
@@ -6698,9 +6713,14 @@ var unexportedSymbols = [
   'getValue',
   'PATH',
   'PATH_FS',
+  'UTF8Decoder',
+  'UTF8ArrayToString',
+  'stringToUTF8Array',
+  'stringToUTF8',
+  'lengthBytesUTF8',
   'intArrayFromString',
   'UTF16Decoder',
-  'SYSCALLS',
+  'stringToNewUTF8',
   'JSEvents',
   'specialHTMLTargets',
   'currentFullscreenStrategy',
@@ -6710,20 +6730,22 @@ var unexportedSymbols = [
   'ExitStatus',
   'doReadv',
   'doWritev',
-  'dlopenMissingError',
   'promiseMap',
   'uncaughtExceptionCount',
   'exceptionLast',
   'exceptionCaught',
   'ExceptionInfo',
-  'exception_addRef',
-  'exception_decRef',
   'getExceptionMessageCommon',
   'incrementExceptionRefcount',
   'decrementExceptionRefcount',
   'getExceptionMessage',
   'Browser',
   'wget',
+  'SYSCALLS',
+  'preloadPlugins',
+  'FS_createPreloadedFile',
+  'FS_modeStringToFlags',
+  'FS_getMode',
   'FS',
   'MEMFS',
   'TTY',
@@ -6731,15 +6753,18 @@ var unexportedSymbols = [
   'SOCKFS',
   'tempFixedLengthArray',
   'miniTempWebGLFloatBuffers',
+  'miniTempWebGLIntBuffers',
   'GL',
+  'emscripten_webgl_power_preferences',
   'AL',
-  'SDL',
-  'SDL_gfx',
   'GLUT',
   'EGL',
-  'GLFW',
   'GLEW',
   'IDBStore',
+  'SDL',
+  'SDL_gfx',
+  'GLFW',
+  'allocateUTF8OnStack',
 ];
 unexportedSymbols.forEach(unexportedRuntimeSymbol);
 
@@ -6860,7 +6885,7 @@ run();
 
 
 // end include: postamble.js
-// include: /home/kcheung/work/code/behave-polylith/behave-lib/include/js/glue.js
+// include: /Users/rsheperd/Code/sig/behave-polylith/behave-lib/include/js/glue.js
 
 // Bindings utilities
 
@@ -7046,6 +7071,7 @@ function ensureFloat64(value) {
   }
   return value;
 }
+
 
 // VoidPtr
 /** @suppress {undefinedVars, duplicate} @this{Object} */function VoidPtr() { throw "cannot construct a VoidPtr, no constructor in IDL" }
@@ -7277,10 +7303,7 @@ SpeciesMasterTableRecordVector.prototype['size'] = SpeciesMasterTableRecordVecto
   _emscripten_bind_SpeciesMasterTableRecordVector___destroy___0(self);
 };
 // FireSize
-/** @suppress {undefinedVars, duplicate} @this{Object} */function FireSize() {
-  this.ptr = _emscripten_bind_FireSize_FireSize_0();
-  getCache(FireSize)[this.ptr] = this;
-};;
+/** @suppress {undefinedVars, duplicate} @this{Object} */function FireSize() { throw "cannot construct a FireSize, no constructor in IDL" }
 FireSize.prototype = Object.create(WrapperObject.prototype);
 FireSize.prototype.constructor = FireSize;
 FireSize.prototype.__class__ = FireSize;
@@ -7322,12 +7345,13 @@ FireSize.prototype['getEllipticalC'] = FireSize.prototype.getEllipticalC = /** @
   return _emscripten_bind_FireSize_getEllipticalC_3(self, lengthUnits, elapsedTime, timeUnits);
 };;
 
-FireSize.prototype['getFireArea'] = FireSize.prototype.getFireArea = /** @suppress {undefinedVars, duplicate} @this{Object} */function(areaUnits, elapsedTime, timeUnits) {
+FireSize.prototype['getFireArea'] = FireSize.prototype.getFireArea = /** @suppress {undefinedVars, duplicate} @this{Object} */function(isCrown, areaUnits, elapsedTime, timeUnits) {
   var self = this.ptr;
+  if (isCrown && typeof isCrown === 'object') isCrown = isCrown.ptr;
   if (areaUnits && typeof areaUnits === 'object') areaUnits = areaUnits.ptr;
   if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
   if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
-  return _emscripten_bind_FireSize_getFireArea_3(self, areaUnits, elapsedTime, timeUnits);
+  return _emscripten_bind_FireSize_getFireArea_4(self, isCrown, areaUnits, elapsedTime, timeUnits);
 };;
 
 FireSize.prototype['getFireLength'] = FireSize.prototype.getFireLength = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
@@ -7343,12 +7367,24 @@ FireSize.prototype['getFireLengthToWidthRatio'] = FireSize.prototype.getFireLeng
   return _emscripten_bind_FireSize_getFireLengthToWidthRatio_0(self);
 };;
 
-FireSize.prototype['getFirePerimeter'] = FireSize.prototype.getFirePerimeter = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
+FireSize.prototype['getFirePerimeter'] = FireSize.prototype.getFirePerimeter = /** @suppress {undefinedVars, duplicate} @this{Object} */function(isCrown, lengthUnits, elapsedTime, timeUnits) {
   var self = this.ptr;
+  if (isCrown && typeof isCrown === 'object') isCrown = isCrown.ptr;
   if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
   if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
   if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
-  return _emscripten_bind_FireSize_getFirePerimeter_3(self, lengthUnits, elapsedTime, timeUnits);
+  return _emscripten_bind_FireSize_getFirePerimeter_4(self, isCrown, lengthUnits, elapsedTime, timeUnits);
+};;
+
+FireSize.prototype['getFlankingSpreadRate'] = FireSize.prototype.getFlankingSpreadRate = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spreadRateUnits) {
+  var self = this.ptr;
+  if (spreadRateUnits && typeof spreadRateUnits === 'object') spreadRateUnits = spreadRateUnits.ptr;
+  return _emscripten_bind_FireSize_getFlankingSpreadRate_1(self, spreadRateUnits);
+};;
+
+FireSize.prototype['getHeadingToBackingRatio'] = FireSize.prototype.getHeadingToBackingRatio = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_FireSize_getHeadingToBackingRatio_0(self);
 };;
 
 FireSize.prototype['getMaxFireWidth'] = FireSize.prototype.getMaxFireWidth = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
@@ -7359,13 +7395,14 @@ FireSize.prototype['getMaxFireWidth'] = FireSize.prototype.getMaxFireWidth = /**
   return _emscripten_bind_FireSize_getMaxFireWidth_3(self, lengthUnits, elapsedTime, timeUnits);
 };;
 
-FireSize.prototype['calculateFireBasicDimensions'] = FireSize.prototype.calculateFireBasicDimensions = /** @suppress {undefinedVars, duplicate} @this{Object} */function(effectiveWindSpeed, windSpeedRateUnits, forwardSpreadRate, spreadRateUnits) {
+FireSize.prototype['calculateFireBasicDimensions'] = FireSize.prototype.calculateFireBasicDimensions = /** @suppress {undefinedVars, duplicate} @this{Object} */function(isCrown, effectiveWindSpeed, windSpeedRateUnits, forwardSpreadRate, spreadRateUnits) {
   var self = this.ptr;
+  if (isCrown && typeof isCrown === 'object') isCrown = isCrown.ptr;
   if (effectiveWindSpeed && typeof effectiveWindSpeed === 'object') effectiveWindSpeed = effectiveWindSpeed.ptr;
   if (windSpeedRateUnits && typeof windSpeedRateUnits === 'object') windSpeedRateUnits = windSpeedRateUnits.ptr;
   if (forwardSpreadRate && typeof forwardSpreadRate === 'object') forwardSpreadRate = forwardSpreadRate.ptr;
   if (spreadRateUnits && typeof spreadRateUnits === 'object') spreadRateUnits = spreadRateUnits.ptr;
-  _emscripten_bind_FireSize_calculateFireBasicDimensions_4(self, effectiveWindSpeed, windSpeedRateUnits, forwardSpreadRate, spreadRateUnits);
+  _emscripten_bind_FireSize_calculateFireBasicDimensions_5(self, isCrown, effectiveWindSpeed, windSpeedRateUnits, forwardSpreadRate, spreadRateUnits);
 };;
 
   FireSize.prototype['__destroy__'] = FireSize.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
@@ -8380,6 +8417,11 @@ SIGSurface.prototype['getWindHeightInputMode'] = SIGSurface.prototype.getWindHei
   return _emscripten_bind_SIGSurface_getWindHeightInputMode_0(self);
 };;
 
+SIGSurface.prototype['getWindUpslopeAlignmentMode'] = SIGSurface.prototype.getWindUpslopeAlignmentMode = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGSurface_getWindUpslopeAlignmentMode_0(self);
+};;
+
 SIGSurface.prototype['getIsMoistureScenarioDefinedByIndex'] = SIGSurface.prototype.getIsMoistureScenarioDefinedByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
   var self = this.ptr;
   if (index && typeof index === 'object') index = index.ptr;
@@ -8466,18 +8508,6 @@ SIGSurface.prototype['calculateFlameLength'] = SIGSurface.prototype.calculateFla
   return _emscripten_bind_SIGSurface_calculateFlameLength_3(self, firelineIntensity, firelineIntensityUnits, flameLengthUnits);
 };;
 
-SIGSurface.prototype['calculateScorchHeight'] = SIGSurface.prototype.calculateScorchHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firelineIntensity, firelineIntensityUnits, midFlameWindSpeed, windSpeedUnits, airTemperature, temperatureUnits, scorchHeightUnits) {
-  var self = this.ptr;
-  if (firelineIntensity && typeof firelineIntensity === 'object') firelineIntensity = firelineIntensity.ptr;
-  if (firelineIntensityUnits && typeof firelineIntensityUnits === 'object') firelineIntensityUnits = firelineIntensityUnits.ptr;
-  if (midFlameWindSpeed && typeof midFlameWindSpeed === 'object') midFlameWindSpeed = midFlameWindSpeed.ptr;
-  if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
-  if (airTemperature && typeof airTemperature === 'object') airTemperature = airTemperature.ptr;
-  if (temperatureUnits && typeof temperatureUnits === 'object') temperatureUnits = temperatureUnits.ptr;
-  if (scorchHeightUnits && typeof scorchHeightUnits === 'object') scorchHeightUnits = scorchHeightUnits.ptr;
-  return _emscripten_bind_SIGSurface_calculateScorchHeight_7(self, firelineIntensity, firelineIntensityUnits, midFlameWindSpeed, windSpeedUnits, airTemperature, temperatureUnits, scorchHeightUnits);
-};;
-
 SIGSurface.prototype['getAgeOfRough'] = SIGSurface.prototype.getAgeOfRough = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   return _emscripten_bind_SIGSurface_getAgeOfRough_0(self);
@@ -8548,12 +8578,22 @@ SIGSurface.prototype['getAspenSavrLiveWoody'] = SIGSurface.prototype.getAspenSav
   return _emscripten_bind_SIGSurface_getAspenSavrLiveWoody_1(self, savrUnits);
 };;
 
-SIGSurface.prototype['getBackingSpreadDistance'] = SIGSurface.prototype.getBackingSpreadDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
+SIGSurface.prototype['getBackingFirelineIntensity'] = SIGSurface.prototype.getBackingFirelineIntensity = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firelineIntensityUnits) {
+  var self = this.ptr;
+  if (firelineIntensityUnits && typeof firelineIntensityUnits === 'object') firelineIntensityUnits = firelineIntensityUnits.ptr;
+  return _emscripten_bind_SIGSurface_getBackingFirelineIntensity_1(self, firelineIntensityUnits);
+};;
+
+SIGSurface.prototype['getBackingFlameLength'] = SIGSurface.prototype.getBackingFlameLength = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameLengthUnits) {
+  var self = this.ptr;
+  if (flameLengthUnits && typeof flameLengthUnits === 'object') flameLengthUnits = flameLengthUnits.ptr;
+  return _emscripten_bind_SIGSurface_getBackingFlameLength_1(self, flameLengthUnits);
+};;
+
+SIGSurface.prototype['getBackingSpreadDistance'] = SIGSurface.prototype.getBackingSpreadDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
   var self = this.ptr;
   if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
-  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
-  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
-  return _emscripten_bind_SIGSurface_getBackingSpreadDistance_3(self, lengthUnits, elapsedTime, timeUnits);
+  return _emscripten_bind_SIGSurface_getBackingSpreadDistance_1(self, lengthUnits);
 };;
 
 SIGSurface.prototype['getBackingSpreadRate'] = SIGSurface.prototype.getBackingSpreadRate = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spreadRateUnits) {
@@ -8610,13 +8650,6 @@ SIGSurface.prototype['getChaparralDensity'] = SIGSurface.prototype.getChaparralD
   return _emscripten_bind_SIGSurface_getChaparralDensity_3(self, lifeState, sizeClass, densityUnits);
 };;
 
-SIGSurface.prototype['getChaparralEffectiveSilicaContent'] = SIGSurface.prototype.getChaparralEffectiveSilicaContent = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lifeState, sizeClass) {
-  var self = this.ptr;
-  if (lifeState && typeof lifeState === 'object') lifeState = lifeState.ptr;
-  if (sizeClass && typeof sizeClass === 'object') sizeClass = sizeClass.ptr;
-  return _emscripten_bind_SIGSurface_getChaparralEffectiveSilicaContent_2(self, lifeState, sizeClass);
-};;
-
 SIGSurface.prototype['getChaparralFuelBedDepth'] = SIGSurface.prototype.getChaparralFuelBedDepth = /** @suppress {undefinedVars, duplicate} @this{Object} */function(depthUnits) {
   var self = this.ptr;
   if (depthUnits && typeof depthUnits === 'object') depthUnits = depthUnits.ptr;
@@ -8642,12 +8675,58 @@ SIGSurface.prototype['getChaparralLiveMoistureOfExtinction'] = SIGSurface.protot
   return _emscripten_bind_SIGSurface_getChaparralLiveMoistureOfExtinction_1(self, moistureUnits);
 };;
 
-SIGSurface.prototype['getChaparralLoad'] = SIGSurface.prototype.getChaparralLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lifeState, sizeClass, loadingUnits) {
+SIGSurface.prototype['getChaparralLoadDeadHalfInchToLessThanOneInch'] = SIGSurface.prototype.getChaparralLoadDeadHalfInchToLessThanOneInch = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
   var self = this.ptr;
-  if (lifeState && typeof lifeState === 'object') lifeState = lifeState.ptr;
-  if (sizeClass && typeof sizeClass === 'object') sizeClass = sizeClass.ptr;
   if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
-  return _emscripten_bind_SIGSurface_getChaparralLoad_3(self, lifeState, sizeClass, loadingUnits);
+  return _emscripten_bind_SIGSurface_getChaparralLoadDeadHalfInchToLessThanOneInch_1(self, loadingUnits);
+};;
+
+SIGSurface.prototype['getChaparralLoadDeadLessThanQuarterInch'] = SIGSurface.prototype.getChaparralLoadDeadLessThanQuarterInch = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
+  var self = this.ptr;
+  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
+  return _emscripten_bind_SIGSurface_getChaparralLoadDeadLessThanQuarterInch_1(self, loadingUnits);
+};;
+
+SIGSurface.prototype['getChaparralLoadDeadOneInchToThreeInch'] = SIGSurface.prototype.getChaparralLoadDeadOneInchToThreeInch = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
+  var self = this.ptr;
+  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
+  return _emscripten_bind_SIGSurface_getChaparralLoadDeadOneInchToThreeInch_1(self, loadingUnits);
+};;
+
+SIGSurface.prototype['getChaparralLoadDeadQuarterInchToLessThanHalfInch'] = SIGSurface.prototype.getChaparralLoadDeadQuarterInchToLessThanHalfInch = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
+  var self = this.ptr;
+  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
+  return _emscripten_bind_SIGSurface_getChaparralLoadDeadQuarterInchToLessThanHalfInch_1(self, loadingUnits);
+};;
+
+SIGSurface.prototype['getChaparralLoadLiveHalfInchToLessThanOneInch'] = SIGSurface.prototype.getChaparralLoadLiveHalfInchToLessThanOneInch = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
+  var self = this.ptr;
+  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
+  return _emscripten_bind_SIGSurface_getChaparralLoadLiveHalfInchToLessThanOneInch_1(self, loadingUnits);
+};;
+
+SIGSurface.prototype['getChaparralLoadLiveLeaves'] = SIGSurface.prototype.getChaparralLoadLiveLeaves = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
+  var self = this.ptr;
+  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
+  return _emscripten_bind_SIGSurface_getChaparralLoadLiveLeaves_1(self, loadingUnits);
+};;
+
+SIGSurface.prototype['getChaparralLoadLiveOneInchToThreeInch'] = SIGSurface.prototype.getChaparralLoadLiveOneInchToThreeInch = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
+  var self = this.ptr;
+  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
+  return _emscripten_bind_SIGSurface_getChaparralLoadLiveOneInchToThreeInch_1(self, loadingUnits);
+};;
+
+SIGSurface.prototype['getChaparralLoadLiveQuarterInchToLessThanHalfInch'] = SIGSurface.prototype.getChaparralLoadLiveQuarterInchToLessThanHalfInch = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
+  var self = this.ptr;
+  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
+  return _emscripten_bind_SIGSurface_getChaparralLoadLiveQuarterInchToLessThanHalfInch_1(self, loadingUnits);
+};;
+
+SIGSurface.prototype['getChaparralLoadLiveStemsLessThanQuaterInch'] = SIGSurface.prototype.getChaparralLoadLiveStemsLessThanQuaterInch = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
+  var self = this.ptr;
+  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
+  return _emscripten_bind_SIGSurface_getChaparralLoadLiveStemsLessThanQuaterInch_1(self, loadingUnits);
 };;
 
 SIGSurface.prototype['getChaparralMoisture'] = SIGSurface.prototype.getChaparralMoisture = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lifeState, sizeClass, moistureUnits) {
@@ -8656,14 +8735,6 @@ SIGSurface.prototype['getChaparralMoisture'] = SIGSurface.prototype.getChaparral
   if (sizeClass && typeof sizeClass === 'object') sizeClass = sizeClass.ptr;
   if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
   return _emscripten_bind_SIGSurface_getChaparralMoisture_3(self, lifeState, sizeClass, moistureUnits);
-};;
-
-SIGSurface.prototype['getChaparralSavr'] = SIGSurface.prototype.getChaparralSavr = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lifeState, sizeClass, savrUnits) {
-  var self = this.ptr;
-  if (lifeState && typeof lifeState === 'object') lifeState = lifeState.ptr;
-  if (sizeClass && typeof sizeClass === 'object') sizeClass = sizeClass.ptr;
-  if (savrUnits && typeof savrUnits === 'object') savrUnits = savrUnits.ptr;
-  return _emscripten_bind_SIGSurface_getChaparralSavr_3(self, lifeState, sizeClass, savrUnits);
 };;
 
 SIGSurface.prototype['getChaparralTotalDeadFuelLoad'] = SIGSurface.prototype.getChaparralTotalDeadFuelLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
@@ -8684,18 +8755,23 @@ SIGSurface.prototype['getChaparralTotalLiveFuelLoad'] = SIGSurface.prototype.get
   return _emscripten_bind_SIGSurface_getChaparralTotalLiveFuelLoad_1(self, loadingUnits);
 };;
 
-SIGSurface.prototype['getChaparralTotalSilicaContent'] = SIGSurface.prototype.getChaparralTotalSilicaContent = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lifeState, sizeClass) {
-  var self = this.ptr;
-  if (lifeState && typeof lifeState === 'object') lifeState = lifeState.ptr;
-  if (sizeClass && typeof sizeClass === 'object') sizeClass = sizeClass.ptr;
-  return _emscripten_bind_SIGSurface_getChaparralTotalSilicaContent_2(self, lifeState, sizeClass);
-};;
-
 SIGSurface.prototype['getCharacteristicMoistureByLifeState'] = SIGSurface.prototype.getCharacteristicMoistureByLifeState = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lifeState, moistureUnits) {
   var self = this.ptr;
   if (lifeState && typeof lifeState === 'object') lifeState = lifeState.ptr;
   if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
   return _emscripten_bind_SIGSurface_getCharacteristicMoistureByLifeState_2(self, lifeState, moistureUnits);
+};;
+
+SIGSurface.prototype['getCharacteristicMoistureDead'] = SIGSurface.prototype.getCharacteristicMoistureDead = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureUnits) {
+  var self = this.ptr;
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGSurface_getCharacteristicMoistureDead_1(self, moistureUnits);
+};;
+
+SIGSurface.prototype['getCharacteristicMoistureLive'] = SIGSurface.prototype.getCharacteristicMoistureLive = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureUnits) {
+  var self = this.ptr;
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGSurface_getCharacteristicMoistureLive_1(self, moistureUnits);
 };;
 
 SIGSurface.prototype['getCharacteristicSAVR'] = SIGSurface.prototype.getCharacteristicSAVR = /** @suppress {undefinedVars, duplicate} @this{Object} */function(savrUnits) {
@@ -8714,36 +8790,39 @@ SIGSurface.prototype['getDirectionOfMaxSpread'] = SIGSurface.prototype.getDirect
   return _emscripten_bind_SIGSurface_getDirectionOfMaxSpread_0(self);
 };;
 
-SIGSurface.prototype['getEllipticalA'] = SIGSurface.prototype.getEllipticalA = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
+SIGSurface.prototype['getDirectionOfInterest'] = SIGSurface.prototype.getDirectionOfInterest = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
-  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
-  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
-  return _emscripten_bind_SIGSurface_getEllipticalA_3(self, lengthUnits, elapsedTime, timeUnits);
+  return _emscripten_bind_SIGSurface_getDirectionOfInterest_0(self);
 };;
 
-SIGSurface.prototype['getEllipticalB'] = SIGSurface.prototype.getEllipticalB = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
+SIGSurface.prototype['getElapsedTime'] = SIGSurface.prototype.getElapsedTime = /** @suppress {undefinedVars, duplicate} @this{Object} */function(timeUnits) {
   var self = this.ptr;
-  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
-  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
   if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
-  return _emscripten_bind_SIGSurface_getEllipticalB_3(self, lengthUnits, elapsedTime, timeUnits);
+  return _emscripten_bind_SIGSurface_getElapsedTime_1(self, timeUnits);
 };;
 
-SIGSurface.prototype['getEllipticalC'] = SIGSurface.prototype.getEllipticalC = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
+SIGSurface.prototype['getEllipticalA'] = SIGSurface.prototype.getEllipticalA = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
   var self = this.ptr;
   if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
-  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
-  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
-  return _emscripten_bind_SIGSurface_getEllipticalC_3(self, lengthUnits, elapsedTime, timeUnits);
+  return _emscripten_bind_SIGSurface_getEllipticalA_1(self, lengthUnits);
 };;
 
-SIGSurface.prototype['getFireArea'] = SIGSurface.prototype.getFireArea = /** @suppress {undefinedVars, duplicate} @this{Object} */function(areaUnits, elapsedTime, timeUnits) {
+SIGSurface.prototype['getEllipticalB'] = SIGSurface.prototype.getEllipticalB = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
+  var self = this.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  return _emscripten_bind_SIGSurface_getEllipticalB_1(self, lengthUnits);
+};;
+
+SIGSurface.prototype['getEllipticalC'] = SIGSurface.prototype.getEllipticalC = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
+  var self = this.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  return _emscripten_bind_SIGSurface_getEllipticalC_1(self, lengthUnits);
+};;
+
+SIGSurface.prototype['getFireArea'] = SIGSurface.prototype.getFireArea = /** @suppress {undefinedVars, duplicate} @this{Object} */function(areaUnits) {
   var self = this.ptr;
   if (areaUnits && typeof areaUnits === 'object') areaUnits = areaUnits.ptr;
-  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
-  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
-  return _emscripten_bind_SIGSurface_getFireArea_3(self, areaUnits, elapsedTime, timeUnits);
+  return _emscripten_bind_SIGSurface_getFireArea_1(self, areaUnits);
 };;
 
 SIGSurface.prototype['getFireEccentricity'] = SIGSurface.prototype.getFireEccentricity = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
@@ -8756,12 +8835,10 @@ SIGSurface.prototype['getFireLengthToWidthRatio'] = SIGSurface.prototype.getFire
   return _emscripten_bind_SIGSurface_getFireLengthToWidthRatio_0(self);
 };;
 
-SIGSurface.prototype['getFirePerimeter'] = SIGSurface.prototype.getFirePerimeter = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
+SIGSurface.prototype['getFirePerimeter'] = SIGSurface.prototype.getFirePerimeter = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
   var self = this.ptr;
   if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
-  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
-  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
-  return _emscripten_bind_SIGSurface_getFirePerimeter_3(self, lengthUnits, elapsedTime, timeUnits);
+  return _emscripten_bind_SIGSurface_getFirePerimeter_1(self, lengthUnits);
 };;
 
 SIGSurface.prototype['getFirelineIntensity'] = SIGSurface.prototype.getFirelineIntensity = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firelineIntensityUnits) {
@@ -8776,18 +8853,28 @@ SIGSurface.prototype['getFlameLength'] = SIGSurface.prototype.getFlameLength = /
   return _emscripten_bind_SIGSurface_getFlameLength_1(self, flameLengthUnits);
 };;
 
-SIGSurface.prototype['getFlankingSpreadDistance'] = SIGSurface.prototype.getFlankingSpreadDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
+SIGSurface.prototype['getFlankingFirelineIntensity'] = SIGSurface.prototype.getFlankingFirelineIntensity = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firelineIntensityUnits) {
   var self = this.ptr;
-  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
-  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
-  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
-  return _emscripten_bind_SIGSurface_getFlankingSpreadDistance_3(self, lengthUnits, elapsedTime, timeUnits);
+  if (firelineIntensityUnits && typeof firelineIntensityUnits === 'object') firelineIntensityUnits = firelineIntensityUnits.ptr;
+  return _emscripten_bind_SIGSurface_getFlankingFirelineIntensity_1(self, firelineIntensityUnits);
+};;
+
+SIGSurface.prototype['getFlankingFlameLength'] = SIGSurface.prototype.getFlankingFlameLength = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameLengthUnits) {
+  var self = this.ptr;
+  if (flameLengthUnits && typeof flameLengthUnits === 'object') flameLengthUnits = flameLengthUnits.ptr;
+  return _emscripten_bind_SIGSurface_getFlankingFlameLength_1(self, flameLengthUnits);
 };;
 
 SIGSurface.prototype['getFlankingSpreadRate'] = SIGSurface.prototype.getFlankingSpreadRate = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spreadRateUnits) {
   var self = this.ptr;
   if (spreadRateUnits && typeof spreadRateUnits === 'object') spreadRateUnits = spreadRateUnits.ptr;
   return _emscripten_bind_SIGSurface_getFlankingSpreadRate_1(self, spreadRateUnits);
+};;
+
+SIGSurface.prototype['getFlankingSpreadDistance'] = SIGSurface.prototype.getFlankingSpreadDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
+  var self = this.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  return _emscripten_bind_SIGSurface_getFlankingSpreadDistance_1(self, lengthUnits);
 };;
 
 SIGSurface.prototype['getFuelHeatOfCombustionDead'] = SIGSurface.prototype.getFuelHeatOfCombustionDead = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, heatOfCombustionUnits) {
@@ -9057,22 +9144,22 @@ SIGSurface.prototype['getPalmettoGallberryMoistureOfExtinctionDead'] = SIGSurfac
   return _emscripten_bind_SIGSurface_getPalmettoGallberryMoistureOfExtinctionDead_1(self, moistureUnits);
 };;
 
+SIGSurface.prototype['getPalmettoGallberyDeadFineFuelLoad'] = SIGSurface.prototype.getPalmettoGallberyDeadFineFuelLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
+  var self = this.ptr;
+  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
+  return _emscripten_bind_SIGSurface_getPalmettoGallberyDeadFineFuelLoad_1(self, loadingUnits);
+};;
+
 SIGSurface.prototype['getPalmettoGallberyDeadFoliageLoad'] = SIGSurface.prototype.getPalmettoGallberyDeadFoliageLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
   var self = this.ptr;
   if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
   return _emscripten_bind_SIGSurface_getPalmettoGallberyDeadFoliageLoad_1(self, loadingUnits);
 };;
 
-SIGSurface.prototype['getPalmettoGallberyDeadOneHourLoad'] = SIGSurface.prototype.getPalmettoGallberyDeadOneHourLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
+SIGSurface.prototype['getPalmettoGallberyDeadMediumFuelLoad'] = SIGSurface.prototype.getPalmettoGallberyDeadMediumFuelLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
   var self = this.ptr;
   if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
-  return _emscripten_bind_SIGSurface_getPalmettoGallberyDeadOneHourLoad_1(self, loadingUnits);
-};;
-
-SIGSurface.prototype['getPalmettoGallberyDeadTenHourLoad'] = SIGSurface.prototype.getPalmettoGallberyDeadTenHourLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
-  var self = this.ptr;
-  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
-  return _emscripten_bind_SIGSurface_getPalmettoGallberyDeadTenHourLoad_1(self, loadingUnits);
+  return _emscripten_bind_SIGSurface_getPalmettoGallberyDeadMediumFuelLoad_1(self, loadingUnits);
 };;
 
 SIGSurface.prototype['getPalmettoGallberyFuelBedDepth'] = SIGSurface.prototype.getPalmettoGallberyFuelBedDepth = /** @suppress {undefinedVars, duplicate} @this{Object} */function(depthUnits) {
@@ -9087,22 +9174,22 @@ SIGSurface.prototype['getPalmettoGallberyLitterLoad'] = SIGSurface.prototype.get
   return _emscripten_bind_SIGSurface_getPalmettoGallberyLitterLoad_1(self, loadingUnits);
 };;
 
+SIGSurface.prototype['getPalmettoGallberyLiveFineFuelLoad'] = SIGSurface.prototype.getPalmettoGallberyLiveFineFuelLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
+  var self = this.ptr;
+  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
+  return _emscripten_bind_SIGSurface_getPalmettoGallberyLiveFineFuelLoad_1(self, loadingUnits);
+};;
+
 SIGSurface.prototype['getPalmettoGallberyLiveFoliageLoad'] = SIGSurface.prototype.getPalmettoGallberyLiveFoliageLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
   var self = this.ptr;
   if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
   return _emscripten_bind_SIGSurface_getPalmettoGallberyLiveFoliageLoad_1(self, loadingUnits);
 };;
 
-SIGSurface.prototype['getPalmettoGallberyLiveOneHourLoad'] = SIGSurface.prototype.getPalmettoGallberyLiveOneHourLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
+SIGSurface.prototype['getPalmettoGallberyLiveMediumFuelLoad'] = SIGSurface.prototype.getPalmettoGallberyLiveMediumFuelLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
   var self = this.ptr;
   if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
-  return _emscripten_bind_SIGSurface_getPalmettoGallberyLiveOneHourLoad_1(self, loadingUnits);
-};;
-
-SIGSurface.prototype['getPalmettoGallberyLiveTenHourLoad'] = SIGSurface.prototype.getPalmettoGallberyLiveTenHourLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
-  var self = this.ptr;
-  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
-  return _emscripten_bind_SIGSurface_getPalmettoGallberyLiveTenHourLoad_1(self, loadingUnits);
+  return _emscripten_bind_SIGSurface_getPalmettoGallberyLiveMediumFuelLoad_1(self, loadingUnits);
 };;
 
 SIGSurface.prototype['getReactionIntensity'] = SIGSurface.prototype.getReactionIntensity = /** @suppress {undefinedVars, duplicate} @this{Object} */function(reactiontionIntensityUnits) {
@@ -9128,20 +9215,16 @@ SIGSurface.prototype['getSlopeFactor'] = SIGSurface.prototype.getSlopeFactor = /
   return _emscripten_bind_SIGSurface_getSlopeFactor_0(self);
 };;
 
-SIGSurface.prototype['getSpreadDistance'] = SIGSurface.prototype.getSpreadDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
+SIGSurface.prototype['getSpreadDistance'] = SIGSurface.prototype.getSpreadDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
   var self = this.ptr;
   if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
-  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
-  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
-  return _emscripten_bind_SIGSurface_getSpreadDistance_3(self, lengthUnits, elapsedTime, timeUnits);
+  return _emscripten_bind_SIGSurface_getSpreadDistance_1(self, lengthUnits);
 };;
 
-SIGSurface.prototype['getSpreadDistanceInDirectionOfInterest'] = SIGSurface.prototype.getSpreadDistanceInDirectionOfInterest = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
+SIGSurface.prototype['getSpreadDistanceInDirectionOfInterest'] = SIGSurface.prototype.getSpreadDistanceInDirectionOfInterest = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
   var self = this.ptr;
   if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
-  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
-  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
-  return _emscripten_bind_SIGSurface_getSpreadDistanceInDirectionOfInterest_3(self, lengthUnits, elapsedTime, timeUnits);
+  return _emscripten_bind_SIGSurface_getSpreadDistanceInDirectionOfInterest_1(self, lengthUnits);
 };;
 
 SIGSurface.prototype['getSpreadRate'] = SIGSurface.prototype.getSpreadRate = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spreadRateUnits) {
@@ -9227,6 +9310,11 @@ SIGSurface.prototype['getMoistureScenarioNameByIndex'] = SIGSurface.prototype.ge
   var self = this.ptr;
   if (index && typeof index === 'object') index = index.ptr;
   return UTF8ToString(_emscripten_bind_SIGSurface_getMoistureScenarioNameByIndex_1(self, index));
+};;
+
+SIGSurface.prototype['doSurfaceRun'] = SIGSurface.prototype.doSurfaceRun = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_SIGSurface_doSurfaceRun_0(self);
 };;
 
 SIGSurface.prototype['doSurfaceRunInDirectionOfInterest'] = SIGSurface.prototype.doSurfaceRunInDirectionOfInterest = /** @suppress {undefinedVars, duplicate} @this{Object} */function(directionOfInterest, directionMode) {
@@ -9334,6 +9422,19 @@ SIGSurface.prototype['setCrownRatio'] = SIGSurface.prototype.setCrownRatio = /**
   var self = this.ptr;
   if (crownRatio && typeof crownRatio === 'object') crownRatio = crownRatio.ptr;
   _emscripten_bind_SIGSurface_setCrownRatio_1(self, crownRatio);
+};;
+
+SIGSurface.prototype['setDirectionOfInterest'] = SIGSurface.prototype.setDirectionOfInterest = /** @suppress {undefinedVars, duplicate} @this{Object} */function(directionOfInterest) {
+  var self = this.ptr;
+  if (directionOfInterest && typeof directionOfInterest === 'object') directionOfInterest = directionOfInterest.ptr;
+  _emscripten_bind_SIGSurface_setDirectionOfInterest_1(self, directionOfInterest);
+};;
+
+SIGSurface.prototype['setElapsedTime'] = SIGSurface.prototype.setElapsedTime = /** @suppress {undefinedVars, duplicate} @this{Object} */function(elapsedTime, timeUnits) {
+  var self = this.ptr;
+  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
+  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
+  _emscripten_bind_SIGSurface_setElapsedTime_2(self, elapsedTime, timeUnits);
 };;
 
 SIGSurface.prototype['setFirstFuelModelNumber'] = SIGSurface.prototype.setFirstFuelModelNumber = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firstFuelModelNumber) {
@@ -9461,6 +9562,18 @@ SIGSurface.prototype['setSlope'] = SIGSurface.prototype.setSlope = /** @suppress
   _emscripten_bind_SIGSurface_setSlope_2(self, slope, slopeUnits);
 };;
 
+SIGSurface.prototype['setSurfaceFireSpreadDirectionMode'] = SIGSurface.prototype.setSurfaceFireSpreadDirectionMode = /** @suppress {undefinedVars, duplicate} @this{Object} */function(directionMode) {
+  var self = this.ptr;
+  if (directionMode && typeof directionMode === 'object') directionMode = directionMode.ptr;
+  _emscripten_bind_SIGSurface_setSurfaceFireSpreadDirectionMode_1(self, directionMode);
+};;
+
+SIGSurface.prototype['setSurfaceRunInDirectionOf'] = SIGSurface.prototype.setSurfaceRunInDirectionOf = /** @suppress {undefinedVars, duplicate} @this{Object} */function(surfaceRunInDirectionOf) {
+  var self = this.ptr;
+  if (surfaceRunInDirectionOf && typeof surfaceRunInDirectionOf === 'object') surfaceRunInDirectionOf = surfaceRunInDirectionOf.ptr;
+  _emscripten_bind_SIGSurface_setSurfaceRunInDirectionOf_1(self, surfaceRunInDirectionOf);
+};;
+
 SIGSurface.prototype['setTwoFuelModelsFirstFuelModelCoverage'] = SIGSurface.prototype.setTwoFuelModelsFirstFuelModelCoverage = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firstFuelModelCoverage, coverUnits) {
   var self = this.ptr;
   if (firstFuelModelCoverage && typeof firstFuelModelCoverage === 'object') firstFuelModelCoverage = firstFuelModelCoverage.ptr;
@@ -9502,6 +9615,12 @@ SIGSurface.prototype['setWindHeightInputMode'] = SIGSurface.prototype.setWindHei
   var self = this.ptr;
   if (windHeightInputMode && typeof windHeightInputMode === 'object') windHeightInputMode = windHeightInputMode.ptr;
   _emscripten_bind_SIGSurface_setWindHeightInputMode_1(self, windHeightInputMode);
+};;
+
+SIGSurface.prototype['setWindUpslopeAlignmentMode'] = SIGSurface.prototype.setWindUpslopeAlignmentMode = /** @suppress {undefinedVars, duplicate} @this{Object} */function(WindUpslopeAlignmentMode) {
+  var self = this.ptr;
+  if (WindUpslopeAlignmentMode && typeof WindUpslopeAlignmentMode === 'object') WindUpslopeAlignmentMode = WindUpslopeAlignmentMode.ptr;
+  _emscripten_bind_SIGSurface_setWindUpslopeAlignmentMode_1(self, WindUpslopeAlignmentMode);
 };;
 
 SIGSurface.prototype['setWindSpeed'] = SIGSurface.prototype.setWindSpeed = /** @suppress {undefinedVars, duplicate} @this{Object} */function(windSpeed, windSpeedUnits, windHeightInputMode) {
@@ -9651,9 +9770,31 @@ PalmettoGallberry.prototype['initializeMembers'] = PalmettoGallberry.prototype.i
   _emscripten_bind_PalmettoGallberry_initializeMembers_0(self);
 };;
 
-PalmettoGallberry.prototype['getHeatOfCombustionLive'] = PalmettoGallberry.prototype.getHeatOfCombustionLive = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+PalmettoGallberry.prototype['calculatePalmettoGallberyDeadFineFuelLoad'] = PalmettoGallberry.prototype.calculatePalmettoGallberyDeadFineFuelLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ageOfRough, heightOfUnderstory) {
   var self = this.ptr;
-  return _emscripten_bind_PalmettoGallberry_getHeatOfCombustionLive_0(self);
+  if (ageOfRough && typeof ageOfRough === 'object') ageOfRough = ageOfRough.ptr;
+  if (heightOfUnderstory && typeof heightOfUnderstory === 'object') heightOfUnderstory = heightOfUnderstory.ptr;
+  return _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadFineFuelLoad_2(self, ageOfRough, heightOfUnderstory);
+};;
+
+PalmettoGallberry.prototype['calculatePalmettoGallberyDeadFoliageLoad'] = PalmettoGallberry.prototype.calculatePalmettoGallberyDeadFoliageLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ageOfRough, palmettoCoverage) {
+  var self = this.ptr;
+  if (ageOfRough && typeof ageOfRough === 'object') ageOfRough = ageOfRough.ptr;
+  if (palmettoCoverage && typeof palmettoCoverage === 'object') palmettoCoverage = palmettoCoverage.ptr;
+  return _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadFoliageLoad_2(self, ageOfRough, palmettoCoverage);
+};;
+
+PalmettoGallberry.prototype['calculatePalmettoGallberyDeadMediumFuelLoad'] = PalmettoGallberry.prototype.calculatePalmettoGallberyDeadMediumFuelLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ageOfRough, palmettoCoverage) {
+  var self = this.ptr;
+  if (ageOfRough && typeof ageOfRough === 'object') ageOfRough = ageOfRough.ptr;
+  if (palmettoCoverage && typeof palmettoCoverage === 'object') palmettoCoverage = palmettoCoverage.ptr;
+  return _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadMediumFuelLoad_2(self, ageOfRough, palmettoCoverage);
+};;
+
+PalmettoGallberry.prototype['calculatePalmettoGallberyFuelBedDepth'] = PalmettoGallberry.prototype.calculatePalmettoGallberyFuelBedDepth = /** @suppress {undefinedVars, duplicate} @this{Object} */function(heightOfUnderstory) {
+  var self = this.ptr;
+  if (heightOfUnderstory && typeof heightOfUnderstory === 'object') heightOfUnderstory = heightOfUnderstory.ptr;
+  return _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyFuelBedDepth_1(self, heightOfUnderstory);
 };;
 
 PalmettoGallberry.prototype['calculatePalmettoGallberyLitterLoad'] = PalmettoGallberry.prototype.calculatePalmettoGallberyLitterLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ageOfRough, overstoryBasalArea) {
@@ -9663,19 +9804,11 @@ PalmettoGallberry.prototype['calculatePalmettoGallberyLitterLoad'] = PalmettoGal
   return _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLitterLoad_2(self, ageOfRough, overstoryBasalArea);
 };;
 
-PalmettoGallberry.prototype['getPalmettoGallberyLiveOneHourLoad'] = PalmettoGallberry.prototype.getPalmettoGallberyLiveOneHourLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+PalmettoGallberry.prototype['calculatePalmettoGallberyLiveFineFuelLoad'] = PalmettoGallberry.prototype.calculatePalmettoGallberyLiveFineFuelLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ageOfRough, heightOfUnderstory) {
   var self = this.ptr;
-  return _emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveOneHourLoad_0(self);
-};;
-
-PalmettoGallberry.prototype['getPalmettoGallberyDeadFoliageLoad'] = PalmettoGallberry.prototype.getPalmettoGallberyDeadFoliageLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadFoliageLoad_0(self);
-};;
-
-PalmettoGallberry.prototype['getHeatOfCombustionDead'] = PalmettoGallberry.prototype.getHeatOfCombustionDead = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_PalmettoGallberry_getHeatOfCombustionDead_0(self);
+  if (ageOfRough && typeof ageOfRough === 'object') ageOfRough = ageOfRough.ptr;
+  if (heightOfUnderstory && typeof heightOfUnderstory === 'object') heightOfUnderstory = heightOfUnderstory.ptr;
+  return _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveFineFuelLoad_2(self, ageOfRough, heightOfUnderstory);
 };;
 
 PalmettoGallberry.prototype['calculatePalmettoGallberyLiveFoliageLoad'] = PalmettoGallberry.prototype.calculatePalmettoGallberyLiveFoliageLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ageOfRough, palmettoCoverage, heightOfUnderstory) {
@@ -9686,16 +9819,21 @@ PalmettoGallberry.prototype['calculatePalmettoGallberyLiveFoliageLoad'] = Palmet
   return _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveFoliageLoad_3(self, ageOfRough, palmettoCoverage, heightOfUnderstory);
 };;
 
-PalmettoGallberry.prototype['calculatePalmettoGallberyLiveTenHourLoad'] = PalmettoGallberry.prototype.calculatePalmettoGallberyLiveTenHourLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ageOfRough, heightOfUnderstory) {
+PalmettoGallberry.prototype['calculatePalmettoGallberyLiveMediumFuelLoad'] = PalmettoGallberry.prototype.calculatePalmettoGallberyLiveMediumFuelLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ageOfRough, heightOfUnderstory) {
   var self = this.ptr;
   if (ageOfRough && typeof ageOfRough === 'object') ageOfRough = ageOfRough.ptr;
   if (heightOfUnderstory && typeof heightOfUnderstory === 'object') heightOfUnderstory = heightOfUnderstory.ptr;
-  return _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveTenHourLoad_2(self, ageOfRough, heightOfUnderstory);
+  return _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveMediumFuelLoad_2(self, ageOfRough, heightOfUnderstory);
 };;
 
-PalmettoGallberry.prototype['getPalmettoGallberyDeadTenHourLoad'] = PalmettoGallberry.prototype.getPalmettoGallberyDeadTenHourLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+PalmettoGallberry.prototype['getHeatOfCombustionDead'] = PalmettoGallberry.prototype.getHeatOfCombustionDead = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  return _emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadTenHourLoad_0(self);
+  return _emscripten_bind_PalmettoGallberry_getHeatOfCombustionDead_0(self);
+};;
+
+PalmettoGallberry.prototype['getHeatOfCombustionLive'] = PalmettoGallberry.prototype.getHeatOfCombustionLive = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_PalmettoGallberry_getHeatOfCombustionLive_0(self);
 };;
 
 PalmettoGallberry.prototype['getMoistureOfExtinctionDead'] = PalmettoGallberry.prototype.getMoistureOfExtinctionDead = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
@@ -9703,28 +9841,19 @@ PalmettoGallberry.prototype['getMoistureOfExtinctionDead'] = PalmettoGallberry.p
   return _emscripten_bind_PalmettoGallberry_getMoistureOfExtinctionDead_0(self);
 };;
 
-PalmettoGallberry.prototype['getPalmettoGallberyLiveFoliageLoad'] = PalmettoGallberry.prototype.getPalmettoGallberyLiveFoliageLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+PalmettoGallberry.prototype['getPalmettoGallberyDeadFineFuelLoad'] = PalmettoGallberry.prototype.getPalmettoGallberyDeadFineFuelLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  return _emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveFoliageLoad_0(self);
+  return _emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadFineFuelLoad_0(self);
 };;
 
-PalmettoGallberry.prototype['getPalmettoGallberyLitterLoad'] = PalmettoGallberry.prototype.getPalmettoGallberyLitterLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+PalmettoGallberry.prototype['getPalmettoGallberyDeadFoliageLoad'] = PalmettoGallberry.prototype.getPalmettoGallberyDeadFoliageLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  return _emscripten_bind_PalmettoGallberry_getPalmettoGallberyLitterLoad_0(self);
+  return _emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadFoliageLoad_0(self);
 };;
 
-PalmettoGallberry.prototype['calculatePalmettoGallberyDeadTenHourLoad'] = PalmettoGallberry.prototype.calculatePalmettoGallberyDeadTenHourLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ageOfRough, palmettoCoverage) {
+PalmettoGallberry.prototype['getPalmettoGallberyDeadMediumFuelLoad'] = PalmettoGallberry.prototype.getPalmettoGallberyDeadMediumFuelLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  if (ageOfRough && typeof ageOfRough === 'object') ageOfRough = ageOfRough.ptr;
-  if (palmettoCoverage && typeof palmettoCoverage === 'object') palmettoCoverage = palmettoCoverage.ptr;
-  return _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadTenHourLoad_2(self, ageOfRough, palmettoCoverage);
-};;
-
-PalmettoGallberry.prototype['calculatePalmettoGallberyLiveOneHourLoad'] = PalmettoGallberry.prototype.calculatePalmettoGallberyLiveOneHourLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ageOfRough, heightOfUnderstory) {
-  var self = this.ptr;
-  if (ageOfRough && typeof ageOfRough === 'object') ageOfRough = ageOfRough.ptr;
-  if (heightOfUnderstory && typeof heightOfUnderstory === 'object') heightOfUnderstory = heightOfUnderstory.ptr;
-  return _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveOneHourLoad_2(self, ageOfRough, heightOfUnderstory);
+  return _emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadMediumFuelLoad_0(self);
 };;
 
 PalmettoGallberry.prototype['getPalmettoGallberyFuelBedDepth'] = PalmettoGallberry.prototype.getPalmettoGallberyFuelBedDepth = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
@@ -9732,34 +9861,24 @@ PalmettoGallberry.prototype['getPalmettoGallberyFuelBedDepth'] = PalmettoGallber
   return _emscripten_bind_PalmettoGallberry_getPalmettoGallberyFuelBedDepth_0(self);
 };;
 
-PalmettoGallberry.prototype['calculatePalmettoGallberyDeadFoliageLoad'] = PalmettoGallberry.prototype.calculatePalmettoGallberyDeadFoliageLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ageOfRough, palmettoCoverage) {
+PalmettoGallberry.prototype['getPalmettoGallberyLitterLoad'] = PalmettoGallberry.prototype.getPalmettoGallberyLitterLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  if (ageOfRough && typeof ageOfRough === 'object') ageOfRough = ageOfRough.ptr;
-  if (palmettoCoverage && typeof palmettoCoverage === 'object') palmettoCoverage = palmettoCoverage.ptr;
-  return _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadFoliageLoad_2(self, ageOfRough, palmettoCoverage);
+  return _emscripten_bind_PalmettoGallberry_getPalmettoGallberyLitterLoad_0(self);
 };;
 
-PalmettoGallberry.prototype['calculatePalmettoGallberyDeadOneHourLoad'] = PalmettoGallberry.prototype.calculatePalmettoGallberyDeadOneHourLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ageOfRough, heightOfUnderstory) {
+PalmettoGallberry.prototype['getPalmettoGallberyLiveFineFuelLoad'] = PalmettoGallberry.prototype.getPalmettoGallberyLiveFineFuelLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  if (ageOfRough && typeof ageOfRough === 'object') ageOfRough = ageOfRough.ptr;
-  if (heightOfUnderstory && typeof heightOfUnderstory === 'object') heightOfUnderstory = heightOfUnderstory.ptr;
-  return _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadOneHourLoad_2(self, ageOfRough, heightOfUnderstory);
+  return _emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveFineFuelLoad_0(self);
 };;
 
-PalmettoGallberry.prototype['getPalmettoGallberyLiveTenHourLoad'] = PalmettoGallberry.prototype.getPalmettoGallberyLiveTenHourLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+PalmettoGallberry.prototype['getPalmettoGallberyLiveFoliageLoad'] = PalmettoGallberry.prototype.getPalmettoGallberyLiveFoliageLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  return _emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveTenHourLoad_0(self);
+  return _emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveFoliageLoad_0(self);
 };;
 
-PalmettoGallberry.prototype['getPalmettoGallberyDeadOneHourLoad'] = PalmettoGallberry.prototype.getPalmettoGallberyDeadOneHourLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+PalmettoGallberry.prototype['getPalmettoGallberyLiveMediumFuelLoad'] = PalmettoGallberry.prototype.getPalmettoGallberyLiveMediumFuelLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  return _emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadOneHourLoad_0(self);
-};;
-
-PalmettoGallberry.prototype['calculatePalmettoGallberyFuelBedDepth'] = PalmettoGallberry.prototype.calculatePalmettoGallberyFuelBedDepth = /** @suppress {undefinedVars, duplicate} @this{Object} */function(heightOfUnderstory) {
-  var self = this.ptr;
-  if (heightOfUnderstory && typeof heightOfUnderstory === 'object') heightOfUnderstory = heightOfUnderstory.ptr;
-  return _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyFuelBedDepth_1(self, heightOfUnderstory);
+  return _emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveMediumFuelLoad_0(self);
 };;
 
   PalmettoGallberry.prototype['__destroy__'] = PalmettoGallberry.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
@@ -9969,17 +10088,55 @@ SIGCrown.prototype['getCriticalOpenWindSpeed'] = SIGCrown.prototype.getCriticalO
   return _emscripten_bind_SIGCrown_getCriticalOpenWindSpeed_1(self, speedUnits);
 };;
 
+SIGCrown.prototype['getCrownCriticalFireSpreadRate'] = SIGCrown.prototype.getCrownCriticalFireSpreadRate = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spreadRateUnits) {
+  var self = this.ptr;
+  if (spreadRateUnits && typeof spreadRateUnits === 'object') spreadRateUnits = spreadRateUnits.ptr;
+  return _emscripten_bind_SIGCrown_getCrownCriticalFireSpreadRate_1(self, spreadRateUnits);
+};;
+
+SIGCrown.prototype['getCrownCriticalSurfaceFirelineIntensity'] = SIGCrown.prototype.getCrownCriticalSurfaceFirelineIntensity = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firelineIntensityUnits) {
+  var self = this.ptr;
+  if (firelineIntensityUnits && typeof firelineIntensityUnits === 'object') firelineIntensityUnits = firelineIntensityUnits.ptr;
+  return _emscripten_bind_SIGCrown_getCrownCriticalSurfaceFirelineIntensity_1(self, firelineIntensityUnits);
+};;
+
+SIGCrown.prototype['getCrownCriticalSurfaceFlameLength'] = SIGCrown.prototype.getCrownCriticalSurfaceFlameLength = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameLengthUnits) {
+  var self = this.ptr;
+  if (flameLengthUnits && typeof flameLengthUnits === 'object') flameLengthUnits = flameLengthUnits.ptr;
+  return _emscripten_bind_SIGCrown_getCrownCriticalSurfaceFlameLength_1(self, flameLengthUnits);
+};;
+
+SIGCrown.prototype['getCrownFireActiveRatio'] = SIGCrown.prototype.getCrownFireActiveRatio = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGCrown_getCrownFireActiveRatio_0(self);
+};;
+
+SIGCrown.prototype['getCrownFireArea'] = SIGCrown.prototype.getCrownFireArea = /** @suppress {undefinedVars, duplicate} @this{Object} */function(areaUnits) {
+  var self = this.ptr;
+  if (areaUnits && typeof areaUnits === 'object') areaUnits = areaUnits.ptr;
+  return _emscripten_bind_SIGCrown_getCrownFireArea_1(self, areaUnits);
+};;
+
+SIGCrown.prototype['getCrownFirePerimeter'] = SIGCrown.prototype.getCrownFirePerimeter = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
+  var self = this.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  return _emscripten_bind_SIGCrown_getCrownFirePerimeter_1(self, lengthUnits);
+};;
+
+SIGCrown.prototype['getCrownTransitionRatio'] = SIGCrown.prototype.getCrownTransitionRatio = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGCrown_getCrownTransitionRatio_0(self);
+};;
+
 SIGCrown.prototype['getCrownFireLengthToWidthRatio'] = SIGCrown.prototype.getCrownFireLengthToWidthRatio = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   return _emscripten_bind_SIGCrown_getCrownFireLengthToWidthRatio_0(self);
 };;
 
-SIGCrown.prototype['getCrownFireSpreadDistance'] = SIGCrown.prototype.getCrownFireSpreadDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
+SIGCrown.prototype['getCrownFireSpreadDistance'] = SIGCrown.prototype.getCrownFireSpreadDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
   var self = this.ptr;
   if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
-  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
-  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
-  return _emscripten_bind_SIGCrown_getCrownFireSpreadDistance_3(self, lengthUnits, elapsedTime, timeUnits);
+  return _emscripten_bind_SIGCrown_getCrownFireSpreadDistance_1(self, lengthUnits);
 };;
 
 SIGCrown.prototype['getCrownFireSpreadRate'] = SIGCrown.prototype.getCrownFireSpreadRate = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spreadRateUnits) {
@@ -10224,12 +10381,10 @@ SIGCrown.prototype['getSlope'] = SIGCrown.prototype.getSlope = /** @suppress {un
   return _emscripten_bind_SIGCrown_getSlope_1(self, slopeUnits);
 };;
 
-SIGCrown.prototype['getSurfaceFireSpreadDistance'] = SIGCrown.prototype.getSurfaceFireSpreadDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
+SIGCrown.prototype['getSurfaceFireSpreadDistance'] = SIGCrown.prototype.getSurfaceFireSpreadDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
   var self = this.ptr;
   if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
-  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
-  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
-  return _emscripten_bind_SIGCrown_getSurfaceFireSpreadDistance_3(self, lengthUnits, elapsedTime, timeUnits);
+  return _emscripten_bind_SIGCrown_getSurfaceFireSpreadDistance_1(self, lengthUnits);
 };;
 
 SIGCrown.prototype['getSurfaceFireSpreadRate'] = SIGCrown.prototype.getSurfaceFireSpreadRate = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spreadRateUnits) {
@@ -10359,6 +10514,19 @@ SIGCrown.prototype['setFuelModelNumber'] = SIGCrown.prototype.setFuelModelNumber
   var self = this.ptr;
   if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
   _emscripten_bind_SIGCrown_setFuelModelNumber_1(self, fuelModelNumber);
+};;
+
+SIGCrown.prototype['setCrownFireCalculationMethod'] = SIGCrown.prototype.setCrownFireCalculationMethod = /** @suppress {undefinedVars, duplicate} @this{Object} */function(CrownFireCalculationMethod) {
+  var self = this.ptr;
+  if (CrownFireCalculationMethod && typeof CrownFireCalculationMethod === 'object') CrownFireCalculationMethod = CrownFireCalculationMethod.ptr;
+  _emscripten_bind_SIGCrown_setCrownFireCalculationMethod_1(self, CrownFireCalculationMethod);
+};;
+
+SIGCrown.prototype['setElapsedTime'] = SIGCrown.prototype.setElapsedTime = /** @suppress {undefinedVars, duplicate} @this{Object} */function(elapsedTime, timeUnits) {
+  var self = this.ptr;
+  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
+  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
+  _emscripten_bind_SIGCrown_setElapsedTime_2(self, elapsedTime, timeUnits);
 };;
 
 SIGCrown.prototype['setFuelModels'] = SIGCrown.prototype.setFuelModels = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModels) {
@@ -10671,14 +10839,6 @@ SIGMortality.prototype['getEquationTypeAtSpeciesTableIndex'] = SIGMortality.prot
   return _emscripten_bind_SIGMortality_getEquationTypeAtSpeciesTableIndex_1(self, index);
 };;
 
-SIGMortality.prototype['getEquationTypeFromSpeciesCode'] = SIGMortality.prototype.getEquationTypeFromSpeciesCode = /** @suppress {undefinedVars, duplicate} @this{Object} */function(speciesCode) {
-  var self = this.ptr;
-  ensureCache.prepare();
-  if (speciesCode && typeof speciesCode === 'object') speciesCode = speciesCode.ptr;
-  else speciesCode = ensureString(speciesCode);
-  return _emscripten_bind_SIGMortality_getEquationTypeFromSpeciesCode_1(self, speciesCode);
-};;
-
 SIGMortality.prototype['getFireSeverity'] = SIGMortality.prototype.getFireSeverity = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   return _emscripten_bind_SIGMortality_getFireSeverity_0(self);
@@ -10725,6 +10885,18 @@ SIGMortality.prototype['calculateMortality'] = SIGMortality.prototype.calculateM
   return _emscripten_bind_SIGMortality_calculateMortality_1(self, probablityUnits);
 };;
 
+SIGMortality.prototype['calculateScorchHeight'] = SIGMortality.prototype.calculateScorchHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firelineIntensity, firelineIntensityUnits, midFlameWindSpeed, windSpeedUnits, airTemperature, temperatureUnits, scorchHeightUnits) {
+  var self = this.ptr;
+  if (firelineIntensity && typeof firelineIntensity === 'object') firelineIntensity = firelineIntensity.ptr;
+  if (firelineIntensityUnits && typeof firelineIntensityUnits === 'object') firelineIntensityUnits = firelineIntensityUnits.ptr;
+  if (midFlameWindSpeed && typeof midFlameWindSpeed === 'object') midFlameWindSpeed = midFlameWindSpeed.ptr;
+  if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
+  if (airTemperature && typeof airTemperature === 'object') airTemperature = airTemperature.ptr;
+  if (temperatureUnits && typeof temperatureUnits === 'object') temperatureUnits = temperatureUnits.ptr;
+  if (scorchHeightUnits && typeof scorchHeightUnits === 'object') scorchHeightUnits = scorchHeightUnits.ptr;
+  return _emscripten_bind_SIGMortality_calculateScorchHeight_7(self, firelineIntensity, firelineIntensityUnits, midFlameWindSpeed, windSpeedUnits, airTemperature, temperatureUnits, scorchHeightUnits);
+};;
+
 SIGMortality.prototype['getBarkThickness'] = SIGMortality.prototype.getBarkThickness = /** @suppress {undefinedVars, duplicate} @this{Object} */function(barkThicknessUnits) {
   var self = this.ptr;
   if (barkThicknessUnits && typeof barkThicknessUnits === 'object') barkThicknessUnits = barkThicknessUnits.ptr;
@@ -10765,6 +10937,12 @@ SIGMortality.prototype['getCrownDamage'] = SIGMortality.prototype.getCrownDamage
 SIGMortality.prototype['getCrownRatio'] = SIGMortality.prototype.getCrownRatio = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   return _emscripten_bind_SIGMortality_getCrownRatio_0(self);
+};;
+
+SIGMortality.prototype['getCalculatedScorchHeight'] = SIGMortality.prototype.getCalculatedScorchHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(scorchHeightUnits) {
+  var self = this.ptr;
+  if (scorchHeightUnits && typeof scorchHeightUnits === 'object') scorchHeightUnits = scorchHeightUnits.ptr;
+  return _emscripten_bind_SIGMortality_getCalculatedScorchHeight_1(self, scorchHeightUnits);
 };;
 
 SIGMortality.prototype['getDBH'] = SIGMortality.prototype.getDBH = /** @suppress {undefinedVars, duplicate} @this{Object} */function(diameterUnits) {
@@ -10955,6 +11133,13 @@ SIGMortality.prototype['getRequiredFieldVector'] = SIGMortality.prototype.getReq
   return wrapPointer(_emscripten_bind_SIGMortality_getRequiredFieldVector_0(self), BoolVector);
 };;
 
+SIGMortality.prototype['setAirTemperature'] = SIGMortality.prototype.setAirTemperature = /** @suppress {undefinedVars, duplicate} @this{Object} */function(airTemperature, temperatureUnits) {
+  var self = this.ptr;
+  if (airTemperature && typeof airTemperature === 'object') airTemperature = airTemperature.ptr;
+  if (temperatureUnits && typeof temperatureUnits === 'object') temperatureUnits = temperatureUnits.ptr;
+  _emscripten_bind_SIGMortality_setAirTemperature_2(self, airTemperature, temperatureUnits);
+};;
+
 SIGMortality.prototype['setBeetleDamage'] = SIGMortality.prototype.setBeetleDamage = /** @suppress {undefinedVars, duplicate} @this{Object} */function(beetleDamage) {
   var self = this.ptr;
   if (beetleDamage && typeof beetleDamage === 'object') beetleDamage = beetleDamage.ptr;
@@ -11005,6 +11190,13 @@ SIGMortality.prototype['setFireSeverity'] = SIGMortality.prototype.setFireSeveri
   _emscripten_bind_SIGMortality_setFireSeverity_1(self, fireSeverity);
 };;
 
+SIGMortality.prototype['setFirelineIntensity'] = SIGMortality.prototype.setFirelineIntensity = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firelineIntensity, firelineIntensityUnits) {
+  var self = this.ptr;
+  if (firelineIntensity && typeof firelineIntensity === 'object') firelineIntensity = firelineIntensity.ptr;
+  if (firelineIntensityUnits && typeof firelineIntensityUnits === 'object') firelineIntensityUnits = firelineIntensityUnits.ptr;
+  _emscripten_bind_SIGMortality_setFirelineIntensity_2(self, firelineIntensity, firelineIntensityUnits);
+};;
+
 SIGMortality.prototype['setFlameLengthOrScorchHeightSwitch'] = SIGMortality.prototype.setFlameLengthOrScorchHeightSwitch = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameLengthOrScorchHeightSwitch) {
   var self = this.ptr;
   if (flameLengthOrScorchHeightSwitch && typeof flameLengthOrScorchHeightSwitch === 'object') flameLengthOrScorchHeightSwitch = flameLengthOrScorchHeightSwitch.ptr;
@@ -11022,6 +11214,20 @@ SIGMortality.prototype['setRegion'] = SIGMortality.prototype.setRegion = /** @su
   var self = this.ptr;
   if (region && typeof region === 'object') region = region.ptr;
   _emscripten_bind_SIGMortality_setRegion_1(self, region);
+};;
+
+SIGMortality.prototype['setSurfaceFireFlameLength'] = SIGMortality.prototype.setSurfaceFireFlameLength = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, lengthUnits) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  _emscripten_bind_SIGMortality_setSurfaceFireFlameLength_2(self, value, lengthUnits);
+};;
+
+SIGMortality.prototype['setSurfaceFireScorchHeight'] = SIGMortality.prototype.setSurfaceFireScorchHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, lengthUnits) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  _emscripten_bind_SIGMortality_setSurfaceFireScorchHeight_2(self, value, lengthUnits);
 };;
 
 SIGMortality.prototype['setSpeciesCode'] = SIGMortality.prototype.setSpeciesCode = /** @suppress {undefinedVars, duplicate} @this{Object} */function(speciesCode) {
@@ -11044,6 +11250,14 @@ SIGMortality.prototype['setTreeHeight'] = SIGMortality.prototype.setTreeHeight =
   if (treeHeight && typeof treeHeight === 'object') treeHeight = treeHeight.ptr;
   if (treeHeightUnits && typeof treeHeightUnits === 'object') treeHeightUnits = treeHeightUnits.ptr;
   _emscripten_bind_SIGMortality_setTreeHeight_2(self, treeHeight, treeHeightUnits);
+};;
+
+SIGMortality.prototype['getEquationTypeFromSpeciesCode'] = SIGMortality.prototype.getEquationTypeFromSpeciesCode = /** @suppress {undefinedVars, duplicate} @this{Object} */function(speciesCode) {
+  var self = this.ptr;
+  ensureCache.prepare();
+  if (speciesCode && typeof speciesCode === 'object') speciesCode = speciesCode.ptr;
+  else speciesCode = ensureString(speciesCode);
+  return _emscripten_bind_SIGMortality_getEquationTypeFromSpeciesCode_1(self, speciesCode);
 };;
 
   SIGMortality.prototype['__destroy__'] = SIGMortality.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
@@ -11548,6 +11762,22 @@ WindSpeedUtility.prototype['windSpeedAtTwentyFeetFromTenMeter'] = WindSpeedUtili
 
     
 
+    // WindUpslopeAlignmentMode
+
+    Module['NotAligned'] = _emscripten_enum_WindUpslopeAlignmentMode_NotAligned();
+
+    Module['Aligned'] = _emscripten_enum_WindUpslopeAlignmentMode_Aligned();
+
+    
+
+    // SurfaceRunInDirectionOf
+
+    Module['MaxSpread'] = _emscripten_enum_SurfaceRunInDirectionOf_MaxSpread();
+
+    Module['DirectionOfInterest'] = _emscripten_enum_SurfaceRunInDirectionOf_DirectionOfInterest();
+
+    
+
     // FireType_FireTypeEnum
 
     Module['Surface'] = _emscripten_enum_FireType_FireTypeEnum_Surface();
@@ -11567,6 +11797,14 @@ WindSpeedUtility.prototype['windSpeedAtTwentyFeetFromTenMeter'] = WindSpeedUtili
     Module['no'] = _emscripten_enum_BeetleDamage_no();
 
     Module['yes'] = _emscripten_enum_BeetleDamage_yes();
+
+    
+
+    // CrownFireCalculationMethod
+
+    Module['rothermel'] = _emscripten_enum_CrownFireCalculationMethod_rothermel();
+
+    Module['scott_and_reinhardt'] = _emscripten_enum_CrownFireCalculationMethod_scott_and_reinhardt();
 
     
 
@@ -11695,5 +11933,4 @@ WindSpeedUtility.prototype['windSpeedAtTwentyFeetFromTenMeter'] = WindSpeedUtili
   else addOnInit(setupEnums);
 })();
 
-
-// end include: /home/kcheung/work/code/behave-polylith/behave-lib/include/js/glue.js
+// end include: /Users/rsheperd/Code/sig/behave-polylith/behave-lib/include/js/glue.js

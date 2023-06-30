@@ -57,9 +57,19 @@ public:
   void doCrownRun();
   char* getFuelCode(int fuelModelNumber) const;
   char* getFuelName(int fuelModelNumber) const;
+  double getCrownCriticalFireSpreadRate(SpeedUnits::SpeedUnitsEnum spreadRateUnits) const;
+  double getCrownCriticalSurfaceFirelineIntensity(FirelineIntensityUnits::FirelineIntensityUnitsEnum firelineIntensityUnits) const;
+  double getCrownCriticalSurfaceFlameLength(LengthUnits::LengthUnitsEnum flameLengthUnits) const;
+  double getCrownFireActiveRatio() const;
+  double getCrownTransitionRatio() const;
   char* getMoistureScenarioDescriptionByName(const char* name);
   char* getMoistureScenarioNameByIndex(const int index);
   char* getMoistureScenarioDescriptionByIndex(const int index);
+  double getCrownFireSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits) const;
+  double getSurfaceFireSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits) const;
+  double getCrownFireArea(AreaUnits::AreaUnitsEnum areaUnits) const;
+  double getCrownFirePerimeter(LengthUnits::LengthUnitsEnum lengthUnits) const;
+  void setElapsedTime(double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits);
 
 private:
   CrownFireCalculationMethod crownFireCalculationMethod_;

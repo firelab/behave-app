@@ -1,9 +1,10 @@
 (ns ^:figwheel-hooks behave.client
   (:require [reagent.dom               :refer [render]]
             [re-frame.core             :as rf]
-                                        ; [re-frisk.core             :as re-frisk]
+            ;; [re-frisk.core             :as re-frisk]
             [behave.components.sidebar :refer [sidebar]]
             [behave.components.toolbar :refer [toolbar]]
+            [behave.components.modal :refer [modal]]
             [behave.help.views         :refer [help-area]]
             [behave.settings           :as settings]
             [behave.store              :refer [load-store!]]
@@ -16,7 +17,8 @@
                                                guided-worksheet-page
                                                independent-worksheet-page]]
             [behave.events]
-            [behave.subs]))
+            [behave.subs]
+            [day8.re-frame.http-fx]))
 
 (defn not-found []
   [:div
@@ -40,14 +42,20 @@
   (rf/dispatch [:system/add-script issue-collector]))
 
 (defn app-shell [params]
-  (let [route        (rf/subscribe [:handler])
-        sync-loaded? (rf/subscribe [:state :sync-loaded?])
-        vms-loaded?  (rf/subscribe [:state :vms-loaded?])
-        page         (get handler->page (:handler @route) not-found)
-        params       (-> (merge params (:route-params @route))
-                         (assoc :route-handler (:handler @route)))]
+  (let [route              (rf/subscribe [:handler])
+        sync-loaded?       (rf/subscribe [:state :sync-loaded?])
+        vms-loaded?        (rf/subscribe [:state :vms-loaded?])
+        vms-export-results (rf/subscribe [:state :vms-export-http-results])
+        page               (get handler->page (:handler @route) not-found)
+        params             (-> (merge params (:route-params @route))
+                               (assoc :route-handler (:handler @route)))]
     (load-scripts! params)
     [:div.page
+     (when @vms-export-results
+       [modal {:title          "Vms Sync"
+               :close-on-click #(do (rf/dispatch [:state/set :vms-export-http-results nil])
+                                    (rf/dispatch [:app/reload]))
+               :content        @vms-export-results}])
      [:table.page__top
       [:tr
        [:td.page__top__logo
