@@ -94,6 +94,7 @@ double SIGCrown::getCrownFireActiveRatio() const {
 double SIGCrown::getCrownTransitionRatio() const {
   return crownFireTransitionRatio_;
 }
+
 char* SIGCrown::getMoistureScenarioDescriptionByName(const char* name) {
   return SIGString::str2charptr(Crown::getMoistureScenarioDescriptionByName(std::string(name)));
 }

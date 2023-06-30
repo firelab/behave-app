@@ -533,7 +533,7 @@ interface SIGSurface {
 
   AspenFireSeverity_AspenFireSeverityEnum getAspenFireSeverity();
   ChaparralFuelType_ChaparralFuelTypeEnum getChaparralFuelType();
-
+  MoistureInputMode_MoistureInputModeEnum getMoistureInputMode();
   WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum getWindAdjustmentFactorCalculationMethod();
   WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum getWindAndSpreadOrientationMode();
   WindHeightInputMode_WindHeightInputModeEnum getWindHeightInputMode();
@@ -803,7 +803,6 @@ enum CrownFireCalculationMethod {
   "CrownFireCalculationMethod::rothermel",
   "CrownFireCalculationMethod::scott_and_reinhardt"
 };
-
 
 enum CrownDamageEquationCode {
   "CrownDamageEquationCode::not_set",

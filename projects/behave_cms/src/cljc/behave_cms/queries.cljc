@@ -19,6 +19,13 @@
      [?g :group/children ?x]
      (subgroup ?x ?s)]
 
+    [(submodule-root ?submodule ?subgroup)
+     [?submodule :submodule/groups ?subgroup]]
+
+    [(submodule-root ?submodule ?subgroup)
+     (subgroup ?group ?subgroup)
+     [?submodule :submodule/groups ?group]]
+
     ;; Find the root application for a module, submodule, group, or subgroup
     [(app-root ?a ?g)
      [?sm :submodule/groups ?g]

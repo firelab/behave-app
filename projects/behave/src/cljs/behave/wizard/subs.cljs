@@ -84,11 +84,50 @@
    (subscribe [:vms/pull-children
                :submodule/groups
                submodule-id
-               '[* {:group/group-variables [* {:variable/_group-variables [*]}]}
+               '[* {:group/group-variables [* {:variable/_group-variables [* {:variable/list [* {:list/options [*]}]}]}]}
                  {:group/children 6}]])) ;; recursively apply pattern up to 6 levels deep
 
  (fn [groups]
    (mapv edit-groups groups)))
+
+;; Subgroups
+
+(reg-sub
+ :wizard/subgroups
+ (fn [[_ group-id]]
+   (subscribe [:vms/pull
+               '[{:group/children
+                  [* {:group/group-variables
+                      [* {:variable/_group-variables
+                          [* {:variable/list
+                              [* {:list/options [*]}]}]}]
+                      :group/children [*]}]}]
+               group-id]))
+
+ (fn [group]
+   (mapv (fn [subgroup]
+           (assoc subgroup
+                  :group/group-variables
+                  (mapv #(let [variable-data (rename-keys (first (:variable/_group-variables %))
+                                                          {:bp/uuid :variable/uuid})]
+                           (-> %
+                               (dissoc :variable/_group-variables)
+                               (merge variable-data)
+                               (dissoc :variable/group-variables)
+                               (update :variable/kind keyword))) (:group/group-variables subgroup))))
+         (:group/children group))))
+
+
+;; Lists
+
+(reg-sub
+ :wizard/variable-list
+ (fn [[_ group-id]]
+   (subscribe [:vms/pull
+               '[{:group/children [* {:group/group-variables [* {:variable/_group-variables [*]}] :group/children [*]}]}]
+               group-id])))
+
+;; Group Variables
 
 (reg-sub
  :wizard/multi-value-input-count

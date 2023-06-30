@@ -1509,6 +1509,11 @@ SIGSurface.prototype['getChaparralFuelType'] = SIGSurface.prototype.getChaparral
   return _emscripten_bind_SIGSurface_getChaparralFuelType_0(self);
 };;
 
+SIGSurface.prototype['getMoistureInputMode'] = SIGSurface.prototype.getMoistureInputMode = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGSurface_getMoistureInputMode_0(self);
+};;
+
 SIGSurface.prototype['getWindAdjustmentFactorCalculationMethod'] = SIGSurface.prototype.getWindAdjustmentFactorCalculationMethod = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   return _emscripten_bind_SIGSurface_getWindAdjustmentFactorCalculationMethod_0(self);

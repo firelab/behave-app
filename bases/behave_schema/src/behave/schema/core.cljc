@@ -6,6 +6,7 @@
             [behave.schema.help-page       :as help-page]
             [behave.schema.language        :as language]
             [behave.schema.list            :as behave-list]
+            [behave.schema.link            :as link]
             [behave.schema.module          :as module]
             [behave.schema.submodule       :as submodule]
             [behave.schema.translation     :as translation]
@@ -34,6 +35,7 @@
                                 help-page/schema
                                 language/schema
                                 behave-list/schema
+                                link/schema
                                 module/schema
                                 submodule/schema
                                 translation/schema

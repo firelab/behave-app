@@ -4,6 +4,7 @@
   (require '[behave.core :as core])
 
   (core/init!)
+  (core/vms-sync!)
 
   (core/vms-sync!)
 
@@ -105,4 +106,17 @@
          :where [?e :application/modules ?v]
                 [?e ?a ?v]]
        @conn)
+
+  ;; Resolve issues with Help content
+
+  (d/q '[:find ?k ?h ?c ?g-name
+         :where
+         [249 :group/help-key ?k]
+         [249 :group/name ?g-name]
+         [?h :help-page/key ?k]
+         [?h :help-page/content ?c]]
+       @@ds/conn)
+
+  (d/transact (unwrap ds/conn) [{:db/id 730 :help-page/content "#### Resources\n\n"}])
+
   )

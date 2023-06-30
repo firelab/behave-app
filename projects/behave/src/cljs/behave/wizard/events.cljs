@@ -1,6 +1,6 @@
 (ns behave.wizard.events
   (:require [behave-routing.main           :refer [routes]]
-            [behave.solver                 :refer [solve-worksheet]]
+            [behave.solver.core            :refer [solve-worksheet]]
             [bidi.bidi                     :refer [path-for]]
             [clojure.walk                  :refer [postwalk]]
             [re-frame.core                 :as rf]
