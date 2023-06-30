@@ -26,7 +26,9 @@
     [:<>
      (doall
       (for [group groups]
-        (let [show-group?    @(subscribe [:wizard/show-group? ws-uuid (:db/id group)])]
+        (let [show-group? @(subscribe [:wizard/show-group? ws-uuid
+                                       (:db/id group)
+                                       (:group/conditionals-operator group)])]
           ^{:key (:db/id group)}
           (when show-group?
             [:<>
