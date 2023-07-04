@@ -1,7 +1,7 @@
 
 #include <emscripten.h>
 
-EM_JS_DEPS(webidl_binder, "$intArrayFromString");
+EM_JS_DEPS(webidl_binder, "$intArrayFromString,$UTF8ToString");
 
 extern "C" {
 
@@ -823,6 +823,10 @@ AspenFireSeverity_AspenFireSeverityEnum EMSCRIPTEN_KEEPALIVE emscripten_bind_SIG
 
 ChaparralFuelType_ChaparralFuelTypeEnum EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getChaparralFuelType_0(SIGSurface* self) {
   return self->getChaparralFuelType();
+}
+
+MoistureInputMode_MoistureInputModeEnum EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureInputMode_0(SIGSurface* self) {
+  return self->getMoistureInputMode();
 }
 
 WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getWindAdjustmentFactorCalculationMethod_0(SIGSurface* self) {

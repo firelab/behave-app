@@ -21,20 +21,21 @@
 
 ;;; Components
 
-(defn build-groups [ws-uuid groups component-fn]
-  (when groups
-    [:<>
-     (doall
-      (for [group groups]
-        (let [show-group? @(subscribe [:wizard/show-group? ws-uuid
-                                       (:db/id group)
-                                       (:group/conditionals-operator group)])]
+(defn build-groups [ws-uuid groups component-fn & [level]]
+  (let [level (if (nil? level) 0 level)]
+    (when groups
+      [:<>
+       (doall
+        (for [group groups]
           ^{:key (:db/id group)}
-          (when show-group?
-            [:<>
-             [component-fn ws-uuid group (:group/group-variables group)]
-             [:div.wizard-subgroup__indent
-              (build-groups ws-uuid (:group/children group) component-fn)]]))))]))
+          (when @(subscribe [:wizard/show-group? ws-uuid
+                             (:db/id group)
+                             (:group/conditionals-operator group)])
+            (let [variables (->> group (:group/group-variables) (sort-by :group-variable/variable-order))]
+              [:<>
+               [component-fn ws-uuid group variables level]
+               [:div.wizard-subgroup__indent
+                (build-groups ws-uuid (:group/children group) component-fn (inc level))]]))))])))
 
 (defmulti submodule-page (fn [io _ _] io))
 

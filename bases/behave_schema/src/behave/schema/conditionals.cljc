@@ -12,6 +12,11 @@
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident       :conditional/module-uuid
+    :db/doc         "Group conditional's module UUID."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/many}
+
    {:db/ident       :conditional/operator
     :db/doc         "Group conditional's operator. Can be either: `:equals`, `:not-equals`, `:in`."
     :db/valueType   :db.type/keyword

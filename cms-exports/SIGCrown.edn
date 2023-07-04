@@ -1,8 +1,5 @@
 {:global
- {:FireType
-  {:FireTypeEnum
-   ["Surface" "Torching" "ConditionalCrownFire" "Crowning"]},
-  :SIGCrown
+ {:SIGCrown
   {:getFinalFlameLength
    {:type "double",
     :id "getFinalFlameLength",

@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 
+# Set Compiler
+SET (CMAKE_C_COMPILER "clang")
+SET (CMAKE_CXX_COMPILER "clang++")
+
 # optional test executable
 OPTION(TEST_BEHAVE "Enable Testing" OFF)
 

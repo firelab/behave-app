@@ -12,11 +12,11 @@
                   :checked?  @checked?
                   :on-change #(rf/dispatch [:worksheet/upsert-output ws-uuid uuid (not @checked?)])}]]))
 
-(defn output-group [ws-uuid group variables]
-  (let [{group-name :group/name} group]
-    [:div.wizard-group
-     [:div.wizard-group__header group-name]
-     [:div.wizard-group__outputs
-      (for [variable variables]
-        ^{:key (:db/id variable)}
-        [wizard-output ws-uuid variable])]]))
+(defn output-group [ws-uuid group variables level]
+  [:div.wizard-group
+   {:class (str "wizard-group--level-" level)}
+   [:div.wizard-group__header (:group/name group)]
+   [:div.wizard-group__outputs
+    (for [variable variables]
+      ^{:key (:db/id variable)}
+      [wizard-output ws-uuid variable])]])

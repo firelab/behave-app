@@ -6,6 +6,7 @@
             [data-utils.interface :refer [parse-int]]
             [string-utils.interface :refer [->kebab ->str]]
             [behave-cms.components.common          :refer [accordion dropdown simple-table window]]
+            [behave-cms.components.conditionals    :refer [conditionals-table manage-conditionals]]
             [behave-cms.components.entity-form     :refer [entity-form]]
             [behave-cms.help.views                 :refer [help-editor]]
             [behave-cms.components.sidebar         :refer [sidebar sidebar-width]]
@@ -75,122 +76,20 @@
                         :group-variable/order           (count @group-variables)}]))
       #(rf/dispatch [:state/set-state [:search :variables] nil])]]))
 
-;;; Conditionals
-
-(defn- conditionals-table [group-id]
-  (let [group           (rf/subscribe [:entity group-id])
-        group-variables (rf/subscribe [:group/conditionals group-id])]
-    [:<>
-     [dropdown
-      {:label     "Combined Operator:"
-       :selected  (:group/conditionals-operator @group)
-       :on-select #(rf/dispatch [:api/update-entity
-                                 {:db/id group-id :group/conditionals-operator (keyword (u/input-value %))}])
-       :options   [{:value :and :label "AND"}
-                   {:value :or :label "OR"}]}]
-     [simple-table
-      [:variable/name :conditional/operator :conditional/values]
-      (sort-by :variable/name @group-variables)
-      {:on-delete #(when (js/confirm (str "Are you sure you want to delete the conditional " (:variable/name %) "?"))
-                     (rf/dispatch [:api/delete-entity %]))}]]))
-
-(defn- manage-conditionals [group-id]
-  (let [var-path   [:editors :variable-lookup]
-        group-path [:editors :groups]
-        cond-path  [:editors :groups :group/conditional]
-
-        get-field  #(rf/subscribe [:state %])
-        set-field  (fn [path v] (rf/dispatch [:state/set-state path v]))
-        on-submit  #(rf/dispatch [:api/create-entity
-                                  (merge @(rf/subscribe [:state cond-path])
-                                         {:group/_conditionals group-id})])
-
-        modules    (rf/subscribe [:subgroup/app-modules group-id])
-        submodules (rf/subscribe [:pull-children :module/submodules @(get-field (conj var-path :module))])
-        groups     (rf/subscribe [:pull-children :submodule/groups @(get-field (conj var-path :submodule))])
-        is-output? (rf/subscribe [:submodule/is-output? @(get-field (conj var-path :submodule))]) 
-        variables  (rf/subscribe [(if @is-output? :group/variables :group/discrete-variables) @(get-field (conj var-path :group))])
-        options    (rf/subscribe [:group/discrete-variable-options @(get-field (conj cond-path :conditional/group-variable-uuid))])]
-
-    [:div.row
-     [:h4 "Manage Conditionals:"]
-     [:form
-      [dropdown
-       {:label     "Module:"
-        :on-select #(do
-                      (set-field cond-path {})
-                      (set-field var-path {})
-                      (set-field (conj var-path :module) (u/input-int-value %)))
-        :options   (map (fn [{value :db/id label :module/name}]
-                          {:value value :label label}) @modules)}]
-
-      [dropdown
-       {:label     "Submodule:"
-        :on-select #(do
-                      (set-field cond-path {})
-                      (set-field (conj var-path :group) nil)
-                      (set-field (conj var-path :submodule) (u/input-int-value %)))
-        :options   (map (fn [{value :db/id label :submodule/name io :submodule/io}]
-                          {:value value :label (str label " (" (->str io) ")")})
-                      (sort-by (juxt :submodule/io :submodule/name) @submodules))}]
-
-      [dropdown
-       {:label     "Group:"
-        :on-select #(do
-                      (set-field cond-path {})
-                      (set-field (conj var-path :group) (u/input-int-value %)))
-        :options   (map (fn [{value :db/id label :group/name}]
-                          {:value value :label label}) @groups)}]
-
-      [dropdown
-       {:label     "Variable:"
-        :on-select #(do
-                      (set-field (conj cond-path :conditional/values) nil)
-                      (set-field (conj cond-path :conditional/group-variable-uuid)
-                                 (u/input-value %)))
-        :options   (map (fn [{value :bp/uuid label :variable/name}]
-                          {:value value :label label}) @variables)}]
-
-      [dropdown
-       {:label     "Operator:"
-        :on-select #(set-field (conj cond-path :conditional/operator)
-                       (keyword (u/input-value %)))
-        :options   (filter some? [{:value :equal :label "="}
-                                  {:value :not-equal :label "!="}
-                                  (when-not @is-output? {:value :in :label "IN"})])}]
-
-      [dropdown
-       {:label     "Value:"
-        :multiple? (= :in @(get-field (conj cond-path :conditional/operator)))
-        :on-select #(let [vs (u/input-multi-select %)]
-                      (println "--- GOT " vs)
-                      (set-field (conj cond-path :conditional/values)
-                                 (str/join "," vs)))
-        :options  (if @is-output?
-                    [{:value "true" :label "True"}
-                     {:value "false" :label "False"}]
-                    (map (fn [{value :list-option/index label :list-option/name}]
-                           {:value value :label label}) @options))}]
-
-
-      [:button.btn.btn-sm.btn-outline-primary.mt-4
-       {:on-click (u/on-submit on-submit)}
-       "Save"]]]))
-
 ;;; Public Views
 
 (defn list-subgroups-page
   "Renders the subgroups page. Takes in a group UUID."
   [{:keys [id]}]
-  (let [parent-group    (rf/subscribe [:subgroup/parent id])
-        group           (rf/subscribe [:entity id '[:group/name
-                                                    :group/help-key
-                                                    :group/translation-key
-                                                    {:submodule/_groups [:db/id]}]])
-        group-variables (rf/subscribe [:sidebar/variables id])
-        subgroups       (rf/subscribe [:sidebar/subgroups id])]
-    (println (str :PG @parent-group "\n\n" :G @group "\n\n" :SG @subgroups "\n\n" :GV @group-variables))
-
+  (let [parent-group        (rf/subscribe [:subgroup/parent id])
+        group               (rf/subscribe [:entity id '[:group/name
+                                                        :group/help-key
+                                                        :group/translation-key
+                                                        {:submodule/_groups [:db/id]}]])
+        group-variables     (rf/subscribe [:sidebar/variables id])
+        subgroups           (rf/subscribe [:sidebar/subgroups id])
+        var-conditionals    (rf/subscribe [:group/variable-conditionals id])
+        module-conditionals (rf/subscribe [:group/module-conditionals id])]
     [:div
      {:id (str id)}
      [sidebar
@@ -229,9 +128,9 @@
        [accordion
         "Conditionals"
         [:div.col-6
-         [conditionals-table id]]
+         [conditionals-table id (concat @var-conditionals @module-conditionals) :group/conditionals :group/conditionals-operator]]
         [:div.col-6
-         [manage-conditionals id]]]
+         [manage-conditionals id :group/conditionals]]]
        [:hr]
        ^{:key "translations"}
        [accordion

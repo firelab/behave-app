@@ -11,6 +11,7 @@
   (rf/clear-subscription-cache!))
 
 (comment
+  (js/window.location.reload)
 
   (clear! :vms/pull-children)
 

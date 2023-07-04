@@ -11,6 +11,8 @@
 
 (defmulti wizard-input (fn [variable _ _] (:variable/kind variable)))
 
+(defmethod wizard-input nil [variable] (println [:NO-KIND-VAR variable]))
+
 (defmethod wizard-input :continuous [{uuid          :bp/uuid
                                       var-name      :variable/name
                                       var-max       :variable/maximum
@@ -23,8 +25,8 @@
                                      group-uuid
                                      repeat-id
                                      repeat-group?]
-  (let [value                 (rf/subscribe [:worksheet/input ws-uuid group-uuid repeat-id uuid])
-        value-atom            (r/atom (first @value))
+  (let [value                 (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id uuid])
+        value-atom            (r/atom @value)
         warn-limit?           (true? @(rf/subscribe [:state :warn-multi-value-input-limit]))
         acceptable-char-codes (set (map #(.charCodeAt % 0) "0123456789., "))]
     [:div.wizard-input
@@ -53,31 +55,35 @@
        [:div (str "English Units: " english-units)]
        [:div (str "Metric Units: " metric-units)]]]]))
 
-(defmethod wizard-input :discrete [{uuid :bp/uuid
-                                    var-name :variable/name
-                                    help-key :group-variable/help-key}
-                                   ws-uuid
-                                   group-uuid
-                                   repeat-id
-                                   repeat-group?]
-  (let [selected  (rf/subscribe [:worksheet/input ws-uuid group-uuid repeat-id uuid])
-        on-change #(upsert-input ws-uuid group-uuid repeat-id uuid (input-value %))]
+(defmethod wizard-input :discrete [variable ws-uuid group-uuid repeat-id repeat-group?]
+  (r/with-let [{uuid     :bp/uuid
+                var-name :variable/name
+                help-key :group-variable/help-key
+                list     :variable/list} variable
+               selected                  (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id uuid])
+               on-change                 #(upsert-input ws-uuid group-uuid repeat-id uuid (input-value %))
+               options                   (:list/options list)
+               num-options               (count options)
+               ->option                  (fn [{index :list-option/index name :list-option/name default? :list-option/default}]
+                                           {:value     index
+                                            :label     name
+                                            :on-change on-change
+                                            :selected? (or (= @selected (str index)) (and (nil? @selected) default?))
+                                            :checked?  (= @selected (str index))})]
     [:div.wizard-input
      {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
-     [c/radio-group
-      {:id      (str repeat-id "-" uuid)
-       :label   (when repeat-group? var-name)
-       :name    (->kebab var-name)
-       :options [{:value "HeadAttack" :label "Head Attack" :on-change on-change :checked? (= (first @selected) "HeadAttack")}
-                 {:value "RearAttack" :label "Rear Attack" :on-change on-change :checked? (= (first @selected) "RearAttack")}]}]]))
-
-;; #_(map (fn [{id :db/id value :option/value t-key :option/translation-key}]
-;;         {:label     @(<t t-key)
-;;          :id        id
-;;          :selected  (= @selected value)
-;;          :name      var-name
-;;          :on-change })
-;;       options)
+     (if (>= 4 num-options)
+       [c/radio-group
+        {:id      (str repeat-id "-" uuid)
+         :label   (when repeat-group? var-name)
+         :name    (->kebab var-name)
+         :options (map ->option options)}]
+       [c/dropdown
+        {:id        (str repeat-id "-" uuid)
+         :label     (when repeat-group? var-name)
+         :on-change on-change
+         :name      (->kebab var-name)
+         :options   (map ->option options)}])]))
 
 (defmethod wizard-input :text [{uuid     :bp/uuid
                                 var-name :variable/name
@@ -86,8 +92,8 @@
                                group-uuid
                                repeat-id
                                repeat-group?]
-  (let [value      (rf/subscribe [:worksheet/input ws-uuid group-uuid repeat-id uuid])
-        value-atom (r/atom (first @value))]
+  (let [value      (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id uuid])
+        value-atom (r/atom @value)]
     [:div.wizard-input
      {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
      [c/text-input {:id            (str repeat-id "-" uuid)
@@ -125,13 +131,13 @@
                  :label    "Add Resource"
                  :on-click #(rf/dispatch [:worksheet/add-input-group ws-uuid group-uuid next-repeat-id])}]]]))
 
-(defn input-group [ws-uuid group variables]
-  (r/with-let [variables (sort-by :group-variable/variable-order variables)]
-    [:div.wizard-group
-     [:div.wizard-group__header (:group/name group)]
-     (if (:group/repeat? group)
-       [repeat-group ws-uuid group variables]
-       [:div.wizard-group__inputs
-        (for [variable variables]
-          ^{:key (:db/id variable)}
-          [wizard-input variable ws-uuid (:bp/uuid group) 0 false])])]))
+(defn input-group [ws-uuid group variables level]
+  [:div.wizard-group
+   {:class (str "wizard-group--level-" level)}
+   [:div.wizard-group__header (:group/name group)]
+   (if (:group/repeat? group)
+     [repeat-group ws-uuid group variables]
+     [:div.wizard-group__inputs
+      (for [variable variables]
+        ^{:key (:db/id variable)}
+        [wizard-input variable ws-uuid (:bp/uuid group) 0])])])

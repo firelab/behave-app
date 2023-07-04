@@ -226,11 +226,24 @@
 ;;; Entities API
 
 (reg-event-fx
+  :ds/transact
+  (fn [_ [_ data]]
+    {:transact
+     (if (map? data) [data] data)}))
+
+(reg-event-fx
   :api/create-entity
   (fn [_ [_ data]]
     {:transact [(merge {:db/id   -1
                         :bp/uuid (str (squuid))}
                        data)]}))
+
+(reg-event-fx
+ :api/upsert-entity
+ (fn [_ [_ data]]
+   {:transact
+    [(merge data
+            (when (nil? (:db/id data)) {:db/id -1}))]}))
 
 (reg-event-fx
   :api/update-entity
