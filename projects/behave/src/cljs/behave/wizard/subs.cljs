@@ -260,82 +260,70 @@
 
          [(name module-kw) (:slug (first submodules))])))))
 
+;;; show-group?
+
+(defn- resolve-var-conditionals [ws-uuid conditionals-operator conditionals]
+  (let [resolved-var-conditionals
+        (map (fn [{:keys [io g gv op values]}]
+               (let [v (if (= io :output)
+                         @(subscribe [:worksheet/output-enabled? ws-uuid gv])
+                         @(subscribe [:worksheet/input-value ws-uuid g 0 gv]))]
+                 (println "v:" v)
+                 (println "values:" values)
+                 (case op
+                   :equal     (= values (str v))
+                   :not-equal (not= values (str v))
+                   :in        (contains? values (str v)))))
+             conditionals)]
+    (if (= conditionals-operator :or)
+      (some true? resolved-var-conditionals)
+      (every? true? resolved-var-conditionals))))
+
+(defn- resolve-module-conditionals [worksheet module-conditional-uuids]
+  (let [ws-module-uuids (map #(-> (rf/subscribe [:wizard/*module (name %)])
+                                  deref
+                                  :bp/uuid)
+                             (:worksheet/modules worksheet))]
+    (every? #(contains? module-conditional-uuids %) ws-module-uuids)))
+
+(reg-sub
+ :wizard/module-conditionals
+ (fn [_ [_ group-id]]
+  (d/q '[:find ?m-uuid .
+         :in $ % ?gc
+         :where (module-conditonal ?gc ?m-uuid ?op)]
+       @@s/vms-conn rules group-id)))
+
+(reg-sub
+ :wizard/variable-conditionals
+ (fn [_ [_ group-id]]
+   (d/q '[:find  ?io ?g-uuid ?gv-uuid ?op ?values
+          :keys  io  g       gv       op  values
+          :in    $ % ?gc
+          :where (conditonal ?io ?gc ?g-uuid ?gv-uuid ?op ?values)]
+        @@s/vms-conn rules group-id)))
+
 (reg-sub
  :wizard/show-group?
- (fn [_ [_ ws-uuid group-id conditionals-operator]]
-   (let [conditionals (d/q '[:find  ?io ?g-uuid ?gv-uuid ?op ?values
-                             :keys  io  g       gv       op  values
-                             :in    $ % ?gc
-                             :where (conditonal ?io ?gc ?g-uuid ?gv-uuid ?op ?values)]
-                            @@s/vms-conn rules group-id)]
-     (if (seq conditionals)
-       (let [resolved-conditionals
-             (map (fn [{:keys [io g gv op values]}]
-                    (let [v (if (= io :output)
-                              @(subscribe [:worksheet/output-enabled? ws-uuid gv])
-                              @(subscribe [:worksheet/input ws-uuid g 0 gv]))]
-                      (println "v:" v)
-                      (println "values:" values)
-                      (case op
-                        :equal     (= values (str v))
-                        :not-equal (not= values (str v))
-                        :in        (contains? values (str v)))))
-                  conditionals)]
-         (if (= conditionals-operator :or)
-           (some true? resolved-conditionals)
-           (every? true? resolved-conditionals)))
-       true))))
+ (fn [[_ ws-uuid group-id & _rest]]
+   [(subscribe [:worksheet ws-uuid])
+    (subscribe [:wizard/variable-conditionals group-id])
+    (subscribe [:wizard/module-conditionals group-id])])
 
-(comment
-  (require '[datascript.core :as d])
+ (fn [[worksheet var-conditionals module-conditionals]
+      [_ ws-uuid _group-id conditionals-operator]]
+   (cond
+     (and (seq module-conditionals) (seq var-conditionals))
+     (if (= conditionals-operator :or)
+       (or (resolve-var-conditionals ws-uuid conditionals-operator var-conditionals)
+           (resolve-module-conditionals worksheet module-conditionals))
+       (and (resolve-var-conditionals ws-uuid conditionals-operator var-conditionals)
+            (resolve-module-conditionals worksheet module-conditionals)))
 
-  (require '[behave.vms.store :as vms])
+     (seq module-conditionals)
+     (resolve-module-conditionals worksheet module-conditionals)
 
-  (def ws-uuid "649e295f-06d6-4472-9423-6e6aafabcbe5")
+     (seq var-conditionals)
+     (resolve-var-conditionals ws-uuid conditionals-operator var-conditionals)
 
-  (def group-id 3594)
-
-
-  (def conditionals
-    (d/q '[:find  ?io ?g-uuid ?gv-uuid ?op ?values
-           :keys  io  g       gv       op  values
-           :in    $ % ?gc
-           :where (conditonal ?io ?gc ?g-uuid ?gv-uuid ?op ?values)]
-          @@s/vms-conn rules group-id))
-
-  conditionals
-
-  (map (fn [{:keys [io g gv op values]}]
-         (let [v (if (= io :output)
-                   @(subscribe [:worksheet/output-enabled? ws-uuid gv])
-                   @(subscribe [:worksheet/input ws-uuid g 0 gv]))]
-           (case op
-             :equal     (= (first values) (str v))
-             :not-equal (not= (first values) (str v))
-             :in        (contains? values (str v)))))
-       conditionals)
-
-  #_(d/q '[:find  ?g-uuid ?gc ?op ?values ?io
-         :keys  g gv op values io
-         :in    $ % ?gv-uuid
-         :where (conditonal ?gc ?g-uuid ?gv-uuid ?op ?values ?io)]
-        @@s/vms-conn rules "649e0a79-a91e-44e1-ba67-fb364e8d808b")
-
-
-  )
-
-(comment
-  ;; Debug why there's a ghost conditonal on this group
-
-  ;; OUTPUT Fire Size - at resource arrival time
-  (def group-uuid "5e66e41a-236a-41c7-98d7-54edd15659a9")
-
-  (def group-entity @(subscribe [:vms/entity-from-uuid group-uuid]))
-
-  (:group/name group-entity)
-  ;;=> Fire Size - at resource arrival time
-
-  ;; This should be 0 entries in this local vms but there's two.
-  (map #(into {} %) (:group/conditionals group-entity))
-
-  )
+     :else true)))

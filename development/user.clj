@@ -4,6 +4,7 @@
   (require '[behave.core :as core])
 
   (core/init!)
+
   (core/vms-sync!)
 
   (core/vms-sync!)

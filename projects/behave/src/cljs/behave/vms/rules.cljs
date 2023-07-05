@@ -51,5 +51,8 @@
        (io ?gv ?io)
 
        ;; get ?g-uuid
-       [?g :bp/uuid ?g-uuid]
-       ]])
+       [?g :bp/uuid ?g-uuid]]
+
+      [(module-conditonal ?gc ?m-uuid)
+       [?gc :group/conditionals ?c]
+       [?c :conditional/module-uuid ?m-uuid]]])

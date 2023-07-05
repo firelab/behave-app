@@ -28,7 +28,8 @@
        (doall
         (for [group groups]
           ^{:key (:db/id group)}
-          (when @(subscribe [:wizard/show-group? ws-uuid
+          (when @(subscribe [:wizard/show-group?
+                             ws-uuid
                              (:db/id group)
                              (:group/conditionals-operator group)])
             (let [variables (->> group (:group/group-variables) (sort-by :group-variable/variable-order))]

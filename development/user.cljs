@@ -2,13 +2,21 @@
   (:require [re-frame.core :as rf]
             [datascript.core :as d]
             [behave.schema.variable :as variable]
-            [clojure.string :as str]))
+            [clojure.string :as str]
+            [reagent.core :as r]))
 
 (.-location js/window)
 
 (defn clear! [k]
   (rf/clear-sub k)
   (rf/clear-subscription-cache!))
+
+(comment
+  (let [ws      (rf/subscribe [:worksheet "64a58a98-ba06-4fb1-8447-7256954ee4f3"])
+        modules (:worksheet/modules @ws)]
+    (map #(:bp/uuid (deref (rf/subscribe [:wizard/*module (name %)]))) modules))
+
+  )
 
 (comment
   (js/window.location.reload)
