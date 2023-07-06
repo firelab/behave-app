@@ -43,8 +43,8 @@
        :options   [{:value :and :label "AND"}
                    {:value :or :label "OR"}]}]
      [simple-table
-      [:variable/name :conditionals/module :conditional/operator :conditional/values]
-      (sort-by (juxt :variable/name :conditionals/module) conditionals)
+      [:variable/name :conditional/operator :conditional/values]
+      (sort-by :variable/name conditionals)
       {:on-select cond-attr
        :on-delete #(when (js/confirm (str "Are you sure you want to delete the conditional " (:variable/name %) "?"))
                      (rf/dispatch [:api/delete-entity %]))}]]))
@@ -55,31 +55,22 @@
            (remove #(= x %) xs)
            (conj xs x)))))
 
-(comment
-
-  (remove #(= :a %) [:a :b :c])
-
-  (toggle-item :a [:a :b :c])
-
-  (rf/subscribe [:state [:editors :conditional]])
-
-  )
-
 (defn manage-module-conditionals [entity-id cond-attr]
   (let [cond-path   [:editors :conditional cond-attr]
         set-field   (fn [path v] (rf/dispatch [:state/set-state path v]))
         get-field   #(rf/subscribe [:state %])
-        module-path (conj cond-path :conditional/module-uuid)
-        modules     (rf/subscribe [:subgroup/app-modules entity-id])
-        options     (map (fn [{value :bp/uuid label :module/name}]
-                           {:value value :label label})
-                         @modules)]
+        module-path (conj cond-path :conditional/values)
+        all-modules (rf/subscribe [:subgroup/app-modules entity-id])
+        *modules    (get-field module-path)
+        options     (map (fn [{label :module/name}]
+                           {:value (str/lower-case label) :label label})
+                         @all-modules)]
     [:div
      [:h6 "Enabled with Modules:"]
      [checkboxes
       options
       (get-field module-path)
-      #(set-field module-path (toggle-item (u/input-value %) (map :value options)))]]))
+      #(set-field module-path (toggle-item (u/input-value %) @*modules))]]))
 
 (defn manage-variable-conditionals [entity-id cond-attr]
   (let [var-path   [:editors :variable-lookup]
@@ -156,14 +147,21 @@
 
 (defn manage-conditionals [entity-id cond-attr cond-attr-op]
   (r/with-let [state     (r/atom "variable")
+               cond-path [:editors :conditional cond-attr]
                set-type  #(do (reset! state %)
-                              (rf/dispatch-sync [:state/set-state [:editors :conditional cond-attr] nil])
+                              (rf/dispatch-sync [:state/set-state cond-path nil])
                               (rf/dispatch-sync [:state/set-state 
-                                                 [:editors :conditional cond-attr :conditional/operator]
-                                                 (if (= % "module") :in :equals)]))
-               on-submit #(rf/dispatch [:ds/transact
+                                                 (conj cond-path :conditional/operator)
+                                                 (if (= % "module") :in :equals)])
+                              (rf/dispatch-sync [:state/set-state
+                                                 (conj cond-path :conditional/type)
+                                                 (if (= % "module") :module :group-variable)]))
+               type       (rf/subscribe [:state (conj cond-path :conditional/type)])
+               on-submit #(do
+                            (rf/dispatch [:ds/transact
                                         (merge @(rf/subscribe [:state [:editors :conditional cond-attr]])
-                                               {(inverse-attr cond-attr) entity-id})])]
+                                               {(inverse-attr cond-attr) entity-id})])
+                            (rf/dispatch [:state/set-state [:editors :conditional] {}]))]
     [:form.row
      {:on-submit (u/on-submit on-submit)}
      [:h4 "Manage Conditionals:"]
@@ -174,23 +172,12 @@
        {:label "Variable" :value "variable"}]
       #(set-type (u/input-value %))]
 
-     (condp = @state
-       "variable"
-       [manage-variable-conditionals entity-id cond-attr]
+     (when @type
+       (condp = @state
+         "variable"
+         [manage-variable-conditionals entity-id cond-attr]
 
-       "module"
-       [manage-module-conditionals entity-id cond-attr])
+         "module"
+         [manage-module-conditionals entity-id cond-attr]))
 
      [:button.btn.btn-sm.btn-outline-primary.mt-4 {:type "submit"} "Save"]]))
-
-(comment
-
-  (def cond-attr :group/conditionals)
-  @(rf/subscribe [:state [:editors :conditional :group/conditionals]])
-  (rf/subscribe [:state [:editors :conditional]])
-
-  (def entity-id 4499)
-  (rf/dispatch [:ds/transact (merge @(rf/subscribe [:state [:editors :conditional cond-attr]])
-                                    {(inverse-attr cond-attr) entity-id})])
-
-  )
