@@ -34,6 +34,15 @@
        (when (re/exists? worksheet)
          worksheet)))))
 
+(rf/reg-sub
+ :worksheet/modules
+ (fn [[_ ws-uuid]]
+   (rf/subscribe [:worksheet ws-uuid]))
+
+ (fn [worksheet _]
+   (map #(deref (rf/subscribe [:wizard/*module (name %)]))
+        (:worksheet/modules worksheet))))
+
 ;; Get state of a particular output
 (rf/reg-sub
  :worksheet/output-enabled?
