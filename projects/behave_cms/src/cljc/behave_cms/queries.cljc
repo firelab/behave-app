@@ -36,4 +36,8 @@
      (subgroup ?g ?s)
      [?sm :submodule/groups ?g]
      [?m :module/submodules ?sm]
+     [?a :application/modules ?m]]
+
+    [(app-root ?a ?s)
+     [?m :module/submodules ?s]
      [?a :application/modules ?m]]])

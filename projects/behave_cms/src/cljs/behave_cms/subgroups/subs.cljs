@@ -110,7 +110,7 @@
 ;;; Conditionals
 
 (reg-sub
- :group/conditionals
+ :group/variable-conditionals
  (fn [[_ group-id]]
    (subscribe [:query
                '[:find ?c ?gv-uuid ?name ?operator ?values
@@ -131,6 +131,26 @@
             :conditional/group-variable-uuid gv-uuid
             :conditional/operator            operator
             :conditional/values              values}) results)))
+
+(reg-sub
+  :group/module-conditionals
+  (fn [[_ group-id]]
+   (subscribe [:query
+               '[:find ?c ?uuid ?name ?operator
+                 :in  $ ?g
+                 :where
+                 [?g :group/conditionals ?c]
+                 [?c :conditional/module-uuids ?uuid]
+                 [?m :bp/uuid ?uuid]
+                 [?m :module/name ?name]
+                 [?c :conditional/operator ?operator]]
+               [group-id]]))
+  (fn [results]
+   (mapv (fn [[id uuid name operator values]]
+           {:db/id                   id
+            :module/name             name
+            :conditional/module-uuid uuid
+            :conditional/operator    operator}) results)))
 
 ;;; Variables
 

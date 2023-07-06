@@ -77,7 +77,7 @@
         {:id      (str repeat-id "-" uuid)
          :label   (when repeat-group? var-name)
          :name    (->kebab var-name)
-         :options (map ->option options)}]
+         :options (doall (map ->option options))}]
        [c/dropdown
         {:id        (str repeat-id "-" uuid)
          :label     (when repeat-group? var-name)

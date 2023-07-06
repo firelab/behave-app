@@ -118,22 +118,22 @@
    ;; Continuous Variables
    {:db/ident       :variable/maximum
     :db/doc         "Variable's maximum value."
-    :db/valueType   :db.type/long
+    :db/valueType   :db.type/double
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :variable/minimum
     :db/doc         "Variable's minimum value."
-    :db/valueType   :db.type/long
+    :db/valueType   :db.type/double
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :variable/default-value
     :db/doc         "Variable's default value."
-    :db/valueType   :db.type/long
+    :db/valueType   :db.type/double
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :variable/english-decimals
     :db/doc         "Variable's english decimal value."
-    :db/valueType   :db.type/long
+    :db/valueType   :db.type/double
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :variable/english-units
@@ -143,7 +143,7 @@
 
    {:db/ident       :variable/metric-decimals
     :db/doc         "Variable's metric decimal value."
-    :db/valueType   :db.type/long
+    :db/valueType   :db.type/double
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :variable/metric-units
@@ -153,7 +153,7 @@
 
    {:db/ident       :variable/native-decimals
     :db/doc         "Variable's native decimal value."
-    :db/valueType   :db.type/long
+    :db/valueType   :db.type/double
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :variable/native-units

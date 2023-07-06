@@ -60,6 +60,16 @@
    {:db/ident       :submodule/help-key
     :db/doc         "Submodule's help key."
     :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :submodule/conditionals
+    :db/doc         "Submodule's conditionals. Determines whether the Group should be displayed based on the conditional."
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many}
+
+   {:db/ident       :submodule/conditionals-operator
+    :db/doc         "Submodule's conditional operator, which only applies for multiple conditionals. Can be either: `:and`, `:or`."
+    :db/valueType   :db.type/keyword
     :db/cardinality :db.cardinality/one}])
 
 ;;; Testing

@@ -69,6 +69,7 @@
   [:div.mb-3
    [:label.form-label group-label]
    (for [{:keys [label value]} options]
+     ^{:key value}
      [:div.form-check
       [:input.form-check-input
        {:type      "radio"
@@ -78,16 +79,31 @@
         :on-change #(reset! state (u/input-value %))}]
       [:label.form-check-label {:for value} label]])])
 
-(defn checkboxes
-  "A component for check boxes."
-  [label-text state]
+(defn checkbox
+  "A component for check box."
+  [label-text checked? on-change]
   [:span {:style {:margin-bottom ".5rem"}}
    [:input.form-check-input
     {:style     {:margin-right ".25rem"}
      :type      "checkbox"
-     :checked   @state
-     :on-change #(swap! state not)}]
+     :checked   checked?
+     :on-change on-change}]
    [:label.form-check-label label-text]])
+
+(defn checkboxes
+  "Multiple check boxes."
+  [options state on-change]
+  [:<>
+   (for [{:keys [label value]} options]
+     ^{:key value}
+     [:div.form-check
+      [:input.form-check-input
+       {:type      "checkbox"
+        :id        value
+        :value     value
+        :on-change on-change}]
+      [:label.form-check-label {:for value} label]])])
+;; checkbox label (= value @state) on-change]))
 
 (defn labeled-input
   "Input and label pair component. Takes as `opts`
