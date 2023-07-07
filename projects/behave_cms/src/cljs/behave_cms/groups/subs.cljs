@@ -1,5 +1,8 @@
 (ns behave-cms.groups.subs
-  (:require [bidi.bidi :refer [path-for]]
+  (:require [clojure.string :as str]
+            [bidi.bidi :refer [path-for]]
+            [datascript.core :as d]
+            [behave-cms.store :refer [conn]]
             [re-frame.core     :refer [reg-sub subscribe]]
             [behave-cms.routes :refer [app-routes]]))
 
@@ -46,6 +49,34 @@
   (fn [[_ submodule-id]]
     (subscribe [:pull-children :submodule/groups submodule-id]))
   identity)
+
+;;; Groups w/ Subgroups
+
+(defn accumulate-subgroups [acc group & [parents]]
+  (let [id       (:db/id group)
+        children (:group/children group)
+        name     (:group/name group)
+        acc      (conj acc {:db/id      id
+                            :group/name (if (seq parents)
+                                          (str/join " / " (conj parents name))
+                                          name)})
+        parents  (if (nil? parents) [name] (conj parents name))]
+    (if (seq children)
+      (reduce (fn [acc cur]
+                (accumulate-subgroups acc cur parents))
+              acc
+              (:group/children (d/pull @@conn '[{:group/children [*]}] id)))
+      acc)))
+
+(reg-sub
+  :submodule/groups-w-subgroups
+  (fn [[_ submodule-id]]
+    (subscribe [:pull-children :submodule/groups submodule-id]))
+  (fn [groups]
+    (reduce
+     accumulate-subgroups
+     []
+     groups)))
 
 ;;; Sidebar
 
