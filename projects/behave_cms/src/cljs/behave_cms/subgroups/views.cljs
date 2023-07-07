@@ -78,20 +78,22 @@
 
 ;;; Settings
 
-(defn group-settings [group]
-  (let [{repeat? :group/repeat?
-         id      :db/id} group
-        *repeat?         (atom repeat?)
-        update!          #(rf/dispatch [:api/update-entity
-                                        {:db/id         id
-                                         :group/repeat? @*repeat?}])]
-
-    [:div.row
+(defn bool-setting [label attr group]
+  (let [{id :db/id} group
+        *value?     (atom (get group attr))
+        update!     #(rf/dispatch [:api/update-entity
+                                   {:db/id id attr @*value?}])]
+    [:div.mt-1
      [checkbox
-      "Repeat Group?"
-      @*repeat?
-      #(do (swap! *repeat? not)
+      label
+      @*value?
+      #(do (swap! *value? not)
            (update!))]]))
+
+(defn group-settings [group]
+  [:div.row.mt-2
+   [bool-setting "Repeat Group?" :group/repeat? group]
+   [bool-setting "Research Group?" :group/research? group]])
 
 ;;; Public Views
 
@@ -99,10 +101,7 @@
   "Renders the subgroups page. Takes in a group UUID."
   [{:keys [id]}]
   (let [parent-group        (rf/subscribe [:subgroup/parent id])
-        group               (rf/subscribe [:entity id '[:group/name
-                                                        :group/help-key
-                                                        :group/translation-key
-                                                        {:submodule/_groups [:db/id]}]])
+        group               (rf/subscribe [:entity id '[* {:submodule/_groups [:db/id]}]])
         group-variables     (rf/subscribe [:sidebar/variables id])
         subgroups           (rf/subscribe [:sidebar/subgroups id])
         var-conditionals    (rf/subscribe [:group/variable-conditionals id])
