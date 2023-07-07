@@ -20,7 +20,7 @@
      [:div.wizard-review__input
       {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
       [c/text-input {:label     var-name
-                     :value     (first @values)
+                     :value     @values
                      :error?    warn-limit?
                      :disabled? true}]
       [c/button {:variant  "primary"
@@ -36,12 +36,12 @@
                                    repeat-id
                                    _repeat-group?
                                    edit-route]
-  (let [values (rf/subscribe [:worksheet/input ws-uuid group-uuid repeat-id uuid])]
+  (let [values (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id uuid])]
     [:div.wizard-input {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
      [:div.wizard-review__input
       [:div.wizard-review__input--discrete
        [:div.wizard-review__input--discrete__label (str var-name ":")]
-       [:div.wizard-review__input--discrete__value (first @values)]
+       [:div.wizard-review__input--discrete__value @values]
        [c/button {:variant  "primary"
                   :label    @(<t (bp "change_selection"))
                   :size     "small"
@@ -55,11 +55,12 @@
                                repeat-id
                                repeat-group?
                                edit-route]
-  (let [values (rf/subscribe [:worksheet/input ws-uuid group-uuid repeat-id uuid])]
+  (let [values (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id uuid])]
+    (println "worksheet/input args: " ws-uuid " " group-uuid " " repeat-id " " uuid)
     [:div.wizard-input--review
      {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
      [c/text-input {:label     var-name
-                    :value     (first @values)
+                    :value     @values
                     :disabled? true}]
      (when-not repeat-group?
        [c/button {:variant  "primary"

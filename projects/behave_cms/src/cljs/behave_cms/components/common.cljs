@@ -69,6 +69,7 @@
   [:div.mb-3
    [:label.form-label group-label]
    (for [{:keys [label value]} options]
+     ^{:key value}
      [:div.form-check
       [:input.form-check-input
        {:type      "radio"
@@ -94,6 +95,7 @@
   [options state on-change]
   [:<>
    (for [{:keys [label value]} options]
+     ^{:key value}
      [:div.form-check
       [:input.form-check-input
        {:type      "checkbox"
