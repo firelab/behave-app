@@ -54,6 +54,11 @@
     :db/valueType   :db.type/boolean
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident       :group/research?
+    :db/doc         "Whether a Group represents a research-only group."
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
+
    {:db/ident       :group/max-repeat
     :db/doc         "Group's maximum number of repeats."
     :db/valueType   :db.type/long
