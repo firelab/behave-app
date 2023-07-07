@@ -113,44 +113,35 @@
  :group/variable-conditionals
  (fn [[_ group-id]]
    (subscribe [:query
-               '[:find ?c ?gv-uuid ?name ?operator ?values
+               '[:find ?c ?name
                  :in  $ ?g
                  :where
                  [?g :group/conditionals ?c]
+                 [?c :conditional/type :group-variable]
                  [?c :conditional/group-variable-uuid ?gv-uuid]
                  [?gv :bp/uuid ?gv-uuid]
                  [?v :variable/group-variables ?gv]
-                 [?v :variable/name ?name]
-                 [?c :conditional/operator ?operator]
-                 [?c :conditional/values ?values]]
+                 [?v :variable/name ?name]]
                [group-id]]))
  (fn [results]
-   (mapv (fn [[id gv-uuid name operator values]]
-           {:db/id                           id
-            :variable/name                   name
-            :conditional/group-variable-uuid gv-uuid
-            :conditional/operator            operator
-            :conditional/values              values}) results)))
+   (mapv (fn [[id name]]
+           (-> @(subscribe [:entity id])
+               (assoc :variable/name name))) results)))
 
 (reg-sub
-  :group/module-conditionals
-  (fn [[_ group-id]]
+ :group/module-conditionals
+ (fn [[_ group-id]]
    (subscribe [:query
-               '[:find ?c ?uuid ?name ?operator
-                 :in  $ ?g
+               '[:find ?c
+                 :in $ ?g
                  :where
                  [?g :group/conditionals ?c]
-                 [?c :conditional/module-uuids ?uuid]
-                 [?m :bp/uuid ?uuid]
-                 [?m :module/name ?name]
-                 [?c :conditional/operator ?operator]]
+                 [?c :conditional/type :module]]
                [group-id]]))
-  (fn [results]
-   (mapv (fn [[id uuid name operator values]]
-           {:db/id                   id
-            :module/name             name
-            :conditional/module-uuid uuid
-            :conditional/operator    operator}) results)))
+ (fn [results]
+   (mapv (fn [[id]]
+           (-> @(subscribe [:entity id])
+               (assoc :variable/name "Modules selected"))) results)))
 
 ;;; Variables
 
