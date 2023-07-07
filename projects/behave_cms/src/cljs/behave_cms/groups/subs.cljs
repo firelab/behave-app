@@ -13,6 +13,7 @@
                  :in  $ ?s
                  :where
                  [?s :submodule/conditionals ?c]
+                 [?c :conditional/type :group-variable]
                  [?c :conditional/group-variable-uuid ?gv-uuid]
                  [?gv :bp/uuid ?gv-uuid]
                  [?v :variable/group-variables ?gv]
@@ -30,7 +31,8 @@
                '[:find ?c
                  :in $ ?s
                  :where
-                 [?s :submodule/conditionals ?c]]
+                 [?s :submodule/conditionals ?c]
+                 [?c :conditional/type :module]]
                [submodule-id]]))
  (fn [results]
    (mapv (fn [[id]]

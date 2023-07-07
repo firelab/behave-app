@@ -117,6 +117,7 @@
                  :in  $ ?g
                  :where
                  [?g :group/conditionals ?c]
+                 [?c :conditional/type :group-variable]
                  [?c :conditional/group-variable-uuid ?gv-uuid]
                  [?gv :bp/uuid ?gv-uuid]
                  [?v :variable/group-variables ?gv]
@@ -134,7 +135,8 @@
                '[:find ?c
                  :in $ ?g
                  :where
-                 [?g :group/conditionals ?c]]
+                 [?g :group/conditionals ?c]
+                 [?c :conditional/type :module]]
                [group-id]]))
  (fn [results]
    (mapv (fn [[id]]
