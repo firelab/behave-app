@@ -2,7 +2,7 @@
   (:require [clojure.string         :as str]
             [herb.core              :refer [<class]]
             [reagent.core           :as r]
-            [string-utils.interface :refer [->str]]
+            [string-utils.interface :refer [->str ->kebab]]
             [behave-cms.styles      :as $]
             [behave-cms.utils       :as u]))
 
@@ -73,7 +73,7 @@
      [:div.form-check
       [:input.form-check-input
        {:type      "radio"
-        :name      (u/sentence->kebab group-label)
+        :name      (->kebab group-label)
         :id        value
         :value     value
         :on-change #(reset! state (u/input-value %))}]
@@ -82,13 +82,17 @@
 (defn checkbox
   "A component for check box."
   [label-text checked? on-change]
-  [:span {:style {:margin-bottom ".5rem"}}
-   [:input.form-check-input
-    {:style     {:margin-right ".25rem"}
-     :type      "checkbox"
-     :checked   checked?
-     :on-change on-change}]
-   [:label.form-check-label label-text]])
+  (let [id (->kebab label-text)]
+    [:span {:style {:margin-bottom ".5rem"}}
+     [:input.form-check-input
+      {:style     {:margin-right ".25rem"}
+       :id        id
+       :type      "checkbox"
+       :checked   checked?
+       :on-change on-change}]
+     [:label.form-check-label
+      {:for id}
+      label-text]]))
 
 (defn checkboxes
   "Multiple check boxes."
@@ -115,14 +119,14 @@
   [label state & [{:keys [type autocomplete disabled? call-back autofocus? required? placeholder]
                    :or {type "text" disabled? false call-back #(reset! state (u/input-value %)) required? false}}]]
   [:div.my-3
-   [:label.form-label {:for (u/sentence->kebab label)} label]
+   [:label.form-label {:for (->kebab label)} label]
    [:input.form-control
     {:auto-complete autocomplete
      :auto-focus    autofocus?
      :disabled      disabled?
      :required      required?
      :placeholder   placeholder
-     :id            (u/sentence->kebab label)
+     :id            (->kebab label)
      :type          type
      :value         @state
      :on-change     call-back}]])

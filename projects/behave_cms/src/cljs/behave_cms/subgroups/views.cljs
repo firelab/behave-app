@@ -5,7 +5,7 @@
             [re-frame.core :as rf]
             [data-utils.interface :refer [parse-int]]
             [string-utils.interface :refer [->kebab ->str]]
-            [behave-cms.components.common          :refer [accordion dropdown simple-table window]]
+            [behave-cms.components.common          :refer [accordion checkbox dropdown simple-table window]]
             [behave-cms.components.conditionals    :refer [conditionals-table manage-conditionals]]
             [behave-cms.components.entity-form     :refer [entity-form]]
             [behave-cms.help.views                 :refer [help-editor]]
@@ -76,6 +76,23 @@
                         :group-variable/order           (count @group-variables)}]))
       #(rf/dispatch [:state/set-state [:search :variables] nil])]]))
 
+;;; Settings
+
+(defn group-settings [group]
+  (let [{repeat? :group/repeat?
+         id      :db/id} group
+        *repeat?         (atom repeat?)
+        update!          #(rf/dispatch [:api/update-entity
+                                        {:db/id         id
+                                         :group/repeat? @*repeat?}])]
+
+    [:div.row
+     [checkbox
+      "Repeat Group?"
+      @*repeat?
+      #(do (swap! *repeat? not)
+           (update!))]]))
+
 ;;; Public Views
 
 (defn list-subgroups-page
@@ -141,6 +158,12 @@
        [accordion
         "Help Page"
         [:div.col-12
-         [help-editor (:group/help-key @group)]]]]]]))
+         [help-editor (:group/help-key @group)]]]
+       [:hr]
+       ^{:key "settings"}
+       [accordion
+        "Settings"
+        [:div.col-12
+         [group-settings @group]]]]]]))
 
 (def list-subsubgroups-page #'list-subgroups-page)
