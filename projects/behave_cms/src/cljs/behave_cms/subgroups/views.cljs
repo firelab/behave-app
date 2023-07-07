@@ -5,7 +5,7 @@
             [re-frame.core :as rf]
             [data-utils.interface :refer [parse-int]]
             [string-utils.interface :refer [->kebab ->str]]
-            [behave-cms.components.common          :refer [accordion dropdown simple-table window]]
+            [behave-cms.components.common          :refer [accordion checkbox dropdown simple-table window]]
             [behave-cms.components.conditionals    :refer [conditionals-table manage-conditionals]]
             [behave-cms.components.entity-form     :refer [entity-form]]
             [behave-cms.help.views                 :refer [help-editor]]
@@ -76,16 +76,32 @@
                         :group-variable/order           (count @group-variables)}]))
       #(rf/dispatch [:state/set-state [:search :variables] nil])]]))
 
+;;; Settings
+
+(defn bool-setting [label attr group]
+  (let [{id :db/id} group
+        *value?     (atom (get group attr))
+        update!     #(rf/dispatch [:api/update-entity
+                                   {:db/id id attr @*value?}])]
+    [:div.mt-1
+     [checkbox
+      label
+      @*value?
+      #(do (swap! *value? not)
+           (update!))]]))
+
+(defn group-settings [group]
+  [:div.row.mt-2
+   [bool-setting "Repeat Group?" :group/repeat? group]
+   [bool-setting "Research Group?" :group/research? group]])
+
 ;;; Public Views
 
 (defn list-subgroups-page
   "Renders the subgroups page. Takes in a group UUID."
   [{:keys [id]}]
   (let [parent-group        (rf/subscribe [:subgroup/parent id])
-        group               (rf/subscribe [:entity id '[:group/name
-                                                        :group/help-key
-                                                        :group/translation-key
-                                                        {:submodule/_groups [:db/id]}]])
+        group               (rf/subscribe [:entity id '[* {:submodule/_groups [:db/id]}]])
         group-variables     (rf/subscribe [:sidebar/variables id])
         subgroups           (rf/subscribe [:sidebar/subgroups id])
         var-conditionals    (rf/subscribe [:group/variable-conditionals id])
@@ -141,6 +157,12 @@
        [accordion
         "Help Page"
         [:div.col-12
-         [help-editor (:group/help-key @group)]]]]]]))
+         [help-editor (:group/help-key @group)]]]
+       [:hr]
+       ^{:key "settings"}
+       [accordion
+        "Settings"
+        [:div.col-12
+         [group-settings @group]]]]]]))
 
 (def list-subsubgroups-page #'list-subgroups-page)

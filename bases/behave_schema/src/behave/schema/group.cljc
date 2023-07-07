@@ -32,6 +32,7 @@
    {:db/ident       :group/children
     :db/doc         "Group's children groups."
     :db/valueType   :db.type/ref
+    :db/isComponent true
     :db/cardinality :db.cardinality/many}
 
    {:db/ident       :group/group-variables
@@ -51,6 +52,11 @@
 
    {:db/ident       :group/repeat?
     :db/doc         "Whether a Group repeats."
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :group/research?
+    :db/doc         "Whether a Group represents a research-only group."
     :db/valueType   :db.type/boolean
     :db/cardinality :db.cardinality/one}
 

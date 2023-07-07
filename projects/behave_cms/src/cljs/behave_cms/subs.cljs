@@ -1,9 +1,11 @@
 (ns behave-cms.subs
-  (:require [clojure.string :as str]
-            [bidi.bidi :refer (match-route)]
-            [re-frame.core :as rf]
-            [re-posh.core  :as rp]
+  (:require [clojure.string    :as str]
+            [bidi.bidi         :refer (match-route)]
+            [re-frame.core     :as rf]
+            [re-posh.core      :as rp]
+            [datascript.core   :as d]
             [behave-cms.routes :refer [app-routes]]
+            [behave-cms.store  :as s]
             [behave-cms.applications.subs]
             [behave-cms.groups.subs]
             [behave-cms.languages.subs]
@@ -149,3 +151,8 @@
  '[:find  ?id .
    :in    $ ?uuid
    :where [?id :bp/uuid ?uuid]])
+
+(rf/reg-sub
+ :q-with-rules
+ (fn [_ [_ query rules & args]]
+   (apply d/q query @@s/conn rules args)))
