@@ -1,5 +1,7 @@
 (ns behave.solver.table
-  (:require [re-frame.core :as rf]))
+  (:require [re-frame.core :as rf]
+            [behave.logger :refer [log]]
+            [behave.solver.queries :refer [variable-units]]))
 
 ;;; Results Table Helpers
 

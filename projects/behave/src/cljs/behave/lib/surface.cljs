@@ -4,6 +4,7 @@
 
 (defn init [fuelModels]
   (js/Module.SIGSurface. fuelModels))
+
 (defn calculateFlameLength [self firelineIntensity firelineIntensityUnits flameLengthUnits]
   (.calculateFlameLength self firelineIntensity firelineIntensityUnits flameLengthUnits))
 

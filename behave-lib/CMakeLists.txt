@@ -32,6 +32,7 @@ ENDIF()
 set(WRAPPER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/include/cpp/emscripten/wrapper.cpp)
 set(EMSCRIPTEN_CPP_FILE ${CMAKE_SOURCE_DIR}/include/cpp/emscripten/)
 set(GLUE_JS_FILE ${CMAKE_CURRENT_SOURCE_DIR}/include/js/glue.js)
+set(PRE_JS_FILE ${CMAKE_CURRENT_SOURCE_DIR}/include/js/pre.js)
 set(BEHAVE_SRC_DIR ${CMAKE_SOURCE_DIR}/behave-mirror/src/behave/)
 set(SIG_SRC_DIR ${CMAKE_SOURCE_DIR}/include/cpp/sig-adapters/)
 set(SIG_TEST_DIR ${CMAKE_SOURCE_DIR}/test/cpp/)
@@ -227,7 +228,7 @@ ENDIF()
 IF(BEHAVE_WASM)
     add_custom_command(
         OUTPUT behave.wasm
-        COMMAND emcc ${WRAPPER_FILE} ${EMCC_WASM_ARGS} -o behave-min.js
+        COMMAND emcc ${WRAPPER_FILE} ${EMCC_WASM_ARGS} -o behave-min.js --pre-js ${PRE_JS_FILE}
         DEPENDS behave
         COMMENT "Building webassembly"
         VERBATIM)
