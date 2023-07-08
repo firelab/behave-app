@@ -269,7 +269,10 @@
              type                :conditional/type
              op                  :conditional/operator
              values              :conditional/values}]
-           (let [{:keys [group-uuid io]} (first @(subscribe [:wizard/conditional-io+group-uuid group-variable-uuid]))
+           (let [{:keys [group-uuid io]} (-> (subscribe [:wizard/conditional-io+group-uuid
+                                                         group-variable-uuid])
+                                             deref
+                                             first)
                  worksheet-value
                  (cond
                    (= type :module)
