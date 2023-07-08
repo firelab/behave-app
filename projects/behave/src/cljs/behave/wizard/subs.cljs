@@ -262,35 +262,38 @@
 
 ;;; show-group?
 
+(defn- resolve-conditionals [worksheet conditionals]
+  (let[ws-uuid (:worksheet/uuid worksheet)]
+    (map (fn pass?
+           [{group-variable-uuid :conditional/group-variable-uuid
+             type                :conditional/type
+             op                  :conditional/operator
+             values              :conditional/values}]
+           (let [{:keys [group-uuid io]} (first @(subscribe [:wizard/conditional-io+group-uuid group-variable-uuid]))
+                 worksheet-value
+                 (cond
+                   (= type :module)
+                   (:worksheet/modules worksheet)
+
+                   (= io :output)
+                   @(subscribe [:worksheet/output-enabled?
+                                ws-uuid
+                                group-variable-uuid])
+
+                   (= io :input)
+                   @(subscribe [:worksheet/input-value
+                                ws-uuid
+                                group-uuid
+                                0
+                                group-variable-uuid]))]
+             (case op
+               :equal     (= (first values) (str worksheet-value))
+               :not-equal (not= (first values) (str worksheet-value))
+               :in        (= (set (map keyword values)) (set worksheet-value)))))
+         conditionals)))
+
 (defn- all-conditionals-pass? [worksheet conditionals-operator conditionals]
-  (let [ws-uuid               (:worksheet/uuid worksheet)
-        resolved-conditionals (map (fn pass?
-                                     [{group-variable-uuid :conditional/group-variable-uuid
-                                       type                :conditional/type
-                                       op                  :conditional/operator
-                                       values              :conditional/values}]
-                                     (let [{:keys [group-uuid io]} (first @(subscribe [:wizard/conditional-io+group-uuid group-variable-uuid]))
-                                           worksheet-value
-                                           (cond
-                                             (= type :module)
-                                             (:worksheet/modules worksheet)
-
-                                             (= io :output)
-                                             @(subscribe [:worksheet/output-enabled?
-                                                          ws-uuid
-                                                          group-variable-uuid])
-
-                                             (= io :input)
-                                             @(subscribe [:worksheet/input-value
-                                                          ws-uuid
-                                                          group-uuid
-                                                          0
-                                                          group-variable-uuid]))]
-                                       (case op
-                                         :equal     (= (first values) (str worksheet-value))
-                                         :not-equal (not= (first values) (str worksheet-value))
-                                         :in        (= (set (map keyword values)) (set worksheet-value)))))
-                                   conditionals)]
+  (let [resolved-conditionals (resolve-conditionals worksheet conditionals)]
     (if (= conditionals-operator :or)
       (some true? resolved-conditionals)
       (every? true? resolved-conditionals))))
