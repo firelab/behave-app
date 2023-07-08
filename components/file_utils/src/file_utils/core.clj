@@ -1,5 +1,5 @@
 (ns file-utils.core
-  (:require [clojure.java.io :refer [file output-stream input-stream] :as io]
+  (:require [clojure.java.io :as io]
             [clojure.string  :as str]
             [me.raynes.fs    :as fs])
   (:import [java.io File OutputStream ByteArrayInputStream ByteArrayOutputStream]
@@ -54,14 +54,16 @@
     (doseq [f (file-seq (io/file input-file-or-folder)) :when (.isFile f)]
       (.putNextEntry zip (ZipEntry. (cond
                                       new-path  (str new-path (fs/base-name f)) 
-                                      rel-path? (str/replace (.getPath f) (.getPath (System/getProperty "user.dir") ".") 
-                                      true      (.getPath f))))
+                                      rel-path? (str/replace (.getPath f) (.getPath (System/getProperty "user.dir")) ".") 
+                                      :else     (.getPath f))))
       (if (and resize-images? (image-extensions (fs/extension f)))
         (io/copy (ByteArrayInputStream. (.toByteArray (resize-image f image-max-size image-quality))) zip)
         (io/copy f zip))
-      (.closeEntry zip)))))
+      (.closeEntry zip))))
 
-(defn today []
+(defn today
+  "Returns today's date in yyyy-MM-dd format."
+  []
   (.format (java.time.LocalDateTime/now)
            (java.time.format.DateTimeFormatter/ofPattern "yyyy-MM-dd")))
 
@@ -72,13 +74,13 @@
   [input output]
   (with-open [stream (-> input io/input-stream ZipInputStream.)]
     (loop [entry (.getNextEntry stream)]
-      (if entry
+      (when entry
         (let [save-path (str output File/separatorChar (.getName entry))
-              out-file (File. save-path)]
+              out-file  (File. save-path)]
           (if (.isDirectory entry)
-            (if-not (.exists out-file)
+            (when-not (.exists out-file)
               (.mkdirs out-file))
             (let [parent-dir (File. (.substring save-path 0 (.lastIndexOf save-path (int File/separatorChar))))]
-              (if-not (.exists parent-dir) (.mkdirs parent-dir))
+              (when-not (.exists parent-dir) (.mkdirs parent-dir))
               (io/copy stream out-file)))
           (recur (.getNextEntry stream)))))))
