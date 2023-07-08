@@ -42,7 +42,9 @@
    (subscribe [:wizard/submodules module-id]))
 
  (fn [submodules _]
-   (filter (fn [submodule] (= (:submodule/io submodule) :input)) submodules)))
+   (->> submodules
+        (filter (fn [submodule] (= (:submodule/io submodule) :input)))
+        (sort-by :submodule/order))))
 
 (reg-sub
  :wizard/submodules-io-output-only
@@ -50,7 +52,9 @@
    (subscribe [:wizard/submodules module-id]))
 
  (fn [submodules _]
-   (filter (fn [submodule] (= (:submodule/io submodule) :output)) submodules)))
+   (->> submodules
+        (filter (fn [submodule] (= (:submodule/io submodule) :output)))
+        (sort-by :submodule/order))))
 
 (reg-sub
  :wizard/*submodule
@@ -318,6 +322,18 @@
     (rf/subscribe [:vms/pull-children :group/conditionals group-id])])
 
  (fn [[worksheet conditionals] [_ _ws-uuid _group-id conditionals-operator]]
+   (if (seq conditionals)
+     (all-conditionals-pass? worksheet conditionals-operator conditionals)
+     true)))
+
+
+(reg-sub
+ :wizard/show-submodule?
+ (fn [[_ ws-uuid submodule-id & _rest]]
+   [(subscribe [:worksheet ws-uuid])
+    (rf/subscribe [:vms/pull-children :submodule/conditionals submodule-id])])
+
+ (fn [[worksheet conditionals] [_ _ws-uuid _submodule-id conditionals-operator]]
    (if (seq conditionals)
      (all-conditionals-pass? worksheet conditionals-operator conditionals)
      true)))
