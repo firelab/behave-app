@@ -1,12 +1,11 @@
 (ns behave.wizard.subs
-  (:require [clojure.string         :as str]
+  (:require [behave.vms.rules       :refer [rules]]
+            [behave.vms.store       :as s]
             [clojure.set            :refer [rename-keys]]
+            [datascript.core        :as d]
             [re-frame.core          :refer [reg-sub subscribe] :as rf]
             [string-utils.interface :refer [->kebab]]
-            [datascript.core :as d]
-            [behave.vms.rules :refer [rules]]
-            [behave.vms.store :as s]
-            [behave.logger :refer [log]]))
+            [clojure.string         :as str]))
 
 ;;; Helpers
 
@@ -316,4 +315,3 @@
    (if (seq conditionals)
      (all-conditionals-pass? worksheet conditionals-operator conditionals)
      true)))
-;; 3601
