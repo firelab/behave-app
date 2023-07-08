@@ -66,11 +66,11 @@
         (handler (assoc req :params params))))))
 
 (defn wrap-params [handler]
-  (fn [{:keys [request-method content-type body query-string] :as req}]
+  (fn [{:keys [content-type body query-string] :as req}]
     (if-let [req-type (mime->type content-type)]
-      (let [get-params  (->clj query-string req-type)
-            post-params (->clj (slurp body) req-type)]
-        (handler (update req :params merge get-params post-params)))
+      (let [query-params (->clj query-string req-type)
+            body-params  (->clj (slurp body) req-type)]
+        (handler (update req :params merge query-params body-params)))
       (handler req))))
 
 (defn wrap-req-content-type+accept [handler]
@@ -112,7 +112,7 @@
   (-> routing-handler
       wrap-params
       wrap-query-params
-      wrap-content-type+accept
+      wrap-req-content-type+accept
       (wrap-resource "public" {:allow-symlinks? true})
       (wrap-content-type {:mime-types {"wasm" "application/wasm"}})
       wrap-exceptions

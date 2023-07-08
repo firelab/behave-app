@@ -1,0 +1,12 @@
+{:linters {:shadowed-var      {:level :warning}
+           :single-key-in     {:level :warning}
+           :missing-docstring {:level :warning}}
+ :lint-as {;; Herb
+           herb.core/defglobal                clojure.core/def
+
+           ;; Reagent
+           reagent.core/with-let              clojure.core/let
+
+           ;; Re-Frame
+           day8.re-frame.tracing/fn-traced    clojure.core/fn
+           day8.re-frame.tracing/defn-traced  clojure.core/defn}}
