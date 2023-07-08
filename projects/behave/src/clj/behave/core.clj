@@ -1,23 +1,24 @@
 (ns behave.core
-  (:require [clojure.java.io          :as io]
-            [clojure.edn              :as edn]
-            [clojure.string           :as str]
-            [clojure.stacktrace       :as st]
-            [bidi.bidi                :refer [match-route]]
-            [ring.middleware.resource :refer [wrap-resource]]
-            [ring.middleware.reload   :refer [wrap-reload]]
-            [ring.util.codec          :refer [url-decode]]
-            [ring.util.response       :refer [not-found]]
-            [server.interface         :as server]
-            [logging.interface        :as logging]
-            [config.interface         :refer [get-config load-config]]
-            [transport.interface      :refer [->clj mime->type]]
-            [triangulum.logging       :refer [log-str]]
-            [behave-routing.main      :refer [routes]]
-            [behave.store             :as store]
-            [behave.sync              :refer [sync-handler]]
-            [behave.download-vms      :refer [export-from-vms]]
-            [behave.views             :refer [render-page]])
+  (:require [clojure.java.io              :as io]
+            [clojure.edn                  :as edn]
+            [clojure.string               :as str]
+            [clojure.stacktrace           :as st]
+            [bidi.bidi                    :refer [match-route]]
+            [ring.middleware.content-type :refer [wrap-content-type]]
+            [ring.middleware.resource     :refer [wrap-resource]]
+            [ring.middleware.reload       :refer [wrap-reload]]
+            [ring.util.codec              :refer [url-decode]]
+            [ring.util.response           :refer [not-found]]
+            [server.interface             :as server]
+            [logging.interface            :as logging]
+            [config.interface             :refer [get-config load-config]]
+            [transport.interface          :refer [->clj mime->type]]
+            [triangulum.logging           :refer [log-str]]
+            [behave-routing.main          :refer [routes]]
+            [behave.store                 :as store]
+            [behave.sync                  :refer [sync-handler]]
+            [behave.download-vms          :refer [export-from-vms]]
+            [behave.views                 :refer [render-page]])
   (:gen-class))
 
 (defn expand-home [s]
@@ -72,13 +73,11 @@
         (handler (update req :params merge get-params post-params)))
       (handler req))))
 
-(defn wrap-content-type [handler]
+(defn wrap-req-content-type+accept [handler]
   (fn [{:keys [headers] :as req}]
-    (handler (assoc req :content-type (get headers "content-type")))))
-
-(defn wrap-accept [handler]
-  (fn [{:keys [headers] :as req}]
-    (handler (assoc req :accepts (get headers "accept")))))
+    (handler (assoc req
+                    :content-type (get headers "content-type")
+                    :accept       (get headers "accept")))))
 
 (defn wrap-exceptions [handler]
   (fn [request]
@@ -113,10 +112,9 @@
   (-> routing-handler
       wrap-params
       wrap-query-params
-      #_(wrap-defaults behave-defaults)
+      wrap-content-type+accept
       (wrap-resource "public" {:allow-symlinks? true})
-      wrap-accept
-      wrap-content-type
+      (wrap-content-type {:mime-types {"wasm" "application/wasm"}})
       wrap-exceptions
       (optional-middleware #(wrap-reload % {:dirs (reloadable-clj-files)}) reload?)))
 
