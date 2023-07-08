@@ -5,7 +5,8 @@
             [string-utils.interface :refer [->kebab]]
             [datascript.core :as d]
             [behave.vms.rules :refer [rules]]
-            [behave.vms.store :as s]))
+            [behave.vms.store :as s]
+            [behave.logger :refer [log]]))
 
 ;;; Helpers
 
@@ -16,52 +17,52 @@
 ;;; Subscriptions
 
 (reg-sub
-  :wizard/*module
-  (fn [_]
-    (subscribe [:vms/pull-with-attr :module/name]))
-  (fn [modules [_ selected-module]]
-    (first (filter (fn [{m-name :module/name}]
-                     (= selected-module (str/lower-case m-name))) modules))))
+ :wizard/*module
+ (fn [_]
+   (subscribe [:vms/pull-with-attr :module/name]))
+ (fn [modules [_ selected-module]]
+   (first (filter (fn [{m-name :module/name}]
+                    (= selected-module (str/lower-case m-name))) modules))))
 
 (reg-sub
-  :wizard/submodules
-  (fn [[_ module-id]]
-    (subscribe [:vms/pull-children
-                :module/submodules
-                module-id]))
-  (fn [submodules _]
-    (map (fn [submodule]
-           (-> submodule
-               (assoc :slug (-> submodule (:submodule/name) (->kebab)))
-               (assoc :submodule/groups @(subscribe [:wizard/groups (:db/id submodule)]))))
-         submodules)))
+ :wizard/submodules
+ (fn [[_ module-id]]
+   (subscribe [:vms/pull-children
+               :module/submodules
+               module-id]))
+ (fn [submodules _]
+   (map (fn [submodule]
+          (-> submodule
+              (assoc :slug (-> submodule (:submodule/name) (->kebab)))
+              (assoc :submodule/groups @(subscribe [:wizard/groups (:db/id submodule)]))))
+        submodules)))
 
 (reg-sub
-  :wizard/submodules-io-input-only
-  (fn [[_ module-id]]
-    (subscribe [:wizard/submodules module-id]))
+ :wizard/submodules-io-input-only
+ (fn [[_ module-id]]
+   (subscribe [:wizard/submodules module-id]))
 
-  (fn [submodules _]
-    (filter (fn [submodule] (= (:submodule/io submodule) :input)) submodules)))
-
-(reg-sub
-  :wizard/submodules-io-output-only
-  (fn [[_ module-id]]
-    (subscribe [:wizard/submodules module-id]))
-
-  (fn [submodules _]
-    (filter (fn [submodule] (= (:submodule/io submodule) :output)) submodules)))
+ (fn [submodules _]
+   (filter (fn [submodule] (= (:submodule/io submodule) :input)) submodules)))
 
 (reg-sub
-  :wizard/*submodule
+ :wizard/submodules-io-output-only
+ (fn [[_ module-id]]
+   (subscribe [:wizard/submodules module-id]))
 
-  (fn [[_ module-id _ _]]
-    (subscribe [:wizard/submodules module-id]))
+ (fn [submodules _]
+   (filter (fn [submodule] (= (:submodule/io submodule) :output)) submodules)))
 
-  (fn [submodules [_ _ slug io]]
-    (let [[inputs outputs] (partition-by :submodules/io submodules)]
-      (or (first (filter (partial matching-submodule? io slug) submodules))
-          (first (if (= :input io) inputs outputs))))))
+(reg-sub
+ :wizard/*submodule
+
+ (fn [[_ module-id _ _]]
+   (subscribe [:wizard/submodules module-id]))
+
+ (fn [submodules [_ _ slug io]]
+   (let [[inputs outputs] (partition-by :submodules/io submodules)]
+     (or (first (filter (partial matching-submodule? io slug) submodules))
+         (first (if (= :input io) inputs outputs))))))
 
 (defn edit-groups [group]
   (when group
@@ -146,34 +147,34 @@
             all-input-values))))
 
 (reg-sub
-  :wizard/group-variable
-  (fn [[_ gv-uuid]]
-    (subscribe [:vms/pull '[* {:variable/_group-variables [:variable/name]}] [:bp/uuid gv-uuid]]))
+ :wizard/group-variable
+ (fn [[_ gv-uuid]]
+   (subscribe [:vms/pull '[* {:variable/_group-variables [:variable/name]}] [:bp/uuid gv-uuid]]))
 
-  (fn [group-variable _query]
-    (let [variable-data (rename-keys (first (:variable/_group-variables group-variable))
-                                     {:db/id :variable/id})]
-      (-> group-variable
-          (dissoc :variable/_group-variables)
-          (merge variable-data)
-          (dissoc :variable/group-variables)
-          (update :variable/kind keyword)))))
+ (fn [group-variable _query]
+   (let [variable-data (rename-keys (first (:variable/_group-variables group-variable))
+                                    {:db/id :variable/id})]
+     (-> group-variable
+         (dissoc :variable/_group-variables)
+         (merge variable-data)
+         (dissoc :variable/group-variables)
+         (update :variable/kind keyword)))))
 
 ;; TODO Might want to set this in a config file to the application
 (def ^:const multi-value-input-limit 3)
 
 (reg-sub
-  :wizard/multi-value-input-limit
-  (fn [_db _query]
-    multi-value-input-limit))
+ :wizard/multi-value-input-limit
+ (fn [_db _query]
+   multi-value-input-limit))
 
 (reg-sub
-  :wizard/warn-limit?
-  (fn [[_id ws-uuid]]
-    (subscribe [:wizard/multi-value-input-count ws-uuid]))
+ :wizard/warn-limit?
+ (fn [[_id ws-uuid]]
+   (subscribe [:wizard/multi-value-input-count ws-uuid]))
 
-  (fn [multi-value-input-count _query]
-    (> multi-value-input-count multi-value-input-limit)))
+ (fn [multi-value-input-count _query]
+   (> multi-value-input-count multi-value-input-limit)))
 
 (reg-sub
  :wizard/submodule-name+io
@@ -226,7 +227,7 @@
 (reg-sub
  :wizard/results-tab-selected
  (fn [_ _]
-  (subscribe [:state [:worksheet :results :tab-selected]]))
+   (subscribe [:state [:worksheet :results :tab-selected]]))
  (fn [tab-selected _]
    tab-selected))
 
@@ -262,68 +263,57 @@
 
 ;;; show-group?
 
-(defn- resolve-var-conditionals [ws-uuid conditionals-operator conditionals]
-  (let [resolved-var-conditionals
-        (map (fn [{:keys [io g gv op values]}]
-               (let [v (if (= io :output)
-                         @(subscribe [:worksheet/output-enabled? ws-uuid gv])
-                         @(subscribe [:worksheet/input-value ws-uuid g 0 gv]))]
-                 (println "v:" v)
-                 (println "values:" values)
-                 (case op
-                   :equal     (= values (str v))
-                   :not-equal (not= values (str v))
-                   :in        (contains? values (str v)))))
-             conditionals)]
+(defn- all-conditionals-pass? [worksheet conditionals-operator conditionals]
+  (let [ws-uuid               (:worksheet/uuid worksheet)
+        resolved-conditionals (map (fn pass?
+                                     [{group-variable-uuid :conditional/group-variable-uuid
+                                       type                :conditional/type
+                                       op                  :conditional/operator
+                                       values              :conditional/values}]
+                                     (let [{:keys [group-uuid io]} (first @(subscribe [:wizard/conditional-io+group-uuid group-variable-uuid]))
+                                           worksheet-value
+                                           (cond
+                                             (= type :module)
+                                             (:worksheet/modules worksheet)
+
+                                             (= io :output)
+                                             @(subscribe [:worksheet/output-enabled?
+                                                          ws-uuid
+                                                          group-variable-uuid])
+
+                                             (= io :input)
+                                             @(subscribe [:worksheet/input-value
+                                                          ws-uuid
+                                                          group-uuid
+                                                          0
+                                                          group-variable-uuid]))]
+                                       (case op
+                                         :equal     (= (first values) (str worksheet-value))
+                                         :not-equal (not= (first values) (str worksheet-value))
+                                         :in        (= (set (map keyword values)) (set worksheet-value)))))
+                                   conditionals)]
     (if (= conditionals-operator :or)
-      (some true? resolved-var-conditionals)
-      (every? true? resolved-var-conditionals))))
-
-(defn- resolve-module-conditionals [worksheet module-conditional-uuids]
-  (let [ws-module-uuids (map #(-> (rf/subscribe [:wizard/*module (name %)])
-                                  deref
-                                  :bp/uuid)
-                             (:worksheet/modules worksheet))]
-    (every? #(contains? module-conditional-uuids %) ws-module-uuids)))
+      (some true? resolved-conditionals)
+      (every? true? resolved-conditionals))))
 
 (reg-sub
- :wizard/module-conditionals
- (fn [_ [_ group-id]]
-  (d/q '[:find ?m-uuid .
-         :in $ % ?gc
-         :where (module-conditonal ?gc ?m-uuid ?op)]
-       @@s/vms-conn rules group-id)))
-
-(reg-sub
- :wizard/variable-conditionals
- (fn [_ [_ group-id]]
-   (d/q '[:find  ?io ?g-uuid ?gv-uuid ?op ?values
-          :keys  io  g       gv       op  values
-          :in    $ % ?gc
-          :where (conditonal ?io ?gc ?g-uuid ?gv-uuid ?op ?values)]
-        @@s/vms-conn rules group-id)))
+ :wizard/conditional-io+group-uuid
+ (fn [_ [_ gv-uuid]]
+   (d/q '[:find  ?io ?g-uuid
+          :keys   io  group-uuid
+          :in    $ % ?gv-uuid
+          :where
+          (conditional-variable ?io ?g-uuid ?gv-uuid)]
+        @@s/vms-conn rules gv-uuid)))
 
 (reg-sub
  :wizard/show-group?
  (fn [[_ ws-uuid group-id & _rest]]
    [(subscribe [:worksheet ws-uuid])
-    (subscribe [:wizard/variable-conditionals group-id])
-    (subscribe [:wizard/module-conditionals group-id])])
+    (rf/subscribe [:vms/pull-children :group/conditionals group-id])])
 
- (fn [[worksheet var-conditionals module-conditionals]
-      [_ ws-uuid _group-id conditionals-operator]]
-   (cond
-     (and (seq module-conditionals) (seq var-conditionals))
-     (if (= conditionals-operator :or)
-       (or (resolve-var-conditionals ws-uuid conditionals-operator var-conditionals)
-           (resolve-module-conditionals worksheet module-conditionals))
-       (and (resolve-var-conditionals ws-uuid conditionals-operator var-conditionals)
-            (resolve-module-conditionals worksheet module-conditionals)))
-
-     (seq module-conditionals)
-     (resolve-module-conditionals worksheet module-conditionals)
-
-     (seq var-conditionals)
-     (resolve-var-conditionals ws-uuid conditionals-operator var-conditionals)
-
-     :else true)))
+ (fn [[worksheet conditionals] [_ _ws-uuid _group-id conditionals-operator]]
+   (if (seq conditionals)
+     (all-conditionals-pass? worksheet conditionals-operator conditionals)
+     true)))
+;; 3601

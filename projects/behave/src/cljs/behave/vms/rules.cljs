@@ -37,11 +37,18 @@
        (group ?s ?g)
        [?s :submodule/io ?io]]
 
-      [(conditonal ?io ?gc ?g-uuid ?gv-uuid ?op ?values)
+      [(conditional-variable ?io ?g-uuid ?gv-uuid)
+       [?gv :bp/uuid ?gv-uuid]
+       (variable ?g ?gv)
+       (io ?gv ?io)
+       [?g :bp/uuid ?g-uuid]]
+
+      [(conditonal ?io ?gc ?c ?g-uuid ?gv-uuid ?type ?op ?values)
        [?gc :group/conditionals ?c]
        [?c :conditional/group-variable-uuid ?gv-uuid]
        [?c :conditional/operator ?op]
        [?c :conditional/values ?values]
+       [?c :conditional/type ?type]
 
        ;; get ?gv-uuid
        (variable ?g ?gv)
@@ -51,8 +58,4 @@
        (io ?gv ?io)
 
        ;; get ?g-uuid
-       [?g :bp/uuid ?g-uuid]]
-
-      [(module-conditonal ?gc ?m-uuid)
-       [?gc :group/conditionals ?c]
-       [?c :conditional/module-uuid ?m-uuid]]])
+       [?g :bp/uuid ?g-uuid]]])
