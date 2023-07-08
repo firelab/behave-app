@@ -32,6 +32,7 @@
    {:db/ident       :group/children
     :db/doc         "Group's children groups."
     :db/valueType   :db.type/ref
+    :db/isComponent true
     :db/cardinality :db.cardinality/many}
 
    {:db/ident       :group/group-variables

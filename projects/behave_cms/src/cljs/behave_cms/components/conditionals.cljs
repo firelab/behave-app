@@ -13,7 +13,13 @@
   [attr]
   (keyword (str/join "/_" (str/split (->str attr) #"/"))))
 
-;;; 
+(defn on-submit [entity-id cond-attr]
+  (rf/dispatch [:ds/transact
+                (merge @(rf/subscribe [:state [:editors :conditional cond-attr]])
+                       {(inverse-attr cond-attr) entity-id})])
+  (rf/dispatch [:state/set-state [:editors :conditional] {}]))
+
+;;; Components
 
 (defn radio-buttons
   "A component for radio button."
@@ -29,8 +35,6 @@
         :value     value
         :on-change on-change}]
       [:label.form-check-label {:for value} label]])])
-
-;;; Components
 
 (defn conditionals-table [entity-id conditionals cond-attr cond-op-attr]
   (let [entity (rf/subscribe [:entity entity-id])]
@@ -77,12 +81,9 @@
         cond-path   [:editors :conditional cond-attr]
         get-field   #(rf/subscribe [:state %])
         set-field   (fn [path v] (rf/dispatch [:state/set-state path v]))
-        on-submit   #(rf/dispatch [:api/create-entity
-                                  (merge @(rf/subscribe [:state cond-path])
-                                         {(inverse-attr cond-attr) entity-id})])
         modules     (rf/subscribe [:subgroup/app-modules entity-id])
         submodules  (rf/subscribe [:pull-children :module/submodules @(get-field (conj var-path :module))])
-        groups      (rf/subscribe [:pull-children :submodule/groups @(get-field (conj var-path :submodule))])
+        groups      (rf/subscribe [:submodule/groups-w-subgroups @(get-field (conj var-path :submodule))])
         is-output?  (rf/subscribe [:submodule/is-output? @(get-field (conj var-path :submodule))]) 
         variables   (rf/subscribe [(if @is-output? :group/variables :group/discrete-variables) @(get-field (conj var-path :group))])
         options     (rf/subscribe [:group/discrete-variable-options @(get-field (conj cond-path :conditional/group-variable-uuid))])
@@ -109,7 +110,7 @@
                        (sort-by (juxt :submodule/io :submodule/name) @submodules))}]
 
      [dropdown
-      {:label     "Group:"
+      {:label     "Group/Subgroup:"
        :on-select #(do
                      (reset-cond!)
                      (set-field (conj var-path :group) (u/input-int-value %)))
@@ -156,14 +157,9 @@
                               (rf/dispatch-sync [:state/set-state
                                                  (conj cond-path :conditional/type)
                                                  (if (= % "module") :module :group-variable)]))
-               type       (rf/subscribe [:state (conj cond-path :conditional/type)])
-               on-submit #(do
-                            (rf/dispatch [:ds/transact
-                                        (merge @(rf/subscribe [:state [:editors :conditional cond-attr]])
-                                               {(inverse-attr cond-attr) entity-id})])
-                            (rf/dispatch [:state/set-state [:editors :conditional] {}]))]
+               type      (rf/subscribe [:state (conj cond-path :conditional/type)])]
     [:form.row
-     {:on-submit (u/on-submit on-submit)}
+     {:on-submit (u/on-submit #(on-submit entity-id cond-attr))}
      [:h4 "Manage Conditionals:"]
 
      [radio-buttons
