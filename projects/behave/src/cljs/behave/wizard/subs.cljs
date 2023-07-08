@@ -321,3 +321,15 @@
    (if (seq conditionals)
      (all-conditionals-pass? worksheet conditionals-operator conditionals)
      true)))
+
+
+(reg-sub
+ :wizard/show-submodule?
+ (fn [[_ ws-uuid submodule-id & _rest]]
+   [(subscribe [:worksheet ws-uuid])
+    (rf/subscribe [:vms/pull-children :submodule/conditionals submodule-id])])
+
+ (fn [[worksheet conditionals] [_ _ws-uuid _submodule-id conditionals-operator]]
+   (if (seq conditionals)
+     (all-conditionals-pass? worksheet conditionals-operator conditionals)
+     true)))
