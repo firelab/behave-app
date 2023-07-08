@@ -42,7 +42,9 @@
    (subscribe [:wizard/submodules module-id]))
 
  (fn [submodules _]
-   (filter (fn [submodule] (= (:submodule/io submodule) :input)) submodules)))
+   (->> submodules
+        (filter (fn [submodule] (= (:submodule/io submodule) :input)))
+        (sort-by :submodule/order))))
 
 (reg-sub
  :wizard/submodules-io-output-only
@@ -50,7 +52,9 @@
    (subscribe [:wizard/submodules module-id]))
 
  (fn [submodules _]
-   (filter (fn [submodule] (= (:submodule/io submodule) :output)) submodules)))
+   (->> submodules
+        (filter (fn [submodule] (= (:submodule/io submodule) :output)))
+        (sort-by :submodule/order))))
 
 (reg-sub
  :wizard/*submodule
