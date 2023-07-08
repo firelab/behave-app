@@ -6,7 +6,7 @@
  :deps      {;; Clojure
              clj-http/clj-http             {:mvn/version "3.10.1"}
              org.clojure/clojure           {:mvn/version "1.11.1"}
-             ring/ring                     {:mvn/version "1.9.5"}
+             ring/ring                     {:mvn/version "1.10.0"}
              ring/ring-defaults            {:mvn/version "0.3.3"}
              io.replikativ/datahike        {:mvn/version "0.5.1506" :exclusions [org.clojure/clojurescript]}
              sig-gis/triangulum            {:git/url "https://github.com/sig-gis/triangulum"
