@@ -38,21 +38,25 @@
 (defn- cljs-init
   "A JavaScript script that calls the `init` function in `client.cljs`.
   Provides the entry point for rendering the content on a page."
-  [params]
-  (let [app-js (find-app-js)]
+  [params & [figwheel?]]
+  (if figwheel?
     [:script {:type "text/javascript"}
-     (->> [(str "window.onWASMModuleLoadedPath =\"" app-js "\";")
-           (str "window.onAppLoaded = function () { behave.client.init(" (json/write-str params) "); };")
-           (inline-resource "onload.js")]
-          (str/join "\n"))]))
+     (str "window.onload = function () {behave.client.init(" (json/write-str params) "); };")]
+    (let [app-js (find-app-js)]
+      [:script {:type "text/javascript"}
+       (->> [(str "window.onWASMModuleLoadedPath =\"" app-js "\";")
+             (str "window.onAppLoaded = function () { behave.client.init(" (json/write-str params) "); };")
+             (inline-resource "onload.js")]
+            (str/join "\n"))])))
 
 (defn render-page [{:keys [route-params] :as match}]
-  (fn [{:keys [params]}]
+  (fn [{:keys [params figwheel?]}]
     {:status  (if (some? match) 200 404)
      :headers {"Content-Type" "text/html"}
      :body    (html5
                 (head-meta-css)
                 [:body
                  [:div#app]
-                 (cljs-init (merge route-params params (get-config :client)))
-                 (include-js "/js/behave-min.js" "/js/katex.min.js")])}))
+                 (cljs-init (merge route-params params (get-config :client)) figwheel?)
+                 (include-js "/js/behave-min.js" "/js/katex.min.js")
+                 (when figwheel? (include-js (find-app-js)))])}))

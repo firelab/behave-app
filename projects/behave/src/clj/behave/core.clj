@@ -109,8 +109,13 @@
     (mw handler)
     handler))
 
-(defn create-handler-stack [reload?]
+(defn wrap-figwheel [handler figwheel?]
+  (fn [request]
+    (handler (assoc request :figwheel? figwheel?))))
+
+(defn create-handler-stack [{:keys [reload? figwheel?]}]
   (-> routing-handler
+      (wrap-figwheel figwheel?)
       wrap-params
       wrap-query-params
       #_(wrap-defaults behave-defaults)
@@ -122,12 +127,12 @@
 
 ;; This is for Figwheel
 (def development-app
-  (create-handler-stack true))
+  (create-handler-stack {:figwheel? true :reload? true}))
 
 (defn -main [& _args]
   (init!)
   (vms-sync!)
-  (server/start-server! {:handler (create-handler-stack (= (get-config :server :mode) "dev"))
+  (server/start-server! {:handler (create-handler-stack {:reload? (= (get-config :server :mode) "dev") :figwheel? false})
                          :port    (or (get-config :server :http-port) 8080)})
   (logging/start-logging! {:log-dir             (get-config :logging :log-dir)
                            :log-memory-interval (get-config :logging :log-memory-interval)}))
