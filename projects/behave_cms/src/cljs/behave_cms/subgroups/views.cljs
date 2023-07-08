@@ -35,7 +35,7 @@
   (let [subgroups (rf/subscribe [:group/subgroups group-id])]
     [simple-table
      [:group/name]
-     (sort-by :group/name @subgroups)
+     (sort-by :group/order @subgroups)
      {:on-select #(rf/dispatch [:state/set-state :subgroup (:db/id %)])
       :on-delete #(when (js/confirm (str "Are you sure you want to delete the subgroup " (:group/name %) "?"))
                     (rf/dispatch [:api/delete-entity %]))

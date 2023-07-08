@@ -71,14 +71,14 @@
     [:div.mb-3
      [:div.form-group.mt-2
       [:label.form-label "List"]
-      [:select
+      [:select.form-select
        {:on-change     #(on-change (u/input-int-value %))
         :default-value @value}
        (doall
         (for [list @lists]
           (let [list-name (:list/name list)
                 id        (:db/id list)]
-            [:option {:key id :value id} list-name])))]]]))
+            [:option {:key id :value id :selected (= id @value)} list-name])))]]]))
 
 (defn variable-form [id]
   (let [variable  (rf/subscribe [:entity id])
