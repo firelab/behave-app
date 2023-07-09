@@ -83,7 +83,8 @@
                               (subscribe [:wizard/submodules-io-output-only module-id])
                               (subscribe [:wizard/submodules-io-input-only module-id]))
         ;;(Kcheung) Not able to use :wizard/submodules-conditionally-filtered because the submodule tabs
-        ;;would not rerender when conditionals are met without hard refresh.
+        ;;would not rerender when conditionals are met without hard refresh. so had to filter
+        ;;:wizard/show-submodule? outside of the subscription.
         submodules-filtered (filter (fn [{id :db/id
                                           op :submodule/conditionals-operator}]
                                       @(subscribe [:wizard/show-submodule? ws-uuid id op]))
