@@ -3567,6 +3567,11 @@ SIGCrown.prototype['getMoistureScenarioNameByIndex'] = SIGCrown.prototype.getMoi
   return UTF8ToString(_emscripten_bind_SIGCrown_getMoistureScenarioNameByIndex_1(self, index));
 };;
 
+SIGCrown.prototype['doCrownRun'] = SIGCrown.prototype.doCrownRun = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_SIGCrown_doCrownRun_0(self);
+};;
+
 SIGCrown.prototype['doCrownRunRothermel'] = SIGCrown.prototype.doCrownRunRothermel = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   _emscripten_bind_SIGCrown_doCrownRunRothermel_0(self);
@@ -4445,6 +4450,8 @@ WindSpeedUtility.prototype['windSpeedAtTwentyFeetFromTenMeter'] = WindSpeedUtili
     Module['Feet'] = _emscripten_enum_LengthUnits_LengthUnitsEnum_Feet();
 
     Module['Inches'] = _emscripten_enum_LengthUnits_LengthUnitsEnum_Inches();
+
+    Module['Millimeters'] = _emscripten_enum_LengthUnits_LengthUnitsEnum_Millimeters();
 
     Module['Centimeters'] = _emscripten_enum_LengthUnits_LengthUnitsEnum_Centimeters();
 

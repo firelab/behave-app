@@ -2111,6 +2111,10 @@ const char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioNam
   return self->getMoistureScenarioNameByIndex(index);
 }
 
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_doCrownRun_0(SIGCrown* self) {
+  self->doCrownRun();
+}
+
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_doCrownRunRothermel_0(SIGCrown* self) {
   self->doCrownRunRothermel();
 }
@@ -2649,6 +2653,9 @@ LengthUnits_LengthUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_LengthUnits_Len
 }
 LengthUnits_LengthUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_LengthUnits_LengthUnitsEnum_Inches() {
   return LengthUnits::Inches;
+}
+LengthUnits_LengthUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_LengthUnits_LengthUnitsEnum_Millimeters() {
+  return LengthUnits::Millimeters;
 }
 LengthUnits_LengthUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_LengthUnits_LengthUnitsEnum_Centimeters() {
   return LengthUnits::Centimeters;

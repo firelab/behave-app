@@ -94,5 +94,5 @@ char* SIGFuelModels::getFuelCode(int fuelModelNumber) const
 
 char* SIGFuelModels::getFuelName(int fuelModelNumber) const
 {
-    return SIGString::str2charptr(FuelModels::getFuelCode(fuelModelNumber));
+    return SIGString::str2charptr(FuelModels::getFuelName(fuelModelNumber));
 }

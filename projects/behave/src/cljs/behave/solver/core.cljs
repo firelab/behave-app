@@ -248,7 +248,7 @@
                               :outputs all-outputs
                               :row-id @counter}]
 
-                     (swap! count inc)
+                     (swap! counter inc)
 
                      (cond-> row
                        (contains? modules :surface)

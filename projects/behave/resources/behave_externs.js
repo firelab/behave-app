@@ -484,3 +484,29 @@ Module.SIGSpot = class {
   updateSpotInputsForSurfaceFire() {}
   updateSpotInputsForTorchingTrees() {}
 };
+
+
+Module.SIGFuelModels = class {
+  constructor() {}
+  SIGFuelModels() {}
+  clearCustomFuelModel() {}
+  getIsDynamic() {}
+  isAllFuelLoadZero() {}
+  isFuelModelDefined() {}
+  isFuelModelReserved() {}
+  setCustomFuelModel() {}
+  getFuelCode() {}
+  getFuelName() {}
+  getFuelLoadHundredHour() {}
+  getFuelLoadLiveHerbaceous() {}
+  getFuelLoadLiveWoody() {}
+  getFuelLoadOneHour() {}
+  getFuelLoadTenHour() {}
+  getFuelbedDepth() {}
+  getHeatOfCombustionDead() {}
+  getMoistureOfExtinctionDead() {}
+  getSavrLiveHerbaceous() {}
+  getSavrLiveWoody() {}
+  getSavrOneHour() {}
+  getHeatOfCombustionLive() {}
+};

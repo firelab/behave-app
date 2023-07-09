@@ -5505,6 +5505,8 @@ var _emscripten_bind_SIGCrown_getMoistureScenarioDescriptionByName_1 = Module["_
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_getMoistureScenarioNameByIndex_1 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioNameByIndex_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioNameByIndex_1");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_doCrownRun_0 = Module["_emscripten_bind_SIGCrown_doCrownRun_0"] = createExportWrapper("emscripten_bind_SIGCrown_doCrownRun_0");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_doCrownRunRothermel_0 = Module["_emscripten_bind_SIGCrown_doCrownRunRothermel_0"] = createExportWrapper("emscripten_bind_SIGCrown_doCrownRunRothermel_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_doCrownRunScottAndReinhardt_0 = Module["_emscripten_bind_SIGCrown_doCrownRunScottAndReinhardt_0"] = createExportWrapper("emscripten_bind_SIGCrown_doCrownRunScottAndReinhardt_0");
@@ -5772,6 +5774,8 @@ var _emscripten_enum_CuringLevelUnits_CuringLevelEnum_Percent = Module["_emscrip
 var _emscripten_enum_LengthUnits_LengthUnitsEnum_Feet = Module["_emscripten_enum_LengthUnits_LengthUnitsEnum_Feet"] = createExportWrapper("emscripten_enum_LengthUnits_LengthUnitsEnum_Feet");
 /** @type {function(...*):?} */
 var _emscripten_enum_LengthUnits_LengthUnitsEnum_Inches = Module["_emscripten_enum_LengthUnits_LengthUnitsEnum_Inches"] = createExportWrapper("emscripten_enum_LengthUnits_LengthUnitsEnum_Inches");
+/** @type {function(...*):?} */
+var _emscripten_enum_LengthUnits_LengthUnitsEnum_Millimeters = Module["_emscripten_enum_LengthUnits_LengthUnitsEnum_Millimeters"] = createExportWrapper("emscripten_enum_LengthUnits_LengthUnitsEnum_Millimeters");
 /** @type {function(...*):?} */
 var _emscripten_enum_LengthUnits_LengthUnitsEnum_Centimeters = Module["_emscripten_enum_LengthUnits_LengthUnitsEnum_Centimeters"] = createExportWrapper("emscripten_enum_LengthUnits_LengthUnitsEnum_Centimeters");
 /** @type {function(...*):?} */
@@ -10456,6 +10460,11 @@ SIGCrown.prototype['getMoistureScenarioNameByIndex'] = SIGCrown.prototype.getMoi
   return UTF8ToString(_emscripten_bind_SIGCrown_getMoistureScenarioNameByIndex_1(self, index));
 };;
 
+SIGCrown.prototype['doCrownRun'] = SIGCrown.prototype.doCrownRun = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_SIGCrown_doCrownRun_0(self);
+};;
+
 SIGCrown.prototype['doCrownRunRothermel'] = SIGCrown.prototype.doCrownRunRothermel = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   _emscripten_bind_SIGCrown_doCrownRunRothermel_0(self);
@@ -11334,6 +11343,8 @@ WindSpeedUtility.prototype['windSpeedAtTwentyFeetFromTenMeter'] = WindSpeedUtili
     Module['Feet'] = _emscripten_enum_LengthUnits_LengthUnitsEnum_Feet();
 
     Module['Inches'] = _emscripten_enum_LengthUnits_LengthUnitsEnum_Inches();
+
+    Module['Millimeters'] = _emscripten_enum_LengthUnits_LengthUnitsEnum_Millimeters();
 
     Module['Centimeters'] = _emscripten_enum_LengthUnits_LengthUnitsEnum_Centimeters();
 
