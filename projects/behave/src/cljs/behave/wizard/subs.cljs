@@ -95,7 +95,8 @@
                  {:group/children 6}]])) ;; recursively apply pattern up to 6 levels deep
 
  (fn [groups]
-   (mapv edit-groups groups)))
+   (->> (mapv edit-groups groups)
+        (sort-by #(:group/order %)))))
 
 ;; Subgroups
 

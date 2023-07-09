@@ -14,7 +14,7 @@
                                      repeat-id
                                      _repeat-group?
                                      edit-route]
-  (let [values      (rf/subscribe [:worksheet/input ws-uuid group-uuid repeat-id uuid])
+  (let [values      (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id uuid])
         warn-limit? (true? @(rf/subscribe [:state :warn-multi-value-input-limit]))]
     [:div.wizard-input
      [:div.wizard-review__input
