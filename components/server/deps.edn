@@ -1,4 +1,4 @@
 {:paths ["src" "resources"]
- :deps {ring/ring          {:mvn/version "1.9.5"}
+ :deps {ring/ring          {:mvn/version "1.10.0"}
         ring/ring-defaults {:mvn/version "0.3.3"}}
  :aliases {:test {:extra-paths ["test"]}}}

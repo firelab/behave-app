@@ -160,41 +160,6 @@
 
 ;;; Solvers
 
-(def surface-module
-  (-> {:init-fn  'surface/init
-       :run-fn   'surface/doSurfaceRun
-       :fns      (ns-publics 'behave.lib.surface)
-       :gv-uuids (q/class-to-group-variables "SIGSurface")}
-      (add-links)))
-
-(def crown-module
-  (-> {:init-fn    'crown/init
-       :run-fn     'crown/doCrownRun
-       :fns        (ns-publics 'behave.lib.crown)
-       :gv-uuids   (q/class-to-group-variables "SIGCrown")}
-      (add-links)))
-
-(def contain-module
-  (-> {:init-fn    'contain/init
-       :run-fn     'contain/doContainRun
-       :fns        (ns-publics 'behave.lib.contain)
-       :gv-uuids   (q/class-to-group-variables "SIGContainAdapter")}
-      (add-links)))
-
-(def mortality-module
-  (-> {:init-fn    'mortality/init
-       :run-fn     'mortality/calculateMortality
-       :fns        (ns-publics 'behave.lib.mortality)
-       :gv-uuids   (q/class-to-group-variables "SIGMortality")}
-      (add-links)))
-
-;; (def spot-module
-;;   (-> {:class/name    "SIGSpot"
-;;        :class/init-fn spot/init
-;;        :class/fns     (ns-publics 'behave.lib.spot)
-;;        :depends-on    [spot-module]}
-;;       (add-links)))
-
 (defn apply-links [prev-outputs inputs destination-links]
   (reduce
    (fn [acc [src-uuid dst-uuid]]
@@ -237,7 +202,43 @@
   (let [modules     (q/worksheet-modules ws-uuid)
         counter     (atom 0)
         all-inputs  @(rf/subscribe [:worksheet/all-inputs-vector ws-uuid])
-        all-outputs @(rf/subscribe [:worksheet/all-output-uuids ws-uuid])]
+        all-outputs @(rf/subscribe [:worksheet/all-output-uuids ws-uuid])
+
+        surface-module
+        (-> {:init-fn  'surface/init
+             :run-fn   'surface/doSurfaceRun
+             :fns      (ns-publics 'behave.lib.surface)
+             :gv-uuids (q/class-to-group-variables "SIGSurface")}
+            (add-links))
+
+        crown-module
+        (-> {:init-fn  'crown/init
+             :run-fn   'crown/doCrownRun
+             :fns      (ns-publics 'behave.lib.crown)
+             :gv-uuids (q/class-to-group-variables "SIGCrown")}
+            (add-links))
+
+        contain-module
+        (-> {:init-fn  'contain/init
+             :run-fn   'contain/doContainRun
+             :fns      (ns-publics 'behave.lib.contain)
+             :gv-uuids (q/class-to-group-variables "SIGContainAdapter")}
+            (add-links))
+
+        mortality-module
+        (-> {:init-fn  'mortality/init
+             :run-fn   'mortality/calculateMortality
+             :fns      (ns-publics 'behave.lib.mortality)
+             :gv-uuids (q/class-to-group-variables "SIGMortality")}
+            (add-links))]
+
+        ;; spot-module
+        ;; (-> {:class/name    "SIGSpot"
+        ;;      :class/init-fn spot/init
+        ;;      :run-fn   'mortality/calculateMortality
+        ;;      :fns      (ns-publics 'behave.lib.spot)
+        ;;      :gv-uuids (q/class-to-group-variables "SIGMortality")}
+        ;;     (add-links)))
 
     (->> all-inputs
          (generate-runs)

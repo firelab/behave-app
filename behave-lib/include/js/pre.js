@@ -1,1 +1,1 @@
-(function() { window["Module"] = {};
+Module["onRuntimeInitialized"] = window.onWASMModuleLoaded;

@@ -1,23 +1,24 @@
 (ns behave.core
-  (:require [clojure.java.io          :as io]
-            [clojure.edn              :as edn]
-            [clojure.string           :as str]
-            [clojure.stacktrace       :as st]
-            [bidi.bidi                :refer [match-route]]
-            [ring.middleware.resource :refer [wrap-resource]]
-            [ring.middleware.reload   :refer [wrap-reload]]
-            [ring.util.codec          :refer [url-decode]]
-            [ring.util.response       :refer [not-found]]
-            [server.interface         :as server]
-            [logging.interface        :as logging]
-            [config.interface         :refer [get-config load-config]]
-            [transport.interface      :refer [->clj mime->type]]
-            [triangulum.logging       :refer [log-str]]
-            [behave-routing.main      :refer [routes]]
-            [behave.store             :as store]
-            [behave.sync              :refer [sync-handler]]
-            [behave.download-vms      :refer [export-from-vms]]
-            [behave.views             :refer [render-page]])
+  (:require [clojure.java.io              :as io]
+            [clojure.edn                  :as edn]
+            [clojure.string               :as str]
+            [clojure.stacktrace           :as st]
+            [bidi.bidi                    :refer [match-route]]
+            [ring.middleware.content-type :refer [wrap-content-type]]
+            [ring.middleware.resource     :refer [wrap-resource]]
+            [ring.middleware.reload       :refer [wrap-reload]]
+            [ring.util.codec              :refer [url-decode]]
+            [ring.util.response           :refer [not-found]]
+            [server.interface             :as server]
+            [logging.interface            :as logging]
+            [config.interface             :refer [get-config load-config]]
+            [transport.interface          :refer [->clj mime->type]]
+            [triangulum.logging           :refer [log-str]]
+            [behave-routing.main          :refer [routes]]
+            [behave.store                 :as store]
+            [behave.sync                  :refer [sync-handler]]
+            [behave.download-vms          :refer [export-from-vms]]
+            [behave.views                 :refer [render-page]])
   (:gen-class))
 
 (defn expand-home [s]
@@ -65,20 +66,18 @@
         (handler (assoc req :params params))))))
 
 (defn wrap-params [handler]
-  (fn [{:keys [request-method content-type body query-string] :as req}]
+  (fn [{:keys [content-type body query-string] :as req}]
     (if-let [req-type (mime->type content-type)]
-      (let [get-params  (->clj query-string req-type)
-            post-params (->clj (slurp body) req-type)]
-        (handler (update req :params merge get-params post-params)))
+      (let [query-params (->clj query-string req-type)
+            body-params  (->clj (slurp body) req-type)]
+        (handler (update req :params merge query-params body-params)))
       (handler req))))
 
-(defn wrap-content-type [handler]
+(defn wrap-req-content-type+accept [handler]
   (fn [{:keys [headers] :as req}]
-    (handler (assoc req :content-type (get headers "content-type")))))
-
-(defn wrap-accept [handler]
-  (fn [{:keys [headers] :as req}]
-    (handler (assoc req :accepts (get headers "accept")))))
+    (handler (assoc req
+                    :content-type (get headers "content-type")
+                    :accept       (get headers "accept")))))
 
 (defn wrap-exceptions [handler]
   (fn [request]
@@ -109,25 +108,29 @@
     (mw handler)
     handler))
 
-(defn create-handler-stack [reload?]
+(defn wrap-figwheel [handler figwheel?]
+  (fn [request]
+    (handler (assoc request :figwheel? figwheel?))))
+
+(defn create-handler-stack [{:keys [reload? figwheel?]}]
   (-> routing-handler
+      (wrap-figwheel figwheel?)
       wrap-params
       wrap-query-params
-      #_(wrap-defaults behave-defaults)
+      wrap-req-content-type+accept
       (wrap-resource "public" {:allow-symlinks? true})
-      wrap-accept
-      wrap-content-type
+      (wrap-content-type {:mime-types {"wasm" "application/wasm"}})
       wrap-exceptions
       (optional-middleware #(wrap-reload % {:dirs (reloadable-clj-files)}) reload?)))
 
 ;; This is for Figwheel
 (def development-app
-  (create-handler-stack true))
+  (create-handler-stack {:figwheel? true :reload? true}))
 
 (defn -main [& _args]
   (init!)
   (vms-sync!)
-  (server/start-server! {:handler (create-handler-stack (= (get-config :server :mode) "dev"))
+  (server/start-server! {:handler (create-handler-stack {:reload? (= (get-config :server :mode) "dev") :figwheel? false})
                          :port    (or (get-config :server :http-port) 8080)})
   (logging/start-logging! {:log-dir             (get-config :logging :log-dir)
                            :log-memory-interval (get-config :logging :log-memory-interval)}))
