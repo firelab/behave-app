@@ -1,11 +1,6 @@
 (ns behave.solver-test
   (:require [cljs.test          :refer [are is deftest testing]]
             [datascript.core    :as d]
-            [re-frame.core      :as rf]
-            [behave.lib.contain :as contain]
-            [behave.lib.enums   :as enums]
-            [behave.lib.units   :refer [get-unit]]
-            [behave.solver.core :as solver]
             [behave.vms.store :refer [vms-conn]]
             [behave.vms.rules :refer [rules]]))
 
