@@ -510,3 +510,12 @@ Module.SIGFuelModels = class {
   getSavrOneHour() {}
   getHeatOfCombustionLive() {}
 };
+
+Module.SpeciesMasterTable = class {
+  constructor() {}
+  SpeciesMasterTable() {}
+  initializeMasterTable() {}
+  getSpeciesTableIndexFromSpeciesCode() {}
+  getSpeciesTableIndexFromSpeciesCodeAndEquationType() {}
+  insertRecord() {}
+};
