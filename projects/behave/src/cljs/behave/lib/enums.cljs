@@ -200,6 +200,7 @@
   (enum "LengthUnits_LengthUnitsEnum"
         ["LengthUnits::Feet"
          "LengthUnits::Inches"
+         "LengthUnits::Millimeters"
          "LengthUnits::Centimeters"
          "LengthUnits::Meters"
          "LengthUnits::Chains"

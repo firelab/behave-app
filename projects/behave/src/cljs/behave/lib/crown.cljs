@@ -11,6 +11,9 @@
 (defn Crown [self rhs]
   (.Crown self rhs))
 
+(defn doCrown [self]
+  (.doCrownRun self))
+
 (defn doCrownRunRothermel [self]
   (.doCrownRunRothermel self))
 
@@ -235,12 +238,6 @@
 
 (defn isFuelModelReserved [self fuelModelNumber]
   (.isFuelModelReserved self fuelModelNumber))
-
-(defn null [self]
-  (.null self))
-
-(defn operator= [self rhs]
-  (.operator= self rhs))
 
 (defn setAspect [self aspect]
   (.setAspect self aspect))

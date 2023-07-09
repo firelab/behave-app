@@ -122,7 +122,7 @@
   (doseq [[_ repeats] inputs]
     (cond
       ;; Single Group w/ Single Variable
-      (and (= 1 (count repeats) (count (first (vals repeats)))))
+      (and (= 1 (count repeats)) (= 1 (count (first (vals repeats)))))
       (let [[gv-id value] (ffirst (vals repeats))
             units         (or (q/variable-units gv-id) "")]
         (log "-- [SOLVER] SINGLE VAR" gv-id value units)
@@ -165,7 +165,7 @@
    (fn [acc [src-uuid dst-uuid]]
      (let [[_ [output _]] (first (filter #(= src-uuid (first %)) prev-outputs))
            group-uuid     (q/group-variable->group dst-uuid)]
-       (assoc-in inputs [group-uuid 0 dst-uuid] output)))
+       (assoc-in acc [group-uuid 0 dst-uuid] output)))
    inputs
    destination-links))
 
@@ -174,10 +174,7 @@
                           run-fn
                           fns
                           gv-uuids
-                          destination-links
-                          after-module]
-                   :as   module-spec}
-                  all-outputs]
+                          destination-links]}]
   (let [module         (init-fn)
 
         ;; Apply links
@@ -185,7 +182,7 @@
 
         ;; Filter IO's for module
         module-inputs  (filter-module-ios inputs gv-uuids)
-        module-outputs (filter-module-ios inputs gv-uuids)]
+        module-outputs (filter-module-ios outputs gv-uuids)]
 
     ;; Set inputs
     (apply-inputs module fns module-inputs)
@@ -194,15 +191,19 @@
     (run-fn module)
 
     ;; Get outputs, merge existing inputs/outputs with new inputs/outputs
-    (-> row
-        (assoc :inputs inputs)
-        (assoc :outputs (merge outputs (get-outputs module fns module-outputs))))))
+    (update row :outputs merge (get-outputs module fns module-outputs))))
 
-(defn solve-worksheet [ws-uuid]
-  (let [modules     (set (q/worksheet-modules ws-uuid))
-        counter     (atom 0)
-        all-inputs  @(rf/subscribe [:worksheet/all-inputs-vector ws-uuid])
-        all-outputs @(rf/subscribe [:worksheet/all-output-uuids ws-uuid])
+(defn solve-worksheet
+  ([ws-uuid]
+   (let [modules     (set (q/worksheet-modules ws-uuid))
+         all-inputs  @(rf/subscribe [:worksheet/all-inputs-vector ws-uuid])
+         all-outputs @(rf/subscribe [:worksheet/all-output-uuids ws-uuid])]
+
+     (-> (solve-worksheet modules all-inputs all-outputs)
+         (t/add-to-results-table ws-uuid))))
+
+  ([modules all-inputs all-outputs]
+   (let [counter (atom 0)
 
         surface-module
         (-> {:init-fn  surface/init
@@ -242,30 +243,29 @@
     (->> all-inputs
          (generate-runs)
          (reduce (fn [acc inputs]
-                   (let [add-row (partial conj! acc)
+                   (let [add-row (partial conj acc)
                          row {:inputs inputs
+                              :outputs all-outputs
                               :row-id @counter}]
 
                      (swap! count inc)
 
                      (cond-> row
                        (contains? modules :surface)
-                       (run-module surface-module all-outputs)
+                       (run-module surface-module)
 
                        (contains? modules :crown)
-                       (run-module crown-module all-outputs)
+                       (run-module crown-module)
 
                        (contains? modules :contain)
-                       (run-module contain-module all-outputs)
+                       (run-module contain-module)
 
                        (contains? modules :mortality)
-                       (run-module mortality-module all-outputs)
+                       (run-module mortality-module)
 
                        (pos? (count (set/intersection modules #{:surface :crown})))
-                       (run-module spot-module all-outputs)
+                       (run-module spot-module)
 
                        :always
                        (add-row))))
-                 (transient []))
-         (persistent!)
-         (t/add-to-results-table ws-uuid))))
+                 [])))))

@@ -10,6 +10,7 @@
             [behave.contain-test]
             [behave.mortality-test]
             [behave.surface-test]
+            [behave.solver-test]
             [behave.tests-used-in-fixtures]
             [behave.worksheet-events-test]
             [behave.worksheet-subs-test]
@@ -33,6 +34,7 @@
              'behave.contain-test
              'behave.mortality-test
              'behave.surface-test
+             'behave.solver-test
              'behave.tests-used-in-fixtures
              'behave.worksheet-events-test
              'behave.worksheet-subs-test))
@@ -41,11 +43,11 @@
   (let [window-keys    (js->clj (.keys js/Object js/window))
         module-loaded? (seq (filter #(str/starts-with? % "Module") window-keys))
         vms-loaded?    @(rf/subscribe [:state :vms-loaded?])]
-    (cond
 
+    (cond
       (not module-loaded?)
-      (do (add-script "/js/behave-min.js")
-          (js/setTimeout #(init) 1000))
+      (do (set! (.-onWASMModuleLoaded js/window) init)
+          (add-script "/js/behave-min.js"))
 
       (not vms-loaded?)
       (do
