@@ -75,8 +75,14 @@
                 :icon-position "left"
                 :on-click      #(dispatch [:wizard/toggle-show-notes])}]]))
 
-(defn- wizard-header [{module-name :module/name} all-submodules {:keys [io submodule] :as params}]
-  (let [submodules   (filter #(= (:submodule/io %) io) all-submodules)
+(defn- wizard-header [{module-name :module/name} all-submodules {:keys [ws-uuid io submodule] :as params}]
+  (let [submodules   (->> all-submodules
+                          (filter (fn [{s-io :submodule/io
+                                        op   :submodule/conditionals-operator
+                                        id   :db/id}]
+                                  (and (= s-io io)
+                                       @(subscribe [:wizard/show-submodule? ws-uuid id op]))))
+                        (sort-by :submodule/order))
         *show-notes? (subscribe [:wizard/show-notes?])]
     [:div.wizard-header
      [io-tabs all-submodules params]

@@ -36,7 +36,12 @@
                                      _*submodule
                                      all-submodules
                                      {:keys [ws-uuid module io submodule]}]]
-    (let [[i-subs o-subs] (partition-by #(:submodule/io %) (sort-by :submodule/io all-submodules))
+    (let [all-submodules  (filter (fn [{op :submodule/conditionals-operator
+                                        id :db/id}]
+                                    @(rf/subscribe [:wizard/show-submodule? ws-uuid id op]))
+                                  all-submodules)
+          o-subs          (filter #(= :output (:submodule/io %)) (sort-by :submodule/io all-submodules))
+          i-subs          (filter #(= :input (:submodule/io %)) (sort-by :submodule/io all-submodules))
           submodules      (if (= io :input) i-subs o-subs)
           next-submodules (rest (drop-while #(not= (:slug %) submodule) (sort-by :submodule/order submodules)))
           next-modules    (rest (drop-while #(not= (str/lower-case (:module/name %)) module) (sort-by :module/order modules)))
