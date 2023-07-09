@@ -2,14 +2,14 @@
   (:require [behave.solver.queries :as q]
             [behave.solver.table   :as t]
             [behave.lib.contain    :as contain]
-            [behave.lib.surface    :as surface]
-            [behave.lib.mortality  :as mortality]
             [behave.lib.crown      :as crown]
-            [behave.lib.enums      :as enum]
+            [behave.lib.mortality  :as mortality]
+            [behave.lib.surface    :as surface]
+            [behave.lib.spot       :as spot]
             [behave.lib.units      :as units]
             [behave.logger         :refer [log]]
-            [behave.vms.store      :refer [vms-conn]]
             [clojure.string        :as str]
+            [clojure.set           :as set]
             [re-frame.core         :as rf]))
 
 ;;; Helpers
@@ -199,46 +199,45 @@
         (assoc :outputs (merge outputs (get-outputs module fns module-outputs))))))
 
 (defn solve-worksheet [ws-uuid]
-  (let [modules     (q/worksheet-modules ws-uuid)
+  (let [modules     (set (q/worksheet-modules ws-uuid))
         counter     (atom 0)
         all-inputs  @(rf/subscribe [:worksheet/all-inputs-vector ws-uuid])
         all-outputs @(rf/subscribe [:worksheet/all-output-uuids ws-uuid])
 
         surface-module
-        (-> {:init-fn  'surface/init
-             :run-fn   'surface/doSurfaceRun
+        (-> {:init-fn  surface/init
+             :run-fn   surface/doSurfaceRun
              :fns      (ns-publics 'behave.lib.surface)
              :gv-uuids (q/class-to-group-variables "SIGSurface")}
             (add-links))
 
         crown-module
-        (-> {:init-fn  'crown/init
-             :run-fn   'crown/doCrownRun
+        (-> {:init-fn  crown/init
+             :run-fn   crown/doCrownRun
              :fns      (ns-publics 'behave.lib.crown)
              :gv-uuids (q/class-to-group-variables "SIGCrown")}
             (add-links))
 
         contain-module
-        (-> {:init-fn  'contain/init
-             :run-fn   'contain/doContainRun
+        (-> {:init-fn  contain/init
+             :run-fn   contain/doContainRun
              :fns      (ns-publics 'behave.lib.contain)
              :gv-uuids (q/class-to-group-variables "SIGContainAdapter")}
             (add-links))
 
         mortality-module
-        (-> {:init-fn  'mortality/init
-             :run-fn   'mortality/calculateMortality
+        (-> {:init-fn  mortality/init
+             :run-fn   mortality/calculateMortality
              :fns      (ns-publics 'behave.lib.mortality)
              :gv-uuids (q/class-to-group-variables "SIGMortality")}
-            (add-links))]
+            (add-links))
 
-        ;; spot-module
-        ;; (-> {:class/name    "SIGSpot"
-        ;;      :class/init-fn spot/init
-        ;;      :run-fn   'mortality/calculateMortality
-        ;;      :fns      (ns-publics 'behave.lib.spot)
-        ;;      :gv-uuids (q/class-to-group-variables "SIGMortality")}
-        ;;     (add-links)))
+        spot-module
+        (-> {:init-fn  spot/init
+             :run-fn   spot/calculateSpottingDistanceFromSurfaceFire
+             :fns      (ns-publics 'behave.lib.spot)
+             :gv-uuids (q/class-to-group-variables "SIGSpot")}
+            (add-links))]
 
     (->> all-inputs
          (generate-runs)
@@ -261,6 +260,9 @@
 
                        (contains? modules :mortality)
                        (run-module mortality-module all-outputs)
+
+                       (pos? (count (set/intersection modules #{:surface :crown})))
+                       (run-module spot-module all-outputs)
 
                        :always
                        (add-row))))

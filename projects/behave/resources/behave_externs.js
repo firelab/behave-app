@@ -434,3 +434,53 @@ Module.SIGMortality = class {
   setTreeHeight() {}
   getEquationTypeFromSpeciesCode() {}
 };
+
+Module.SIGSpot = class {
+  SIGSpot() {}
+  getDownwindCanopyMode() {}
+  getLocation() {}
+  getTreeSpecies() {}
+  getBurningPileFlameHeight() {}
+  getCoverHeightUsedForBurningPile() {}
+  getCoverHeightUsedForSurfaceFire() {}
+  getCoverHeightUsedForTorchingTrees() {}
+  getDBH() {}
+  getDownwindCoverHeight() {}
+  getFlameDurationForTorchingTrees() {}
+  getFlameHeightForTorchingTrees() {}
+  getFlameRatioForTorchingTrees() {}
+  getMaxFirebrandHeightFromBurningPile() {}
+  getMaxFirebrandHeightFromSurfaceFire() {}
+  getMaxFirebrandHeightFromTorchingTrees() {}
+  getMaxFlatTerrainSpottingDistanceFromBurningPile() {}
+  getMaxFlatTerrainSpottingDistanceFromSurfaceFire() {}
+  getMaxFlatTerrainSpottingDistanceFromTorchingTrees() {}
+  getMaxMountainousTerrainSpottingDistanceFromBurningPile() {}
+  getMaxMountainousTerrainSpottingDistanceFromSurfaceFire() {}
+  getMaxMountainousTerrainSpottingDistanceFromTorchingTrees() {}
+  getRidgeToValleyDistance() {}
+  getRidgeToValleyElevation() {}
+  getSurfaceFlameLength() {}
+  getTreeHeight() {}
+  getWindSpeedAtTwentyFeet() {}
+  getTorchingTrees() {}
+  calculateSpottingDistanceFromBurningPile() {}
+  calculateSpottingDistanceFromSurfaceFire() {}
+  calculateSpottingDistanceFromTorchingTrees() {}
+  initializeMembers() {}
+  setBurningPileFlameHeight() {}
+  setDBH() {}
+  setDownwindCanopyMode() {}
+  setDownwindCoverHeight() {}
+  setFlameLength() {}
+  setLocation() {}
+  setRidgeToValleyDistance() {}
+  setRidgeToValleyElevation() {}
+  setTorchingTrees() {}
+  setTreeHeight() {}
+  setTreeSpecies() {}
+  setWindSpeedAtTwentyFeet() {}
+  updateSpotInputsForBurningPile() {}
+  updateSpotInputsForSurfaceFire() {}
+  updateSpotInputsForTorchingTrees() {}
+};

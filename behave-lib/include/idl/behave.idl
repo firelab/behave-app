@@ -335,8 +335,8 @@ enum SpotFireLocation_SpotFireLocationEnum {
   "SpotFireLocation::RIDGE_TOP"
 };
 
-interface Spot {
-  void Spot();
+interface SIGSpot {
+  void SIGSpot();
   SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum getDownwindCanopyMode();
   SpotFireLocation_SpotFireLocationEnum getLocation();
   SpotTreeSpecies_SpotTreeSpeciesEnum getTreeSpecies();
