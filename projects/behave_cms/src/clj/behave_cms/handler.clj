@@ -71,13 +71,11 @@
 ;; Custom Middlewares
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn wrap-req-content-type [handler]
+(defn wrap-req-content-type+accept [handler]
   (fn [{:keys [headers] :as req}]
-    (handler (assoc req :content-type (get headers "content-type")))))
-
-(defn wrap-accept [handler]
-  (fn [{:keys [headers] :as req}]
-    (handler (assoc req :accepts (get headers "accept")))))
+    (handler (assoc req
+                    :content-type (get headers "content-type")
+                    :accept       (get headers "accept")))))
 
 (defn wrap-request-logging [handler]
   (fn [request]
@@ -173,8 +171,7 @@
       wrap-nested-params
       wrap-multipart-params
       wrap-session-params
-      wrap-req-content-type
-      wrap-accept
+      wrap-req-content-type+accept
       wrap-params
       wrap-session
       wrap-absolute-redirects

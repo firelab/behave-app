@@ -36,7 +36,7 @@
               [:<>
                [component-fn ws-uuid group variables level]
                [:div.wizard-subgroup__indent
-                (build-groups ws-uuid (:group/children group) component-fn (inc level))]]))))])))
+                (build-groups ws-uuid (sort-by :group/order (:group/children group)) component-fn (inc level))]]))))])))
 
 (defmulti submodule-page (fn [io _ _] io))
 

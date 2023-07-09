@@ -5,9 +5,9 @@
             [triangulum.logging :refer [log-str]])
   (:import  [java.io ByteArrayInputStream]))
 
-(defn sync-handler [{:keys [request-method params accepts] :as req}]
+(defn sync-handler [{:keys [request-method params accept] :as req}]
   (log-str "Request Received:" (select-keys req [:uri :request-method :params]))
-  (let [res-type (or (mime->type accepts) :edn)]
+  (let [res-type (or (mime->type accept) :edn)]
     (condp = request-method
       :get
       (let [datoms (if (nil? (:tx params))
@@ -17,10 +17,10 @@
          :body    (if (= res-type :msgpack)
                     (ByteArrayInputStream. (c/pack datoms))
                     (clj-> datoms res-type))
-         :headers {"Content-Type" accepts}})
+         :headers {"Content-Type" accept}})
 
       :post
       (let [tx-report (s/sync-datoms s/conn (:tx-data params))]
         {:status  201
          :body    (clj-> {:success true} res-type)
-         :headers {"Content-Type" accepts}}))))
+         :headers {"Content-Type" accept}}))))
