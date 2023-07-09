@@ -54,10 +54,9 @@
       (add-header ws-uuid gv-id 0 units)
       (add-cell ws-uuid row-id gv-id 0 value))))
 
-(defn add-to-results-table [ws-uuid results]
+(defn add-to-results-table [results ws-uuid]
   (add-table ws-uuid)
-  (doseq [[_module runs] results]
-    (doseq [{:keys [row-id inputs outputs]} runs]
-      (add-row ws-uuid row-id)
-      (add-inputs-to-results-table ws-uuid row-id inputs)
-      (add-outputs-to-results-table ws-uuid row-id outputs))))
+  (doseq [{:keys [row-id inputs outputs]} results]
+    (add-row ws-uuid row-id)
+    (add-inputs-to-results-table ws-uuid row-id inputs)
+    (add-outputs-to-results-table ws-uuid row-id outputs)))

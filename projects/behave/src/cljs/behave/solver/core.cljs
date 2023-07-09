@@ -20,8 +20,12 @@
   (or (str/includes? parameter-type "Enum")
       (str/includes? parameter-type "Units")))
 
-(defn filter-module-ios [ios gv-uuids]
-  (filter #(-> % (butlast) (last) (gv-uuids)) ios))
+(defn filter-module-inputs [all-inputs gv-uuids]
+  (into {} (filter (fn [[_group-uuid m]]
+                     (gv-uuids (first (ffirst (vals m))))) all-inputs)))
+
+(defn filter-module-outputs [all-outputs gv-uuids]
+  (vec (filter gv-uuids all-outputs)))
 
 ;;; Run Generation
 
@@ -84,6 +88,7 @@
         f               ((symbol fn-name) module-fns)
       ; Step 1 - Lookup parameters of function
         params          (q/fn-params fn-id)
+        _               (log [:SOLVER [:FN-ID fn-id] [:MULTI-PARAMS params]])
 
       ; Step 2 - Match the parameters to group inputs/units
         fn-args (map-indexed (fn [idx [param-id _ param-type]]
@@ -95,7 +100,7 @@
                                    (q/parsed-value gv-uuid (get repeat-group gv-uuid)))))
                              params)]
 
-    (log [:SOLVER] [:MULTI-INPUT fn-name params fn-args])
+    (log [:SOLVER] [:MULTI-INPUT fn-name fn-args])
 
   ; Step 3 - Call function with all parameters
     (apply f module fn-args)))
@@ -120,6 +125,7 @@
 
 (defn apply-inputs [module fns inputs]
   (doseq [[_ repeats] inputs]
+    (log "-- [SOLVER] REPEATS" repeats)
     (cond
       ;; Single Group w/ Single Variable
       (and (= 1 (count repeats)) (= 1 (count (first (vals repeats)))))
@@ -161,15 +167,19 @@
 ;;; Solvers
 
 (defn apply-links [prev-outputs inputs destination-links]
-  (reduce
-   (fn [acc [src-uuid dst-uuid]]
-     (let [[_ [output _]] (first (filter #(= src-uuid (first %)) prev-outputs))
-           group-uuid     (q/group-variable->group dst-uuid)]
-       (assoc-in acc [group-uuid 0 dst-uuid] output)))
-   inputs
-   destination-links))
+  (let [prev-output-uuids (set (keys prev-outputs))]
+    (reduce
+     (fn [acc [src-uuid dst-uuid]]
+       (if (prev-output-uuids src-uuid)
+         (let [output     (get-in prev-outputs [src-uuid 0])
+               group-uuid (q/group-variable->group dst-uuid)]
+           (log [[:SOLVER] :ADD-LINK [:SRC-UUID src-uuid :DST-UUID dst-uuid] [:OUTPUT output :GROUP-UUID group-uuid]])
+           (assoc-in acc [group-uuid 0 dst-uuid] output))
+         acc))
+     inputs
+     destination-links)))
 
-(defn run-module [{:keys [inputs outputs] :as row}
+(defn run-module [{:keys [inputs all-outputs outputs] :as row}
                   {:keys [init-fn
                           run-fn
                           fns
@@ -181,8 +191,8 @@
         inputs         (apply-links outputs inputs destination-links)
 
         ;; Filter IO's for module
-        module-inputs  (filter-module-ios inputs gv-uuids)
-        module-outputs (filter-module-ios outputs gv-uuids)]
+        module-inputs  (filter-module-inputs inputs gv-uuids)
+        module-outputs (filter-module-outputs all-outputs gv-uuids)]
 
     ;; Set inputs
     (apply-inputs module fns module-inputs)
@@ -244,9 +254,10 @@
          (generate-runs)
          (reduce (fn [acc inputs]
                    (let [add-row (partial conj acc)
-                         row {:inputs inputs
-                              :outputs all-outputs
-                              :row-id @counter}]
+                         row {:inputs      inputs
+                              :all-outputs all-outputs
+                              :outputs     {}
+                              :row-id      @counter}]
 
                      (swap! counter inc)
 

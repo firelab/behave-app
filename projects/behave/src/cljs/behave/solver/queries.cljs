@@ -43,13 +43,13 @@
               (ref ?uuid :group-variable/cpp-parameter ?p)]
 
              [(param-attrs ?p ?p-name ?p-type ?p-order)
-              [?p cpp.parameter/name ?p-name]
-              [?p cpp.parameter/type ?p-type]
-              [?p cpp.parameter/order ?p-order]]
+              [?p :cpp.parameter/name ?p-name]
+              [?p :cpp.parameter/type ?p-type]
+              [?p :cpp.parameter/order ?p-order]]
 
              ;; Find the function's parameters
              [(fn-params ?fn ?p ?p-name ?p-type ?p-order)
-              [?fn :cpp.function/parameters ?p]
+              [?fn :cpp.function/parameter ?p]
               (param-attrs ?p ?p-name ?p-type ?p-order)]
 
              [(subgroup ?g ?sg) [?g :group/children ?sg]]
@@ -152,9 +152,9 @@
                       :where (kind ?gv-uuid ?kind)]
                     group-variable-uuid)]
     (condp = kind
-      "discrete"   (get enum/contain-tactic value)
-      "continuous" (js/parseFloat value)
-      "text"       value)))
+      :discrete   (js/parseInt value)
+      :continuous (js/parseFloat value)
+      :text       value)))
 
 (defn fn-params [function-id]
   (->> (q-vms '[:find ?p ?p-name ?p-type ?p-order
