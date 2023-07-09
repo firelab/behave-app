@@ -40,8 +40,8 @@
                                         id :db/id}]
                                     @(rf/subscribe [:wizard/show-submodule? ws-uuid id op]))
                                   all-submodules)
-          o-subs          (filter #(= :output (:submodule/io %)) (sort-by :submodule/io all-submodules))
-          i-subs          (filter #(= :input (:submodule/io %)) (sort-by :submodule/io all-submodules))
+          o-subs          (filter #(= :output (:submodule/io %)) (sort-by :submodule/order all-submodules))
+          i-subs          (filter #(= :input (:submodule/io %)) (sort-by :submodule/order all-submodules))
           submodules      (if (= io :input) i-subs o-subs)
           next-submodules (rest (drop-while #(not= (:slug %) submodule) (sort-by :submodule/order submodules)))
           next-modules    (rest (drop-while #(not= (str/lower-case (:module/name %)) module) (sort-by :module/order modules)))
