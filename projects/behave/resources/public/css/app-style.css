@@ -71,6 +71,7 @@ body {
 .container {
   display: flex;
   justify-content: space-between;
+  width: 100%;
   margin: 0 30px 0 60px;
 }
 /* -- End Container -- */
@@ -374,10 +375,6 @@ body {
   color: black;
   font-weight: var(--font-weight-500);
   background-color: white;
-}
-
-.wizard-subgroup__indent {
-  padding-left: 10px;
 }
 
 .wizard-page__body {
