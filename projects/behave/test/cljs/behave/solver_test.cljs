@@ -282,11 +282,7 @@
 (deftest mortality-worksheet
 
   (let [mortality-input     (fn [acc & args]
-                              (let [input (apply ws-input "SIGMortality" args)]
-                                (assoc-in acc (butlast input) (last input))))
-        mortality-output    (fn [acc & args]
-                              (let [output (apply ws-output "SIGMortality" args)]
-                                (conj acc output)))
+                              (conj acc (apply ws-input "SIGMortality" args)))
         row                 (->> (inline-resource "public/csv/mortality.csv")
                                  (parse-csv)
                                  (map clean-values)
@@ -308,7 +304,7 @@
         BeetleDamage        (get row "BeetleDamage")
         BoleCharHeight      (get row "BoleCharHeight")
         inputs
-        (cond-> {}
+        (cond-> []
           :always
           (->
            (mortality-input "setRegion" "region" (enums/region-code "south_east"))
@@ -327,7 +323,7 @@
           (not-blank? TreeExpansionFactor)
           (mortality-input "setTreeDensityPerUnitArea" "numberOfTrees" TreeExpansionFactor)
           (not-blank? Diameter)
-          (mortality-input "setDBH" "dbh" Diameter)
+          (mortality-input "setDBH" "dbh" (/ Diameter 12.0))
 
           (not-blank? TreeHeight)
           (mortality-input "setTreeHeight" "treeHeight" TreeHeight)
