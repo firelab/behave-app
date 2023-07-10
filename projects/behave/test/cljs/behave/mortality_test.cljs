@@ -2,7 +2,6 @@
   (:require [behave.lib.enums                :as enums]
             [behave.lib.mortality            :as mortality]
             [behave.lib.species-master-table :as species-master-table]
-            [browser-utils.core              :refer [download]]
             [clojure.string                  :as str]
             [csv-parser.interface            :refer [parse-csv]]
             [cljs.test                       :refer [is deftest testing]])

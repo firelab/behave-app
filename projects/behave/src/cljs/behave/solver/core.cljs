@@ -2,14 +2,14 @@
   (:require [behave.solver.queries :as q]
             [behave.solver.table   :as t]
             [behave.lib.contain    :as contain]
-            [behave.lib.surface    :as surface]
-            [behave.lib.mortality  :as mortality]
             [behave.lib.crown      :as crown]
-            [behave.lib.enums      :as enum]
+            [behave.lib.mortality  :as mortality]
+            [behave.lib.surface    :as surface]
+            [behave.lib.spot       :as spot]
             [behave.lib.units      :as units]
             [behave.logger         :refer [log]]
-            [behave.vms.store      :refer [vms-conn]]
             [clojure.string        :as str]
+            [clojure.set           :as set]
             [re-frame.core         :as rf]))
 
 ;;; Helpers
@@ -20,8 +20,12 @@
   (or (str/includes? parameter-type "Enum")
       (str/includes? parameter-type "Units")))
 
-(defn filter-module-ios [ios gv-uuids]
-  (filter #(-> % (butlast) (last) (gv-uuids)) ios))
+(defn filter-module-inputs [all-inputs gv-uuids]
+  (into {} (filter (fn [[_group-uuid m]]
+                     (gv-uuids (first (ffirst (vals m))))) all-inputs)))
+
+(defn filter-module-outputs [all-outputs gv-uuids]
+  (vec (filter gv-uuids all-outputs)))
 
 ;;; Run Generation
 
@@ -45,7 +49,8 @@
           inputs))
 
 (defn generate-runs [all-inputs-vector]
-  (let [single-inputs          (remove #(-> % (last) (csv?)) all-inputs-vector)
+  (let [empty-or-csv?          #(or (empty? %) (csv? %))
+        single-inputs          (remove #(-> % (last) (empty-or-csv?)) all-inputs-vector)
         range-inputs           (filter #(-> % (last) (csv?)) all-inputs-vector)
         separated-range-inputs (map #(let [result (vec (butlast %))
                                            values (map str/trim (str/split  (last %) #","))]
@@ -84,6 +89,7 @@
         f               ((symbol fn-name) module-fns)
       ; Step 1 - Lookup parameters of function
         params          (q/fn-params fn-id)
+        _               (log [:SOLVER [:FN-ID fn-id] [:MULTI-PARAMS params]])
 
       ; Step 2 - Match the parameters to group inputs/units
         fn-args (map-indexed (fn [idx [param-id _ param-type]]
@@ -95,7 +101,7 @@
                                    (q/parsed-value gv-uuid (get repeat-group gv-uuid)))))
                              params)]
 
-    (log [:SOLVER] [:MULTI-INPUT fn-name params fn-args])
+    (log [:SOLVER] [:MULTI-INPUT fn-name fn-args])
 
   ; Step 3 - Call function with all parameters
     (apply f module fn-args)))
@@ -120,9 +126,10 @@
 
 (defn apply-inputs [module fns inputs]
   (doseq [[_ repeats] inputs]
+    (log "-- [SOLVER] REPEATS" repeats)
     (cond
       ;; Single Group w/ Single Variable
-      (and (= 1 (count repeats) (count (first (vals repeats)))))
+      (and (= 1 (count repeats)) (= 1 (count (first (vals repeats)))))
       (let [[gv-id value] (ffirst (vals repeats))
             units         (or (q/variable-units gv-id) "")]
         (log "-- [SOLVER] SINGLE VAR" gv-id value units)
@@ -161,31 +168,32 @@
 ;;; Solvers
 
 (defn apply-links [prev-outputs inputs destination-links]
-  (reduce
-   (fn [acc [src-uuid dst-uuid]]
-     (let [[_ [output _]] (first (filter #(= src-uuid (first %)) prev-outputs))
-           group-uuid     (q/group-variable->group dst-uuid)]
-       (assoc-in inputs [group-uuid 0 dst-uuid] output)))
-   inputs
-   destination-links))
+  (let [prev-output-uuids (set (keys prev-outputs))]
+    (reduce
+     (fn [acc [src-uuid dst-uuid]]
+       (if (prev-output-uuids src-uuid)
+         (let [output     (get-in prev-outputs [src-uuid 0])
+               group-uuid (q/group-variable->group dst-uuid)]
+           (log [[:SOLVER] :ADD-LINK [:SRC-UUID src-uuid :DST-UUID dst-uuid] [:OUTPUT output :GROUP-UUID group-uuid]])
+           (assoc-in acc [group-uuid 0 dst-uuid] output))
+         acc))
+     inputs
+     destination-links)))
 
-(defn run-module [{:keys [inputs outputs] :as row}
+(defn run-module [{:keys [inputs all-outputs outputs] :as row}
                   {:keys [init-fn
                           run-fn
                           fns
                           gv-uuids
-                          destination-links
-                          after-module]
-                   :as   module-spec}
-                  all-outputs]
+                          destination-links]}]
   (let [module         (init-fn)
 
         ;; Apply links
         inputs         (apply-links outputs inputs destination-links)
 
         ;; Filter IO's for module
-        module-inputs  (filter-module-ios inputs gv-uuids)
-        module-outputs (filter-module-ios inputs gv-uuids)]
+        module-inputs  (filter-module-inputs inputs gv-uuids)
+        module-outputs (filter-module-outputs all-outputs gv-uuids)]
 
     ;; Set inputs
     (apply-inputs module fns module-inputs)
@@ -194,76 +202,82 @@
     (run-fn module)
 
     ;; Get outputs, merge existing inputs/outputs with new inputs/outputs
-    (-> row
-        (assoc :inputs inputs)
-        (assoc :outputs (merge outputs (get-outputs module fns module-outputs))))))
+    (update row :outputs merge (get-outputs module fns module-outputs))))
 
-(defn solve-worksheet [ws-uuid]
-  (let [modules     (q/worksheet-modules ws-uuid)
-        counter     (atom 0)
-        all-inputs  @(rf/subscribe [:worksheet/all-inputs-vector ws-uuid])
-        all-outputs @(rf/subscribe [:worksheet/all-output-uuids ws-uuid])
+(defn solve-worksheet
+  ([ws-uuid]
+   (let [modules     (set (q/worksheet-modules ws-uuid))
+         all-inputs  @(rf/subscribe [:worksheet/all-inputs-vector ws-uuid])
+         all-outputs @(rf/subscribe [:worksheet/all-output-uuids ws-uuid])]
+
+     (-> (solve-worksheet modules all-inputs all-outputs)
+         (t/add-to-results-table ws-uuid))))
+
+  ([modules all-inputs all-outputs]
+   (let [counter (atom 0)
 
         surface-module
-        (-> {:init-fn  'surface/init
-             :run-fn   'surface/doSurfaceRun
+        (-> {:init-fn  surface/init
+             :run-fn   surface/doSurfaceRun
              :fns      (ns-publics 'behave.lib.surface)
              :gv-uuids (q/class-to-group-variables "SIGSurface")}
             (add-links))
 
         crown-module
-        (-> {:init-fn  'crown/init
-             :run-fn   'crown/doCrownRun
+        (-> {:init-fn  crown/init
+             :run-fn   crown/doCrownRun
              :fns      (ns-publics 'behave.lib.crown)
              :gv-uuids (q/class-to-group-variables "SIGCrown")}
             (add-links))
 
         contain-module
-        (-> {:init-fn  'contain/init
-             :run-fn   'contain/doContainRun
+        (-> {:init-fn  contain/init
+             :run-fn   contain/doContainRun
              :fns      (ns-publics 'behave.lib.contain)
              :gv-uuids (q/class-to-group-variables "SIGContainAdapter")}
             (add-links))
 
         mortality-module
-        (-> {:init-fn  'mortality/init
-             :run-fn   'mortality/calculateMortality
+        (-> {:init-fn  mortality/init
+             :run-fn   mortality/calculateMortality
              :fns      (ns-publics 'behave.lib.mortality)
              :gv-uuids (q/class-to-group-variables "SIGMortality")}
-            (add-links))]
+            (add-links))
 
-        ;; spot-module
-        ;; (-> {:class/name    "SIGSpot"
-        ;;      :class/init-fn spot/init
-        ;;      :run-fn   'mortality/calculateMortality
-        ;;      :fns      (ns-publics 'behave.lib.spot)
-        ;;      :gv-uuids (q/class-to-group-variables "SIGMortality")}
-        ;;     (add-links)))
+        spot-module
+        (-> {:init-fn  spot/init
+             :run-fn   spot/calculateSpottingDistanceFromSurfaceFire
+             :fns      (ns-publics 'behave.lib.spot)
+             :gv-uuids (q/class-to-group-variables "SIGSpot")}
+            (add-links))]
 
     (->> all-inputs
          (generate-runs)
          (reduce (fn [acc inputs]
-                   (let [add-row (partial conj! acc)
-                         row {:inputs inputs
-                              :row-id @counter}]
+                   (let [add-row (partial conj acc)
+                         row {:inputs      inputs
+                              :all-outputs all-outputs
+                              :outputs     {}
+                              :row-id      @counter}]
 
-                     (swap! count inc)
+                     (swap! counter inc)
 
                      (cond-> row
                        (contains? modules :surface)
-                       (run-module surface-module all-outputs)
+                       (run-module surface-module)
 
                        (contains? modules :crown)
-                       (run-module crown-module all-outputs)
+                       (run-module crown-module)
 
                        (contains? modules :contain)
-                       (run-module contain-module all-outputs)
+                       (run-module contain-module)
 
                        (contains? modules :mortality)
-                       (run-module mortality-module all-outputs)
+                       (run-module mortality-module)
+
+                       (pos? (count (set/intersection modules #{:surface :crown})))
+                       (run-module spot-module)
 
                        :always
                        (add-row))))
-                 (transient []))
-         (persistent!)
-         (t/add-to-results-table ws-uuid))))
+                 [])))))

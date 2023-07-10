@@ -37,10 +37,6 @@
 #include "windSpeedUtility.h"
 #include "SIGString.h"
 
-// SIGCrown::SIGCrown(SIGFuelModels& fuelModels) {
-//   return static_cast <SIGCrown> (Crown::Crown(static_cast <FuelModels> (fuelModels)));
-// }
-
 SIGCrown::SIGCrown(SIGFuelModels& fuelModels) : Crown(fuelModels) {}
 
 void SIGCrown::doCrownRun()

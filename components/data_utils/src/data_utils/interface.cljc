@@ -2,6 +2,10 @@
   (:require [data-utils.core :as c]))
 
 (def ^{:argslist '([s])
+       :doc      "Checks if every character is a digit in `s` (CLJ/CLJS)"}
+  is-digit? c/is-digit?)
+
+(def ^{:argslist '([s])
        :doc      "Parses a string into an integer (CLJ/CLJS)"}
   parse-int c/parse-int)
 

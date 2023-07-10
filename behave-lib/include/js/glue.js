@@ -982,275 +982,275 @@ SIGMoistureScenarios.prototype['getMoistureScenarioNameByIndex'] = SIGMoistureSc
   var self = this.ptr;
   _emscripten_bind_SIGMoistureScenarios___destroy___0(self);
 };
-// Spot
-/** @suppress {undefinedVars, duplicate} @this{Object} */function Spot() {
-  this.ptr = _emscripten_bind_Spot_Spot_0();
-  getCache(Spot)[this.ptr] = this;
+// SIGSpot
+/** @suppress {undefinedVars, duplicate} @this{Object} */function SIGSpot() {
+  this.ptr = _emscripten_bind_SIGSpot_SIGSpot_0();
+  getCache(SIGSpot)[this.ptr] = this;
 };;
-Spot.prototype = Object.create(WrapperObject.prototype);
-Spot.prototype.constructor = Spot;
-Spot.prototype.__class__ = Spot;
-Spot.__cache__ = {};
-Module['Spot'] = Spot;
+SIGSpot.prototype = Object.create(WrapperObject.prototype);
+SIGSpot.prototype.constructor = SIGSpot;
+SIGSpot.prototype.__class__ = SIGSpot;
+SIGSpot.__cache__ = {};
+Module['SIGSpot'] = SIGSpot;
 
-Spot.prototype['getDownwindCanopyMode'] = Spot.prototype.getDownwindCanopyMode = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+SIGSpot.prototype['getDownwindCanopyMode'] = SIGSpot.prototype.getDownwindCanopyMode = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  return _emscripten_bind_Spot_getDownwindCanopyMode_0(self);
+  return _emscripten_bind_SIGSpot_getDownwindCanopyMode_0(self);
 };;
 
-Spot.prototype['getLocation'] = Spot.prototype.getLocation = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+SIGSpot.prototype['getLocation'] = SIGSpot.prototype.getLocation = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  return _emscripten_bind_Spot_getLocation_0(self);
+  return _emscripten_bind_SIGSpot_getLocation_0(self);
 };;
 
-Spot.prototype['getTreeSpecies'] = Spot.prototype.getTreeSpecies = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+SIGSpot.prototype['getTreeSpecies'] = SIGSpot.prototype.getTreeSpecies = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  return _emscripten_bind_Spot_getTreeSpecies_0(self);
+  return _emscripten_bind_SIGSpot_getTreeSpecies_0(self);
 };;
 
-Spot.prototype['getBurningPileFlameHeight'] = Spot.prototype.getBurningPileFlameHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameHeightUnits) {
+SIGSpot.prototype['getBurningPileFlameHeight'] = SIGSpot.prototype.getBurningPileFlameHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameHeightUnits) {
   var self = this.ptr;
   if (flameHeightUnits && typeof flameHeightUnits === 'object') flameHeightUnits = flameHeightUnits.ptr;
-  return _emscripten_bind_Spot_getBurningPileFlameHeight_1(self, flameHeightUnits);
+  return _emscripten_bind_SIGSpot_getBurningPileFlameHeight_1(self, flameHeightUnits);
 };;
 
-Spot.prototype['getCoverHeightUsedForBurningPile'] = Spot.prototype.getCoverHeightUsedForBurningPile = /** @suppress {undefinedVars, duplicate} @this{Object} */function(coverHeightUnits) {
+SIGSpot.prototype['getCoverHeightUsedForBurningPile'] = SIGSpot.prototype.getCoverHeightUsedForBurningPile = /** @suppress {undefinedVars, duplicate} @this{Object} */function(coverHeightUnits) {
   var self = this.ptr;
   if (coverHeightUnits && typeof coverHeightUnits === 'object') coverHeightUnits = coverHeightUnits.ptr;
-  return _emscripten_bind_Spot_getCoverHeightUsedForBurningPile_1(self, coverHeightUnits);
+  return _emscripten_bind_SIGSpot_getCoverHeightUsedForBurningPile_1(self, coverHeightUnits);
 };;
 
-Spot.prototype['getCoverHeightUsedForSurfaceFire'] = Spot.prototype.getCoverHeightUsedForSurfaceFire = /** @suppress {undefinedVars, duplicate} @this{Object} */function(coverHeightUnits) {
+SIGSpot.prototype['getCoverHeightUsedForSurfaceFire'] = SIGSpot.prototype.getCoverHeightUsedForSurfaceFire = /** @suppress {undefinedVars, duplicate} @this{Object} */function(coverHeightUnits) {
   var self = this.ptr;
   if (coverHeightUnits && typeof coverHeightUnits === 'object') coverHeightUnits = coverHeightUnits.ptr;
-  return _emscripten_bind_Spot_getCoverHeightUsedForSurfaceFire_1(self, coverHeightUnits);
+  return _emscripten_bind_SIGSpot_getCoverHeightUsedForSurfaceFire_1(self, coverHeightUnits);
 };;
 
-Spot.prototype['getCoverHeightUsedForTorchingTrees'] = Spot.prototype.getCoverHeightUsedForTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function(coverHeightUnits) {
+SIGSpot.prototype['getCoverHeightUsedForTorchingTrees'] = SIGSpot.prototype.getCoverHeightUsedForTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function(coverHeightUnits) {
   var self = this.ptr;
   if (coverHeightUnits && typeof coverHeightUnits === 'object') coverHeightUnits = coverHeightUnits.ptr;
-  return _emscripten_bind_Spot_getCoverHeightUsedForTorchingTrees_1(self, coverHeightUnits);
+  return _emscripten_bind_SIGSpot_getCoverHeightUsedForTorchingTrees_1(self, coverHeightUnits);
 };;
 
-Spot.prototype['getDBH'] = Spot.prototype.getDBH = /** @suppress {undefinedVars, duplicate} @this{Object} */function(DBHUnits) {
+SIGSpot.prototype['getDBH'] = SIGSpot.prototype.getDBH = /** @suppress {undefinedVars, duplicate} @this{Object} */function(DBHUnits) {
   var self = this.ptr;
   if (DBHUnits && typeof DBHUnits === 'object') DBHUnits = DBHUnits.ptr;
-  return _emscripten_bind_Spot_getDBH_1(self, DBHUnits);
+  return _emscripten_bind_SIGSpot_getDBH_1(self, DBHUnits);
 };;
 
-Spot.prototype['getDownwindCoverHeight'] = Spot.prototype.getDownwindCoverHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(coverHeightUnits) {
+SIGSpot.prototype['getDownwindCoverHeight'] = SIGSpot.prototype.getDownwindCoverHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(coverHeightUnits) {
   var self = this.ptr;
   if (coverHeightUnits && typeof coverHeightUnits === 'object') coverHeightUnits = coverHeightUnits.ptr;
-  return _emscripten_bind_Spot_getDownwindCoverHeight_1(self, coverHeightUnits);
+  return _emscripten_bind_SIGSpot_getDownwindCoverHeight_1(self, coverHeightUnits);
 };;
 
-Spot.prototype['getFlameDurationForTorchingTrees'] = Spot.prototype.getFlameDurationForTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function(durationUnits) {
+SIGSpot.prototype['getFlameDurationForTorchingTrees'] = SIGSpot.prototype.getFlameDurationForTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function(durationUnits) {
   var self = this.ptr;
   if (durationUnits && typeof durationUnits === 'object') durationUnits = durationUnits.ptr;
-  return _emscripten_bind_Spot_getFlameDurationForTorchingTrees_1(self, durationUnits);
+  return _emscripten_bind_SIGSpot_getFlameDurationForTorchingTrees_1(self, durationUnits);
 };;
 
-Spot.prototype['getFlameHeightForTorchingTrees'] = Spot.prototype.getFlameHeightForTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameHeightUnits) {
+SIGSpot.prototype['getFlameHeightForTorchingTrees'] = SIGSpot.prototype.getFlameHeightForTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameHeightUnits) {
   var self = this.ptr;
   if (flameHeightUnits && typeof flameHeightUnits === 'object') flameHeightUnits = flameHeightUnits.ptr;
-  return _emscripten_bind_Spot_getFlameHeightForTorchingTrees_1(self, flameHeightUnits);
+  return _emscripten_bind_SIGSpot_getFlameHeightForTorchingTrees_1(self, flameHeightUnits);
 };;
 
-Spot.prototype['getFlameRatioForTorchingTrees'] = Spot.prototype.getFlameRatioForTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+SIGSpot.prototype['getFlameRatioForTorchingTrees'] = SIGSpot.prototype.getFlameRatioForTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  return _emscripten_bind_Spot_getFlameRatioForTorchingTrees_0(self);
+  return _emscripten_bind_SIGSpot_getFlameRatioForTorchingTrees_0(self);
 };;
 
-Spot.prototype['getMaxFirebrandHeightFromBurningPile'] = Spot.prototype.getMaxFirebrandHeightFromBurningPile = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firebrandHeightUnits) {
-  var self = this.ptr;
-  if (firebrandHeightUnits && typeof firebrandHeightUnits === 'object') firebrandHeightUnits = firebrandHeightUnits.ptr;
-  return _emscripten_bind_Spot_getMaxFirebrandHeightFromBurningPile_1(self, firebrandHeightUnits);
-};;
-
-Spot.prototype['getMaxFirebrandHeightFromSurfaceFire'] = Spot.prototype.getMaxFirebrandHeightFromSurfaceFire = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firebrandHeightUnits) {
+SIGSpot.prototype['getMaxFirebrandHeightFromBurningPile'] = SIGSpot.prototype.getMaxFirebrandHeightFromBurningPile = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firebrandHeightUnits) {
   var self = this.ptr;
   if (firebrandHeightUnits && typeof firebrandHeightUnits === 'object') firebrandHeightUnits = firebrandHeightUnits.ptr;
-  return _emscripten_bind_Spot_getMaxFirebrandHeightFromSurfaceFire_1(self, firebrandHeightUnits);
+  return _emscripten_bind_SIGSpot_getMaxFirebrandHeightFromBurningPile_1(self, firebrandHeightUnits);
 };;
 
-Spot.prototype['getMaxFirebrandHeightFromTorchingTrees'] = Spot.prototype.getMaxFirebrandHeightFromTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firebrandHeightUnits) {
+SIGSpot.prototype['getMaxFirebrandHeightFromSurfaceFire'] = SIGSpot.prototype.getMaxFirebrandHeightFromSurfaceFire = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firebrandHeightUnits) {
   var self = this.ptr;
   if (firebrandHeightUnits && typeof firebrandHeightUnits === 'object') firebrandHeightUnits = firebrandHeightUnits.ptr;
-  return _emscripten_bind_Spot_getMaxFirebrandHeightFromTorchingTrees_1(self, firebrandHeightUnits);
+  return _emscripten_bind_SIGSpot_getMaxFirebrandHeightFromSurfaceFire_1(self, firebrandHeightUnits);
 };;
 
-Spot.prototype['getMaxFlatTerrainSpottingDistanceFromBurningPile'] = Spot.prototype.getMaxFlatTerrainSpottingDistanceFromBurningPile = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spottingDistanceUnits) {
+SIGSpot.prototype['getMaxFirebrandHeightFromTorchingTrees'] = SIGSpot.prototype.getMaxFirebrandHeightFromTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firebrandHeightUnits) {
+  var self = this.ptr;
+  if (firebrandHeightUnits && typeof firebrandHeightUnits === 'object') firebrandHeightUnits = firebrandHeightUnits.ptr;
+  return _emscripten_bind_SIGSpot_getMaxFirebrandHeightFromTorchingTrees_1(self, firebrandHeightUnits);
+};;
+
+SIGSpot.prototype['getMaxFlatTerrainSpottingDistanceFromBurningPile'] = SIGSpot.prototype.getMaxFlatTerrainSpottingDistanceFromBurningPile = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spottingDistanceUnits) {
   var self = this.ptr;
   if (spottingDistanceUnits && typeof spottingDistanceUnits === 'object') spottingDistanceUnits = spottingDistanceUnits.ptr;
-  return _emscripten_bind_Spot_getMaxFlatTerrainSpottingDistanceFromBurningPile_1(self, spottingDistanceUnits);
+  return _emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromBurningPile_1(self, spottingDistanceUnits);
 };;
 
-Spot.prototype['getMaxFlatTerrainSpottingDistanceFromSurfaceFire'] = Spot.prototype.getMaxFlatTerrainSpottingDistanceFromSurfaceFire = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spottingDistanceUnits) {
+SIGSpot.prototype['getMaxFlatTerrainSpottingDistanceFromSurfaceFire'] = SIGSpot.prototype.getMaxFlatTerrainSpottingDistanceFromSurfaceFire = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spottingDistanceUnits) {
   var self = this.ptr;
   if (spottingDistanceUnits && typeof spottingDistanceUnits === 'object') spottingDistanceUnits = spottingDistanceUnits.ptr;
-  return _emscripten_bind_Spot_getMaxFlatTerrainSpottingDistanceFromSurfaceFire_1(self, spottingDistanceUnits);
+  return _emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromSurfaceFire_1(self, spottingDistanceUnits);
 };;
 
-Spot.prototype['getMaxFlatTerrainSpottingDistanceFromTorchingTrees'] = Spot.prototype.getMaxFlatTerrainSpottingDistanceFromTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spottingDistanceUnits) {
+SIGSpot.prototype['getMaxFlatTerrainSpottingDistanceFromTorchingTrees'] = SIGSpot.prototype.getMaxFlatTerrainSpottingDistanceFromTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spottingDistanceUnits) {
   var self = this.ptr;
   if (spottingDistanceUnits && typeof spottingDistanceUnits === 'object') spottingDistanceUnits = spottingDistanceUnits.ptr;
-  return _emscripten_bind_Spot_getMaxFlatTerrainSpottingDistanceFromTorchingTrees_1(self, spottingDistanceUnits);
+  return _emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromTorchingTrees_1(self, spottingDistanceUnits);
 };;
 
-Spot.prototype['getMaxMountainousTerrainSpottingDistanceFromBurningPile'] = Spot.prototype.getMaxMountainousTerrainSpottingDistanceFromBurningPile = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spottingDistanceUnits) {
+SIGSpot.prototype['getMaxMountainousTerrainSpottingDistanceFromBurningPile'] = SIGSpot.prototype.getMaxMountainousTerrainSpottingDistanceFromBurningPile = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spottingDistanceUnits) {
   var self = this.ptr;
   if (spottingDistanceUnits && typeof spottingDistanceUnits === 'object') spottingDistanceUnits = spottingDistanceUnits.ptr;
-  return _emscripten_bind_Spot_getMaxMountainousTerrainSpottingDistanceFromBurningPile_1(self, spottingDistanceUnits);
+  return _emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromBurningPile_1(self, spottingDistanceUnits);
 };;
 
-Spot.prototype['getMaxMountainousTerrainSpottingDistanceFromSurfaceFire'] = Spot.prototype.getMaxMountainousTerrainSpottingDistanceFromSurfaceFire = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spottingDistanceUnits) {
+SIGSpot.prototype['getMaxMountainousTerrainSpottingDistanceFromSurfaceFire'] = SIGSpot.prototype.getMaxMountainousTerrainSpottingDistanceFromSurfaceFire = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spottingDistanceUnits) {
   var self = this.ptr;
   if (spottingDistanceUnits && typeof spottingDistanceUnits === 'object') spottingDistanceUnits = spottingDistanceUnits.ptr;
-  return _emscripten_bind_Spot_getMaxMountainousTerrainSpottingDistanceFromSurfaceFire_1(self, spottingDistanceUnits);
+  return _emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromSurfaceFire_1(self, spottingDistanceUnits);
 };;
 
-Spot.prototype['getMaxMountainousTerrainSpottingDistanceFromTorchingTrees'] = Spot.prototype.getMaxMountainousTerrainSpottingDistanceFromTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spottingDistanceUnits) {
+SIGSpot.prototype['getMaxMountainousTerrainSpottingDistanceFromTorchingTrees'] = SIGSpot.prototype.getMaxMountainousTerrainSpottingDistanceFromTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spottingDistanceUnits) {
   var self = this.ptr;
   if (spottingDistanceUnits && typeof spottingDistanceUnits === 'object') spottingDistanceUnits = spottingDistanceUnits.ptr;
-  return _emscripten_bind_Spot_getMaxMountainousTerrainSpottingDistanceFromTorchingTrees_1(self, spottingDistanceUnits);
+  return _emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromTorchingTrees_1(self, spottingDistanceUnits);
 };;
 
-Spot.prototype['getRidgeToValleyDistance'] = Spot.prototype.getRidgeToValleyDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ridgeToValleyDistanceUnits) {
+SIGSpot.prototype['getRidgeToValleyDistance'] = SIGSpot.prototype.getRidgeToValleyDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ridgeToValleyDistanceUnits) {
   var self = this.ptr;
   if (ridgeToValleyDistanceUnits && typeof ridgeToValleyDistanceUnits === 'object') ridgeToValleyDistanceUnits = ridgeToValleyDistanceUnits.ptr;
-  return _emscripten_bind_Spot_getRidgeToValleyDistance_1(self, ridgeToValleyDistanceUnits);
+  return _emscripten_bind_SIGSpot_getRidgeToValleyDistance_1(self, ridgeToValleyDistanceUnits);
 };;
 
-Spot.prototype['getRidgeToValleyElevation'] = Spot.prototype.getRidgeToValleyElevation = /** @suppress {undefinedVars, duplicate} @this{Object} */function(elevationUnits) {
+SIGSpot.prototype['getRidgeToValleyElevation'] = SIGSpot.prototype.getRidgeToValleyElevation = /** @suppress {undefinedVars, duplicate} @this{Object} */function(elevationUnits) {
   var self = this.ptr;
   if (elevationUnits && typeof elevationUnits === 'object') elevationUnits = elevationUnits.ptr;
-  return _emscripten_bind_Spot_getRidgeToValleyElevation_1(self, elevationUnits);
+  return _emscripten_bind_SIGSpot_getRidgeToValleyElevation_1(self, elevationUnits);
 };;
 
-Spot.prototype['getSurfaceFlameLength'] = Spot.prototype.getSurfaceFlameLength = /** @suppress {undefinedVars, duplicate} @this{Object} */function(surfaceFlameLengthUnits) {
+SIGSpot.prototype['getSurfaceFlameLength'] = SIGSpot.prototype.getSurfaceFlameLength = /** @suppress {undefinedVars, duplicate} @this{Object} */function(surfaceFlameLengthUnits) {
   var self = this.ptr;
   if (surfaceFlameLengthUnits && typeof surfaceFlameLengthUnits === 'object') surfaceFlameLengthUnits = surfaceFlameLengthUnits.ptr;
-  return _emscripten_bind_Spot_getSurfaceFlameLength_1(self, surfaceFlameLengthUnits);
+  return _emscripten_bind_SIGSpot_getSurfaceFlameLength_1(self, surfaceFlameLengthUnits);
 };;
 
-Spot.prototype['getTreeHeight'] = Spot.prototype.getTreeHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(treeHeightUnits) {
+SIGSpot.prototype['getTreeHeight'] = SIGSpot.prototype.getTreeHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(treeHeightUnits) {
   var self = this.ptr;
   if (treeHeightUnits && typeof treeHeightUnits === 'object') treeHeightUnits = treeHeightUnits.ptr;
-  return _emscripten_bind_Spot_getTreeHeight_1(self, treeHeightUnits);
+  return _emscripten_bind_SIGSpot_getTreeHeight_1(self, treeHeightUnits);
 };;
 
-Spot.prototype['getWindSpeedAtTwentyFeet'] = Spot.prototype.getWindSpeedAtTwentyFeet = /** @suppress {undefinedVars, duplicate} @this{Object} */function(windSpeedUnits) {
+SIGSpot.prototype['getWindSpeedAtTwentyFeet'] = SIGSpot.prototype.getWindSpeedAtTwentyFeet = /** @suppress {undefinedVars, duplicate} @this{Object} */function(windSpeedUnits) {
   var self = this.ptr;
   if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
-  return _emscripten_bind_Spot_getWindSpeedAtTwentyFeet_1(self, windSpeedUnits);
+  return _emscripten_bind_SIGSpot_getWindSpeedAtTwentyFeet_1(self, windSpeedUnits);
 };;
 
-Spot.prototype['getTorchingTrees'] = Spot.prototype.getTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+SIGSpot.prototype['getTorchingTrees'] = SIGSpot.prototype.getTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  return _emscripten_bind_Spot_getTorchingTrees_0(self);
+  return _emscripten_bind_SIGSpot_getTorchingTrees_0(self);
 };;
 
-Spot.prototype['calculateSpottingDistanceFromBurningPile'] = Spot.prototype.calculateSpottingDistanceFromBurningPile = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+SIGSpot.prototype['calculateSpottingDistanceFromBurningPile'] = SIGSpot.prototype.calculateSpottingDistanceFromBurningPile = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  _emscripten_bind_Spot_calculateSpottingDistanceFromBurningPile_0(self);
+  _emscripten_bind_SIGSpot_calculateSpottingDistanceFromBurningPile_0(self);
 };;
 
-Spot.prototype['calculateSpottingDistanceFromSurfaceFire'] = Spot.prototype.calculateSpottingDistanceFromSurfaceFire = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+SIGSpot.prototype['calculateSpottingDistanceFromSurfaceFire'] = SIGSpot.prototype.calculateSpottingDistanceFromSurfaceFire = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  _emscripten_bind_Spot_calculateSpottingDistanceFromSurfaceFire_0(self);
+  _emscripten_bind_SIGSpot_calculateSpottingDistanceFromSurfaceFire_0(self);
 };;
 
-Spot.prototype['calculateSpottingDistanceFromTorchingTrees'] = Spot.prototype.calculateSpottingDistanceFromTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+SIGSpot.prototype['calculateSpottingDistanceFromTorchingTrees'] = SIGSpot.prototype.calculateSpottingDistanceFromTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  _emscripten_bind_Spot_calculateSpottingDistanceFromTorchingTrees_0(self);
+  _emscripten_bind_SIGSpot_calculateSpottingDistanceFromTorchingTrees_0(self);
 };;
 
-Spot.prototype['initializeMembers'] = Spot.prototype.initializeMembers = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+SIGSpot.prototype['initializeMembers'] = SIGSpot.prototype.initializeMembers = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  _emscripten_bind_Spot_initializeMembers_0(self);
+  _emscripten_bind_SIGSpot_initializeMembers_0(self);
 };;
 
-Spot.prototype['setBurningPileFlameHeight'] = Spot.prototype.setBurningPileFlameHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(buringPileflameHeight, flameHeightUnits) {
+SIGSpot.prototype['setBurningPileFlameHeight'] = SIGSpot.prototype.setBurningPileFlameHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(buringPileflameHeight, flameHeightUnits) {
   var self = this.ptr;
   if (buringPileflameHeight && typeof buringPileflameHeight === 'object') buringPileflameHeight = buringPileflameHeight.ptr;
   if (flameHeightUnits && typeof flameHeightUnits === 'object') flameHeightUnits = flameHeightUnits.ptr;
-  _emscripten_bind_Spot_setBurningPileFlameHeight_2(self, buringPileflameHeight, flameHeightUnits);
+  _emscripten_bind_SIGSpot_setBurningPileFlameHeight_2(self, buringPileflameHeight, flameHeightUnits);
 };;
 
-Spot.prototype['setDBH'] = Spot.prototype.setDBH = /** @suppress {undefinedVars, duplicate} @this{Object} */function(DBH, DBHUnits) {
+SIGSpot.prototype['setDBH'] = SIGSpot.prototype.setDBH = /** @suppress {undefinedVars, duplicate} @this{Object} */function(DBH, DBHUnits) {
   var self = this.ptr;
   if (DBH && typeof DBH === 'object') DBH = DBH.ptr;
   if (DBHUnits && typeof DBHUnits === 'object') DBHUnits = DBHUnits.ptr;
-  _emscripten_bind_Spot_setDBH_2(self, DBH, DBHUnits);
+  _emscripten_bind_SIGSpot_setDBH_2(self, DBH, DBHUnits);
 };;
 
-Spot.prototype['setDownwindCanopyMode'] = Spot.prototype.setDownwindCanopyMode = /** @suppress {undefinedVars, duplicate} @this{Object} */function(downwindCanopyMode) {
+SIGSpot.prototype['setDownwindCanopyMode'] = SIGSpot.prototype.setDownwindCanopyMode = /** @suppress {undefinedVars, duplicate} @this{Object} */function(downwindCanopyMode) {
   var self = this.ptr;
   if (downwindCanopyMode && typeof downwindCanopyMode === 'object') downwindCanopyMode = downwindCanopyMode.ptr;
-  _emscripten_bind_Spot_setDownwindCanopyMode_1(self, downwindCanopyMode);
+  _emscripten_bind_SIGSpot_setDownwindCanopyMode_1(self, downwindCanopyMode);
 };;
 
-Spot.prototype['setDownwindCoverHeight'] = Spot.prototype.setDownwindCoverHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(downwindCoverHeight, coverHeightUnits) {
+SIGSpot.prototype['setDownwindCoverHeight'] = SIGSpot.prototype.setDownwindCoverHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(downwindCoverHeight, coverHeightUnits) {
   var self = this.ptr;
   if (downwindCoverHeight && typeof downwindCoverHeight === 'object') downwindCoverHeight = downwindCoverHeight.ptr;
   if (coverHeightUnits && typeof coverHeightUnits === 'object') coverHeightUnits = coverHeightUnits.ptr;
-  _emscripten_bind_Spot_setDownwindCoverHeight_2(self, downwindCoverHeight, coverHeightUnits);
+  _emscripten_bind_SIGSpot_setDownwindCoverHeight_2(self, downwindCoverHeight, coverHeightUnits);
 };;
 
-Spot.prototype['setFlameLength'] = Spot.prototype.setFlameLength = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameLength, flameLengthUnits) {
+SIGSpot.prototype['setFlameLength'] = SIGSpot.prototype.setFlameLength = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameLength, flameLengthUnits) {
   var self = this.ptr;
   if (flameLength && typeof flameLength === 'object') flameLength = flameLength.ptr;
   if (flameLengthUnits && typeof flameLengthUnits === 'object') flameLengthUnits = flameLengthUnits.ptr;
-  _emscripten_bind_Spot_setFlameLength_2(self, flameLength, flameLengthUnits);
+  _emscripten_bind_SIGSpot_setFlameLength_2(self, flameLength, flameLengthUnits);
 };;
 
-Spot.prototype['setLocation'] = Spot.prototype.setLocation = /** @suppress {undefinedVars, duplicate} @this{Object} */function(location) {
+SIGSpot.prototype['setLocation'] = SIGSpot.prototype.setLocation = /** @suppress {undefinedVars, duplicate} @this{Object} */function(location) {
   var self = this.ptr;
   if (location && typeof location === 'object') location = location.ptr;
-  _emscripten_bind_Spot_setLocation_1(self, location);
+  _emscripten_bind_SIGSpot_setLocation_1(self, location);
 };;
 
-Spot.prototype['setRidgeToValleyDistance'] = Spot.prototype.setRidgeToValleyDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ridgeToValleyDistance, ridgeToValleyDistanceUnits) {
+SIGSpot.prototype['setRidgeToValleyDistance'] = SIGSpot.prototype.setRidgeToValleyDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ridgeToValleyDistance, ridgeToValleyDistanceUnits) {
   var self = this.ptr;
   if (ridgeToValleyDistance && typeof ridgeToValleyDistance === 'object') ridgeToValleyDistance = ridgeToValleyDistance.ptr;
   if (ridgeToValleyDistanceUnits && typeof ridgeToValleyDistanceUnits === 'object') ridgeToValleyDistanceUnits = ridgeToValleyDistanceUnits.ptr;
-  _emscripten_bind_Spot_setRidgeToValleyDistance_2(self, ridgeToValleyDistance, ridgeToValleyDistanceUnits);
+  _emscripten_bind_SIGSpot_setRidgeToValleyDistance_2(self, ridgeToValleyDistance, ridgeToValleyDistanceUnits);
 };;
 
-Spot.prototype['setRidgeToValleyElevation'] = Spot.prototype.setRidgeToValleyElevation = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ridgeToValleyElevation, elevationUnits) {
+SIGSpot.prototype['setRidgeToValleyElevation'] = SIGSpot.prototype.setRidgeToValleyElevation = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ridgeToValleyElevation, elevationUnits) {
   var self = this.ptr;
   if (ridgeToValleyElevation && typeof ridgeToValleyElevation === 'object') ridgeToValleyElevation = ridgeToValleyElevation.ptr;
   if (elevationUnits && typeof elevationUnits === 'object') elevationUnits = elevationUnits.ptr;
-  _emscripten_bind_Spot_setRidgeToValleyElevation_2(self, ridgeToValleyElevation, elevationUnits);
+  _emscripten_bind_SIGSpot_setRidgeToValleyElevation_2(self, ridgeToValleyElevation, elevationUnits);
 };;
 
-Spot.prototype['setTorchingTrees'] = Spot.prototype.setTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function(torchingTrees) {
+SIGSpot.prototype['setTorchingTrees'] = SIGSpot.prototype.setTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function(torchingTrees) {
   var self = this.ptr;
   if (torchingTrees && typeof torchingTrees === 'object') torchingTrees = torchingTrees.ptr;
-  _emscripten_bind_Spot_setTorchingTrees_1(self, torchingTrees);
+  _emscripten_bind_SIGSpot_setTorchingTrees_1(self, torchingTrees);
 };;
 
-Spot.prototype['setTreeHeight'] = Spot.prototype.setTreeHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(treeHeight, treeHeightUnits) {
+SIGSpot.prototype['setTreeHeight'] = SIGSpot.prototype.setTreeHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(treeHeight, treeHeightUnits) {
   var self = this.ptr;
   if (treeHeight && typeof treeHeight === 'object') treeHeight = treeHeight.ptr;
   if (treeHeightUnits && typeof treeHeightUnits === 'object') treeHeightUnits = treeHeightUnits.ptr;
-  _emscripten_bind_Spot_setTreeHeight_2(self, treeHeight, treeHeightUnits);
+  _emscripten_bind_SIGSpot_setTreeHeight_2(self, treeHeight, treeHeightUnits);
 };;
 
-Spot.prototype['setTreeSpecies'] = Spot.prototype.setTreeSpecies = /** @suppress {undefinedVars, duplicate} @this{Object} */function(treeSpecies) {
+SIGSpot.prototype['setTreeSpecies'] = SIGSpot.prototype.setTreeSpecies = /** @suppress {undefinedVars, duplicate} @this{Object} */function(treeSpecies) {
   var self = this.ptr;
   if (treeSpecies && typeof treeSpecies === 'object') treeSpecies = treeSpecies.ptr;
-  _emscripten_bind_Spot_setTreeSpecies_1(self, treeSpecies);
+  _emscripten_bind_SIGSpot_setTreeSpecies_1(self, treeSpecies);
 };;
 
-Spot.prototype['setWindSpeedAtTwentyFeet'] = Spot.prototype.setWindSpeedAtTwentyFeet = /** @suppress {undefinedVars, duplicate} @this{Object} */function(windSpeedAtTwentyFeet, windSpeedUnits) {
+SIGSpot.prototype['setWindSpeedAtTwentyFeet'] = SIGSpot.prototype.setWindSpeedAtTwentyFeet = /** @suppress {undefinedVars, duplicate} @this{Object} */function(windSpeedAtTwentyFeet, windSpeedUnits) {
   var self = this.ptr;
   if (windSpeedAtTwentyFeet && typeof windSpeedAtTwentyFeet === 'object') windSpeedAtTwentyFeet = windSpeedAtTwentyFeet.ptr;
   if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
-  _emscripten_bind_Spot_setWindSpeedAtTwentyFeet_2(self, windSpeedAtTwentyFeet, windSpeedUnits);
+  _emscripten_bind_SIGSpot_setWindSpeedAtTwentyFeet_2(self, windSpeedAtTwentyFeet, windSpeedUnits);
 };;
 
-Spot.prototype['updateSpotInputsForBurningPile'] = Spot.prototype.updateSpotInputsForBurningPile = /** @suppress {undefinedVars, duplicate} @this{Object} */function(location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, downwindCanopyMode, buringPileFlameHeight, flameHeightUnits, windSpeedAtTwentyFeet, windSpeedUnits) {
+SIGSpot.prototype['updateSpotInputsForBurningPile'] = SIGSpot.prototype.updateSpotInputsForBurningPile = /** @suppress {undefinedVars, duplicate} @this{Object} */function(location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, downwindCanopyMode, buringPileFlameHeight, flameHeightUnits, windSpeedAtTwentyFeet, windSpeedUnits) {
   var self = this.ptr;
   if (location && typeof location === 'object') location = location.ptr;
   if (ridgeToValleyDistance && typeof ridgeToValleyDistance === 'object') ridgeToValleyDistance = ridgeToValleyDistance.ptr;
@@ -1264,10 +1264,10 @@ Spot.prototype['updateSpotInputsForBurningPile'] = Spot.prototype.updateSpotInpu
   if (flameHeightUnits && typeof flameHeightUnits === 'object') flameHeightUnits = flameHeightUnits.ptr;
   if (windSpeedAtTwentyFeet && typeof windSpeedAtTwentyFeet === 'object') windSpeedAtTwentyFeet = windSpeedAtTwentyFeet.ptr;
   if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
-  _emscripten_bind_Spot_updateSpotInputsForBurningPile_12(self, location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, downwindCanopyMode, buringPileFlameHeight, flameHeightUnits, windSpeedAtTwentyFeet, windSpeedUnits);
+  _emscripten_bind_SIGSpot_updateSpotInputsForBurningPile_12(self, location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, downwindCanopyMode, buringPileFlameHeight, flameHeightUnits, windSpeedAtTwentyFeet, windSpeedUnits);
 };;
 
-Spot.prototype['updateSpotInputsForSurfaceFire'] = Spot.prototype.updateSpotInputsForSurfaceFire = /** @suppress {undefinedVars, duplicate} @this{Object} */function(location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, downwindCanopyMode, windSpeedAtTwentyFeet, windSpeedUnits, flameLength, flameLengthUnits) {
+SIGSpot.prototype['updateSpotInputsForSurfaceFire'] = SIGSpot.prototype.updateSpotInputsForSurfaceFire = /** @suppress {undefinedVars, duplicate} @this{Object} */function(location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, downwindCanopyMode, windSpeedAtTwentyFeet, windSpeedUnits, flameLength, flameLengthUnits) {
   var self = this.ptr;
   if (location && typeof location === 'object') location = location.ptr;
   if (ridgeToValleyDistance && typeof ridgeToValleyDistance === 'object') ridgeToValleyDistance = ridgeToValleyDistance.ptr;
@@ -1281,10 +1281,10 @@ Spot.prototype['updateSpotInputsForSurfaceFire'] = Spot.prototype.updateSpotInpu
   if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
   if (flameLength && typeof flameLength === 'object') flameLength = flameLength.ptr;
   if (flameLengthUnits && typeof flameLengthUnits === 'object') flameLengthUnits = flameLengthUnits.ptr;
-  _emscripten_bind_Spot_updateSpotInputsForSurfaceFire_12(self, location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, downwindCanopyMode, windSpeedAtTwentyFeet, windSpeedUnits, flameLength, flameLengthUnits);
+  _emscripten_bind_SIGSpot_updateSpotInputsForSurfaceFire_12(self, location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, downwindCanopyMode, windSpeedAtTwentyFeet, windSpeedUnits, flameLength, flameLengthUnits);
 };;
 
-Spot.prototype['updateSpotInputsForTorchingTrees'] = Spot.prototype.updateSpotInputsForTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function(location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, downwindCanopyMode, torchingTrees, DBH, DBHUnits, treeHeight, treeHeightUnits, treeSpecies, windSpeedAtTwentyFeet, windSpeedUnits) {
+SIGSpot.prototype['updateSpotInputsForTorchingTrees'] = SIGSpot.prototype.updateSpotInputsForTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function(location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, downwindCanopyMode, torchingTrees, DBH, DBHUnits, treeHeight, treeHeightUnits, treeSpecies, windSpeedAtTwentyFeet, windSpeedUnits) {
   var self = this.ptr;
   if (location && typeof location === 'object') location = location.ptr;
   if (ridgeToValleyDistance && typeof ridgeToValleyDistance === 'object') ridgeToValleyDistance = ridgeToValleyDistance.ptr;
@@ -1302,12 +1302,12 @@ Spot.prototype['updateSpotInputsForTorchingTrees'] = Spot.prototype.updateSpotIn
   if (treeSpecies && typeof treeSpecies === 'object') treeSpecies = treeSpecies.ptr;
   if (windSpeedAtTwentyFeet && typeof windSpeedAtTwentyFeet === 'object') windSpeedAtTwentyFeet = windSpeedAtTwentyFeet.ptr;
   if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
-  _emscripten_bind_Spot_updateSpotInputsForTorchingTrees_16(self, location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, downwindCanopyMode, torchingTrees, DBH, DBHUnits, treeHeight, treeHeightUnits, treeSpecies, windSpeedAtTwentyFeet, windSpeedUnits);
+  _emscripten_bind_SIGSpot_updateSpotInputsForTorchingTrees_16(self, location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, downwindCanopyMode, torchingTrees, DBH, DBHUnits, treeHeight, treeHeightUnits, treeSpecies, windSpeedAtTwentyFeet, windSpeedUnits);
 };;
 
-  Spot.prototype['__destroy__'] = Spot.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  SIGSpot.prototype['__destroy__'] = SIGSpot.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  _emscripten_bind_Spot___destroy___0(self);
+  _emscripten_bind_SIGSpot___destroy___0(self);
 };
 // SIGFuelModels
 /** @suppress {undefinedVars, duplicate} @this{Object} */function SIGFuelModels(rhs) {
@@ -3567,6 +3567,11 @@ SIGCrown.prototype['getMoistureScenarioNameByIndex'] = SIGCrown.prototype.getMoi
   return UTF8ToString(_emscripten_bind_SIGCrown_getMoistureScenarioNameByIndex_1(self, index));
 };;
 
+SIGCrown.prototype['doCrownRun'] = SIGCrown.prototype.doCrownRun = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_SIGCrown_doCrownRun_0(self);
+};;
+
 SIGCrown.prototype['doCrownRunRothermel'] = SIGCrown.prototype.doCrownRunRothermel = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   _emscripten_bind_SIGCrown_doCrownRunRothermel_0(self);
@@ -4445,6 +4450,8 @@ WindSpeedUtility.prototype['windSpeedAtTwentyFeetFromTenMeter'] = WindSpeedUtili
     Module['Feet'] = _emscripten_enum_LengthUnits_LengthUnitsEnum_Feet();
 
     Module['Inches'] = _emscripten_enum_LengthUnits_LengthUnitsEnum_Inches();
+
+    Module['Millimeters'] = _emscripten_enum_LengthUnits_LengthUnitsEnum_Millimeters();
 
     Module['Centimeters'] = _emscripten_enum_LengthUnits_LengthUnitsEnum_Centimeters();
 

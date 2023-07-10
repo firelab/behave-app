@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 # Set Compiler
 SET (CMAKE_C_COMPILER "clang")
 SET (CMAKE_CXX_COMPILER "clang++")
+SET (CMAKE_CXX_STANDARD "14")
 
 # optional test executable
 OPTION(TEST_BEHAVE "Enable Testing" OFF)
@@ -44,6 +45,7 @@ set(DWARF_DIR ${CMAKE_SOURCE_DIR})
 # set(DWARF_DIR //wsl%24/Ubuntu/home/kcheung/work/code/behave-polylith/behave-lib)
 
 set(EMCC_ARGS
+    -std=c++14
     -I${BEHAVE_SRC_DIR}
     -I${SIG_SRC_DIR}
     -I${EMSCRIPTEN_SRC_FILE}
@@ -61,9 +63,6 @@ set(EMCC_WASM_ARGS ${EMCC_ARGS}
     -s WASM=1
     -s ALLOW_MEMORY_GROWTH
     -fdebug-prefix-map=${CMAKE_SOURCE_DIR}=${DWARF_DIR})
-
-# Make use of c++11
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 
 project(behave LANGUAGES CXX)
 

@@ -67,6 +67,7 @@ enum CuringLevelUnits_CuringLevelEnum {
 enum LengthUnits_LengthUnitsEnum {
   "LengthUnits::Feet",
   "LengthUnits::Inches",
+  "LengthUnits::Millimeters",
   "LengthUnits::Centimeters",
   "LengthUnits::Meters",
   "LengthUnits::Chains",
@@ -335,8 +336,8 @@ enum SpotFireLocation_SpotFireLocationEnum {
   "SpotFireLocation::RIDGE_TOP"
 };
 
-interface Spot {
-  void Spot();
+interface SIGSpot {
+  void SIGSpot();
   SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum getDownwindCanopyMode();
   SpotFireLocation_SpotFireLocationEnum getLocation();
   SpotTreeSpecies_SpotTreeSpeciesEnum getTreeSpecies();
@@ -948,6 +949,7 @@ interface SIGCrown {
   [Const] DOMString getMoistureScenarioDescriptionByIndex(long index);
   [Const] DOMString getMoistureScenarioDescriptionByName([Const] DOMString name);
   [Const] DOMString getMoistureScenarioNameByIndex(long index);
+  void doCrownRun();
   void doCrownRunRothermel();
   void doCrownRunScottAndReinhardt();
   void initializeMembers();
