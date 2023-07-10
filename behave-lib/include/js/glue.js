@@ -2735,12 +2735,11 @@ SIGSurface.prototype['setWindUpslopeAlignmentMode'] = SIGSurface.prototype.setWi
   _emscripten_bind_SIGSurface_setWindUpslopeAlignmentMode_1(self, WindUpslopeAlignmentMode);
 };;
 
-SIGSurface.prototype['setWindSpeed'] = SIGSurface.prototype.setWindSpeed = /** @suppress {undefinedVars, duplicate} @this{Object} */function(windSpeed, windSpeedUnits, windHeightInputMode) {
+SIGSurface.prototype['setWindSpeed'] = SIGSurface.prototype.setWindSpeed = /** @suppress {undefinedVars, duplicate} @this{Object} */function(windSpeed, windSpeedUnits) {
   var self = this.ptr;
   if (windSpeed && typeof windSpeed === 'object') windSpeed = windSpeed.ptr;
   if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
-  if (windHeightInputMode && typeof windHeightInputMode === 'object') windHeightInputMode = windHeightInputMode.ptr;
-  _emscripten_bind_SIGSurface_setWindSpeed_3(self, windSpeed, windSpeedUnits, windHeightInputMode);
+  _emscripten_bind_SIGSurface_setWindSpeed_2(self, windSpeed, windSpeedUnits);
 };;
 
 SIGSurface.prototype['updateSurfaceInputs'] = SIGSurface.prototype.updateSurfaceInputs = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyHeightUnits, crownRatio) {
