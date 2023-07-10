@@ -224,6 +224,9 @@
 (defn setSurfaceFireScorchHeight [self value lengthUnits]
   (.setSurfaceFireScorchHeight self value lengthUnits))
 
+(defn setSurfaceFireFlameLength [self value lengthUnits]
+  (.setSurfaceFireFlameLength self value lengthUnits))
+
 (defn setTreeDensityPerUnitArea [self numberOfTrees areaUnits]
   (.setTreeDensityPerUnitArea self numberOfTrees areaUnits))
 
