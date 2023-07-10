@@ -1,8 +1,25 @@
 (ns behave.solver-test
-  (:require [cljs.test          :refer [are is deftest testing]]
-            [datascript.core    :as d]
-            [behave.vms.store :refer [vms-conn]]
-            [behave.vms.rules :refer [rules]]))
+  (:require [clojure.string       :as str]
+            [cljs.test            :refer [deftest is join-fixtures testing use-fixtures are] :include-macros true]
+            [csv-parser.interface :refer [parse-csv]]
+            [datascript.core      :as d]
+            [behave.fixtures :as fx]
+            [behave.lib.enums     :as enums]
+            [behave.lib.units     :refer [get-unit]]
+            [behave.solver.core   :refer [solve-worksheet]]
+            [behave.vms.store     :refer [vms-conn]]
+            [behave.vms.rules     :refer [rules]])
+  (:require-macros [behave.macros :refer [inline-resource]]))
+
+;;; Helpers
+
+(defn- clean-values [row]
+  (into {}
+        (map (fn remove-quotes[[key val]]
+               (if (string? val)
+                 [key (str/replace val "\"" "")]
+                 [key val])))
+        row))
 
 (defn class+fn->gv-uuid [class-name fn-name]
   (d/q '[:find ?gv-uuid .
@@ -17,6 +34,8 @@
          [?gv :group-variable/cpp-function ?f-uuid]
          [?gv :bp/uuid ?gv-uuid]]
        @@vms-conn rules class-name fn-name))
+
+(def ws-output class+fn->gv-uuid)
 
 (defn class+fn+param->group+gv-uuid [class-name fn-name param-name]
   (d/q '[:find [?g-uuid ?gv-uuid]
@@ -38,6 +57,12 @@
          [?g  :bp/uuid ?g-uuid]]
        @@vms-conn rules class-name fn-name param-name))
 
+(defn ws-input [class-name fn-name param-name value]
+  (let [[group-uuid gv-uuid] (class+fn+param->group+gv-uuid class-name fn-name param-name)]
+    (if (and group-uuid gv-uuid)
+      [group-uuid 0 gv-uuid (str value)]
+      [fn-name 0 param-name (str value)])))
+
 (defn outputs-exist? [class-name & fn-names]
   (doseq [fn-name fn-names]
     (is (some? (class+fn->gv-uuid class-name fn-name)))))
@@ -45,6 +70,14 @@
 (defn inputs-exist? [class-name & fn-names]
   (doseq [fn-name fn-names]
     (is (some? (class+fn->gv-uuid class-name fn-name)))))
+
+;;; Fixtures
+
+(use-fixtures :each
+  {:before (join-fixtures [fx/setup-empty-db fx/with-new-worksheet fx/log-rf-events])
+   :after  (join-fixtures [fx/teardown-db fx/stop-logging-rf-events])})
+
+;;; Tests
 
 (deftest contain-fn-mappings-exist
   (let [class-name "SIGContainAdapter"]
@@ -139,7 +172,7 @@
     (testing "Surface Input Variables Function Mappings"
       (are [fn-name p-name] (some? (class+fn+param->group+gv-uuid class-name fn-name p-name))
         "setSurfaceRunInDirectionOf"       "surfaceRunInDirectionOf"
-        "setWindDirection"                 "windDirection"
+        "setWindAndSpreadOrientationMode"  "windAndSpreadOrientationMode"
         "setFuelModelNumber"               "fuelModelNumber"
         "setChaparralFuelLoadInputMode"    "fuelLoadInputMode"
         "setChaparralFuelDeadLoadFraction" "chaparralFuelDeadLoadFraction"
@@ -159,15 +192,15 @@
         "setWindUpslopeAlignmentMode"      "windUpslopeAlignmentMode")
 
       (are [fn-name p-name] (some? (class+fn+param->group+gv-uuid spot fn-name p-name))
-        "setDownwindCoverHeight"           "downwindCoverHeight"
-        "setDownwindCanopyMode"            "downwindCanopyMode"
-        "setTreeHeight"                    "treeHeight"
-        "setTreeSpecies"                   "treeSpecies"
-        "setDBH"                           "DBH"
-        "setTorchingTrees"                 "torchingTrees"
-        "setRidgeToValleyElevation"        "ridgeToValleyElevation"
-        "setRidgeToValleyDistance"         "ridgeToValleyDistance"
-        "setLocation"                      "location"))))
+        "setDownwindCoverHeight"    "downwindCoverHeight"
+        "setDownwindCanopyMode"     "downwindCanopyMode"
+        "setTreeHeight"             "treeHeight"
+        "setTreeSpecies"            "treeSpecies"
+        "setDBH"                    "DBH"
+        "setTorchingTrees"          "torchingTrees"
+        "setRidgeToValleyElevation" "ridgeToValleyElevation"
+        "setRidgeToValleyDistance"  "ridgeToValleyDistance"
+        "setLocation"               "location"))))
 
 (deftest crown-fn-mappings-exist
   (let [class-name "SIGCrown"
@@ -222,12 +255,107 @@
 
     (testing "Mortality Input Variables Function Mappings"
       (are [fn-name p-name] (some? (class+fn+param->group+gv-uuid class-name fn-name p-name))
-        "setTreeHeight"             "treeHeight"
-        "setCrownRatio"             "crownRatio"
-        "setSpeciesCode"            "speciesCode"
-        "setDBH"                    "dbh"
-        "setSurfaceFireFlameLength" "value"
-        "setSurfaceFireFlameLength" "value"
-        "setFirelineIntensity"      "firelineIntensity"
-        "setMidFlameWindSpeed"      "midFlameWindSpeed"
-        "setAirTemperature"         "airTemperature"))))
+        "setAirTemperature"          "airTemperature"
+        "setBeetleDamage"            "beetleDamage"
+        "setBoleCharHeight"          "boleCharHeight"
+        "setCambiumKillRating"       "cambiumKillRating"
+        "setCrownDamage"             "crownDamage"
+        "setCrownRatio"              "crownRatio"
+        "setDBH"                     "dbh"
+        "setEquationType"            "equationType"
+        "setFirelineIntensity"       "firelineIntensity"
+        "setMidFlameWindSpeed"       "midFlameWindSpeed"
+        "setRegion"                  "region"
+        "setSpeciesCode"             "speciesCode"
+        "setSurfaceFireFlameLength"  "value"
+        "setSurfaceFireScorchHeight" "value"
+        "setTreeHeight"              "treeHeight"
+        "setTreeDensityPerUnitArea"  "numberOfTrees"))))
+
+(def equation-type-lookup
+  {"CRNSCH" "crown_scorch"
+   "CRCABE" "crown_damage"
+   "BOLCHR" "bole_char"})
+
+(def not-blank? (comp not str/blank?))
+
+(deftest mortality-worksheet
+
+  (let [mortality-input     (fn [acc & args]
+                              (let [input (apply ws-input "SIGMortality" args)]
+                                (assoc-in acc (butlast input) (last input))))
+        mortality-output    (fn [acc & args]
+                              (let [output (apply ws-output "SIGMortality" args)]
+                                (conj acc output)))
+        row                 (->> (inline-resource "public/csv/mortality.csv")
+                                 (parse-csv)
+                                 (map clean-values)
+                                 (first))
+        equation-type       (if (get row "EquationType")
+                              (->> (get row "EquationType")
+                                   (get equation-type-lookup
+                                        enums/equation-type))
+                              -1)
+        species-code        (get row "TreeSpecies")
+        FS                  (get row "FS")
+        FlLe-ScHt           (get row "FlLe/ScHt")
+        TreeExpansionFactor (get row "TreeExpansionFactor")
+        Diameter            (get row "Diameter")
+        TreeHeight          (get row "TreeHeight")
+        CrownRatio          (get row "CrownRatio")
+        CrownScorch         (get row "CrownScorch%")
+        CKR                 (get row "CKR")
+        BeetleDamage        (get row "BeetleDamage")
+        BoleCharHeight      (get row "BoleCharHeight")
+        inputs
+        (cond-> {}
+          :always
+          (->
+           (mortality-input "setRegion" "region" (enums/region-code "south_east"))
+           (mortality-input "setEquationType" "equationType" equation-type)
+           (mortality-input "setSpeciesCode" "speciesCode" species-code))
+
+          (empty? (get row "FS"))
+          (mortality-input "setFlameLengthOrScorchHeightValue" "flameLengthOrScorchHeightValue" 4)
+
+          (and (not-blank? FlLe-ScHt) (= FS "F"))
+          (mortality-input "setSurfaceFireFlameLength" "value" FlLe-ScHt)
+
+          (and (not-blank? FlLe-ScHt) (= FS "S"))
+          (mortality-input "setSurfaceFireScorchHeight" "value" FlLe-ScHt)
+
+          (not-blank? TreeExpansionFactor)
+          (mortality-input "setTreeDensityPerUnitArea" "numberOfTrees" TreeExpansionFactor)
+          (not-blank? Diameter)
+          (mortality-input "setDBH" "dbh" Diameter)
+
+          (not-blank? TreeHeight)
+          (mortality-input "setTreeHeight" "treeHeight" TreeHeight)
+
+          (not-blank? CrownRatio)
+          (mortality-input "setCrownRatio" "crownRatio" (/ CrownRatio 100))
+
+          (not-blank? CrownScorch)
+          (mortality-input "setCrownDamage" "crownDamage" CrownScorch)
+
+          (not-blank? CKR)
+          (mortality-input "setCambiumKillRating" "cambiumKillRating" CKR)
+
+          (not-blank? BeetleDamage)
+          (mortality-input "setBeetleDamage" "beetleDamage" (enums/beetle-damage (str/lower-case BeetleDamage)))
+
+          (not-blank? BoleCharHeight)
+          (mortality-input "setBoleCharHeight" "boleCharHeight" BoleCharHeight))
+
+        outputs  [(ws-output "SIGMortality" "getProbabilityOfMortality")]
+        expected (get row "MortAvgPercent")
+
+        observed
+        (-> (solve-worksheet #{:mortality} inputs outputs)
+            (first)
+            (:outputs)
+            (first))]
+
+    (println "GOT A RESULT" observed)
+
+    (is (= observed expected))))
