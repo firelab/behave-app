@@ -143,7 +143,7 @@
        :options   (if @is-output?
                     [{:value "true" :label "True"}
                      {:value "false" :label "False"}]
-                    (map (fn [{value :list-option/index label :list-option/name}]
+                    (map (fn [{value :list-option/value label :list-option/name}]
                            {:value value :label label}) @options))}]]))
 
 (defn manage-conditionals [entity-id cond-attr cond-attr-op]

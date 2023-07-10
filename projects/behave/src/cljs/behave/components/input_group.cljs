@@ -64,12 +64,12 @@
                on-change                 #(upsert-input ws-uuid group-uuid repeat-id uuid (input-value %))
                options                   (:list/options list)
                num-options               (count options)
-               ->option                  (fn [{index :list-option/index name :list-option/name default? :list-option/default}]
-                                           {:value     index
+               ->option                  (fn [{value :list-option/value name :list-option/name default? :list-option/default}]
+                                           {:value     value
                                             :label     name
                                             :on-change on-change
-                                            :selected? (or (= @selected (str index)) (and (nil? @selected) default?))
-                                            :checked?  (= @selected (str index))})]
+                                            :selected? (or (= @selected value) (and (nil? @selected) default?))
+                                            :checked?  (= @selected value)})]
     [:div.wizard-input
      {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
      (if (>= 4 num-options)

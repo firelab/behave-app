@@ -30,7 +30,7 @@
         on-delete #(when (js/confirm (str "Are you sure you want to delete the list " (:list-option/name %) "?"))
                      (rf/dispatch [:api/delete-entity (:db/id %)]))]
     [simple-table
-     [:list-option/name :list-option/index :list-option/order :list-option/default]
+     [:list-option/name :list-option/value :list-option/order :list-option/default]
      (sort-by :list-option/order @list-options)
      {:on-select on-select
       :on-delete on-delete
@@ -52,9 +52,8 @@
                                     :required? true
                                     :field-key :list-option/name}
                                    {:label     "Index"
-                                    :type      :number
                                     :required? true
-                                    :field-key :list-option/index}
+                                    :field-key :list-option/value}
                                    {:label     "Default"
                                     :type      :radio
                                     :field-key :list-option/default

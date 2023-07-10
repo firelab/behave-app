@@ -2,6 +2,7 @@
   (:require [re-frame.core      :as rf]
             [datascript.core    :as d]
             [clojure.string      :as str]
+            [data-utils.interface :refer [is-digit? parse-int parse-float]]
             [behave.logger       :refer [log]]
             [behave.lib.enums    :as enum]
             [behave.lib.units    :as units]
@@ -152,8 +153,8 @@
                       :where (kind ?gv-uuid ?kind)]
                     group-variable-uuid)]
     (condp = kind
-      :discrete   (js/parseInt value)
-      :continuous (js/parseFloat value)
+      :discrete   (if (is-digit? value) (parse-int value) value)
+      :continuous (parse-float value)
       :text       value)))
 
 (defn fn-params [function-id]

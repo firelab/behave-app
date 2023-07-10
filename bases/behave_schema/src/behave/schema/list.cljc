@@ -17,13 +17,13 @@
 (s/def :list-option/uuid            uuid-string?)
 (s/def :list-option/name            string?)
 (s/def :list-option/default         boolean?)
-(s/def :list-option/index           zero-pos?)
+(s/def :list-option/value           string?)
 (s/def :list-option/order           zero-pos?)
 (s/def :list-option/translation-key string?)
 
 (s/def :behave/list-option (s/keys :req [:list-option/uuid
                                          :list-option/name
-                                         :list-option/index
+                                         :list-option/value
                                          :list-option/order
                                          :list-option/translation-key]
                                    :opt [:list-option/default]))
@@ -67,9 +67,9 @@
     :db/valueType   :db.type/boolean
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :list-option/index
-    :db/doc         "List option's index."
-    :db/valueType   :db.type/long
+   {:db/ident       :list-option/value
+    :db/doc         "List option's value."
+    :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :list-option/order
@@ -92,6 +92,6 @@
 
   (s/valid? :behave/list-option {:list-option/uuid            (str (random-uuid))
                                  :list-option/name            "My Option"
-                                 :list-option/index           2
+                                 :list-option/value           "2"
                                  :list-option/order           1
                                  :list-option/translation-key "behave:my-list:my-option"}))
