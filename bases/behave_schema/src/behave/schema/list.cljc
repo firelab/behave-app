@@ -23,7 +23,7 @@
 
 (s/def :behave/list-option (s/keys :req [:list-option/uuid
                                          :list-option/name
-                                         :list-option/index
+                                         :list-option/value
                                          :list-option/order
                                          :list-option/translation-key]
                                    :opt [:list-option/default]))
@@ -92,6 +92,6 @@
 
   (s/valid? :behave/list-option {:list-option/uuid            (str (random-uuid))
                                  :list-option/name            "My Option"
-                                 :list-option/index           2
+                                 :list-option/value           "2"
                                  :list-option/order           1
                                  :list-option/translation-key "behave:my-list:my-option"}))
