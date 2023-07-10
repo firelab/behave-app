@@ -17,7 +17,7 @@
 (s/def :list-option/uuid            uuid-string?)
 (s/def :list-option/name            string?)
 (s/def :list-option/default         boolean?)
-(s/def :list-option/index           zero-pos?)
+(s/def :list-option/value           string?)
 (s/def :list-option/order           zero-pos?)
 (s/def :list-option/translation-key string?)
 
@@ -67,9 +67,9 @@
     :db/valueType   :db.type/boolean
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :list-option/index
-    :db/doc         "List option's index."
-    :db/valueType   :db.type/long
+   {:db/ident       :list-option/value
+    :db/doc         "List option's value."
+    :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :list-option/order
