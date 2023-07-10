@@ -37,10 +37,7 @@
                             (get equation-type-lookup)
                             enums/equation-type)
                        -1)
-       species-code  (get row "TreeSpecies")
-       FS            (if (= (get row "FS") "S")
-                       (enums/flame-length-or-scorch-height-switch "scorch_height")
-                       (enums/flame-length-or-scorch-height-switch "flame_length"))]
+       species-code  (get row "TreeSpecies")]
 
     (mortality/setRegion module (enums/region-code "south_east"))
 
@@ -50,15 +47,17 @@
 
     (mortality/updateInputsForSpeciesCodeAndEquationType module species-code equation-type)
 
-    (mortality/setFlameLengthOrScorchHeightSwitch module FS)
+    (let [FS        (get row "FS")
+          FlLe-ScHt (get row "FlLe/ScHt")]
+      (cond
+        (empty? FS)
+        (mortality/setSurfaceFireFlameLength module 4 (enums/length-units "Feet"))
 
-    (let [FS (get row "FS")]
-      (when (empty? FS)
-        (mortality/setFlameLengthOrScorchHeightValue module 4 (enums/length-units "Feet"))))
+        (and (= FS "S") (not-blank? FlLe-ScHt))
+        (mortality/setSurfaceFireScorchHeight module FlLe-ScHt (enums/length-units "Feet"))
 
-    (let [FlLe-ScHt (get row "FlLe/ScHt")]
-      (when (not-blank? FlLe-ScHt)
-        (mortality/setFlameLengthOrScorchHeightValue module FlLe-ScHt (enums/length-units "Feet"))))
+        (not-blank? FlLe-ScHt)
+        (mortality/setSurfaceFireFlameLength module FlLe-ScHt (enums/length-units "Feet"))))
 
     (let [TreeExpansionFactor (get row "TreeExpansionFactor")]
       (when (not-blank? TreeExpansionFactor)
