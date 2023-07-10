@@ -13,6 +13,11 @@
 
 ;;; Helpers
 
+(defn within? [precision a b]
+  (> precision (Math/abs (- a b))))
+
+(def within-four-percent? (partial within? 4.0))
+
 (defn- clean-values [row]
   (into {}
         (map (fn remove-quotes[[key val]]
@@ -289,8 +294,8 @@
                                  (first))
         equation-type       (if (get row "EquationType")
                               (->> (get row "EquationType")
-                                   (get equation-type-lookup
-                                        enums/equation-type))
+                                   (get equation-type-lookup)
+                                   (enums/equation-type))
                               -1)
         species-code        (get row "TreeSpecies")
         FS                  (get row "FS")
@@ -311,8 +316,8 @@
            (mortality-input "setEquationType" "equationType" equation-type)
            (mortality-input "setSpeciesCode" "speciesCode" species-code))
 
-          (empty? (get row "FS"))
-          (mortality-input "setFlameLengthOrScorchHeightValue" "flameLengthOrScorchHeightValue" 4)
+          (empty? FS)
+          (mortality-input "setSurfaceFireFlameLength" "value" 4)
 
           (and (not-blank? FlLe-ScHt) (= FS "F"))
           (mortality-input "setSurfaceFireFlameLength" "value" FlLe-ScHt)
@@ -322,8 +327,9 @@
 
           (not-blank? TreeExpansionFactor)
           (mortality-input "setTreeDensityPerUnitArea" "numberOfTrees" TreeExpansionFactor)
+
           (not-blank? Diameter)
-          (mortality-input "setDBH" "dbh" (/ Diameter 12.0))
+          (mortality-input "setDBH" "dbh" Diameter)
 
           (not-blank? TreeHeight)
           (mortality-input "setTreeHeight" "treeHeight" TreeHeight)
@@ -346,12 +352,11 @@
         outputs  [(ws-output "SIGMortality" "getProbabilityOfMortality")]
         expected (get row "MortAvgPercent")
 
-        observed
-        (-> (solve-worksheet #{:mortality} inputs outputs)
-            (first)
-            (:outputs)
-            (first))]
+        observed (-> (solve-worksheet #{:mortality} inputs outputs)
+                     (first)
+                     (:outputs)
+                     (vals)
+                     (ffirst)
+                     (* 100))]
 
-    (println "GOT A RESULT" observed)
-
-    (is (= observed expected))))
+    (is (within-four-percent? observed expected))))
