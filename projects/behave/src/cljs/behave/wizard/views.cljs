@@ -46,8 +46,9 @@
 (defmethod submodule-page :output [_ ws-uuid groups]
   [:<> (build-groups ws-uuid groups output-group)])
 
-(defn- io-tabs [submodules {:keys [io] :as params}]
-  (let [[i-subs o-subs] (partition-by #(:submodule/io %) submodules)
+(defn- io-tabs [module-id {:keys [ws-uuid io] :as params}]
+  (let [i-subs          @(subscribe [:wizard/submodules-conditionally-filtered ws-uuid module-id :input])
+        o-subs          @(subscribe [:wizard/submodules-conditionally-filtered ws-uuid module-id :output])
         first-submodule (:slug (first (if (= io :input) o-subs i-subs)))]
     [:div.wizard-header__io-tabs
      [c/tab-group {:variant   "outline-primary"
@@ -75,17 +76,22 @@
                 :icon-position "left"
                 :on-click      #(dispatch [:wizard/toggle-show-notes])}]]))
 
-(defn- wizard-header [{module-name :module/name} all-submodules {:keys [ws-uuid io submodule] :as params}]
-  (let [submodules   (->> all-submodules
-                          (filter (fn [{s-io :submodule/io
-                                        op   :submodule/conditionals-operator
-                                        id   :db/id}]
-                                  (and (= s-io io)
-                                       @(subscribe [:wizard/show-submodule? ws-uuid id op]))))
-                        (sort-by :submodule/order))
-        *show-notes? (subscribe [:wizard/show-notes?])]
+(defn- wizard-header [{module-name :module/name
+                       module-id   :db/id}
+                      {:keys [ws-uuid io submodule] :as params}]
+  (let [*submodules         (if (= io :output)
+                              (subscribe [:wizard/submodules-io-output-only module-id])
+                              (subscribe [:wizard/submodules-io-input-only module-id]))
+        ;;(Kcheung) Not able to use :wizard/submodules-conditionally-filtered because the submodule tabs
+        ;;would not rerender when conditionals are met without hard refresh. so had to filter
+        ;;:wizard/show-submodule? outside of the subscription.
+        submodules-filtered (filter (fn [{id :db/id
+                                          op :submodule/conditionals-operator}]
+                                      @(subscribe [:wizard/show-submodule? ws-uuid id op]))
+                                    @*submodules)
+        *show-notes?        (subscribe [:wizard/show-notes?])]
     [:div.wizard-header
-     [io-tabs all-submodules params]
+     [io-tabs module-id params]
      [:div.wizard-header__banner
       [:div.wizard-header__banner__icon
        [c/icon :modules]]
@@ -99,7 +105,8 @@
                     :tabs     (map (fn [{s-name :submodule/name slug :slug}]
                                      {:label     s-name
                                       :tab       slug
-                                      :selected? (= submodule slug)}) submodules)}]]]))
+                                      :selected? (= submodule slug)})
+                                   submodules-filtered)}]]]))
 
 (defn wizard-note
   [{:keys [note display-submodule-headers?]}]
@@ -160,7 +167,7 @@
         *some-outputs-entered?   (subscribe [:worksheet/some-outputs-entered? ws-uuid module-id submodule])
         next-disabled?           (not (if (= io :input) @*all-inputs-entered? @*some-outputs-entered?))]
     [:div.wizard-page
-     [wizard-header @*module @*submodules params]
+     [wizard-header @*module params]
      [:div.wizard-page__body
       (when @*show-notes?
         [:<>

@@ -57,6 +57,19 @@
         (sort-by :submodule/order))))
 
 (reg-sub
+ :wizard/submodules-conditionally-filtered
+ (fn [[_ _ws-uuid module-id _io]]
+   [(subscribe [:wizard/submodules-io-input-only module-id])
+    (subscribe [:wizard/submodules-io-output-only module-id])])
+
+ (fn [[input-submodules output-submodules] [_ ws-uuid _module-id io]]
+   (let [submodules (if (= io :output) output-submodules input-submodules)]
+     (filter (fn [{id :db/id
+                   op :submodule/conditionals-operator}]
+               @(subscribe [:wizard/show-submodule? ws-uuid id op]))
+             submodules))))
+
+(reg-sub
  :wizard/*submodule
 
  (fn [[_ module-id _ _]]
