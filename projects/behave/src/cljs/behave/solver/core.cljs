@@ -49,7 +49,8 @@
           inputs))
 
 (defn generate-runs [all-inputs-vector]
-  (let [single-inputs          (remove #(-> % (last) (csv?)) all-inputs-vector)
+  (let [empty-or-csv?          #(or (empty? %) (csv? %))
+        single-inputs          (remove #(-> % (last) (empty-or-csv?)) all-inputs-vector)
         range-inputs           (filter #(-> % (last) (csv?)) all-inputs-vector)
         separated-range-inputs (map #(let [result (vec (butlast %))
                                            values (map str/trim (str/split  (last %) #","))]
