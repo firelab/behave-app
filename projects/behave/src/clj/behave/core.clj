@@ -18,7 +18,7 @@
             [behave.store                 :as store]
             [behave.sync                  :refer [sync-handler]]
             [behave.download-vms          :refer [export-from-vms]]
-            [behave.views                 :refer [render-page]])
+            [behave.views                 :refer [render-page render-tests-page]])
   (:gen-class))
 
 (defn expand-home [s]
@@ -49,6 +49,7 @@
                        (bad-uri? uri)                     (not-found "404 Not Found")
                        (str/starts-with? uri "/vms-sync") #'vms-sync-handler
                        (str/starts-with? uri "/sync")     #'sync-handler
+                       (str/starts-with? uri "/test")     #'render-tests-page
                        (match-route routes uri)           (render-page (match-route routes uri))
                        :else                              (not-found "404 Not Found"))]
     (next-handler request)))

@@ -49,6 +49,24 @@
              (inline-resource "onload.js")]
             (str/join "\n"))])))
 
+(defn cljs-init-tests []
+  (let [app-js "/cljs/app-testing.js"]
+    [:script {:type "text/javascript"}
+     (->> [(str "window.onWASMModuleLoadedPath =\"" app-js "\";")
+           (inline-resource "onload.js")]
+          (str/join "\n"))]))
+
+(defn render-tests-page [_request]
+  {:status  200
+   :headers {"Content-Type" "text/html"}
+   :body    (html5
+             [:meta
+              [:title "BehavePlus Tests"]]
+             [:body
+              [:div#app-testing]
+              #_(cljs-init-tests)
+              (include-js "/js/behave-min.js" "/cljs/app-testing.js")])})
+
 (defn render-page [{:keys [route-params] :as match}]
   (fn [{:keys [params figwheel?]}]
     {:status  (if (some? match) 200 404)
