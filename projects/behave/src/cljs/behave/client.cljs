@@ -66,7 +66,7 @@
        [:td.page__top__toolbar-container
         [toolbar params]]]]
      [:div.page__main
-      [sidebar]
+      [sidebar params]
       [:div.container
        [:div.working-area
         {:area-live "assertive"}

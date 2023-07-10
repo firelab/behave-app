@@ -29,7 +29,7 @@
      ^{:key (:label module)}
      [sidebar-module module])])
 
-(defn sidebar []
+(defn sidebar [{:keys [ws-uuid]}]
   (let [*sidebar-modules (rf/subscribe [:state [:sidebar :*modules]])
         on-select        #(do (rf/dispatch [:state/set [:sidebar :*modules] (:module %)])
                               (rf/dispatch [:state/set [:worksheet :*modules] (:module %)]))]
@@ -40,7 +40,12 @@
                                   {:label     (str "behaveplus:" (name module))
                                    :icon      (name module)
                                    :selected? (contains? @*sidebar-modules module)
-                                   :module    #{module}})
+                                   :module    #{module}
+                                   :on-select #(when ws-uuid
+                                                 (let [module-name    (name (first (:module %)))
+                                                       *module        (rf/subscribe [:wizard/*module module-name])
+                                                       submodule-slug (:slug (first @(rf/subscribe [:wizard/submodules-io-output-only (:db/id @*module)])))]
+                                                   (rf/dispatch [:navigate (str "/worksheets/" ws-uuid "/modules/" module-name "/output/" submodule-slug)])))})
                                 [{:label     "behaveplus:surface"
                                   :icon      "surface"
                                   :on-select on-select
