@@ -1,5 +1,6 @@
 (ns behave.wizard.views
-  (:require [behave.components.core         :as c]
+  (:require [clojure.string                 :as str]
+            [behave.components.core         :as c]
             [behave.components.input-group  :refer [input-group]]
             [behave.components.chart         :refer [chart]]
             [behave.components.review-input-group  :as review]
@@ -309,6 +310,36 @@
                         :value-atom    (r/atom saved-value)}])
        saved-entries))
 
+(defn format-bytes
+  "Formats `bytes` into a human-friendly format (e.g. '1 KiB'). Can be called formatted according to `decimals`."
+  [bytes & [decimals]]
+  (if (js/isNaN (+ bytes 0))
+    "0 Bytes"
+    (let [decimals (or decimals 2)
+          k        1024
+          dm       (if (< decimals 0) 0 decimals)
+          sizes    ["Bytes", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"]
+          i        (js/Math.floor (/ (js/Math.log bytes) (js/Math.log k)))]
+      (gstring/format "%s %s" (.toFixed (js/parseFloat (/ bytes (js/Math.pow k i))) dm) (nth sizes i)))))
+
+(defn table-exporter
+  "Displays a link to download a CSV copy of the table."
+  [{:keys [title headers columns rows] :as table-data}]
+  (let [print-row  (fn [row] (str/join "," (map #(get row %) columns)))
+        csv-header (str/join "," headers)
+        csv-rows   (str/join "\n" (map print-row rows))
+        csv        (str csv-header "\n" csv-rows)
+        blob       (js/Blob. [csv] #js {:type "text/csv"})
+        url        (js/window.URL.createObjectURL blob)]
+    [:div
+     (c/table table-data)
+     [:div
+      {:style {:margin "1em"}}
+      [:a
+       {:href     url
+        :download (gstring/format "%s.csv" title)}
+       (gstring/format "Download CSV (%s.csv / %s)" title (format-bytes (.-size blob) 0))]]]))
+
 (defn settings-form
   [{:keys [ws-uuid title headers rf-event-id rf-sub-id min-attr-id max-attr-id]}]
   (let [*gv-uuid+min+max-entries   (subscribe [rf-sub-id ws-uuid])
@@ -558,30 +589,30 @@
         (when (and table-enabled? (seq @*cell-data))
           [:div.wizard-results__table {:id "table"}
            [:div.wizard-notes__header "Table"]
-           (c/table {:title   "Results Table"
-                     :headers (mapv (fn resolve-uuid [[_order uuid _repeat-id units]]
-                                      (gstring/format "%s (%s)"
-                                                      (:variable/name @(subscribe [:wizard/group-variable uuid]))
-                                                      units))
-                                    @*headers)
-                     :columns (mapv (fn [[_order uuid repeat-id _units]]
-                                      (keyword (str uuid "-" repeat-id))) @*headers)
-                     :rows    (->> (group-by first @*cell-data)
-                                   (sort-by key)
-                                   (map (fn [[_ data]]
-                                          (reduce (fn [acc [_row-id uuid repeat-id value]]
-                                                    (let [[_ min max enabled?] (first (filter
-                                                                              (fn [[gv-uuid]]
-                                                                                (= gv-uuid uuid))
-                                                                              @table-setting-filters))]
-                                                      (cond-> acc
-                                                        (and min max (not (<= min value max)) enabled?)
-                                                        (assoc :shaded? true)
+           (let [table-data {:title   "Results Table"
+                             :headers (mapv (fn resolve-uuid [[_order uuid _repeat-id units]]
+                                              (str (:variable/name @(subscribe [:wizard/group-variable uuid]))
+                                                   (when-not (empty? units) (gstring/format " (%s)" units))))
+                                            @*headers)
+                             :columns (mapv (fn [[_order uuid repeat-id _units]]
+                                              (keyword (str uuid "-" repeat-id))) @*headers)
+                             :rows    (->> (group-by first @*cell-data)
+                                           (sort-by key)
+                                           (map (fn [[_ data]]
+                                                  (reduce (fn [acc [_row-id uuid repeat-id value]]
+                                                            (let [[_ min max enabled?] (first (filter
+                                                                                               (fn [[gv-uuid]]
+                                                                                                 (= gv-uuid uuid))
+                                                                                               @table-setting-filters))]
+                                                              (cond-> acc
+                                                                (and min max (not (<= min value max)) enabled?)
+                                                                (assoc :shaded? true)
 
-                                                        :always
-                                                        (assoc (keyword (str uuid "-" repeat-id)) value))))
-                                                  {}
-                                                  data))))})])
+                                                                :always
+                                                                (assoc (keyword (str uuid "-" repeat-id)) value))))
+                                                          {}
+                                                          data))))}]
+             [table-exporter table-data])])
         (wizard-graph ws-uuid @*cell-data)]]
       [:div.wizard-navigation
        [c/button {:label    "Back"
