@@ -5261,8 +5261,6 @@ var _emscripten_bind_SIGSurface_setWindDirection_1 = Module["_emscripten_bind_SI
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_setWindHeightInputMode_1 = Module["_emscripten_bind_SIGSurface_setWindHeightInputMode_1"] = createExportWrapper("emscripten_bind_SIGSurface_setWindHeightInputMode_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSurface_setWindUpslopeAlignmentMode_1 = Module["_emscripten_bind_SIGSurface_setWindUpslopeAlignmentMode_1"] = createExportWrapper("emscripten_bind_SIGSurface_setWindUpslopeAlignmentMode_1");
-/** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_setWindSpeed_2 = Module["_emscripten_bind_SIGSurface_setWindSpeed_2"] = createExportWrapper("emscripten_bind_SIGSurface_setWindSpeed_2");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_updateSurfaceInputs_20 = Module["_emscripten_bind_SIGSurface_updateSurfaceInputs_20"] = createExportWrapper("emscripten_bind_SIGSurface_updateSurfaceInputs_20");
@@ -5529,8 +5527,6 @@ var _emscripten_bind_SIGCrown_setFuelModelNumber_1 = Module["_emscripten_bind_SI
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_setCrownFireCalculationMethod_1 = Module["_emscripten_bind_SIGCrown_setCrownFireCalculationMethod_1"] = createExportWrapper("emscripten_bind_SIGCrown_setCrownFireCalculationMethod_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGCrown_setDirectionOfInterest_1 = Module["_emscripten_bind_SIGCrown_setDirectionOfInterest_1"] = createExportWrapper("emscripten_bind_SIGCrown_setDirectionOfInterest_1");
-/** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_setElapsedTime_2 = Module["_emscripten_bind_SIGCrown_setElapsedTime_2"] = createExportWrapper("emscripten_bind_SIGCrown_setElapsedTime_2");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_setFuelModels_1 = Module["_emscripten_bind_SIGCrown_setFuelModels_1"] = createExportWrapper("emscripten_bind_SIGCrown_setFuelModels_1");
@@ -5556,10 +5552,6 @@ var _emscripten_bind_SIGCrown_setMoistureScenarios_1 = Module["_emscripten_bind_
 var _emscripten_bind_SIGCrown_setMoistureTenHour_2 = Module["_emscripten_bind_SIGCrown_setMoistureTenHour_2"] = createExportWrapper("emscripten_bind_SIGCrown_setMoistureTenHour_2");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_setSlope_2 = Module["_emscripten_bind_SIGCrown_setSlope_2"] = createExportWrapper("emscripten_bind_SIGCrown_setSlope_2");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGCrown_setSurfaceFireSpreadDirectionMode_1 = Module["_emscripten_bind_SIGCrown_setSurfaceFireSpreadDirectionMode_1"] = createExportWrapper("emscripten_bind_SIGCrown_setSurfaceFireSpreadDirectionMode_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGCrown_setSurfaceRunInDirectionOf_1 = Module["_emscripten_bind_SIGCrown_setSurfaceRunInDirectionOf_1"] = createExportWrapper("emscripten_bind_SIGCrown_setSurfaceRunInDirectionOf_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_setUserProvidedWindAdjustmentFactor_1 = Module["_emscripten_bind_SIGCrown_setUserProvidedWindAdjustmentFactor_1"] = createExportWrapper("emscripten_bind_SIGCrown_setUserProvidedWindAdjustmentFactor_1");
 /** @type {function(...*):?} */
@@ -5712,6 +5704,8 @@ var _emscripten_bind_SIGMortality_getRequiredFieldVector_0 = Module["_emscripten
 var _emscripten_bind_SIGMortality_setAirTemperature_2 = Module["_emscripten_bind_SIGMortality_setAirTemperature_2"] = createExportWrapper("emscripten_bind_SIGMortality_setAirTemperature_2");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_setBeetleDamage_1 = Module["_emscripten_bind_SIGMortality_setBeetleDamage_1"] = createExportWrapper("emscripten_bind_SIGMortality_setBeetleDamage_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setMidFlameWindSpeed_2 = Module["_emscripten_bind_SIGMortality_setMidFlameWindSpeed_2"] = createExportWrapper("emscripten_bind_SIGMortality_setMidFlameWindSpeed_2");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_setBoleCharHeight_2 = Module["_emscripten_bind_SIGMortality_setBoleCharHeight_2"] = createExportWrapper("emscripten_bind_SIGMortality_setBoleCharHeight_2");
 /** @type {function(...*):?} */
@@ -9628,12 +9622,6 @@ SIGSurface.prototype['setWindHeightInputMode'] = SIGSurface.prototype.setWindHei
   _emscripten_bind_SIGSurface_setWindHeightInputMode_1(self, windHeightInputMode);
 };;
 
-SIGSurface.prototype['setWindUpslopeAlignmentMode'] = SIGSurface.prototype.setWindUpslopeAlignmentMode = /** @suppress {undefinedVars, duplicate} @this{Object} */function(WindUpslopeAlignmentMode) {
-  var self = this.ptr;
-  if (WindUpslopeAlignmentMode && typeof WindUpslopeAlignmentMode === 'object') WindUpslopeAlignmentMode = WindUpslopeAlignmentMode.ptr;
-  _emscripten_bind_SIGSurface_setWindUpslopeAlignmentMode_1(self, WindUpslopeAlignmentMode);
-};;
-
 SIGSurface.prototype['setWindSpeed'] = SIGSurface.prototype.setWindSpeed = /** @suppress {undefinedVars, duplicate} @this{Object} */function(windSpeed, windSpeedUnits) {
   var self = this.ptr;
   if (windSpeed && typeof windSpeed === 'object') windSpeed = windSpeed.ptr;
@@ -10537,12 +10525,6 @@ SIGCrown.prototype['setCrownFireCalculationMethod'] = SIGCrown.prototype.setCrow
   _emscripten_bind_SIGCrown_setCrownFireCalculationMethod_1(self, CrownFireCalculationMethod);
 };;
 
-SIGCrown.prototype['setDirectionOfInterest'] = SIGCrown.prototype.setDirectionOfInterest = /** @suppress {undefinedVars, duplicate} @this{Object} */function(directionOfInterest) {
-  var self = this.ptr;
-  if (directionOfInterest && typeof directionOfInterest === 'object') directionOfInterest = directionOfInterest.ptr;
-  _emscripten_bind_SIGCrown_setDirectionOfInterest_1(self, directionOfInterest);
-};;
-
 SIGCrown.prototype['setElapsedTime'] = SIGCrown.prototype.setElapsedTime = /** @suppress {undefinedVars, duplicate} @this{Object} */function(elapsedTime, timeUnits) {
   var self = this.ptr;
   if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
@@ -10629,18 +10611,6 @@ SIGCrown.prototype['setSlope'] = SIGCrown.prototype.setSlope = /** @suppress {un
   if (slope && typeof slope === 'object') slope = slope.ptr;
   if (slopeUnits && typeof slopeUnits === 'object') slopeUnits = slopeUnits.ptr;
   _emscripten_bind_SIGCrown_setSlope_2(self, slope, slopeUnits);
-};;
-
-SIGCrown.prototype['setSurfaceFireSpreadDirectionMode'] = SIGCrown.prototype.setSurfaceFireSpreadDirectionMode = /** @suppress {undefinedVars, duplicate} @this{Object} */function(directionMode) {
-  var self = this.ptr;
-  if (directionMode && typeof directionMode === 'object') directionMode = directionMode.ptr;
-  _emscripten_bind_SIGCrown_setSurfaceFireSpreadDirectionMode_1(self, directionMode);
-};;
-
-SIGCrown.prototype['setSurfaceRunInDirectionOf'] = SIGCrown.prototype.setSurfaceRunInDirectionOf = /** @suppress {undefinedVars, duplicate} @this{Object} */function(surfaceRunInDirectionOf) {
-  var self = this.ptr;
-  if (surfaceRunInDirectionOf && typeof surfaceRunInDirectionOf === 'object') surfaceRunInDirectionOf = surfaceRunInDirectionOf.ptr;
-  _emscripten_bind_SIGCrown_setSurfaceRunInDirectionOf_1(self, surfaceRunInDirectionOf);
 };;
 
 SIGCrown.prototype['setUserProvidedWindAdjustmentFactor'] = SIGCrown.prototype.setUserProvidedWindAdjustmentFactor = /** @suppress {undefinedVars, duplicate} @this{Object} */function(userProvidedWindAdjustmentFactor) {
@@ -11176,6 +11146,13 @@ SIGMortality.prototype['setBeetleDamage'] = SIGMortality.prototype.setBeetleDama
   var self = this.ptr;
   if (beetleDamage && typeof beetleDamage === 'object') beetleDamage = beetleDamage.ptr;
   _emscripten_bind_SIGMortality_setBeetleDamage_1(self, beetleDamage);
+};;
+
+SIGMortality.prototype['setMidFlameWindSpeed'] = SIGMortality.prototype.setMidFlameWindSpeed = /** @suppress {undefinedVars, duplicate} @this{Object} */function(midFlameWindSpeed, windSpeedUnits) {
+  var self = this.ptr;
+  if (midFlameWindSpeed && typeof midFlameWindSpeed === 'object') midFlameWindSpeed = midFlameWindSpeed.ptr;
+  if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
+  _emscripten_bind_SIGMortality_setMidFlameWindSpeed_2(self, midFlameWindSpeed, windSpeedUnits);
 };;
 
 SIGMortality.prototype['setBoleCharHeight'] = SIGMortality.prototype.setBoleCharHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(boleCharHeight, boleCharHeightUnits) {
