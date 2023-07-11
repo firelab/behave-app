@@ -39,7 +39,6 @@
 #include "crownInputs.h"
 #include "surface.h"
 #include "crown.h"
-#include "SIGSurfaceEnums.h"
 #include "SIGFuelModels.h"
 
 enum class CrownFireCalculationMethod
