@@ -2159,6 +2159,10 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setCrownFireCalculationMethod
   self->setCrownFireCalculationMethod(CrownFireCalculationMethod);
 }
 
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setDirectionOfInterest_1(SIGCrown* self, double directionOfInterest) {
+  self->setDirectionOfInterest(directionOfInterest);
+}
+
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setElapsedTime_2(SIGCrown* self, double elapsedTime, TimeUnits_TimeUnitsEnum timeUnits) {
   self->setElapsedTime(elapsedTime, timeUnits);
 }
@@ -2211,6 +2215,14 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setSlope_2(SIGCrown* self, do
   self->setSlope(slope, slopeUnits);
 }
 
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setSurfaceFireSpreadDirectionMode_1(SIGCrown* self, SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum directionMode) {
+  self->setSurfaceFireSpreadDirectionMode(directionMode);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setSurfaceRunInDirectionOf_1(SIGCrown* self, SurfaceRunInDirectionOf surfaceRunInDirectionOf) {
+  self->setSurfaceRunInDirectionOf(surfaceRunInDirectionOf);
+}
+
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setUserProvidedWindAdjustmentFactor_1(SIGCrown* self, double userProvidedWindAdjustmentFactor) {
   self->setUserProvidedWindAdjustmentFactor(userProvidedWindAdjustmentFactor);
 }
@@ -2231,8 +2243,8 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setWindHeightInputMode_1(SIGC
   self->setWindHeightInputMode(windHeightInputMode);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setWindSpeed_3(SIGCrown* self, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode) {
-  self->setWindSpeed(windSpeed, windSpeedUnits, windHeightInputMode);
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setWindSpeed_2(SIGCrown* self, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits) {
+  self->setWindSpeed(windSpeed, windSpeedUnits);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_updateCrownInputs_24(SIGCrown* self, int fuelModelNumber, double moistureOneHour, double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody, double moistureFoliar, MoistureUnits_MoistureUnitsEnum moistureUnits, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double windDirection, WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double slope, SlopeUnits_SlopeUnitsEnum slopeUnits, double aspect, double canopyCover, CoverUnits_CoverUnitsEnum coverUnits, double canopyHeight, double canopyBaseHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits, double crownRatio, double canopyBulkDensity, DensityUnits_DensityUnitsEnum densityUnits) {

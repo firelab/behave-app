@@ -58,6 +58,32 @@ void SIGCrown::setCrownFireCalculationMethod(CrownFireCalculationMethod CrownFir
   crownFireCalculationMethod_ = CrownFireCalculationMethod;
 };
 
+void SIGCrown::setWindSpeed(double windSpeed, SpeedUnits::SpeedUnitsEnum windSpeedUnits) {
+  windSpeed_ = SpeedUnits::toBaseUnits(windSpeed, windSpeedUnits);
+  Crown::setWindSpeed(windSpeed_, SpeedUnits::FeetPerMinute, windHeightInputMode_);
+}
+
+void SIGCrown::setWindHeightInputMode(WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode) {
+  windHeightInputMode_ = windHeightInputMode;
+  Crown::setWindSpeed(windSpeed_, SpeedUnits::FeetPerMinute, windHeightInputMode_);
+}
+
+void SIGCrown::setWindUpslopeAlignmentMode(WindUpslopeAlignmentMode windUpslopeAlignmentMode) {
+  windUpslopeAlignmentMode_ = windUpslopeAlignmentMode;
+}
+
+void SIGCrown::setDirectionOfInterest(double directionOfInterest) {
+  directionOfInterest_ = directionOfInterest;
+}
+
+void SIGCrown::setSurfaceRunInDirectionOf(SurfaceRunInDirectionOf surfaceRunInDirectionOf) {
+  surfaceRunInDirectionOf_ = surfaceRunInDirectionOf;
+}
+
+void SIGCrown::setSurfaceFireSpreadDirectionMode(SurfaceFireSpreadDirectionMode::SurfaceFireSpreadDirectionModeEnum directionMode) {
+  directionMode_ = directionMode;
+}
+
 char* SIGCrown::getFuelCode(int fuelModelNumber) const
 {
   return SIGString::str2charptr(Crown::getFuelCode(fuelModelNumber));

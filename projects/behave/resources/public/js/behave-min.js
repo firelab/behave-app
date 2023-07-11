@@ -5529,6 +5529,8 @@ var _emscripten_bind_SIGCrown_setFuelModelNumber_1 = Module["_emscripten_bind_SI
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_setCrownFireCalculationMethod_1 = Module["_emscripten_bind_SIGCrown_setCrownFireCalculationMethod_1"] = createExportWrapper("emscripten_bind_SIGCrown_setCrownFireCalculationMethod_1");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setDirectionOfInterest_1 = Module["_emscripten_bind_SIGCrown_setDirectionOfInterest_1"] = createExportWrapper("emscripten_bind_SIGCrown_setDirectionOfInterest_1");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_setElapsedTime_2 = Module["_emscripten_bind_SIGCrown_setElapsedTime_2"] = createExportWrapper("emscripten_bind_SIGCrown_setElapsedTime_2");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_setFuelModels_1 = Module["_emscripten_bind_SIGCrown_setFuelModels_1"] = createExportWrapper("emscripten_bind_SIGCrown_setFuelModels_1");
@@ -5555,6 +5557,10 @@ var _emscripten_bind_SIGCrown_setMoistureTenHour_2 = Module["_emscripten_bind_SI
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_setSlope_2 = Module["_emscripten_bind_SIGCrown_setSlope_2"] = createExportWrapper("emscripten_bind_SIGCrown_setSlope_2");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setSurfaceFireSpreadDirectionMode_1 = Module["_emscripten_bind_SIGCrown_setSurfaceFireSpreadDirectionMode_1"] = createExportWrapper("emscripten_bind_SIGCrown_setSurfaceFireSpreadDirectionMode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setSurfaceRunInDirectionOf_1 = Module["_emscripten_bind_SIGCrown_setSurfaceRunInDirectionOf_1"] = createExportWrapper("emscripten_bind_SIGCrown_setSurfaceRunInDirectionOf_1");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_setUserProvidedWindAdjustmentFactor_1 = Module["_emscripten_bind_SIGCrown_setUserProvidedWindAdjustmentFactor_1"] = createExportWrapper("emscripten_bind_SIGCrown_setUserProvidedWindAdjustmentFactor_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_setWindAdjustmentFactorCalculationMethod_1 = Module["_emscripten_bind_SIGCrown_setWindAdjustmentFactorCalculationMethod_1"] = createExportWrapper("emscripten_bind_SIGCrown_setWindAdjustmentFactorCalculationMethod_1");
@@ -5565,7 +5571,7 @@ var _emscripten_bind_SIGCrown_setWindDirection_1 = Module["_emscripten_bind_SIGC
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_setWindHeightInputMode_1 = Module["_emscripten_bind_SIGCrown_setWindHeightInputMode_1"] = createExportWrapper("emscripten_bind_SIGCrown_setWindHeightInputMode_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGCrown_setWindSpeed_3 = Module["_emscripten_bind_SIGCrown_setWindSpeed_3"] = createExportWrapper("emscripten_bind_SIGCrown_setWindSpeed_3");
+var _emscripten_bind_SIGCrown_setWindSpeed_2 = Module["_emscripten_bind_SIGCrown_setWindSpeed_2"] = createExportWrapper("emscripten_bind_SIGCrown_setWindSpeed_2");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_updateCrownInputs_24 = Module["_emscripten_bind_SIGCrown_updateCrownInputs_24"] = createExportWrapper("emscripten_bind_SIGCrown_updateCrownInputs_24");
 /** @type {function(...*):?} */
@@ -10531,6 +10537,12 @@ SIGCrown.prototype['setCrownFireCalculationMethod'] = SIGCrown.prototype.setCrow
   _emscripten_bind_SIGCrown_setCrownFireCalculationMethod_1(self, CrownFireCalculationMethod);
 };;
 
+SIGCrown.prototype['setDirectionOfInterest'] = SIGCrown.prototype.setDirectionOfInterest = /** @suppress {undefinedVars, duplicate} @this{Object} */function(directionOfInterest) {
+  var self = this.ptr;
+  if (directionOfInterest && typeof directionOfInterest === 'object') directionOfInterest = directionOfInterest.ptr;
+  _emscripten_bind_SIGCrown_setDirectionOfInterest_1(self, directionOfInterest);
+};;
+
 SIGCrown.prototype['setElapsedTime'] = SIGCrown.prototype.setElapsedTime = /** @suppress {undefinedVars, duplicate} @this{Object} */function(elapsedTime, timeUnits) {
   var self = this.ptr;
   if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
@@ -10619,6 +10631,18 @@ SIGCrown.prototype['setSlope'] = SIGCrown.prototype.setSlope = /** @suppress {un
   _emscripten_bind_SIGCrown_setSlope_2(self, slope, slopeUnits);
 };;
 
+SIGCrown.prototype['setSurfaceFireSpreadDirectionMode'] = SIGCrown.prototype.setSurfaceFireSpreadDirectionMode = /** @suppress {undefinedVars, duplicate} @this{Object} */function(directionMode) {
+  var self = this.ptr;
+  if (directionMode && typeof directionMode === 'object') directionMode = directionMode.ptr;
+  _emscripten_bind_SIGCrown_setSurfaceFireSpreadDirectionMode_1(self, directionMode);
+};;
+
+SIGCrown.prototype['setSurfaceRunInDirectionOf'] = SIGCrown.prototype.setSurfaceRunInDirectionOf = /** @suppress {undefinedVars, duplicate} @this{Object} */function(surfaceRunInDirectionOf) {
+  var self = this.ptr;
+  if (surfaceRunInDirectionOf && typeof surfaceRunInDirectionOf === 'object') surfaceRunInDirectionOf = surfaceRunInDirectionOf.ptr;
+  _emscripten_bind_SIGCrown_setSurfaceRunInDirectionOf_1(self, surfaceRunInDirectionOf);
+};;
+
 SIGCrown.prototype['setUserProvidedWindAdjustmentFactor'] = SIGCrown.prototype.setUserProvidedWindAdjustmentFactor = /** @suppress {undefinedVars, duplicate} @this{Object} */function(userProvidedWindAdjustmentFactor) {
   var self = this.ptr;
   if (userProvidedWindAdjustmentFactor && typeof userProvidedWindAdjustmentFactor === 'object') userProvidedWindAdjustmentFactor = userProvidedWindAdjustmentFactor.ptr;
@@ -10649,12 +10673,11 @@ SIGCrown.prototype['setWindHeightInputMode'] = SIGCrown.prototype.setWindHeightI
   _emscripten_bind_SIGCrown_setWindHeightInputMode_1(self, windHeightInputMode);
 };;
 
-SIGCrown.prototype['setWindSpeed'] = SIGCrown.prototype.setWindSpeed = /** @suppress {undefinedVars, duplicate} @this{Object} */function(windSpeed, windSpeedUnits, windHeightInputMode) {
+SIGCrown.prototype['setWindSpeed'] = SIGCrown.prototype.setWindSpeed = /** @suppress {undefinedVars, duplicate} @this{Object} */function(windSpeed, windSpeedUnits) {
   var self = this.ptr;
   if (windSpeed && typeof windSpeed === 'object') windSpeed = windSpeed.ptr;
   if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
-  if (windHeightInputMode && typeof windHeightInputMode === 'object') windHeightInputMode = windHeightInputMode.ptr;
-  _emscripten_bind_SIGCrown_setWindSpeed_3(self, windSpeed, windSpeedUnits, windHeightInputMode);
+  _emscripten_bind_SIGCrown_setWindSpeed_2(self, windSpeed, windSpeedUnits);
 };;
 
 SIGCrown.prototype['updateCrownInputs'] = SIGCrown.prototype.updateCrownInputs = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureFoliar, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyBaseHeight, canopyHeightUnits, crownRatio, canopyBulkDensity, densityUnits) {

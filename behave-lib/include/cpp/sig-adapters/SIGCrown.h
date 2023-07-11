@@ -39,6 +39,7 @@
 #include "crownInputs.h"
 #include "surface.h"
 #include "crown.h"
+#include "SIGSurfaceEnums.h"
 #include "SIGFuelModels.h"
 
 enum class CrownFireCalculationMethod
@@ -70,7 +71,19 @@ public:
   double getCrownFireArea(AreaUnits::AreaUnitsEnum areaUnits) const;
   double getCrownFirePerimeter(LengthUnits::LengthUnitsEnum lengthUnits) const;
   void setElapsedTime(double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits);
+  void setWindSpeed(double windSpeed, SpeedUnits::SpeedUnitsEnum windSpeedUnits);
+  void setWindHeightInputMode(WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode);
+  void setWindUpslopeAlignmentMode(WindUpslopeAlignmentMode windUpslopeAlignmentMode);
+  void setDirectionOfInterest(double directionOfInterest);
+  void setSurfaceRunInDirectionOf(SurfaceRunInDirectionOf surfaceRunInDirectionOf);
+  void setSurfaceFireSpreadDirectionMode(SurfaceFireSpreadDirectionMode::SurfaceFireSpreadDirectionModeEnum directionMode);
 
 private:
   CrownFireCalculationMethod crownFireCalculationMethod_;
+  SurfaceFireSpreadDirectionMode::SurfaceFireSpreadDirectionModeEnum directionMode_;
+  SurfaceRunInDirectionOf surfaceRunInDirectionOf_;
+  WindUpslopeAlignmentMode windUpslopeAlignmentMode_;
+  double directionOfInterest_;
+  double windSpeed_;
+  WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode_;
 };
