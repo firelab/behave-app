@@ -732,7 +732,6 @@ interface SIGSurface {
   void setWindAndSpreadOrientationMode(WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode);
   void setWindDirection(double windDirection);
   void setWindHeightInputMode(WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode);
-  void setWindUpslopeAlignmentMode(WindUpslopeAlignmentMode WindUpslopeAlignmentMode);
   void setWindSpeed(double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits);
   void updateSurfaceInputs(long fuelModelNumber, double moistureOneHour, double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody, MoistureUnits_MoistureUnitsEnum moistureUnits, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double windDirection, WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double slope, SlopeUnits_SlopeUnitsEnum slopeUnits, double aspect, double canopyCover, CoverUnits_CoverUnitsEnum coverUnits, double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits, double crownRatio);
   void updateSurfaceInputsForPalmettoGallbery(double moistureOneHour, double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody, MoistureUnits_MoistureUnitsEnum moistureUnits, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double windDirection, WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double ageOfRough, double heightOfUnderstory, double palmettoCoverage, double overstoryBasalArea, BasalAreaUnits_BasalAreaUnitsEnum basalAreaUnits, double slope, SlopeUnits_SlopeUnitsEnum slopeUnits, double aspect, double canopyCover, CoverUnits_CoverUnitsEnum coverUnits, double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits, double crownRatio);
@@ -961,7 +960,6 @@ interface SIGCrown {
   void setCrownRatio(double crownRatio);
   void setFuelModelNumber(long fuelModelNumber);
   void setCrownFireCalculationMethod(CrownFireCalculationMethod CrownFireCalculationMethod);
-  void setDirectionOfInterest(double directionOfInterest);
   void setElapsedTime(double elapsedTime, TimeUnits_TimeUnitsEnum timeUnits);
   void setFuelModels([Ref] SIGFuelModels fuelModels);
   void setMoistureDeadAggregate(double moistureDead, MoistureUnits_MoistureUnitsEnum moistureUnits);
@@ -975,8 +973,6 @@ interface SIGCrown {
   void setMoistureScenarios([Ref] SIGMoistureScenarios moistureScenarios);
   void setMoistureTenHour(double moistureTenHour, MoistureUnits_MoistureUnitsEnum moistureUnits);
   void setSlope(double slope, SlopeUnits_SlopeUnitsEnum slopeUnits);
-  void setSurfaceFireSpreadDirectionMode(SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum directionMode);
-  void setSurfaceRunInDirectionOf(SurfaceRunInDirectionOf surfaceRunInDirectionOf);
   void setUserProvidedWindAdjustmentFactor(double userProvidedWindAdjustmentFactor);
   void setWindAdjustmentFactorCalculationMethod(WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum windAdjustmentFactorCalculationMethod);
   void setWindAndSpreadOrientationMode(WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadAngleMode);

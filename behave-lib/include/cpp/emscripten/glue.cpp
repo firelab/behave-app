@@ -1617,10 +1617,6 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_setWindHeightInputMode_1(SI
   self->setWindHeightInputMode(windHeightInputMode);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_setWindUpslopeAlignmentMode_1(SIGSurface* self, WindUpslopeAlignmentMode WindUpslopeAlignmentMode) {
-  self->setWindUpslopeAlignmentMode(WindUpslopeAlignmentMode);
-}
-
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_setWindSpeed_2(SIGSurface* self, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits) {
   self->setWindSpeed(windSpeed, windSpeedUnits);
 }
@@ -2159,10 +2155,6 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setCrownFireCalculationMethod
   self->setCrownFireCalculationMethod(CrownFireCalculationMethod);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setDirectionOfInterest_1(SIGCrown* self, double directionOfInterest) {
-  self->setDirectionOfInterest(directionOfInterest);
-}
-
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setElapsedTime_2(SIGCrown* self, double elapsedTime, TimeUnits_TimeUnitsEnum timeUnits) {
   self->setElapsedTime(elapsedTime, timeUnits);
 }
@@ -2213,14 +2205,6 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setMoistureTenHour_2(SIGCrown
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setSlope_2(SIGCrown* self, double slope, SlopeUnits_SlopeUnitsEnum slopeUnits) {
   self->setSlope(slope, slopeUnits);
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setSurfaceFireSpreadDirectionMode_1(SIGCrown* self, SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum directionMode) {
-  self->setSurfaceFireSpreadDirectionMode(directionMode);
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setSurfaceRunInDirectionOf_1(SIGCrown* self, SurfaceRunInDirectionOf surfaceRunInDirectionOf) {
-  self->setSurfaceRunInDirectionOf(surfaceRunInDirectionOf);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setUserProvidedWindAdjustmentFactor_1(SIGCrown* self, double userProvidedWindAdjustmentFactor) {
