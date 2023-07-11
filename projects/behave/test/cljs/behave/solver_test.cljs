@@ -3,9 +3,8 @@
             [cljs.test            :refer [deftest is join-fixtures testing use-fixtures are] :include-macros true]
             [csv-parser.interface :refer [parse-csv]]
             [datascript.core      :as d]
-            [behave.fixtures :as fx]
+            [behave.fixtures      :as fx]
             [behave.lib.enums     :as enums]
-            [behave.lib.units     :refer [get-unit]]
             [behave.solver.core   :refer [solve-worksheet]]
             [behave.vms.store     :refer [vms-conn]]
             [behave.vms.rules     :refer [rules]])
@@ -17,6 +16,10 @@
   (> precision (Math/abs (- a b))))
 
 (def within-four-percent? (partial within? 4.0))
+
+(def within-one-percent? (partial within? 0.1))
+
+(def within-millionth? (partial within? 1e-06))
 
 (defn- clean-values [row]
   (into {}
@@ -176,24 +179,36 @@
 
     (testing "Surface Input Variables Function Mappings"
       (are [fn-name p-name] (some? (class+fn+param->group+gv-uuid class-name fn-name p-name))
-        "setSurfaceRunInDirectionOf"       "surfaceRunInDirectionOf"
-        "setWindAndSpreadOrientationMode"  "windAndSpreadOrientationMode"
-        "setFuelModelNumber"               "fuelModelNumber"
-        "setChaparralFuelLoadInputMode"    "fuelLoadInputMode"
-        "setChaparralFuelDeadLoadFraction" "chaparralFuelDeadLoadFraction"
-        "setChaparralFuelType"             "chaparralFuelType"
-        "setChaparralFuelBedDepth"         "chaparralFuelBedDepth"
-        "setChaparralTotalFuelLoad"        "chaparralTotalFuelLoad"
         "setAgeOfRough"                    "ageOfRough"
-        "setHeightOfUnderstory"            "heightOfUnderstory"
-        "setPalmettoCoverage"              "palmettoCoverage"
-        "setOverstoryBasalArea"            "overstoryBasalArea"
+        "setAspect"                        "aspect"
         "setAspenFuelModelNumber"          "aspenFuelModelNumber"
-        "setTwoFuelModelsMethod"           "twoFuelModelsMethod"
-        "setMoistureInputMode"             "moistureInputMode"
+        "setCanopyCover"                   "canopyCover"
+        "setCanopyHeight"                  "canopyHeight"
+        "setChaparralFuelBedDepth"         "chaparralFuelBedDepth"
+        "setChaparralFuelDeadLoadFraction" "chaparralFuelDeadLoadFraction"
+        "setChaparralFuelLoadInputMode"    "fuelLoadInputMode"
+        "setChaparralFuelType"             "chaparralFuelType"
+        "setChaparralTotalFuelLoad"        "chaparralTotalFuelLoad"
+        "setCrownRatio"                    "crownRatio"
         "setElapsedTime"                   "elapsedTime"
-        "setWindSpeed"                     "windSpeed"
+        "setFuelModelNumber"               "fuelModelNumber"
+        "setHeightOfUnderstory"            "heightOfUnderstory"
+        "setMoistureHundredHour"           "moistureHundredHour"
+        "setMoistureInputMode"             "moistureInputMode"
+        "setMoistureLiveHerbaceous"        "moistureLiveHerbaceous"
+        "setMoistureLiveWoody"             "moistureLiveWoody"
+        "setMoistureOneHour"               "moistureOneHour"
+        "setMoistureTenHour"               "moistureTenHour"
+        "setOverstoryBasalArea"            "overstoryBasalArea"
+        "setPalmettoCoverage"              "palmettoCoverage"
+        "setSlope"                         "slope"
+        "setSurfaceRunInDirectionOf"       "surfaceRunInDirectionOf"
+        "setSurfaceRunInDirectionOf"       "surfaceRunInDirectionOf"
+        "setTwoFuelModelsMethod"           "twoFuelModelsMethod"
+        "setWindAndSpreadOrientationMode"  "windAndSpreadOrientationMode"
+        "setWindDirection"                 "windDirection"
         "setWindHeightInputMode"           "windHeightInputMode"
+        "setWindSpeed"                     "windSpeed"
         "setWindUpslopeAlignmentMode"      "windUpslopeAlignmentMode")
 
       (are [fn-name p-name] (some? (class+fn+param->group+gv-uuid spot fn-name p-name))
@@ -360,3 +375,56 @@
                      (* 100))]
 
     (is (within-four-percent? observed expected))))
+
+(deftest surface-worksheet
+  (let [surface-input  (fn [acc & args]
+                         (conj acc (apply ws-input "SIGSurface" args)))
+        surface-output (partial ws-output "SIGSurface")
+        row            (->> (inline-resource "public/csv/surface.csv")
+                            (parse-csv)
+                            (map clean-values)
+                            (first))
+        _              (println row)
+        outputs        [(surface-output "getSpreadRate")]
+
+        inputs
+        (-> []
+            ;; Fuel
+            (surface-input "setFuelModelNumber"         "fuelModelNumber"         (get row "fuelModelNumber"))
+
+            ;; Moisture
+            (surface-input "setMoistureOneHour"         "moistureOneHour"         (/ (get row "moistureOneHour") 100))
+            (surface-input "setMoistureTenHour"         "moistureTenHour"         (/ (get row "moistureTenHour") 100))
+            (surface-input "setMoistureHundredHour"     "moistureHundredHour"     (/ (get row "moistureHundredHour") 100))
+            (surface-input "setMoistureLiveHerbaceous"  "moistureLiveHerbaceous"  (/ (get row "moistureLiveHerbaceous") 100))
+            (surface-input "setMoistureLiveWoody"       "moistureLiveWoody"       (/ (get row "moistureLiveWoody") 100))
+
+            (surface-input "setSurfaceRunInDirectionOf" "surfaceRunInDirectionOf" (enums/surface-run-in-direction-of "MaxSpread"))
+
+            ;; Wind
+            (surface-input "setWindAndSpreadOrientationMode" "windAndSpreadOrientationMode" (enums/wind-and-spread-orientation-mode (get row "windAndSpreadOrientationMode")))
+            (surface-input "setWindSpeed"               "windSpeed"               (get row "windSpeed"))
+            (surface-input "setWindHeightInputMode"     "windHeightInputMode"     (enums/wind-height-input-mode (get row "windHeightInputMode")))
+            (surface-input "setWindDirection"           "windDirection"           (get row "windDirection"))
+
+            ;; Topo
+            (surface-input "setAspect"                  "aspect"                  (get row "aspect"))
+            (surface-input "setSlope"                   "slope"                   (get row "slope"))
+
+            ;; Canopy
+            (surface-input "setCanopyCover"             "canopyCover"             (/ (get row "canopyCover") 100))
+            (surface-input "setCanopyHeight"            "canopyHeight"            (get row "canopyHeight"))
+            (surface-input "setCrownRatio"              "crownRatio"              (get row "crownRatio")))
+
+        expected
+        (get row "spreadRate")
+
+        observed
+        (-> (solve-worksheet #{:surface} inputs outputs)
+            (first)
+            (:outputs)
+            (vals)
+            (ffirst))]
+
+    (println "SOLVER OUTPUT:" observed "EXPECTED:" expected)
+    (is (within-one-percent? expected observed))))
