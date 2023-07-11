@@ -53,6 +53,8 @@ public:
   double getDirectionOfInterest();
 
   // SIGSurface Setter Methods
+  void setWindSpeed(double windSpeed, SpeedUnits::SpeedUnitsEnum windSpeedUnits);
+  void setWindHeightInputMode(WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode);
   void setWindUpslopeAlignmentMode(WindUpslopeAlignmentMode windUpslopeAlignmentMode);
   void setDirectionOfInterest(double directionOfInterest);
   void setSurfaceRunInDirectionOf(SurfaceRunInDirectionOf surfaceRunInDirectionOf);
@@ -99,4 +101,6 @@ protected:
   SurfaceRunInDirectionOf surfaceRunInDirectionOf_;
   WindUpslopeAlignmentMode windUpslopeAlignmentMode_;
   double directionOfInterest_;
+  double windSpeed_;
+  WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode_;
 };

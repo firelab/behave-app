@@ -70,7 +70,11 @@ public:
   double getCrownFireArea(AreaUnits::AreaUnitsEnum areaUnits) const;
   double getCrownFirePerimeter(LengthUnits::LengthUnitsEnum lengthUnits) const;
   void setElapsedTime(double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits);
+  void setWindSpeed(double windSpeed, SpeedUnits::SpeedUnitsEnum windSpeedUnits);
+  void setWindHeightInputMode(WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode);
 
 private:
   CrownFireCalculationMethod crownFireCalculationMethod_;
+  double windSpeed_;
+  WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode_;
 };

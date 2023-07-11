@@ -324,8 +324,8 @@
 (defn setWindHeightInputMode [self windHeightInputMode]
   (.setWindHeightInputMode self windHeightInputMode))
 
-(defn setWindSpeed [self windSpeed windSpeedUnits windHeightInputMode]
-  (.setWindSpeed self windSpeed windSpeedUnits windHeightInputMode))
+(defn setWindSpeed [self windSpeed windSpeedUnits]
+  (.setWindSpeed self windSpeed windSpeedUnits))
 
 (defn updateCrownInputs [self fuelModelNumber moistureOneHour moistureTenHour moistureHundredHour moistureLiveHerbaceous moistureLiveWoody moistureFoliar moistureUnits windSpeed windSpeedUnits windHeightInputMode windDirection windAndSpreadOrientationMode slope slopeUnits aspect canopyCover coverUnits canopyHeight canopyBaseHeight canopyHeightUnits crownRatio canopyBulkDensity densityUnits]
   (.updateCrownInputs self fuelModelNumber moistureOneHour moistureTenHour moistureHundredHour moistureLiveHerbaceous moistureLiveWoody moistureFoliar moistureUnits windSpeed windSpeedUnits windHeightInputMode windDirection windAndSpreadOrientationMode slope slopeUnits aspect canopyCover coverUnits canopyHeight canopyBaseHeight canopyHeightUnits crownRatio canopyBulkDensity densityUnits))

@@ -1617,12 +1617,8 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_setWindHeightInputMode_1(SI
   self->setWindHeightInputMode(windHeightInputMode);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_setWindUpslopeAlignmentMode_1(SIGSurface* self, WindUpslopeAlignmentMode WindUpslopeAlignmentMode) {
-  self->setWindUpslopeAlignmentMode(WindUpslopeAlignmentMode);
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_setWindSpeed_3(SIGSurface* self, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode) {
-  self->setWindSpeed(windSpeed, windSpeedUnits, windHeightInputMode);
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_setWindSpeed_2(SIGSurface* self, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits) {
+  self->setWindSpeed(windSpeed, windSpeedUnits);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_updateSurfaceInputs_20(SIGSurface* self, int fuelModelNumber, double moistureOneHour, double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody, MoistureUnits_MoistureUnitsEnum moistureUnits, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double windDirection, WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double slope, SlopeUnits_SlopeUnitsEnum slopeUnits, double aspect, double canopyCover, CoverUnits_CoverUnitsEnum coverUnits, double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits, double crownRatio) {
@@ -2231,8 +2227,8 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setWindHeightInputMode_1(SIGC
   self->setWindHeightInputMode(windHeightInputMode);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setWindSpeed_3(SIGCrown* self, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode) {
-  self->setWindSpeed(windSpeed, windSpeedUnits, windHeightInputMode);
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setWindSpeed_2(SIGCrown* self, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits) {
+  self->setWindSpeed(windSpeed, windSpeedUnits);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_updateCrownInputs_24(SIGCrown* self, int fuelModelNumber, double moistureOneHour, double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody, double moistureFoliar, MoistureUnits_MoistureUnitsEnum moistureUnits, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double windDirection, WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double slope, SlopeUnits_SlopeUnitsEnum slopeUnits, double aspect, double canopyCover, CoverUnits_CoverUnitsEnum coverUnits, double canopyHeight, double canopyBaseHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits, double crownRatio, double canopyBulkDensity, DensityUnits_DensityUnitsEnum densityUnits) {
