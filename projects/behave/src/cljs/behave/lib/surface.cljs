@@ -609,8 +609,8 @@
 (defn setWindHeightInputMode [self windHeightInputMode]
   (.setWindHeightInputMode self windHeightInputMode))
 
-(defn setWindSpeed [self windSpeed windSpeedUnits windHeightInputMode]
-  (.setWindSpeed self windSpeed windSpeedUnits windHeightInputMode))
+(defn setWindSpeed [self windSpeed windSpeedUnits]
+  (.setWindSpeed self windSpeed windSpeedUnits))
 
 (defn setWindUpslopeAlignmentMode [self windUpslopeAlignmentMode]
   (.setWindUpslopeAlignmentMode self windUpslopeAlignmentMode))

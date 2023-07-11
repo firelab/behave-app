@@ -87,6 +87,16 @@ WindUpslopeAlignmentMode SIGSurface::getWindUpslopeAlignmentMode() const {
   return windUpslopeAlignmentMode_;
 }
 
+void SIGSurface::setWindSpeed(double windSpeed, SpeedUnits::SpeedUnitsEnum windSpeedUnits) {
+  windSpeed_ = SpeedUnits::toBaseUnits(windSpeed, windSpeedUnits);
+  Surface::setWindSpeed(windSpeed_, SpeedUnits::FeetPerMinute, windHeightInputMode_);
+}
+
+void SIGSurface::setWindHeightInputMode(WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode) {
+  windHeightInputMode_ = windHeightInputMode;
+  Surface::setWindSpeed(windSpeed_, SpeedUnits::FeetPerMinute, windHeightInputMode_);
+}
+
 void SIGSurface::setWindUpslopeAlignmentMode(WindUpslopeAlignmentMode windUpslopeAlignmentMode) {
   windUpslopeAlignmentMode_ = windUpslopeAlignmentMode;
 }
