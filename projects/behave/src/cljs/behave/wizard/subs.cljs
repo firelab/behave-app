@@ -308,7 +308,7 @@
                                 0
                                 group-variable-uuid]))]
              (case op
-               :equal     (= (first values) (str worksheet-value))
+               :equal     (= (first values) (if worksheet-value (str worksheet-value) "false"))
                :not-equal (not= (first values) (str worksheet-value))
                :in        (= (set (map keyword values)) (set worksheet-value)))))
          conditionals)))
