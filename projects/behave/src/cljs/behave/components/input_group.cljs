@@ -83,7 +83,8 @@
          :label     (when repeat-group? var-name)
          :on-change on-change
          :name      (->kebab var-name)
-         :options   (map ->option options)}])]))
+         :options   (concat [{:label "Select..." :value "nil"}]
+                            (map ->option options))}])]))
 
 (defmethod wizard-input :text [{uuid     :bp/uuid
                                 var-name :variable/name
