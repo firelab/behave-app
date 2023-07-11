@@ -99,10 +99,9 @@
         is-output?  (rf/subscribe [:group-variable/is-output? gv-id])
         opposite-io (fn [{io :submodule/io}] (= io (if is-output? :input :output)))
 
-        ;; Create a link. Links can only exist from an output variable (:link/source) to an input variable (:link/destination)
+        ;; Create a link with current group variable as the source.
         ->link      (fn [other-gv-id]
-                      {:link/source      (if is-output? gv-id other-gv-id)
-                       :link/destination (if is-output? other-gv-id gv-id)})
+                      {:link/source gv-id :link/destination other-gv-id})
         p           #(conj [:editors :variable-lookup] %)
         get         #(rf/subscribe [:state %])
         set         (fn [path v] (rf/dispatch [:state/set-state path v]))
@@ -124,7 +123,10 @@
                  :options   (map (->option :module/name) @modules)
                  :on-select #(set (p :module) (u/input-int-value %))}]
       [dropdown {:label     "Submodule:"
-                 :options   (map (->option :submodule/name) (filter opposite-io @submodules))
+                 :options   (map (->option :submodule/name)
+                                 (if is-output?
+                                   (filter opposite-io @submodules)
+                                   @submodules))
                  :on-select #(set (p :submodule) (u/input-int-value %))}]
       [dropdown {:label     "Groups:"
                  :options   (map (->option :group/name) @groups)
