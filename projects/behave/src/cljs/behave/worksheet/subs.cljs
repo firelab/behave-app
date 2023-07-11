@@ -400,7 +400,8 @@
 (rf/reg-sub
  :worksheet/all-inputs-entered?
  (fn [_ [_ ws-uuid module-id submodule]]
-   (let [submodule                             @(rf/subscribe [:wizard/*submodule module-id submodule :input])
+   true
+   #_(let [submodule                             @(rf/subscribe [:wizard/*submodule module-id submodule :input])
          groups                                @(rf/subscribe [:wizard/groups (:db/id submodule)])
          groups-repeat                         (filter #(true? (:group/repeat? %)) groups)
          groups-not-repeat                     (remove #(true? (:group/repeat? %)) groups)
