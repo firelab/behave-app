@@ -21,6 +21,7 @@ behaveplus:change_values,Change Values
 behaveplus:characters_not_allowed,Characters not allowed
 behaveplus:close_notes,Close Notes
 behaveplus:contain,Contain
+behaveplus:contain_only,Contain Only
 behaveplus:contain_inputs,Contain Inputs
 behaveplus:contain_results,Contain Results
 behaveplus:contain_status,Contain Status
