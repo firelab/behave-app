@@ -2517,6 +2517,10 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setBeetleDamage_1(SIGMort
   self->setBeetleDamage(beetleDamage);
 }
 
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setMidFlameWindSpeed_2(SIGMortality* self, double midFlameWindSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits) {
+  self->setMidFlameWindSpeed(midFlameWindSpeed, windSpeedUnits);
+}
+
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setBoleCharHeight_2(SIGMortality* self, double boleCharHeight, LengthUnits_LengthUnitsEnum boleCharHeightUnits) {
   self->setBoleCharHeight(boleCharHeight, boleCharHeightUnits);
 }

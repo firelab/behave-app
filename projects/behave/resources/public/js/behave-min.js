@@ -5705,6 +5705,8 @@ var _emscripten_bind_SIGMortality_setAirTemperature_2 = Module["_emscripten_bind
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_setBeetleDamage_1 = Module["_emscripten_bind_SIGMortality_setBeetleDamage_1"] = createExportWrapper("emscripten_bind_SIGMortality_setBeetleDamage_1");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setMidFlameWindSpeed_2 = Module["_emscripten_bind_SIGMortality_setMidFlameWindSpeed_2"] = createExportWrapper("emscripten_bind_SIGMortality_setMidFlameWindSpeed_2");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_setBoleCharHeight_2 = Module["_emscripten_bind_SIGMortality_setBoleCharHeight_2"] = createExportWrapper("emscripten_bind_SIGMortality_setBoleCharHeight_2");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_setCambiumKillRating_1 = Module["_emscripten_bind_SIGMortality_setCambiumKillRating_1"] = createExportWrapper("emscripten_bind_SIGMortality_setCambiumKillRating_1");
@@ -11144,6 +11146,13 @@ SIGMortality.prototype['setBeetleDamage'] = SIGMortality.prototype.setBeetleDama
   var self = this.ptr;
   if (beetleDamage && typeof beetleDamage === 'object') beetleDamage = beetleDamage.ptr;
   _emscripten_bind_SIGMortality_setBeetleDamage_1(self, beetleDamage);
+};;
+
+SIGMortality.prototype['setMidFlameWindSpeed'] = SIGMortality.prototype.setMidFlameWindSpeed = /** @suppress {undefinedVars, duplicate} @this{Object} */function(midFlameWindSpeed, windSpeedUnits) {
+  var self = this.ptr;
+  if (midFlameWindSpeed && typeof midFlameWindSpeed === 'object') midFlameWindSpeed = midFlameWindSpeed.ptr;
+  if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
+  _emscripten_bind_SIGMortality_setMidFlameWindSpeed_2(self, midFlameWindSpeed, windSpeedUnits);
 };;
 
 SIGMortality.prototype['setBoleCharHeight'] = SIGMortality.prototype.setBoleCharHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(boleCharHeight, boleCharHeightUnits) {
