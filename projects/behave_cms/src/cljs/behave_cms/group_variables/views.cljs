@@ -73,19 +73,30 @@
 
 (defn links-table [gv-id]
   (let [is-output? @(rf/subscribe [:group-variable/is-output? gv-id])
-        links      (rf/subscribe [(if is-output?
-                                    :group-variable/source-links
-                                    :group-variable/destination-links)
-                                  gv-id])]
-    [:div.col-6
-     [:h3 (str (if is-output? "Destination" "Source") " Links")]
-     [simple-table
-      [:variable/name]
-      (sort-by :variable/name @links)
-      {:on-select #(rf/dispatch [:state/set-state :link (:db/id %)])
-       :on-delete #(when (js/confirm (str "Are you sure you want to delete the link " (:variable/name %) "?"))
+        src-links  (rf/subscribe [:group-variable/source-links gv-id])
+        dest-links (rf/subscribe [:group-variable/destination-links gv-id])]
 
-                     (rf/dispatch [:api/delete-entity %]))}]]))
+    [:div.col-6
+     [:div
+      [:h4 "Source Links"]
+      [:p "Data will be copied TO these variables."]
+      [simple-table
+       [:variable/name]
+       (sort-by :variable/name @src-links)
+       {:on-select #(rf/dispatch [:state/set-state :link (:db/id %)])
+        :on-delete #(when (js/confirm (str "Are you sure you want to delete the link " (:variable/name %) "?"))
+                      (rf/dispatch [:api/delete-entity %]))}]]
+
+     (when-not is-output?
+       [:div.mt-5.pt-3
+        [:h4 "Destination Links"]
+        [:p "Data will be copied FROM these variables."]
+        [simple-table
+         [:variable/name]
+         (sort-by :variable/name @dest-links)
+         {:on-select #(rf/dispatch [:state/set-state :link (:db/id %)])
+          :on-delete #(when (js/confirm (str "Are you sure you want to delete the link " (:variable/name %) "?"))
+                        (rf/dispatch [:api/delete-entity %]))}]])]))
 
 (defn- ->option [name-key]
   (fn [m]
@@ -115,7 +126,7 @@
                                     (->link @(get (p :variable)))
                                     (when @*link {:db/id @*link}))])]
     [:div.col-6
-     [:h3 (str (if @*link "Update" "Add") (if is-output? " 'Destination'" " 'Source'") " Link")]
+     [:h4 (str (if @*link "Update" "Add") "Destination Link")]
 
      [:form
       {:on-submit (u/on-submit on-submit)}
