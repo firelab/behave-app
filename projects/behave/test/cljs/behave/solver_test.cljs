@@ -228,18 +228,21 @@
     (testing "Crown Output Variables Function Mappings"
       (outputs-exist? class-name
                       "getFireType"
-                      "getCrownTransitionRatio"
-                      "getCrownCriticalSurfaceFlameLength"
+                      "getCrownCriticalFireSpreadRate"
                       "getCrownCriticalFireSpreadRate"
                       "getCrownCriticalSurfaceFirelineIntensity"
+                      "getCrownCriticalSurfaceFlameLength"
                       "getCrownFireActiveRatio"
-                      "getCrownCriticalFireSpreadRate"
+                      "getCrownFireArea"
+                      "getCrownFireLengthToWidthRatio"
+                      "getCrownFireLengthToWidthRatio"
+                      "getCrownFirePerimeter"
+                      "getCrownFirelineIntensity"
+                      "getCrownFireSpreadDistance"
                       "getCrownFireSpreadRate"
                       "getCrownFlameLength"
-                      "getCrownFireSpreadDistance"
-                      "getCrownFireArea"
-                      "getCrownFirePerimeter"
-                      "getCrownFireLengthToWidthRatio")
+                      "getCrownFlameLength"
+                      "getCrownTransitionRatio")
       (outputs-exist? spot
                       "getMaxMountainousTerrainSpottingDistanceFromTorchingTrees"
                       "getFlameHeightForTorchingTrees"))
@@ -442,3 +445,94 @@
 
     (println "SOLVER OUTPUT:" observed "EXPECTED:" expected)
     (is (within-one-percent? expected observed))))
+
+(defn test-crown-worksheet [row]
+  (let [module-input  (fn [class-name acc & args]
+                         (conj acc (apply ws-input class-name args)))
+        crown-input   (partial module-input "SIGCrown")
+        surface-input (partial module-input "SIGSurface")
+        crown-output  (partial ws-output "SIGCrown")
+        _             (println row)
+
+        inputs
+        (-> []
+            ;;; Surface Inputs
+
+            ;; Fuel
+            (surface-input "setFuelModelNumber"         "fuelModelNumber"         (get row "fuelModelNumber"))
+
+            ;; Moisture
+            (surface-input "setMoistureOneHour"         "moistureOneHour"         (/ (get row "moistureOneHour") 100))
+            (surface-input "setMoistureTenHour"         "moistureTenHour"         (/ (get row "moistureTenHour") 100))
+            (surface-input "setMoistureHundredHour"     "moistureHundredHour"     (/ (get row "moistureHundredHour") 100))
+            (surface-input "setMoistureLiveHerbaceous"  "moistureLiveHerbaceous"  (/ (get row "moistureLiveHerbaceous") 100))
+            (surface-input "setMoistureLiveWoody"       "moistureLiveWoody"       (/ (get row "moistureLiveWoody") 100))
+
+            ;; Wind
+            (surface-input "setWindAndSpreadOrientationMode" "windAndSpreadOrientationMode" (enums/wind-and-spread-orientation-mode (get row "windAndSpreadOrientationMode")))
+            (surface-input "setWindSpeed"               "windSpeed"               (get row "windSpeed"))
+            (surface-input "setWindHeightInputMode"     "windHeightInputMode"     (enums/wind-height-input-mode (get row "windHeightInputMode")))
+            (surface-input "setWindDirection"           "windDirection"           (get row "windDirection"))
+
+            ;; Topo
+            (surface-input "setAspect"                  "aspect"                  (get row "aspect"))
+            (surface-input "setSlope"                   "slope"                   (get row "slope"))
+
+            ;; Canopy
+            (surface-input "setCanopyCover"             "canopyCover"             (/ (get row "canopyCover") 100))
+            (surface-input "setCanopyHeight"            "canopyHeight"            (get row "canopyHeight"))
+            (surface-input "setCrownRatio"              "crownRatio"              (get row "crownRatio"))
+
+            ;;; Crown Inputs
+            (crown-input "setCanopyHeight"      "canopyHeight"      (get row "canopyHeight"))
+            (crown-input "setCanopyBaseHeight"  "canopyBaseHeight"  (get row "canopyBaseHeight"))
+            (crown-input "setCanopyBulkDensity" "canopyBulkDensity" (get row "canopyBulkDensity")))
+
+        fire-type-output   (crown-output "getFireType")
+
+        float-outputs
+        {"lengthToWidthRatio"
+         (crown-output "getCrownLengthToWidthRatio")
+         "crownFireSpreadRate"
+         (crown-output "getCrownFlameLength")
+         "crownFlameLength"
+         (crown-output "getCrownFireSpreadRate")
+         "crownFirelineIntensity"
+         (crown-output "getCrownFirelineIntensity")}
+
+        outputs
+        (conj (vals float-outputs) fire-type-output)
+
+        observed
+        (-> (solve-worksheet #{:surface} inputs outputs)
+            (first)
+            (:outputs))
+
+        test-float (fn [[header gv-uuid]]
+                     (testing (str "Crown Worksheet Testing:" header)
+                       (if-let [expected-value (get row header)]
+                         (let [_ (println [:CROWN header expected-value])
+                               expected-value (parse-float expected-value)
+                               observed-value (-> observed (get gv-uuid) (first))]
+                           (when-not (js/isNaN expected-value)
+                             (is (within-millionth? expected-value observed-value)
+                                 (str "Expected value: " expected-value"  Observed: " observed-value))))
+                         (str "header not in csv: " header))))]
+
+
+    ;; Assert
+    (doall (map test-float float-outputs))
+
+    (let [header   "fireType"
+          expected-value (enums/fire-type (get row header))
+          observed-value (-> observed (get fire-type-output) (first))]
+      (testing (str "Crown Worksheet Testing:" header)
+        (is (= expected-value observed-value)
+            (str "Expected value: " expected-value"  Observed: " observed-value))))))
+
+(deftest crown-worksheet
+  (let [rows (->> (inline-resource "public/csv/crown.csv")
+                  (parse-csv)
+                  (map clean-values))]
+
+    (doall (map test-crown-worksheet rows))))
