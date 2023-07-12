@@ -379,6 +379,11 @@
         ["SurfaceRunInDirectionOf::MaxSpread"
          "SurfaceRunInDirectionOf::DirectionOfInterest"]))
 
+(def crown-fire-calculation-method
+  (enum "CrownFireCalculationMethod"
+        ["CrownFireCalculationMethod::rothermel"
+         "CrownFireCalculationMethod::scott_and_reinhardt"]))
+
 (def wind-and-spread-orientation-mode
   (enum "WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum"
         ["WindAndSpreadOrientationMode::RelativeToUpslope"
