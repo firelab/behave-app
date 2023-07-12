@@ -209,7 +209,7 @@
         "setWindDirection"                 "windDirection"
         "setWindHeightInputMode"           "windHeightInputMode"
         "setWindSpeed"                     "windSpeed"
-        "setWindUpslopeAlignmentMode"      "windUpslopeAlignmentMode")
+        )
 
       (are [fn-name p-name] (some? (class+fn+param->group+gv-uuid spot fn-name p-name))
         "setDownwindCoverHeight"    "downwindCoverHeight"
@@ -247,13 +247,27 @@
 
     (testing "Crown Input Variables Function Mappings"
       (are [fn-name p-name] (some? (class+fn+param->group+gv-uuid class-name fn-name p-name))
-        "setCrownFireCalculationMethod"            "CrownFireCalculationMethod"
-        "setMoistureFoliar"                        "foliarMoisture"
-        "setCanopyHeight"                          "canopyHeight"
+        "setAspect"                                "aspect"
         "setCanopyBaseHeight"                      "canopyBaseHeight"
         "setCanopyBulkDensity"                     "canopyBulkDensity"
-        "setWindSpeed"                             "windSpeed"
-        "setWindAdjustmentFactorCalculationMethod" "windAdjustmentFactorCalculationMethod")
+        "setCanopyCover"                           "canopyCover"
+        "setCanopyHeight"                          "canopyHeight"
+        "setCrownFireCalculationMethod"            "CrownFireCalculationMethod"
+        "setCrownRatio"                            "crownRatio"
+        "setFuelModelNumber"                       "fuelModelNumber"
+        "setMoistureFoliar"                        "foliarMoisture"
+        "setMoistureHundredHour"                   "moistureHundredHour"
+        "setMoistureInputMode"                     "moistureInputMode"
+        "setMoistureLiveHerbaceous"                "moistureLiveHerbaceous"
+        "setMoistureLiveWoody"                     "moistureLiveWoody"
+        "setMoistureOneHour"                       "moistureOneHour"
+        "setMoistureTenHour"                       "moistureTenHour"
+        "setSlope"                                 "slope"
+        "setWindAdjustmentFactorCalculationMethod" "windAdjustmentFactorCalculationMethod"
+        "setWindAndSpreadOrientationMode"          "windAndSpreadAngleMode"
+        "setWindDirection"                         "windDirection"
+        "setWindHeightInputMode"                   "windHeightInputMode"
+        "setWindSpeed"                             "windSpeed")
 
       (are [fn-name p-name] (some? (class+fn+param->group+gv-uuid spot fn-name p-name))
         "setTreeHeight"             "treeHeight"
