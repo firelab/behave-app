@@ -2,6 +2,7 @@
   (:require [clojure.string       :as str]
             [cljs.test            :refer [deftest is join-fixtures testing use-fixtures are] :include-macros true]
             [csv-parser.interface :refer [parse-csv]]
+            [data-utils.interface :refer [parse-float]]
             [datascript.core      :as d]
             [behave.fixtures      :as fx]
             [behave.lib.enums     :as enums]
@@ -484,9 +485,11 @@
             (surface-input "setCrownRatio"              "crownRatio"              (get row "crownRatio"))
 
             ;;; Crown Inputs
-            (crown-input "setCanopyHeight"      "canopyHeight"      (get row "canopyHeight"))
-            (crown-input "setCanopyBaseHeight"  "canopyBaseHeight"  (get row "canopyBaseHeight"))
-            (crown-input "setCanopyBulkDensity" "canopyBulkDensity" (get row "canopyBulkDensity")))
+            (crown-input "setFoliarMoisture"             "foliarMoisture"    (get row "moistureFoliar"))
+            (crown-input "setCanopyHeight"               "canopyHeight"      (get row "canopyHeight"))
+            (crown-input "setCanopyBaseHeight"           "canopyBaseHeight"  (get row "canopyBaseHeight"))
+            (crown-input "setCanopyBulkDensity"          "canopyBulkDensity" (get row "canopyBulkDensity"))
+            (crown-input "setCrownFireCalculationMethod" "calculationMethod" (get row "calculationMethod")))
 
         fire-type-output   (crown-output "getFireType")
 
