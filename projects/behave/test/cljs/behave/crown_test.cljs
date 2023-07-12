@@ -5,8 +5,7 @@
             [behave.lib.fuel-models   :as fuel-models]
             [behave.lib.enums     :as enums]
             [behave.lib.units     :refer [get-unit]]
-            [clojure.string :as str]
-            [behave.lib.enums :as enum])
+            [clojure.string :as str])
   (:require-macros [behave.macros :refer [inline-resource]]))
 
 ;; Helpers
@@ -109,7 +108,7 @@
 
       (testing "Fire Type Result"
         (let [header   "fireType"
-              expected (enum/fire-type (get row header))]
+              expected (enums/fire-type (get row header))]
 
           (is (contains? row header)
               (str "header not in csv: " header))
