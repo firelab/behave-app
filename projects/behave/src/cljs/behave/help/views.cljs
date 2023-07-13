@@ -47,10 +47,11 @@
        [children]
 
        (string? help-keys)
-       [help-section [help-keys] (= help-keys @help-highlighted-key)]
+       [help-section help-keys (= help-keys @help-highlighted-key)]
 
        (seq help-keys)
        (doall (for [help-key help-keys]
+                ^{:key help-key}
                 [help-section help-key (= help-key @help-highlighted-key)])))]))
 
 (defn help-area [params]
