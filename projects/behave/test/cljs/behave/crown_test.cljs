@@ -15,6 +15,9 @@
 
 (def within-millionth? (partial within? 1e-06))
 
+(defn slope-degrees [percent]
+  (* (/ 180 js/Math.PI) (js/Math.atan (/ percent 100.0))))
+
 (defn- clean-values [row]
   (into {}
         (map (fn remove-quotes[[key val]]
@@ -46,7 +49,7 @@
       (crown/setWindAndSpreadOrientationMode (enums/wind-and-spread-orientation-mode (get row "windAndSpreadOrientationMode")))
 
       ;; Topo
-      (crown/setSlope (get row "slope") (enums/slope-units (get row "slopeUnits")))
+      (crown/setSlope  (slope-degrees (get row "slope")) (enums/slope-units "Degrees"))
       (crown/setAspect (get row "aspect"))
 
       ;; Canopy

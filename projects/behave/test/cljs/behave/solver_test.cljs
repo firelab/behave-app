@@ -2,7 +2,7 @@
   (:require [clojure.string       :as str]
             [cljs.test            :refer [deftest is join-fixtures testing use-fixtures are] :include-macros true]
             [csv-parser.interface :refer [parse-csv]]
-            [data-utils.interface :refer [parse-float]]
+            [data-utils.interface :refer [parse-float parse-int]]
             [datascript.core      :as d]
             [behave.fixtures      :as fx]
             [behave.lib.enums     :as enums]
@@ -21,6 +21,9 @@
 (def within-one-percent? (partial within? 0.1))
 
 (def within-millionth? (partial within? 1e-06))
+
+(defn slope-degrees [percent]
+  (* (/ 180 js/Math.PI) (js/Math.atan (/ percent 100.0))))
 
 (defn- clean-values [row]
   (into {}
@@ -74,11 +77,8 @@
 
 (defn outputs-exist? [class-name & fn-names]
   (doseq [fn-name fn-names]
-    (is (some? (class+fn->gv-uuid class-name fn-name)))))
-
-(defn inputs-exist? [class-name & fn-names]
-  (doseq [fn-name fn-names]
-    (is (some? (class+fn->gv-uuid class-name fn-name)))))
+    (is (some? (class+fn->gv-uuid class-name fn-name))
+        (str "Unable to find:" class-name "::" fn-name))))
 
 ;;; Fixtures
 
@@ -427,7 +427,7 @@
 
             ;; Topo
             (surface-input "setAspect"                  "aspect"                  (get row "aspect"))
-            (surface-input "setSlope"                   "slope"                   (get row "slope"))
+            (surface-input "setSlope"                   "slope"                   (slope-degrees (get row "slope")))
 
             ;; Canopy
             (surface-input "setCanopyCover"             "canopyCover"             (/ (get row "canopyCover") 100))
@@ -447,7 +447,7 @@
     (println "SOLVER OUTPUT:" observed "EXPECTED:" expected)
     (is (within-one-percent? expected observed))))
 
-(defn test-crown-worksheet [row]
+(defn test-crown-worksheet [row-idx row]
   (let [module-input  (fn [class-name acc & args]
                          (conj acc (apply ws-input class-name args)))
         crown-input   (partial module-input "SIGCrown")
@@ -477,7 +477,7 @@
 
             ;; Topo
             (surface-input "setAspect"                  "aspect"                  (get row "aspect"))
-            (surface-input "setSlope"                   "slope"                   (get row "slope"))
+            (surface-input "setSlope"                   "slope"                   (slope-degrees (get row "slope")))
 
             ;; Canopy
             (surface-input "setCanopyCover"             "canopyCover"             (/ (get row "canopyCover") 100))
@@ -485,50 +485,47 @@
             (surface-input "setCrownRatio"              "crownRatio"              (get row "crownRatio"))
 
             ;;; Crown Inputs
-            (crown-input "setFoliarMoisture"             "foliarMoisture"    (get row "moistureFoliar"))
+            (crown-input "setMoistureFoliar"             "foliarMoisture"    (/ (get row "moistureFoliar") 100))
             (crown-input "setCanopyHeight"               "canopyHeight"      (get row "canopyHeight"))
             (crown-input "setCanopyBaseHeight"           "canopyBaseHeight"  (get row "canopyBaseHeight"))
             (crown-input "setCanopyBulkDensity"          "canopyBulkDensity" (get row "canopyBulkDensity"))
-            (crown-input "setCrownFireCalculationMethod" "calculationMethod" (get row "calculationMethod")))
+            (crown-input "setCrownFireCalculationMethod" "CrownFireCalculationMethod" (enums/crown-fire-calculation-method (get row "calculationMethod"))))
 
         fire-type-output   (crown-output "getFireType")
 
         float-outputs
-        {"lengthToWidthRatio"
-         (crown-output "getCrownLengthToWidthRatio")
-         "crownFireSpreadRate"
-         (crown-output "getCrownFlameLength")
-         "crownFlameLength"
-         (crown-output "getCrownFireSpreadRate")
-         "crownFirelineIntensity"
-         (crown-output "getCrownFirelineIntensity")}
+        {"lengthToWidthRatio"     (crown-output "getCrownFireLengthToWidthRatio")
+         "crownFireSpreadRate"    (crown-output "getCrownFireSpreadRate")
+         "crownFlameLength"       (crown-output "getCrownFlameLength")
+         "crownFirelineIntensity" (crown-output "getCrownFirelineIntensity")}
 
         outputs
         (conj (vals float-outputs) fire-type-output)
 
         observed
-        (-> (solve-worksheet #{:surface} inputs outputs)
+        (-> (solve-worksheet #{:surface :crown} inputs outputs)
             (first)
             (:outputs))
 
+        _ (println [:CROWN-OUPUTS observed])
+
         test-float (fn [[header gv-uuid]]
-                     (testing (str "Crown Worksheet Testing:" header)
+                     (testing (str "Crown Worksheet Testing (#" (inc row-idx) "): "  header)
                        (if-let [expected-value (get row header)]
-                         (let [_ (println [:CROWN header expected-value])
-                               expected-value (parse-float expected-value)
-                               observed-value (-> observed (get gv-uuid) (first))]
+                         (let [expected-value (parse-float expected-value)
+                               observed-value (-> observed (get gv-uuid) (first) (parse-float))
+                               _              (println [:CROWN [:EXPECTED header expected-value] [:OBSERVED gv-uuid observed-value]])]
                            (when-not (js/isNaN expected-value)
                              (is (within-millionth? expected-value observed-value)
                                  (str "Expected value: " expected-value"  Observed: " observed-value))))
                          (str "header not in csv: " header))))]
-
 
     ;; Assert
     (doall (map test-float float-outputs))
 
     (let [header   "fireType"
           expected-value (enums/fire-type (get row header))
-          observed-value (-> observed (get fire-type-output) (first))]
+          observed-value (-> observed (get fire-type-output) (first) (parse-int))]
       (testing (str "Crown Worksheet Testing:" header)
         (is (= expected-value observed-value)
             (str "Expected value: " expected-value"  Observed: " observed-value))))))
@@ -538,4 +535,4 @@
                   (parse-csv)
                   (map clean-values))]
 
-    (doall (map test-crown-worksheet rows))))
+    (doall (map-indexed test-crown-worksheet rows))))
