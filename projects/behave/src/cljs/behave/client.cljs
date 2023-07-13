@@ -38,7 +38,8 @@
                     :tools/page          tools/root-component})
 
 (defn load-scripts! [{:keys [issue-collector]}]
-  (rf/dispatch [:system/add-script issue-collector]))
+  (when issue-collector
+    (rf/dispatch [:system/add-script issue-collector])))
 
 (defn app-shell [params]
   (let [route              (rf/subscribe [:handler])
