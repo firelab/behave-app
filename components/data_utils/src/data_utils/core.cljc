@@ -5,6 +5,12 @@
 ;; Utility Functions - Data Utils
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defn is-digit?
+  "Checks is every character is digit in `s`."
+  [s]
+  #?(:cljs (every? (comp not js/isNaN js/parseInt) s)
+     :clj  nil))
+
 (defn parse-int [s]
   #?(:clj  (Integer/parseInt s)
      :cljs (js/parseInt s)))

@@ -1,0 +1,123 @@
+{:global
+ {:SIGBehaveRun
+  {:isFuelDynamic
+   {:type "bool",
+    :id "isFuelDynamic",
+    :parameters [{:id "fuelModelNumber", :type "int"}]},
+   :getFuelSavrLiveWoody
+   {:type "double",
+    :id "getFuelSavrLiveWoody",
+    :parameters
+    [{:id "fuelModelNumber", :type "int"}
+     {:id "savrUnits",
+      :type
+      "SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum"}]},
+   :getFuelName
+   {:type "char",
+    :id "getFuelName",
+    :parameters [{:id "fuelModelNumber", :type "int"}]},
+   :getFuelLoadLiveWoody
+   {:type "double",
+    :id "getFuelLoadLiveWoody",
+    :parameters
+    [{:id "fuelModelNumber", :type "int"}
+     {:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :isAllFuelLoadZero
+   {:type "bool",
+    :id "isAllFuelLoadZero",
+    :parameters [{:id "fuelModelNumber", :type "int"}]},
+   :getFuelHeatOfCombustionLive
+   {:type "double",
+    :id "getFuelHeatOfCombustionLive",
+    :parameters
+    [{:id "fuelModelNumber", :type "int"}
+     {:id "heatOfCombustionUnits",
+      :type "HeatOfCombustionUnits::HeatOfCombustionUnitsEnum"}]},
+   :getFuelHeatOfCombustionDead
+   {:type "double",
+    :id "getFuelHeatOfCombustionDead",
+    :parameters
+    [{:id "fuelModelNumber", :type "int"}
+     {:id "heatOfCombustionUnits",
+      :type "HeatOfCombustionUnits::HeatOfCombustionUnitsEnum"}]},
+   :getFuelMoistureOfExtinctionDead
+   {:type "double",
+    :id "getFuelMoistureOfExtinctionDead",
+    :parameters
+    [{:id "fuelModelNumber", :type "int"}
+     {:id "moistureUnits", :type "MoistureUnits::MoistureUnitsEnum"}]},
+   :getFuelCode
+   {:type "char",
+    :id "getFuelCode",
+    :parameters [{:id "fuelModelNumber", :type "int"}]},
+   :operator=
+   {:type "SIGBehaveRun",
+    :id "operator=",
+    :parameters [{:id "rhs", :type "SIGBehaveRun"}]},
+   :isFuelModelReserved
+   {:type "bool",
+    :id "isFuelModelReserved",
+    :parameters [{:id "fuelModelNumber", :type "int"}]},
+   :setMoistureScenarios
+   {:type "void",
+    :id "setMoistureScenarios",
+    :parameters
+    [{:id "moistureScenarios", :type "SIGMoistureScenarios"}]},
+   :getFuelSavrOneHour
+   {:type "double",
+    :id "getFuelSavrOneHour",
+    :parameters
+    [{:id "fuelModelNumber", :type "int"}
+     {:id "savrUnits",
+      :type
+      "SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum"}]},
+   :getFuelSavrLiveHerbaceous
+   {:type "double",
+    :id "getFuelSavrLiveHerbaceous",
+    :parameters
+    [{:id "fuelModelNumber", :type "int"}
+     {:id "savrUnits",
+      :type
+      "SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum"}]},
+   :getFuelLoadLiveHerbaceous
+   {:type "double",
+    :id "getFuelLoadLiveHerbaceous",
+    :parameters
+    [{:id "fuelModelNumber", :type "int"}
+     {:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :SIGBehaveRun
+   {:id "SIGBehaveRun",
+    :parameters [{:id "rhs", :type "SIGBehaveRun"}]},
+   :getFuelLoadTenHour
+   {:type "double",
+    :id "getFuelLoadTenHour",
+    :parameters
+    [{:id "fuelModelNumber", :type "int"}
+     {:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :getFuelLoadOneHour
+   {:type "double",
+    :id "getFuelLoadOneHour",
+    :parameters
+    [{:id "fuelModelNumber", :type "int"}
+     {:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :setFuelModels
+   {:type "void",
+    :id "setFuelModels",
+    :parameters [{:id "fuelModels", :type "SIGFuelModels"}]},
+   :getFuelLoadHundredHour
+   {:type "double",
+    :id "getFuelLoadHundredHour",
+    :parameters
+    [{:id "fuelModelNumber", :type "int"}
+     {:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
+   :reinitialize {:type "void", :id "reinitialize", :parameters []},
+   :isFuelModelDefined
+   {:type "bool",
+    :id "isFuelModelDefined",
+    :parameters [{:id "fuelModelNumber", :type "int"}]},
+   :getFuelbedDepth
+   {:type "double",
+    :id "getFuelbedDepth",
+    :parameters
+    [{:id "fuelModelNumber", :type "int"}
+     {:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]}}}}

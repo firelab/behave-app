@@ -9,7 +9,9 @@
 ;; Utility Functions - Asynchronous Helpers
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn- chan? [c]
+(defn chan?
+  "Returns true if c a Channel."
+  [c]
   (= (type c) ManyToManyChannel))
 
 (defn refresh-on-interval!
@@ -31,7 +33,9 @@
   (when (chan? exit-chan)
     (put! exit-chan :exit)))
 
-(defn promise? [p]
+(defn promise?
+  "Returns true if p a Promise."
+  [p]
   (instance? js/Promise p))
 
 (defn fetch
@@ -133,7 +137,9 @@
 ;; TODO This whole routing should be more generic
 (def ^:private post-options #{:get :post :post-text :post-blob})
 
-(defn- show-sql-error! [error]
+(defn show-sql-error!
+  "Returns a humanized error of the SQL error."
+  [error]
   (cond
     (str/includes? error "duplicate key")
     "This action cannot be completed because it would create a duplicate entry where this is prohibited."

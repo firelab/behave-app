@@ -1,5 +1,5 @@
 (ns server.core
-  (:require [ring.adapter.jetty  :refer [run-jetty]]
+  (:require [ring.adapter.jetty       :refer [run-jetty]]
             [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
             [ring.middleware.reload   :refer [wrap-reload]]))
 
@@ -28,7 +28,7 @@
 
 (defn start-server! [{:keys [port handler] :or {port 8080}}]
   (when (nil? @server)
-    (let [ring-config  {:port port :join? false}]
+    (let [ring-config {:port port :join? false}]
       (reset! server (run-jetty handler ring-config)))))
 
 (defn stop-server! []

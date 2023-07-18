@@ -30,7 +30,7 @@
 ******************************************************************************/
 
 // TODO: Add unit conversions for energy and incorporate into calculateCrownCriticalSurfaceFireIntensity() - WMC 11/16
-// TODO: Allow for use case in which Crown is run completely without Surface, will involve allowing direct input of HPUA 
+// TODO: Allow for use case in which Crown is run completely without Surface, will involve allowing direct input of HPUA
 //       and surface flame length, as well as setting all other pertinent surface inputs in Crown's copy of Surface - WMC 11/16
 
 #pragma once
@@ -41,15 +41,40 @@
 #include "crown.h"
 #include "SIGFuelModels.h"
 
+enum class CrownFireCalculationMethod
+  {
+    rothermel,
+    scott_and_reinhardt
+  };
+
 class SIGCrown : public Crown
 {
 public:
-  SIGCrown() = delete; // No default constructor
   SIGCrown(SIGFuelModels& fuelModels);
-  ~SIGCrown();
 
   void setFuelModels(SIGFuelModels& fuelModels);
-
+  void setCrownFireCalculationMethod(CrownFireCalculationMethod CrownFireCalculationMethod);
+  void doCrownRun();
   char* getFuelCode(int fuelModelNumber) const;
   char* getFuelName(int fuelModelNumber) const;
+  double getCrownCriticalFireSpreadRate(SpeedUnits::SpeedUnitsEnum spreadRateUnits) const;
+  double getCrownCriticalSurfaceFirelineIntensity(FirelineIntensityUnits::FirelineIntensityUnitsEnum firelineIntensityUnits) const;
+  double getCrownCriticalSurfaceFlameLength(LengthUnits::LengthUnitsEnum flameLengthUnits) const;
+  double getCrownFireActiveRatio() const;
+  double getCrownTransitionRatio() const;
+  char* getMoistureScenarioDescriptionByName(const char* name);
+  char* getMoistureScenarioNameByIndex(const int index);
+  char* getMoistureScenarioDescriptionByIndex(const int index);
+  double getCrownFireSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits) const;
+  double getSurfaceFireSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits) const;
+  double getCrownFireArea(AreaUnits::AreaUnitsEnum areaUnits) const;
+  double getCrownFirePerimeter(LengthUnits::LengthUnitsEnum lengthUnits) const;
+  void setElapsedTime(double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits);
+  void setWindSpeed(double windSpeed, SpeedUnits::SpeedUnitsEnum windSpeedUnits);
+  void setWindHeightInputMode(WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode);
+
+private:
+  CrownFireCalculationMethod crownFireCalculationMethod_;
+  double windSpeed_;
+  WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode_;
 };

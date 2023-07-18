@@ -44,13 +44,27 @@ public:
     SIGFuelModels& operator=(const SIGFuelModels& rhs);
     SIGFuelModels(const SIGFuelModels& rhs);
 
-    bool setCustomFuelModel(int fuelModelNumber, char* code, char* name,
-        double fuelBedDepth, LengthUnits::LengthUnitsEnum lengthUnits, double moistureOfExtinctionDead,
-        MoistureUnits::MoistureUnitsEnum moistureUnits, double heatOfCombustionDead, double heatOfCombustionLive,
-        HeatOfCombustionUnits::HeatOfCombustionUnitsEnum heatOfCombustionUnits,
-        double fuelLoadOneHour, double fuelLoadTenHour, double fuelLoadHundredHour, double fuelLoadLiveHerbaceous,
-        double fuelLoadLiveWoody, LoadingUnits::LoadingUnitsEnum loadingUnits, double savrOneHour, double savrLiveHerbaceous,
-        double savrLiveWoody, SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum savrUnits, bool isDynamic);
+    bool setCustomFuelModel(int fuelModelNumber,
+                            char* code,
+                            char* name,
+                            double fuelBedDepth,
+                            LengthUnits::LengthUnitsEnum lengthUnits,
+                            double moistureOfExtinctionDead,
+                            MoistureUnits::MoistureUnitsEnum moistureUnits,
+                            double heatOfCombustionDead,
+                            double heatOfCombustionLive,
+                            HeatOfCombustionUnits::HeatOfCombustionUnitsEnum heatOfCombustionUnits,
+                            double fuelLoadOneHour,
+                            double fuelLoadTenHour,
+                            double fuelLoadHundredHour,
+                            double fuelLoadLiveHerbaceous,
+                            double fuelLoadLiveWoody,
+                            LoadingUnits::LoadingUnitsEnum loadingUnits,
+                            double savrOneHour,
+                            double savrLiveHerbaceous,
+                            double savrLiveWoody,
+                            SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum savrUnits,
+                            bool isDynamic);
 
     char* getFuelCode(int fuelModelNumber) const;
     char* getFuelName(int fuelModelNumber) const;

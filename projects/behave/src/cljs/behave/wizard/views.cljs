@@ -1,10 +1,11 @@
 (ns behave.wizard.views
-  (:require [behave.components.core                :as c]
-            [behave.components.input-group         :refer [input-group]]
+  (:require [clojure.string                 :as str]
+            [behave.components.core         :as c]
+            [behave.components.input-group  :refer [input-group]]
+            [behave.components.vega.result-chart         :refer [result-chart]]
             [behave.components.review-input-group  :as review]
             [behave.components.navigation          :refer [wizard-navigation]]
             [behave.components.output-group        :refer [output-group]]
-            [behave.components.vega.result-chart   :refer [result-chart]]
             [behave-routing.main                   :refer [routes]]
             [behave.translate                      :refer [<t bp]]
             [behave.wizard.events]
@@ -21,24 +22,34 @@
 
 ;;; Components
 
+(defn build-groups [ws-uuid groups component-fn & [level]]
+  (let [level (if (nil? level) 0 level)]
+    (when groups
+      [:<>
+       (doall
+        (for [group groups]
+          ^{:key (:db/id group)}
+          (when @(subscribe [:wizard/show-group?
+                             ws-uuid
+                             (:db/id group)
+                             (:group/conditionals-operator group)])
+            (let [variables (->> group (:group/group-variables) (sort-by :group-variable/variable-order))]
+              [:<>
+               [component-fn ws-uuid group variables level]
+               [:div.wizard-subgroup__indent
+                (build-groups ws-uuid (sort-by :group/order (:group/children group)) component-fn (inc level))]]))))])))
+
 (defmulti submodule-page (fn [io _ _] io))
 
-(defmethod submodule-page :input [_ ws-uuid groups on-back on-next]
-  [:<>
-   (for [group groups]
-     (let [variables (:group/group-variables group)]
-       ^{:key (:db/id group)}
-       [input-group ws-uuid group variables]))])
+(defmethod submodule-page :input [_ ws-uuid groups]
+  [:<> (build-groups ws-uuid groups input-group)])
 
-(defmethod submodule-page :output [_ ws-uuid groups on-back on-next]
-  [:<>
-   (for [group groups]
-     (let [variables (:group/group-variables group)]
-       ^{:key (:db/id group)}
-       [output-group ws-uuid group variables]))])
+(defmethod submodule-page :output [_ ws-uuid groups]
+  [:<> (build-groups ws-uuid groups output-group)])
 
-(defn- io-tabs [submodules {:keys [io] :as params}]
-  (let [[i-subs o-subs] (partition-by #(:submodule/io %) submodules)
+(defn- io-tabs [module-id {:keys [ws-uuid io] :as params}]
+  (let [i-subs          @(subscribe [:wizard/submodules-conditionally-filtered ws-uuid module-id :input])
+        o-subs          @(subscribe [:wizard/submodules-conditionally-filtered ws-uuid module-id :output])
         first-submodule (:slug (first (if (= io :input) o-subs i-subs)))]
     [:div.wizard-header__io-tabs
      [c/tab-group {:variant   "outline-primary"
@@ -66,11 +77,22 @@
                 :icon-position "left"
                 :on-click      #(dispatch [:wizard/toggle-show-notes])}]]))
 
-(defn- wizard-header [{module-name :module/name} all-submodules {:keys [io submodule] :as params}]
-  (let [submodules   (filter #(= (:submodule/io %) io) all-submodules)
-        *show-notes? (subscribe [:wizard/show-notes?])]
+(defn- wizard-header [{module-name :module/name
+                       module-id   :db/id}
+                      {:keys [ws-uuid io submodule] :as params}]
+  (let [*submodules         (if (= io :output)
+                              (subscribe [:wizard/submodules-io-output-only module-id])
+                              (subscribe [:wizard/submodules-io-input-only module-id]))
+        ;;(Kcheung) Not able to use :wizard/submodules-conditionally-filtered because the submodule tabs
+        ;;would not rerender when conditionals are met without hard refresh. so had to filter
+        ;;:wizard/show-submodule? outside of the subscription.
+        submodules-filtered (filter (fn [{id :db/id
+                                          op :submodule/conditionals-operator}]
+                                      @(subscribe [:wizard/show-submodule? ws-uuid id op]))
+                                    @*submodules)
+        *show-notes?        (subscribe [:wizard/show-notes?])]
     [:div.wizard-header
-     [io-tabs all-submodules params]
+     [io-tabs module-id params]
      [:div.wizard-header__banner
       [:div.wizard-header__banner__icon
        [c/icon :modules]]
@@ -84,7 +106,8 @@
                     :tabs     (map (fn [{s-name :submodule/name slug :slug}]
                                      {:label     s-name
                                       :tab       slug
-                                      :selected? (= submodule slug)}) submodules)}]]]))
+                                      :selected? (= submodule slug)})
+                                   submodules-filtered)}]]]))
 
 (defn wizard-note
   [{:keys [note display-submodule-headers?]}]
@@ -145,7 +168,7 @@
         *some-outputs-entered?   (subscribe [:worksheet/some-outputs-entered? ws-uuid module-id submodule])
         next-disabled?           (not (if (= io :input) @*all-inputs-entered? @*some-outputs-entered?))]
     [:div.wizard-page
-     [wizard-header @*module @*submodules params]
+     [wizard-header @*module params]
      [:div.wizard-page__body
       (when @*show-notes?
         [:<>
@@ -167,7 +190,7 @@
                                                     (name (:submodule/io @*submodule))
                                                     %])}])]
          (wizard-notes @*notes)])
-      [submodule-page io ws-uuid @*groups on-back on-next]
+      [submodule-page io ws-uuid @*groups]
       (when (true? @*warn-limit?)
         [:div.wizard-warning
          (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])]
@@ -286,6 +309,36 @@
                         :on-change     #(on-change gv-uuid %)
                         :value-atom    (r/atom saved-value)}])
        saved-entries))
+
+(defn format-bytes
+  "Formats `bytes` into a human-friendly format (e.g. '1 KiB'). Can be called formatted according to `decimals`."
+  [bytes & [decimals]]
+  (if (js/isNaN (+ bytes 0))
+    "0 Bytes"
+    (let [decimals (or decimals 2)
+          k        1024
+          dm       (if (< decimals 0) 0 decimals)
+          sizes    ["Bytes", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"]
+          i        (js/Math.floor (/ (js/Math.log bytes) (js/Math.log k)))]
+      (gstring/format "%s %s" (.toFixed (js/parseFloat (/ bytes (js/Math.pow k i))) dm) (nth sizes i)))))
+
+(defn table-exporter
+  "Displays a link to download a CSV copy of the table."
+  [{:keys [title headers columns rows] :as table-data}]
+  (let [print-row  (fn [row] (str/join "," (map #(get row %) columns)))
+        csv-header (str/join "," headers)
+        csv-rows   (str/join "\n" (map print-row rows))
+        csv        (str csv-header "\n" csv-rows)
+        blob       (js/Blob. [csv] #js {:type "text/csv"})
+        url        (js/window.URL.createObjectURL blob)]
+    [:div
+     (c/table table-data)
+     [:div
+      {:style {:margin "1em"}}
+      [:a
+       {:href     url
+        :download (gstring/format "%s.csv" title)}
+       (gstring/format "Download CSV (%s.csv / %s)" title (format-bytes (.-size blob) 0))]]]))
 
 (defn settings-form
   [{:keys [ws-uuid title headers rf-event-id rf-sub-id min-attr-id max-attr-id]}]
@@ -536,30 +589,30 @@
         (when (and table-enabled? (seq @*cell-data))
           [:div.wizard-results__table {:id "table"}
            [:div.wizard-notes__header "Table"]
-           (c/table {:title   "Results Table"
-                     :headers (mapv (fn resolve-uuid [[_order uuid _repeat-id units]]
-                                      (gstring/format "%s (%s)"
-                                                      (:variable/name @(subscribe [:wizard/group-variable uuid]))
-                                                      units))
-                                    @*headers)
-                     :columns (mapv (fn [[_order uuid repeat-id _units]]
-                                      (keyword (str uuid "-" repeat-id))) @*headers)
-                     :rows    (->> (group-by first @*cell-data)
-                                   (sort-by key)
-                                   (map (fn [[_ data]]
-                                          (reduce (fn [acc [_row-id uuid repeat-id value]]
-                                                    (let [[_ min max enabled?] (first (filter
-                                                                                       (fn [[gv-uuid]]
-                                                                                         (= gv-uuid uuid))
-                                                                                       @table-setting-filters))]
-                                                      (cond-> acc
-                                                        (and min max (not (<= min value max)) enabled?)
-                                                        (assoc :shaded? true)
+           (let [table-data {:title   "Results Table"
+                             :headers (mapv (fn resolve-uuid [[_order uuid _repeat-id units]]
+                                              (str (:variable/name @(subscribe [:wizard/group-variable uuid]))
+                                                   (when-not (empty? units) (gstring/format " (%s)" units))))
+                                            @*headers)
+                             :columns (mapv (fn [[_order uuid repeat-id _units]]
+                                              (keyword (str uuid "-" repeat-id))) @*headers)
+                             :rows    (->> (group-by first @*cell-data)
+                                           (sort-by key)
+                                           (map (fn [[_ data]]
+                                                  (reduce (fn [acc [_row-id uuid repeat-id value]]
+                                                            (let [[_ min max enabled?] (first (filter
+                                                                                               (fn [[gv-uuid]]
+                                                                                                 (= gv-uuid uuid))
+                                                                                               @table-setting-filters))]
+                                                              (cond-> acc
+                                                                (and min max (not (<= min value max)) enabled?)
+                                                                (assoc :shaded? true)
 
-                                                        :always
-                                                        (assoc (keyword (str uuid "-" repeat-id)) value))))
-                                                  {}
-                                                  data))))})])
+                                                                :always
+                                                                (assoc (keyword (str uuid "-" repeat-id)) value))))
+                                                          {}
+                                                          data))))}]
+             [table-exporter table-data])])
         (wizard-graph ws-uuid @*cell-data)]]
       [:div.wizard-navigation
        [c/button {:label    "Back"

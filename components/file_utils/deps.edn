@@ -1,0 +1,4 @@
+{:paths   ["src" "resources"]
+ :deps    {me.raynes/fs              {:mvn/version "1.4.6"}
+           net.coobird/thumbnailator {:mvn/version "0.4.19"}}
+ :aliases {:test {:extra-paths ["test"]}}}
