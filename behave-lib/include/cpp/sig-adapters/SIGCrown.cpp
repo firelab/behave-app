@@ -37,19 +37,35 @@
 #include "windSpeedUtility.h"
 #include "SIGString.h"
 
-// SIGCrown::SIGCrown(SIGFuelModels& fuelModels) {
-//   return static_cast <SIGCrown> (Crown::Crown(static_cast <FuelModels> (fuelModels)));
-// }
-
 SIGCrown::SIGCrown(SIGFuelModels& fuelModels) : Crown(fuelModels) {}
 
-SIGCrown::~SIGCrown() {
-  Crown::~Crown();
-};
+void SIGCrown::doCrownRun()
+{
+  if (crownFireCalculationMethod_ == CrownFireCalculationMethod::rothermel) {
+    doCrownRunRothermel();
+  } else {
+    doCrownRunScottAndReinhardt();
+  }
+}
 
 void SIGCrown::setFuelModels(SIGFuelModels& fuelModels) {
   FuelModels baseFuelModels = static_cast <FuelModels> (fuelModels);
   Crown::setFuelModels(baseFuelModels);
+}
+
+void SIGCrown::setCrownFireCalculationMethod(CrownFireCalculationMethod CrownFireCalculationMethod)
+{
+  crownFireCalculationMethod_ = CrownFireCalculationMethod;
+};
+
+void SIGCrown::setWindSpeed(double windSpeed, SpeedUnits::SpeedUnitsEnum windSpeedUnits) {
+  windSpeed_ = SpeedUnits::toBaseUnits(windSpeed, windSpeedUnits);
+  Crown::setWindSpeed(windSpeed_, SpeedUnits::FeetPerMinute, windHeightInputMode_);
+}
+
+void SIGCrown::setWindHeightInputMode(WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode) {
+  windHeightInputMode_ = windHeightInputMode;
+  Crown::setWindSpeed(windSpeed_, SpeedUnits::FeetPerMinute, windHeightInputMode_);
 }
 
 char* SIGCrown::getFuelCode(int fuelModelNumber) const
@@ -60,4 +76,64 @@ char* SIGCrown::getFuelCode(int fuelModelNumber) const
 char* SIGCrown::getFuelName(int fuelModelNumber) const
 {
   return SIGString::str2charptr(Crown::getFuelName(fuelModelNumber));
+}
+
+double SIGCrown::getCrownCriticalFireSpreadRate(SpeedUnits::SpeedUnitsEnum spreadRateUnits) const
+{
+  return SpeedUnits::fromBaseUnits(crownCriticalFireSpreadRate_, spreadRateUnits);
+}
+
+double SIGCrown::getCrownCriticalSurfaceFirelineIntensity(FirelineIntensityUnits::FirelineIntensityUnitsEnum firelineIntensityUnits) const
+{
+  return FirelineIntensityUnits::fromBaseUnits(crownCriticalSurfaceFirelineIntensity_, firelineIntensityUnits);
+}
+
+double SIGCrown::getCrownCriticalSurfaceFlameLength(LengthUnits::LengthUnitsEnum flameLengthUnits) const
+{
+  return LengthUnits::fromBaseUnits(crownFlameLength_, flameLengthUnits);
+}
+
+double SIGCrown::getCrownFireActiveRatio() const {
+  return crownFireActiveRatio_;
+}
+
+double SIGCrown::getCrownTransitionRatio() const {
+  return crownFireTransitionRatio_;
+}
+
+char* SIGCrown::getMoistureScenarioDescriptionByName(const char* name) {
+  return SIGString::str2charptr(Crown::getMoistureScenarioDescriptionByName(std::string(name)));
+}
+
+char* SIGCrown::getMoistureScenarioNameByIndex(const int index) {
+  return SIGString::str2charptr(Crown::getMoistureScenarioNameByIndex(index));
+}
+
+char* SIGCrown::getMoistureScenarioDescriptionByIndex(const int index) {
+  return SIGString::str2charptr(Crown::getMoistureScenarioDescriptionByIndex(index));
+}
+
+double SIGCrown::getSurfaceFireSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits) const {
+  double elapsedTime = surfaceFuel_.getElapsedTime(TimeUnits::Minutes);
+  return Crown::getSurfaceFireSpreadDistance(lengthUnits, elapsedTime, TimeUnits::Minutes);
+}
+
+double SIGCrown::getCrownFireSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits) const {
+  double elapsedTime = surfaceFuel_.getElapsedTime(TimeUnits::Minutes);
+  return Crown::getCrownFireSpreadDistance(lengthUnits, elapsedTime, TimeUnits::Minutes);
+}
+
+double SIGCrown::getCrownFireArea(AreaUnits::AreaUnitsEnum areaUnits) const {
+  double elapsedTime = surfaceFuel_.getElapsedTime(TimeUnits::Minutes);
+  return Crown::getCrownFireArea(areaUnits, elapsedTime, TimeUnits::Minutes);
+}
+
+double SIGCrown::getCrownFirePerimeter(LengthUnits::LengthUnitsEnum lengthUnits) const {
+  double elapsedTime = surfaceFuel_.getElapsedTime(TimeUnits::Minutes);
+  return Crown::getCrownFirePerimeter(lengthUnits, elapsedTime, TimeUnits::Minutes);
+}
+
+void SIGCrown::setElapsedTime(double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits)
+{
+  surfaceFuel_.setElapsedTime(elapsedTime, timeUnits);
 }

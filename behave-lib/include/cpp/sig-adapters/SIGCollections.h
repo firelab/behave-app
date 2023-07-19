@@ -17,9 +17,8 @@ struct SimpleVector {
   SimpleVector() {}
   SimpleVector(size_t size) : vec(size) {}
   SimpleVector(vector<T> other_vec) : vec(other_vec) {}
-  SimpleVector(T* other_array) {
-    int N = (sizeof other_array) / sizeof(other_array[0]);
-    for (int i = 0; i < N; i++)
+  SimpleVector(T* other_array, int size) {
+    for (int i = 0; i < size; i++)
       vec.push_back(other_array[i]);
   }
 

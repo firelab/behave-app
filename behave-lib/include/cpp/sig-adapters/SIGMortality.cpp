@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <functional>
 
-#include "mortality_inputs.h" 
+#include "mortality_inputs.h"
 #include "mortality.h"
 #include "SIGMortality.h"
 #include "species_master_table.h"
@@ -22,6 +22,18 @@ void SIGMortality::setSpeciesCode(char* speciesCode)
 {
   return Mortality::setSpeciesCode(std::string(speciesCode));
 }
+
+void SIGMortality::setSurfaceFireFlameLength(double value, LengthUnits::LengthUnitsEnum lengthUnits)
+{
+  Mortality::setFlameLengthOrScorchHeightSwitch(FlameLengthOrScorchHeightSwitch::flame_length);
+  Mortality::setFlameLengthOrScorchHeightValue(value, lengthUnits);
+};
+
+void SIGMortality::setSurfaceFireScorchHeight(double value, LengthUnits::LengthUnitsEnum lengthUnits)
+{
+  Mortality::setFlameLengthOrScorchHeightSwitch(FlameLengthOrScorchHeightSwitch::scorch_height);
+  Mortality::setFlameLengthOrScorchHeightValue(value, lengthUnits);
+};
 
 char* SIGMortality::getSpeciesCode() const
 {
@@ -110,4 +122,26 @@ SpeciesMasterTableRecordVector* SIGMortality::getSpeciesRecordVectorForRegionAnd
   vector<SpeciesMasterTableRecord> results = Mortality::getSpeciesRecordVectorForRegionAndEquationType(region, equationType);
   SpeciesMasterTableRecordVector *ptr = new SpeciesMasterTableRecordVector(results);
   return ptr;
+}
+
+void SIGMortality::setFirelineIntensity(double firelineIntensity,
+                          FirelineIntensityUnits::FirelineIntensityUnitsEnum firelineIntensityUnits) {
+  fireLineIntensity_ = FirelineIntensityUnits::toBaseUnits(firelineIntensity, firelineIntensityUnits);
+}
+void SIGMortality::setMidFlameWindSpeed(double midFlameWindSpeed, SpeedUnits::SpeedUnitsEnum windSpeedUnits) {
+  midFlameWindSpeed_ = SpeedUnits::toBaseUnits(midFlameWindSpeed, windSpeedUnits);
+}
+void SIGMortality::setAirTemperature(double airTemperature,
+                                     TemperatureUnits::TemperatureUnitsEnum temperatureUnits) {
+  airTemperature_ = TemperatureUnits::toBaseUnits(airTemperature, temperatureUnits);
+}
+
+double SIGMortality::getCalculatedScorchHeight(LengthUnits::LengthUnitsEnum scorchHeightUnits) {
+  return calculateScorchHeight(fireLineIntensity_,
+                               FirelineIntensityUnits::BtusPerFootPerSecond,
+                               midFlameWindSpeed_,
+                               SpeedUnits::FeetPerMinute,
+                               airTemperature_,
+                               TemperatureUnits::Fahrenheit,
+                               scorchHeightUnits);
 }

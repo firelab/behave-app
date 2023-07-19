@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 
+# Set Compiler
+SET (CMAKE_C_COMPILER "clang")
+SET (CMAKE_CXX_COMPILER "clang++")
+SET (CMAKE_CXX_STANDARD "14")
+
 # optional test executable
 OPTION(TEST_BEHAVE "Enable Testing" OFF)
 
@@ -28,17 +33,19 @@ ENDIF()
 set(WRAPPER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/include/cpp/emscripten/wrapper.cpp)
 set(EMSCRIPTEN_CPP_FILE ${CMAKE_SOURCE_DIR}/include/cpp/emscripten/)
 set(GLUE_JS_FILE ${CMAKE_CURRENT_SOURCE_DIR}/include/js/glue.js)
+set(PRE_JS_FILE ${CMAKE_CURRENT_SOURCE_DIR}/include/js/pre.js)
 set(BEHAVE_SRC_DIR ${CMAKE_SOURCE_DIR}/behave-mirror/src/behave/)
 set(SIG_SRC_DIR ${CMAKE_SOURCE_DIR}/include/cpp/sig-adapters/)
 set(SIG_TEST_DIR ${CMAKE_SOURCE_DIR}/test/cpp/)
 set(BEHAVE_LIB libbehave.a)
 
-set(DWARF_DIR ${CMAKE_SOURCE_DIR})
+# set(DWARF_DIR ${CMAKE_SOURCE_DIR})
 # NOTE: If you are using ubuntu through windows WSL set the DWARF_DIR to the
 # file path to the WSL full path. Here's an example:
-# set(DWARF_DIR //wsl%24/Ubuntu/home/kcheung/work/code/behave-polylith/behave-lib)
+set(DWARF_DIR //wsl%24/Ubuntu/home/kcheung/work/code/behave-polylith/behave-lib)
 
 set(EMCC_ARGS
+    -std=c++14
     -I${BEHAVE_SRC_DIR}
     -I${SIG_SRC_DIR}
     -I${EMSCRIPTEN_SRC_FILE}
@@ -57,9 +64,6 @@ set(EMCC_WASM_ARGS ${EMCC_ARGS}
     -s ALLOW_MEMORY_GROWTH
     -fdebug-prefix-map=${CMAKE_SOURCE_DIR}=${DWARF_DIR})
 
-# Make use of c++11
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-
 project(behave LANGUAGES CXX)
 
 include_directories(${CMAKE_SOURCE_DIR}/behave-mirror/src/behave)
@@ -76,6 +80,7 @@ SET(SOURCE
     behave-mirror/src/behave/ContainForceAdapter.cpp
     behave-mirror/src/behave/ContainResource.cpp
     behave-mirror/src/behave/ContainSim.cpp
+    behave-mirror/src/behave/chaparralFuel.cpp
     behave-mirror/src/behave/crown.cpp
     behave-mirror/src/behave/crownInputs.cpp
     behave-mirror/src/behave/fireSize.cpp
@@ -104,20 +109,14 @@ SET(SOURCE
     behave-mirror/src/behave/windSpeedUtility.cpp
 
     include/cpp/sig-adapters/SIGBehaveRun.cpp
-    include/cpp/sig-adapters/SIGContain.cpp
     include/cpp/sig-adapters/SIGContainAdapter.cpp
-    include/cpp/sig-adapters/SIGContainForce.cpp
-    include/cpp/sig-adapters/SIGContainForceAdapter.cpp
-    include/cpp/sig-adapters/SIGContainResource.cpp
-    include/cpp/sig-adapters/SIGContainSim.cpp
     include/cpp/sig-adapters/SIGCrown.cpp
     include/cpp/sig-adapters/SIGFuelModels.cpp
     include/cpp/sig-adapters/SIGIgnite.cpp
-    include/cpp/sig-adapters/SIGIgniteInputs.cpp
     include/cpp/sig-adapters/SIGMortality.cpp
-    include/cpp/sig-adapters/SIGSurface.h
+    include/cpp/sig-adapters/SIGMoistureScenarios.cpp
+    include/cpp/sig-adapters/SIGSurface.cpp
     include/cpp/sig-adapters/SIGSpot.cpp
-    include/cpp/sig-adapters/SIGSpotInputs.cpp
     include/cpp/sig-adapters/SIGSurface.cpp)
 
 SET(HEADERS
@@ -130,6 +129,7 @@ SET(HEADERS
     behave-mirror/src/behave/ContainForceAdapter.h
     behave-mirror/src/behave/ContainResource.h
     behave-mirror/src/behave/ContainSim.h
+    behave-mirror/src/behave/chaparralFuel.h
     behave-mirror/src/behave/crown.h
     behave-mirror/src/behave/crownInputs.h
     behave-mirror/src/behave/fireSize.h
@@ -159,19 +159,13 @@ SET(HEADERS
 
     include/cpp/sig-adapters/SIGBehaveRun.h
     include/cpp/sig-adapters/SIGDiurnalROS.h
-    include/cpp/sig-adapters/SIGContain.h
     include/cpp/sig-adapters/SIGContainAdapter.h
-    include/cpp/sig-adapters/SIGContainForce.h
-    include/cpp/sig-adapters/SIGContainForceAdapter.h
-    include/cpp/sig-adapters/SIGContainResource.h
-    include/cpp/sig-adapters/SIGContainSim.h
     include/cpp/sig-adapters/SIGCrown.h
     include/cpp/sig-adapters/SIGFuelModels.cpp
     include/cpp/sig-adapters/SIGIgnite.h
-    include/cpp/sig-adapters/SIGIgniteInputs.h
     include/cpp/sig-adapters/SIGMortality.h
+    include/cpp/sig-adapters/SIGMoistureScenarios.h
     include/cpp/sig-adapters/SIGSpot.h
-    include/cpp/sig-adapters/SIGSpotInputs.h
     include/cpp/sig-adapters/SIGSurface.h
     include/cpp/sig-adapters/SIGString.h
     include/cpp/sig-adapters/SIGSurface.h)
@@ -233,7 +227,7 @@ ENDIF()
 IF(BEHAVE_WASM)
     add_custom_command(
         OUTPUT behave.wasm
-        COMMAND emcc ${WRAPPER_FILE} ${EMCC_WASM_ARGS} -o behave-min.js
+        COMMAND emcc ${WRAPPER_FILE} ${EMCC_WASM_ARGS} -o behave-min.js --pre-js ${PRE_JS_FILE}
         DEPENDS behave
         COMMENT "Building webassembly"
         VERBATIM)

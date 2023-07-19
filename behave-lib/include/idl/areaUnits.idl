@@ -1,5 +1,0 @@
-interface AreaUnits {
-  void null();
-  double toBaseUnits(double value, AreaUnitsEnum units);
-  double fromBaseUnits(double value, AreaUnitsEnum units);
-};

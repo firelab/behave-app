@@ -57,19 +57,15 @@
 
 (def ^{:argslist '([error])
        :doc "Returns a humanized error of the SQL error."}
-  sql-error c/sql-error)
+  show-sql-error c/show-sql-error!)
 
-(def ^{:argslist
-       '([sql-fn-name & args])
-
+(def ^{:argslist '([sql-fn-name & args])
        :doc
        "Calls SQL function from the backend and returns a go block
        containing the function's response."}
   call-sql-async! c/call-sql-async!)
 
-(def ^{:argslist '(
-  [clj-fn-name & args]
-                   )
+(def ^{:argslist '([clj-fn-name & args])
        :doc
        "Calls a Clojure function from the backend and returns a go block
        containing the function's response."}

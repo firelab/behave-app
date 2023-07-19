@@ -3,8 +3,21 @@
             [behave.components.vega.core :refer [vega-box]]
             [goog.string                    :as gstring]))
 
+(defn- add-scatter-plot [schema {:keys [id data color]}]
+  (-> schema
+      (update :layer
+              #(conj % {:mark     {:type "circle"}
+                        :data     {:values data}
+                        :encoding {:color {:datum id}
+                                   :x     {:field "x"
+                                           :type  "quantitative"}
+                                   :y     {:field "y"
+                                           :type  "quantitative"}}}))
+      (update-in [:encoding :color :scale :domain] #(conj % id))
+      (update-in [:encoding :color :scale :range] #(conj % color))))
+
 (defn- add-ellipse
-  [config {:keys [id color a b phi x-offset stroke-dash]
+  [schema {:keys [id color a b phi x-offset stroke-dash]
            :or   {a           0
                   b           0
                   phi         0
@@ -15,7 +28,7 @@
         phi-name (str "PHI_" id)
         cx-name  (str "CX_" id)
         cy-name  (str "CY_" id)]
-    (-> config
+    (-> schema
         (update :layer
                 #(conj % {:mark      {:type       "line"
                                       :strokeDash stroke-dash}
@@ -44,12 +57,12 @@
         (update-in [:encoding :color :scale :domain] #(conj % id))
         (update-in [:encoding :color :scale :range] #(conj % color)))))
 
-(defn- add-arrow [config {:keys [id color r theta]
+(defn- add-arrow [schema {:keys [id color r theta]
                           :or   {r     0
                                  theta 0}}]
   (let [r-name     (str "R_" id)
         theta-name (str "THETA_" id)]
-    (-> config
+    (-> schema
         (update :layer #(conj % {:data      {:values [{r-name 0.0 "origin" true}
                                                       {r-name 0.5}]}
                                  :transform [{:calculate (gstring/format "isDefined(datum.origin) ? 0 : %s * -sin(%s * (PI/180) - PI)"
@@ -86,8 +99,8 @@
        (/ pixel-width domain-abs-width)
        (Math/abs domain-min))))
 
-(defn output-diagram [{:keys [title width height x-axis y-axis ellipses arrows]}]
-  (let [base-config {:$schema     "https://vega.github.io/schema/vega-lite/v5.1.1.json"
+(defn output-diagram [{:keys [title width height x-axis y-axis ellipses arrows scatter-plots]}]
+  (let [base-schema {:$schema     "https://vega.github.io/schema/vega-lite/v5.1.1.json"
                      :title       title
                      :description "diagram"
                      :width       width
@@ -103,13 +116,15 @@
                                    :color {:type   "nominal"
                                            :scale  {:domain []
                                                     :range  []}
-                                           :legend {:symbolSize        500
+                                           :legend {:symbolType        "stroke"
+                                                    :symbolSize        500
                                                     :symbolStrokeWidth 5.0
                                                     :labelFontSize     15}}}
                      :layer       []
                      :params      []}]
     [:div
      [vega-box
-      (as-> base-config $
+      (as-> base-schema $
         (reduce (fn [acc ellipse] (add-ellipse acc ellipse)) $ ellipses)
-        (reduce (fn [acc arrow] (add-arrow acc arrow)) $ arrows))]]))
+        (reduce (fn [acc arrow] (add-arrow acc arrow)) $ arrows)
+        (reduce (fn [acc scatter-plot] (add-scatter-plot acc scatter-plot)) $ scatter-plots))]]))

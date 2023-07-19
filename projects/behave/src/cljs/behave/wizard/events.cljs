@@ -1,7 +1,8 @@
 (ns behave.wizard.events
-  (:require [behave-routing.main           :refer [routes]]
-            [behave.solver                 :refer [solve-worksheet]]
+  (:require [behave.solver.core            :refer [solve-worksheet]]
+            [behave-routing.main           :refer [routes]]
             [bidi.bidi                     :refer [path-for]]
+            [clojure.string                :as str]
             [clojure.walk                  :refer [postwalk]]
             [re-frame.core                 :as rf]
             [string-utils.interface        :refer [->str]]
@@ -26,14 +27,24 @@
 
 (rf/reg-event-fx
   :wizard/next-tab
-  (fn [_ [_
-          _*module
-          _*submodule
-          all-submodules
-          {:keys [ws-uuid module io submodule]}]]
-    (let [[i-subs o-subs] (partition-by #(:submodule/io %) (sort-by :submodule/io all-submodules))
+
+  [(rf/inject-cofx ::inject/sub
+                   (fn [[_ _ _ _ {:keys [ws-uuid]}]]
+                     [:worksheet/modules ws-uuid]))]
+  (fn [{modules :worksheet/modules} [_
+                                     _*module
+                                     _*submodule
+                                     all-submodules
+                                     {:keys [ws-uuid module io submodule]}]]
+    (let [all-submodules  (filter (fn [{op :submodule/conditionals-operator
+                                        id :db/id}]
+                                    @(rf/subscribe [:wizard/show-submodule? ws-uuid id op]))
+                                  all-submodules)
+          o-subs          (filter #(= :output (:submodule/io %)) (sort-by :submodule/order all-submodules))
+          i-subs          (filter #(= :input (:submodule/io %)) (sort-by :submodule/order all-submodules))
           submodules      (if (= io :input) i-subs o-subs)
           next-submodules (rest (drop-while #(not= (:slug %) submodule) (sort-by :submodule/order submodules)))
+          next-modules    (rest (drop-while #(not= (str/lower-case (:module/name %)) module) (sort-by :module/order modules)))
           path            (cond
                             (seq next-submodules)
                             (path-for routes
@@ -51,7 +62,17 @@
                                       :io :input
                                       :submodule (:slug (first i-subs)))
 
-                            (and (= io :input) (empty? next-submodules))
+                            (and (= io :input) (empty? next-submodules) (seq next-modules))
+                            (let [next-module    (str/lower-case (:module/name (first next-modules)))
+                                  next-submodule @(rf/subscribe [:worksheet/first-output-submodule-slug next-module])]
+                              (path-for routes
+                                        :ws/wizard
+                                        :ws-uuid ws-uuid
+                                        :module next-module
+                                        :io :output
+                                        :submodule next-submodule))
+
+                            (and (= io :input) (empty? next-submodules) (empty? next-modules))
                             (path-for routes
                                       :ws/review
                                       :ws-uuid ws-uuid))]

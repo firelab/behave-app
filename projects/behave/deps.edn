@@ -4,8 +4,9 @@
              "clojars" {:url "https://clojars.org/repo"}}
 
  :deps      {;; Clojure
+             clj-http/clj-http             {:mvn/version "3.10.1"}
              org.clojure/clojure           {:mvn/version "1.11.1"}
-             ring/ring                     {:mvn/version "1.9.5"}
+             ring/ring                     {:mvn/version "1.10.0"}
              ring/ring-defaults            {:mvn/version "0.3.3"}
              io.replikativ/datahike        {:mvn/version "0.5.1506" :exclusions [org.clojure/clojurescript]}
              sig-gis/triangulum            {:git/url "https://github.com/sig-gis/triangulum"
@@ -20,6 +21,7 @@
              org.clojure/core.async        {:mvn/version "1.2.603"}
              datascript/datascript         {:mvn/version "1.3.13"}
              re-frame/re-frame             {:mvn/version "1.3.0-rc3" :exclusions [reagent/reagent]}
+             day8.re-frame/http-fx         {:mvn/version "0.2.4"}
              day8.re-frame/test            {:mvn/version "0.1.5"}
              re-frame-utils/re-frame-utils {:mvn/version "0.1.0"}
              re-posh/re-posh               {:mvn/version "0.3.3"}
@@ -42,6 +44,7 @@
              sig/dom-utils                 {:local/root "../../components/dom_utils"}
              sig/ds-schema-utils           {:local/root "../../components/ds_schema_utils"}
              sig/number-utils              {:local/root "../../components/number_utils"}
+             sig/logging                   {:local/root "../../components/logging"}
              sig/markdown2hiccup           {:local/root "../../components/markdown2hiccup"}
              sig/server                    {:local/root "../../components/server"}
              sig/string-utils              {:local/root "../../components/string_utils"}

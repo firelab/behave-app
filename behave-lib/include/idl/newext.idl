@@ -1,6 +1,0 @@
-interface Extension {
-  void Extension();
-  boolean allocExtension(long p_blocks, long p_cols, long p_rows, long p_fuels);
-  double calcProb(long p_block, boolean p_subtFaster);
-  void run(long p_lats, double p_latRos, double p_latComb, double p_maxRos);
-};

@@ -1,0 +1,108 @@
+@charset "UTF-8";
+/* CSS BehavePlus 7.0 Help style */
+
+/* All the Help Area*/
+.help {
+    background: #ffff;
+    padding:2%;
+    font-family: 'Roboto', sans-serif;
+}
+
+.help h1,
+.help h2,
+.help h3,
+.help h4,
+.help h5,
+.help h6 {
+    margin: 0px;
+}
+
+/* Help Headers */
+
+.help h1 {
+    font-size: 2em;
+    font-weight: 500;
+    line-height: 32px;
+    padding-bottom: 0px;
+}
+
+.help h2 {
+    font-size: 1.700em;
+    font-weight: 400;
+    line-height: 1.700em;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #707070;
+}
+
+.help h3 {
+    font-size: 1.300em;
+    font-weight: 300;
+    line-height: 1.600em;
+}
+
+.help h4 {
+    font-size: 1.200em;
+    font-weight: 500;
+    line-height: 18px;
+    margin-top: 20px;
+    color: #13486A;
+}
+
+.help h5 {
+    font-size: 1.200em;
+    font-weight: 500;
+    line-height: 18px;
+    color: white;
+    background: #3F454A;
+    padding: 10px 10px 10px 10px;
+    margin-bottom: 0px;
+}
+
+.help h6 {
+    color:black;
+    font-size: 1.200em;
+    font-weight: 400;
+    line-height: 18px;
+    margin-top: 20px;
+    text-decoration: underline;
+}
+
+.help p {
+    font-size: 1.000em;
+    font-weight: 400;
+    line-height: 26px;
+    margin-bottom: 30px;
+    margin-top: 12px;
+}
+
+.help hr {
+    padding-bottom: 6px;
+}
+
+/* Highlight */
+
+.help .highlight {
+    background: #EDF2F5;
+    width: 100%;
+    padding: 0px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.help .highlight h1,
+.help .highlight h2,
+.help .highlight h3,
+.help .highlight h4,
+.help .highlight h5,
+.help .highlight h6 {
+    color: white;
+    background: #5788A7;
+    padding: 10px 10px 10px 10px;
+    margin-bottom: 0px;
+    text-decoration: underline;
+}
+
+.help .highlight p {
+    padding: 10px 10px 20px 10px;
+    margin-top: 0px;
+}

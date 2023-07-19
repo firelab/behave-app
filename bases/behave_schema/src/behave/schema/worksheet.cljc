@@ -1,14 +1,10 @@
 (ns behave.schema.worksheet
-  (:require [clojure.spec.alpha :as s]))
-
-;;; Validation Fns
-
-(def single-ref? integer?)
-
-(def many-ref? (s/and set? #(every? integer? %)))
+  (:require [clojure.spec.alpha :as s]
+            [behave.schema.utils :refer [many-ref? single-ref? uuid-string?]]))
 
 ;;; Spec
 
+(s/def :worksheet/uuid                  uuid-string?)
 (s/def :worksheet/uuid                  string?)
 (s/def :worksheet/name                  string?)
 (s/def :worksheet/furthest-visited-step keyword?)
@@ -18,6 +14,16 @@
 (s/def :worksheet/result-table          single-ref?)
 (s/def :worksheet/graph-settings        single-ref?)
 (s/def :worksheet/table-settings        single-ref?)
+
+(s/def :behave/worksheet (s/keys :req [:worksheet/uuid
+                                       :worksheet/name]
+                                 :opt [:worksheet/inputs
+                                       :worksheet/notes
+                                       :worksheet/inputs
+                                       :worksheet/outputs
+                                       :worksheet/result-table
+                                       :worksheet/graph-settings
+                                       :worksheet/table-settings]))
 
 ;;; Schema
 

@@ -9,6 +9,7 @@
     :db/valueType   :db.type/string
     :db/unique      :db.unique/identity
     :db/cardinality :db.cardinality/one}
+
    {:db/ident       :entity/name
     :db/doc         "Entity's name."
     :db/valueType   :db.type/string

@@ -1,0 +1,73 @@
+{:global
+ {:SIGMoistureScenarios
+  {:MoistureScenarioRecord {},
+   :getMoistureScenarioLiveHerbaceousByIndex
+   {:type "double",
+    :id "getMoistureScenarioLiveHerbaceousByIndex",
+    :parameters [{:id "index", :type "int"}]},
+   :getMoistureScenarioHundredHourByIndex
+   {:type "double",
+    :id "getMoistureScenarioHundredHourByIndex",
+    :parameters [{:id "index", :type "int"}]},
+   :getMoistureScenarioLiveWoodyByIndex
+   {:type "double",
+    :id "getMoistureScenarioLiveWoodyByIndex",
+    :parameters [{:id "index", :type "int"}]},
+   :getMoistureScenarioIndexByName
+   {:type "int",
+    :id "getMoistureScenarioIndexByName",
+    :parameters [{:id "name", :type "std::string"}]},
+   :getMoistureScenarioHundredHourByName
+   {:type "double",
+    :id "getMoistureScenarioHundredHourByName",
+    :parameters [{:id "name", :type "std::string"}]},
+   :getMoistureScenarioOneHourByName
+   {:type "double",
+    :id "getMoistureScenarioOneHourByName",
+    :parameters [{:id "name", :type "std::string"}]},
+   :getNumberOfMoistureScenarios
+   {:type "int", :id "getNumberOfMoistureScenarios", :parameters []},
+   :getIsMoistureScenarioDefinedByName
+   {:type "bool",
+    :id "getIsMoistureScenarioDefinedByName",
+    :parameters [{:id "name", :type "std::string"}]},
+   :operator=
+   {:type "MoistureScenarios",
+    :id "operator=",
+    :parameters [{:id "rhs", :type "MoistureScenarios"}]},
+   :getMoistureScenarioNameByIndex
+   {:type "char",
+    :id "getMoistureScenarioNameByIndex",
+    :parameters [{:id "index", :type "int"}]},
+   :getMoistureScenarioLiveWoodyByName
+   {:type "double",
+    :id "getMoistureScenarioLiveWoodyByName",
+    :parameters [{:id "name", :type "std::string"}]},
+   :getMoistureScenarioLiveHerbaceousByName
+   {:type "double",
+    :id "getMoistureScenarioLiveHerbaceousByName",
+    :parameters [{:id "name", :type "std::string"}]},
+   :getMoistureScenarioDescriptionByIndex
+   {:type "char",
+    :id "getMoistureScenarioDescriptionByIndex",
+    :parameters [{:id "index", :type "int"}]},
+   :getMoistureScenarioTenHourByName
+   {:type "double",
+    :id "getMoistureScenarioTenHourByName",
+    :parameters [{:id "name", :type "std::string"}]},
+   :getMoistureScenarioOneHourByIndex
+   {:type "double",
+    :id "getMoistureScenarioOneHourByIndex",
+    :parameters [{:id "index", :type "int"}]},
+   :getMoistureScenarioTenHourByIndex
+   {:type "double",
+    :id "getMoistureScenarioTenHourByIndex",
+    :parameters [{:id "index", :type "int"}]},
+   :getIsMoistureScenarioDefinedByIndex
+   {:type "bool",
+    :id "getIsMoistureScenarioDefinedByIndex",
+    :parameters [{:id "index", :type "int"}]},
+   :getMoistureScenarioDescriptionByName
+   {:type "char",
+    :id "getMoistureScenarioDescriptionByName",
+    :parameters [{:id "name", :type "char"}]}}}}

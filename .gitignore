@@ -7,7 +7,6 @@
 .lsp/
 .clj-kondo/*
 !.clj-kondo/config.edn
-projects/behave/resources/db
 
 # Build Directories and Files
 /.key
@@ -224,7 +223,9 @@ ModelManifest.xml
 #
 
 # Project builds
-projects/behave/resources/public/js/out/
-projects/behave/resources/public/cljs/
 **/target
+projects/behave/resources/public/js/out/
+projects/behave_cms/resources/public/cljs/
+projects/behave_cms/resources/*.db
+projects/behave/resources/public/cljs/
 projects/behave/resources/public/js/behave.js

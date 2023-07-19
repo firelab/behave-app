@@ -1,7 +1,7 @@
 /******************************************************************************
 *
 * Project:  CodeBlocks
-* Purpose:  Interface for Behave application based on the Facade OOP Design 
+* Purpose:  Interface for Behave application based on the Facade OOP Design
 *           Pattern used to tie together the modules and objects used by Behave
 * Author:   William Chatham <wchatham@fs.fed.us>
 *
@@ -46,7 +46,7 @@ class SIGBehaveRun
 public:
     SIGBehaveRun() = delete; // There is no default constructor
     explicit SIGBehaveRun(SIGFuelModels& fuelModels, SpeciesMasterTable& speciesMasterTable);
-    
+
     SIGBehaveRun(const SIGBehaveRun& rhs);
     SIGBehaveRun& operator=(const SIGBehaveRun& rhs);
     ~SIGBehaveRun();
@@ -54,6 +54,7 @@ public:
     void reinitialize();
 
     void setFuelModels(SIGFuelModels& fuelModels);
+    void setMoistureScenarios(SIGMoistureScenarios& moistureScenarios);
 
     // Fuel Model Getter Methods
     char* getFuelCode(int fuelModelNumber) const;

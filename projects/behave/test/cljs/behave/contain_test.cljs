@@ -1,7 +1,6 @@
 (ns behave.contain-test
-  (:require [clojure.core.async   :refer [go <!]]
-            [cljs.test            :refer [is deftest testing]]
-            [csv-parser.interface :refer [fetch-csv parse-csv]]
+  (:require [cljs.test            :refer [is deftest testing]]
+            [csv-parser.interface :refer [parse-csv]]
             [behave.lib.contain   :as contain]
             [behave.lib.enums     :as enums]
             [behave.lib.units     :refer [get-unit]])
@@ -10,9 +9,10 @@
 ;; Helpers
 
 (defn within? [a b precision]
-  (> precision (- a b)))
+  (> precision (abs (- a b))))
 
-(def within-millionth? (partial within? 1e-06))
+(defn within-millionth? [a b]
+  (within? a b 1e-6))
 
 ;; Tests
 
@@ -36,6 +36,7 @@
     ;; Act
     (contain/doContainRun module)
     (js/console.log "firePerimeterX:" (contain/firePerimeterX module))
+    (js/console.log "firePerimeterY:" (contain/firePerimeterY module))
     (js/console.log  module)
     ;; Assert
     (testing (str "csv row idx:" row-idx)

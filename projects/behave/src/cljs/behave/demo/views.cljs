@@ -17,17 +17,19 @@
                                   :a     15
                                   :b     10
                                   :phi   90}
-                                 {:id          "FirePerimeterAtAttack"
-                                  :color       "red"
-                                  :a           15
-                                  :b           10
-                                  :phi         90}
-                                 {:id       "FireLineConstructed"
-                                  :color    "black"
-                                  :a        50
-                                  :b        25
-                                  :phi      90
-                                  :x-offset -5}]}])
+                                 {:id    "FirePerimeterAtAttack"
+                                  :color "red"
+                                  :a     20
+                                  :b     15
+                                  :phi   90}]
+                      :scatter-plots [{:id    "FireLineConstructed"
+                                       :color "black"
+                                       :data  [{"x" 0 "y" 0}
+                                               {"x" 5 "y" 5}
+                                               {"x" 10 "y" 10}
+                                               {"x" 15 "y" 15}
+                                               {"x" 20 "y" 20}
+                                               {"x" 25 "y" 25}]}]}])
    (let [width  800
          height 800]
      [output-diagram {:title    "Fire Shape Diagram"
