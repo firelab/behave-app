@@ -48,9 +48,8 @@
       (is (within? (get row "containmentArea")          (contain/getFinalContainmentArea module (get-unit "ac")) 1e-6))
       (is (within? (get row "timeSinceReport")          (contain/getFinalTimeSinceReport module (get-unit "min")) 1e-6))
       (is (= (enums/contain-status (get row "containmentStatus")) (contain/getContainmentStatus module)))
-      (is (= [] (contain/firePerimeterX module)))
-
-      )))
+      (is (= 1001 (.size (contain/firePerimeterX module))))
+      (is (= 1001 (.size (contain/firePerimeterY module)))))))
 
 (deftest contain-testing-simple
   (let [rows (->> (inline-resource "public/csv/contain.csv")
