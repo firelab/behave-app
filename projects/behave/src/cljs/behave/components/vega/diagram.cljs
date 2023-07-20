@@ -105,13 +105,15 @@
                      :description "diagram"
                      :width       width
                      :height      height
-                     :encoding    {:x     {:axis  {:title  "x"
-                                                   :offset (compute-axis-offset (:domain y-axis)
-                                                                                height)}
+                     :encoding    {:x     {:axis  {:title       "x"
+                                                   :offset      (compute-axis-offset (:domain y-axis)
+                                                                                     height)
+                                                   :tickMinStep (or (:tick-min-step x-axis) 1)}
                                            :scale {:domain (:domain x-axis)}}
-                                   :y     {:axis  {:title  "y"
-                                                   :offset (compute-axis-offset (:domain x-axis)
-                                                                                width)}
+                                   :y     {:axis  {:title       "y"
+                                                   :offset      (compute-axis-offset (:domain x-axis)
+                                                                                     width)
+                                                   :tickMinStep (or (:tick-min-step y-axis) 1)}
                                            :scale {:domain (:domain y-axis)}}
                                    :color {:type   "nominal"
                                            :scale  {:domain []
