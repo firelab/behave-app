@@ -8,7 +8,7 @@
 (defn doContainRun [self]
   (.doContainRun self))
 
-                                        ; Inputs
+;; Inputs
 (defn addResource [self arrival duration timeUnit productionRate productionRateUnits description]
   (.addResource self arrival duration timeUnit productionRate productionRateUnits description))
 
@@ -45,19 +45,7 @@
 (defn setTactic [self tactic]
   (.setTactic self tactic))
 
-(defn removeAllResources [self]
-  (.removeAllResources self))
-
-(defn removeResourceWithThisDesc [self desc]
-  (.removeResourceWithThisDesc self desc))
-
-(defn removeResourceAt [self index]
-  (.removeResourceAt self index))
-
-(defn removeAllResourcesWithThisDesc [self desc]
-  (.removeAllResourcesWithThisDesc self desc))
-
-                                        ; Outputs
+;; outputs
 (defn getContainmentStatus [self]
   (.getContainmentStatus self))
 
@@ -76,8 +64,32 @@
 (defn getFinalTimeSinceReport [self timeUnits]
   (.getFinalTimeSinceReport self timeUnits))
 
+(defn getFireBackAtAttack [self]
+  (.getFireBackAtAttack self))
+
+(defn getFireBackAtReport [self]
+  (.getFireBackAtReport self))
+
+(defn getFireHeadAtAttack [self]
+  (.getFireHeadAtAttack self))
+
+(defn getFireHeadAtReport [self]
+  (.getFireHeadAtReport self))
+
+(defn getFirePerimeterPointCount [self]
+  (.getFirePoints self))
+
+(defn getFirePerimeterX [self]
+  (.getFirePerimeterX self))
+
+(defn getFirePerimeterY [self]
+  (.getFirePerimeterY self))
+
 (defn getFireSizeAtInitialAttack [self areaUnits]
   (.getFireSizeAtInitialAttack self areaUnits))
+
+(defn getLengthToWidthRatio [self]
+  (.getLengthToWidthRatio self))
 
 (defn getPerimeterAtContainment [self lengthUnits]
   (.getPerimeterAtContainment self lengthUnits))
@@ -88,11 +100,14 @@
 (defn getResourcesUsed [self]
   (.getResourcesUsed self))
 
-(defn firePerimeterX [self]
-  (.firePerimeterX self))
+(defn removeAllResources [self]
+  (.removeAllResources self))
 
-(defn firePerimeterY [self]
-  (.firePerimeterY self))
+(defn removeAllResourcesWithThisDesc [self desc]
+  (.removeAllResourcesWithThisDesc self desc))
 
-(defn firePoints [self]
-  (.firePoints self))
+(defn removeResourceAt [self index]
+  (.removeResourceAt self index))
+
+(defn removeResourceWithThisDesc [self desc]
+  (.removeResourceWithThisDesc self desc))

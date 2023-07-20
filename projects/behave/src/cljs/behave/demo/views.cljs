@@ -14,18 +14,29 @@
                       :y-axis        {:domain        [-5 10]
                                       :title         "y"
                                       :tick-min-step 5}
-                      :ellipses      [{:id    "FirePerimeterAtReport"
-                                       :color "blue"
-                                       :a     3.0
-                                       :b     1
-                                       :phi   90}
-                                      {:id       "FirePerimeterAtAttack"
-                                       :color    "red"
-                                       :a        8
-                                       :b        3
-                                       :phi      90}]
+                      :ellipses      [(let [RHEAD              6.00  ;from first test in contain_test.cljs
+                                            RBACK              0.176 ;from first test in contain_test.cljs
+                                            lengthToWidthRatio 3.0
+                                            l                  (- RHEAD RBACK)
+                                            w                  (/ l lengthToWidthRatio)]
+                                        {:id    "FirePerimeterAtReport"
+                                         :color "blue"
+                                         :a     (/ l 2)
+                                         :b     (/ w 2)
+                                         :phi   90})
+                                      (let [RHEAD              16.00 ;from first test in contain_test.cljs
+                                            RBACK              0.471 ;from first test in contain_test.cljs
+                                            lengthToWidthRatio 3.0
+                                            l                  (- RHEAD RBACK)
+                                            w                  (/ l lengthToWidthRatio)]
+                                       {:id    "FirePerimeterAtAttack"
+                                        :color "red"
+                                        :a     (/ l 2)
+                                        :b     (/ w 2)
+                                        :phi   90})]
                       :scatter-plots [{:id    "FireLineConstructed"
                                        :color "black"
+                                       ;;points from first test in contain_test.cljs
                                        :data  [{"x" 16.00365609776439, "y" 0}
                                                {"x" 16.023762908572664, "y" 0.03649099989706494}
                                                {"x" 16.042356591744582, "y" 0.0737754949478422}

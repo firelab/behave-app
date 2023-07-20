@@ -209,16 +209,24 @@ enum ContainFlank_ContainFlankEnum {
 
 // Adapter to the ContainAdapter
 interface SIGContainAdapter {
-    void SIGContainAdapter();
+  void SIGContainAdapter();
   ContainStatus_ContainStatusEnum getContainmentStatus();
+  [Value] DoubleVector getFirePerimeterX();
+  [Value] DoubleVector getFirePerimeterY();
   double getFinalContainmentArea(AreaUnits_AreaUnitsEnum areaUnits);
   double getFinalCost();
   double getFinalFireLineLength(LengthUnits_LengthUnitsEnum lengthUnits);
   double getFinalFireSize(AreaUnits_AreaUnitsEnum areaUnits);
   double getFinalTimeSinceReport(TimeUnits_TimeUnitsEnum timeUnits);
+  double getFireBackAtAttack();
+  double getFireBackAtReport();
+  double getFireHeadAtAttack();
+  double getFireHeadAtReport();
   double getFireSizeAtInitialAttack(AreaUnits_AreaUnitsEnum areaUnits);
+  double getLengthToWidthRatio();
   double getPerimeterAtContainment(LengthUnits_LengthUnitsEnum lengthUnits);
   double getPerimeterAtInitialAttack(LengthUnits_LengthUnitsEnum lengthUnits);
+  long getFirePerimeterPointCount();
   long removeAllResourcesWithThisDesc([Const] DOMString desc);
   long removeResourceAt(long index);
   long removeResourceWithThisDesc([Const] DOMString desc);
@@ -235,9 +243,6 @@ interface SIGContainAdapter {
   void setReportRate(double reportRate, SpeedUnits_SpeedUnitsEnum speedUnits);
   void setReportSize(double reportSize, AreaUnits_AreaUnitsEnum areaUnits);
   void setRetry(boolean retry);
-  [Value] DoubleVector firePerimeterX();
-  [Value] DoubleVector firePerimeterY();
-  long firePoints();
   void setTactic(ContainTactic_ContainTacticEnum tactic);
 };
 

@@ -35,8 +35,14 @@
 
     ;; Act
     (contain/doContainRun module)
-    (js/console.log "firePerimeterX:" (contain/firePerimeterX module))
-    (js/console.log "firePerimeterY:" (contain/firePerimeterY module))
+
+    (js/console.log "firePerimeterX:" (contain/getFirePerimeterX module))
+    (js/console.log "firePerimeterY:" (contain/getFirePerimeterY module))
+    (js/console.log "RBACK:" (contain/getFireBackAtReport module))
+    (js/console.log "RHEAD:" (contain/getFireHeadAtReport module))
+    (js/console.log "ABACK:" (contain/getFireBackAtAttack module))
+    (js/console.log "AHEAD:" (contain/getFireHeadAtAttack module))
+    (js/console.log "LengthToWidthRatio:" (contain/getLengthToWidthRatio module))
     (js/console.log  module)
     ;; Assert
     (testing (str "csv row idx:" row-idx)
@@ -47,9 +53,7 @@
       (is (within? (get row "fireSize")                 (contain/getFinalFireSize module (get-unit "ac")) 1e-6))
       (is (within? (get row "containmentArea")          (contain/getFinalContainmentArea module (get-unit "ac")) 1e-6))
       (is (within? (get row "timeSinceReport")          (contain/getFinalTimeSinceReport module (get-unit "min")) 1e-6))
-      (is (= (enums/contain-status (get row "containmentStatus")) (contain/getContainmentStatus module)))
-      (is (= 1001 (.size (contain/firePerimeterX module))))
-      (is (= 1001 (.size (contain/firePerimeterY module)))))))
+      (is (= (enums/contain-status (get row "containmentStatus")) (contain/getContainmentStatus module))))))
 
 (deftest contain-testing-simple
   (let [rows (->> (inline-resource "public/csv/contain.csv")

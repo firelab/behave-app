@@ -102,10 +102,14 @@ void SIGContainAdapter::doContainRun()
       // Do Contain simulation
       containSim.run();
 
-      // Store m_x m_y
+      // Store Values from ContainSim For Access in SIGContainAdapter
       m_size = containSim.firePoints();
       m_x = DoubleVector(containSim.firePerimeterX(), m_size);
       m_y = DoubleVector(containSim.firePerimeterY(), m_size);
+      m_reportHead = containSim.fireHeadAtReport();
+      m_reportBack = containSim.fireBackAtReport();
+      m_attackHead = containSim.fireHeadAtAttack();
+      m_attackBack = containSim.fireBackAtAttack();
 
       // Get results from Contain simulation
       finalCost_ = containSim.finalFireCost();
@@ -163,17 +167,43 @@ double SIGContainAdapter::getPerimeterAtInitialAttack(LengthUnits::LengthUnitsEn
   return ContainAdapter::getPerimiterAtInitialAttack(lengthUnits);
 }
 
-DoubleVector SIGContainAdapter::firePerimeterX( void ) const
+DoubleVector SIGContainAdapter::getFirePerimeterX( void ) const
 {
   return( m_x );
 }
 
-DoubleVector SIGContainAdapter::firePerimeterY( void ) const
+DoubleVector SIGContainAdapter::getFirePerimeterY( void ) const
 {
   return( m_y );
 }
 
-int SIGContainAdapter::firePoints( void ) const
+int SIGContainAdapter::getFirePerimeterPointCount( void ) const
 {
   return( m_size );
+}
+
+
+double SIGContainAdapter::getFireHeadAtReport( void ) const
+{
+  return ( m_reportHead );
+}
+
+double SIGContainAdapter::getFireBackAtReport( void ) const
+{
+  return ( m_reportBack );
+}
+
+double SIGContainAdapter::getFireHeadAtAttack( void ) const
+{
+  return ( m_attackHead );
+}
+
+double SIGContainAdapter::getFireBackAtAttack( void ) const
+{
+  return ( m_attackBack );
+}
+
+double SIGContainAdapter::getLengthToWidthRatio ( void ) const
+{
+  return ( lwRatio_ );
 }

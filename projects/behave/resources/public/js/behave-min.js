@@ -4753,6 +4753,10 @@ var _emscripten_bind_SIGContainAdapter_SIGContainAdapter_0 = Module["_emscripten
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGContainAdapter_getContainmentStatus_0 = Module["_emscripten_bind_SIGContainAdapter_getContainmentStatus_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getContainmentStatus_0");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getFirePerimeterX_0 = Module["_emscripten_bind_SIGContainAdapter_getFirePerimeterX_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFirePerimeterX_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getFirePerimeterY_0 = Module["_emscripten_bind_SIGContainAdapter_getFirePerimeterY_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFirePerimeterY_0");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGContainAdapter_getFinalContainmentArea_1 = Module["_emscripten_bind_SIGContainAdapter_getFinalContainmentArea_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFinalContainmentArea_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGContainAdapter_getFinalCost_0 = Module["_emscripten_bind_SIGContainAdapter_getFinalCost_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFinalCost_0");
@@ -4763,11 +4767,23 @@ var _emscripten_bind_SIGContainAdapter_getFinalFireSize_1 = Module["_emscripten_
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGContainAdapter_getFinalTimeSinceReport_1 = Module["_emscripten_bind_SIGContainAdapter_getFinalTimeSinceReport_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFinalTimeSinceReport_1");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getFireBackAtAttack_0 = Module["_emscripten_bind_SIGContainAdapter_getFireBackAtAttack_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFireBackAtAttack_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getFireBackAtReport_0 = Module["_emscripten_bind_SIGContainAdapter_getFireBackAtReport_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFireBackAtReport_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getFireHeadAtAttack_0 = Module["_emscripten_bind_SIGContainAdapter_getFireHeadAtAttack_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFireHeadAtAttack_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getFireHeadAtReport_0 = Module["_emscripten_bind_SIGContainAdapter_getFireHeadAtReport_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFireHeadAtReport_0");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGContainAdapter_getFireSizeAtInitialAttack_1 = Module["_emscripten_bind_SIGContainAdapter_getFireSizeAtInitialAttack_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFireSizeAtInitialAttack_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getLengthToWidthRatio_0 = Module["_emscripten_bind_SIGContainAdapter_getLengthToWidthRatio_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getLengthToWidthRatio_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGContainAdapter_getPerimeterAtContainment_1 = Module["_emscripten_bind_SIGContainAdapter_getPerimeterAtContainment_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getPerimeterAtContainment_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGContainAdapter_getPerimeterAtInitialAttack_1 = Module["_emscripten_bind_SIGContainAdapter_getPerimeterAtInitialAttack_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getPerimeterAtInitialAttack_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getFirePerimeterPointCount_0 = Module["_emscripten_bind_SIGContainAdapter_getFirePerimeterPointCount_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFirePerimeterPointCount_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGContainAdapter_removeAllResourcesWithThisDesc_1 = Module["_emscripten_bind_SIGContainAdapter_removeAllResourcesWithThisDesc_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_removeAllResourcesWithThisDesc_1");
 /** @type {function(...*):?} */
@@ -4800,12 +4816,6 @@ var _emscripten_bind_SIGContainAdapter_setReportRate_2 = Module["_emscripten_bin
 var _emscripten_bind_SIGContainAdapter_setReportSize_2 = Module["_emscripten_bind_SIGContainAdapter_setReportSize_2"] = createExportWrapper("emscripten_bind_SIGContainAdapter_setReportSize_2");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGContainAdapter_setRetry_1 = Module["_emscripten_bind_SIGContainAdapter_setRetry_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_setRetry_1");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainAdapter_firePerimeterX_0 = Module["_emscripten_bind_SIGContainAdapter_firePerimeterX_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_firePerimeterX_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainAdapter_firePerimeterY_0 = Module["_emscripten_bind_SIGContainAdapter_firePerimeterY_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_firePerimeterY_0");
-/** @type {function(...*):?} */
-var _emscripten_bind_SIGContainAdapter_firePoints_0 = Module["_emscripten_bind_SIGContainAdapter_firePoints_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_firePoints_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGContainAdapter_setTactic_1 = Module["_emscripten_bind_SIGContainAdapter_setTactic_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_setTactic_1");
 /** @type {function(...*):?} */
@@ -7577,6 +7587,16 @@ SIGContainAdapter.prototype['getContainmentStatus'] = SIGContainAdapter.prototyp
   return _emscripten_bind_SIGContainAdapter_getContainmentStatus_0(self);
 };;
 
+SIGContainAdapter.prototype['getFirePerimeterX'] = SIGContainAdapter.prototype.getFirePerimeterX = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return wrapPointer(_emscripten_bind_SIGContainAdapter_getFirePerimeterX_0(self), DoubleVector);
+};;
+
+SIGContainAdapter.prototype['getFirePerimeterY'] = SIGContainAdapter.prototype.getFirePerimeterY = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return wrapPointer(_emscripten_bind_SIGContainAdapter_getFirePerimeterY_0(self), DoubleVector);
+};;
+
 SIGContainAdapter.prototype['getFinalContainmentArea'] = SIGContainAdapter.prototype.getFinalContainmentArea = /** @suppress {undefinedVars, duplicate} @this{Object} */function(areaUnits) {
   var self = this.ptr;
   if (areaUnits && typeof areaUnits === 'object') areaUnits = areaUnits.ptr;
@@ -7606,10 +7626,35 @@ SIGContainAdapter.prototype['getFinalTimeSinceReport'] = SIGContainAdapter.proto
   return _emscripten_bind_SIGContainAdapter_getFinalTimeSinceReport_1(self, timeUnits);
 };;
 
+SIGContainAdapter.prototype['getFireBackAtAttack'] = SIGContainAdapter.prototype.getFireBackAtAttack = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGContainAdapter_getFireBackAtAttack_0(self);
+};;
+
+SIGContainAdapter.prototype['getFireBackAtReport'] = SIGContainAdapter.prototype.getFireBackAtReport = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGContainAdapter_getFireBackAtReport_0(self);
+};;
+
+SIGContainAdapter.prototype['getFireHeadAtAttack'] = SIGContainAdapter.prototype.getFireHeadAtAttack = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGContainAdapter_getFireHeadAtAttack_0(self);
+};;
+
+SIGContainAdapter.prototype['getFireHeadAtReport'] = SIGContainAdapter.prototype.getFireHeadAtReport = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGContainAdapter_getFireHeadAtReport_0(self);
+};;
+
 SIGContainAdapter.prototype['getFireSizeAtInitialAttack'] = SIGContainAdapter.prototype.getFireSizeAtInitialAttack = /** @suppress {undefinedVars, duplicate} @this{Object} */function(areaUnits) {
   var self = this.ptr;
   if (areaUnits && typeof areaUnits === 'object') areaUnits = areaUnits.ptr;
   return _emscripten_bind_SIGContainAdapter_getFireSizeAtInitialAttack_1(self, areaUnits);
+};;
+
+SIGContainAdapter.prototype['getLengthToWidthRatio'] = SIGContainAdapter.prototype.getLengthToWidthRatio = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGContainAdapter_getLengthToWidthRatio_0(self);
 };;
 
 SIGContainAdapter.prototype['getPerimeterAtContainment'] = SIGContainAdapter.prototype.getPerimeterAtContainment = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
@@ -7622,6 +7667,11 @@ SIGContainAdapter.prototype['getPerimeterAtInitialAttack'] = SIGContainAdapter.p
   var self = this.ptr;
   if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
   return _emscripten_bind_SIGContainAdapter_getPerimeterAtInitialAttack_1(self, lengthUnits);
+};;
+
+SIGContainAdapter.prototype['getFirePerimeterPointCount'] = SIGContainAdapter.prototype.getFirePerimeterPointCount = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGContainAdapter_getFirePerimeterPointCount_0(self);
 };;
 
 SIGContainAdapter.prototype['removeAllResourcesWithThisDesc'] = SIGContainAdapter.prototype.removeAllResourcesWithThisDesc = /** @suppress {undefinedVars, duplicate} @this{Object} */function(desc) {
@@ -7732,21 +7782,6 @@ SIGContainAdapter.prototype['setRetry'] = SIGContainAdapter.prototype.setRetry =
   var self = this.ptr;
   if (retry && typeof retry === 'object') retry = retry.ptr;
   _emscripten_bind_SIGContainAdapter_setRetry_1(self, retry);
-};;
-
-SIGContainAdapter.prototype['firePerimeterX'] = SIGContainAdapter.prototype.firePerimeterX = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return wrapPointer(_emscripten_bind_SIGContainAdapter_firePerimeterX_0(self), DoubleVector);
-};;
-
-SIGContainAdapter.prototype['firePerimeterY'] = SIGContainAdapter.prototype.firePerimeterY = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return wrapPointer(_emscripten_bind_SIGContainAdapter_firePerimeterY_0(self), DoubleVector);
-};;
-
-SIGContainAdapter.prototype['firePoints'] = SIGContainAdapter.prototype.firePoints = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_SIGContainAdapter_firePoints_0(self);
 };;
 
 SIGContainAdapter.prototype['setTactic'] = SIGContainAdapter.prototype.setTactic = /** @suppress {undefinedVars, duplicate} @this{Object} */function(tactic) {

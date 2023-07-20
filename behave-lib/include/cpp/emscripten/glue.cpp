@@ -247,6 +247,16 @@ ContainStatus_ContainStatusEnum EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainA
   return self->getContainmentStatus();
 }
 
+DoubleVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getFirePerimeterX_0(SIGContainAdapter* self) {
+  static DoubleVector temp;
+  return (temp = self->getFirePerimeterX(), &temp);
+}
+
+DoubleVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getFirePerimeterY_0(SIGContainAdapter* self) {
+  static DoubleVector temp;
+  return (temp = self->getFirePerimeterY(), &temp);
+}
+
 double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getFinalContainmentArea_1(SIGContainAdapter* self, AreaUnits_AreaUnitsEnum areaUnits) {
   return self->getFinalContainmentArea(areaUnits);
 }
@@ -267,8 +277,28 @@ double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getFinalTimeSinceR
   return self->getFinalTimeSinceReport(timeUnits);
 }
 
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getFireBackAtAttack_0(SIGContainAdapter* self) {
+  return self->getFireBackAtAttack();
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getFireBackAtReport_0(SIGContainAdapter* self) {
+  return self->getFireBackAtReport();
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getFireHeadAtAttack_0(SIGContainAdapter* self) {
+  return self->getFireHeadAtAttack();
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getFireHeadAtReport_0(SIGContainAdapter* self) {
+  return self->getFireHeadAtReport();
+}
+
 double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getFireSizeAtInitialAttack_1(SIGContainAdapter* self, AreaUnits_AreaUnitsEnum areaUnits) {
   return self->getFireSizeAtInitialAttack(areaUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getLengthToWidthRatio_0(SIGContainAdapter* self) {
+  return self->getLengthToWidthRatio();
 }
 
 double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getPerimeterAtContainment_1(SIGContainAdapter* self, LengthUnits_LengthUnitsEnum lengthUnits) {
@@ -277,6 +307,10 @@ double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getPerimeterAtCont
 
 double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getPerimeterAtInitialAttack_1(SIGContainAdapter* self, LengthUnits_LengthUnitsEnum lengthUnits) {
   return self->getPerimeterAtInitialAttack(lengthUnits);
+}
+
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getFirePerimeterPointCount_0(SIGContainAdapter* self) {
+  return self->getFirePerimeterPointCount();
 }
 
 int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_removeAllResourcesWithThisDesc_1(SIGContainAdapter* self, const char* desc) {
@@ -341,20 +375,6 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_setReportSize_2(SIGC
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_setRetry_1(SIGContainAdapter* self, bool retry) {
   self->setRetry(retry);
-}
-
-DoubleVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_firePerimeterX_0(SIGContainAdapter* self) {
-  static DoubleVector temp;
-  return (temp = self->firePerimeterX(), &temp);
-}
-
-DoubleVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_firePerimeterY_0(SIGContainAdapter* self) {
-  static DoubleVector temp;
-  return (temp = self->firePerimeterY(), &temp);
-}
-
-int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_firePoints_0(SIGContainAdapter* self) {
-  return self->firePoints();
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_setTactic_1(SIGContainAdapter* self, ContainTactic_ContainTacticEnum tactic) {
