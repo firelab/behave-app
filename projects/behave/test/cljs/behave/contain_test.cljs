@@ -62,3 +62,19 @@
      (map-indexed (fn [idx row-data]
                     (test-contain idx row-data))
                   rows))))
+
+(comment
+  ;; To Get the fireline constructed coordinates This was used to massage the data.
+  ;; The coordinates stored in the contain module was only for the top half (above the x-axis) so i
+  ;; had to make a copy for the bottom half.
+  (def plot-atom (atom nil))
+  (reset! plot-atom
+          (concat
+           (map (fn [x y]
+                  {"x" x "y" y})
+                (map #(.get (contain/firePerimeterX module) %) (range 1001))
+                (map #(.get (contain/firePerimeterY module) %) (range 1001)))
+           (map (fn [x y]
+                  {"x" x "y" (* -1 y)})
+                (map #(.get (contain/firePerimeterX module) %) (range 1001))
+                (map #(.get (contain/firePerimeterY module) %) (range 1001))))))
