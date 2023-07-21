@@ -86,7 +86,33 @@
        (/ pixel-width domain-abs-width)
        (Math/abs domain-min))))
 
-(defn output-diagram [{:keys [title width height x-axis y-axis ellipses arrows]}]
+(defn output-diagram
+  "Takes a map of parameters:
+   :title    - Title of the Diagram
+   :width    - Width in pixels
+   :height   - Height in pixels
+   :x-axis   - A map of axis parameters
+   :y-axis   - A map of axis parameters
+   :ellipses - A sequence of ellipse parameters
+   :arrows   - A sequence of arrow parameters
+
+   Axis Parameters:
+   :domain - tuple determining the min and max values of the axis
+   :title  - title displayed on the axis
+
+   Ellipse Parameters:
+   :id    - Unique identifier string for the ellipse
+   :color - Color for ellipse
+   :a     - The ellipses semi major axis
+   :b     - The ellipses semi minor axis
+   :phi   - The degrees to rotate clockwise starting from the positive y axis
+
+   Arrow Parameters:
+   :id    - Unique identifier string for the arrow
+   :color - Color for the arrow
+   :r     - The length of the arrow
+   :theta - The degrees to rotate clockwise starting from the positive y axis"
+  [{:keys [title width height x-axis y-axis ellipses arrows]}]
   (let [base-config {:$schema     "https://vega.github.io/schema/vega-lite/v5.1.1.json"
                      :title       title
                      :description "diagram"
