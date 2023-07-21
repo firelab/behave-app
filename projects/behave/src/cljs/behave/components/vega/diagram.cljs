@@ -101,30 +101,37 @@
 
 (defn output-diagram
   "Takes a map of parameters:
-   :title    - Title of the Diagram
-   :width    - Width in pixels
-   :height   - Height in pixels
-   :x-axis   - A map of axis parameters
-   :y-axis   - A map of axis parameters
-   :ellipses - A sequence of ellipse parameters
-   :arrows   - A sequence of arrow parameters
+   :title         - Title of the Diagram
+   :width         - Width in pixels
+   :height        - Height in pixels
+   :x-axis        - A map of axis parameters
+   :y-axis        - A map of axis parameters
+   :ellipses      - A sequence of ellipse parameters
+   :arrows        - A sequence of arrow parameters
+   :scatter-plots - A sequence of scatter-plot parameters
 
    Axis Parameters:
    :domain - tuple determining the min and max values of the axis
    :title  - title displayed on the axis
 
    Ellipse Parameters:
-   :id    - Unique identifier string for the ellipse
+   :id    - Unique identifier string for the ellipse (for legend)
    :color - Color for ellipse
    :a     - The ellipses semi major axis
    :b     - The ellipses semi minor axis
    :phi   - The degrees to rotate clockwise starting from the positive y axis
 
    Arrow Parameters:
-   :id    - Unique identifier string for the arrow
+   :id    - Unique identifier string for the arrow (for legend)
    :color - Color for the arrow
    :r     - The length of the arrow
-   :theta - The degrees to rotate clockwise starting from the positive y axis"
+   :theta - The degrees to rotate clockwise starting from the positive y axis
+
+   Scatter-plot Paramters:
+   :id    - Unique identifier string for the scatter-plot (for legend)
+   :color - Color for the scatter plot
+   :data  - sequence of maps of coordinates [{x 0 y 0}, {x 1 y 1}, ...]. x and y key are strings
+  "
   [{:keys [title width height x-axis y-axis ellipses arrows scatter-plots]}]
   (let [base-schema {:$schema     "https://vega.github.io/schema/vega-lite/v5.1.1.json"
                      :title       title
