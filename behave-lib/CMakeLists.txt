@@ -39,10 +39,10 @@ set(SIG_SRC_DIR ${CMAKE_SOURCE_DIR}/include/cpp/sig-adapters/)
 set(SIG_TEST_DIR ${CMAKE_SOURCE_DIR}/test/cpp/)
 set(BEHAVE_LIB libbehave.a)
 
-# set(DWARF_DIR ${CMAKE_SOURCE_DIR})
+set(DWARF_DIR ${CMAKE_SOURCE_DIR})
 # NOTE: If you are using ubuntu through windows WSL set the DWARF_DIR to the
 # file path to the WSL full path. Here's an example:
-set(DWARF_DIR //wsl%24/Ubuntu/home/kcheung/work/code/behave-polylith/behave-lib)
+# set(DWARF_DIR //wsl%24/Ubuntu/home/kcheung/work/code/behave-polylith/behave-lib)
 
 set(EMCC_ARGS
     -std=c++14
