@@ -64,8 +64,9 @@
                                        (surface/getWindHeightInputMode module))))
       ;; Other info to display
       (is (some? (surface/getFireArea module (enums/area-units "Acres"))))
-      ;; (is (some? (surface/getElapsedTime module (enums/time-units "Minutes"))))
-      )
+
+      ;;FIXME Not sure why This is failing
+      (is (some? (surface/getElapsedTime module (enums/time-units "Minutes")))))
 
     (testing "Getters for Wind/Slope/FirespreadDirection Diagram Parameters Exist"
       ;; Heading Direction Arrow
