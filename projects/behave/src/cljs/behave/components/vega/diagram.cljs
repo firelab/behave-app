@@ -101,11 +101,12 @@
    :title  - title displayed on the axis
 
    Ellipse Parameters:
-   :id    - Unique identifier string for the ellipse
-   :color - Color for ellipse
-   :a     - The ellipses semi major axis
-   :b     - The ellipses semi minor axis
-   :phi   - The degrees to rotate clockwise starting from the positive y axis
+   :id       - Unique identifier string for the ellipse
+   :color    - Color for ellipse
+   :a        - The ellipses semi major axis
+   :b        - The ellipses semi minor axis
+   :phi      - The degrees to rotate clockwise starting from the positive y axis
+   :x-offset - The offset in the x axis
 
    Arrow Parameters:
    :id    - Unique identifier string for the arrow
