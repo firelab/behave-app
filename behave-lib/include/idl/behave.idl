@@ -213,6 +213,7 @@ interface SIGContainAdapter {
   ContainStatus_ContainStatusEnum getContainmentStatus();
   [Value] DoubleVector getFirePerimeterX();
   [Value] DoubleVector getFirePerimeterY();
+  [Const] double getAttackDistance(LengthUnits_LengthUnitsEnum lengthUnits);
   double getFinalContainmentArea(AreaUnits_AreaUnitsEnum areaUnits);
   double getFinalCost();
   double getFinalFireLineLength(LengthUnits_LengthUnitsEnum lengthUnits);

@@ -207,3 +207,8 @@ double SIGContainAdapter::getLengthToWidthRatio ( void ) const
 {
   return ( lwRatio_ );
 }
+
+double SIGContainAdapter::getAttackDistance ( LengthUnits::LengthUnitsEnum lengthUnits ) const
+{
+  return ( LengthUnits::toBaseUnits(attackDistance_, lengthUnits));
+}

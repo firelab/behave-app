@@ -547,6 +547,12 @@ SIGContainAdapter.prototype['getFirePerimeterY'] = SIGContainAdapter.prototype.g
   return wrapPointer(_emscripten_bind_SIGContainAdapter_getFirePerimeterY_0(self), DoubleVector);
 };;
 
+SIGContainAdapter.prototype['getAttackDistance'] = SIGContainAdapter.prototype.getAttackDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
+  var self = this.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  return _emscripten_bind_SIGContainAdapter_getAttackDistance_1(self, lengthUnits);
+};;
+
 SIGContainAdapter.prototype['getFinalContainmentArea'] = SIGContainAdapter.prototype.getFinalContainmentArea = /** @suppress {undefinedVars, duplicate} @this{Object} */function(areaUnits) {
   var self = this.ptr;
   if (areaUnits && typeof areaUnits === 'object') areaUnits = areaUnits.ptr;

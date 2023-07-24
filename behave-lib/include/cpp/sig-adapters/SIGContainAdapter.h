@@ -63,6 +63,7 @@ public:
   double getFireHeadAtAttack( void ) const;
   double getFireBackAtAttack( void ) const;
   double getLengthToWidthRatio ( void ) const;
+  double getAttackDistance(LengthUnits::LengthUnitsEnum lengthUnits) const;
 
   // Intermediate Variables
   DoubleVector m_x;          //!< Array of perimeter x coordinates (ch)

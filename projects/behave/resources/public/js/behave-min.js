@@ -4757,6 +4757,8 @@ var _emscripten_bind_SIGContainAdapter_getFirePerimeterX_0 = Module["_emscripten
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGContainAdapter_getFirePerimeterY_0 = Module["_emscripten_bind_SIGContainAdapter_getFirePerimeterY_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFirePerimeterY_0");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getAttackDistance_1 = Module["_emscripten_bind_SIGContainAdapter_getAttackDistance_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getAttackDistance_1");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGContainAdapter_getFinalContainmentArea_1 = Module["_emscripten_bind_SIGContainAdapter_getFinalContainmentArea_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFinalContainmentArea_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGContainAdapter_getFinalCost_0 = Module["_emscripten_bind_SIGContainAdapter_getFinalCost_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFinalCost_0");
@@ -7599,6 +7601,12 @@ SIGContainAdapter.prototype['getFirePerimeterX'] = SIGContainAdapter.prototype.g
 SIGContainAdapter.prototype['getFirePerimeterY'] = SIGContainAdapter.prototype.getFirePerimeterY = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   return wrapPointer(_emscripten_bind_SIGContainAdapter_getFirePerimeterY_0(self), DoubleVector);
+};;
+
+SIGContainAdapter.prototype['getAttackDistance'] = SIGContainAdapter.prototype.getAttackDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
+  var self = this.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  return _emscripten_bind_SIGContainAdapter_getAttackDistance_1(self, lengthUnits);
 };;
 
 SIGContainAdapter.prototype['getFinalContainmentArea'] = SIGContainAdapter.prototype.getFinalContainmentArea = /** @suppress {undefinedVars, duplicate} @this{Object} */function(areaUnits) {

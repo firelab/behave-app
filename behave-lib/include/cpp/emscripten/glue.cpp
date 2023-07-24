@@ -257,6 +257,10 @@ DoubleVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getFirePeri
   return (temp = self->getFirePerimeterY(), &temp);
 }
 
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getAttackDistance_1(SIGContainAdapter* self, LengthUnits_LengthUnitsEnum lengthUnits) {
+  return self->getAttackDistance(lengthUnits);
+}
+
 double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getFinalContainmentArea_1(SIGContainAdapter* self, AreaUnits_AreaUnitsEnum areaUnits) {
   return self->getFinalContainmentArea(areaUnits);
 }
