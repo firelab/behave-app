@@ -46,6 +46,9 @@
   (.setTactic self tactic))
 
 ;; outputs
+(defn getAttackDistance [self lengthUnits]
+  (.getAttackDistance self lengthUnits))
+
 (defn getContainmentStatus [self]
   (.getContainmentStatus self))
 
