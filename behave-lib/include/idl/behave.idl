@@ -609,6 +609,8 @@ interface SIGSurface {
   [Const] double getCrownRatio();
   [Const] double getDirectionOfMaxSpread();
   [Const] double getDirectionOfInterest();
+  [Const] double getDirectionOfBacking();
+  [Const] double getDirectionOfFlanking();
   [Const] double getElapsedTime(TimeUnits_TimeUnitsEnum timeUnits);
   [Const] double getEllipticalA(LengthUnits_LengthUnitsEnum lengthUnits);
   [Const] double getEllipticalB(LengthUnits_LengthUnitsEnum lengthUnits);

@@ -5187,6 +5187,10 @@ var _emscripten_bind_SIGSurface_getDirectionOfMaxSpread_0 = Module["_emscripten_
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getDirectionOfInterest_0 = Module["_emscripten_bind_SIGSurface_getDirectionOfInterest_0"] = createExportWrapper("emscripten_bind_SIGSurface_getDirectionOfInterest_0");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getDirectionOfBacking_0 = Module["_emscripten_bind_SIGSurface_getDirectionOfBacking_0"] = createExportWrapper("emscripten_bind_SIGSurface_getDirectionOfBacking_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getDirectionOfFlanking_0 = Module["_emscripten_bind_SIGSurface_getDirectionOfFlanking_0"] = createExportWrapper("emscripten_bind_SIGSurface_getDirectionOfFlanking_0");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getElapsedTime_1 = Module["_emscripten_bind_SIGSurface_getElapsedTime_1"] = createExportWrapper("emscripten_bind_SIGSurface_getElapsedTime_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getEllipticalA_1 = Module["_emscripten_bind_SIGSurface_getEllipticalA_1"] = createExportWrapper("emscripten_bind_SIGSurface_getEllipticalA_1");
@@ -8995,6 +8999,16 @@ SIGSurface.prototype['getDirectionOfMaxSpread'] = SIGSurface.prototype.getDirect
 SIGSurface.prototype['getDirectionOfInterest'] = SIGSurface.prototype.getDirectionOfInterest = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   return _emscripten_bind_SIGSurface_getDirectionOfInterest_0(self);
+};;
+
+SIGSurface.prototype['getDirectionOfBacking'] = SIGSurface.prototype.getDirectionOfBacking = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGSurface_getDirectionOfBacking_0(self);
+};;
+
+SIGSurface.prototype['getDirectionOfFlanking'] = SIGSurface.prototype.getDirectionOfFlanking = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGSurface_getDirectionOfFlanking_0(self);
 };;
 
 SIGSurface.prototype['getElapsedTime'] = SIGSurface.prototype.getElapsedTime = /** @suppress {undefinedVars, duplicate} @this{Object} */function(timeUnits) {

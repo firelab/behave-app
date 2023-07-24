@@ -1127,6 +1127,14 @@ const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getDirectionOfInter
   return self->getDirectionOfInterest();
 }
 
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getDirectionOfBacking_0(SIGSurface* self) {
+  return self->getDirectionOfBacking();
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getDirectionOfFlanking_0(SIGSurface* self) {
+  return self->getDirectionOfFlanking();
+}
+
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getElapsedTime_1(SIGSurface* self, TimeUnits_TimeUnitsEnum timeUnits) {
   return self->getElapsedTime(timeUnits);
 }

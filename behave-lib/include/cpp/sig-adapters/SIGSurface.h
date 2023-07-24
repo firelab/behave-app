@@ -50,7 +50,9 @@ public:
 
   // SIGSurface Getter Methods
   WindUpslopeAlignmentMode getWindUpslopeAlignmentMode() const;
-  double getDirectionOfInterest();
+  double getDirectionOfInterest() const;
+  double getDirectionOfFlanking() const;
+  double getDirectionOfBacking() const;
 
   // SIGSurface Setter Methods
   void setWindSpeed(double windSpeed, SpeedUnits::SpeedUnitsEnum windSpeedUnits);

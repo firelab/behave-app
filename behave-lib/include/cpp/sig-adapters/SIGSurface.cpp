@@ -101,8 +101,16 @@ void SIGSurface::setWindUpslopeAlignmentMode(WindUpslopeAlignmentMode windUpslop
   windUpslopeAlignmentMode_ = windUpslopeAlignmentMode;
 }
 
-double SIGSurface::getDirectionOfInterest() {
+double SIGSurface::getDirectionOfInterest() const {
   return directionOfInterest_;
+}
+
+double SIGSurface::getDirectionOfBacking () const {
+  return int(Surface::getDirectionOfMaxSpread() + 180.0) % 360;
+}
+
+double SIGSurface::getDirectionOfFlanking () const {
+  return int(Surface::getDirectionOfMaxSpread() + 90.0) % 360;
 }
 
 void SIGSurface::setDirectionOfInterest(double directionOfInterest) {

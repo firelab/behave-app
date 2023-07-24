@@ -1947,6 +1947,16 @@ SIGSurface.prototype['getDirectionOfInterest'] = SIGSurface.prototype.getDirecti
   return _emscripten_bind_SIGSurface_getDirectionOfInterest_0(self);
 };;
 
+SIGSurface.prototype['getDirectionOfBacking'] = SIGSurface.prototype.getDirectionOfBacking = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGSurface_getDirectionOfBacking_0(self);
+};;
+
+SIGSurface.prototype['getDirectionOfFlanking'] = SIGSurface.prototype.getDirectionOfFlanking = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGSurface_getDirectionOfFlanking_0(self);
+};;
+
 SIGSurface.prototype['getElapsedTime'] = SIGSurface.prototype.getElapsedTime = /** @suppress {undefinedVars, duplicate} @this{Object} */function(timeUnits) {
   var self = this.ptr;
   if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;

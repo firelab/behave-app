@@ -156,6 +156,12 @@
 (defn getDirectionOfInterest [self]
   (.getDirectionOfInterest self))
 
+(defn getDirectionOfBacking [self]
+  (.getDirectionOfBacking self))
+
+(defn getDirectionOfFlanking [self]
+  (.getDirectionOfFlanking self))
+
 (defn getDirectionOfMaxSpread [self]
   (.getDirectionOfMaxSpread self))
 
