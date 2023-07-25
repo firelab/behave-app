@@ -95,13 +95,11 @@
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/one}
 
-   {:db/id                 #db/id[:db.part/db]
-    :db/ident              :worksheet/diagrams
-    :db/doc                "Worksheet's diagrams"
-    :db/isComponent        true
-    :db/valueType          :db.type/ref
-    :db/cardinality        :db.cardinality/many
-    :db.install/_attribute :db.part/db}
+   {:db/ident       :worksheet/diagrams
+    :db/doc         "Worksheet's diagrams"
+    :db/isComponent true
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many}
 
    ;; Notes
    {:db/ident       :note/name
@@ -337,13 +335,11 @@
     :db/cardinality :db.cardinality/many}
 
    ;; Diagram Ellipses
-   {:db/id                 #db/id[:db.part/db]
-    :db/ident              :ellipse/id
-    :db/doc                "Id used for the legend"
-    :db/isComponent        true
-    :db/valueType          :db.type/string
-    :db/cardinality        :db.cardinality/one
-    :db.install/_attribute :db.part/db}
+   {:db/ident       :ellipse/id
+    :db/doc         "Id used for the legend"
+    :db/isComponent true
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
 
    {:db/ident       :ellipse/semi-major-axis
     :db/doc         "The length of the semi minor axis (aka A in the conventional ellipse formula)"
