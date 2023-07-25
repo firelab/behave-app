@@ -95,6 +95,14 @@
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/one}
 
+   {:db/id                 #db/id[:db.part/db]
+    :db/ident              :worksheet/diagrams
+    :db/doc                "Worksheet's diagrams"
+    :db/isComponent        true
+    :db/valueType          :db.type/ref
+    :db/cardinality        :db.cardinality/many
+    :db.install/_attribute :db.part/db}
+
    ;; Notes
    {:db/ident       :note/name
     :db/doc         "Note's name"
@@ -307,6 +315,102 @@
     :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 
-   ;; Table Shading
+   ;; Diagrams
+   {:db/ident       :diagrams/row-id
+    :db/doc         "The diagrams associated row-id in the result table"
+    :db/valueType   :db.type/long
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :diagrams/ellipses
+    :db/doc         "List of ellipses to plot on this diagram"
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many}
+
+   {:db/ident       :diagrams/arrows
+    :db/doc         "List of arrows to plot on this diagram"
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many}
+
+   {:db/ident       :diagrams/scatter-plots
+    :db/doc         "list of scatter-plots to plot on this diagram"
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many}
+
+   ;; Diagram Ellipses
+   {:db/id                 #db/id[:db.part/db]
+    :db/ident              :ellipse/id
+    :db/doc                "Id used for the legend"
+    :db/isComponent        true
+    :db/valueType          :db.type/string
+    :db/cardinality        :db.cardinality/one
+    :db.install/_attribute :db.part/db}
+
+   {:db/ident       :ellipse/semi-major-axis
+    :db/doc         "The length of the semi minor axis (aka A in the conventional ellipse formula)"
+    :db/valueType   :db.type/float
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :ellipse/semi-minor-axis
+    :db/doc         "The length of the semi minor axis (aka B in the conventional ellipse formula)"
+    :db/valueType   :db.type/float
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :ellipse/rotation
+    :db/doc         "The degrees clockwise from postiive y-axis the ellipse is rotated by"
+    :db/valueType   :db.type/float
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :ellipse/color
+    :db/doc         "The color of the ellipse"
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   ;; Diagram Arrow
+   {:db/ident       :arrow/id
+    :db/doc         "Id used for the legend"
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :arrow/length
+    :db/doc         "The length of the arrow"
+    :db/valueType   :db.type/float
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :arrow/rotation
+    :db/doc         "The degrees clockwise from postiive y-axis the ellipse is rotated by"
+    :db/valueType   :db.type/float
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :arrow/color
+    :db/doc         "The color of the arrow"
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   ;; Diagram Scatter Plot
+   {:db/ident       :scatter-plot/id
+    :db/doc         "Id used for the legend"
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :scatter-plot/color
+    :db/doc         "The color of the scatter-plot"
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :scatter-plot/data
+    :db/doc         "The (x,y) points for the scatter-plot"
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many}
+
+   {:db/ident       :datum/x
+    :db/doc         "The X coordinate of this datum"
+    :db/valueType   :db.type/long
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :datum/y
+    :db/doc         "The X coordinate of this datum"
+    :db/valueType   :db.type/long
+    :db/cardinality :db.cardinality/one}
+
 
    ])
