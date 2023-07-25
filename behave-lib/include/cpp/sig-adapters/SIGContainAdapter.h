@@ -52,8 +52,6 @@ public:
   //TODO PR to behave to fix mispelled perimiter
   double getPerimeterAtInitialAttack(LengthUnits::LengthUnitsEnum lengthUnits);
 
-  void doContainRun();
-
   DoubleVector getFirePerimeterX( void ) const;
   DoubleVector getFirePerimeterY( void ) const;
   int getFirePerimeterPointCount( void ) const;
@@ -64,15 +62,6 @@ public:
   double getFireBackAtAttack( void ) const;
   double getLengthToWidthRatio ( void ) const;
   double getAttackDistance(LengthUnits::LengthUnitsEnum lengthUnits) const;
-
-  // Intermediate Variables
-  DoubleVector m_x;          //!< Array of perimeter x coordinates (ch)
-  DoubleVector m_y;          //!< Array of perimeter y coordinates (ch)
-  int  m_size;               //!< Size of the arrays (m_maxSteps or 2*m_maxSteps)
-  double m_reportHead;       //!< Fire head position at report time (ch)
-  double m_reportBack;       //!< Fire back position at report time (ch)
-  double m_attackHead;       //!< Fire head position at first attack (ch)
-  double m_attackBack;       //!< Fire back position at first attack (ch)
 };
 
 #endif //CONTAINADAPTER_H
