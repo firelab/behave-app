@@ -97,7 +97,6 @@
 
    {:db/ident       :worksheet/diagrams
     :db/doc         "Worksheet's diagrams"
-    :db/isComponent true
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
 
@@ -337,23 +336,22 @@
    ;; Diagram Ellipses
    {:db/ident       :ellipse/id
     :db/doc         "Id used for the legend"
-    :db/isComponent true
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :ellipse/semi-major-axis
     :db/doc         "The length of the semi minor axis (aka A in the conventional ellipse formula)"
-    :db/valueType   :db.type/float
+    :db/valueType   :db.type/double
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :ellipse/semi-minor-axis
     :db/doc         "The length of the semi minor axis (aka B in the conventional ellipse formula)"
-    :db/valueType   :db.type/float
+    :db/valueType   :db.type/double
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :ellipse/rotation
     :db/doc         "The degrees clockwise from postiive y-axis the ellipse is rotated by"
-    :db/valueType   :db.type/float
+    :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :ellipse/color
@@ -369,12 +367,12 @@
 
    {:db/ident       :arrow/length
     :db/doc         "The length of the arrow"
-    :db/valueType   :db.type/float
+    :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :arrow/rotation
     :db/doc         "The degrees clockwise from postiive y-axis the ellipse is rotated by"
-    :db/valueType   :db.type/float
+    :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :arrow/color
@@ -400,13 +398,10 @@
 
    {:db/ident       :datum/x
     :db/doc         "The X coordinate of this datum"
-    :db/valueType   :db.type/long
+    :db/valueType   :db.type/double
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :datum/y
-    :db/doc         "The X coordinate of this datum"
-    :db/valueType   :db.type/long
-    :db/cardinality :db.cardinality/one}
-
-
-   ])
+    :db/doc         "The Y coordinate of this datum"
+    :db/valueType   :db.type/double
+    :db/cardinality :db.cardinality/one}])
