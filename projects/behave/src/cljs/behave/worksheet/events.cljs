@@ -425,3 +425,50 @@
                  (< worksheet-visited-step current-step))
          {:transact [{:db/id                           [:worksheet/uuid ws-uuid]
                       :worksheet/furthest-visited-step (get-step-kw route-handler io)}]})))))
+
+(rp/reg-event-fx
+ :worksheet/add-contain-diagram
+ [(rp/inject-cofx :ds)]
+ (fn [{:keys [ds]} [_
+                    ws-uuid
+                    group-variable-uuid
+                    row-id
+                    fire-perimeter-points-X
+                    fire-perimeter-points-Y
+                    length-to-width-ratio
+                    fire-back-at-report
+                    fire-head-at-report
+                    fire-back-at-attack
+                    fire-head-at-attack]]
+   (when-not (d/q '[:find  ?d .
+                    :in    $ ?uuid ?gv-uuid ?row-id
+                    :where
+                    [?ws :worksheet/uuid               ?uuid]
+                    [?ws :worksheet/diagrams           ?d]
+                    [?d  :diagrams/group-variable-uuid ?gv-uuid]
+                    [?d  :diagrams/row-id              ?row-id]]
+                  ds ws-uuid group-variable-uuid row-id)
+     {:transact [{:worksheet/_diagrams          [:worksheet/uuid ws-uuid]
+                  :diagrams/group-variable-uuid group-variable-uuid
+                  :diagrams/row-id              row-id
+                  :diagrams/ellipses            [(let [l (- fire-head-at-report fire-back-at-report)
+                                                       w (/ l length-to-width-ratio)]
+                                                   {:ellipse/id              "firePerimiterAtReport"
+                                                    :ellipse/semi-major-axis (/ l 2)
+                                                    :ellipse/semi-minor-axis (/ w 2)
+                                                    :ellipse/rotation        90
+                                                    :ellipse/color           "blue"})
+                                                 (let [l (- fire-head-at-attack fire-back-at-attack)
+                                                       w (/ l length-to-width-ratio)]
+                                                   {:ellipse/id              "firePerimiterAtAttack"
+                                                    :ellipse/semi-major-axis (/ l 2)
+                                                    :ellipse/semi-minor-axis (/ w 2)
+                                                    :ellipse/rotation        90
+                                                    :ellipse/color           "red"})]
+                  :diagrams/scatter-plots       [{:scatter-plot/id    "FireLineConstructed"
+                                                  :scatter-plot/color "black"
+                                                  :scatter-plot/data  (map (fn [x y]
+                                                                             {:datum/x x
+                                                                              :datum/y y})
+                                                                           fire-perimeter-points-X
+                                                                           fire-perimeter-points-Y)}]}]})))

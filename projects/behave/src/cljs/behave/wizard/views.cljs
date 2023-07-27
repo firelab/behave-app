@@ -1,24 +1,27 @@
 (ns behave.wizard.views
-  (:require [clojure.string                 :as str]
-            [behave.components.core         :as c]
-            [behave.components.input-group  :refer [input-group]]
-            [behave.components.vega.result-chart         :refer [result-chart]]
-            [behave.components.review-input-group  :as review]
-            [behave.components.navigation          :refer [wizard-navigation]]
-            [behave.components.output-group        :refer [output-group]]
-            [behave-routing.main                   :refer [routes]]
-            [behave.translate                      :refer [<t bp]]
+  (:require [clojure.string                       :as str]
+            [clojure.set                          :refer [rename-keys]]
+            [behave.components.core               :as c]
+            [behave.components.input-group        :refer [input-group]]
+            [behave.components.vega.result-chart  :refer [result-chart]]
+            [behave.components.vega.diagram       :refer [output-diagram]]
+            [behave.components.review-input-group :as review]
+            [behave.components.navigation         :refer [wizard-navigation]]
+            [behave.components.output-group       :refer [output-group]]
+            [behave-routing.main                  :refer [routes]]
+            [behave.translate                     :refer [<t bp]]
             [behave.wizard.events]
             [behave.wizard.subs]
-            [bidi.bidi                             :refer [path-for]]
+            [bidi.bidi                            :refer [path-for]]
             [behave.worksheet.events]
             [behave.worksheet.subs]
-            [dom-utils.interface                   :refer [input-int-value input-value]]
-            [goog.string                           :as gstring]
+            [dom-utils.interface                  :refer [input-int-value input-value]]
+            [goog.string                          :as gstring]
             [goog.string.format]
-            [re-frame.core                         :refer [dispatch subscribe]]
-            [string-utils.interface                :refer [->kebab]]
-            [reagent.core :as r]))
+            [re-frame.core                        :refer [dispatch subscribe]]
+            [string-utils.interface               :refer [->kebab]]
+            [reagent.core                         :as r]
+            [re-frame.core :as rf]))
 
 ;;; Components
 
@@ -538,6 +541,53 @@
                            :width  250
                            :height 250})])]))))
 
+(defn- construct-diagram [{row-id        :diagrams/row-id
+                           ellipses      :diagrams/ellipses
+                           arrows        :diagrams/arrows
+                           scatter-plots :diagrams/scatter-plots}]
+  [output-diagram {:title         (str "My Diagram for row: " row-id)
+                   :width         800
+                   :height        400
+                   :x-axis        {:domain        [-5 20]
+                                   :title         "x"
+                                   :tick-min-step 5}
+                   :y-axis        {:domain        [-5 5]
+                                   :title         "y"
+                                   :tick-min-step 5}
+                   :ellipses      (mapv #(rename-keys (into {} %)
+                                                      {:ellipse/id              :id
+                                                       :ellipse/semi-major-axis :a
+                                                       :ellipse/semi-minor-axis :b
+                                                       :ellipse/rotation        :phi
+                                                       :ellipse/color           :color})
+                                        ellipses)
+                   :arrows        (mapv #(rename-keys (into {} %)
+                                                      {:arrow/id       :id
+                                                       :arrow/length   :r
+                                                       :arrow/rotation :theta
+                                                       :arrow/color    :color})
+                                        arrows)
+                   :scatter-plots (mapv #(-> (rename-keys (into {} %)
+                                                          {:scatter-plot/id    :id
+                                                           :scatter-plot/data  :data
+                                                           :scatter-plot/color :color})
+                                             (update :data (fn [data]
+                                                             (concat
+                                                              (mapv (fn [datum]
+                                                                      {"x" (:datum/x datum)
+                                                                       "y" (:datum/y datum)})
+                                                                    data)
+                                                              (mapv (fn [datum]
+                                                                      {"x" (:datum/x datum)
+                                                                       "y" (* -1 (:datum/y datum))})
+                                                                    data)))))
+                                        scatter-plots)}])
+
+(defn- wizard-diagrams [ws-uuid]
+  (let [*ws (rf/subscribe [:worksheet-entity ws-uuid])]
+    [:div
+     (map #(construct-diagram %) (:worksheet/diagrams @*ws))]))
+
 ;; Wizard Results
 (defn wizard-results-page [{:keys [route-handler io ws-uuid] :as params}]
   (let [*worksheet            (subscribe [:worksheet ws-uuid])
@@ -613,7 +663,8 @@
                                                           {}
                                                           data))))}]
              [table-exporter table-data])])
-        (wizard-graph ws-uuid @*cell-data)]]
+        (wizard-graph ws-uuid @*cell-data)
+        (wizard-diagrams ws-uuid)]]
       [:div.wizard-navigation
        [c/button {:label    "Back"
                   :variant  "secondary"

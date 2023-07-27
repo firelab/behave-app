@@ -25,7 +25,7 @@
  (fn [all-worksheets [_]]
    (last (last (sort-by first all-worksheets)))))
 
-;; Retrieve worksheet
+;; Retrieve worksheet as reactive entity
 (rf/reg-sub
  :worksheet
  (fn [_ [_ ws-uuid]]
@@ -33,6 +33,12 @@
      (let [worksheet (re/entity eid)]
        (when (re/exists? worksheet)
          worksheet)))))
+
+;; Retrieve worksheet as entity
+(rf/reg-sub
+ :worksheet-entity
+ (fn [_ [_ ws-uuid]]
+   (d/entity @@s/conn [:worksheet/uuid ws-uuid])))
 
 (rf/reg-sub
  :worksheet/modules

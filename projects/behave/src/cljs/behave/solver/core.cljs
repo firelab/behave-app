@@ -180,12 +180,14 @@
      inputs
      destination-links)))
 
-(defn run-module [{:keys [inputs all-outputs outputs] :as row}
+(defn run-module [{:keys [inputs all-outputs outputs row-id] :as row}
                   {:keys [init-fn
                           run-fn
                           fns
                           gv-uuids
-                          destination-links]}]
+                          destination-links
+                          module-id
+                          ws-uuid]}]
   (let [module         (init-fn)
 
         ;; Apply links
@@ -201,6 +203,23 @@
     ;; Run module
     (run-fn module)
 
+    ;; store diagram parameters
+    (case module-id
+      :contain (let [x-points (contain/getFirePerimeterX module)
+                     y-points (contain/getFirePerimeterY module)]
+                 (rf/dispatch [:worksheet/add-contain-diagram
+                               ws-uuid
+                               "sample-contain-uuid"
+                               row-id
+                               (take-nth 10 (mapv #(.get x-points %) (range (.size x-points))))
+                               (take-nth 10 (mapv #(.get y-points %) (range (.size y-points))))
+                               (contain/getLengthToWidthRatio module)
+                               (contain/getFireBackAtReport module)
+                               (contain/getFireHeadAtReport module)
+                               (contain/getFireBackAtAttack module)
+                               (contain/getFireHeadAtAttack module)]))
+      nil)
+
     ;; Get outputs, merge existing inputs/outputs with new inputs/outputs
     (update row :outputs merge (get-outputs module fns module-outputs))))
 
@@ -210,10 +229,10 @@
          all-inputs  @(rf/subscribe [:worksheet/all-inputs-vector ws-uuid])
          all-outputs @(rf/subscribe [:worksheet/all-output-uuids ws-uuid])]
 
-     (-> (solve-worksheet modules all-inputs all-outputs)
+     (-> (solve-worksheet ws-uuid modules all-inputs all-outputs)
          (t/add-to-results-table ws-uuid))))
 
-  ([modules all-inputs all-outputs]
+  ([ws-uuid modules all-inputs all-outputs]
    (let [counter (atom 0)
 
         surface-module
@@ -231,11 +250,13 @@
             (add-links))
 
         contain-module
-        (-> {:init-fn  contain/init
-             :run-fn   contain/doContainRun
-             :fns      (ns-publics 'behave.lib.contain)
-             :gv-uuids (q/class-to-group-variables "SIGContainAdapter")}
-            (add-links))
+         (-> {:init-fn   contain/init
+              :run-fn    contain/doContainRun
+              :fns       (ns-publics 'behave.lib.contain)
+              :gv-uuids  (q/class-to-group-variables "SIGContainAdapter")
+              :module-id :contain
+              :ws-uuid   ws-uuid}
+             (add-links))
 
         mortality-module
         (-> {:init-fn  mortality/init
