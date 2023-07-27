@@ -544,48 +544,52 @@
 (defn- construct-diagram [{row-id        :diagrams/row-id
                            ellipses      :diagrams/ellipses
                            arrows        :diagrams/arrows
-                           scatter-plots :diagrams/scatter-plots}]
-  [output-diagram {:title         (str "My Diagram for row: " row-id)
-                   :width         800
-                   :height        400
-                   :x-axis        {:domain        [-5 20]
-                                   :title         "x"
-                                   :tick-min-step 5}
-                   :y-axis        {:domain        [-5 5]
-                                   :title         "y"
-                                   :tick-min-step 5}
-                   :ellipses      (mapv #(rename-keys (into {} %)
-                                                      {:ellipse/id              :id
-                                                       :ellipse/semi-major-axis :a
-                                                       :ellipse/semi-minor-axis :b
-                                                       :ellipse/rotation        :phi
-                                                       :ellipse/color           :color})
-                                        ellipses)
-                   :arrows        (mapv #(rename-keys (into {} %)
-                                                      {:arrow/id       :id
-                                                       :arrow/length   :r
-                                                       :arrow/rotation :theta
-                                                       :arrow/color    :color})
-                                        arrows)
-                   :scatter-plots (mapv #(-> (rename-keys (into {} %)
-                                                          {:scatter-plot/id    :id
-                                                           :scatter-plot/data  :data
-                                                           :scatter-plot/color :color})
-                                             (update :data (fn [data]
-                                                             (concat
-                                                              (mapv (fn [datum]
-                                                                      {"x" (:datum/x datum)
-                                                                       "y" (:datum/y datum)})
-                                                                    data)
-                                                              (mapv (fn [datum]
-                                                                      {"x" (:datum/x datum)
-                                                                       "y" (* -1 (:datum/y datum))})
-                                                                    data)))))
-                                        scatter-plots)}])
+                           scatter-plots :diagrams/scatter-plots
+                           title         :diagrams/title}]
+  (let [domain (* 2 (max (apply max (map :ellipse/semi-minor-axis ellipses))
+                         (apply max (map :ellipse/semi-major-axis ellipses))))]
+    [output-diagram {:title         (str title " for result row: " (inc row-id))
+                     :width         400
+                     :height        400
+                     :x-axis        {:domain        [(* -1 domain) domain]
+                                     :title         "x"
+                                     :tick-min-step 5}
+                     :y-axis        {:domain        [(* -1 domain) domain]
+                                     :title         "y"
+                                     :tick-min-step 5}
+                     :ellipses      (mapv #(rename-keys (into {} %)
+                                                        {:ellipse/id              :id
+                                                         :ellipse/semi-major-axis :a
+                                                         :ellipse/semi-minor-axis :b
+                                                         :ellipse/rotation        :phi
+                                                         :ellipse/color           :color})
+                                          ellipses)
+                     :arrows        (mapv #(rename-keys (into {} %)
+                                                        {:arrow/id       :id
+                                                         :arrow/length   :r
+                                                         :arrow/rotation :theta
+                                                         :arrow/color    :color})
+                                          arrows)
+                     :scatter-plots (mapv #(-> (rename-keys (into {} %)
+                                                            {:scatter-plot/id    :id
+                                                             :scatter-plot/data  :data
+                                                             :scatter-plot/color :color})
+                                               (update :data (fn [data]
+                                                               (concat
+                                                                (mapv (fn [datum]
+                                                                        {"x" (:datum/x datum)
+                                                                         "y" (:datum/y datum)})
+                                                                      data)
+                                                                (mapv (fn [datum]
+                                                                        {"x" (:datum/x datum)
+                                                                         "y" (* -1 (:datum/y datum))})
+                                                                      data)))))
+                                          scatter-plots)}]))
 
 (defn- wizard-diagrams [ws-uuid]
   (let [*ws (rf/subscribe [:worksheet-entity ws-uuid])]
-    [:div
+    [:div.wizard-results__diagrams {:id "diagram"}
+     [:div.wizard-notes__header "Diagram"]
      (map #(construct-diagram %) (:worksheet/diagrams @*ws))]))
 
 ;; Wizard Results
