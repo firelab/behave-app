@@ -313,6 +313,11 @@
     :db/cardinality :db.cardinality/one}
 
    ;; Diagrams
+   {:db/ident       :diagrams/group-variable-uuid
+    :db/doc         "Diagram's reference to Variable's UUID."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
    {:db/ident       :diagrams/row-id
     :db/doc         "The diagrams associated row-id in the result table"
     :db/valueType   :db.type/long
