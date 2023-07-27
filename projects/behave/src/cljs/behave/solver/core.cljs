@@ -3,6 +3,7 @@
             [behave.solver.table   :as t]
             [behave.lib.contain    :as contain]
             [behave.lib.crown      :as crown]
+            [behave.lib.enums      :as enums]
             [behave.lib.mortality  :as mortality]
             [behave.lib.surface    :as surface]
             [behave.lib.spot       :as spot]
@@ -209,6 +210,7 @@
                      y-points (contain/getFirePerimeterY module)]
                  (rf/dispatch [:worksheet/add-contain-diagram
                                ws-uuid
+                               "Containment"
                                "sample-contain-uuid"
                                row-id
                                (take-nth 10 (mapv #(.get x-points %) (range (.size x-points))))
@@ -218,6 +220,21 @@
                                (contain/getFireHeadAtReport module)
                                (contain/getFireBackAtAttack module)
                                (contain/getFireHeadAtAttack module)]))
+      :surface (do
+                 ;; store fire shape diagram
+                 (rf/dispatch [:worksheet/add-surface-fire-shape-diagram
+                               ws-uuid
+                               "Fire Shape"
+                               "sample-fire-shape-uuid"
+                               row-id
+                               (surface/getEllipticalA module (enums/length-units "Chains"))
+                               (surface/getEllipticalB module (enums/length-units "Chains"))
+                               (surface/getDirectionOfMaxSpread module)
+                               (surface/getWindDirection module)
+                               (surface/getWindSpeed module
+                                                     (enums/speed-units "ChainsPerHour")
+                                                     (surface/getWindHeightInputMode module))
+                               (surface/getElapsedTime module (enums/time-units "Hours"))]))
       nil)
 
     ;; Get outputs, merge existing inputs/outputs with new inputs/outputs
@@ -234,22 +251,23 @@
 
   ([ws-uuid modules all-inputs all-outputs]
    (let [counter (atom 0)
+         surface-module
+         (-> {:init-fn   surface/init
+              :run-fn    surface/doSurfaceRun
+              :fns       (ns-publics 'behave.lib.surface)
+              :gv-uuids  (q/class-to-group-variables "SIGSurface")
+              :module-id :surface
+              :ws-uuid   ws-uuid}
+             (add-links))
 
-        surface-module
-        (-> {:init-fn  surface/init
-             :run-fn   surface/doSurfaceRun
-             :fns      (ns-publics 'behave.lib.surface)
-             :gv-uuids (q/class-to-group-variables "SIGSurface")}
-            (add-links))
+         crown-module
+         (-> {:init-fn  crown/init
+              :run-fn   crown/doCrownRun
+              :fns      (ns-publics 'behave.lib.crown)
+              :gv-uuids (q/class-to-group-variables "SIGCrown")}
+             (add-links))
 
-        crown-module
-        (-> {:init-fn  crown/init
-             :run-fn   crown/doCrownRun
-             :fns      (ns-publics 'behave.lib.crown)
-             :gv-uuids (q/class-to-group-variables "SIGCrown")}
-            (add-links))
-
-        contain-module
+         contain-module
          (-> {:init-fn   contain/init
               :run-fn    contain/doContainRun
               :fns       (ns-publics 'behave.lib.contain)
@@ -258,47 +276,47 @@
               :ws-uuid   ws-uuid}
              (add-links))
 
-        mortality-module
-        (-> {:init-fn  mortality/init
-             :run-fn   mortality/calculateMortality
-             :fns      (ns-publics 'behave.lib.mortality)
-             :gv-uuids (q/class-to-group-variables "SIGMortality")}
-            (add-links))
+         mortality-module
+         (-> {:init-fn  mortality/init
+              :run-fn   mortality/calculateMortality
+              :fns      (ns-publics 'behave.lib.mortality)
+              :gv-uuids (q/class-to-group-variables "SIGMortality")}
+             (add-links))
 
-        spot-module
-        (-> {:init-fn  spot/init
-             :run-fn   spot/calculateSpottingDistanceFromSurfaceFire
-             :fns      (ns-publics 'behave.lib.spot)
-             :gv-uuids (q/class-to-group-variables "SIGSpot")}
-            (add-links))]
+         spot-module
+         (-> {:init-fn  spot/init
+              :run-fn   spot/calculateSpottingDistanceFromSurfaceFire
+              :fns      (ns-publics 'behave.lib.spot)
+              :gv-uuids (q/class-to-group-variables "SIGSpot")}
+             (add-links))]
 
-    (->> all-inputs
-         (generate-runs)
-         (reduce (fn [acc inputs]
-                   (let [add-row (partial conj acc)
-                         row {:inputs      inputs
-                              :all-outputs all-outputs
-                              :outputs     {}
-                              :row-id      @counter}]
+     (->> all-inputs
+          (generate-runs)
+          (reduce (fn [acc inputs]
+                    (let [add-row (partial conj acc)
+                          row     {:inputs      inputs
+                                   :all-outputs all-outputs
+                                   :outputs     {}
+                                   :row-id      @counter}]
 
-                     (swap! counter inc)
+                      (swap! counter inc)
 
-                     (cond-> row
-                       (contains? modules :surface)
-                       (run-module surface-module)
+                      (cond-> row
+                        (contains? modules :surface)
+                        (run-module surface-module)
 
-                       (contains? modules :crown)
-                       (run-module crown-module)
+                        (contains? modules :crown)
+                        (run-module crown-module)
 
-                       (contains? modules :contain)
-                       (run-module contain-module)
+                        (contains? modules :contain)
+                        (run-module contain-module)
 
-                       (contains? modules :mortality)
-                       (run-module mortality-module)
+                        (contains? modules :mortality)
+                        (run-module mortality-module)
 
-                       (pos? (count (set/intersection modules #{:surface :crown})))
-                       (run-module spot-module)
+                        (pos? (count (set/intersection modules #{:surface :crown})))
+                        (run-module spot-module)
 
-                       :always
-                       (add-row))))
-                 [])))))
+                        :always
+                        (add-row))))
+                  [])))))

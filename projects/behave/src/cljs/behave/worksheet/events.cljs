@@ -4,6 +4,7 @@
             [datascript.core  :as d]
             [behave.components.toolbar :refer [get-step-number step-kw->number get-step-kw]]
             [behave.importer           :refer [import-worksheet]]
+            [behave.logger             :refer [log]]
             [behave.solver.core        :refer [solve-worksheet]]
             [vimsical.re-frame.cofx.inject :as inject]))
 
@@ -472,3 +473,47 @@
                                                                               :datum/y y})
                                                                            fire-perimeter-points-X
                                                                            fire-perimeter-points-Y)}]}]})))
+
+(rp/reg-event-fx
+ :worksheet/add-surface-fire-shape-diagram
+ [(rp/inject-cofx :ds)]
+ (fn [{:keys [ds]} [_
+                    ws-uuid
+                    title
+                    group-variable-uuid
+                    row-id
+                    elliptical-A
+                    elliptical-B
+                    direction-of-max-spread
+                    wind-direction
+                    _wind-speed
+                    _elapsed-time]]
+   (let [existing-eid    (d/q '[:find  ?d .
+                             :in    $ ?uuid ?gv-uuid ?row-id
+                             :where
+                             [?ws :worksheet/uuid               ?uuid]
+                             [?ws :worksheet/diagrams           ?d]
+                             [?d  :diagrams/group-variable-uuid ?gv-uuid]
+                             [?d  :diagrams/row-id              ?row-id]]
+                           ds ws-uuid group-variable-uuid row-id)
+         semi-major-axis (max elliptical-A elliptical-B )
+         semi-minor-axis (min elliptical-A elliptical-B)]
+     {:transact [(when existing-eid [:db.fn/retractEntity existing-eid])
+                 {:worksheet/_diagrams          [:worksheet/uuid ws-uuid]
+                  :diagrams/title               title
+                  :diagrams/group-variable-uuid group-variable-uuid
+                  :diagrams/row-id              row-id
+                  :diagrams/ellipses            [{:ellipse/id              "SurfaceFire"
+                                                  :ellipse/semi-major-axis semi-major-axis
+                                                  :ellipse/semi-minor-axis semi-minor-axis
+                                                  :ellipse/rotation        direction-of-max-spread
+                                                  :ellipse/color           "red"}]
+                  :diagrams/arrows              [{:arrow/id       "Wind"
+                                                  :arrow/length   semi-major-axis
+                                                  ;; :arrow/length   (* wind-speed elapsed-time)
+                                                  ;; NOTE Using the wind speed converted to the
+                                                  ;; chains makes this value possibly too large. The
+                                                  ;; arrow points much further out of othe ellipse.
+                                                  ;; Discuss if if we should use this or not.
+                                                  :arrow/rotation wind-direction
+                                                  :arrow/color    "blue"}]}]})))
