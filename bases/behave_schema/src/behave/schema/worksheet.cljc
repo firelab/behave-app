@@ -318,6 +318,11 @@
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident       :diagrams/title
+    :db/doc         "Diagram's title"
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
    {:db/ident       :diagrams/row-id
     :db/doc         "The diagrams associated row-id in the result table"
     :db/valueType   :db.type/long
