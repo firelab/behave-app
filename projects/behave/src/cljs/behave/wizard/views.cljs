@@ -602,6 +602,7 @@
         *headers              (subscribe [:worksheet/result-table-headers-sorted ws-uuid])
         *cell-data            (subscribe [:worksheet/result-table-cell-data ws-uuid])
         table-enabled?        (get-in @*worksheet [:worksheet/table-settings :table-settings/enabled?])
+        graph-enabled?        (get-in @*worksheet [:worksheet/table-settings :graph-settings/enabled?])
         table-setting-filters (subscribe [:worksheet/table-settings-filters ws-uuid])]
     [:div.accordion
      [:div.accordion__header
@@ -636,7 +637,11 @@
                                   {:label     "Graph"
                                    :tab       :graph
                                    :icon-name :graphs
-                                   :selected? (= @*tab-selected :graph)}]}]]]
+                                   :selected? (= @*tab-selected :graph)}
+                                  {:label     "Diagram"
+                                   :tab       :diagram
+                                   :icon-name :graphs
+                                   :selected? (= @*tab-selected :diagram)}]}]]]
        [:div.wizard-page__body
         [:div.wizard-results__notes {:id "notes"}
          (wizard-notes @*notes)]
@@ -667,7 +672,7 @@
                                                           {}
                                                           data))))}]
              [table-exporter table-data])])
-        (wizard-graph ws-uuid @*cell-data)
+        (when graph-enabled? (wizard-graph ws-uuid @*cell-data))
         (wizard-diagrams ws-uuid)]]
       [:div.wizard-navigation
        [c/button {:label    "Back"
