@@ -57,11 +57,14 @@
         (update-in [:encoding :color :scale :domain] #(conj % id))
         (update-in [:encoding :color :scale :range] #(conj % color)))))
 
-(defn- add-arrow [schema {:keys [id color r theta]
-                          :or   {r     0
-                                 theta 0}}]
-  (let [r-name     (str "R_" id)
-        theta-name (str "THETA_" id)]
+(defn- add-arrow [schema {:keys [id color r theta dashed?]
+                          :or   {r       0
+                                 theta   0
+                                 dashed? false}}]
+  (let [r-name          (str "R_" id)
+        theta-name      (str "THETA_" id)
+        stroke-width    5
+        arrow-head-size (* stroke-width 200)]
     (-> schema
         (update :layer #(conj % {:data      {:values [{r-name 0.0 "origin" true}
                                                       {r-name 0.5}]}
@@ -71,13 +74,15 @@
                                              {:calculate (gstring/format "isDefined(datum.origin)? 0 : %s * -cos(%s * (PI/180) - PI)"
                                                                          r-name theta-name)
                                               :as        "y"}]
-                                 :mark      {:type  "line"
-                                             :color id
-                                             :point {:shape  "arrow"
-                                                     :filled true
-                                                     :color  id
-                                                     :angle  {:expr theta}
-                                                     :size   {:expr "isDefined(datum.origin) ? 0 : 200"}}}
+                                 :mark      {:type        "line"
+                                             :strokeDash  (if dashed? [4,4] [1,0])
+                                             :strokeWidth stroke-width
+                                             :color       id
+                                             :point       {:shape  "arrow"
+                                                           :filled true
+                                                           :color  id
+                                                           :angle  {:expr theta}
+                                                           :size   {:expr (str "isDefined(datum.origin) ? 0 : " arrow-head-size)}}}
                                  :encoding  {:color {:datum id}
                                              :x     {:field "x"
                                                      :type  "quantitative"}
@@ -123,10 +128,11 @@
    :x-offset - The offset in the x axis
 
    Arrow Parameters:
-   :id    - Unique identifier string for the arrow (for legend)
-   :color - Color for the arrow
-   :r     - The length of the arrow
-   :theta - The degrees to rotate clockwise starting from the positive y axis
+   :id      - Unique identifier string for the arrow (for legend)
+   :color   - Color for the arrow
+   :r       - The length of the arrow
+   :theta   - The degrees to rotate clockwise starting from the positive y axis
+   :dashed? - Whether the arrow should be dashed
 
    Scatter-plot Paramters:
    :id    - Unique identifier string for the scatter-plot (for legend)

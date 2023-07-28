@@ -390,6 +390,11 @@
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident       :arrow/dashed?
+    :db/doc         "Weather the arrow should be dashed"
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
+
    ;; Diagram Scatter Plot
    {:db/ident       :scatter-plot/id
     :db/doc         "Id used for the legend"

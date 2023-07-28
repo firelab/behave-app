@@ -546,11 +546,12 @@
                            arrows        :diagrams/arrows
                            scatter-plots :diagrams/scatter-plots
                            title         :diagrams/title}]
-  (let [domain (* 2 (max (apply max (map :ellipse/semi-minor-axis ellipses))
-                         (apply max (map :ellipse/semi-major-axis ellipses))))]
+  (let [domain (max (* 2 (max (apply max (map :ellipse/semi-minor-axis ellipses))
+                              (apply max (map :ellipse/semi-major-axis ellipses))))
+                    (apply max (map :arrow/length arrows)))]
     [output-diagram {:title         (str title " for result row: " (inc row-id))
-                     :width         400
-                     :height        400
+                     :width         500
+                     :height        500
                      :x-axis        {:domain        [(* -1 domain) domain]
                                      :title         "x"
                                      :tick-min-step 5}
@@ -568,7 +569,8 @@
                                                         {:arrow/id       :id
                                                          :arrow/length   :r
                                                          :arrow/rotation :theta
-                                                         :arrow/color    :color})
+                                                         :arrow/color    :color
+                                                         :arrow/dashed?  :dashed?})
                                           arrows)
                      :scatter-plots (mapv #(-> (rename-keys (into {} %)
                                                             {:scatter-plot/id    :id

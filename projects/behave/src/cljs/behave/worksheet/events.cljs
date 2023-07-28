@@ -11,29 +11,29 @@
 (rf/reg-fx :ws/import-worksheet import-worksheet)
 
 (rf/reg-event-fx
-  :ws/worksheet-selected
-  (fn [{db :db} [_ files]]
-    (let [file (first (array-seq files))]
-      {:db                  (assoc-in db [:state :worksheet :file] (.-name file))
-       :ws/import-worksheet (import-worksheet file)})))
+ :ws/worksheet-selected
+ (fn [{db :db} [_ files]]
+   (let [file (first (array-seq files))]
+     {:db                  (assoc-in db [:state :worksheet :file] (.-name file))
+      :ws/import-worksheet (import-worksheet file)})))
 
 (rf/reg-event-fx
-  :worksheet/solve
-  (fn [_ [_ ws-uuid]]
-    (solve-worksheet ws-uuid)))
+ :worksheet/solve
+ (fn [_ [_ ws-uuid]]
+   (solve-worksheet ws-uuid)))
 
 (rp/reg-event-fx
  :worksheet/new
  (fn [_ [_ {:keys [uuid name modules]}]]
-   {:transact [{:worksheet/uuid (or uuid (str (d/squuid)))
-                :worksheet/name name
+   {:transact [{:worksheet/uuid    (or uuid (str (d/squuid)))
+                :worksheet/name    name
                 :worksheet/modules modules
                 :worksheet/created (.now js/Date)}]}))
 
 (rp/reg-event-fx
-  :worksheet/update-attr
-  (fn [_ [_ ws-uuid attr value]]
-    {:transact [(assoc {:db/id [:worksheet/uuid ws-uuid]} attr value)]}))
+ :worksheet/update-attr
+ (fn [_ [_ ws-uuid attr value]]
+   {:transact [(assoc {:db/id [:worksheet/uuid ws-uuid]} attr value)]}))
 
 (rp/reg-event-fx
  :worksheet/add-input-group
@@ -47,7 +47,7 @@
                         :where [?ws :worksheet/input-groups ?g]
                         [?g :input-group/group-uuid ?group-uuid]
                         [?g :input-group/repeat-id ?repeat-id]]
-                       ds ws group-uuid repeat-id))
+                      ds ws group-uuid repeat-id))
        {:transact [{:worksheet/_input-groups ws
                     :db/id                   -1
                     :input-group/group-uuid  group-uuid
@@ -63,13 +63,13 @@
      (when-let [group-id (first (d/q '[:find  [?ig]
                                        :in    $ ?ws ?group-uuid ?repeat-id
                                        :where [?ws :worksheet/input-groups ?ig]
-                                              [?ig :input-group/group-uuid ?group-uuid]
-                                              [?ig :input-group/repeat-id  ?repeat-id]]
+                                       [?ig :input-group/group-uuid ?group-uuid]
+                                       [?ig :input-group/repeat-id  ?repeat-id]]
                                      ds ws group-uuid repeat-id))]
        (if-let [var-id (first (d/q '[:find  [?i]
                                      :in    $ ?ig ?uuid
                                      :where [?ig :input-group/inputs ?i]
-                                            [?i :input/group-variable-uuid ?uuid]]
+                                     [?i :input/group-variable-uuid ?uuid]]
                                    ds group-id group-variable-uuid))]
          {:transact [(cond-> {:db/id       var-id
                               :input/value value}
@@ -140,8 +140,8 @@
      (when-not (d/q '[:find ?h .
                       :in $ ?t ?group-variable-uuid ?repeat-id
                       :where [?t :result-table/headers ?h]
-                             [?h :result-header/group-variable-uuid ?group-variable-uuid]
-                             [?h :result-header/repeat-id ?repeat-id]]
+                      [?h :result-header/group-variable-uuid ?group-variable-uuid]
+                      [?h :result-header/repeat-id ?repeat-id]]
                     ds table group-variable-uuid repeat-id)
        (let [headers (count (d/q '[:find [?h ...]
                                    :in $ ?t
@@ -207,7 +207,7 @@
  (fn [{:keys [worksheet]} [_ ws-uuid gv-uuid]]
    (let [limit {:y-axis-limit/group-variable-uuid gv-uuid}]
      (if-let [id (get-in worksheet [:worksheet/graph-settings :db/id])]
-       {:transact [{:db/id                  id
+       {:transact [{:db/id                        id
                     :graph-settings/y-axis-limits [limit]}]}
        {:transact [{:worksheet/_graph-settings    [:worksheet/uuid ws-uuid]
                     :graph-settings/y-axis-limits [limit]}]}))))
@@ -376,8 +376,8 @@
                               :where
                               [?w :worksheet/uuid ?uuid]
                               [?w :worksheet/graph-settings ?g]]
-                             ds
-                             ws-uuid))]
+                            ds
+                            ws-uuid))]
      {:transact [(assoc {:db/id g} attr value)]})))
 
 ;;Notes
@@ -489,13 +489,13 @@
                     _wind-speed
                     _elapsed-time]]
    (let [existing-eid    (d/q '[:find  ?d .
-                             :in    $ ?uuid ?gv-uuid ?row-id
-                             :where
-                             [?ws :worksheet/uuid               ?uuid]
-                             [?ws :worksheet/diagrams           ?d]
-                             [?d  :diagrams/group-variable-uuid ?gv-uuid]
-                             [?d  :diagrams/row-id              ?row-id]]
-                           ds ws-uuid group-variable-uuid row-id)
+                                :in    $ ?uuid ?gv-uuid ?row-id
+                                :where
+                                [?ws :worksheet/uuid               ?uuid]
+                                [?ws :worksheet/diagrams           ?d]
+                                [?d  :diagrams/group-variable-uuid ?gv-uuid]
+                                [?d  :diagrams/row-id              ?row-id]]
+                              ds ws-uuid group-variable-uuid row-id)
          semi-major-axis (max elliptical-A elliptical-B )
          semi-minor-axis (min elliptical-A elliptical-B)]
      {:transact [(when existing-eid [:db.fn/retractEntity existing-eid])
@@ -517,3 +517,70 @@
                                                   ;; Discuss if if we should use this or not.
                                                   :arrow/rotation wind-direction
                                                   :arrow/color    "blue"}]}]})))
+(rp/reg-event-fx
+ :worksheet/add-wind-slope-spread-direction-diagram
+ [(rp/inject-cofx :ds)]
+ (fn [{:keys [ds]} [_
+                    ws-uuid
+                    title
+                    group-variable-uuid
+                    row-id
+                    max-spread-dir
+                    max-spread-rate
+                    interest-dir
+                    interest-spread-rate
+                    flanking-dir
+                    flanking-spread-rate
+                    backing-dir
+                    backing-spread-rate
+                    wind-dir
+                    wind-speed]]
+   (let [existing-eid (d/q '[:find  ?d .
+                                :in    $ ?uuid ?gv-uuid ?row-id
+                                :where
+                                [?ws :worksheet/uuid               ?uuid]
+                                [?ws :worksheet/diagrams           ?d]
+                                [?d  :diagrams/group-variable-uuid ?gv-uuid]
+                                [?d  :diagrams/row-id              ?row-id]]
+                              ds ws-uuid group-variable-uuid row-id)]
+     {:transact [(when existing-eid [:db.fn/retractEntity existing-eid])
+                 {:worksheet/_diagrams          [:worksheet/uuid ws-uuid]
+                  :diagrams/title               title
+                  :diagrams/group-variable-uuid group-variable-uuid
+                  :diagrams/row-id              row-id
+                  :diagrams/arrows              [{:arrow/id       "MaxSpread"
+                                                  :arrow/length   max-spread-rate
+                                                  :arrow/rotation max-spread-dir
+                                                  :arrow/color    "red"}
+
+                                                 {:arrow/id       "Interest"
+                                                  :arrow/length   interest-dir
+                                                  :arrow/rotation interest-spread-rate
+                                                  :arrow/color    "black"}
+
+                                                 {:arrow/id       "Flanking1"
+                                                  :arrow/length   flanking-spread-rate
+                                                  :arrow/rotation flanking-dir
+                                                  :arrow/color    "#81c3cb"}
+
+                                                 {:arrow/id       "Flanking2"
+                                                  :arrow/length   flanking-spread-rate
+                                                  :arrow/rotation (mod (+ flanking-dir 180) 360)
+                                                  :arrow/color    "#347da0"}
+
+                                                 {:arrow/id       "Backing"
+                                                  :arrow/length   backing-spread-rate
+                                                  :arrow/rotation backing-dir
+                                                  :arrow/color    "orange"}
+
+                                                 (let [l (min max-spread-rate wind-speed)]
+                                                   {:arrow/id       "Wind"
+                                                    :arrow/length   (if (> wind-speed max-spread-rate)
+                                                                      (* l 1.1)
+                                                                      l) ;NOTE for visual purposes
+                                                                        ;make wind 10% larger than
+                                                                        ;max spread rate.
+                                                    ;; :arrow/length   wind-speed
+                                                    :arrow/rotation wind-dir
+                                                    :arrow/color    "blue"
+                                                    :arrow/dashed?  true})]}]})))
