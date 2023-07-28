@@ -588,9 +588,10 @@
 
 (defn- wizard-diagrams [ws-uuid]
   (let [*ws (rf/subscribe [:worksheet-entity ws-uuid])]
-    [:div.wizard-results__diagrams {:id "diagram"}
-     [:div.wizard-notes__header "Diagram"]
-     (map #(construct-diagram %) (:worksheet/diagrams @*ws))]))
+    (when (seq (:worksheet/diagrams @*ws))
+     [:div.wizard-results__diagrams {:id "diagram"}
+      [:div.wizard-notes__header "Diagram"]
+      (map #(construct-diagram %) (:worksheet/diagrams @*ws))])))
 
 ;; Wizard Results
 (defn wizard-results-page [{:keys [route-handler io ws-uuid] :as params}]
