@@ -546,9 +546,9 @@
                            arrows        :diagrams/arrows
                            scatter-plots :diagrams/scatter-plots
                            title         :diagrams/title}]
-  (let [domain (max (* 2 (max (apply max (map :ellipse/semi-minor-axis ellipses))
-                              (apply max (map :ellipse/semi-major-axis ellipses))))
-                    (apply max (map :arrow/length arrows)))]
+  (let [domain (apply max (concat (map #(* 2 (:ellipse/semi-minor-axis %)) ellipses)
+                                  (map #(* 2 (:ellipse/semi-major-axis %)) ellipses)
+                                  (map :arrow/length arrows)))]
     [output-diagram {:title         (str title " for result row: " (inc row-id))
                      :width         500
                      :height        500
