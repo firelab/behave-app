@@ -212,6 +212,29 @@
                                       (surface/getWindHeightInputMode module))
                 (surface/getElapsedTime module (enums/time-units "Hours"))]))
 
+(defn- store-wind-slope-spread-diagram! [ws-uuid row-id gv-uuid module]
+  (rf/dispatch [:worksheet/add-wind-slope-spread-direction-diagram
+                ws-uuid
+                "Wind/Slope/Spread Direction"
+                gv-uuid
+                row-id
+                (surface/getDirectionOfMaxSpread module)
+                (surface/getSpreadRate  module (enums/speed-units "ChainsPerHour"))
+                (surface/getDirectionOfInterest module)
+                (surface/getSpreadRateInDirectionOfInterest
+                 module
+                 (enums/speed-units "ChainsPerHour"))
+                (surface/getDirectionOfFlanking module)
+                (surface/getFlankingSpreadRate module
+                                               (enums/speed-units "ChainsPerHour"))
+                (surface/getDirectionOfBacking module)
+                (surface/getBackingSpreadRate module
+                                              (enums/speed-units "ChainsPerHour"))
+                (surface/getWindDirection module)
+                (surface/getWindSpeed module
+                                      (enums/speed-units "ChainsPerHour")
+                                      (surface/getWindHeightInputMode module))]))
+
 (defn run-module [{:keys [inputs all-outputs outputs row-id] :as row}
                   {:keys [init-fn
                           run-fn
@@ -228,7 +251,8 @@
         module-outputs                 (filter-module-outputs all-outputs gv-uuids)
         ;;TODO Find a better way to do this instead of hard coding uuid (Kenny 2023.7.28)
         contain-diagram-uuid           "64c3e21d-9cb5-4b6f-b7e5-d78c838236dd"
-        fire-shape-diagram-uuid        "64a909b9-9bb3-475b-8794-612b36911e9e"]
+        fire-shape-diagram-uuid        "64a909b9-9bb3-475b-8794-612b36911e9e"
+        wind-slope-spread-diagram-uuid "64c4118c-7aa3-464b-b7da-3ed2e2aacb42"]
 
     ;; Set inputs
     (apply-inputs module fns module-inputs)
@@ -241,6 +265,9 @@
 
     (when (and (= module-id :surface) (some #{fire-shape-diagram-uuid} all-outputs))
       (store-fire-shape-diagram! ws-uuid row-id fire-shape-diagram-uuid module))
+
+    (when (and (= module-id :surface) (some #{wind-slope-spread-diagram-uuid} all-outputs))
+      (store-wind-slope-spread-diagram! ws-uuid row-id wind-slope-spread-diagram-uuid module))
 
     ;; Get outputs, merge existing inputs/outputs with new inputs/outputs
     (update row :outputs merge (get-outputs module fns module-outputs))))
