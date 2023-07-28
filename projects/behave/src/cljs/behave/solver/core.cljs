@@ -235,8 +235,8 @@
                                                      (enums/speed-units "ChainsPerHour")
                                                      (surface/getWindHeightInputMode module))
                                (surface/getElapsedTime module (enums/time-units "Hours"))])
-                 ;; store Wind/Slope/Spread Direction diagram
 
+                 ;; store Wind/Slope/Spread Direction diagram
                  (rf/dispatch [:worksheet/add-wind-slope-spread-direction-diagram
                                ws-uuid
                                "Wind/Slope/Spread Direction"
@@ -257,30 +257,7 @@
                                (surface/getWindDirection module)
                                (surface/getWindSpeed module
                                                      (enums/speed-units "ChainsPerHour")
-                                                     (surface/getWindHeightInputMode module))])
-
-                 (log "DirectionOfMaxSpread:" (surface/getDirectionOfMaxSpread module))
-                 (log "SpreadRate" (surface/getSpreadRate  module (enums/speed-units "ChainsPerHour")))
-
-                 (log "Get DirectionOfInterst" (surface/getDirectionOfInterest module))
-                 (log "SpreadRateInDirectionOfInterest" (surface/getSpreadRateInDirectionOfInterest
-                                                         module
-                                                         (enums/speed-units "ChainsPerHour")))
-
-                 (log "DirectionOfFlanking" (surface/getDirectionOfFlanking module))
-                 (log "FlankingSpreadRate" (surface/getFlankingSpreadRate module
-                                                                          (enums/speed-units "ChainsPerHour")))
-
-                 (log "DirectionOfBacking" (surface/getDirectionOfBacking module))
-                 (log "BackingSpreadRate" (surface/getBackingSpreadRate module
-                                                                        (enums/speed-units "ChainsPerHour")))
-
-                 ;; Directions
-                 (log "Wind Direction" (surface/getWindDirection module))
-                 (log "Wind Speed" (surface/getWindSpeed module
-                                                         (enums/speed-units "ChainsPerHour")
-                                                         (surface/getWindHeightInputMode module)))
-                 )
+                                                     (surface/getWindHeightInputMode module))]))
       nil)
 
     ;; Get outputs, merge existing inputs/outputs with new inputs/outputs
