@@ -181,6 +181,37 @@
      inputs
      destination-links)))
 
+(defn- store-contain-diagram! [ws-uuid row-id gv-uuid module]
+  (let [x-points (contain/getFirePerimeterX module)
+        y-points (contain/getFirePerimeterY module)]
+    (rf/dispatch [:worksheet/add-contain-diagram
+                  ws-uuid
+                  "Containment"
+                  gv-uuid
+                  row-id
+                  (take-nth 10 (mapv #(.get x-points %) (range (.size x-points))))
+                  (take-nth 10 (mapv #(.get y-points %) (range (.size y-points))))
+                  (contain/getLengthToWidthRatio module)
+                  (contain/getFireBackAtReport module)
+                  (contain/getFireHeadAtReport module)
+                  (contain/getFireBackAtAttack module)
+                  (contain/getFireHeadAtAttack module)])))
+
+(defn- store-fire-shape-diagram! [ws-uuid row-id gv-uuid module]
+  (rf/dispatch [:worksheet/add-surface-fire-shape-diagram
+                ws-uuid
+                "Fire Shape"
+                gv-uuid
+                row-id
+                (surface/getEllipticalA module (enums/length-units "Chains"))
+                (surface/getEllipticalB module (enums/length-units "Chains"))
+                (surface/getDirectionOfMaxSpread module)
+                (surface/getWindDirection module)
+                (surface/getWindSpeed module
+                                      (enums/speed-units "ChainsPerHour")
+                                      (surface/getWindHeightInputMode module))
+                (surface/getElapsedTime module (enums/time-units "Hours"))]))
+
 (defn run-module [{:keys [inputs all-outputs outputs row-id] :as row}
                   {:keys [init-fn
                           run-fn
@@ -189,14 +220,15 @@
                           destination-links
                           module-id
                           ws-uuid]}]
-  (let [module         (init-fn)
-
+  (let [module                         (init-fn)
         ;; Apply links
-        inputs         (apply-links outputs inputs destination-links)
-
+        inputs                         (apply-links outputs inputs destination-links)
         ;; Filter IO's for module
-        module-inputs  (filter-module-inputs inputs gv-uuids)
-        module-outputs (filter-module-outputs all-outputs gv-uuids)]
+        module-inputs                  (filter-module-inputs inputs gv-uuids)
+        module-outputs                 (filter-module-outputs all-outputs gv-uuids)
+        ;;TODO Find a better way to do this instead of hard coding uuid (Kenny 2023.7.28)
+        contain-diagram-uuid           "64c3e21d-9cb5-4b6f-b7e5-d78c838236dd"
+        fire-shape-diagram-uuid        "64a909b9-9bb3-475b-8794-612b36911e9e"]
 
     ;; Set inputs
     (apply-inputs module fns module-inputs)
@@ -204,61 +236,11 @@
     ;; Run module
     (run-fn module)
 
-    ;; store diagram parameters
-    (case module-id
-      :contain (let [x-points (contain/getFirePerimeterX module)
-                     y-points (contain/getFirePerimeterY module)]
-                 (rf/dispatch [:worksheet/add-contain-diagram
-                               ws-uuid
-                               "Containment"
-                               "sample-contain-uuid"
-                               row-id
-                               (take-nth 10 (mapv #(.get x-points %) (range (.size x-points))))
-                               (take-nth 10 (mapv #(.get y-points %) (range (.size y-points))))
-                               (contain/getLengthToWidthRatio module)
-                               (contain/getFireBackAtReport module)
-                               (contain/getFireHeadAtReport module)
-                               (contain/getFireBackAtAttack module)
-                               (contain/getFireHeadAtAttack module)]))
-      :surface (do
-                 ;; store fire shape diagram
-                 (rf/dispatch [:worksheet/add-surface-fire-shape-diagram
-                               ws-uuid
-                               "Fire Shape"
-                               "sample-fire-shape-uuid"
-                               row-id
-                               (surface/getEllipticalA module (enums/length-units "Chains"))
-                               (surface/getEllipticalB module (enums/length-units "Chains"))
-                               (surface/getDirectionOfMaxSpread module)
-                               (surface/getWindDirection module)
-                               (surface/getWindSpeed module
-                                                     (enums/speed-units "ChainsPerHour")
-                                                     (surface/getWindHeightInputMode module))
-                               (surface/getElapsedTime module (enums/time-units "Hours"))])
+    (when (and (= module-id :contain) (some #{contain-diagram-uuid} all-outputs))
+      (store-contain-diagram! ws-uuid row-id contain-diagram-uuid module))
 
-                 ;; store Wind/Slope/Spread Direction diagram
-                 (rf/dispatch [:worksheet/add-wind-slope-spread-direction-diagram
-                               ws-uuid
-                               "Wind/Slope/Spread Direction"
-                               "sample-wind-slope-spread-direction-uuid"
-                               row-id
-                               (surface/getDirectionOfMaxSpread module)
-                               (surface/getSpreadRate  module (enums/speed-units "ChainsPerHour"))
-                               (surface/getDirectionOfInterest module)
-                               (surface/getSpreadRateInDirectionOfInterest
-                                module
-                                (enums/speed-units "ChainsPerHour"))
-                               (surface/getDirectionOfFlanking module)
-                               (surface/getFlankingSpreadRate module
-                                                              (enums/speed-units "ChainsPerHour"))
-                               (surface/getDirectionOfBacking module)
-                               (surface/getBackingSpreadRate module
-                                                             (enums/speed-units "ChainsPerHour"))
-                               (surface/getWindDirection module)
-                               (surface/getWindSpeed module
-                                                     (enums/speed-units "ChainsPerHour")
-                                                     (surface/getWindHeightInputMode module))]))
-      nil)
+    (when (and (= module-id :surface) (some #{fire-shape-diagram-uuid} all-outputs))
+      (store-fire-shape-diagram! ws-uuid row-id fire-shape-diagram-uuid module))
 
     ;; Get outputs, merge existing inputs/outputs with new inputs/outputs
     (update row :outputs merge (get-outputs module fns module-outputs))))
