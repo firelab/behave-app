@@ -432,6 +432,7 @@
  [(rp/inject-cofx :ds)]
  (fn [{:keys [ds]} [_
                     ws-uuid
+                    title
                     group-variable-uuid
                     row-id
                     fire-perimeter-points-X
@@ -450,6 +451,7 @@
                     [?d  :diagrams/row-id              ?row-id]]
                   ds ws-uuid group-variable-uuid row-id)
      {:transact [{:worksheet/_diagrams          [:worksheet/uuid ws-uuid]
+                  :diagrams/title               title
                   :diagrams/group-variable-uuid group-variable-uuid
                   :diagrams/row-id              row-id
                   :diagrams/ellipses            [(let [l (- fire-head-at-report fire-back-at-report)
