@@ -227,6 +227,9 @@ interface SIGContainAdapter {
   double getLengthToWidthRatio();
   double getPerimeterAtContainment(LengthUnits_LengthUnitsEnum lengthUnits);
   double getPerimeterAtInitialAttack(LengthUnits_LengthUnitsEnum lengthUnits);
+  double getReportSize(AreaUnits_AreaUnitsEnum areaUnits);
+  double getReportRate(SpeedUnits_SpeedUnitsEnum speedUnits);
+  long getTactic();
   long getFirePerimeterPointCount();
   long removeAllResourcesWithThisDesc([Const] DOMString desc);
   long removeResourceAt(long index);
