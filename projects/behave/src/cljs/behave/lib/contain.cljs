@@ -103,6 +103,15 @@
 (defn getResourcesUsed [self]
   (.getResourcesUsed self))
 
+(defn getReportRate [self speedUnits]
+  (.getReportRate self speedUnits))
+
+(defn getReportSize [self areaUnits]
+  (.getReportSize self areaUnits))
+
+(defn getTactic [self]
+  (.getTactic self))
+
 (defn removeAllResources [self]
   (.removeAllResources self))
 

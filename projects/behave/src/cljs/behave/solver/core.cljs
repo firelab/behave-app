@@ -10,7 +10,8 @@
             [behave.logger         :refer [log]]
             [clojure.string        :as str]
             [clojure.set           :as set]
-            [re-frame.core         :as rf]))
+            [re-frame.core         :as rf]
+            [behave.lib.enums :as enums]))
 
 ;;; Helpers
 
@@ -194,7 +195,14 @@
                   (contain/getFireBackAtReport module)
                   (contain/getFireHeadAtReport module)
                   (contain/getFireBackAtAttack module)
-                  (contain/getFireHeadAtAttack module)])))
+                  (contain/getFireHeadAtAttack module)
+                  [["Surface Fire Rate of Spread" (contain/getReportRate module (enums/speed-units "ChainsPerHour")) "ch/hr"]
+                   ["Fire Size at Report" (contain/getReportSize module (enums/area-units "Acres")) "ac"]
+                   ["Length-toWidth Ratio" (contain/getLengthToWidthRatio module)]
+                   ["Suppression Tactic" (contain/getTactic module)]
+                   ["Line Construction Offset" (contain/getAttackDistance module (enums/length-units "Chains")) "ch"]
+                   ["Fire line Constructed" (contain/getFinalFireLineLength module (enums/length-units "Chains")) "ch"]
+]])))
 
 (defn run-module [{:keys [inputs all-outputs outputs row-id] :as row}
                   {:keys [init-fn

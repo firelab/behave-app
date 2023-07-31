@@ -549,7 +549,9 @@
                 units  :diagram-variable/units}]
             [:tr
              [:td (str v-name ":")]
-             [:td (str value " (" units ")")]])
+             [:td (if units
+                    (str value " (" units ")")
+                    value)]])
           variables)]))
 
 (defn- construct-diagram [{row-id        :diagrams/row-id
