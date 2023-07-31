@@ -475,7 +475,12 @@
                                                                              {:datum/x x
                                                                               :datum/y y})
                                                                            fire-perimeter-points-X
-                                                                           fire-perimeter-points-Y)}]}]})))
+                                                                           fire-perimeter-points-Y)}]
+                  :diagrams/variables           (mapv (fn [[v-name value units]]
+                                                        (cond->{:diagram-variable/name  v-name
+                                                                :diagram-variable/value value}
+                                                          units (assoc :diagram-variable/units units)))
+                                                      variables)}]})))
 
 (rp/reg-event-fx
  :worksheet/add-surface-fire-shape-diagram
@@ -585,12 +590,13 @@
 
                                                  (let [l (min max-spread-rate wind-speed)]
                                                    {:arrow/id       "Wind"
+                                                    ;;NOTE for visual purposes
+                                                    ;;make wind 10% larger than
+                                                    ;;max spread rate.
+                                                    ;; :arrow/length   wind-speed
                                                     :arrow/length   (if (> wind-speed max-spread-rate)
                                                                       (* l 1.1)
-                                                                      l) ;NOTE for visual purposes
-                                                                         ;;make wind 10% larger than
-                                                                         ;;max spread rate.
-                                                                         ;; :arrow/length   wind-speed
+                                                                      l)
                                                     :arrow/rotation wind-dir
                                                     :arrow/color    "blue"
                                                     :arrow/dashed?  true})]
