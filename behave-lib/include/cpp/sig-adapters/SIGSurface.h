@@ -82,6 +82,8 @@ public:
   double getEllipticalA(LengthUnits::LengthUnitsEnum lengthUnits) const;
   double getEllipticalB(LengthUnits::LengthUnitsEnum lengthUnits) const;
   double getEllipticalC(LengthUnits::LengthUnitsEnum lengthUnits) const;
+  double getFireLength(LengthUnits::LengthUnitsEnum lengthUnits) const;
+  double getMaxFireWidth(LengthUnits::LengthUnitsEnum lengthUnits) const;
   double getFireArea(AreaUnits::AreaUnitsEnum areaUnits) const;
   double getFirePerimeter(LengthUnits::LengthUnitsEnum lengthUnits) const;
   double getBackingSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits);

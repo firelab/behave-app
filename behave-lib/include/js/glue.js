@@ -1987,6 +1987,18 @@ SIGSurface.prototype['getEllipticalC'] = SIGSurface.prototype.getEllipticalC = /
   return _emscripten_bind_SIGSurface_getEllipticalC_1(self, lengthUnits);
 };;
 
+SIGSurface.prototype['getFireLength'] = SIGSurface.prototype.getFireLength = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
+  var self = this.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  return _emscripten_bind_SIGSurface_getFireLength_1(self, lengthUnits);
+};;
+
+SIGSurface.prototype['getMaxFireWidth'] = SIGSurface.prototype.getMaxFireWidth = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
+  var self = this.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  return _emscripten_bind_SIGSurface_getMaxFireWidth_1(self, lengthUnits);
+};;
+
 SIGSurface.prototype['getFireArea'] = SIGSurface.prototype.getFireArea = /** @suppress {undefinedVars, duplicate} @this{Object} */function(areaUnits) {
   var self = this.ptr;
   if (areaUnits && typeof areaUnits === 'object') areaUnits = areaUnits.ptr;

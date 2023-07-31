@@ -489,7 +489,8 @@
                     direction-of-max-spread
                     wind-direction
                     _wind-speed
-                    _elapsed-time]]
+                    _elapsed-time
+                    variables]]
    (let [existing-eid    (d/q '[:find  ?d .
                              :in    $ ?uuid ?gv-uuid ?row-id
                              :where
@@ -518,4 +519,9 @@
                                                   ;; arrow points much further out of othe ellipse.
                                                   ;; Discuss if if we should use this or not.
                                                   :arrow/rotation wind-direction
-                                                  :arrow/color    "blue"}]}]})))
+                                                  :arrow/color    "blue"}]
+                  :diagrams/variables            (mapv (fn [[v-name value units]]
+                                                         {:diagram-variable/name  v-name
+                                                          :diagram-variable/value value
+                                                          :diagram-variable/units units})
+                                                       variables)}]})))

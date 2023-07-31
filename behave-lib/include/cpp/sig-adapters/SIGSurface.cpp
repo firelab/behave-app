@@ -148,6 +148,16 @@ double SIGSurface::getEllipticalC(LengthUnits::LengthUnitsEnum lengthUnits) cons
   return Surface::getEllipticalC(lengthUnits, elapsedTime, TimeUnits::Minutes);
 }
 
+double SIGSurface::getFireLength(LengthUnits::LengthUnitsEnum lengthUnits) const {
+  double elapsedTime = surfaceInputs_.getElapsedTime(TimeUnits::Minutes);
+  return Surface::getFireLength(lengthUnits, elapsedTime, TimeUnits::Minutes);
+}
+
+double SIGSurface::getMaxFireWidth(LengthUnits::LengthUnitsEnum lengthUnits) const {
+  double elapsedTime = surfaceInputs_.getElapsedTime(TimeUnits::Minutes);
+  return Surface::getMaxFireWidth(lengthUnits, elapsedTime, TimeUnits::Minutes);
+}
+
 double SIGSurface::getFireArea(AreaUnits::AreaUnitsEnum areaUnits) const {
   double elapsedTime = surfaceInputs_.getElapsedTime(TimeUnits::Minutes);
   return Surface::getFireArea(areaUnits, elapsedTime, TimeUnits::Minutes);

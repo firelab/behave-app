@@ -1155,6 +1155,14 @@ const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getEllipticalC_1(SI
   return self->getEllipticalC(lengthUnits);
 }
 
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getFireLength_1(SIGSurface* self, LengthUnits_LengthUnitsEnum lengthUnits) {
+  return self->getFireLength(lengthUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMaxFireWidth_1(SIGSurface* self, LengthUnits_LengthUnitsEnum lengthUnits) {
+  return self->getMaxFireWidth(lengthUnits);
+}
+
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getFireArea_1(SIGSurface* self, AreaUnits_AreaUnitsEnum areaUnits) {
   return self->getFireArea(areaUnits);
 }

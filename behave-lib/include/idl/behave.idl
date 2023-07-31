@@ -616,6 +616,8 @@ interface SIGSurface {
   [Const] double getEllipticalA(LengthUnits_LengthUnitsEnum lengthUnits);
   [Const] double getEllipticalB(LengthUnits_LengthUnitsEnum lengthUnits);
   [Const] double getEllipticalC(LengthUnits_LengthUnitsEnum lengthUnits);
+  [Const] double getFireLength(LengthUnits_LengthUnitsEnum lengthUnits);
+  [Const] double getMaxFireWidth(LengthUnits_LengthUnitsEnum lengthUnits);
   [Const] double getFireArea(AreaUnits_AreaUnitsEnum areaUnits);
   [Const] double getFireEccentricity();
   [Const] double getFireLengthToWidthRatio();

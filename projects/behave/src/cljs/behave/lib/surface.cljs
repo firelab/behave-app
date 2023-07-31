@@ -183,6 +183,12 @@
 (defn getFireEccentricity [self]
   (.getFireEccentricity self))
 
+(defn getFireLength [self lengthUnits]
+  (.getFireLength self lengthUnits))
+
+(defn getMaxFireWidth [self lengthUnits]
+  (.getMaxFireWidth self lengthUnits))
+
 (defn getFireLengthToWidthRatio [self]
   (.getFireLengthToWidthRatio self))
 
