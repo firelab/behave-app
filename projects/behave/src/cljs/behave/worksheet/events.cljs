@@ -441,7 +441,8 @@
                     fire-back-at-report
                     fire-head-at-report
                     fire-back-at-attack
-                    fire-head-at-attack]]
+                    fire-head-at-attack
+                    variables]]
    (when-not (d/q '[:find  ?d .
                     :in    $ ?uuid ?gv-uuid ?row-id
                     :where
@@ -521,7 +522,7 @@
                                                   :arrow/rotation wind-direction
                                                   :arrow/color    "blue"}]
                   :diagrams/variables            (mapv (fn [[v-name value units]]
-                                                         {:diagram-variable/name  v-name
-                                                          :diagram-variable/value value
-                                                          :diagram-variable/units units})
+                                                         (cond->{:diagram-variable/name  v-name
+                                                                 :diagram-variable/value value}
+                                                           units (assoc :diagram-variable/units units)))
                                                        variables)}]})))

@@ -313,6 +313,18 @@ double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getPerimeterAtInit
   return self->getPerimeterAtInitialAttack(lengthUnits);
 }
 
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getReportSize_1(SIGContainAdapter* self, AreaUnits_AreaUnitsEnum areaUnits) {
+  return self->getReportSize(areaUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getReportRate_1(SIGContainAdapter* self, SpeedUnits_SpeedUnitsEnum speedUnits) {
+  return self->getReportRate(speedUnits);
+}
+
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getTactic_0(SIGContainAdapter* self) {
+  return self->getTactic();
+}
+
 int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getFirePerimeterPointCount_0(SIGContainAdapter* self) {
   return self->getFirePerimeterPointCount();
 }
