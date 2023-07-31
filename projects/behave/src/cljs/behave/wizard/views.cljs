@@ -541,50 +541,64 @@
                            :width  250
                            :height 250})])]))))
 
+(defn- construct-summary-table [variables]
+  (when (seq variables)
+    [:table
+     (map (fn [{v-name :diagram-variable/name
+                value  :diagram-variable/value
+                units  :diagram-variable/units}]
+            [:tr
+             [:td (str v-name ":")]
+             [:td (str value " (" units ")")]])
+          variables)]))
+
 (defn- construct-diagram [{row-id        :diagrams/row-id
                            ellipses      :diagrams/ellipses
                            arrows        :diagrams/arrows
                            scatter-plots :diagrams/scatter-plots
-                           title         :diagrams/title}]
+                           title         :diagrams/title
+                           variables     :diagrams/variables}]
   (let [domain (* 2 (max (apply max (map :ellipse/semi-minor-axis ellipses))
                          (apply max (map :ellipse/semi-major-axis ellipses))))]
-    [output-diagram {:title         (str title " for result row: " (inc row-id))
-                     :width         400
-                     :height        400
-                     :x-axis        {:domain        [(* -1 domain) domain]
-                                     :title         "x"
-                                     :tick-min-step 5}
-                     :y-axis        {:domain        [(* -1 domain) domain]
-                                     :title         "y"
-                                     :tick-min-step 5}
-                     :ellipses      (mapv #(rename-keys (into {} %)
-                                                        {:ellipse/id              :id
-                                                         :ellipse/semi-major-axis :a
-                                                         :ellipse/semi-minor-axis :b
-                                                         :ellipse/rotation        :phi
-                                                         :ellipse/color           :color})
-                                          ellipses)
-                     :arrows        (mapv #(rename-keys (into {} %)
-                                                        {:arrow/id       :id
-                                                         :arrow/length   :r
-                                                         :arrow/rotation :theta
-                                                         :arrow/color    :color})
-                                          arrows)
-                     :scatter-plots (mapv #(-> (rename-keys (into {} %)
-                                                            {:scatter-plot/id    :id
-                                                             :scatter-plot/data  :data
-                                                             :scatter-plot/color :color})
-                                               (update :data (fn [data]
-                                                               (concat
-                                                                (mapv (fn [datum]
-                                                                        {"x" (:datum/x datum)
-                                                                         "y" (:datum/y datum)})
-                                                                      data)
-                                                                (mapv (fn [datum]
-                                                                        {"x" (:datum/x datum)
-                                                                         "y" (* -1 (:datum/y datum))})
-                                                                      data)))))
-                                          scatter-plots)}]))
+    [:div
+     [output-diagram {:title         (str title " for result row: " (inc row-id))
+                      :width         400
+                      :height        400
+                      :x-axis        {:domain        [(* -1 domain) domain]
+                                      :title         "x"
+                                      :tick-min-step 5}
+                      :y-axis        {:domain        [(* -1 domain) domain]
+                                      :title         "y"
+                                      :tick-min-step 5}
+                      :ellipses      (mapv #(rename-keys (into {} %)
+                                                         {:ellipse/id              :id
+                                                          :ellipse/semi-major-axis :a
+                                                          :ellipse/semi-minor-axis :b
+                                                          :ellipse/rotation        :phi
+                                                          :ellipse/color           :color})
+                                           ellipses)
+                      :arrows        (mapv #(rename-keys (into {} %)
+                                                         {:arrow/id       :id
+                                                          :arrow/length   :r
+                                                          :arrow/rotation :theta
+                                                          :arrow/color    :color})
+                                           arrows)
+                      :scatter-plots (mapv #(-> (rename-keys (into {} %)
+                                                             {:scatter-plot/id    :id
+                                                              :scatter-plot/data  :data
+                                                              :scatter-plot/color :color})
+                                                (update :data (fn [data]
+                                                                (concat
+                                                                 (mapv (fn [datum]
+                                                                         {"x" (:datum/x datum)
+                                                                          "y" (:datum/y datum)})
+                                                                       data)
+                                                                 (mapv (fn [datum]
+                                                                         {"x" (:datum/x datum)
+                                                                          "y" (* -1 (:datum/y datum))})
+                                                                       data)))))
+                                           scatter-plots)}]
+     (construct-summary-table variables)]))
 
 (defn- wizard-diagrams [ws-uuid]
   (let [*ws (rf/subscribe [:worksheet-entity ws-uuid])]
