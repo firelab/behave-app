@@ -343,6 +343,11 @@
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
 
+   {:db/ident       :diagrams/variables
+    :db/doc         "list of intput and/or output variables from the run to show underneath the diagram"
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many}
+
    ;; Diagram Ellipses
    {:db/ident       :ellipse/id
     :db/doc         "Id used for the legend"
@@ -414,4 +419,21 @@
    {:db/ident       :datum/y
     :db/doc         "The Y coordinate of this datum"
     :db/valueType   :db.type/double
-    :db/cardinality :db.cardinality/one}])
+    :db/cardinality :db.cardinality/one}
+
+   ;;Input or output Variable to show underneath the diagram
+   {:db/ident       :diagram-variable/name
+    :db/doc         "The name of the input or output variable"
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :diagram-variable/value
+    :db/doc         "The value of the input or output variable"
+    :db/valueType   :db.type/double
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :diagram-variable/units
+    :db/doc         "Variable's units."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+   ])
