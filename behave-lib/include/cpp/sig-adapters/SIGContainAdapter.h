@@ -62,6 +62,9 @@ public:
   double getFireBackAtAttack( void ) const;
   double getLengthToWidthRatio ( void ) const;
   double getAttackDistance(LengthUnits::LengthUnitsEnum lengthUnits) const;
+  double getReportSize( AreaUnits::AreaUnitsEnum areaUnits ) const;
+  double getReportRate( SpeedUnits::SpeedUnitsEnum speedUnits ) const;
+  int    getTactic( void ) const;
 };
 
 #endif //CONTAINADAPTER_H

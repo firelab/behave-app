@@ -441,7 +441,8 @@
                     fire-back-at-report
                     fire-head-at-report
                     fire-back-at-attack
-                    fire-head-at-attack]]
+                    fire-head-at-attack
+                    variables]]
    (when-not (d/q '[:find  ?d .
                     :in    $ ?uuid ?gv-uuid ?row-id
                     :where
@@ -489,7 +490,8 @@
                     direction-of-max-spread
                     wind-direction
                     _wind-speed
-                    _elapsed-time]]
+                    _elapsed-time
+                    variables]]
    (let [existing-eid    (d/q '[:find  ?d .
                                 :in    $ ?uuid ?gv-uuid ?row-id
                                 :where
@@ -518,7 +520,12 @@
                                                   ;; arrow points much further out of othe ellipse.
                                                   ;; Discuss if if we should use this or not.
                                                   :arrow/rotation wind-direction
-                                                  :arrow/color    "blue"}]}]})))
+                                                  :arrow/color    "blue"}]
+                  :diagrams/variables            (mapv (fn [[v-name value units]]
+                                                        (cond->{:diagram-variable/name  v-name
+                                                                :diagram-variable/value value}
+                                                          units (assoc :diagram-variable/units units)))
+                                                      variables)}]})))
 (rp/reg-event-fx
  :worksheet/add-wind-slope-spread-direction-diagram
  [(rp/inject-cofx :ds)]
@@ -536,15 +543,16 @@
                     backing-dir
                     backing-spread-rate
                     wind-dir
-                    wind-speed]]
+                    wind-speed
+                    variables]]
    (let [existing-eid (d/q '[:find  ?d .
-                                :in    $ ?uuid ?gv-uuid ?row-id
-                                :where
-                                [?ws :worksheet/uuid               ?uuid]
-                                [?ws :worksheet/diagrams           ?d]
-                                [?d  :diagrams/group-variable-uuid ?gv-uuid]
-                                [?d  :diagrams/row-id              ?row-id]]
-                              ds ws-uuid group-variable-uuid row-id)]
+                             :in    $ ?uuid ?gv-uuid ?row-id
+                             :where
+                             [?ws :worksheet/uuid               ?uuid]
+                             [?ws :worksheet/diagrams           ?d]
+                             [?d  :diagrams/group-variable-uuid ?gv-uuid]
+                             [?d  :diagrams/row-id              ?row-id]]
+                           ds ws-uuid group-variable-uuid row-id)]
      {:transact [(when existing-eid [:db.fn/retractEntity existing-eid])
                  {:worksheet/_diagrams          [:worksheet/uuid ws-uuid]
                   :diagrams/title               title
@@ -580,9 +588,14 @@
                                                     :arrow/length   (if (> wind-speed max-spread-rate)
                                                                       (* l 1.1)
                                                                       l) ;NOTE for visual purposes
-                                                                        ;make wind 10% larger than
-                                                                        ;max spread rate.
-                                                    ;; :arrow/length   wind-speed
+                                                                         ;;make wind 10% larger than
+                                                                         ;;max spread rate.
+                                                                         ;; :arrow/length   wind-speed
                                                     :arrow/rotation wind-dir
                                                     :arrow/color    "blue"
-                                                    :arrow/dashed?  true})]}]})))
+                                                    :arrow/dashed?  true})]
+                  :diagrams/variables (mapv (fn [[v-name value units]]
+                                              (cond->{:diagram-variable/name  v-name
+                                                      :diagram-variable/value value}
+                                                units (assoc :diagram-variable/units units)))
+                                            variables)}]})))

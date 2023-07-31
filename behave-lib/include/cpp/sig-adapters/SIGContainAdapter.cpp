@@ -105,3 +105,20 @@ double SIGContainAdapter::getAttackDistance ( LengthUnits::LengthUnitsEnum lengt
 {
   return ( LengthUnits::toBaseUnits(attackDistance_, lengthUnits));
 }
+
+double SIGContainAdapter::getReportSize( AreaUnits::AreaUnitsEnum areaUnits ) const
+{
+  double reportSizeInSquareFeet = AreaUnits::toBaseUnits(reportSize_, AreaUnits::Acres); // convert report size to base units
+  return ( AreaUnits::fromBaseUnits(reportSizeInSquareFeet, areaUnits));
+}
+
+double SIGContainAdapter::getReportRate( SpeedUnits::SpeedUnitsEnum speedUnits ) const
+{
+  double reportRateInFeetPerMinute = SpeedUnits::toBaseUnits(reportRate_, SpeedUnits::ChainsPerHour); // convert report rate to base units
+  return ( SpeedUnits::fromBaseUnits(reportRateInFeetPerMinute, speedUnits));
+}
+
+int SIGContainAdapter::getTactic( void ) const
+{
+  return ( tactic_ );
+}

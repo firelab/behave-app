@@ -313,6 +313,18 @@ double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getPerimeterAtInit
   return self->getPerimeterAtInitialAttack(lengthUnits);
 }
 
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getReportSize_1(SIGContainAdapter* self, AreaUnits_AreaUnitsEnum areaUnits) {
+  return self->getReportSize(areaUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getReportRate_1(SIGContainAdapter* self, SpeedUnits_SpeedUnitsEnum speedUnits) {
+  return self->getReportRate(speedUnits);
+}
+
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getTactic_0(SIGContainAdapter* self) {
+  return self->getTactic();
+}
+
 int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getFirePerimeterPointCount_0(SIGContainAdapter* self) {
   return self->getFirePerimeterPointCount();
 }
@@ -1153,6 +1165,14 @@ const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getEllipticalB_1(SI
 
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getEllipticalC_1(SIGSurface* self, LengthUnits_LengthUnitsEnum lengthUnits) {
   return self->getEllipticalC(lengthUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getFireLength_1(SIGSurface* self, LengthUnits_LengthUnitsEnum lengthUnits) {
+  return self->getFireLength(lengthUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMaxFireWidth_1(SIGSurface* self, LengthUnits_LengthUnitsEnum lengthUnits) {
+  return self->getMaxFireWidth(lengthUnits);
 }
 
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getFireArea_1(SIGSurface* self, AreaUnits_AreaUnitsEnum areaUnits) {

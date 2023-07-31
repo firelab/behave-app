@@ -541,15 +541,30 @@
                            :width  250
                            :height 250})])]))))
 
+(defn- construct-summary-table [variables]
+  (when (seq variables)
+    [:table
+     (map (fn [{v-name :diagram-variable/name
+                value  :diagram-variable/value
+                units  :diagram-variable/units}]
+            [:tr
+             [:td (str v-name ":")]
+             [:td (if units
+                    (str value " (" units ")")
+                    value)]])
+          variables)]))
+
 (defn- construct-diagram [{row-id        :diagrams/row-id
                            ellipses      :diagrams/ellipses
                            arrows        :diagrams/arrows
                            scatter-plots :diagrams/scatter-plots
+                           variables     :diagrams/variables
                            title         :diagrams/title}]
   (let [domain (apply max (concat (map #(* 2 (:ellipse/semi-minor-axis %)) ellipses)
                                   (map #(* 2 (:ellipse/semi-major-axis %)) ellipses)
                                   (map :arrow/length arrows)))]
-    [output-diagram {:title         (str title " for result row: " (inc row-id))
+    [:div
+     [output-diagram {:title         (str title " for result row: " (inc row-id))
                      :width         500
                      :height        500
                      :x-axis        {:domain        [(* -1 domain) domain]
@@ -586,7 +601,8 @@
                                                                         {"x" (:datum/x datum)
                                                                          "y" (* -1 (:datum/y datum))})
                                                                       data)))))
-                                          scatter-plots)}]))
+                                          scatter-plots)}]
+     (construct-summary-table variables)]))
 
 (defn- wizard-diagrams [ws-uuid]
   (let [*ws (rf/subscribe [:worksheet-entity ws-uuid])]

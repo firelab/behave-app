@@ -227,6 +227,9 @@ interface SIGContainAdapter {
   double getLengthToWidthRatio();
   double getPerimeterAtContainment(LengthUnits_LengthUnitsEnum lengthUnits);
   double getPerimeterAtInitialAttack(LengthUnits_LengthUnitsEnum lengthUnits);
+  double getReportSize(AreaUnits_AreaUnitsEnum areaUnits);
+  double getReportRate(SpeedUnits_SpeedUnitsEnum speedUnits);
+  long getTactic();
   long getFirePerimeterPointCount();
   long removeAllResourcesWithThisDesc([Const] DOMString desc);
   long removeResourceAt(long index);
@@ -616,6 +619,8 @@ interface SIGSurface {
   [Const] double getEllipticalA(LengthUnits_LengthUnitsEnum lengthUnits);
   [Const] double getEllipticalB(LengthUnits_LengthUnitsEnum lengthUnits);
   [Const] double getEllipticalC(LengthUnits_LengthUnitsEnum lengthUnits);
+  [Const] double getFireLength(LengthUnits_LengthUnitsEnum lengthUnits);
+  [Const] double getMaxFireWidth(LengthUnits_LengthUnitsEnum lengthUnits);
   [Const] double getFireArea(AreaUnits_AreaUnitsEnum areaUnits);
   [Const] double getFireEccentricity();
   [Const] double getFireLengthToWidthRatio();
