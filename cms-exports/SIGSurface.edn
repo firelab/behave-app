@@ -507,6 +507,11 @@
    {:type "MoistureInputMode::MoistureInputModeEnum",
     :id "getMoistureInputMode",
     :parameters []},
+   :getFireLength
+   {:type "double",
+    :id "getFireLength",
+    :parameters
+    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
    :setMoistureScenarios
    {:type "void",
     :id "setMoistureScenarios",
@@ -1012,6 +1017,11 @@
    {:type "bool",
     :id "getIsMoistureScenarioDefinedByIndex",
     :parameters [{:id "index", :type "int"}]},
+   :getMaxFireWidth
+   {:type "double",
+    :id "getMaxFireWidth",
+    :parameters
+    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
    :getFireLengthToWidthRatio
    {:type "double", :id "getFireLengthToWidthRatio", :parameters []},
    :setFirstFuelModelNumber
