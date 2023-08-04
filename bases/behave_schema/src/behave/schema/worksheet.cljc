@@ -314,7 +314,7 @@
 
    ;; Diagrams
    {:db/ident       :diagrams/group-variable-uuid
-    :db/doc         "Diagram's reference to Variable's UUID."
+    :db/doc         "Diagram's reference to it's output group variable's UUID."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
@@ -419,21 +419,4 @@
    {:db/ident       :datum/y
     :db/doc         "The Y coordinate of this datum"
     :db/valueType   :db.type/double
-    :db/cardinality :db.cardinality/one}
-
-   ;;Input or output Variable to show underneath the diagram
-   {:db/ident       :diagram-variable/name
-    :db/doc         "The name of the input or output variable"
-    :db/valueType   :db.type/string
-    :db/cardinality :db.cardinality/one}
-
-   {:db/ident       :diagram-variable/value
-    :db/doc         "The value of the input or output variable"
-    :db/valueType   :db.type/double
-    :db/cardinality :db.cardinality/one}
-
-   {:db/ident       :diagram-variable/units
-    :db/doc         "Variable's units."
-    :db/valueType   :db.type/string
-    :db/cardinality :db.cardinality/one}
-   ])
+    :db/cardinality :db.cardinality/one}])
