@@ -556,8 +556,8 @@
                                                   :arrow/color    "red"}
 
                                                  {:arrow/id       "Interest"
-                                                  :arrow/length   interest-dir
-                                                  :arrow/rotation interest-spread-rate
+                                                  :arrow/length   interest-spread-rate
+                                                  :arrow/rotation interest-dir
                                                   :arrow/color    "black"}
 
                                                  {:arrow/id       "Flanking1"
