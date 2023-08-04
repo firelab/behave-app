@@ -210,13 +210,7 @@
                 (surface/getWindSpeed module
                                       (enums/speed-units "ChainsPerHour")
                                       (surface/getWindHeightInputMode module))
-                (surface/getElapsedTime module (enums/time-units "Hours"))
-                [["Surface Fire Area" (surface/getFireArea module (enums/area-units "Acres")) "ac"]
-                 ["Surface Fire Perimeter" (surface/getFirePerimeter module (enums/length-units "Chains")) "ch"]
-                 ["Surface Fire Length" (surface/getFireLength module (enums/length-units "Chains")) "ch"]
-                 ["Surface Fire Maximum Width" (surface/getMaxFireWidth module (enums/length-units "Chains")) "ch"]
-                 ["Elapsed Time" (surface/getElapsedTime module (enums/time-units "Hours")) "h"]
-                 ["Surface Fire Dir of Max Spread" (surface/getDirectionOfMaxSpread module) "deg"]]]))
+                (surface/getElapsedTime module (enums/time-units "Hours"))]))
 
 (defn run-module [{:keys [inputs all-outputs outputs row-id] :as row}
                   {:keys [init-fn
