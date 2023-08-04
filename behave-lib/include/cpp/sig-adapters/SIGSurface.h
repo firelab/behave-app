@@ -91,6 +91,7 @@ public:
   double getSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits) const;
   double getSpreadDistanceInDirectionOfInterest(LengthUnits::LengthUnitsEnum lengthUnits) const;
   double getSpreadRate(SpeedUnits::SpeedUnitsEnum spreadRateUnits) const;
+  double getHeadingSpreadRate(SpeedUnits::SpeedUnitsEnum spreadRateUnits) const;
 
   // MoistureScenario Getter Methods
   char* getMoistureScenarioDescriptionByName(const char* name);

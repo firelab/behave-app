@@ -252,6 +252,9 @@
 (defn getFuelbedDepth [self fuelModelNumber lengthUnits]
   (.getFuelbedDepth self fuelModelNumber lengthUnits))
 
+(defn getHeadingSpreadRate [self spreadRateUnits]
+  (.getHeadingSpreadRate self spreadRateUnits))
+
 (defn getHeadingToBackingRatio [self]
   (.getHeadingToBackingRatio self))
 

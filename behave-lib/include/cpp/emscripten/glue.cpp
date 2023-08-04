@@ -1263,6 +1263,10 @@ const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getFuelbedDepth_2(S
   return self->getFuelbedDepth(fuelModelNumber, lengthUnits);
 }
 
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getHeadingSpreadRate_1(SIGSurface* self, SpeedUnits_SpeedUnitsEnum spreadRateUnits) {
+  return self->getHeadingSpreadRate(spreadRateUnits);
+}
+
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getHeadingToBackingRatio_0(SIGSurface* self) {
   return self->getHeadingToBackingRatio();
 }

@@ -5255,6 +5255,8 @@ var _emscripten_bind_SIGSurface_getFuelSavrOneHour_2 = Module["_emscripten_bind_
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getFuelbedDepth_2 = Module["_emscripten_bind_SIGSurface_getFuelbedDepth_2"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelbedDepth_2");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getHeadingSpreadRate_1 = Module["_emscripten_bind_SIGSurface_getHeadingSpreadRate_1"] = createExportWrapper("emscripten_bind_SIGSurface_getHeadingSpreadRate_1");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getHeadingToBackingRatio_0 = Module["_emscripten_bind_SIGSurface_getHeadingToBackingRatio_0"] = createExportWrapper("emscripten_bind_SIGSurface_getHeadingToBackingRatio_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getHeatPerUnitArea_1 = Module["_emscripten_bind_SIGSurface_getHeatPerUnitArea_1"] = createExportWrapper("emscripten_bind_SIGSurface_getHeatPerUnitArea_1");
@@ -9222,6 +9224,12 @@ SIGSurface.prototype['getFuelbedDepth'] = SIGSurface.prototype.getFuelbedDepth =
   if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
   if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
   return _emscripten_bind_SIGSurface_getFuelbedDepth_2(self, fuelModelNumber, lengthUnits);
+};;
+
+SIGSurface.prototype['getHeadingSpreadRate'] = SIGSurface.prototype.getHeadingSpreadRate = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spreadRateUnits) {
+  var self = this.ptr;
+  if (spreadRateUnits && typeof spreadRateUnits === 'object') spreadRateUnits = spreadRateUnits.ptr;
+  return _emscripten_bind_SIGSurface_getHeadingSpreadRate_1(self, spreadRateUnits);
 };;
 
 SIGSurface.prototype['getHeadingToBackingRatio'] = SIGSurface.prototype.getHeadingToBackingRatio = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
