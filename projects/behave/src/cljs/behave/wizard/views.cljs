@@ -21,7 +21,8 @@
             [re-frame.core                        :refer [dispatch subscribe]]
             [string-utils.interface               :refer [->kebab]]
             [reagent.core                         :as r]
-            [re-frame.core :as rf]))
+            [re-frame.core :as rf]
+            [behave.logger         :refer [log]]))
 
 ;;; Components
 
@@ -541,25 +542,40 @@
                            :width  250
                            :height 250})])]))))
 
-(defn- construct-summary-table [variables]
-  (when (seq variables)
-    [:table
-     (map (fn [{v-name :diagram-variable/name
-                value  :diagram-variable/value
-                units  :diagram-variable/units}]
-            [:tr
-             [:td (str v-name ":")]
-             [:td (if units
-                    (str value " (" units ")")
-                    value)]])
-          variables)]))
+(defn- construct-summary-table [ws-uuid row-id]
+  (let [outputs (doall (map (fn [[gv-uuid & remain]]
+                              (conj remain @(rf/subscribe [:wizard/gv-uuid->variable-name gv-uuid])))
+                            @(rf/subscribe [:worksheet/output-gv-uuid+value+units ws-uuid row-id])))
+        inputs  (doall (map (fn [[gv-uuid & remain]]
+                              (conj remain @(rf/subscribe [:wizard/gv-uuid->variable-name gv-uuid])))
+                            @(rf/subscribe [:worksheet/input-gv-uuid+value+units ws-uuid row-id])))]
+    [:div
+     [:table.diagram__table
+      (map (fn [[variable-name value units]]
+             [:tr
+              [:td (str variable-name ":")]
+              [:td (if (seq units)
+                     (str value " (" units ")")
+                     value)]])
+           inputs)]
+     [:table.diagram__table
+      (map (fn [[variable-name value units]]
+             [:tr
+              [:td (str variable-name ":")]
+              [:td (if (seq units)
+                     (str value " (" units ")")
+                     value)]])
+           outputs)]]))
 
-(defn- construct-diagram [{row-id        :diagrams/row-id
+(def ws-atom (atom nil))
+
+(defn- construct-diagram [ws-uuid
+                          {row-id        :diagrams/row-id
                            ellipses      :diagrams/ellipses
                            arrows        :diagrams/arrows
                            scatter-plots :diagrams/scatter-plots
-                           title         :diagrams/title
-                           variables     :diagrams/variables}]
+                           title         :diagrams/title}]
+
   (let [domain (* 2 (max (apply max (map :ellipse/semi-minor-axis ellipses))
                          (apply max (map :ellipse/semi-major-axis ellipses))))]
     [:div
@@ -600,14 +616,14 @@
                                                                           "y" (* -1 (:datum/y datum))})
                                                                        data)))))
                                            scatter-plots)}]
-     (construct-summary-table variables)]))
+     (construct-summary-table ws-uuid row-id)]))
 
 (defn- wizard-diagrams [ws-uuid]
   (let [*ws (rf/subscribe [:worksheet-entity ws-uuid])]
     (when (seq (:worksheet/diagrams @*ws))
      [:div.wizard-results__diagrams {:id "diagram"}
       [:div.wizard-notes__header "Diagram"]
-      (map #(construct-diagram %) (:worksheet/diagrams @*ws))])))
+      (map #(construct-diagram ws-uuid % ) (:worksheet/diagrams @*ws))])))
 
 ;; Wizard Results
 (defn wizard-results-page [{:keys [route-handler io ws-uuid] :as params}]
