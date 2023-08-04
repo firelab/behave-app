@@ -164,6 +164,17 @@
             all-input-values))))
 
 (reg-sub
+ :wizard/gv-uuid->variable-name
+ (fn [_ [_ gv-uuid]]
+   @(subscribe [:vms/query '[:find ?name .
+                             :in    $ ?gv-uuid
+                             :where
+                             [?gv :bp/uuid ?gv-uuid]
+                             [?v :variable/group-variables ?gv]
+                             [?v :variable/name ?name]]
+                gv-uuid])))
+
+(reg-sub
  :wizard/group-variable
  (fn [[_ gv-uuid]]
    (subscribe [:vms/pull '[* {:variable/_group-variables [:variable/name]}] [:bp/uuid gv-uuid]]))

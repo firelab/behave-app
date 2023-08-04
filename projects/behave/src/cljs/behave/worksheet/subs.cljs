@@ -461,3 +461,52 @@
          (first $)
          (:submodule/name $)
          (->kebab $))))))
+
+(rp/reg-sub
+ :worksheet/input-gv-uuid+value+units
+ (fn [_ [_ ws-uuid row-id]]
+   {:type      :query
+    :query     '[:find  ?gv-uuid ?value ?units
+                 :in $ ?ws-uuid ?row-id
+                 :where
+                 [?ws :worksheet/uuid ?ws-uuid]
+                 [?ws :worksheet/input-groups ?ig]
+                 [?ws :worksheet/result-table ?t]
+                 [?t  :result-table/rows ?rr]
+                 [?rr :result-row/id ?row-id]
+                 [?rr :result-row/cells ?c]
+
+                 ;; Filter only input variables
+                 [?ig :input-group/inputs ?i]
+                 [?i  :input/group-variable-uuid ?gv-uuid]
+
+                 ;; Get  gv-uuid, value and units
+                 [?rh :result-header/group-variable-uuid ?gv-uuid]
+                 [?rh :result-header/units ?units]
+                 [?c  :result-cell/header ?rh]
+                 [?c  :result-cell/value ?value]]
+    :variables [ws-uuid row-id]}))
+
+(rp/reg-sub
+ :worksheet/output-gv-uuid+value+units
+ (fn [_ [_ ws-uuid row-id]]
+   {:type      :query
+    :query     '[:find  ?gv-uuid ?value ?units
+                 :in $ ?ws-uuid ?row-id
+                 :where
+                 [?ws :worksheet/uuid ?ws-uuid]
+                 [?ws :worksheet/outputs ?o]
+                 [?ws :worksheet/result-table ?t]
+                 [?t  :result-table/rows ?rr]
+                 [?rr :result-row/id ?row-id]
+                 [?rr :result-row/cells ?c]
+
+                 ;; Filter only output variables
+                 [?o  :output/group-variable-uuid  ?gv-uuid]
+
+                 ;; Get  gv-uuid, value and units
+                 [?rh :result-header/group-variable-uuid ?gv-uuid]
+                 [?rh :result-header/units ?units]
+                 [?c  :result-cell/header ?rh]
+                 [?c  :result-cell/value ?value]]
+    :variables [ws-uuid row-id]}))
