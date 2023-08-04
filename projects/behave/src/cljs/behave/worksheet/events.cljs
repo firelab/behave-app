@@ -441,8 +441,7 @@
                     fire-back-at-report
                     fire-head-at-report
                     fire-back-at-attack
-                    fire-head-at-attack
-                    variables]]
+                    fire-head-at-attack]]
    (when-not (d/q '[:find  ?d .
                     :in    $ ?uuid ?gv-uuid ?row-id
                     :where
@@ -475,12 +474,7 @@
                                                                              {:datum/x x
                                                                               :datum/y y})
                                                                            fire-perimeter-points-X
-                                                                           fire-perimeter-points-Y)}]
-                  :diagrams/variables           (mapv (fn [[v-name value units]]
-                                                        (cond->{:diagram-variable/name  v-name
-                                                                :diagram-variable/value value}
-                                                          units (assoc :diagram-variable/units units)))
-                                                      variables)}]})))
+                                                                           fire-perimeter-points-Y)}]}]})))
 
 (rp/reg-event-fx
  :worksheet/add-surface-fire-shape-diagram
@@ -495,8 +489,7 @@
                     direction-of-max-spread
                     wind-direction
                     _wind-speed
-                    _elapsed-time
-                    variables]]
+                    _elapsed-time]]
    (let [existing-eid    (d/q '[:find  ?d .
                                 :in    $ ?uuid ?gv-uuid ?row-id
                                 :where
@@ -525,12 +518,7 @@
                                                   ;; arrow points much further out of othe ellipse.
                                                   ;; Discuss if if we should use this or not.
                                                   :arrow/rotation wind-direction
-                                                  :arrow/color    "blue"}]
-                  :diagrams/variables            (mapv (fn [[v-name value units]]
-                                                        (cond->{:diagram-variable/name  v-name
-                                                                :diagram-variable/value value}
-                                                          units (assoc :diagram-variable/units units)))
-                                                      variables)}]})))
+                                                  :arrow/color    "blue"}]}]})))
 (rp/reg-event-fx
  :worksheet/add-wind-slope-spread-direction-diagram
  [(rp/inject-cofx :ds)]
@@ -548,8 +536,7 @@
                     backing-dir
                     backing-spread-rate
                     wind-dir
-                    wind-speed
-                    variables]]
+                    wind-speed]]
    (let [existing-eid (d/q '[:find  ?d .
                              :in    $ ?uuid ?gv-uuid ?row-id
                              :where
@@ -599,9 +586,4 @@
                                                                       l)
                                                     :arrow/rotation wind-dir
                                                     :arrow/color    "blue"
-                                                    :arrow/dashed?  true})]
-                  :diagrams/variables (mapv (fn [[v-name value units]]
-                                              (cond->{:diagram-variable/name  v-name
-                                                      :diagram-variable/value value}
-                                                units (assoc :diagram-variable/units units)))
-                                            variables)}]})))
+                                                    :arrow/dashed?  true})]}]})))

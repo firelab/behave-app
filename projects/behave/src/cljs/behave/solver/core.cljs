@@ -195,14 +195,7 @@
                   (contain/getFireBackAtReport module)
                   (contain/getFireHeadAtReport module)
                   (contain/getFireBackAtAttack module)
-                  (contain/getFireHeadAtAttack module)
-                  [["Surface Fire Rate of Spread" (contain/getReportRate module (enums/speed-units "ChainsPerHour")) "ch/hr"]
-                   ["Fire Size at Report" (contain/getReportSize module (enums/area-units "Acres")) "ac"]
-                   ["Length-toWidth Ratio" (contain/getLengthToWidthRatio module)]
-                   ["Suppression Tactic" (contain/getTactic module)]
-                   ["Line Construction Offset" (contain/getAttackDistance module (enums/length-units "Chains")) "ch"]
-                   ["Fire line Constructed" (contain/getFinalFireLineLength module (enums/length-units "Chains")) "ch"]
-]])))
+                  (contain/getFireHeadAtAttack module)])))
 
 (defn- store-fire-shape-diagram! [ws-uuid row-id gv-uuid module]
   (rf/dispatch [:worksheet/add-surface-fire-shape-diagram
