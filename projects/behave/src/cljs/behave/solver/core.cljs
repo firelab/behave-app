@@ -219,20 +219,15 @@
                 gv-uuid
                 row-id
                 (surface/getDirectionOfMaxSpread module)
-                (surface/getSpreadRate  module (enums/speed-units "ChainsPerHour"))
+                (surface/getHeadingSpreadRate module (enums/speed-units "ChainsPerHour"))
                 (surface/getDirectionOfInterest module)
-                (surface/getSpreadRateInDirectionOfInterest
-                 module
-                 (enums/speed-units "ChainsPerHour"))
+                (surface/getSpreadRateInDirectionOfInterest module (enums/speed-units "ChainsPerHour"))
                 (surface/getDirectionOfFlanking module)
-                (surface/getFlankingSpreadRate module
-                                               (enums/speed-units "ChainsPerHour"))
+                (surface/getFlankingSpreadRate module (enums/speed-units "ChainsPerHour"))
                 (surface/getDirectionOfBacking module)
-                (surface/getBackingSpreadRate module
-                                              (enums/speed-units "ChainsPerHour"))
+                (surface/getBackingSpreadRate module (enums/speed-units "ChainsPerHour"))
                 (surface/getWindDirection module)
-                (surface/getWindSpeed module
-                                      (enums/speed-units "ChainsPerHour")
+                (surface/getWindSpeed module (enums/speed-units "ChainsPerHour")
                                       (surface/getWindHeightInputMode module))]))
 
 (defn run-module [{:keys [inputs all-outputs outputs row-id] :as row}
