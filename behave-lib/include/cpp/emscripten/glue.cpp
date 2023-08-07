@@ -895,6 +895,10 @@ WindUpslopeAlignmentMode EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getWind
   return self->getWindUpslopeAlignmentMode();
 }
 
+SurfaceRunInDirectionOf EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getSurfaceRunInDirectionOf_0(SIGSurface* self) {
+  return self->getSurfaceRunInDirectionOf();
+}
+
 bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByIndex_1(SIGSurface* self, int index) {
   return self->getIsMoistureScenarioDefinedByIndex(index);
 }

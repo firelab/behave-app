@@ -531,6 +531,7 @@
                     row-id
                     max-spread-dir
                     max-spread-rate
+                    has-direction-of-interest?
                     interest-dir
                     interest-spread-rate
                     flanking-dir
@@ -552,40 +553,41 @@
                   :diagrams/title               title
                   :diagrams/group-variable-uuid group-variable-uuid
                   :diagrams/row-id              row-id
-                  :diagrams/arrows              [{:arrow/id       "MaxSpread"
-                                                  :arrow/length   max-spread-rate
-                                                  :arrow/rotation max-spread-dir
-                                                  :arrow/color    "red"}
+                  :diagrams/arrows              (cond-> [{:arrow/id       "MaxSpread"
+                                                          :arrow/length   max-spread-rate
+                                                          :arrow/rotation max-spread-dir
+                                                          :arrow/color    "red"}
 
-                                                 {:arrow/id       "Interest"
-                                                  :arrow/length   interest-spread-rate
-                                                  :arrow/rotation interest-dir
-                                                  :arrow/color    "black"}
+                                                         {:arrow/id       "Flanking1"
+                                                          :arrow/length   flanking-spread-rate
+                                                          :arrow/rotation flanking-dir
+                                                          :arrow/color    "#81c3cb"}
 
-                                                 {:arrow/id       "Flanking1"
-                                                  :arrow/length   flanking-spread-rate
-                                                  :arrow/rotation flanking-dir
-                                                  :arrow/color    "#81c3cb"}
+                                                         {:arrow/id       "Flanking2"
+                                                          :arrow/length   flanking-spread-rate
+                                                          :arrow/rotation (mod (+ flanking-dir 180) 360)
+                                                          :arrow/color    "#347da0"}
 
-                                                 {:arrow/id       "Flanking2"
-                                                  :arrow/length   flanking-spread-rate
-                                                  :arrow/rotation (mod (+ flanking-dir 180) 360)
-                                                  :arrow/color    "#347da0"}
+                                                         {:arrow/id       "Backing"
+                                                          :arrow/length   backing-spread-rate
+                                                          :arrow/rotation backing-dir
+                                                          :arrow/color    "orange"}
 
-                                                 {:arrow/id       "Backing"
-                                                  :arrow/length   backing-spread-rate
-                                                  :arrow/rotation backing-dir
-                                                  :arrow/color    "orange"}
+                                                         (let [l (min max-spread-rate wind-speed)]
+                                                           {:arrow/id       "Wind"
+                                                            ;;NOTE for visual purposes
+                                                            ;;make wind 10% larger than
+                                                            ;;max spread rate.
+                                                            ;; :arrow/length   wind-speed
+                                                            :arrow/length   (if (> wind-speed max-spread-rate)
+                                                                              (* l 1.1)
+                                                                              l)
+                                                            :arrow/rotation wind-dir
+                                                            :arrow/color    "blue"
+                                                            :arrow/dashed?  true})]
 
-                                                 (let [l (min max-spread-rate wind-speed)]
-                                                   {:arrow/id       "Wind"
-                                                    ;;NOTE for visual purposes
-                                                    ;;make wind 10% larger than
-                                                    ;;max spread rate.
-                                                    ;; :arrow/length   wind-speed
-                                                    :arrow/length   (if (> wind-speed max-spread-rate)
-                                                                      (* l 1.1)
-                                                                      l)
-                                                    :arrow/rotation wind-dir
-                                                    :arrow/color    "blue"
-                                                    :arrow/dashed?  true})]}]})))
+                                                  has-direction-of-interest?
+                                                  (conj {:arrow/id       "Interest"
+                                                         :arrow/length   interest-spread-rate
+                                                         :arrow/rotation interest-dir
+                                                         :arrow/color    "black"}))}]})))

@@ -229,6 +229,7 @@
                   row-id
                   (surface/getDirectionOfMaxSpread module)
                   (surface/getHeadingSpreadRate module (enums/speed-units "ChainsPerHour"))
+                  (= (surface/getSurfaceRunInDirectionOf module) (enums/surface-run-in-direction-of "DirectionOfInterest"))
                   (surface/getDirectionOfInterest module)
                   (surface/getSpreadRateInDirectionOfInterest module (enums/speed-units "ChainsPerHour"))
                   (surface/getDirectionOfFlanking module)

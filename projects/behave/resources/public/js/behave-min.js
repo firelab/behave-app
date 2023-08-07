@@ -5071,6 +5071,8 @@ var _emscripten_bind_SIGSurface_getWindHeightInputMode_0 = Module["_emscripten_b
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getWindUpslopeAlignmentMode_0 = Module["_emscripten_bind_SIGSurface_getWindUpslopeAlignmentMode_0"] = createExportWrapper("emscripten_bind_SIGSurface_getWindUpslopeAlignmentMode_0");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getSurfaceRunInDirectionOf_0 = Module["_emscripten_bind_SIGSurface_getSurfaceRunInDirectionOf_0"] = createExportWrapper("emscripten_bind_SIGSurface_getSurfaceRunInDirectionOf_0");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByIndex_1 = Module["_emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByIndex_1"] = createExportWrapper("emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByIndex_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByName_1 = Module["_emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByName_1"] = createExportWrapper("emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByName_1");
@@ -8663,6 +8665,11 @@ SIGSurface.prototype['getWindHeightInputMode'] = SIGSurface.prototype.getWindHei
 SIGSurface.prototype['getWindUpslopeAlignmentMode'] = SIGSurface.prototype.getWindUpslopeAlignmentMode = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   return _emscripten_bind_SIGSurface_getWindUpslopeAlignmentMode_0(self);
+};;
+
+SIGSurface.prototype['getSurfaceRunInDirectionOf'] = SIGSurface.prototype.getSurfaceRunInDirectionOf = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGSurface_getSurfaceRunInDirectionOf_0(self);
 };;
 
 SIGSurface.prototype['getIsMoistureScenarioDefinedByIndex'] = SIGSurface.prototype.getIsMoistureScenarioDefinedByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {

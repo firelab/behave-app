@@ -551,6 +551,7 @@ interface SIGSurface {
   WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum getWindAndSpreadOrientationMode();
   WindHeightInputMode_WindHeightInputModeEnum getWindHeightInputMode();
   WindUpslopeAlignmentMode getWindUpslopeAlignmentMode();
+  SurfaceRunInDirectionOf getSurfaceRunInDirectionOf();
   boolean getIsMoistureScenarioDefinedByIndex(long index);
   boolean getIsMoistureScenarioDefinedByName([Const] DOMString name);
   boolean getIsUsingChaparral();
