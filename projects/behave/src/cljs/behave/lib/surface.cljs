@@ -438,6 +438,9 @@
 (defn getSurfaceFireReactionIntensityLive [self]
   (.getSurfaceFireReactionIntensityLive self))
 
+(defn getSurfaceRunInDirectionOf [self]
+  (.getSurfaceRunInDirectionOf self))
+
 (defn getWindAdjustmentFactor [self]
   (.getWindAdjustmentFactor self))
 

@@ -200,6 +200,10 @@ double SIGSurface::getHeadingSpreadRate(SpeedUnits::SpeedUnitsEnum spreadRateUni
   return Surface::getSpreadRate(spreadRateUnits);
 }
 
+SurfaceRunInDirectionOf SIGSurface::getSurfaceRunInDirectionOf() const {
+  return surfaceRunInDirectionOf_;
+}
+
 double SIGSurface::getSpreadDistanceInDirectionOfInterest(LengthUnits::LengthUnitsEnum lengthUnits) const {
   double elapsedTime = surfaceInputs_.getElapsedTime(TimeUnits::Minutes);
   return Surface::getSpreadDistanceInDirectionOfInterest(lengthUnits, elapsedTime, TimeUnits::Minutes);

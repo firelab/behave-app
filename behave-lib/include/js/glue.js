@@ -1597,6 +1597,11 @@ SIGSurface.prototype['getWindUpslopeAlignmentMode'] = SIGSurface.prototype.getWi
   return _emscripten_bind_SIGSurface_getWindUpslopeAlignmentMode_0(self);
 };;
 
+SIGSurface.prototype['getSurfaceRunInDirectionOf'] = SIGSurface.prototype.getSurfaceRunInDirectionOf = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGSurface_getSurfaceRunInDirectionOf_0(self);
+};;
+
 SIGSurface.prototype['getIsMoistureScenarioDefinedByIndex'] = SIGSurface.prototype.getIsMoistureScenarioDefinedByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
   var self = this.ptr;
   if (index && typeof index === 'object') index = index.ptr;
