@@ -1,6 +1,7 @@
 (ns behave.schema.core
   (:require [behave.schema.application     :as application]
             [behave.schema.conditionals    :as conditionals]
+            [behave.schema.diagrams        :as diagrams]
             [behave.schema.group           :as group]
             [behave.schema.group-variable  :as group-variable]
             [behave.schema.help-page       :as help-page]
@@ -30,6 +31,7 @@
 (def all-schemas (apply concat [uuid-schema
                                 application/schema
                                 conditionals/schema
+                                diagrams/schema
                                 group/schema
                                 group-variable/schema
                                 help-page/schema

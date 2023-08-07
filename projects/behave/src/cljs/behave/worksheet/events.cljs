@@ -442,15 +442,16 @@
                     fire-head-at-report
                     fire-back-at-attack
                     fire-head-at-attack]]
-   (when-not (d/q '[:find  ?d .
-                    :in    $ ?uuid ?gv-uuid ?row-id
-                    :where
-                    [?ws :worksheet/uuid               ?uuid]
-                    [?ws :worksheet/diagrams           ?d]
-                    [?d  :diagrams/group-variable-uuid ?gv-uuid]
-                    [?d  :diagrams/row-id              ?row-id]]
-                  ds ws-uuid group-variable-uuid row-id)
-     {:transact [{:worksheet/_diagrams          [:worksheet/uuid ws-uuid]
+   (let [existing-eid (d/q '[:find  ?d .
+                             :in    $ ?uuid ?gv-uuid ?row-id
+                             :where
+                             [?ws :worksheet/uuid               ?uuid]
+                             [?ws :worksheet/diagrams           ?d]
+                             [?d  :diagrams/group-variable-uuid ?gv-uuid]
+                             [?d  :diagrams/row-id              ?row-id]]
+                           ds ws-uuid group-variable-uuid row-id)]
+     {:transact [(when existing-eid [:db.fn/retractEntity existing-eid])
+                 {:worksheet/_diagrams          [:worksheet/uuid ws-uuid]
                   :diagrams/title               title
                   :diagrams/group-variable-uuid group-variable-uuid
                   :diagrams/row-id              row-id
@@ -490,6 +491,7 @@
                     wind-direction
                     _wind-speed
                     _elapsed-time]]
+   (log "503:")
    (let [existing-eid    (d/q '[:find  ?d .
                                 :in    $ ?uuid ?gv-uuid ?row-id
                                 :where

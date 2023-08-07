@@ -11,7 +11,8 @@
             [behave.logger         :refer [log]]
             [clojure.string        :as str]
             [clojure.set           :as set]
-            [re-frame.core         :as rf]))
+            [re-frame.core         :as rf]
+            [datascript.core :as d]))
 
 ;;; Helpers
 
@@ -181,8 +182,12 @@
      inputs
      destination-links)))
 
-(defn- store-contain-diagram! [ws-uuid row-id gv-uuid module]
-  (let [x-points (contain/getFirePerimeterX module)
+(defmulti store-diagram! (fn [{:keys [diagram]}] (:diagram/type diagram)))
+
+(defmethod store-diagram! :contain
+  [{:keys [ws-uuid row-id diagram module]}]
+  (let [gv-uuid  (get-in diagram [:diagram/group-variable :bp/uuid])
+        x-points (contain/getFirePerimeterX module)
         y-points (contain/getFirePerimeterY module)]
     (rf/dispatch [:worksheet/add-contain-diagram
                   ws-uuid
@@ -197,38 +202,54 @@
                   (contain/getFireBackAtAttack module)
                   (contain/getFireHeadAtAttack module)])))
 
-(defn- store-fire-shape-diagram! [ws-uuid row-id gv-uuid module]
-  (rf/dispatch [:worksheet/add-surface-fire-shape-diagram
-                ws-uuid
-                "Fire Shape"
-                gv-uuid
-                row-id
-                (surface/getEllipticalA module (enums/length-units "Chains"))
-                (surface/getEllipticalB module (enums/length-units "Chains"))
-                (surface/getDirectionOfMaxSpread module)
-                (surface/getWindDirection module)
-                (surface/getWindSpeed module
-                                      (enums/speed-units "ChainsPerHour")
-                                      (surface/getWindHeightInputMode module))
-                (surface/getElapsedTime module (enums/time-units "Hours"))]))
+(defmethod store-diagram! :fire-shape
+  [{:keys [ws-uuid row-id diagram module]}]
+  (let [gv-uuid (get-in diagram [:diagram/group-variable :bp/uuid])]
+    (rf/dispatch [:worksheet/add-surface-fire-shape-diagram
+                  ws-uuid
+                  "Fire Shape"
+                  gv-uuid
+                  row-id
+                  (surface/getEllipticalA module (enums/length-units "Chains"))
+                  (surface/getEllipticalB module (enums/length-units "Chains"))
+                  (surface/getDirectionOfMaxSpread module)
+                  (surface/getWindDirection module)
+                  (surface/getWindSpeed module
+                                        (enums/speed-units "ChainsPerHour")
+                                        (surface/getWindHeightInputMode module))
+                  (surface/getElapsedTime module (enums/time-units "Hours"))])))
 
-(defn- store-wind-slope-spread-diagram! [ws-uuid row-id gv-uuid module]
-  (rf/dispatch [:worksheet/add-wind-slope-spread-direction-diagram
-                ws-uuid
-                "Wind/Slope/Spread Direction"
-                gv-uuid
-                row-id
-                (surface/getDirectionOfMaxSpread module)
-                (surface/getHeadingSpreadRate module (enums/speed-units "ChainsPerHour"))
-                (surface/getDirectionOfInterest module)
-                (surface/getSpreadRateInDirectionOfInterest module (enums/speed-units "ChainsPerHour"))
-                (surface/getDirectionOfFlanking module)
-                (surface/getFlankingSpreadRate module (enums/speed-units "ChainsPerHour"))
-                (surface/getDirectionOfBacking module)
-                (surface/getBackingSpreadRate module (enums/speed-units "ChainsPerHour"))
-                (surface/getWindDirection module)
-                (surface/getWindSpeed module (enums/speed-units "ChainsPerHour")
-                                      (surface/getWindHeightInputMode module))]))
+(defmethod store-diagram! :wind-slope-spread-direction
+  [{:keys [ws-uuid row-id diagram module]}]
+  (let [gv-uuid (get-in diagram [:diagram/group-variable :bp/uuid])]
+    (rf/dispatch [:worksheet/add-wind-slope-spread-direction-diagram
+                  ws-uuid
+                  "Wind/Slope/Spread Direction"
+                  gv-uuid
+                  row-id
+                  (surface/getDirectionOfMaxSpread module)
+                  (surface/getHeadingSpreadRate module (enums/speed-units "ChainsPerHour"))
+                  (surface/getDirectionOfInterest module)
+                  (surface/getSpreadRateInDirectionOfInterest module (enums/speed-units "ChainsPerHour"))
+                  (surface/getDirectionOfFlanking module)
+                  (surface/getFlankingSpreadRate module (enums/speed-units "ChainsPerHour"))
+                  (surface/getDirectionOfBacking module)
+                  (surface/getBackingSpreadRate module (enums/speed-units "ChainsPerHour"))
+                  (surface/getWindDirection module)
+                  (surface/getWindSpeed module (enums/speed-units "ChainsPerHour")
+                                        (surface/getWindHeightInputMode module))])))
+
+(defn store-all-diagrams! [{:keys [ws-uuid all-outputs row-id module module-name]}]
+  (when-let [vms-module (deref (rf/subscribe [:wizard/*module module-name]))]
+    (let [*vms-module-entity (rf/subscribe [:vms/entity-from-eid (:db/id vms-module)])
+          diagrams           (:module/diagrams @*vms-module-entity)]
+      (doseq [diagram diagrams]
+        (let [group-variable-uuid (get-in diagram [:diagram/group-variable :bp/uuid])]
+          (when (some #{group-variable-uuid} all-outputs)
+            (store-diagram! {:ws-uuid ws-uuid
+                             :diagram diagram
+                             :row-id  row-id
+                             :module  module})))))))
 
 (defn run-module [{:keys [inputs all-outputs outputs row-id] :as row}
                   {:keys [init-fn
@@ -236,33 +257,26 @@
                           fns
                           gv-uuids
                           destination-links
-                          module-id
+                          module-name
                           ws-uuid]}]
-  (let [module                         (init-fn)
+  (let [module         (init-fn)
         ;; Apply links
-        inputs                         (apply-links outputs inputs destination-links)
+        inputs         (apply-links outputs inputs destination-links)
         ;; Filter IO's for module
-        module-inputs                  (filter-module-inputs inputs gv-uuids)
-        module-outputs                 (filter-module-outputs all-outputs gv-uuids)
-        ;;TODO Find a better way to do this instead of hard coding uuid (Kenny 2023.7.28)
-        contain-diagram-uuid           "64c3e21d-9cb5-4b6f-b7e5-d78c838236dd"
-        fire-shape-diagram-uuid        "64a909b9-9bb3-475b-8794-612b36911e9e"
-        wind-slope-spread-diagram-uuid "64c4118c-7aa3-464b-b7da-3ed2e2aacb42"]
-
+        module-inputs  (filter-module-inputs inputs gv-uuids)
+        module-outputs (filter-module-outputs all-outputs gv-uuids)]
     ;; Set inputs
     (apply-inputs module fns module-inputs)
 
     ;; Run module
     (run-fn module)
 
-    (when (and (= module-id :contain) (some #{contain-diagram-uuid} all-outputs))
-      (store-contain-diagram! ws-uuid row-id contain-diagram-uuid module))
-
-    (when (and (= module-id :surface) (some #{fire-shape-diagram-uuid} all-outputs))
-      (store-fire-shape-diagram! ws-uuid row-id fire-shape-diagram-uuid module))
-
-    (when (and (= module-id :surface) (some #{wind-slope-spread-diagram-uuid} all-outputs))
-      (store-wind-slope-spread-diagram! ws-uuid row-id wind-slope-spread-diagram-uuid module))
+    ;; Store diagrams
+    (store-all-diagrams! {:ws-uuid     ws-uuid
+                          :all-outputs all-outputs
+                          :row-id      row-id
+                          :module-name module-name
+                          :module      module})
 
     ;; Get outputs, merge existing inputs/outputs with new inputs/outputs
     (update row :outputs merge (get-outputs module fns module-outputs))))
@@ -279,12 +293,12 @@
   ([ws-uuid modules all-inputs all-outputs]
    (let [counter (atom 0)
          surface-module
-         (-> {:init-fn   surface/init
-              :run-fn    surface/doSurfaceRun
-              :fns       (ns-publics 'behave.lib.surface)
-              :gv-uuids  (q/class-to-group-variables "SIGSurface")
-              :module-id :surface
-              :ws-uuid   ws-uuid}
+         (-> {:init-fn     surface/init
+              :run-fn      surface/doSurfaceRun
+              :fns         (ns-publics 'behave.lib.surface)
+              :gv-uuids    (q/class-to-group-variables "SIGSurface")
+              :module-name "surface"
+              :ws-uuid     ws-uuid}
              (add-links))
 
          crown-module
@@ -295,12 +309,12 @@
              (add-links))
 
          contain-module
-         (-> {:init-fn   contain/init
-              :run-fn    contain/doContainRun
-              :fns       (ns-publics 'behave.lib.contain)
-              :gv-uuids  (q/class-to-group-variables "SIGContainAdapter")
-              :module-id :contain
-              :ws-uuid   ws-uuid}
+         (-> {:init-fn     contain/init
+              :run-fn      contain/doContainRun
+              :fns         (ns-publics 'behave.lib.contain)
+              :gv-uuids    (q/class-to-group-variables "SIGContainAdapter")
+              :module-name "contain"
+              :ws-uuid     ws-uuid}
              (add-links))
 
          mortality-module

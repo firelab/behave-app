@@ -542,13 +542,19 @@
                            :width  250
                            :height 250})])]))))
 
-(defn- construct-summary-table [ws-uuid row-id]
-  (let [outputs (doall (map (fn [[gv-uuid & remain]]
-                              (conj remain @(rf/subscribe [:wizard/gv-uuid->variable-name gv-uuid])))
-                            @(rf/subscribe [:worksheet/output-gv-uuid+value+units ws-uuid row-id])))
-        inputs  (doall (map (fn [[gv-uuid & remain]]
-                              (conj remain @(rf/subscribe [:wizard/gv-uuid->variable-name gv-uuid])))
-                            @(rf/subscribe [:worksheet/input-gv-uuid+value+units ws-uuid row-id])))]
+(defn- construct-summary-table [ws-uuid group-variable-uuid row-id]
+  (let [outputs-to-filter (set @(rf/subscribe [:wizard/diagram-output-gv-uuids group-variable-uuid]))
+        outputs           (->> (rf/subscribe [:worksheet/output-gv-uuid+value+units ws-uuid row-id])
+                               deref
+                               (filter (fn [[gv-uuid]] (contains? outputs-to-filter gv-uuid)))
+                               (map (fn [[gv-uuid & remain]]
+                                      (conj remain @(rf/subscribe [:wizard/gv-uuid->variable-name gv-uuid])))))
+        inputs-to-filter  (set @(rf/subscribe [:wizard/diagram-input-gv-uuids group-variable-uuid]))
+        inputs            (->> (rf/subscribe [:worksheet/input-gv-uuid+value+units ws-uuid row-id])
+                               deref
+                               (filter (fn [[gv-uuid]] (contains? inputs-to-filter gv-uuid)))
+                               (map (fn [[gv-uuid & remain]]
+                                      (conj remain @(rf/subscribe [:wizard/gv-uuid->variable-name gv-uuid])))))]
     [:div
      [:table.diagram__table
       (map (fn [[variable-name value units]]
@@ -570,11 +576,12 @@
 (def ws-atom (atom nil))
 
 (defn- construct-diagram [ws-uuid
-                          {row-id        :diagrams/row-id
-                           ellipses      :diagrams/ellipses
-                           arrows        :diagrams/arrows
-                           scatter-plots :diagrams/scatter-plots
-                           title         :diagrams/title}]
+                          {row-id              :diagrams/row-id
+                           ellipses            :diagrams/ellipses
+                           arrows              :diagrams/arrows
+                           scatter-plots       :diagrams/scatter-plots
+                           title               :diagrams/title
+                           group-variable-uuid :diagrams/group-variable-uuid}]
 
 (let [domain (apply max (concat (map #(* 2 (:ellipse/semi-minor-axis %)) ellipses)
                                 (map #(* 2 (:ellipse/semi-major-axis %)) ellipses)
@@ -618,7 +625,7 @@
                                                                           "y" (* -1 (:datum/y datum))})
                                                                        data)))))
                                            scatter-plots)}]
-     (construct-summary-table ws-uuid row-id)]))
+     (construct-summary-table ws-uuid group-variable-uuid row-id)]))
 
 (defn- wizard-diagrams [ws-uuid]
   (let [*ws (rf/subscribe [:worksheet-entity ws-uuid])]
