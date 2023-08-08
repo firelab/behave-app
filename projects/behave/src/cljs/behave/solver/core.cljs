@@ -1,18 +1,17 @@
 (ns behave.solver.core
-  (:require [behave.solver.queries :as q]
-            [behave.solver.table   :as t]
-            [behave.lib.contain    :as contain]
-            [behave.lib.crown      :as crown]
-            [behave.lib.enums      :as enums]
-            [behave.lib.mortality  :as mortality]
-            [behave.lib.surface    :as surface]
-            [behave.lib.spot       :as spot]
-            [behave.lib.units      :as units]
-            [behave.logger         :refer [log]]
-            [clojure.string        :as str]
-            [clojure.set           :as set]
-            [re-frame.core         :as rf]
-            [datascript.core :as d]))
+  (:require [behave.solver.diagrams :refer [store-all-diagrams!]]
+            [behave.solver.queries  :as q]
+            [behave.solver.table    :as t]
+            [behave.lib.contain     :as contain]
+            [behave.lib.crown       :as crown]
+            [behave.lib.mortality   :as mortality]
+            [behave.lib.surface     :as surface]
+            [behave.lib.spot        :as spot]
+            [behave.lib.units       :as units]
+            [behave.logger          :refer [log]]
+            [clojure.string         :as str]
+            [clojure.set            :as set]
+            [re-frame.core          :as rf]))
 
 ;;; Helpers
 
@@ -182,83 +181,13 @@
      inputs
      destination-links)))
 
-(defmulti store-diagram! (fn [{:keys [diagram]}] (:diagram/type diagram)))
-
-(defmethod store-diagram! :contain
-  [{:keys [ws-uuid row-id diagram module]}]
-  (let [gv-uuid  (get-in diagram [:diagram/group-variable :bp/uuid])
-        x-points (contain/getFirePerimeterX module)
-        y-points (contain/getFirePerimeterY module)]
-    (rf/dispatch [:worksheet/add-contain-diagram
-                  ws-uuid
-                  "Containment"
-                  gv-uuid
-                  row-id
-                  (take-nth 10 (mapv #(.get x-points %) (range (.size x-points))))
-                  (take-nth 10 (mapv #(.get y-points %) (range (.size y-points))))
-                  (contain/getLengthToWidthRatio module)
-                  (contain/getFireBackAtReport module)
-                  (contain/getFireHeadAtReport module)
-                  (contain/getFireBackAtAttack module)
-                  (contain/getFireHeadAtAttack module)])))
-
-(defmethod store-diagram! :fire-shape
-  [{:keys [ws-uuid row-id diagram module]}]
-  (let [gv-uuid (get-in diagram [:diagram/group-variable :bp/uuid])]
-    (rf/dispatch [:worksheet/add-surface-fire-shape-diagram
-                  ws-uuid
-                  "Fire Shape"
-                  gv-uuid
-                  row-id
-                  (surface/getEllipticalA module (enums/length-units "Chains"))
-                  (surface/getEllipticalB module (enums/length-units "Chains"))
-                  (surface/getDirectionOfMaxSpread module)
-                  (surface/getWindDirection module)
-                  (surface/getWindSpeed module
-                                        (enums/speed-units "ChainsPerHour")
-                                        (surface/getWindHeightInputMode module))
-                  (surface/getElapsedTime module (enums/time-units "Hours"))])))
-
-(defmethod store-diagram! :wind-slope-spread-direction
-  [{:keys [ws-uuid row-id diagram module]}]
-  (let [gv-uuid (get-in diagram [:diagram/group-variable :bp/uuid])]
-    (rf/dispatch [:worksheet/add-wind-slope-spread-direction-diagram
-                  ws-uuid
-                  "Wind/Slope/Spread Direction"
-                  gv-uuid
-                  row-id
-                  (surface/getDirectionOfMaxSpread module)
-                  (surface/getHeadingSpreadRate module (enums/speed-units "ChainsPerHour"))
-                  (= (surface/getSurfaceRunInDirectionOf module) (enums/surface-run-in-direction-of "DirectionOfInterest"))
-                  (surface/getDirectionOfInterest module)
-                  (surface/getSpreadRateInDirectionOfInterest module (enums/speed-units "ChainsPerHour"))
-                  (surface/getDirectionOfFlanking module)
-                  (surface/getFlankingSpreadRate module (enums/speed-units "ChainsPerHour"))
-                  (surface/getDirectionOfBacking module)
-                  (surface/getBackingSpreadRate module (enums/speed-units "ChainsPerHour"))
-                  (surface/getWindDirection module)
-                  (surface/getWindSpeed module (enums/speed-units "ChainsPerHour")
-                                        (surface/getWindHeightInputMode module))])))
-
-(defn store-all-diagrams! [{:keys [ws-uuid all-outputs row-id module module-name]}]
-  (when-let [vms-module (deref (rf/subscribe [:wizard/*module module-name]))]
-    (let [*vms-module-entity (rf/subscribe [:vms/entity-from-eid (:db/id vms-module)])
-          diagrams           (:module/diagrams @*vms-module-entity)]
-      (doseq [diagram diagrams]
-        (let [group-variable-uuid (get-in diagram [:diagram/group-variable :bp/uuid])]
-          (when (some #{group-variable-uuid} all-outputs)
-            (store-diagram! {:ws-uuid ws-uuid
-                             :diagram diagram
-                             :row-id  row-id
-                             :module  module})))))))
-
 (defn run-module [{:keys [inputs all-outputs outputs row-id] :as row}
                   {:keys [init-fn
                           run-fn
                           fns
                           gv-uuids
                           destination-links
-                          module-name
+                          diagrams
                           ws-uuid]}]
   (let [module         (init-fn)
         ;; Apply links
@@ -276,7 +205,7 @@
     (store-all-diagrams! {:ws-uuid     ws-uuid
                           :all-outputs all-outputs
                           :row-id      row-id
-                          :module-name module-name
+                          :diagrams    diagrams
                           :module      module})
 
     ;; Get outputs, merge existing inputs/outputs with new inputs/outputs
@@ -298,7 +227,7 @@
               :run-fn      surface/doSurfaceRun
               :fns         (ns-publics 'behave.lib.surface)
               :gv-uuids    (q/class-to-group-variables "SIGSurface")
-              :module-name "surface"
+              :diagrams    (q/module-diagrams "surface")
               :ws-uuid     ws-uuid}
              (add-links))
 
@@ -314,7 +243,7 @@
               :run-fn      contain/doContainRun
               :fns         (ns-publics 'behave.lib.contain)
               :gv-uuids    (q/class-to-group-variables "SIGContainAdapter")
-              :module-name "contain"
+              :diagrams    (q/module-diagrams "contain")
               :ws-uuid     ws-uuid}
              (add-links))
 

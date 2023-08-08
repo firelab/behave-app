@@ -196,6 +196,17 @@
            (lookup ?group-uuid ?g)]
          group-variable-uuid))
 
+(defn module-diagrams [module-name]
+  (q-vms '[:find [(pull ?d [* {:diagram/group-variable [:bp/uuid]}]) ...]
+           :in ?module-name
+           :where
+           [?m :module/name ?m-name]
+           [(str "(?i)" ?module-name) ?module-find]
+           [(re-pattern ?module-find) ?module-find-re]
+           [(re-find ?module-find-re ?m-name)]
+           [?m :module/diagrams ?d]]
+         module-name))
+
 ;; Cannot use pull due to the use of UUID's to join CPP ns/class/fns/param
 (defn parameter->group-variable [parameter-id]
   (q-vms '[:find  ?gv-uuid .
