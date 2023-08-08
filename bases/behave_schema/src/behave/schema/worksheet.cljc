@@ -313,43 +313,38 @@
     :db/cardinality :db.cardinality/one}
 
    ;; Diagrams
-   {:db/ident       :diagrams/group-variable-uuid
+   {:db/ident       :worksheet.diagram/group-variable-uuid
     :db/doc         "Diagram's reference to it's output group variable's UUID."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :diagrams/title
+   {:db/ident       :worksheet.diagram/title
     :db/doc         "Diagram's title"
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :diagrams/row-id
+   {:db/ident       :worksheet.diagram/row-id
     :db/doc         "The diagrams associated row-id in the result table"
     :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :diagrams/ellipses
+   {:db/ident       :worksheet.diagram/ellipses
     :db/doc         "List of ellipses to plot on this diagram"
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
 
-   {:db/ident       :diagrams/arrows
+   {:db/ident       :worksheet.diagram/arrows
     :db/doc         "List of arrows to plot on this diagram"
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
 
-   {:db/ident       :diagrams/scatter-plots
+   {:db/ident       :worksheet.diagram/scatter-plots
     :db/doc         "list of scatter-plots to plot on this diagram"
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
 
-   {:db/ident       :diagrams/variables
-    :db/doc         "list of intput and/or output variables from the run to show underneath the diagram"
-    :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/many}
-
    ;; Diagram Ellipses
-   {:db/ident       :ellipse/id
+   {:db/ident       :ellipse/legend-id
     :db/doc         "Id used for the legend"
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
@@ -375,7 +370,7 @@
     :db/cardinality :db.cardinality/one}
 
    ;; Diagram Arrow
-   {:db/ident       :arrow/id
+   {:db/ident       :arrow/legend-id
     :db/doc         "Id used for the legend"
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
@@ -401,7 +396,7 @@
     :db/cardinality :db.cardinality/one}
 
    ;; Diagram Scatter Plot
-   {:db/ident       :scatter-plot/id
+   {:db/ident       :scatter-plot/legend-id
     :db/doc         "Id used for the legend"
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}

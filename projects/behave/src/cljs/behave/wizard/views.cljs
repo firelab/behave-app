@@ -573,19 +573,17 @@
                      value)]])
            outputs)]]))
 
-(def ws-atom (atom nil))
-
 (defn- construct-diagram [ws-uuid
-                          {row-id              :diagrams/row-id
-                           ellipses            :diagrams/ellipses
-                           arrows              :diagrams/arrows
-                           scatter-plots       :diagrams/scatter-plots
-                           title               :diagrams/title
-                           group-variable-uuid :diagrams/group-variable-uuid}]
+                          {row-id              :worksheet.diagram/row-id
+                           ellipses            :worksheet.diagram/ellipses
+                           arrows              :worksheet.diagram/arrows
+                           scatter-plots       :worksheet.diagram/scatter-plots
+                           title               :worksheet.diagram/title
+                           group-variable-uuid :worksheet.diagram/group-variable-uuid}]
 
-(let [domain (apply max (concat (map #(* 2 (:ellipse/semi-minor-axis %)) ellipses)
-                                (map #(* 2 (:ellipse/semi-major-axis %)) ellipses)
-                                (map :arrow/length arrows)))]
+  (let [domain (apply max (concat (map #(* 2 (:ellipse/semi-minor-axis %)) ellipses)
+                                  (map #(* 2 (:ellipse/semi-major-axis %)) ellipses)
+                                  (map :arrow/length arrows)))]
     [:div
      [output-diagram {:title         (str title " for result row: " (inc row-id))
                       :width         500
@@ -597,23 +595,23 @@
                                       :title         "y"
                                       :tick-min-step 5}
                       :ellipses      (mapv #(rename-keys (into {} %)
-                                                         {:ellipse/id              :id
+                                                         {:ellipse/legend-id       :legend-id
                                                           :ellipse/semi-major-axis :a
                                                           :ellipse/semi-minor-axis :b
                                                           :ellipse/rotation        :phi
                                                           :ellipse/color           :color})
                                            ellipses)
                       :arrows        (mapv #(rename-keys (into {} %)
-                                                         {:arrow/id       :id
-                                                          :arrow/length   :r
-                                                          :arrow/rotation :theta
-                                                          :arrow/color    :color
-                                                          :arrow/dashed?  :dashed?})
+                                                         {:arrow/legend-id :legend-id
+                                                          :arrow/length    :r
+                                                          :arrow/rotation  :theta
+                                                          :arrow/color     :color
+                                                          :arrow/dashed?   :dashed?})
                                            arrows)
                       :scatter-plots (mapv #(-> (rename-keys (into {} %)
-                                                             {:scatter-plot/id    :id
-                                                              :scatter-plot/data  :data
-                                                              :scatter-plot/color :color})
+                                                             {:scatter-plot/legend-id :legend-id
+                                                              :scatter-plot/data      :data
+                                                              :scatter-plot/color     :color})
                                                 (update :data (fn [data]
                                                                 (concat
                                                                  (mapv (fn [datum]

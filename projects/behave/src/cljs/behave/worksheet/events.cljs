@@ -447,35 +447,35 @@
                              :where
                              [?ws :worksheet/uuid               ?uuid]
                              [?ws :worksheet/diagrams           ?d]
-                             [?d  :diagrams/group-variable-uuid ?gv-uuid]
-                             [?d  :diagrams/row-id              ?row-id]]
+                             [?d  :worksheet.diagram/group-variable-uuid ?gv-uuid]
+                             [?d  :worksheet.diagram/row-id              ?row-id]]
                            ds ws-uuid group-variable-uuid row-id)]
      {:transact [(when existing-eid [:db.fn/retractEntity existing-eid])
-                 {:worksheet/_diagrams          [:worksheet/uuid ws-uuid]
-                  :diagrams/title               title
-                  :diagrams/group-variable-uuid group-variable-uuid
-                  :diagrams/row-id              row-id
-                  :diagrams/ellipses            [(let [l (- fire-head-at-report fire-back-at-report)
-                                                       w (/ l length-to-width-ratio)]
-                                                   {:ellipse/id              "firePerimiterAtReport"
-                                                    :ellipse/semi-major-axis (/ l 2)
-                                                    :ellipse/semi-minor-axis (/ w 2)
-                                                    :ellipse/rotation        90
-                                                    :ellipse/color           "blue"})
-                                                 (let [l (- fire-head-at-attack fire-back-at-attack)
-                                                       w (/ l length-to-width-ratio)]
-                                                   {:ellipse/id              "firePerimiterAtAttack"
-                                                    :ellipse/semi-major-axis (/ l 2)
-                                                    :ellipse/semi-minor-axis (/ w 2)
-                                                    :ellipse/rotation        90
-                                                    :ellipse/color           "red"})]
-                  :diagrams/scatter-plots       [{:scatter-plot/id    "FireLineConstructed"
-                                                  :scatter-plot/color "black"
-                                                  :scatter-plot/data  (map (fn [x y]
-                                                                             {:datum/x x
-                                                                              :datum/y y})
-                                                                           fire-perimeter-points-X
-                                                                           fire-perimeter-points-Y)}]}]})))
+                 {:worksheet/_diagrams                   [:worksheet/uuid ws-uuid]
+                  :worksheet.diagram/title               title
+                  :worksheet.diagram/group-variable-uuid group-variable-uuid
+                  :worksheet.diagram/row-id              row-id
+                  :worksheet.diagram/ellipses            [(let [l (- fire-head-at-report fire-back-at-report)
+                                                                w (/ l length-to-width-ratio)]
+                                                            {:ellipse/legend-id       "firePerimiterAtReport"
+                                                             :ellipse/semi-major-axis (/ l 2)
+                                                             :ellipse/semi-minor-axis (/ w 2)
+                                                             :ellipse/rotation        90
+                                                             :ellipse/color           "blue"})
+                                                          (let [l (- fire-head-at-attack fire-back-at-attack)
+                                                                w (/ l length-to-width-ratio)]
+                                                            {:ellipse/legend-id       "firePerimiterAtAttack"
+                                                             :ellipse/semi-major-axis (/ l 2)
+                                                             :ellipse/semi-minor-axis (/ w 2)
+                                                             :ellipse/rotation        90
+                                                             :ellipse/color           "red"})]
+                  :worksheet.diagram/scatter-plots       [{:scatter-plot/legend-id "FireLineConstructed"
+                                                           :scatter-plot/color     "black"
+                                                           :scatter-plot/data      (map (fn [x y]
+                                                                                          {:datum/x x
+                                                                                           :datum/y y})
+                                                                                        fire-perimeter-points-X
+                                                                                        fire-perimeter-points-Y)}]}]})))
 
 (rp/reg-event-fx
  :worksheet/add-surface-fire-shape-diagram
@@ -497,30 +497,30 @@
                                 :where
                                 [?ws :worksheet/uuid               ?uuid]
                                 [?ws :worksheet/diagrams           ?d]
-                                [?d  :diagrams/group-variable-uuid ?gv-uuid]
-                                [?d  :diagrams/row-id              ?row-id]]
+                                [?d  :worksheet.diagram/group-variable-uuid ?gv-uuid]
+                                [?d  :worksheet.diagram/row-id              ?row-id]]
                               ds ws-uuid group-variable-uuid row-id)
          semi-major-axis (max elliptical-A elliptical-B )
          semi-minor-axis (min elliptical-A elliptical-B)]
      {:transact [(when existing-eid [:db.fn/retractEntity existing-eid])
-                 {:worksheet/_diagrams          [:worksheet/uuid ws-uuid]
-                  :diagrams/title               title
-                  :diagrams/group-variable-uuid group-variable-uuid
-                  :diagrams/row-id              row-id
-                  :diagrams/ellipses            [{:ellipse/id              "SurfaceFire"
-                                                  :ellipse/semi-major-axis semi-major-axis
-                                                  :ellipse/semi-minor-axis semi-minor-axis
-                                                  :ellipse/rotation        direction-of-max-spread
-                                                  :ellipse/color           "red"}]
-                  :diagrams/arrows              [{:arrow/id       "Wind"
-                                                  :arrow/length   semi-major-axis
-                                                  ;; :arrow/length   (* wind-speed elapsed-time)
-                                                  ;; NOTE Using the wind speed converted to the
-                                                  ;; chains makes this value possibly too large. The
-                                                  ;; arrow points much further out of othe ellipse.
-                                                  ;; Discuss if if we should use this or not.
-                                                  :arrow/rotation wind-direction
-                                                  :arrow/color    "blue"}]}]})))
+                 {:worksheet/_diagrams                   [:worksheet/uuid ws-uuid]
+                  :worksheet.diagram/title               title
+                  :worksheet.diagram/group-variable-uuid group-variable-uuid
+                  :worksheet.diagram/row-id              row-id
+                  :worksheet.diagram/ellipses            [{:ellipse/legend-id       "SurfaceFire"
+                                                           :ellipse/semi-major-axis semi-major-axis
+                                                           :ellipse/semi-minor-axis semi-minor-axis
+                                                           :ellipse/rotation        direction-of-max-spread
+                                                           :ellipse/color           "red"}]
+                  :worksheet.diagram/arrows              [{:arrow/legend-id "Wind"
+                                                           :arrow/length    semi-major-axis
+                                                           ;; :arrow/length   (* wind-speed elapsed-time)
+                                                           ;; NOTE Using the wind speed converted to the
+                                                           ;; chains makes this value possibly too large. The
+                                                           ;; arrow points much further out of othe ellipse.
+                                                           ;; Discuss if if we should use this or not.
+                                                           :arrow/rotation  wind-direction
+                                                           :arrow/color     "blue"}]}]})))
 (rp/reg-event-fx
  :worksheet/add-wind-slope-spread-direction-diagram
  [(rp/inject-cofx :ds)]
@@ -545,49 +545,49 @@
                              :where
                              [?ws :worksheet/uuid               ?uuid]
                              [?ws :worksheet/diagrams           ?d]
-                             [?d  :diagrams/group-variable-uuid ?gv-uuid]
-                             [?d  :diagrams/row-id              ?row-id]]
+                             [?d  :worksheet.diagram/group-variable-uuid ?gv-uuid]
+                             [?d  :worksheet.diagram/row-id              ?row-id]]
                            ds ws-uuid group-variable-uuid row-id)]
      {:transact [(when existing-eid [:db.fn/retractEntity existing-eid])
-                 {:worksheet/_diagrams          [:worksheet/uuid ws-uuid]
-                  :diagrams/title               title
-                  :diagrams/group-variable-uuid group-variable-uuid
-                  :diagrams/row-id              row-id
-                  :diagrams/arrows              (cond-> [{:arrow/id       "MaxSpread"
-                                                          :arrow/length   max-spread-rate
-                                                          :arrow/rotation max-spread-dir
-                                                          :arrow/color    "red"}
+                 {:worksheet/_diagrams                   [:worksheet/uuid ws-uuid]
+                  :worksheet.diagram/title               title
+                  :worksheet.diagram/group-variable-uuid group-variable-uuid
+                  :worksheet.diagram/row-id              row-id
+                  :worksheet.diagram/arrows              (cond-> [{:arrow/legend-id       "MaxSpread"
+                                                                   :arrow/length   max-spread-rate
+                                                                   :arrow/rotation max-spread-dir
+                                                                   :arrow/color    "red"}
 
-                                                         {:arrow/id       "Flanking1"
-                                                          :arrow/length   flanking-spread-rate
-                                                          :arrow/rotation flanking-dir
-                                                          :arrow/color    "#81c3cb"}
+                                                                  {:arrow/legend-id       "Flanking1"
+                                                                   :arrow/length   flanking-spread-rate
+                                                                   :arrow/rotation flanking-dir
+                                                                   :arrow/color    "#81c3cb"}
 
-                                                         {:arrow/id       "Flanking2"
-                                                          :arrow/length   flanking-spread-rate
-                                                          :arrow/rotation (mod (+ flanking-dir 180) 360)
-                                                          :arrow/color    "#347da0"}
+                                                                  {:arrow/legend-id       "Flanking2"
+                                                                   :arrow/length   flanking-spread-rate
+                                                                   :arrow/rotation (mod (+ flanking-dir 180) 360)
+                                                                   :arrow/color    "#347da0"}
 
-                                                         {:arrow/id       "Backing"
-                                                          :arrow/length   backing-spread-rate
-                                                          :arrow/rotation backing-dir
-                                                          :arrow/color    "orange"}
+                                                                  {:arrow/legend-id       "Backing"
+                                                                   :arrow/length   backing-spread-rate
+                                                                   :arrow/rotation backing-dir
+                                                                   :arrow/color    "orange"}
 
-                                                         (let [l (min max-spread-rate wind-speed)]
-                                                           {:arrow/id       "Wind"
-                                                            ;;NOTE for visual purposes
-                                                            ;;make wind 10% larger than
-                                                            ;;max spread rate.
-                                                            ;; :arrow/length   wind-speed
-                                                            :arrow/length   (if (> wind-speed max-spread-rate)
-                                                                              (* l 1.1)
-                                                                              l)
-                                                            :arrow/rotation wind-dir
-                                                            :arrow/color    "blue"
-                                                            :arrow/dashed?  true})]
+                                                                  (let [l (min max-spread-rate wind-speed)]
+                                                                    {:arrow/legend-id       "Wind"
+                                                                     ;;NOTE for visual purposes
+                                                                     ;;make wind 10% larger than
+                                                                     ;;max spread rate.
+                                                                     ;; :arrow/length   wind-speed
+                                                                     :arrow/length   (if (> wind-speed max-spread-rate)
+                                                                                       (* l 1.1)
+                                                                                       l)
+                                                                     :arrow/rotation wind-dir
+                                                                     :arrow/color    "blue"
+                                                                     :arrow/dashed?  true})]
 
-                                                  has-direction-of-interest?
-                                                  (conj {:arrow/id       "Interest"
-                                                         :arrow/length   interest-spread-rate
-                                                         :arrow/rotation interest-dir
-                                                         :arrow/color    "black"}))}]})))
+                                                           has-direction-of-interest?
+                                                           (conj {:arrow/legend-id "Interest"
+                                                                  :arrow/length    interest-spread-rate
+                                                                  :arrow/rotation  interest-dir
+                                                                  :arrow/color     "black"}))}]})))
