@@ -457,14 +457,14 @@
                   :worksheet.diagram/row-id              row-id
                   :worksheet.diagram/ellipses            [(let [l (- fire-head-at-report fire-back-at-report)
                                                                 w (/ l length-to-width-ratio)]
-                                                            {:ellipse/legend-id       "firePerimiterAtReport"
+                                                            {:ellipse/legend-id       "FirePerimiterAtReport"
                                                              :ellipse/semi-major-axis (/ l 2)
                                                              :ellipse/semi-minor-axis (/ w 2)
                                                              :ellipse/rotation        90
                                                              :ellipse/color           "blue"})
                                                           (let [l (- fire-head-at-attack fire-back-at-attack)
                                                                 w (/ l length-to-width-ratio)]
-                                                            {:ellipse/legend-id       "firePerimiterAtAttack"
+                                                            {:ellipse/legend-id       "FirePerimiterAtAttack"
                                                              :ellipse/semi-major-axis (/ l 2)
                                                              :ellipse/semi-minor-axis (/ w 2)
                                                              :ellipse/rotation        90
