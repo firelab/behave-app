@@ -406,17 +406,12 @@
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :scatter-plot/data
-    :db/doc         "The (x,y) points for the scatter-plot"
-    :db/valueType   :db.type/ref
+   {:db/ident       :scatter-plot/x-coordinates
+    :db/doc         "Comma seperated string of x coordinates"
+    :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/many}
 
-   {:db/ident       :datum/x
-    :db/doc         "The X coordinate of this datum"
-    :db/valueType   :db.type/double
-    :db/cardinality :db.cardinality/one}
-
-   {:db/ident       :datum/y
-    :db/doc         "The Y coordinate of this datum"
-    :db/valueType   :db.type/double
-    :db/cardinality :db.cardinality/one}])
+   {:db/ident       :scatter-plot/y-coordinates
+    :db/doc         "Comma seperated string of y coordinates"
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/many}])

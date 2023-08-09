@@ -608,20 +608,25 @@
                                                           :arrow/color     :color
                                                           :arrow/dashed?   :dashed?})
                                            arrows)
-                      :scatter-plots (mapv #(-> (rename-keys (into {} %)
-                                                             {:scatter-plot/legend-id :legend-id
-                                                              :scatter-plot/data      :data
-                                                              :scatter-plot/color     :color})
-                                                (update :data (fn [data]
-                                                                (concat
-                                                                 (mapv (fn [datum]
-                                                                         {"x" (:datum/x datum)
-                                                                          "y" (:datum/y datum)})
-                                                                       data)
-                                                                 (mapv (fn [datum]
-                                                                         {"x" (:datum/x datum)
-                                                                          "y" (* -1 (:datum/y datum))})
-                                                                       data)))))
+                      :scatter-plots (mapv (fn [{legend-id     :scatter-plot/legend-id
+                                                 x-coordinates :scatter-plot/x-coordinates
+                                                 y-coordinates :scatter-plot/y-coordinates
+                                                 color         :scatter-plot/color}]
+                                             (let [x-doubles (map double (str/split x-coordinates ","))
+                                                   y-doubles (map double (str/split y-coordinates ","))]
+                                              {:legend-id legend-id
+                                               :color     color
+                                               :data      (concat
+                                                           (mapv (fn [x y]
+                                                                   {"x" x
+                                                                    "y" y})
+                                                                 x-doubles
+                                                                 y-doubles)
+                                                           (mapv (fn [x y]
+                                                                   {"x" x
+                                                                    "y" (* -1 y)})
+                                                                 x-doubles
+                                                                 y-doubles))}))
                                            scatter-plots)}]
      (construct-summary-table ws-uuid group-variable-uuid row-id)]))
 

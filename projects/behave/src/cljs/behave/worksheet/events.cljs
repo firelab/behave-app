@@ -6,7 +6,8 @@
             [behave.importer           :refer [import-worksheet]]
             [behave.logger             :refer [log]]
             [behave.solver.core        :refer [solve-worksheet]]
-            [vimsical.re-frame.cofx.inject :as inject]))
+            [vimsical.re-frame.cofx.inject :as inject]
+            [clojure.string :as str]))
 
 (rf/reg-fx :ws/import-worksheet import-worksheet)
 
@@ -471,11 +472,8 @@
                                                              :ellipse/color           "red"})]
                   :worksheet.diagram/scatter-plots       [{:scatter-plot/legend-id "FireLineConstructed"
                                                            :scatter-plot/color     "black"
-                                                           :scatter-plot/data      (map (fn [x y]
-                                                                                          {:datum/x x
-                                                                                           :datum/y y})
-                                                                                        fire-perimeter-points-X
-                                                                                        fire-perimeter-points-Y)}]}]})))
+                                                           :scatter-plot/x-coordinates fire-perimeter-points-X
+                                                           :scatter-plot/y-coordinates fire-perimeter-points-Y}]}]})))
 
 (rp/reg-event-fx
  :worksheet/add-surface-fire-shape-diagram

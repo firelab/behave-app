@@ -2,9 +2,18 @@
   (:require [behave.lib.contain :as contain]
             [behave.lib.enums   :as enums]
             [behave.lib.surface :as surface]
-            [re-frame.core :as rf]))
+            [clojure.string     :as s]
+            [re-frame.core      :as rf]))
 
 (defmulti build-event-vector (fn [{:keys [diagram]}] (:diagram/type diagram)))
+
+(defn- coll->csv [coll]
+  (reduce (fn [acc v]
+            (if (empty? acc)
+              (str v)
+              (s/join "," [acc (str v)])))
+          ""
+          coll))
 
 (defmethod build-event-vector :contain
   [{:keys [ws-uuid row-id diagram module]}]
@@ -16,8 +25,12 @@
      "Containment"
      gv-uuid
      row-id
-     (take-nth 10 (mapv #(.get x-points %) (range (.size x-points))))
-     (take-nth 10 (mapv #(.get y-points %) (range (.size y-points))))
+     (->> (map #(.get x-points %) (range (.size x-points)))
+          (take-nth 10)
+          coll->csv)
+     (->> (map #(.get y-points %) (range (.size y-points)))
+          (take-nth 10)
+          coll->csv)
      (contain/getLengthToWidthRatio module)
      (contain/getFireBackAtReport module)
      (contain/getFireHeadAtReport module)
