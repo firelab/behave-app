@@ -642,7 +642,7 @@
         *headers              (subscribe [:worksheet/result-table-headers-sorted ws-uuid])
         *cell-data            (subscribe [:worksheet/result-table-cell-data ws-uuid])
         table-enabled?        (get-in @*worksheet [:worksheet/table-settings :table-settings/enabled?])
-        graph-enabled?        (get-in @*worksheet [:worksheet/table-settings :graph-settings/enabled?])
+        graph-enabled?        (get-in @*worksheet [:worksheet/graph-settings :graph-settings/enabled?])
         table-setting-filters (subscribe [:worksheet/table-settings-filters ws-uuid])]
     [:div.accordion
      [:div.accordion__header
