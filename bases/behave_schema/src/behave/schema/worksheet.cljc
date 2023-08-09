@@ -361,7 +361,7 @@
 
    {:db/ident       :ellipse/rotation
     :db/doc         "The degrees clockwise from postiive y-axis the ellipse is rotated by"
-    :db/valueType   :db.type/double
+    :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :ellipse/color
@@ -382,7 +382,7 @@
 
    {:db/ident       :arrow/rotation
     :db/doc         "The degrees clockwise from postiive y-axis the ellipse is rotated by"
-    :db/valueType   :db.type/double
+    :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :arrow/color
