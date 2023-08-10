@@ -75,8 +75,13 @@
      [:div.help-area__tabs
       [c/tab-group {:variant  "outline-secondary"
                     :on-click #(dispatch [:help/select-tab %])
-                    :tabs     [{:label "Help" :icon-name "help2" :tab :help}
-                               {:label "Guides & Manuals" :icon-name "help-manual" :tab :guides}]}]]
+                    :tabs     [{:label     "Help" :icon-name "help2"
+                                :tab       :help
+                                :selected? (= @current-tab :help)}
+                               {:label "Guides & Manuals"
+                                :icon-name "help-manual"
+                                :tab :guides
+                                :selected (= @current-tab :guides)}]}]]
      (cond
        (= @current-tab :guides)
        [help-content "behaveplus:guides" test-guides]
