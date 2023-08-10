@@ -6,7 +6,8 @@
 (defn- add-scatter-plot [schema {:keys [legend-id data color]}]
   (-> schema
       (update :layer
-              #(conj % {:mark     {:type "circle"}
+              #(conj % {:mark     {:type "circle"
+                                   :clip true}
                         :data     {:values data}
                         :encoding {:color {:datum legend-id}
                                    :x     {:field "x"
@@ -31,7 +32,8 @@
     (-> schema
         (update :layer
                 #(conj % {:mark      {:type       "line"
-                                      :strokeDash stroke-dash}
+                                      :strokeDash stroke-dash
+                                      :clip       true}
                           :data      {:sequence {:start -1.00
                                                  :stop  1.01
                                                  :step  0.01
@@ -75,6 +77,7 @@
                                                                          r-name theta-name)
                                               :as        "y"}]
                                  :mark      {:type        "line"
+                                             :clip        true
                                              :strokeDash  (if dashed? [4,4] [1,0])
                                              :strokeWidth stroke-width
                                              :color       legend-id
