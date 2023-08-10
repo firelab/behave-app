@@ -792,5 +792,8 @@ body {
   font-weight: var(--font-weight-bold);
 }
 
+.diagram {
+  padding-bottom: 20px;
+}
 
 /* -- End Help Area -- */

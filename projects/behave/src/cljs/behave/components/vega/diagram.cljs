@@ -144,7 +144,8 @@
   "
   [{:keys [title width height x-axis y-axis ellipses arrows scatter-plots]}]
   (let [base-schema {:$schema     "https://vega.github.io/schema/vega-lite/v5.1.1.json"
-                     :title       title
+                     :title       {:text     title
+                                   :fontSize 20}
                      :description "diagram"
                      :width       width
                      :height      height

@@ -590,7 +590,7 @@
                                   (->> scatter-plots
                                        (mapcat #(str/split (:scatter-plot/y-coordinates %) ","))
                                        (map #(Math/abs (double %))))))]
-    [:div
+    [:div.diagram
      [output-diagram {:title         (str title " for result row: " (inc row-id))
                       :width         500
                       :height        500
