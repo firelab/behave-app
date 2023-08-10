@@ -581,9 +581,15 @@
                            title               :worksheet.diagram/title
                            group-variable-uuid :worksheet.diagram/group-variable-uuid}]
 
-  (let [domain (apply max (concat (map #(* 2 (:ellipse/semi-minor-axis %)) ellipses)
-                                  (map #(* 2 (:ellipse/semi-major-axis %)) ellipses)
-                                  (map :arrow/length arrows)))]
+  (let [domain (apply max (concat (map #(Math/abs (* 2 (:ellipse/semi-minor-axis %))) ellipses)
+                                  (map #(Math/abs (* 2 (:ellipse/semi-major-axis %))) ellipses)
+                                  (map #(Math/abs (:arrow/length %)) arrows)
+                                  (->> scatter-plots
+                                       (mapcat #(str/split (:scatter-plot/x-coordinates %) ","))
+                                       (map #(Math/abs (double %))))
+                                  (->> scatter-plots
+                                       (mapcat #(str/split (:scatter-plot/y-coordinates %) ","))
+                                       (map #(Math/abs (double %))))))]
     [:div
      [output-diagram {:title         (str title " for result row: " (inc row-id))
                       :width         500
@@ -614,19 +620,19 @@
                                                  color         :scatter-plot/color}]
                                              (let [x-doubles (map double (str/split x-coordinates ","))
                                                    y-doubles (map double (str/split y-coordinates ","))]
-                                              {:legend-id legend-id
-                                               :color     color
-                                               :data      (concat
-                                                           (mapv (fn [x y]
-                                                                   {"x" x
-                                                                    "y" y})
-                                                                 x-doubles
-                                                                 y-doubles)
-                                                           (mapv (fn [x y]
-                                                                   {"x" x
-                                                                    "y" (* -1 y)})
-                                                                 x-doubles
-                                                                 y-doubles))}))
+                                               {:legend-id legend-id
+                                                :color     color
+                                                :data      (concat
+                                                            (mapv (fn [x y]
+                                                                    {"x" x
+                                                                     "y" y})
+                                                                  x-doubles
+                                                                  y-doubles)
+                                                            (mapv (fn [x y]
+                                                                    {"x" x
+                                                                     "y" (* -1 y)})
+                                                                  x-doubles
+                                                                  y-doubles))}))
                                            scatter-plots)}]
      (construct-summary-table ws-uuid group-variable-uuid row-id)]))
 

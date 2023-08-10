@@ -409,9 +409,9 @@
    {:db/ident       :scatter-plot/x-coordinates
     :db/doc         "Comma seperated string of x coordinates"
     :db/valueType   :db.type/string
-    :db/cardinality :db.cardinality/many}
+    :db/cardinality :db.cardinality/one}
 
    {:db/ident       :scatter-plot/y-coordinates
     :db/doc         "Comma seperated string of y coordinates"
     :db/valueType   :db.type/string
-    :db/cardinality :db.cardinality/many}])
+    :db/cardinality :db.cardinality/one}])
