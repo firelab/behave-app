@@ -2,18 +2,10 @@
   (:require [behave.lib.contain :as contain]
             [behave.lib.enums   :as enums]
             [behave.lib.surface :as surface]
-            [clojure.string     :as s]
+            [clojure.string     :as str]
             [re-frame.core      :as rf]))
 
 (defmulti build-event-vector (fn [{:keys [diagram]}] (:diagram/type diagram)))
-
-(defn- coll->csv [coll]
-  (reduce (fn [acc v]
-            (if (empty? acc)
-              (str v)
-              (s/join "," [acc (str v)])))
-          ""
-          coll))
 
 (defmethod build-event-vector :contain
   [{:keys [ws-uuid row-id diagram module]}]
@@ -27,10 +19,10 @@
      row-id
      (->> (map #(.get x-points %) (range (.size x-points)))
           (take-nth 10)
-          coll->csv)
+          (str/join ","))
      (->> (map #(.get y-points %) (range (.size y-points)))
           (take-nth 10)
-          coll->csv)
+          (str/join ","))
      (contain/getLengthToWidthRatio module)
      (contain/getFireBackAtReport module)
      (contain/getFireHeadAtReport module)
