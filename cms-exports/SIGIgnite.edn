@@ -1,0 +1,119 @@
+{:global
+ {:SIGIgnite
+  {:setAirTemperature
+   {:type "void",
+    :id "setAirTemperature",
+    :parameters
+    [{:id "airTemperature", :type "double"}
+     {:id "temperatureUnites",
+      :type "TemperatureUnits::TemperatureUnitsEnum"}]},
+   :getMoistureHundredHour
+   {:type "double",
+    :id "getMoistureHundredHour",
+    :parameters
+    [{:id "desiredUnits", :type "MoistureUnits::MoistureUnitsEnum"}]},
+   :getLightningChargeType
+   {:type "LightningCharge::LightningChargeEnum",
+    :id "getLightningChargeType",
+    :parameters []},
+   :setMoistureOneHour
+   {:type "void",
+    :id "setMoistureOneHour",
+    :parameters
+    [{:id "moistureOneHour", :type "double"}
+     {:id "moistureUnits", :type "MoistureUnits::MoistureUnitsEnum"}]},
+   :calculateLightningIgnitionProbability
+   {:type "double",
+    :id "calculateLightningIgnitionProbability",
+    :parameters
+    [{:id "desiredUnits",
+      :type "ProbabilityUnits::ProbabilityUnitsEnum"}]},
+   :getDuffDepth
+   {:type "double",
+    :id "getDuffDepth",
+    :parameters
+    [{:id "desiredUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :setIgnitionFuelBedType
+   {:type "void",
+    :id "setIgnitionFuelBedType",
+    :parameters
+    [{:id "fuelBedType_",
+      :type "IgnitionFuelBedType::IgnitionFuelBedTypeEnum"}]},
+   :setSunShade
+   {:type "void",
+    :id "setSunShade",
+    :parameters
+    [{:id "sunShade", :type "double"}
+     {:id "sunShadeUnits", :type "CoverUnits::CoverUnitsEnum"}]},
+   :getAirTemperature
+   {:type "double",
+    :id "getAirTemperature",
+    :parameters
+    [{:id "desiredUnits",
+      :type "TemperatureUnits::TemperatureUnitsEnum"}]},
+   :getFuelTemperature
+   {:type "double",
+    :id "getFuelTemperature",
+    :parameters
+    [{:id "desiredUnits",
+      :type "TemperatureUnits::TemperatureUnitsEnum"}]},
+   :isFuelDepthNeeded
+   {:type "bool", :id "isFuelDepthNeeded", :parameters []},
+   :calculateFirebrandIgnitionProbability
+   {:type "double",
+    :id "calculateFirebrandIgnitionProbability",
+    :parameters
+    [{:id "desiredUnits",
+      :type "ProbabilityUnits::ProbabilityUnitsEnum"}]},
+   :setMoistureHundredHour
+   {:type "void",
+    :id "setMoistureHundredHour",
+    :parameters
+    [{:id "moistureHundredHour", :type "double"}
+     {:id "moistureUnits", :type "MoistureUnits::MoistureUnitsEnum"}]},
+   :getSunShade
+   {:type "double",
+    :id "getSunShade",
+    :parameters
+    [{:id "desiredUnits", :type "CoverUnits::CoverUnitsEnum"}]},
+   :initializeMembers
+   {:type "void", :id "initializeMembers", :parameters []},
+   :getFuelBedType
+   {:type "IgnitionFuelBedType::IgnitionFuelBedTypeEnum",
+    :id "getFuelBedType",
+    :parameters []},
+   :getMoistureOneHour
+   {:type "double",
+    :id "getMoistureOneHour",
+    :parameters
+    [{:id "desiredUnits", :type "MoistureUnits::MoistureUnitsEnum"}]},
+   :setLightningChargeType
+   {:type "void",
+    :id "setLightningChargeType",
+    :parameters
+    [{:id "lightningChargeType",
+      :type "LightningCharge::LightningChargeEnum"}]},
+   :setDuffDepth
+   {:type "void",
+    :id "setDuffDepth",
+    :parameters
+    [{:id "duffDepth", :type "double"}
+     {:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :updateIgniteInputs
+   {:type "void",
+    :id "updateIgniteInputs",
+    :parameters
+    [{:id "moistureOneHour", :type "double"}
+     {:id "moistureHundredHour", :type "double"}
+     {:id "moistureUnits", :type "MoistureUnits::MoistureUnitsEnum"}
+     {:id "airTemperature", :type "double"}
+     {:id "temperatureUnits",
+      :type "TemperatureUnits::TemperatureUnitsEnum"}
+     {:id "sunShade", :type "double"}
+     {:id "sunShadeUnits", :type "CoverUnits::CoverUnitsEnum"}
+     {:id "fuelBedType",
+      :type "IgnitionFuelBedType::IgnitionFuelBedTypeEnum"}
+     {:id "duffDepth", :type "double"}
+     {:id "duffDepthUnits", :type "LengthUnits::LengthUnitsEnum"}
+     {:id "lightningChargeType",
+      :type "LightningCharge::LightningChargeEnum"}]}}}}
