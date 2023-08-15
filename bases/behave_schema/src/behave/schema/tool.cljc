@@ -8,13 +8,14 @@
 (s/def :tool/order           zero-pos?)
 (s/def :tool/translation-key valid-key?)
 (s/def :tool/help-key        valid-key?)
-(s/def :tool/submodules      set?)
+(s/def :tool/subtools        set?)
 
 (s/def :behave/module (s/keys :req [:tool/uuid
                                     :tool/name
                                     :tool/order
                                     :tool/translation-key
-                                    :tool/help-key]))
+                                    :tool/help-key]
+                              :opt [:tool/subtools]))
 
 (def schema
   [{:db/ident       :tool/uuid
