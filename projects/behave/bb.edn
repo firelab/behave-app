@@ -14,6 +14,9 @@
               (shell "git submodule init")
               (shell "git submodule update")
               (shell "git submodule status"))
+  restart   (do
+              (run 'stop)
+              (run 'start))
   deploy    (do
               (run 'stop)
               (run 'pull)
