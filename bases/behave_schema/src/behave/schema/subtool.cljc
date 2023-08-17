@@ -38,7 +38,7 @@
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
 
-   {:db/ident       :subtool/input-variables
+   {:db/ident       :subtool/output-variables
     :db/doc         "Subtool's output variables."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
