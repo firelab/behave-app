@@ -33,12 +33,12 @@
     :db/valueType   :db.type/number
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :subtool/input-subtool-variables
+   {:db/ident       :subtool/input-variables
     :db/doc         "Subtool's input variables."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
 
-   {:db/ident       :subtool/output-subtool-variables
+   {:db/ident       :subtool/input-variables
     :db/doc         "Subtool's output variables."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
@@ -50,6 +50,21 @@
 
    {:db/ident       :subtool/help-key
     :db/doc         "Subtool's help key."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :subtool/cpp-namespace-uuid
+    :db/doc         "subtool variable's uuid ref for it's C++ namespace."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :subtool/cpp-class-uuid
+    :db/doc         "subtool variable's uuid ref for it's C++ class."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :subtool/cpp-function-uuid
+    :db/doc         "subtool variable's uuid ref for it's C++ function."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}])
 
