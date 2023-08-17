@@ -25,23 +25,23 @@
 ;;; Schema
 
 (def schema
-  [{:db/ident       :subtool-variable/cpp-namespace
-    :db/doc         "subtool variable's C++ namespace."
+  [{:db/ident       :subtool-variable/cpp-namespace-uuid
+    :db/doc         "subtool variable's uuid ref to it's C++ namespace."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :subtool-variable/cpp-class
-    :db/doc         "subtool variable's C++ class."
+   {:db/ident       :subtool-variable/cpp-class-uuid
+    :db/doc         "subtool variable's uuid ref to it's C++ class."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :subtool-variable/cpp-function
-    :db/doc         "subtool variable's C++ function."
+   {:db/ident       :subtool-variable/cpp-function-uuid
+    :db/doc         "subtool variable's uuid ref to it's C++ function."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :subtool-variable/cpp-parameter
-    :db/doc         "subtool variable's C++ parameter."
+   {:db/ident       :subtool-variable/cpp-parameter-uuid
+    :db/doc         "subtool variable's uuid ref tor it's C++ parameter."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 

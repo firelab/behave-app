@@ -54,17 +54,17 @@
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :subtool/cpp-namespace-uuid
-    :db/doc         "subtool variable's uuid ref for it's C++ namespace."
+    :db/doc         "subtool variable's uuid ref to it's C++ namespace."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :subtool/cpp-class-uuid
-    :db/doc         "subtool variable's uuid ref for it's C++ class."
+    :db/doc         "subtool variable's uuid ref to it's C++ class."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :subtool/cpp-function-uuid
-    :db/doc         "subtool variable's uuid ref for it's C++ function."
+    :db/doc         "subtool variable's uuid ref to it's C++ function."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}])
 
