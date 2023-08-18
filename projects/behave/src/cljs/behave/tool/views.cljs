@@ -101,18 +101,18 @@
 (defn tool
   "A view for displaying the selected tool's inputs and outputs."
   [tool-uuid]
-  (let [tool-entity           @(rf/subscribe [:tool/entity tool-uuid])
-        subtools              (:tool/subtools tool-entity)
-        first-subtool-uuid    (:bp/uuid (first subtools))
-        selected-subtool-uuid @(rf/subscribe [:tool/selected-subtool-uuid])
-        _                     (when (nil? selected-subtool-uuid)
-                                (rf/dispatch [:tool/select-subtool first-subtool-uuid]))]
+  (let [{subtools  :tool/subtools
+         tool-name :tool/name} @(rf/subscribe [:tool/entity tool-uuid])
+        first-subtool-uuid     (:bp/uuid (first subtools))
+        selected-subtool-uuid  @(rf/subscribe [:tool/selected-subtool-uuid])]
+    (when (nil? selected-subtool-uuid)
+      (rf/dispatch [:tool/select-subtool first-subtool-uuid]))
     [:div.tool
      [:div.accordion
       [:div.accordion__header
        [c/tab {:variant   "outline-primary"
                :selected? true
-               :label     (:tool/name tool-entity)}]]
+               :label     tool-name}]]
       (when (> (count subtools) 1)
         [c/tab-group {:variant  "outline-primary"
                       :on-click #(rf/dispatch [:tool/select-subtool (:tab %)])
