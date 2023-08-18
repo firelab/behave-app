@@ -771,3 +771,47 @@ body {
   z-index: 100;
 }
 /* -- End Help Area -- */
+
+
+/* -- Tool Area -- */
+.tool .accordion__header {
+  padding-bottom: 5px;
+}
+
+.tool-input {
+  display: flex;
+  padding-bottom: 5px;
+}
+
+.tool-input .input-radio-group__label {
+  padding: 0px 10px 0px 5px;
+}
+
+.tool-input .input-dropdown {
+  display: inline-block;
+}
+
+.tool-input .input-dropdown__label {
+  padding: 0px 10px 0px 5px;
+}
+
+.tool-input + .tool-input:last-child {
+  border-bottom: dotted 1px var(--black);
+}
+
+.tool-input__input {
+  width: 70%;
+  padding: 5px;
+}
+
+.tool-input__description {
+  width: 30%;
+}
+
+.tool-input__description__units {
+  font-size: var(--font-size-14);
+  color: var(--gray-5);
+}
+
+
+/* -- Help Area -- */
