@@ -9,16 +9,16 @@
 (s/def :subtool/order                    zero-pos?)
 (s/def :subtool/translation-key          valid-key?)
 (s/def :subtool/help-key                 valid-key?)
-(s/def :subtool/input-subtool-variables  set?)
-(s/def :subtool/output-subtool-variables set?)
+(s/def :subtool/input-variables  set?)
+(s/def :subtool/output-variables set?)
 
 (s/def :behave/subtool (s/keys :req [:bp/uuid
                                      :subtool/name
                                      :subtool/order
                                      :subtool/translation-key
                                      :subtool/help-key]
-                               :opt [:subtool/input-subtool-variables
-                                     :subtool/input-subtool-variables]))
+                               :opt [:subtool/input-variables
+                                     :subtool/output-variables]))
 
 ;;; Schema
 
@@ -54,17 +54,17 @@
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :subtool/cpp-namespace-uuid
-    :db/doc         "subtool variable's uuid ref to it's C++ namespace."
+    :db/doc         "Subtool calculation function's uuid ref to it's C++ namespace."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :subtool/cpp-class-uuid
-    :db/doc         "subtool variable's uuid ref to it's C++ class."
+    :db/doc         "Subtool calculation function's ref to it's C++ class."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :subtool/cpp-function-uuid
-    :db/doc         "subtool variable's uuid ref to it's C++ function."
+    :db/doc         "Subtool calculation function's ref to it's C++ function."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}])
 
