@@ -38,7 +38,7 @@
 ;TODO update compute to actually run the selected subtool's compute fn
 (rf/reg-event-fx
  :tool/compute
- (fn [{:keys [db]} [_ selected-tool selected-subtool]]
+ (fn [_ [_ selected-tool selected-subtool]]
    (let [output-variables @(rf/subscribe [:subtool/output-variables selected-subtool])
          effects          (mapv (fn [variable]
                                   [:dispatch [:state/set [:tool
