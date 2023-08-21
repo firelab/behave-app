@@ -21,7 +21,9 @@
                                                                              :order     idx})
                                                                           tools)}]}]))
 
-(defmulti tool-input (fn [variable] (:variable/kind variable)))
+(defmulti tool-input
+  "MultiMethod for constructing the input fields for the tool."
+  (fn [variable] (:variable/kind variable)))
 
 (defmethod tool-input nil [variable] (println [:NO-KIND-VAR variable]))
 
@@ -40,6 +42,7 @@
                                   sv-uuid])
         value-atom (r/atom @value)]
     [:div.tool-input
+     {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
      [:div.tool-input__input
       {:on-mouse-over #(prn [:help/highlight-section help-key])}
       [c/number-input {:id         sv-uuid
@@ -85,7 +88,7 @@
                               :selected? (or (= @selected value) (and (nil? @selected) default?))
                               :checked?  (= @selected value)})]
     [:div.tool-input
-     {:on-mouse-over #(prn [:help/highlight-section help-key])}
+     {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
      (if (< num-options 4)
        [c/radio-group
         {:id      uuid
@@ -101,6 +104,7 @@
                             (map ->option options))}])]))
 
 (defn tool-output
+  "Constructs the output field component and populates the value if it exists in the app-db state"
   [{sv-uuid       :bp/uuid
     var-name      :variable/name
     native-units  :variable/native-units
@@ -110,10 +114,11 @@
    tool-uuid
    subtool-uuid]
   (let [value (rf/subscribe [:tool/output-value
-                                  tool-uuid
-                                  subtool-uuid
-                                  sv-uuid])]
+                             tool-uuid
+                             subtool-uuid
+                             sv-uuid])]
     [:div.tool-output
+     {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
      [:div.tool-output__output
       {:on-mouse-over #(prn [:help/highlight-section help-key])}
       [c/text-input {:id        sv-uuid

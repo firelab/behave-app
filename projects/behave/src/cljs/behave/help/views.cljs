@@ -32,6 +32,7 @@
   [current-key highlight?]
   (let [help-contents (subscribe [:help/content current-key])]
     ^{:key current-key}
+    (prn "help-contents:" @help-contents)
     [:div {:id    current-key
            :class [(when highlight? "highlight")]}
      (when (not-empty @help-contents)
@@ -55,9 +56,13 @@
                 [help-section help-key (= help-key @help-highlighted-key)])))]))
 
 (defn help-area [params]
-  (let [current-tab    (subscribe [:help/current-tab])
-        loaded?        (subscribe [:app/loaded?])
-        selected-tool? (subscribe [:tool/selected-tool-uuid])]
+  (let [current-tab           (subscribe [:help/current-tab])
+        loaded?               (subscribe [:app/loaded?])
+        selected-tool-uuid    (subscribe [:tool/selected-tool-uuid])
+        selected-subtool-uuid (subscribe [:tool/selected-subtool-uuid])
+        tool-help-keys        (subscribe [:help/tool-help-keys
+                                          @selected-tool-uuid
+                                          @selected-subtool-uuid])]
     [:div.help-area
      {:aria-live "polite"}
      [:div.help-area__tabs
@@ -70,7 +75,7 @@
                                         :icon-name "help-manual"
                                         :tab       :guides
                                         :selected? (= @current-tab :guides)}]
-                                (some? @selected-tool?)
+                                (some? selected-tool-uuid)
                                 (conj {:label     "Tools"
                                        :icon-name "help-manual"
                                        :tab       :tools
@@ -80,7 +85,7 @@
        [help-content "behaveplus:guides" test-guides]
 
        (= @current-tab :tools)
-       [:div "tools help"]
+       [help-content @tool-help-keys]
 
        :else
        (when @loaded?
