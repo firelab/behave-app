@@ -55,23 +55,32 @@
                 [help-section help-key (= help-key @help-highlighted-key)])))]))
 
 (defn help-area [params]
-  (let [current-tab (subscribe [:help/current-tab])
-        loaded?     (subscribe [:app/loaded?])]
+  (let [current-tab    (subscribe [:help/current-tab])
+        loaded?        (subscribe [:app/loaded?])
+        selected-tool? (subscribe [:tool/selected-tool-uuid])]
     [:div.help-area
      {:aria-live "polite"}
      [:div.help-area__tabs
       [c/tab-group {:variant  "outline-secondary"
                     :on-click #(dispatch [:help/select-tab %])
-                    :tabs     [{:label     "Help" :icon-name "help2"
-                                :tab       :help
-                                :selected? (= @current-tab :help)}
-                               {:label "Guides & Manuals"
-                                :icon-name "help-manual"
-                                :tab :guides
-                                :selected (= @current-tab :guides)}]}]]
+                    :tabs     (cond-> [{:label     "Help" :icon-name "help2"
+                                        :tab       :module
+                                        :selected? (= @current-tab :module)}
+                                       {:label     "Guides & Manuals"
+                                        :icon-name "help-manual"
+                                        :tab       :guides
+                                        :selected? (= @current-tab :guides)}]
+                                (some? @selected-tool?)
+                                (conj {:label     "Tools"
+                                       :icon-name "help-manual"
+                                       :tab       :tools
+                                       :selected? (= @current-tab :tools)}))}]]
      (cond
        (= @current-tab :guides)
        [help-content "behaveplus:guides" test-guides]
+
+       (= @current-tab :tools)
+       [:div "tools help"]
 
        :else
        (when @loaded?

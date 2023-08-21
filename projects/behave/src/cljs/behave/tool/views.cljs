@@ -145,7 +145,13 @@
       [:div.accordion__header
        [c/tab {:variant   "outline-primary"
                :selected? true
-               :label     tool-name}]]
+               :label     tool-name}]
+       [:div.tool__close
+        [c/button {:icon-name "close"
+                   :on-click  #(rf/dispatch [:tool/close-tool])
+                   :shape     "round"
+                   :size      "small"
+                   :variant   "primary"}]]]
       (when (> (count subtools) 1)
         [c/tab-group {:variant  "outline-primary"
                       :on-click #(rf/dispatch [:tool/select-subtool (:tab %)])

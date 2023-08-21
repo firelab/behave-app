@@ -17,11 +17,18 @@
    {:fx [[:dispatch [:state/set [:sidebar :*tools-or-settings] nil]]]}))
 
 (rf/reg-event-fx
+ :tool/close-tool
+ (fn [_ _]
+   {:fx [[:dispatch [:state/set [:tool :selected-tool] nil]]
+         [:dispatch [:state/set [:tool :selected-subtool] nil]]]}))
+
+(rf/reg-event-fx
  :tool/select-tool
  (fn [_ [_ tool-uuid]]
    {:fx [[:dispatch [:state/set [:tool :selected-subtool] nil]]
          [:dispatch [:state/set [:tool :selected-tool] tool-uuid]]
-         [:dispatch [:tool/close-tool-selector]]]}))
+         [:dispatch [:tool/close-tool-selector]]
+         [:dispatch [:help/select-tab {:tab :tools}]]]}))
 
 (rf/reg-event-fx
  :tool/select-subtool

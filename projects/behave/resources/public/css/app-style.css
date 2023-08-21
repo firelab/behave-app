@@ -773,8 +773,10 @@ body {
 /* -- End Help Area -- */
 
 
-/* -- Tool Area -- */
+/* -- Tool -- */
 .tool .accordion__header {
+  position: relative;
+  display: (flex);
   padding-bottom: 5px;
 }
 
@@ -810,11 +812,32 @@ body {
 .tool-input__description {
   width: 30%;
 }
+
 .tool-output__description__units,
 .tool-input__description__units {
   font-size: var(--font-size-14);
   color: var(--gray-5);
 }
 
+.tool__close {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  fill: var(--white);
+}
 
-/* -- Help Area -- */
+.tool__close > .button {
+  width: 30px;
+  height: 30px;
+  padding: 0px;
+  border-radius: 50%;
+}
+
+.tool__close > .button:hover {
+  color: var(--medblue-4);
+  background-color: var(--white);
+}
+
+
+
+/* -- End Tool -- */

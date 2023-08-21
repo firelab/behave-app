@@ -4,7 +4,7 @@
 (rf/reg-sub
   :help/current-tab
   (fn [db _]
-    (get-in db [:state :help-tab] :help)))
+    (get-in db [:state :help-tab])))
 
 (rf/reg-sub
  :help/current-highlighted-key
