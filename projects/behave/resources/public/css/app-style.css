@@ -778,6 +778,7 @@ body {
   padding-bottom: 5px;
 }
 
+.tool-output,
 .tool-input {
   display: flex;
   padding-bottom: 5px;
@@ -799,15 +800,17 @@ body {
   border-bottom: dotted 1px var(--black);
 }
 
+.tool-output__output,
 .tool-input__input {
   width: 70%;
   padding: 5px;
 }
 
+.tool-output__description,
 .tool-input__description {
   width: 30%;
 }
-
+.tool-output__description__units,
 .tool-input__description__units {
   font-size: var(--font-size-14);
   color: var(--gray-5);

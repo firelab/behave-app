@@ -25,14 +25,15 @@
 
 (defmethod tool-input nil [variable] (println [:NO-KIND-VAR variable]))
 
-(defmethod tool-input :continuous [{sv-uuid       :bp/uuid
-                                    var-name      :variable/name
-                                    native-units  :variable/native-units
-                                    english-units :variable/english-units
-                                    metric-units  :variable/metric-units
-                                    help-key      :subtool-variable/help-key}
-                                   tool-uuid
-                                   subtool-uuid]
+(defmethod tool-input :continuous
+  [{sv-uuid       :bp/uuid
+    var-name      :variable/name
+    native-units  :variable/native-units
+    english-units :variable/english-units
+    metric-units  :variable/metric-units
+    help-key      :subtool-variable/help-key}
+   tool-uuid
+   subtool-uuid]
   (let [value      (rf/subscribe [:tool/input-value
                                   tool-uuid
                                   subtool-uuid
@@ -57,7 +58,8 @@
        [:div (str "English Units: " english-units)]
        [:div (str "Metric Units: " metric-units)]]]]))
 
-(defmethod tool-input :discrete [variable tool-uuid subtool-uuid]
+(defmethod tool-input :discrete
+  [variable tool-uuid subtool-uuid]
   (r/with-let [{sv-uuid  :bp/uuid
                 var-name :variable/name
                 help-key :subtool-variable/help-key
@@ -98,14 +100,45 @@
          :options   (concat [{:label "Select..." :value "nil"}]
                             (map ->option options))}])]))
 
+(defn tool-output
+  [{sv-uuid       :bp/uuid
+    var-name      :variable/name
+    native-units  :variable/native-units
+    english-units :variable/english-units
+    metric-units  :variable/metric-units
+    help-key      :subtool-variable/help-key}
+   tool-uuid
+   subtool-uuid]
+  (let [value (rf/subscribe [:tool/output-value
+                                  tool-uuid
+                                  subtool-uuid
+                                  sv-uuid])]
+    [:div.tool-output
+     [:div.tool-output__output
+      {:on-mouse-over #(prn [:help/highlight-section help-key])}
+      [c/text-input {:id        sv-uuid
+                     :disabled? true
+                     :label     var-name
+                     :value     (or @value "")}]]
+     [:div.tool-output__description
+      (str "Units used: " native-units)
+      [:div.tool-output__description__units
+       [:div (str "English Units: " english-units)]
+       [:div (str "Metric Units: " metric-units)]]]]))
+
 (defn tool
   "A view for displaying the selected tool's inputs and outputs."
   [tool-uuid]
   (let [{subtools  :tool/subtools
-         tool-name :tool/name} @(rf/subscribe [:tool/entity tool-uuid])
-        first-subtool-uuid     (:bp/uuid (first subtools))
-        selected-subtool-uuid  @(rf/subscribe [:tool/selected-subtool-uuid])]
-    (when (nil? selected-subtool-uuid)
+         tool-name :tool/name
+         tool-uuid :bp/uuid}  @(rf/subscribe [:tool/entity tool-uuid])
+        first-subtool-uuid    (:bp/uuid (first subtools))
+        selected-subtool-uuid (rf/subscribe [:tool/selected-subtool-uuid])
+        subtool-uuid          (or @selected-subtool-uuid
+                                  first-subtool-uuid)
+        input-vars            @(rf/subscribe [:subtool/input-variables subtool-uuid])
+        output-vars           @(rf/subscribe [:subtool/output-variables subtool-uuid])]
+    (when (nil? @selected-subtool-uuid)
       (rf/dispatch [:tool/select-subtool first-subtool-uuid]))
     [:div.tool
      [:div.accordion
@@ -119,9 +152,15 @@
                       :tabs     (map (fn [{s-name :subtool/name s-uuid :bp/uuid}]
                                        {:label     s-name
                                         :tab       s-uuid
-                                        :selected? (= selected-subtool-uuid s-uuid)})
+                                        :selected? (= subtool-uuid s-uuid)})
                                      subtools)}])
-      (let [input-vars @(rf/subscribe [:subtool/input-variables (or selected-subtool-uuid
-                                                                    first-subtool-uuid)])]
-        (for [variable input-vars]
-          [tool-input variable tool-uuid selected-subtool-uuid]))]]))
+      (for [variable input-vars]
+        [tool-input variable tool-uuid subtool-uuid])
+      [:div.tool__compute
+       [c/button {:label         "Compute"
+                  :variant       "highlight"
+                  :icon-name     "arrow2"
+                  :icon-position "right"
+                  :on-click      #(rf/dispatch [:tool/compute tool-uuid subtool-uuid])}]]
+      (for [variable output-vars]
+        [tool-output variable tool-uuid subtool-uuid])]]))

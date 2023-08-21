@@ -4,8 +4,12 @@
 (rf/reg-event-fx
  :tool/upsert-input-value
  (fn [_ [_ tool-uuid subtool-uuid variable-uuid value]]
-   {:fx [[:dispatch [:state/set
-                     [:tool :data tool-uuid subtool-uuid :inputs variable-uuid]
+   {:fx [[:dispatch [:state/set [:tool
+                                 :data
+                                 tool-uuid
+                                 subtool-uuid
+                                 :inputs
+                                 variable-uuid]
                      value]]]}))
 (rf/reg-event-fx
  :tool/close-tool-selector
@@ -23,3 +27,19 @@
  :tool/select-subtool
  (fn [_ [_ subtool-uuid]]
    {:fx [[:dispatch [:state/set [:tool :selected-subtool] subtool-uuid]]]}))
+
+;TODO update compute to actually run the selected subtool's compute fn
+(rf/reg-event-fx
+ :tool/compute
+ (fn [{:keys [db]} [_ selected-tool selected-subtool]]
+   (let [output-variables @(rf/subscribe [:subtool/output-variables selected-subtool])
+         effects          (mapv (fn [variable]
+                                  [:dispatch [:state/set [:tool
+                                                          :data
+                                                          selected-tool
+                                                          selected-subtool
+                                                          :outputs
+                                                          (:bp/uuid variable)]
+                                              (str "computed subtool:" selected-subtool)]])
+                                output-variables)]
+     {:fx effects})))

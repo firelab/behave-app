@@ -71,13 +71,22 @@
 
 (reg-sub
  :tool/input-value
- (fn [[_ tool-uuid subtool-uuid subtool-variable-uuid]]
-   (rf/subscribe [:state [:tool
-                          :data
-                          tool-uuid
-                          subtool-uuid
-                          :inputs
-                          subtool-variable-uuid]]))
+ (fn [db [_ tool-uuid subtool-uuid subtool-variable-uuid]]
+   (get-in db [:state
+               :tool
+               :data
+               tool-uuid
+               subtool-uuid
+               :inputs
+               subtool-variable-uuid])))
 
- (fn [value _]
-   value))
+(reg-sub
+ :tool/output-value
+ (fn [db [_ tool-uuid subtool-uuid subtool-variable-uuid]]
+   (get-in db [:state
+               :tool
+               :data
+               tool-uuid
+               subtool-uuid
+               :outputs
+               subtool-variable-uuid])))
