@@ -42,9 +42,8 @@
                                   sv-uuid])
         value-atom (r/atom @value)]
     [:div.tool-input
-     {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
      [:div.tool-input__input
-      {:on-mouse-over #(prn [:help/highlight-section help-key])}
+      {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
       [c/number-input {:id         sv-uuid
                        :label      var-name
                        :value-atom value-atom
