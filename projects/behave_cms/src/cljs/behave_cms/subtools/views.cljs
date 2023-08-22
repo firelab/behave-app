@@ -60,8 +60,7 @@
    [simple-table
     [:variable/name]
     (sort-by :subtool-variable/order variables)
-    {:on-select   #(rf/dispatch [:state/set-state :subtool-variable (:db/id %)])
-     :on-delete   #(when (js/confirm (str "Are you sure you want to delete the variable "
+    {:on-delete   #(when (js/confirm (str "Are you sure you want to delete the variable "
                                           (:variable/name %) "?"))
                      (rf/dispatch [:api/delete-entity %]))
      :on-increase #(rf/dispatch [:api/reorder % variables :subtool-variable/order :inc])

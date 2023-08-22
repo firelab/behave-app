@@ -1,64 +1,18 @@
 (ns behave-cms.subtool-variables.views
-  (:require [reagent.core                       :as r]
-            [re-frame.core                      :as rf]
+  (:require [re-frame.core                      :as rf]
             [behave-cms.components.common       :refer [accordion
                                                         window]]
+            [behave-cms.components.cpp-editor   :refer [cpp-editor-form]]
             [behave-cms.components.sidebar      :refer [sidebar sidebar-width ->sidebar-links]]
             [behave-cms.components.translations :refer [all-translations]]
-            [behave-cms.help.views              :refer [help-editor]]
-            [behave-cms.utils                   :as u]))
+            [behave-cms.help.views              :refer [help-editor]]))
 
 ;;; Constants
 
-(def ^:private cpp-class :subtool-variable/cpp-class-uuid)
-(def ^:private cpp-fn    :subtool-variable/cpp-function-uuid)
-(def ^:private cpp-ns    :subtool-variable/cpp-namespace-uuid)
-(def ^:private cpp-param :subtool-variable/cpp-parameter-uuid)
-(def ^:private cpp-attrs [cpp-ns cpp-class cpp-fn cpp-param])
-
-;;; Helpers
-
-(defn- save-subtool-variable! [id]
-  (let [state          @(rf/subscribe [:state [:editors :subtool-variables]])
-        subtool-variable (merge {:db/id id} (select-keys state cpp-attrs))]
-    (rf/dispatch [:api/update-entity subtool-variable])
-    (rf/dispatch [:state/set-state :subtool-variable nil])
-    (rf/dispatch [:state/set-state [:editors :subtool-variables] {}])))
-
-;;; Components
-
-(defn- selector [label *uuid on-change name-attr options disabled?]
-  [:div.mb-3
-   [:div {:style {:visibility "hidden" :height "0px"}} @*uuid]
-   [:label.form-label label]
-   [:select.form-select
-    {:disabled  disabled?
-     :on-change #(on-change (u/input-value %))}
-    [:option {:key 0 :value nil} "Select..."]
-    (for [{uuid :bp/uuid option-label name-attr} options]
-      ^{:key uuid}
-      [:option {:value uuid :selected (= @*uuid uuid)} option-label])]])
-
-;;; Variables Editor
-
-(defn- edit-variable [id]
-  (let [original   @(rf/subscribe [:entity id])
-        get-field  (fn [field]
-                     (r/track #(or @(rf/subscribe [:state [:editors :subtool-variables field]]) (get original field ""))))
-        set-field  (fn [field]
-                     (fn [new-value] (rf/dispatch [:state/set-state [:editors :subtool-variables field] new-value])))
-        on-submit  #(save-subtool-variable! id)
-        namespaces (rf/subscribe [:cpp/namespaces])
-        classes    (rf/subscribe [:cpp/classes @(get-field cpp-ns)])
-        functions  (rf/subscribe [:cpp/functions @(get-field cpp-class)])
-        parameters (rf/subscribe [:cpp/parameters @(get-field cpp-fn)])]
-    [:form
-     {:on-submit (u/on-submit on-submit)}
-     [selector "Namespace:" (get-field cpp-ns)    (set-field cpp-ns)    :cpp.namespace/name  @namespaces  false]
-     [selector "Class:"     (get-field cpp-class) (set-field cpp-class) :cpp.class/name      @classes    (nil? @(get-field cpp-ns))]
-     [selector "Function:"  (get-field cpp-fn)    (set-field cpp-fn)    :cpp.function/name   @functions  (nil? @(get-field cpp-class))]
-     [selector "Parameter:" (get-field cpp-param) (set-field cpp-param) :cpp.parameter/name  @parameters (nil? @(get-field cpp-fn))]
-     [:button.btn.btn-sm.btn-outline-primary {:type "submit"} "Save"]]))
+(def ^:private cpp-attrs {:cpp-class :subtool-variable/cpp-class-uuid
+                          :cpp-fn    :subtool-variable/cpp-function-uuid
+                          :cpp-ns    :subtool-variable/cpp-namespace-uuid
+                          :cpp-param :subtool-variable/cpp-parameter-uuid})
 
 ;;; Public Views
 
@@ -100,4 +54,5 @@
        [accordion
         "CPP Functions"
         [:div.col-6
-         [edit-variable eid]]]]]]))
+         [cpp-editor-form
+          (merge cpp-attrs {:id eid :editor-key :subtool-variables})]]]]]]))
