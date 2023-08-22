@@ -22,13 +22,15 @@
 
 (reg-sub
  :tool/selected-tool-uuid
- (fn [db _]
-   (get-in db [:state :tool :selected-tool])))
+ (path [:state :tool :selected-tool])
+ (fn [selected-tool-uuid _]
+   selected-tool-uuid))
 
 (reg-sub
  :tool/selected-subtool-uuid
- (fn [db _]
-   (get-in db [:state :tool :selected-subtool])))
+ (path [:state :tool :selected-subtool])
+ (fn [selected-subtool _]
+   selected-subtool))
 
 (reg-sub
  :tool/entity
