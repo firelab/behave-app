@@ -32,11 +32,11 @@
  :tool/select-tool
  (rf/path db-here)
  (fn [{:keys [db]} [_ tool-uuid]]
-   {:fx [[:dispatch [:tool/close-tool-selector]]
-         [:dispatch [:help/select-tab {:tab :tools}]]]
-    :db (-> db
+   {:db (-> db
             (dissoc :selected-subtool)
-            (assoc :selected-tool tool-uuid))}))
+            (assoc :selected-tool tool-uuid))
+    :fx [[:dispatch [:tool/close-tool-selector]]
+         [:dispatch [:help/select-tab {:tab :tools}]]]}))
 
 (rf/reg-event-db
  :tool/select-subtool
