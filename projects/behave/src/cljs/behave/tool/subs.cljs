@@ -6,9 +6,9 @@
 
 (reg-sub
  :tool/show-tool-selector?
- (fn [db _]
-   (let [state (get-in db [:state :sidebar :*tools-or-settings])]
-     (= state :tools))))
+ (path [:state :sidebar :*tools-or-settings])
+ (fn [tools-or-settings _]
+   (= tools-or-settings :tools)))
 
 (reg-sub
  :tool/all-tools
