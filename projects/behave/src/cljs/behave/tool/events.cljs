@@ -1,20 +1,22 @@
 (ns behave.tool.events
   (:require [re-frame.core :as rf]))
 
-(rf/reg-event-fx
+(rf/reg-event-db
  :tool/upsert-input-value
- (fn [_ [_ tool-uuid subtool-uuid variable-uuid value]]
-   {:fx [[:dispatch [:state/set [:tool
-                                 :data
-                                 tool-uuid
-                                 subtool-uuid
-                                 :inputs
-                                 variable-uuid]
-                     value]]]}))
-(rf/reg-event-fx
+ (fn [db [_ tool-uuid subtool-uuid variable-uuid value]]
+   (update-in db
+              [:tool
+               :data
+               tool-uuid
+               subtool-uuid
+               :inputs
+               variable-uuid]
+              value)))
+
+(rf/reg-event-db
  :tool/close-tool-selector
- (fn [_ _]
-   {:fx [[:dispatch [:state/set [:sidebar :*tools-or-settings] nil]]]}))
+ (rf/path [:state :sidebar :*tools-or-settings])
+ (fn [_] nil))
 
 (rf/reg-event-fx
  :tool/close-tool
@@ -30,12 +32,12 @@
          [:dispatch [:tool/close-tool-selector]]
          [:dispatch [:help/select-tab {:tab :tools}]]]}))
 
-(rf/reg-event-fx
+(rf/reg-event-db
  :tool/select-subtool
- (fn [_ [_ subtool-uuid]]
-   {:fx [[:dispatch [:state/set [:tool :selected-subtool] subtool-uuid]]]}))
+ (fn [db [_ subtool-uuid]]
+   (update-in db [:state :tool :selected-subtool] subtool-uuid)))
 
-;TODO update compute to actually run the selected subtool's compute fn
+;;TODO update compute to actually run the selected subtool's compute fn
 (rf/reg-event-fx
  :tool/compute
  (fn [_ [_ selected-tool selected-subtool]]
