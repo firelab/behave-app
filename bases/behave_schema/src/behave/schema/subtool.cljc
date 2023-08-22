@@ -4,21 +4,21 @@
 
 ;;; Spec
 
-(s/def :subtool/uuid                     uuid-string?)
-(s/def :subtool/name                     string?)
-(s/def :subtool/order                    zero-pos?)
-(s/def :subtool/translation-key          valid-key?)
-(s/def :subtool/help-key                 valid-key?)
-(s/def :subtool/input-subtool-variables  set?)
-(s/def :subtool/output-subtool-variables set?)
+(s/def :subtool/uuid             uuid-string?)
+(s/def :subtool/name             string?)
+(s/def :subtool/order            zero-pos?)
+(s/def :subtool/translation-key  valid-key?)
+(s/def :subtool/help-key         valid-key?)
+(s/def :subtool/input-variables  set?)
+(s/def :subtool/output-variables set?)
 
 (s/def :behave/subtool (s/keys :req [:bp/uuid
                                      :subtool/name
                                      :subtool/order
                                      :subtool/translation-key
                                      :subtool/help-key]
-                               :opt [:subtool/input-subtool-variables
-                                     :subtool/input-subtool-variables]))
+                               :opt [:subtool/input-variables
+                                     :subtool/output-variables]))
 
 ;;; Schema
 
