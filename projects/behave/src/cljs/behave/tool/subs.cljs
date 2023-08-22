@@ -6,9 +6,9 @@
 
 (reg-sub
  :tool/show-tool-selector?
- (path [:state :sidebar :*tools-or-settings])
- (fn [tools-or-settings _]
-   (= tools-or-settings :tools)))
+ (fn [db _]
+   (let [state (get-in db [:state :sidebar :*tools-or-settings])]
+     (= state :tools))))
 
 (reg-sub
  :tool/all-tools
@@ -22,15 +22,13 @@
 
 (reg-sub
  :tool/selected-tool-uuid
- (path [:state :tool :selected-tool])
- (fn [selected-tool-uuid _]
-   selected-tool-uuid))
+ (fn [db _]
+   (get-in db [:state :tool :selected-tool])))
 
 (reg-sub
  :tool/selected-subtool-uuid
- (path [:state :tool :selected-subtool])
- (fn [selected-subtool _]
-   selected-subtool))
+ (fn [db _]
+   (get-in db [:state :tool :selected-subtool])))
 
 (reg-sub
  :tool/entity
