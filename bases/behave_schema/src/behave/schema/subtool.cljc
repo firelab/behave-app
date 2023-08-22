@@ -66,6 +66,11 @@
    {:db/ident       :subtool/cpp-function-uuid
     :db/doc         "Subtool calculation function's ref to it's C++ function."
     :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :subtool/cpp-parameter-uuid
+    :db/doc         "Subtool calculation parameter's ref to it's C++ parameter."
+    :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}])
 
 (comment

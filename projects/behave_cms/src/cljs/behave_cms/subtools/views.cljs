@@ -4,6 +4,7 @@
             [re-frame.core :as rf]
             [string-utils.interface :refer [->kebab]]
             [behave-cms.components.common          :refer [accordion radio-buttons simple-table window]]
+            [behave-cms.components.cpp-editor      :refer [cpp-editor-form]]
             [behave-cms.help.views                 :refer [help-editor]]
             [behave-cms.components.sidebar         :refer [->sidebar-links sidebar sidebar-width]]
             [behave-cms.components.translations    :refer [all-translations]]
@@ -11,6 +12,15 @@
             [behave-cms.utils :as u]
             [behave-cms.subs]
             [behave-cms.events]))
+
+;;; Constants
+
+(def ^:private cpp-attrs {:cpp-class :subtool/cpp-class-uuid
+                          :cpp-fn    :subtool/cpp-function-uuid
+                          :cpp-ns    :subtool/cpp-namespace-uuid
+                          :cpp-param :subtool/cpp-parameter-uuid})
+
+;;; Components
 
 (defn- remaining-variables [all-variables selected-variables]
   (let [all-variable-ids (set (map :db/id all-variables))
@@ -71,6 +81,8 @@
    [variables-table "Input Variables" input-variables]
    [variables-table "Output Variables" output-variables]])
 
+;;; Public
+
 (defn subtools-page
   "Displays Subtools page. Takes a map with:
   - :id [int] - Subtool Entity ID"
@@ -90,13 +102,19 @@
      [window sidebar-width
       [:div.container
        [:div.row.mb-3.mt-4
-        [:h2 (:tool/name @subtool)]]
+        [:h2 (:subtool/name @subtool)]]
        [accordion
         "Variables"
         [:div.col-6
          [all-variable-tables @input-variables @output-variables]]
         [:div.col-6
          [manage-variable subtool-eid (:subtool/translation-key @subtool) @input-variables @output-variables]]]
+       [:hr]
+       [accordion
+        "Compute Function"
+        [:div.col-6
+         [cpp-editor-form
+          (merge cpp-attrs {:id subtool-eid :editor-key :subtool-compute-fn})]]]
        [:hr]
        [accordion
         "Translations"
