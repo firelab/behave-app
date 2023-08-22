@@ -32,7 +32,6 @@
   [current-key highlight?]
   (let [help-contents (subscribe [:help/content current-key])]
     ^{:key current-key}
-    (prn "help-contents:" @help-contents)
     [:div {:id    current-key
            :class [(when highlight? "highlight")]}
      (when (not-empty @help-contents)

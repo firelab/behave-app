@@ -69,7 +69,7 @@ enable subscriptions on DataScript entities, reducing view logic.
 ** behave
 *** Schema
 
-#+begin_src dot :results value :file projects/behave/resources/tools-schema.png
+#+begin_src dot :results value :file projects/behave/docs/tools-schema.png
 digraph GitHub {
 graph [rankdir = "LR"]
 
@@ -139,7 +139,7 @@ List -> ListOptions         [label=":list/options" taillabel=1 headlabel=N]
 #+end_src
 
 #+RESULTS:
-[[file:projects/behave/resources/tools-schema.png]]
+[[file:projects/behave/docs/tools-schema.png]]
 
 ** behave_cms
 * Building the Behave UberJAR

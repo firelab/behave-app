@@ -1,7 +1,5 @@
 (ns behave.help.subs
-  (:require [re-frame.core :as rf]
-            [behave.vms.store       :as s]
-            [datascript.core        :as d]))
+  (:require [re-frame.core :as rf]))
 
 (rf/reg-sub
  :help/current-tab

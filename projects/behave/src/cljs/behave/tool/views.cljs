@@ -1,9 +1,10 @@
 (ns behave.tool.views
-  (:require [re-frame.core :as rf]
+  (:require [behave.components.core :as c]
+            [behave.translate       :refer [<t bp]]
             [dom-utils.interface    :refer [input-value]]
-            [reagent.core            :as r]
-            [string-utils.interface  :refer [->kebab]]
-            [behave.components.core         :as c]))
+            [reagent.core           :as r]
+            [string-utils.interface :refer [->kebab]]
+            [re-frame.core          :as rf]))
 
 (defn tool-selector
   "A Modal used for selecting a tool"
@@ -167,7 +168,7 @@
       (for [variable input-vars]
         [tool-input variable tool-uuid subtool-uuid])
       [:div.tool__compute
-       [c/button {:label         "Compute"
+       [c/button {:label         @(<t (bp "compute"))
                   :variant       "highlight"
                   :icon-name     "arrow2"
                   :icon-position "right"
