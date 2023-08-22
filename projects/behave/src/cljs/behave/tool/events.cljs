@@ -34,8 +34,9 @@
 
 (rf/reg-event-db
  :tool/select-subtool
- (fn [db [_ subtool-uuid]]
-   (update-in db [:state :tool :selected-subtool] subtool-uuid)))
+ (rf/path [:state :tool :selected-subtool])
+ (fn [_ [_ subtool-uuid]]
+   subtool-uuid))
 
 ;;TODO update compute to actually run the selected subtool's compute fn
 (rf/reg-event-fx
