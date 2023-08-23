@@ -1,11 +1,11 @@
 (ns behave.tool.events
   (:require [re-frame.core :as rf]))
 
-(def db-here [:state :tool])
+(def db-tool [:state :tool])
 
 (rf/reg-event-db
  :tool/upsert-input-value
- (rf/path db-here)
+ (rf/path db-tool)
  (fn [db [_ tool-uuid subtool-uuid variable-uuid value]]
    (assoc-in db
              [:data
@@ -22,7 +22,7 @@
 
 (rf/reg-event-db
  :tool/close-tool
- (rf/path db-here)
+ (rf/path db-tool)
  (fn [db _]
    (-> db
        (dissoc :selected-tool)
@@ -30,7 +30,7 @@
 
 (rf/reg-event-fx
  :tool/select-tool
- (rf/path db-here)
+ (rf/path db-tool)
  (fn [{:keys [db]} [_ tool-uuid]]
    {:db (-> db
             (dissoc :selected-subtool)
@@ -40,14 +40,14 @@
 
 (rf/reg-event-db
  :tool/select-subtool
- (rf/path db-here)
+ (rf/path db-tool)
  (fn [db [_ subtool-uuid]]
    (assoc db :selected-subtool subtool-uuid)))
 
 ;;TODO update compute to actually run the selected subtool's compute fn
 (rf/reg-event-db
  :tool/compute
- (rf/path db-here)
+ (rf/path db-tool)
  (fn [db [_ selected-tool selected-subtool]]
    (let [output-variables @(rf/subscribe [:subtool/output-variables selected-subtool])]
      (reduce (fn [db variable]

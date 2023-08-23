@@ -4,7 +4,6 @@
 
 ;;; Spec
 
-(s/def :subtool/uuid             uuid-string?)
 (s/def :subtool/name             string?)
 (s/def :subtool/order            zero-pos?)
 (s/def :subtool/translation-key  valid-key?)
