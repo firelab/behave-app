@@ -20,6 +20,7 @@ behaveplus:change_text,Change Text
 behaveplus:change_values,Change Values
 behaveplus:characters_not_allowed,Characters not allowed
 behaveplus:close_notes,Close Notes
+behaveplus:compute,Compute
 behaveplus:contain,Contain
 behaveplus:contain_only,Contain Only
 behaveplus:contain_inputs,Contain Inputs

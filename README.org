@@ -65,7 +65,83 @@ Datalog syntax. The back-end access Datoms using [[https://github.com/replikativ
 front-end accesses Datoms through [[https://github.com/tonsky/datascript][DataScript]]. [[https://github.com/denistakeda/re-posh][Re-Posh]] is also used to
 enable subscriptions on DataScript entities, reducing view logic.
 
+* Projects
+** behave
+*** Schema
 
+#+begin_src dot :results value :file projects/behave/docs/tools-schema.png
+digraph GitHub {
+graph [rankdir = "LR"]
+
+node [shape = record]
+
+Tool [label="Tools
+|{ :bp/uuid              | string }
+|{ :tool/name            | string }
+|{ :tool/order           | number }
+|{ :tool/translation-key | string }
+|{ :tool/help-key        | string }"]
+
+SubTool [label="Subtool
+|{ :bp/uuid                 | string }
+|{ :subtool/name            | string }
+|{ :subtool/order           | number }
+|{ :subtool/translation-key | string }
+|{ :subtool/help-key        | string }"]
+
+SubToolVariable [label="Subtool-Variable
+|{ :bp/uuid                             | string }
+|{ :subtool-variable/cpp-namespace-uuid | string }
+|{ :subtool-variable/cpp-mclass         | string }
+|{ :subtool-variable/cpp-function-uuid  | string }
+|{ :subtool-variable/order              | number }
+|{ :subtool-variable/translation-key    | string }
+|{ :subtool-variable/help-key           | string }"]
+
+Variable [label="Variable
+|{ :bp/uuid                   | string }
+|{ :variable/name             | string }
+|{ :variable/bp6-label        | string }
+|{ :variable/bp6-code         | string }
+|{ :variable/kind             | keyword}
+|{ :variable/translation-key  | string }
+|{ :variable/maximum          | double }
+|{ :variable/minimum          | double }
+|{ :variable/default-value    | double }
+|{ :variable/english-decimals | double }
+|{ :variable/english-units    | string }
+|{ :variable/metric-decimals  | double }
+|{ :variable/metric-units     | string }
+|{ :variable/native-units     | string }
+"]
+List [label="List
+|{ :bp/uuid               | string }
+|{ :list/name             | string }
+|{ :list/translation-key  | string }
+"]
+
+ListOptions [label="List-Options
+|{ :bp/uuid                     | string }
+|{ :list-option/name            | string }
+|{ :list-option/default         | string }
+|{ :list-option/value           | string }
+|{ :list-option/order           | string }
+|{ :list-option/translation-key | string }
+"]
+
+Tool     -> SubTool         [label=":tool/subtools" taillabel=1 headlabel=N]
+SubTool  -> SubToolVariable [label=":subtool/input-variables" taillabel=1 headlabel=N]
+SubTool  -> SubToolVariable [label=":subtool/output-variables" taillabel=1 headlabel=N]
+Variable -> SubToolVariable [label=":subtool-variable/variables" taillabel=1 headlabel=N]
+Variable -> List            [label=":variable/list" taillabel=1 headlabel=1]
+List -> ListOptions         [label=":list/options" taillabel=1 headlabel=N]
+}
+#+end_src
+
+#+RESULTS:
+[[file:projects/behave/docs/tools-schema.png]]
+
+** behave_cms
 * Building the Behave UberJAR
 
 1. Add/edit the ~resources/config.edn~ for your deployment. Below is
@@ -77,7 +153,7 @@ enable subscriptions on DataScript entities, reducing view logic.
                                :path    "~/.behave/db"}}}
    :site     {:title       "BehavePlus 7"
               :description "Wildfire Analysis toolkit."}
-   :server   {:http-port 8007 
+   :server   {:http-port 8007
               :mode      "prod"}
    :vms      {:secret-token "<vms-secret-token>"}}
 #+END_SRC

@@ -4,14 +4,13 @@
 
 ;;; Spec
 
-(s/def :subtool-variable/uuid            uuid-string?)
-(s/def :subtool-variable/cpp-class       string?)
-(s/def :subtool-variable/cpp-function    string?)
-(s/def :subtool-variable/cpp-namespace   string?)
-(s/def :subtool-variable/cpp-parameter   string?)
-(s/def :subtool-variable/help-key        valid-key?)
-(s/def :subtool-variable/order           zero-pos?)
-(s/def :subtool-variable/translation-key valid-key?)
+(s/def :subtool-variable/cpp-class-uuid     string?)
+(s/def :subtool-variable/cpp-function-uuid  string?)
+(s/def :subtool-variable/cpp-namespace-uuid string?)
+(s/def :subtool-variable/cpp-parameter-uuid string?)
+(s/def :subtool-variable/help-key           valid-key?)
+(s/def :subtool-variable/order              zero-pos?)
+(s/def :subtool-variable/translation-key    valid-key?)
 
 (s/def :behave/subtool-variable (s/keys :req [:bp/uuid
                                               :subtool-variable/order

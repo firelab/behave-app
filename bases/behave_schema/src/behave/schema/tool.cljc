@@ -3,7 +3,6 @@
             [behave.schema.utils :refer [valid-key? uuid-string? zero-pos?]]))
 
 
-(s/def :tool/uuid            uuid-string?)
 (s/def :tool/name            string?)
 (s/def :tool/order           zero-pos?)
 (s/def :tool/translation-key valid-key?)

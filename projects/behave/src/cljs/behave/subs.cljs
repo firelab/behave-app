@@ -3,7 +3,9 @@
             [re-frame.core       :as rf]
             [re-posh.core        :as rp]
             [behave-routing.main :refer [routes]]
-            [behave.vms.subs]))
+            [behave.vms.subs]
+            [behave.wizard.subs]
+            [behave.tool.subs]))
 
 ;; Taken from https://lambdaisland.com/blog/11-02-2017-re-frame-form-1-subscriptions
 (def <sub (comp deref rf/subscribe))

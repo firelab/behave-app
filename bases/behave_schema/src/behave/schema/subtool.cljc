@@ -4,11 +4,10 @@
 
 ;;; Spec
 
-(s/def :subtool/uuid                     uuid-string?)
-(s/def :subtool/name                     string?)
-(s/def :subtool/order                    zero-pos?)
-(s/def :subtool/translation-key          valid-key?)
-(s/def :subtool/help-key                 valid-key?)
+(s/def :subtool/name             string?)
+(s/def :subtool/order            zero-pos?)
+(s/def :subtool/translation-key  valid-key?)
+(s/def :subtool/help-key         valid-key?)
 (s/def :subtool/input-variables  set?)
 (s/def :subtool/output-variables set?)
 
