@@ -58,9 +58,8 @@
  (fn [db [_ subtool-uuid]]
    (assoc db :selected-subtool subtool-uuid)))
 
-;;TODO update compute to actually run the selected subtool's compute fn
 (rf/reg-event-db
- :tool/compute
+ :tool/solve
  (rf/path db-tool)
  (fn [db [_ selected-tool selected-subtool]]
    (let [results (solve-tool selected-tool selected-subtool)]

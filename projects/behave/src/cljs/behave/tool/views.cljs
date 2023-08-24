@@ -168,6 +168,6 @@
                   :variant       "highlight"
                   :icon-name     "arrow2"
                   :icon-position "right"
-                  :on-click      #(rf/dispatch [:tool/compute tool-uuid subtool-uuid])}]]
+                  :on-click      #(rf/dispatch [:tool/solve tool-uuid subtool-uuid])}]]
       (for [variable output-vars]
         [tool-output variable tool-uuid subtool-uuid])]]))
