@@ -22,8 +22,7 @@
                                                                              :order     idx})
                                                                           tools)}]}]))
 
-(defmulti tool-input
-  "MultiMethod for constructing the input fields for the tool."
+(defmulti #^{:private true} tool-input
   (fn [variable] (:variable/kind variable)))
 
 (defmethod tool-input nil [variable] (println [:NO-KIND-VAR variable]))
@@ -103,8 +102,7 @@
          :options   (concat [{:label "Select..." :value "nil"}]
                             (map ->option options))}])]))
 
-(defn tool-output
-  "Constructs the output field component and populates the value if it exists in the app-db state"
+(defn- tool-output
   [{sv-uuid       :bp/uuid
     var-name      :variable/name
     native-units  :variable/native-units
