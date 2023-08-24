@@ -626,11 +626,11 @@
 ;;; Public Components
 (defn root-component [{:keys [io] :as params}]
   (let [loaded?             (subscribe [:app/loaded?])
-        show-tool-selector? @(subscribe [:tool/show-tool-selector?])
+        show-tool-selector? @(subscribe [:tool/show-tool-selector? io])
         selected-tool-uuid  @(subscribe [:tool/selected-tool-uuid])]
     [:<>
      (when show-tool-selector?
-       [tool-selector])
+       [tool-selector io])
      (when (and (some? selected-tool-uuid) (= io :input))
        [tool selected-tool-uuid])
      [:div.accordion
