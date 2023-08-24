@@ -60,11 +60,9 @@
    :isFuelDepthNeeded
    {:type "bool", :id "isFuelDepthNeeded", :parameters []},
    :calculateFirebrandIgnitionProbability
-   {:type "double",
+   {:type "void",
     :id "calculateFirebrandIgnitionProbability",
-    :parameters
-    [{:id "desiredUnits",
-      :type "ProbabilityUnits::ProbabilityUnitsEnum"}]},
+    :parameters []},
    :setMoistureHundredHour
    {:type "void",
     :id "setMoistureHundredHour",
@@ -82,6 +80,12 @@
    {:type "IgnitionFuelBedType::IgnitionFuelBedTypeEnum",
     :id "getFuelBedType",
     :parameters []},
+   :getFirebrandIgnitionProbability
+   {:type "double",
+    :id "getFirebrandIgnitionProbability",
+    :parameters
+    [{:id "desiredUnits",
+      :type "ProbabilityUnits::ProbabilityUnitsEnum"}]},
    :getMoistureOneHour
    {:type "double",
     :id "getMoistureOneHour",

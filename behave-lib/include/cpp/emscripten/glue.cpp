@@ -1,7 +1,7 @@
 
 #include <emscripten.h>
 
-EM_JS_DEPS(webidl_binder, "$intArrayFromString,$UTF8ToString");
+EM_JS_DEPS(webidl_binder, "$intArrayFromString");
 
 extern "C" {
 
@@ -369,8 +369,8 @@ LightningCharge_LightningChargeEnum EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgni
   return self->getLightningChargeType();
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgnite_calculateFirebrandIgnitionProbability_1(SIGIgnite* self, ProbabilityUnits_ProbabilityUnitsEnum desiredUnits) {
-  return self->calculateFirebrandIgnitionProbability(desiredUnits);
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgnite_calculateFirebrandIgnitionProbability_0(SIGIgnite* self) {
+  self->calculateFirebrandIgnitionProbability();
 }
 
 double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgnite_calculateLightningIgnitionProbability_1(SIGIgnite* self, ProbabilityUnits_ProbabilityUnitsEnum desiredUnits) {
@@ -417,6 +417,10 @@ double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgnite_getDuffDepth_1(SIGIgnite* 
   return self->getDuffDepth(desiredUnits);
 }
 
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgnite_getFirebrandIgnitionProbability_1(SIGIgnite* self, ProbabilityUnits_ProbabilityUnitsEnum desiredUnits) {
+  return self->getFirebrandIgnitionProbability(desiredUnits);
+}
+
 double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGIgnite_getFuelTemperature_1(SIGIgnite* self, TemperatureUnits_TemperatureUnitsEnum desiredUnits) {
   return self->getFuelTemperature(desiredUnits);
 }
@@ -455,44 +459,44 @@ bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_getIsMoistureScen
   return self->getIsMoistureScenarioDefinedByName(name);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByIndex_1(SIGMoistureScenarios* self, int index) {
-  return self->getMoistureScenarioHundredHourByIndex(index);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByIndex_2(SIGMoistureScenarios* self, int index, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  return self->getMoistureScenarioHundredHourByIndex(index, moistureUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByName_1(SIGMoistureScenarios* self, const char* name) {
-  return self->getMoistureScenarioHundredHourByName(name);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByName_2(SIGMoistureScenarios* self, const char* name, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  return self->getMoistureScenarioHundredHourByName(name, moistureUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByIndex_1(SIGMoistureScenarios* self, int index) {
-  return self->getMoistureScenarioLiveHerbaceousByIndex(index);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByIndex_2(SIGMoistureScenarios* self, int index, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  return self->getMoistureScenarioLiveHerbaceousByIndex(index, moistureUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByName_1(SIGMoistureScenarios* self, const char* name) {
-  return self->getMoistureScenarioLiveHerbaceousByName(name);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByName_2(SIGMoistureScenarios* self, const char* name, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  return self->getMoistureScenarioLiveHerbaceousByName(name, moistureUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByIndex_1(SIGMoistureScenarios* self, int index) {
-  return self->getMoistureScenarioLiveWoodyByIndex(index);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByIndex_2(SIGMoistureScenarios* self, int index, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  return self->getMoistureScenarioLiveWoodyByIndex(index, moistureUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByName_1(SIGMoistureScenarios* self, const char* name) {
-  return self->getMoistureScenarioLiveWoodyByName(name);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByName_2(SIGMoistureScenarios* self, const char* name, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  return self->getMoistureScenarioLiveWoodyByName(name, moistureUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByIndex_1(SIGMoistureScenarios* self, int index) {
-  return self->getMoistureScenarioOneHourByIndex(index);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByIndex_2(SIGMoistureScenarios* self, int index, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  return self->getMoistureScenarioOneHourByIndex(index, moistureUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByName_1(SIGMoistureScenarios* self, const char* name) {
-  return self->getMoistureScenarioOneHourByName(name);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByName_2(SIGMoistureScenarios* self, const char* name, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  return self->getMoistureScenarioOneHourByName(name, moistureUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByIndex_1(SIGMoistureScenarios* self, int index) {
-  return self->getMoistureScenarioTenHourByIndex(index);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByIndex_2(SIGMoistureScenarios* self, int index, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  return self->getMoistureScenarioTenHourByIndex(index, moistureUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByName_1(SIGMoistureScenarios* self, const char* name) {
-  return self->getMoistureScenarioTenHourByName(name);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByName_2(SIGMoistureScenarios* self, const char* name, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  return self->getMoistureScenarioTenHourByName(name, moistureUnits);
 }
 
 int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMoistureScenarios_getMoistureScenarioIndexByName_1(SIGMoistureScenarios* self, const char* name) {
@@ -889,12 +893,12 @@ bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_isUsingTwoFuelModels_0(SIGS
   return self->isUsingTwoFuelModels();
 }
 
-bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_setMoistureScenarioByIndex_1(SIGSurface* self, int moistureScenarioIndex) {
-  return self->setMoistureScenarioByIndex(moistureScenarioIndex);
+bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_setCurrentMoistureScenarioByIndex_1(SIGSurface* self, int moistureScenarioIndex) {
+  return self->setCurrentMoistureScenarioByIndex(moistureScenarioIndex);
 }
 
-bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_setMoistureScenarioByName_1(SIGSurface* self, const char* moistureScenarioName) {
-  return self->setMoistureScenarioByName(moistureScenarioName);
+bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_setCurrentMoistureScenarioByName_1(SIGSurface* self, const char* moistureScenarioName) {
+  return self->setCurrentMoistureScenarioByName(moistureScenarioName);
 }
 
 double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_calculateFlameLength_3(SIGSurface* self, double firelineIntensity, FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits, LengthUnits_LengthUnitsEnum flameLengthUnits) {
@@ -1249,44 +1253,44 @@ const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureOneHour_
   return self->getMoistureOneHour(moistureUnits);
 }
 
-const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByIndex_1(SIGSurface* self, int index) {
-  return self->getMoistureScenarioHundredHourByIndex(index);
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByIndex_2(SIGSurface* self, int index, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  return self->getMoistureScenarioHundredHourByIndex(index, moistureUnits);
 }
 
-const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByName_1(SIGSurface* self, const char* name) {
-  return self->getMoistureScenarioHundredHourByName(name);
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByName_2(SIGSurface* self, const char* name, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  return self->getMoistureScenarioHundredHourByName(name, moistureUnits);
 }
 
-const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByIndex_1(SIGSurface* self, int index) {
-  return self->getMoistureScenarioLiveHerbaceousByIndex(index);
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByIndex_2(SIGSurface* self, int index, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  return self->getMoistureScenarioLiveHerbaceousByIndex(index, moistureUnits);
 }
 
-const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByName_1(SIGSurface* self, const char* name) {
-  return self->getMoistureScenarioLiveHerbaceousByName(name);
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByName_2(SIGSurface* self, const char* name, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  return self->getMoistureScenarioLiveHerbaceousByName(name, moistureUnits);
 }
 
-const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByIndex_1(SIGSurface* self, int index) {
-  return self->getMoistureScenarioLiveWoodyByIndex(index);
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByIndex_2(SIGSurface* self, int index, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  return self->getMoistureScenarioLiveWoodyByIndex(index, moistureUnits);
 }
 
-const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByName_1(SIGSurface* self, const char* name) {
-  return self->getMoistureScenarioLiveWoodyByName(name);
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByName_2(SIGSurface* self, const char* name, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  return self->getMoistureScenarioLiveWoodyByName(name, moistureUnits);
 }
 
-const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureScenarioOneHourByIndex_1(SIGSurface* self, int index) {
-  return self->getMoistureScenarioOneHourByIndex(index);
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureScenarioOneHourByIndex_2(SIGSurface* self, int index, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  return self->getMoistureScenarioOneHourByIndex(index, moistureUnits);
 }
 
-const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureScenarioOneHourByName_1(SIGSurface* self, const char* name) {
-  return self->getMoistureScenarioOneHourByName(name);
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureScenarioOneHourByName_2(SIGSurface* self, const char* name, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  return self->getMoistureScenarioOneHourByName(name, moistureUnits);
 }
 
-const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureScenarioTenHourByIndex_1(SIGSurface* self, int index) {
-  return self->getMoistureScenarioTenHourByIndex(index);
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureScenarioTenHourByIndex_2(SIGSurface* self, int index, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  return self->getMoistureScenarioTenHourByIndex(index, moistureUnits);
 }
 
-const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureScenarioTenHourByName_1(SIGSurface* self, const char* name) {
-  return self->getMoistureScenarioTenHourByName(name);
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureScenarioTenHourByName_2(SIGSurface* self, const char* name, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  return self->getMoistureScenarioTenHourByName(name, moistureUnits);
 }
 
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getMoistureTenHour_1(SIGSurface* self, MoistureUnits_MoistureUnitsEnum moistureUnits) {
@@ -1843,12 +1847,12 @@ const bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_isFuelModelReserved_1(S
   return self->isFuelModelReserved(fuelModelNumber);
 }
 
-bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setMoistureScenarioByIndex_1(SIGCrown* self, int moistureScenarioIndex) {
-  return self->setMoistureScenarioByIndex(moistureScenarioIndex);
+bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setCurrentMoistureScenarioByIndex_1(SIGCrown* self, int moistureScenarioIndex) {
+  return self->setCurrentMoistureScenarioByIndex(moistureScenarioIndex);
 }
 
-bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setMoistureScenarioByName_1(SIGCrown* self, const char* moistureScenarioName) {
-  return self->setMoistureScenarioByName(moistureScenarioName);
+bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_setCurrentMoistureScenarioByName_1(SIGCrown* self, const char* moistureScenarioName) {
+  return self->setCurrentMoistureScenarioByName(moistureScenarioName);
 }
 
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getAspect_0(SIGCrown* self) {
@@ -2011,44 +2015,44 @@ const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureOneHour_1(
   return self->getMoistureOneHour(moistureUnits);
 }
 
-const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByIndex_1(SIGCrown* self, int index) {
-  return self->getMoistureScenarioHundredHourByIndex(index);
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByIndex_2(SIGCrown* self, int index, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  return self->getMoistureScenarioHundredHourByIndex(index, moistureUnits);
 }
 
-const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByName_1(SIGCrown* self, const char* name) {
-  return self->getMoistureScenarioHundredHourByName(name);
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByName_2(SIGCrown* self, const char* name, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  return self->getMoistureScenarioHundredHourByName(name, moistureUnits);
 }
 
-const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByIndex_1(SIGCrown* self, int index) {
-  return self->getMoistureScenarioLiveHerbaceousByIndex(index);
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByIndex_2(SIGCrown* self, int index, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  return self->getMoistureScenarioLiveHerbaceousByIndex(index, moistureUnits);
 }
 
-const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByName_1(SIGCrown* self, const char* name) {
-  return self->getMoistureScenarioLiveHerbaceousByName(name);
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByName_2(SIGCrown* self, const char* name, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  return self->getMoistureScenarioLiveHerbaceousByName(name, moistureUnits);
 }
 
-const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByIndex_1(SIGCrown* self, int index) {
-  return self->getMoistureScenarioLiveWoodyByIndex(index);
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByIndex_2(SIGCrown* self, int index, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  return self->getMoistureScenarioLiveWoodyByIndex(index, moistureUnits);
 }
 
-const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByName_1(SIGCrown* self, const char* name) {
-  return self->getMoistureScenarioLiveWoodyByName(name);
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByName_2(SIGCrown* self, const char* name, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  return self->getMoistureScenarioLiveWoodyByName(name, moistureUnits);
 }
 
-const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioOneHourByIndex_1(SIGCrown* self, int index) {
-  return self->getMoistureScenarioOneHourByIndex(index);
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioOneHourByIndex_2(SIGCrown* self, int index, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  return self->getMoistureScenarioOneHourByIndex(index, moistureUnits);
 }
 
-const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioOneHourByName_1(SIGCrown* self, const char* name) {
-  return self->getMoistureScenarioOneHourByName(name);
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioOneHourByName_2(SIGCrown* self, const char* name, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  return self->getMoistureScenarioOneHourByName(name, moistureUnits);
 }
 
-const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioTenHourByIndex_1(SIGCrown* self, int index) {
-  return self->getMoistureScenarioTenHourByIndex(index);
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioTenHourByIndex_2(SIGCrown* self, int index, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  return self->getMoistureScenarioTenHourByIndex(index, moistureUnits);
 }
 
-const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioTenHourByName_1(SIGCrown* self, const char* name) {
-  return self->getMoistureScenarioTenHourByName(name);
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureScenarioTenHourByName_2(SIGCrown* self, const char* name, MoistureUnits_MoistureUnitsEnum moistureUnits) {
+  return self->getMoistureScenarioTenHourByName(name, moistureUnits);
 }
 
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getMoistureTenHour_1(SIGCrown* self, MoistureUnits_MoistureUnitsEnum moistureUnits) {

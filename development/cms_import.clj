@@ -119,6 +119,12 @@
                :from-key         :Spot
                :to-key           :SIGSpot})
 
+  (cms-import {:behave-file      "~/work/code/hatchet/behave-mirror/ignite.edn"
+               :sig-adapter-file "~/work/code/hatchet/sig-adapters/SIGIgnite.edn"
+               :out-file-name    "SIGIgnite.edn"
+               :from-key         :Ignite
+               :to-key           :SIGIgnite})
+
   ;;; Add exports to CMS db
   (require '[behave-cms.server :refer [init-datahike!]])
 
@@ -137,6 +143,7 @@
   (add-export-file-to-conn "./cms-exports/SIGCrown.edn" ds/conn)
   (add-export-file-to-conn "./cms-exports/SIGBehaveRun.edn" ds/conn)
   (add-export-file-to-conn "./cms-exports/SIGMortality.edn" ds/conn)
+  (add-export-file-to-conn "./cms-exports/SIGIgnite.edn" ds/conn)
 
   ;; Verify that SIGSurface exists
   (sort (d/q '[:find [?c-name ...]
@@ -155,4 +162,24 @@
                [?f :cpp.function/name ?f-name]]
              (safe-deref ds/conn)))
 
+  (def class-to-remove
+    (d/q '[:find ?c ?f ?p
+           :keys  c  f  p
+           :in $
+           :where
+           [?c :cpp.class/name "SIGIgnite"]
+           [?c :cpp.class/function ?f]
+           [?f :cpp.function/parameter ?p]]
+         (safe-deref ds/conn)))
+
+  (defn retract [id]
+    [:db/retractEntity id])
+
+  (def classes-to-remove (mapv #(vec [:db/retractEntity (:c %)]) class-to-remove))
+  (def functions-to-remove (mapv #(vec [:db/retractEntity (:f %)]) class-to-remove))
+  (def parameters-to-remove (mapv #(vec [:db/retractEntity (:p %)]) class-to-remove))
+
+  (def remove-tx (concat parameters-to-remove functions-to-remove classes-to-remove))
+
+  (d/transact (unwrap ds/conn) remove-tx)
   )

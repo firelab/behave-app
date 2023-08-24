@@ -87,3 +87,31 @@
                subtool-uuid
                :outputs
                subtool-variable-uuid])))
+
+(reg-sub
+ :tool/all-inputs
+ (fn [db [_ tool-uuid subtool-uuid]]
+   (get-in db [:state
+               :tool
+               :data
+               tool-uuid
+               subtool-uuid
+               :inputs])))
+
+(reg-sub
+ :tool/all-output-uuids
+ (fn [_ [_ subtool-uuid]]
+   (d/q '[:find [?output-uuids ...]
+          :in $ ?uuid
+          :where
+          [?s :bp/uuid ?uuid]
+          [?s :subtool/output-variables ?o]
+          [?o :bp/uuid ?output-uuids]]
+        @@s/vms-conn subtool-uuid)))
+
+(comment
+  (rf/subscribe [:tool/all-inputs
+                 "64e5023e-1b70-4b55-8312-6578fc9c64a9"
+                 "64e5024c-1841-4fd6-ba62-e6f983608793"])
+
+  (rf/subscribe [:tool/all-output-uuids "64e5024c-1841-4fd6-ba62-e6f983608793"]))

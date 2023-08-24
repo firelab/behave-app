@@ -1,5 +1,6 @@
 (ns behave.tool.events
-  (:require [re-frame.core :as rf]))
+  (:require [re-frame.core :as rf]
+            [behave.solver.tool :refer [solve-tool]]))
 
 (def db-tool [:state :tool])
 
@@ -14,6 +15,19 @@
               :inputs
               variable-uuid]
              value)))
+
+(rf/reg-event-db
+ :tool/upsert-outupt-value
+ (rf/path db-tool)
+ (fn [db [_ tool-uuid subtool-uuid variable-uuid value]]
+   (assoc-in db
+             [:data
+              tool-uuid
+              subtool-uuid
+              :outputs
+              variable-uuid]
+             value)))
+
 
 (rf/reg-event-db
  :tool/close-tool-selector
@@ -49,13 +63,13 @@
  :tool/compute
  (rf/path db-tool)
  (fn [db [_ selected-tool selected-subtool]]
-   (let [output-variables @(rf/subscribe [:subtool/output-variables selected-subtool])]
-     (reduce (fn [db variable]
+   (let [results (solve-tool selected-tool selected-subtool)]
+     (reduce (fn [db [output-uuid value]]
                (assoc-in db [:data
                              selected-tool
                              selected-subtool
                              :outputs
-                             (:bp/uuid variable)]
-                         (str "computed subtool:" selected-subtool)))
+                             output-uuid]
+                         value))
              db
-             output-variables))))
+             results))))
