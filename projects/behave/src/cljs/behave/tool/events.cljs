@@ -1,6 +1,6 @@
 (ns behave.tool.events
   (:require [re-frame.core :as rf]
-            [behave.solver.tool :refer [solve-tool]]))
+            [behave.tool.solver :refer [solve-tool]]))
 
 (def db-tool [:state :tool])
 

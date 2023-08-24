@@ -1,4 +1,4 @@
-(ns behave.solver.tool
+(ns behave.tool.solver
   (:require [re-frame.core :as rf]
             [behave.solver.queries :as q]
             [browser-utils.core :refer [format-intl-number]]
