@@ -66,7 +66,6 @@
                 var-name :variable/name
                 help-key :subtool-variable/help-key
                 v-list   :variable/list} variable
-
                selected    (rf/subscribe [:tool/input-value
                                           tool-uuid
                                           subtool-uuid
@@ -137,8 +136,7 @@
          tool-uuid :bp/uuid}  @(rf/subscribe [:tool/entity tool-uuid])
         first-subtool-uuid    (:bp/uuid (first subtools))
         selected-subtool-uuid (rf/subscribe [:tool/selected-subtool-uuid])
-        subtool-uuid          (or @selected-subtool-uuid
-                                  first-subtool-uuid)
+        subtool-uuid          (or @selected-subtool-uuid first-subtool-uuid)
         input-vars            @(rf/subscribe [:subtool/input-variables subtool-uuid])
         output-vars           @(rf/subscribe [:subtool/output-variables subtool-uuid])]
     (when (nil? @selected-subtool-uuid)
