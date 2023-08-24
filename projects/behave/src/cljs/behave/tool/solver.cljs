@@ -73,6 +73,8 @@
     (assoc tool :compute-fn f)))
 
 (defn solve-tool
+  "Extracts inputs from the app state and runs the compute function for the given subtool.
+  Returns a map of subtool-variable uuids -> value"
   [tool-uuid subtool-uuid]
   (let [tools         {:ignite {:init-fn ignite/init
                                 :fns     (ns-publics 'behave.lib.ignite)}}
