@@ -63,6 +63,11 @@
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
 
+   {:db/ident       :application/tools
+    :db/doc         "Application's tools."
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many}
+
    {:db/ident       :application/translation-key
     :db/doc         "Application's translation key."
     :db/valueType   :db.type/string

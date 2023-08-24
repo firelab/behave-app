@@ -12,26 +12,29 @@
                      :api/verify-email
                      :api/reset-password})
 
-(def singular       {:applications    :application
-                     :classes         :class
-                     :enum-members    :enum-member
-                     :enums           :enum
-                     :functions       :function
-                     :groups          :group
-                     :lists           :list
-                     :group-variables :group-variable
-                     :help-pages      :help-page
-                     :languages       :language
-                     :modules         :module
-                     :namespaces      :namespace
-                     :parameters      :parameter
-                     :permissions     :permission
-                     :roles           :role
-                     :subgroups       :subgroup
-                     :submodules      :submodule
-                     :translations    :translation
-                     :users           :user
-                     :variables       :variable})
+(def singular       {:applications      :application
+                     :classes           :class
+                     :enum-members      :enum-member
+                     :enums             :enum
+                     :functions         :function
+                     :groups            :group
+                     :lists             :list
+                     :group-variables   :group-variable
+                     :help-pages        :help-page
+                     :languages         :language
+                     :modules           :module
+                     :namespaces        :namespace
+                     :parameters        :parameter
+                     :permissions       :permission
+                     :roles             :role
+                     :subgroups         :subgroup
+                     :submodules        :submodule
+                     :translations      :translation
+                     :tools             :tool
+                     :subtools          :subtool
+                     :subtool-variables :subtool-variable
+                     :users             :user
+                     :variables         :variable})
 
 ;; From https://github.com/WorksHub/client/blob/master/common/src/wh/routes.cljc
 ;; The collection routes defined here are supposed to have trailing
@@ -98,6 +101,9 @@
       (entity-route :variables)
       (entity-route :lists)
       (entity-route :help-pages)
+      (entity-route :tools)
+      (entity-route :subtools)
+      (entity-route :subtool-variables)
 
       ;; CPP
       (entity-route :namespaces)

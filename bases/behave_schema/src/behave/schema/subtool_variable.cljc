@@ -4,16 +4,15 @@
 
 ;;; Spec
 
-(s/def :subtool-variable/uuid            uuid-string?)
-(s/def :subtool-variable/cpp-class       string?)
-(s/def :subtool-variable/cpp-function    string?)
-(s/def :subtool-variable/cpp-namespace   string?)
-(s/def :subtool-variable/cpp-parameter   string?)
-(s/def :subtool-variable/help-key        valid-key?)
-(s/def :subtool-variable/order           zero-pos?)
-(s/def :subtool-variable/translation-key valid-key?)
+(s/def :subtool-variable/cpp-class-uuid     string?)
+(s/def :subtool-variable/cpp-function-uuid  string?)
+(s/def :subtool-variable/cpp-namespace-uuid string?)
+(s/def :subtool-variable/cpp-parameter-uuid string?)
+(s/def :subtool-variable/help-key           valid-key?)
+(s/def :subtool-variable/order              zero-pos?)
+(s/def :subtool-variable/translation-key    valid-key?)
 
-(s/def :behave/subtool-variable (s/keys :req [:subtool-variable/uuid
+(s/def :behave/subtool-variable (s/keys :req [:bp/uuid
                                               :subtool-variable/order
                                               :subtool-variable/translation-key
                                               :subtool-variable/help-key
@@ -25,29 +24,23 @@
 ;;; Schema
 
 (def schema
-  [{:db/ident       :subtool-variable/uuid
-    :db/doc         "subtool variable's UUID."
-    :db/valueType   :db.type/string
-    :db/unique      :db.unique/identity
-    :db/cardinality :db.cardinality/one}
-
-   {:db/ident       :subtool-variable/cpp-namespace
-    :db/doc         "subtool variable's C++ namespace."
+  [{:db/ident       :subtool-variable/cpp-namespace-uuid
+    :db/doc         "subtool variable's uuid ref to it's C++ namespace."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :subtool-variable/cpp-class
-    :db/doc         "subtool variable's C++ class."
+   {:db/ident       :subtool-variable/cpp-class-uuid
+    :db/doc         "subtool variable's uuid ref to it's C++ class."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :subtool-variable/cpp-function
-    :db/doc         "subtool variable's C++ function."
+   {:db/ident       :subtool-variable/cpp-function-uuid
+    :db/doc         "subtool variable's uuid ref to it's C++ function."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :subtool-variable/cpp-parameter
-    :db/doc         "subtool variable's C++ parameter."
+   {:db/ident       :subtool-variable/cpp-parameter-uuid
+    :db/doc         "subtool variable's uuid ref tor it's C++ parameter."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
@@ -71,7 +64,7 @@
 ;;; Tests
 
 (comment
-  (s/explain :behave/subtool-variable {:subtool-variable/uuid            (str (random-uuid))
+  (s/explain :behave/subtool-variable {:bp/uuid                          (str (random-uuid))
                                        :subtool-variable/order           0
                                        :subtool-variable/translation-key "behaveplus:relative-humidity:dry-temp-wet-temp-elevation:var"
                                        :subtool-variable/help-key        "behaveplus:relative-humidity:dry-temp-wet-temp-elevation:var:help"

@@ -3,14 +3,13 @@
             [behave.schema.utils :refer [valid-key? uuid-string? zero-pos?]]))
 
 
-(s/def :tool/uuid            uuid-string?)
 (s/def :tool/name            string?)
 (s/def :tool/order           zero-pos?)
 (s/def :tool/translation-key valid-key?)
 (s/def :tool/help-key        valid-key?)
 (s/def :tool/subtools        set?)
 
-(s/def :behave/module (s/keys :req [:tool/uuid
+(s/def :behave/module (s/keys :req [:bp/uuid
                                     :tool/name
                                     :tool/order
                                     :tool/translation-key
@@ -18,13 +17,7 @@
                               :opt [:tool/subtools]))
 
 (def schema
-  [{:db/ident       :tool/uuid
-    :db/doc         "Tool's ID."
-    :db/valueType   :db.type/string
-    :db/unique      :db.unique/identity
-    :db/cardinality :db.cardinality/one}
-
-   {:db/ident       :tool/name
+  [{:db/ident       :tool/name
     :db/doc         "Tool's name."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
@@ -52,7 +45,7 @@
     :db/cardinality :db.cardinality/one}])
 
 (comment
-  (s/valid? :behave/module {:tool/uuid            (str (random-uuid))
+  (s/valid? :behave/module {:bp/uuid              (str (random-uuid))
                             :tool/name            "Relative Humidity"
                             :tool/order           1
                             :tool/translation-key "behaveplus:relative-humidity"
