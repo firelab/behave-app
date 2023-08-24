@@ -1,6 +1,6 @@
 (ns behave.schema.tool
   (:require [clojure.spec.alpha  :as s]
-            [behave.schema.utils :refer [valid-key? uuid-string? zero-pos?]]))
+            [behave.schema.utils :refer [valid-key? zero-pos?]]))
 
 
 (s/def :tool/name            string?)
