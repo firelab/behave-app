@@ -11,7 +11,7 @@
   (or (str/includes? parameter-type "Enum")
       (str/includes? parameter-type "Units")))
 
-(defn apply-single-cpp-fn [tool-fns tool-obj sv-uuid value units]
+(defn- apply-single-cpp-fn [tool-fns tool-obj sv-uuid value units]
   (let [[fn-id fn-name] (q/subtool-variable->fn sv-uuid)
         value           (q/parsed-value sv-uuid value)
         unit-enum       (units/get-unit units)
@@ -32,7 +32,7 @@
           (f tool-obj unit-enum value)
           (f tool-obj value unit-enum))))))
 
-(defn apply-output-cpp-fn
+(defn- apply-output-cpp-fn
   [tool-fns tool-obj sv-uuid]
   (let [[fn-id fn-name] (q/subtool-variable->fn sv-uuid)
         unit            (units/get-unit (q/variable-units sv-uuid))
