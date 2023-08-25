@@ -32,6 +32,11 @@
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
 
+   {:db/ident       :tool/lib-ns
+    :db/doc         "Tool's cljs namespace where functions are defined."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
    {:db/ident       :tool/translation-key
     :db/doc         "Tool's translation key."
     :db/valueType   :db.type/string
