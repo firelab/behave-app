@@ -4,7 +4,8 @@
             [browser-utils.core :refer [format-intl-number]]
             [clojure.string        :as str]
             [behave.logger         :refer [log]]
-            [behave.lib.units      :as units]))
+            [behave.lib.units      :as units]
+            [behave.lib.ignite]))
 
 (defn- is-enum? [parameter-type]
   (or (str/includes? parameter-type "Enum")
@@ -20,7 +21,7 @@
 
     (cond
       (nil? value)
-      (js/console.error "Cannot process Contain Module with nil value for:" sv-uuid)
+      (js/console.error "Cannot process tool with nil value for:" sv-uuid)
 
       (= 1 (count params))
       (f tool-obj value)
@@ -74,14 +75,13 @@
   "Extracts inputs from the app state and runs the compute function for the given subtool.
   Returns a map of subtool-variable uuids -> value"
   [tool-uuid subtool-uuid]
-  (let [;; tool-entity (rf/subscribe [:tool/entity tool-uuid])
-        ;; tool-ns     (:tool/lib-ns @tool-entity)
-        tool-ns "behave.lib.ignite"
-        fns     (js->clj (apply (partial aget js/window) (str/split tool-ns "."))
+  (let [tool-entity (rf/subscribe [:tool/entity tool-uuid])
+        lib-ns      (:tool/lib-ns @tool-entity)
+        fns         (js->clj (apply (partial aget js/window) (str/split lib-ns "."))
                              :keywordize-keys
                              true)
-        params  {:fns          fns
-                 :inputs       @(rf/subscribe [:tool/all-inputs tool-uuid subtool-uuid])
-                 :output-uuids @(rf/subscribe [:tool/all-output-uuids subtool-uuid])
-                 :compute-fn   (get-compute-fn subtool-uuid fns)}]
+        params      {:fns          fns
+                     :inputs       @(rf/subscribe [:tool/all-inputs tool-uuid subtool-uuid])
+                     :output-uuids @(rf/subscribe [:tool/all-output-uuids subtool-uuid])
+                     :compute-fn   (get-compute-fn subtool-uuid fns)}]
     (run-tool params)))
