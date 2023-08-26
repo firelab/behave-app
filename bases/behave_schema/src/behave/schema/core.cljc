@@ -14,6 +14,7 @@
             [behave.schema.subtool          :as subtool]
             [behave.schema.subtool-variable :as subtool-variable]
             [behave.schema.user             :as user]
+            [behave.schema.unit             :as unit]
             [behave.schema.variable         :as variable]
             [behave.schema.worksheet        :as worksheet]
             [behave.schema.cpp.class        :as cpp-class]
@@ -32,25 +33,28 @@
 
 (def all-schemas (apply concat [uuid-schema
                                 application/schema
+                                behave-list/schema
                                 conditionals/schema
-                                group/schema
                                 group-variable/schema
+                                group/schema
                                 help-page/schema
                                 language/schema
-                                behave-list/schema
                                 link/schema
                                 module/schema
                                 submodule/schema
+                                subtool-variable/schema
+                                subtool/schema
+                                tool/schema
                                 translation/schema
+                                unit/schema
                                 user/schema
                                 variable/schema
                                 worksheet/schema
+
+                                ;; CPP
                                 cpp-class/schema
-                                cpp-enum/schema
                                 cpp-enum-member/schema
+                                cpp-enum/schema
                                 cpp-function/schema
                                 cpp-namespace/schema
-                                cpp-parameter/schema
-                                tool/schema
-                                subtool/schema
-                                subtool-variable/schema]))
+                                cpp-parameter/schema]))

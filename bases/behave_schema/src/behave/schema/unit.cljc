@@ -1,4 +1,4 @@
-(ns behave.schema.units
+(ns behave.schema.unit
   (:require [clojure.spec.alpha :as s]))
 
 ;;; Specs
@@ -39,7 +39,8 @@
    {:db/ident       :dimension/units
     :db/doc         "Dimension's units."
     :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/many}
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
 
    {:db/ident       :dimension/cpp-enum-uuid
     :db/doc         "Dimension's CPP Enum UUID."
@@ -58,12 +59,12 @@
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :unit/short-code
+   {:db/ident       :unit/system
     :db/doc         "[Optional] Unit's system (one of: `:metric`, `:english`, `:time`)."
     :db/valueType   :db.type/keyword
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :dimension/cpp-enum-member-uuid
+   {:db/ident       :unit/cpp-enum-member-uuid
     :db/doc         "Dimension's CPP Enum Member UUID."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}])

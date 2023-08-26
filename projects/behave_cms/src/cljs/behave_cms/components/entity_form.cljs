@@ -1,11 +1,10 @@
 (ns behave-cms.components.entity-form
   (:require [clojure.string :as str]
-            [datascript.core   :refer [squuid]]
             [reagent.core      :as r]
             [re-frame.core     :as rf]
             [string-utils.interface :refer [->kebab ->str]]
             [behave.schema.core :refer [all-schemas]]
-            [behave-cms.routes :refer [singular]]
+            [behave-cms.components.common :refer [dropdown]]
             [behave-cms.utils  :as u]))
 
 ;;; Constants
@@ -64,6 +63,14 @@
 
 (defmulti field-input (fn [{type :type}] type))
 
+(defmethod field-input :select [{:keys [label options on-change state]}]
+  [:div.mb-3
+   [dropdown
+    {:label     label
+     :options   options
+     :on-select #(on-change (u/input-value %))
+     :selected  @state}]])
+
 (defmethod field-input :checkbox [{:keys [label options on-change state]}]
   (let [group-label label]
     [:div.mb-3
@@ -86,14 +93,14 @@
      [:label.form-label group-label]
      [:input {:type "hidden" :value (str @state)}]
      (for [{:keys [label value]} options]
-       (let [id (u/sentence->kebab (str group-label ":" value))]
-         ^{:key id}
+       ^{:key value}
+       (let [id (str value)]
          [:div.form-check
           [:input.form-check-input
            {:type      "radio"
             :name      (u/sentence->kebab group-label)
             :id        id
-            :value     (str value)
+            :value     value
             :checked   (= @state value)
             :on-change #(on-change value)}]
           [:label.form-check-label {:for id} label]]))]))
