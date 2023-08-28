@@ -62,7 +62,7 @@
                 list     :variable/list} variable
                selected                  (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id uuid])
                on-change                 #(upsert-input ws-uuid group-uuid repeat-id uuid (input-value %))
-               options                   (:list/options list)
+               options                   (sort-by :list-option/order (:list/options list))
                num-options               (count options)
                ->option                  (fn [{value :list-option/value name :list-option/name default? :list-option/default}]
                                            {:value     value
