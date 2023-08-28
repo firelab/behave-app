@@ -11,6 +11,7 @@
             [behave.logger          :refer [log]]
             [clojure.string         :as str]
             [clojure.set            :as set]
+            [clojure.walk           :as w]
             [re-frame.core          :as rf]))
 
 ;;; Helpers
@@ -59,6 +60,16 @@
 
     (map ->run-plan (permutations (vec single-inputs) separated-range-inputs))))
 
+(defn inputs-map-to-vector [inputs]
+  (->> inputs
+       (w/postwalk (fn [x] (if (map? x) (vec x) x)))
+       (mapv (fn [v]
+               (let [l    (flatten v)
+                     head (first l)
+                     body (partition 3 (rest l))]
+                 (mapv (fn [b] (into [head] b)) body))))
+       (reduce (fn [acc curr] (concat acc curr)) [])
+       (vec)))
 
 ;;; CPP Interop Functions
 
@@ -168,7 +179,7 @@
 
 ;;; Solvers
 
-(defn apply-links [prev-outputs inputs destination-links]
+(defn apply-output-links [prev-outputs inputs destination-links]
   (let [prev-output-uuids (set (keys prev-outputs))]
     (reduce
      (fn [acc [src-uuid dst-uuid]]
@@ -181,7 +192,26 @@
      inputs
      destination-links)))
 
+<<<<<<< HEAD
 (defn run-module [{:keys [inputs all-outputs outputs row-id] :as row}
+=======
+(defn apply-input-links [inputs destination-links]
+  (let [inputs-vec        (inputs-map-to-vector inputs)
+        inputs-by-gv-uuid (group-by #(nth % 2) inputs-vec)
+        input-gv-uuids    (set (map #(nth % 2) inputs-vec))]
+    [inputs-by-gv-uuid input-gv-uuids]
+    (reduce
+     (fn [acc [src-uuid dst-uuid]]
+       (if (input-gv-uuids src-uuid)
+         (let [input      (last (get-in inputs-by-gv-uuid [src-uuid 0]))
+               group-uuid (q/group-variable->group dst-uuid)]
+           (assoc-in acc [group-uuid 0 dst-uuid] input))
+         acc))
+     inputs
+     destination-links)))
+
+(defn run-module [{:keys [inputs all-outputs outputs] :as row}
+>>>>>>> dbb9888199c5d3dc6b7fc805a904bf9772f3382e
                   {:keys [init-fn
                           run-fn
                           fns
@@ -191,7 +221,13 @@
                           ws-uuid]}]
   (let [module         (init-fn)
         ;; Apply links
+<<<<<<< HEAD
         inputs         (apply-links outputs inputs destination-links)
+=======
+        inputs         (apply-output-links outputs inputs destination-links)
+        inputs         (apply-input-links inputs destination-links)
+
+>>>>>>> dbb9888199c5d3dc6b7fc805a904bf9772f3382e
         ;; Filter IO's for module
         module-inputs  (filter-module-inputs inputs gv-uuids)
         module-outputs (filter-module-outputs all-outputs gv-uuids)]

@@ -133,7 +133,7 @@
  :dev/export-from-vms
  (fn [_ _]
    {:http-xhrio {:method          :get
-                 :uri             "http://localhost:8081/vms-sync"
+                 :uri             "/vms-sync"
                  :response-format (ajax/text-response-format)
                  :on-success      [:state/set :vms-export-http-results]
                  :on-failure      [:state/set :vms-export-http-results]}}))

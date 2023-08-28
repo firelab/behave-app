@@ -2,6 +2,7 @@
   (:require [clojure.string       :as str]
             [cljs.test            :refer [deftest is join-fixtures testing use-fixtures are] :include-macros true]
             [csv-parser.interface :refer [parse-csv]]
+            [data-utils.interface :refer [parse-float parse-int]]
             [datascript.core      :as d]
             [behave.fixtures      :as fx]
             [behave.lib.enums     :as enums]
@@ -20,6 +21,9 @@
 (def within-one-percent? (partial within? 0.1))
 
 (def within-millionth? (partial within? 1e-06))
+
+(defn slope-degrees [percent]
+  (* (/ 180 js/Math.PI) (js/Math.atan (/ percent 100.0))))
 
 (defn- clean-values [row]
   (into {}
@@ -73,11 +77,8 @@
 
 (defn outputs-exist? [class-name & fn-names]
   (doseq [fn-name fn-names]
-    (is (some? (class+fn->gv-uuid class-name fn-name)))))
-
-(defn inputs-exist? [class-name & fn-names]
-  (doseq [fn-name fn-names]
-    (is (some? (class+fn->gv-uuid class-name fn-name)))))
+    (is (some? (class+fn->gv-uuid class-name fn-name))
+        (str "Unable to find:" class-name "::" fn-name))))
 
 ;;; Fixtures
 
@@ -209,7 +210,7 @@
         "setWindDirection"                 "windDirection"
         "setWindHeightInputMode"           "windHeightInputMode"
         "setWindSpeed"                     "windSpeed"
-        "setWindUpslopeAlignmentMode"      "windUpslopeAlignmentMode")
+        )
 
       (are [fn-name p-name] (some? (class+fn+param->group+gv-uuid spot fn-name p-name))
         "setDownwindCoverHeight"    "downwindCoverHeight"
@@ -228,18 +229,21 @@
     (testing "Crown Output Variables Function Mappings"
       (outputs-exist? class-name
                       "getFireType"
-                      "getCrownTransitionRatio"
-                      "getCrownCriticalSurfaceFlameLength"
+                      "getCrownCriticalFireSpreadRate"
                       "getCrownCriticalFireSpreadRate"
                       "getCrownCriticalSurfaceFirelineIntensity"
+                      "getCrownCriticalSurfaceFlameLength"
                       "getCrownFireActiveRatio"
-                      "getCrownCriticalFireSpreadRate"
+                      "getCrownFireArea"
+                      "getCrownFireLengthToWidthRatio"
+                      "getCrownFireLengthToWidthRatio"
+                      "getCrownFirePerimeter"
+                      "getCrownFirelineIntensity"
+                      "getCrownFireSpreadDistance"
                       "getCrownFireSpreadRate"
                       "getCrownFlameLength"
-                      "getCrownFireSpreadDistance"
-                      "getCrownFireArea"
-                      "getCrownFirePerimeter"
-                      "getCrownFireLengthToWidthRatio")
+                      "getCrownFlameLength"
+                      "getCrownTransitionRatio")
       (outputs-exist? spot
                       "getMaxMountainousTerrainSpottingDistanceFromTorchingTrees"
                       "getFlameHeightForTorchingTrees"))
@@ -247,13 +251,27 @@
 
     (testing "Crown Input Variables Function Mappings"
       (are [fn-name p-name] (some? (class+fn+param->group+gv-uuid class-name fn-name p-name))
-        "setCrownFireCalculationMethod"            "CrownFireCalculationMethod"
-        "setMoistureFoliar"                        "foliarMoisture"
-        "setCanopyHeight"                          "canopyHeight"
+        "setAspect"                                "aspect"
         "setCanopyBaseHeight"                      "canopyBaseHeight"
         "setCanopyBulkDensity"                     "canopyBulkDensity"
-        "setWindSpeed"                             "windSpeed"
-        "setWindAdjustmentFactorCalculationMethod" "windAdjustmentFactorCalculationMethod")
+        "setCanopyCover"                           "canopyCover"
+        "setCanopyHeight"                          "canopyHeight"
+        "setCrownFireCalculationMethod"            "CrownFireCalculationMethod"
+        "setCrownRatio"                            "crownRatio"
+        "setFuelModelNumber"                       "fuelModelNumber"
+        "setMoistureFoliar"                        "foliarMoisture"
+        "setMoistureHundredHour"                   "moistureHundredHour"
+        "setMoistureInputMode"                     "moistureInputMode"
+        "setMoistureLiveHerbaceous"                "moistureLiveHerbaceous"
+        "setMoistureLiveWoody"                     "moistureLiveWoody"
+        "setMoistureOneHour"                       "moistureOneHour"
+        "setMoistureTenHour"                       "moistureTenHour"
+        "setSlope"                                 "slope"
+        "setWindAdjustmentFactorCalculationMethod" "windAdjustmentFactorCalculationMethod"
+        "setWindAndSpreadOrientationMode"          "windAndSpreadAngleMode"
+        "setWindDirection"                         "windDirection"
+        "setWindHeightInputMode"                   "windHeightInputMode"
+        "setWindSpeed"                             "windSpeed")
 
       (are [fn-name p-name] (some? (class+fn+param->group+gv-uuid spot fn-name p-name))
         "setTreeHeight"             "treeHeight"
@@ -409,7 +427,7 @@
 
             ;; Topo
             (surface-input "setAspect"                  "aspect"                  (get row "aspect"))
-            (surface-input "setSlope"                   "slope"                   (get row "slope"))
+            (surface-input "setSlope"                   "slope"                   (slope-degrees (get row "slope")))
 
             ;; Canopy
             (surface-input "setCanopyCover"             "canopyCover"             (/ (get row "canopyCover") 100))
@@ -428,3 +446,93 @@
 
     (println "SOLVER OUTPUT:" observed "EXPECTED:" expected)
     (is (within-one-percent? expected observed))))
+
+(defn test-crown-worksheet [row-idx row]
+  (let [module-input  (fn [class-name acc & args]
+                         (conj acc (apply ws-input class-name args)))
+        crown-input   (partial module-input "SIGCrown")
+        surface-input (partial module-input "SIGSurface")
+        crown-output  (partial ws-output "SIGCrown")
+        _             (println row)
+
+        inputs
+        (-> []
+            ;;; Surface Inputs
+
+            ;; Fuel
+            (surface-input "setFuelModelNumber"         "fuelModelNumber"         (get row "fuelModelNumber"))
+
+            ;; Moisture
+            (surface-input "setMoistureOneHour"         "moistureOneHour"         (/ (get row "moistureOneHour") 100))
+            (surface-input "setMoistureTenHour"         "moistureTenHour"         (/ (get row "moistureTenHour") 100))
+            (surface-input "setMoistureHundredHour"     "moistureHundredHour"     (/ (get row "moistureHundredHour") 100))
+            (surface-input "setMoistureLiveHerbaceous"  "moistureLiveHerbaceous"  (/ (get row "moistureLiveHerbaceous") 100))
+            (surface-input "setMoistureLiveWoody"       "moistureLiveWoody"       (/ (get row "moistureLiveWoody") 100))
+
+            ;; Wind
+            (surface-input "setWindAndSpreadOrientationMode" "windAndSpreadOrientationMode" (enums/wind-and-spread-orientation-mode (get row "windAndSpreadOrientationMode")))
+            (surface-input "setWindSpeed"               "windSpeed"               (get row "windSpeed"))
+            (surface-input "setWindHeightInputMode"     "windHeightInputMode"     (enums/wind-height-input-mode (get row "windHeightInputMode")))
+            (surface-input "setWindDirection"           "windDirection"           (get row "windDirection"))
+
+            ;; Topo
+            (surface-input "setAspect"                  "aspect"                  (get row "aspect"))
+            (surface-input "setSlope"                   "slope"                   (slope-degrees (get row "slope")))
+
+            ;; Canopy
+            (surface-input "setCanopyCover"             "canopyCover"             (/ (get row "canopyCover") 100))
+            (surface-input "setCanopyHeight"            "canopyHeight"            (get row "canopyHeight"))
+            (surface-input "setCrownRatio"              "crownRatio"              (get row "crownRatio"))
+
+            ;;; Crown Inputs
+            (crown-input "setMoistureFoliar"             "foliarMoisture"    (/ (get row "moistureFoliar") 100))
+            (crown-input "setCanopyHeight"               "canopyHeight"      (get row "canopyHeight"))
+            (crown-input "setCanopyBaseHeight"           "canopyBaseHeight"  (get row "canopyBaseHeight"))
+            (crown-input "setCanopyBulkDensity"          "canopyBulkDensity" (get row "canopyBulkDensity"))
+            (crown-input "setCrownFireCalculationMethod" "CrownFireCalculationMethod" (enums/crown-fire-calculation-method (get row "calculationMethod"))))
+
+        fire-type-output   (crown-output "getFireType")
+
+        float-outputs
+        {"lengthToWidthRatio"     (crown-output "getCrownFireLengthToWidthRatio")
+         "crownFireSpreadRate"    (crown-output "getCrownFireSpreadRate")
+         "crownFlameLength"       (crown-output "getCrownFlameLength")
+         "crownFirelineIntensity" (crown-output "getCrownFirelineIntensity")}
+
+        outputs
+        (conj (vals float-outputs) fire-type-output)
+
+        observed
+        (-> (solve-worksheet #{:surface :crown} inputs outputs)
+            (first)
+            (:outputs))
+
+        _ (println [:CROWN-OUPUTS observed])
+
+        test-float (fn [[header gv-uuid]]
+                     (testing (str "Crown Worksheet Testing (#" (inc row-idx) "): "  header)
+                       (if-let [expected-value (get row header)]
+                         (let [expected-value (parse-float expected-value)
+                               observed-value (-> observed (get gv-uuid) (first) (parse-float))
+                               _              (println [:CROWN [:EXPECTED header expected-value] [:OBSERVED gv-uuid observed-value]])]
+                           (when-not (js/isNaN expected-value)
+                             (is (within-millionth? expected-value observed-value)
+                                 (str "Expected value: " expected-value"  Observed: " observed-value))))
+                         (str "header not in csv: " header))))]
+
+    ;; Assert
+    (doall (map test-float float-outputs))
+
+    (let [header   "fireType"
+          expected-value (enums/fire-type (get row header))
+          observed-value (-> observed (get fire-type-output) (first) (parse-int))]
+      (testing (str "Crown Worksheet Testing:" header)
+        (is (= expected-value observed-value)
+            (str "Expected value: " expected-value"  Observed: " observed-value))))))
+
+(deftest crown-worksheet
+  (let [rows (->> (inline-resource "public/csv/crown.csv")
+                  (parse-csv)
+                  (map clean-values))]
+
+    (doall (map-indexed test-crown-worksheet rows))))
