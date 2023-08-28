@@ -2615,6 +2615,100 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_WindSpeedUtility___destroy___0(WindSpe
   delete self;
 }
 
+// SIGFineDeadFuelMoistureTool
+
+SIGFineDeadFuelMoistureTool* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFineDeadFuelMoistureTool_SIGFineDeadFuelMoistureTool_0() {
+  return new SIGFineDeadFuelMoistureTool();
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFineDeadFuelMoistureTool_calculate_0(SIGFineDeadFuelMoistureTool* self) {
+  self->calculate();
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFineDeadFuelMoistureTool_setTimeOfDayIndex_1(SIGFineDeadFuelMoistureTool* self, FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum timeOfDayIndex) {
+  self->setTimeOfDayIndex(timeOfDayIndex);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFineDeadFuelMoistureTool_setSlopeIndex_1(SIGFineDeadFuelMoistureTool* self, FDFMToolSlopeIndex_SlopeIndexEnum slopeIndex) {
+  self->setSlopeIndex(slopeIndex);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFineDeadFuelMoistureTool_setShadingIndex_1(SIGFineDeadFuelMoistureTool* self, FDFMToolShadingIndex_ShadingIndexEnum shadingIndex) {
+  self->setShadingIndex(shadingIndex);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFineDeadFuelMoistureTool_setAspectIndex_1(SIGFineDeadFuelMoistureTool* self, FDFMToolAspectIndex_AspectIndexEnum aspectIndex) {
+  self->setAspectIndex(aspectIndex);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFineDeadFuelMoistureTool_setRHIndex_1(SIGFineDeadFuelMoistureTool* self, FDFMToolRHIndex_RHIndexEnum relativeHumidityIndex) {
+  self->setRHIndex(relativeHumidityIndex);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFineDeadFuelMoistureTool_setElevationIndex_1(SIGFineDeadFuelMoistureTool* self, FDFMToolElevationIndex_ElevationIndexEnum elevationIndex) {
+  self->setElevationIndex(elevationIndex);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFineDeadFuelMoistureTool_setDryBulbIndex_1(SIGFineDeadFuelMoistureTool* self, FDFMToolDryBulbIndex_DryBulbIndexEnum dryBulbIndex) {
+  self->setDryBulbIndex(dryBulbIndex);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFineDeadFuelMoistureTool_setMonthIndex_1(SIGFineDeadFuelMoistureTool* self, FDFMToolMonthIndex_MonthIndexEnum monthIndex) {
+  self->setMonthIndex(monthIndex);
+}
+
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFineDeadFuelMoistureTool_getFineDeadFuelMoisture_0(SIGFineDeadFuelMoistureTool* self) {
+  return self->getFineDeadFuelMoisture();
+}
+
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFineDeadFuelMoistureTool_getSlopeIndexSize_0(SIGFineDeadFuelMoistureTool* self) {
+  return self->getSlopeIndexSize();
+}
+
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFineDeadFuelMoistureTool_getElevationIndexSize_0(SIGFineDeadFuelMoistureTool* self) {
+  return self->getElevationIndexSize();
+}
+
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFineDeadFuelMoistureTool_getMonthIndexSize_0(SIGFineDeadFuelMoistureTool* self) {
+  return self->getMonthIndexSize();
+}
+
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFineDeadFuelMoistureTool_getDryBulbTemperatureIndexSize_0(SIGFineDeadFuelMoistureTool* self) {
+  return self->getDryBulbTemperatureIndexSize();
+}
+
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFineDeadFuelMoistureTool_getReferenceMoisture_0(SIGFineDeadFuelMoistureTool* self) {
+  return self->getReferenceMoisture();
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFineDeadFuelMoistureTool_calculateByIndex_8(SIGFineDeadFuelMoistureTool* self, int aspectIndex, int dryBulbIndex, int elevationIndex, int monthIndex, int relativeHumidityIndex, int shadingIndex, int slopeIndex, int timeOfDayIndex) {
+  self->calculateByIndex(aspectIndex, dryBulbIndex, elevationIndex, monthIndex, relativeHumidityIndex, shadingIndex, slopeIndex, timeOfDayIndex);
+}
+
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFineDeadFuelMoistureTool_getTimeOfDayIndexSize_0(SIGFineDeadFuelMoistureTool* self) {
+  return self->getTimeOfDayIndexSize();
+}
+
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFineDeadFuelMoistureTool_getCorrectionMoisture_0(SIGFineDeadFuelMoistureTool* self) {
+  return self->getCorrectionMoisture();
+}
+
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFineDeadFuelMoistureTool_getAspectIndexSize_0(SIGFineDeadFuelMoistureTool* self) {
+  return self->getAspectIndexSize();
+}
+
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFineDeadFuelMoistureTool_getShadingIndexSize_0(SIGFineDeadFuelMoistureTool* self) {
+  return self->getShadingIndexSize();
+}
+
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFineDeadFuelMoistureTool_getRelativeHumidityIndexSize_0(SIGFineDeadFuelMoistureTool* self) {
+  return self->getRelativeHumidityIndexSize();
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFineDeadFuelMoistureTool___destroy___0(SIGFineDeadFuelMoistureTool* self) {
+  delete self;
+}
+
 // AreaUnits_AreaUnitsEnum
 AreaUnits_AreaUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_AreaUnits_AreaUnitsEnum_SquareFeet() {
   return AreaUnits::SquareFeet;
@@ -3355,6 +3449,163 @@ RequiredFieldNames EMSCRIPTEN_KEEPALIVE emscripten_enum_RequiredFieldNames_fire_
 }
 RequiredFieldNames EMSCRIPTEN_KEEPALIVE emscripten_enum_RequiredFieldNames_num_inputs() {
   return RequiredFieldNames::num_inputs;
+}
+
+// FDFMToolAspectIndex_AspectIndexEnum
+FDFMToolAspectIndex_AspectIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_NORTH() {
+  return FDFMToolAspectIndex::NORTH;
+}
+FDFMToolAspectIndex_AspectIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_EAST() {
+  return FDFMToolAspectIndex::EAST;
+}
+FDFMToolAspectIndex_AspectIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_SOUTH() {
+  return FDFMToolAspectIndex::SOUTH;
+}
+FDFMToolAspectIndex_AspectIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_WEST() {
+  return FDFMToolAspectIndex::WEST;
+}
+
+// FDFMToolDryBulbIndex_DryBulbIndexEnum
+FDFMToolDryBulbIndex_DryBulbIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_TEN_TO_TWENTY_NINE_DEGREES_F() {
+  return FDFMToolDryBulbIndex::TEN_TO_TWENTY_NINE_DEGREES_F;
+}
+FDFMToolDryBulbIndex_DryBulbIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_THRITY_TO_FOURTY_NINE_DEGREES_F() {
+  return FDFMToolDryBulbIndex::THRITY_TO_FOURTY_NINE_DEGREES_F;
+}
+FDFMToolDryBulbIndex_DryBulbIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_FIFTY_TO_SIXTY_NINE_DEGREES_F() {
+  return FDFMToolDryBulbIndex::FIFTY_TO_SIXTY_NINE_DEGREES_F;
+}
+FDFMToolDryBulbIndex_DryBulbIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_SEVENTY_TO_EIGHTY_NINE_DEGREES_F() {
+  return FDFMToolDryBulbIndex::SEVENTY_TO_EIGHTY_NINE_DEGREES_F;
+}
+FDFMToolDryBulbIndex_DryBulbIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_NINETY_TO_ONE_HUNDRED_NINE_DEGREES_F() {
+  return FDFMToolDryBulbIndex::NINETY_TO_ONE_HUNDRED_NINE_DEGREES_F;
+}
+FDFMToolDryBulbIndex_DryBulbIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_GREATER_THAN_ONE_HUNDRED_NINE_DEGREES_F() {
+  return FDFMToolDryBulbIndex::GREATER_THAN_ONE_HUNDRED_NINE_DEGREES_F;
+}
+
+// FDFMToolElevationIndex_ElevationIndexEnum
+FDFMToolElevationIndex_ElevationIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_BELOW_1000_TO_2000_FT() {
+  return FDFMToolElevationIndex::BELOW_1000_TO_2000_FT;
+}
+FDFMToolElevationIndex_ElevationIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_LEVEL_WITHIN_1000_FT() {
+  return FDFMToolElevationIndex::LEVEL_WITHIN_1000_FT;
+}
+FDFMToolElevationIndex_ElevationIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_ABOVE_1000_TO_2000_FT() {
+  return FDFMToolElevationIndex::ABOVE_1000_TO_2000_FT;
+}
+
+// FDFMToolMonthIndex_MonthIndexEnum
+FDFMToolMonthIndex_MonthIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_MAY_JUNE_JULY() {
+  return FDFMToolMonthIndex::MAY_JUNE_JULY;
+}
+FDFMToolMonthIndex_MonthIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_FEB_MAR_APR_AUG_SEP_OCT() {
+  return FDFMToolMonthIndex::FEB_MAR_APR_AUG_SEP_OCT;
+}
+FDFMToolMonthIndex_MonthIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_NOV_DEC_JAN() {
+  return FDFMToolMonthIndex::NOV_DEC_JAN;
+}
+
+// FDFMToolRHIndex_RHIndexEnum
+FDFMToolRHIndex_RHIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolRHIndex_RHIndexEnum_ZERO_TO_FOUR_PERCENT() {
+  return FDFMToolRHIndex::ZERO_TO_FOUR_PERCENT;
+}
+FDFMToolRHIndex_RHIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIVE_TO_NINE_PERCENT() {
+  return FDFMToolRHIndex::FIVE_TO_NINE_PERCENT;
+}
+FDFMToolRHIndex_RHIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TEN_TO_FOURTEEN_PERCENT() {
+  return FDFMToolRHIndex::TEN_TO_FOURTEEN_PERCENT;
+}
+FDFMToolRHIndex_RHIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTEEN_TO_NINETEEN_PERCENT() {
+  return FDFMToolRHIndex::FIFTEEN_TO_NINETEEN_PERCENT;
+}
+FDFMToolRHIndex_RHIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TWENTY_TO_TWENTY_FOUR_PERCENT() {
+  return FDFMToolRHIndex::TWENTY_TO_TWENTY_FOUR_PERCENT;
+}
+FDFMToolRHIndex_RHIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TWENTY_FIVE_TO_TWENTY_NINE_PERCENT() {
+  return FDFMToolRHIndex::TWENTY_FIVE_TO_TWENTY_NINE_PERCENT;
+}
+FDFMToolRHIndex_RHIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolRHIndex_RHIndexEnum_THIRTY_TO_THIRTY_FOUR_PERCENT() {
+  return FDFMToolRHIndex::THIRTY_TO_THIRTY_FOUR_PERCENT;
+}
+FDFMToolRHIndex_RHIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolRHIndex_RHIndexEnum_THIRTY_FIVE_TO_THIRTY_NINE_PERCENT() {
+  return FDFMToolRHIndex::THIRTY_FIVE_TO_THIRTY_NINE_PERCENT;
+}
+FDFMToolRHIndex_RHIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FORTY_TO_FORTY_FOUR_PERCENT() {
+  return FDFMToolRHIndex::FORTY_TO_FORTY_FOUR_PERCENT;
+}
+FDFMToolRHIndex_RHIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FORTY_FIVE_TO_FORTY_NINE_PERCENT() {
+  return FDFMToolRHIndex::FORTY_FIVE_TO_FORTY_NINE_PERCENT;
+}
+FDFMToolRHIndex_RHIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTY_TO_FIFTY_FOUR_PERCENT() {
+  return FDFMToolRHIndex::FIFTY_TO_FIFTY_FOUR_PERCENT;
+}
+FDFMToolRHIndex_RHIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTY_FIVE_TO_FIFTY_NINE_PERCENT() {
+  return FDFMToolRHIndex::FIFTY_FIVE_TO_FIFTY_NINE_PERCENT;
+}
+FDFMToolRHIndex_RHIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SIXTY_TO_SIXTY_FOUR_PERCENT() {
+  return FDFMToolRHIndex::SIXTY_TO_SIXTY_FOUR_PERCENT;
+}
+FDFMToolRHIndex_RHIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SIXTY_FIVE_TO_SIXTY_NINE_PERCENT() {
+  return FDFMToolRHIndex::SIXTY_FIVE_TO_SIXTY_NINE_PERCENT;
+}
+FDFMToolRHIndex_RHIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SEVENTY_TO_SEVENTY_FOUR_PERCENT() {
+  return FDFMToolRHIndex::SEVENTY_TO_SEVENTY_FOUR_PERCENT;
+}
+FDFMToolRHIndex_RHIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SEVENTY_FIVE_TO_SEVENTY_NINE_PERCENT() {
+  return FDFMToolRHIndex::SEVENTY_FIVE_TO_SEVENTY_NINE_PERCENT;
+}
+FDFMToolRHIndex_RHIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolRHIndex_RHIndexEnum_EIGHTY_TO_EIGHTY_FOUR_PERCENT() {
+  return FDFMToolRHIndex::EIGHTY_TO_EIGHTY_FOUR_PERCENT;
+}
+FDFMToolRHIndex_RHIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolRHIndex_RHIndexEnum_EIGHTY_FIVE_TO_EIGHTY_NINE_PERCENT() {
+  return FDFMToolRHIndex::EIGHTY_FIVE_TO_EIGHTY_NINE_PERCENT;
+}
+FDFMToolRHIndex_RHIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolRHIndex_RHIndexEnum_NINETY_TO_NINETY_FOUR_PERCENT() {
+  return FDFMToolRHIndex::NINETY_TO_NINETY_FOUR_PERCENT;
+}
+FDFMToolRHIndex_RHIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolRHIndex_RHIndexEnum_NINETY_FIVE_TO_NINETY_NINE_PERCENT() {
+  return FDFMToolRHIndex::NINETY_FIVE_TO_NINETY_NINE_PERCENT;
+}
+FDFMToolRHIndex_RHIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolRHIndex_RHIndexEnum_ONE_HUNDRED_PERCENT() {
+  return FDFMToolRHIndex::ONE_HUNDRED_PERCENT;
+}
+
+// FDFMToolShadingIndex_ShadingIndexEnum
+FDFMToolShadingIndex_ShadingIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolShadingIndex_ShadingIndexEnum_EXPOSED() {
+  return FDFMToolShadingIndex::EXPOSED;
+}
+FDFMToolShadingIndex_ShadingIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolShadingIndex_ShadingIndexEnum_SHADED() {
+  return FDFMToolShadingIndex::SHADED;
+}
+
+// FDFMToolSlopeIndex_SlopeIndexEnum
+FDFMToolSlopeIndex_SlopeIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolSlopeIndex_SlopeIndexEnum_ZERO_TO_THIRTY_PERCENT() {
+  return FDFMToolSlopeIndex::ZERO_TO_THIRTY_PERCENT;
+}
+FDFMToolSlopeIndex_SlopeIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolSlopeIndex_SlopeIndexEnum_GREATER_THAN_OR_EQUAL_TO_THIRTY_ONE_PERCENT() {
+  return FDFMToolSlopeIndex::GREATER_THAN_OR_EQUAL_TO_THIRTY_ONE_PERCENT;
+}
+
+// FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum
+FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_EIGHT_HUNDRED_HOURS_TO_NINE_HUNDRED_FIFTY_NINE() {
+  return FDFMToolTimeOfDayIndex::EIGHT_HUNDRED_HOURS_TO_NINE_HUNDRED_FIFTY_NINE;
+}
+FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_TEN_HUNDRED_HOURS_TO_ELEVEN__HUNDRED_FIFTY_NINE() {
+  return FDFMToolTimeOfDayIndex::TEN_HUNDRED_HOURS_TO_ELEVEN__HUNDRED_FIFTY_NINE;
+}
+FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_TWELVE_HUNDRED_HOURS_TO_THIRTEEN_HUNDRED_FIFTY_NINE() {
+  return FDFMToolTimeOfDayIndex::TWELVE_HUNDRED_HOURS_TO_THIRTEEN_HUNDRED_FIFTY_NINE;
+}
+FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_FOURTEEN_HUNDRED_HOURS_TO_FIFTEEN_HUNDRED_FIFTY_NINE() {
+  return FDFMToolTimeOfDayIndex::FOURTEEN_HUNDRED_HOURS_TO_FIFTEEN_HUNDRED_FIFTY_NINE;
+}
+FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_SIXTEEN_HUNDRED_HOURS_TO_SIXTEEN_HUNDRED_FIFTY_NINE() {
+  return FDFMToolTimeOfDayIndex::SIXTEEN_HUNDRED_HOURS_TO_SIXTEEN_HUNDRED_FIFTY_NINE;
+}
+FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_EIGHTTEEN_HUNDRED_HOURS_TO_SUNSET() {
+  return FDFMToolTimeOfDayIndex::EIGHTTEEN_HUNDRED_HOURS_TO_SUNSET;
 }
 
 }

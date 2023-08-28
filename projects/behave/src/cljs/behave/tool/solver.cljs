@@ -5,7 +5,13 @@
             [clojure.string        :as str]
             [behave.logger         :refer [log]]
             [behave.lib.units      :as units]
-            [behave.lib.ignite]))
+            [behave.lib.ignite]
+            [behave.lib.fine-dead-fuel-moisture-tool]))
+
+(defn kebab->snake
+  "Converts a snake_case string to a kebab-case string."
+  [s]
+  (str/replace s #"-" "_"))
 
 (defn- is-enum? [parameter-type]
   (or (str/includes? parameter-type "Enum")
@@ -76,7 +82,7 @@
   Returns a map of subtool-variable uuids -> value"
   [tool-uuid subtool-uuid]
   (let [tool-entity (rf/subscribe [:tool/entity tool-uuid])
-        lib-ns      (:tool/lib-ns @tool-entity)
+        lib-ns      (kebab->snake (:tool/lib-ns @tool-entity))
         fns         (js->clj (apply (partial aget js/window) (str/split lib-ns "."))
                              :keywordize-keys
                              true)
@@ -84,4 +90,7 @@
                      :inputs       @(rf/subscribe [:tool/all-inputs tool-uuid subtool-uuid])
                      :output-uuids @(rf/subscribe [:tool/all-output-uuids subtool-uuid])
                      :compute-fn   (get-compute-fn subtool-uuid fns)}]
+    (log "lib-ns:" lib-ns)
+    (log "lib obj:" (apply (partial aget js/window) (str/split lib-ns ".")))
+    (log "params:" params)
     (run-tool params)))

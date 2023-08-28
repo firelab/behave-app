@@ -67,3 +67,13 @@ typedef SpotFireLocation::SpotFireLocationEnum SpotFireLocation_SpotFireLocation
 
 // mortality.h
 typedef MortalityRateUnits::MortalityRateUnitsEnum MortalityRateUnits_MortalityRateUnitsEnum;
+
+// fineDeadFuelMoistureTool.h
+typedef FDFMToolAspectIndex::AspectIndexEnum FDFMToolAspectIndex_AspectIndexEnum;
+typedef FDFMToolDryBulbIndex::DryBulbIndexEnum FDFMToolDryBulbIndex_DryBulbIndexEnum;
+typedef FDFMToolElevationIndex::ElevationIndexEnum FDFMToolElevationIndex_ElevationIndexEnum;
+typedef FDFMToolMonthIndex::MonthIndexEnum FDFMToolMonthIndex_MonthIndexEnum;
+typedef FDFMToolRHIndex::RHIndexEnum FDFMToolRHIndex_RHIndexEnum;
+typedef FDFMToolShadingIndex::ShadingIndexEnum FDFMToolShadingIndex_ShadingIndexEnum;
+typedef FDFMToolSlopeIndex::SlopeIndexEnum FDFMToolSlopeIndex_SlopeIndexEnum;
+typedef FDFMToolTimeOfDayIndex::TimeOfDayIndexEnum FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum;

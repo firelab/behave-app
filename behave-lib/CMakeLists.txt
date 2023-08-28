@@ -83,6 +83,7 @@ SET(SOURCE
     behave-mirror/src/behave/chaparralFuel.cpp
     behave-mirror/src/behave/crown.cpp
     behave-mirror/src/behave/crownInputs.cpp
+    behave-mirror/src/behave/fineDeadFuelMoistureTool.cpp
     behave-mirror/src/behave/fireSize.cpp
     behave-mirror/src/behave/fuelModels.cpp
     behave-mirror/src/behave/ignite.cpp
@@ -111,6 +112,7 @@ SET(SOURCE
     include/cpp/sig-adapters/SIGBehaveRun.cpp
     include/cpp/sig-adapters/SIGContainAdapter.cpp
     include/cpp/sig-adapters/SIGCrown.cpp
+    include/cpp/sig-adapters/SIGFineDeadFuelMoistureTool.cpp
     include/cpp/sig-adapters/SIGFuelModels.cpp
     include/cpp/sig-adapters/SIGIgnite.cpp
     include/cpp/sig-adapters/SIGMortality.cpp
@@ -132,6 +134,7 @@ SET(HEADERS
     behave-mirror/src/behave/chaparralFuel.h
     behave-mirror/src/behave/crown.h
     behave-mirror/src/behave/crownInputs.h
+    behave-mirror/src/behave/fineDeadFuelMoistureTool.h
     behave-mirror/src/behave/fireSize.h
     behave-mirror/src/behave/fuelModels.h
     behave-mirror/src/behave/ignite.h
@@ -161,6 +164,7 @@ SET(HEADERS
     include/cpp/sig-adapters/SIGDiurnalROS.h
     include/cpp/sig-adapters/SIGContainAdapter.h
     include/cpp/sig-adapters/SIGCrown.h
+    include/cpp/sig-adapters/SIGFineDeadFuelMoistureTool.h
     include/cpp/sig-adapters/SIGFuelModels.cpp
     include/cpp/sig-adapters/SIGIgnite.h
     include/cpp/sig-adapters/SIGMortality.h

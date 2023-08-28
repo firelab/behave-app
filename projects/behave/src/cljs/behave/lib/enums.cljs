@@ -394,3 +394,74 @@
         ["WindHeightInputMode::DirectMidflame"
          "WindHeightInputMode::TwentyFoot"
          "WindHeightInputMode::TenMeter"]))
+
+(def fdfm-tool-aspect-index
+  (enum "FDFMToolAspectIndex_AspectIndexEnum"
+        ["FDFMToolAspectIndex::NORTH"
+         "FDFMToolAspectIndex::EAST"
+         "FDFMToolAspectIndex::SOUTH"
+         "FDFMToolAspectIndex::WEST"]))
+
+(def fdfm-tool-dry-bulb-index
+  (enum "FDFMToolDryBulbIndex_DryBulbIndexEnum"
+        ["FDFMToolDryBulbIndex::TEN_TO_TWENTY_NINE_DEGREES_F"
+         "FDFMToolDryBulbIndex::THRITY_TO_FOURTY_NINE_DEGREES_F"
+         "FDFMToolDryBulbIndex::FIFTY_TO_SIXTY_NINE_DEGREES_F"
+         "FDFMToolDryBulbIndex::SEVENTY_TO_EIGHTY_NINE_DEGREES_F"
+         "FDFMToolDryBulbIndex::NINETY_TO_ONE_HUNDRED_NINE_DEGREES_F"
+         "FDFMToolDryBulbIndex::GREATER_THAN_ONE_HUNDRED_NINE_DEGREES_F"]))
+
+(def fdfm-tool-elevation-index
+  (enum "FDFMToolElevationIndex_ElevationIndexEnum"
+        ["FDFMToolElevationIndex::BELOW_1000_TO_2000_FT"
+         "FDFMToolElevationIndex::LEVEL_WITHIN_1000_FT"
+         "FDFMToolElevationIndex::ABOVE_1000_TO_2000_FT"]))
+
+(def fdfm-tool-month-index
+  (enum "FDFMToolMonthIndex_MonthIndexEnum"
+        ["FDFMToolMonthIndex::MAY_JUNE_JULY"
+         "FDFMToolMonthIndex::FEB_MAR_APR_AUG_SEP_OCT"
+         "FDFMToolMonthIndex::NOV_DEC_JAN"]))
+
+(def fdfm-tool-rh-index
+  (enum "FDFMToolRHIndex_RHIndexEnum"
+        ["FDFMToolRHIndex::ZERO_TO_FOUR_PERCENT"
+         "FDFMToolRHIndex::FIVE_TO_NINE_PERCENT"
+         "FDFMToolRHIndex::TEN_TO_FOURTEEN_PERCENT"
+         "FDFMToolRHIndex::FIFTEEN_TO_NINETEEN_PERCENT"
+         "FDFMToolRHIndex::TWENTY_TO_TWENTY_FOUR_PERCENT"
+         "FDFMToolRHIndex::TWENTY_FIVE_TO_TWENTY_NINE_PERCENT"
+         "FDFMToolRHIndex::THIRTY_TO_THIRTY_FOUR_PERCENT"
+         "FDFMToolRHIndex::THIRTY_FIVE_TO_THIRTY_NINE_PERCENT"
+         "FDFMToolRHIndex::FORTY_TO_FORTY_FOUR_PERCENT"
+         "FDFMToolRHIndex::FORTY_FIVE_TO_FORTY_NINE_PERCENT"
+         "FDFMToolRHIndex::FIFTY_TO_FIFTY_FOUR_PERCENT"
+         "FDFMToolRHIndex::FIFTY_FIVE_TO_FIFTY_NINE_PERCENT"
+         "FDFMToolRHIndex::SIXTY_TO_SIXTY_FOUR_PERCENT"
+         "FDFMToolRHIndex::SIXTY_FIVE_TO_SIXTY_NINE_PERCENT"
+         "FDFMToolRHIndex::SEVENTY_TO_SEVENTY_FOUR_PERCENT"
+         "FDFMToolRHIndex::SEVENTY_FIVE_TO_SEVENTY_NINE_PERCENT"
+         "FDFMToolRHIndex::EIGHTY_TO_EIGHTY_FOUR_PERCENT"
+         "FDFMToolRHIndex::EIGHTY_FIVE_TO_EIGHTY_NINE_PERCENT"
+         "FDFMToolRHIndex::NINETY_TO_NINETY_FOUR_PERCENT"
+         "FDFMToolRHIndex::NINETY_FIVE_TO_NINETY_NINE_PERCENT"
+         "FDFMToolRHIndex::ONE_HUNDRED_PERCENT"]))
+
+(def fdfm-tool-shading-index
+  (enum "FDFMToolShadingIndex_ShadingIndexEnum"
+        ["FDFMToolShadingIndex::EXPOSED"
+         "FDFMToolShadingIndex::SHADED"]))
+
+(def fdfm-tool-slope-index
+  (enum "FDFMToolSlopeIndex_SlopeIndexEnum"
+        ["FDFMToolSlopeIndex::ZERO_TO_THIRTY_PERCENT"
+         "FDFMToolSlopeIndex::GREATER_THAN_OR_EQUAL_TO_THIRTY_ONE_PERCENT"]))
+
+(def fdfm-tool-time-of-day
+  (enum "FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum"
+        ["FDFMToolTimeOfDayIndex::EIGHT_HUNDRED_HOURS_TO_NINE_HUNDRED_FIFTY_NINE"
+         "FDFMToolTimeOfDayIndex::TEN_HUNDRED_HOURS_TO_ELEVEN__HUNDRED_FIFTY_NINE"
+         "FDFMToolTimeOfDayIndex::TWELVE_HUNDRED_HOURS_TO_THIRTEEN_HUNDRED_FIFTY_NINE"
+         "FDFMToolTimeOfDayIndex::FOURTEEN_HUNDRED_HOURS_TO_FIFTEEN_HUNDRED_FIFTY_NINE"
+         "FDFMToolTimeOfDayIndex::SIXTEEN_HUNDRED_HOURS_TO_SIXTEEN_HUNDRED_FIFTY_NINE"
+         "FDFMToolTimeOfDayIndex::EIGHTTEEN_HUNDRED_HOURS_TO_SUNSET"]))

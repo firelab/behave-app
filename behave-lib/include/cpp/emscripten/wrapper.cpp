@@ -44,5 +44,7 @@
 #include "SIGSpot.cpp"
 #include "SIGMortality.cpp"
 #include "SIGSurface.cpp"
+#include "fineDeadFuelMoistureTool.cpp"
+#include "SIGFineDeadFuelMoistureTool.cpp"
 #include "enums.cpp"
 #include "glue.cpp"
