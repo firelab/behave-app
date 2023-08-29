@@ -66,3 +66,5 @@
 
 (defn updateIgniteInputs [self moistureOneHour moistureHundredHour moistureUnits airTemperature temperatureUnits sunShade sunShadeUnits fuelBedType duffDepth duffDepthUnits lightningChargeType]
   (.updateIgniteInputs self moistureOneHour moistureHundredHour moistureUnits airTemperature temperatureUnits sunShade sunShadeUnits fuelBedType duffDepth duffDepthUnits lightningChargeType))
+
+(def ^:export ns-public-fns (update-keys (ns-publics 'behave.lib.ignite) name))

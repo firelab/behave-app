@@ -356,6 +356,31 @@ Module.SIGCrown = class {
   getFinalFlameLength() {}
 };
 
+Module.SIGIgnite = class {
+    init() {}
+    calculateFirebrandIgnitionProbability() {}
+    getFirebrandIgnitionProbability() {}
+    setAirTemperature() {}
+    getMoistureHundredHour() {}
+    getLightningChargeType() {}
+    setMoistureOneHour() {}
+    calculateLightningIgnitionProbability() {}
+    getDuffDepth() {}
+    setIgnitionFuelBedType() {}
+    setSunShade() {}
+    getAirTemperature() {}
+    getFuelTemperature() {}
+    isFuelDepthNeeded() {}
+    setMoistureHundredHour() {}
+    getSunShade() {}
+    initializeMembers() {}
+    getFuelBedType() {}
+    getMoistureOneHour() {}
+    setLightningChargeType() {}
+    setDuffDepth() {}
+    updateIgniteInputs() {}
+};
+
 Module.SIGMortality = class {
   constructor() {}
   getBeetleDamage() {}

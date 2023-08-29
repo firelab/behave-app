@@ -6,7 +6,8 @@
             [behave.logger         :refer [log]]
             [behave.lib.units      :as units]
             [behave.lib.ignite]
-            [behave.lib.fine-dead-fuel-moisture-tool]))
+            [behave.lib.fine-dead-fuel-moisture-tool]
+            [goog.object    :as obj]))
 
 (defn kebab->snake
   "Converts a snake_case string to a kebab-case string."
@@ -21,7 +22,7 @@
   (let [[fn-id fn-name] (q/subtool-variable->fn sv-uuid)
         value           (q/parsed-value sv-uuid value)
         unit-enum       (units/get-unit units)
-        f               ((keyword fn-name) fns)
+        f               (fns fn-name)
         params          (q/fn-params fn-id)]
     (log [:SOLVER] [:INPUT fn-name value unit-enum])
 
@@ -42,7 +43,7 @@
   [fns tool-obj sv-uuid]
   (let [[fn-id fn-name] (q/subtool-variable->fn sv-uuid)
         unit            (units/get-unit (q/variable-units sv-uuid))
-        f               ((keyword fn-name) fns)
+        f               (fns fn-name)
         params          (q/fn-params fn-id)]
     (log [:SOLVER] [:OUTPUT fn-name unit f params])
 
@@ -57,7 +58,8 @@
 
 (defn- run-tool
   [{:keys [fns inputs output-uuids compute-fn]}]
-  (let [tool-obj ((:init fns))]
+  (let [init-fn  (fns "init")
+        tool-obj (init-fn)]
 
     ;; Set inputs
     (doseq [[sv-uuid value] inputs]
@@ -75,7 +77,14 @@
 (defn- get-compute-fn [subtool-uuid fns]
   (let [fn-name (q/subtool-compute->fn-name subtool-uuid)]
     (log [:SOLVER] [:COMPUTE-fn fn-name])
-    ((keyword fn-name) fns)))
+    (fns fn-name)))
+
+(defn- list-cljs-fns [ns-symbol-or-string]
+  (let [ns-string (name ns-symbol-or-string)]
+    (-> js/window
+        (obj/getValueByKeys (clj->js (str/split ns-string #"\.")))
+        (obj/get "ns_public_fns")
+        (js->clj))))
 
 (defn solve-tool
   "Extracts inputs from the app state and runs the compute function for the given subtool.
@@ -83,9 +92,7 @@
   [tool-uuid subtool-uuid]
   (let [tool-entity (rf/subscribe [:tool/entity tool-uuid])
         lib-ns      (kebab->snake (:tool/lib-ns @tool-entity))
-        fns         (js->clj (apply (partial aget js/window) (str/split lib-ns "."))
-                             :keywordize-keys
-                             true)
+        fns         (list-cljs-fns lib-ns)
         params      {:fns          fns
                      :inputs       @(rf/subscribe [:tool/all-inputs tool-uuid subtool-uuid])
                      :output-uuids @(rf/subscribe [:tool/all-output-uuids subtool-uuid])
