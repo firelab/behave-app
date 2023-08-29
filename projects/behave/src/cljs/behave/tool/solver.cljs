@@ -77,11 +77,6 @@
     (log [:SOLVER] [:COMPUTE-fn fn-name])
     ((keyword fn-name) fns)))
 
-(let [lib-ns "behave.lib.ignite"]
-  (js->clj (apply (partial aget js/window) (str/split lib-ns "."))
-           :keywordize-keys
-           true))
-
 (defn solve-tool
   "Extracts inputs from the app state and runs the compute function for the given subtool.
   Returns a map of subtool-variable uuids -> value"
