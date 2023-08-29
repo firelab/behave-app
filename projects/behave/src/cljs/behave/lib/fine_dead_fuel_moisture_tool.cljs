@@ -92,3 +92,5 @@
 
 (defn setTimeOfDayIndex [self timeOfDayIndex]
   (.setTimeOfDayIndex self timeOfDayIndex))
+
+(def ^:export ns-public-fns (update-keys (ns-publics 'behave.lib.fine-dead-fuel-moisture-tool) name))

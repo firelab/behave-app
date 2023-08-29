@@ -510,6 +510,39 @@ Module.SIGSpot = class {
   updateSpotInputsForTorchingTrees() {}
 };
 
+Module.SIGFineDeadFuelMoistureTool = class {
+    init() {}
+    calculate() {}
+    calculateByIndex() {}
+    getAspectIndexSize() {}
+    getAspectLabelAtIndex() {}
+    getCorrectionMoisture() {}
+    getDryBulbTemperatureIndexSize() {}
+    getDryBulbTemperatureLabelAtIndex() {}
+    getElevationIndexSize() {}
+    getElevationLabelAtIndex() {}
+    getFineDeadFuelMoisture() {}
+    getMonthIndexSize() {}
+    getMonthLabelAtIndex() {}
+    getReferenceMoisture() {}
+    getRelativeHumidityIndexSize() {}
+    getRelativeHumidityLabelAtIndex() {}
+    getShadingIndexSize() {}
+    getShadingLabelAtIndex() {}
+    getSlopeIndexSize() {}
+    getSlopeLabelAtIndex() {}
+    getTimeOfDayIndexSize() {}
+    getTimeOfDayLabelAtIndex() {}
+    operator() {}
+    setAspectIndex() {}
+    setDryBulbIndex() {}
+    setElevationIndex() {}
+    setMonthIndex() {}
+    setRHIndex() {}
+    setShadingIndex() {}
+    setSlopeIndex() {}
+    setTimeOfDayIndex() {}
+};
 
 Module.SIGFuelModels = class {
   constructor() {}
