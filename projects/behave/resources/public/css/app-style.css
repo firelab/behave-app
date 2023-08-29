@@ -785,9 +785,12 @@ body {
   display: flex;
   padding-bottom: 5px;
 }
-
+.tool-input .input-dropdown__label,
 .tool-input .input-radio-group__label {
   padding: 0px 10px 0px 5px;
+  font-size: var(--font-size-14);
+  font-weight: var(--font-weight-bold);
+  color: black;
 }
 
 .tool-input .input-dropdown {
