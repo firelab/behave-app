@@ -5,11 +5,9 @@
             [data-utils.interface               :refer [parse-int]]
             [behave-cms.components.common       :refer [accordion
                                                         dropdown
-                                                        labeled-text-input
-                                                        labeled-float-input
-                                                        labeled-integer-input
                                                         simple-table
                                                         window]]
+            [behave-cms.components.cpp-editor   :refer [cpp-editor-form]]
             [behave-cms.components.sidebar      :refer [sidebar sidebar-width]]
             [behave-cms.components.translations :refer [all-translations]]
             [behave-cms.help.views              :refer [help-editor]]
@@ -17,61 +15,16 @@
 
 ;;; Constants
 
-(def ^:private cpp-class :group-variable/cpp-class)
-(def ^:private cpp-fn    :group-variable/cpp-function)
-(def ^:private cpp-ns    :group-variable/cpp-namespace)
-(def ^:private cpp-param :group-variable/cpp-parameter)
-(def ^:private cpp-attrs [cpp-ns cpp-class cpp-fn cpp-param])
-
-;;; Helpers
-
-(defn- save-group-variable! [id]
-  (let [state          @(rf/subscribe [:state [:editors :group-variables]])
-        group-variable (merge {:db/id id} (select-keys state cpp-attrs))]
-    (rf/dispatch [:api/update-entity group-variable])
-    (rf/dispatch [:state/set-state :group-variable nil])
-    (rf/dispatch [:state/set-state [:editors :group-variables] {}])))
-
-;;; Components
-
-(defn- selector [label *uuid on-change name-attr options disabled?]
-  [:div.mb-3
-   [:div {:style {:visibility "hidden" :height "0px"}} @*uuid]
-   [:label.form-label label]
-   [:select.form-select
-    {:disabled  disabled?
-     :on-change #(on-change (u/input-value %))}
-    [:option {:key 0 :value nil} "Select..."]
-    (for [{uuid :bp/uuid option-label name-attr} options]
-      ^{:key uuid}
-      [:option {:value uuid :selected (= @*uuid uuid)} option-label])]])
-
-
-
-;;; Variables Editor
-
-(defn- edit-variable [id]
-  (let [original   @(rf/subscribe [:entity id])
-        get-field  (fn [field]
-                     (r/track #(or @(rf/subscribe [:state [:editors :group-variables field]]) (get original field ""))))
-        set-field  (fn [field]
-                     (fn [new-value] (rf/dispatch [:state/set-state [:editors :group-variables field] new-value])))
-        on-submit  #(save-group-variable! id)
-        namespaces (rf/subscribe [:cpp/namespaces])
-        classes    (rf/subscribe [:cpp/classes @(get-field cpp-ns)])
-        functions  (rf/subscribe [:cpp/functions @(get-field cpp-class)])
-        parameters (rf/subscribe [:cpp/parameters @(get-field cpp-fn)])]
-    [:form
-     {:on-submit (u/on-submit on-submit)}
-     [selector "Namespace:" (get-field cpp-ns)    (set-field cpp-ns)    :cpp.namespace/name  @namespaces  false]
-     [selector "Class:"     (get-field cpp-class) (set-field cpp-class) :cpp.class/name      @classes    (nil? @(get-field cpp-ns))]
-     [selector "Function:"  (get-field cpp-fn)    (set-field cpp-fn)    :cpp.function/name   @functions  (nil? @(get-field cpp-class))]
-     [selector "Parameter:" (get-field cpp-param) (set-field cpp-param) :cpp.parameter/name  @parameters (nil? @(get-field cpp-fn))]
-     [:button.btn.btn-sm.btn-outline-primary {:type "submit"} "Save"]]))
+(def ^:private cpp-attrs {:cpp-class :group-variable/cpp-class
+                          :cpp-fn    :group-variable/cpp-function
+                          :cpp-ns    :group-variable/cpp-namespace
+                          :cpp-param :group-variable/cpp-parameter})
 
 ;; Links Editor/Table
 
-(defn links-table [gv-id]
+(defn links-table
+  "Displays the Source & Destination links for the group variable."
+  [gv-id]
   (let [is-output? @(rf/subscribe [:group-variable/is-output? gv-id])
         src-links  (rf/subscribe [:group-variable/source-links gv-id])
         dest-links (rf/subscribe [:group-variable/destination-links gv-id])]
@@ -104,9 +57,10 @@
         (select-keys [:db/id name-key])
         (rename-keys {:db/id :value name-key :label}))))
 
-(defn links-editor [gv-id]
-  (let [links       (rf/subscribe [:group-variable/links gv-id])
-        *link       (rf/subscribe [:state :link])
+(defn links-editor
+  "Displays the links editor."
+  [gv-id]
+  (let [*link       (rf/subscribe [:state :link])
         is-output?  (rf/subscribe [:group-variable/is-output? gv-id])
         opposite-io (fn [{io :submodule/io}] (= io (if is-output? :input :output)))
 
@@ -182,7 +136,8 @@
        [accordion
         "CPP Functions"
         [:div.col-6
-         [edit-variable gv-id]]]
+         [cpp-editor-form
+          (merge cpp-attrs {:id gv-id :editor-key :group-variables})]]]
 
        [:hr]
        [accordion

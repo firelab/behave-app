@@ -8,6 +8,7 @@
             [behave.components.review-input-group :as review]
             [behave.components.navigation         :refer [wizard-navigation]]
             [behave.components.output-group       :refer [output-group]]
+            [behave.tool.views                    :refer [tool tool-selector]]
             [behave-routing.main                  :refer [routes]]
             [behave.translate                     :refer [<t bp]]
             [behave.wizard.events]
@@ -20,9 +21,7 @@
             [goog.string.format]
             [re-frame.core                        :refer [dispatch subscribe]]
             [string-utils.interface               :refer [->kebab]]
-            [reagent.core                         :as r]
-            [re-frame.core :as rf]
-            [behave.logger         :refer [log]]))
+            [reagent.core                         :as r]))
 
 ;;; Components
 
@@ -734,15 +733,22 @@
 (def ^:const multi-value-input-limit 3)
 
 ;;; Public Components
-(defn root-component [params]
-  (let [loaded? (subscribe [:app/loaded?])]
-    [:div.accordion
-     [:div.accordion__header
-      [c/tab {:variant   "outline-primary"
-              :selected? true
-              :label     @(<t "behaveplus:working_area")}]]
-     [:div.wizard
-      (if @loaded?
-        [wizard-page params]
-        [:div.wizard__loading
-         [:h2 "Loading..."]])]]))
+(defn root-component [{:keys [io] :as params}]
+  (let [loaded?             (subscribe [:app/loaded?])
+        show-tool-selector? @(subscribe [:tool/show-tool-selector?])
+        selected-tool-uuid  @(subscribe [:tool/selected-tool-uuid])]
+    [:<>
+     (when show-tool-selector?
+       [tool-selector])
+     (when (and (some? selected-tool-uuid) (= io :input))
+       [tool selected-tool-uuid])
+     [:div.accordion
+      [:div.accordion__header
+       [c/tab {:variant   "outline-primary"
+               :selected? true
+               :label     @(<t "behaveplus:working_area")}]]
+      [:div.wizard
+       (if @loaded?
+         [wizard-page params]
+         [:div.wizard__loading
+          [:h2 "Loading..."]])]]]))

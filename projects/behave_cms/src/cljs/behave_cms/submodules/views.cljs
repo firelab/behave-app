@@ -52,34 +52,31 @@
       [submodules-table "Input Submodules" inputs]]]))
 
 (defn list-submodules-page [{:keys [id]}]
-  (let [loaded? (rf/subscribe [:state :loaded?])]
-    (if @loaded?
-      (let [module         (rf/subscribe [:entity id '[* {:application/_modules [:db/id]}]])
-            application-id (get-in @module [:application/_modules 0 :db/id])
-            submodules     (rf/subscribe [:sidebar/submodules id])
-            submodule      (rf/subscribe [:state :submodule])]
-        [:<>
-         [sidebar
-          "Submodules"
-          @submodules
-          "Modules"
-          (str "/applications/" application-id)]
-        [window sidebar-width
-          [:div.container
-           [:div.row.mb-3.mt-4
-            [:h2 (:module/name @module)]]
-           [accordion
-            "Submodules"
-            [all-submodule-tables id]
-            [manage-submodule id @submodule (count @submodules)]]
-           [:hr]
-           [accordion
-            "Translations"
-            [:div.col-12
-             [all-translations (:module/translation-key @module)]]]
-           [:hr]
-           [accordion
-            "Help Page"
-            [:div.col-12
-             [help-editor (:module/help-key @module)]]]]]])
-      [:div "Loading..."])))
+  (let [module         (rf/subscribe [:entity id '[* {:application/_modules [:db/id]}]])
+        application-id (get-in @module [:application/_modules 0 :db/id])
+        submodules     (rf/subscribe [:sidebar/submodules id])
+        submodule      (rf/subscribe [:state :submodule])]
+    [:<>
+     [sidebar
+      "Submodules"
+      @submodules
+      "Modules"
+      (str "/applications/" application-id)]
+     [window sidebar-width
+      [:div.container
+       [:div.row.mb-3.mt-4
+        [:h2 (:module/name @module)]]
+       [accordion
+        "Submodules"
+        [all-submodule-tables id]
+        [manage-submodule id @submodule (count @submodules)]]
+       [:hr]
+       [accordion
+        "Translations"
+        [:div.col-12
+         [all-translations (:module/translation-key @module)]]]
+       [:hr]
+       [accordion
+        "Help Page"
+        [:div.col-12
+         [help-editor (:module/help-key @module)]]]]]]))

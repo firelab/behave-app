@@ -1,7 +1,8 @@
 (ns behave.events
   (:require [browser-utils.core :refer [add-script script-exist?]]
             [ajax.core :as ajax]
-            [re-frame.core :as rf]))
+            [re-frame.core :as rf]
+            [behave.tool.events]))
 
 ;;; Initialization
 

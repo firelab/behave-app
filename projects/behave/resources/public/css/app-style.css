@@ -797,3 +797,73 @@ body {
 }
 
 /* -- End Help Area -- */
+
+
+/* -- Tool -- */
+.tool .accordion__header {
+  position: relative;
+  display: (flex);
+  padding-bottom: 5px;
+}
+
+.tool-output,
+.tool-input {
+  display: flex;
+  padding-bottom: 5px;
+}
+
+.tool-input .input-radio-group__label {
+  padding: 0px 10px 0px 5px;
+}
+
+.tool-input .input-dropdown {
+  display: inline-block;
+}
+
+.tool-input .input-dropdown__label {
+  padding: 0px 10px 0px 5px;
+}
+
+.tool-input + .tool-input:last-child {
+  border-bottom: dotted 1px var(--black);
+}
+
+.tool-output__output,
+.tool-input__input {
+  width: 70%;
+  padding: 5px;
+}
+
+.tool-output__description,
+.tool-input__description {
+  width: 30%;
+}
+
+.tool-output__description__units,
+.tool-input__description__units {
+  font-size: var(--font-size-14);
+  color: var(--gray-5);
+}
+
+.tool__close {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  fill: var(--white);
+}
+
+.tool__close > .button {
+  width: 30px;
+  height: 30px;
+  padding: 0px;
+  border-radius: 50%;
+}
+
+.tool__close > .button:hover {
+  color: var(--medblue-4);
+  background-color: var(--white);
+}
+
+
+
+/* -- End Tool -- */

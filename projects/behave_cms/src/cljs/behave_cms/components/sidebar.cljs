@@ -1,18 +1,21 @@
 (ns behave-cms.components.sidebar
-  (:require [herb.core     :refer [<class]]
-            [re-frame.core :as rf]))
+  (:require
+   [bidi.bidi         :refer [path-for]]
+   [herb.core         :refer [<class]]
+   [re-frame.core     :as rf]
+   [behave-cms.routes :refer [app-routes]]))
 
 ;;; Styles
 
 (def sidebar-width "200px")
-(def $colors {:gray "rgb(215, 215, 215)"
-              :blue "rgb(0, 122, 255)"
-              :light-blue "rgba(0, 122, 255, 0.5)"})
+(def ^:private $colors {:gray       "rgb(215, 215, 215)"
+                        :blue       "rgb(0, 122, 255)"
+                        :light-blue "rgba(0, 122, 255, 0.5)"})
 
-(defn $c [color]
+(defn- $c [color]
   (color $colors))
 
-(defn $option []
+(defn- $option []
   ^{:pseudo {:hover {:background-color ($c :light-blue)
                      :color            "white"
                      :cursor           "pointer"}}}
@@ -22,7 +25,7 @@
    :text-decoration  "none"
    :color            "inherit"})
 
-(defn $sidebar []
+(defn- $sidebar []
   {:position         "fixed"
    :top              "50px"
    :bottom           "0px"
@@ -31,7 +34,7 @@
    :border-right     (str "1px solid " ($c :gray))
    :background-color "white"})
 
-(defn $sidebar-back []
+(defn- $sidebar-back []
   ^{:pseudo {:hover {:text-decoration  "underline"
                      :cursor           "pointer"}}}
   {:font-weight      "bold"
@@ -39,18 +42,18 @@
 
 ;;; Helpers
 
-(defn navigate [path]
+(defn- navigate [path]
   (rf/dispatch [:navigate path]))
 
-(defn on-click [fn]
-  #(do (.preventDefault %) (fn)))
+(defn- on-click [f]
+  #(do (.preventDefault %) (f)))
 
-(defn on-enter-space [fn]
-  #(when (#{13 32} (.-charCode %)) (fn)))
+(defn- on-enter-space [f]
+  #(when (#{13 32} (.-charCode %)) (f)))
 
 ;;; Components
 
-(defn sidebar-header [title parent-title parent-link]
+(defn- sidebar-header [title parent-title parent-link]
   [:div
    {:style {:display       "flex"
             :flex-direction "column"
@@ -67,7 +70,7 @@
     {:style {:text-align "center" :font-weight "300" :margin "1rem"}}
     title]])
 
-(defn sidebar-options [options]
+(defn- sidebar-options [options]
   [:div.table-view
    {:display        "flex"
     :flex-direction "column"
@@ -80,15 +83,37 @@
           :on-click     (on-click #(navigate link))}
       label])])
 
-(defn sidebar [title
-               options
-               & [parent-title parent-link subgroups]]
+;;; Public
+
+(defn ->sidebar-links
+  "Creates sidebar links for entities. Takes:
+   - options [seq<map>]:  Sequence of entity maps. Must have `:db/id` attribute.
+   - label-attr [keyword]: Attribute of map that will serve as the label
+   - route [keyword]: Route that will be created with `(bidi/path-for app-routes <route> :id (:db/id option))`"
+  [options label-attr route]
+  (->> options
+       (map (fn [option]
+              {:label (get option label-attr)
+               :link  (path-for app-routes route :id (:db/id option))}))
+       (sort-by :label)))
+
+(defn sidebar
+  "Sidebar component. Takes:
+   - title [string]: Title to display
+   - options [seq<map>]: Sidebar links to display. Must include `:label` and `:link` attributes.
+   - parent-title [string?]: Title for link to parent
+   - parent-link [string?]: Link to parent
+   - alt-title [string?]: Alternative title to display
+   - alt-options [seq<map>?]: Alternative sidebar links to display. Must include `:label` and `:link` attributes.
+  "
+  [title
+   options
+   & [parent-title parent-link alt-title alt-options]]
   [:div.sidebar
    [:div {:class (<class $sidebar)}
     [sidebar-header title parent-title parent-link]
     [sidebar-options options]
-    (when subgroups
+    (when (and alt-title alt-options)
       [:<>
-       [sidebar-header "Subgroups"]
-       [sidebar-options subgroups]])]])
-
+       [sidebar-header alt-title]
+       [sidebar-options alt-options]])]])

@@ -2,9 +2,9 @@
   (:require [re-frame.core :as rf]))
 
 (rf/reg-sub
-  :help/current-tab
-  (fn [db _]
-    (get-in db [:state :help-tab] :help)))
+ :help/current-tab
+ (fn [db _]
+   (get-in db [:state :help-tab])))
 
 (rf/reg-sub
  :help/current-highlighted-key
@@ -12,13 +12,13 @@
    (get-in db [:state :help-current-highlighted-key])))
 
 (rf/reg-sub
-  :help/content
-  (fn [_ [_ help-key]]
-    @(rf/subscribe [:vms/query
+ :help/content
+ (fn [_ [_ help-key]]
+   @(rf/subscribe [:vms/query
                    '[:find  [?content]
                      :in    $ ?help-key
                      :where [?e :help-page/key ?help-key]
-                            [?e :help-page/content ?content]]
+                     [?e :help-page/content ?content]]
                    help-key])))
 
 (defn- flatten-help-keys [acc g-or-gv]
@@ -46,3 +46,17 @@
     (rf/subscribe [:help/_group+subgroup+variable-help-keys submodule-id])])
  (fn [[submodule g-gv-help-keys]]
    (concat [(:submodule/help-key submodule)] g-gv-help-keys)))
+
+(rf/reg-sub
+ :help/tool-help-keys
+ (fn [[_ tool-uuid subtool-uuid]]
+   [(rf/subscribe [:vms/entity-from-uuid tool-uuid])
+    (rf/subscribe [:vms/entity-from-uuid subtool-uuid])])
+
+ (fn [[tool subtool] _]
+   (concat [(:tool/help-key tool)
+            (:subtool/help-key subtool)]
+           (map :subtool-variable/help-key
+                (sort-by :subtool-variable/order (:subtool/input-variables subtool)))
+           (map :subtool-variable/help-key
+                (sort-by :subtool-variable/order (:subtool/output-variables subtool))))))

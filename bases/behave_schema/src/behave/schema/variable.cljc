@@ -115,6 +115,12 @@
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
 
+   ;; Associated with Subtool Variables
+   {:db/ident       :variable/subtool-variables
+    :db/doc         "Relationship to subtool."
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many}
+
    ;; Continuous Variables
    {:db/ident       :variable/maximum
     :db/doc         "Variable's maximum value."
@@ -193,4 +199,3 @@
                               :variable/maximum         100.0
                               :variable/translation-key "behaveplus:fire"
                               :variable/help-key        "behaveplus:fire:help"}))
-

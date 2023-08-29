@@ -69,7 +69,10 @@
                                   :on-select on-select
                                   :selected? (contains? @*sidebar-modules :mortality)
                                   :module    #{:mortality}}])}]
-     [sidebar-group {:title     @(<t (bp "tools_and_settings"))
-                     :modules   [{:label "behaveplus:tools" :icon "tools2"}
-                                 {:label "behaveplus:settings" :icon "settings2"}]
-                     :on-select on-select}]]))
+     [sidebar-group {:title   @(<t (bp "tools_and_settings"))
+                     :modules [{:label     "behaveplus:tools"
+                                :icon      "tools2"
+                                :on-select #(rf/dispatch [:state/set [:sidebar :*tools-or-settings] :tools])}
+                               {:label     "behaveplus:settings"
+                                :icon      "settings2"
+                                :on-select #(rf/dispatch [:state/set [:sidebar :*tools-or-settings] :settings])}]}]]))
