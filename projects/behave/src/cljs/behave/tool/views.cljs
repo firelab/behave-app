@@ -87,7 +87,7 @@
                               :checked?  (= @selected value)})]
     [:div.tool-input
      {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
-     (if (< num-options 4)
+     (if (< num-options 3)
        [c/radio-group
         {:id      uuid
          :label   var-name
