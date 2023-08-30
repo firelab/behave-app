@@ -1,0 +1,259 @@
+{:dimension/name "Area"
+ :enum-name      "AreaUnits"
+ :dimension/units
+ [#:unit{:enum-member-name "Acres"
+         :name             "Acres (ac)"
+         :system           :english
+         :short-code       "ac"}
+  #:unit{:enum-member-name "SquareFeet"
+         :name             "Square Feet (ft2)"
+         :system           :english
+         :short-code       "ft2"}
+  #:unit{:enum-member-name "Hectares"
+         :name             "Hectares (ha)"
+         :system           :metric
+         :short-code       "ha"}
+  #:unit{:enum-member-name "SquareMeters"
+         :name             "Square Meters (m2)"
+         :system           :metric
+         :short-code       "m2"}]}
+
+{:dimension/name "Basal Area"
+ :enum-name      "BasalAreaUnits"
+ :dimension/units
+ [#:unit{:enum-member-name "SquareFeetPerAcre"
+         :name             "Square Feet Per Acre (ft2/ac)"
+         :system           :english
+         :short-code       "ft2/ac"}
+  #:unit{:enum-member-name "SquareFeetPerAcre"
+         :name             "Square Feet Per Acre (m2/ha)"
+         :system           :metric
+         :short-code       "m2/ha"}]}
+
+{:dimension/name "Cover"
+ :enum-name      "CoverUnits"
+ :dimension/units
+ [#:unit{:enum-member-name "Percent"
+         :name             "Percent (%)"
+         :system           :english
+         :short-code       "%"}
+  #:unit{:enum-member-name "Fraction"
+         :name             "Fraction (fraction)"
+         :system           :english
+         :short-code       "fraction"}]}
+
+{:dimension/name "Density"
+ :enum-name      "DensityUnits"
+ :dimension/units
+ [#:unit{:enum-member-name "PoundsPerCubicFoot"
+         :name             "Pounds Per Cubic Foot (lb/ft3)"
+         :system           :english
+         :short-code       "lb/ft3"}
+  #:unit{:enum-member-name "PoundsPerCubicFoot"
+         :name             "Pounds Per Cubic Foot (lbs/ft3)"
+         :system           :english
+         :short-code       "lbs/ft3"}
+  #:unit{:enum-member-name "KilogramsPerCubicMeter"
+         :name             "Kilograms Per Cubic Meter (kg/m3)"
+         :system           :metric
+         :short-code       "kg/m3"}]}
+
+{:dimension/name "Fireline Intensity"
+ :enum-name      "FirelineIntensityUnits"
+ :dimension/units
+ [#:unit{:enum-member-name "BtusPerFootPerSecond"
+         :name             "Btus Per Foot Per Second (Btu/ft/s)"
+         :system           :english
+         :short-code       "Btu/ft/s"}
+  #:unit{:enum-member-name "BtusPerFootPerMinute"
+         :name             "Btus Per Foot Per Minute (Btu/ft/min)"
+         :system           :english
+         :short-code       "Btu/ft/min"}
+  #:unit{:enum-member-name "KilowattsPerMeter"
+         :name             "Kilowatts Per Meter (kW/m)"
+         :system           :metric
+         :short-code       "kW/m"}]}
+
+{:dimension/name "Heat Combustion"
+ :enum-name      "HeatCombustionUnits"
+ :dimension/units
+ [#:unit{:enum-member-name "BtusPerPound"
+         :name             "Btus Per Pound (Btu/lb)"
+         :system           :english
+         :short-code       "Btu/lb"}
+  #:unit{:enum-member-name "KilojoulesPerKilogram"
+         :name             "Kilojoules Per Kilogram (kJ/kg)"
+         :system           :metric
+         :short-code       "kJ/kg"}]}
+
+{:dimension/name "Heat Sink"
+ :enum-name      "HeatSinkUnits"
+ :dimension/units
+ [#:unit{:enum-member-name "BtusPerCubicFoot"
+         :name             "Btus Per Cubic Foot (Btu/ft3)"
+         :system           :english
+         :short-code       "Btu/ft3"}
+  #:unit{:enum-member-name "KilojoulesPerCubicMeter"
+         :name             "Kilojoules Per Cubic Meter (kJ/m3)"
+         :system           :metric
+         :short-code       "kJ/m3"}]}
+
+{:dimension/name "Heat Source Reaction"
+ :enum-name      "HeatSourceReactionUnits"
+ :dimension/units
+ [#:unit{:enum-member-name "BtusPerSquareFootPerMinute"
+         :name             "Btus Per Square Foot Per Minute (Btu/ft2/min)"
+         :system           :english
+         :short-code       "Btu/ft2/min"}
+  #:unit{:enum-member-name "BtusPerSquareFootPerSecond"
+         :name             "Btus Per Square Foot Per Second (Btu/ft2/sec)"
+         :system           :english
+         :short-code       "Btu/ft2/sec"}
+  #:unit{:enum-member-name "KilowattsPerSquareMeter"
+         :name             "Kilowatts Per Square Meter (kW/m2)"
+         :system           :metric
+         :short-code       "kW/m2"}]}
+
+{:dimension/name "Heat Unit Per Unit Area"
+ :enum-name      "HeatUnitPerUnitAreaUnits"
+ :dimension/units
+ [#:unit{:enum-member-name "BtusPerSquareFoot"
+         :name             "Btus Per Square Foot (Btu/ft2)"
+         :system           :english
+         :short-code       "Btu/ft2"}
+  #:unit{:enum-member-name "KilojoulesPerSquareMeter"
+         :name             "Kilojoules Per Square Meter (kJ/m2)"
+         :system           :metric
+         :short-code       "kJ/m2"}]}
+
+{:dimension/name "Length"
+ :enum-name      "LengthUnits"
+ :dimension/units
+ [#:unit{:enum-member-name "Chains"
+         :name             "Chains (ch)"
+         :system           :english
+         :short-code       "ch"}
+  #:unit{:enum-member-name "Feet"
+         :name             "Feet (ft)"
+         :system           :english
+         :short-code       "ft"}
+  #:unit{:enum-member-name "Inches"
+         :name             "Inches (in)"
+         :system           :english
+         :short-code       "in"}
+  #:unit{:enum-member-name "Miles"
+         :name             "Miles (mi)"
+         :system           :english
+         :short-code       "mi"}
+  #:unit{:enum-member-name "centimeters"
+         :name             "centimeters (cm)"
+         :system           :metric
+         :short-code       "cm"}
+  #:unit{:enum-member-name "Kilometers"
+         :name             "Kilometers (km)"
+         :system           :metric
+         :short-code       "km"}
+  #:unit{:enum-member-name "Meters"
+         :name             "Meters (m)"
+         :system           :metric
+         :short-code       "m"}
+  #:unit{:enum-member-name "Millimeters"
+         :name             "Millimeters (mm)"
+         :system           :metric
+         :short-code       "mm"}]}
+
+{:dimension/name "Loading"
+ :enum-name      "LoadingUnits"
+ :dimension/units
+ [#:unit{:enum-member-name "TonnesPerAcre"
+         :name             "Tonnes Per Acre (ton/ac)"
+         :system           :english
+         :short-code       "ton/ac"}
+  #:unit{:enum-member-name "TonnesPerHectare"
+         :name             "Tonnes Per Hectare (tonne/ha)"
+         :system           :metric
+         :short-code       "tonne/ha"}]}
+
+{:dimension/name "Slope"
+ :enum-name      "SlopeUnits"
+ :dimension/units
+ [#:unit{:enum-member-name "Degrees"
+         :name             "Degrees (deg)"
+         :system           :english
+         :short-code       "deg"}]}
+
+{:dimension/name "Speed"
+ :enum-name      "SpeedUnits"
+ :dimension/units
+ [#:unit{:enum-member-name "ChainsPerHour"
+         :name             "Chains Per Hour (ch/h)"
+         :system           :english
+         :short-code       "ch/h"}
+  #:unit{:enum-member-name "FeetPerMinute"
+         :name             "Feet Per Minute (ft/min)"
+         :system           :english
+         :short-code       "ft/min"}
+  #:unit{:enum-member-name "MilesPerHour"
+         :name             "Miles Per Hour (mi/h)"
+         :system           :english
+         :short-code       "mi/h"}
+  #:unit{:enum-member-name "KilometersPerHour"
+         :name             "Kilometers Per Hour (km/h)"
+         :system           :metric
+         :short-code       "km/h"}
+  #:unit{:enum-member-name "MetersPerHour"
+         :name             "Meters Per Hour (m/h)"
+         :system           :metric
+         :short-code       "m/h"}
+  #:unit{:enum-member-name "MetersPerMinute"
+         :name             "Meters Per Minute (m/min)"
+         :system           :metric
+         :short-code       "m/min"}]}
+
+{:dimension/name "Surface Area To Volume"
+ :enum-name      "SurfaceAreaToVolumeUnits"
+ :dimension/units
+ [#:unit{:enum-member-name "SquareFeetOverCubicFeet"
+         :name             "Square Feet Over Cubic Feet (ft2/ft3)"
+         :system           :english
+         :short-code       "ft2/ft3"}
+  #:unit{:enum-member-name "SquareMetersOverCubicMeters"
+         :name             "Square Meters Over Cubic Meters (m2/m3)"
+         :system           :metric
+         :short-code       "m2/m3"}]}
+
+{:dimension/name "Temperature"
+ :enum-name      "TemperatureUnits"
+ :dimension/units
+ [#:unit{:enum-member-name "Fahrenheit"
+         :name             "Fahrenheit (oF)"
+         :system           :english
+         :short-code       "oF"}
+  #:unit{:enum-member-name "Celsius"
+         :name             "Celsius (oC)"
+         :system           :metric
+         :short-code       "oC"}]}
+
+{:dimension/name "Time"
+ :enum-name      "TimeUnits"
+ :dimension/units
+ [#:unit{:enum-member-name "Seconds"
+         :name             "Seconds (s)"
+         :system           :time
+         :short-code       "s"}
+  #:unit{:enum-member-name "Minutes"
+         :name             "Minutes (min)"
+         :system           :time
+         :short-code       "min"}
+  #:unit{:enum-member-name "Hours"
+         :name             "Hours (h)"
+         :system           :time
+         :short-code       "h"}
+  #:unit{:enum-member-name "Days"
+         :name             "Days (days)"
+         :system           :time
+         :short-code       "days"}
+  #:unit{:enum-member-name "Years"
+         :name             "Years (years)"
+         :system           :time
+         :short-code       "years"}]}])
