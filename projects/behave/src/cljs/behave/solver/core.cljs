@@ -192,9 +192,6 @@
      inputs
      destination-links)))
 
-<<<<<<< HEAD
-(defn run-module [{:keys [inputs all-outputs outputs row-id] :as row}
-=======
 (defn apply-input-links [inputs destination-links]
   (let [inputs-vec        (inputs-map-to-vector inputs)
         inputs-by-gv-uuid (group-by #(nth % 2) inputs-vec)
@@ -210,8 +207,7 @@
      inputs
      destination-links)))
 
-(defn run-module [{:keys [inputs all-outputs outputs] :as row}
->>>>>>> dbb9888199c5d3dc6b7fc805a904bf9772f3382e
+(defn run-module [{:keys [inputs all-outputs outputs row-id] :as row}
                   {:keys [init-fn
                           run-fn
                           fns
@@ -221,13 +217,9 @@
                           ws-uuid]}]
   (let [module         (init-fn)
         ;; Apply links
-<<<<<<< HEAD
-        inputs         (apply-links outputs inputs destination-links)
-=======
         inputs         (apply-output-links outputs inputs destination-links)
         inputs         (apply-input-links inputs destination-links)
 
->>>>>>> dbb9888199c5d3dc6b7fc805a904bf9772f3382e
         ;; Filter IO's for module
         module-inputs  (filter-module-inputs inputs gv-uuids)
         module-outputs (filter-module-outputs all-outputs gv-uuids)]
