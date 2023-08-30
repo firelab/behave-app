@@ -1,0 +1,174 @@
+{:global
+ {:SIGSlopeTool
+  {:getRepresentativeFractionAtRepresentativeFraction
+   {:type "int",
+    :id   "getRepresentativeFractionAtRepresentativeFraction",
+    :parameters
+    [{:id   "representativeFraction",
+      :type "RepresentativeFraction::RepresentativeFractionEnum"}]},
+   :getCentimetersPerKilometerAtIndex
+   {:type       "double",
+    :id         "getCentimetersPerKilometerAtIndex",
+    :parameters [{:id "index", :type "int"}]},
+   :setMapRepresentativeFraction
+   {:type       "void",
+    :id         "setMapRepresentativeFraction",
+    :parameters [{:id "mapRepresentativeFraction", :type "int"}]},
+   :getSlopeFromMapMeasurements
+   {:type "double",
+    :id   "getSlopeFromMapMeasurements",
+    :parameters
+    [{:id "slopeUnits", :type "SlopeUnits::SlopeUnitsEnum"}]},
+   :getKilometersPerCentimeterAtRepresentativeFraction
+   {:type "double",
+    :id   "getKilometersPerCentimeterAtRepresentativeFraction",
+    :parameters
+    [{:id   "representativeFraction",
+      :type "RepresentativeFraction::RepresentativeFractionEnum"}]},
+   :getSlopeFromMapMeasurementsInDegrees
+   {:type       "doulbe",
+    :id         "getSlopeFromMapMeasurementsInDegrees",
+    :parameters []},
+   :getHorizontalDistanceMaxSlope
+   {:type "double",
+    :id   "getHorizontalDistanceMaxSlope",
+    :parameters
+    [{:id "slopeUnits", :type "SlopeUnits::SlopeUnitsEnum"}]},
+   :getRepresentativeFractionAtIndex
+   {:type       "int",
+    :id         "getRepresentativeFractionAtIndex",
+    :parameters [{:id "index", :type "int"}]},
+   :getKilometersPerCentimeterAtIndex
+   {:type       "double",
+    :id         "getKilometersPerCentimeterAtIndex",
+    :parameters [{:id "index", :type "int"}]},
+   :getHorizontalDistanceFourtyFive
+   {:type "double",
+    :id   "getHorizontalDistanceFourtyFive",
+    :parameters
+    [{:id "mapDistanceUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getHorizontalDistanceFifteen
+   {:type "double",
+    :id   "getHorizontalDistanceFifteen",
+    :parameters
+    [{:id "mapDistanceUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getHorizontalDistanceNinety
+   {:type "double",
+    :id   "getHorizontalDistanceNinety",
+    :parameters
+    [{:id "mapDistanceUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :calculateHorizontalDistance
+   {:type "void", :id "calculateHorizontalDistance", :parameters []},
+   :getNumberOfHorizontalDistances
+   {:type "int", :id "getNumberOfHorizontalDistances", :parameters []},
+   :getMilesPerInchAtIndex
+   {:type       "double",
+    :id         "getMilesPerInchAtIndex",
+    :parameters [{:id "index", :type "int"}]},
+   :getInchesPerMileAtIndex
+   {:type       "double",
+    :id         "getInchesPerMileAtIndex",
+    :parameters [{:id "index", :type "int"}]},
+   :operator=
+   {:type       "SlopeTool",
+    :id         "operator=",
+    :parameters [{:id "rhs", :type "SlopeTool"}]},
+   :getInchesPerMileAtRepresentativeFraction
+   {:type "double",
+    :id   "getInchesPerMileAtRepresentativeFraction",
+    :parameters
+    [{:id   "representativeFraction",
+      :type "RepresentativeFraction::RepresentativeFractionEnum"}]},
+   :setContourInterval
+   {:type       "void",
+    :id         "setContourInterval",
+    :parameters [{:id "contourInterval", :type "double"}]},
+   :calculateSlopeFromMapMeasurements
+   {:type       "void",
+    :id         "calculateSlopeFromMapMeasurements",
+    :parameters []},
+   :setMaxSlopeSteepness
+   {:type       "void",
+    :id         "setMaxSlopeSteepness",
+    :parameters [{:id "maxSlopeSteepness", :type "double"}]},
+   :getNumberOfRepresentativeFractions
+   {:type       "int",
+    :id         "getNumberOfRepresentativeFractions",
+    :parameters []},
+   :getHorizontalDistanceSeventy
+   {:type "double",
+    :id   "getHorizontalDistanceSeventy",
+    :parameters
+    [{:id "mapDistanceUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :setMapDistance
+   {:type "void",
+    :id   "setMapDistance",
+    :parameters
+    [{:id "mapDistance", :type "double"}
+     {:id "distanceUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getSlopeFromMapMeasurementsInPercent
+   {:type       "doulbe",
+    :id         "getSlopeFromMapMeasurementsInPercent",
+    :parameters []},
+   :getSlopeHorizontalDistanceFromMapMeasurements
+   {:type "double",
+    :id   "getSlopeHorizontalDistanceFromMapMeasurements",
+    :parameters
+    [{:id "distanceUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getHorizontalDistanceAtIndex
+   {:type "double",
+    :id   "getHorizontalDistanceAtIndex",
+    :parameters
+    [{:id "index", :type "int"}
+     {:id "mapDistanceUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getHorizontalDistanceSixty
+   {:type "double",
+    :id   "getHorizontalDistanceSixty",
+    :parameters
+    [{:id "mapDistanceUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :setNumberOfContours
+   {:type "void",
+    :id   "setNumberOfContours",
+    :parameters
+    [{:id "numberOfContours", :type "double"}
+     {:id "contourUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getMilesPerInchAtRepresentativeFraction
+   {:type "double",
+    :id   "getMilesPerInchAtRepresentativeFraction",
+    :parameters
+    [{:id   "representativeFraction",
+      :type "RepresentativeFraction::RepresentativeFractionEnum"}]},
+   :getHorizontalDistanceZero
+   {:type "double",
+    :id   "getHorizontalDistanceZero",
+    :parameters
+    [{:id "mapDistanceUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getHorizontalDistanceThirty
+   {:type "double",
+    :id   "getHorizontalDistanceThirty",
+    :parameters
+    [{:id "mapDistanceUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :setCalulatedMapDistance
+   {:type "void",
+    :id   "setCalulatedMapDistance",
+    :parameters
+    [{:id "calculatedMapDistance", :type "double"}
+     {:id "distanceUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getCentimetersPerKilometerAtRepresentativeFraction
+   {:type "double",
+    :id   "getCentimetersPerKilometerAtRepresentativeFraction",
+    :parameters
+    [{:id   "representativeFraction",
+      :type "RepresentativeFraction::RepresentativeFractionEnum"}]},
+   :getSlopeElevationChangeFromMapMeasurements
+   {:type "double",
+    :id   "getSlopeElevationChangeFromMapMeasurements",
+    :parameters
+    [{:id "elevationUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getHorizontalDistance
+   {:type "double",
+    :id   "getHorizontalDistance",
+    :parameters
+    [{:id   "horizontalDistanceIndex",
+      :type "HorizontalDistanceIndex::HorizontalDistanceIndexEnum"}
+     {:id "mapDistanceUnits", :type "LengthUnits::LengthUnitsEnum"}]}}}}

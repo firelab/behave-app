@@ -1181,3 +1181,73 @@ interface SIGFineDeadFuelMoistureTool {
   long getShadingIndexSize();
   long getRelativeHumidityIndexSize();
 };
+
+enum RepresentativeFraction_RepresentativeFractionEnum {
+  "RepresentativeFraction::NINTEEN_HUNDRED_EIGHTY",
+  "RepresentativeFraction::THREE_THOUSAND_NINEHUNDRED_SIXTY",
+  "RepresentativeFraction::SEVEN_THOUSAND_NINEHUNDRED_TWENTY",
+  "RepresentativeFraction::TEN_THOUSAND",
+  "RepresentativeFraction::FIFTEEN_THOUSAND_EIGHT_HUNDRED_FORTY",
+  "RepresentativeFraction::TWENTY_ONE_THOUSAND_ONE_HUNDRED_TWENTY",
+  "RepresentativeFraction::TWENTY_FOUR_THOUSAND",
+  "RepresentativeFraction::THRITY_ONE_THOUSAND_SIX_HUNDRED_EIGHTY",
+  "RepresentativeFraction::FIFTY_THOUSAND",
+  "RepresentativeFraction::SIXTY_TWO_THOUSAND_FIVE_HUNDRED",
+  "RepresentativeFraction::SIXTY_THREE_THOUSAND_THREE_HUNDRED_SIXTY",
+  "RepresentativeFraction::ONE_HUNDRED_THOUSAND",
+  "RepresentativeFraction::ONE_HUNDRED_TWENTY_SIX_THOUSAND_SEVEN_HUNDRED_TWENTY",
+  "RepresentativeFraction::TWO_HUNDRED_FIFTY_THOUSAND",
+  "RepresentativeFraction::TWO_HUNDRED_FIFTY_THREE_THOUSAND_FOUR_HUNDRED_FORTY",
+  "RepresentativeFraction::FIVE_HUNDRED_SIX_THOUSAND_EIGHT_HUNDRED_EIGHTY",
+  "RepresentativeFraction::ONE_MILLION",
+  "RepresentativeFraction::ONE_MILLION_THIRTEEN_THOUSAND_SEVEN_HUNDRED_SIXTY",
+};
+
+enum HorizontalDistanceIndex_HorizontalDistanceIndexEnum {
+  "HorizontalDistanceIndex::UPSLOPE_ZERO_DEGREES",
+  "HorizontalDistanceIndex::FIFTEEN_DEGREES_FROM_UPSLOPE",
+  "HorizontalDistanceIndex::THIRTY_DEGREES_FROM_UPSLOPE",
+  "HorizontalDistanceIndex::FORTY_FIVE_DEGREES_FROM_UPSLOPE",
+  "HorizontalDistanceIndex::SIXTY_DEGREES_FROM_UPSLOPE",
+  "HorizontalDistanceIndex::SEVENTY_FIVE_DEGREES_FROM_UPSLOPE",
+  "HorizontalDistanceIndex::CROSS_SLOPE_NINETY_DEGREES"
+};
+
+interface SIGSlopeTool {
+  void SIGSlopeTool();
+  double getCentimetersPerKilometerAtIndex(long index);
+  double getCentimetersPerKilometerAtRepresentativeFraction(RepresentativeFraction_RepresentativeFractionEnum representativeFraction);
+  double getHorizontalDistance(HorizontalDistanceIndex_HorizontalDistanceIndexEnum horizontalDistanceIndex, LengthUnits_LengthUnitsEnum mapDistanceUnits);
+  double getHorizontalDistanceAtIndex(long index, LengthUnits_LengthUnitsEnum mapDistanceUnits);
+  double getHorizontalDistanceFifteen(LengthUnits_LengthUnitsEnum mapDistanceUnits);
+  double getHorizontalDistanceFourtyFive(LengthUnits_LengthUnitsEnum mapDistanceUnits);
+  double getHorizontalDistanceMaxSlope(SlopeUnits_SlopeUnitsEnum slopeUnits);
+  double getHorizontalDistanceNinety(LengthUnits_LengthUnitsEnum mapDistanceUnits);
+  double getHorizontalDistanceSeventy(LengthUnits_LengthUnitsEnum mapDistanceUnits);
+  double getHorizontalDistanceSixty(LengthUnits_LengthUnitsEnum mapDistanceUnits);
+  double getHorizontalDistanceThirty(LengthUnits_LengthUnitsEnum mapDistanceUnits);
+  double getHorizontalDistanceZero(LengthUnits_LengthUnitsEnum mapDistanceUnits);
+  double getInchesPerMileAtIndex(long index);
+  double getInchesPerMileAtRepresentativeFraction(RepresentativeFraction_RepresentativeFractionEnum representativeFraction);
+  double getKilometersPerCentimeterAtIndex(long index);
+  double getKilometersPerCentimeterAtRepresentativeFraction(RepresentativeFraction_RepresentativeFractionEnum representativeFraction);
+  double getMilesPerInchAtIndex(long index);
+  double getMilesPerInchAtRepresentativeFraction(RepresentativeFraction_RepresentativeFractionEnum representativeFraction);
+  double getSlopeElevationChangeFromMapMeasurements(LengthUnits_LengthUnitsEnum elevationUnits);
+  double getSlopeFromMapMeasurements(SlopeUnits_SlopeUnitsEnum slopeUnits);
+  double getSlopeHorizontalDistanceFromMapMeasurements(LengthUnits_LengthUnitsEnum distanceUnits);
+  double getSlopeFromMapMeasurementsInDegrees();
+  double getSlopeFromMapMeasurementsInPercent();
+  long getNumberOfHorizontalDistances();
+  long getNumberOfRepresentativeFractions();
+  long getRepresentativeFractionAtIndex(long index);
+  long getRepresentativeFractionAtRepresentativeFraction(RepresentativeFraction_RepresentativeFractionEnum representativeFraction);
+  void calculateHorizontalDistance();
+  void calculateSlopeFromMapMeasurements();
+  void setCalculatedMapDistance(double calculatedMapDistance, LengthUnits_LengthUnitsEnum distanceUnits);
+  void setContourInterval(double contourInterval, LengthUnits_LengthUnitsEnum contourUnits);
+  void setMapDistance(double mapDistance, LengthUnits_LengthUnitsEnum distanceUnits);
+  void setMapRepresentativeFraction(long mapRepresentativeFraction);
+  void setMaxSlopeSteepness(double maxSlopeSteepness);
+  void setNumberOfContours(double numberOfContours);
+};

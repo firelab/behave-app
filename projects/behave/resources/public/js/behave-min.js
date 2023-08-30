@@ -5887,6 +5887,80 @@ var _emscripten_bind_SIGFineDeadFuelMoistureTool_getRelativeHumidityIndexSize_0 
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGFineDeadFuelMoistureTool___destroy___0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool___destroy___0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool___destroy___0");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_SIGSlopeTool_0 = Module["_emscripten_bind_SIGSlopeTool_SIGSlopeTool_0"] = createExportWrapper("emscripten_bind_SIGSlopeTool_SIGSlopeTool_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getCentimetersPerKilometerAtIndex_1 = Module["_emscripten_bind_SIGSlopeTool_getCentimetersPerKilometerAtIndex_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getCentimetersPerKilometerAtIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getCentimetersPerKilometerAtRepresentativeFraction_1 = Module["_emscripten_bind_SIGSlopeTool_getCentimetersPerKilometerAtRepresentativeFraction_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getCentimetersPerKilometerAtRepresentativeFraction_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistance_2 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistance_2"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistance_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceAtIndex_2 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistanceAtIndex_2"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistanceAtIndex_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceFifteen_1 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistanceFifteen_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistanceFifteen_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceFourtyFive_1 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistanceFourtyFive_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistanceFourtyFive_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceMaxSlope_1 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistanceMaxSlope_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistanceMaxSlope_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceNinety_1 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistanceNinety_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistanceNinety_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceSeventy_1 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistanceSeventy_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistanceSeventy_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceSixty_1 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistanceSixty_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistanceSixty_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceThirty_1 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistanceThirty_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistanceThirty_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceZero_1 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistanceZero_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistanceZero_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getInchesPerMileAtIndex_1 = Module["_emscripten_bind_SIGSlopeTool_getInchesPerMileAtIndex_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getInchesPerMileAtIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getInchesPerMileAtRepresentativeFraction_1 = Module["_emscripten_bind_SIGSlopeTool_getInchesPerMileAtRepresentativeFraction_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getInchesPerMileAtRepresentativeFraction_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getKilometersPerCentimeterAtIndex_1 = Module["_emscripten_bind_SIGSlopeTool_getKilometersPerCentimeterAtIndex_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getKilometersPerCentimeterAtIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getKilometersPerCentimeterAtRepresentativeFraction_1 = Module["_emscripten_bind_SIGSlopeTool_getKilometersPerCentimeterAtRepresentativeFraction_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getKilometersPerCentimeterAtRepresentativeFraction_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getMilesPerInchAtIndex_1 = Module["_emscripten_bind_SIGSlopeTool_getMilesPerInchAtIndex_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getMilesPerInchAtIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getMilesPerInchAtRepresentativeFraction_1 = Module["_emscripten_bind_SIGSlopeTool_getMilesPerInchAtRepresentativeFraction_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getMilesPerInchAtRepresentativeFraction_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getSlopeElevationChangeFromMapMeasurements_1 = Module["_emscripten_bind_SIGSlopeTool_getSlopeElevationChangeFromMapMeasurements_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getSlopeElevationChangeFromMapMeasurements_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurements_1 = Module["_emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurements_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurements_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getSlopeHorizontalDistanceFromMapMeasurements_1 = Module["_emscripten_bind_SIGSlopeTool_getSlopeHorizontalDistanceFromMapMeasurements_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getSlopeHorizontalDistanceFromMapMeasurements_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurementsInDegrees_0 = Module["_emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurementsInDegrees_0"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurementsInDegrees_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurementsInPercent_0 = Module["_emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurementsInPercent_0"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurementsInPercent_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getNumberOfHorizontalDistances_0 = Module["_emscripten_bind_SIGSlopeTool_getNumberOfHorizontalDistances_0"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getNumberOfHorizontalDistances_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getNumberOfRepresentativeFractions_0 = Module["_emscripten_bind_SIGSlopeTool_getNumberOfRepresentativeFractions_0"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getNumberOfRepresentativeFractions_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getRepresentativeFractionAtIndex_1 = Module["_emscripten_bind_SIGSlopeTool_getRepresentativeFractionAtIndex_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getRepresentativeFractionAtIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getRepresentativeFractionAtRepresentativeFraction_1 = Module["_emscripten_bind_SIGSlopeTool_getRepresentativeFractionAtRepresentativeFraction_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getRepresentativeFractionAtRepresentativeFraction_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_calculateHorizontalDistance_0 = Module["_emscripten_bind_SIGSlopeTool_calculateHorizontalDistance_0"] = createExportWrapper("emscripten_bind_SIGSlopeTool_calculateHorizontalDistance_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_calculateSlopeFromMapMeasurements_0 = Module["_emscripten_bind_SIGSlopeTool_calculateSlopeFromMapMeasurements_0"] = createExportWrapper("emscripten_bind_SIGSlopeTool_calculateSlopeFromMapMeasurements_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_setCalculatedMapDistance_2 = Module["_emscripten_bind_SIGSlopeTool_setCalculatedMapDistance_2"] = createExportWrapper("emscripten_bind_SIGSlopeTool_setCalculatedMapDistance_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_setContourInterval_2 = Module["_emscripten_bind_SIGSlopeTool_setContourInterval_2"] = createExportWrapper("emscripten_bind_SIGSlopeTool_setContourInterval_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_setMapDistance_2 = Module["_emscripten_bind_SIGSlopeTool_setMapDistance_2"] = createExportWrapper("emscripten_bind_SIGSlopeTool_setMapDistance_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_setMapRepresentativeFraction_1 = Module["_emscripten_bind_SIGSlopeTool_setMapRepresentativeFraction_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_setMapRepresentativeFraction_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_setMaxSlopeSteepness_1 = Module["_emscripten_bind_SIGSlopeTool_setMaxSlopeSteepness_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_setMaxSlopeSteepness_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_setNumberOfContours_1 = Module["_emscripten_bind_SIGSlopeTool_setNumberOfContours_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_setNumberOfContours_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool___destroy___0 = Module["_emscripten_bind_SIGSlopeTool___destroy___0"] = createExportWrapper("emscripten_bind_SIGSlopeTool___destroy___0");
+/** @type {function(...*):?} */
 var _emscripten_enum_AreaUnits_AreaUnitsEnum_SquareFeet = Module["_emscripten_enum_AreaUnits_AreaUnitsEnum_SquareFeet"] = createExportWrapper("emscripten_enum_AreaUnits_AreaUnitsEnum_SquareFeet");
 /** @type {function(...*):?} */
 var _emscripten_enum_AreaUnits_AreaUnitsEnum_Acres = Module["_emscripten_enum_AreaUnits_AreaUnitsEnum_Acres"] = createExportWrapper("emscripten_enum_AreaUnits_AreaUnitsEnum_Acres");
@@ -6404,6 +6478,56 @@ var _emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_FOURTEEN_HUNDRED_
 var _emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_SIXTEEN_HUNDRED_HOURS_TO_SIXTEEN_HUNDRED_FIFTY_NINE = Module["_emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_SIXTEEN_HUNDRED_HOURS_TO_SIXTEEN_HUNDRED_FIFTY_NINE"] = createExportWrapper("emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_SIXTEEN_HUNDRED_HOURS_TO_SIXTEEN_HUNDRED_FIFTY_NINE");
 /** @type {function(...*):?} */
 var _emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_EIGHTTEEN_HUNDRED_HOURS_TO_SUNSET = Module["_emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_EIGHTTEEN_HUNDRED_HOURS_TO_SUNSET"] = createExportWrapper("emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_EIGHTTEEN_HUNDRED_HOURS_TO_SUNSET");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_NINTEEN_HUNDRED_EIGHTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_NINTEEN_HUNDRED_EIGHTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_NINTEEN_HUNDRED_EIGHTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_THREE_THOUSAND_NINEHUNDRED_SIXTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_THREE_THOUSAND_NINEHUNDRED_SIXTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_THREE_THOUSAND_NINEHUNDRED_SIXTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SEVEN_THOUSAND_NINEHUNDRED_TWENTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SEVEN_THOUSAND_NINEHUNDRED_TWENTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SEVEN_THOUSAND_NINEHUNDRED_TWENTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TEN_THOUSAND = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TEN_THOUSAND"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TEN_THOUSAND");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIFTEEN_THOUSAND_EIGHT_HUNDRED_FORTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIFTEEN_THOUSAND_EIGHT_HUNDRED_FORTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIFTEEN_THOUSAND_EIGHT_HUNDRED_FORTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWENTY_ONE_THOUSAND_ONE_HUNDRED_TWENTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWENTY_ONE_THOUSAND_ONE_HUNDRED_TWENTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWENTY_ONE_THOUSAND_ONE_HUNDRED_TWENTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWENTY_FOUR_THOUSAND = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWENTY_FOUR_THOUSAND"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWENTY_FOUR_THOUSAND");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_THRITY_ONE_THOUSAND_SIX_HUNDRED_EIGHTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_THRITY_ONE_THOUSAND_SIX_HUNDRED_EIGHTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_THRITY_ONE_THOUSAND_SIX_HUNDRED_EIGHTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIFTY_THOUSAND = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIFTY_THOUSAND"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIFTY_THOUSAND");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SIXTY_TWO_THOUSAND_FIVE_HUNDRED = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SIXTY_TWO_THOUSAND_FIVE_HUNDRED"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SIXTY_TWO_THOUSAND_FIVE_HUNDRED");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SIXTY_THREE_THOUSAND_THREE_HUNDRED_SIXTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SIXTY_THREE_THOUSAND_THREE_HUNDRED_SIXTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SIXTY_THREE_THOUSAND_THREE_HUNDRED_SIXTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_HUNDRED_THOUSAND = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_HUNDRED_THOUSAND"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_HUNDRED_THOUSAND");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_HUNDRED_TWENTY_SIX_THOUSAND_SEVEN_HUNDRED_TWENTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_HUNDRED_TWENTY_SIX_THOUSAND_SEVEN_HUNDRED_TWENTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_HUNDRED_TWENTY_SIX_THOUSAND_SEVEN_HUNDRED_TWENTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWO_HUNDRED_FIFTY_THOUSAND = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWO_HUNDRED_FIFTY_THOUSAND"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWO_HUNDRED_FIFTY_THOUSAND");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWO_HUNDRED_FIFTY_THREE_THOUSAND_FOUR_HUNDRED_FORTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWO_HUNDRED_FIFTY_THREE_THOUSAND_FOUR_HUNDRED_FORTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWO_HUNDRED_FIFTY_THREE_THOUSAND_FOUR_HUNDRED_FORTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIVE_HUNDRED_SIX_THOUSAND_EIGHT_HUNDRED_EIGHTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIVE_HUNDRED_SIX_THOUSAND_EIGHT_HUNDRED_EIGHTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIVE_HUNDRED_SIX_THOUSAND_EIGHT_HUNDRED_EIGHTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_MILLION = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_MILLION"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_MILLION");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_MILLION_THIRTEEN_THOUSAND_SEVEN_HUNDRED_SIXTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_MILLION_THIRTEEN_THOUSAND_SEVEN_HUNDRED_SIXTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_MILLION_THIRTEEN_THOUSAND_SEVEN_HUNDRED_SIXTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_UPSLOPE_ZERO_DEGREES = Module["_emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_UPSLOPE_ZERO_DEGREES"] = createExportWrapper("emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_UPSLOPE_ZERO_DEGREES");
+/** @type {function(...*):?} */
+var _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_FIFTEEN_DEGREES_FROM_UPSLOPE = Module["_emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_FIFTEEN_DEGREES_FROM_UPSLOPE"] = createExportWrapper("emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_FIFTEEN_DEGREES_FROM_UPSLOPE");
+/** @type {function(...*):?} */
+var _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_THIRTY_DEGREES_FROM_UPSLOPE = Module["_emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_THIRTY_DEGREES_FROM_UPSLOPE"] = createExportWrapper("emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_THIRTY_DEGREES_FROM_UPSLOPE");
+/** @type {function(...*):?} */
+var _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_FORTY_FIVE_DEGREES_FROM_UPSLOPE = Module["_emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_FORTY_FIVE_DEGREES_FROM_UPSLOPE"] = createExportWrapper("emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_FORTY_FIVE_DEGREES_FROM_UPSLOPE");
+/** @type {function(...*):?} */
+var _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_SIXTY_DEGREES_FROM_UPSLOPE = Module["_emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_SIXTY_DEGREES_FROM_UPSLOPE"] = createExportWrapper("emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_SIXTY_DEGREES_FROM_UPSLOPE");
+/** @type {function(...*):?} */
+var _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_SEVENTY_FIVE_DEGREES_FROM_UPSLOPE = Module["_emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_SEVENTY_FIVE_DEGREES_FROM_UPSLOPE"] = createExportWrapper("emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_SEVENTY_FIVE_DEGREES_FROM_UPSLOPE");
+/** @type {function(...*):?} */
+var _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_CROSS_SLOPE_NINETY_DEGREES = Module["_emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_CROSS_SLOPE_NINETY_DEGREES"] = createExportWrapper("emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_CROSS_SLOPE_NINETY_DEGREES");
 /** @type {function(...*):?} */
 var ___cxa_free_exception = createExportWrapper("__cxa_free_exception");
 /** @type {function(...*):?} */
@@ -11671,6 +11795,230 @@ SIGFineDeadFuelMoistureTool.prototype['getRelativeHumidityIndexSize'] = SIGFineD
   var self = this.ptr;
   _emscripten_bind_SIGFineDeadFuelMoistureTool___destroy___0(self);
 };
+// SIGSlopeTool
+/** @suppress {undefinedVars, duplicate} @this{Object} */function SIGSlopeTool() {
+  this.ptr = _emscripten_bind_SIGSlopeTool_SIGSlopeTool_0();
+  getCache(SIGSlopeTool)[this.ptr] = this;
+};;
+SIGSlopeTool.prototype = Object.create(WrapperObject.prototype);
+SIGSlopeTool.prototype.constructor = SIGSlopeTool;
+SIGSlopeTool.prototype.__class__ = SIGSlopeTool;
+SIGSlopeTool.__cache__ = {};
+Module['SIGSlopeTool'] = SIGSlopeTool;
+
+SIGSlopeTool.prototype['getCentimetersPerKilometerAtIndex'] = SIGSlopeTool.prototype.getCentimetersPerKilometerAtIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+  var self = this.ptr;
+  if (index && typeof index === 'object') index = index.ptr;
+  return _emscripten_bind_SIGSlopeTool_getCentimetersPerKilometerAtIndex_1(self, index);
+};;
+
+SIGSlopeTool.prototype['getCentimetersPerKilometerAtRepresentativeFraction'] = SIGSlopeTool.prototype.getCentimetersPerKilometerAtRepresentativeFraction = /** @suppress {undefinedVars, duplicate} @this{Object} */function(representativeFraction) {
+  var self = this.ptr;
+  if (representativeFraction && typeof representativeFraction === 'object') representativeFraction = representativeFraction.ptr;
+  return _emscripten_bind_SIGSlopeTool_getCentimetersPerKilometerAtRepresentativeFraction_1(self, representativeFraction);
+};;
+
+SIGSlopeTool.prototype['getHorizontalDistance'] = SIGSlopeTool.prototype.getHorizontalDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(horizontalDistanceIndex, mapDistanceUnits) {
+  var self = this.ptr;
+  if (horizontalDistanceIndex && typeof horizontalDistanceIndex === 'object') horizontalDistanceIndex = horizontalDistanceIndex.ptr;
+  if (mapDistanceUnits && typeof mapDistanceUnits === 'object') mapDistanceUnits = mapDistanceUnits.ptr;
+  return _emscripten_bind_SIGSlopeTool_getHorizontalDistance_2(self, horizontalDistanceIndex, mapDistanceUnits);
+};;
+
+SIGSlopeTool.prototype['getHorizontalDistanceAtIndex'] = SIGSlopeTool.prototype.getHorizontalDistanceAtIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index, mapDistanceUnits) {
+  var self = this.ptr;
+  if (index && typeof index === 'object') index = index.ptr;
+  if (mapDistanceUnits && typeof mapDistanceUnits === 'object') mapDistanceUnits = mapDistanceUnits.ptr;
+  return _emscripten_bind_SIGSlopeTool_getHorizontalDistanceAtIndex_2(self, index, mapDistanceUnits);
+};;
+
+SIGSlopeTool.prototype['getHorizontalDistanceFifteen'] = SIGSlopeTool.prototype.getHorizontalDistanceFifteen = /** @suppress {undefinedVars, duplicate} @this{Object} */function(mapDistanceUnits) {
+  var self = this.ptr;
+  if (mapDistanceUnits && typeof mapDistanceUnits === 'object') mapDistanceUnits = mapDistanceUnits.ptr;
+  return _emscripten_bind_SIGSlopeTool_getHorizontalDistanceFifteen_1(self, mapDistanceUnits);
+};;
+
+SIGSlopeTool.prototype['getHorizontalDistanceFourtyFive'] = SIGSlopeTool.prototype.getHorizontalDistanceFourtyFive = /** @suppress {undefinedVars, duplicate} @this{Object} */function(mapDistanceUnits) {
+  var self = this.ptr;
+  if (mapDistanceUnits && typeof mapDistanceUnits === 'object') mapDistanceUnits = mapDistanceUnits.ptr;
+  return _emscripten_bind_SIGSlopeTool_getHorizontalDistanceFourtyFive_1(self, mapDistanceUnits);
+};;
+
+SIGSlopeTool.prototype['getHorizontalDistanceMaxSlope'] = SIGSlopeTool.prototype.getHorizontalDistanceMaxSlope = /** @suppress {undefinedVars, duplicate} @this{Object} */function(slopeUnits) {
+  var self = this.ptr;
+  if (slopeUnits && typeof slopeUnits === 'object') slopeUnits = slopeUnits.ptr;
+  return _emscripten_bind_SIGSlopeTool_getHorizontalDistanceMaxSlope_1(self, slopeUnits);
+};;
+
+SIGSlopeTool.prototype['getHorizontalDistanceNinety'] = SIGSlopeTool.prototype.getHorizontalDistanceNinety = /** @suppress {undefinedVars, duplicate} @this{Object} */function(mapDistanceUnits) {
+  var self = this.ptr;
+  if (mapDistanceUnits && typeof mapDistanceUnits === 'object') mapDistanceUnits = mapDistanceUnits.ptr;
+  return _emscripten_bind_SIGSlopeTool_getHorizontalDistanceNinety_1(self, mapDistanceUnits);
+};;
+
+SIGSlopeTool.prototype['getHorizontalDistanceSeventy'] = SIGSlopeTool.prototype.getHorizontalDistanceSeventy = /** @suppress {undefinedVars, duplicate} @this{Object} */function(mapDistanceUnits) {
+  var self = this.ptr;
+  if (mapDistanceUnits && typeof mapDistanceUnits === 'object') mapDistanceUnits = mapDistanceUnits.ptr;
+  return _emscripten_bind_SIGSlopeTool_getHorizontalDistanceSeventy_1(self, mapDistanceUnits);
+};;
+
+SIGSlopeTool.prototype['getHorizontalDistanceSixty'] = SIGSlopeTool.prototype.getHorizontalDistanceSixty = /** @suppress {undefinedVars, duplicate} @this{Object} */function(mapDistanceUnits) {
+  var self = this.ptr;
+  if (mapDistanceUnits && typeof mapDistanceUnits === 'object') mapDistanceUnits = mapDistanceUnits.ptr;
+  return _emscripten_bind_SIGSlopeTool_getHorizontalDistanceSixty_1(self, mapDistanceUnits);
+};;
+
+SIGSlopeTool.prototype['getHorizontalDistanceThirty'] = SIGSlopeTool.prototype.getHorizontalDistanceThirty = /** @suppress {undefinedVars, duplicate} @this{Object} */function(mapDistanceUnits) {
+  var self = this.ptr;
+  if (mapDistanceUnits && typeof mapDistanceUnits === 'object') mapDistanceUnits = mapDistanceUnits.ptr;
+  return _emscripten_bind_SIGSlopeTool_getHorizontalDistanceThirty_1(self, mapDistanceUnits);
+};;
+
+SIGSlopeTool.prototype['getHorizontalDistanceZero'] = SIGSlopeTool.prototype.getHorizontalDistanceZero = /** @suppress {undefinedVars, duplicate} @this{Object} */function(mapDistanceUnits) {
+  var self = this.ptr;
+  if (mapDistanceUnits && typeof mapDistanceUnits === 'object') mapDistanceUnits = mapDistanceUnits.ptr;
+  return _emscripten_bind_SIGSlopeTool_getHorizontalDistanceZero_1(self, mapDistanceUnits);
+};;
+
+SIGSlopeTool.prototype['getInchesPerMileAtIndex'] = SIGSlopeTool.prototype.getInchesPerMileAtIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+  var self = this.ptr;
+  if (index && typeof index === 'object') index = index.ptr;
+  return _emscripten_bind_SIGSlopeTool_getInchesPerMileAtIndex_1(self, index);
+};;
+
+SIGSlopeTool.prototype['getInchesPerMileAtRepresentativeFraction'] = SIGSlopeTool.prototype.getInchesPerMileAtRepresentativeFraction = /** @suppress {undefinedVars, duplicate} @this{Object} */function(representativeFraction) {
+  var self = this.ptr;
+  if (representativeFraction && typeof representativeFraction === 'object') representativeFraction = representativeFraction.ptr;
+  return _emscripten_bind_SIGSlopeTool_getInchesPerMileAtRepresentativeFraction_1(self, representativeFraction);
+};;
+
+SIGSlopeTool.prototype['getKilometersPerCentimeterAtIndex'] = SIGSlopeTool.prototype.getKilometersPerCentimeterAtIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+  var self = this.ptr;
+  if (index && typeof index === 'object') index = index.ptr;
+  return _emscripten_bind_SIGSlopeTool_getKilometersPerCentimeterAtIndex_1(self, index);
+};;
+
+SIGSlopeTool.prototype['getKilometersPerCentimeterAtRepresentativeFraction'] = SIGSlopeTool.prototype.getKilometersPerCentimeterAtRepresentativeFraction = /** @suppress {undefinedVars, duplicate} @this{Object} */function(representativeFraction) {
+  var self = this.ptr;
+  if (representativeFraction && typeof representativeFraction === 'object') representativeFraction = representativeFraction.ptr;
+  return _emscripten_bind_SIGSlopeTool_getKilometersPerCentimeterAtRepresentativeFraction_1(self, representativeFraction);
+};;
+
+SIGSlopeTool.prototype['getMilesPerInchAtIndex'] = SIGSlopeTool.prototype.getMilesPerInchAtIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+  var self = this.ptr;
+  if (index && typeof index === 'object') index = index.ptr;
+  return _emscripten_bind_SIGSlopeTool_getMilesPerInchAtIndex_1(self, index);
+};;
+
+SIGSlopeTool.prototype['getMilesPerInchAtRepresentativeFraction'] = SIGSlopeTool.prototype.getMilesPerInchAtRepresentativeFraction = /** @suppress {undefinedVars, duplicate} @this{Object} */function(representativeFraction) {
+  var self = this.ptr;
+  if (representativeFraction && typeof representativeFraction === 'object') representativeFraction = representativeFraction.ptr;
+  return _emscripten_bind_SIGSlopeTool_getMilesPerInchAtRepresentativeFraction_1(self, representativeFraction);
+};;
+
+SIGSlopeTool.prototype['getSlopeElevationChangeFromMapMeasurements'] = SIGSlopeTool.prototype.getSlopeElevationChangeFromMapMeasurements = /** @suppress {undefinedVars, duplicate} @this{Object} */function(elevationUnits) {
+  var self = this.ptr;
+  if (elevationUnits && typeof elevationUnits === 'object') elevationUnits = elevationUnits.ptr;
+  return _emscripten_bind_SIGSlopeTool_getSlopeElevationChangeFromMapMeasurements_1(self, elevationUnits);
+};;
+
+SIGSlopeTool.prototype['getSlopeFromMapMeasurements'] = SIGSlopeTool.prototype.getSlopeFromMapMeasurements = /** @suppress {undefinedVars, duplicate} @this{Object} */function(slopeUnits) {
+  var self = this.ptr;
+  if (slopeUnits && typeof slopeUnits === 'object') slopeUnits = slopeUnits.ptr;
+  return _emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurements_1(self, slopeUnits);
+};;
+
+SIGSlopeTool.prototype['getSlopeHorizontalDistanceFromMapMeasurements'] = SIGSlopeTool.prototype.getSlopeHorizontalDistanceFromMapMeasurements = /** @suppress {undefinedVars, duplicate} @this{Object} */function(distanceUnits) {
+  var self = this.ptr;
+  if (distanceUnits && typeof distanceUnits === 'object') distanceUnits = distanceUnits.ptr;
+  return _emscripten_bind_SIGSlopeTool_getSlopeHorizontalDistanceFromMapMeasurements_1(self, distanceUnits);
+};;
+
+SIGSlopeTool.prototype['getSlopeFromMapMeasurementsInDegrees'] = SIGSlopeTool.prototype.getSlopeFromMapMeasurementsInDegrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurementsInDegrees_0(self);
+};;
+
+SIGSlopeTool.prototype['getSlopeFromMapMeasurementsInPercent'] = SIGSlopeTool.prototype.getSlopeFromMapMeasurementsInPercent = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurementsInPercent_0(self);
+};;
+
+SIGSlopeTool.prototype['getNumberOfHorizontalDistances'] = SIGSlopeTool.prototype.getNumberOfHorizontalDistances = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGSlopeTool_getNumberOfHorizontalDistances_0(self);
+};;
+
+SIGSlopeTool.prototype['getNumberOfRepresentativeFractions'] = SIGSlopeTool.prototype.getNumberOfRepresentativeFractions = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGSlopeTool_getNumberOfRepresentativeFractions_0(self);
+};;
+
+SIGSlopeTool.prototype['getRepresentativeFractionAtIndex'] = SIGSlopeTool.prototype.getRepresentativeFractionAtIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+  var self = this.ptr;
+  if (index && typeof index === 'object') index = index.ptr;
+  return _emscripten_bind_SIGSlopeTool_getRepresentativeFractionAtIndex_1(self, index);
+};;
+
+SIGSlopeTool.prototype['getRepresentativeFractionAtRepresentativeFraction'] = SIGSlopeTool.prototype.getRepresentativeFractionAtRepresentativeFraction = /** @suppress {undefinedVars, duplicate} @this{Object} */function(representativeFraction) {
+  var self = this.ptr;
+  if (representativeFraction && typeof representativeFraction === 'object') representativeFraction = representativeFraction.ptr;
+  return _emscripten_bind_SIGSlopeTool_getRepresentativeFractionAtRepresentativeFraction_1(self, representativeFraction);
+};;
+
+SIGSlopeTool.prototype['calculateHorizontalDistance'] = SIGSlopeTool.prototype.calculateHorizontalDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_SIGSlopeTool_calculateHorizontalDistance_0(self);
+};;
+
+SIGSlopeTool.prototype['calculateSlopeFromMapMeasurements'] = SIGSlopeTool.prototype.calculateSlopeFromMapMeasurements = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_SIGSlopeTool_calculateSlopeFromMapMeasurements_0(self);
+};;
+
+SIGSlopeTool.prototype['setCalculatedMapDistance'] = SIGSlopeTool.prototype.setCalculatedMapDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(calculatedMapDistance, distanceUnits) {
+  var self = this.ptr;
+  if (calculatedMapDistance && typeof calculatedMapDistance === 'object') calculatedMapDistance = calculatedMapDistance.ptr;
+  if (distanceUnits && typeof distanceUnits === 'object') distanceUnits = distanceUnits.ptr;
+  _emscripten_bind_SIGSlopeTool_setCalculatedMapDistance_2(self, calculatedMapDistance, distanceUnits);
+};;
+
+SIGSlopeTool.prototype['setContourInterval'] = SIGSlopeTool.prototype.setContourInterval = /** @suppress {undefinedVars, duplicate} @this{Object} */function(contourInterval, contourUnits) {
+  var self = this.ptr;
+  if (contourInterval && typeof contourInterval === 'object') contourInterval = contourInterval.ptr;
+  if (contourUnits && typeof contourUnits === 'object') contourUnits = contourUnits.ptr;
+  _emscripten_bind_SIGSlopeTool_setContourInterval_2(self, contourInterval, contourUnits);
+};;
+
+SIGSlopeTool.prototype['setMapDistance'] = SIGSlopeTool.prototype.setMapDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(mapDistance, distanceUnits) {
+  var self = this.ptr;
+  if (mapDistance && typeof mapDistance === 'object') mapDistance = mapDistance.ptr;
+  if (distanceUnits && typeof distanceUnits === 'object') distanceUnits = distanceUnits.ptr;
+  _emscripten_bind_SIGSlopeTool_setMapDistance_2(self, mapDistance, distanceUnits);
+};;
+
+SIGSlopeTool.prototype['setMapRepresentativeFraction'] = SIGSlopeTool.prototype.setMapRepresentativeFraction = /** @suppress {undefinedVars, duplicate} @this{Object} */function(mapRepresentativeFraction) {
+  var self = this.ptr;
+  if (mapRepresentativeFraction && typeof mapRepresentativeFraction === 'object') mapRepresentativeFraction = mapRepresentativeFraction.ptr;
+  _emscripten_bind_SIGSlopeTool_setMapRepresentativeFraction_1(self, mapRepresentativeFraction);
+};;
+
+SIGSlopeTool.prototype['setMaxSlopeSteepness'] = SIGSlopeTool.prototype.setMaxSlopeSteepness = /** @suppress {undefinedVars, duplicate} @this{Object} */function(maxSlopeSteepness) {
+  var self = this.ptr;
+  if (maxSlopeSteepness && typeof maxSlopeSteepness === 'object') maxSlopeSteepness = maxSlopeSteepness.ptr;
+  _emscripten_bind_SIGSlopeTool_setMaxSlopeSteepness_1(self, maxSlopeSteepness);
+};;
+
+SIGSlopeTool.prototype['setNumberOfContours'] = SIGSlopeTool.prototype.setNumberOfContours = /** @suppress {undefinedVars, duplicate} @this{Object} */function(numberOfContours) {
+  var self = this.ptr;
+  if (numberOfContours && typeof numberOfContours === 'object') numberOfContours = numberOfContours.ptr;
+  _emscripten_bind_SIGSlopeTool_setNumberOfContours_1(self, numberOfContours);
+};;
+
+  SIGSlopeTool.prototype['__destroy__'] = SIGSlopeTool.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_SIGSlopeTool___destroy___0(self);
+};
 (function() {
   function setupEnums() {
     
@@ -12434,6 +12782,64 @@ SIGFineDeadFuelMoistureTool.prototype['getRelativeHumidityIndexSize'] = SIGFineD
     Module['SIXTEEN_HUNDRED_HOURS_TO_SIXTEEN_HUNDRED_FIFTY_NINE'] = _emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_SIXTEEN_HUNDRED_HOURS_TO_SIXTEEN_HUNDRED_FIFTY_NINE();
 
     Module['EIGHTTEEN_HUNDRED_HOURS_TO_SUNSET'] = _emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_EIGHTTEEN_HUNDRED_HOURS_TO_SUNSET();
+
+    
+
+    // RepresentativeFraction_RepresentativeFractionEnum
+
+    Module['NINTEEN_HUNDRED_EIGHTY'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_NINTEEN_HUNDRED_EIGHTY();
+
+    Module['THREE_THOUSAND_NINEHUNDRED_SIXTY'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_THREE_THOUSAND_NINEHUNDRED_SIXTY();
+
+    Module['SEVEN_THOUSAND_NINEHUNDRED_TWENTY'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SEVEN_THOUSAND_NINEHUNDRED_TWENTY();
+
+    Module['TEN_THOUSAND'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TEN_THOUSAND();
+
+    Module['FIFTEEN_THOUSAND_EIGHT_HUNDRED_FORTY'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIFTEEN_THOUSAND_EIGHT_HUNDRED_FORTY();
+
+    Module['TWENTY_ONE_THOUSAND_ONE_HUNDRED_TWENTY'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWENTY_ONE_THOUSAND_ONE_HUNDRED_TWENTY();
+
+    Module['TWENTY_FOUR_THOUSAND'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWENTY_FOUR_THOUSAND();
+
+    Module['THRITY_ONE_THOUSAND_SIX_HUNDRED_EIGHTY'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_THRITY_ONE_THOUSAND_SIX_HUNDRED_EIGHTY();
+
+    Module['FIFTY_THOUSAND'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIFTY_THOUSAND();
+
+    Module['SIXTY_TWO_THOUSAND_FIVE_HUNDRED'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SIXTY_TWO_THOUSAND_FIVE_HUNDRED();
+
+    Module['SIXTY_THREE_THOUSAND_THREE_HUNDRED_SIXTY'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SIXTY_THREE_THOUSAND_THREE_HUNDRED_SIXTY();
+
+    Module['ONE_HUNDRED_THOUSAND'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_HUNDRED_THOUSAND();
+
+    Module['ONE_HUNDRED_TWENTY_SIX_THOUSAND_SEVEN_HUNDRED_TWENTY'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_HUNDRED_TWENTY_SIX_THOUSAND_SEVEN_HUNDRED_TWENTY();
+
+    Module['TWO_HUNDRED_FIFTY_THOUSAND'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWO_HUNDRED_FIFTY_THOUSAND();
+
+    Module['TWO_HUNDRED_FIFTY_THREE_THOUSAND_FOUR_HUNDRED_FORTY'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWO_HUNDRED_FIFTY_THREE_THOUSAND_FOUR_HUNDRED_FORTY();
+
+    Module['FIVE_HUNDRED_SIX_THOUSAND_EIGHT_HUNDRED_EIGHTY'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIVE_HUNDRED_SIX_THOUSAND_EIGHT_HUNDRED_EIGHTY();
+
+    Module['ONE_MILLION'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_MILLION();
+
+    Module['ONE_MILLION_THIRTEEN_THOUSAND_SEVEN_HUNDRED_SIXTY'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_MILLION_THIRTEEN_THOUSAND_SEVEN_HUNDRED_SIXTY();
+
+    
+
+    // HorizontalDistanceIndex_HorizontalDistanceIndexEnum
+
+    Module['UPSLOPE_ZERO_DEGREES'] = _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_UPSLOPE_ZERO_DEGREES();
+
+    Module['FIFTEEN_DEGREES_FROM_UPSLOPE'] = _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_FIFTEEN_DEGREES_FROM_UPSLOPE();
+
+    Module['THIRTY_DEGREES_FROM_UPSLOPE'] = _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_THIRTY_DEGREES_FROM_UPSLOPE();
+
+    Module['FORTY_FIVE_DEGREES_FROM_UPSLOPE'] = _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_FORTY_FIVE_DEGREES_FROM_UPSLOPE();
+
+    Module['SIXTY_DEGREES_FROM_UPSLOPE'] = _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_SIXTY_DEGREES_FROM_UPSLOPE();
+
+    Module['SEVENTY_FIVE_DEGREES_FROM_UPSLOPE'] = _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_SEVENTY_FIVE_DEGREES_FROM_UPSLOPE();
+
+    Module['CROSS_SLOPE_NINETY_DEGREES'] = _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_CROSS_SLOPE_NINETY_DEGREES();
 
   }
   if (runtimeInitialized) setupEnums();

@@ -2709,6 +2709,156 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFineDeadFuelMoistureTool___destroy_
   delete self;
 }
 
+// SIGSlopeTool
+
+SIGSlopeTool* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool_SIGSlopeTool_0() {
+  return new SIGSlopeTool();
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool_getCentimetersPerKilometerAtIndex_1(SIGSlopeTool* self, int index) {
+  return self->getCentimetersPerKilometerAtIndex(index);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool_getCentimetersPerKilometerAtRepresentativeFraction_1(SIGSlopeTool* self, RepresentativeFraction_RepresentativeFractionEnum representativeFraction) {
+  return self->getCentimetersPerKilometerAtRepresentativeFraction(representativeFraction);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool_getHorizontalDistance_2(SIGSlopeTool* self, HorizontalDistanceIndex_HorizontalDistanceIndexEnum horizontalDistanceIndex, LengthUnits_LengthUnitsEnum mapDistanceUnits) {
+  return self->getHorizontalDistance(horizontalDistanceIndex, mapDistanceUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool_getHorizontalDistanceAtIndex_2(SIGSlopeTool* self, int index, LengthUnits_LengthUnitsEnum mapDistanceUnits) {
+  return self->getHorizontalDistanceAtIndex(index, mapDistanceUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool_getHorizontalDistanceFifteen_1(SIGSlopeTool* self, LengthUnits_LengthUnitsEnum mapDistanceUnits) {
+  return self->getHorizontalDistanceFifteen(mapDistanceUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool_getHorizontalDistanceFourtyFive_1(SIGSlopeTool* self, LengthUnits_LengthUnitsEnum mapDistanceUnits) {
+  return self->getHorizontalDistanceFourtyFive(mapDistanceUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool_getHorizontalDistanceMaxSlope_1(SIGSlopeTool* self, SlopeUnits_SlopeUnitsEnum slopeUnits) {
+  return self->getHorizontalDistanceMaxSlope(slopeUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool_getHorizontalDistanceNinety_1(SIGSlopeTool* self, LengthUnits_LengthUnitsEnum mapDistanceUnits) {
+  return self->getHorizontalDistanceNinety(mapDistanceUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool_getHorizontalDistanceSeventy_1(SIGSlopeTool* self, LengthUnits_LengthUnitsEnum mapDistanceUnits) {
+  return self->getHorizontalDistanceSeventy(mapDistanceUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool_getHorizontalDistanceSixty_1(SIGSlopeTool* self, LengthUnits_LengthUnitsEnum mapDistanceUnits) {
+  return self->getHorizontalDistanceSixty(mapDistanceUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool_getHorizontalDistanceThirty_1(SIGSlopeTool* self, LengthUnits_LengthUnitsEnum mapDistanceUnits) {
+  return self->getHorizontalDistanceThirty(mapDistanceUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool_getHorizontalDistanceZero_1(SIGSlopeTool* self, LengthUnits_LengthUnitsEnum mapDistanceUnits) {
+  return self->getHorizontalDistanceZero(mapDistanceUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool_getInchesPerMileAtIndex_1(SIGSlopeTool* self, int index) {
+  return self->getInchesPerMileAtIndex(index);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool_getInchesPerMileAtRepresentativeFraction_1(SIGSlopeTool* self, RepresentativeFraction_RepresentativeFractionEnum representativeFraction) {
+  return self->getInchesPerMileAtRepresentativeFraction(representativeFraction);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool_getKilometersPerCentimeterAtIndex_1(SIGSlopeTool* self, int index) {
+  return self->getKilometersPerCentimeterAtIndex(index);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool_getKilometersPerCentimeterAtRepresentativeFraction_1(SIGSlopeTool* self, RepresentativeFraction_RepresentativeFractionEnum representativeFraction) {
+  return self->getKilometersPerCentimeterAtRepresentativeFraction(representativeFraction);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool_getMilesPerInchAtIndex_1(SIGSlopeTool* self, int index) {
+  return self->getMilesPerInchAtIndex(index);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool_getMilesPerInchAtRepresentativeFraction_1(SIGSlopeTool* self, RepresentativeFraction_RepresentativeFractionEnum representativeFraction) {
+  return self->getMilesPerInchAtRepresentativeFraction(representativeFraction);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool_getSlopeElevationChangeFromMapMeasurements_1(SIGSlopeTool* self, LengthUnits_LengthUnitsEnum elevationUnits) {
+  return self->getSlopeElevationChangeFromMapMeasurements(elevationUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurements_1(SIGSlopeTool* self, SlopeUnits_SlopeUnitsEnum slopeUnits) {
+  return self->getSlopeFromMapMeasurements(slopeUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool_getSlopeHorizontalDistanceFromMapMeasurements_1(SIGSlopeTool* self, LengthUnits_LengthUnitsEnum distanceUnits) {
+  return self->getSlopeHorizontalDistanceFromMapMeasurements(distanceUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurementsInDegrees_0(SIGSlopeTool* self) {
+  return self->getSlopeFromMapMeasurementsInDegrees();
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurementsInPercent_0(SIGSlopeTool* self) {
+  return self->getSlopeFromMapMeasurementsInPercent();
+}
+
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool_getNumberOfHorizontalDistances_0(SIGSlopeTool* self) {
+  return self->getNumberOfHorizontalDistances();
+}
+
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool_getNumberOfRepresentativeFractions_0(SIGSlopeTool* self) {
+  return self->getNumberOfRepresentativeFractions();
+}
+
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool_getRepresentativeFractionAtIndex_1(SIGSlopeTool* self, int index) {
+  return self->getRepresentativeFractionAtIndex(index);
+}
+
+int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool_getRepresentativeFractionAtRepresentativeFraction_1(SIGSlopeTool* self, RepresentativeFraction_RepresentativeFractionEnum representativeFraction) {
+  return self->getRepresentativeFractionAtRepresentativeFraction(representativeFraction);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool_calculateHorizontalDistance_0(SIGSlopeTool* self) {
+  self->calculateHorizontalDistance();
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool_calculateSlopeFromMapMeasurements_0(SIGSlopeTool* self) {
+  self->calculateSlopeFromMapMeasurements();
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool_setCalculatedMapDistance_2(SIGSlopeTool* self, double calculatedMapDistance, LengthUnits_LengthUnitsEnum distanceUnits) {
+  self->setCalculatedMapDistance(calculatedMapDistance, distanceUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool_setContourInterval_2(SIGSlopeTool* self, double contourInterval, LengthUnits_LengthUnitsEnum contourUnits) {
+  self->setContourInterval(contourInterval, contourUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool_setMapDistance_2(SIGSlopeTool* self, double mapDistance, LengthUnits_LengthUnitsEnum distanceUnits) {
+  self->setMapDistance(mapDistance, distanceUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool_setMapRepresentativeFraction_1(SIGSlopeTool* self, int mapRepresentativeFraction) {
+  self->setMapRepresentativeFraction(mapRepresentativeFraction);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool_setMaxSlopeSteepness_1(SIGSlopeTool* self, double maxSlopeSteepness) {
+  self->setMaxSlopeSteepness(maxSlopeSteepness);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool_setNumberOfContours_1(SIGSlopeTool* self, double numberOfContours) {
+  self->setNumberOfContours(numberOfContours);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool___destroy___0(SIGSlopeTool* self) {
+  delete self;
+}
+
 // AreaUnits_AreaUnitsEnum
 AreaUnits_AreaUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_AreaUnits_AreaUnitsEnum_SquareFeet() {
   return AreaUnits::SquareFeet;
@@ -3606,6 +3756,85 @@ FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_F
 }
 FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_EIGHTTEEN_HUNDRED_HOURS_TO_SUNSET() {
   return FDFMToolTimeOfDayIndex::EIGHTTEEN_HUNDRED_HOURS_TO_SUNSET;
+}
+
+// RepresentativeFraction_RepresentativeFractionEnum
+RepresentativeFraction_RepresentativeFractionEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_NINTEEN_HUNDRED_EIGHTY() {
+  return RepresentativeFraction::NINTEEN_HUNDRED_EIGHTY;
+}
+RepresentativeFraction_RepresentativeFractionEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_THREE_THOUSAND_NINEHUNDRED_SIXTY() {
+  return RepresentativeFraction::THREE_THOUSAND_NINEHUNDRED_SIXTY;
+}
+RepresentativeFraction_RepresentativeFractionEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SEVEN_THOUSAND_NINEHUNDRED_TWENTY() {
+  return RepresentativeFraction::SEVEN_THOUSAND_NINEHUNDRED_TWENTY;
+}
+RepresentativeFraction_RepresentativeFractionEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TEN_THOUSAND() {
+  return RepresentativeFraction::TEN_THOUSAND;
+}
+RepresentativeFraction_RepresentativeFractionEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIFTEEN_THOUSAND_EIGHT_HUNDRED_FORTY() {
+  return RepresentativeFraction::FIFTEEN_THOUSAND_EIGHT_HUNDRED_FORTY;
+}
+RepresentativeFraction_RepresentativeFractionEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWENTY_ONE_THOUSAND_ONE_HUNDRED_TWENTY() {
+  return RepresentativeFraction::TWENTY_ONE_THOUSAND_ONE_HUNDRED_TWENTY;
+}
+RepresentativeFraction_RepresentativeFractionEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWENTY_FOUR_THOUSAND() {
+  return RepresentativeFraction::TWENTY_FOUR_THOUSAND;
+}
+RepresentativeFraction_RepresentativeFractionEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_THRITY_ONE_THOUSAND_SIX_HUNDRED_EIGHTY() {
+  return RepresentativeFraction::THRITY_ONE_THOUSAND_SIX_HUNDRED_EIGHTY;
+}
+RepresentativeFraction_RepresentativeFractionEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIFTY_THOUSAND() {
+  return RepresentativeFraction::FIFTY_THOUSAND;
+}
+RepresentativeFraction_RepresentativeFractionEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SIXTY_TWO_THOUSAND_FIVE_HUNDRED() {
+  return RepresentativeFraction::SIXTY_TWO_THOUSAND_FIVE_HUNDRED;
+}
+RepresentativeFraction_RepresentativeFractionEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SIXTY_THREE_THOUSAND_THREE_HUNDRED_SIXTY() {
+  return RepresentativeFraction::SIXTY_THREE_THOUSAND_THREE_HUNDRED_SIXTY;
+}
+RepresentativeFraction_RepresentativeFractionEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_HUNDRED_THOUSAND() {
+  return RepresentativeFraction::ONE_HUNDRED_THOUSAND;
+}
+RepresentativeFraction_RepresentativeFractionEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_HUNDRED_TWENTY_SIX_THOUSAND_SEVEN_HUNDRED_TWENTY() {
+  return RepresentativeFraction::ONE_HUNDRED_TWENTY_SIX_THOUSAND_SEVEN_HUNDRED_TWENTY;
+}
+RepresentativeFraction_RepresentativeFractionEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWO_HUNDRED_FIFTY_THOUSAND() {
+  return RepresentativeFraction::TWO_HUNDRED_FIFTY_THOUSAND;
+}
+RepresentativeFraction_RepresentativeFractionEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWO_HUNDRED_FIFTY_THREE_THOUSAND_FOUR_HUNDRED_FORTY() {
+  return RepresentativeFraction::TWO_HUNDRED_FIFTY_THREE_THOUSAND_FOUR_HUNDRED_FORTY;
+}
+RepresentativeFraction_RepresentativeFractionEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIVE_HUNDRED_SIX_THOUSAND_EIGHT_HUNDRED_EIGHTY() {
+  return RepresentativeFraction::FIVE_HUNDRED_SIX_THOUSAND_EIGHT_HUNDRED_EIGHTY;
+}
+RepresentativeFraction_RepresentativeFractionEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_MILLION() {
+  return RepresentativeFraction::ONE_MILLION;
+}
+RepresentativeFraction_RepresentativeFractionEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_MILLION_THIRTEEN_THOUSAND_SEVEN_HUNDRED_SIXTY() {
+  return RepresentativeFraction::ONE_MILLION_THIRTEEN_THOUSAND_SEVEN_HUNDRED_SIXTY;
+}
+
+// HorizontalDistanceIndex_HorizontalDistanceIndexEnum
+HorizontalDistanceIndex_HorizontalDistanceIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_UPSLOPE_ZERO_DEGREES() {
+  return HorizontalDistanceIndex::UPSLOPE_ZERO_DEGREES;
+}
+HorizontalDistanceIndex_HorizontalDistanceIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_FIFTEEN_DEGREES_FROM_UPSLOPE() {
+  return HorizontalDistanceIndex::FIFTEEN_DEGREES_FROM_UPSLOPE;
+}
+HorizontalDistanceIndex_HorizontalDistanceIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_THIRTY_DEGREES_FROM_UPSLOPE() {
+  return HorizontalDistanceIndex::THIRTY_DEGREES_FROM_UPSLOPE;
+}
+HorizontalDistanceIndex_HorizontalDistanceIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_FORTY_FIVE_DEGREES_FROM_UPSLOPE() {
+  return HorizontalDistanceIndex::FORTY_FIVE_DEGREES_FROM_UPSLOPE;
+}
+HorizontalDistanceIndex_HorizontalDistanceIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_SIXTY_DEGREES_FROM_UPSLOPE() {
+  return HorizontalDistanceIndex::SIXTY_DEGREES_FROM_UPSLOPE;
+}
+HorizontalDistanceIndex_HorizontalDistanceIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_SEVENTY_FIVE_DEGREES_FROM_UPSLOPE() {
+  return HorizontalDistanceIndex::SEVENTY_FIVE_DEGREES_FROM_UPSLOPE;
+}
+HorizontalDistanceIndex_HorizontalDistanceIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_CROSS_SLOPE_NINETY_DEGREES() {
+  return HorizontalDistanceIndex::CROSS_SLOPE_NINETY_DEGREES;
 }
 
 }

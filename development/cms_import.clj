@@ -131,6 +131,12 @@
                :from-key         :FineDeadFuelMoistureTool
                :to-key           :SIGFineDeadFuelMoistureTool})
 
+  (cms-import {:behave-file      "~/work/code/hatchet/behave-mirror/slopeTool.edn"
+               :sig-adapter-file "~/work/code/hatchet/sig-adapters/SIGSlopeTool.edn"
+               :out-file-name    "SIGSlopeTool.edn"
+               :from-key         :SlopeTool
+               :to-key           :SIGSlopeTool})
+
   ;;; Add exports to CMS db
   (require '[behave-cms.server :refer [init-datahike!]])
 
@@ -151,6 +157,7 @@
   (add-export-file-to-conn "./cms-exports/SIGMortality.edn" ds/conn)
   (add-export-file-to-conn "./cms-exports/SIGIgnite.edn" ds/conn)
   (add-export-file-to-conn "./cms-exports/SIGFineDeadFuelMoistureTool.edn" ds/conn)
+  (add-export-file-to-conn "./cms-exports/SIGSlopeTool.edn" ds/conn)
 
   ;; Verify that SIGSurface exists
   (sort (d/q '[:find [?c-name ...]

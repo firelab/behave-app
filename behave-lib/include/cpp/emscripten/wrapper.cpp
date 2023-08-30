@@ -36,6 +36,8 @@
 #include "ContainAdapter.cpp"
 #include "SIGContainAdapter.cpp"
 #include "SIGCrown.cpp"
+#include "slopeTool.cpp"
+#include "SIGSlopeTool.cpp"
 #include "ignite.cpp"
 #include "igniteInputs.cpp"
 #include "SIGIgnite.cpp"

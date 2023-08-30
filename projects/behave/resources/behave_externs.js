@@ -577,3 +577,43 @@ Module.SpeciesMasterTable = class {
   getSpeciesTableIndexFromSpeciesCodeAndEquationType() {}
   insertRecord() {}
 };
+
+Module.SIGSlopeTool = class {
+    init() {}
+    calculateHorizontalDistance() {}
+    calculateSlopeFromMapMeasurements() {}
+    getCentimetersPerKilometerAtIndex() {}
+    getCentimetersPerKilometerAtRepresentativeFraction() {}
+    getHorizontalDistance() {}
+    getHorizontalDistanceAtIndex() {}
+    getHorizontalDistanceFifteen() {}
+    getHorizontalDistanceFourtyFive() {}
+    getHorizontalDistanceMaxSlope() {}
+    getHorizontalDistanceNinety() {}
+    getHorizontalDistanceSeventy() {}
+    getHorizontalDistanceSixty() {}
+    getHorizontalDistanceThirty() {}
+    getHorizontalDistanceZero() {}
+    getInchesPerMileAtIndex() {}
+    getInchesPerMileAtRepresentativeFraction() {}
+    getKilometersPerCentimeterAtIndex() {}
+    getKilometersPerCentimeterAtRepresentativeFraction() {}
+    getMilesPerInchAtIndex() {}
+    getMilesPerInchAtRepresentativeFraction() {}
+    getNumberOfHorizontalDistances() {}
+    getNumberOfRepresentativeFractions() {}
+    getRepresentativeFractionAtIndex() {}
+    getRepresentativeFractionAtRepresentativeFraction() {}
+    getSlopeElevationChangeFromMapMeasurements() {}
+    getSlopeElevationChangeFromMapMeasurements() {}
+    getSlopeFromMapMeasurements() {}
+    getSlopeFromMapMeasurementsInDegrees() {}
+    getSlopeFromMapMeasurementsInPercent() {}
+    getSlopeHorizontalDistanceFromMapMeasurements() {}
+    setCalulatedMapDistance() {}
+    setContourInterval() {}
+    setMapDistance() {}
+    setMapRepresentativeFraction() {}
+    setMaxSlopeSteepness() {}
+    setNumberOfContours() {}
+};

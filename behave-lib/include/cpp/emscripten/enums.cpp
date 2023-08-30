@@ -77,3 +77,7 @@ typedef FDFMToolRHIndex::RHIndexEnum FDFMToolRHIndex_RHIndexEnum;
 typedef FDFMToolShadingIndex::ShadingIndexEnum FDFMToolShadingIndex_ShadingIndexEnum;
 typedef FDFMToolSlopeIndex::SlopeIndexEnum FDFMToolSlopeIndex_SlopeIndexEnum;
 typedef FDFMToolTimeOfDayIndex::TimeOfDayIndexEnum FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum;
+
+// slopeTool.h
+typedef RepresentativeFraction::RepresentativeFractionEnum RepresentativeFraction_RepresentativeFractionEnum;
+typedef HorizontalDistanceIndex::HorizontalDistanceIndexEnum HorizontalDistanceIndex_HorizontalDistanceIndexEnum;
