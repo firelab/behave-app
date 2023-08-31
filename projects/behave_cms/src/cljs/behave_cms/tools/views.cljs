@@ -15,7 +15,12 @@
                 :id            id
                 :fields        [{:label     "Name"
                                  :required? true
-                                 :field-key :subtool/name}]
+                                 :field-key :subtool/name}
+                                {:label     "Auto Compute?"
+                                 :required? true
+                                 :field-key :subtool/auto-compute?
+                                 :type      :checkbox
+                                 :options   [{:value true}]}]
                 :on-create     #(assoc % :subtool/order num-subtools)}])
 
 (defn- manage-subtool [tool-id *subtool num-subtools]
@@ -28,7 +33,8 @@
     [:<>
      [:h5 "Subtools"]
      [simple-table
-      [:subtool/name]
+      [:subtool/name
+       :subtool/auto-compute?]
       (sort-by :subtool/order @subtools)
       {:on-select   #(rf/dispatch [:state/set-state :subtool (:db/id %)])
        :on-delete   #(when (js/confirm (str "Are you sure you want to delete the subtool "

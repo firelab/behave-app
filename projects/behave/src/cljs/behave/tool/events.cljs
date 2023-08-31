@@ -4,17 +4,18 @@
 
 (def db-tool [:state :tool])
 
-(rf/reg-event-db
+(rf/reg-event-fx
  :tool/upsert-input-value
  (rf/path db-tool)
- (fn [db [_ tool-uuid subtool-uuid variable-uuid value]]
-   (assoc-in db
-             [:data
-              tool-uuid
-              subtool-uuid
-              :inputs
-              variable-uuid]
-             value)))
+ (fn [{:keys [db]} [_ tool-uuid subtool-uuid variable-uuid value auto-compute?]]
+   (cond-> {:db (assoc-in db
+                          [:data
+                           tool-uuid
+                           subtool-uuid
+                           :inputs
+                           variable-uuid]
+                          value)}
+     auto-compute? (assoc :fx [[:dispatch [:tool/solve tool-uuid subtool-uuid]]]))))
 
 (rf/reg-event-db
  :tool/upsert-outupt-value

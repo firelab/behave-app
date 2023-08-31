@@ -12,3 +12,5 @@
 (def valid-key?   (s/and string? #(re-find #"^[a-z\:\-\_]+$" %)))
 
 (def zero-pos?    (s/and integer? (comp not neg?)))
+
+(def valid-io? (s/and keyword? #(#{:input :output} %)))
