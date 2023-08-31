@@ -167,9 +167,7 @@
   [{:keys [entity parent-field parent-id fields id on-create] :as opts}]
   (let [original     @(rf/subscribe [:entity id])
         parent       @(rf/subscribe [:entity parent-id])
-        update-state (fn [field] (fn [value] (do
-                                               (prn "field:" field " update-state:" value)
-                                               (rf/dispatch [:state/set-state [:editors entity field] value]))))
+        update-state (fn [field] (fn [value] (rf/dispatch [:state/set-state [:editors entity field] value])))
         get-state    (fn [field] (r/track #(let [result (cond
                                                           (not (nil? @(rf/subscribe [:state [:editors entity field]])))
                                                           @(rf/subscribe [:state [:editors entity field]])
@@ -179,7 +177,6 @@
 
                                                           :else
                                                           "")]
-                                            (prn "result:" result)
                                             result)))
         on-submit    (u/on-submit #(let [state @(rf/subscribe [:state [:editors entity]])]
                                      (cond-> state

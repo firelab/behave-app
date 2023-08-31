@@ -97,6 +97,4 @@
                      :inputs       @(rf/subscribe [:tool/all-inputs tool-uuid subtool-uuid])
                      :output-uuids @(rf/subscribe [:tool/all-output-uuids subtool-uuid])
                      :compute-fn   (get-compute-fn subtool-uuid fns)}]
-    (prn "subtool-uuid" subtool-uuid)
-    (prn "output-uuids:" (rf/subscribe [:tool/all-output-uuids subtool-uuid]))
     (run-tool params)))

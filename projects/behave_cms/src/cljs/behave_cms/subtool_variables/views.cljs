@@ -27,8 +27,6 @@
         variable         (get-in @subtool-variable [:variable/_subtool-variables 0])
         input-variables  (rf/subscribe [:subtool/input-variables (:db/id subtool)])
         output-variables (rf/subscribe [:subtool/output-variables (:db/id subtool)])]
-    (prn "input-variables:" input-variables)
-    (prn "output-variables:" output-variables)
     [:<>
      [sidebar
       "Input Variables"
