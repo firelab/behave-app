@@ -1,7 +1,9 @@
 (ns add-units
   (:require
    [clojure.edn :refer [read-string]]
+   [clojure.pprint :refer [pprint]]
    [clojure.java.io :as io]
+   [clojure.string :as str]
    [clojure.set :refer [rename-keys]]
    [datom-store.main :as ds]
    [datahike.api :as d]
@@ -11,43 +13,84 @@
    [datom-utils.interface :refer [safe-deref unwrap]]
    [me.raynes.fs :as fs]))
 
-(comment
+(defn s-uuid []
+  (str (squuid)))
 
+(defn all-enums 
+  "Find all enums with their members."
+  []
+  (d/q '[:find [(pull ?enum [* {:cpp.enum/enum-member [*]}]) ...]
+         :where
+         [?enum :cpp.enum/name ?enum-name]]
+       (safe-deref ds/conn)))
+
+(defn units-enums
+  "Finds all enums related to units."
+  []
+  (filter #(str/ends-with? (:cpp.enum/name %) "UnitsEnum") (all-enums)))
+
+(all-enums)
+
+;;; Remove old *UnitsEnum enums
+(comment
+  ;; Check
+  (def remove-units-enums (units-enums))
+
+  ;; TX
+  (def enums-and-members-ids (flatten (map (fn [u] (into [(:db/id u)] (map :db/id (:cpp.enum/enum-member u)))) remove-units-enums)))
+  (def remove-tx (mapv (fn [id] [:db/retractEntity id]) enums-and-members-ids))
+
+  ;; Remove
+  (d/transact (unwrap ds/conn) remove-tx)
+  )
+
+;;; Add back *UnitsEnum enums
+(comment
+  ;; Read from file
+  (def new-units-enums (read-string (slurp (io/file "cms-exports/unit-enums.edn"))))
+
+  ;; Create tx
+  (def new-units-enums-tx (mapv (fn [[enum-name enum-members]]
+                                  {:bp/uuid       (s-uuid)
+                                   :cpp.enum/name (name enum-name)
+                                   :cpp.enum/enum-member
+                                   (into [] (map-indexed (fn [idx enum-member]
+                                                           {:bp/uuid               (s-uuid)
+                                                            :cpp.enum-member/name  (name enum-member)
+                                                            :cpp.enum-member/value idx}) enum-members))}) new-units-enums))
+
+  ;; Add tx
+  (d/transact (unwrap ds/conn) new-units-enums-tx)
+  )
+
+;;; Add Dimension/Units with Enum/Enum-Member mappings
+(comment
+  ;; Read dimensions file
   (def dimensions (read-string (slurp (io/file "cms-exports/dimensions.edn"))))
 
-  (def all-enums
-    (index-by :cpp.enum/name
-              (d/q '[:find ?enum ?enum-name ?uuid
-                     :keys db/id cpp.enum/name bp/uuid
-                     :where
-                     [?enum :cpp.enum/name ?enum-name]
-                     [?enum :bp/uuid ?uuid]]
-                   (safe-deref ds/conn))))
+  ;; Create TX
+  (defn ->dimension [{:keys [enum-name] :as dimension}]
+    (let [enums     (index-by :cpp.enum/name (units-enums))
+          enum      (get enums enum-name)
+          _         (println enum-name enum)
+          enum-uuid (:bp/uuid enum)
+          members   (index-by :cpp.enum-member/name (:cpp.enum/enum-member enum))
+          units     (mapv #(-> %
+                               (dissoc :unit/enum-member-name)
+                               (assoc 
+                                :bp/uuid (s-uuid)
+                                :unit/cpp-enum-member-uuid
+                                (get-in members [(:unit/enum-member-name %) :bp/uuid])))
+                          (:dimension/units dimension))]
+      (-> dimension 
+          (dissoc :enum-name)
+          (assoc
+           :bp/uuid (s-uuid)
+           :dimension/cpp-enum-uuid enum-uuid
+           :dimension/units units))))
 
-  (defn enum-members [id]
-    (d/q '[:find [(pull ?member [*]) ...]
-           :in $ ?enum
-           :where
-           [?enum :cpp.enum/enum-member ?member]]
-         (safe-deref ds/conn) id))
+  (def dimensions-tx (mapv ->dimension dimensions))
 
-  (first all-enums)
-  (map all-enums [:bp/uuid])
-
-  (def tx (mapv (fn [{:keys [enum-name] :as dimension}]
-                  (let [enum      (get all-enums enum-name)
-                        enum-uuid (:bp/uuid enum)
-                        members   (index-by :cpp.enum-member/name (enum-members (:db/id enum)))
-                        units     (mapv #(assoc %
-                                                :bp/uuid (squuid)
-                                                :unit/enum-member-uuid
-                                                (get-in members [(:enum-member-name %) :bp/uuid])) (:dimension/units dimension))]
-                    (-> dimension 
-                        (assoc
-                         :bp/uuid (squuid)
-                         :dimension/cpp-enum-uuid enum-uuid
-                         :dimension/units units)))) dimensions))
-
-  #_(d/transact (unwrap ds/conn) tx)
-
+  ;; Transact
+  (d/transact (unwrap ds/conn) dimensions-tx)
   )

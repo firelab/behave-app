@@ -25,8 +25,8 @@
           :name             "Square Feet Per Acre (ft2/ac)"
           :system           :english
           :short-code       "ft2/ac"}
-   #:unit{:enum-member-name "SquareFeetPerAcre"
-          :name             "Square Feet Per Acre (m2/ha)"
+   #:unit{:enum-member-name "SquareMetersPerHectare"
+          :name             "Square Meters Per Hectare (m2/ha)"
           :system           :metric
           :short-code       "m2/ha"}]}
 
@@ -74,8 +74,8 @@
           :system           :metric
           :short-code       "kW/m"}]}
 
- {:dimension/name "Heat Combustion"
-  :enum-name      "HeatCombustionUnits_HeatCombustionUnitsEnum"
+ {:dimension/name "Heat of Combustion"
+  :enum-name      "HeatOfCombustionUnits_HeatOfCombustionUnitsEnum"
   :dimension/units
   [#:unit{:enum-member-name "BtusPerPound"
           :name             "Btus Per Pound (Btu/lb)"
@@ -99,7 +99,7 @@
           :short-code       "kJ/m3"}]}
 
  {:dimension/name "Heat Source Reaction"
-  :enum-name      "HeatSourceReactionUnits_HeatSourceReactionUnitsEnum"
+  :enum-name      "HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum"
   :dimension/units
   [#:unit{:enum-member-name "BtusPerSquareFootPerMinute"
           :name             "Btus Per Square Foot Per Minute (Btu/ft2/min)"
@@ -114,8 +114,8 @@
           :system           :metric
           :short-code       "kW/m2"}]}
 
- {:dimension/name "Heat Unit Per Unit Area"
-  :enum-name      "HeatUnitPerUnitAreaUnits_HeatUnitPerUnitAreaUnitsEnum"
+ {:dimension/name "Heat Per Unit Area"
+  :enum-name      "HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum"
   :dimension/units
   [#:unit{:enum-member-name "BtusPerSquareFoot"
           :name             "Btus Per Square Foot (Btu/ft2)"
@@ -145,8 +145,8 @@
           :name             "Miles (mi)"
           :system           :english
           :short-code       "mi"}
-   #:unit{:enum-member-name "centimeters"
-          :name             "centimeters (cm)"
+   #:unit{:enum-member-name "Centimeters"
+          :name             "Centimeters (cm)"
           :system           :metric
           :short-code       "cm"}
    #:unit{:enum-member-name "Kilometers"
@@ -165,8 +165,8 @@
  {:dimension/name "Loading"
   :enum-name      "LoadingUnits_LoadingUnitsEnum"
   :dimension/units
-  [#:unit{:enum-member-name "TonnesPerAcre"
-          :name             "Tonnes Per Acre (ton/ac)"
+  [#:unit{:enum-member-name "TonsPerAcre"
+          :name             "Tons Per Acre (ton/ac)"
           :system           :english
           :short-code       "ton/ac"}
    #:unit{:enum-member-name "TonnesPerHectare"

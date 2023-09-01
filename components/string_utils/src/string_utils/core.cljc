@@ -34,6 +34,11 @@
         (remove-punctuation)
         (str/replace #"[\s_]" "-"))))
 
+(defn capitalize->sentence
+  "CapitalizeCase to 'Sentence Cases' format."
+  [s]
+  (str/trim (str/replace s #"([A-Z])" #(str " " (first %)))))
+
 (defn camel->snake
   "camelCase string to snake_case"
   [s]
@@ -41,6 +46,34 @@
     (str/lower-case (first s))
     (str/replace (subs s 1)
                  #"([A-Z])" #(str "_" (str/lower-case (first %))))))
+
+(defn kebab->capitalize
+  "kebab-case string to CapitalizeCase"
+  [s]
+  (-> s
+      (str/split #"-")
+      (->> (map #(str (-> % (subs 0 1) (str/upper-case)) (subs % 1))) (str/join ""))))
+
+(defn kebab->camel
+  "kebab-case string to camelCase"
+  [s]
+  (-> s
+      (kebab->capitalize)
+      (as-> s (str (str/lower-case (subs s 0 1)) (subs s 1)))))
+
+(defn snake->capitalize
+  "snake-case string to CapitalizeCase"
+  [s]
+  (-> s
+      (str/split #"_")
+      (->> (map #(str (-> % (subs 0 1) (str/upper-case)) (subs % 1))) (str/join ""))))
+
+(defn snake->camel
+  "snake-case string to camelCase"
+  [s]
+  (-> s
+      (snake->capitalize)
+      (as-> s (str (str/lower-case (subs s 0 1)) (subs s 1)))))
 
 (defn camel->kebab
   "camelCase string to snake_case"
