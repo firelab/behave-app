@@ -610,7 +610,7 @@ Module.SIGSlopeTool = class {
     getSlopeFromMapMeasurementsInDegrees() {}
     getSlopeFromMapMeasurementsInPercent() {}
     getSlopeHorizontalDistanceFromMapMeasurements() {}
-    setCalulatedMapDistance() {}
+    setCalculatedMapDistance() {}
     setContourInterval() {}
     setMapDistance() {}
     setMapRepresentativeFraction() {}

@@ -7,6 +7,7 @@
             [behave.lib.units      :as units]
             [behave.lib.ignite]
             [behave.lib.fine-dead-fuel-moisture-tool]
+            [behave.lib.slope-tool]
             [goog.object    :as obj]))
 
 (defn kebab->snake

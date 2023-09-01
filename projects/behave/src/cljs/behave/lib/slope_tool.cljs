@@ -95,8 +95,8 @@
 (defn getSlopeHorizontalDistanceFromMapMeasurements [self distanceUnits]
   (.getSlopeHorizontalDistanceFromMapMeasurements self distanceUnits))
 
-(defn setCalulatedMapDistance [self calculatedMapDistance distanceUnits]
-  (.setCalulatedMapDistance self calculatedMapDistance distanceUnits))
+(defn setCalculatedMapDistance [self calculatedMapDistance distanceUnits]
+  (.setCalculatedMapDistance self calculatedMapDistance distanceUnits))
 
 (defn setContourInterval [self contourInterval]
   (.setContourInterval self contourInterval))
