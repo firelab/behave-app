@@ -1,0 +1,123 @@
+{:AreaUnits_AreaUnitsEnum
+ [:SquareFeet
+  :Acres
+  :Hectares
+  :SquareMeters
+  :SquareMiles
+  :SquareKilometers]
+
+ :BasalAreaUnits_BasalAreaUnitsEnum
+ [:SquareFeetPerAcre
+  :SquareMetersPerHectare]
+
+ :LengthUnits_LengthUnitsEnum
+ [:Feet
+  :Inches
+  :Millimeters
+  :Centimeters
+  :Meters
+  :Chains
+  :Miles
+  :Kilometers]
+
+ :LoadingUnits_LoadingUnitsEnum
+ [:PoundsPerSquareFoot
+  :TonsPerAcre
+  :TonnesPerHectare
+  :KilogramsPerSquareMeter]
+
+ :PressureUnits_PressureUnitsEnum
+ [:Pascal
+  :KiloPascal
+  :MegaPascal
+  :GigaPascal
+  :Bar
+  :Atmosphere
+  :TechnicalAtmosphere
+  :PoundPerSquareInch]
+
+ :SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum
+ [:SquareFeetOverCubicFeet
+  :SquareMetersOverCubicMeters
+  :SquareInchesOverCubicInches
+  :SquareCentimetersOverCubicCentimeters]
+
+ :SpeedUnits_SpeedUnitsEnum
+ [:FeetPerMinute
+  :ChainsPerHour
+  :MetersPerSecond
+  :MetersPerMinute
+  :MetersPerHour
+  :MilesPerHour
+  :KilometersPerHour]
+
+ :CoverUnits_CoverUnitsEnum
+ [:Fraction
+  :Percent]
+
+ :MortalityRateUnits_MortalityRateUnitsEnum
+ [:Fraction
+  :Percent]
+
+ :CuringLevelUnits_CuringLevelEnum
+ [:Fraction
+  :Percent]
+
+ :FractionUnits_FractionUnitsEnum
+ [:Fraction
+  :Percent]
+
+ :ProbabilityUnits_ProbabilityUnitsEnum
+ [:Fraction
+  :Percent]
+
+ :MoistureUnits_MoistureUnitsEnum
+ [:Fraction
+  :Percent]
+
+ :SlopeUnits_SlopeUnitsEnum
+ [:Degrees
+  :Percent]
+
+ :DensityUnits_DensityUnitsEnum
+ [:PoundsPerCubicFoot
+  :KilogramsPerCubicMeter]
+
+ :HeatOfCombustionUnits_HeatOfCombustionUnitsEnum
+ [:BtusPerPound
+  :KilojoulesPerKilogram]
+
+ :HeatSinkUnits_HeatSinkUnitsEnum
+ [:BtusPerCubicFoot
+  :KilojoulesPerCubicMeter]
+
+ :HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum
+ [:BtusPerSquareFoot
+  :KilojoulesPerSquareMeter
+  :KilowattSecondsPerSquareMeter]
+
+ :HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum
+ [:BtusPerSquareFootPerMinute
+  :BtusPerSquareFootPerSecond
+  :KilojoulesPerSquareMeterPerSecond
+  :KilojoulesPerSquareMeterPerMinute
+  :KilowattsPerSquareMeter]
+
+ :FirelineIntensityUnits_FirelineIntensityUnitsEnum
+ [:BtusPerFootPerSecond
+  :BtusPerFootPerMinute
+  :KilojoulesPerMeterPerSecond
+  :KilojoulesPerMeterPerMinute
+  :KilowattsPerMeter]
+
+ :TemperatureUnits_TemperatureUnitsEnum
+ [:Fahrenheit
+  :Celsius
+  :Kelvin]
+
+ :TimeUnits_TimeUnitsEnum
+ [:Minutes
+  :Seconds
+  :Hours
+  :Days
+  :Years]}
