@@ -63,30 +63,38 @@
 
 (defmethod tool-input :discrete
   [{:keys [variable tool-uuid subtool-uuid auto-compute?]}]
-  (r/with-let [{sv-uuid  :bp/uuid
-                var-name :variable/name
-                help-key :subtool-variable/help-key
-                v-list   :variable/list} variable
-               selected    (rf/subscribe [:tool/input-value
-                                          tool-uuid
-                                          subtool-uuid
-                                          sv-uuid])
-               on-change   #(rf/dispatch [:tool/upsert-input-value
-                                          tool-uuid
-                                          subtool-uuid
-                                          sv-uuid
-                                          (input-value %)
-                                          auto-compute?])
-               options     (:list/options v-list)
-               num-options (count options)
-               ->option    (fn [{value    :list-option/value
-                                 l-name   :list-option/name
-                                 default? :list-option/default}]
-                             {:value     value
-                              :label     l-name
-                              :on-change on-change
-                              :selected? (or (= @selected value) (and (nil? @selected) default?))
-                              :checked?  (= @selected value)})]
+  (let [{sv-uuid  :bp/uuid
+         var-name :variable/name
+         help-key :subtool-variable/help-key
+         v-list   :variable/list} variable
+        selected                  (rf/subscribe [:tool/input-value
+                                                 tool-uuid
+                                                 subtool-uuid
+                                                 sv-uuid])
+        options                   (:list/options v-list)
+        default-option            (first (filter #(true? (:list-option/default %)) options))
+        on-change                 #(rf/dispatch [:tool/upsert-input-value
+                                                 tool-uuid
+                                                 subtool-uuid
+                                                 sv-uuid
+                                                 (input-value %)
+                                                 auto-compute?])
+        num-options               (count options)
+        ->option                  (fn [{value    :list-option/value
+                                        l-name   :list-option/name
+                                        default? :list-option/default}]
+                                    {:value     value
+                                     :label     l-name
+                                     :on-change on-change
+                                     :selected? (or (= @selected value) (and (nil? @selected) default?))
+                                     :checked?  (= @selected value)})]
+    (when (and (nil? @selected) default-option)
+      (rf/dispatch [:tool/upsert-input-value
+                    tool-uuid
+                    subtool-uuid
+                    sv-uuid
+                    (:list-option/value default-option)
+                    false]))
     [:div.tool-input
      {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
      (if (< num-options 3)
@@ -131,6 +139,7 @@
        [:div (str "Metric Units: " metric-units)]]]]))
 
 (defn- auto-compute-subtool [tool-uuid subtool-uuid]
+  (rf/dispatch [:tool/solve tool-uuid subtool-uuid])
   (let [variables (rf/subscribe [:subtool/encriched-subtool-variables subtool-uuid])]
     [:div
      (for [{io :subtool-variable/io :as variable} @variables]
