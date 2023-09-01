@@ -605,7 +605,6 @@ Module.SIGSlopeTool = class {
     getRepresentativeFractionAtIndex() {}
     getRepresentativeFractionAtRepresentativeFraction() {}
     getSlopeElevationChangeFromMapMeasurements() {}
-    getSlopeElevationChangeFromMapMeasurements() {}
     getSlopeFromMapMeasurements() {}
     getSlopeFromMapMeasurementsInDegrees() {}
     getSlopeFromMapMeasurementsInPercent() {}
