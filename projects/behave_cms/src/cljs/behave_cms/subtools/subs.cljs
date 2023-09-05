@@ -8,11 +8,12 @@
    (subscribe [:pull-children :subtool/variables subtool-eid '[* {:variable/_subtool-variables [*]}]]))
 
  (fn [variables]
-   (map (fn [sv] (let [variable (get-in sv [:variable/_subtool-variables 0])]
-                   (-> sv
-                       (dissoc :variable/_subtool-variables)
-                       (merge (dissoc variable :db/id)))))
-        variables)))
+   (-> (map (fn [sv] (let [variable (get-in sv [:variable/_subtool-variables 0])]
+                    (-> sv
+                        (dissoc :variable/_subtool-variables)
+                        (merge (dissoc variable :db/id)))))
+            variables)
+       (sort-by :subtool-variable/order))))
 
 (reg-sub
  :subtool/input-variables
