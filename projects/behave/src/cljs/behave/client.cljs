@@ -11,6 +11,7 @@
             [behave.translate          :refer [<t load-translations!]]
             [behave.vms.store          :refer [load-vms!]]
             [behave.wizard.views       :as wizard]
+            [behave.print.views          :refer [print-page]]
             [behave.worksheet.views    :refer [new-worksheet-page
                                                import-worksheet-page
                                                guided-worksheet-page
@@ -32,6 +33,7 @@
                     :ws/review           wizard/wizard-review-page
                     :ws/results-settings wizard/wizard-results-settings-page
                     :ws/results          wizard/wizard-results-page
+                    :ws/print            print-page
                     :settings/all        settings/root-component
                     :settings/page       settings/root-component
                     :tools/all           tools/root-component

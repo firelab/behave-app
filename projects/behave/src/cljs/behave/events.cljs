@@ -140,6 +140,19 @@
                  :on-failure      [:state/set :vms-export-http-results]}}))
 
 (rf/reg-event-fx
+ :dev/print
+ (fn [_]
+   (js/window.print)))
+
+(rf/reg-event-fx
  :app/reload
  (fn [_ _]
    (js/window.location.reload)))
+
+;;; Toolbar
+(rf/reg-event-fx
+ :toolbar/print
+ (fn [_ [_ ws-uuid]]
+   {:fx [[:dispatch [:navigate (str "/worksheets/" ws-uuid "/print")]]
+         [:dispatch-later {:ms       1000
+                           :dispatch [:dev/print]}]]}))

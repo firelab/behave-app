@@ -838,6 +838,44 @@ body {
   background-color: var(--white);
 }
 
-
-
 /* -- End Tool -- */
+
+
+/* -- Print View -- */
+@media print {
+  @page { margin: 0; }
+
+  .page:after,
+  .help-area,
+  .page__top,
+  .sidebar-container,
+  .toolbar {
+    display: none;
+  }
+
+  .page__main {
+    padding-top: 10px;
+    width: 100%;
+    margin: 100px
+  }
+
+  .container {
+    margin: 0px;
+  }
+
+  .wizard-page__body {
+    overflow-x: visible;
+    overflow-y: visible;
+  }
+}
+
+.print__inputs-table .table-cell {
+  white-space: pre;
+  text-align: left;
+}
+
+.print__inputs-table .table {
+  width: 100%;
+}
+
+/* -- End Print View -- */

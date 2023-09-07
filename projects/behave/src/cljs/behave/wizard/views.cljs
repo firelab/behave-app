@@ -513,7 +513,7 @@
                                                                 (-> (subscribe [:wizard/group-variable col-uuid])
                                                                     deref
                                                                     :variable/name)
-                                                                value))
+                                                                (js/parseFloat value)))
                                                        {}
                                                        cell-data)))
                                        []))]

@@ -38,7 +38,8 @@
     ["/" :ws-uuid] [["" :ws/overview]
                      module-routes
                      result-routes
-                     ["/review" :ws/review]]}])
+                    ["/review" :ws/review]
+                    ["/print" :ws/print]]}])
 
 (def ^:private settings-routes
   ["settings"
