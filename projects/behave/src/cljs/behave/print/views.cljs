@@ -71,17 +71,16 @@
 (defn print-page [{:keys [ws-uuid]}]
   (let [*worksheet (rf/subscribe [:worksheet ws-uuid])
         modules    (:worksheet/modules @*worksheet)]
-    [:div (str "print-page for:" ws-uuid)
-     [:div "Input Worksheet"
-      (for [module-kw modules]
-        (let [module-name (name module-kw)
-              module      @(rf/subscribe [:wizard/*module module-name])
-              submodules  @(rf/subscribe [:wizard/submodules-io-input-only (:db/id module)])]
-          [:div.print__inputs-table
-           (c/table {:title   (gstring/format "Inputs: %s"  @(<t (:module/translation-key module)))
-                     :headers ["Input Variables" "Units" "Input Value(s)"]
-                     :columns [:input :units :values]
-                     :rows    (build-rows ws-uuid submodules)})]))]
+    [:div.print
+     (for [module-kw modules]
+       (let [module-name (name module-kw)
+             module      @(rf/subscribe [:wizard/*module module-name])
+             submodules  @(rf/subscribe [:wizard/submodules-io-input-only (:db/id module)])]
+         [:div.print__inputs-table
+          (c/table {:title   (gstring/format "Inputs: %s"  @(<t (:module/translation-key module)))
+                    :headers ["Input Variables" "Units" "Input Value(s)"]
+                    :columns [:input :units :values]
+                    :rows    (build-rows ws-uuid submodules)})]))
      [:div "Run Option Notes"]
      [:div "Tables"]
      [:div "Graphs"]

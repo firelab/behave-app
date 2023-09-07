@@ -842,6 +842,22 @@ body {
 
 
 /* -- Print View -- */
+
+.print {
+  height: 700px;
+  overflow-y: scroll;
+}
+
+.print__inputs-table .table-header__header,
+.print__inputs-table .table-cell {
+  white-space: pre;
+  text-align: left;
+}
+
+.print__inputs-table .table {
+  width: 100%;
+}
+
 @media print {
   @page { margin: 0; }
 
@@ -863,19 +879,12 @@ body {
     margin: 0px;
   }
 
+  .print,
   .wizard-page__body {
     overflow-x: visible;
     overflow-y: visible;
   }
-}
-.print__inputs-table .table-header__header,
-.print__inputs-table .table-cell {
-  white-space: pre;
-  text-align: left;
-}
 
-.print__inputs-table .table {
-  width: 100%;
 }
 
 /* -- End Print View -- */
