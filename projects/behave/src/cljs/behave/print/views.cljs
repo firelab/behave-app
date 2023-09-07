@@ -19,28 +19,31 @@
                                          (:group/conditionals-operator current-group)]))
       (let [variables        (->> current-group (:group/group-variables) (sort-by :group-variable/variable-order))
             single-var?      (= (count variables) 1)
-            next-indent      (if single-var?  (inc level) (+ level 2))
             new-entries      (if single-var?
                                [{:input  (indent-name level (:group/name current-group)) ;Use group name instead of var name to match what is in the inputs UI
                                  :units  (:variable/native-units (first variables))
                                  :values @(rf/subscribe [:worksheet/input-value
                                                          ws-uuid
                                                          (:bp/uuid current-group)
-                                                         0
+                                                         0 ;repeat-id
                                                          (:bp/uuid (first variables))])}]
                                (into [{:input (indent-name level (:group/name current-group))}]
-                                     (map (fn [variable]
-                                            {:input  (indent-name (inc level) (:variable/name variable))
-                                             :units  (:variable/native-units variable)
-                                             :values @(rf/subscribe [:worksheet/input-value
-                                                                     ws-uuid
-                                                                     (:bp/uuid current-group)
-                                                                     0
-                                                                     (:bp/uuid variable)])})
-                                          variables)))
+                                     (let [repeat-ids @(rf/subscribe [:worksheet/group-repeat-ids ws-uuid (:bp/uuid current-group)])]
+                                       (mapcat (fn [repeat-id]
+                                                 (map (fn [variable]
+                                                        {:input  (indent-name (inc level) (:variable/name variable))
+                                                         :units  (:variable/native-units variable)
+                                                         :values @(rf/subscribe [:worksheet/input-value
+                                                                                 ws-uuid
+                                                                                 (:bp/uuid current-group)
+                                                                                 repeat-id
+                                                                                 (:bp/uuid variable)])})
+                                                      variables))
+                                               repeat-ids))))
             children         (sort-by :group/order (:group/children current-group))
+            next-indent      (if single-var?  (inc level) (+ level 2))
             children-entires (when (seq children)
-                               (into (groups->row-entires ws-uuid children next-indent)))]
+                               (groups->row-entires ws-uuid children next-indent))]
         (recur next-groups level (-> acc
                                      (into new-entries)
                                      (into children-entires))))

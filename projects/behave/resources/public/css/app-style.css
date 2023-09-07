@@ -868,7 +868,7 @@ body {
     overflow-y: visible;
   }
 }
-
+.print__inputs-table .table-header__header,
 .print__inputs-table .table-cell {
   white-space: pre;
   text-align: left;
