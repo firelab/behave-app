@@ -2,7 +2,7 @@
   (:require [clojure.string                 :as str]
             [behave.components.core         :as c]
             [behave.components.input-group  :refer [input-group]]
-            [behave.components.chart         :refer [chart]]
+            [behave.components.graph        :refer [result-graph]]
             [behave.components.review-input-group  :as review]
             [behave.components.navigation   :refer [wizard-navigation]]
             [behave.components.output-group :refer [output-group]]
@@ -499,7 +499,7 @@
                          :back-label @(<t (bp "back"))
                          :on-back    on-back}]]))
 
-(defn- wizard-graph [ws-uuid cell-data]
+#_(defn- wizard-graph [ws-uuid cell-data]
   (letfn [(uuid->variable-name [uuid]
             (:variable/name @(subscribe [:wizard/group-variable uuid])))]
     (when-let [graph-settings @(subscribe [:worksheet/graph-settings ws-uuid])]
@@ -614,7 +614,7 @@
                                                           {}
                                                           data))))}]
              [table-exporter table-data])])
-        (wizard-graph ws-uuid @*cell-data)]]
+        (result-graph ws-uuid @*cell-data)]]
       [:div.wizard-navigation
        [c/button {:label    "Back"
                   :variant  "secondary"

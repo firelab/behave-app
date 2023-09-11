@@ -4,6 +4,7 @@
             [behave.components.core         :as c]
             [behave.print.subs]
             [clojure.string :as str]
+            [behave.components.graph :refer [result-graph]]
             [behave.translate :refer [<t bp]]))
 
 (defn- indent-name [level s]
@@ -152,11 +153,14 @@
         [:div (c/matrix-table {:title          (gstring/format "%s (%s)" output-name output-units)
                                :rows-label     (gstring/format "%s (%s)" row-name row-units)
                                :cols-label     (gstring/format "%s (%s)" col-name col-units)
-                               :row-headers    (map (fn [value] {:name value :key (str value)})
+                               :row-headers    (map (fn [value] {:name value :key value})
                                                     (str/split row-values ","))
-                               :column-headers (map (fn [value] {:name value :key (str value)})
+                               :column-headers (map (fn [value] {:name value :key value})
                                                     (str/split col-values ","))
                                :data           matrix-data})]))))
+
+(defn uuid->variable-name [uuid]
+  (:variable/name @(rf/subscribe [:wizard/group-variable uuid])))
 
 (defn print-page [{:keys [ws-uuid]}]
   (let [multi-valued-inputs @(rf/subscribe [:print/matrix-table-multi-valued-inputs ws-uuid])]
@@ -165,5 +169,7 @@
      [:div "Run Option Notes"]
      [:div "Results"
       (result-tables ws-uuid multi-valued-inputs)]
-     [:div "Graphs"]
+     [:div "Graphs"
+      (let [cell-data @(rf/subscribe [:worksheet/result-table-cell-data ws-uuid])]
+        [result-graph ws-uuid cell-data])]
      [:div "Diagrams"]]))
