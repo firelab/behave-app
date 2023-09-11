@@ -20,13 +20,15 @@
 (s/def :list-option/value           string?)
 (s/def :list-option/order           zero-pos?)
 (s/def :list-option/translation-key string?)
+(s/def :list-option/hide?           boolean?)
 
 (s/def :behave/list-option (s/keys :req [:list-option/uuid
                                          :list-option/name
                                          :list-option/value
                                          :list-option/order
                                          :list-option/translation-key]
-                                   :opt [:list-option/default]))
+                                   :opt [:list-option/default
+                                         :list-option/hide?]))
 
 (def schema
   ;; Lists
