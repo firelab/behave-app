@@ -49,7 +49,8 @@
                                                    repeat-ids)))
                                    :else
                                    [])
-            children         (sort-by :group/order (:group/children current-group))
+            children         (->> (:group/children current-group)
+                                  (sort-by :group/order))
             next-indent      (if single-var?  (inc level) (+ level 2))
             children-entires (when (seq children)
                                (groups->row-entires ws-uuid children next-indent))]
@@ -77,20 +78,126 @@
           []
           submodules))
 
-(defn print-page [{:keys [ws-uuid]}]
+(defn inputs-table [ws-uuid]
   (let [*worksheet (rf/subscribe [:worksheet ws-uuid])
         modules    (:worksheet/modules @*worksheet)]
-    [:div.print
-     (for [module-kw modules]
-       (let [module-name (name module-kw)
-             module      @(rf/subscribe [:wizard/*module module-name])
-             submodules  @(rf/subscribe [:wizard/submodules-io-input-only (:db/id module)])]
-         [:div.print__inputs-table
-          (c/table {:title   (gstring/format "Inputs: %s"  @(<t (:module/translation-key module)))
-                    :headers ["Input Variables" "Units" "Input Value(s)"]
-                    :columns [:input :units :values]
-                    :rows    (build-rows ws-uuid submodules)})]))
-     [:div "Run Option Notes"]
-     [:div "Tables"]
-     [:div "Graphs"]
-     [:div "Diagrams"]]))
+    (for [module-kw modules]
+      (let [module-name (name module-kw)
+            module      @(rf/subscribe [:wizard/*module module-name])
+            submodules  @(rf/subscribe [:wizard/submodules-io-input-only (:db/id module)])]
+        [:div.print__inputs-table
+         (c/table {:title   (gstring/format "Inputs: %s"  @(<t (:module/translation-key module)))
+                   :headers ["Input Variables" "Units" "Input Value(s)"]
+                   :columns [:input :units :values]
+                   :rows    (build-rows ws-uuid submodules)})]))))
+
+#_(defn- matrix-tables [ws-uuid]
+    (let [num-multi-valued-input 1]
+      (case num-multi-valued-input
+        0 [:div (c/table {:title   "Case 0 Multi-valued inputs"
+                          :headers ["Output Variable" "Value" "Units"]
+                          :columns [:output :value :units]
+                          :rows    [{:output "outupt1" :value 1 :units "%"}
+                                    {:output "outupt2" :value 1 :units "%"}
+                                    {:output "outupt3" :value 1 :units "%"}]})]
+        1 [:div (c/matrix-table {:title          "Matrix Title"
+                                 :rows-label     "Rows"
+                                 :cols-label     "Columns"
+                                 :column-headers [{:name "Column 1" :key :column1}
+                                                  {:name "Column 2" :key :column2}
+                                                  {:name "Column 3" :key :column3}]
+                                 :row-headers    [{:name "Row 1" :key :row1}
+                                                  {:name "Row 2" :key :row2}
+                                                  {:name "Row 3" :key :row3}]
+                                 :data           {[:row1 :column1] 1
+                                                  [:row1 :column2] 2
+                                                  [:row1 :column3] 3
+
+                                                  [:row2 :column1] 4
+                                                  [:row2 :column2] 5
+                                                  [:row2 :column3] 6
+
+                                                  [:row3 :column1] 7
+                                                  [:row3 :column2] 8
+                                                  [:row3 :column3] 9}})]
+        2 [:div (c/matrix-table {:title          "Matrix Title"
+                                 :column-headers [{:name "Row Name"}
+                                                  {:name "Column 1" :key :column1}
+                                                  {:name "Column 2" :key :column2}
+                                                  {:name "Column 3" :key :column3}]
+                                 :row-headers    [{:name "Row 1" :key :row1}
+                                                  {:name "Row 2" :key :row2}
+                                                  {:name "Row 3" :key :row3}]
+                                 :data           {[:row1 :column1] 1
+                                                  [:row1 :column2] 2
+                                                  [:row1 :column3] 3
+
+                                                  [:row2 :column1] 4
+                                                  [:row2 :column2] 5
+                                                  [:row2 :column3] 6
+
+                                                  [:row3 :column1] 7
+                                                  [:row3 :column2] 8
+                                                  [:row3 :column3] 9}})]
+        nil [:div (str num-multi-valued-input " multi valued inputs not supported currently.")])))
+
+(defn- matrix-tables [ws-uuid]
+  (let [num-multi-valued-input 1]
+    [:div
+     [:div (c/table {:title   "Case 0 Multi-valued inputs"
+                     :headers ["Output Variable" "Value" "Units"]
+                     :columns [:output :value :units]
+                     :rows    [{:output "outupt1" :value 1 :units "%"}
+                               {:output "outupt2" :value 1 :units "%"}
+                               {:output "outupt3" :value 1 :units "%"}]})]
+     [:div (c/matrix-table {:title          "Matrix Title"
+                            :rows-label     "Rows"
+                            :cols-label     "Columns"
+                            :column-headers [{:name "Column 1" :key :column1}
+                                             {:name "Column 2" :key :column2}
+                                             {:name "Column 3" :key :column3}]
+                            :row-headers    [{:name "0" :key 0}
+                                             {:name "1" :key 1}
+                                             {:name "2" :key 2}]
+                            :data           {[0 :column1] 1
+                                             [0 :column2] 2
+                                             [0 :column3] 3
+
+                                             [1 :column1] 4
+                                             [1 :column2] 5
+                                             [1 :column3] 6
+
+                                             [2 :column1] 7
+                                             [2 :column2] 8
+                                             [2 :column3] 9}})]
+     [:div (c/matrix-table {:title          "Matrix Title"
+                            :rows-label     "Rows"
+                            :cols-label     "Columns"
+                            :column-headers [{:name "0" :key 0}
+                                             {:name "1" :key 1}
+                                             {:name "2" :key 2}]
+                            :row-headers    [{:name "0" :key 0}
+                                             {:name "1" :key 1}
+                                             {:name "2" :key 2}]
+                            :data           {[0 0] 1
+                                             [0 1] 2
+                                             [0 2] 3
+
+                                             [1 0] 4
+                                             [1 1] 5
+                                             [1 2] 6
+
+
+                                             [2 0] 7
+                                             [2 1] 8
+                                             [2 2] 9}})]
+     [:div (str num-multi-valued-input " multi valued inputs not supported currently.")]]))
+
+(defn print-page [{:keys [ws-uuid]}]
+  [:div.print
+   (inputs-table ws-uuid)
+   [:div "Run Option Notes"]
+   [:div "Results"
+    (matrix-tables ws-uuid)]
+   [:div "Graphs"]
+   [:div "Diagrams"]])
