@@ -167,6 +167,21 @@
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident       :variable/dimension-uuid
+    :db/doc         "Variable's dimension UUID."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :variable/metric-unit-uuid
+    :db/doc         "Variable's metric unit UUID."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :variable/english-unit-uuid
+    :db/doc         "Variable's english unit UUID."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
    ;; Discrete Variables
    {:db/ident       :variable/list
     :db/doc         "Variable's list."

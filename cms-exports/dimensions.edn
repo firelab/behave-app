@@ -30,17 +30,17 @@
           :system           :metric
           :short-code       "m2/ha"}]}
 
- {:dimension/name "Cover"
-  :enum-name      "CoverUnits_CoverUnitsEnum"
+ {:dimension/name "Fraction"
+  :enum-name      "FractionUnits_FractionUnitsEnum"
   :dimension/units
-  [#:unit{:enum-member-name "Percent"
-          :name             "Percent (%)"
-          :system           :english
-          :short-code       "%"}
-   #:unit{:enum-member-name "Fraction"
+  [#:unit{:enum-member-name "Fraction"
           :name             "Fraction (fraction)"
           :system           :english
-          :short-code       "fraction"}]}
+          :short-code       "fraction"}
+   #:unit{:enum-member-name "Percent"
+          :name             "Percent (%)"
+          :system           :english
+          :short-code       "%"}]}
 
  {:dimension/name "Density"
   :enum-name      "DensityUnits_DensityUnitsEnum"

@@ -87,14 +87,14 @@
   (let [*dimension (rf/subscribe [:selected :dimensions])
         *unit      (rf/subscribe [:selected :units])]
     [:div.container
-     [:div.row
+     [:div.row.mt-3
       [:h3 "Dimensions / Units"]
       [:div.row
        [:div.col-6
         [dimensions-table]]
        [:div.col-6
         [units-table @*dimension]]]]
-     [:div.row
+     [:div.row.mt-3
       [:div.col-6
        [dimension-editor @*dimension @*unit]]
       [:div.col-6
