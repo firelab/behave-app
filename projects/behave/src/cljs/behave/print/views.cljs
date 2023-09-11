@@ -2,7 +2,9 @@
   (:require [re-frame.core    :as rf]
             [goog.string      :as gstring]
             [behave.components.core         :as c]
-            [behave.translate :refer [<t]]))
+            [behave.print.subs]
+            [clojure.string :as str]
+            [behave.translate :refer [<t bp]]))
 
 (defn- indent-name [level s]
   (str (apply str (repeat level "    ")) s))
@@ -78,126 +80,90 @@
           []
           submodules))
 
-(defn inputs-table [ws-uuid]
+(defn- inputs-table [ws-uuid]
   (let [*worksheet (rf/subscribe [:worksheet ws-uuid])
         modules    (:worksheet/modules @*worksheet)]
     (for [module-kw modules]
       (let [module-name (name module-kw)
             module      @(rf/subscribe [:wizard/*module module-name])
             submodules  @(rf/subscribe [:wizard/submodules-io-input-only (:db/id module)])]
+        ^{:key module-kw}
         [:div.print__inputs-table
          (c/table {:title   (gstring/format "Inputs: %s"  @(<t (:module/translation-key module)))
                    :headers ["Input Variables" "Units" "Input Value(s)"]
                    :columns [:input :units :values]
                    :rows    (build-rows ws-uuid submodules)})]))))
 
-#_(defn- matrix-tables [ws-uuid]
-    (let [num-multi-valued-input 1]
-      (case num-multi-valued-input
-        0 [:div (c/table {:title   "Case 0 Multi-valued inputs"
-                          :headers ["Output Variable" "Value" "Units"]
-                          :columns [:output :value :units]
-                          :rows    [{:output "outupt1" :value 1 :units "%"}
-                                    {:output "outupt2" :value 1 :units "%"}
-                                    {:output "outupt3" :value 1 :units "%"}]})]
-        1 [:div (c/matrix-table {:title          "Matrix Title"
-                                 :rows-label     "Rows"
-                                 :cols-label     "Columns"
-                                 :column-headers [{:name "Column 1" :key :column1}
-                                                  {:name "Column 2" :key :column2}
-                                                  {:name "Column 3" :key :column3}]
-                                 :row-headers    [{:name "Row 1" :key :row1}
-                                                  {:name "Row 2" :key :row2}
-                                                  {:name "Row 3" :key :row3}]
-                                 :data           {[:row1 :column1] 1
-                                                  [:row1 :column2] 2
-                                                  [:row1 :column3] 3
+(defmulti result-tables (fn [_ws-uuid multi-valued-inputs] (count multi-valued-inputs)))
 
-                                                  [:row2 :column1] 4
-                                                  [:row2 :column2] 5
-                                                  [:row2 :column3] 6
+(defmethod result-tables 0
+  [ws-uuid _multi-valued-inputs]
+  (let [output-uuids @(rf/subscribe [:worksheet/all-output-uuids ws-uuid])]
+    [:div.print__output-table
+     (c/table {:title   "Results"
+               :headers ["Output Variable" "Value" "Units"]
+               :columns [:output :value :units]
+               :rows    (mapv (fn [output-uuid]
+                                (let [{var-name  :variable/name
+                                       var-units :variable/native-units} @(rf/subscribe [:wizard/group-variable output-uuid])
+                                      value                              @(rf/subscribe [:worksheet/first-row-results-gv-uuid->value
+                                                                                         ws-uuid
+                                                                                         output-uuid])]
+                                  {:output var-name
+                                   :value  value
+                                   :units  var-units}))
+                              output-uuids)})]))
 
-                                                  [:row3 :column1] 7
-                                                  [:row3 :column2] 8
-                                                  [:row3 :column3] 9}})]
-        2 [:div (c/matrix-table {:title          "Matrix Title"
-                                 :column-headers [{:name "Row Name"}
-                                                  {:name "Column 1" :key :column1}
-                                                  {:name "Column 2" :key :column2}
-                                                  {:name "Column 3" :key :column3}]
-                                 :row-headers    [{:name "Row 1" :key :row1}
-                                                  {:name "Row 2" :key :row2}
-                                                  {:name "Row 3" :key :row3}]
-                                 :data           {[:row1 :column1] 1
-                                                  [:row1 :column2] 2
-                                                  [:row1 :column3] 3
+(defmethod result-tables 1
+  [ws-uuid multi-valued-inputs]
+  (let [[v-name v-units gv-uuid values] (first multi-valued-inputs)
+        output-uuids                    @(rf/subscribe [:print/matrix-table-column-outputs ws-uuid])
+        matrix-data                     @(rf/subscribe [:worksheet/matrix-table-data-single-multi-valued-input
+                                                        ws-uuid
+                                                        gv-uuid
+                                                        (str/split values ",")
+                                                        (map last output-uuids)])]
+    (c/matrix-table {:title          "Results"
+                     :rows-label     (gstring/format "%s (%s)" v-name v-units)
+                     :cols-label     "Outputs"
+                     :column-headers (mapv (fn [[col-name units gv-uuid]]
+                                             {:name (gstring/format "%s (%s)" col-name units)
+                                              :key  gv-uuid})
+                                           output-uuids)
+                     :row-headers    (map (fn [value] {:name value :key (str value)})
+                                          (str/split values ","))
+                     :data           matrix-data})))
 
-                                                  [:row2 :column1] 4
-                                                  [:row2 :column2] 5
-                                                  [:row2 :column3] 6
-
-                                                  [:row3 :column1] 7
-                                                  [:row3 :column2] 8
-                                                  [:row3 :column3] 9}})]
-        nil [:div (str num-multi-valued-input " multi valued inputs not supported currently.")])))
-
-(defn- matrix-tables [ws-uuid]
-  (let [num-multi-valued-input 1]
-    [:div
-     [:div (c/table {:title   "Case 0 Multi-valued inputs"
-                     :headers ["Output Variable" "Value" "Units"]
-                     :columns [:output :value :units]
-                     :rows    [{:output "outupt1" :value 1 :units "%"}
-                               {:output "outupt2" :value 1 :units "%"}
-                               {:output "outupt3" :value 1 :units "%"}]})]
-     [:div (c/matrix-table {:title          "Matrix Title"
-                            :rows-label     "Rows"
-                            :cols-label     "Columns"
-                            :column-headers [{:name "Column 1" :key :column1}
-                                             {:name "Column 2" :key :column2}
-                                             {:name "Column 3" :key :column3}]
-                            :row-headers    [{:name "0" :key 0}
-                                             {:name "1" :key 1}
-                                             {:name "2" :key 2}]
-                            :data           {[0 :column1] 1
-                                             [0 :column2] 2
-                                             [0 :column3] 3
-
-                                             [1 :column1] 4
-                                             [1 :column2] 5
-                                             [1 :column3] 6
-
-                                             [2 :column1] 7
-                                             [2 :column2] 8
-                                             [2 :column3] 9}})]
-     [:div (c/matrix-table {:title          "Matrix Title"
-                            :rows-label     "Rows"
-                            :cols-label     "Columns"
-                            :column-headers [{:name "0" :key 0}
-                                             {:name "1" :key 1}
-                                             {:name "2" :key 2}]
-                            :row-headers    [{:name "0" :key 0}
-                                             {:name "1" :key 1}
-                                             {:name "2" :key 2}]
-                            :data           {[0 0] 1
-                                             [0 1] 2
-                                             [0 2] 3
-
-                                             [1 0] 4
-                                             [1 1] 5
-                                             [1 2] 6
-
-
-                                             [2 0] 7
-                                             [2 1] 8
-                                             [2 2] 9}})]
-     [:div (str num-multi-valued-input " multi valued inputs not supported currently.")]]))
+(defmethod result-tables 2
+  [ws-uuid multi-valued-inputs]
+  (let [[row-name row-units row-gv-uuid row-values] (first multi-valued-inputs)
+        [col-name col-units col-gv-uuid col-values] (second multi-valued-inputs)
+        output-uuids                                @(rf/subscribe [:worksheet/all-output-uuids ws-uuid])]
+    (for [output-uuid output-uuids]
+      (let [{output-uuid  :bp/uuid
+             output-name  :variable/name
+             output-units :variable/native-units} @(rf/subscribe [:wizard/group-variable output-uuid])
+            matrix-data                           @(rf/subscribe [:print/matrix-table-two-multi-valued-inputs ws-uuid
+                                                                  row-gv-uuid
+                                                                  (str/split row-values ",")
+                                                                  col-gv-uuid
+                                                                  (str/split col-values ",")
+                                                                  output-uuid])]
+        [:div (c/matrix-table {:title          (gstring/format "%s (%s)" output-name output-units)
+                               :rows-label     (gstring/format "%s (%s)" row-name row-units)
+                               :cols-label     (gstring/format "%s (%s)" col-name col-units)
+                               :row-headers    (map (fn [value] {:name value :key (str value)})
+                                                    (str/split row-values ","))
+                               :column-headers (map (fn [value] {:name value :key (str value)})
+                                                    (str/split col-values ","))
+                               :data           matrix-data})]))))
 
 (defn print-page [{:keys [ws-uuid]}]
-  [:div.print
-   (inputs-table ws-uuid)
-   [:div "Run Option Notes"]
-   [:div "Results"
-    (matrix-tables ws-uuid)]
-   [:div "Graphs"]
-   [:div "Diagrams"]])
+  (let [multi-valued-inputs @(rf/subscribe [:print/matrix-table-multi-valued-inputs ws-uuid])]
+    [:div.print
+     (inputs-table ws-uuid)
+     [:div "Run Option Notes"]
+     [:div "Results"
+      (result-tables ws-uuid multi-valued-inputs)]
+     [:div "Graphs"]
+     [:div "Diagrams"]]))

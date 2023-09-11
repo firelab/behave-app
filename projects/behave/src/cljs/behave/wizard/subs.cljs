@@ -166,7 +166,7 @@
 (reg-sub
  :wizard/group-variable
  (fn [[_ gv-uuid]]
-   (subscribe [:vms/pull '[* {:variable/_group-variables [:variable/name]}] [:bp/uuid gv-uuid]]))
+   (subscribe [:vms/pull '[* {:variable/_group-variables [:variable/name :variable/native-units]}] [:bp/uuid gv-uuid]]))
 
  (fn [group-variable _query]
    (let [variable-data (rename-keys (first (:variable/_group-variables group-variable))
