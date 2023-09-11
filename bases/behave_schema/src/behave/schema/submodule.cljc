@@ -4,7 +4,7 @@
 
 ;;; Validation Fns
 
-(def valid-io? (s/and keyword? #(#{:input :output} %)))
+(def ^:private valid-io? (s/and keyword? #(#{:input :output} %)))
 
 ;;; Spec
 
@@ -27,7 +27,9 @@
 
 ;;; Schema
 
-(def schema
+(def
+  ^{:doc "Schema for submodule."}
+  schema
   [{:db/ident       :submodule/uuid
     :db/doc         "Submodule's ID."
     :db/valueType   :db.type/string

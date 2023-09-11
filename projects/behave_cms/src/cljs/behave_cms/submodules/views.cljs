@@ -1,7 +1,5 @@
 (ns behave-cms.submodules.views
-  (:require [reagent.core                       :as r]
-            [re-frame.core                      :as rf]
-            [data-utils.core                    :refer [parse-int]]
+  (:require [re-frame.core                      :as rf]
             [behave-cms.components.common       :refer [accordion simple-table window]]
             [behave-cms.components.entity-form  :refer [entity-form]]
             [behave-cms.components.sidebar      :refer [sidebar sidebar-width]]
@@ -9,7 +7,7 @@
             [behave-cms.help.views              :refer [help-editor]]
             [behave-cms.submodules.subs]))
 
-(defn submodule-form [module-id id num-submodules]
+(defn- submodule-form [module-id id num-submodules]
   [entity-form {:entity        :submodule
                 :parent-field  :module/_submodules
                 :parent-id     module-id
@@ -24,12 +22,12 @@
                                              {:label "Output" :value :output}]}]
                 :on-create     #(assoc % :submodule/order num-submodules)}])
 
-(defn manage-submodule [module-id *submodule num-submodules]
+(defn- manage-submodule [module-id *submodule num-submodules]
   [:div.col-6
    [:h5 (if (nil? module-id) "Add" "Edit") " Submodule"
     [submodule-form module-id *submodule num-submodules]]])
 
-(defn submodules-table [label submodules]
+(defn- submodules-table [label submodules]
   [:<>
    [:h5 label]
    [simple-table
@@ -42,7 +40,7 @@
      :on-increase #(rf/dispatch [:api/reorder % submodules :submodule/order :inc])
      :on-decrease #(rf/dispatch [:api/reorder % submodules :submodule/order :dec])}]])
 
-(defn all-submodule-tables [module-id]
+(defn- all-submodule-tables [module-id]
   (let [submodules (rf/subscribe [:submodules module-id])
         inputs     (filter #(= :input (:submodule/io %)) @submodules)
         outputs    (filter #(= :output (:submodule/io %)) @submodules)]
@@ -51,7 +49,10 @@
       [submodules-table "Output Submodules" outputs]
       [submodules-table "Input Submodules" inputs]]]))
 
-(defn list-submodules-page [{:keys [id]}]
+(defn submodules-page
+  "Display submodules page. Takes a map with:
+   - id [int]: Submodule entity ID."
+  [{:keys [id]}]
   (let [module         (rf/subscribe [:entity id '[* {:application/_modules [:db/id]}]])
         application-id (get-in @module [:application/_modules 0 :db/id])
         submodules     (rf/subscribe [:sidebar/submodules id])
