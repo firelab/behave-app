@@ -6,7 +6,7 @@
             [behave.components.review-input-group  :as review]
             [behave.components.navigation   :refer [wizard-navigation]]
             [behave.components.output-group :refer [output-group]]
-            [behave.components.vega.diagram       :refer [output-diagram]]
+            [behave.components.vega.diagram :refer [output-diagram]]
             [behave.tool.views              :refer [tool tool-selector]]
             [behave-routing.main            :refer [routes]]
             [behave.translate               :refer [<t bp]]
@@ -595,7 +595,7 @@
                                            scatter-plots)}]
      (construct-summary-table ws-uuid group-variable-uuid row-id)]))
 
-(defn- wizard-diagrams [ws-uuid]
+(defn wizard-diagrams [ws-uuid]
   (let [*ws (subscribe [:worksheet-entity ws-uuid])]
     (when (seq (:worksheet/diagrams @*ws))
       [:div.wizard-results__diagrams {:id "diagram"}

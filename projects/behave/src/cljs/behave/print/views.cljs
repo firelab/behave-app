@@ -5,6 +5,7 @@
             [behave.print.subs]
             [clojure.string :as str]
             [behave.components.graph :refer [result-graph]]
+            [behave.wizard.views :refer [wizard-diagrams]]
             [behave.translate :refer [<t bp]]))
 
 (defn- indent-name [level s]
@@ -185,4 +186,4 @@
      [:div.wizard-print__header "Results"]
      [result-tables ws-uuid multi-valued-inputs]
      [result-graph ws-uuid graph-data]
-     [:div.wizard-print__header "Diagrams"]]))
+     [wizard-diagrams ws-uuid]]))
