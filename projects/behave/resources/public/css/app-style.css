@@ -858,6 +858,11 @@ body {
   width: 100%;
 }
 
+.print__result-table {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
 @media print {
   @page { margin: 0; }
 

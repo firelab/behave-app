@@ -84,23 +84,24 @@
 (defn- inputs-table [ws-uuid]
   (let [*worksheet (rf/subscribe [:worksheet ws-uuid])
         modules    (:worksheet/modules @*worksheet)]
-    (for [module-kw modules]
-      (let [module-name (name module-kw)
-            module      @(rf/subscribe [:wizard/*module module-name])
-            submodules  @(rf/subscribe [:wizard/submodules-io-input-only (:db/id module)])]
-        ^{:key module-kw}
-        [:div.print__inputs-table
-         (c/table {:title   (gstring/format "Inputs: %s"  @(<t (:module/translation-key module)))
-                   :headers ["Input Variables" "Units" "Input Value(s)"]
-                   :columns [:input :units :values]
-                   :rows    (build-rows ws-uuid submodules)})]))))
+    [:div.print__inputs_tables
+     (for [module-kw modules]
+       (let [module-name (name module-kw)
+             module      @(rf/subscribe [:wizard/*module module-name])
+             submodules  @(rf/subscribe [:wizard/submodules-io-input-only (:db/id module)])]
+         ^{:key module-kw}
+         [:div.print__inputs-table
+          (c/table {:title   (gstring/format "Inputs: %s"  @(<t (:module/translation-key module)))
+                    :headers ["Input Variables" "Units" "Input Value(s)"]
+                    :columns [:input :units :values]
+                    :rows    (build-rows ws-uuid submodules)})]))]))
 
 (defmulti result-tables (fn [_ws-uuid multi-valued-inputs] (count multi-valued-inputs)))
 
 (defmethod result-tables 0
   [ws-uuid _multi-valued-inputs]
   (let [output-uuids @(rf/subscribe [:worksheet/all-output-uuids ws-uuid])]
-    [:div.print__output-table
+    [:div.print__result-table
      (c/table {:title   "Results"
                :headers ["Output Variable" "Value" "Units"]
                :columns [:output :value :units]
@@ -124,52 +125,67 @@
                                                         gv-uuid
                                                         (str/split values ",")
                                                         (map last output-uuids)])]
-    (c/matrix-table {:title          "Results"
-                     :rows-label     (gstring/format "%s (%s)" v-name v-units)
-                     :cols-label     "Outputs"
-                     :column-headers (mapv (fn [[col-name units gv-uuid]]
-                                             {:name (gstring/format "%s (%s)" col-name units)
-                                              :key  gv-uuid})
-                                           output-uuids)
-                     :row-headers    (map (fn [value] {:name value :key (str value)})
-                                          (str/split values ","))
-                     :data           matrix-data})))
+    [:div.print__result-table
+     (c/matrix-table {:title          "Results"
+                      :rows-label     (gstring/format "%s (%s)" v-name v-units)
+                      :cols-label     "Outputs"
+                      :column-headers (mapv (fn [[col-name units gv-uuid]]
+                                              {:name (gstring/format "%s (%s)" col-name units)
+                                               :key  gv-uuid})
+                                            output-uuids)
+                      :row-headers    (map (fn [value] {:name value :key (str value)})
+                                           (str/split values ","))
+                      :data           matrix-data})]))
 
 (defmethod result-tables 2
   [ws-uuid multi-valued-inputs]
   (let [[row-name row-units row-gv-uuid row-values] (first multi-valued-inputs)
         [col-name col-units col-gv-uuid col-values] (second multi-valued-inputs)
         output-uuids                                @(rf/subscribe [:worksheet/all-output-uuids ws-uuid])]
-    (for [output-uuid output-uuids]
-      (let [{output-uuid  :bp/uuid
-             output-name  :variable/name
-             output-units :variable/native-units} @(rf/subscribe [:wizard/group-variable output-uuid])
-            matrix-data                           @(rf/subscribe [:print/matrix-table-two-multi-valued-inputs ws-uuid
-                                                                  row-gv-uuid
-                                                                  (str/split row-values ",")
-                                                                  col-gv-uuid
-                                                                  (str/split col-values ",")
-                                                                  output-uuid])]
-        [:div (c/matrix-table {:title          (gstring/format "%s (%s)" output-name output-units)
-                               :rows-label     (gstring/format "%s (%s)" row-name row-units)
-                               :cols-label     (gstring/format "%s (%s)" col-name col-units)
-                               :row-headers    (map (fn [value] {:name value :key value})
-                                                    (str/split row-values ","))
-                               :column-headers (map (fn [value] {:name value :key value})
-                                                    (str/split col-values ","))
-                               :data           matrix-data})]))))
+    [:div.print__result-tables
+     (for [output-uuid output-uuids]
+       (let [{output-uuid  :bp/uuid
+              output-name  :variable/name
+              output-units :variable/native-units} @(rf/subscribe [:wizard/group-variable output-uuid])
+             matrix-data                           @(rf/subscribe [:print/matrix-table-two-multi-valued-inputs ws-uuid
+                                                                   row-gv-uuid
+                                                                   (str/split row-values ",")
+                                                                   col-gv-uuid
+                                                                   (str/split col-values ",")
+                                                                   output-uuid])]
+         [:div.print__result-table
+          (c/matrix-table {:title          (gstring/format "%s (%s)" output-name output-units)
+                           :rows-label     (gstring/format "%s (%s)" row-name row-units)
+                           :cols-label     (gstring/format "%s (%s)" col-name col-units)
+                           :row-headers    (map (fn [value] {:name value :key value})
+                                                (str/split row-values ","))
+                           :column-headers (map (fn [value] {:name value :key value})
+                                                (str/split col-values ","))
+                           :data           matrix-data})]))]))
+
+(defn wizard-notes [notes]
+  (when (seq notes)
+    [:div.wizard-notes
+     [:div.wizard-notes__header "Run's Notes"]
+     (doall (for [[id & _rest :as note] notes]
+              ^{:key id}
+              (let [[_note-id note-name note-content] note]
+                [:div.wizard-note
+                 [:div.wizard-note__name note-name]
+                 [:div.wizard-note__content note-content]])))]))
 
 (defn uuid->variable-name [uuid]
   (:variable/name @(rf/subscribe [:wizard/group-variable uuid])))
 
 (defn print-page [{:keys [ws-uuid]}]
-  (let [multi-valued-inputs @(rf/subscribe [:print/matrix-table-multi-valued-inputs ws-uuid])]
+  (let [multi-valued-inputs @(rf/subscribe [:print/matrix-table-multi-valued-inputs ws-uuid])
+        notes               @(rf/subscribe [:wizard/notes ws-uuid])
+        graph-data          @(rf/subscribe [:worksheet/result-table-cell-data ws-uuid])]
     [:div.print
-     (inputs-table ws-uuid)
-     [:div "Run Option Notes"]
+     [inputs-table ws-uuid]
+     [:div "Run Option Notes"
+      [wizard-notes notes]]
      [:div "Results"
-      (result-tables ws-uuid multi-valued-inputs)]
-     [:div "Graphs"
-      (let [cell-data @(rf/subscribe [:worksheet/result-table-cell-data ws-uuid])]
-        [result-graph ws-uuid cell-data])]
+      [result-tables ws-uuid multi-valued-inputs]]
+     [result-graph ws-uuid graph-data]
      [:div "Diagrams"]]))
