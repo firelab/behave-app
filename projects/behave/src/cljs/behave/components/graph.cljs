@@ -22,7 +22,7 @@
                                                        cell-data)))
                                        []))]
         [:div.wizard-results__graphs {:id "graph"}
-         [:div.wizard-notes__header "Graph"]
+         [:div.wizard-graph__header "Graph"]
          (for [output-uuid @*output-uuids
                :let        [y-axis-limit (->> (:graph-settings/y-axis-limits graph-settings)
                                               (filter #(= output-uuid (:y-axis-limit/group-variable-uuid %)))
@@ -30,7 +30,7 @@
                             y-min (:y-axis-limit/min y-axis-limit)
                             y-max (:y-axis-limit/max y-axis-limit)]]
            [:<>
-            [:div.wizard-notes__header
+            [:div.wizard-graph__output-header
              (:variable/name @(subscribe [:wizard/group-variable output-uuid]))]
             [:div.wizard-results__graph
              (chart {:data   graph-data

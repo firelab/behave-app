@@ -364,6 +364,7 @@ body {
   background-color: var(--darkblue-4);
 }
 
+.wizard-graph__output-header,
 .wizard-group--level-1 > .wizard-group__header {
   padding: 5px 18px;
   color: black;
@@ -584,6 +585,8 @@ body {
   width: 100%;
 }
 
+.wizard-graph__header,
+.wizard-print__header,
 .wizard-notes__header {
   margin-top: 30px;
   margin-bottom: 33px;
@@ -863,8 +866,15 @@ body {
   padding-bottom: 10px;
 }
 
+
+.wizard-print__header {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
 @media print {
-  @page { margin: 0; }
+
+  @page {size:8.5in 11in; margin: 0.5cm }
 
   .page:after,
   .help-area,
@@ -874,8 +884,13 @@ body {
     display: none;
   }
 
+  .working-area {
+    width: 75%;
+    margin: 0px;
+  }
+
   .page__main {
-    padding-top: 10px;
+    padding-top: 0px;
     width: 100%;
     margin: 100px
   }

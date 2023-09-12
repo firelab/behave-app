@@ -166,7 +166,7 @@
 (defn wizard-notes [notes]
   (when (seq notes)
     [:div.wizard-notes
-     [:div.wizard-notes__header "Run's Notes"]
+     [:div.wizard-print__header "Run's Notes"]
      (doall (for [[id & _rest :as note] notes]
               ^{:key id}
               (let [[_note-id note-name note-content] note]
@@ -174,18 +174,15 @@
                  [:div.wizard-note__name note-name]
                  [:div.wizard-note__content note-content]])))]))
 
-(defn uuid->variable-name [uuid]
-  (:variable/name @(rf/subscribe [:wizard/group-variable uuid])))
-
 (defn print-page [{:keys [ws-uuid]}]
   (let [multi-valued-inputs @(rf/subscribe [:print/matrix-table-multi-valued-inputs ws-uuid])
         notes               @(rf/subscribe [:wizard/notes ws-uuid])
         graph-data          @(rf/subscribe [:worksheet/result-table-cell-data ws-uuid])]
     [:div.print
+     [:div.wizard-print__header "Inputs"]
      [inputs-table ws-uuid]
-     [:div "Run Option Notes"
-      [wizard-notes notes]]
-     [:div "Results"
-      [result-tables ws-uuid multi-valued-inputs]]
+     [wizard-notes notes]
+     [:div.wizard-print__header "Results"]
+     [result-tables ws-uuid multi-valued-inputs]
      [result-graph ws-uuid graph-data]
      [:div "Diagrams"]]))
