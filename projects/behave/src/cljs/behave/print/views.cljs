@@ -185,4 +185,4 @@
      [:div.wizard-print__header "Results"]
      [result-tables ws-uuid multi-valued-inputs]
      [result-graph ws-uuid graph-data]
-     [:div "Diagrams"]]))
+     [:div.wizard-print__header "Diagrams"]]))
