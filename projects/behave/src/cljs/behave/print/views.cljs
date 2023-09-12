@@ -1,5 +1,5 @@
 (ns behave.print.views
-  (:require [re-frame.core    :as rf]
+  (:require [re-frame.core    :refer [subscribe]]
             [goog.string      :as gstring]
             [behave.components.core         :as c]
             [behave.print.subs]
@@ -21,33 +21,33 @@
          acc                           []]
 
     (cond
-      (and current-group @(rf/subscribe [:wizard/show-group?
-                                         ws-uuid
-                                         (:db/id current-group)
-                                         (:group/conditionals-operator current-group)]))
+      (and current-group @(subscribe [:wizard/show-group?
+                                      ws-uuid
+                                      (:db/id current-group)
+                                      (:group/conditionals-operator current-group)]))
       (let [variables        (->> current-group (:group/group-variables) (sort-by :group-variable/variable-order))
             single-var?      (= (count variables) 1)
             multi-var?       (> (count variables) 1)
             new-entries      (cond single-var?
                                    [{:input  (indent-name level (:group/name current-group)) ;Use group name instead of var name to match what is in the inputs UI
                                      :units  (:variable/native-units (first variables))
-                                     :values @(rf/subscribe [:worksheet/input-value
-                                                             ws-uuid
-                                                             (:bp/uuid current-group)
-                                                             0 ;repeat-id
-                                                             (:bp/uuid (first variables))])}]
+                                     :values @(subscribe [:worksheet/input-value
+                                                          ws-uuid
+                                                          (:bp/uuid current-group)
+                                                          0 ;repeat-id
+                                                          (:bp/uuid (first variables))])}]
                                    multi-var?
                                    (into [{:input (indent-name level (:group/name current-group))}]
-                                         (let [repeat-ids @(rf/subscribe [:worksheet/group-repeat-ids ws-uuid (:bp/uuid current-group)])]
+                                         (let [repeat-ids @(subscribe [:worksheet/group-repeat-ids ws-uuid (:bp/uuid current-group)])]
                                            (mapcat (fn [repeat-id]
                                                      (map (fn [variable]
                                                             {:input  (indent-name (inc level) (:variable/name variable))
                                                              :units  (:variable/native-units variable)
-                                                             :values @(rf/subscribe [:worksheet/input-value
-                                                                                     ws-uuid
-                                                                                     (:bp/uuid current-group)
-                                                                                     repeat-id
-                                                                                     (:bp/uuid variable)])})
+                                                             :values @(subscribe [:worksheet/input-value
+                                                                                  ws-uuid
+                                                                                  (:bp/uuid current-group)
+                                                                                  repeat-id
+                                                                                  (:bp/uuid variable)])})
                                                           variables))
                                                    repeat-ids)))
                                    :else
@@ -71,7 +71,7 @@
   (reduce (fn [acc submodule]
             (let [{id :db/id
                    op :submodule/conditionals-operator} submodule
-                  show-module?                          @(rf/subscribe [:wizard/show-submodule? ws-uuid id op])]
+                  show-module?                          @(subscribe [:wizard/show-submodule? ws-uuid id op])]
               (if show-module?
                 (cond-> (conj acc {:input (:submodule/name submodule)})
 
@@ -82,13 +82,13 @@
           submodules))
 
 (defn- inputs-table [ws-uuid]
-  (let [*worksheet (rf/subscribe [:worksheet ws-uuid])
+  (let [*worksheet (subscribe [:worksheet ws-uuid])
         modules    (:worksheet/modules @*worksheet)]
     [:div.print__inputs_tables
      (for [module-kw modules]
        (let [module-name (name module-kw)
-             module      @(rf/subscribe [:wizard/*module module-name])
-             submodules  @(rf/subscribe [:wizard/submodules-io-input-only (:db/id module)])]
+             module      @(subscribe [:wizard/*module module-name])
+             submodules  @(subscribe [:wizard/submodules-io-input-only (:db/id module)])]
          ^{:key module-kw}
          [:div.print__inputs-table
           (c/table {:title   (gstring/format "Inputs: %s"  @(<t (:module/translation-key module)))
@@ -100,17 +100,17 @@
 
 (defmethod result-tables 0
   [ws-uuid _multi-valued-inputs]
-  (let [output-uuids @(rf/subscribe [:worksheet/all-output-uuids ws-uuid])]
+  (let [output-uuids @(subscribe [:worksheet/all-output-uuids ws-uuid])]
     [:div.print__result-table
      (c/table {:title   "Results"
                :headers ["Output Variable" "Value" "Units"]
                :columns [:output :value :units]
                :rows    (mapv (fn [output-uuid]
                                 (let [{var-name  :variable/name
-                                       var-units :variable/native-units} @(rf/subscribe [:wizard/group-variable output-uuid])
-                                      value                              @(rf/subscribe [:worksheet/first-row-results-gv-uuid->value
-                                                                                         ws-uuid
-                                                                                         output-uuid])]
+                                       var-units :variable/native-units} @(subscribe [:wizard/group-variable output-uuid])
+                                      value                              @(subscribe [:worksheet/first-row-results-gv-uuid->value
+                                                                                      ws-uuid
+                                                                                      output-uuid])]
                                   {:output var-name
                                    :value  value
                                    :units  var-units}))
@@ -119,12 +119,12 @@
 (defmethod result-tables 1
   [ws-uuid multi-valued-inputs]
   (let [[v-name v-units gv-uuid values] (first multi-valued-inputs)
-        output-uuids                    @(rf/subscribe [:print/matrix-table-column-outputs ws-uuid])
-        matrix-data                     @(rf/subscribe [:worksheet/matrix-table-data-single-multi-valued-input
-                                                        ws-uuid
-                                                        gv-uuid
-                                                        (str/split values ",")
-                                                        (map last output-uuids)])]
+        output-uuids                    @(subscribe [:print/matrix-table-column-outputs ws-uuid])
+        matrix-data                     @(subscribe [:worksheet/matrix-table-data-single-multi-valued-input
+                                                     ws-uuid
+                                                     gv-uuid
+                                                     (str/split values ",")
+                                                     (map last output-uuids)])]
     [:div.print__result-table
      (c/matrix-table {:title          "Results"
                       :rows-label     (gstring/format "%s (%s)" v-name v-units)
@@ -141,18 +141,18 @@
   [ws-uuid multi-valued-inputs]
   (let [[row-name row-units row-gv-uuid row-values] (first multi-valued-inputs)
         [col-name col-units col-gv-uuid col-values] (second multi-valued-inputs)
-        output-uuids                                @(rf/subscribe [:worksheet/all-output-uuids ws-uuid])]
+        output-uuids                                @(subscribe [:worksheet/all-output-uuids ws-uuid])]
     [:div.print__result-tables
      (for [output-uuid output-uuids]
        (let [{output-uuid  :bp/uuid
               output-name  :variable/name
-              output-units :variable/native-units} @(rf/subscribe [:wizard/group-variable output-uuid])
-             matrix-data                           @(rf/subscribe [:print/matrix-table-two-multi-valued-inputs ws-uuid
-                                                                   row-gv-uuid
-                                                                   (str/split row-values ",")
-                                                                   col-gv-uuid
-                                                                   (str/split col-values ",")
-                                                                   output-uuid])]
+              output-units :variable/native-units} @(subscribe [:wizard/group-variable output-uuid])
+             matrix-data                           @(subscribe [:print/matrix-table-two-multi-valued-inputs ws-uuid
+                                                                row-gv-uuid
+                                                                (str/split row-values ",")
+                                                                col-gv-uuid
+                                                                (str/split col-values ",")
+                                                                output-uuid])]
          [:div.print__result-table
           (c/matrix-table {:title          (gstring/format "%s (%s)" output-name output-units)
                            :rows-label     (gstring/format "%s (%s)" row-name row-units)
@@ -175,9 +175,9 @@
                  [:div.wizard-note__content note-content]])))]))
 
 (defn print-page [{:keys [ws-uuid]}]
-  (let [multi-valued-inputs @(rf/subscribe [:print/matrix-table-multi-valued-inputs ws-uuid])
-        notes               @(rf/subscribe [:wizard/notes ws-uuid])
-        graph-data          @(rf/subscribe [:worksheet/result-table-cell-data ws-uuid])]
+  (let [multi-valued-inputs @(subscribe [:print/matrix-table-multi-valued-inputs ws-uuid])
+        notes               @(subscribe [:wizard/notes ws-uuid])
+        graph-data          @(subscribe [:worksheet/result-table-cell-data ws-uuid])]
     [:div.print
      [:div.wizard-print__header "Inputs"]
      [inputs-table ws-uuid]
