@@ -600,7 +600,9 @@
     (when (seq (:worksheet/diagrams @*ws))
       [:div.wizard-results__diagrams {:id "diagram"}
        [:div.wizard-notes__header "Diagram"]
-       (map #(construct-diagram ws-uuid % ) (:worksheet/diagrams @*ws))])))
+       (map #(construct-diagram ws-uuid % )
+            (sort-by :worksheet.diagram/row-id
+                     (:worksheet/diagrams @*ws)))])))
 
 ;; Wizard Results
 (defn wizard-results-page [{:keys [route-handler io ws-uuid] :as params}]

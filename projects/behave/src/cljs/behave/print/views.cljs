@@ -164,7 +164,7 @@
                                                 (str/split col-values ","))
                            :data           matrix-data})]))]))
 
-(defn wizard-notes [notes]
+(defn- wizard-notes [notes]
   (when (seq notes)
     [:div.wizard-notes
      [:div.wizard-print__header "Run's Notes"]
@@ -175,11 +175,19 @@
                  [:div.wizard-note__name note-name]
                  [:div.wizard-note__content note-content]])))]))
 
+(defn- epoch->date-string [epoch]
+  (.toString (js/Date. epoch)))
+
 (defn print-page [{:keys [ws-uuid]}]
-  (let [multi-valued-inputs @(subscribe [:print/matrix-table-multi-valued-inputs ws-uuid])
+  (let [worksheet           @(subscribe [:worksheet ws-uuid])
+        ws-name             (:worksheet/name worksheet)
+        ws-date-created     (:worksheet/created worksheet)
+        multi-valued-inputs @(subscribe [:print/matrix-table-multi-valued-inputs ws-uuid])
         notes               @(subscribe [:wizard/notes ws-uuid])
         graph-data          @(subscribe [:worksheet/result-table-cell-data ws-uuid])]
     [:div.print
+     [:div.print__ws-name ws-name]
+     [:div.print__ws-date (epoch->date-string ws-date-created)]
      [:div.wizard-print__header "Inputs"]
      [inputs-table ws-uuid]
      [wizard-notes notes]

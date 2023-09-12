@@ -872,6 +872,15 @@ body {
 
 /* -- Print View -- */
 
+.print__ws-name {
+  text-align: center;
+  font-weight: var(--font-weight-bold)
+}
+
+.print__ws-date {
+  text-align: center;
+}
+
 .print {
   height: 700px;
   overflow-y: scroll;
@@ -900,8 +909,6 @@ body {
 
 @media print {
 
-  @page {size:8.5in 11in; margin: 0.5cm }
-
   .page:after,
   .help-area,
   .page__top,
@@ -911,14 +918,14 @@ body {
   }
 
   .working-area {
-    width: 75%;
+    width: 100%;
     margin: 0px;
   }
 
   .page__main {
     padding-top: 0px;
+    margin-top: 0px;
     width: 100%;
-    margin: 100px
   }
 
   .container {

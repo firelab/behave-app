@@ -131,8 +131,8 @@
                    :label    (bp "print")
                    :on-click #(rf/dispatch [:toolbar/print ws-uuid])}
                   {:icon     :share
-                   :label    #(rf/dispatch [:dev/export-from-vms])
-                   :on-click on-click}
+                   :label    (bp "share")
+                   :on-click #(rf/dispatch [:dev/export-from-vms])}
                   {:icon     :zoom-in
                    :label    (bp "zoom-in")
                    :on-click on-click}
