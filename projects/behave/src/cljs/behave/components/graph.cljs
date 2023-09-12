@@ -22,7 +22,7 @@
                                                        cell-data)))
                                        []))]
         [:div.wizard-results__graphs {:id "graph"}
-         [:div.wizard-graph__header "Graph"]
+         [:div.wizard-graph__header "Graphs"]
          (for [output-uuid @*output-uuids
                :let        [y-axis-limit (->> (:graph-settings/y-axis-limits graph-settings)
                                               (filter #(= output-uuid (:y-axis-limit/group-variable-uuid %)))
