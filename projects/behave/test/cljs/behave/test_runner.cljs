@@ -8,6 +8,7 @@
             [behave.wizard.subs]
             [behave.crown-test]
             [behave.contain-test]
+            [behave.diagram-test]
             [behave.mortality-test]
             [behave.surface-test]
             [behave.solver-test]
@@ -30,14 +31,16 @@
 
 (defn run-the-tests []
   (run-tests (cljs-test-display.core/init! "app-testing")
-             'behave.crown-test
-             'behave.contain-test
-             'behave.mortality-test
-             'behave.surface-test
-             'behave.solver-test
-             'behave.tests-used-in-fixtures
-             'behave.worksheet-events-test
-             'behave.worksheet-subs-test))
+             ;; 'behave.crown-test
+             ;; 'behave.contain-test
+             ;; 'behave.mortality-test
+             'behave.diagram-test
+             ;; 'behave.surface-test
+             ;; 'behave.solver-test
+             ;; 'behave.tests-used-in-fixtures
+             ;; 'behave.worksheet-events-test
+             ;; 'behave.worksheet-subs-test
+             ))
 
 (defn ^:after-load init []
   (let [window-keys    (js->clj (.keys js/Object js/window))

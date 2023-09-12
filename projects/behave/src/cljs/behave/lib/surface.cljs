@@ -156,6 +156,12 @@
 (defn getDirectionOfInterest [self]
   (.getDirectionOfInterest self))
 
+(defn getDirectionOfBacking [self]
+  (.getDirectionOfBacking self))
+
+(defn getDirectionOfFlanking [self]
+  (.getDirectionOfFlanking self))
+
 (defn getDirectionOfMaxSpread [self]
   (.getDirectionOfMaxSpread self))
 
@@ -176,6 +182,12 @@
 
 (defn getFireEccentricity [self]
   (.getFireEccentricity self))
+
+(defn getFireLength [self lengthUnits]
+  (.getFireLength self lengthUnits))
+
+(defn getMaxFireWidth [self lengthUnits]
+  (.getMaxFireWidth self lengthUnits))
 
 (defn getFireLengthToWidthRatio [self]
   (.getFireLengthToWidthRatio self))
@@ -239,6 +251,9 @@
 
 (defn getFuelbedDepth [self fuelModelNumber lengthUnits]
   (.getFuelbedDepth self fuelModelNumber lengthUnits))
+
+(defn getHeadingSpreadRate [self spreadRateUnits]
+  (.getHeadingSpreadRate self spreadRateUnits))
 
 (defn getHeadingToBackingRatio [self]
   (.getHeadingToBackingRatio self))
@@ -422,6 +437,9 @@
 
 (defn getSurfaceFireReactionIntensityLive [self]
   (.getSurfaceFireReactionIntensityLive self))
+
+(defn getSurfaceRunInDirectionOf [self]
+  (.getSurfaceRunInDirectionOf self))
 
 (defn getWindAdjustmentFactor [self]
   (.getWindAdjustmentFactor self))

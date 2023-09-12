@@ -57,14 +57,19 @@
     "independent" :workflow/independent
     "import"      :workflow/import}])
 
+(def ^:private demo-routes
+  ["demo/"
+   {"chart"   :demo/chart
+    "diagram" :demo/diagram}])
+
 (def routes
   (add-trailing-slashes-to-roots
-    ["/" [["" :home]
-          ["chart" :chart]
-          workflow-routes
-          worksheet-routes
-          settings-routes
-          tools-routes]]))
+   ["/" [["" :home]
+         demo-routes
+         workflow-routes
+         worksheet-routes
+         settings-routes
+         tools-routes]]))
 
 (defn results-path [ws-uuid]
   (bidi/path-for routes :ws/results :ws-uuid ws-uuid))

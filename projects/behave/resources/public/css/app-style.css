@@ -585,6 +585,15 @@ body {
   width: 100%;
 }
 
+.table td {
+  text-align:left;
+}
+
+#right,
+.table td + td {
+  text-align:right;
+}
+
 .wizard-graph__header,
 .wizard-print__header,
 .wizard-notes__header {
@@ -773,6 +782,23 @@ body {
 .atlwdg-trigger.atlwdg-TOP {
   z-index: 100;
 }
+
+.diagram__table {
+  display: inline-block;
+  vertical-align: top;
+  padding-right: 15px;
+  border-spacing: 10px 0;
+}
+
+.diagram__table td:first-child{
+  text-align: right;
+  font-weight: var(--font-weight-bold);
+}
+
+.diagram {
+  padding-bottom: 20px;
+}
+
 /* -- End Help Area -- */
 
 

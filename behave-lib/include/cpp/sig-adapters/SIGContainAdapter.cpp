@@ -28,6 +28,9 @@
  ******************************************************************************/
 
 #include "SIGContainAdapter.h"
+#include "SIGContainAdapter.h"
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 void SIGContainAdapter::addResource(double arrival, double duration, TimeUnits::TimeUnitsEnum timeUnits, double productionRate, SpeedUnits::SpeedUnitsEnum productionRateUnits, const char * description, double baseCost, double hourCost)
 {
@@ -48,10 +51,74 @@ int SIGContainAdapter::removeResourceWithThisDesc(const char * desc)
 
 int SIGContainAdapter::removeAllResourcesWithThisDesc(const char * desc)
 {
-  return ContainAdapter::removeAllResourcesWithThisDesc(std::string(desc));
+  return force_.removeAllResourcesWithThisDesc(desc);
 }
 
 double SIGContainAdapter::getPerimeterAtInitialAttack(LengthUnits::LengthUnitsEnum lengthUnits)
 {
   return ContainAdapter::getPerimiterAtInitialAttack(lengthUnits);
+}
+
+DoubleVector SIGContainAdapter::getFirePerimeterX( void ) const
+{
+  return( DoubleVector(m_x, m_size) );
+}
+
+DoubleVector SIGContainAdapter::getFirePerimeterY( void ) const
+{
+  return( DoubleVector(m_y, m_size) );
+}
+
+int SIGContainAdapter::getFirePerimeterPointCount( void ) const
+{
+  return( m_size );
+}
+
+
+double SIGContainAdapter::getFireHeadAtReport( void ) const
+{
+  return ( m_reportHead );
+}
+
+double SIGContainAdapter::getFireBackAtReport( void ) const
+{
+  return ( m_reportBack );
+}
+
+double SIGContainAdapter::getFireHeadAtAttack( void ) const
+{
+  return ( m_attackHead );
+}
+
+double SIGContainAdapter::getFireBackAtAttack( void ) const
+{
+  double v = m_attackBack;
+  return (v);
+}
+
+double SIGContainAdapter::getLengthToWidthRatio ( void ) const
+{
+  return ( lwRatio_ );
+}
+
+double SIGContainAdapter::getAttackDistance ( LengthUnits::LengthUnitsEnum lengthUnits ) const
+{
+  return ( LengthUnits::toBaseUnits(attackDistance_, lengthUnits));
+}
+
+double SIGContainAdapter::getReportSize( AreaUnits::AreaUnitsEnum areaUnits ) const
+{
+  double reportSizeInSquareFeet = AreaUnits::toBaseUnits(reportSize_, AreaUnits::Acres); // convert report size to base units
+  return ( AreaUnits::fromBaseUnits(reportSizeInSquareFeet, areaUnits));
+}
+
+double SIGContainAdapter::getReportRate( SpeedUnits::SpeedUnitsEnum speedUnits ) const
+{
+  double reportRateInFeetPerMinute = SpeedUnits::toBaseUnits(reportRate_, SpeedUnits::ChainsPerHour); // convert report rate to base units
+  return ( SpeedUnits::fromBaseUnits(reportRateInFeetPerMinute, speedUnits));
+}
+
+int SIGContainAdapter::getTactic( void ) const
+{
+  return ( tactic_ );
 }

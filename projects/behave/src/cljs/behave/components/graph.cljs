@@ -1,7 +1,7 @@
 (ns behave.components.graph
   (:require [re-frame.core    :refer [subscribe]]
             [behave.print.subs]
-            [behave.components.chart         :refer [chart]]))
+            [behave.components.vega.result-chart :refer [result-chart]]))
 
 (defn result-graph [ws-uuid cell-data]
   (letfn [(uuid->variable-name [uuid]
@@ -36,15 +36,15 @@
               [:div.wizard-graph__output-header
                (:variable/name @(subscribe [:wizard/group-variable output-uuid]))]
               [:div.wizard-results__graph
-               (chart {:data   graph-data
-                       :x      {:name (-> (:graph-settings/x-axis-group-variable-uuid graph-settings)
-                                          (uuid->variable-name))}
-                       :y      {:name  (:variable/name @(subscribe [:wizard/group-variable output-uuid]))
-                                :scale [y-min y-max]}
-                       :z      {:name (-> (:graph-settings/z-axis-group-variable-uuid graph-settings)
-                                          (uuid->variable-name))}
-                       :z2     {:name    (-> (:graph-settings/z2-axis-group-variable-uuid graph-settings)
-                                             (uuid->variable-name))
-                                :columns 2}
-                       :width  250
-                       :height 250})]])])))))
+               (result-chart {:data   graph-data
+                              :x      {:name (-> (:graph-settings/x-axis-group-variable-uuid graph-settings)
+                                                 (uuid->variable-name))}
+                              :y      {:name  (:variable/name @(subscribe [:wizard/group-variable output-uuid]))
+                                       :scale [y-min y-max]}
+                              :z      {:name (-> (:graph-settings/z-axis-group-variable-uuid graph-settings)
+                                                 (uuid->variable-name))}
+                              :z2     {:name    (-> (:graph-settings/z2-axis-group-variable-uuid graph-settings)
+                                                    (uuid->variable-name))
+                                       :columns 2}
+                              :width  250
+                              :height 250})]])])))))

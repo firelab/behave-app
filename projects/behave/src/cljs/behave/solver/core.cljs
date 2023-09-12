@@ -1,17 +1,18 @@
 (ns behave.solver.core
-  (:require [behave.solver.queries :as q]
-            [behave.solver.table   :as t]
-            [behave.lib.contain    :as contain]
-            [behave.lib.crown      :as crown]
-            [behave.lib.mortality  :as mortality]
-            [behave.lib.surface    :as surface]
-            [behave.lib.spot       :as spot]
-            [behave.lib.units      :as units]
-            [behave.logger         :refer [log]]
-            [clojure.string        :as str]
-            [clojure.set           :as set]
-            [clojure.walk          :as w]
-            [re-frame.core         :as rf]))
+  (:require [behave.solver.diagrams :refer [store-all-diagrams!]]
+            [behave.solver.queries  :as q]
+            [behave.solver.table    :as t]
+            [behave.lib.contain     :as contain]
+            [behave.lib.crown       :as crown]
+            [behave.lib.mortality   :as mortality]
+            [behave.lib.surface     :as surface]
+            [behave.lib.spot        :as spot]
+            [behave.lib.units       :as units]
+            [behave.logger          :refer [log]]
+            [clojure.string         :as str]
+            [clojure.set            :as set]
+            [clojure.walk           :as w]
+            [re-frame.core          :as rf]))
 
 ;;; Helpers
 
@@ -206,14 +207,15 @@
      inputs
      destination-links)))
 
-(defn run-module [{:keys [inputs all-outputs outputs] :as row}
+(defn run-module [{:keys [inputs all-outputs outputs row-id] :as row}
                   {:keys [init-fn
                           run-fn
                           fns
                           gv-uuids
-                          destination-links]}]
+                          destination-links
+                          diagrams
+                          ws-uuid]}]
   (let [module         (init-fn)
-
         ;; Apply links
         inputs         (apply-output-links outputs inputs destination-links)
         inputs         (apply-input-links inputs destination-links)
@@ -221,12 +223,18 @@
         ;; Filter IO's for module
         module-inputs  (filter-module-inputs inputs gv-uuids)
         module-outputs (filter-module-outputs all-outputs gv-uuids)]
-
     ;; Set inputs
     (apply-inputs module fns module-inputs)
 
     ;; Run module
     (run-fn module)
+
+    ;; Store diagrams
+    (store-all-diagrams! {:ws-uuid     ws-uuid
+                          :all-outputs all-outputs
+                          :row-id      row-id
+                          :diagrams    diagrams
+                          :module      module})
 
     ;; Get outputs, merge existing inputs/outputs with new inputs/outputs
     (update row :outputs merge (get-outputs module fns module-outputs))))
@@ -237,74 +245,77 @@
          all-inputs  @(rf/subscribe [:worksheet/all-inputs-vector ws-uuid])
          all-outputs @(rf/subscribe [:worksheet/all-output-uuids ws-uuid])]
 
-     (-> (solve-worksheet modules all-inputs all-outputs)
+     (-> (solve-worksheet ws-uuid modules all-inputs all-outputs)
          (t/add-to-results-table ws-uuid))))
 
-  ([modules all-inputs all-outputs]
+  ([ws-uuid modules all-inputs all-outputs]
    (let [counter (atom 0)
+         surface-module
+         (-> {:init-fn     surface/init
+              :run-fn      surface/doSurfaceRun
+              :fns         (ns-publics 'behave.lib.surface)
+              :gv-uuids    (q/class-to-group-variables "SIGSurface")
+              :diagrams    (q/module-diagrams "surface")
+              :ws-uuid     ws-uuid}
+             (add-links))
 
-        surface-module
-        (-> {:init-fn  surface/init
-             :run-fn   surface/doSurfaceRun
-             :fns      (ns-publics 'behave.lib.surface)
-             :gv-uuids (q/class-to-group-variables "SIGSurface")}
-            (add-links))
+         crown-module
+         (-> {:init-fn  crown/init
+              :run-fn   crown/doCrownRun
+              :fns      (ns-publics 'behave.lib.crown)
+              :gv-uuids (q/class-to-group-variables "SIGCrown")}
+             (add-links))
 
-        crown-module
-        (-> {:init-fn  crown/init
-             :run-fn   crown/doCrownRun
-             :fns      (ns-publics 'behave.lib.crown)
-             :gv-uuids (q/class-to-group-variables "SIGCrown")}
-            (add-links))
+         contain-module
+         (-> {:init-fn     contain/init
+              :run-fn      contain/doContainRun
+              :fns         (ns-publics 'behave.lib.contain)
+              :gv-uuids    (q/class-to-group-variables "SIGContainAdapter")
+              :diagrams    (q/module-diagrams "contain")
+              :ws-uuid     ws-uuid}
+             (add-links))
 
-        contain-module
-        (-> {:init-fn  contain/init
-             :run-fn   contain/doContainRun
-             :fns      (ns-publics 'behave.lib.contain)
-             :gv-uuids (q/class-to-group-variables "SIGContainAdapter")}
-            (add-links))
+         mortality-module
+         (-> {:init-fn  mortality/init
+              :run-fn   mortality/calculateMortality
+              :fns      (ns-publics 'behave.lib.mortality)
+              :gv-uuids (q/class-to-group-variables "SIGMortality")}
+             (add-links))
 
-        mortality-module
-        (-> {:init-fn  mortality/init
-             :run-fn   mortality/calculateMortality
-             :fns      (ns-publics 'behave.lib.mortality)
-             :gv-uuids (q/class-to-group-variables "SIGMortality")}
-            (add-links))
+         spot-module
+         (-> {:init-fn  spot/init
+              :run-fn   spot/calculateSpottingDistanceFromSurfaceFire
+              :fns      (ns-publics 'behave.lib.spot)
+              :gv-uuids (q/class-to-group-variables "SIGSpot")}
+             (add-links))]
 
-        spot-module
-        (-> {:init-fn  spot/init
-             :run-fn   spot/calculateSpottingDistanceFromSurfaceFire
-             :fns      (ns-publics 'behave.lib.spot)
-             :gv-uuids (q/class-to-group-variables "SIGSpot")}
-            (add-links))]
+     (->> all-inputs
+          (generate-runs)
+          (reduce (fn [acc inputs]
+                    (let [add-row (partial conj acc)
+                          row     {:inputs      inputs
+                                   :all-outputs all-outputs
+                                   :outputs     {}
+                                   :row-id      @counter}]
 
-    (->> all-inputs
-         (generate-runs)
-         (reduce (fn [acc inputs]
-                   (let [add-row (partial conj acc)
-                         row {:inputs      inputs
-                              :all-outputs all-outputs
-                              :outputs     {}
-                              :row-id      @counter}]
+                      (swap! counter inc)
 
-                     (swap! counter inc)
+                      (cond-> row
+                        (contains? modules :surface)
+                        (run-module surface-module)
 
-                     (cond-> row
-                       (contains? modules :surface)
-                       (run-module surface-module)
+                        (contains? modules :crown)
+                        (run-module crown-module)
 
-                       (contains? modules :crown)
-                       (run-module crown-module)
+                        (contains? modules :contain)
+                        (run-module contain-module)
 
-                       (contains? modules :contain)
-                       (run-module contain-module)
+                        (contains? modules :mortality)
+                        (run-module mortality-module)
 
-                       (contains? modules :mortality)
-                       (run-module mortality-module)
+                        (pos? (count (set/intersection modules #{:surface :crown})))
+                        (run-module spot-module)
 
-                       (pos? (count (set/intersection modules #{:surface :crown})))
-                       (run-module spot-module)
-
-                       :always
-                       (add-row))))
-                 [])))))
+                        :always
+                        (add-row))))
+                  [])))))

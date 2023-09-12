@@ -31,6 +31,7 @@
 #define _SIGCONTAINADAPTER_H_
 
 #include "ContainAdapter.h"
+#include "SIGCollections.h"
 
 class SIGContainAdapter : public ContainAdapter
 {
@@ -47,9 +48,23 @@ public:
                    double hourCost = 0.0);
   int removeResourceWithThisDesc(const char * desc);
   int removeAllResourcesWithThisDesc(const char * desc);
+
   //TODO PR to behave to fix mispelled perimiter
   double getPerimeterAtInitialAttack(LengthUnits::LengthUnitsEnum lengthUnits);
 
+  DoubleVector getFirePerimeterX( void ) const;
+  DoubleVector getFirePerimeterY( void ) const;
+  int getFirePerimeterPointCount( void ) const;
+
+  double getFireBackAtReport( void ) const;
+  double getFireHeadAtReport( void ) const;
+  double getFireHeadAtAttack( void ) const;
+  double getFireBackAtAttack( void ) const;
+  double getLengthToWidthRatio ( void ) const;
+  double getAttackDistance(LengthUnits::LengthUnitsEnum lengthUnits) const;
+  double getReportSize( AreaUnits::AreaUnitsEnum areaUnits ) const;
+  double getReportRate( SpeedUnits::SpeedUnitsEnum speedUnits ) const;
+  int    getTactic( void ) const;
 };
 
 #endif //CONTAINADAPTER_H

@@ -6,20 +6,22 @@
             [behave.components.review-input-group  :as review]
             [behave.components.navigation   :refer [wizard-navigation]]
             [behave.components.output-group :refer [output-group]]
+            [behave.components.vega.diagram       :refer [output-diagram]]
             [behave.tool.views              :refer [tool tool-selector]]
             [behave-routing.main            :refer [routes]]
             [behave.translate               :refer [<t bp]]
+            [clojure.set                          :refer [rename-keys]]
             [behave.wizard.events]
             [behave.wizard.subs]
-            [bidi.bidi                      :refer [path-for]]
+            [bidi.bidi                            :refer [path-for]]
             [behave.worksheet.events]
             [behave.worksheet.subs]
-            [dom-utils.interface            :refer [input-int-value input-value]]
-            [goog.string                    :as gstring]
+            [dom-utils.interface                  :refer [input-int-value input-value]]
+            [goog.string                          :as gstring]
             [goog.string.format]
-            [re-frame.core                  :refer [dispatch subscribe]]
-            [string-utils.interface         :refer [->kebab]]
-            [reagent.core :as r]))
+            [re-frame.core                        :refer [dispatch subscribe]]
+            [string-utils.interface               :refer [->kebab]]
+            [reagent.core                         :as r]))
 
 ;;; Components
 
@@ -499,6 +501,107 @@
                          :back-label @(<t (bp "back"))
                          :on-back    on-back}]]))
 
+(defn- construct-summary-table [ws-uuid group-variable-uuid row-id]
+  (let [outputs-to-filter (set @(subscribe [:wizard/diagram-output-gv-uuids group-variable-uuid]))
+        outputs           (->> (subscribe [:worksheet/output-gv-uuid+value+units ws-uuid row-id])
+                               deref
+                               (filter (fn [[gv-uuid]] (contains? outputs-to-filter gv-uuid)))
+                               (map (fn resolve-gv-uuid->name[[gv-uuid & remain]]
+                                      (conj remain @(subscribe [:wizard/gv-uuid->variable-name gv-uuid])))))
+        inputs-to-filter  (set @(subscribe [:wizard/diagram-input-gv-uuids group-variable-uuid]))
+        inputs            (->> (subscribe [:worksheet/input-gv-uuid+value+units ws-uuid row-id])
+                               deref
+                               (filter (fn [[gv-uuid]] (contains? inputs-to-filter gv-uuid)))
+                               (map (fn resolve-gv-uuid->name [[gv-uuid & remain]]
+                                      (conj remain @(subscribe [:wizard/gv-uuid->variable-name gv-uuid])))))]
+    [:div
+     [:table.diagram__table
+      (map (fn [[variable-name value units]]
+             [:tr
+              [:td (str variable-name ":")]
+              [:td (if (seq units)
+                     (str value " (" units ")")
+                     value)]])
+           inputs)]
+     [:table.diagram__table
+      (map (fn [[variable-name value units]]
+             [:tr
+              [:td (str variable-name ":")]
+              [:td (if (seq units)
+                     (str value " (" units ")")
+                     value)]])
+           outputs)]]))
+
+(defn- construct-diagram [ws-uuid
+                          {row-id              :worksheet.diagram/row-id
+                           ellipses            :worksheet.diagram/ellipses
+                           arrows              :worksheet.diagram/arrows
+                           scatter-plots       :worksheet.diagram/scatter-plots
+                           title               :worksheet.diagram/title
+                           group-variable-uuid :worksheet.diagram/group-variable-uuid}]
+
+  (let [domain (apply max (concat (map #(Math/abs (* 2 (:ellipse/semi-minor-axis %))) ellipses)
+                                  (map #(Math/abs (* 2 (:ellipse/semi-major-axis %))) ellipses)
+                                  (map #(Math/abs (:arrow/length %)) arrows)
+                                  (->> scatter-plots
+                                       (mapcat #(str/split (:scatter-plot/x-coordinates %) ","))
+                                       (map #(Math/abs (double %))))
+                                  (->> scatter-plots
+                                       (mapcat #(str/split (:scatter-plot/y-coordinates %) ","))
+                                       (map #(Math/abs (double %))))))]
+    [:div.diagram
+     [output-diagram {:title         (str title " for result row: " (inc row-id))
+                      :width         500
+                      :height        500
+                      :x-axis        {:domain        [(* -1 domain) domain]
+                                      :title         "x"
+                                      :tick-min-step 5}
+                      :y-axis        {:domain        [(* -1 domain) domain]
+                                      :title         "y"
+                                      :tick-min-step 5}
+                      :ellipses      (mapv #(rename-keys (into {} %)
+                                                         {:ellipse/legend-id       :legend-id
+                                                          :ellipse/semi-major-axis :a
+                                                          :ellipse/semi-minor-axis :b
+                                                          :ellipse/rotation        :phi
+                                                          :ellipse/color           :color})
+                                           ellipses)
+                      :arrows        (mapv #(rename-keys (into {} %)
+                                                         {:arrow/legend-id :legend-id
+                                                          :arrow/length    :r
+                                                          :arrow/rotation  :theta
+                                                          :arrow/color     :color
+                                                          :arrow/dashed?   :dashed?})
+                                           arrows)
+                      :scatter-plots (mapv (fn [{legend-id     :scatter-plot/legend-id
+                                                 x-coordinates :scatter-plot/x-coordinates
+                                                 y-coordinates :scatter-plot/y-coordinates
+                                                 color         :scatter-plot/color}]
+                                             (let [x-doubles (map double (str/split x-coordinates ","))
+                                                   y-doubles (map double (str/split y-coordinates ","))]
+                                               {:legend-id legend-id
+                                                :color     color
+                                                :data      (concat
+                                                            (mapv (fn [x y]
+                                                                    {"x" x
+                                                                     "y" y})
+                                                                  x-doubles
+                                                                  y-doubles)
+                                                            (mapv (fn [x y]
+                                                                    {"x" x
+                                                                     "y" (* -1 y)})
+                                                                  x-doubles
+                                                                  y-doubles))}))
+                                           scatter-plots)}]
+     (construct-summary-table ws-uuid group-variable-uuid row-id)]))
+
+(defn- wizard-diagrams [ws-uuid]
+  (let [*ws (subscribe [:worksheet-entity ws-uuid])]
+    (when (seq (:worksheet/diagrams @*ws))
+      [:div.wizard-results__diagrams {:id "diagram"}
+       [:div.wizard-notes__header "Diagram"]
+       (map #(construct-diagram ws-uuid % ) (:worksheet/diagrams @*ws))])))
+
 ;; Wizard Results
 (defn wizard-results-page [{:keys [route-handler io ws-uuid] :as params}]
   (let [*worksheet            (subscribe [:worksheet ws-uuid])
@@ -543,7 +646,11 @@
                                   {:label     "Graph"
                                    :tab       :graph
                                    :icon-name :graphs
-                                   :selected? (= @*tab-selected :graph)}]}]]]
+                                   :selected? (= @*tab-selected :graph)}
+                                  {:label     "Diagram"
+                                   :tab       :diagram
+                                   :icon-name :graphs
+                                   :selected? (= @*tab-selected :diagram)}]}]]]
        [:div.wizard-page__body
         [:div.wizard-results__notes {:id "notes"}
          (wizard-notes @*notes)]
@@ -574,7 +681,8 @@
                                                           {}
                                                           data))))}]
              [table-exporter table-data])])
-        (result-graph ws-uuid @*cell-data)]]
+        (result-graph ws-uuid @*cell-data)
+        (wizard-diagrams ws-uuid)]]
       [:div.wizard-navigation
        [c/button {:label    "Back"
                   :variant  "secondary"

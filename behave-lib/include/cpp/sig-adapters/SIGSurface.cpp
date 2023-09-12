@@ -101,8 +101,16 @@ void SIGSurface::setWindUpslopeAlignmentMode(WindUpslopeAlignmentMode windUpslop
   windUpslopeAlignmentMode_ = windUpslopeAlignmentMode;
 }
 
-double SIGSurface::getDirectionOfInterest() {
+double SIGSurface::getDirectionOfInterest() const {
   return directionOfInterest_;
+}
+
+double SIGSurface::getDirectionOfBacking () const {
+  return int(Surface::getDirectionOfMaxSpread() + 180.0) % 360;
+}
+
+double SIGSurface::getDirectionOfFlanking () const {
+  return int(Surface::getDirectionOfMaxSpread() + 90.0) % 360;
 }
 
 void SIGSurface::setDirectionOfInterest(double directionOfInterest) {
@@ -138,6 +146,16 @@ double SIGSurface::getEllipticalB(LengthUnits::LengthUnitsEnum lengthUnits) cons
 double SIGSurface::getEllipticalC(LengthUnits::LengthUnitsEnum lengthUnits) const {
   double elapsedTime = surfaceInputs_.getElapsedTime(TimeUnits::Minutes);
   return Surface::getEllipticalC(lengthUnits, elapsedTime, TimeUnits::Minutes);
+}
+
+double SIGSurface::getFireLength(LengthUnits::LengthUnitsEnum lengthUnits) const {
+  double elapsedTime = surfaceInputs_.getElapsedTime(TimeUnits::Minutes);
+  return Surface::getFireLength(lengthUnits, elapsedTime, TimeUnits::Minutes);
+}
+
+double SIGSurface::getMaxFireWidth(LengthUnits::LengthUnitsEnum lengthUnits) const {
+  double elapsedTime = surfaceInputs_.getElapsedTime(TimeUnits::Minutes);
+  return Surface::getMaxFireWidth(lengthUnits, elapsedTime, TimeUnits::Minutes);
 }
 
 double SIGSurface::getFireArea(AreaUnits::AreaUnitsEnum areaUnits) const {
@@ -176,6 +194,14 @@ double SIGSurface::getSpreadRate(SpeedUnits::SpeedUnitsEnum spreadRateUnits) con
   } else {
     return Surface::getSpreadRateInDirectionOfInterest(spreadRateUnits);
   }
+}
+
+double SIGSurface::getHeadingSpreadRate(SpeedUnits::SpeedUnitsEnum spreadRateUnits) const {
+  return Surface::getSpreadRate(spreadRateUnits);
+}
+
+SurfaceRunInDirectionOf SIGSurface::getSurfaceRunInDirectionOf() const {
+  return surfaceRunInDirectionOf_;
 }
 
 double SIGSurface::getSpreadDistanceInDirectionOfInterest(LengthUnits::LengthUnitsEnum lengthUnits) const {
