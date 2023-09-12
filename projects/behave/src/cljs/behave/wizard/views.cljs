@@ -542,18 +542,18 @@
                            :height 250})])]))))
 
 (defn- construct-summary-table [ws-uuid group-variable-uuid row-id]
-  (let [outputs-to-filter (set @(rf/subscribe [:wizard/diagram-output-gv-uuids group-variable-uuid]))
-        outputs           (->> (rf/subscribe [:worksheet/output-gv-uuid+value+units ws-uuid row-id])
+  (let [outputs-to-filter (set @(subscribe [:wizard/diagram-output-gv-uuids group-variable-uuid]))
+        outputs           (->> (subscribe [:worksheet/output-gv-uuid+value+units ws-uuid row-id])
                                deref
                                (filter (fn [[gv-uuid]] (contains? outputs-to-filter gv-uuid)))
                                (map (fn resolve-gv-uuid->name[[gv-uuid & remain]]
-                                      (conj remain @(rf/subscribe [:wizard/gv-uuid->variable-name gv-uuid])))))
-        inputs-to-filter  (set @(rf/subscribe [:wizard/diagram-input-gv-uuids group-variable-uuid]))
-        inputs            (->> (rf/subscribe [:worksheet/input-gv-uuid+value+units ws-uuid row-id])
+                                      (conj remain @(subscribe [:wizard/gv-uuid->variable-name gv-uuid])))))
+        inputs-to-filter  (set @(subscribe [:wizard/diagram-input-gv-uuids group-variable-uuid]))
+        inputs            (->> (subscribe [:worksheet/input-gv-uuid+value+units ws-uuid row-id])
                                deref
                                (filter (fn [[gv-uuid]] (contains? inputs-to-filter gv-uuid)))
                                (map (fn resolve-gv-uuid->name [[gv-uuid & remain]]
-                                      (conj remain @(rf/subscribe [:wizard/gv-uuid->variable-name gv-uuid])))))]
+                                      (conj remain @(subscribe [:wizard/gv-uuid->variable-name gv-uuid])))))]
     [:div
      [:table.diagram__table
       (map (fn [[variable-name value units]]
@@ -636,7 +636,7 @@
      (construct-summary-table ws-uuid group-variable-uuid row-id)]))
 
 (defn- wizard-diagrams [ws-uuid]
-  (let [*ws (rf/subscribe [:worksheet-entity ws-uuid])]
+  (let [*ws (subscribe [:worksheet-entity ws-uuid])]
     (when (seq (:worksheet/diagrams @*ws))
      [:div.wizard-results__diagrams {:id "diagram"}
       [:div.wizard-notes__header "Diagram"]
