@@ -1,7 +1,7 @@
 
 #include <emscripten.h>
 
-EM_JS_DEPS(webidl_binder, "$intArrayFromString");
+EM_JS_DEPS(webidl_binder, "$intArrayFromString,$UTF8ToString");
 
 extern "C" {
 
@@ -2859,6 +2859,32 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSlopeTool___destroy___0(SIGSlopeToo
   delete self;
 }
 
+// VaporPressureDeficitCalculator
+
+VaporPressureDeficitCalculator* EMSCRIPTEN_KEEPALIVE emscripten_bind_VaporPressureDeficitCalculator_VaporPressureDeficitCalculator_0() {
+  return new VaporPressureDeficitCalculator();
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_VaporPressureDeficitCalculator_runCalculation_0(VaporPressureDeficitCalculator* self) {
+  self->runCalculation();
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_VaporPressureDeficitCalculator_setTemperature_2(VaporPressureDeficitCalculator* self, double temperature, TemperatureUnits_TemperatureUnitsEnum units) {
+  self->setTemperature(temperature, units);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_VaporPressureDeficitCalculator_setRelativeHumidity_2(VaporPressureDeficitCalculator* self, double relativeHumidity, FractionUnits_FractionUnitsEnum units) {
+  self->setRelativeHumidity(relativeHumidity, units);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_VaporPressureDeficitCalculator_getVaporPressureDeficit_1(VaporPressureDeficitCalculator* self, PressureUnits_PressureUnitsEnum units) {
+  return self->getVaporPressureDeficit(units);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_VaporPressureDeficitCalculator___destroy___0(VaporPressureDeficitCalculator* self) {
+  delete self;
+}
+
 // AreaUnits_AreaUnitsEnum
 AreaUnits_AreaUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_AreaUnits_AreaUnitsEnum_SquareFeet() {
   return AreaUnits::SquareFeet;
@@ -2885,6 +2911,14 @@ BasalAreaUnits_BasalAreaUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_BasalArea
 }
 BasalAreaUnits_BasalAreaUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareMetersPerHectare() {
   return BasalAreaUnits::SquareMetersPerHectare;
+}
+
+// FractionUnits_FractionUnitsEnum
+FractionUnits_FractionUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FractionUnits_FractionUnitsEnum_Fraction() {
+  return FractionUnits::Fraction;
+}
+FractionUnits_FractionUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FractionUnits_FractionUnitsEnum_Percent() {
+  return FractionUnits::Percent;
 }
 
 // CuringLevelUnits_CuringLevelEnum
@@ -2975,6 +3009,32 @@ SpeedUnits_SpeedUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SpeedUnits_SpeedU
 }
 SpeedUnits_SpeedUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SpeedUnits_SpeedUnitsEnum_KilometersPerHour() {
   return SpeedUnits::KilometersPerHour;
+}
+
+// PressureUnits_PressureUnitsEnum
+PressureUnits_PressureUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_PressureUnits_PressureUnitsEnum_Pascal() {
+  return PressureUnits::Pascal;
+}
+PressureUnits_PressureUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_PressureUnits_PressureUnitsEnum_KiloPascal() {
+  return PressureUnits::KiloPascal;
+}
+PressureUnits_PressureUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_PressureUnits_PressureUnitsEnum_MegaPascal() {
+  return PressureUnits::MegaPascal;
+}
+PressureUnits_PressureUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_PressureUnits_PressureUnitsEnum_GigaPascal() {
+  return PressureUnits::GigaPascal;
+}
+PressureUnits_PressureUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_PressureUnits_PressureUnitsEnum_Bar() {
+  return PressureUnits::Bar;
+}
+PressureUnits_PressureUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_PressureUnits_PressureUnitsEnum_Atmosphere() {
+  return PressureUnits::Atmosphere;
+}
+PressureUnits_PressureUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_PressureUnits_PressureUnitsEnum_TechnicalAtmosphere() {
+  return PressureUnits::TechnicalAtmosphere;
+}
+PressureUnits_PressureUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_PressureUnits_PressureUnitsEnum_PoundPerSquareInch() {
+  return PressureUnits::PoundPerSquareInch;
 }
 
 // ProbabilityUnits_ProbabilityUnitsEnum

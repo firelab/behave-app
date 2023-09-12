@@ -4803,6 +4803,46 @@ SIGSlopeTool.prototype['setNumberOfContours'] = SIGSlopeTool.prototype.setNumber
   var self = this.ptr;
   _emscripten_bind_SIGSlopeTool___destroy___0(self);
 };
+// VaporPressureDeficitCalculator
+/** @suppress {undefinedVars, duplicate} @this{Object} */function VaporPressureDeficitCalculator() {
+  this.ptr = _emscripten_bind_VaporPressureDeficitCalculator_VaporPressureDeficitCalculator_0();
+  getCache(VaporPressureDeficitCalculator)[this.ptr] = this;
+};;
+VaporPressureDeficitCalculator.prototype = Object.create(WrapperObject.prototype);
+VaporPressureDeficitCalculator.prototype.constructor = VaporPressureDeficitCalculator;
+VaporPressureDeficitCalculator.prototype.__class__ = VaporPressureDeficitCalculator;
+VaporPressureDeficitCalculator.__cache__ = {};
+Module['VaporPressureDeficitCalculator'] = VaporPressureDeficitCalculator;
+
+VaporPressureDeficitCalculator.prototype['runCalculation'] = VaporPressureDeficitCalculator.prototype.runCalculation = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_VaporPressureDeficitCalculator_runCalculation_0(self);
+};;
+
+VaporPressureDeficitCalculator.prototype['setTemperature'] = VaporPressureDeficitCalculator.prototype.setTemperature = /** @suppress {undefinedVars, duplicate} @this{Object} */function(temperature, units) {
+  var self = this.ptr;
+  if (temperature && typeof temperature === 'object') temperature = temperature.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  _emscripten_bind_VaporPressureDeficitCalculator_setTemperature_2(self, temperature, units);
+};;
+
+VaporPressureDeficitCalculator.prototype['setRelativeHumidity'] = VaporPressureDeficitCalculator.prototype.setRelativeHumidity = /** @suppress {undefinedVars, duplicate} @this{Object} */function(relativeHumidity, units) {
+  var self = this.ptr;
+  if (relativeHumidity && typeof relativeHumidity === 'object') relativeHumidity = relativeHumidity.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  _emscripten_bind_VaporPressureDeficitCalculator_setRelativeHumidity_2(self, relativeHumidity, units);
+};;
+
+VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPressureDeficitCalculator.prototype.getVaporPressureDeficit = /** @suppress {undefinedVars, duplicate} @this{Object} */function(units) {
+  var self = this.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  return _emscripten_bind_VaporPressureDeficitCalculator_getVaporPressureDeficit_1(self, units);
+};;
+
+  VaporPressureDeficitCalculator.prototype['__destroy__'] = VaporPressureDeficitCalculator.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_VaporPressureDeficitCalculator___destroy___0(self);
+};
 (function() {
   function setupEnums() {
     
@@ -4828,6 +4868,14 @@ SIGSlopeTool.prototype['setNumberOfContours'] = SIGSlopeTool.prototype.setNumber
     Module['SquareFeetPerAcre'] = _emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareFeetPerAcre();
 
     Module['SquareMetersPerHectare'] = _emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareMetersPerHectare();
+
+    
+
+    // FractionUnits_FractionUnitsEnum
+
+    Module['Fraction'] = _emscripten_enum_FractionUnits_FractionUnitsEnum_Fraction();
+
+    Module['Percent'] = _emscripten_enum_FractionUnits_FractionUnitsEnum_Percent();
 
     
 
@@ -4904,6 +4952,26 @@ SIGSlopeTool.prototype['setNumberOfContours'] = SIGSlopeTool.prototype.setNumber
     Module['MilesPerHour'] = _emscripten_enum_SpeedUnits_SpeedUnitsEnum_MilesPerHour();
 
     Module['KilometersPerHour'] = _emscripten_enum_SpeedUnits_SpeedUnitsEnum_KilometersPerHour();
+
+    
+
+    // PressureUnits_PressureUnitsEnum
+
+    Module['Pascal'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_Pascal();
+
+    Module['KiloPascal'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_KiloPascal();
+
+    Module['MegaPascal'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_MegaPascal();
+
+    Module['GigaPascal'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_GigaPascal();
+
+    Module['Bar'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_Bar();
+
+    Module['Atmosphere'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_Atmosphere();
+
+    Module['TechnicalAtmosphere'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_TechnicalAtmosphere();
+
+    Module['PoundPerSquareInch'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_PoundPerSquareInch();
 
     
 

@@ -1,14 +1,15 @@
 (ns behave.tool.solver
-  (:require [re-frame.core :as rf]
+  (:require [re-frame.core         :as rf]
+            [goog.object           :as obj]
             [behave.solver.queries :as q]
-            [browser-utils.core :refer [format-intl-number]]
+            [browser-utils.core    :refer [format-intl-number]]
             [clojure.string        :as str]
             [behave.logger         :refer [log]]
             [behave.lib.units      :as units]
             [behave.lib.ignite]
             [behave.lib.fine-dead-fuel-moisture-tool]
             [behave.lib.slope-tool]
-            [goog.object    :as obj]))
+            [behave.lib.vapor-pressure-deficit-calculator]))
 
 (defn kebab->snake
   "Converts a snake_case string to a kebab-case string."
