@@ -41,15 +41,16 @@
                                    (into [{:input (indent-name level (:group/name current-group))}]
                                          (let [repeat-ids @(subscribe [:worksheet/group-repeat-ids ws-uuid (:bp/uuid current-group)])]
                                            (mapcat (fn [repeat-id]
-                                                     (map (fn [variable]
-                                                            {:input  (indent-name (inc level) (:variable/name variable))
-                                                             :units  (:variable/native-units variable)
-                                                             :values @(subscribe [:worksheet/input-value
-                                                                                  ws-uuid
-                                                                                  (:bp/uuid current-group)
-                                                                                  repeat-id
-                                                                                  (:bp/uuid variable)])})
-                                                          variables))
+                                                     (into [{:input (indent-name (inc level) (str (:group/name current-group) " " (inc repeat-id)))}]
+                                                           (map (fn [variable]
+                                                                  {:input  (indent-name (+ level 2) (:variable/name variable))
+                                                                   :units  (:variable/native-units variable)
+                                                                   :values @(subscribe [:worksheet/input-value
+                                                                                        ws-uuid
+                                                                                        (:bp/uuid current-group)
+                                                                                        repeat-id
+                                                                                        (:bp/uuid variable)])})
+                                                                variables)))
                                                    repeat-ids)))
                                    :else
                                    [])
