@@ -161,6 +161,11 @@
         ["FlameLengthOrScorchHeightSwitch::flame_length"
          "FlameLengthOrScorchHeightSwitch::scorch_height"]))
 
+(def fraction-units
+  (enum "FractionUnits_FractionUnitsEnum"
+        ["FractionUnits::Fraction"
+         "FractionUnits::Percent"]))
+
 (def heat-combustion-units
   (enum "HeatOfCombustionUnits_HeatOfCombustionUnitsEnum"
         ["HeatOfCombustionUnits::BtusPerPound"
@@ -247,6 +252,17 @@
   (enum "MortalityRateUnits_MortalityRateUnitsEnum"
         ["MortalityRateUnits::Fraction"
          "MortalityRateUnits::Percent"]))
+
+(def pressure-units
+  (enum "PressureUnits_PressureUnitsEnum"
+        ["PressureUnits::Pascal",
+         "PressureUnits::KiloPascal",
+         "PressureUnits::MegaPascal",
+         "PressureUnits::GigaPascal",
+         "PressureUnits::Bar",
+         "PressureUnits::Atmosphere",
+         "PressureUnits::TechnicalAtmosphere",
+         "PressureUnits::PoundPerSquareInch"]))
 
 (def probability-units
   (enum "ProbabilityUnits_ProbabilityUnitsEnum"

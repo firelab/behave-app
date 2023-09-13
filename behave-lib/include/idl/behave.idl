@@ -59,6 +59,11 @@ enum BasalAreaUnits_BasalAreaUnitsEnum {
   "BasalAreaUnits::SquareMetersPerHectare"
 };
 
+enum FractionUnits_FractionUnitsEnum {
+  "FractionUnits::Fraction",
+  "FractionUnits::Percent"
+};
+
 enum CuringLevelUnits_CuringLevelEnum {
   "CuringLevelUnits::Fraction",
   "CuringLevelUnits::Percent"
@@ -101,6 +106,17 @@ enum SpeedUnits_SpeedUnitsEnum {
   "SpeedUnits::MetersPerMinute",
   "SpeedUnits::MilesPerHour",
   "SpeedUnits::KilometersPerHour"
+};
+
+enum PressureUnits_PressureUnitsEnum {
+  "PressureUnits::Pascal",
+  "PressureUnits::KiloPascal",
+  "PressureUnits::MegaPascal",
+  "PressureUnits::GigaPascal",
+  "PressureUnits::Bar",
+  "PressureUnits::Atmosphere",
+  "PressureUnits::TechnicalAtmosphere",
+  "PressureUnits::PoundPerSquareInch"
 };
 
 enum ProbabilityUnits_ProbabilityUnitsEnum {
@@ -1250,4 +1266,12 @@ interface SIGSlopeTool {
   void setMapRepresentativeFraction(long mapRepresentativeFraction);
   void setMaxSlopeSteepness(double maxSlopeSteepness);
   void setNumberOfContours(double numberOfContours);
+};
+
+interface VaporPressureDeficitCalculator {
+  void VaporPressureDeficitCalculator();
+  void runCalculation();
+  void setTemperature(double temperature, TemperatureUnits_TemperatureUnitsEnum units);
+  void setRelativeHumidity(double relativeHumidity, FractionUnits_FractionUnitsEnum units);
+  double getVaporPressureDeficit(PressureUnits_PressureUnitsEnum units);
 };

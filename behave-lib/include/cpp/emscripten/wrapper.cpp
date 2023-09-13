@@ -48,5 +48,6 @@
 #include "SIGSurface.cpp"
 #include "fineDeadFuelMoistureTool.cpp"
 #include "SIGFineDeadFuelMoistureTool.cpp"
+#include "vaporPressureDeficitCalculator.cpp"
 #include "enums.cpp"
 #include "glue.cpp"

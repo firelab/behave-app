@@ -158,6 +158,7 @@
   (add-export-file-to-conn "./cms-exports/SIGIgnite.edn" ds/conn)
   (add-export-file-to-conn "./cms-exports/SIGFineDeadFuelMoistureTool.edn" ds/conn)
   (add-export-file-to-conn "./cms-exports/SIGSlopeTool.edn" ds/conn)
+  (add-export-file-to-conn "./cms-exports/VaporPressureDeficitCalculator.edn" ds/conn)
 
   ;; Verify that SIGSurface exists
   (sort (d/q '[:find [?c-name ...]
