@@ -116,7 +116,7 @@
                       :on-change #(rf/dispatch [:state/set [:worksheet :name] (input-value %)])}]]]
      [wizard-navigation {:next-label     @(<t (bp "next"))
                          :back-label     @(<t (bp "back"))
-                         :next-disabled? (some empty? [@name @*modules])
+                         :next-disabled? (empty? @*modules)
                          :on-back        #(.back js/history)
                          :on-next        #(do
                                             ;; Generate UUID
