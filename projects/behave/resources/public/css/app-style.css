@@ -132,6 +132,11 @@ body {
   box-shadow: 1px 2px 2px var(--gray-4);
 }
 
+.behave-identity__logo {
+  height: 100px;
+  width: auto;
+}
+
 /* -- End Identity -- */
 
 /* -- Sidebar Group -- */
