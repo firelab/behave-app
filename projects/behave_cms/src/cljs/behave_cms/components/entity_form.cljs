@@ -68,17 +68,21 @@
   (let [group-label label]
     [:div.mb-3
      [:label.form-label group-label]
-     (for [{:keys [label value]} options]
-       (let [id (u/sentence->kebab (str group-label ":" value))]
-         ^{:key id}
-         [:div.form-check
-          [:input.form-check-input
-           {:type      "checkbox"
-            :id        id
-            :value     value
-            :checked   (get @state value)
-            :on-change #(on-change (assoc @state value (not (get @state value))))}]
-          [:label.form-check-label {:for id} label]]))]))
+     (doall
+      (for [{:keys [label value]} options]
+        (let [id       (u/sentence->kebab (str group-label ":" value))
+              checked? (if (string? @state)
+                         (seq @state)
+                         @state)]
+          ^{:key id}
+          [:div.form-check
+           [:input.form-check-input
+            {:type      "checkbox"
+             :id        id
+             :value     value
+             :checked   checked?
+             :on-change #(on-change (not checked?))}]
+           [:label.form-check-label {:for id} label]])))]))
 
 (defmethod field-input :radio [{:keys [label options on-change state]}]
   (let [group-label label]
@@ -143,7 +147,7 @@
   - :on-create      Takes a function which is passed the state in the editor, whose result is
                     then to the default `:api/create-entity` event. Used to perform minor changes
                     before an entity is created.
-  
+
   For example:
   ```clj
   [entity-form {:entity        :submodule

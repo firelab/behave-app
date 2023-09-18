@@ -255,6 +255,32 @@
     :variables [ws-uuid attr]}))
 
 (rp/reg-sub
+ :worksheet/get-map-units-settings-units
+ (fn [_ [_ ws-uuid]]
+   {:type      :query
+    :query     '[:find  ?units .
+                 :in    $ ?ws-uuid
+                 :where
+                 [?w :worksheet/uuid ?ws-uuid]
+                 [?w :worksheet/table-settings ?t]
+                 [?t :table-settings/map-units-settings ?m]
+                 [?m :map-units-settings/units ?units]]
+    :variables [ws-uuid]}))
+
+(rp/reg-sub
+ :worksheet/get-map-units-settings-map-rep-fraction
+ (fn [_ [_ ws-uuid]]
+   {:type      :query
+    :query     '[:find  ?map-rep-fraction .
+                 :in    $ ?ws-uuid
+                 :where
+                 [?w :worksheet/uuid ?ws-uuid]
+                 [?w :worksheet/table-settings ?t]
+                 [?t :table-settings/map-units-settings ?m]
+                 [?m :map-units-settings/map-rep-fraction ?map-rep-fraction]]
+    :variables [ws-uuid]}))
+
+(rp/reg-sub
  :worksheet/get-graph-settings-attr
  (fn [_ [_ ws-uuid attr]]
    {:type      :query

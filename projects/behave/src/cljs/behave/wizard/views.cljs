@@ -21,7 +21,8 @@
             [goog.string.format]
             [re-frame.core                        :refer [dispatch subscribe]]
             [string-utils.interface               :refer [->kebab]]
-            [reagent.core                         :as r]))
+            [reagent.core                         :as r]
+            [re-frame.core :as rf]))
 
 ;;; Components
 
@@ -450,21 +451,56 @@
                           :min-attr-id :y-axis-limit/min
                           :max-attr-id :y-axis-limit/max}]])])))
 
+(defn- map-units-form
+  [ws-uuid]
+  (let [*units            (subscribe [:worksheet/get-map-units-settings-units ws-uuid])
+        *map-rep-frac     (subscribe [:worksheet/get-map-units-settings-map-rep-fraction ws-uuid])
+        map-rep-frac-atom (r/atom @*map-rep-frac)]
+    [:div.table-settings__map-units-form
+     [:div.table-settings__map-units-form__units
+      [c/radio-group {:label   "Map Units"
+                      :options (mapv (fn [option]
+                                       {:value     option
+                                        :label     option
+                                        :on-change #(dispatch [:worksheet/upsert-table-setting-map-units
+                                                               ws-uuid
+                                                               :map-units-settings/units
+                                                               option])
+                                        :checked?  (= @*units option)})
+                                     ["in" "cm"])}]
+      [:div.table-settings__map-units-form__map-rep-fraction
+       [c/number-input {:label      "Map Representative Fraction (1:x)"
+                        :value-atom map-rep-frac-atom
+                        :required?  true
+                        :on-change  #(reset! map-rep-frac-atom (input-value %))
+                        :on-blur    #(dispatch [:worksheet/upsert-table-setting-map-units
+                                                ws-uuid
+                                                :map-units-settings/map-rep-fraction
+                                                (long @map-rep-frac-atom)])}]]]]))
+
+
 (defn- table-settings [ws-uuid]
-  (let [*worksheet     (subscribe [:worksheet ws-uuid])
-        table-settings (:worksheet/table-settings @*worksheet)
-        enabled?       (:table-settings/enabled? table-settings)]
+  (let [*worksheet      (subscribe [:worksheet ws-uuid])
+        table-settings  (:worksheet/table-settings @*worksheet)
+        table-enabled?  (:table-settings/enabled? table-settings)
+        show-map-units? @(subscribe [:wizard/show-map-units?])]
     [:<> [c/checkbox {:label     "Display Table Results"
-                      :checked?  enabled?
+                      :checked?  table-enabled?
                       :on-change #(dispatch [:worksheet/toggle-table-settings ws-uuid])}]
-     (when enabled?
-       [settings-form {:ws-uuid     ws-uuid
-                       :title       "Table Filters"
-                       :headers     ["Enabled?" "OUTPUT VARIABLES" "OUTPUT RESULTS RANGE" "MINIMUM" "MAXIMUM"]
-                       :rf-event-id :worksheet/update-table-filter-attr
-                       :rf-sub-id   :worksheet/table-settings-filters
-                       :min-attr-id :table-filter/min
-                       :max-attr-id :table-filter/max}])]))
+     (when table-enabled?
+       [:div.table-settings
+        [c/checkbox {:label     "Convert to Map Units"
+                     :checked?  show-map-units?
+                     :on-change #(dispatch [:wizard/show-map-units?])}]
+        (when show-map-units?
+          [map-units-form ws-uuid])
+        [settings-form {:ws-uuid     ws-uuid
+                        :title       "Table Filters"
+                        :headers     ["Enabled?" "OUTPUT VARIABLES" "OUTPUT RESULTS RANGE" "MINIMUM" "MAXIMUM"]
+                        :rf-event-id :worksheet/update-table-filter-attr
+                        :rf-sub-id   :worksheet/table-settings-filters
+                        :min-attr-id :table-filter/min
+                        :max-attr-id :table-filter/max}]])]))
 
 (defn wizard-results-settings-page [{:keys [route-handler io ws-uuid] :as params}]
   (let [_            (dispatch [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
@@ -604,6 +640,42 @@
             (sort-by :worksheet.diagram/row-id
                      (:worksheet/diagrams @*ws)))])))
 
+(defn- toBaseUnits
+  "Convert value of untis to base units Feet"
+  [value units]
+  (case units
+    "ft" value ;Already base unit, do nothing
+    "in" (* value 0.08333333333333)
+    "mm" (* value 0.003280839895)
+    "cm" (* value 0.03280839895)
+    "m"  (* value 3.2808398950131)
+    "ch" (* value 66.0)
+    "mi" (* value 5280.0)
+    "km" (* value 3280.8398950131)))
+
+(defn- fromBaseUnits
+  "Convert value of untis to base units Feet"
+  [value units]
+  (case units
+    "ft" value ;Already base unit, do nothing
+    "in" (* value 12)
+    "mm" (* value 304.8)
+    "cm" (* value 30.480)
+    "m"  (* value 0.3048)
+    "ch" (* value 0.0151515151515)
+    "mi" (* value 0.0001893939393939394)
+    "km" (* value 0.0003048)))
+
+(defn- get-map-converted-cell-value [map-units map-rep-fraction value units ]
+  (let [value-in-map-units (-> value
+                               (toBaseUnits units)
+                               (fromBaseUnits map-units)
+                               (* (/ 1 map-rep-fraction)))]
+    (gstring/format "%s (%s %s)"
+                    value
+                    value-in-map-units
+                    map-units)))
+
 ;; Wizard Results
 (defn wizard-results-page [{:keys [route-handler io ws-uuid] :as params}]
   (let [*worksheet            (subscribe [:worksheet ws-uuid])
@@ -614,7 +686,11 @@
         *headers              (subscribe [:worksheet/result-table-headers-sorted ws-uuid])
         *cell-data            (subscribe [:worksheet/result-table-cell-data ws-uuid])
         table-enabled?        (get-in @*worksheet [:worksheet/table-settings :table-settings/enabled?])
-        table-setting-filters (subscribe [:worksheet/table-settings-filters ws-uuid])]
+        table-setting-filters (subscribe [:worksheet/table-settings-filters ws-uuid])
+        show-map-units?       @(subscribe [:wizard/show-map-units?])
+        map-units-variables   @(subscribe [:wizard/map-unit-convertible-variables])
+        map-units             @(subscribe [:worksheet/get-map-units-settings-units ws-uuid])
+        map-rep-frac          @(subscribe [:worksheet/get-map-units-settings-map-rep-fraction ws-uuid])]
     [:div.accordion
      [:div.accordion__header
       [c/tab {:variant   "outline-primary"
@@ -673,13 +749,17 @@
                                                             (let [[_ min max enabled?] (first (filter
                                                                                                (fn [[gv-uuid]]
                                                                                                  (= gv-uuid uuid))
-                                                                                               @table-setting-filters))]
+                                                                                               @table-setting-filters))
+                                                                  uuid+repeat-id-key   (keyword (str uuid "-" repeat-id))
+                                                                  value                (if (and show-map-units? (get map-units-variables uuid))
+                                                                                         (get-map-converted-cell-value map-units map-rep-frac value (get map-units-variables uuid))
+                                                                                         value)]
                                                               (cond-> acc
                                                                 (and min max (not (<= min value max)) enabled?)
                                                                 (assoc :shaded? true)
 
                                                                 :always
-                                                                (assoc (keyword (str uuid "-" repeat-id)) value))))
+                                                                (assoc uuid+repeat-id-key value))))
                                                           {}
                                                           data))))}]
              [table-exporter table-data])])

@@ -174,6 +174,19 @@
                              [?v :variable/name ?name]]
                 gv-uuid])))
 
+;; Returns a map of group-variable-uuids -> variable native units
+;; if and only if the variable is allowed to convert to map-units
+(reg-sub
+ :wizard/map-unit-convertible-variables
+ (fn [_]
+   (let [results @(subscribe [:vms/query '[:find ?gv-uuid ?units
+                                           :where
+                                           [?v :variable/group-variables ?gv]
+                                           [?gv :bp/uuid ?gv-uuid]
+                                           [?v :variable/native-units ?units]
+                                           [?v :variable/map-units-convertible? true]]])]
+     (into {} results))))
+
 (reg-sub
  :wizard/group-variable
  (fn [[_ gv-uuid]]
@@ -250,6 +263,11 @@
  :wizard/show-add-note-form?
  (fn [{:keys [state]} _]
    (true? (get-in state [:worksheet :show-add-note-form?]))))
+
+(reg-sub
+ :wizard/show-map-units?
+ (fn [{:keys [state]} _]
+   (true? (get-in state [:worksheet :show-map-units?]))))
 
 
 (reg-sub

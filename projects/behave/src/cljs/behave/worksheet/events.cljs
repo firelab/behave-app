@@ -194,6 +194,20 @@
                       :result-cell/value  value}]})))))
 
 (rp/reg-event-fx
+ :worksheet/upsert-table-setting-map-units
+ [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet ws-uuid]))]
+ (fn [{:keys [worksheet]} [_ _ws-uuid attr value]]
+   (if-let [map-units-settings-eid (get-in worksheet [:worksheet/table-settings
+                                                      :table-settings/map-units-settings
+                                                      :db/id])]
+     {:transact [(assoc {:db/id map-units-settings-eid} attr value)]}
+     (when-let [table-settings-eid (get-in worksheet [:worksheet/table-settings
+                                                    :db/id])]
+       {:transact [{:db/id                              -1
+                    :table-settings/_map-units-settings table-settings-eid
+                    attr                                value}]}))))
+
+(rp/reg-event-fx
  :worksheet/toggle-table-settings
  [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet ws-uuid]))]
  (fn [{:keys [worksheet]} _]
