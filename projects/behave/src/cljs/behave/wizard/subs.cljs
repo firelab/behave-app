@@ -174,6 +174,17 @@
                              [?v :variable/name ?name]]
                 gv-uuid])))
 
+(reg-sub
+ :wizard/gv-uuid->variable-units
+ (fn [_ [_ gv-uuid]]
+   @(subscribe [:vms/query '[:find ?units .
+                             :in    $ ?gv-uuid
+                             :where
+                             [?gv :bp/uuid ?gv-uuid]
+                             [?v :variable/group-variables ?gv]
+                             [?v :variable/native-units ?units]]
+                gv-uuid])))
+
 ;; Returns a map of group-variable-uuids -> variable native units
 ;; if and only if the variable is allowed to convert to map-units
 (reg-sub

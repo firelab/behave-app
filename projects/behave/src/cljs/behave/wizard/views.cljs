@@ -10,6 +10,7 @@
             [behave.tool.views              :refer [tool tool-selector]]
             [behave-routing.main            :refer [routes]]
             [behave.translate               :refer [<t bp]]
+            [behave.units-conversion        :refer [to-feet from-feet to-map-units]]
             [clojure.set                          :refer [rename-keys]]
             [behave.wizard.events]
             [behave.wizard.subs]
@@ -640,36 +641,10 @@
             (sort-by :worksheet.diagram/row-id
                      (:worksheet/diagrams @*ws)))])))
 
-(defn- toBaseUnits
-  "Convert value of untis to base units Feet"
-  [value units]
-  (case units
-    "ft" value ;Already base unit, do nothing
-    "in" (* value 0.08333333333333)
-    "mm" (* value 0.003280839895)
-    "cm" (* value 0.03280839895)
-    "m"  (* value 3.2808398950131)
-    "ch" (* value 66.0)
-    "mi" (* value 5280.0)
-    "km" (* value 3280.8398950131)))
-
-(defn- fromBaseUnits
-  "Convert value of untis to base units Feet"
-  [value units]
-  (case units
-    "ft" value ;Already base unit, do nothing
-    "in" (* value 12)
-    "mm" (* value 304.8)
-    "cm" (* value 30.480)
-    "m"  (* value 0.3048)
-    "ch" (* value 0.0151515151515)
-    "mi" (* value 0.0001893939393939394)
-    "km" (* value 0.0003048)))
-
 (defn- get-map-converted-cell-value [map-units map-rep-fraction value units ]
   (let [value-in-map-units (-> value
-                               (toBaseUnits units)
-                               (fromBaseUnits map-units)
+                               (to-feet units)
+                               (from-feet map-units)
                                (* (/ 1 map-rep-fraction)))]
     (gstring/format "%s (%s %s)"
                     value
