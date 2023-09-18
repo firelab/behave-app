@@ -643,10 +643,9 @@
 
 ;; Wizard Results
 (defn- procces-map-units?
-  [ws-uuid uuid]
-  (let [show-map-units?     @(subscribe [:worksheet/map-units-enabled? ws-uuid])
-        map-units-variables @(subscribe [:wizard/map-unit-convertible-variables])]
-    (and show-map-units? (get map-units-variables uuid))))
+  [map-units-enabled? v-uuid]
+  (let [map-units-variables @(subscribe [:wizard/map-unit-convertible-variables])]
+    (and map-units-enabled? (get map-units-variables v-uuid))))
 
 (defn wizard-results-page [{:keys [route-handler io ws-uuid] :as params}]
   (let [*worksheet            (subscribe [:worksheet ws-uuid])
@@ -658,7 +657,7 @@
         *cell-data            (subscribe [:worksheet/result-table-cell-data ws-uuid])
         table-enabled?        (get-in @*worksheet [:worksheet/table-settings :table-settings/enabled?])
         table-setting-filters (subscribe [:worksheet/table-settings-filters ws-uuid])
-        show-map-units?       @(subscribe [:worksheet/map-units-enabled?])
+        map-units-enabled?    @(subscribe [:worksheet/map-units-enabled? ws-uuid])
         map-units-variables   @(subscribe [:wizard/map-unit-convertible-variables])
         map-units             @(subscribe [:worksheet/get-map-units-settings-units ws-uuid])
         map-rep-frac          @(subscribe [:worksheet/get-map-units-settings-map-rep-fraction ws-uuid])]
@@ -712,7 +711,7 @@
                                                   (cond-> acc
                                                     :always (conj (str var-name (when-not (empty? units) (gstring/format " (%s)" units))))
 
-                                                    (procces-map-units? ws-uuid uuid)
+                                                    (procces-map-units? map-units-enabled? uuid)
                                                     (conj (str var-name " Map Units " (gstring/format " (%s)" map-units))))))
                                               []
                                               @*headers)
@@ -720,7 +719,7 @@
                                                 (cond-> acc
                                                   :always (conj (keyword (str uuid "-" repeat-id)))
 
-                                                  (procces-map-units? ws-uuid uuid)
+                                                  (procces-map-units? map-units-enabled? uuid)
                                                   (conj (keyword (str/join "-" [uuid repeat-id "map-units"])))))
                                               []
                                               @*headers)
@@ -740,8 +739,8 @@
                                                                 :always
                                                                 (assoc uuid+repeat-id-key value)
 
-                                                                (procces-map-units? ws-uuid uuid)
-                                                                (assoc (keyword (str (name uuid+repeat-id-key) "-map-units"))
+                                                                (procces-map-units? map-units-enabled? uuid)
+                                                                (assoc (keyword (str/join "-" [uuid repeat-id "map-units"]))
                                                                        (to-map-units value
                                                                                      (get map-units-variables uuid)
                                                                                      map-units
