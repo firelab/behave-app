@@ -641,13 +641,6 @@
             (sort-by :worksheet.diagram/row-id
                      (:worksheet/diagrams @*ws)))])))
 
-(defn- get-map-converted-cell-value [map-units map-rep-fraction value units ]
-  (let [value-in-map-units (to-map-units value units map-units map-rep-fraction)]
-    (gstring/format "%s (%s %s)"
-                    value
-                    value-in-map-units
-                    map-units)))
-
 ;; Wizard Results
 (defn- procces-map-units?
   [ws-uuid uuid]
@@ -714,12 +707,23 @@
           [:div.wizard-results__table {:id "table"}
            [:div.wizard-notes__header "Table"]
            (let [table-data {:title   "Results Table"
-                             :headers (mapv (fn resolve-uuid [[_order uuid _repeat-id units]]
-                                              (str (:variable/name @(subscribe [:wizard/group-variable uuid]))
-                                                   (when-not (empty? units) (gstring/format " (%s)" units))))
-                                            @*headers)
-                             :columns (mapv (fn [[_order uuid repeat-id _units]]
-                                              (keyword (str uuid "-" repeat-id))) @*headers)
+                             :headers (reduce (fn resolve-uuid [acc [_order uuid _repeat-id units]]
+                                                (let [var-name (:variable/name @(subscribe [:wizard/group-variable uuid]))]
+                                                  (cond-> acc
+                                                    :always (conj (str var-name (when-not (empty? units) (gstring/format " (%s)" units))))
+
+                                                    (procces-map-units? ws-uuid uuid)
+                                                    (conj (str var-name " Map Units " (gstring/format " (%s)" map-units))))))
+                                              []
+                                              @*headers)
+                             :columns (reduce (fn [ acc[_order uuid repeat-id _units]]
+                                                (cond-> acc
+                                                  :always (conj (keyword (str uuid "-" repeat-id)))
+
+                                                  (procces-map-units? ws-uuid uuid)
+                                                  (conj (keyword (str/join "-" [uuid repeat-id "map-units"])))))
+                                              []
+                                              @*headers)
                              :rows    (->> (group-by first @*cell-data)
                                            (sort-by key)
                                            (map (fn [[_ data]]
@@ -728,19 +732,20 @@
                                                                                                (fn [[gv-uuid]]
                                                                                                  (= gv-uuid uuid))
                                                                                                @table-setting-filters))
-                                                                  uuid+repeat-id-key   (keyword (str uuid "-" repeat-id))
-                                                                  value                (if (procces-map-units? ws-uuid uuid)
-                                                                                         (get-map-converted-cell-value map-units
-                                                                                                                       map-rep-frac
-                                                                                                                       value
-                                                                                                                       (get map-units-variables uuid))
-                                                                                         value)]
+                                                                  uuid+repeat-id-key   (keyword (str uuid "-" repeat-id))]
                                                               (cond-> acc
                                                                 (and min max (not (<= min value max)) enabled?)
                                                                 (assoc :shaded? true)
 
                                                                 :always
-                                                                (assoc uuid+repeat-id-key value))))
+                                                                (assoc uuid+repeat-id-key value)
+
+                                                                (procces-map-units? ws-uuid uuid)
+                                                                (assoc (keyword (str (name uuid+repeat-id-key) "-map-units"))
+                                                                       (to-map-units value
+                                                                                     (get map-units-variables uuid)
+                                                                                     map-units
+                                                                                     map-rep-frac)))))
                                                           {}
                                                           data))))}]
              [table-exporter table-data])])
