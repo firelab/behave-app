@@ -199,6 +199,6 @@
        {:fx [[:dispatch [:navigate path]]]}))))
 
 (rf/reg-event-fx
- :wizard/show-map-units?
+ :worksheet/map-units-enabled?
  (fn [_ _]
    {:fx [[:dispatch [:state/update [:worksheet :show-map-units?] not]]]}))

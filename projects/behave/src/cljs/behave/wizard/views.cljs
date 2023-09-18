@@ -481,19 +481,19 @@
 
 
 (defn- table-settings [ws-uuid]
-  (let [*worksheet      (subscribe [:worksheet ws-uuid])
-        table-settings  (:worksheet/table-settings @*worksheet)
-        table-enabled?  (:table-settings/enabled? table-settings)
-        show-map-units? @(subscribe [:wizard/show-map-units?])]
+  (let [*worksheet         (subscribe [:worksheet ws-uuid])
+        table-settings     (:worksheet/table-settings @*worksheet)
+        table-enabled?     (:table-settings/enabled? table-settings)
+        map-units-enabled? @(subscribe [:worksheet/map-units-enabled? ws-uuid])]
     [:<> [c/checkbox {:label     "Display Table Results"
                       :checked?  table-enabled?
                       :on-change #(dispatch [:worksheet/toggle-table-settings ws-uuid])}]
      (when table-enabled?
        [:div.table-settings
         [c/checkbox {:label     "Convert to Map Units"
-                     :checked?  show-map-units?
-                     :on-change #(dispatch [:wizard/show-map-units?])}]
-        (when show-map-units?
+                     :checked?  map-units-enabled?
+                     :on-change #(dispatch [:worksheet/toggle-map-units-settings ws-uuid])}]
+        (when map-units-enabled?
           [map-units-form ws-uuid])
         [settings-form {:ws-uuid     ws-uuid
                         :title       "Table Filters"
@@ -642,16 +642,19 @@
                      (:worksheet/diagrams @*ws)))])))
 
 (defn- get-map-converted-cell-value [map-units map-rep-fraction value units ]
-  (let [value-in-map-units (-> value
-                               (to-feet units)
-                               (from-feet map-units)
-                               (* (/ 1 map-rep-fraction)))]
+  (let [value-in-map-units (to-map-units value units map-units map-rep-fraction)]
     (gstring/format "%s (%s %s)"
                     value
                     value-in-map-units
                     map-units)))
 
 ;; Wizard Results
+(defn- procces-map-units?
+  [ws-uuid uuid]
+  (let [show-map-units?     @(subscribe [:worksheet/map-units-enabled? ws-uuid])
+        map-units-variables @(subscribe [:wizard/map-unit-convertible-variables])]
+    (and show-map-units? (get map-units-variables uuid))))
+
 (defn wizard-results-page [{:keys [route-handler io ws-uuid] :as params}]
   (let [*worksheet            (subscribe [:worksheet ws-uuid])
         *ws-date              (subscribe [:wizard/worksheet-date ws-uuid])
@@ -662,7 +665,7 @@
         *cell-data            (subscribe [:worksheet/result-table-cell-data ws-uuid])
         table-enabled?        (get-in @*worksheet [:worksheet/table-settings :table-settings/enabled?])
         table-setting-filters (subscribe [:worksheet/table-settings-filters ws-uuid])
-        show-map-units?       @(subscribe [:wizard/show-map-units?])
+        show-map-units?       @(subscribe [:worksheet/map-units-enabled?])
         map-units-variables   @(subscribe [:wizard/map-unit-convertible-variables])
         map-units             @(subscribe [:worksheet/get-map-units-settings-units ws-uuid])
         map-rep-frac          @(subscribe [:worksheet/get-map-units-settings-map-rep-fraction ws-uuid])]
@@ -726,8 +729,11 @@
                                                                                                  (= gv-uuid uuid))
                                                                                                @table-setting-filters))
                                                                   uuid+repeat-id-key   (keyword (str uuid "-" repeat-id))
-                                                                  value                (if (and show-map-units? (get map-units-variables uuid))
-                                                                                         (get-map-converted-cell-value map-units map-rep-frac value (get map-units-variables uuid))
+                                                                  value                (if (procces-map-units? ws-uuid uuid)
+                                                                                         (get-map-converted-cell-value map-units
+                                                                                                                       map-rep-frac
+                                                                                                                       value
+                                                                                                                       (get map-units-variables uuid))
                                                                                          value)]
                                                               (cond-> acc
                                                                 (and min max (not (<= min value max)) enabled?)

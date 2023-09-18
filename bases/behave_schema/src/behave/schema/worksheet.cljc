@@ -276,6 +276,10 @@
     :db/cardinality :db.cardinality/one}
 
    ;; Map Units
+   {:db/ident       :map-units-settings/enabled?
+    :db/doc         "Whether the map unit conversion is enabled"
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
 
    {:db/ident       :map-units-settings/units
     :db/doc         "The units set for converting certain variables to map units (in, cm)."

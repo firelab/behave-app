@@ -275,11 +275,6 @@
  (fn [{:keys [state]} _]
    (true? (get-in state [:worksheet :show-add-note-form?]))))
 
-(reg-sub
- :wizard/show-map-units?
- (fn [{:keys [state]} _]
-   (true? (get-in state [:worksheet :show-map-units?]))))
-
 
 (reg-sub
  :wizard/results-tab-selected

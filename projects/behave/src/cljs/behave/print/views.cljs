@@ -14,8 +14,8 @@
   (str (apply str (repeat level "    ")) s))
 
 (defn- procces-map-units?
-  [uuid]
-  (let [show-map-units?     @(subscribe [:wizard/show-map-units?])
+  [ws-uuid uuid]
+  (let [show-map-units?     @(subscribe [:worksheet/map-units-enabled? ws-uuid])
         map-units-variables @(subscribe [:wizard/map-unit-convertible-variables])]
     (and show-map-units? (get map-units-variables uuid))))
 
@@ -124,7 +124,7 @@
                                                   :value  value
                                                   :units  var-units})
 
-                                   (procces-map-units? output-uuid)
+                                   (procces-map-units? ws-uuid output-uuid)
                                    (conj {:output (gstring/format "%s Map Units" var-name)
                                           :value  (to-map-units value
                                                                 var-units
@@ -155,7 +155,7 @@
                                                     :always (conj {:name (gstring/format "%s (%s)" col-name units)
                                                                    :key  gv-uuid})
 
-                                                    (procces-map-units? gv-uuid)
+                                                    (procces-map-units? ws-uuid gv-uuid)
                                                     (conj {:name (gstring/format "%s Map Units (%s)" col-name map-units)
                                                            :key  (str gv-uuid "-map-units")})))
                                                 []
@@ -163,7 +163,7 @@
         row-headers (map (fn [value] {:name value :key (str value)}) (str/split values ","))
         final-data  (reduce (fn insert-map-units-values [acc [[i j] value]]
                               (cond-> acc
-                                (procces-map-units? j)
+                                (procces-map-units? ws-uuid j)
                                 (assoc [i (str j "-map-units")]
                                        (to-map-units value
                                                      @(rf/subscribe [:wizard/gv-uuid->variable-units j])
@@ -209,7 +209,7 @@
                             :row-headers    row-headers
                             :column-headers column-headers
                             :data           matrix-data})]
-          (when (procces-map-units? output-uuid)
+          (when (procces-map-units? ws-uuid output-uuid)
             [:div.print__result-table
              (let [data (reduce-kv (fn [acc [i j] value]
                                      (assoc acc [i j] (to-map-units value

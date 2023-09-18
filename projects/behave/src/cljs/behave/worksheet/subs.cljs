@@ -255,6 +255,19 @@
     :variables [ws-uuid attr]}))
 
 (rp/reg-sub
+ :worksheet/map-units-enabled?
+ (fn [_ [_ ws-uuid]]
+   {:type      :query
+    :query     '[:find  ?enabled .
+                 :in    $ ?ws-uuid
+                 :where
+                 [?w :worksheet/uuid ?ws-uuid]
+                 [?w :worksheet/table-settings ?t]
+                 [?t :table-settings/map-units-settings ?m]
+                 [?m :map-units-settings/enabled? ?enabled]]
+    :variables [ws-uuid]}))
+
+(rp/reg-sub
  :worksheet/get-map-units-settings-units
  (fn [_ [_ ws-uuid]]
    {:type      :query
@@ -265,6 +278,18 @@
                  [?w :worksheet/table-settings ?t]
                  [?t :table-settings/map-units-settings ?m]
                  [?m :map-units-settings/units ?units]]
+    :variables [ws-uuid]}))
+
+(rp/reg-sub
+ :worksheet/map-units-settings-eids
+ (fn [_ [_ ws-uuid]]
+   {:type      :query
+    :query     '[:find  ?m .
+                 :in    $ ?ws-uuid
+                 :where
+                 [?w :worksheet/uuid ?ws-uuid]
+                 [?w :worksheet/table-settings ?t]
+                 [?t :table-settings/map-units-settings ?m]]
     :variables [ws-uuid]}))
 
 (rp/reg-sub
