@@ -19,7 +19,7 @@
             [dom-utils.interface                  :refer [input-int-value input-value]]
             [goog.string                          :as gstring]
             [goog.string.format]
-            [re-frame.core                        :refer [dispatch subscribe]]
+            [re-frame.core                        :refer [dispatch dispatch-sync subscribe]]
             [string-utils.interface               :refer [->kebab]]
             [reagent.core                         :as r]))
 
@@ -288,7 +288,9 @@
                     :variant       "highlight"
                     :icon-name     "arrow2"
                     :icon-position "right"
-                    :on-click      #(dispatch [:wizard/solve params])}]]]]]]))
+                    :on-click      #(do (dispatch-sync [:wizard/before-solve params])
+                                        (dispatch-sync [:wizard/during-solve params])
+                                        (dispatch-sync [:wizard/after-solve params]))}]]]]]]))
 
 ;; Wizard Results Settings
 
