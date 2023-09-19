@@ -1,23 +1,23 @@
 (ns behave.schema.subtool
   (:require [clojure.spec.alpha  :as s]
-            [behave.schema.utils :refer [valid-key? uuid-string? zero-pos?]]))
+            [behave.schema.utils :refer [valid-key? zero-pos?]]))
 
 ;;; Spec
 
-(s/def :subtool/name             string?)
-(s/def :subtool/order            zero-pos?)
-(s/def :subtool/translation-key  valid-key?)
-(s/def :subtool/help-key         valid-key?)
-(s/def :subtool/input-variables  set?)
-(s/def :subtool/output-variables set?)
+(s/def :subtool/name            string?)
+(s/def :subtool/order           zero-pos?)
+(s/def :subtool/translation-key valid-key?)
+(s/def :subtool/help-key        valid-key?)
+(s/def :subtool/variables       set?)
+(s/def :subtool/auto-complete?  boolean?)
 
 (s/def :behave/subtool (s/keys :req [:bp/uuid
                                      :subtool/name
                                      :subtool/order
                                      :subtool/translation-key
-                                     :subtool/help-key]
-                               :opt [:subtool/input-variables
-                                     :subtool/output-variables]))
+                                     :subtool/help-key
+                                     :subtool/auto-compute?]
+                               :opt [:subtool/variables]))
 
 ;;; Schema
 
@@ -32,15 +32,16 @@
     :db/valueType   :db.type/number
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :subtool/input-variables
-    :db/doc         "Subtool's input variables."
+   {:db/ident       :subtool/variables
+    :db/doc         "Subtool's variables."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
 
-   {:db/ident       :subtool/output-variables
-    :db/doc         "Subtool's output variables."
-    :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/many}
+   {:db/ident       :subtool/auto-compute?
+    :db/doc         "Whether or not the subtool should auto compute when values change instead of
+                     having a dedicated compute button."
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
 
    {:db/ident       :subtool/translation-key
     :db/doc         "Subtool's translation key."
@@ -76,5 +77,6 @@
   (s/valid? :behave/subtool {:bp/uuid                 (str (random-uuid))
                              :subtool/name            "Relative Humidity"
                              :subtool/order           1
+                             :subtool/auto-compute?   false
                              :subtool/translation-key "behaveplus:relative-humidity:dry-temp-wet-temp-elevation"
                              :subtool/help-key        "behaveplus:relative-humidity:dry-temp-wet-temp-elevation:help"}))

@@ -119,6 +119,24 @@
                :from-key         :Spot
                :to-key           :SIGSpot})
 
+  (cms-import {:behave-file      "~/work/code/hatchet/behave-mirror/ignite.edn"
+               :sig-adapter-file "~/work/code/hatchet/sig-adapters/SIGIgnite.edn"
+               :out-file-name    "SIGIgnite.edn"
+               :from-key         :Ignite
+               :to-key           :SIGIgnite})
+
+  (cms-import {:behave-file      "~/work/code/hatchet/behave-mirror/fineDeadFuelMoistureTool.edn"
+               :sig-adapter-file "~/work/code/hatchet/sig-adapters/SIGFineDeadFuelMoistureTool.edn"
+               :out-file-name    "SIGFineDeadFuelMoistureTool.edn"
+               :from-key         :FineDeadFuelMoistureTool
+               :to-key           :SIGFineDeadFuelMoistureTool})
+
+  (cms-import {:behave-file      "~/work/code/hatchet/behave-mirror/slopeTool.edn"
+               :sig-adapter-file "~/work/code/hatchet/sig-adapters/SIGSlopeTool.edn"
+               :out-file-name    "SIGSlopeTool.edn"
+               :from-key         :SlopeTool
+               :to-key           :SIGSlopeTool})
+
   ;;; Add exports to CMS db
   (require '[behave-cms.server :refer [init-datahike!]])
 
@@ -137,6 +155,10 @@
   (add-export-file-to-conn "./cms-exports/SIGCrown.edn" ds/conn)
   (add-export-file-to-conn "./cms-exports/SIGBehaveRun.edn" ds/conn)
   (add-export-file-to-conn "./cms-exports/SIGMortality.edn" ds/conn)
+  (add-export-file-to-conn "./cms-exports/SIGIgnite.edn" ds/conn)
+  (add-export-file-to-conn "./cms-exports/SIGFineDeadFuelMoistureTool.edn" ds/conn)
+  (add-export-file-to-conn "./cms-exports/SIGSlopeTool.edn" ds/conn)
+  (add-export-file-to-conn "./cms-exports/VaporPressureDeficitCalculator.edn" ds/conn)
 
   ;; Verify that SIGSurface exists
   (sort (d/q '[:find [?c-name ...]
@@ -154,5 +176,32 @@
                [?c :cpp.class/function ?f]
                [?f :cpp.function/name ?f-name]]
              (safe-deref ds/conn)))
+
+  (defn class-to-remove [class-name]
+    (d/q '[:find ?c ?f ?p
+           :keys  c f  p
+           :in $ ?class-name
+           :where
+           [?c :cpp.class/name ?class-name]
+           [?c :cpp.class/function ?f]
+           [?f :cpp.function/parameter ?p]]
+         (safe-deref ds/conn) class-name))
+
+  (defn retract [id]
+    [:db/retractEntity id])
+
+  (def classes-to-remove (mapv #(vec [:db/retractEntity (:c %)]) (class-to-remove "SIGFineDeadFuelMoistureTool")))
+
+  (def functions-to-remove (mapv #(vec [:db/retractEntity (:f %)]) (class-to-remove "SIGFineDeadFuelMoistureTool")))
+
+  (def parameters-to-remove (mapv #(vec [:db/retractEntity (:p %)]) (class-to-remove "SIGFineDeadFuelMoistureTool")))
+
+  (def remove-tx (concat parameters-to-remove functions-to-remove classes-to-remove))
+
+  (def class-names-to-remove ["FDFMToolDryBulbIndex" "FDFMToolElevationIndex" "FDFMToolMonthIndex" "FDFMToolRHIndex" "FDFMToolShadingIndex" "FDFMToolSlopeIndex" "FDFMToolTimeOfDayIndex"])
+
+  (def remove-tx (map #(retract (ffirst (class-to-remove %))) class-names-to-remove))
+
+  (d/transact (unwrap ds/conn) remove-tx)
 
   )
