@@ -191,14 +191,15 @@
                    :shape     "round"
                    :size      "small"
                    :variant   "primary"}]]]
-      (when (> (count subtools) 1)
-        [c/tab-group {:variant  "outline-primary"
-                      :on-click #(rf/dispatch [:tool/select-subtool (:tab %)])
-                      :tabs     (map (fn [{s-name :subtool/name s-uuid :bp/uuid}]
-                                       {:label     s-name
-                                        :tab       s-uuid
-                                        :selected? (= subtool-uuid s-uuid)})
-                                     subtools)}])
-      (if (:subtool/auto-compute? @subtool)
-        [auto-compute-subtool tool-uuid subtool-uuid]
-        [manual-subtool tool-uuid subtool-uuid])]]))
+      [:div.accordion__body
+       (when (> (count subtools) 1)
+         [c/tab-group {:variant  "outline-primary"
+                       :on-click #(rf/dispatch [:tool/select-subtool (:tab %)])
+                       :tabs     (map (fn [{s-name :subtool/name s-uuid :bp/uuid}]
+                                        {:label     s-name
+                                         :tab       s-uuid
+                                         :selected? (= subtool-uuid s-uuid)})
+                                      subtools)}])
+       (if (:subtool/auto-compute? @subtool)
+         [auto-compute-subtool tool-uuid subtool-uuid]
+         [manual-subtool tool-uuid subtool-uuid])]]]))
