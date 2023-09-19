@@ -1,0 +1,19 @@
+{:global
+ {:VaporPressureDeficitCalculator
+  {:runCalculation
+   {:type       "void",
+    :id         "runCalculation",
+    :parameters []},
+   :setTemperature
+   {:type       "void",
+    :id         "setTemperature",
+    :parameters [{:id "temperature", :type "double"}
+                 {:id "units", :type "TemperatureUnits::TemperatureUnitsEnum"}]},
+   :setRelativeHumidity
+   {:type       "void", :id "setRelativeHumidity",
+    :parameters [{:id "relativeHumidity", :type "double"}
+                 {:id "units", :type "FractionUnits::FractionUnitsEnum"}]},
+   :getVaporPressureDeficit
+   {:type       "double",
+    :id         "getVaporPressureDeficit",
+    :parameters [{:id "units", :type "PressureUnits::PressureUnitsEnum"}]}}}}

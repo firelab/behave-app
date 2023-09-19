@@ -57,7 +57,10 @@
                 :id           tool-id
                 :fields       [{:label     "Name"
                                 :required? true
-                                :field-key :tool/name}]
+                                :field-key :tool/name}
+                               {:label     "Library Namespace"
+                                :required? true
+                                :field-key :tool/lib-ns}]
                 :on-create    #(assoc % :tool/order num-tools)}])
 
 (defn- manage-tool [application-id *tool num-tools]
