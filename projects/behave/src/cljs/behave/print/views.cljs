@@ -13,12 +13,6 @@
 (defn- indent-name [level s]
   (str (apply str (repeat level "    ")) s))
 
-(defn- procces-map-units?
-  [ws-uuid uuid]
-  (let [show-map-units?     @(subscribe [:worksheet/map-units-enabled? ws-uuid])
-        map-units-variables @(subscribe [:wizard/map-unit-convertible-variables])]
-    (and show-map-units? (get map-units-variables uuid))))
-
 (defn- groups->row-entires
   "Returns a sequence of row entries of the form
   {:input (required)
@@ -106,33 +100,34 @@
                     :columns [:input :units :values]
                     :rows    (build-rows ws-uuid submodules)})]))]))
 
-(defmulti result-tables (fn [_ws-uuid multi-valued-inputs] (count multi-valued-inputs)))
+(defmulti result-tables (fn [_ws-uuid process-map-units? multi-valued-inputs] (count multi-valued-inputs)))
 
 (defmethod result-tables 0
-  [ws-uuid _multi-valued-inputs]
-  (let [output-uuids @(subscribe [:worksheet/all-output-uuids ws-uuid])
-        map-units    @(subscribe [:worksheet/get-map-units-settings-units ws-uuid])
-        map-rep-frac @(subscribe [:worksheet/get-map-units-settings-map-rep-fraction ws-uuid])
-        rows         (reduce (fn [acc output-uuid]
-                               (let [{var-name  :variable/name
-                                      var-units :variable/native-units} @(subscribe [:wizard/group-variable output-uuid])
-                                     value                              @(subscribe [:worksheet/first-row-results-gv-uuid->value
-                                                                                     ws-uuid
-                                                                                     output-uuid])]
-                                 (cond-> acc
-                                   :always (conj {:output var-name
-                                                  :value  value
-                                                  :units  var-units})
+  [ws-uuid process-map-units? _multi-valued-inputs]
+  (let [output-uuids              @(subscribe [:worksheet/all-output-uuids ws-uuid])
+        map-units-settings-entity @(rf/subscribe [:worksheet/map-units-settings-entity ws-uuid])
+        map-units                 (:map-units-settings/units map-units-settings-entity)
+        map-rep-frac              (:map-units-settings/map-rep-fraction map-units-settings-entity)
+        rows                      (reduce (fn [acc output-uuid]
+                                            (let [{var-name  :variable/name
+                                                   var-units :variable/native-units} @(subscribe [:wizard/group-variable output-uuid])
+                                                  value                              @(subscribe [:worksheet/first-row-results-gv-uuid->value
+                                                                                                  ws-uuid
+                                                                                                  output-uuid])]
+                                              (cond-> acc
+                                                :always (conj {:output var-name
+                                                               :value  value
+                                                               :units  var-units})
 
-                                   (procces-map-units? ws-uuid output-uuid)
-                                   (conj {:output (gstring/format "%s Map Units" var-name)
-                                          :value  (to-map-units value
-                                                                var-units
-                                                                map-units
-                                                                map-rep-frac)
-                                          :units  map-units}))))
-                             []
-                             output-uuids)]
+                                                (process-map-units? output-uuid)
+                                                (conj {:output (gstring/format "%s Map Units" var-name)
+                                                       :value  (to-map-units value
+                                                                             var-units
+                                                                             map-units
+                                                                             map-rep-frac)
+                                                       :units  map-units}))))
+                                          []
+                                          output-uuids)]
     [:div.print__result-table
      (c/table {:title   "Results"
                :headers ["Output Variable" "Value" "Units"]
@@ -140,7 +135,7 @@
                :rows    rows})]))
 
 (defmethod result-tables 1
-  [ws-uuid multi-valued-inputs]
+  [ws-uuid process-map-units? multi-valued-inputs]
   (let [[v-name v-units gv-uuid values] (first multi-valued-inputs)
         output-uuids                    @(subscribe [:print/matrix-table-column-outputs ws-uuid])
         matrix-data                     @(subscribe [:worksheet/matrix-table-data-single-multi-valued-input
@@ -148,14 +143,15 @@
                                                      gv-uuid
                                                      (str/split values ",")
                                                      (map last output-uuids)])
-        map-units                       @(subscribe [:worksheet/get-map-units-settings-units ws-uuid])
-        map-rep-frac                    @(subscribe [:worksheet/get-map-units-settings-map-rep-fraction ws-uuid])
+        map-units-settings-entity       @(rf/subscribe [:worksheet/map-units-settings-entity ws-uuid])
+        map-units                       (:map-units-settings/units map-units-settings-entity)
+        map-rep-frac                    (:map-units-settings/map-rep-fraction map-units-settings-entity)
         column-headers                  (reduce (fn insert-map-units-columns [acc [col-name units gv-uuid]]
                                                   (cond-> acc
                                                     :always (conj {:name (gstring/format "%s (%s)" col-name units)
                                                                    :key  gv-uuid})
 
-                                                    (procces-map-units? ws-uuid gv-uuid)
+                                                    (process-map-units? gv-uuid)
                                                     (conj {:name (gstring/format "%s Map Units (%s)" col-name map-units)
                                                            :key  (str gv-uuid "-map-units")})))
                                                 []
@@ -163,7 +159,7 @@
         row-headers (map (fn [value] {:name value :key (str value)}) (str/split values ","))
         final-data  (reduce (fn insert-map-units-values [acc [[i j] value]]
                               (cond-> acc
-                                (procces-map-units? ws-uuid j)
+                                (process-map-units? j)
                                 (assoc [i (str j "-map-units")]
                                        (to-map-units value
                                                      @(rf/subscribe [:wizard/gv-uuid->variable-units j])
@@ -180,12 +176,14 @@
                       :data           final-data})]))
 
 (defmethod result-tables 2
-  [ws-uuid multi-valued-inputs]
+  [ws-uuid process-map-units? multi-valued-inputs]
   (let [[row-name row-units row-gv-uuid row-values] (first multi-valued-inputs)
         [col-name col-units col-gv-uuid col-values] (second multi-valued-inputs)
         output-uuids                                @(subscribe [:worksheet/all-output-uuids ws-uuid])
-        map-units                                   @(subscribe [:worksheet/get-map-units-settings-units ws-uuid])
-        map-rep-frac                                @(subscribe [:worksheet/get-map-units-settings-map-rep-fraction ws-uuid])]
+
+        map-units-settings-entity @(rf/subscribe [:worksheet/map-units-settings-entity ws-uuid])
+        map-units                 (:map-units-settings/units map-units-settings-entity)
+        map-rep-frac              (:map-units-settings/map-rep-fraction map-units-settings-entity)]
     [:div.print__result-tables
      (for [output-uuid output-uuids]
        (let [{output-uuid  :bp/uuid
@@ -209,7 +207,7 @@
                             :row-headers    row-headers
                             :column-headers column-headers
                             :data           matrix-data})]
-          (when (procces-map-units? ws-uuid output-uuid)
+          (when (process-map-units? output-uuid)
             [:div.print__result-table
              (let [data (reduce-kv (fn [acc [i j] value]
                                      (assoc acc [i j] (to-map-units value
@@ -240,12 +238,18 @@
   (.toString (js/Date. epoch)))
 
 (defn print-page [{:keys [ws-uuid]}]
-  (let [worksheet           @(subscribe [:worksheet ws-uuid])
-        ws-name             (:worksheet/name worksheet)
-        ws-date-created     (:worksheet/created worksheet)
-        multi-valued-inputs @(subscribe [:print/matrix-table-multi-valued-inputs ws-uuid])
-        notes               @(subscribe [:wizard/notes ws-uuid])
-        graph-data          @(subscribe [:worksheet/result-table-cell-data ws-uuid])]
+  (let [worksheet                      @(subscribe [:worksheet ws-uuid])
+        ws-name                        (:worksheet/name worksheet)
+        ws-date-created                (:worksheet/created worksheet)
+        multi-valued-inputs            @(subscribe [:print/matrix-table-multi-valued-inputs ws-uuid])
+        notes                          @(subscribe [:wizard/notes ws-uuid])
+        graph-data                     @(subscribe [:worksheet/result-table-cell-data ws-uuid])
+        map-units-settings-entity      @(rf/subscribe [:worksheet/map-units-settings-entity ws-uuid])
+        map-units-enabled?             (:map-units-settings/enabled? map-units-settings-entity)
+        map-unit-vonvertible-variables @(subscribe [:wizard/map-unit-convertible-variables])
+        process-map-units?             (fn [v-uuid]
+                                         (and map-units-enabled?
+                                              (get map-unit-vonvertible-variables v-uuid)))]
     [:div.print
      [:div.print__ws-name ws-name]
      [:div.print__ws-date (epoch->date-string ws-date-created)]
@@ -253,6 +257,6 @@
      [inputs-table ws-uuid]
      [wizard-notes notes]
      [:div.wizard-print__header "Results"]
-     [result-tables ws-uuid multi-valued-inputs]
+     [result-tables ws-uuid process-map-units? multi-valued-inputs]
      [result-graph ws-uuid graph-data]
      [wizard-diagrams ws-uuid]]))

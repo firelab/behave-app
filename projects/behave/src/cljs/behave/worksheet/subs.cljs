@@ -8,6 +8,12 @@
             [austinbirch.reactive-entity :as re]
             [string-utils.interface      :refer [->str ->kebab]]))
 
+(defn re-entity-from-uuid [bp-uuid]
+  (re/entity [:bp/uuid bp-uuid]))
+
+(defn re-entity-from-eid [eid]
+  (re/entity eid))
+
 ;; Retrieve all worksheet UUID's
 (rp/reg-sub
  :worksheet/all
@@ -255,57 +261,6 @@
     :variables [ws-uuid attr]}))
 
 (rp/reg-sub
- :worksheet/map-units-enabled?
- (fn [_ [_ ws-uuid]]
-   {:type      :query
-    :query     '[:find  ?enabled .
-                 :in    $ ?ws-uuid
-                 :where
-                 [?w :worksheet/uuid ?ws-uuid]
-                 [?w :worksheet/table-settings ?t]
-                 [?t :table-settings/map-units-settings ?m]
-                 [?m :map-units-settings/enabled? ?enabled]]
-    :variables [ws-uuid]}))
-
-(rp/reg-sub
- :worksheet/get-map-units-settings-units
- (fn [_ [_ ws-uuid]]
-   {:type      :query
-    :query     '[:find  ?units .
-                 :in    $ ?ws-uuid
-                 :where
-                 [?w :worksheet/uuid ?ws-uuid]
-                 [?w :worksheet/table-settings ?t]
-                 [?t :table-settings/map-units-settings ?m]
-                 [?m :map-units-settings/units ?units]]
-    :variables [ws-uuid]}))
-
-(rp/reg-sub
- :worksheet/map-units-settings-eids
- (fn [_ [_ ws-uuid]]
-   {:type      :query
-    :query     '[:find  ?m .
-                 :in    $ ?ws-uuid
-                 :where
-                 [?w :worksheet/uuid ?ws-uuid]
-                 [?w :worksheet/table-settings ?t]
-                 [?t :table-settings/map-units-settings ?m]]
-    :variables [ws-uuid]}))
-
-(rp/reg-sub
- :worksheet/get-map-units-settings-map-rep-fraction
- (fn [_ [_ ws-uuid]]
-   {:type      :query
-    :query     '[:find  ?map-rep-fraction .
-                 :in    $ ?ws-uuid
-                 :where
-                 [?w :worksheet/uuid ?ws-uuid]
-                 [?w :worksheet/table-settings ?t]
-                 [?t :table-settings/map-units-settings ?m]
-                 [?m :map-units-settings/map-rep-fraction ?map-rep-fraction]]
-    :variables [ws-uuid]}))
-
-(rp/reg-sub
  :worksheet/get-graph-settings-attr
  (fn [_ [_ ws-uuid attr]]
    {:type      :query
@@ -352,6 +307,38 @@
                  [?w :worksheet/outputs ?o]
                  [?o :output/group-variable-uuid ?group-var-uuid]
                  [?o :output/enabled? true]]
+    :variables [ws-uuid]}))
+
+(rp/reg-sub
+ :worksheet/map-units-settings-eid
+ (fn [_ [_ ws-uuid]]
+   {:type      :query
+    :query     '[:find  ?m .
+                 :in    $ ?ws-uuid
+                 :where
+                 [?w :worksheet/uuid ?ws-uuid]
+                 [?w :worksheet/table-settings ?t]
+                 [?t :table-settings/map-units-settings ?m]]
+    :variables [ws-uuid]}))
+
+(rf/reg-sub
+ :worksheet/map-units-settings-entity
+ (fn [[_ ws-uuid]]
+   (rf/subscribe [:worksheet/map-units-settings-eid ws-uuid]))
+ (fn [map-units-settings-eid _]
+   (re-entity-from-eid map-units-settings-eid)))
+
+(rp/reg-sub
+ :worksheet/map-units-enabled?
+ (fn [_ [_ ws-uuid]]
+   {:type      :query
+    :query     '[:find  ?enabled .
+                 :in    $ ?ws-uuid
+                 :where
+                 [?w :worksheet/uuid ?ws-uuid]
+                 [?w :worksheet/table-settings ?t]
+                 [?t :table-settings/map-units-settings ?m]
+                 [?m :map-units-settings/enabled? ?enabled]]
     :variables [ws-uuid]}))
 
 (rp/reg-sub

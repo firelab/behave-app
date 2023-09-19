@@ -454,9 +454,10 @@
 
 (defn- map-units-form
   [ws-uuid]
-  (let [*units            (subscribe [:worksheet/get-map-units-settings-units ws-uuid])
-        *map-rep-frac     (subscribe [:worksheet/get-map-units-settings-map-rep-fraction ws-uuid])
-        map-rep-frac-atom (r/atom @*map-rep-frac)]
+  (let [map-units-settings-entity @(rf/subscribe [:worksheet/map-units-settings-entity ws-uuid])
+        units                     (:map-units-settings/units map-units-settings-entity)
+        map-rep-frac              (:map-units-settings/map-rep-fraction map-units-settings-entity)
+        map-rep-frac-atom         (r/atom map-rep-frac)]
     [:div.table-settings__map-units-form
      [:div.table-settings__map-units-form__units
       [c/radio-group {:label   "Map Units"
@@ -467,7 +468,7 @@
                                                                ws-uuid
                                                                :map-units-settings/units
                                                                option])
-                                        :checked?  (= @*units option)})
+                                        :checked?  (= units option)})
                                      ["in" "cm"])}]
       [:div.table-settings__map-units-form__map-rep-fraction
        [c/number-input {:label      "Map Representative Fraction (1:x)"
@@ -479,12 +480,12 @@
                                                 :map-units-settings/map-rep-fraction
                                                 (long @map-rep-frac-atom)])}]]]]))
 
-
 (defn- table-settings [ws-uuid]
-  (let [*worksheet         (subscribe [:worksheet ws-uuid])
-        table-settings     (:worksheet/table-settings @*worksheet)
-        table-enabled?     (:table-settings/enabled? table-settings)
-        map-units-enabled? @(subscribe [:worksheet/map-units-enabled? ws-uuid])]
+  (let [*worksheet                (subscribe [:worksheet ws-uuid])
+        table-settings            (:worksheet/table-settings @*worksheet)
+        table-enabled?            (:table-settings/enabled? table-settings)
+        map-units-settings-entity @(rf/subscribe [:worksheet/map-units-settings-entity ws-uuid])
+        map-units-enabled?        (:map-units-settings/enabled? map-units-settings-entity)]
     [:<> [c/checkbox {:label     "Display Table Results"
                       :checked?  table-enabled?
                       :on-change #(dispatch [:worksheet/toggle-table-settings ws-uuid])}]
@@ -648,19 +649,20 @@
     (and map-units-enabled? (get map-units-variables v-uuid))))
 
 (defn wizard-results-page [{:keys [route-handler io ws-uuid] :as params}]
-  (let [*worksheet            (subscribe [:worksheet ws-uuid])
-        *ws-date              (subscribe [:wizard/worksheet-date ws-uuid])
-        _                     (dispatch [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
-        *notes                (subscribe [:wizard/notes ws-uuid])
-        *tab-selected         (subscribe [:wizard/results-tab-selected])
-        *headers              (subscribe [:worksheet/result-table-headers-sorted ws-uuid])
-        *cell-data            (subscribe [:worksheet/result-table-cell-data ws-uuid])
-        table-enabled?        (get-in @*worksheet [:worksheet/table-settings :table-settings/enabled?])
-        table-setting-filters (subscribe [:worksheet/table-settings-filters ws-uuid])
-        map-units-enabled?    @(subscribe [:worksheet/map-units-enabled? ws-uuid])
-        map-units-variables   @(subscribe [:wizard/map-unit-convertible-variables])
-        map-units             @(subscribe [:worksheet/get-map-units-settings-units ws-uuid])
-        map-rep-frac          @(subscribe [:worksheet/get-map-units-settings-map-rep-fraction ws-uuid])]
+  (let [*worksheet                (subscribe [:worksheet ws-uuid])
+        *ws-date                  (subscribe [:wizard/worksheet-date ws-uuid])
+        _                         (dispatch [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
+        *notes                    (subscribe [:wizard/notes ws-uuid])
+        *tab-selected             (subscribe [:wizard/results-tab-selected])
+        *headers                  (subscribe [:worksheet/result-table-headers-sorted ws-uuid])
+        *cell-data                (subscribe [:worksheet/result-table-cell-data ws-uuid])
+        table-enabled?            (get-in @*worksheet [:worksheet/table-settings :table-settings/enabled?])
+        table-setting-filters     (subscribe [:worksheet/table-settings-filters ws-uuid])
+        map-units-settings-entity @(rf/subscribe [:worksheet/map-units-settings-entity ws-uuid])
+        map-units-enabled?        (:map-units-settings/enabled? map-units-settings-entity)
+        map-units                 (:map-units-settings/units map-units-settings-entity)
+        map-rep-frac              (:map-units-settings/map-rep-fraction map-units-settings-entity)
+        map-units-variables       @(subscribe [:wizard/map-unit-convertible-variables])]
     [:div.accordion
      [:div.accordion__header
       [c/tab {:variant   "outline-primary"
