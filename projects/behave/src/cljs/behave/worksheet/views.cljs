@@ -124,7 +124,7 @@
 
                                               ;; Create the Worksheet
                                               (rf/dispatch [:worksheet/new
-                                                            (merge {:modules (vec @*modules) :uuid ws-uuid} (when @name {:name @name}))])
+                                                            {:name @name :modules (vec @*modules) :uuid ws-uuid}])
 
                                               ;; Look at modules that user has selected, find the first output submodule
                                               (rf/dispatch [:navigate (str "/worksheets/" ws-uuid "/modules/" (->str (first @*modules)) "/output/" @*submodule)])))}]]))
