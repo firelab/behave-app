@@ -356,6 +356,31 @@ Module.SIGCrown = class {
   getFinalFlameLength() {}
 };
 
+Module.SIGIgnite = class {
+    init() {}
+    calculateFirebrandIgnitionProbability() {}
+    getFirebrandIgnitionProbability() {}
+    setAirTemperature() {}
+    getMoistureHundredHour() {}
+    getLightningChargeType() {}
+    setMoistureOneHour() {}
+    calculateLightningIgnitionProbability() {}
+    getDuffDepth() {}
+    setIgnitionFuelBedType() {}
+    setSunShade() {}
+    getAirTemperature() {}
+    getFuelTemperature() {}
+    isFuelDepthNeeded() {}
+    setMoistureHundredHour() {}
+    getSunShade() {}
+    initializeMembers() {}
+    getFuelBedType() {}
+    getMoistureOneHour() {}
+    setLightningChargeType() {}
+    setDuffDepth() {}
+    updateIgniteInputs() {}
+};
+
 Module.SIGMortality = class {
   constructor() {}
   getBeetleDamage() {}
@@ -485,6 +510,39 @@ Module.SIGSpot = class {
   updateSpotInputsForTorchingTrees() {}
 };
 
+Module.SIGFineDeadFuelMoistureTool = class {
+    init() {}
+    calculate() {}
+    calculateByIndex() {}
+    getAspectIndexSize() {}
+    getAspectLabelAtIndex() {}
+    getCorrectionMoisture() {}
+    getDryBulbTemperatureIndexSize() {}
+    getDryBulbTemperatureLabelAtIndex() {}
+    getElevationIndexSize() {}
+    getElevationLabelAtIndex() {}
+    getFineDeadFuelMoisture() {}
+    getMonthIndexSize() {}
+    getMonthLabelAtIndex() {}
+    getReferenceMoisture() {}
+    getRelativeHumidityIndexSize() {}
+    getRelativeHumidityLabelAtIndex() {}
+    getShadingIndexSize() {}
+    getShadingLabelAtIndex() {}
+    getSlopeIndexSize() {}
+    getSlopeLabelAtIndex() {}
+    getTimeOfDayIndexSize() {}
+    getTimeOfDayLabelAtIndex() {}
+    operator() {}
+    setAspectIndex() {}
+    setDryBulbIndex() {}
+    setElevationIndex() {}
+    setMonthIndex() {}
+    setRHIndex() {}
+    setShadingIndex() {}
+    setSlopeIndex() {}
+    setTimeOfDayIndex() {}
+};
 
 Module.SIGFuelModels = class {
   constructor() {}
@@ -518,4 +576,43 @@ Module.SpeciesMasterTable = class {
   getSpeciesTableIndexFromSpeciesCode() {}
   getSpeciesTableIndexFromSpeciesCodeAndEquationType() {}
   insertRecord() {}
+};
+
+Module.SIGSlopeTool = class {
+    init() {}
+    calculateHorizontalDistance() {}
+    calculateSlopeFromMapMeasurements() {}
+    getCentimetersPerKilometerAtIndex() {}
+    getCentimetersPerKilometerAtRepresentativeFraction() {}
+    getHorizontalDistance() {}
+    getHorizontalDistanceAtIndex() {}
+    getHorizontalDistanceFifteen() {}
+    getHorizontalDistanceFourtyFive() {}
+    getHorizontalDistanceMaxSlope() {}
+    getHorizontalDistanceNinety() {}
+    getHorizontalDistanceSeventy() {}
+    getHorizontalDistanceSixty() {}
+    getHorizontalDistanceThirty() {}
+    getHorizontalDistanceZero() {}
+    getInchesPerMileAtIndex() {}
+    getInchesPerMileAtRepresentativeFraction() {}
+    getKilometersPerCentimeterAtIndex() {}
+    getKilometersPerCentimeterAtRepresentativeFraction() {}
+    getMilesPerInchAtIndex() {}
+    getMilesPerInchAtRepresentativeFraction() {}
+    getNumberOfHorizontalDistances() {}
+    getNumberOfRepresentativeFractions() {}
+    getRepresentativeFractionAtIndex() {}
+    getRepresentativeFractionAtRepresentativeFraction() {}
+    getSlopeElevationChangeFromMapMeasurements() {}
+    getSlopeFromMapMeasurements() {}
+    getSlopeFromMapMeasurementsInDegrees() {}
+    getSlopeFromMapMeasurementsInPercent() {}
+    getSlopeHorizontalDistanceFromMapMeasurements() {}
+    setCalculatedMapDistance() {}
+    setContourInterval() {}
+    setMapDistance() {}
+    setMapRepresentativeFraction() {}
+    setMaxSlopeSteepness() {}
+    setNumberOfContours() {}
 };

@@ -1,28 +1,31 @@
 (ns ^:figwheel-hooks behave-cms.client
-  (:require [bidi.bidi                        :refer [match-route]]
-            [reagent.core                     :as r]
-            [reagent.dom                      :refer [render]]
-            [re-frame.core                    :as rf]
-            [behave-cms.store                 :as s]
-            [behave-cms.config                :refer [update-config]]
+  (:require [bidi.bidi                          :refer [match-route]]
+            [reagent.core                       :as r]
+            [reagent.dom                        :refer [render]]
+            [re-frame.core                      :as rf]
+            [behave-cms.store                   :as s]
+            [behave-cms.config                  :refer [update-config]]
             [behave-cms.events]
             [behave-cms.subs]
-            [behave-cms.routes                :refer [app-routes]]
-            [behave-cms.components.menu       :refer [menu]]
-            [behave-cms.pages.dashboard       :as dashboard]
-            [behave-cms.applications.views    :refer [list-applications-page]]
-            [behave-cms.authentication.views  :refer [invite-user-page
-                                                      login-page
-                                                      reset-password-page
-                                                      verify-email-page]]
-            [behave-cms.groups.views          :refer [list-groups-page]]
-            [behave-cms.group-variables.views :refer [group-variable-page]]
-            [behave-cms.languages.views       :refer [list-languages-page]]
-            [behave-cms.lists.views           :refer [list-lists-page]]
-            [behave-cms.modules.views         :refer [list-modules-page]]
-            [behave-cms.subgroups.views       :refer [list-subgroups-page]]
-            [behave-cms.submodules.views      :refer [list-submodules-page]]
-            [behave-cms.variables.views       :refer [list-variables-page]]))
+            [behave-cms.routes                  :refer [app-routes]]
+            [behave-cms.components.menu         :refer [menu]]
+            [behave-cms.pages.dashboard         :as dashboard]
+            [behave-cms.applications.views      :refer [list-applications-page]]
+            [behave-cms.authentication.views    :refer [invite-user-page
+                                                        login-page
+                                                        reset-password-page
+                                                        verify-email-page]]
+            [behave-cms.groups.views            :refer [list-groups-page]]
+            [behave-cms.group-variables.views   :refer [group-variable-page]]
+            [behave-cms.languages.views         :refer [list-languages-page]]
+            [behave-cms.lists.views             :refer [list-lists-page]]
+            [behave-cms.modules.views           :refer [list-modules-page]]
+            [behave-cms.tools.views             :refer [tools-page]]
+            [behave-cms.subtools.views          :refer [subtools-page]]
+            [behave-cms.subtool-variables.views :refer [subtool-variable-page]]
+            [behave-cms.subgroups.views         :refer [list-subgroups-page]]
+            [behave-cms.submodules.views        :refer [submodules-page]]
+            [behave-cms.variables.views         :refer [list-variables-page]]))
 
 (declare render-page!)
 
@@ -37,16 +40,19 @@
    {:page "Languages"      :path "/languages"}
    {:page "Invite User"    :path "/invite-user"}])
 
-(def app-pages {:applications       list-applications-page
-                :dashboard          dashboard/root-component
-                :get-application    list-modules-page
-                :get-group          list-subgroups-page
-                :get-group-variable group-variable-page
-                :get-module         list-submodules-page
-                :get-submodule      list-groups-page
-                :languages          list-languages-page
-                :lists              list-lists-page
-                :variables          list-variables-page})
+(def app-pages {:applications         list-applications-page
+                :dashboard            dashboard/root-component
+                :get-application      list-modules-page
+                :get-group            list-subgroups-page
+                :get-group-variable   group-variable-page
+                :get-module           submodules-page
+                :get-submodule        list-groups-page
+                :get-tool             tools-page
+                :get-subtool          subtools-page
+                :get-subtool-variable subtool-variable-page
+                :languages            list-languages-page
+                :lists                list-lists-page
+                :variables            list-variables-page})
 
 (def system-pages {:login          login-page
                    :verify-email   verify-email-page

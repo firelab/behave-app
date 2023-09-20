@@ -6,6 +6,7 @@
             [behave.components.review-input-group  :as review]
             [behave.components.navigation   :refer [wizard-navigation]]
             [behave.components.output-group :refer [output-group]]
+            [behave.tool.views              :refer [tool tool-selector]]
             [behave-routing.main            :refer [routes]]
             [behave.translate               :refer [<t bp]]
             [behave.wizard.events]
@@ -29,10 +30,11 @@
        (doall
         (for [group groups]
           ^{:key (:db/id group)}
-          (when @(subscribe [:wizard/show-group?
-                             ws-uuid
-                             (:db/id group)
-                             (:group/conditionals-operator group)])
+          (when (and (not (:group/research? group)) ;; TODO: Remove when "Research Mode" is enabled
+                     @(subscribe [:wizard/show-group?
+                                  ws-uuid
+                                  (:db/id group)
+                                  (:group/conditionals-operator group)]))
             (let [variables (->> group (:group/group-variables) (sort-by :group-variable/variable-order))]
               [:<>
                [component-fn ws-uuid group variables level]
@@ -215,9 +217,9 @@
                       :value-atom  value-atom
                       :on-change   #(reset! value-atom (input-value %))
                       :on-blur     #(dispatch [:worksheet/update-attr
-                                             ws-uuid
-                                             :worksheet/run-description
-                                             (-> % .-target .-value)])}]
+                                               ws-uuid
+                                               :worksheet/run-description
+                                               (-> % .-target .-value)])}]
        [:div.wizard-review__run-description__message
         [c/button {:label         (gstring/format "*%s"  @(<t (bp "optional")))
                    :variant       "transparent-highlight"
@@ -623,15 +625,22 @@
 (def ^:const multi-value-input-limit 3)
 
 ;;; Public Components
-(defn root-component [params]
-  (let [loaded? (subscribe [:app/loaded?])]
-    [:div.accordion
-     [:div.accordion__header
-      [c/tab {:variant   "outline-primary"
-              :selected? true
-              :label     @(<t "behaveplus:working_area")}]]
-     [:div.wizard
-      (if @loaded?
-        [wizard-page params]
-        [:div.wizard__loading
-         [:h2 "Loading..."]])]]))
+(defn root-component [{:keys [io] :as params}]
+  (let [loaded?             (subscribe [:app/loaded?])
+        show-tool-selector? @(subscribe [:tool/show-tool-selector? io])
+        selected-tool-uuid  @(subscribe [:tool/selected-tool-uuid])]
+    [:<>
+     (when show-tool-selector?
+       [tool-selector io])
+     (when (and (some? selected-tool-uuid) (= io :input))
+       [tool selected-tool-uuid])
+     [:div.accordion
+      [:div.accordion__header
+       [c/tab {:variant   "outline-primary"
+               :selected? true
+               :label     @(<t "behaveplus:working_area")}]]
+      [:div.wizard
+       (if @loaded?
+         [wizard-page params]
+         [:div.wizard__loading
+          [:h2 "Loading..."]])]]]))

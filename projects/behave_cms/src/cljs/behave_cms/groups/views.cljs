@@ -1,9 +1,7 @@
 (ns behave-cms.groups.views
-  (:require [reagent.core :as r]
-            [re-frame.core :as rf]
-            [data-utils.interface :refer [parse-int]]
+  (:require [re-frame.core :as rf]
             [string-utils.interface :refer [->str]]
-            [behave-cms.components.common          :refer [accordion simple-table window]]
+            [behave-cms.components.common          :refer [accordion checkbox simple-table window]]
             [behave-cms.components.conditionals    :refer [conditionals-table manage-conditionals]]
             [behave-cms.components.entity-form     :refer [entity-form]]
             [behave-cms.components.sidebar         :refer [sidebar sidebar-width]]
@@ -11,7 +9,7 @@
             [behave-cms.help.views                 :refer [help-editor]]
             [behave-cms.groups.subs]))
 
-(defn group-form [submodule-id group-id num-groups]
+(defn- group-form [submodule-id group-id num-groups]
   [entity-form {:entity        :group
                 :parent-field  :submodule/_groups
                 :parent-id     submodule-id
@@ -21,14 +19,14 @@
                                  :field-key :group/name}]
                 :on-create     #(assoc % :group/order num-groups)}])
 
-(defn manage-group [{submodule-id :db/id}]
+(defn- manage-group [{submodule-id :db/id}]
   (let [groups (rf/subscribe [:groups submodule-id])
         *group (rf/subscribe [:state :group])]
     [:div.col-6
      [:h3 (str (if @*group "Update" "Add") " Group")
       [group-form submodule-id @*group (count @groups)]]]))
 
-(defn groups-table [{submodule-id :db/id}]
+(defn- groups-table [{submodule-id :db/id}]
   (let [groups (rf/subscribe [:groups submodule-id])]
     [:div.col-6
      [simple-table
@@ -40,11 +38,31 @@
        :on-increase #(rf/dispatch [:api/reorder % @groups :group/order :inc])
        :on-decrease #(rf/dispatch [:api/reorder % @groups :group/order :dec])}]]))
 
-(defn list-groups-page [{submodule-id :id}]
-  (let [submodule           (rf/subscribe [:entity submodule-id '[* {:module/_submodules [*]}]])
-        sidebar-groups      (rf/subscribe [:sidebar/groups submodule-id])
-        var-conditionals    (rf/subscribe [:submodule/variable-conditionals submodule-id])
-        module-conditionals (rf/subscribe [:submodule/module-conditionals submodule-id])]
+;;; Settings
+
+(defn- bool-setting [label attr entity]
+  (let [{id :db/id} entity
+        *value?     (atom (get entity attr))
+        update!     #(rf/dispatch [:api/update-entity {:db/id id attr @*value?}])]
+    [:div.mt-1
+     [checkbox
+      label
+      @*value?
+      #(do (swap! *value? not)
+           (update!))]]))
+
+(defn- settings [submodule]
+  [:div.row.mt-2
+   [bool-setting "Research Submodule?" :submodule/research? submodule]])
+
+(defn list-groups-page
+  "Component for groups page. Takes a single map with:
+   - :id [int] - Submodule Entity ID"
+  [{submodule-eid :id}]
+  (let [submodule           (rf/subscribe [:entity submodule-eid '[* {:module/_submodules [*]}]])
+        sidebar-groups      (rf/subscribe [:sidebar/groups submodule-eid])
+        var-conditionals    (rf/subscribe [:submodule/variable-conditionals submodule-eid])
+        module-conditionals (rf/subscribe [:submodule/module-conditionals submodule-eid])]
     [:<>
      [sidebar
       "Groups"
@@ -55,24 +73,33 @@
       [:div.container
        [:div.row.mb-3.mt-4
         [:h2 (str (:submodule/name @submodule) " (" (->str (:submodule/io @submodule)) ")")]]
+
        [accordion
         "Groups"
         [groups-table @submodule]
         [manage-group @submodule]]
+
        [:hr]
        ^{:key "conditionals"}
        [accordion
         "Conditionals"
         [:div.col-6
-         [conditionals-table submodule-id (concat @var-conditionals @module-conditionals) :submodule/conditionals :submodule/conditionals-operator]]
+         [conditionals-table submodule-eid (concat @var-conditionals @module-conditionals) :submodule/conditionals :submodule/conditionals-operator]]
         [:div.col-6
-         [manage-conditionals submodule-id :submodule/conditionals]]]
+         [manage-conditionals submodule-eid :submodule/conditionals]]]
+
        [:hr]
        [accordion
         "Translations"
         [:div.col-12
          [all-translations (:submodule/translation-key @submodule)]]]
+
        [:hr]
        [accordion
         "Help Page"
-        [help-editor (:submodule/help-key @submodule)]]]]]))
+        [help-editor (:submodule/help-key @submodule)]]
+
+       [:hr]
+       [accordion
+        "Settings"
+        [settings @submodule]]]]]))

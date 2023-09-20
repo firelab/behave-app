@@ -36,6 +36,15 @@
 #include "ignite.h"
 #include "igniteInputs.h"
 
-class SIGIgnite : public Ignite {};
+class SIGIgnite : public Ignite {
+
+public:
+  void calculateFirebrandIgnitionProbability();
+  double getFirebrandIgnitionProbability(ProbabilityUnits::ProbabilityUnitsEnum desiredUnits);
+
+protected:
+
+  double firebrandIgnitionProbability_;
+};
 
 #endif  // IGNITE_H

@@ -5,8 +5,6 @@
 (def schema
   [{:db/ident       :link/source
     :db/doc         "Link's source group variable. Group variable
-                     NOTE: must be an *output* variable.
-
                      (Used in conjuction with :link/destination)."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/one}

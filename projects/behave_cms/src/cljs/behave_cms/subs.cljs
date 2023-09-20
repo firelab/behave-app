@@ -13,7 +13,9 @@
             [behave-cms.lists.subs]
             [behave-cms.modules.subs]
             [behave-cms.subgroups.subs]
-            [behave-cms.submodules.subs]))
+            [behave-cms.submodules.subs]
+            [behave-cms.tools.subs]
+            [behave-cms.subtools.subs]))
 
 ;; Taken from https://lambdaisland.com/blog/11-02-2017-re-frame-form-1-subscriptions
 (def <sub (comp deref rf/subscribe))

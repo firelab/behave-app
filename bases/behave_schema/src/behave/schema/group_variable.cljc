@@ -12,6 +12,7 @@
 (s/def :group-variable/help-key        valid-key?)
 (s/def :group-variable/order           zero-pos?)
 (s/def :group-variable/translation-key valid-key?)
+(s/def :group-variable/research?       boolean?)
 
 (s/def :behave/group-variable (s/keys :req [:group-variable/uuid
                                             :group-variable/order
@@ -20,7 +21,8 @@
                                             :group-variable/cpp-class
                                             :group-variable/cpp-namespace
                                             :group-variable/cpp-function]
-                                      :opt [:group-variable/cpp-parameter]))
+                                      :opt [:group-variable/cpp-parameter
+                                            :group-variable/research?]))
 
 ;;; Schema
 
@@ -49,6 +51,11 @@
    {:db/ident       :group-variable/cpp-parameter
     :db/doc         "Group variable's C++ parameter."
     :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :group-variable/research?
+    :db/doc         "Whether a Group Variable is for research."
+    :db/valueType   :db.type/boolean
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :group-variable/order

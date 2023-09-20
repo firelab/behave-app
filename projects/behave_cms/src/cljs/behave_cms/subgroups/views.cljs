@@ -1,11 +1,8 @@
 (ns behave-cms.subgroups.views
   (:require [clojure.set   :refer [difference]]
-            [clojure.string :as str]
-            [reagent.core  :as r]
             [re-frame.core :as rf]
-            [data-utils.interface :refer [parse-int]]
-            [string-utils.interface :refer [->kebab ->str]]
-            [behave-cms.components.common          :refer [accordion checkbox dropdown simple-table window]]
+            [string-utils.interface :refer [->kebab]]
+            [behave-cms.components.common          :refer [accordion checkbox simple-table window]]
             [behave-cms.components.conditionals    :refer [conditionals-table manage-conditionals]]
             [behave-cms.components.entity-form     :refer [entity-form]]
             [behave-cms.help.views                 :refer [help-editor]]
@@ -43,8 +40,7 @@
       :on-decrease #(rf/dispatch [:api/reorder % @subgroups :group/order :dec])}]))
 
 (defn- variables-table [group-id]
-  (let [translation-key (rf/subscribe [:entity group-id] '[:group/translation-key])
-        group-variables (rf/subscribe [:group/variables group-id])]
+  (let [group-variables (rf/subscribe [:group/variables group-id])]
     [simple-table
      [:variable/name]
      (sort-by :group-variable/order @group-variables)
@@ -65,20 +61,20 @@
     [:div.row
      [:h4 "Add Variable:"]
      [variable-search
-      remaining
-      (u/debounce #(rf/dispatch [:state/set-state [:search :variables] %]) 1000)
-      #(let [variable @(rf/subscribe [:pull '[:variable/name] %])]
-         (rf/dispatch [:api/create-entity
-                       {:group/_group-variables         group-id
-                        :variable/_group-variables      %
-                        :group-variable/translation-key (str @translation-key ":" (->kebab (:variable/name variable)))
-                        :group-variable/help-key        (str @translation-key ":" (->kebab (:variable/name variable)) ":help")
-                        :group-variable/order           (count @group-variables)}]))
-      #(rf/dispatch [:state/set-state [:search :variables] nil])]]))
+      {:results   remaining
+       :on-change (u/debounce #(rf/dispatch [:state/set-state [:search :variables] %]) 1000)
+       :on-select #(let [variable @(rf/subscribe [:pull '[:variable/name] %])]
+                     (rf/dispatch [:api/create-entity
+                                   {:group/_group-variables         group-id
+                                    :variable/_group-variables      %
+                                    :group-variable/translation-key (str @translation-key ":" (->kebab (:variable/name variable)))
+                                    :group-variable/help-key        (str @translation-key ":" (->kebab (:variable/name variable)) ":help")
+                                    :group-variable/order           (count @group-variables)}]))
+       :on-blur   #(rf/dispatch [:state/set-state [:search :variables] nil])}]]))
 
 ;;; Settings
 
-(defn bool-setting [label attr group]
+(defn- bool-setting [label attr group]
   (let [{id :db/id} group
         *value?     (atom (get group attr))
         update!     #(rf/dispatch [:api/update-entity
@@ -90,7 +86,7 @@
       #(do (swap! *value? not)
            (update!))]]))
 
-(defn group-settings [group]
+(defn- group-settings [group]
   [:div.row.mt-2
    [bool-setting "Repeat Group?" :group/repeat? group]
    [bool-setting "Research Group?" :group/research? group]])
@@ -117,6 +113,7 @@
       (if @parent-group
         (str "/groups/" (:db/id @parent-group))
         (str "/submodules/" (get-in @group [:submodule/_groups 0 :db/id])))
+      "Subgroups"
       (when (seq @subgroups) @subgroups)]
      [window
       sidebar-width
@@ -164,5 +161,3 @@
         "Settings"
         [:div.col-12
          [group-settings @group]]]]]]))
-
-(def list-subsubgroups-page #'list-subgroups-page)

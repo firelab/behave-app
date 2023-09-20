@@ -10,10 +10,15 @@
    [c/tab {:variant "outline-primary"
            :label   title}]])
 
-(defn- sidebar-module [{icon-name :icon translation-key :label on-select :on-select selected? :selected? :as c}]
+(defn- sidebar-module [{icon-name       :icon
+                        translation-key :label
+                        on-select       :on-select
+                        selected?       :selected?
+                        disabled?       :disabled? :as c}]
   (let [translation (<t translation-key)]
     [:div {:class        "sidebar-group__module"
-           :on-click     #(on-select c)
+           :on-click     (when (not disabled?)
+                           #(on-select c))
            :tabindex     0
            :on-key-press (on-enter #(on-select c))}
      [:div.sidebar-group__module__icon
@@ -29,7 +34,7 @@
      ^{:key (:label module)}
      [sidebar-module module])])
 
-(defn sidebar [{:keys [ws-uuid]}]
+(defn sidebar [{:keys [ws-uuid io]}]
   (let [*sidebar-modules (rf/subscribe [:state [:sidebar :*modules]])
         on-select        #(do (rf/dispatch [:state/set [:sidebar :*modules] (:module %)])
                               (rf/dispatch [:state/set [:worksheet :*modules] (:module %)]))]
@@ -69,7 +74,11 @@
                                   :on-select on-select
                                   :selected? (contains? @*sidebar-modules :mortality)
                                   :module    #{:mortality}}])}]
-     [sidebar-group {:title     @(<t (bp "tools_and_settings"))
-                     :modules   [{:label "behaveplus:tools" :icon "tools2"}
-                                 {:label "behaveplus:settings" :icon "settings2"}]
-                     :on-select on-select}]]))
+     [sidebar-group {:title   @(<t (bp "tools_and_settings"))
+                     :modules [{:label     "behaveplus:tools"
+                                :icon      "tools2"
+                                :disabled?  (not (= io :input))
+                                :on-select #(rf/dispatch [:state/set [:sidebar :*tools-or-settings] :tools])}
+                               {:label     "behaveplus:settings"
+                                :icon      "settings2"
+                                :on-select #(rf/dispatch [:state/set [:sidebar :*tools-or-settings] :settings])}]}]]))

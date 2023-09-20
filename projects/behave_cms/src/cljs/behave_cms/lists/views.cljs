@@ -54,6 +54,10 @@
                                    {:label     "Index"
                                     :required? true
                                     :field-key :list-option/value}
+                                   {:label     "Hide Option?"
+                                    :type      :checkbox
+                                    :field-key :list-option/hide?
+                                    :options   [{:value true}]}
                                    {:label     "Default"
                                     :type      :radio
                                     :field-key :list-option/default

@@ -22,64 +22,69 @@
           *module                       (subscribe [:wizard/*module module])
           *submodule                    (subscribe [:wizard/*submodule (:db/id @*module) submodule io])
           submodule-help-keys           (subscribe [:help/submodule-help-keys (:db/id @*submodule)])]
-      [(:module/help-key @*module) @submodule-help-keys])
+      (concat [(:module/help-key @*module)] @submodule-help-keys))
 
     :else
     "behaveplus:help"))
 
 (defn- help-section
-  "Recursivley builds a tree of elements given a nested vector of keywords.
-  (i.e. [a [b [c d]] [e [f g]]]).
-
-      a
-  ---------
-   |  |  |
-   b  c  e
-      | ---
-      | | |
-      d f g
-
-  Elements will be built using preorder depth first search traversal.
-  For the above example the order is: a b c d e f g."
-  [current-node]
-  (let [last-child?          (string? current-node)
-        current-key          (if last-child? current-node (first current-node))
-        help-contents        (subscribe [:help/content current-key])
-        help-highlighted-key (subscribe [:help/current-highlighted-key])]
+  "Displays a help section. Optionally takes `highlight?` to highlight a section."
+  [current-key highlight?]
+  (let [help-contents (subscribe [:help/content current-key])]
+    ^{:key current-key}
     [:div {:id    current-key
-           :class [(when (= @help-highlighted-key current-key) "highlight")]}
+           :class [(when highlight? "highlight")]}
      (when (not-empty @help-contents)
        [:div.help-section__content
-        (md->hiccup (first @help-contents))])
-     (when (not last-child?)
-       (map help-section (next current-node)))]))
+        (md->hiccup (first @help-contents))])]))
 
 (defn- help-content [help-keys & [children]]
-  [:div.help-area__content
-   {:tabindex 0}
-   (cond
-     children
-     [children]
+  (let [help-highlighted-key (subscribe [:help/current-highlighted-key])]
+    [:div.help-area__content
+     {:tabindex 0}
+     (cond
+       children
+       [children]
 
-     (string? help-keys)
-     [help-section [help-keys]]
+       (string? help-keys)
+       [help-section help-keys (= help-keys @help-highlighted-key)]
 
-     :else
-     [help-section help-keys])])
+       (seq help-keys)
+       (doall (for [help-key help-keys]
+                ^{:key help-key}
+                [help-section help-key (= help-key @help-highlighted-key)])))]))
 
 (defn help-area [params]
-  (let [current-tab (subscribe [:help/current-tab])
-        loaded?     (subscribe [:app/loaded?])]
+  (let [current-tab           (subscribe [:help/current-tab])
+        loaded?               (subscribe [:app/loaded?])
+        selected-tool-uuid    (subscribe [:tool/selected-tool-uuid])
+        selected-subtool-uuid (subscribe [:tool/selected-subtool-uuid])
+        tool-help-keys        (subscribe [:help/tool-help-keys
+                                          @selected-tool-uuid
+                                          @selected-subtool-uuid])]
     [:div.help-area
      {:aria-live "polite"}
      [:div.help-area__tabs
       [c/tab-group {:variant  "outline-secondary"
                     :on-click #(dispatch [:help/select-tab %])
-                    :tabs     [{:label "Help" :icon-name "help2" :tab :help}
-                               {:label "Guides & Manuals" :icon-name "help-manual" :tab :guides}]}]]
+                    :tabs     (cond-> [{:label     "Help" :icon-name "help2"
+                                        :tab       :module
+                                        :selected? (= @current-tab :module)}
+                                       {:label     "Guides & Manuals"
+                                        :icon-name "help-manual"
+                                        :tab       :guides
+                                        :selected? (= @current-tab :guides)}]
+                                (some? selected-tool-uuid)
+                                (conj {:label     "Tools"
+                                       :icon-name "help-manual"
+                                       :tab       :tools
+                                       :selected? (= @current-tab :tools)}))}]]
      (cond
        (= @current-tab :guides)
        [help-content "behaveplus:guides" test-guides]
+
+       (= @current-tab :tools)
+       [help-content @tool-help-keys]
 
        :else
        (when @loaded?

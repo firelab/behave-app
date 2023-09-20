@@ -14,3 +14,5 @@
 (def zero-pos?         (s/and integer? (comp not neg?)))
 
 (def not-empty-string? (s/and string? (comp not empty?)))
+
+(def valid-io?         (s/and keyword? #(#{:input :output} %)))

@@ -30,3 +30,11 @@
  ******************************************************************************/
 
 #include "SIGIgnite.h"
+
+void SIGIgnite::calculateFirebrandIgnitionProbability() {
+  firebrandIgnitionProbability_ = Ignite::calculateFirebrandIgnitionProbability(ProbabilityUnits::Fraction);
+}
+
+double SIGIgnite::getFirebrandIgnitionProbability(ProbabilityUnits::ProbabilityUnitsEnum desiredUnits) {
+  return ProbabilityUnits::fromBaseUnits(firebrandIgnitionProbability_, desiredUnits);
+}
