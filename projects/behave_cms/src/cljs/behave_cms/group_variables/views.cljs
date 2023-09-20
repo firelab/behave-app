@@ -105,9 +105,9 @@
 
 ;;; Settings
 
-(defn- bool-setting [label attr group]
-  (let [{id :db/id} group
-        *value?     (atom (get group attr))
+(defn- bool-setting [label attr entity]
+  (let [{id :db/id} entity
+        *value?     (atom (get entity attr))
         update!     #(rf/dispatch [:api/update-entity {:db/id id attr @*value?}])]
     [:div.mt-1
      [checkbox
@@ -116,9 +116,9 @@
       #(do (swap! *value? not)
            (update!))]]))
 
-(defn- settings [gv-id]
+(defn- settings [group-variable]
   [:div.row.mt-2
-   [bool-setting "Research Variable?" :group-variable/research? gv-id]])
+   [bool-setting "Research Variable?" :group-variable/research? group-variable]])
 
 ;;; Public Views
 
@@ -171,4 +171,4 @@
         "Settings"
         [:div.col-12
          [:div.row
-          [settings gv-id]]]]]]]))
+          [settings @group-variable]]]]]]]))

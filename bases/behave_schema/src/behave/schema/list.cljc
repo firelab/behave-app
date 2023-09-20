@@ -82,6 +82,11 @@
    {:db/ident       :list-option/translation-key
     :db/doc         "List option's translation key."
     :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :list-option/hide?
+    :db/doc         "Used to hid a list option."
+    :db/valueType   :db.type/boolean
     :db/cardinality :db.cardinality/one}])
 
 ;;; Tests

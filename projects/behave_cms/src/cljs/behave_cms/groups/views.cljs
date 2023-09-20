@@ -40,9 +40,9 @@
 
 ;;; Settings
 
-(defn- bool-setting [label attr group]
-  (let [{id :db/id} group
-        *value?     (atom (get group attr))
+(defn- bool-setting [label attr entity]
+  (let [{id :db/id} entity
+        *value?     (atom (get entity attr))
         update!     #(rf/dispatch [:api/update-entity {:db/id id attr @*value?}])]
     [:div.mt-1
      [checkbox
@@ -51,9 +51,9 @@
       #(do (swap! *value? not)
            (update!))]]))
 
-(defn- settings [submodule-eid]
+(defn- settings [submodule]
   [:div.row.mt-2
-   [bool-setting "Research Submodule?" :submodule/research? submodule-eid]])
+   [bool-setting "Research Submodule?" :submodule/research? submodule]])
 
 (defn list-groups-page
   "Component for groups page. Takes a single map with:
@@ -102,4 +102,4 @@
        [:hr]
        [accordion
         "Settings"
-        [settings submodule-eid]]]]]))
+        [settings @submodule]]]]]))
