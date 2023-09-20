@@ -21,6 +21,7 @@
   (-> event .-target .-value))
 
 (defn input-multi-select
+  "Returns the values from a multi-select dropdown."
   [event]
   (let [options (-> event .-target .-options)]
     (reduce (fn [acc option]
