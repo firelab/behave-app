@@ -30,10 +30,11 @@
        (doall
         (for [group groups]
           ^{:key (:db/id group)}
-          (when @(subscribe [:wizard/show-group?
-                             ws-uuid
-                             (:db/id group)
-                             (:group/conditionals-operator group)])
+          (when (and (not (:group/research? group)) ;; TODO: Remove when "Research Mode" is enabled
+                     @(subscribe [:wizard/show-group?
+                                  ws-uuid
+                                  (:db/id group)
+                                  (:group/conditionals-operator group)]))
             (let [variables (->> group (:group/group-variables) (sort-by :group-variable/variable-order))]
               [:<>
                [component-fn ws-uuid group variables level]

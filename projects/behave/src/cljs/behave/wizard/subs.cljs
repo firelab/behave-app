@@ -44,6 +44,7 @@
  (fn [submodules _]
    (->> submodules
         (filter (fn [submodule] (= (:submodule/io submodule) :input)))
+        (filter #(not (:submodule/research? %))) ;; TODO: Remove when "Research Mode" is enabled
         (sort-by :submodule/order))))
 
 (reg-sub
@@ -54,6 +55,7 @@
  (fn [submodules _]
    (->> submodules
         (filter (fn [submodule] (= (:submodule/io submodule) :output)))
+        (filter #(not (:submodule/research? %))) ;; TODO: Remove when "Research Mode" is enabled
         (sort-by :submodule/order))))
 
 (reg-sub
@@ -92,7 +94,8 @@
                           (merge variable-data)
                           (dissoc :variable/group-variables)
                           (update :variable/kind keyword)))
-                   (:group/group-variables group)))
+                   (filter #(not (:group-variable/research? %)) ;; TODO: Remove when "Research Mode" is enabled
+                           (:group/group-variables group))))
 
       (seq (:group/children group))
       (assoc :group/children
