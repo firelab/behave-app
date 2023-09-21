@@ -469,16 +469,16 @@
                                                                :map-units-settings/units
                                                                option])
                                         :checked?  (= units option)})
-                                     ["in" "cm"])}]
-      [:div.table-settings__map-units-form__map-rep-fraction
-       [c/number-input {:label      "Map Representative Fraction (1:x)"
-                        :value-atom map-rep-frac-atom
-                        :required?  true
-                        :on-change  #(reset! map-rep-frac-atom (input-value %))
-                        :on-blur    #(dispatch [:worksheet/upsert-table-setting-map-units
-                                                ws-uuid
-                                                :map-units-settings/map-rep-fraction
-                                                (long @map-rep-frac-atom)])}]]]]))
+                                     ["in" "cm"])}]]
+     [:div.table-settings__map-units-form__map-rep-fraction
+      [c/number-input {:label      "Map Representative Fraction (1:x)"
+                       :value-atom map-rep-frac-atom
+                       :required?  true
+                       :on-change  #(reset! map-rep-frac-atom (input-value %))
+                       :on-blur    #(dispatch [:worksheet/upsert-table-setting-map-units
+                                               ws-uuid
+                                               :map-units-settings/map-rep-fraction
+                                               (long @map-rep-frac-atom)])}]]]))
 
 (defn- table-settings [ws-uuid]
   (let [*worksheet                (subscribe [:worksheet ws-uuid])
