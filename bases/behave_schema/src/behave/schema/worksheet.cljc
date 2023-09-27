@@ -95,6 +95,11 @@
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident       :worksheet/diagrams
+    :db/doc         "Worksheet's diagrams"
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many}
+
    ;; Notes
    {:db/ident       :note/name
     :db/doc         "Note's name"
@@ -307,6 +312,106 @@
     :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 
-   ;; Table Shading
+   ;; Diagrams
+   {:db/ident       :worksheet.diagram/group-variable-uuid
+    :db/doc         "Diagram's reference to it's output group variable's UUID."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
 
-   ])
+   {:db/ident       :worksheet.diagram/title
+    :db/doc         "Diagram's title"
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :worksheet.diagram/row-id
+    :db/doc         "The diagrams associated row-id in the result table"
+    :db/valueType   :db.type/long
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :worksheet.diagram/ellipses
+    :db/doc         "List of ellipses to plot on this diagram"
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many}
+
+   {:db/ident       :worksheet.diagram/arrows
+    :db/doc         "List of arrows to plot on this diagram"
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many}
+
+   {:db/ident       :worksheet.diagram/scatter-plots
+    :db/doc         "list of scatter-plots to plot on this diagram"
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many}
+
+   ;; Diagram Ellipses
+   {:db/ident       :ellipse/legend-id
+    :db/doc         "Id used for the legend"
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :ellipse/semi-major-axis
+    :db/doc         "The length of the semi minor axis (aka A in the conventional ellipse formula)"
+    :db/valueType   :db.type/double
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :ellipse/semi-minor-axis
+    :db/doc         "The length of the semi minor axis (aka B in the conventional ellipse formula)"
+    :db/valueType   :db.type/double
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :ellipse/rotation
+    :db/doc         "The degrees clockwise from postiive y-axis the ellipse is rotated by"
+    :db/valueType   :db.type/long
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :ellipse/color
+    :db/doc         "The color of the ellipse"
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   ;; Diagram Arrow
+   {:db/ident       :arrow/legend-id
+    :db/doc         "Id used for the legend"
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :arrow/length
+    :db/doc         "The length of the arrow"
+    :db/valueType   :db.type/double
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :arrow/rotation
+    :db/doc         "The degrees clockwise from postiive y-axis the ellipse is rotated by"
+    :db/valueType   :db.type/long
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :arrow/color
+    :db/doc         "The color of the arrow"
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :arrow/dashed?
+    :db/doc         "Weather the arrow should be dashed"
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
+
+   ;; Diagram Scatter Plot
+   {:db/ident       :scatter-plot/legend-id
+    :db/doc         "Id used for the legend"
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :scatter-plot/color
+    :db/doc         "The color of the scatter-plot"
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :scatter-plot/x-coordinates
+    :db/doc         "Comma seperated string of x coordinates"
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :scatter-plot/y-coordinates
+    :db/doc         "Comma seperated string of y coordinates"
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}])

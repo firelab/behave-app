@@ -119,6 +119,12 @@
                :from-key         :Spot
                :to-key           :SIGSpot})
 
+  (cms-import {:behave-file      "~/work/code/hatchet/behave-mirror/ContainAdapter.edn"
+               :sig-adapter-file "~/work/code/hatchet/sig-adapters/SIGContainAdapter.edn"
+               :out-file-name    "SIGContainAdapter.edn"
+               :from-key         :ContainAdapter
+               :to-key           :SIGContainAdapter})
+
   (cms-import {:behave-file      "~/work/code/hatchet/behave-mirror/ignite.edn"
                :sig-adapter-file "~/work/code/hatchet/sig-adapters/SIGIgnite.edn"
                :out-file-name    "SIGIgnite.edn"

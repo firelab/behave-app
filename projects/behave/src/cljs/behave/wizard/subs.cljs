@@ -167,6 +167,17 @@
             all-input-values))))
 
 (reg-sub
+ :wizard/gv-uuid->variable-name
+ (fn [_ [_ gv-uuid]]
+   @(subscribe [:vms/query '[:find ?name .
+                             :in    $ ?gv-uuid
+                             :where
+                             [?gv :bp/uuid ?gv-uuid]
+                             [?v :variable/group-variables ?gv]
+                             [?v :variable/name ?name]]
+                gv-uuid])))
+
+(reg-sub
  :wizard/group-variable
  (fn [[_ gv-uuid]]
    (subscribe [:vms/pull '[* {:variable/_group-variables [:variable/name]}] [:bp/uuid gv-uuid]]))
@@ -354,3 +365,25 @@
    (if (seq conditionals)
      (all-conditionals-pass? worksheet conditionals-operator conditionals)
      true)))
+
+(reg-sub
+ :wizard/diagram-input-gv-uuids
+ (fn [_ [_ gv-uuid]]
+   (d/q '[:find  [?gv-uuid ...]
+          :in    $ ?gv
+          :where
+          [?d :diagram/group-variable ?gv]
+          [?d :diagram/input-group-variables ?g]
+          [?g :bp/uuid ?gv-uuid]]
+        @@s/vms-conn [:bp/uuid gv-uuid])))
+
+(reg-sub
+ :wizard/diagram-output-gv-uuids
+ (fn [_ [_ gv-uuid]]
+   (d/q '[:find  [?gv-uuid ...]
+          :in    $ ?gv
+          :where
+          [?d :diagram/group-variable ?gv]
+          [?d :diagram/output-group-variables ?g]
+          [?g :bp/uuid ?gv-uuid]]
+        @@s/vms-conn [:bp/uuid gv-uuid])))

@@ -52,7 +52,13 @@
     :db/doc         "Module's help key."
     :db/valueType   :db.type/string
     :db/unique      :db.unique/identity
-    :db/cardinality :db.cardinality/one}])
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :module/diagrams
+    :db/doc         "Module's diagrams"
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many}
+   ])
 
 ;;; Testing
 

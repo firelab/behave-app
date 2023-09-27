@@ -385,7 +385,7 @@
         outputs  [(ws-output "SIGMortality" "getProbabilityOfMortality")]
         expected (get row "MortAvgPercent")
 
-        observed (-> (solve-worksheet #{:mortality} inputs outputs)
+        observed (-> (solve-worksheet nil #{:mortality} inputs outputs)
                      (first)
                      (:outputs)
                      (vals)
@@ -438,7 +438,7 @@
         (get row "spreadRate")
 
         observed
-        (-> (solve-worksheet #{:surface} inputs outputs)
+        (-> (solve-worksheet nil #{:surface} inputs outputs)
             (first)
             (:outputs)
             (vals)

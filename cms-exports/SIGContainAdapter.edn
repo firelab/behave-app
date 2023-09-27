@@ -1,0 +1,154 @@
+{:global
+ {:SIGContainAdapter
+  {:setReportSize
+   {:type "void",
+    :id "setReportSize",
+    :parameters
+    [{:id "reportSize", :type "double"}
+     {:id "areaUnits", :type "AreaUnits::AreaUnitsEnum"}]},
+   :setLwRatio
+   {:type "void",
+    :id "setLwRatio",
+    :parameters [{:id "lwRatio", :type "double"}]},
+   :setMaxFireTime
+   {:type "void",
+    :id "setMaxFireTime",
+    :parameters [{:id "maxFireTime", :type "int"}]},
+   :getFireBackAtAttack
+   {:type "double", :id "getFireBackAtAttack", :parameters []},
+   :doContainRun {:type "void", :id "doContainRun", :parameters []},
+   :setReportRate
+   {:type "void",
+    :id "setReportRate",
+    :parameters
+    [{:id "reportRate", :type "double"}
+     {:id "speedUnits", :type "SpeedUnits::SpeedUnitsEnum"}]},
+   :getPerimeterAtInitialAttack
+   {:type "double",
+    :id "getPerimeterAtInitialAttack",
+    :parameters
+    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getPerimiterAtInitialAttack
+   {:type "double",
+    :id "getPerimiterAtInitialAttack",
+    :parameters
+    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :setTactic
+   {:type "void",
+    :id "setTactic",
+    :parameters
+    [{:id "tactic",
+      :type "ContainAdapterEnums::ContainTactic::ContainTacticEnum"}]},
+   :getFireBackAtReport
+   {:type "double", :id "getFireBackAtReport", :parameters []},
+   :removeAllResources
+   {:type "void", :id "removeAllResources", :parameters []},
+   :getFinalFireSize
+   {:type "double",
+    :id "getFinalFireSize",
+    :parameters [{:id "areaUnits", :type "AreaUnits::AreaUnitsEnum"}]},
+   :getFireSizeAtInitialAttack
+   {:type "double",
+    :id "getFireSizeAtInitialAttack",
+    :parameters [{:id "areaUnits", :type "AreaUnits::AreaUnitsEnum"}]},
+   :setAttackDistance
+   {:type "void",
+    :id "setAttackDistance",
+    :parameters
+    [{:id "attackDistance", :type "double"}
+     {:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getContainmentStatus
+   {:type "ContainStatus::ContainStatusEnum",
+    :id "getContainmentStatus",
+    :parameters []},
+   :removeResourceWithThisDesc
+   {:type "int",
+    :id "removeResourceWithThisDesc",
+    :parameters [{:id "desc", :type "char"}]},
+   :getPerimeterAtContainment
+   {:type "double",
+    :id "getPerimeterAtContainment",
+    :parameters
+    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getFirePerimeterY
+   {:type "DoubleVector", :id "getFirePerimeterY", :parameters []},
+   :getFinalFireLineLength
+   {:type "double",
+    :id "getFinalFireLineLength",
+    :parameters
+    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getFireHeadAtAttack
+   {:type "double", :id "getFireHeadAtAttack", :parameters []},
+   :setRetry
+   {:type "void",
+    :id "setRetry",
+    :parameters [{:id "retry", :type "bool"}]},
+   :getFinalContainmentArea
+   {:type "double",
+    :id "getFinalContainmentArea",
+    :parameters [{:id "areaUnits", :type "AreaUnits::AreaUnitsEnum"}]},
+   :removeResourceAt
+   {:type "int",
+    :id "removeResourceAt",
+    :parameters [{:id "index", :type "int"}]},
+   :removeAllResourcesWithThisDesc
+   {:type "int",
+    :id "removeAllResourcesWithThisDesc",
+    :parameters [{:id "desc", :type "char"}]},
+   :getFinalCost {:type "double", :id "getFinalCost", :parameters []},
+   :getFirePerimeterX
+   {:type "DoubleVector", :id "getFirePerimeterX", :parameters []},
+   :getLengthToWidthRatio
+   {:type "double", :id "getLengthToWidthRatio", :parameters []},
+   :getFinalTimeSinceReport
+   {:type "double",
+    :id "getFinalTimeSinceReport",
+    :parameters [{:id "timeUnits", :type "TimeUnits::TimeUnitsEnum"}]},
+   :setFireStartTime
+   {:type "void",
+    :id "setFireStartTime",
+    :parameters [{:id "fireStartTime", :type "int"}]},
+   :setMinSteps
+   {:type "void",
+    :id "setMinSteps",
+    :parameters [{:id "minSteps", :type "int"}]},
+   :getFirePerimeterPointCount
+   {:type "int", :id "getFirePerimeterPointCount", :parameters []},
+   :setMaxSteps
+   {:type "void",
+    :id "setMaxSteps",
+    :parameters [{:id "maxSteps", :type "int"}]},
+   :setMaxFireSize
+   {:type "void",
+    :id "setMaxFireSize",
+    :parameters [{:id "maxFireSize", :type "int"}]},
+   :addResource
+   {:type "void",
+    :id "addResource",
+    :parameters
+    [{:id "arrival", :type "double"}
+     {:id "duration", :type "double"}
+     {:id "timeUnit", :type "TimeUnits::TimeUnitsEnum"}
+     {:id "productionRate", :type "double"}
+     {:id "productionRateUnits", :type "SpeedUnits::SpeedUnitsEnum"}
+     {:id "description", :type "char"}
+     {:id "baseCost", :type "double"}
+     {:id "hourCost", :type "double"}]},
+   :getFireHeadAtReport
+   {:type "double", :id "getFireHeadAtReport", :parameters []}}},
+ :ContainAdapterEnums
+ {:ContainTactic {:ContainTacticEnum ["HeadAttack" "RearAttack"]},
+  :ContainStatus
+  {:ContainStatusEnum
+   ["Unreported"
+    "Reported"
+    "Attacked"
+    "Contained"
+    "Overrun"
+    "Exhausted"
+    "Overflow"
+    "SizeLimitExceeded"
+    "TimeLimitExceeded"]},
+  :ContainFlank
+  {:ContainFlankEnum
+   ["LeftFlank" "RightFlank" "BothFlanks" "NeitherFlank"]}}}

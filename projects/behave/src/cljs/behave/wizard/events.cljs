@@ -90,6 +90,25 @@
            [:dispatch [:worksheet/update-all-y-axis-limits-from-results ws-uuid]]]
       :db (assoc-in db [:state :worksheet] worksheet)})))
 
+(rf/reg-event-fx
+ :wizard/before-solve
+ (fn [_ [_ {:keys [ws-uuid]}]]
+   {:fx [[:dispatch [:worksheet/delete-existing-diagrams ws-uuid]]]}))
+
+(rf/reg-event-fx
+ :wizard/during-solve
+ (fn [{db :db} [_ {:keys [ws-uuid]}]]
+   (let [worksheet (solve-worksheet ws-uuid)]
+     {:db (assoc-in db [:state :worksheet] worksheet)})))
+
+(rf/reg-event-fx
+ :wizard/after-solve
+ (fn [_ [_ {:keys [ws-uuid]}]]
+   (let [path (path-for routes :ws/results-settings :ws-uuid ws-uuid :results-page :settings)]
+     {:fx [[:dispatch [:navigate path]]
+           [:dispatch [:worksheet/update-all-table-filters-from-results ws-uuid]]
+           [:dispatch [:worksheet/update-all-y-axis-limits-from-results ws-uuid]]]})))
+
 (defn- remove-nils
   "remove pairs of key-value that has nil value from a (possibly nested) map. also transform map to
   nil if all of its value are nil"

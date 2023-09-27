@@ -507,6 +507,11 @@
    {:type "MoistureInputMode::MoistureInputModeEnum",
     :id "getMoistureInputMode",
     :parameters []},
+   :getFireLength
+   {:type "double",
+    :id "getFireLength",
+    :parameters
+    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
    :setMoistureScenarios
    {:type "void",
     :id "setMoistureScenarios",
@@ -688,6 +693,8 @@
     :parameters
     [{:id "moistureHundredHour", :type "double"}
      {:id "moistureUnits", :type "MoistureUnits::MoistureUnitsEnum"}]},
+   :getDirectionOfBacking
+   {:type "double", :id "getDirectionOfBacking", :parameters []},
    :getAspenDBH
    {:type "double",
     :id "getAspenDBH",
@@ -868,9 +875,7 @@
     :id "setWindSpeed",
     :parameters
     [{:id "windSpeed", :type "double"}
-     {:id "windSpeedUnits", :type "SpeedUnits::SpeedUnitsEnum"}
-     {:id "windHeightInputMode",
-      :type "WindHeightInputMode::WindHeightInputModeEnum"}]},
+     {:id "windSpeedUnits", :type "SpeedUnits::SpeedUnitsEnum"}]},
    :getMoistureOneHour
    {:type "double",
     :id "getMoistureOneHour",
@@ -1012,6 +1017,11 @@
    {:type "bool",
     :id "getIsMoistureScenarioDefinedByIndex",
     :parameters [{:id "index", :type "int"}]},
+   :getMaxFireWidth
+   {:type "double",
+    :id "getMaxFireWidth",
+    :parameters
+    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
    :getFireLengthToWidthRatio
    {:type "double", :id "getFireLengthToWidthRatio", :parameters []},
    :setFirstFuelModelNumber
@@ -1090,6 +1100,8 @@
      {:id "canopyHeight", :type "double"}
      {:id "canopyHeightUnits", :type "LengthUnits::LengthUnitsEnum"}
      {:id "crownRatio", :type "double"}]},
+   :getDirectionOfFlanking
+   {:type "double", :id "getDirectionOfFlanking", :parameters []},
    :getChaparralLoadDeadLessThanQuarterInch
    {:type "double",
     :id "getChaparralLoadDeadLessThanQuarterInch",

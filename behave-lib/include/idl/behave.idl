@@ -227,14 +227,26 @@ enum ContainFlank_ContainFlankEnum {
 interface SIGContainAdapter {
   void SIGContainAdapter();
   ContainStatus_ContainStatusEnum getContainmentStatus();
+  [Value] DoubleVector getFirePerimeterX();
+  [Value] DoubleVector getFirePerimeterY();
+  [Const] double getAttackDistance(LengthUnits_LengthUnitsEnum lengthUnits);
   double getFinalContainmentArea(AreaUnits_AreaUnitsEnum areaUnits);
   double getFinalCost();
   double getFinalFireLineLength(LengthUnits_LengthUnitsEnum lengthUnits);
   double getFinalFireSize(AreaUnits_AreaUnitsEnum areaUnits);
   double getFinalTimeSinceReport(TimeUnits_TimeUnitsEnum timeUnits);
+  double getFireBackAtAttack();
+  double getFireBackAtReport();
+  double getFireHeadAtAttack();
+  double getFireHeadAtReport();
   double getFireSizeAtInitialAttack(AreaUnits_AreaUnitsEnum areaUnits);
+  double getLengthToWidthRatio();
   double getPerimeterAtContainment(LengthUnits_LengthUnitsEnum lengthUnits);
   double getPerimeterAtInitialAttack(LengthUnits_LengthUnitsEnum lengthUnits);
+  double getReportSize(AreaUnits_AreaUnitsEnum areaUnits);
+  double getReportRate(SpeedUnits_SpeedUnitsEnum speedUnits);
+  long getTactic();
+  long getFirePerimeterPointCount();
   long removeAllResourcesWithThisDesc([Const] DOMString desc);
   long removeResourceAt(long index);
   long removeResourceWithThisDesc([Const] DOMString desc);
@@ -556,6 +568,7 @@ interface SIGSurface {
   WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum getWindAndSpreadOrientationMode();
   WindHeightInputMode_WindHeightInputModeEnum getWindHeightInputMode();
   WindUpslopeAlignmentMode getWindUpslopeAlignmentMode();
+  SurfaceRunInDirectionOf getSurfaceRunInDirectionOf();
   boolean getIsMoistureScenarioDefinedByIndex(long index);
   boolean getIsMoistureScenarioDefinedByName([Const] DOMString name);
   boolean getIsUsingChaparral();
@@ -618,10 +631,14 @@ interface SIGSurface {
   [Const] double getCrownRatio();
   [Const] double getDirectionOfMaxSpread();
   [Const] double getDirectionOfInterest();
+  [Const] double getDirectionOfBacking();
+  [Const] double getDirectionOfFlanking();
   [Const] double getElapsedTime(TimeUnits_TimeUnitsEnum timeUnits);
   [Const] double getEllipticalA(LengthUnits_LengthUnitsEnum lengthUnits);
   [Const] double getEllipticalB(LengthUnits_LengthUnitsEnum lengthUnits);
   [Const] double getEllipticalC(LengthUnits_LengthUnitsEnum lengthUnits);
+  [Const] double getFireLength(LengthUnits_LengthUnitsEnum lengthUnits);
+  [Const] double getMaxFireWidth(LengthUnits_LengthUnitsEnum lengthUnits);
   [Const] double getFireArea(AreaUnits_AreaUnitsEnum areaUnits);
   [Const] double getFireEccentricity();
   [Const] double getFireLengthToWidthRatio();
@@ -644,6 +661,7 @@ interface SIGSurface {
   [Const] double getFuelSavrLiveWoody(long fuelModelNumber, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum savrUnits);
   [Const] double getFuelSavrOneHour(long fuelModelNumber, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum savrUnits);
   [Const] double getFuelbedDepth(long fuelModelNumber, LengthUnits_LengthUnitsEnum lengthUnits);
+  [Const] double getHeadingSpreadRate(SpeedUnits_SpeedUnitsEnum spreadRateUnits);
   [Const] double getHeadingToBackingRatio();
   [Const] double getHeatPerUnitArea(HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum heatPerUnitAreaUnits);
   [Const] double getHeatSink(HeatSinkUnits_HeatSinkUnitsEnum heatSinkUnits);
