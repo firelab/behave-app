@@ -40,7 +40,7 @@ class SIGIgnite : public Ignite {
 
 public:
   void calculateFirebrandIgnitionProbability();
-  double getFirebrandIgnitionProbability(ProbabilityUnits::ProbabilityUnitsEnum desiredUnits);
+  double getFirebrandIgnitionProbability(FractionUnits::FractionUnitsEnum desiredUnits);
 
 protected:
 
