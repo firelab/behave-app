@@ -65,13 +65,13 @@ double SIGSurface::getSurfaceFireReactionIntensityLive() const {
   return getSurfaceFireReactionIntensityForLifeState(FuelLifeState::Live);
 }
 
-double SIGSurface::getCharacteristicMoistureDead(MoistureUnits::MoistureUnitsEnum moistureUnits) const {
-  return MoistureUnits::fromBaseUnits(surfaceFire_.getWeightedMoistureByLifeState(FuelLifeState::Dead),
+double SIGSurface::getCharacteristicMoistureDead(FractionUnits::FractionUnitsEnum moistureUnits) const {
+  return FractionUnits::fromBaseUnits(surfaceFire_.getWeightedMoistureByLifeState(FuelLifeState::Dead),
                                       moistureUnits);
 }
 
-double SIGSurface::getCharacteristicMoistureLive(MoistureUnits::MoistureUnitsEnum moistureUnits) const {
-  return MoistureUnits::fromBaseUnits(surfaceFire_.getWeightedMoistureByLifeState(FuelLifeState::Live),
+double SIGSurface::getCharacteristicMoistureLive(FractionUnits::FractionUnitsEnum moistureUnits) const {
+  return FractionUnits::fromBaseUnits(surfaceFire_.getWeightedMoistureByLifeState(FuelLifeState::Live),
                                       moistureUnits);
 }
 

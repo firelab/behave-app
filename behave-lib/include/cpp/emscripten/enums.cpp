@@ -8,11 +8,8 @@ typedef LengthUnits::LengthUnitsEnum LengthUnits_LengthUnitsEnum;
 typedef LoadingUnits::LoadingUnitsEnum LoadingUnits_LoadingUnitsEnum;
 typedef SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum
     SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum;
-typedef CoverUnits::CoverUnitsEnum CoverUnits_CoverUnitsEnum;
-typedef CuringLevelUnits::CuringLevelEnum CuringLevelUnits_CuringLevelEnum;
+typedef FractionUnits::FractionUnitsEnum FractionUnits_FractionUnitsEnum;
 typedef SpeedUnits::SpeedUnitsEnum SpeedUnits_SpeedUnitsEnum;
-typedef ProbabilityUnits::ProbabilityUnitsEnum ProbabilityUnits_ProbabilityUnitsEnum;
-typedef MoistureUnits::MoistureUnitsEnum MoistureUnits_MoistureUnitsEnum;
 typedef SlopeUnits::SlopeUnitsEnum SlopeUnits_SlopeUnitsEnum;
 typedef DensityUnits::DensityUnitsEnum DensityUnits_DensityUnitsEnum;
 typedef HeatOfCombustionUnits::HeatOfCombustionUnitsEnum HeatOfCombustionUnits_HeatOfCombustionUnitsEnum;
@@ -64,6 +61,3 @@ typedef IgnitionFuelBedType::IgnitionFuelBedTypeEnum IgnitionFuelBedType_Ignitio
 typedef SpotDownWindCanopyMode::SpotDownWindCanopyModeEnum SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum;
 typedef SpotTreeSpecies::SpotTreeSpeciesEnum SpotTreeSpecies_SpotTreeSpeciesEnum;
 typedef SpotFireLocation::SpotFireLocationEnum SpotFireLocation_SpotFireLocationEnum;
-
-// mortality.h
-typedef MortalityRateUnits::MortalityRateUnitsEnum MortalityRateUnits_MortalityRateUnitsEnum;
