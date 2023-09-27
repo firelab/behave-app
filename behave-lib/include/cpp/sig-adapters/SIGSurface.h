@@ -50,7 +50,9 @@ public:
 
   // SIGSurface Getter Methods
   WindUpslopeAlignmentMode getWindUpslopeAlignmentMode() const;
-  double getDirectionOfInterest();
+  double getDirectionOfInterest() const;
+  double getDirectionOfFlanking() const;
+  double getDirectionOfBacking() const;
 
   // SIGSurface Setter Methods
   void setWindSpeed(double windSpeed, SpeedUnits::SpeedUnitsEnum windSpeedUnits);
@@ -80,6 +82,8 @@ public:
   double getEllipticalA(LengthUnits::LengthUnitsEnum lengthUnits) const;
   double getEllipticalB(LengthUnits::LengthUnitsEnum lengthUnits) const;
   double getEllipticalC(LengthUnits::LengthUnitsEnum lengthUnits) const;
+  double getFireLength(LengthUnits::LengthUnitsEnum lengthUnits) const;
+  double getMaxFireWidth(LengthUnits::LengthUnitsEnum lengthUnits) const;
   double getFireArea(AreaUnits::AreaUnitsEnum areaUnits) const;
   double getFirePerimeter(LengthUnits::LengthUnitsEnum lengthUnits) const;
   double getBackingSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits);
@@ -87,6 +91,8 @@ public:
   double getSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits) const;
   double getSpreadDistanceInDirectionOfInterest(LengthUnits::LengthUnitsEnum lengthUnits) const;
   double getSpreadRate(SpeedUnits::SpeedUnitsEnum spreadRateUnits) const;
+  double getHeadingSpreadRate(SpeedUnits::SpeedUnitsEnum spreadRateUnits) const;
+  SurfaceRunInDirectionOf getSurfaceRunInDirectionOf() const;
 
   // MoistureScenario Getter Methods
   char* getMoistureScenarioDescriptionByName(const char* name);

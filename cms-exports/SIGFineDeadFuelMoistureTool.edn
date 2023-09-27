@@ -1,0 +1,119 @@
+{:global
+ {:SIGFineDeadFuelMoistureTool
+  {:getFineDeadFuelMoisture
+   {:type "int", :id "getFineDeadFuelMoisture", :parameters []},
+   :getAspectLabelAtIndex
+   {:type "std::string",
+    :id "getAspectLabelAtIndex",
+    :parameters [{:id "index", :type "int"}]},
+   :getRelativeHumidityLabelAtIndex
+   {:type "std::string",
+    :id "getRelativeHumidityLabelAtIndex",
+    :parameters [{:id "index", :type "int"}]},
+   :getElevationLabelAtIndex
+   {:type "std::string",
+    :id "getElevationLabelAtIndex",
+    :parameters [{:id "index", :type "int"}]},
+   :setTimeOfDayIndex
+   {:type "void",
+    :id "setTimeOfDayIndex",
+    :parameters
+    [{:id "timeOfDayIndex",
+      :type "FDFMToolTimeOfDayIndex::TimeOfDayIndexEnum"}]},
+   :getSlopeIndexSize
+   {:type "int", :id "getSlopeIndexSize", :parameters []},
+   :setSlopeIndex
+   {:type "void",
+    :id "setSlopeIndex",
+    :parameters
+    [{:id "slopeIndex", :type "FDFMToolSlopeIndex::SlopeIndexEnum"}]},
+   :setShadingIndex
+   {:type "void",
+    :id "setShadingIndex",
+    :parameters
+    [{:id "shadingIndex",
+      :type "FDFMToolShadingIndex::ShadingIndexEnum"}]},
+   :setAspectIndex
+   {:type "void",
+    :id "setAspectIndex",
+    :parameters
+    [{:id "aspectIndex",
+      :type "FDFMToolAspectIndex::AspectIndexEnum"}]},
+   :calculate {:type "void", :id "calculate", :parameters []},
+   :getElevationIndexSize
+   {:type "int", :id "getElevationIndexSize", :parameters []},
+   :operator=
+   {:type "FineDeadFuelMoistureTool",
+    :id "operator=",
+    :parameters [{:id "rhs", :type "FineDeadFuelMoistureTool"}]},
+   :getMonthIndexSize
+   {:type "int", :id "getMonthIndexSize", :parameters []},
+   :setRHIndex
+   {:type "void",
+    :id "setRHIndex",
+    :parameters
+    [{:id "relativeHumidityIndex",
+      :type "FDFMToolRHIndex::RHIndexEnum"}]},
+   :getSlopeLabelAtIndex
+   {:type "std::string",
+    :id "getSlopeLabelAtIndex",
+    :parameters [{:id "index", :type "int"}]},
+   :getTimeOfDayLabelAtIndex
+   {:type "std::string",
+    :id "getTimeOfDayLabelAtIndex",
+    :parameters [{:id "index", :type "int"}]},
+   :getDryBulbTemperatureIndexSize
+   {:type "int", :id "getDryBulbTemperatureIndexSize", :parameters []},
+   :getDryBulbTemperatureLabelAtIndex
+   {:type "std::string",
+    :id "getDryBulbTemperatureLabelAtIndex",
+    :parameters [{:id "index", :type "int"}]},
+   :getReferenceMoisture
+   {:type "int", :id "getReferenceMoisture", :parameters []},
+   :calculateByIndex
+   {:type "void",
+    :id "calculateByIndex",
+    :parameters
+    [{:id "aspectIndex", :type "int"}
+     {:id "dryBulbIndex", :type "int"}
+     {:id "elevationIndex", :type "int"}
+     {:id "monthIndex", :type "int"}
+     {:id "relativeHumidityIndex", :type "int"}
+     {:id "shadingIndex", :type "int"}
+     {:id "slopeIndex", :type "int"}
+     {:id "timeOfDayIndex", :type "int"}]},
+   :getTimeOfDayIndexSize
+   {:type "int", :id "getTimeOfDayIndexSize", :parameters []},
+   :getMonthLabelAtIndex
+   {:type "std::string",
+    :id "getMonthLabelAtIndex",
+    :parameters [{:id "index", :type "int"}]},
+   :getCorrectionMoisture
+   {:type "int", :id "getCorrectionMoisture", :parameters []},
+   :setElevationIndex
+   {:type "void",
+    :id "setElevationIndex",
+    :parameters
+    [{:id "elevationIndex",
+      :type "FDFMToolElevationIndex::ElevationIndexEnum"}]},
+   :setDryBulbIndex
+   {:type "void",
+    :id "setDryBulbIndex",
+    :parameters
+    [{:id "dryBulbIndex",
+      :type "FDFMToolDryBulbIndex::DryBulbIndexEnum"}]},
+   :getAspectIndexSize
+   {:type "int", :id "getAspectIndexSize", :parameters []},
+   :getShadingLabelAtIndex
+   {:type "std::string",
+    :id "getShadingLabelAtIndex",
+    :parameters [{:id "index", :type "int"}]},
+   :setMonthIndex
+   {:type "void",
+    :id "setMonthIndex",
+    :parameters
+    [{:id "monthIndex", :type "FDFMToolMonthIndex::MonthIndexEnum"}]},
+   :getShadingIndexSize
+   {:type "int", :id "getShadingIndexSize", :parameters []},
+   :getRelativeHumidityIndexSize
+   {:type "int", :id "getRelativeHumidityIndexSize", :parameters []}}}}

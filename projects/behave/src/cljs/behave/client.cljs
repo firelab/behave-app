@@ -11,6 +11,7 @@
             [behave.translate          :refer [<t load-translations!]]
             [behave.vms.store          :refer [load-vms!]]
             [behave.wizard.views       :as wizard]
+            [behave.demo.views         :refer [demo-output-diagram-page]]
             [behave.worksheet.views    :refer [new-worksheet-page
                                                import-worksheet-page
                                                guided-worksheet-page
@@ -24,6 +25,7 @@
    [:h1 (str @(<t "notfound") " :(")]])
 
 (def handler->page {:home                new-worksheet-page
+                    :demo/diagram        demo-output-diagram-page
                     :ws/all              new-worksheet-page
                     :ws/import           import-worksheet-page
                     :ws/guided           guided-worksheet-page
@@ -63,7 +65,8 @@
          {:href     "#"
           :on-click #(rf/dispatch [:navigate "/"])
           :tabindex 0}
-         [:h1 @(<t "behaveplus")]]]
+         [:img.behave-identity__logo
+          {:src "/images/logo.png"}]]]
        [:td.page__top__toolbar-container
         [toolbar params]]]]
      [:div.page__main

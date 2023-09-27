@@ -53,7 +53,7 @@ set(EMCC_ARGS
     --post-js ${GLUE_JS_FILE}
     -sNO_DISABLE_EXCEPTION_CATCHING
     -sEXPORTED_FUNCTIONS=["_malloc","_free"]
-    -sEXPORTED_RUNTIME_METHODS=["UTF8ToString","allocateUTF8","addFunction"])
+    -sEXPORTED_RUNTIME_METHODS=["UTF8ToString","allocateUTF8","addFunction","cwrap","ccall"])
 
 set(EMCC_JS_ARGS ${EMCC_ARGS} -s WASM=0)
 
@@ -83,6 +83,7 @@ SET(SOURCE
     behave-mirror/src/behave/chaparralFuel.cpp
     behave-mirror/src/behave/crown.cpp
     behave-mirror/src/behave/crownInputs.cpp
+    behave-mirror/src/behave/fineDeadFuelMoistureTool.cpp
     behave-mirror/src/behave/fireSize.cpp
     behave-mirror/src/behave/fuelModels.cpp
     behave-mirror/src/behave/ignite.cpp
@@ -95,6 +96,7 @@ SET(SOURCE
     behave-mirror/src/behave/randfuel.cpp
     behave-mirror/src/behave/randthread.cpp
     behave-mirror/src/behave/safety.cpp
+    behave-mirror/src/behave/slopeTool.cpp
     behave-mirror/src/behave/species_master_table.cpp
     behave-mirror/src/behave/spot.cpp
     behave-mirror/src/behave/spotInputs.cpp
@@ -111,11 +113,12 @@ SET(SOURCE
     include/cpp/sig-adapters/SIGBehaveRun.cpp
     include/cpp/sig-adapters/SIGContainAdapter.cpp
     include/cpp/sig-adapters/SIGCrown.cpp
+    include/cpp/sig-adapters/SIGFineDeadFuelMoistureTool.cpp
     include/cpp/sig-adapters/SIGFuelModels.cpp
     include/cpp/sig-adapters/SIGIgnite.cpp
-    include/cpp/sig-adapters/SIGMortality.cpp
     include/cpp/sig-adapters/SIGMoistureScenarios.cpp
-    include/cpp/sig-adapters/SIGSurface.cpp
+    include/cpp/sig-adapters/SIGMortality.cpp
+    include/cpp/sig-adapters/SIGSlopeTool.cpp
     include/cpp/sig-adapters/SIGSpot.cpp
     include/cpp/sig-adapters/SIGSurface.cpp)
 
@@ -132,6 +135,7 @@ SET(HEADERS
     behave-mirror/src/behave/chaparralFuel.h
     behave-mirror/src/behave/crown.h
     behave-mirror/src/behave/crownInputs.h
+    behave-mirror/src/behave/fineDeadFuelMoistureTool.h
     behave-mirror/src/behave/fireSize.h
     behave-mirror/src/behave/fuelModels.h
     behave-mirror/src/behave/ignite.h
@@ -144,6 +148,7 @@ SET(HEADERS
     behave-mirror/src/behave/randfuel.h
     behave-mirror/src/behave/randthread.h
     behave-mirror/src/behave/safety.h
+    behave-mirror/src/behave/slopeTool.h
     behave-mirror/src/behave/species_master_table.h
     behave-mirror/src/behave/spot.h
     behave-mirror/src/behave/spotInputs.h
@@ -158,15 +163,16 @@ SET(HEADERS
     behave-mirror/src/behave/windSpeedUtility.h
 
     include/cpp/sig-adapters/SIGBehaveRun.h
-    include/cpp/sig-adapters/SIGDiurnalROS.h
     include/cpp/sig-adapters/SIGContainAdapter.h
     include/cpp/sig-adapters/SIGCrown.h
+    include/cpp/sig-adapters/SIGDiurnalROS.h
+    include/cpp/sig-adapters/SIGFineDeadFuelMoistureTool.h
     include/cpp/sig-adapters/SIGFuelModels.cpp
     include/cpp/sig-adapters/SIGIgnite.h
-    include/cpp/sig-adapters/SIGMortality.h
     include/cpp/sig-adapters/SIGMoistureScenarios.h
+    include/cpp/sig-adapters/SIGMortality.h
+    include/cpp/sig-adapters/SIGSlopeTool.h
     include/cpp/sig-adapters/SIGSpot.h
-    include/cpp/sig-adapters/SIGSurface.h
     include/cpp/sig-adapters/SIGString.h
     include/cpp/sig-adapters/SIGSurface.h)
 

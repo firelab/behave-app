@@ -4,6 +4,7 @@
             [re-frame.core                      :as rf]
             [data-utils.interface               :refer [parse-int]]
             [behave-cms.components.common       :refer [accordion
+                                                        checkbox
                                                         dropdown
                                                         simple-table
                                                         window]]
@@ -101,6 +102,24 @@
                  :on-select #(set (p :variable) (u/input-int-value %))}]
       [:button.btn.btn-sm.btn-outline-primary {:type "submit" :disabled @disabled?} "Save"]]]))
 
+
+;;; Settings
+
+(defn- bool-setting [label attr entity]
+  (let [{id :db/id} entity
+        *value?     (atom (get entity attr))
+        update!     #(rf/dispatch [:api/update-entity {:db/id id attr @*value?}])]
+    [:div.mt-1
+     [checkbox
+      label
+      @*value?
+      #(do (swap! *value? not)
+           (update!))]]))
+
+(defn- settings [group-variable]
+  [:div.row.mt-2
+   [bool-setting "Research Variable?" :group-variable/research? group-variable]])
+
 ;;; Public Views
 
 (defn group-variable-page
@@ -145,4 +164,11 @@
         [:div.col-12
          [:div.row
           [links-table gv-id]
-          [links-editor gv-id]]]]]]]))
+          [links-editor gv-id]]]]
+
+       [:hr]
+       [accordion
+        "Settings"
+        [:div.col-12
+         [:div.row
+          [settings @group-variable]]]]]]]))

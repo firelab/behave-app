@@ -1,7 +1,7 @@
 (ns behave-cms.groups.views
   (:require [re-frame.core :as rf]
             [string-utils.interface :refer [->str]]
-            [behave-cms.components.common          :refer [accordion simple-table window]]
+            [behave-cms.components.common          :refer [accordion checkbox simple-table window]]
             [behave-cms.components.conditionals    :refer [conditionals-table manage-conditionals]]
             [behave-cms.components.entity-form     :refer [entity-form]]
             [behave-cms.components.sidebar         :refer [sidebar sidebar-width]]
@@ -38,6 +38,23 @@
        :on-increase #(rf/dispatch [:api/reorder % @groups :group/order :inc])
        :on-decrease #(rf/dispatch [:api/reorder % @groups :group/order :dec])}]]))
 
+;;; Settings
+
+(defn- bool-setting [label attr entity]
+  (let [{id :db/id} entity
+        *value?     (atom (get entity attr))
+        update!     #(rf/dispatch [:api/update-entity {:db/id id attr @*value?}])]
+    [:div.mt-1
+     [checkbox
+      label
+      @*value?
+      #(do (swap! *value? not)
+           (update!))]]))
+
+(defn- settings [submodule]
+  [:div.row.mt-2
+   [bool-setting "Research Submodule?" :submodule/research? submodule]])
+
 (defn list-groups-page
   "Component for groups page. Takes a single map with:
    - :id [int] - Submodule Entity ID"
@@ -56,10 +73,12 @@
       [:div.container
        [:div.row.mb-3.mt-4
         [:h2 (str (:submodule/name @submodule) " (" (->str (:submodule/io @submodule)) ")")]]
+
        [accordion
         "Groups"
         [groups-table @submodule]
         [manage-group @submodule]]
+
        [:hr]
        ^{:key "conditionals"}
        [accordion
@@ -68,12 +87,19 @@
          [conditionals-table submodule-eid (concat @var-conditionals @module-conditionals) :submodule/conditionals :submodule/conditionals-operator]]
         [:div.col-6
          [manage-conditionals submodule-eid :submodule/conditionals]]]
+
        [:hr]
        [accordion
         "Translations"
         [:div.col-12
          [all-translations (:submodule/translation-key @submodule)]]]
+
        [:hr]
        [accordion
         "Help Page"
-        [help-editor (:submodule/help-key @submodule)]]]]]))
+        [help-editor (:submodule/help-key @submodule)]]
+
+       [:hr]
+       [accordion
+        "Settings"
+        [settings @submodule]]]]]))

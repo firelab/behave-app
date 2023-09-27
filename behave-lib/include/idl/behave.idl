@@ -98,6 +98,17 @@ enum SpeedUnits_SpeedUnitsEnum {
   "SpeedUnits::KilometersPerHour"
 };
 
+enum PressureUnits_PressureUnitsEnum {
+  "PressureUnits::Pascal",
+  "PressureUnits::KiloPascal",
+  "PressureUnits::MegaPascal",
+  "PressureUnits::GigaPascal",
+  "PressureUnits::Bar",
+  "PressureUnits::Atmosphere",
+  "PressureUnits::TechnicalAtmosphere",
+  "PressureUnits::PoundPerSquareInch"
+};
+
 enum SlopeUnits_SlopeUnitsEnum {
   "SlopeUnits::Degrees",
   "SlopeUnits::Percent"
@@ -194,16 +205,28 @@ enum ContainFlank_ContainFlankEnum {
 
 // Adapter to the ContainAdapter
 interface SIGContainAdapter {
-    void SIGContainAdapter();
+  void SIGContainAdapter();
   ContainStatus_ContainStatusEnum getContainmentStatus();
+  [Value] DoubleVector getFirePerimeterX();
+  [Value] DoubleVector getFirePerimeterY();
+  [Const] double getAttackDistance(LengthUnits_LengthUnitsEnum lengthUnits);
   double getFinalContainmentArea(AreaUnits_AreaUnitsEnum areaUnits);
   double getFinalCost();
   double getFinalFireLineLength(LengthUnits_LengthUnitsEnum lengthUnits);
   double getFinalFireSize(AreaUnits_AreaUnitsEnum areaUnits);
   double getFinalTimeSinceReport(TimeUnits_TimeUnitsEnum timeUnits);
+  double getFireBackAtAttack();
+  double getFireBackAtReport();
+  double getFireHeadAtAttack();
+  double getFireHeadAtReport();
   double getFireSizeAtInitialAttack(AreaUnits_AreaUnitsEnum areaUnits);
+  double getLengthToWidthRatio();
   double getPerimeterAtContainment(LengthUnits_LengthUnitsEnum lengthUnits);
   double getPerimeterAtInitialAttack(LengthUnits_LengthUnitsEnum lengthUnits);
+  double getReportSize(AreaUnits_AreaUnitsEnum areaUnits);
+  double getReportRate(SpeedUnits_SpeedUnitsEnum speedUnits);
+  long getTactic();
+  long getFirePerimeterPointCount();
   long removeAllResourcesWithThisDesc([Const] DOMString desc);
   long removeResourceAt(long index);
   long removeResourceWithThisDesc([Const] DOMString desc);
@@ -246,7 +269,7 @@ interface SIGIgnite {
 
   IgnitionFuelBedType_IgnitionFuelBedTypeEnum getFuelBedType();
   LightningCharge_LightningChargeEnum getLightningChargeType();
-  double calculateFirebrandIgnitionProbability(FractionUnits_FractionUnitsEnum desiredUnits);
+  void calculateFirebrandIgnitionProbability();
   double calculateLightningIgnitionProbability(FractionUnits_FractionUnitsEnum desiredUnits);
 
   void setAirTemperature(double airTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnites);
@@ -260,6 +283,7 @@ interface SIGIgnite {
 
   double getAirTemperature(TemperatureUnits_TemperatureUnitsEnum desiredUnits);
   double getDuffDepth(LengthUnits_LengthUnitsEnum desiredUnits);
+  double getFirebrandIgnitionProbability(FractionUnits_FractionUnitsEnum desiredUnits);
   double getFuelTemperature(TemperatureUnits_TemperatureUnitsEnum desiredUnits);
   double getMoistureHundredHour(FractionUnits_FractionUnitsEnum desiredUnits);
   double getMoistureOneHour(FractionUnits_FractionUnitsEnum desiredUnits);
@@ -524,6 +548,7 @@ interface SIGSurface {
   WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum getWindAndSpreadOrientationMode();
   WindHeightInputMode_WindHeightInputModeEnum getWindHeightInputMode();
   WindUpslopeAlignmentMode getWindUpslopeAlignmentMode();
+  SurfaceRunInDirectionOf getSurfaceRunInDirectionOf();
   boolean getIsMoistureScenarioDefinedByIndex(long index);
   boolean getIsMoistureScenarioDefinedByName([Const] DOMString name);
   boolean getIsUsingChaparral();
@@ -586,10 +611,14 @@ interface SIGSurface {
   [Const] double getCrownRatio();
   [Const] double getDirectionOfMaxSpread();
   [Const] double getDirectionOfInterest();
+  [Const] double getDirectionOfBacking();
+  [Const] double getDirectionOfFlanking();
   [Const] double getElapsedTime(TimeUnits_TimeUnitsEnum timeUnits);
   [Const] double getEllipticalA(LengthUnits_LengthUnitsEnum lengthUnits);
   [Const] double getEllipticalB(LengthUnits_LengthUnitsEnum lengthUnits);
   [Const] double getEllipticalC(LengthUnits_LengthUnitsEnum lengthUnits);
+  [Const] double getFireLength(LengthUnits_LengthUnitsEnum lengthUnits);
+  [Const] double getMaxFireWidth(LengthUnits_LengthUnitsEnum lengthUnits);
   [Const] double getFireArea(AreaUnits_AreaUnitsEnum areaUnits);
   [Const] double getFireEccentricity();
   [Const] double getFireLengthToWidthRatio();
@@ -612,6 +641,7 @@ interface SIGSurface {
   [Const] double getFuelSavrLiveWoody(long fuelModelNumber, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum savrUnits);
   [Const] double getFuelSavrOneHour(long fuelModelNumber, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum savrUnits);
   [Const] double getFuelbedDepth(long fuelModelNumber, LengthUnits_LengthUnitsEnum lengthUnits);
+  [Const] double getHeadingSpreadRate(SpeedUnits_SpeedUnitsEnum spreadRateUnits);
   [Const] double getHeadingToBackingRatio();
   [Const] double getHeatPerUnitArea(HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum heatPerUnitAreaUnits);
   [Const] double getHeatSink(HeatSinkUnits_HeatSinkUnitsEnum heatSinkUnits);
@@ -1063,4 +1093,178 @@ interface WindSpeedUtility {
   void WindSpeedUtility();
   double windSpeedAtMidflame(double windSpeedAtTwentyFeet, double windAdjustmentFactor);
   double windSpeedAtTwentyFeetFromTenMeter(double windSpeedAtTenMeters);
+};
+
+enum FDFMToolAspectIndex_AspectIndexEnum {
+  "FDFMToolAspectIndex::NORTH",
+  "FDFMToolAspectIndex::EAST",
+  "FDFMToolAspectIndex::SOUTH",
+  "FDFMToolAspectIndex::WEST"
+};
+
+enum FDFMToolDryBulbIndex_DryBulbIndexEnum {
+  "FDFMToolDryBulbIndex::TEN_TO_TWENTY_NINE_DEGREES_F",
+  "FDFMToolDryBulbIndex::THRITY_TO_FOURTY_NINE_DEGREES_F",
+  "FDFMToolDryBulbIndex::FIFTY_TO_SIXTY_NINE_DEGREES_F",
+  "FDFMToolDryBulbIndex::SEVENTY_TO_EIGHTY_NINE_DEGREES_F",
+  "FDFMToolDryBulbIndex::NINETY_TO_ONE_HUNDRED_NINE_DEGREES_F",
+  "FDFMToolDryBulbIndex::GREATER_THAN_ONE_HUNDRED_NINE_DEGREES_F"
+};
+
+enum FDFMToolElevationIndex_ElevationIndexEnum {
+  "FDFMToolElevationIndex::BELOW_1000_TO_2000_FT",
+  "FDFMToolElevationIndex::LEVEL_WITHIN_1000_FT",
+  "FDFMToolElevationIndex::ABOVE_1000_TO_2000_FT"
+};
+
+enum FDFMToolMonthIndex_MonthIndexEnum {
+  "FDFMToolMonthIndex::MAY_JUNE_JULY",
+  "FDFMToolMonthIndex::FEB_MAR_APR_AUG_SEP_OCT",
+  "FDFMToolMonthIndex::NOV_DEC_JAN"
+};
+
+enum FDFMToolRHIndex_RHIndexEnum {
+  "FDFMToolRHIndex::ZERO_TO_FOUR_PERCENT",
+  "FDFMToolRHIndex::FIVE_TO_NINE_PERCENT",
+  "FDFMToolRHIndex::TEN_TO_FOURTEEN_PERCENT",
+  "FDFMToolRHIndex::FIFTEEN_TO_NINETEEN_PERCENT",
+  "FDFMToolRHIndex::TWENTY_TO_TWENTY_FOUR_PERCENT",
+  "FDFMToolRHIndex::TWENTY_FIVE_TO_TWENTY_NINE_PERCENT",
+  "FDFMToolRHIndex::THIRTY_TO_THIRTY_FOUR_PERCENT",
+  "FDFMToolRHIndex::THIRTY_FIVE_TO_THIRTY_NINE_PERCENT",
+  "FDFMToolRHIndex::FORTY_TO_FORTY_FOUR_PERCENT",
+  "FDFMToolRHIndex::FORTY_FIVE_TO_FORTY_NINE_PERCENT",
+  "FDFMToolRHIndex::FIFTY_TO_FIFTY_FOUR_PERCENT",
+  "FDFMToolRHIndex::FIFTY_FIVE_TO_FIFTY_NINE_PERCENT",
+  "FDFMToolRHIndex::SIXTY_TO_SIXTY_FOUR_PERCENT",
+  "FDFMToolRHIndex::SIXTY_FIVE_TO_SIXTY_NINE_PERCENT",
+  "FDFMToolRHIndex::SEVENTY_TO_SEVENTY_FOUR_PERCENT",
+  "FDFMToolRHIndex::SEVENTY_FIVE_TO_SEVENTY_NINE_PERCENT",
+  "FDFMToolRHIndex::EIGHTY_TO_EIGHTY_FOUR_PERCENT",
+  "FDFMToolRHIndex::EIGHTY_FIVE_TO_EIGHTY_NINE_PERCENT",
+  "FDFMToolRHIndex::NINETY_TO_NINETY_FOUR_PERCENT",
+  "FDFMToolRHIndex::NINETY_FIVE_TO_NINETY_NINE_PERCENT",
+  "FDFMToolRHIndex::ONE_HUNDRED_PERCENT"
+};
+
+enum FDFMToolShadingIndex_ShadingIndexEnum {
+  "FDFMToolShadingIndex::EXPOSED",
+  "FDFMToolShadingIndex::SHADED"
+};
+
+enum FDFMToolSlopeIndex_SlopeIndexEnum {
+  "FDFMToolSlopeIndex::ZERO_TO_THIRTY_PERCENT",
+  "FDFMToolSlopeIndex::GREATER_THAN_OR_EQUAL_TO_THIRTY_ONE_PERCENT"
+};
+
+enum FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum {
+  "FDFMToolTimeOfDayIndex::EIGHT_HUNDRED_HOURS_TO_NINE_HUNDRED_FIFTY_NINE",
+  "FDFMToolTimeOfDayIndex::TEN_HUNDRED_HOURS_TO_ELEVEN__HUNDRED_FIFTY_NINE",
+  "FDFMToolTimeOfDayIndex::TWELVE_HUNDRED_HOURS_TO_THIRTEEN_HUNDRED_FIFTY_NINE",
+  "FDFMToolTimeOfDayIndex::FOURTEEN_HUNDRED_HOURS_TO_FIFTEEN_HUNDRED_FIFTY_NINE",
+  "FDFMToolTimeOfDayIndex::SIXTEEN_HUNDRED_HOURS_TO_SIXTEEN_HUNDRED_FIFTY_NINE",
+  "FDFMToolTimeOfDayIndex::EIGHTTEEN_HUNDRED_HOURS_TO_SUNSET"
+};
+
+interface SIGFineDeadFuelMoistureTool {
+  void SIGFineDeadFuelMoistureTool();
+  void calculate();
+  void setTimeOfDayIndex(FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum timeOfDayIndex);
+  void setSlopeIndex(FDFMToolSlopeIndex_SlopeIndexEnum slopeIndex);
+  void setShadingIndex(FDFMToolShadingIndex_ShadingIndexEnum shadingIndex);
+  void setAspectIndex(FDFMToolAspectIndex_AspectIndexEnum aspectIndex);
+  void setRHIndex(FDFMToolRHIndex_RHIndexEnum relativeHumidityIndex);
+  void setElevationIndex(FDFMToolElevationIndex_ElevationIndexEnum elevationIndex);
+  void setDryBulbIndex(FDFMToolDryBulbIndex_DryBulbIndexEnum dryBulbIndex);
+  void setMonthIndex(FDFMToolMonthIndex_MonthIndexEnum monthIndex);
+  long getFineDeadFuelMoisture();
+  long getSlopeIndexSize();
+  long getElevationIndexSize();
+  long getMonthIndexSize();
+  long getDryBulbTemperatureIndexSize();
+  long getReferenceMoisture();
+  void calculateByIndex(long aspectIndex, long dryBulbIndex, long elevationIndex, long monthIndex, long relativeHumidityIndex, long shadingIndex, long slopeIndex, long timeOfDayIndex);
+  long getTimeOfDayIndexSize();
+  long getCorrectionMoisture();
+  long getAspectIndexSize();
+  long getShadingIndexSize();
+  long getRelativeHumidityIndexSize();
+};
+
+enum RepresentativeFraction_RepresentativeFractionEnum {
+  "RepresentativeFraction::NINTEEN_HUNDRED_EIGHTY",
+  "RepresentativeFraction::THREE_THOUSAND_NINEHUNDRED_SIXTY",
+  "RepresentativeFraction::SEVEN_THOUSAND_NINEHUNDRED_TWENTY",
+  "RepresentativeFraction::TEN_THOUSAND",
+  "RepresentativeFraction::FIFTEEN_THOUSAND_EIGHT_HUNDRED_FORTY",
+  "RepresentativeFraction::TWENTY_ONE_THOUSAND_ONE_HUNDRED_TWENTY",
+  "RepresentativeFraction::TWENTY_FOUR_THOUSAND",
+  "RepresentativeFraction::THRITY_ONE_THOUSAND_SIX_HUNDRED_EIGHTY",
+  "RepresentativeFraction::FIFTY_THOUSAND",
+  "RepresentativeFraction::SIXTY_TWO_THOUSAND_FIVE_HUNDRED",
+  "RepresentativeFraction::SIXTY_THREE_THOUSAND_THREE_HUNDRED_SIXTY",
+  "RepresentativeFraction::ONE_HUNDRED_THOUSAND",
+  "RepresentativeFraction::ONE_HUNDRED_TWENTY_SIX_THOUSAND_SEVEN_HUNDRED_TWENTY",
+  "RepresentativeFraction::TWO_HUNDRED_FIFTY_THOUSAND",
+  "RepresentativeFraction::TWO_HUNDRED_FIFTY_THREE_THOUSAND_FOUR_HUNDRED_FORTY",
+  "RepresentativeFraction::FIVE_HUNDRED_SIX_THOUSAND_EIGHT_HUNDRED_EIGHTY",
+  "RepresentativeFraction::ONE_MILLION",
+  "RepresentativeFraction::ONE_MILLION_THIRTEEN_THOUSAND_SEVEN_HUNDRED_SIXTY",
+};
+
+enum HorizontalDistanceIndex_HorizontalDistanceIndexEnum {
+  "HorizontalDistanceIndex::UPSLOPE_ZERO_DEGREES",
+  "HorizontalDistanceIndex::FIFTEEN_DEGREES_FROM_UPSLOPE",
+  "HorizontalDistanceIndex::THIRTY_DEGREES_FROM_UPSLOPE",
+  "HorizontalDistanceIndex::FORTY_FIVE_DEGREES_FROM_UPSLOPE",
+  "HorizontalDistanceIndex::SIXTY_DEGREES_FROM_UPSLOPE",
+  "HorizontalDistanceIndex::SEVENTY_FIVE_DEGREES_FROM_UPSLOPE",
+  "HorizontalDistanceIndex::CROSS_SLOPE_NINETY_DEGREES"
+};
+
+interface SIGSlopeTool {
+  void SIGSlopeTool();
+  double getCentimetersPerKilometerAtIndex(long index);
+  double getCentimetersPerKilometerAtRepresentativeFraction(RepresentativeFraction_RepresentativeFractionEnum representativeFraction);
+  double getHorizontalDistance(HorizontalDistanceIndex_HorizontalDistanceIndexEnum horizontalDistanceIndex, LengthUnits_LengthUnitsEnum mapDistanceUnits);
+  double getHorizontalDistanceAtIndex(long index, LengthUnits_LengthUnitsEnum mapDistanceUnits);
+  double getHorizontalDistanceFifteen(LengthUnits_LengthUnitsEnum mapDistanceUnits);
+  double getHorizontalDistanceFourtyFive(LengthUnits_LengthUnitsEnum mapDistanceUnits);
+  double getHorizontalDistanceMaxSlope(SlopeUnits_SlopeUnitsEnum slopeUnits);
+  double getHorizontalDistanceNinety(LengthUnits_LengthUnitsEnum mapDistanceUnits);
+  double getHorizontalDistanceSeventy(LengthUnits_LengthUnitsEnum mapDistanceUnits);
+  double getHorizontalDistanceSixty(LengthUnits_LengthUnitsEnum mapDistanceUnits);
+  double getHorizontalDistanceThirty(LengthUnits_LengthUnitsEnum mapDistanceUnits);
+  double getHorizontalDistanceZero(LengthUnits_LengthUnitsEnum mapDistanceUnits);
+  double getInchesPerMileAtIndex(long index);
+  double getInchesPerMileAtRepresentativeFraction(RepresentativeFraction_RepresentativeFractionEnum representativeFraction);
+  double getKilometersPerCentimeterAtIndex(long index);
+  double getKilometersPerCentimeterAtRepresentativeFraction(RepresentativeFraction_RepresentativeFractionEnum representativeFraction);
+  double getMilesPerInchAtIndex(long index);
+  double getMilesPerInchAtRepresentativeFraction(RepresentativeFraction_RepresentativeFractionEnum representativeFraction);
+  double getSlopeElevationChangeFromMapMeasurements(LengthUnits_LengthUnitsEnum elevationUnits);
+  double getSlopeFromMapMeasurements(SlopeUnits_SlopeUnitsEnum slopeUnits);
+  double getSlopeHorizontalDistanceFromMapMeasurements(LengthUnits_LengthUnitsEnum distanceUnits);
+  double getSlopeFromMapMeasurementsInDegrees();
+  double getSlopeFromMapMeasurementsInPercent();
+  long getNumberOfHorizontalDistances();
+  long getNumberOfRepresentativeFractions();
+  long getRepresentativeFractionAtIndex(long index);
+  long getRepresentativeFractionAtRepresentativeFraction(RepresentativeFraction_RepresentativeFractionEnum representativeFraction);
+  void calculateHorizontalDistance();
+  void calculateSlopeFromMapMeasurements();
+  void setCalculatedMapDistance(double calculatedMapDistance, LengthUnits_LengthUnitsEnum distanceUnits);
+  void setContourInterval(double contourInterval, LengthUnits_LengthUnitsEnum contourUnits);
+  void setMapDistance(double mapDistance, LengthUnits_LengthUnitsEnum distanceUnits);
+  void setMapRepresentativeFraction(long mapRepresentativeFraction);
+  void setMaxSlopeSteepness(double maxSlopeSteepness);
+  void setNumberOfContours(double numberOfContours);
+};
+
+interface VaporPressureDeficitCalculator {
+  void VaporPressureDeficitCalculator();
+  void runCalculation();
+  void setTemperature(double temperature, TemperatureUnits_TemperatureUnitsEnum units);
+  void setRelativeHumidity(double relativeHumidity, FractionUnits_FractionUnitsEnum units);
+  double getVaporPressureDeficit(PressureUnits_PressureUnitsEnum units);
 };

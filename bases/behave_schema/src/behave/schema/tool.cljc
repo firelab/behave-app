@@ -1,6 +1,6 @@
 (ns behave.schema.tool
   (:require [clojure.spec.alpha  :as s]
-            [behave.schema.utils :refer [valid-key? uuid-string? zero-pos?]]))
+            [behave.schema.utils :refer [valid-key? zero-pos?]]))
 
 
 (s/def :tool/name            string?)
@@ -31,6 +31,11 @@
     :db/doc         "Tool's subtools."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
+
+   {:db/ident       :tool/lib-ns
+    :db/doc         "Tool's cljs namespace where functions are defined."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
 
    {:db/ident       :tool/translation-key
     :db/doc         "Tool's translation key."

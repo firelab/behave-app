@@ -44,6 +44,7 @@
  (fn [submodules _]
    (->> submodules
         (filter (fn [submodule] (= (:submodule/io submodule) :input)))
+        (filter #(not (:submodule/research? %))) ;; TODO: Remove when "Research Mode" is enabled
         (sort-by :submodule/order))))
 
 (reg-sub
@@ -54,6 +55,7 @@
  (fn [submodules _]
    (->> submodules
         (filter (fn [submodule] (= (:submodule/io submodule) :output)))
+        (filter #(not (:submodule/research? %))) ;; TODO: Remove when "Research Mode" is enabled
         (sort-by :submodule/order))))
 
 (reg-sub
@@ -92,7 +94,8 @@
                           (merge variable-data)
                           (dissoc :variable/group-variables)
                           (update :variable/kind keyword)))
-                   (:group/group-variables group)))
+                   (filter #(not (:group-variable/research? %)) ;; TODO: Remove when "Research Mode" is enabled
+                           (:group/group-variables group))))
 
       (seq (:group/children group))
       (assoc :group/children
@@ -162,6 +165,17 @@
               (> (count (str/split value #",|\s"))
                  1))
             all-input-values))))
+
+(reg-sub
+ :wizard/gv-uuid->variable-name
+ (fn [_ [_ gv-uuid]]
+   @(subscribe [:vms/query '[:find ?name .
+                             :in    $ ?gv-uuid
+                             :where
+                             [?gv :bp/uuid ?gv-uuid]
+                             [?v :variable/group-variables ?gv]
+                             [?v :variable/name ?name]]
+                gv-uuid])))
 
 (reg-sub
  :wizard/group-variable
@@ -351,3 +365,25 @@
    (if (seq conditionals)
      (all-conditionals-pass? worksheet conditionals-operator conditionals)
      true)))
+
+(reg-sub
+ :wizard/diagram-input-gv-uuids
+ (fn [_ [_ gv-uuid]]
+   (d/q '[:find  [?gv-uuid ...]
+          :in    $ ?gv
+          :where
+          [?d :diagram/group-variable ?gv]
+          [?d :diagram/input-group-variables ?g]
+          [?g :bp/uuid ?gv-uuid]]
+        @@s/vms-conn [:bp/uuid gv-uuid])))
+
+(reg-sub
+ :wizard/diagram-output-gv-uuids
+ (fn [_ [_ gv-uuid]]
+   (d/q '[:find  [?gv-uuid ...]
+          :in    $ ?gv
+          :where
+          [?d :diagram/group-variable ?gv]
+          [?d :diagram/output-group-variables ?g]
+          [?g :bp/uuid ?gv-uuid]]
+        @@s/vms-conn [:bp/uuid gv-uuid])))

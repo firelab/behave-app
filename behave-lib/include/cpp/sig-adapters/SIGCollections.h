@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include <iterator>
 #include <vector>
 #include "species_master_table.h"
 
@@ -16,6 +17,10 @@ struct SimpleVector {
   SimpleVector() {}
   SimpleVector(size_t size) : vec(size) {}
   SimpleVector(vector<T> other_vec) : vec(other_vec) {}
+  SimpleVector(T* other_array, int size) {
+    for (int i = 0; i < size; i++)
+      vec.push_back(other_array[i]);
+  }
 
   void resize(size_t size) {
     vec.resize(size);

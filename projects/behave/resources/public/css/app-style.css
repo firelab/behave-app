@@ -48,9 +48,9 @@ body {
   padding: 170px 0px 40px;
 }
 
-.page .modal{
+.page .modal {
   position: absolute;
-  z-index: 1;
+  z-index: 100;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
@@ -130,6 +130,11 @@ body {
   height: 140px;
   background-color: var(--white);
   box-shadow: 1px 2px 2px var(--gray-4);
+}
+
+.behave-identity__logo {
+  height: 100px;
+  width: auto;
 }
 
 /* -- End Identity -- */
@@ -584,6 +589,15 @@ body {
   width: 100%;
 }
 
+.table td {
+  text-align:left;
+}
+
+#right,
+.table td + td {
+  text-align:right;
+}
+
 .wizard-notes__header {
   margin-top: 30px;
   margin-bottom: 33px;
@@ -770,24 +784,55 @@ body {
 .atlwdg-trigger.atlwdg-TOP {
   z-index: 100;
 }
+
+.diagram__table {
+  display: inline-block;
+  vertical-align: top;
+  padding-right: 15px;
+  border-spacing: 10px 0;
+}
+
+.diagram__table td:first-child{
+  text-align: right;
+  font-weight: var(--font-weight-bold);
+}
+
+.diagram {
+  padding-bottom: 20px;
+}
+
 /* -- End Help Area -- */
 
 
 /* -- Tool -- */
 .tool .accordion__header {
   position: relative;
-  display: (flex);
-  padding-bottom: 5px;
+}
+
+.tool .accordion__body {
+  margin-bottom: 10px;
+  padding: 10px;
+  background: var(--white);
 }
 
 .tool-output,
 .tool-input {
   display: flex;
   padding-bottom: 5px;
+  min-height: 40px;
+  align-items: center;
 }
 
+.tool-input .input-dropdown__select-wrapper {
+  margin-top: 0px;
+}
+
+.tool-input .input-dropdown__label,
 .tool-input .input-radio-group__label {
   padding: 0px 10px 0px 5px;
+  font-size: var(--font-size-14);
+  font-weight: var(--font-weight-bold);
+  color: black;
 }
 
 .tool-input .input-dropdown {
