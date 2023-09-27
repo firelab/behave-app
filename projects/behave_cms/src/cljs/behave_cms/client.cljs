@@ -24,7 +24,7 @@
             [behave-cms.subtools.views          :refer [subtools-page]]
             [behave-cms.subtool-variables.views :refer [subtool-variable-page]]
             [behave-cms.subgroups.views         :refer [list-subgroups-page]]
-            [behave-cms.submodules.views        :refer [list-submodules-page]]
+            [behave-cms.submodules.views        :refer [submodules-page]]
             [behave-cms.variables.views         :refer [list-variables-page]]))
 
 (declare render-page!)
@@ -45,7 +45,7 @@
                 :get-application      list-modules-page
                 :get-group            list-subgroups-page
                 :get-group-variable   group-variable-page
-                :get-module           list-submodules-page
+                :get-module           submodules-page
                 :get-submodule        list-groups-page
                 :get-tool             tools-page
                 :get-subtool          subtools-page

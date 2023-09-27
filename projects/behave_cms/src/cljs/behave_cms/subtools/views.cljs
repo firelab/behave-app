@@ -28,10 +28,10 @@
         remaining-ids    (difference all-variable-ids current-var-ids)]
     (filter #(-> % (:db/id) (remaining-ids)) all-variables)))
 
-(defn- variable-search-wrapper [subtool-id translation-key disabled? variable-attr variables]
-  (let [query           (rf/subscribe [:state [:search :variables]])
-        all-variables   (rf/subscribe [:group/search-variables @query])
-        remaining       (remaining-variables @all-variables variables)]
+(defn- variable-search-wrapper [subtool-id translation-key disabled? io variables]
+  (let [query         (rf/subscribe [:state [:search :variables]])
+        all-variables (rf/subscribe [:group/search-variables @query])
+        remaining     (remaining-variables @all-variables variables)]
 
     [variable-search
      {:results   remaining
@@ -39,15 +39,15 @@
       :on-change (u/debounce #(rf/dispatch [:state/set-state [:search :variables] %]) 1000)
       :on-select #(let [variable @(rf/subscribe [:pull '[:variable/name] %])]
                     (rf/dispatch [:api/create-entity
-                                  (assoc
-                                   {:variable/_subtool-variables      %
-                                    :subtool-variable/translation-key (str translation-key ":" (->kebab (:variable/name variable)))
-                                    :subtool-variable/help-key        (str translation-key ":" (->kebab (:variable/name variable)) ":help")
-                                    :subtool-variable/order           (count variables)}
-                                   variable-attr subtool-id)]))
+                                  {:variable/_subtool-variables      %
+                                   :subtool-variable/translation-key (str translation-key ":" (->kebab (:variable/name variable)))
+                                   :subtool-variable/help-key        (str translation-key ":" (->kebab (:variable/name variable)) ":help")
+                                   :subtool-variable/order           (count variables)
+                                   :subtool-variable/io              io
+                                   :subtool/_variables               subtool-id}]))
       :on-blur   #(rf/dispatch [:state/set-state [:search :variables] nil])}]))
 
-(defn- manage-variable [subtool-id translation-key input-variables output-variables]
+(defn- manage-variable [subtool-id translation-key variables]
   (r/with-let [*variable-type (r/atom nil)]
     [:div.row
      [:h4 "Add Variable:"]
@@ -61,25 +61,21 @@
       subtool-id
       translation-key
       (empty? @*variable-type)
-      (if (= "input" @*variable-type) :subtool/_input-variables :subtool/_output-variables)
-      (if (= "input" @*variable-type) input-variables output-variables)]]))
+      (if (= "input" @*variable-type) :input :output)
+      variables]]))
 
 (defn- variables-table [label variables]
   [:<>
    [:h5 label]
    [simple-table
-    [:variable/name]
-    (sort-by :subtool-variable/order variables)
+    [:variable/name
+     :subtool-variable/io]
+    variables
     {:on-delete   #(when (js/confirm (str "Are you sure you want to delete the variable "
                                           (:variable/name %) "?"))
                      (rf/dispatch [:api/delete-entity %]))
      :on-increase #(rf/dispatch [:api/reorder % variables :subtool-variable/order :inc])
      :on-decrease #(rf/dispatch [:api/reorder % variables :subtool-variable/order :dec])}]])
-
-(defn- all-variable-tables [input-variables output-variables]
-  [:row
-   [variables-table "Input Variables" input-variables]
-   [variables-table "Output Variables" output-variables]])
 
 ;;; Public
 
@@ -89,6 +85,7 @@
   [{subtool-eid :id}]
   (let [subtool          (rf/subscribe [:entity subtool-eid '[* {:tool/_subtools [*]}]])
         tool-eid         (get-in @subtool [:tool/_subtools 0 :db/id])
+        variables        (rf/subscribe [:subtool/variables subtool-eid])
         input-variables  (rf/subscribe [:subtool/input-variables subtool-eid])
         output-variables (rf/subscribe [:subtool/output-variables subtool-eid])]
     [:<>
@@ -106,7 +103,7 @@
        [accordion
         "Variables"
         [:div.col-6
-         [all-variable-tables @input-variables @output-variables]]
+         [variables-table "Variables" @variables]]
         [:div.col-6
          [manage-variable subtool-eid (:subtool/translation-key @subtool) @input-variables @output-variables]]]
        [:hr]

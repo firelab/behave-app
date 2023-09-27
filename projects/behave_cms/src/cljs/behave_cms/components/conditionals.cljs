@@ -1,8 +1,10 @@
 (ns behave-cms.components.conditionals
   (:require
+   [clojure.spec.alpha           :as s]
+   [clojure.string               :as str]
+   [behave.schema.conditionals]
    [behave-cms.components.common :refer [dropdown checkboxes simple-table]]
    [behave-cms.utils             :as u]
-   [clojure.string               :as str]
    [reagent.core                 :as r]
    [re-frame.core                :as rf]
    [string-utils.interface       :refer [->str]]))
@@ -49,8 +51,7 @@
      [simple-table
       [:variable/name :conditional/operator :conditional/values]
       (sort-by :variable/name conditionals)
-      {:on-select cond-attr
-       :on-delete #(when (js/confirm (str "Are you sure you want to delete the conditional " (:variable/name %) "?"))
+      {:on-delete #(when (js/confirm (str "Are you sure you want to delete the conditional " (:variable/name %) "?"))
                      (rf/dispatch [:api/delete-entity %]))}]]))
 
 (defn toggle-item [x xs]
@@ -138,15 +139,18 @@
       {:label     "Value:"
        :multiple? (= :in @(get-field (conj cond-path :conditional/operator)))
        :on-select #(let [vs (u/input-multi-select %)]
-                     (set-field (conj cond-path :conditional/values)
-                                (str/join "," vs)))
+                     (set-field (conj cond-path :conditional/values) vs))
        :options   (if @is-output?
                     [{:value "true" :label "True"}
                      {:value "false" :label "False"}]
                     (map (fn [{value :list-option/value label :list-option/name}]
                            {:value value :label label}) @options))}]]))
 
-(defn manage-conditionals [entity-id cond-attr cond-attr-op]
+(defn manage-conditionals
+  "Component to manage conditional for an entity. Takes:
+   - entity-id [int]: the ID of the entity
+   - cond-attr [keyword]: the attribute name of the conditionals (e.g. `:group/conditionals`)"
+  [entity-id cond-attr]
   (r/with-let [state     (r/atom "variable")
                cond-path [:editors :conditional cond-attr]
                set-type  #(do (reset! state %)
@@ -157,7 +161,8 @@
                               (rf/dispatch-sync [:state/set-state
                                                  (conj cond-path :conditional/type)
                                                  (if (= % "module") :module :group-variable)]))
-               type      (rf/subscribe [:state (conj cond-path :conditional/type)])]
+               conditional (rf/subscribe [:state cond-path])]
+
     [:form.row
      {:on-submit (u/on-submit #(on-submit entity-id cond-attr))}
      [:h4 "Manage Conditionals:"]
@@ -168,7 +173,7 @@
        {:label "Variable" :value "variable"}]
       #(set-type (u/input-value %))]
 
-     (when @type
+     (when (:conditional/type @conditional)
        (condp = @state
          "variable"
          [manage-variable-conditionals entity-id cond-attr]
@@ -176,4 +181,7 @@
          "module"
          [manage-module-conditionals entity-id cond-attr]))
 
-     [:button.btn.btn-sm.btn-outline-primary.mt-4 {:type "submit"} "Save"]]))
+     [:button.btn.btn-sm.btn-outline-primary.mt-4
+      {:type     "submit"
+       :disabled (not (s/valid? :behave/conditional @conditional))}
+      "Save"]]))

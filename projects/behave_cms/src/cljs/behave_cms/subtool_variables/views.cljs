@@ -21,11 +21,9 @@
    - :id [int]: Subtool variable's entity ID."
   [{eid :id}]
   (let [subtool-variable (rf/subscribe [:entity eid '[* {:variable/_subtool-variables [*]
-                                                         :subtool/_input-variables    [*]
-                                                         :subtool/_output-variables   [*]}]])
+                                                         :subtool/_variables           [*]}]])
 
-        subtool          (or (get-in @subtool-variable [:subtool/_input-variables 0])
-                             (get-in @subtool-variable [:subtool/_output-variables 0]))
+        subtool          (get-in @subtool-variable [:subtool/_variables 0])
         variable         (get-in @subtool-variable [:variable/_subtool-variables 0])
         input-variables  (rf/subscribe [:subtool/input-variables (:db/id subtool)])
         output-variables (rf/subscribe [:subtool/output-variables (:db/id subtool)])]

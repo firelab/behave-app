@@ -36,9 +36,11 @@
                                      _*submodule
                                      all-submodules
                                      {:keys [ws-uuid module io submodule]}]]
-    (let [all-submodules  (filter (fn [{op :submodule/conditionals-operator
-                                        id :db/id}]
-                                    @(rf/subscribe [:wizard/show-submodule? ws-uuid id op]))
+    (let [all-submodules  (filter (fn [{op        :submodule/conditionals-operator
+                                        research? :submodule/research?
+                                        id        :db/id}]
+                                    (and (not research?)
+                                         @(rf/subscribe [:wizard/show-submodule? ws-uuid id op])))
                                   all-submodules)
           o-subs          (filter #(= :output (:submodule/io %)) (sort-by :submodule/order all-submodules))
           i-subs          (filter #(= :input (:submodule/io %)) (sort-by :submodule/order all-submodules))

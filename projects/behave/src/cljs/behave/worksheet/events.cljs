@@ -26,10 +26,10 @@
 (rp/reg-event-fx
  :worksheet/new
  (fn [_ [_ {:keys [uuid name modules]}]]
-   {:transact [{:worksheet/uuid    (or uuid (str (d/squuid)))
-                :worksheet/name    name
-                :worksheet/modules modules
-                :worksheet/created (.now js/Date)}]}))
+   (let [tx {:worksheet/uuid    (or uuid (str (d/squuid)))
+             :worksheet/modules modules
+             :worksheet/created (.now js/Date)}]
+     {:transact [(merge tx (when name {:worksheet/name name}))]})))
 
 (rp/reg-event-fx
  :worksheet/update-attr

@@ -4615,7 +4615,7 @@ var wasmImports = {
   "fd_read": _fd_read,
   "fd_seek": _fd_seek,
   "fd_write": _fd_write,
-  "invoke_dii": invoke_dii,
+  "invoke_diii": invoke_diii,
   "invoke_diiidiiiii": invoke_diiidiiiii,
   "invoke_ii": invoke_ii,
   "invoke_iidddiidd": invoke_iidddiidd,
@@ -4837,7 +4837,7 @@ var _emscripten_bind_SIGIgnite_getFuelBedType_0 = Module["_emscripten_bind_SIGIg
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGIgnite_getLightningChargeType_0 = Module["_emscripten_bind_SIGIgnite_getLightningChargeType_0"] = createExportWrapper("emscripten_bind_SIGIgnite_getLightningChargeType_0");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGIgnite_calculateFirebrandIgnitionProbability_1 = Module["_emscripten_bind_SIGIgnite_calculateFirebrandIgnitionProbability_1"] = createExportWrapper("emscripten_bind_SIGIgnite_calculateFirebrandIgnitionProbability_1");
+var _emscripten_bind_SIGIgnite_calculateFirebrandIgnitionProbability_0 = Module["_emscripten_bind_SIGIgnite_calculateFirebrandIgnitionProbability_0"] = createExportWrapper("emscripten_bind_SIGIgnite_calculateFirebrandIgnitionProbability_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGIgnite_calculateLightningIgnitionProbability_1 = Module["_emscripten_bind_SIGIgnite_calculateLightningIgnitionProbability_1"] = createExportWrapper("emscripten_bind_SIGIgnite_calculateLightningIgnitionProbability_1");
 /** @type {function(...*):?} */
@@ -4861,6 +4861,8 @@ var _emscripten_bind_SIGIgnite_getAirTemperature_1 = Module["_emscripten_bind_SI
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGIgnite_getDuffDepth_1 = Module["_emscripten_bind_SIGIgnite_getDuffDepth_1"] = createExportWrapper("emscripten_bind_SIGIgnite_getDuffDepth_1");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_getFirebrandIgnitionProbability_1 = Module["_emscripten_bind_SIGIgnite_getFirebrandIgnitionProbability_1"] = createExportWrapper("emscripten_bind_SIGIgnite_getFirebrandIgnitionProbability_1");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGIgnite_getFuelTemperature_1 = Module["_emscripten_bind_SIGIgnite_getFuelTemperature_1"] = createExportWrapper("emscripten_bind_SIGIgnite_getFuelTemperature_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGIgnite_getMoistureHundredHour_1 = Module["_emscripten_bind_SIGIgnite_getMoistureHundredHour_1"] = createExportWrapper("emscripten_bind_SIGIgnite_getMoistureHundredHour_1");
@@ -4879,25 +4881,25 @@ var _emscripten_bind_SIGMoistureScenarios_getIsMoistureScenarioDefinedByIndex_1 
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMoistureScenarios_getIsMoistureScenarioDefinedByName_1 = Module["_emscripten_bind_SIGMoistureScenarios_getIsMoistureScenarioDefinedByName_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getIsMoistureScenarioDefinedByName_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByIndex_1 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByIndex_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByIndex_1");
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByIndex_2 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByIndex_2"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByIndex_2");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByName_1 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByName_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByName_1");
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByName_2 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByName_2"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByName_2");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByIndex_1 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByIndex_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByIndex_1");
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByIndex_2 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByIndex_2"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByIndex_2");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByName_1 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByName_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByName_1");
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByName_2 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByName_2"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByName_2");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByIndex_1 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByIndex_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByIndex_1");
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByIndex_2 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByIndex_2"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByIndex_2");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByName_1 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByName_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByName_1");
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByName_2 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByName_2"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByName_2");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByIndex_1 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByIndex_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByIndex_1");
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByIndex_2 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByIndex_2"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByIndex_2");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByName_1 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByName_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByName_1");
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByName_2 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByName_2"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByName_2");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByIndex_1 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByIndex_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByIndex_1");
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByIndex_2 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByIndex_2"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByIndex_2");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByName_1 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByName_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByName_1");
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByName_2 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByName_2"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByName_2");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioIndexByName_1 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioIndexByName_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioIndexByName_1");
 /** @type {function(...*):?} */
@@ -5095,9 +5097,9 @@ var _emscripten_bind_SIGSurface_isMoistureClassInputNeededForCurrentFuelModel_1 
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_isUsingTwoFuelModels_0 = Module["_emscripten_bind_SIGSurface_isUsingTwoFuelModels_0"] = createExportWrapper("emscripten_bind_SIGSurface_isUsingTwoFuelModels_0");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSurface_setMoistureScenarioByIndex_1 = Module["_emscripten_bind_SIGSurface_setMoistureScenarioByIndex_1"] = createExportWrapper("emscripten_bind_SIGSurface_setMoistureScenarioByIndex_1");
+var _emscripten_bind_SIGSurface_setCurrentMoistureScenarioByIndex_1 = Module["_emscripten_bind_SIGSurface_setCurrentMoistureScenarioByIndex_1"] = createExportWrapper("emscripten_bind_SIGSurface_setCurrentMoistureScenarioByIndex_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSurface_setMoistureScenarioByName_1 = Module["_emscripten_bind_SIGSurface_setMoistureScenarioByName_1"] = createExportWrapper("emscripten_bind_SIGSurface_setMoistureScenarioByName_1");
+var _emscripten_bind_SIGSurface_setCurrentMoistureScenarioByName_1 = Module["_emscripten_bind_SIGSurface_setCurrentMoistureScenarioByName_1"] = createExportWrapper("emscripten_bind_SIGSurface_setCurrentMoistureScenarioByName_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_calculateFlameLength_3 = Module["_emscripten_bind_SIGSurface_calculateFlameLength_3"] = createExportWrapper("emscripten_bind_SIGSurface_calculateFlameLength_3");
 /** @type {function(...*):?} */
@@ -5285,25 +5287,25 @@ var _emscripten_bind_SIGSurface_getMoistureLiveWoody_1 = Module["_emscripten_bin
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getMoistureOneHour_1 = Module["_emscripten_bind_SIGSurface_getMoistureOneHour_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureOneHour_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByIndex_1 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByIndex_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByIndex_1");
+var _emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByIndex_2 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByIndex_2"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByIndex_2");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByName_1 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByName_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByName_1");
+var _emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByName_2 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByName_2"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByName_2");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByIndex_1 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByIndex_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByIndex_1");
+var _emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByIndex_2 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByIndex_2"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByIndex_2");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByName_1 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByName_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByName_1");
+var _emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByName_2 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByName_2"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByName_2");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByIndex_1 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByIndex_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByIndex_1");
+var _emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByIndex_2 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByIndex_2"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByIndex_2");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByName_1 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByName_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByName_1");
+var _emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByName_2 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByName_2"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByName_2");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSurface_getMoistureScenarioOneHourByIndex_1 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioOneHourByIndex_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioOneHourByIndex_1");
+var _emscripten_bind_SIGSurface_getMoistureScenarioOneHourByIndex_2 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioOneHourByIndex_2"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioOneHourByIndex_2");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSurface_getMoistureScenarioOneHourByName_1 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioOneHourByName_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioOneHourByName_1");
+var _emscripten_bind_SIGSurface_getMoistureScenarioOneHourByName_2 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioOneHourByName_2"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioOneHourByName_2");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSurface_getMoistureScenarioTenHourByIndex_1 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioTenHourByIndex_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioTenHourByIndex_1");
+var _emscripten_bind_SIGSurface_getMoistureScenarioTenHourByIndex_2 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioTenHourByIndex_2"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioTenHourByIndex_2");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGSurface_getMoistureScenarioTenHourByName_1 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioTenHourByName_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioTenHourByName_1");
+var _emscripten_bind_SIGSurface_getMoistureScenarioTenHourByName_2 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioTenHourByName_2"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioTenHourByName_2");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getMoistureTenHour_1 = Module["_emscripten_bind_SIGSurface_getMoistureTenHour_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureTenHour_1");
 /** @type {function(...*):?} */
@@ -5579,9 +5581,9 @@ var _emscripten_bind_SIGCrown_isFuelModelDefined_1 = Module["_emscripten_bind_SI
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_isFuelModelReserved_1 = Module["_emscripten_bind_SIGCrown_isFuelModelReserved_1"] = createExportWrapper("emscripten_bind_SIGCrown_isFuelModelReserved_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGCrown_setMoistureScenarioByIndex_1 = Module["_emscripten_bind_SIGCrown_setMoistureScenarioByIndex_1"] = createExportWrapper("emscripten_bind_SIGCrown_setMoistureScenarioByIndex_1");
+var _emscripten_bind_SIGCrown_setCurrentMoistureScenarioByIndex_1 = Module["_emscripten_bind_SIGCrown_setCurrentMoistureScenarioByIndex_1"] = createExportWrapper("emscripten_bind_SIGCrown_setCurrentMoistureScenarioByIndex_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGCrown_setMoistureScenarioByName_1 = Module["_emscripten_bind_SIGCrown_setMoistureScenarioByName_1"] = createExportWrapper("emscripten_bind_SIGCrown_setMoistureScenarioByName_1");
+var _emscripten_bind_SIGCrown_setCurrentMoistureScenarioByName_1 = Module["_emscripten_bind_SIGCrown_setCurrentMoistureScenarioByName_1"] = createExportWrapper("emscripten_bind_SIGCrown_setCurrentMoistureScenarioByName_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_getAspect_0 = Module["_emscripten_bind_SIGCrown_getAspect_0"] = createExportWrapper("emscripten_bind_SIGCrown_getAspect_0");
 /** @type {function(...*):?} */
@@ -5663,25 +5665,25 @@ var _emscripten_bind_SIGCrown_getMoistureLiveWoody_1 = Module["_emscripten_bind_
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_getMoistureOneHour_1 = Module["_emscripten_bind_SIGCrown_getMoistureOneHour_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureOneHour_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByIndex_1 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByIndex_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByIndex_1");
+var _emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByIndex_2 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByIndex_2"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByIndex_2");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByName_1 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByName_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByName_1");
+var _emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByName_2 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByName_2"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByName_2");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByIndex_1 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByIndex_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByIndex_1");
+var _emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByIndex_2 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByIndex_2"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByIndex_2");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByName_1 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByName_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByName_1");
+var _emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByName_2 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByName_2"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByName_2");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByIndex_1 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByIndex_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByIndex_1");
+var _emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByIndex_2 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByIndex_2"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByIndex_2");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByName_1 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByName_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByName_1");
+var _emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByName_2 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByName_2"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByName_2");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGCrown_getMoistureScenarioOneHourByIndex_1 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioOneHourByIndex_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioOneHourByIndex_1");
+var _emscripten_bind_SIGCrown_getMoistureScenarioOneHourByIndex_2 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioOneHourByIndex_2"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioOneHourByIndex_2");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGCrown_getMoistureScenarioOneHourByName_1 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioOneHourByName_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioOneHourByName_1");
+var _emscripten_bind_SIGCrown_getMoistureScenarioOneHourByName_2 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioOneHourByName_2"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioOneHourByName_2");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGCrown_getMoistureScenarioTenHourByIndex_1 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioTenHourByIndex_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioTenHourByIndex_1");
+var _emscripten_bind_SIGCrown_getMoistureScenarioTenHourByIndex_2 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioTenHourByIndex_2"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioTenHourByIndex_2");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGCrown_getMoistureScenarioTenHourByName_1 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioTenHourByName_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioTenHourByName_1");
+var _emscripten_bind_SIGCrown_getMoistureScenarioTenHourByName_2 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioTenHourByName_2"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioTenHourByName_2");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGCrown_getMoistureTenHour_1 = Module["_emscripten_bind_SIGCrown_getMoistureTenHour_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureTenHour_1");
 /** @type {function(...*):?} */
@@ -5959,6 +5961,138 @@ var _emscripten_bind_WindSpeedUtility_windSpeedAtTwentyFeetFromTenMeter_1 = Modu
 /** @type {function(...*):?} */
 var _emscripten_bind_WindSpeedUtility___destroy___0 = Module["_emscripten_bind_WindSpeedUtility___destroy___0"] = createExportWrapper("emscripten_bind_WindSpeedUtility___destroy___0");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_SIGFineDeadFuelMoistureTool_0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_SIGFineDeadFuelMoistureTool_0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_SIGFineDeadFuelMoistureTool_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_calculate_0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_calculate_0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_calculate_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_setTimeOfDayIndex_1 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_setTimeOfDayIndex_1"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_setTimeOfDayIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_setSlopeIndex_1 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_setSlopeIndex_1"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_setSlopeIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_setShadingIndex_1 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_setShadingIndex_1"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_setShadingIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_setAspectIndex_1 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_setAspectIndex_1"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_setAspectIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_setRHIndex_1 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_setRHIndex_1"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_setRHIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_setElevationIndex_1 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_setElevationIndex_1"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_setElevationIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_setDryBulbIndex_1 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_setDryBulbIndex_1"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_setDryBulbIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_setMonthIndex_1 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_setMonthIndex_1"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_setMonthIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_getFineDeadFuelMoisture_0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_getFineDeadFuelMoisture_0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_getFineDeadFuelMoisture_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_getSlopeIndexSize_0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_getSlopeIndexSize_0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_getSlopeIndexSize_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_getElevationIndexSize_0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_getElevationIndexSize_0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_getElevationIndexSize_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_getMonthIndexSize_0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_getMonthIndexSize_0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_getMonthIndexSize_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_getDryBulbTemperatureIndexSize_0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_getDryBulbTemperatureIndexSize_0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_getDryBulbTemperatureIndexSize_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_getReferenceMoisture_0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_getReferenceMoisture_0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_getReferenceMoisture_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_calculateByIndex_8 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_calculateByIndex_8"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_calculateByIndex_8");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_getTimeOfDayIndexSize_0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_getTimeOfDayIndexSize_0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_getTimeOfDayIndexSize_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_getCorrectionMoisture_0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_getCorrectionMoisture_0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_getCorrectionMoisture_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_getAspectIndexSize_0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_getAspectIndexSize_0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_getAspectIndexSize_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_getShadingIndexSize_0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_getShadingIndexSize_0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_getShadingIndexSize_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_getRelativeHumidityIndexSize_0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_getRelativeHumidityIndexSize_0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_getRelativeHumidityIndexSize_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool___destroy___0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool___destroy___0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_SIGSlopeTool_0 = Module["_emscripten_bind_SIGSlopeTool_SIGSlopeTool_0"] = createExportWrapper("emscripten_bind_SIGSlopeTool_SIGSlopeTool_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getCentimetersPerKilometerAtIndex_1 = Module["_emscripten_bind_SIGSlopeTool_getCentimetersPerKilometerAtIndex_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getCentimetersPerKilometerAtIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getCentimetersPerKilometerAtRepresentativeFraction_1 = Module["_emscripten_bind_SIGSlopeTool_getCentimetersPerKilometerAtRepresentativeFraction_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getCentimetersPerKilometerAtRepresentativeFraction_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistance_2 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistance_2"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistance_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceAtIndex_2 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistanceAtIndex_2"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistanceAtIndex_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceFifteen_1 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistanceFifteen_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistanceFifteen_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceFourtyFive_1 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistanceFourtyFive_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistanceFourtyFive_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceMaxSlope_1 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistanceMaxSlope_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistanceMaxSlope_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceNinety_1 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistanceNinety_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistanceNinety_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceSeventy_1 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistanceSeventy_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistanceSeventy_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceSixty_1 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistanceSixty_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistanceSixty_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceThirty_1 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistanceThirty_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistanceThirty_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceZero_1 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistanceZero_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistanceZero_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getInchesPerMileAtIndex_1 = Module["_emscripten_bind_SIGSlopeTool_getInchesPerMileAtIndex_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getInchesPerMileAtIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getInchesPerMileAtRepresentativeFraction_1 = Module["_emscripten_bind_SIGSlopeTool_getInchesPerMileAtRepresentativeFraction_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getInchesPerMileAtRepresentativeFraction_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getKilometersPerCentimeterAtIndex_1 = Module["_emscripten_bind_SIGSlopeTool_getKilometersPerCentimeterAtIndex_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getKilometersPerCentimeterAtIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getKilometersPerCentimeterAtRepresentativeFraction_1 = Module["_emscripten_bind_SIGSlopeTool_getKilometersPerCentimeterAtRepresentativeFraction_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getKilometersPerCentimeterAtRepresentativeFraction_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getMilesPerInchAtIndex_1 = Module["_emscripten_bind_SIGSlopeTool_getMilesPerInchAtIndex_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getMilesPerInchAtIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getMilesPerInchAtRepresentativeFraction_1 = Module["_emscripten_bind_SIGSlopeTool_getMilesPerInchAtRepresentativeFraction_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getMilesPerInchAtRepresentativeFraction_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getSlopeElevationChangeFromMapMeasurements_1 = Module["_emscripten_bind_SIGSlopeTool_getSlopeElevationChangeFromMapMeasurements_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getSlopeElevationChangeFromMapMeasurements_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurements_1 = Module["_emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurements_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurements_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getSlopeHorizontalDistanceFromMapMeasurements_1 = Module["_emscripten_bind_SIGSlopeTool_getSlopeHorizontalDistanceFromMapMeasurements_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getSlopeHorizontalDistanceFromMapMeasurements_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurementsInDegrees_0 = Module["_emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurementsInDegrees_0"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurementsInDegrees_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurementsInPercent_0 = Module["_emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurementsInPercent_0"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurementsInPercent_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getNumberOfHorizontalDistances_0 = Module["_emscripten_bind_SIGSlopeTool_getNumberOfHorizontalDistances_0"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getNumberOfHorizontalDistances_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getNumberOfRepresentativeFractions_0 = Module["_emscripten_bind_SIGSlopeTool_getNumberOfRepresentativeFractions_0"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getNumberOfRepresentativeFractions_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getRepresentativeFractionAtIndex_1 = Module["_emscripten_bind_SIGSlopeTool_getRepresentativeFractionAtIndex_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getRepresentativeFractionAtIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getRepresentativeFractionAtRepresentativeFraction_1 = Module["_emscripten_bind_SIGSlopeTool_getRepresentativeFractionAtRepresentativeFraction_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getRepresentativeFractionAtRepresentativeFraction_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_calculateHorizontalDistance_0 = Module["_emscripten_bind_SIGSlopeTool_calculateHorizontalDistance_0"] = createExportWrapper("emscripten_bind_SIGSlopeTool_calculateHorizontalDistance_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_calculateSlopeFromMapMeasurements_0 = Module["_emscripten_bind_SIGSlopeTool_calculateSlopeFromMapMeasurements_0"] = createExportWrapper("emscripten_bind_SIGSlopeTool_calculateSlopeFromMapMeasurements_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_setCalculatedMapDistance_2 = Module["_emscripten_bind_SIGSlopeTool_setCalculatedMapDistance_2"] = createExportWrapper("emscripten_bind_SIGSlopeTool_setCalculatedMapDistance_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_setContourInterval_2 = Module["_emscripten_bind_SIGSlopeTool_setContourInterval_2"] = createExportWrapper("emscripten_bind_SIGSlopeTool_setContourInterval_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_setMapDistance_2 = Module["_emscripten_bind_SIGSlopeTool_setMapDistance_2"] = createExportWrapper("emscripten_bind_SIGSlopeTool_setMapDistance_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_setMapRepresentativeFraction_1 = Module["_emscripten_bind_SIGSlopeTool_setMapRepresentativeFraction_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_setMapRepresentativeFraction_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_setMaxSlopeSteepness_1 = Module["_emscripten_bind_SIGSlopeTool_setMaxSlopeSteepness_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_setMaxSlopeSteepness_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_setNumberOfContours_1 = Module["_emscripten_bind_SIGSlopeTool_setNumberOfContours_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_setNumberOfContours_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool___destroy___0 = Module["_emscripten_bind_SIGSlopeTool___destroy___0"] = createExportWrapper("emscripten_bind_SIGSlopeTool___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_VaporPressureDeficitCalculator_VaporPressureDeficitCalculator_0 = Module["_emscripten_bind_VaporPressureDeficitCalculator_VaporPressureDeficitCalculator_0"] = createExportWrapper("emscripten_bind_VaporPressureDeficitCalculator_VaporPressureDeficitCalculator_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_VaporPressureDeficitCalculator_runCalculation_0 = Module["_emscripten_bind_VaporPressureDeficitCalculator_runCalculation_0"] = createExportWrapper("emscripten_bind_VaporPressureDeficitCalculator_runCalculation_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_VaporPressureDeficitCalculator_setTemperature_2 = Module["_emscripten_bind_VaporPressureDeficitCalculator_setTemperature_2"] = createExportWrapper("emscripten_bind_VaporPressureDeficitCalculator_setTemperature_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_VaporPressureDeficitCalculator_setRelativeHumidity_2 = Module["_emscripten_bind_VaporPressureDeficitCalculator_setRelativeHumidity_2"] = createExportWrapper("emscripten_bind_VaporPressureDeficitCalculator_setRelativeHumidity_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_VaporPressureDeficitCalculator_getVaporPressureDeficit_1 = Module["_emscripten_bind_VaporPressureDeficitCalculator_getVaporPressureDeficit_1"] = createExportWrapper("emscripten_bind_VaporPressureDeficitCalculator_getVaporPressureDeficit_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_VaporPressureDeficitCalculator___destroy___0 = Module["_emscripten_bind_VaporPressureDeficitCalculator___destroy___0"] = createExportWrapper("emscripten_bind_VaporPressureDeficitCalculator___destroy___0");
+/** @type {function(...*):?} */
 var _emscripten_enum_AreaUnits_AreaUnitsEnum_SquareFeet = Module["_emscripten_enum_AreaUnits_AreaUnitsEnum_SquareFeet"] = createExportWrapper("emscripten_enum_AreaUnits_AreaUnitsEnum_SquareFeet");
 /** @type {function(...*):?} */
 var _emscripten_enum_AreaUnits_AreaUnitsEnum_Acres = Module["_emscripten_enum_AreaUnits_AreaUnitsEnum_Acres"] = createExportWrapper("emscripten_enum_AreaUnits_AreaUnitsEnum_Acres");
@@ -5974,6 +6108,10 @@ var _emscripten_enum_AreaUnits_AreaUnitsEnum_SquareKilometers = Module["_emscrip
 var _emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareFeetPerAcre = Module["_emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareFeetPerAcre"] = createExportWrapper("emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareFeetPerAcre");
 /** @type {function(...*):?} */
 var _emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareMetersPerHectare = Module["_emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareMetersPerHectare"] = createExportWrapper("emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareMetersPerHectare");
+/** @type {function(...*):?} */
+var _emscripten_enum_FractionUnits_FractionUnitsEnum_Fraction = Module["_emscripten_enum_FractionUnits_FractionUnitsEnum_Fraction"] = createExportWrapper("emscripten_enum_FractionUnits_FractionUnitsEnum_Fraction");
+/** @type {function(...*):?} */
+var _emscripten_enum_FractionUnits_FractionUnitsEnum_Percent = Module["_emscripten_enum_FractionUnits_FractionUnitsEnum_Percent"] = createExportWrapper("emscripten_enum_FractionUnits_FractionUnitsEnum_Percent");
 /** @type {function(...*):?} */
 var _emscripten_enum_CuringLevelUnits_CuringLevelEnum_Fraction = Module["_emscripten_enum_CuringLevelUnits_CuringLevelEnum_Fraction"] = createExportWrapper("emscripten_enum_CuringLevelUnits_CuringLevelEnum_Fraction");
 /** @type {function(...*):?} */
@@ -6026,6 +6164,22 @@ var _emscripten_enum_SpeedUnits_SpeedUnitsEnum_MetersPerMinute = Module["_emscri
 var _emscripten_enum_SpeedUnits_SpeedUnitsEnum_MilesPerHour = Module["_emscripten_enum_SpeedUnits_SpeedUnitsEnum_MilesPerHour"] = createExportWrapper("emscripten_enum_SpeedUnits_SpeedUnitsEnum_MilesPerHour");
 /** @type {function(...*):?} */
 var _emscripten_enum_SpeedUnits_SpeedUnitsEnum_KilometersPerHour = Module["_emscripten_enum_SpeedUnits_SpeedUnitsEnum_KilometersPerHour"] = createExportWrapper("emscripten_enum_SpeedUnits_SpeedUnitsEnum_KilometersPerHour");
+/** @type {function(...*):?} */
+var _emscripten_enum_PressureUnits_PressureUnitsEnum_Pascal = Module["_emscripten_enum_PressureUnits_PressureUnitsEnum_Pascal"] = createExportWrapper("emscripten_enum_PressureUnits_PressureUnitsEnum_Pascal");
+/** @type {function(...*):?} */
+var _emscripten_enum_PressureUnits_PressureUnitsEnum_KiloPascal = Module["_emscripten_enum_PressureUnits_PressureUnitsEnum_KiloPascal"] = createExportWrapper("emscripten_enum_PressureUnits_PressureUnitsEnum_KiloPascal");
+/** @type {function(...*):?} */
+var _emscripten_enum_PressureUnits_PressureUnitsEnum_MegaPascal = Module["_emscripten_enum_PressureUnits_PressureUnitsEnum_MegaPascal"] = createExportWrapper("emscripten_enum_PressureUnits_PressureUnitsEnum_MegaPascal");
+/** @type {function(...*):?} */
+var _emscripten_enum_PressureUnits_PressureUnitsEnum_GigaPascal = Module["_emscripten_enum_PressureUnits_PressureUnitsEnum_GigaPascal"] = createExportWrapper("emscripten_enum_PressureUnits_PressureUnitsEnum_GigaPascal");
+/** @type {function(...*):?} */
+var _emscripten_enum_PressureUnits_PressureUnitsEnum_Bar = Module["_emscripten_enum_PressureUnits_PressureUnitsEnum_Bar"] = createExportWrapper("emscripten_enum_PressureUnits_PressureUnitsEnum_Bar");
+/** @type {function(...*):?} */
+var _emscripten_enum_PressureUnits_PressureUnitsEnum_Atmosphere = Module["_emscripten_enum_PressureUnits_PressureUnitsEnum_Atmosphere"] = createExportWrapper("emscripten_enum_PressureUnits_PressureUnitsEnum_Atmosphere");
+/** @type {function(...*):?} */
+var _emscripten_enum_PressureUnits_PressureUnitsEnum_TechnicalAtmosphere = Module["_emscripten_enum_PressureUnits_PressureUnitsEnum_TechnicalAtmosphere"] = createExportWrapper("emscripten_enum_PressureUnits_PressureUnitsEnum_TechnicalAtmosphere");
+/** @type {function(...*):?} */
+var _emscripten_enum_PressureUnits_PressureUnitsEnum_PoundPerSquareInch = Module["_emscripten_enum_PressureUnits_PressureUnitsEnum_PoundPerSquareInch"] = createExportWrapper("emscripten_enum_PressureUnits_PressureUnitsEnum_PoundPerSquareInch");
 /** @type {function(...*):?} */
 var _emscripten_enum_ProbabilityUnits_ProbabilityUnitsEnum_Fraction = Module["_emscripten_enum_ProbabilityUnits_ProbabilityUnitsEnum_Fraction"] = createExportWrapper("emscripten_enum_ProbabilityUnits_ProbabilityUnitsEnum_Fraction");
 /** @type {function(...*):?} */
@@ -6383,6 +6537,150 @@ var _emscripten_enum_RequiredFieldNames_fire_severity = Module["_emscripten_enum
 /** @type {function(...*):?} */
 var _emscripten_enum_RequiredFieldNames_num_inputs = Module["_emscripten_enum_RequiredFieldNames_num_inputs"] = createExportWrapper("emscripten_enum_RequiredFieldNames_num_inputs");
 /** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_NORTH = Module["_emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_NORTH"] = createExportWrapper("emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_NORTH");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_EAST = Module["_emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_EAST"] = createExportWrapper("emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_EAST");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_SOUTH = Module["_emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_SOUTH"] = createExportWrapper("emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_SOUTH");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_WEST = Module["_emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_WEST"] = createExportWrapper("emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_WEST");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_TEN_TO_TWENTY_NINE_DEGREES_F = Module["_emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_TEN_TO_TWENTY_NINE_DEGREES_F"] = createExportWrapper("emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_TEN_TO_TWENTY_NINE_DEGREES_F");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_THRITY_TO_FOURTY_NINE_DEGREES_F = Module["_emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_THRITY_TO_FOURTY_NINE_DEGREES_F"] = createExportWrapper("emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_THRITY_TO_FOURTY_NINE_DEGREES_F");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_FIFTY_TO_SIXTY_NINE_DEGREES_F = Module["_emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_FIFTY_TO_SIXTY_NINE_DEGREES_F"] = createExportWrapper("emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_FIFTY_TO_SIXTY_NINE_DEGREES_F");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_SEVENTY_TO_EIGHTY_NINE_DEGREES_F = Module["_emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_SEVENTY_TO_EIGHTY_NINE_DEGREES_F"] = createExportWrapper("emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_SEVENTY_TO_EIGHTY_NINE_DEGREES_F");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_NINETY_TO_ONE_HUNDRED_NINE_DEGREES_F = Module["_emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_NINETY_TO_ONE_HUNDRED_NINE_DEGREES_F"] = createExportWrapper("emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_NINETY_TO_ONE_HUNDRED_NINE_DEGREES_F");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_GREATER_THAN_ONE_HUNDRED_NINE_DEGREES_F = Module["_emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_GREATER_THAN_ONE_HUNDRED_NINE_DEGREES_F"] = createExportWrapper("emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_GREATER_THAN_ONE_HUNDRED_NINE_DEGREES_F");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_BELOW_1000_TO_2000_FT = Module["_emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_BELOW_1000_TO_2000_FT"] = createExportWrapper("emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_BELOW_1000_TO_2000_FT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_LEVEL_WITHIN_1000_FT = Module["_emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_LEVEL_WITHIN_1000_FT"] = createExportWrapper("emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_LEVEL_WITHIN_1000_FT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_ABOVE_1000_TO_2000_FT = Module["_emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_ABOVE_1000_TO_2000_FT"] = createExportWrapper("emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_ABOVE_1000_TO_2000_FT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_MAY_JUNE_JULY = Module["_emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_MAY_JUNE_JULY"] = createExportWrapper("emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_MAY_JUNE_JULY");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_FEB_MAR_APR_AUG_SEP_OCT = Module["_emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_FEB_MAR_APR_AUG_SEP_OCT"] = createExportWrapper("emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_FEB_MAR_APR_AUG_SEP_OCT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_NOV_DEC_JAN = Module["_emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_NOV_DEC_JAN"] = createExportWrapper("emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_NOV_DEC_JAN");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_ZERO_TO_FOUR_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_ZERO_TO_FOUR_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_ZERO_TO_FOUR_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIVE_TO_NINE_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIVE_TO_NINE_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIVE_TO_NINE_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TEN_TO_FOURTEEN_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TEN_TO_FOURTEEN_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TEN_TO_FOURTEEN_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTEEN_TO_NINETEEN_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTEEN_TO_NINETEEN_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTEEN_TO_NINETEEN_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TWENTY_TO_TWENTY_FOUR_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TWENTY_TO_TWENTY_FOUR_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TWENTY_TO_TWENTY_FOUR_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TWENTY_FIVE_TO_TWENTY_NINE_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TWENTY_FIVE_TO_TWENTY_NINE_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TWENTY_FIVE_TO_TWENTY_NINE_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_THIRTY_TO_THIRTY_FOUR_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_THIRTY_TO_THIRTY_FOUR_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_THIRTY_TO_THIRTY_FOUR_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_THIRTY_FIVE_TO_THIRTY_NINE_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_THIRTY_FIVE_TO_THIRTY_NINE_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_THIRTY_FIVE_TO_THIRTY_NINE_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FORTY_TO_FORTY_FOUR_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FORTY_TO_FORTY_FOUR_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FORTY_TO_FORTY_FOUR_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FORTY_FIVE_TO_FORTY_NINE_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FORTY_FIVE_TO_FORTY_NINE_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FORTY_FIVE_TO_FORTY_NINE_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTY_TO_FIFTY_FOUR_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTY_TO_FIFTY_FOUR_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTY_TO_FIFTY_FOUR_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTY_FIVE_TO_FIFTY_NINE_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTY_FIVE_TO_FIFTY_NINE_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTY_FIVE_TO_FIFTY_NINE_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SIXTY_TO_SIXTY_FOUR_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SIXTY_TO_SIXTY_FOUR_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SIXTY_TO_SIXTY_FOUR_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SIXTY_FIVE_TO_SIXTY_NINE_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SIXTY_FIVE_TO_SIXTY_NINE_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SIXTY_FIVE_TO_SIXTY_NINE_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SEVENTY_TO_SEVENTY_FOUR_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SEVENTY_TO_SEVENTY_FOUR_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SEVENTY_TO_SEVENTY_FOUR_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SEVENTY_FIVE_TO_SEVENTY_NINE_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SEVENTY_FIVE_TO_SEVENTY_NINE_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SEVENTY_FIVE_TO_SEVENTY_NINE_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_EIGHTY_TO_EIGHTY_FOUR_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_EIGHTY_TO_EIGHTY_FOUR_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_EIGHTY_TO_EIGHTY_FOUR_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_EIGHTY_FIVE_TO_EIGHTY_NINE_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_EIGHTY_FIVE_TO_EIGHTY_NINE_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_EIGHTY_FIVE_TO_EIGHTY_NINE_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_NINETY_TO_NINETY_FOUR_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_NINETY_TO_NINETY_FOUR_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_NINETY_TO_NINETY_FOUR_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_NINETY_FIVE_TO_NINETY_NINE_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_NINETY_FIVE_TO_NINETY_NINE_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_NINETY_FIVE_TO_NINETY_NINE_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_ONE_HUNDRED_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_ONE_HUNDRED_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_ONE_HUNDRED_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolShadingIndex_ShadingIndexEnum_EXPOSED = Module["_emscripten_enum_FDFMToolShadingIndex_ShadingIndexEnum_EXPOSED"] = createExportWrapper("emscripten_enum_FDFMToolShadingIndex_ShadingIndexEnum_EXPOSED");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolShadingIndex_ShadingIndexEnum_SHADED = Module["_emscripten_enum_FDFMToolShadingIndex_ShadingIndexEnum_SHADED"] = createExportWrapper("emscripten_enum_FDFMToolShadingIndex_ShadingIndexEnum_SHADED");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolSlopeIndex_SlopeIndexEnum_ZERO_TO_THIRTY_PERCENT = Module["_emscripten_enum_FDFMToolSlopeIndex_SlopeIndexEnum_ZERO_TO_THIRTY_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolSlopeIndex_SlopeIndexEnum_ZERO_TO_THIRTY_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolSlopeIndex_SlopeIndexEnum_GREATER_THAN_OR_EQUAL_TO_THIRTY_ONE_PERCENT = Module["_emscripten_enum_FDFMToolSlopeIndex_SlopeIndexEnum_GREATER_THAN_OR_EQUAL_TO_THIRTY_ONE_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolSlopeIndex_SlopeIndexEnum_GREATER_THAN_OR_EQUAL_TO_THIRTY_ONE_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_EIGHT_HUNDRED_HOURS_TO_NINE_HUNDRED_FIFTY_NINE = Module["_emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_EIGHT_HUNDRED_HOURS_TO_NINE_HUNDRED_FIFTY_NINE"] = createExportWrapper("emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_EIGHT_HUNDRED_HOURS_TO_NINE_HUNDRED_FIFTY_NINE");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_TEN_HUNDRED_HOURS_TO_ELEVEN__HUNDRED_FIFTY_NINE = Module["_emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_TEN_HUNDRED_HOURS_TO_ELEVEN__HUNDRED_FIFTY_NINE"] = createExportWrapper("emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_TEN_HUNDRED_HOURS_TO_ELEVEN__HUNDRED_FIFTY_NINE");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_TWELVE_HUNDRED_HOURS_TO_THIRTEEN_HUNDRED_FIFTY_NINE = Module["_emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_TWELVE_HUNDRED_HOURS_TO_THIRTEEN_HUNDRED_FIFTY_NINE"] = createExportWrapper("emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_TWELVE_HUNDRED_HOURS_TO_THIRTEEN_HUNDRED_FIFTY_NINE");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_FOURTEEN_HUNDRED_HOURS_TO_FIFTEEN_HUNDRED_FIFTY_NINE = Module["_emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_FOURTEEN_HUNDRED_HOURS_TO_FIFTEEN_HUNDRED_FIFTY_NINE"] = createExportWrapper("emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_FOURTEEN_HUNDRED_HOURS_TO_FIFTEEN_HUNDRED_FIFTY_NINE");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_SIXTEEN_HUNDRED_HOURS_TO_SIXTEEN_HUNDRED_FIFTY_NINE = Module["_emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_SIXTEEN_HUNDRED_HOURS_TO_SIXTEEN_HUNDRED_FIFTY_NINE"] = createExportWrapper("emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_SIXTEEN_HUNDRED_HOURS_TO_SIXTEEN_HUNDRED_FIFTY_NINE");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_EIGHTTEEN_HUNDRED_HOURS_TO_SUNSET = Module["_emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_EIGHTTEEN_HUNDRED_HOURS_TO_SUNSET"] = createExportWrapper("emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_EIGHTTEEN_HUNDRED_HOURS_TO_SUNSET");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_NINTEEN_HUNDRED_EIGHTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_NINTEEN_HUNDRED_EIGHTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_NINTEEN_HUNDRED_EIGHTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_THREE_THOUSAND_NINEHUNDRED_SIXTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_THREE_THOUSAND_NINEHUNDRED_SIXTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_THREE_THOUSAND_NINEHUNDRED_SIXTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SEVEN_THOUSAND_NINEHUNDRED_TWENTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SEVEN_THOUSAND_NINEHUNDRED_TWENTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SEVEN_THOUSAND_NINEHUNDRED_TWENTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TEN_THOUSAND = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TEN_THOUSAND"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TEN_THOUSAND");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIFTEEN_THOUSAND_EIGHT_HUNDRED_FORTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIFTEEN_THOUSAND_EIGHT_HUNDRED_FORTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIFTEEN_THOUSAND_EIGHT_HUNDRED_FORTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWENTY_ONE_THOUSAND_ONE_HUNDRED_TWENTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWENTY_ONE_THOUSAND_ONE_HUNDRED_TWENTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWENTY_ONE_THOUSAND_ONE_HUNDRED_TWENTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWENTY_FOUR_THOUSAND = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWENTY_FOUR_THOUSAND"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWENTY_FOUR_THOUSAND");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_THRITY_ONE_THOUSAND_SIX_HUNDRED_EIGHTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_THRITY_ONE_THOUSAND_SIX_HUNDRED_EIGHTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_THRITY_ONE_THOUSAND_SIX_HUNDRED_EIGHTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIFTY_THOUSAND = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIFTY_THOUSAND"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIFTY_THOUSAND");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SIXTY_TWO_THOUSAND_FIVE_HUNDRED = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SIXTY_TWO_THOUSAND_FIVE_HUNDRED"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SIXTY_TWO_THOUSAND_FIVE_HUNDRED");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SIXTY_THREE_THOUSAND_THREE_HUNDRED_SIXTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SIXTY_THREE_THOUSAND_THREE_HUNDRED_SIXTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SIXTY_THREE_THOUSAND_THREE_HUNDRED_SIXTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_HUNDRED_THOUSAND = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_HUNDRED_THOUSAND"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_HUNDRED_THOUSAND");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_HUNDRED_TWENTY_SIX_THOUSAND_SEVEN_HUNDRED_TWENTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_HUNDRED_TWENTY_SIX_THOUSAND_SEVEN_HUNDRED_TWENTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_HUNDRED_TWENTY_SIX_THOUSAND_SEVEN_HUNDRED_TWENTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWO_HUNDRED_FIFTY_THOUSAND = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWO_HUNDRED_FIFTY_THOUSAND"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWO_HUNDRED_FIFTY_THOUSAND");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWO_HUNDRED_FIFTY_THREE_THOUSAND_FOUR_HUNDRED_FORTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWO_HUNDRED_FIFTY_THREE_THOUSAND_FOUR_HUNDRED_FORTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWO_HUNDRED_FIFTY_THREE_THOUSAND_FOUR_HUNDRED_FORTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIVE_HUNDRED_SIX_THOUSAND_EIGHT_HUNDRED_EIGHTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIVE_HUNDRED_SIX_THOUSAND_EIGHT_HUNDRED_EIGHTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIVE_HUNDRED_SIX_THOUSAND_EIGHT_HUNDRED_EIGHTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_MILLION = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_MILLION"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_MILLION");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_MILLION_THIRTEEN_THOUSAND_SEVEN_HUNDRED_SIXTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_MILLION_THIRTEEN_THOUSAND_SEVEN_HUNDRED_SIXTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_MILLION_THIRTEEN_THOUSAND_SEVEN_HUNDRED_SIXTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_UPSLOPE_ZERO_DEGREES = Module["_emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_UPSLOPE_ZERO_DEGREES"] = createExportWrapper("emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_UPSLOPE_ZERO_DEGREES");
+/** @type {function(...*):?} */
+var _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_FIFTEEN_DEGREES_FROM_UPSLOPE = Module["_emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_FIFTEEN_DEGREES_FROM_UPSLOPE"] = createExportWrapper("emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_FIFTEEN_DEGREES_FROM_UPSLOPE");
+/** @type {function(...*):?} */
+var _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_THIRTY_DEGREES_FROM_UPSLOPE = Module["_emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_THIRTY_DEGREES_FROM_UPSLOPE"] = createExportWrapper("emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_THIRTY_DEGREES_FROM_UPSLOPE");
+/** @type {function(...*):?} */
+var _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_FORTY_FIVE_DEGREES_FROM_UPSLOPE = Module["_emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_FORTY_FIVE_DEGREES_FROM_UPSLOPE"] = createExportWrapper("emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_FORTY_FIVE_DEGREES_FROM_UPSLOPE");
+/** @type {function(...*):?} */
+var _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_SIXTY_DEGREES_FROM_UPSLOPE = Module["_emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_SIXTY_DEGREES_FROM_UPSLOPE"] = createExportWrapper("emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_SIXTY_DEGREES_FROM_UPSLOPE");
+/** @type {function(...*):?} */
+var _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_SEVENTY_FIVE_DEGREES_FROM_UPSLOPE = Module["_emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_SEVENTY_FIVE_DEGREES_FROM_UPSLOPE"] = createExportWrapper("emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_SEVENTY_FIVE_DEGREES_FROM_UPSLOPE");
+/** @type {function(...*):?} */
+var _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_CROSS_SLOPE_NINETY_DEGREES = Module["_emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_CROSS_SLOPE_NINETY_DEGREES"] = createExportWrapper("emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_CROSS_SLOPE_NINETY_DEGREES");
+/** @type {function(...*):?} */
 var ___cxa_free_exception = createExportWrapper("__cxa_free_exception");
 /** @type {function(...*):?} */
 var ___errno_location = createExportWrapper("__errno_location");
@@ -6433,8 +6731,13 @@ var ___cxa_can_catch = createExportWrapper("__cxa_can_catch");
 var ___cxa_is_pointer_type = createExportWrapper("__cxa_is_pointer_type");
 /** @type {function(...*):?} */
 var dynCall_jiji = Module["dynCall_jiji"] = createExportWrapper("dynCall_jiji");
+<<<<<<< HEAD
 var ___start_em_js = Module['___start_em_js'] = 113880;
 var ___stop_em_js = Module['___stop_em_js'] = 113978;
+=======
+var ___start_em_js = Module['___start_em_js'] = 117926;
+var ___stop_em_js = Module['___stop_em_js'] = 118024;
+>>>>>>> main
 function invoke_vii(index,a1,a2) {
   var sp = stackSave();
   try {
@@ -6523,10 +6826,10 @@ function invoke_viii(index,a1,a2,a3) {
   }
 }
 
-function invoke_dii(index,a1,a2) {
+function invoke_diii(index,a1,a2,a3) {
   var sp = stackSave();
   try {
-    return getWasmTableEntry(index)(a1,a2);
+    return getWasmTableEntry(index)(a1,a2,a3);
   } catch(e) {
     stackRestore(sp);
     if (!(e instanceof EmscriptenEH)) throw e;
@@ -7863,10 +8166,9 @@ SIGIgnite.prototype['getLightningChargeType'] = SIGIgnite.prototype.getLightning
   return _emscripten_bind_SIGIgnite_getLightningChargeType_0(self);
 };;
 
-SIGIgnite.prototype['calculateFirebrandIgnitionProbability'] = SIGIgnite.prototype.calculateFirebrandIgnitionProbability = /** @suppress {undefinedVars, duplicate} @this{Object} */function(desiredUnits) {
+SIGIgnite.prototype['calculateFirebrandIgnitionProbability'] = SIGIgnite.prototype.calculateFirebrandIgnitionProbability = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  if (desiredUnits && typeof desiredUnits === 'object') desiredUnits = desiredUnits.ptr;
-  return _emscripten_bind_SIGIgnite_calculateFirebrandIgnitionProbability_1(self, desiredUnits);
+  _emscripten_bind_SIGIgnite_calculateFirebrandIgnitionProbability_0(self);
 };;
 
 SIGIgnite.prototype['calculateLightningIgnitionProbability'] = SIGIgnite.prototype.calculateLightningIgnitionProbability = /** @suppress {undefinedVars, duplicate} @this{Object} */function(desiredUnits) {
@@ -7950,6 +8252,12 @@ SIGIgnite.prototype['getDuffDepth'] = SIGIgnite.prototype.getDuffDepth = /** @su
   return _emscripten_bind_SIGIgnite_getDuffDepth_1(self, desiredUnits);
 };;
 
+SIGIgnite.prototype['getFirebrandIgnitionProbability'] = SIGIgnite.prototype.getFirebrandIgnitionProbability = /** @suppress {undefinedVars, duplicate} @this{Object} */function(desiredUnits) {
+  var self = this.ptr;
+  if (desiredUnits && typeof desiredUnits === 'object') desiredUnits = desiredUnits.ptr;
+  return _emscripten_bind_SIGIgnite_getFirebrandIgnitionProbability_1(self, desiredUnits);
+};;
+
 SIGIgnite.prototype['getFuelTemperature'] = SIGIgnite.prototype.getFuelTemperature = /** @suppress {undefinedVars, duplicate} @this{Object} */function(desiredUnits) {
   var self = this.ptr;
   if (desiredUnits && typeof desiredUnits === 'object') desiredUnits = desiredUnits.ptr;
@@ -8008,74 +8316,84 @@ SIGMoistureScenarios.prototype['getIsMoistureScenarioDefinedByName'] = SIGMoistu
   return !!(_emscripten_bind_SIGMoistureScenarios_getIsMoistureScenarioDefinedByName_1(self, name));
 };;
 
-SIGMoistureScenarios.prototype['getMoistureScenarioHundredHourByIndex'] = SIGMoistureScenarios.prototype.getMoistureScenarioHundredHourByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+SIGMoistureScenarios.prototype['getMoistureScenarioHundredHourByIndex'] = SIGMoistureScenarios.prototype.getMoistureScenarioHundredHourByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index, moistureUnits) {
   var self = this.ptr;
   if (index && typeof index === 'object') index = index.ptr;
-  return _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByIndex_1(self, index);
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByIndex_2(self, index, moistureUnits);
 };;
 
-SIGMoistureScenarios.prototype['getMoistureScenarioHundredHourByName'] = SIGMoistureScenarios.prototype.getMoistureScenarioHundredHourByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
+SIGMoistureScenarios.prototype['getMoistureScenarioHundredHourByName'] = SIGMoistureScenarios.prototype.getMoistureScenarioHundredHourByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name, moistureUnits) {
   var self = this.ptr;
   ensureCache.prepare();
   if (name && typeof name === 'object') name = name.ptr;
   else name = ensureString(name);
-  return _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByName_1(self, name);
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByName_2(self, name, moistureUnits);
 };;
 
-SIGMoistureScenarios.prototype['getMoistureScenarioLiveHerbaceousByIndex'] = SIGMoistureScenarios.prototype.getMoistureScenarioLiveHerbaceousByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+SIGMoistureScenarios.prototype['getMoistureScenarioLiveHerbaceousByIndex'] = SIGMoistureScenarios.prototype.getMoistureScenarioLiveHerbaceousByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index, moistureUnits) {
   var self = this.ptr;
   if (index && typeof index === 'object') index = index.ptr;
-  return _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByIndex_1(self, index);
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByIndex_2(self, index, moistureUnits);
 };;
 
-SIGMoistureScenarios.prototype['getMoistureScenarioLiveHerbaceousByName'] = SIGMoistureScenarios.prototype.getMoistureScenarioLiveHerbaceousByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
+SIGMoistureScenarios.prototype['getMoistureScenarioLiveHerbaceousByName'] = SIGMoistureScenarios.prototype.getMoistureScenarioLiveHerbaceousByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name, moistureUnits) {
   var self = this.ptr;
   ensureCache.prepare();
   if (name && typeof name === 'object') name = name.ptr;
   else name = ensureString(name);
-  return _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByName_1(self, name);
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByName_2(self, name, moistureUnits);
 };;
 
-SIGMoistureScenarios.prototype['getMoistureScenarioLiveWoodyByIndex'] = SIGMoistureScenarios.prototype.getMoistureScenarioLiveWoodyByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+SIGMoistureScenarios.prototype['getMoistureScenarioLiveWoodyByIndex'] = SIGMoistureScenarios.prototype.getMoistureScenarioLiveWoodyByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index, moistureUnits) {
   var self = this.ptr;
   if (index && typeof index === 'object') index = index.ptr;
-  return _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByIndex_1(self, index);
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByIndex_2(self, index, moistureUnits);
 };;
 
-SIGMoistureScenarios.prototype['getMoistureScenarioLiveWoodyByName'] = SIGMoistureScenarios.prototype.getMoistureScenarioLiveWoodyByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
+SIGMoistureScenarios.prototype['getMoistureScenarioLiveWoodyByName'] = SIGMoistureScenarios.prototype.getMoistureScenarioLiveWoodyByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name, moistureUnits) {
   var self = this.ptr;
   ensureCache.prepare();
   if (name && typeof name === 'object') name = name.ptr;
   else name = ensureString(name);
-  return _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByName_1(self, name);
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByName_2(self, name, moistureUnits);
 };;
 
-SIGMoistureScenarios.prototype['getMoistureScenarioOneHourByIndex'] = SIGMoistureScenarios.prototype.getMoistureScenarioOneHourByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+SIGMoistureScenarios.prototype['getMoistureScenarioOneHourByIndex'] = SIGMoistureScenarios.prototype.getMoistureScenarioOneHourByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index, moistureUnits) {
   var self = this.ptr;
   if (index && typeof index === 'object') index = index.ptr;
-  return _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByIndex_1(self, index);
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByIndex_2(self, index, moistureUnits);
 };;
 
-SIGMoistureScenarios.prototype['getMoistureScenarioOneHourByName'] = SIGMoistureScenarios.prototype.getMoistureScenarioOneHourByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
+SIGMoistureScenarios.prototype['getMoistureScenarioOneHourByName'] = SIGMoistureScenarios.prototype.getMoistureScenarioOneHourByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name, moistureUnits) {
   var self = this.ptr;
   ensureCache.prepare();
   if (name && typeof name === 'object') name = name.ptr;
   else name = ensureString(name);
-  return _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByName_1(self, name);
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByName_2(self, name, moistureUnits);
 };;
 
-SIGMoistureScenarios.prototype['getMoistureScenarioTenHourByIndex'] = SIGMoistureScenarios.prototype.getMoistureScenarioTenHourByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+SIGMoistureScenarios.prototype['getMoistureScenarioTenHourByIndex'] = SIGMoistureScenarios.prototype.getMoistureScenarioTenHourByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index, moistureUnits) {
   var self = this.ptr;
   if (index && typeof index === 'object') index = index.ptr;
-  return _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByIndex_1(self, index);
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByIndex_2(self, index, moistureUnits);
 };;
 
-SIGMoistureScenarios.prototype['getMoistureScenarioTenHourByName'] = SIGMoistureScenarios.prototype.getMoistureScenarioTenHourByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
+SIGMoistureScenarios.prototype['getMoistureScenarioTenHourByName'] = SIGMoistureScenarios.prototype.getMoistureScenarioTenHourByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name, moistureUnits) {
   var self = this.ptr;
   ensureCache.prepare();
   if (name && typeof name === 'object') name = name.ptr;
   else name = ensureString(name);
-  return _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByName_1(self, name);
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByName_2(self, name, moistureUnits);
 };;
 
 SIGMoistureScenarios.prototype['getMoistureScenarioIndexByName'] = SIGMoistureScenarios.prototype.getMoistureScenarioIndexByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
@@ -8736,18 +9054,18 @@ SIGSurface.prototype['isUsingTwoFuelModels'] = SIGSurface.prototype.isUsingTwoFu
   return !!(_emscripten_bind_SIGSurface_isUsingTwoFuelModels_0(self));
 };;
 
-SIGSurface.prototype['setMoistureScenarioByIndex'] = SIGSurface.prototype.setMoistureScenarioByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureScenarioIndex) {
+SIGSurface.prototype['setCurrentMoistureScenarioByIndex'] = SIGSurface.prototype.setCurrentMoistureScenarioByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureScenarioIndex) {
   var self = this.ptr;
   if (moistureScenarioIndex && typeof moistureScenarioIndex === 'object') moistureScenarioIndex = moistureScenarioIndex.ptr;
-  return !!(_emscripten_bind_SIGSurface_setMoistureScenarioByIndex_1(self, moistureScenarioIndex));
+  return !!(_emscripten_bind_SIGSurface_setCurrentMoistureScenarioByIndex_1(self, moistureScenarioIndex));
 };;
 
-SIGSurface.prototype['setMoistureScenarioByName'] = SIGSurface.prototype.setMoistureScenarioByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureScenarioName) {
+SIGSurface.prototype['setCurrentMoistureScenarioByName'] = SIGSurface.prototype.setCurrentMoistureScenarioByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureScenarioName) {
   var self = this.ptr;
   ensureCache.prepare();
   if (moistureScenarioName && typeof moistureScenarioName === 'object') moistureScenarioName = moistureScenarioName.ptr;
   else moistureScenarioName = ensureString(moistureScenarioName);
-  return !!(_emscripten_bind_SIGSurface_setMoistureScenarioByName_1(self, moistureScenarioName));
+  return !!(_emscripten_bind_SIGSurface_setCurrentMoistureScenarioByName_1(self, moistureScenarioName));
 };;
 
 SIGSurface.prototype['calculateFlameLength'] = SIGSurface.prototype.calculateFlameLength = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firelineIntensity, firelineIntensityUnits, flameLengthUnits) {
@@ -9316,74 +9634,84 @@ SIGSurface.prototype['getMoistureOneHour'] = SIGSurface.prototype.getMoistureOne
   return _emscripten_bind_SIGSurface_getMoistureOneHour_1(self, moistureUnits);
 };;
 
-SIGSurface.prototype['getMoistureScenarioHundredHourByIndex'] = SIGSurface.prototype.getMoistureScenarioHundredHourByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+SIGSurface.prototype['getMoistureScenarioHundredHourByIndex'] = SIGSurface.prototype.getMoistureScenarioHundredHourByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index, moistureUnits) {
   var self = this.ptr;
   if (index && typeof index === 'object') index = index.ptr;
-  return _emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByIndex_1(self, index);
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByIndex_2(self, index, moistureUnits);
 };;
 
-SIGSurface.prototype['getMoistureScenarioHundredHourByName'] = SIGSurface.prototype.getMoistureScenarioHundredHourByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
+SIGSurface.prototype['getMoistureScenarioHundredHourByName'] = SIGSurface.prototype.getMoistureScenarioHundredHourByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name, moistureUnits) {
   var self = this.ptr;
   ensureCache.prepare();
   if (name && typeof name === 'object') name = name.ptr;
   else name = ensureString(name);
-  return _emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByName_1(self, name);
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByName_2(self, name, moistureUnits);
 };;
 
-SIGSurface.prototype['getMoistureScenarioLiveHerbaceousByIndex'] = SIGSurface.prototype.getMoistureScenarioLiveHerbaceousByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+SIGSurface.prototype['getMoistureScenarioLiveHerbaceousByIndex'] = SIGSurface.prototype.getMoistureScenarioLiveHerbaceousByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index, moistureUnits) {
   var self = this.ptr;
   if (index && typeof index === 'object') index = index.ptr;
-  return _emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByIndex_1(self, index);
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByIndex_2(self, index, moistureUnits);
 };;
 
-SIGSurface.prototype['getMoistureScenarioLiveHerbaceousByName'] = SIGSurface.prototype.getMoistureScenarioLiveHerbaceousByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
+SIGSurface.prototype['getMoistureScenarioLiveHerbaceousByName'] = SIGSurface.prototype.getMoistureScenarioLiveHerbaceousByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name, moistureUnits) {
   var self = this.ptr;
   ensureCache.prepare();
   if (name && typeof name === 'object') name = name.ptr;
   else name = ensureString(name);
-  return _emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByName_1(self, name);
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByName_2(self, name, moistureUnits);
 };;
 
-SIGSurface.prototype['getMoistureScenarioLiveWoodyByIndex'] = SIGSurface.prototype.getMoistureScenarioLiveWoodyByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+SIGSurface.prototype['getMoistureScenarioLiveWoodyByIndex'] = SIGSurface.prototype.getMoistureScenarioLiveWoodyByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index, moistureUnits) {
   var self = this.ptr;
   if (index && typeof index === 'object') index = index.ptr;
-  return _emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByIndex_1(self, index);
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByIndex_2(self, index, moistureUnits);
 };;
 
-SIGSurface.prototype['getMoistureScenarioLiveWoodyByName'] = SIGSurface.prototype.getMoistureScenarioLiveWoodyByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
+SIGSurface.prototype['getMoistureScenarioLiveWoodyByName'] = SIGSurface.prototype.getMoistureScenarioLiveWoodyByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name, moistureUnits) {
   var self = this.ptr;
   ensureCache.prepare();
   if (name && typeof name === 'object') name = name.ptr;
   else name = ensureString(name);
-  return _emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByName_1(self, name);
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByName_2(self, name, moistureUnits);
 };;
 
-SIGSurface.prototype['getMoistureScenarioOneHourByIndex'] = SIGSurface.prototype.getMoistureScenarioOneHourByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+SIGSurface.prototype['getMoistureScenarioOneHourByIndex'] = SIGSurface.prototype.getMoistureScenarioOneHourByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index, moistureUnits) {
   var self = this.ptr;
   if (index && typeof index === 'object') index = index.ptr;
-  return _emscripten_bind_SIGSurface_getMoistureScenarioOneHourByIndex_1(self, index);
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGSurface_getMoistureScenarioOneHourByIndex_2(self, index, moistureUnits);
 };;
 
-SIGSurface.prototype['getMoistureScenarioOneHourByName'] = SIGSurface.prototype.getMoistureScenarioOneHourByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
+SIGSurface.prototype['getMoistureScenarioOneHourByName'] = SIGSurface.prototype.getMoistureScenarioOneHourByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name, moistureUnits) {
   var self = this.ptr;
   ensureCache.prepare();
   if (name && typeof name === 'object') name = name.ptr;
   else name = ensureString(name);
-  return _emscripten_bind_SIGSurface_getMoistureScenarioOneHourByName_1(self, name);
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGSurface_getMoistureScenarioOneHourByName_2(self, name, moistureUnits);
 };;
 
-SIGSurface.prototype['getMoistureScenarioTenHourByIndex'] = SIGSurface.prototype.getMoistureScenarioTenHourByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+SIGSurface.prototype['getMoistureScenarioTenHourByIndex'] = SIGSurface.prototype.getMoistureScenarioTenHourByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index, moistureUnits) {
   var self = this.ptr;
   if (index && typeof index === 'object') index = index.ptr;
-  return _emscripten_bind_SIGSurface_getMoistureScenarioTenHourByIndex_1(self, index);
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGSurface_getMoistureScenarioTenHourByIndex_2(self, index, moistureUnits);
 };;
 
-SIGSurface.prototype['getMoistureScenarioTenHourByName'] = SIGSurface.prototype.getMoistureScenarioTenHourByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
+SIGSurface.prototype['getMoistureScenarioTenHourByName'] = SIGSurface.prototype.getMoistureScenarioTenHourByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name, moistureUnits) {
   var self = this.ptr;
   ensureCache.prepare();
   if (name && typeof name === 'object') name = name.ptr;
   else name = ensureString(name);
-  return _emscripten_bind_SIGSurface_getMoistureScenarioTenHourByName_1(self, name);
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGSurface_getMoistureScenarioTenHourByName_2(self, name, moistureUnits);
 };;
 
 SIGSurface.prototype['getMoistureTenHour'] = SIGSurface.prototype.getMoistureTenHour = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureUnits) {
@@ -10310,18 +10638,18 @@ SIGCrown.prototype['isFuelModelReserved'] = SIGCrown.prototype.isFuelModelReserv
   return !!(_emscripten_bind_SIGCrown_isFuelModelReserved_1(self, fuelModelNumber));
 };;
 
-SIGCrown.prototype['setMoistureScenarioByIndex'] = SIGCrown.prototype.setMoistureScenarioByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureScenarioIndex) {
+SIGCrown.prototype['setCurrentMoistureScenarioByIndex'] = SIGCrown.prototype.setCurrentMoistureScenarioByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureScenarioIndex) {
   var self = this.ptr;
   if (moistureScenarioIndex && typeof moistureScenarioIndex === 'object') moistureScenarioIndex = moistureScenarioIndex.ptr;
-  return !!(_emscripten_bind_SIGCrown_setMoistureScenarioByIndex_1(self, moistureScenarioIndex));
+  return !!(_emscripten_bind_SIGCrown_setCurrentMoistureScenarioByIndex_1(self, moistureScenarioIndex));
 };;
 
-SIGCrown.prototype['setMoistureScenarioByName'] = SIGCrown.prototype.setMoistureScenarioByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureScenarioName) {
+SIGCrown.prototype['setCurrentMoistureScenarioByName'] = SIGCrown.prototype.setCurrentMoistureScenarioByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureScenarioName) {
   var self = this.ptr;
   ensureCache.prepare();
   if (moistureScenarioName && typeof moistureScenarioName === 'object') moistureScenarioName = moistureScenarioName.ptr;
   else moistureScenarioName = ensureString(moistureScenarioName);
-  return !!(_emscripten_bind_SIGCrown_setMoistureScenarioByName_1(self, moistureScenarioName));
+  return !!(_emscripten_bind_SIGCrown_setCurrentMoistureScenarioByName_1(self, moistureScenarioName));
 };;
 
 SIGCrown.prototype['getAspect'] = SIGCrown.prototype.getAspect = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
@@ -10570,74 +10898,84 @@ SIGCrown.prototype['getMoistureOneHour'] = SIGCrown.prototype.getMoistureOneHour
   return _emscripten_bind_SIGCrown_getMoistureOneHour_1(self, moistureUnits);
 };;
 
-SIGCrown.prototype['getMoistureScenarioHundredHourByIndex'] = SIGCrown.prototype.getMoistureScenarioHundredHourByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+SIGCrown.prototype['getMoistureScenarioHundredHourByIndex'] = SIGCrown.prototype.getMoistureScenarioHundredHourByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index, moistureUnits) {
   var self = this.ptr;
   if (index && typeof index === 'object') index = index.ptr;
-  return _emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByIndex_1(self, index);
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByIndex_2(self, index, moistureUnits);
 };;
 
-SIGCrown.prototype['getMoistureScenarioHundredHourByName'] = SIGCrown.prototype.getMoistureScenarioHundredHourByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
+SIGCrown.prototype['getMoistureScenarioHundredHourByName'] = SIGCrown.prototype.getMoistureScenarioHundredHourByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name, moistureUnits) {
   var self = this.ptr;
   ensureCache.prepare();
   if (name && typeof name === 'object') name = name.ptr;
   else name = ensureString(name);
-  return _emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByName_1(self, name);
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByName_2(self, name, moistureUnits);
 };;
 
-SIGCrown.prototype['getMoistureScenarioLiveHerbaceousByIndex'] = SIGCrown.prototype.getMoistureScenarioLiveHerbaceousByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+SIGCrown.prototype['getMoistureScenarioLiveHerbaceousByIndex'] = SIGCrown.prototype.getMoistureScenarioLiveHerbaceousByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index, moistureUnits) {
   var self = this.ptr;
   if (index && typeof index === 'object') index = index.ptr;
-  return _emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByIndex_1(self, index);
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByIndex_2(self, index, moistureUnits);
 };;
 
-SIGCrown.prototype['getMoistureScenarioLiveHerbaceousByName'] = SIGCrown.prototype.getMoistureScenarioLiveHerbaceousByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
+SIGCrown.prototype['getMoistureScenarioLiveHerbaceousByName'] = SIGCrown.prototype.getMoistureScenarioLiveHerbaceousByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name, moistureUnits) {
   var self = this.ptr;
   ensureCache.prepare();
   if (name && typeof name === 'object') name = name.ptr;
   else name = ensureString(name);
-  return _emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByName_1(self, name);
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByName_2(self, name, moistureUnits);
 };;
 
-SIGCrown.prototype['getMoistureScenarioLiveWoodyByIndex'] = SIGCrown.prototype.getMoistureScenarioLiveWoodyByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+SIGCrown.prototype['getMoistureScenarioLiveWoodyByIndex'] = SIGCrown.prototype.getMoistureScenarioLiveWoodyByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index, moistureUnits) {
   var self = this.ptr;
   if (index && typeof index === 'object') index = index.ptr;
-  return _emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByIndex_1(self, index);
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByIndex_2(self, index, moistureUnits);
 };;
 
-SIGCrown.prototype['getMoistureScenarioLiveWoodyByName'] = SIGCrown.prototype.getMoistureScenarioLiveWoodyByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
+SIGCrown.prototype['getMoistureScenarioLiveWoodyByName'] = SIGCrown.prototype.getMoistureScenarioLiveWoodyByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name, moistureUnits) {
   var self = this.ptr;
   ensureCache.prepare();
   if (name && typeof name === 'object') name = name.ptr;
   else name = ensureString(name);
-  return _emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByName_1(self, name);
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByName_2(self, name, moistureUnits);
 };;
 
-SIGCrown.prototype['getMoistureScenarioOneHourByIndex'] = SIGCrown.prototype.getMoistureScenarioOneHourByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+SIGCrown.prototype['getMoistureScenarioOneHourByIndex'] = SIGCrown.prototype.getMoistureScenarioOneHourByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index, moistureUnits) {
   var self = this.ptr;
   if (index && typeof index === 'object') index = index.ptr;
-  return _emscripten_bind_SIGCrown_getMoistureScenarioOneHourByIndex_1(self, index);
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGCrown_getMoistureScenarioOneHourByIndex_2(self, index, moistureUnits);
 };;
 
-SIGCrown.prototype['getMoistureScenarioOneHourByName'] = SIGCrown.prototype.getMoistureScenarioOneHourByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
+SIGCrown.prototype['getMoistureScenarioOneHourByName'] = SIGCrown.prototype.getMoistureScenarioOneHourByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name, moistureUnits) {
   var self = this.ptr;
   ensureCache.prepare();
   if (name && typeof name === 'object') name = name.ptr;
   else name = ensureString(name);
-  return _emscripten_bind_SIGCrown_getMoistureScenarioOneHourByName_1(self, name);
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGCrown_getMoistureScenarioOneHourByName_2(self, name, moistureUnits);
 };;
 
-SIGCrown.prototype['getMoistureScenarioTenHourByIndex'] = SIGCrown.prototype.getMoistureScenarioTenHourByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+SIGCrown.prototype['getMoistureScenarioTenHourByIndex'] = SIGCrown.prototype.getMoistureScenarioTenHourByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index, moistureUnits) {
   var self = this.ptr;
   if (index && typeof index === 'object') index = index.ptr;
-  return _emscripten_bind_SIGCrown_getMoistureScenarioTenHourByIndex_1(self, index);
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGCrown_getMoistureScenarioTenHourByIndex_2(self, index, moistureUnits);
 };;
 
-SIGCrown.prototype['getMoistureScenarioTenHourByName'] = SIGCrown.prototype.getMoistureScenarioTenHourByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name) {
+SIGCrown.prototype['getMoistureScenarioTenHourByName'] = SIGCrown.prototype.getMoistureScenarioTenHourByName = /** @suppress {undefinedVars, duplicate} @this{Object} */function(name, moistureUnits) {
   var self = this.ptr;
   ensureCache.prepare();
   if (name && typeof name === 'object') name = name.ptr;
   else name = ensureString(name);
-  return _emscripten_bind_SIGCrown_getMoistureScenarioTenHourByName_1(self, name);
+  if (moistureUnits && typeof moistureUnits === 'object') moistureUnits = moistureUnits.ptr;
+  return _emscripten_bind_SIGCrown_getMoistureScenarioTenHourByName_2(self, name, moistureUnits);
 };;
 
 SIGCrown.prototype['getMoistureTenHour'] = SIGCrown.prototype.getMoistureTenHour = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureUnits) {
@@ -11574,6 +11912,406 @@ WindSpeedUtility.prototype['windSpeedAtTwentyFeetFromTenMeter'] = WindSpeedUtili
   var self = this.ptr;
   _emscripten_bind_WindSpeedUtility___destroy___0(self);
 };
+// SIGFineDeadFuelMoistureTool
+/** @suppress {undefinedVars, duplicate} @this{Object} */function SIGFineDeadFuelMoistureTool() {
+  this.ptr = _emscripten_bind_SIGFineDeadFuelMoistureTool_SIGFineDeadFuelMoistureTool_0();
+  getCache(SIGFineDeadFuelMoistureTool)[this.ptr] = this;
+};;
+SIGFineDeadFuelMoistureTool.prototype = Object.create(WrapperObject.prototype);
+SIGFineDeadFuelMoistureTool.prototype.constructor = SIGFineDeadFuelMoistureTool;
+SIGFineDeadFuelMoistureTool.prototype.__class__ = SIGFineDeadFuelMoistureTool;
+SIGFineDeadFuelMoistureTool.__cache__ = {};
+Module['SIGFineDeadFuelMoistureTool'] = SIGFineDeadFuelMoistureTool;
+
+SIGFineDeadFuelMoistureTool.prototype['calculate'] = SIGFineDeadFuelMoistureTool.prototype.calculate = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_SIGFineDeadFuelMoistureTool_calculate_0(self);
+};;
+
+SIGFineDeadFuelMoistureTool.prototype['setTimeOfDayIndex'] = SIGFineDeadFuelMoistureTool.prototype.setTimeOfDayIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(timeOfDayIndex) {
+  var self = this.ptr;
+  if (timeOfDayIndex && typeof timeOfDayIndex === 'object') timeOfDayIndex = timeOfDayIndex.ptr;
+  _emscripten_bind_SIGFineDeadFuelMoistureTool_setTimeOfDayIndex_1(self, timeOfDayIndex);
+};;
+
+SIGFineDeadFuelMoistureTool.prototype['setSlopeIndex'] = SIGFineDeadFuelMoistureTool.prototype.setSlopeIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(slopeIndex) {
+  var self = this.ptr;
+  if (slopeIndex && typeof slopeIndex === 'object') slopeIndex = slopeIndex.ptr;
+  _emscripten_bind_SIGFineDeadFuelMoistureTool_setSlopeIndex_1(self, slopeIndex);
+};;
+
+SIGFineDeadFuelMoistureTool.prototype['setShadingIndex'] = SIGFineDeadFuelMoistureTool.prototype.setShadingIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(shadingIndex) {
+  var self = this.ptr;
+  if (shadingIndex && typeof shadingIndex === 'object') shadingIndex = shadingIndex.ptr;
+  _emscripten_bind_SIGFineDeadFuelMoistureTool_setShadingIndex_1(self, shadingIndex);
+};;
+
+SIGFineDeadFuelMoistureTool.prototype['setAspectIndex'] = SIGFineDeadFuelMoistureTool.prototype.setAspectIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(aspectIndex) {
+  var self = this.ptr;
+  if (aspectIndex && typeof aspectIndex === 'object') aspectIndex = aspectIndex.ptr;
+  _emscripten_bind_SIGFineDeadFuelMoistureTool_setAspectIndex_1(self, aspectIndex);
+};;
+
+SIGFineDeadFuelMoistureTool.prototype['setRHIndex'] = SIGFineDeadFuelMoistureTool.prototype.setRHIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(relativeHumidityIndex) {
+  var self = this.ptr;
+  if (relativeHumidityIndex && typeof relativeHumidityIndex === 'object') relativeHumidityIndex = relativeHumidityIndex.ptr;
+  _emscripten_bind_SIGFineDeadFuelMoistureTool_setRHIndex_1(self, relativeHumidityIndex);
+};;
+
+SIGFineDeadFuelMoistureTool.prototype['setElevationIndex'] = SIGFineDeadFuelMoistureTool.prototype.setElevationIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(elevationIndex) {
+  var self = this.ptr;
+  if (elevationIndex && typeof elevationIndex === 'object') elevationIndex = elevationIndex.ptr;
+  _emscripten_bind_SIGFineDeadFuelMoistureTool_setElevationIndex_1(self, elevationIndex);
+};;
+
+SIGFineDeadFuelMoistureTool.prototype['setDryBulbIndex'] = SIGFineDeadFuelMoistureTool.prototype.setDryBulbIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(dryBulbIndex) {
+  var self = this.ptr;
+  if (dryBulbIndex && typeof dryBulbIndex === 'object') dryBulbIndex = dryBulbIndex.ptr;
+  _emscripten_bind_SIGFineDeadFuelMoistureTool_setDryBulbIndex_1(self, dryBulbIndex);
+};;
+
+SIGFineDeadFuelMoistureTool.prototype['setMonthIndex'] = SIGFineDeadFuelMoistureTool.prototype.setMonthIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(monthIndex) {
+  var self = this.ptr;
+  if (monthIndex && typeof monthIndex === 'object') monthIndex = monthIndex.ptr;
+  _emscripten_bind_SIGFineDeadFuelMoistureTool_setMonthIndex_1(self, monthIndex);
+};;
+
+SIGFineDeadFuelMoistureTool.prototype['getFineDeadFuelMoisture'] = SIGFineDeadFuelMoistureTool.prototype.getFineDeadFuelMoisture = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGFineDeadFuelMoistureTool_getFineDeadFuelMoisture_0(self);
+};;
+
+SIGFineDeadFuelMoistureTool.prototype['getSlopeIndexSize'] = SIGFineDeadFuelMoistureTool.prototype.getSlopeIndexSize = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGFineDeadFuelMoistureTool_getSlopeIndexSize_0(self);
+};;
+
+SIGFineDeadFuelMoistureTool.prototype['getElevationIndexSize'] = SIGFineDeadFuelMoistureTool.prototype.getElevationIndexSize = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGFineDeadFuelMoistureTool_getElevationIndexSize_0(self);
+};;
+
+SIGFineDeadFuelMoistureTool.prototype['getMonthIndexSize'] = SIGFineDeadFuelMoistureTool.prototype.getMonthIndexSize = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGFineDeadFuelMoistureTool_getMonthIndexSize_0(self);
+};;
+
+SIGFineDeadFuelMoistureTool.prototype['getDryBulbTemperatureIndexSize'] = SIGFineDeadFuelMoistureTool.prototype.getDryBulbTemperatureIndexSize = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGFineDeadFuelMoistureTool_getDryBulbTemperatureIndexSize_0(self);
+};;
+
+SIGFineDeadFuelMoistureTool.prototype['getReferenceMoisture'] = SIGFineDeadFuelMoistureTool.prototype.getReferenceMoisture = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGFineDeadFuelMoistureTool_getReferenceMoisture_0(self);
+};;
+
+SIGFineDeadFuelMoistureTool.prototype['calculateByIndex'] = SIGFineDeadFuelMoistureTool.prototype.calculateByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(aspectIndex, dryBulbIndex, elevationIndex, monthIndex, relativeHumidityIndex, shadingIndex, slopeIndex, timeOfDayIndex) {
+  var self = this.ptr;
+  if (aspectIndex && typeof aspectIndex === 'object') aspectIndex = aspectIndex.ptr;
+  if (dryBulbIndex && typeof dryBulbIndex === 'object') dryBulbIndex = dryBulbIndex.ptr;
+  if (elevationIndex && typeof elevationIndex === 'object') elevationIndex = elevationIndex.ptr;
+  if (monthIndex && typeof monthIndex === 'object') monthIndex = monthIndex.ptr;
+  if (relativeHumidityIndex && typeof relativeHumidityIndex === 'object') relativeHumidityIndex = relativeHumidityIndex.ptr;
+  if (shadingIndex && typeof shadingIndex === 'object') shadingIndex = shadingIndex.ptr;
+  if (slopeIndex && typeof slopeIndex === 'object') slopeIndex = slopeIndex.ptr;
+  if (timeOfDayIndex && typeof timeOfDayIndex === 'object') timeOfDayIndex = timeOfDayIndex.ptr;
+  _emscripten_bind_SIGFineDeadFuelMoistureTool_calculateByIndex_8(self, aspectIndex, dryBulbIndex, elevationIndex, monthIndex, relativeHumidityIndex, shadingIndex, slopeIndex, timeOfDayIndex);
+};;
+
+SIGFineDeadFuelMoistureTool.prototype['getTimeOfDayIndexSize'] = SIGFineDeadFuelMoistureTool.prototype.getTimeOfDayIndexSize = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGFineDeadFuelMoistureTool_getTimeOfDayIndexSize_0(self);
+};;
+
+SIGFineDeadFuelMoistureTool.prototype['getCorrectionMoisture'] = SIGFineDeadFuelMoistureTool.prototype.getCorrectionMoisture = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGFineDeadFuelMoistureTool_getCorrectionMoisture_0(self);
+};;
+
+SIGFineDeadFuelMoistureTool.prototype['getAspectIndexSize'] = SIGFineDeadFuelMoistureTool.prototype.getAspectIndexSize = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGFineDeadFuelMoistureTool_getAspectIndexSize_0(self);
+};;
+
+SIGFineDeadFuelMoistureTool.prototype['getShadingIndexSize'] = SIGFineDeadFuelMoistureTool.prototype.getShadingIndexSize = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGFineDeadFuelMoistureTool_getShadingIndexSize_0(self);
+};;
+
+SIGFineDeadFuelMoistureTool.prototype['getRelativeHumidityIndexSize'] = SIGFineDeadFuelMoistureTool.prototype.getRelativeHumidityIndexSize = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGFineDeadFuelMoistureTool_getRelativeHumidityIndexSize_0(self);
+};;
+
+  SIGFineDeadFuelMoistureTool.prototype['__destroy__'] = SIGFineDeadFuelMoistureTool.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_SIGFineDeadFuelMoistureTool___destroy___0(self);
+};
+// SIGSlopeTool
+/** @suppress {undefinedVars, duplicate} @this{Object} */function SIGSlopeTool() {
+  this.ptr = _emscripten_bind_SIGSlopeTool_SIGSlopeTool_0();
+  getCache(SIGSlopeTool)[this.ptr] = this;
+};;
+SIGSlopeTool.prototype = Object.create(WrapperObject.prototype);
+SIGSlopeTool.prototype.constructor = SIGSlopeTool;
+SIGSlopeTool.prototype.__class__ = SIGSlopeTool;
+SIGSlopeTool.__cache__ = {};
+Module['SIGSlopeTool'] = SIGSlopeTool;
+
+SIGSlopeTool.prototype['getCentimetersPerKilometerAtIndex'] = SIGSlopeTool.prototype.getCentimetersPerKilometerAtIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+  var self = this.ptr;
+  if (index && typeof index === 'object') index = index.ptr;
+  return _emscripten_bind_SIGSlopeTool_getCentimetersPerKilometerAtIndex_1(self, index);
+};;
+
+SIGSlopeTool.prototype['getCentimetersPerKilometerAtRepresentativeFraction'] = SIGSlopeTool.prototype.getCentimetersPerKilometerAtRepresentativeFraction = /** @suppress {undefinedVars, duplicate} @this{Object} */function(representativeFraction) {
+  var self = this.ptr;
+  if (representativeFraction && typeof representativeFraction === 'object') representativeFraction = representativeFraction.ptr;
+  return _emscripten_bind_SIGSlopeTool_getCentimetersPerKilometerAtRepresentativeFraction_1(self, representativeFraction);
+};;
+
+SIGSlopeTool.prototype['getHorizontalDistance'] = SIGSlopeTool.prototype.getHorizontalDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(horizontalDistanceIndex, mapDistanceUnits) {
+  var self = this.ptr;
+  if (horizontalDistanceIndex && typeof horizontalDistanceIndex === 'object') horizontalDistanceIndex = horizontalDistanceIndex.ptr;
+  if (mapDistanceUnits && typeof mapDistanceUnits === 'object') mapDistanceUnits = mapDistanceUnits.ptr;
+  return _emscripten_bind_SIGSlopeTool_getHorizontalDistance_2(self, horizontalDistanceIndex, mapDistanceUnits);
+};;
+
+SIGSlopeTool.prototype['getHorizontalDistanceAtIndex'] = SIGSlopeTool.prototype.getHorizontalDistanceAtIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index, mapDistanceUnits) {
+  var self = this.ptr;
+  if (index && typeof index === 'object') index = index.ptr;
+  if (mapDistanceUnits && typeof mapDistanceUnits === 'object') mapDistanceUnits = mapDistanceUnits.ptr;
+  return _emscripten_bind_SIGSlopeTool_getHorizontalDistanceAtIndex_2(self, index, mapDistanceUnits);
+};;
+
+SIGSlopeTool.prototype['getHorizontalDistanceFifteen'] = SIGSlopeTool.prototype.getHorizontalDistanceFifteen = /** @suppress {undefinedVars, duplicate} @this{Object} */function(mapDistanceUnits) {
+  var self = this.ptr;
+  if (mapDistanceUnits && typeof mapDistanceUnits === 'object') mapDistanceUnits = mapDistanceUnits.ptr;
+  return _emscripten_bind_SIGSlopeTool_getHorizontalDistanceFifteen_1(self, mapDistanceUnits);
+};;
+
+SIGSlopeTool.prototype['getHorizontalDistanceFourtyFive'] = SIGSlopeTool.prototype.getHorizontalDistanceFourtyFive = /** @suppress {undefinedVars, duplicate} @this{Object} */function(mapDistanceUnits) {
+  var self = this.ptr;
+  if (mapDistanceUnits && typeof mapDistanceUnits === 'object') mapDistanceUnits = mapDistanceUnits.ptr;
+  return _emscripten_bind_SIGSlopeTool_getHorizontalDistanceFourtyFive_1(self, mapDistanceUnits);
+};;
+
+SIGSlopeTool.prototype['getHorizontalDistanceMaxSlope'] = SIGSlopeTool.prototype.getHorizontalDistanceMaxSlope = /** @suppress {undefinedVars, duplicate} @this{Object} */function(slopeUnits) {
+  var self = this.ptr;
+  if (slopeUnits && typeof slopeUnits === 'object') slopeUnits = slopeUnits.ptr;
+  return _emscripten_bind_SIGSlopeTool_getHorizontalDistanceMaxSlope_1(self, slopeUnits);
+};;
+
+SIGSlopeTool.prototype['getHorizontalDistanceNinety'] = SIGSlopeTool.prototype.getHorizontalDistanceNinety = /** @suppress {undefinedVars, duplicate} @this{Object} */function(mapDistanceUnits) {
+  var self = this.ptr;
+  if (mapDistanceUnits && typeof mapDistanceUnits === 'object') mapDistanceUnits = mapDistanceUnits.ptr;
+  return _emscripten_bind_SIGSlopeTool_getHorizontalDistanceNinety_1(self, mapDistanceUnits);
+};;
+
+SIGSlopeTool.prototype['getHorizontalDistanceSeventy'] = SIGSlopeTool.prototype.getHorizontalDistanceSeventy = /** @suppress {undefinedVars, duplicate} @this{Object} */function(mapDistanceUnits) {
+  var self = this.ptr;
+  if (mapDistanceUnits && typeof mapDistanceUnits === 'object') mapDistanceUnits = mapDistanceUnits.ptr;
+  return _emscripten_bind_SIGSlopeTool_getHorizontalDistanceSeventy_1(self, mapDistanceUnits);
+};;
+
+SIGSlopeTool.prototype['getHorizontalDistanceSixty'] = SIGSlopeTool.prototype.getHorizontalDistanceSixty = /** @suppress {undefinedVars, duplicate} @this{Object} */function(mapDistanceUnits) {
+  var self = this.ptr;
+  if (mapDistanceUnits && typeof mapDistanceUnits === 'object') mapDistanceUnits = mapDistanceUnits.ptr;
+  return _emscripten_bind_SIGSlopeTool_getHorizontalDistanceSixty_1(self, mapDistanceUnits);
+};;
+
+SIGSlopeTool.prototype['getHorizontalDistanceThirty'] = SIGSlopeTool.prototype.getHorizontalDistanceThirty = /** @suppress {undefinedVars, duplicate} @this{Object} */function(mapDistanceUnits) {
+  var self = this.ptr;
+  if (mapDistanceUnits && typeof mapDistanceUnits === 'object') mapDistanceUnits = mapDistanceUnits.ptr;
+  return _emscripten_bind_SIGSlopeTool_getHorizontalDistanceThirty_1(self, mapDistanceUnits);
+};;
+
+SIGSlopeTool.prototype['getHorizontalDistanceZero'] = SIGSlopeTool.prototype.getHorizontalDistanceZero = /** @suppress {undefinedVars, duplicate} @this{Object} */function(mapDistanceUnits) {
+  var self = this.ptr;
+  if (mapDistanceUnits && typeof mapDistanceUnits === 'object') mapDistanceUnits = mapDistanceUnits.ptr;
+  return _emscripten_bind_SIGSlopeTool_getHorizontalDistanceZero_1(self, mapDistanceUnits);
+};;
+
+SIGSlopeTool.prototype['getInchesPerMileAtIndex'] = SIGSlopeTool.prototype.getInchesPerMileAtIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+  var self = this.ptr;
+  if (index && typeof index === 'object') index = index.ptr;
+  return _emscripten_bind_SIGSlopeTool_getInchesPerMileAtIndex_1(self, index);
+};;
+
+SIGSlopeTool.prototype['getInchesPerMileAtRepresentativeFraction'] = SIGSlopeTool.prototype.getInchesPerMileAtRepresentativeFraction = /** @suppress {undefinedVars, duplicate} @this{Object} */function(representativeFraction) {
+  var self = this.ptr;
+  if (representativeFraction && typeof representativeFraction === 'object') representativeFraction = representativeFraction.ptr;
+  return _emscripten_bind_SIGSlopeTool_getInchesPerMileAtRepresentativeFraction_1(self, representativeFraction);
+};;
+
+SIGSlopeTool.prototype['getKilometersPerCentimeterAtIndex'] = SIGSlopeTool.prototype.getKilometersPerCentimeterAtIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+  var self = this.ptr;
+  if (index && typeof index === 'object') index = index.ptr;
+  return _emscripten_bind_SIGSlopeTool_getKilometersPerCentimeterAtIndex_1(self, index);
+};;
+
+SIGSlopeTool.prototype['getKilometersPerCentimeterAtRepresentativeFraction'] = SIGSlopeTool.prototype.getKilometersPerCentimeterAtRepresentativeFraction = /** @suppress {undefinedVars, duplicate} @this{Object} */function(representativeFraction) {
+  var self = this.ptr;
+  if (representativeFraction && typeof representativeFraction === 'object') representativeFraction = representativeFraction.ptr;
+  return _emscripten_bind_SIGSlopeTool_getKilometersPerCentimeterAtRepresentativeFraction_1(self, representativeFraction);
+};;
+
+SIGSlopeTool.prototype['getMilesPerInchAtIndex'] = SIGSlopeTool.prototype.getMilesPerInchAtIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+  var self = this.ptr;
+  if (index && typeof index === 'object') index = index.ptr;
+  return _emscripten_bind_SIGSlopeTool_getMilesPerInchAtIndex_1(self, index);
+};;
+
+SIGSlopeTool.prototype['getMilesPerInchAtRepresentativeFraction'] = SIGSlopeTool.prototype.getMilesPerInchAtRepresentativeFraction = /** @suppress {undefinedVars, duplicate} @this{Object} */function(representativeFraction) {
+  var self = this.ptr;
+  if (representativeFraction && typeof representativeFraction === 'object') representativeFraction = representativeFraction.ptr;
+  return _emscripten_bind_SIGSlopeTool_getMilesPerInchAtRepresentativeFraction_1(self, representativeFraction);
+};;
+
+SIGSlopeTool.prototype['getSlopeElevationChangeFromMapMeasurements'] = SIGSlopeTool.prototype.getSlopeElevationChangeFromMapMeasurements = /** @suppress {undefinedVars, duplicate} @this{Object} */function(elevationUnits) {
+  var self = this.ptr;
+  if (elevationUnits && typeof elevationUnits === 'object') elevationUnits = elevationUnits.ptr;
+  return _emscripten_bind_SIGSlopeTool_getSlopeElevationChangeFromMapMeasurements_1(self, elevationUnits);
+};;
+
+SIGSlopeTool.prototype['getSlopeFromMapMeasurements'] = SIGSlopeTool.prototype.getSlopeFromMapMeasurements = /** @suppress {undefinedVars, duplicate} @this{Object} */function(slopeUnits) {
+  var self = this.ptr;
+  if (slopeUnits && typeof slopeUnits === 'object') slopeUnits = slopeUnits.ptr;
+  return _emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurements_1(self, slopeUnits);
+};;
+
+SIGSlopeTool.prototype['getSlopeHorizontalDistanceFromMapMeasurements'] = SIGSlopeTool.prototype.getSlopeHorizontalDistanceFromMapMeasurements = /** @suppress {undefinedVars, duplicate} @this{Object} */function(distanceUnits) {
+  var self = this.ptr;
+  if (distanceUnits && typeof distanceUnits === 'object') distanceUnits = distanceUnits.ptr;
+  return _emscripten_bind_SIGSlopeTool_getSlopeHorizontalDistanceFromMapMeasurements_1(self, distanceUnits);
+};;
+
+SIGSlopeTool.prototype['getSlopeFromMapMeasurementsInDegrees'] = SIGSlopeTool.prototype.getSlopeFromMapMeasurementsInDegrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurementsInDegrees_0(self);
+};;
+
+SIGSlopeTool.prototype['getSlopeFromMapMeasurementsInPercent'] = SIGSlopeTool.prototype.getSlopeFromMapMeasurementsInPercent = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurementsInPercent_0(self);
+};;
+
+SIGSlopeTool.prototype['getNumberOfHorizontalDistances'] = SIGSlopeTool.prototype.getNumberOfHorizontalDistances = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGSlopeTool_getNumberOfHorizontalDistances_0(self);
+};;
+
+SIGSlopeTool.prototype['getNumberOfRepresentativeFractions'] = SIGSlopeTool.prototype.getNumberOfRepresentativeFractions = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_SIGSlopeTool_getNumberOfRepresentativeFractions_0(self);
+};;
+
+SIGSlopeTool.prototype['getRepresentativeFractionAtIndex'] = SIGSlopeTool.prototype.getRepresentativeFractionAtIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index) {
+  var self = this.ptr;
+  if (index && typeof index === 'object') index = index.ptr;
+  return _emscripten_bind_SIGSlopeTool_getRepresentativeFractionAtIndex_1(self, index);
+};;
+
+SIGSlopeTool.prototype['getRepresentativeFractionAtRepresentativeFraction'] = SIGSlopeTool.prototype.getRepresentativeFractionAtRepresentativeFraction = /** @suppress {undefinedVars, duplicate} @this{Object} */function(representativeFraction) {
+  var self = this.ptr;
+  if (representativeFraction && typeof representativeFraction === 'object') representativeFraction = representativeFraction.ptr;
+  return _emscripten_bind_SIGSlopeTool_getRepresentativeFractionAtRepresentativeFraction_1(self, representativeFraction);
+};;
+
+SIGSlopeTool.prototype['calculateHorizontalDistance'] = SIGSlopeTool.prototype.calculateHorizontalDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_SIGSlopeTool_calculateHorizontalDistance_0(self);
+};;
+
+SIGSlopeTool.prototype['calculateSlopeFromMapMeasurements'] = SIGSlopeTool.prototype.calculateSlopeFromMapMeasurements = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_SIGSlopeTool_calculateSlopeFromMapMeasurements_0(self);
+};;
+
+SIGSlopeTool.prototype['setCalculatedMapDistance'] = SIGSlopeTool.prototype.setCalculatedMapDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(calculatedMapDistance, distanceUnits) {
+  var self = this.ptr;
+  if (calculatedMapDistance && typeof calculatedMapDistance === 'object') calculatedMapDistance = calculatedMapDistance.ptr;
+  if (distanceUnits && typeof distanceUnits === 'object') distanceUnits = distanceUnits.ptr;
+  _emscripten_bind_SIGSlopeTool_setCalculatedMapDistance_2(self, calculatedMapDistance, distanceUnits);
+};;
+
+SIGSlopeTool.prototype['setContourInterval'] = SIGSlopeTool.prototype.setContourInterval = /** @suppress {undefinedVars, duplicate} @this{Object} */function(contourInterval, contourUnits) {
+  var self = this.ptr;
+  if (contourInterval && typeof contourInterval === 'object') contourInterval = contourInterval.ptr;
+  if (contourUnits && typeof contourUnits === 'object') contourUnits = contourUnits.ptr;
+  _emscripten_bind_SIGSlopeTool_setContourInterval_2(self, contourInterval, contourUnits);
+};;
+
+SIGSlopeTool.prototype['setMapDistance'] = SIGSlopeTool.prototype.setMapDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(mapDistance, distanceUnits) {
+  var self = this.ptr;
+  if (mapDistance && typeof mapDistance === 'object') mapDistance = mapDistance.ptr;
+  if (distanceUnits && typeof distanceUnits === 'object') distanceUnits = distanceUnits.ptr;
+  _emscripten_bind_SIGSlopeTool_setMapDistance_2(self, mapDistance, distanceUnits);
+};;
+
+SIGSlopeTool.prototype['setMapRepresentativeFraction'] = SIGSlopeTool.prototype.setMapRepresentativeFraction = /** @suppress {undefinedVars, duplicate} @this{Object} */function(mapRepresentativeFraction) {
+  var self = this.ptr;
+  if (mapRepresentativeFraction && typeof mapRepresentativeFraction === 'object') mapRepresentativeFraction = mapRepresentativeFraction.ptr;
+  _emscripten_bind_SIGSlopeTool_setMapRepresentativeFraction_1(self, mapRepresentativeFraction);
+};;
+
+SIGSlopeTool.prototype['setMaxSlopeSteepness'] = SIGSlopeTool.prototype.setMaxSlopeSteepness = /** @suppress {undefinedVars, duplicate} @this{Object} */function(maxSlopeSteepness) {
+  var self = this.ptr;
+  if (maxSlopeSteepness && typeof maxSlopeSteepness === 'object') maxSlopeSteepness = maxSlopeSteepness.ptr;
+  _emscripten_bind_SIGSlopeTool_setMaxSlopeSteepness_1(self, maxSlopeSteepness);
+};;
+
+SIGSlopeTool.prototype['setNumberOfContours'] = SIGSlopeTool.prototype.setNumberOfContours = /** @suppress {undefinedVars, duplicate} @this{Object} */function(numberOfContours) {
+  var self = this.ptr;
+  if (numberOfContours && typeof numberOfContours === 'object') numberOfContours = numberOfContours.ptr;
+  _emscripten_bind_SIGSlopeTool_setNumberOfContours_1(self, numberOfContours);
+};;
+
+  SIGSlopeTool.prototype['__destroy__'] = SIGSlopeTool.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_SIGSlopeTool___destroy___0(self);
+};
+// VaporPressureDeficitCalculator
+/** @suppress {undefinedVars, duplicate} @this{Object} */function VaporPressureDeficitCalculator() {
+  this.ptr = _emscripten_bind_VaporPressureDeficitCalculator_VaporPressureDeficitCalculator_0();
+  getCache(VaporPressureDeficitCalculator)[this.ptr] = this;
+};;
+VaporPressureDeficitCalculator.prototype = Object.create(WrapperObject.prototype);
+VaporPressureDeficitCalculator.prototype.constructor = VaporPressureDeficitCalculator;
+VaporPressureDeficitCalculator.prototype.__class__ = VaporPressureDeficitCalculator;
+VaporPressureDeficitCalculator.__cache__ = {};
+Module['VaporPressureDeficitCalculator'] = VaporPressureDeficitCalculator;
+
+VaporPressureDeficitCalculator.prototype['runCalculation'] = VaporPressureDeficitCalculator.prototype.runCalculation = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_VaporPressureDeficitCalculator_runCalculation_0(self);
+};;
+
+VaporPressureDeficitCalculator.prototype['setTemperature'] = VaporPressureDeficitCalculator.prototype.setTemperature = /** @suppress {undefinedVars, duplicate} @this{Object} */function(temperature, units) {
+  var self = this.ptr;
+  if (temperature && typeof temperature === 'object') temperature = temperature.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  _emscripten_bind_VaporPressureDeficitCalculator_setTemperature_2(self, temperature, units);
+};;
+
+VaporPressureDeficitCalculator.prototype['setRelativeHumidity'] = VaporPressureDeficitCalculator.prototype.setRelativeHumidity = /** @suppress {undefinedVars, duplicate} @this{Object} */function(relativeHumidity, units) {
+  var self = this.ptr;
+  if (relativeHumidity && typeof relativeHumidity === 'object') relativeHumidity = relativeHumidity.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  _emscripten_bind_VaporPressureDeficitCalculator_setRelativeHumidity_2(self, relativeHumidity, units);
+};;
+
+VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPressureDeficitCalculator.prototype.getVaporPressureDeficit = /** @suppress {undefinedVars, duplicate} @this{Object} */function(units) {
+  var self = this.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  return _emscripten_bind_VaporPressureDeficitCalculator_getVaporPressureDeficit_1(self, units);
+};;
+
+  VaporPressureDeficitCalculator.prototype['__destroy__'] = VaporPressureDeficitCalculator.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_VaporPressureDeficitCalculator___destroy___0(self);
+};
 (function() {
   function setupEnums() {
     
@@ -11599,6 +12337,14 @@ WindSpeedUtility.prototype['windSpeedAtTwentyFeetFromTenMeter'] = WindSpeedUtili
     Module['SquareFeetPerAcre'] = _emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareFeetPerAcre();
 
     Module['SquareMetersPerHectare'] = _emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareMetersPerHectare();
+
+    
+
+    // FractionUnits_FractionUnitsEnum
+
+    Module['Fraction'] = _emscripten_enum_FractionUnits_FractionUnitsEnum_Fraction();
+
+    Module['Percent'] = _emscripten_enum_FractionUnits_FractionUnitsEnum_Percent();
 
     
 
@@ -11675,6 +12421,26 @@ WindSpeedUtility.prototype['windSpeedAtTwentyFeetFromTenMeter'] = WindSpeedUtili
     Module['MilesPerHour'] = _emscripten_enum_SpeedUnits_SpeedUnitsEnum_MilesPerHour();
 
     Module['KilometersPerHour'] = _emscripten_enum_SpeedUnits_SpeedUnitsEnum_KilometersPerHour();
+
+    
+
+    // PressureUnits_PressureUnitsEnum
+
+    Module['Pascal'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_Pascal();
+
+    Module['KiloPascal'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_KiloPascal();
+
+    Module['MegaPascal'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_MegaPascal();
+
+    Module['GigaPascal'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_GigaPascal();
+
+    Module['Bar'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_Bar();
+
+    Module['Atmosphere'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_Atmosphere();
+
+    Module['TechnicalAtmosphere'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_TechnicalAtmosphere();
+
+    Module['PoundPerSquareInch'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_PoundPerSquareInch();
 
     
 
@@ -12211,6 +12977,190 @@ WindSpeedUtility.prototype['windSpeedAtTwentyFeetFromTenMeter'] = WindSpeedUtili
     Module['fire_severity'] = _emscripten_enum_RequiredFieldNames_fire_severity();
 
     Module['num_inputs'] = _emscripten_enum_RequiredFieldNames_num_inputs();
+
+    
+
+    // FDFMToolAspectIndex_AspectIndexEnum
+
+    Module['NORTH'] = _emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_NORTH();
+
+    Module['EAST'] = _emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_EAST();
+
+    Module['SOUTH'] = _emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_SOUTH();
+
+    Module['WEST'] = _emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_WEST();
+
+    
+
+    // FDFMToolDryBulbIndex_DryBulbIndexEnum
+
+    Module['TEN_TO_TWENTY_NINE_DEGREES_F'] = _emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_TEN_TO_TWENTY_NINE_DEGREES_F();
+
+    Module['THRITY_TO_FOURTY_NINE_DEGREES_F'] = _emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_THRITY_TO_FOURTY_NINE_DEGREES_F();
+
+    Module['FIFTY_TO_SIXTY_NINE_DEGREES_F'] = _emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_FIFTY_TO_SIXTY_NINE_DEGREES_F();
+
+    Module['SEVENTY_TO_EIGHTY_NINE_DEGREES_F'] = _emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_SEVENTY_TO_EIGHTY_NINE_DEGREES_F();
+
+    Module['NINETY_TO_ONE_HUNDRED_NINE_DEGREES_F'] = _emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_NINETY_TO_ONE_HUNDRED_NINE_DEGREES_F();
+
+    Module['GREATER_THAN_ONE_HUNDRED_NINE_DEGREES_F'] = _emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_GREATER_THAN_ONE_HUNDRED_NINE_DEGREES_F();
+
+    
+
+    // FDFMToolElevationIndex_ElevationIndexEnum
+
+    Module['BELOW_1000_TO_2000_FT'] = _emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_BELOW_1000_TO_2000_FT();
+
+    Module['LEVEL_WITHIN_1000_FT'] = _emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_LEVEL_WITHIN_1000_FT();
+
+    Module['ABOVE_1000_TO_2000_FT'] = _emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_ABOVE_1000_TO_2000_FT();
+
+    
+
+    // FDFMToolMonthIndex_MonthIndexEnum
+
+    Module['MAY_JUNE_JULY'] = _emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_MAY_JUNE_JULY();
+
+    Module['FEB_MAR_APR_AUG_SEP_OCT'] = _emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_FEB_MAR_APR_AUG_SEP_OCT();
+
+    Module['NOV_DEC_JAN'] = _emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_NOV_DEC_JAN();
+
+    
+
+    // FDFMToolRHIndex_RHIndexEnum
+
+    Module['ZERO_TO_FOUR_PERCENT'] = _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_ZERO_TO_FOUR_PERCENT();
+
+    Module['FIVE_TO_NINE_PERCENT'] = _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIVE_TO_NINE_PERCENT();
+
+    Module['TEN_TO_FOURTEEN_PERCENT'] = _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TEN_TO_FOURTEEN_PERCENT();
+
+    Module['FIFTEEN_TO_NINETEEN_PERCENT'] = _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTEEN_TO_NINETEEN_PERCENT();
+
+    Module['TWENTY_TO_TWENTY_FOUR_PERCENT'] = _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TWENTY_TO_TWENTY_FOUR_PERCENT();
+
+    Module['TWENTY_FIVE_TO_TWENTY_NINE_PERCENT'] = _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TWENTY_FIVE_TO_TWENTY_NINE_PERCENT();
+
+    Module['THIRTY_TO_THIRTY_FOUR_PERCENT'] = _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_THIRTY_TO_THIRTY_FOUR_PERCENT();
+
+    Module['THIRTY_FIVE_TO_THIRTY_NINE_PERCENT'] = _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_THIRTY_FIVE_TO_THIRTY_NINE_PERCENT();
+
+    Module['FORTY_TO_FORTY_FOUR_PERCENT'] = _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FORTY_TO_FORTY_FOUR_PERCENT();
+
+    Module['FORTY_FIVE_TO_FORTY_NINE_PERCENT'] = _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FORTY_FIVE_TO_FORTY_NINE_PERCENT();
+
+    Module['FIFTY_TO_FIFTY_FOUR_PERCENT'] = _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTY_TO_FIFTY_FOUR_PERCENT();
+
+    Module['FIFTY_FIVE_TO_FIFTY_NINE_PERCENT'] = _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTY_FIVE_TO_FIFTY_NINE_PERCENT();
+
+    Module['SIXTY_TO_SIXTY_FOUR_PERCENT'] = _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SIXTY_TO_SIXTY_FOUR_PERCENT();
+
+    Module['SIXTY_FIVE_TO_SIXTY_NINE_PERCENT'] = _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SIXTY_FIVE_TO_SIXTY_NINE_PERCENT();
+
+    Module['SEVENTY_TO_SEVENTY_FOUR_PERCENT'] = _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SEVENTY_TO_SEVENTY_FOUR_PERCENT();
+
+    Module['SEVENTY_FIVE_TO_SEVENTY_NINE_PERCENT'] = _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SEVENTY_FIVE_TO_SEVENTY_NINE_PERCENT();
+
+    Module['EIGHTY_TO_EIGHTY_FOUR_PERCENT'] = _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_EIGHTY_TO_EIGHTY_FOUR_PERCENT();
+
+    Module['EIGHTY_FIVE_TO_EIGHTY_NINE_PERCENT'] = _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_EIGHTY_FIVE_TO_EIGHTY_NINE_PERCENT();
+
+    Module['NINETY_TO_NINETY_FOUR_PERCENT'] = _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_NINETY_TO_NINETY_FOUR_PERCENT();
+
+    Module['NINETY_FIVE_TO_NINETY_NINE_PERCENT'] = _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_NINETY_FIVE_TO_NINETY_NINE_PERCENT();
+
+    Module['ONE_HUNDRED_PERCENT'] = _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_ONE_HUNDRED_PERCENT();
+
+    
+
+    // FDFMToolShadingIndex_ShadingIndexEnum
+
+    Module['EXPOSED'] = _emscripten_enum_FDFMToolShadingIndex_ShadingIndexEnum_EXPOSED();
+
+    Module['SHADED'] = _emscripten_enum_FDFMToolShadingIndex_ShadingIndexEnum_SHADED();
+
+    
+
+    // FDFMToolSlopeIndex_SlopeIndexEnum
+
+    Module['ZERO_TO_THIRTY_PERCENT'] = _emscripten_enum_FDFMToolSlopeIndex_SlopeIndexEnum_ZERO_TO_THIRTY_PERCENT();
+
+    Module['GREATER_THAN_OR_EQUAL_TO_THIRTY_ONE_PERCENT'] = _emscripten_enum_FDFMToolSlopeIndex_SlopeIndexEnum_GREATER_THAN_OR_EQUAL_TO_THIRTY_ONE_PERCENT();
+
+    
+
+    // FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum
+
+    Module['EIGHT_HUNDRED_HOURS_TO_NINE_HUNDRED_FIFTY_NINE'] = _emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_EIGHT_HUNDRED_HOURS_TO_NINE_HUNDRED_FIFTY_NINE();
+
+    Module['TEN_HUNDRED_HOURS_TO_ELEVEN__HUNDRED_FIFTY_NINE'] = _emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_TEN_HUNDRED_HOURS_TO_ELEVEN__HUNDRED_FIFTY_NINE();
+
+    Module['TWELVE_HUNDRED_HOURS_TO_THIRTEEN_HUNDRED_FIFTY_NINE'] = _emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_TWELVE_HUNDRED_HOURS_TO_THIRTEEN_HUNDRED_FIFTY_NINE();
+
+    Module['FOURTEEN_HUNDRED_HOURS_TO_FIFTEEN_HUNDRED_FIFTY_NINE'] = _emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_FOURTEEN_HUNDRED_HOURS_TO_FIFTEEN_HUNDRED_FIFTY_NINE();
+
+    Module['SIXTEEN_HUNDRED_HOURS_TO_SIXTEEN_HUNDRED_FIFTY_NINE'] = _emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_SIXTEEN_HUNDRED_HOURS_TO_SIXTEEN_HUNDRED_FIFTY_NINE();
+
+    Module['EIGHTTEEN_HUNDRED_HOURS_TO_SUNSET'] = _emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_EIGHTTEEN_HUNDRED_HOURS_TO_SUNSET();
+
+    
+
+    // RepresentativeFraction_RepresentativeFractionEnum
+
+    Module['NINTEEN_HUNDRED_EIGHTY'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_NINTEEN_HUNDRED_EIGHTY();
+
+    Module['THREE_THOUSAND_NINEHUNDRED_SIXTY'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_THREE_THOUSAND_NINEHUNDRED_SIXTY();
+
+    Module['SEVEN_THOUSAND_NINEHUNDRED_TWENTY'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SEVEN_THOUSAND_NINEHUNDRED_TWENTY();
+
+    Module['TEN_THOUSAND'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TEN_THOUSAND();
+
+    Module['FIFTEEN_THOUSAND_EIGHT_HUNDRED_FORTY'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIFTEEN_THOUSAND_EIGHT_HUNDRED_FORTY();
+
+    Module['TWENTY_ONE_THOUSAND_ONE_HUNDRED_TWENTY'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWENTY_ONE_THOUSAND_ONE_HUNDRED_TWENTY();
+
+    Module['TWENTY_FOUR_THOUSAND'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWENTY_FOUR_THOUSAND();
+
+    Module['THRITY_ONE_THOUSAND_SIX_HUNDRED_EIGHTY'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_THRITY_ONE_THOUSAND_SIX_HUNDRED_EIGHTY();
+
+    Module['FIFTY_THOUSAND'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIFTY_THOUSAND();
+
+    Module['SIXTY_TWO_THOUSAND_FIVE_HUNDRED'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SIXTY_TWO_THOUSAND_FIVE_HUNDRED();
+
+    Module['SIXTY_THREE_THOUSAND_THREE_HUNDRED_SIXTY'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SIXTY_THREE_THOUSAND_THREE_HUNDRED_SIXTY();
+
+    Module['ONE_HUNDRED_THOUSAND'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_HUNDRED_THOUSAND();
+
+    Module['ONE_HUNDRED_TWENTY_SIX_THOUSAND_SEVEN_HUNDRED_TWENTY'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_HUNDRED_TWENTY_SIX_THOUSAND_SEVEN_HUNDRED_TWENTY();
+
+    Module['TWO_HUNDRED_FIFTY_THOUSAND'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWO_HUNDRED_FIFTY_THOUSAND();
+
+    Module['TWO_HUNDRED_FIFTY_THREE_THOUSAND_FOUR_HUNDRED_FORTY'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWO_HUNDRED_FIFTY_THREE_THOUSAND_FOUR_HUNDRED_FORTY();
+
+    Module['FIVE_HUNDRED_SIX_THOUSAND_EIGHT_HUNDRED_EIGHTY'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIVE_HUNDRED_SIX_THOUSAND_EIGHT_HUNDRED_EIGHTY();
+
+    Module['ONE_MILLION'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_MILLION();
+
+    Module['ONE_MILLION_THIRTEEN_THOUSAND_SEVEN_HUNDRED_SIXTY'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_MILLION_THIRTEEN_THOUSAND_SEVEN_HUNDRED_SIXTY();
+
+    
+
+    // HorizontalDistanceIndex_HorizontalDistanceIndexEnum
+
+    Module['UPSLOPE_ZERO_DEGREES'] = _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_UPSLOPE_ZERO_DEGREES();
+
+    Module['FIFTEEN_DEGREES_FROM_UPSLOPE'] = _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_FIFTEEN_DEGREES_FROM_UPSLOPE();
+
+    Module['THIRTY_DEGREES_FROM_UPSLOPE'] = _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_THIRTY_DEGREES_FROM_UPSLOPE();
+
+    Module['FORTY_FIVE_DEGREES_FROM_UPSLOPE'] = _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_FORTY_FIVE_DEGREES_FROM_UPSLOPE();
+
+    Module['SIXTY_DEGREES_FROM_UPSLOPE'] = _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_SIXTY_DEGREES_FROM_UPSLOPE();
+
+    Module['SEVENTY_FIVE_DEGREES_FROM_UPSLOPE'] = _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_SEVENTY_FIVE_DEGREES_FROM_UPSLOPE();
+
+    Module['CROSS_SLOPE_NINETY_DEGREES'] = _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_CROSS_SLOPE_NINETY_DEGREES();
 
   }
   if (runtimeInitialized) setupEnums();

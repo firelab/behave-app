@@ -11,6 +11,7 @@
 (s/def :group/help-key        (s/and string? valid-key?))
 (s/def :group/children        set?)
 (s/def :group/group-variables set?)
+(s/def :group/research?       boolean?)
 
 (s/def :behave/group (s/keys :req [:group/uuid
                                    :group/name
@@ -18,7 +19,8 @@
                                    :group/translation-key
                                    :group/help-key]
                              :opt [:group/children
-                                   :group/group-variables]))
+                                   :group/group-variables
+                                   :group/research?]))
 
 ;;; Schema
 

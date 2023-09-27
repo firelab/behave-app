@@ -4,7 +4,8 @@
             [dom-utils.interface    :refer [input-value]]
             [reagent.core           :as r]
             [string-utils.interface :refer [->kebab]]
-            [re-frame.core          :as rf]))
+            [re-frame.core          :as rf]
+            [datascript.core :as d]))
 
 (defn tool-selector
   "A Modal used for selecting a tool"
@@ -22,26 +23,24 @@
                                                                              :order     idx})
                                                                           tools)}]}]))
 
-(defmulti tool-input
-  "MultiMethod for constructing the input fields for the tool."
-  (fn [variable] (:variable/kind variable)))
+(defmulti #^{:private true} tool-input
+  (fn [{:keys [variable]}] (:variable/kind variable)))
 
 (defmethod tool-input nil [variable] (println [:NO-KIND-VAR variable]))
 
 (defmethod tool-input :continuous
-  [{sv-uuid       :bp/uuid
-    var-name      :variable/name
-    native-units  :variable/native-units
-    english-units :variable/english-units
-    metric-units  :variable/metric-units
-    help-key      :subtool-variable/help-key}
-   tool-uuid
-   subtool-uuid]
-  (let [value      (rf/subscribe [:tool/input-value
-                                  tool-uuid
-                                  subtool-uuid
-                                  sv-uuid])
-        value-atom (r/atom @value)]
+  [{:keys [variable tool-uuid subtool-uuid auto-compute?]}]
+  (let [{sv-uuid       :bp/uuid
+         var-name      :variable/name
+         native-units  :variable/native-units
+         english-units :variable/english-units
+         metric-units  :variable/metric-units
+         help-key      :subtool-variable/help-key} variable
+        value                                      (rf/subscribe [:tool/input-value
+                                                                  tool-uuid
+                                                                  subtool-uuid
+                                                                  sv-uuid])
+        value-atom                                 (r/atom @value)]
     [:div.tool-input
      [:div.tool-input__input
       {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
@@ -54,7 +53,8 @@
                                                   tool-uuid
                                                   subtool-uuid
                                                   sv-uuid
-                                                  @value-atom])}]]
+                                                  @value-atom
+                                                  auto-compute?])}]]
      [:div.tool-input__description
       (str "Units used: " native-units)
       [:div.tool-input__description__units
@@ -62,34 +62,42 @@
        [:div (str "Metric Units: " metric-units)]]]]))
 
 (defmethod tool-input :discrete
-  [variable tool-uuid subtool-uuid]
-  (r/with-let [{sv-uuid  :bp/uuid
-                var-name :variable/name
-                help-key :subtool-variable/help-key
-                v-list   :variable/list} variable
-
-               selected    (rf/subscribe [:tool/input-value
-                                          tool-uuid
-                                          subtool-uuid
-                                          sv-uuid])
-               on-change   #(rf/dispatch [:tool/upsert-input-value
-                                          tool-uuid
-                                          subtool-uuid
-                                          sv-uuid
-                                          (input-value %)])
-               options     (:list/options v-list)
-               num-options (count options)
-               ->option    (fn [{value    :list-option/value
-                                 l-name   :list-option/name
-                                 default? :list-option/default}]
-                             {:value     value
-                              :label     l-name
-                              :on-change on-change
-                              :selected? (or (= @selected value) (and (nil? @selected) default?))
-                              :checked?  (= @selected value)})]
+  [{:keys [variable tool-uuid subtool-uuid auto-compute?]}]
+  (let [{sv-uuid  :bp/uuid
+         var-name :variable/name
+         help-key :subtool-variable/help-key
+         v-list   :variable/list} variable
+        selected                  (rf/subscribe [:tool/input-value
+                                                 tool-uuid
+                                                 subtool-uuid
+                                                 sv-uuid])
+        options                   (:list/options v-list)
+        default-option            (first (filter #(true? (:list-option/default %)) options))
+        on-change                 #(rf/dispatch [:tool/upsert-input-value
+                                                 tool-uuid
+                                                 subtool-uuid
+                                                 sv-uuid
+                                                 (input-value %)
+                                                 auto-compute?])
+        num-options               (count options)
+        ->option                  (fn [{value    :list-option/value
+                                        l-name   :list-option/name
+                                        default? :list-option/default}]
+                                    {:value     value
+                                     :label     l-name
+                                     :on-change on-change
+                                     :selected? (or (= @selected value) (and (nil? @selected) default?))
+                                     :checked?  (= @selected value)})]
+    (when (and (nil? @selected) default-option)
+      (rf/dispatch [:tool/upsert-input-value
+                    tool-uuid
+                    subtool-uuid
+                    sv-uuid
+                    (:list-option/value default-option)
+                    false]))
     [:div.tool-input
      {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
-     (if (< num-options 4)
+     (if (< num-options 3)
        [c/radio-group
         {:id      uuid
          :label   var-name
@@ -103,8 +111,7 @@
          :options   (concat [{:label "Select..." :value "nil"}]
                             (map ->option options))}])]))
 
-(defn tool-output
-  "Constructs the output field component and populates the value if it exists in the app-db state"
+(defn- tool-output
   [{sv-uuid       :bp/uuid
     var-name      :variable/name
     native-units  :variable/native-units
@@ -131,6 +138,35 @@
        [:div (str "English Units: " english-units)]
        [:div (str "Metric Units: " metric-units)]]]]))
 
+(defn- auto-compute-subtool [tool-uuid subtool-uuid]
+  (rf/dispatch [:tool/solve tool-uuid subtool-uuid])
+  (let [variables (rf/subscribe [:subtool/encriched-subtool-variables subtool-uuid])]
+    [:div
+     (for [{io :subtool-variable/io :as variable} @variables]
+       (if (= io :input)
+         [tool-input {:variable      variable
+                      :tool-uuid     tool-uuid
+                      :subtool-uuid  subtool-uuid
+                      :auto-compute? true}]
+         [tool-output variable tool-uuid subtool-uuid]))]))
+
+(defn- manual-subtool [tool-uuid subtool-uuid]
+  (let [input-variables  (rf/subscribe [:subtool/input-variables subtool-uuid])
+        output-variables (rf/subscribe [:subtool/output-variables subtool-uuid])]
+    [:div
+     (for [variable @input-variables]
+       [tool-input {:variable     variable
+                    :tool-uuid    tool-uuid
+                    :subtool-uuid subtool-uuid}])
+     [:div.tool__compute
+      [c/button {:label         @(<t (bp "compute"))
+                 :variant       "highlight"
+                 :icon-name     "arrow2"
+                 :icon-position "right"
+                 :on-click      #(rf/dispatch [:tool/solve tool-uuid subtool-uuid])}]]
+     (for [variable @output-variables]
+       [tool-output variable tool-uuid subtool-uuid])]))
+
 (defn tool
   "A view for displaying the selected tool's inputs and outputs."
   [tool-uuid]
@@ -139,10 +175,8 @@
          tool-uuid :bp/uuid}  @(rf/subscribe [:tool/entity tool-uuid])
         first-subtool-uuid    (:bp/uuid (first subtools))
         selected-subtool-uuid (rf/subscribe [:tool/selected-subtool-uuid])
-        subtool-uuid          (or @selected-subtool-uuid
-                                  first-subtool-uuid)
-        input-vars            @(rf/subscribe [:subtool/input-variables subtool-uuid])
-        output-vars           @(rf/subscribe [:subtool/output-variables subtool-uuid])]
+        subtool-uuid          (or @selected-subtool-uuid first-subtool-uuid)
+        subtool               (rf/subscribe [:vms/entity-from-uuid subtool-uuid])]
     (when (nil? @selected-subtool-uuid)
       (rf/dispatch [:tool/select-subtool first-subtool-uuid]))
     [:div.tool
@@ -157,21 +191,15 @@
                    :shape     "round"
                    :size      "small"
                    :variant   "primary"}]]]
-      (when (> (count subtools) 1)
-        [c/tab-group {:variant  "outline-primary"
-                      :on-click #(rf/dispatch [:tool/select-subtool (:tab %)])
-                      :tabs     (map (fn [{s-name :subtool/name s-uuid :bp/uuid}]
-                                       {:label     s-name
-                                        :tab       s-uuid
-                                        :selected? (= subtool-uuid s-uuid)})
-                                     subtools)}])
-      (for [variable input-vars]
-        [tool-input variable tool-uuid subtool-uuid])
-      [:div.tool__compute
-       [c/button {:label         @(<t (bp "compute"))
-                  :variant       "highlight"
-                  :icon-name     "arrow2"
-                  :icon-position "right"
-                  :on-click      #(rf/dispatch [:tool/compute tool-uuid subtool-uuid])}]]
-      (for [variable output-vars]
-        [tool-output variable tool-uuid subtool-uuid])]]))
+      [:div.accordion__body
+       (when (> (count subtools) 1)
+         [c/tab-group {:variant  "outline-primary"
+                       :on-click #(rf/dispatch [:tool/select-subtool (:tab %)])
+                       :tabs     (map (fn [{s-name :subtool/name s-uuid :bp/uuid}]
+                                        {:label     s-name
+                                         :tab       s-uuid
+                                         :selected? (= subtool-uuid s-uuid)})
+                                      subtools)}])
+       (if (:subtool/auto-compute? @subtool)
+         [auto-compute-subtool tool-uuid subtool-uuid]
+         [manual-subtool tool-uuid subtool-uuid])]]]))
