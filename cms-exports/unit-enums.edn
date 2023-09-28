@@ -51,27 +51,7 @@
   :MilesPerHour
   :KilometersPerHour]
 
- :CoverUnits_CoverUnitsEnum
- [:Fraction
-  :Percent]
-
- :MortalityRateUnits_MortalityRateUnitsEnum
- [:Fraction
-  :Percent]
-
- :CuringLevelUnits_CuringLevelEnum
- [:Fraction
-  :Percent]
-
  :FractionUnits_FractionUnitsEnum
- [:Fraction
-  :Percent]
-
- :ProbabilityUnits_ProbabilityUnitsEnum
- [:Fraction
-  :Percent]
-
- :MoistureUnits_MoistureUnitsEnum
  [:Fraction
   :Percent]
 

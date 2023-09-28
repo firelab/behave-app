@@ -95,21 +95,22 @@
     [:div.mb-3
      [:label.form-label group-label]
      [:input {:type "hidden" :value (str @state)}]
-     (for [{:keys [label value]} options]
-       ^{:key value}
-       (let [id (str value)]
-         [:div.form-check
-          [:input.form-check-input
-           {:type      "radio"
-            :name      (u/sentence->kebab group-label)
-            :id        id
-            :value     value
-            :checked   (= @state value)
-            :on-change #(on-change value)}]
-          [:label.form-check-label {:for id} label]]))]))
+     (doall
+      (for [{:keys [label value]} options]
+        (let [id (str value)]
+          ^{:key id}
+          [:div.form-check
+           [:input.form-check-input
+            {:type      "radio"
+             :name      (u/sentence->kebab group-label)
+             :id        id
+             :value     value
+             :checked   (= @state value)
+             :on-change #(on-change value)}]
+           [:label.form-check-label {:for id} label]])))]))
 
 (defmethod field-input :number [{:keys [label autocomplete disabled? autofocus? required? placeholder on-change state]
-                                  :or {disabled? false required? false}}]
+                                 :or   {disabled? false required? false}}]
   [:div.my-3
    [:label.form-label {:for (u/sentence->kebab label)} label]
    [:input.form-control

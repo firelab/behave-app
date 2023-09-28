@@ -73,7 +73,6 @@
   (defn ->dimension [{:keys [enum-name] :as dimension}]
     (let [enums     (index-by :cpp.enum/name (units-enums))
           enum      (get enums enum-name)
-          _         (println enum-name enum)
           enum-uuid (:bp/uuid enum)
           members   (index-by :cpp.enum-member/name (:cpp.enum/enum-member enum))
           units     (mapv #(-> %
@@ -97,43 +96,47 @@
 
   ;;; Unit-less
   ;; Add Dimensionless Units
-  (d/transact (unwrap ds/conn) [{:bp/uuid (s-uuid)
+  (d/transact (unwrap ds/conn) [{:bp/uuid        (s-uuid)
                                  :dimension/name "Dimensionless"
-                                 :dimension/members
-                                 [{:bp/uuid (s-uuid)
-                                   :unit/name "Ratio"
+                                 :dimension/units
+                                 [{:bp/uuid         (s-uuid)
+                                   :unit/name       "Ratio"
                                    :unit/short-code "ratio"}
-                                  {:bp/uuid (s-uuid)
-                                   :unit/name "Number"
+                                  {:bp/uuid         (s-uuid)
+                                   :unit/name       "Number"
                                    :unit/short-code "#"}
                                   {:bp/uuid (s-uuid)
                                    :unit/name "Scale"
                                    :unit/short-code ":"}]}])
 
-  (d/transact (unwrap ds/conn)
-              [{:db/id (get-in (find-unit "ratio") [:dimension/_units :db/id])
-                :dimension/units
-                [{:bp/uuid         (s-uuid)
-                  :unit/name       "Number"
-                  :unit/short-code "#"}
-                 {:bp/uuid         (s-uuid)
-                  :unit/name       "Scale"
-                  :unit/short-code ":"}]}])
-
   ;; Add Compass Direction
   (d/transact (unwrap ds/conn) [{:bp/uuid        (s-uuid)
                                  :dimension/name "Direction"
                                  :dimension/units
-                                 [{:unit/name       "Degrees"
+                                 [{:bp/uuid         (s-uuid)
+                                   :unit/name       "Degrees"
                                    :unit/short-code "degN"}]}])
 
   ;; Add Map Coordinate
-  (d/transact (unwrap ds/conn) [{:bp/uuid (s-uuid)
+  (d/transact (unwrap ds/conn) [{:bp/uuid        (s-uuid)
                                  :dimension/name "Coordinates"
                                  :dimension/units
-                                 [{:unit/name "Decimal Degrees"
+                                 [{:bp/uuid         (s-uuid)
+                                   :unit/name       "Decimal Degrees"
                                    :unit/short-code "coord-deg"}
-                                  {:unit/name "Degrees/Minutes/Seconds"
+                                  {:bp/uuid         (s-uuid)
+                                   :unit/name       "Degrees/Minutes/Seconds"
+                                   :unit/short-code "coord-dms"}]}])
+
+  ;; Add Map Coordinate
+  (d/transact (unwrap ds/conn) [{:bp/uuid        (s-uuid)
+                                 :dimension/name "Map Scale"
+                                 :dimension/units
+                                 [{:bp/uuid         (s-uuid)
+                                   :unit/name       "Decimal Degrees"
+                                   :unit/short-code "coord-deg"}
+                                  {:bp/uuid         (s-uuid)
+                                   :unit/name       "Degrees/Minutes/Seconds"
                                    :unit/short-code "coord-dms"}]}])
 
   )
@@ -143,15 +146,88 @@
 (comment
 
   ;; Migrate new schema
-  #_(ds/migrate (unwrap ds/conn) all-schemas)
+  (ds/migrate (unwrap ds/conn) all-schemas)
 
   ;; Find all Continuous Variables
-  (def all-continuous-variables
+  (defn all-continuous-variables []
     (d/q '[:find [(pull ?v [*]) ...]
            :where
            [?v :variable/kind :continuous]]
          (safe-deref ds/conn)))
 
+  (def cont-vars (all-continuous-variables))
+
+  ;;; Fixes to the existing unit short codes
+
+  ;; Fix Bole Char Height
+  (def bole-char (first (filter #(= (:variable/name %) "Bole Char Height") cont-vars)))
+
+  (d/transact (unwrap ds/conn)
+              [(assoc (select-keys bole-char [:db/id])
+                      :variable/metric-units "m"
+                      :variable/english-units "ft"
+                      :variable/native-units "ft")])
+
+  ;; Fix Direction
+  (def direction-ids (map :db/id (filter (fn [{v-name :variable/name}]
+                                           (and (string? v-name)
+                                                (re-find #"Direction" v-name))) cont-vars)))
+
+  (d/transact (unwrap ds/conn)
+              (map (fn [id] {:db/id id
+                             :variable/english-units "degN"
+                             :variable/metric-units "degN"
+                             :variable/native-units "degN"})
+                   direction-ids))
+
+  ;; Fix Latitude/Longitude
+  (def coordinate-ids (map :db/id (filter (fn [{v-name :variable/name}]
+                                           (and (string? v-name)
+                                                (or (= "Latitude" v-name) (= "Longitude" v-name)))) cont-vars)))
+
+  (d/transact (unwrap ds/conn)
+              (map (fn [id] {:db/id id
+                             :variable/english-units "coord-deg"
+                             :variable/metric-units "coord-deg"
+                             :variable/native-units "coord-deg"})
+                   coordinate-ids))
+
+  ;; Fix Load Units
+  (def vars-w-load-units-ids (filter #(= (:variable/native-units %) "lb/ft2") cont-vars))
+
+  vars-w-load-units-ids
+
+  (d/transact (unwrap ds/conn)
+              (map (fn [id] {:db/id id
+                             :variable/native-units "ton/ac"})
+                   vars-w-load-units-ids))
+
+
+  ;; Fix Heat Sink
+  (def heat-sink-ids (map :db/id (filter #(= (:variable/name %) "Heat Sink") cont-vars)))
+
+  (d/transact (unwrap ds/conn)
+              (mapv (fn [id] {:db/id id
+                             :variable/metric-units "kJ/m3"})
+                   heat-sink-ids))
+
+  ;; Fix Reference Moisture
+  (def reference-moisture
+    (map :db/id (filter #(and (string? (:variable/name %))
+                              (re-find #"Reference" (:variable/name %))
+                              (= (:variable/metric-units %) "%")) cont-vars)))
+
+  (d/transact (unwrap ds/conn)
+              (mapv (fn [id] {:db/id id
+                              :variable/metric-units "fraction"
+                              :variable/english-units "fraction"
+                              :variable/native-units "fraction"})
+                   reference-moisture))
+
+  ;; Re-def cont-vars after fixes
+  (def cont-vars (all-continuous-variables))
+
+  ;;; Add Dimensions
   (defn find-unit
     [short-code]
     (d/q '[:find (pull ?u [* {:dimension/_units [*]}]) .
@@ -159,6 +235,8 @@
            :where
            [?u :unit/short-code ?short-code]]
          (safe-deref ds/conn) short-code))
+
+  (find-unit "coord-deg")
 
   (defn add-dimension-unit
     [variable]
@@ -193,7 +271,8 @@
          :dim-uuids    dim-uuids
          :variable     variable})))
 
-  (def add-dimension-unit-tx (mapv add-dimension-unit all-continuous-variables))
+
+  (def add-dimension-unit-tx (mapv add-dimension-unit cont-vars))
 
   (pprint all-continuous-variables (clojure.java.io/writer "cont-vars.edn"))
 
@@ -203,57 +282,39 @@
 
   (pprint add-dimension-unit-tx (clojure.java.io/writer "tx.edn"))
 
-  ;; Fix Bole Char Height
-  (def bole-char (first (filter #(= (:variable/name %) "Bole Char Height") all-continuous-variables)))
+  (def simple-tx (map #(select-keys % [:db/id
+                                       :variable/name
+                                       :variable/dimension-uuid
+                                       #_:variable/native-unit-uuid
+                                       #_:variable/english-unit-uuid
+                                       #_:variable/metric-unit-uuid])
+                      add-dimension-unit-tx))
+
+  (filter #(some nil? (vals (select-keys % [:variable/dimension-uuid]))) simple-tx)
+
+  (d/transact (unwrap ds/conn) simple-tx)
 
   (d/transact (unwrap ds/conn)
-              [(assoc (select-keys bole-char [:db/id])
-                      :variable/metric-units "m"
-                      :variable/english-units "ft"
-                      :variable/native-units "ft")])
+              (d/q '[:find ?e ?d-uuid
+                     :keys db/id variable/dimension-uuid
+                     :where
+                     [?e :variable/name ?v-name]
+                     [?e :variable/native-unit-uuid ?u-uuid]
+                     [?u :bp/uuid ?u-uuid]
+                     [?u :unit/name ?u-name]
+                     [?d :dimension/units ?u]
+                     [?d :dimension/name ?d-name]
+                     [?d :bp/uuid ?d-uuid]
+                     (not [?e :variable/dimension-uuid ?d-uuid])]
+                   (safe-deref ds/conn)))
 
-  ;; Fix Direction
-  (def direction-ids (map :db/id (filter (fn [{v-name :variable/name}]
-                                           (and (string? v-name)
-                                                (re-find #"Direction" v-name))) all-continuous-variables)))
-
-  (d/transact (unwrap ds/conn)
-              (map (fn [id] {:db/id id
-                             :variable/english-units "degN"
-                             :variable/metric-units "degN"
-                             :variable/native-units "degN"})
-                   direction-ids))
-
-  ;; Fix Latitude/Longitude
-  (def coordinate-ids (map :db/id (filter (fn [{v-name :variable/name}]
-                                           (and (string? v-name)
-                                                (or (= "Latitude" v-name) (= "Longitude" v-name)))) all-continuous-variables)))
-
-  (d/transact (unwrap ds/conn)
-              (map (fn [id] {:db/id id
-                             :variable/english-units "coord-deg"
-                             :variable/metric-units "coord-deg"
-                             :variable/native-units "coord-deg"})
-                   coordinate-ids))
-
-  ;; Fix Load Units
-  (def vars-w-load-units-ids (map :db/id (filter #(= (:variable/native-units %) "lb/ft2") all-continuous-variables)))
-
-  (d/transact (unwrap ds/conn)
-              (map (fn [id] {:db/id id
-                             :variable/native-units "ton/ac"})
-                   vars-w-load-units-ids))
-
-
-  ;; Fix Heat Sink
-  (def heat-sink-ids (map :db/id (filter #(= (:variable/name %) "Heat Sink") all-continuous-variables)))
-
-  (d/transact (unwrap ds/conn)
-              (mapv (fn [id] {:db/id id
-                             :variable/metric-units "kJ/m3"})
-                   heat-sink-ids))
-
-
-
+  (d/q '[:find ?e ?d-uuid ?v-name ?n-units
+         ;; :keys db/id variable/dimension-uuid
+         :where
+         [?e :variable/kind :continuous]
+         [?e :variable/native-units ?n-units]
+         [?e :variable/name ?v-name]
+         (not [?e :variable/dimension-uuid ?d-uuid])]
+       (safe-deref ds/conn))
 
   )

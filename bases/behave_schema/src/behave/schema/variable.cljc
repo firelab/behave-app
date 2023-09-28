@@ -182,6 +182,11 @@
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident       :variable/native-unit-uuid
+    :db/doc         "Variable's native unit UUID."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
    ;; Discrete Variables
    {:db/ident       :variable/list
     :db/doc         "Variable's list."
