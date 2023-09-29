@@ -387,3 +387,12 @@
           [?d :diagram/output-group-variables ?g]
           [?g :bp/uuid ?gv-uuid]]
         @@s/vms-conn [:bp/uuid gv-uuid])))
+
+(reg-sub
+ :wizard/dimension+units
+ (fn [_ [_ dimension-uuid]]
+   (d/q '[:find  (pull ?d [* {:dimension/units [*]}]) .
+          :in    $ ?dim-uuid
+          :where
+          [?d :bp/uuid ?dim-uuid]]
+        @@s/vms-conn dimension-uuid)))

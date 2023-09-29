@@ -20,7 +20,6 @@
                                    :required? true
                                    :field-key :unit/short-code}
                                   {:label     "Enum Member"
-                                   :required? true
                                    :type      :select
                                    :field-key :unit/cpp-enum-member-uuid
                                    :options   @enum-members}
@@ -30,7 +29,9 @@
                                    :options   [{:label "Metric"  :value :metric}
                                                {:label "English" :value :english}
                                                {:label "Time"    :value :time}]}]
-                   :on-create #(assoc % :unit/system (keyword (:unit/system %)))}]]))
+                   :on-create #(cond-> %
+                                 (:unit/system %)
+                                 (update :unit/system keyword))}]]))
 
 (defn- units-table [dimension-eid]
   (when dimension-eid 

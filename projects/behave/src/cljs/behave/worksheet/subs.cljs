@@ -79,6 +79,23 @@
                  [?i :input/value ?value]]
     :variables [ws-uuid group-uuid repeat-id group-variable-uuid]}))
 
+;; Get the units for a particular input
+(rp/reg-sub
+ :worksheet/input-units
+ (fn [_ [_ ws-uuid group-uuid repeat-id group-variable-uuid]]
+   {:type      :query
+    :query     '[:find  ?unit .
+                 :in    $ ?ws-uuid ?group-uuid ?repeat-id ?group-var-uuid
+                 :where
+                 [?w :worksheet/uuid ?ws-uuid]
+                 [?w :worksheet/input-groups ?g]
+                 [?g :input-group/group-uuid ?group-uuid]
+                 [?g :input-group/repeat-id ?repeat-id]
+                 [?g :input-group/inputs ?i]
+                 [?i :input/group-variable-uuid ?group-var-uuid]
+                 [?i :input/units ?unit]]
+    :variables [ws-uuid group-uuid repeat-id group-variable-uuid]}))
+
 ;; Find groups matching a group-uuid
 (rp/reg-sub
  :worksheet/repeat-groups
