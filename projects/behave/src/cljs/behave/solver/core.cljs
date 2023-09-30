@@ -1,26 +1,23 @@
 (ns behave.solver.core
-  (:require [behave.solver.diagrams :refer [store-all-diagrams!]]
-            [behave.solver.queries  :as q]
-            [behave.solver.table    :as t]
-            [behave.lib.contain     :as contain]
-            [behave.lib.crown       :as crown]
-            [behave.lib.mortality   :as mortality]
-            [behave.lib.surface     :as surface]
-            [behave.lib.spot        :as spot]
-            [behave.lib.units       :as units]
-            [behave.logger          :refer [log]]
-            [clojure.string         :as str]
-            [clojure.set            :as set]
-            [clojure.walk           :as w]
-            [re-frame.core          :as rf]))
+  (:require [behave.solver.diagrams   :refer [store-all-diagrams!]]
+            [behave.solver.generators :refer [generate-runs inputs-map-to-vector]]
+            [behave.solver.queries    :as q]
+            [behave.solver.table      :as t]
+            [behave.lib.contain       :as contain]
+            [behave.lib.crown         :as crown]
+            [behave.lib.mortality     :as mortality]
+            [behave.lib.surface       :as surface]
+            [behave.lib.spot          :as spot]
+            [behave.lib.units         :as units]
+            [behave.logger            :refer [log]]
+            [clojure.string           :as str]
+            [clojure.set              :as set]
+            [re-frame.core            :as rf]))
 
 ;;; Helpers
 
-(defn- csv? [s] (< 1 (count (str/split s #","))))
-
-(defn- is-enum? [parameter-type]
-  (or (str/includes? parameter-type "Enum")
-      (str/includes? parameter-type "Units")))
+(defn- is-unit? [parameter-type]
+  (str/includes? parameter-type "Units"))
 
 (defn filter-module-inputs [all-inputs gv-uuids]
   (into {} (filter (fn [[_group-uuid m]]
@@ -29,93 +26,54 @@
 (defn filter-module-outputs [all-outputs gv-uuids]
   (vec (filter gv-uuids all-outputs)))
 
-;;; Run Generation
-
-(defn permutations [single-inputs range-inputs]
-  (case (count range-inputs)
-    0 [single-inputs]
-    1 (for [x (first range-inputs)]
-        (conj single-inputs x))
-    2 (for [x (first range-inputs)
-            y (second range-inputs)]
-        (conj single-inputs x y))
-    3 (for [x (first range-inputs)
-            y (second range-inputs)
-            z (nth range-inputs 2)]
-        (conj single-inputs x y z))))
-
-(defn ->run-plan [inputs]
-  (reduce (fn [acc [group-uuid repeat-id group-var-uuid value]]
-            (assoc-in acc [group-uuid repeat-id group-var-uuid] value))
-          {}
-          inputs))
-
-(defn generate-runs [all-inputs-vector]
-  (let [empty-or-csv?          #(or (empty? %) (csv? %))
-        single-inputs          (remove #(-> % (last) (empty-or-csv?)) all-inputs-vector)
-        range-inputs           (filter #(-> % (last) (csv?)) all-inputs-vector)
-        separated-range-inputs (map #(let [result (vec (butlast %))
-                                           values (map str/trim (str/split  (last %) #","))]
-                                       (mapv (fn [v] (conj result v)) values)) range-inputs)]
-
-    (map ->run-plan (permutations (vec single-inputs) separated-range-inputs))))
-
-(defn inputs-map-to-vector [inputs]
-  (->> inputs
-       (w/postwalk (fn [x] (if (map? x) (vec x) x)))
-       (mapv (fn [v]
-               (let [l    (flatten v)
-                     head (first l)
-                     body (partition 3 (rest l))]
-                 (mapv (fn [b] (into [head] b)) body))))
-       (reduce (fn [acc curr] (concat acc curr)) [])
-       (vec)))
 
 ;;; CPP Interop Functions
 
-(defn apply-single-cpp-fn [module-fns module gv-id value units]
+(defn apply-single-cpp-fn [module-fns module gv-id value unit]
   (let [[fn-id fn-name] (q/group-variable->fn gv-id)
         value           (q/parsed-value gv-id value)
-        unit-enum       (units/get-unit units)
         f               ((symbol fn-name) module-fns)
         params          (q/fn-params fn-id)]
-     (log "Input:" fn-name value unit-enum)
+    (log "Input:" fn-name value unit)
 
     (cond
       (nil? value)
-      (js/console.error "Cannot process Contain Module with nil value for:" gv-id)
+      (js/console.error "Cannot process Module with nil value for:" gv-id)
 
       (= 1 (count params))
       (f module value)
 
-      (and (= 2 (count params)) (some? unit-enum))
+      (and (= 2 (count params)) (some? unit))
       (let [[_ _ param-type] (first params)]
-        (if (is-enum? param-type)
-          (f module unit-enum value)
-          (f module value unit-enum))))))
+        (if (is-unit? param-type)
+          (f module unit value)
+          (f module value unit))))))
 
 (defn apply-multi-cpp-fn
   [module-fns module repeat-group]
   (let [[gv-id _]       (first repeat-group)
         [fn-id fn-name] (q/group-variable->fn gv-id)
         f               ((symbol fn-name) module-fns)
-      ; Step 1 - Lookup parameters of function
+                                        ; Step 1 - Lookup parameters of function
         params          (q/fn-params fn-id)
         _               (log [:SOLVER [:FN-ID fn-id] [:MULTI-PARAMS params]])
 
-      ; Step 2 - Match the parameters to group inputs/units
+                                        ; Step 2 - Match the parameters to group inputs/units
         fn-args (map-indexed (fn [idx [param-id _ param-type]]
-                               (if (is-enum? param-type)
+                               (if (is-unit? param-type)
+                                 ;; Retrieve previous parameter's units
                                  (let [[param-id] (nth params (dec idx))
-                                       gv-uuid    (q/parameter->group-variable param-id)]
-                                   (units/get-unit (q/variable-units gv-uuid)))
-                                 (let [gv-uuid (q/parameter->group-variable param-id)]
-                                   (q/parsed-value gv-uuid (get repeat-group gv-uuid)))))
+                                       gv-uuid    (q/parameter->group-variable param-id)
+                                       [_ unit]   (get repeat-group gv-uuid)]
+                                   unit)
+                                 (let [gv-uuid   (q/parameter->group-variable param-id)
+                                       [value _] (get repeat-group gv-uuid)]
+                                   (q/parsed-value gv-uuid value))))
                              params)]
 
     (log [:SOLVER] [:MULTI-INPUT fn-name fn-args])
 
-  ; Step 3 - Call function with all parameters
+                                        ; Step 3 - Call function with all parameters
     (apply f module fn-args)))
 
 (defn apply-output-cpp-fn
@@ -142,18 +100,16 @@
     (cond
       ;; Single Group w/ Single Variable
       (and (= 1 (count repeats)) (= 1 (count (first (vals repeats)))))
-      (let [[gv-id value] (ffirst (vals repeats))
-            units         (or (q/variable-units gv-id) "")]
-        (log "-- [SOLVER] SINGLE VAR" gv-id value units)
-        (apply-single-cpp-fn fns module gv-id value units))
+      (let [[gv-id [value unit]] (ffirst (vals repeats))]
+        (log "-- [SOLVER] SINGLE VAR" gv-id value unit)
+        (apply-single-cpp-fn fns module gv-id value unit))
 
       ;; Multiple Groups w/ Single Variable
       (every? #(= 1 (count %)) (vals repeats))
       (doseq [[_ repeat-group] repeats]
-        (let [[gv-id value] (first repeat-group)
-              units         (or (q/variable-units gv-id) "")]
-          (log "-- [SOLVER] SINGLE VAR (MULTIPLE)" gv-id value units)
-          (apply-single-cpp-fn fns module gv-id value units)))
+        (let [[gv-id [value unit]] (first repeat-group)]
+          (log "-- [SOLVER] SINGLE VAR (MULTIPLE)" gv-id value unit)
+          (apply-single-cpp-fn fns module gv-id value unit)))
 
       ;; Multiple Groups w/ Multiple Variables
       :else
@@ -242,7 +198,7 @@
 (defn solve-worksheet
   ([ws-uuid]
    (let [modules     (set (q/worksheet-modules ws-uuid))
-         all-inputs  @(rf/subscribe [:worksheet/all-inputs-vector ws-uuid])
+         all-inputs  @(rf/subscribe [:worksheet/all-inputs+units-vector ws-uuid])
          all-outputs @(rf/subscribe [:worksheet/all-output-uuids ws-uuid])]
 
      (-> (solve-worksheet ws-uuid modules all-inputs all-outputs)

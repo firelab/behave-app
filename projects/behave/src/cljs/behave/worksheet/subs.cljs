@@ -1,5 +1,7 @@
 (ns behave.worksheet.subs
   (:require [behave.store                :as s]
+            [behave.vms.store            :refer [vms-conn]]
+            [behave.vms.rules            :refer [rules]]
             [clojure.string              :as str]
             [clojure.set                 :as set]
             [datascript.core             :as d]
@@ -179,6 +181,39 @@
                                   [?i :input/value ?value]]
                                 [ws-uuid]])]
      (into [] inputs))))
+
+(rf/reg-sub
+ :worksheet/all-inputs+units-vector
+ (fn [_ [_ ws-uuid]]
+   (d/q '[:find  ?group-uuid ?repeat-id ?group-var-uuid ?value ?unit
+          :in    $ $ws % ?ws-uuid
+          :where
+          [$ws ?w :worksheet/uuid ?ws-uuid]
+          [$ws ?w :worksheet/input-groups ?g]
+          [$ws ?g :input-group/group-uuid ?group-uuid]
+          [$ws ?g :input-group/repeat-id ?repeat-id]
+          [$ws ?g :input-group/inputs ?i]
+          [$ws ?i :input/group-variable-uuid ?group-var-uuid]
+          [$ws ?i :input/value ?value]
+          [?gv :bp/uuid ?group-var-uuid]
+          [?v :variable/group-variables ?gv]
+          (or
+           (and
+            [?v :variable/kind :continuous]
+            (or
+             [$ws ?i :input/units ?units-uuid]
+             [?v :variable/native-unit-uuid ?units-uuid])
+            [?u :bp/uuid ?units-uuid]
+            [?u :unit/cpp-enum-member-uuid ?em-uuid]
+            [?em :bp/uuid ?em-uuid]
+            [?em :cpp.enum-member/value ?unit])
+           (and
+            [(ground :none) ?units-uuid]
+            [(ground :none) ?u]
+            [(ground :none) ?em]
+            [(ground :none) ?em-uuid]
+            [(ground :none) ?unit]))]
+        @@vms-conn @@s/conn rules ws-uuid)))
 
 (rf/reg-sub
  :worksheet/all-inputs
