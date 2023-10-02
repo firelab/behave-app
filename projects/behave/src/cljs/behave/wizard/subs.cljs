@@ -1,5 +1,5 @@
 (ns behave.wizard.subs
-  (:require [behave.vms.rules       :refer [rules]]
+  (:require [behave.schema.core     :refer [rules]]
             [behave.vms.store       :as s]
             [clojure.set            :refer [rename-keys]]
             [datascript.core        :as d]
@@ -295,7 +295,7 @@
 ;;; show-group?
 
 (defn- resolve-conditionals [worksheet conditionals]
-  (let[ws-uuid (:worksheet/uuid worksheet)]
+  (let [ws-uuid (:worksheet/uuid worksheet)]
     (map (fn pass?
            [{group-variable-uuid :conditional/group-variable-uuid
              type                :conditional/type
@@ -353,7 +353,6 @@
    (if (seq conditionals)
      (all-conditionals-pass? worksheet conditionals-operator conditionals)
      true)))
-
 
 (reg-sub
  :wizard/show-submodule?

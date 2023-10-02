@@ -1,7 +1,7 @@
 (ns behave.worksheet.subs
   (:require [behave.store                :as s]
             [behave.vms.store            :refer [vms-conn]]
-            [behave.vms.rules            :refer [rules]]
+            [behave.schema.core          :refer [rules]]
             [clojure.string              :as str]
             [clojure.set                 :as set]
             [datascript.core             :as d]

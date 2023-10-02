@@ -23,7 +23,8 @@
             [behave.schema.cpp.enum-member  :as cpp-enum-member]
             [behave.schema.cpp.function     :as cpp-function]
             [behave.schema.cpp.namespace    :as cpp-namespace]
-            [behave.schema.cpp.parameter    :as cpp-parameter]))
+            [behave.schema.cpp.parameter    :as cpp-parameter]
+            [behave.schema.rules            :as r]))
 
 (def uuid-schema [{:db/ident       :bp/uuid
                    :db/doc         "UUID of entity"
@@ -31,6 +32,9 @@
                    :db/unique      :db.unique/identity
                    :db/cardinality :db.cardinality/one
                    :db/index       true}])
+
+(def ^{:doc "Datalog Rules for VMS, CPP, and Worksheets"}
+  rules r/all-rules)
 
 (def all-schemas (apply concat [uuid-schema
                                 application/schema

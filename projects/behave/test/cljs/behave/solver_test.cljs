@@ -8,7 +8,7 @@
             [behave.lib.enums     :as enums]
             [behave.solver.core   :refer [solve-worksheet]]
             [behave.vms.store     :refer [vms-conn]]
-            [behave.vms.rules     :refer [rules]])
+            [behave.schema.core   :refer [rules]])
   (:require-macros [behave.macros :refer [inline-resource]]))
 
 ;;; Helpers
@@ -65,14 +65,14 @@
          [?gv :group-variable/cpp-class ?c-uuid]
          [?gv :group-variable/cpp-function ?f-uuid]
          [?gv :bp/uuid ?gv-uuid]
-         (variable ?g ?gv)
+         (group-variable ?g ?gv)
          [?g  :bp/uuid ?g-uuid]]
        @@vms-conn rules class-name fn-name param-name))
 
 (defn ws-input [class-name fn-name param-name value]
   (let [[group-uuid gv-uuid] (class+fn+param->group+gv-uuid class-name fn-name param-name)]
     (if (and group-uuid gv-uuid)
-      [group-uuid 0 gv-uuid (str value)]
+      [group-uuid 0 gv-uuid (str value) :none]
       [fn-name 0 param-name (str value)])))
 
 (defn outputs-exist? [class-name & fn-names]
@@ -285,7 +285,7 @@
   (let [class-name "SIGMortality"]
     (testing "Mortality Output Variables Function Mappings"
       (outputs-exist? class-name
-                      "getFlameLengthOrScorchHeightValue"
+                      "getCalculatedScorchHeight"
                       "getProbabilityOfMortality"
                       "getBarkThickness"
                       "getTreeCrownLengthScorched"
@@ -503,7 +503,7 @@
         (conj (vals float-outputs) fire-type-output)
 
         observed
-        (-> (solve-worksheet #{:surface :crown} inputs outputs)
+        (-> (solve-worksheet nil #{:surface :crown} inputs outputs)
             (first)
             (:outputs))
 
