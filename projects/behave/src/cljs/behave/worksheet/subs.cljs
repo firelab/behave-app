@@ -8,7 +8,6 @@
             [behave.store                :as s]
             [behave.vms.store            :refer [vms-conn]]
             [behave.schema.core          :refer [rules]]
-            [browser-utils.core          :refer [format-intl-number]]
             [map-utils.core              :refer [index-by]]
             [number-utils.core           :refer [parse-float to-precision]]
             [string-utils.interface      :refer [->str ->kebab]]))
@@ -379,6 +378,44 @@
                  [?o :output/enabled? true]]
     :variables [ws-uuid]}))
 
+;; Results Table formatters
+
+(defn ^:private create-formatter [variable]
+  (condp = (:variable/kind variable)
+
+    :continuous
+    (let [significant-digits (:variable/native-decimals variable)]
+      (fn continuous-fmt [value]
+        (-> value
+            (parse-float)
+            (to-precision significant-digits))))
+
+    :discrete
+    (let [{list :variable/list}   (d/pull @@vms-conn '[{:variable/list [* {:list/options [*]}]}] (:db/id variable))
+          {options :list/options} list
+          options                 (index-by :list-option/value options)]
+      (fn discrete-fmt [value]
+        (if-let [option (get options value)]
+          (:list-option/name option)
+          value)))
+
+    :text
+    identity))
+
+(rf/reg-sub
+ :worksheet/result-table-formatters
+ (fn [_ [_ gv-uuids]]
+   (let [results (d/q '[:find ?gv-uuid (pull ?v [*])
+                        :in $ % [?gv-uuid ...]
+                        :where
+                        (lookup ?gv-uuid ?gv)
+                        (group-variable _ ?gv ?v)]
+                      @@vms-conn rules gv-uuids)]
+     (into {} (map
+               (fn [[gv-uuid variable]]
+                   [gv-uuid (create-formatter variable)])
+               results)))))
+
 (rp/reg-sub
  :worksheet/result-table-cell-data
  (fn [_ [_ ws-uuid]]
@@ -461,7 +498,7 @@
  :worksheet/result-table-headers-sorted
  (fn [_ [_ ws-uuid]]
    (let [headers @(rf/subscribe [:query
-                                 '[:find ?order ?uuid ?repeat-id ?units
+                                 '[:find ?order ?gv-uuid ?repeat-id ?units
                                    :in $ ?ws-uuid
                                    :where
                                    [?w :worksheet/uuid ?ws-uuid]
@@ -469,7 +506,7 @@
                                    [?r :result-table/headers ?h]
                                    [?h :result-header/order ?order]
                                    [?h :result-header/repeat-id ?repeat-id]
-                                   [?h :result-header/group-variable-uuid ?uuid]
+                                   [?h :result-header/group-variable-uuid ?gv-uuid]
                                    [?h :result-header/units ?units]]
                                  [ws-uuid]])]
      (->> headers

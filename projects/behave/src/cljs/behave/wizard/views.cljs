@@ -8,6 +8,7 @@
             [behave.components.review-input-group :as review]
             [behave.components.navigation         :refer [wizard-navigation]]
             [behave.components.output-group       :refer [output-group]]
+            [map-utils.interface                  :refer [index-by]]
             [behave.tool.views                    :refer [tool tool-selector]]
             [behave-routing.main                  :refer [routes]]
             [behave.translate                     :refer [<t bp]]
@@ -701,7 +702,8 @@
         (when (and table-enabled? (seq @*cell-data))
           [:div.wizard-results__table {:id "table"}
            [:div.wizard-notes__header "Table"]
-           (let [table-data {:title   "Results Table"
+           (let [formatters @(subscribe [:worksheet/result-table-formatters (map second @*headers)])
+                 table-data {:title   "Results Table"
                              :headers (mapv (fn resolve-uuid [[_order uuid _repeat-id units]]
                                               (str (:variable/name @(subscribe [:wizard/group-variable uuid]))
                                                    (when-not (empty? units) (gstring/format " (%s)" units))))
@@ -715,13 +717,15 @@
                                                             (let [[_ min max enabled?] (first (filter
                                                                                                (fn [[gv-uuid]]
                                                                                                  (= gv-uuid uuid))
-                                                                                               @table-setting-filters))]
+                                                                                               @table-setting-filters))
+                                                                  fmt-fn (get formatters uuid identity)]
+
                                                               (cond-> acc
                                                                 (and min max (not (<= min value max)) enabled?)
                                                                 (assoc :shaded? true)
 
                                                                 :always
-                                                                (assoc (keyword (str uuid "-" repeat-id)) value))))
+                                                                (assoc (keyword (str uuid "-" repeat-id)) (fmt-fn value)))))
                                                           {}
                                                           data))))}]
              [table-exporter table-data])])
