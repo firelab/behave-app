@@ -145,14 +145,16 @@
    (js/window.print)))
 
 (rf/reg-event-fx
+ :dev/close-after-print
+ (fn [_]
+   (.addEventListener js/window "afterprint" #(.close js/window))))
+
+(rf/reg-event-fx
  :app/reload
  (fn [_ _]
    (js/window.location.reload)))
 
-;;; Toolbar
 (rf/reg-event-fx
  :toolbar/print
  (fn [_ [_ ws-uuid]]
-   {:fx [[:dispatch [:navigate (str "/worksheets/" ws-uuid "/print")]]
-         [:dispatch-later {:ms       1000
-                           :dispatch [:dev/print]}]]}))
+   (.open js/window (str "/worksheets/" ws-uuid "/print"))))

@@ -75,8 +75,8 @@ public:
   double getSurfaceFireReactionIntensityLive() const;
 
   // SruFaceFire Getter Methods
-  double getCharacteristicMoistureDead(MoistureUnits::MoistureUnitsEnum moistureUnits) const;
-  double getCharacteristicMoistureLive(MoistureUnits::MoistureUnitsEnum moistureUnits) const;
+  double getCharacteristicMoistureDead(FractionUnits::FractionUnitsEnum moistureUnits) const;
+  double getCharacteristicMoistureLive(FractionUnits::FractionUnitsEnum moistureUnits) const;
   double getSlopeFactor() const;
   double getWindAdjustmentFactor() const;
   double getEllipticalA(LengthUnits::LengthUnitsEnum lengthUnits) const;

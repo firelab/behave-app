@@ -1,5 +1,5 @@
 (ns behave.print.views
-  (:require [re-frame.core    :refer [subscribe]]
+  (:require [re-frame.core    :refer [subscribe dispatch]]
             [goog.string      :as gstring]
             [behave.components.core         :as c]
             [behave.print.subs]
@@ -238,6 +238,8 @@
   (.toString (js/Date. epoch)))
 
 (defn print-page [{:keys [ws-uuid]}]
+  (dispatch [:dev/close-after-print])
+  (js/setTimeout #(dispatch [:dev/print]) 1000)
   (let [worksheet                      @(subscribe [:worksheet ws-uuid])
         ws-name                        (:worksheet/name worksheet)
         ws-date-created                (:worksheet/created worksheet)

@@ -20,7 +20,7 @@
             [dom-utils.interface                  :refer [input-int-value input-value]]
             [goog.string                          :as gstring]
             [goog.string.format]
-            [re-frame.core                        :refer [dispatch subscribe]]
+            [re-frame.core                        :refer [dispatch dispatch-sync subscribe]]
             [string-utils.interface               :refer [->kebab]]
             [reagent.core                         :as r]
             [re-frame.core :as rf]))
@@ -34,10 +34,11 @@
        (doall
         (for [group groups]
           ^{:key (:db/id group)}
-          (when @(subscribe [:wizard/show-group?
-                             ws-uuid
-                             (:db/id group)
-                             (:group/conditionals-operator group)])
+          (when (and (not (:group/research? group)) ;; TODO: Remove when "Research Mode" is enabled
+                     @(subscribe [:wizard/show-group?
+                                  ws-uuid
+                                  (:db/id group)
+                                  (:group/conditionals-operator group)]))
             (let [variables (->> group (:group/group-variables) (sort-by :group-variable/variable-order))]
               [:<>
                [component-fn ws-uuid group variables level]
@@ -290,7 +291,9 @@
                     :variant       "highlight"
                     :icon-name     "arrow2"
                     :icon-position "right"
-                    :on-click      #(dispatch [:wizard/solve params])}]]]]]]))
+                    :on-click      #(do (dispatch-sync [:wizard/before-solve params])
+                                        (dispatch-sync [:wizard/during-solve params])
+                                        (dispatch-sync [:wizard/after-solve params]))}]]]]]]))
 
 ;; Wizard Results Settings
 
@@ -763,11 +766,11 @@
 ;;; Public Components
 (defn root-component [{:keys [io] :as params}]
   (let [loaded?             (subscribe [:app/loaded?])
-        show-tool-selector? @(subscribe [:tool/show-tool-selector?])
+        show-tool-selector? @(subscribe [:tool/show-tool-selector? io])
         selected-tool-uuid  @(subscribe [:tool/selected-tool-uuid])]
     [:<>
      (when show-tool-selector?
-       [tool-selector])
+       [tool-selector io])
      (when (and (some? selected-tool-uuid) (= io :input))
        [tool selected-tool-uuid])
      [:div.accordion

@@ -1,6 +1,6 @@
 (ns behave.schema.subtool-variable
   (:require [clojure.spec.alpha :as s]
-            [behave.schema.utils :refer [valid-key? uuid-string? zero-pos?]]))
+            [behave.schema.utils :refer [valid-key? valid-io? zero-pos?]]))
 
 ;;; Spec
 
@@ -11,8 +11,10 @@
 (s/def :subtool-variable/help-key           valid-key?)
 (s/def :subtool-variable/order              zero-pos?)
 (s/def :subtool-variable/translation-key    valid-key?)
+(s/def :subtool-variable/io                 valid-io?)
 
 (s/def :behave/subtool-variable (s/keys :req [:bp/uuid
+                                              :subtool-variable/io
                                               :subtool-variable/order
                                               :subtool-variable/translation-key
                                               :subtool-variable/help-key
@@ -24,7 +26,17 @@
 ;;; Schema
 
 (def schema
-  [{:db/ident       :subtool-variable/cpp-namespace-uuid
+  [{:db/ident       :subtool-variable/io
+    :db/doc         "subtool variable's io #{:input :output}"
+    :db/valueType   :db.type/keyword
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :subtool-variable/order
+    :db/doc         "subtool variable's order."
+    :db/valueType   :db.type/long
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :subtool-variable/cpp-namespace-uuid
     :db/doc         "subtool variable's uuid ref to it's C++ namespace."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
@@ -44,11 +56,6 @@
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :subtool-variable/order
-    :db/doc         "subtool variable's order."
-    :db/valueType   :db.type/long
-    :db/cardinality :db.cardinality/one}
-
    {:db/ident       :subtool-variable/translation-key
     :db/doc         "subtool variable's translation key."
     :db/valueType   :db.type/string
@@ -65,6 +72,7 @@
 
 (comment
   (s/explain :behave/subtool-variable {:bp/uuid                          (str (random-uuid))
+                                       :subtool-variable/io              :input
                                        :subtool-variable/order           0
                                        :subtool-variable/translation-key "behaveplus:relative-humidity:dry-temp-wet-temp-elevation:var"
                                        :subtool-variable/help-key        "behaveplus:relative-humidity:dry-temp-wet-temp-elevation:var:help"

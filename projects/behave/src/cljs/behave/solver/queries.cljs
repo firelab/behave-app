@@ -24,6 +24,9 @@
              [(gv->var ?uuid ?v)
               (lookup ?uuid ?gv)
               [?v :variable/group-variables ?gv]]
+             [(gv->var ?uuid ?v)
+              (lookup ?uuid ?gv)
+              [?v :variable/subtool-variables ?gv]]
 
              ;; Find a variable's units
              [(var-units ?uuid ?units)
@@ -38,10 +41,20 @@
              ;; Find a group variable's function
              [(var->fn ?uuid ?fn)
               (ref ?uuid :group-variable/cpp-function ?fn)]
+             [(var->fn ?uuid ?fn)
+              (ref ?uuid :subtool-variable/cpp-function-uuid ?fn)]
+
+             ;; Find a subtool's compute function
+             [(subtool-compute->fn ?uuid ?fn)
+              (ref ?uuid :subtool/cpp-function-uuid ?fn)]
 
              ;; Find a group variable's parameter
              [(var->param ?uuid ?p)
               (ref ?uuid :group-variable/cpp-parameter ?p)]
+             [(var->param ?uuid ?p)
+              (ref ?uuid :subtool-variable/cpp-parameter ?p)]
+
+             ;;End Tools
 
              [(param-attrs ?p ?p-name ?p-type ?p-order)
               [?p :cpp.parameter/name ?p-name]
@@ -185,6 +198,22 @@
                  group-variable-uuid)
           (conj 0))))
 
+(defn subtool-variable->fn [subtool-variable-uuid]
+  (q-vms '[:find  [?fn ?fn-name]
+           :in    ?gv-uuid
+           :where
+           (var->fn ?gv-uuid ?fn)
+           [?fn :cpp.function/name ?fn-name]]
+         subtool-variable-uuid))
+
+(defn subtool-compute->fn-name [subtool-uuid]
+  (q-vms '[:find  ?fn-name .
+           :in    ?gv-uuid
+           :where
+           (subtool-compute->fn ?gv-uuid ?fn)
+           [?fn :cpp.function/name ?fn-name]]
+         subtool-uuid))
+
 ;; Used to get the parent group's UUID
 (defn group-variable->group [group-variable-uuid]
   (q-vms '[:find ?group-uuid .
@@ -224,6 +253,15 @@
                 [$ ?c :bp/uuid ?c-uuid]
                 [$ ?gv :group-variable/cpp-class ?c-uuid]
                 [$ ?gv :bp/uuid ?gv-uuid]] class-name)))
+
+(defn class-to-subtool-variables [class-name]
+  (set (q-vms '[:find [?sv-uuid ...]
+                :in ?class-name
+                :where
+                [$ ?c :cpp.class/name ?class-name]
+                [$ ?c :bp/uuid ?c-uuid]
+                [$ ?sv :subtool-variable/cpp-class-uuid ?c-uuid]
+                [$ ?sv :bp/uuid ?sv-uuid]] class-name)))
 
 (defn source-links [gv-uuids]
   (into {}

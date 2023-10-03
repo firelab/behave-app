@@ -79,9 +79,8 @@
            [:input.form-check-input
             {:type      "checkbox"
              :id        id
-             :value     value
              :checked   checked?
-             :on-change #(on-change (not checked?))}]
+             :on-change #(on-change (.. % -target -checked))}]
            [:label.form-check-label {:for id} label]])))]))
 
 (defmethod field-input :radio [{:keys [label options on-change state]}]

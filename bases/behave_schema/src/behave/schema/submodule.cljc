@@ -4,7 +4,7 @@
 
 ;;; Validation Fns
 
-(def valid-io? (s/and keyword? #(#{:input :output} %)))
+(def ^:private valid-io? (s/and keyword? #(#{:input :output} %)))
 
 ;;; Spec
 
@@ -15,17 +15,21 @@
 (s/def :submodule/translation-key valid-key?)
 (s/def :submodule/help-key        valid-key?)
 (s/def :submodule/groups          set?)
+(s/def :submodule/research?       boolean?)
 
 (s/def :behave/submodule (s/keys :req [:submodule/uuid
                                        :submodule/io
                                        :submodule/name
                                        :submodule/order
                                        :submodule/translation-key
-                                       :submodule/help-key]))
+                                       :submodule/help-key]
+                                 :opt [:submodule/research?]))
 
 ;;; Schema
 
-(def schema
+(def
+  ^{:doc "Schema for submodule."}
+  schema
   [{:db/ident       :submodule/uuid
     :db/doc         "Submodule's ID."
     :db/valueType   :db.type/string
@@ -51,6 +55,11 @@
     :db/doc         "Subodule's groups."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
+
+   {:db/ident       :submodule/research?
+    :db/doc         "Whether a Submodule is for research."
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
 
    {:db/ident       :submodule/translation-key
     :db/doc         "Submodule's translation key."

@@ -26,10 +26,10 @@
 (rp/reg-event-fx
  :worksheet/new
  (fn [_ [_ {:keys [uuid name modules]}]]
-   {:transact [{:worksheet/uuid    (or uuid (str (d/squuid)))
-                :worksheet/name    name
-                :worksheet/modules modules
-                :worksheet/created (.now js/Date)}]}))
+   (let [tx {:worksheet/uuid    (or uuid (str (d/squuid)))
+             :worksheet/modules modules
+             :worksheet/created (.now js/Date)}]
+     {:transact [(merge tx (when name {:worksheet/name name}))]})))
 
 (rp/reg-event-fx
  :worksheet/update-attr
@@ -457,6 +457,19 @@
          {:transact [{:db/id                           [:worksheet/uuid ws-uuid]
                       :worksheet/furthest-visited-step (get-step-kw route-handler io)}]})))))
 
+(rf/reg-event-fx
+ :worksheet/delete-existing-diagrams
+ [(rp/inject-cofx :ds)]
+ (fn [{:keys [ds]} [_ ws-uuid]]
+   (let [existing-eids (d/q '[:find  [?d ...]
+                              :in    $ ?ws-uuid
+                              :where
+                              [?ws :worksheet/uuid     ?ws-uuid]
+                              [?ws :worksheet/diagrams ?d]]
+                            ds ws-uuid)
+         payload       (mapv (fn [id] [:db.fn/retractEntity id]) existing-eids)]
+     {:transact payload})))
+
 (rp/reg-event-fx
  :worksheet/add-contain-diagram
  [(rp/inject-cofx :ds)]
@@ -472,37 +485,28 @@
                     fire-head-at-report
                     fire-back-at-attack
                     fire-head-at-attack]]
-   (let [existing-eid (d/q '[:find  ?d .
-                             :in    $ ?uuid ?gv-uuid ?row-id
-                             :where
-                             [?ws :worksheet/uuid               ?uuid]
-                             [?ws :worksheet/diagrams           ?d]
-                             [?d  :worksheet.diagram/group-variable-uuid ?gv-uuid]
-                             [?d  :worksheet.diagram/row-id              ?row-id]]
-                           ds ws-uuid group-variable-uuid row-id)]
-     {:transact [(when existing-eid [:db.fn/retractEntity existing-eid])
-                 {:worksheet/_diagrams                   [:worksheet/uuid ws-uuid]
-                  :worksheet.diagram/title               title
-                  :worksheet.diagram/group-variable-uuid group-variable-uuid
-                  :worksheet.diagram/row-id              row-id
-                  :worksheet.diagram/ellipses            [(let [l (- fire-head-at-report fire-back-at-report)
-                                                                w (/ l length-to-width-ratio)]
-                                                            {:ellipse/legend-id       "FirePerimiterAtReport"
-                                                             :ellipse/semi-major-axis (/ l 2)
-                                                             :ellipse/semi-minor-axis (/ w 2)
-                                                             :ellipse/rotation        90
-                                                             :ellipse/color           "blue"})
-                                                          (let [l (- fire-head-at-attack fire-back-at-attack)
-                                                                w (/ l length-to-width-ratio)]
-                                                            {:ellipse/legend-id       "FirePerimiterAtAttack"
-                                                             :ellipse/semi-major-axis (/ l 2)
-                                                             :ellipse/semi-minor-axis (/ w 2)
-                                                             :ellipse/rotation        90
-                                                             :ellipse/color           "red"})]
-                  :worksheet.diagram/scatter-plots       [{:scatter-plot/legend-id "FireLineConstructed"
-                                                           :scatter-plot/color     "black"
-                                                           :scatter-plot/x-coordinates fire-perimeter-points-X
-                                                           :scatter-plot/y-coordinates fire-perimeter-points-Y}]}]})))
+   {:transact [{:worksheet/_diagrams                   [:worksheet/uuid ws-uuid]
+                :worksheet.diagram/title               title
+                :worksheet.diagram/group-variable-uuid group-variable-uuid
+                :worksheet.diagram/row-id              row-id
+                :worksheet.diagram/ellipses            [(let [l (- fire-head-at-report fire-back-at-report)
+                                                              w (/ l length-to-width-ratio)]
+                                                          {:ellipse/legend-id       "FirePerimiterAtReport"
+                                                           :ellipse/semi-major-axis (/ l 2)
+                                                           :ellipse/semi-minor-axis (/ w 2)
+                                                           :ellipse/rotation        90
+                                                           :ellipse/color           "blue"})
+                                                        (let [l (- fire-head-at-attack fire-back-at-attack)
+                                                              w (/ l length-to-width-ratio)]
+                                                          {:ellipse/legend-id       "FirePerimiterAtAttack"
+                                                           :ellipse/semi-major-axis (/ l 2)
+                                                           :ellipse/semi-minor-axis (/ w 2)
+                                                           :ellipse/rotation        90
+                                                           :ellipse/color           "red"})]
+                :worksheet.diagram/scatter-plots       [{:scatter-plot/legend-id     "FireLineConstructed"
+                                                         :scatter-plot/color         "black"
+                                                         :scatter-plot/x-coordinates fire-perimeter-points-X
+                                                         :scatter-plot/y-coordinates fire-perimeter-points-Y}]}]}))
 
 (rp/reg-event-fx
  :worksheet/add-surface-fire-shape-diagram
