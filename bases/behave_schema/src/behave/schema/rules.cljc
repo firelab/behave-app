@@ -114,6 +114,13 @@
      ;; get ?g-uuid
      (lookup ?g-uuid ?g)]
 
+    ;; -- Units
+    [(units ?units-uuid ?unit)
+     [?u :bp/uuid ?units-uuid]
+     [?u :unit/cpp-enum-member-uuid ?em-uuid]
+     [?em :bp/uuid ?em-uuid]
+     [?em :cpp.enum-member/value ?unit]]
+
     ;; --  Language from short code
     [(language ?code ?l)
      [?l :language/shortcode ?code]]
@@ -188,22 +195,17 @@
      [?gv :subtool-variable/cpp-parameter ?p]]
 
     ;; -- Variable's units (for continuous variables)
-    [(variable-units ?uuid ?unit)
-     (variable ?uuid ?v)
-     (or
-      (and
-       [?v :variable/kind :continuous]
-       [?v :variable/native-unit-uuid ?units-uuid]
-       [?u :bp/uuid ?units-uuid]
-       [?u :unit/cpp-enum-member-uuid ?em-uuid]
-       [?em :bp/uuid ?em-uuid]
-       [?em :cpp.enum-member/value ?unit])
-      (and
-       [(ground :none) ?units-uuid]
-       [(ground :none) ?u]
-       [(ground :none) ?em]
-       [(ground :none) ?em-uuid]
-       [(ground :none) ?unit]))]
+    [(variable-units ?gv-uuid ?unit)
+     (variable ?gv-uuid ?v)
+     [?v :variable/kind :continuous]
+     [?v :variable/native-unit-uuid ?units-uuid]
+     (units ?units-uuid ?unit)]
+
+    ;; -- Variable's native unit UUID (for continuous variables)
+    [(variable-native-units-uuid ?gv-uuid ?units-uuid)
+     (variable ?gv-uuid ?v)
+     [?v :variable/kind :continuous]
+     [?v :variable/native-unit-uuid ?units-uuid]]
 
     ;; -- Variable's kind
     [(variable-kind ?v ?kind)

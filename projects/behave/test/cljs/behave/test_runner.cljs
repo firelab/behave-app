@@ -33,15 +33,17 @@
 
 (defn run-the-tests []
   (run-tests (cljs-test-display.core/init! "app-testing")
-             ;; 'behave.crown-test
-             ;; 'behave.contain-test
-             ;; 'behave.mortality-test
+             'behave.crown-test
+             'behave.contain-test
+             'behave.mortality-test
              'behave.diagram-test
-             ;; 'behave.surface-test
-             ;; 'behave.solver-test
-             ;; 'behave.tests-used-in-fixtures
-             ;; 'behave.worksheet-events-test
-             ;; 'behave.worksheet-subs-test
+             'behave.surface-test
+             'behave.solver-test
+             'behave.tests-used-in-fixtures
+             'behave.test-solver-generators
+             'behave.test-solver-queries
+             'behave.worksheet-events-test
+             'behave.worksheet-subs-test
              ))
 
 (defn ^:after-load init []

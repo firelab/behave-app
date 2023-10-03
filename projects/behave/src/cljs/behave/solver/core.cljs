@@ -8,7 +8,6 @@
             [behave.lib.mortality     :as mortality]
             [behave.lib.surface       :as surface]
             [behave.lib.spot          :as spot]
-            [behave.lib.units         :as units]
             [behave.logger            :refer [log]]
             [clojure.string           :as str]
             [clojure.set              :as set]
@@ -26,6 +25,7 @@
 (defn filter-module-outputs [all-outputs gv-uuids]
   (vec (filter gv-uuids all-outputs)))
 
+(def log-solver (comp log vec (partial cons :SOLVER)))
 
 ;;; CPP Interop Functions
 
@@ -34,7 +34,7 @@
         value           (q/parsed-value gv-id value)
         f               ((symbol fn-name) module-fns)
         params          (q/fn-params fn-id)]
-    (log "Input:" fn-name value unit)
+    (log-solver [:SINGLE fn-name value unit])
 
     (cond
       (nil? value)
@@ -56,34 +56,37 @@
         f               ((symbol fn-name) module-fns)
                                         ; Step 1 - Lookup parameters of function
         params          (q/fn-params fn-id)
-        _               (log [:SOLVER [:FN-ID fn-id] [:MULTI-PARAMS params]])
+        _               (log-solver [:FN-ID fn-id] [:MULTI-PARAMS params])
 
                                         ; Step 2 - Match the parameters to group inputs/units
         fn-args (map-indexed (fn [idx [param-id _ param-type]]
                                (if (is-unit? param-type)
                                  ;; Retrieve previous parameter's units
-                                 (let [[param-id] (nth params (dec idx))
-                                       gv-uuid    (q/parameter->group-variable param-id)
-                                       [_ unit]   (get repeat-group gv-uuid)]
+                                 (let [[param-id]    (nth params (dec idx))
+                                       gv-uuid       (q/parameter->group-variable param-id)
+                                       [_ unit-uuid] (get repeat-group gv-uuid)
+                                       unit          (q/unit-uuid->enum-value unit-uuid)]
+                                   (log-solver [:MULTI-UNITS gv-uuid unit])
                                    unit)
                                  (let [gv-uuid   (q/parameter->group-variable param-id)
                                        [value _] (get repeat-group gv-uuid)]
+                                   (log-solver [:MULTI-VALUE gv-uuid value])
                                    (q/parsed-value gv-uuid value))))
                              params)]
 
-    (log [:SOLVER] [:MULTI-INPUT fn-name fn-args])
+    (log-solver [:MULTI-INPUT fn-name fn-args])
 
                                         ; Step 3 - Call function with all parameters
     (apply f module fn-args)))
 
 (defn apply-output-cpp-fn
-  [module-fns module gv-id]
+  [module-fns module gv-id unit-uuid]
   (let [[fn-id fn-name] (q/group-variable->fn gv-id)
-        unit            (units/get-unit (q/variable-units gv-id))
+        unit            (q/unit-uuid->enum-value unit-uuid)
         f               ((symbol fn-name) module-fns)
         params          (q/fn-params fn-id)]
 
-    (log [:SOLVER] [:OUTPUT fn-name unit f params])
+    (log-solver [:OUTPUT fn-name unit f params])
 
     (cond
       (empty? params)
@@ -96,34 +99,36 @@
 
 (defn apply-inputs [module fns inputs]
   (doseq [[_ repeats] inputs]
-    (log "-- [SOLVER] REPEATS" repeats)
+    (log-solver [:REPEATS repeats])
     (cond
       ;; Single Group w/ Single Variable
       (and (= 1 (count repeats)) (= 1 (count (first (vals repeats)))))
-      (let [[gv-id [value unit]] (ffirst (vals repeats))]
-        (log "-- [SOLVER] SINGLE VAR" gv-id value unit)
+      (let [[gv-id [value unit-uuid]] (ffirst (vals repeats))
+            unit                      (q/unit-uuid->enum-value unit-uuid)]
+        (log-solver [:SINGLE-VAR gv-id value unit])
         (apply-single-cpp-fn fns module gv-id value unit))
 
       ;; Multiple Groups w/ Single Variable
       (every? #(= 1 (count %)) (vals repeats))
       (doseq [[_ repeat-group] repeats]
-        (let [[gv-id [value unit]] (first repeat-group)]
-          (log "-- [SOLVER] SINGLE VAR (MULTIPLE)" gv-id value unit)
+        (let [[gv-id [value unit-uuid]] (first repeat-group)
+              unit                      (q/unit-uuid->enum-value unit-uuid)]
+          (log-solver [:SINGLE-VAR-MULTIPLE gv-id value unit])
           (apply-single-cpp-fn fns module gv-id value unit)))
 
       ;; Multiple Groups w/ Multiple Variables
       :else
       (doseq [[_ repeat-group] repeats]
-        (log "-- [SOLVER] MULTI" repeat-group)
+        (log-solver [:MULTI repeat-group])
         (apply-multi-cpp-fn fns module repeat-group)))))
 
 (defn get-outputs [module fns outputs]
   (reduce
    (fn [acc group-variable-uuid]
-     (let [units  (q/variable-units group-variable-uuid)
-           result (str (apply-output-cpp-fn fns module group-variable-uuid))]
-       (log [:GET-OUTPUTS group-variable-uuid result units])
-       (assoc acc group-variable-uuid [result units])))
+     (let [unit-uuid (or (q/variable-native-units-uuid group-variable-uuid) :none)
+           result (str (apply-output-cpp-fn fns module group-variable-uuid unit-uuid))]
+       (log-solver [:GET-OUTPUTS group-variable-uuid result unit-uuid])
+       (assoc acc group-variable-uuid [result unit-uuid])))
    {}
    outputs))
 
@@ -142,7 +147,7 @@
        (if (prev-output-uuids src-uuid)
          (let [output     (get-in prev-outputs [src-uuid 0])
                group-uuid (q/group-variable->group dst-uuid)]
-           (log [[:SOLVER] :ADD-LINK [:SRC-UUID src-uuid :DST-UUID dst-uuid] [:OUTPUT output :GROUP-UUID group-uuid]])
+           (log-solver [:ADD-LINK [:SRC-UUID src-uuid :DST-UUID dst-uuid] [:OUTPUT output :GROUP-UUID group-uuid]])
            (assoc-in acc [group-uuid 0 dst-uuid] output))
          acc))
      inputs
@@ -155,11 +160,13 @@
     [inputs-by-gv-uuid input-gv-uuids]
     (reduce
      (fn [acc [src-uuid dst-uuid]]
-       (if (input-gv-uuids src-uuid)
-         (let [input      (last (get-in inputs-by-gv-uuid [src-uuid 0]))
-               group-uuid (q/group-variable->group dst-uuid)]
-           (assoc-in acc [group-uuid 0 dst-uuid] input))
-         acc))
+       (when (input-gv-uuids src-uuid)
+         (let [[_ _ _ value unit-uuid] (get-in inputs-by-gv-uuid [src-uuid 0])
+               group-uuid              (q/group-variable->group dst-uuid)]
+           (assoc-in acc
+                     [group-uuid 0 dst-uuid]
+                     [value unit-uuid])))
+       acc)
      inputs
      destination-links)))
 

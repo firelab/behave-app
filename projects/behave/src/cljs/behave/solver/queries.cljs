@@ -63,8 +63,27 @@
 (defn variable-units [group-variable-uuid]
   (q-vms '[:find  ?units .
            :in    ?gv-uuid
-           :where (variable-units ?gv-uuid ?units)]
+           :where
+           (variable-units ?gv-uuid ?units)]
          group-variable-uuid))
+
+(defn variable-native-units-uuid
+  [group-variable-uuid]
+  (q-vms '[:find  ?native-unit-uuid .
+           :in    ?gv-uuid
+           :where
+           (variable-native-units-uuid ?gv-uuid ?native-unit-uuid)]
+         group-variable-uuid))
+
+(defn unit-uuid->enum-value [unit-uuid]
+  (q-vms '[:find  ?units .
+           :in    ?unit-uuid
+           :where
+           (units ?unit-uuid ?units)]
+         unit-uuid))
+
+(defn unit [unit-uuid]
+  (d/pull @@vms-conn '[*] [:bp/uuid unit-uuid]))
 
 ;; Cannot use pull due to the use of UUID's to join CPP ns/class/fns
 (defn group-variable->fn [group-variable-uuid]
