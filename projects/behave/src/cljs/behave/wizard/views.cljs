@@ -263,20 +263,18 @@
             [:div.wizard-review__module
              (gstring/format "%s Inputs"  @(<t (:module/translation-key module)))]
             [:div.wizard-review__submodule
-             (for [submodule @(subscribe [:wizard/submodules-io-input-only (:db/id module)])]
+             (for [submodule @(subscribe [:wizard/submodules-io-input-only (:db/id module)])
+                   :let      [edit-route (path-for routes
+                                                   :ws/wizard
+                                                   :ws-uuid   ws-uuid
+                                                   :module    module-name
+                                                   :io        :input
+                                                   :submodule (:slug submodule))]]
                [:<>
                 [:div.wizard-review__submodule-header (:submodule/name submodule)]
-                (for [group (:submodule/groups submodule)
-                      :when (seq (:group/group-variables group))
-                      :let  [variables  (:group/group-variables group)
-                             edit-route (path-for routes
-                                                  :ws/wizard
-                                                  :ws-uuid   ws-uuid
-                                                  :module    module-name
-                                                  :io        :input
-                                                  :submodule (:slug submodule))]]
-                  ^{:key (:db/id group)}
-                  [review/input-group ws-uuid group variables edit-route])])]])]
+                (build-groups  ws-uuid
+                               (:submodule/groups submodule)
+                               (partial review/input-group edit-route))])]])]
         (when (true? @*warn-limit?)
           [:div.wizard-warning
            (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])

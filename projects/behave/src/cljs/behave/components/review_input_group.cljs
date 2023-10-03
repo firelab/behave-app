@@ -111,12 +111,13 @@
                     :align-items     "center"
                     :justify-content "center"}}]]))
 
-(defn input-group [ws-uuid group variables edit-route]
+(defn input-group [edit-route ws-uuid group variables]
   (r/with-let [variables (sort-by :group-variable/variable-order variables)]
-    [:<>
-     (if (:group/repeat? group)
-       [repeat-group ws-uuid group variables edit-route]
-       [:div.wizard-review-group__inputs
-        (for [variable variables]
-          ^{:key (:db/id variable)}
-          [wizard-input variable ws-uuid (:bp/uuid group) 0 false edit-route])])]))
+    (when (seq variables)
+     [:<>
+      (if (:group/repeat? group)
+        [repeat-group ws-uuid group variables edit-route]
+        [:div.wizard-review-group__inputs
+         (for [variable variables]
+           ^{:key (:db/id variable)}
+           [wizard-input variable ws-uuid (:bp/uuid group) 0 false edit-route])])])))
