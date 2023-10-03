@@ -1,6 +1,5 @@
 (ns datom-utils.core
-  (:require #?(:clj [datahike.core  :refer [conn?]]
-               :cljs [datascript.core :refer [conn?]])))
+  (:require [datascript.core :refer [conn?]]))
 
 (defn split-datom
   "Splits a DataHike/DataScript datom into a vector of the form [e a v t op]."
