@@ -3135,11 +3135,6 @@ WesternAspen.prototype['calculateAspenMortality'] = WesternAspen.prototype.calcu
   return _emscripten_bind_WesternAspen_calculateAspenMortality_3(self, severity, flameLength, DBH);
 };;
 
-WesternAspen.prototype['getAspenDBH'] = WesternAspen.prototype.getAspenDBH = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_WesternAspen_getAspenDBH_0(self);
-};;
-
 WesternAspen.prototype['getAspenFuelBedDepth'] = WesternAspen.prototype.getAspenFuelBedDepth = /** @suppress {undefinedVars, duplicate} @this{Object} */function(typeIndex) {
   var self = this.ptr;
   if (typeIndex && typeof typeIndex === 'object') typeIndex = typeIndex.ptr;

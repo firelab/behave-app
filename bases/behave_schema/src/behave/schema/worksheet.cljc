@@ -249,6 +249,11 @@
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
 
+   {:db/ident       :table-settings/map-units-settings
+    :db/doc         "Settings for converting certain variables to map units."
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/one}
+
    ;; Table filters
    {:db/ident       :table-filter/group-variable-uuid
     :db/doc         "Table filter's variable"
@@ -268,6 +273,22 @@
    {:db/ident       :table-filter/enabled?
     :db/doc         "Whether the table filter is enabled"
     :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
+
+   ;; Map Units
+   {:db/ident       :map-units-settings/enabled?
+    :db/doc         "Whether the map unit conversion is enabled"
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :map-units-settings/units
+    :db/doc         "The units set for converting certain variables to map units (in, cm)."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :map-units-settings/map-rep-fraction
+    :db/doc         "The Map representative Fraction (1:x) where x is this attribute's value"
+    :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 
    ;; Results Graph Settings

@@ -1827,10 +1827,6 @@ double EMSCRIPTEN_KEEPALIVE emscripten_bind_WesternAspen_calculateAspenMortality
   return self->calculateAspenMortality(severity, flameLength, DBH);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_WesternAspen_getAspenDBH_0(WesternAspen* self) {
-  return self->getAspenDBH();
-}
-
 double EMSCRIPTEN_KEEPALIVE emscripten_bind_WesternAspen_getAspenFuelBedDepth_1(WesternAspen* self, int typeIndex) {
   return self->getAspenFuelBedDepth(typeIndex);
 }

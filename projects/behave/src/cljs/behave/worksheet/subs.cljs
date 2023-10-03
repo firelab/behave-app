@@ -24,6 +24,12 @@
       (conj input-vec :none)
       input-vec)))
 
+(defn re-entity-from-uuid [bp-uuid]
+  (re/entity [:bp/uuid bp-uuid]))
+
+(defn re-entity-from-eid [eid]
+  (re/entity eid))
+
 ;; Retrieve all worksheet UUID's
 (rp/reg-sub
  :worksheet/all
@@ -293,7 +299,7 @@
                    [ws-uuid]])))
 
 (rf/reg-sub
- :worksheet/multi-value-input-uuids
+ :worksheet/multi-value-input-uuid+value
  (fn [[_ ws-uuid]]
    (rf/subscribe [:worksheet/input-id+value ws-uuid]))
 
@@ -301,8 +307,15 @@
    (->> inputs
         (filter (fn multiple-values? [[_uuid value]]
                   (> (count (str/split value #",|\s"))
-                     1)))
-        (map first))))
+                     1))))))
+
+(rf/reg-sub
+ :worksheet/multi-value-input-uuids
+ (fn [[_ ws-uuid]]
+   (rf/subscribe [:worksheet/multi-value-input-uuid+value ws-uuid]))
+
+ (fn [inputs _query]
+   (map first inputs)))
 
 (rp/reg-sub
  :worksheet/all-output-uuids
@@ -415,6 +428,38 @@
                (fn [[gv-uuid variable]]
                    [gv-uuid (create-formatter variable)])
                results)))))
+
+(rp/reg-sub
+ :worksheet/map-units-settings-eid
+ (fn [_ [_ ws-uuid]]
+   {:type      :query
+    :query     '[:find  ?m .
+                 :in    $ ?ws-uuid
+                 :where
+                 [?w :worksheet/uuid ?ws-uuid]
+                 [?w :worksheet/table-settings ?t]
+                 [?t :table-settings/map-units-settings ?m]]
+    :variables [ws-uuid]}))
+
+(rf/reg-sub
+ :worksheet/map-units-settings-entity
+ (fn [[_ ws-uuid]]
+   (rf/subscribe [:worksheet/map-units-settings-eid ws-uuid]))
+ (fn [map-units-settings-eid _]
+   (re-entity-from-eid map-units-settings-eid)))
+
+(rp/reg-sub
+ :worksheet/map-units-enabled?
+ (fn [_ [_ ws-uuid]]
+   {:type      :query
+    :query     '[:find  ?enabled .
+                 :in    $ ?ws-uuid
+                 :where
+                 [?w :worksheet/uuid ?ws-uuid]
+                 [?w :worksheet/table-settings ?t]
+                 [?t :table-settings/map-units-settings ?m]
+                 [?m :map-units-settings/enabled? ?enabled]]
+    :variables [ws-uuid]}))
 
 (rp/reg-sub
  :worksheet/result-table-cell-data

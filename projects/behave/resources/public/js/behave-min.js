@@ -5454,8 +5454,6 @@ var _emscripten_bind_WesternAspen_initializeMembers_0 = Module["_emscripten_bind
 /** @type {function(...*):?} */
 var _emscripten_bind_WesternAspen_calculateAspenMortality_3 = Module["_emscripten_bind_WesternAspen_calculateAspenMortality_3"] = createExportWrapper("emscripten_bind_WesternAspen_calculateAspenMortality_3");
 /** @type {function(...*):?} */
-var _emscripten_bind_WesternAspen_getAspenDBH_0 = Module["_emscripten_bind_WesternAspen_getAspenDBH_0"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenDBH_0");
-/** @type {function(...*):?} */
 var _emscripten_bind_WesternAspen_getAspenFuelBedDepth_1 = Module["_emscripten_bind_WesternAspen_getAspenFuelBedDepth_1"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenFuelBedDepth_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_WesternAspen_getAspenHeatOfCombustionDead_0 = Module["_emscripten_bind_WesternAspen_getAspenHeatOfCombustionDead_0"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenHeatOfCombustionDead_0");
@@ -10431,11 +10429,6 @@ WesternAspen.prototype['calculateAspenMortality'] = WesternAspen.prototype.calcu
   if (flameLength && typeof flameLength === 'object') flameLength = flameLength.ptr;
   if (DBH && typeof DBH === 'object') DBH = DBH.ptr;
   return _emscripten_bind_WesternAspen_calculateAspenMortality_3(self, severity, flameLength, DBH);
-};;
-
-WesternAspen.prototype['getAspenDBH'] = WesternAspen.prototype.getAspenDBH = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_WesternAspen_getAspenDBH_0(self);
 };;
 
 WesternAspen.prototype['getAspenFuelBedDepth'] = WesternAspen.prototype.getAspenFuelBedDepth = /** @suppress {undefinedVars, duplicate} @this{Object} */function(typeIndex) {

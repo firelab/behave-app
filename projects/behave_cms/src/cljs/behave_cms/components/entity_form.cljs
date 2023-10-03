@@ -184,7 +184,7 @@
 
                                                           :else
                                                           "")]
-                                            result)))
+                                             result)))
         on-submit    (u/on-submit #(let [state @(rf/subscribe [:state [:editors entity]])]
                                      (cond-> state
                                        id

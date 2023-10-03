@@ -271,7 +271,6 @@ interface SIGIgnite {
   LightningCharge_LightningChargeEnum getLightningChargeType();
   void calculateFirebrandIgnitionProbability();
   double calculateLightningIgnitionProbability(FractionUnits_FractionUnitsEnum desiredUnits);
-
   void setAirTemperature(double airTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnites);
   void setDuffDepth(double duffDepth, LengthUnits_LengthUnitsEnum lengthUnits);
   void setIgnitionFuelBedType(IgnitionFuelBedType_IgnitionFuelBedTypeEnum fuelBedType_);
@@ -783,7 +782,6 @@ interface WesternAspen {
   void WesternAspen();
   void initializeMembers();
   double calculateAspenMortality(long severity, double flameLength, double DBH);
-  double getAspenDBH();
   double getAspenFuelBedDepth(long typeIndex);
   double getAspenHeatOfCombustionDead();
   double getAspenHeatOfCombustionLive();
