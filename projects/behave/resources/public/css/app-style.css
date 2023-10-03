@@ -560,6 +560,10 @@ body {
   padding: 20px 18px;
 }
 
+.table-settings__map-units-form__units,
+.table-settings__map-units-form__map-rep-fraction {
+  padding-top: 10px;
+}
 
 .wizard-results__graph-settings__content .input-radio-group__label {
   padding: 20px 0px 20px 0px;

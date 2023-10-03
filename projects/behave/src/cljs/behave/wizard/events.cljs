@@ -218,3 +218,8 @@
                        :else
                        (path-for routes handler :ws-uuid ws-uuid))]
        {:fx [[:dispatch [:navigate path]]]}))))
+
+(rf/reg-event-fx
+ :worksheet/map-units-enabled?
+ (fn [_ _]
+   {:fx [[:dispatch [:state/update [:worksheet :show-map-units?] not]]]}))

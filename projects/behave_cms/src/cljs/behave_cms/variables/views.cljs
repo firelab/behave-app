@@ -113,7 +113,11 @@
                                :type      :radio
                                :options   [{:label "Continuous" :value :continuous}
                                            {:label "Discrete" :value :discrete}
-                                           {:label "Text" :value :text}]}]}]]
+                                           {:label "Text" :value :text}]}
+                              {:label     "Map Units Convertible?"
+                               :field-key :variable/map-units-convertible?
+                               :type      :checkbox
+                               :options   [{:value true}]}]}]]
 
       [:div.col-6
        (when (#{:continuous :discrete} @kind)
