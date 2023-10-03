@@ -54,32 +54,36 @@
         params             (-> (merge params (:route-params @route))
                                (assoc :route-handler (:handler @route)))]
     (load-scripts! params)
-    [:div.page
-     (when @vms-export-results
-       [modal {:title          "Vms Sync"
-               :close-on-click #(do (rf/dispatch [:state/set :vms-export-http-results nil])
-                                    (rf/dispatch [:app/reload]))
-               :content        @vms-export-results}])
-     [:table.page__top
-      [:tr
-       [:td.page__top__logo
-        [:div.behave-identity
-         {:href     "#"
-          :on-click #(rf/dispatch [:navigate "/"])
-          :tabindex 0}
-         [:img.behave-identity__logo
-          {:src "/images/logo.png"}]]]
-       [:td.page__top__toolbar-container
-        [toolbar params]]]]
-     [:div.page__main
-      [sidebar params]
-      [:div.container
-       [:div.working-area
-        {:area-live "assertive"}
-        (if (and @vms-loaded? @sync-loaded?)
-          [page params]
-          [:h3 "Loading..."])]
-       [help-area params]]]]))
+    (if (= (:handler @route) :ws/print)
+      (if (and @vms-loaded? @sync-loaded?)
+        [page params]
+        [:h3 "Loading..."])
+      [:div.page
+       (when @vms-export-results
+         [modal {:title          "Vms Sync"
+                 :close-on-click #(do (rf/dispatch [:state/set :vms-export-http-results nil])
+                                      (rf/dispatch [:app/reload]))
+                 :content        @vms-export-results}])
+       [:table.page__top
+        [:tr
+         [:td.page__top__logo
+          [:div.behave-identity
+           {:href     "#"
+            :on-click #(rf/dispatch [:navigate "/"])
+            :tabindex 0}
+           [:img.behave-identity__logo
+            {:src "/images/logo.png"}]]]
+         [:td.page__top__toolbar-container
+          [toolbar params]]]]
+       [:div.page__main
+        [sidebar params]
+        [:div.container
+         [:div.working-area
+          {:area-live "assertive"}
+          (if (and @vms-loaded? @sync-loaded?)
+            [page params]
+            [:h3 "Loading..."])]
+         [help-area params]]]])))
 
 (defn- ^:export init
   "Defines the init function to be called from window.onload()."

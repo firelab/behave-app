@@ -901,7 +901,6 @@ body {
 }
 
 .print {
-  height: 700px;
   overflow-y: scroll;
 }
 
