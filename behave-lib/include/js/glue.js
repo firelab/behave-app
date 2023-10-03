@@ -2911,7 +2911,7 @@ SIGSurface.prototype['updateSurfaceInputsForPalmettoGallbery'] = SIGSurface.prot
   _emscripten_bind_SIGSurface_updateSurfaceInputsForPalmettoGallbery_24(self, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, ageOfRough, heightOfUnderstory, palmettoCoverage, overstoryBasalArea, basalAreaUnits, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyHeightUnits, crownRatio);
 };;
 
-SIGSurface.prototype['updateSurfaceInputsForTwoFuelModels'] = SIGSurface.prototype.updateSurfaceInputsForTwoFuelModels = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firstFuelModelNumber, secondFuelModelNumber, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, firstFuelModelCoverage, firstFuelModelCoverageUnits, twoFuelModelsMethod, slope, slopeUnits, aspect, canopyCover, canopyCoverUnits, canopyHeight, canopyHeightUnits, crownRatio) {
+SIGSurface.prototype['updateSurfaceInputsForTwoFuelModels'] = SIGSurface.prototype.updateSurfaceInputsForTwoFuelModels = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firstFuelModelNumber, secondFuelModelNumber, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, firstFuelModelCoverage, firstFuelModelCoverageUnits, twoFuelModelsMethod, slope, slopeUnits, aspect, canopyCover, canopyFractionUnits, canopyHeight, canopyHeightUnits, crownRatio) {
   var self = this.ptr;
   if (firstFuelModelNumber && typeof firstFuelModelNumber === 'object') firstFuelModelNumber = firstFuelModelNumber.ptr;
   if (secondFuelModelNumber && typeof secondFuelModelNumber === 'object') secondFuelModelNumber = secondFuelModelNumber.ptr;
@@ -2933,11 +2933,11 @@ SIGSurface.prototype['updateSurfaceInputsForTwoFuelModels'] = SIGSurface.prototy
   if (slopeUnits && typeof slopeUnits === 'object') slopeUnits = slopeUnits.ptr;
   if (aspect && typeof aspect === 'object') aspect = aspect.ptr;
   if (canopyCover && typeof canopyCover === 'object') canopyCover = canopyCover.ptr;
-  if (canopyCoverUnits && typeof canopyCoverUnits === 'object') canopyCoverUnits = canopyCoverUnits.ptr;
+  if (canopyFractionUnits && typeof canopyFractionUnits === 'object') canopyFractionUnits = canopyFractionUnits.ptr;
   if (canopyHeight && typeof canopyHeight === 'object') canopyHeight = canopyHeight.ptr;
   if (canopyHeightUnits && typeof canopyHeightUnits === 'object') canopyHeightUnits = canopyHeightUnits.ptr;
   if (crownRatio && typeof crownRatio === 'object') crownRatio = crownRatio.ptr;
-  _emscripten_bind_SIGSurface_updateSurfaceInputsForTwoFuelModels_24(self, firstFuelModelNumber, secondFuelModelNumber, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, firstFuelModelCoverage, firstFuelModelCoverageUnits, twoFuelModelsMethod, slope, slopeUnits, aspect, canopyCover, canopyCoverUnits, canopyHeight, canopyHeightUnits, crownRatio);
+  _emscripten_bind_SIGSurface_updateSurfaceInputsForTwoFuelModels_24(self, firstFuelModelNumber, secondFuelModelNumber, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, firstFuelModelCoverage, firstFuelModelCoverageUnits, twoFuelModelsMethod, slope, slopeUnits, aspect, canopyCover, canopyFractionUnits, canopyHeight, canopyHeightUnits, crownRatio);
 };;
 
 SIGSurface.prototype['updateSurfaceInputsForWesternAspen'] = SIGSurface.prototype.updateSurfaceInputsForWesternAspen = /** @suppress {undefinedVars, duplicate} @this{Object} */function(aspenFuelModelNumber, aspenCuringLevel, curingLevelUnits, aspenFireSeverity, dbh, dbhUnits, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyHeightUnits, crownRatio) {
@@ -3135,11 +3135,6 @@ WesternAspen.prototype['calculateAspenMortality'] = WesternAspen.prototype.calcu
   return _emscripten_bind_WesternAspen_calculateAspenMortality_3(self, severity, flameLength, DBH);
 };;
 
-WesternAspen.prototype['getAspenDBH'] = WesternAspen.prototype.getAspenDBH = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
-  var self = this.ptr;
-  return _emscripten_bind_WesternAspen_getAspenDBH_0(self);
-};;
-
 WesternAspen.prototype['getAspenFuelBedDepth'] = WesternAspen.prototype.getAspenFuelBedDepth = /** @suppress {undefinedVars, duplicate} @this{Object} */function(typeIndex) {
   var self = this.ptr;
   if (typeIndex && typeof typeIndex === 'object') typeIndex = typeIndex.ptr;
@@ -3296,10 +3291,10 @@ SIGCrown.prototype['getCanopyBulkDensity'] = SIGCrown.prototype.getCanopyBulkDen
   return _emscripten_bind_SIGCrown_getCanopyBulkDensity_1(self, canopyBulkDensityUnits);
 };;
 
-SIGCrown.prototype['getCanopyCover'] = SIGCrown.prototype.getCanopyCover = /** @suppress {undefinedVars, duplicate} @this{Object} */function(canopyCoverUnits) {
+SIGCrown.prototype['getCanopyCover'] = SIGCrown.prototype.getCanopyCover = /** @suppress {undefinedVars, duplicate} @this{Object} */function(canopyFractionUnits) {
   var self = this.ptr;
-  if (canopyCoverUnits && typeof canopyCoverUnits === 'object') canopyCoverUnits = canopyCoverUnits.ptr;
-  return _emscripten_bind_SIGCrown_getCanopyCover_1(self, canopyCoverUnits);
+  if (canopyFractionUnits && typeof canopyFractionUnits === 'object') canopyFractionUnits = canopyFractionUnits.ptr;
+  return _emscripten_bind_SIGCrown_getCanopyCover_1(self, canopyFractionUnits);
 };;
 
 SIGCrown.prototype['getCanopyHeight'] = SIGCrown.prototype.getCanopyHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(canopyHeighUnits) {
@@ -4975,14 +4970,6 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
 
     
 
-    // CuringLevelUnits_CuringLevelEnum
-
-    Module['Fraction'] = _emscripten_enum_CuringLevelUnits_CuringLevelEnum_Fraction();
-
-    Module['Percent'] = _emscripten_enum_CuringLevelUnits_CuringLevelEnum_Percent();
-
-    
-
     // LengthUnits_LengthUnitsEnum
 
     Module['Feet'] = _emscripten_enum_LengthUnits_LengthUnitsEnum_Feet();
@@ -5027,14 +5014,6 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
 
     
 
-    // CoverUnits_CoverUnitsEnum
-
-    Module['Fraction'] = _emscripten_enum_CoverUnits_CoverUnitsEnum_Fraction();
-
-    Module['Percent'] = _emscripten_enum_CoverUnits_CoverUnitsEnum_Percent();
-
-    
-
     // SpeedUnits_SpeedUnitsEnum
 
     Module['FeetPerMinute'] = _emscripten_enum_SpeedUnits_SpeedUnitsEnum_FeetPerMinute();
@@ -5068,22 +5047,6 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['TechnicalAtmosphere'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_TechnicalAtmosphere();
 
     Module['PoundPerSquareInch'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_PoundPerSquareInch();
-
-    
-
-    // ProbabilityUnits_ProbabilityUnitsEnum
-
-    Module['Fraction'] = _emscripten_enum_ProbabilityUnits_ProbabilityUnitsEnum_Fraction();
-
-    Module['Percent'] = _emscripten_enum_ProbabilityUnits_ProbabilityUnitsEnum_Percent();
-
-    
-
-    // MoistureUnits_MoistureUnitsEnum
-
-    Module['Fraction'] = _emscripten_enum_MoistureUnits_MoistureUnitsEnum_Fraction();
-
-    Module['Percent'] = _emscripten_enum_MoistureUnits_MoistureUnitsEnum_Percent();
 
     
 
@@ -5552,14 +5515,6 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['flame_length'] = _emscripten_enum_FlameLengthOrScorchHeightSwitch_flame_length();
 
     Module['scorch_height'] = _emscripten_enum_FlameLengthOrScorchHeightSwitch_scorch_height();
-
-    
-
-    // MortalityRateUnits_MortalityRateUnitsEnum
-
-    Module['Fraction'] = _emscripten_enum_MortalityRateUnits_MortalityRateUnitsEnum_Fraction();
-
-    Module['Percent'] = _emscripten_enum_MortalityRateUnits_MortalityRateUnitsEnum_Percent();
 
     
 
