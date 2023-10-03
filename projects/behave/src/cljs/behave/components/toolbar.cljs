@@ -118,7 +118,7 @@
                                                                    furthest-visited-step-id)
                                                       steps)}]))
 
-(defn toolbar [params]
+(defn toolbar [{:keys [ws-uuid] :as params}]
   (let [*loaded? (rf/subscribe [:app/loaded?])
         on-click #(js/console.log (str "Selected!" %))
         tools    [{:icon     :home
@@ -129,10 +129,10 @@
                    :on-click on-click}
                   {:icon     :print
                    :label    (bp "print")
-                   :on-click #(rf/dispatch [:dev/export-from-vms])}
+                   :on-click #(rf/dispatch [:toolbar/print ws-uuid])}
                   {:icon     :share
                    :label    (bp "share")
-                   :on-click on-click}
+                   :on-click #(rf/dispatch [:dev/export-from-vms])}
                   {:icon     :zoom-in
                    :label    (bp "zoom-in")
                    :on-click on-click}

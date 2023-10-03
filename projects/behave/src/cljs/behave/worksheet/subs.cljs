@@ -79,6 +79,7 @@
                  [?i :input/value ?value]]
     :variables [ws-uuid group-uuid repeat-id group-variable-uuid]}))
 
+
 ;; Find groups matching a group-uuid
 (rp/reg-sub
  :worksheet/repeat-groups
@@ -210,7 +211,7 @@
                    [ws-uuid]])))
 
 (rf/reg-sub
- :worksheet/multi-value-input-uuids
+ :worksheet/multi-value-input-uuid+value
  (fn [[_ ws-uuid]]
    (rf/subscribe [:worksheet/input-id+value ws-uuid]))
 
@@ -218,8 +219,15 @@
    (->> inputs
         (filter (fn multiple-values? [[_uuid value]]
                   (> (count (str/split value #",|\s"))
-                     1)))
-        (map first))))
+                     1))))))
+
+(rf/reg-sub
+ :worksheet/multi-value-input-uuids
+ (fn [[_ ws-uuid]]
+   (rf/subscribe [:worksheet/multi-value-input-uuid+value ws-uuid]))
+
+ (fn [inputs _query]
+   (map first inputs)))
 
 (rp/reg-sub
  :worksheet/all-output-uuids
