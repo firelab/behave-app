@@ -1,10 +1,17 @@
 (ns behave.schema.conditionals
   (:require [clojure.spec.alpha :as s]
-            [behave.schema.utils :refer [valid-key? uuid-string?]]))
+            [behave.schema.utils :refer [uuid-string? not-empty-string?]]))
 
 (s/def :conditional/group-variable-uuid uuid-string?)
-(s/def :conditional/operator            keyword?)
-(s/def :conditional/values              (s/every string?))
+(s/def :conditional/type                #{:module :group-variable})
+(s/def :conditional/operator            #{:equal :not-equal :in})
+(s/def :conditional/values              (s/or :str not-empty-string?
+                                              :seq (s/and seq (s/every string?))))
+
+(s/def :behave/conditional              (s/keys :req [:conditional/type
+                                                      :conditional/operator
+                                                      :conditional/values]
+                                                :opt [:conditional/group-variable-uuid]))
 
 (def schema
   [{:db/ident       :conditional/group-variable-uuid
@@ -18,7 +25,7 @@
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :conditional/operator
-    :db/doc         "Conditional's operator. Can be either: `:equals`, `:not-equals`, `:in`."
+    :db/doc         "Conditional's operator. Can be either: `:equal`, `:not-equal`, `:in`."
     :db/valueType   :db.type/keyword
     :db/cardinality :db.cardinality/one}
 

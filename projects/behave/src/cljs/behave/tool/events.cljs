@@ -1,19 +1,34 @@
 (ns behave.tool.events
-  (:require [re-frame.core :as rf]))
+  (:require [re-frame.core :as rf]
+            [behave.tool.solver :refer [solve-tool]]))
 
 (def db-tool [:state :tool])
 
-(rf/reg-event-db
+(rf/reg-event-fx
  :tool/upsert-input-value
+ (rf/path db-tool)
+ (fn [{:keys [db]} [_ tool-uuid subtool-uuid variable-uuid value auto-compute?]]
+   (cond-> {:db (assoc-in db
+                          [:data
+                           tool-uuid
+                           subtool-uuid
+                           :inputs
+                           variable-uuid]
+                          value)}
+     auto-compute? (assoc :fx [[:dispatch [:tool/solve tool-uuid subtool-uuid]]]))))
+
+(rf/reg-event-db
+ :tool/upsert-outupt-value
  (rf/path db-tool)
  (fn [db [_ tool-uuid subtool-uuid variable-uuid value]]
    (assoc-in db
              [:data
               tool-uuid
               subtool-uuid
-              :inputs
+              :outputs
               variable-uuid]
              value)))
+
 
 (rf/reg-event-db
  :tool/close-tool-selector
@@ -44,18 +59,17 @@
  (fn [db [_ subtool-uuid]]
    (assoc db :selected-subtool subtool-uuid)))
 
-;;TODO update compute to actually run the selected subtool's compute fn
 (rf/reg-event-db
- :tool/compute
+ :tool/solve
  (rf/path db-tool)
  (fn [db [_ selected-tool selected-subtool]]
-   (let [output-variables @(rf/subscribe [:subtool/output-variables selected-subtool])]
-     (reduce (fn [db variable]
+   (let [results (solve-tool selected-tool selected-subtool)]
+     (reduce (fn [db [output-uuid value]]
                (assoc-in db [:data
                              selected-tool
                              selected-subtool
                              :outputs
-                             (:bp/uuid variable)]
-                         (str "computed subtool:" selected-subtool)))
+                             output-uuid]
+                         value))
              db
-             output-variables))))
+             results))))

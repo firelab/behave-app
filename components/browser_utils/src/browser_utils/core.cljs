@@ -146,3 +146,13 @@
 #_(download (str/join "\n" ["Header1,Header2" "1,2"])
             "example.csv"
             "application/text")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Format International Number
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defn format-intl-number [locale number & [significant-digits]]
+  (.format (js/Intl.NumberFormat. locale #js {:maximumSignificantDigits (or significant-digits 3)})
+           number))
+
+;; Usage
+;; (format-intl-number "en-US" 0.09393923 2) ; => 0.09

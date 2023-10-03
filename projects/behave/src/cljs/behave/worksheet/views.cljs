@@ -72,38 +72,38 @@
                                           (rf/dispatch [:state/set [:worksheet :*modules] (:module %)]))
                      :flex-direction "row"
                      :cards          [{:order     1
+                                       :title     @(<t (bp "surface_only"))
+                                       :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                                       :icons     [{:icon-name "surface"}]
+                                       :selected? (= @*modules [:surface])
+                                       :module    [:surface]}
+                                      {:order     2
                                        :title     @(<t (bp "surface_and_crown"))
                                        :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
                                        :icons     [{:icon-name "surface"}
                                                    {:icon-name "crown"}]
                                        :selected? (= @*modules [:surface :crown])
                                        :module    [:surface :crown]}
-                                      {:order     2
-                                       :title     @(<t (bp "surface_only"))
-                                       :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-                                       :icons     [{:icon-name "surface"}]
-                                       :selected? (= @*modules [:surface])
-                                       :module    [:surface]}
                                       {:order     3
-                                       :title     @(<t (bp "surface_and_contain"))
-                                       :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-                                       :icons     [{:icon-name "surface"}
-                                                   {:icon-name "contain"}]
-                                       :selected? (= @*modules [:surface :contain])
-                                       :module    [:surface :contain]}
-                                      {:order     4
-                                       :title     @(<t (bp "contain_only"))
-                                       :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-                                       :icons     [{:icon-name "contain"}]
-                                       :selected? (= @*modules [:contain])
-                                       :module    [:contain]}
-                                      {:order     5
                                        :title     @(<t (bp "surface_and_mortality"))
                                        :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
                                        :icons     [{:icon-name "surface"}
                                                    {:icon-name "mortality"}]
                                        :selected? (= @*modules [:surface :mortality])
                                        :module    [:surface :mortality]}
+                                      {:order     4
+                                       :title     @(<t (bp "surface_and_contain"))
+                                       :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                                       :icons     [{:icon-name "surface"}
+                                                   {:icon-name "contain"}]
+                                       :selected? (= @*modules [:surface :contain])
+                                       :module    [:surface :contain]}
+                                      {:order     5
+                                       :title     @(<t (bp "contain_only"))
+                                       :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                                       :icons     [{:icon-name "contain"}]
+                                       :selected? (= @*modules [:contain])
+                                       :module    [:contain]}
                                       {:order     6
                                        :title     @(<t (bp "mortality_only"))
                                        :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
@@ -116,14 +116,15 @@
                       :on-change #(rf/dispatch [:state/set [:worksheet :name] (input-value %)])}]]]
      [wizard-navigation {:next-label     @(<t (bp "next"))
                          :back-label     @(<t (bp "back"))
-                         :next-disabled? (some empty? [@name @*modules])
+                         :next-disabled? (empty? @*modules)
                          :on-back        #(.back js/history)
                          :on-next        #(do
                                             ;; Generate UUID
                                             (let [ws-uuid (str (squuid))]
 
                                               ;; Create the Worksheet
-                                              (rf/dispatch [:worksheet/new {:name @name :modules (vec @*modules) :uuid ws-uuid}])
+                                              (rf/dispatch [:worksheet/new
+                                                            {:name @name :modules (vec @*modules) :uuid ws-uuid}])
 
                                               ;; Look at modules that user has selected, find the first output submodule
                                               (rf/dispatch [:navigate (str "/worksheets/" ws-uuid "/modules/" (->str (first @*modules)) "/output/" @*submodule)])))}]]))

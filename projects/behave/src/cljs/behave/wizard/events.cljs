@@ -36,9 +36,11 @@
                                      _*submodule
                                      all-submodules
                                      {:keys [ws-uuid module io submodule]}]]
-    (let [all-submodules  (filter (fn [{op :submodule/conditionals-operator
-                                        id :db/id}]
-                                    @(rf/subscribe [:wizard/show-submodule? ws-uuid id op]))
+    (let [all-submodules  (filter (fn [{op        :submodule/conditionals-operator
+                                        research? :submodule/research?
+                                        id        :db/id}]
+                                    (and (not research?)
+                                         @(rf/subscribe [:wizard/show-submodule? ws-uuid id op])))
                                   all-submodules)
           o-subs          (filter #(= :output (:submodule/io %)) (sort-by :submodule/order all-submodules))
           i-subs          (filter #(= :input (:submodule/io %)) (sort-by :submodule/order all-submodules))
@@ -87,6 +89,25 @@
            [:dispatch [:worksheet/update-all-table-filters-from-results ws-uuid]]
            [:dispatch [:worksheet/update-all-y-axis-limits-from-results ws-uuid]]]
       :db (assoc-in db [:state :worksheet] worksheet)})))
+
+(rf/reg-event-fx
+ :wizard/before-solve
+ (fn [_ [_ {:keys [ws-uuid]}]]
+   {:fx [[:dispatch [:worksheet/delete-existing-diagrams ws-uuid]]]}))
+
+(rf/reg-event-fx
+ :wizard/during-solve
+ (fn [{db :db} [_ {:keys [ws-uuid]}]]
+   (let [worksheet (solve-worksheet ws-uuid)]
+     {:db (assoc-in db [:state :worksheet] worksheet)})))
+
+(rf/reg-event-fx
+ :wizard/after-solve
+ (fn [_ [_ {:keys [ws-uuid]}]]
+   (let [path (path-for routes :ws/results-settings :ws-uuid ws-uuid :results-page :settings)]
+     {:fx [[:dispatch [:navigate path]]
+           [:dispatch [:worksheet/update-all-table-filters-from-results ws-uuid]]
+           [:dispatch [:worksheet/update-all-y-axis-limits-from-results ws-uuid]]]})))
 
 (defn- remove-nils
   "remove pairs of key-value that has nil value from a (possibly nested) map. also transform map to
