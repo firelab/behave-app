@@ -1,16 +1,17 @@
 (ns behave.wizard.views
-  (:require [clojure.string                 :as str]
-            [behave.components.core         :as c]
-            [behave.components.input-group  :refer [input-group]]
-            [behave.components.graph        :refer [result-graph]]
-            [behave.components.review-input-group  :as review]
-            [behave.components.navigation   :refer [wizard-navigation]]
-            [behave.components.output-group :refer [output-group]]
-            [behave.components.vega.diagram :refer [output-diagram]]
-            [behave.tool.views              :refer [tool tool-selector]]
-            [behave-routing.main            :refer [routes]]
-            [behave.translate               :refer [<t bp]]
-            [behave.units-conversion        :refer [to-feet from-feet to-map-units]]
+  (:require [clojure.string                       :as str]
+            [behave.components.core               :as c]
+            [behave.components.input-group        :refer [input-group]]
+            [behave.components.graph              :refer [result-graph]]
+            [behave.components.review-input-group :as review]
+            [behave.components.navigation         :refer [wizard-navigation]]
+            [behave.components.output-group       :refer [output-group]]
+            [behave.components.vega.result-chart  :refer [result-chart]]
+            [behave.components.vega.diagram       :refer [output-diagram]]
+            [behave.tool.views                    :refer [tool tool-selector]]
+            [behave-routing.main                  :refer [routes]]
+            [behave.translate                     :refer [<t bp]]
+            [behave.units-conversion              :refer [to-feet from-feet to-map-units]]
             [clojure.set                          :refer [rename-keys]]
             [behave.wizard.events]
             [behave.wizard.subs]
@@ -708,7 +709,8 @@
         (when (and table-enabled? (seq @*cell-data))
           [:div.wizard-results__table {:id "table"}
            [:div.wizard-notes__header "Table"]
-           (let [table-data {:title   "Results Table"
+           (let [formatters @(subscribe [:worksheet/result-table-formatters (map second @*headers)])
+                 table-data {:title   "Results Table"
                              :headers (reduce (fn resolve-uuid [acc [_order uuid _repeat-id units]]
                                                 (let [var-name (:variable/name @(subscribe [:wizard/group-variable uuid]))]
                                                   (cond-> acc
@@ -734,13 +736,14 @@
                                                                                                (fn [[gv-uuid]]
                                                                                                  (= gv-uuid uuid))
                                                                                                @table-setting-filters))
+                                                                  fmt-fn               (get formatters uuid identity)
                                                                   uuid+repeat-id-key   (keyword (str uuid "-" repeat-id))]
                                                               (cond-> acc
                                                                 (and min max (not (<= min value max)) enabled?)
                                                                 (assoc :shaded? true)
 
                                                                 :always
-                                                                (assoc uuid+repeat-id-key value)
+                                                                (assoc uuid+repeat-id-key (fmt-fn value))
 
                                                                 (procces-map-units? map-units-enabled? uuid)
                                                                 (assoc (keyword (str/join "-" [uuid repeat-id "map-units"]))

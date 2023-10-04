@@ -21,6 +21,26 @@
        :doc "Converts `s` in camelCase to a a kebab-case string."}
   camel->kebab c/camel->kebab)
 
+(def ^{:argslist '[s]
+       :doc "Converts `s` in capitalizeCase to a a 'sentence case' string."}
+  capitalize->sentence c/capitalize->sentence)
+
+(def ^{:argslist '[s]
+       :doc "Converts `s` in kebab-case to CapitalizeCase string."}
+  kebab->capitalize c/kebab->capitalize)
+
+(def ^{:argslist '[s]
+       :doc "Converts `s` in snake-case to CapitalizeCase string."}
+  snake->capitalize c/snake->capitalize)
+
+(def ^{:argslist '[s]
+       :doc "Converts `s` in kebab-case to camelCase string."}
+  kebab->camel c/kebab->camel)
+
+(def ^{:argslist '[s]
+       :doc "Converts `s` in snake-case to camelCase string."}
+  snake->camel c/snake->camel)
+
 (def ^{:argslist '[& s]
        :doc "Converts multiple strings into a snake-cased, colon-delimited string.
 

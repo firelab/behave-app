@@ -1,5 +1,5 @@
 (ns behave.wizard.subs
-  (:require [behave.vms.rules       :refer [rules]]
+  (:require [behave.schema.core     :refer [rules]]
             [behave.vms.store       :as s]
             [clojure.set            :refer [rename-keys]]
             [datascript.core        :as d]
@@ -319,7 +319,7 @@
 ;;; show-group?
 
 (defn- resolve-conditionals [worksheet conditionals]
-  (let[ws-uuid (:worksheet/uuid worksheet)]
+  (let [ws-uuid (:worksheet/uuid worksheet)]
     (map (fn pass?
            [{group-variable-uuid :conditional/group-variable-uuid
              type                :conditional/type
@@ -380,7 +380,6 @@
           true)
         (not (:group/research? group-entity)))))
 
-
 (reg-sub
  :wizard/show-submodule?
  (fn [[_ ws-uuid submodule-id & _rest]]
@@ -413,3 +412,12 @@
           [?d :diagram/output-group-variables ?g]
           [?g :bp/uuid ?gv-uuid]]
         @@s/vms-conn [:bp/uuid gv-uuid])))
+
+(reg-sub
+ :wizard/dimension+units
+ (fn [_ [_ dimension-uuid]]
+   (d/q '[:find  (pull ?d [* {:dimension/units [*]}]) .
+          :in    $ ?dim-uuid
+          :where
+          [?d :bp/uuid ?dim-uuid]]
+        @@s/vms-conn dimension-uuid)))
