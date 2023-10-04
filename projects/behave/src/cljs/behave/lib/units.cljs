@@ -32,7 +32,7 @@
    {:short "ft-lb/s/ft2"} ; FIXME Power Units
    {:short "ft/min"      :system "english" :enum enum/speed-units                   :unit "FeetPerMinute"}
    {:short "ft2"         :system "english" :enum enum/area-units                    :unit "SquareFeet"}
-   {:short "ft2/ac"} ; FIXME Basal Area Units
+   {:short "ft2/ac"      :system "english" :enum enum/basal-area                    :unit "SquareFeetPerAcre"}
    {:short "ft2/ft3"     :system "english" :enum enum/surface-area-to-volume-units  :unit "SquareFeetOverCubicFeet"}
    {:short "in"          :system "english" :enum enum/length-units                  :unit "Inches"}
    {:short "lb/ft3"      :system "english" :enum enum/density-units                 :unit "PoundsPerCubicFoot"}
@@ -60,7 +60,7 @@
    {:short "m/h"      :system "metric" :enum enum/speed-units                   :unit "MetersPerHour"} ; FIXME
    {:short "m/min"    :system "metric" :enum enum/speed-units                   :unit "MetersPerMinute"}
    {:short "m2"       :system "metric" :enum enum/area-units                    :unit "SquareMeters"}
-   {:short "m2/ha"} ; FIXME Basal Area
+   {:short "m2/ha"    :system "metric" :enum enum/basal-area                    :unit "SquareMetersPerHectare"}
    {:short "m2/m3"    :system "metric" :enum enum/surface-area-to-volume-units  :unit "SquareMetersOverCubicMeters"}
    {:short "mm"       :system "metric" :enum enum/length-units                  :unit "Millimeters"}
    {:short "oC"       :system "metric" :enum enum/temperature-units             :unit "Celsius"}

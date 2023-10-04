@@ -1,12 +1,28 @@
 (ns behave.worksheet.subs
-  (:require [behave.store                :as s]
-            [clojure.string              :as str]
+  (:require [clojure.string              :as str]
             [clojure.set                 :as set]
+            [austinbirch.reactive-entity :as re]
             [datascript.core             :as d]
             [re-posh.core                :as rp]
             [re-frame.core               :as rf]
-            [austinbirch.reactive-entity :as re]
+            [behave.store                :as s]
+            [behave.vms.store            :refer [vms-conn]]
+            [behave.schema.core          :refer [rules]]
+            [map-utils.core              :refer [index-by]]
+            [number-utils.core           :refer [parse-float to-precision]]
             [string-utils.interface      :refer [->str ->kebab]]))
+
+;; Helpers
+(defn make-tree
+  [xs]
+  (into {} (map (fn [x] [(butlast x) [(last x)]]) xs)))
+
+(defn input-tree-to-vec
+  [[path leaf]]
+  (let [input-vec (vec (concat (vec path) leaf))]
+    (if (= (count input-vec) 4)
+      (conj input-vec :none)
+      input-vec)))
 
 (defn re-entity-from-uuid [bp-uuid]
   (re/entity [:bp/uuid bp-uuid]))
@@ -76,7 +92,8 @@
    {:type      :query
     :query     '[:find  ?value .
                  :in    $ ?ws-uuid ?group-uuid ?repeat-id ?group-var-uuid
-                 :where [?w :worksheet/uuid ?ws-uuid]
+                 :where
+                 [?w :worksheet/uuid ?ws-uuid]
                  [?w :worksheet/input-groups ?g]
                  [?g :input-group/group-uuid ?group-uuid]
                  [?g :input-group/repeat-id ?repeat-id]
@@ -85,6 +102,22 @@
                  [?i :input/value ?value]]
     :variables [ws-uuid group-uuid repeat-id group-variable-uuid]}))
 
+;; Get the units for a particular input
+(rp/reg-sub
+ :worksheet/input-units
+ (fn [_ [_ ws-uuid group-uuid repeat-id group-variable-uuid]]
+   {:type      :query
+    :query     '[:find  ?unit-uuid .
+                 :in    $ ?ws-uuid ?group-uuid ?repeat-id ?group-var-uuid
+                 :where
+                 [?w :worksheet/uuid ?ws-uuid]
+                 [?w :worksheet/input-groups ?g]
+                 [?g :input-group/group-uuid ?group-uuid]
+                 [?g :input-group/repeat-id ?repeat-id]
+                 [?g :input-group/inputs ?i]
+                 [?i :input/group-variable-uuid ?group-var-uuid]
+                 [?i :input/units ?unit-uuid]]
+    :variables [ws-uuid group-uuid repeat-id group-variable-uuid]}))
 
 ;; Find groups matching a group-uuid
 (rp/reg-sub
@@ -93,7 +126,8 @@
    {:type      :query
     :query     '[:find  [?g ...]
                  :in    $ ?ws-uuid ?group-uuid
-                 :where [?w :worksheet/uuid ?ws-uuid]
+                 :where
+                 [?w :worksheet/uuid ?ws-uuid]
                  [?w :worksheet/input-groups ?g]
                  [?g :input-group/group-uuid ?group-uuid]]
     :variables [ws-uuid group-uuid]}))
@@ -160,7 +194,8 @@
    (let [inputs @(rf/subscribe [:query
                                 '[:find  ?group-uuid ?repeat-id ?group-var-uuid ?value
                                   :in    $ ?ws-uuid
-                                  :where [?w :worksheet/uuid ?ws-uuid]
+                                  :where
+                                  [?w :worksheet/uuid ?ws-uuid]
                                   [?w :worksheet/input-groups ?g]
                                   [?g :input-group/group-uuid ?group-uuid]
                                   [?g :input-group/repeat-id ?repeat-id]
@@ -169,6 +204,53 @@
                                   [?i :input/value ?value]]
                                 [ws-uuid]])]
      (into [] inputs))))
+
+(rf/reg-sub
+ :worksheet/all-native-units
+ (fn [_ [_ ws-uuid]]
+   (into []
+         (d/q '[:find  ?group-uuid ?repeat-id ?gv-uuid ?unit-uuid
+                :in    $ $ws % ?ws-uuid
+                :where
+                [$ws ?w :worksheet/uuid ?ws-uuid]
+                [$ws ?w :worksheet/input-groups ?g]
+                [$ws ?g :input-group/group-uuid ?group-uuid]
+                [$ws ?g :input-group/repeat-id ?repeat-id]
+                [$ws ?g :input-group/inputs ?i]
+                [$ws ?i :input/group-variable-uuid ?gv-uuid]
+                (lookup ?gv-uuid ?gv)
+                (group-variable _ ?gv ?v)
+                [?v :variable/kind :continuous]
+                [?v :variable/native-unit-uuid ?unit-uuid]]
+              @@vms-conn @@s/conn rules ws-uuid))))
+
+(rf/reg-sub
+ :worksheet/all-custom-units
+ (fn [_ [_ ws-uuid]]
+   (into []
+         (d/q '[:find  ?group-uuid ?repeat-id ?gv-uuid ?unit-uuid
+                :in    $ $ws % ?ws-uuid
+                :where
+                [$ws ?w :worksheet/uuid ?ws-uuid]
+                [$ws ?w :worksheet/input-groups ?g]
+                [$ws ?g :input-group/group-uuid ?group-uuid]
+                [$ws ?g :input-group/repeat-id ?repeat-id]
+                [$ws ?g :input-group/inputs ?i]
+                [$ws ?i :input/group-variable-uuid ?gv-uuid]
+                (lookup ?gv-uuid ?gv)
+                (group-variable _ ?gv ?v)
+                [$ws ?i :input/units ?unit-uuid]]
+              @@vms-conn @@s/conn rules ws-uuid))))
+
+(rf/reg-sub
+ :worksheet/all-inputs+units-vector
+ (fn [[_ ws-uuid]]
+   [(rf/subscribe [:worksheet/all-inputs-vector ws-uuid])
+    (rf/subscribe [:worksheet/all-native-units ws-uuid])
+    (rf/subscribe [:worksheet/all-custom-units ws-uuid])])
+ (fn [sub-results]
+   (let [[inputs native-units custom-units] (map make-tree sub-results)]
+     (mapv input-tree-to-vec (merge-with (comp vec concat) inputs (merge native-units custom-units))))))
 
 (rf/reg-sub
  :worksheet/all-inputs
@@ -309,6 +391,44 @@
                  [?o :output/enabled? true]]
     :variables [ws-uuid]}))
 
+;; Results Table formatters
+
+(defn ^:private create-formatter [variable]
+  (condp = (:variable/kind variable)
+
+    :continuous
+    (let [significant-digits (:variable/native-decimals variable)]
+      (fn continuous-fmt [value]
+        (-> value
+            (parse-float)
+            (to-precision significant-digits))))
+
+    :discrete
+    (let [{list :variable/list}   (d/pull @@vms-conn '[{:variable/list [* {:list/options [*]}]}] (:db/id variable))
+          {options :list/options} list
+          options                 (index-by :list-option/value options)]
+      (fn discrete-fmt [value]
+        (if-let [option (get options value)]
+          (:list-option/name option)
+          value)))
+
+    :text
+    identity))
+
+(rf/reg-sub
+ :worksheet/result-table-formatters
+ (fn [_ [_ gv-uuids]]
+   (let [results (d/q '[:find ?gv-uuid (pull ?v [*])
+                        :in $ % [?gv-uuid ...]
+                        :where
+                        (lookup ?gv-uuid ?gv)
+                        (group-variable _ ?gv ?v)]
+                      @@vms-conn rules gv-uuids)]
+     (into {} (map
+               (fn [[gv-uuid variable]]
+                   [gv-uuid (create-formatter variable)])
+               results)))))
+
 (rp/reg-sub
  :worksheet/map-units-settings-eid
  (fn [_ [_ ws-uuid]]
@@ -423,7 +543,7 @@
  :worksheet/result-table-headers-sorted
  (fn [_ [_ ws-uuid]]
    (let [headers @(rf/subscribe [:query
-                                 '[:find ?order ?uuid ?repeat-id ?units
+                                 '[:find ?order ?gv-uuid ?repeat-id ?units
                                    :in $ ?ws-uuid
                                    :where
                                    [?w :worksheet/uuid ?ws-uuid]
@@ -431,7 +551,7 @@
                                    [?r :result-table/headers ?h]
                                    [?h :result-header/order ?order]
                                    [?h :result-header/repeat-id ?repeat-id]
-                                   [?h :result-header/group-variable-uuid ?uuid]
+                                   [?h :result-header/group-variable-uuid ?gv-uuid]
                                    [?h :result-header/units ?units]]
                                  [ws-uuid]])]
      (->> headers

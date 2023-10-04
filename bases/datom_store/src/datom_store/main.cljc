@@ -116,6 +116,23 @@
        (mapcat (partial get @tx-index))
        (into [])))
 
+;; Migrate
+
+(defn get-existing-schema [db]
+  (set (d/q '[:find [?ident ...]
+              :where [?e :db/ident ?ident]]
+            (safe-deref db))))
+
+(defn migrate [db new-schema]
+  (let [existing-schema (get-existing-schema db)
+        new-schema      (as-> (map :db/ident new-schema) $
+                          (set $)
+                          (apply disj $ existing-schema)
+                          (filter #($ (:db/ident %)) new-schema))]
+    (when (seq new-schema)
+      (print "Migrating DB with new schema: " new-schema)
+      (transact db new-schema))))
+
 ;;; CRUD Operations
 
 (defn pull [db id & [q]]

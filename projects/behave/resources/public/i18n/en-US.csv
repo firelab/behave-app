@@ -39,6 +39,7 @@ behaveplus:display_graph_y_axis_limits,Display Graph Y Axis Limits
 behaveplus:display_table_results,Display Table Results
 behaveplus:edit,Edit
 behaveplus:editing_notes,Editing Notes
+behaveplus:english_units,English units:
 behaveplus:enter_description,Enter description.
 behaveplus:enter_notes_name_or_category,Enter note’s name or category
 behaveplus:enter_resources_name,Enter resource’s name.
@@ -91,7 +92,7 @@ behaveplus:length_to_width_ratio,Length-to-Width Ratio
 behaveplus:line_construction_offset,Line Construction Offset
 behaveplus:list_of_file_extensions_supported,List of file extensions supported:
 behaveplus:managing_resources,Managing Resources
-behaveplus:metric_units_ranges_are,Metric units: Ranges are:
+behaveplus:metric_units,Metric units:
 behaveplus:module,Module
 behaveplus:module_inputs_selections,Module Inputs Selections
 behaveplus:module_options,Module Options
@@ -164,6 +165,7 @@ behaveplus:select_a_moisture_scenario,Select a Moisture Scenario
 behaveplus:select_graph_results,Select graph results
 behaveplus:select_range,Select Range
 behaveplus:select_the_row_variable,Select the row variable
+behaveplus:select_units,Select units:
 behaveplus:selecting_axis,Selecting Axis
 behaveplus:selection,Selection
 behaveplus:settings,Settings
@@ -194,7 +196,7 @@ behaveplus:tools,Tools
 behaveplus:tools_and_settings,Tools & Settings
 behaveplus:two_input_variables_have_multiple_values,Two input variables have multiple values.
 behaveplus:type_description,Type Description
-behaveplus:units_used,Units used
+behaveplus:units_used,Units used:
 behaveplus:values,Values
 behaveplus:variable,Variable
 behaveplus:viewing_graphs,Viewing Graphs

@@ -7,15 +7,17 @@
             [behave-cms.routes :refer [app-routes]]
             [behave-cms.store  :as s]
             [behave-cms.applications.subs]
+            [behave-cms.group-variables.subs]
             [behave-cms.groups.subs]
             [behave-cms.languages.subs]
-            [behave-cms.group-variables.subs]
             [behave-cms.lists.subs]
             [behave-cms.modules.subs]
             [behave-cms.subgroups.subs]
             [behave-cms.submodules.subs]
+            [behave-cms.subtools.subs]
             [behave-cms.tools.subs]
-            [behave-cms.subtools.subs]))
+            [behave-cms.units.subs]
+            [behave-cms.variables.subs]))
 
 ;; Taken from https://lambdaisland.com/blog/11-02-2017-re-frame-form-1-subscriptions
 (def <sub (comp deref rf/subscribe))
@@ -46,6 +48,27 @@
 
       (or (vector? path) (list? path))
       (get-in state path))))
+
+(rf/reg-sub
+ :dirty-state?
+ (fn [{state :state}]
+   (pos?
+    (+ (count (keys (:editors state)))
+       (count (keys (:selected state)))))))
+
+(rf/reg-sub
+ :selected
+ (fn [{state :state} [_ path]]
+   (let [path (cond
+                (keyword? path)
+                (conj [:selected] path)
+
+                (vector? path)
+                (concat [:selected] path)
+
+                :else
+                [:selected])]
+     (get-in state path))))
 
 ;;; Entities
 

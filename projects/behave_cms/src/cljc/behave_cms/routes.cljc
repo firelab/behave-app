@@ -34,6 +34,7 @@
                      :subtools          :subtool
                      :subtool-variables :subtool-variable
                      :users             :user
+                     :units             :unit
                      :variables         :variable})
 
 ;; From https://github.com/WorksHub/client/blob/master/common/src/wh/routes.cljc
@@ -104,6 +105,7 @@
       (entity-route :tools)
       (entity-route :subtools)
       (entity-route :subtool-variables)
+      (entity-route :units)
 
       ;; CPP
       (entity-route :namespaces)

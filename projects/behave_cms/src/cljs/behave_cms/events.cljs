@@ -26,9 +26,10 @@
 
 (def initial-state {:router   {:history       ["/"]
                                :curr-position 0}
-                    :state    {:editors {}
-                               :sidebar {}
-                               :loaded? false}
+                    :state    {:editors  {}
+                               :sidebar  {}
+                               :selected {}
+                               :loaded?  false}
                     :entities {:applications {}
                                :functions    {}
                                :groups       {}
@@ -132,6 +133,14 @@
       (update db path f)
 
       :else db)))
+
+(reg-event-db
+  :state/select
+  (path [:state :selected])
+  (fn [db [_ path value]]
+    (if (keyword? path)
+      (assoc db path value)
+      db)))
 
 (reg-event-db
   :state/merge

@@ -21,6 +21,7 @@
             [behave-cms.lists.views             :refer [list-lists-page]]
             [behave-cms.modules.views           :refer [list-modules-page]]
             [behave-cms.tools.views             :refer [tools-page]]
+            [behave-cms.units.views             :refer [units-page]]
             [behave-cms.subtools.views          :refer [subtools-page]]
             [behave-cms.subtool-variables.views :refer [subtool-variable-page]]
             [behave-cms.subgroups.views         :refer [list-subgroups-page]]
@@ -37,6 +38,7 @@
   [{:page "Applications"   :path "/applications"}
    {:page "Variables"      :path "/variables"}
    {:page "Lists"          :path "/lists"}
+   {:page "Units"          :path "/units"}
    {:page "Languages"      :path "/languages"}
    {:page "Invite User"    :path "/invite-user"}])
 
@@ -47,11 +49,12 @@
                 :get-group-variable   group-variable-page
                 :get-module           submodules-page
                 :get-submodule        list-groups-page
-                :get-tool             tools-page
                 :get-subtool          subtools-page
                 :get-subtool-variable subtool-variable-page
+                :get-tool             tools-page
                 :languages            list-languages-page
                 :lists                list-lists-page
+                :units                units-page
                 :variables            list-variables-page})
 
 (def system-pages {:login          login-page
@@ -86,17 +89,24 @@
         [:div [component (merge params route-params)]]))))
 
 (defn render-page! [path & [params]]
-  (rf/dispatch [:navigate path])
-  (when (not= path "/login") (s/load-store!))
-  (render (cond
-            (match-route app-routes path)
-            [:div
-             [menu menu-pages #(rf/dispatch [:navigate %])]
-             [page-component (or params @original-params)]]
+  (let [dirty-state? (rf/subscribe [:dirty-state?])]
+    (rf/dispatch [:navigate path])
+    (when (not= path "/login") (s/load-store!))
+    (render (cond
+              (match-route app-routes path)
+              [:div
+               [menu menu-pages
+                #(if @dirty-state?
+                   (when (js/confirm (str "Your work in progress will be lost. Are you sure you want to continue?"))
+                     (rf/dispatch [:navigate %])
+                     (rf/dispatch [:state/update :selected {}])
+                     (rf/dispatch [:state/update :editors {}]))
+                   (rf/dispatch [:navigate %]))]
+               [page-component (or params @original-params)]]
 
-            :else
-            (not-found @original-params))
-          (.getElementById js/document "app")))
+              :else
+              (not-found @original-params))
+            (.getElementById js/document "app"))))
 
 (defn- render-root
   "Renders the root component for the current URI."
