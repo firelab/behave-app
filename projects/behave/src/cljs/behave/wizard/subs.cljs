@@ -371,12 +371,14 @@
  :wizard/show-group?
  (fn [[_ ws-uuid group-id & _rest]]
    [(subscribe [:worksheet ws-uuid])
-    (rf/subscribe [:vms/pull-children :group/conditionals group-id])])
+    (subscribe [:vms/pull-children :group/conditionals group-id])
+    (subscribe [:vms/entity-from-eid group-id])])
 
- (fn [[worksheet conditionals] [_ _ws-uuid _group-id conditionals-operator]]
-   (if (seq conditionals)
-     (all-conditionals-pass? worksheet conditionals-operator conditionals)
-     true)))
+ (fn [[worksheet conditionals group-entity] [_ _ws-uuid _group-id conditionals-operator]]
+   (and (if (seq conditionals)
+          (all-conditionals-pass? worksheet conditionals-operator conditionals)
+          true)
+        (not (:group/research? group-entity)))))
 
 (reg-sub
  :wizard/show-submodule?
