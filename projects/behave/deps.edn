@@ -43,6 +43,7 @@
              sig/datom-utils               {:local/root "../../components/datom_utils" :exclusions [datascript/datascript io.replikativ/datahike]}
              sig/dom-utils                 {:local/root "../../components/dom_utils"}
              sig/ds-schema-utils           {:local/root "../../components/ds_schema_utils"}
+             sig/map-utils                 {:local/root "../../components/map_utils"}
              sig/number-utils              {:local/root "../../components/number_utils"}
              sig/logging                   {:local/root "../../components/logging"}
              sig/markdown2hiccup           {:local/root "../../components/markdown2hiccup"}
