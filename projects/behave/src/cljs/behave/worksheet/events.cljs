@@ -6,8 +6,42 @@
             [behave.importer           :refer [import-worksheet]]
             [behave.logger             :refer [log]]
             [behave.solver.core        :refer [solve-worksheet]]
-            [vimsical.re-frame.cofx.inject :as inject]
-            [clojure.string :as str]))
+            [vimsical.re-frame.cofx.inject :as inject]))
+
+;;; Helpers
+
+(defn ^:private q-worksheet [conn ws-uuid]
+  (d/q '[:find  ?ws .
+         :in    $ ?ws-uuid
+         :where
+         [?ws :worksheet/uuid ?ws-uuid]]
+       conn ws-uuid))
+
+(defn ^:private q-input-group [conn ws-uuid group-uuid repeat-id]
+  (d/q '[:find  ?ig .
+         :in    $ ?ws-uuid ?group-uuid ?repeat-id
+         :where
+         [?ws :worksheet/uuid ?ws-uuid]
+         [?ws :worksheet/input-groups ?ig]
+         [?ig :input-group/group-uuid ?group-uuid]
+         [?ig :input-group/repeat-id  ?repeat-id]]
+       conn ws-uuid group-uuid repeat-id))
+
+(defn ^:private q-input-variable [conn group-id group-variable-uuid]
+  (d/q '[:find  ?i .
+         :in    $ ?ig ?uuid
+         :where
+         [?ig :input-group/inputs ?i]
+         [?i :input/group-variable-uuid ?uuid]]
+       conn group-id group-variable-uuid))
+
+(defn ^:private add-input-group-tx [ws-uuid group-uuid repeat-id]
+  [{:db/id                   -1
+    :worksheet/_input-groups [:worksheet/uuid ws-uuid]
+    :input-group/group-uuid  group-uuid
+    :input-group/repeat-id   repeat-id}])
+
+;;; Events
 
 (rf/reg-fx :ws/import-worksheet import-worksheet)
 
@@ -40,45 +74,46 @@
  :worksheet/add-input-group
  [(rp/inject-cofx :ds)]
  (fn [{:keys [ds]} [_ ws-uuid group-uuid repeat-id]]
-   (when-let [ws (first (d/q '[:find  [?ws ...]
-                               :in    $ ?uuid
-                               :where [?ws :worksheet/uuid ?uuid]] ds ws-uuid))]
-     (when (nil? (d/q '[:find [?g]
-                        :in $ ?ws ?group-uuid ?repeat-id
-                        :where [?ws :worksheet/input-groups ?g]
-                        [?g :input-group/group-uuid ?group-uuid]
-                        [?g :input-group/repeat-id ?repeat-id]]
-                      ds ws group-uuid repeat-id))
-       {:transact [{:worksheet/_input-groups ws
-                    :db/id                   -1
-                    :input-group/group-uuid  group-uuid
-                    :input-group/repeat-id   repeat-id}]}))))
+   (when (nil? (q-input-group ds ws-uuid group-uuid repeat-id))
+     {:transact (add-input-group-tx ws-uuid group-uuid repeat-id)})))
 
 (rp/reg-event-fx
  :worksheet/upsert-input-variable
  [(rp/inject-cofx :ds)]
- (fn [{:keys [ds]} [_ ws-uuid group-uuid repeat-id group-variable-uuid value units]]
-   (when-let [ws (first (d/q '[:find  [?ws ...]
-                               :in    $ ?uuid
-                               :where [?ws :worksheet/uuid ?uuid]] ds ws-uuid))]
-     (when-let [group-id (first (d/q '[:find  [?ig]
-                                       :in    $ ?ws ?group-uuid ?repeat-id
-                                       :where [?ws :worksheet/input-groups ?ig]
-                                       [?ig :input-group/group-uuid ?group-uuid]
-                                       [?ig :input-group/repeat-id  ?repeat-id]]
-                                     ds ws group-uuid repeat-id))]
-       (if-let [var-id (first (d/q '[:find  [?i]
-                                     :in    $ ?ig ?uuid
-                                     :where [?ig :input-group/inputs ?i]
-                                     [?i :input/group-variable-uuid ?uuid]]
-                                   ds group-id group-variable-uuid))]
-         {:transact [(cond-> {:db/id       var-id
-                              :input/value value}
-                       units (assoc :input/units units))]}
-         {:transact [(cond-> {:input-group/_inputs       group-id
-                              :input/group-variable-uuid group-variable-uuid
-                              :input/value               value}
-                       units (assoc :input/units units))]})))))
+ (fn [{:keys [ds]} [_ ws-uuid group-uuid repeat-id group-variable-uuid value]]
+   (let [group-id (or (q-input-group ds ws-uuid group-uuid repeat-id) -1)]
+     (if-let [var-id (q-input-variable ds group-id group-variable-uuid)]
+       {:transact [{:db/id       var-id
+                    :input/value value}]}
+       {:transact (concat
+                   [{:db/id                     -2
+                     :input-group/_inputs       group-id
+                     :input/group-variable-uuid group-variable-uuid
+                     :input/value               value}]
+                   (when (neg? group-id)
+                     (add-input-group-tx ws-uuid group-uuid repeat-id)))}))))
+(comment
+
+
+  (rf/subscribe [:pull [:worksheet/uuid "6516738e-ae99-4783-b168-f234ee00477c"]])
+  )
+
+
+(rp/reg-event-fx
+ :worksheet/update-input-units
+ [(rp/inject-cofx :ds)]
+ (fn [{:keys [ds]} [_ ws-uuid group-uuid repeat-id group-variable-uuid units]]
+   (let [group-id (or (q-input-group ds ws-uuid group-uuid repeat-id) -1)]
+     (if-let [var-id (q-input-variable ds group-id group-variable-uuid)]
+       {:transact [{:db/id       var-id
+                    :input/units units}]}
+       {:transact (concat
+                   [{:db/id                     -2
+                     :input-group/_inputs       group-id
+                     :input/group-variable-uuid group-variable-uuid
+                     :input/units               units}]
+                   (when (neg? group-id)
+                     (add-input-group-tx ws-uuid group-uuid repeat-id)))}))))
 
 (rp/reg-event-fx
  :worksheet/delete-repeat-input-group
@@ -194,6 +229,20 @@
                       :result-cell/value  value}]})))))
 
 (rp/reg-event-fx
+ :worksheet/upsert-table-setting-map-units
+ [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet ws-uuid]))]
+ (fn [{:keys [worksheet]} [_ _ws-uuid attr value]]
+   (if-let [map-units-settings-eid (get-in worksheet [:worksheet/table-settings
+                                                      :table-settings/map-units-settings
+                                                      :db/id])]
+     {:transact [(assoc {:db/id map-units-settings-eid} attr value)]}
+     (when-let [table-settings-eid (get-in worksheet [:worksheet/table-settings
+                                                    :db/id])]
+       {:transact [{:db/id                              -1
+                    :table-settings/_map-units-settings table-settings-eid
+                    attr                                value}]}))))
+
+(rp/reg-event-fx
  :worksheet/toggle-table-settings
  [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet ws-uuid]))]
  (fn [{:keys [worksheet]} _]
@@ -201,6 +250,21 @@
          enabled?         (get-in worksheet [:worksheet/table-settings :table-settings/enabled?])]
      {:transact [{:db/id                   table-setting-id
                   :table-settings/enabled? (not enabled?)}]})))
+
+(rp/reg-event-fx
+ :worksheet/toggle-map-units-settings
+ [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet ws-uuid]))]
+ (fn [{:keys [worksheet]} [_ ws-uuid]]
+   (let [map-units-settings (get-in worksheet [:worksheet/table-settings
+                                                  :table-settings/map-units-settings])]
+     (if-let [map-units-setting-eid (:db/id map-units-settings)]
+       (let [enabled? (:map-units-settings/enabled? map-units-settings)]
+         {:transact [{:db/id                       map-units-setting-eid
+                      :map-units-settings/enabled? (not enabled?)}]})
+       {:fx [[:dispatch [:worksheet/upsert-table-setting-map-units
+                         ws-uuid
+                         :map-units-settings/enabled?
+                         true]]]}))))
 
 (rp/reg-event-fx
  :worksheet/add-y-axis-limit

@@ -369,6 +369,7 @@ body {
   background-color: var(--darkblue-4);
 }
 
+.wizard-graph__output-header,
 .wizard-group--level-1 > .wizard-group__header {
   padding: 5px 18px;
   color: black;
@@ -559,6 +560,10 @@ body {
   padding: 20px 18px;
 }
 
+.table-settings__map-units-form__units,
+.table-settings__map-units-form__map-rep-fraction {
+  padding-top: 10px;
+}
 
 .wizard-results__graph-settings__content .input-radio-group__label {
   padding: 20px 0px 20px 0px;
@@ -598,6 +603,8 @@ body {
   text-align:right;
 }
 
+.wizard-graph__header,
+.wizard-print__header,
 .wizard-notes__header {
   margin-top: 30px;
   margin-bottom: 33px;
@@ -883,6 +890,76 @@ body {
   background-color: var(--white);
 }
 
-
-
 /* -- End Tool -- */
+
+
+/* -- Print View -- */
+
+.print__ws-name {
+  text-align: center;
+  font-weight: var(--font-weight-bold)
+}
+
+.print__ws-date {
+  text-align: center;
+}
+
+.print {
+  overflow-y: scroll;
+}
+
+.print__inputs-table .table-header__header,
+.print__inputs-table .table-cell {
+  white-space: pre;
+  text-align: left;
+}
+
+.print__inputs-table .table {
+  width: 100%;
+}
+
+.print__result-table {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+
+.wizard-print__header {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+@media print {
+
+  .page:after,
+  .help-area,
+  .page__top,
+  .sidebar-container,
+  .toolbar {
+    display: none;
+  }
+
+  .working-area {
+    width: 100%;
+    margin: 0px;
+  }
+
+  .page__main {
+    padding-top: 0px;
+    margin-top: 0px;
+    width: 100%;
+  }
+
+  .container {
+    margin: 0px;
+  }
+
+  .print,
+  .wizard-page__body {
+    overflow-x: visible;
+    overflow-y: visible;
+  }
+
+}
+
+/* -- End Print View -- */

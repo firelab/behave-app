@@ -1,5 +1,5 @@
 (ns behave.wizard.subs
-  (:require [behave.vms.rules       :refer [rules]]
+  (:require [behave.schema.core     :refer [rules]]
             [behave.vms.store       :as s]
             [clojure.set            :refer [rename-keys]]
             [datascript.core        :as d]
@@ -178,9 +178,33 @@
                 gv-uuid])))
 
 (reg-sub
+ :wizard/gv-uuid->variable-units
+ (fn [_ [_ gv-uuid]]
+   @(subscribe [:vms/query '[:find ?units .
+                             :in    $ ?gv-uuid
+                             :where
+                             [?gv :bp/uuid ?gv-uuid]
+                             [?v :variable/group-variables ?gv]
+                             [?v :variable/native-units ?units]]
+                gv-uuid])))
+
+;; Returns a map of group-variable-uuids -> variable native units
+;; if and only if the variable is allowed to convert to map-units
+(reg-sub
+ :wizard/map-unit-convertible-variables
+ (fn [_]
+   (let [results @(subscribe [:vms/query '[:find ?gv-uuid ?units
+                                           :where
+                                           [?v :variable/group-variables ?gv]
+                                           [?gv :bp/uuid ?gv-uuid]
+                                           [?v :variable/native-units ?units]
+                                           [?v :variable/map-units-convertible? true]]])]
+     (into {} results))))
+
+(reg-sub
  :wizard/group-variable
  (fn [[_ gv-uuid]]
-   (subscribe [:vms/pull '[* {:variable/_group-variables [:variable/name]}] [:bp/uuid gv-uuid]]))
+   (subscribe [:vms/pull '[* {:variable/_group-variables [:variable/name :variable/native-units]}] [:bp/uuid gv-uuid]]))
 
  (fn [group-variable _query]
    (let [variable-data (rename-keys (first (:variable/_group-variables group-variable))
@@ -295,7 +319,7 @@
 ;;; show-group?
 
 (defn- resolve-conditionals [worksheet conditionals]
-  (let[ws-uuid (:worksheet/uuid worksheet)]
+  (let [ws-uuid (:worksheet/uuid worksheet)]
     (map (fn pass?
            [{group-variable-uuid :conditional/group-variable-uuid
              type                :conditional/type
@@ -347,13 +371,14 @@
  :wizard/show-group?
  (fn [[_ ws-uuid group-id & _rest]]
    [(subscribe [:worksheet ws-uuid])
-    (rf/subscribe [:vms/pull-children :group/conditionals group-id])])
+    (subscribe [:vms/pull-children :group/conditionals group-id])
+    (subscribe [:vms/entity-from-eid group-id])])
 
- (fn [[worksheet conditionals] [_ _ws-uuid _group-id conditionals-operator]]
-   (if (seq conditionals)
-     (all-conditionals-pass? worksheet conditionals-operator conditionals)
-     true)))
-
+ (fn [[worksheet conditionals group-entity] [_ _ws-uuid _group-id conditionals-operator]]
+   (and (if (seq conditionals)
+          (all-conditionals-pass? worksheet conditionals-operator conditionals)
+          true)
+        (not (:group/research? group-entity)))))
 
 (reg-sub
  :wizard/show-submodule?
@@ -387,3 +412,12 @@
           [?d :diagram/output-group-variables ?g]
           [?g :bp/uuid ?gv-uuid]]
         @@s/vms-conn [:bp/uuid gv-uuid])))
+
+(reg-sub
+ :wizard/dimension+units
+ (fn [_ [_ dimension-uuid]]
+   (d/q '[:find  (pull ?d [* {:dimension/units [*]}]) .
+          :in    $ ?dim-uuid
+          :where
+          [?d :bp/uuid ?dim-uuid]]
+        @@s/vms-conn dimension-uuid)))

@@ -50,7 +50,7 @@ public:
                             double fuelBedDepth,
                             LengthUnits::LengthUnitsEnum lengthUnits,
                             double moistureOfExtinctionDead,
-                            MoistureUnits::MoistureUnitsEnum moistureUnits,
+                            FractionUnits::FractionUnitsEnum moistureUnits,
                             double heatOfCombustionDead,
                             double heatOfCombustionLive,
                             HeatOfCombustionUnits::HeatOfCombustionUnitsEnum heatOfCombustionUnits,

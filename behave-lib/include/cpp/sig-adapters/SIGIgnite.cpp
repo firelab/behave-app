@@ -32,9 +32,9 @@
 #include "SIGIgnite.h"
 
 void SIGIgnite::calculateFirebrandIgnitionProbability() {
-  firebrandIgnitionProbability_ = Ignite::calculateFirebrandIgnitionProbability(ProbabilityUnits::Fraction);
+  firebrandIgnitionProbability_ = Ignite::calculateFirebrandIgnitionProbability(FractionUnits::Fraction);
 }
 
-double SIGIgnite::getFirebrandIgnitionProbability(ProbabilityUnits::ProbabilityUnitsEnum desiredUnits) {
-  return ProbabilityUnits::fromBaseUnits(firebrandIgnitionProbability_, desiredUnits);
+double SIGIgnite::getFirebrandIgnitionProbability(FractionUnits::FractionUnitsEnum desiredUnits) {
+  return FractionUnits::fromBaseUnits(firebrandIgnitionProbability_, desiredUnits);
 }

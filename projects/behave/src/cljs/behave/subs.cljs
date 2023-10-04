@@ -5,6 +5,7 @@
             [behave-routing.main :refer [routes]]
             [behave.vms.subs]
             [behave.wizard.subs]
+            [behave.print.subs]
             [behave.tool.subs]))
 
 ;; Taken from https://lambdaisland.com/blog/11-02-2017-re-frame-form-1-subscriptions

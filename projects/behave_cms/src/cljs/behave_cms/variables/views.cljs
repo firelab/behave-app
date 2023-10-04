@@ -25,42 +25,74 @@
       :on-delete on-delete}]))
 
 (def continuous-variable-properties
-  [{:label "Default Value  " :field-key :variable/default-value    :type :float}
-   {:label "English Decimal" :field-key :variable/english-decimals :type :int}
-   {:label "English Units"   :field-key :variable/english-units    :type :str}
-   {:label "Maximum"         :field-key :variable/maximum          :type :float}
-   {:label "Minimum"         :field-key :variable/minimum          :type :float}
-   {:label "Metric Decimals" :field-key :variable/metric-decimals  :type :int}
-   {:label "Metric Units"    :field-key :variable/metric-units     :type :str}
-   {:label "Native Decimals" :field-key :variable/native-decimals  :type :int}
-   {:label "Native Units"    :field-key :variable/native-units     :type :str}])
+  [{:label "Dimension"       :field-key :variable/dimension-uuid    :type :dimension}
+   {:label "English Units"   :field-key :variable/english-unit-uuid :type :unit :system :english}
+   {:label "English Decimal" :field-key :variable/english-decimals  :type :int}
+   {:label "Metric Units"    :field-key :variable/metric-unit-uuid  :type :unit :system :metric}
+   {:label "Metric Decimals" :field-key :variable/metric-decimals   :type :int}
+   {:label "Native Units"    :field-key :variable/native-unit-uuid  :type :unit}
+   {:label "Native Decimals" :field-key :variable/native-decimals   :type :int}
+   {:label "Default Value  " :field-key :variable/default-value     :type :float}
+   {:label "Maximum"         :field-key :variable/maximum           :type :float}
+   {:label "Minimum"         :field-key :variable/minimum           :type :float}])
 
 (defmulti properties-form (fn [kind _ _] (keyword kind)))
 
 (defmethod properties-form
   :continuous
   [_ get-field set-field]
-  [:div
-   (for [{:keys [label field-key type]} continuous-variable-properties]
-     (let [value     (get-field field-key)
-           on-change (set-field field-key)]
-       [:div.mb-3 {:keys field-key}
-        [:label.form-label label]
-        (condp = type
-          :float
-          [:input.form-control {:type          "number"
-                                :default-value @value
-                                :on-change     #(on-change (u/input-float-value %))}]
+  (let [dimensions (rf/subscribe [:dimensions])
+        *dimension (get-field :variable/dimension-uuid)
+        units      (->> @dimensions
+                        (filter #(= @*dimension (:bp/uuid %)))
+                        (first)
+                        (:dimension/units))]
+    [:div
+     (doall
+      (for [{:keys [label field-key type system]} continuous-variable-properties]
+        (let [units     (if system (filter #(= (:unit/system %) system) units) units)
+              value     (get-field field-key)
+              on-change (set-field field-key)]
+          (println [:DIM @*dimension :U units])
+          ^{:key field-key}
+          [:div.mb-3 {:keys field-key}
+           [:label.form-label label]
+           (condp = type
+             :dimension
+             [:select.form-select {:default-value @value
+                                   :on-change     #(on-change (u/input-value %))}
+              (when (nil? @value)
+                [:option {:value nil} "Select Dimension..."])
+              (doall
+               (for [{dim-name :dimension/name dim-uuid :bp/uuid} @dimensions]
+                 ^{:key dim-uuid}
+                 [:option {:value dim-uuid} dim-name]))]
 
-          :int
-          [:input.form-control {:type          "number"
-                                :default-value @value
-                                :on-change     #(on-change (u/input-int-value %))}]
+             :unit
+             [:select.form-select {:default-value @value
+                                   :disabled      (nil? @*dimension)
+                                   :on-change     #(on-change (u/input-value %))}
+              (when (nil? @value)
+                [:option {:value nil} "Select Units..."])
+              (doall
+               (for [{unit-name :unit/name short-code :unit/short-code unit-uuid :bp/uuid} units]
+                 ^{:key unit-uuid}
+                 [:option {:value unit-uuid} (str unit-name " (" short-code ")")]))]
 
-          ; default
-          [:input.form-control {:type          "text"
-                                :default-value @value
-                                :on-change     #(on-change (u/input-value %))}])]))])
+             :float
+             [:input.form-control {:type          "number"
+                                   :default-value @value
+                                   :on-change     #(on-change (u/input-float-value %))}]
+
+             :int
+             [:input.form-control {:type          "number"
+                                   :default-value @value
+                                   :on-change     #(on-change (u/input-int-value %))}]
+
+                                        ; default
+             [:input.form-control {:type          "text"
+                                   :default-value @value
+                                   :on-change     #(on-change (u/input-value %))}])])))]))
 
 (defmethod properties-form
   :discrete
@@ -113,7 +145,11 @@
                                :type      :radio
                                :options   [{:label "Continuous" :value :continuous}
                                            {:label "Discrete" :value :discrete}
-                                           {:label "Text" :value :text}]}]}]]
+                                           {:label "Text" :value :text}]}
+                              {:label     "Map Units Convertible?"
+                               :field-key :variable/map-units-convertible?
+                               :type      :checkbox
+                               :options   [{:value true}]}]}]]
 
       [:div.col-6
        (when (#{:continuous :discrete} @kind)

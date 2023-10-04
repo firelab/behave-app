@@ -17,15 +17,16 @@
 (s/def :variable/groups           (s/and set? #(every? integer? %)))
 
 ;; Continuous Variables
-(s/def :variable/default-value    (s/nilable float?))
-(s/def :variable/english-decimals (s/nilable integer?))
-(s/def :variable/english-units    (s/nilable string?))
-(s/def :variable/maximum          float?)
-(s/def :variable/minimum          float?)
-(s/def :variable/metric-decimals  (s/nilable integer?))
-(s/def :variable/metric-units     (s/nilable string?))
-(s/def :variable/native-decimals  (s/nilable integer?))
-(s/def :variable/native-units     (s/nilable string?))
+(s/def :variable/default-value          (s/nilable float?))
+(s/def :variable/english-decimals       (s/nilable integer?))
+(s/def :variable/english-units          (s/nilable string?))
+(s/def :variable/maximum                float?)
+(s/def :variable/minimum                float?)
+(s/def :variable/metric-decimals        (s/nilable integer?))
+(s/def :variable/metric-units           (s/nilable string?))
+(s/def :variable/native-decimals        (s/nilable integer?))
+(s/def :variable/native-units           (s/nilable string?))
+(s/def :variable/map-units-convertible? boolean)
 
 ;; Discrete Variables
 (s/def :variable/list             (s/or :int integer? :str string?))
@@ -47,7 +48,8 @@
                 :variable/metric_decimals
                 :variable/metric_units
                 :variable/native_decimals
-                :variable/native_units]))
+                :variable/native_units
+                :variable/map-units-convertible?]))
 
 (defmethod kind :discrete [_]
   (s/keys :req [:variable/uuid
@@ -137,13 +139,18 @@
     :db/valueType   :db.type/double
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident       :variable/english-unit-uuid
+    :db/doc         "Variable's english unit UUID."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
    {:db/ident       :variable/english-decimals
     :db/doc         "Variable's english decimal value."
     :db/valueType   :db.type/double
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :variable/english-units
-    :db/doc         "Variable's english units."
+   {:db/ident       :variable/metric-unit-uuid
+    :db/doc         "Variable's metric unit UUID."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
@@ -152,8 +159,8 @@
     :db/valueType   :db.type/double
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :variable/metric-units
-    :db/doc         "Variable's metric units."
+   {:db/ident       :variable/native-unit-uuid
+    :db/doc         "Variable's native unit UUID."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
@@ -162,9 +169,14 @@
     :db/valueType   :db.type/double
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :variable/native-units
-    :db/doc         "Variable's native units."
+   {:db/ident       :variable/dimension-uuid
+    :db/doc         "Variable's dimension UUID."
     :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :variable/map-units-convertible?
+    :db/doc         "Whether or not variable can convert to map units."
+    :db/valueType   :db.type/boolean
     :db/cardinality :db.cardinality/one}
 
    ;; Discrete Variables

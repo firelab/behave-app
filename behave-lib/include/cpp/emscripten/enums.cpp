@@ -4,8 +4,13 @@
 // Behave Units Enums
 typedef AreaUnits::AreaUnitsEnum AreaUnits_AreaUnitsEnum;
 typedef BasalAreaUnits::BasalAreaUnitsEnum BasalAreaUnits_BasalAreaUnitsEnum;
-typedef CoverUnits::CoverUnitsEnum CoverUnits_CoverUnitsEnum;
-typedef CuringLevelUnits::CuringLevelEnum CuringLevelUnits_CuringLevelEnum;
+typedef LengthUnits::LengthUnitsEnum LengthUnits_LengthUnitsEnum;
+typedef LoadingUnits::LoadingUnitsEnum LoadingUnits_LoadingUnitsEnum;
+typedef SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum
+    SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum;
+typedef FractionUnits::FractionUnitsEnum FractionUnits_FractionUnitsEnum;
+typedef SpeedUnits::SpeedUnitsEnum SpeedUnits_SpeedUnitsEnum;
+typedef SlopeUnits::SlopeUnitsEnum SlopeUnits_SlopeUnitsEnum;
 typedef DensityUnits::DensityUnitsEnum DensityUnits_DensityUnitsEnum;
 typedef FirelineIntensityUnits::FirelineIntensityUnitsEnum FirelineIntensityUnits_FirelineIntensityUnitsEnum;
 typedef FractionUnits::FractionUnitsEnum FractionUnits_FractionUnitsEnum;
@@ -16,9 +21,7 @@ typedef HeatSourceAndReactionIntensityUnits::HeatSourceAndReactionIntensityUnits
     HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum;
 typedef LengthUnits::LengthUnitsEnum LengthUnits_LengthUnitsEnum;
 typedef LoadingUnits::LoadingUnitsEnum LoadingUnits_LoadingUnitsEnum;
-typedef MoistureUnits::MoistureUnitsEnum MoistureUnits_MoistureUnitsEnum;
 typedef PressureUnits::PressureUnitsEnum PressureUnits_PressureUnitsEnum;
-typedef ProbabilityUnits::ProbabilityUnitsEnum ProbabilityUnits_ProbabilityUnitsEnum;
 typedef SlopeUnits::SlopeUnitsEnum SlopeUnits_SlopeUnitsEnum;
 typedef SpeedUnits::SpeedUnitsEnum SpeedUnits_SpeedUnitsEnum;
 typedef SurfaceAreaToVolumeUnits::SurfaceAreaToVolumeUnitsEnum
@@ -66,9 +69,6 @@ typedef IgnitionFuelBedType::IgnitionFuelBedTypeEnum IgnitionFuelBedType_Ignitio
 typedef SpotDownWindCanopyMode::SpotDownWindCanopyModeEnum SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum;
 typedef SpotTreeSpecies::SpotTreeSpeciesEnum SpotTreeSpecies_SpotTreeSpeciesEnum;
 typedef SpotFireLocation::SpotFireLocationEnum SpotFireLocation_SpotFireLocationEnum;
-
-// mortality.h
-typedef MortalityRateUnits::MortalityRateUnitsEnum MortalityRateUnits_MortalityRateUnitsEnum;
 
 // fineDeadFuelMoistureTool.h
 typedef FDFMToolAspectIndex::AspectIndexEnum FDFMToolAspectIndex_AspectIndexEnum;
