@@ -8,7 +8,7 @@
             [behave.store                :as s]
             [behave.vms.store            :refer [vms-conn]]
             [behave.schema.core          :refer [rules]]
-            [map-utils.core              :refer [index-by]]
+            [map-utils.interface         :refer [index-by]]
             [number-utils.core           :refer [parse-float to-precision]]
             [string-utils.interface      :refer [->str ->kebab]]))
 
