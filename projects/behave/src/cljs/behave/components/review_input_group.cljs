@@ -30,18 +30,20 @@
 
 (defmethod wizard-input :discrete [{uuid     :bp/uuid
                                     var-name :variable/name
-                                    help-key :group-variable/help-key}
+                                    help-key :group-variable/help-key
+                                    eid      :db/id}
                                    ws-uuid
                                    group-uuid
                                    repeat-id
                                    _repeat-group?
                                    edit-route]
-  (let [values (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id uuid])]
+  (let [*value               (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id uuid])
+        *resolved-enum-value (rf/subscribe [:worksheet/resolve-enum-value eid @*value])]
     [:div.wizard-input {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
      [:div.wizard-review__input
       [:div.wizard-review__input--discrete
        [:div.wizard-review__input--discrete__label (str var-name ":")]
-       [:div.wizard-review__input--discrete__value @values]
+       [:div.wizard-review__input--discrete__value @*resolved-enum-value]
        [c/button {:variant  "primary"
                   :label    @(<t (bp "change_selection"))
                   :size     "small"
