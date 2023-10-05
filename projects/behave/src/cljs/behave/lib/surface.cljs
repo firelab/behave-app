@@ -66,6 +66,9 @@
 (defn getAspenSavrLiveWoody [self savrUnits]
   (.getAspenSavrLiveWoody self savrUnits))
 
+(defn getBackingFlameLength [self lengthUnits]
+  (.getBackingFlameLength self lengthUnits))
+
 (defn getBackingSpreadDistance [self lengthUnits]
   (.getBackingSpreadDistance self lengthUnits))
 
