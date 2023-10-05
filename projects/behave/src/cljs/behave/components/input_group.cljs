@@ -79,9 +79,8 @@
                 :compute-fn        (fn [from to step]
                                      (range from to step))
                 :compute-args      [{:name  @(<t (bp "from"))
-                                     ;; :units units-used
-                                     ;; :range [var-min var-max]
-                                     }
+                                     :units units-used
+                                     :range [var-min var-max]}
                                     {:name  @(<t (bp "to"))
                                      :units units-used
                                      :range [var-min var-max]}
