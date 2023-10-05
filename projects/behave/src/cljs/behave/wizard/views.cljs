@@ -171,9 +171,10 @@
         *show-add-note-form?     (subscribe [:wizard/show-add-note-form?])
         on-back                  #(dispatch [:wizard/prev-tab params])
         on-next                  #(dispatch [:wizard/next-tab @*module @*submodule @*submodules params])
-        *all-inputs-entered?     (subscribe [:worksheet/all-inputs-entered? ws-uuid module-id submodule])
-        *some-outputs-entered?   (subscribe [:worksheet/some-outputs-entered? ws-uuid module-id submodule])
-        next-disabled?           (not (if (= io :input) @*all-inputs-entered? @*some-outputs-entered?))]
+        ;; *all-inputs-entered?     (subscribe [:worksheet/all-inputs-entered? ws-uuid module-id submodule])
+        ;; *some-outputs-entered?   (subscribe [:worksheet/some-outputs-entered? ws-uuid module-id submodule])
+        ;; next-disabled?           (not (if (= io :input) @*all-inputs-entered? @*some-outputs-entered?))
+        ]
     [:div.wizard-page
      [wizard-header @*module params]
      [:div.wizard-page__body
@@ -205,7 +206,9 @@
                          :on-next        on-next
                          :back-label     @(<t (bp "back"))
                          :on-back        on-back
-                         :next-disabled? next-disabled?}]]))
+                         ;;TODO to discuss or refine at a later date (2023-10-15 Kcheung)
+                         ;; :next-disabled? next-disabled?
+                         }]]))
 
 (defn run-description [ws-uuid]
   (let [*worksheet  (subscribe [:worksheet ws-uuid])
