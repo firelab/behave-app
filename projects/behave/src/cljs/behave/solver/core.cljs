@@ -11,7 +11,8 @@
             [behave.logger            :refer [log]]
             [clojure.string           :as str]
             [clojure.set              :as set]
-            [re-frame.core            :as rf]))
+            [re-frame.core            :as rf]
+            [map-utils.interface      :refer [index-by]]))
 
 ;;; Helpers
 
@@ -145,7 +146,7 @@
     (reduce
      (fn [acc [src-uuid dst-uuid]]
        (if (prev-output-uuids src-uuid)
-         (let [output     (get-in prev-outputs [src-uuid 0])
+         (let [output     (get prev-outputs src-uuid)
                group-uuid (q/group-variable->group dst-uuid)]
            (log-solver [:ADD-LINK [:SRC-UUID src-uuid :DST-UUID dst-uuid] [:OUTPUT output :GROUP-UUID group-uuid]])
            (assoc-in acc [group-uuid 0 dst-uuid] output))
@@ -155,18 +156,20 @@
 
 (defn apply-input-links [inputs destination-links]
   (let [inputs-vec        (inputs-map-to-vector inputs)
-        inputs-by-gv-uuid (group-by #(nth % 2) inputs-vec)
+        inputs-by-gv-uuid (index-by #(nth % 2) inputs-vec)
         input-gv-uuids    (set (map #(nth % 2) inputs-vec))]
-    [inputs-by-gv-uuid input-gv-uuids]
     (reduce
      (fn [acc [src-uuid dst-uuid]]
-       (when (input-gv-uuids src-uuid)
-         (let [[_ _ _ value unit-uuid] (get-in inputs-by-gv-uuid [src-uuid 0])
+       (if (input-gv-uuids src-uuid)
+         (let [[src-group-uuid _ _ value unit-uuid] (get inputs-by-gv-uuid src-uuid)
                group-uuid              (q/group-variable->group dst-uuid)]
+           (log-solver [:ADD-LINK
+                        [:SRC src-group-uuid 0 src-uuid [value unit-uuid]]
+                        [:DST group-uuid 0 dst-uuid [value unit-uuid]]])
            (assoc-in acc
                      [group-uuid 0 dst-uuid]
-                     [value unit-uuid])))
-       acc)
+                     [value unit-uuid]))
+         acc))
      inputs
      destination-links)))
 

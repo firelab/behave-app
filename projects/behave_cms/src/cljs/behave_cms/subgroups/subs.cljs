@@ -146,7 +146,7 @@
 ;;; Variables
 
 (reg-sub
- :variables
+ :group/_variables
  (fn [[_ group-id]]
    (subscribe [:pull-children :group/group-variables group-id '[* {:variable/_group-variables [*]}]]))
  identity)
@@ -154,7 +154,7 @@
 (reg-sub
  :group/variables
  (fn [[_ group-id]]
-   (subscribe [:variables group-id]))
+   (subscribe [:group/_variables group-id]))
 
  (fn [variables]
    (map (fn [group-variable]
@@ -165,7 +165,7 @@
 (reg-sub
  :sidebar/variables
  (fn [[_ group-id]]
-   (subscribe [:variables group-id]))
+   (subscribe [:group/_variables group-id]))
 
  (fn [variables]
    (->> variables
