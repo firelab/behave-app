@@ -4,7 +4,7 @@
             [date-utils.interface :refer [today]])
   (:import [java.io FileInputStream]))
 
-(defn sync-images-handler
+(defn sync-images
   "Creates and returns a zipped archive of resized images."
   [_req]
   (let [public-files    (io/file (resource-file "public") "files")

@@ -17,7 +17,6 @@
             [ring.middleware.resource           :refer [wrap-resource]]
             [ring.middleware.reload             :refer [wrap-reload]]
             [ring.middleware.session            :refer [wrap-session]]
-            [ring.middleware.session.cookie     :refer [cookie-store]]
             [ring.middleware.ssl                :refer [wrap-ssl-redirect]]
             [ring.middleware.x-headers          :refer [wrap-frame-options wrap-content-type-options wrap-xss-protection]]
             [ring.util.codec                    :refer [url-decode url-encode]]
@@ -28,7 +27,6 @@
             [behave-cms.remote-api              :refer [api-handler clj-handler]]
             [behave-cms.routes                  :refer [app-routes api-routes public-routes]]
             [behave-cms.sync                    :refer [sync-handler]]
-            [behave-cms.export                  :refer [sync-images-handler]]
             [behave-cms.views                   :refer [data-response render-page]]))
 
 (defn- string-to-bytes [s] (.getBytes s))
@@ -60,13 +58,12 @@
 
 (defn routing-handler [{:keys [uri session params] :as request}]
   (let [next-handler (cond
-                       (bad-uri? uri)                         (constantly (data-response "Forbidden" {:status 403}))
-                       (str/starts-with? uri "/sync")         (token-resp params sync-handler)
-                       (str/starts-with? uri "/sync-images")  (token-resp params sync-images-handler)
-                       (match-route api-routes uri)           (authenticated-api uri session api-handler)
-                       (str/starts-with? uri "/clj/")         (token-resp params clj-handler)
-                       (str/starts-with? uri "/file/")        #'file-handler
-                       :else                                  (authenticated-page uri session (render-page (match-route app-routes uri))))]
+                       (bad-uri? uri)                  (constantly (data-response "Forbidden" {:status 403}))
+                       (str/starts-with? uri "/sync")  (token-resp params sync-handler)
+                       (match-route api-routes uri)    (authenticated-api uri session api-handler)
+                       (str/starts-with? uri "/clj/")  (token-resp params clj-handler)
+                       (str/starts-with? uri "/file/") #'file-handler
+                       :else                           (authenticated-page uri session (render-page (match-route app-routes uri))))]
     (next-handler request)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
