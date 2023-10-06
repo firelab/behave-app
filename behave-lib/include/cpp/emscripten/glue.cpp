@@ -687,6 +687,10 @@ int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_getTorchingTrees_0(SIGSpot* sel
   return self->getTorchingTrees();
 }
 
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_calculateAll_0(SIGSpot* self) {
+  self->calculateAll();
+}
+
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_calculateSpottingDistanceFromBurningPile_0(SIGSpot* self) {
   self->calculateSpottingDistanceFromBurningPile();
 }

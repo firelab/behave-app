@@ -35,7 +35,10 @@
 
 #include "spot.h"
 
-class SIGSpot : public Spot {};
+class SIGSpot : public Spot {
+public:
+  void calculateAll();
+};
 
 #endif // SPOT_H
 

@@ -250,7 +250,7 @@
 
          spot-module
          (-> {:init-fn  spot/init
-              :run-fn   spot/calculateSpottingDistanceFromSurfaceFire
+              :run-fn   spot/calculateAll
               :fns      (ns-publics 'behave.lib.spot)
               :gv-uuids (q/class-to-group-variables "SIGSpot")}
              (add-links))]
