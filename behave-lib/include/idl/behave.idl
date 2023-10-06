@@ -373,6 +373,7 @@ interface SIGSpot {
   double getTreeHeight(LengthUnits_LengthUnitsEnum treeHeightUnits);
   double getWindSpeedAtTwentyFeet(SpeedUnits_SpeedUnitsEnum windSpeedUnits);
   long getTorchingTrees();
+  void calculateAll();
   void calculateSpottingDistanceFromBurningPile();
   void calculateSpottingDistanceFromSurfaceFire();
   void calculateSpottingDistanceFromTorchingTrees();

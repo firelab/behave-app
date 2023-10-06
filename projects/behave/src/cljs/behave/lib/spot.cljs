@@ -7,11 +7,19 @@
 
 ;;; Calculate Methods
 
+(defn calculateAll [self]
+  (.calculateAll self))
+
 (defn calculateSpottingDistanceFromBurningPile [self]
   (.calculateSpottingDistanceFromBurningPile self))
 
 (defn calculateSpottingDistanceFromSurfaceFire [self]
   (.calculateSpottingDistanceFromSurfaceFire self))
+
+(defn calculateSpottingDistanceFromTorchingTrees [self]
+  (.calculateSpottingDistanceFromTorchingTrees self))
+
+;;; Setters
 
 (defn setTreeHeight [self treeHeight treeHeightUnits]
   (.setTreeHeight self treeHeight treeHeightUnits))
@@ -120,9 +128,6 @@
 
 (defn getCoverHeightUsedForBurningPile [self coverHeightUnits]
   (.getCoverHeightUsedForBurningPile self coverHeightUnits))
-
-(defn calculateSpottingDistanceFromTorchingTrees [self]
-  (.calculateSpottingDistanceFromTorchingTrees self))
 
 (defn setDBH [self DBH DBHUnits]
   (.setDBH self DBH DBHUnits))

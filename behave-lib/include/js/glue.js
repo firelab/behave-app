@@ -1228,6 +1228,11 @@ SIGSpot.prototype['getTorchingTrees'] = SIGSpot.prototype.getTorchingTrees = /**
   return _emscripten_bind_SIGSpot_getTorchingTrees_0(self);
 };;
 
+SIGSpot.prototype['calculateAll'] = SIGSpot.prototype.calculateAll = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_SIGSpot_calculateAll_0(self);
+};;
+
 SIGSpot.prototype['calculateSpottingDistanceFromBurningPile'] = SIGSpot.prototype.calculateSpottingDistanceFromBurningPile = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   _emscripten_bind_SIGSpot_calculateSpottingDistanceFromBurningPile_0(self);

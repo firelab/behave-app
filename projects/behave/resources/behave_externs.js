@@ -489,6 +489,7 @@ Module.SIGSpot = class {
   getTreeHeight() {}
   getWindSpeedAtTwentyFeet() {}
   getTorchingTrees() {}
+  calculateAll() {}
   calculateSpottingDistanceFromBurningPile() {}
   calculateSpottingDistanceFromSurfaceFire() {}
   calculateSpottingDistanceFromTorchingTrees() {}

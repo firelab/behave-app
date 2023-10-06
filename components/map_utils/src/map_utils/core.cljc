@@ -1,10 +1,10 @@
 (ns map-utils.core)
 
 (defn index-by
-  "Indexes collection by k."
-  [k coll]
+  "Indexes collection by key or fn."
+  [k-or-fn coll]
   (persistent! (reduce
-                (fn [acc cur] (assoc! acc (get cur k) cur))
+                (fn [acc cur] (assoc! acc (k-or-fn cur) cur))
                 (transient {})
                 coll)))
 
