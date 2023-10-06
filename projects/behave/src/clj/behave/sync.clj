@@ -2,7 +2,7 @@
   (:require [datom-compressor.interface :as c]
             [datom-store.main :as s]
             [transport.interface :refer [clj-> mime->type]]
-            [triangulum.logging :refer [log-str]])
+            [logging.interface  :refer [log-str]])
   (:import  [java.io ByteArrayInputStream]))
 
 (defn sync-handler [{:keys [request-method params accept] :as req}]

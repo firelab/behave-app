@@ -49,7 +49,7 @@
     - `rel-path?`      - replaces the path of each zip entry with the relative path
     - `new-path`       - replaces the path of each file with new-path"
   [input-file-or-folder out-file & [{:keys [rel-path? new-path resize-images? image-max-size image-quality]
-                                     :or {image-max-size 500 image-quality 0.8}}]]
+                                     :or {image-max-size resize-max-width image-quality resize-quality}}]]
   (with-open [zip (ZipOutputStream. (io/output-stream out-file))]
     (doseq [f (file-seq (io/file input-file-or-folder)) :when (.isFile f)]
       (.putNextEntry zip (ZipEntry. (cond
@@ -60,12 +60,6 @@
         (io/copy (ByteArrayInputStream. (.toByteArray (resize-image f image-max-size image-quality))) zip)
         (io/copy f zip))
       (.closeEntry zip))))
-
-(defn today
-  "Returns today's date in yyyy-MM-dd format."
-  []
-  (.format (java.time.LocalDateTime/now)
-           (java.time.format.DateTimeFormatter/ofPattern "yyyy-MM-dd")))
 
 (defn unzip-file
   "uncompress zip archive.
@@ -84,3 +78,8 @@
               (when-not (.exists parent-dir) (.mkdirs parent-dir))
               (io/copy stream out-file)))
           (recur (.getNextEntry stream)))))))
+
+(defn resource-file
+  "Returns the file of a resource (safe for JAR files)."
+  [path]
+  (io/file (.getFile (io/resource path))))

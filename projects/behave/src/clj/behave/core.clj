@@ -1,5 +1,6 @@
 (ns behave.core
   (:require [clojure.java.io              :as io]
+            [clojure.java.browse          :refer [browse-url]]
             [clojure.edn                  :as edn]
             [clojure.string               :as str]
             [clojure.stacktrace           :as st]
@@ -10,14 +11,13 @@
             [ring.util.codec              :refer [url-decode]]
             [ring.util.response           :refer [not-found]]
             [server.interface             :as server]
-            [logging.interface            :as logging]
+            [logging.interface            :refer [log-str] :as logging]
             [config.interface             :refer [get-config load-config]]
             [transport.interface          :refer [->clj mime->type]]
-            [triangulum.logging           :refer [log-str]]
             [behave-routing.main          :refer [routes]]
             [behave.store                 :as store]
             [behave.sync                  :refer [sync-handler]]
-            [behave.download-vms          :refer [export-from-vms]]
+            [behave.download-vms          :refer [export-from-vms export-images-from-vms]]
             [behave.views                 :refer [render-page render-tests-page]])
   (:gen-class))
 
@@ -32,8 +32,8 @@
     (store/connect! config)))
 
 (defn vms-sync! []
-  (export-from-vms (get-config :vms :secret-token)
-                   (get-config :vms :url)))
+  (let [{:keys [url secret-token]} (get-config :vms)]
+    (pmap #(apply % url secret-token) [export-from-vms export-images-from-vms])))
 
 (defn vms-sync-handler [req]
   (log-str "Request Received:" (select-keys req [:uri :request-method :params]))
@@ -130,11 +130,14 @@
 
 (defn -main [& _args]
   (init!)
-  (vms-sync!)
-  (server/start-server! {:handler (create-handler-stack {:reload? (= (get-config :server :mode) "dev") :figwheel? false})
-                         :port    (or (get-config :server :http-port) 8080)})
-  (logging/start-logging! {:log-dir             (get-config :logging :log-dir)
-                           :log-memory-interval (get-config :logging :log-memory-interval)}))
+  (let [mode      (get-config :server :mode)
+        http-port (or (get-config :server :http-port) 8080)]
+    (when (= "dev" mode) (vms-sync!))
+    (server/start-server! {:handler (create-handler-stack {:reload? (= mode "dev") :figwheel? false})
+                           :port    http-port})
+    (logging/start-logging! {:log-dir             (get-config :logging :log-dir)
+                             :log-memory-interval (get-config :logging :log-memory-interval)})
+    (when (= "prod" mode) (browse-url (str "http://localhost:" http-port)))))
 
 (comment
   (-main)
