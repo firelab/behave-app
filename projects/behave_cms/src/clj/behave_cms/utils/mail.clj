@@ -1,6 +1,6 @@
 (ns behave-cms.utils.mail
   (:require [postal.core :refer [send-message]]
-            [triangulum.config  :refer [get-config]]
+            [config.interface   :refer [get-config]]
             [logging.interface :refer [log-str]]))
 
 (defn get-site-url []

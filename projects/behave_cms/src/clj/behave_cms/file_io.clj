@@ -75,8 +75,7 @@
           (data-response {:error "Could not find file."} {:status 404})))))
 
 ;;; Route Handler
-(defn file-handler [{:keys [uri params session] :as req}]
-  (println "--- File Handler:" req)
+(defn file-handler [{:keys [uri params session]}]
   (if (:user-uuid session)
     (let [{:keys [user-uuid]} session
           [_ action filename] (->> (str/split uri #"/")
