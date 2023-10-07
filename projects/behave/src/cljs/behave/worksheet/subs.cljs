@@ -676,3 +676,15 @@
                  [?c  :result-cell/header ?rh]
                  [?c  :result-cell/value ?value]]
     :variables [ws-uuid row-id]}))
+
+(rf/reg-sub
+ :worksheet/resolve-enum-value
+
+ (fn [_ [_ variable-eid value]]
+   (let [variable                (d/pull @@vms-conn '[{:variable/list [* {:list/options [*]}]}] variable-eid)
+         {v-list :variable/list} variable
+         {options :list/options} v-list
+         options                 (index-by :list-option/value options)]
+     (if-let [option (get options value)]
+       (:list-option/name option)
+       value))))

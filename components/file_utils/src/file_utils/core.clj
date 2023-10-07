@@ -47,25 +47,21 @@
     - `image-max-size` - resizes images to this max height/width, keeping the aspect ratio (default: 500)
     - `image-quality`  - compresses images to this quality (default: 0.8)
     - `rel-path?`      - replaces the path of each zip entry with the relative path
-    - `new-path`       - replaces the path of each file with new-path"
+    - `new-path`       - string which replaces the path of each file with `new-path`,
+                         or a function which takes the original path and outputs a new path."
   [input-file-or-folder out-file & [{:keys [rel-path? new-path resize-images? image-max-size image-quality]
-                                     :or {image-max-size 500 image-quality 0.8}}]]
+                                     :or {image-max-size resize-max-width image-quality resize-quality}}]]
   (with-open [zip (ZipOutputStream. (io/output-stream out-file))]
     (doseq [f (file-seq (io/file input-file-or-folder)) :when (.isFile f)]
       (.putNextEntry zip (ZipEntry. (cond
-                                      new-path  (str new-path (fs/base-name f)) 
-                                      rel-path? (str/replace (.getPath f) (.getPath (System/getProperty "user.dir")) ".") 
-                                      :else     (.getPath f))))
+                                      (string? new-path) (str new-path (fs/base-name f))
+                                      (fn? new-path)     (new-path (.getPath f))
+                                      rel-path?          (str/replace (.getPath f) (.getPath (System/getProperty "user.dir")) ".")
+                                      :else              (.getPath f))))
       (if (and resize-images? (image-extensions (fs/extension f)))
         (io/copy (ByteArrayInputStream. (.toByteArray (resize-image f image-max-size image-quality))) zip)
         (io/copy f zip))
       (.closeEntry zip))))
-
-(defn today
-  "Returns today's date in yyyy-MM-dd format."
-  []
-  (.format (java.time.LocalDateTime/now)
-           (java.time.format.DateTimeFormatter/ofPattern "yyyy-MM-dd")))
 
 (defn unzip-file
   "uncompress zip archive.
@@ -84,3 +80,8 @@
               (when-not (.exists parent-dir) (.mkdirs parent-dir))
               (io/copy stream out-file)))
           (recur (.getNextEntry stream)))))))
+
+(defn resource-file
+  "Returns the file of a resource (safe for JAR files)."
+  [path]
+  (io/file (.getFile (io/resource path))))

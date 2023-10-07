@@ -34,3 +34,9 @@
      - `input` - name of zip archive to be uncompressed.
      - `output` - name of folder where to output."}
   unzip-file c/unzip-file)
+
+(def
+  ^{:argslist '([path])
+    :doc "Returns the file of a resource (safe for JAR files)."}
+  resource-file c/resource-file)
+

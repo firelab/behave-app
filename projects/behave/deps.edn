@@ -8,8 +8,8 @@
              org.clojure/clojure           {:mvn/version "1.11.1"}
              ring/ring                     {:mvn/version "1.10.0"}
              ring/ring-defaults            {:mvn/version "0.3.3"}
-             sig-gis/triangulum            {:git/url "https://github.com/sig-gis/triangulum"
-                                            :sha     "acb80fc5c99cc2f3eba516fdb2317eb28629c3a4"}
+             io.replikativ/datahike        {:mvn/version "0.5.1506" :exclusions [org.clojure/clojurescript]}
+             me.raynes/fs                  {:mvn/version "1.4.6"}
 
              ;; Common
              datascript/datascript                   {:mvn/version "1.5.3"}
@@ -33,15 +33,17 @@
              cljsjs/vega-embed             {:mvn/version "6.0.0-0"}
              cljsjs/vega-lite              {:mvn/version "5.1.1-0"}
              austinbirch/reactive-entity   {:mvn/version "0.2.0"}
-             com.google.guava/guava {:mvn/version "31.0.1-jre"}
+             com.google.guava/guava        {:mvn/version "31.0.1-jre"}
 
              ;; Components
              sig/async-utils               {:local/root "../../components/async_utils"}
              sig/browser-utils             {:local/root "../../components/browser_utils"}
              sig/config                    {:local/root "../../components/config"}
              sig/csv-parser                {:local/root "../../components/csv_parser"}
+             sig/file-utils                {:local/root "../../components/file_utils"}
              sig/data-utils                {:local/root "../../components/data_utils"}
-             sig/datom-utils               {:local/root "../../components/datom_utils" :exclusions [datascript/datascript]}
+             sig/date-utils                {:local/root "../../components/date_utils"}
+             sig/datom-utils               {:local/root "../../components/datom_utils" :exclusions [datascript/datascript io.replikativ/datahike]}
              sig/dom-utils                 {:local/root "../../components/dom_utils"}
              sig/ds-schema-utils           {:local/root "../../components/ds_schema_utils"}
              sig/map-utils                 {:local/root "../../components/map_utils"}

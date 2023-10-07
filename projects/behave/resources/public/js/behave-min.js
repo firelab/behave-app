@@ -4888,6 +4888,8 @@ var _emscripten_bind_SIGSpot_getWindSpeedAtTwentyFeet_1 = Module["_emscripten_bi
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSpot_getTorchingTrees_0 = Module["_emscripten_bind_SIGSpot_getTorchingTrees_0"] = createExportWrapper("emscripten_bind_SIGSpot_getTorchingTrees_0");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_calculateAll_0 = Module["_emscripten_bind_SIGSpot_calculateAll_0"] = createExportWrapper("emscripten_bind_SIGSpot_calculateAll_0");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGSpot_calculateSpottingDistanceFromBurningPile_0 = Module["_emscripten_bind_SIGSpot_calculateSpottingDistanceFromBurningPile_0"] = createExportWrapper("emscripten_bind_SIGSpot_calculateSpottingDistanceFromBurningPile_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSpot_calculateSpottingDistanceFromSurfaceFire_0 = Module["_emscripten_bind_SIGSpot_calculateSpottingDistanceFromSurfaceFire_0"] = createExportWrapper("emscripten_bind_SIGSpot_calculateSpottingDistanceFromSurfaceFire_0");
@@ -8522,6 +8524,11 @@ SIGSpot.prototype['getWindSpeedAtTwentyFeet'] = SIGSpot.prototype.getWindSpeedAt
 SIGSpot.prototype['getTorchingTrees'] = SIGSpot.prototype.getTorchingTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   return _emscripten_bind_SIGSpot_getTorchingTrees_0(self);
+};;
+
+SIGSpot.prototype['calculateAll'] = SIGSpot.prototype.calculateAll = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_SIGSpot_calculateAll_0(self);
 };;
 
 SIGSpot.prototype['calculateSpottingDistanceFromBurningPile'] = SIGSpot.prototype.calculateSpottingDistanceFromBurningPile = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
