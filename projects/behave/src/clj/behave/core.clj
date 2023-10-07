@@ -32,8 +32,8 @@
     (store/connect! config)))
 
 (defn vms-sync! []
-  (let [{:keys [url secret-token]} (get-config :vms)]
-    (pmap #(apply % url secret-token) [export-from-vms export-images-from-vms])))
+  (let [{:keys [secret-token url]} (get-config :vms)]
+    (pmap #(% secret-token url) [export-from-vms export-images-from-vms])))
 
 (defn vms-sync-handler [req]
   (log-str "Request Received:" (select-keys req [:uri :request-method :params]))

@@ -9,7 +9,7 @@
 (defn export-images-from-vms [auth-token & [url]]
   (log-str "Beginning download of images from VMS...")
   (let [{:keys [status body] :as response}
-        (client/get (str (or url "https://firelab.sig-gis.com") "/sync-images?auth-token=" auth-token)
+        (client/get (str (or url "https://firelab.sig-gis.com") "/clj/sync-images?auth-token=" auth-token)
                     {:as      :byte-array
                      :headers {"Accept" "application/zip"}})
         file (io/file (resource-file "public") (format "images-%s.zip" (today)))]
