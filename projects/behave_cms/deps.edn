@@ -15,8 +15,6 @@
              ring/ring-headers                  {:mvn/version "0.3.0"}
              ring/ring-json                     {:mvn/version "0.5.0"}
              ring/ring-ssl                      {:mvn/version "0.3.0"}
-             sig-gis/triangulum                 {:git/url "https://github.com/sig-gis/triangulum"
-                                                 :sha     "acb80fc5c99cc2f3eba516fdb2317eb28629c3a4"}
 
              ;; Common
              bidi/bidi                          {:mvn/version "2.1.6"}
@@ -50,11 +48,13 @@
              sig/browser-utils                  {:local/root "../../components/browser_utils"}
              sig/config                         {:local/root "../../components/config"}
              sig/data-utils                     {:local/root "../../components/data_utils"}
+             sig/date-utils                     {:local/root "../../components/date_utils"}
              sig/datom-compressor               {:local/root "../../components/datom_compressor" :exclusions [datascript/datascript io.replikativ/datahike]}
              sig/datom-utils                    {:local/root "../../components/datom_utils" :exclusions [datascript/datascript io.replikativ/datahike]}
              sig/dom-utils                      {:local/root "../../components/dom_utils"}
              sig/ds-schema-utils                {:local/root "../../components/ds_schema_utils"}
              sig/file-utils                     {:local/root "../../components/file_utils"}
+             sig/logging                        {:local/root "../../components/logging"}
              sig/markdown2hiccup                {:local/root "../../components/markdown2hiccup"}
              sig/number-utils                   {:local/root "../../components/number_utils"}
              sig/server                         {:local/root "../../components/server"}
