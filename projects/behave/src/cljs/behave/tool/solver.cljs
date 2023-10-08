@@ -5,7 +5,6 @@
             [browser-utils.core    :refer [format-intl-number]]
             [clojure.string        :as str]
             [behave.logger         :refer [log]]
-            [behave.lib.units      :as units]
             [behave.lib.ignite]
             [behave.lib.fine-dead-fuel-moisture-tool]
             [behave.lib.slope-tool]
@@ -20,13 +19,20 @@
   (or (str/includes? parameter-type "Enum")
       (str/includes? parameter-type "Units")))
 
+(defn- variable-units
+  ([sv-uuid]
+   (variable-units sv-uuid nil))
+  ([sv-uuid selected-units-uuid]
+   (if selected-units-uuid
+     (q/unit-uuid->enum-value selected-units-uuid)
+     (q/variable-units sv-uuid))))
+
 (defn- apply-single-cpp-fn [fns tool-obj sv-uuid value units]
   (let [[fn-id fn-name] (q/subtool-variable->fn sv-uuid)
         value           (q/parsed-value sv-uuid value)
-        unit-enum       (units/get-unit units)
         f               (fns fn-name)
         params          (q/fn-params fn-id)]
-    (log [:SOLVER] [:INPUT fn-name value unit-enum])
+    (log [:SOLVER] [:INPUT fn-name value units])
 
     (cond
       (nil? value)
@@ -35,26 +41,25 @@
       (= 1 (count params))
       (f tool-obj value)
 
-      (and (= 2 (count params)) (some? unit-enum))
+      (and (= 2 (count params)) (some? units))
       (let [[_ _ param-type] (first params)]
         (if (is-enum? param-type)
-          (f tool-obj unit-enum value)
-          (f tool-obj value unit-enum))))))
+          (f tool-obj units value)
+          (f tool-obj value units))))))
 
 (defn- apply-output-cpp-fn
-  [fns tool-obj sv-uuid]
+  [fns tool-obj sv-uuid units]
   (let [[fn-id fn-name] (q/subtool-variable->fn sv-uuid)
-        unit            (units/get-unit (q/variable-units sv-uuid))
         f               (fns fn-name)
         params          (q/fn-params fn-id)]
-    (log [:SOLVER] [:OUTPUT fn-name unit f params])
+    (log [:SOLVER] [:OUTPUT fn-name units f params])
 
     (cond
       (empty? params)
       (f tool-obj)
 
-      (and (= 1 (count params)) (some? unit))
-      (f tool-obj unit)
+      (and (= 1 (count params)) (some? units))
+      (f tool-obj units)
 
       :else nil)))
 
@@ -64,17 +69,21 @@
         tool-obj (init-fn)]
 
     ;; Set inputs
-    (doseq [[sv-uuid value] inputs]
-      (let [units (or (q/variable-units sv-uuid) "")]
+    (doseq [[sv-uuid variable] inputs]
+      (let [{value :input/value units-uuid :input/units-uuid} variable
+            units (variable-units sv-uuid units-uuid)]
         (apply-single-cpp-fn fns tool-obj sv-uuid value units)))
 
     ;; Compute Tool
     (compute-fn tool-obj)
 
     ;; Get outputs
-    (for [output-uuid output-uuids]
-      (let [value (apply-output-cpp-fn fns tool-obj output-uuid)]
-        [output-uuid (format-intl-number "en-US" value 2)]))))
+    (into {}
+          (map (fn [output-uuid]
+                 (let [units (variable-units output-uuid)
+                       value (apply-output-cpp-fn fns tool-obj output-uuid units)]
+                   [output-uuid (format-intl-number "en-US" value 2)]))
+               output-uuids))))
 
 (defn- get-compute-fn [subtool-uuid fns]
   (let [fn-name (q/subtool-compute->fn-name subtool-uuid)]
