@@ -5,6 +5,7 @@
             [clojure.string               :as str]
             [clojure.stacktrace           :as st]
             [bidi.bidi                    :refer [match-route]]
+            [me.raynes.fs                 :as fs]
             [ring.middleware.content-type :refer [wrap-content-type]]
             [ring.middleware.resource     :refer [wrap-resource]]
             [ring.middleware.reload       :refer [wrap-reload]]
@@ -21,12 +22,12 @@
             [behave.views                 :refer [render-page render-tests-page]])
   (:gen-class))
 
-(defn expand-home [s]
-  (str/replace s #"^~" (System/getProperty "user.home")))
 
 (defn init! []
   (load-config (io/resource "config.edn"))
-  (let [config (update-in (get-config :database :config) [:store :path] expand-home)]
+  (let [config (assoc-in (get-config :database :config)
+                         [:store :path]
+                         (str (io/file (fs/expand-home "~") ".behave" "db.sqlite")))]
     (log-str "LOADED CONFIG" (get-config :database :config))
     (io/make-parents (get-in config [:store :path]))
     (store/connect! config)))
