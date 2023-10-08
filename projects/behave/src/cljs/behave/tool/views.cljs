@@ -1,5 +1,6 @@
 (ns behave.tool.views
   (:require [behave.components.core :as c]
+            [behave.components.input-group :refer [unit-display]]
             [behave.translate       :refer [<t bp]]
             [dom-utils.interface    :refer [input-value]]
             [reagent.core           :as r]
@@ -30,17 +31,17 @@
 
 (defmethod tool-input :continuous
   [{:keys [variable tool-uuid subtool-uuid auto-compute?]}]
-  (let [{sv-uuid       :bp/uuid
-         var-name      :variable/name
-         native-units  :variable/native-units
-         english-units :variable/english-units
-         metric-units  :variable/metric-units
-         help-key      :subtool-variable/help-key} variable
-        value                                      (rf/subscribe [:tool/input-value
-                                                                  tool-uuid
-                                                                  subtool-uuid
-                                                                  sv-uuid])
-        value-atom                                 (r/atom @value)]
+  (let [{sv-uuid           :bp/uuid
+         var-name          :variable/name
+         dimension-uuid    :variable/dimension-uuid
+         native-unit-uuid  :variable/native-unit-uuid
+         english-unit-uuid :variable/english-unit-uuid
+         metric-unit-uuid  :variable/metric-unit-uuid
+         help-key          :subtool-variable/help-key} variable
+
+        *unit-uuid (rf/subscribe [:tool/input-units tool-uuid subtool-uuid sv-uuid])
+        value      (rf/subscribe [:tool/input-value tool-uuid subtool-uuid sv-uuid])
+        value-atom (r/atom @value)]
     [:div.tool-input
      [:div.tool-input__input
       {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
@@ -55,11 +56,19 @@
                                                   sv-uuid
                                                   @value-atom
                                                   auto-compute?])}]]
-     [:div.tool-input__description
-      (str "Units used: " native-units)
-      [:div.tool-input__description__units
-       [:div (str "English Units: " english-units)]
-       [:div (str "Metric Units: " metric-units)]]]]))
+
+     [unit-display
+      @*unit-uuid
+      dimension-uuid
+      native-unit-uuid
+      english-unit-uuid
+      metric-unit-uuid
+      #(rf/dispatch [:tool/update-input-units
+                     tool-uuid
+                     subtool-uuid
+                     sv-uuid
+                     %
+                     auto-compute?])]]))
 
 (defmethod tool-input :discrete
   [{:keys [variable tool-uuid subtool-uuid auto-compute?]}]

@@ -1,6 +1,6 @@
 (ns behave.wizard.subs
   (:require [behave.schema.core     :refer [rules]]
-            [behave.vms.store       :as s]
+            [behave.vms.store       :refer [vms-conn]]
             [clojure.set            :refer [rename-keys]]
             [datascript.core        :as d]
             [re-frame.core          :refer [reg-sub subscribe] :as rf]
@@ -365,7 +365,7 @@
           :in    $ % ?gv-uuid
           :where
           (conditional-variable ?io ?g-uuid ?gv-uuid)]
-        @@s/vms-conn rules gv-uuid)))
+        @@vms-conn rules gv-uuid)))
 
 (reg-sub
  :wizard/show-group?
@@ -400,7 +400,7 @@
           [?d :diagram/group-variable ?gv]
           [?d :diagram/input-group-variables ?g]
           [?g :bp/uuid ?gv-uuid]]
-        @@s/vms-conn [:bp/uuid gv-uuid])))
+        @@vms-conn [:bp/uuid gv-uuid])))
 
 (reg-sub
  :wizard/diagram-output-gv-uuids
@@ -411,7 +411,7 @@
           [?d :diagram/group-variable ?gv]
           [?d :diagram/output-group-variables ?g]
           [?g :bp/uuid ?gv-uuid]]
-        @@s/vms-conn [:bp/uuid gv-uuid])))
+        @@vms-conn [:bp/uuid gv-uuid])))
 
 (reg-sub
  :wizard/dimension+units
@@ -420,4 +420,4 @@
           :in    $ ?dim-uuid
           :where
           [?d :bp/uuid ?dim-uuid]]
-        @@s/vms-conn dimension-uuid)))
+        @@vms-conn dimension-uuid)))
