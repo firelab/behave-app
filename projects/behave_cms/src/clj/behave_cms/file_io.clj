@@ -4,12 +4,13 @@
             [clojure.set        :as set]
             [clojure.string     :as str]
             [clojure.java.io    :as io]
-            [triangulum.logging :refer [log-str]]
+            [logging.interface :refer [log-str]]
+            [file-utils.interface :refer [resource-file]]
             [behave-cms.views   :refer [data-response]]))
 
 ;;; Constants
 
-(def public-dir (io/file (io/resource "public")))
+(def public-dir (resource-file "public"))
 (def files-dir (io/file public-dir "files" "users"))
 
 (def ^:private extensions {:tables    #{"csv" "xlsx"}
@@ -74,8 +75,7 @@
           (data-response {:error "Could not find file."} {:status 404})))))
 
 ;;; Route Handler
-(defn file-handler [{:keys [uri params session] :as req}]
-  (println "--- File Handler:" req)
+(defn file-handler [{:keys [uri params session]}]
   (if (:user-uuid session)
     (let [{:keys [user-uuid]} session
           [_ action filename] (->> (str/split uri #"/")

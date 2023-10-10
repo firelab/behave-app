@@ -43,11 +43,14 @@
            (cpp-param ?fn ?all-params)]
          module-name))
 
+(defn variable-kind [group-variable-uuid]
+  (q-vms '[:find  ?kind .
+           :in    ?gv-uuid
+           :where (variable-kind ?gv-uuid ?kind)]
+         group-variable-uuid))
+
 (defn parsed-value [group-variable-uuid value]
-  (let [kind (q-vms '[:find  ?kind .
-                      :in    ?gv-uuid
-                      :where (variable-kind ?gv-uuid ?kind)]
-                    group-variable-uuid)]
+  (let [kind (variable-kind group-variable-uuid)]
     (condp = kind
       :discrete   (if (is-digit? value) (parse-int value) value)
       :continuous (parse-float value)

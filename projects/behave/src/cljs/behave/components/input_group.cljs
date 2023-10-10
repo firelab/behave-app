@@ -4,11 +4,22 @@
             [behave.components.core  :as c]
             [dom-utils.interface     :refer [input-value]]
             [string-utils.interface  :refer [->kebab]]
-            [map-utils.interface     :refer [index-by]]
             [behave.translate        :refer [<t bp]]))
+
+;;; Helpers
+
+(defn index-by
+  "Indexes collection by key or fn."
+  [k-or-fn coll]
+  (persistent! (reduce
+                (fn [acc cur] (assoc! acc (k-or-fn cur) cur))
+                (transient {})
+                coll)))
 
 (defn upsert-input [ws-uuid group-uuid repeat-id gv-uuid value & [units]]
   (rf/dispatch [:worksheet/upsert-input-variable ws-uuid group-uuid repeat-id gv-uuid value units]))
+
+;;; Components
 
 (defn unit-selector [prev-unit-uuid units on-click]
   (r/with-let [*unit-uuid (r/atom prev-unit-uuid)]

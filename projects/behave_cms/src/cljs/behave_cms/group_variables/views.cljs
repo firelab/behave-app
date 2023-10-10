@@ -81,7 +81,7 @@
                                     (->link @(get (p :variable)))
                                     (when @*link {:db/id @*link}))])]
     [:div.col-6
-     [:h4 (str (if @*link "Update" "Add") "Destination Link")]
+     [:h4 (str (if @*link "Update" "Add") " Destination Link")]
 
      [:form
       {:on-submit (u/on-submit on-submit)}
