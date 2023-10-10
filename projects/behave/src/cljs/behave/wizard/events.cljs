@@ -225,6 +225,12 @@
    {:fx [[:dispatch [:state/update [:worksheet :show-map-units?] not]]]}))
 
 (rf/reg-event-fx
+ :wizard/insert-range-input
+ (fn [_ [_ ws-uuid group-uuid repeat-id gv-uuid value]]
+   {:fx [[:dispatch [:worksheet/upsert-input-variable ws-uuid group-uuid repeat-id gv-uuid value]]
+         [:dispatch [:wizard/toggle-show-range-selector gv-uuid repeat-id]]]}))
+
+(rf/reg-event-fx
  :wizard/toggle-show-range-selector
  (fn [_ [_ gv-uuid repeat-id]]
    {:fx [[:dispatch [:state/update [:show-range-selector? gv-uuid repeat-id] not]]]}))

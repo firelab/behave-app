@@ -84,12 +84,12 @@
                                      group-uuid
                                      repeat-id
                                      repeat-group?]
-  (r/with-let [value                 (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id uuid])
-               *unit-uuid            (rf/subscribe [:worksheet/input-units ws-uuid group-uuid repeat-id uuid])
+  (r/with-let [value                 (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id gv-uuid])
+               *unit-uuid            (rf/subscribe [:worksheet/input-units ws-uuid group-uuid repeat-id gv-uuid])
                value-atom            (r/atom @value)
                warn-limit?           (true? @(rf/subscribe [:state :warn-multi-value-input-limit]))
                acceptable-char-codes (set (map #(.charCodeAt % 0) "0123456789., "))
-               on-change-units       #(rf/dispatch [:worksheet/update-input-units ws-uuid group-uuid repeat-id uuid %])
+               on-change-units       #(rf/dispatch [:worksheet/update-input-units ws-uuid group-uuid repeat-id gv-uuid %])
                show-range-selector? (rf/subscribe [:wizard/show-range-selector? gv-uuid repeat-id])]
 
     [:div
@@ -111,7 +111,7 @@
                      :on-blur      #(upsert-input ws-uuid
                                                   group-uuid
                                                   repeat-id
-                                                  uuid
+                                                  gv-uuid
                                                   @value-atom)}]]
      [unit-display
       gv-uuid
@@ -132,11 +132,12 @@
                                         {:name @(<t (bp "steps"))}]
                     :on-compute        #(do
                                           (reset! value-atom %)
-                                          (upsert-input ws-uuid
+                                          (rf/dispatch [:wizard/insert-range-input
+                                                        ws-uuid
                                                         group-uuid
                                                         repeat-id
-                                                        uuid
-                                                        @value-atom))}]])]))
+                                                        gv-uuid
+                                                        @value-atom]))}]])]))
 
 (defmethod wizard-input :discrete [variable ws-uuid group-uuid repeat-id repeat-group?]
   (r/with-let [{uuid     :bp/uuid
