@@ -431,12 +431,12 @@ body {
 }
 
 .wizard-input__input {
-  width: 70%;
+  width: 300px;
   padding: 5px;
 }
 
 .wizard-input__description {
-  width: 30%;
+  width: 20%;
 }
 
 .wizard-input__description__units {
@@ -447,6 +447,11 @@ body {
 .wizard-input__description .button {
   margin-top: 5px;
   padding-bottom: 0px;
+}
+
+.wizard-input__range-selector-button {
+  width: 50%;
+  margin-top: 5px;
 }
 
 /* -- Wizard review -- */

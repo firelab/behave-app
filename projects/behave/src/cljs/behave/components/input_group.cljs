@@ -36,7 +36,7 @@
                                            :value (:bp/uuid unit)}))
                                    (sort-by :label)))}]]))
 
-(defn unit-display [gv-uuid repeat-id *unit-uuid dimension-uuid native-unit-uuid english-unit-uuid metric-unit-uuid on-change-units]
+(defn unit-display [*unit-uuid dimension-uuid native-unit-uuid english-unit-uuid metric-unit-uuid on-change-units]
   (r/with-let [dimension      (rf/subscribe [:wizard/dimension+units dimension-uuid])
                units          (:dimension/units @dimension)
                units-by-uuid  (index-by :bp/uuid units)
@@ -62,10 +62,7 @@
                   :disabled? @show-selector?
                   :on-click #(swap! show-selector? not)}])
      (when @show-selector?
-       [unit-selector *unit-uuid units on-click])
-     [c/button {:variant  "secondary"
-                :label    @(<t (bp "range_selector"))
-                :on-click #(rf/dispatch [:wizard/toggle-show-range-selector gv-uuid repeat-id])}]]))
+       [unit-selector *unit-uuid units on-click])]))
 
 (defmulti wizard-input (fn [variable _ _] (:variable/kind variable)))
 
@@ -113,9 +110,11 @@
                                                   repeat-id
                                                   gv-uuid
                                                   @value-atom)}]]
+      [:div.wizard-input__range-selector-button
+       [c/button {:variant  "secondary"
+                  :label    @(<t (bp "range_selector"))
+                  :on-click #(rf/dispatch [:wizard/toggle-show-range-selector gv-uuid repeat-id])}]]
      [unit-display
-      gv-uuid
-      repeat-id
       @*unit-uuid
       dimension-uuid
       native-unit-uuid
