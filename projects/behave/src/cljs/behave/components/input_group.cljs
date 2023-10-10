@@ -124,7 +124,7 @@
       on-change-units]]
      (when @show-range-selector?
        [:div.wizard-input__range-selector
-        [c/compute {:compute-btn-label "Insert Range"
+        [c/compute {:compute-btn-label @(<t (bp "insert_range"))
                     :compute-fn        (fn [from to step]
                                          (range from to step))
                     :compute-args      [{:name @(<t (bp "from"))}
