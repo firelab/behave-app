@@ -223,3 +223,8 @@
  :worksheet/map-units-enabled?
  (fn [_ _]
    {:fx [[:dispatch [:state/update [:worksheet :show-map-units?] not]]]}))
+
+(rf/reg-event-fx
+ :wizard/toggle-show-range-selector
+ (fn [_ [_ gv-uuid repeat-id]]
+   {:fx [[:dispatch [:state/update [:show-range-selector? gv-uuid repeat-id] not]]]}))

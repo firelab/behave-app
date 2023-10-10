@@ -444,6 +444,11 @@ body {
   color: var(--gray-5);
 }
 
+.wizard-input__description .button {
+  margin-top: 5px;
+  padding-bottom: 0px;
+}
+
 /* -- Wizard review -- */
 
 .wizard-review {

@@ -138,6 +138,7 @@ behaveplus:range_fire_size_at_report,Range: Fire Size at Report
 behaveplus:range_length_to_width_ratio,Range: Length-to-Width Ratio
 behaveplus:range_line_construction_offset,Range: Line Construction Offset
 behaveplus:range_surface_rate_of_spread_maximum,Range: Surface Rate of Spread (maximum)
+behaveplus:range_selector,Range Selector
 behaveplus:rear_attack,Rear Attack
 behaveplus:required,Required
 behaveplus:reset_to_defaults,Reset to defaults

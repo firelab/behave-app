@@ -36,7 +36,7 @@
                                            :value (:bp/uuid unit)}))
                                    (sort-by :label)))}]]))
 
-(defn unit-display [*unit-uuid dimension-uuid native-unit-uuid english-unit-uuid metric-unit-uuid on-change-units]
+(defn unit-display [gv-uuid repeat-id *unit-uuid dimension-uuid native-unit-uuid english-unit-uuid metric-unit-uuid on-change-units]
   (r/with-let [dimension      (rf/subscribe [:wizard/dimension+units dimension-uuid])
                units          (:dimension/units @dimension)
                units-by-uuid  (index-by :bp/uuid units)
@@ -57,54 +57,21 @@
         [:div (str @(<t (bp "metric_units")) " " (:unit/short-code metric-unit))])]
 
      (when (< 1 (count units))
-       [:div.button.button--secondary.button--xsmall
-        {:class    (concat ["button" "button--secondary" "button--xsmall"]
-                           (when @show-selector? ["button--disabled"]))
-         :style    {:display        "inline-block"
-                    :margin-top     "5px"
-                    :padding-bottom "0px"}
-         :on-click #(swap! show-selector? not)
-         :disabled @show-selector?}
-        @(<t (bp "change_units"))])
+       [c/button {:variant  "secondary"
+                  :label    @(<t (bp "change_units"))
+                  :disabled? @show-selector?
+                  :on-click #(swap! show-selector? not)}])
      (when @show-selector?
-       [unit-selector *unit-uuid units on-click])]))
-
-(defn range-selector
-  [*unit-uuid
-   dimension-uuid
-   native-unit-uuid
-   english-unit-uuid
-   metric-unit-uuid
-   var-min
-   var-max
-   on-compute]
-  (r/with-let [dimension      (rf/subscribe [:wizard/dimension+units dimension-uuid])
-               units          (:dimension/units @dimension)
-               units-by-uuid  (index-by :bp/uuid units)
-               native-unit    (get units-by-uuid native-unit-uuid)
-               english-unit  (get units-by-uuid english-unit-uuid)
-               metric-unit   (get units-by-uuid metric-unit-uuid)
-               default-unit  (or native-unit english-unit metric-unit) ; FIXME: Get from Worksheet settings
-               units-used    (:unit/short-code (or (get units-by-uuid *unit-uuid) default-unit))]
-    [c/compute {:compute-btn-label "Insert Range"
-                :compute-fn        (fn [from to step]
-                                     (range from to step))
-                :compute-args      [{:name  @(<t (bp "from"))
-                                     :units units-used
-                                     :range [var-min var-max]}
-                                    {:name  @(<t (bp "to"))
-                                     :units units-used
-                                     :range [var-min var-max]}
-                                    {:name  @(<t (bp "steps"))
-                                     :units units-used
-                                     :range [var-min var-max]}]
-                :on-compute        #(on-compute %)}]))
+       [unit-selector *unit-uuid units on-click])
+     [c/button {:variant  "secondary"
+                :label    @(<t (bp "range_selector"))
+                :on-click #(rf/dispatch [:wizard/toggle-show-range-selector gv-uuid repeat-id])}]]))
 
 (defmulti wizard-input (fn [variable _ _] (:variable/kind variable)))
 
 (defmethod wizard-input nil [variable] (println [:NO-KIND-VAR variable]))
 
-(defmethod wizard-input :continuous [{uuid               :bp/uuid
+(defmethod wizard-input :continuous [{gv-uuid               :bp/uuid
                                       var-name           :variable/name
                                       var-max            :variable/maximum
                                       var-min            :variable/minimum
@@ -122,9 +89,11 @@
                value-atom            (r/atom @value)
                warn-limit?           (true? @(rf/subscribe [:state :warn-multi-value-input-limit]))
                acceptable-char-codes (set (map #(.charCodeAt % 0) "0123456789., "))
-               on-change-units       #(rf/dispatch [:worksheet/update-input-units ws-uuid group-uuid repeat-id uuid %])]
+               on-change-units       #(rf/dispatch [:worksheet/update-input-units ws-uuid group-uuid repeat-id uuid %])
+               show-range-selector? (rf/subscribe [:wizard/show-range-selector? gv-uuid repeat-id])]
 
-    [:div.wizard-input
+    [:div
+     [:div.wizard-input
      [:div.wizard-input__input
       {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
       [c/text-input {:id           (str repeat-id "-" uuid)
@@ -145,27 +114,29 @@
                                                   uuid
                                                   @value-atom)}]]
      [unit-display
+      gv-uuid
+      repeat-id
       @*unit-uuid
       dimension-uuid
       native-unit-uuid
       english-unit-uuid
       metric-unit-uuid
-      on-change-units]
-     [range-selector
-      unit-display
-      dimension-uuid
-      native-unit-uuid
-      english-unit-uuid
-      metric-unit-uuid
-      var-min
-      var-max
-      #(do
-         (reset! value-atom %)
-         (upsert-input ws-uuid
-                       group-uuid
-                       repeat-id
-                       uuid
-                       @value-atom))]]))
+      on-change-units]]
+     (when @show-range-selector?
+       [:div.wizard-input__range-selector
+        [c/compute {:compute-btn-label "Insert Range"
+                    :compute-fn        (fn [from to step]
+                                         (range from to step))
+                    :compute-args      [{:name @(<t (bp "from"))}
+                                        {:name @(<t (bp "to"))}
+                                        {:name @(<t (bp "steps"))}]
+                    :on-compute        #(do
+                                          (reset! value-atom %)
+                                          (upsert-input ws-uuid
+                                                        group-uuid
+                                                        repeat-id
+                                                        uuid
+                                                        @value-atom))}]])]))
 
 (defmethod wizard-input :discrete [variable ws-uuid group-uuid repeat-id repeat-group?]
   (r/with-let [{uuid     :bp/uuid
