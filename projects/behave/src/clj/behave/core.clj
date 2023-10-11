@@ -5,7 +5,6 @@
             [clojure.string               :as str]
             [clojure.stacktrace           :as st]
             [bidi.bidi                    :refer [match-route]]
-            [me.raynes.fs                 :as fs]
             [ring.middleware.content-type :refer [wrap-content-type]]
             [ring.middleware.resource     :refer [wrap-resource]]
             [ring.middleware.reload       :refer [wrap-reload]]
@@ -14,6 +13,7 @@
             [server.interface             :as server]
             [logging.interface            :refer [log-str] :as logging]
             [config.interface             :refer [get-config load-config]]
+            [file-utils.interface         :refer [os-path]]
             [transport.interface          :refer [->clj mime->type]]
             [behave-routing.main          :refer [routes]]
             [behave.store                 :as store]
@@ -22,12 +22,11 @@
             [behave.views                 :refer [render-page render-tests-page]])
   (:gen-class))
 
-
 (defn init! []
   (load-config (io/resource "config.edn"))
-  (let [config (assoc-in (get-config :database :config)
-                         [:store :path]
-                         (str (io/file (fs/expand-home "~") ".behave" "db.sqlite")))]
+  (let [config (update-in (get-config :database :config)
+                          [:store :path]
+                          os-path)]
     (log-str "LOADED CONFIG" (get-config :database :config))
     (io/make-parents (get-in config [:store :path]))
     (store/connect! config)))

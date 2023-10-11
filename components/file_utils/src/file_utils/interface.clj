@@ -40,3 +40,7 @@
     :doc "Returns the file of a resource (safe for JAR files)."}
   resource-file c/resource-file)
 
+(def
+  ^{:argslist '([path])
+    :doc "Translates a path in either Windows/Unix format into a path compatible with the current system."}
+  os-path c/os-path)

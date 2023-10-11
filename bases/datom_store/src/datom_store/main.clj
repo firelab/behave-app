@@ -51,15 +51,6 @@
     (let [sql-conn (DriverManager/getConnection (format "jdbc:sqlite:%s" db-file))]
       (reset! storage (storage-sql/make sql-conn {:dbtype :sqlite})))))
 
-(comment 
-  (storage-sql/close @storage)
-  (reset! storage nil)
-  @storage
-
-  (fs/exists? (fs/expand-home "~/.behave/db.sqlite"))
-  (fs/delete (fs/expand-home "~/.behave/db.sqlite"))
-  )
-
 (defn get-db-file [config]
   (str (fs/expand-home (get-in config [:store :path]))))
 
