@@ -80,6 +80,7 @@ behaveplus:home,Home
 behaveplus:home_screen,Home Screen
 behaveplus:hours,Hours
 behaveplus:imperial_units_ranges_are,Imperial units ranges are:
+behaveplus:insert_range,Insert Range
 behaveplus:workflow:independent_title,Independent workflow
 behaveplus:workflow:independent_desc,Recommended for experienced users of BehavePlus.
 behaveplus:index,Index
@@ -138,6 +139,7 @@ behaveplus:range_fire_size_at_report,Range: Fire Size at Report
 behaveplus:range_length_to_width_ratio,Range: Length-to-Width Ratio
 behaveplus:range_line_construction_offset,Range: Line Construction Offset
 behaveplus:range_surface_rate_of_spread_maximum,Range: Surface Rate of Spread (maximum)
+behaveplus:range_selector,Range Selector
 behaveplus:rear_attack,Rear Attack
 behaveplus:required,Required
 behaveplus:reset_to_defaults,Reset to defaults

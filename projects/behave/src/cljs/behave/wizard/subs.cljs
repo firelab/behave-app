@@ -421,3 +421,8 @@
           :where
           [?d :bp/uuid ?dim-uuid]]
         @@vms-conn dimension-uuid)))
+
+(reg-sub
+ :wizard/show-range-selector?
+ (fn [{:keys [state]} [_ gv-uuid repeat-id]]
+   (true? (get-in state [:show-range-selector? gv-uuid repeat-id]))))
