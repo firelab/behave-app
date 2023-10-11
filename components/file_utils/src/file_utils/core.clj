@@ -85,3 +85,8 @@
   "Returns the file of a resource (safe for JAR files)."
   [path]
   (io/file (.getFile (io/resource path))))
+
+(defn os-path
+  "Translates a path in either Windows/Unix format into a path compatible with the current system."
+  [path]
+  (str (apply fs/file (str/split path #"[/\\]"))))
