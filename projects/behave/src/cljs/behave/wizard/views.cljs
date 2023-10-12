@@ -118,7 +118,13 @@
 
 (defn wizard-note
   [{:keys [note display-submodule-headers?]}]
-  (let [[note-id note-name note-content submodule-name submodule-io] note]
+  (r/with-let [[note-id
+                note-name
+                note-content
+                submodule-name
+                submodule-io] note
+               content-atom   (r/atom note-content)
+               title-atom     (r/atom note-name)]
     (if @(subscribe [:wizard/edit-note? note-id])
       [:div.wizard-note
        [:div.wizard-note__content
@@ -126,14 +132,16 @@
           [:div.wizard-note__module (str "Note: " submodule-name "'s " (name submodule-io))])
         [c/note {:title-label       "Note's Name / Category"
                  :title-placeholder "Enter note's name or category"
-                 :title-value       note-name
-                 :body-value        note-content
-                 :on-save           #(dispatch [:wizard/update-note note-id %])}]]]
+                 :title-value       @title-atom
+                 :body-value        @content-atom
+                 :on-save           #((reset! content-atom (:body %))
+                                      (reset! title-atom (:title %))
+                                      (dispatch [:wizard/update-note note-id %]))}]]]
       [:div.wizard-note
        (when display-submodule-headers?
          [:div.wizard-note__module (str "Note: " submodule-name "'s " (name submodule-io))])
-       [:div.wizard-note__name note-name]
-       [:div.wizard-note__content note-content]
+       [:div.wizard-note__name @title-atom]
+       [:div.wizard-note__content @content-atom]
        [:div.wizard-note__manage
         [c/button {:variant   "primary"
                    :label     @(<t (bp "delete"))
@@ -152,8 +160,8 @@
      [:div.wizard-notes__header "Run's Notes"]
      (doall (for [[id & _rest :as n] notes]
               ^{:key id}
-              (wizard-note {:note                       n
-                            :display-submodule-headers? false})))]))
+              [wizard-note {:note                       n
+                            :display-submodule-headers? false}]))]))
 
 (defn wizard-page [{:keys [module io submodule route-handler ws-uuid] :as params}]
   (let [_                        (dispatch [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
@@ -197,7 +205,7 @@
                                                     (:submodule/name @*submodule)
                                                     (name (:submodule/io @*submodule))
                                                     %])}])]
-         (wizard-notes @*notes)])
+         [wizard-notes @*notes]])
       [submodule-page io ws-uuid @*groups]
       (when (true? @*warn-limit?)
         [:div.wizard-warning
