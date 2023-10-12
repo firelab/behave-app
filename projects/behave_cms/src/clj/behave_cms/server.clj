@@ -4,7 +4,7 @@
             [clojure.string      :as str]
             [clojure.tools.cli   :refer [parse-opts]]
             [ring.adapter.jetty  :refer [run-jetty]]
-            [triangulum.logging  :refer [log-str set-log-path!]]
+            [logging.interface   :refer [log-str start-logging!]]
             [config.interface    :refer [load-config get-config]]
             [behave-cms.store    :as store]
             [behave-cms.handler  :refer [create-handler-stack]])
@@ -117,7 +117,7 @@
         (init-datahike!)
         (reset! server (run-jetty handler config))
         (reset! clean-up-service (start-clean-up-service!))
-        (set-log-path! log-dir)))))
+        (start-logging! {:log-dir log-dir})))))
 
 (defn -main [& args]
   (let [{:keys [options defaults]} (separate-options-defaults cli-options)

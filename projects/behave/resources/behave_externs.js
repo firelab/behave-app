@@ -90,6 +90,8 @@ Module.SIGSurface = class {
   getCharacteristicMoistureLive() {}
   getCharacteristicSAVR() {}
   getCrownRatio() {}
+  getDirectionOfBacking() {}
+  getDirectionOfFlanking() {}
   getDirectionOfInterest() {}
   getDirectionOfMaxSpread() {}
   getElapsedTime() {}
@@ -98,6 +100,7 @@ Module.SIGSurface = class {
   getEllipticalC() {}
   getFireArea() {}
   getFireEccentricity() {}
+  getFireLength() {}
   getFireLengthToWidthRatio() {}
   getFirePerimeter() {}
   getFirelineIntensity() {}
@@ -121,6 +124,7 @@ Module.SIGSurface = class {
   getFuelSavrLiveWoody() {}
   getFuelSavrOneHour() {}
   getFuelbedDepth() {}
+  getHeadingSpreadRate() {}
   getHeadingToBackingRatio() {}
   getHeatPerUnitArea() {}
   getHeatSink() {}
@@ -132,6 +136,7 @@ Module.SIGSurface = class {
   getIsUsingPalmettoGallberry() {}
   getIsUsingWesternAspen() {}
   getLiveFuelMoistureOfExtinction() {}
+  getMaxFireWidth() {}
   getMidflameWindspeed() {}
   getMoistureDeadAggregateValue() {}
   getMoistureHundredHour() {}
@@ -178,6 +183,7 @@ Module.SIGSurface = class {
   getSpreadRate() {}
   getSpreadRateInDirectionOfInterest() {}
   getSurfaceFireReactionIntensityForLifeState() {}
+  getSurfaceRunInDirectionOf() {}
   getWindAdjustmentFactorCalculationMethod() {}
   getWindAndSpreadOrientationMode() {}
   getWindDirection() {}
@@ -205,6 +211,8 @@ Module.SIGSurface = class {
   setChaparralFuelType() {}
   setChaparralTotalFuelLoad() {}
   setCrownRatio() {}
+  setCurrentMoistureScenarioByIndex() {}
+  setCurrentMoistureScenarioByName() {}
   setDirectionOfInterest() {}
   setElapsedTime() {}
   setFirstFuelModelNumber() {}
@@ -221,8 +229,6 @@ Module.SIGSurface = class {
   setMoistureLiveHerbaceous() {}
   setMoistureLiveWoody() {}
   setMoistureOneHour() {}
-  setMoistureScenarioByIndex() {}
-  setMoistureScenarioByName() {}
   setMoistureScenarios() {}
   setMoistureTenHour() {}
   setOverstoryBasalArea() {}
@@ -489,6 +495,7 @@ Module.SIGSpot = class {
   getTreeHeight() {}
   getWindSpeedAtTwentyFeet() {}
   getTorchingTrees() {}
+  calculateAll() {}
   calculateSpottingDistanceFromBurningPile() {}
   calculateSpottingDistanceFromSurfaceFire() {}
   calculateSpottingDistanceFromTorchingTrees() {}

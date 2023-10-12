@@ -12,9 +12,24 @@
                           [:data
                            tool-uuid
                            subtool-uuid
-                           :inputs
-                           variable-uuid]
+                           :tool/inputs
+                           variable-uuid
+                           :input/value]
                           value)}
+     auto-compute? (assoc :fx [[:dispatch [:tool/solve tool-uuid subtool-uuid]]]))))
+
+(rf/reg-event-fx
+ :tool/update-input-units
+ (rf/path db-tool)
+ (fn [{:keys [db]} [_ tool-uuid subtool-uuid variable-uuid unit-uuid auto-compute?]]
+   (cond-> {:db (assoc-in db
+                          [:data
+                           tool-uuid
+                           subtool-uuid
+                           :tool/inputs
+                           variable-uuid
+                           :input/units-uuid]
+                          unit-uuid)}
      auto-compute? (assoc :fx [[:dispatch [:tool/solve tool-uuid subtool-uuid]]]))))
 
 (rf/reg-event-db
@@ -25,10 +40,9 @@
              [:data
               tool-uuid
               subtool-uuid
-              :outputs
+              :tool/outputs
               variable-uuid]
              value)))
-
 
 (rf/reg-event-db
  :tool/close-tool-selector
@@ -64,12 +78,4 @@
  (rf/path db-tool)
  (fn [db [_ selected-tool selected-subtool]]
    (let [results (solve-tool selected-tool selected-subtool)]
-     (reduce (fn [db [output-uuid value]]
-               (assoc-in db [:data
-                             selected-tool
-                             selected-subtool
-                             :outputs
-                             output-uuid]
-                         value))
-             db
-             results))))
+     (assoc-in db [:data selected-tool selected-subtool :tool/outputs] results))))

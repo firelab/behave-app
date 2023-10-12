@@ -70,8 +70,6 @@
  (fn [variables _]
    (filter #(= (:subtool-variable/io %) :output) variables)))
 
-
-
 (reg-sub
  :tool/input-value
  (fn [db [_ tool-uuid subtool-uuid subtool-variable-uuid]]
@@ -80,8 +78,21 @@
                :data
                tool-uuid
                subtool-uuid
-               :inputs
-               subtool-variable-uuid])))
+               :tool/inputs
+               subtool-variable-uuid
+               :input/value])))
+
+(reg-sub
+ :tool/input-units
+ (fn [db [_ tool-uuid subtool-uuid subtool-variable-uuid]]
+   (get-in db [:state
+               :tool
+               :data
+               tool-uuid
+               subtool-uuid
+               :tool/inputs
+               subtool-variable-uuid
+               :input/units-uuid])))
 
 (reg-sub
  :tool/output-value
@@ -91,7 +102,7 @@
                :data
                tool-uuid
                subtool-uuid
-               :outputs
+               :tool/outputs
                subtool-variable-uuid])))
 
 (reg-sub
@@ -102,7 +113,7 @@
                :data
                tool-uuid
                subtool-uuid
-               :inputs])))
+               :tool/inputs])))
 
 (reg-sub
  :tool/all-output-uuids

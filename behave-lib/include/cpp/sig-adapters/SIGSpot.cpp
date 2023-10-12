@@ -30,3 +30,9 @@
 ******************************************************************************/
 
 #include "SIGSpot.h"
+
+void SIGSpot::calculateAll() {
+  Spot::calculateSpottingDistanceFromBurningPile();
+  Spot::calculateSpottingDistanceFromSurfaceFire();
+  Spot::calculateSpottingDistanceFromTorchingTrees();
+}

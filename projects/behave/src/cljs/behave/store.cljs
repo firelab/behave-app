@@ -7,6 +7,7 @@
             [datascript.core :as d]
             [re-frame.core :as rf]
             [re-posh.core :as rp]
+            [browser-utils.interface :refer [debounce]]
             [datom-compressor.interface :as c]
             [ds-schema-utils.interface :refer [->ds-schema]]
             [datom-utils.interface :refer [split-datom]]
@@ -18,6 +19,7 @@
 (defonce conn (atom nil))
 (defonce my-txs (atom #{}))
 (defonce sync-txs (atom #{}))
+(defonce batch (atom []))
 
 ;;; Helpers
 
@@ -35,6 +37,7 @@
       (rf/dispatch-sync [:state/set :sync-loaded? true]))))
 
 (defn- sync-tx-data-handler [[ok body]]
+  (reset! batch [])
   (when ok
     (println ok body)))
 
@@ -47,20 +50,27 @@
                                    :content-type "application/msgpack"
                                    :read         pr/-body}}))
 
+(defn- batch-sync-tx-data []
+  (when-not (empty? @batch)
+    (ajax-request {:uri             "/sync"
+                   :params          {:tx-data @batch}
+                   :method          :post
+                   :handler         sync-tx-data-handler
+                   :format          (edn-request-format)
+                   :response-format {:description  "EDN"
+                                     :format       :text
+                                     :type         :text
+                                     :content-type "application/edn"
+                                     :read         edn/read-string}})))
+
+(def ^:private debounced-batch-sync-tx-data (debounce batch-sync-tx-data 2000))
+
 (defn sync-tx-data [{:keys [tx-data]}]
   (let [datoms (->> tx-data (filter new-datom?) (mapv split-datom))]
     (when-not (empty? datoms)
       (swap! my-txs union (txs datoms))
-      (ajax-request {:uri             "/sync"
-                     :params          {:tx-data datoms}
-                     :method          :post
-                     :handler         sync-tx-data-handler
-                     :format          (edn-request-format)
-                     :response-format {:description  "EDN"
-                                       :format       :text
-                                       :type         :text
-                                       :content-type "application/edn"
-                                       :read         edn/read-string}}))))
+      (swap! batch concat datoms)
+      (debounced-batch-sync-tx-data))))
 
 (defn apply-latest-datoms [[ok body]]
   (when ok
