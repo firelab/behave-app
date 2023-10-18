@@ -188,7 +188,6 @@
                  [?ig :input-group/repeat-id ?rid]]
     :variables [ws-uuid group-uuid]}))
 
-;; FIXME (BHP1-554) Need to sort the inputs by the order in which is displayed in the workflow
 (rf/reg-sub
  :worksheet/all-inputs-vector
  (fn [_ [_ ws-uuid]]

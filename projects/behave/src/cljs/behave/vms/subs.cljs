@@ -84,7 +84,7 @@
          submodule-io-output-only (filter #(= (:submodule/io %) io) submodules)]
      (into {} (drill-in submodule-io-output-only)))))
 
-(defn process-group [group]
+(defn- process-group [group]
   (cond-> (mapv :bp/uuid (:group/group-variables group))
     (seq (:group/children group))
     (into (for [child-group (sort-by :group/order (:group/children group))]

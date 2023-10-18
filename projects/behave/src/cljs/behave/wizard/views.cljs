@@ -714,21 +714,21 @@
            [:div.wizard-notes__header "Table"]
            (let [formatters @(subscribe [:worksheet/result-table-formatters (map first @*headers)])
                  table-data {:title   "Results Table"
-                             :headers (reduce (fn resolve-uuid [acc [uuid _repeat-id units]]
-                                                (let [var-name (:variable/name @(subscribe [:wizard/group-variable uuid]))]
+                             :headers (reduce (fn resolve-uuid [acc [gv-uuid _repeat-id units]]
+                                                (let [var-name (:variable/name @(subscribe [:wizard/group-variable gv-uuid]))]
                                                   (cond-> acc
                                                     :always (conj (str var-name (when-not (empty? units) (gstring/format " (%s)" units))))
 
-                                                    (procces-map-units? map-units-enabled? uuid)
+                                                    (procces-map-units? map-units-enabled? gv-uuid)
                                                     (conj (str var-name " Map Units " (gstring/format " (%s)" map-units))))))
                                               []
                                               @*headers)
-                             :columns (reduce (fn [ acc[uuid repeat-id _units]]
+                             :columns (reduce (fn [acc [gv-uuid repeat-id _units]]
                                                 (cond-> acc
-                                                  :always (conj (keyword (str uuid "-" repeat-id)))
+                                                  :always (conj (keyword (str gv-uuid "-" repeat-id)))
 
-                                                  (procces-map-units? map-units-enabled? uuid)
-                                                  (conj (keyword (str/join "-" [uuid repeat-id "map-units"])))))
+                                                  (procces-map-units? map-units-enabled? gv-uuid)
+                                                  (conj (keyword (str/join "-" [gv-uuid repeat-id "map-units"])))))
                                               []
                                               @*headers)
                              :rows    (->> (group-by first @*cell-data)
