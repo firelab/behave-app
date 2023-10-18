@@ -83,3 +83,30 @@
          submodules               @(subscribe [:wizard/submodules (:db/id module)])
          submodule-io-output-only (filter #(= (:submodule/io %) io) submodules)]
      (into {} (drill-in submodule-io-output-only)))))
+
+(defn process-group [group]
+  (cond-> (mapv :bp/uuid (:group/group-variables group))
+    (seq (:group/children group))
+    (into (for [child-group (sort-by :group/order (:group/children group))]
+            (process-group child-group)))))
+
+(reg-sub
+ :vms/group-variable-order
+ (fn [_]
+   (let [module-eids @(q '[:find [?e ...]
+                           :where [?e :module/name ?name]])
+         modules     (mapv entity-from-eid module-eids)]
+
+     (->> (for [module (->> modules
+                            (sort-by :module/order))]
+            (let [submodules        (:module/submodules module)
+                  input-submodules  (->> (filter #(= (:submodule/io %) :input) submodules)
+                                         (sort-by :submodule/order))
+                  output-submodules (->> (filter #(= (:submodule/io %) :output) submodules)
+                                         (sort-by :submodule/order))]
+              (for [submodule (concat input-submodules output-submodules)]
+                (for [group (->> (:submodule/groups submodule)
+                                 (sort-by :group/order))]
+                  (process-group group)))))
+          (flatten)
+          (into [])))))

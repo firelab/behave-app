@@ -542,21 +542,23 @@
 ;; returns headers of table in sorted order
 (rf/reg-sub
  :worksheet/result-table-headers-sorted
- (fn [_ [_ ws-uuid]]
+ (fn [_]
+   (rf/subscribe [:vms/group-variable-order]))
+ (fn [gv-order [_ ws-uuid]]
    (let [headers @(rf/subscribe [:query
-                                 '[:find ?order ?gv-uuid ?repeat-id ?units
+                                 '[:find ?gv-uuid ?repeat-id ?units
                                    :in $ ?ws-uuid
                                    :where
                                    [?w :worksheet/uuid ?ws-uuid]
                                    [?w :worksheet/result-table ?r]
                                    [?r :result-table/headers ?h]
-                                   [?h :result-header/order ?order]
                                    [?h :result-header/repeat-id ?repeat-id]
                                    [?h :result-header/group-variable-uuid ?gv-uuid]
                                    [?h :result-header/units ?units]]
                                  [ws-uuid]])]
      (->> headers
-          (sort-by (juxt first #(nth % 2)))))))
+          (sort-by (juxt #(.indexOf gv-order (first %))
+                         #(second %)))))))
 
 (rf/reg-sub
  :worksheet/graph-settings

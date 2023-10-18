@@ -712,9 +712,9 @@
         (when (and table-enabled? (seq @*cell-data))
           [:div.wizard-results__table {:id "table"}
            [:div.wizard-notes__header "Table"]
-           (let [formatters @(subscribe [:worksheet/result-table-formatters (map second @*headers)])
+           (let [formatters @(subscribe [:worksheet/result-table-formatters (map first @*headers)])
                  table-data {:title   "Results Table"
-                             :headers (reduce (fn resolve-uuid [acc [_order uuid _repeat-id units]]
+                             :headers (reduce (fn resolve-uuid [acc [uuid _repeat-id units]]
                                                 (let [var-name (:variable/name @(subscribe [:wizard/group-variable uuid]))]
                                                   (cond-> acc
                                                     :always (conj (str var-name (when-not (empty? units) (gstring/format " (%s)" units))))
@@ -723,7 +723,7 @@
                                                     (conj (str var-name " Map Units " (gstring/format " (%s)" map-units))))))
                                               []
                                               @*headers)
-                             :columns (reduce (fn [ acc[_order uuid repeat-id _units]]
+                             :columns (reduce (fn [ acc[uuid repeat-id _units]]
                                                 (cond-> acc
                                                   :always (conj (keyword (str uuid "-" repeat-id)))
 

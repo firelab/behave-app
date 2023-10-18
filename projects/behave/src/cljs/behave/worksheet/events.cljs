@@ -186,7 +186,6 @@
          {:transact [{:db/id                table
                       :result-table/headers [{:result-header/group-variable-uuid group-variable-uuid
                                               :result-header/repeat-id           repeat-id
-                                              :result-header/order               headers
                                               :result-header/units               units}]}]})))))
 
 (rp/reg-event-fx
