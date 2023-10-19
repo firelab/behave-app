@@ -623,3 +623,11 @@ Module.SIGSlopeTool = class {
     setMaxSlopeSteepness() {}
     setNumberOfContours() {}
 };
+
+Module.VaporPressureDeficitCalculator = class {
+    init() {}
+    runCalculation() {}
+    setTemperature() {}
+    setRelativeHumidity() {}
+    getVaporPressureDeficit() {}
+};
