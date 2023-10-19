@@ -229,3 +229,5 @@ projects/behave_cms/resources/public/cljs/
 projects/behave_cms/resources/*.db
 projects/behave/resources/public/cljs/
 projects/behave/resources/public/js/behave.js
+projects/behave/projects/
+projects/behave/resources/db.sqlite
