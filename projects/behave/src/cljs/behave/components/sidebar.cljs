@@ -77,7 +77,6 @@
      [sidebar-group {:title   @(<t (bp "tools_and_settings"))
                      :modules [{:label     "behaveplus:tools"
                                 :icon      "tools2"
-                                :disabled?  (not (= io :input))
                                 :on-select #(rf/dispatch [:state/set [:sidebar :*tools-or-settings] :tools])}
                                {:label     "behaveplus:settings"
                                 :icon      "settings2"
