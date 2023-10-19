@@ -217,7 +217,10 @@
 
                        :else
                        (path-for routes handler :ws-uuid ws-uuid))]
-       {:fx [[:dispatch [:navigate path]]]}))))
+       {:fx (cond-> [[:dispatch [:navigate path]]]
+
+              io
+              (conj [:dispatch [:worksheet/set-furthest-vistited-step ws-uuid handler io]]))}))))
 
 (rf/reg-event-fx
  :worksheet/map-units-enabled?
