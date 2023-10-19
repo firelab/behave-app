@@ -1,6 +1,7 @@
 (ns behave.worksheet.views
   (:require [behave.components.core       :as c]
             [behave.components.navigation :refer [wizard-navigation]]
+            [behave.tool.views            :refer [tool tool-selector]]
             [behave.translate             :refer [<t bp]]
             [behave.worksheet.events]
             [datascript.core              :refer [squuid]]
@@ -13,8 +14,8 @@
   [:div.workflow-select__header
    [:div.workflow-select__header__title
     [c/tab {:variant   "outline-primary"
-           :selected? true
-           :label     @(<t "behaveplus:working_area")}]]
+            :selected? true
+            :label     @(<t "behaveplus:working_area")}]]
    [:div.workflow-select__header__content
     [c/icon {:icon-name icon}]
     [:div
@@ -22,8 +23,14 @@
      [:p description]]]])
 
 (defn workflow-select [_params]
-  (let [*workflow (rf/subscribe [:state [:worksheet :*workflow]])]
+  (let [*workflow           (rf/subscribe [:state [:worksheet :*workflow]])
+        show-tool-selector? @(rf/subscribe [:tool/show-tool-selector?])
+        selected-tool-uuid  @(rf/subscribe [:tool/selected-tool-uuid])]
     [:<>
+     (when show-tool-selector?
+       [tool-selector])
+     (when (some? selected-tool-uuid)
+       [tool selected-tool-uuid])
      [:div.workflow-select
       [workflow-select-header
        {:icon        "existing-run" ;TODO update when LOGO is available
@@ -59,75 +66,82 @@
 
 ;; TODO use title
 (defn independent-worksheet-page [_params]
-  (let [*modules   (rf/subscribe [:state [:worksheet :*modules]])
-        *submodule (rf/subscribe [:worksheet/first-output-submodule-slug (first @*modules)])
-        name       (rf/subscribe [:state [:worksheet :name]])]
-    [:div.workflow-select
-     [workflow-select-header
-      {:icon        "modules"
-       :header      @(<t (bp "module_selection"))
-       :description @(<t (bp "please_select_from_the_following_options"))}]
-     [:div.workflow-select__content
-      [c/card-group {:on-select      #(do (rf/dispatch [:state/set [:sidebar :*modules] (set (:module %))])
-                                          (rf/dispatch [:state/set [:worksheet :*modules] (:module %)]))
-                     :flex-direction "row"
-                     :cards          [{:order     1
-                                       :title     @(<t (bp "surface_only"))
-                                       :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-                                       :icons     [{:icon-name "surface"}]
-                                       :selected? (= @*modules [:surface])
-                                       :module    [:surface]}
-                                      {:order     2
-                                       :title     @(<t (bp "surface_and_crown"))
-                                       :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-                                       :icons     [{:icon-name "surface"}
-                                                   {:icon-name "crown"}]
-                                       :selected? (= @*modules [:surface :crown])
-                                       :module    [:surface :crown]}
-                                      {:order     3
-                                       :title     @(<t (bp "surface_and_mortality"))
-                                       :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-                                       :icons     [{:icon-name "surface"}
-                                                   {:icon-name "mortality"}]
-                                       :selected? (= @*modules [:surface :mortality])
-                                       :module    [:surface :mortality]}
-                                      {:order     4
-                                       :title     @(<t (bp "surface_and_contain"))
-                                       :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-                                       :icons     [{:icon-name "surface"}
-                                                   {:icon-name "contain"}]
-                                       :selected? (= @*modules [:surface :contain])
-                                       :module    [:surface :contain]}
-                                      {:order     5
-                                       :title     @(<t (bp "contain_only"))
-                                       :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-                                       :icons     [{:icon-name "contain"}]
-                                       :selected? (= @*modules [:contain])
-                                       :module    [:contain]}
-                                      {:order     6
-                                       :title     @(<t (bp "mortality_only"))
-                                       :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-                                       :icons     [{:icon-name "mortality"}]
-                                       :selected? (= @*modules [:mortality])
-                                       :module    [:mortality]}]}]
-      [:div.workflow-select__content__name
+  (let [*modules            (rf/subscribe [:state [:worksheet :*modules]])
+        *submodule          (rf/subscribe [:worksheet/first-output-submodule-slug (first @*modules)])
+        name                (rf/subscribe [:state [:worksheet :name]])
+        show-tool-selector? @(rf/subscribe [:tool/show-tool-selector?])
+        selected-tool-uuid  @(rf/subscribe [:tool/selected-tool-uuid])]
+    [:<>
+     (when show-tool-selector?
+       [tool-selector])
+     (when (some? selected-tool-uuid)
+       [tool selected-tool-uuid])
+     [:div.workflow-select
+      [workflow-select-header
+       {:icon        "modules"
+        :header      @(<t (bp "module_selection"))
+        :description @(<t (bp "please_select_from_the_following_options"))}]
+      [:div.workflow-select__content
+       [c/card-group {:on-select      #(do (rf/dispatch [:state/set [:sidebar :*modules] (set (:module %))])
+                                           (rf/dispatch [:state/set [:worksheet :*modules] (:module %)]))
+                      :flex-direction "row"
+                      :cards          [{:order     1
+                                        :title     @(<t (bp "surface_only"))
+                                        :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                                        :icons     [{:icon-name "surface"}]
+                                        :selected? (= @*modules [:surface])
+                                        :module    [:surface]}
+                                       {:order     2
+                                        :title     @(<t (bp "surface_and_crown"))
+                                        :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                                        :icons     [{:icon-name "surface"}
+                                                    {:icon-name "crown"}]
+                                        :selected? (= @*modules [:surface :crown])
+                                        :module    [:surface :crown]}
+                                       {:order     3
+                                        :title     @(<t (bp "surface_and_mortality"))
+                                        :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                                        :icons     [{:icon-name "surface"}
+                                                    {:icon-name "mortality"}]
+                                        :selected? (= @*modules [:surface :mortality])
+                                        :module    [:surface :mortality]}
+                                       {:order     4
+                                        :title     @(<t (bp "surface_and_contain"))
+                                        :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                                        :icons     [{:icon-name "surface"}
+                                                    {:icon-name "contain"}]
+                                        :selected? (= @*modules [:surface :contain])
+                                        :module    [:surface :contain]}
+                                       {:order     5
+                                        :title     @(<t (bp "contain_only"))
+                                        :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                                        :icons     [{:icon-name "contain"}]
+                                        :selected? (= @*modules [:contain])
+                                        :module    [:contain]}
+                                       {:order     6
+                                        :title     @(<t (bp "mortality_only"))
+                                        :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                                        :icons     [{:icon-name "mortality"}]
+                                        :selected? (= @*modules [:mortality])
+                                        :module    [:mortality]}]}]
+       [:div.workflow-select__content__name
 
-       [c/text-input {:label     "Worksheet Name"
-                      :on-change #(rf/dispatch [:state/set [:worksheet :name] (input-value %)])}]]]
-     [wizard-navigation {:next-label     @(<t (bp "next"))
-                         :back-label     @(<t (bp "back"))
-                         :next-disabled? (empty? @*modules)
-                         :on-back        #(.back js/history)
-                         :on-next        #(do
-                                            ;; Generate UUID
-                                            (let [ws-uuid (str (squuid))]
+        [c/text-input {:label     "Worksheet Name"
+                       :on-change #(rf/dispatch [:state/set [:worksheet :name] (input-value %)])}]]]
+      [wizard-navigation {:next-label     @(<t (bp "next"))
+                          :back-label     @(<t (bp "back"))
+                          :next-disabled? (empty? @*modules)
+                          :on-back        #(.back js/history)
+                          :on-next        #(do
+                                             ;; Generate UUID
+                                             (let [ws-uuid (str (squuid))]
 
-                                              ;; Create the Worksheet
-                                              (rf/dispatch [:worksheet/new
-                                                            {:name @name :modules (vec @*modules) :uuid ws-uuid}])
+                                               ;; Create the Worksheet
+                                               (rf/dispatch [:worksheet/new
+                                                             {:name @name :modules (vec @*modules) :uuid ws-uuid}])
 
-                                              ;; Look at modules that user has selected, find the first output submodule
-                                              (rf/dispatch [:navigate (str "/worksheets/" ws-uuid "/modules/" (->str (first @*modules)) "/output/" @*submodule)])))}]]))
+                                               ;; Look at modules that user has selected, find the first output submodule
+                                               (rf/dispatch [:navigate (str "/worksheets/" ws-uuid "/modules/" (->str (first @*modules)) "/output/" @*submodule)])))}]]]))
 
 (defn guided-worksheet-page [_params]
   [:<>

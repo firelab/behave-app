@@ -210,10 +210,10 @@
       (when (true? @*warn-limit?)
         [:div.wizard-warning
          (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])]
-     [wizard-navigation {:next-label     @(<t (bp "next"))
-                         :on-next        on-next
-                         :back-label     @(<t (bp "back"))
-                         :on-back        on-back
+     [wizard-navigation {:next-label @(<t (bp "next"))
+                         :on-next    on-next
+                         :back-label @(<t (bp "back"))
+                         :on-back    on-back
                          ;;TODO to discuss or refine at a later date (2023-10-15 Kcheung)
                          ;; :next-disabled? next-disabled?
                          }]]))
@@ -251,59 +251,66 @@
         *multi-value-input-limit (subscribe [:wizard/multi-value-input-limit])
         *multi-value-input-count (subscribe [:wizard/multi-value-input-count ws-uuid])
         *notes                   (subscribe [:wizard/notes ws-uuid])
-        *show-notes?             (subscribe [:wizard/show-notes?])]
-    [:div.accordion
-     [:div.accordion__header
-      [c/tab {:variant   "outline-primary"
-              :selected? true
-              :label     @(<t (bp "working_area"))}]]
+        *show-notes?             (subscribe [:wizard/show-notes?])
+        show-tool-selector?      @(rf/subscribe [:tool/show-tool-selector?])
+        selected-tool-uuid       @(rf/subscribe [:tool/selected-tool-uuid])]
+    [:<>
+     (when show-tool-selector?
+       [tool-selector])
+     (when (some? selected-tool-uuid)
+       [tool selected-tool-uuid])
+     [:div.accordion
+      [:div.accordion__header
+       [c/tab {:variant   "outline-primary"
+               :selected? true
+               :label     @(<t (bp "working_area"))}]]
 
-     [:div.wizard
-      [:div.wizard-page
-       [:div.wizard-header
-        [:div.wizard-header__banner {:style {:margin-top "20px"}}
-         [:div.wizard-header__banner__icon
-          [c/icon :modules]]
-         [:div.wizard-header__banner__title "Review Modules"]
-         (show-or-close-notes-button @*show-notes?)]
-        [:div.wizard-review
-         [run-description ws-uuid]
-         (when @*show-notes?
-           (wizard-notes @*notes))
-         (for [module-kw modules
-               :let      [module-name (name module-kw)
-                          module @(subscribe [:wizard/*module module-name])]]
-           [:div
-            [:div.wizard-review__module
-             (gstring/format "%s Inputs"  @(<t (:module/translation-key module)))]
-            [:div.wizard-review__submodule
-             (for [submodule @(subscribe [:wizard/submodules-io-input-only (:db/id module)])
-                   :let      [edit-route (path-for routes
-                                                   :ws/wizard
-                                                   :ws-uuid   ws-uuid
-                                                   :module    module-name
-                                                   :io        :input
-                                                   :submodule (:slug submodule))]]
-               [:<>
-                [:div.wizard-review__submodule-header (:submodule/name submodule)]
-                (build-groups  ws-uuid
-                               (:submodule/groups submodule)
-                               (partial review/input-group edit-route))])]])]
-        (when (true? @*warn-limit?)
-          [:div.wizard-warning
-           (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])
-        [:div.wizard-navigation
-         [c/button {:label    "Back"
-                    :variant  "secondary"
-                    :on-click #(dispatch [:wizard/prev-tab params])}]
-         [c/button {:label         "Run"
-                    :disabled?     @*warn-limit?
-                    :variant       "highlight"
-                    :icon-name     "arrow2"
-                    :icon-position "right"
-                    :on-click      #(do (dispatch-sync [:wizard/before-solve params])
-                                        (dispatch-sync [:wizard/during-solve params])
-                                        (dispatch-sync [:wizard/after-solve params]))}]]]]]]))
+      [:div.wizard
+       [:div.wizard-page
+        [:div.wizard-header
+         [:div.wizard-header__banner {:style {:margin-top "20px"}}
+          [:div.wizard-header__banner__icon
+           [c/icon :modules]]
+          [:div.wizard-header__banner__title "Review Modules"]
+          (show-or-close-notes-button @*show-notes?)]
+         [:div.wizard-review
+          [run-description ws-uuid]
+          (when @*show-notes?
+            (wizard-notes @*notes))
+          (for [module-kw modules
+                :let      [module-name (name module-kw)
+                           module @(subscribe [:wizard/*module module-name])]]
+            [:div
+             [:div.wizard-review__module
+              (gstring/format "%s Inputs"  @(<t (:module/translation-key module)))]
+             [:div.wizard-review__submodule
+              (for [submodule @(subscribe [:wizard/submodules-io-input-only (:db/id module)])
+                    :let      [edit-route (path-for routes
+                                                    :ws/wizard
+                                                    :ws-uuid   ws-uuid
+                                                    :module    module-name
+                                                    :io        :input
+                                                    :submodule (:slug submodule))]]
+                [:<>
+                 [:div.wizard-review__submodule-header (:submodule/name submodule)]
+                 (build-groups  ws-uuid
+                                (:submodule/groups submodule)
+                                (partial review/input-group edit-route))])]])]
+         (when (true? @*warn-limit?)
+           [:div.wizard-warning
+            (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])
+         [:div.wizard-navigation
+          [c/button {:label    "Back"
+                     :variant  "secondary"
+                     :on-click #(dispatch [:wizard/prev-tab params])}]
+          [c/button {:label         "Run"
+                     :disabled?     @*warn-limit?
+                     :variant       "highlight"
+                     :icon-name     "arrow2"
+                     :icon-position "right"
+                     :on-click      #(do (dispatch-sync [:wizard/before-solve params])
+                                         (dispatch-sync [:wizard/during-solve params])
+                                         (dispatch-sync [:wizard/after-solve params]))}]]]]]]]))
 
 ;; Wizard Results Settings
 
@@ -518,39 +525,46 @@
                         :max-attr-id :table-filter/max}]])]))
 
 (defn wizard-results-settings-page [{:keys [route-handler io ws-uuid] :as params}]
-  (let [_            (dispatch [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
-        *notes       (subscribe [:wizard/notes ws-uuid])
-        *show-notes? (subscribe [:wizard/show-notes?])
-        on-back      #(dispatch [:wizard/prev-tab params])
-        on-next      #(dispatch [:navigate (path-for routes :ws/results :ws-uuid ws-uuid)])]
-    [:div.accordion
-     [:div.accordion__header
-      [c/tab {:variant   "outline-primary"
-              :selected? true
-              :label     @(<t "behaveplus:working_area")}]]
-     [:div.wizard
-      [:div.wizard-page
-       [:div.wizard-header
-        [:div.wizard-header__banner {:style {:margin-top "20px"}}
-         [:div.wizard-header__banner__icon
-          [c/icon :modules]]
-         [:div.wizard-header__banner__title
-          "Results Selection"]
-         (show-or-close-notes-button @*show-notes?)]]
-       (when @*show-notes?
-         (wizard-notes @*notes))
-       [:div.wizard-results__table-settings
-        [:div.wizard-results__table-settings__header "Table Settings"]
-        [:div.wizard-results__table-settings__content
-         [table-settings ws-uuid]]]
-       [:div.wizard-results__graph-settings
-        [:div.wizard-results__graph-settings__header "Graph Settings"]
-        [:div.wizard-results__graph-settings__content
-         [graph-settings ws-uuid]]]]]
-     [wizard-navigation {:next-label @(<t (bp "next"))
-                         :on-next    on-next
-                         :back-label @(<t (bp "back"))
-                         :on-back    on-back}]]))
+  (let [_                   (dispatch [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
+        *notes              (subscribe [:wizard/notes ws-uuid])
+        *show-notes?        (subscribe [:wizard/show-notes?])
+        on-back             #(dispatch [:wizard/prev-tab params])
+        on-next             #(dispatch [:navigate (path-for routes :ws/results :ws-uuid ws-uuid)])
+        show-tool-selector? @(rf/subscribe [:tool/show-tool-selector?])
+        selected-tool-uuid  @(rf/subscribe [:tool/selected-tool-uuid])]
+    [:<>
+     (when show-tool-selector?
+       [tool-selector])
+     (when (some? selected-tool-uuid)
+       [tool selected-tool-uuid])
+     [:div.accordion
+      [:div.accordion__header
+       [c/tab {:variant   "outline-primary"
+               :selected? true
+               :label     @(<t "behaveplus:working_area")}]]
+      [:div.wizard
+       [:div.wizard-page
+        [:div.wizard-header
+         [:div.wizard-header__banner {:style {:margin-top "20px"}}
+          [:div.wizard-header__banner__icon
+           [c/icon :modules]]
+          [:div.wizard-header__banner__title
+           "Results Selection"]
+          (show-or-close-notes-button @*show-notes?)]]
+        (when @*show-notes?
+          (wizard-notes @*notes))
+        [:div.wizard-results__table-settings
+         [:div.wizard-results__table-settings__header "Table Settings"]
+         [:div.wizard-results__table-settings__content
+          [table-settings ws-uuid]]]
+        [:div.wizard-results__graph-settings
+         [:div.wizard-results__graph-settings__header "Graph Settings"]
+         [:div.wizard-results__graph-settings__content
+          [graph-settings ws-uuid]]]]]
+      [wizard-navigation {:next-label @(<t (bp "next"))
+                          :on-next    on-next
+                          :back-label @(<t (bp "back"))
+                          :on-back    on-back}]]]))
 
 (defn- construct-summary-table [ws-uuid group-variable-uuid row-id]
   (let [outputs-to-filter (set @(subscribe [:wizard/diagram-output-gv-uuids group-variable-uuid]))
@@ -675,8 +689,15 @@
         map-units-enabled?        (:map-units-settings/enabled? map-units-settings-entity)
         map-units                 (:map-units-settings/units map-units-settings-entity)
         map-rep-frac              (:map-units-settings/map-rep-fraction map-units-settings-entity)
-        map-units-variables       @(subscribe [:wizard/map-unit-convertible-variables])]
-    [:div.accordion
+        map-units-variables       @(subscribe [:wizard/map-unit-convertible-variables])
+        show-tool-selector?       @(rf/subscribe [:tool/show-tool-selector?])
+        selected-tool-uuid        @(rf/subscribe [:tool/selected-tool-uuid])]
+    [:<>
+     (when show-tool-selector?
+       [tool-selector])
+     (when (some? selected-tool-uuid)
+       [tool selected-tool-uuid])
+     [:div.accordion
      [:div.accordion__header
       [c/tab {:variant   "outline-primary"
               :selected? true
@@ -770,20 +791,20 @@
       [:div.wizard-navigation
        [c/button {:label    "Back"
                   :variant  "secondary"
-                  :on-click #(dispatch [:wizard/prev-tab params])}]]]]))
+                  :on-click #(dispatch [:wizard/prev-tab params])}]]]]]))
 
 ;; TODO Might want to set this in a config file to the application
 (def ^:const multi-value-input-limit 3)
 
 ;;; Public Components
-(defn root-component [{:keys [io] :as params}]
+(defn root-component [params]
   (let [loaded?             (subscribe [:app/loaded?])
-        show-tool-selector? @(subscribe [:tool/show-tool-selector? io])
+        show-tool-selector? @(subscribe [:tool/show-tool-selector?])
         selected-tool-uuid  @(subscribe [:tool/selected-tool-uuid])]
     [:<>
      (when show-tool-selector?
-       [tool-selector io])
-     (when (and (some? selected-tool-uuid) (= io :input))
+       [tool-selector])
+     (when (some? selected-tool-uuid)
        [tool selected-tool-uuid])
      [:div.accordion
       [:div.accordion__header
