@@ -186,7 +186,6 @@
          {:transact [{:db/id                table
                       :result-table/headers [{:result-header/group-variable-uuid group-variable-uuid
                                               :result-header/repeat-id           repeat-id
-                                              :result-header/order               headers
                                               :result-header/units               units}]}]})))))
 
 (rp/reg-event-fx
@@ -491,6 +490,12 @@
                  (< worksheet-visited-step current-step))
          {:transact [{:db/id                           [:worksheet/uuid ws-uuid]
                       :worksheet/furthest-visited-step (get-step-kw route-handler io)}]})))))
+
+(rp/reg-event-fx
+ :worksheet/set-furthest-vistited-step
+ (fn [_ [_ ws-uuid route-handler io]]
+   {:transact [{:db/id                           [:worksheet/uuid ws-uuid]
+                :worksheet/furthest-visited-step (get-step-kw route-handler io)}]}))
 
 (rf/reg-event-fx
  :worksheet/delete-existing-diagrams

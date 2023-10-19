@@ -698,100 +698,100 @@
      (when (some? selected-tool-uuid)
        [tool selected-tool-uuid])
      [:div.accordion
-      [:div.accordion__header
-       [c/tab {:variant   "outline-primary"
-               :selected? true
-               :label     @(<t "behaveplus:working_area")}]]
-      [:div.wizard
-       [:div.wizard-page
-        [:div.wizard-header
-         [:div.wizard-header__banner {:style {:margin-top "20px"}}
-          [:div.wizard-header__banner__icon
-           [c/icon :modules]]
-          "Results"]
-         [:div.wizard-header__results-toolbar
-          [:div.wizard-header__results-toolbar__file-name
-           [:div.wizard-header__results-toolbar__file-name__label (str @(<t (bp "file_name")) ":")]
-           [:div.wizard-header__results-toolbar__file-name__value (:worksheet/name @*worksheet)]]
-          [:div.wizard-header__results-toolbar__date
-           [:div.wizard-header__results-toolbar__date__label (str @(<t (bp "run_date")) ":")]
-           [:div.wizard-header__results-toolbar__date__value @*ws-date]]]
-         [:div.wizard-header__results-tabs
-          [c/tab-group {:variant  "outline-highlight"
-                        :on-click #(dispatch [:wizard/results-select-tab %])
-                        :tabs     [{:label     "Notes"
-                                    :tab       :notes
-                                    :icon-name :notes
-                                    :selected? (= @*tab-selected :notes)}
-                                   {:label     "Table"
-                                    :tab       :table
-                                    :icon-name :tables
-                                    :selected? (= @*tab-selected :table)}
-                                   {:label     "Graph"
-                                    :tab       :graph
-                                    :icon-name :graphs
-                                    :selected? (= @*tab-selected :graph)}
-                                   {:label     "Diagram"
-                                    :tab       :diagram
-                                    :icon-name :graphs
-                                    :selected? (= @*tab-selected :diagram)}]}]]]
-        [:div.wizard-page__body
-         [:div.wizard-results__notes {:id "notes"}
-          (wizard-notes @*notes)]
-         (when (and table-enabled? (seq @*cell-data))
-           [:div.wizard-results__table {:id "table"}
-            [:div.wizard-notes__header "Table"]
-            (let [formatters @(subscribe [:worksheet/result-table-formatters (map second @*headers)])
-                  table-data {:title   "Results Table"
-                              :headers (reduce (fn resolve-uuid [acc [_order uuid _repeat-id units]]
-                                                 (let [var-name (:variable/name @(subscribe [:wizard/group-variable uuid]))]
-                                                   (cond-> acc
-                                                     :always (conj (str var-name (when-not (empty? units) (gstring/format " (%s)" units))))
+     [:div.accordion__header
+      [c/tab {:variant   "outline-primary"
+              :selected? true
+              :label     @(<t "behaveplus:working_area")}]]
+     [:div.wizard
+      [:div.wizard-page
+       [:div.wizard-header
+        [:div.wizard-header__banner {:style {:margin-top "20px"}}
+         [:div.wizard-header__banner__icon
+          [c/icon :modules]]
+         "Results"]
+        [:div.wizard-header__results-toolbar
+         [:div.wizard-header__results-toolbar__file-name
+          [:div.wizard-header__results-toolbar__file-name__label (str @(<t (bp "file_name")) ":")]
+          [:div.wizard-header__results-toolbar__file-name__value (:worksheet/name @*worksheet)]]
+         [:div.wizard-header__results-toolbar__date
+          [:div.wizard-header__results-toolbar__date__label (str @(<t (bp "run_date")) ":")]
+          [:div.wizard-header__results-toolbar__date__value @*ws-date]]]
+        [:div.wizard-header__results-tabs
+         [c/tab-group {:variant  "outline-highlight"
+                       :on-click #(dispatch [:wizard/results-select-tab %])
+                       :tabs     [{:label     "Notes"
+                                   :tab       :notes
+                                   :icon-name :notes
+                                   :selected? (= @*tab-selected :notes)}
+                                  {:label     "Table"
+                                   :tab       :table
+                                   :icon-name :tables
+                                   :selected? (= @*tab-selected :table)}
+                                  {:label     "Graph"
+                                   :tab       :graph
+                                   :icon-name :graphs
+                                   :selected? (= @*tab-selected :graph)}
+                                  {:label     "Diagram"
+                                   :tab       :diagram
+                                   :icon-name :graphs
+                                   :selected? (= @*tab-selected :diagram)}]}]]]
+       [:div.wizard-page__body
+        [:div.wizard-results__notes {:id "notes"}
+         (wizard-notes @*notes)]
+        (when (and table-enabled? (seq @*cell-data))
+          [:div.wizard-results__table {:id "table"}
+           [:div.wizard-notes__header "Table"]
+           (let [formatters @(subscribe [:worksheet/result-table-formatters (map first @*headers)])
+                 table-data {:title   "Results Table"
+                             :headers (reduce (fn resolve-uuid [acc [gv-uuid _repeat-id units]]
+                                                (let [var-name (:variable/name @(subscribe [:wizard/group-variable gv-uuid]))]
+                                                  (cond-> acc
+                                                    :always (conj (str var-name (when-not (empty? units) (gstring/format " (%s)" units))))
 
-                                                     (procces-map-units? map-units-enabled? uuid)
-                                                     (conj (str var-name " Map Units " (gstring/format " (%s)" map-units))))))
-                                               []
-                                               @*headers)
-                              :columns (reduce (fn [ acc[_order uuid repeat-id _units]]
-                                                 (cond-> acc
-                                                   :always (conj (keyword (str uuid "-" repeat-id)))
+                                                    (procces-map-units? map-units-enabled? gv-uuid)
+                                                    (conj (str var-name " Map Units " (gstring/format " (%s)" map-units))))))
+                                              []
+                                              @*headers)
+                             :columns (reduce (fn [acc [gv-uuid repeat-id _units]]
+                                                (cond-> acc
+                                                  :always (conj (keyword (str gv-uuid "-" repeat-id)))
 
-                                                   (procces-map-units? map-units-enabled? uuid)
-                                                   (conj (keyword (str/join "-" [uuid repeat-id "map-units"])))))
-                                               []
-                                               @*headers)
-                              :rows (->> (group-by first @*cell-data)
-                                         (sort-by key)
-                                         (map (fn [[_ data]]
-                                                (reduce (fn [acc [_row-id uuid repeat-id value]]
-                                                          (let [[_ min max enabled?] (first (filter
-                                                                                             (fn [[gv-uuid]]
-                                                                                               (= gv-uuid uuid))
-                                                                                             @table-setting-filters))
-                                                                fmt-fn               (get formatters uuid identity)
-                                                                uuid+repeat-id-key   (keyword (str uuid "-" repeat-id))]
-                                                            (cond-> acc
-                                                              (and min max (not (<= min value max)) enabled?)
-                                                              (assoc :shaded? true)
+                                                  (procces-map-units? map-units-enabled? gv-uuid)
+                                                  (conj (keyword (str/join "-" [gv-uuid repeat-id "map-units"])))))
+                                              []
+                                              @*headers)
+                             :rows    (->> (group-by first @*cell-data)
+                                           (sort-by key)
+                                           (map (fn [[_ data]]
+                                                  (reduce (fn [acc [_row-id uuid repeat-id value]]
+                                                            (let [[_ min max enabled?] (first (filter
+                                                                                               (fn [[gv-uuid]]
+                                                                                                 (= gv-uuid uuid))
+                                                                                               @table-setting-filters))
+                                                                  fmt-fn               (get formatters uuid identity)
+                                                                  uuid+repeat-id-key   (keyword (str uuid "-" repeat-id))]
+                                                              (cond-> acc
+                                                                (and min max (not (<= min value max)) enabled?)
+                                                                (assoc :shaded? true)
 
-                                                              :always
-                                                              (assoc uuid+repeat-id-key (fmt-fn value))
+                                                                :always
+                                                                (assoc uuid+repeat-id-key (fmt-fn value))
 
-                                                              (procces-map-units? map-units-enabled? uuid)
-                                                              (assoc (keyword (str/join "-" [uuid repeat-id "map-units"]))
-                                                                     (to-map-units value
-                                                                                   (get map-units-variables uuid)
-                                                                                   map-units
-                                                                                   map-rep-frac)))))
-                                                        {}
-                                                        data))))}]
-              [table-exporter table-data])])
-         (result-graph ws-uuid @*cell-data)
-         (wizard-diagrams ws-uuid)]]
-       [:div.wizard-navigation
-        [c/button {:label    "Back"
-                   :variant  "secondary"
-                   :on-click #(dispatch [:wizard/prev-tab params])}]]]]]))
+                                                                (procces-map-units? map-units-enabled? uuid)
+                                                                (assoc (keyword (str/join "-" [uuid repeat-id "map-units"]))
+                                                                       (to-map-units value
+                                                                                     (get map-units-variables uuid)
+                                                                                     map-units
+                                                                                     map-rep-frac)))))
+                                                          {}
+                                                          data))))}]
+             [table-exporter table-data])])
+        (result-graph ws-uuid @*cell-data)
+        (wizard-diagrams ws-uuid)]]
+      [:div.wizard-navigation
+       [c/button {:label    "Back"
+                  :variant  "secondary"
+                  :on-click #(dispatch [:wizard/prev-tab params])}]]]]]))
 
 ;; TODO Might want to set this in a config file to the application
 (def ^:const multi-value-input-limit 3)
