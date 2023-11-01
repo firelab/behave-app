@@ -4,7 +4,8 @@
             [behave.components.core  :as c]
             [dom-utils.interface     :refer [input-value]]
             [string-utils.interface  :refer [->kebab]]
-            [behave.translate        :refer [<t bp]]))
+            [behave.translate        :refer [<t bp]]
+            [behave.utils            :refer [inclusive-range]]))
 
 ;;; Helpers
 
@@ -125,7 +126,7 @@
        [:div.wizard-input__range-selector
         [c/compute {:compute-btn-label @(<t (bp "insert_range"))
                     :compute-fn        (fn [from to step]
-                                         (range from to step))
+                                         (inclusive-range from to step))
                     :compute-args      [{:name @(<t (bp "from"))}
                                         {:name @(<t (bp "to"))}
                                         {:name @(<t (bp "steps"))}]
