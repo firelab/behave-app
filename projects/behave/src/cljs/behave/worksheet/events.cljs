@@ -490,6 +490,11 @@
                  (< worksheet-visited-step current-step))
          {:transact [{:db/id                           [:worksheet/uuid ws-uuid]
                       :worksheet/furthest-visited-step (get-step-kw route-handler io)}]})))))
+(rp/reg-event-fx
+ :worksheet/set-furthest-vistited-step
+ (fn [_ [_ ws-uuid route-handler io]]
+   {:transact [{:db/id                           [:worksheet/uuid ws-uuid]
+                :worksheet/furthest-visited-step (get-step-kw route-handler io)}]}))
 
 (rf/reg-event-fx
  :worksheet/delete-existing-diagrams
