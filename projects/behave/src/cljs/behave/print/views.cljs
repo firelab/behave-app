@@ -100,7 +100,17 @@
                     :columns [:input :units :values]
                     :rows    (build-rows ws-uuid submodules)})]))]))
 
-(defmulti result-tables (fn [_ws-uuid process-map-units? multi-valued-inputs] (count multi-valued-inputs)))
+(defmulti result-tables
+  (fn [_ws-uuid process-map-units? multi-valued-inputs]
+    (let [multi-valued-inputs-count (count multi-valued-inputs)]
+      (if (<= 0 multi-valued-inputs-count 2)
+        multi-valued-inputs-count
+        :not-supported))))
+
+(defmethod result-tables :not-supported
+  [ws-uuid process-map-units? multi-valued-inputs]
+  [:div (gstring/format "Tables for (%d) Multi Valued Inputs are not supported"
+                        (count multi-valued-inputs))])
 
 (defmethod result-tables 0
   [ws-uuid process-map-units? _multi-valued-inputs]
