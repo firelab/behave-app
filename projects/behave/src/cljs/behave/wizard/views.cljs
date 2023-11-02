@@ -431,10 +431,13 @@
 
 (defn- graph-settings [ws-uuid]
   (let [*multi-value-input-uuids (subscribe [:worksheet/multi-value-input-uuids ws-uuid])
-        group-variables          (map #(deref (subscribe [:wizard/group-variable %])) @*multi-value-input-uuids)
+        group-variables          (->> @*multi-value-input-uuids
+                                      (map #(deref (subscribe [:wizard/group-variable %]))))
         enabled?                 (first @(subscribe [:worksheet/get-graph-settings-attr
                                                      ws-uuid
-                                                     :graph-settings/enabled?]))]
+                                                     :graph-settings/enabled?]))
+        multi-valued-input-uuids @(subscribe [:worksheet/multi-value-input-uuids ws-uuid])
+        multi-valued-input-count (count multi-valued-input-uuids)]
     (letfn [(radio-group [{:keys [label attr variables]}]
               (let [*values   (subscribe [:worksheet/get-graph-settings-attr ws-uuid attr])
                     selected? (first @*values)]
@@ -454,23 +457,28 @@
                     :checked?  enabled?
                     :on-change #(dispatch [:worksheet/toggle-graph-settings ws-uuid])}]
        (when enabled?
-         [:<>
-          [radio-group {:label     "Select X axis variable:"
-                        :attr      :graph-settings/x-axis-group-variable-uuid
-                        :variables group-variables}]
-          [radio-group {:label     "Select Z axis variable:"
-                        :attr      :graph-settings/z-axis-group-variable-uuid
-                        :variables group-variables}]
-          [radio-group {:label     "Select Z2 axis variable:"
-                        :attr      :graph-settings/z2-axis-group-variable-uuid
-                        :variables group-variables}]
-          [settings-form {:ws-uuid     ws-uuid
-                          :title       "Graph and Axis Limit"
-                          :headers     ["GRAPH Y VARIABLES" "OUTPUT RANGE" "Y AXIS MINIMUM" "Y AXIS MAXIMUM"]
-                          :rf-event-id :worksheet/update-y-axis-limit-attr
-                          :rf-sub-id   :worksheet/graph-settings-y-axis-limits
-                          :min-attr-id :y-axis-limit/min
-                          :max-attr-id :y-axis-limit/max}]])])))
+         (cond-> [:<>]
+           (>= multi-valued-input-count 1)
+           (conj [radio-group {:label     "Select X axis variable:"
+                               :attr      :graph-settings/x-axis-group-variable-uuid
+                               :variables group-variables}])
+
+           (>= multi-valued-input-count 2)
+           (conj [radio-group {:label     "Select Z axis variable:"
+                               :attr      :graph-settings/z-axis-group-variable-uuid
+                               :variables group-variables}])
+           (>= multi-valued-input-count 3)
+           (conj [radio-group {:label     "Select Z2 axis variable:"
+                               :attr      :graph-settings/z2-axis-group-variable-uuid
+                               :variables group-variables}])
+           :always
+           (conj [settings-form {:ws-uuid     ws-uuid
+                                 :title       "Graph and Axis Limit"
+                                 :headers     ["GRAPH Y VARIABLES" "OUTPUT RANGE" "Y AXIS MINIMUM" "Y AXIS MAXIMUM"]
+                                 :rf-event-id :worksheet/update-y-axis-limit-attr
+                                 :rf-sub-id   :worksheet/graph-settings-y-axis-limits
+                                 :min-attr-id :y-axis-limit/min
+                                 :max-attr-id :y-axis-limit/max}])))])))
 
 (defn- map-units-form
   [ws-uuid]
