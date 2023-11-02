@@ -174,12 +174,7 @@
                  :icon-position "right"
                  :on-click      #(rf/dispatch [:tool/solve tool-uuid subtool-uuid])}]]
      (for [variable @output-variables]
-       [tool-output variable tool-uuid subtool-uuid])
-     [c/button {:label         @(<t (bp "close_tool"))
-                :variant       "highlight"
-                :icon-name     "arrow2"
-                :icon-position "right"
-                :on-click      #(rf/dispatch [:tool/close-tool])}]]))
+       [tool-output variable tool-uuid subtool-uuid])]))
 
 (defn tool
   "A view for displaying the selected tool's inputs and outputs."
@@ -204,7 +199,7 @@
                    :on-click  #(rf/dispatch [:tool/close-tool])
                    :shape     "round"
                    :size      "small"
-                   :variant   "highlight"}]]]
+                   :variant   "primary"}]]]
       [:div.accordion__body
        (when (> (count subtools) 1)
          [c/tab-group {:variant  "outline-primary"
