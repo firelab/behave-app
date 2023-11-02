@@ -177,7 +177,7 @@
        [tool-output variable tool-uuid subtool-uuid])
      [c/button {:label         @(<t (bp "close_tool"))
                 :variant       "highlight"
-                :icon-name     "arrow2"
+                :icon-name     "close"
                 :icon-position "right"
                 :on-click      #(rf/dispatch [:tool/close-tool])}]]))
 
