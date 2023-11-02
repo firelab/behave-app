@@ -10,4 +10,7 @@
          '(0 1 2 3)))
 
   (is (= (sut/inclusive-range 2 3)
-         '(2 3))))
+         '(2 3)))
+
+  (is (= (sut/inclusive-range 10 2 -2)
+         '(10 8 6 4 2))))
