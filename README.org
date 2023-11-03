@@ -142,31 +142,45 @@ List -> ListOptions         [label=":list/options" taillabel=1 headlabel=N]
 #+RESULTS:
 [[file:projects/behave/docs/tools-schema.png]]
 
-** behave_cms
-* Building the Behave UberJAR
+*** Building the Behave UberJAR
 
-1. Add/edit the ~resources/config.edn~ for your deployment. Below is
+1. Navigate to ~projects/behave~. All paths described here will use this directory as root.
+
+2. Add/edit the ~resources/config.edn~ for your deployment. Below is
    an example file:
 
 #+BEGIN_SRC clojure
-  ;; resources/config.edn
-  {:database {:config {:store {:backend :file
-                               :path    "~/.behave/db"}}}
-   :site     {:title       "BehavePlus 7"
-              :description "Wildfire Analysis toolkit."}
-   :server   {:http-port 8007
-              :mode      "prod"}
-   :vms      {:secret-token "<vms-secret-token>"}}
+;; resources/config.edn
+{:database {:config {:store {:backend :file
+                             :path    "~/.behave/db"}}}
+ :site     {:title       "BehavePlus 7"
+            :description "Wildfire Analysis toolkit."}
+ :server   {:http-port 8007
+            :mode      "prod"}
+ :vms      {:secret-token "<vms-secret-token>"}}
 #+END_SRC
 
-2. Compile ClojureScript
+3. Compile ClojureScript
+
 #+BEGIN_SRC bash
-  clj -M:compile-cljs compile-prod.cljs.edn
+bb build-js
 #+END_SRC
 
-3. Build the UberJAR
+4. Build the UberJAR
+
+NOTE: The uberjar build process requires triangulum to be available in the deps.edn located at the
+user level (i.e. /home/<user>//.clojure/deps.edn).
+
+#+begin_src clojure
+{sig-gis/triangulum {:git/url "https://github.com/sig-gis/triangulum"
+                     :sha     "<latest-sha>"}}
+#+end_src
+
 #+BEGIN_SRC bash
-  clj -T:build org.corfield.build/uber :lib sig-gis/behave :main behave.core
+bb uber
 #+END_SRC
 
-4. Congratulations! You're now the owner of an UberJAR (inside ~target/behave-standalone.jar~)
+4. Congratulations! You're now the owner of an UberJAR.
+   (i.e. ~target/behave7-2023.10.19-97f1ef9-standalone.jar~)
+
+** behave_cms
