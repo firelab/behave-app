@@ -593,9 +593,9 @@
           (wizard-notes @*notes)]
          (when (and table-enabled? (seq @*cell-data))
            [:div.wizard-results__table {:id "table"}
-            [:div.wizard-notes__header "Outputs Table"]
+            [:div.wizard-notes__header @(<t (bp "outputs_table"))]
             [result-matrices ws-uuid]
-            [:div.wizard-notes__header "Run's Table"]
+            [:div.wizard-notes__header @(<t (bp "runs_table"))]
             [result-table ws-uuid]])
          (result-graphs ws-uuid @*cell-data)
          (result-diagrams ws-uuid)]]
