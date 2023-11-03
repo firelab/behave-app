@@ -312,10 +312,13 @@
 (rf/reg-sub
  :worksheet/multi-value-input-uuids
  (fn [[_ ws-uuid]]
-   (rf/subscribe [:worksheet/multi-value-input-uuid+value ws-uuid]))
+   [(rf/subscribe [:worksheet/multi-value-input-uuid+value ws-uuid])
+    (rf/subscribe [:vms/group-variable-order])])
 
- (fn [inputs _query]
-   (map first inputs)))
+ (fn [[inputs gv-order] _query]
+   (->> inputs
+        (map first)
+        (sort-by #(.indexOf gv-order %)))))
 
 (rp/reg-sub
  :worksheet/all-output-uuids

@@ -291,27 +291,41 @@
      {:transact [[:db.fn/retractEntity eid]]})))
 
 (rp/reg-event-fx
- :worksheet/toggle-graph-settings
+ :worksheet/set-default-graph-settings
  [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet/multi-value-input-uuids ws-uuid]))
   (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet ws-uuid]))]
  (fn [{worksheet               :worksheet
        multi-value-input-uuids :worksheet/multi-value-input-uuids} _]
+   (when (pos? (count multi-value-input-uuids))
+    (let [graph-setting-id (get-in worksheet [:worksheet/graph-settings :db/id])]
+      {:transact [; First clear any existing graph settings.
+                  [:db/retract graph-setting-id :graph-settings/x-axis-group-variable-uuid]
+                  [:db/retract graph-setting-id :graph-settings/y-axis-group-variable-uuid]
+                  [:db/retract graph-setting-id :graph-settings/z-axis-group-variable-uuid]
+                  ;; Then default any multi valued variables starting from the lowest to highest dimensions x->z.
+                  (cond-> {:db/id                   graph-setting-id}
+
+                    ;; sets default x-axis selection if available
+                    (first multi-value-input-uuids)
+                    (assoc :graph-settings/x-axis-group-variable-uuid (first multi-value-input-uuids))
+
+                    ;; sets default z-axis selection if available
+                    (second multi-value-input-uuids)
+                    (assoc :graph-settings/z-axis-group-variable-uuid (second multi-value-input-uuids))
+
+                    ;; sets default z2-axis selection if available
+                    (nth multi-value-input-uuids 2 nil)
+                    (assoc :graph-settings/z2-axis-group-variable-uuid (nth multi-value-input-uuids 2)))]}))))
+
+(rp/reg-event-fx
+ :worksheet/toggle-graph-settings
+ (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet ws-uuid]))
+ (fn [{worksheet :worksheet} [_ ws-uuid]]
    (let [graph-setting-id (get-in worksheet [:worksheet/graph-settings :db/id])
          enabled?         (get-in worksheet [:worksheet/graph-settings :graph-settings/enabled?])]
-     {:transact [(cond-> {:db/id                   graph-setting-id
-                          :graph-settings/enabled? (not enabled?)}
-
-                   ;; sets default x-axis selection if available
-                   (first multi-value-input-uuids)
-                   (assoc :graph-settings/x-axis-group-variable-uuid (first multi-value-input-uuids))
-
-                   ;; sets default z-axis selection if available
-                   (second multi-value-input-uuids)
-                   (assoc :graph-settings/z-axis-group-variable-uuid (second multi-value-input-uuids))
-
-                   ;; sets default z2-axis selection if available
-                   (nth multi-value-input-uuids 2 nil)
-                   (assoc :graph-settings/z2-axis-group-variable-uuid (nth multi-value-input-uuids 2)))]})))
+     {:transact [{:db/id                   graph-setting-id
+                  :graph-settings/enabled? (not enabled?)}]
+      :fx       [[:dispatch [:worksheet/set-default-graph-settings ws-uuid]]]})))
 
 (rp/reg-event-fx
  :worksheet/update-y-axis-limit-attr
