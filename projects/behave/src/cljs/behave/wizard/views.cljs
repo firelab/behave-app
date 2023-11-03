@@ -1,6 +1,5 @@
 (ns behave.wizard.views
-  (:require [clojure.string                       :as str]
-            [behave.components.core               :as c]
+  (:require [behave.components.core               :as c]
             [behave.components.input-group        :refer [input-group]]
             [behave.components.review-input-group :as review]
             [behave.components.navigation         :refer [wizard-navigation]]
@@ -12,8 +11,6 @@
             [behave.tool.views                    :refer [tool tool-selector]]
             [behave-routing.main                  :refer [routes]]
             [behave.translate                     :refer [<t bp]]
-            [behave.units-conversion              :refer [to-feet from-feet to-map-units]]
-            [clojure.set                          :refer [rename-keys]]
             [behave.wizard.events]
             [behave.wizard.subs]
             [bidi.bidi                            :refer [path-for]]
@@ -24,8 +21,7 @@
             [goog.string.format]
             [re-frame.core                        :refer [dispatch dispatch-sync subscribe]]
             [string-utils.interface               :refer [->kebab]]
-            [reagent.core                         :as r]
-            [re-frame.core :as rf]))
+            [reagent.core                         :as r]))
 
 ;;; Components
 
@@ -253,8 +249,8 @@
         *multi-value-input-count (subscribe [:wizard/multi-value-input-count ws-uuid])
         *notes                   (subscribe [:wizard/notes ws-uuid])
         *show-notes?             (subscribe [:wizard/show-notes?])
-        show-tool-selector?      @(rf/subscribe [:tool/show-tool-selector?])
-        selected-tool-uuid       @(rf/subscribe [:tool/selected-tool-uuid])]
+        show-tool-selector?      @(subscribe [:tool/show-tool-selector?])
+        selected-tool-uuid       @(subscribe [:tool/selected-tool-uuid])]
     [:<>
      (when show-tool-selector?
        [tool-selector])
@@ -445,7 +441,7 @@
 
 (defn- map-units-form
   [ws-uuid]
-  (let [map-units-settings-entity @(rf/subscribe [:worksheet/map-units-settings-entity ws-uuid])
+  (let [map-units-settings-entity @(subscribe [:worksheet/map-units-settings-entity ws-uuid])
         units                     (:map-units-settings/units map-units-settings-entity)
         map-rep-frac              (:map-units-settings/map-rep-fraction map-units-settings-entity)
         map-rep-frac-atom         (r/atom map-rep-frac)]
@@ -475,7 +471,7 @@
   (let [*worksheet                (subscribe [:worksheet ws-uuid])
         table-settings            (:worksheet/table-settings @*worksheet)
         table-enabled?            (:table-settings/enabled? table-settings)
-        map-units-settings-entity @(rf/subscribe [:worksheet/map-units-settings-entity ws-uuid])
+        map-units-settings-entity @(subscribe [:worksheet/map-units-settings-entity ws-uuid])
         map-units-enabled?        (:map-units-settings/enabled? map-units-settings-entity)]
     [:<> [c/checkbox {:label     "Display Table Results"
                       :checked?  table-enabled?
@@ -501,8 +497,8 @@
         *show-notes?        (subscribe [:wizard/show-notes?])
         on-back             #(dispatch [:wizard/prev-tab params])
         on-next             #(dispatch [:navigate (path-for routes :ws/results :ws-uuid ws-uuid)])
-        show-tool-selector? @(rf/subscribe [:tool/show-tool-selector?])
-        selected-tool-uuid  @(rf/subscribe [:tool/selected-tool-uuid])]
+        show-tool-selector? @(subscribe [:tool/show-tool-selector?])
+        selected-tool-uuid  @(subscribe [:tool/selected-tool-uuid])]
     [:<>
      (when show-tool-selector?
        [tool-selector])
@@ -547,8 +543,8 @@
         *tab-selected       (subscribe [:wizard/results-tab-selected])
         *cell-data          (subscribe [:worksheet/result-table-cell-data ws-uuid])
         table-enabled?      (get-in @*worksheet [:worksheet/table-settings :table-settings/enabled?])
-        show-tool-selector? @(rf/subscribe [:tool/show-tool-selector?])
-        selected-tool-uuid  @(rf/subscribe [:tool/selected-tool-uuid])]
+        show-tool-selector? @(subscribe [:tool/show-tool-selector?])
+        selected-tool-uuid  @(subscribe [:tool/selected-tool-uuid])]
     [:<>
      (when show-tool-selector?
        [tool-selector])
