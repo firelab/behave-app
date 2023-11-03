@@ -21,6 +21,8 @@
             [behave.subs]
             [day8.re-frame.http-fx]))
 
+(def ^:private CANCEL-TIMEOUT-MS 9000)
+
 (defn not-found []
   [:div
    [:h1 (str @(<t "notfound") " :(")]])
@@ -45,6 +47,15 @@
   (when issue-collector
     (rf/dispatch [:system/add-script issue-collector])))
 
+(defn- before-unload-fn [e]
+  (.preventDefault e)
+  (js/setTimeout #(rf/dispatch [:system/cancel-close]) CANCEL-TIMEOUT-MS)
+  (rf/dispatch [:system/close]))
+
+(defn add-before-unload-event! [{:keys [mode]}]
+  (when (= mode "prod")
+    (.addEventListener js/window "beforeunload" before-unload-fn)))
+
 (defn app-shell [params]
   (let [route              (rf/subscribe [:handler])
         sync-loaded?       (rf/subscribe [:state :sync-loaded?])
@@ -53,7 +64,6 @@
         page               (get handler->page (:handler @route) not-found)
         params             (-> (merge params (:route-params @route))
                                (assoc :route-handler (:handler @route)))]
-    (load-scripts! params)
     (if (= (:handler @route) :ws/print)
       (if (and @vms-loaded? @sync-loaded?)
         [page params]
@@ -88,14 +98,16 @@
 (defn- ^:export init
   "Defines the init function to be called from window.onload()."
   [params]
-  (rf/dispatch-sync [:initialize])
-  (rf/dispatch-sync [:navigate (-> js/window .-location .-pathname)])
-  (.addEventListener js/window "popstate" #(rf/dispatch [:popstate %]))
-  (load-translations!)
-  (load-vms!)
-  (load-store!)
-  (render [app-shell (js->clj params :keywordize-keys true)]
-          (.getElementById js/document "app")))
+  (let [params (js->clj params :keywordize-keys true)]
+    (rf/dispatch-sync [:initialize])
+    (rf/dispatch-sync [:navigate (-> js/window .-location .-pathname)])
+    (.addEventListener js/window "popstate" #(rf/dispatch [:popstate %]))
+    (load-translations!)
+    (load-vms!)
+    (load-store!)
+    (load-scripts! params)
+    (add-before-unload-event! params)
+    (render [app-shell params] (.getElementById js/document "app"))))
 
 (defn- ^:after-load mount-root!
   "A hook for figwheel to call the init function again."

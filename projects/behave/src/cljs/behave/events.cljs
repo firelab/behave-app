@@ -121,6 +121,20 @@
    (when-not (script-exist? src)
      (add-script src))))
 
+(rf/reg-event-fx
+ :system/close
+ (fn [_ _]
+   {:http-xhrio {:method          :get
+                 :uri             "/close"
+                 :response-format (ajax/text-response-format)}}))
+
+(rf/reg-event-fx
+ :system/cancel-close
+ (fn [_ _]
+   {:http-xhrio {:method          :get
+                 :uri             "/close?cancel=true"
+                 :response-format (ajax/text-response-format)}}))
+
 ;;; Translations
 
 (rf/reg-event-db
