@@ -189,6 +189,10 @@
           :system           :metric,
           :enum-member-name "GigaPascal",
           :name             "GigaPascal"}
+   #:unit{:short-code       "hPa",
+          :system           :metric,
+          :enum-member-name "HectoPascal",
+          :name             "HectoPascal"}
    #:unit{:short-code       "kPa",
           :system           :metric,
           :enum-member-name "KiloPascal",

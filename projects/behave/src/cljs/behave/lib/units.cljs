@@ -67,6 +67,7 @@
    {:short "per ha"} ; FIXME Tree Density
    {:short "tonne/ha" :system "metric" :enum enum/loading-units                 :unit "TonnesPerHectare"}
    {:short "Pa"       :system "metric" :enum enum/pressure-units                :unit "Pascal"}
+   {:short "hPa"      :system "metric" :enum enum/pressure-units                :unit "HectoPascal"}
    {:short "kPa"      :system "metric" :enum enum/pressure-units                :unit "KiloPascal"}
    {:short "MPa"      :system "metric" :enum enum/pressure-units                :unit "MegaPascal"}
    {:short "GPa"      :system "metric" :enum enum/pressure-units                :unit "GigaPascal"}
