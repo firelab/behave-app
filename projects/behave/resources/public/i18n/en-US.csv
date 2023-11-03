@@ -124,6 +124,7 @@ behaveplus:workflow:import_desc,File extensions supported: *.bp6 (XML) or *.bp7 
 behaveplus:output_range,OUTPUT RANGE
 behaveplus:output_selections_fire,Output Selections: Fire
 behaveplus:outputs,Outputs
+behaveplus:outputs_table,Outputs Table
 behaveplus:outputs_selections,Outputs Selections
 behaveplus:optional,Optional
 behaveplus:please_complete_the_missing_information_andor_correct_the_errors,Please complete the missing information and/or correct the errors.
@@ -158,6 +159,7 @@ behaveplus:run_date,Run Date
 behaveplus:run_description,Run's Description
 behaveplus:run_notes,Run Notes
 behaveplus:run_results,Run Results
+behaveplus:runs_table,Run's Table
 behaveplus:save,Save
 behaveplus:saved_warning,The progress made with the worksheet name is saved. Press below to start a new worksheet.
 behaveplus:search,Search

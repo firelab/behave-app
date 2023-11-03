@@ -1,18 +1,16 @@
 (ns behave.wizard.views
-  (:require [clojure.string                       :as str]
-            [behave.components.core               :as c]
+  (:require [behave.components.core               :as c]
             [behave.components.input-group        :refer [input-group]]
-            [behave.components.graph              :refer [result-graph]]
             [behave.components.review-input-group :as review]
             [behave.components.navigation         :refer [wizard-navigation]]
             [behave.components.output-group       :refer [output-group]]
-            [behave.components.vega.result-chart  :refer [result-chart]]
-            [behave.components.vega.diagram       :refer [output-diagram]]
+            [behave.components.results.diagrams   :refer [result-diagrams]]
+            [behave.components.results.matrices   :refer [result-matrices]]
+            [behave.components.results.graphs     :refer [result-graphs]]
+            [behave.components.results.table      :refer [result-table]]
             [behave.tool.views                    :refer [tool tool-selector]]
             [behave-routing.main                  :refer [routes]]
             [behave.translate                     :refer [<t bp]]
-            [behave.units-conversion              :refer [to-feet from-feet to-map-units]]
-            [clojure.set                          :refer [rename-keys]]
             [behave.wizard.events]
             [behave.wizard.subs]
             [bidi.bidi                            :refer [path-for]]
@@ -23,8 +21,7 @@
             [goog.string.format]
             [re-frame.core                        :refer [dispatch dispatch-sync subscribe]]
             [string-utils.interface               :refer [->kebab]]
-            [reagent.core                         :as r]
-            [re-frame.core :as rf]))
+            [reagent.core                         :as r]))
 
 ;;; Components
 
@@ -252,8 +249,8 @@
         *multi-value-input-count (subscribe [:wizard/multi-value-input-count ws-uuid])
         *notes                   (subscribe [:wizard/notes ws-uuid])
         *show-notes?             (subscribe [:wizard/show-notes?])
-        show-tool-selector?      @(rf/subscribe [:tool/show-tool-selector?])
-        selected-tool-uuid       @(rf/subscribe [:tool/selected-tool-uuid])]
+        show-tool-selector?      @(subscribe [:tool/show-tool-selector?])
+        selected-tool-uuid       @(subscribe [:tool/selected-tool-uuid])]
     [:<>
      (when show-tool-selector?
        [tool-selector])
@@ -334,36 +331,6 @@
                         :on-change     #(on-change gv-uuid %)
                         :value-atom    (r/atom saved-value)}])
        saved-entries))
-
-(defn format-bytes
-  "Formats `bytes` into a human-friendly format (e.g. '1 KiB'). Can be called formatted according to `decimals`."
-  [bytes & [decimals]]
-  (if (js/isNaN (+ bytes 0))
-    "0 Bytes"
-    (let [decimals (or decimals 2)
-          k        1024
-          dm       (if (< decimals 0) 0 decimals)
-          sizes    ["Bytes", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"]
-          i        (js/Math.floor (/ (js/Math.log bytes) (js/Math.log k)))]
-      (gstring/format "%s %s" (.toFixed (js/parseFloat (/ bytes (js/Math.pow k i))) dm) (nth sizes i)))))
-
-(defn table-exporter
-  "Displays a link to download a CSV copy of the table."
-  [{:keys [title headers columns rows] :as table-data}]
-  (let [print-row  (fn [row] (str/join "," (map #(get row %) columns)))
-        csv-header (str/join "," headers)
-        csv-rows   (str/join "\n" (map print-row rows))
-        csv        (str csv-header "\n" csv-rows)
-        blob       (js/Blob. [csv] #js {:type "text/csv"})
-        url        (js/window.URL.createObjectURL blob)]
-    [:div
-     (c/table table-data)
-     [:div
-      {:style {:margin "1em"}}
-      [:a
-       {:href     url
-        :download (gstring/format "%s.csv" title)}
-       (gstring/format "Download CSV (%s.csv / %s)" title (format-bytes (.-size blob) 0))]]]))
 
 (defn settings-form
   [{:keys [ws-uuid title headers rf-event-id rf-sub-id min-attr-id max-attr-id]}]
@@ -482,7 +449,7 @@
 
 (defn- map-units-form
   [ws-uuid]
-  (let [map-units-settings-entity @(rf/subscribe [:worksheet/map-units-settings-entity ws-uuid])
+  (let [map-units-settings-entity @(subscribe [:worksheet/map-units-settings-entity ws-uuid])
         units                     (:map-units-settings/units map-units-settings-entity)
         map-rep-frac              (:map-units-settings/map-rep-fraction map-units-settings-entity)
         map-rep-frac-atom         (r/atom map-rep-frac)]
@@ -512,7 +479,7 @@
   (let [*worksheet                (subscribe [:worksheet ws-uuid])
         table-settings            (:worksheet/table-settings @*worksheet)
         table-enabled?            (:table-settings/enabled? table-settings)
-        map-units-settings-entity @(rf/subscribe [:worksheet/map-units-settings-entity ws-uuid])
+        map-units-settings-entity @(subscribe [:worksheet/map-units-settings-entity ws-uuid])
         map-units-enabled?        (:map-units-settings/enabled? map-units-settings-entity)]
     [:<> [c/checkbox {:label     "Display Table Results"
                       :checked?  table-enabled?
@@ -538,8 +505,8 @@
         *show-notes?        (subscribe [:wizard/show-notes?])
         on-back             #(dispatch [:wizard/prev-tab params])
         on-next             #(dispatch [:navigate (path-for routes :ws/results :ws-uuid ws-uuid)])
-        show-tool-selector? @(rf/subscribe [:tool/show-tool-selector?])
-        selected-tool-uuid  @(rf/subscribe [:tool/selected-tool-uuid])]
+        show-tool-selector? @(subscribe [:tool/show-tool-selector?])
+        selected-tool-uuid  @(subscribe [:tool/selected-tool-uuid])]
     [:<>
      (when show-tool-selector?
        [tool-selector])
@@ -574,232 +541,76 @@
                           :back-label @(<t (bp "back"))
                           :on-back    on-back}]]]))
 
-(defn- construct-summary-table [ws-uuid group-variable-uuid row-id]
-  (let [outputs-to-filter (set @(subscribe [:wizard/diagram-output-gv-uuids group-variable-uuid]))
-        outputs           (->> (subscribe [:worksheet/output-gv-uuid+value+units ws-uuid row-id])
-                               deref
-                               (filter (fn [[gv-uuid]] (contains? outputs-to-filter gv-uuid)))
-                               (map (fn resolve-gv-uuid->name[[gv-uuid & remain]]
-                                      (conj remain @(subscribe [:wizard/gv-uuid->variable-name gv-uuid])))))
-        inputs-to-filter  (set @(subscribe [:wizard/diagram-input-gv-uuids group-variable-uuid]))
-        inputs            (->> (subscribe [:worksheet/input-gv-uuid+value+units ws-uuid row-id])
-                               deref
-                               (filter (fn [[gv-uuid]] (contains? inputs-to-filter gv-uuid)))
-                               (map (fn resolve-gv-uuid->name [[gv-uuid & remain]]
-                                      (conj remain @(subscribe [:wizard/gv-uuid->variable-name gv-uuid])))))]
-    [:div
-     [:table.diagram__table
-      (map (fn [[variable-name value units]]
-             [:tr
-              [:td (str variable-name ":")]
-              [:td (if (seq units)
-                     (str value " (" units ")")
-                     value)]])
-           inputs)]
-     [:table.diagram__table
-      (map (fn [[variable-name value units]]
-             [:tr
-              [:td (str variable-name ":")]
-              [:td (if (seq units)
-                     (str value " (" units ")")
-                     value)]])
-           outputs)]]))
-
-(defn- construct-diagram [ws-uuid
-                          {row-id              :worksheet.diagram/row-id
-                           ellipses            :worksheet.diagram/ellipses
-                           arrows              :worksheet.diagram/arrows
-                           scatter-plots       :worksheet.diagram/scatter-plots
-                           title               :worksheet.diagram/title
-                           group-variable-uuid :worksheet.diagram/group-variable-uuid}]
-
-  (let [domain (apply max (concat (map #(Math/abs (* 2 (:ellipse/semi-minor-axis %))) ellipses)
-                                  (map #(Math/abs (* 2 (:ellipse/semi-major-axis %))) ellipses)
-                                  (map #(Math/abs (:arrow/length %)) arrows)
-                                  (->> scatter-plots
-                                       (mapcat #(str/split (:scatter-plot/x-coordinates %) ","))
-                                       (map #(Math/abs (double %))))
-                                  (->> scatter-plots
-                                       (mapcat #(str/split (:scatter-plot/y-coordinates %) ","))
-                                       (map #(Math/abs (double %))))))]
-    [:div.diagram
-     [output-diagram {:title         (str title " for result row: " (inc row-id))
-                      :width         500
-                      :height        500
-                      :x-axis        {:domain        [(* -1 domain) domain]
-                                      :title         "x"
-                                      :tick-min-step 5}
-                      :y-axis        {:domain        [(* -1 domain) domain]
-                                      :title         "y"
-                                      :tick-min-step 5}
-                      :ellipses      (mapv #(rename-keys (into {} %)
-                                                         {:ellipse/legend-id       :legend-id
-                                                          :ellipse/semi-major-axis :a
-                                                          :ellipse/semi-minor-axis :b
-                                                          :ellipse/rotation        :phi
-                                                          :ellipse/color           :color})
-                                           ellipses)
-                      :arrows        (mapv #(rename-keys (into {} %)
-                                                         {:arrow/legend-id :legend-id
-                                                          :arrow/length    :r
-                                                          :arrow/rotation  :theta
-                                                          :arrow/color     :color
-                                                          :arrow/dashed?   :dashed?})
-                                           arrows)
-                      :scatter-plots (mapv (fn [{legend-id     :scatter-plot/legend-id
-                                                 x-coordinates :scatter-plot/x-coordinates
-                                                 y-coordinates :scatter-plot/y-coordinates
-                                                 color         :scatter-plot/color}]
-                                             (let [x-doubles (map double (str/split x-coordinates ","))
-                                                   y-doubles (map double (str/split y-coordinates ","))]
-                                               {:legend-id legend-id
-                                                :color     color
-                                                :data      (concat
-                                                            (mapv (fn [x y]
-                                                                    {"x" x
-                                                                     "y" y})
-                                                                  x-doubles
-                                                                  y-doubles)
-                                                            (mapv (fn [x y]
-                                                                    {"x" x
-                                                                     "y" (* -1 y)})
-                                                                  x-doubles
-                                                                  y-doubles))}))
-                                           scatter-plots)}]
-     (construct-summary-table ws-uuid group-variable-uuid row-id)]))
-
-(defn wizard-diagrams [ws-uuid]
-  (let [*ws (subscribe [:worksheet-entity ws-uuid])]
-    (when (seq (:worksheet/diagrams @*ws))
-      [:div.wizard-results__diagrams {:id "diagram"}
-       [:div.wizard-notes__header "Diagram"]
-       (map #(construct-diagram ws-uuid % )
-            (sort-by :worksheet.diagram/row-id
-                     (:worksheet/diagrams @*ws)))])))
-
 ;; Wizard Results
-(defn- procces-map-units?
-  [map-units-enabled? v-uuid]
-  (let [map-units-variables @(subscribe [:wizard/map-unit-convertible-variables])]
-    (and map-units-enabled? (get map-units-variables v-uuid))))
 
 (defn wizard-results-page [{:keys [route-handler io ws-uuid] :as params}]
-  (let [*worksheet                (subscribe [:worksheet ws-uuid])
-        *ws-date                  (subscribe [:wizard/worksheet-date ws-uuid])
-        _                         (dispatch [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
-        *notes                    (subscribe [:wizard/notes ws-uuid])
-        *tab-selected             (subscribe [:wizard/results-tab-selected])
-        *headers                  (subscribe [:worksheet/result-table-headers-sorted ws-uuid])
-        *cell-data                (subscribe [:worksheet/result-table-cell-data ws-uuid])
-        table-enabled?            (get-in @*worksheet [:worksheet/table-settings :table-settings/enabled?])
-        table-setting-filters     (subscribe [:worksheet/table-settings-filters ws-uuid])
-        map-units-settings-entity @(rf/subscribe [:worksheet/map-units-settings-entity ws-uuid])
-        map-units-enabled?        (:map-units-settings/enabled? map-units-settings-entity)
-        map-units                 (:map-units-settings/units map-units-settings-entity)
-        map-rep-frac              (:map-units-settings/map-rep-fraction map-units-settings-entity)
-        map-units-variables       @(subscribe [:wizard/map-unit-convertible-variables])
-        show-tool-selector?       @(rf/subscribe [:tool/show-tool-selector?])
-        selected-tool-uuid        @(rf/subscribe [:tool/selected-tool-uuid])]
+  (let [*worksheet          (subscribe [:worksheet ws-uuid])
+        *ws-date            (subscribe [:wizard/worksheet-date ws-uuid])
+        _                   (dispatch [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
+        *notes              (subscribe [:wizard/notes ws-uuid])
+        *tab-selected       (subscribe [:wizard/results-tab-selected])
+        *cell-data          (subscribe [:worksheet/result-table-cell-data ws-uuid])
+        table-enabled?      (get-in @*worksheet [:worksheet/table-settings :table-settings/enabled?])
+        show-tool-selector? @(subscribe [:tool/show-tool-selector?])
+        selected-tool-uuid  @(subscribe [:tool/selected-tool-uuid])]
     [:<>
      (when show-tool-selector?
        [tool-selector])
      (when (some? selected-tool-uuid)
        [tool selected-tool-uuid])
      [:div.accordion
-     [:div.accordion__header
-      [c/tab {:variant   "outline-primary"
-              :selected? true
-              :label     @(<t "behaveplus:working_area")}]]
-     [:div.wizard
-      [:div.wizard-page
-       [:div.wizard-header
-        [:div.wizard-header__banner {:style {:margin-top "20px"}}
-         [:div.wizard-header__banner__icon
-          [c/icon :modules]]
-         "Results"]
-        [:div.wizard-header__results-toolbar
-         [:div.wizard-header__results-toolbar__file-name
-          [:div.wizard-header__results-toolbar__file-name__label (str @(<t (bp "file_name")) ":")]
-          [:div.wizard-header__results-toolbar__file-name__value (:worksheet/name @*worksheet)]]
-         [:div.wizard-header__results-toolbar__date
-          [:div.wizard-header__results-toolbar__date__label (str @(<t (bp "run_date")) ":")]
-          [:div.wizard-header__results-toolbar__date__value @*ws-date]]]
-        [:div.wizard-header__results-tabs
-         [c/tab-group {:variant  "outline-highlight"
-                       :on-click #(dispatch [:wizard/results-select-tab %])
-                       :tabs     [{:label     "Notes"
-                                   :tab       :notes
-                                   :icon-name :notes
-                                   :selected? (= @*tab-selected :notes)}
-                                  {:label     "Table"
-                                   :tab       :table
-                                   :icon-name :tables
-                                   :selected? (= @*tab-selected :table)}
-                                  {:label     "Graph"
-                                   :tab       :graph
-                                   :icon-name :graphs
-                                   :selected? (= @*tab-selected :graph)}
-                                  {:label     "Diagram"
-                                   :tab       :diagram
-                                   :icon-name :graphs
-                                   :selected? (= @*tab-selected :diagram)}]}]]]
-       [:div.wizard-page__body
-        [:div.wizard-results__notes {:id "notes"}
-         (wizard-notes @*notes)]
-        (when (and table-enabled? (seq @*cell-data))
-          [:div.wizard-results__table {:id "table"}
-           [:div.wizard-notes__header "Table"]
-           (let [formatters @(subscribe [:worksheet/result-table-formatters (map first @*headers)])
-                 table-data {:title   "Results Table"
-                             :headers (reduce (fn resolve-uuid [acc [gv-uuid _repeat-id units]]
-                                                (let [var-name (:variable/name @(subscribe [:wizard/group-variable gv-uuid]))]
-                                                  (cond-> acc
-                                                    :always (conj (str var-name (when-not (empty? units) (gstring/format " (%s)" units))))
-
-                                                    (procces-map-units? map-units-enabled? gv-uuid)
-                                                    (conj (str var-name " Map Units " (gstring/format " (%s)" map-units))))))
-                                              []
-                                              @*headers)
-                             :columns (reduce (fn [acc [gv-uuid repeat-id _units]]
-                                                (cond-> acc
-                                                  :always (conj (keyword (str gv-uuid "-" repeat-id)))
-
-                                                  (procces-map-units? map-units-enabled? gv-uuid)
-                                                  (conj (keyword (str/join "-" [gv-uuid repeat-id "map-units"])))))
-                                              []
-                                              @*headers)
-                             :rows    (->> (group-by first @*cell-data)
-                                           (sort-by key)
-                                           (map (fn [[_ data]]
-                                                  (reduce (fn [acc [_row-id uuid repeat-id value]]
-                                                            (let [[_ min max enabled?] (first (filter
-                                                                                               (fn [[gv-uuid]]
-                                                                                                 (= gv-uuid uuid))
-                                                                                               @table-setting-filters))
-                                                                  fmt-fn               (get formatters uuid identity)
-                                                                  uuid+repeat-id-key   (keyword (str uuid "-" repeat-id))]
-                                                              (cond-> acc
-                                                                (and min max (not (<= min value max)) enabled?)
-                                                                (assoc :shaded? true)
-
-                                                                :always
-                                                                (assoc uuid+repeat-id-key (fmt-fn value))
-
-                                                                (procces-map-units? map-units-enabled? uuid)
-                                                                (assoc (keyword (str/join "-" [uuid repeat-id "map-units"]))
-                                                                       (to-map-units value
-                                                                                     (get map-units-variables uuid)
-                                                                                     map-units
-                                                                                     map-rep-frac)))))
-                                                          {}
-                                                          data))))}]
-             [table-exporter table-data])])
-        (result-graph ws-uuid @*cell-data)
-        (wizard-diagrams ws-uuid)]]
-      [:div.wizard-navigation
-       [c/button {:label    "Back"
-                  :variant  "secondary"
-                  :on-click #(dispatch [:wizard/prev-tab params])}]]]]]))
+      [:div.accordion__header
+       [c/tab {:variant   "outline-primary"
+               :selected? true
+               :label     @(<t "behaveplus:working_area")}]]
+      [:div.wizard
+       [:div.wizard-page
+        [:div.wizard-header
+         [:div.wizard-header__banner {:style {:margin-top "20px"}}
+          [:div.wizard-header__banner__icon
+           [c/icon :modules]]
+          "Results"]
+         [:div.wizard-header__results-toolbar
+          [:div.wizard-header__results-toolbar__file-name
+           [:div.wizard-header__results-toolbar__file-name__label (str @(<t (bp "file_name")) ":")]
+           [:div.wizard-header__results-toolbar__file-name__value (:worksheet/name @*worksheet)]]
+          [:div.wizard-header__results-toolbar__date
+           [:div.wizard-header__results-toolbar__date__label (str @(<t (bp "run_date")) ":")]
+           [:div.wizard-header__results-toolbar__date__value @*ws-date]]]
+         [:div.wizard-header__results-tabs
+          [c/tab-group {:variant  "outline-highlight"
+                        :on-click #(dispatch [:wizard/results-select-tab %])
+                        :tabs     [{:label     "Notes"
+                                    :tab       :notes
+                                    :icon-name :notes
+                                    :selected? (= @*tab-selected :notes)}
+                                   {:label     "Table"
+                                    :tab       :table
+                                    :icon-name :tables
+                                    :selected? (= @*tab-selected :table)}
+                                   {:label     "Graph"
+                                    :tab       :graph
+                                    :icon-name :graphs
+                                    :selected? (= @*tab-selected :graph)}
+                                   {:label     "Diagram"
+                                    :tab       :diagram
+                                    :icon-name :graphs
+                                    :selected? (= @*tab-selected :diagram)}]}]]]
+        [:div.wizard-page__body
+         [:div.wizard-results__notes {:id "notes"}
+          (wizard-notes @*notes)]
+         (when (and table-enabled? (seq @*cell-data))
+           [:div.wizard-results__table {:id "table"}
+            [:div.wizard-notes__header @(<t (bp "outputs_table"))]
+            [result-matrices ws-uuid]
+            [:div.wizard-notes__header @(<t (bp "runs_table"))]
+            [result-table ws-uuid]])
+         (result-graphs ws-uuid @*cell-data)
+         (result-diagrams ws-uuid)]]
+       [:div.wizard-navigation
+        [c/button {:label    "Back"
+                   :variant  "secondary"
+                   :on-click #(dispatch [:wizard/prev-tab params])}]]]]]))
 
 ;; TODO Might want to set this in a config file to the application
 (def ^:const multi-value-input-limit 3)
