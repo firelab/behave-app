@@ -157,7 +157,12 @@
                       :tool-uuid     tool-uuid
                       :subtool-uuid  subtool-uuid
                       :auto-compute? true}]
-         [tool-output variable tool-uuid subtool-uuid]))]))
+         [tool-output variable tool-uuid subtool-uuid]))
+     [c/button {:label         @(<t (bp "close_tool"))
+                :variant       "secondary"
+                :icon-name     "close"
+                :icon-position "right"
+                :on-click      #(rf/dispatch [:tool/close-tool])}]]))
 
 (defn- manual-subtool [tool-uuid subtool-uuid]
   (let [input-variables  (rf/subscribe [:subtool/input-variables subtool-uuid])
@@ -174,7 +179,12 @@
                  :icon-position "right"
                  :on-click      #(rf/dispatch [:tool/solve tool-uuid subtool-uuid])}]]
      (for [variable @output-variables]
-       [tool-output variable tool-uuid subtool-uuid])]))
+       [tool-output variable tool-uuid subtool-uuid])
+     [c/button {:label         @(<t (bp "close_tool"))
+                :variant       "secondary"
+                :icon-name     "close"
+                :icon-position "right"
+                :on-click      #(rf/dispatch [:tool/close-tool])}]]))
 
 (defn tool
   "A view for displaying the selected tool's inputs and outputs."
@@ -199,7 +209,7 @@
                    :on-click  #(rf/dispatch [:tool/close-tool])
                    :shape     "round"
                    :size      "small"
-                   :variant   "primary"}]]]
+                   :variant   "secondary"}]]]
       [:div.accordion__body
        (when (> (count subtools) 1)
          [c/tab-group {:variant  "outline-primary"
