@@ -18,7 +18,8 @@
                 coll)))
 
 (defn upsert-input [ws-uuid group-uuid repeat-id gv-uuid value & [units]]
-  (rf/dispatch [:worksheet/upsert-input-variable ws-uuid group-uuid repeat-id gv-uuid value units]))
+  (rf/dispatch [:worksheet/upsert-input-variable ws-uuid group-uuid repeat-id gv-uuid value units])
+  (rf/dispatch [:worksheet/set-furthest-vistited-step ws-uuid :ws/wizard :input]))
 
 ;;; Components
 
