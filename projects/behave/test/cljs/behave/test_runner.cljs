@@ -12,6 +12,7 @@
             [behave.test-solver-generators]
             [behave.test-solver-queries]
             [behave.tests-used-in-fixtures]
+            [behave.utils-test]
             [behave.vms.subs]
             [behave.wizard.events]
             [behave.wizard.subs]
@@ -42,6 +43,7 @@
              'behave.tests-used-in-fixtures
              'behave.test-solver-generators
              'behave.test-solver-queries
+             'behave.utils-test
              'behave.worksheet-events-test
              'behave.worksheet-subs-test
              ))
