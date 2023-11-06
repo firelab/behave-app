@@ -28,6 +28,7 @@
 
  :PressureUnits_PressureUnitsEnum
  [:Pascal
+  :HectoPascal
   :KiloPascal
   :MegaPascal
   :GigaPascal

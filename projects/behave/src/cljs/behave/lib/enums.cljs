@@ -256,6 +256,7 @@
 (def pressure-units
   (enum "PressureUnits_PressureUnitsEnum"
         ["PressureUnits::Pascal",
+         "PressureUnits::HectoPascal",
          "PressureUnits::KiloPascal",
          "PressureUnits::MegaPascal",
          "PressureUnits::GigaPascal",
