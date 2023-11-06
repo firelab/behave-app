@@ -85,10 +85,12 @@
 
                                                                    (procces-map-units? map-units-enabled? uuid)
                                                                    (assoc (keyword (str/join "-" [uuid repeat-id "map-units"]))
-                                                                          (to-map-units value
-                                                                                        (get map-units-variables uuid)
-                                                                                        map-units
-                                                                                        map-rep-frac)))))
+                                                                          (-> value
+                                                                              (to-map-units
+                                                                               (get map-units-variables uuid)
+                                                                               map-units
+                                                                               map-rep-frac)
+                                                                              fmt-fn)))))
                                                              {}
                                                              data))))}]
     [:div
