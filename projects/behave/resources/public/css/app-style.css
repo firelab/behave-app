@@ -1,19 +1,19 @@
 @charset "UTF-8";
 
 [data-theme-color="surface" i] {
-  --theme-color-primary: var(--green-3);
+  --theme-color-1: var(--green-3);
 }
 
 [data-theme-color="contain" i] {
-  --theme-color-primary: var(--red-2);
+  --theme-color-1: var(--red-2);
 }
 
 [data-theme-color="mortality" i] {
-  --theme-color-primary: var(--red-3);
+  --theme-color-1: var(--red-3);
 }
 
 [data-theme-color="crown" i] {
-  --theme-color-primary: var(--orange-2);
+  --theme-color-1: var(--orange-2);
 }
 
 body {
