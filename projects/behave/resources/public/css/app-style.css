@@ -1,5 +1,21 @@
 @charset "UTF-8";
 
+[data-theme-color="surface" i] {
+  --theme-color-primary: var(--green-3);
+}
+
+[data-theme-color="contain" i] {
+  --theme-color-primary: var(--red-2);
+}
+
+[data-theme-color="mortality" i] {
+  --theme-color-primary: var(--red-3);
+}
+
+[data-theme-color="crown" i] {
+  --theme-color-primary: var(--orange-2);
+}
+
 body {
   background-color: var(--gray-2);
 }
@@ -208,7 +224,7 @@ body {
   font-weight: var(--font-weight-medium);
   text-transform: uppercase;
   color: var(--white);
-  background-color: var(--darkblue-4);
+  background-color: var(--theme-color-tertiary);
 }
 /* -- End Working Area -- */
 
@@ -366,7 +382,7 @@ body {
 .wizard-group__header {
   padding: 5px 18px;
   color: white;
-  background-color: var(--darkblue-4);
+  background-color: var(--theme-color-tertiary);
 }
 
 .wizard-graph__output-header,
@@ -501,7 +517,7 @@ body {
 .wizard-review__module {
   padding: 10px;
   color: var(--white);
-  background: var(--darkblue-3);
+  background: var(--theme-color-primary);
 }
 
 .wizard-review-repeat-group__input {
@@ -896,7 +912,7 @@ body {
 }
 
 .tool__close > .button:hover {
-  color: var(--medblue-4);
+  color: var(--theme-color-tertiary);
   background-color: var(--white);
 }
 

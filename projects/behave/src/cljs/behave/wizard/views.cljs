@@ -81,7 +81,8 @@
                 :icon-position "left"
                 :on-click      #(dispatch [:wizard/toggle-show-notes])}]]))
 
-(defn- wizard-header [{module-name :module/name
+(defn- wizard-header [module
+                      {module-name :module/name
                        module-id   :db/id}
                       {:keys [ws-uuid io submodule] :as params}]
   (let [*submodules         (if (= io :output)
@@ -105,6 +106,7 @@
       [:div.wizard-header__banner__notes-button
        (show-or-close-notes-button @*show-notes?)]]
      [:div.wizard-header__submodule-tabs
+      {:data-theme-color module}
       [c/tab-group {:variant  "outline-primary"
                     :on-click #(dispatch [:wizard/select-tab (assoc params :submodule (:tab %))])
                     :tabs     (map (fn [{s-name :submodule/name slug :slug}]
@@ -181,32 +183,34 @@
         ;; next-disabled?           (not (if (= io :input) @*all-inputs-entered? @*some-outputs-entered?))
         ]
     [:div.wizard-page
-     [wizard-header @*module params]
-     [:div.wizard-page__body
-      (when @*show-notes?
-        [:<>
-         [:div.wizard-add-notes
-          [c/button {:label         "Add Notes"
-                     :variant       "outline-primary"
-                     :icon-name     :plus
-                     :icon-position "left"
-                     :on-click      #(dispatch [:wizard/toggle-show-add-note-form])}]
-          (when @*show-add-note-form?
-            [c/note {:title-label       "Note's Name / Category"
-                     :title-placeholder "Enter note's name or category"
-                     :title-value       ""
-                     :body-value        ""
-                     :on-save           #(dispatch [:wizard/create-note
-                                                    ws-uuid
-                                                    submodule-uuid
-                                                    (:submodule/name @*submodule)
-                                                    (name (:submodule/io @*submodule))
-                                                    %])}])]
-         [wizard-notes @*notes]])
-      [submodule-page io ws-uuid @*groups]
-      (when (true? @*warn-limit?)
-        [:div.wizard-warning
-         (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])]
+     [:div
+      [wizard-header module @*module params]
+      [:div.wizard-page__body
+       (when @*show-notes?
+         [:<>
+          [:div.wizard-add-notes
+           [c/button {:label         "Add Notes"
+                      :variant       "outline-primary"
+                      :icon-name     :plus
+                      :icon-position "left"
+                      :on-click      #(dispatch [:wizard/toggle-show-add-note-form])}]
+           (when @*show-add-note-form?
+             [c/note {:title-label       "Note's Name / Category"
+                      :title-placeholder "Enter note's name or category"
+                      :title-value       ""
+                      :body-value        ""
+                      :on-save           #(dispatch [:wizard/create-note
+                                                     ws-uuid
+                                                     submodule-uuid
+                                                     (:submodule/name @*submodule)
+                                                     (name (:submodule/io @*submodule))
+                                                     %])}])]
+          [wizard-notes @*notes]])
+       [:div
+        [submodule-page io ws-uuid @*groups]]
+       (when (true? @*warn-limit?)
+         [:div.wizard-warning
+          (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])]]
      [wizard-navigation {:next-label @(<t (bp "next"))
                          :on-next    on-next
                          :back-label @(<t (bp "back"))
@@ -279,6 +283,7 @@
                            module @(subscribe [:wizard/*module module-name])]]
             [:div
              [:div.wizard-review__module
+              {:data-theme-color module-name}
               (gstring/format "%s Inputs"  @(<t (:module/translation-key module)))]
              [:div.wizard-review__submodule
               (for [submodule @(subscribe [:wizard/submodules-io-input-only (:db/id module)])
