@@ -382,7 +382,7 @@ body {
 .wizard-group__header {
   padding: 5px 18px;
   color: white;
-  background-color: var(--theme-color-4);
+  background-color: var(--theme-color-2);
 }
 
 .wizard-graph__output-header,

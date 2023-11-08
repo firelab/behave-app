@@ -206,6 +206,7 @@
                                                      %])}])]
           [wizard-notes @*notes]])
        [:div
+        {:data-theme-color module}
         [submodule-page io ws-uuid @*groups]]
        (when (true? @*warn-limit?)
          [:div.wizard-warning
