@@ -517,7 +517,7 @@ body {
 .wizard-review__module {
   padding: 10px;
   color: var(--white);
-  background: var(--theme-color-1);
+  background: var(--theme-color-2);
 }
 
 .wizard-review-repeat-group__input {
