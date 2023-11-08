@@ -81,8 +81,7 @@
                 :icon-position "left"
                 :on-click      #(dispatch [:wizard/toggle-show-notes])}]]))
 
-(defn- wizard-header [module
-                      {module-name :module/name
+(defn- wizard-header [{module-name :module/name
                        module-id   :db/id}
                       {:keys [ws-uuid io submodule] :as params}]
   (let [*submodules         (if (= io :output)
@@ -106,7 +105,7 @@
       [:div.wizard-header__banner__notes-button
        (show-or-close-notes-button @*show-notes?)]]
      [:div.wizard-header__submodule-tabs
-      {:data-theme-color module}
+      {:data-theme-color module-name}
       [c/tab-group {:variant  "outline-primary"
                     :on-click #(dispatch [:wizard/select-tab (assoc params :submodule (:tab %))])
                     :tabs     (map (fn [{s-name :submodule/name slug :slug}]
@@ -184,7 +183,7 @@
         ]
     [:div.wizard-page
      [:div
-      [wizard-header module @*module params]
+      [wizard-header @*module params]
       [:div.wizard-page__body
        (when @*show-notes?
          [:<>
