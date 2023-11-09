@@ -240,6 +240,7 @@
 ;; If value provided is different from the stored value, set the progress bar's furthest step back to inputs.
 (rf/reg-event-fx
  :wizard/upsert-input-variable
+
  (rf/inject-cofx ::inject/sub
                  (fn [[_ ws-uuid group-uuid repeat-id group-variable-uuid _]]
                    [:worksheet/input-value ws-uuid group-uuid repeat-id group-variable-uuid]))
@@ -257,14 +258,21 @@
 ;; If units provided is different from the stored units, set the progress bar's furthest step back to inputs.
 (rf/reg-event-fx
  :wizard/update-input-units
- (rf/inject-cofx ::inject/sub
+
+ [(rf/inject-cofx ::inject/sub
                  (fn [[_ ws-uuid group-uuid repeat-id group-variable-uuid _]]
                    [:worksheet/input-units ws-uuid group-uuid repeat-id group-variable-uuid]))
+  (rf/inject-cofx ::inject/sub
+                  (fn [[_ _ _ _ group-variable-uuid]]
+                    [:vms/native-units group-variable-uuid]))]
 
- (fn [{ws-input-units :worksheet/input-units} [_ ws-uuid group-uuid repeat-id group-variable-uuid units]]
+ (fn [{ws-input-units   :worksheet/input-units
+       vms-native-units :vms/native-units} [_ ws-uuid group-uuid repeat-id group-variable-uuid units]]
    (let [effects (cond-> [[:dispatch [:worksheet/update-input-units
                                       ws-uuid group-uuid repeat-id group-variable-uuid units]]]
 
-                   (not= ws-input-units units)
+                   (or (and (nil? ws-input-units)
+                            (not= vms-native-units units))
+                       (and (some? ws-input-units) (not= ws-input-units units)))
                    (conj [:dispatch [:worksheet/set-furthest-vistited-step ws-uuid :ws/wizard :input]]))]
      {:fx effects})))
