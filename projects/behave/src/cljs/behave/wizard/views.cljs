@@ -591,7 +591,7 @@
                                     :selected? (= @*tab-selected :inputs)}
                                    {:label     "Outputs"
                                     :tab       :outputs
-                                    :icon-name :outputs
+                                    :icon-name :tables
                                     :selected? (= @*tab-selected :outputs)}
                                    {:label     "Graph"
                                     :tab       :graph
