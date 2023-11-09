@@ -7,6 +7,7 @@
             [behave.components.results.diagrams   :refer [result-diagrams]]
             [behave.components.results.matrices   :refer [result-matrices]]
             [behave.components.results.graphs     :refer [result-graphs]]
+            [behave.components.results.inputs     :refer [inputs-table]]
             [behave.components.results.table      :refer [result-table]]
             [behave.tool.views                    :refer [tool tool-selector]]
             [behave-routing.main                  :refer [routes]]
@@ -584,10 +585,14 @@
                                     :tab       :notes
                                     :icon-name :notes
                                     :selected? (= @*tab-selected :notes)}
-                                   {:label     "Table"
-                                    :tab       :table
+                                   {:label     "Inputs"
+                                    :tab       :inputs
                                     :icon-name :tables
-                                    :selected? (= @*tab-selected :table)}
+                                    :selected? (= @*tab-selected :inputs)}
+                                   {:label     "Outputs"
+                                    :tab       :outputs
+                                    :icon-name :outputs
+                                    :selected? (= @*tab-selected :outputs)}
                                    {:label     "Graph"
                                     :tab       :graph
                                     :icon-name :graphs
@@ -599,14 +604,17 @@
         [:div.wizard-page__body
          [:div.wizard-results__notes {:id "notes"}
           (wizard-notes @*notes)]
+         [:div.wizard-notes__header {:id "inputs"}
+          @(<t (bp "inputs_table"))]
+         [inputs-table ws-uuid]
          (when (and table-enabled? (seq @*cell-data))
-           [:div.wizard-results__table {:id "table"}
+           [:div.wizard-results__table {:id "outputs"}
             [:div.wizard-notes__header @(<t (bp "outputs_table"))]
             [result-matrices ws-uuid]
             [:div.wizard-notes__header @(<t (bp "runs_table"))]
             [result-table ws-uuid]])
-         (result-graphs ws-uuid @*cell-data)
-         (result-diagrams ws-uuid)]]
+         [result-graphs ws-uuid @*cell-data]
+         [result-diagrams ws-uuid]]]
        [:div.wizard-navigation
         [c/button {:label    "Back"
                    :variant  "secondary"
