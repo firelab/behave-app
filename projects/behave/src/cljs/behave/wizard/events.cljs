@@ -235,3 +235,36 @@
  :wizard/toggle-show-range-selector
  (fn [_ [_ gv-uuid repeat-id]]
    {:fx [[:dispatch [:state/update [:show-range-selector? gv-uuid repeat-id] not]]]}))
+
+;; Upserts input variable with the given value.
+;; If value provided is different from the stored value, set the progress bar's furthest step back to inputs.
+(rf/reg-event-fx
+ :wizard/upsert-input-variable
+ (rf/inject-cofx ::inject/sub
+                 (fn [[_ ws-uuid group-uuid repeat-id group-variable-uuid _]]
+                   [:worksheet/input-value ws-uuid group-uuid repeat-id group-variable-uuid]))
+
+ (fn [{ws-input-value :worksheet/input-value} [_ ws-uuid group-uuid repeat-id group-variable-uuid value]]
+   (let [effects (cond-> [[:dispatch [:worksheet/upsert-input-variable
+                                      ws-uuid group-uuid repeat-id group-variable-uuid value]]]
+
+                   (not= ws-input-value value)
+                   (conj [:dispatch [:worksheet/set-furthest-vistited-step ws-uuid :ws/wizard :input]]))]
+     {:fx effects})))
+
+
+;; Update input variable with units
+;; If units provided is different from the stored units, set the progress bar's furthest step back to inputs.
+(rf/reg-event-fx
+ :wizard/update-input-units
+ (rf/inject-cofx ::inject/sub
+                 (fn [[_ ws-uuid group-uuid repeat-id group-variable-uuid _]]
+                   [:worksheet/input-units ws-uuid group-uuid repeat-id group-variable-uuid]))
+
+ (fn [{ws-input-units :worksheet/input-units} [_ ws-uuid group-uuid repeat-id group-variable-uuid units]]
+   (let [effects (cond-> [[:dispatch [:worksheet/update-input-units
+                                      ws-uuid group-uuid repeat-id group-variable-uuid units]]]
+
+                   (not= ws-input-units units)
+                   (conj [:dispatch [:worksheet/set-furthest-vistited-step ws-uuid :ws/wizard :input]]))]
+     {:fx effects})))
