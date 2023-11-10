@@ -1,6 +1,6 @@
 (ns behave-cms.sync
   (:require [datom-compressor.interface :as c]
-            [datom-store.main           :as s]
+            [datahike-store.main        :as s]
             [data-utils.interface       :refer [parse-int]]
             [transport.interface        :refer [clj-> mime->type]]
             [behave-cms.views           :refer [data-response]])

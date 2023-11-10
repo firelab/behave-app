@@ -35,7 +35,7 @@
              cljsjs/react                       {:mvn/version "16.13.0-0" :exclusions [cljsjs/react-dom]}
              cljsjs/react-dom                   {:mvn/version "16.13.0-0" :exclusions [cljsjs/react-dom-server]}
              com.cognitect/transit-cljs         {:mvn/version "0.8.264"}
-             datascript/datascript              {:mvn/version "1.3.13"}
+             datascript/datascript              {:mvn/version "1.5.3"}
              herb/herb                          {:mvn/version "0.10.0"}
              org.clojars.ertucetin/msgpack-cljs {:mvn/version "0.1.2"}
              org.clojure/clojurescript          {:mvn/version "1.11.54"}
@@ -68,7 +68,7 @@
                                                                                                  cljsjs/react-dom]}
              sig/behave-routing                 {:local/root "../../bases/behave_routing"}
              sig/behave-schema                  {:local/root "../../bases/behave_schema"}
-             sig/datom_store                    {:local/root "../../bases/datom_store" :exclusions [datascript/datascript io.replikativ/datahike]}}
+             sig/datom-store                    {:local/root "../../bases/datahike_store" :exclusions [io.replikativ/datahike]}}
 
  :aliases   {:server           {:main-opts ["-m" "behave-cms.server"]}
              :figwheel-lib     {:extra-deps {com.bhauman/figwheel-main {:mvn/version "0.2.13"}}}
