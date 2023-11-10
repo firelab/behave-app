@@ -1,14 +1,14 @@
 (ns behave-cms.store
   (:require [behave.schema.core    :refer [all-schemas]]
             [datahike.api          :as d]
-            [datom-store.main      :as s]
+            [datahike-store.main   :as s]
             [config.interface      :refer [get-config]]
             [datom-utils.interface :refer [safe-deref unwrap]]))
 
 (defn connect! [config & [reset?]]
   (if reset?
     (s/reset-datahike! config all-schemas)
-    (s/default-conn all-schemas config #(s/migrate % all-schemas))))
+    (s/default-conn config all-schemas #(s/migrate! % all-schemas))))
 
 (defn default-conn []
   (if (nil? @s/conn)
