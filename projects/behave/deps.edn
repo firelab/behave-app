@@ -8,7 +8,6 @@
              org.clojure/clojure           {:mvn/version "1.11.1"}
              ring/ring                     {:mvn/version "1.10.0"}
              ring/ring-defaults            {:mvn/version "0.3.3"}
-             io.replikativ/datahike        {:mvn/version "0.5.1506" :exclusions [org.clojure/clojurescript]}
              me.raynes/fs                  {:mvn/version "1.4.6"}
 
              ;; Common
