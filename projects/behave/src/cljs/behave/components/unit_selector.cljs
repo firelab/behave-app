@@ -35,7 +35,7 @@
 (defn unit-display
   "Displays the units for a continuous variable, and enables unit selection."
   [*unit-uuid dimension-uuid native-unit-uuid english-unit-uuid metric-unit-uuid & [on-change-units]]
-  (r/with-let [dimension      (rf/subscribe [:wizard/dimension+units dimension-uuid])
+  (r/with-let [dimension      (rf/subscribe [:vms/entity-from-uuid dimension-uuid])
                units          (:dimension/units @dimension)
                units-by-uuid  (index-by :bp/uuid units)
                native-unit    (get units-by-uuid native-unit-uuid)

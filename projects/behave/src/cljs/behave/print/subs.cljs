@@ -13,21 +13,8 @@
         (map (fn resolve-gv-uuid [[gv-uuid values]]
                (let [{var-name :variable/name
                       gv-uuid  :bp/uuid
-                      units    :variable/native-units} @(rf/subscribe [:wizard/group-variable gv-uuid])]
+                      units    :variable/native-unit-uuid} @(rf/subscribe [:wizard/group-variable gv-uuid])]
                  [var-name units gv-uuid values]))))))
-
-(rf/reg-sub
- :print/matrix-table-column-outputs
- (fn [[_ ws-uuid]]
-   (rf/subscribe [:worksheet/all-output-uuids ws-uuid]))
-
- (fn [uuids _]
-   (->> uuids
-        (map (fn resolve-gv-uuid [gv-uuid]
-               (let [{var-name :variable/name
-                      gv-uuid  :bp/uuid
-                      units    :variable/native-units} @(rf/subscribe [:wizard/group-variable gv-uuid])]
-                 [var-name units gv-uuid]))))))
 
 (rf/reg-sub
  :worksheet/matrix-table-data-single-multi-valued-input

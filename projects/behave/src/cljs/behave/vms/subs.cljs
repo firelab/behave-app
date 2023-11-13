@@ -1,6 +1,8 @@
 (ns behave.vms.subs
   (:require [re-frame.core    :refer [reg-sub subscribe]]
-            [behave.vms.store :refer [pull pull-many q entity-from-uuid entity-from-eid]]))
+            [behave.vms.store :refer [pull pull-many q entity-from-uuid entity-from-eid]]
+            [behave.vms.store :refer [vms-conn]]
+            [datascript.core :as d]))
 
 (reg-sub
  :vms/query
@@ -110,3 +112,13 @@
                   (process-group group)))))
           (flatten)
           (into [])))))
+
+(reg-sub
+ :vms/units-uuid->short-code
+ (fn [_ [_ units-uuid]]
+   (d/q '[:find ?unit-short-code .
+          :in    $ ?units-uuid
+          :where
+          [?u :bp/uuid ?units-uuid]
+          [?u :unit/short-code ?unit-short-code]]
+        @@vms-conn units-uuid)))

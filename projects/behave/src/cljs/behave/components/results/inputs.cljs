@@ -30,37 +30,57 @@
             single-var?      (= (count variables) 1)
             multi-var?       (> (count variables) 1)
             new-entries      (cond single-var?
-                                   (let [gv-uuid (:bp/uuid (first variables))
-                                         fmt-fn  (get formatters gv-uuid identity)
-                                         value   @(subscribe [:worksheet/input-value
-                                                              ws-uuid
-                                                              (:bp/uuid current-group)
-                                                              0 ;repeat-id
-                                                              gv-uuid])]
-                                     [{:input  (indent-name level (:group/name current-group)) ;Use group name instead of var name to match what is in the inputs UI
-                                       :units  (:variable/native-units (first variables))
-                                       :values (cond-> value
-                                                 (not (csv? value))
-                                                 fmt-fn)}])
+                                   (let [gv-uuid    (:bp/uuid (first variables))
+                                         fmt-fn     (get formatters gv-uuid identity)
+                                         fvar       (first variables)
+                                         *unit-uuid (subscribe [:worksheet/input-units ws-uuid (:bp/uuid current-group) 0 gv-uuid])
+                                         units      @(subscribe [:wizard/units-used-short-code
+                                                                 @*unit-uuid
+                                                                 (:variable/dimension-uuid fvar)
+                                                                 (:variable/native-unit-uuid fvar)
+                                                                 (:variable/english-unit-uuid fvar)
+                                                                 (:variable/metric-unit-uuid fvar)])
+                                         value      @(subscribe [:worksheet/input-value
+                                                                 ws-uuid
+                                                                 (:bp/uuid current-group)
+                                                                 0 ;repeat-id
+                                                                 gv-uuid])]
+                                     (when (seq value)
+                                       [{:input  (indent-name level (:group/name current-group)) ;Use group name instead of var name to match what is in the inputs UI
+                                         :units  units
+                                         :values (cond-> value
+                                                   (not (csv? value))
+                                                   fmt-fn)}]))
                                    multi-var?
                                    (into [{:input (indent-name level (:group/name current-group))}]
                                          (let [repeat-ids @(subscribe [:worksheet/group-repeat-ids ws-uuid (:bp/uuid current-group)])]
                                            (mapcat (fn [repeat-id]
                                                      (into [{:input (indent-name (inc level) (str (:group/name current-group) " " (inc repeat-id)))}]
-                                                           (map (fn [variable]
-                                                                  (let [gv-uuid (:bp/uuid (first variables))
-                                                                        fmt-fn  (get formatters gv-uuid identity)
-                                                                        value   @(subscribe [:worksheet/input-value
-                                                                                             ws-uuid
-                                                                                             (:bp/uuid current-group)
-                                                                                             repeat-id
-                                                                                             (:bp/uuid variable)])]
-                                                                   {:input  (indent-name (+ level 2) (:variable/name variable))
-                                                                    :units  (:variable/native-units variable)
-                                                                    :values (cond-> value
-                                                                              (not (csv? value))
-                                                                              fmt-fn)}))
-                                                                variables)))
+                                                           (for [variable variables
+                                                                 :let     [value @(subscribe [:worksheet/input-value
+                                                                                              ws-uuid
+                                                                                              (:bp/uuid current-group)
+                                                                                              repeat-id
+                                                                                              (:bp/uuid variable)])]
+                                                                 :when    (seq value)]
+                                                             (let [gv-uuid     (:bp/uuid (first variables))
+                                                                   fmt-fn      (get formatters gv-uuid identity)
+                                                                   *unit-uuid  (subscribe [:worksheet/input-units
+                                                                                           ws-uuid
+                                                                                           (:bp/uuid current-group)
+                                                                                           repeat-id
+                                                                                           gv-uuid])
+                                                                   *units-used (subscribe [:wizard/units-used-short-code
+                                                                                           @*unit-uuid
+                                                                                           (:variable/dimension-uuid variable)
+                                                                                           (:variable/native-unit-uuid variable)
+                                                                                           (:variable/english-unit-uuid variable)
+                                                                                           (:variable/metric-unit-uuid variable)])]
+                                                               {:input  (indent-name (+ level 2) (:variable/name variable))
+                                                                :units  @*units-used
+                                                                :values (cond-> value
+                                                                          (not (csv? value))
+                                                                          fmt-fn)}))))
                                                    repeat-ids)))
                                    :else
                                    [])
