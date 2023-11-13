@@ -69,7 +69,7 @@
                                                                                            ws-uuid
                                                                                            (:bp/uuid current-group)
                                                                                            repeat-id
-                                                                                           gv-uuid])
+                                                                                           (:bp/uuid variable)])
                                                                    *units-used (subscribe [:wizard/units-used-short-code
                                                                                            @*unit-uuid
                                                                                            (:variable/dimension-uuid variable)

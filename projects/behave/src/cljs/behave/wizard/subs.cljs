@@ -437,7 +437,8 @@
  (fn [[_ _ dimension-uuid]]
    (rf/subscribe [:vms/entity-from-uuid dimension-uuid]))
 
- (fn [{units :dimension/units} [_ ws-unit-uuid _dimension-uuid native-unit-uuid english-unit-uuid metric-unit-uuid]]
+ (fn [{units :dimension/units} [_ ws-unit-uuid _dimension-uuid native-unit-uuid english-unit-uuid metric-unit-uuid :as params]]
+   (prn "params:" params)
    (let [units-by-uuid (index-by :bp/uuid units)
          native-unit   (get units-by-uuid native-unit-uuid)
          english-unit  (get units-by-uuid english-unit-uuid)
