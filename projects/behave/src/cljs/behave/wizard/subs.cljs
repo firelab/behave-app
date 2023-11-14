@@ -180,12 +180,14 @@
 (reg-sub
  :wizard/gv-uuid->variable-units
  (fn [_ [_ gv-uuid]]
-   @(subscribe [:vms/query '[:find ?units .
+   @(subscribe [:vms/query '[:find ?unit-short-code .
                              :in    $ ?gv-uuid
                              :where
                              [?gv :bp/uuid ?gv-uuid]
                              [?v :variable/group-variables ?gv]
-                             [?v :variable/native-units ?units]]
+                             [?v :variable/native-unit-uuid ?unit-uuid]
+                             [?u :bp/uuid ?unit-uuid]
+                             [?u :unit/short-code ?unit-short-code]]
                 gv-uuid])))
 
 ;; Returns a map of group-variable-uuids -> variable native units
@@ -204,7 +206,7 @@
 (reg-sub
  :wizard/group-variable
  (fn [[_ gv-uuid]]
-   (subscribe [:vms/pull '[* {:variable/_group-variables [:variable/name :variable/native-units]}] [:bp/uuid gv-uuid]]))
+   (subscribe [:vms/pull '[* {:variable/_group-variables [:variable/name :variable/native-unit-uuid]}] [:bp/uuid gv-uuid]]))
 
  (fn [group-variable _query]
    (let [variable-data (rename-keys (first (:variable/_group-variables group-variable))
@@ -414,15 +416,29 @@
         @@vms-conn [:bp/uuid gv-uuid])))
 
 (reg-sub
- :wizard/dimension+units
- (fn [_ [_ dimension-uuid]]
-   (d/q '[:find  (pull ?d [* {:dimension/units [*]}]) .
-          :in    $ ?dim-uuid
-          :where
-          [?d :bp/uuid ?dim-uuid]]
-        @@vms-conn dimension-uuid)))
-
-(reg-sub
  :wizard/show-range-selector?
  (fn [{:keys [state]} [_ gv-uuid repeat-id]]
    (true? (get-in state [:show-range-selector? gv-uuid repeat-id]))))
+
+
+(defn index-by
+  "Indexes collection by key or fn."
+  [k-or-fn coll]
+  (persistent! (reduce
+                (fn [acc cur] (assoc! acc (k-or-fn cur) cur))
+                (transient {})
+                coll)))
+
+(reg-sub
+ :wizard/units-used-short-code
+
+ (fn [[_ _ dimension-uuid]]
+   (rf/subscribe [:vms/entity-from-uuid dimension-uuid]))
+
+ (fn [{units :dimension/units} [_ ws-unit-uuid _dimension-uuid native-unit-uuid english-unit-uuid metric-unit-uuid :as params]]
+   (let [units-by-uuid (index-by :bp/uuid units)
+         native-unit   (get units-by-uuid native-unit-uuid)
+         english-unit  (get units-by-uuid english-unit-uuid)
+         metric-unit   (get units-by-uuid metric-unit-uuid)
+         default-unit  (or native-unit english-unit metric-unit)] ; FIXME: Get from Worksheet settings
+     (:unit/short-code (or (get units-by-uuid ws-unit-uuid) default-unit)))))

@@ -114,6 +114,16 @@
           (into [])))))
 
 (reg-sub
+ :vms/units-uuid->short-code
+ (fn [_ [_ units-uuid]]
+   (d/q '[:find ?unit-short-code .
+          :in    $ ?units-uuid
+          :where
+          [?u :bp/uuid ?units-uuid]
+          [?u :unit/short-code ?unit-short-code]]
+        @@vms-conn units-uuid)))
+
+(reg-sub
  :vms/native-units
  (fn [_ [_ gv-uuid]]
    (d/q '[:find  ?unit-uuid .

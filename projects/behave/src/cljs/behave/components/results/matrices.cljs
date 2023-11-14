@@ -1,7 +1,6 @@
 (ns behave.components.results.matrices
   (:require [behave.components.core  :as c]
             [behave.units-conversion :refer [to-map-units]]
-            [clojure.string          :as str]
             [goog.string             :as gstring]
             [re-frame.core           :refer [subscribe]]))
 

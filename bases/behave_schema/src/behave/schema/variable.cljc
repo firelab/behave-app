@@ -25,7 +25,6 @@
 (s/def :variable/metric-decimals        (s/nilable integer?))
 (s/def :variable/metric-units           (s/nilable string?))
 (s/def :variable/native-decimals        (s/nilable integer?))
-(s/def :variable/native-units           (s/nilable string?))
 (s/def :variable/map-units-convertible? boolean)
 
 ;; Discrete Variables

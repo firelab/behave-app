@@ -17,18 +17,6 @@
                  [var-name (get units-lookup gv-uuid) gv-uuid (split-commas-or-spaces values)]))))))
 
 (rf/reg-sub
- :print/matrix-table-column-outputs
- (fn [[_ ws-uuid]]
-   [(rf/subscribe [:worksheet/all-output-uuids ws-uuid])
-    (rf/subscribe [:worksheet/result-table-units ws-uuid])])
-
- (fn [[uuids units-lookup] _]
-     (->> uuids
-          (map (fn resolve-gv-uuid [gv-uuid]
-                 (let [{var-name :variable/name} @(rf/subscribe [:wizard/group-variable gv-uuid])]
-                   [var-name (get units-lookup gv-uuid) gv-uuid]))))))
-
-(rf/reg-sub
  :worksheet/matrix-table-data-single-multi-valued-input
  (fn [[_ ws-uuid row-gv-uuid row-values output-gv-uuids]]
    (rf/subscribe [:query

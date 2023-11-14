@@ -114,7 +114,6 @@ Variable [label="Variable
 |{ :variable/english-units    | string }
 |{ :variable/metric-decimals  | double }
 |{ :variable/metric-units     | string }
-|{ :variable/native-units     | string }
 "]
 List [label="List
 |{ :bp/uuid               | string }
