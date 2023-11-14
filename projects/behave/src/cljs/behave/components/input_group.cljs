@@ -5,80 +5,29 @@
             [dom-utils.interface     :refer [input-value]]
             [string-utils.interface  :refer [->kebab]]
             [behave.translate        :refer [<t bp]]
-            [behave.utils            :refer [inclusive-range]]))
+            [behave.utils            :refer [inclusive-range]]
+            [behave.components.unit-selector :refer [unit-display]]))
 
 ;;; Helpers
 
-(defn index-by
-  "Indexes collection by key or fn."
-  [k-or-fn coll]
-  (persistent! (reduce
-                (fn [acc cur] (assoc! acc (k-or-fn cur) cur))
-                (transient {})
-                coll)))
-
 (defn upsert-input [ws-uuid group-uuid repeat-id gv-uuid value & [units]]
-  (rf/dispatch [:worksheet/upsert-input-variable ws-uuid group-uuid repeat-id gv-uuid value units])
-  (rf/dispatch [:worksheet/set-furthest-vistited-step ws-uuid :ws/wizard :input]))
+  (rf/dispatch [:wizard/upsert-input-variable ws-uuid group-uuid repeat-id gv-uuid value units]))
 
 ;;; Components
-
-(defn unit-selector [prev-unit-uuid units on-click]
-  (r/with-let [*unit-uuid (r/atom prev-unit-uuid)]
-    [:div.wizard-input__unit-selector
-     [c/dropdown
-      {:id            "unit-selector"
-       :default-value @*unit-uuid
-       :on-change     #(on-click (input-value %))
-       :name          "unit-selector"
-       :options       (concat [{:label "Select..." :value nil}]
-                              (->> units
-                                   (map (fn [unit]
-                                          {:label (:unit/name unit)
-                                           :value (:bp/uuid unit)}))
-                                   (sort-by :label)))}]]))
-
-(defn unit-display [*unit-uuid dimension-uuid native-unit-uuid english-unit-uuid metric-unit-uuid on-change-units]
-  (r/with-let [dimension      (rf/subscribe [:wizard/dimension+units dimension-uuid])
-               units          (:dimension/units @dimension)
-               units-by-uuid  (index-by :bp/uuid units)
-               native-unit    (get units-by-uuid native-unit-uuid)
-               english-unit   (get units-by-uuid english-unit-uuid)
-               metric-unit    (get units-by-uuid metric-unit-uuid)
-               default-unit   (or native-unit english-unit metric-unit) ;; FIXME: Get from Worksheet settings
-               show-selector? (r/atom false)
-               on-click       #(do
-                                 (on-change-units %)
-                                 (reset! show-selector? false))]
-    [:div.wizard-input__description
-     (str @(<t (bp "units_used")) " " (:unit/short-code (or (get units-by-uuid *unit-uuid) default-unit)))
-     [:div.wizard-input__description__units
-      (when english-unit
-        [:div (str @(<t (bp "english_units")) " " (:unit/short-code english-unit))])
-      (when metric-unit
-        [:div (str @(<t (bp "metric_units")) " " (:unit/short-code metric-unit))])]
-
-     (when (< 1 (count units))
-       [c/button {:variant  "secondary"
-                  :label    @(<t (bp "change_units"))
-                  :disabled? @show-selector?
-                  :on-click #(swap! show-selector? not)}])
-     (when @show-selector?
-       [unit-selector *unit-uuid units on-click])]))
 
 (defmulti wizard-input (fn [variable _ _] (:variable/kind variable)))
 
 (defmethod wizard-input nil [variable] (println [:NO-KIND-VAR variable]))
 
-(defmethod wizard-input :continuous [{gv-uuid               :bp/uuid
-                                      var-name           :variable/name
-                                      var-max            :variable/maximum
-                                      var-min            :variable/minimum
-                                      dimension-uuid     :variable/dimension-uuid
+(defmethod wizard-input :continuous [{gv-uuid           :bp/uuid
+                                      var-name          :variable/name
+                                      var-max           :variable/maximum
+                                      var-min           :variable/minimum
+                                      dimension-uuid    :variable/dimension-uuid
                                       native-unit-uuid  :variable/native-unit-uuid
                                       english-unit-uuid :variable/english-unit-uuid
                                       metric-unit-uuid  :variable/metric-unit-uuid
-                                      help-key           :group-variable/help-key}
+                                      help-key          :group-variable/help-key}
                                      ws-uuid
                                      group-uuid
                                      repeat-id
@@ -88,7 +37,7 @@
                value-atom            (r/atom @value)
                warn-limit?           (true? @(rf/subscribe [:state :warn-multi-value-input-limit]))
                acceptable-char-codes (set (map #(.charCodeAt % 0) "0123456789., "))
-               on-change-units       #(rf/dispatch [:worksheet/update-input-units ws-uuid group-uuid repeat-id gv-uuid %])
+               on-change-units       #(rf/dispatch [:wizard/update-input-units ws-uuid group-uuid repeat-id gv-uuid %])
                show-range-selector? (rf/subscribe [:wizard/show-range-selector? gv-uuid repeat-id])]
 
     [:div

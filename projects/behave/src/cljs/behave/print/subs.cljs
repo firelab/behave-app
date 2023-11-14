@@ -1,33 +1,32 @@
 (ns behave.print.subs
-  (:require [re-frame.core :as rf]
+  (:require [re-frame.core  :as rf]
             [clojure.string :as str]
-            [re-posh.core                :as rp]))
+            [re-posh.core   :as rp]
+            [string-utils.interface :refer [split-commas-or-spaces]]))
 
 (rf/reg-sub
  :print/matrix-table-multi-valued-inputs
  (fn [[_ ws-uuid]]
-   (rf/subscribe [:worksheet/multi-value-input-uuid+value ws-uuid]))
+   [(rf/subscribe [:worksheet/multi-value-input-uuid+value ws-uuid])
+    (rf/subscribe [:worksheet/result-table-units ws-uuid])])
 
- (fn [uuid+values _]
+ (fn [[uuid+values units-lookup] _]
    (->> uuid+values
         (map (fn resolve-gv-uuid [[gv-uuid values]]
-               (let [{var-name :variable/name
-                      gv-uuid  :bp/uuid
-                      units    :variable/native-units} @(rf/subscribe [:wizard/group-variable gv-uuid])]
-                 [var-name units gv-uuid values]))))))
+               (let [{var-name :variable/name} @(rf/subscribe [:wizard/group-variable gv-uuid])]
+                 [var-name (get units-lookup gv-uuid) gv-uuid (split-commas-or-spaces values)]))))))
 
 (rf/reg-sub
  :print/matrix-table-column-outputs
  (fn [[_ ws-uuid]]
-   (rf/subscribe [:worksheet/all-output-uuids ws-uuid]))
+   [(rf/subscribe [:worksheet/all-output-uuids ws-uuid])
+    (rf/subscribe [:worksheet/result-table-units ws-uuid])])
 
- (fn [uuids _]
-   (->> uuids
-        (map (fn resolve-gv-uuid [gv-uuid]
-               (let [{var-name :variable/name
-                      gv-uuid  :bp/uuid
-                      units    :variable/native-units} @(rf/subscribe [:wizard/group-variable gv-uuid])]
-                 [var-name units gv-uuid]))))))
+ (fn [[uuids units-lookup] _]
+     (->> uuids
+          (map (fn resolve-gv-uuid [gv-uuid]
+                 (let [{var-name :variable/name} @(rf/subscribe [:wizard/group-variable gv-uuid])]
+                   [var-name (get units-lookup gv-uuid) gv-uuid]))))))
 
 (rf/reg-sub
  :worksheet/matrix-table-data-single-multi-valued-input

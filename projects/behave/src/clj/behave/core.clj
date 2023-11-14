@@ -25,7 +25,7 @@
 
 ;;; Constants
 
-(def ^:private KILL-TIMEOUT-MS 10000) ;; 10 seconds
+(def ^:private KILL-TIMEOUT-MS 5000) ;; 10 seconds
 
 ;;; State
 

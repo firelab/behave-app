@@ -1,12 +1,11 @@
 (ns behave.tool.views
   (:require [behave.components.core :as c]
-            [behave.components.input-group :refer [unit-display]]
+            [behave.components.unit-selector :refer [unit-display]]
             [behave.translate       :refer [<t bp]]
             [dom-utils.interface    :refer [input-value]]
             [reagent.core           :as r]
             [string-utils.interface :refer [->kebab]]
-            [re-frame.core          :as rf]
-            [datascript.core :as d]))
+            [re-frame.core          :as rf]))
 
 (defn tool-selector
   "A Modal used for selecting a tool"
@@ -121,18 +120,16 @@
                             (map ->option options))}])]))
 
 (defn- tool-output
-  [{sv-uuid       :bp/uuid
-    var-name      :variable/name
-    native-units  :variable/native-units
-    english-units :variable/english-units
-    metric-units  :variable/metric-units
-    help-key      :subtool-variable/help-key}
+  [{sv-uuid           :bp/uuid
+    var-name          :variable/name
+    dimension-uuid    :variable/dimension-uuid
+    native-unit-uuid  :variable/native-unit-uuid
+    english-unit-uuid :variable/english-unit-uuid
+    metric-unit-uuid  :variable/metric-unit-uuid
+    help-key          :subtool-variable/help-key}
    tool-uuid
    subtool-uuid]
-  (let [value (rf/subscribe [:tool/output-value
-                             tool-uuid
-                             subtool-uuid
-                             sv-uuid])]
+  (let [value (rf/subscribe [:tool/output-value tool-uuid subtool-uuid sv-uuid])]
     [:div.tool-output
      {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
      [:div.tool-output__output
@@ -141,11 +138,12 @@
                      :disabled? true
                      :label     var-name
                      :value     (or @value "")}]]
-     [:div.tool-output__description
-      (str "Units used: " native-units)
-      [:div.tool-output__description__units
-       [:div (str "English Units: " english-units)]
-       [:div (str "Metric Units: " metric-units)]]]]))
+     [unit-display
+      nil
+      dimension-uuid
+      native-unit-uuid
+      english-unit-uuid
+      metric-unit-uuid]]))
 
 (defn- auto-compute-subtool [tool-uuid subtool-uuid]
   (rf/dispatch [:tool/solve tool-uuid subtool-uuid])

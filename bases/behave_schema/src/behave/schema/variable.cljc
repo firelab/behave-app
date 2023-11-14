@@ -146,7 +146,7 @@
 
    {:db/ident       :variable/english-decimals
     :db/doc         "Variable's english decimal value."
-    :db/valueType   :db.type/double
+    :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :variable/metric-unit-uuid
@@ -156,7 +156,7 @@
 
    {:db/ident       :variable/metric-decimals
     :db/doc         "Variable's metric decimal value."
-    :db/valueType   :db.type/double
+    :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :variable/native-unit-uuid
@@ -166,7 +166,7 @@
 
    {:db/ident       :variable/native-decimals
     :db/doc         "Variable's native decimal value."
-    :db/valueType   :db.type/double
+    :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :variable/dimension-uuid

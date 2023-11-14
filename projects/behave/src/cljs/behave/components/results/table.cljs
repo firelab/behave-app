@@ -13,7 +13,7 @@
 (defn format-bytes
   "Formats `bytes` into a human-friendly format (e.g. '1 KiB'). Can be called formatted according to `decimals`."
   [bbytes & [decimals]]
-  (if (js/isNaN (+ bytes 0))
+  (if (js/isNaN (+ bbytes 0))
     "0 Bytes"
     (let [decimals (or decimals 2)
           k        1024
