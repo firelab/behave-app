@@ -562,6 +562,15 @@
           (sort-by (juxt #(.indexOf gv-order (first %))
                          #(second %)))))))
 
+;; returns a map of group-variable uuid to units
+(rf/reg-sub
+ :worksheet/result-table-units
+ (fn [[_ ws-uuid]]
+   (rf/subscribe [:worksheet/result-table-headers-sorted ws-uuid]))
+
+ (fn [headers _]
+   (into {} (map (juxt first last) headers))))
+
 (rf/reg-sub
  :worksheet/graph-settings
  (fn [[_ ws-uuid]]
