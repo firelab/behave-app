@@ -8,7 +8,7 @@
 (defn- procces-map-units?
   [map-units-enabled? v-uuid]
   (let [map-units-variables @(subscribe [:wizard/map-unit-convertible-variables])]
-    (and map-units-enabled? (get map-units-variables v-uuid))))
+    (and map-units-enabled? (map-units-variables v-uuid))))
 
 (defn format-bytes
   "Formats `bytes` into a human-friendly format (e.g. '1 KiB'). Can be called formatted according to `decimals`."
@@ -46,7 +46,7 @@
         map-units-enabled?        (:map-units-settings/enabled? map-units-settings-entity)
         map-units                 (:map-units-settings/units map-units-settings-entity)
         map-rep-frac              (:map-units-settings/map-rep-fraction map-units-settings-entity)
-        map-units-variables       @(subscribe [:wizard/map-unit-convertible-variables])
+        map-units-variables       @(subscribe [:worksheet/result-table-units ws-uuid])
         formatters                @(subscribe [:worksheet/result-table-formatters (map first @*headers)])
         table-data                {:title   "Results Table"
                                    :headers (reduce (fn resolve-uuid [acc [gv-uuid _repeat-id units]]

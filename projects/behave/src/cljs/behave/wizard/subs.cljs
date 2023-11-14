@@ -193,13 +193,13 @@
 (reg-sub
  :wizard/map-unit-convertible-variables
  (fn [_]
-   (let [results @(subscribe [:vms/query '[:find ?gv-uuid ?units
-                                           :where
-                                           [?v :variable/group-variables ?gv]
-                                           [?gv :bp/uuid ?gv-uuid]
-                                           [?v :variable/native-units ?units]
-                                           [?v :variable/map-units-convertible? true]]])]
-     (into {} results))))
+   (subscribe [:vms/query '[:find [?gv-uuid ...]
+                            :where
+                            [?v :variable/group-variables ?gv]
+                            [?gv :bp/uuid ?gv-uuid]
+                            [?v :variable/map-units-convertible? true]]]))
+ (fn [results _]
+   (set results)))
 
 (reg-sub
  :wizard/group-variable
