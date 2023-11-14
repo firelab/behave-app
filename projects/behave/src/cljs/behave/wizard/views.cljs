@@ -7,7 +7,7 @@
             [behave.components.results.diagrams   :refer [result-diagrams]]
             [behave.components.results.matrices   :refer [result-matrices]]
             [behave.components.results.graphs     :refer [result-graphs]]
-            [behave.components.results.table      :refer [result-table]]
+            [behave.components.results.table      :refer [result-table-download-link]]
             [behave.tool.views                    :refer [tool tool-selector]]
             [behave-routing.main                  :refer [routes]]
             [behave.translate                     :refer [<t bp]]
@@ -601,10 +601,10 @@
           (wizard-notes @*notes)]
          (when (and table-enabled? (seq @*cell-data))
            [:div.wizard-results__table {:id "table"}
-            [:div.wizard-notes__header @(<t (bp "outputs_table"))]
+            [:div.wizard-notes__header @(<t (bp "table"))]
             [result-matrices ws-uuid]
             [:div.wizard-notes__header @(<t (bp "runs_table"))]
-            [result-table ws-uuid]])
+            [result-table-download-link ws-uuid]])
          (result-graphs ws-uuid @*cell-data)
          (result-diagrams ws-uuid)]]
        [:div.wizard-navigation

@@ -36,9 +36,9 @@
      [:a
       {:href     url
        :download (gstring/format "%s.csv" title)}
-      (gstring/format "Download CSV (%s.csv / %s)" title (format-bytes (.-size blob) 0))]]))
+      (gstring/format "Download Raw CSV (%s.csv / %s)" title (format-bytes (.-size blob) 0))]]))
 
-(defn result-table [ws-uuid]
+(defn result-table-download-link [ws-uuid]
   (let [*headers                  (subscribe [:worksheet/result-table-headers-sorted ws-uuid])
         *cell-data                (subscribe [:worksheet/result-table-cell-data ws-uuid])
         table-setting-filters     (subscribe [:worksheet/table-settings-filters ws-uuid])
@@ -93,6 +93,4 @@
                                                                               fmt-fn)))))
                                                              {}
                                                              data))))}]
-    [:div
-     (c/table table-data)
-     [table-exporter table-data]]))
+    [:div [table-exporter table-data]]))
