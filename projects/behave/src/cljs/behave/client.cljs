@@ -1,5 +1,6 @@
 (ns ^:figwheel-hooks behave.client
-  (:require [reagent.dom               :refer [render]]
+  (:require [clojure.string            :as str]
+            [reagent.dom               :refer [render]]
             [re-frame.core             :as rf]
             [behave.components.sidebar :refer [sidebar]]
             [behave.components.toolbar :refer [toolbar]]
@@ -21,7 +22,7 @@
             [behave.subs]
             [day8.re-frame.http-fx]))
 
-(def ^:private CANCEL-TIMEOUT-MS 9000)
+(def ^:private CANCEL-TIMEOUT-MS 4000)
 
 (defn not-found []
   [:div
@@ -47,10 +48,12 @@
   (when issue-collector
     (rf/dispatch [:system/add-script issue-collector])))
 
+
 (defn- before-unload-fn [e]
-  (.preventDefault e)
-  (js/setTimeout #(rf/dispatch [:system/cancel-close]) CANCEL-TIMEOUT-MS)
-  (rf/dispatch [:system/close]))
+  (when-not (str/includes? (.-pathname (.-location js/window)) "print")
+    (.preventDefault e)
+    (js/setTimeout #(rf/dispatch [:system/cancel-close]) CANCEL-TIMEOUT-MS)
+    (rf/dispatch [:system/close])))
 
 (defn add-before-unload-event! [{:keys [mode]}]
   (when (= mode "prod")
