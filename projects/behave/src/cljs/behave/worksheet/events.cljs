@@ -35,11 +35,20 @@
          [?i :input/group-variable-uuid ?uuid]]
        conn group-id group-variable-uuid))
 
+(defn ^:private q-input-unit [conn group-id group-variable-uuid]
+  (d/q '[:find  ?units .
+         :in    $ ?ig ?uuid
+         :where
+         [?ig :input-group/inputs ?i]
+         [?i :input/group-variable-uuid ?uuid]
+         [?i :input/units ?units]]
+       conn group-id group-variable-uuid))
+
 (defn ^:private add-input-group-tx [ws-uuid group-uuid repeat-id]
-  [{:db/id                   -1
-    :worksheet/_input-groups [:worksheet/uuid ws-uuid]
-    :input-group/group-uuid  group-uuid
-    :input-group/repeat-id   repeat-id}])
+  {:db/id                   -1
+   :worksheet/_input-groups [:worksheet/uuid ws-uuid]
+   :input-group/group-uuid  group-uuid
+   :input-group/repeat-id   repeat-id})
 
 ;;; Events
 
@@ -75,45 +84,49 @@
  [(rp/inject-cofx :ds)]
  (fn [{:keys [ds]} [_ ws-uuid group-uuid repeat-id]]
    (when (nil? (q-input-group ds ws-uuid group-uuid repeat-id))
-     {:transact (add-input-group-tx ws-uuid group-uuid repeat-id)})))
+     {:transact [(add-input-group-tx ws-uuid group-uuid repeat-id)]})))
 
 (rp/reg-event-fx
  :worksheet/upsert-input-variable
  [(rp/inject-cofx :ds)]
  (fn [{:keys [ds]} [_ ws-uuid group-uuid repeat-id group-variable-uuid value]]
-   (let [group-id (or (q-input-group ds ws-uuid group-uuid repeat-id) -1)]
-     (if-let [var-id (q-input-variable ds group-id group-variable-uuid)]
-       {:transact [{:db/id       var-id
-                    :input/value value}]}
-       {:transact (concat
-                   [{:db/id                     -2
-                     :input-group/_inputs       group-id
-                     :input/group-variable-uuid group-variable-uuid
-                     :input/value               value}]
-                   (when (neg? group-id)
-                     (add-input-group-tx ws-uuid group-uuid repeat-id)))}))))
-(comment
+   (let [group-id  (or (q-input-group ds ws-uuid group-uuid repeat-id) -1)
+         var-id    (q-input-variable ds group-id group-variable-uuid)
+         payload   (cond-> []
+                     var-id
+                     (conj {:db/id       var-id
+                            :input/value value})
 
+                     (neg? group-id)
+                     (conj (add-input-group-tx ws-uuid group-uuid repeat-id))
 
-  (rf/subscribe [:pull [:worksheet/uuid "6516738e-ae99-4783-b168-f234ee00477c"]])
-  )
-
+                     (nil? var-id)
+                     (conj {:db/id                     -2
+                            :input-group/_inputs       group-id
+                            :input/group-variable-uuid group-variable-uuid
+                            :input/value               value}))]
+     {:transact payload})))
 
 (rp/reg-event-fx
  :worksheet/update-input-units
  [(rp/inject-cofx :ds)]
  (fn [{:keys [ds]} [_ ws-uuid group-uuid repeat-id group-variable-uuid units]]
-   (let [group-id (or (q-input-group ds ws-uuid group-uuid repeat-id) -1)]
-     (if-let [var-id (q-input-variable ds group-id group-variable-uuid)]
-       {:transact [{:db/id       var-id
-                    :input/units units}]}
-       {:transact (concat
-                   [{:db/id                     -2
-                     :input-group/_inputs       group-id
-                     :input/group-variable-uuid group-variable-uuid
-                     :input/units               units}]
-                   (when (neg? group-id)
-                     (add-input-group-tx ws-uuid group-uuid repeat-id)))}))))
+   (let [group-id (or (q-input-group ds ws-uuid group-uuid repeat-id) -1)
+         var-id   (q-input-variable ds group-id group-variable-uuid)
+         payload  (cond-> []
+                    var-id
+                    (conj {:db/id       var-id
+                           :input/units units})
+
+                    (neg? group-id)
+                    (conj (add-input-group-tx ws-uuid group-uuid repeat-id))
+
+                    (nil? var-id)
+                    (conj {:db/id                     -2
+                           :input-group/_inputs       group-id
+                           :input/group-variable-uuid group-variable-uuid
+                           :input/units               units}))]
+     {:transact payload})))
 
 (rp/reg-event-fx
  :worksheet/delete-repeat-input-group
