@@ -8,7 +8,7 @@
             [behave.components.results.matrices   :refer [result-matrices]]
             [behave.components.results.graphs     :refer [result-graphs]]
             [behave.components.results.inputs     :refer [inputs-table]]
-            [behave.components.results.table      :refer [result-table]]
+            [behave.components.results.table      :refer [result-table-download-link]]
             [behave.tool.views                    :refer [tool tool-selector]]
             [behave-routing.main                  :refer [routes]]
             [behave.translate                     :refer [<t bp]]
@@ -162,8 +162,8 @@
                             :display-submodule-headers? false}]))]))
 
 (defn wizard-page [{:keys [module io submodule route-handler ws-uuid] :as params}]
-  (let [_                        (dispatch [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
-        *module                  (subscribe [:wizard/*module module])
+  (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
+  (let [*module                  (subscribe [:wizard/*module module])
         module-id                (:db/id @*module)
         *submodules              (subscribe [:wizard/submodules module-id])
         *submodule               (subscribe [:wizard/*submodule module-id submodule io])
@@ -242,8 +242,8 @@
         @(<t (bp "a_brief_phrase_documenting_the_run"))]]]]))
 
 (defn wizard-review-page [{:keys [io route-handler ws-uuid] :as params}]
-  (let [_                        (dispatch [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
-        *worksheet               (subscribe [:worksheet ws-uuid])
+  (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
+  (let [*worksheet               (subscribe [:worksheet ws-uuid])
         modules                  (:worksheet/modules @*worksheet)
         *warn-limit?             (subscribe [:wizard/warn-limit? ws-uuid])
         *multi-value-input-limit (subscribe [:wizard/multi-value-input-limit])
@@ -501,8 +501,8 @@
                         :max-attr-id :table-filter/max}]])]))
 
 (defn wizard-results-settings-page [{:keys [route-handler io ws-uuid] :as params}]
-  (let [_                   (dispatch [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
-        *notes              (subscribe [:wizard/notes ws-uuid])
+  (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
+  (let [*notes              (subscribe [:wizard/notes ws-uuid])
         *show-notes?        (subscribe [:wizard/show-notes?])
         on-back             #(dispatch [:wizard/prev-tab params])
         on-next             #(dispatch [:navigate (path-for routes :ws/results :ws-uuid ws-uuid)])
@@ -545,9 +545,9 @@
 ;; Wizard Results
 
 (defn wizard-results-page [{:keys [route-handler io ws-uuid] :as params}]
+  (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
   (let [*worksheet          (subscribe [:worksheet ws-uuid])
         *ws-date            (subscribe [:wizard/worksheet-date ws-uuid])
-        _                   (dispatch [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
         *notes              (subscribe [:wizard/notes ws-uuid])
         *tab-selected       (subscribe [:wizard/results-tab-selected])
         *cell-data          (subscribe [:worksheet/result-table-cell-data ws-uuid])
@@ -608,13 +608,13 @@
           @(<t (bp "inputs_table"))]
          [inputs-table ws-uuid]
          (when (and table-enabled? (seq @*cell-data))
-           [:div.wizard-results__table {:id "outputs"}
-            [:div.wizard-notes__header @(<t (bp "outputs_table"))]
+           [:div.wizard-results__table {:id "table"}
+            [:div.wizard-notes__header @(<t (bp "table"))]
             [result-matrices ws-uuid]
             [:div.wizard-notes__header @(<t (bp "runs_table"))]
-            [result-table ws-uuid]])
-         [result-graphs ws-uuid @*cell-data]
-         [result-diagrams ws-uuid]]]
+            [result-table-download-link ws-uuid]])
+         (result-graphs ws-uuid @*cell-data)
+         (result-diagrams ws-uuid)]]
        [:div.wizard-navigation
         [c/button {:label    "Back"
                    :variant  "secondary"

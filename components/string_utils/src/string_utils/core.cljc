@@ -104,3 +104,9 @@
        (when-not (str/ends-with? s end)
          end)))
 
+(defn split-commas-or-spaces
+  "Splits `s` on commas and/or spaces.
+  For example:
+  `(split-commas-or-spaces \"15, 20,25 30\") ; => '(\"15\" \"20\" \"25\" \"30\")`"
+  [s]
+  (remove empty? (str/split s #"[ ,]")))

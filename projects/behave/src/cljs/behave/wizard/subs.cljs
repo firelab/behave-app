@@ -195,15 +195,13 @@
 (reg-sub
  :wizard/map-unit-convertible-variables
  (fn [_]
-   (let [results @(subscribe [:vms/query '[:find ?gv-uuid ?units-short-code
-                                           :where
-                                           [?v :variable/group-variables ?gv]
-                                           [?gv :bp/uuid ?gv-uuid]
-                                           [?v :variable/native-unit-uuid ?unit-uuid]
-                                           [?u :bp/uuid ?unit-uuid]
-                                           [?u :unit/short-code ?units-short-code]
-                                           [?v :variable/map-units-convertible? true]]])]
-     (into {} results))))
+   (subscribe [:vms/query '[:find [?gv-uuid ...]
+                            :where
+                            [?v :variable/group-variables ?gv]
+                            [?gv :bp/uuid ?gv-uuid]
+                            [?v :variable/map-units-convertible? true]]]))
+ (fn [results _]
+   (set results)))
 
 (reg-sub
  :wizard/group-variable

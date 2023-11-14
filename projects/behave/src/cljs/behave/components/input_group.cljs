@@ -11,8 +11,7 @@
 ;;; Helpers
 
 (defn upsert-input [ws-uuid group-uuid repeat-id gv-uuid value & [units]]
-  (rf/dispatch [:worksheet/upsert-input-variable ws-uuid group-uuid repeat-id gv-uuid value units])
-  (rf/dispatch [:worksheet/set-furthest-vistited-step ws-uuid :ws/wizard :input]))
+  (rf/dispatch [:wizard/upsert-input-variable ws-uuid group-uuid repeat-id gv-uuid value units]))
 
 ;;; Components
 
@@ -38,7 +37,7 @@
                value-atom            (r/atom @value)
                warn-limit?           (true? @(rf/subscribe [:state :warn-multi-value-input-limit]))
                acceptable-char-codes (set (map #(.charCodeAt % 0) "0123456789., "))
-               on-change-units       #(rf/dispatch [:worksheet/update-input-units ws-uuid group-uuid repeat-id gv-uuid %])
+               on-change-units       #(rf/dispatch [:wizard/update-input-units ws-uuid group-uuid repeat-id gv-uuid %])
                show-range-selector? (rf/subscribe [:wizard/show-range-selector? gv-uuid repeat-id])]
 
     [:div
