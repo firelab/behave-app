@@ -62,3 +62,10 @@
 (def ^{:argslist '[s end]
        :doc "Appends `end` to `s` as long as `s` doesn't already end with `end`."}
   end-with c/end-with)
+
+(def ^{:argslist '[s]
+       :doc
+       "Splits `s` on commas and/or spaces.
+        For example:
+       `(split-commas-or-spaces \"15, 20,25 30\") ; => '(\"15\" \"20\" \"25\" \"30\")`"}
+  split-commas-or-spaces #'c/split-commas-or-spaces)
