@@ -53,7 +53,7 @@
 (defmethod construct-result-matrices 1
   [{:keys [ws-uuid process-map-units? multi-valued-inputs formatters output-entities units-lookup]}]
   (let [[multi-var-name
-         multi-var-units-uuid
+         multi-var-units
          multi-var-gv-uuid
          multi-var-values]        (first multi-valued-inputs)
         matrix-data-raw           @(subscribe [:worksheet/matrix-table-data-single-multi-valued-input
@@ -101,9 +101,7 @@
                             matrix-data-formatted)]
     [:div.print__result-table
      (c/matrix-table {:title          "Results"
-                      :rows-label     (gstring/format "%s (%s)"
-                                                      multi-var-name
-                                                      @(subscribe [:vms/units-uuid->short-code multi-var-units-uuid]))
+                      :rows-label     (gstring/format "%s (%s)" multi-var-name multi-var-units)
                       :cols-label     "Outputs"
                       :column-headers column-headers
                       :row-headers    row-headers
@@ -111,13 +109,11 @@
 
 (defmethod construct-result-matrices 2
   [{:keys [ws-uuid process-map-units? multi-valued-inputs formatters output-entities]}]
-  (let [[row-name row-units-uuid row-gv-uuid row-values] (first multi-valued-inputs)
-        [col-name col-units-uuid col-gv-uuid col-values] (second multi-valued-inputs)
-        row-units-code                                   (:unit/short-code @(subscribe [:vms/entity-from-uuid row-units-uuid]))
-        col-units-code                                   (:unit/short-code @(subscribe [:vms/entity-from-uuid col-units-uuid]))
-        map-units-settings-entity                        @(subscribe [:worksheet/map-units-settings-entity ws-uuid])
-        map-units                                        (:map-units-settings/units map-units-settings-entity)
-        map-rep-frac                                     (:map-units-settings/map-rep-fraction map-units-settings-entity)]
+  (let [[row-name row-units row-gv-uuid row-values] (first multi-valued-inputs)
+        [col-name col-units col-gv-uuid col-values] (second multi-valued-inputs)
+        map-units-settings-entity                   @(subscribe [:worksheet/map-units-settings-entity ws-uuid])
+        map-units                                   (:map-units-settings/units map-units-settings-entity)
+        map-rep-frac                                (:map-units-settings/map-rep-fraction map-units-settings-entity)]
     [:div.print__construct-result-matrices
      (for [{output-uuid  :bp/uuid
             output-name  :variable/name
@@ -138,8 +134,8 @@
          [:<>
           [:div.print__result-table
            (c/matrix-table {:title          (gstring/format "%s (%s)" output-name output-units)
-                            :rows-label     (gstring/format "%s (%s)" row-name row-units-code)
-                            :cols-label     (gstring/format "%s (%s)" col-name col-units-code)
+                            :rows-label     (gstring/format "%s (%s)" row-name row-units)
+                            :cols-label     (gstring/format "%s (%s)" col-name col-units)
                             :row-headers    row-headers
                             :column-headers column-headers
                             :data           matrix-data-formatted})]
@@ -152,8 +148,8 @@
                                    matrix-data-formatted
                                    matrix-data-formatted)]
                (c/matrix-table {:title          (gstring/format "%s Map Units (%s)" output-name map-units)
-                                :rows-label     (gstring/format "%s (%s)" row-name row-units-code)
-                                :cols-label     (gstring/format "%s (%s)" col-name col-units-code)
+                                :rows-label     (gstring/format "%s (%s)" row-name row-units)
+                                :cols-label     (gstring/format "%s (%s)" col-name col-units)
                                 :row-headers    row-headers
                                 :column-headers column-headers
                                 :data           data}))])]))]))
