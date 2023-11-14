@@ -1,0 +1,357 @@
+* Behave Components
+
+** Usage
+To start using ~behave-components~ in your Reagent/ClojureScript application, add the following to your ~deps.edn~ file:
+
+#+begin_src clojure
+{...
+ :deps {...
+        sig-gis/behave-components {:git/url "https://gitlab.com/sig-gis/behave-components.git"
+                                   :sha     "<insert-latest-commit-sha>"}}}
+#+end_src
+
+In your `cljs` namespace, refer to the following `behave.components`:
+#+begin_src clojure
+(ns your-app.view
+  (require [behave.components.core :as c]))
+
+(defn root-component []
+  [:div
+    [c/button {:label "Hello World!"}]])
+#+end_src
+
+- Button (~c/button~)
+- Icon (~c/icon~)
+- Progress Indicator (~c/progress-indicator~)
+- Inputs
+  - Checkbox (~c/checkbox~)
+  - Dropdown (~c/dropdown~)
+  - Number Input (~c/range-input~)
+  - Radio Group (~c/radio-group~)
+  - Radio Input (~c/radio-input~)
+  - Range Input (~c/range-input~)
+  - Text Input (~c/text-input~)
+- Tab (~c/tab~)
+- Tab Group (~c/tab-group~)
+
+* Development - Getting Started
+
+** Installation Requirements
+
+- [[https://www.oracle.com/java/technologies/downloads/#java17][Java Development Kit (version 17.0.3)]]
+- [[https://clojure.org/guides/getting_started][Clojure CLI tools]]
+- [[https://nodejs.org/en/][Node v16 (or above)]]
+
+** Install
+
+Clone the repository:
+~git clone https://gitlab.com/sig-gis/behave-components~
+
+Install NPM dependencies (with npm)
+~npm install~
+
+You can also use [[https://yarnpkg.com/][Yarn]]:
+~yarn~
+
+** Storybook
+
+Start watching changes to ~shadow-cljs~:
+~npm run dev~ or ~yarn dev~
+
+In a separate terminal, start storybook:
+~npm run storybook~ or ~yarn storybook~
+
+You should now be able to preview the components on [[http://localhost:6006]].
+
+If you are getting errors from running ~npm run storybook~, you can try adding
+the following line to your Bash profile:
+
+#+begin_src
+export NODE_OPTIONS=--openssl-legacy-provider
+#+end_src
+
+** Contributing
+
+*** Components
+
+Every component should live in it's own file and namespace, and only later be
+aliased through ~behave.components.core~. As an example, let's create a simple
+button component:
+
+#+begin_src clojure
+(ns behave.components.simple-button)
+
+(defn simple-button [{:keys [label disabled? size on-click]}]
+  [:button
+   {:class    ["button"
+               (when size (str "button--" size))
+               (when disabled? "button--disabled")]
+    :disabled disabled?
+    :on-click on-click}
+   [:div
+    {:class "button__label"}
+    label]])
+#+end_src
+
+Once you've completed your component, you can add it to the
+~behave.components.core~ namespace. Add a meaningful doc string to the alias
+(and remember, examples are worth 1000 lines of code!).
+
+#+begin_src clojure
+(ns behave.components.core
+  (:require [...]
+            [behave.components.simple-button :as simple-button]))
+
+(def ^{:doc
+       "Simple button component which takes a map with:
+       - `label`
+       - `size` (\"small\" or \"large\")
+       - `disabled?`"}
+  simple-button simple-button/simple-button)
+#+end_src
+
+*** Stories
+
+Every component will have a subsequent "story," which enables it to be rendered in the storybook preview.
+
+Let's take a look at how we might create a story for our very simple button:
+#+begin_src clojure
+(ns behave.stories.simple-button-stories
+  (:require [behave.components.simple-button :refer [simple-button]]
+            [behave.stories.utils :refer [->default]]
+            [reagent.core :as r]))
+
+(def ^:export default
+  #js {:title     "Buttons/Simple Buttons" ;; Group/Component title displayed on the sidebar
+       :component (r/reactify-component simple-button)})
+
+(defn template [args]
+  (->default {:component button
+              :args      (merge {:label     "Hello World"
+                                 :disabled? false
+                                 :size      "normal"
+                                 :on-click  #(js/console.log "Clicked!")}
+                                args)
+
+              ;; Argument Types can modify the toolbar to display custom controls.
+              ;; See https://storybook.js.org/docs/react/writing-stories/args
+              :argTypes  {:size     {:control "radio"
+                                     :options ["small" "large"]}
+                          :on-click {:action "clicked!"}}}))
+
+;; States that can be represented
+(def ^:export Default     (template {}))
+(def ^:export SmallButton (template {:size "small"}))
+(def ^:export LargeButton (template {:size "large"}))
+(def ^:export Disabled    (template {:disabled? true}))
+#+end_src
+
+*** CSS Styles
+_Refrain from using ID selectors when creating styles._
+
+All styles are in ~public/css/styles.css~. Elements are styles using the [['BEM' naming convention][http://getbem.com/naming/]] when writing CSS selectors.
+
+For example:
+#+begin_src css
+// Block is the top level 'component'
+.button { }
+
+// Elements are within a block and use '__' to nest within the top-level block
+.button__icon {}
+
+// Modifiers use '--' to alter the block
+.button--small {}
+.button--medium {}
+.button--large {}
+#+end_src
+
+In place of nested selectors (e.g. ~.tab .label {}~), create one selector with the block & element (e.g. ~.tab__label {}~). When a modifier is introduced, use nested selectors to modify sub-elements (e.g. ~.tab--small .tab__label { font-family: 0.5em; }~)
+
+**** Conflicting Names
+If you are relying on another style sheet that is outside your control (e.g. Bootstrap), you can prefix your styles with a 2-3 letter acronym for the project (e.g. ~.sig-<selector>~).
+
+**** Component-Based Design
+When designing your CSS, group common elements into components that can be re-used throughout the application. Consistency throughout an application will make it much easier to design, build, and use. If you are looking for ideas for what to name components, or how to break your application into components, check out these component libraries for inspiration:
+- [[https://getbootstrap.com/][Twitter Bootstrap]]
+- [[https://style.monday.com][Monday.com's Style Guide]]
+- [[https://govuk-react.github.io/govuk-react/?path=/story/welcome--page][Gov.UK's Style Guide]]
+
+**** Property Ordering
+
+CSS properties should be ordered as follows:
+1. Layout/Position (display, position, top/right, etc.)
+2. Dimensions (width, height, padding, margin)
+3. Color/Appearance (color, border, background)
+
+Here's a specific sort order you may use with your editor:
+
+[[css-sort-order.org][css-sort-order]]
+
+**** Colors
+Colors should be given a human-readable [[https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties][CSS variable]] name, preferably less than 10 characters. If multiple hues of color are needed, add a number with the number increasing as the color darkens.
+
+For example:
+#+begin_src css
+:root {
+  --red: #FF0000;
+  --blue: #FF0000;
+  --bluegrey-1: #FAFAFA;
+  ...
+  --bluegrey-10: #2B3238;
+}
+#+end_src
+
+***** Colored States
+If a color pertains to a particular state (e.g. 'success' or 'error'), you can add a variable name for that particular state.
+
+#+begin_src css
+:root {
+  ...
+  --success: #2B3238;
+  --error: #F51818;
+}
+#+end_src
+
+**** Typography
+Define font sizes in ~em~ values by setting the default font size on the ~body~ element. Provide font sizes using ~em~ for the default textual elements, including: ~body~, ~h1~-~h6~, ~p~, ~strong~, ~em~, and ~label~.
+
+Create modifiers for different sizes using ~.font--<size> {}~ (e.g. ~.font--small~, ~.font--xsmall~, ~.font--large~, ~.font--xlarge~).
+
+If a particular font size is needed for a component, create a new style using the component's name as the block and ~.<block>__font~ as the element (e.g. ~menu__font~). Alternatively, you can embed the font styling inside of the component's block-level CSS selector.
+
+**** Inputs
+When creating styles for inputs, use the CSS selector format ~.input-<input-type>~ (e.g. ~.input-checkbox~). States should use the modifier syntax (e.g. ~.input-checkbox--hover~).
+
+***** Example States
+Below is an example of the states for checkboxes:
+#+begin_src css
+.input-checkbox {}
+.input-checkbox--hover {}
+.input-checkbox--focus {}
+.input-checkbox--checked {}
+.input-checkbox--disabled {}
+.input-checkbox--error {}
+#+end_src
+
+Radio buttons:
+#+begin_src css
+.input-radio {}
+.input-radio--hover {}
+.input-radio--focus {}
+.input-radio--selected {}
+.input-radio--disabled {}
+.input-radio--error {}
+#+end_src
+
+Text Inputs:
+#+begin_src css
+.input-text {}
+.input-text--hover {}
+.input-text--focus {}
+.input-text--disabled {}
+.input-text--error {}
+#+end_src
+
+To style an element within the block for a particular state, add a CSS selector with the element selector as a descendant of the modifier selector.
+
+For example:
+
+#+begin_src css
+// Base style for the label within a text input
+.input-text__label {
+  color: black;
+}
+
+// When the "--error" modifier is applied to the block, the "__label" element
+// can be styled for that state.
+.input-text--error .input-text__label {
+  color: red;
+}
+#+end_src
+
+**** Component States
+Many components require a state which shows it has been 'activated', or that a particular component is disabled. Use ~.<block>--active~ or ~.<component>--disabled~ to style these states accordingly.
+
+Here are some example states:
+#+begin_src css
+.component--active {}
+.component--disabled {}
+.component--error {}
+#+end_src
+
+**** Icons
+Icons should be exported as SVG's to avoid anti-aliasing on larger resolution devices.
+
+Icons will typically be used as background images within a container. Start by defining the container and the size (e.g. ~.icon { height: 40px; width: 40px; }~), and then create a selector for particular icon (e.g. ~.icon-success { background:url('image/success.svg'); }~).
+
+If an icon can be embedded within another component, create an element within the block with the correct dimensions (e.g. ~.card__icon {}~). This will allow you to set up the icon within the component like so:
+#+begin_src html
+<div class="card">
+  <div class="card__icon icon-success"></div>
+  <div class="card__title">Card Title</div>
+  <div class="card__content">Lorem ipsum dolor...</div>
+</div>
+#+end_src
+
+***** Colored Icons
+If the icon is only one color, export it in white and modify it using the ~fill:~ CSS attribute. Otherwise, export one SVG for each state that it must respond to using the filename: ~icon-<name>--<state>.svg~.
+
+For example, if an SVG needs to change color on hover, you can use: ~.icon-success--hover { fill: #FF0000; }~
+
+**** Naming Conventions
+Naming is the hardest part of programming. The name of a component should be succinct and self-descriptive.
+
+If possible, avoid using the words 'Component', 'Module', or 'Modal' in the name of your component to make it easier to distinguish.
+
+Here are some common names for components (and their nested components) that can be used to describe your interface:
+
+- Layout
+  - Container (~.container~)
+  - Page (~.page~)
+  - Sheet (~.sheet~)
+  - Section (~.section~)
+
+- Navigation
+  - Accordion (~.accordion~)
+    - Item (~.accordion__item~)
+  - Brand (~.brand~)
+  - Breadcrumb (~.breadcrumb~)
+    - Crumb (~.breadcrumb__crumb~)
+  - Button Group (~.button-group~)
+    - Button (~.button-group__button~)
+  - Menu (~.menu~)
+    - Link (~.menu__link~)
+  - Tab Group (~.tab-group~)
+    - Tab (~.tab-group__tab~)
+    - Panel (~.tab-group__panel~)
+  - Wizard (~.wizard~)
+    - Step (~.wizard__step~)
+
+- Feedback
+  - Alert (~.alert~)
+  - Banner (~.banner~)
+  - Popover (~.popover~)
+  - Modal (~.modal~)
+  - Loader (~.loader~)
+  - Toast (~.toast~)
+
+- Data Display
+  - Chip (~.chip~)
+  - Grid (~.grid~)
+  - Table (~.table~)
+  - Figure (~.figure~)
+  - List (~.list~)
+  - Card (~.card~)
+  - Divider (~.divider~)
+
+- Inputs
+  - Dropdown (~.input-dropdown~)
+    - Option (~.input-dropdown__option~)
+  - Checkbox (~.input-checkbox~)
+  - Radio Button (~.input-radio~)
+  - Slider (~.input-slider~)
+  - Text Input (~.input-text~)
+  - Toggle (~.input-toggle~)
+  - Search (~.input-search~)
+    - Suggestion (~.input-search__suggestion~)
+    - Result (~.input-search__result~)

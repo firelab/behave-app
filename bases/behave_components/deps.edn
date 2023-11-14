@@ -1,0 +1,7 @@
+{:paths ["src/clj" "src/cljs"]
+
+ :deps {org.clojure/clojure {:mvn/version "1.10.3"}
+        hickory/hickory     {:mvn/version "0.7.1"}}
+
+ :aliases {:rebel {:extra-deps {com.bhauman/rebel-readline {:mvn/version "0.1.4"}}
+                   :main-opts  ["-m" "rebel-readline.main"]}}}
