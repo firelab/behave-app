@@ -36,10 +36,12 @@
 
                                                 (process-map-units? output-uuid)
                                                 (conj {:output (gstring/format "%s Map Units" var-name)
-                                                       :value  (to-map-units value
-                                                                             units
-                                                                             map-units
-                                                                             map-rep-frac)
+                                                       :value  (-> value
+                                                                   (to-map-units
+                                                                    units
+                                                                    map-units
+                                                                    map-rep-frac)
+                                                                   fmt-fn)
                                                        :units  map-units}))))
                                           []
                                           output-entities)]
@@ -86,13 +88,16 @@
                                           output-entities)
         row-headers (map (fn [value] {:name value :key (str value)}) multi-var-values)
         final-data  (reduce (fn insert-map-units-values [acc [[i j] value]]
-                              (cond-> acc
-                                (process-map-units? j)
-                                (assoc [i (str j "-map-units")]
-                                       (to-map-units value
-                                                     (get units-lookup j)
-                                                     map-units
-                                                     map-rep-frac))))
+                              (let [fmt-fn (get formatters j identity)]
+                               (cond-> acc
+                                 (process-map-units? j)
+                                 (assoc [i (str j "-map-units")]
+                                        (-> value
+                                            (to-map-units
+                                             (get units-lookup j)
+                                             map-units
+                                             map-rep-frac)
+                                            fmt-fn)))))
                             matrix-data-formatted
                             matrix-data-formatted)]
     [:div.print__result-table
@@ -138,10 +143,9 @@
           (when (process-map-units? output-uuid)
             [:div.print__result-table
              (let [data (reduce-kv (fn [acc [i j] value]
-                                     (assoc acc [i j] (to-map-units value
-                                                                    output-units
-                                                                    map-units
-                                                                    map-rep-frac)))
+                                     (assoc acc [i j] (-> value
+                                                          (to-map-units output-units map-units map-rep-frac)
+                                                          fmt-fn)))
                                    matrix-data-formatted
                                    matrix-data-formatted)]
                (c/matrix-table {:title          (gstring/format "%s Map Units (%s)" output-name map-units)
@@ -161,7 +165,7 @@
      {:ws-uuid             ws-uuid
       :process-map-units?  (fn [v-uuid]
                              (and map-units-enabled?
-                                  (get map-unit-convertible-variables v-uuid)))
+                                  (map-unit-convertible-variables v-uuid)))
       :multi-valued-inputs @(subscribe [:print/matrix-table-multi-valued-inputs ws-uuid])
       :output-uuids        output-uuids
       :output-entities     (map (fn [gv-uuid]
