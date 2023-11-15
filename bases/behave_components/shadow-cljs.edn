@@ -1,0 +1,55 @@
+;; shadow-cljs configuration
+{:source-paths
+  ["src/cljs"]
+
+ :dependencies
+ [[reagent "1.0.0"]]
+
+ :dev-http
+ {8080 "public"}
+
+ :builds
+ {:frontend {:target  :browser
+             :modules {:main {:init-fn behave.core/init}}}
+  :stories  {:target      :npm-module
+             :entries     [behave.stories.accordion-stories
+                           behave.stories.button.button-default-primary-stories
+                           behave.stories.button.button-default-secondary-stories
+                           behave.stories.button.button-default-highlight-stories
+                           behave.stories.button.button-outline-primary-stories
+                           behave.stories.button.button-outline-secondary-stories
+                           behave.stories.button.button-outline-highlight-stories
+                           behave.stories.button.button-transparent-primary-stories
+                           behave.stories.button.button-transparent-secondary-stories
+                           behave.stories.button.button-transparent-highlight-stories
+                           behave.stories.card-stories
+                           behave.stories.card-group-stories
+                           behave.stories.compute-stories
+                           behave.stories.header-stories
+                           behave.stories.modal-stories
+                           behave.stories.note-stories
+                           behave.stories.progress-nob-stories
+                           behave.stories.progress-stories
+                           behave.stories.tab-stories
+                           behave.stories.tab-group-stories
+                           behave.stories.table-stories
+                           behave.stories.matrix-table-stories
+
+                           ; Inputs
+                           behave.stories.checkbox-stories
+                           behave.stories.browse-input-stories
+                           behave.stories.dropdown-stories
+                           behave.stories.inputs-stories
+                           behave.stories.number-input-stories
+                           behave.stories.radio-input-stories
+                           behave.stories.text-input-stories
+
+                           ;Icons
+                           behave.stories.icon.icon-file-type-stories
+                           behave.stories.icon.icon-module-stories
+                           behave.stories.icon.icon-objective-stories
+                           behave.stories.icon.icon-results-menu-stories
+                           behave.stories.icon.icon-system-stories
+                           behave.stories.icon.icon-tab-stories
+                           behave.stories.icon.icon-workflow-stories]
+             :output-dir  "resources/public/js/stories"}}}
