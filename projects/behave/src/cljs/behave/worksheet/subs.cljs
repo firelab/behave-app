@@ -225,6 +225,31 @@
               @@vms-conn @@s/conn rules ws-uuid))))
 
 (rf/reg-sub
+ :worksheet/all-cached-units
+ (fn [_]
+   (rf/subscribe [:wizard/cached-units-settings]))
+
+ (fn [units-settings [_ ws-uuid]]
+   (into []
+         (comp (filter (fn [[_ _ _ v-uuid]] (contains? units-settings v-uuid)))
+               (map (fn [[group-uuid repeat-uuid gv-uuid v-uuid]]
+                      [group-uuid repeat-uuid gv-uuid (get-in units-settings [v-uuid :unit-uuid])])))
+         (d/q '[:find  ?group-uuid ?repeat-id ?gv-uuid ?v-uuid
+                :in    $ $ws % ?ws-uuid
+                :where
+                [$ws ?w :worksheet/uuid ?ws-uuid]
+                [$ws ?w :worksheet/input-groups ?g]
+                [$ws ?g :input-group/group-uuid ?group-uuid]
+                [$ws ?g :input-group/repeat-id ?repeat-id]
+                [$ws ?g :input-group/inputs ?i]
+                [$ws ?i :input/group-variable-uuid ?gv-uuid]
+                (lookup ?gv-uuid ?gv)
+                (group-variable _ ?gv ?v)
+                [?v :variable/kind :continuous]
+                [?v :bp/uuid ?v-uuid]]
+              @@vms-conn @@s/conn rules ws-uuid))))
+
+(rf/reg-sub
  :worksheet/all-custom-units
  (fn [_ [_ ws-uuid]]
    (into []
@@ -247,10 +272,15 @@
  (fn [[_ ws-uuid]]
    [(rf/subscribe [:worksheet/all-inputs-vector ws-uuid])
     (rf/subscribe [:worksheet/all-native-units ws-uuid])
-    (rf/subscribe [:worksheet/all-custom-units ws-uuid])])
+    (rf/subscribe [:worksheet/all-custom-units ws-uuid])
+    (rf/subscribe [:worksheet/all-cached-units ws-uuid])])
  (fn [sub-results]
-   (let [[inputs native-units custom-units] (map make-tree sub-results)]
-     (mapv input-tree-to-vec (merge-with (comp vec concat) inputs (merge native-units custom-units))))))
+   (let [[inputs native-units custom-units cached-units] (map make-tree sub-results)]
+     (mapv input-tree-to-vec (merge-with (comp vec concat)
+                                         inputs
+                                         (merge native-units
+                                                cached-units
+                                                custom-units))))))
 
 (rf/reg-sub
  :worksheet/all-inputs
