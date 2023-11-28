@@ -9,6 +9,7 @@
             [re-frame.core              :as rf]
             [re-posh.core               :as rp]
             [datom-compressor.interface :as c]
+            [datom-utils.interface :refer [safe-deref]]
             [ds-schema-utils.interface  :refer [->ds-schema]]
             [datom-utils.interface      :refer [split-datom]]
             [behave.schema.core         :refer [all-schemas]]
@@ -106,3 +107,6 @@
  :ds/transact
  (fn [_ [_ tx-data]]
    (first tx-data)))
+
+(defn entity-from-uuid [db uuid]
+  (d/entity (safe-deref db) [:bp/uuid uuid]))

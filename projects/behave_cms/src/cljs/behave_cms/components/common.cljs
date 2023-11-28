@@ -2,6 +2,7 @@
   (:require [clojure.string         :as str]
             [herb.core              :refer [<class]]
             [reagent.core           :as r]
+            [re-frame.core          :as rf]
             [string-utils.interface :refer [->str ->kebab]]
             [behave-cms.styles      :as $]
             [behave-cms.utils       :as u]))
@@ -247,8 +248,11 @@
     (for [row rows]
       ^{:key (:db/id row)}
       [:tr
-       (for [column columns]
-         [:td {:key column} (->str (get row column ""))])
+       (for [column columns
+             :let [value (get row column "")]]
+         [:td {:key column} (if-let [nname @(rf/subscribe [:entity-uuid->name value])]
+                              nname
+                              (->str value))])
        (when (or on-select on-delete)
          [:td {:key "modify" :class "td" :style {:white-space "nowrap"}}
           (when on-select [btn-sm :outline-secondary "Edit"   #(on-select row)])

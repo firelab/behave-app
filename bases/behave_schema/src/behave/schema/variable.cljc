@@ -83,6 +83,11 @@
     :db/index       true
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident       :variable/category
+    :db/doc         "Variable's category."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
    {:db/ident       :variable/bp6-label
     :db/doc         "Variable's BehavePlus 6 name."
     :db/valueType   :db.type/string
