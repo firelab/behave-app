@@ -239,7 +239,12 @@
   [:table.table.table-hover
    [:thead
     [:tr
-     (for [column (map #(-> % (name) (str/replace #"[_-]" " ") (str/capitalize)) columns)]
+     (for [column (map #(-> %
+                            (name)
+                            (str/replace #"[_-]" " ")
+                            (str/replace #"uuid" "")
+                            (str/capitalize))
+                       columns)]
        [:th {:key column} column])
      (when (or on-select on-delete) [:th {:style {:whitespace "nowrap"}} "Modify"])
      (when (or on-increase on-decrease) [:th "Reorder"])]]
