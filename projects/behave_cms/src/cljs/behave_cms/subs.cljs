@@ -7,6 +7,7 @@
             [behave-cms.routes :refer [app-routes]]
             [behave-cms.store  :as s]
             [behave-cms.applications.subs]
+            [behave-cms.categories.subs]
             [behave-cms.group-variables.subs]
             [behave-cms.groups.subs]
             [behave-cms.languages.subs]

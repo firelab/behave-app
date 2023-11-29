@@ -1,4 +1,4 @@
-(ns behave-cms.cateogry.subs
+(ns behave-cms.categories.subs
   (:require [re-frame.core :as rf]))
 
 (rf/reg-sub

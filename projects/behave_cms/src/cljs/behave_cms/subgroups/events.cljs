@@ -4,6 +4,5 @@
 (rf/reg-event-fx
  :subgroups/edit-variables
  (fn [_ [_ eid]]
-   (js/console.log "editing:" eid)
    {:fx [[:dispatch [:navigate "/variables"]]
          [:dispatch [:state/set-state :variable eid]]]}))
