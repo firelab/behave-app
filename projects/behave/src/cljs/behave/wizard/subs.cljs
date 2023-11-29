@@ -1,6 +1,7 @@
 (ns behave.wizard.subs
   (:require [behave.schema.core     :refer [rules]]
             [behave.vms.store       :refer [vms-conn]]
+            [browser-utils.core     :refer [get-local-storage]]
             [clojure.set            :refer [rename-keys]]
             [datascript.core        :as d]
             [re-frame.core          :refer [reg-sub subscribe] :as rf]
@@ -442,3 +443,11 @@
          metric-unit   (get units-by-uuid metric-unit-uuid)
          default-unit  (or native-unit english-unit metric-unit)] ; FIXME: Get from Worksheet settings
      (:unit/short-code (or (get units-by-uuid ws-unit-uuid) default-unit)))))
+
+(reg-sub
+ :wizard/cached-units-settings
+ (fn [_]
+   (rf/subscribe [:local-storage/get]))
+
+ (fn [local-storage]
+   (:units local-storage)))
