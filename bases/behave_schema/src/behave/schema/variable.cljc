@@ -83,7 +83,7 @@
     :db/index       true
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :variable/category
+   {:db/ident       :variable/category-uuid
     :db/doc         "Variable's category."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}

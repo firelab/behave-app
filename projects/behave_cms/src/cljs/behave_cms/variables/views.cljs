@@ -10,7 +10,7 @@
             [behave-cms.events]
             [behave-cms.subs]))
 
-(def columns [:variable/name :variable/category :variable/bp6-label :variable/bp6-code :variable/kind])
+(def columns [:variable/name :variable/category-uuid :variable/bp6-label :variable/bp6-code :variable/kind])
 
 (defn variables-table []
   (let [variables (rf/subscribe [:pull-with-attr :variable/name])
@@ -136,7 +136,7 @@
                                :required? true
                                :field-key :variable/name}
                               {:label     "Category"
-                               :field-key :variable/category
+                               :field-key :variable/category-uuid
                                :type      :select
                                :required? false
                                :options   (for [{cat-name :category/name cat-uuid :bp/uuid} @categories]
