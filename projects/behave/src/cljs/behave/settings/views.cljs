@@ -7,7 +7,7 @@
 
 (defn- unit-selector [prev-unit-uuid units on-click]
   (r/with-let [*unit-uuid (r/atom prev-unit-uuid)]
-    (let [*prev-unit-name (rf/subscribe [:entity-uuid->name prev-unit-uuid])]
+    (let [*prev-unit-name (rf/subscribe [:vms/units-uuid->short-code prev-unit-uuid])]
       [:div.wizard-input__unit-selector
        [c/dropdown
         {:id            "unit-selector"
@@ -19,7 +19,7 @@
                                    :value prev-unit-uuid}]
                                  (->> units
                                       (map (fn [unit]
-                                             {:label (:unit/name unit)
+                                             {:label (:unit/short-code unit)
                                               :value (:bp/uuid unit)}))
                                       (sort-by :label))))}]])))
 
