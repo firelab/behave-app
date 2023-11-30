@@ -1,5 +1,5 @@
 (ns behave.events
-  (:require [browser-utils.core :refer [add-script script-exist?]]
+  (:require [browser-utils.core :refer [add-script script-exist? set-local-storage! clear-local-storage! assoc-in-local-storage!]]
             [ajax.core :as ajax]
             [re-frame.core :as rf]
             [behave.tool.events]))
@@ -112,6 +112,23 @@
 
       (vector? k)
       (assoc-in settings k v))))
+
+;;; Local Storage
+
+(rf/reg-event-db
+ :local-storage/set
+ (fn [_ [_ data]]
+   (set-local-storage! data)))
+
+(rf/reg-event-db
+ :local-storage/update-in
+ (fn [_ [_ path data]]
+   (assoc-in-local-storage! path data)))
+
+(rf/reg-event-db
+ :local-storage/clear
+ (fn [_ [_ data]]
+   (clear-local-storage!)))
 
 ;;; System
 

@@ -14,6 +14,10 @@
 
 (defn- get-help-keys [params]
   (cond
+
+    (= (:page params) :units)
+    []
+
     (:page params)
     (:page params)
 

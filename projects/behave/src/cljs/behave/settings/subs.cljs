@@ -1,0 +1,65 @@
+(ns behave.settings.subs
+  (:require [re-frame.core    :as rf]
+            [datascript.core  :as d]
+            [behave.vms.store :refer [vms-conn]]))
+
+(rf/reg-sub
+ :settings/local-storage-units
+ (fn [_]
+   (rf/subscribe [:local-storage/get]))
+
+ (fn [local-storage]
+   (:units local-storage)))
+
+(rf/reg-sub
+ :settings/units+decimals
+ (fn []
+   (rf/subscribe [:settings/local-storage-units]))
+
+ (fn [cached-units _]
+   (let [vms-units (d/q '[:find ?category ?v-name ?v-uuid ?v-dimension-uuid ?unit-uuid ?decimals
+                          :where
+                          [?v :bp/uuid ?v-uuid]
+                          [?v :variable/kind :continuous]
+                          [?v :variable/category-uuid ?c-uuid]
+                          [?c :bp/uuid ?c-uuid]
+                          [?c :category/name ?category]
+                          [?v :variable/name ?v-name]
+                          [?v :variable/dimension-uuid ?v-dimension-uuid]
+                          [?v :variable/native-unit-uuid ?unit-uuid]
+                          [?v :variable/native-decimals ?decimals]]
+                        @@vms-conn)]
+     (->> (map (fn [[v-category v-name v-uuid v-dimension-uuid default-unit-uuid default-decimals]]
+                 (let [{:keys [unit-uuid decimals]} (get cached-units v-uuid)]
+                   (-> [v-category v-name v-uuid v-dimension-uuid]
+                       (conj (or unit-uuid default-unit-uuid))
+                       (conj (or decimals default-decimals)))))
+               vms-units)
+          (group-by first)))))
+
+(comment
+  ;; v-uuid belongs to 1-hr Fuel Load
+  (def v-uuid "850c2541-dfe3-4042-8290-9906423d3da5")
+
+  (rf/dispatch [:local-storage/set  {:units {v-uuid
+                                             {:unit-uuid "my-saved-native-unit-uuid"
+                                              :decimals  42}}}])
+
+  (rf/dispatch [:local-storage/set  {:units {"850c2541-dfe3-4042-8290-9906423d3da5"
+                                             {:unit-uuid "my-saved-native-unit-uuid"
+                                              :decimals  42}}}])
+
+  (rf/dispatch [:local-storage/update-in
+                [:units "850c2541-dfe3-4042-8290-9906423d3da5" :unit-uuid]
+                "my-saved-native-unit-uuid"])
+
+  @(rf/subscribe [:local-storage/get])
+
+  (rf/dispatch [:local-storage/clear])
+
+  @(rf/subscribe [:settings/local-storage-units])
+
+  @(rf/subscribe [:settings/units+decimals])
+
+
+  )
