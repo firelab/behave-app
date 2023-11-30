@@ -47,7 +47,14 @@
                                      (rf/dispatch [:state/set [:settings category v-uuid :unit-uuid] %])
                                      (rf/dispatch [:local-storage/update-in
                                                    [:units v-uuid :unit-uuid] %]))]
-                    [:div [unit-selector unit-uuid units on-click]])]))])]))
+                    [:div [unit-selector unit-uuid units on-click]])]))])
+     [c/button {:label         "Reset Default Settings"
+                :variant       "highlight"
+                :icon-name     "arrow2"
+                :icon-position "right"
+                :on-click      #(when (js/confirm (str "Are you sure you want to reset your unit prefereneces?"))
+                                  (rf/dispatch [:local-storage/clear])
+                                  (load-settings-from-local-storage!))}]]))
 
 (defn root-component [params]
   (case (:page params)
