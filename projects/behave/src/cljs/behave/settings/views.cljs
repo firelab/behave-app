@@ -27,7 +27,7 @@
   (let [*units-settings (rf/subscribe [:settings/units+decimals])]
     (doseq [[category settings]                                   @*units-settings
             [_ v-name v-uuid v-dimension-uuid unit-uuid decimals] settings]
-      (rf/dispatch [:state/set [:settings category v-uuid]
+      (rf/dispatch [:settings/set [:units category v-uuid]
                     {:v-name           v-name
                      :v-dimension-uuid v-dimension-uuid
                      :unit-uuid        unit-uuid
@@ -35,7 +35,7 @@
 
 (defn custom-unit-preferences-page [params]
   (load-settings-from-local-storage!)
-  (let [*state-settings (rf/subscribe [:state :settings])]
+  (let [*state-settings (rf/subscribe [:settings/get :units])]
     [:div (for [[category settings] @*state-settings]
             [:div category
              (for [[v-uuid {:keys [v-name v-dimension-uuid unit-uuid decimals]}] settings]
@@ -44,7 +44,7 @@
                   (let [dimension (rf/subscribe [:vms/entity-from-uuid v-dimension-uuid])
                         units     (:dimension/units @dimension)
                         on-click  #(do
-                                     (rf/dispatch [:state/set [:settings category v-uuid :unit-uuid] %])
+                                     (rf/dispatch [:settings/set [:units category v-uuid :unit-uuid] %])
                                      (rf/dispatch [:local-storage/update-in
                                                    [:units v-uuid :unit-uuid] %]))]
                     [:div [unit-selector unit-uuid units on-click]])]))])
