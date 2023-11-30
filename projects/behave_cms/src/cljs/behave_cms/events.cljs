@@ -18,6 +18,7 @@
             [behave-cms.lists.events]
             [behave-cms.modules.events]
             [behave-cms.submodules.events]
+            [behave-cms.subgroups.events]
             [behave-cms.variables.events]
             [behave-cms.routes  :refer [app-routes singular]]
             [behave-cms.utils   :as u]))
