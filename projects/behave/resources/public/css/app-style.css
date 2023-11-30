@@ -919,6 +919,15 @@ body {
 /* -- End Tool -- */
 
 
+/* -- Settings View -- */
+
+.settings-table .input-dropdown {
+  display: inline;
+}
+
+/* -- End View -- */
+
+
 /* -- Print View -- */
 
 .print__ws-name {
