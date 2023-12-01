@@ -22,19 +22,20 @@
                                              :value (:bp/uuid unit)}))
                                      (sort-by :label))))}])))
 
+
 (defn- load-settings-from-local-storage! []
   (let [*units-settings (rf/subscribe [:settings/all-units+decimals])]
     (doseq [[category settings]                                   @*units-settings
             [_ v-name v-uuid v-dimension-uuid unit-uuid decimals] settings]
-      (rf/dispatch-sync [:settings/set [:units category v-uuid]
-                         {:v-name           v-name
-                          :v-dimension-uuid v-dimension-uuid
-                          :unit-uuid        unit-uuid
-                          :decimals         decimals}]))))
+      (rf/dispatch [:settings/set [:units category v-uuid]
+                    {:v-name           v-name
+                     :v-dimension-uuid v-dimension-uuid
+                     :unit-uuid        unit-uuid
+                     :decimals         decimals}]))))
 
 (defn custom-unit-preferences-page [params]
-  (load-settings-from-local-storage!)
-  (r/with-let [*state-settings (rf/subscribe [:settings/get :units])]
+  (r/with-let [_ (load-settings-from-local-storage!)
+               *state-settings (rf/subscribe [:settings/get :units])]
     [:div (for [[category settings] (sort-by first @*state-settings)]
             [:div.settings-table category
              (c/table {:title   "Custom Unit Preferences"
