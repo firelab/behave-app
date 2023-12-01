@@ -12,7 +12,23 @@
    (:units local-storage)))
 
 (rf/reg-sub
- :settings/units+decimals
+ :settings/cached-unit
+ (fn []
+   (rf/subscribe [:settings/local-storage-units]))
+
+ (fn [local-storage [_ v-uuid]]
+   (:unit-uuid (get local-storage v-uuid))))
+
+(rf/reg-sub
+ :settings/cached-decimal
+ (fn []
+   (rf/subscribe [:settings/local-storage-units]))
+
+ (fn [local-storage [_ v-uuid]]
+   (:decimals (get local-storage v-uuid))))
+
+(rf/reg-sub
+ :settings/all-units+decimals
  (fn []
    (rf/subscribe [:settings/local-storage-units]))
 
@@ -59,7 +75,7 @@
 
   @(rf/subscribe [:settings/local-storage-units])
 
-  @(rf/subscribe [:settings/units+decimals])
+  @(rf/subscribe [:settings/all-units+decimals])
 
 
   )

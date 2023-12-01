@@ -23,7 +23,7 @@
                                      (sort-by :label))))}])))
 
 (defn- load-settings-from-local-storage! []
-  (let [*units-settings (rf/subscribe [:settings/units+decimals])]
+  (let [*units-settings (rf/subscribe [:settings/all-units+decimals])]
     (doseq [[category settings]                                   @*units-settings
             [_ v-name v-uuid v-dimension-uuid unit-uuid decimals] settings]
       (rf/dispatch [:settings/set [:units category v-uuid]
