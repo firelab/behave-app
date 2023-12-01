@@ -925,6 +925,11 @@ body {
   display: inline;
 }
 
+
+.settings-table .input-number__input {
+  width: 40px;
+}
+
 /* -- End View -- */
 
 
