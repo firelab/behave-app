@@ -1,27 +1,24 @@
 (ns behave.settings.views
   (:require [re-frame.core    :as rf]
-            [goog.string :as gstring]
             [reagent.core            :as r]
             [behave.components.core  :as c]
             [behave.settings.events]
             [dom-utils.interface     :refer [input-value]]))
 
-(defn- unit-selector [prev-unit-uuid units on-click]
-  (r/with-let [*unit-uuid (r/atom prev-unit-uuid)]
-    (let [*prev-unit-short-code (rf/subscribe [:vms/units-uuid->short-code prev-unit-uuid])]
-      [c/dropdown
-       {:id            "unit-selector"
-        :default-value @*unit-uuid
-        :on-change     #(on-click (input-value %))
-        :name          "unit-selector"
-        :options       (distinct
-                        (concat [{:label @*prev-unit-short-code
-                                  :value prev-unit-uuid}]
-                                (->> units
-                                     (map (fn [unit]
-                                            {:label (:unit/short-code unit)
-                                             :value (:bp/uuid unit)}))
-                                     (sort-by :label))))}])))
+(defn- unit-selector [cur-selected-unit-uuid units on-click]
+  (let [*unit-short-code (rf/subscribe [:vms/units-uuid->short-code cur-selected-unit-uuid])]
+    [c/dropdown
+     {:id        "unit-selector"
+      :on-change #(on-click (input-value %))
+      :name      "unit-selector"
+      :options   (distinct
+                  (concat [{:label @*unit-short-code
+                            :value cur-selected-unit-uuid}]
+                          (->> units
+                               (map (fn [unit]
+                                      {:label (:unit/short-code unit)
+                                       :value (:bp/uuid unit)}))
+                               (sort-by :label))))}]))
 
 
 (defn- load-settings-from-local-storage! []
