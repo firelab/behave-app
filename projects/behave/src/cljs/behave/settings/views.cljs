@@ -3,6 +3,7 @@
             [goog.string :as gstring]
             [reagent.core            :as r]
             [behave.components.core  :as c]
+            [behave.settings.events]
             [dom-utils.interface     :refer [input-value]]))
 
 (defn- unit-selector [prev-unit-uuid units on-click]
@@ -46,16 +47,12 @@
                                    {:variable v-name
                                     :units    (let [dimension (rf/subscribe [:vms/entity-from-uuid v-dimension-uuid])
                                                     units     (:dimension/units @dimension)
-                                                    on-click  #(do
-                                                                 (rf/dispatch [:settings/set [:units category v-uuid :unit-uuid] %])
-                                                                 (rf/dispatch [:local-storage/update-in [:units v-uuid :unit-uuid] %]))]
+                                                    on-click  #(rf/dispatch-sync [:setting/cache-unit-preference category v-uuid %])]
                                                 [unit-selector unit-uuid units on-click])
                                     :decimals (let [decimal-atom (r/atom decimals)]
                                                 [c/number-input {:value-atom decimal-atom
                                                                  :on-change  #(reset! decimal-atom (input-value %))
-                                                                 :on-blur    #(do
-                                                                                (rf/dispatch [:settings/set [:units category v-uuid :decimals] @decimal-atom])
-                                                                                (rf/dispatch [:local-storage/update-in [:units v-uuid :decimals] @decimal-atom]))}])})
+                                                                 :on-blur    #(rf/dispatch-sync [:setting/cache-decimal-preference category v-uuid @decimal-atom])}])})
                                  settings)})])
      [c/button {:label         "Reset Default Settings"
                 :variant       "highlight"
