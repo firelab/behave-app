@@ -7,14 +7,14 @@
 
 (defn- unit-selector [prev-unit-uuid units on-click]
   (r/with-let [*unit-uuid (r/atom prev-unit-uuid)]
-    (let [*prev-unit-name (rf/subscribe [:vms/units-uuid->short-code prev-unit-uuid])]
+    (let [*prev-unit-short-code (rf/subscribe [:vms/units-uuid->short-code prev-unit-uuid])]
       [c/dropdown
        {:id            "unit-selector"
         :default-value @*unit-uuid
         :on-change     #(on-click (input-value %))
         :name          "unit-selector"
         :options       (distinct
-                        (concat [{:label @*prev-unit-name
+                        (concat [{:label @*prev-unit-short-code
                                   :value prev-unit-uuid}]
                                 (->> units
                                      (map (fn [unit]
@@ -26,16 +26,16 @@
   (let [*units-settings (rf/subscribe [:settings/all-units+decimals])]
     (doseq [[category settings]                                   @*units-settings
             [_ v-name v-uuid v-dimension-uuid unit-uuid decimals] settings]
-      (rf/dispatch [:settings/set [:units category v-uuid]
-                    {:v-name           v-name
-                     :v-dimension-uuid v-dimension-uuid
-                     :unit-uuid        unit-uuid
-                     :decimals         decimals}]))))
+      (rf/dispatch-sync [:settings/set [:units category v-uuid]
+                         {:v-name           v-name
+                          :v-dimension-uuid v-dimension-uuid
+                          :unit-uuid        unit-uuid
+                          :decimals         decimals}]))))
 
 (defn custom-unit-preferences-page [params]
   (load-settings-from-local-storage!)
-  (let [*state-settings (rf/subscribe [:settings/get :units])]
-    [:div (for [[category settings] @*state-settings]
+  (r/with-let [*state-settings (rf/subscribe [:settings/get :units])]
+    [:div (for [[category settings] (sort-by first @*state-settings)]
             [:div.settings-table category
              (c/table {:title   "Custom Unit Preferences"
                        :headers ["Variable" "Units" "Decimals"]
