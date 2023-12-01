@@ -32,32 +32,47 @@
                      :decimals         decimals}]))))
 
 (defn custom-unit-preferences-page [params]
-  (r/with-let [_ (load-settings-from-local-storage!)
-               *state-settings (rf/subscribe [:settings/get :units])]
-    [:div (for [[category settings] (sort-by first @*state-settings)]
-            [:div.settings-table category
-             (c/table {:title   "Custom Unit Preferences"
-                       :headers ["Variable" "Units" "Decimals"]
-                       :columns [:variable :units :decimals]
-                       :rows    (map
-                                 (fn [[v-uuid {:keys [v-name v-dimension-uuid unit-uuid decimals]}]]
-                                   {:variable v-name
-                                    :units    (let [dimension (rf/subscribe [:vms/entity-from-uuid v-dimension-uuid])
-                                                    units     (:dimension/units @dimension)
-                                                    on-click  #(rf/dispatch-sync [:setting/cache-unit-preference category v-uuid %])]
-                                                [unit-selector unit-uuid units on-click])
-                                    :decimals (let [decimal-atom (r/atom decimals)]
-                                                [c/number-input {:value-atom decimal-atom
-                                                                 :on-change  #(reset! decimal-atom (input-value %))
-                                                                 :on-blur    #(rf/dispatch-sync [:setting/cache-decimal-preference category v-uuid @decimal-atom])}])})
-                                 settings)})])
-     [c/button {:label         "Reset Default Settings"
-                :variant       "highlight"
-                :icon-name     "arrow2"
-                :icon-position "right"
-                :on-click      #(when (js/confirm (str "Are you sure you want to reset your unit prefereneces?"))
-                                  (rf/dispatch [:local-storage/clear])
-                                  (load-settings-from-local-storage!))}]]))
+  (r/with-let [_ (load-settings-from-local-storage!)]
+    (let [*state-settings (rf/subscribe [:settings/get :units])
+          categories      (sort-by first @*state-settings)
+          first-tab       (keyword (ffirst categories))
+          *tab-selected   (rf/subscribe [:state [:settings :units :current-tab]])]
+      (when (nil? @*tab-selected) (rf/dispatch [:state/set [:settings :units :current-tab] first-tab]))
+      [:div
+       [c/tab-group {:variant  "outline-primary"
+                     :on-click #(rf/dispatch [:state/set [:settings :units :current-tab] (:tab %)])
+                     :tabs     (mapv (fn [[category _]]
+                                       (let [category-kw (keyword category)]
+                                         {:label     category
+                                          :tab       category-kw
+                                          :selected? (= @*tab-selected category-kw)}))
+                                     categories)}]
+       [:div (for [[category settings] categories
+                   :when               (= @*tab-selected (keyword category))]
+               ^{:key category}
+               [:div.settings-table
+                (c/table {:title   "Custom Unit Preferences"
+                          :headers ["Variable" "Units" "Decimals"]
+                          :columns [:variable :units :decimals]
+                          :rows    (map
+                                    (fn [[v-uuid {:keys [v-name v-dimension-uuid unit-uuid decimals]}]]
+                                      {:variable v-name
+                                       :units    (let [dimension (rf/subscribe [:vms/entity-from-uuid v-dimension-uuid])
+                                                       units     (:dimension/units @dimension)
+                                                       on-click  #(rf/dispatch-sync [:setting/cache-unit-preference category v-uuid %])]
+                                                   [unit-selector unit-uuid units on-click])
+                                       :decimals (let [decimal-atom (r/atom decimals)]
+                                                   [c/number-input {:value-atom decimal-atom
+                                                                    :on-change  #(reset! decimal-atom (input-value %))
+                                                                    :on-blur    #(rf/dispatch-sync [:setting/cache-decimal-preference category v-uuid @decimal-atom])}])})
+                                    settings)})])
+        [c/button {:label         "Reset Default Settings"
+                   :variant       "highlight"
+                   :icon-name     "arrow2"
+                   :icon-position "right"
+                   :on-click      #(when (js/confirm (str "Are you sure you want to reset your unit prefereneces?"))
+                                     (rf/dispatch [:local-storage/clear])
+                                     (load-settings-from-local-storage!))}]]])))
 
 (defn root-component [params]
   (case (:page params)
