@@ -6,7 +6,9 @@
             [behave.vms.subs]
             [behave.wizard.subs]
             [behave.print.subs]
-            [behave.tool.subs]))
+            [behave.tool.subs]
+            [behave.settings.subs]
+            [browser-utils.core :refer [get-local-storage]]))
 
 ;; Taken from https://lambdaisland.com/blog/11-02-2017-re-frame-form-1-subscriptions
 (def <sub (comp deref rf/subscribe))
@@ -141,3 +143,8 @@
     {:type    :pull-many
      :pattern (or pattern '[*])
      :ids     (reduce into [] eids)}))
+
+(rf/reg-sub
+ :local-storage/get
+ (fn [_]
+   (get-local-storage)))

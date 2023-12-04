@@ -6,7 +6,7 @@
             [behave.components.toolbar :refer [toolbar]]
             [behave.components.modal :refer [modal]]
             [behave.help.views         :refer [help-area]]
-            [behave.settings           :as settings]
+            [behave.settings.views     :as settings]
             [behave.store              :refer [load-store!]]
             [behave.tools              :as tools]
             [behave.translate          :refer [<t load-translations!]]

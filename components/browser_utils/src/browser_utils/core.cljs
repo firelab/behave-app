@@ -58,6 +58,11 @@
   [data]
   (save-local-storage! (merge (get-local-storage) data)))
 
+(defn assoc-in-local-storage!
+  "Updates local storage given a path to where the given value shuld be set."
+  [path value]
+  (save-local-storage! (assoc-in (get-local-storage) path value)))
+
 (defn remove-local-storage!
   "Removes the specified pyregence local storage data given keywords."
   [& keys]

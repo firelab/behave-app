@@ -919,6 +919,20 @@ body {
 /* -- End Tool -- */
 
 
+/* -- Settings View -- */
+
+.settings-table .input-dropdown {
+  display: inline;
+}
+
+
+.settings-table .input-number__input {
+  width: 40px;
+}
+
+/* -- End View -- */
+
+
 /* -- Print View -- */
 
 .print__ws-name {
