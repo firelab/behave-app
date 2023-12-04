@@ -35,5 +35,5 @@
  (fn [_]
    (when (js/confirm (str "Are you sure you want to reset your unit prefereneces?"))
      {:fx [[:dispatch [:local-storage/clear]]
-           [:dispatch [:settings/set nil]]
+           [:dispatch [:settings/set :units nil]]
            [:dispatch [:load-settings-from-local-storage]]]})))
