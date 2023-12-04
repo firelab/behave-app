@@ -430,7 +430,8 @@
   (condp = (:variable/kind variable)
 
     :continuous
-    (let [significant-digits (:variable/native-decimals variable)]
+    (let [*cached-decimals   (rf/subscribe [:settings/cached-decimal (:bp/uuid variable)])
+          significant-digits (or @*cached-decimals (:variable/native-decimals variable))]
       (fn continuous-fmt [value]
         (-> value
             (parse-float)
