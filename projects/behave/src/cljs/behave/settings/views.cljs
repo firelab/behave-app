@@ -63,26 +63,26 @@
                                           :tab       category-kw
                                           :selected? (= @*tab-selected category-kw)}))
                                      categories)}]
-       [:div (for [[category settings] categories
-                   :when               (= @*tab-selected (keyword category))]
-               ^{:key category}
-               [:div.settings-table
-                (c/table {:title   "Custom Unit Preferences"
-                          :headers ["Variable" "Units" "Decimals"]
-                          :columns [:variable :units :decimals]
-                          :rows    (build-rows category settings)})])
-        [:div.wizard-navigation
-         [c/button {:label    "Back"
-                    :variant  "secondary"
-                    :on-click #(.back js/history)
-                    }]
-         [c/button {:label         "Reset Default Settings"
-                    :variant       "highlight"
-                    :icon-name     "arrow2"
-                    :icon-position "right"
-                    :on-click      #(when (js/confirm (str "Are you sure you want to reset your unit prefereneces?"))
-                                      (rf/dispatch [:local-storage/clear])
-                                      (load-settings-from-local-storage!))}]]]])))
+       [:div
+        (for [[category settings] categories
+              :when               (= @*tab-selected (keyword category))]
+          ^{:key category}
+          [:div.settings-table
+           (c/table {:title   "Custom Unit Preferences"
+                     :headers ["Variable" "Units" "Decimals"]
+                     :columns [:variable :units :decimals]
+                     :rows    (build-rows category settings)})])]
+       [:div.wizard-navigation
+        [c/button {:label    "Back"
+                   :variant  "secondary"
+                   :on-click #(.back js/history)}]
+        [c/button {:label         "Reset Default Settings"
+                   :variant       "highlight"
+                   :icon-name     "arrow2"
+                   :icon-position "right"
+                   :on-click      #(when (js/confirm (str "Are you sure you want to reset your unit prefereneces?"))
+                                     (rf/dispatch [:local-storage/clear])
+                                     (load-settings-from-local-storage!))}]]])))
 
 (defn root-component [params]
   (case (:page params)
