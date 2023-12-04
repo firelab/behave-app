@@ -21,17 +21,6 @@
                                         :value (:bp/uuid unit)}))
                                 (sort-by :label))))}]]))
 
-
-(defn- load-settings-from-local-storage! []
-  (let [*units-settings (rf/subscribe [:settings/all-units+decimals])]
-    (doseq [[category settings]                                   @*units-settings
-            [_ v-name v-uuid v-dimension-uuid unit-uuid decimals] settings]
-      (rf/dispatch [:settings/set [:units category v-uuid]
-                    {:v-name           v-name
-                     :v-dimension-uuid v-dimension-uuid
-                     :unit-uuid        unit-uuid
-                     :decimals         decimals}]))))
-
 (defn- build-rows [category settings]
   (map
    (fn [[v-uuid {:keys [v-name v-dimension-uuid unit-uuid decimals]}]]
@@ -48,7 +37,7 @@
    settings))
 
 (defn custom-unit-preferences-page [_]
-  (r/with-let [_ (load-settings-from-local-storage!)]
+  (r/with-let [_ (rf/dispatch [:load-settings-from-local-storage])]
     (let [*state-settings (rf/subscribe [:settings/get :units])
           categories      (sort-by first @*state-settings)
           first-tab       (keyword (ffirst categories))
@@ -80,9 +69,7 @@
                    :variant       "highlight"
                    :icon-name     "arrow2"
                    :icon-position "right"
-                   :on-click      #(when (js/confirm (str "Are you sure you want to reset your unit prefereneces?"))
-                                     (rf/dispatch [:local-storage/clear])
-                                     (load-settings-from-local-storage!))}]]])))
+                   :on-click      #(rf/dispatch [:settings/reset-custom-unit-preferences])}]]])))
 
 (defn root-component [params]
   (case (:page params)
