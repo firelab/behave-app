@@ -63,6 +63,14 @@
               function-id)
        (sort-by #(nth % 3))))
 
+(defn variable-uuid
+  [group-variable-uuid]
+  (q-vms '[:find  ?var-uuid .
+           :in    ?gv-uuid
+           :where
+           (variable-uuid ?gv-uuid ?var-uuid)]
+         group-variable-uuid))
+
 (defn variable-units [group-variable-uuid]
   (q-vms '[:find  ?units .
            :in    ?gv-uuid

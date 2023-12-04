@@ -227,7 +227,7 @@
 (rf/reg-sub
  :worksheet/all-cached-units
  (fn [_]
-   (rf/subscribe [:wizard/cached-units-settings]))
+   (rf/subscribe [:settings/local-storage-units]))
 
  (fn [units-settings [_ ws-uuid]]
    (into []

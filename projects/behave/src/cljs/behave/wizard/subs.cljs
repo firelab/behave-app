@@ -1,7 +1,6 @@
 (ns behave.wizard.subs
   (:require [behave.schema.core     :refer [rules]]
             [behave.vms.store       :refer [vms-conn]]
-            [browser-utils.core     :refer [get-local-storage]]
             [clojure.set            :refer [rename-keys]]
             [datascript.core        :as d]
             [re-frame.core          :refer [reg-sub subscribe] :as rf]
@@ -433,21 +432,15 @@
 (reg-sub
  :wizard/units-used-short-code
 
- (fn [[_ _ dimension-uuid]]
+ (fn [[_ _ _ dimension-uuid]]
    (rf/subscribe [:vms/entity-from-uuid dimension-uuid]))
 
- (fn [{units :dimension/units} [_ ws-unit-uuid _dimension-uuid native-unit-uuid english-unit-uuid metric-unit-uuid :as params]]
-   (let [units-by-uuid (index-by :bp/uuid units)
-         native-unit   (get units-by-uuid native-unit-uuid)
-         english-unit  (get units-by-uuid english-unit-uuid)
-         metric-unit   (get units-by-uuid metric-unit-uuid)
-         default-unit  (or native-unit english-unit metric-unit)] ; FIXME: Get from Worksheet settings
+ (fn [{units :dimension/units} [_ v-uuid ws-unit-uuid _dimension-uuid native-unit-uuid english-unit-uuid metric-unit-uuid]]
+   (let [units-by-uuid     (index-by :bp/uuid units)
+         *cached-unit-uuid (rf/subscribe [:settings/cached-unit v-uuid])
+         *cached-unit      (rf/subscribe [:vms/entity-from-uuid @*cached-unit-uuid])
+         native-unit       (get units-by-uuid native-unit-uuid)
+         english-unit      (get units-by-uuid english-unit-uuid)
+         metric-unit       (get units-by-uuid metric-unit-uuid)
+         default-unit      (or @*cached-unit native-unit english-unit metric-unit)]
      (:unit/short-code (or (get units-by-uuid ws-unit-uuid) default-unit)))))
-
-(reg-sub
- :wizard/cached-units-settings
- (fn [_]
-   (rf/subscribe [:local-storage/get]))
-
- (fn [local-storage]
-   (:units local-storage)))

@@ -36,7 +36,7 @@
      (subgroup ?group ?subgroup)
      [?submodule :submodule/groups ?group]]
 
-    ;; --  Recursive rules to find a group's subgroups 
+    ;; --  Recursive rules to find a group's subgroups
     [(subgroup ?g ?s)
      [?g :group/children ?s]]
 
@@ -68,7 +68,7 @@
     ;; -- Entity's Input/Ouput (Group Variable, Group, Submodule)
     [(io ?e ?io)
      [?e :submodule/io ?io]]
-    
+
     [(io ?e ?io) ;; Group's IO
      (group ?s ?e)
      [?s :submodule/io ?io]]
@@ -194,6 +194,11 @@
     [(variable-param ?gv ?p)
      [?gv :subtool-variable/cpp-parameter ?p]]
 
+    ;; -- Variable's UUID ---
+    [(variable-uuid ?gv-uuid ?var-uuid)
+     (variable ?gv-uuid ?v)
+     [?v :bp/uuid ?var-uuid]]
+
     ;; -- Variable's units (for continuous variables)
     [(variable-units ?gv-uuid ?unit)
      (variable ?gv-uuid ?v)
@@ -219,7 +224,7 @@
 
 (def cpp-rules
   "Rules related to the CPP operations"
-  
+
   '[;; -- Find a subtool's compute function
     [(subtool-compute-fn ?uuid ?fn)
      (ref ?uuid :subtool/cpp-function-uuid ?fn)]

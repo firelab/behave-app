@@ -35,6 +35,7 @@
                                          fvar       (first variables)
                                          *unit-uuid (subscribe [:worksheet/input-units ws-uuid (:bp/uuid current-group) 0 gv-uuid])
                                          units      @(subscribe [:wizard/units-used-short-code
+                                                                 (:variable/uuid fvar)
                                                                  @*unit-uuid
                                                                  (:variable/dimension-uuid fvar)
                                                                  (:variable/native-unit-uuid fvar)
@@ -71,6 +72,7 @@
                                                                                            repeat-id
                                                                                            (:bp/uuid variable)])
                                                                    *units-used (subscribe [:wizard/units-used-short-code
+                                                                                           (:variable/uuid variable)
                                                                                            @*unit-uuid
                                                                                            (:variable/dimension-uuid variable)
                                                                                            (:variable/native-unit-uuid variable)

@@ -126,8 +126,12 @@
 (defn get-outputs [module fns outputs]
   (reduce
    (fn [acc group-variable-uuid]
-     (let [unit-uuid (or (q/variable-native-units-uuid group-variable-uuid) :none)
-           result (str (apply-output-cpp-fn fns module group-variable-uuid unit-uuid))]
+     (let [var-uuid     (q/variable-uuid group-variable-uuid)
+           *cached-unit (rf/subscribe [:settings/cached-unit var-uuid])
+           unit-uuid    (or @*cached-unit
+                            (q/variable-native-units-uuid group-variable-uuid)
+                            :none)
+           result       (str (apply-output-cpp-fn fns module group-variable-uuid unit-uuid))]
        (log-solver [:GET-OUTPUTS group-variable-uuid result unit-uuid])
        (assoc acc group-variable-uuid [result unit-uuid])))
    {}
