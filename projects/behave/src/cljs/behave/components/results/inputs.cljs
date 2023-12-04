@@ -81,7 +81,8 @@
                                                                {:input  (indent-name (+ level 2) (:variable/name variable))
                                                                 :units  @*units-used
                                                                 :values (cond-> value
-                                                                          (not (csv? value))
+                                                                          (and (not (string? value))
+                                                                               (not (csv? value)))
                                                                           fmt-fn)}))))
                                                    repeat-ids)))
                                    :else
