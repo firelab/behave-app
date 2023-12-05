@@ -71,6 +71,17 @@
                    :icon-position "right"
                    :on-click      #(rf/dispatch [:settings/reset-custom-unit-preferences])}]]])))
 
+(defn setting-selector []
+  [c/modal {:title          "Select Settings"
+            :close-on-click #(rf/dispatch [:settings/close-settings-selector])
+            :content        [c/card-group {:on-select      #(do (rf/dispatch [:navigate (:path %)])
+                                                                (rf/dispatch [:settings/close-settings-selector]))
+                                           :flex-direction "column"
+                                           :card-size      "small"
+                                           :cards          [{:title     "Custom Unit Preferences"
+                                                             :path      "/settings/units"
+                                                             :selected? false}]}]}])
+
 (defn root-component [params]
   (case (:page params)
     :units
