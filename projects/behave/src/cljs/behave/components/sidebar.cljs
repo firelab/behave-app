@@ -80,4 +80,4 @@
                                 :on-select #(rf/dispatch [:state/set [:sidebar :*tools-or-settings] :tools])}
                                {:label     "behaveplus:settings"
                                 :icon      "settings2"
-                                :on-select #(rf/dispatch [:navigate "/settings/units"])}]}]]))
+                                :on-select #(rf/dispatch [:state/set [:sidebar :*tools-or-settings] :settings])}]}]]))

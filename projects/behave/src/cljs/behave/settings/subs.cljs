@@ -4,6 +4,12 @@
             [behave.vms.store :refer [vms-conn]]))
 
 (rf/reg-sub
+ :settings/show-settings-selector?
+ (fn [db _]
+   (let [state (get-in db [:state :sidebar :*tools-or-settings])]
+     (= state :settings))))
+
+(rf/reg-sub
  :settings/local-storage-units
  (fn [_]
    (rf/subscribe [:local-storage/get]))

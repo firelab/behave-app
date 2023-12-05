@@ -37,3 +37,8 @@
      {:fx [[:dispatch [:local-storage/clear]]
            [:dispatch [:settings/set :units nil]]
            [:dispatch [:load-settings-from-local-storage]]]})))
+
+(rf/reg-event-db
+ :settings/close-settings-selector
+ (fn [db _]
+   (assoc-in db [:state :sidebar :*tools-or-settings] nil)))

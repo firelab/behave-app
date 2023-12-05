@@ -2,6 +2,7 @@
   (:require [behave.components.core       :as c]
             [behave.components.navigation :refer [wizard-navigation]]
             [behave.tool.views            :refer [tool tool-selector]]
+            [behave.settings.views        :refer [setting-selector]]
             [behave.translate             :refer [<t bp]]
             [behave.worksheet.events]
             [datascript.core              :refer [squuid]]
@@ -23,14 +24,17 @@
      [:p description]]]])
 
 (defn workflow-select [_params]
-  (let [*workflow           (rf/subscribe [:state [:worksheet :*workflow]])
-        show-tool-selector? @(rf/subscribe [:tool/show-tool-selector?])
-        selected-tool-uuid  @(rf/subscribe [:tool/selected-tool-uuid])]
+  (let [*workflow               (rf/subscribe [:state [:worksheet :*workflow]])
+        show-tool-selector?     @(rf/subscribe [:tool/show-tool-selector?])
+        selected-tool-uuid      @(rf/subscribe [:tool/selected-tool-uuid])
+        show-settings-selector? @(rf/subscribe [:settings/show-settings-selector?])]
     [:<>
      (when show-tool-selector?
        [tool-selector])
      (when (some? selected-tool-uuid)
        [tool selected-tool-uuid])
+     (when show-settings-selector?
+       [setting-selector])
      [:div.workflow-select
       [workflow-select-header
        {:icon        "existing-run" ;TODO update when LOGO is available
@@ -66,16 +70,19 @@
 
 ;; TODO use title
 (defn independent-worksheet-page [_params]
-  (let [*modules            (rf/subscribe [:state [:worksheet :*modules]])
-        *submodule          (rf/subscribe [:worksheet/first-output-submodule-slug (first @*modules)])
-        name                (rf/subscribe [:state [:worksheet :name]])
-        show-tool-selector? @(rf/subscribe [:tool/show-tool-selector?])
-        selected-tool-uuid  @(rf/subscribe [:tool/selected-tool-uuid])]
+  (let [*modules                (rf/subscribe [:state [:worksheet :*modules]])
+        *submodule              (rf/subscribe [:worksheet/first-output-submodule-slug (first @*modules)])
+        name                    (rf/subscribe [:state [:worksheet :name]])
+        show-tool-selector?     @(rf/subscribe [:tool/show-tool-selector?])
+        selected-tool-uuid      @(rf/subscribe [:tool/selected-tool-uuid])
+        show-settings-selector? @(rf/subscribe [:settings/show-settings-selector?])]
     [:<>
      (when show-tool-selector?
        [tool-selector])
      (when (some? selected-tool-uuid)
        [tool selected-tool-uuid])
+     (when show-settings-selector?
+       [setting-selector])
      [:div.workflow-select
       [workflow-select-header
        {:icon        "modules"

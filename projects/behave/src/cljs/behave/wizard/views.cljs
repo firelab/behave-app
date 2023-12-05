@@ -10,6 +10,7 @@
             [behave.components.results.inputs     :refer [inputs-table]]
             [behave.components.results.table      :refer [result-table-download-link]]
             [behave.tool.views                    :refer [tool tool-selector]]
+            [behave.settings.views                :refer [setting-selector]]
             [behave-routing.main                  :refer [routes]]
             [behave.translate                     :refer [<t bp]]
             [behave.wizard.events]
@@ -255,12 +256,15 @@
         *notes                   (subscribe [:wizard/notes ws-uuid])
         *show-notes?             (subscribe [:wizard/show-notes?])
         show-tool-selector?      @(subscribe [:tool/show-tool-selector?])
-        selected-tool-uuid       @(subscribe [:tool/selected-tool-uuid])]
+        selected-tool-uuid       @(subscribe [:tool/selected-tool-uuid])
+        show-settings-selector?  @(subscribe [:settings/show-settings-selector?])]
     [:<>
      (when show-tool-selector?
        [tool-selector])
      (when (some? selected-tool-uuid)
        [tool selected-tool-uuid])
+     (when show-settings-selector?
+       [setting-selector])
      [:div.accordion
       [:div.accordion__header
        [c/tab {:variant   "outline-primary"
@@ -507,17 +511,20 @@
 
 (defn wizard-results-settings-page [{:keys [route-handler io ws-uuid] :as params}]
   (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
-  (let [*notes              (subscribe [:wizard/notes ws-uuid])
-        *show-notes?        (subscribe [:wizard/show-notes?])
-        on-back             #(dispatch [:wizard/prev-tab params])
-        on-next             #(dispatch [:navigate (path-for routes :ws/results :ws-uuid ws-uuid)])
-        show-tool-selector? @(subscribe [:tool/show-tool-selector?])
-        selected-tool-uuid  @(subscribe [:tool/selected-tool-uuid])]
+  (let [*notes                  (subscribe [:wizard/notes ws-uuid])
+        *show-notes?            (subscribe [:wizard/show-notes?])
+        on-back                 #(dispatch [:wizard/prev-tab params])
+        on-next                 #(dispatch [:navigate (path-for routes :ws/results :ws-uuid ws-uuid)])
+        show-tool-selector?     @(subscribe [:tool/show-tool-selector?])
+        selected-tool-uuid      @(subscribe [:tool/selected-tool-uuid])
+        show-settings-selector? @(subscribe [:settings/show-settings-selector?])]
     [:<>
      (when show-tool-selector?
        [tool-selector])
      (when (some? selected-tool-uuid)
        [tool selected-tool-uuid])
+     (when show-settings-selector?
+       [setting-selector])
      [:div.accordion
       [:div.accordion__header
        [c/tab {:variant   "outline-primary"
@@ -551,19 +558,22 @@
 
 (defn wizard-results-page [{:keys [route-handler io ws-uuid] :as params}]
   (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
-  (let [*worksheet          (subscribe [:worksheet ws-uuid])
-        *ws-date            (subscribe [:wizard/worksheet-date ws-uuid])
-        *notes              (subscribe [:wizard/notes ws-uuid])
-        *tab-selected       (subscribe [:wizard/results-tab-selected])
-        *cell-data          (subscribe [:worksheet/result-table-cell-data ws-uuid])
-        table-enabled?      (get-in @*worksheet [:worksheet/table-settings :table-settings/enabled?])
-        show-tool-selector? @(subscribe [:tool/show-tool-selector?])
-        selected-tool-uuid  @(subscribe [:tool/selected-tool-uuid])]
+  (let [*worksheet              (subscribe [:worksheet ws-uuid])
+        *ws-date                (subscribe [:wizard/worksheet-date ws-uuid])
+        *notes                  (subscribe [:wizard/notes ws-uuid])
+        *tab-selected           (subscribe [:wizard/results-tab-selected])
+        *cell-data              (subscribe [:worksheet/result-table-cell-data ws-uuid])
+        table-enabled?          (get-in @*worksheet [:worksheet/table-settings :table-settings/enabled?])
+        show-tool-selector?     @(subscribe [:tool/show-tool-selector?])
+        selected-tool-uuid      @(subscribe [:tool/selected-tool-uuid])
+        show-settings-selector? @(subscribe [:settings/show-settings-selector?])]
     [:<>
      (when show-tool-selector?
        [tool-selector])
      (when (some? selected-tool-uuid)
        [tool selected-tool-uuid])
+     (when show-settings-selector?
+       [setting-selector])
      [:div.accordion
       [:div.accordion__header
        [c/tab {:variant   "outline-primary"
@@ -630,14 +640,17 @@
 
 ;;; Public Components
 (defn root-component [params]
-  (let [loaded?             (subscribe [:app/loaded?])
-        show-tool-selector? @(subscribe [:tool/show-tool-selector?])
-        selected-tool-uuid  @(subscribe [:tool/selected-tool-uuid])]
+  (let [loaded?                 (subscribe [:app/loaded?])
+        show-tool-selector?     @(subscribe [:tool/show-tool-selector?])
+        selected-tool-uuid      @(subscribe [:tool/selected-tool-uuid])
+        show-settings-selector? @(subscribe [:settings/show-settings-selector?])]
     [:<>
      (when show-tool-selector?
        [tool-selector])
      (when (some? selected-tool-uuid)
        [tool selected-tool-uuid])
+     (when show-settings-selector?
+       [setting-selector])
      [:div.accordion
       [:div.accordion__header
        [c/tab {:variant   "outline-primary"
