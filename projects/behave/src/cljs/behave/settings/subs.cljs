@@ -39,18 +39,19 @@
    (rf/subscribe [:settings/local-storage-units]))
 
  (fn [cached-units _]
-   (let [vms-units (d/q '[:find ?category ?v-name ?v-uuid ?v-dimension-uuid ?unit-uuid ?decimals
-                          :where
-                          [?v :bp/uuid ?v-uuid]
-                          [?v :variable/kind :continuous]
-                          [?v :variable/category-uuid ?c-uuid]
-                          [?c :bp/uuid ?c-uuid]
-                          [?c :category/name ?category]
-                          [?v :variable/name ?v-name]
-                          [?v :variable/dimension-uuid ?v-dimension-uuid]
-                          [?v :variable/native-unit-uuid ?unit-uuid]
-                          [?v :variable/native-decimals ?decimals]]
-                        @@vms-conn)]
+   (let [vms-units (->> (d/q '[:find ?category ?v-name ?v-uuid ?v-dimension-uuid ?unit-uuid ?decimals
+                               :where
+                               [?v :bp/uuid ?v-uuid]
+                               [?v :variable/kind :continuous]
+                               [?v :variable/category-uuid ?c-uuid]
+                               [?c :bp/uuid ?c-uuid]
+                               [?c :category/name ?category]
+                               [?v :variable/name ?v-name]
+                               [?v :variable/dimension-uuid ?v-dimension-uuid]
+                               [?v :variable/native-unit-uuid ?unit-uuid]
+                               [?v :variable/native-decimals ?decimals]]
+                             @@vms-conn)
+                        (sort-by (juxt first second)))]
      (->> (map (fn [[v-category v-name v-uuid v-dimension-uuid default-unit-uuid default-decimals]]
                  (let [{:keys [unit-uuid decimals]} (get cached-units v-uuid)]
                    (-> [v-category v-name v-uuid v-dimension-uuid]
