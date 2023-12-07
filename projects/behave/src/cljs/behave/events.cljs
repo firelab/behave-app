@@ -1,5 +1,10 @@
 (ns behave.events
-  (:require [browser-utils.core :refer [add-script script-exist? set-local-storage! clear-local-storage! assoc-in-local-storage! create-local-storage!]]
+  (:require [browser-utils.core :refer [add-script
+                                        script-exist?
+                                        set-local-storage!
+                                        clear-local-storage!
+                                        assoc-in-local-storage!
+                                        create-local-storage!]]
             [ajax.core :as ajax]
             [re-frame.core :as rf]
             [behave.tool.events]))
@@ -19,7 +24,8 @@
  :initialize
  (fn [{:keys [db]} [_ _]]
    {:db (merge db initial-state)
-    :fx [[:dispatch [:local-storage/init "behave-settings"]]]}))
+    :fx [[:dispatch [:local-storage/init "behave-settings"]]
+         [:dispatch [:setting/set-current-tab :general-units]]]}))
 
 ;;; State
 

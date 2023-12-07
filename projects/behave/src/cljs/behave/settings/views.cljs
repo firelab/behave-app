@@ -78,7 +78,6 @@
 
 (defn settings-page [params]
   (let [*tab-selected (rf/subscribe [:state [:settings :units :current-tab]])]
-    (when (nil? @*tab-selected) (rf/dispatch [:setting/set-current-tab :general-units]))
     [:div.settings
      [c/tab-group {:variant  "outline-secondary"
                    :on-click #(rf/dispatch [:state/set [:settings :units :current-tab] (:tab %)])
