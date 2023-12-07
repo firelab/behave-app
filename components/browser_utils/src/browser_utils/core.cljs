@@ -46,12 +46,12 @@
 (defonce ^:private local-key (atom nil))
 
 (defn- save-local-storage! [data]
-  (.setItem (.-localStorage js/window) local-key (pr-str data)))
+  (.setItem (.-localStorage js/window) @local-key (pr-str data)))
 
 (defn get-local-storage
   "Gets the pyregence local storage data."
   []
-  (edn/read-string (.getItem (.-localStorage js/window) local-key)))
+  (edn/read-string (.getItem (.-localStorage js/window) @local-key)))
 
 (defn set-local-storage!
   "Sets the pyregence local storage given data to store."
