@@ -39,8 +39,8 @@
                     :ws/results-settings wizard/wizard-results-settings-page
                     :ws/results          wizard/wizard-results-page
                     :ws/print            print-page
-                    :settings/all        settings/root-component
-                    :settings/page       settings/root-component
+                    :settings/all        settings/settings-page
+                    :settings/page       settings/settings-page
                     :tools/all           tools/root-component
                     :tools/page          tools/root-component})
 

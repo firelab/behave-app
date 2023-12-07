@@ -10,7 +10,6 @@
             [behave.components.results.inputs     :refer [inputs-table]]
             [behave.components.results.table      :refer [result-table-download-link]]
             [behave.tool.views                    :refer [tool tool-selector]]
-            [behave.settings.views                :refer [setting-selector]]
             [behave-routing.main                  :refer [routes]]
             [behave.translate                     :refer [<t bp]]
             [behave.wizard.events]
@@ -256,15 +255,12 @@
         *notes                   (subscribe [:wizard/notes ws-uuid])
         *show-notes?             (subscribe [:wizard/show-notes?])
         show-tool-selector?      @(subscribe [:tool/show-tool-selector?])
-        selected-tool-uuid       @(subscribe [:tool/selected-tool-uuid])
-        show-settings-selector?  @(subscribe [:settings/show-settings-selector?])]
+        selected-tool-uuid       @(subscribe [:tool/selected-tool-uuid])]
     [:<>
      (when show-tool-selector?
        [tool-selector])
      (when (some? selected-tool-uuid)
        [tool selected-tool-uuid])
-     (when show-settings-selector?
-       [setting-selector])
      [:div.accordion
       [:div.accordion__header
        [c/tab {:variant   "outline-primary"
@@ -516,15 +512,12 @@
         on-back                 #(dispatch [:wizard/prev-tab params])
         on-next                 #(dispatch [:navigate (path-for routes :ws/results :ws-uuid ws-uuid)])
         show-tool-selector?     @(subscribe [:tool/show-tool-selector?])
-        selected-tool-uuid      @(subscribe [:tool/selected-tool-uuid])
-        show-settings-selector? @(subscribe [:settings/show-settings-selector?])]
+        selected-tool-uuid      @(subscribe [:tool/selected-tool-uuid])]
     [:<>
      (when show-tool-selector?
        [tool-selector])
      (when (some? selected-tool-uuid)
        [tool selected-tool-uuid])
-     (when show-settings-selector?
-       [setting-selector])
      [:div.accordion
       [:div.accordion__header
        [c/tab {:variant   "outline-primary"
@@ -565,15 +558,12 @@
         *cell-data              (subscribe [:worksheet/result-table-cell-data ws-uuid])
         table-enabled?          (get-in @*worksheet [:worksheet/table-settings :table-settings/enabled?])
         show-tool-selector?     @(subscribe [:tool/show-tool-selector?])
-        selected-tool-uuid      @(subscribe [:tool/selected-tool-uuid])
-        show-settings-selector? @(subscribe [:settings/show-settings-selector?])]
+        selected-tool-uuid      @(subscribe [:tool/selected-tool-uuid])]
     [:<>
      (when show-tool-selector?
        [tool-selector])
      (when (some? selected-tool-uuid)
        [tool selected-tool-uuid])
-     (when show-settings-selector?
-       [setting-selector])
      [:div.accordion
       [:div.accordion__header
        [c/tab {:variant   "outline-primary"
@@ -642,15 +632,12 @@
 (defn root-component [params]
   (let [loaded?                 (subscribe [:app/loaded?])
         show-tool-selector?     @(subscribe [:tool/show-tool-selector?])
-        selected-tool-uuid      @(subscribe [:tool/selected-tool-uuid])
-        show-settings-selector? @(subscribe [:settings/show-settings-selector?])]
+        selected-tool-uuid      @(subscribe [:tool/selected-tool-uuid])]
     [:<>
      (when show-tool-selector?
        [tool-selector])
      (when (some? selected-tool-uuid)
        [tool selected-tool-uuid])
-     (when show-settings-selector?
-       [setting-selector])
      [:div.accordion
       [:div.accordion__header
        [c/tab {:variant   "outline-primary"
