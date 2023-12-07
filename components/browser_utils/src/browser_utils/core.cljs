@@ -78,7 +78,7 @@
   "Creates a local storage with key `k`."
   [k]
   (reset! local-key k)
-  (clear-local-storage!))
+  (set-local-storage! {}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Utility Functions - Browser Management
