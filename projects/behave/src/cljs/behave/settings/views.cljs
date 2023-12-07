@@ -55,7 +55,7 @@
                                                                    category v-uuid @decimal-atom])}])})
    settings))
 
-(defn- general-units-tab [_]
+(defn- general-units-tab []
   (r/with-let [_ (rf/dispatch [:load-units-from-local-storage])]
     (let [*state-settings (rf/subscribe [:settings/get :units])
           categories      (sort-by first @*state-settings)]
