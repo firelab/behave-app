@@ -80,7 +80,7 @@
 ;; Root Component
 ;;==============================================================================
 
-(defn settings-page [params]
+(defn settings-page [_params]
   (let [*tab-selected (rf/subscribe [:state [:settings :units :current-tab]])]
     [:div.settings
      [c/tab-group {:variant  "outline-secondary"
