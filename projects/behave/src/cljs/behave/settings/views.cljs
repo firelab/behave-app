@@ -10,14 +10,14 @@
 ;;==============================================================================
 
 
-(defn fuel-model-tab []
+(defn- fuel-model-tab []
   [:div "TODO Fuel Model Set Selection"])
 
 ;;==============================================================================
 ;; Moisture Scenario Set Selection Tab
 ;;==============================================================================
 
-(defn moisture-scenario-tab []
+(defn- moisture-scenario-tab []
   [:div "TODO Moisture Scenario Set Selection"])
 
 ;;==============================================================================
@@ -55,7 +55,7 @@
                                                                    category v-uuid @decimal-atom])}])})
    settings))
 
-(defn general-units-tab [_]
+(defn- general-units-tab [_]
   (r/with-let [_ (rf/dispatch [:load-units-from-local-storage])]
     (let [*state-settings (rf/subscribe [:settings/get :units])
           categories      (sort-by first @*state-settings)]
@@ -75,6 +75,10 @@
                    :icon-name     "arrow2"
                    :icon-position "right"
                    :on-click      #(rf/dispatch [:settings/reset-custom-unit-preferences])}]]])))
+
+;;==============================================================================
+;; Root Component
+;;==============================================================================
 
 (defn settings-page [params]
   (let [*tab-selected (rf/subscribe [:state [:settings :units :current-tab]])]
