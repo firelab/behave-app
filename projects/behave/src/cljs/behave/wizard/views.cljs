@@ -365,7 +365,7 @@
         output-ranges              (map (fn [[gv-uuid & _rest]]
                                           (let [min-val (get @*default-min-values gv-uuid)
                                                 max-val (get @*default-max-values gv-uuid)]
-                                            (gstring/format "%.2f - %.2f" min-val max-val))) ;TODO BHP1-257: Worksheet Settings for units and decimals
+                                            (gstring/format "%.1f - %.1f" min-val max-val)))
                                         @*gv-uuid+min+max-entries)
         names                      (map (fn get-variable-name [[uuid _min _max]]
                                           (->> (subscribe [:wizard/group-variable uuid])
