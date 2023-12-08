@@ -15,10 +15,9 @@
          [:dispatch [:local-storage/update-in [:units v-uuid :decimals] decimal]]]}))
 
 (rf/reg-event-fx
- :load-settings-from-local-storage
- (rf/inject-cofx ::inject/sub
-                 (fn [_]
-                   [:settings/all-units+decimals]))
+ :load-units-from-local-storage
+
+ (rf/inject-cofx ::inject/sub (fn [_] [:settings/all-units+decimals]))
 
  (fn [{units-settings :settings/all-units+decimals} _]
    {:fx (into []
@@ -36,9 +35,14 @@
    (when (js/confirm (str "Are you sure you want to reset your unit prefereneces?"))
      {:fx [[:dispatch [:local-storage/clear]]
            [:dispatch [:settings/set :units nil]]
-           [:dispatch [:load-settings-from-local-storage]]]})))
+           [:dispatch [:load-units-from-local-storage]]]})))
 
 (rf/reg-event-db
  :settings/close-settings-selector
  (fn [db _]
    (assoc-in db [:state :sidebar :*tools-or-settings] nil)))
+
+(rf/reg-event-db
+ :setting/set-current-tab
+ (fn [db [_ tab]]
+   (assoc-in db [:state :settings :units :current-tab] tab)))

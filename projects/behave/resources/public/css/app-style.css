@@ -921,12 +921,12 @@ body {
 
 /* -- Settings View -- */
 
-.settings-table .input-dropdown {
+.settings__general-units .input-dropdown {
   display: inline;
 }
 
 
-.settings-table .input-number__input {
+.settings__general-units .input-number__input {
   width: 40px;
 }
 

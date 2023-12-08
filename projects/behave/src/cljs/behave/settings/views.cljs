@@ -5,6 +5,25 @@
             [behave.settings.events]
             [dom-utils.interface     :refer [input-value]]))
 
+;;==============================================================================
+;; Fuel Model Set Selection Tab
+;;==============================================================================
+
+
+(defn- fuel-model-tab []
+  [:div "TODO Fuel Model Set Selection"])
+
+;;==============================================================================
+;; Moisture Scenario Set Selection Tab
+;;==============================================================================
+
+(defn- moisture-scenario-tab []
+  [:div "TODO Moisture Scenario Set Selection"])
+
+;;==============================================================================
+;; General Units Tab
+;;==============================================================================
+
 (defn- unit-selector [cur-selected-unit-uuid units on-click]
   (let [*unit-short-code (rf/subscribe [:vms/units-uuid->short-code cur-selected-unit-uuid])]
     [:div.settings-table_unit-selector
@@ -36,31 +55,17 @@
                                                                    category v-uuid @decimal-atom])}])})
    settings))
 
-(defn custom-unit-preferences-page [_]
-  (r/with-let [_ (rf/dispatch [:load-settings-from-local-storage])]
+(defn- general-units-tab []
+  (r/with-let [_ (rf/dispatch [:load-units-from-local-storage])]
     (let [*state-settings (rf/subscribe [:settings/get :units])
-          categories      (sort-by first @*state-settings)
-          first-tab       (keyword (ffirst categories))
-          *tab-selected   (rf/subscribe [:state [:settings :units :current-tab]])]
-      (when (nil? @*tab-selected) (rf/dispatch [:state/set [:settings :units :current-tab] first-tab]))
-      [:div
-       [c/tab-group {:variant  "outline-primary"
-                     :on-click #(rf/dispatch [:state/set [:settings :units :current-tab] (:tab %)])
-                     :tabs     (mapv (fn [[category _]]
-                                       (let [category-kw (keyword category)]
-                                         {:label     category
-                                          :tab       category-kw
-                                          :selected? (= @*tab-selected category-kw)}))
-                                     categories)}]
-       [:div
-        (for [[category settings] categories
-              :when               (= @*tab-selected (keyword category))]
-          ^{:key category}
-          [:div.settings-table
-           (c/table {:title   "Custom Unit Preferences"
-                     :headers ["Variable" "Units" "Decimals"]
-                     :columns [:variable :units :decimals]
-                     :rows    (build-rows category settings)})])]
+          categories      (sort-by first @*state-settings)]
+      [:div.settings__general-units
+       (c/accordion {:accordion-items (for [[category settings] categories]
+                                        ^{:key category}
+                                        {:label   category
+                                         :content (c/table {:headers ["Variable" "Units" "Decimals"]
+                                                            :columns [:variable :units :decimals]
+                                                            :rows    (build-rows category settings)})})})
        [:div.wizard-navigation
         [c/button {:label    "Back"
                    :variant  "secondary"
@@ -71,22 +76,26 @@
                    :icon-position "right"
                    :on-click      #(rf/dispatch [:settings/reset-custom-unit-preferences])}]]])))
 
-(defn setting-selector []
-  [c/modal {:title          "Select Settings"
-            :close-on-click #(rf/dispatch [:settings/close-settings-selector])
-            :content        [c/card-group {:on-select      #(do (rf/dispatch [:navigate (:path %)])
-                                                                (rf/dispatch [:settings/close-settings-selector]))
-                                           :flex-direction "column"
-                                           :card-size      "small"
-                                           :cards          [{:title     "Custom Unit Preferences"
-                                                             :path      "/settings/units"
-                                                             :selected? false}]}]}])
+;;==============================================================================
+;; Root Component
+;;==============================================================================
 
-(defn root-component [params]
-  (case (:page params)
-    :units
-    (custom-unit-preferences-page params)
-
-    :else
-    [:div
-     [:h1 (str "Settings - " (get params :page "All"))]]))
+(defn settings-page [_params]
+  (let [*tab-selected (rf/subscribe [:state [:settings :units :current-tab]])]
+    [:div.settings
+     [c/tab-group {:variant  "outline-secondary"
+                   :on-click #(rf/dispatch [:state/set [:settings :units :current-tab] (:tab %)])
+                   :tabs     [{:label     "General Units"
+                               :tab       :general-units
+                               :selected? (= @*tab-selected :general-units)}
+                              {:label     "Fuel Model Selection"
+                               :tab       :fuel-model
+                               :selected? (= @*tab-selected :fuel-model)}
+                              {:label     "Moisture Scenario Set Selection"
+                               :tab       :moisture-scenario
+                               :selected? (= @*tab-selected :moisture-scenario)}]}]
+     (case @*tab-selected
+       :general-units     [general-units-tab]
+       :fuel-model        [fuel-model-tab]
+       :moisture-scenario [moisture-scenario-tab]
+       nil                [:div "no page"])]))
