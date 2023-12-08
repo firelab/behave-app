@@ -446,7 +446,7 @@
                                :variables group-variables}])
            :always
            (conj [settings-form {:ws-uuid     ws-uuid
-                                 :title       "Graph and Axis Limit"
+                                 :title       @(<t (bp "graph_and_axis_limits"))
                                  :headers     ["GRAPH Y VARIABLES" "OUTPUT RANGE" "Y AXIS MINIMUM" "Y AXIS MAXIMUM"]
                                  :rf-event-id :worksheet/update-y-axis-limit-attr
                                  :rf-sub-id   :worksheet/graph-settings-y-axis-limits
@@ -498,7 +498,7 @@
         (when map-units-enabled?
           [map-units-form ws-uuid])
         [settings-form {:ws-uuid     ws-uuid
-                        :title       "Table Filters"
+                        :title       @(<t (bp "table_shading_filters"))
                         :headers     ["Enabled?" "OUTPUT VARIABLES" "OUTPUT RESULTS RANGE" "MINIMUM" "MAXIMUM"]
                         :rf-event-id :worksheet/update-table-filter-attr
                         :rf-sub-id   :worksheet/table-settings-filters
