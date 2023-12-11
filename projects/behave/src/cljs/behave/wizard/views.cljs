@@ -586,26 +586,30 @@
          [:div.wizard-header__results-tabs
           [c/tab-group {:variant  "outline-highlight"
                         :on-click #(dispatch [:wizard/results-select-tab %])
-                        :tabs     [{:label     "Notes"
-                                    :tab       :notes
-                                    :icon-name :notes
-                                    :selected? (= @*tab-selected :notes)}
-                                   {:label     "Inputs"
-                                    :tab       :inputs
-                                    :icon-name :tables
-                                    :selected? (= @*tab-selected :inputs)}
-                                   {:label     "Outputs"
-                                    :tab       :outputs
-                                    :icon-name :tables
-                                    :selected? (= @*tab-selected :outputs)}
-                                   {:label     "Graph"
-                                    :tab       :graph
-                                    :icon-name :graphs
-                                    :selected? (= @*tab-selected :graph)}
-                                   {:label     "Diagram"
-                                    :tab       :diagram
-                                    :icon-name :graphs
-                                    :selected? (= @*tab-selected :diagram)}]}]]]
+                        :tabs     (cond-> [{:label     "Notes"
+                                            :tab       :notes
+                                            :icon-name :notes
+                                            :selected? (= @*tab-selected :notes)}
+                                           {:label     "Inputs"
+                                            :tab       :inputs
+                                            :icon-name :tables
+                                            :selected? (= @*tab-selected :inputs)}
+                                           {:label     "Outputs"
+                                            :tab       :outputs
+                                            :icon-name :tables
+                                            :selected? (= @*tab-selected :outputs)}]
+
+                                    (get-in @*worksheet [:worksheet/graph-settings :graph-settings/enabled?])
+                                    (conj {:label     "Graph"
+                                           :tab       :graph
+                                           :icon-name :graphs
+                                           :selected? (= @*tab-selected :graph)})
+
+                                    (seq (:worksheet/diagrams @*worksheet))
+                                    (conj {:label     "Diagram"
+                                           :tab       :diagram
+                                           :icon-name :graphs
+                                           :selected? (= @*tab-selected :diagram)} ))}]]]
         [:div.wizard-page__body
          [:div.wizard-results__notes {:id "notes"}
           (wizard-notes @*notes)]
