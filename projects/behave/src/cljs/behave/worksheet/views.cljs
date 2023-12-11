@@ -40,26 +40,19 @@
        [c/card-group {:on-select      #(rf/dispatch [:state/set [:worksheet :*workflow] (:workflow %)])
                       :flex-direction "column"
                       :card-size      "large"
-                      :cards          [{:title     @(<t "behaveplus:workflow:guided_title")
-                                        :selected? (= @*workflow :guided)
-                                        :content   @(<t "behaveplus:workflow:guided_desc")
-                                        :icons     [{:icon-name "guided-work"
-                                                     :checked?  (= @*workflow :guided)}]
-                                        :order     0
-                                        :workflow  :guided}
-                                       {:title     @(<t "behaveplus:workflow:independent_title")
+                      :cards          [{:title     @(<t "behaveplus:workflow:independent_title")
                                         :content   @(<t "behaveplus:workflow:independent_desc")
                                         :icons     [{:icon-name "independent-work"
                                                      :checked?  (= @*workflow :independent)}]
                                         :selected? (= @*workflow :independent)
-                                        :order     1
+                                        :order     0
                                         :workflow  :independent}
                                        {:title     @(<t "behaveplus:workflow:import_title")
                                         :content   @(<t "behaveplus:workflow:import_desc")
                                         :icons     [{:icon-name "existing-run"
                                                      :checked?  (= @*workflow :import)}]
                                         :selected? (= @*workflow :import)
-                                        :order     2
+                                        :order     1
                                         :workflow  :import}]}]]
       [wizard-navigation {:next-label "Next"
                           :on-next    #(rf/dispatch [:navigate (str "/worksheets/" (->str @*workflow))])}]]]))
