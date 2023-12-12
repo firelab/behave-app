@@ -25,7 +25,7 @@
  (fn [{:keys [db]} [_ _]]
    {:db (merge db initial-state)
     :fx [[:dispatch [:local-storage/init "behave-settings"]]
-         [:dispatch [:setting/set-current-tab :general-units]]]}))
+         [:dispatch [:settings/set-current-tab :general-units]]]}))
 
 ;;; State
 
@@ -106,19 +106,6 @@
   (fn [router [_ e]]
     (let [new-position (.-state e)]
       (assoc router :curr-position (or new-position 0)))))
-
-;;; Settings
-
-(rf/reg-event-db
-  :settings/set
-  (rf/path [:settings])
-  (fn [settings [_ k v]]
-    (cond
-      (keyword? k)
-      (assoc settings k v)
-
-      (vector? k)
-      (assoc-in settings k v))))
 
 ;;; Local Storage
 

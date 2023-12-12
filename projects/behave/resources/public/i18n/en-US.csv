@@ -9,6 +9,7 @@ behaveplus:add_resources,Add Resources
 behaveplus:adding_moisture_scenarios,Adding Moisture Scenarios
 behaveplus:adding_notes,Adding Notes
 behaveplus:adding_resources,Adding Resources
+behaveplus:are_you_sure_you_want_to_reset_your_unit_preferences?,Are you sure you want to reset your unit preferences?
 behaveplus:back,Back
 behaveplus:browse,Browse
 behaveplus:behaveplus_70,BehavePlus 7.0
@@ -63,7 +64,9 @@ behaveplus:fireline_constructed,Fireline Constructed
 behaveplus:first_resource,First Resource
 behaveplus:from,From
 behaveplus:fuel_d1l1,D1L1 - Very low dead, fully cured herb
+behaveplus:fuel_model_selection,Fuel Model Selection
 behaveplus:full_size_at_report,Full Size at Report
+behaveplus:general_units,General Units
 behaveplus:get_range,Get Range
 behaveplus:graph,Graph
 behaveplus:graph_and_axis_limits,Graph & Axis Limits
@@ -145,7 +148,7 @@ behaveplus:range_surface_rate_of_spread_maximum,Range: Surface Rate of Spread (m
 behaveplus:range_selector,Range Selector
 behaveplus:rear_attack,Rear Attack
 behaveplus:required,Required
-behaveplus:reset_to_defaults,Reset to defaults
+behaveplus:reset_to_defaults,Reset to Defaults
 behaveplus:resource,Resource
 behaveplus:resource_arrival_time,Resource Arrival Time
 behaveplus:resource_arrival_time_h,Resource Arrival Time (h)

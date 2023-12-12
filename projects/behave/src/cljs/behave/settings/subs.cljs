@@ -59,30 +59,3 @@
                        (conj (or decimals default-decimals)))))
                vms-units)
           (group-by first)))))
-
-(comment
-  ;; v-uuid belongs to 1-hr Fuel Load
-  (def v-uuid "850c2541-dfe3-4042-8290-9906423d3da5")
-
-  (rf/dispatch [:local-storage/set  {:units {v-uuid
-                                             {:unit-uuid "my-saved-native-unit-uuid"
-                                              :decimals  42}}}])
-
-  (rf/dispatch [:local-storage/set  {:units {"850c2541-dfe3-4042-8290-9906423d3da5"
-                                             {:unit-uuid "my-saved-native-unit-uuid"
-                                              :decimals  42}}}])
-
-  (rf/dispatch [:local-storage/update-in
-                [:units "850c2541-dfe3-4042-8290-9906423d3da5" :unit-uuid]
-                "my-saved-native-unit-uuid"])
-
-  @(rf/subscribe [:local-storage/get])
-
-  (rf/dispatch [:local-storage/clear])
-
-  @(rf/subscribe [:settings/local-storage-units])
-
-  @(rf/subscribe [:settings/all-units+decimals])
-
-
-  )
