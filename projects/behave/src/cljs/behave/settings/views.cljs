@@ -1,9 +1,10 @@
 (ns behave.settings.views
-  (:require [re-frame.core    :as rf]
-            [reagent.core            :as r]
-            [behave.components.core  :as c]
+  (:require [behave.components.core  :as c]
             [behave.settings.events]
-            [dom-utils.interface     :refer [input-value]]))
+            [behave.translate        :refer [<t bp]]
+            [dom-utils.interface     :refer [input-value]]
+            [reagent.core            :as r]
+            [re-frame.core           :as rf]))
 
 ;;==============================================================================
 ;; Fuel Model Set Selection Tab
@@ -46,17 +47,17 @@
      {:variable v-name
       :units    (let [dimension (rf/subscribe [:vms/entity-from-uuid v-dimension-uuid])
                       units     (:dimension/units @dimension)
-                      on-click  #(rf/dispatch-sync [:setting/cache-unit-preference category v-uuid %])]
+                      on-click  #(rf/dispatch-sync [:settings/cache-unit-preference category v-uuid %])]
                   [unit-selector unit-uuid units on-click])
       :decimals (let [decimal-atom (r/atom decimals)]
                   [c/number-input {:value-atom decimal-atom
                                    :on-change  #(reset! decimal-atom (input-value %))
-                                   :on-blur    #(rf/dispatch-sync [:setting/cache-decimal-preference
+                                   :on-blur    #(rf/dispatch-sync [:settings/cache-decimal-preference
                                                                    category v-uuid @decimal-atom])}])})
    settings))
 
 (defn- general-units-tab []
-  (r/with-let [_ (rf/dispatch [:load-units-from-local-storage])]
+  (r/with-let [_ (rf/dispatch [:settings/load-units-from-local-storage])]
     (let [*state-settings (rf/subscribe [:settings/get :units])
           categories      (sort-by first @*state-settings)]
       [:div.settings__general-units
@@ -67,10 +68,10 @@
                                                             :columns [:variable :units :decimals]
                                                             :rows    (build-rows category settings)})})})
        [:div.wizard-navigation
-        [c/button {:label    "Back"
+        [c/button {:label    @(<t (bp "back"))
                    :variant  "secondary"
                    :on-click #(.back js/history)}]
-        [c/button {:label         "Reset Default Settings"
+        [c/button {:label         @(<t (bp "reset_to_defaults"))
                    :variant       "highlight"
                    :icon-name     "arrow2"
                    :icon-position "right"
@@ -85,13 +86,13 @@
     [:div.settings
      [c/tab-group {:variant  "outline-secondary"
                    :on-click #(rf/dispatch [:state/set [:settings :units :current-tab] (:tab %)])
-                   :tabs     [{:label     "General Units"
+                   :tabs     [{:label     @(<t (bp "general_units"))
                                :tab       :general-units
                                :selected? (= @*tab-selected :general-units)}
-                              {:label     "Fuel Model Selection"
+                              {:label     @(<t (bp "fuel_model_selection"))
                                :tab       :fuel-model
                                :selected? (= @*tab-selected :fuel-model)}
-                              {:label     "Moisture Scenario Set Selection"
+                              {:label     @(<t (bp "moisture_scenario_selection"))
                                :tab       :moisture-scenario
                                :selected? (= @*tab-selected :moisture-scenario)}]}]
      (case @*tab-selected
