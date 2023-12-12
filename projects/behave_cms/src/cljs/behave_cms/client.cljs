@@ -15,7 +15,7 @@
                                                         login-page
                                                         reset-password-page
                                                         verify-email-page]]
-            [behave-cms.categories.views        :refer [list-categories-page]]
+            [behave-cms.domains.views        :refer [list-domains-page]]
             [behave-cms.groups.views            :refer [list-groups-page]]
             [behave-cms.group-variables.views   :refer [group-variable-page]]
             [behave-cms.languages.views         :refer [list-languages-page]]
@@ -38,7 +38,7 @@
 (def menu-pages
   [{:page "Applications"         :path "/applications"}
    {:page "Variables"            :path "/variables"}
-   {:page "Variable  Categories" :path "/categories"}
+   {:page "Variable  Domains"    :path "/domains"}
    {:page "Lists"                :path "/lists"}
    {:page "Units"                :path "/units"}
    {:page "Languages"            :path "/languages"}
@@ -46,7 +46,7 @@
 
 (def app-pages {:applications         list-applications-page
                 :dashboard            dashboard/root-component
-                :categories           list-categories-page
+                :domains           list-domains-page
                 :get-application      list-modules-page
                 :get-group            list-subgroups-page
                 :get-group-variable   group-variable-page

@@ -5,14 +5,14 @@
 
 (rf/reg-event-fx
  :settings/cache-unit-preference
- (fn [_ [_ category v-uuid unit-uuid]]
-   {:fx [[:dispatch [:settings/set [:units category v-uuid :unit-uuid] unit-uuid]]
+ (fn [_ [_ domain v-uuid unit-uuid]]
+   {:fx [[:dispatch [:settings/set [:units domain v-uuid :unit-uuid] unit-uuid]]
          [:dispatch [:local-storage/update-in [:units v-uuid :unit-uuid] unit-uuid]]]}))
 
 (rf/reg-event-fx
  :settings/cache-decimal-preference
- (fn [_ [_ category v-uuid decimal]]
-   {:fx [[:dispatch [:settings/set [:units category v-uuid :decimals] decimal]]
+ (fn [_ [_ domain v-uuid decimal]]
+   {:fx [[:dispatch [:settings/set [:units domain v-uuid :decimals] decimal]]
          [:dispatch [:local-storage/update-in [:units v-uuid :decimals] decimal]]]}))
 
 (rf/reg-event-fx
@@ -22,9 +22,9 @@
 
  (fn [{units-settings :settings/all-units+decimals} _]
    {:fx (into []
-              (for [[category settings]                                   units-settings
+              (for [[domain settings]                                     units-settings
                     [_ v-name v-uuid v-dimension-uuid unit-uuid decimals] settings]
-                [:dispatch [:settings/set [:units category v-uuid]
+                [:dispatch [:settings/set [:units domain v-uuid]
                             {:v-name           v-name
                              :v-dimension-uuid v-dimension-uuid
                              :unit-uuid        unit-uuid

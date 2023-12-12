@@ -15,8 +15,8 @@
     (sort-by :dimension/name dimensions)))
 
 (rf/reg-sub
- :categories
+ :domains
  (fn [_]
-   (rf/subscribe [:pull-with-attr :category/name '[*]]))
- (fn [categories]
-   (sort-by :category/name categories)))
+   (rf/subscribe [:pull-with-attr :domain/name '[*]]))
+ (fn [domains]
+   (sort-by :domain/name domains)))

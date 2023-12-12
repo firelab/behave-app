@@ -10,7 +10,7 @@
             [behave-cms.events]
             [behave-cms.subs]))
 
-(def columns [:variable/name :variable/category-uuid :variable/bp6-label :variable/bp6-code :variable/kind])
+(def columns [:variable/name :variable/domain-uuid :variable/bp6-label :variable/bp6-code :variable/kind])
 
 (defn variables-table []
   (let [variables (rf/subscribe [:pull-with-attr :variable/name])
@@ -122,7 +122,7 @@
                     (fn [value]
                       (rf/dispatch [:state/set-state (apply conj [:editors :variables] fields) value])))
         kind      (get-field :variable/kind)
-        categories   (rf/subscribe [:categories])]
+        domains   (rf/subscribe [:domains])]
     [:<>
      [:div.row
       [:h3 (if id
@@ -135,11 +135,11 @@
                      :fields [{:label     "Name"
                                :required? true
                                :field-key :variable/name}
-                              {:label     "Category"
-                               :field-key :variable/category-uuid
+                              {:label     "domain"
+                               :field-key :variable/domain-uuid
                                :type      :select
                                :required? false
-                               :options   (for [{cat-name :category/name cat-uuid :bp/uuid} @categories]
+                               :options   (for [{cat-name :domain/name cat-uuid :bp/uuid} @domains]
                                             {:label cat-name :value cat-uuid})}
                               {:label     "BP6 Label"
                                :disabled? true
