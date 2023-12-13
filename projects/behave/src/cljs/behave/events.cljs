@@ -1,5 +1,10 @@
 (ns behave.events
-  (:require [browser-utils.core :refer [add-script script-exist?]]
+  (:require [browser-utils.core :refer [add-script
+                                        script-exist?
+                                        set-local-storage!
+                                        clear-local-storage!
+                                        assoc-in-local-storage!
+                                        create-local-storage!]]
             [ajax.core :as ajax]
             [re-frame.core :as rf]
             [behave.tool.events]))
@@ -15,10 +20,12 @@
                     :translations {"en-US" {"behaveplus" "BehavePlus"}}
                     :settings     {:language "en-US"}})
 
-(rf/reg-event-db
-  :initialize
-  (fn [db [_ _]]
-    (merge db initial-state)))
+(rf/reg-event-fx
+ :initialize
+ (fn [{:keys [db]} [_ _]]
+   {:db (merge db initial-state)
+    :fx [[:dispatch [:local-storage/init "behave-settings"]]
+         [:dispatch [:settings/set-current-tab :general-units]]]}))
 
 ;;; State
 
@@ -100,18 +107,27 @@
     (let [new-position (.-state e)]
       (assoc router :curr-position (or new-position 0)))))
 
-;;; Settings
+;;; Local Storage
 
 (rf/reg-event-db
-  :settings/set
-  (rf/path [:settings])
-  (fn [settings [_ k v]]
-    (cond
-      (keyword? k)
-      (assoc settings k v)
+ :local-storage/init
+ (fn [_ [_ local-key]]
+   (create-local-storage! local-key)))
 
-      (vector? k)
-      (assoc-in settings k v))))
+(rf/reg-event-db
+ :local-storage/set
+ (fn [_ [_ data]]
+   (set-local-storage! data)))
+
+(rf/reg-event-db
+ :local-storage/update-in
+ (fn [_ [_ path data]]
+   (assoc-in-local-storage! path data)))
+
+(rf/reg-event-db
+ :local-storage/clear
+ (fn [_ [_ data]]
+   (clear-local-storage!)))
 
 ;;; System
 

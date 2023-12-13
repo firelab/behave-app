@@ -20,6 +20,7 @@
 (defmethod wizard-input nil [variable] (println [:NO-KIND-VAR variable]))
 
 (defmethod wizard-input :continuous [{gv-uuid           :bp/uuid
+                                      var-uuid          :variable/uuid
                                       var-name          :variable/name
                                       var-max           :variable/maximum
                                       var-min           :variable/minimum
@@ -66,6 +67,7 @@
                   :label    @(<t (bp "range_selector"))
                   :on-click #(rf/dispatch [:wizard/toggle-show-range-selector gv-uuid repeat-id])}]]
      [unit-display
+      var-uuid
       @*unit-uuid
       dimension-uuid
       native-unit-uuid

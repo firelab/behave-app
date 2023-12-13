@@ -6,7 +6,7 @@
             [behave.components.toolbar :refer [toolbar]]
             [behave.components.modal :refer [modal]]
             [behave.help.views         :refer [help-area]]
-            [behave.settings           :as settings]
+            [behave.settings.views     :as settings]
             [behave.store              :refer [load-store!]]
             [behave.tools              :as tools]
             [behave.translate          :refer [<t load-translations!]]
@@ -39,8 +39,8 @@
                     :ws/results-settings wizard/wizard-results-settings-page
                     :ws/results          wizard/wizard-results-page
                     :ws/print            print-page
-                    :settings/all        settings/root-component
-                    :settings/page       settings/root-component
+                    :settings/all        settings/settings-page
+                    :settings/page       settings/settings-page
                     :tools/all           tools/root-component
                     :tools/page          tools/root-component})
 
