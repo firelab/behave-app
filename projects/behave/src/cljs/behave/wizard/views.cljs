@@ -345,12 +345,10 @@
         maximums                 (number-inputs {:saved-entries (map (fn remove-min-val[[gv-uuid _min-val max-val enabled?]]
                                                                        [gv-uuid max-val enabled?])
                                                                      @*gv-uuid+min+max-entries)
-                                                 ;; :uuid->default-values default-max-values-rounded
                                                  :on-change     #(update-setting-input ws-uuid rf-event-id max-attr-id %1 %2)})
         minimums                 (number-inputs {:saved-entries (map (fn remove-max-val [[gv-uuid min-val _max-val enabled?]]
                                                                        [gv-uuid min-val enabled?])
                                                                      @*gv-uuid+min+max-entries)
-                                                 ;; :uuid->default-values default-min-values-rounded
                                                  :min-attr-id   max-attr-id
                                                  :on-change     #(update-setting-input ws-uuid rf-event-id min-attr-id %1 %2)})
         output-ranges            (map (fn [[gv-uuid & _rest]]
