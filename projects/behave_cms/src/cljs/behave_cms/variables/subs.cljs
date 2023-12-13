@@ -13,10 +13,3 @@
     (rf/subscribe [:pull-with-attr :dimension/name '[* {:dimension/units [*]}]]))
   (fn [dimensions]
     (sort-by :dimension/name dimensions)))
-
-(rf/reg-sub
- :categories
- (fn [_]
-   (rf/subscribe [:pull-with-attr :category/name '[*]]))
- (fn [categories]
-   (sort-by :category/name categories)))

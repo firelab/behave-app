@@ -1,8 +1,7 @@
 (ns behave.schema.core
   (:require [behave.schema.application      :as application]
             [behave.schema.conditionals     :as conditionals]
-            [behave.schema.category         :as category]
-            [behave.schema.diagrams         :as diagrams]
+            [behave.schema.diagrams        :as diagrams]
             [behave.schema.group            :as group]
             [behave.schema.group-variable   :as group-variable]
             [behave.schema.help-page        :as help-page]
@@ -41,7 +40,6 @@
                                 application/schema
                                 behave-list/schema
                                 conditionals/schema
-                                category/schema
                                 diagrams/schema
                                 group/schema
                                 group-variable/schema
