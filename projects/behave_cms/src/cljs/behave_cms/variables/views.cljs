@@ -139,8 +139,8 @@
                                :field-key :variable/domain-uuid
                                :type      :select
                                :required? false
-                               :options   (for [{cat-name :domain/name cat-uuid :bp/uuid} @domains]
-                                            {:label cat-name :value cat-uuid})}
+                               :options   (for [{domain-name :domain/name cat-uuid :bp/uuid} @domains]
+                                            {:label domain-name :value cat-uuid})}
                               {:label     "BP6 Label"
                                :disabled? true
                                :field-key :variable/bp6-label}
