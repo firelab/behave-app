@@ -31,7 +31,6 @@
 (defmethod tool-input :continuous
   [{:keys [variable tool-uuid subtool-uuid auto-compute?]}]
   (let [{sv-uuid           :bp/uuid
-         var-uuid          :variable/uuid
          var-name          :variable/name
          dimension-uuid    :variable/dimension-uuid
          native-unit-uuid  :variable/native-unit-uuid
@@ -58,7 +57,6 @@
                                                   auto-compute?])}]]
 
      [unit-display
-      var-uuid
       @*unit-uuid
       dimension-uuid
       native-unit-uuid
@@ -123,7 +121,6 @@
 
 (defn- tool-output
   [{sv-uuid           :bp/uuid
-    var-uuid          :variable/uuid
     var-name          :variable/name
     dimension-uuid    :variable/dimension-uuid
     native-unit-uuid  :variable/native-unit-uuid
@@ -142,7 +139,6 @@
                      :label     var-name
                      :value     (or @value "")}]]
      [unit-display
-      var-uuid
       nil
       dimension-uuid
       native-unit-uuid

@@ -993,7 +993,6 @@ p {
 }
 
 .input-dropdown__select-wrapper {
-  padding-right: 20px;
   display: inline-block;
   position: relative;
   max-width: 200px;

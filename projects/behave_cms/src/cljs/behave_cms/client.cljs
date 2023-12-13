@@ -15,7 +15,6 @@
                                                         login-page
                                                         reset-password-page
                                                         verify-email-page]]
-            [behave-cms.categories.views        :refer [list-categories-page]]
             [behave-cms.groups.views            :refer [list-groups-page]]
             [behave-cms.group-variables.views   :refer [group-variable-page]]
             [behave-cms.languages.views         :refer [list-languages-page]]
@@ -36,17 +35,15 @@
 (defonce *current-path   (atom nil))
 
 (def menu-pages
-  [{:page "Applications"         :path "/applications"}
-   {:page "Variables"            :path "/variables"}
-   {:page "Variable  Categories" :path "/categories"}
-   {:page "Lists"                :path "/lists"}
-   {:page "Units"                :path "/units"}
-   {:page "Languages"            :path "/languages"}
-   {:page "Invite User"          :path "/invite-user"}])
+  [{:page "Applications"   :path "/applications"}
+   {:page "Variables"      :path "/variables"}
+   {:page "Lists"          :path "/lists"}
+   {:page "Units"          :path "/units"}
+   {:page "Languages"      :path "/languages"}
+   {:page "Invite User"    :path "/invite-user"}])
 
 (def app-pages {:applications         list-applications-page
                 :dashboard            dashboard/root-component
-                :categories           list-categories-page
                 :get-application      list-modules-page
                 :get-group            list-subgroups-page
                 :get-group-variable   group-variable-page

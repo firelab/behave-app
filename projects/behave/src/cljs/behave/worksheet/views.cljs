@@ -23,9 +23,9 @@
      [:p description]]]])
 
 (defn workflow-select [_params]
-  (let [*workflow               (rf/subscribe [:state [:worksheet :*workflow]])
-        show-tool-selector?     @(rf/subscribe [:tool/show-tool-selector?])
-        selected-tool-uuid      @(rf/subscribe [:tool/selected-tool-uuid])]
+  (let [*workflow           (rf/subscribe [:state [:worksheet :*workflow]])
+        show-tool-selector? @(rf/subscribe [:tool/show-tool-selector?])
+        selected-tool-uuid  @(rf/subscribe [:tool/selected-tool-uuid])]
     [:<>
      (when show-tool-selector?
        [tool-selector])
@@ -59,11 +59,11 @@
 
 ;; TODO use title
 (defn independent-worksheet-page [_params]
-  (let [*modules                (rf/subscribe [:state [:worksheet :*modules]])
-        *submodule              (rf/subscribe [:worksheet/first-output-submodule-slug (first @*modules)])
-        name                    (rf/subscribe [:state [:worksheet :name]])
-        show-tool-selector?     @(rf/subscribe [:tool/show-tool-selector?])
-        selected-tool-uuid      @(rf/subscribe [:tool/selected-tool-uuid])]
+  (let [*modules            (rf/subscribe [:state [:worksheet :*modules]])
+        *submodule          (rf/subscribe [:worksheet/first-output-submodule-slug (first @*modules)])
+        name                (rf/subscribe [:state [:worksheet :name]])
+        show-tool-selector? @(rf/subscribe [:tool/show-tool-selector?])
+        selected-tool-uuid  @(rf/subscribe [:tool/selected-tool-uuid])]
     [:<>
      (when show-tool-selector?
        [tool-selector])

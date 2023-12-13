@@ -46,22 +46,17 @@
 (defonce ^:private local-key (atom nil))
 
 (defn- save-local-storage! [data]
-  (.setItem (.-localStorage js/window) @local-key (pr-str data)))
+  (.setItem (.-localStorage js/window) local-key (pr-str data)))
 
 (defn get-local-storage
   "Gets the pyregence local storage data."
   []
-  (edn/read-string (.getItem (.-localStorage js/window) @local-key)))
+  (edn/read-string (.getItem (.-localStorage js/window) local-key)))
 
 (defn set-local-storage!
   "Sets the pyregence local storage given data to store."
   [data]
   (save-local-storage! (merge (get-local-storage) data)))
-
-(defn assoc-in-local-storage!
-  "Updates local storage given a path to where the given value shuld be set."
-  [path value]
-  (save-local-storage! (assoc-in (get-local-storage) path value)))
 
 (defn remove-local-storage!
   "Removes the specified pyregence local storage data given keywords."
@@ -78,7 +73,7 @@
   "Creates a local storage with key `k`."
   [k]
   (reset! local-key k)
-  (set-local-storage! {}))
+  (clear-local-storage!))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Utility Functions - Browser Management
