@@ -287,7 +287,10 @@
               {:data-theme-color module-name}
               (gstring/format "%s Inputs"  @(<t (:module/translation-key module)))]
              [:div.wizard-review__submodule
-              (for [submodule @(subscribe [:wizard/submodules-io-input-only (:db/id module)])
+              (for [submodule @(subscribe [:wizard/submodules-conditionally-filtered
+                                           ws-uuid
+                                           (:db/id module)
+                                           :input])
                     :let      [edit-route (path-for routes
                                                     :ws/wizard
                                                     :ws-uuid   ws-uuid
