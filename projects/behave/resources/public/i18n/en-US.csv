@@ -9,7 +9,6 @@ behaveplus:add_resources,Add Resources
 behaveplus:adding_moisture_scenarios,Adding Moisture Scenarios
 behaveplus:adding_notes,Adding Notes
 behaveplus:adding_resources,Adding Resources
-behaveplus:are_you_sure_you_want_to_reset_your_unit_preferences?,Are you sure you want to reset your unit preferences?
 behaveplus:back,Back
 behaveplus:browse,Browse
 behaveplus:behaveplus_70,BehavePlus 7.0
@@ -64,9 +63,7 @@ behaveplus:fireline_constructed,Fireline Constructed
 behaveplus:first_resource,First Resource
 behaveplus:from,From
 behaveplus:fuel_d1l1,D1L1 - Very low dead, fully cured herb
-behaveplus:fuel_model_selection,Fuel Model Selection
 behaveplus:full_size_at_report,Full Size at Report
-behaveplus:general_units,General Units
 behaveplus:get_range,Get Range
 behaveplus:graph,Graph
 behaveplus:graph_and_axis_limits,Graph & Axis Limits
@@ -131,6 +128,7 @@ behaveplus:output_selections_fire,Output Selections: Fire
 behaveplus:outputs,Outputs
 behaveplus:outputs_table,Outputs Table
 behaveplus:outputs_selections,Outputs Selections
+behaveplus:output_variable,Output Variable
 behaveplus:optional,Optional
 behaveplus:please_complete_the_missing_information_andor_correct_the_errors,Please complete the missing information and/or correct the errors.
 behaveplus:please_select_a_work_style,Please select a work style.
@@ -148,7 +146,7 @@ behaveplus:range_surface_rate_of_spread_maximum,Range: Surface Rate of Spread (m
 behaveplus:range_selector,Range Selector
 behaveplus:rear_attack,Rear Attack
 behaveplus:required,Required
-behaveplus:reset_to_defaults,Reset to Defaults
+behaveplus:reset_to_defaults,Reset to defaults
 behaveplus:resource,Resource
 behaveplus:resource_arrival_time,Resource Arrival Time
 behaveplus:resource_arrival_time_h,Resource Arrival Time (h)
@@ -156,6 +154,7 @@ behaveplus:resource_duration,Resource Duration
 behaveplus:resource_line_production_rate,Resource Line Production Rate
 behaveplus:resources,Resources
 behaveplus:resources_name,Resource’s Name
+behaveplus:results,Results
 behaveplus:results_selections,Results Selections
 behaveplus:results_tables,Results Tables
 behaveplus:results_view,Results View
@@ -192,9 +191,13 @@ behaveplus:surface_module_options,Surface Module Options
 behaveplus:surface_only,Surface Only
 behaveplus:surface_rate_of_spread,Surface Rate of Spread
 behaveplus:surface_rate_of_spread_maximum,Surface Rate of Spread (maximum)
+behaveplus:s_map_units,%s Map Units
+behaveplus:s_map_units_(s),%s Map Units (%s)
 behaveplus:table,Table
 behaveplus:tables,Tables
-behaveplus:tables_selections,Tables Selections
+behaveplus:tables_selections,Tables Selection
+behaveplus:tables_for_d_multi_valued_inputs_are_not_supported,Tables for (%d) Multi Valued Inputs are not supported
+behaveplus:table_shading_filters,Table Shading Filters
 behaveplus:result_settings, Result Settings
 behaveplus:thru,Thru
 behaveplus:time,Time
@@ -205,7 +208,9 @@ behaveplus:tools,Tools
 behaveplus:tools_and_settings,Tools & Settings
 behaveplus:two_input_variables_have_multiple_values,Two input variables have multiple values.
 behaveplus:type_description,Type Description
+behaveplus:units,Units
 behaveplus:units_used,Units used:
+behaveplus:value,Value
 behaveplus:values,Values
 behaveplus:variable,Variable
 behaveplus:viewing_graphs,Viewing Graphs

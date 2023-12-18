@@ -182,13 +182,3 @@
  :q-with-rules
  (fn [_ [_ query rules & args]]
    (apply d/q query @@s/conn rules args)))
-
-(rf/reg-sub
- :entity-uuid->name
- (fn [_ [_ uuid]]
-   (let [entity (s/entity-from-uuid s/conn uuid)]
-    (->> entity
-         (keys)
-         (filter #(= (name %) "name"))
-         first
-         (get entity)))))
