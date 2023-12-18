@@ -47,8 +47,7 @@
      {:on-delete   #(when (js/confirm (str "Are you sure you want to delete the variable " (:variable/name %) "?"))
                       (rf/dispatch [:api/delete-entity %]))
       :on-increase #(rf/dispatch [:api/reorder % @group-variables :group-variable/order :inc])
-      :on-decrease #(rf/dispatch [:api/reorder % @group-variables :group-variable/order :dec])
-      :on-select   #(rf/dispatch [:subgroups/edit-variables (:db/id (first (:variable/_group-variables %)))])}]))
+      :on-decrease #(rf/dispatch [:api/reorder % @group-variables :group-variable/order :dec])}]))
 
 (defn- add-variable [group-id]
   (let [translation-key  (rf/subscribe [:entity-attr group-id :group/translation-key])
