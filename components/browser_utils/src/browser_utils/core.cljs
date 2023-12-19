@@ -113,10 +113,17 @@
 ;; Utility Functions - Add dynamic script
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn add-script [js-path]
+(defn add-script [js-path & [opts]]
   (let [script-el (.createElement js/document "script")]
+
     (set! (.-src script-el) js-path)
     (set! (.-type script-el) "text/javascript")
+
+    ;; Add any other options
+    (when opts
+      (doseq [[attr value] opts]
+        (.setAttribute script-el (name attr) value)))
+
     (-> js/document
         (.-body)
         (.appendChild script-el))))

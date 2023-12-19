@@ -44,9 +44,11 @@
                     :tools/all           tools/root-component
                     :tools/page          tools/root-component})
 
-(defn load-scripts! [{:keys [issue-collector]}]
+(defn load-scripts! [{:keys [issue-collector sentry]}]
   (when issue-collector
-    (rf/dispatch [:system/add-script issue-collector])))
+    (rf/dispatch [:system/add-script issue-collector]))
+  (when sentry
+    (rf/dispatch [:system/add-script sentry])))
 
 
 (defn- before-unload-fn [e]

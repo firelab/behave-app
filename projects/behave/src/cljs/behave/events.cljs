@@ -135,7 +135,7 @@
  :system/add-script
  (fn [_ [_ src]]
    (when-not (script-exist? src)
-     (add-script src))))
+     (add-script src {:crossorigin "anonymous"}))))
 
 (rf/reg-event-fx
  :system/close
