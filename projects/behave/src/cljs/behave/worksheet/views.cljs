@@ -23,9 +23,9 @@
      [:p description]]]])
 
 (defn workflow-select [_params]
-  (let [*workflow           (rf/subscribe [:state [:worksheet :*workflow]])
-        show-tool-selector? @(rf/subscribe [:tool/show-tool-selector?])
-        selected-tool-uuid  @(rf/subscribe [:tool/selected-tool-uuid])]
+  (let [*workflow               (rf/subscribe [:state [:worksheet :*workflow]])
+        show-tool-selector?     @(rf/subscribe [:tool/show-tool-selector?])
+        selected-tool-uuid      @(rf/subscribe [:tool/selected-tool-uuid])]
     [:<>
      (when show-tool-selector?
        [tool-selector])
@@ -40,30 +40,37 @@
        [c/card-group {:on-select      #(rf/dispatch [:state/set [:worksheet :*workflow] (:workflow %)])
                       :flex-direction "column"
                       :card-size      "large"
-                      :cards          [{:title     @(<t "behaveplus:workflow:independent_title")
+                      :cards          [{:title     @(<t "behaveplus:workflow:guided_title")
+                                        :selected? (= @*workflow :guided)
+                                        :content   @(<t "behaveplus:workflow:guided_desc")
+                                        :icons     [{:icon-name "guided-work"
+                                                     :checked?  (= @*workflow :guided)}]
+                                        :order     0
+                                        :workflow  :guided}
+                                       {:title     @(<t "behaveplus:workflow:independent_title")
                                         :content   @(<t "behaveplus:workflow:independent_desc")
                                         :icons     [{:icon-name "independent-work"
                                                      :checked?  (= @*workflow :independent)}]
                                         :selected? (= @*workflow :independent)
-                                        :order     0
+                                        :order     1
                                         :workflow  :independent}
                                        {:title     @(<t "behaveplus:workflow:import_title")
                                         :content   @(<t "behaveplus:workflow:import_desc")
                                         :icons     [{:icon-name "existing-run"
                                                      :checked?  (= @*workflow :import)}]
                                         :selected? (= @*workflow :import)
-                                        :order     1
+                                        :order     2
                                         :workflow  :import}]}]]
       [wizard-navigation {:next-label "Next"
                           :on-next    #(rf/dispatch [:navigate (str "/worksheets/" (->str @*workflow))])}]]]))
 
 ;; TODO use title
 (defn independent-worksheet-page [_params]
-  (let [*modules            (rf/subscribe [:state [:worksheet :*modules]])
-        *submodule          (rf/subscribe [:worksheet/first-output-submodule-slug (first @*modules)])
-        name                (rf/subscribe [:state [:worksheet :name]])
-        show-tool-selector? @(rf/subscribe [:tool/show-tool-selector?])
-        selected-tool-uuid  @(rf/subscribe [:tool/selected-tool-uuid])]
+  (let [*modules                (rf/subscribe [:state [:worksheet :*modules]])
+        *submodule              (rf/subscribe [:worksheet/first-output-submodule-slug (first @*modules)])
+        name                    (rf/subscribe [:state [:worksheet :name]])
+        show-tool-selector?     @(rf/subscribe [:tool/show-tool-selector?])
+        selected-tool-uuid      @(rf/subscribe [:tool/selected-tool-uuid])]
     [:<>
      (when show-tool-selector?
        [tool-selector])

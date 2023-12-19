@@ -1,6 +1,6 @@
 (ns behave.vms.subs
   (:require [behave.schema.core :refer [rules]]
-            [behave.vms.store   :refer [pull pull-many q entity-from-uuid entity-from-eid vms-conn]]
+            [behave.vms.store   :refer [pull pull-many q entity-from-uuid entity-from-eid vms-conn entity-from-eid]]
             [datascript.core    :as d]
             [re-frame.core      :refer [reg-sub subscribe]]))
 
@@ -134,3 +134,14 @@
           [?v :variable/kind :continuous]
           [?v :variable/native-unit-uuid ?unit-uuid]]
         @@vms-conn rules gv-uuid)))
+
+
+(reg-sub
+ :entity-uuid->name
+ (fn [_ [_ uuid]]
+   (let [entity (entity-from-uuid uuid)]
+     (->> entity
+          (keys)
+          (filter #(= (name %) "name"))
+          first
+          (get entity)))))

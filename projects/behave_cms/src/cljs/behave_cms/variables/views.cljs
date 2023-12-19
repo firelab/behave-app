@@ -58,6 +58,7 @@
           [:div.mb-3 {:keys field-key}
            [:label.form-label label]
            (condp = type
+
              :dimension
              [:select.form-select {:default-value @value
                                    :on-change     #(on-change (u/input-value %))}
