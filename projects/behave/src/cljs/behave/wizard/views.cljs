@@ -11,7 +11,6 @@
             [behave.components.results.table      :refer [result-table-download-link]]
             [behave.tool.views                    :refer [tool tool-selector]]
             [behave-routing.main                  :refer [routes]]
-            [behave.settings.subs]
             [behave.translate                     :refer [<t bp]]
             [behave.wizard.events]
             [behave.wizard.subs]
