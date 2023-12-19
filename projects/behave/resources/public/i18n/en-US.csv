@@ -211,9 +211,9 @@ behaveplus:tools,Tools
 behaveplus:tools_and_settings,Tools & Settings
 behaveplus:two_input_variables_have_multiple_values,Two input variables have multiple values.
 behaveplus:type_description,Type Description
--behaveplus:units,Units
+behaveplus:units,Units
 behaveplus:units_used,Units used:
--behaveplus:value,Value
+behaveplus:value,Value
 behaveplus:values,Values
 behaveplus:variable,Variable
 behaveplus:viewing_graphs,Viewing Graphs
