@@ -20,7 +20,6 @@
 (defmethod wizard-input nil [variable] (println [:NO-KIND-VAR variable]))
 
 (defmethod wizard-input :continuous [{gv-uuid           :bp/uuid
-                                      var-uuid          :variable/uuid
                                       var-name          :variable/name
                                       var-max           :variable/maximum
                                       var-min           :variable/minimum
@@ -67,7 +66,6 @@
                   :label    @(<t (bp "range_selector"))
                   :on-click #(rf/dispatch [:wizard/toggle-show-range-selector gv-uuid repeat-id])}]]
      [unit-display
-      var-uuid
       @*unit-uuid
       dimension-uuid
       native-unit-uuid
@@ -169,12 +167,13 @@
                  :on-click #(rf/dispatch [:worksheet/add-input-group ws-uuid group-uuid next-repeat-id])}]]]))
 
 (defn input-group [ws-uuid group variables level]
-  [:div.wizard-group
-   {:class (str "wizard-group--level-" level)}
-   [:div.wizard-group__header (:group/name group)]
-   (if (:group/repeat? group)
-     [repeat-group ws-uuid group variables]
-     [:div.wizard-group__inputs
-      (for [variable variables]
-        ^{:key (:db/id variable)}
-        [wizard-input variable ws-uuid (:bp/uuid group) 0])])])
+  (let [variables (sort-by :group-variable/order variables)]
+    [:div.wizard-group
+     {:class (str "wizard-group--level-" level)}
+     [:div.wizard-group__header (:group/name group)]
+     (if (:group/repeat? group)
+       [repeat-group ws-uuid group variables]
+       [:div.wizard-group__inputs
+        (for [variable variables]
+          ^{:key (:db/id variable)}
+          [wizard-input variable ws-uuid (:bp/uuid group) 0])])]))
