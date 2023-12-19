@@ -2,6 +2,7 @@
   (:require [clojure.string         :as str]
             [herb.core              :refer [<class]]
             [reagent.core           :as r]
+            [re-frame.core          :as rf]
             [string-utils.interface :refer [->str ->kebab]]
             [behave-cms.styles      :as $]
             [behave-cms.utils       :as u]))
@@ -238,7 +239,12 @@
   [:table.table.table-hover
    [:thead
     [:tr
-     (for [column (map #(-> % (name) (str/replace #"[_-]" " ") (str/capitalize)) columns)]
+     (for [column (map #(-> %
+                            (name)
+                            (str/replace #"[_-]" " ")
+                            (str/replace #"uuid" "")
+                            (str/capitalize))
+                       columns)]
        [:th {:key column} column])
      (when (or on-select on-delete) [:th {:style {:whitespace "nowrap"}} "Modify"])
      (when (or on-increase on-decrease) [:th "Reorder"])]]
@@ -247,8 +253,11 @@
     (for [row rows]
       ^{:key (:db/id row)}
       [:tr
-       (for [column columns]
-         [:td {:key column} (->str (get row column ""))])
+       (for [column columns
+             :let [value (get row column "")]]
+         [:td {:key column} (if-let [nname @(rf/subscribe [:entity-uuid->name value])]
+                              nname
+                              (->str value))])
        (when (or on-select on-delete)
          [:td {:key "modify" :class "td" :style {:white-space "nowrap"}}
           (when on-select [btn-sm :outline-secondary "Edit"   #(on-select row)])
