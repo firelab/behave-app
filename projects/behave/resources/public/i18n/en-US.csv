@@ -69,7 +69,7 @@ behaveplus:full_size_at_report,Full Size at Report
 behaveplus:general_units,General Units
 behaveplus:get_range,Get Range
 behaveplus:graph,Graph
-behaveplus:graph_and_axis_limits,Graph & Axis Limits
+behaveplus:graph_and_axis_limits,Graph Axis Limits
 behaveplus:graph_contain_status,Graph Contain Status
 behaveplus:graph_y_variables,Graph Y variables
 behaveplus:graphs,Graphs
