@@ -141,29 +141,29 @@ digraph GitHub {
           |{ :unit/cpp-enum-member-uuid | string }
           "]
 
+    DomainSet [label="Domain-Set
+               |{ :bp/uuid         | string }
+               |{ :domain-set/name | string }
+               "]
+
     Domain [label="Domain
-            |{ :bp/uuid                 | string }
-            |{ :domain/name             | string }
+            |{ :bp/uuid               | string }
+            |{ :domain/name     | string }
+            |{ :domain/decimals | string }
             "]
 
-    DomainUnits [label="Domain-Units
-            |{ :bp/uuid                        | string }
-            |{ :domain-units/decimals          | string }
-            |{ :domain-units/native-unit-uuid  | string }
-            |{ :domain-units/english-unit-uuid | string }
-            |{ :domain-units/metric-unit-uuid  | string }
-            "]
-
-    Tool     -> SubTool         [label=":tool/subtools" taillabel=1 headlabel=N]
-    SubTool  -> SubToolVariable [label=":subtool/variables" taillabel=1 headlabel=N]
-    Variable -> SubToolVariable [label=":subtool-variable/variables" taillabel=1 headlabel=N]
-    Variable -> List            [label=":variable/list" taillabel=1 headlabel=1]
-    Variable -> Domain          [label=":variable/domain-uuid" taillabel=1 headlabel=1]
-    List -> ListOptions         [label=":list/options" taillabel=1 headlabel=N]
-    Dimension -> Unit           [label=":dimension/units" taillabel=1 headlabel=N]
-    Domain -> Domain            [label=":domain/subdomain-uuid" taillabel=1 headlabel=1]
-    Domain -> DomainUnits       [label=":domain/domain-units-uuid" taillabel=1 headlabel=1]
-    DomainUnits -> Dimension    [label=":domain-units/dimension-uuid" taillabel=1 headlabel=1]
+    Tool      -> SubTool         [label=":tool/subtools" taillabel=1 headlabel=N]
+    SubTool   -> SubToolVariable [label=":subtool/variables" taillabel=1 headlabel=N]
+    Variable  -> SubToolVariable [label=":subtool-variable/variables" taillabel=1 headlabel=N]
+    Variable  -> List            [label=":variable/list" taillabel=1 headlabel=1]
+    Variable  -> Domain          [label=":variable/domain-uuid" taillabel=1 headlabel=1]
+    List      -> ListOptions     [label=":list/options" taillabel=1 headlabel=N]
+    Dimension -> Unit            [label=":dimension/units" taillabel=1 headlabel=N]
+    DomainSet -> Domain          [label=":domain-set/domains" taillabel=1 headlabel=N]
+    Domain    -> Dimension       [label=":domain/dimension-uuid" taillabel=1 headlabel=1]
+    Domain    -> Unit            [label=":domain/native-unit-uuid" taillabel=1 headlabel=1]
+    Domain    -> Unit            [label=":domain/english-unit-uuid" taillabel=1 headlabel=1]
+    Domain    -> Unit            [label=":domain/metric-unit-uuid" taillabel=1 headlabel=1]
 }
 #+end_src
 
