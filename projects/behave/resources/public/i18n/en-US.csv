@@ -34,6 +34,7 @@ behaveplus:containment,Containment
 behaveplus:containment_diagram,Containment Diagram
 behaveplus:crown,Crown
 behaveplus:dbh_diameter_at_breast_height,DBH - Diameter at Breast Height
+behaveplus:decimals,Decimals
 behaveplus:delete,Delete
 behaveplus:deleting_notes,Deleting Notes
 behaveplus:display_graph_results,Display Graph Results
@@ -216,6 +217,7 @@ behaveplus:units_used,Units used:
 behaveplus:value,Value
 behaveplus:values,Values
 behaveplus:variable,Variable
+behaveplus:variable_domain,Variable Domain
 behaveplus:viewing_graphs,Viewing Graphs
 behaveplus:viewing_tables,Viewing Tables
 behaveplus:warn_input_limit,Number of inputs with a range of values exceeded the allowed limit (%d/%d), Please remove some.

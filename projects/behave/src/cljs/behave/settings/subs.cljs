@@ -39,23 +39,21 @@
    (rf/subscribe [:settings/local-storage-units]))
 
  (fn [cached-units _]
-   (let [vms-units (->> (d/q '[:find ?domain ?v-name ?v-uuid ?v-dimension-uuid ?unit-uuid ?decimals
-                               :where
-                               [?v :bp/uuid ?v-uuid]
-                               [?v :variable/kind :continuous]
-                               [?v :variable/domain-uuid ?c-uuid]
-                               [?c :bp/uuid ?c-uuid]
-                               [?c :domain/name ?domain]
-                               [?v :variable/name ?v-name]
-                               [?v :variable/dimension-uuid ?v-dimension-uuid]
-                               [?v :variable/native-unit-uuid ?unit-uuid]
-                               [?v :variable/native-decimals ?decimals]]
-                             @@vms-conn)
-                        (sort-by (juxt first second)))]
+   (let [domain-units (->> (d/q '[:find ?domain-set-name ?domain-name ?domain-uuid ?dimension-uuid ?unit-uuid ?decimals
+                                  :where
+                                  [?ds :domain-set/name ?domain-set-name]
+                                  [?ds :domain-set/domains ?d]
+                                  [?d :domain/name ?domain-name]
+                                  [?d :bp/uuid ?domain-uuid]
+                                  [?d :domain/dimension-uuid ?dimension-uuid]
+                                  [?d :domain/native-unit-uuid ?unit-uuid]
+                                  [?d :domain/decimals ?decimals]]
+                                @@vms-conn)
+                           (sort-by (juxt first second)))]
      (->> (map (fn [[v-domain v-name v-uuid v-dimension-uuid default-unit-uuid default-decimals]]
                  (let [{:keys [unit-uuid decimals]} (get cached-units v-uuid)]
                    (-> [v-domain v-name v-uuid v-dimension-uuid]
                        (conj (or unit-uuid default-unit-uuid))
                        (conj (or decimals default-decimals)))))
-               vms-units)
+               domain-units)
           (group-by first)))))

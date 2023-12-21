@@ -22,13 +22,13 @@
 
  (fn [{units-settings :settings/all-units+decimals} _]
    {:fx (into []
-              (for [[domain settings]                                     units-settings
-                    [_ v-name v-uuid v-dimension-uuid unit-uuid decimals] settings]
-                [:dispatch [:settings/set [:units domain v-uuid]
-                            {:v-name           v-name
-                             :v-dimension-uuid v-dimension-uuid
-                             :unit-uuid        unit-uuid
-                             :decimals         decimals}]]))}))
+              (for [[domain settings]                                                    units-settings
+                    [_ domain-name domain-uuid domain-dimension-uuid unit-uuid decimals] settings]
+                [:dispatch [:settings/set [:units domain domain-uuid]
+                            {:domain-name             domain-name
+                             :domain-dimension-uuid   domain-dimension-uuid
+                             :domain-native-unit-uuid unit-uuid
+                             :domain-decimals         decimals}]]))}))
 
 (rf/reg-event-fx
  :settings/reset-custom-unit-preferences

@@ -41,32 +41,38 @@
                                         :value (:bp/uuid unit)}))
                                 (sort-by :label))))}]]))
 
-(defn- build-rows [domain settings]
+(defn- build-rows [domain-set domain-unit-settings]
   (map
-   (fn [[v-uuid {:keys [v-name v-dimension-uuid unit-uuid decimals]}]]
-     {:variable v-name
-      :units    (let [dimension (rf/subscribe [:vms/entity-from-uuid v-dimension-uuid])
+   (fn [[domain-uuid {:keys [domain-name
+                             domain-dimension-uuid
+                             domain-native-unit-uuid
+                             domain-decimals]}]]
+     {:domain   domain-name
+      :units    (let [dimension (rf/subscribe [:vms/entity-from-uuid domain-dimension-uuid])
                       units     (:dimension/units @dimension)
-                      on-click  #(rf/dispatch-sync [:settings/cache-unit-preference domain v-uuid %])]
-                  [unit-selector unit-uuid units on-click])
-      :decimals (let [decimal-atom (r/atom decimals)]
+                      on-click  #(rf/dispatch-sync [:settings/cache-unit-preference domain-set domain-uuid %])]
+                  [unit-selector domain-native-unit-uuid units on-click])
+      :decimals (let [decimal-atom (r/atom domain-decimals)]
                   [c/number-input {:value-atom decimal-atom
                                    :on-change  #(reset! decimal-atom (input-value %))
                                    :on-blur    #(rf/dispatch-sync [:settings/cache-decimal-preference
-                                                                   domain v-uuid @decimal-atom])}])})
-   settings))
+                                                                   domain-set domain-uuid @decimal-atom])}])})
+   domain-unit-settings))
 
 (defn- general-units-tab []
   (r/with-let [_ (rf/dispatch [:settings/load-units-from-local-storage])]
     (let [*state-settings (rf/subscribe [:settings/get :units])
-          domains         (sort-by first @*state-settings)]
+          domain-sets     (sort-by first @*state-settings)]
       [:div.settings__general-units
-       (c/accordion {:accordion-items (for [[domain settings] domains]
-                                        ^{:key domain}
-                                        {:label   domain
-                                         :content (c/table {:headers ["Variable" "Units" "Decimals"]
-                                                            :columns [:variable :units :decimals]
-                                                            :rows    (build-rows domain settings)})})})
+       (c/accordion {:accordion-items (for [[domain-set-name domain-unit-settings] domain-sets]
+                                        ^{:key domain-sets}
+                                        {:label   domain-set-name
+                                         :content (c/table {:headers [@(<t (bp "variable_domain"))
+                                                                      @(<t (bp "units"))
+                                                                      @(<t (bp "decimals"))]
+                                                            :columns [:domain :units :decimals]
+                                                            :rows    (build-rows domain-set-name
+                                                                                 domain-unit-settings)})})})
        [:div.wizard-navigation
         [c/button {:label    @(<t (bp "back"))
                    :variant  "secondary"
@@ -76,6 +82,7 @@
                    :icon-name     "arrow2"
                    :icon-position "right"
                    :on-click      #(rf/dispatch [:settings/reset-custom-unit-preferences])}]]])))
+
 
 ;;==============================================================================
 ;; Root Component
