@@ -20,7 +20,6 @@
                                    :field-key :domain/name}
 
                                   {:label     "Decimals"
-                                   :required? true
                                    :field-key :domain/decimals}
 
                                   {:label     "Dimension"
