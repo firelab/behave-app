@@ -47,7 +47,7 @@
                                   [?d :bp/uuid ?domain-uuid]
                                   [(get-else $ ?d :domain/dimension-uuid "N/A") ?dimension-uuid]
                                   [?d :domain/native-unit-uuid ?unit-uuid]
-                                  [?d :domain/decimals ?decimals]]
+                                  [(get-else $ ?d :domain/decimals "N/A") ?decimals]]
                                 @@vms-conn)
                            (sort-by (juxt first second)))]
      (->> (map (fn [[v-domain v-name v-uuid v-dimension-uuid default-unit-uuid default-decimals]]
