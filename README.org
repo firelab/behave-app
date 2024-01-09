@@ -107,6 +107,7 @@ digraph GitHub {
               |{ :variable/bp6-code               | string }
               |{ :variable/kind                   | keyword}
               |{ :variable/translation-key        | string }
+              |{ :variable/decimals               | double }
               |{ :variable/maximum                | double }
               |{ :variable/minimum                | double }
               |{ :variable/default-value          | double }
@@ -154,9 +155,12 @@ digraph GitHub {
 
     Tool      -> SubTool         [label=":tool/subtools" taillabel=1 headlabel=N]
     SubTool   -> SubToolVariable [label=":subtool/variables" taillabel=1 headlabel=N]
-    Variable  -> SubToolVariable [label=":subtool-variable/variables" taillabel=1 headlabel=N]
+    Variable  -> SubToolVariable [label=":variable/subtool-variables" taillabel=1 headlabel=N]
     Variable  -> List            [label=":variable/list" taillabel=1 headlabel=1]
     Variable  -> Domain          [label=":variable/domain-uuid" taillabel=1 headlabel=1]
+    Variable  -> Unit            [label=":variable/native-unit-uuid" taillabel=1 headlabel=1]
+    Variable  -> Unit            [label=":variable/english-unit-uuid" taillabel=1 headlabel=1]
+    Variable  -> Unit            [label=":variable/metric-unit-uuid" taillabel=1 headlabel=1]
     List      -> ListOptions     [label=":list/options" taillabel=1 headlabel=N]
     Dimension -> Unit            [label=":dimension/units" taillabel=1 headlabel=N]
     DomainSet -> Domain          [label=":domain-set/domains" taillabel=1 headlabel=N]
