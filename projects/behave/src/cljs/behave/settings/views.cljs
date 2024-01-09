@@ -74,7 +74,10 @@
                                                                       @(<t (bp "decimals"))]
                                                             :columns [:domain :units :decimals]
                                                             :rows    (build-rows domain-set-name
-                                                                                 domain-unit-settings)})})})
+                                                                                 (sort-by
+                                                                                  (fn [[_ domain]]
+                                                                                    (:domain-name domain))
+                                                                                  domain-unit-settings))})})})
        [:div.wizard-navigation
         [c/button {:label    @(<t (bp "back"))
                    :variant  "secondary"
