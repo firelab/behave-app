@@ -127,7 +127,9 @@
   (reduce
    (fn [acc group-variable-uuid]
      (let [var-uuid     (q/variable-uuid group-variable-uuid)
-           *cached-unit (rf/subscribe [:settings/cached-unit var-uuid])
+           *var-entity  (rf/subscribe [:vms/entity-from-uuid var-uuid])
+           domain-uuid  (:variable/domain-uuid @*var-entity)
+           *cached-unit (rf/subscribe [:settings/cached-unit domain-uuid])
            unit-uuid    (or @*cached-unit
                             (q/variable-native-units-uuid group-variable-uuid)
                             :none)

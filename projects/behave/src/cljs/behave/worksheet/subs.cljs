@@ -205,8 +205,9 @@
                                 [ws-uuid]])]
      (into [] inputs))))
 
+;; all native units at the variable level
 (rf/reg-sub
- :worksheet/all-native-units
+ :worksheet/all-variable-level-native-units
  (fn [_ [_ ws-uuid]]
    (into []
          (d/q '[:find  ?group-uuid ?repeat-id ?gv-uuid ?unit-uuid
@@ -225,16 +226,10 @@
               @@vms-conn @@s/conn rules ws-uuid))))
 
 (rf/reg-sub
- :worksheet/all-cached-units
- (fn [_]
-   (rf/subscribe [:settings/local-storage-units]))
-
- (fn [units-settings [_ ws-uuid]]
+ :worksheet/all-domain-level-native-units
+ (fn [_ [_ ws-uuid]]
    (into []
-         (comp (filter (fn [[_ _ _ v-uuid]] (contains? units-settings v-uuid)))
-               (map (fn [[group-uuid repeat-uuid gv-uuid v-uuid]]
-                      [group-uuid repeat-uuid gv-uuid (get-in units-settings [v-uuid :unit-uuid])])))
-         (d/q '[:find  ?group-uuid ?repeat-id ?gv-uuid ?v-uuid
+         (d/q '[:find  ?group-uuid ?repeat-id ?gv-uuid ?unit-uuid
                 :in    $ $ws % ?ws-uuid
                 :where
                 [$ws ?w :worksheet/uuid ?ws-uuid]
@@ -246,7 +241,35 @@
                 (lookup ?gv-uuid ?gv)
                 (group-variable _ ?gv ?v)
                 [?v :variable/kind :continuous]
-                [?v :bp/uuid ?v-uuid]]
+                [?v :variable/domain-uuid ?domain-uuid]
+                [?d :bp/uuid ?domain-uuid]
+                [?d :domain/native-unit-uuid ?unit-uuid]]
+              @@vms-conn @@s/conn rules ws-uuid))))
+
+(rf/reg-sub
+ :worksheet/all-cached-units
+ (fn [_]
+   (rf/subscribe [:settings/local-storage-units]))
+
+ (fn [units-settings [_ ws-uuid]]
+   (into []
+         (comp (filter (fn [[_ _ _ domain-uuid]] (contains? units-settings domain-uuid)))
+               (map (fn [[group-uuid repeat-uuid gv-uuid domain-uuid]]
+                      [group-uuid repeat-uuid gv-uuid (get-in units-settings [domain-uuid :unit-uuid])])))
+         (d/q '[:find  ?group-uuid ?repeat-id ?gv-uuid ?domain-uuid
+                :in    $ $ws % ?ws-uuid
+                :where
+                [$ws ?w :worksheet/uuid ?ws-uuid]
+                [$ws ?w :worksheet/input-groups ?g]
+                [$ws ?g :input-group/group-uuid ?group-uuid]
+                [$ws ?g :input-group/repeat-id ?repeat-id]
+                [$ws ?g :input-group/inputs ?i]
+                [$ws ?i :input/group-variable-uuid ?gv-uuid]
+                (lookup ?gv-uuid ?gv)
+                (group-variable _ ?gv ?v)
+                [?v :variable/kind :continuous]
+                [?v :variable/domain-uuid ?domain-uuid]
+                [?d :bp/uuid ?domain-uuid]]
               @@vms-conn @@s/conn rules ws-uuid))))
 
 (rf/reg-sub
@@ -271,14 +294,16 @@
  :worksheet/all-inputs+units-vector
  (fn [[_ ws-uuid]]
    [(rf/subscribe [:worksheet/all-inputs-vector ws-uuid])
-    (rf/subscribe [:worksheet/all-native-units ws-uuid])
+    (rf/subscribe [:worksheet/all-variable-level-native-units ws-uuid])
     (rf/subscribe [:worksheet/all-custom-units ws-uuid])
-    (rf/subscribe [:worksheet/all-cached-units ws-uuid])])
+    (rf/subscribe [:worksheet/all-cached-units ws-uuid])
+    (rf/subscribe [:worksheet/all-domain-level-native-units ws-uuid])])
  (fn [sub-results]
-   (let [[inputs native-units custom-units cached-units] (map make-tree sub-results)]
+   (let [[inputs native-units custom-units cached-units domain-units] (map make-tree sub-results)]
      (mapv input-tree-to-vec (merge-with (comp vec concat)
                                          inputs
                                          (merge native-units
+                                                domain-units
                                                 cached-units
                                                 custom-units))))))
 

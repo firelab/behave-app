@@ -212,6 +212,14 @@
      [?v :variable/kind :continuous]
      [?v :variable/native-unit-uuid ?units-uuid]]
 
+    ;; -- Variable's native unit UUID from the domain level (for continuous variables)
+    [(variable-native-units-uuid-from-domain ?gv-uuid ?units-uuid)
+     (variable ?gv-uuid ?v)
+     [?v :variable/kind :continuous]
+     [?v :variable/domain-uuid ?domain-uuid]
+     [?d :bp/uuid ?domain-uuid]
+     [?d :domain/native-unit-uuid ?units-uuid]]
+
     ;; -- Variable's kind
     [(variable-kind ?v ?kind)
      [?v :variable/kind ?kind]]

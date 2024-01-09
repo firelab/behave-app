@@ -80,11 +80,17 @@
 
 (defn variable-native-units-uuid
   [group-variable-uuid]
-  (q-vms '[:find  ?native-unit-uuid .
-           :in    ?gv-uuid
-           :where
-           (variable-native-units-uuid ?gv-uuid ?native-unit-uuid)]
-         group-variable-uuid))
+  (or
+   (q-vms '[:find  ?native-unit-uuid .
+            :in    ?gv-uuid
+            :where
+            (variable-native-units-uuid-from-domain ?gv-uuid ?native-unit-uuid)]
+          group-variable-uuid)
+   (q-vms '[:find  ?native-unit-uuid .
+            :in    ?gv-uuid
+            :where
+            (variable-native-units-uuid ?gv-uuid ?native-unit-uuid)]
+          group-variable-uuid)))
 
 (defn unit-uuid->enum-value [unit-uuid]
   (q-vms '[:find  ?units .
