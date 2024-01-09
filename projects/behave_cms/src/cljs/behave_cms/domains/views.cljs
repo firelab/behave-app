@@ -24,7 +24,6 @@
 
                                   {:label     "Dimension"
                                    :type      :select
-                                   :required? true
                                    :field-key :domain/dimension-uuid
                                    :options   @dimensions-options}
 
