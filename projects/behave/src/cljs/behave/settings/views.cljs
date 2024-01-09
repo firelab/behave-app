@@ -48,10 +48,12 @@
                              domain-native-unit-uuid
                              domain-decimals]}]]
      {:domain   domain-name
-      :units    (let [dimension (rf/subscribe [:vms/entity-from-uuid domain-dimension-uuid])
-                      units     (:dimension/units @dimension)
-                      on-click  #(rf/dispatch-sync [:settings/cache-unit-preference domain-set domain-uuid %])]
-                  [unit-selector domain-native-unit-uuid units on-click])
+      :units    (if (not= domain-dimension-uuid "N/A")
+                 (let [dimension (rf/subscribe [:vms/entity-from-uuid domain-dimension-uuid])
+                       units     (:dimension/units @dimension)
+                       on-click  #(rf/dispatch-sync [:settings/cache-unit-preference domain-set domain-uuid %])]
+                   [unit-selector domain-native-unit-uuid units on-click])
+                 [:div @(rf/subscribe [:vms/units-uuid->short-code domain-native-unit-uuid])])
       :decimals (let [decimal-atom (r/atom domain-decimals)]
                   [c/number-input {:value-atom decimal-atom
                                    :on-change  #(reset! decimal-atom (input-value %))

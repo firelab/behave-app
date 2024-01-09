@@ -45,7 +45,7 @@
                                   [?ds :domain-set/domains ?d]
                                   [?d :domain/name ?domain-name]
                                   [?d :bp/uuid ?domain-uuid]
-                                  [?d :domain/dimension-uuid ?dimension-uuid]
+                                  [(get-else $ ?d :domain/dimension-uuid "N/A") ?dimension-uuid]
                                   [?d :domain/native-unit-uuid ?unit-uuid]
                                   [?d :domain/decimals ?decimals]]
                                 @@vms-conn)
