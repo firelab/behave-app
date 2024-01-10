@@ -398,7 +398,7 @@ body {
   font-weight: var(--font-weight-500);
   background-color: white;
 }
-.settings__body,
+
 .wizard-page__body {
   overflow-x: scroll;
   overflow-y: scroll;
@@ -928,6 +928,13 @@ body {
 
 .settings__general-units .input-number__input {
   width: 40px;
+}
+
+.settings__body {
+  overflow-x: scroll;
+  overflow-y: scroll;
+  height: 700px;
+  width: 100%;
 }
 
 /* -- End View -- */
