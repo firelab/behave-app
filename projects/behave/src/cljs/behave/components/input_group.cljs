@@ -34,7 +34,7 @@
                                      group-uuid
                                      repeat-id
                                      repeat-group?]
-  (r/with-let [domain                (rf/subscribe [:vms/entity-from-uuid domain-uuid])
+  (r/with-let [*domain               (rf/subscribe [:vms/entity-from-uuid domain-uuid])
                value                 (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id gv-uuid])
                *unit-uuid            (rf/subscribe [:worksheet/input-units ws-uuid group-uuid repeat-id gv-uuid])
                value-atom            (r/atom @value)
@@ -45,25 +45,25 @@
 
     [:div
      [:div.wizard-input
-     [:div.wizard-input__input
-      {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
-      [c/text-input {:id           (str repeat-id "-" uuid)
-                     :label        (if repeat-group? var-name "Values:")
-                     :placeholder  (when repeat-group? "Values")
-                     :value-atom   value-atom
-                     :required?    true
-                     :min          var-min
-                     :max          var-max
-                     :error?       warn-limit?
-                     :on-change    #(reset! value-atom (input-value %))
-                     :on-key-press (fn [event]
-                                     (when-not (contains? acceptable-char-codes (.-charCode event))
-                                       (.preventDefault event)))
-                     :on-blur      #(upsert-input ws-uuid
-                                                  group-uuid
-                                                  repeat-id
-                                                  gv-uuid
-                                                  @value-atom)}]]
+      [:div.wizard-input__input
+       {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
+       [c/text-input {:id           (str repeat-id "-" uuid)
+                      :label        (if repeat-group? var-name "Values:")
+                      :placeholder  (when repeat-group? "Values")
+                      :value-atom   value-atom
+                      :required?    true
+                      :min          var-min
+                      :max          var-max
+                      :error?       warn-limit?
+                      :on-change    #(reset! value-atom (input-value %))
+                      :on-key-press (fn [event]
+                                      (when-not (contains? acceptable-char-codes (.-charCode event))
+                                        (.preventDefault event)))
+                      :on-blur      #(upsert-input ws-uuid
+                                                   group-uuid
+                                                   repeat-id
+                                                   gv-uuid
+                                                   @value-atom)}]]
       [:div.wizard-input__range-selector-button
        [c/button {:variant  "secondary"
                   :label    @(<t (bp "range_selector"))
@@ -71,10 +71,10 @@
       [unit-display
        domain-uuid
        @*unit-uuid
-       (or (:domain/dimension-uuid domain) dimension-uuid)
-       (or (:domain/native-unit-uuid domain) native-unit-uuid)
-       (or (:domain/english-unit-uuid domain) english-unit-uuid)
-       (or (:domain/metric-unit-uuid domain) metric-unit-uuid)
+       (or (:domain/dimension-uuid @*domain) dimension-uuid)
+       (or (:domain/native-unit-uuid @*domain) native-unit-uuid)
+       (or (:domain/english-unit-uuid @*domain) english-unit-uuid)
+       (or (:domain/metric-unit-uuid @*domain) metric-unit-uuid)
        on-change-units]]
      (when @show-range-selector?
        [:div.wizard-input__range-selector
