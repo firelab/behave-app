@@ -49,11 +49,11 @@
                              domain-decimals]}]]
      {:domain   domain-name
       :units    (if (not= domain-dimension-uuid "N/A")
-                 (let [dimension (rf/subscribe [:vms/entity-from-uuid domain-dimension-uuid])
-                       units     (:dimension/units @dimension)
-                       on-click  #(rf/dispatch-sync [:settings/cache-unit-preference domain-set domain-uuid %])]
-                   [unit-selector domain-native-unit-uuid units on-click])
-                 [:div @(rf/subscribe [:vms/units-uuid->short-code domain-native-unit-uuid])])
+                  (let [dimension (rf/subscribe [:vms/entity-from-uuid domain-dimension-uuid])
+                        units     (:dimension/units @dimension)
+                        on-click  #(rf/dispatch-sync [:settings/cache-unit-preference domain-set domain-uuid %])]
+                    [unit-selector domain-native-unit-uuid units on-click])
+                  [:div @(rf/subscribe [:vms/units-uuid->short-code domain-native-unit-uuid])])
       :decimals (when (not= domain-decimals "N/A")
                   (let [decimal-atom (r/atom domain-decimals)]
                     [c/number-input {:value-atom decimal-atom
@@ -78,16 +78,7 @@
                                                                                  (sort-by
                                                                                   (fn [[_ domain]]
                                                                                     (:domain-name domain))
-                                                                                  domain-unit-settings))})})})
-       [:div.wizard-navigation
-        [c/button {:label    @(<t (bp "back"))
-                   :variant  "secondary"
-                   :on-click #(.back js/history)}]
-        [c/button {:label         @(<t (bp "reset_to_defaults"))
-                   :variant       "highlight"
-                   :icon-name     "arrow2"
-                   :icon-position "right"
-                   :on-click      #(rf/dispatch [:settings/reset-custom-unit-preferences])}]]])))
+                                                                                  domain-unit-settings))})})})])))
 
 
 ;;==============================================================================
@@ -108,8 +99,18 @@
                               {:label     @(<t (bp "moisture_scenario_selection"))
                                :tab       :moisture-scenario
                                :selected? (= @*tab-selected :moisture-scenario)}]}]
-     (case @*tab-selected
-       :general-units     [general-units-tab]
-       :fuel-model        [fuel-model-tab]
-       :moisture-scenario [moisture-scenario-tab]
-       nil                [:div "no page"])]))
+     [:div.settings__body
+      (case @*tab-selected
+        :general-units     [general-units-tab]
+        :fuel-model        [fuel-model-tab]
+        :moisture-scenario [moisture-scenario-tab]
+        nil                [:div "no page"])]
+     [:div.wizard-navigation
+      [c/button {:label    @(<t (bp "back"))
+                 :variant  "secondary"
+                 :on-click #(.back js/history)}]
+      [c/button {:label         @(<t (bp "reset_to_defaults"))
+                 :variant       "highlight"
+                 :icon-name     "arrow2"
+                 :icon-position "right"
+                 :on-click      #(rf/dispatch [:settings/reset-custom-unit-preferences])}]]]))
