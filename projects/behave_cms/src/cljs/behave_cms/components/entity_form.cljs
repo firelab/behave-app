@@ -154,6 +154,7 @@
   - :on-create      Takes a function which is passed the state in the editor, whose result is
                     then to the default `:api/create-entity` event. Used to perform minor changes
                     before an entity is created.
+  - :on-update      Like `:on-create` but only applies when the entity already exists.
 
   For example:
   ```clj
@@ -171,7 +172,7 @@
                                              {:label \"Output\" :value :output}]}]
                 :on-create     #(assoc % :submodule/order num-submodules)})
   ```"
-  [{:keys [entity parent-field parent-id fields id on-create] :as opts}]
+  [{:keys [entity parent-field parent-id fields id on-create on-update] :as opts}]
   (let [original     @(rf/subscribe [:entity id])
         parent       @(rf/subscribe [:entity parent-id])
         update-state (fn [field] (fn [value] (rf/dispatch [:state/set-state [:editors entity field] value])))
@@ -189,6 +190,9 @@
                                      (cond-> state
                                        id
                                        (merge {:db/id id})
+
+                                       (and id (fn? on-update))
+                                       (on-update)
 
                                        (and (nil? id) parent-field parent-id)
                                        (merge-parent-fields original entity parent-field parent-id parent)
