@@ -20,7 +20,6 @@
 (defmethod wizard-input nil [variable] (println [:NO-KIND-VAR variable]))
 
 (defmethod wizard-input :continuous [{gv-uuid           :bp/uuid
-                                      var-uuid          :variable/uuid
                                       var-name          :variable/name
                                       var-max           :variable/maximum
                                       var-min           :variable/minimum
