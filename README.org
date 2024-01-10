@@ -69,7 +69,7 @@ enable subscriptions on DataScript entities, reducing view logic.
 ** behave
 *** Schema
 
-#+begin_src dot :results value :file projects/behave/docs/tools-schema.png
+#+begin_src dot :results value :file projects/behave/docs/schema.png
 digraph GitHub {
     graph [rankdir = "LR"]
 
@@ -107,7 +107,9 @@ digraph GitHub {
               |{ :variable/bp6-code               | string }
               |{ :variable/kind                   | keyword}
               |{ :variable/translation-key        | string }
-              |{ :variable/decimals               | double }
+              |{ :variable/native-decimals        | double }
+              |{ :variable/english-decimals       | double }
+              |{ :variable/metric-decimals        | double }
               |{ :variable/maximum                | double }
               |{ :variable/minimum                | double }
               |{ :variable/default-value          | double }
@@ -172,7 +174,7 @@ digraph GitHub {
 #+end_src
 
 #+RESULTS:
-[[file:projects/behave/docs/tools-schema.png]]
+[[file:projects/behave/docs/schema.png]]
 
 *** Building the Behave UberJAR
 
