@@ -44,7 +44,7 @@
                                    :required? true
                                    :field-key :domain/metric-unit-uuid
                                    :options   @units-options}]
-                   :on-create #(cond-> %
+                   :on-update #(cond-> %
                                  (:domain/decimals %)
                                  (update :domain/decimals long))}]]))
 
