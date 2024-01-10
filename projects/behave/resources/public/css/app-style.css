@@ -398,7 +398,7 @@ body {
   font-weight: var(--font-weight-500);
   background-color: white;
 }
-
+.settings__body,
 .wizard-page__body {
   overflow-x: scroll;
   overflow-y: scroll;
