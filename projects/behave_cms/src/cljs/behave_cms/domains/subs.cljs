@@ -10,6 +10,13 @@
    (sort-by :domain/name lists)))
 
 (rf/reg-sub
+ :domain-sets
+ (fn [_]
+   (rf/subscribe [:pull-with-attr :domain-set/name '[*]]))
+ (fn [lists]
+   (sort-by :domain-set/name lists)))
+
+(rf/reg-sub
  :domains/options
  (fn [[_ name-attr]]
    (rf/subscribe [:pull-with-attr name-attr]))
