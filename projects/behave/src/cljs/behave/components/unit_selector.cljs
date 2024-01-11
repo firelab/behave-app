@@ -34,15 +34,15 @@
 
 (defn unit-display
   "Displays the units for a continuous variable, and enables unit selection."
-  [v-uuid *unit-uuid dimension-uuid native-unit-uuid english-unit-uuid metric-unit-uuid & [on-change-units]]
+  [domain-uuid *unit-uuid dimension-uuid native-unit-uuid english-unit-uuid metric-unit-uuid & [on-change-units]]
   (r/with-let [dimension         (rf/subscribe [:vms/entity-from-uuid dimension-uuid])
                units             (:dimension/units @dimension)
                units-by-uuid     (index-by :bp/uuid units)
-               *cached-unit-uuid (rf/subscribe [:settings/cached-unit v-uuid])
+               *cached-unit-uuid (rf/subscribe [:settings/cached-unit domain-uuid])
                *cached-unit      (rf/subscribe [:vms/entity-from-uuid @*cached-unit-uuid])
-               native-unit       (get units-by-uuid native-unit-uuid)
-               english-unit      (get units-by-uuid english-unit-uuid)
-               metric-unit       (get units-by-uuid metric-unit-uuid)
+               native-unit       @(rf/subscribe [:vms/entity-from-uuid native-unit-uuid])
+               english-unit      @(rf/subscribe [:vms/entity-from-uuid english-unit-uuid])
+               metric-unit       @(rf/subscribe [:vms/entity-from-uuid metric-unit-uuid])
                default-unit      (or @*cached-unit native-unit english-unit metric-unit) ;; FIXME: Get from Worksheet settings
                show-selector? (r/atom false)
                on-click       #(do
@@ -56,7 +56,7 @@
       (when metric-unit
         [:div (str @(<t (bp "metric_units")) " " (:unit/short-code metric-unit))])]
 
-     (when (and on-change-units (< 1 (count units)))
+     (when (and on-change-units (< 1 (count units)) @dimension)
        [c/button {:variant  "secondary"
                   :label    @(<t (bp "change_units"))
                   :disabled? @show-selector?
