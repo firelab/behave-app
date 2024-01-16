@@ -189,14 +189,15 @@
  (fn [_cfx [_ {:keys [tab]}]]
    {:fx [[:dispatch [:state/set [:worksheet :results :tab-selected] tab]]
          [:dispatch [:wizard/scroll-into-view (name tab)]]]}))
+
 (rf/reg-event-fx
  :wizard/progress-bar-navigate
  [(rf/inject-cofx ::inject/sub
                   (fn [_]
                     [:state [:worksheet :*workflow]]))
   (rf/inject-cofx ::inject/sub
-                  (fn [[_ io]]
-                    [:wizard/first-module+submodule io]))]
+                  (fn [[_ ws-uuid [_ io]]]
+                    [:wizard/first-module+submodule ws-uuid io]))]
  (fn [{module                 :state
        first-module+submodule :wizard/first-module+submodule} [_ ws-uuid route-handler+io]]
    (let [[handler io]          route-handler+io
