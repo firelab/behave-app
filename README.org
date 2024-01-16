@@ -96,13 +96,13 @@ digraph GitHub {
     //------------------------------------------------------------------------------------------------------------------
 
     Application [label="Application
-                 |{ :bp/uuid                     | string }
-                 |{ :application/name            | string }
-                 |{ :application/version-major   | number }
-                 |{ :application/version-minor   | number }
-                 |{ :application/version-patch   | number }
-                 |{ :application/version         | tuple }
-                 |{ :application/help-key        | string }
+                 |{ :bp/uuid                   | string }
+                 |{ :application/name          | string }
+                 |{ :application/version-major | number }
+                 |{ :application/version-minor | number }
+                 |{ :application/version-patch | number }
+                 |{ :application/version       | tuple }
+                 |{ :application/help-key      | string }
                  "]
     Application -> Module      [label=":application/modules" taillabel=1 headlabel=N]
     Application -> Tool        [label=":application/tools" taillabel=1 headlabel=N]
@@ -157,13 +157,13 @@ digraph GitHub {
     //------------------------------------------------------------------------------------------------------------------
 
     GroupVariable [label="Group-Variable
-                   |{ :bp/uuid                        | string }
-                   |{ :group-variable/cpp-class       | string }
-                   |{ :group-variable/cpp-function    | string }
-                   |{ :group-variable/cpp-namespace   | string }
-                   |{ :group-variable/cpp-parameter   | string }
-                   |{ :group-variable/order           | long}
-                   |{ :group-variable/research?       | boolean }
+                   |{ :bp/uuid                      | string }
+                   |{ :group-variable/cpp-class     | string }
+                   |{ :group-variable/cpp-function  | string }
+                   |{ :group-variable/cpp-namespace | string }
+                   |{ :group-variable/cpp-parameter | string }
+                   |{ :group-variable/order         | long}
+                   |{ :group-variable/research?     | boolean }
                    "]
     GroupVariable -> CppClass     [label=":group-variable/cpp-class (uuid)" taillabel=1 headlabel=1]
     GroupVariable -> CppFunction  [label=":group-variable/cpp-function (uuid)" taillabel=1 headlabel=1]
@@ -175,8 +175,8 @@ digraph GitHub {
     //------------------------------------------------------------------------------------------------------------------
 
     CppClass [label="Cpp.Class
-              |{ :bp/uuid            | string }
-              |{ :cpp.class/name     | string }
+              |{ :bp/uuid        | string }
+              |{ :cpp.class/name | string }
               "]
     CppClass -> CppFunction [label=":cpp.class/function" taillabel=1 headlabel=N]
 
@@ -210,8 +210,8 @@ digraph GitHub {
     //------------------------------------------------------------------------------------------------------------------
 
     CppEnum [label="Cpp.Enum
-             |{ :bp/uuid              | string }
-             |{ :cpp.enum/name        | string }
+             |{ :bp/uuid       | string }
+             |{ :cpp.enum/name | string }
              "]
     CppEnum -> CppEnumMember [label=":cpp.enum/enum-member" taillabel=1 headlabel=N]
 
@@ -226,9 +226,9 @@ digraph GitHub {
     //------------------------------------------------------------------------------------------------------------------
 
     Tool [label="Tools
-          |{ :bp/uuid              | string }
-          |{ :tool/name            | string }
-          |{ :tool/order           | number }
+          |{ :bp/uuid    | string }
+          |{ :tool/name  | string }
+          |{ :tool/order | number }
           "]
     Tool -> SubTool     [label=":tool/subtools" taillabel=1 headlabel=N]
     Tool -> HelpPage    [label=":tool/help-key" taillabel=1 headlabel=1]
@@ -237,10 +237,10 @@ digraph GitHub {
     //------------------------------------------------------------------------------------------------------------------
 
     SubTool [label="Subtool
-             |{ :bp/uuid                 | string }
-             |{ :subtool/name            | string }
-             |{ :subtool/order           | number }
-             |{ :subtool/autocompute?    | boolean }
+             |{ :bp/uuid              | string }
+             |{ :subtool/name         | string }
+             |{ :subtool/order        | number }
+             |{ :subtool/autocompute? | boolean }
              "]
     SubTool -> SubToolVariable [label=":subtool/variables" taillabel=1 headlabel=N]
     SubTool -> HelpPage        [label=":subtool/help-key" taillabel=1 headlabel=1]
@@ -287,8 +287,8 @@ digraph GitHub {
     //------------------------------------------------------------------------------------------------------------------
 
     List [label="List
-          |{ :bp/uuid               | string }
-          |{ :list/name             | string }
+          |{ :bp/uuid   | string }
+          |{ :list/name | string }
           "]
     List -> ListOption  [label=":list/options" taillabel=1 headlabel=N]
     List -> Translation [label=":list/translation-key" taillabel=1 headlabel=1]
@@ -296,12 +296,12 @@ digraph GitHub {
     //------------------------------------------------------------------------------------------------------------------
 
     ListOption [label="List-Option
-                 |{ :bp/uuid                     | string }
-                 |{ :list-option/name            | string }
-                 |{ :list-option/default         | string }
-                 |{ :list-option/value           | string }
-                 |{ :list-option/order           | long }
-                 |{ :list-option/hide?           | boolean }
+                 |{ :bp/uuid             | string }
+                 |{ :list-option/name    | string }
+                 |{ :list-option/default | string }
+                 |{ :list-option/value   | string }
+                 |{ :list-option/order   | long }
+                 |{ :list-option/hide?   | boolean }
                  "]
     ListOption -> Translation [label=":list-option/translation-key" taillabel=1 headlabel=1]
 
@@ -347,10 +347,10 @@ digraph GitHub {
     //------------------------------------------------------------------------------------------------------------------
 
     Conditional [label="Conditional
-                 |{ :bp/uuid                         | string }
-                 |{ :conditional/type                | keyword }
-                 |{ :conditional/operator            | keyword }
-                 |{ :conditional/values              | string }
+                 |{ :bp/uuid              | string }
+                 |{ :conditional/type     | keyword }
+                 |{ :conditional/operator | keyword }
+                 |{ :conditional/values   | string }
                  "]
     Conditional -> GroupVariable [label=":conditional/group-variable-uuid" taillabel=1 headlabel=1]
 
@@ -451,15 +451,15 @@ digraph GitHub {
     //------------------------------------------------------------------------------------------------------------------
 
     Output [label="Output
-            |{ :bp/uuid                    | string }
-            |{ :output/enabled?            | boolean }
+            |{ :bp/uuid         | string }
+            |{ :output/enabled? | boolean }
             "]
     Output -> GroupVariable [label=":output/group-variable-uuid" taillabel=1 headlabel=1]
 
     //------------------------------------------------------------------------------------------------------------------
 
     ResultTable [label="Result-Table
-                 |{ :bp/uuid              | string }
+                 |{ :bp/uuid | string }
                  "]
     ResultTable -> ResultHeader [label=":result-table/headers" taillabel=1 headlabel=N]
     ResultTable -> ResultRow    [label=":result-table/rows" taillabel=1 headlabel=N]
@@ -467,34 +467,34 @@ digraph GitHub {
     //------------------------------------------------------------------------------------------------------------------
 
     ResultHeader [label="Result-Header
-                  |{ :bp/uuid                           | string }
-                  |{ :result-header/repeat-id           | long }
-                  |{ :result-header/order               | long }
-                  |{ :result-header/units               | string }
+                  |{ :bp/uuid                 | string }
+                  |{ :result-header/repeat-id | long }
+                  |{ :result-header/order     | long }
+                  |{ :result-header/units     | string }
                   "]
     ResultHeader -> GroupVariable [label=":result-header/group-variable-uuid" taillabel=1 headlabel=1]
 
     //------------------------------------------------------------------------------------------------------------------
 
     ResultRow [label="Result-Row
-               |{ :bp/uuid          | string }
-               |{ :result-row/id    | long }
+               |{ :bp/uuid       | string }
+               |{ :result-row/id | long }
                "]
     ResultRow -> ResultCell [label=":result-row/cells" taillabel=1 headlabel=N]
 
     //------------------------------------------------------------------------------------------------------------------
 
     ResultCell [label="Result-Cell
-                |{ :bp/uuid            | string }
-                |{ :result-cell/value  | string }
+                |{ :bp/uuid           | string }
+                |{ :result-cell/value | string }
                 "]
     ResultCell -> ResultHeader [label=":result-cell/header" taillabel=1 headlabel=1]
 
     //------------------------------------------------------------------------------------------------------------------
 
     TableSettings [label="Table-Settings
-                   |{ :bp/uuid                           | string }
-                   |{ :table-settings/enabled?           | boolean }
+                   |{ :bp/uuid                 | string }
+                   |{ :table-settings/enabled? | boolean }
                    "]
     TableSettings -> TableFilter      [label=":table-settings/filters" taillabel=1 headlabel=N]
     TableSettings -> MapUnitsSettings [label=":table-settings/map-units-settings" taillabel=1 headlabel=1]
@@ -502,10 +502,10 @@ digraph GitHub {
     //------------------------------------------------------------------------------------------------------------------
 
     TableFilter [label="Table-Filter
-                 |{ :bp/uuid                          | string }
-                 |{ :table-filter/min                 | long }
-                 |{ :table-filter/max                 | long }
-                 |{ :table-filter/enabled?            | boolean }
+                 |{ :bp/uuid               | string }
+                 |{ :table-filter/min      | long }
+                 |{ :table-filter/max      | long }
+                 |{ :table-filter/enabled? | boolean }
                  "]
     TableFilter      -> GroupVariable    [label=":table-filter/group-variable-uuid" taillabel=1 headlabel=1]
 
@@ -521,8 +521,8 @@ digraph GitHub {
     //------------------------------------------------------------------------------------------------------------------
 
     GraphSettings [label="Graph-Settings
-                   |{ :bp/uuid                                    | string }
-                   |{ :graph-settings/enabled?                    | boolean }
+                   |{ :bp/uuid                 | string }
+                   |{ :graph-settings/enabled? | boolean }
                    "]
     GraphSettings -> YAxisLimit    [label=":graph-settings/y-axis-limits" taillabel=1 headlabel=N]
     GraphSettings -> GroupVariable [label=":graph-settings/x-axis-group-variable-uuid" taillabel=1 headlabel=1]
@@ -541,9 +541,9 @@ digraph GitHub {
     //------------------------------------------------------------------------------------------------------------------
 
     WorksheetDiagram [label="Worksheet-diagram
-                      |{ :bp/uuid                               | string }
-                      |{ :worksheet.diagram/title               | string }
-                      |{ :worksheet.diagram/row-id              | long }
+                      |{ :bp/uuid                  | string }
+                      |{ :worksheet.diagram/title  | string }
+                      |{ :worksheet.diagram/row-id | long }
                       "]
     WorksheetDiagram -> GroupVariable [label=":worksheet.diagram/group-variable-uuid" taillabel=1 headlabel=1]
     WorksheetDiagram -> Ellipse       [label=":worksheet.diagram/ellises" taillabel=1 headlabel=N]
