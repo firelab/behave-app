@@ -111,6 +111,9 @@ bb uber
 ** behave_cms
 * Schema ERDs
 ** VMS
+
+This schema is used for the Behave VMS. It largely impacts the rendering UI of the Behave VMS and the Application.
+
 #+begin_src dot :results value :file projects/behave/docs/vms-schema.png
 // Relations (NOTE when a relation attribute of type :db/type/string instead of type :db.type/ref, this means the value is a UUID that matches the :bp/uuid of the related entity.)
 
@@ -446,6 +449,8 @@ digraph GitHub {
 [[file:projects/behave/docs/vms-schema.png]]
 
 ** Worksheet
+
+This schema is used to store instances of worksheet information in the Behave application.
 
 #+begin_src dot :results value :file projects/behave/docs/worksheet-schema.png
 // Relations (NOTE when a relation attribute of type :db/type/string instead of type :db.type/ref, this means the value is a UUID that matches the :bp/uuid of the related entity.)
