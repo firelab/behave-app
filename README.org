@@ -78,9 +78,9 @@ digraph GitHub {
 
     node [shape = record]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
     // VMS Schema Starts Here
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     User [label="User
           |{ :bp/uuid           | string }
@@ -93,7 +93,7 @@ digraph GitHub {
           |{ :user/help-key     | string }
           "]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     Application [label="Application
                  |{ :bp/uuid                   | string }
@@ -109,7 +109,7 @@ digraph GitHub {
     Application -> HelpPage    [label=":application/help-key" taillabel=1 headlabel=1]
     Application -> Translation [label=":application/translation-key" taillabel=1 headlabel=1]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     Module [label="Module
             |{ :bp/uuid                | string }
@@ -121,7 +121,7 @@ digraph GitHub {
     Module -> HelpPage    [label=":module/help-key" taillabel=1 headlabel=1]
     Module -> Translation [label=":module/translation-key" taillabel=1 headlabel=1]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     Submodule [label="Submodule
                |{ :bp/uuid                         | string }
@@ -136,7 +136,7 @@ digraph GitHub {
     Submodule -> HelpPage    [label=":submodule/help-key" taillabel=1 headlabel=1]
     Submodule -> Translation [label=":submodule/translation-key" taillabel=1 headlabel=1]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     Group [label="Group
            |{ :bp/uuid                     | string }
@@ -154,7 +154,7 @@ digraph GitHub {
     Group -> HelpPage      [label=":group/help-key" taillabel=1 headlabel=1]
     Group -> Translation   [label=":group/translation-key" taillabel=1 headlabel=1]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     GroupVariable [label="Group-Variable
                    |{ :bp/uuid                      | string }
@@ -172,7 +172,7 @@ digraph GitHub {
     GroupVariable -> HelpPage     [label=":group-variable/help-key" taillabel=1 headlabel=1]
     GroupVariable -> Translation  [label=":group-variable/translation-key" taillabel=1 headlabel=1]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     CppClass [label="Cpp.Class
               |{ :bp/uuid        | string }
@@ -180,7 +180,7 @@ digraph GitHub {
               "]
     CppClass -> CppFunction [label=":cpp.class/function" taillabel=1 headlabel=N]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     CppFunction [label="Cpp.Function
                  |{ :bp/uuid                  | string }
@@ -189,7 +189,7 @@ digraph GitHub {
                  "]
     CppFunction -> CppParameter [label=":cpp.function/parameter" taillabel=1 headlabel=N]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     CppParameter [label="Cpp.Parameter
                   |{ :bp/uuid             | string }
@@ -198,7 +198,7 @@ digraph GitHub {
                   |{ :cpp.parameter/type  | string }
                   "]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     CppNamespace [label="Cpp.Namespace
                   |{ :bp/uuid             | string }
@@ -207,7 +207,7 @@ digraph GitHub {
     CppNamespace -> CppClass [label=":cpp.namespace/class" taillabel=1 headlabel=N]
     CppNamespace -> CppEnum  [label=":cpp.namespace/enum" taillabel=1 headlabel=N]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     CppEnum [label="Cpp.Enum
              |{ :bp/uuid       | string }
@@ -215,7 +215,7 @@ digraph GitHub {
              "]
     CppEnum -> CppEnumMember [label=":cpp.enum/enum-member" taillabel=1 headlabel=N]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     CppEnumMember [label="Cpp.Enum-member
                    |{ :bp/uuid               | string }
@@ -223,7 +223,7 @@ digraph GitHub {
                    |{ :cpp.enum-member/value | number }
                    "]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     Tool [label="Tools
           |{ :bp/uuid    | string }
@@ -234,7 +234,7 @@ digraph GitHub {
     Tool -> HelpPage    [label=":tool/help-key" taillabel=1 headlabel=1]
     Tool -> Translation [label=":tool/translation-key" taillabel=1 headlabel=1]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     SubTool [label="Subtool
              |{ :bp/uuid              | string }
@@ -246,7 +246,7 @@ digraph GitHub {
     SubTool -> HelpPage        [label=":subtool/help-key" taillabel=1 headlabel=1]
     SubTool -> Translation     [label=":subtool/translation-key" taillabel=1 headlabel=1]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     SubToolVariable [label="Subtool-Variable
                      |{ :bp/uuid                             | string }
@@ -259,7 +259,7 @@ digraph GitHub {
     SubToolVariable -> HelpPage    [label=":subtool-variable/help-key" taillabel=1 headlabel=1]
     SubToolVariable -> Translation [label=":subtool-variable/translation-key" taillabel=1 headlabel=1]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     Variable [label="Variable
               |{ :bp/uuid                         | string }
@@ -284,7 +284,7 @@ digraph GitHub {
     Variable -> Unit            [label=":variable/metric-unit-uuid" taillabel=1 headlabel=1]
     Variable -> Translation     [label=":variable/translation-key" taillabel=1 headlabel=1]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     List [label="List
           |{ :bp/uuid   | string }
@@ -293,7 +293,7 @@ digraph GitHub {
     List -> ListOption  [label=":list/options" taillabel=1 headlabel=N]
     List -> Translation [label=":list/translation-key" taillabel=1 headlabel=1]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     ListOption [label="List-Option
                  |{ :bp/uuid             | string }
@@ -305,7 +305,7 @@ digraph GitHub {
                  "]
     ListOption -> Translation [label=":list-option/translation-key" taillabel=1 headlabel=1]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     Dimension [label="Dimension
                |{ :bp/uuid                 | string }
@@ -314,7 +314,7 @@ digraph GitHub {
                "]
     Dimension -> Unit [label=":dimension/units" taillabel=1 headlabel=N]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     Unit [label="Unit
           |{ :bp/uuid                   | string }
@@ -324,7 +324,7 @@ digraph GitHub {
           |{ :unit/cpp-enum-member-uuid | string }
           "]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     DomainSet [label="Domain-Set
                |{ :bp/uuid         | string }
@@ -332,7 +332,7 @@ digraph GitHub {
                "]
     DomainSet -> Domain [label=":domain-set/domains" taillabel=1 headlabel=N]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     Domain [label="Domain
             |{ :bp/uuid         | string }
@@ -344,7 +344,7 @@ digraph GitHub {
     Domain -> Unit      [label=":domain/english-unit-uuid" taillabel=1 headlabel=1]
     Domain -> Unit      [label=":domain/metric-unit-uuid" taillabel=1 headlabel=1]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     Conditional [label="Conditional
                  |{ :bp/uuid              | string }
@@ -354,7 +354,7 @@ digraph GitHub {
                  "]
     Conditional -> GroupVariable [label=":conditional/group-variable-uuid" taillabel=1 headlabel=1]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     Diagram [label="Diagram
              |{ :bp/uuid      | keyword }
@@ -364,7 +364,7 @@ digraph GitHub {
     Diagram -> GroupVariable [label=":diagram/input-group-variables" taillabel=1 headlabel=N]
     Diagram -> GroupVariable [label=":diagram/output-group-variables" taillabel=1 headlabel=N]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     Language [label="Language
               |{ :bp/uuid              | keyword }
@@ -374,7 +374,7 @@ digraph GitHub {
     Language -> Translation [label=":language/translation" taillabel=1 headlabel=1]
     Language -> HelpPage    [label=":language/help-page" taillabel=1 headlabel=1]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     Translation [label="Translation
                  |{ :bp/uuid                 | keyword }
@@ -383,7 +383,7 @@ digraph GitHub {
                  |{ :translation/translation | string }
                  "]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     HelpPage [label="Help-page
           |{ :bp/uuid           | keyword }
@@ -391,7 +391,7 @@ digraph GitHub {
           |{ :help-page/content | string }
           "]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     Link [label="Link
           |{ :bp/uuid | keyword }
@@ -399,9 +399,9 @@ digraph GitHub {
     Link -> GroupVariable [label="link/source" taillabel=1 headlabel=1]
     Link -> GroupVariable [label="link/destination" taillabel=1 headlabel=1]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
     // Worksheet Schema Starts Here
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     Worksheet [label="Worksheet
                |{ :bp/uuid                         | string }
@@ -420,7 +420,7 @@ digraph GitHub {
     Worksheet -> TableSettings    [label=":worksheet/table-settings" taillabel=1 headlabel=1]
     Worksheet -> WorksheetDiagram [label=":worksheet/diagrams" taillabel=1 headlabel=1]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     Note [label="Note
           |{ :bp/uuid        | string }
@@ -429,7 +429,7 @@ digraph GitHub {
           |{ :note/submodule | string }
           "]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     InputGroup [label="Input-Group
                 |{ :bp/uuid                | string }
@@ -438,7 +438,7 @@ digraph GitHub {
                 "]
     InputGroup -> Group [label=":input-group/group-uuid" taillabel=1 headlabel=1]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     RepeatGroup [label="Repeat-Group
                  |{ :bp/uuid                 | string }
@@ -448,7 +448,7 @@ digraph GitHub {
                  "]
     RepeatGroup -> Group [label=":repeat-group/group-uuid" taillabel=1 headlabel=1]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     Output [label="Output
             |{ :bp/uuid         | string }
@@ -456,7 +456,7 @@ digraph GitHub {
             "]
     Output -> GroupVariable [label=":output/group-variable-uuid" taillabel=1 headlabel=1]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     ResultTable [label="Result-Table
                  |{ :bp/uuid | string }
@@ -464,7 +464,7 @@ digraph GitHub {
     ResultTable -> ResultHeader [label=":result-table/headers" taillabel=1 headlabel=N]
     ResultTable -> ResultRow    [label=":result-table/rows" taillabel=1 headlabel=N]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     ResultHeader [label="Result-Header
                   |{ :bp/uuid                 | string }
@@ -474,7 +474,7 @@ digraph GitHub {
                   "]
     ResultHeader -> GroupVariable [label=":result-header/group-variable-uuid" taillabel=1 headlabel=1]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     ResultRow [label="Result-Row
                |{ :bp/uuid       | string }
@@ -482,7 +482,7 @@ digraph GitHub {
                "]
     ResultRow -> ResultCell [label=":result-row/cells" taillabel=1 headlabel=N]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     ResultCell [label="Result-Cell
                 |{ :bp/uuid           | string }
@@ -490,7 +490,7 @@ digraph GitHub {
                 "]
     ResultCell -> ResultHeader [label=":result-cell/header" taillabel=1 headlabel=1]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     TableSettings [label="Table-Settings
                    |{ :bp/uuid                 | string }
@@ -499,7 +499,7 @@ digraph GitHub {
     TableSettings -> TableFilter      [label=":table-settings/filters" taillabel=1 headlabel=N]
     TableSettings -> MapUnitsSettings [label=":table-settings/map-units-settings" taillabel=1 headlabel=1]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     TableFilter [label="Table-Filter
                  |{ :bp/uuid               | string }
@@ -509,7 +509,7 @@ digraph GitHub {
                  "]
     TableFilter      -> GroupVariable    [label=":table-filter/group-variable-uuid" taillabel=1 headlabel=1]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     MapUnitsSettings [label="Map-Units-settings
                       |{ :bp/uuid                             | string }
@@ -518,7 +518,7 @@ digraph GitHub {
                       |{ :map-units-settings/map-rep-fraction | long }
                       "]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     GraphSettings [label="Graph-Settings
                    |{ :bp/uuid                 | string }
@@ -529,7 +529,7 @@ digraph GitHub {
     GraphSettings -> GroupVariable [label=":graph-settings/z-axis-group-variable-uuid" taillabel=1 headlabel=1]
     GraphSettings -> GroupVariable [label=":graph-settings/z2-axis-group-variable-uuid" taillabel=1 headlabel=1]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     YAxisLimit [label="Y-Axis-Limit
                 |{ :bp/uuid                          | string }
@@ -538,7 +538,7 @@ digraph GitHub {
                 "]
     YAxisLimit -> GroupVariable [label=":y-axis-limit/group-variable-uuid" taillabel=1 headlabel=1]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     WorksheetDiagram [label="Worksheet-diagram
                       |{ :bp/uuid                  | string }
@@ -550,7 +550,7 @@ digraph GitHub {
     WorksheetDiagram -> Arrow         [label=":worksheet.diagram/arrows" taillabel=1 headlabel=N]
     WorksheetDiagram -> ScatterPlot   [label=":worksheet.diagram/scatter-plots" taillabel=1 headlabel=N]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     Ellipse [label="Ellipse
              |{ :bp/uuid                 | string }
@@ -561,7 +561,7 @@ digraph GitHub {
              |{ :ellipse/color           | string }
              "]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     Arrow [label="Arrow
            |{ :bp/uuid         | string }
@@ -572,7 +572,7 @@ digraph GitHub {
            |{ :arrow/dashed?   | string }
            "]
 
-    //------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     ScatterPlot [label="Scatter-Plot
                  |{ :bp/uuid                    | string }
