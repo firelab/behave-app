@@ -66,8 +66,51 @@ front-end accesses Datoms through [[https://github.com/tonsky/datascript][DataSc
 enable subscriptions on DataScript entities, reducing view logic.
 
 * Projects
-** Schema
-*** VMS
+** behave
+*** Building the Behave UberJAR
+
+1. Navigate to ~projects/behave~. All paths described here will use this directory as root.
+
+2. Add/edit the ~resources/config.edn~ for your deployment. Below is
+   an example file:
+
+#+BEGIN_SRC clojure
+;; resources/config.edn
+{:database {:config {:store {:backend :file
+                             :path    "~/.behave/db"}}}
+ :site     {:title       "BehavePlus 7"
+            :description "Wildfire Analysis toolkit."}
+ :server   {:http-port 8007
+            :mode      "prod"}
+ :vms      {:secret-token "<vms-secret-token>"}}
+#+END_SRC
+
+3. Compile ClojureScript
+
+#+BEGIN_SRC bash
+bb build-js
+#+END_SRC
+
+4. Build the UberJAR
+
+NOTE: The uberjar build process requires triangulum to be available in the deps.edn located at the
+user level (i.e. /home/<user>//.clojure/deps.edn).
+
+#+begin_src clojure
+{sig-gis/triangulum {:git/url "https://github.com/sig-gis/triangulum"
+                     :sha     "<latest-sha>"}}
+#+end_src
+
+#+BEGIN_SRC bash
+bb uber
+#+END_SRC
+
+4. Congratulations! You're now the owner of an UberJAR.
+   (i.e. ~target/behave7-2023.10.19-97f1ef9-standalone.jar~)
+
+** behave_cms
+* Schema ERDs
+** VMS
 #+begin_src dot :results value :file projects/behave/docs/vms-schema.png
 // Relations (NOTE when a relation attribute of type :db/type/string instead of type :db.type/ref, this means the value is a UUID that matches the :bp/uuid of the related entity.)
 
@@ -402,7 +445,7 @@ digraph GitHub {
 #+RESULTS:
 [[file:projects/behave/docs/vms-schema.png]]
 
-*** Worksheet
+** Worksheet
 
 #+begin_src dot :results value :file projects/behave/docs/worksheet-schema.png
 // Relations (NOTE when a relation attribute of type :db/type/string instead of type :db.type/ref, this means the value is a UUID that matches the :bp/uuid of the related entity.)
@@ -600,7 +643,7 @@ digraph GitHub {
 #+RESULTS:
 [[file:projects/behave/docs/worksheet-schema.png]]
 
-*** VMS + Worksheet
+** VMS + Worksheet
 
 This Documents the schema for both the behave and behave_cms project.
 
@@ -1120,47 +1163,3 @@ digraph GitHub {
 
 #+RESULTS:
 [[file:projects/behave/docs/schema.png]]
-
-** behave
-*** Building the Behave UberJAR
-
-1. Navigate to ~projects/behave~. All paths described here will use this directory as root.
-
-2. Add/edit the ~resources/config.edn~ for your deployment. Below is
-   an example file:
-
-#+BEGIN_SRC clojure
-;; resources/config.edn
-{:database {:config {:store {:backend :file
-                             :path    "~/.behave/db"}}}
- :site     {:title       "BehavePlus 7"
-            :description "Wildfire Analysis toolkit."}
- :server   {:http-port 8007
-            :mode      "prod"}
- :vms      {:secret-token "<vms-secret-token>"}}
-#+END_SRC
-
-3. Compile ClojureScript
-
-#+BEGIN_SRC bash
-bb build-js
-#+END_SRC
-
-4. Build the UberJAR
-
-NOTE: The uberjar build process requires triangulum to be available in the deps.edn located at the
-user level (i.e. /home/<user>//.clojure/deps.edn).
-
-#+begin_src clojure
-{sig-gis/triangulum {:git/url "https://github.com/sig-gis/triangulum"
-                     :sha     "<latest-sha>"}}
-#+end_src
-
-#+BEGIN_SRC bash
-bb uber
-#+END_SRC
-
-4. Congratulations! You're now the owner of an UberJAR.
-   (i.e. ~target/behave7-2023.10.19-97f1ef9-standalone.jar~)
-
-** behave_cms
