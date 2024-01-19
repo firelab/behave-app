@@ -17,7 +17,9 @@
             [bidi.bidi                            :refer [path-for]]
             [behave.worksheet.events]
             [behave.worksheet.subs]
-            [dom-utils.interface                  :refer [input-int-value input-value]]
+            [dom-utils.interface                  :refer [input-int-value
+                                                          input-float-value
+                                                          input-value]]
             [goog.string                          :as gstring]
             [goog.string.format]
             [re-frame.core                        :refer [dispatch dispatch-sync subscribe]]
@@ -323,21 +325,22 @@
 (defn update-setting-input [ws-uuid rf-event-id attr-id gv-uuid value]
   (dispatch [rf-event-id ws-uuid gv-uuid attr-id value]))
 
-(defn number-input [{:keys [enabled? on-change value-atom]}]
-  (c/number-input {:disabled?  (if (some? enabled?)
-                                 (not enabled?)
-                                 false)
-                   :on-change  #(let [v (input-int-value %)]
-                                  (reset! value-atom v))
-                   :on-blur    #(on-change @value-atom)
-                   :value-atom value-atom}))
-
-(defn number-inputs
-  [{:keys [saved-entries on-change]}]
+(defn- number-inputs
+  [{:keys [saved-entries on-change default-values]}]
   (map (fn [[gv-uuid saved-value enabled?]]
-         [number-input {:enabled?   enabled?
-                        :on-change  #(on-change gv-uuid %)
-                        :value-atom (r/atom saved-value)}])
+         (let [value-atom            (r/atom saved-value)
+               show-tenth-precision? (< (get default-values gv-uuid) 1)]
+           [c/number-input (cond-> {:disabled?  (if (some? enabled?)
+                                                  (not enabled?)
+                                                  false)
+                                    :on-change  #(let [v (if show-tenth-precision?
+                                                           (input-float-value %)
+                                                           (input-int-value %))]
+                                                   (reset! value-atom v))
+                                    :on-blur    #(on-change gv-uuid @value-atom)
+                                    :value-atom value-atom}
+                             show-tenth-precision?
+                             (assoc :step "0.1"))]))
        saved-entries))
 
 (defn settings-form
@@ -345,19 +348,24 @@
   (let [*gv-uuid+min+max-entries (subscribe [rf-sub-id ws-uuid])
         *default-max-values      (subscribe [:worksheet/output-uuid->result-max-values ws-uuid])
         *default-min-values      (subscribe [:worksheet/output-uuid->result-min-values ws-uuid])
-        maximums                 (number-inputs {:saved-entries (map (fn remove-min-val[[gv-uuid _min-val max-val enabled?]]
-                                                                       [gv-uuid max-val enabled?])
-                                                                     @*gv-uuid+min+max-entries)
-                                                 :on-change     #(update-setting-input ws-uuid rf-event-id max-attr-id %1 %2)})
-        minimums                 (number-inputs {:saved-entries (map (fn remove-max-val [[gv-uuid min-val _max-val enabled?]]
+        maximums                 (number-inputs {:saved-entries  (map (fn remove-min-val[[gv-uuid _min-val max-val enabled?]]
+                                                                            [gv-uuid max-val enabled?])
+                                                                          @*gv-uuid+min+max-entries)
+                                                 :on-change      #(update-setting-input ws-uuid rf-event-id max-attr-id %1 %2)
+                                                 :default-values @*default-max-values})
+        minimums                 (number-inputs {:saved-entries  (map (fn remove-max-val [[gv-uuid min-val _max-val enabled?]]
                                                                        [gv-uuid min-val enabled?])
                                                                      @*gv-uuid+min+max-entries)
-                                                 :min-attr-id   max-attr-id
-                                                 :on-change     #(update-setting-input ws-uuid rf-event-id min-attr-id %1 %2)})
+                                                 :min-attr-id    max-attr-id
+                                                 :on-change      #(update-setting-input ws-uuid rf-event-id min-attr-id %1 %2)
+                                                 :default-values @*default-min-values})
         output-ranges            (map (fn [[gv-uuid & _rest]]
-                                        (let [min-val (get @*default-min-values gv-uuid)
-                                              max-val (get @*default-max-values gv-uuid)]
-                                          (gstring/format "%.1f - %.1f" min-val max-val)))
+                                        (let [min-val     (get @*default-min-values gv-uuid)
+                                              min-val-fmt (if (< min-val 1) "%.1f" "%d")
+                                              max-val     (get @*default-max-values gv-uuid)
+                                              max-val-fmt (if (< max-val 1) "%.1f" "%d")
+                                              fmt         (gstring/format "%s - %s" min-val-fmt max-val-fmt)]
+                                          (gstring/format fmt min-val max-val)))
                                       @*gv-uuid+min+max-entries)
         names                    (map (fn get-variable-name [[uuid _min _max]]
                                         (->> (subscribe [:wizard/group-variable uuid])

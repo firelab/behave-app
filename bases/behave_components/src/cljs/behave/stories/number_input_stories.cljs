@@ -14,6 +14,7 @@
                                  :disabled? false
                                  :max 100
                                  :min 0
+                                 :step "0"
                                  :on-change #(js/console.log "Changed!")}
                                 args)}))
 
