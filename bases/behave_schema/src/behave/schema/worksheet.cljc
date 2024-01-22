@@ -317,6 +317,11 @@
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
 
+   {:db/ident       :graph-settings/x-axis-limits
+    :db/doc         "Graph's x-axis limits."
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/one}
+
    ;; y-axis-limit
    {:db/ident       :y-axis-limit/group-variable-uuid
     :db/doc         "Y-axis's group variable uuid."
@@ -329,6 +334,22 @@
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :y-axis-limit/max
+    :db/doc         "Y axis's maximum value."
+    :db/valueType   :db.type/long
+    :db/cardinality :db.cardinality/one}
+
+   ;; x-axis-limit
+   {:db/ident       :x-axis-limit/group-variable-uuid
+    :db/doc         "x-axis's group variable uuid."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :x-axis-limit/min
+    :db/doc         "Y axis's minimum value."
+    :db/valueType   :db.type/long
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :x-axis-limit/max
     :db/doc         "Y axis's maximum value."
     :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}

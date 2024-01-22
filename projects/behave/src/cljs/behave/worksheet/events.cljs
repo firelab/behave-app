@@ -304,6 +304,19 @@
      {:transact [[:db.fn/retractEntity eid]]})))
 
 (rp/reg-event-fx
+ :worksheet/upsert-x-axis-limit
+ [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet ws-uuid]))
+  (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid gv-uuid]] [:wizard/x-axis-limit-min+max-defaults ws-uuid gv-uuid]))]
+ (fn [{worksheet :worksheet
+       defaults  :wizard/x-axis-limit-min+max-defaults} [_ ws-uuid gv-uuid]]
+   (let [id                        (get-in worksheet [:worksheet/graph-settings :db/id])
+         [default-min default-max] defaults]
+     {:transact [{:db/id                        (or id [:worksheet/uuid ws-uuid])
+                  :graph-settings/x-axis-limits {:x-axis-limit/group-variable-uuid gv-uuid
+                                                 :x-axis-limit/min                 default-min
+                                                 :x-axis-limit/max                 default-max}}]})))
+
+(rp/reg-event-fx
  :worksheet/set-default-graph-settings
  [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet/multi-value-input-uuids ws-uuid]))
   (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet ws-uuid]))]
@@ -380,6 +393,21 @@
                                             (.ceil js/Math max-val)]]))))
                   []
                   gv-uuids)})))
+
+(rp/reg-event-fx
+ :worksheet/update-x-axis-limit-attr
+ [(rp/inject-cofx :ds)]
+ (fn [{:keys [ds]} [_ ws-uuid attr value]]
+   (when-let [eid (d/q '[:find ?y .
+                         :in    $ ?ws-uuid
+                         :where
+                         [?w :worksheet/uuid ?ws-uuid]
+                         [?w :worksheet/graph-settings ?g]
+                         [?g :graph-settings/x-axis-limits ?y]]
+                       ds
+                       ws-uuid)]
+     (prn "eid:" eid)
+     {:transact [(assoc {:db/id eid} attr value)]})))
 
 (rp/reg-event-fx
  :worksheet/update-table-filter-attr

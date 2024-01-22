@@ -19,8 +19,10 @@
     (let [line-chart {:mark     (cond-> {:type "line"}
                                   (:scale y)
                                   (assoc :clip true))
-                      :encoding (cond-> {:x     {:field (:name x)
-                                                 :type "nominal"}
+                      :encoding (cond-> {:x     (cond-> {:field (:name x)
+                                                         :type  "quantitative"}
+                                                  (:scale x)
+                                                  (assoc :scale {:domain (:scale x)}))
                                          :y     (cond-> {:field     (:name y)
                                                          :type      "quantitative"
                                                          :aggregate "average"}

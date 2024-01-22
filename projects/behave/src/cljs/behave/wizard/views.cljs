@@ -22,7 +22,9 @@
             [goog.string.format]
             [re-frame.core                        :refer [dispatch dispatch-sync subscribe]]
             [string-utils.interface               :refer [->kebab]]
-            [reagent.core                         :as r]))
+            [reagent.core                         :as r]
+            [re-frame.core :as rf]
+            [clojure.string :as str]))
 
 ;;; Components
 
@@ -403,7 +405,7 @@
                                                      :graph-settings/enabled?]))
         multi-valued-input-uuids @(subscribe [:worksheet/multi-value-input-uuids ws-uuid])
         multi-valued-input-count (count multi-valued-input-uuids)]
-    (letfn [(radio-group [{:keys [label attr variables]}]
+    (letfn [(radio-group [{:keys [label attr variables on-change]}]
               (let [*values   (subscribe [:worksheet/get-graph-settings-attr ws-uuid attr])
                     selected? (first @*values)]
                 [c/radio-group {:label   label
@@ -411,10 +413,11 @@
                                                      var-name       :variable/name}]
                                                  {:value     var-name
                                                   :label     var-name
-                                                  :on-change #(dispatch [:worksheet/update-graph-settings-attr
-                                                                         ws-uuid
-                                                                         attr
-                                                                         group-var-uuid])
+                                                  :on-change #(do (dispatch [:worksheet/update-graph-settings-attr
+                                                                             ws-uuid
+                                                                             attr
+                                                                             group-var-uuid])
+                                                                  (on-change group-var-uuid))
                                                   :checked?  (= selected? group-var-uuid)})
                                                variables)}]))]
       [:<>
@@ -426,24 +429,74 @@
            (>= multi-valued-input-count 1)
            (conj [radio-group {:label     "Select X axis variable:"
                                :attr      :graph-settings/x-axis-group-variable-uuid
-                               :variables group-variables}])
+                               :variables group-variables
+                               :on-change #(dispatch [:worksheet/upsert-x-axis-limit ws-uuid %])}])
 
            (>= multi-valued-input-count 2)
            (conj [radio-group {:label     "Select Z axis variable:"
                                :attr      :graph-settings/z-axis-group-variable-uuid
                                :variables group-variables}])
+
            (>= multi-valued-input-count 3)
            (conj [radio-group {:label     "Select Z2 axis variable:"
                                :attr      :graph-settings/z2-axis-group-variable-uuid
                                :variables group-variables}])
+
+           :always
+           (conj (let [[gv-uuid
+                        min-val
+                        max-val]                 (first @(rf/subscribe [:worksheet/graph-settings-x-axis-limits ws-uuid]))
+                       v-name                    @(subscribe [:wizard/gv-uuid->variable-name gv-uuid])
+                       [default-min default-max] @(subscribe [:wizard/x-axis-limit-min+max-defaults ws-uuid gv-uuid])]
+                   (c/table {:title   @(<t (bp "x_graph_and_axis_limits"))
+                             :headers ["INPUT VARIABLE" "RANGE" "AXIS MINIMUM" "AXIS MAXIMUM"]
+                             :columns [:v-name :input-range :min :max]
+                             :rows    [{:v-name      v-name
+                                        :input-range (str default-min "-" default-max)
+                                        :min         (let [value-atom (r/atom min-val)]
+                                                       [c/number-input {:enabled?   enabled?
+                                                                        :on-change  #(let [v (input-int-value %)]
+                                                                                       (reset! value-atom v))
+                                                                        :on-blur    #(rf/dispatch [:worksheet/update-x-axis-limit-attr
+                                                                                                   ws-uuid
+                                                                                                   :x-axis-limit/min
+                                                                                                   @value-atom])
+                                                                        :value-atom value-atom}])
+                                        :max         (let [value-atom (r/atom max-val)]
+                                                       [c/number-input {:enabled?   enabled?
+                                                                        :on-change  #(let [v (input-int-value %)]
+                                                                                       (reset! value-atom v))
+                                                                        :on-blur    #(rf/dispatch [:worksheet/update-x-axis-limit-attr
+                                                                                                   ws-uuid
+                                                                                                   :x-axis-limit/max
+                                                                                                   @value-atom])
+                                                                        :value-atom value-atom}])}]})))
+
            :always
            (conj [settings-form {:ws-uuid     ws-uuid
-                                 :title       @(<t (bp "graph_and_axis_limits"))
-                                 :headers     ["GRAPH Y VARIABLES" "OUTPUT RANGE" "Y AXIS MINIMUM" "Y AXIS MAXIMUM"]
+                                 :title       @(<t (bp "y_graph_and_axis_limits"))
+                                 :headers     ["OUTPUT VARIABLE" "RANGE" "AXIS MINIMUM" "AXIS MAXIMUM"]
                                  :rf-event-id :worksheet/update-y-axis-limit-attr
                                  :rf-sub-id   :worksheet/graph-settings-y-axis-limits
                                  :min-attr-id :y-axis-limit/min
                                  :max-attr-id :y-axis-limit/max}])))])))
+
+(comment
+  (->> (rf/subscribe [:worksheet/multi-value-input-uuid+value "65aaf0bb-1568-4db9-b21e-87ae840bcb9b"])
+       deref
+       (filter #(= (first %) "64a75ef0-5caf-4584-b0cf-369d7058f974"))
+       first
+       second
+       )
+
+  (->> (rf/subscribe [:worksheet/multi-value-input-uuids "65aaf0bb-1568-4db9-b21e-87ae840bcb9b"])
+       deref
+       (map (fn [[gv-uuid repeat-id]]
+              (str (deref (rf/subscribe [:wizard/group-variable gv-uuid]))
+                   "-"
+                   (inc repeat-id)))))
+
+  )
 
 (defn- map-units-form
   [ws-uuid]

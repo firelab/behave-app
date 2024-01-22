@@ -225,7 +225,9 @@ behaveplus:working_area,Working Area
 behaveplus:worksheet,Worksheet
 behaveplus:worksheet_review,Worksheet Review
 behaveplus:worksheet_templates,Worksheet Templates
+behaveplus:x_graph_and_axis_limits,X Graph Axis Limits
 behaveplus:y_axis_maximum,Y Axis Maximum
 behaveplus:y_axis_minimum,Y Axis Minimum
+behaveplus:y_graph_and_axis_limits,Y Graph Axis Limits
 behaveplus:you_can_add_up_to_10_resources,You can add up to 10 resources.
 behaveplus:you_can_edit_andor_delete_resources,You can edit and/or delete resources

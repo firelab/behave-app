@@ -23,7 +23,11 @@
                                                                   (js/parseFloat value)))
                                                          {}
                                                          cell-data)))
-                                         []))]
+                                         []))
+
+              x-axis-limit (:graph-settings/x-axis-limits graph-settings)
+              x-min        (:x-axis-limit/min x-axis-limit)
+              x-max        (:x-axis-limit/max x-axis-limit)]
           [:div.wizard-results__graphs {:id "graph"}
            [:div.wizard-graph__header "Graphs"]
            (for [output-uuid @*output-uuids
@@ -38,7 +42,8 @@
               [:div.wizard-results__graph
                (result-chart {:data   graph-data
                               :x      {:name (-> (:graph-settings/x-axis-group-variable-uuid graph-settings)
-                                                 (uuid->variable-name))}
+                                                 (uuid->variable-name))
+                                       :scale [x-min x-max]}
                               :y      {:name  (:variable/name @(subscribe [:wizard/group-variable output-uuid]))
                                        :scale [y-min y-max]}
                               :z      {:name (-> (:graph-settings/z-axis-group-variable-uuid graph-settings)
