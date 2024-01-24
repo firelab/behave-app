@@ -446,7 +446,8 @@
                         max-val]                 (first @(subscribe [:worksheet/graph-settings-x-axis-limits ws-uuid]))
                        v-name                    @(subscribe [:wizard/gv-uuid->variable-name gv-uuid])
                        [default-min default-max] @(subscribe [:wizard/x-axis-limit-min+max-defaults ws-uuid gv-uuid])]
-                   (c/table {:title   @(<t (bp "x_graph_and_axis_limits"))
+                   [:div.settings-form
+                    (c/table {:title   @(<t (bp "x_graph_and_axis_limits"))
                              :headers [@(<t (bp "INPUT_VARIABLE"))
                                        @(<t (bp "RANGE"))
                                        @(<t (bp "AXIS_MINIMUM"))
@@ -471,7 +472,7 @@
                                                                                                 ws-uuid
                                                                                                 :x-axis-limit/max
                                                                                                 @value-atom])
-                                                                        :value-atom value-atom}])}]})))
+                                                                        :value-atom value-atom}])}]})]))
 
            (>= multi-valued-input-count 1)
            (conj [settings-form {:ws-uuid     ws-uuid
