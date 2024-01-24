@@ -3,7 +3,7 @@ behaveplus:AXIS_MAXIMUM,AXIS MAXIMUM
 behaveplus:AXIS_MINIMUM,AXIS MINIMUM
 behaveplus:INPUT_VARIABLE,INPUT VARIABLE
 behaveplus:INPUT_VARIABLE,INPUT VARIABLE
-behaveplus:OUTPUT_VARIABLE,OUTPUT VARIABLE
+behaveplus:OUTPUT_VARIABLES,OUTPUT VARIABLES
 behaveplus:RANGE,RANGE
 behaveplus:a_brief_phrase_documenting_the_run,A brief phrase documenting the run
 behaveplus:about,About
