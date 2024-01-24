@@ -477,7 +477,7 @@
            (>= multi-valued-input-count 1)
            (conj [settings-form {:ws-uuid     ws-uuid
                                  :title       @(<t (bp "y_graph_and_axis_limits"))
-                                 :headers     [@(<t (bp "OUTPUT_VARIABLE"))
+                                 :headers     [@(<t (bp "OUTPUT_VARIABLES"))
                                                @(<t (bp "RANGE"))
                                                @(<t (bp "AXIS_MINIMUM"))
                                                @(<t (bp "AXIS_MAXIMUM"))]
