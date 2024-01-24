@@ -421,24 +421,24 @@
                                                   :checked?  (= selected? group-var-uuid)})
                                                variables)}]))]
       [:<>
-       [c/checkbox {:label     "Display Graph Results"
+       [c/checkbox {:label     @(<t (bp "display_graph_results"))
                     :checked?  enabled?
                     :on-change #(dispatch [:worksheet/toggle-graph-settings ws-uuid])}]
        (when enabled?
          (cond-> [:<>]
            (>= multi-valued-input-count 1)
-           (conj [radio-group {:label     "Select X axis variable:"
+           (conj [radio-group {:label     (str @(<t (bp "select_x_axis_variable")) ":")
                                :attr      :graph-settings/x-axis-group-variable-uuid
                                :variables group-variables
                                :on-change #(dispatch [:worksheet/upsert-x-axis-limit ws-uuid %])}])
 
            (>= multi-valued-input-count 2)
-           (conj [radio-group {:label     "Select Z axis variable:"
+           (conj [radio-group {:label     (str @(<t (bp "select_z_axis_variable")) ":")
                                :attr      :graph-settings/z-axis-group-variable-uuid
                                :variables group-variables}])
 
            (>= multi-valued-input-count 3)
-           (conj [radio-group {:label     "Select Z2 axis variable:"
+           (conj [radio-group {:label     (str @(<t (bp "select_z2_axis_variable")) ":")
                                :attr      :graph-settings/z2-axis-group-variable-uuid
                                :variables group-variables}])
 
@@ -449,7 +449,10 @@
                        v-name                    @(subscribe [:wizard/gv-uuid->variable-name gv-uuid])
                        [default-min default-max] @(subscribe [:wizard/x-axis-limit-min+max-defaults ws-uuid gv-uuid])]
                    (c/table {:title   @(<t (bp "x_graph_and_axis_limits"))
-                             :headers ["INPUT VARIABLE" "RANGE" "AXIS MINIMUM" "AXIS MAXIMUM"]
+                             :headers [@(<t (bp "INPUT_VARIABLE"))
+                                       @(<t (bp "RANGE"))
+                                       @(<t (bp "AXIS_MINIMUM"))
+                                       @(<t (bp "AXIS_MAXIMUM"))]
                              :columns [:v-name :input-range :min :max]
                              :rows    [{:v-name      v-name
                                         :input-range (str default-min "-" default-max)
@@ -475,28 +478,14 @@
            :always
            (conj [settings-form {:ws-uuid     ws-uuid
                                  :title       @(<t (bp "y_graph_and_axis_limits"))
-                                 :headers     ["OUTPUT VARIABLE" "RANGE" "AXIS MINIMUM" "AXIS MAXIMUM"]
+                                 :headers     [@(<t (bp "INPUT_VARIABLE"))
+                                               @(<t (bp "RANGE"))
+                                               @(<t (bp "AXIS_MINIMUM"))
+                                               @(<t (bp "AXIS_MAXIMUM"))]
                                  :rf-event-id :worksheet/update-y-axis-limit-attr
                                  :rf-sub-id   :worksheet/graph-settings-y-axis-limits
                                  :min-attr-id :y-axis-limit/min
                                  :max-attr-id :y-axis-limit/max}])))])))
-
-(comment
-  (->> (rf/subscribe [:worksheet/multi-value-input-uuid+value "65aaf0bb-1568-4db9-b21e-87ae840bcb9b"])
-       deref
-       (filter #(= (first %) "64a75ef0-5caf-4584-b0cf-369d7058f974"))
-       first
-       second
-       )
-
-  (->> (rf/subscribe [:worksheet/multi-value-input-uuids "65aaf0bb-1568-4db9-b21e-87ae840bcb9b"])
-       deref
-       (map (fn [[gv-uuid repeat-id]]
-              (str (deref (rf/subscribe [:wizard/group-variable gv-uuid]))
-                   "-"
-                   (inc repeat-id)))))
-
-  )
 
 (defn- map-units-form
   [ws-uuid]
