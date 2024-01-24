@@ -22,9 +22,7 @@
             [goog.string.format]
             [re-frame.core                        :refer [dispatch dispatch-sync subscribe]]
             [string-utils.interface               :refer [->kebab]]
-            [reagent.core                         :as r]
-            [re-frame.core :as rf]
-            [clojure.string :as str]))
+            [reagent.core                         :as r]))
 
 ;;; Components
 
@@ -445,7 +443,7 @@
            :always
            (conj (let [[gv-uuid
                         min-val
-                        max-val]                 (first @(rf/subscribe [:worksheet/graph-settings-x-axis-limits ws-uuid]))
+                        max-val]                 (first @(subscribe [:worksheet/graph-settings-x-axis-limits ws-uuid]))
                        v-name                    @(subscribe [:wizard/gv-uuid->variable-name gv-uuid])
                        [default-min default-max] @(subscribe [:wizard/x-axis-limit-min+max-defaults ws-uuid gv-uuid])]
                    (c/table {:title   @(<t (bp "x_graph_and_axis_limits"))
@@ -460,19 +458,19 @@
                                                        [c/number-input {:enabled?   enabled?
                                                                         :on-change  #(let [v (input-int-value %)]
                                                                                        (reset! value-atom v))
-                                                                        :on-blur    #(rf/dispatch [:worksheet/update-x-axis-limit-attr
-                                                                                                   ws-uuid
-                                                                                                   :x-axis-limit/min
-                                                                                                   @value-atom])
+                                                                        :on-blur    #(dispatch [:worksheet/update-x-axis-limit-attr
+                                                                                                ws-uuid
+                                                                                                :x-axis-limit/min
+                                                                                                @value-atom])
                                                                         :value-atom value-atom}])
                                         :max         (let [value-atom (r/atom max-val)]
                                                        [c/number-input {:enabled?   enabled?
                                                                         :on-change  #(let [v (input-int-value %)]
                                                                                        (reset! value-atom v))
-                                                                        :on-blur    #(rf/dispatch [:worksheet/update-x-axis-limit-attr
-                                                                                                   ws-uuid
-                                                                                                   :x-axis-limit/max
-                                                                                                   @value-atom])
+                                                                        :on-blur    #(dispatch [:worksheet/update-x-axis-limit-attr
+                                                                                                ws-uuid
+                                                                                                :x-axis-limit/max
+                                                                                                @value-atom])
                                                                         :value-atom value-atom}])}]})))
 
            :always
