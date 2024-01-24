@@ -440,7 +440,7 @@
                                :attr      :graph-settings/z2-axis-group-variable-uuid
                                :variables group-variables}])
 
-           :always
+           (>= multi-valued-input-count 1)
            (conj (let [[gv-uuid
                         min-val
                         max-val]                 (first @(subscribe [:worksheet/graph-settings-x-axis-limits ws-uuid]))
@@ -473,7 +473,7 @@
                                                                                                 @value-atom])
                                                                         :value-atom value-atom}])}]})))
 
-           :always
+           (>= multi-valued-input-count 1)
            (conj [settings-form {:ws-uuid     ws-uuid
                                  :title       @(<t (bp "y_graph_and_axis_limits"))
                                  :headers     [@(<t (bp "INPUT_VARIABLE"))
