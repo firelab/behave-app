@@ -1,7 +1,7 @@
 (ns behave.print.views
   (:require [re-frame.core                      :refer [subscribe dispatch]]
             [behave.print.subs]
-            [behave.components.graph            :refer [result-graph]]
+            [behave.components.results.graphs   :refer [result-graphs]]
             [behave.components.results.diagrams :refer [result-diagrams]]
             [behave.components.results.matrices :refer [result-matrices]]
             [behave.components.results.inputs   :refer [inputs-table]]))
@@ -36,5 +36,5 @@
      [wizard-notes notes]
      [:div.wizard-print__header "Results"]
      [result-matrices ws-uuid]
-     [result-graph ws-uuid graph-data]
+     [result-graphs ws-uuid graph-data]
      [result-diagrams ws-uuid]]))

@@ -1,4 +1,10 @@
 behaveplus:24_hour_clock,24-hour clock
+behaveplus:AXIS_MAXIMUM,AXIS MAXIMUM
+behaveplus:AXIS_MINIMUM,AXIS MINIMUM
+behaveplus:INPUT_VARIABLE,INPUT VARIABLE
+behaveplus:INPUT_VARIABLE,INPUT VARIABLE
+behaveplus:OUTPUT_VARIABLES,OUTPUT VARIABLES
+behaveplus:RANGE,RANGE
 behaveplus:a_brief_phrase_documenting_the_run,A brief phrase documenting the run
 behaveplus:about,About
 behaveplus:add,Add
@@ -11,21 +17,21 @@ behaveplus:adding_notes,Adding Notes
 behaveplus:adding_resources,Adding Resources
 behaveplus:are_you_sure_you_want_to_reset_your_unit_preferences?,Are you sure you want to reset your unit preferences?
 behaveplus:back,Back
-behaveplus:browse,Browse
 behaveplus:behaveplus_70,BehavePlus 7.0
+behaveplus:browse,Browse
 behaveplus:calculating_results,Calculating results
 behaveplus:change_module,Change Module
-behaveplus:change_units,Change Units
 behaveplus:change_selection,Change Selection
 behaveplus:change_text,Change Text
+behaveplus:change_units,Change Units
 behaveplus:change_values,Change Values
 behaveplus:characters_not_allowed,Characters not allowed
 behaveplus:close_notes,Close Notes
 behaveplus:close_tool,Close Tool
 behaveplus:compute,Compute
 behaveplus:contain,Contain
-behaveplus:contain_only,Contain Only
 behaveplus:contain_inputs,Contain Inputs
+behaveplus:contain_only,Contain Only
 behaveplus:contain_results,Contain Results
 behaveplus:contain_status,Contain Status
 behaveplus:contain_worksheet,Contain Worksheet
@@ -37,6 +43,7 @@ behaveplus:dbh_diameter_at_breast_height,DBH - Diameter at Breast Height
 behaveplus:decimals,Decimals
 behaveplus:delete,Delete
 behaveplus:deleting_notes,Deleting Notes
+behaveplus:display_graph_results,Display Graph Results
 behaveplus:display_graph_results,Display Graph Results
 behaveplus:display_graph_y_axis_limits,Display Graph Y Axis Limits
 behaveplus:display_table_results,Display Table Results
@@ -76,8 +83,6 @@ behaveplus:graph_y_variables,Graph Y variables
 behaveplus:graphs,Graphs
 behaveplus:graphs_and_axis_limits,Graphs & Axis Limits
 behaveplus:graphs_results,Graphs Results
-behaveplus:workflow:guided_title,Guided workflow
-behaveplus:workflow:guided_desc,Start from a template from our worksheet library.
 behaveplus:guides_and_manuals,Guides & Manuals
 behaveplus:head_attack,Head Attack
 behaveplus:help,Help
@@ -85,9 +90,6 @@ behaveplus:home,Home
 behaveplus:home_screen,Home Screen
 behaveplus:hours,Hours
 behaveplus:imperial_units_ranges_are,Imperial units ranges are:
-behaveplus:insert_range,Insert Range
-behaveplus:workflow:independent_title,Independent workflow
-behaveplus:workflow:independent_desc,Recommended for experienced users of BehavePlus.
 behaveplus:index,Index
 behaveplus:info,Info
 behaveplus:information,Information
@@ -95,6 +97,7 @@ behaveplus:input_selections,Input Selections
 behaveplus:inputs,Inputs
 behaveplus:inputs_selections,Inputs Selections
 behaveplus:inputs_table,Inputs Table
+behaveplus:insert_range,Insert Range
 behaveplus:length_to_width_ratio,Length-to-Width Ratio
 behaveplus:line_construction_offset,Line Construction Offset
 behaveplus:list_of_file_extensions_supported,List of file extensions supported:
@@ -104,8 +107,8 @@ behaveplus:module,Module
 behaveplus:module_inputs_selections,Module Inputs Selections
 behaveplus:module_options,Module Options
 behaveplus:module_outputs_selections,Module Outputs Selections
-behaveplus:module_selection,Module Selection
 behaveplus:module_review_inputs,%s Inputs
+behaveplus:module_selection,Module Selection
 behaveplus:modules,Modules
 behaveplus:modules_selection,Modules Selection
 behaveplus:modules_selections,Modules Selections
@@ -125,15 +128,13 @@ behaveplus:number_of_characters,# of characters
 behaveplus:number_of_moisture_scenarios,Number of Moisture Scenario(s):
 behaveplus:number_of_resources,Number of Resources:
 behaveplus:number_of_resources_used,Number of Resources Used
-behaveplus:workflow:import_title,Open or import an existing file.
-behaveplus:workflow:import_desc,File extensions supported: *.bp6 (XML) or *.bp7 (SQLite)
+behaveplus:optional,Optional
 behaveplus:output_range,OUTPUT RANGE
 behaveplus:output_selections_fire,Output Selections: Fire
-behaveplus:outputs,Outputs
-behaveplus:outputs_table,Outputs Table
-behaveplus:outputs_selectiona,Outputs Selections
 behaveplus:output_variable,Output Variable
-behaveplus:optional,Optional
+behaveplus:outputs,Outputs
+behaveplus:outputs_selectiona,Outputs Selections
+behaveplus:outputs_table,Outputs Table
 behaveplus:please_complete_the_missing_information_andor_correct_the_errors,Please complete the missing information and/or correct the errors.
 behaveplus:please_select_a_work_style,Please select a work style.
 behaveplus:please_select_from_the_following_options,Please select from the following options
@@ -146,8 +147,8 @@ behaveplus:programming_notes,Programming Notes:
 behaveplus:range_fire_size_at_report,Range: Fire Size at Report
 behaveplus:range_length_to_width_ratio,Range: Length-to-Width Ratio
 behaveplus:range_line_construction_offset,Range: Line Construction Offset
-behaveplus:range_surface_rate_of_spread_maximum,Range: Surface Rate of Spread (maximum)
 behaveplus:range_selector,Range Selector
+behaveplus:range_surface_rate_of_spread_maximum,Range: Surface Rate of Spread (maximum)
 behaveplus:rear_attack,Rear Attack
 behaveplus:required,Required
 behaveplus:reset_to_defaults,Reset to Defaults
@@ -158,6 +159,7 @@ behaveplus:resource_duration,Resource Duration
 behaveplus:resource_line_production_rate,Resource Line Production Rate
 behaveplus:resources,Resources
 behaveplus:resources_name,Resource’s Name
+behaveplus:result_settings, Result Settings
 behaveplus:results,Results
 behaveplus:results_selections,Results Selections
 behaveplus:results_tables,Results Tables
@@ -168,6 +170,8 @@ behaveplus:run_description,Run's Description
 behaveplus:run_notes,Run Notes
 behaveplus:run_results,Run Results
 behaveplus:runs_table,Run's Table
+behaveplus:s_map_units,%s Map Units
+behaveplus:s_map_units_(s),%s Map Units (%s)
 behaveplus:save,Save
 behaveplus:saved_warning,The progress made with the worksheet name is saved. Press below to start a new worksheet.
 behaveplus:search,Search
@@ -178,6 +182,9 @@ behaveplus:select_graph_results,Select graph results
 behaveplus:select_range,Select Range
 behaveplus:select_the_row_variable,Select the row variable
 behaveplus:select_units,Select units:
+behaveplus:select_x_axis_variable,Select X axis variable
+behaveplus:select_z2_axis_variable,Select Z2 axis variable
+behaveplus:select_z_axis_variable,Select Z axis variable
 behaveplus:selecting_axis,Selecting Axis
 behaveplus:selection,Selection
 behaveplus:settings,Settings
@@ -195,14 +202,11 @@ behaveplus:surface_module_options,Surface Module Options
 behaveplus:surface_only,Surface Only
 behaveplus:surface_rate_of_spread,Surface Rate of Spread
 behaveplus:surface_rate_of_spread_maximum,Surface Rate of Spread (maximum)
-behaveplus:s_map_units,%s Map Units
-behaveplus:s_map_units_(s),%s Map Units (%s)
 behaveplus:table,Table
-behaveplus:tables,Tables
-behaveplus:tables_selections,Tables Selections
-behaveplus:tables_for_d_multi_valued_inputs_are_not_supported,Tables for (%d) Multi Valued Inputs are not supported
 behaveplus:table_shading_filters,Table Shading Filters
-behaveplus:result_settings, Result Settings
+behaveplus:tables,Tables
+behaveplus:tables_for_d_multi_valued_inputs_are_not_supported,Tables for (%d) Multi Valued Inputs are not supported
+behaveplus:tables_selections,Tables Selections
 behaveplus:thru,Thru
 behaveplus:time,Time
 behaveplus:time_from_report,Time from Report
@@ -223,11 +227,19 @@ behaveplus:viewing_tables,Viewing Tables
 behaveplus:warn_input_limit,Number of inputs with a range of values exceeded the allowed limit (%d/%d), Please remove some.
 behaveplus:welcome_message,Welcome to BehavePlus 7.0
 behaveplus:work_style,Work Style
+behaveplus:workflow:guided_desc,Start from a template from our worksheet library.
+behaveplus:workflow:guided_title,Guided workflow
+behaveplus:workflow:import_desc,File extensions supported: *.bp6 (XML) or *.bp7 (SQLite)
+behaveplus:workflow:import_title,Open or import an existing file.
+behaveplus:workflow:independent_desc,Recommended for experienced users of BehavePlus.
+behaveplus:workflow:independent_title,Independent workflow
 behaveplus:working_area,Working Area
 behaveplus:worksheet,Worksheet
 behaveplus:worksheet_review,Worksheet Review
 behaveplus:worksheet_templates,Worksheet Templates
+behaveplus:x_graph_and_axis_limits,X Graph Axis Limits
 behaveplus:y_axis_maximum,Y Axis Maximum
 behaveplus:y_axis_minimum,Y Axis Minimum
+behaveplus:y_graph_and_axis_limits,Y Graph Axis Limits
 behaveplus:you_can_add_up_to_10_resources,You can add up to 10 resources.
 behaveplus:you_can_edit_andor_delete_resources,You can edit and/or delete resources

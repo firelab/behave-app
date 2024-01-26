@@ -431,6 +431,21 @@
     :variables [ws-uuid]}))
 
 (rp/reg-sub
+ :worksheet/graph-settings-x-axis-limits
+ (fn [_ [_ ws-uuid]]
+   {:type      :query
+    :query     '[:find ?group-var-uuid ?min ?max
+                 :in   $ ?ws-uuid
+                 :where
+                 [?w :worksheet/uuid ?ws-uuid]
+                 [?w :worksheet/graph-settings ?g]
+                 [?g :graph-settings/x-axis-limits ?y]
+                 [?y :x-axis-limit/group-variable-uuid ?group-var-uuid]
+                 [?y :x-axis-limit/min ?min]
+                 [?y :x-axis-limit/max ?max]]
+    :variables [ws-uuid]}))
+
+(rp/reg-sub
  :worksheet/table-settings-filters
  (fn [_ [_ ws-uuid]]
    {:type      :query
