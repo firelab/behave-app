@@ -43,7 +43,7 @@
     {:class "input-browse__label"}
     label]])
 
-(defn number-input [{:keys [label id name on-change on-blur disabled? error? min max value value-atom]}]
+(defn number-input [{:keys [label id name on-change on-blur disabled? error? min max value value-atom step]}]
   [:div {:class ["input-number " (when error? "input-number--error")]}
    [:label
     {:class "input-number__label" :for id}
@@ -58,6 +58,7 @@
              :on-blur   on-blur
              :min       min
              :max       max}
+      step       (assoc :step step)
       value      (assoc :value value)
       value-atom (assoc :value @value-atom))]])
 

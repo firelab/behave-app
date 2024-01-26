@@ -6,7 +6,8 @@
             [behave.importer           :refer [import-worksheet]]
             [behave.logger             :refer [log]]
             [behave.solver.core        :refer [solve-worksheet]]
-            [vimsical.re-frame.cofx.inject :as inject]))
+            [vimsical.re-frame.cofx.inject :as inject]
+            [number-utils.core :refer [to-precision]]))
 
 ;;; Helpers
 
@@ -365,19 +366,20 @@
       [_ ws-uuid]]
    (let [gv-uuids (keys output-uuid->result-min-values)]
      {:fx (reduce (fn [acc gv-uuid]
-                    (let [min-val (get output-uuid->result-min-values gv-uuid)
-                          max-val (get output-uuid->result-max-values gv-uuid)]
+                    (let [max-val (get output-uuid->result-max-values gv-uuid)]
                       (-> acc
                           (conj [:dispatch [:worksheet/update-y-axis-limit-attr
                                             ws-uuid
                                             gv-uuid
                                             :y-axis-limit/min
-                                            (.floor js/Math min-val)]])
+                                            0]])
                           (conj [:dispatch [:worksheet/update-y-axis-limit-attr
                                             ws-uuid
                                             gv-uuid
                                             :y-axis-limit/max
-                                            (.ceil js/Math max-val)]]))))
+                                            (if (< max-val 1)
+                                              (to-precision max-val 1)
+                                              (.ceil js/Math max-val))]]))))
                   []
                   gv-uuids)})))
 
@@ -419,12 +421,16 @@
                                         ws-uuid
                                         gv-uuid
                                         :table-filter/min
-                                        (.floor js/Math min-val)]])
+                                        (if (< min-val 1)
+                                          (to-precision min-val 1)
+                                          (.floor js/Math min-val))]])
                       (conj [:dispatch [:worksheet/update-table-filter-attr
                                         ws-uuid
                                         gv-uuid
                                         :table-filter/max
-                                        (.ceil js/Math max-val)]])))
+                                        (if (< max-val 1)
+                                          (to-precision max-val 1)
+                                          (.ceil js/Math max-val))]])))
                 []
                 output-min-max-values)}))
 
