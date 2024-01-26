@@ -302,21 +302,17 @@
 
 (reg-sub
  :wizard/first-module+submodule
- (fn [_]
-   (subscribe [:worksheet/latest])) ;TODO Get uuid as a param
+ (fn [[_ ws-uuid _]]
+   (subscribe [:worksheet ws-uuid]))
 
- (fn [ws-uuid [_ io]]
-   (let [worksheet @(subscribe [:worksheet ws-uuid])]
-     (when-let [module-kw (first (:worksheet/modules worksheet))]
-       (let [module          @(subscribe [:wizard/*module (name module-kw)])
-             module-id       (:db/id module)
-             submodules      @(subscribe [:wizard/submodules module-id])
-             [i-subs o-subs] (->> submodules
-                                  (sort-by :submodule/order)
-                                  (partition-by #(:submodule/io %)))
-             submodules      (if (= io :input) i-subs o-subs)]
+ (fn [worksheet [_ ws-uuid io]]
+   (when-let [module-kw (first (:worksheet/modules worksheet))]
+     (let [module          @(subscribe [:wizard/*module (name module-kw)])
+           module-id       (:db/id module)
+           submodules      (->> @(subscribe [:wizard/submodules-conditionally-filtered ws-uuid module-id io])
+                                (sort-by :submodule/order))]
 
-         [(name module-kw) (:slug (first submodules))])))))
+       [(name module-kw) (:slug (first submodules))]))))
 
 ;;; show-group?
 
