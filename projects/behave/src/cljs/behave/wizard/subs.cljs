@@ -1,7 +1,7 @@
 (ns behave.wizard.subs
   (:require [behave.schema.core     :refer [rules]]
             [behave.vms.store       :refer [vms-conn]]
-            [clojure.set            :refer [rename-keys]]
+            [clojure.set            :refer [rename-keys intersection]]
             [datascript.core        :as d]
             [re-frame.core          :refer [reg-sub subscribe] :as rf]
             [string-utils.interface :refer [->kebab]]
@@ -307,46 +307,57 @@
 
  (fn [worksheet [_ ws-uuid io]]
    (when-let [module-kw (first (:worksheet/modules worksheet))]
-     (let [module          @(subscribe [:wizard/*module (name module-kw)])
-           module-id       (:db/id module)
-           submodules      (->> @(subscribe [:wizard/submodules-conditionally-filtered ws-uuid module-id io])
-                                (sort-by :submodule/order))]
+     (let [module     @(subscribe [:wizard/*module (name module-kw)])
+           module-id  (:db/id module)
+           submodules (->> @(subscribe [:wizard/submodules-conditionally-filtered ws-uuid module-id io])
+                           (sort-by :submodule/order))]
 
        [(name module-kw) (:slug (first submodules))]))))
 
 ;;; show-group?
+(defn- csv? [s] (< 1 (count (str/split s #","))))
+
+(defn- intersect? [s1 s2]
+  (pos? (count (intersection s1 s2))))
 
 (defn- resolve-conditionals [worksheet conditionals]
   (let [ws-uuid (:worksheet/uuid worksheet)]
     (map (fn pass?
            [{group-variable-uuid :conditional/group-variable-uuid
-             type                :conditional/type
+             ttype               :conditional/type
              op                  :conditional/operator
              values              :conditional/values}]
            (let [{:keys [group-uuid io]} (-> (subscribe [:wizard/conditional-io+group-uuid
                                                          group-variable-uuid])
                                              deref
                                              first)
-                 worksheet-value
-                 (cond
-                   (= type :module)
-                   (:worksheet/modules worksheet)
+                 conditional-values-set  (set values)
+                 worksheet-value         (cond
+                                           (= ttype :module)
+                                           (map name (:worksheet/modules worksheet))
 
-                   (= io :output)
-                   @(subscribe [:worksheet/output-enabled?
-                                ws-uuid
-                                group-variable-uuid])
+                                           (= io :output)
+                                           @(subscribe [:worksheet/output-enabled?
+                                                        ws-uuid
+                                                        group-variable-uuid])
 
-                   (= io :input)
-                   @(subscribe [:worksheet/input-value
-                                ws-uuid
-                                group-uuid
-                                0
-                                group-variable-uuid]))]
+                                           (= io :input)
+                                           @(subscribe [:worksheet/input-value
+                                                        ws-uuid
+                                                        group-uuid
+                                                        0
+                                                        group-variable-uuid]))
+                 worksheet-value-set (cond
+                                       (= ttype :module)      (set worksheet-value)
+                                       (csv? worksheet-value) (set (map str/trim (str/split worksheet-value ",")))
+                                       :else                  #{worksheet-value})]
              (case op
-               :equal     (= (first values) (if worksheet-value (str worksheet-value) "false"))
-               :not-equal (not= (first values) (str worksheet-value))
-               :in        (= (set (map keyword values)) (set worksheet-value)))))
+               :equal     (if (= ttype :module)
+                            (= conditional-values-set worksheet-value-set)
+                            (= (first conditional-values-set)
+                               (if worksheet-value (str worksheet-value) "false")))
+               :not-equal (not= (first conditional-values-set) (str worksheet-value))
+               :in        (intersect? conditional-values-set worksheet-value-set))))
          conditionals)))
 
 (defn- all-conditionals-pass? [worksheet conditionals-operator conditionals]
@@ -448,7 +459,7 @@
    (subscribe [:worksheet/multi-value-input-uuid+value ws-uuid]))
 
  (fn [multi-value-inputs [_ _ gv-uuid]]
-   (let [[_ values] (first (filter #(= (first %) gv-uuid) multi-value-inputs))
+   (let [[_ values]    (first (filter #(= (first %) gv-uuid) multi-value-inputs))
          parsed-values (map js/parseFloat (str/split values ","))]
      [(apply min parsed-values) (apply max parsed-values)])
    )
