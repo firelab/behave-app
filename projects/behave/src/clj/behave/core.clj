@@ -19,6 +19,7 @@
             [behave-routing.main          :refer [routes]]
             [behave.store                 :as store]
             [behave.sync                  :refer [sync-handler]]
+            [behave.save                  :refer [save-handler]]
             [behave.download-vms          :refer [export-from-vms export-images-from-vms]]
             [behave.views                 :refer [render-page render-tests-page]])
   (:gen-class))
@@ -93,6 +94,7 @@
                        (bad-uri? uri)                     (not-found "404 Not Found")
                        (str/starts-with? uri "/vms-sync") #'vms-sync-handler
                        (str/starts-with? uri "/sync")     #'sync-handler
+                       (str/starts-with? uri "/save")     #'save-handler
                        (str/starts-with? uri "/test")     #'render-tests-page
                        (str/starts-with? uri "/close")    #'close-handler
                        (match-route routes uri)           (render-page (match-route routes uri))

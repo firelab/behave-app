@@ -169,6 +169,18 @@
       :fx       [[:dispatch [:worksheet/add-table-filter ws-uuid group-variable-uuid]]
                  [:dispatch [:worksheet/add-y-axis-limit ws-uuid group-variable-uuid]]]})))
 
+(rf/reg-event-fx
+ :worksheet/delete-existing-result-table
+ [(rp/inject-cofx :ds)]
+ (fn [{:keys [ds]} [_ ws-uuid]]
+   (when-let [existing-eid (d/q '[:find  ?t .
+                             :in    $ ?ws-uuid
+                             :where
+                             [?ws :worksheet/uuid     ?ws-uuid]
+                             [?ws :worksheet/result-table ?t]]
+                           ds ws-uuid)]
+     {:transact [[:db.fn/retractEntity existing-eid]]})))
+
 (rp/reg-event-fx
  :worksheet/add-result-table
  [(rp/inject-cofx :ds)]
