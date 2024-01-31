@@ -155,9 +155,9 @@
                cond-path [:editors :conditional cond-attr]
                set-type  #(do (reset! state %)
                               (rf/dispatch-sync [:state/set-state cond-path nil])
-                              (rf/dispatch-sync [:state/set-state 
+                              (rf/dispatch-sync [:state/set-state
                                                  (conj cond-path :conditional/operator)
-                                                 (if (= % "module") :in :equals)])
+                                                 :equals])
                               (rf/dispatch-sync [:state/set-state
                                                  (conj cond-path :conditional/type)
                                                  (if (= % "module") :module :group-variable)]))

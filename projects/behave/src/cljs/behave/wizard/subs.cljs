@@ -1,7 +1,7 @@
 (ns behave.wizard.subs
   (:require [behave.schema.core     :refer [rules]]
             [behave.vms.store       :refer [vms-conn]]
-            [clojure.set            :refer [rename-keys subset?]]
+            [clojure.set            :refer [rename-keys intersection]]
             [datascript.core        :as d]
             [re-frame.core          :refer [reg-sub subscribe] :as rf]
             [string-utils.interface :refer [->kebab]]
@@ -317,19 +317,23 @@
 ;;; show-group?
 (defn- csv? [s] (< 1 (count (str/split s #","))))
 
+(defn- intersect? [s1 s2]
+  (pos? (count (intersection s1 s2))))
+
 (defn- resolve-conditionals [worksheet conditionals]
   (let [ws-uuid (:worksheet/uuid worksheet)]
     (map (fn pass?
            [{group-variable-uuid :conditional/group-variable-uuid
-             type                :conditional/type
+             ttype               :conditional/type
              op                  :conditional/operator
              values              :conditional/values}]
            (let [{:keys [group-uuid io]} (-> (subscribe [:wizard/conditional-io+group-uuid
                                                          group-variable-uuid])
                                              deref
                                              first)
+                 conditional-values-set  (set values)
                  worksheet-value         (cond
-                                           (= type :module)
+                                           (= ttype :module)
                                            (map name (:worksheet/modules worksheet))
 
                                            (= io :output)
@@ -344,13 +348,16 @@
                                                         0
                                                         group-variable-uuid]))
                  worksheet-value-set (cond
-                                       (= type :module)       (into #{} worksheet-value)
-                                       (csv? worksheet-value) (set (str/split worksheet-value ","))
+                                       (= ttype :module)      (set worksheet-value)
+                                       (csv? worksheet-value) (set (map str/trim (str/split worksheet-value ",")))
                                        :else                  #{worksheet-value})]
              (case op
-               :equal     (= (first values) (if worksheet-value (str worksheet-value) "false"))
-               :not-equal (not= (first values) (str worksheet-value))
-               :in        (subset? worksheet-value-set (set values)))))
+               :equal     (if (= ttype :module)
+                            (= conditional-values-set worksheet-value-set)
+                            (= (first conditional-values-set)
+                               (if worksheet-value (str worksheet-value) "false")))
+               :not-equal (not= (first conditional-values-set) (str worksheet-value))
+               :in        (intersect? conditional-values-set worksheet-value-set))))
          conditionals)))
 
 (defn- all-conditionals-pass? [worksheet conditionals-operator conditionals]
