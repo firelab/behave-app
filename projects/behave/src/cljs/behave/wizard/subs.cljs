@@ -1,7 +1,7 @@
 (ns behave.wizard.subs
   (:require [behave.schema.core     :refer [rules]]
             [behave.vms.store       :refer [vms-conn]]
-            [clojure.set            :refer [rename-keys]]
+            [clojure.set            :refer [rename-keys subset?]]
             [datascript.core        :as d]
             [re-frame.core          :refer [reg-sub subscribe] :as rf]
             [string-utils.interface :refer [->kebab]]
@@ -307,14 +307,15 @@
 
  (fn [worksheet [_ ws-uuid io]]
    (when-let [module-kw (first (:worksheet/modules worksheet))]
-     (let [module          @(subscribe [:wizard/*module (name module-kw)])
-           module-id       (:db/id module)
-           submodules      (->> @(subscribe [:wizard/submodules-conditionally-filtered ws-uuid module-id io])
-                                (sort-by :submodule/order))]
+     (let [module     @(subscribe [:wizard/*module (name module-kw)])
+           module-id  (:db/id module)
+           submodules (->> @(subscribe [:wizard/submodules-conditionally-filtered ws-uuid module-id io])
+                           (sort-by :submodule/order))]
 
        [(name module-kw) (:slug (first submodules))]))))
 
 ;;; show-group?
+(defn- csv? [s] (< 1 (count (str/split s #","))))
 
 (defn- resolve-conditionals [worksheet conditionals]
   (let [ws-uuid (:worksheet/uuid worksheet)]
@@ -327,26 +328,29 @@
                                                          group-variable-uuid])
                                              deref
                                              first)
-                 worksheet-value
-                 (cond
-                   (= type :module)
-                   (:worksheet/modules worksheet)
+                 worksheet-value         (cond
+                                           (= type :module)
+                                           (map name (:worksheet/modules worksheet))
 
-                   (= io :output)
-                   @(subscribe [:worksheet/output-enabled?
-                                ws-uuid
-                                group-variable-uuid])
+                                           (= io :output)
+                                           @(subscribe [:worksheet/output-enabled?
+                                                        ws-uuid
+                                                        group-variable-uuid])
 
-                   (= io :input)
-                   @(subscribe [:worksheet/input-value
-                                ws-uuid
-                                group-uuid
-                                0
-                                group-variable-uuid]))]
+                                           (= io :input)
+                                           @(subscribe [:worksheet/input-value
+                                                        ws-uuid
+                                                        group-uuid
+                                                        0
+                                                        group-variable-uuid]))
+                 worksheet-value-set (cond
+                                       (= type :module)       (into #{} worksheet-value)
+                                       (csv? worksheet-value) (set (str/split worksheet-value ","))
+                                       :else                  #{worksheet-value})]
              (case op
                :equal     (= (first values) (if worksheet-value (str worksheet-value) "false"))
                :not-equal (not= (first values) (str worksheet-value))
-               :in        (= (set (map keyword values)) (set worksheet-value)))))
+               :in        (subset? worksheet-value-set (set values)))))
          conditionals)))
 
 (defn- all-conditionals-pass? [worksheet conditionals-operator conditionals]
@@ -448,7 +452,7 @@
    (subscribe [:worksheet/multi-value-input-uuid+value ws-uuid]))
 
  (fn [multi-value-inputs [_ _ gv-uuid]]
-   (let [[_ values] (first (filter #(= (first %) gv-uuid) multi-value-inputs))
+   (let [[_ values]    (first (filter #(= (first %) gv-uuid) multi-value-inputs))
          parsed-values (map js/parseFloat (str/split values ","))]
      [(apply min parsed-values) (apply max parsed-values)])
    )
