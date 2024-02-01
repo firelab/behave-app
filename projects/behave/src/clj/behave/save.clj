@@ -31,12 +31,20 @@
     (when (= request-method :post)
       (let [worksheet (->> (d/touch (d/entity @@s/conn [:worksheet/uuid ws-uuid]))
                            clean-entity)]
-        (try
-          (d/transact conn [worksheet])
-          (catch Exception e
-            (log-str "An error occured when saving a worksheet:" e)
-            (io/delete-file db-file)))
-        (storage-sql/close storage)
-        {:status  201
-         :body    (clj-> {:success true} :edn)
-         :headers {"Content-Type" accept}}))))
+        (if (seq worksheet)
+          (do
+            (try
+              (d/transact conn [worksheet])
+              (catch Exception e
+                (log-str "An error occured when saving a worksheet:" e)
+                (io/delete-file db-file)))
+            (storage-sql/close storage)
+            {:status  201
+             :body    (clj-> {:success true} :edn)
+             :headers {"Content-Type" accept}})
+          (do
+            ;; worksheet is empty
+            (io/delete-file db-file)
+            {:status  400
+             :body    (clj-> {:success false} :edn)
+             :headers {"Content-Type" accept}}))))))

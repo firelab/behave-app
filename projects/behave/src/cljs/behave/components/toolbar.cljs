@@ -130,7 +130,7 @@
                    :on-click #(when ws-uuid
                                 (rf/dispatch [:wizard/save
                                               ws-uuid
-                                              (gstring/format "./projects/behave/resources/saved-run-%s.sqlite" ws-uuid)]))}
+                                              (gstring/format "./projects/behave/resources/db-%s.sqlite" ws-uuid)]))}
                   {:icon     :print
                    :label    (bp "print")
                    :on-click #(rf/dispatch [:toolbar/print ws-uuid])}
