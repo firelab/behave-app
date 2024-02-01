@@ -9,6 +9,7 @@
             [re-posh.core :as rp]
             [browser-utils.interface :refer [debounce]]
             [datom-compressor.interface :as c]
+            [string-utils.interface       :refer [->str]]
             [ds-schema-utils.interface :refer [->ds-schema]]
             [datom-utils.interface :refer [split-datom]]
             [behave.schema.core :refer [all-schemas]]
@@ -82,19 +83,20 @@
         (d/transact @conn datoms)))))
 
 (defn sync-latest-datoms! []
-  (ajax-request {:uri "/sync"
-                 :params {:tx (:max-tx @@conn)}
-                 :method :get
-                 :handler apply-latest-datoms
-                 :format {:content-type "plain/text" :write str}
-                 :response-format {:description "ArrayBuffer"
-                                   :type :arraybuffer
+  (ajax-request {:uri             "/sync"
+                 :params          {:tx (:max-tx @@conn)}
+                 :method          :get
+                 :handler         apply-latest-datoms
+                 :format          {:content-type "plain/text" :write str}
+                 :response-format {:description  "ArrayBuffer"
+                                   :type         :arraybuffer
                                    :content-type "application/msgpack"
-                                   :read pr/-body}}))
+                                   :read         pr/-body}}))
 
 (defn- save-worksheet-handler [[ok body]]
   (when ok
-    (log-str body)))
+    (prn body) ;TODO dispatch event to show a success message
+    ))
 
 (defn save-worksheet! [{:keys [ws-uuid file-path]}]
   (ajax-request {:uri             "/save"
@@ -129,18 +131,47 @@
                                    :content-type "application/msgpack"
                                    :read         pr/-body}}))
 
+(defn new-worksheet-handler [nname modules submodule [ok body]]
+  (when ok
+    (reset! conn nil)
+    (let [datoms  (mapv #(apply d/datom %) (c/unpack body))
+          ws-uuid (str (d/squuid))]
+      (reset! sync-txs #{})
+      (reset! my-txs #{})
+      (rf/dispatch-sync [:ds/initialize (->ds-schema all-schemas) datoms])
+      (rf/dispatch-sync [:state/set :sync-loaded? true])
+      (rf/dispatch-sync [:worksheet/new {:name    nname
+                                         :modules (vec modules)
+                                         :uuid    ws-uuid}])
+      (rf/dispatch-sync [:navigate (str "/worksheets/"
+                                        ws-uuid
+                                        "/modules/"
+                                        (->str (first modules))
+                                        "/output/"
+                                        submodule)]))))
+
+(defn new-worksheet! [nname modules submodule]
+  (ajax-request {:uri             "/init"
+                 :handler         (partial new-worksheet-handler nname modules submodule)
+                 :method          :get
+                 :format          {:content-type "application/text" :write str}
+                 :response-format {:description  "ArrayBuffer"
+                                   :type         :arraybuffer
+                                   :content-type "application/msgpack"
+                                   :read         pr/-body}}))
+
 ;;; Public Fns
 
 (defn init! [{:keys [datoms schema]}]
   (if @conn
-   @conn
-   (do
-     (reset! conn (d/conn-from-datoms datoms schema))
-     (d/listen! @conn :sync-tx-data sync-tx-data)
-     (rp/connect! @conn)
-     (re/init! @conn)
-     #_(js/setInterval sync-latest-datoms! 5000)
-     @conn)))
+    @conn
+    (do
+      (reset! conn (d/conn-from-datoms datoms schema))
+      (d/listen! @conn :sync-tx-data sync-tx-data)
+      (rp/connect! @conn)
+      (re/init! @conn)
+      #_(js/setInterval sync-latest-datoms! 5000)
+      @conn)))
 
 ;;; Effects
 
@@ -149,11 +180,11 @@
 ;;; Events
 
 (rf/reg-event-fx
-  :ds/initialize
-  (fn [_ [_ schema datoms]]
-    {:ds/init {:datoms datoms :schema schema}}))
+ :ds/initialize
+ (fn [_ [_ schema datoms]]
+   {:ds/init {:datoms datoms :schema schema}}))
 
 (rp/reg-event-ds
-  :ds/transact
-  (fn [_ [_ tx-data]]
-    (first tx-data)))
+ :ds/transact
+ (fn [_ [_ tx-data]]
+   (first tx-data)))

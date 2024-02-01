@@ -4,7 +4,6 @@
             [behave.tool.views            :refer [tool tool-selector]]
             [behave.translate             :refer [<t bp]]
             [behave.worksheet.events]
-            [datascript.core              :refer [squuid]]
             [re-frame.core                :as rf]
             [reagent.core                 :as r]
             [dom-utils.interface          :refer [input-value]]
@@ -125,16 +124,7 @@
                           :back-label     @(<t (bp "back"))
                           :next-disabled? (empty? @*modules)
                           :on-back        #(.back js/history)
-                          :on-next        #(do
-                                             ;; Generate UUID
-                                             (let [ws-uuid (str (squuid))]
-
-                                               ;; Create the Worksheet
-                                               (rf/dispatch [:worksheet/new
-                                                             {:name @name :modules (vec @*modules) :uuid ws-uuid}])
-
-                                               ;; Look at modules that user has selected, find the first output submodule
-                                               (rf/dispatch [:navigate (str "/worksheets/" ws-uuid "/modules/" (->str (first @*modules)) "/output/" @*submodule)])))}]]]))
+                          :on-next        #(rf/dispatch [:wizard/new-worksheet @name @*modules @*submodule])}]]]))
 
 (defn guided-worksheet-page [_params]
   [:<>

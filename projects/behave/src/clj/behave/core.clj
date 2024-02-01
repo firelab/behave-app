@@ -17,6 +17,7 @@
             [file-utils.interface         :refer [os-path]]
             [transport.interface          :refer [->clj mime->type]]
             [behave-routing.main          :refer [routes]]
+            [behave.init                  :refer [init-handler]]
             [behave.open                  :refer [open-handler]]
             [behave.store                 :as store]
             [behave.sync                  :refer [sync-handler]]
@@ -93,6 +94,7 @@
 (defn routing-handler [{:keys [uri] :as request}]
   (let [next-handler (cond
                        (bad-uri? uri)                     (not-found "404 Not Found")
+                       (str/starts-with? uri "/init")     #'init-handler
                        (str/starts-with? uri "/vms-sync") #'vms-sync-handler
                        (str/starts-with? uri "/sync")     #'sync-handler
                        (str/starts-with? uri "/save")     #'save-handler

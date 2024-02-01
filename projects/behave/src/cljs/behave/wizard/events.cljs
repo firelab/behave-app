@@ -289,13 +289,26 @@
 (rf/reg-event-fx
  :wizard/navigate-to-latest-worksheet
  (fn [_]
-   (let [ws-uuid   @(rf/subscribe [:worksheet/latest])
+   (let [ws-uuid   (d/q '[:find ?uuid .
+                          :in $
+                          :where [?e :worksheet/uuid ?uuid]]
+                        @@s/conn)
          worksheet (d/entity @@s/conn [:worksheet/uuid ws-uuid])
          modules   (:worksheet/modules worksheet)
-         submodule @(rf/subscribe [:worksheet/first-output-submodule-slug (first modules)])]
-     {:fx [[:dispatch [:navigate (str "/worksheets/" ws-uuid "/modules/" (->str (first modules)) "/output/" submodule)]]]})))
+         submodule @(rf/subscribe [:worksheet/first-output-submodule-slug (first modules)])
+         path      (str "/worksheets/" ws-uuid "/modules/" (->str (first modules)) "/output/" submodule)]
+     {:fx [[:dispatch [:navigate path]]]})))
 
 (rf/reg-event-fx
  :wizard/open
  (fn [_ [_ file-path]]
    (s/open-worksheet! {:file-path file-path})))
+
+
+(rf/reg-event-fx
+ :wizard/new-worksheet
+ (fn [_ [_ nname modules submodule]]
+   (s/new-worksheet! nname modules submodule)))
+
+(comment
+  (rf/dispatch [:wizard/open "./projects/behave/resources/saved-run-65bbf9b4-27e3-4558-8151-5fe0a5c60e2a.sqlite"]))
