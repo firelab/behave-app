@@ -17,6 +17,7 @@
             [file-utils.interface         :refer [os-path]]
             [transport.interface          :refer [->clj mime->type]]
             [behave-routing.main          :refer [routes]]
+            [behave.open                  :refer [open-handler]]
             [behave.store                 :as store]
             [behave.sync                  :refer [sync-handler]]
             [behave.save                  :refer [save-handler]]
@@ -95,6 +96,7 @@
                        (str/starts-with? uri "/vms-sync") #'vms-sync-handler
                        (str/starts-with? uri "/sync")     #'sync-handler
                        (str/starts-with? uri "/save")     #'save-handler
+                       (str/starts-with? uri "/open")     #'open-handler
                        (str/starts-with? uri "/test")     #'render-tests-page
                        (str/starts-with? uri "/close")    #'close-handler
                        (match-route routes uri)           (render-page (match-route routes uri))

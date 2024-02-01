@@ -1,6 +1,7 @@
 (ns behave.components.toolbar
   (:require [behave.components.core :as c]
             [re-frame.core          :as rf]
+            [goog.string :as gstring]
             [behave.translate       :refer [<t bp]]))
 
 (def step-kw->number
@@ -126,7 +127,10 @@
                    :on-click on-click}
                   {:icon     :save
                    :label    (bp "save")
-                   :on-click on-click}
+                   :on-click #(when ws-uuid
+                                (rf/dispatch [:wizard/save
+                                              ws-uuid
+                                              (gstring/format "./projects/behave/resources/saved-run-%s.sqlite" ws-uuid)]))}
                   {:icon     :print
                    :label    (bp "print")
                    :on-click #(rf/dispatch [:toolbar/print ws-uuid])}

@@ -92,6 +92,43 @@
                                    :content-type "application/msgpack"
                                    :read pr/-body}}))
 
+(defn- save-worksheet-handler [[ok body]]
+  (when ok
+    (log-str body)))
+
+(defn save-worksheet! [{:keys [ws-uuid file-path]}]
+  (ajax-request {:uri             "/save"
+                 :params          {:ws-uuid   ws-uuid
+                                   :file-path file-path}
+                 :method          :post
+                 :handler         save-worksheet-handler
+                 :format          (edn-request-format)
+                 :response-format {:description  "EDN"
+                                   :format       :text
+                                   :type         :text
+                                   :content-type "application/edn"
+                                   :read         edn/read-string}}))
+
+(defn- open-worksheet-handler [[ok body]]
+  (when ok
+    (reset! conn nil)
+    (let [datoms (mapv #(apply d/datom %) (c/unpack body))]
+      (swap! sync-txs union (txs datoms))
+      (rf/dispatch-sync [:ds/initialize (->ds-schema all-schemas) datoms])
+      (rf/dispatch-sync [:state/set :sync-loaded? true])
+      (rf/dispatch-sync [:wizard/navigate-to-latest-worksheet]))))
+
+(defn open-worksheet! [{:keys [file-path]}]
+  (ajax-request {:uri             "/open"
+                 :params          {:file-path file-path}
+                 :method          :get
+                 :handler         open-worksheet-handler
+                 :format          (edn-request-format)
+                 :response-format {:description  "ArrayBuffer"
+                                   :type         :arraybuffer
+                                   :content-type "application/msgpack"
+                                   :read         pr/-body}}))
+
 ;;; Public Fns
 
 (defn init! [{:keys [datoms schema]}]
