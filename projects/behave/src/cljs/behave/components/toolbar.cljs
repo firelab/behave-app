@@ -120,7 +120,6 @@
                                                       steps)}]))
 
 (defn toolbar [{:keys [ws-uuid] :as params}]
-  (prn "ws-uuid" ws-uuid)
   (let [*loaded? (rf/subscribe [:app/loaded?])
         on-click #(js/console.log (str "Selected!" %))
         tools    [{:icon     :home
