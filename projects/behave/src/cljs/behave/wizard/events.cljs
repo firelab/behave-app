@@ -283,7 +283,6 @@
 (rf/reg-event-fx
  :wizard/save
  (fn [_ [_ ws-uuid file-name]]
-   (prn ":wizard/save file-name" file-name)
    (s/save-worksheet! {:ws-uuid   ws-uuid
                        :file-name file-name})))
 

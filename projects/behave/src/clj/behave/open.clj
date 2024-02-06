@@ -34,7 +34,6 @@
   (let [res-type (or (mime->type accept) :edn)]
     (when (= request-method :post)
       (let [file (upload-file! params)]
-        (prn "file-path:" (str file))
         (s/release-conn!)
         (s/default-conn all-schemas
                         {:store {:backend :file
