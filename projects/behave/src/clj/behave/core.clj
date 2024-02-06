@@ -11,6 +11,7 @@
             [ring.middleware.reload       :refer [wrap-reload]]
             [ring.util.codec              :refer [url-decode]]
             [ring.util.response           :refer [not-found]]
+            [ring.middleware.multipart-params   :refer [wrap-multipart-params]]
             [server.interface             :as server]
             [logging.interface            :refer [log-str] :as logging]
             [config.interface             :refer [get-config load-config]]
@@ -172,6 +173,7 @@
       wrap-req-content-type+accept
       (wrap-resource "public" {:allow-symlinks? true})
       (wrap-content-type {:mime-types {"wasm" "application/wasm"}})
+      wrap-multipart-params
       wrap-exceptions
       (optional-middleware #(wrap-reload % {:dirs (reloadable-clj-files)}) reload?)))
 

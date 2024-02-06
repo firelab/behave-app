@@ -59,7 +59,8 @@
  :ws/worksheet-selected
  (fn [{db :db} [_ files]]
    (let [file (first (array-seq files))]
-     {:db                  (assoc-in db [:state :worksheet :file] (.-name file))
+     {:db                  (assoc-in db [:state :worksheet :file] {:name (.-name file)
+                                                                   :obj  file})
       :ws/import-worksheet (import-worksheet file)})))
 
 (rf/reg-event-fx

@@ -13,7 +13,8 @@
             [ds-schema-utils.interface :refer [->ds-schema]]
             [datom-utils.interface :refer [split-datom]]
             [behave.schema.core :refer [all-schemas]]
-            [austinbirch.reactive-entity :as re]))
+            [austinbirch.reactive-entity :as re]
+            [browser-utils.core :refer [download]]))
 
 ;;; State
 
@@ -93,43 +94,43 @@
                                    :content-type "application/msgpack"
                                    :read         pr/-body}}))
 
-(defn- save-worksheet-handler [[ok body]]
+(defn- save-worksheet-handler [file-name [ok body]]
   (when ok
-    (prn body) ;TODO dispatch event to show a success message
-    ))
+    (download body file-name "application/x-sqlite3")))
 
-(defn save-worksheet! [{:keys [ws-uuid file-path]}]
+(defn save-worksheet! [{:keys [ws-uuid file-name]}]
   (ajax-request {:uri             "/save"
                  :params          {:ws-uuid   ws-uuid
-                                   :file-path file-path}
+                                   :file-name file-name}
                  :method          :post
-                 :handler         save-worksheet-handler
+                 :handler         (partial save-worksheet-handler file-name)
                  :format          (edn-request-format)
-                 :response-format {:description  "EDN"
-                                   :format       :text
-                                   :type         :text
-                                   :content-type "application/edn"
-                                   :read         edn/read-string}}))
+                 :response-format {:description  "ArrayBuffer"
+                                   :type         :arraybuffer
+                                   :content-type "application/x-sqlite3"
+                                   :read         pr/-body}}))
 
 (defn- open-worksheet-handler [[ok body]]
   (when ok
     (reset! conn nil)
     (let [datoms (mapv #(apply d/datom %) (c/unpack body))]
-      (swap! sync-txs union (txs datoms))
+      ;; (reset! sync-txs #{})
+      ;; (reset! my-txs #{})
       (rf/dispatch-sync [:ds/initialize (->ds-schema all-schemas) datoms])
       (rf/dispatch-sync [:state/set :sync-loaded? true])
       (rf/dispatch-sync [:wizard/navigate-to-latest-worksheet]))))
 
-(defn open-worksheet! [{:keys [file-path]}]
-  (ajax-request {:uri             "/open"
-                 :params          {:file-path file-path}
-                 :method          :get
-                 :handler         open-worksheet-handler
-                 :format          (edn-request-format)
-                 :response-format {:description  "ArrayBuffer"
-                                   :type         :arraybuffer
-                                   :content-type "application/msgpack"
-                                   :read         pr/-body}}))
+(defn open-worksheet! [{:keys [file]}]
+  (let [form-data (js/FormData.)]
+    (.append form-data "file" file)
+    (ajax-request {:uri             "/open"
+                   :body            form-data
+                   :method          :post
+                   :handler         open-worksheet-handler
+                   :response-format {:description  "ArrayBuffer"
+                                     :type         :arraybuffer
+                                     :content-type "application/msgpack"
+                                     :read         pr/-body}})))
 
 (defn new-worksheet-handler [nname modules submodule [ok body]]
   (when ok

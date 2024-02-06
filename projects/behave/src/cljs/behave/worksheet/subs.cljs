@@ -62,6 +62,17 @@
  (fn [_ [_ ws-uuid]]
    (d/entity @@s/conn [:worksheet/uuid ws-uuid])))
 
+(rp/reg-sub
+ :worksheet/name
+ (fn [_ [_ ws-uuid]]
+   {:type      :query
+    :query     '[:find  ?name .
+                 :in    $ ?ws-uuid
+                 :where
+                 [?w :worksheet/uuid ?ws-uuid]
+                 [?w :worksheet/name ?name]]
+    :variables [ws-uuid]}))
+
 (rf/reg-sub
  :worksheet/modules
  (fn [[_ ws-uuid]]

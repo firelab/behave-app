@@ -120,29 +120,31 @@
                                                       steps)}]))
 
 (defn toolbar [{:keys [ws-uuid] :as params}]
-  (let [*loaded? (rf/subscribe [:app/loaded?])
-        on-click #(js/console.log (str "Selected!" %))
-        tools    [{:icon     :home
-                   :label    (bp "home")
-                   :on-click on-click}
-                  {:icon     :save
-                   :label    (bp "save")
-                   :on-click #(when ws-uuid
-                                (rf/dispatch [:wizard/save
-                                              ws-uuid
-                                              (gstring/format "./projects/behave/resources/db-%s.sqlite" ws-uuid)]))}
-                  {:icon     :print
-                   :label    (bp "print")
-                   :on-click #(rf/dispatch [:toolbar/print ws-uuid])}
-                  {:icon     :share
-                   :label    (bp "share")
-                   :on-click #(rf/dispatch [:dev/export-from-vms])}
-                  {:icon     :zoom-in
-                   :label    (bp "zoom-in")
-                   :on-click on-click}
-                  {:icon     :zoom-out
-                   :label    (bp "zoom-out")
-                   :on-click on-click}]]
+  (let [*loaded?        (rf/subscribe [:app/loaded?])
+        on-click        #(js/console.log (str "Selected!" %))
+        *worksheet-name (rf/subscribe [:worksheet/name ws-uuid])
+        tools           [{:icon     :home
+                          :label    (bp "home")
+                          :on-click on-click}
+                         {:icon     :save
+                          :label    (bp "save")
+                          :on-click #(when ws-uuid
+                                       (rf/dispatch [:wizard/save
+                                                     ws-uuid
+                                                     (gstring/format "behave7-%s.sqlite"
+                                                                     (or @*worksheet-name ws-uuid))]))}
+                         {:icon     :print
+                          :label    (bp "print")
+                          :on-click #(rf/dispatch [:toolbar/print ws-uuid])}
+                         {:icon     :share
+                          :label    (bp "share")
+                          :on-click #(rf/dispatch [:dev/export-from-vms])}
+                         {:icon     :zoom-in
+                          :label    (bp "zoom-in")
+                          :on-click on-click}
+                         {:icon     :zoom-out
+                          :label    (bp "zoom-out")
+                          :on-click on-click}]]
     [:div.toolbar
      [:div.toolbar__tools
       (for [tool tools]

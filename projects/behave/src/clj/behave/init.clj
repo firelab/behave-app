@@ -6,7 +6,8 @@
             [clojure.java.io              :as io]
             [file-utils.interface         :refer [os-path]]
             [transport.interface :refer [clj-> mime->type]]
-            [logging.interface  :refer [log-str]])
+            [logging.interface  :refer [log-str]]
+            [behave.open :refer [current-worksheet-atom]])
   (:import  [java.io ByteArrayInputStream]))
 
 (defn init! []
@@ -23,6 +24,7 @@
   (let [res-type (or (mime->type accept) :edn)]
     (when (= request-method :get)
       (s/release-conn!)
+      (reset! current-worksheet-atom nil)
       (init!)
       (let [datoms (s/export-datoms @s/conn)]
         {:status  200

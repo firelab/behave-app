@@ -282,9 +282,10 @@
 
 (rf/reg-event-fx
  :wizard/save
- (fn [_ [_ ws-uuid file-path]]
+ (fn [_ [_ ws-uuid file-name]]
+   (prn ":wizard/save file-name" file-name)
    (s/save-worksheet! {:ws-uuid   ws-uuid
-                       :file-path file-path})))
+                       :file-name file-name})))
 
 (rf/reg-event-fx
  :wizard/navigate-to-latest-worksheet
@@ -301,14 +302,11 @@
 
 (rf/reg-event-fx
  :wizard/open
- (fn [_ [_ file-path]]
-   (s/open-worksheet! {:file-path file-path})))
+ (fn [_ [_ file]]
+   (s/open-worksheet! {:file file})))
 
 
 (rf/reg-event-fx
  :wizard/new-worksheet
  (fn [_ [_ nname modules submodule]]
    (s/new-worksheet! nname modules submodule)))
-
-(comment
-  (rf/dispatch [:wizard/open "./projects/behave/resources/saved-run-65bbf9b4-27e3-4558-8151-5fe0a5c60e2a.sqlite"]))

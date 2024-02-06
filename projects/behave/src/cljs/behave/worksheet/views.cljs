@@ -133,8 +133,10 @@
      [:h3 "TODO: FLESH OUT GUIDED WORKSHEET"]]]])
 
 (defn import-worksheet-page [_params]
-  (let [file-name (r/track #(or @(rf/subscribe [:state [:worksheet :file]])
-                                @(<t (bp "select_a_file"))))]
+  (let [file-name (r/track #(or @(rf/subscribe [:state [:worksheet :file :name]])
+                                @(<t (bp "select_a_file"))))
+        file      (r/track #(or @(rf/subscribe [:state [:worksheet :file :obj]])
+                                nil))]
     [:<>
      [:div.workflow-select
       [:div.workflow-select__header
@@ -142,16 +144,14 @@
        [:p @(<t (bp "please_select_from_the_following_options"))]]
       [:div.workflow-select__content
        [c/browse-input {:button-label @(<t (bp "browse"))
-                        :accept       ".bpr,bpw,.bp6,.bp7"
+                        :accept       ".bpr,bpw,.bp6,.bp7,.sqlite"
                         :label        @file-name
                         :on-change    #(rf/dispatch [:ws/worksheet-selected (.. % -target -files)])}]
        [wizard-navigation {:next-label @(<t (bp "next"))
                            :back-label @(<t (bp "back"))
                            :on-back    #(.back js/history)
                            ;;TODO Get full file path from file
-                           :on-next    #(rf/dispatch [:wizard/open
-                                                      (str "./projects/behave/resources/"
-                                                           @file-name)])}]]]]))
+                           :on-next    #(rf/dispatch [:wizard/open @file])}]]]]))
 
 ;; TODO use title
 (defn new-worksheet-page [params]
