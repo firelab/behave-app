@@ -1,8 +1,8 @@
 (ns behave.components.toolbar
   (:require [behave.components.core :as c]
-            [re-frame.core          :as rf]
-            [goog.string :as gstring]
-            [behave.translate       :refer [<t bp]]))
+            [behave.translate       :refer [<t bp]]
+            [goog.string            :as gstring]
+            [re-frame.core          :as rf]))
 
 (def step-kw->number
   {:work-style      1
@@ -120,31 +120,32 @@
                                                       steps)}]))
 
 (defn toolbar [{:keys [ws-uuid] :as params}]
-  (let [*loaded?       (rf/subscribe [:app/loaded?])
-        on-click       #(js/console.log (str "Selected!" %))
-        worksheet-name (when ws-uuid @(rf/subscribe [:worksheet/name ws-uuid]))
-        tools          [{:icon     :home
-                         :label    (bp "home")
-                         :on-click on-click}
-                        {:icon     :save
-                         :label    (bp "save")
-                         :on-click #(when ws-uuid
-                                      (rf/dispatch [:wizard/save
-                                                    ws-uuid
-                                                    (gstring/format "behave7-%s.sqlite"
-                                                                    (or worksheet-name ws-uuid))]))}
-                        {:icon     :print
-                         :label    (bp "print")
-                         :on-click #(rf/dispatch [:toolbar/print ws-uuid])}
-                        {:icon     :share
-                         :label    (bp "share")
-                         :on-click #(rf/dispatch [:dev/export-from-vms])}
-                        {:icon     :zoom-in
-                         :label    (bp "zoom-in")
-                         :on-click on-click}
-                        {:icon     :zoom-out
-                         :label    (bp "zoom-out")
-                         :on-click on-click}]]
+  (prn "ws-uuid" ws-uuid)
+  (let [*loaded? (rf/subscribe [:app/loaded?])
+        on-click #(js/console.log (str "Selected!" %))
+        tools    [{:icon     :home
+                   :label    (bp "home")
+                   :on-click on-click}
+                  {:icon     :save
+                   :label    (bp "save")
+                   :on-click #(when ws-uuid
+                                (let [worksheet-name @(rf/subscribe [:worksheet/name ws-uuid])]
+                                  (rf/dispatch [:wizard/save
+                                                ws-uuid
+                                                (gstring/format "behave7-%s.sqlite"
+                                                                (or worksheet-name ws-uuid))])))}
+                  {:icon     :print
+                   :label    (bp "print")
+                   :on-click #(rf/dispatch [:toolbar/print ws-uuid])}
+                  {:icon     :share
+                   :label    (bp "share")
+                   :on-click #(rf/dispatch [:dev/export-from-vms])}
+                  {:icon     :zoom-in
+                   :label    (bp "zoom-in")
+                   :on-click on-click}
+                  {:icon     :zoom-out
+                   :label    (bp "zoom-out")
+                   :on-click on-click}]]
     [:div.toolbar
      [:div.toolbar__tools
       (for [tool tools]

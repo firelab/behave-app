@@ -1,20 +1,20 @@
 (ns behave.store
-  (:require [clojure.set :refer [union]]
-            [clojure.edn :as edn]
-            [ajax.core :refer [ajax-request]]
-            [ajax.edn  :refer [edn-request-format]]
-            [ajax.protocols :as pr]
-            [datascript.core :as d]
-            [re-frame.core :as rf]
-            [re-posh.core :as rp]
-            [browser-utils.interface :refer [debounce]]
-            [datom-compressor.interface :as c]
-            [string-utils.interface       :refer [->str]]
-            [ds-schema-utils.interface :refer [->ds-schema]]
-            [datom-utils.interface :refer [split-datom]]
-            [behave.schema.core :refer [all-schemas]]
+  (:require [ajax.core                   :refer [ajax-request]]
+            [ajax.edn                     :refer [edn-request-format]]
+            [ajax.protocols              :as pr]
             [austinbirch.reactive-entity :as re]
-            [browser-utils.core :refer [download]]))
+            [behave.schema.core          :refer [all-schemas]]
+            [browser-utils.core          :refer [download]]
+            [browser-utils.interface     :refer [debounce]]
+            [clojure.edn                 :as edn]
+            [clojure.set                 :refer [union]]
+            [datascript.core             :as d]
+            [datom-compressor.interface  :as c]
+            [datom-utils.interface       :refer [split-datom]]
+            [ds-schema-utils.interface   :refer [->ds-schema]]
+            [re-frame.core               :as rf]
+            [re-posh.core                :as rp]
+            [string-utils.interface      :refer [->str]]))
 
 ;;; State
 
@@ -113,9 +113,9 @@
 (defn- open-worksheet-handler [[ok body]]
   (when ok
     (reset! conn nil)
+    (reset! sync-txs #{})
+    (reset! my-txs #{})
     (let [datoms (mapv #(apply d/datom %) (c/unpack body))]
-      (reset! sync-txs #{})
-      (reset! my-txs #{})
       (rf/dispatch-sync [:ds/initialize (->ds-schema all-schemas) datoms])
       (rf/dispatch-sync [:state/set :sync-loaded? true])
       (rf/dispatch-sync [:wizard/navigate-to-latest-worksheet]))))
@@ -135,10 +135,10 @@
 (defn new-worksheet-handler [nname modules submodule [ok body]]
   (when ok
     (reset! conn nil)
+    (reset! sync-txs #{})
+    (reset! my-txs #{})
     (let [datoms  (mapv #(apply d/datom %) (c/unpack body))
           ws-uuid (str (d/squuid))]
-      (reset! sync-txs #{})
-      (reset! my-txs #{})
       (rf/dispatch-sync [:ds/initialize (->ds-schema all-schemas) datoms])
       (rf/dispatch-sync [:state/set :sync-loaded? true])
       (rf/dispatch-sync [:worksheet/new {:name    nname

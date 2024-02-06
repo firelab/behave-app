@@ -1,7 +1,7 @@
 (ns behave.wizard.events
-  (:require [behave.solver.core            :refer [solve-worksheet]]
+  (:require [behave-routing.main           :refer [routes]]
+            [behave.solver.core            :refer [solve-worksheet]]
             [behave.store                  :as s]
-            [behave-routing.main           :refer [routes]]
             [bidi.bidi                     :refer [path-for]]
             [clojure.string                :as str]
             [clojure.walk                  :refer [postwalk]]
@@ -95,7 +95,8 @@
 (rf/reg-event-fx
  :wizard/before-solve
  (fn [_ [_ {:keys [ws-uuid]}]]
-   {:fx [[:dispatch [:worksheet/delete-existing-diagrams ws-uuid]]]}))
+   {:fx [[:dispatch [:worksheet/delete-existing-diagrams ws-uuid]
+          :dispatch [:worksheet/delete-existing-result-table ws-uuid]]]}))
 
 (rf/reg-event-fx
  :wizard/during-solve

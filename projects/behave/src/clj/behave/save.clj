@@ -1,18 +1,18 @@
 (ns behave.save
-  (:require [datom-store.main :as s]
-            [transport.interface :refer [clj->]]
-            [behave.schema.core :refer [all-schemas]]
-            [logging.interface  :refer [log-str]]
-            [clojure.walk :refer [prewalk]]
+  (:require [behave.open                 :refer [current-worksheet-atom]]
+            [behave.schema.core          :refer [all-schemas]]
+            [clojure.java.io             :as io]
+            [clojure.walk                :refer [prewalk]]
             [datascript.core             :as d]
-            [me.raynes.fs                :as fs]
-            [ds-schema-utils.interface   :refer [->ds-schema]]
             [datascript.storage.sql.core :as storage-sql]
-            [clojure.java.io :as io]
-            [behave.open :refer [current-worksheet-atom]])
-  (:import [java.sql DriverManager]))
+            [datom-store.main            :as s]
+            [ds-schema-utils.interface   :refer [->ds-schema]]
+            [logging.interface           :refer [log-str]]
+            [me.raynes.fs                :as fs]
+            [transport.interface         :refer [clj->]])
+  (:import (java.sql DriverManager)))
 
-(defn download-file [filename]
+(defn- download-file [filename]
   (let [file (io/file filename)]
     (if (.exists file)
       (do (log-str "Download of " filename " has started.")
@@ -22,7 +22,7 @@
            :body    file})
       (log-str filename " not found"))))
 
-(defn- clean-entity
+(defn- datascript-entity->clj-map
   [entity]
   (prewalk
    (fn [x]
@@ -32,7 +32,10 @@
        :else                                       x))
    entity))
 
-(defn save-handler [{:keys [request-method params accept] :as req}]
+(defn save-handler
+  "Checks if the current worksheet was opened, if so download the worksheet, otherwise generate a
+  new sqlite db file with all the datoms related to the worksheet uuid given and download it."
+  [{:keys [request-method params accept] :as req}]
   (log-str "Request Received:" (select-keys req [:uri :request-method :params]))
   (if @current-worksheet-atom
     (download-file @current-worksheet-atom)
@@ -43,7 +46,7 @@
           conn              (d/create-conn (->ds-schema all-schemas) {:storage storage})]
       (when (= request-method :post)
         (let [worksheet (->> (d/touch (d/entity @@s/conn [:worksheet/uuid ws-uuid]))
-                             clean-entity)]
+                             datascript-entity->clj-map)]
           (if (seq worksheet)
             (do
               (try

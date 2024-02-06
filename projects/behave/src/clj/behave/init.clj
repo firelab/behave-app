@@ -1,14 +1,14 @@
 (ns behave.init
-  (:require [datom-compressor.interface :as c]
-            [datom-store.main :as s]
-            [config.interface             :refer [get-config load-config]]
-            [behave.store                 :as store]
-            [clojure.java.io              :as io]
-            [file-utils.interface         :refer [os-path]]
-            [transport.interface :refer [clj-> mime->type]]
-            [logging.interface  :refer [log-str]]
-            [behave.open :refer [current-worksheet-atom]])
-  (:import  [java.io ByteArrayInputStream]))
+  (:require [behave.open                :refer [current-worksheet-atom]]
+            [behave.store               :as store]
+            [clojure.java.io            :as io]
+            [config.interface           :refer [get-config load-config]]
+            [datom-compressor.interface :as c]
+            [datom-store.main           :as s]
+            [file-utils.interface       :refer [os-path]]
+            [logging.interface          :refer [log-str]]
+            [transport.interface        :refer [clj-> mime->type]])
+  (:import (java.io ByteArrayInputStream)))
 
 (defn init! []
   (load-config (io/resource "config.edn"))

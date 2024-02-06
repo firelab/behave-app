@@ -6,7 +6,6 @@
 ;;; Results Table Helpers
 
 (defn- add-table [ws-uuid]
-  (rf/dispatch [:worksheet/delete-existing-result-table ws-uuid])
   (rf/dispatch [:worksheet/add-result-table ws-uuid]))
 
 (defn- add-row [ws-uuid row-id]
