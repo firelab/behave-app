@@ -114,8 +114,6 @@
   (when ok
     (reset! conn nil)
     (let [datoms (mapv #(apply d/datom %) (c/unpack body))]
-      ;; (reset! sync-txs #{})
-      ;; (reset! my-txs #{})
       (rf/dispatch-sync [:ds/initialize (->ds-schema all-schemas) datoms])
       (rf/dispatch-sync [:state/set :sync-loaded? true])
       (rf/dispatch-sync [:wizard/navigate-to-latest-worksheet]))))
