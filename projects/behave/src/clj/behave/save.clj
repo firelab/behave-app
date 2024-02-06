@@ -54,19 +54,8 @@
               (storage-sql/close storage)
               (download-file db-file))
             (do
-              ;; worksheet is empty
+              ;; Clean up if worksheet is empty
               (io/delete-file db-file)
               {:status  400
                :body    (clj-> {:success false} :edn)
                :headers {"Content-Type" accept}})))))))
-
-;; Scenarios
-;; 1. Saving an already opened worksheet
-;;    -Yes
-;;      1. Initiate download db of current-worksheet-atom
-;;    -No
-;;      1. Create new db file
-;;      2. Connect to new db
-;;      3. Lookup worksheet datoms
-;;      4. Transact to db
-;;      5. Initiate download db
