@@ -58,6 +58,11 @@
     :db/valueType   :db.type/boolean
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident       :group-variable/discrete-multiple?
+    :db/doc         "Whether a Group Variable is a multi discrete variable."
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
+
    {:db/ident       :group-variable/order
     :db/doc         "Group variable's order."
     :db/valueType   :db.type/long
