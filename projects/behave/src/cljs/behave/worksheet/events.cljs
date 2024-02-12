@@ -133,6 +133,7 @@
                        input-id
                        (conj {:db/id       input-id
                               :input/value (as-> (str/split input-value ",") $
+                                             (remove empty? $)
                                              (set $)
                                              (conj $ value)
                                              (str/join "," $))})
@@ -158,6 +159,7 @@
                        input-id
                        (conj {:db/id       input-id
                               :input/value (as-> (str/split input-value ",") $
+                                             (remove empty? $)
                                              (set $)
                                              (disj $ value)
                                              (str/join "," $))}))]
