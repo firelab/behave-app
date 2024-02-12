@@ -81,19 +81,10 @@
       {:fx [[:dispatch [:navigate path]]]})))
 
 (rf/reg-event-fx
- :wizard/solve
- (fn [{db :db} [_ {:keys [ws-uuid]}]]
-   (let [worksheet (solve-worksheet ws-uuid)
-         path      (path-for routes :ws/results-settings :ws-uuid ws-uuid :results-page :settings)]
-     {:fx [[:dispatch [:navigate path]]
-           [:dispatch [:worksheet/update-all-table-filters-from-results ws-uuid]]
-           [:dispatch [:worksheet/update-all-y-axis-limits-from-results ws-uuid]]]
-      :db (assoc-in db [:state :worksheet] worksheet)})))
-
-(rf/reg-event-fx
  :wizard/before-solve
  (fn [_ [_ {:keys [ws-uuid]}]]
-   {:fx [[:dispatch [:worksheet/delete-existing-diagrams ws-uuid]]]}))
+   {:fx [[:dispatch [:worksheet/delete-existing-diagrams ws-uuid]]
+         [:dispatch [:worksheet/delete-existing-result-table ws-uuid]]]}))
 
 (rf/reg-event-fx
  :wizard/during-solve
