@@ -7,7 +7,8 @@
             [behave.logger             :refer [log]]
             [behave.solver.core        :refer [solve-worksheet]]
             [vimsical.re-frame.cofx.inject :as inject]
-            [number-utils.core :refer [to-precision]]))
+            [number-utils.core :refer [to-precision]]
+            [clojure.string :as str]))
 
 ;;; Helpers
 
@@ -35,6 +36,18 @@
          [?ig :input-group/inputs ?i]
          [?i :input/group-variable-uuid ?uuid]]
        conn group-id group-variable-uuid))
+
+(defn ^:private q-input-value [conn ws-uuid group-uuid repeat-id]
+  (d/q '[:find  ?value .
+         :in    $ ?ws-uuid ?group-uuid ?repeat-id
+         :where
+         [?ws :worksheet/uuid ?ws-uuid]
+         [?ws :worksheet/input-groups ?ig]
+         [?ig :input-group/group-uuid ?group-uuid]
+         [?ig :input-group/repeat-id  ?repeat-id]
+         [?ig :input-group/inputs ?i]
+         [?i :input/value ?value]]
+       conn ws-uuid group-uuid repeat-id))
 
 (defn ^:private q-input-unit [conn group-id group-variable-uuid]
   (d/q '[:find  ?units .
@@ -106,6 +119,48 @@
                             :input-group/_inputs       group-id
                             :input/group-variable-uuid group-variable-uuid
                             :input/value               value}))]
+     {:transact payload})))
+
+(rp/reg-event-fx
+ :worksheet/upsert-multi-select-input
+ [(rp/inject-cofx :ds)]
+ (fn [
+      {:keys [ds]} [_ ws-uuid group-uuid repeat-id group-variable-uuid value]]
+   (let [group-id    (or (q-input-group ds ws-uuid group-uuid repeat-id) -1)
+         input-id    (q-input-variable ds group-id group-variable-uuid)
+         input-value (q-input-value ds ws-uuid group-uuid repeat-id)
+         payload     (cond-> []
+                       input-id
+                       (conj {:db/id       input-id
+                              :input/value (as-> (str/split input-value ",") $
+                                             (set $)
+                                             (conj $ value)
+                                             (str/join "," $))})
+
+                       (neg? group-id)
+                       (conj (add-input-group-tx ws-uuid group-uuid repeat-id))
+
+                       (nil? input-id)
+                       (conj {:db/id                     -2
+                              :input-group/_inputs       group-id
+                              :input/group-variable-uuid group-variable-uuid
+                              :input/value               (str value)}))]
+     {:transact payload})))
+
+(rp/reg-event-fx
+ :worksheet/remove-multi-select-input
+ [(rp/inject-cofx :ds)]
+ (fn [{:keys [ds]} [_ ws-uuid group-uuid repeat-id group-variable-uuid value]]
+   (let [group-id    (or (q-input-group ds ws-uuid group-uuid repeat-id) -1)
+         input-id    (q-input-variable ds group-id group-variable-uuid)
+         input-value (q-input-value ds ws-uuid group-uuid repeat-id)
+         payload     (cond-> []
+                       input-id
+                       (conj {:db/id       input-id
+                              :input/value (as-> (str/split input-value ",") $
+                                             (set $)
+                                             (disj $ value)
+                                             (str/join "," $))}))]
      {:transact payload})))
 
 (rp/reg-event-fx

@@ -4,7 +4,8 @@
             [behave.translate       :refer [<t]]
             [clojure.string         :as str]
             [goog.string            :as gstring]
-            [re-frame.core          :refer [subscribe]]))
+            [re-frame.core          :refer [subscribe]]
+            [re-frame.core :as rf]))
 
 (defn- indent-name [level s]
   (str (apply str (repeat level "    ")) s))
@@ -49,9 +50,13 @@
                                      (when (seq value)
                                        [{:input  (indent-name level (:group/name current-group)) ;Use group name instead of var name to match what is in the inputs UI
                                          :units  units
-                                         :values (cond-> value
-                                                   (not (csv? value))
-                                                   fmt-fn)}]))
+                                         :values (if (:group-variable/discrete-multiple? fvar)
+                                                   (->> (str/split value ",")
+                                                        (map fmt-fn)
+                                                        (str/join ","))
+                                                   (cond-> value
+                                                     (not (csv? value))
+                                                     fmt-fn))}]))
                                    multi-var?
                                    (into [{:input (indent-name level (:group/name current-group))}]
                                          (let [repeat-ids @(subscribe [:worksheet/group-repeat-ids ws-uuid (:bp/uuid current-group)])]
@@ -80,10 +85,13 @@
                                                                                            (:variable/metric-unit-uuid variable)])]
                                                                {:input  (indent-name (+ level 2) (:variable/name variable))
                                                                 :units  @*units-used
-                                                                :values (cond-> value
-                                                                          (and (not (string? value))
-                                                                               (not (csv? value)))
-                                                                          fmt-fn)}))))
+                                                                :values (if (:group-variable/discrete-multiple? variable)
+                                                                          (->> (str/split value "")
+                                                                               (map fmt-fn)
+                                                                               (str/join ","))
+                                                                          (cond-> value
+                                                                            (not (csv? value))
+                                                                            fmt-fn))}))))
                                                    repeat-ids)))
                                    :else
                                    [])

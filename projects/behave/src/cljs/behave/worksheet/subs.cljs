@@ -466,43 +466,44 @@
 
 ;; Results Table formatters
 
-(defn ^:private create-formatter [variable]
-  (condp = (:variable/kind variable)
+(defn ^:private create-formatter [variable multi-discrete?]
+  (let [v-kind (:variable/kind variable)]
+    (cond
+      (= v-kind :continuous)
+      (let [domain-uuid        (:variable/domain-uuid variable)
+            domain             @(rf/subscribe [:vms/entity-from-uuid domain-uuid])
+            *cached-decimals   (rf/subscribe [:settings/cached-decimal domain-uuid])
+            significant-digits (or @*cached-decimals (:domain/decimals domain))]
+        (fn continuous-fmt [value]
+          (-> value
+              (parse-float)
+              (to-precision significant-digits))))
 
-    :continuous
-    (let [domain-uuid        (:variable/domain-uuid variable)
-          domain             @(rf/subscribe [:vms/entity-from-uuid domain-uuid])
-          *cached-decimals   (rf/subscribe [:settings/cached-decimal domain-uuid])
-          significant-digits (or @*cached-decimals (:domain/decimals domain))]
-      (fn continuous-fmt [value]
-        (-> value
-            (parse-float)
-            (to-precision significant-digits))))
+      (or (= v-kind :discrete) multi-discrete?)
+      (let [{llist :variable/list}  (d/pull @@vms-conn '[{:variable/list [* {:list/options [*]}]}] (:db/id variable))
+            {options :list/options} llist
+            options                 (index-by :list-option/value options)]
+        (fn discrete-fmt [value]
+          (if-let [option (get options value)]
+            (:list-option/name option)
+            value)))
 
-    :discrete
-    (let [{list :variable/list}   (d/pull @@vms-conn '[{:variable/list [* {:list/options [*]}]}] (:db/id variable))
-          {options :list/options} list
-          options                 (index-by :list-option/value options)]
-      (fn discrete-fmt [value]
-        (if-let [option (get options value)]
-          (:list-option/name option)
-          value)))
-
-    :text
-    identity))
+      (= v-kind :text)
+      identity)))
 
 (rf/reg-sub
  :worksheet/result-table-formatters
  (fn [_ [_ gv-uuids]]
-   (let [results (d/q '[:find ?gv-uuid (pull ?v [*])
+   (let [results (d/q '[:find ?gv-uuid (pull ?v [*]) ?multi-discrete
                         :in $ % [?gv-uuid ...]
                         :where
                         (lookup ?gv-uuid ?gv)
+                        [(get-else $ ?gv :group-variable/discrete-multiple? false) ?multi-discrete]
                         (group-variable _ ?gv ?v)]
                       @@vms-conn rules gv-uuids)]
      (into {} (map
-               (fn [[gv-uuid variable]]
-                   [gv-uuid (create-formatter variable)])
+               (fn [[gv-uuid variable multi-discrete?]]
+                 [gv-uuid (create-formatter variable multi-discrete?)])
                results)))))
 
 (rp/reg-sub

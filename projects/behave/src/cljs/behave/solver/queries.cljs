@@ -52,9 +52,9 @@
 (defn parsed-value [group-variable-uuid value]
   (let [kind (variable-kind group-variable-uuid)]
     (condp = kind
-      :discrete   (if (is-digit? value) (parse-int value) value)
-      :continuous (parse-float value)
-      :text       value)))
+      :discrete       (if (is-digit? value) (parse-int value) value)
+      :continuous     (parse-float value)
+      :text           value)))
 
 (defn fn-params [function-id]
   (->> (q-vms '[:find ?p ?p-name ?p-type ?p-order
