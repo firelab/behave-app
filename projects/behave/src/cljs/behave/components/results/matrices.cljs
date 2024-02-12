@@ -12,6 +12,11 @@
                                        table-setting-filters))]
     (and enabled? mmin mmax (not (<= mmin value mmax)))))
 
+(defn- header-label  [label units]
+  (if (seq units)
+    (gstring/format "%s (%s)" label units)
+    (gstring/format "%s" label)))
+
 (defmulti construct-result-matrices
   (fn [{:keys [multi-valued-inputs]}]
     (let [multi-valued-inputs-count (count multi-valued-inputs)]
@@ -89,9 +94,7 @@
                                                                              output-name    :variable/name
                                                                              output-units   :units}]
                                             (cond-> acc
-                                              :always (conj {:name (gstring/format "%s (%s)"
-                                                                                   output-name
-                                                                                   output-units)
+                                              :always (conj {:name (header-label output-name output-units)
                                                              :key  output-gv-uuid})
 
                                               (process-map-units? output-gv-uuid)
@@ -117,7 +120,7 @@
                             matrix-data-formatted)]
     [:div.print__result-table
      (c/matrix-table {:title          @(<t (bp "results"))
-                      :rows-label     (gstring/format "%s (%s)" multi-var-name multi-var-units)
+                      :rows-label     (header-label multi-var-name multi-var-units)
                       :cols-label     @(<t (bp "outputs"))
                       :column-headers column-headers
                       :row-headers    row-headers
@@ -158,9 +161,9 @@
              column-headers        (map (fn [value] {:name (col-fmt-fn value) :key (col-fmt-fn value)}) col-values)]
          [:<>
           [:div.print__result-table
-           (c/matrix-table {:title          (gstring/format "%s (%s)" output-name output-units)
-                            :rows-label     (gstring/format "%s (%s)" row-name row-units)
-                            :cols-label     (gstring/format "%s (%s)" col-name col-units)
+           (c/matrix-table {:title          (header-label output-name output-units)
+                            :rows-label     (header-label row-name row-units)
+                            :cols-label     (header-label col-name col-units)
                             :row-headers    row-headers
                             :column-headers column-headers
                             :data           matrix-data-formatted})]
@@ -173,8 +176,8 @@
                                    matrix-data-formatted
                                    matrix-data-formatted)]
                (c/matrix-table {:title          (gstring/format @(<t (bp "s_map_units_(s)")) output-name map-units)
-                                :rows-label     (gstring/format "%s (%s)" row-name row-units)
-                                :cols-label     (gstring/format "%s (%s)" col-name col-units)
+                                :rows-label     (header-label row-name row-units)
+                                :cols-label     (header-label col-name col-units)
                                 :row-headers    row-headers
                                 :column-headers column-headers
                                 :data           data}))])]))]))
