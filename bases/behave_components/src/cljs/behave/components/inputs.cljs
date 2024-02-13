@@ -108,10 +108,11 @@
      [radio-input (cond-> option
                     disabled? (assoc :disabled? true))])]])
 
-(defn option [{:keys [label value selected?]}]
+(defn option [{:keys [label value selected? disabled?]}]
   [:option
    {:key      value
     :class    "input-dropdown__option"
+    :disabled disabled?
     :selected selected?
     :value    value} label])
 

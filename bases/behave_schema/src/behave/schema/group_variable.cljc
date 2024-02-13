@@ -73,7 +73,12 @@
     :db/doc         "Group variable's help key."
     :db/valueType   :db.type/string
     :db/unique      :db.unique/identity
-    :db/cardinality :db.cardinality/one}])
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :group-variable/actions
+    :db/doc         "Group variable's actions."
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many}])
 
 ;;; Tests
 

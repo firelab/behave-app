@@ -3,6 +3,7 @@
             [datascript.core    :as d]
             [behave-cms.store   :refer [conn]]
             [behave-cms.queries :refer [rules]]
+            [behave.schema.rules :refer [all-rules]]
             [re-posh.core       :as rp]
             [re-frame.core      :refer [reg-sub subscribe]]))
 
@@ -59,6 +60,17 @@
         @@conn rules group-variable-id)))
 
 (reg-sub
+ :group-variable/module-submodule-group
+ (fn [_ [_ group-variable-id]]
+   (d/q '[:find [?m ?sm ?g]
+          :in $ % ?gv
+          :where
+          [?g :group/group-variables ?gv]
+          (submodule-root ?sm ?g)
+          [?m :module/submodules ?sm]]
+        @@conn rules group-variable-id)))
+
+(reg-sub
  :group-variable/_app-module-id
  (fn [_ [_ group-variable-id]]
    (d/q '[:find ?a .
@@ -89,3 +101,12 @@
    (subscribe [:group-variable/_submodule-groups-and-subgroups submodule-id]))
  (fn [group-ids]
    @(subscribe [:entities group-ids])))
+
+(reg-sub
+ :group-variable/output?
+ (fn [_ [_ group-variable-id]]
+   (d/q '[:find ?is-output .
+          :in $ % ?gv
+          :where (io ?gv ?io)
+          [(= ?io :output) ?is-output]]
+        @@conn all-rules group-variable-id)))

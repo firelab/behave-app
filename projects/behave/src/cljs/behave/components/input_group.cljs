@@ -98,7 +98,11 @@
                 help-key :group-variable/help-key
                 list     :variable/list} variable
                selected                  (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id uuid])
+               default-option            (rf/subscribe [:wizard/default-option ws-uuid uuid])
+               disabled-options          (rf/subscribe [:wizard/disabled-options ws-uuid uuid])
                on-change                 #(upsert-input ws-uuid group-uuid repeat-id uuid (input-value %))
+               _                         (when (and (nil? @selected) @default-option)
+                                           (upsert-input ws-uuid group-uuid repeat-id uuid @default-option))
                options                   (sort-by :list-option/order (filter #(not (:list-option/hide? %)) (:list/options list)))
                num-options               (count options)
                ->option                  (fn [{value :list-option/value name :list-option/name default? :list-option/default}]
@@ -106,6 +110,9 @@
                                             :label     name
                                             :on-change on-change
                                             :selected? (or (= @selected value) (and (nil? @selected) default?))
+                                            :disabled? (if @disabled-options
+                                                         (@disabled-options value)
+                                                         false)
                                             :checked?  (= @selected value)})]
     [:div.wizard-input
      {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
