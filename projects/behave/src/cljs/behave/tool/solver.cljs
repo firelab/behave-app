@@ -25,7 +25,14 @@
   ([sv-uuid selected-units-uuid]
    (if selected-units-uuid
      (q/unit-uuid->enum-value selected-units-uuid)
-     (q/variable-units sv-uuid))))
+     (let [var-uuid     (q/variable-uuid sv-uuid)
+           *var-entity  (rf/subscribe [:vms/entity-from-uuid var-uuid])
+           domain-uuid  (:variable/domain-uuid @*var-entity)
+           *cached-unit (rf/subscribe [:settings/cached-unit domain-uuid])
+           unit-uuid    (or @*cached-unit
+                            (q/variable-native-units-uuid sv-uuid)
+                            :none)]
+       (q/unit-uuid->enum-value unit-uuid)))))
 
 (defn- apply-single-cpp-fn [fns tool-obj sv-uuid value units]
   (let [[fn-id fn-name] (q/subtool-variable->fn sv-uuid)
@@ -71,7 +78,7 @@
     ;; Set inputs
     (doseq [[sv-uuid variable] inputs]
       (let [{value :input/value units-uuid :input/units-uuid} variable
-            units (variable-units sv-uuid units-uuid)]
+            units                                             (variable-units sv-uuid units-uuid)]
         (apply-single-cpp-fn fns tool-obj sv-uuid value units)))
 
     ;; Compute Tool
