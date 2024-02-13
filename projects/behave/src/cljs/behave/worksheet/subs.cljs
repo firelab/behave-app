@@ -775,3 +775,20 @@
      (if-let [option (get options value)]
        (:list-option/name option)
        value))))
+
+(rf/reg-sub
+ :worksheet/inputs-in-domain
+ (fn [_ [_ ws-uuid domain-uuid]]
+   (d/q '[:find  [?i ...]
+          :in    $ $ws % ?ws-uuid ?domain-uuid
+          :where
+          [$ws ?w :worksheet/uuid ?ws-uuid]
+          [$ws ?w :worksheet/input-groups ?g]
+          [$ws ?g :input-group/group-uuid ?group-uuid]
+          [$ws ?g :input-group/repeat-id ?repeat-id]
+          [$ws ?g :input-group/inputs ?i]
+          [$ws ?i :input/value ?value]
+          (lookup ?gv-uuid ?gv)
+          (group-variable _ ?gv ?v)
+          [?v :variable/domain-uuid ?domain-uuid]]
+        @@vms-conn @@s/conn rules ws-uuid domain-uuid)))
