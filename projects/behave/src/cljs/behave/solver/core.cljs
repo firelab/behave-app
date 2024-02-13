@@ -184,6 +184,7 @@
                           run-fn
                           fns
                           gv-uuids
+                          source-links
                           destination-links
                           diagrams
                           ws-uuid]}]
@@ -194,7 +195,9 @@
 
         ;; Filter IO's for module
         module-inputs  (filter-module-inputs inputs gv-uuids)
-        module-outputs (filter-module-outputs all-outputs gv-uuids)]
+        module-outputs (filter-module-outputs all-outputs gv-uuids)
+        module-outputs (vec (concat module-outputs (keys source-links)))]
+
     ;; Set inputs
     (apply-inputs module fns module-inputs)
 
@@ -210,6 +213,12 @@
 
     ;; Get outputs, merge existing inputs/outputs with new inputs/outputs
     (update row :outputs merge (get-outputs module fns module-outputs))))
+
+(defn remove-source-link-outputs [row surface-module]
+  (let [{:keys [all-outputs]}  row
+        {:keys [source-links]} surface-module
+        to-remove              (set/difference (set (keys source-links)) (set all-outputs))]
+    (apply dissoc row to-remove)))
 
 (defn solve-worksheet
   ([ws-uuid]
@@ -287,6 +296,9 @@
 
                         (pos? (count (set/intersection modules #{:surface :crown})))
                         (run-module spot-module)
+
+                        :always
+                        (remove-source-link-outputs surface-module)
 
                         :always
                         (add-row))))
