@@ -131,7 +131,7 @@
                                 (let [worksheet-name @(rf/subscribe [:worksheet/name ws-uuid])]
                                   (rf/dispatch [:wizard/save
                                                 ws-uuid
-                                                (gstring/format "behave7-%s.sqlite"
+                                                (gstring/format "behave7-%s.bp7"
                                                                 (or worksheet-name ws-uuid))])))}
                   {:icon     :print
                    :label    (bp "print")

@@ -40,7 +40,7 @@
   (if @current-worksheet-atom
     (download-file @current-worksheet-atom)
     (let [{:keys [ws-uuid]} params
-          db-file           (fs/temp-file "behave-db" ".sqlite")
+          db-file           (fs/temp-file "behave-db" ".bp7")
           sql-conn          (DriverManager/getConnection (format "jdbc:sqlite:%s" db-file))
           storage           (storage-sql/make sql-conn {:dbtype :sqlite})
           conn              (d/create-conn (->ds-schema all-schemas) {:storage storage})]

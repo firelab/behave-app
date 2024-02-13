@@ -14,7 +14,7 @@
 
 (defn- create-temp-file! [{:keys [file] :as _params}]
   (let [{:keys [tempfile filename]} file
-        dest-file                   (fs/temp-file (UUID/randomUUID) ".sqlite")
+        dest-file                   (fs/temp-file (UUID/randomUUID) ".bp7")
         new-file                    (fs/absolute (fs/copy+ tempfile dest-file))]
     (log-str " -- CREATING TEMPORARY COPY: " (str new-file) filename (str tempfile))
     (reset! current-worksheet-atom new-file)))
