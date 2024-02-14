@@ -215,10 +215,10 @@
     (update row :outputs merge (get-outputs module fns module-outputs))))
 
 (defn remove-source-link-outputs [row surface-module]
-  (let [{:keys [all-outputs]}  row
+  (let [{:keys [outputs all-outputs]}  row
         {:keys [source-links]} surface-module
         to-remove              (set/difference (set (keys source-links)) (set all-outputs))]
-    (apply dissoc row to-remove)))
+    (assoc row :outputs (apply dissoc outputs to-remove))))
 
 (defn solve-worksheet
   ([ws-uuid]
