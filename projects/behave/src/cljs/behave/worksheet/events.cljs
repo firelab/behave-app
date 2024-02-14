@@ -738,3 +738,15 @@
                                                                   :arrow/length    interest-spread-rate
                                                                   :arrow/rotation  interest-dir
                                                                   :arrow/color     "black"}))}]})))
+
+(rf/reg-event-fx
+ :worksheet/delete-existing-result-table
+ [(rp/inject-cofx :ds)]
+ (fn [{:keys [ds]} [_ ws-uuid]]
+   (when-let [existing-eid (d/q '[:find  ?t .
+                                  :in    $ ?ws-uuid
+                                  :where
+                                  [?ws :worksheet/uuid     ?ws-uuid]
+                                  [?ws :worksheet/result-table ?t]]
+                                ds ws-uuid)]
+     {:transact [[:db.fn/retractEntity existing-eid]]})))

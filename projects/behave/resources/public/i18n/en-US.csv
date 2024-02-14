@@ -232,7 +232,7 @@ behaveplus:workflow:guided_title,Guided workflow
 behaveplus:workflow:import_desc,File extensions supported: *.bp6 (XML) or *.bp7 (SQLite)
 behaveplus:workflow:import_title,Open or import an existing file.
 behaveplus:workflow:independent_desc,Recommended for experienced users of BehavePlus.
-behaveplus:workflow:independent_title,Independent workflow
+behaveplus:workflow:independent_title,Standard Workflow
 behaveplus:working_area,Working Area
 behaveplus:worksheet,Worksheet
 behaveplus:worksheet_review,Worksheet Review

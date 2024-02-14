@@ -114,15 +114,15 @@
             [:option {:key id :value id :selected (= id @value)} list-name])))]]]))
 
 (defn variable-form [id]
-  (let [variable    (rf/subscribe [:entity id])
-        editor      (rf/subscribe [:state [:editors :variables]])
-        get-field   (fn [& fields]
-                    (r/track #(or (get-in @editor fields) (get-in @variable fields))))
-        set-field   (fn [& fields]
-                    (fn [value]
-                      (rf/dispatch [:state/set-state (apply conj [:editors :variables] fields) value])))
-        kind        (get-field :variable/kind)
-        domain-sets (rf/subscribe [:domain-sets])]
+  (let [variable  (rf/subscribe [:entity id])
+        editor    (rf/subscribe [:state [:editors :variables]])
+        get-field (fn [& fields]
+                      (r/track #(or (get-in @editor fields) (get-in @variable fields))))
+        set-field (fn [& fields]
+                      (fn [value]
+                        (rf/dispatch [:state/set-state (apply conj [:editors :variables] fields) value])))
+        kind      (get-field :variable/kind)
+        domains   (rf/subscribe [:domains])]
     [:<>
      [:div.row
       [:h3 (if id
@@ -135,13 +135,13 @@
                      :fields [{:label     "Name"
                                :required? true
                                :field-key :variable/name}
-                              {:label     "Domain Set"
+                              {:label     "Domain"
                                :field-key :variable/domain-uuid
                                :type      :select
                                :required? false
-                               :options   (for [domain-set @domain-sets]
-                                            {:label (:domain-set/name domain-set)
-                                             :value (:bp/uuid domain-set)})}
+                               :options   (for [domain @domains]
+                                            {:label (:domain/name domain)
+                                             :value (:bp/uuid domain)})}
                               {:label     "BP6 Label"
                                :disabled? true
                                :field-key :variable/bp6-label}
