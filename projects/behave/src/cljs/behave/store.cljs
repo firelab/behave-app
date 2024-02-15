@@ -122,7 +122,7 @@
 
 (defn open-worksheet! [{:keys [file]}]
   (let [form-data (js/FormData.)]
-    (.append form-data :file file)
+    (.append form-data "file" file)
     (ajax-request {:uri             "/open"
                    :body            form-data
                    :method          :post

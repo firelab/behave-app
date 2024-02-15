@@ -20,6 +20,7 @@
             [logging.interface                 :as logging :refer [log-str]]
             [ring.middleware.content-type      :refer [wrap-content-type]]
             [ring.middleware.multipart-params  :refer [wrap-multipart-params]]
+            [ring.middleware.keyword-params    :refer [wrap-keyword-params]]
             [ring.middleware.reload            :refer [wrap-reload]]
             [ring.middleware.resource          :refer [wrap-resource]]
             [ring.util.codec                   :refer [url-decode]]
@@ -169,6 +170,7 @@
   (-> routing-handler
       (wrap-figwheel figwheel?)
       wrap-params
+      wrap-keyword-params
       wrap-query-params
       wrap-req-content-type+accept
       (wrap-resource "public" {:allow-symlinks? true})
