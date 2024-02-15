@@ -526,3 +526,41 @@
                                    [:row3 :column2] 8
                                    [:row3 :column3] 9}}]"}
   matrix-table matrix-table/matrix-table)
+
+(def ^{:argslist
+       '([config])
+
+       :doc
+       "Multi Select component which takes a hash-map of:
+       - `:input-label` Label for the input.
+       - `:on-select`   Function called when an option is selected. `value` from the option is
+                        passed to the function.
+       - `:on-deselect` Function called when an option is de-selected. `value` from the option is
+                        passed to the function.
+       - `:options`     Vector of `option` maps with the
+
+           keys: - `:label`       Label for the option
+                 - `:value`,      Value for the option
+                 - `:on-select`   Function called when option is selected (optional). `value` is
+                                  passed to the function.
+                 - `:on-deselect` Same as `on-select`.
+                 - `:selected?`   (optional).
+
+       Usage:
+
+         [multi-select-input {:input-label \"Input Label\"
+                              :options     [{:label     \"option1\"
+                                             :value     1
+                                             :on-select #(prn %)
+                                             :on-deselect #(prn %)}
+
+                                            {:label     \"option2\"
+                                             :value     2
+                                             :on-select #(prn %)
+                                             :on-deselect #(prn %)}
+
+                                            {:label     \"option3\"
+                                             :value     3
+                                             :on-select #(prn %)
+                                             :on-deselect #(prn %)}"}
+  multi-select-input inputs/multi-select-input)

@@ -564,6 +564,11 @@ body {
   align-items: center;
 }
 
+.wizard-review__input--multi-discrete {
+  flex-direction: column;
+  display: flex;
+}
+
 .wizard-review__input--discrete__label {
   color: var(--gray-4);
 }
