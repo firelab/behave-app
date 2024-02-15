@@ -22,8 +22,8 @@
  (fn []
    (rf/subscribe [:settings/local-storage-units]))
 
- (fn [local-storage [_ v-uuid]]
-   (:unit-uuid (get local-storage v-uuid))))
+ (fn [local-storage [_ domain-uuid]]
+   (:unit-uuid (get local-storage domain-uuid))))
 
 (rf/reg-sub
  :settings/cached-decimal
