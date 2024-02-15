@@ -193,6 +193,20 @@
                  [?d :bp/uuid ?destination-uuid]]
                (vec gv-uuids))))
 
+(defn output-source-links
+  "Obtains outpout Group Variables that serve as sources to links."
+  [gv-uuids]
+  (into {}
+        (q-vms '[:find ?gv-uuid ?destination-uuid
+                 :in [?gv-uuid ...]
+                 :where
+                 [?s :bp/uuid ?gv-uuid]
+                 [?l :link/source ?s]
+                 [?l :link/destination ?d]
+                 (io ?s :output)
+                 [?d :bp/uuid ?destination-uuid]]
+               (vec gv-uuids))))
+
 (defn destination-links [gv-uuids]
   (into {}
         (q-vms '[:find ?source-uuid ?gv-uuid
