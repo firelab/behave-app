@@ -2027,6 +2027,18 @@ const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFinalSpreadRate_1(
   return self->getFinalSpreadRate(spreadRateUnits);
 }
 
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFinalSpreadDistance_3(SIGCrown* self, LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits_TimeUnitsEnum timeUnits) {
+  return self->getFinalSpreadDistance(lengthUnits, elapsedTime, timeUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFinalFireArea_3(SIGCrown* self, AreaUnits_AreaUnitsEnum areaUnits, double elapsedTime, TimeUnits_TimeUnitsEnum timeUnits) {
+  return self->getFinalFireArea(areaUnits, elapsedTime, timeUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFinalFirePerimeter_3(SIGCrown* self, LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits_TimeUnitsEnum timeUnits) {
+  return self->getFinalFirePerimeter(lengthUnits, elapsedTime, timeUnits);
+}
+
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGCrown_getFuelHeatOfCombustionDead_2(SIGCrown* self, int fuelModelNumber, HeatOfCombustionUnits_HeatOfCombustionUnitsEnum heatOfCombustionUnits) {
   return self->getFuelHeatOfCombustionDead(fuelModelNumber, heatOfCombustionUnits);
 }

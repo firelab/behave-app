@@ -5411,6 +5411,9 @@ var _emscripten_bind_SIGCrown_getCrownRatio_0 = Module['_emscripten_bind_SIGCrow
 var _emscripten_bind_SIGCrown_getFinalFirelineIntesity_1 = Module['_emscripten_bind_SIGCrown_getFinalFirelineIntesity_1'] = createExportWrapper('emscripten_bind_SIGCrown_getFinalFirelineIntesity_1');
 var _emscripten_bind_SIGCrown_getFinalHeatPerUnitArea_1 = Module['_emscripten_bind_SIGCrown_getFinalHeatPerUnitArea_1'] = createExportWrapper('emscripten_bind_SIGCrown_getFinalHeatPerUnitArea_1');
 var _emscripten_bind_SIGCrown_getFinalSpreadRate_1 = Module['_emscripten_bind_SIGCrown_getFinalSpreadRate_1'] = createExportWrapper('emscripten_bind_SIGCrown_getFinalSpreadRate_1');
+var _emscripten_bind_SIGCrown_getFinalSpreadDistance_3 = Module['_emscripten_bind_SIGCrown_getFinalSpreadDistance_3'] = createExportWrapper('emscripten_bind_SIGCrown_getFinalSpreadDistance_3');
+var _emscripten_bind_SIGCrown_getFinalFireArea_3 = Module['_emscripten_bind_SIGCrown_getFinalFireArea_3'] = createExportWrapper('emscripten_bind_SIGCrown_getFinalFireArea_3');
+var _emscripten_bind_SIGCrown_getFinalFirePerimeter_3 = Module['_emscripten_bind_SIGCrown_getFinalFirePerimeter_3'] = createExportWrapper('emscripten_bind_SIGCrown_getFinalFirePerimeter_3');
 var _emscripten_bind_SIGCrown_getFuelHeatOfCombustionDead_2 = Module['_emscripten_bind_SIGCrown_getFuelHeatOfCombustionDead_2'] = createExportWrapper('emscripten_bind_SIGCrown_getFuelHeatOfCombustionDead_2');
 var _emscripten_bind_SIGCrown_getFuelHeatOfCombustionLive_2 = Module['_emscripten_bind_SIGCrown_getFuelHeatOfCombustionLive_2'] = createExportWrapper('emscripten_bind_SIGCrown_getFuelHeatOfCombustionLive_2');
 var _emscripten_bind_SIGCrown_getFuelLoadHundredHour_2 = Module['_emscripten_bind_SIGCrown_getFuelLoadHundredHour_2'] = createExportWrapper('emscripten_bind_SIGCrown_getFuelLoadHundredHour_2');
@@ -10023,6 +10026,30 @@ SIGCrown.prototype['getFinalSpreadRate'] = SIGCrown.prototype.getFinalSpreadRate
   var self = this.ptr;
   if (spreadRateUnits && typeof spreadRateUnits === 'object') spreadRateUnits = spreadRateUnits.ptr;
   return _emscripten_bind_SIGCrown_getFinalSpreadRate_1(self, spreadRateUnits);
+};;
+
+SIGCrown.prototype['getFinalSpreadDistance'] = SIGCrown.prototype.getFinalSpreadDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
+  var self = this.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
+  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
+  return _emscripten_bind_SIGCrown_getFinalSpreadDistance_3(self, lengthUnits, elapsedTime, timeUnits);
+};;
+
+SIGCrown.prototype['getFinalFireArea'] = SIGCrown.prototype.getFinalFireArea = /** @suppress {undefinedVars, duplicate} @this{Object} */function(areaUnits, elapsedTime, timeUnits) {
+  var self = this.ptr;
+  if (areaUnits && typeof areaUnits === 'object') areaUnits = areaUnits.ptr;
+  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
+  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
+  return _emscripten_bind_SIGCrown_getFinalFireArea_3(self, areaUnits, elapsedTime, timeUnits);
+};;
+
+SIGCrown.prototype['getFinalFirePerimeter'] = SIGCrown.prototype.getFinalFirePerimeter = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
+  var self = this.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
+  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
+  return _emscripten_bind_SIGCrown_getFinalFirePerimeter_3(self, lengthUnits, elapsedTime, timeUnits);
 };;
 
 SIGCrown.prototype['getFuelHeatOfCombustionDead'] = SIGCrown.prototype.getFuelHeatOfCombustionDead = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, heatOfCombustionUnits) {
