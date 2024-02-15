@@ -85,6 +85,22 @@
         (first)
         (:output/enabled?))))
 
+;; Get the Input entity
+(rf/reg-sub
+ :worksheet/input
+ (fn [_ [_ ws-uuid group-uuid repeat-id group-variable-uuid]]
+   (let [eid (d/q '[:find  ?i .
+                    :in    $ ?ws-uuid ?group-uuid ?repeat-id ?group-var-uuid
+                    :where
+                    [?w :worksheet/uuid ?ws-uuid]
+                    [?w :worksheet/input-groups ?g]
+                    [?g :input-group/group-uuid ?group-uuid]
+                    [?g :input-group/repeat-id ?repeat-id]
+                    [?g :input-group/inputs ?i]
+                    [?i :input/group-variable-uuid ?group-var-uuid]]
+                   @@s/conn ws-uuid group-uuid repeat-id group-variable-uuid)]
+     (d/touch (d/entity @@s/conn eid)))))
+
 ;; Get the value of a particular input
 (rp/reg-sub
  :worksheet/input-value
