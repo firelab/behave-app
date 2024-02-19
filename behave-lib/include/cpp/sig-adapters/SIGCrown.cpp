@@ -134,13 +134,18 @@ double SIGCrown::getCrownFirePerimeter(LengthUnits::LengthUnitsEnum lengthUnits)
   return Crown::getCrownFirePerimeter(lengthUnits, elapsedTime, TimeUnits::Minutes);
 }
 
-double SIGCrown::getFinalSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits) const {
-  double elapsedTimeInBaseUnits = TimeUnits::toBaseUnits(elapsedTime, timeUnits);
-  double spreadDistanceInBaseUnits = finalSpreadRate_ * elapsedTimeInBaseUnits;
+double SIGCrown::getFinalSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits) const {
+  // Obtain elapsed time
+  double elapsedTime = surfaceFuel_.getElapsedTime(TimeUnits::Minutes);
+  double spreadDistanceInBaseUnits = finalSpreadRate_ * elapsedTime;
   return LengthUnits::fromBaseUnits(spreadDistanceInBaseUnits, lengthUnits);
 }
 
-double SIGCrown::getFinalFireArea(AreaUnits::AreaUnitsEnum areaUnits, double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits) const {
+double SIGCrown::getFinalFireArea(AreaUnits::AreaUnitsEnum areaUnits) const {
+
+  // Obtain elapsed time
+  TimeUnits::TimeUnitsEnum timeUnits = TimeUnits::Minutes;
+  double elapsedTime = surfaceFuel_.getElapsedTime(timeUnits);
 
   // Rothermel
   if (crownFireCalculationMethod_ == CrownFireCalculationMethod::rothermel) {
@@ -163,7 +168,11 @@ double SIGCrown::getFinalFireArea(AreaUnits::AreaUnitsEnum areaUnits, double ela
   }
 }
 
-double SIGCrown::getFinalFirePerimeter(LengthUnits::LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits) const {
+double SIGCrown::getFinalFirePerimeter(LengthUnits::LengthUnitsEnum lengthUnits) const {
+
+  // Obtain elapsed time
+  TimeUnits::TimeUnitsEnum timeUnits = TimeUnits::Minutes;
+  double elapsedTime = surfaceFuel_.getElapsedTime(timeUnits);
 
   // Rothermel
   if (crownFireCalculationMethod_ == CrownFireCalculationMethod::rothermel) {

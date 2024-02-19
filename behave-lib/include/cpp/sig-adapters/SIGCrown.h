@@ -70,9 +70,9 @@ public:
   double getSurfaceFireSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits) const;
   double getCrownFireArea(AreaUnits::AreaUnitsEnum areaUnits) const;
   double getCrownFirePerimeter(LengthUnits::LengthUnitsEnum lengthUnits) const;
-  double getFinalSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits) const;
-  double getFinalFireArea(AreaUnits::AreaUnitsEnum areaUnits, double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits) const;
-  double getFinalFirePerimeter(LengthUnits::LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits) const;
+  double getFinalSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits) const;
+  double getFinalFireArea(AreaUnits::AreaUnitsEnum areaUnits) const;
+  double getFinalFirePerimeter(LengthUnits::LengthUnitsEnum lengthUnits) const;
 
   // Setters
   void setFuelModels(SIGFuelModels& fuelModels);

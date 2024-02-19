@@ -3411,28 +3411,22 @@ SIGCrown.prototype['getFinalSpreadRate'] = SIGCrown.prototype.getFinalSpreadRate
   return _emscripten_bind_SIGCrown_getFinalSpreadRate_1(self, spreadRateUnits);
 };;
 
-SIGCrown.prototype['getFinalSpreadDistance'] = SIGCrown.prototype.getFinalSpreadDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
+SIGCrown.prototype['getFinalSpreadDistance'] = SIGCrown.prototype.getFinalSpreadDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
   var self = this.ptr;
   if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
-  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
-  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
-  return _emscripten_bind_SIGCrown_getFinalSpreadDistance_3(self, lengthUnits, elapsedTime, timeUnits);
+  return _emscripten_bind_SIGCrown_getFinalSpreadDistance_1(self, lengthUnits);
 };;
 
-SIGCrown.prototype['getFinalFireArea'] = SIGCrown.prototype.getFinalFireArea = /** @suppress {undefinedVars, duplicate} @this{Object} */function(areaUnits, elapsedTime, timeUnits) {
+SIGCrown.prototype['getFinalFireArea'] = SIGCrown.prototype.getFinalFireArea = /** @suppress {undefinedVars, duplicate} @this{Object} */function(areaUnits) {
   var self = this.ptr;
   if (areaUnits && typeof areaUnits === 'object') areaUnits = areaUnits.ptr;
-  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
-  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
-  return _emscripten_bind_SIGCrown_getFinalFireArea_3(self, areaUnits, elapsedTime, timeUnits);
+  return _emscripten_bind_SIGCrown_getFinalFireArea_1(self, areaUnits);
 };;
 
-SIGCrown.prototype['getFinalFirePerimeter'] = SIGCrown.prototype.getFinalFirePerimeter = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits, elapsedTime, timeUnits) {
+SIGCrown.prototype['getFinalFirePerimeter'] = SIGCrown.prototype.getFinalFirePerimeter = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
   var self = this.ptr;
   if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
-  if (elapsedTime && typeof elapsedTime === 'object') elapsedTime = elapsedTime.ptr;
-  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
-  return _emscripten_bind_SIGCrown_getFinalFirePerimeter_3(self, lengthUnits, elapsedTime, timeUnits);
+  return _emscripten_bind_SIGCrown_getFinalFirePerimeter_1(self, lengthUnits);
 };;
 
 SIGCrown.prototype['getFuelHeatOfCombustionDead'] = SIGCrown.prototype.getFuelHeatOfCombustionDead = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, heatOfCombustionUnits) {

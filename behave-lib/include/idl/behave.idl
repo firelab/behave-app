@@ -917,9 +917,9 @@ interface SIGCrown {
   [Const] double getFinalFirelineIntesity(FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits);
   [Const] double getFinalHeatPerUnitArea(HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum heatPerUnitAreaUnits);
   [Const] double getFinalSpreadRate(SpeedUnits_SpeedUnitsEnum spreadRateUnits);
-  [Const] double getFinalSpreadDistance(LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits_TimeUnitsEnum timeUnits);
-  [Const] double getFinalFireArea(AreaUnits_AreaUnitsEnum areaUnits, double elapsedTime, TimeUnits_TimeUnitsEnum timeUnits);
-  [Const] double getFinalFirePerimeter(LengthUnits_LengthUnitsEnum lengthUnits, double elapsedTime, TimeUnits_TimeUnitsEnum timeUnits);
+  [Const] double getFinalSpreadDistance(LengthUnits_LengthUnitsEnum lengthUnits);
+  [Const] double getFinalFireArea(AreaUnits_AreaUnitsEnum areaUnits);
+  [Const] double getFinalFirePerimeter(LengthUnits_LengthUnitsEnum lengthUnits);
   [Const] double getFuelHeatOfCombustionDead(long fuelModelNumber, HeatOfCombustionUnits_HeatOfCombustionUnitsEnum heatOfCombustionUnits);
   [Const] double getFuelHeatOfCombustionLive(long fuelModelNumber, HeatOfCombustionUnits_HeatOfCombustionUnitsEnum heatOfCombustionUnits);
   [Const] double getFuelLoadHundredHour(long fuelModelNumber, LoadingUnits_LoadingUnitsEnum loadingUnits);

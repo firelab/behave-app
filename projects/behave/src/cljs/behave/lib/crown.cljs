@@ -93,14 +93,14 @@
 (defn getFinalSpreadRate [self spreadRateUnits]
   (.getFinalSpreadRate self spreadRateUnits))
 
-(defn getFinalSpreadDistance [self lengthUnits elapsedTime timeUnits]
-  (.getFinalSpreadDistance self lengthUnits elapsedTime timeUnits))
+(defn getFinalSpreadDistance [self lengthUnits]
+  (.getFinalSpreadDistance self lengthUnits))
 
-(defn getFinalFireArea [self areaUnits elapsedTime timeUnits]
-  (.getFinalFireArea self areaUnits elapsedTime timeUnits))
+(defn getFinalFireArea [self areaUnits]
+  (.getFinalFireArea self areaUnits))
 
-(defn getFinalPerimeter [self lengthUnits elapsedTime timeUnits]
-  (.getFinalPerimeter self lengthUnits elapsedTime timeUnits))
+(defn getFinalFirePerimeter [self lengthUnits]
+  (.getFinalFirePerimeter self lengthUnits))
 
 (defn getFireType [self]
   (.getFireType self))
