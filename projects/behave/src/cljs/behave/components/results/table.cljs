@@ -1,9 +1,8 @@
 (ns behave.components.results.table
-  (:require [clojure.string                       :as str]
-            [behave.components.core               :as c]
-            [re-frame.core                        :refer [subscribe]]
-            [behave.units-conversion              :refer [to-map-units]]
-            [goog.string                          :as gstring]))
+  (:require [behave.units-conversion :refer [to-map-units]]
+            [clojure.string          :as str]
+            [goog.string             :as gstring]
+            [re-frame.core           :refer [subscribe]]))
 
 (defn- procces-map-units?
   [map-units-enabled? v-uuid]
@@ -50,7 +49,7 @@
         formatters                @(subscribe [:worksheet/result-table-formatters (map first @*headers)])
         table-data                {:title   "Results Table"
                                    :headers (reduce (fn resolve-uuid [acc [gv-uuid _repeat-id units]]
-                                                      (let [var-name (:variable/name @(subscribe [:wizard/group-variable gv-uuid]))]
+                                                      (let [var-name @(subscribe [:wizard/gv-uuid->variable-name-1 gv-uuid])]
                                                         (cond-> acc
                                                           :always (conj (str var-name (when-not (empty? units) (gstring/format " (%s)" units))))
 

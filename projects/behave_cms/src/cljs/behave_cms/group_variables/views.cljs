@@ -145,7 +145,8 @@
         [:h2 (:variable/name variable)]]
        [accordion
         "Translations"
-        [all-translations (:group-variable/translation-key @group-variable)]]
+        [all-translations (:group-variable/translation-key @group-variable)]
+        [all-translations (:group-variable/translation-key2 @group-variable)]]
        [:hr]
        [accordion
         "Help Page"

@@ -83,7 +83,7 @@
                                                                                            (:variable/native-unit-uuid variable)
                                                                                            (:variable/english-unit-uuid variable)
                                                                                            (:variable/metric-unit-uuid variable)])]
-                                                               {:input  (indent-name (+ level 2) (:variable/name variable))
+                                                               {:input  (indent-name (+ level 2) @(subscribe [:wizard/gv-uuid->variable-name-1 (:bp/uuid variable)]))
                                                                 :units  @*units-used
                                                                 :values (if (:group-variable/discrete-multiple? variable)
                                                                           (->> (str/split value "")

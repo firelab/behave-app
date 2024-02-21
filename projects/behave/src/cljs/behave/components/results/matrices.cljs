@@ -34,19 +34,19 @@
   (let [map-units-settings-entity @(subscribe [:worksheet/map-units-settings-entity ws-uuid])
         map-units                 (:map-units-settings/units map-units-settings-entity)
         map-rep-frac              (:map-units-settings/map-rep-fraction map-units-settings-entity)
-        rows                      (reduce (fn [acc {output-uuid :bp/uuid
-                                                    var-name    :variable/name
-                                                    units       :units}]
-                                            (let [value  @(subscribe [:worksheet/first-row-results-gv-uuid->value
-                                                                      ws-uuid
-                                                                      output-uuid])
-                                                  fmt-fn (get formatters output-uuid identity)]
+        rows                      (reduce (fn [acc {output-gv-uuid :bp/uuid
+                                                    units          :units}]
+                                            (let [value    @(subscribe [:worksheet/first-row-results-gv-uuid->value
+                                                                        ws-uuid
+                                                                        output-gv-uuid])
+                                                  fmt-fn   (get formatters output-gv-uuid identity)
+                                                  var-name @(subscribe [:wizard/gv-uuid->variable-name-1 output-gv-uuid])]
                                               (cond-> acc
                                                 :always (conj {:output var-name
                                                                :value  (fmt-fn value)
                                                                :units  units})
 
-                                                (process-map-units? output-uuid)
+                                                (process-map-units? output-gv-uuid)
                                                 (conj {:output (gstring/format @(<t (bp "s_map_units")) var-name)
                                                        :value  (-> value
                                                                    (to-map-units
@@ -91,17 +91,17 @@
         map-units                 (:map-units-settings/units map-units-settings-entity)
         map-rep-frac              (:map-units-settings/map-rep-fraction map-units-settings-entity)
         column-headers            (reduce (fn insert-map-units-columns [acc {output-gv-uuid :bp/uuid
-                                                                             output-name    :variable/name
                                                                              output-units   :units}]
-                                            (cond-> acc
-                                              :always (conj {:name (header-label output-name output-units)
-                                                             :key  output-gv-uuid})
+                                            (let [output-name @(subscribe [:wizard/gv-uuid->variable-name-1 output-gv-uuid])]
+                                              (cond-> acc
+                                                :always (conj {:name (header-label output-name output-units)
+                                                               :key  output-gv-uuid})
 
-                                              (process-map-units? output-gv-uuid)
-                                              (conj {:name (gstring/format @(<t (bp "s_map_units_(s)"))
-                                                                           output-name
-                                                                           map-units)
-                                                     :key  (str output-gv-uuid "-map-units")})))
+                                                (process-map-units? output-gv-uuid)
+                                                (conj {:name (gstring/format @(<t (bp "s_map_units_(s)"))
+                                                                             output-name
+                                                                             map-units)
+                                                       :key  (str output-gv-uuid "-map-units")}))))
                                           []
                                           output-entities)
         row-headers (map (fn [value] {:name (input-fmt-fn value) :key (input-fmt-fn value)}) multi-var-values)
@@ -135,10 +135,10 @@
         map-rep-frac                                (:map-units-settings/map-rep-fraction map-units-settings-entity)
         input-formatters                            @(subscribe [:worksheet/result-table-formatters [row-gv-uuid col-gv-uuid]])]
     [:div.print__construct-result-matrices
-     (for [{output-uuid  :bp/uuid
-            output-name  :variable/name
-            output-units :units} output-entities]
-       (let [output-fmt-fn         (get formatters output-uuid identity)
+     (for [{output-gv-uuid :bp/uuid
+            output-units   :units} output-entities]
+       (let [output-name           @(subscribe [:wizard/gv-uuid->variable-name-1 output-gv-uuid])
+             output-fmt-fn         (get formatters output-gv-uuid identity)
              row-fmt-fn            (get input-formatters row-gv-uuid identity)
              col-fmt-fn            (get input-formatters col-gv-uuid identity)
              matrix-data-raw       @(subscribe [:print/matrix-table-two-multi-valued-inputs ws-uuid
@@ -146,11 +146,11 @@
                                                 row-values
                                                 col-gv-uuid
                                                 col-values
-                                                output-uuid])
+                                                output-gv-uuid])
              matrix-data-formatted (reduce-kv (fn [acc [x y] v]
                                                 (assoc acc
                                                        [(row-fmt-fn x) (col-fmt-fn y)]
-                                                       (let [shade-value? (shade-cell-value? table-setting-filters output-uuid x)]
+                                                       (let [shade-value? (shade-cell-value? table-setting-filters output-gv-uuid x)]
                                                          [:div.result-matrix-cell-value
                                                           [:div (output-fmt-fn v)]
                                                           (when shade-value?
@@ -167,7 +167,7 @@
                             :row-headers    row-headers
                             :column-headers column-headers
                             :data           matrix-data-formatted})]
-          (when (process-map-units? output-uuid)
+          (when (process-map-units? output-gv-uuid)
             [:div.print__result-table
              (let [data (reduce-kv (fn [acc [i j] value]
                                      (assoc acc [i j] (-> value
@@ -187,7 +187,7 @@
         map-units-enabled?             (:map-units-settings/enabled? map-units-settings-entity)
         map-unit-convertible-variables @(subscribe [:wizard/map-unit-convertible-variables])
         units-lookup                   @(subscribe [:worksheet/result-table-units ws-uuid])
-        output-uuids                   @(subscribe [:worksheet/all-output-uuids ws-uuid])
+        output-gv-uuids                @(subscribe [:worksheet/all-output-uuids ws-uuid])
         table-setting-filters          @(subscribe [:worksheet/table-settings-filters ws-uuid])]
     [construct-result-matrices
      {:ws-uuid               ws-uuid
@@ -195,10 +195,10 @@
                                (and map-units-enabled?
                                     (map-unit-convertible-variables v-uuid)))
       :multi-valued-inputs   @(subscribe [:print/matrix-table-multi-valued-inputs ws-uuid])
-      :output-uuids          output-uuids
+      :output-gv-uuids       output-gv-uuids
       :output-entities       (map (fn [gv-uuid]
                                     (-> @(subscribe [:wizard/group-variable gv-uuid])
-                                        (merge {:units (get units-lookup gv-uuid)}))) output-uuids)
+                                        (merge {:units (get units-lookup gv-uuid)}))) output-gv-uuids)
       :units-lookup          units-lookup
-      :formatters            @(subscribe [:worksheet/result-table-formatters output-uuids])
+      :formatters            @(subscribe [:worksheet/result-table-formatters output-gv-uuids])
       :table-setting-filters table-setting-filters}]))

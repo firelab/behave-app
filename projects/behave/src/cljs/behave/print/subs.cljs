@@ -1,7 +1,7 @@
 (ns behave.print.subs
-  (:require [re-frame.core  :as rf]
-            [clojure.string :as str]
-            [re-posh.core   :as rp]
+  (:require [clojure.string         :as str]
+            [re-frame.core          :as rf]
+            [re-posh.core           :as rp]
             [string-utils.interface :refer [split-commas-or-spaces]]))
 
 (rf/reg-sub
@@ -13,7 +13,7 @@
  (fn [[uuid+values units-lookup] _]
    (->> uuid+values
         (map (fn resolve-gv-uuid [[gv-uuid values]]
-               (let [{var-name :variable/name} @(rf/subscribe [:wizard/group-variable gv-uuid])]
+               (let [var-name @(rf/subscribe [:wizard/gv-uuid->variable-name-1 gv-uuid])]
                  [var-name (get units-lookup gv-uuid) gv-uuid (split-commas-or-spaces values)]))))))
 
 (rf/reg-sub

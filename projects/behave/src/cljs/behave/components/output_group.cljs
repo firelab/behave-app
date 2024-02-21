@@ -1,16 +1,15 @@
 (ns behave.components.output-group
-  (:require [re-frame.core :as rf]
-            [behave.components.core :as c]))
+  (:require [behave.components.core :as c]
+            [behave.translate       :refer [<t]]
+            [re-frame.core          :as rf]))
 
-(defn wizard-output [ws-uuid {uuid :bp/uuid var-name :variable/name help-key :group-variable/help-key}]
-  (let [checked? (rf/subscribe [:worksheet/output-enabled? ws-uuid uuid])]
-    ;; (when checked?
-    ;;   (println "Variable checked for: worksheet" ws-uuid)
-    ;;   (println "uuid:" uuid))
+(defn wizard-output [ws-uuid {gv-uuid         :bp/uuid
+                              help-key        :group-variable/help-key}]
+  (let [checked? (rf/subscribe [:worksheet/output-enabled? ws-uuid gv-uuid])]
     [:div.wizard-output {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
-     [c/checkbox {:label     var-name
+     [c/checkbox {:label     @(rf/subscribe [:wizard/gv-uuid->variable-name-2 gv-uuid])
                   :checked?  @checked?
-                  :on-change #(rf/dispatch [:worksheet/upsert-output ws-uuid uuid (not @checked?)])}]]))
+                  :on-change #(rf/dispatch [:worksheet/upsert-output ws-uuid gv-uuid (not @checked?)])}]]))
 
 (defn output-group [ws-uuid group variables level]
   [:div.wizard-group
