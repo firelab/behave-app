@@ -171,19 +171,17 @@
 (reg-sub
  :wizard/gv-uuid->variable-name-1
  (fn [_ [_ gv-uuid]]
-   (->> (d/entity @@vms-conn [:bp/uuid gv-uuid])
-        :group-variable/translation-key
-        <t
-        deref)))
+   (when-let [translation-key (->> (d/entity @@vms-conn [:bp/uuid gv-uuid])
+                                   :group-variable/translation-key1)]
+     @(<t translation-key))))
 
 ;; Converts group variable uuid to the translated variable name using the second translation-key
 (reg-sub
  :wizard/gv-uuid->variable-name-2
  (fn [_ [_ gv-uuid]]
-   (->> (d/entity @@vms-conn [:bp/uuid gv-uuid])
-        :group-variable/translation-key2
-        <t
-        deref)))
+   (when-let [translation-key (->> (d/entity @@vms-conn [:bp/uuid gv-uuid])
+                                   :group-variable/translation-key2)]
+     @(<t translation-key))))
 
 (reg-sub
  :wizard/gv-uuid->variable-units
