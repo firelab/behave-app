@@ -31,7 +31,7 @@
 (defmethod tool-input :continuous
   [{:keys [variable tool-uuid subtool-uuid auto-compute?]}]
   (let [{sv-uuid           :bp/uuid
-         var-uuid          :variable/uuid
+         domain-uuid       :variable/domain-uuid
          var-name          :variable/name
          dimension-uuid    :variable/dimension-uuid
          native-unit-uuid  :variable/native-unit-uuid
@@ -39,6 +39,7 @@
          metric-unit-uuid  :variable/metric-unit-uuid
          help-key          :subtool-variable/help-key} variable
 
+        *domain               (rf/subscribe [:vms/entity-from-uuid domain-uuid])
         *unit-uuid (rf/subscribe [:tool/input-units tool-uuid subtool-uuid sv-uuid])
         value      (rf/subscribe [:tool/input-value tool-uuid subtool-uuid sv-uuid])
         value-atom (r/atom @value)]
@@ -58,12 +59,12 @@
                                                   auto-compute?])}]]
 
      [unit-display
-      var-uuid
+      domain-uuid
       @*unit-uuid
-      dimension-uuid
-      native-unit-uuid
-      english-unit-uuid
-      metric-unit-uuid
+      (or (:domain/dimension-uuid @*domain) dimension-uuid)
+      (or (:domain/native-unit-uuid @*domain) native-unit-uuid)
+      (or (:domain/english-unit-uuid @*domain) english-unit-uuid)
+      (or (:domain/metric-unit-uuid @*domain) metric-unit-uuid)
       #(rf/dispatch [:tool/update-input-units
                      tool-uuid
                      subtool-uuid
@@ -123,7 +124,7 @@
 
 (defn- tool-output
   [{sv-uuid           :bp/uuid
-    var-uuid          :variable/uuid
+    domain-uuid       :variable/domain-uuid
     var-name          :variable/name
     dimension-uuid    :variable/dimension-uuid
     native-unit-uuid  :variable/native-unit-uuid
@@ -132,7 +133,8 @@
     help-key          :subtool-variable/help-key}
    tool-uuid
    subtool-uuid]
-  (let [value (rf/subscribe [:tool/output-value tool-uuid subtool-uuid sv-uuid])]
+  (let [*domain (rf/subscribe [:vms/entity-from-uuid domain-uuid])
+        value   (rf/subscribe [:tool/output-value tool-uuid subtool-uuid sv-uuid])]
     [:div.tool-output
      {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
      [:div.tool-output__output
@@ -142,12 +144,12 @@
                      :label     var-name
                      :value     (or @value "")}]]
      [unit-display
-      var-uuid
+      domain-uuid
       nil
-      dimension-uuid
-      native-unit-uuid
-      english-unit-uuid
-      metric-unit-uuid]]))
+      (or (:domain/dimension-uuid @*domain) dimension-uuid)
+      (or (:domain/native-unit-uuid @*domain) native-unit-uuid)
+      (or (:domain/english-unit-uuid @*domain) english-unit-uuid)
+      (or (:domain/metric-unit-uuid @*domain) metric-unit-uuid)]]))
 
 (defn- auto-compute-subtool [tool-uuid subtool-uuid]
   (rf/dispatch [:tool/solve tool-uuid subtool-uuid])

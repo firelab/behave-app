@@ -2,9 +2,12 @@
   (:require [reagent.core            :as r]
             [re-frame.core           :as rf]
             [behave.components.core  :as c]
-            [behave.translate        :refer [<t bp]]))
+            [behave.translate        :refer [<t bp]]
+            [clojure.string :as str]))
 
-(defmulti wizard-input (fn [variable _ _ _ _] (:variable/kind variable)))
+(defmulti wizard-input (fn [variable _ _ _ _] (if (:group-variable/discrete-multiple? variable)
+                                                :multi-discrete
+                                                (:variable/kind variable))))
 
 (defmethod wizard-input :continuous [{uuid     :bp/uuid
                                       var-name :variable/name
@@ -48,6 +51,30 @@
                   :label    @(<t (bp "change_selection"))
                   :size     "small"
                   :on-click #(rf/dispatch [:wizard/edit-input edit-route repeat-id uuid])}]]]]))
+
+(defmethod wizard-input :multi-discrete [{gv-uuid  :bp/uuid
+                                          var-name :variable/name
+                                          help-key :group-variable/help-key
+                                          eid      :db/id}
+                                         ws-uuid
+                                         group-uuid
+                                         repeat-id
+                                         _repeat-group?
+                                         edit-route]
+  (let [*value               (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id gv-uuid])
+        resolved-enum-values (->> (str/split @*value ",")
+                                  (map #(deref (rf/subscribe [:worksheet/resolve-enum-value eid %]))))]
+    [:div.wizard-input {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
+     [:div.wizard-review__input
+      [:div.wizard-review__input--discrete
+       [:div.wizard-review__input--discrete__label (str var-name "s:")]
+       [:div.wizard-review__input--multi-discrete
+        (for [enum resolved-enum-values]
+          [:div.wizard-review__input--discrete__value enum])]
+       [c/button {:variant  "primary"
+                  :label    @(<t (bp "change_selection"))
+                  :size     "small"
+                  :on-click #(rf/dispatch [:wizard/edit-input edit-route repeat-id gv-uuid])}]]]]))
 
 (defmethod wizard-input :text [{uuid     :bp/uuid
                                 var-name :variable/name

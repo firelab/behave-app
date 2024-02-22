@@ -119,7 +119,8 @@
 
 (defn- settings [group-variable]
   [:div.row.mt-2
-   [bool-setting "Research Variable?" :group-variable/research? group-variable]])
+   [bool-setting "Research Variable?" :group-variable/research? group-variable]
+   [bool-setting "Discrete Multiple?" :group-variable/discrete-multiple? group-variable]])
 
 ;;; Public Views
 

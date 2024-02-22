@@ -6,7 +6,8 @@
             [string-utils.interface  :refer [->kebab]]
             [behave.translate        :refer [<t bp]]
             [behave.utils            :refer [inclusive-range]]
-            [behave.components.unit-selector :refer [unit-display]]))
+            [behave.components.unit-selector :refer [unit-display]]
+            [clojure.string :as str]))
 
 ;;; Helpers
 
@@ -15,7 +16,10 @@
 
 ;;; Components
 
-(defmulti wizard-input (fn [variable _ _] (:variable/kind variable)))
+(defmulti wizard-input (fn [variable _ _]
+                         (if (:group-variable/discrete-multiple? variable)
+                           :multi-discrete
+                           (:variable/kind variable))))
 
 (defmethod wizard-input nil [variable] (println [:NO-KIND-VAR variable]))
 
@@ -130,6 +134,35 @@
          :options   (concat [{:label "Select..." :value "nil"}]
                             (map ->option options))}])]))
 
+(defmethod wizard-input :multi-discrete [variable ws-uuid group-uuid repeat-id _repeat-group?]
+  (r/with-let [{gv-uuid  :bp/uuid
+                var-name :variable/name
+
+                help-key :group-variable/help-key
+                llist    :variable/list} variable
+               options                   (sort-by :list-option/order
+                                                  (filter #(not (:list-option/hide? %))
+                                                          (:list/options llist)))
+               on-select #(rf/dispatch [:worksheet/upsert-multi-select-input
+                                        ws-uuid group-uuid repeat-id gv-uuid %])
+               on-deselect #(rf/dispatch [:worksheet/remove-multi-select-input
+                                          ws-uuid group-uuid repeat-id gv-uuid %])
+               ws-input-values (-> @(rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id gv-uuid])
+                                   (str/split ",")
+                                   (set))
+               ->option                  (fn [{value            :list-option/value
+                                               list-option-name :list-option/name}]
+                                           {:value       value
+                                            :label       list-option-name
+                                            :on-select   on-select
+                                            :on-deselect on-deselect
+                                            :selected?   (contains? ws-input-values value)})]
+    [:div.wizard-input
+     {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
+     [c/multi-select-input
+      {:input-label var-name
+       :options     (doall (map ->option options))}]]))
+
 (defmethod wizard-input :text [{uuid     :bp/uuid
                                 var-name :variable/name
                                 help-key :group-variable/help-key}
@@ -157,17 +190,17 @@
                                    0)]
     [:<>
      (map-indexed
-       (fn [index repeat-id]
-         ^{:key repeat-id}
-         [:<>
-          [:div.wizard-repeat-group
-           [:div.wizard-repeat-group__header
-            (str group-name " #" (inc index))]]
-          [:div.wizard-group__inputs
-           (for [variable variables]
-             ^{:key (:db/id variable)}
-             [wizard-input variable ws-uuid group-uuid repeat-id true])]])
-       @*repeat-ids)
+      (fn [index repeat-id]
+        ^{:key repeat-id}
+        [:<>
+         [:div.wizard-repeat-group
+          [:div.wizard-repeat-group__header
+           (str group-name " #" (inc index))]]
+         [:div.wizard-group__inputs
+          (for [variable variables]
+            ^{:key (:db/id variable)}
+            [wizard-input variable ws-uuid group-uuid repeat-id true])]])
+      @*repeat-ids)
      [:div {:style {:display         "flex"
                     :padding         "20px"
                     :align-items     "center"

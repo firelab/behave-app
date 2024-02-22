@@ -52,9 +52,9 @@
 (defn parsed-value [group-variable-uuid value]
   (let [kind (variable-kind group-variable-uuid)]
     (condp = kind
-      :discrete   (if (is-digit? value) (parse-int value) value)
-      :continuous (parse-float value)
-      :text       value)))
+      :discrete       (if (is-digit? value) (parse-int value) value)
+      :continuous     (parse-float value)
+      :text           value)))
 
 (defn fn-params [function-id]
   (->> (q-vms '[:find ?p ?p-name ?p-type ?p-order
@@ -190,6 +190,20 @@
                  [?s :bp/uuid ?gv-uuid]
                  [?l :link/source ?s]
                  [?l :link/destination ?d]
+                 [?d :bp/uuid ?destination-uuid]]
+               (vec gv-uuids))))
+
+(defn output-source-links
+  "Obtains outpout Group Variables that serve as sources to links."
+  [gv-uuids]
+  (into {}
+        (q-vms '[:find ?gv-uuid ?destination-uuid
+                 :in [?gv-uuid ...]
+                 :where
+                 [?s :bp/uuid ?gv-uuid]
+                 [?l :link/source ?s]
+                 [?l :link/destination ?d]
+                 (io ?s :output)
                  [?d :bp/uuid ?destination-uuid]]
                (vec gv-uuids))))
 

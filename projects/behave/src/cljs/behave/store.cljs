@@ -1,18 +1,20 @@
 (ns behave.store
-  (:require [clojure.set :refer [union]]
-            [clojure.edn :as edn]
-            [ajax.core :refer [ajax-request]]
-            [ajax.edn  :refer [edn-request-format]]
-            [ajax.protocols :as pr]
-            [datascript.core :as d]
-            [re-frame.core :as rf]
-            [re-posh.core :as rp]
-            [browser-utils.interface :refer [debounce]]
-            [datom-compressor.interface :as c]
-            [ds-schema-utils.interface :refer [->ds-schema]]
-            [datom-utils.interface :refer [split-datom]]
-            [behave.schema.core :refer [all-schemas]]
-            [austinbirch.reactive-entity :as re]))
+  (:require [ajax.core                   :refer [ajax-request]]
+            [ajax.edn                     :refer [edn-request-format]]
+            [ajax.protocols              :as pr]
+            [austinbirch.reactive-entity :as re]
+            [behave.schema.core          :refer [all-schemas]]
+            [browser-utils.core          :refer [download]]
+            [browser-utils.interface     :refer [debounce]]
+            [clojure.edn                 :as edn]
+            [clojure.set                 :refer [union]]
+            [datascript.core             :as d]
+            [datom-compressor.interface  :as c]
+            [datom-utils.interface       :refer [split-datom]]
+            [ds-schema-utils.interface   :refer [->ds-schema]]
+            [re-frame.core               :as rf]
+            [re-posh.core                :as rp]
+            [string-utils.interface      :refer [->str]]))
 
 ;;; State
 
@@ -82,28 +84,95 @@
         (d/transact @conn datoms)))))
 
 (defn sync-latest-datoms! []
-  (ajax-request {:uri "/sync"
-                 :params {:tx (:max-tx @@conn)}
-                 :method :get
-                 :handler apply-latest-datoms
-                 :format {:content-type "plain/text" :write str}
-                 :response-format {:description "ArrayBuffer"
-                                   :type :arraybuffer
+  (ajax-request {:uri             "/sync"
+                 :params          {:tx (:max-tx @@conn)}
+                 :method          :get
+                 :handler         apply-latest-datoms
+                 :format          {:content-type "plain/text" :write str}
+                 :response-format {:description  "ArrayBuffer"
+                                   :type         :arraybuffer
                                    :content-type "application/msgpack"
-                                   :read pr/-body}}))
+                                   :read         pr/-body}}))
+
+(defn- save-worksheet-handler [file-name [ok body]]
+  (when ok
+    (download body file-name "application/x-sqlite3")))
+
+(defn save-worksheet! [{:keys [ws-uuid file-name]}]
+  (ajax-request {:uri             "/save"
+                 :params          {:ws-uuid   ws-uuid
+                                   :file-name file-name}
+                 :method          :post
+                 :handler         (partial save-worksheet-handler file-name)
+                 :format          (edn-request-format)
+                 :response-format {:description  "ArrayBuffer"
+                                   :type         :arraybuffer
+                                   :content-type "application/x-sqlite3"
+                                   :read         pr/-body}}))
+
+(defn- open-worksheet-handler [[ok body]]
+  (when ok
+    (reset! conn nil)
+    (reset! sync-txs #{})
+    (reset! my-txs #{})
+    (let [datoms (mapv #(apply d/datom %) (c/unpack body))]
+      (rf/dispatch-sync [:ds/initialize (->ds-schema all-schemas) datoms])
+      (rf/dispatch-sync [:state/set :sync-loaded? true])
+      (rf/dispatch-sync [:wizard/navigate-to-latest-worksheet]))))
+
+(defn open-worksheet! [{:keys [file]}]
+  (let [form-data (js/FormData.)]
+    (.append form-data "file" file)
+    (ajax-request {:uri             "/open"
+                   :body            form-data
+                   :method          :post
+                   :handler         open-worksheet-handler
+                   :response-format {:description  "ArrayBuffer"
+                                     :type         :arraybuffer
+                                     :content-type "application/msgpack"
+                                     :read         pr/-body}})))
+
+(defn new-worksheet-handler [nname modules submodule [ok body]]
+  (when ok
+    (reset! conn nil)
+    (reset! sync-txs #{})
+    (reset! my-txs #{})
+    (let [datoms  (mapv #(apply d/datom %) (c/unpack body))
+          ws-uuid (str (d/squuid))]
+      (rf/dispatch-sync [:ds/initialize (->ds-schema all-schemas) datoms])
+      (rf/dispatch-sync [:state/set :sync-loaded? true])
+      (rf/dispatch-sync [:worksheet/new {:name    nname
+                                         :modules (vec modules)
+                                         :uuid    ws-uuid}])
+      (rf/dispatch-sync [:navigate (str "/worksheets/"
+                                        ws-uuid
+                                        "/modules/"
+                                        (->str (first modules))
+                                        "/output/"
+                                        submodule)]))))
+
+(defn new-worksheet! [nname modules submodule]
+  (ajax-request {:uri             "/init"
+                 :handler         (partial new-worksheet-handler nname modules submodule)
+                 :method          :get
+                 :format          {:content-type "application/text" :write str}
+                 :response-format {:description  "ArrayBuffer"
+                                   :type         :arraybuffer
+                                   :content-type "application/msgpack"
+                                   :read         pr/-body}}))
 
 ;;; Public Fns
 
 (defn init! [{:keys [datoms schema]}]
   (if @conn
-   @conn
-   (do
-     (reset! conn (d/conn-from-datoms datoms schema))
-     (d/listen! @conn :sync-tx-data sync-tx-data)
-     (rp/connect! @conn)
-     (re/init! @conn)
-     #_(js/setInterval sync-latest-datoms! 5000)
-     @conn)))
+    @conn
+    (do
+      (reset! conn (d/conn-from-datoms datoms schema))
+      (d/listen! @conn :sync-tx-data sync-tx-data)
+      (rp/connect! @conn)
+      (re/init! @conn)
+      #_(js/setInterval sync-latest-datoms! 5000)
+      @conn)))
 
 ;;; Effects
 
@@ -112,11 +181,11 @@
 ;;; Events
 
 (rf/reg-event-fx
-  :ds/initialize
-  (fn [_ [_ schema datoms]]
-    {:ds/init {:datoms datoms :schema schema}}))
+ :ds/initialize
+ (fn [_ [_ schema datoms]]
+   {:ds/init {:datoms datoms :schema schema}}))
 
 (rp/reg-event-ds
-  :ds/transact
-  (fn [_ [_ tx-data]]
-    (first tx-data)))
+ :ds/transact
+ (fn [_ [_ tx-data]]
+   (first tx-data)))

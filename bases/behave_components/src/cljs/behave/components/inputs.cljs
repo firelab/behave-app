@@ -1,6 +1,13 @@
 (ns behave.components.inputs
   (:require [behave.components.button :refer [button]]
-            [behave.components.a11y   :refer [on-space on-enter]]))
+            [behave.components.a11y   :refer [on-space on-enter]]
+            [behave.components.icon.core :refer [icon]]
+            [reagent.core :as r]
+            [goog.string              :as gstring]))
+
+;;==============================================================================
+;; Checkbox
+;;==============================================================================
 
 (defn checkbox [{:keys [label id name on-change checked? disabled? error?]}]
   [:label {:class ["input-checkbox"
@@ -23,6 +30,10 @@
      :name      name}]
    [:span {:class "input-checkbox__label"} label]])
 
+;;==============================================================================
+;; Browse
+;;==============================================================================
+
 (defn browse-input [{:keys [accept label button-label focus? error? disabled? on-change]}]
   [:div
    {:class ["input-browse"
@@ -43,6 +54,10 @@
     {:class "input-browse__label"}
     label]])
 
+;;==============================================================================
+;; Number
+;;==============================================================================
+
 (defn number-input [{:keys [label id name on-change on-blur disabled? error? min max value value-atom step]}]
   [:div {:class ["input-number " (when error? "input-number--error")]}
    [:label
@@ -62,6 +77,10 @@
       value      (assoc :value value)
       value-atom (assoc :value @value-atom))]])
 
+;;==============================================================================
+;; Range
+;;==============================================================================
+
 (defn range-input [{:keys [label id name on-change disabled? error? min max]}]
   [:div {:class ["input-range " (when error? "input-range--error")]}
    [:label
@@ -76,6 +95,10 @@
       :min       min
       :max       max
       :on-change on-change}]]])
+
+;;==============================================================================
+;; Radio Group
+;;==============================================================================
 
 (defn radio-input [{:keys [label id name value on-change checked? disabled? error?]}]
   [:label {:class ["input-radio"
@@ -104,11 +127,15 @@
    [:label {:class "input-radio-group__label"} label]
    [:div.input-radio-group__options
     (for [option options]
-     ^{:key (:label option)}
-     [radio-input (cond-> option
-                    disabled? (assoc :disabled? true))])]])
+      ^{:key (:label option)}
+      [radio-input (cond-> option
+                     disabled? (assoc :disabled? true))])]])
 
-(defn option [{:keys [label value selected? disabled?]}]
+;;==============================================================================
+;; Dropdown
+;;==============================================================================
+
+(defn- option [{:keys [label value selected? disabled?]}]
   [:option
    {:key      value
     :class    "input-dropdown__option"
@@ -116,7 +143,7 @@
     :selected selected?
     :value    value} label])
 
-(defn option-group [label]
+(defn- option-group [label]
   [:optgroup {:key label :class "input-dropdown__option-group" :label label}])
 
 (defn dropdown [{:keys [label id name on-change disabled? error? options]}]
@@ -136,6 +163,75 @@
        (if (some? group)
          [option-group group (for [o (:options opt)] [option o])]
          [option opt]))]]])
+
+;;==============================================================================
+;; Multi Select
+;;==============================================================================
+
+(defn multi-select-option [{:keys [selected? label on-click]}]
+  [:div {:class    ["multi-select__option"
+                    (when selected? "multi-select__option--selected")]
+         :on-click on-click}
+   [:div {:class [(if selected? "multi-select__option__icon--minus" "multi-select__option__icon--plus")]}
+    [icon (if selected? "minus" "plus")]]
+   label])
+
+(defn multi-select-input [{:keys [input-label options]}]
+  (r/with-let [selections (r/atom (->> options
+                                       (filter #(true? (:selected? %)))
+                                       (map (fn [{:keys [label value on-deselect]}] [label value on-deselect]))
+                                       (into (sorted-set))))
+               show-options? (r/atom false)]
+    [:div.multi-select
+     (when @show-options?
+       [:<>
+        [:div.multi-select__prompt
+         (gstring/format "Please select from the following %ss (you can select multiple)" input-label)]
+        [:div.multi-select__options
+         (doall
+          (for [{:keys [label value on-select on-deselect]} options]
+            ^{:key label}
+            (let [selection [label value on-deselect]]
+              [multi-select-option {:selected? (contains? @selections selection)
+                                    :label     label
+                                    :on-click  #(do (if (contains? @selections selection)
+                                                      (do
+                                                        (reset! selections (disj @selections selection))
+                                                        (when on-deselect (on-deselect value)))
+                                                      (do
+                                                        (reset! selections (conj @selections selection))
+                                                        (when on-select
+                                                          (on-select value)))))}])))]])
+     [:div.multi-select__selections
+      [:div.multi-select__selections__header
+       [:div (gstring/format "Selected %ss" input-label)]
+       [:div.multi-select__selections__header__button (if (false? @show-options?)
+                                                        [button {:label     "Select More"
+                                                                 :variant   "primary"
+                                                                 :icon-name "plus"
+                                                                 :size      "small"
+                                                                 :on-click  #(reset! show-options? (not @show-options?))}]
+                                                        [button {:label     "View"
+                                                                 :variant   "highlight"
+                                                                 :icon-name "arrow"
+                                                                 :size      "small"
+                                                                 :on-click  #(reset! show-options? (not @show-options?))}])]]
+      [:div.multi-select__selections__description (if (false? @show-options?)
+                                                    (gstring/format "Your %s selections" input-label)
+                                                    (gstring/format "View your %s selections" input-label))]
+      (when (false? @show-options?)
+        [:div.multi-select__selections__body (for [[label value on-deselect :as selection] @selections]
+                                               [:div.multi-select__option--selected
+                                                {:on-click #(do
+                                                              (reset! selections (disj @selections selection))
+                                                              (when on-deselect (on-deselect value)))}
+                                                [:div.multi-select__option__icon--minus
+                                                 [icon "minus"]]
+                                                label])])]]))
+
+;;==============================================================================
+;; Text
+;;==============================================================================
 
 (defn text-input
   [{:keys [disabled? error? focused? id label name on-blur on-change on-focus

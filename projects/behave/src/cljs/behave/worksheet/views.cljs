@@ -4,7 +4,6 @@
             [behave.tool.views            :refer [tool tool-selector]]
             [behave.translate             :refer [<t bp]]
             [behave.worksheet.events]
-            [datascript.core              :refer [squuid]]
             [re-frame.core                :as rf]
             [reagent.core                 :as r]
             [dom-utils.interface          :refer [input-value]]
@@ -125,16 +124,7 @@
                           :back-label     @(<t (bp "back"))
                           :next-disabled? (empty? @*modules)
                           :on-back        #(.back js/history)
-                          :on-next        #(do
-                                             ;; Generate UUID
-                                             (let [ws-uuid (str (squuid))]
-
-                                               ;; Create the Worksheet
-                                               (rf/dispatch [:worksheet/new
-                                                             {:name @name :modules (vec @*modules) :uuid ws-uuid}])
-
-                                               ;; Look at modules that user has selected, find the first output submodule
-                                               (rf/dispatch [:navigate (str "/worksheets/" ws-uuid "/modules/" (->str (first @*modules)) "/output/" @*submodule)])))}]]]))
+                          :on-next        #(rf/dispatch [:wizard/new-worksheet @name @*modules @*submodule])}]]]))
 
 (defn guided-worksheet-page [_params]
   [:<>
@@ -143,8 +133,10 @@
      [:h3 "TODO: FLESH OUT GUIDED WORKSHEET"]]]])
 
 (defn import-worksheet-page [_params]
-  (let [file (r/track #(or @(rf/subscribe [:state [:worksheet :file]])
-                           @(<t (bp "select_a_file"))))]
+  (let [file-name (r/track #(or @(rf/subscribe [:state [:worksheet :file :name]])
+                                @(<t (bp "select_a_file"))))
+        file      (r/track #(or @(rf/subscribe [:state [:worksheet :file :obj]])
+                                nil))]
     [:<>
      [:div.workflow-select
       [:div.workflow-select__header
@@ -152,13 +144,14 @@
        [:p @(<t (bp "please_select_from_the_following_options"))]]
       [:div.workflow-select__content
        [c/browse-input {:button-label @(<t (bp "browse"))
-                        :accept       ".bpr,bpw,.bp6,.bp7"
-                        :label        @file
+                        :accept       ".bpr,bpw,.bp6,.bp7,.sqlite"
+                        :label        @file-name
                         :on-change    #(rf/dispatch [:ws/worksheet-selected (.. % -target -files)])}]
        [wizard-navigation {:next-label @(<t (bp "next"))
                            :back-label @(<t (bp "back"))
                            :on-back    #(.back js/history)
-                           :on-next    #(rf/dispatch [:navigate "/worksheets/1/modules/contain/output/fire"])}]]]]))
+                           ;;TODO Get full file path from file
+                           :on-next    #(rf/dispatch [:wizard/open @file])}]]]]))
 
 ;; TODO use title
 (defn new-worksheet-page [params]

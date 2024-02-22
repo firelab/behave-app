@@ -100,8 +100,6 @@ html {
   --line-spacing-24: 24px;
   --line-spacing-26: 26px;
   --uppercase: uppercase;
-
-
   /* Application should use these variables for changing themes */
   --theme-color-1: var(--medblue-4);
   --theme-color-2: var(--medblue-3);
@@ -1959,6 +1957,103 @@ p {
 }
 
 .note__footer > button {
-  margin-left: auto;
   margin-top: 14px;
+  margin-left: auto;
 }
+
+
+/* - Start Multi Select - */
+
+.multi-select {
+  width: 100%;
+}
+
+.multi-select__prompt {
+  padding: 12px;
+  font-size: var(--font-size-14);
+  color: var(--gray-7);
+}
+
+.multi-select__options {
+  overflow-y: scroll;
+  height:  230px;
+  margin-bottom: 7px;
+  padding: 0px 12px 0px 12px;
+}
+
+.multi-select__option--selected,
+.multi-select__option {
+  display: flex;
+  width: max-content;
+  height: 20px;
+  margin-bottom: 10px;
+  padding: 2px 12px 2px 12px;
+  border: 0px 0px 0px 6px;
+  border-radius: 2px;
+  font-size: var(--font-size-14);
+  font-weight: var(--font-weight-normal);
+  align-items: center;
+}
+
+.multi-select__option__icon--minus,
+.multi-select__option__icon--plus {
+  position: relative;
+  top: 1px;
+  padding-right: 5px;
+  fill: currentColor;
+}
+
+.multi-select__option__icon--minus {
+  top: -2px;
+}
+
+.multi-select__option--selected,
+.multi-select__option:hover {
+  width: max-content;
+  text-align: center;
+  color: var(--white);
+  cursor: pointer;
+}
+
+.multi-select__option--selected {
+  background-color: var(--medblue-3);
+}
+
+.multi-select__option--selected:hover,
+.multi-select__option:hover {
+  background-color: var(--medblue-2);
+}
+
+.multi-select__selections {
+  padding: 10px 12px 10px 12px;
+  border: 1px solid var(--gray-3);
+}
+
+.multi-select__selections__header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 6px;
+  border-bottom: 1px solid var(--gray-7);
+  font-size: var(--font-size-18);
+  font-weight: var (--font-weight-500);
+}
+
+.multi-select__selections__header__button {
+  margin-left: auto;
+  padding-bottom: 5px;
+}
+
+.multi-select__selections__description {
+  font-size: var(--font-size-14);
+}
+
+.multi-select__selections__body {
+  padding: 10px 0px 0px 0px;
+}
+
+.multi-select__selections__header__button .button__icon {
+  top: 0px;
+}
+
+/* - End Multi Select - */
