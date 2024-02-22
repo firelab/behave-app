@@ -1,13 +1,12 @@
 (ns behave.components.output-group
   (:require [behave.components.core :as c]
-            [behave.translate       :refer [<t]]
             [re-frame.core          :as rf]))
 
 (defn wizard-output [ws-uuid {gv-uuid  :bp/uuid
                               help-key :group-variable/help-key}]
   (let [checked? (rf/subscribe [:worksheet/output-enabled? ws-uuid gv-uuid])]
     [:div.wizard-output {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
-     [c/checkbox {:label     @(rf/subscribe [:wizard/gv-uuid->variable-name-2 gv-uuid])
+     [c/checkbox {:label     @(rf/subscribe [:wizard/gv-uuid->variable-name-1 gv-uuid])
                   :checked?  @checked?
                   :on-change #(rf/dispatch [:worksheet/upsert-output ws-uuid gv-uuid (not @checked?)])}]]))
 

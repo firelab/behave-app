@@ -30,40 +30,6 @@ behaveplus:close_notes,Close Notes
 behaveplus:close_tool,Close Tool
 behaveplus:compute,Compute
 behaveplus:contain,Contain
-behaveplus:contain:input:fire:fire_size_at_report:fire_size_at_report,Fire Size at Report
-behaveplus:contain:input:fire:fire_size_at_report:fire_size_at_report_2,Fire Size at Report
-behaveplus:contain:input:fire:length_to_width_ratio:length_to_width_ratio,Length-to-Width Ratio
-behaveplus:contain:input:fire:length_to_width_ratio:length_to_width_ratio_2,Length-to-Width Ratio
-behaveplus:contain:input:fire:surface_rate_of_spread_maximum:surface_fire_rate_of_spread_maximum,Surface Fire Rate of Spread (maximum)
-behaveplus:contain:input:fire:surface_rate_of_spread_maximum:surface_fire_rate_of_spread_maximum_2,Surface Fire Rate of Spread (maximum)
-behaveplus:contain:input:suppression:line_construction_offset:line_construction_offset,Line Construction Offset
-behaveplus:contain:input:suppression:line_construction_offset:line_construction_offset_2,Line Construction Offset
-behaveplus:contain:input:suppression:resources:resource_arrival_time,Resource Arrival Time
-behaveplus:contain:input:suppression:resources:resource_arrival_time_2,Resource Arrival Time
-behaveplus:contain:input:suppression:resources:resource_duration,Resource Duration
-behaveplus:contain:input:suppression:resources:resource_duration_2,Resource Duration
-behaveplus:contain:input:suppression:resources:resource_line_production_rate,Resource Line Production Rate
-behaveplus:contain:input:suppression:resources:resource_line_production_rate_2,Resource Line Production Rate
-behaveplus:contain:input:suppression:resources:resource_name,Resource Name
-behaveplus:contain:input:suppression:resources:resource_name_2,Resource Name
-behaveplus:contain:input:suppression:tactic:tactic,Tactic
-behaveplus:contain:input:suppression:tactic:tactic_2,Tactic
-behaveplus:contain:output:fire:containment:contain_status,Contain Status
-behaveplus:contain:output:fire:containment:contain_status_2,Contain Status
-behaveplus:contain:output:fire:containment:contained_area,Contained Area
-behaveplus:contain:output:fire:containment:contained_area_2,Contained Area
-behaveplus:contain:output:fire:containment:containment-diagram,Containment Diagram
-behaveplus:contain:output:fire:containment:containment-diagram_2,Containment Diagram
-behaveplus:contain:output:fire:containment:fireline_constructed,Fireline Constructed
-behaveplus:contain:output:fire:containment:fireline_constructed_2,Fireline Constructed
-behaveplus:contain:output:fire:containment:time_from_report,Time from Report
-behaveplus:contain:output:fire:containment:time_from_report_2,Time from Report
-behaveplus:contain:output:fire:fire_size___at_resource_arrival_time:fire_area___at_resource_arrival_time,Fire Area at First Resource Arrival Time
-behaveplus:contain:output:fire:fire_size___at_resource_arrival_time:fire_area___at_resource_arrival_time_2,Fire Area at First Resource Arrival Time
-behaveplus:contain:output:fire:fire_size___at_resource_arrival_time:fire_perimeter___at_resource_arrival_time,Fire Perimeter at First Resource Arrival Time
-behaveplus:contain:output:fire:fire_size___at_resource_arrival_time:fire_perimeter___at_resource_arrival_time_2,Fire Perimeter at First Resource Arrival Time
-behaveplus:contain:output:fire:resources:number_of_resources_used,Number of Resources Used
-behaveplus:contain:output:fire:resources:number_of_resources_used_2,Number of Resources Used
 behaveplus:contain_inputs,Contain Inputs
 behaveplus:contain_only,Contain Only
 behaveplus:contain_results,Contain Results
@@ -73,96 +39,6 @@ behaveplus:contained_area,Contained Area
 behaveplus:containment,Containment
 behaveplus:containment_diagram,Containment Diagram
 behaveplus:crown,Crown
-behaveplus:crown:input:calculation_options:calculate_crown_fire_using:calculate_crown_fire_using,Calculate Crown Fire using:
-behaveplus:crown:input:calculation_options:calculate_crown_fire_using:calculate_crown_fire_using_2,Calculate Crown Fire using:
-behaveplus:crown:input:canopy_fuel:canopy-cover:canopy-cover,Canopy Cover
-behaveplus:crown:input:canopy_fuel:canopy-cover:canopy-cover_2,Canopy Cover
-behaveplus:crown:input:canopy_fuel:canopy_base_height:canopy_base_height,Canopy Base Height
-behaveplus:crown:input:canopy_fuel:canopy_base_height:canopy_base_height_2,Canopy Base Height
-behaveplus:crown:input:canopy_fuel:canopy_bulk_density:canopy_bulk_density,Canopy Bulk Density
-behaveplus:crown:input:canopy_fuel:canopy_bulk_density:canopy_bulk_density_2,Canopy Bulk Density
-behaveplus:crown:input:canopy_fuel:canopy_height:canopy_height,Canopy Height
-behaveplus:crown:input:canopy_fuel:canopy_height:canopy_height_2,Canopy Height
-behaveplus:crown:input:canopy_fuel:crown-ratio:crown-ratio,Crown Ratio
-behaveplus:crown:input:canopy_fuel:crown-ratio:crown-ratio_2,Crown Ratio
-behaveplus:crown:input:fuel_moisture:1-h-fuel-moisture:1-h-fuel-moisture,1-h Fuel Moisture
-behaveplus:crown:input:fuel_moisture:1-h-fuel-moisture:1-h-fuel-moisture_2,1-h Fuel Moisture
-behaveplus:crown:input:fuel_moisture:10-h-fuel-moisture:10-h-fuel-moisture,10-h Fuel Moisture
-behaveplus:crown:input:fuel_moisture:10-h-fuel-moisture:10-h-fuel-moisture_2,10-h Fuel Moisture
-behaveplus:crown:input:fuel_moisture:100-h-fuel-moisture:100-h-fuel-moisture,100-h Fuel Moisture
-behaveplus:crown:input:fuel_moisture:100-h-fuel-moisture:100-h-fuel-moisture_2,100-h Fuel Moisture
-behaveplus:crown:input:fuel_moisture:foliar_moisture:foliar_moisture,Foliar Moisture
-behaveplus:crown:input:fuel_moisture:foliar_moisture:foliar_moisture_2,Foliar Moisture
-behaveplus:crown:input:fuel_moisture:fuel-model-number:fuel-model-number,Fuel Model Number
-behaveplus:crown:input:fuel_moisture:fuel-model-number:fuel-model-number_2,Fuel Model Number
-behaveplus:crown:input:fuel_moisture:live-herbaceous-fuel-moisture:live-herbaceous-fuel-moisture,Live Herbaceous Fuel Moisture
-behaveplus:crown:input:fuel_moisture:live-herbaceous-fuel-moisture:live-herbaceous-fuel-moisture_2,Live Herbaceous Fuel Moisture
-behaveplus:crown:input:fuel_moisture:live-woody-fuel-moisture:live-woody-fuel-moisture,Live Woody Fuel Moisture
-behaveplus:crown:input:fuel_moisture:live-woody-fuel-moisture:live-woody-fuel-moisture_2,Live Woody Fuel Moisture
-behaveplus:crown:input:fuel_moisture:moisture-input-mode:moisture-input-mode,Moisture Input Mode
-behaveplus:crown:input:fuel_moisture:moisture-input-mode:moisture-input-mode_2,Moisture Input Mode
-behaveplus:crown:input:spotting:canopy_fuel:canopy_height:canopy_height,Canopy Height
-behaveplus:crown:input:spotting:canopy_fuel:canopy_height:canopy_height_2,Canopy Height
-behaveplus:crown:input:spotting:fire_behavior:active_crown_flame_length:active_crown_flame_length,Active Crown Flame Length
-behaveplus:crown:input:spotting:fire_behavior:active_crown_flame_length:active_crown_flame_length_2,Active Crown Flame Length
-behaveplus:crown:input:spotting:topography:ridge_to_valley_elevation_difference:ridge_to_valley_elevation_difference,Ridge-to-Valley Elevation Difference
-behaveplus:crown:input:spotting:topography:ridge_to_valley_elevation_difference:ridge_to_valley_elevation_difference_2,Ridge-to-Valley Elevation Difference
-behaveplus:crown:input:spotting:topography:ridge_to_valley_horizontal_distance:ridge_to_valley_horizontal_distance,Ridge-to-Valley Horizontal Distance
-behaveplus:crown:input:spotting:topography:ridge_to_valley_horizontal_distance:ridge_to_valley_horizontal_distance_2,Ridge-to-Valley Horizontal Distance
-behaveplus:crown:input:spotting:topography:spotting_source_location:spotting_source_location,Spotting Source Location
-behaveplus:crown:input:spotting:topography:spotting_source_location:spotting_source_location_2,Spotting Source Location
-behaveplus:crown:input:spotting:weather:20_ft_wind_speed:20_ft_wind_speed,Wind Speed
-behaveplus:crown:input:spotting:weather:20_ft_wind_speed:20_ft_wind_speed_2,Wind Speed
-behaveplus:crown:input:weather:wind-and-slope-are:wind-and-slope-alignment-mode,Wind and Slope Alignment Mode
-behaveplus:crown:input:weather:wind-and-slope-are:wind-and-slope-alignment-mode_2,Wind and Slope Alignment Mode
-behaveplus:crown:input:weather:wind-and-slope-are:wind-direction:wind-direction-degrees,Wind Direction (degrees)
-behaveplus:crown:input:weather:wind-and-slope-are:wind-direction:wind-direction-degrees_2,Wind Direction (degrees)
-behaveplus:crown:input:weather:wind-height-input-mode:wind-height,Wind Measured at
-behaveplus:crown:input:weather:wind-height-input-mode:wind-height_2,Wind Measured at
-behaveplus:crown:input:weather:wind-orientation-mode:wind-and-spread-orientation,Wind and Spread Directions
-behaveplus:crown:input:weather:wind-orientation-mode:wind-and-spread-orientation_2,Wind and Spread Directions
-behaveplus:crown:input:weather:wind-speed:20-ft-wind-speed,Wind Speed
-behaveplus:crown:input:weather:wind-speed:20-ft-wind-speed_2,Wind Speed
-behaveplus:crown:input:weather:wind_adjustment_factor:wind-adjustment-factor-calculation-method,Wind Adjustment Factor Calculation Method
-behaveplus:crown:input:weather:wind_adjustment_factor:wind-adjustment-factor-calculation-method_2,Wind Adjustment Factor Calculation Method
-behaveplus:crown:input:weather:wind_adjustment_factor:wind-adjustment-factor:wind-adjustment-factor,Wind Adjustment Factor
-behaveplus:crown:input:weather:wind_adjustment_factor:wind-adjustment-factor:wind-adjustment-factor_2,Wind Adjustment Factor
-behaveplus:crown:output:fire_type:active_or_independent_crown_fire:active_ratio,Active Ratio
-behaveplus:crown:output:fire_type:active_or_independent_crown_fire:active_ratio_2,Active Ratio
-behaveplus:crown:output:fire_type:active_or_independent_crown_fire:critical_crown_rate_of_spread,Critical Crown Rate of Spread
-behaveplus:crown:output:fire_type:active_or_independent_crown_fire:critical_crown_rate_of_spread_2,Critical Crown Rate of Spread
-behaveplus:crown:output:fire_type:fire_behavior:active-crown-fireline-intensity,Fireline Intensity
-behaveplus:crown:output:fire_type:fire_behavior:active-crown-fireline-intensity_2,Fireline Intensity
-behaveplus:crown:output:fire_type:fire_behavior:flame_length,Flame Length
-behaveplus:crown:output:fire_type:fire_behavior:flame_length_2,Flame Length
-behaveplus:crown:output:fire_type:fire_behavior:rate_of_spread,Rate of Spread
-behaveplus:crown:output:fire_type:fire_behavior:rate_of_spread_2,Rate of Spread
-behaveplus:crown:output:fire_type:fire_type:fire_type_required,Fire Type
-behaveplus:crown:output:fire_type:fire_type:fire_type_required_2,Fire Type
-behaveplus:crown:output:fire_type:transition_to_crown_fire:critical_surface_fireline_intensity,Critical Surface Fireline Intensity
-behaveplus:crown:output:fire_type:transition_to_crown_fire:critical_surface_fireline_intensity_2,Critical Surface Fireline Intensity
-behaveplus:crown:output:fire_type:transition_to_crown_fire:critical_surface_flame_length,Critical Surface Flame Length
-behaveplus:crown:output:fire_type:transition_to_crown_fire:critical_surface_flame_length_2,Critical Surface Flame Length
-behaveplus:crown:output:fire_type:transition_to_crown_fire:critical_surface_rate_of_spread,Critical Surface Rate of Spread
-behaveplus:crown:output:fire_type:transition_to_crown_fire:critical_surface_rate_of_spread_2,Critical Surface Rate of Spread
-behaveplus:crown:output:fire_type:transition_to_crown_fire:transition_ratio,Transition Ratio
-behaveplus:crown:output:fire_type:transition_to_crown_fire:transition_ratio_2,Transition Ratio
-behaveplus:crown:output:size:fire_area:fire_area,Fire Area
-behaveplus:crown:output:size:fire_area:fire_area_2,Fire Area
-behaveplus:crown:output:size:fire_perimeter:fire_perimeter,Fire Perimeter
-behaveplus:crown:output:size:fire_perimeter:fire_perimeter_2,Fire Perimeter
-behaveplus:crown:output:size:length_to_width_ratio:length_to_width_ratio,Length-to-Width Ratio
-behaveplus:crown:output:size:length_to_width_ratio:length_to_width_ratio_2,Length-to-Width Ratio
-behaveplus:crown:output:size:spread_distance:spread_distance,Spread Distance
-behaveplus:crown:output:size:spread_distance:spread_distance_2,Spread Distance
-behaveplus:crown:output:spotting_active_crown_fire:flame_height_above_canopy:flame_height_above_canopy,Flame height above Canopy
-behaveplus:crown:output:spotting_active_crown_fire:flame_height_above_canopy:flame_height_above_canopy_2,Flame height above Canopy
-behaveplus:crown:output:spotting_active_crown_fire:maximum_spotting_distance:maximum_spotting_distance,Maximum Spotting Distance from Active Crown Fire
-behaveplus:crown:output:spotting_active_crown_fire:maximum_spotting_distance:maximum_spotting_distance_2,Spotting Distance from Active Crown Fire
-behaveplus:crown:topography:aspect:aspect,Aspect
-behaveplus:crown:topography:aspect:aspect_2,Aspect
-behaveplus:crown:topography:slope:slope,Slope
-behaveplus:crown:topography:slope:slope_2,Slope
 behaveplus:dbh_diameter_at_breast_height,DBH - Diameter at Breast Height
 behaveplus:decimals,Decimals
 behaveplus:delete,Delete
@@ -241,58 +117,6 @@ behaveplus:moisture_scenario_name_values,Moisture Scenario Name Values
 behaveplus:moisture_scenario_selection,Moisture Scenario Selection
 behaveplus:moisture_scenarios,Moisture Scenarios
 behaveplus:mortality,Mortality
-behaveplus:mortality:compute-scorch-height:air-temperature:air-temperature,Air Temperature
-behaveplus:mortality:compute-scorch-height:air-temperature:air-temperature_2,Air Temperature
-behaveplus:mortality:compute-scorch-height:midflame-wind-speed:midflame-eye-level-wind-speed,Midflame (eye level) Wind Speed
-behaveplus:mortality:compute-scorch-height:midflame-wind-speed:midflame-eye-level-wind-speed_2,Midflame (eye level) Wind Speed
-behaveplus:mortality:compute-scorch-height:scorch-height:scorch-height,Scorch Height
-behaveplus:mortality:compute-scorch-height:scorch-height:scorch-height_2,Scorch Height
-behaveplus:mortality:compute-scorch:air-temperature:air-temperature,Air Temperature
-behaveplus:mortality:compute-scorch:air-temperature:air-temperature_2,Air Temperature
-behaveplus:mortality:compute-scorch:midflame-wind-speed:midflame-eye-level-wind-speed,Midflame (eye level) Wind Speed
-behaveplus:mortality:compute-scorch:midflame-wind-speed:midflame-eye-level-wind-speed_2,Midflame (eye level) Wind Speed
-behaveplus:mortality:input:fuelvegetation_overstory:beetle-damage:beetle-damage,Beetle Damage
-behaveplus:mortality:input:fuelvegetation_overstory:beetle-damage:beetle-damage_2,Beetle Damage
-behaveplus:mortality:input:fuelvegetation_overstory:bole-char-height:bole-char-height,Bole Char Height
-behaveplus:mortality:input:fuelvegetation_overstory:bole-char-height:bole-char-height_2,Bole Char Height
-behaveplus:mortality:input:fuelvegetation_overstory:cambium-kill-rating:cambium-kill-rating,Cambium Kill Rating
-behaveplus:mortality:input:fuelvegetation_overstory:cambium-kill-rating:cambium-kill-rating_2,Cambium Kill Rating
-behaveplus:mortality:input:fuelvegetation_overstory:canopy_height:canopy_height,Canopy Height
-behaveplus:mortality:input:fuelvegetation_overstory:canopy_height:canopy_height_2,Canopy Height
-behaveplus:mortality:input:fuelvegetation_overstory:crown-damage:crown-damage,Crown Damage
-behaveplus:mortality:input:fuelvegetation_overstory:crown-damage:crown-damage_2,Crown Damage
-behaveplus:mortality:input:fuelvegetation_overstory:crown_ratio:crown_ratio,Crown Ratio
-behaveplus:mortality:input:fuelvegetation_overstory:crown_ratio:crown_ratio_2,Crown Ratio
-behaveplus:mortality:input:fuelvegetation_overstory:dbh:dbh-diameter-at-breast-height,DBH (Diameter at Breast Height)
-behaveplus:mortality:input:fuelvegetation_overstory:dbh:dbh-diameter-at-breast-height_2,DBH (Diameter at Breast Height)
-behaveplus:mortality:input:fuelvegetation_overstory:mortality-equation:mortality-equation,Mortality Equation
-behaveplus:mortality:input:fuelvegetation_overstory:mortality-equation:mortality-equation_2,Mortality Equation
-behaveplus:mortality:input:fuelvegetation_overstory:mortality_tree_species:mortality_tree_species,Mortality Tree Species
-behaveplus:mortality:input:fuelvegetation_overstory:mortality_tree_species:mortality_tree_species_2,Mortality Tree Species
-behaveplus:mortality:input:fuelvegetation_overstory:region-code:region-code,Region Code
-behaveplus:mortality:input:fuelvegetation_overstory:region-code:region-code_2,Region Code
-behaveplus:mortality:input:fuelvegetation_overstory:tree-density-per-unit-area:intermediate---tree-density,Intermediate - Tree Density
-behaveplus:mortality:input:fuelvegetation_overstory:tree-density-per-unit-area:intermediate---tree-density_2,Intermediate - Tree Density
-behaveplus:mortality:input:scorch:fire:scorch_height:scorch_height,Scorch Height
-behaveplus:mortality:input:scorch:fire:scorch_height:scorch_height_2,Scorch Height
-behaveplus:mortality:input:scorch:fire:scorchheightorflamelength,ScorchHeightOrFlameLength
-behaveplus:mortality:input:scorch:fire:scorchheightorflamelength_2,ScorchHeightOrFlameLength
-behaveplus:mortality:input:scorch:fire:surface_fire_flame_length:surface_fire_flame_length,Surface Fire Flame Length at Vector
-behaveplus:mortality:input:scorch:fire:surface_fire_flame_length:surface_fire_flame_length_2,Surface Fire Flame Length at Vector
-behaveplus:mortality:input:scorch:weather:air_temperature:air_temperature,Air Temperature
-behaveplus:mortality:input:scorch:weather:air_temperature:air_temperature_2,Air Temperature
-behaveplus:mortality:input:scorch:weather:midflame_wind_speed:midflame_wind_speed,Midflame (eye level) Wind Speed
-behaveplus:mortality:input:scorch:weather:midflame_wind_speed:midflame_wind_speed_2,Midflame (eye level) Wind Speed
-behaveplus:mortality:output:scorch:scorch_height:scorch_height,Scorch Height
-behaveplus:mortality:output:scorch:scorch_height:scorch_height_2,Scorch Height
-behaveplus:mortality:output:tree_mortality:tree_mortality:bark_thickness,Bark Thickness
-behaveplus:mortality:output:tree_mortality:tree_mortality:bark_thickness_2,Bark Thickness
-behaveplus:mortality:output:tree_mortality:tree_mortality:probability_of_mortality,Probability of Mortality
-behaveplus:mortality:output:tree_mortality:tree_mortality:probability_of_mortality_2,Probability of Mortality
-behaveplus:mortality:output:tree_mortality:tree_mortality:tree_crown_length_scorched,Tree Crown Length Scorched
-behaveplus:mortality:output:tree_mortality:tree_mortality:tree_crown_length_scorched_2,Tree Crown Length Scorched
-behaveplus:mortality:output:tree_mortality:tree_mortality:tree_crown_volume_scorched,Tree Crown Volume Scorched
-behaveplus:mortality:output:tree_mortality:tree_mortality:tree_crown_volume_scorched_2,Tree Crown Volume Scorched
 behaveplus:mortality_only,Mortality Only
 behaveplus:name_your_file,Name your file
 behaveplus:naming_resources,Naming Resources
@@ -371,230 +195,6 @@ behaveplus:suppression,Suppression
 behaveplus:suppression_inputs,Suppression Inputs
 behaveplus:suppression_tactic,Suppression Tactic
 behaveplus:surface,Surface
-behaveplus:surface:input:directions_of_surface_spread__wind:direction_of_interest:wind-and-spread-orientation,Wind and Spread Directions
-behaveplus:surface:input:directions_of_surface_spread__wind:direction_of_interest:wind-and-spread-orientation_2,Wind and Spread Directions
-behaveplus:surface:input:directions_of_surface_spread__wind:surface_fire_wind__spread:direction-of-interest:direction-of-interest,Direction of Interest
-behaveplus:surface:input:directions_of_surface_spread__wind:surface_fire_wind__spread:direction-of-interest:direction-of-interest_2,Direction of Interest
-behaveplus:surface:input:directions_of_surface_spread__wind:surface_fire_wind__spread:surface-run-in-direction-of,Surface Run In Direction Of
-behaveplus:surface:input:directions_of_surface_spread__wind:surface_fire_wind__spread:surface-run-in-direction-of_2,Surface Run In Direction Of
-behaveplus:surface:input:directions_of_surface_spread__wind:surface_fire_wind__spread:surface-spread-direction-mode:surface-spread-direction-mode,Surface Spread Direction Mode
-behaveplus:surface:input:directions_of_surface_spread__wind:surface_fire_wind__spread:surface-spread-direction-mode:surface-spread-direction-mode_2,Surface Spread Direction Mode
-behaveplus:surface:input:directions_of_surface_spread__wind:surface_fire_wind__spread:wind_direction:direction-of-interest-degrees:direction-of-interest,Direction of Interest
-behaveplus:surface:input:directions_of_surface_spread__wind:surface_fire_wind__spread:wind_direction:direction-of-interest-degrees:direction-of-interest_2,Direction of Interest
-behaveplus:surface:input:fuel_models:special_case:chaparral_upland:calculated_from_fuel_depth_and_type:fuel_type:fuel_type,Fuel Type
-behaveplus:surface:input:fuel_models:special_case:chaparral_upland:calculated_from_fuel_depth_and_type:fuel_type:fuel_type_2,Fuel Type
-behaveplus:surface:input:fuel_models:special_case:chaparral_upland:calculated_from_fuel_depth_and_type:fuelbed_depth_ft_m:fuelbed_depth_ft_m,Fuelbed Depth
-behaveplus:surface:input:fuel_models:special_case:chaparral_upland:calculated_from_fuel_depth_and_type:fuelbed_depth_ft_m:fuelbed_depth_ft_m_2,Fuelbed Depth
-behaveplus:surface:input:fuel_models:special_case:chaparral_upland:dead_load_fraction_:dead_load_fraction_,Dead Load Fraction
-behaveplus:surface:input:fuel_models:special_case:chaparral_upland:dead_load_fraction_:dead_load_fraction__2,Dead Load Fraction
-behaveplus:surface:input:fuel_models:special_case:chaparral_upland:direct_fuel_load:total_fuel_load:total_fuel_load,Total Fuel Load
-behaveplus:surface:input:fuel_models:special_case:chaparral_upland:direct_fuel_load:total_fuel_load:total_fuel_load_2,Total Fuel Load
-behaveplus:surface:input:fuel_models:special_case:chaparral_upland:total_fuel_load_is:chapparal_fuel_load_method,Chaparral Fuel Load Input Mode
-behaveplus:surface:input:fuel_models:special_case:chaparral_upland:total_fuel_load_is:chapparal_fuel_load_method_2,Chaparral Fuel Load Input Mode
-behaveplus:surface:input:fuel_models:special_case:palmetto_gallberry:age_of_rough_years:age_of_rough_years,Age of Rough (years)
-behaveplus:surface:input:fuel_models:special_case:palmetto_gallberry:age_of_rough_years:age_of_rough_years_2,Age of Rough (years)
-behaveplus:surface:input:fuel_models:special_case:palmetto_gallberry:overstory_basal_area_ft_2_ac_m2_ha:overstory_basal_area_ft_2_ac_m2_ha,Overstory Basal Area (ft2/ac, m2/ha)
-behaveplus:surface:input:fuel_models:special_case:palmetto_gallberry:overstory_basal_area_ft_2_ac_m2_ha:overstory_basal_area_ft_2_ac_m2_ha_2,Overstory Basal Area (ft2/ac, m2/ha)
-behaveplus:surface:input:fuel_models:special_case:palmetto_gallberry:palmetto_coverage_:palmetto_coverage_,Palmetto Coverage (%)
-behaveplus:surface:input:fuel_models:special_case:palmetto_gallberry:palmetto_coverage_:palmetto_coverage__2,Palmetto Coverage (%)
-behaveplus:surface:input:fuel_models:special_case:palmetto_gallberry:understory_height_ft_m:understory_height_ft_m,Understory Height (ft, m)
-behaveplus:surface:input:fuel_models:special_case:palmetto_gallberry:understory_height_ft_m:understory_height_ft_m_2,Understory Height (ft, m)
-behaveplus:surface:input:fuel_models:special_case:western_aspen:multiple_fuel_models:multiple_fuel_models,Multiple Fuel Models
-behaveplus:surface:input:fuel_models:special_case:western_aspen:multiple_fuel_models:multiple_fuel_models_2,Multiple Fuel Models
-behaveplus:surface:input:fuel_models:special_case:western_aspen:surface_fuel__understory_vegetation:surface_fuel__understory_vegetation,Surface Fuel & Understory Vegetation
-behaveplus:surface:input:fuel_models:special_case:western_aspen:surface_fuel__understory_vegetation:surface_fuel__understory_vegetation_2,Surface Fuel & Understory Vegetation
-behaveplus:surface:input:fuel_models:standard:canopy-cover:canopy-cover,Canopy Cover
-behaveplus:surface:input:fuel_models:standard:canopy-cover:canopy-cover_2,Canopy Cover
-behaveplus:surface:input:fuel_models:standard:canopy-height:canopy-height,Canopy Height
-behaveplus:surface:input:fuel_models:standard:canopy-height:canopy-height_2,Canopy Height
-behaveplus:surface:input:fuel_models:standard:crown-ratio:crown-ratio,Crown Ratio
-behaveplus:surface:input:fuel_models:standard:crown-ratio:crown-ratio_2,Crown Ratio
-behaveplus:surface:input:fuel_models:standard:fuel_model:fuel_model,Fuel Model Code
-behaveplus:surface:input:fuel_models:standard:fuel_model:fuel_model_2,Fuel Model Code
-behaveplus:surface:input:fuel_moisture:by-size-class:1-h-fuel-moisture:1-h-fuel-moisture,1-h Fuel Moisture
-behaveplus:surface:input:fuel_moisture:by-size-class:1-h-fuel-moisture:1-h-fuel-moisture_2,1-h Fuel Moisture
-behaveplus:surface:input:fuel_moisture:by-size-class:10-h-fuel-moisture:10-h-fuel-moisture,10-h Fuel Moisture
-behaveplus:surface:input:fuel_moisture:by-size-class:10-h-fuel-moisture:10-h-fuel-moisture_2,10-h Fuel Moisture
-behaveplus:surface:input:fuel_moisture:by-size-class:100-h-fuel-moisture:100-h-fuel-moisture,100-h Fuel Moisture
-behaveplus:surface:input:fuel_moisture:by-size-class:100-h-fuel-moisture:100-h-fuel-moisture_2,100-h Fuel Moisture
-behaveplus:surface:input:fuel_moisture:by-size-class:live-herbaceous-fuel-moisture:live-herbaceous-fuel-moisture,Live Herbaceous Fuel Moisture
-behaveplus:surface:input:fuel_moisture:by-size-class:live-herbaceous-fuel-moisture:live-herbaceous-fuel-moisture_2,Live Herbaceous Fuel Moisture
-behaveplus:surface:input:fuel_moisture:by-size-class:live-woody-fuel-moisture:live-woody-fuel-moisture,Live Woody Fuel Moisture
-behaveplus:surface:input:fuel_moisture:by-size-class:live-woody-fuel-moisture:live-woody-fuel-moisture_2,Live Woody Fuel Moisture
-behaveplus:surface:input:fuel_moisture:dead-live-herb-and-live-woody-categories:dead-fuel-moisture:dead-fuel-moisture,Dead Fuel Moisture
-behaveplus:surface:input:fuel_moisture:dead-live-herb-and-live-woody-categories:dead-fuel-moisture:dead-fuel-moisture_2,Dead Fuel Moisture
-behaveplus:surface:input:fuel_moisture:dead-live-herb-and-live-woody-categories:live-herbaceous-fuel-moisture:live-herbaceous-fuel-moisture,Live Herbaceous Fuel Moisture
-behaveplus:surface:input:fuel_moisture:dead-live-herb-and-live-woody-categories:live-herbaceous-fuel-moisture:live-herbaceous-fuel-moisture_2,Live Herbaceous Fuel Moisture
-behaveplus:surface:input:fuel_moisture:dead-live-herb-and-live-woody-categories:live-woody-fuel-moisture:live-woody-fuel-moisture,Live Woody Fuel Moisture
-behaveplus:surface:input:fuel_moisture:dead-live-herb-and-live-woody-categories:live-woody-fuel-moisture:live-woody-fuel-moisture_2,Live Woody Fuel Moisture
-behaveplus:surface:input:fuel_moisture:moisture-scenario:moisture-scenario,Moisture Scenario
-behaveplus:surface:input:fuel_moisture:moisture-scenario:moisture-scenario_2,Moisture Scenario
-behaveplus:surface:input:fuel_moisture:moisture_input_mode:moisture_input_mode,Moisture Input Mode
-behaveplus:surface:input:fuel_moisture:moisture_input_mode:moisture_input_mode_2,Moisture Input Mode
-behaveplus:surface:input:size:aspect:aspect,Aspect
-behaveplus:surface:input:size:aspect:aspect_2,Aspect
-behaveplus:surface:input:size:elapsed_time:elapsed_time,Elapsed Time
-behaveplus:surface:input:size:elapsed_time:elapsed_time_2,Elapsed Time
-behaveplus:surface:input:size:slope:slope,Slope
-behaveplus:surface:input:size:slope:slope_2,Slope
-behaveplus:surface:input:spot:burning-pile:flame-height:flame-height,Flame Height
-behaveplus:surface:input:spot:burning-pile:flame-height:flame-height_2,Flame Height
-behaveplus:surface:input:spot:canopy_fuel:downwind_canopy_cover:downwind_canopy_cover,Downwind Canopy Cover
-behaveplus:surface:input:spot:canopy_fuel:downwind_canopy_cover:downwind_canopy_cover_2,Downwind Canopy Cover
-behaveplus:surface:input:spot:canopy_fuel:downwind_canopy_height:downwind_canopy_height,Downwind Canopy Height
-behaveplus:surface:input:spot:canopy_fuel:downwind_canopy_height:downwind_canopy_height_2,Downwind Canopy Height
-behaveplus:surface:input:spot:hidden:flame-length:flame-length,Flame Length
-behaveplus:surface:input:spot:hidden:flame-length:flame-length_2,Flame Length
-behaveplus:surface:input:spot:hidden:wind-speed:20-ft-wind-speed,Wind Speed
-behaveplus:surface:input:spot:hidden:wind-speed:20-ft-wind-speed_2,Wind Speed
-behaveplus:surface:input:spot:topography:ridge_to_valley_elevation_difference:ridge_to_valley_elevation_difference,Ridge-to-Valley Elevation Difference
-behaveplus:surface:input:spot:topography:ridge_to_valley_elevation_difference:ridge_to_valley_elevation_difference_2,Ridge-to-Valley Elevation Difference
-behaveplus:surface:input:spot:topography:ridge_to_valley_horizontal_distance:ridge_to_valley_horizontal_distance,Ridge-to-Valley Horizontal Distance
-behaveplus:surface:input:spot:topography:ridge_to_valley_horizontal_distance:ridge_to_valley_horizontal_distance_2,Ridge-to-Valley Horizontal Distance
-behaveplus:surface:input:spot:topography:spott_list_source_location:spott_list_source_location,Spotting Source Location
-behaveplus:surface:input:spot:topography:spott_list_source_location:spott_list_source_location_2,Spotting Source Location
-behaveplus:surface:input:spot:torching_trees:dbh_diameter_at_breast_height:dbh_diameter_at_breast_height,DBH (Diameter at Breast Height)
-behaveplus:surface:input:spot:torching_trees:dbh_diameter_at_breast_height:dbh_diameter_at_breast_height_2,DBH (Diameter at Breast Height)
-behaveplus:surface:input:spot:torching_trees:number_of_torching_trees_numeric_value:number_of_torching_trees_numeric_value,Number of Torching Trees
-behaveplus:surface:input:spot:torching_trees:number_of_torching_trees_numeric_value:number_of_torching_trees_numeric_value_2,Number of Torching Trees
-behaveplus:surface:input:spot:torching_trees:torching_tree_height:torching_tree_height,Torching Tree Height
-behaveplus:surface:input:spot:torching_trees:torching_tree_height:torching_tree_height_2,Torching Tree Height
-behaveplus:surface:input:spot:torching_trees:torching_tree_species:torching_tree_species,Torching Tree Species
-behaveplus:surface:input:spot:torching_trees:torching_tree_species:torching_tree_species_2,Torching Tree Species
-behaveplus:surface:input:wind_speed:wind-adjustment-factor:wind-adjustment-factor---user-input:wind-adjustment-factor,Wind Adjustment Factor
-behaveplus:surface:input:wind_speed:wind-adjustment-factor:wind-adjustment-factor---user-input:wind-adjustment-factor_2,Wind Adjustment Factor
-behaveplus:surface:input:wind_speed:wind-adjustment-factor:wind-adjustment-factor-calculation-method,Wind Adjustment Factor Calculation Method
-behaveplus:surface:input:wind_speed:wind-adjustment-factor:wind-adjustment-factor-calculation-method_2,Wind Adjustment Factor Calculation Method
-behaveplus:surface:input:wind_speed:wind_and_slope_are:wind-direction:wind-direction-degrees,Wind Direction (degrees)
-behaveplus:surface:input:wind_speed:wind_and_slope_are:wind-direction:wind-direction-degrees_2,Wind Direction (degrees)
-behaveplus:surface:input:wind_speed:wind_and_slope_are:wind_and_slope_alignment_mode,Wind and Slope Alignment Mode
-behaveplus:surface:input:wind_speed:wind_and_slope_are:wind_and_slope_alignment_mode_2,Wind and Slope Alignment Mode
-behaveplus:surface:input:wind_speed:wind_height:wind_height,Wind Measured at
-behaveplus:surface:input:wind_speed:wind_height:wind_height_2,Wind Measured at
-behaveplus:surface:input:wind_speed:wind_speed:wind_speed,Wind Speed
-behaveplus:surface:input:wind_speed:wind_speed:wind_speed_2,Wind Speed
-behaveplus:surface:output:fire_behavior:surface_fire:backing:backing_flame_length,Flame Length
-behaveplus:surface:output:fire_behavior:surface_fire:backing:backing_flame_length_2,Flame Length
-behaveplus:surface:output:fire_behavior:surface_fire:backing:backing_rate_of_spread,Rate of Spread
-behaveplus:surface:output:fire_behavior:surface_fire:backing:backing_rate_of_spread_2,Rate of Spread
-behaveplus:surface:output:fire_behavior:surface_fire:backing:fireline-intensity,Fireline Intensity
-behaveplus:surface:output:fire_behavior:surface_fire:backing:fireline-intensity_2,Fireline Intensity
-behaveplus:surface:output:fire_behavior:surface_fire:direction_of_maximum_spread,Direction of Maximum Spread
-behaveplus:surface:output:fire_behavior:surface_fire:direction_of_maximum_spread_2,Direction of Maximum Spread
-behaveplus:surface:output:fire_behavior:surface_fire:flanking:fireline-intensity,Fireline Intensity
-behaveplus:surface:output:fire_behavior:surface_fire:flanking:fireline-intensity_2,Fireline Intensity
-behaveplus:surface:output:fire_behavior:surface_fire:flanking:flanking_flame_length,Flame Length
-behaveplus:surface:output:fire_behavior:surface_fire:flanking:flanking_flame_length_2,Flame Length
-behaveplus:surface:output:fire_behavior:surface_fire:flanking:flanking_rate_of_spread,Rate of Spread
-behaveplus:surface:output:fire_behavior:surface_fire:flanking:flanking_rate_of_spread_2,Rate of Spread
-behaveplus:surface:output:fire_behavior:surface_fire:heading:fireline-intensity,Fireline Intensity
-behaveplus:surface:output:fire_behavior:surface_fire:heading:fireline-intensity_2,Fireline Intensity
-behaveplus:surface:output:fire_behavior:surface_fire:heading:heading_flame_length,Flame Length
-behaveplus:surface:output:fire_behavior:surface_fire:heading:heading_flame_length_2,Flame Length
-behaveplus:surface:output:fire_behavior:surface_fire:heading:heading_rate_of_spread,Rate of Spread
-behaveplus:surface:output:fire_behavior:surface_fire:heading:heading_rate_of_spread_2,Rate of Spread
-behaveplus:surface:output:fire_behavior:surface_fire:heat_per_unit_area,Heat per Unit Area
-behaveplus:surface:output:fire_behavior:surface_fire:heat_per_unit_area_2,Heat per Unit Area
-behaveplus:surface:output:fire_behavior:surface_fire:reaction_intensity,Reaction Intensity
-behaveplus:surface:output:fire_behavior:surface_fire:reaction_intensity_2,Reaction Intensity
-behaveplus:surface:output:fire_behavior:surface_fire:windslopespread-direction-diagram,Wind/Slope/Spread Direction Diagram
-behaveplus:surface:output:fire_behavior:surface_fire:windslopespread-direction-diagram_2,Wind/Slope/Spread Direction Diagram
-behaveplus:surface:output:intermediates:fuel_characteristics:bulk_density,Bulk Density
-behaveplus:surface:output:intermediates:fuel_characteristics:bulk_density_2,Bulk Density
-behaveplus:surface:output:intermediates:fuel_characteristics:characteristic_sav,Characteristic SA/V
-behaveplus:surface:output:intermediates:fuel_characteristics:characteristic_sav_2,Characteristic SA/V
-behaveplus:surface:output:intermediates:fuel_characteristics:packing_ratio,Packing Ratio
-behaveplus:surface:output:intermediates:fuel_characteristics:packing_ratio_2,Packing Ratio
-behaveplus:surface:output:intermediates:fuel_characteristics:relative_packing_ratio,Relative Packing Ratio
-behaveplus:surface:output:intermediates:fuel_characteristics:relative_packing_ratio_2,Relative Packing Ratio
-behaveplus:surface:output:intermediates:fuel_moisture:characteristic_dead,Characteristic Dead Moisture
-behaveplus:surface:output:intermediates:fuel_moisture:characteristic_dead_2,Characteristic Dead Moisture
-behaveplus:surface:output:intermediates:fuel_moisture:characteristic_live,Characteristic Live Moisture
-behaveplus:surface:output:intermediates:fuel_moisture:characteristic_live_2,Characteristic Live Moisture
-behaveplus:surface:output:intermediates:fuel_moisture:live_fuel_moisture_of_extinction,Live Fuel Moisture of Extinction
-behaveplus:surface:output:intermediates:fuel_moisture:live_fuel_moisture_of_extinction_2,Live Fuel Moisture of Extinction
-behaveplus:surface:output:intermediates:heat_sink:flame_residence_time,Flame Residence Time
-behaveplus:surface:output:intermediates:heat_sink:flame_residence_time_2,Flame Residence Time
-behaveplus:surface:output:intermediates:heat_sink:heat_sink,Heat Sink
-behaveplus:surface:output:intermediates:heat_sink:heat_sink_2,Heat Sink
-behaveplus:surface:output:intermediates:heat_source:dead_fuel_reaction_intensity,Dead Fuel Reaction Intensity
-behaveplus:surface:output:intermediates:heat_source:dead_fuel_reaction_intensity_2,Dead Fuel Reaction Intensity
-behaveplus:surface:output:intermediates:heat_source:heat_source,Heat Source
-behaveplus:surface:output:intermediates:heat_source:heat_source_2,Heat Source
-behaveplus:surface:output:intermediates:heat_source:live_fuel_reaction_intensity,Live Fuel Reaction Intensity
-behaveplus:surface:output:intermediates:heat_source:live_fuel_reaction_intensity_2,Live Fuel Reaction Intensity
-behaveplus:surface:output:intermediates:heat_source:slope_factor,Slope Factor
-behaveplus:surface:output:intermediates:heat_source:slope_factor_2,Slope Factor
-behaveplus:surface:output:intermediates:heat_source:wind_factor,Wind Factor
-behaveplus:surface:output:intermediates:heat_source:wind_factor_2,Wind Factor
-behaveplus:surface:output:size:spread-distance:backing-spread-distance,Backing Spread Distance
-behaveplus:surface:output:size:spread-distance:backing-spread-distance_2,Backing Spread Distance
-behaveplus:surface:output:size:spread-distance:flanking-spread-distance,Flanking Spread Distance
-behaveplus:surface:output:size:spread-distance:flanking-spread-distance_2,Flanking Spread Distance
-behaveplus:surface:output:size:spread-distance:heading-spread-distance,Heading Spread Distance
-behaveplus:surface:output:size:spread-distance:heading-spread-distance_2,Heading Spread Distance
-behaveplus:surface:output:size:surface___fire_size:fire_area,Fire Area
-behaveplus:surface:output:size:surface___fire_size:fire_area_2,Fire Area
-behaveplus:surface:output:size:surface___fire_size:fire_perimeter,Fire Perimeter
-behaveplus:surface:output:size:surface___fire_size:fire_perimeter_2,Fire Perimeter
-behaveplus:surface:output:size:surface___fire_size:length-to-width-ratio,Length-to-Width Ratio
-behaveplus:surface:output:size:surface___fire_size:length-to-width-ratio_2,Length-to-Width Ratio
-behaveplus:surface:output:special_case_fuel_models:chaparral:dead_fuel_load:from_025_inches_to_050_inches,From 0.25 Inches to 0.50 inches
-behaveplus:surface:output:special_case_fuel_models:chaparral:dead_fuel_load:from_025_inches_to_050_inches_2,From 0.25 Inches to 0.50 inches
-behaveplus:surface:output:special_case_fuel_models:chaparral:dead_fuel_load:from_050_inches_to_10_inches,From 0.50 Inches to 1.0 inches
-behaveplus:surface:output:special_case_fuel_models:chaparral:dead_fuel_load:from_050_inches_to_10_inches_2,From 0.50 Inches to 1.0 inches
-behaveplus:surface:output:special_case_fuel_models:chaparral:dead_fuel_load:from_10_inches_to_30_inches,From 1.0 Inches to 3.0 Inches
-behaveplus:surface:output:special_case_fuel_models:chaparral:dead_fuel_load:from_10_inches_to_30_inches_2,From 1.0 Inches to 3.0 Inches
-behaveplus:surface:output:special_case_fuel_models:chaparral:dead_fuel_load:less_than_025_inches,Less than: 0.25 Inches
-behaveplus:surface:output:special_case_fuel_models:chaparral:dead_fuel_load:less_than_025_inches_2,Less than: 0.25 Inches
-behaveplus:surface:output:special_case_fuel_models:chaparral:fuel_load:total_dead_fuel_load,Total Dead Fuel Load
-behaveplus:surface:output:special_case_fuel_models:chaparral:fuel_load:total_dead_fuel_load_2,Total Dead Fuel Load
-behaveplus:surface:output:special_case_fuel_models:chaparral:fuel_load:total_live_fuel_load,Total Live Fuel Load
-behaveplus:surface:output:special_case_fuel_models:chaparral:fuel_load:total_live_fuel_load_2,Total Live Fuel Load
-behaveplus:surface:output:special_case_fuel_models:chaparral:live_fuel_load:leaves,Leaves
-behaveplus:surface:output:special_case_fuel_models:chaparral:live_fuel_load:leaves_2,Leaves
-behaveplus:surface:output:special_case_fuel_models:chaparral:live_fuel_load:stems_025_inches_to_050_inches,Stems 0.25 Inches to 0.50 Inches
-behaveplus:surface:output:special_case_fuel_models:chaparral:live_fuel_load:stems_025_inches_to_050_inches_2,Stems 0.25 Inches to 0.50 Inches
-behaveplus:surface:output:special_case_fuel_models:chaparral:live_fuel_load:stems_05_to_10_inches,Stems 0.50 Inches to 1.0 inches
-behaveplus:surface:output:special_case_fuel_models:chaparral:live_fuel_load:stems_05_to_10_inches_2,Stems 0.50 Inches to 1.0 inches
-behaveplus:surface:output:special_case_fuel_models:chaparral:live_fuel_load:stems_10_to_30_inches,Stems 1.0 to 3.0 inches
-behaveplus:surface:output:special_case_fuel_models:chaparral:live_fuel_load:stems_10_to_30_inches_2,Stems 1.0 to 3.0 inches
-behaveplus:surface:output:special_case_fuel_models:chaparral:live_fuel_load:stems_less_than_025_inches,Stems less than 0.25 inches
-behaveplus:surface:output:special_case_fuel_models:chaparral:live_fuel_load:stems_less_than_025_inches_2,Stems less than 0.25 inches
-behaveplus:surface:output:special_case_fuel_models:palmetto_galberry:dead_fuel_load:fine_0_to_025_inches,Live Fine: 0 to 0.25 inches
-behaveplus:surface:output:special_case_fuel_models:palmetto_galberry:dead_fuel_load:fine_0_to_025_inches_2,Live Fine: 0 to 0.25 inches
-behaveplus:surface:output:special_case_fuel_models:palmetto_galberry:dead_fuel_load:foliage_fuel_load_on_stem,Live Foliage: On Stem
-behaveplus:surface:output:special_case_fuel_models:palmetto_galberry:dead_fuel_load:foliage_fuel_load_on_stem_2,Live Foliage: On Stem
-behaveplus:surface:output:special_case_fuel_models:palmetto_galberry:dead_fuel_load:medium_025_to_1_inches,Live Medium: 0.25 to 1 inches
-behaveplus:surface:output:special_case_fuel_models:palmetto_galberry:dead_fuel_load:medium_025_to_1_inches_2,Live Medium: 0.25 to 1 inches
-behaveplus:surface:output:special_case_fuel_models:palmetto_galberry:fuelbed:fuelbed_depth,Fuelbed Depth
-behaveplus:surface:output:special_case_fuel_models:palmetto_galberry:fuelbed:fuelbed_depth_2,Fuelbed Depth
-behaveplus:surface:output:special_case_fuel_models:palmetto_galberry:live_fuel_load:fine_0_to_025_inches,Live Fine: 0 to 0.25 inches
-behaveplus:surface:output:special_case_fuel_models:palmetto_galberry:live_fuel_load:fine_0_to_025_inches_2,Live Fine: 0 to 0.25 inches
-behaveplus:surface:output:special_case_fuel_models:palmetto_galberry:live_fuel_load:foliage_fuel_load__on_stem,Live Foliage: On Stem
-behaveplus:surface:output:special_case_fuel_models:palmetto_galberry:live_fuel_load:foliage_fuel_load__on_stem_2,Live Foliage: On Stem
-behaveplus:surface:output:special_case_fuel_models:palmetto_galberry:live_fuel_load:leaves,Leaves
-behaveplus:surface:output:special_case_fuel_models:palmetto_galberry:live_fuel_load:leaves_2,Leaves
-behaveplus:surface:output:special_case_fuel_models:palmetto_galberry:live_fuel_load:medium_025_to_1_inches,Live Medium: 0.25 to 1 inches
-behaveplus:surface:output:special_case_fuel_models:palmetto_galberry:live_fuel_load:medium_025_to_1_inches_2,Live Medium: 0.25 to 1 inches
-behaveplus:surface:output:special_case_fuel_models:western_aspen:fuel_load:1_h_fuel_load,1-h Fuel Load
-behaveplus:surface:output:special_case_fuel_models:western_aspen:fuel_load:1_h_fuel_load_2,1-h Fuel Load
-behaveplus:surface:output:special_case_fuel_models:western_aspen:fuel_load:live_herbaceous_fuel_load,Live Herbaceous Fuel Load
-behaveplus:surface:output:special_case_fuel_models:western_aspen:fuel_load:live_herbaceous_fuel_load_2,Live Herbaceous Fuel Load
-behaveplus:surface:output:special_case_fuel_models:western_aspen:fuel_load:live_woody_fuel_load,Live Woody Fuel Load
-behaveplus:surface:output:special_case_fuel_models:western_aspen:fuel_load:live_woody_fuel_load_2,Live Woody Fuel Load
-behaveplus:surface:output:special_case_fuel_models:western_aspen:surface_area_to_volume_ratio_sav:1_h_sav,1-h SA/V
-behaveplus:surface:output:special_case_fuel_models:western_aspen:surface_area_to_volume_ratio_sav:1_h_sav_2,1-h SA/V
-behaveplus:surface:output:special_case_fuel_models:western_aspen:surface_area_to_volume_ratio_sav:live_woody_sav,Live Woody SA/V
-behaveplus:surface:output:special_case_fuel_models:western_aspen:surface_area_to_volume_ratio_sav:live_woody_sav_2,Live Woody SA/V
-behaveplus:surface:output:spot:burning_pile:firebrand_height_from_a_burning_pile,Firebrand Height from a Burning Pile
-behaveplus:surface:output:spot:burning_pile:firebrand_height_from_a_burning_pile_2,Firebrand Height from a Burning Pile
-behaveplus:surface:output:spot:maximum_spotting_distance:burning_pile,Max Spot Dist from Burning Pile
-behaveplus:surface:output:spot:maximum_spotting_distance:burning_pile_2,Spot Dist from Burning Pile
-behaveplus:surface:output:spot:maximum_spotting_distance:torching_trees,Max Spot Dist from Torching Trees
-behaveplus:surface:output:spot:maximum_spotting_distance:torching_trees_2,Spot Dist from Torching Trees
-behaveplus:surface:output:spot:maximum_spotting_distance:wind_driven_surface_fire,Max Spot Dist from Wind-Driven Surface Fire
-behaveplus:surface:output:spot:maximum_spotting_distance:wind_driven_surface_fire_2,Spot Dist from Wind-Driven Surface Fire
 behaveplus:surface_and_contain,Surface & Contain
 behaveplus:surface_and_crown,Surface & Crown
 behaveplus:surface_and_mortality,Surface & Mortality
@@ -643,3 +243,403 @@ behaveplus:y_axis_minimum,Y Axis Minimum
 behaveplus:y_graph_and_axis_limits,Y Graph Axis Limits
 behaveplus:you_can_add_up_to_10_resources,You can add up to 10 resources.
 behaveplus:you_can_edit_andor_delete_resources,You can edit and/or delete resources
+behaveplus:crown:input:canopy_fuel:crown-ratio:crown-ratio,Crown Ratio
+behaveplus:crown:resultcanopy_fuel:crown-ratio:crown-ratio,Crown Ratio
+behaveplus:surface:output:fire_behavior:surface_fire:flanking:fireline-intensity,Fireline Intensity
+behaveplus:surface:result:fire_behavior:surface_fire:flanking:fireline-intensity,Fireline Intensity
+behaveplus:mortality:compute-scorch-height:air-temperature:air-temperature,Air Temperature
+behaveplus:mortality:compute-scorch-height:air-temperature:air-temperature,Air Temperature
+behaveplus:crown:input:fuel_moisture:moisture-input-mode:moisture-input-mode,Moisture Input Mode
+behaveplus:crown:resultfuel_moisture:moisture-input-mode:moisture-input-mode,Moisture Input Mode
+behaveplus:surface:output:intermediates:fuel_characteristics:bulk_density,Bulk Density
+behaveplus:surface:result:intermediates:fuel_characteristics:bulk_density,Bulk Density
+behaveplus:contain:output:fire:fire_size___at_resource_arrival_time:fire_perimeter___at_resource_arrival_time,Fire Perimeter at First Resource Arrival Time
+behaveplus:contain:result:fire:fire_size___at_resource_arrival_time:fire_perimeter___at_resource_arrival_time,Fire Perimeter at First Resource Arrival Time
+behaveplus:surface:input:fuel_moisture:by-size-class:live-herbaceous-fuel-moisture:live-herbaceous-fuel-moisture,Live Herbaceous Fuel Moisture
+behaveplus:surface:resultfuel_moisture:by-size-class:live-herbaceous-fuel-moisture:live-herbaceous-fuel-moisture,Live Herbaceous Fuel Moisture
+behaveplus:surface:input:size:slope:slope,Slope
+behaveplus:surface:resultsize:slope:slope,Slope
+behaveplus:mortality:input:scorch:weather:air_temperature:air_temperature,Air Temperature
+behaveplus:mortality:resultscorch:weather:air_temperature:air_temperature,Air Temperature
+behaveplus:mortality:input:fuelvegetation_overstory:beetle-damage:beetle-damage,Beetle Damage
+behaveplus:mortality:resultfuelvegetation_overstory:beetle-damage:beetle-damage,Beetle Damage
+behaveplus:surface:input:directions_of_surface_spread__wind:surface_fire_wind__spread:surface-spread-direction-mode:surface-spread-direction-mode,Surface Spread Direction Mode
+behaveplus:surface:resultdirections_of_surface_spread__wind:surface_fire_wind__spread:surface-spread-direction-mode:surface-spread-direction-mode,Surface Spread Direction Mode
+behaveplus:mortality:compute-scorch:air-temperature:air-temperature,Air Temperature
+behaveplus:mortality:compute-scorch:air-temperature:air-temperature,Air Temperature
+behaveplus:surface:input:spot:topography:ridge_to_valley_horizontal_distance:ridge_to_valley_horizontal_distance,Ridge-to-Valley Horizontal Distance
+behaveplus:surface:resultspot:topography:ridge_to_valley_horizontal_distance:ridge_to_valley_horizontal_distance,Ridge-to-Valley Horizontal Distance
+behaveplus:surface:input:fuel_moisture:dead-live-herb-and-live-woody-categories:dead-fuel-moisture:dead-fuel-moisture,Dead Fuel Moisture
+behaveplus:surface:resultfuel_moisture:dead-live-herb-and-live-woody-categories:dead-fuel-moisture:dead-fuel-moisture,Dead Fuel Moisture
+behaveplus:crown:output:fire_type:fire_behavior:active-crown-fireline-intensity,Fireline Intensity
+behaveplus:crown:result:fire_type:fire_behavior:active-crown-fireline-intensity,Fireline Intensity
+behaveplus:surface:output:spot:burning_pile:firebrand_height_from_a_burning_pile,Firebrand Height from a Burning Pile
+behaveplus:surface:result:spot:burning_pile:firebrand_height_from_a_burning_pile,Firebrand Height from a Burning Pile
+behaveplus:surface:output:special_case_fuel_models:chaparral:fuel_load:total_dead_fuel_load,Total Dead Fuel Load
+behaveplus:surface:result:special_case_fuel_models:chaparral:fuel_load:total_dead_fuel_load,Total Dead Fuel Load
+behaveplus:surface:input:spot:torching_trees:torching_tree_height:torching_tree_height,Torching Tree Height
+behaveplus:surface:resultspot:torching_trees:torching_tree_height:torching_tree_height,Torching Tree Height
+behaveplus:mortality:input:scorch:fire:scorch_height:scorch_height,Scorch Height
+behaveplus:mortality:resultscorch:fire:scorch_height:scorch_height,Scorch Height
+behaveplus:crown:input:fuel_moisture:100-h-fuel-moisture:100-h-fuel-moisture,100-h Fuel Moisture
+behaveplus:crown:resultfuel_moisture:100-h-fuel-moisture:100-h-fuel-moisture,100-h Fuel Moisture
+behaveplus:crown:input:spotting:topography:ridge_to_valley_horizontal_distance:ridge_to_valley_horizontal_distance,Ridge-to-Valley Horizontal Distance
+behaveplus:crown:resultspotting:topography:ridge_to_valley_horizontal_distance:ridge_to_valley_horizontal_distance,Ridge-to-Valley Horizontal Distance
+behaveplus:surface:output:intermediates:heat_source:wind_factor,Wind Factor
+behaveplus:surface:result:intermediates:heat_source:wind_factor,Wind Factor
+behaveplus:crown:input:spotting:topography:spotting_source_location:spotting_source_location,Spotting Source Location
+behaveplus:crown:resultspotting:topography:spotting_source_location:spotting_source_location,Spotting Source Location
+behaveplus:surface:output:spot:maximum_spotting_distance:wind_driven_surface_fire,Wind-Driven Surface Fire
+behaveplus:surface:result:spot:maximum_spotting_distance:wind_driven_surface_fire,Max Spot Dist from Wind-Driven Surface Fire
+behaveplus:crown:input:fuel_moisture:live-herbaceous-fuel-moisture:live-herbaceous-fuel-moisture,Live Herbaceous Fuel Moisture
+behaveplus:crown:resultfuel_moisture:live-herbaceous-fuel-moisture:live-herbaceous-fuel-moisture,Live Herbaceous Fuel Moisture
+behaveplus:crown:input:canopy_fuel:canopy_bulk_density:canopy_bulk_density,Canopy Bulk Density
+behaveplus:crown:resultcanopy_fuel:canopy_bulk_density:canopy_bulk_density,Canopy Bulk Density
+behaveplus:surface:input:spot:torching_trees:torching_tree_species:torching_tree_species,Torching Tree Species
+behaveplus:surface:resultspot:torching_trees:torching_tree_species:torching_tree_species,Torching Tree Species
+behaveplus:surface:output:special_case_fuel_models:chaparral:live_fuel_load:stems_less_than_025_inches,Stems less than 0.25 inches
+behaveplus:surface:result:special_case_fuel_models:chaparral:live_fuel_load:stems_less_than_025_inches,Stems less than 0.25 inches
+behaveplus:mortality:compute-scorch-height:scorch-height:scorch-height,Scorch Height
+behaveplus:mortality:compute-scorch-height:scorch-height:scorch-height,Scorch Height
+behaveplus:surface:output:special_case_fuel_models:palmetto_galberry:live_fuel_load:fine_0_to_025_inches,Live Fine: 0 to 0.25 inches
+behaveplus:surface:result:special_case_fuel_models:palmetto_galberry:live_fuel_load:fine_0_to_025_inches,Live Fine: 0 to 0.25 inches
+behaveplus:surface:input:spot:burning-pile:flame-height:flame-height,Flame Height
+behaveplus:surface:resultspot:burning-pile:flame-height:flame-height,Flame Height
+behaveplus:surface:input:directions_of_surface_spread__wind:surface_fire_wind__spread:direction-of-interest:direction-of-interest,Direction of Interest
+behaveplus:surface:resultdirections_of_surface_spread__wind:surface_fire_wind__spread:direction-of-interest:direction-of-interest,Direction of Interest
+behaveplus:mortality:input:fuelvegetation_overstory:canopy_height:canopy_height,Canopy Height
+behaveplus:mortality:resultfuelvegetation_overstory:canopy_height:canopy_height,Canopy Height
+behaveplus:crown:input:weather:wind-and-slope-are:wind-direction:wind-direction-degrees,Wind Direction (degrees)
+behaveplus:crown:resultweather:wind-and-slope-are:wind-direction:wind-direction-degrees,Wind Direction (degrees)
+behaveplus:surface:input:fuel_models:standard:canopy-height:canopy-height,Canopy Height
+behaveplus:surface:resultfuel_models:standard:canopy-height:canopy-height,Canopy Height
+behaveplus:surface:output:fire_behavior:surface_fire:backing:backing_flame_length,Flame Length
+behaveplus:surface:result:fire_behavior:surface_fire:backing:backing_flame_length,Flame Length
+behaveplus:surface:input:fuel_models:standard:crown-ratio:crown-ratio,Crown Ratio
+behaveplus:surface:resultfuel_models:standard:crown-ratio:crown-ratio,Crown Ratio
+behaveplus:surface:output:fire_behavior:surface_fire:heading:fireline-intensity,Fireline Intensity
+behaveplus:surface:result:fire_behavior:surface_fire:heading:fireline-intensity,Fireline Intensity
+behaveplus:mortality:compute-scorch:midflame-wind-speed:midflame-eye-level-wind-speed,Midflame (eye level) Wind Speed
+behaveplus:mortality:compute-scorch:midflame-wind-speed:midflame-eye-level-wind-speed,Midflame (eye level) Wind Speed
+behaveplus:surface:input:fuel_moisture:moisture-scenario:moisture-scenario,Moisture Scenario
+behaveplus:surface:resultfuel_moisture:moisture-scenario:moisture-scenario,Moisture Scenario
+behaveplus:surface:output:size:spread-distance:backing-spread-distance,Backing Spread Distance
+behaveplus:surface:result:size:spread-distance:backing-spread-distance,Backing Spread Distance
+behaveplus:surface:output:size:surface___fire_size:length-to-width-ratio,Length-to-Width Ratio
+behaveplus:surface:result:size:surface___fire_size:length-to-width-ratio,Length-to-Width Ratio
+behaveplus:surface:input:fuel_models:special_case:chaparral_upland:direct_fuel_load:total_fuel_load:total_fuel_load,Total Fuel Load
+behaveplus:surface:resultfuel_models:special_case:chaparral_upland:direct_fuel_load:total_fuel_load:total_fuel_load,Total Fuel Load
+behaveplus:surface:input:fuel_models:special_case:western_aspen:multiple_fuel_models:multiple_fuel_models,Multiple Fuel Models
+behaveplus:surface:resultfuel_models:special_case:western_aspen:multiple_fuel_models:multiple_fuel_models,Multiple Fuel Models
+behaveplus:mortality:input:scorch:weather:midflame_wind_speed:midflame_wind_speed,Midflame (eye level) Wind Speed
+behaveplus:mortality:resultscorch:weather:midflame_wind_speed:midflame_wind_speed,Midflame (eye level) Wind Speed
+behaveplus:crown:output:size:fire_perimeter:fire_perimeter,Fire Perimeter
+behaveplus:crown:result:size:fire_perimeter:fire_perimeter,Fire Perimeter
+behaveplus:crown:output:fire_type:active_or_independent_crown_fire:active_ratio,Active Ratio
+behaveplus:crown:result:fire_type:active_or_independent_crown_fire:active_ratio,Active Ratio
+behaveplus:crown:output:spotting_active_crown_fire:flame_height_above_canopy:flame_height_above_canopy,Flame height above Canopy
+behaveplus:crown:result:spotting_active_crown_fire:flame_height_above_canopy:flame_height_above_canopy,Flame height above Canopy
+behaveplus:mortality:output:tree_mortality:tree_mortality:tree_crown_length_scorched,Tree Crown Length Scorched
+behaveplus:mortality:result:tree_mortality:tree_mortality:tree_crown_length_scorched,Tree Crown Length Scorched
+behaveplus:surface:output:special_case_fuel_models:chaparral:dead_fuel_load:from_025_inches_to_050_inches,From 0.25 Inches to 0.50 inches
+behaveplus:surface:result:special_case_fuel_models:chaparral:dead_fuel_load:from_025_inches_to_050_inches,From 0.25 Inches to 0.50 inches
+behaveplus:contain:output:fire:containment:contained_area,Contained Area
+behaveplus:contain:result:fire:containment:contained_area,Contained Area
+behaveplus:surface:output:size:surface___fire_size:fire_area,Fire Area
+behaveplus:surface:result:size:surface___fire_size:fire_area,Fire Area
+behaveplus:surface:output:special_case_fuel_models:palmetto_galberry:live_fuel_load:leaves,Leaves
+behaveplus:surface:result:special_case_fuel_models:palmetto_galberry:live_fuel_load:leaves,Leaves
+behaveplus:mortality:output:tree_mortality:tree_mortality:bark_thickness,Bark Thickness
+behaveplus:mortality:result:tree_mortality:tree_mortality:bark_thickness,Bark Thickness
+behaveplus:surface:input:spot:topography:spott_list_source_location:spott_list_source_location,Spotting Source Location
+behaveplus:surface:resultspot:topography:spott_list_source_location:spott_list_source_location,Spotting Source Location
+behaveplus:crown:input:fuel_moisture:10-h-fuel-moisture:10-h-fuel-moisture,10-h Fuel Moisture
+behaveplus:crown:resultfuel_moisture:10-h-fuel-moisture:10-h-fuel-moisture,10-h Fuel Moisture
+behaveplus:crown:output:fire_type:active_or_independent_crown_fire:critical_crown_rate_of_spread,Critical Crown Rate of Spread
+behaveplus:crown:result:fire_type:active_or_independent_crown_fire:critical_crown_rate_of_spread,Critical Crown Rate of Spread
+behaveplus:surface:output:special_case_fuel_models:chaparral:live_fuel_load:stems_05_to_10_inches,Stems 0.50 Inches to 1.0 inches
+behaveplus:surface:result:special_case_fuel_models:chaparral:live_fuel_load:stems_05_to_10_inches,Stems 0.50 Inches to 1.0 inches
+behaveplus:crown:input:canopy_fuel:canopy-cover:canopy-cover,Canopy Cover
+behaveplus:crown:resultcanopy_fuel:canopy-cover:canopy-cover,Canopy Cover
+behaveplus:surface:output:special_case_fuel_models:palmetto_galberry:dead_fuel_load:foliage_fuel_load_on_stem,Live Foliage: On Stem
+behaveplus:surface:result:special_case_fuel_models:palmetto_galberry:dead_fuel_load:foliage_fuel_load_on_stem,Live Foliage: On Stem
+behaveplus:crown:input:weather:wind_adjustment_factor:wind-adjustment-factor:wind-adjustment-factor,Wind Adjustment Factor
+behaveplus:crown:resultweather:wind_adjustment_factor:wind-adjustment-factor:wind-adjustment-factor,Wind Adjustment Factor
+behaveplus:surface:output:special_case_fuel_models:chaparral:live_fuel_load:leaves,Leaves
+behaveplus:surface:result:special_case_fuel_models:chaparral:live_fuel_load:leaves,Leaves
+behaveplus:crown:output:fire_type:fire_behavior:rate_of_spread,Rate of Spread
+behaveplus:crown:result:fire_type:fire_behavior:rate_of_spread,Rate of Spread
+behaveplus:surface:output:special_case_fuel_models:western_aspen:surface_area_to_volume_ratio_sav:1_h_sav,1-h SA/V
+behaveplus:surface:result:special_case_fuel_models:western_aspen:surface_area_to_volume_ratio_sav:1_h_sav,1-h SA/V
+behaveplus:crown:input:weather:wind-orientation-mode:wind-and-spread-orientation,Wind and Spread Directions
+behaveplus:crown:resultweather:wind-orientation-mode:wind-and-spread-orientation,Wind and Spread Directions
+behaveplus:surface:input:fuel_models:special_case:chaparral_upland:calculated_from_fuel_depth_and_type:fuel_type:fuel_type,Fuel Type
+behaveplus:surface:resultfuel_models:special_case:chaparral_upland:calculated_from_fuel_depth_and_type:fuel_type:fuel_type,Fuel Type
+behaveplus:contain:input:suppression:resources:resource_line_production_rate,Resource Line Production Rate
+behaveplus:contain:resultsuppression:resources:resource_line_production_rate,Resource Line Production Rate
+behaveplus:surface:output:special_case_fuel_models:palmetto_galberry:fuelbed:fuelbed_depth,Fuelbed Depth
+behaveplus:surface:result:special_case_fuel_models:palmetto_galberry:fuelbed:fuelbed_depth,Fuelbed Depth
+behaveplus:surface:output:fire_behavior:surface_fire:flanking:flanking_rate_of_spread,Rate of Spread
+behaveplus:surface:result:fire_behavior:surface_fire:flanking:flanking_rate_of_spread,Rate of Spread
+behaveplus:mortality:input:fuelvegetation_overstory:bole-char-height:bole-char-height,Bole Char Height
+behaveplus:mortality:resultfuelvegetation_overstory:bole-char-height:bole-char-height,Bole Char Height
+behaveplus:surface:output:fire_behavior:surface_fire:heading:heading_rate_of_spread,Rate of Spread
+behaveplus:surface:result:fire_behavior:surface_fire:heading:heading_rate_of_spread,Rate of Spread
+behaveplus:crown:output:size:spread_distance:spread_distance,Spread Distance
+behaveplus:crown:result:size:spread_distance:spread_distance,Spread Distance
+behaveplus:crown:input:weather:wind_adjustment_factor:wind-adjustment-factor-calculation-method,Wind Adjustment Factor Calculation Method
+behaveplus:crown:resultweather:wind_adjustment_factor:wind-adjustment-factor-calculation-method,Wind Adjustment Factor Calculation Method
+behaveplus:surface:output:special_case_fuel_models:palmetto_galberry:live_fuel_load:foliage_fuel_load__on_stem,Live Foliage: On Stem
+behaveplus:surface:result:special_case_fuel_models:palmetto_galberry:live_fuel_load:foliage_fuel_load__on_stem,Live Foliage: On Stem
+behaveplus:surface:output:intermediates:fuel_characteristics:relative_packing_ratio,Relative Packing Ratio
+behaveplus:surface:result:intermediates:fuel_characteristics:relative_packing_ratio,Relative Packing Ratio
+behaveplus:surface:output:intermediates:fuel_moisture:characteristic_dead,Characteristic Dead Moisture
+behaveplus:surface:result:intermediates:fuel_moisture:characteristic_dead,Characteristic Dead Moisture
+behaveplus:surface:input:fuel_moisture:by-size-class:live-woody-fuel-moisture:live-woody-fuel-moisture,Live Woody Fuel Moisture
+behaveplus:surface:resultfuel_moisture:by-size-class:live-woody-fuel-moisture:live-woody-fuel-moisture,Live Woody Fuel Moisture
+behaveplus:crown:output:fire_type:transition_to_crown_fire:critical_surface_fireline_intensity,Critical Surface Fireline Intensity
+behaveplus:crown:result:fire_type:transition_to_crown_fire:critical_surface_fireline_intensity,Critical Surface Fireline Intensity
+behaveplus:surface:output:intermediates:fuel_characteristics:characteristic_sav,Characteristic SA/V
+behaveplus:surface:result:intermediates:fuel_characteristics:characteristic_sav,Characteristic SA/V
+behaveplus:surface:input:spot:canopy_fuel:downwind_canopy_height:downwind_canopy_height,Downwind Canopy Height
+behaveplus:surface:resultspot:canopy_fuel:downwind_canopy_height:downwind_canopy_height,Downwind Canopy Height
+behaveplus:surface:input:spot:torching_trees:number_of_torching_trees_numeric_value:number_of_torching_trees_numeric_value,Number of Torching Trees
+behaveplus:surface:resultspot:torching_trees:number_of_torching_trees_numeric_value:number_of_torching_trees_numeric_value,Number of Torching Trees
+behaveplus:mortality:input:fuelvegetation_overstory:tree-density-per-unit-area:intermediate---tree-density,Intermediate - Tree Density
+behaveplus:mortality:resultfuelvegetation_overstory:tree-density-per-unit-area:intermediate---tree-density,Intermediate - Tree Density
+behaveplus:contain:input:suppression:resources:resource_name,Resource Name
+behaveplus:contain:resultsuppression:resources:resource_name,Resource Name
+behaveplus:surface:input:fuel_moisture:by-size-class:10-h-fuel-moisture:10-h-fuel-moisture,10-h Fuel Moisture
+behaveplus:surface:resultfuel_moisture:by-size-class:10-h-fuel-moisture:10-h-fuel-moisture,10-h Fuel Moisture
+behaveplus:contain:output:fire:containment:containment-diagram,Containment Diagram
+behaveplus:contain:result:fire:containment:containment-diagram,Containment Diagram
+behaveplus:mortality:input:fuelvegetation_overstory:crown_ratio:crown_ratio,Crown Ratio
+behaveplus:mortality:resultfuelvegetation_overstory:crown_ratio:crown_ratio,Crown Ratio
+behaveplus:surface:input:fuel_moisture:moisture_input_mode:moisture_input_mode,Moisture Input Mode
+behaveplus:surface:resultfuel_moisture:moisture_input_mode:moisture_input_mode,Moisture Input Mode
+behaveplus:surface:input:directions_of_surface_spread__wind:direction_of_interest:wind-and-spread-orientation,Wind and Spread Directions
+behaveplus:surface:resultdirections_of_surface_spread__wind:direction_of_interest:wind-and-spread-orientation,Wind and Spread Directions
+behaveplus:surface:output:intermediates:heat_sink:flame_residence_time,Flame Residence Time
+behaveplus:surface:result:intermediates:heat_sink:flame_residence_time,Flame Residence Time
+behaveplus:crown:output:fire_type:transition_to_crown_fire:critical_surface_rate_of_spread,Critical Surface Rate of Spread
+behaveplus:crown:result:fire_type:transition_to_crown_fire:critical_surface_rate_of_spread,Critical Surface Rate of Spread
+behaveplus:crown:input:weather:wind-and-slope-are:wind-and-slope-alignment-mode,Wind and Slope Alignment Mode
+behaveplus:crown:resultweather:wind-and-slope-are:wind-and-slope-alignment-mode,Wind and Slope Alignment Mode
+behaveplus:surface:input:directions_of_surface_spread__wind:surface_fire_wind__spread:surface-run-in-direction-of,Surface Run In Direction Of
+behaveplus:surface:resultdirections_of_surface_spread__wind:surface_fire_wind__spread:surface-run-in-direction-of,Surface Run In Direction Of
+behaveplus:contain:output:fire:containment:contain_status,Contain Status
+behaveplus:contain:result:fire:containment:contain_status,Contain Status
+behaveplus:contain:input:fire:surface_rate_of_spread_maximum:surface_fire_rate_of_spread_maximum,Surface Fire Rate of Spread (maximum)
+behaveplus:contain:resultfire:surface_rate_of_spread_maximum:surface_fire_rate_of_spread_maximum,Surface Fire Rate of Spread (maximum)
+behaveplus:surface:output:spot:maximum_spotting_distance:torching_trees,Torching Trees
+behaveplus:surface:result:spot:maximum_spotting_distance:torching_trees,Max Spot Dist from Torching Trees
+behaveplus:surface:output:fire_behavior:surface_fire:backing:fireline-intensity,Fireline Intensity
+behaveplus:surface:result:fire_behavior:surface_fire:backing:fireline-intensity,Fireline Intensity
+behaveplus:surface:input:fuel_moisture:dead-live-herb-and-live-woody-categories:live-herbaceous-fuel-moisture:live-herbaceous-fuel-moisture,Live Herbaceous Fuel Moisture
+behaveplus:surface:resultfuel_moisture:dead-live-herb-and-live-woody-categories:live-herbaceous-fuel-moisture:live-herbaceous-fuel-moisture,Live Herbaceous Fuel Moisture
+behaveplus:surface:input:fuel_models:special_case:chaparral_upland:dead_load_fraction_:dead_load_fraction_,Dead Load Fraction
+behaveplus:surface:resultfuel_models:special_case:chaparral_upland:dead_load_fraction_:dead_load_fraction_,Dead Load Fraction
+behaveplus:surface:output:fire_behavior:surface_fire:reaction_intensity,Reaction Intensity
+behaveplus:surface:result:fire_behavior:surface_fire:reaction_intensity,Reaction Intensity
+behaveplus:contain:output:fire:containment:fireline_constructed,Fireline Constructed
+behaveplus:contain:result:fire:containment:fireline_constructed,Fireline Constructed
+behaveplus:surface:input:size:elapsed_time:elapsed_time,Elapsed Time
+behaveplus:surface:resultsize:elapsed_time:elapsed_time,Elapsed Time
+behaveplus:surface:output:special_case_fuel_models:chaparral:live_fuel_load:stems_10_to_30_inches,Stems 1.0 to 3.0 inches
+behaveplus:surface:result:special_case_fuel_models:chaparral:live_fuel_load:stems_10_to_30_inches,Stems 1.0 to 3.0 inches
+behaveplus:surface:input:wind_speed:wind_height:wind_height,Wind Measured at
+behaveplus:surface:resultwind_speed:wind_height:wind_height,Wind Measured at
+behaveplus:mortality:output:tree_mortality:tree_mortality:tree_crown_volume_scorched,Tree Crown Volume Scorched
+behaveplus:mortality:result:tree_mortality:tree_mortality:tree_crown_volume_scorched,Tree Crown Volume Scorched
+behaveplus:contain:output:fire:fire_size___at_resource_arrival_time:fire_area___at_resource_arrival_time,Fire Area at First Resource Arrival Time
+behaveplus:contain:result:fire:fire_size___at_resource_arrival_time:fire_area___at_resource_arrival_time,Fire Area at First Resource Arrival Time
+behaveplus:surface:input:spot:canopy_fuel:downwind_canopy_cover:downwind_canopy_cover,Downwind Canopy Cover
+behaveplus:surface:resultspot:canopy_fuel:downwind_canopy_cover:downwind_canopy_cover,Downwind Canopy Cover
+behaveplus:surface:input:wind_speed:wind-adjustment-factor:wind-adjustment-factor---user-input:wind-adjustment-factor,Wind Adjustment Factor
+behaveplus:surface:resultwind_speed:wind-adjustment-factor:wind-adjustment-factor---user-input:wind-adjustment-factor,Wind Adjustment Factor
+behaveplus:mortality:input:fuelvegetation_overstory:mortality-equation:mortality-equation,Mortality Equation
+behaveplus:mortality:resultfuelvegetation_overstory:mortality-equation:mortality-equation,Mortality Equation
+behaveplus:surface:input:fuel_moisture:by-size-class:100-h-fuel-moisture:100-h-fuel-moisture,100-h Fuel Moisture
+behaveplus:surface:resultfuel_moisture:by-size-class:100-h-fuel-moisture:100-h-fuel-moisture,100-h Fuel Moisture
+behaveplus:surface:output:special_case_fuel_models:western_aspen:surface_area_to_volume_ratio_sav:live_woody_sav,Live Woody SA/V
+behaveplus:surface:result:special_case_fuel_models:western_aspen:surface_area_to_volume_ratio_sav:live_woody_sav,Live Woody SA/V
+behaveplus:surface:input:fuel_models:standard:canopy-cover:canopy-cover,Canopy Cover
+behaveplus:surface:resultfuel_models:standard:canopy-cover:canopy-cover,Canopy Cover
+behaveplus:mortality:input:scorch:fire:surface_fire_flame_length:surface_fire_flame_length,Surface Fire Flame Length at Vector
+behaveplus:mortality:resultscorch:fire:surface_fire_flame_length:surface_fire_flame_length,Surface Fire Flame Length at Vector
+behaveplus:surface:output:intermediates:fuel_moisture:live_fuel_moisture_of_extinction,Live Fuel Moisture of Extinction
+behaveplus:surface:result:intermediates:fuel_moisture:live_fuel_moisture_of_extinction,Live Fuel Moisture of Extinction
+behaveplus:contain:input:suppression:line_construction_offset:line_construction_offset,Line Construction Offset
+behaveplus:contain:resultsuppression:line_construction_offset:line_construction_offset,Line Construction Offset
+behaveplus:crown:topography:slope:slope,Slope
+behaveplus:crown:topography:slope:slope,Slope
+behaveplus:crown:input:fuel_moisture:live-woody-fuel-moisture:live-woody-fuel-moisture,Live Woody Fuel Moisture
+behaveplus:crown:resultfuel_moisture:live-woody-fuel-moisture:live-woody-fuel-moisture,Live Woody Fuel Moisture
+behaveplus:crown:input:calculation_options:calculate_crown_fire_using:calculate_crown_fire_using,Calculate Crown Fire using:
+behaveplus:crown:resultcalculation_options:calculate_crown_fire_using:calculate_crown_fire_using,Calculate Crown Fire using:
+behaveplus:contain:input:suppression:tactic:tactic,Tactic
+behaveplus:contain:resultsuppression:tactic:tactic,Tactic
+behaveplus:crown:output:fire_type:transition_to_crown_fire:critical_surface_flame_length,Critical Surface Flame Length
+behaveplus:crown:result:fire_type:transition_to_crown_fire:critical_surface_flame_length,Critical Surface Flame Length
+behaveplus:surface:input:spot:hidden:wind-speed:20-ft-wind-speed,Wind Speed
+behaveplus:surface:resultspot:hidden:wind-speed:20-ft-wind-speed,Wind Speed
+behaveplus:crown:input:spotting:canopy_fuel:canopy_height:canopy_height,Canopy Height
+behaveplus:crown:resultspotting:canopy_fuel:canopy_height:canopy_height,Canopy Height
+behaveplus:contain:input:fire:length_to_width_ratio:length_to_width_ratio,Length-to-Width Ratio
+behaveplus:contain:resultfire:length_to_width_ratio:length_to_width_ratio,Length-to-Width Ratio
+behaveplus:surface:input:size:aspect:aspect,Aspect
+behaveplus:surface:resultsize:aspect:aspect,Aspect
+behaveplus:surface:output:special_case_fuel_models:chaparral:dead_fuel_load:from_10_inches_to_30_inches,From 1.0 Inches to 3.0 Inches
+behaveplus:surface:result:special_case_fuel_models:chaparral:dead_fuel_load:from_10_inches_to_30_inches,From 1.0 Inches to 3.0 Inches
+behaveplus:surface:output:size:surface___fire_size:fire_perimeter,Fire Perimeter
+behaveplus:surface:result:size:surface___fire_size:fire_perimeter,Fire Perimeter
+behaveplus:surface:output:special_case_fuel_models:chaparral:dead_fuel_load:from_050_inches_to_10_inches,From 0.50 Inches to 1.0 inches
+behaveplus:surface:result:special_case_fuel_models:chaparral:dead_fuel_load:from_050_inches_to_10_inches,From 0.50 Inches to 1.0 inches
+behaveplus:contain:input:suppression:resources:resource_duration,Resource Duration
+behaveplus:contain:resultsuppression:resources:resource_duration,Resource Duration
+behaveplus:surface:output:fire_behavior:surface_fire:windslopespread-direction-diagram,Wind/Slope/Spread Direction Diagram
+behaveplus:surface:result:fire_behavior:surface_fire:windslopespread-direction-diagram,Wind/Slope/Spread Direction Diagram
+behaveplus:mortality:input:fuelvegetation_overstory:mortality_tree_species:mortality_tree_species,Mortality Tree Species
+behaveplus:mortality:resultfuelvegetation_overstory:mortality_tree_species:mortality_tree_species,Mortality Tree Species
+behaveplus:surface:output:special_case_fuel_models:palmetto_galberry:dead_fuel_load:medium_025_to_1_inches,Live Medium: 0.25 to 1 inches
+behaveplus:surface:result:special_case_fuel_models:palmetto_galberry:dead_fuel_load:medium_025_to_1_inches,Live Medium: 0.25 to 1 inches
+behaveplus:crown:output:spotting_active_crown_fire:maximum_spotting_distance:maximum_spotting_distance,Active Crown Fire
+behaveplus:crown:result:spotting_active_crown_fire:maximum_spotting_distance:maximum_spotting_distance,Max Pot Distance from Active Crown Fire
+behaveplus:surface:input:wind_speed:wind_and_slope_are:wind_and_slope_alignment_mode,Wind and Slope Alignment Mode
+behaveplus:surface:resultwind_speed:wind_and_slope_are:wind_and_slope_alignment_mode,Wind and Slope Alignment Mode
+behaveplus:crown:topography:aspect:aspect,Aspect
+behaveplus:crown:topography:aspect:aspect,Aspect
+behaveplus:surface:output:fire_behavior:surface_fire:direction_of_maximum_spread,Direction of Maximum Spread
+behaveplus:surface:result:fire_behavior:surface_fire:direction_of_maximum_spread,Direction of Maximum Spread
+behaveplus:mortality:input:scorch:fire:scorchheightorflamelength,ScorchHeightOrFlameLength
+behaveplus:mortality:resultscorch:fire:scorchheightorflamelength,ScorchHeightOrFlameLength
+behaveplus:surface:input:wind_speed:wind_and_slope_are:wind-direction:wind-direction-degrees,Wind Direction (degrees)
+behaveplus:surface:resultwind_speed:wind_and_slope_are:wind-direction:wind-direction-degrees,Wind Direction (degrees)
+behaveplus:crown:output:size:length_to_width_ratio:length_to_width_ratio,Length-to-Width Ratio
+behaveplus:crown:result:size:length_to_width_ratio:length_to_width_ratio,Length-to-Width Ratio
+behaveplus:surface:output:intermediates:heat_source:slope_factor,Slope Factor
+behaveplus:surface:result:intermediates:heat_source:slope_factor,Slope Factor
+behaveplus:surface:input:fuel_models:special_case:palmetto_gallberry:age_of_rough_years:age_of_rough_years,Age of Rough (years)
+behaveplus:surface:resultfuel_models:special_case:palmetto_gallberry:age_of_rough_years:age_of_rough_years,Age of Rough (years)
+behaveplus:surface:input:fuel_models:special_case:palmetto_gallberry:overstory_basal_area_ft_2_ac_m2_ha:overstory_basal_area_ft_2_ac_m2_ha,Overstory Basal Area (ft2/ac, m2/ha)
+behaveplus:surface:resultfuel_models:special_case:palmetto_gallberry:overstory_basal_area_ft_2_ac_m2_ha:overstory_basal_area_ft_2_ac_m2_ha,Overstory Basal Area (ft2/ac, m2/ha)
+behaveplus:surface:input:fuel_models:special_case:western_aspen:surface_fuel__understory_vegetation:surface_fuel__understory_vegetation,Surface Fuel & Understory Vegetation
+behaveplus:surface:resultfuel_models:special_case:western_aspen:surface_fuel__understory_vegetation:surface_fuel__understory_vegetation,Surface Fuel & Understory Vegetation
+behaveplus:surface:output:fire_behavior:surface_fire:heat_per_unit_area,Heat per Unit Area
+behaveplus:surface:result:fire_behavior:surface_fire:heat_per_unit_area,Heat per Unit Area
+behaveplus:surface:input:fuel_models:standard:fuel_model:fuel_model,Fuel Model Code
+behaveplus:surface:resultfuel_models:standard:fuel_model:fuel_model,Fuel Model Code
+behaveplus:contain:input:suppression:resources:resource_arrival_time,Resource Arrival Time
+behaveplus:contain:resultsuppression:resources:resource_arrival_time,Resource Arrival Time
+behaveplus:surface:output:intermediates:heat_sink:heat_sink,Heat Sink
+behaveplus:surface:result:intermediates:heat_sink:heat_sink,Heat Sink
+behaveplus:surface:input:fuel_models:special_case:chaparral_upland:calculated_from_fuel_depth_and_type:fuelbed_depth_ft_m:fuelbed_depth_ft_m,Fuelbed Depth
+behaveplus:surface:resultfuel_models:special_case:chaparral_upland:calculated_from_fuel_depth_and_type:fuelbed_depth_ft_m:fuelbed_depth_ft_m,Fuelbed Depth
+behaveplus:crown:input:spotting:topography:ridge_to_valley_elevation_difference:ridge_to_valley_elevation_difference,Ridge-to-Valley Elevation Difference
+behaveplus:crown:resultspotting:topography:ridge_to_valley_elevation_difference:ridge_to_valley_elevation_difference,Ridge-to-Valley Elevation Difference
+behaveplus:surface:input:fuel_models:special_case:palmetto_gallberry:palmetto_coverage_:palmetto_coverage_,Palmetto Coverage (%)
+behaveplus:surface:resultfuel_models:special_case:palmetto_gallberry:palmetto_coverage_:palmetto_coverage_,Palmetto Coverage (%)
+behaveplus:surface:output:intermediates:fuel_moisture:characteristic_live,Characteristic Live Moisture
+behaveplus:surface:result:intermediates:fuel_moisture:characteristic_live,Characteristic Live Moisture
+behaveplus:surface:output:special_case_fuel_models:chaparral:live_fuel_load:stems_025_inches_to_050_inches,Stems 0.25 Inches to 0.50 Inches
+behaveplus:surface:result:special_case_fuel_models:chaparral:live_fuel_load:stems_025_inches_to_050_inches,Stems 0.25 Inches to 0.50 Inches
+behaveplus:surface:output:intermediates:fuel_characteristics:packing_ratio,Packing Ratio
+behaveplus:surface:result:intermediates:fuel_characteristics:packing_ratio,Packing Ratio
+behaveplus:mortality:input:fuelvegetation_overstory:region-code:region-code,Region Code
+behaveplus:mortality:resultfuelvegetation_overstory:region-code:region-code,Region Code
+behaveplus:contain:output:fire:containment:time_from_report,Time from Report
+behaveplus:contain:result:fire:containment:time_from_report,Time from Report
+behaveplus:surface:output:fire_behavior:surface_fire:flanking:flanking_flame_length,Flame Length
+behaveplus:surface:result:fire_behavior:surface_fire:flanking:flanking_flame_length,Flame Length
+behaveplus:mortality:compute-scorch-height:midflame-wind-speed:midflame-eye-level-wind-speed,Midflame (eye level) Wind Speed
+behaveplus:mortality:compute-scorch-height:midflame-wind-speed:midflame-eye-level-wind-speed,Midflame (eye level) Wind Speed
+behaveplus:crown:input:weather:wind-height-input-mode:wind-height,Wind Measured at
+behaveplus:crown:resultweather:wind-height-input-mode:wind-height,Wind Measured at
+behaveplus:crown:output:fire_type:fire_behavior:flame_length,Flame Length
+behaveplus:crown:result:fire_type:fire_behavior:flame_length,Flame Length
+behaveplus:surface:output:special_case_fuel_models:chaparral:dead_fuel_load:less_than_025_inches,Less than: 0.25 Inches
+behaveplus:surface:result:special_case_fuel_models:chaparral:dead_fuel_load:less_than_025_inches,Less than: 0.25 Inches
+behaveplus:crown:input:weather:wind-speed:20-ft-wind-speed,Wind Speed
+behaveplus:crown:resultweather:wind-speed:20-ft-wind-speed,Wind Speed
+behaveplus:surface:output:special_case_fuel_models:western_aspen:fuel_load:live_woody_fuel_load,Live Woody Fuel Load
+behaveplus:surface:result:special_case_fuel_models:western_aspen:fuel_load:live_woody_fuel_load,Live Woody Fuel Load
+behaveplus:surface:output:size:spread-distance:heading-spread-distance,Heading Spread Distance
+behaveplus:surface:result:size:spread-distance:heading-spread-distance,Heading Spread Distance
+behaveplus:surface:input:wind_speed:wind-adjustment-factor:wind-adjustment-factor-calculation-method,Wind Adjustment Factor Calculation Method
+behaveplus:surface:resultwind_speed:wind-adjustment-factor:wind-adjustment-factor-calculation-method,Wind Adjustment Factor Calculation Method
+behaveplus:crown:input:canopy_fuel:canopy_height:canopy_height,Canopy Height
+behaveplus:crown:resultcanopy_fuel:canopy_height:canopy_height,Canopy Height
+behaveplus:surface:input:fuel_models:special_case:chaparral_upland:total_fuel_load_is:chapparal_fuel_load_method,Chaparral Fuel Load Input Mode
+behaveplus:surface:resultfuel_models:special_case:chaparral_upland:total_fuel_load_is:chapparal_fuel_load_method,Chaparral Fuel Load Input Mode
+behaveplus:contain:input:fire:fire_size_at_report:fire_size_at_report,Fire Size at Report
+behaveplus:contain:resultfire:fire_size_at_report:fire_size_at_report,Fire Size at Report
+behaveplus:surface:input:spot:topography:ridge_to_valley_elevation_difference:ridge_to_valley_elevation_difference,Ridge-to-Valley Elevation Difference
+behaveplus:surface:resultspot:topography:ridge_to_valley_elevation_difference:ridge_to_valley_elevation_difference,Ridge-to-Valley Elevation Difference
+behaveplus:surface:output:fire_behavior:surface_fire:backing:backing_rate_of_spread,Rate of Spread
+behaveplus:surface:result:fire_behavior:surface_fire:backing:backing_rate_of_spread,Rate of Spread
+behaveplus:surface:input:spot:torching_trees:dbh_diameter_at_breast_height:dbh_diameter_at_breast_height,DBH (Diameter at Breast Height)
+behaveplus:surface:resultspot:torching_trees:dbh_diameter_at_breast_height:dbh_diameter_at_breast_height,DBH (Diameter at Breast Height)
+behaveplus:contain:output:fire:resources:number_of_resources_used,Number of Resources Used
+behaveplus:contain:result:fire:resources:number_of_resources_used,Number of Resources Used
+behaveplus:crown:input:spotting:fire_behavior:active_crown_flame_length:active_crown_flame_length,Active Crown Flame Length
+behaveplus:crown:resultspotting:fire_behavior:active_crown_flame_length:active_crown_flame_length,Active Crown Flame Length
+behaveplus:surface:output:special_case_fuel_models:western_aspen:fuel_load:1_h_fuel_load,1-h Fuel Load
+behaveplus:surface:result:special_case_fuel_models:western_aspen:fuel_load:1_h_fuel_load,1-h Fuel Load
+behaveplus:crown:output:fire_type:fire_type:fire_type_required,Fire Type
+behaveplus:crown:result:fire_type:fire_type:fire_type_required,Fire Type
+behaveplus:surface:output:special_case_fuel_models:western_aspen:fuel_load:live_herbaceous_fuel_load,Live Herbaceous Fuel Load
+behaveplus:surface:result:special_case_fuel_models:western_aspen:fuel_load:live_herbaceous_fuel_load,Live Herbaceous Fuel Load
+behaveplus:surface:output:fire_behavior:surface_fire:heading:heading_flame_length,Flame Length
+behaveplus:surface:result:fire_behavior:surface_fire:heading:heading_flame_length,Flame Length
+behaveplus:crown:input:spotting:weather:20_ft_wind_speed:20_ft_wind_speed,Wind Speed
+behaveplus:crown:resultspotting:weather:20_ft_wind_speed:20_ft_wind_speed,Wind Speed
+behaveplus:surface:output:size:spread-distance:flanking-spread-distance,Flanking Spread Distance
+behaveplus:surface:result:size:spread-distance:flanking-spread-distance,Flanking Spread Distance
+behaveplus:surface:output:intermediates:heat_source:heat_source,Heat Source
+behaveplus:surface:result:intermediates:heat_source:heat_source,Heat Source
+behaveplus:crown:input:fuel_moisture:foliar_moisture:foliar_moisture,Foliar Moisture
+behaveplus:crown:resultfuel_moisture:foliar_moisture:foliar_moisture,Foliar Moisture
+behaveplus:crown:input:canopy_fuel:canopy_base_height:canopy_base_height,Canopy Base Height
+behaveplus:crown:resultcanopy_fuel:canopy_base_height:canopy_base_height,Canopy Base Height
+behaveplus:surface:input:fuel_moisture:by-size-class:1-h-fuel-moisture:1-h-fuel-moisture,1-h Fuel Moisture
+behaveplus:surface:resultfuel_moisture:by-size-class:1-h-fuel-moisture:1-h-fuel-moisture,1-h Fuel Moisture
+behaveplus:crown:input:fuel_moisture:fuel-model-number:fuel-model-number,Fuel Model Number
+behaveplus:crown:resultfuel_moisture:fuel-model-number:fuel-model-number,Fuel Model Number
+behaveplus:surface:output:intermediates:heat_source:dead_fuel_reaction_intensity,Dead Fuel Reaction Intensity
+behaveplus:surface:result:intermediates:heat_source:dead_fuel_reaction_intensity,Dead Fuel Reaction Intensity
+behaveplus:surface:input:fuel_moisture:dead-live-herb-and-live-woody-categories:live-woody-fuel-moisture:live-woody-fuel-moisture,Live Woody Fuel Moisture
+behaveplus:surface:resultfuel_moisture:dead-live-herb-and-live-woody-categories:live-woody-fuel-moisture:live-woody-fuel-moisture,Live Woody Fuel Moisture
+behaveplus:surface:input:directions_of_surface_spread__wind:surface_fire_wind__spread:wind_direction:direction-of-interest-degrees:direction-of-interest,Direction of Interest
+behaveplus:surface:resultdirections_of_surface_spread__wind:surface_fire_wind__spread:wind_direction:direction-of-interest-degrees:direction-of-interest,Direction of Interest
+behaveplus:surface:output:special_case_fuel_models:chaparral:fuel_load:total_live_fuel_load,Total Live Fuel Load
+behaveplus:surface:result:special_case_fuel_models:chaparral:fuel_load:total_live_fuel_load,Total Live Fuel Load
+behaveplus:crown:output:size:fire_area:fire_area,Fire Area
+behaveplus:crown:result:size:fire_area:fire_area,Fire Area
+behaveplus:crown:input:fuel_moisture:1-h-fuel-moisture:1-h-fuel-moisture,1-h Fuel Moisture
+behaveplus:crown:resultfuel_moisture:1-h-fuel-moisture:1-h-fuel-moisture,1-h Fuel Moisture
+behaveplus:mortality:output:scorch:scorch_height:scorch_height,Scorch Height
+behaveplus:mortality:result:scorch:scorch_height:scorch_height,Scorch Height
+behaveplus:mortality:input:fuelvegetation_overstory:dbh:dbh-diameter-at-breast-height,DBH (Diameter at Breast Height)
+behaveplus:mortality:resultfuelvegetation_overstory:dbh:dbh-diameter-at-breast-height,DBH (Diameter at Breast Height)
+behaveplus:surface:output:spot:maximum_spotting_distance:burning_pile,Burning Pile
+behaveplus:surface:result:spot:maximum_spotting_distance:burning_pile,Max Spot Dist from Burning Pile
+behaveplus:surface:output:special_case_fuel_models:palmetto_galberry:live_fuel_load:medium_025_to_1_inches,Live Medium: 0.25 to 1 inches
+behaveplus:surface:result:special_case_fuel_models:palmetto_galberry:live_fuel_load:medium_025_to_1_inches,Live Medium: 0.25 to 1 inches
+behaveplus:surface:input:wind_speed:wind_speed:wind_speed,Wind Speed
+behaveplus:surface:resultwind_speed:wind_speed:wind_speed,Wind Speed
+behaveplus:surface:input:spot:hidden:flame-length:flame-length,Flame Length
+behaveplus:surface:resultspot:hidden:flame-length:flame-length,Flame Length
+behaveplus:mortality:input:fuelvegetation_overstory:cambium-kill-rating:cambium-kill-rating,Cambium Kill Rating
+behaveplus:mortality:resultfuelvegetation_overstory:cambium-kill-rating:cambium-kill-rating,Cambium Kill Rating
+behaveplus:surface:output:special_case_fuel_models:palmetto_galberry:dead_fuel_load:fine_0_to_025_inches,Live Fine: 0 to 0.25 inches
+behaveplus:surface:result:special_case_fuel_models:palmetto_galberry:dead_fuel_load:fine_0_to_025_inches,Live Fine: 0 to 0.25 inches
+behaveplus:mortality:output:tree_mortality:tree_mortality:probability_of_mortality,Probability of Mortality
+behaveplus:mortality:result:tree_mortality:tree_mortality:probability_of_mortality,Probability of Mortality
+behaveplus:mortality:input:fuelvegetation_overstory:crown-damage:crown-damage,Crown Damage
+behaveplus:mortality:resultfuelvegetation_overstory:crown-damage:crown-damage,Crown Damage
+behaveplus:surface:input:fuel_models:special_case:palmetto_gallberry:understory_height_ft_m:understory_height_ft_m,Understory Height (ft, m)
+behaveplus:surface:resultfuel_models:special_case:palmetto_gallberry:understory_height_ft_m:understory_height_ft_m,Understory Height (ft, m)
+behaveplus:surface:output:intermediates:heat_source:live_fuel_reaction_intensity,Live Fuel Reaction Intensity
+behaveplus:surface:result:intermediates:heat_source:live_fuel_reaction_intensity,Live Fuel Reaction Intensity
+behaveplus:crown:output:fire_type:transition_to_crown_fire:transition_ratio,Transition Ratio
+behaveplus:crown:result:fire_type:transition_to_crown_fire:transition_ratio,Transition Ratio

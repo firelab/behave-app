@@ -40,7 +40,7 @@
                                                                         ws-uuid
                                                                         output-gv-uuid])
                                                   fmt-fn   (get formatters output-gv-uuid identity)
-                                                  var-name @(subscribe [:wizard/gv-uuid->variable-name-1 output-gv-uuid])]
+                                                  var-name @(subscribe [:wizard/gv-uuid->variable-name-2 output-gv-uuid])]
                                               (cond-> acc
                                                 :always (conj {:output var-name
                                                                :value  (fmt-fn value)
@@ -92,7 +92,7 @@
         map-rep-frac              (:map-units-settings/map-rep-fraction map-units-settings-entity)
         column-headers            (reduce (fn insert-map-units-columns [acc {output-gv-uuid :bp/uuid
                                                                              output-units   :units}]
-                                            (let [output-name @(subscribe [:wizard/gv-uuid->variable-name-1 output-gv-uuid])]
+                                            (let [output-name @(subscribe [:wizard/gv-uuid->variable-name-2 output-gv-uuid])]
                                               (cond-> acc
                                                 :always (conj {:name (header-label output-name output-units)
                                                                :key  output-gv-uuid})
@@ -137,7 +137,7 @@
     [:div.print__construct-result-matrices
      (for [{output-gv-uuid :bp/uuid
             output-units   :units} output-entities]
-       (let [output-name           @(subscribe [:wizard/gv-uuid->variable-name-1 output-gv-uuid])
+       (let [output-name           @(subscribe [:wizard/gv-uuid->variable-name-2 output-gv-uuid])
              output-fmt-fn         (get formatters output-gv-uuid identity)
              row-fmt-fn            (get input-formatters row-gv-uuid identity)
              col-fmt-fn            (get input-formatters col-gv-uuid identity)
