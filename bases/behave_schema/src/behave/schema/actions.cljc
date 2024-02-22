@@ -31,6 +31,7 @@
    {:db/ident       :action/conditionals
     :db/doc         "Action's conditionals. Determines whether the Group should be displayed based on the conditional."
     :db/valueType   :db.type/ref
+    :db/isComponent true
     :db/cardinality :db.cardinality/many}
 
    {:db/ident       :action/conditionals-operator

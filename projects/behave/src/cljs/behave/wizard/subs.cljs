@@ -376,17 +376,18 @@
           (conditional-variable ?io ?g-uuid ?gv-uuid)]
         @@vms-conn rules gv-uuid)))
 
-
 (reg-sub
  :wizard/_select-actions
  (fn [_ [_ gv-uuid]]
-   (d/q '[:find (pull ?a [* {:action/conditionals [*]}]) .
-          :in $ ?gv-uuid
-          :where
-          [?gv :bp/uuid ?gv-uuid]
-          [?gv :group-variable/actions ?a]
-          [?a :action/type :select]]
-        @@vms-conn gv-uuid)))
+   (->> (d/q '[:find ?a .
+               :in $ ?gv-uuid
+               :where
+               [?gv :bp/uuid ?gv-uuid]
+               [?gv :group-variable/actions ?a]
+               [?a :action/type :select]]
+             @@vms-conn gv-uuid)
+        (d/entity @@vms-conn)
+        (d/touch))))
 
 (reg-sub
  :wizard/default-option
@@ -433,19 +434,6 @@
                   (:action/target-value %))))
         (remove nil?)
         (set))))
-
-(reg-sub
- :wizard/show-group?
- (fn [[_ ws-uuid group-id & _rest]]
-   [(subscribe [:worksheet ws-uuid])
-    (subscribe [:vms/pull-children :group/conditionals group-id])
-    (subscribe [:vms/entity-from-eid group-id])])
-
- (fn [[worksheet conditionals group-entity] [_ _ws-uuid _group-id conditionals-operator]]
-   (and (if (seq conditionals)
-          (all-conditionals-pass? worksheet conditionals-operator conditionals)
-          true)
-        (not (:group/research? group-entity)))))
 
 (reg-sub
  :wizard/show-group?
