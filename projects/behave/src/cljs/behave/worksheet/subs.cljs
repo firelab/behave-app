@@ -787,3 +787,47 @@
      (if-let [option (get options value)]
        (:list-option/name option)
        value))))
+
+(rp/reg-sub
+ :worksheet/result-table-gv-uuid+units
+ (fn [_ [_ ws-uuid]]
+   {:type  :query
+    :query '[:find  ?gv-uuid ?units
+             :in $ ?ws-uuid
+             :where
+             [?ws :worksheet/uuid ?ws-uuid]
+             [?ws :worksheet/result-table ?t]
+             [?t  :result-table/rows ?rr]
+             [?rr :result-row/cells ?c]
+
+             ;; Filter only input variables
+             [?ig :input-group/inputs ?i]
+             [?i  :input/group-variable-uuid ?gv-uuid]
+
+             ;; Get  gv-uuid, value and units
+             [?rh :result-header/group-variable-uuid ?gv-uuid]
+             [?rh :result-header/units ?units]
+             [?c  :result-cell/header ?rh]]
+    :variables [ws-uuid]}))
+
+(rf/reg-sub
+ :worksheet/result-table-gv-uuid->units
+ (fn [_ [_ ws-uuid]]
+   (let [gv-uuids+units (d/q '[:find  ?gv-uuid ?units
+                               :in $ ?ws-uuid
+                               :where
+                               [?ws :worksheet/uuid ?ws-uuid]
+                               [?ws :worksheet/result-table ?t]
+                               [?t  :result-table/rows ?rr]
+                               [?rr :result-row/cells ?c]
+
+                               ;; Filter only input variables
+                               [?ig :input-group/inputs ?i]
+                               [?i  :input/group-variable-uuid ?gv-uuid]
+
+                               ;; Get  gv-uuid, value and units
+                               [?rh :result-header/group-variable-uuid ?gv-uuid]
+                               [?rh :result-header/units ?units]
+                               [?c  :result-cell/header ?rh]]
+                             @@s/conn ws-uuid)]
+     (into {} gv-uuids+units))))
