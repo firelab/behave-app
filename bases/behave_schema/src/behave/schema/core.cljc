@@ -1,5 +1,6 @@
 (ns behave.schema.core
   (:require [behave.schema.application      :as application]
+            [behave.schema.actions          :as actions]
             [behave.schema.conditionals     :as conditionals]
             [behave.schema.domain           :as domain]
             [behave.schema.diagrams         :as diagrams]
@@ -39,6 +40,7 @@
 
 (def all-schemas (apply concat [uuid-schema
                                 application/schema
+                                actions/schema
                                 behave-list/schema
                                 conditionals/schema
                                 domain/schema

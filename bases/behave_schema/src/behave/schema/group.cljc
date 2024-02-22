@@ -4,14 +4,17 @@
 
 ;;; Spec
 
-(s/def :group/uuid            uuid-string?)
-(s/def :group/name            string?)
-(s/def :group/order           (s/and integer? #(<= 0 %)))
-(s/def :group/translation-key (s/and string? valid-key?))
-(s/def :group/help-key        (s/and string? valid-key?))
-(s/def :group/children        set?)
-(s/def :group/group-variables set?)
-(s/def :group/research?       boolean?)
+(s/def :group/uuid                   uuid-string?)
+(s/def :group/name                   string?)
+(s/def :group/order                  (s/and integer? #(<= 0 %)))
+(s/def :group/translation-key        (s/and string? valid-key?))
+(s/def :group/help-key               (s/and string? valid-key?))
+(s/def :group/children               set?)
+(s/def :group/group-variables        set?)
+(s/def :group/research?              boolean?)
+(s/def :group/conditionals           (s/coll-of int?))
+(s/def :group/conditionals-operator  #{:and :or})
+
 
 (s/def :behave/group (s/keys :req [:group/uuid
                                    :group/name

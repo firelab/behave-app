@@ -142,8 +142,9 @@
 ;;; Links
 (defn add-links [{:keys [gv-uuids] :as module}]
   (assoc module
-         :destination-links (q/destination-links gv-uuids)
-         :source-links      (q/source-links gv-uuids)))
+         :destination-links   (q/destination-links gv-uuids)
+         :source-links        (q/source-links gv-uuids)
+         :output-source-links (q/output-source-links gv-uuids)))
 
 ;;; Solvers
 
@@ -179,11 +180,15 @@
      inputs
      destination-links)))
 
+(defn add-source-link-outputs [outputs source-links]
+  (vec (concat outputs (keys source-links))))
+
 (defn run-module [{:keys [inputs all-outputs outputs row-id] :as row}
                   {:keys [init-fn
                           run-fn
                           fns
                           gv-uuids
+                          output-source-links
                           destination-links
                           diagrams
                           ws-uuid]}]
@@ -194,7 +199,10 @@
 
         ;; Filter IO's for module
         module-inputs  (filter-module-inputs inputs gv-uuids)
-        module-outputs (filter-module-outputs all-outputs gv-uuids)]
+        module-outputs (-> all-outputs
+                           (filter-module-outputs gv-uuids)
+                           (add-source-link-outputs output-source-links))]
+
     ;; Set inputs
     (apply-inputs module fns module-inputs)
 
@@ -210,6 +218,12 @@
 
     ;; Get outputs, merge existing inputs/outputs with new inputs/outputs
     (update row :outputs merge (get-outputs module fns module-outputs))))
+
+(defn remove-source-link-outputs [row surface-module]
+  (let [{:keys [outputs all-outputs]} row
+        {:keys [output-source-links]} surface-module
+        to-remove                     (set/difference (set (keys output-source-links)) (set all-outputs))]
+    (assoc row :outputs (apply dissoc outputs to-remove))))
 
 (defn solve-worksheet
   ([ws-uuid]
@@ -287,6 +301,9 @@
 
                         (pos? (count (set/intersection modules #{:surface :crown})))
                         (run-module spot-module)
+
+                        :always
+                        (remove-source-link-outputs surface-module)
 
                         :always
                         (add-row))))

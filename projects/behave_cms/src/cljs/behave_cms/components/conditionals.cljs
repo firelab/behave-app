@@ -157,7 +157,7 @@
                               (rf/dispatch-sync [:state/set-state cond-path nil])
                               (rf/dispatch-sync [:state/set-state
                                                  (conj cond-path :conditional/operator)
-                                                 :equals])
+                                                 :equal])
                               (rf/dispatch-sync [:state/set-state
                                                  (conj cond-path :conditional/type)
                                                  (if (= % "module") :module :group-variable)]))
