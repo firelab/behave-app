@@ -807,3 +807,8 @@
                                   [?ws :worksheet/result-table ?t]]
                                 ds ws-uuid)]
      {:transact [[:db.fn/retractEntity existing-eid]]})))
+
+(rp/reg-event-fx
+ :worksheet/clear-input-value
+ (fn [_ [_ input-eid]]
+   {:transact [[:db/retract input-eid :input/value]]}))
