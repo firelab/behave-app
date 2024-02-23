@@ -36,19 +36,18 @@
             [:div.wizard-graph__output-header
              @(subscribe [:wizard/gv-uuid->variable-name-2 output-uuid])]
             [:div.wizard-results__graph
-             (result-chart {:data   graph-data
-                            :x      {:name  (-> (:graph-settings/x-axis-group-variable-uuid graph-settings)
-                                                (subscribe [:wizard/gv-uuid->variable-name-2])
-                                                deref)
-                                     :scale [x-min x-max]}
-                            :y      {:name  @(subscribe [:wizard/gv-uuid->variable-name-2 output-uuid])
-                                     :scale [y-min y-max]}
-                            :z      {:name (-> (:graph-settings/z-axis-group-variable-uuid graph-settings)
-                                               (subscribe [:wizard/gv-uuid->variable-name-2])
-                                               deref)}
-                            :z2     {:name    (-> (:graph-settings/z2-axis-group-variable-uuid graph-settings)
-                                                  (subscribe [:wizard/gv-uuid->variable-name-2])
-                                                  deref)
-                                     :columns 2}
-                            :width  250
-                            :height 250})]])]))))
+             (let [x-axis-group-variable-uuid  (:graph-settings/x-axis-group-variable-uuid graph-settings)
+                   z-axis-group-variable-uuid  (:graph-settings/z-axis-group-variable-uuid graph-settings)
+                   z2-axis-group-variable-uuid (:graph-settings/z2-axis-group-variable-uuid graph-settings)]
+               (result-chart {:data   graph-data
+                              :x      {:name  @(subscribe [:wizard/gv-uuid->variable-name-2
+                                                           x-axis-group-variable-uuid])
+                                       :scale [x-min x-max]}
+                              :y      {:name  @(subscribe [:wizard/gv-uuid->variable-name-2 output-uuid])
+                                       :scale [y-min y-max]}
+                              :z      {:name @(subscribe [:wizard/gv-uuid->variable-name-2 z-axis-group-variable-uuid])}
+                              :z2     {:name    @(subscribe [:wizard/gv-uuid->variable-name-2
+                                                             z2-axis-group-variable-uuid])
+                                       :columns 2}
+                              :width  250
+                              :height 250}))]])]))))
