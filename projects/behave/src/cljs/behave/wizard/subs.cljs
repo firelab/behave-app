@@ -520,13 +520,4 @@
  (fn [multi-value-inputs [_ _ gv-uuid]]
    (let [[_ values]    (first (filter #(= (first %) gv-uuid) multi-value-inputs))
          parsed-values (map js/parseFloat (str/split values ","))]
-     [(apply min parsed-values) (apply max parsed-values)])
-   )
- )
-
-(comment
-  (rf/subscribe [:wizard/x-axis-limit-min+max-defaults
-                 "65aaf0bb-1568-4db9-b21e-87ae840bcb9b"
-                 "64a75ef0-5caf-4584-b0cf-369d7058f974"])
-
-  )
+     [0 (apply max parsed-values)])))
