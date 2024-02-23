@@ -289,7 +289,7 @@ behaveplus:surface:output:intermediates:heat_source:wind_factor,Wind Factor
 behaveplus:surface:result:intermediates:heat_source:wind_factor,Wind Factor
 behaveplus:crown:input:spotting:topography:spotting_source_location:spotting_source_location,Spotting Source Location
 behaveplus:crown:result:spotting:topography:spotting_source_location:spotting_source_location,Spotting Source Location
-behaveplus:surface:output:spot:maximum_spotting_distance:wind_driven_surface_fire,Max Spot Dist from Wind-Driven Surface Fire
+behaveplus:surface:output:spot:maximum_spotting_distance:wind_driven_surface_fire,Wind-Driven Surface Fire
 behaveplus:surface:result:spot:maximum_spotting_distance:wind_driven_surface_fire,Max Spot Dist from Wind-Driven Surface Fire
 behaveplus:crown:input:fuel_moisture:live-herbaceous-fuel-moisture:live-herbaceous-fuel-moisture,Live Herbaceous Fuel Moisture
 behaveplus:crown:result:fuel_moisture:live-herbaceous-fuel-moisture:live-herbaceous-fuel-moisture,Live Herbaceous Fuel Moisture
@@ -431,7 +431,7 @@ behaveplus:contain:output:fire:containment:contain_status,Contain Status
 behaveplus:contain:result:fire:containment:contain_status,Contain Status
 behaveplus:contain:input:fire:surface_rate_of_spread_maximum:surface_fire_rate_of_spread_maximum,Surface Fire Rate of Spread (maximum)
 behaveplus:contain:result:fire:surface_rate_of_spread_maximum:surface_fire_rate_of_spread_maximum,Surface Fire Rate of Spread (maximum)
-behaveplus:surface:output:spot:maximum_spotting_distance:torching_trees,Max Spot Dist from Torching Trees
+behaveplus:surface:output:spot:maximum_spotting_distance:torching_trees,Torching Trees
 behaveplus:surface:result:spot:maximum_spotting_distance:torching_trees,Max Spot Dist from Torching Trees
 behaveplus:surface:output:fire_behavior:surface_fire:backing:fireline-intensity,Fireline Intensity
 behaveplus:surface:result:fire_behavior:surface_fire:backing:fireline-intensity,Fireline Intensity
@@ -503,8 +503,8 @@ behaveplus:mortality:input:fuelvegetation_overstory:mortality_tree_species:morta
 behaveplus:mortality:result:fuelvegetation_overstory:mortality_tree_species:mortality_tree_species,Mortality Tree Species
 behaveplus:surface:output:special_case_fuel_models:palmetto_galberry:dead_fuel_load:medium_025_to_1_inches,Live Medium: 0.25 to 1 inches
 behaveplus:surface:result:special_case_fuel_models:palmetto_galberry:dead_fuel_load:medium_025_to_1_inches,Live Medium: 0.25 to 1 inches
-behaveplus:crown:output:spotting_active_crown_fire:maximum_spotting_distance:maximum_spotting_distance,Maximum Spotting Distance from Active Crown Fire
-behaveplus:crown:result:spotting_active_crown_fire:maximum_spotting_distance:maximum_spotting_distance,Maximum Spotting Distance from Active Crown Fire
+behaveplus:crown:output:spotting_active_crown_fire:maximum_spotting_distance:maximum_spotting_distance,Active Crown Fire
+behaveplus:crown:result:spotting_active_crown_fire:maximum_spotting_distance:maximum_spotting_distance,Max Spot Dist from Active Crown Fire
 behaveplus:surface:input:wind_speed:wind_and_slope_are:wind_and_slope_alignment_mode,Wind and Slope Alignment Mode
 behaveplus:surface:result:wind_speed:wind_and_slope_are:wind_and_slope_alignment_mode,Wind and Slope Alignment Mode
 behaveplus:crown:topography:aspect:aspect,Aspect
@@ -623,7 +623,7 @@ behaveplus:mortality:output:scorch:scorch_height:scorch_height,Scorch Height
 behaveplus:mortality:result:scorch:scorch_height:scorch_height,Scorch Height
 behaveplus:mortality:input:fuelvegetation_overstory:dbh:dbh-diameter-at-breast-height,DBH (Diameter at Breast Height)
 behaveplus:mortality:result:fuelvegetation_overstory:dbh:dbh-diameter-at-breast-height,DBH (Diameter at Breast Height)
-behaveplus:surface:output:spot:maximum_spotting_distance:burning_pile,Max Spot Dist from Burning Pile
+behaveplus:surface:output:spot:maximum_spotting_distance:burning_pile,Burning Pile
 behaveplus:surface:result:spot:maximum_spotting_distance:burning_pile,Max Spot Dist from Burning Pile
 behaveplus:surface:output:special_case_fuel_models:palmetto_galberry:live_fuel_load:medium_025_to_1_inches,Live Medium: 0.25 to 1 inches
 behaveplus:surface:result:special_case_fuel_models:palmetto_galberry:live_fuel_load:medium_025_to_1_inches,Live Medium: 0.25 to 1 inches
