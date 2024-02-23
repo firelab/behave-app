@@ -41,7 +41,7 @@
                                         :value (:bp/uuid unit)}))
                                 (sort-by :label))))}]]))
 
-(defn- build-rows [domain-set domain-unit-settings]
+(defn- build-rows [ws-uuid domain-set domain-unit-settings]
   (map
    (fn [[domain-uuid {:keys [domain-name
                              domain-dimension-uuid
@@ -51,7 +51,11 @@
       :units    (if (not= domain-dimension-uuid "N/A")
                   (let [dimension (rf/subscribe [:vms/entity-from-uuid domain-dimension-uuid])
                         units     (:dimension/units @dimension)
-                        on-click  #(rf/dispatch-sync [:settings/cache-unit-preference domain-set domain-uuid %])]
+                        on-click  #(rf/dispatch-sync [:settings/cache-unit-preference
+                                                      domain-set
+                                                      domain-uuid
+                                                      %
+                                                      ws-uuid])]
                     [unit-selector domain-native-unit-uuid units on-click])
                   [:div @(rf/subscribe [:vms/units-uuid->short-code domain-native-unit-uuid])])
       :decimals (when (not= domain-decimals "N/A")
@@ -62,7 +66,7 @@
                                                                      domain-set domain-uuid @decimal-atom])}]))})
    domain-unit-settings))
 
-(defn- general-units-tab []
+(defn- general-units-tab [{:keys [ws-uuid]}]
   (r/with-let [_ (rf/dispatch [:settings/load-units-from-local-storage])]
     (let [*state-settings (rf/subscribe [:settings/get :units])
           domain-sets     (sort-by first @*state-settings)]
@@ -74,18 +78,20 @@
                                                                       @(<t (bp "units"))
                                                                       @(<t (bp "decimals"))]
                                                             :columns [:domain :units :decimals]
-                                                            :rows    (build-rows domain-set-name
-                                                                                 (sort-by
-                                                                                  (fn [[_ domain]]
-                                                                                    (:domain-name domain))
-                                                                                  domain-unit-settings))})})})])))
+                                                            :rows    (build-rows
+                                                                      ws-uuid
+                                                                      domain-set-name
+                                                                      (sort-by
+                                                                       (fn [[_ domain]]
+                                                                         (:domain-name domain))
+                                                                       domain-unit-settings))})})})])))
 
 
 ;;==============================================================================
 ;; Root Component
 ;;==============================================================================
 
-(defn settings-page [_params]
+(defn settings-page [params]
   (let [*tab-selected (rf/subscribe [:state [:settings :units :current-tab]])]
     [:div.settings
      [c/tab-group {:variant  "outline-secondary"
@@ -101,7 +107,7 @@
                                :selected? (= @*tab-selected :moisture-scenario)}]}]
      [:div.settings__body
       (case @*tab-selected
-        :general-units     [general-units-tab]
+        :general-units     [general-units-tab params]
         :fuel-model        [fuel-model-tab]
         :moisture-scenario [moisture-scenario-tab]
         nil                [:div "no page"])]

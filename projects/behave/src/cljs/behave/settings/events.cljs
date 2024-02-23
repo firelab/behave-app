@@ -1,13 +1,23 @@
 (ns behave.settings.events
   (:require [re-frame.core :as rf]
+            [re-posh.core     :as rp]
             [vimsical.re-frame.cofx.inject :as inject]
             [behave.translate :refer [<t bp]]))
 
+(rp/reg-event-fx
+ :settings/clear-inputs-in-domain
+ (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid domain-uuid]] [:worksheet/inputs-in-domain ws-uuid domain-uuid]))
+ (fn [{input-eids :worksheet/inputs-in-domain} _]
+   (let [payload (mapv (fn [input-eid] [:db/retract input-eid :input/value]) input-eids)]
+     {:transact payload})))
+
 (rf/reg-event-fx
  :settings/cache-unit-preference
- (fn [_ [_ domain v-uuid unit-uuid]]
-   {:fx [[:dispatch [:settings/set [:units domain v-uuid :unit-uuid] unit-uuid]]
-         [:dispatch [:local-storage/update-in [:units v-uuid :unit-uuid] unit-uuid]]]}))
+ (fn [_ [_ domain domain-uuid unit-uuid ws-uuid]]
+   {:fx (cond-> [[:dispatch [:settings/set [:units domain domain-uuid :unit-uuid] unit-uuid]]
+                 [:dispatch [:local-storage/update-in [:units domain-uuid :unit-uuid] unit-uuid]]]
+          ws-uuid
+          (conj [:dispatch [:settings/clear-inputs-in-domain ws-uuid domain-uuid]]))}))
 
 (rf/reg-event-fx
  :settings/cache-decimal-preference

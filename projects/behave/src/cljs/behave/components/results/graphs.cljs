@@ -16,15 +16,16 @@
                                  (reduce (fn [acc [_row-id cell-data]]
                                            (conj acc
                                                  (reduce (fn [acc [_row-id col-uuid _repeat-id value]]
-                                                           (assoc acc
-                                                                  (-> (subscribe [:wizard/group-variable col-uuid])
-                                                                      deref
-                                                                      :variable/name)
-                                                                  (js/parseFloat value)))
+                                                           (let [fmt-fn (-> @(subscribe [:worksheet/result-table-formatters [col-uuid]])
+                                                                            (get col-uuid identity))]
+                                                             (assoc acc
+                                                                    (-> (subscribe [:wizard/group-variable col-uuid])
+                                                                        deref
+                                                                        :variable/name)
+                                                                    (fmt-fn value))))
                                                          {}
                                                          cell-data)))
                                          []))
-
               x-axis-limit (:graph-settings/x-axis-limits graph-settings)
               x-min        (:x-axis-limit/min x-axis-limit)
               x-max        (:x-axis-limit/max x-axis-limit)]

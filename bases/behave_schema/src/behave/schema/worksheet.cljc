@@ -63,42 +63,50 @@
    {:db/ident       :worksheet/notes
     :db/doc         "Worksheet's notes."
     :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/many}
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
 
    {:db/ident       :worksheet/input-groups
     :db/doc         "Worksheet's input groups."
     :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/many}
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
 
    {:db/ident       :worksheet/repeat-groups
     :db/doc         "Worksheet's repeat groups."
     :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/many}
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
 
    {:db/ident       :worksheet/outputs
     :db/doc         "Worksheet's outputs."
     :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/many}
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
 
    {:db/ident       :worksheet/result-table
     :db/doc         "Worksheet's result table."
     :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/one}
+    :db/cardinality :db.cardinality/one
+    :db/isComponent true}
 
    {:db/ident       :worksheet/graph-settings
     :db/doc         "Worksheet's graph settings."
     :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/one}
+    :db/cardinality :db.cardinality/one
+    :db/isComponent true}
 
    {:db/ident       :worksheet/table-settings
     :db/doc         "Worksheet's table settings."
     :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/one}
+    :db/cardinality :db.cardinality/one
+    :db/isComponent true}
 
    {:db/ident       :worksheet/diagrams
     :db/doc         "Worksheet's diagrams"
     :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/many}
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
 
    ;; Notes
    {:db/ident       :note/name
@@ -130,7 +138,8 @@
    {:db/ident       :input-group/inputs
     :db/doc         "Input Group's input variables."
     :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/many}
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
 
    ;; Repeat Groups
    {:db/ident       :repeat-group/group-uuid
@@ -188,12 +197,14 @@
    {:db/ident       :result-table/headers
     :db/doc         "Result table's heaers."
     :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/many}
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
 
    {:db/ident       :result-table/rows
     :db/doc         "Result table's rows."
     :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/many}
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
 
    ;; Result Header
    {:db/ident       :result-header/group-variable-uuid
@@ -225,13 +236,15 @@
    {:db/ident       :result-row/cells
     :db/doc         "Results row's cells."
     :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/many}
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
 
    ;; Result Cell
    {:db/ident       :result-cell/header
     :db/doc         "Results cell's header."
     :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/one}
+    :db/cardinality :db.cardinality/one
+    :db/isComponent true}
 
    {:db/ident       :result-cell/value
     :db/doc         "Results cell's value."
@@ -247,12 +260,14 @@
    {:db/ident       :table-settings/filters
     :db/doc         "Filters for the table."
     :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/many}
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
 
    {:db/ident       :table-settings/map-units-settings
     :db/doc         "Settings for converting certain variables to map units."
     :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/one}
+    :db/cardinality :db.cardinality/one
+    :db/isComponent true}
 
    ;; Table filters
    {:db/ident       :table-filter/group-variable-uuid
@@ -315,12 +330,14 @@
    {:db/ident       :graph-settings/y-axis-limits
     :db/doc         "Graph's y-axis limits."
     :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/many}
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
 
    {:db/ident       :graph-settings/x-axis-limits
     :db/doc         "Graph's x-axis limits."
     :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/one}
+    :db/cardinality :db.cardinality/one
+    :db/isComponent true}
 
    ;; y-axis-limit
    {:db/ident       :y-axis-limit/group-variable-uuid
@@ -373,17 +390,20 @@
    {:db/ident       :worksheet.diagram/ellipses
     :db/doc         "List of ellipses to plot on this diagram"
     :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/many}
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
 
    {:db/ident       :worksheet.diagram/arrows
     :db/doc         "List of arrows to plot on this diagram"
     :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/many}
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
 
    {:db/ident       :worksheet.diagram/scatter-plots
     :db/doc         "list of scatter-plots to plot on this diagram"
     :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/many}
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
 
    ;; Diagram Ellipses
    {:db/ident       :ellipse/legend-id

@@ -377,6 +377,65 @@
         @@vms-conn rules gv-uuid)))
 
 (reg-sub
+ :wizard/_select-actions
+ (fn [_ [_ gv-uuid]]
+   (->> (d/q '[:find ?a .
+               :in $ ?gv-uuid
+               :where
+               [?gv :bp/uuid ?gv-uuid]
+               [?gv :group-variable/actions ?a]
+               [?a :action/type :select]]
+             @@vms-conn gv-uuid)
+        (d/entity @@vms-conn)
+        (d/touch))))
+
+(reg-sub
+ :wizard/default-option
+ (fn [[_ ws-uuid gv-uuid]]
+   [(subscribe [:worksheet ws-uuid])
+    (subscribe [:wizard/_select-actions gv-uuid])])
+ (fn [[worksheet action]]
+   (let [conditionals  (:action/conditionals action)
+         cond-operator (:action/conditionals-operator action)
+         target-value  (:action/target-value action)
+
+         conditionals-passed?
+         (or (nil? conditionals)
+             (all-conditionals-pass? worksheet cond-operator conditionals))]
+     (when (and target-value conditionals-passed?)
+       (:action/target-value action)))))
+
+(reg-sub
+ :wizard/_disabled-actions
+ (fn [_ [_ gv-uuid]]
+   (d/q '[:find [(pull ?a [* {:action/conditionals [*]}]) ...]
+          :in $ ?gv-uuid
+          :where
+          [?gv :bp/uuid ?gv-uuid]
+          [?gv :group-variable/actions ?a]
+          [?a :action/type :disable]]
+        @@vms-conn gv-uuid)))
+
+(reg-sub
+ :wizard/disabled-options
+ (fn [[_ ws-uuid gv-uuid]]
+   [(subscribe [:worksheet ws-uuid])
+    (subscribe [:wizard/_disabled-actions gv-uuid])])
+ (fn [[worksheet actions]]
+   (->> actions
+        (map #(let [conditionals  (:action/conditionals %)
+                    cond-operator (:action/conditionals-operator %)
+                    target-value  (:action/target-value %)
+
+                    conditionals-passed?
+                    (or (nil? conditionals)
+                        (all-conditionals-pass? worksheet cond-operator conditionals))]
+                (when (and target-value conditionals-passed?)
+                  (:action/target-value %))))
+        (remove nil?)
+        (set))))
+
+(reg-sub
  :wizard/show-group?
  (fn [[_ ws-uuid group-id & _rest]]
    [(subscribe [:worksheet ws-uuid])

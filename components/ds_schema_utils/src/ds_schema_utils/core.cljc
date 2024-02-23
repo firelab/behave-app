@@ -8,7 +8,7 @@
 
 (defn- simplify-schema [schema]
   (-> schema
-      (select-keys [:db/ident :db/valueType :db/index :db/unique :db/cardinality :db/tupleAttrs])
+      (select-keys [:db/ident :db/valueType :db/index :db/unique :db/cardinality :db/tupleAttrs :db/isComponent])
       (keep-key :db/valueType #{:db.type/ref :db.type/tuple})
       (keep-key :db/cardinality #{:db.cardinality/many})))
 

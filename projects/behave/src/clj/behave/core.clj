@@ -1,27 +1,32 @@
 (ns behave.core
-  (:require [clojure.java.io              :as io]
-            [clojure.java.browse          :refer [browse-url]]
-            [clojure.core.async           :refer [<! alts! put! chan go-loop timeout]]
-            [clojure.edn                  :as edn]
-            [clojure.string               :as str]
-            [clojure.stacktrace           :as st]
-            [bidi.bidi                    :refer [match-route]]
-            [ring.middleware.content-type :refer [wrap-content-type]]
-            [ring.middleware.resource     :refer [wrap-resource]]
-            [ring.middleware.reload       :refer [wrap-reload]]
-            [ring.util.codec              :refer [url-decode]]
-            [ring.util.response           :refer [not-found]]
-            [server.interface             :as server]
-            [logging.interface            :refer [log-str] :as logging]
-            [config.interface             :refer [get-config load-config]]
-            [file-utils.interface         :refer [os-path]]
-            [transport.interface          :refer [->clj mime->type]]
-            [behave-routing.main          :refer [routes]]
-            [behave.store                 :as store]
-            [behave.sync                  :refer [sync-handler]]
-            [behave.download-vms          :refer [export-from-vms export-images-from-vms]]
-            [behave.views                 :refer [render-page render-tests-page]])
-  (:gen-class))
+  (:gen-class)
+  (:require [behave-routing.main               :refer [routes]]
+            [behave.download-vms               :refer [export-from-vms export-images-from-vms]]
+            [behave.init                       :refer [init-handler]]
+            [behave.open                       :refer [open-handler]]
+            [behave.save                       :refer [save-handler]]
+            [behave.store                      :as store]
+            [behave.sync                       :refer [sync-handler]]
+            [behave.views                      :refer [render-page render-tests-page]]
+            [bidi.bidi                         :refer [match-route]]
+            [clojure.core.async                :refer [<! alts! chan go-loop put! timeout]]
+            [clojure.edn                       :as edn]
+            [clojure.java.browse               :refer [browse-url]]
+            [clojure.java.io                   :as io]
+            [clojure.stacktrace                :as st]
+            [clojure.string                    :as str]
+            [config.interface                  :refer [get-config load-config]]
+            [file-utils.interface              :refer [os-path]]
+            [logging.interface                 :as logging :refer [log-str]]
+            [ring.middleware.content-type      :refer [wrap-content-type]]
+            [ring.middleware.multipart-params  :refer [wrap-multipart-params]]
+            [ring.middleware.keyword-params    :refer [wrap-keyword-params]]
+            [ring.middleware.reload            :refer [wrap-reload]]
+            [ring.middleware.resource          :refer [wrap-resource]]
+            [ring.util.codec                   :refer [url-decode]]
+            [ring.util.response                :refer [not-found]]
+            [server.interface                  :as server]
+            [transport.interface               :refer [->clj mime->type]]))
 
 ;;; Constants
 
@@ -91,8 +96,11 @@
 (defn routing-handler [{:keys [uri] :as request}]
   (let [next-handler (cond
                        (bad-uri? uri)                     (not-found "404 Not Found")
+                       (str/starts-with? uri "/init")     #'init-handler
                        (str/starts-with? uri "/vms-sync") #'vms-sync-handler
                        (str/starts-with? uri "/sync")     #'sync-handler
+                       (str/starts-with? uri "/save")     #'save-handler
+                       (str/starts-with? uri "/open")     #'open-handler
                        (str/starts-with? uri "/test")     #'render-tests-page
                        (str/starts-with? uri "/close")    #'close-handler
                        (match-route routes uri)           (render-page (match-route routes uri))
@@ -162,10 +170,12 @@
   (-> routing-handler
       (wrap-figwheel figwheel?)
       wrap-params
+      wrap-keyword-params
       wrap-query-params
       wrap-req-content-type+accept
       (wrap-resource "public" {:allow-symlinks? true})
       (wrap-content-type {:mime-types {"wasm" "application/wasm"}})
+      wrap-multipart-params
       wrap-exceptions
       (optional-middleware #(wrap-reload % {:dirs (reloadable-clj-files)}) reload?)))
 
