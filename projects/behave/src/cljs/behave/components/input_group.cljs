@@ -103,7 +103,7 @@
                selected                  (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id gv-uuid])
                default-option            (rf/subscribe [:wizard/default-option ws-uuid gv-uuid])
                disabled-options          (rf/subscribe [:wizard/disabled-options ws-uuid gv-uuid])
-               on-change                 #(upsert-input ws-uuid group-uuid repeat-id gv-muuid (input-value %))
+               on-change                 #(upsert-input ws-uuid group-uuid repeat-id gv-uuid (input-value %))
                _                         (when (and (nil? @selected) @default-option)
                                            (upsert-input ws-uuid group-uuid repeat-id gv-uuid @default-option))
                options                   (sort-by :list-option/order (filter #(not (:list-option/hide? %)) (:list/options list)))
