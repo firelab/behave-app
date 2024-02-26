@@ -7,7 +7,8 @@
             [re-frame.core              :as rf]
             [datom-compressor.interface :as c]
             [ds-schema-utils.interface  :refer [->ds-schema]]
-            [behave.schema.core         :refer [all-schemas]]))
+            [behave.schema.core         :refer [all-schemas]]
+            [behave.translate           :refer [load-translations!]]))
 
 ;;; State
 
@@ -15,22 +16,12 @@
 
 ;;; Helpers
 
-(def ^:private supported-language #{"en-US" "pt-PT"})
-(def ^:private default-languge "en-US")
-
-(defn- browser-lang []
-  (.. js/window -navigator -language))
-
 (defn- load-data-handler [[ok body]]
   (when ok
-    (let [datoms             (mapv #(apply d/datom %) (c/unpack body))
-          browser            (browser-lang)
-          language-shortcode (if (contains? supported-language browser)
-                               browser
-                               default-languge)]
+    (let [datoms (mapv #(apply d/datom %) (c/unpack body))]
       (rf/dispatch-sync [:vms/initialize (->ds-schema all-schemas) datoms])
       (rf/dispatch-sync [:state/set :vms-loaded? true])
-      (rf/dispatch-sync [:translations/load language-shortcode]))))
+      (load-translations!))))
 
 (defn- reloaded-vms-data [[ok _]]
   (when ok
@@ -55,11 +46,11 @@
 
 (defn init! [{:keys [datoms schema]}]
   (if @vms-conn
-   @vms-conn
-   (do
-     (reset! vms-conn (d/conn-from-datoms datoms schema))
-     (posh! @vms-conn)
-     @vms-conn)))
+    @vms-conn
+    (do
+      (reset! vms-conn (d/conn-from-datoms datoms schema))
+      (posh! @vms-conn)
+      @vms-conn)))
 
 ;;; Effects
 
@@ -68,9 +59,9 @@
 ;;; Events
 
 (rf/reg-event-fx
-  :vms/initialize
-  (fn [_ [_ schema datoms]]
-    {:vms/init {:datoms datoms :schema schema}}))
+ :vms/initialize
+ (fn [_ [_ schema datoms]]
+   {:vms/init {:datoms datoms :schema schema}}))
 
 ;;; Operations
 (defn q [query & variables]
