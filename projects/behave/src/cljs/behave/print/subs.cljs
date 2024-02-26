@@ -13,7 +13,7 @@
  (fn [[uuid+values units-lookup] _]
    (->> uuid+values
         (map (fn resolve-gv-uuid [[gv-uuid values]]
-               (let [var-name @(rf/subscribe [:wizard/gv-uuid->variable-name-1 gv-uuid])]
+               (let [var-name @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])]
                  [var-name (get units-lookup gv-uuid) gv-uuid (split-commas-or-spaces values)]))))))
 
 (rf/reg-sub

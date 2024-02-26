@@ -50,7 +50,7 @@
          {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
          [c/text-input {:id           (str repeat-id "-" uuid)
                         :label        (if repeat-group?
-                                        @(rf/subscribe [:wizard/gv-uuid->variable-name-1 gv-uuid])
+                                        @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
                                         "Values:")
                         :placeholder  (when repeat-group? "Values")
                         :value-atom   value-atom
@@ -117,7 +117,7 @@
                                                          (@disabled-options value)
                                                          false)
                                             :checked?  (= @selected value)})
-               var-name                  @(rf/subscribe [:wizard/gv-uuid->variable-name-1 gv-uuid])]
+               var-name                  @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])]
     [:div.wizard-input
      {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
      (if (>= 4 num-options)
@@ -158,7 +158,7 @@
     [:div.wizard-input
      {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
      [c/multi-select-input
-      {:input-label @(rf/subscribe [:wizard/gv-uuid->variable-name-1 gv-uuid])
+      {:input-label @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
        :options     (doall (map ->option options))}]]))
 
 (defmethod wizard-input :text [{gv-uuid  :bp/uuid
@@ -173,7 +173,7 @@
      {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
      [c/text-input {:id            (str repeat-id "-" uuid)
                     :label         (if repeat-group?
-                                     @(rf/subscribe [:wizard/gv-uuid->variable-name-1 gv-uuid])
+                                     @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
                                      "Values:")
                     :placeholder   (when repeat-group? "Value")
                     :default-value (first @value)

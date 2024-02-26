@@ -21,7 +21,7 @@
     [:div.wizard-input
      [:div.wizard-review__input
       {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
-      [c/text-input {:label     @(rf/subscribe [:wizard/gv-uuid->variable-name-1 gv-uuid])
+      [c/text-input {:label     @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
                      :value     @values
                      :error?    warn-limit?
                      :disabled? true}]
@@ -43,7 +43,7 @@
     [:div.wizard-input {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
      [:div.wizard-review__input
       [:div.wizard-review__input--discrete
-       [:div.wizard-review__input--discrete__label (str @(rf/subscribe [:wizard/gv-uuid->variable-name-1 gv-uuid]) ":")]
+       [:div.wizard-review__input--discrete__label (str @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid]) ":")]
        [:div.wizard-review__input--discrete__value @*resolved-enum-value]
        [c/button {:variant  "primary"
                   :label    @(<t (bp "change_selection"))
@@ -64,7 +64,7 @@
     [:div.wizard-input {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
      [:div.wizard-review__input
       [:div.wizard-review__input--discrete
-       [:div.wizard-review__input--discrete__label (str @(rf/subscribe [:wizard/gv-uuid->variable-name-1 gv-uuid]) "s:")]
+       [:div.wizard-review__input--discrete__label (str @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid]) "s:")]
        [:div.wizard-review__input--multi-discrete
         (for [enum resolved-enum-values]
           [:div.wizard-review__input--discrete__value enum])]
@@ -83,7 +83,7 @@
   (let [values (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id gv-uuid])]
     [:div.wizard-input--review
      {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
-     [c/text-input {:label     @(rf/subscribe [:wizard/gv-uuid->variable-name-1 gv-uuid])
+     [c/text-input {:label     @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
                     :value     @values
                     :disabled? true}]
      (when-not repeat-group?

@@ -6,7 +6,7 @@
                               help-key :group-variable/help-key}]
   (let [checked? (rf/subscribe [:worksheet/output-enabled? ws-uuid gv-uuid])]
     [:div.wizard-output {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
-     [c/checkbox {:label     @(rf/subscribe [:wizard/gv-uuid->variable-name-1 gv-uuid])
+     [c/checkbox {:label     @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
                   :checked?  @checked?
                   :on-change #(rf/dispatch [:worksheet/upsert-output ws-uuid gv-uuid (not @checked?)])}]]))
 

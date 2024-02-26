@@ -16,7 +16,7 @@
                                                          (let [fmt-fn (-> @(subscribe [:worksheet/result-table-formatters [col-uuid]])
                                                                           (get col-uuid identity))]
                                                            (assoc acc
-                                                                  @(subscribe [:wizard/gv-uuid->variable-name-2 col-uuid])
+                                                                  @(subscribe [:wizard/gv-uuid->resolve-result-variable-name col-uuid])
                                                                   (fmt-fn value))))
                                                        {}
                                                        cell-data)))
@@ -34,19 +34,19 @@
                             y-max (:y-axis-limit/max y-axis-limit)]]
            [:<>
             [:div.wizard-graph__output-header
-             @(subscribe [:wizard/gv-uuid->variable-name-2 output-uuid])]
+             @(subscribe [:wizard/gv-uuid->resolve-result-variable-name output-uuid])]
             [:div.wizard-results__graph
              (let [x-axis-group-variable-uuid  (:graph-settings/x-axis-group-variable-uuid graph-settings)
                    z-axis-group-variable-uuid  (:graph-settings/z-axis-group-variable-uuid graph-settings)
                    z2-axis-group-variable-uuid (:graph-settings/z2-axis-group-variable-uuid graph-settings)]
                (result-chart {:data   graph-data
-                              :x      {:name  @(subscribe [:wizard/gv-uuid->variable-name-2
+                              :x      {:name  @(subscribe [:wizard/gv-uuid->resolve-result-variable-name
                                                            x-axis-group-variable-uuid])
                                        :scale [x-min x-max]}
-                              :y      {:name  @(subscribe [:wizard/gv-uuid->variable-name-2 output-uuid])
+                              :y      {:name  @(subscribe [:wizard/gv-uuid->resolve-result-variable-name output-uuid])
                                        :scale [y-min y-max]}
-                              :z      {:name @(subscribe [:wizard/gv-uuid->variable-name-2 z-axis-group-variable-uuid])}
-                              :z2     {:name    @(subscribe [:wizard/gv-uuid->variable-name-2
+                              :z      {:name @(subscribe [:wizard/gv-uuid->resolve-result-variable-name z-axis-group-variable-uuid])}
+                              :z2     {:name    @(subscribe [:wizard/gv-uuid->resolve-result-variable-name
                                                              z2-axis-group-variable-uuid])
                                        :columns 2}
                               :width  250

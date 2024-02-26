@@ -5,6 +5,7 @@
                                         clear-local-storage!
                                         assoc-in-local-storage!
                                         create-local-storage!]]
+            [vimsical.re-frame.cofx.inject :as inject]
             [ajax.core :as ajax]
             [re-frame.core :as rf]
             [behave.tool.events]))
@@ -13,7 +14,7 @@
 
 (def initial-state {:router       {:history       []
                                    :curr-position 0}
-                    :state        {:io :output
+                    :state        {:io        :output
                                    :worksheet {:inputs        {}
                                                :outputs       {}
                                                :repeat-groups {}}}
@@ -30,46 +31,46 @@
 ;;; State
 
 (rf/reg-event-db
-  :state/set
-  (rf/path :state)
-  (fn [db [_ path value]]
-    (cond
-      (or (vector? path) (list? path))
-      (assoc-in db path value)
+ :state/set
+ (rf/path :state)
+ (fn [db [_ path value]]
+   (cond
+     (or (vector? path) (list? path))
+     (assoc-in db path value)
 
-      (keyword? path)
-      (assoc db path value)
+     (keyword? path)
+     (assoc db path value)
 
-      :else db)))
-
-(rf/reg-event-db
-  :state/merge
-  (rf/path :state)
-  (fn [state [_ path value]]
-    (let [orig-value (get-in state path)]
-      (cond
-        (nil? orig-value)
-        (assoc-in state path value)
-
-        (and (map? orig-value) (map? value))
-        (update-in state path merge value)
-
-        (and (or (vector? orig-value) (seq? orig-value))
-             (or (vector? value) (seq? orig-value)))
-        (update-in state path into value)))))
+     :else db)))
 
 (rf/reg-event-db
-  :state/update
-  (rf/path :state)
-  (fn [db [_ path f & args]]
-    (cond
-      (or (vector? path) (list? path))
-      (update-in db path #(apply f % args))
+ :state/merge
+ (rf/path :state)
+ (fn [state [_ path value]]
+   (let [orig-value (get-in state path)]
+     (cond
+       (nil? orig-value)
+       (assoc-in state path value)
 
-      (keyword? path)
-      (update db path #(apply f % args))
+       (and (map? orig-value) (map? value))
+       (update-in state path merge value)
 
-      :else db)))
+       (and (or (vector? orig-value) (seq? orig-value))
+            (or (vector? value) (seq? orig-value)))
+       (update-in state path into value)))))
+
+(rf/reg-event-db
+ :state/update
+ (rf/path :state)
+ (fn [db [_ path f & args]]
+   (cond
+     (or (vector? path) (list? path))
+     (update-in db path #(apply f % args))
+
+     (keyword? path)
+     (update db path #(apply f % args))
+
+     :else db)))
 
 
 ;;; Datascript
@@ -77,9 +78,9 @@
 ;;; Navigation
 
 (rf/reg-fx
-  :history/push-state
-  (fn [{:keys [position route]}]
-    (.pushState js/history position nil route)))
+ :history/push-state
+ (fn [{:keys [position route]}]
+   (.pushState js/history position nil route)))
 
 (defn navigate [{:keys [history curr-position]} new-route]
   (let [curr-route (get history curr-position)]
@@ -93,19 +94,19 @@
         [new-history new-position new-route]))))
 
 (rf/reg-event-fx
-  :navigate
-  (fn [{db :db} [_ new-route]]
-    (when-let [[new-history new-position new-route] (navigate (:router db) new-route)]
-      {:db (assoc db :router {:history new-history :curr-position new-position})
-       :history/push-state {:position new-position
-                            :route new-route}})))
+ :navigate
+ (fn [{db :db} [_ new-route]]
+   (when-let [[new-history new-position new-route] (navigate (:router db) new-route)]
+     {:db                 (assoc db :router {:history new-history :curr-position new-position})
+      :history/push-state {:position new-position
+                           :route    new-route}})))
 
 (rf/reg-event-db
-  :popstate
-  (rf/path :router)
-  (fn [router [_ e]]
-    (let [new-position (.-state e)]
-      (assoc router :curr-position (or new-position 0)))))
+ :popstate
+ (rf/path :router)
+ (fn [router [_ e]]
+   (let [new-position (.-state e)]
+     (assoc router :curr-position (or new-position 0)))))
 
 ;;; Local Storage
 
@@ -153,11 +154,17 @@
 
 ;;; Translations
 
-(rf/reg-event-db
-  :translations/load
-  (rf/path [:translations])
-  (fn [translations [_ language new-translations]]
-    (update translations language merge new-translations)))
+(rf/reg-event-fx
+ :translations/load
+ [(rf/path [:translations])
+  (rf/inject-cofx ::inject/sub
+                  (fn [[_ language-shortcode]]
+                    [:vms/translations language-shortcode]))]
+ (fn [{db               :db
+       vms-translations :vms/translations} [_ language-shortcode]]
+   {:db (update-in db [language-shortcode] merge vms-translations)}))
+
+;; (update db :translations language-short-code merge vms-translations)
 
 ;;; Dev
 (rf/reg-event-fx

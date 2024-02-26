@@ -145,3 +145,16 @@
           (filter #(= (name %) "name"))
           first
           (get entity)))))
+
+(reg-sub
+ :vms/translations
+ (fn [_ [_ language-short-code]]
+   (->> (d/q '[:find  ?key ?translation
+               :in    $ ?short-code
+               :where
+               [?l :language/shortcode ?short-code]
+               [?l :language/translation ?t]
+               [?t :translation/key ?key]
+               [?t :translation/translation ?translation]]
+             @@vms-conn language-short-code)
+        (into {}))))

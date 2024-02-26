@@ -368,7 +368,7 @@
                                           (gstring/format fmt min-val max-val)))
                                       @*gv-uuid+min+max-entries)
         names                    (map (fn get-variable-name [[gv-uuid _min _max]]
-                                        @(subscribe [:wizard/gv-uuid->variable-name-2 gv-uuid]))
+                                        @(subscribe [:wizard/gv-uuid->resolve-result-variable-name gv-uuid]))
                                       @*gv-uuid+min+max-entries)
         enabled-check-boxes      (when (= rf-event-id :worksheet/update-table-filter-attr)
                                    (map (fn [[gv-uuid _min _max enabled?]]
@@ -414,7 +414,7 @@
                     selected? (first @*values)]
                 [c/radio-group {:label   label
                                 :options (mapv (fn [{group-var-uuid :bp/uuid}]
-                                                 (let [var-name @(subscribe [:wizard/gv-uuid->variable-name-2 group-var-uuid])]
+                                                 (let [var-name @(subscribe [:wizard/gv-uuid->resolve-result-variable-name group-var-uuid])]
                                                    {:value     var-name
                                                     :label     var-name
                                                     :on-change #(do (dispatch [:worksheet/update-graph-settings-attr
@@ -450,7 +450,7 @@
            (conj (let [[gv-uuid
                         min-val
                         max-val]                 (first @(subscribe [:worksheet/graph-settings-x-axis-limits ws-uuid]))
-                       v-name                    @(subscribe [:wizard/gv-uuid->variable-name-2 gv-uuid])
+                       v-name                    @(subscribe [:wizard/gv-uuid->resolve-result-variable-name gv-uuid])
                        [default-min default-max] @(subscribe [:wizard/x-axis-limit-min+max-defaults ws-uuid gv-uuid])]
                    [:div.settings-form
                     (c/table {:title   @(<t (bp "x_graph_and_axis_limits"))

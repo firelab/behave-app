@@ -15,11 +15,22 @@
 
 ;;; Helpers
 
+(def ^:private supported-language #{"en-US" "pt-PT"})
+(def ^:private default-languge "en-US")
+
+(defn- browser-lang []
+  (.. js/window -navigator -language))
+
 (defn- load-data-handler [[ok body]]
   (when ok
-    (let [datoms (mapv #(apply d/datom %) (c/unpack body))]
+    (let [datoms             (mapv #(apply d/datom %) (c/unpack body))
+          browser            (browser-lang)
+          language-shortcode (if (contains? supported-language browser)
+                               browser
+                               default-languge)]
       (rf/dispatch-sync [:vms/initialize (->ds-schema all-schemas) datoms])
-      (rf/dispatch-sync [:state/set :vms-loaded? true]))))
+      (rf/dispatch-sync [:state/set :vms-loaded? true])
+      (rf/dispatch-sync [:translations/load language-shortcode]))))
 
 (defn- reloaded-vms-data [[ok _]]
   (when ok

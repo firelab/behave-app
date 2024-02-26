@@ -49,7 +49,7 @@
         formatters                @(subscribe [:worksheet/result-table-formatters (map first @*headers)])
         table-data                {:title   "Results Table"
                                    :headers (reduce (fn resolve-uuid [acc [gv-uuid _repeat-id units]]
-                                                      (let [var-name @(subscribe [:wizard/gv-uuid->variable-name-2 gv-uuid])]
+                                                      (let [var-name @(subscribe [:wizard/gv-uuid->resolve-result-variable-name gv-uuid])]
                                                         (cond-> acc
                                                           :always (conj (str var-name (when-not (empty? units) (gstring/format " (%s)" units))))
 
