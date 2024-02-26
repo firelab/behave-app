@@ -26,8 +26,11 @@ Module.SIGContainAdapter = class {
   getContainmentStatus() {}
   getFinalContainmentArea() {}
   getFinalCost() {}
+  getFinalFireArea() {}
   getFinalFireLineLength() {}
+  getFinalFirePerimeter() {}
   getFinalFireSize() {}
+  getFinalSpreadDistance() {}
   getFinalTimeSinceReport() {}
   getFireSizeAtInitialAttack() {}
   getPerimeterAtContainment() {}
