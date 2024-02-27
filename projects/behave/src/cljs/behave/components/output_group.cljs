@@ -3,11 +3,11 @@
             [behave.components.core :as c]))
 
 (defn wizard-output [ws-uuid {uuid :bp/uuid var-name :variable/name help-key :group-variable/help-key}]
-  (let [checked? (rf/subscribe [:worksheet/output-enabled? ws-uuid uuid])]
-    ;; (when checked?
-    ;;   (println "Variable checked for: worksheet" ws-uuid)
-    ;;   (println "uuid:" uuid))
-    [:div.wizard-output {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
+  (let [checked?       (rf/subscribe [:worksheet/output-enabled? ws-uuid uuid])
+        on-focus-click #(rf/dispatch [:help/highlight-section help-key])]
+    [:div.wizard-output
+     {:on-click on-focus-click
+      :on-focus on-focus-click}
      [c/checkbox {:label     var-name
                   :checked?  @checked?
                   :on-change #(rf/dispatch [:worksheet/upsert-output ws-uuid uuid (not @checked?)])}]]))
