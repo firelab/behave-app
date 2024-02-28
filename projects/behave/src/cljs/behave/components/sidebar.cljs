@@ -80,4 +80,8 @@
                                 :on-select #(rf/dispatch [:state/set [:sidebar :*tools-or-settings] :tools])}
                                {:label     "behaveplus:settings"
                                 :icon      "settings2"
-                                :on-select #(rf/dispatch [:navigate "/settings"])}]}]]))
+                                :on-select #(if ws-uuid
+                                              (rf/dispatch [:navigate (str "/worksheets/"
+                                                                           ws-uuid
+                                                                           "/settings")])
+                                              (rf/dispatch [:navigate "/settings"]))}]}]]))

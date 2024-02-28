@@ -105,17 +105,18 @@
                                         :selected? (= @*modules [:surface :contain])
                                         :module    [:surface :contain]}
                                        {:order     5
-                                        :title     @(<t (bp "contain_only"))
-                                        :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-                                        :icons     [{:icon-name "contain"}]
-                                        :selected? (= @*modules [:contain])
-                                        :module    [:contain]}
-                                       {:order     6
                                         :title     @(<t (bp "mortality_only"))
                                         :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
                                         :icons     [{:icon-name "mortality"}]
                                         :selected? (= @*modules [:mortality])
-                                        :module    [:mortality]}]}]
+                                        :module    [:mortality]}
+                                       #_{:order     6
+                                          :title     @(<t (bp "contain_only"))
+                                          :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                                          :icons     [{:icon-name "contain"}]
+                                          :selected? (= @*modules [:contain])
+                                          :module    [:contain]}
+                                       ]}]
        [:div.workflow-select__content__name
 
         [c/text-input {:label     "Worksheet Name"
