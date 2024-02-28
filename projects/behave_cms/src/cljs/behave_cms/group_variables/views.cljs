@@ -150,8 +150,10 @@
         [:h2 (:variable/name variable)]]
        [accordion
         "Translations"
+        [:h5 "Worksheet Translations"]
         [all-translations (:group-variable/translation-key @group-variable)]
-        [all-translations (:group-variable/translation-key2 @group-variable)]]
+        [:h5 "Result Translations"]
+        [all-translations (:group-variable/result-translation-key @group-variable)]]
        [:hr]
        [accordion
         "Help Page"

@@ -67,13 +67,13 @@
        :on-change (u/debounce #(rf/dispatch [:state/set-state [:search :variables] %]) 1000)
        :on-select #(let [variable @(rf/subscribe [:pull '[:variable/name] %])]
                      (rf/dispatch [:api/create-entity
-                                   {:group/_group-variables         group-id
-                                    :variable/_group-variables      %
-                                    :group-variable/translation-key (str @translation-key ":" (->kebab (:variable/name variable)))
-                                    :group-variable/translation-key2 (-> (str/replace @translation-key #":input:|:output:" ":result:")
-                                                                         (str ":" (->kebab (:variable/name variable))))
-                                    :group-variable/help-key        (str @translation-key ":" (->kebab (:variable/name variable)) ":help")
-                                    :group-variable/order           (count @group-variables)}]))
+                                   {:group/_group-variables                group-id
+                                    :variable/_group-variables             %
+                                    :group-variable/translation-key        (str @translation-key ":" (->kebab (:variable/name variable)))
+                                    :group-variable/result-translation-key (-> (str/replace @translation-key #":input:|:output:" ":result:")
+                                                                               (str ":" (->kebab (:variable/name variable))))
+                                    :group-variable/help-key               (str @translation-key ":" (->kebab (:variable/name variable)) ":help")
+                                    :group-variable/order                  (count @group-variables)}]))
        :on-blur   #(rf/dispatch [:state/set-state [:search :variables] nil])}]]))
 
 ;;; Settings

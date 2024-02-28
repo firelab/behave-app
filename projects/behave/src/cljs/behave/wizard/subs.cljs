@@ -180,7 +180,7 @@
  :wizard/gv-uuid->result-variable-name
  (fn [_ [_ gv-uuid]]
    (when-let [translation-key (->> (d/entity @@vms-conn [:bp/uuid gv-uuid])
-                                   :group-variable/translation-key2)]
+                                   :group-variable/result-translation-key)]
      @(<t translation-key))))
 
 (reg-sub

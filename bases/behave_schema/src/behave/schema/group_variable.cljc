@@ -74,7 +74,7 @@
     :db/unique      :db.unique/identity
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :group-variable/translation-key2
+   {:db/ident       :group-variable/result-translation-key
     :db/doc         "Group variable's second translation key."
     :db/valueType   :db.type/string
     :db/unique      :db.unique/identity
