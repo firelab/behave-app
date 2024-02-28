@@ -14,6 +14,9 @@
 (defn upsert-input [ws-uuid group-uuid repeat-id gv-uuid value & [units]]
   (rf/dispatch [:wizard/upsert-input-variable ws-uuid group-uuid repeat-id gv-uuid value units]))
 
+(defn highlight-help-section [help-key]
+  (rf/dispatch [:help/highlight-section help-key]))
+
 ;;; Components
 
 (defmulti wizard-input (fn [variable _ _]
@@ -41,13 +44,15 @@
                *unit-uuid            (rf/subscribe [:worksheet/input-units ws-uuid group-uuid repeat-id gv-uuid])
                warn-limit?           (true? @(rf/subscribe [:state :warn-multi-value-input-limit]))
                acceptable-char-codes (set (map #(.charCodeAt % 0) "0123456789., "))
+               on-focus-click        (partial highlight-help-section help-key)
                on-change-units       #(rf/dispatch [:wizard/update-input-units ws-uuid group-uuid repeat-id gv-uuid %])
                show-range-selector? (rf/subscribe [:wizard/show-range-selector? gv-uuid repeat-id])]
     (let [value-atom (r/atom @value)]
       [:div
        [:div.wizard-input
         [:div.wizard-input__input
-         {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
+         {:on-click on-focus-click
+          :on-focus on-focus-click}
          [c/text-input {:id           (str repeat-id "-" uuid)
                         :label        (if repeat-group?
                                         @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
@@ -103,6 +108,7 @@
                selected                  (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id gv-uuid])
                default-option            (rf/subscribe [:wizard/default-option ws-uuid gv-uuid])
                disabled-options          (rf/subscribe [:wizard/disabled-options ws-uuid gv-uuid])
+               on-focus-click            (partial highlight-help-section help-key)
                on-change                 #(upsert-input ws-uuid group-uuid repeat-id gv-uuid (input-value %))
                _                         (when (and (nil? @selected) @default-option)
                                            (upsert-input ws-uuid group-uuid repeat-id gv-uuid @default-option))
@@ -119,7 +125,8 @@
                                             :checked?  (= @selected value)})
                var-name                  @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])]
     [:div.wizard-input
-     {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
+     {:on-click on-focus-click
+      :on-focus on-focus-click}
      (if (>= 4 num-options)
        [c/radio-group
         {:id      (str repeat-id "-" gv-uuid)
@@ -138,16 +145,17 @@
   (r/with-let [{gv-uuid  :bp/uuid
                 llist    :variable/list
                 help-key :group-variable/help-key} variable
+               on-focus-click            (partial highlight-help-section help-key)
                options                   (sort-by :list-option/order
                                                   (filter #(not (:list-option/hide? %))
                                                           (:list/options llist)))
-               on-select #(rf/dispatch [:worksheet/upsert-multi-select-input
-                                        ws-uuid group-uuid repeat-id gv-uuid %])
-               on-deselect #(rf/dispatch [:worksheet/remove-multi-select-input
-                                          ws-uuid group-uuid repeat-id gv-uuid %])
-               ws-input-values (-> @(rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id gv-uuid])
-                                   (str/split ",")
-                                   (set))
+               on-select                 #(rf/dispatch [:worksheet/upsert-multi-select-input
+                                                        ws-uuid group-uuid repeat-id gv-uuid %])
+               on-deselect               #(rf/dispatch [:worksheet/remove-multi-select-input
+                                                        ws-uuid group-uuid repeat-id gv-uuid %])
+               ws-input-values           (-> @(rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id gv-uuid])
+                                             (str/split ",")
+                                             (set))
                ->option                  (fn [{value            :list-option/value
                                                list-option-name :list-option/name}]
                                            {:value       value
@@ -156,7 +164,8 @@
                                             :on-deselect on-deselect
                                             :selected?   (contains? ws-input-values value)})]
     [:div.wizard-input
-     {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
+     {:on-click on-focus-click
+      :on-focus on-focus-click}
      [c/multi-select-input
       {:input-label @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
        :options     (doall (map ->option options))}]]))
@@ -168,9 +177,11 @@
                                repeat-id
                                repeat-group?]
   (let [value      (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id gv-uuid])
+        on-focus-click (partial highlight-help-section help-key)
         value-atom (r/atom @value)]
     [:div.wizard-input
-     {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
+     {:on-click on-focus-click
+      :on-focus on-focus-click}
      [c/text-input {:id            (str repeat-id "-" uuid)
                     :label         (if repeat-group?
                                      @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
