@@ -841,4 +841,4 @@
           (lookup ?gv-uuid ?gv)
           (group-variable _ ?gv ?v)
           [?v :variable/domain-uuid ?domain-uuid]]
-        @@vms-conn @@s/conn rules ws-uuid domain-uuid))))
+        @@vms-conn @@s/conn rules ws-uuid domain-uuid)))

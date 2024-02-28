@@ -10,13 +10,13 @@
                                deref
                                (filter (fn [[gv-uuid]] (contains? outputs-to-filter gv-uuid)))
                                (map (fn resolve-gv-uuid->name[[gv-uuid & remain]]
-                                      (conj remain @(subscribe [:wizard/gv-uuid->variable-name gv-uuid])))))
+                                      (conj remain @(subscribe [:wizard/gv-uuid->resolve-result-variable-name gv-uuid])))))
         inputs-to-filter  (set @(subscribe [:wizard/diagram-input-gv-uuids group-variable-uuid]))
         inputs            (->> (subscribe [:worksheet/input-gv-uuid+value+units ws-uuid row-id])
                                deref
                                (filter (fn [[gv-uuid]] (contains? inputs-to-filter gv-uuid)))
                                (map (fn resolve-gv-uuid->name [[gv-uuid & remain]]
-                                      (conj remain @(subscribe [:wizard/gv-uuid->variable-name gv-uuid])))))]
+                                      (conj remain @(subscribe [:wizard/gv-uuid->resolve-result-variable-name gv-uuid])))))]
     [:div
      [:table.diagram__table
       (map (fn [[variable-name value units]]

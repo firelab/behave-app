@@ -27,7 +27,6 @@
 (defmethod wizard-input nil [variable] (println [:NO-KIND-VAR variable]))
 
 (defmethod wizard-input :continuous [{gv-uuid           :bp/uuid
-                                      var-name          :variable/name
                                       var-max           :variable/maximum
                                       var-min           :variable/minimum
                                       dimension-uuid    :variable/dimension-uuid
@@ -48,7 +47,6 @@
                on-focus-click        (partial highlight-help-section help-key)
                on-change-units       #(rf/dispatch [:wizard/update-input-units ws-uuid group-uuid repeat-id gv-uuid %])
                show-range-selector? (rf/subscribe [:wizard/show-range-selector? gv-uuid repeat-id])]
-
     (let [value-atom (r/atom @value)]
       [:div
        [:div.wizard-input
@@ -56,7 +54,9 @@
          {:on-click on-focus-click
           :on-focus on-focus-click}
          [c/text-input {:id           (str repeat-id "-" uuid)
-                        :label        (if repeat-group? var-name "Values:")
+                        :label        (if repeat-group?
+                                        @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
+                                        "Values:")
                         :placeholder  (when repeat-group? "Values")
                         :value-atom   value-atom
                         :required?    true
@@ -102,17 +102,16 @@
                                                           @value-atom]))}]])])))
 
 (defmethod wizard-input :discrete [variable ws-uuid group-uuid repeat-id repeat-group?]
-  (r/with-let [{uuid     :bp/uuid
-                var-name :variable/name
+  (r/with-let [{gv-uuid  :bp/uuid
                 help-key :group-variable/help-key
                 list     :variable/list} variable
-               selected                  (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id uuid])
-               default-option            (rf/subscribe [:wizard/default-option ws-uuid uuid])
-               disabled-options          (rf/subscribe [:wizard/disabled-options ws-uuid uuid])
+               selected                  (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id gv-uuid])
+               default-option            (rf/subscribe [:wizard/default-option ws-uuid gv-uuid])
+               disabled-options          (rf/subscribe [:wizard/disabled-options ws-uuid gv-uuid])
                on-focus-click            (partial highlight-help-section help-key)
-               on-change                 #(upsert-input ws-uuid group-uuid repeat-id uuid (input-value %))
+               on-change                 #(upsert-input ws-uuid group-uuid repeat-id gv-uuid (input-value %))
                _                         (when (and (nil? @selected) @default-option)
-                                           (upsert-input ws-uuid group-uuid repeat-id uuid @default-option))
+                                           (upsert-input ws-uuid group-uuid repeat-id gv-uuid @default-option))
                options                   (sort-by :list-option/order (filter #(not (:list-option/hide? %)) (:list/options list)))
                num-options               (count options)
                ->option                  (fn [{value :list-option/value name :list-option/name default? :list-option/default}]
@@ -123,18 +122,19 @@
                                             :disabled? (if @disabled-options
                                                          (@disabled-options value)
                                                          false)
-                                            :checked?  (= @selected value)})]
+                                            :checked?  (= @selected value)})
+               var-name                  @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])]
     [:div.wizard-input
      {:on-click on-focus-click
       :on-focus on-focus-click}
      (if (>= 4 num-options)
        [c/radio-group
-        {:id      (str repeat-id "-" uuid)
+        {:id      (str repeat-id "-" gv-uuid)
          :label   (when repeat-group? var-name)
          :name    (->kebab var-name)
          :options (doall (map ->option options))}]
        [c/dropdown
-        {:id        (str repeat-id "-" uuid)
+        {:id        (str repeat-id "-" gv-uuid)
          :label     (when repeat-group? var-name)
          :on-change on-change
          :name      (->kebab var-name)
@@ -143,10 +143,8 @@
 
 (defmethod wizard-input :multi-discrete [variable ws-uuid group-uuid repeat-id _repeat-group?]
   (r/with-let [{gv-uuid  :bp/uuid
-                var-name :variable/name
-
-                help-key :group-variable/help-key
-                llist    :variable/list} variable
+                llist    :variable/list
+                help-key :group-variable/help-key} variable
                on-focus-click            (partial highlight-help-section help-key)
                options                   (sort-by :list-option/order
                                                   (filter #(not (:list-option/hide? %))
@@ -169,28 +167,29 @@
      {:on-click on-focus-click
       :on-focus on-focus-click}
      [c/multi-select-input
-      {:input-label var-name
+      {:input-label @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
        :options     (doall (map ->option options))}]]))
 
-(defmethod wizard-input :text [{uuid     :bp/uuid
-                                var-name :variable/name
+(defmethod wizard-input :text [{gv-uuid  :bp/uuid
                                 help-key :group-variable/help-key}
                                ws-uuid
                                group-uuid
                                repeat-id
                                repeat-group?]
-  (let [value          (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id uuid])
+  (let [value      (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id gv-uuid])
         on-focus-click (partial highlight-help-section help-key)
-        value-atom     (r/atom @value)]
+        value-atom (r/atom @value)]
     [:div.wizard-input
      {:on-click on-focus-click
       :on-focus on-focus-click}
      [c/text-input {:id            (str repeat-id "-" uuid)
-                    :label         (if repeat-group? var-name "Values:")
+                    :label         (if repeat-group?
+                                     @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
+                                     "Values:")
                     :placeholder   (when repeat-group? "Value")
                     :default-value (first @value)
                     :on-change     #(reset! value-atom (input-value %))
-                    :on-blur       #(upsert-input ws-uuid group-uuid repeat-id uuid (input-value %))
+                    :on-blur       #(upsert-input ws-uuid group-uuid repeat-id gv-uuid (input-value %))
                     :required?     true}]]))
 
 (defn repeat-group [ws-uuid group variables]

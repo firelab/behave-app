@@ -5,7 +5,15 @@
             [behave-cms.utils :as u]))
 
 (defn- upsert-translation! [data]
-  (let [rf-event (if (nil? (:db/id data)) :api/create-entity :api/update-entity)]
+  (let [rf-event (cond
+                   (nil? (:db/id data))
+                   :api/create-entity
+
+                   (empty? (:translation/translation data))
+                   :api/delete-entity
+
+                   :else
+                   :api/update-entity)]
     (rf/dispatch [rf-event data])))
 
 (defn translation-editor [language-id translation-key translation-id state]

@@ -71,7 +71,7 @@
   :<- [:settings/get :language]
   :<- [:all-translations]
   (fn [[language all-translations] [_ translation-key]]
-    (get-in all-translations [language translation-key] (str translation-key " (" language ")"))))
+    (get-in all-translations [language translation-key])))
 
 ;;; Entities
 

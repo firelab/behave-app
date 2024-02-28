@@ -1,6 +1,7 @@
 (ns behave.wizard.subs
   (:require [behave.schema.core     :refer [rules]]
             [behave.vms.store       :refer [vms-conn]]
+            [behave.translate                    :refer [<t]]
             [clojure.set            :refer [rename-keys intersection]]
             [datascript.core        :as d]
             [re-frame.core          :refer [reg-sub subscribe] :as rf]
@@ -166,16 +167,31 @@
                  1))
             all-input-values))))
 
+;; Converts group variable uuid to the translated variable name using the first translation-key
 (reg-sub
- :wizard/gv-uuid->variable-name
+ :wizard/gv-uuid->default-variable-name
  (fn [_ [_ gv-uuid]]
-   @(subscribe [:vms/query '[:find ?name .
-                             :in    $ ?gv-uuid
-                             :where
-                             [?gv :bp/uuid ?gv-uuid]
-                             [?v :variable/group-variables ?gv]
-                             [?v :variable/name ?name]]
-                gv-uuid])))
+   (when-let [translation-key (->> (d/entity @@vms-conn [:bp/uuid gv-uuid])
+                                   :group-variable/translation-key)]
+     @(<t translation-key))))
+
+;; Converts group variable uuid to the translated variable name using the second translation-key
+(reg-sub
+ :wizard/gv-uuid->result-variable-name
+ (fn [_ [_ gv-uuid]]
+   (when-let [translation-key (->> (d/entity @@vms-conn [:bp/uuid gv-uuid])
+                                   :group-variable/result-translation-key)]
+     @(<t translation-key))))
+
+(reg-sub
+ :wizard/gv-uuid->resolve-result-variable-name
+
+ (fn [[_ gv-uuid]]
+   [(subscribe [:wizard/gv-uuid->result-variable-name gv-uuid])
+    (subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])])
+
+ (fn [[result-variable-name default-variable-name] _]
+   (or result-variable-name default-variable-name)))
 
 (reg-sub
  :wizard/gv-uuid->variable-units

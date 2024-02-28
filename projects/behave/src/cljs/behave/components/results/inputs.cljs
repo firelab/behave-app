@@ -65,7 +65,7 @@
                                                              (let [gv-uuid    (:bp/uuid (first variables))
                                                                    fmt-fn     (get formatters gv-uuid identity)
                                                                    units-used (get gv-uuid->units gv-uuid)]
-                                                               {:input  (indent-name (+ level 2) (:variable/name variable))
+                                                               {:input  (indent-name (+ level 2) @(subscribe [:wizard/gv-uuid->default-variable-name (:bp/uuid variable)]))
                                                                 :units  units-used
                                                                 :values (if (:group-variable/discrete-multiple? variable)
                                                                           (->> (str/split value "")
