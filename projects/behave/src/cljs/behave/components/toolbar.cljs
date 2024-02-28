@@ -1,7 +1,8 @@
 (ns behave.components.toolbar
   (:require [behave.components.core :as c]
-            [re-frame.core          :as rf]
-            [behave.translate       :refer [<t bp]]))
+            [behave.translate       :refer [<t bp]]
+            [goog.string            :as gstring]
+            [re-frame.core          :as rf]))
 
 (def step-kw->number
   {:work-style      1
@@ -126,7 +127,12 @@
                    :on-click on-click}
                   {:icon     :save
                    :label    (bp "save")
-                   :on-click on-click}
+                   :on-click #(when ws-uuid
+                                (let [worksheet-name @(rf/subscribe [:worksheet/name ws-uuid])]
+                                  (rf/dispatch [:wizard/save
+                                                ws-uuid
+                                                (gstring/format "behave7-%s.bp7"
+                                                                (or worksheet-name ws-uuid))])))}
                   {:icon     :print
                    :label    (bp "print")
                    :on-click #(rf/dispatch [:toolbar/print ws-uuid])}

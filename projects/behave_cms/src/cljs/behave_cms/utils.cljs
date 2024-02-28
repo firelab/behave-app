@@ -4,7 +4,8 @@
             [clojure.set        :as sets]
             [applied-science.js-interop :as j]
             [clojure.core.async :refer [alts! go <! timeout go-loop chan put!]]
-            [cljs.core.async.interop :refer-macros [<p!]])
+            [cljs.core.async.interop :refer-macros [<p!]]
+            [reagent.ratom      :refer [RAtom Reaction]])
   (:import  [goog.async Debouncer]))
 
 ;; JS Utils
@@ -688,6 +689,11 @@
           (on-refresh-fn)
           (recur))))
     exit-chan))
+
+(defn atom? [a]
+  (or (instance? Atom a)
+      (instance? RAtom a)
+      (instance? Reaction a)))
 
 (defn stop-refresh!
   "Take a chan from refresh-on-interval! and stops the refresh."

@@ -8,6 +8,7 @@
                                                         dropdown
                                                         simple-table
                                                         window]]
+            [behave-cms.components.actions      :refer [actions-table manage-action]]
             [behave-cms.components.cpp-editor   :refer [cpp-editor-form]]
             [behave-cms.components.sidebar      :refer [sidebar sidebar-width]]
             [behave-cms.components.translations :refer [all-translations]]
@@ -118,7 +119,8 @@
 
 (defn- settings [group-variable]
   [:div.row.mt-2
-   [bool-setting "Research Variable?" :group-variable/research? group-variable]])
+   [bool-setting "Research Variable?" :group-variable/research? group-variable]
+   [bool-setting "Discrete Multiple?" :group-variable/discrete-multiple? group-variable]])
 
 ;;; Public Views
 
@@ -127,7 +129,11 @@
   [{id :id}]
   (let [gv-id           (parse-int id)
         group-variable  (rf/subscribe [:entity gv-id '[* {:variable/_group-variables [*]
-                                                          :group/_group-variables    [*]}]])
+                                                          :group/_group-variables    [*]
+                                                          :group-variable/actions    [*]}]])
+        is-output?      (rf/subscribe [:group-variable/output? gv-id])
+        actions         (:group-variable/actions @group-variable)
+        action-id       (rf/subscribe [:state :action])
         group           (get-in @group-variable [:group/_group-variables 0])
         variable        (get-in @group-variable [:variable/_group-variables 0])
         group-variables (rf/subscribe [:sidebar/variables (:db/id group)])]
@@ -144,7 +150,10 @@
         [:h2 (:variable/name variable)]]
        [accordion
         "Translations"
-        [all-translations (:group-variable/translation-key @group-variable)]]
+        [:h5 "Worksheet Translations"]
+        [all-translations (:group-variable/translation-key @group-variable)]
+        [:h5 "Result Translations"]
+        [all-translations (:group-variable/result-translation-key @group-variable)]]
        [:hr]
        [accordion
         "Help Page"
@@ -165,6 +174,16 @@
          [:div.row
           [links-table gv-id]
           [links-editor gv-id]]]]
+
+       [:hr]
+       [accordion
+        "Actions"
+        [:div.row
+         [:div.col-12
+          [actions-table actions]]]
+        [:div.row
+         [:div.col-12
+          [manage-action gv-id @action-id @is-output?]]]]
 
        [:hr]
        [accordion

@@ -43,6 +43,7 @@
                            behave.stories.number-input-stories
                            behave.stories.radio-input-stories
                            behave.stories.text-input-stories
+                           behave.stories.multi-select-input-stories
 
                            ;Icons
                            behave.stories.icon.icon-file-type-stories

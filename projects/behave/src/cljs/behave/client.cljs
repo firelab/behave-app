@@ -107,7 +107,6 @@
     (rf/dispatch-sync [:initialize])
     (rf/dispatch-sync [:navigate (-> js/window .-location .-pathname)])
     (.addEventListener js/window "popstate" #(rf/dispatch [:popstate %]))
-    (load-translations!)
     (load-vms!)
     (load-store!)
     (load-scripts! params)

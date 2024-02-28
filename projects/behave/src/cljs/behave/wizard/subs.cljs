@@ -1,6 +1,7 @@
 (ns behave.wizard.subs
   (:require [behave.schema.core     :refer [rules]]
             [behave.vms.store       :refer [vms-conn]]
+            [behave.translate                    :refer [<t]]
             [clojure.set            :refer [rename-keys intersection]]
             [datascript.core        :as d]
             [re-frame.core          :refer [reg-sub subscribe] :as rf]
@@ -166,16 +167,31 @@
                  1))
             all-input-values))))
 
+;; Converts group variable uuid to the translated variable name using the first translation-key
 (reg-sub
- :wizard/gv-uuid->variable-name
+ :wizard/gv-uuid->default-variable-name
  (fn [_ [_ gv-uuid]]
-   @(subscribe [:vms/query '[:find ?name .
-                             :in    $ ?gv-uuid
-                             :where
-                             [?gv :bp/uuid ?gv-uuid]
-                             [?v :variable/group-variables ?gv]
-                             [?v :variable/name ?name]]
-                gv-uuid])))
+   (when-let [translation-key (->> (d/entity @@vms-conn [:bp/uuid gv-uuid])
+                                   :group-variable/translation-key)]
+     @(<t translation-key))))
+
+;; Converts group variable uuid to the translated variable name using the second translation-key
+(reg-sub
+ :wizard/gv-uuid->result-variable-name
+ (fn [_ [_ gv-uuid]]
+   (when-let [translation-key (->> (d/entity @@vms-conn [:bp/uuid gv-uuid])
+                                   :group-variable/result-translation-key)]
+     @(<t translation-key))))
+
+(reg-sub
+ :wizard/gv-uuid->resolve-result-variable-name
+
+ (fn [[_ gv-uuid]]
+   [(subscribe [:wizard/gv-uuid->result-variable-name gv-uuid])
+    (subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])])
+
+ (fn [[result-variable-name default-variable-name] _]
+   (or result-variable-name default-variable-name)))
 
 (reg-sub
  :wizard/gv-uuid->variable-units
@@ -377,6 +393,65 @@
         @@vms-conn rules gv-uuid)))
 
 (reg-sub
+ :wizard/_select-actions
+ (fn [_ [_ gv-uuid]]
+   (->> (d/q '[:find ?a .
+               :in $ ?gv-uuid
+               :where
+               [?gv :bp/uuid ?gv-uuid]
+               [?gv :group-variable/actions ?a]
+               [?a :action/type :select]]
+             @@vms-conn gv-uuid)
+        (d/entity @@vms-conn)
+        (d/touch))))
+
+(reg-sub
+ :wizard/default-option
+ (fn [[_ ws-uuid gv-uuid]]
+   [(subscribe [:worksheet ws-uuid])
+    (subscribe [:wizard/_select-actions gv-uuid])])
+ (fn [[worksheet action]]
+   (let [conditionals  (:action/conditionals action)
+         cond-operator (:action/conditionals-operator action)
+         target-value  (:action/target-value action)
+
+         conditionals-passed?
+         (or (nil? conditionals)
+             (all-conditionals-pass? worksheet cond-operator conditionals))]
+     (when (and target-value conditionals-passed?)
+       (:action/target-value action)))))
+
+(reg-sub
+ :wizard/_disabled-actions
+ (fn [_ [_ gv-uuid]]
+   (d/q '[:find [(pull ?a [* {:action/conditionals [*]}]) ...]
+          :in $ ?gv-uuid
+          :where
+          [?gv :bp/uuid ?gv-uuid]
+          [?gv :group-variable/actions ?a]
+          [?a :action/type :disable]]
+        @@vms-conn gv-uuid)))
+
+(reg-sub
+ :wizard/disabled-options
+ (fn [[_ ws-uuid gv-uuid]]
+   [(subscribe [:worksheet ws-uuid])
+    (subscribe [:wizard/_disabled-actions gv-uuid])])
+ (fn [[worksheet actions]]
+   (->> actions
+        (map #(let [conditionals  (:action/conditionals %)
+                    cond-operator (:action/conditionals-operator %)
+                    target-value  (:action/target-value %)
+
+                    conditionals-passed?
+                    (or (nil? conditionals)
+                        (all-conditionals-pass? worksheet cond-operator conditionals))]
+                (when (and target-value conditionals-passed?)
+                  (:action/target-value %))))
+        (remove nil?)
+        (set))))
+
+(reg-sub
  :wizard/show-group?
  (fn [[_ ws-uuid group-id & _rest]]
    [(subscribe [:worksheet ws-uuid])
@@ -461,13 +536,4 @@
  (fn [multi-value-inputs [_ _ gv-uuid]]
    (let [[_ values]    (first (filter #(= (first %) gv-uuid) multi-value-inputs))
          parsed-values (map js/parseFloat (str/split values ","))]
-     [(apply min parsed-values) (apply max parsed-values)])
-   )
- )
-
-(comment
-  (rf/subscribe [:wizard/x-axis-limit-min+max-defaults
-                 "65aaf0bb-1568-4db9-b21e-87ae840bcb9b"
-                 "64a75ef0-5caf-4584-b0cf-369d7058f974"])
-
-  )
+     [0 (apply max parsed-values)])))

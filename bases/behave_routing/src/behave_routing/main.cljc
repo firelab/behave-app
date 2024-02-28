@@ -39,7 +39,8 @@
                      module-routes
                      result-routes
                     ["/review" :ws/review]
-                    ["/print" :ws/print]]}])
+                    ["/print" :ws/print]
+                    ["/settings" :settings/all]]}])
 
 (def ^:private settings-routes
   ["settings"
