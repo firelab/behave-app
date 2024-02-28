@@ -805,6 +805,28 @@
        value))))
 
 (rf/reg-sub
+ :worksheet/result-table-gv-uuid->units
+ (fn [_ [_ ws-uuid]]
+   (let [gv-uuids+units (d/q '[:find  ?gv-uuid ?units
+                               :in $ ?ws-uuid
+                               :where
+                               [?ws :worksheet/uuid ?ws-uuid]
+                               [?ws :worksheet/result-table ?t]
+                               [?t  :result-table/rows ?rr]
+                               [?rr :result-row/cells ?c]
+
+                               ;; Filter only input variables
+                               [?ig :input-group/inputs ?i]
+                               [?i  :input/group-variable-uuid ?gv-uuid]
+
+                               ;; Get  gv-uuid, value and units
+                               [?rh :result-header/group-variable-uuid ?gv-uuid]
+                               [?rh :result-header/units ?units]
+                               [?c  :result-cell/header ?rh]]
+                             @@s/conn ws-uuid)]
+     (into {} gv-uuids+units))))
+
+(rf/reg-sub
  :worksheet/inputs-in-domain
  (fn [_ [_ ws-uuid domain-uuid]]
    (d/q '[:find  [?i ...]
@@ -819,4 +841,4 @@
           (lookup ?gv-uuid ?gv)
           (group-variable _ ?gv ?v)
           [?v :variable/domain-uuid ?domain-uuid]]
-        @@vms-conn @@s/conn rules ws-uuid domain-uuid)))
+        @@vms-conn @@s/conn rules ws-uuid domain-uuid))))
