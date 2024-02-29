@@ -86,13 +86,6 @@
 (rf/reg-event-fx
  :wizard/before-solve
  (fn [_ [_ {:keys [ws-uuid]}]]
-   ;;TODO Investigate why animation freezes during solve-worksheet
-   #_(.loadAnimation js/bodymovin  (clj->js
-                                  {:path      "/json/Loading_BehavePlus7.json"
-                                   :renderer  "svg"
-                                   :loop      true
-                                   :autoplay  true
-                                   :container (js/document.getElementById "computing-animation")}))
    {:fx [[:dispatch [:worksheet/delete-existing-diagrams ws-uuid]]
          [:dispatch [:worksheet/delete-existing-result-table ws-uuid]]
          [:dispatch [:state/set :worksheet-computing? true]]]}))
