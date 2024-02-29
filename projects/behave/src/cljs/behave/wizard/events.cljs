@@ -7,7 +7,6 @@
             [clojure.walk                  :refer [postwalk]]
             [datascript.core               :as d]
             [re-frame.core                 :as rf]
-            [clojure.core.async            :refer [alts! go chan <! put! go-loop timeout]]
             [string-utils.interface        :refer [->str]]
             [vimsical.re-frame.cofx.inject :as inject]))
 
