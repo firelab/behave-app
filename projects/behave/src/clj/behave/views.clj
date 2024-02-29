@@ -68,5 +68,5 @@
                 [:body
                  [:div#app]
                  (cljs-init (merge route-params params (get-config :client) (get-config :server)) figwheel?)
-                 (include-js "/js/behave-min.js" "/js/katex.min.js")
+                 (include-js "/js/behave-min.js" "/js/katex.min.js" "/js/bodymovin.js")
                  (when figwheel? (include-js (find-app-js)))])}))

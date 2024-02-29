@@ -24,7 +24,8 @@
             [goog.string.format]
             [re-frame.core                        :refer [dispatch dispatch-sync subscribe]]
             [string-utils.interface               :refer [->kebab]]
-            [reagent.core                         :as r]))
+            [reagent.core                         :as r]
+            [behave.solver.core            :refer [solve-worksheet]]))
 
 ;;; Components
 
@@ -257,68 +258,75 @@
         *notes                   (subscribe [:wizard/notes ws-uuid])
         *show-notes?             (subscribe [:wizard/show-notes?])
         show-tool-selector?      @(subscribe [:tool/show-tool-selector?])
-        selected-tool-uuid       @(subscribe [:tool/selected-tool-uuid])]
+        selected-tool-uuid       @(subscribe [:tool/selected-tool-uuid])
+        computing?               @(subscribe [:state :worksheet-computing?])]
     [:<>
      (when show-tool-selector?
        [tool-selector])
      (when (some? selected-tool-uuid)
        [tool selected-tool-uuid])
-     [:div.accordion
-      [:div.accordion__header
-       [c/tab {:variant   "outline-primary"
-               :selected? true
-               :label     @(<t (bp "working_area"))}]]
+     (when computing?
+       [:h2 "Computing..."])
+     (when (not computing?)
+       [:div.accordion
+        [:div.accordion__header
+         [c/tab {:variant   "outline-primary"
+                 :selected? true
+                 :label     @(<t (bp "working_area"))}]]
 
-      [:div.wizard
-       [:div.wizard-page
-        [:div.wizard-header
-         [:div.wizard-header__banner {:style {:margin-top "20px"}}
-          [:div.wizard-header__banner__icon
-           [c/icon :modules]]
-          [:div.wizard-header__banner__title "Review Modules"]
-          (show-or-close-notes-button @*show-notes?)]
-         [:div.wizard-review
-          [run-description ws-uuid]
-          (when @*show-notes?
-            (wizard-notes @*notes))
-          (for [module-kw modules
-                :let      [module-name (name module-kw)
-                           module @(subscribe [:wizard/*module module-name])]]
-            [:div
-             [:div.wizard-review__module
-              {:data-theme-color module-name}
-              (gstring/format "%s Inputs"  @(<t (:module/translation-key module)))]
-             [:div.wizard-review__submodule
-              (for [submodule @(subscribe [:wizard/submodules-conditionally-filtered
-                                           ws-uuid
-                                           (:db/id module)
-                                           :input])
-                    :let      [edit-route (path-for routes
-                                                    :ws/wizard
-                                                    :ws-uuid   ws-uuid
-                                                    :module    module-name
-                                                    :io        :input
-                                                    :submodule (:slug submodule))]]
-                [:<>
-                 [:div.wizard-review__submodule-header (:submodule/name submodule)]
-                 (build-groups  ws-uuid
-                                (:submodule/groups submodule)
-                                (partial review/input-group edit-route))])]])]
-         (when (true? @*warn-limit?)
-           [:div.wizard-warning
-            (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])
-         [:div.wizard-navigation
-          [c/button {:label    "Back"
-                     :variant  "secondary"
-                     :on-click #(dispatch [:wizard/prev-tab params])}]
-          [c/button {:label         "Run"
-                     :disabled?     @*warn-limit?
-                     :variant       "highlight"
-                     :icon-name     "arrow2"
-                     :icon-position "right"
-                     :on-click      #(do (dispatch-sync [:wizard/before-solve params])
-                                         (dispatch-sync [:wizard/during-solve params])
-                                         (dispatch-sync [:wizard/after-solve params]))}]]]]]]]))
+        [:div.wizard
+         [:div.wizard-page
+          [:div.wizard-header
+           [:div.wizard-header__banner {:style {:margin-top "20px"}}
+            [:div.wizard-header__banner__icon
+             [c/icon :modules]]
+            [:div.wizard-header__banner__title "Review Modules"]
+            (show-or-close-notes-button @*show-notes?)]
+           [:div.wizard-review
+            [run-description ws-uuid]
+            (when @*show-notes?
+              (wizard-notes @*notes))
+            (for [module-kw modules
+                  :let      [module-name (name module-kw)
+                             module @(subscribe [:wizard/*module module-name])]]
+              [:div
+               [:div.wizard-review__module
+                {:data-theme-color module-name}
+                (gstring/format "%s Inputs"  @(<t (:module/translation-key module)))]
+               [:div.wizard-review__submodule
+                (for [submodule @(subscribe [:wizard/submodules-conditionally-filtered
+                                             ws-uuid
+                                             (:db/id module)
+                                             :input])
+                      :let      [edit-route (path-for routes
+                                                      :ws/wizard
+                                                      :ws-uuid   ws-uuid
+                                                      :module    module-name
+                                                      :io        :input
+                                                      :submodule (:slug submodule))]]
+                  [:<>
+                   [:div.wizard-review__submodule-header (:submodule/name submodule)]
+                   (build-groups  ws-uuid
+                                  (:submodule/groups submodule)
+                                  (partial review/input-group edit-route))])]])]
+           (when (true? @*warn-limit?)
+             [:div.wizard-warning
+              (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])
+           [:div.wizard-navigation
+            [c/button {:label    "Back"
+                       :variant  "secondary"
+                       :on-click #(dispatch [:wizard/prev-tab params])}]
+            [c/button {:label         "Run"
+                       :disabled?     @*warn-limit?
+                       :variant       "highlight"
+                       :icon-name     "arrow2"
+                       :icon-position "right"
+                       :on-click      #(do (dispatch-sync [:wizard/before-solve params])
+                                           (js/setTimeout
+                                            (fn []
+                                              (dispatch-sync [:wizard/solve params])
+                                              (dispatch-sync [:wizard/after-solve params]))
+                                           300))}]]]]]])]))
 
 ;; Wizard Results Settings
 
