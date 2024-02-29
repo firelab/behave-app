@@ -5411,6 +5411,9 @@ var _emscripten_bind_SIGCrown_getCrownRatio_0 = Module['_emscripten_bind_SIGCrow
 var _emscripten_bind_SIGCrown_getFinalFirelineIntesity_1 = Module['_emscripten_bind_SIGCrown_getFinalFirelineIntesity_1'] = createExportWrapper('emscripten_bind_SIGCrown_getFinalFirelineIntesity_1');
 var _emscripten_bind_SIGCrown_getFinalHeatPerUnitArea_1 = Module['_emscripten_bind_SIGCrown_getFinalHeatPerUnitArea_1'] = createExportWrapper('emscripten_bind_SIGCrown_getFinalHeatPerUnitArea_1');
 var _emscripten_bind_SIGCrown_getFinalSpreadRate_1 = Module['_emscripten_bind_SIGCrown_getFinalSpreadRate_1'] = createExportWrapper('emscripten_bind_SIGCrown_getFinalSpreadRate_1');
+var _emscripten_bind_SIGCrown_getFinalSpreadDistance_1 = Module['_emscripten_bind_SIGCrown_getFinalSpreadDistance_1'] = createExportWrapper('emscripten_bind_SIGCrown_getFinalSpreadDistance_1');
+var _emscripten_bind_SIGCrown_getFinalFireArea_1 = Module['_emscripten_bind_SIGCrown_getFinalFireArea_1'] = createExportWrapper('emscripten_bind_SIGCrown_getFinalFireArea_1');
+var _emscripten_bind_SIGCrown_getFinalFirePerimeter_1 = Module['_emscripten_bind_SIGCrown_getFinalFirePerimeter_1'] = createExportWrapper('emscripten_bind_SIGCrown_getFinalFirePerimeter_1');
 var _emscripten_bind_SIGCrown_getFuelHeatOfCombustionDead_2 = Module['_emscripten_bind_SIGCrown_getFuelHeatOfCombustionDead_2'] = createExportWrapper('emscripten_bind_SIGCrown_getFuelHeatOfCombustionDead_2');
 var _emscripten_bind_SIGCrown_getFuelHeatOfCombustionLive_2 = Module['_emscripten_bind_SIGCrown_getFuelHeatOfCombustionLive_2'] = createExportWrapper('emscripten_bind_SIGCrown_getFuelHeatOfCombustionLive_2');
 var _emscripten_bind_SIGCrown_getFuelLoadHundredHour_2 = Module['_emscripten_bind_SIGCrown_getFuelLoadHundredHour_2'] = createExportWrapper('emscripten_bind_SIGCrown_getFuelLoadHundredHour_2');
@@ -10023,6 +10026,24 @@ SIGCrown.prototype['getFinalSpreadRate'] = SIGCrown.prototype.getFinalSpreadRate
   var self = this.ptr;
   if (spreadRateUnits && typeof spreadRateUnits === 'object') spreadRateUnits = spreadRateUnits.ptr;
   return _emscripten_bind_SIGCrown_getFinalSpreadRate_1(self, spreadRateUnits);
+};;
+
+SIGCrown.prototype['getFinalSpreadDistance'] = SIGCrown.prototype.getFinalSpreadDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
+  var self = this.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  return _emscripten_bind_SIGCrown_getFinalSpreadDistance_1(self, lengthUnits);
+};;
+
+SIGCrown.prototype['getFinalFireArea'] = SIGCrown.prototype.getFinalFireArea = /** @suppress {undefinedVars, duplicate} @this{Object} */function(areaUnits) {
+  var self = this.ptr;
+  if (areaUnits && typeof areaUnits === 'object') areaUnits = areaUnits.ptr;
+  return _emscripten_bind_SIGCrown_getFinalFireArea_1(self, areaUnits);
+};;
+
+SIGCrown.prototype['getFinalFirePerimeter'] = SIGCrown.prototype.getFinalFirePerimeter = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
+  var self = this.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  return _emscripten_bind_SIGCrown_getFinalFirePerimeter_1(self, lengthUnits);
 };;
 
 SIGCrown.prototype['getFuelHeatOfCombustionDead'] = SIGCrown.prototype.getFuelHeatOfCombustionDead = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, heatOfCombustionUnits) {

@@ -52,9 +52,10 @@ class SIGCrown : public Crown
 public:
   SIGCrown(SIGFuelModels& fuelModels);
 
-  void setFuelModels(SIGFuelModels& fuelModels);
-  void setCrownFireCalculationMethod(CrownFireCalculationMethod CrownFireCalculationMethod);
+  // Calculate
   void doCrownRun();
+
+  // Getters
   char* getFuelCode(int fuelModelNumber) const;
   char* getFuelName(int fuelModelNumber) const;
   double getCrownCriticalFireSpreadRate(SpeedUnits::SpeedUnitsEnum spreadRateUnits) const;
@@ -69,6 +70,13 @@ public:
   double getSurfaceFireSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits) const;
   double getCrownFireArea(AreaUnits::AreaUnitsEnum areaUnits) const;
   double getCrownFirePerimeter(LengthUnits::LengthUnitsEnum lengthUnits) const;
+  double getFinalSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits) const;
+  double getFinalFireArea(AreaUnits::AreaUnitsEnum areaUnits) const;
+  double getFinalFirePerimeter(LengthUnits::LengthUnitsEnum lengthUnits) const;
+
+  // Setters
+  void setFuelModels(SIGFuelModels& fuelModels);
+  void setCrownFireCalculationMethod(CrownFireCalculationMethod CrownFireCalculationMethod);
   void setElapsedTime(double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits);
   void setWindSpeed(double windSpeed, SpeedUnits::SpeedUnitsEnum windSpeedUnits);
   void setWindHeightInputMode(WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode);

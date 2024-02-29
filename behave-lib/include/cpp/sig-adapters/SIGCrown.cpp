@@ -33,6 +33,7 @@
 
 #include <cmath>
 #include "fuelModels.h"
+#include "fireSize.h"
 #include "SIGFuelModels.h"
 #include "windSpeedUtility.h"
 #include "SIGString.h"
@@ -131,6 +132,67 @@ double SIGCrown::getCrownFireArea(AreaUnits::AreaUnitsEnum areaUnits) const {
 double SIGCrown::getCrownFirePerimeter(LengthUnits::LengthUnitsEnum lengthUnits) const {
   double elapsedTime = surfaceFuel_.getElapsedTime(TimeUnits::Minutes);
   return Crown::getCrownFirePerimeter(lengthUnits, elapsedTime, TimeUnits::Minutes);
+}
+
+double SIGCrown::getFinalSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits) const {
+  // Obtain elapsed time
+  double elapsedTime = surfaceFuel_.getElapsedTime(TimeUnits::Minutes);
+  double spreadDistanceInBaseUnits = finalSpreadRate_ * elapsedTime;
+  return LengthUnits::fromBaseUnits(spreadDistanceInBaseUnits, lengthUnits);
+}
+
+double SIGCrown::getFinalFireArea(AreaUnits::AreaUnitsEnum areaUnits) const {
+
+  // Obtain elapsed time
+  TimeUnits::TimeUnitsEnum timeUnits = TimeUnits::Minutes;
+  double elapsedTime = surfaceFuel_.getElapsedTime(timeUnits);
+
+  // Rothermel
+  if (crownFireCalculationMethod_ == CrownFireCalculationMethod::rothermel) {
+    if (isSurfaceFire_) {
+      return surfaceFuel_.getFireArea(areaUnits, elapsedTime, timeUnits);
+    } else {
+      return Crown::getCrownFireArea(areaUnits, elapsedTime, timeUnits);
+    }
+  } else {
+    // Scott & Reinhardt
+    if (isSurfaceFire_) {
+      return surfaceFuel_.getFireArea(areaUnits, elapsedTime, timeUnits);
+    } else if (fireType_ == FireType::Torching) {
+      FireSize fireSize;
+      fireSize.calculateFireBasicDimensions(true, windSpeedAtTwentyFeet_, SpeedUnits::MilesPerHour, passiveCrownFireSpreadRate_, SpeedUnits::FeetPerMinute);
+      return fireSize.getFireArea(true, areaUnits, elapsedTime, timeUnits);
+    } else {
+      return Crown::getCrownFireArea(areaUnits, elapsedTime, timeUnits);
+    }
+  }
+}
+
+double SIGCrown::getFinalFirePerimeter(LengthUnits::LengthUnitsEnum lengthUnits) const {
+
+  // Obtain elapsed time
+  TimeUnits::TimeUnitsEnum timeUnits = TimeUnits::Minutes;
+  double elapsedTime = surfaceFuel_.getElapsedTime(timeUnits);
+
+  // Rothermel
+  if (crownFireCalculationMethod_ == CrownFireCalculationMethod::rothermel) {
+    if (isSurfaceFire_) {
+      return surfaceFuel_.getFirePerimeter(lengthUnits, elapsedTime, timeUnits);
+    } else {
+      return Crown::getCrownFirePerimeter(lengthUnits, elapsedTime, timeUnits);
+    }
+  } else {
+    // Scott & Reinhardt
+    if (isSurfaceFire_) {
+      return surfaceFuel_.getFirePerimeter(lengthUnits, elapsedTime, timeUnits);
+    } else if (fireType_ == FireType::Torching) {
+      FireSize fireSize;
+      fireSize.calculateFireBasicDimensions(true, windSpeedAtTwentyFeet_, SpeedUnits::MilesPerHour, passiveCrownFireSpreadRate_, SpeedUnits::FeetPerMinute);
+      return fireSize.getFirePerimeter(true, lengthUnits, elapsedTime, timeUnits);
+    } else {
+      return Crown::getCrownFirePerimeter(lengthUnits, elapsedTime, timeUnits);
+    }
+  }
 }
 
 void SIGCrown::setElapsedTime(double elapsedTime, TimeUnits::TimeUnitsEnum timeUnits)

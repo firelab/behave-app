@@ -283,8 +283,11 @@ Module.SIGCrown = class {
   getCrownFlameLength() {}
   getCrownFractionBurned() {}
   getCrownRatio() {}
+  getFinalFireArea() {}
+  getFinalFirePerimeter() {}
   getFinalFirelineIntesity() {}
   getFinalHeatPerUnitArea() {}
+  getFinalSpreadDistance() {}
   getFinalSpreadRate() {}
   getFuelHeatOfCombustionDead() {}
   getFuelHeatOfCombustionLive() {}
@@ -329,6 +332,7 @@ Module.SIGCrown = class {
   getMoistureScenarioNameByIndex() {}
   doCrownRunRothermel() {}
   doCrownRunScottAndReinhardt() {}
+  doCrownRun() {}
   initializeMembers() {}
   setAspect() {}
   setCanopyBaseHeight() {}
