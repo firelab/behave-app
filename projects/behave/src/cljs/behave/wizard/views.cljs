@@ -266,8 +266,7 @@
      (when (some? selected-tool-uuid)
        [tool selected-tool-uuid])
      (when computing?
-       [:h2 {:id "computing-animation"}
-        "Computing..."])
+       [:h2 "Computing..."])
      (when (not computing?)
        [:div.accordion
         [:div.accordion__header
@@ -327,7 +326,7 @@
                                             (fn []
                                               (dispatch-sync [:wizard/solve params])
                                               (dispatch-sync [:wizard/after-solve params]))
-                                            2000))}]]]]]])]))
+                                           300))}]]]]]])]))
 
 ;; Wizard Results Settings
 
