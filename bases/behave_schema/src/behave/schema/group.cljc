@@ -49,7 +49,7 @@
     :db/doc         "Group's name."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
-   
+
    {:db/ident       :group/order
     :db/doc         "Group's order."
     :db/valueType   :db.type/long
@@ -62,6 +62,11 @@
 
    {:db/ident       :group/research?
     :db/doc         "Whether a Group represents a research-only group."
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :group/single-select?
+    :db/doc         "Whether a Group allows only one group-variable to be set"
     :db/valueType   :db.type/boolean
     :db/cardinality :db.cardinality/one}
 
@@ -101,4 +106,3 @@
                            :group/translation-key "behaveplus:fire:inner-group"
                            :group/help-key        "behaveplus:fire:inner-group:help"})
   )
-

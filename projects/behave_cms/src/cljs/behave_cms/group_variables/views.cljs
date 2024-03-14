@@ -120,7 +120,9 @@
 (defn- settings [group-variable]
   [:div.row.mt-2
    [bool-setting "Research Variable?" :group-variable/research? group-variable]
-   [bool-setting "Discrete Multiple?" :group-variable/discrete-multiple? group-variable]])
+   [bool-setting "Discrete Multiple?" :group-variable/discrete-multiple? group-variable]
+   [bool-setting "Conditionally Set?" :group-variable/conditionally-set? group-variable]
+   [bool-setting "Hide from Results?" :group-variable/hide-result? group-variable]])
 
 ;;; Public Views
 

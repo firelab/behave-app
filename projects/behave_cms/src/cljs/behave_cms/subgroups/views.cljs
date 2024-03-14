@@ -93,7 +93,8 @@
 (defn- group-settings [group]
   [:div.row.mt-2
    [bool-setting "Repeat Group?" :group/repeat? group]
-   [bool-setting "Research Group?" :group/research? group]])
+   [bool-setting "Research Group?" :group/research? group]
+   [bool-setting "Single Select Group?" :group/single-select? group]])
 
 ;;; Public Views
 
