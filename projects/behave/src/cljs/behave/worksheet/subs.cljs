@@ -421,11 +421,6 @@
         (remove (fn [[_ hide-result]] (true? hide-result)))
         (map first))))
 
-(comment
-  @(rf/subscribe [:worksheet/all-output-uuids "65f9cf38-a7c1-4f50-bc43-4f5a8a93d9e2"])
-
-  )
-
 (rp/reg-sub
  :worksheet/get-table-settings-attr
  (fn [_ [_ ws-uuid attr]]
