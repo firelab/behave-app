@@ -95,7 +95,8 @@
                           (merge variable-data)
                           (dissoc :variable/group-variables)
                           (update :variable/kind keyword)))
-                   (filter #(not (:group-variable/research? %)) ;; TODO: Remove when "Research Mode" is enabled
+                   (remove #(or (:group-variable/research? %)
+                                (:group-variable/conditionally-set? %)) ;; TODO: Remove when "Research Mode" is enabled
                            (:group/group-variables group))))
 
       (seq (:group/children group))
@@ -367,6 +368,10 @@
                                        (= ttype :module)      (set worksheet-value)
                                        (csv? worksheet-value) (set (map str/trim (str/split worksheet-value ",")))
                                        :else                  #{worksheet-value})]
+             (prn "io:" io)
+             (prn "group-variable-uuid" (:group-variable/translation-key
+                                         (d/entity @@vms-conn [:bp/uuid group-variable-uuid])))
+             (prn "worksheet-value:" worksheet-value)
              (case op
                :equal     (if (= ttype :module)
                             (= conditional-values-set worksheet-value-set)
@@ -376,7 +381,64 @@
                :in        (intersect? conditional-values-set worksheet-value-set))))
          conditionals)))
 
-(defn- all-conditionals-pass? [worksheet conditionals-operator conditionals]
+(comment
+  (:group-variable/translation-key
+   (d/entity @@vms-conn [:bp/uuid "65f4a698-2a75-4505-9b6a-57acb2f8c764"]))
+
+  (:bp/uuid (d/entity @@vms-conn [:group-variable/translation-key "behaveplus:surface:output:fire_behavior:surface_fire:heading_backing_flanking"]))
+
+  (subscribe [:wizard/conditional-io+group-uuid
+              (:bp/uuid
+               (d/entity
+                @@vms-conn
+                [:group-variable/translation-key
+                 "behaveplus:surface:output:fire_behavior:surface_fire:rate_of_spread"]))])
+
+  ;;=> #{{:io :output, :group-uuid "64a75e9b-4cb3-453f-9ea3-f2e273b00864"}}
+
+  (d/touch (d/entity @@vms-conn
+             (d/q '[:find  ?g .
+                    :in    $ % ?gv-uuid
+                    :where
+                    (lookup ?gv-uuid ?gv)
+                    (group-variable ?g ?gv ?v)]
+                  @@vms-conn
+                  rules
+                  (:bp/uuid
+                   (d/entity
+                    @@vms-conn
+                    [:group-variable/translation-key
+                     "behaveplus:surface:output:fire_behavior:surface_fire:heading_backing_flanking"])))))
+
+  (d/q '[:find  ?g ?io
+         :in    $ % ?gv-uuid
+         :where
+         [?e :bp/uuid ?uuid]
+         (lookup ?gv-uuid ?gv)
+         ;; [?g :bp/uuid ?g-uuid] ; This causes nothing to return
+         (group-variable ?g ?gv ?v)
+         (group ?s ?g)
+         (io ?gv ?io)]
+       @@vms-conn rules (:bp/uuid
+                         (d/entity
+                          @@vms-conn
+                          [:group-variable/translation-key
+                           "behaveplus:surface:output:fire_behavior:surface_fire:heading_backing_flanking"])))
+
+  ;;=> #{[9864 :output]}
+
+
+  (subscribe [:wizard/conditional-io+group-uuid
+              (:bp/uuid
+               (d/entity
+                @@vms-conn
+                [:group-variable/translation-key
+                 "behaveplus:surface:output:fire_behavior:surface_fire:heading_backing_flanking"]))])
+
+  ;;=> #{} Why??
+  )
+
+(defn all-conditionals-pass? [worksheet conditionals-operator conditionals]
   (let [resolved-conditionals (resolve-conditionals worksheet conditionals)]
     (if (= conditionals-operator :or)
       (some true? resolved-conditionals)
@@ -537,3 +599,35 @@
    (let [[_ values]    (first (filter #(= (first %) gv-uuid) multi-value-inputs))
          parsed-values (map js/parseFloat (str/split values ","))]
      [0 (apply max parsed-values)])))
+
+
+(reg-sub
+ :wizard/conditionally-set-output-group-variables
+ (fn [_ [_ module-id]]
+   (let [gvs-from-group     (d/q '[:find [?gv ...]
+                                   :in $ % ?module-eid
+                                   :where
+                                   [?module-eid :module/submodules ?s]
+                                   [?s :submodule/groups ?g]
+                                   [?s :submodule/io :output]
+                                   [?g :group/group-variables ?gv]
+                                   [?gv :group-variable/conditionally-set? true]]
+                                 @@vms-conn
+                                 rules
+                                 module-id)
+         gvs-from-subgroups (d/q '[:find [?gv ...]
+                                   :in $ % ?module-eid
+                                   :where
+                                   [?module-eid :module/submodules ?s]
+                                   [?s :submodule/groups ?g]
+                                   [?s :submodule/io :output]
+                                   (subgroup ?g ?sg)
+                                   [?sg :group/group-variables ?gv]
+                                   [?gv :group-variable/conditionally-set? true]]
+                                 @@vms-conn
+                                 rules
+                                 module-id)]
+     (map #(d/touch (d/entity @@vms-conn %))
+          (concat gvs-from-group gvs-from-subgroups)))))
+
+(comment (rf/subscribe [:wizard/conditionally-set-output-group-variables 138]))

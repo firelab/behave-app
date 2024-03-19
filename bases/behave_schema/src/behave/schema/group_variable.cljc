@@ -38,6 +38,7 @@
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
+
    {:db/ident       :group-variable/cpp-class
     :db/doc         "Group variable's C++ class."
     :db/valueType   :db.type/string
@@ -99,7 +100,8 @@
    {:db/ident       :group-variable/actions
     :db/doc         "Group variable's actions."
     :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/many}])
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}])
 
 ;;; Tests
 

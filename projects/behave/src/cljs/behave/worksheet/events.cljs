@@ -8,6 +8,7 @@
             [behave.solver.core        :refer [solve-worksheet]]
             [vimsical.re-frame.cofx.inject :as inject]
             [number-utils.core :refer [to-precision]]
+            [behave.wizard.subs :refer [all-conditionals-pass?]]
             [clojure.string :as str]))
 
 ;;; Helpers
@@ -812,3 +813,40 @@
  :worksheet/clear-input-value
  (fn [_ [_ input-eid]]
    {:transact [[:db/retract input-eid :input/value]]}))
+
+
+(rf/reg-event-fx
+ :worksheet/proccess-conditonally-set-output-group-variables
+ [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]]
+                                 [:worksheet  ws-uuid]))
+  (rf/inject-cofx ::inject/sub (fn [[_ _ module-id]]
+                                 [:wizard/conditionally-set-output-group-variables module-id]))]
+
+ (fn [{worksheet       :worksheet
+       group-variables :wizard/conditionally-set-output-group-variables} [_ ws-uuid]]
+   (mapcat (fn [{group-variable-uuid :bp/uuid
+                 actions             :group-variable/actions}]
+             (map (fn [{conditionals    :action/conditionals
+                        conditionals-op :action/conditionals-operator}]
+                    (if (all-conditionals-pass? worksheet conditionals-op conditionals)
+                      [:worksheet/upsert-output ws-uuid group-variable-uuid true]
+                      [:worksheet/upsert-output ws-uuid group-variable-uuid false]))
+                  actions))
+           group-variables)
+   (prn "group-variables:" (mapcat (fn [{group-variable-uuid :bp/uuid
+                                         translation         :group-variable/translation-key
+                                         actions             :group-variable/actions}]
+                                     (map (fn [{conditionals    :action/conditionals
+                                                conditionals-op :action/conditionals-operator}]
+                                            (if (all-conditionals-pass? worksheet conditionals-op conditionals)
+                                              [:worksheet/upsert-output ws-uuid translation true]
+                                              [:worksheet/upsert-output ws-uuid translation false]))
+                                          actions))
+                                   group-variables))))
+
+(comment
+  (rf/dispatch [:worksheet/proccess-conditonally-set-output-group-variables
+                "65f8aef2-2a57-4196-8848-99fd46825254"
+                138])
+
+  )
