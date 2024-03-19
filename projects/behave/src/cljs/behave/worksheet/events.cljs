@@ -824,20 +824,17 @@
 
  (fn [{worksheet       :worksheet
        group-variables :wizard/conditionally-set-output-group-variables} [_ ws-uuid]]
-   (let [disable-payload (->> group-variables
-                              (mapv (fn [{group-variable-uuid :bp/uuid}]
-                                      [:dispatch [:worksheet/upsert-output ws-uuid group-variable-uuid false]])))
-         enable-payload  (->> group-variables
-                              (mapcat (fn [{group-variable-uuid :bp/uuid
-                                            actions             :group-variable/actions}]
-                                        (->> actions
-                                             (map (fn [{conditionals    :action/conditionals
-                                                        conditionals-op :action/conditionals-operator}]
-                                                    (when (all-conditionals-pass? worksheet conditionals-op conditionals)
-                                                      [:dispatch [:worksheet/upsert-output ws-uuid group-variable-uuid true]])))
-                                             (remove nil?))))
-                              (into []))]
-     {:fx (into disable-payload enable-payload)})))
+   (let [reset-payload  (->> group-variables
+                             (mapv (fn [{group-variable-uuid :bp/uuid}]
+                                     [:dispatch [:worksheet/upsert-output ws-uuid group-variable-uuid false]])))
+         enable-payload (->> group-variables
+                             (mapcat (fn [{group-variable-uuid :bp/uuid
+                                           actions             :group-variable/actions}]
+                                       (for [{conditionals    :action/conditionals
+                                              conditionals-op :action/conditionals-operator} actions
+                                             :when                                           (all-conditionals-pass? worksheet conditionals-op conditionals)]
+                                         [:dispatch [:worksheet/upsert-output ws-uuid group-variable-uuid true]]))))]
+     {:fx (into reset-payload enable-payload)})))
 
 (comment
   (rf/dispatch [:worksheet/proccess-conditonally-set-output-group-variables

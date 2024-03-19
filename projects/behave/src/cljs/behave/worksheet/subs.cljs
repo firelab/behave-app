@@ -402,18 +402,29 @@
         (map first)
         (sort-by #(.indexOf gv-order %)))))
 
-(rp/reg-sub
+(rf/reg-sub
  :worksheet/all-output-uuids
  (fn [_ [_ ws-uuid]]
-   {:type      :query
-    :query     '[:find  [?uuid ...]
-                 :in    $ ?ws-uuid
-                 :where
-                 [?w :worksheet/uuid ?ws-uuid]
-                 [?w :worksheet/outputs ?o]
-                 [?o :output/group-variable-uuid ?uuid]
-                 [?o :output/enabled? true]]
-    :variables [ws-uuid]}))
+   (->> (d/q '[:find  ?uuid ?hide-result
+               :in    $ $ws % ?ws-uuid
+               :where
+               [$ws ?w :worksheet/uuid ?ws-uuid]
+               [$ws ?w :worksheet/outputs ?o]
+               [$ws ?o :output/group-variable-uuid ?uuid]
+               [$ws ?o :output/enabled? true]
+               (lookup ?uuid ?gv)
+               [(get-else $ ?gv :group-variable/hide-result? false) ?hide-result]]
+             @@vms-conn
+             @@s/conn
+             rules
+             ws-uuid)
+        (remove (fn [[_ hide-result]] (true? hide-result)))
+        (map first))))
+
+(comment
+  @(rf/subscribe [:worksheet/all-output-uuids "65f9cf38-a7c1-4f50-bc43-4f5a8a93d9e2"])
+
+  )
 
 (rp/reg-sub
  :worksheet/get-table-settings-attr
