@@ -58,7 +58,7 @@
     @(subscribe [:pull-children :list/options list])))
 
 (reg-sub
- :submodule/is-output? 
+ :submodule/is-output?
   (fn [[_ submodule-id]]
     (subscribe [:query
                    '[:find ?io .
@@ -168,12 +168,10 @@
    (subscribe [:group/_variables group-id]))
 
  (fn [variables]
-   (prn "variables:" variables)
    (->> variables
         (map (fn [variable]
                (let [id   (:db/id variable)
-                     name (or (get-in variable [:variable/_group-variables 0 :variable/name])
-                              (:group-variable/translation-key variable))]
+                     name (get-in variable [:variable/_group-variables 0 :variable/name])]
                  {:label name
                   :link  (path-for app-routes :get-group-variable :id id)})))
         (sort-by :label))))
