@@ -95,8 +95,7 @@
                           (merge variable-data)
                           (dissoc :variable/group-variables)
                           (update :variable/kind keyword)))
-                   (remove #(or (:group-variable/research? %)
-                                (:group-variable/conditionally-set? %)) ;; TODO: Remove when "Research Mode" is enabled
+                   (remove #(:group-variable/research? %) ;; TODO: Remove when "Research Mode" is enabled
                            (:group/group-variables group))))
 
       (seq (:group/children group))
