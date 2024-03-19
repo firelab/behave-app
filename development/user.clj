@@ -1,6 +1,46 @@
 (ns user)
 
 (comment
+  (require '[datomic.api :as d])
+
+  (def db-uri "datomic:sql://hello?jdbc:postgresql://localhost:5432/datomic?user=datomic&password=datomic")
+
+  (d/create-database db-uri)
+
+  (def conn (d/connect db-uri))
+
+  conn
+
+  @(d/transact conn [{:db/doc "Hello world"}])
+
+  conn
+  
+
+(require '[clojure.java.jdbc :as jdbc])
+(require '[next.jdbc :as jdbc])
+
+(def db-spec
+  {:classname "org.postgresql.Driver" 
+   :dbtype   "postgresql"
+   :host     "localhost"
+   :port     5432
+   :dbname   "datomic"
+   :user     "datomic"
+   :password "datomic"})
+(def ds (jdbc/get-datasource db-spec))
+
+(jdbc/execute! ds ["SELECT NOW()"])
+
+
+(defn connect-and-fetch []
+  (jdbc/with-db-connection [conn db-spec]
+    ;; Example query: Fetching the current date and time from PostgreSQL
+    (jdbc/query conn ["SELECT NOW()"])))
+
+
+  )
+
+(comment
   (require '[behave.core :as core])
 
   (core/init!)
