@@ -78,12 +78,6 @@
      (group ?s ?g)
      [?s :submodule/io ?io]]
 
-    [(io ?e ?io) ;; Group variable's IO
-     (group-variable ?sg ?e ?v)
-     (subgroup ?g ?sg)
-     (group ?s ?g)
-     [?s :submodule/io ?io]]
-
     ;; --  Find the root application for a module, submodule, group, or subgroup
     [(app-root ?a ?g)
      [?sm :submodule/groups ?g]
