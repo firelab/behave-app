@@ -3,7 +3,9 @@
 * Prerequisites
 
 + OpenJDK 17
++ [[https://github.com/babashka/babashka#installation][Babashka]]
 + [[https://clojure.org/guides/install_clojure][Clojure]]
++ Postgres (>=12)
 
 * Getting Started
 
@@ -11,10 +13,36 @@
 
 1. Pull down the repository (~git clone git@gitlab.com:sig-gis/behave-polylith~)
 1. Pull down the submodules (~git submodule update --init --remote~)
+1. Follow the Datomic Setup (see below)
 1. Open ~development/user.cljs~ in Emacs
 1. Start the CIDER nREPL ~cider-jack-in-clj&cljs~
 1. Choose ~figwheel-main~ and ~dev~ for the front-end build.
 1. Open ~http://localhost:8080~ in your browser.
+
+** Datomic Setup
+
+*** Download & Setup Locally
+#+BEGIN_SRC bash
+  mkdir -p ~/.datomic
+  cd ~/.datomic
+  curl -O https://datomic-pro-downloads.s3.amazonaws.com/1.0.7075/datomic-pro-1.0.7075.zip
+  unzip *.zip
+  ln -s $PWD/datomic-pro-1.0.7075 $PWD/current
+  echo 'export PATH="$HOME/.datomic/current/bin:$PATH"' >> ~/.bashrc
+#+END_SRC
+
+*** Postgres Setup
+#+BEGIN_SRC bash
+  cd ~/.datomic/current/bin/sql
+  psql -f postgres-user.sql
+  psql -f postgres-table.sql
+  psql -f postgres-db.sql
+#+END_SRC
+
+*** Start Transactor
+#+BEGIN_SRC bash
+  transactor -Ddatomic.printConnectionInfo=true config/datomic-sql.properties
+#+END_SRC
 
 * Architecture
 
