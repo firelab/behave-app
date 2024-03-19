@@ -538,32 +538,25 @@
          parsed-values (map js/parseFloat (str/split values ","))]
      [0 (apply max parsed-values)])))
 
-
 (reg-sub
  :wizard/conditionally-set-output-group-variables
- (fn [_ [_ module-id]]
-   (let [gvs-from-group     (d/q '[:find [?gv ...]
-                                   :in $ % ?module-eid
-                                   :where
-                                   [?module-eid :module/submodules ?s]
-                                   [?s :submodule/groups ?g]
-                                   [?s :submodule/io :output]
-                                   [?g :group/group-variables ?gv]
-                                   [?gv :group-variable/conditionally-set? true]]
-                                 @@vms-conn
-                                 rules
-                                 module-id)
-         gvs-from-subgroups (d/q '[:find [?gv ...]
-                                   :in $ % ?module-eid
-                                   :where
-                                   [?module-eid :module/submodules ?s]
-                                   [?s :submodule/groups ?g]
-                                   [?s :submodule/io :output]
-                                   (subgroup ?g ?sg)
-                                   [?sg :group/group-variables ?gv]
-                                   [?gv :group-variable/conditionally-set? true]]
-                                 @@vms-conn
-                                 rules
-                                 module-id)]
-     (map #(d/touch (d/entity @@vms-conn %))
-          (concat gvs-from-group gvs-from-subgroups)))))
+
+ (fn [[_ ws-uuid]]
+   (subscribe [:worksheet/modules ws-uuid]))
+
+ (fn [modules _]
+   (letfn [(get-conditionally-set-group-variables [module-eid]
+             (d/q '[:find [?gv ...]
+                    :in $ % ?module-eid
+                    :where
+                    [?module-eid :module/submodules ?s]
+                    [?s :submodule/io :output]
+                    (group ?s ?g)
+                    [?g :group/group-variables ?gv]
+                    [?gv :group-variable/conditionally-set? true]]
+                  @@vms-conn
+                  rules
+                  module-eid))]
+
+     (->> (mapcat #(get-conditionally-set-group-variables (:db/id %)) modules)
+          (map #(d/touch (d/entity @@vms-conn %)))))))
