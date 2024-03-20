@@ -354,6 +354,7 @@
 (defn settings-form
   [{:keys [ws-uuid title headers rf-event-id rf-sub-id min-attr-id max-attr-id]}]
   (let [*gv-uuid+min+max-entries (subscribe [rf-sub-id ws-uuid])
+        *gv-order                (subscribe [:vms/group-variable-order ws-uuid])
         *default-max-values      (subscribe [:worksheet/output-uuid->result-max-values ws-uuid])
         *default-min-values      (subscribe [:worksheet/output-uuid->result-min-values ws-uuid])
         maximums                 (number-inputs {:saved-entries  (map (fn remove-min-val[[gv-uuid _min-val max-val enabled?]]
@@ -377,7 +378,8 @@
                                       @*gv-uuid+min+max-entries)
         names                    (map (fn get-variable-name [[gv-uuid _min _max]]
                                         @(subscribe [:wizard/gv-uuid->resolve-result-variable-name gv-uuid]))
-                                      @*gv-uuid+min+max-entries)
+                                      (->> @*gv-uuid+min+max-entries
+                                           (sort-by #(.indexOf @*gv-order (first %)))))
         enabled-check-boxes      (when (= rf-event-id :worksheet/update-table-filter-attr)
                                    (map (fn [[gv-uuid _min _max enabled?]]
                                           [c/checkbox {:checked?  enabled?

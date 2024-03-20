@@ -418,7 +418,7 @@
              @@s/conn
              rules
              ws-uuid)
-        (remove (fn [[_ hide-result]] (true? hide-result)))
+        (remove (fn [[_ hide-result?]] (true? hide-result?)))
         (map first))))
 
 (rp/reg-sub

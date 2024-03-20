@@ -187,8 +187,10 @@
         map-units-enabled?             (:map-units-settings/enabled? map-units-settings-entity)
         map-unit-convertible-variables @(subscribe [:wizard/map-unit-convertible-variables])
         units-lookup                   @(subscribe [:worksheet/result-table-units ws-uuid])
-        output-gv-uuids                @(subscribe [:worksheet/all-output-uuids ws-uuid])
-        table-setting-filters          @(subscribe [:worksheet/table-settings-filters ws-uuid])]
+        table-setting-filters          @(subscribe [:worksheet/table-settings-filters ws-uuid])
+        gv-order                       @(subscribe [:vms/group-variable-order ws-uuid])
+        output-gv-uuids                (sort-by #(.indexOf gv-order %)
+                                                @(subscribe [:worksheet/all-output-uuids ws-uuid]))]
     [construct-result-matrices
      {:ws-uuid               ws-uuid
       :process-map-units?    (fn [v-uuid]
