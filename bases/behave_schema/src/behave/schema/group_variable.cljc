@@ -38,7 +38,6 @@
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
-
    {:db/ident       :group-variable/cpp-class
     :db/doc         "Group variable's C++ class."
     :db/valueType   :db.type/string
