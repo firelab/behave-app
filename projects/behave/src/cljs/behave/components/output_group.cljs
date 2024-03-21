@@ -13,11 +13,38 @@
                   :checked?  @checked?
                   :on-change #(rf/dispatch [:worksheet/upsert-output ws-uuid gv-uuid (not @checked?)])}]]))
 
+(defn wizard-single-select-outupt [ws-uuid group-help-key all-group-variables]
+  (let [x-form            (comp (map :bp/uuid)
+                                (filter #(true? (deref (rf/subscribe [:worksheet/output-enabled? ws-uuid %])))))
+        selected-options? (into #{} x-form all-group-variables)
+        on-focus-click    #(rf/dispatch [:help/highlight-section group-help-key])
+        ->option          (fn [{gv-uuid :bp/uuid}]
+                            {:value     gv-uuid
+                             :label     @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
+                             :on-change #(do (rf/dispatch [:worksheet/upsert-output ws-uuid gv-uuid true])
+                                             (let [gvs-to-unset (remove (fn [gv] (= (:bp/uuid gv) gv-uuid))
+                                                                        all-group-variables)]
+                                               (doseq [gv-to-unset gvs-to-unset]
+                                                 (rf/dispatch [:worksheet/upsert-output
+                                                               ws-uuid
+                                                               (:bp/uuid gv-to-unset)
+                                                               false]))))
+                             :selected? (contains? selected-options? gv-uuid)
+                             :checked?  (contains? selected-options? gv-uuid)})]
+    [:div.wizard-output
+     {:on-click on-focus-click
+      :on-focus on-focus-click}
+     [c/radio-group
+      {:id      uuid
+       :options (doall (map ->option all-group-variables))}]]))
+
 (defn output-group [ws-uuid group variables level]
   [:div.wizard-group
    {:class (str "wizard-group--level-" level)}
    [:div.wizard-group__header (:group/name group)]
    [:div.wizard-group__outputs
-    (for [variable variables]
-      ^{:key (:db/id variable)}
-      [wizard-output ws-uuid variable])]])
+    (if (:group/single-select? group)
+      [wizard-single-select-outupt ws-uuid (:group/help-key group) variables]
+      (for [variable variables]
+        ^{:key (:db/id variable)}
+        [wizard-output ws-uuid variable]))]])
