@@ -43,7 +43,8 @@
    {:db/ident       :group/group-variables
     :db/doc         "Group's group variables."
     :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/many}
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
 
    {:db/ident       :group/name
     :db/doc         "Group's name."

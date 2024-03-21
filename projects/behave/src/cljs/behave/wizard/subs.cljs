@@ -561,3 +561,13 @@
 
      (->> (mapcat #(get-conditionally-set-group-variables (:db/id %)) modules)
           (map #(d/touch (d/entity @@vms-conn %)))))))
+
+(reg-sub
+ :wizard/selected-group-variables
+ (fn [[_ _ group-eid]]
+   (subscribe [:vms/entity-from-eid  group-eid]))
+
+ (fn [group [_ ws-uuid]]
+   (let [x-form (comp (map :bp/uuid)
+                      (filter #(true? (deref (rf/subscribe [:worksheet/output-enabled? ws-uuid %])))))]
+     (into #{} x-form (:group/group-variables (d/touch group))))))

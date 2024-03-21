@@ -14,9 +14,7 @@
                   :on-change #(rf/dispatch [:worksheet/upsert-output ws-uuid gv-uuid (not @checked?)])}]]))
 
 (defn wizard-single-select-outupt [ws-uuid group all-group-variables]
-  (let [x-form            (comp (map :bp/uuid)
-                                (filter #(true? (deref (rf/subscribe [:worksheet/output-enabled? ws-uuid %])))))
-        selected-options? (into #{} x-form all-group-variables)
+  (let [selected-options? @(rf/subscribe [:wizard/selected-group-variables ws-uuid (:db/id group)])
         on-focus-click    #(rf/dispatch [:help/highlight-section (:group/help-key group)])
         ->option          (fn [{gv-uuid :bp/uuid}]
                             {:value     gv-uuid
