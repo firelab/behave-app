@@ -836,8 +836,18 @@
                                          [:dispatch [:worksheet/upsert-output ws-uuid group-variable-uuid true]]))))]
      {:fx (into reset-payload enable-payload)})))
 
-(comment
-  (rf/dispatch [:worksheet/proccess-conditonally-set-output-group-variables
-                "65f9b89b-8cd4-4951-8d8e-27be4ba9f7fb"])
+(rf/reg-event-fx
+ :worksheet/select-single-select-output
 
-  )
+ [(rf/inject-cofx ::inject/sub (fn [[_ _ group-eid]] [:vms/entity-from-eid  group-eid]))]
+
+ (fn [{group :vms/entity-from-eid} [_ ws-uuid _group-id target-group-variable-uuid]]
+   (let [siblings (remove #(= (:bp/uuid %) target-group-variable-uuid)
+                          (:group/group-variables group))]
+     {:fx (into [[:dispatch [:worksheet/upsert-output ws-uuid target-group-variable-uuid true]]]
+                (mapv #(identity
+                        [:dispatch [:worksheet/upsert-output
+                                    ws-uuid
+                                    (:bp/uuid %)
+                                    false]])
+                      siblings))})))
