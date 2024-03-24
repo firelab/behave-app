@@ -27,7 +27,7 @@
 (defn migrate-dh-to-datomic
   "Migrates datoms from DataHike to Datomic."
   [dh-conn datomic-conn schema]
-  (let [dh-datoms     (dh/export-datoms @dh-conn)
+  (let [dh-datoms     (dh/export-datoms @dh-conn true)
         db-attrs      (as-> dh-datoms $
                         (map second $)
                         (filter #(-> % (str) (str/starts-with? ":db")) $)

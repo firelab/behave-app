@@ -115,12 +115,15 @@
   which are safe to export.
 
   NOTE: All datoms have a tx-id of the DB's `max-tx` value."
-  [db]
-  (let [db     (safe-deref db)
-        max-tx (:max-tx db)]
+  [db & [unsafe-datoms?]]
+  (let [db            (safe-deref db)
+        max-tx        (:max-tx db)
+        unsafe-filter (if unsafe-datoms?
+                        identity
+                        (filter #(safe-attr? @stored-unsafe-attrs %)))]
     (->> (d/datoms db :eavt)
          (split-datoms)
-         (filter #(safe-attr? @stored-unsafe-attrs %))
+         (unsafe-filter)
          (map #(assoc % 3 max-tx)))))
 
 (defn latest-datoms

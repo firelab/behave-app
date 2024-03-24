@@ -51,25 +51,23 @@
 (defn- email-taken?
   [conn email]
   (and (email? email)
-       (some? (ffirst (s/q '[:find ?e ?email
-                             :in $ ?email
-                             :where [?e :user/email ?email]]
-                           conn email)))))
+       (some? (s/q '[:find ?e .
+                     :in $ ?email
+                     :where [?e :user/email ?email]]
+                   conn email))))
 
 (defn- is-super-admin? [conn email]
-  (some? (ffirst (s/q '[:find ?admin
-                        :in $ ?email
-                        :where [?e :user/email ?email]
-                               [?e :user/super-admin? ?admin]]
-                      conn email))))
+  (some? (s/q '[:find ?admin .
+                :in $ ?email
+                :where [?e :user/email ?email]
+                [?e :user/super-admin? ?admin]]
+              conn email)))
 
 (defn- get-user-id [conn email]
-  (let [user-id (s/q '[:find ?e
-                       :in $ ?email
-                       :where [?e :user/email ?email]]
-                     conn email)]
-    (when-not (empty? user-id)
-      (ffirst user-id))))
+  (s/q '[:find ?e .
+         :in $ ?email
+         :where [?e :user/email ?email]]
+       conn email))
 
 (defn- get-user [conn email]
   (when-let [user-id (get-user-id conn email)]

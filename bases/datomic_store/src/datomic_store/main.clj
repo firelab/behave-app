@@ -220,13 +220,14 @@
 
 (defn q
   "Perform query on Datomic connection."
-  [conn & args]
-  (apply d/q (unwrap conn) args))
+  [& args]
+  (let [[query conn & rest] args]
+    (apply d/q query (unwrap conn) rest)))
 
 (defn entity
   "Retreive from `conn` the `entity` (map with `:db/id`)."
   [conn {id :db/id}]
-  (pull conn '[*] id))
+  (pull (unwrap conn) id '[*]))
 
 (defn create!
   "Creates a new entity in `conn` using the `data` map."
