@@ -15,5 +15,5 @@
 
    {:db/ident       :cpp.enum-member/value
     :db/doc         "Enum member value."
-    :db/valueType   :db.type/number
+    :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}])

@@ -37,17 +37,17 @@
 
    {:db/ident       :application/version-major
     :db/doc         "Application's major version."
-    :db/valueType   :db.type/number
+    :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :application/version-minor
     :db/doc         "Application's minor version."
-    :db/valueType   :db.type/number
+    :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :application/version-patch
     :db/doc         "Application's patch version."
-    :db/valueType   :db.type/number
+    :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :application/version

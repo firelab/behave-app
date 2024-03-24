@@ -24,7 +24,7 @@
 
    {:db/ident       :tool/order
     :db/doc         "Tool's order."
-    :db/valueType   :db.type/number
+    :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :tool/subtools

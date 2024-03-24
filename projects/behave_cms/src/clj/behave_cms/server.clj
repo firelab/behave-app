@@ -17,18 +17,14 @@
 (def ^:private expiration-time "1 hour in msecs" (* 1000 60 60))
 (def ^:private keystore-scan-interval 60)
 
-
 ;; Helper functions
 
 (defn expand-home [s]
   (str/replace s #"^~" (System/getProperty "user.home")))
 
-(defn init-datahike! []
+(defn init-db! []
   (load-config (io/resource "config.edn"))
-  (let [config (update-in (get-config :database :config) [:store :path] expand-home)]
-    (println "Connecting to Datahike DB at: " config)
-    (io/make-parents (get-in config [:store :path]))
-    (store/connect! config)))
+  (store/connect! (get-config [:database])))
 
 (defn- expired? [last-mod-time]
   (let [current-time (System/currentTimeMillis)]
@@ -114,7 +110,7 @@
         (when repl
           (println "Starting REPL server on port 5555")
           (reset! repl-server (start-server {:name :pyr-repl :port 5555 :accept 'clojure.core.server/repl})))
-        (init-datahike!)
+        (init-db!)
         (reset! server (run-jetty handler config))
         (reset! clean-up-service (start-clean-up-service!))
         (start-logging! {:log-dir log-dir})))))

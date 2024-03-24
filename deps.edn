@@ -30,6 +30,7 @@
                  "bases/behave_routing/src"
                  "bases/behave_schema/src"
                  "bases/datahike_store/src"
+                 "bases/datomic_store/src"
                  "bases/datom_store/src"]
 
 

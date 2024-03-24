@@ -1,19 +1,53 @@
 (ns datomic-store.main
-  (:require [datomic.client.api :as d]
-            [datahike.core         :refer [conn?]]
-            [datahike.datom        :refer [datom]]
+  (:require [datomic.api           :as d]
             [datom-utils.interface :refer [safe-attr?
-                                               safe-deref
-                                               split-datoms
-                                               unsafe-attrs]]))
+                                           split-datoms
+                                           unsafe-attrs]]))
+
+;;; Connection
+
+(defonce ^{:doc "Datomic Connection"} datomic-conn (atom nil))
+
 ;;; Helpers
 
 (defn unwrap
-  "Recursively derefs the atom to get the DataHike/Script connection."
+  "Returns a Datomic DB instance from a Datomic connection."
   [conn]
-  (if (conn? conn)
+  (cond
+    (instance? clojure.lang.Atom conn)
+    (unwrap @conn)
+
+    (instance? datomic.db.Db conn)
     conn
-    (unwrap @conn)))
+
+    (instance? datomic.peer.Connection conn)
+    (d/db conn)))
+
+(defn ->datomic-uri
+  "Returns a Datomic Connection URI from a set of configuration parameters, which inclues:
+  - `project`  [Required] - Project name within Datomic.
+  - `dbtype`   [Optional, Default: 'postgresql'] - Type of DB for JDBC connection.
+  - `host`     [Optional, Default: 'localhost'] - Host of JDBC connection.
+  - `port`     [Optional, Default: 5432] - Port of JDBC connection.
+  - `dbname`   [Optional, Default: 'datomic'] - Database name to connect to.
+  - `user`     [Optional, Default: 'datomic'] - Username to the JDBC connection.
+  - `password` [Optional, Default: 'datomic'] - Password to the JDBC connection."
+  [{:keys [project dbtype host port dbname user password]
+                      :or   {dbtype   "postgresql"
+                             host     "localhost"
+                             port     5432
+                             dbname   "datomic"
+                             user     "datomic"
+                             password "datomic"}}]
+
+  (format "datomic:sql://%s?jdbc:%s://%s:%d/%s?user=%s&password=%s"
+          project
+          dbtype
+          host
+          port
+          dbname
+          user
+          password))
 
 ;;; Unsafe Attributes
 
@@ -21,7 +55,9 @@
 
 ;;; Transaction Index
 
-(defonce ^:private tx-index (atom (sorted-map)))
+(defonce tx-queue (atom '()))
+
+(defonce tx-index (atom (sorted-map)))
 
 (defn- record-tx [{:keys [tx-data]}]
   (->> tx-data
@@ -29,8 +65,16 @@
        (group-by #(nth % 3))
        (swap! tx-index merge)))
 
-(defn- build-tx-index! [db]
-  (let [db (safe-deref db)]
+(defn- tx-queue-watcher
+  [_key _atom _old-state new-state]
+  (when-let [tx (first new-state)]
+    (record-tx @tx)
+    (println "Queue Watcher:" @tx)
+    (when (> (count @tx-queue) 10)
+      (reset! @tx-queue '()))))
+
+(defn- build-tx-index! [conn]
+  (let [db (unwrap conn)]
     (as-> db %
       (d/datoms % :eavt)
       (split-datoms %)
@@ -38,90 +82,97 @@
       (group-by (fn [d] (nth d 3)) %)
       (swap! tx-index merge %))))
 
-;;; Connection
-
-(defonce ^{:doc "Datmoic Connection"} conn (atom nil))
-
 (defn transact
-  "Transacts to `db` `tx-data`. `tx-data` must be a collection."
-  [db tx-data]
+  "Transacts to `conn` `tx-data`. `tx-data` must be a collection."
+  [conn tx-data]
   (when (coll? tx-data)
-    (d/transact (unwrap db) {:tx-data tx-data})))
+    (let [tx (d/transact conn tx-data)]
+      (swap! tx-queue conj tx)
+      tx)))
 
-(defn create-db!
-  "Creates a DataHike DB using a the `config` map,
-   and intializes the DB with `schema`."
-  [config & [schema]]
-  (d/create-database config)
-  (let [db-conn (d/connect config)]
+(defn init-db!
+  "Connects to and intializes the DB with `schema`."
+  [datomic-uri & [schema]]
+  (let [conn (d/connect datomic-uri)]
     (when schema
-      (transact db-conn schema))
-    db-conn))
+      (transact conn schema))
+    conn))
 
-(defn connect-datahike!
-  "Connects to DataHike DB, if it exists, or creates DB
+(defn connect!
+  "Connects to DB, if it exists, or creates DB
    using a the `config` map and intializes the DB with `schema`.
    Calls `setup-fn` after the connection for migrations, etc."
   [config schema & [setup-fn]]
   (reset! stored-unsafe-attrs (unsafe-attrs schema))
-  (let [ds-conn (if (d/database-exists? config)
-                  (d/connect config)
-                  (create-db! config schema))]
-    (when (fn? setup-fn) (setup-fn ds-conn))
-    (build-tx-index! ds-conn)
-    (d/listen ds-conn :record-tx record-tx)
-    ds-conn))
+  (let [datomic-uri (->datomic-uri config)
+        conn        (if (d/create-database datomic-uri)
+                      (init-db! datomic-uri schema)
+                      (d/connect datomic-uri))]
+    (when (fn? setup-fn) (setup-fn conn))
+    (build-tx-index! conn)
+    (add-watch tx-queue :tx-queue-watcher tx-queue-watcher)
+    conn))
 
-(defn delete-datahike!
-  "Deletes the DataHike DB."
-  [cfg]
-  (d/delete-database cfg)
-  (reset! conn nil))
+(defn delete-db!
+  "Deletes the DB."
+  [config]
+  (d/delete-database (->datomic-uri config))
+  (reset! datomic-conn nil))
 
-(defn reset-datahike!
-  "Removes existing DataHike DB from `config`and `schema`,
-   applying `setup-fn` once the setup has completed."
+(defn reset-db!
+  "Removes existing database, initializes a new DB with `schema`
+  and applies an optional `setup-fn` once the setup has completed."
   [config schema & [setup-fn]]
-  (when (d/database-exists? config)
-    (delete-datahike! config))
-  (connect-datahike! config schema setup-fn))
+  (when (d/db-stats (->datomic-uri config))
+    (delete-db! config))
+  (connect! config schema setup-fn))
 
 (defn default-conn
   "Creates/connects to DataHike DB from `config`
   `and `schema`."
   [config schema & [setup-fn]]
-  (if @conn
-    @conn
-    (reset! conn
-            (connect-datahike! config schema setup-fn))))
+  (if @datomic-conn
+    @datomic-conn
+    (reset! datomic-conn (connect! config schema setup-fn))))
 
 (defn release-conn!
   "Releases connection to DataHike."
   []
-  (d/release @conn)
-  (reset! conn nil))
+  (d/release @datomic-conn)
+  (reset! datomic-conn nil))
 
 ;;; Sync datoms
 
+(defn max-tx
+  "Obtains the maximum tx id from a connection"
+  [conn]
+  (-> conn
+      (d/log)
+      (get-in [:tail :txes])
+      (last)
+      (:data)
+      (last)
+      (nth 3)))
+
 (defn sync-datoms
   "Transacts a set of Datoms."
-  [db datoms]
+  [conn datoms]
   (let [tx-map (group-by #(nth % 3) datoms)]
     (swap! tx-index merge tx-map)
-    (transact db (mapv (partial apply datom) datoms))))
+    (transact conn (mapv #(apply conj [:db/add] %) datoms))))
 
 (defn export-datoms
   "Returns the set of Datoms in vector format (`[e a v tx]`)
   which are safe to export.
 
   NOTE: All datoms have a tx-id of the DB's `max-tx` value."
-  [db]
-  (let [db     (safe-deref db)
-        max-tx (:max-tx db)]
+  [conn]
+  (let [db        (unwrap conn)
+        db-max-tx (max-tx conn)]
     (->> (d/datoms db :eavt)
          (split-datoms)
          (filter #(safe-attr? @stored-unsafe-attrs %))
-         (map #(assoc % 3 max-tx)))))
+         (map #(assoc % 3 db-max-tx)))))
 
 (defn latest-datoms
   "Retrieves the latest transactions since `tx-id`"
@@ -136,52 +187,59 @@
 
 (defn- get-existing-schema
   "Retrieves all existing attributes."
-  [db]
+  [conn]
   (set (d/q '[:find [?ident ...]
               :where [?e :db/ident ?ident]]
-            (safe-deref db))))
+            (unwrap conn))))
 
 (defn migrate!
-  "Adds any new attributes from `new-schema` to `db`."
-  [db new-schema]
-  (let [existing-schema (get-existing-schema db)
+  "Adds any new attributes from `new-schema` to `conn`."
+  [conn new-schema]
+  (let [existing-schema (get-existing-schema conn)
         new-schema      (as-> (map :db/ident new-schema) $
                           (set $)
                           (apply disj $ existing-schema)
                           (filter #($ (:db/ident %)) new-schema))]
     (when (seq new-schema)
       (print "Migrating DB with new schema: " new-schema)
-      (transact db new-schema))))
+      (transact conn new-schema))))
 
 ;;; CRUD Operations
 
 (defn pull
-  "Pull from `db` all attributes for entity using `id`.
+  "Pull from `conn` all attributes for entity using `id`.
    Optionally takes a `q` query to execute."
-  [db id & [q]]
-  (d/pull (safe-deref db) (or q '[*]) id))
+  [conn id & [q]]
+  (d/pull (unwrap conn) (or q '[*]) id))
 
 (defn pull-many
-  "Pull from `db` all attributes for entities using `ids`.
+  "Pull from `conn` all attributes for entities using `ids`.
    Optionally takes a `q` query to execute."
-  [db ids & [q]]
-  (d/pull-many (safe-deref db) (or q '[*]) ids))
+  [conn ids & [q]]
+  (d/pull-many (unwrap conn) (or q '[*]) ids))
+
+(defn q
+  "Perform query on Datomic connection."
+  [conn & args]
+  (apply d/q (unwrap conn) args))
+
+(defn entity
+  "Retreive from `conn` the `entity` (map with `:db/id`)."
+  [conn {id :db/id}]
+  (pull conn '[*] id))
 
 (defn create!
-  "Creates a new entity in `db` using the `data` map."
-  [db data]
-  (let [db (unwrap db)]
-    (transact db [(assoc data :db/id -1)])))
+  "Creates a new entity in `conn` using the `data` map."
+  [conn data]
+  (transact conn [(assoc data :conn/id -1)]))
 
 (defn update!
-  "Updates entity in `db` using the `data` map."
-  [db data]
-  (let [db (unwrap db)]
-    (transact db [data])))
+  "Updates entity in `conn` using the `data` map."
+  [conn data]
+  (transact conn [data]))
 
 (defn delete!
-  "Removes entity in `db` using the `data` map.
-  `data` must have a `:db/id` key/value pair."
-  [db {id :db/id}]
-  (let [db (unwrap db)]
-    (transact db [[:db/retractEntity id]])))
+  "Removes entity in `conn` using the `data` map.
+  `data` must have a `:conn/id` key/value pair."
+  [conn {id :conn/id}]
+  (transact conn [[:conn/retractEntity id]]))

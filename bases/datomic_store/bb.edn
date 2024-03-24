@@ -1,0 +1,9 @@
+{:tasks
+ {:requires ([babashka.fs      :as fs]
+             [babashka.process :refer [shell]])
+
+  transactor (shell ["transactor"
+                     "-Ddatomic.printConnectionInfo=true"
+                     (str (fs/cwd) "/config/datomic-sql.properties")])
+
+  console    (shell "console -p 8000 db datomic:sql://?jdbc:postgresql://localhost:5432/datomic?user=datomic&password=datomic")}}

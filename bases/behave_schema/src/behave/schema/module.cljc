@@ -34,7 +34,7 @@
 
    {:db/ident       :module/order
     :db/doc         "Module's order."
-    :db/valueType   :db.type/number
+    :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :module/submodules

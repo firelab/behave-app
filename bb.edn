@@ -1,7 +1,8 @@
 {:paths ["scripts"]
  :tasks
- {:requires   ([babashka.fs :as fs]
-               [manage      :as m])
+ {:requires   ([babashka.fs      :as fs]
+               [babashka.process :refer [shell]]
+               [manage           :as m])
 
   component   (let [component (first *command-line-args*)]
                 (println (format "Creating new component: %s" component))
@@ -16,4 +17,10 @@
   project     (let [project (first *command-line-args*)]
                    (println (format "Creating new project: %s" project))
                    (m/new-project project)
-                   (println (format "Done! \n\n Please add \"projects/%s/src\" to the :paths section of your deps.edn file." project)))}}
+                   (println (format "Done! \n\n Please add \"projects/%s/src\" to the :paths section of your deps.edn file." project)))
+
+  transactor  (shell ["transactor"
+                      "-Ddatomic.printConnectionInfo=true"
+                      (str (fs/cwd) "/bases/datomic_store/config/datomic-sql.properties")])
+
+  console     (shell "console -p 8000 db datomic:sql://?jdbc:postgresql://localhost:5432/datomic?user=datomic&password=datomic")}}

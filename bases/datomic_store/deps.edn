@@ -2,8 +2,8 @@
  :deps {;; Bases
 
         ;; Components
-        sig/datom-utils        {:local/root "../../components/datom_utils"}
+        sig/datom-utils {:local/root "../../components/datom_utils"}
 
         ;; Clojure Deps
-        com.datomic/local    {:mvn/version "1.0.277"}}
+        com.datomic/peer {:mvn/version "1.0.7075"}}
  :aliases {:test {:extra-paths ["test"]}}}
