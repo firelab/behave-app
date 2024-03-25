@@ -110,3 +110,8 @@
   `(split-commas-or-spaces \"15, 20,25 30\") ; => '(\"15\" \"20\" \"25\" \"30\")`"
   [s]
   (remove empty? (str/split s #"[ ,]")))
+
+(defn capitalize-words
+  "Capitalize the first letter of every word"
+  [s]
+  (str/replace s #"\b\w" str/upper-case))

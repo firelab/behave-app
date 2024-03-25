@@ -25,7 +25,9 @@
             [re-frame.core                        :refer [dispatch dispatch-sync subscribe]]
             [string-utils.interface               :refer [->kebab]]
             [reagent.core                         :as r]
-            [behave.solver.core            :refer [solve-worksheet]]))
+            [behave.solver.core            :refer [solve-worksheet]]
+            [string-utils.core :as s]
+            [clojure.string :as str]))
 
 ;;; Components
 
@@ -326,7 +328,7 @@
                                             (fn []
                                               (dispatch-sync [:wizard/solve params])
                                               (dispatch-sync [:wizard/after-solve params]))
-                                           300))}]]]]]])]))
+                                            300))}]]]]]])]))
 
 ;; Wizard Results Settings
 
@@ -462,10 +464,11 @@
                        [default-min default-max] @(subscribe [:wizard/x-axis-limit-min+max-defaults ws-uuid gv-uuid])]
                    [:div.settings-form
                     (c/table {:title   @(<t (bp "x_graph_and_axis_limits"))
-                              :headers [@(<t (bp "INPUT_VARIABLE"))
-                                        @(<t (bp "RANGE"))
-                                        @(<t (bp "AXIS_MINIMUM"))
-                                        @(<t (bp "AXIS_MAXIMUM"))]
+                              :headers (->> [@(<t (bp "input_variable"))
+                                             @(<t (bp "range"))
+                                             @(<t (bp "minimum"))
+                                             @(<t (bp "maximum"))]
+                                            (mapv #(str/upper-case %)))
                               :columns [:v-name :input-range :min :max]
                               :rows    [{:v-name      v-name
                                          :input-range (str default-min "-" default-max)
@@ -491,10 +494,11 @@
            (>= multi-valued-input-count 1)
            (conj [settings-form {:ws-uuid     ws-uuid
                                  :title       @(<t (bp "y_graph_and_axis_limits"))
-                                 :headers     [@(<t (bp "OUTPUT_VARIABLES"))
-                                               @(<t (bp "RANGE"))
-                                               @(<t (bp "AXIS_MINIMUM"))
-                                               @(<t (bp "AXIS_MAXIMUM"))]
+                                 :headers     (->> [@(<t (bp "output_variable"))
+                                                    @(<t (bp "range"))
+                                                    @(<t (bp "minimum"))
+                                                    @(<t (bp "maximum"))]
+                                                   (mapv #(str/upper-case %)))
                                  :rf-event-id :worksheet/update-y-axis-limit-attr
                                  :rf-sub-id   :worksheet/graph-settings-y-axis-limits
                                  :min-attr-id :y-axis-limit/min
@@ -508,7 +512,7 @@
         map-rep-frac-atom         (r/atom map-rep-frac)]
     [:div.table-settings__map-units-form
      [:div.table-settings__map-units-form__units
-      [c/radio-group {:label   "Map Units"
+      [c/radio-group {:label   (s/capitalize-words @(<t (bp "map_representative_fraction")))
                       :options (mapv (fn [option]
                                        {:value     option
                                         :label     option
@@ -519,7 +523,8 @@
                                         :checked?  (= units option)})
                                      ["in" "cm"])}]]
      [:div.table-settings__map-units-form__map-rep-fraction
-      [c/number-input {:label      "Map Representative Fraction (1:x)"
+      [c/number-input {:label      (str (s/capitalize-words @(<t (bp "map_representative_fraction")))
+                                        " (1:x)")
                        :value-atom map-rep-frac-atom
                        :required?  true
                        :on-change  #(reset! map-rep-frac-atom (input-value %))
@@ -534,19 +539,25 @@
         table-enabled?            (:table-settings/enabled? table-settings)
         map-units-settings-entity @(subscribe [:worksheet/map-units-settings-entity ws-uuid])
         map-units-enabled?        (:map-units-settings/enabled? map-units-settings-entity)]
-    [:<> [c/checkbox {:label     "Display Table Results"
+    [:<> [c/checkbox {:label     (s/capitalize-words @(<t (bp "display_table_results")))
                       :checked?  table-enabled?
                       :on-change #(dispatch [:worksheet/toggle-table-settings ws-uuid])}]
      (when table-enabled?
        [:div.table-settings
-        [c/checkbox {:label     "Convert to Map Units"
+        [c/checkbox {:label     (s/capitalize-words @(<t (bp "convert_to_map_units")))
                      :checked?  map-units-enabled?
                      :on-change #(dispatch [:worksheet/toggle-map-units-settings ws-uuid])}]
         (when map-units-enabled?
           [map-units-form ws-uuid])
         [settings-form {:ws-uuid     ws-uuid
                         :title       @(<t (bp "table_shading_filters"))
-                        :headers     ["Enabled?" "OUTPUT VARIABLES" "OUTPUT RESULTS RANGE" "MINIMUM" "MAXIMUM"]
+                        :headers     (mapv
+                                      #(str/upper-case %)
+                                      [(str @(<t (bp "enabled")) "?")
+                                       @(<t (bp "output_variable"))
+                                       @(<t (bp "range"))
+                                       @(<t (bp "minimum"))
+                                       @(<t (bp "maximum"))])
                         :rf-event-id :worksheet/update-table-filter-attr
                         :rf-sub-id   :worksheet/table-settings-filters
                         :min-attr-id :table-filter/min
