@@ -4,6 +4,8 @@
             [datascript.core            :as d]
             [posh.reagent               :refer [pull pull-many q posh!]
                                         :rename {q posh-query pull posh-pull pull-many posh-pull-many}]
+            [datom-utils.interface      :refer [db-attrs
+                                                datoms->map]]
             [re-frame.core              :as rf]
             [datom-compressor.interface :as c]
             [ds-schema-utils.interface  :refer [->ds-schema]]
@@ -18,8 +20,11 @@
 
 (defn- load-data-handler [[ok body]]
   (when ok
-    (let [datoms (mapv #(apply d/datom %) (c/unpack body))]
-      (rf/dispatch-sync [:vms/initialize (->ds-schema all-schemas) datoms])
+    (let [raw-datoms (c/unpack body)
+          bad-attrs  (db-attrs raw-datoms)
+          datoms     (remove #(bad-attrs (second %)) raw-datoms)
+          datoms-map (datoms->map datoms)]
+      (rf/dispatch-sync [:vms/initialize (->ds-schema all-schemas) datoms-map])
       (rf/dispatch-sync [:state/set :vms-loaded? true])
       (load-translations!))))
 
@@ -48,7 +53,8 @@
   (if @vms-conn
     @vms-conn
     (do
-      (reset! vms-conn (d/conn-from-datoms datoms schema))
+      (reset! vms-conn (d/create-conn schema))
+      (d/transact @vms-conn datoms)
       (posh! @vms-conn)
       @vms-conn)))
 

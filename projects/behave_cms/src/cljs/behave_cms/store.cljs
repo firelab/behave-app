@@ -1,8 +1,8 @@
 (ns behave-cms.store
-  (:require [clojure.set                 :refer [intersection union map-invert]]
+  (:require [clojure.set                 :refer [union]]
             [ajax.core                   :refer [ajax-request]]
             [ajax.edn                    :refer [edn-request-format
-                                                edn-response-format]]
+                                                 edn-response-format]]
             [ajax.protocols              :as pr]
             [datascript.core             :as d]
             [re-frame.core               :as rf]
@@ -10,7 +10,6 @@
             [datom-compressor.interface  :as c]
             [datom-utils.interface       :refer [db-attrs
                                                  datoms->map
-                                                 ref-attrs
                                                  safe-deref
                                                  split-datom]]
             [ds-schema-utils.interface   :refer [->ds-schema]]
