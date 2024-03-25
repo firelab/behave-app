@@ -1,5 +1,6 @@
 (ns datom-utils.core
-  (:require [datascript.core :refer [conn?]]))
+  (:require [clojure.string :as str]
+            [datascript.core :refer [conn?]]))
 
 (defn split-datom
   "Splits a DataHike/DataScript datom into a vector of the form [e a v t op]."
@@ -40,3 +41,47 @@
   (if (conn? conn)
     conn
     (unwrap @conn)))
+
+(defn db-attr? [k]
+  (let [s (str k)]
+    (or (str/starts-with? s ":db")
+        (str/starts-with? s ":fressian"))))
+
+(defn db-attrs
+  "Returns all attributes that begin with :db/* or :fressian*"
+  [datoms]
+  (as-> datoms $
+    (map second $)
+    (filter db-attr? $)
+    (set $)))
+
+(defn ref-attrs
+  "Returns all reference attributes as a set of keywords from a Datomic schema."
+  [schema]
+  (->> schema
+       (filter #(= :db.type/ref (:db/valueType %)))
+       (map :db/ident)
+       (set)))
+
+(defn datoms->map
+  "Turns a vector of datoms into a list of maps."
+  [datoms]
+  (sort-by :db/id
+           (map (fn [[idx m]] (assoc m :db/id idx))
+                (persistent!
+                 (reduce (fn [acc [e a v]]
+                           (if-let [entity (get acc e)]
+                             (let [value (get entity a)
+                                   value (cond
+                                           (coll? value)
+                                           (conj value v)
+
+                                           (some? value)
+                                           (vec (list value v))
+
+                                           (nil? value)
+                                           v)]
+                               (assoc! acc e (merge entity {a value})))
+                             (assoc! acc e {a v})))
+                         (transient {})
+                         datoms)))))

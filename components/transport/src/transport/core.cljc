@@ -5,8 +5,28 @@
     #?(:clj [clojure.data.json :as json])
     [cognitect.transit  :as transit]
     [msgpack.core :as msg]
-    #?(:clj [msgpack.extensions]))
-  #?(:clj (:import [java.io ByteArrayInputStream ByteArrayOutputStream])))
+    #?(:clj [msgpack.extensions])
+    #?(:clj [msgpack.macros :refer [extend-msgpack]]))
+  #?(:clj (:import [java.io ByteArrayInputStream ByteArrayOutputStream]
+                   [java.text SimpleDateFormat]
+                   [java.util TimeZone])))
+
+;;; Support for java.util.Date
+
+#?(:clj
+   (do
+     (def ^:private ISO-8061-date-fmt "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+     (def ^:private sdf (SimpleDateFormat. ISO-8061-date-fmt))
+     (.setTimeZone sdf (TimeZone/getTimeZone "UTC"))
+
+     (extend-msgpack
+      java.util.Date
+      100
+      (pack [date]
+            (msg/pack (.format sdf date)))
+
+      (unpack [bytes]
+              (.parse sdf (msg/unpack bytes))))))
 
 ;;; MIME to Type
 

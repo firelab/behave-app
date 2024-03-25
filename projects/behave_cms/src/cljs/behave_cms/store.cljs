@@ -1,6 +1,5 @@
 (ns behave-cms.store
-  (:require [clojure.set                 :refer [union]]
-            [clojure.edn                 :as edn]
+  (:require [clojure.set                 :refer [intersection union map-invert]]
             [ajax.core                   :refer [ajax-request]]
             [ajax.edn                    :refer [edn-request-format
                                                 edn-response-format]]
@@ -9,7 +8,11 @@
             [re-frame.core               :as rf]
             [re-posh.core                :as rp]
             [datom-compressor.interface  :as c]
-            [datom-utils.interface       :refer [safe-deref split-datom]]
+            [datom-utils.interface       :refer [db-attrs
+                                                 datoms->map
+                                                 ref-attrs
+                                                 safe-deref
+                                                 split-datom]]
             [ds-schema-utils.interface   :refer [->ds-schema]]
             [behave.schema.core          :refer [all-schemas]]
             [behave-cms.config           :refer [get-config]]
@@ -22,7 +25,6 @@
 (defonce sync-txs (atom #{}))
 
 ;;; Helpers
-
 (defn- txs [datoms]
   (into #{} (map #(nth % 3) datoms)))
 
@@ -31,11 +33,16 @@
 
 (defn- load-data-handler [[ok body]]
   (when ok
-    (let [datoms (mapv #(apply d/datom %) (c/unpack body))]
+    (let [raw-datoms (c/unpack body)
+          bad-attrs  (db-attrs raw-datoms)
+          datoms     (remove #(bad-attrs (second %)) raw-datoms)
+          datoms-map (datoms->map datoms)]
       (swap! sync-txs union (txs datoms))
-      (rf/dispatch-sync [:ds/initialize (->ds-schema all-schemas) datoms]))))
+      (rf/dispatch-sync [:ds/initialize (->ds-schema all-schemas) datoms-map]))))
 
-(defn load-store! []
+(defn load-store!
+  "Loads/syncs the Datom store from datoms the backend."
+  []
   (ajax-request {:uri             (str "/sync?auth-token="
                                        (get-config :secret-token))
                  :handler         load-data-handler
@@ -83,7 +90,8 @@
   (if @conn
     @conn
     (do
-      (reset! conn (d/conn-from-datoms datoms schema))
+      (reset! conn (d/create-conn schema))
+      (d/transact @conn datoms)
       (d/listen! @conn :sync-tx-data sync-tx-data)
       (rp/connect! @conn)
       (re/init! @conn)

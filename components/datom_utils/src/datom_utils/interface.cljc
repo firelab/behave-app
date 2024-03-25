@@ -29,3 +29,16 @@
        :doc "Filters for datoms that are not tuples, passwords, or transaction
             dates to maintain compatability with DataScript."}
   unwrap c/unwrap)
+
+(def ^{:argslist '([datoms])
+       :doc "Returns all attributes that begin with :db/* or :fressian*"}
+  db-attrs c/db-attrs)
+
+(def ^{:argslist '([datoms])
+       :doc "Returns all reference attributes as a set of keywords
+             from a Datomic schema."}
+  ref-attrs c/ref-attrs)
+
+(def ^{:argslist '([datoms])
+       :doc "Turns a vector of datoms into a list of maps."}
+  datoms->map c/datoms->map)

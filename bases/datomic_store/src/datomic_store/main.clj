@@ -1,6 +1,9 @@
 (ns datomic-store.main
-  (:require [datomic.api           :as d]
-            [datom-utils.interface :refer [safe-attr?
+  (:require [clojure.set           :refer [map-invert]]
+            [clojure.string        :as str]
+            [datomic.api           :as d]
+            [datom-utils.interface :refer [ref-attrs
+                                           safe-attr?
                                            split-datoms
                                            safe-deref
                                            unsafe-attrs]]))
@@ -52,15 +55,61 @@
           user
           password))
 
+;;; Datomic Mapping
+
+(defonce ^:private datomic->ds-eids (atom {}))
+(defonce ^:private ds->datomic-eids (atom {}))
+
+(defn load-ds-datomic-mapping
+  "Given a set of datoms, create mappings from a DataScript friendly entity
+  ID to a Datomic entity ID. These are stored in the above atoms."
+  [datoms]
+  (let [tx-eids (sort (set (map first datoms)))
+        eids-map (into (sorted-map)
+                       (zipmap (range 0 (count tx-eids)) tx-eids))]
+    (reset! ds->datomic-eids eids-map)
+    (reset! datomic->ds-eids (map-invert eids-map))))
+
+(defn- map-datomic->ds-eid
+  "Returns a re-mapped datom using the Datomic/DataScript mapping.
+
+  Requires:
+  - `ref-attrs` [set<keyword>] Set of attributes of type `db.type/ref`
+  - `datom`     [vector]       Vector of the for `[e a v tx op]`"
+  [ref-attrs datom]
+  (cond-> datom
+    ;; Remap entity ID
+    :always
+    (assoc 0 (get @datomic->ds-eids (first datom)))
+
+    ;; Remap value ID if it is a reference attribute
+    (ref-attrs (second datom))
+    (assoc 2 (get @datomic->ds-eids (nth datom 2)))))
+
+(defn- map-ds->datomic-eid
+  "Returns a re-mapped datom using the Datomic/DataScript mapping.
+
+  Requires:
+  - `ref-attrs` [set<keyword>] Set of attributes of type `db.type/ref`
+  - `datom`     [vector]       Vector of the for `[e a v tx op]`"
+  [ref-attrs datom]
+  (cond-> datom
+    ;; Remap entity ID
+    :always
+    (assoc 0 (get @ds->datomic-eids (first datom)))
+
+    ;; Remap value ID if it is a reference attribute
+    (ref-attrs (second datom))
+    (assoc 2 (get @ds->datomic-eids (nth datom 2)))))
+
 ;;; Unsafe Attributes
 
 (defonce ^:private stored-unsafe-attrs (atom nil))
 
 ;;; Transaction Index
 
-(defonce tx-queue (atom '()))
-
-(defonce tx-index (atom (sorted-map)))
+(defonce ^:private tx-queue (atom '()))
+(defonce ^:private tx-index (atom (sorted-map)))
 
 (defn- record-tx [{:keys [tx-data]}]
   (->> tx-data
@@ -72,9 +121,8 @@
   [_key _atom _old-state new-state]
   (when-let [tx (first new-state)]
     (record-tx @tx)
-    (println "Queue Watcher:" @tx)
     (when (> (count @tx-queue) 10)
-      (reset! @tx-queue '()))))
+      (reset! tx-queue '()))))
 
 (defn- build-tx-index! [conn]
   (let [db (unwrap-db conn)]
@@ -157,33 +205,61 @@
       (last)
       (nth 3)))
 
+(defn ->tx
+  "Turns a datom into a add/retract tx"
+  [datom]
+  (let [add-retract (if (last datom) :db/add :db/retract)]
+    (apply conj [add-retract] (take 3 datom))))
+
 (defn sync-datoms
   "Transacts a set of Datoms."
-  [conn datoms]
-  (let [tx-map (group-by #(nth % 3) datoms)]
+  [conn datoms & [ds-mapping? schema]]
+  (let [datoms (if ds-mapping?
+                 (mapv (partial map-ds->datomic-eid (ref-attrs schema)) datoms)
+                 datoms)
+        tx-map (group-by #(nth % 3) datoms)]
     (swap! tx-index merge tx-map)
-    (transact conn (mapv #(apply conj [:db/add] %) datoms))))
+    (transact (unwrap-conn conn)
+              (mapv ->tx datoms))))
+
+(defn get-attrs-map
+  "Retrieves all attribute's and their ID's."
+  [conn]
+  (into {} (d/q '[:find ?attr-id ?attr
+                  :where [?attr-id :db/ident ?attr]]
+                (unwrap-db conn))))
 
 (defn export-datoms
   "Returns the set of Datoms in vector format (`[e a v tx]`)
   which are safe to export.
 
   NOTE: All datoms have a tx-id of the DB's `max-tx` value."
-  [conn]
+  [conn & [ds-mappings? schema]]
   (let [db        (unwrap-db conn)
-        db-max-tx (max-tx (unwrap-conn conn))]
-    (->> (d/datoms db :eavt)
-         (split-datoms)
-         (filter #(safe-attr? @stored-unsafe-attrs %))
-         (map #(assoc % 3 db-max-tx)))))
+        db-max-tx (max-tx (unwrap-conn conn))
+        attrs-map (get-attrs-map conn)
+        datoms
+        (->> (d/datoms db :eavt)
+             (split-datoms)
+             (map #(assoc % 1 (get attrs-map (second %))))
+             (filter #(safe-attr? @stored-unsafe-attrs %))
+             (map #(assoc % 3 db-max-tx)))]
+    (if ds-mappings?
+      (do
+        (load-ds-datomic-mapping datoms)
+        (mapv (partial map-datomic->ds-eid (ref-attrs schema)) datoms))
+      datoms)))
 
 (defn latest-datoms
   "Retrieves the latest transactions since `tx-id`"
-  [_ tx-id]
+  [_ tx-id & [ds-mapping? schema]]
   (->> @tx-index
        (keys)
        (filter (partial < tx-id))
        (mapcat (partial get @tx-index))
+       #(if ds-mapping?
+          (mapv (partial map-datomic->ds-eid (ref-attrs schema)) %)
+          identity)
        (into [])))
 
 ;;; Migrate
@@ -204,7 +280,7 @@
                           (apply disj $ existing-schema)
                           (filter #($ (:db/ident %)) new-schema))]
     (when (seq new-schema)
-      (print "Migrating DB with new schema: " new-schema)
+      (println "Migrating DB with new schema: " new-schema)
       (transact conn new-schema))))
 
 ;;; CRUD Operations
