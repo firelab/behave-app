@@ -4,8 +4,8 @@
     [#?(:clj clojure.edn :cljs cljs.reader) :as edn]
     #?(:clj [clojure.data.json :as json])
     [cognitect.transit  :as transit]
-    [#?(:clj msgpack.core :cljs msgpack-cljs.core) :as msg]
-    #?(:clj [msgpack.clojure-extensions]))
+    [msgpack.core :as msg]
+    #?(:clj [msgpack.extensions]))
   #?(:clj (:import [java.io ByteArrayInputStream ByteArrayOutputStream])))
 
 ;;; MIME to Type

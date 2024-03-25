@@ -2,6 +2,7 @@
   (:require [datomic.api           :as d]
             [datom-utils.interface :refer [safe-attr?
                                            split-datoms
+                                           safe-deref
                                            unsafe-attrs]]))
 
 ;;; Connection
@@ -10,12 +11,14 @@
 
 ;;; Helpers
 
-(defn unwrap
+(def unwrap-conn safe-deref)
+
+(defn unwrap-db
   "Returns a Datomic DB instance from a Datomic connection."
   [conn]
   (cond
     (instance? clojure.lang.Atom conn)
-    (unwrap @conn)
+    (unwrap-db (safe-deref conn))
 
     (instance? datomic.db.Db conn)
     conn
@@ -74,7 +77,7 @@
       (reset! @tx-queue '()))))
 
 (defn- build-tx-index! [conn]
-  (let [db (unwrap conn)]
+  (let [db (unwrap-db conn)]
     (as-> db %
       (d/datoms % :eavt)
       (split-datoms %)
@@ -167,8 +170,8 @@
 
   NOTE: All datoms have a tx-id of the DB's `max-tx` value."
   [conn]
-  (let [db        (unwrap conn)
-        db-max-tx (max-tx conn)]
+  (let [db        (unwrap-db conn)
+        db-max-tx (max-tx (unwrap-conn conn))]
     (->> (d/datoms db :eavt)
          (split-datoms)
          (filter #(safe-attr? @stored-unsafe-attrs %))
@@ -190,7 +193,7 @@
   [conn]
   (set (d/q '[:find [?ident ...]
               :where [?e :db/ident ?ident]]
-            (unwrap conn))))
+            (unwrap-db conn))))
 
 (defn migrate!
   "Adds any new attributes from `new-schema` to `conn`."
@@ -210,24 +213,24 @@
   "Pull from `conn` all attributes for entity using `id`.
    Optionally takes a `q` query to execute."
   [conn id & [q]]
-  (d/pull (unwrap conn) (or q '[*]) id))
+  (d/pull (unwrap-db conn) (or q '[*]) id))
 
 (defn pull-many
   "Pull from `conn` all attributes for entities using `ids`.
    Optionally takes a `q` query to execute."
   [conn ids & [q]]
-  (d/pull-many (unwrap conn) (or q '[*]) ids))
+  (d/pull-many (unwrap-db conn) (or q '[*]) ids))
 
 (defn q
   "Perform query on Datomic connection."
   [& args]
   (let [[query conn & rest] args]
-    (apply d/q query (unwrap conn) rest)))
+    (apply d/q query (unwrap-db conn) rest)))
 
 (defn entity
   "Retreive from `conn` the `entity` (map with `:db/id`)."
   [conn {id :db/id}]
-  (pull (unwrap conn) id '[*]))
+  (pull (unwrap-db conn) id '[*]))
 
 (defn create!
   "Creates a new entity in `conn` using the `data` map."

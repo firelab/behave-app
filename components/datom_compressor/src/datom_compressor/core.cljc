@@ -1,7 +1,7 @@
 (ns datom-compressor.core
   (:require [clojure.set :refer [map-invert]]
-            [#?(:clj msgpack.core :cljs msgpack-cljs.core) :as msg]
-            #?(:clj [msgpack.clojure-extensions])))
+            [msgpack.core :as msg]
+            #?(:clj [msgpack.extensions])))
 
 ;;; Helpers
 

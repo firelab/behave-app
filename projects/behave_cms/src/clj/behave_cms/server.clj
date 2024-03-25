@@ -24,7 +24,7 @@
 
 (defn init-db! []
   (load-config (io/resource "config.edn"))
-  (store/connect! (get-config [:database])))
+  (store/connect! (get-config :database)))
 
 (defn- expired? [last-mod-time]
   (let [current-time (System/currentTimeMillis)]
