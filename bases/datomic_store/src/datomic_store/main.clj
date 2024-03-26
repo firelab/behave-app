@@ -304,9 +304,11 @@
     (apply d/q query (unwrap-db conn) rest)))
 
 (defn entity
-  "Retreive from `conn` the `entity` (map with `:db/id`)."
-  [conn {id :db/id}]
-  (pull (unwrap-db conn) id '[*]))
+  "Retreive from `conn` the `entity`
+   (map with `:db/id`, or a unique idenitifer)."
+  [conn id]
+  (let [id (if (map? id) (:db/id id) id)]
+    (d/touch (d/entity (unwrap-db conn) id))))
 
 (defn create!
   "Creates a new entity in `conn` using the `data` map."
