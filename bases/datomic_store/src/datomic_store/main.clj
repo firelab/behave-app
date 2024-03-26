@@ -137,7 +137,7 @@
   "Transacts to `conn` `tx-data`. `tx-data` must be a collection."
   [conn tx-data]
   (when (coll? tx-data)
-    (let [tx (d/transact conn tx-data)]
+    (let [tx (d/transact (unwrap-conn conn) tx-data)]
       (swap! tx-queue conj tx)
       tx)))
 
@@ -311,7 +311,7 @@
 (defn create!
   "Creates a new entity in `conn` using the `data` map."
   [conn data]
-  (transact conn [(assoc data :conn/id -1)]))
+  (transact conn [(assoc data :db/id -1)]))
 
 (defn update!
   "Updates entity in `conn` using the `data` map."
@@ -321,5 +321,5 @@
 (defn delete!
   "Removes entity in `conn` using the `data` map.
   `data` must have a `:conn/id` key/value pair."
-  [conn {id :conn/id}]
-  (transact conn [[:conn/retractEntity id]]))
+  [conn {id :db/id}]
+  (transact conn [[:db/retractEntity id]]))
