@@ -66,6 +66,9 @@
 (defn getAspenSavrLiveWoody [self savrUnits]
   (.getAspenSavrLiveWoody self savrUnits))
 
+(defn getBackingDirection [self]
+  (.getDirectionOfBacking self))
+
 (defn getBackingFlameLength [self lengthUnits]
   (.getBackingFlameLength self lengthUnits))
 
@@ -206,6 +209,9 @@
 
 (defn getFlameLength [self flameLengthUnits]
   (.getFlameLength self flameLengthUnits))
+
+(defn getFlankingDirection [self]
+  (.getDirectionOfFlanking self))
 
 (defn getFlankingSpreadDistance [self lengthUnits]
   (.getFlankingSpreadDistance self lengthUnits))
