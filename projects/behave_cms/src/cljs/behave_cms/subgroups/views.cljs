@@ -43,7 +43,7 @@
 (defn- variables-table [group-id]
   (let [group-variables (rf/subscribe [:group/variables group-id])]
     [simple-table
-     [:variable/name :variable/domain-uuid]
+     [:variable/name :variable/domain-uuid :group-variable/conditionally-set?]
      (sort-by :group-variable/order @group-variables)
      {:on-delete   #(when (js/confirm (str "Are you sure you want to delete the variable " (:variable/name %) "?"))
                       (rf/dispatch [:api/delete-entity %]))
@@ -93,7 +93,8 @@
 (defn- group-settings [group]
   [:div.row.mt-2
    [bool-setting "Repeat Group?" :group/repeat? group]
-   [bool-setting "Research Group?" :group/research? group]])
+   [bool-setting "Research Group?" :group/research? group]
+   [bool-setting "Single Select Group?" :group/single-select? group]])
 
 ;;; Public Views
 
