@@ -95,7 +95,8 @@
                           (merge variable-data)
                           (dissoc :variable/group-variables)
                           (update :variable/kind keyword)))
-                   (filter #(not (:group-variable/research? %)) ;; TODO: Remove when "Research Mode" is enabled
+                   (remove #(or (:group-variable/research? %)
+                                (:group-variable/conditionally-set? %)) ;; TODO: Remove when "Research Mode" is enabled
                            (:group/group-variables group))))
 
       (seq (:group/children group))
@@ -376,7 +377,7 @@
                :in        (intersect? conditional-values-set worksheet-value-set))))
          conditionals)))
 
-(defn- all-conditionals-pass? [worksheet conditionals-operator conditionals]
+(defn all-conditionals-pass? [worksheet conditionals-operator conditionals]
   (let [resolved-conditionals (resolve-conditionals worksheet conditionals)]
     (if (= conditionals-operator :or)
       (some true? resolved-conditionals)
@@ -537,3 +538,36 @@
    (let [[_ values]    (first (filter #(= (first %) gv-uuid) multi-value-inputs))
          parsed-values (map js/parseFloat (str/split values ","))]
      [0 (apply max parsed-values)])))
+
+(reg-sub
+ :wizard/conditionally-set-output-group-variables
+
+ (fn [[_ ws-uuid]]
+   (subscribe [:worksheet/modules ws-uuid]))
+
+ (fn [modules _]
+   (letfn [(get-conditionally-set-group-variables [module-eid]
+             (d/q '[:find [?gv ...]
+                    :in $ % ?module-eid
+                    :where
+                    [?module-eid :module/submodules ?s]
+                    [?s :submodule/io :output]
+                    (group ?s ?g)
+                    [?g :group/group-variables ?gv]
+                    [?gv :group-variable/conditionally-set? true]]
+                  @@vms-conn
+                  rules
+                  module-eid))]
+
+     (->> (mapcat #(get-conditionally-set-group-variables (:db/id %)) modules)
+          (map #(d/touch (d/entity @@vms-conn %)))))))
+
+(reg-sub
+ :wizard/selected-group-variables
+ (fn [[_ _ group-eid]]
+   (subscribe [:vms/entity-from-eid  group-eid]))
+
+ (fn [group [_ ws-uuid]]
+   (let [x-form (comp (map :bp/uuid)
+                      (filter #(true? (deref (rf/subscribe [:worksheet/output-enabled? ws-uuid %])))))]
+     (into #{} x-form (:group/group-variables (d/touch group))))))

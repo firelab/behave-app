@@ -87,7 +87,7 @@
      (into {} (drill-in submodule-io-output-only)))))
 
 (defn- process-group [group]
-  (cond-> (mapv :bp/uuid (:group/group-variables group))
+  (cond-> (mapv :bp/uuid (sort-by :group-variable/order (:group/group-variables group)))
     (seq (:group/children group))
     (into (for [child-group (sort-by :group/order (:group/children group))]
             (process-group child-group)))))

@@ -8,6 +8,7 @@
             [behave.solver.core        :refer [solve-worksheet]]
             [vimsical.re-frame.cofx.inject :as inject]
             [number-utils.core :refer [to-precision]]
+            [behave.wizard.subs :refer [all-conditionals-pass?]]
             [clojure.string :as str]))
 
 ;;; Helpers
@@ -105,21 +106,21 @@
  :worksheet/upsert-input-variable
  [(rp/inject-cofx :ds)]
  (fn [{:keys [ds]} [_ ws-uuid group-uuid repeat-id group-variable-uuid value]]
-   (let [group-id  (or (q-input-group ds ws-uuid group-uuid repeat-id) -1)
-         var-id    (q-input-variable ds group-id group-variable-uuid)
-         payload   (cond-> []
-                     var-id
-                     (conj {:db/id       var-id
-                            :input/value value})
+   (let [group-id (or (q-input-group ds ws-uuid group-uuid repeat-id) -1)
+         var-id   (q-input-variable ds group-id group-variable-uuid)
+         payload  (cond-> []
+                    var-id
+                    (conj {:db/id       var-id
+                           :input/value value})
 
-                     (neg? group-id)
-                     (conj (add-input-group-tx ws-uuid group-uuid repeat-id))
+                    (neg? group-id)
+                    (conj (add-input-group-tx ws-uuid group-uuid repeat-id))
 
-                     (nil? var-id)
-                     (conj {:db/id                     -2
-                            :input-group/_inputs       group-id
-                            :input/group-variable-uuid group-variable-uuid
-                            :input/value               value}))]
+                    (nil? var-id)
+                    (conj {:db/id                     -2
+                           :input-group/_inputs       group-id
+                           :input/group-variable-uuid group-variable-uuid
+                           :input/value               value}))]
      {:transact payload})))
 
 (rp/reg-event-fx
@@ -232,11 +233,11 @@
  [(rp/inject-cofx :ds)]
  (fn [{:keys [ds]} [_ ws-uuid]]
    (when-let [existing-eid (d/q '[:find  ?t .
-                             :in    $ ?ws-uuid
-                             :where
-                             [?ws :worksheet/uuid     ?ws-uuid]
-                             [?ws :worksheet/result-table ?t]]
-                           ds ws-uuid)]
+                                  :in    $ ?ws-uuid
+                                  :where
+                                  [?ws :worksheet/uuid     ?ws-uuid]
+                                  [?ws :worksheet/result-table ?t]]
+                                ds ws-uuid)]
      {:transact [[:db.fn/retractEntity existing-eid]]})))
 
 (rp/reg-event-fx
@@ -320,7 +321,7 @@
                                                       :db/id])]
      {:transact [(assoc {:db/id map-units-settings-eid} attr value)]}
      (when-let [table-settings-eid (get-in worksheet [:worksheet/table-settings
-                                                    :db/id])]
+                                                      :db/id])]
        {:transact [{:db/id                              -1
                     :table-settings/_map-units-settings table-settings-eid
                     attr                                value}]}))))
@@ -339,7 +340,7 @@
  [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet ws-uuid]))]
  (fn [{:keys [worksheet]} [_ ws-uuid]]
    (let [map-units-settings (get-in worksheet [:worksheet/table-settings
-                                                  :table-settings/map-units-settings])]
+                                               :table-settings/map-units-settings])]
      (if-let [map-units-setting-eid (:db/id map-units-settings)]
        (let [enabled? (:map-units-settings/enabled? map-units-settings)]
          {:transact [{:db/id                       map-units-setting-eid
@@ -394,27 +395,27 @@
  (fn [{worksheet               :worksheet
        multi-value-input-uuids :worksheet/multi-value-input-uuids} [_ ws-uuid]]
    (when (pos? (count multi-value-input-uuids))
-    (let [graph-setting-id (get-in worksheet [:worksheet/graph-settings :db/id])]
-      (cond-> {:transact [; First clear any existing graph settings.
-                          [:db/retract graph-setting-id :graph-settings/x-axis-group-variable-uuid]
-                          [:db/retract graph-setting-id :graph-settings/y-axis-group-variable-uuid]
-                          [:db/retract graph-setting-id :graph-settings/z-axis-group-variable-uuid]
-                          ;; Then default any multi valued variables starting from the lowest to highest dimensions x->z.
-                          (cond-> {:db/id                   graph-setting-id}
+     (let [graph-setting-id (get-in worksheet [:worksheet/graph-settings :db/id])]
+       (cond-> {:transact [; First clear any existing graph settings.
+                           [:db/retract graph-setting-id :graph-settings/x-axis-group-variable-uuid]
+                           [:db/retract graph-setting-id :graph-settings/y-axis-group-variable-uuid]
+                           [:db/retract graph-setting-id :graph-settings/z-axis-group-variable-uuid]
+                           ;; Then default any multi valued variables starting from the lowest to highest dimensions x->z.
+                           (cond-> {:db/id                   graph-setting-id}
 
-                            ;; sets default x-axis selection if available
-                            (first multi-value-input-uuids)
-                            (assoc :graph-settings/x-axis-group-variable-uuid (first multi-value-input-uuids))
+                             ;; sets default x-axis selection if available
+                             (first multi-value-input-uuids)
+                             (assoc :graph-settings/x-axis-group-variable-uuid (first multi-value-input-uuids))
 
-                            ;; sets default z-axis selection if available
-                            (second multi-value-input-uuids)
-                            (assoc :graph-settings/z-axis-group-variable-uuid (second multi-value-input-uuids))
+                             ;; sets default z-axis selection if available
+                             (second multi-value-input-uuids)
+                             (assoc :graph-settings/z-axis-group-variable-uuid (second multi-value-input-uuids))
 
-                            ;; sets default z2-axis selection if available
-                            (nth multi-value-input-uuids 2 nil)
-                            (assoc :graph-settings/z2-axis-group-variable-uuid (nth multi-value-input-uuids 2)))]}
-        (first multi-value-input-uuids)
-        (assoc :fx [[:dispatch [:worksheet/upsert-x-axis-limit ws-uuid (first multi-value-input-uuids)]]]))))))
+                             ;; sets default z2-axis selection if available
+                             (nth multi-value-input-uuids 2 nil)
+                             (assoc :graph-settings/z2-axis-group-variable-uuid (nth multi-value-input-uuids 2)))]}
+         (first multi-value-input-uuids)
+         (assoc :fx [[:dispatch [:worksheet/upsert-x-axis-limit ws-uuid (first multi-value-input-uuids)]]]))))))
 
 (rp/reg-event-fx
  :worksheet/toggle-graph-settings
@@ -812,3 +813,40 @@
  :worksheet/clear-input-value
  (fn [_ [_ input-eid]]
    {:transact [[:db/retract input-eid :input/value]]}))
+
+(rf/reg-event-fx
+ :worksheet/proccess-conditonally-set-output-group-variables
+
+ [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet  ws-uuid]))
+  (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:wizard/conditionally-set-output-group-variables ws-uuid]))]
+
+ (fn [{worksheet       :worksheet
+       group-variables :wizard/conditionally-set-output-group-variables} [_ ws-uuid]]
+   (let [reset-map   (zipmap (map :bp/uuid group-variables) (repeat false))
+         enabled-map (->> group-variables
+                          (mapcat (fn [{group-variable-uuid :bp/uuid
+                                        actions             :group-variable/actions}]
+                                    (for [{conditionals    :action/conditionals
+                                           conditionals-op :action/conditionals-operator} actions
+                                          :when                                           (all-conditionals-pass? worksheet conditionals-op conditionals)]
+                                      [group-variable-uuid true])))
+                          (into {}))
+         merged-map  (merge reset-map enabled-map)
+         payload     (mapv (fn [[gv-uuid v]] [:dispatch [:worksheet/upsert-output ws-uuid gv-uuid v]]) merged-map)]
+     {:fx payload})))
+
+(rf/reg-event-fx
+ :worksheet/select-single-select-output
+
+ [(rf/inject-cofx ::inject/sub (fn [[_ _ group-eid]] [:vms/entity-from-eid  group-eid]))]
+
+ (fn [{group :vms/entity-from-eid} [_ ws-uuid _group-id target-group-variable-uuid]]
+   (let [siblings (remove #(= (:bp/uuid %) target-group-variable-uuid)
+                          (:group/group-variables group))]
+     {:fx (into [[:dispatch [:worksheet/upsert-output ws-uuid target-group-variable-uuid true]]]
+                (mapv #(identity
+                        [:dispatch [:worksheet/upsert-output
+                                    ws-uuid
+                                    (:bp/uuid %)
+                                    false]])
+                      siblings))})))

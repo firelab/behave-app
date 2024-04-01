@@ -13,11 +13,32 @@
                   :checked?  @checked?
                   :on-change #(rf/dispatch [:worksheet/upsert-output ws-uuid gv-uuid (not @checked?)])}]]))
 
+(defn wizard-single-select-outupt [ws-uuid group all-group-variables]
+  (let [selected-options? @(rf/subscribe [:wizard/selected-group-variables ws-uuid (:db/id group)])
+        on-focus-click    #(rf/dispatch [:help/highlight-section (:group/help-key group)])
+        ->option          (fn [{gv-uuid :bp/uuid}]
+                            {:value     gv-uuid
+                             :label     @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
+                             :on-change #(rf/dispatch [:worksheet/select-single-select-output
+                                                       ws-uuid
+                                                       (:db/id group)
+                                                       gv-uuid])
+                             :selected? (contains? selected-options? gv-uuid)
+                             :checked?  (contains? selected-options? gv-uuid)})]
+    [:div.wizard-output
+     {:on-click on-focus-click
+      :on-focus on-focus-click}
+     [c/radio-group
+      {:id      uuid
+       :options (doall (map ->option all-group-variables))}]]))
+
 (defn output-group [ws-uuid group variables level]
   [:div.wizard-group
    {:class (str "wizard-group--level-" level)}
    [:div.wizard-group__header (:group/name group)]
    [:div.wizard-group__outputs
-    (for [variable variables]
-      ^{:key (:db/id variable)}
-      [wizard-output ws-uuid variable])]])
+    (if (:group/single-select? group)
+      [wizard-single-select-outupt ws-uuid group variables]
+      (for [variable variables]
+        ^{:key (:db/id variable)}
+        [wizard-output ws-uuid variable]))]])

@@ -58,7 +58,7 @@
     @(subscribe [:pull-children :list/options list])))
 
 (reg-sub
- :submodule/is-output? 
+ :submodule/is-output?
   (fn [[_ submodule-id]]
     (subscribe [:query
                    '[:find ?io .

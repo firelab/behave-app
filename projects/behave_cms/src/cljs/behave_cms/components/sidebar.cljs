@@ -75,13 +75,14 @@
    {:display        "flex"
     :flex-direction "column"
     :overflow-y     "scroll"}
-   (for [{:keys [label link]} options]
-     ^{:key label}
-     [:a {:class        (<class $option)
-          :tabindex     0
-          :on-key-press (on-enter-space #(navigate link))
-          :on-click     (on-click #(navigate link))}
-      label])])
+   (map (fn [{:keys [label link]}]
+          ^{:key label}
+          [:a {:class        (<class $option)
+               :tabindex     0
+               :on-key-press (on-enter-space #(navigate link))
+               :on-click     (on-click #(navigate link))}
+           label])
+        options)])
 
 ;;; Public
 

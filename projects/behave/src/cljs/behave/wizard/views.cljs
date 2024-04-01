@@ -353,55 +353,58 @@
 
 (defn settings-form
   [{:keys [ws-uuid title headers rf-event-id rf-sub-id min-attr-id max-attr-id]}]
-  (let [*gv-uuid+min+max-entries (subscribe [rf-sub-id ws-uuid])
-        *default-max-values      (subscribe [:worksheet/output-uuid->result-max-values ws-uuid])
-        *default-min-values      (subscribe [:worksheet/output-uuid->result-min-values ws-uuid])
-        maximums                 (number-inputs {:saved-entries  (map (fn remove-min-val[[gv-uuid _min-val max-val enabled?]]
-                                                                        [gv-uuid max-val enabled?])
-                                                                      @*gv-uuid+min+max-entries)
-                                                 :on-change      #(update-setting-input ws-uuid rf-event-id max-attr-id %1 %2)
-                                                 :default-values @*default-max-values})
-        minimums                 (number-inputs {:saved-entries  (map (fn remove-max-val [[gv-uuid min-val _max-val enabled?]]
-                                                                        [gv-uuid min-val enabled?])
-                                                                      @*gv-uuid+min+max-entries)
-                                                 :min-attr-id    max-attr-id
-                                                 :on-change      #(update-setting-input ws-uuid rf-event-id min-attr-id %1 %2)
-                                                 :default-values @*default-min-values})
-        output-ranges            (map (fn [[gv-uuid & _rest]]
-                                        (let [min-val     (get @*default-min-values gv-uuid)
-                                              min-val-fmt (if (< min-val 1) "%.1f" "%d")
-                                              max-val     (get @*default-max-values gv-uuid)
-                                              max-val-fmt (if (< max-val 1) "%.1f" "%d")
-                                              fmt         (gstring/format "%s - %s" min-val-fmt max-val-fmt)]
-                                          (gstring/format fmt min-val max-val)))
-                                      @*gv-uuid+min+max-entries)
-        names                    (map (fn get-variable-name [[gv-uuid _min _max]]
-                                        @(subscribe [:wizard/gv-uuid->resolve-result-variable-name gv-uuid]))
-                                      @*gv-uuid+min+max-entries)
-        enabled-check-boxes      (when (= rf-event-id :worksheet/update-table-filter-attr)
-                                   (map (fn [[gv-uuid _min _max enabled?]]
-                                          [c/checkbox {:checked?  enabled?
-                                                       :on-change #(dispatch [:worksheet/toggle-enable-filter ws-uuid gv-uuid])}])
-                                        @*gv-uuid+min+max-entries))
-        column-keys              (mapv (fn [idx] (keyword (str "col" idx))) (range (count headers)))
-        row-data                 (if enabled-check-boxes
-                                   (map (fn build-row [& args]
-                                          (into {}
-                                                (map (fn [x y] [x y])
-                                                     column-keys args)))
-                                        enabled-check-boxes
-                                        names
-                                        output-ranges
-                                        minimums
-                                        maximums)
-                                   (map (fn build-row [& args]
-                                          (into {}
-                                                (map (fn [x y] [x y])
-                                                     column-keys args)))
-                                        names
-                                        output-ranges
-                                        minimums
-                                        maximums))]
+  (let [*gv-uuid+min+max-entries       (subscribe [rf-sub-id ws-uuid])
+        *gv-order                      (subscribe [:vms/group-variable-order ws-uuid])
+        gv-uuid+min+max-entries-sorted (->> @*gv-uuid+min+max-entries
+                                            (sort-by #(.indexOf @*gv-order (first %))))
+        *default-max-values            (subscribe [:worksheet/output-uuid->result-max-values ws-uuid])
+        *default-min-values            (subscribe [:worksheet/output-uuid->result-min-values ws-uuid])
+        maximums                       (number-inputs {:saved-entries  (map (fn remove-min-val[[gv-uuid _min-val max-val enabled?]]
+                                                                              [gv-uuid max-val enabled?])
+                                                                            gv-uuid+min+max-entries-sorted)
+                                                       :on-change      #(update-setting-input ws-uuid rf-event-id max-attr-id %1 %2)
+                                                       :default-values @*default-max-values})
+        minimums                       (number-inputs {:saved-entries  (map (fn remove-max-val [[gv-uuid min-val _max-val enabled?]]
+                                                                              [gv-uuid min-val enabled?])
+                                                                            gv-uuid+min+max-entries-sorted)
+                                                       :min-attr-id    max-attr-id
+                                                       :on-change      #(update-setting-input ws-uuid rf-event-id min-attr-id %1 %2)
+                                                       :default-values @*default-min-values})
+        output-ranges                  (map (fn [[gv-uuid & _rest]]
+                                              (let [min-val     (get @*default-min-values gv-uuid)
+                                                    min-val-fmt (if (< min-val 1) "%.1f" "%d")
+                                                    max-val     (get @*default-max-values gv-uuid)
+                                                    max-val-fmt (if (< max-val 1) "%.1f" "%d")
+                                                    fmt         (gstring/format "%s - %s" min-val-fmt max-val-fmt)]
+                                                (gstring/format fmt min-val max-val)))
+                                            gv-uuid+min+max-entries-sorted)
+        names                          (map (fn get-variable-name [[gv-uuid _min _max]]
+                                              @(subscribe [:wizard/gv-uuid->resolve-result-variable-name gv-uuid]))
+                                            gv-uuid+min+max-entries-sorted)
+        enabled-check-boxes            (when (= rf-event-id :worksheet/update-table-filter-attr)
+                                         (map (fn [[gv-uuid _min _max enabled?]]
+                                                [c/checkbox {:checked?  enabled?
+                                                             :on-change #(dispatch [:worksheet/toggle-enable-filter ws-uuid gv-uuid])}])
+                                              gv-uuid+min+max-entries-sorted))
+        column-keys                    (mapv (fn [idx] (keyword (str "col" idx))) (range (count headers)))
+        row-data                       (if enabled-check-boxes
+                                         (map (fn build-row [& args]
+                                                (into {}
+                                                      (map (fn [x y] [x y])
+                                                           column-keys args)))
+                                              enabled-check-boxes
+                                              names
+                                              output-ranges
+                                              minimums
+                                              maximums)
+                                         (map (fn build-row [& args]
+                                                (into {}
+                                                      (map (fn [x y] [x y])
+                                                           column-keys args)))
+                                              names
+                                              output-ranges
+                                              minimums
+                                              maximums))]
     [:div.settings-form
      (c/table {:title   title
                :headers headers

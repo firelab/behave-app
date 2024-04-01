@@ -63,6 +63,16 @@
     :db/valueType   :db.type/boolean
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident       :group-variable/conditionally-set?
+    :db/doc         "Whether a Group Variable is conditionally set and should not be shown."
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :group-variable/hide-result?
+    :db/doc         "Whether a Group Variable is hidden from results, used primarly for conditionally set group-variables logic."
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
+
    {:db/ident       :group-variable/order
     :db/doc         "Group variable's order."
     :db/valueType   :db.type/long
@@ -89,7 +99,8 @@
    {:db/ident       :group-variable/actions
     :db/doc         "Group variable's actions."
     :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/many}])
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}])
 
 ;;; Tests
 

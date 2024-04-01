@@ -85,7 +85,8 @@
 (rf/reg-event-fx
  :wizard/before-solve
  (fn [_ [_ {:keys [ws-uuid]}]]
-   {:fx [[:dispatch [:worksheet/delete-existing-diagrams ws-uuid]]
+   {:fx [[:dispatch [:worksheet/proccess-conditonally-set-output-group-variables ws-uuid]]
+         [:dispatch [:worksheet/delete-existing-diagrams ws-uuid]]
          [:dispatch [:worksheet/delete-existing-result-table ws-uuid]]
          [:dispatch [:state/set :worksheet-computing? true]]]}))
 

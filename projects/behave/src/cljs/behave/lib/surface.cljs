@@ -69,6 +69,9 @@
 (defn getBackingFlameLength [self lengthUnits]
   (.getBackingFlameLength self lengthUnits))
 
+(defn getBackingFirelineIntensity [self firelineIntensityUnits]
+  (.getBackingFirelineIntensity self firelineIntensityUnits))
+
 (defn getBackingSpreadDistance [self lengthUnits]
   (.getBackingSpreadDistance self lengthUnits))
 
@@ -209,6 +212,12 @@
 
 (defn getFlankingSpreadRate [self spreadRateUnits]
   (.getFlankingSpreadRate self spreadRateUnits))
+
+(defn getFlankingFlameLength [self lengthUnits]
+  (.getFlankingFlameLength self lengthUnits))
+
+(defn getFlankingFirelineIntensity [self lengthUnits]
+  (.getFlankingFirelineIntensity self lengthUnits))
 
 (defn getFuelCode [self fuelModelNumber]
   (.getFuelCode self fuelModelNumber))
