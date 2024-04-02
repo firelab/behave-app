@@ -1,0 +1,9 @@
+{:paths ["src" "resources"]
+ :deps {;; Bases
+
+        ;; Components
+        sig/datom-utils {:local/root "../../components/datom_utils"}
+
+        ;; Clojure Deps
+        com.datomic/peer {:mvn/version "1.0.7075"}}
+ :aliases {:test {:extra-paths ["test"]}}}

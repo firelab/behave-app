@@ -1,31 +1,14 @@
 (ns behave-cms.store
-  (:require [behave.schema.core    :refer [all-schemas]]
-            [datahike.api          :as d]
-            [datahike-store.main   :as s]
-            [config.interface      :refer [get-config]]
-            [datom-utils.interface :refer [safe-deref unwrap]]))
+  (:require [behave.schema.core :refer [all-schemas]]
+            [datomic-store.main :as s]
+            [config.interface   :refer [get-config]]))
 
-(defn connect! [config & [reset?]]
+(defn connect! [db-config & [reset?]]
   (if reset?
-    (s/reset-datahike! config all-schemas)
-    (s/default-conn config all-schemas #(s/migrate! % all-schemas))))
+    (s/reset-db! db-config all-schemas)
+    (s/default-conn db-config all-schemas #(s/migrate! % all-schemas))))
 
 (defn default-conn []
-  (if (nil? @s/conn)
-    (connect! (get-config :database :config))
-    @s/conn))
-
-(defn get-entity [db {id :db/id}]
-  (d/pull (safe-deref db) '[*] id))
-
-(defn create-entity! [db data]
-  (let [db (unwrap db)]
-    (s/transact db [(assoc data :db/id -1)])))
-
-(defn update-entity! [db data]
-  (let [db (unwrap db)]
-    (s/transact db [data])))
-
-(defn delete-entity! [db {id :db/id}]
-  (let [db (unwrap db)]
-    (s/transact db [[:db/retractEntity id]])))
+  (if (nil? @s/datomic-conn)
+    (connect! (get-config :database))
+    @s/datomic-conn))

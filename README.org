@@ -3,14 +3,18 @@
 * Prerequisites
 
 + OpenJDK 17
++ [[https://github.com/babashka/babashka#installation][Babashka]]
 + [[https://clojure.org/guides/install_clojure][Clojure]]
++ Postgres (>=12)
 
 * Getting Started
 
-**  Emacs/CIDER
+** Emacs/CIDER
 
 1. Pull down the repository (~git clone git@gitlab.com:sig-gis/behave-polylith~)
 1. Pull down the submodules (~git submodule update --init --remote~)
+1. Follow the Datomic Setup (see below)
+1. Start the Datomic Transactor (see below)
 1. Open ~development/user.cljs~ in Emacs
 1. Start the CIDER nREPL ~cider-jack-in-clj&cljs~
 1. Choose ~figwheel-main~ and ~dev~ for the front-end build.
@@ -66,7 +70,7 @@ front-end accesses Datoms through [[https://github.com/tonsky/datascript][DataSc
 enable subscriptions on DataScript entities, reducing view logic.
 
 * Projects
-** behave
+** App (=projects/behave=)
 *** Schema
 
 #+begin_src dot :results value :file projects/behave/docs/schema.png
@@ -217,7 +221,47 @@ bb uber
 4. Congratulations! You're now the owner of an UberJAR.
    (i.e. ~target/behave7-2023.10.19-97f1ef9-standalone.jar~)
 
-** behave_cms
+
+** Behave CMS (=projects/behave_cms=)
+
+*** Schema
+
+TODO
+
+*** Datomic Setup
+
+**** Download & Setup Datomic Pro
+#+BEGIN_SRC bash
+  mkdir -p ~/.datomic
+  cd ~/.datomic
+  curl -O https://datomic-pro-downloads.s3.amazonaws.com/1.0.7075/datomic-pro-1.0.7075.zip
+  unzip *.zip
+  ln -s $PWD/datomic-pro-1.0.7075 $PWD/current
+  echo 'export PATH="$HOME/.datomic/current/bin:$PATH"' >> ~/.bashrc # Or ~/.zshrc
+#+END_SRC
+
+**** Setting up PostgreSQL for Datomic
+
+Be sure that PostgreSQL is running on port 5432.
+
+#+BEGIN_SRC bash
+  cd /bases/datomic_store/sql/
+  psql -U postgres -f 01_setup.sql # Creates the Datomic DB, User
+  psql -U datomic datomic -f 02_tables.sql # Sets up the KV table
+#+END_SRC
+
+**** Running the Transactor
+#+BEGIN_SRC bash
+  bb transactor
+#+END_SRC
+
+**** Running the Datomic Console
+#+BEGIN_SRC bash
+  bb console
+#+END_SRC
+
+Then visit [[http://localhost:8000/browse][localhost:8000/browse]]
+
 * Schema ERDs
 ** VMS
 

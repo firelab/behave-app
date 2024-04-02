@@ -1,9 +1,10 @@
 (ns behave-cms.sync
   (:require [datom-compressor.interface :as c]
-            [datahike-store.main        :as s]
+            [datomic-store.main         :as s]
             [data-utils.interface       :refer [parse-int]]
             [transport.interface        :refer [clj-> mime->type]]
-            [behave-cms.views           :refer [data-response]])
+            [behave-cms.views           :refer [data-response]]
+            [behave.schema.core         :refer [all-schemas]])
   (:import  [java.io ByteArrayInputStream]))
 
 (defn sync-handler [{:keys [request-method params accept session]}]
@@ -12,8 +13,8 @@
       :get
       (let [tx     (:tx params)
             datoms (if (nil? tx)
-                     (s/export-datoms @s/conn)
-                     (s/latest-datoms @s/conn (parse-int tx)))]
+                     (s/export-datoms s/datomic-conn true all-schemas)
+                     (s/latest-datoms s/datomic-conn (parse-int tx) true all-schemas))]
         {:status  200
          :body    (if (= res-type :msgpack)
                     (ByteArrayInputStream. (c/pack datoms))
@@ -22,7 +23,7 @@
 
       :post
       (if (:user-uuid session)
-        (let [_ (s/sync-datoms s/conn (:tx-data params))]
+        (let [_ (s/sync-datoms s/datomic-conn (:tx-data params) all-schemas)]
           {:status  201
            :body    (clj-> {:success true} res-type)
            :headers {"Content-Type" accept}})

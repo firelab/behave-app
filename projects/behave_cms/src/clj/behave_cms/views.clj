@@ -6,7 +6,7 @@
             [clojure.data.json :as json]
             [cognitect.transit :as transit]
             [msgpack.core      :as msg]
-            [msgpack.clojure-extensions]
+            [msgpack.extensions]
             [config.interface  :refer [get-config]]
             [hiccup.page       :refer [html5 include-css include-js]]))
 

@@ -1,7 +1,4 @@
-{:paths ["src" "resources"]
- :deps {;; Clojure
-        clojure-msgpack/clojure-msgpack    {:mvn/version "1.2.1"}
-
-        ;; ClojureScript
-        org.clojars.ertucetin/msgpack-cljs {:mvn/version "0.1.2"}}
+{:paths   ["src" "resources"]
+ :deps    {;; Clojure Commons
+           com.github.rosejn/msgpack-cljc {:mvn/version "2.0.359"}}
  :aliases {:test {:extra-paths ["test"]}}}

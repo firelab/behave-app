@@ -29,7 +29,7 @@
 
    {:db/ident       :subtool/order
     :db/doc         "Subtool's order."
-    :db/valueType   :db.type/number
+    :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :subtool/variables
