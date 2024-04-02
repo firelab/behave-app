@@ -143,7 +143,7 @@
                              {:value value :label label}) @options))}]]]]))
 
 (defn add-conditionals [gv-id]
-  (r/with-let [group-id        (get-in @(rf/subscribe [:pull '[{:group/_group-variables [*]}] gv-id]) [:group/_group-variables 0 :db/id])
+  (r/with-let [group-id        (get-in @(rf/subscribe [:pull '[{:group/_group-variables [*]}] gv-id]) [:group/_group-variables :db/id])
                cond-path       [:editors :action]
                conditionals    (rf/subscribe [:state (conj cond-path :action/conditionals)])
                cond-op         (rf/subscribe [:state (conj cond-path :action/conditionals-operator)])
