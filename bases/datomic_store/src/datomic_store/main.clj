@@ -139,7 +139,7 @@
   (when (coll? tx-data)
     (let [tx (d/transact (unwrap-conn conn) tx-data)]
       (swap! tx-queue conj tx)
-      tx)))
+      @tx)))
 
 (defn init-db!
   "Connects to and intializes the DB with `schema`."

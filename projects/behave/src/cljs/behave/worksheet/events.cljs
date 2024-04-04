@@ -818,10 +818,10 @@
  :worksheet/proccess-conditonally-set-output-group-variables
 
  [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet  ws-uuid]))
-  (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:wizard/conditionally-set-output-group-variables ws-uuid]))]
+  (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:wizard/conditionally-set-group-variables ws-uuid]))]
 
  (fn [{worksheet       :worksheet
-       group-variables :wizard/conditionally-set-output-group-variables} [_ ws-uuid]]
+       group-variables :wizard/conditionally-set-group-variables} [_ ws-uuid]]
    (let [reset-map   (zipmap (map :bp/uuid group-variables) (repeat false))
          enabled-map (->> group-variables
                           (mapcat (fn [{group-variable-uuid :bp/uuid
@@ -850,3 +850,14 @@
                                     (:bp/uuid %)
                                     false]])
                       siblings))})))
+
+(rf/reg-event-fx
+ :worksheet/proccess-conditonally-set-input-group-variables
+ [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:wizard/conditionally-set-input-data ws-uuid]))]
+ (fn [{data :wizard/conditionally-set-input-data}
+      [_ ws-uuid]]
+   (let [payload (for [[group-uuid group-variable-uuid default-value] data
+                       :when                                          default-value]
+                   [:dispatch [:wizard/upsert-input-variable
+                               ws-uuid group-uuid 0 group-variable-uuid default-value]])]
+     {:fx payload})))
