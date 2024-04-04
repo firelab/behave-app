@@ -70,7 +70,7 @@
                                                                                                  cljsjs/react-dom]}
              sig/behave-routing                 {:local/root "../../bases/behave_routing"}
              sig/behave-schema                  {:local/root "../../bases/behave_schema"}
-             sig/datom-store                    {:local/root "../../bases/datahike_store" :exclusions [io.replikativ/datahike]}}
+             sig/datomic-store                  {:local/root "../../bases/datomic_store" :exclusions [io.replikativ/datahike]}}
 
  :aliases   {:server           {:main-opts ["-m" "behave-cms.server"]}
              :figwheel-lib     {:extra-deps {com.bhauman/figwheel-main {:mvn/version "0.2.13"}}}
