@@ -23,7 +23,7 @@
          acc                           []]
 
     (cond
-      (and current-group @(subscribe [:wizard/inputs-table-show-group?
+      (and current-group @(subscribe [:wizard/show-group?
                                       ws-uuid
                                       (:db/id current-group)
                                       (:group/conditionals-operator current-group)]))

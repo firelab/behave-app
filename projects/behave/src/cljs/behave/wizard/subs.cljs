@@ -34,7 +34,7 @@
    (map (fn [submodule]
           (-> submodule
               (assoc :slug (-> submodule (:submodule/name) (->kebab)))
-              (assoc :submodule/groups @(subscribe [:wizard/groups (:db/id submodule)]))))
+              (assoc :submodule/groups @(subscribe [:wizard/groups-for-result-table (:db/id submodule)]))))
         submodules)))
 
 (reg-sub
@@ -134,19 +134,6 @@
       (seq (:group/children group))
       (assoc :group/children
              (map edit-groups (:group/children group))))))
-
-(reg-sub
- :wizard/groups-for-result-table
- (fn [[_ submodule-id]]
-   (subscribe [:vms/pull-children
-               :submodule/groups
-               submodule-id
-               '[* {:group/group-variables [* {:variable/_group-variables [* {:variable/list [* {:list/options [*]}]}]}]}
-                 {:group/children 6}]])) ;; recursively apply pattern up to 6 levels deep
-
- (fn [groups]
-   (->> (mapv edit-groups-for-result-table groups)
-        (sort-by #(:group/order %)))))
 
 ;; Subgroups
 
@@ -498,19 +485,6 @@
         (not (:group/research? group-entity))
         (or (some #(not (:group-variable/conditionally-set? %)) (:group/group-variables group-entity))
             (seq (:group/children group-entity))))))
-
-(reg-sub
- :wizard/inputs-table-show-group?
- (fn [[_ ws-uuid group-id & _rest]]
-   [(subscribe [:worksheet ws-uuid])
-    (subscribe [:vms/entity-from-eid group-id])])
-
- (fn [[worksheet group-entity] [_ _ws-uuid _group-id conditionals-operator]]
-   (let [{conditionals :group/conditionals} group-entity]
-    (and (if (seq conditionals)
-           (all-conditionals-pass? worksheet conditionals-operator conditionals)
-           true)
-         (not (:group/research? group-entity))))))
 
 (reg-sub
  :wizard/show-submodule?
