@@ -34,7 +34,7 @@
    (map (fn [submodule]
           (-> submodule
               (assoc :slug (-> submodule (:submodule/name) (->kebab)))
-              (assoc :submodule/groups @(subscribe [:wizard/groups-for-result-table (:db/id submodule)]))))
+              (assoc :submodule/groups @(subscribe [:wizard/groups (:db/id submodule)]))))
         submodules)))
 
 (reg-sub
