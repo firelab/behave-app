@@ -2,28 +2,6 @@
   (:require [datomic.api :as d]
             [datomic-store.main :as ds]))
 
-(defn migrate-attr-is-component
-  "Sets :db/isComponent true for a given schema attribute"
-  [conn attr]
-  (let [eid (d/q '[:find ?e .
-                   :in $ ?attr
-                   :where [?e :db/ident ?attr]]
-                 (ds/unwrap-db conn)
-                 attr)]
-    (ds/transact conn [{:db/id          eid
-                        :db/isComponent true}])))
-
-(defn migrate-attr-is-unique-identity
-  "Sets :db/isComponent true for a given schema attribute"
-  [conn attr]
-  (let [eid (d/q '[:find ?e .
-                   :in $ ?attr
-                   :where [?e :db/ident ?attr]]
-                 (ds/unwrap-db conn)
-                 attr)]
-    (ds/transact conn [{:db/id     eid
-                        :db/unique :db.unique/identity}])))
-
 (defn- submodule [conn t]
   (->> t
        (d/q '[:find ?e .
@@ -52,7 +30,22 @@
   [conn t]
   (:db/id (t-key->entity conn t)))
 
-(defn rollback-tx
+(defn make-attr-is-component-payload
+  "Returns a payload for updating a given attribute to include :db/isComponent true"
+  [conn attr]
+  (let [eid (d/q '[:find ?e .
+                   :in $ ?attr
+                   :where [?e :db/ident ?attr]]
+                 (ds/unwrap-db conn)
+                 attr)]
+    {:db/id          eid
+     :db/isComponent true}))
+
+(defn make-attr-is-component!
+  [conn attr]
+  (ds/transact conn (make-attr-is-component-payload conn attr)))
+
+(defn rollback-tx!
   "Given a transaction ID or a transaction result (return from datomic.api/transact), Reassert
   retracted datoms and retract asserted datoms in a transaction, effectively \"undoing\" the
   transaction."
