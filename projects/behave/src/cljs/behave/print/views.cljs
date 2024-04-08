@@ -1,10 +1,10 @@
 (ns behave.print.views
-  (:require [re-frame.core                      :refer [subscribe dispatch]]
+  (:require [re-frame.core                          :refer [subscribe dispatch]]
             [behave.print.subs]
-            [behave.components.results.graphs   :refer [result-graphs]]
-            [behave.components.results.diagrams :refer [result-diagrams]]
-            [behave.components.results.matrices :refer [result-matrices]]
-            [behave.components.results.inputs   :refer [inputs-table]]))
+            [behave.components.results.graphs       :refer [result-graphs]]
+            [behave.components.results.diagrams     :refer [result-diagrams]]
+            [behave.components.results.matrices     :refer [result-matrices]]
+            [behave.components.results.inputs.views :refer [inputs-table]]))
 
 (defn- wizard-notes [notes]
   (when (seq notes)

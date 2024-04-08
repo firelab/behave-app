@@ -34,7 +34,7 @@
    (map (fn [submodule]
           (-> submodule
               (assoc :slug (-> submodule (:submodule/name) (->kebab)))
-              (assoc :submodule/groups @(subscribe [:wizard/groups-for-result-table (:db/id submodule)]))))
+              (assoc :submodule/groups @(subscribe [:wizard/groups (:db/id submodule)]))))
         submodules)))
 
 (reg-sub
@@ -95,8 +95,8 @@
                           (merge variable-data)
                           (dissoc :variable/group-variables)
                           (update :variable/kind keyword)))
-                   (remove #(or (:group-variable/research? %)
-                                (:group-variable/conditionally-set? %)) ;; TODO: Remove when "Research Mode" is enabled
+                   (remove #(or (:group-variable/research? %) ;; TODO: Remove when "Research Mode" is enabled
+                                (:group-variable/conditionally-set? %))
                            (:group/group-variables group))))
 
       (seq (:group/children group))
@@ -397,10 +397,12 @@
          conditionals)))
 
 (defn all-conditionals-pass? [worksheet conditionals-operator conditionals]
-  (let [resolved-conditionals (resolve-conditionals worksheet conditionals)]
-    (if (= conditionals-operator :or)
-      (some true? resolved-conditionals)
-      (every? true? resolved-conditionals))))
+  (if (seq conditionals)
+    (let [resolved-conditionals (resolve-conditionals worksheet conditionals)]
+      (if (= conditionals-operator :or)
+        (some true? resolved-conditionals)
+        (every? true? resolved-conditionals)))
+    true))
 
 (reg-sub
  :wizard/conditional-io+group-uuid
@@ -479,9 +481,7 @@
     (subscribe [:vms/entity-from-eid group-id])])
 
  (fn [[worksheet conditionals group-entity] [_ _ws-uuid _group-id conditionals-operator]]
-   (and (if (seq conditionals)
-          (all-conditionals-pass? worksheet conditionals-operator conditionals)
-          true)
+   (and (all-conditionals-pass? worksheet conditionals-operator conditionals)
         (not (:group/research? group-entity))
         (or (some #(not (:group-variable/conditionally-set? %)) (:group/group-variables group-entity))
             (seq (:group/children group-entity))))))
@@ -493,9 +493,7 @@
     (rf/subscribe [:vms/pull-children :submodule/conditionals submodule-id])])
 
  (fn [[worksheet conditionals] [_ _ws-uuid _submodule-id conditionals-operator]]
-   (if (seq conditionals)
-     (all-conditionals-pass? worksheet conditionals-operator conditionals)
-     true)))
+   (all-conditionals-pass? worksheet conditionals-operator conditionals)))
 
 (reg-sub
  :wizard/diagram-input-gv-uuids
@@ -604,13 +602,6 @@
           :bp/uuid
           #(deref (rf/subscribe [:wizard/default-option ws-uuid (:bp/uuid %)])))
          group-variables)))
-
-(comment
-  (rf/subscribe [:wizard/conditionally-set-input-group-variables "660db4b6-7ae2-41b4-9ba6-b1db42251649"])
-
-  (rf/subscribe [:wizard/conditionally-set-input-data "660db4b6-7ae2-41b4-9ba6-b1db42251649"])
-
-  )
 
 (reg-sub
  :wizard/selected-group-variables

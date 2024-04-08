@@ -33,17 +33,17 @@
 (defn make-attr-is-component-payload
   "Returns a payload for updating a given attribute to include :db/isComponent true"
   [conn attr]
-  (let [eid (d/q '[:find ?e .
-                   :in $ ?attr
-                   :where [?e :db/ident ?attr]]
-                 (ds/unwrap-db conn)
-                 attr)]
+  (when-let [eid (d/q '[:find ?e .
+                        :in $ ?attr
+                        :where [?e :db/ident ?attr]]
+                      (ds/unwrap-db conn)
+                      attr)]
     {:db/id          eid
      :db/isComponent true}))
 
 (defn make-attr-is-component!
   [conn attr]
-  (ds/transact conn (make-attr-is-component-payload conn attr)))
+  (ds/transact conn [(make-attr-is-component-payload conn attr)]))
 
 (defn rollback-tx!
   "Given a transaction ID or a transaction result (return from datomic.api/transact), Reassert

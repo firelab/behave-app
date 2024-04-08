@@ -91,7 +91,8 @@
    {:db/ident       :group/conditionals
     :db/doc         "Group's conditionals. Determines whether the Group should be displayed based on the conditional."
     :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/many}
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
 
    {:db/ident       :group/conditionals-operator
     :db/doc         "Group's conditional operator, which only applies for multiple conditionals. Can be either: `:and`, `:or`."

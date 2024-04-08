@@ -40,7 +40,8 @@
    {:db/ident       :module/submodules
     :db/doc         "Module's submodules."
     :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/many}
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
 
    {:db/ident       :module/translation-key
     :db/doc         "Module's translation key."

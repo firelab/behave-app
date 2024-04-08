@@ -54,7 +54,8 @@
    {:db/ident       :submodule/groups
     :db/doc         "Subodule's groups."
     :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/many}
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
 
    {:db/ident       :submodule/research?
     :db/doc         "Whether a Submodule is for research."
@@ -74,7 +75,8 @@
    {:db/ident       :submodule/conditionals
     :db/doc         "Submodule's conditionals. Determines whether the Group should be displayed based on the conditional."
     :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/many}
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
 
    {:db/ident       :submodule/conditionals-operator
     :db/doc         "Submodule's conditional operator, which only applies for multiple conditionals. Can be either: `:and`, `:or`."
@@ -90,4 +92,3 @@
                                :submodule/order           1
                                :submodule/translation-key "behaveplus:contain:fire"
                                :submodule/help-key        "behaveplus:contain:fire:help"}))
-
