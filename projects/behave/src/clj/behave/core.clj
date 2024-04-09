@@ -26,6 +26,7 @@
             [ring.util.codec                   :refer [url-decode]]
             [ring.util.response                :refer [not-found]]
             [server.interface                  :as server]
+            [schema-migrate.interface]
             [transport.interface               :refer [->clj mime->type]]))
 
 ;;; Constants

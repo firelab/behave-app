@@ -22,6 +22,7 @@
     (:bp/uuid (d/touch e))))
 
 (defn t-key->entity
+  "Get the datomic entity given a translation-key"
   [conn t]
   (d/entity (ds/unwrap-db conn) [:bp/uuid (t-key->uuid conn t)]))
 
