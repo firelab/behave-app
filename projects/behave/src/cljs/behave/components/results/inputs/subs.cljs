@@ -36,8 +36,8 @@
    form))
 
 (defn- has-conditionally-set-group-variables? [s-uuid]
-  (seq
-   (d/q '[:find  [?gv ...]
+  (pos?
+   (d/q '[:find  (count ?gv) .
           :in    $ % ?s-uuid
           :where
           [?s :bp/uuid ?s-uuid]
