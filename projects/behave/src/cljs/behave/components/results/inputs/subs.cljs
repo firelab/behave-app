@@ -1,10 +1,10 @@
 (ns behave.components.results.inputs.subs
-  (:require [clojure.walk :refer [prewalk]]
-            [re-frame.core :refer [reg-sub subscribe] :as rf]
-            [datascript.core        :as d]
-            [behave.vms.store       :refer [vms-conn]]
-            [behave.wizard.subs :refer [all-conditionals-pass?]]
-            [datascript.impl.entity]))
+  (:require [behave.vms.store    :refer [vms-conn]]
+            [behave.wizard.subs  :refer [all-conditionals-pass?]]
+            [clojure.walk        :refer [prewalk]]
+            [datascript.core     :as d]
+            [datascript.impl.entity]
+            [re-frame.core       :refer [reg-sub subscribe]]))
 
 (defn- export-entity
   [entity]
@@ -15,8 +15,24 @@
        x))
    entity))
 
-(defn- is-collection-of-groups [x]
-  (and (set? x) (contains? (first x) :group/name)))
+(defn- is-collection-of-groups
+  [x]
+  (and (coll? x) (contains? (first x) :group/name)))
+
+(defn- filter-group-variables
+  [worksheet form]
+  (prewalk
+   (fn [node]
+     (cond->> node
+       (is-collection-of-groups node)
+       (remove (fn [{conditional-op :group/conditional-operator
+                     conditionals   :group/conditionals
+                     research?      :group/research?}]
+                 (or (not (all-conditionals-pass? worksheet
+                                                  conditional-op
+                                                  conditionals))
+                     research?)))))
+   form))
 
 (reg-sub
  :result.inputs/submodules
@@ -27,22 +43,14 @@
    (->> module-id
         (d/entity @@vms-conn)
         (:module/submodules)
-        (mapv d/touch)
+        (map d/touch)
         (export-entity) ;; ensures prewalk works properly
-        (filterv #(= (:submodule/io %) :input))
-        (filterv #(not (:submodule/research? %)))
-        (filterv (fn [{conditionals-op :submodule/conditionals-operator
-                       conditionals    :submodule/conditionals}]
-                   (all-conditionals-pass? worksheet
-                                           conditionals-op
-                                           conditionals)))
-        (prewalk (fn [node]
-                   (if (is-collection-of-groups node)
-                     (remove (fn [group]
-                               (or (not (all-conditionals-pass? worksheet
-                                                                (:group/conditional-operator group)
-                                                                (:group/conditionals group)))
-                                   (:group/research? group)))
-                             node)
-                     node)))
+        (filter #(= (:submodule/io %) :input))
+        (filter #(not (:submodule/research? %)))
+        (filter (fn [{conditionals-op :submodule/conditionals-operator
+                      conditionals    :submodule/conditionals}]
+                  (all-conditionals-pass? worksheet
+                                          conditionals-op
+                                          conditionals)))
+        (filter-group-variables worksheet)
         (sort-by :submodule/order))))
