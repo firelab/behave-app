@@ -818,7 +818,7 @@
  :worksheet/proccess-conditonally-set-output-group-variables
 
  [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet  ws-uuid]))
-  (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:wizard/conditionally-set-group-variables ws-uuid]))]
+  (rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:wizard/conditionally-set-group-variables ws-uuid :output]))]
 
  (fn [{worksheet       :worksheet
        group-variables :wizard/conditionally-set-group-variables} [_ ws-uuid]]

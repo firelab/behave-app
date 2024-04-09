@@ -4,6 +4,7 @@
             [clojure.walk        :refer [prewalk]]
             [datascript.core     :as d]
             [datascript.impl.entity]
+            [behave.schema.core     :refer [rules]]
             [re-frame.core       :refer [reg-sub subscribe]]))
 
 (defn- export-entity
@@ -25,14 +26,25 @@
    (fn [node]
      (cond->> node
        (is-collection-of-groups node)
-       (remove (fn [{conditional-op :group/conditional-operator
+       (filter (fn [{conditional-op :group/conditional-operator
                      conditionals   :group/conditionals
                      research?      :group/research?}]
-                 (or (not (all-conditionals-pass? worksheet
-                                                  conditional-op
-                                                  conditionals))
-                     research?)))))
+                 (and (not research?)
+                      (all-conditionals-pass? worksheet
+                                              conditional-op
+                                              conditionals))))))
    form))
+
+(defn- has-conditionally-set-group-variables? [s-uuid]
+  (seq
+   (d/q '[:find  [?gv ...]
+          :in    $ % ?s-uuid
+          :where
+          [?s :bp/uuid ?s-uuid]
+          (group ?s ?g)
+          (group-variable ?g ?gv ?v)
+          [?gv :group-variable/conditionally-set? true]]
+        @@vms-conn rules s-uuid)))
 
 (reg-sub
  :result.inputs/submodules
@@ -45,12 +57,16 @@
         (:module/submodules)
         (map d/touch)
         (export-entity) ;; ensures prewalk works properly
-        (filter #(= (:submodule/io %) :input))
-        (filter #(not (:submodule/research? %)))
-        (filter (fn [{conditionals-op :submodule/conditionals-operator
-                      conditionals    :submodule/conditionals}]
-                  (all-conditionals-pass? worksheet
-                                          conditionals-op
-                                          conditionals)))
+        (filter (fn [{io              :submodule/io
+                      research?       :submodule/research?
+                      conditionals-op :submodule/conditionals-operator
+                      conditionals    :submodule/conditionals
+                      s-uuid          :bp/uuid}]
+                  (and (= io :input)
+                       (not research?)
+                       (or (all-conditionals-pass? worksheet
+                                                   conditionals-op
+                                                   conditionals)
+                           (has-conditionally-set-group-variables? s-uuid)))))
         (filter-group-variables worksheet)
         (sort-by :submodule/order))))
