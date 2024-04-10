@@ -34,7 +34,10 @@
   (when ok
     (let [raw-datoms (c/unpack body)
           bad-attrs  (db-attrs raw-datoms)
-          datoms     (remove #(bad-attrs (second %)) raw-datoms)
+          datoms     (remove (fn [[_ attr vval]]
+                               (or (bad-attrs attr)
+                                   (nil? vval)))
+                             raw-datoms)
           datoms-map (datoms->map datoms)]
       (swap! sync-txs union (txs datoms))
       (rf/dispatch-sync [:ds/initialize (->ds-schema all-schemas) datoms-map]))))
