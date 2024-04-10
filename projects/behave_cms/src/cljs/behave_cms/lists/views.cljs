@@ -7,7 +7,8 @@
             [behave-cms.components.entity-form :refer [entity-form]]
             [behave-cms.utils                  :as u]
             [behave-cms.events]
-            [behave-cms.subs]))
+            [behave-cms.subs]
+            [behave-cms.components.translations :refer [all-translations]]))
 
 (def columns [:list/name])
 
@@ -62,7 +63,9 @@
                                     :type      :radio
                                     :field-key :list-option/default
                                     :options   [{:label "False" :value false}
-                                                {:label "True" :value true}]}]}]]))
+                                                {:label "True" :value true}]}]}]
+     [all-translations (:list-option/translation-key @*list-option)]
+     [all-translations (:list-option/result-translation-key @*list-option)]]))
 
 (defn list-form [list]
   [:<>
@@ -74,12 +77,12 @@
                    :id     (when list (:db/id list))
                    :fields [{:label     "Name"
                              :required? true
-                             :field-key :list/name}]}]]
+                             :field-key :list/name}]}]]]
+   [:div.row
     [:div.col-6
      [:h4 "All Options"]
      [list-options-table list]]
-
-    [:div.col-3
+    [:div.col-6
      [list-option-form list]]]])
 
 (defn list-lists-page [_]

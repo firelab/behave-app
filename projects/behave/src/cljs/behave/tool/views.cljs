@@ -92,10 +92,10 @@
                                                  auto-compute?])
         num-options               (count options)
         ->option                  (fn [{value    :list-option/value
-                                        l-name   :list-option/name
+                                        t-key    :list-option/translation-key
                                         default? :list-option/default}]
                                     {:value     value
-                                     :label     l-name
+                                     :label     @(<t t-key)
                                      :on-change on-change
                                      :selected? (or (= @selected value) (and (nil? @selected) default?))
                                      :checked?  (= @selected value)})]
