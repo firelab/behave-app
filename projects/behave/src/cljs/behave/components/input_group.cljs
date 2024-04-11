@@ -116,7 +116,7 @@
                num-options               (count options)
                ->option                  (fn [{value :list-option/value t-key :list-option/translation-key default? :list-option/default}]
                                            {:value     value
-                                            :label     @(<t (:list-option/translation-key t-key))
+                                            :label     @(<t t-key)
                                             :on-change on-change
                                             :selected? (or (= @selected value) (and (nil? @selected) default?))
                                             :disabled? (if @disabled-options
