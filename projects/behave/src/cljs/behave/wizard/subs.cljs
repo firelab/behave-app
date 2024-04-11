@@ -95,8 +95,8 @@
                           (merge variable-data)
                           (dissoc :variable/group-variables)
                           (update :variable/kind keyword)))
-                   (remove #(or (:group-variable/research? %)
-                                (:group-variable/conditionally-set? %)) ;; TODO: Remove when "Research Mode" is enabled
+                   (remove #(or (:group-variable/research? %) ;; TODO: Remove when "Research Mode" is enabled
+                                (:group-variable/conditionally-set? %))
                            (:group/group-variables group))))
 
       (seq (:group/children group))
@@ -115,6 +115,25 @@
  (fn [groups]
    (->> (mapv edit-groups groups)
         (sort-by #(:group/order %)))))
+
+(defn- edit-groups-for-result-table [group]
+  (when group
+    (cond-> group
+      (seq (:group/group-variables group))
+      (assoc :group/group-variables
+             (mapv #(let [variable-data (rename-keys (first (:variable/_group-variables %))
+                                                     {:bp/uuid :variable/uuid})]
+                      (-> %
+                          (dissoc :variable/_group-variables)
+                          (merge variable-data)
+                          (dissoc :variable/group-variables)
+                          (update :variable/kind keyword)))
+                   (remove #(:group-variable/research? %)
+                           (:group/group-variables group))))
+
+      (seq (:group/children group))
+      (assoc :group/children
+             (map edit-groups (:group/children group))))))
 
 ;; Subgroups
 
@@ -378,10 +397,12 @@
          conditionals)))
 
 (defn all-conditionals-pass? [worksheet conditionals-operator conditionals]
-  (let [resolved-conditionals (resolve-conditionals worksheet conditionals)]
-    (if (= conditionals-operator :or)
-      (some true? resolved-conditionals)
-      (every? true? resolved-conditionals))))
+  (if (seq conditionals)
+    (let [resolved-conditionals (resolve-conditionals worksheet conditionals)]
+      (if (= conditionals-operator :or)
+        (some true? resolved-conditionals)
+        (every? true? resolved-conditionals)))
+    true))
 
 (reg-sub
  :wizard/conditional-io+group-uuid
@@ -396,31 +417,31 @@
 (reg-sub
  :wizard/_select-actions
  (fn [_ [_ gv-uuid]]
-   (->> (d/q '[:find ?a .
+   (->> (d/q '[:find [?a ...]
                :in $ ?gv-uuid
                :where
                [?gv :bp/uuid ?gv-uuid]
                [?gv :group-variable/actions ?a]
                [?a :action/type :select]]
              @@vms-conn gv-uuid)
-        (d/entity @@vms-conn)
-        (d/touch))))
+        (map #(d/touch (d/entity @@vms-conn %))))))
 
 (reg-sub
  :wizard/default-option
  (fn [[_ ws-uuid gv-uuid]]
    [(subscribe [:worksheet ws-uuid])
     (subscribe [:wizard/_select-actions gv-uuid])])
- (fn [[worksheet action]]
-   (let [conditionals  (:action/conditionals action)
-         cond-operator (:action/conditionals-operator action)
-         target-value  (:action/target-value action)
-
-         conditionals-passed?
-         (or (nil? conditionals)
-             (all-conditionals-pass? worksheet cond-operator conditionals))]
-     (when (and target-value conditionals-passed?)
-       (:action/target-value action)))))
+ (fn [[worksheet actions]]
+   (first
+    (for [action actions
+          :let   [conditionals         (:action/conditionals action)
+                  cond-operator        (:action/conditionals-operator action)
+                  target-value         (:action/target-value action)
+                  conditionals-passed? (or (nil? conditionals)
+                                           (all-conditionals-pass?
+                                            worksheet cond-operator conditionals))]
+          :when  (and target-value conditionals-passed?)]
+      (:action/target-value action)))))
 
 (reg-sub
  :wizard/_disabled-actions
@@ -460,10 +481,10 @@
     (subscribe [:vms/entity-from-eid group-id])])
 
  (fn [[worksheet conditionals group-entity] [_ _ws-uuid _group-id conditionals-operator]]
-   (and (if (seq conditionals)
-          (all-conditionals-pass? worksheet conditionals-operator conditionals)
-          true)
-        (not (:group/research? group-entity)))))
+   (and (all-conditionals-pass? worksheet conditionals-operator conditionals)
+        (not (:group/research? group-entity))
+        (or (some #(not (:group-variable/conditionally-set? %)) (:group/group-variables group-entity))
+            (seq (:group/children group-entity))))))
 
 (reg-sub
  :wizard/show-submodule?
@@ -472,9 +493,7 @@
     (rf/subscribe [:vms/pull-children :submodule/conditionals submodule-id])])
 
  (fn [[worksheet conditionals] [_ _ws-uuid _submodule-id conditionals-operator]]
-   (if (seq conditionals)
-     (all-conditionals-pass? worksheet conditionals-operator conditionals)
-     true)))
+   (all-conditionals-pass? worksheet conditionals-operator conditionals)))
 
 (reg-sub
  :wizard/diagram-input-gv-uuids
@@ -540,27 +559,49 @@
      [0 (apply max parsed-values)])))
 
 (reg-sub
- :wizard/conditionally-set-output-group-variables
+ :wizard/conditionally-set-group-variables
 
  (fn [[_ ws-uuid]]
    (subscribe [:worksheet/modules ws-uuid]))
 
- (fn [modules _]
+ (fn [modules [_ _ io]]
    (letfn [(get-conditionally-set-group-variables [module-eid]
              (d/q '[:find [?gv ...]
-                    :in $ % ?module-eid
+                    :in $ % ?module-eid ?io
                     :where
                     [?module-eid :module/submodules ?s]
-                    [?s :submodule/io :output]
+                    [?s :submodule/io ?io]
                     (group ?s ?g)
                     [?g :group/group-variables ?gv]
                     [?gv :group-variable/conditionally-set? true]]
                   @@vms-conn
                   rules
-                  module-eid))]
+                  module-eid
+                  io))]
 
      (->> (mapcat #(get-conditionally-set-group-variables (:db/id %)) modules)
           (map #(d/touch (d/entity @@vms-conn %)))))))
+
+(reg-sub
+ :wizard/conditionally-set-input-data
+
+ (fn [[_ ws-uuid]]
+   (subscribe [:wizard/conditionally-set-group-variables ws-uuid :input]))
+
+ (fn [group-variables [_ ws-uuid]]
+   (mapv (juxt
+          (fn [group-variable]
+            (d/q '[:find ?g-uuid .
+                   :in $ % ?gv
+                   :where
+                   [?g :bp/uuid ?g-uuid]
+                   (group-variable ?g ?gv ?v)]
+                 @@vms-conn
+                 rules
+                 (:db/id group-variable)))
+          :bp/uuid
+          #(deref (rf/subscribe [:wizard/default-option ws-uuid (:bp/uuid %)])))
+         group-variables)))
 
 (reg-sub
  :wizard/selected-group-variables

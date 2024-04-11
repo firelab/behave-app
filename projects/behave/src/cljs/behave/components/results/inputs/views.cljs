@@ -1,11 +1,11 @@
-(ns behave.components.results.inputs
+(ns behave.components.results.inputs.views
   (:require [behave.components.core :as c]
             [behave.print.subs]
+            [behave.components.results.inputs.subs]
             [behave.translate       :refer [<t]]
             [clojure.string         :as str]
             [goog.string            :as gstring]
-            [re-frame.core          :refer [subscribe]]
-            [re-frame.core :as rf]))
+            [re-frame.core          :refer [subscribe]]))
 
 (defn- indent-name [level s]
   (str (apply str (repeat level "    ")) s))
@@ -23,10 +23,7 @@
          acc                           []]
 
     (cond
-      (and current-group @(subscribe [:wizard/show-group?
-                                      ws-uuid
-                                      (:db/id current-group)
-                                      (:group/conditionals-operator current-group)]))
+      current-group
       (let [variables        (->> current-group (:group/group-variables) (sort-by :group-variable/variable-order))
             single-var?      (= (count variables) 1)
             multi-var?       (> (count variables) 1)
@@ -41,7 +38,7 @@
                                                               0 ;repeat-id
                                                               gv-uuid])]
                                      (when (seq value)
-                                       [{:input  (indent-name level (:group/name current-group)) ;Use group name instead of var name to match what is in the inputs UI
+                                       [{:input  (indent-name level (:group/name current-group))
                                          :units  units
                                          :values (if (:group-variable/discrete-multiple? fvar)
                                                    (->> (str/split value ",")
@@ -94,19 +91,14 @@
 
 (defn- build-rows [ws-uuid formatters gv-uuid->units submodules]
   (reduce (fn [acc submodule]
-            (let [{id :db/id
-                   op :submodule/conditionals-operator} submodule
-                  show-module?                          @(subscribe [:wizard/show-submodule? ws-uuid id op])]
-              (if show-module?
-                (cond-> (conj acc {:input (:submodule/name submodule)})
+            (cond-> (conj acc {:input (:submodule/name submodule)})
 
-                  (:submodule/groups submodule)
-                  (into (groups->row-entires ws-uuid
-                                             formatters
-                                             gv-uuid->units
-                                             (:submodule/groups submodule)
-                                             1)))
-                acc)))
+              (:submodule/groups submodule)
+              (into (groups->row-entires ws-uuid
+                                         formatters
+                                         gv-uuid->units
+                                         (:submodule/groups submodule)
+                                         1))))
           []
           submodules))
 
@@ -120,7 +112,7 @@
      (for [module-kw modules]
        (let [module-name (name module-kw)
              module      @(subscribe [:wizard/*module module-name])
-             submodules  @(subscribe [:wizard/submodules-io-input-only (:db/id module)])]
+             submodules  @(subscribe [:result.inputs/submodules ws-uuid (:db/id module)])]
          ^{:key module-kw}
          [:div.print__inputs-table
           (c/table {:title   (gstring/format "Inputs: %s"  @(<t (:module/translation-key module)))
