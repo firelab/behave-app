@@ -1,14 +1,12 @@
 (ns user)
 
 (comment
-  (do
-    (require '[behave.core :as core])
-    (core/init!)
-    (core/vms-sync!))
+  (require '[behave.core :as core])
+  (core/init!)
+  (core/vms-sync!)
 
-  (do
-    (require '[behave-cms.server :as cms])
-    (cms/init-db!))
+  (require '[behave-cms.server :as cms])
+  (cms/init-db!)
 
   (require '[clj-http.client :as client])
   (require '[me.raynes.fs :as fs])
