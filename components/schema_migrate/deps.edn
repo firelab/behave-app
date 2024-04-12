@@ -1,3 +1,7 @@
-{:paths   ["src" "resources"]
- :deps    {io.replikativ/datahike {:mvn/version "0.5.1506"}}
+{:paths ["src" "resources"]
+ :deps  {;; Components
+         sig/datomic-store {:local/root "../../bases/datomic_store" :exclusions [io.replikativ/datahike]}
+
+         ;; Clojure Deps
+         com.datomic/peer {:mvn/version "1.0.7075"}}
  :aliases {:test {:extra-paths ["test"]}}}
