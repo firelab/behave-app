@@ -23,7 +23,7 @@
 
       :post
       (if (:user-uuid session)
-        (let [_ (s/sync-datoms s/datomic-conn (:tx-data params) all-schemas)]
+        (let [_ (s/sync-datoms s/datomic-conn (:tx-data params) true all-schemas)]
           {:status  201
            :body    (clj-> {:success true} res-type)
            :headers {"Content-Type" accept}})
