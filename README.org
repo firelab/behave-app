@@ -262,6 +262,79 @@ Be sure that PostgreSQL is running on port 5432.
 
 Then visit [[http://localhost:8000/browse][localhost:8000/browse]]
 
+**** Restoring CMS using a backup file
+
+#+begin_src sh
+psql -U datomic -d datomic -c 'DROP TABLE datomic_kvs'
+pg_restore -d datomic datomic-2024-04-03.dump
+#+end_src
+
+* Behave-Lib
+
+This Directory includes build process for generating a WASM file using c++ code from
+"behave-mirror" and "include" directories. Here's Checklist for when new c++ code needs to be
+transcribed into wasm and be available via the Behave CMS.
+
+*** Create new WASM file
+**** Updating Hatchet's idl output and copying to behave.idl
+
+- [ ] Run the pair of header files (i.e. surface.h and SIGSurface.h) through Hatchet (see Hatchet README).
+- [ ] Replace/Edit text
+  - [ ] "std_string" with "[Const] DOMString"
+  - [ ] "string" with [Const] DOMString
+  - [ ] Any type ref to other classes with "[Ref] SIG<module>"
+  - [ ] Add [Const] to begining of function in behaveidl for any functions in header file ending in const.
+- [ ] Copy missing functions to the SIG<module> interface in "behave-lib/include/idl/behave.idl"
+- [ ] Add new enums in "behave-lib/include/idl/behave.idl"
+  - [ ] For each enum in behave.idl there should be an enum entry in "src/cljs/behave/lib/enums.cljs"
+
+**** Updating CLJS file in Behave with Hatchet's output.
+
+- [ ] Add missing functions from hatchet's output cljs file to behave/src/cljs/behave/lib/<model>.cljs
+- [ ] Add this to the end of the file
+
+#+begin_src clojure
+(def ^:export ns-public-fns (update-keys (ns-publics 'behave.lib.ignite) name))
+#+end_src
+
+**** Updating enums.cpp
+
+- [ ] Add mapping for new enums in "behave-lib/include/cpp/emscripten/enums.cpp"
+
+**** Updating behave_extern.js
+
+- [ ] Update behave_extern.js with functions from cljs file
+
+**** Create new WASM file
+
+- [ ] In "behave-lib" run
+
+#+begin_src sh
+make install
+#+end_src
+
+*** Import EDN files from hatchet into CMS
+
+- [ ] Both edn files have been creaetd through hatchet (i.e. surface.edn and SIGSurface.edn)
+- [ ] Run a modified version of the code block below for the module that needs updating
+
+#+begin_src clojure
+(ns cms-import)
+
+(require '[behave-cms.server :refer [init-datahike!]])
+
+(init-datahike!)
+
+;; Combine edn files
+(cms-import {:behave-file      "hatchet/behave-mirror/surface.edn"
+             :sig-adapter-file "hatchet/sig-adapters/SIGSurface.edn"
+             :out-file-name    "SIGSurface.edn"
+             :from-key         :Surface
+             :to-key           :SIGSurface})
+
+(add-export-file-to-conn "./cms-exports/SIGSurface.edn" @ds/conn)
+#+end_src
+
 * Schema ERDs
 ** VMS
 
