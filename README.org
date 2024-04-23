@@ -290,7 +290,7 @@ transcribed into wasm and be available via the Behave CMS.
 
 **** Updating CLJS file in Behave with Hatchet's output.
 
-- [ ] Add missing functions from hatchet's output cljs file to behave/src/cljs/behave/lib/<model>.cljs
+- [ ] Add missing functions from hatchet's output cljs file to "behave/src/cljs/behave/lib/<model>.cljs"
 - [ ] Add this to the end of the file
 
 #+begin_src clojure
