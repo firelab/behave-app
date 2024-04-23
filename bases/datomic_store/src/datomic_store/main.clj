@@ -96,11 +96,11 @@
   (cond-> datom
     ;; Remap entity ID
     (ref-attrs a)
-    (assoc 0 (get @ds->datomic-eids e))
+    (assoc 0 (get @ds->datomic-eids e e))
 
     ;; Remap value ID if it is a reference attribute
     (ref-attrs a)
-    (assoc 2 (or (get @ds->datomic-eids v) v))))
+    (assoc 2 (get @ds->datomic-eids v v))))
 
 ;;; Unsafe Attributes
 
