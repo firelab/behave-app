@@ -34,8 +34,8 @@
 
 ;;; Public Fns
 
-(defn load-vms! []
-  (ajax-request {:uri             "/layout.msgpack"
+(defn load-vms! [version]
+  (ajax-request {:uri             (str "/layout.msgpack?v=" version)
                  :handler         load-data-handler
                  :format          {:content-type "application/text" :write str}
                  :response-format {:description  "ArrayBuffer"

@@ -6,6 +6,7 @@
  :deps      {;; Clojure
              clj-http/clj-http             {:mvn/version "3.10.1"}
              org.clojure/clojure           {:mvn/version "1.11.1"}
+             org.clj-commons/digest        {:mvn/version "1.4.100"}
              ring/ring                     {:mvn/version "1.10.0"}
              ring/ring-defaults            {:mvn/version "0.3.3"}
              me.raynes/fs                  {:mvn/version "1.4.6"}
