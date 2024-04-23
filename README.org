@@ -283,7 +283,7 @@ transcribed into wasm and be available via the Behave CMS.
   - [ ] "std_string" with "[Const] DOMString"
   - [ ] "string" with [Const] DOMString
   - [ ] Any type ref to other classes with "[Ref] SIG<module>"
-  - [ ] Add [Const] to begining of function in behaveidl for any functions in header file ending in const.
+  - [ ] Add [Const] to beginning of function in behave.idl for any functions in header file ending in const.
 - [ ] Copy missing functions to the SIG<module> interface in "behave-lib/include/idl/behave.idl"
 - [ ] Add new enums in "behave-lib/include/idl/behave.idl"
   - [ ] For each enum in behave.idl there should be an enum entry in "src/cljs/behave/lib/enums.cljs"
@@ -315,7 +315,7 @@ make install
 
 *** Import EDN files from hatchet into CMS
 
-- [ ] Both edn files have been creaetd through hatchet (i.e. surface.edn and SIGSurface.edn)
+- [ ] Both edn files have been created through hatchet (i.e. surface.edn and SIGSurface.edn)
 - [ ] Run a modified version of the code block below for the module that needs updating
 
 #+begin_src clojure
