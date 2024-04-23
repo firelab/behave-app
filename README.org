@@ -271,7 +271,7 @@ pg_restore -d datomic datomic-2024-04-03.dump
 
 * Behave-Lib
 
-This Directory includes build process for generating a WASM file using c++ code from
+The "behave-lib" directory includes the build process for generating a WASM file using c++ code from
 "behave-mirror" and "include" directories. Here's Checklist for when new c++ code needs to be
 transcribed into wasm and be available via the Behave CMS.
 
