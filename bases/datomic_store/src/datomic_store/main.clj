@@ -95,7 +95,7 @@
   [ref-attrs [e a v _tx _op :as datom]]
   (cond-> datom
     ;; Remap entity ID
-    (ref-attrs a)
+    :always
     (assoc 0 (get @ds->datomic-eids e e))
 
     ;; Remap value ID if it is a reference attribute
