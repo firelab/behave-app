@@ -22,7 +22,10 @@
   (when ok
     (let [raw-datoms (c/unpack body)
           bad-attrs  (db-attrs raw-datoms)
-          datoms     (remove #(bad-attrs (second %)) raw-datoms)
+          datoms     (remove (fn [[_ attr vval]]
+                               (or (bad-attrs attr)
+                                   (nil? vval)))
+                             raw-datoms)
           datoms-map (datoms->map datoms)]
       (rf/dispatch-sync [:vms/initialize (->ds-schema all-schemas) datoms-map])
       (rf/dispatch-sync [:state/set :vms-loaded? true])
