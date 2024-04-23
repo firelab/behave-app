@@ -92,15 +92,15 @@
   Requires:
   - `ref-attrs` [set<keyword>] Set of attributes of type `db.type/ref`
   - `datom`     [vector]       Vector of the for `[e a v tx op]`"
-  [ref-attrs datom]
+  [ref-attrs [e a v _tx _op :as datom]]
   (cond-> datom
     ;; Remap entity ID
-    :always
-    (assoc 0 (get @ds->datomic-eids (first datom)))
+    (ref-attrs a)
+    (assoc 0 (get @ds->datomic-eids e e))
 
     ;; Remap value ID if it is a reference attribute
-    (ref-attrs (second datom))
-    (assoc 2 (get @ds->datomic-eids (nth datom 2)))))
+    (ref-attrs a)
+    (assoc 2 (get @ds->datomic-eids v v))))
 
 ;;; Unsafe Attributes
 

@@ -7,7 +7,8 @@
             [behave-cms.components.entity-form :refer [entity-form]]
             [behave-cms.utils                  :as u]
             [behave-cms.events]
-            [behave-cms.subs]))
+            [behave-cms.subs]
+            [behave-cms.components.translations :refer [all-translations]]))
 
 (def columns [:list/name])
 
@@ -17,7 +18,7 @@
                      (rf/dispatch [:state/set-state :list %])
                      (rf/dispatch [:state/set-state :list-option nil]))
         on-delete #(when (js/confirm (str "Are you sure you want to delete the list " (:list/name %) "?"))
-                     (rf/dispatch [:api/delete-entity (:db/id %)]))]
+                     (rf/dispatch [:api/delete-entity %]))]
     [simple-table
      columns
      (sort-by :list/name @lists)
@@ -28,7 +29,7 @@
   (let [list-options (rf/subscribe [:pull-children :list/options (:db/id list)])
         on-select #(rf/dispatch [:state/set-state :list-option %])
         on-delete #(when (js/confirm (str "Are you sure you want to delete the list " (:list-option/name %) "?"))
-                     (rf/dispatch [:api/delete-entity (:db/id %)]))]
+                     (rf/dispatch [:api/delete-entity %]))]
     [simple-table
      [:list-option/name :list-option/value :list-option/order :list-option/default]
      (sort-by :list-option/order @list-options)
@@ -43,26 +44,33 @@
     (println list)
     [:<>
      [:h3 (if @*list-option "Edit Option" "Add Option")]
-     [entity-form {:entity        :list-options
-                   :parent-field  :list/_options
-                   :parent-id     (:db/id list)
-                   :id            (:db/id @*list-option)
-                   :on-create     #(assoc % :list-option/order (count @list-options))
-                   :fields        [{:label     "Name"
-                                    :required? true
-                                    :field-key :list-option/name}
-                                   {:label     "Index"
-                                    :required? true
-                                    :field-key :list-option/value}
-                                   {:label     "Hide Option?"
-                                    :type      :checkbox
-                                    :field-key :list-option/hide?
-                                    :options   [{:value true}]}
-                                   {:label     "Default"
-                                    :type      :radio
-                                    :field-key :list-option/default
-                                    :options   [{:label "False" :value false}
-                                                {:label "True" :value true}]}]}]]))
+     [entity-form {:entity       :list-options
+                   :parent-field :list/_options
+                   :parent-id    (:db/id list)
+                   :id           (:db/id @*list-option)
+                   :on-create    #(-> %
+                                      (assoc :list-option/order (count @list-options))
+                                      (assoc :list-option/translation-key (str "behaveplus:list-option:" (:list/name list) ":" (:list-option/name %)))
+                                      (assoc :list-option/result-translation-key (str "behaveplus:list-option:result:" (:list/name list) ":" (:list-option/name %))))
+                   :fields       [{:label     "Name"
+                                   :required? true
+                                   :field-key :list-option/name}
+                                  {:label     "Index"
+                                   :required? true
+                                   :field-key :list-option/value}
+                                  {:label     "Hide Option?"
+                                   :type      :checkbox
+                                   :field-key :list-option/hide?
+                                   :options   [{:value true}]}
+                                  {:label     "Default"
+                                   :type      :radio
+                                   :field-key :list-option/default
+                                   :options   [{:label "False" :value false}
+                                               {:label "True" :value true}]}]}]
+     [:h4 "Worksheet Translation"]
+     [all-translations (:list-option/translation-key @*list-option)]
+     [:h4 "Result Translation"]
+     [all-translations (:list-option/result-translation-key @*list-option)]]))
 
 (defn list-form [list]
   [:<>
@@ -74,12 +82,12 @@
                    :id     (when list (:db/id list))
                    :fields [{:label     "Name"
                              :required? true
-                             :field-key :list/name}]}]]
+                             :field-key :list/name}]}]]]
+   [:div.row
     [:div.col-6
      [:h4 "All Options"]
      [list-options-table list]]
-
-    [:div.col-3
+    [:div.col-6
      [list-option-form list]]]])
 
 (defn list-lists-page [_]

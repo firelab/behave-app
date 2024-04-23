@@ -10,7 +10,8 @@
             [behave.schema.core          :refer [rules]]
             [map-utils.interface         :refer [index-by]]
             [number-utils.core           :refer [parse-float to-precision]]
-            [string-utils.interface      :refer [->str ->kebab]]))
+            [string-utils.interface      :refer [->str ->kebab]]
+            [behave.translate            :refer [<t]]))
 
 ;; Helpers
 (defn make-tree
@@ -518,7 +519,8 @@
             options                 (index-by :list-option/value options)]
         (fn discrete-fmt [value]
           (if-let [option (get options value)]
-            (:list-option/name option)
+            (or @(<t (:list-option/result-translation-key option))
+                @(<t (:list-option/translation-key option)))
             value)))
 
       (= v-kind :text)
@@ -807,7 +809,7 @@
          {options :list/options} v-list
          options                 (index-by :list-option/value options)]
      (if-let [option (get options value)]
-       (:list-option/name option)
+       @(<t (:list-option/translation-key option))
        value))))
 
 (rf/reg-sub

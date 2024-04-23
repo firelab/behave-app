@@ -114,9 +114,9 @@
                                            (upsert-input ws-uuid group-uuid repeat-id gv-uuid @default-option))
                options                   (sort-by :list-option/order (filter #(not (:list-option/hide? %)) (:list/options list)))
                num-options               (count options)
-               ->option                  (fn [{value :list-option/value name :list-option/name default? :list-option/default}]
+               ->option                  (fn [{value :list-option/value t-key :list-option/translation-key default? :list-option/default}]
                                            {:value     value
-                                            :label     name
+                                            :label     @(<t t-key)
                                             :on-change on-change
                                             :selected? (or (= @selected value) (and (nil? @selected) default?))
                                             :disabled? (if @disabled-options
@@ -156,10 +156,10 @@
                ws-input-values           (-> @(rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id gv-uuid])
                                              (str/split ",")
                                              (set))
-               ->option                  (fn [{value            :list-option/value
-                                               list-option-name :list-option/name}]
+               ->option                  (fn [{value :list-option/value
+                                               t-key :list-option/translation-key}]
                                            {:value       value
-                                            :label       list-option-name
+                                            :label       @(<t t-key)
                                             :on-select   on-select
                                             :on-deselect on-deselect
                                             :selected?   (contains? ws-input-values value)})]
