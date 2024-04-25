@@ -251,8 +251,8 @@
                    :icon-position "left"}]
         @(<t (bp "a_brief_phrase_documenting_the_run"))]]]]))
 
-(defn wizard-review-page [{:keys [io route-handler ws-uuid] :as params}]
-  (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
+(defn wizard-review-page [{:keys [route-handler ws-uuid] :as params}]
+  (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler nil])
   (let [*worksheet               (subscribe [:worksheet ws-uuid])
         modules                  (:worksheet/modules @*worksheet)
         *warn-limit?             (subscribe [:wizard/warn-limit? ws-uuid])
