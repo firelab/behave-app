@@ -31,11 +31,12 @@
                :module/submodules
                module-id]))
  (fn [submodules _]
-   (map (fn [submodule]
-          (-> submodule
-              (assoc :slug (-> submodule (:submodule/name) (->kebab)))
-              (assoc :submodule/groups @(subscribe [:wizard/groups (:db/id submodule)]))))
-        submodules)))
+   (->> submodules
+        (map (fn [submodule]
+               (-> submodule
+                   (assoc :slug (-> submodule (:submodule/name) (->kebab)))
+                   (assoc :submodule/groups @(subscribe [:wizard/groups (:db/id submodule)])))))
+        (sort-by :submodule/order))))
 
 (reg-sub
  :wizard/submodules-io-input-only
@@ -615,3 +616,13 @@
    (let [x-form (comp (map :bp/uuid)
                       (filter #(true? (deref (rf/subscribe [:worksheet/output-enabled? ws-uuid %])))))]
      (into #{} x-form (:group/group-variables (d/touch group))))))
+
+(reg-sub
+ :wizard/submodule-parent
+ (fn [_ [_ submodule-id]]
+   (d/q '[:find  ?module-name .
+          :in    $ % ?submodule-id
+          :where
+          (submodule ?m ?submodule-id)
+          [?m :module/name ?module-name]]
+        @@vms-conn rules submodule-id)))

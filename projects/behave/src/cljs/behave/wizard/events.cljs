@@ -30,56 +30,54 @@
 (rf/reg-event-fx
  :wizard/next-tab
 
- [(rf/inject-cofx ::inject/sub
-                  (fn [[_ _ _ _ {:keys [ws-uuid]}]]
-                    [:worksheet/modules ws-uuid]))]
- (fn [{modules :worksheet/modules} [_
-                                    _*module
-                                    _*submodule
-                                    all-submodules
-                                    {:keys [ws-uuid module io submodule]}]]
-   (let [all-submodules  (filter (fn [{op        :submodule/conditionals-operator
-                                       research? :submodule/research?
-                                       id        :db/id}]
-                                   (and (not research?)
-                                        @(rf/subscribe [:wizard/show-submodule? ws-uuid id op])))
-                                 all-submodules)
-         o-subs          (filter #(= :output (:submodule/io %)) (sort-by :submodule/order all-submodules))
-         i-subs          (filter #(= :input (:submodule/io %)) (sort-by :submodule/order all-submodules))
-         submodules      (if (= io :input) i-subs o-subs)
-         next-submodules (rest (drop-while #(not= (:slug %) submodule) (sort-by :submodule/order submodules)))
-         next-modules    (rest (drop-while #(not= (str/lower-case (:module/name %)) module) (sort-by :module/order modules)))
-         path            (cond
-                           (seq next-submodules)
-                           (path-for routes
-                                     :ws/wizard
-                                     :ws-uuid ws-uuid
-                                     :module module
-                                     :io io
-                                     :submodule (:slug (first next-submodules)))
+ [(rf/inject-cofx
+   ::inject/sub
+   (fn [[_ {:keys [ws-uuid]}]]
+     [:worksheet/modules ws-uuid]))]
 
-                           (and (= io :output) (empty? next-submodules))
-                           (path-for routes
-                                     :ws/wizard
-                                     :ws-uuid ws-uuid
-                                     :module module
-                                     :io :input
-                                     :submodule (:slug (first i-subs)))
+ (fn [{modules :worksheet/modules} [_ {:keys [ws-uuid io module submodule]}]]
+   (let [all-submodules       (->> modules
+                                   (mapcat #(deref (rf/subscribe [:wizard/submodules (:db/id %)])))
+                                   (filter (fn [{op        :submodule/conditionals-operator
+                                                 research? :submodule/research?
+                                                 id        :db/id}]
+                                             (and (not research?)
+                                                  @(rf/subscribe [:wizard/show-submodule? ws-uuid id op])))))
+         output-submodules    (filter (fn [{io :submodule/io}] (= io :output)) all-submodules)
+         input-submodules     (filter (fn [{io :submodule/io}] (= io :input)) all-submodules)
+         submodules           (if (= io :input) input-submodules output-submodules)
+         remaining-submodules (into []
+                                    (rest (drop-while #(or (not= (:slug %) submodule)
+                                                           (not= module (str/lower-case @(rf/subscribe [:wizard/submodule-parent (:db/id %)]))))
+                                                      submodules)))
+         path                 (cond
+                                (seq remaining-submodules)
+                                (let [next-submodule (first remaining-submodules)]
+                                  (path-for routes
+                                            :ws/wizard
+                                            :ws-uuid ws-uuid
+                                            :module (str/lower-case
+                                                     @(rf/subscribe [:wizard/submodule-parent
+                                                                     (:db/id next-submodule)]))
+                                            :io io
+                                            :submodule (:slug next-submodule)))
 
-                           (and (= io :input) (empty? next-submodules) (seq next-modules))
-                           (let [next-module    (str/lower-case (:module/name (first next-modules)))
-                                 next-submodule @(rf/subscribe [:worksheet/first-output-submodule-slug next-module])]
-                             (path-for routes
-                                       :ws/wizard
-                                       :ws-uuid ws-uuid
-                                       :module next-module
-                                       :io :output
-                                       :submodule next-submodule))
+                                (and (= io :output) (empty? remaining-submodules))
+                                (let [next-submodule (first input-submodules)]
+                                  (path-for routes
+                                            :ws/wizard
+                                            :ws-uuid ws-uuid
+                                            :module (str/lower-case
+                                                     @(rf/subscribe [:wizard/submodule-parent
+                                                                     (:db/id
+                                                                      (first input-submodules))]))
+                                            :io :input
+                                            :submodule (:slug next-submodule)))
 
-                           (and (= io :input) (empty? next-submodules) (empty? next-modules))
-                           (path-for routes
-                                     :ws/review
-                                     :ws-uuid ws-uuid))]
+                                (and (= io :input) (empty? remaining-submodules))
+                                (path-for routes
+                                          :ws/review
+                                          :ws-uuid ws-uuid))]
      {:fx [[:dispatch [:navigate path]]]})))
 
 (rf/reg-event-fx
@@ -265,18 +263,18 @@
                     [:vms/native-units group-variable-uuid]))]
  (fn [{input            :worksheet/input
        vms-native-units :vms/native-units} [_ ws-uuid group-uuid repeat-id group-variable-uuid units]]
-   (let [ws-input-units (:input/units input)
+   (let [ws-input-units         (:input/units input)
          different-unit-chosen? (or (and (nil? ws-input-units)
                                          (not= vms-native-units units))
                                     (and (some? ws-input-units) (not= ws-input-units units)))
-         effects        (cond-> [[:dispatch [:worksheet/update-input-units
-                                             ws-uuid group-uuid repeat-id group-variable-uuid units]]]
+         effects                (cond-> [[:dispatch [:worksheet/update-input-units
+                                                     ws-uuid group-uuid repeat-id group-variable-uuid units]]]
 
-                          different-unit-chosen?
-                          (conj [:dispatch [:worksheet/set-furthest-vistited-step ws-uuid :ws/wizard :input]])
+                                  different-unit-chosen?
+                                  (conj [:dispatch [:worksheet/set-furthest-vistited-step ws-uuid :ws/wizard :input]])
 
-                          different-unit-chosen?
-                          (conj [:dispatch [:worksheet/clear-input-value (:db/id input)]]))]
+                                  different-unit-chosen?
+                                  (conj [:dispatch [:worksheet/clear-input-value (:db/id input)]]))]
      {:fx effects})))
 
 (rf/reg-event-fx
@@ -291,7 +289,7 @@
    (let [ws-uuid   (d/q '[:find ?uuid .
                           :in $
                           :where [?e :worksheet/uuid ?uuid]]
-                        @@s/conn)
+                         @@s/conn)
          worksheet (d/entity @@s/conn [:worksheet/uuid ws-uuid])
          modules   (:worksheet/modules worksheet)
          submodule @(rf/subscribe [:worksheet/first-output-submodule-slug (first modules)])

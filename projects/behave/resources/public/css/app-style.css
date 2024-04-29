@@ -371,6 +371,10 @@ body {
   margin-left: 20px;
 }
 
+.wizard-header__submodules__group:last-child {
+  width: 100%;
+}
+
 .wizard-header__submodules {
   display: flex;
   flex-direction: row;
