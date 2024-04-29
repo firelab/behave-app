@@ -24,7 +24,7 @@
     [["/" [keyword :results-page]] :ws/results-settings]]])
 
 (def ^:private module-routes
-  ["/modules"
+  ["/module"
    [[["/" :module]
      [[["/" [keyword :io]]
        [[["/" :submodule] :ws/wizard]]]]]]])

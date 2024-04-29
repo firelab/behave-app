@@ -12,11 +12,11 @@
 
 (rf/reg-event-fx
  :wizard/select-tab
- (fn [_ [_ {:keys [ws-uuid module io submodule]}]]
+ (fn [_ [_ {:keys [ws-uuid current-module io submodule]}]]
    (let [path (path-for routes
                         :ws/wizard
                         :ws-uuid ws-uuid
-                        :module module
+                        :module (str/lower-case current-module)
                         :io io
                         :submodule submodule)]
      {:fx              [[:dispatch [:navigate path]]]

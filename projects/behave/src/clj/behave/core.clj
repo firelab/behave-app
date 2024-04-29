@@ -116,7 +116,7 @@
                         (str/split #"&"))
             params (reduce (fn [params keyval]
                              (let [[k v] (str/split keyval #"=")]
-                               (assoc params (keyword k) (edn/read-string v))))
+                               (assoc params (keyword k) (str/split v #","))))
                            params keyvals)]
         (handler (assoc req :params params))))))
 

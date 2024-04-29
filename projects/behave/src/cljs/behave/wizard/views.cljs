@@ -58,7 +58,7 @@
 (defmethod submodule-page :output [_ ws-uuid groups]
   [:<> (build-groups ws-uuid groups output-group)])
 
-(defn- io-tabs [module-id {:keys [ws-uuid io] :as params}]
+(defn- io-tabs [module-id {:keys [ws-uuid io modules] :as params}]
   (let [i-subs          @(subscribe [:wizard/submodules-conditionally-filtered ws-uuid module-id :input])
         o-subs          @(subscribe [:wizard/submodules-conditionally-filtered ws-uuid module-id :output])
         first-submodule (:slug (first (if (= io :input) o-subs i-subs)))]
@@ -67,9 +67,10 @@
                    :flat-edge "top"
                    :align     "right"
                    :on-click  #(when (not= io (:tab %))
-                                 (dispatch [:wizard/select-tab (assoc params
-                                                                      :io (:tab %)
-                                                                      :submodule first-submodule)]))
+                                 (dispatch [:wizard/select-tab (merge params
+                                                                      {:module    (first modules)
+                                                                       :io        (:tab %)
+                                                                       :submodule first-submodule})]))
                    :tabs      [{:label "Outputs" :tab :output :selected? (= io :output)}
                                {:label "Inputs" :tab :input :selected? (= io :input)}]}]]))
 
@@ -88,38 +89,40 @@
                 :icon-position "left"
                 :on-click      #(dispatch [:wizard/toggle-show-notes])}]]))
 
-(defn- wizard-header [{module-name :module/name
-                       module-id   :db/id}
+(defn- wizard-header [modules
                       {:keys [ws-uuid io submodule] :as params}]
-  (let [*submodules         (if (= io :output)
-                              (subscribe [:wizard/submodules-io-output-only module-id])
-                              (subscribe [:wizard/submodules-io-input-only module-id]))
-        ;;(Kcheung) Not able to use :wizard/submodules-conditionally-filtered because the submodule tabs
-        ;;would not rerender when conditionals are met without hard refresh. so had to filter
-        ;;:wizard/show-submodule? outside of the subscription.
-        submodules-filtered (filter (fn [{id :db/id
-                                          op :submodule/conditionals-operator}]
-                                      @(subscribe [:wizard/show-submodule? ws-uuid id op]))
-                                    @*submodules)
-        *show-notes?        (subscribe [:wizard/show-notes?])]
+  (let [*show-notes? (subscribe [:wizard/show-notes?])]
     [:div.wizard-header
-     [io-tabs module-id params]
+     [io-tabs (:db/id (first modules)) params]
      [:div.wizard-header__banner
       [:div.wizard-header__banner__icon
        [c/icon :modules]]
       [:div.wizard-header__banner__title
-       (str module-name " Module")]
+       (str/join " and " (map :module/name modules))]
       [:div.wizard-header__banner__notes-button
        (show-or-close-notes-button @*show-notes?)]]
-     [:div.wizard-header__submodule-tabs
-      {:data-theme-color module-name}
-      [c/tab-group {:variant  "outline-primary"
-                    :on-click #(dispatch [:wizard/select-tab (assoc params :submodule (:tab %))])
-                    :tabs     (map (fn [{s-name :submodule/name slug :slug}]
-                                     {:label     s-name
-                                      :tab       slug
-                                      :selected? (= submodule slug)})
-                                   submodules-filtered)}]]]))
+     [:div.wizard-header__submodules
+      (for [module modules
+            :let   [submodules (if (= io :output)
+                                 (->> @(subscribe [:wizard/submodules-io-output-only (:db/id module)])
+                                      (filter (fn [{id :db/id
+                                                    op :submodule/conditionals-operator}]
+                                                @(subscribe [:wizard/show-submodule? ws-uuid id op]))))
+                                 (->> @(subscribe [:wizard/submodules-io-input-only (:db/id module)])
+                                      (filter (fn [{id :db/id
+                                                    op :submodule/conditionals-operator}]
+                                                @(subscribe [:wizard/show-submodule? ws-uuid id op])))))]]
+        [:div.wizard-header__submodules__group
+         {:data-theme-color (:module/name module)}
+         [c/tab-group {:variant  "outline-primary"
+                       :on-click #(dispatch [:wizard/select-tab
+                                             (merge params {:submodule      (:tab %)
+                                                            :current-module (:module/name module)})])
+                       :tabs     (map (fn [{s-name :submodule/name slug :slug}]
+                                        {:label     s-name
+                                         :tab       slug
+                                         :selected? (= submodule slug)})
+                                      submodules)}]])]]))
 
 (defn wizard-note
   [{:keys [note display-submodule-headers?]}]
@@ -168,9 +171,10 @@
               [wizard-note {:note                       n
                             :display-submodule-headers? false}]))]))
 
-(defn wizard-page [{:keys [module io submodule route-handler ws-uuid] :as params}]
+(defn wizard-page [{:keys [modules module io submodule route-handler ws-uuid] :as params}]
   (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
   (let [*module                  (subscribe [:wizard/*module module])
+        module-entities          (map #(deref (subscribe [:wizard/*module %])) modules)
         module-id                (:db/id @*module)
         *submodules              (subscribe [:wizard/submodules module-id])
         *submodule               (subscribe [:wizard/*submodule module-id submodule io])
@@ -190,7 +194,7 @@
         ]
     [:div.wizard-page
      [:div
-      [wizard-header @*module params]
+      [wizard-header module-entities params]
       [:div.wizard-page__body
        (when @*show-notes?
          [:<>
