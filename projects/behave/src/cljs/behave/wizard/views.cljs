@@ -174,7 +174,9 @@
 (defn wizard-page [{:keys [modules module io submodule route-handler ws-uuid] :as params}]
   (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
   (let [*module                  (subscribe [:wizard/*module module])
-        module-entities          (map #(deref (subscribe [:wizard/*module %])) modules)
+        module-entities          (->> modules
+                                      (map #(deref (subscribe [:wizard/*module %])))
+                                      (sort-by :module/order))
         module-id                (:db/id @*module)
         *submodules              (subscribe [:wizard/submodules module-id])
         *submodule               (subscribe [:wizard/*submodule module-id submodule io])
