@@ -262,8 +262,7 @@
 
 (defn wizard-review-page [{:keys [route-handler ws-uuid] :as params}]
   (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler nil])
-  (let [*worksheet               (subscribe [:worksheet ws-uuid])
-        modules                  (:worksheet/modules @*worksheet)
+  (let [modules                  @(subscribe [:worksheet/modules ws-uuid])
         *warn-limit?             (subscribe [:wizard/warn-limit? ws-uuid])
         *multi-value-input-limit (subscribe [:wizard/multi-value-input-limit])
         *multi-value-input-count (subscribe [:wizard/multi-value-input-count ws-uuid])
@@ -298,9 +297,8 @@
             [run-description ws-uuid]
             (when @*show-notes?
               (wizard-notes @*notes))
-            (for [module-kw modules
-                  :let      [module-name (name module-kw)
-                             module @(subscribe [:wizard/*module module-name])]]
+            (for [module modules
+                  :let   [module-name (:module/name module)]]
               [:div
                [:div.wizard-review__module
                 {:data-theme-color module-name}
