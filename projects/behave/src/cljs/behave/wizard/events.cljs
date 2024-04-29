@@ -10,13 +10,13 @@
             [string-utils.interface        :refer [->str]]
             [vimsical.re-frame.cofx.inject :as inject]))
 
-(rf/reg-event-fx
+s(rf/reg-event-fx
  :wizard/select-tab
- (fn [_ [_ {:keys [ws-uuid current-module io submodule]}]]
+ (fn [_ [_ {:keys [ws-uuid module io submodule]}]]
    (let [path (path-for routes
                         :ws/wizard
                         :ws-uuid ws-uuid
-                        :module (str/lower-case current-module)
+                        :module module
                         :io io
                         :submodule submodule)]
      {:fx              [[:dispatch [:navigate path]]]
