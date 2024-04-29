@@ -342,13 +342,16 @@
    (subscribe [:worksheet ws-uuid]))
 
  (fn [worksheet [_ ws-uuid io]]
-   (when-let [module-kw (first (:worksheet/modules worksheet))]
-     (let [module     @(subscribe [:wizard/*module (name module-kw)])
-           module-id  (:db/id module)
+   (when-let [module (some->> worksheet
+                              :worksheet/modules
+                              (map #(deref (subscribe [:wizard/*module (name %)])))
+                              (sort-by :module/order)
+                              first)]
+     (let [module-id  (:db/id module)
            submodules (->> @(subscribe [:wizard/submodules-conditionally-filtered ws-uuid module-id io])
                            (sort-by :submodule/order))]
 
-       [(name module-kw) (:slug (first submodules))]))))
+       [(str/lower-case (:module/name module)) (:slug (first submodules))]))))
 
 ;;; show-group?
 (defn- csv? [s] (< 1 (count (str/split s #","))))
