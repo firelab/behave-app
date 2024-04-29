@@ -10,7 +10,7 @@
             [string-utils.interface        :refer [->str]]
             [vimsical.re-frame.cofx.inject :as inject]))
 
-s(rf/reg-event-fx
+(rf/reg-event-fx
  :wizard/select-tab
  (fn [_ [_ {:keys [ws-uuid module io submodule]}]]
    (let [path (path-for routes
