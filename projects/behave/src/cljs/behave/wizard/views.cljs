@@ -103,8 +103,8 @@
       [:div.wizard-header__banner__notes-button
        (show-or-close-notes-button @*show-notes?)]]
      [:div.wizard-header__submodules
-      (for [m modules
-            :let   [submodules (if (= io :output)
+      (for [m    modules
+            :let [submodules (if (= io :output)
                                  (->> @(subscribe [:wizard/submodules-io-output-only (:db/id m)])
                                       (filter (fn [{id :db/id
                                                     op :submodule/conditionals-operator}]
