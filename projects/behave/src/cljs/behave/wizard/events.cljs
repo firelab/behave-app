@@ -23,62 +23,38 @@
       :help/scroll-top nil})))
 
 (rf/reg-event-fx
- :wizard/prev-tab
- (fn [_ _]
-   (.back js/history)))
-
-(rf/reg-event-fx
- :wizard/next-tab
+ :wizard/back
 
  [(rf/inject-cofx
    ::inject/sub
-   (fn [[_ {:keys [ws-uuid]}]]
-     [:worksheet/modules ws-uuid]))]
+   (fn [[_ ws-uuid]]
+     [:wizard/route-order ws-uuid]))]
 
- (fn [{modules :worksheet/modules} [_ {:keys [ws-uuid io module submodule]}]]
-   (let [all-submodules       (->> modules
-                                   (mapcat #(deref (rf/subscribe [:wizard/submodules (:db/id %)])))
-                                   (filter (fn [{op        :submodule/conditionals-operator
-                                                 research? :submodule/research?
-                                                 id        :db/id}]
-                                             (and (not research?)
-                                                  @(rf/subscribe [:wizard/show-submodule? ws-uuid id op])))))
-         output-submodules    (filter (fn [{io :submodule/io}] (= io :output)) all-submodules)
-         input-submodules     (filter (fn [{io :submodule/io}] (= io :input)) all-submodules)
-         submodules           (if (= io :input) input-submodules output-submodules)
-         remaining-submodules (into []
-                                    (rest (drop-while #(or (not= (:slug %) submodule)
-                                                           (not= module (str/lower-case @(rf/subscribe [:wizard/submodule-parent (:db/id %)]))))
-                                                      submodules)))
-         path                 (cond
-                                (seq remaining-submodules)
-                                (let [next-submodule (first remaining-submodules)]
-                                  (path-for routes
-                                            :ws/wizard
-                                            :ws-uuid ws-uuid
-                                            :module (str/lower-case
-                                                     @(rf/subscribe [:wizard/submodule-parent
-                                                                     (:db/id next-submodule)]))
-                                            :io io
-                                            :submodule (:slug next-submodule)))
+ (fn [{path-order :wizard/route-order} _]
+   (let [current-path       (str/replace
+                             (. (. js/document -location) -href)
+                             #"(^.*(?=(/worksheets)))"
+                             "")
+         current-path-index (.indexOf path-order current-path)
+         next-path          (get path-order (dec current-path-index))]
+     {:fx [[:dispatch [:navigate next-path]]]})))
 
-                                (and (= io :output) (empty? remaining-submodules))
-                                (let [next-submodule (first input-submodules)]
-                                  (path-for routes
-                                            :ws/wizard
-                                            :ws-uuid ws-uuid
-                                            :module (str/lower-case
-                                                     @(rf/subscribe [:wizard/submodule-parent
-                                                                     (:db/id
-                                                                      (first input-submodules))]))
-                                            :io :input
-                                            :submodule (:slug next-submodule)))
+(rf/reg-event-fx
+ :wizard/next
 
-                                (and (= io :input) (empty? remaining-submodules))
-                                (path-for routes
-                                          :ws/review
-                                          :ws-uuid ws-uuid))]
-     {:fx [[:dispatch [:navigate path]]]})))
+ [(rf/inject-cofx
+   ::inject/sub
+   (fn [[_ ws-uuid]]
+     [:wizard/route-order ws-uuid]))]
+
+ (fn [{path-order :wizard/route-order} _]
+   (let [current-path       (str/replace
+                             (. (. js/document -location) -href)
+                             #"(^.*(?=(/worksheets)))"
+                             "")
+         current-path-index (.indexOf path-order current-path)
+         next-path          (get path-order (inc current-path-index))]
+     {:fx [[:dispatch [:navigate next-path]]]})))
 
 (rf/reg-event-fx
  :wizard/before-solve
@@ -289,7 +265,7 @@
    (let [ws-uuid   (d/q '[:find ?uuid .
                           :in $
                           :where [?e :worksheet/uuid ?uuid]]
-                         @@s/conn)
+                        @@s/conn)
          worksheet (d/entity @@s/conn [:worksheet/uuid ws-uuid])
          modules   (:worksheet/modules worksheet)
          submodule @(rf/subscribe [:worksheet/first-output-submodule-slug (first modules)])

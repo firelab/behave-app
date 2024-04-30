@@ -6,7 +6,9 @@
             [datascript.core        :as d]
             [re-frame.core          :refer [reg-sub subscribe] :as rf]
             [string-utils.interface :refer [->kebab]]
-            [clojure.string         :as str]))
+            [clojure.string         :as str]
+            [bidi.bidi                     :refer [path-for]]
+            [behave-routing.main           :refer [routes]]))
 
 ;;; Helpers
 
@@ -626,3 +628,40 @@
           (submodule ?m ?submodule-id)
           [?m :module/name ?module-name]]
         @@vms-conn rules submodule-id)))
+
+
+(reg-sub
+ :wizard/route-order
+
+ (fn [[_ ws-uuid]] (subscribe [:worksheet/modules ws-uuid]))
+
+ (fn [modules [_ ws-uuid]]
+   (if ws-uuid
+     (letfn [(build-path [rroutes ws-uuid submodule]
+               (path-for rroutes
+                         :ws/wizard
+                         :ws-uuid ws-uuid
+                         :module (str/lower-case
+                                  @(rf/subscribe [:wizard/submodule-parent
+                                                  (:db/id submodule)]))
+                         :io (:submodule/io submodule)
+                         :submodule (:slug submodule)))]
+       (let [all-submodules    (->> modules
+                                    (mapcat #(deref (subscribe [:wizard/submodules (:db/id %)])))
+                                    (filter (fn [{op        :submodule/conditionals-operator
+                                                  research? :submodule/research?
+                                                  id        :db/id}]
+                                              (and (not research?)
+                                                   @(rf/subscribe [:wizard/show-submodule? ws-uuid id op])))))
+             output-submodules (filter (fn [{io :submodule/io}] (= io :output)) all-submodules)
+             input-submodules  (filter (fn [{io :submodule/io}] (= io :input)) all-submodules)]
+         (into ["/worksheets/independent"]
+               (concat
+                (map (partial build-path routes ws-uuid) output-submodules)
+                (map (partial build-path routes ws-uuid) input-submodules)
+                [(path-for routes :ws/review :ws-uuid ws-uuid)
+                 (path-for routes :ws/review :ws-uuid ws-uuid)
+                 (path-for routes :ws/results-settings :ws-uuid ws-uuid :results-page :settings)
+                 (path-for routes :ws/results :ws-uuid ws-uuid)]))))
+
+     ["/worksheets/" "/worksheets/independent"])))
