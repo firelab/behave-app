@@ -102,7 +102,8 @@
   "Renders the subgroups page. Takes in a group UUID."
   [{:keys [id]}]
   (let [parent-group        (rf/subscribe [:subgroup/parent id])
-        group               (rf/subscribe [:entity id '[* {:submodule/_groups [:db/id]}]])
+        group               (rf/subscribe [:entity id '[* {:submodule/_groups [:db/id :submodule/name]}]])
+        parent-submodule    (:submodule/_groups @group)
         group-variables     (rf/subscribe [:sidebar/variables id])
         subgroups           (rf/subscribe [:sidebar/subgroups id])
         var-conditionals    (rf/subscribe [:group/variable-conditionals id])
@@ -114,10 +115,10 @@
       @group-variables
       (if @parent-group
         (:group/name @parent-group)
-        "Groups")
+        (str (:submodule/name parent-submodule) " Groups"))
       (if @parent-group
         (str "/groups/" (:db/id @parent-group))
-        (str "/submodules/" (get-in @group [:submodule/_groups 0 :db/id])))
+        (str "/submodules/" (:db/id parent-submodule)))
       "Subgroups"
       (when (seq @subgroups) @subgroups)]
      [window
