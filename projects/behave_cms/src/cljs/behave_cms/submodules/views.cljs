@@ -53,16 +53,16 @@
   "Display submodules page. Takes a map with:
    - id [int]: Submodule entity ID."
   [{:keys [id]}]
-  (let [module         (rf/subscribe [:entity id '[* {:application/_modules [:db/id]}]])
-        application-id (get-in @module [:application/_modules 0 :db/id])
+  (let [module         (rf/subscribe [:entity id '[* {:application/_modules [:db/id :application/name]}]])
+        application    (get-in @module [:application/_modules 0])
         submodules     (rf/subscribe [:sidebar/submodules id])
         submodule      (rf/subscribe [:state :submodule])]
     [:<>
      [sidebar
       "Submodules"
       @submodules
-      "Modules"
-      (str "/applications/" application-id)]
+      (str (:application/name application) " Modules")
+      (str "/applications/" (:db/id application))]
      [window sidebar-width
       [:div.container
        [:div.row.mb-3.mt-4

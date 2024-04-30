@@ -136,7 +136,7 @@
         is-output?      (rf/subscribe [:group-variable/output? gv-id])
         actions         (:group-variable/actions @group-variable)
         action-id       (rf/subscribe [:state :action])
-        group           (get-in @group-variable [:group/_group-variables 0])
+        group           (:group/_group-variables @group-variable)
         variable        (get-in @group-variable [:variable/_group-variables 0])
         group-variables (rf/subscribe [:sidebar/variables (:db/id group)])]
     [:<>
