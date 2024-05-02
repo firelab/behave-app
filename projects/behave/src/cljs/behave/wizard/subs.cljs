@@ -654,7 +654,10 @@
 
 (defn- all-shown-submodules [worksheet modules]
   (->> modules
-       (mapcat (fn [module] (sort-by :submodule/order (:module/submodules module))))
+       (mapcat (fn [module]
+                 (->> module
+                      :module/submodules
+                      (sort-by :submodule/order))))
        (filter (fn [{op           :submodule/conditionals-operator
                      conditionals :submodule/conditionals
                      research?    :submodule/research?}]
