@@ -655,7 +655,7 @@
                                                    @(rf/subscribe [:wizard/show-submodule? ws-uuid id op])))))
              output-submodules (filter (fn [{io :submodule/io}] (= io :output)) all-submodules)
              input-submodules  (filter (fn [{io :submodule/io}] (= io :input)) all-submodules)]
-         (into ["/worksheets/independent"]
+         (into []
                (concat
                 (map (partial build-path routes ws-uuid) output-submodules)
                 (map (partial build-path routes ws-uuid) input-submodules)

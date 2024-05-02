@@ -36,7 +36,9 @@
                              #"(^.*(?=(/worksheets)))"
                              "")
          current-path-index (.indexOf path-order current-path)
-         next-path          (get path-order (dec current-path-index))]
+         next-path          (if (zero? current-path-index)
+                              "/worksheets/independent"
+                              (get path-order (dec current-path-index)))]
      {:fx [[:dispatch [:navigate next-path]]]})))
 
 (rf/reg-event-fx
@@ -262,15 +264,11 @@
 (rf/reg-event-fx
  :wizard/navigate-to-latest-worksheet
  (fn [_]
-   (let [ws-uuid   (d/q '[:find ?uuid .
-                          :in $
-                          :where [?e :worksheet/uuid ?uuid]]
-                        @@s/conn)
-         worksheet (d/entity @@s/conn [:worksheet/uuid ws-uuid])
-         modules   (:worksheet/modules worksheet)
-         submodule @(rf/subscribe [:worksheet/first-output-submodule-slug (first modules)])
-         path      (str "/worksheets/" ws-uuid "/modules/" (->str (first modules)) "/output/" submodule)]
-     {:fx [[:dispatch [:navigate path]]]})))
+   (let [ws-uuid (d/q '[:find ?uuid .
+                        :in $
+                        :where [?e :worksheet/uuid ?uuid]]
+                      @@s/conn)]
+     {:fx [[:dispatch [:wizard/next ws-uuid]]]})))
 
 (rf/reg-event-fx
  :wizard/open
