@@ -22,6 +22,7 @@
 (defonce my-txs (atom #{}))
 (defonce sync-txs (atom #{}))
 (defonce batch (atom []))
+(defonce worksheet-from-file? (atom false))
 
 ;;; Helpers
 
@@ -112,6 +113,7 @@
 
 (defn- open-worksheet-handler [[ok body]]
   (when ok
+    (reset! worksheet-from-file? true)
     (reset! conn nil)
     (reset! sync-txs #{})
     (reset! my-txs #{})
@@ -134,6 +136,7 @@
 
 (defn new-worksheet-handler [nname modules submodule [ok body]]
   (when ok
+    (reset! worksheet-from-file? false)
     (reset! conn nil)
     (reset! sync-txs #{})
     (reset! my-txs #{})

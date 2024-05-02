@@ -36,8 +36,14 @@
                              #"(^.*(?=(/worksheets)))"
                              "")
          current-path-index (.indexOf path-order current-path)
-         next-path          (if (zero? current-path-index)
+         next-path          (cond
+                              (and (zero? current-path-index) @s/worksheet-from-file?)
+                              "/worksheets/import"
+
+                              (and (zero? current-path-index))
                               "/worksheets/independent"
+
+                              :else
                               (get path-order (dec current-path-index)))]
      {:fx [[:dispatch [:navigate next-path]]]})))
 
