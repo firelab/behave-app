@@ -23,8 +23,13 @@
  (fn [_]
    (subscribe [:vms/pull-with-attr :module/name]))
  (fn [modules [_ selected-module]]
-   (first (filter (fn [{m-name :module/name}]
-                    (= selected-module (str/lower-case m-name))) modules))))
+   (->> modules
+        (filter (fn [{m-name :module/name}]
+                  (= selected-module (str/lower-case m-name))))
+        (first)
+        (:db/id)
+        (d/entity @@vms-conn)
+        (d/touch))))
 
 (reg-sub
  :wizard/submodules
@@ -629,39 +634,48 @@
           [?m :module/name ?module-name]]
         @@vms-conn rules submodule-id)))
 
+(defn- parent-module-name
+  [submodule-id]
+  (d/q '[:find  ?module-name .
+         :in    $ % ?submodule-id
+         :where
+         (submodule ?m ?submodule-id)
+         [?m :module/name ?module-name]]
+       @@vms-conn rules submodule-id))
+
+(defn- build-path
+  [rroutes ws-uuid submodule]
+  (path-for rroutes
+            :ws/wizard
+            :ws-uuid ws-uuid
+            :module (str/lower-case (parent-module-name (:db/id submodule)))
+            :io (:submodule/io submodule)
+            :submodule (-> submodule (:submodule/name) (->kebab))))
+
+(defn- all-shown-submodules [worksheet modules]
+  (->> modules
+       (mapcat (fn [module] (sort-by :submodule/order (:module/submodules module))))
+       (filter (fn [{op           :submodule/conditionals-operator
+                     conditionals :submodule/conditionals
+                     research?    :submodule/research?}]
+                 (and (not research?)
+                      (all-conditionals-pass? worksheet op conditionals))))))
 
 (reg-sub
  :wizard/route-order
 
- (fn [[_ ws-uuid]] (subscribe [:worksheet/modules ws-uuid]))
+ (fn [[_ ws-uuid]]
+   [(subscribe [:worksheet ws-uuid])
+    (subscribe [:worksheet/modules ws-uuid])])
 
- (fn [modules [_ ws-uuid]]
-   (if ws-uuid
-     (letfn [(build-path [rroutes ws-uuid submodule]
-               (path-for rroutes
-                         :ws/wizard
-                         :ws-uuid ws-uuid
-                         :module (str/lower-case
-                                  @(rf/subscribe [:wizard/submodule-parent
-                                                  (:db/id submodule)]))
-                         :io (:submodule/io submodule)
-                         :submodule (:slug submodule)))]
-       (let [all-submodules    (->> modules
-                                    (mapcat #(deref (subscribe [:wizard/submodules (:db/id %)])))
-                                    (filter (fn [{op        :submodule/conditionals-operator
-                                                  research? :submodule/research?
-                                                  id        :db/id}]
-                                              (and (not research?)
-                                                   @(rf/subscribe [:wizard/show-submodule? ws-uuid id op])))))
-             output-submodules (filter (fn [{io :submodule/io}] (= io :output)) all-submodules)
-             input-submodules  (filter (fn [{io :submodule/io}] (= io :input)) all-submodules)]
-         (into []
-               (concat
-                (map (partial build-path routes ws-uuid) output-submodules)
-                (map (partial build-path routes ws-uuid) input-submodules)
-                [(path-for routes :ws/review :ws-uuid ws-uuid)
-                 (path-for routes :ws/review :ws-uuid ws-uuid)
-                 (path-for routes :ws/results-settings :ws-uuid ws-uuid :results-page :settings)
-                 (path-for routes :ws/results :ws-uuid ws-uuid)]))))
-
-     ["/worksheets/" "/worksheets/independent"])))
+ (fn [[worksheet modules] [_ ws-uuid]]
+   (let [submodules        (all-shown-submodules worksheet modules)
+         output-submodules (filter (fn [{io :submodule/io}] (= io :output)) submodules)
+         input-submodules  (filter (fn [{io :submodule/io}] (= io :input)) submodules)]
+     (into []
+           (concat
+            (map (partial build-path routes ws-uuid) output-submodules)
+            (map (partial build-path routes ws-uuid) input-submodules)
+            [(path-for routes :ws/review :ws-uuid ws-uuid)
+             (path-for routes :ws/results-settings :ws-uuid ws-uuid :results-page :settings)
+             (path-for routes :ws/results :ws-uuid ws-uuid)])))))

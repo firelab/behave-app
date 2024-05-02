@@ -62,6 +62,7 @@
                              "")
          current-path-index (.indexOf path-order current-path)
          next-path          (get path-order (inc current-path-index))]
+     (prn "path-order" path-order)
      {:fx [[:dispatch [:navigate next-path]]]})))
 
 (rf/reg-event-fx
