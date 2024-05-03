@@ -79,34 +79,34 @@
                       :flex-direction "row"
                       :cards          [{:order     1
                                         :title     @(<t (bp "surface_only"))
-                                        :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                                        :content   @(<t (bp "surface:description"))
                                         :icons     [{:icon-name "surface"}]
                                         :selected? (= @*modules [:surface])
                                         :module    [:surface]}
                                        {:order     2
                                         :title     @(<t (bp "surface_and_crown"))
-                                        :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                                        :content   @(<t (bp "surface+crown:description"))
                                         :icons     [{:icon-name "surface"}
                                                     {:icon-name "crown"}]
                                         :selected? (= @*modules [:surface :crown])
                                         :module    [:surface :crown]}
                                        {:order     3
                                         :title     @(<t (bp "surface_and_mortality"))
-                                        :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                                        :content   @(<t (bp "surface+mortality:description"))
                                         :icons     [{:icon-name "surface"}
                                                     {:icon-name "mortality"}]
                                         :selected? (= @*modules [:surface :mortality])
                                         :module    [:surface :mortality]}
                                        {:order     4
                                         :title     @(<t (bp "surface_and_contain"))
-                                        :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                                        :content   @(<t (bp "surface+contain:description"))
                                         :icons     [{:icon-name "surface"}
                                                     {:icon-name "contain"}]
                                         :selected? (= @*modules [:surface :contain])
                                         :module    [:surface :contain]}
                                        {:order     5
                                         :title     @(<t (bp "mortality_only"))
-                                        :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                                        :content   @(<t (bp "mortality:description"))
                                         :icons     [{:icon-name "mortality"}]
                                         :selected? (= @*modules [:mortality])
                                         :module    [:mortality]}
