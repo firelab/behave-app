@@ -391,6 +391,9 @@ interface SIGSpot {
   void setTreeHeight(double treeHeight, LengthUnits_LengthUnitsEnum treeHeightUnits);
   void setTreeSpecies(SpotTreeSpecies_SpotTreeSpeciesEnum treeSpecies);
   void setWindSpeedAtTwentyFeet(double windSpeedAtTwentyFeet, SpeedUnits_SpeedUnitsEnum windSpeedUnits);
+  void setWindSpeed(double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits);
+  void setWindSpeedAndWindHeightInputMode(double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode);
+  void setWindHeightInputMode(WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode);
   void updateSpotInputsForBurningPile(SpotFireLocation_SpotFireLocationEnum location, double ridgeToValleyDistance,
                                       LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits,
                                       double ridgeToValleyElevation, LengthUnits_LengthUnitsEnum elevationUnits,

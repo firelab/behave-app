@@ -59,7 +59,8 @@ function locateFile(path) {
 // Hooks that are implemented differently in different runtime environments.
 var read_,
     readAsync,
-    readBinary;
+    readBinary,
+    setWindowTitle;
 
 if (ENVIRONMENT_IS_NODE) {
   if (typeof process == 'undefined' || !process.release || process.release.name !== 'node') throw new Error('not compiled for this environment (did you build to HTML and try to run it not on the web, or set ENVIRONMENT to something - like node - and run it someplace else - like on the web?)');
@@ -269,6 +270,8 @@ read_ = (url) => {
 
 // end include: web_or_worker_shell_read.js
   }
+
+  setWindowTitle = (title) => document.title = title;
 } else
 {
   throw new Error('environment detection error');
@@ -304,7 +307,7 @@ assert(typeof Module['filePackagePrefixURL'] == 'undefined', 'Module.filePackage
 assert(typeof Module['read'] == 'undefined', 'Module.read option was removed (modify read_ in JS)');
 assert(typeof Module['readAsync'] == 'undefined', 'Module.readAsync option was removed (modify readAsync in JS)');
 assert(typeof Module['readBinary'] == 'undefined', 'Module.readBinary option was removed (modify readBinary in JS)');
-assert(typeof Module['setWindowTitle'] == 'undefined', 'Module.setWindowTitle option was removed (modify emscripten_set_window_title in JS)');
+assert(typeof Module['setWindowTitle'] == 'undefined', 'Module.setWindowTitle option was removed (modify setWindowTitle in JS)');
 assert(typeof Module['TOTAL_MEMORY'] == 'undefined', 'Module.TOTAL_MEMORY has been renamed Module.INITIAL_MEMORY');
 legacyModuleProp('asm', 'wasmExports');
 legacyModuleProp('read', 'read_');
@@ -412,6 +415,12 @@ assert(typeof Int32Array != 'undefined' && typeof Float64Array !== 'undefined' &
 assert(!Module['wasmMemory'], 'Use of `wasmMemory` detected.  Use -sIMPORTED_MEMORY to define wasmMemory externally');
 assert(!Module['INITIAL_MEMORY'], 'Detected runtime INITIAL_MEMORY setting.  Use -sIMPORTED_MEMORY to define wasmMemory dynamically');
 
+// include: runtime_init_table.js
+// In regular non-RELOCATABLE mode the table is exported
+// from the wasm module and this will be assigned once
+// the exports are available.
+var wasmTable;
+// end include: runtime_init_table.js
 // include: runtime_stack_check.js
 // Initializes the stack cookie. Called at the startup of main and at the startup of each thread in pthreads mode.
 function writeStackCookie() {
@@ -811,8 +820,9 @@ function createWasm() {
   // performing other necessary setup
   /** @param {WebAssembly.Module=} module*/
   function receiveInstance(instance, module) {
-    wasmExports = instance.exports;
+    var exports = instance.exports;
 
+    wasmExports = exports;
     
 
     wasmMemory = wasmExports['memory'];
@@ -831,7 +841,7 @@ function createWasm() {
     addOnInit(wasmExports['__wasm_call_ctors']);
 
     removeRunDependency('wasm-instantiate');
-    return wasmExports;
+    return exports;
   }
   // wait for the pthread pool (if any)
   addRunDependency('wasm-instantiate');
@@ -2121,10 +2131,6 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
     };
   
   
-  var FS_createDataFile = (parent, name, fileData, canRead, canWrite, canOwn) => {
-      return FS.createDataFile(parent, name, fileData, canRead, canWrite, canOwn);
-    };
-  
   var preloadPlugins = Module['preloadPlugins'] || [];
   var FS_handledByPreloadPlugin = (byteArray, fullname, finish, onerror) => {
       // Ensure plugins are ready.
@@ -2149,7 +2155,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         function finish(byteArray) {
           if (preFinish) preFinish();
           if (!dontCreateFile) {
-            FS_createDataFile(parent, name, byteArray, canRead, canWrite, canOwn);
+            FS.createDataFile(parent, name, byteArray, canRead, canWrite, canOwn);
           }
           if (onload) onload();
           removeRunDependency(dep);
@@ -3989,8 +3995,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
   varargs:undefined,
   get() {
         assert(SYSCALLS.varargs != undefined);
-        // the `+` prepended here is necessary to convince the JSCompiler that varargs is indeed a number.
-        var ret = HEAP32[((+SYSCALLS.varargs)>>2)];
+        var ret = HEAP32[((SYSCALLS.varargs)>>2)];
         SYSCALLS.varargs += 4;
         return ret;
       },
@@ -4172,7 +4177,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
       abort('native code called abort()');
     };
 
-  var _emscripten_memcpy_js = (dest, src, num) => HEAPU8.copyWithin(dest, src, src + num);
+  var _emscripten_memcpy_big = (dest, src, num) => HEAPU8.copyWithin(dest, src, src + num);
 
   var getHeapMax = () =>
       // Stay one Wasm page short of 4GB: while e.g. Chrome is able to allocate
@@ -4351,8 +4356,6 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
 
 
   var wasmTableMirror = [];
-  
-  var wasmTable;
   var getWasmTableEntry = (funcPtr) => {
       var func = wasmTableMirror[funcPtr];
       if (!func) {
@@ -4495,8 +4498,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
       }
     };
   
-  var functionsInTableMap;
-  
+  var functionsInTableMap = undefined;
   var getFunctionAddress = (func) => {
       // First, create the map if this is the first use.
       if (!functionsInTableMap) {
@@ -4508,7 +4510,6 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
   
   
   var freeTableIndexes = [];
-  
   var getEmptyTableSlot = () => {
       // Reuse a free index if there is one, otherwise grow.
       if (freeTableIndexes.length) {
@@ -4527,7 +4528,6 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
     };
   
   
-  
   var setWasmTableEntry = (idx, func) => {
       wasmTable.set(idx, func);
       // With ABORT_ON_WASM_EXCEPTIONS wasmTable.get is overriden to return wrapped
@@ -4535,7 +4535,6 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
       // instead of just storing 'func' directly into wasmTableMirror
       wasmTableMirror[idx] = wasmTable.get(idx);
     };
-  
   /** @param {string=} sig */
   var addFunction = (func, sig) => {
       assert(typeof func != 'undefined');
@@ -4833,83 +4832,44 @@ function checkIncomingModuleAPI() {
   ignoredModuleProp('fetchSettings');
 }
 var wasmImports = {
-  /** @export */
   __assert_fail: ___assert_fail,
-  /** @export */
   __cxa_begin_catch: ___cxa_begin_catch,
-  /** @export */
   __cxa_find_matching_catch_2: ___cxa_find_matching_catch_2,
-  /** @export */
   __cxa_find_matching_catch_3: ___cxa_find_matching_catch_3,
-  /** @export */
   __cxa_throw: ___cxa_throw,
-  /** @export */
   __resumeException: ___resumeException,
-  /** @export */
   __syscall_fcntl64: ___syscall_fcntl64,
-  /** @export */
   __syscall_ioctl: ___syscall_ioctl,
-  /** @export */
   __syscall_openat: ___syscall_openat,
-  /** @export */
   abort: _abort,
-  /** @export */
-  emscripten_memcpy_js: _emscripten_memcpy_js,
-  /** @export */
+  emscripten_memcpy_big: _emscripten_memcpy_big,
   emscripten_resize_heap: _emscripten_resize_heap,
-  /** @export */
   fd_close: _fd_close,
-  /** @export */
   fd_read: _fd_read,
-  /** @export */
   fd_seek: _fd_seek,
-  /** @export */
   fd_write: _fd_write,
-  /** @export */
   invoke_diii: invoke_diii,
-  /** @export */
   invoke_diiidiiiii: invoke_diiidiiiii,
-  /** @export */
   invoke_ii: invoke_ii,
-  /** @export */
   invoke_iidddiidd: invoke_iidddiidd,
-  /** @export */
   invoke_iiddiiddiidid: invoke_iiddiiddiidid,
-  /** @export */
   invoke_iiddiidiidiiiii: invoke_iiddiidiidiiiii,
-  /** @export */
   invoke_iii: invoke_iii,
-  /** @export */
   invoke_iiii: invoke_iiii,
-  /** @export */
   invoke_iiiii: invoke_iiiii,
-  /** @export */
   invoke_iiiiidididdidddddidddii: invoke_iiiiidididdidddddidddii,
-  /** @export */
   invoke_iiiiii: invoke_iiiiii,
-  /** @export */
   invoke_v: invoke_v,
-  /** @export */
   invoke_vi: invoke_vi,
-  /** @export */
   invoke_viddidiidd: invoke_viddidiidd,
-  /** @export */
   invoke_vidii: invoke_vidii,
-  /** @export */
   invoke_vii: invoke_vii,
-  /** @export */
   invoke_viididi: invoke_viididi,
-  /** @export */
   invoke_viii: invoke_viii,
-  /** @export */
   invoke_viiiddddd: invoke_viiiddddd,
-  /** @export */
   invoke_viiii: invoke_viiii,
-  /** @export */
   invoke_viiiiddddddddddddii: invoke_viiiiddddddddddddii,
-  /** @export */
   invoke_viiiii: invoke_viiiii,
-  /** @export */
   invoke_viiiiiiiiiiiii: invoke_viiiiiiiiiiiii
 };
 var wasmExports = createWasm();
@@ -5097,6 +5057,9 @@ var _emscripten_bind_SIGSpot_setTorchingTrees_1 = Module['_emscripten_bind_SIGSp
 var _emscripten_bind_SIGSpot_setTreeHeight_2 = Module['_emscripten_bind_SIGSpot_setTreeHeight_2'] = createExportWrapper('emscripten_bind_SIGSpot_setTreeHeight_2');
 var _emscripten_bind_SIGSpot_setTreeSpecies_1 = Module['_emscripten_bind_SIGSpot_setTreeSpecies_1'] = createExportWrapper('emscripten_bind_SIGSpot_setTreeSpecies_1');
 var _emscripten_bind_SIGSpot_setWindSpeedAtTwentyFeet_2 = Module['_emscripten_bind_SIGSpot_setWindSpeedAtTwentyFeet_2'] = createExportWrapper('emscripten_bind_SIGSpot_setWindSpeedAtTwentyFeet_2');
+var _emscripten_bind_SIGSpot_setWindSpeed_2 = Module['_emscripten_bind_SIGSpot_setWindSpeed_2'] = createExportWrapper('emscripten_bind_SIGSpot_setWindSpeed_2');
+var _emscripten_bind_SIGSpot_setWindSpeedAndWindHeightInputMode_3 = Module['_emscripten_bind_SIGSpot_setWindSpeedAndWindHeightInputMode_3'] = createExportWrapper('emscripten_bind_SIGSpot_setWindSpeedAndWindHeightInputMode_3');
+var _emscripten_bind_SIGSpot_setWindHeightInputMode_1 = Module['_emscripten_bind_SIGSpot_setWindHeightInputMode_1'] = createExportWrapper('emscripten_bind_SIGSpot_setWindHeightInputMode_1');
 var _emscripten_bind_SIGSpot_updateSpotInputsForBurningPile_12 = Module['_emscripten_bind_SIGSpot_updateSpotInputsForBurningPile_12'] = createExportWrapper('emscripten_bind_SIGSpot_updateSpotInputsForBurningPile_12');
 var _emscripten_bind_SIGSpot_updateSpotInputsForSurfaceFire_12 = Module['_emscripten_bind_SIGSpot_updateSpotInputsForSurfaceFire_12'] = createExportWrapper('emscripten_bind_SIGSpot_updateSpotInputsForSurfaceFire_12');
 var _emscripten_bind_SIGSpot_updateSpotInputsForTorchingTrees_16 = Module['_emscripten_bind_SIGSpot_updateSpotInputsForTorchingTrees_16'] = createExportWrapper('emscripten_bind_SIGSpot_updateSpotInputsForTorchingTrees_16');
@@ -5948,8 +5911,8 @@ var ___get_exception_message = Module['___get_exception_message'] = createExport
 var ___cxa_can_catch = createExportWrapper('__cxa_can_catch');
 var ___cxa_is_pointer_type = createExportWrapper('__cxa_is_pointer_type');
 var dynCall_jiji = Module['dynCall_jiji'] = createExportWrapper('dynCall_jiji');
-var ___start_em_js = Module['___start_em_js'] = 117926;
-var ___stop_em_js = Module['___stop_em_js'] = 118024;
+var ___start_em_js = Module['___start_em_js'] = 118118;
+var ___stop_em_js = Module['___stop_em_js'] = 118216;
 function invoke_vii(index,a1,a2) {
   var sp = stackSave();
   try {
@@ -6334,8 +6297,6 @@ var missingLibrarySymbols = [
   'setMainLoop',
   'getSocketFromFD',
   'getSocketAddress',
-  'FS_unlink',
-  'FS_mkdirTree',
   '_setNetworkCallback',
   'heapObjectForWebGLType',
   'heapAccessShiftForWebGLHeap',
@@ -6360,6 +6321,7 @@ var missingLibrarySymbols = [
   'SDL_unicode',
   'SDL_ttfContext',
   'SDL_audio',
+  'GLFW_Window',
   'ALLOC_NORMAL',
   'ALLOC_STACK',
   'allocate',
@@ -6379,16 +6341,19 @@ var unexportedSymbols = [
   'removeRunDependency',
   'FS_createFolder',
   'FS_createPath',
+  'FS_createDataFile',
   'FS_createLazyFile',
   'FS_createLink',
   'FS_createDevice',
   'FS_readFile',
+  'FS_unlink',
   'out',
   'err',
   'callMain',
   'abort',
   'keepRuntimeAlive',
   'wasmMemory',
+  'wasmTable',
   'wasmExports',
   'stackAlloc',
   'stackSave',
@@ -6422,7 +6387,6 @@ var unexportedSymbols = [
   'asyncLoad',
   'alignMemory',
   'mmapAlloc',
-  'wasmTable',
   'getCFunc',
   'uleb128Encode',
   'sigToWasmTypes',
@@ -6476,7 +6440,6 @@ var unexportedSymbols = [
   'FS_stdin_getChar_buffer',
   'FS_stdin_getChar',
   'FS',
-  'FS_createDataFile',
   'MEMFS',
   'TTY',
   'PIPEFS',
@@ -6493,6 +6456,7 @@ var unexportedSymbols = [
   'IDBStore',
   'SDL',
   'SDL_gfx',
+  'GLFW',
   'allocateUTF8OnStack',
 ];
 unexportedSymbols.forEach(unexportedRuntimeSymbol);
@@ -7948,6 +7912,27 @@ SIGSpot.prototype['setWindSpeedAtTwentyFeet'] = SIGSpot.prototype.setWindSpeedAt
   if (windSpeedAtTwentyFeet && typeof windSpeedAtTwentyFeet === 'object') windSpeedAtTwentyFeet = windSpeedAtTwentyFeet.ptr;
   if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
   _emscripten_bind_SIGSpot_setWindSpeedAtTwentyFeet_2(self, windSpeedAtTwentyFeet, windSpeedUnits);
+};;
+
+SIGSpot.prototype['setWindSpeed'] = SIGSpot.prototype.setWindSpeed = /** @suppress {undefinedVars, duplicate} @this{Object} */function(windSpeed, windSpeedUnits) {
+  var self = this.ptr;
+  if (windSpeed && typeof windSpeed === 'object') windSpeed = windSpeed.ptr;
+  if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
+  _emscripten_bind_SIGSpot_setWindSpeed_2(self, windSpeed, windSpeedUnits);
+};;
+
+SIGSpot.prototype['setWindSpeedAndWindHeightInputMode'] = SIGSpot.prototype.setWindSpeedAndWindHeightInputMode = /** @suppress {undefinedVars, duplicate} @this{Object} */function(windSpeed, windSpeedUnits, windHeightInputMode) {
+  var self = this.ptr;
+  if (windSpeed && typeof windSpeed === 'object') windSpeed = windSpeed.ptr;
+  if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
+  if (windHeightInputMode && typeof windHeightInputMode === 'object') windHeightInputMode = windHeightInputMode.ptr;
+  _emscripten_bind_SIGSpot_setWindSpeedAndWindHeightInputMode_3(self, windSpeed, windSpeedUnits, windHeightInputMode);
+};;
+
+SIGSpot.prototype['setWindHeightInputMode'] = SIGSpot.prototype.setWindHeightInputMode = /** @suppress {undefinedVars, duplicate} @this{Object} */function(windHeightInputMode) {
+  var self = this.ptr;
+  if (windHeightInputMode && typeof windHeightInputMode === 'object') windHeightInputMode = windHeightInputMode.ptr;
+  _emscripten_bind_SIGSpot_setWindHeightInputMode_1(self, windHeightInputMode);
 };;
 
 SIGSpot.prototype['updateSpotInputsForBurningPile'] = SIGSpot.prototype.updateSpotInputsForBurningPile = /** @suppress {undefinedVars, duplicate} @this{Object} */function(location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, downwindCanopyMode, buringPileFlameHeight, flameHeightUnits, windSpeedAtTwentyFeet, windSpeedUnits) {
