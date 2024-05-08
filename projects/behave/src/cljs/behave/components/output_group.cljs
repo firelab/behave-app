@@ -4,6 +4,8 @@
 
 (defn wizard-output [ws-uuid {gv-uuid  :bp/uuid
                               help-key :group-variable/help-key}]
+  (when @(rf/subscribe [:wizard/default-option ws-uuid gv-uuid])
+    (rf/dispatch [:worksheet/upsert-output ws-uuid gv-uuid true]))
   (let [checked?       (rf/subscribe [:worksheet/output-enabled? ws-uuid gv-uuid])
         on-focus-click #(rf/dispatch [:help/highlight-section help-key])]
     [:div.wizard-output
