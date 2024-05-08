@@ -515,6 +515,9 @@ Module.SIGSpot = class {
   setTorchingTrees() {}
   setTreeHeight() {}
   setTreeSpecies() {}
+  setWindHeightInputMode() {}
+  setWindSpeed() {}
+  setWindSpeedAndWindHeightInputMode() {}
   setWindSpeedAtTwentyFeet() {}
   updateSpotInputsForBurningPile() {}
   updateSpotInputsForSurfaceFire() {}
