@@ -21,131 +21,139 @@
 
 ;;; Setters
 
-(defn setTreeHeight [self treeHeight treeHeightUnits]
-  (.setTreeHeight self treeHeight treeHeightUnits))
-
-(defn setDownwindCanopyMode [self downwindCanopyMode]
-  (.setDownwindCanopyMode self downwindCanopyMode))
-
-(defn getMaxFlatTerrainSpottingDistanceFromSurfaceFire [self spottingDistanceUnits]
-  (.getMaxFlatTerrainSpottingDistanceFromSurfaceFire self spottingDistanceUnits))
-
-(defn getFlameHeightForTorchingTrees [self flameHeightUnits]
-  (.getFlameHeightForTorchingTrees self flameHeightUnits))
-
-(defn getBurningPileFlameHeight [self flameHeightUnits]
-  (.getBurningPileFlameHeight self flameHeightUnits))
-
-(defn getCoverHeightUsedForTorchingTrees [self coverHeightUnits]
-  (.getCoverHeightUsedForTorchingTrees self coverHeightUnits))
-
-(defn setWindSpeedAtTwentyFeet [self windSpeedAtTwentyFeet windSpeedUnits]
-  (.setWindSpeedAtTwentyFeet self windSpeedAtTwentyFeet windSpeedUnits))
-
-(defn setDownwindCoverHeight [self downwindCoverHeight coverHeightUnits]
-  (.setDownwindCoverHeight self downwindCoverHeight coverHeightUnits))
-
-(defn getDBH [self DBHUnits]
-  (.getDBH self DBHUnits))
-
-(defn getMaxFirebrandHeightFromBurningPile [self firebrandHeightUnits]
-  (.getMaxFirebrandHeightFromBurningPile self firebrandHeightUnits))
-
-(defn setTorchingTrees [self torchingTrees]
-  (.setTorchingTrees self torchingTrees))
-
-(defn getFlameRatioForTorchingTrees [self]
-  (.getFlameRatioForTorchingTrees self))
-
-(defn getMaxFirebrandHeightFromTorchingTrees [self firebrandHeightUnits]
-  (.getMaxFirebrandHeightFromTorchingTrees self firebrandHeightUnits))
-
-(defn getMaxFirebrandHeightFromSurfaceFire [self firebrandHeightUnits]
-  (.getMaxFirebrandHeightFromSurfaceFire self firebrandHeightUnits))
-
-(defn updateSpotInputsForTorchingTrees [self location ridgeToValleyDistance ridgeToValleyDistanceUnits ridgeToValleyElevation elevationUnits downwindCoverHeight coverHeightUnits downwindCanopyMode torchingTrees DBH DBHUnits treeHeight treeHeightUnits treeSpecies windSpeedAtTwentyFeet windSpeedUnits]
-  (.updateSpotInputsForTorchingTrees self location ridgeToValleyDistance ridgeToValleyDistanceUnits ridgeToValleyElevation elevationUnits downwindCoverHeight coverHeightUnits downwindCanopyMode torchingTrees DBH DBHUnits treeHeight treeHeightUnits treeSpecies windSpeedAtTwentyFeet windSpeedUnits))
-
-(defn setTreeSpecies [self treeSpecies]
-  (.setTreeSpecies self treeSpecies))
-
-(defn updateSpotInputsForBurningPile [self location ridgeToValleyDistance ridgeToValleyDistanceUnits ridgeToValleyElevation elevationUnits downwindCoverHeight coverHeightUnits downwindCanopyMode buringPileFlameHeight flameHeightUnits windSpeedAtTwentyFeet windSpeedUnits]
-  (.updateSpotInputsForBurningPile self location ridgeToValleyDistance ridgeToValleyDistanceUnits ridgeToValleyElevation elevationUnits downwindCoverHeight coverHeightUnits downwindCanopyMode buringPileFlameHeight flameHeightUnits windSpeedAtTwentyFeet windSpeedUnits))
-
-(defn getCoverHeightUsedForSurfaceFire [self coverHeightUnits]
-  (.getCoverHeightUsedForSurfaceFire self coverHeightUnits))
-
-(defn setRidgeToValleyDistance [self ridgeToValleyDistance ridgeToValleyDistanceUnits]
-  (.setRidgeToValleyDistance self ridgeToValleyDistance ridgeToValleyDistanceUnits))
-
-(defn getTorchingTrees [self]
-  (.getTorchingTrees self))
-
-(defn getMaxMountainousTerrainSpottingDistanceFromTorchingTrees [self spottingDistanceUnits]
-  (.getMaxMountainousTerrainSpottingDistanceFromTorchingTrees self spottingDistanceUnits))
-
-(defn getMaxFlatTerrainSpottingDistanceFromBurningPile [self spottingDistanceUnits]
-  (.getMaxFlatTerrainSpottingDistanceFromBurningPile self spottingDistanceUnits))
-
-(defn getDownwindCoverHeight [self coverHeightUnits]
-  (.getDownwindCoverHeight self coverHeightUnits))
-
-(defn getMaxMountainousTerrainSpottingDistanceFromBurningPile [self spottingDistanceUnits]
-  (.getMaxMountainousTerrainSpottingDistanceFromBurningPile self spottingDistanceUnits))
-
-(defn getRidgeToValleyDistance [self ridgeToValleyDistanceUnits]
-  (.getRidgeToValleyDistance self ridgeToValleyDistanceUnits))
-
-(defn getSurfaceFlameLength [self surfaceFlameLengthUnits]
-  (.getSurfaceFlameLength self surfaceFlameLengthUnits))
-
-(defn getWindSpeedAtTwentyFeet [self windSpeedUnits]
-  (.getWindSpeedAtTwentyFeet self windSpeedUnits))
-
 (defn initializeMembers [self]
   (.initializeMembers self))
-
-(defn updateSpotInputsForSurfaceFire [self location ridgeToValleyDistance ridgeToValleyDistanceUnits ridgeToValleyElevation elevationUnits downwindCoverHeight coverHeightUnits downwindCanopyMode windSpeedAtTwentyFeet windSpeedUnits flameLength flameLengthUnits]
-  (.updateSpotInputsForSurfaceFire self location ridgeToValleyDistance ridgeToValleyDistanceUnits ridgeToValleyElevation elevationUnits downwindCoverHeight coverHeightUnits downwindCanopyMode windSpeedAtTwentyFeet windSpeedUnits flameLength flameLengthUnits))
-
-(defn getTreeHeight [self treeHeightUnits]
-  (.getTreeHeight self treeHeightUnits))
 
 (defn setBurningPileFlameHeight [self buringPileflameHeight flameHeightUnits]
   (.setBurningPileFlameHeight self buringPileflameHeight flameHeightUnits))
 
-(defn getMaxFlatTerrainSpottingDistanceFromTorchingTrees [self spottingDistanceUnits]
-  (.getMaxFlatTerrainSpottingDistanceFromTorchingTrees self spottingDistanceUnits))
-
-(defn getMaxMountainousTerrainSpottingDistanceFromSurfaceFire [self spottingDistanceUnits]
-  (.getMaxMountainousTerrainSpottingDistanceFromSurfaceFire self spottingDistanceUnits))
-
-(defn getLocation [self]
-  (.getLocation self))
-
-(defn setRidgeToValleyElevation [self ridgeToValleyElevation elevationUnits]
-  (.setRidgeToValleyElevation self ridgeToValleyElevation elevationUnits))
-
-(defn getCoverHeightUsedForBurningPile [self coverHeightUnits]
-  (.getCoverHeightUsedForBurningPile self coverHeightUnits))
-
 (defn setDBH [self DBH DBHUnits]
   (.setDBH self DBH DBHUnits))
 
-(defn getDownwindCanopyMode [self]
-  (.getDownwindCanopyMode self))
+(defn setDownwindCanopyMode [self downwindCanopyMode]
+  (.setDownwindCanopyMode self downwindCanopyMode))
 
-(defn getTreeSpecies [self]
-  (.getTreeSpecies self))
-
-(defn setLocation [self location]
-  (.setLocation self location))
-
-(defn getFlameDurationForTorchingTrees [self durationUnits]
-  (.getFlameDurationForTorchingTrees self durationUnits))
+(defn setDownwindCoverHeight [self downwindCoverHeight coverHeightUnits]
+  (.setDownwindCoverHeight self downwindCoverHeight coverHeightUnits))
 
 (defn setFlameLength [self flameLength flameLengthUnits]
   (.setFlameLength self flameLength flameLengthUnits))
 
+(defn setLocation [self location]
+  (.setLocation self location))
+
+(defn setRidgeToValleyDistance [self ridgeToValleyDistance ridgeToValleyDistanceUnits]
+  (.setRidgeToValleyDistance self ridgeToValleyDistance ridgeToValleyDistanceUnits))
+
+(defn setRidgeToValleyElevation [self ridgeToValleyElevation elevationUnits]
+  (.setRidgeToValleyElevation self ridgeToValleyElevation elevationUnits))
+
+(defn setTorchingTrees [self torchingTrees]
+  (.setTorchingTrees self torchingTrees))
+
+(defn setTreeHeight [self treeHeight treeHeightUnits]
+  (.setTreeHeight self treeHeight treeHeightUnits))
+
+(defn setTreeSpecies [self treeSpecies]
+  (.setTreeSpecies self treeSpecies))
+
+(defn setWindSpeedAtTwentyFeet [self windSpeedAtTwentyFeet windSpeedUnits]
+  (.setWindSpeedAtTwentyFeet self windSpeedAtTwentyFeet windSpeedUnits))
+
+(defn setWindSpeed [self windSpeed windSpeedUnits]
+  (.setWindSpeed self windSpeed windSpeedUnits))
+
+(defn setWindHeightInputMode [self windHeightInputMode]
+  (.setWindHeightInputMode self windHeightInputMode))
+
+(defn updateSpotInputsForBurningPile [self location ridgeToValleyDistance ridgeToValleyDistanceUnits ridgeToValleyElevation elevationUnits downwindCoverHeight coverHeightUnits downwindCanopyMode buringPileFlameHeight flameHeightUnits windSpeedAtTwentyFeet windSpeedUnits]
+  (.updateSpotInputsForBurningPile self location ridgeToValleyDistance ridgeToValleyDistanceUnits ridgeToValleyElevation elevationUnits downwindCoverHeight coverHeightUnits downwindCanopyMode buringPileFlameHeight flameHeightUnits windSpeedAtTwentyFeet windSpeedUnits))
+
+(defn updateSpotInputsForSurfaceFire [self location ridgeToValleyDistance ridgeToValleyDistanceUnits ridgeToValleyElevation elevationUnits downwindCoverHeight coverHeightUnits downwindCanopyMode windSpeedAtTwentyFeet windSpeedUnits flameLength flameLengthUnits]
+  (.updateSpotInputsForSurfaceFire self location ridgeToValleyDistance ridgeToValleyDistanceUnits ridgeToValleyElevation elevationUnits downwindCoverHeight coverHeightUnits downwindCanopyMode windSpeedAtTwentyFeet windSpeedUnits flameLength flameLengthUnits))
+
+(defn updateSpotInputsForTorchingTrees [self location ridgeToValleyDistance ridgeToValleyDistanceUnits ridgeToValleyElevation elevationUnits downwindCoverHeight coverHeightUnits downwindCanopyMode torchingTrees DBH DBHUnits treeHeight treeHeightUnits treeSpecies windSpeedAtTwentyFeet windSpeedUnits]
+  (.updateSpotInputsForTorchingTrees self location ridgeToValleyDistance ridgeToValleyDistanceUnits ridgeToValleyElevation elevationUnits downwindCoverHeight coverHeightUnits downwindCanopyMode torchingTrees DBH DBHUnits treeHeight treeHeightUnits treeSpecies windSpeedAtTwentyFeet windSpeedUnits))
+
+;; Getters
+
+(defn getBurningPileFlameHeight [self flameHeightUnits]
+  (.getBurningPileFlameHeight self flameHeightUnits))
+
+(defn getCoverHeightUsedForBurningPile [self coverHeightUnits]
+  (.getCoverHeightUsedForBurningPile self coverHeightUnits))
+
+(defn getCoverHeightUsedForSurfaceFire [self coverHeightUnits]
+  (.getCoverHeightUsedForSurfaceFire self coverHeightUnits))
+
+(defn getCoverHeightUsedForTorchingTrees [self coverHeightUnits]
+  (.getCoverHeightUsedForTorchingTrees self coverHeightUnits))
+
+(defn getDBH [self DBHUnits]
+  (.getDBH self DBHUnits))
+
+(defn getDownwindCanopyMode [self]
+  (.getDownwindCanopyMode self))
+
+(defn getDownwindCoverHeight [self coverHeightUnits]
+  (.getDownwindCoverHeight self coverHeightUnits))
+
+(defn getFlameDurationForTorchingTrees [self durationUnits]
+  (.getFlameDurationForTorchingTrees self durationUnits))
+
+(defn getFlameHeightForTorchingTrees [self flameHeightUnits]
+  (.getFlameHeightForTorchingTrees self flameHeightUnits))
+
+(defn getFlameRatioForTorchingTrees [self]
+  (.getFlameRatioForTorchingTrees self))
+
+(defn getLocation [self]
+  (.getLocation self))
+
+(defn getMaxFirebrandHeightFromBurningPile [self firebrandHeightUnits]
+  (.getMaxFirebrandHeightFromBurningPile self firebrandHeightUnits))
+
+(defn getMaxFirebrandHeightFromSurfaceFire [self firebrandHeightUnits]
+  (.getMaxFirebrandHeightFromSurfaceFire self firebrandHeightUnits))
+
+(defn getMaxFirebrandHeightFromTorchingTrees [self firebrandHeightUnits]
+  (.getMaxFirebrandHeightFromTorchingTrees self firebrandHeightUnits))
+
+(defn getMaxFlatTerrainSpottingDistanceFromBurningPile [self spottingDistanceUnits]
+  (.getMaxFlatTerrainSpottingDistanceFromBurningPile self spottingDistanceUnits))
+
+(defn getMaxFlatTerrainSpottingDistanceFromSurfaceFire [self spottingDistanceUnits]
+  (.getMaxFlatTerrainSpottingDistanceFromSurfaceFire self spottingDistanceUnits))
+
+(defn getMaxFlatTerrainSpottingDistanceFromTorchingTrees [self spottingDistanceUnits]
+  (.getMaxFlatTerrainSpottingDistanceFromTorchingTrees self spottingDistanceUnits))
+
+(defn getMaxMountainousTerrainSpottingDistanceFromBurningPile [self spottingDistanceUnits]
+  (.getMaxMountainousTerrainSpottingDistanceFromBurningPile self spottingDistanceUnits))
+
+(defn getMaxMountainousTerrainSpottingDistanceFromSurfaceFire [self spottingDistanceUnits]
+  (.getMaxMountainousTerrainSpottingDistanceFromSurfaceFire self spottingDistanceUnits))
+
+(defn getMaxMountainousTerrainSpottingDistanceFromTorchingTrees [self spottingDistanceUnits]
+  (.getMaxMountainousTerrainSpottingDistanceFromTorchingTrees self spottingDistanceUnits))
+
+(defn getRidgeToValleyDistance [self ridgeToValleyDistanceUnits]
+  (.getRidgeToValleyDistance self ridgeToValleyDistanceUnits))
+
 (defn getRidgeToValleyElevation [self elevationUnits]
   (.getRidgeToValleyElevation self elevationUnits))
+
+(defn getSurfaceFlameLength [self surfaceFlameLengthUnits]
+  (.getSurfaceFlameLength self surfaceFlameLengthUnits))
+
+(defn getTorchingTrees [self]
+  (.getTorchingTrees self))
+
+(defn getTreeHeight [self treeHeightUnits]
+  (.getTreeHeight self treeHeightUnits))
+
+(defn getTreeSpecies [self]
+  (.getTreeSpecies self))
+
+(defn getWindSpeedAtTwentyFeet [self windSpeedUnits]
+  (.getWindSpeedAtTwentyFeet self windSpeedUnits))

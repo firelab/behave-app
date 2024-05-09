@@ -34,11 +34,18 @@
 #define _SIGSPOT_H_
 
 #include "spot.h"
+#include "surfaceInputEnums.h"
 
 class SIGSpot : public Spot {
 public:
   void calculateAll();
+  void setWindSpeedAndWindHeightInputMode(double windwindSpeed, SpeedUnits::SpeedUnitsEnum windSpeedUnits, WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode);
+  void setWindSpeed(double windSpeed, SpeedUnits::SpeedUnitsEnum windSpeedUnits);
+  void setWindHeightInputMode(WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode);
+
+private:
+  double windSpeed_;
+  WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode_;
 };
 
 #endif // SPOT_H
-

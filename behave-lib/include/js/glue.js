@@ -1333,6 +1333,27 @@ SIGSpot.prototype['setWindSpeedAtTwentyFeet'] = SIGSpot.prototype.setWindSpeedAt
   _emscripten_bind_SIGSpot_setWindSpeedAtTwentyFeet_2(self, windSpeedAtTwentyFeet, windSpeedUnits);
 };;
 
+SIGSpot.prototype['setWindSpeed'] = SIGSpot.prototype.setWindSpeed = /** @suppress {undefinedVars, duplicate} @this{Object} */function(windSpeed, windSpeedUnits) {
+  var self = this.ptr;
+  if (windSpeed && typeof windSpeed === 'object') windSpeed = windSpeed.ptr;
+  if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
+  _emscripten_bind_SIGSpot_setWindSpeed_2(self, windSpeed, windSpeedUnits);
+};;
+
+SIGSpot.prototype['setWindSpeedAndWindHeightInputMode'] = SIGSpot.prototype.setWindSpeedAndWindHeightInputMode = /** @suppress {undefinedVars, duplicate} @this{Object} */function(windSpeed, windSpeedUnits, windHeightInputMode) {
+  var self = this.ptr;
+  if (windSpeed && typeof windSpeed === 'object') windSpeed = windSpeed.ptr;
+  if (windSpeedUnits && typeof windSpeedUnits === 'object') windSpeedUnits = windSpeedUnits.ptr;
+  if (windHeightInputMode && typeof windHeightInputMode === 'object') windHeightInputMode = windHeightInputMode.ptr;
+  _emscripten_bind_SIGSpot_setWindSpeedAndWindHeightInputMode_3(self, windSpeed, windSpeedUnits, windHeightInputMode);
+};;
+
+SIGSpot.prototype['setWindHeightInputMode'] = SIGSpot.prototype.setWindHeightInputMode = /** @suppress {undefinedVars, duplicate} @this{Object} */function(windHeightInputMode) {
+  var self = this.ptr;
+  if (windHeightInputMode && typeof windHeightInputMode === 'object') windHeightInputMode = windHeightInputMode.ptr;
+  _emscripten_bind_SIGSpot_setWindHeightInputMode_1(self, windHeightInputMode);
+};;
+
 SIGSpot.prototype['updateSpotInputsForBurningPile'] = SIGSpot.prototype.updateSpotInputsForBurningPile = /** @suppress {undefinedVars, duplicate} @this{Object} */function(location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, downwindCanopyMode, buringPileFlameHeight, flameHeightUnits, windSpeedAtTwentyFeet, windSpeedUnits) {
   var self = this.ptr;
   if (location && typeof location === 'object') location = location.ptr;

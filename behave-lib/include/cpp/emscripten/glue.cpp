@@ -761,6 +761,18 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_setWindSpeedAtTwentyFeet_2(SIG
   self->setWindSpeedAtTwentyFeet(windSpeedAtTwentyFeet, windSpeedUnits);
 }
 
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_setWindSpeed_2(SIGSpot* self, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits) {
+  self->setWindSpeed(windSpeed, windSpeedUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_setWindSpeedAndWindHeightInputMode_3(SIGSpot* self, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode) {
+  self->setWindSpeedAndWindHeightInputMode(windSpeed, windSpeedUnits, windHeightInputMode);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_setWindHeightInputMode_1(SIGSpot* self, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode) {
+  self->setWindHeightInputMode(windHeightInputMode);
+}
+
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_updateSpotInputsForBurningPile_12(SIGSpot* self, SpotFireLocation_SpotFireLocationEnum location, double ridgeToValleyDistance, LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits, double ridgeToValleyElevation, LengthUnits_LengthUnitsEnum elevationUnits, double downwindCoverHeight, LengthUnits_LengthUnitsEnum coverHeightUnits, SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum downwindCanopyMode, double buringPileFlameHeight, LengthUnits_LengthUnitsEnum flameHeightUnits, double windSpeedAtTwentyFeet, SpeedUnits_SpeedUnitsEnum windSpeedUnits) {
   self->updateSpotInputsForBurningPile(location, ridgeToValleyDistance, ridgeToValleyDistanceUnits, ridgeToValleyElevation, elevationUnits, downwindCoverHeight, coverHeightUnits, downwindCanopyMode, buringPileFlameHeight, flameHeightUnits, windSpeedAtTwentyFeet, windSpeedUnits);
 }
