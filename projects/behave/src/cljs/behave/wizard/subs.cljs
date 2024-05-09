@@ -1,14 +1,14 @@
 (ns behave.wizard.subs
   (:require [behave.schema.core     :refer [rules]]
             [behave.vms.store       :refer [vms-conn]]
-            [behave.translate                    :refer [<t]]
+            [behave.translate       :refer [<t]]
             [clojure.set            :refer [rename-keys intersection]]
             [datascript.core        :as d]
             [re-frame.core          :refer [reg-sub subscribe] :as rf]
             [string-utils.interface :refer [->kebab]]
             [clojure.string         :as str]
-            [bidi.bidi                     :refer [path-for]]
-            [behave-routing.main           :refer [routes]]))
+            [bidi.bidi              :refer [path-for]]
+            [behave-routing.main    :refer [routes]]))
 
 ;;; Helpers
 
