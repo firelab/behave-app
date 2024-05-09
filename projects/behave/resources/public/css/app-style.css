@@ -372,7 +372,7 @@ body {
 }
 
 .wizard-header__submodules__group:last-child {
-  width: 100%;
+  flex-grow: 1;
 }
 
 .wizard-header__submodules {
