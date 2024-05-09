@@ -4,6 +4,8 @@
 
 (defn wizard-output [ws-uuid {gv-uuid  :bp/uuid
                               help-key :group-variable/help-key}]
+  (when @(rf/subscribe [:wizard/default-option ws-uuid gv-uuid])
+    (rf/dispatch [:worksheet/upsert-output ws-uuid gv-uuid true]))
   (let [checked?       (rf/subscribe [:worksheet/output-enabled? ws-uuid gv-uuid])
         on-focus-click #(rf/dispatch [:help/highlight-section help-key])]
     [:div.wizard-output
@@ -17,12 +19,15 @@
   (let [selected-options? @(rf/subscribe [:wizard/selected-group-variables ws-uuid (:db/id group)])
         on-focus-click    #(rf/dispatch [:help/highlight-section (:group/help-key group)])
         ->option          (fn [{gv-uuid :bp/uuid}]
+                            (when @(rf/subscribe [:wizard/default-option ws-uuid gv-uuid])
+                              (rf/dispatch [:worksheet/upsert-output ws-uuid gv-uuid true]))
                             {:value     gv-uuid
                              :label     @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
                              :on-change #(rf/dispatch [:worksheet/select-single-select-output
                                                        ws-uuid
                                                        (:db/id group)
                                                        gv-uuid])
+                             :disabled? @(rf/subscribe [:wizard/disabled-output-group-variable? ws-uuid gv-uuid])
                              :selected? (contains? selected-options? gv-uuid)
                              :checked?  (contains? selected-options? gv-uuid)})]
     [:div.wizard-output

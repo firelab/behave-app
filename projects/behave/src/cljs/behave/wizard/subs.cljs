@@ -474,6 +474,18 @@
         (set))))
 
 (reg-sub
+ :wizard/disabled-output-group-variable?
+ (fn [[_ ws-uuid gv-uuid]]
+   [(subscribe [:worksheet ws-uuid])
+    (subscribe [:wizard/_disabled-actions gv-uuid])])
+ (fn [[worksheet actions]]
+   (->> actions
+        (some #(let [conditionals  (:action/conditionals %)
+                     cond-operator (:action/conditionals-operator %)]
+                 (or (nil? conditionals)
+                     (all-conditionals-pass? worksheet cond-operator conditionals)))))))
+
+(reg-sub
  :wizard/show-group?
  (fn [[_ ws-uuid group-id & _rest]]
    [(subscribe [:worksheet ws-uuid])
