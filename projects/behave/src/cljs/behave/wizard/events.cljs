@@ -1,5 +1,5 @@
 (ns behave.wizard.events
-  (:require [behave-routing.main           :refer [routes]]
+  (:require [behave-routing.main           :refer [routes current-route-order]]
             [behave.solver.core            :refer [solve-worksheet]]
             [behave.store                  :as s]
             [bidi.bidi                     :refer [path-for]]
@@ -24,18 +24,12 @@
 
 (rf/reg-event-fx
  :wizard/back
-
- [(rf/inject-cofx
-   ::inject/sub
-   (fn [[_ ws-uuid]]
-     [:wizard/route-order ws-uuid]))]
-
- (fn [{path-order :wizard/route-order} _]
+ (fn [_]
    (let [current-path       (str/replace
                              (. (. js/document -location) -href)
                              #"(^.*(?=(/worksheets)))"
                              "")
-         current-path-index (.indexOf path-order current-path)
+         current-path-index (.indexOf @current-route-order current-path)
          next-path          (cond
                               (and (zero? current-path-index) @s/worksheet-from-file?)
                               "/worksheets/import"
@@ -44,25 +38,18 @@
                               "/worksheets/independent"
 
                               :else
-                              (get path-order (dec current-path-index)))]
+                              (get @current-route-order (dec current-path-index)))]
      {:fx [[:dispatch [:navigate next-path]]]})))
 
 (rf/reg-event-fx
  :wizard/next
-
- [(rf/inject-cofx
-   ::inject/sub
-   (fn [[_ ws-uuid]]
-     [:wizard/route-order ws-uuid]))]
-
- (fn [{path-order :wizard/route-order} _]
+ (fn [_]
    (let [current-path       (str/replace
                              (. (. js/document -location) -href)
                              #"(^.*(?=(/worksheets)))"
                              "")
-         current-path-index (.indexOf path-order current-path)
-         next-path          (get path-order (inc current-path-index))]
-     (prn "path-order" path-order)
+         current-path-index (.indexOf @current-route-order current-path)
+         next-path          (get @current-route-order (inc current-path-index))]
      {:fx [[:dispatch [:navigate next-path]]]})))
 
 (rf/reg-event-fx
@@ -275,7 +262,8 @@
                         :in $
                         :where [?e :worksheet/uuid ?uuid]]
                       @@s/conn)]
-     {:fx [[:dispatch [:wizard/next ws-uuid]]]})))
+     (reset! current-route-order @(rf/subscribe [:wizard/route-order ws-uuid]))
+     {:fx [[:dispatch [:wizard/next]]]})))
 
 (rf/reg-event-fx
  :wizard/open

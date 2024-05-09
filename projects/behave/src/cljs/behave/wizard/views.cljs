@@ -10,7 +10,7 @@
             [behave.components.results.inputs.views :refer [inputs-table]]
             [behave.components.results.table      :refer [result-table-download-link]]
             [behave.tool.views                    :refer [tool tool-selector]]
-            [behave-routing.main                  :refer [routes]]
+            [behave-routing.main                  :refer [routes current-route-order]]
             [behave.translate                     :refer [<t bp]]
             [behave.wizard.events]
             [behave.wizard.subs]
@@ -191,8 +191,8 @@
         *multi-value-input-count (subscribe [:wizard/multi-value-input-count ws-uuid])
         *show-notes?             (subscribe [:wizard/show-notes?])
         *show-add-note-form?     (subscribe [:wizard/show-add-note-form?])
-        on-back                  #(dispatch [:wizard/back ws-uuid])
-        on-next                  #(dispatch [:wizard/next ws-uuid])
+        on-back                  #(dispatch [:wizard/back])
+        on-next                  #(dispatch [:wizard/next])
         ;; *all-inputs-entered?     (subscribe [:worksheet/all-inputs-entered? ws-uuid module-id submodule])
         ;; *some-outputs-entered?   (subscribe [:worksheet/some-outputs-entered? ws-uuid module-id submodule])
         ;; next-disabled?           (not (if (= io :input) @*all-inputs-entered? @*some-outputs-entered?))
@@ -325,7 +325,7 @@
            [:div.wizard-navigation
             [c/button {:label    "Back"
                        :variant  "secondary"
-                       :on-click #(dispatch [:wizard/back ws-uuid])}]
+                       :on-click #(dispatch [:wizard/back])}]
             [c/button {:label         "Run"
                        :disabled?     @*warn-limit?
                        :variant       "highlight"
@@ -578,7 +578,7 @@
   (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
   (let [*notes              (subscribe [:wizard/notes ws-uuid])
         *show-notes?        (subscribe [:wizard/show-notes?])
-        on-back             #(dispatch [:wizard/back ws-uuid])
+        on-back             #(dispatch [:wizard/back])
         on-next             #(dispatch [:navigate (path-for routes :ws/results :ws-uuid ws-uuid)])
         show-tool-selector? @(subscribe [:tool/show-tool-selector?])
         selected-tool-uuid  @(subscribe [:tool/selected-tool-uuid])]
@@ -696,16 +696,18 @@
        [:div.wizard-navigation
         [c/button {:label    "Back"
                    :variant  "secondary"
-                   :on-click #(dispatch [:wizard/back ws-uuid])}]]]]]))
+                   :on-click #(dispatch [:wizard/back])}]]]]]))
 
 ;; TODO Might want to set this in a config file to the application
 (def ^:const multi-value-input-limit 3)
 
 ;;; Public Components
-(defn root-component [params]
+(defn root-component [{:keys [ws-uuid] :as params}]
   (let [loaded?             (subscribe [:app/loaded?])
         show-tool-selector? @(subscribe [:tool/show-tool-selector?])
         selected-tool-uuid  @(subscribe [:tool/selected-tool-uuid])]
+    (when ws-uuid
+      (reset! current-route-order @(subscribe [:wizard/route-order ws-uuid])))
     [:<>
      (when show-tool-selector?
        [tool-selector])

@@ -3,6 +3,7 @@
             [ajax.edn                     :refer [edn-request-format]]
             [ajax.protocols              :as pr]
             [austinbirch.reactive-entity :as re]
+            [behave-routing.main         :refer [current-route-order]]
             [behave.schema.core          :refer [all-schemas]]
             [browser-utils.core          :refer [download]]
             [browser-utils.interface     :refer [debounce]]
@@ -147,6 +148,7 @@
       (rf/dispatch-sync [:worksheet/new {:name    nname
                                          :modules (vec modules)
                                          :uuid    ws-uuid}])
+      (reset! current-route-order @(rf/subscribe [:wizard/route-order ws-uuid]))
       (rf/dispatch-sync [:navigate (str "/worksheets/"
                                         ws-uuid
                                         "/modules/"
