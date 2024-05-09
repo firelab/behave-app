@@ -24,7 +24,10 @@
 
     (cond
       current-group
-      (let [variables        (->> current-group (:group/group-variables) (sort-by :group-variable/variable-order))
+      (let [variables        (->> current-group
+                                  (:group/group-variables)
+                                  (remove (fn [gv] (:group-variable/hide-result? gv)))
+                                  (sort-by :group-variable/variable-order))
             single-var?      (= (count variables) 1)
             multi-var?       (> (count variables) 1)
             new-entries      (cond single-var?
