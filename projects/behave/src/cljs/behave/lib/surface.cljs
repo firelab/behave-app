@@ -546,6 +546,12 @@
 (defn setCrownRatio [self crownRatio]
   (.setCrownRatio self crownRatio))
 
+(defn setCurrentMoistureScenarioByIndex [self value]
+  (.setCurrentMoistureScenarioByIndex self value))
+
+(defn setCurrentMoistureScenarioByName [self value]
+  (.setCurrentMoistureScenarioByName self value))
+
 (defn setDirectionOfInterest [self directionOfInterest]
   (.setDirectionOfInterest self directionOfInterest))
 
