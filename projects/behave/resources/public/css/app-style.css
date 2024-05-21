@@ -226,7 +226,7 @@ body {
 .sidebar-group__header__close {
   float: right;
   position: relative;
-  top: 3px;
+  top: 4px;
 }
 
 .sidebar-group__header__close .button{
@@ -258,18 +258,18 @@ body {
 .working-area {
   /* transition: width 300ms; */
   width: 51%;
-  margin-right: 2%;
-  margin-left: 2%;
+  margin-right: 26.136px;
+  margin-left: 26.136px;
   border-radius: 8px 8px 0px 0px;
 }
 
 .working-area--sidebar-hidden {
   /* transition: width 300ms, left 2s; */
-  width: 68%;
+  width: 62%;
 }
 
 .working-area--help-area-hidden {
-  width: 81%;
+  width: 79%;
 }
 
 .working-area--sidebar-hidden.working-area--help-area-hidden {
