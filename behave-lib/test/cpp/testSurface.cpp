@@ -45,7 +45,7 @@ struct SurfaceTestInputs {
   double moistureHundredHour = 0.0;
   double moistureLiveHerbaceous = 0.0;
   double moistureLiveWoody = 0.0;
-  MoistureUnits::MoistureUnitsEnum moistureUnits = MoistureUnits::Percent;
+  FractionUnits::FractionUnitsEnum moistureUnits = FractionUnits::Percent;
   double windSpeed = 0.0;
   WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode = WindHeightInputMode::TwentyFoot;
   SpeedUnits::SpeedUnitsEnum windSpeedUnits = SpeedUnits::MilesPerHour;
@@ -55,7 +55,7 @@ struct SurfaceTestInputs {
   SlopeUnits::SlopeUnitsEnum slopeUnits = SlopeUnits::Percent;
   double aspect = 0.0;
   double canopyCover = 0.0;
-  CoverUnits::CoverUnitsEnum canopyCoverUnits = CoverUnits::Percent;
+  FractionUnits::FractionUnitsEnum canopyFractionUnits = FractionUnits::Percent;
   double canopyHeight = 0.0;
   LengthUnits::LengthUnitsEnum canopyHeightUnits = LengthUnits::Feet;
   double crownRatio = 0.0;
@@ -127,11 +127,11 @@ int main(int argc, char * argv[])
     {"KilometersPerHour", SpeedUnits::KilometersPerHour}
   };
 
-  std::map<std::string, CoverUnits::CoverUnitsEnum> coverUnits{{"Fraction", CoverUnits::Fraction},
-                                                               {"Percent", CoverUnits::Percent}};
+  std::map<std::string, FractionUnits::FractionUnitsEnum> coverUnits{{"Fraction", FractionUnits::Fraction},
+								     {"Percent", FractionUnits::Percent}};
 
-  std::map<std::string, MoistureUnits::MoistureUnitsEnum> moistureUnits{{"Fraction", MoistureUnits::Fraction},
-                                                                        {"Percent", MoistureUnits::Percent}};
+  std::map<std::string, FractionUnits::FractionUnitsEnum> moistureUnits{{"Fraction", FractionUnits::Fraction},
+									{"Percent", FractionUnits::Percent}};
 
   std::map<std::string, WindHeightInputMode::WindHeightInputModeEnum> windHeightInputMode{{"DirectMidflame", WindHeightInputMode::DirectMidflame},
                                                                                           {"TwentyFoot", WindHeightInputMode::TwentyFoot},

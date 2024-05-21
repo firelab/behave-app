@@ -15,7 +15,7 @@ struct CrownTestInputs {
   double moistureLiveHerbaceous = 0.0;
   double moistureLiveWoody = 0.0;
   double moistureFoliar = 0.0;
-  MoistureUnits::MoistureUnitsEnum moistureUnits = MoistureUnits::Percent;
+  FractionUnits::FractionUnitsEnum moistureUnits = FractionUnits::Percent;
   double windSpeed = 0.0;
   WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode = WindHeightInputMode::TwentyFoot;
   SpeedUnits::SpeedUnitsEnum windSpeedUnits = SpeedUnits::MilesPerHour;
@@ -25,7 +25,7 @@ struct CrownTestInputs {
   SlopeUnits::SlopeUnitsEnum slopeUnits = SlopeUnits::Percent;
   double aspect = 0.0;
   double canopyCover = 0.0;
-  CoverUnits::CoverUnitsEnum coverUnits = CoverUnits::Percent;
+  FractionUnits::FractionUnitsEnum coverUnits = FractionUnits::Percent;
   double canopyHeight = 0.0;
   LengthUnits::LengthUnitsEnum canopyHeightUnits = LengthUnits::Feet;
   double crownRatio = 0.0;
@@ -87,13 +87,13 @@ int main(int argc, char * argv[])
     {"KilometersPerHour", SpeedUnits::KilometersPerHour}
   };
 
-  std::map<std::string, CoverUnits::CoverUnitsEnum> coverUnits{
-    {"Fraction", CoverUnits::Fraction},
-    {"Percent", CoverUnits::Percent}};
+  std::map<std::string, FractionUnits::FractionUnitsEnum> coverUnits{
+    {"Fraction", FractionUnits::Fraction},
+    {"Percent", FractionUnits::Percent}};
 
-  std::map<std::string, MoistureUnits::MoistureUnitsEnum> moistureUnits{
-    {"Fraction", MoistureUnits::Fraction},
-    {"Percent", MoistureUnits::Percent}};
+  std::map<std::string, FractionUnits::FractionUnitsEnum> moistureUnits{
+    {"Fraction", FractionUnits::Fraction},
+    {"Percent", FractionUnits::Percent}};
 
   std::map<std::string, DensityUnits::DensityUnitsEnum> densityUnits{
     {"PoundsPerCubicFoot", DensityUnits::PoundsPerCubicFoot},

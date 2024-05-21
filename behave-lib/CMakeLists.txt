@@ -91,6 +91,7 @@ SET(SOURCE
     behave-mirror/src/behave/mortality.cpp
     behave-mirror/src/behave/mortality_equation_table.cpp
     behave-mirror/src/behave/mortality_inputs.cpp
+    behave-mirror/src/behave/moistureScenarios.cpp
     behave-mirror/src/behave/newext.cpp
     behave-mirror/src/behave/palmettoGallberry.cpp
     behave-mirror/src/behave/randfuel.cpp
@@ -106,6 +107,7 @@ SET(SOURCE
     behave-mirror/src/behave/surfaceInputs.cpp
     behave-mirror/src/behave/surfaceFire.cpp
     behave-mirror/src/behave/surfaceTwoFuelModels.cpp
+    behave-mirror/src/behave/vaporPressureDeficitCalculator.cpp
     behave-mirror/src/behave/westernAspen.cpp
     behave-mirror/src/behave/windAdjustmentFactor.cpp
     behave-mirror/src/behave/windSpeedUtility.cpp
@@ -143,6 +145,7 @@ SET(HEADERS
     behave-mirror/src/behave/mortality.h
     behave-mirror/src/behave/mortality_equation_table.h
     behave-mirror/src/behave/mortality_inputs.h
+    behave-mirror/src/behave/moistureScenarios.h
     behave-mirror/src/behave/newext.h
     behave-mirror/src/behave/palmettoGallberry.h
     behave-mirror/src/behave/randfuel.h
@@ -161,6 +164,7 @@ SET(HEADERS
     behave-mirror/src/behave/westernAspen.h
     behave-mirror/src/behave/windAdjustmentFactor.h
     behave-mirror/src/behave/windSpeedUtility.h
+    behave-mirror/src/behave/vaporPressureDeficitCalculator.h
 
     include/cpp/sig-adapters/SIGBehaveRun.h
     include/cpp/sig-adapters/SIGContainAdapter.h
