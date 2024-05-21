@@ -229,21 +229,24 @@ body {
   top: 4px;
 }
 
-.sidebar-group__header__close .button{
-  background-color: var(--light-blue-2);
-  color: var(--theme-color-1);
+.sidebar-group__header__close .button {
+  background-color: var(--medblue-4);
+  border-radius: 50%;
   width: 30px;
   height: 30px;
 }
 
 .sidebar-group__header__close .button:hover{
-  color: var(--white);
-  background-color: var(--medblue-4);
-  border-radius: 50%;
+  background-color: var(--white);
 }
 
-.sidebar-group__header__close .button .button__icon{
-  right: 12px
+.sidebar-group__header__close .button .button__icon {
+  right: 12px;
+  fill: white;
+}
+
+.sidebar-group__header__close .button .button__icon:hover {
+  fill: var(--medblue-4);
 }
 
 .sidebar-group__module__icon .ring-icon--tools2,
