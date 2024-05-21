@@ -55,7 +55,7 @@ struct SurfaceTestInputs {
   SlopeUnits::SlopeUnitsEnum slopeUnits = SlopeUnits::Percent;
   double aspect = 0.0;
   double canopyCover = 0.0;
-  FractionUnits::FractionUnitsEnum canopyFractionUnits = FractionUnits::Percent;
+  FractionUnits::FractionUnitsEnum canopyCoverUnits = FractionUnits::Percent;
   double canopyHeight = 0.0;
   LengthUnits::LengthUnitsEnum canopyHeightUnits = LengthUnits::Feet;
   double crownRatio = 0.0;
