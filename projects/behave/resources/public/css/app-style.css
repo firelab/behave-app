@@ -147,8 +147,8 @@ body {
 .sidebar-close {
   float: right;
   position: absolute;
-  left: 143px;
   top: 10px;
+  right: 5px;
 }
 
 .sidebar__expand > .button {
@@ -318,8 +318,8 @@ body {
 .accordion__expand {
   float: right;
   position: absolute;
-  right: 5px;
   top: 10px;
+  right: 5px;
 }
 
 .accordion__expand .button {
