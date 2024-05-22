@@ -7,7 +7,7 @@
 
 (defn- sidebar-header [title]
   [:div.sidebar-group__header title
-   [:div.sidebar-group__header__close
+   #_[:div.sidebar-group__header__close
     [c/button {:icon-name "close"
                :on-click  #(rf/dispatch [:state/update [:sidebar :hidden?] (partial not)])
                :shape     "round"
@@ -47,11 +47,10 @@
       [:div [c/button {:variant       "highlight"
                        :icon-name     "settings"
                        :icon-position "right"
-                       :size "large"
+                       :size          "large"
                        :flat-edge     "left"
                        :on-click      #(rf/dispatch [:state/update [:sidebar :hidden?] (partial not)])}]]
-      [:div {:class ["sidebar-container"
-                     (when @*hidden? "sidebar-container--hidden")]}
+      [:div.sidebar-container
        [sidebar-group {:title   @(<t (bp "modules"))
                        :modules (if @*sidebar-modules
                                   (for [module @*sidebar-modules]
@@ -98,4 +97,10 @@
                                                 (rf/dispatch [:navigate (str "/worksheets/"
                                                                              ws-uuid
                                                                              "/settings")])
-                                                (rf/dispatch [:navigate "/settings"]))}]}]])))
+                                                (rf/dispatch [:navigate "/settings"]))}]}]
+       [:div.sidebar-container__close
+        [c/button {:icon-name "close"
+                   :on-click  #(rf/dispatch [:state/update [:sidebar :hidden?] (partial not)])
+                   :shape     "round"
+                   :size      "small"
+                   :variant   "secondary"}]]])))
