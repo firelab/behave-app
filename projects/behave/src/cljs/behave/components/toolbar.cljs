@@ -141,10 +141,10 @@
                    :on-click #(rf/dispatch [:dev/export-from-vms])}
                   {:icon     :zoom-in
                    :label    (bp "zoom-in")
-                   :on-click #(rf/dispatch [:state/update [:sidebar :hidden?] (partial not)])}
+                   :on-click on-click}
                   {:icon     :zoom-out
                    :label    (bp "zoom-out")
-                   :on-click #(rf/dispatch [:state/update [:help-area :hidden?] (partial not)])}]]
+                   :on-click on-click}]]
     [:div.toolbar
      [:div.toolbar__tools
       (for [tool tools]
