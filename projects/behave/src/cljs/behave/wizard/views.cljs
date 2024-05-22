@@ -31,7 +31,6 @@
             [clojure.string :as str]))
 
 ;;; Components
-
 (defn build-groups [ws-uuid groups component-fn & [level]]
   (let [level (if (nil? level) 0 level)]
     (when groups
@@ -168,6 +167,30 @@
               [wizard-note {:note                       n
                             :display-submodule-headers? false}]))]))
 
+(defn wizard-expand []
+  (let [sidebar-hidden?        @(subscribe [:state [:sidebar :hidden?]])
+        help-area-hidden?      @(subscribe [:state [:help-area :hidden?]])
+        working-area-expanded? @(subscribe [:wizard/working-area-expanded?])]
+    (if working-area-expanded?
+        [:div.accordion__collapse
+         [c/button {:icon-name "collapse"
+                    :on-click  #(if (and sidebar-hidden? help-area-hidden?)
+                                  (do (dispatch [:state/set [:sidebar :hidden?] false])
+                                      (dispatch [:state/set [:help-area :hidden?] false]))
+                                  (do (dispatch [:state/set [:sidebar :hidden?] true])
+                                      (dispatch [:state/set [:help-area :hidden?] true])))
+                    :shape     "round"
+                    :variant   "primary"}]]
+        [:div.accordion__expand
+         [c/button {:icon-name "expand"
+                    :on-click  #(if (and sidebar-hidden? help-area-hidden?)
+                                  (do (dispatch [:state/set [:sidebar :hidden?] false])
+                                      (dispatch [:state/set [:help-area :hidden?] false]))
+                                  (do (dispatch [:state/set [:sidebar :hidden?] true])
+                                      (dispatch [:state/set [:help-area :hidden?] true])))
+                    :shape     "round"
+                    :variant   "primary"}]])))
+
 (defn wizard-page [{:keys [module io submodule route-handler ws-uuid] :as params}]
   (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
   (let [*module                  (subscribe [:wizard/*module module])
@@ -272,11 +295,8 @@
        [:h2 "Computing..."])
      (when (not computing?)
        [:div.accordion
-        [:div.accordion__header
-         [c/tab {:variant   "outline-primary"
-                 :selected? true
-                 :label     @(<t (bp "working_area"))}]]
-
+        [:div.accordion__header @(<t "behaveplus:working_area")]
+        [wizard-expand]
         [:div.wizard
          [:div.wizard-page
           [:div.wizard-header
@@ -581,10 +601,8 @@
      (when (some? selected-tool-uuid)
        [tool selected-tool-uuid])
      [:div.accordion
-      [:div.accordion__header
-       [c/tab {:variant   "outline-primary"
-               :selected? true
-               :label     @(<t "behaveplus:working_area")}]]
+      [:div.accordion__header @(<t "behaveplus:working_area")]
+      [wizard-expand]
       [:div.wizard
        [:div.wizard-page
         [:div.wizard-header
@@ -627,10 +645,8 @@
      (when (some? selected-tool-uuid)
        [tool selected-tool-uuid])
      [:div.accordion
-      [:div.accordion__header
-       [c/tab {:variant   "outline-primary"
-               :selected? true
-               :label     @(<t "behaveplus:working_area")}]]
+      [:div.accordion__header @(<t "behaveplus:working_area")]
+      [wizard-expand]
       [:div.wizard
        [:div.wizard-page
         [:div.wizard-header
@@ -698,10 +714,7 @@
 (defn root-component [params]
   (let [loaded?                (subscribe [:app/loaded?])
         show-tool-selector?    @(subscribe [:tool/show-tool-selector?])
-        selected-tool-uuid     @(subscribe [:tool/selected-tool-uuid])
-        sidebar-hidden?        @(subscribe [:state [:sidebar :hidden?]])
-        help-area-hidden?      @(subscribe [:state [:help-area :hidden?]])
-        working-area-expanded? @(subscribe [:wizard/working-area-expanded?])]
+        selected-tool-uuid     @(subscribe [:tool/selected-tool-uuid])]
     [:<>
      (when show-tool-selector?
        [tool-selector])
@@ -714,22 +727,4 @@
          [wizard-page params]
          [:div.wizard__loading
           [:h2 "Loading..."]])]
-      (if working-area-expanded?
-        [:div.accordion__collapse
-         [c/button {:icon-name "collapse"
-                    :on-click  #(if (and sidebar-hidden? help-area-hidden?)
-                                  (do (dispatch [:state/set [:sidebar :hidden?] false])
-                                      (dispatch [:state/set [:help-area :hidden?] false]))
-                                  (do (dispatch [:state/set [:sidebar :hidden?] true])
-                                      (dispatch [:state/set [:help-area :hidden?] true])))
-                    :shape     "round"
-                    :variant   "primary"}]]
-        [:div.accordion__expand
-         [c/button {:icon-name "expand"
-                    :on-click  #(if (and sidebar-hidden? help-area-hidden?)
-                                  (do (dispatch [:state/set [:sidebar :hidden?] false])
-                                      (dispatch [:state/set [:help-area :hidden?] false]))
-                                  (do (dispatch [:state/set [:sidebar :hidden?] true])
-                                      (dispatch [:state/set [:help-area :hidden?] true])))
-                    :shape     "round"
-                    :variant   "primary"}]])]]))
+      [wizard-expand]]]))
