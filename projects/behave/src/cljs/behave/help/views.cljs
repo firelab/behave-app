@@ -79,22 +79,30 @@
        {:class     ["help-area"
                     (when @(subscribe [:state [:sidebar :hidden?]]) "help-area--sidebar-hidden")]
         :aria-live "polite"}
-       [:div.help-area__tabs
-        [c/tab-group {:variant  "outline-secondary"
-                      :on-click #(dispatch [:help/select-tab %])
-                      :size     "small"
-                      :tabs     (cond-> [{:label     "Help" :icon-name "help2"
-                                          :tab       :module
-                                          :selected? (= @current-tab :module)}
-                                         {:label     "Guides & Manuals"
+       [:div.help-area__tabs-container
+        [:div.help-area__tabs
+         [c/tab-group {:variant  "outline-primary"
+                       :on-click #(dispatch [:help/select-tab %])
+                       :size     "small"
+                       :tabs     (cond-> [{:label     "Help" :icon-name "help2"
+                                           :tab       :module
+                                           :selected? (= @current-tab :module)}
+                                          {:label     "Guides & Manuals"
+                                           :icon-name "help-manual"
+                                           :tab       :guides
+                                           :selected? (= @current-tab :guides)}]
+                                   (some? selected-tool-uuid)
+                                   (conj {:label     "Tools"
                                           :icon-name "help-manual"
-                                          :tab       :guides
-                                          :selected? (= @current-tab :guides)}]
-                                  (some? selected-tool-uuid)
-                                  (conj {:label     "Tools"
-                                         :icon-name "help-manual"
-                                         :tab       :tools
-                                         :selected? (= @current-tab :tools)}))}]]
+                                          :tab       :tools
+                                          :selected? (= @current-tab :tools)}))}]]
+        [:div.help-area__close
+         [:div.container__close
+          [c/button {:icon-name "close"
+                     :on-click  #(dispatch [:state/update [:help-area :hidden?] (partial not)])
+                     :shape     "round"
+                     :size      "small"
+                     :variant   "secondary"}]]]]
        (cond
          (= @current-tab :guides)
          [help-content "behaveplus:guides" test-guides]

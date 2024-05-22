@@ -144,31 +144,11 @@ body {
   width: 174px;
 }
 
-.sidebar-container__close {
+.sidebar-close {
   float: right;
   position: absolute;
   left: 143px;
-  top: 4px;
-}
-
-.sidebar-container__close .button {
-  background-color: var(--medblue-4);
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
-}
-
-.sidebar-container__close .button:hover{
-  background-color: var(--white);
-}
-
-.sidebar-container__close .button .button__icon {
-  right: 12px;
-  fill: var(--white);
-}
-
-.sidebar-container__close .button .button__icon:hover {
-  fill: var(--medblue-4);
+  top: 10px;
 }
 
 .sidebar__expand > .button {
@@ -239,11 +219,11 @@ body {
   display: block;
   width: 100%;
   min-width: 114px;
-  height: 37px;
+  height: 48px;
   border: 1px solid var(--lightblue-4);
   border-bottom: none;
   border-radius: 8px 8px 0px 0px;
-  line-height: 37px;
+  line-height: 48px;
   text-align: center;
   color: var(--theme-color-4);
   background-color: var(--lightblue-2);
@@ -267,11 +247,11 @@ body {
 }
 
 .working-area--sidebar-hidden {
-  width: 61.89%;
+  width: 60.90%;
 }
 
 .working-area--help-area-hidden {
-  width: 80%;
+  width: 83%;
 }
 
 .working-area--sidebar-hidden.working-area--help-area-hidden {
@@ -308,15 +288,15 @@ body {
 .accordion__collapse {
   float: right;
   position: absolute;
-  right: 11px;
-  top: 8px;
+  right: 5px;
+  top: 10px;
 }
 
 .accordion__collapse .button {
   background-color: var(--medblue-4);
   padding: 0;
-  width: 21px;
-  height: 21px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   border: 1px solid var(--white);
 }
@@ -326,10 +306,11 @@ body {
 }
 
 .accordion__collapse .button .button__icon {
-  top: -1px;
-  left: 6px;
+  top: -2px;
+  left: 10px;
 }
 
+.accordion__collapse:hover .button__icon,
 .accordion__collapse .button .button__icon:hover {
   fill: var(--medblue-4);
 }
@@ -337,28 +318,29 @@ body {
 .accordion__expand {
   float: right;
   position: absolute;
-  right: 11px;
-  top: 8px;
+  right: 5px;
+  top: 10px;
 }
 
 .accordion__expand .button {
   background-color: var(--medblue-4);
   padding: 0;
-  width: 21px;
-  height: 21px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   border: 1px solid var(--white);
 }
 
-.accordion__expand .button:hover{
+.accordion__expand .button:hover {
   background-color: var(--white);
 }
 
 .accordion__expand .button .button__icon {
-  top: -2px;
-  left: 1px;
+  top: -3px;
+  left: 6px;
 }
 
+.accordion__expand:hover .button__icon,
 .accordion__expand .button .button__icon:hover {
   fill: var(--medblue-4);
 }
@@ -370,10 +352,10 @@ body {
   font-size: var(--font-size-18);
   line-height: 34px;
   display: flex;
-  height: 34px;
+  height: 48px;
   border-bottom: none;
   border-radius: 8px 8px 0px 0px;
-  line-height: 41px;
+  line-height: 48px;
   text-align: center;
   color: var(--white);
   background-color: var(--medblue-4);
@@ -841,21 +823,35 @@ body {
 
 /* -- Help Area -- */
 
-.help-area {
-  /* transition: width 300ms; */
-  width: 30%;
-  min-width: 20%;
+.help-area__tabs-container {
+  position: relative;
+  height: 60px;
+  background-color: var(--white);
+  border: 1px solid var(--lightblue-5);
+  border-radius: 8px 8px 0px 0px;
 }
 
-.help-area--hidden {
-  display: none;
+.help-area__close {
+  float: right;
+  position: absolute;
+  right: 0px;
+  top: 0px;
+}
+
+.help-area__tabs {
+  position: relative;
+  top: 25px;
+}
+
+.help-area {
+  width: 31%;
+  min-width: 20%;
 }
 
 .help-area__content {
   overflow-x: hidden;
   overflow-y: scroll;
-  max-height: 480px;
-  padding: 5.5%;
+  max-height: 730px;
   font-family: 'Roboto', sans-serif;
   background: var(--white);
 }
@@ -1172,3 +1168,26 @@ body {
   display: flex;
   flex-direction: row;
 }
+
+/* - Container Close Button - */
+.container__close .button {
+  background-color: var(--medblue-4);
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+}
+
+.container__close .button:hover{
+  background-color: var(--white);
+}
+
+.container__close .button .button__icon {
+  right: 12px;
+  fill: var(--white);
+}
+
+.container__close .button .button__icon:hover {
+  fill: var(--medblue-4);
+}
+
+/* - End Container Close Button - */
