@@ -240,14 +240,14 @@ body {
 
 /* -- Working Area -- */
 .working-area {
-  width: 51%;
+  width: 56%;
   margin-right: 30px;
   margin-left: 30px;
   border-radius: 8px 8px 0px 0px;
 }
 
 .working-area--sidebar-hidden {
-  width: 60.90%;
+  width: 65.9%;
 }
 
 .working-area--help-area-hidden {
@@ -824,7 +824,7 @@ body {
 /* -- Help Area -- */
 
 .help-area {
-  width: 31%;
+  width: 400px;
   min-width: 20%;
 }
 
