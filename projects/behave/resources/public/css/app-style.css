@@ -830,7 +830,7 @@ body {
 
 .help-area__tabs-container {
   position: relative;
-  height: 60px;
+  height: 65px;
   background-color: var(--white);
   border: 1px solid var(--lightblue-5);
   border-radius: 8px 8px 0px 0px;
@@ -838,7 +838,7 @@ body {
 
 .help-area__tabs {
   position: relative;
-  top: 25px;
+  top: 30px;
 }
 
 .help-area__content {
