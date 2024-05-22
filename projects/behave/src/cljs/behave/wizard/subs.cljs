@@ -624,3 +624,12 @@
    (let [x-form (comp (map :bp/uuid)
                       (filter #(true? (deref (rf/subscribe [:worksheet/output-enabled? ws-uuid %])))))]
      (into #{} x-form (:group/group-variables (d/touch group))))))
+
+
+(reg-sub
+ :wizard/working-area-expanded?
+ (fn [] [(subscribe [:state [:sidebar :hidden?]])
+         (subscribe [:state [:help-area :hidden?]])])
+
+ (fn [[sidebar-hidden? help-area-hidden?]]
+   (and sidebar-hidden? help-area-hidden?)))

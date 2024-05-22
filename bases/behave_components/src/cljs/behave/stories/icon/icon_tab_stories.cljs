@@ -8,6 +8,8 @@
        :component (r/reactify-component icon)})
 
 (def ^:export CloseIcon      (template :close))
+(def ^:export CollapseIcon   (template :collapse))
+(def ^:export ExpandIcon     (template :expand))
 (def ^:export HelpIcon       (template :help))
 (def ^:export Help2Icon      (template :help2))
 (def ^:export HelpManualIcon (template :help-manual))

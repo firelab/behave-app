@@ -214,7 +214,7 @@ body {
   display: flex;
   flex-direction: column;
   position: relative;
-  right: 6px;
+  right: 11px;
   padding-bottom: 10px;
   text-align: center;
   cursor: pointer;
@@ -239,7 +239,7 @@ body {
   display: block;
   width: 100%;
   min-width: 114px;
-  height: 37px
+  height: 37px;
   border: 1px solid var(--lightblue-4);
   border-bottom: none;
   border-radius: 8px 8px 0px 0px;
@@ -267,7 +267,7 @@ body {
 }
 
 .working-area--sidebar-hidden {
-  width: 61.255%;
+  width: 61.89%;
 }
 
 .working-area--help-area-hidden {
@@ -301,7 +301,85 @@ body {
   padding-right: 15px
 }
 
-.accordion__header > .tab > .button,
+.accordion {
+  position: relative;
+}
+
+.accordion__collapse {
+  float: right;
+  position: absolute;
+  right: 11px;
+  top: 8px;
+}
+
+.accordion__collapse .button {
+  background-color: var(--medblue-4);
+  padding: 0;
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  border: 1px solid var(--white);
+}
+
+.accordion__collapse .button:hover{
+  background-color: var(--white);
+}
+
+.accordion__collapse .button .button__icon {
+  top: -1px;
+  left: 6px;
+}
+
+.accordion__collapse .button .button__icon:hover {
+  fill: var(--medblue-4);
+}
+
+.accordion__expand {
+  float: right;
+  position: absolute;
+  right: 11px;
+  top: 8px;
+}
+
+.accordion__expand .button {
+  background-color: var(--medblue-4);
+  padding: 0;
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  border: 1px solid var(--white);
+}
+
+.accordion__expand .button:hover{
+  background-color: var(--white);
+}
+
+.accordion__expand .button .button__icon {
+  top: -2px;
+  left: 1px;
+}
+
+.accordion__expand .button .button__icon:hover {
+  fill: var(--medblue-4);
+}
+
+
+
+.accordion__header {
+  padding-left: 10px;
+  font-size: var(--font-size-18);
+  line-height: 34px;
+  display: flex;
+  height: 34px;
+  border-bottom: none;
+  border-radius: 8px 8px 0px 0px;
+  line-height: 41px;
+  text-align: center;
+  color: var(--white);
+  background-color: var(--medblue-4);
+  text-align: left;
+}
+
 .workflow-select__header__title > .tab > .button {
   display: block;
   width: 100%;
@@ -310,7 +388,7 @@ body {
   pointer-events: none;
 }
 
-.accordion__header .button__label,
+.accordion__header,
 .workflow-select__header__title .button__label {
   text-transform: uppercase;
 }

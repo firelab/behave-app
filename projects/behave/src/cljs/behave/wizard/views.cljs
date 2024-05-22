@@ -696,21 +696,40 @@
 
 ;;; Public Components
 (defn root-component [params]
-  (let [loaded?             (subscribe [:app/loaded?])
-        show-tool-selector? @(subscribe [:tool/show-tool-selector?])
-        selected-tool-uuid  @(subscribe [:tool/selected-tool-uuid])]
+  (let [loaded?                (subscribe [:app/loaded?])
+        show-tool-selector?    @(subscribe [:tool/show-tool-selector?])
+        selected-tool-uuid     @(subscribe [:tool/selected-tool-uuid])
+        sidebar-hidden?        @(subscribe [:state [:sidebar :hidden?]])
+        help-area-hidden?      @(subscribe [:state [:help-area :hidden?]])
+        working-area-expanded? @(subscribe [:wizard/working-area-expanded?])]
     [:<>
      (when show-tool-selector?
        [tool-selector])
      (when (some? selected-tool-uuid)
        [tool selected-tool-uuid])
      [:div.accordion
-      [:div.accordion__header
-       [c/tab {:variant   "outline-primary"
-               :selected? true
-               :label     @(<t "behaveplus:working_area")}]]
+      [:div.accordion__header @(<t "behaveplus:working_area")]
       [:div.wizard
        (if @loaded?
          [wizard-page params]
          [:div.wizard__loading
-          [:h2 "Loading..."]])]]]))
+          [:h2 "Loading..."]])]
+      (if working-area-expanded?
+        [:div.accordion__collapse
+         [c/button {:icon-name "collapse"
+                    :on-click  #(if (and sidebar-hidden? help-area-hidden?)
+                                  (do (dispatch [:state/set [:sidebar :hidden?] false])
+                                      (dispatch [:state/set [:help-area :hidden?] false]))
+                                  (do (dispatch [:state/set [:sidebar :hidden?] true])
+                                      (dispatch [:state/set [:help-area :hidden?] true])))
+                    :shape     "round"
+                    :variant   "primary"}]]
+        [:div.accordion__expand
+         [c/button {:icon-name "expand"
+                    :on-click  #(if (and sidebar-hidden? help-area-hidden?)
+                                  (do (dispatch [:state/set [:sidebar :hidden?] false])
+                                      (dispatch [:state/set [:help-area :hidden?] false]))
+                                  (do (dispatch [:state/set [:sidebar :hidden?] true])
+                                      (dispatch [:state/set [:help-area :hidden?] true])))
+                    :shape     "round"
+                    :variant   "primary"}]])]]))
