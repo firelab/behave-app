@@ -241,8 +241,8 @@ body {
 /* -- Working Area -- */
 .working-area {
   width: 51%;
-  margin-right: 26.136px;
-  margin-left: 26.136px;
+  margin-right: 30px;
+  margin-left: 30px;
   border-radius: 8px 8px 0px 0px;
 }
 
@@ -251,7 +251,7 @@ body {
 }
 
 .working-area--help-area-hidden {
-  width: 83%;
+  width: 82%;
 }
 
 .working-area--sidebar-hidden.working-area--help-area-hidden {
@@ -823,6 +823,11 @@ body {
 
 /* -- Help Area -- */
 
+.help-area {
+  width: 31%;
+  min-width: 20%;
+}
+
 .help-area__tabs-container {
   position: relative;
   height: 60px;
@@ -831,21 +836,9 @@ body {
   border-radius: 8px 8px 0px 0px;
 }
 
-.help-area__close {
-  float: right;
-  position: absolute;
-  right: 0px;
-  top: 0px;
-}
-
 .help-area__tabs {
   position: relative;
   top: 25px;
-}
-
-.help-area {
-  width: 31%;
-  min-width: 20%;
 }
 
 .help-area__content {
@@ -967,9 +960,20 @@ body {
   right: 7px;
 }
 
+.help-area__close {
+  float: right;
+  position: absolute;
+  right: 0px;
+  top: 0px;
+}
+
+/* -- End Help Area -- */
+
 .atlwdg-trigger.atlwdg-TOP {
   z-index: 100;
 }
+
+/* - Diagram - */
 
 .diagram__table {
   display: inline-block;
@@ -986,9 +990,7 @@ body {
 .diagram {
   padding-bottom: 20px;
 }
-
-/* -- End Help Area -- */
-
+/* - End Diagdram - */
 
 /* -- Tool -- */
 .tool .accordion__header {
