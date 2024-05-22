@@ -6,13 +6,7 @@
    [re-frame.core          :as rf]))
 
 (defn- sidebar-header [title]
-  [:div.sidebar-group__header title
-   #_[:div.sidebar-group__header__close
-    [c/button {:icon-name "close"
-               :on-click  #(rf/dispatch [:state/update [:sidebar :hidden?] (partial not)])
-               :shape     "round"
-               :size      "small"
-               :variant   "secondary"}]]])
+  [:div.sidebar-group__header title])
 
 (defn- sidebar-module [{icon-name       :icon
                         translation-key :label
@@ -44,12 +38,13 @@
         on-select        #(do (rf/dispatch [:state/set [:sidebar :*modules] (:module %)])
                               (rf/dispatch [:state/set [:worksheet :*modules] (:module %)]))]
     (if @*hidden?
-      [:div [c/button {:variant       "highlight"
-                       :icon-name     "settings"
-                       :icon-position "right"
-                       :size          "large"
-                       :flat-edge     "left"
-                       :on-click      #(rf/dispatch [:state/update [:sidebar :hidden?] (partial not)])}]]
+      [:div.sidebar__expand
+       [c/button {:variant       "highlight"
+                  :icon-name     "settings"
+                  :icon-position "right"
+                  :size          "large"
+                  :flat-edge     "left"
+                  :on-click      #(rf/dispatch [:state/update [:sidebar :hidden?] (partial not)])}]]
       [:div.sidebar-container
        [sidebar-group {:title   @(<t (bp "modules"))
                        :modules (if @*sidebar-modules

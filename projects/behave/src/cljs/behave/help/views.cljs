@@ -68,7 +68,7 @@
                                           @selected-tool-uuid
                                           @selected-subtool-uuid])]
     (if @hidden?
-      [:div.help-area__expand-button
+      [:div.help-area__expand
        [c/button {:variant       "highlight"
                        :icon-name     "help2"
                        :icon-position "right"

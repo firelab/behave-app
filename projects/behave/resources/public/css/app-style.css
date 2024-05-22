@@ -171,12 +171,12 @@ body {
   fill: var(--medblue-4);
 }
 
-.sidebar__expand-button > .button {
+.sidebar__expand > .button {
   width: 30px;
   height: 50px;
 }
 
-.sidebar__expand-button .button__icon{
+.sidebar__expand .button__icon{
   right: 7px;
 }
 
@@ -884,12 +884,12 @@ body {
     padding: 10px;
 }
 
-.help-area__expand-button > .button{
+.help-area__expand > .button{
   width: 30px;
   height: 50px;
 }
 
-.help-area__expand-button .button__icon{
+.help-area__expand .button__icon{
   right: 7px;
 }
 
