@@ -844,15 +844,22 @@ body {
 .help-area__tabs .button {
     padding: 8px;
     min-width: 0px;
-    background-color: white;
+    background-color: var(--white);
+    border: 1px solid var(--medblue-4);
 }
 
 .help-area__tabs:hover .button {
     color: var(--medblue-4);
+    border-color: var(--medblue-4);
 }
 
 .help-area__tabs:hover .button--selected {
-    color: white;
+    color: var(--white);
+}
+
+.help-area__tabs .tab > .button:active {
+    background-color: var(--white);
+    border: 1px solid var(--medblue-4);
 }
 
 
