@@ -830,16 +830,31 @@ body {
 
 .help-area__tabs-container {
   position: relative;
-  height: 65px;
-  background-color: var(--white);
-  border: 1px solid var(--lightblue-5);
+  height: 52px;
+  background-color: var(--lightblue-3);
+  border: 1px solid var(--lightblue-3);
   border-radius: 8px 8px 0px 0px;
 }
 
 .help-area__tabs {
   position: relative;
-  top: 30px;
+  top: 15px;
 }
+
+.help-area__tabs .button {
+    padding: 8px;
+    min-width: 0px;
+    background-color: white;
+}
+
+.help-area__tabs:hover .button {
+    color: var(--medblue-4);
+}
+
+.help-area__tabs:hover .button--selected {
+    color: white;
+}
+
 
 .help-area__content {
   overflow-x: hidden;
@@ -963,8 +978,8 @@ body {
 .help-area__close {
   float: right;
   position: absolute;
-  right: 0px;
-  top: 0px;
+  top: 10px;
+  right: 2px;
 }
 
 /* -- End Help Area -- */
