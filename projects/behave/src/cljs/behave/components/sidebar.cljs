@@ -43,7 +43,7 @@
                   :icon-position "right"
                   :size          "large"
                   :flat-edge     "left"
-                  :on-click      #(rf/didespatch [:state/update [:sidebar :hidden?] (partial not)])}]]
+                  :on-click      #(rf/dispatch [:state/update [:sidebar :hidden?] (partial not)])}]]
       [:div.sidebar-container
        [sidebar-group {:title   @(<t (bp "modules"))
                        :modules (if @*sidebar-modules
