@@ -29,7 +29,9 @@
      ^{:key (:label module)}
      [sidebar-module module])])
 
-(defn sidebar [{:keys [ws-uuid]}]
+(defn sidebar
+  "A component for displaying a sidebar with two sections. One for a a list of active modules, and another for settings."
+  [{:keys [ws-uuid]}]
   (let [*hidden?         (rf/subscribe [:state [:sidebar :hidden?]])
         *sidebar-modules (rf/subscribe [:state [:sidebar :*modules]])
         on-select        #(do (rf/dispatch [:state/set [:sidebar :*modules] (:module %)])
