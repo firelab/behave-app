@@ -308,3 +308,15 @@
  :wizard/new-worksheet
  (fn [_ [_ nname modules submodule]]
    (s/new-worksheet! nname modules submodule)))
+
+(rf/reg-event-fx
+ :wizard/toggle-expand
+ (fn [{db :db}]
+   (let [sidebar-hidden? (get-in db [:state :sidebar :hidden?])
+         help-area-hidden? (get-in db [:state :help-area :hidden?])]
+    (if (and sidebar-hidden? help-area-hidden?)
+      {:fx [[:dispatch [:state/set [:sidebar :hidden?] false]]
+            [:dispatch [:state/set [:help-area :hidden?] false]]]}
+      {:fx [[:dispatch [:state/set [:sidebar :hidden?] true]]
+            [:dispatch [:state/set [:help-area :hidden?] true]]]})))
+ )

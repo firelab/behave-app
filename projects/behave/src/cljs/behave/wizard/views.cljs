@@ -168,25 +168,15 @@
                             :display-submodule-headers? false}]))]))
 
 (defn wizard-expand []
-  (let [sidebar-hidden?        @(subscribe [:state [:sidebar :hidden?]])
-        help-area-hidden?      @(subscribe [:state [:help-area :hidden?]])
-        working-area-expanded? @(subscribe [:wizard/working-area-expanded?])]
+  (let [working-area-expanded? @(subscribe [:wizard/working-area-expanded?])]
     (if working-area-expanded?
         [:div.accordion__collapse
          [c/button {:icon-name "collapse"
-                    :on-click  #(if (and sidebar-hidden? help-area-hidden?)
-                                  (do (dispatch [:state/set [:sidebar :hidden?] false])
-                                      (dispatch [:state/set [:help-area :hidden?] false]))
-                                  (do (dispatch [:state/set [:sidebar :hidden?] true])
-                                      (dispatch [:state/set [:help-area :hidden?] true])))
+                    :on-click  #(dispatch [:wizard/toggle-expand])
                     :variant   "primary"}]]
         [:div.accordion__expand
          [c/button {:icon-name "expand"
-                    :on-click  #(if (and sidebar-hidden? help-area-hidden?)
-                                  (do (dispatch [:state/set [:sidebar :hidden?] false])
-                                      (dispatch [:state/set [:help-area :hidden?] false]))
-                                  (do (dispatch [:state/set [:sidebar :hidden?] true])
-                                      (dispatch [:state/set [:help-area :hidden?] true])))
+                    :on-click  #(dispatch [:wizard/toggle-expand])
                     :variant   "primary"}]])))
 
 (defn wizard-page [{:keys [module io submodule route-handler ws-uuid] :as params}]
