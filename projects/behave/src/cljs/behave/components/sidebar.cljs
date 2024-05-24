@@ -5,9 +5,6 @@
    [behave.translate       :refer [<t bp]]
    [re-frame.core          :as rf]))
 
-(defn- sidebar-header [title]
-  [:div.sidebar-group__header title])
-
 (defn- sidebar-module [{icon-name       :icon
                         translation-key :label
                         on-select       :on-select
@@ -27,7 +24,7 @@
 
 (defn- sidebar-group [{:keys [modules title]}]
   [:div.sidebar-group
-   [sidebar-header title]
+   [:div.sidebar-group__header title]
    (for [module (sort-by :order-id modules)]
      ^{:key (:label module)}
      [sidebar-module module])])
