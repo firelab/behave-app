@@ -100,7 +100,6 @@
          [:div.container__close
           [c/button {:icon-name "close"
                      :on-click  #(dispatch [:state/update [:help-area :hidden?] (partial not)])
-                     :shape     "round"
                      :size      "small"
                      :variant   "secondary"}]]]]
        (cond

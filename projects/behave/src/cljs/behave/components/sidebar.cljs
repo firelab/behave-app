@@ -97,6 +97,5 @@
         [:div.container__close
         [c/button {:icon-name "close"
                    :on-click  #(rf/dispatch [:state/update [:sidebar :hidden?] (partial not)])
-                   :shape     "round"
                    :size      "small"
                    :variant   "secondary"}]]]])))

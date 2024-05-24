@@ -211,7 +211,6 @@
        [:div.tool__close
         [c/button {:icon-name "close"
                    :on-click  #(rf/dispatch [:tool/close-tool])
-                   :shape     "round"
                    :size      "small"
                    :variant   "secondary"}]]]
       [:div.accordion__body
