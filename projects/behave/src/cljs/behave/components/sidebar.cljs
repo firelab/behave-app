@@ -29,7 +29,7 @@
      ^{:key (:label module)}
      [sidebar-module module])])
 
-(defn sidebar [{:keys [ws-uuid io]}]
+(defn sidebar [{:keys [ws-uuid]}]
   (let [*hidden?         (rf/subscribe [:state [:sidebar :hidden?]])
         *sidebar-modules (rf/subscribe [:state [:sidebar :*modules]])
         on-select        #(do (rf/dispatch [:state/set [:sidebar :*modules] (:module %)])
@@ -41,7 +41,7 @@
                   :icon-position "right"
                   :size          "large"
                   :flat-edge     "left"
-                  :on-click      #(rf/dispatch [:state/update [:sidebar :hidden?] (partial not)])}]]
+                  :on-click      #(rf/didespatch [:state/update [:sidebar :hidden?] (partial not)])}]]
       [:div.sidebar-container
        [sidebar-group {:title   @(<t (bp "modules"))
                        :modules (if @*sidebar-modules
