@@ -700,9 +700,9 @@
 
 ;;; Public Components
 (defn root-component [params]
-  (let [loaded?                (subscribe [:app/loaded?])
-        show-tool-selector?    @(subscribe [:tool/show-tool-selector?])
-        selected-tool-uuid     @(subscribe [:tool/selected-tool-uuid])]
+  (let [loaded?             (subscribe [:app/loaded?])
+        show-tool-selector? @(subscribe [:tool/show-tool-selector?])
+        selected-tool-uuid  @(subscribe [:tool/selected-tool-uuid])]
     [:<>
      (when show-tool-selector?
        [tool-selector])

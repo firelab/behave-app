@@ -625,7 +625,6 @@
                       (filter #(true? (deref (rf/subscribe [:worksheet/output-enabled? ws-uuid %])))))]
      (into #{} x-form (:group/group-variables (d/touch group))))))
 
-
 (reg-sub
  :wizard/working-area-expanded?
  (fn [] [(subscribe [:state [:sidebar :hidden?]])
