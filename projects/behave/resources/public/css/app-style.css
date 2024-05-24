@@ -139,7 +139,8 @@ body {
   display: flex;
   flex-direction: column;
   position: relative;
-  width: 174px;
+  width: 180px;
+  min-width: 180px;
 }
 
 .sidebar-close {
@@ -159,11 +160,6 @@ body {
 }
 
 /* -- Sidebar -- */
-
-.sidebar {
-  width: 180px;
-  min-width: 180px;
-}
 
 .sidebar__header {
   width: 100%;
@@ -193,7 +189,7 @@ body {
   display: flex;
   flex-direction: column;
   position: relative;
-  right: 11px;
+  right: 9px;
   padding-bottom: 10px;
   text-align: center;
   cursor: pointer;
