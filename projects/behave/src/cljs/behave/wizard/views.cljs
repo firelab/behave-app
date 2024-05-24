@@ -179,7 +179,6 @@
                                       (dispatch [:state/set [:help-area :hidden?] false]))
                                   (do (dispatch [:state/set [:sidebar :hidden?] true])
                                       (dispatch [:state/set [:help-area :hidden?] true])))
-                    :shape     "round"
                     :variant   "primary"}]]
         [:div.accordion__expand
          [c/button {:icon-name "expand"
@@ -188,7 +187,6 @@
                                       (dispatch [:state/set [:help-area :hidden?] false]))
                                   (do (dispatch [:state/set [:sidebar :hidden?] true])
                                       (dispatch [:state/set [:help-area :hidden?] true])))
-                    :shape     "round"
                     :variant   "primary"}]])))
 
 (defn wizard-page [{:keys [module io submodule route-handler ws-uuid] :as params}]

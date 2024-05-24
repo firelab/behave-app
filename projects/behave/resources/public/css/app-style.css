@@ -162,6 +162,7 @@ body {
 
 .sidebar {
   width: 180px;
+  min-width: 180px;
 }
 
 .sidebar__header {
@@ -238,18 +239,18 @@ body {
 
 /* -- Working Area -- */
 .working-area {
-  width: 56%;
+  width: calc(100% - 400px - 180px);
   margin-right: 30px;
   margin-left: 30px;
   border-radius: 8px 8px 0px 0px;
 }
 
 .working-area--sidebar-hidden {
-  width: 65.9%;
+  width: calc(100% - 400px);
 }
 
 .working-area--help-area-hidden {
-  width: 82%;
+  width: calc(100% - 180px);
 }
 
 .working-area--sidebar-hidden.working-area--help-area-hidden {
@@ -823,7 +824,7 @@ body {
 
 .help-area {
   width: 400px;
-  min-width: 20%;
+  min-width: 400px;
 }
 
 .help-area__tabs-container {
