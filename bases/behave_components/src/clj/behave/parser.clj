@@ -94,6 +94,7 @@
 (comment
 
   (def icon-dir "/Users/rsheperd/code/sig/behave-components/resources/public/bhp-icons/modules")
+  (def icon-dir "/home/kcheung/work/code/behave-polylith/bases/behave_components/resources/public/icons")
 
   (def output-file "derp.cljs")
 
@@ -104,4 +105,3 @@
 
   (convert-html-files html-dir output-components-dir)
   )
-

@@ -2,6 +2,7 @@
   (:require [behave.components.core       :as c]
             [behave.components.navigation :refer [wizard-navigation]]
             [behave.tool.views            :refer [tool tool-selector]]
+            [behave.wizard.views          :refer [wizard-expand]]
             [behave.translate             :refer [<t bp]]
             [behave.worksheet.events]
             [re-frame.core                :as rf]
@@ -10,11 +11,9 @@
             [string-utils.interface       :refer [->str]]))
 
 (defn- workflow-select-header [{:keys [icon header description]}]
-  [:div.workflow-select__header
-   [:div.workflow-select__header__title
-    [c/tab {:variant   "outline-primary"
-            :selected? true
-            :label     @(<t "behaveplus:working_area")}]]
+  [:div.accordion
+   [:div.accordion__header @(<t "behaveplus:working_area")]
+   [wizard-expand]
    [:div.workflow-select__header__content
     [c/icon {:icon-name icon}]
     [:div

@@ -694,3 +694,11 @@
             [(path-for routes :ws/review :ws-uuid ws-uuid)
              (path-for routes :ws/results-settings :ws-uuid ws-uuid :results-page :settings)
              (path-for routes :ws/results :ws-uuid ws-uuid)])))))
+
+(reg-sub
+ :wizard/working-area-expanded?
+ (fn [] [(subscribe [:state [:sidebar :hidden?]])
+         (subscribe [:state [:help-area :hidden?]])])
+
+ (fn [[sidebar-hidden? help-area-hidden?]]
+   (and sidebar-hidden? help-area-hidden?)))

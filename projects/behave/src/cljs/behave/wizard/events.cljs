@@ -12,15 +12,19 @@
 
 (rf/reg-event-fx
  :wizard/select-tab
- (fn [_ [_ {:keys [ws-uuid module io submodule]}]]
-   (let [path (path-for routes
+ (fn [{:keys [db]} [_ {:keys [ws-uuid module io submodule]}]]
+   (let [help-area-hidden? (get-in db [:state :help-area :hidden?])
+         path (path-for routes
                         :ws/wizard
                         :ws-uuid ws-uuid
                         :module module
                         :io io
                         :submodule submodule)]
-     {:fx              [[:dispatch [:navigate path]]]
-      :help/scroll-top nil})))
+     (cond->
+         {:fx [[:dispatch [:navigate path]]]}
+
+       (not help-area-hidden?)
+       (assoc :help/scroll-top nil)))))
 
 (rf/reg-event-fx
  :wizard/back
@@ -275,3 +279,13 @@
  :wizard/new-worksheet
  (fn [_ [_ nname modules submodule]]
    (s/new-worksheet! nname modules submodule)))
+
+(rf/reg-event-fx
+ :wizard/toggle-expand
+
+ (fn [{:keys [db]}]
+   (let [sidebar-hidden?   (get-in db [:state :sidebar :hidden?])
+         help-area-hidden? (get-in db [:state :help-area :hidden?])
+         all-hidden?       (and sidebar-hidden? help-area-hidden?)]
+     {:fx [[:dispatch [:state/set [:sidebar :hidden?] (not all-hidden?)]]
+           [:dispatch [:state/set [:help-area :hidden?] (not all-hidden?)]]]})))

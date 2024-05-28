@@ -4,12 +4,12 @@
             [re-frame.core             :as rf]
             [behave.components.sidebar :refer [sidebar]]
             [behave.components.toolbar :refer [toolbar]]
-            [behave.components.modal :refer [modal]]
+            [behave.components.modal   :refer [modal]]
             [behave.help.views         :refer [help-area]]
             [behave.settings.views     :as settings]
             [behave.store              :refer [load-store!]]
             [behave.tools              :as tools]
-            [behave.translate          :refer [<t load-translations!]]
+            [behave.translate          :refer [<t]]
             [behave.vms.store          :refer [load-vms!]]
             [behave.wizard.views       :as wizard]
             [behave.print.views        :refer [print-page]]
@@ -92,13 +92,15 @@
           [toolbar params]]]]
        [:div.page__main
         [sidebar params]
-        [:div.container
-         [:div.working-area
-          {:area-live "assertive"}
-          (if (and @vms-loaded? @sync-loaded?)
-            [page params]
-            [:h3 "Loading..."])]
-         [help-area params]]]])))
+        [:div {:class ["working-area"
+                       (when @(rf/subscribe [:state [:sidebar :hidden?]])
+                         "working-area--sidebar-hidden")
+                       (when @(rf/subscribe [:state [:help-area :hidden?]])
+                         "working-area--help-area-hidden")]}
+         (if (and @vms-loaded? @sync-loaded?)
+           [page params]
+           [:h3 "Loading..."])]
+        [help-area params]]])))
 
 (defn- ^:export init
   "Defines the init function to be called from window.onload()."

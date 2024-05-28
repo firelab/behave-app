@@ -59,37 +59,56 @@
                 [help-section help-key (= help-key @help-highlighted-key)])))]))
 
 (defn help-area [params]
-  (let [current-tab           (subscribe [:help/current-tab])
+  (let [hidden?               (subscribe [:state [:help-area :hidden?]])
+        current-tab           (subscribe [:help/current-tab])
         loaded?               (subscribe [:app/loaded?])
         selected-tool-uuid    (subscribe [:tool/selected-tool-uuid])
         selected-subtool-uuid (subscribe [:tool/selected-subtool-uuid])
         tool-help-keys        (subscribe [:help/tool-help-keys
                                           @selected-tool-uuid
                                           @selected-subtool-uuid])]
-    [:div.help-area
-     {:aria-live "polite"}
-     [:div.help-area__tabs
-      [c/tab-group {:variant  "outline-secondary"
-                    :on-click #(dispatch [:help/select-tab %])
-                    :tabs     (cond-> [{:label     "Help" :icon-name "help2"
-                                        :tab       :module
-                                        :selected? (= @current-tab :module)}
-                                       {:label     "Guides & Manuals"
-                                        :icon-name "help-manual"
-                                        :tab       :guides
-                                        :selected? (= @current-tab :guides)}]
-                                (some? selected-tool-uuid)
-                                (conj {:label     "Tools"
-                                       :icon-name "help-manual"
-                                       :tab       :tools
-                                       :selected? (= @current-tab :tools)}))}]]
-     (cond
-       (= @current-tab :guides)
-       [help-content "behaveplus:guides" test-guides]
+    (if @hidden?
+      [:div.help-area__expand
+       [c/button {:variant       "highlight"
+                  :icon-name     "help2"
+                  :icon-position "right"
+                  :size          "small"
+                  :flat-edge     "right"
+                  :on-click      #(dispatch [:state/update [:help-area :hidden?] (partial not)])}]]
+      [:div
+       {:class     ["help-area"
+                    (when @(subscribe [:state [:sidebar :hidden?]]) "help-area--sidebar-hidden")]
+        :aria-live "polite"}
+       [:div.help-area__tabs-container
+        [:div.help-area__tabs
+         [c/tab-group {:variant  "outline-primary"
+                       :on-click #(dispatch [:help/select-tab %])
+                       :size     "small"
+                       :tabs     (cond-> [{:label     "Help" :icon-name "help2"
+                                           :tab       :module
+                                           :selected? (= @current-tab :module)}
+                                          {:label     "Guides & Manuals"
+                                           :icon-name "help-manual"
+                                           :tab       :guides
+                                           :selected? (= @current-tab :guides)}]
+                                   (some? selected-tool-uuid)
+                                   (conj {:label     "Tools"
+                                          :icon-name "help-manual"
+                                          :tab       :tools
+                                          :selected? (= @current-tab :tools)}))}]]
+        [:div.help-area__close
+         [:div.container__close
+          [c/button {:icon-name "close"
+                     :on-click  #(dispatch [:state/update [:help-area :hidden?] (partial not)])
+                     :size      "small"
+                     :variant   "secondary"}]]]]
+       (cond
+         (= @current-tab :guides)
+         [help-content "behaveplus:guides" test-guides]
 
-       (= @current-tab :tools)
-       [help-content @tool-help-keys]
+         (= @current-tab :tools)
+         [help-content @tool-help-keys]
 
-       :else
-       (when @loaded?
-         [help-content (get-help-keys params)]))]))
+         :else
+         (when @loaded?
+           [help-content (get-help-keys params)]))])))

@@ -31,7 +31,6 @@
             [clojure.string :as str]))
 
 ;;; Components
-
 (defn build-groups [ws-uuid groups component-fn & [level]]
   (let [level (if (nil? level) 0 level)]
     (when groups
@@ -177,6 +176,18 @@
               [wizard-note {:note                       n
                             :display-submodule-headers? false}]))]))
 
+(defn wizard-expand []
+  (let [working-area-expanded? @(subscribe [:wizard/working-area-expanded?])]
+    (if working-area-expanded?
+        [:div.accordion__collapse
+         [c/button {:icon-name "collapse"
+                    :on-click  #(dispatch [:wizard/toggle-expand])
+                    :variant   "primary"}]]
+        [:div.accordion__expand
+         [c/button {:icon-name "expand"
+                    :on-click  #(dispatch [:wizard/toggle-expand])
+                    :variant   "primary"}]])))
+
 (defn wizard-page [{:keys [module io submodule route-handler ws-uuid] :as params}]
   (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
   (let [modules                  @(subscribe [:worksheet/modules ws-uuid])
@@ -280,11 +291,8 @@
        [:h2 "Computing..."])
      (when (not computing?)
        [:div.accordion
-        [:div.accordion__header
-         [c/tab {:variant   "outline-primary"
-                 :selected? true
-                 :label     @(<t (bp "working_area"))}]]
-
+        [:div.accordion__header @(<t "behaveplus:working_area")]
+        [wizard-expand]
         [:div.wizard
          [:div.wizard-page
           [:div.wizard-header
@@ -588,10 +596,8 @@
      (when (some? selected-tool-uuid)
        [tool selected-tool-uuid])
      [:div.accordion
-      [:div.accordion__header
-       [c/tab {:variant   "outline-primary"
-               :selected? true
-               :label     @(<t "behaveplus:working_area")}]]
+      [:div.accordion__header @(<t "behaveplus:working_area")]
+      [wizard-expand]
       [:div.wizard
        [:div.wizard-page
         [:div.wizard-header
@@ -634,10 +640,8 @@
      (when (some? selected-tool-uuid)
        [tool selected-tool-uuid])
      [:div.accordion
-      [:div.accordion__header
-       [c/tab {:variant   "outline-primary"
-               :selected? true
-               :label     @(<t "behaveplus:working_area")}]]
+      [:div.accordion__header @(<t "behaveplus:working_area")]
+      [wizard-expand]
       [:div.wizard
        [:div.wizard-page
         [:div.wizard-header
@@ -714,12 +718,10 @@
      (when (some? selected-tool-uuid)
        [tool selected-tool-uuid])
      [:div.accordion
-      [:div.accordion__header
-       [c/tab {:variant   "outline-primary"
-               :selected? true
-               :label     @(<t "behaveplus:working_area")}]]
+      [:div.accordion__header @(<t "behaveplus:working_area")]
       [:div.wizard
        (if @loaded?
          [wizard-page params]
          [:div.wizard__loading
-          [:h2 "Loading..."]])]]]))
+          [:h2 "Loading..."]])]
+      [wizard-expand]]]))
