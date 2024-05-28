@@ -340,8 +340,6 @@ body {
   fill: var(--medblue-4);
 }
 
-
-
 .accordion__header {
   display: flex;
   height: 48px;
