@@ -838,14 +838,14 @@ body {
   top: 11px;
 }
 
-.help-area__tabs > .button {
+.help-area__tabs > .tab-group > .tab > .button {
   min-width: 0px;
   padding: 8px;
   border: 1px solid var(--medblue-4);
   background-color: var(--white);
 }
 
-.help-area__tabs > .button:hover {
+.help-area__tabs > .tab-group > .tab > .button:hover {
   border-color: var(--medblue-4);
   background-color: var(--medblue-4);
   color: var(--white);
