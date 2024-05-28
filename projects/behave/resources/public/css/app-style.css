@@ -845,17 +845,17 @@ body {
   background-color: var(--white);
 }
 
+.help-area__tabs > .tab-group > .tab--selected > .button {
+  background-color: var(--medblue-4);
+}
+
 .help-area__tabs > .tab-group > .tab > .button:hover {
   border-color: var(--medblue-4);
   background-color: var(--medblue-4);
   color: var(--white);
 }
 
-.help-area__tabs:hover .button--selected {
-    color: var(--white);
-}
-
-.help-area__tabs .tab > .button:active {
+.help-area__tabs > .tab-group > .tab > .button:active {
     border: 1px solid var(--medblue-4);
 }
 
