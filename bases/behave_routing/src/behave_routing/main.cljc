@@ -2,6 +2,8 @@
   (:require [clojure.walk :as walk]
             [bidi.bidi :as bidi]))
 
+(def current-route-order (atom nil))
+
 ;; From https://github.com/WorksHub/client/blob/master/common/src/wh/routes.cljc
 ;; The collection routes defined here are supposed to have trailing
 ;; slashes. If a URL without the trailing slash is requested,

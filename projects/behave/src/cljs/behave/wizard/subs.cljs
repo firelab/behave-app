@@ -1,12 +1,14 @@
 (ns behave.wizard.subs
   (:require [behave.schema.core     :refer [rules]]
             [behave.vms.store       :refer [vms-conn]]
-            [behave.translate                    :refer [<t]]
+            [behave.translate       :refer [<t]]
             [clojure.set            :refer [rename-keys intersection]]
             [datascript.core        :as d]
             [re-frame.core          :refer [reg-sub subscribe] :as rf]
             [string-utils.interface :refer [->kebab]]
-            [clojure.string         :as str]))
+            [clojure.string         :as str]
+            [bidi.bidi              :refer [path-for]]
+            [behave-routing.main    :refer [routes]]))
 
 ;;; Helpers
 
@@ -21,8 +23,13 @@
  (fn [_]
    (subscribe [:vms/pull-with-attr :module/name]))
  (fn [modules [_ selected-module]]
-   (first (filter (fn [{m-name :module/name}]
-                    (= selected-module (str/lower-case m-name))) modules))))
+   (->> modules
+        (filter (fn [{m-name :module/name}]
+                  (= selected-module (str/lower-case m-name))))
+        (first)
+        (:db/id)
+        (d/entity @@vms-conn)
+        (d/touch))))
 
 (reg-sub
  :wizard/submodules
@@ -31,11 +38,12 @@
                :module/submodules
                module-id]))
  (fn [submodules _]
-   (map (fn [submodule]
-          (-> submodule
-              (assoc :slug (-> submodule (:submodule/name) (->kebab)))
-              (assoc :submodule/groups @(subscribe [:wizard/groups (:db/id submodule)]))))
-        submodules)))
+   (->> submodules
+        (map (fn [submodule]
+               (-> submodule
+                   (assoc :slug (-> submodule (:submodule/name) (->kebab)))
+                   (assoc :submodule/groups @(subscribe [:wizard/groups (:db/id submodule)])))))
+        (sort-by :submodule/order))))
 
 (reg-sub
  :wizard/submodules-io-input-only
@@ -342,13 +350,16 @@
    (subscribe [:worksheet ws-uuid]))
 
  (fn [worksheet [_ ws-uuid io]]
-   (when-let [module-kw (first (:worksheet/modules worksheet))]
-     (let [module     @(subscribe [:wizard/*module (name module-kw)])
-           module-id  (:db/id module)
+   (when-let [module (some->> worksheet
+                              :worksheet/modules
+                              (map #(deref (subscribe [:wizard/*module (name %)])))
+                              (sort-by :module/order)
+                              first)]
+     (let [module-id  (:db/id module)
            submodules (->> @(subscribe [:wizard/submodules-conditionally-filtered ws-uuid module-id io])
                            (sort-by :submodule/order))]
 
-       [(name module-kw) (:slug (first submodules))]))))
+       [(str/lower-case (:module/name module)) (:slug (first submodules))]))))
 
 ;;; show-group?
 (defn- csv? [s] (< 1 (count (str/split s #","))))
@@ -624,3 +635,62 @@
    (let [x-form (comp (map :bp/uuid)
                       (filter #(true? (deref (rf/subscribe [:worksheet/output-enabled? ws-uuid %])))))]
      (into #{} x-form (:group/group-variables (d/touch group))))))
+
+(reg-sub
+ :wizard/submodule-parent
+ (fn [_ [_ submodule-id]]
+   (d/q '[:find  ?module-name .
+          :in    $ % ?submodule-id
+          :where
+          (submodule ?m ?submodule-id)
+          [?m :module/name ?module-name]]
+        @@vms-conn rules submodule-id)))
+
+(defn- parent-module-name
+  [submodule-id]
+  (d/q '[:find  ?module-name .
+         :in    $ % ?submodule-id
+         :where
+         (submodule ?m ?submodule-id)
+         [?m :module/name ?module-name]]
+       @@vms-conn rules submodule-id))
+
+(defn- build-path
+  [rroutes ws-uuid submodule]
+  (path-for rroutes
+            :ws/wizard
+            :ws-uuid ws-uuid
+            :module (str/lower-case (parent-module-name (:db/id submodule)))
+            :io (:submodule/io submodule)
+            :submodule (-> submodule (:submodule/name) (->kebab))))
+
+(defn- all-shown-submodules [worksheet modules]
+  (->> modules
+       (mapcat (fn [module]
+                 (->> module
+                      :module/submodules
+                      (sort-by :submodule/order))))
+       (filter (fn [{op           :submodule/conditionals-operator
+                     conditionals :submodule/conditionals
+                     research?    :submodule/research?}]
+                 (and (not research?)
+                      (all-conditionals-pass? worksheet op conditionals))))))
+
+(reg-sub
+ :wizard/route-order
+
+ (fn [[_ ws-uuid]]
+   [(subscribe [:worksheet ws-uuid])
+    (subscribe [:worksheet/modules ws-uuid])])
+
+ (fn [[worksheet modules] [_ ws-uuid]]
+   (let [submodules        (all-shown-submodules worksheet modules)
+         output-submodules (filter (fn [{io :submodule/io}] (= io :output)) submodules)
+         input-submodules  (filter (fn [{io :submodule/io}] (= io :input)) submodules)]
+     (into []
+           (concat
+            (map (partial build-path routes ws-uuid) output-submodules)
+            (map (partial build-path routes ws-uuid) input-submodules)
+            [(path-for routes :ws/review :ws-uuid ws-uuid)
+             (path-for routes :ws/results-settings :ws-uuid ws-uuid :results-page :settings)
+             (path-for routes :ws/results :ws-uuid ws-uuid)])))))

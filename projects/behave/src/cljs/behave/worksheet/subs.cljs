@@ -80,8 +80,10 @@
    (rf/subscribe [:worksheet ws-uuid]))
 
  (fn [worksheet _]
-   (map #(deref (rf/subscribe [:wizard/*module (name %)]))
-        (:worksheet/modules worksheet))))
+   (->> worksheet
+        :worksheet/modules
+        (map #(deref (rf/subscribe [:wizard/*module (name %)])))
+        (sort-by :module/order))))
 
 ;; Get state of a particular output
 (rf/reg-sub

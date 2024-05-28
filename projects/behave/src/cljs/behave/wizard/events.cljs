@@ -1,5 +1,5 @@
 (ns behave.wizard.events
-  (:require [behave-routing.main           :refer [routes]]
+  (:require [behave-routing.main           :refer [routes current-route-order]]
             [behave.solver.core            :refer [solve-worksheet]]
             [behave.store                  :as s]
             [bidi.bidi                     :refer [path-for]]
@@ -23,64 +23,34 @@
       :help/scroll-top nil})))
 
 (rf/reg-event-fx
- :wizard/prev-tab
- (fn [_ _]
-   (.back js/history)))
+ :wizard/back
+ (fn [_]
+   (let [current-path       (str/replace
+                             (. (. js/document -location) -href)
+                             #"(^.*(?=(/worksheets)))"
+                             "")
+         current-path-index (.indexOf @current-route-order current-path)
+         next-path          (cond
+                              (and (zero? current-path-index) @s/worksheet-from-file?)
+                              "/worksheets/import"
+
+                              (and (zero? current-path-index))
+                              "/worksheets/independent"
+
+                              :else
+                              (get @current-route-order (dec current-path-index)))]
+     {:fx [[:dispatch [:navigate next-path]]]})))
 
 (rf/reg-event-fx
- :wizard/next-tab
-
- [(rf/inject-cofx ::inject/sub
-                  (fn [[_ _ _ _ {:keys [ws-uuid]}]]
-                    [:worksheet/modules ws-uuid]))]
- (fn [{modules :worksheet/modules} [_
-                                    _*module
-                                    _*submodule
-                                    all-submodules
-                                    {:keys [ws-uuid module io submodule]}]]
-   (let [all-submodules  (filter (fn [{op        :submodule/conditionals-operator
-                                       research? :submodule/research?
-                                       id        :db/id}]
-                                   (and (not research?)
-                                        @(rf/subscribe [:wizard/show-submodule? ws-uuid id op])))
-                                 all-submodules)
-         o-subs          (filter #(= :output (:submodule/io %)) (sort-by :submodule/order all-submodules))
-         i-subs          (filter #(= :input (:submodule/io %)) (sort-by :submodule/order all-submodules))
-         submodules      (if (= io :input) i-subs o-subs)
-         next-submodules (rest (drop-while #(not= (:slug %) submodule) (sort-by :submodule/order submodules)))
-         next-modules    (rest (drop-while #(not= (str/lower-case (:module/name %)) module) (sort-by :module/order modules)))
-         path            (cond
-                           (seq next-submodules)
-                           (path-for routes
-                                     :ws/wizard
-                                     :ws-uuid ws-uuid
-                                     :module module
-                                     :io io
-                                     :submodule (:slug (first next-submodules)))
-
-                           (and (= io :output) (empty? next-submodules))
-                           (path-for routes
-                                     :ws/wizard
-                                     :ws-uuid ws-uuid
-                                     :module module
-                                     :io :input
-                                     :submodule (:slug (first i-subs)))
-
-                           (and (= io :input) (empty? next-submodules) (seq next-modules))
-                           (let [next-module    (str/lower-case (:module/name (first next-modules)))
-                                 next-submodule @(rf/subscribe [:worksheet/first-output-submodule-slug next-module])]
-                             (path-for routes
-                                       :ws/wizard
-                                       :ws-uuid ws-uuid
-                                       :module next-module
-                                       :io :output
-                                       :submodule next-submodule))
-
-                           (and (= io :input) (empty? next-submodules) (empty? next-modules))
-                           (path-for routes
-                                     :ws/review
-                                     :ws-uuid ws-uuid))]
-     {:fx [[:dispatch [:navigate path]]]})))
+ :wizard/next
+ (fn [_]
+   (let [current-path       (str/replace
+                             (. (. js/document -location) -href)
+                             #"(^.*(?=(/worksheets)))"
+                             "")
+         current-path-index (.indexOf @current-route-order current-path)
+         next-path          (get @current-route-order (inc current-path-index))]
+     {:fx [[:dispatch [:navigate next-path]]]})))
 
 (rf/reg-event-fx
  :wizard/before-solve
@@ -265,18 +235,18 @@
                     [:vms/native-units group-variable-uuid]))]
  (fn [{input            :worksheet/input
        vms-native-units :vms/native-units} [_ ws-uuid group-uuid repeat-id group-variable-uuid units]]
-   (let [ws-input-units (:input/units input)
+   (let [ws-input-units         (:input/units input)
          different-unit-chosen? (or (and (nil? ws-input-units)
                                          (not= vms-native-units units))
                                     (and (some? ws-input-units) (not= ws-input-units units)))
-         effects        (cond-> [[:dispatch [:worksheet/update-input-units
-                                             ws-uuid group-uuid repeat-id group-variable-uuid units]]]
+         effects                (cond-> [[:dispatch [:worksheet/update-input-units
+                                                     ws-uuid group-uuid repeat-id group-variable-uuid units]]]
 
-                          different-unit-chosen?
-                          (conj [:dispatch [:worksheet/set-furthest-vistited-step ws-uuid :ws/wizard :input]])
+                                  different-unit-chosen?
+                                  (conj [:dispatch [:worksheet/set-furthest-vistited-step ws-uuid :ws/wizard :input]])
 
-                          different-unit-chosen?
-                          (conj [:dispatch [:worksheet/clear-input-value (:db/id input)]]))]
+                                  different-unit-chosen?
+                                  (conj [:dispatch [:worksheet/clear-input-value (:db/id input)]]))]
      {:fx effects})))
 
 (rf/reg-event-fx
@@ -288,15 +258,12 @@
 (rf/reg-event-fx
  :wizard/navigate-to-latest-worksheet
  (fn [_]
-   (let [ws-uuid   (d/q '[:find ?uuid .
-                          :in $
-                          :where [?e :worksheet/uuid ?uuid]]
-                        @@s/conn)
-         worksheet (d/entity @@s/conn [:worksheet/uuid ws-uuid])
-         modules   (:worksheet/modules worksheet)
-         submodule @(rf/subscribe [:worksheet/first-output-submodule-slug (first modules)])
-         path      (str "/worksheets/" ws-uuid "/modules/" (->str (first modules)) "/output/" submodule)]
-     {:fx [[:dispatch [:navigate path]]]})))
+   (let [ws-uuid (d/q '[:find ?uuid .
+                        :in $
+                        :where [?e :worksheet/uuid ?uuid]]
+                      @@s/conn)]
+     (reset! current-route-order @(rf/subscribe [:wizard/route-order ws-uuid]))
+     {:fx [[:dispatch [:wizard/next]]]})))
 
 (rf/reg-event-fx
  :wizard/open

@@ -10,7 +10,7 @@
             [behave.components.results.inputs.views :refer [inputs-table]]
             [behave.components.results.table      :refer [result-table-download-link]]
             [behave.tool.views                    :refer [tool tool-selector]]
-            [behave-routing.main                  :refer [routes]]
+            [behave-routing.main                  :refer [routes current-route-order]]
             [behave.translate                     :refer [<t bp]]
             [behave.wizard.events]
             [behave.wizard.subs]
@@ -58,8 +58,10 @@
 (defmethod submodule-page :output [_ ws-uuid groups]
   [:<> (build-groups ws-uuid groups output-group)])
 
-(defn- io-tabs [module-id {:keys [ws-uuid io] :as params}]
-  (let [i-subs          @(subscribe [:wizard/submodules-conditionally-filtered ws-uuid module-id :input])
+(defn- io-tabs [first-module {:keys [ws-uuid io] :as params}]
+  (let [module-id       (:db/id first-module)
+        module-name     (str/lower-case (:module/name first-module))
+        i-subs          @(subscribe [:wizard/submodules-conditionally-filtered ws-uuid module-id :input])
         o-subs          @(subscribe [:wizard/submodules-conditionally-filtered ws-uuid module-id :output])
         first-submodule (:slug (first (if (= io :input) o-subs i-subs)))]
     [:div.wizard-header__io-tabs
@@ -67,9 +69,10 @@
                    :flat-edge "top"
                    :align     "right"
                    :on-click  #(when (not= io (:tab %))
-                                 (dispatch [:wizard/select-tab (assoc params
-                                                                      :io (:tab %)
-                                                                      :submodule first-submodule)]))
+                                 (dispatch [:wizard/select-tab (merge params
+                                                                      {:module    module-name
+                                                                       :io        (:tab %)
+                                                                       :submodule first-submodule})]))
                    :tabs      [{:label "Outputs" :tab :output :selected? (= io :output)}
                                {:label "Inputs" :tab :input :selected? (= io :input)}]}]]))
 
@@ -88,38 +91,44 @@
                 :icon-position "left"
                 :on-click      #(dispatch [:wizard/toggle-show-notes])}]]))
 
-(defn- wizard-header [{module-name :module/name
-                       module-id   :db/id}
-                      {:keys [ws-uuid io submodule] :as params}]
-  (let [*submodules         (if (= io :output)
-                              (subscribe [:wizard/submodules-io-output-only module-id])
-                              (subscribe [:wizard/submodules-io-input-only module-id]))
-        ;;(Kcheung) Not able to use :wizard/submodules-conditionally-filtered because the submodule tabs
-        ;;would not rerender when conditionals are met without hard refresh. so had to filter
-        ;;:wizard/show-submodule? outside of the subscription.
-        submodules-filtered (filter (fn [{id :db/id
-                                          op :submodule/conditionals-operator}]
-                                      @(subscribe [:wizard/show-submodule? ws-uuid id op]))
-                                    @*submodules)
-        *show-notes?        (subscribe [:wizard/show-notes?])]
+(defn- wizard-header [{:keys [ws-uuid io submodule module] :as params} modules]
+  (let [*show-notes? (subscribe [:wizard/show-notes?])]
     [:div.wizard-header
-     [io-tabs module-id params]
+     [io-tabs (first modules) params]
      [:div.wizard-header__banner
       [:div.wizard-header__banner__icon
        [c/icon :modules]]
       [:div.wizard-header__banner__title
-       (str module-name " Module")]
+       (str/join " and " (map :module/name modules))]
       [:div.wizard-header__banner__notes-button
        (show-or-close-notes-button @*show-notes?)]]
-     [:div.wizard-header__submodule-tabs
-      {:data-theme-color module-name}
-      [c/tab-group {:variant  "outline-primary"
-                    :on-click #(dispatch [:wizard/select-tab (assoc params :submodule (:tab %))])
-                    :tabs     (map (fn [{s-name :submodule/name slug :slug}]
-                                     {:label     s-name
-                                      :tab       slug
-                                      :selected? (= submodule slug)})
-                                   submodules-filtered)}]]]))
+     [:div.wizard-header__submodules
+      (for [m    modules
+            :let [submodules (if (= io :output)
+                                 (->> @(subscribe [:wizard/submodules-io-output-only (:db/id m)])
+                                      (filter (fn [{id :db/id
+                                                    op :submodule/conditionals-operator}]
+                                                @(subscribe [:wizard/show-submodule? ws-uuid id op]))))
+                                 (->> @(subscribe [:wizard/submodules-io-input-only (:db/id m)])
+                                      (filter (fn [{id :db/id
+                                                    op :submodule/conditionals-operator}]
+                                                @(subscribe [:wizard/show-submodule? ws-uuid id op])))))
+                    module-name (str/lower-case (:module/name m))]]
+        [:div.wizard-header__submodules__group
+         {:data-theme-color module-name}
+         [c/tab-group {:variant  "outline-primary"
+                       :on-click #(dispatch [:wizard/select-tab
+                                             (merge params {:submodule (:tab %)
+                                                            :module    module-name})])
+                       :tabs     (map (fn [{s-name         :submodule/name
+                                            submodule-slug :slug}]
+                                        {:label     s-name
+                                         :tab       submodule-slug
+                                         :selected? (= (str module "-" submodule)
+                                                       (str (str/lower-case module-name)
+                                                            "-"
+                                                            submodule-slug))})
+                                      submodules)}]])]]))
 
 (defn wizard-note
   [{:keys [note display-submodule-headers?]}]
@@ -170,9 +179,9 @@
 
 (defn wizard-page [{:keys [module io submodule route-handler ws-uuid] :as params}]
   (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
-  (let [*module                  (subscribe [:wizard/*module module])
+  (let [modules                  @(subscribe [:worksheet/modules ws-uuid])
+        *module                  (subscribe [:wizard/*module module])
         module-id                (:db/id @*module)
-        *submodules              (subscribe [:wizard/submodules module-id])
         *submodule               (subscribe [:wizard/*submodule module-id submodule io])
         submodule-uuid           (:bp/uuid @*submodule)
         *notes                   (subscribe [:wizard/notes ws-uuid submodule-uuid])
@@ -182,15 +191,15 @@
         *multi-value-input-count (subscribe [:wizard/multi-value-input-count ws-uuid])
         *show-notes?             (subscribe [:wizard/show-notes?])
         *show-add-note-form?     (subscribe [:wizard/show-add-note-form?])
-        on-back                  #(dispatch [:wizard/prev-tab params])
-        on-next                  #(dispatch [:wizard/next-tab @*module @*submodule @*submodules params])
+        on-back                  #(dispatch [:wizard/back])
+        on-next                  #(dispatch [:wizard/next])
         ;; *all-inputs-entered?     (subscribe [:worksheet/all-inputs-entered? ws-uuid module-id submodule])
         ;; *some-outputs-entered?   (subscribe [:worksheet/some-outputs-entered? ws-uuid module-id submodule])
         ;; next-disabled?           (not (if (= io :input) @*all-inputs-entered? @*some-outputs-entered?))
         ]
     [:div.wizard-page
      [:div
-      [wizard-header @*module params]
+      [wizard-header params modules]
       [:div.wizard-page__body
        (when @*show-notes?
          [:<>
@@ -253,8 +262,7 @@
 
 (defn wizard-review-page [{:keys [route-handler ws-uuid] :as params}]
   (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler nil])
-  (let [*worksheet               (subscribe [:worksheet ws-uuid])
-        modules                  (:worksheet/modules @*worksheet)
+  (let [modules                  @(subscribe [:worksheet/modules ws-uuid])
         *warn-limit?             (subscribe [:wizard/warn-limit? ws-uuid])
         *multi-value-input-limit (subscribe [:wizard/multi-value-input-limit])
         *multi-value-input-count (subscribe [:wizard/multi-value-input-count ws-uuid])
@@ -289,9 +297,8 @@
             [run-description ws-uuid]
             (when @*show-notes?
               (wizard-notes @*notes))
-            (for [module-kw modules
-                  :let      [module-name (name module-kw)
-                             module @(subscribe [:wizard/*module module-name])]]
+            (for [module modules
+                  :let   [module-name (:module/name module)]]
               [:div
                [:div.wizard-review__module
                 {:data-theme-color module-name}
@@ -318,7 +325,7 @@
            [:div.wizard-navigation
             [c/button {:label    "Back"
                        :variant  "secondary"
-                       :on-click #(dispatch [:wizard/prev-tab params])}]
+                       :on-click #(dispatch [:wizard/back])}]
             [c/button {:label         "Run"
                        :disabled?     @*warn-limit?
                        :variant       "highlight"
@@ -571,7 +578,7 @@
   (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
   (let [*notes              (subscribe [:wizard/notes ws-uuid])
         *show-notes?        (subscribe [:wizard/show-notes?])
-        on-back             #(dispatch [:wizard/prev-tab params])
+        on-back             #(dispatch [:wizard/back])
         on-next             #(dispatch [:navigate (path-for routes :ws/results :ws-uuid ws-uuid)])
         show-tool-selector? @(subscribe [:tool/show-tool-selector?])
         selected-tool-uuid  @(subscribe [:tool/selected-tool-uuid])]
@@ -689,16 +696,18 @@
        [:div.wizard-navigation
         [c/button {:label    "Back"
                    :variant  "secondary"
-                   :on-click #(dispatch [:wizard/prev-tab params])}]]]]]))
+                   :on-click #(dispatch [:wizard/back])}]]]]]))
 
 ;; TODO Might want to set this in a config file to the application
 (def ^:const multi-value-input-limit 3)
 
 ;;; Public Components
-(defn root-component [params]
+(defn root-component [{:keys [ws-uuid] :as params}]
   (let [loaded?             (subscribe [:app/loaded?])
         show-tool-selector? @(subscribe [:tool/show-tool-selector?])
         selected-tool-uuid  @(subscribe [:tool/selected-tool-uuid])]
+    (when ws-uuid
+      (reset! current-route-order @(subscribe [:wizard/route-order ws-uuid])))
     [:<>
      (when show-tool-selector?
        [tool-selector])

@@ -124,7 +124,7 @@
       [wizard-navigation {:next-label     @(<t (bp "next"))
                           :back-label     @(<t (bp "back"))
                           :next-disabled? (empty? @*modules)
-                          :on-back        #(.back js/history)
+                          :on-back        #(rf/dispatch [:navigate "/worksheets/"])
                           :on-next        #(rf/dispatch [:wizard/new-worksheet @name @*modules @*submodule])}]]]))
 
 (defn guided-worksheet-page [_params]
@@ -150,7 +150,7 @@
                         :on-change    #(rf/dispatch [:ws/worksheet-selected (.. % -target -files)])}]
        [wizard-navigation {:next-label @(<t (bp "next"))
                            :back-label @(<t (bp "back"))
-                           :on-back    #(.back js/history)
+                           :on-back    #(rf/dispatch [:navigate "/worksheets/"])
                            ;;TODO Get full file path from file
                            :on-next    #(rf/dispatch [:wizard/open @file])}]]]]))
 

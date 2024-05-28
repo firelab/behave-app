@@ -3,6 +3,7 @@
             [ajax.edn                     :refer [edn-request-format]]
             [ajax.protocols              :as pr]
             [austinbirch.reactive-entity :as re]
+            [behave-routing.main         :refer [current-route-order]]
             [behave.schema.core          :refer [all-schemas]]
             [browser-utils.core          :refer [download]]
             [browser-utils.interface     :refer [debounce]]
@@ -22,6 +23,7 @@
 (defonce my-txs (atom #{}))
 (defonce sync-txs (atom #{}))
 (defonce batch (atom []))
+(defonce worksheet-from-file? (atom false))
 
 ;;; Helpers
 
@@ -112,6 +114,7 @@
 
 (defn- open-worksheet-handler [[ok body]]
   (when ok
+    (reset! worksheet-from-file? true)
     (reset! conn nil)
     (reset! sync-txs #{})
     (reset! my-txs #{})
@@ -134,6 +137,7 @@
 
 (defn new-worksheet-handler [nname modules submodule [ok body]]
   (when ok
+    (reset! worksheet-from-file? false)
     (reset! conn nil)
     (reset! sync-txs #{})
     (reset! my-txs #{})
@@ -144,6 +148,7 @@
       (rf/dispatch-sync [:worksheet/new {:name    nname
                                          :modules (vec modules)
                                          :uuid    ws-uuid}])
+      (reset! current-route-order @(rf/subscribe [:wizard/route-order ws-uuid]))
       (rf/dispatch-sync [:navigate (str "/worksheets/"
                                         ws-uuid
                                         "/modules/"
