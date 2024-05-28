@@ -20,7 +20,6 @@
                         :module module
                         :io io
                         :submodule submodule)]
-     (js/console.log "help-area-hiden?" help-area-hidden?)
      (cond->
          {:fx [[:dispatch [:navigate path]]]}
 
