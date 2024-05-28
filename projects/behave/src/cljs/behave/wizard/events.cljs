@@ -12,15 +12,20 @@
 
 (rf/reg-event-fx
  :wizard/select-tab
- (fn [_ [_ {:keys [ws-uuid module io submodule]}]]
-   (let [path (path-for routes
+ (fn [{:keys [db]} [_ {:keys [ws-uuid module io submodule]}]]
+   (let [help-area-hidden? (get-in db [:state :help-area :hidden?])
+         path (path-for routes
                         :ws/wizard
                         :ws-uuid ws-uuid
                         :module module
                         :io io
                         :submodule submodule)]
-     {:fx              [[:dispatch [:navigate path]]]
-      :help/scroll-top nil})))
+     (js/console.log "help-area-hiden?" help-area-hidden?)
+     (cond->
+         {:fx [[:dispatch [:navigate path]]]}
+
+       (not help-area-hidden?)
+       (assoc :help/scroll-top nil)))))
 
 (rf/reg-event-fx
  :wizard/prev-tab
@@ -311,7 +316,8 @@
 
 (rf/reg-event-fx
  :wizard/toggle-expand
- (fn [{db :db}]
+
+ (fn [{:keys [db]}]
    (let [sidebar-hidden? (get-in db [:state :sidebar :hidden?])
          help-area-hidden? (get-in db [:state :help-area :hidden?])]
     (if (and sidebar-hidden? help-area-hidden?)
