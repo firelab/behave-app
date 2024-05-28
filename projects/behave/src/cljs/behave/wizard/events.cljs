@@ -317,11 +317,8 @@
  :wizard/toggle-expand
 
  (fn [{:keys [db]}]
-   (let [sidebar-hidden? (get-in db [:state :sidebar :hidden?])
-         help-area-hidden? (get-in db [:state :help-area :hidden?])]
-    (if (and sidebar-hidden? help-area-hidden?)
-      {:fx [[:dispatch [:state/set [:sidebar :hidden?] false]]
-            [:dispatch [:state/set [:help-area :hidden?] false]]]}
-      {:fx [[:dispatch [:state/set [:sidebar :hidden?] true]]
-            [:dispatch [:state/set [:help-area :hidden?] true]]]})))
- )
+   (let [sidebar-hidden?   (get-in db [:state :sidebar :hidden?])
+         help-area-hidden? (get-in db [:state :help-area :hidden?])
+         all-hidden?       (and sidebar-hidden? help-area-hidden?)]
+     {:fx [[:dispatch [:state/set [:sidebar :hidden?] (not all-hidden?)]]
+           [:dispatch [:state/set [:help-area :hidden?] (not all-hidden?)]]]})))

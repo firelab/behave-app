@@ -70,11 +70,11 @@
     (if @hidden?
       [:div.help-area__expand
        [c/button {:variant       "highlight"
-                       :icon-name     "help2"
-                       :icon-position "right"
-                       :size          "small"
-                       :flat-edge     "right"
-                       :on-click      #(dispatch [:state/update [:help-area :hidden?] (partial not)])}]]
+                  :icon-name     "help2"
+                  :icon-position "right"
+                  :size          "small"
+                  :flat-edge     "right"
+                  :on-click      #(dispatch [:state/update [:help-area :hidden?] (partial not)])}]]
       [:div
        {:class     ["help-area"
                     (when @(subscribe [:state [:sidebar :hidden?]]) "help-area--sidebar-hidden")]

@@ -287,7 +287,7 @@ body {
   right: 5px;
 }
 
-.accordion__collapse .button {
+.accordion__collapse > .button {
   width: 30px;
   height: 30px;
   padding: 0;
@@ -296,17 +296,17 @@ body {
   background-color: var(--medblue-4);
 }
 
-.accordion__collapse .button:hover{
+.accordion__collapse > .button:hover{
   background-color: var(--white);
 }
 
-.accordion__collapse .button .button__icon {
+.accordion__collapse > .button .button__icon {
   top: -2px;
   left: 10px;
 }
 
 .accordion__collapse:hover .button__icon,
-.accordion__collapse .button .button__icon:hover {
+.accordion__collapse > .button .button__icon:hover {
   fill: var(--medblue-4);
 }
 
@@ -317,7 +317,7 @@ body {
   right: 5px;
 }
 
-.accordion__expand .button {
+.accordion__expand > .button {
   width: 30px;
   height: 30px;
   padding: 0;
@@ -326,17 +326,17 @@ body {
   background-color: var(--medblue-4);
 }
 
-.accordion__expand .button:hover {
+.accordion__expand > .button:hover {
   background-color: var(--white);
 }
 
-.accordion__expand .button .button__icon {
+.accordion__expand > .button .button__icon {
   top: -3px;
   left: 6px;
 }
 
 .accordion__expand:hover .button__icon,
-.accordion__expand .button .button__icon:hover {
+.accordion__expand > .button .button__icon:hover {
   fill: var(--medblue-4);
 }
 
@@ -838,14 +838,14 @@ body {
   top: 11px;
 }
 
-.help-area__tabs .button {
-    min-width: 0px;
-    padding: 8px;
-    border: 1px solid var(--medblue-4);
-    background-color: var(--white);
+.help-area__tabs > .button {
+  min-width: 0px;
+  padding: 8px;
+  border: 1px solid var(--medblue-4);
+  background-color: var(--white);
 }
 
-.help-area__tabs .button:hover {
+.help-area__tabs > .button:hover {
   border-color: var(--medblue-4);
   background-color: var(--medblue-4);
   color: var(--white);
@@ -1008,7 +1008,7 @@ body {
 .diagram {
   padding-bottom: 20px;
 }
-/* - End Diagdram - */
+/* - End Diagram - */
 
 /* -- Tool -- */
 .tool .accordion__header {
@@ -1190,23 +1190,23 @@ body {
 }
 
 /* - Container Close Button - */
-.container__close .button {
+.container__close > .button {
   width: 30px;
   height: 30px;
   border-radius: 50%;
   background-color: var(--medblue-4);
 }
 
-.container__close .button:hover{
+.container__close > .button:hover{
   background-color: var(--white);
 }
 
-.container__close .button .button__icon {
+.container__close > .button .button__icon {
   right: 12px;
   fill: var(--white);
 }
 
-.container__close .button .button__icon:hover {
+.container__close > .button .button__icon:hover {
   fill: var(--medblue-4);
 }
 

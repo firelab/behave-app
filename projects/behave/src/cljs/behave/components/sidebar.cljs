@@ -94,7 +94,7 @@
                                                 (rf/dispatch [:navigate "/settings"]))}]}]
        [:div.sidebar-close
         [:div.container__close
-        [c/button {:icon-name "close"
-                   :on-click  #(rf/dispatch [:state/update [:sidebar :hidden?] (partial not)])
-                   :size      "small"
-                   :variant   "secondary"}]]]])))
+         [c/button {:icon-name "close"
+                    :on-click  #(rf/dispatch [:state/update [:sidebar :hidden?] (partial not)])
+                    :size      "small"
+                    :variant   "secondary"}]]]])))
