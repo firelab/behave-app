@@ -418,6 +418,11 @@ body {
   margin-bottom: 15px;
 }
 
+.wizard-header__io-tabs {
+  position: relative;
+  top: -5px;
+}
+
 .wizard-header__banner {
   display: flex;
   align-items: center;
@@ -825,7 +830,7 @@ body {
 
 .help-area__tabs-container {
   position: relative;
-  height: 45px;
+  height: 48px;
   border: 1px solid var(--lightblue-3);
   border-radius: 8px 8px 0px 0px;
   background-color: var(--lightblue-3);
@@ -833,7 +838,7 @@ body {
 
 .help-area__tabs {
   position: relative;
-  top: 10px;
+  top: 11px;
 }
 
 .help-area__tabs .button {
