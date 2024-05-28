@@ -855,10 +855,6 @@ body {
   color: var(--white);
 }
 
-.help-area__tabs > .tab-group > .tab > .button:active {
-    border: 1px solid var(--medblue-4);
-}
-
 .help-area__content {
   overflow-x: hidden;
   overflow-y: scroll;
