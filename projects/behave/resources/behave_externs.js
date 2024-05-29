@@ -631,6 +631,27 @@ Module.SIGSlopeTool = class {
     setNumberOfContours() {}
 };
 
+Module.SIGMoistureScenarios = class {
+  constructor() {}
+  getIsMoistureScenarioDefinedByIndex() {}
+  getIsMoistureScenarioDefinedByName() {}
+  getMoistureScenarioDescriptionByIndex() {}
+  getMoistureScenarioDescriptionByName() {}
+  getMoistureScenarioHundredHourByIndex() {}
+  getMoistureScenarioHundredHourByName() {}
+  getMoistureScenarioIndexByName() {}
+  getMoistureScenarioLiveHerbaceousByIndex() {}
+  getMoistureScenarioLiveHerbaceousByName() {}
+  getMoistureScenarioLiveWoodyByIndex() {}
+  getMoistureScenarioLiveWoodyByName() {}
+  getMoistureScenarioNameByIndex() {}
+  getMoistureScenarioOneHourByIndex() {}
+  getMoistureScenarioOneHourByName() {}
+  getMoistureScenarioTenHourByIndex() {}
+  getMoistureScenarioTenHourByName() {}
+  getNumberOfMoistureScenarios() {}
+}
+
 Module.VaporPressureDeficitCalculator = class {
     init() {}
     runCalculation() {}
