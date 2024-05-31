@@ -12,19 +12,15 @@
 
 (rf/reg-event-fx
  :wizard/select-tab
- (fn [{:keys [db]} [_ {:keys [ws-uuid module io submodule]}]]
-   (let [help-area-hidden? (get-in db [:state :help-area :hidden?])
-         path (path-for routes
+ (fn [_ [_ {:keys [ws-uuid module io submodule]}]]
+   (let [path (path-for routes
                         :ws/wizard
                         :ws-uuid ws-uuid
                         :module module
                         :io io
                         :submodule submodule)]
-     (cond->
-         {:fx [[:dispatch [:navigate path]]]}
-
-       (not help-area-hidden?)
-       (assoc :help/scroll-top nil)))))
+     {:fx              [[:dispatch [:navigate path]]]
+      :help/scroll-top nil})))
 
 (rf/reg-event-fx
  :wizard/back

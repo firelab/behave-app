@@ -4,23 +4,25 @@
 (rf/reg-event-fx
  :help/highlight-section
  (fn [_ [_ help-key]]
-   {:fx [[:dispatch [:state/set :help-current-highlighted-key help-key]]]
+   {:fx                    [[:dispatch [:state/set :help-current-highlighted-key help-key]]]
     :help/scroll-into-view help-key}))
 
-(rf/reg-fx
+(rf/reg-event-db
  :help/scroll-into-view
- (fn [help-key]
-   (let [content (first (.getElementsByClassName js/document "help-area__content"))
-         section (.getElementById js/document help-key)
-         buffer  (* 0.05 (.-offsetHeight content))
-         top     (- (.-offsetTop section) (.-offsetTop content) buffer)]
-     (.scroll content #js {:top top :behavior "smooth"}))))
+ (fn [db help-key]
+   (when-not (get-in db [:state :help-area :hidden?])
+     (let [content (first (.getElementsByClassName js/document "help-area__content"))
+           section (.getElementById js/document help-key)
+           buffer  (* 0.05 (.-offsetHeight content))
+           top     (- (.-offsetTop section) (.-offsetTop content) buffer)]
+       (.scroll content #js {:top top :behavior "smooth"})))))
 
-(rf/reg-fx
+(rf/reg-event-db
  :help/scroll-top
- (fn []
-   (let [content (first (.getElementsByClassName js/document "help-area__content"))]
-     (.scroll content #js {:top 0 :behavior "smooth"}))))
+ (fn [db]
+   (when-not (get-in db [:state :help-area :hidden?])
+     (let [content (first (.getElementsByClassName js/document "help-area__content"))]
+       (.scroll content #js {:top 0 :behavior "smooth"})))))
 
 (rf/reg-event-db
  :help/select-tab
