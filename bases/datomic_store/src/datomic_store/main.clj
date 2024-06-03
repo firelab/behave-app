@@ -3,6 +3,7 @@
             [clojure.string        :as str]
             [datomic.api           :as d]
             [datom-utils.interface :refer [ref-attrs
+                                           datoms->map
                                            safe-attr?
                                            split-datoms
                                            safe-deref
@@ -93,14 +94,33 @@
   - `ref-attrs` [set<keyword>] Set of attributes of type `db.type/ref`
   - `datom`     [vector]       Vector of the for `[e a v tx op]`"
   [ref-attrs [e a v _tx _op :as datom]]
-  (cond-> datom
-    ;; Remap entity ID
-    :always
-    (assoc 0 (get @ds->datomic-eids e e))
+  (let [lookup-datomic-eid #(get @ds->datomic-eids % (* -1 %))]
+    (cond-> datom
+      ;; Remap entity ID
+      (number? e)
+      (update 0 lookup-datomic-eid)
 
-    ;; Remap value ID if it is a reference attribute
-    (ref-attrs a)
-    (assoc 2 (get @ds->datomic-eids v v))))
+      ;; Remap value ID if it is a reference attribute
+      (and (ref-attrs a) (number? v))
+      (update 2 lookup-datomic-eid))))
+
+(def ^:private new-datom? (comp neg? first))
+
+(defn- nid->id [db nid]
+  (d/q '[:find ?e .
+         :in $ ?nid
+         :where [?e :bp/nid ?nid]] db nid))
+
+(defn- add-ds-ids! [db datoms]
+  (let [new-ds->datomic-eids
+        (->> datoms
+             (filter new-datom?)
+             (datoms->map)
+             (map (juxt :db/id :bp/nid))
+             (map (fn [[id nid]]
+                    [(* -1 id) (nid->id db nid)]))
+             (into {}))]
+    (reset! ds->datomic-eids (merge @ds->datomic-eids new-ds->datomic-eids))))
 
 ;;; Unsafe Attributes
 
@@ -111,7 +131,7 @@
 (defonce ^:private tx-queue (atom '()))
 (defonce ^:private tx-index (atom (sorted-map)))
 
-(defn- record-tx [{:keys [tx-data]}]
+(defn- record-tx! [{:keys [tx-data]}]
   (->> tx-data
        (split-datoms)
        (group-by #(nth % 3))
@@ -120,7 +140,7 @@
 (defn- tx-queue-watcher
   [_key _atom _old-state new-state]
   (when-let [tx (first new-state)]
-    (record-tx @tx)
+    (record-tx! @tx)
     (when (> (count @tx-queue) 10)
       (reset! tx-queue '()))))
 
@@ -220,7 +240,9 @@
         tx-map (group-by #(nth % 3) datoms)]
     (swap! tx-index merge tx-map)
     (transact (unwrap-conn conn)
-              (mapv ->tx datoms))))
+              (mapv ->tx datoms))
+    (when ds-mapping?
+      (add-ds-ids! (unwrap-db conn) datoms))))
 
 (defn get-attrs-map
   "Retrieves all attribute's and their ID's."

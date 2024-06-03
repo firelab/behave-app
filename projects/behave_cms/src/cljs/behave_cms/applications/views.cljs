@@ -50,7 +50,7 @@
                           :type      :number
                           :required? true}]}])
 
-(defn list-applications-page [{id :id}]
+(defn list-applications-page [_]
   (let [application (rf/subscribe [:state :application])]
     [:<>
      [sidebar "Applications" @(rf/subscribe [:sidebar/applications])]

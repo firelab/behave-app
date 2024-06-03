@@ -90,12 +90,12 @@
   "Creates sidebar links for entities. Takes:
    - options [seq<map>]:  Sequence of entity maps. Must have `:db/id` attribute.
    - label-attr [keyword]: Attribute of map that will serve as the label
-   - route [keyword]: Route that will be created with `(bidi/path-for app-routes <route> :id (:db/id option))`"
+   - route [keyword]: Route that will be created with `(bidi/path-for app-routes <route> :nid (:bp/nid option))`"
   [options label-attr route]
   (->> options
        (map (fn [option]
               {:label (get option label-attr)
-               :link  (path-for app-routes route :id (:db/id option))}))
+               :link  (path-for app-routes route :nid (:bp/nid option))}))
        (sort-by :label)))
 
 (defn sidebar

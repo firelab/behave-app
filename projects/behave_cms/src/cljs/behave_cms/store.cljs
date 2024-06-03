@@ -21,14 +21,24 @@
 
 (defonce conn (atom nil))
 (defonce my-txs (atom #{}))
+(defonce nid-map (atom {}))
+(defonce ref-attrs (atom #{}))
 (defonce sync-txs (atom #{}))
 
 ;;; Helpers
+(defn- third [xs] (nth xs 2))
+
 (defn- txs [datoms]
   (into #{} (map #(nth % 3) datoms)))
 
 (defn- new-datom? [datom]
   (not (contains? (union @my-txs @sync-txs) (nth datom 3))))
+
+(defn- record-ref-attrs! []
+  (reset! ref-attrs (->> all-schemas
+                         (filter #(= (:db/valueType %) :db.type/ref))
+                         (map :db/ident)
+                         (set))))
 
 (defn- load-data-handler [[ok body]]
   (when ok
@@ -40,7 +50,69 @@
                              raw-datoms)
           datoms-map (datoms->map datoms)]
       (swap! sync-txs union (txs datoms))
+      (record-ref-attrs!)
       (rf/dispatch-sync [:ds/initialize (->ds-schema all-schemas) datoms-map]))))
+
+(defn- replace-with-nid
+  [datom nid-map]
+  (let [nid-pair (fn [eid] (if-let [nid (get nid-map eid)]
+                             [:bp/nid nid]
+                             eid))]
+  (cond-> datom
+    :always
+    (update 0 nid-pair)
+
+    (@ref-attrs (second datom))
+    (update 2 nid-pair))))
+
+(defn- record-nid-map! [conn]
+  (reset! nid-map (into {} (d/q '[:find ?eid ?nid
+                                  :where [?eid :bp/nid ?nid]]
+                                @conn))))
+
+(defn- update-nid-map! [datoms]
+  (let [new-nid-map
+        (->> datoms
+                         (filter #(= (second %) :bp/nid))
+                         (map (juxt first third))
+                         (into {}))]
+    (reset! nid-map (merge @nid-map new-nid-map))))
+
+(defn- sync-tx-data [{:keys [tx-data]}]
+  (let [datoms (->> tx-data (filter new-datom?) (mapv split-datom))]
+    (when-not (empty? datoms)
+      (swap! my-txs union (txs datoms))
+      (let [datoms (mapv #(replace-with-nid % @nid-map) datoms)]
+        (ajax-request {:uri             (str "/sync?auth-token="
+                                             (get-config :secret-token))
+                       :params          {:tx-data datoms}
+                       :method          :post
+                       :handler         println
+                       :format          (edn-request-format)
+                       :response-format (edn-response-format)})
+        (update-nid-map! datoms)))))
+
+(defn- apply-latest-datoms [[ok body]]
+  (when ok
+    (let [datoms (->> (c/unpack body)
+                      (filter new-datom?)
+                      (map (partial apply d/datom)))]
+      (when (seq datoms)
+        (swap! sync-txs union (txs datoms))
+        (d/transact @conn datoms)))))
+
+(defn- sync-latest-datoms! []
+  (ajax-request {:uri             "/sync"
+                 :params          {:tx (:max-tx @@conn)}
+                 :method          :get
+                 :handler         apply-latest-datoms
+                 :format          {:content-type "plain/text" :write str}
+                 :response-format {:description  "ArrayBuffer"
+                                   :type         :arraybuffer
+                                   :content-type "application/msgpack"
+                                   :read         pr/-body}}))
+
+;;; Public Fns
 
 (defn load-store!
   "Loads/syncs the Datom store from datoms the backend."
@@ -54,41 +126,9 @@
                                    :content-type "application/msgpack"
                                    :read         pr/-body}}))
 
-(defn sync-tx-data [{:keys [tx-data]}]
-  (let [datoms (->> tx-data (filter new-datom?) (mapv split-datom))]
-    (when-not (empty? datoms)
-      (swap! my-txs union (txs datoms))
-      (ajax-request {:uri             (str "/sync?auth-token="
-                                           (get-config :secret-token))
-                     :params          {:tx-data datoms}
-                     :method          :post
-                     :handler         println
-                     :format          (edn-request-format)
-                     :response-format (edn-response-format)}))))
-
-(defn apply-latest-datoms [[ok body]]
-  (when ok
-    (let [datoms (->> (c/unpack body)
-                      (filter new-datom?)
-                      (map (partial apply d/datom)))]
-      (when (seq datoms)
-        (swap! sync-txs union (txs datoms))
-        (d/transact @conn datoms)))))
-
-(defn sync-latest-datoms! []
-  (ajax-request {:uri             "/sync"
-                 :params          {:tx (:max-tx @@conn)}
-                 :method          :get
-                 :handler         apply-latest-datoms
-                 :format          {:content-type "plain/text" :write str}
-                 :response-format {:description  "ArrayBuffer"
-                                   :type         :arraybuffer
-                                   :content-type "application/msgpack"
-                                   :read         pr/-body}}))
-
-;;; Public Fns
-
-(defn init! [{:keys [datoms schema]}]
+(defn init!
+  "Initialization method. Takes datoms and [DataScript schema](https://github.com/kristianmandrup/datascript-tutorial/blob/master/create_schema.md#datascript-schemas)."
+  [{:keys [datoms schema]}]
   (if @conn
     @conn
     (do
@@ -99,7 +139,18 @@
       (re/init! @conn)
       #_(js/setInterval sync-latest-datoms! 5000)
       (rf/dispatch [:state/set-state :loaded? true])
+      (record-nid-map! @conn)
       @conn)))
+
+(defn entity-from-uuid
+  "Pull an entity using a UUID."
+  [db uuid]
+  (d/entity (safe-deref db) [:bp/uuid uuid]))
+
+(defn entity-from-nid
+  "Pull an entity using a Nano ID."
+  [db nid]
+  (d/entity (safe-deref db) [:bp/nid nid]))
 
 ;;; Effects
 
@@ -116,6 +167,3 @@
  :ds/transact
  (fn [_ [_ tx-data]]
    (first tx-data)))
-
-(defn entity-from-uuid [db uuid]
-  (d/entity (safe-deref db) [:bp/uuid uuid]))

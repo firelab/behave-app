@@ -1,16 +1,15 @@
 (ns behave-cms.events
-  (:require [clojure.string     :as str]
-            [clojure.core.async :refer [go <!]]
+  (:require [clojure.core.async :refer [go <!]]
             [ajax.core          :refer [ajax-request]]
             [ajax.edn           :refer [edn-request-format edn-response-format]]
             [bidi.bidi          :refer [path-for]]
             [datascript.core    :refer [squuid]]
+            [nano-id.core       :refer [nano-id]]
             [re-frame.core      :refer [dispatch
                                         path
                                         reg-event-db
                                         reg-event-fx
                                         reg-fx]]
-            [re-posh.core       :refer [reg-event-ds]]
             [behave-cms.applications.events]
             [behave-cms.authentication.events]
             [behave-cms.groups.events]
@@ -163,16 +162,16 @@
 
 (reg-event-fx
   :sidebar/select
-  (fn [cofx [_ entity-type uuid]]
-    (let [path (path-for app-routes (keyword (str "get-" (name (singular entity-type)))) :uuid uuid)]
-      {:db (assoc-in (:db cofx) [:state :sidebar (singular entity-type)] uuid)
+  (fn [cofx [_ entity-type nid]]
+    (let [path (path-for app-routes (keyword (str "get-" (name (singular entity-type)))) :nid nid)]
+      {:db (assoc-in (:db cofx) [:state :sidebar (singular entity-type)] nid)
        :fx [[:dispatch [:navigate path]]]})))
 
 (reg-event-fx
   :sidebar/reset
-  (fn [cofx [_ parent-type parent-uuid]]
+  (fn [cofx [_ parent-type parent-nid]]
     {:db (update-in (:db cofx) [:state :sidebar] assoc (singular parent-type) nil)
-     :fx [[:dispatch [:navigate (path-for app-routes parent-type :uuid parent-uuid)]]]}))
+     :fx [[:dispatch [:navigate (path-for app-routes parent-type :nid parent-nid)]]]}))
 
 ;;; AJAX/Fetch Effects
 
@@ -245,7 +244,8 @@
   :api/create-entity
   (fn [_ [_ data]]
     {:transact [(merge {:db/id   -1
-                        :bp/uuid (str (squuid))}
+                        :bp/uuid (str (squuid))
+                        :bp/nid  (nano-id)}
                        data)]}))
 
 (reg-event-fx
@@ -262,9 +262,19 @@
       {:transact [data]})))
 
 (reg-event-fx
-  :api/delete-entity
-  (fn [_ [_ {id :db/id}]]
-    {:transact [[:db.fn/retractEntity id]]}))
+ :api/delete-entity
+ (fn [_ [_ arg]]
+   (let [id (cond
+              (number? arg)
+              arg
+
+              (string? arg)
+              [:bp/nid arg]
+
+              (map? arg)
+              [:bp/nid (:bp/nid arg)])]
+
+     {:transact [[:db.fn/retractEntity id]]})))
 
 (reg-event-fx
   :api/reorder

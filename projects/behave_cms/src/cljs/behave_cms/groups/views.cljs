@@ -58,8 +58,9 @@
 (defn list-groups-page
   "Component for groups page. Takes a single map with:
    - :id [int] - Submodule Entity ID"
-  [{submodule-eid :id}]
-  (let [submodule           (rf/subscribe [:entity submodule-eid '[* {:module/_submodules [*]}]])
+  [{nid :nid}]
+  (let [submodule           (rf/subscribe [:entity [:bp/nid nid] '[* {:module/_submodules [*]}]])
+        submodule-eid       (:db/id @submodule)
         sidebar-groups      (rf/subscribe [:sidebar/groups submodule-eid])
         var-conditionals    (rf/subscribe [:submodule/variable-conditionals submodule-eid])
         module-conditionals (rf/subscribe [:submodule/module-conditionals submodule-eid])
@@ -69,7 +70,7 @@
       "Groups"
       @sidebar-groups
       (str (:module/name parent-module) " Submodules")
-      (str "/modules/" (:db/id parent-module))]
+      (str "/modules/" (:bp/nid parent-module))]
      [window sidebar-width
       [:div.container
        [:div.row.mb-3.mt-4

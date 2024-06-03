@@ -65,6 +65,7 @@
                 bidi/bidi                      {:mvn/version "2.1.6"}
                 datascript/datascript          {:mvn/version "1.5.3"}
                 cljs-ajax/cljs-ajax            {:mvn/version "0.8.4"}
+                nano-id/nano-id                {:mvn/version "1.1.0"}
                 com.github.rosejn/msgpack-cljc {:mvn/version "2.0.359"}
                 sig-gis/triangulum             {:git/url "https://github.com/sig-gis/triangulum"
                                                 :sha     "3d41dab63e1bc8ebe046f64db44ae3df986f5bdf"}
