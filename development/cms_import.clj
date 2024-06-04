@@ -3,8 +3,9 @@
    [clojure.edn :refer [read-string]]
    [clojure.java.io :as io]
    [clojure.set :refer [rename-keys]]
-   [datahike-store.main :as ds]
-   [datahike.api :as d]
+   [behave-cms.store :refer [default-conn]]
+   [behave-cms.server :as cms]
+   [datomic.api :as d]
    [datascript.core :refer [squuid]]
    [string-utils.interface :refer [->str]]
    [datom-utils.interface :refer [safe-deref unwrap]]
@@ -18,6 +19,10 @@
   (pr-str m)
   (with-open [out-file (clojure.java.io/writer f)]
     (clojure.pprint/pprint m out-file)))
+
+(cms/init-db!)
+
+(def conn (default-conn))
 
 (defn cms-import [{:keys [behave-file
                           sig-adapter-file
@@ -49,13 +54,13 @@
                                     :in $ ?fn-name
                                     :where
                                     [?e :cpp.function/name ?fn-name]]
-                                  @@ds/conn
+                                  (d/db conn)
                                   (->str (:cpp.function/name %))))
         existing-class-eid (d/q '[:find ?e .
                                   :in $ ?class-name
                                   :where
                                   [?e :cpp.class/name ?class-name]]
-                                @@ds/conn
+                                (d/db conn)
                                 (->str class-name))]
     (cond-> {:cpp.class/name     (->str class-name)
              :cpp.class/function (vec (->> (filter has-name? (map ->fn methods))
@@ -75,7 +80,7 @@
 
 (defn add-export-file-to-conn [f conn]
   (let [source-edn (read-string (slurp (fs/expand-home f)))
-        namespaces (reduce (fn [acc ns] (assoc acc ns (lookup-ns-id (->str ns) conn))) {} (keys source-edn))
+        namespaces (reduce (fn [acc ns] (assoc acc ns (lookup-ns-id (->str ns) (d/db conn)))) {} (keys source-edn))
         tx         (mapv (fn [[ns-key ns-id]]
                            (merge {:cpp.namespace/name  (->str ns-key)
                                    :cpp.namespace/class (mapv ->class (get source-edn ns-key))}
@@ -161,28 +166,19 @@
                :from-key         :SlopeTool
                :to-key           :SIGSlopeTool})
 
-  ;;; Add exports to CMS db
-  (require '[behave-cms.server :refer [init-datahike!]])
 
-  ;; Init Datahike Connection
-  (init-datahike!)
-
-  ;; Check connection is good
-  @ds/conn
-
-  ;; Verify that global namespace exists
-  (lookup-ns-id "global" @ds/conn)
+  (lookup-ns-id "global" db)
 
   ;; Commit exports
-  (add-export-file-to-conn "./cms-exports/SIGSurface.edn" @ds/conn)
-  (add-export-file-to-conn "./cms-exports/SIGMoistureScenarios.edn" @ds/conn)
-  (add-export-file-to-conn "./cms-exports/SIGCrown.edn" @ds/conn)
-  (add-export-file-to-conn "./cms-exports/SIGBehaveRun.edn" @ds/conn)
-  (add-export-file-to-conn "./cms-exports/SIGMortality.edn" @ds/conn)
-  (add-export-file-to-conn "./cms-exports/SIGIgnite.edn" @ds/conn)
-  (add-export-file-to-conn "./cms-exports/SIGFineDeadFuelMoistureTool.edn" @ds/conn)
-  (add-export-file-to-conn "./cms-exports/SIGSlopeTool.edn" @ds/conn)
-  (add-export-file-to-conn "./cms-exports/VaporPressureDeficitCalculator.edn" @ds/conn)
+  (add-export-file-to-conn "./cms-exports/SIGSurface.edn" conn)
+  (add-export-file-to-conn "./cms-exports/SIGMoistureScenarios.edn" conn)
+  (add-export-file-to-conn "./cms-exports/SIGCrown.edn" conn)
+  (add-export-file-to-conn "./cms-exports/SIGBehaveRun.edn" conn)
+  (add-export-file-to-conn "./cms-exports/SIGMortality.edn" conn)
+  (add-export-file-to-conn "./cms-exports/SIGIgnite.edn" conn)
+  (add-export-file-to-conn "./cms-exports/SIGFineDeadFuelMoistureTool.edn" conn)
+  (add-export-file-to-conn "./cms-exports/SIGSlopeTool.edn" conn)
+  (add-export-file-to-conn "./cms-exports/VaporPressureDeficitCalculator.edn" conn)
 
   ;; Verify that SIGSurface exists
   (sort (d/q '[:find [?c-name ...]
@@ -191,7 +187,7 @@
                [?e :cpp.namespace/name "global"]
                [?e :cpp.namespace/class ?c]
                [?c :cpp.class/name ?c-name]]
-             (safe-deref @ds/conn)))
+             (safe-deref db)))
 
   ;; Verify that SIGSurface functions exist
   (sort (d/q '[:find [?f-name ...]
@@ -199,7 +195,7 @@
                [?c :cpp.class/name "SIGSurface"]
                [?c :cpp.class/function ?f]
                [?f :cpp.function/name ?f-name]]
-             (safe-deref @ds/conn)))
+             (safe-deref db)))
 
   (defn class-to-remove [class-name]
     (d/q '[:find ?c ?f ?p
@@ -209,7 +205,7 @@
            [?c :cpp.class/name ?class-name]
            [?c :cpp.class/function ?f]
            [?f :cpp.function/parameter ?p]]
-         (safe-deref @ds/conn) class-name))
+         (safe-deref db) class-name))
 
   (defn retract [id]
     [:db/retractEntity id])
@@ -226,13 +222,13 @@
 
   (def remove-tx (map #(retract (ffirst (class-to-remove %))) class-names-to-remove))
 
-  (d/transact (unwrap @ds/conn) remove-tx)
+  (d/transact (unwrap db) remove-tx)
 
   (d/q '[:find ?e .
          :in $ ?name
          :where
          [?e :cpp.class/name ?name]]
-       @@ds/conn
+       db
        "SIGSurface")
 
   )

@@ -21,8 +21,15 @@ public:
   explicit SIGMortality(SpeciesMasterTable &speciesMasterTable);
   SIGMortality(const SIGMortality &rhs);
 
-  // SIGMortality Setters
+  // SIGMortality Setters. Sets for all Directions
   void setSpeciesCode(char *speciesCode);
+  void setTreeHeight(double treeHeight, LengthUnits::LengthUnitsEnum treeHeightUnits);
+  void setCrownRatio(double crownRatio);
+  void setDBH(double dbh, LengthUnits::LengthUnitsEnum diameterUnits);
+  void setBoleCharHeight(double boleCharHeight, LengthUnits::LengthUnitsEnum boleCharHeightUnits);
+  void setEquationType(EquationType equationType);
+
+  // SIGMortality Setters Heading Direction
   void setSurfaceFireFlameLength(double value, LengthUnits::LengthUnitsEnum lengthUnits);
   void setSurfaceFireScorchHeight(double value, LengthUnits::LengthUnitsEnum lengthUnits);
   void setFirelineIntensity(double firelineIntensity,
@@ -30,6 +37,14 @@ public:
   void setMidFlameWindSpeed(double midFlameWindSpeed, SpeedUnits::SpeedUnitsEnum windSpeedUnits);
   void setAirTemperature(double airTemperature, TemperatureUnits::TemperatureUnitsEnum temperatureUnits);
   bool updateInputsForSpeciesCodeAndEquationType(char *speciesCode, EquationType equationType);
+
+  // SIGMortality Setters Backing Direction
+  void setSurfaceFireFlameLengthBacking(double value, LengthUnits::LengthUnitsEnum lengthUnits);
+  void setSurfaceFireScorchHeightBacking(double value, LengthUnits::LengthUnitsEnum lengthUnits);
+
+  // SIGMortality Setters Flanking Direction
+  void setSurfaceFireFlameLengthFlanking(double value, LengthUnits::LengthUnitsEnum lengthUnits);
+  void setSurfaceFireScorchHeightFlanking(double value, LengthUnits::LengthUnitsEnum lengthUnits);
 
   // SIGMortality Getters
   char *getSpeciesCode() const;
@@ -52,8 +67,28 @@ public:
   SpeciesMasterTableRecordVector *getSpeciesRecordVectorForRegionAndEquationType(RegionCode region,
                                                                                  EquationType equationType);
   double getCalculatedScorchHeight(LengthUnits::LengthUnitsEnum scorchHeightUnits);
+  double calculateMortality(FractionUnits::FractionUnitsEnum probablityUnits);
+
+  // SIGMortality Getters Heading
+  double getProbabilityOfMortality(FractionUnits::FractionUnitsEnum probabilityUnits) const;
+  double getTreeCrownLengthScorched(FractionUnits::FractionUnitsEnum fractionUnits) const;
+  double getTreeCrownVolumeScorched(FractionUnits::FractionUnitsEnum fractionUnits) const;
+
+  // SIGMortality Getters Backing
+  double getProbabilityOfMortalityBacking(FractionUnits::FractionUnitsEnum probabilityUnits) const;
+  double getTreeCrownLengthScorchedBacking(FractionUnits::FractionUnitsEnum fractionUnits) const;
+  double getTreeCrownVolumeScorchedBacking(FractionUnits::FractionUnitsEnum fractionUnits) const;
+
+  // SIGMortality Getters Flanking
+  double getTreeCrownLengthScorchedFlanking(FractionUnits::FractionUnitsEnum fractionUnits) const;
+  double getTreeCrownVolumeScorchedFlanking(FractionUnits::FractionUnitsEnum fractionUnits) const;
+  double getProbabilityOfMortalityFlanking(FractionUnits::FractionUnitsEnum probabilityUnits) const;
 
 protected:
+  Mortality heading_;
+  Mortality backing_;
+  Mortality flanking_;
+
   double fireLineIntensity_;
   double midFlameWindSpeed_;
   double airTemperature_;

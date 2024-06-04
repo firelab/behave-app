@@ -1,6 +1,12 @@
 {:global
  {:SIGMortality
-  {:getEquationTypeFromSpeciesCode
+  {:calculateMortalityAllDirections
+   {:type "double",
+    :id "calculateMortalityAllDirections",
+    :parameters
+    [{:id "probablityUnits",
+      :type "FractionUnits::FractionUnitsEnum"}]},
+   :getEquationTypeFromSpeciesCode
    {:type "EquationType",
     :id "getEquationTypeFromSpeciesCode",
     :parameters [{:id "speciesCode", :type "char"}]},
@@ -10,6 +16,12 @@
     :parameters
     [{:id "flameLengthOrScorchHeightUnits",
       :type "LengthUnits::LengthUnitsEnum"}]},
+   :setSurfaceFireFlameLengthBacking
+   {:type "void",
+    :id "setSurfaceFireFlameLengthBacking",
+    :parameters
+    [{:id "value", :type "double"}
+     {:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
    :SIGMortality
    {:id "SIGMortality",
     :parameters [{:id "rhs", :type "SIGMortality"}]},
@@ -42,6 +54,11 @@
    {:type "char",
     :id "getCommonNameFromSpeciesCode",
     :parameters [{:id "speciesCode", :type "char"}]},
+   :getTreeCrownVolumeScorchedFlanking
+   {:type "double",
+    :id "getTreeCrownVolumeScorchedFlanking",
+    :parameters
+    [{:id "fractionUnits", :type "FractionUnits::FractionUnitsEnum"}]},
    :getBeetleDamage
    {:type "BeetleDamage", :id "getBeetleDamage", :parameters []},
    :getCommonNameAtSpeciesTableIndex
@@ -58,6 +75,12 @@
    {:type "FlameLengthOrScorchHeightSwitch",
     :id "getFlameLengthOrScorchHeightSwitch",
     :parameters []},
+   :setSurfaceFireScorchHeightBacking
+   {:type "void",
+    :id "setSurfaceFireScorchHeightBacking",
+    :parameters
+    [{:id "value", :type "double"}
+     {:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
    :setFlameLengthOrScorchHeightSwitch
    {:type "void",
     :id "setFlameLengthOrScorchHeightSwitch",
@@ -74,8 +97,7 @@
    {:type "double",
     :id "getTreeCrownLengthScorched",
     :parameters
-    [{:id "mortalityRateUnits",
-      :type "MortalityRateUnits::MortalityRateUnitsEnum"}]},
+    [{:id "fractionUnits", :type "FractionUnits::FractionUnitsEnum"}]},
    :setRegion
    {:type "void",
     :id "setRegion",
@@ -94,7 +116,7 @@
     :id "getProbabilityOfMortality",
     :parameters
     [{:id "probabilityUnits",
-      :type "ProbabilityUnits::ProbabilityUnitsEnum"}]},
+      :type "FractionUnits::FractionUnitsEnum"}]},
    :getDBH
    {:type "double",
     :id "getDBH",
@@ -138,7 +160,7 @@
     :id "calculateMortality",
     :parameters
     [{:id "probablityUnits",
-      :type "ProbabilityUnits::ProbabilityUnitsEnum"}]},
+      :type "FractionUnits::FractionUnitsEnum"}]},
    :getRequiredFieldVector
    {:type "BoolVector", :id "getRequiredFieldVector", :parameters []},
    :getCrownScorchOrBoleCharEquationNumber
@@ -168,12 +190,16 @@
    {:type "double",
     :id "getTreeCrownVolumeScorched",
     :parameters
-    [{:id "mortalityRateUnits",
-      :type "MortalityRateUnits::MortalityRateUnitsEnum"}]},
+    [{:id "fractionUnits", :type "FractionUnits::FractionUnitsEnum"}]},
    :operator=
    {:type "Mortality",
     :id "operator=",
     :parameters [{:id "rhs", :type "Mortality"}]},
+   :getTreeCrownLengthScorchedFlanking
+   {:type "double",
+    :id "getTreeCrownLengthScorchedFlanking",
+    :parameters
+    [{:id "fractionUnits", :type "FractionUnits::FractionUnitsEnum"}]},
    :getMortalityEquationNumberAtSpeciesTableIndex
    {:type "int",
     :id "getMortalityEquationNumberAtSpeciesTableIndex",
@@ -184,6 +210,11 @@
     :parameters
     [{:id "speciesCode", :type "char"}
      {:id "equationType", :type "EquationType"}]},
+   :getTreeCrownVolumeScorchedBacking
+   {:type "double",
+    :id "getTreeCrownVolumeScorchedBacking",
+    :parameters
+    [{:id "fractionUnits", :type "FractionUnits::FractionUnitsEnum"}]},
    :getCrownDamageType
    {:type "CrownDamageType", :id "getCrownDamageType", :parameters []},
    :getScientificNameFromSpeciesCode
@@ -198,6 +229,12 @@
      {:id "areaUnits", :type "AreaUnits::AreaUnitsEnum"}]},
    :getEquationType
    {:type "EquationType", :id "getEquationType", :parameters []},
+   :setSurfaceFireFlameLengthFlanking
+   {:type "void",
+    :id "setSurfaceFireFlameLengthFlanking",
+    :parameters
+    [{:id "value", :type "double"}
+     {:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
    :getCalculatedScorchHeight
    {:type "double",
     :id "getCalculatedScorchHeight",
@@ -221,6 +258,12 @@
    {:type "void",
     :id "setCambiumKillRating",
     :parameters [{:id "cambiumKillRating", :type "double"}]},
+   :getProbabilityOfMortalityBacking
+   {:type "double",
+    :id "getProbabilityOfMortalityBacking",
+    :parameters
+    [{:id "probabilityUnits",
+      :type "FractionUnits::FractionUnitsEnum"}]},
    :getSpeciesRecordAtIndex
    {:type "SpeciesMasterTableRecord",
     :id "getSpeciesRecordAtIndex",
@@ -274,6 +317,12 @@
     :id "getTreeHeight",
     :parameters
     [{:id "treeHeightUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :setSurfaceFireScorchHeightFlanking
+   {:type "void",
+    :id "setSurfaceFireScorchHeightFlanking",
+    :parameters
+    [{:id "value", :type "double"}
+     {:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
    :getCrownDamageEquationCodeFromSpeciesCode
    {:type "CrownDamageEquationCode",
     :id "getCrownDamageEquationCodeFromSpeciesCode",
@@ -298,6 +347,11 @@
    {:type "double",
     :id "getTreeDensityPerUnitArea",
     :parameters [{:id "areaUnits", :type "AreaUnits::AreaUnitsEnum"}]},
+   :getTreeCrownLengthScorchedBacking
+   {:type "double",
+    :id "getTreeCrownLengthScorchedBacking",
+    :parameters
+    [{:id "fractionUnits", :type "FractionUnits::FractionUnitsEnum"}]},
    :setFlameLengthOrScorchHeightValue
    {:type "void",
     :id "setFlameLengthOrScorchHeightValue",
@@ -305,6 +359,12 @@
     [{:id "flameLengthOrScorchHeightValue", :type "double"}
      {:id "flameLengthOrScorchHeightUnits",
       :type "LengthUnits::LengthUnitsEnum"}]},
+   :getProbabilityOfMortalityFlanking
+   {:type "double",
+    :id "getProbabilityOfMortalityFlanking",
+    :parameters
+    [{:id "probabilityUnits",
+      :type "FractionUnits::FractionUnitsEnum"}]},
    :getEquationTypeAtSpeciesTableIndex
    {:type "EquationType",
     :id "getEquationTypeAtSpeciesTableIndex",

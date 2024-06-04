@@ -11,6 +11,9 @@
 (defn calculateMortality [self probablityUnits]
   (.calculateMortality self probablityUnits))
 
+(defn calculateMortalityAllDirections [self probablityUnits]
+  (.calculateMortalityAllDirections self probablityUnits))
+
 (defn checkIsInRegionAtSpeciesTableIndex [self index region]
   (.checkIsInRegionAtSpeciesTableIndex self index region))
 

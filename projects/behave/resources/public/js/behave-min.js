@@ -19,6 +19,7 @@ var Module = typeof Module != 'undefined' ? Module : {};
 Module["onRuntimeInitialized"] = window.onWASMModuleLoaded;
 
 
+
 // Sometimes an existing Module object exists with properties
 // meant to overwrite the default module functionality. Here
 // we collect those properties and reapply _after_ we configure
@@ -59,17 +60,18 @@ function locateFile(path) {
 // Hooks that are implemented differently in different runtime environments.
 var read_,
     readAsync,
-    readBinary;
+    readBinary,
+    setWindowTitle;
 
 if (ENVIRONMENT_IS_NODE) {
   if (typeof process == 'undefined' || !process.release || process.release.name !== 'node') throw new Error('not compiled for this environment (did you build to HTML and try to run it not on the web, or set ENVIRONMENT to something - like node - and run it someplace else - like on the web?)');
 
   var nodeVersion = process.versions.node;
   var numericVersion = nodeVersion.split('.').slice(0, 3);
-  numericVersion = (numericVersion[0] * 10000) + (numericVersion[1] * 100) + (numericVersion[2].split('-')[0] * 1);
-  var minVersion = 160000;
-  if (numericVersion < 160000) {
-    throw new Error('This emscripten-generated code requires node v16.0.0 (detected v' + nodeVersion + ')');
+  numericVersion = (numericVersion[0] * 10000) + (numericVersion[1] * 100) + numericVersion[2] * 1;
+  var minVersion = 101900;
+  if (numericVersion < 101900) {
+    throw new Error('This emscripten-generated code requires node v10.19.19.0 (detected v' + nodeVersion + ')');
   }
 
   // `require()` is no-op in an ESM module, use `createRequire()` to construct
@@ -104,16 +106,17 @@ readBinary = (filename) => {
   return ret;
 };
 
-readAsync = (filename, onload, onerror, binary = true) => {
+readAsync = (filename, onload, onerror) => {
   // See the comment in the `read_` function.
   filename = isFileURI(filename) ? new URL(filename) : nodePath.normalize(filename);
-  fs.readFile(filename, binary ? undefined : 'utf8', (err, data) => {
+  fs.readFile(filename, function(err, data) {
     if (err) onerror(err);
-    else onload(binary ? data.buffer : data);
+    else onload(data.buffer);
   });
 };
+
 // end include: node_shell_read.js
-  if (!Module['thisProgram'] && process.argv.length > 1) {
+  if (process.argv.length > 1) {
     thisProgram = process.argv[1].replace(/\\/g, '/');
   }
 
@@ -123,19 +126,29 @@ readAsync = (filename, onload, onerror, binary = true) => {
     module['exports'] = Module;
   }
 
-  process.on('uncaughtException', (ex) => {
+  process.on('uncaughtException', function(ex) {
     // suppress ExitStatus exceptions from showing an error
     if (ex !== 'unwind' && !(ex instanceof ExitStatus) && !(ex.context instanceof ExitStatus)) {
       throw ex;
     }
   });
 
+  // Without this older versions of node (< v15) will log unhandled rejections
+  // but return 0, which is not normally the desired behaviour.  This is
+  // not be needed with node v15 and about because it is now the default
+  // behaviour:
+  // See https://nodejs.org/api/cli.html#cli_unhandled_rejections_mode
+  var nodeMajor = process.versions.node.split(".")[0];
+  if (nodeMajor < 15) {
+    process.on('unhandledRejection', function(reason) { throw reason; });
+  }
+
   quit_ = (status, toThrow) => {
     process.exitCode = status;
     throw toThrow;
   };
 
-  Module['inspect'] = () => '[Emscripten Module object]';
+  Module['inspect'] = function () { return '[Emscripten Module object]'; };
 
 } else
 if (ENVIRONMENT_IS_SHELL) {
@@ -143,29 +156,27 @@ if (ENVIRONMENT_IS_SHELL) {
   if ((typeof process == 'object' && typeof require === 'function') || typeof window == 'object' || typeof importScripts == 'function') throw new Error('not compiled for this environment (did you build to HTML and try to run it not on the web, or set ENVIRONMENT to something - like node - and run it someplace else - like on the web?)');
 
   if (typeof read != 'undefined') {
-    read_ = read;
+    read_ = function shell_read(f) {
+      return read(f);
+    };
   }
 
-  readBinary = (f) => {
+  readBinary = function readBinary(f) {
+    let data;
     if (typeof readbuffer == 'function') {
       return new Uint8Array(readbuffer(f));
     }
-    let data = read(f, 'binary');
+    data = read(f, 'binary');
     assert(typeof data == 'object');
     return data;
   };
 
-  readAsync = (f, onload, onerror) => {
-    setTimeout(() => onload(readBinary(f)));
+  readAsync = function readAsync(f, onload, onerror) {
+    setTimeout(() => onload(readBinary(f)), 0);
   };
 
   if (typeof clearTimeout == 'undefined') {
     globalThis.clearTimeout = (id) => {};
-  }
-
-  if (typeof setTimeout == 'undefined') {
-    // spidermonkey lacks setTimeout but we use it above in readAsync.
-    globalThis.setTimeout = (f) => (typeof f == 'function') ? f() : abort();
   }
 
   if (typeof scriptArgs != 'undefined') {
@@ -191,7 +202,7 @@ if (ENVIRONMENT_IS_SHELL) {
           if (toThrow && typeof toThrow == 'object' && toThrow.stack) {
             toLog = [toThrow, toThrow.stack];
           }
-          err(`exiting due to exception: ${toLog}`);
+          err('exiting due to exception: ' + toLog);
         }
         quit(status);
       });
@@ -236,19 +247,19 @@ if (ENVIRONMENT_IS_WEB || ENVIRONMENT_IS_WORKER) {
   {
 // include: web_or_worker_shell_read.js
 read_ = (url) => {
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', url, false);
-    xhr.send(null);
-    return xhr.responseText;
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', url, false);
+      xhr.send(null);
+      return xhr.responseText;
   }
 
   if (ENVIRONMENT_IS_WORKER) {
     readBinary = (url) => {
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', url, false);
-      xhr.responseType = 'arraybuffer';
-      xhr.send(null);
-      return new Uint8Array(/** @type{!ArrayBuffer} */(xhr.response));
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url, false);
+        xhr.responseType = 'arraybuffer';
+        xhr.send(null);
+        return new Uint8Array(/** @type{!ArrayBuffer} */(xhr.response));
     };
   }
 
@@ -269,13 +280,15 @@ read_ = (url) => {
 
 // end include: web_or_worker_shell_read.js
   }
+
+  setWindowTitle = (title) => document.title = title;
 } else
 {
   throw new Error('environment detection error');
 }
 
 var out = Module['print'] || console.log.bind(console);
-var err = Module['printErr'] || console.error.bind(console);
+var err = Module['printErr'] || console.warn.bind(console);
 
 // Merge back in the overrides
 Object.assign(Module, moduleOverrides);
@@ -304,9 +317,8 @@ assert(typeof Module['filePackagePrefixURL'] == 'undefined', 'Module.filePackage
 assert(typeof Module['read'] == 'undefined', 'Module.read option was removed (modify read_ in JS)');
 assert(typeof Module['readAsync'] == 'undefined', 'Module.readAsync option was removed (modify readAsync in JS)');
 assert(typeof Module['readBinary'] == 'undefined', 'Module.readBinary option was removed (modify readBinary in JS)');
-assert(typeof Module['setWindowTitle'] == 'undefined', 'Module.setWindowTitle option was removed (modify emscripten_set_window_title in JS)');
+assert(typeof Module['setWindowTitle'] == 'undefined', 'Module.setWindowTitle option was removed (modify setWindowTitle in JS)');
 assert(typeof Module['TOTAL_MEMORY'] == 'undefined', 'Module.TOTAL_MEMORY has been renamed Module.INITIAL_MEMORY');
-legacyModuleProp('asm', 'wasmExports');
 legacyModuleProp('read', 'read_');
 legacyModuleProp('readAsync', 'readAsync');
 legacyModuleProp('readBinary', 'readBinary');
@@ -314,11 +326,6 @@ legacyModuleProp('setWindowTitle', 'setWindowTitle');
 var IDBFS = 'IDBFS is no longer included by default; build with -lidbfs.js';
 var PROXYFS = 'PROXYFS is no longer included by default; build with -lproxyfs.js';
 var WORKERFS = 'WORKERFS is no longer included by default; build with -lworkerfs.js';
-var FETCHFS = 'FETCHFS is no longer included by default; build with -lfetchfs.js';
-var ICASEFS = 'ICASEFS is no longer included by default; build with -licasefs.js';
-var JSFILEFS = 'JSFILEFS is no longer included by default; build with -ljsfilefs.js';
-var OPFS = 'OPFS is no longer included by default; build with -lopfs.js';
-
 var NODEFS = 'NODEFS is no longer included by default; build with -lnodefs.js';
 
 assert(!ENVIRONMENT_IS_SHELL, "shell environment detected but not enabled at build time.  Add 'shell' to `-sENVIRONMENT` to enable.");
@@ -371,6 +378,196 @@ function assert(condition, text) {
 // We used to include malloc/free by default in the past. Show a helpful error in
 // builds with assertions.
 
+// include: runtime_strings.js
+// runtime_strings.js: String related runtime functions that are part of both
+// MINIMAL_RUNTIME and regular runtime.
+
+var UTF8Decoder = typeof TextDecoder != 'undefined' ? new TextDecoder('utf8') : undefined;
+
+/**
+ * Given a pointer 'idx' to a null-terminated UTF8-encoded string in the given
+ * array that contains uint8 values, returns a copy of that string as a
+ * Javascript String object.
+ * heapOrArray is either a regular array, or a JavaScript typed array view.
+ * @param {number} idx
+ * @param {number=} maxBytesToRead
+ * @return {string}
+ */
+function UTF8ArrayToString(heapOrArray, idx, maxBytesToRead) {
+  var endIdx = idx + maxBytesToRead;
+  var endPtr = idx;
+  // TextDecoder needs to know the byte length in advance, it doesn't stop on
+  // null terminator by itself.  Also, use the length info to avoid running tiny
+  // strings through TextDecoder, since .subarray() allocates garbage.
+  // (As a tiny code save trick, compare endPtr against endIdx using a negation,
+  // so that undefined means Infinity)
+  while (heapOrArray[endPtr] && !(endPtr >= endIdx)) ++endPtr;
+
+  if (endPtr - idx > 16 && heapOrArray.buffer && UTF8Decoder) {
+    return UTF8Decoder.decode(heapOrArray.subarray(idx, endPtr));
+  }
+  var str = '';
+  // If building with TextDecoder, we have already computed the string length
+  // above, so test loop end condition against that
+  while (idx < endPtr) {
+    // For UTF8 byte structure, see:
+    // http://en.wikipedia.org/wiki/UTF-8#Description
+    // https://www.ietf.org/rfc/rfc2279.txt
+    // https://tools.ietf.org/html/rfc3629
+    var u0 = heapOrArray[idx++];
+    if (!(u0 & 0x80)) { str += String.fromCharCode(u0); continue; }
+    var u1 = heapOrArray[idx++] & 63;
+    if ((u0 & 0xE0) == 0xC0) { str += String.fromCharCode(((u0 & 31) << 6) | u1); continue; }
+    var u2 = heapOrArray[idx++] & 63;
+    if ((u0 & 0xF0) == 0xE0) {
+      u0 = ((u0 & 15) << 12) | (u1 << 6) | u2;
+    } else {
+      if ((u0 & 0xF8) != 0xF0) warnOnce('Invalid UTF-8 leading byte ' + ptrToString(u0) + ' encountered when deserializing a UTF-8 string in wasm memory to a JS string!');
+      u0 = ((u0 & 7) << 18) | (u1 << 12) | (u2 << 6) | (heapOrArray[idx++] & 63);
+    }
+
+    if (u0 < 0x10000) {
+      str += String.fromCharCode(u0);
+    } else {
+      var ch = u0 - 0x10000;
+      str += String.fromCharCode(0xD800 | (ch >> 10), 0xDC00 | (ch & 0x3FF));
+    }
+  }
+  return str;
+}
+
+/**
+ * Given a pointer 'ptr' to a null-terminated UTF8-encoded string in the
+ * emscripten HEAP, returns a copy of that string as a Javascript String object.
+ *
+ * @param {number} ptr
+ * @param {number=} maxBytesToRead - An optional length that specifies the
+ *   maximum number of bytes to read. You can omit this parameter to scan the
+ *   string until the first \0 byte. If maxBytesToRead is passed, and the string
+ *   at [ptr, ptr+maxBytesToReadr[ contains a null byte in the middle, then the
+ *   string will cut short at that byte index (i.e. maxBytesToRead will not
+ *   produce a string of exact length [ptr, ptr+maxBytesToRead[) N.B. mixing
+ *   frequent uses of UTF8ToString() with and without maxBytesToRead may throw
+ *   JS JIT optimizations off, so it is worth to consider consistently using one
+ * @return {string}
+ */
+function UTF8ToString(ptr, maxBytesToRead) {
+  assert(typeof ptr == 'number');
+  return ptr ? UTF8ArrayToString(HEAPU8, ptr, maxBytesToRead) : '';
+}
+
+/**
+ * Copies the given Javascript String object 'str' to the given byte array at
+ * address 'outIdx', encoded in UTF8 form and null-terminated. The copy will
+ * require at most str.length*4+1 bytes of space in the HEAP.  Use the function
+ * lengthBytesUTF8 to compute the exact number of bytes (excluding null
+ * terminator) that this function will write.
+ *
+ * @param {string} str - The Javascript string to copy.
+ * @param {ArrayBufferView|Array<number>} heap - The array to copy to. Each
+ *                                               index in this array is assumed
+ *                                               to be one 8-byte element.
+ * @param {number} outIdx - The starting offset in the array to begin the copying.
+ * @param {number} maxBytesToWrite - The maximum number of bytes this function
+ *                                   can write to the array.  This count should
+ *                                   include the null terminator, i.e. if
+ *                                   maxBytesToWrite=1, only the null terminator
+ *                                   will be written and nothing else.
+ *                                   maxBytesToWrite=0 does not write any bytes
+ *                                   to the output, not even the null
+ *                                   terminator.
+ * @return {number} The number of bytes written, EXCLUDING the null terminator.
+ */
+function stringToUTF8Array(str, heap, outIdx, maxBytesToWrite) {
+  // Parameter maxBytesToWrite is not optional. Negative values, 0, null,
+  // undefined and false each don't write out any bytes.
+  if (!(maxBytesToWrite > 0))
+    return 0;
+
+  var startIdx = outIdx;
+  var endIdx = outIdx + maxBytesToWrite - 1; // -1 for string null terminator.
+  for (var i = 0; i < str.length; ++i) {
+    // Gotcha: charCodeAt returns a 16-bit word that is a UTF-16 encoded code
+    // unit, not a Unicode code point of the character! So decode
+    // UTF16->UTF32->UTF8.
+    // See http://unicode.org/faq/utf_bom.html#utf16-3
+    // For UTF8 byte structure, see http://en.wikipedia.org/wiki/UTF-8#Description
+    // and https://www.ietf.org/rfc/rfc2279.txt
+    // and https://tools.ietf.org/html/rfc3629
+    var u = str.charCodeAt(i); // possibly a lead surrogate
+    if (u >= 0xD800 && u <= 0xDFFF) {
+      var u1 = str.charCodeAt(++i);
+      u = 0x10000 + ((u & 0x3FF) << 10) | (u1 & 0x3FF);
+    }
+    if (u <= 0x7F) {
+      if (outIdx >= endIdx) break;
+      heap[outIdx++] = u;
+    } else if (u <= 0x7FF) {
+      if (outIdx + 1 >= endIdx) break;
+      heap[outIdx++] = 0xC0 | (u >> 6);
+      heap[outIdx++] = 0x80 | (u & 63);
+    } else if (u <= 0xFFFF) {
+      if (outIdx + 2 >= endIdx) break;
+      heap[outIdx++] = 0xE0 | (u >> 12);
+      heap[outIdx++] = 0x80 | ((u >> 6) & 63);
+      heap[outIdx++] = 0x80 | (u & 63);
+    } else {
+      if (outIdx + 3 >= endIdx) break;
+      if (u > 0x10FFFF) warnOnce('Invalid Unicode code point ' + ptrToString(u) + ' encountered when serializing a JS string to a UTF-8 string in wasm memory! (Valid unicode code points should be in range 0-0x10FFFF).');
+      heap[outIdx++] = 0xF0 | (u >> 18);
+      heap[outIdx++] = 0x80 | ((u >> 12) & 63);
+      heap[outIdx++] = 0x80 | ((u >> 6) & 63);
+      heap[outIdx++] = 0x80 | (u & 63);
+    }
+  }
+  // Null-terminate the pointer to the buffer.
+  heap[outIdx] = 0;
+  return outIdx - startIdx;
+}
+
+/**
+ * Copies the given Javascript String object 'str' to the emscripten HEAP at
+ * address 'outPtr', null-terminated and encoded in UTF8 form. The copy will
+ * require at most str.length*4+1 bytes of space in the HEAP.
+ * Use the function lengthBytesUTF8 to compute the exact number of bytes
+ * (excluding null terminator) that this function will write.
+ *
+ * @return {number} The number of bytes written, EXCLUDING the null terminator.
+ */
+function stringToUTF8(str, outPtr, maxBytesToWrite) {
+  assert(typeof maxBytesToWrite == 'number', 'stringToUTF8(str, outPtr, maxBytesToWrite) is missing the third parameter that specifies the length of the output buffer!');
+  return stringToUTF8Array(str, HEAPU8,outPtr, maxBytesToWrite);
+}
+
+/**
+ * Returns the number of bytes the given Javascript string takes if encoded as a
+ * UTF8 byte array, EXCLUDING the null terminator byte.
+ *
+ * @param {string} str - JavaScript string to operator on
+ * @return {number} Length, in bytes, of the UTF8 encoded string.
+ */
+function lengthBytesUTF8(str) {
+  var len = 0;
+  for (var i = 0; i < str.length; ++i) {
+    // Gotcha: charCodeAt returns a 16-bit word that is a UTF-16 encoded code
+    // unit, not a Unicode code point of the character! So decode
+    // UTF16->UTF32->UTF8.
+    // See http://unicode.org/faq/utf_bom.html#utf16-3
+    var c = str.charCodeAt(i); // possibly a lead surrogate
+    if (c <= 0x7F) {
+      len++;
+    } else if (c <= 0x7FF) {
+      len += 2;
+    } else if (c >= 0xD800 && c <= 0xDFFF) {
+      len += 4; ++i;
+    } else {
+      len += 3;
+    }
+  }
+  return len;
+}
+
+// end include: runtime_strings.js
 // Memory management
 
 var HEAP,
@@ -395,9 +592,9 @@ function updateMemoryViews() {
   var b = wasmMemory.buffer;
   Module['HEAP8'] = HEAP8 = new Int8Array(b);
   Module['HEAP16'] = HEAP16 = new Int16Array(b);
+  Module['HEAP32'] = HEAP32 = new Int32Array(b);
   Module['HEAPU8'] = HEAPU8 = new Uint8Array(b);
   Module['HEAPU16'] = HEAPU16 = new Uint16Array(b);
-  Module['HEAP32'] = HEAP32 = new Int32Array(b);
   Module['HEAPU32'] = HEAPU32 = new Uint32Array(b);
   Module['HEAPF32'] = HEAPF32 = new Float32Array(b);
   Module['HEAPF64'] = HEAPF64 = new Float64Array(b);
@@ -412,14 +609,21 @@ assert(typeof Int32Array != 'undefined' && typeof Float64Array !== 'undefined' &
 assert(!Module['wasmMemory'], 'Use of `wasmMemory` detected.  Use -sIMPORTED_MEMORY to define wasmMemory externally');
 assert(!Module['INITIAL_MEMORY'], 'Detected runtime INITIAL_MEMORY setting.  Use -sIMPORTED_MEMORY to define wasmMemory dynamically');
 
+// include: runtime_init_table.js
+// In regular non-RELOCATABLE mode the table is exported
+// from the wasm module and this will be assigned once
+// the exports are available.
+var wasmTable;
+
+// end include: runtime_init_table.js
 // include: runtime_stack_check.js
 // Initializes the stack cookie. Called at the startup of main and at the startup of each thread in pthreads mode.
 function writeStackCookie() {
   var max = _emscripten_stack_get_end();
   assert((max & 3) == 0);
   // If the stack ends at address zero we write our cookies 4 bytes into the
-  // stack.  This prevents interference with SAFE_HEAP and ASAN which also
-  // monitor writes to address zero.
+  // stack.  This prevents interference with the (separate) address-zero check
+  // below.
   if (max == 0) {
     max += 4;
   }
@@ -429,7 +633,7 @@ function writeStackCookie() {
   HEAPU32[((max)>>2)] = 0x02135467;
   HEAPU32[(((max)+(4))>>2)] = 0x89BACDFE;
   // Also test the global address 0 for integrity.
-  HEAPU32[((0)>>2)] = 1668509029;
+  HEAPU32[0] = 0x63736d65; /* 'emsc' */
 }
 
 function checkStackCookie() {
@@ -442,13 +646,14 @@ function checkStackCookie() {
   var cookie1 = HEAPU32[((max)>>2)];
   var cookie2 = HEAPU32[(((max)+(4))>>2)];
   if (cookie1 != 0x02135467 || cookie2 != 0x89BACDFE) {
-    abort(`Stack overflow! Stack cookie has been overwritten at ${ptrToString(max)}, expected hex dwords 0x89BACDFE and 0x2135467, but received ${ptrToString(cookie2)} ${ptrToString(cookie1)}`);
+    abort('Stack overflow! Stack cookie has been overwritten at ' + ptrToString(max) + ', expected hex dwords 0x89BACDFE and 0x2135467, but received ' + ptrToString(cookie2) + ' ' + ptrToString(cookie1));
   }
   // Also test the global address 0 for integrity.
-  if (HEAPU32[((0)>>2)] != 0x63736d65 /* 'emsc' */) {
+  if (HEAPU32[0] !== 0x63736d65 /* 'emsc' */) {
     abort('Runtime error: The application has corrupted its heap memory area (address zero)!');
   }
 }
+
 // end include: runtime_stack_check.js
 // include: runtime_assertions.js
 // Endianness check
@@ -539,6 +744,7 @@ assert(Math.imul, 'This browser does not support Math.imul(), build with LEGACY_
 assert(Math.fround, 'This browser does not support Math.fround(), build with LEGACY_VM_SUPPORT or POLYFILL_OLD_MATH_FUNCTIONS to add in a polyfill');
 assert(Math.clz32, 'This browser does not support Math.clz32(), build with LEGACY_VM_SUPPORT or POLYFILL_OLD_MATH_FUNCTIONS to add in a polyfill');
 assert(Math.trunc, 'This browser does not support Math.trunc(), build with LEGACY_VM_SUPPORT or POLYFILL_OLD_MATH_FUNCTIONS to add in a polyfill');
+
 // end include: runtime_math.js
 // A counter of dependencies for calling run(). If we need to
 // do asynchronous work before running, increment this and
@@ -572,7 +778,7 @@ function addRunDependency(id) {
     runDependencyTracking[id] = 1;
     if (runDependencyWatcher === null && typeof setInterval != 'undefined') {
       // Check for missing dependencies every few seconds
-      runDependencyWatcher = setInterval(() => {
+      runDependencyWatcher = setInterval(function() {
         if (ABORT) {
           clearInterval(runDependencyWatcher);
           runDependencyWatcher = null;
@@ -584,7 +790,7 @@ function addRunDependency(id) {
             shown = true;
             err('still waiting on run dependencies:');
           }
-          err(`dependency: ${dep}`);
+          err('dependency: ' + dep);
         }
         if (shown) {
           err('(end of list)');
@@ -674,13 +880,21 @@ function isDataURI(filename) {
 function isFileURI(filename) {
   return filename.startsWith('file://');
 }
+
 // end include: URIUtils.js
-function createExportWrapper(name) {
+/** @param {boolean=} fixedasm */
+function createExportWrapper(name, fixedasm) {
   return function() {
-    assert(runtimeInitialized, `native function \`${name}\` called before runtime initialization`);
-    var f = wasmExports[name];
-    assert(f, `exported native function \`${name}\` not found`);
-    return f.apply(null, arguments);
+    var displayName = name;
+    var asm = fixedasm;
+    if (!fixedasm) {
+      asm = Module['asm'];
+    }
+    assert(runtimeInitialized, 'native function `' + displayName + '` called before runtime initialization');
+    if (!asm[name]) {
+      assert(asm[name], 'exported native function `' + displayName + '` not found');
+    }
+    return asm[name].apply(null, arguments);
   };
 }
 
@@ -693,12 +907,12 @@ class EmscriptenSjLj extends EmscriptenEH {}
 class CppException extends EmscriptenEH {
   constructor(excPtr) {
     super(excPtr);
-    this.excPtr = excPtr;
     const excInfo = getExceptionMessage(excPtr);
     this.name = excInfo[0];
     this.message = excInfo[1];
   }
 }
+
 // end include: runtime_exceptions.js
 var wasmBinaryFile;
   wasmBinaryFile = 'behave-min.wasm';
@@ -706,57 +920,65 @@ var wasmBinaryFile;
     wasmBinaryFile = locateFile(wasmBinaryFile);
   }
 
-function getBinarySync(file) {
-  if (file == wasmBinaryFile && wasmBinary) {
-    return new Uint8Array(wasmBinary);
+function getBinary(file) {
+  try {
+    if (file == wasmBinaryFile && wasmBinary) {
+      return new Uint8Array(wasmBinary);
+    }
+    if (readBinary) {
+      return readBinary(file);
+    }
+    throw "both async and sync fetching of the wasm failed";
   }
-  if (readBinary) {
-    return readBinary(file);
+  catch (err) {
+    abort(err);
   }
-  throw "both async and sync fetching of the wasm failed";
 }
 
 function getBinaryPromise(binaryFile) {
-  // If we don't have the binary yet, try to load it asynchronously.
+  // If we don't have the binary yet, try to to load it asynchronously.
   // Fetch has some additional restrictions over XHR, like it can't be used on a file:// url.
   // See https://github.com/github/fetch/pull/92#issuecomment-140665932
   // Cordova or Electron apps are typically loaded from a file:// url.
   // So use fetch if it is available and the url is not a file, otherwise fall back to XHR.
-  if (!wasmBinary
-      && (ENVIRONMENT_IS_WEB || ENVIRONMENT_IS_WORKER)) {
+  if (!wasmBinary && (ENVIRONMENT_IS_WEB || ENVIRONMENT_IS_WORKER)) {
     if (typeof fetch == 'function'
       && !isFileURI(binaryFile)
     ) {
-      return fetch(binaryFile, { credentials: 'same-origin' }).then((response) => {
+      return fetch(binaryFile, { credentials: 'same-origin' }).then(function(response) {
         if (!response['ok']) {
           throw "failed to load wasm binary file at '" + binaryFile + "'";
         }
         return response['arrayBuffer']();
-      }).catch(() => getBinarySync(binaryFile));
-    }
-    else if (readAsync) {
-      // fetch is not available or url is file => try XHR (readAsync uses XHR internally)
-      return new Promise((resolve, reject) => {
-        readAsync(binaryFile, (response) => resolve(new Uint8Array(/** @type{!ArrayBuffer} */(response))), reject)
+      }).catch(function () {
+          return getBinary(binaryFile);
       });
+    }
+    else {
+      if (readAsync) {
+        // fetch is not available or url is file => try XHR (readAsync uses XHR internally)
+        return new Promise(function(resolve, reject) {
+          readAsync(binaryFile, function(response) { resolve(new Uint8Array(/** @type{!ArrayBuffer} */(response))) }, reject)
+        });
+      }
     }
   }
 
-  // Otherwise, getBinarySync should be able to get it synchronously
-  return Promise.resolve().then(() => getBinarySync(binaryFile));
+  // Otherwise, getBinary should be able to get it synchronously
+  return Promise.resolve().then(function() { return getBinary(binaryFile); });
 }
 
 function instantiateArrayBuffer(binaryFile, imports, receiver) {
-  return getBinaryPromise(binaryFile).then((binary) => {
+  return getBinaryPromise(binaryFile).then(function(binary) {
     return WebAssembly.instantiate(binary, imports);
-  }).then((instance) => {
+  }).then(function (instance) {
     return instance;
-  }).then(receiver, (reason) => {
-    err(`failed to asynchronously prepare wasm: ${reason}`);
+  }).then(receiver, function(reason) {
+    err('failed to asynchronously prepare wasm: ' + reason);
 
     // Warn on some common problems.
     if (isFileURI(wasmBinaryFile)) {
-      err(`warning: Loading from a file URI (${wasmBinaryFile}) is not supported in most browsers. See https://emscripten.org/docs/getting_started/FAQ.html#how-do-i-run-a-local-webserver-for-testing-why-does-my-program-stall-in-downloading-or-preparing`);
+      err('warning: Loading from a file URI (' + wasmBinaryFile + ') is not supported in most browsers. See https://emscripten.org/docs/getting_started/FAQ.html#how-do-i-run-a-local-webserver-for-testing-why-does-my-program-stall-in-downloading-or-preparing');
     }
     abort(reason);
   });
@@ -776,7 +998,7 @@ function instantiateAsync(binary, binaryFile, imports, callback) {
       //   https://github.com/emscripten-core/emscripten/pull/16917
       !ENVIRONMENT_IS_NODE &&
       typeof fetch == 'function') {
-    return fetch(binaryFile, { credentials: 'same-origin' }).then((response) => {
+    return fetch(binaryFile, { credentials: 'same-origin' }).then(function(response) {
       // Suppress closure warning here since the upstream definition for
       // instantiateStreaming only allows Promise<Repsponse> rather than
       // an actual Response.
@@ -789,13 +1011,14 @@ function instantiateAsync(binary, binaryFile, imports, callback) {
         function(reason) {
           // We expect the most common failure cause to be a bad MIME type for the binary,
           // in which case falling back to ArrayBuffer instantiation should work.
-          err(`wasm streaming compile failed: ${reason}`);
+          err('wasm streaming compile failed: ' + reason);
           err('falling back to ArrayBuffer instantiation');
           return instantiateArrayBuffer(binaryFile, imports, callback);
         });
     });
+  } else {
+    return instantiateArrayBuffer(binaryFile, imports, callback);
   }
-  return instantiateArrayBuffer(binaryFile, imports, callback);
 }
 
 // Create the wasm instance.
@@ -811,12 +1034,11 @@ function createWasm() {
   // performing other necessary setup
   /** @param {WebAssembly.Module=} module*/
   function receiveInstance(instance, module) {
-    wasmExports = instance.exports;
+    var exports = instance.exports;
 
-    
+    Module['asm'] = exports;
 
-    wasmMemory = wasmExports['memory'];
-    
+    wasmMemory = Module['asm']['memory'];
     assert(wasmMemory, "memory not found in wasm exports");
     // This assertion doesn't hold when emscripten is run in --post-link
     // mode.
@@ -824,14 +1046,14 @@ function createWasm() {
     //assert(wasmMemory.buffer.byteLength === 16777216);
     updateMemoryViews();
 
-    wasmTable = wasmExports['__indirect_function_table'];
-    
+    wasmTable = Module['asm']['__indirect_function_table'];
     assert(wasmTable, "table not found in wasm exports");
 
-    addOnInit(wasmExports['__wasm_call_ctors']);
+    addOnInit(Module['asm']['__wasm_call_ctors']);
 
     removeRunDependency('wasm-instantiate');
-    return wasmExports;
+
+    return exports;
   }
   // wait for the pthread pool (if any)
   addRunDependency('wasm-instantiate');
@@ -852,17 +1074,14 @@ function createWasm() {
   }
 
   // User shell pages can write their own Module.instantiateWasm = function(imports, successCallback) callback
-  // to manually instantiate the Wasm module themselves. This allows pages to
-  // run the instantiation parallel to any other async startup actions they are
-  // performing.
-  // Also pthreads and wasm workers initialize the wasm instance through this
-  // path.
+  // to manually instantiate the Wasm module themselves. This allows pages to run the instantiation parallel
+  // to any other async startup actions they are performing.
+  // Also pthreads and wasm workers initialize the wasm instance through this path.
   if (Module['instantiateWasm']) {
-
     try {
       return Module['instantiateWasm'](info, receiveInstance);
     } catch(e) {
-      err(`Module.instantiateWasm callback failed with error: ${e}`);
+      err('Module.instantiateWasm callback failed with error: ' + e);
         return false;
     }
   }
@@ -876,14 +1095,12 @@ var tempDouble;
 var tempI64;
 
 // include: runtime_debug.js
-function legacyModuleProp(prop, newName, incomming=true) {
+function legacyModuleProp(prop, newName) {
   if (!Object.getOwnPropertyDescriptor(Module, prop)) {
     Object.defineProperty(Module, prop, {
       configurable: true,
-      get() {
-        let extra = incomming ? ' (the initial value can be provided on Module, but after startup the value is only looked for on a local variable of that name)' : '';
-        abort(`\`Module.${prop}\` has been replaced by \`${newName}\`` + extra);
-
+      get: function() {
+        abort('Module.' + prop + ' has been replaced with plain ' + newName + ' (the initial value can be provided on Module, but after startup the value is only looked for on a local variable of that name)');
       }
     });
   }
@@ -891,7 +1108,7 @@ function legacyModuleProp(prop, newName, incomming=true) {
 
 function ignoredModuleProp(prop) {
   if (Object.getOwnPropertyDescriptor(Module, prop)) {
-    abort(`\`Module.${prop}\` was supplied but \`${prop}\` not included in INCOMING_MODULE_JS_API`);
+    abort('`Module.' + prop + '` was supplied but `' + prop + '` not included in INCOMING_MODULE_JS_API');
   }
 }
 
@@ -912,7 +1129,7 @@ function missingGlobal(sym, msg) {
   if (typeof globalThis !== 'undefined') {
     Object.defineProperty(globalThis, sym, {
       configurable: true,
-      get() {
+      get: function() {
         warnOnce('`' + sym + '` is not longer defined by emscripten. ' + msg);
         return undefined;
       }
@@ -921,13 +1138,12 @@ function missingGlobal(sym, msg) {
 }
 
 missingGlobal('buffer', 'Please use HEAP8.buffer or wasmMemory.buffer');
-missingGlobal('asm', 'Please use wasmExports instead');
 
 function missingLibrarySymbol(sym) {
   if (typeof globalThis !== 'undefined' && !Object.getOwnPropertyDescriptor(globalThis, sym)) {
     Object.defineProperty(globalThis, sym, {
       configurable: true,
-      get() {
+      get: function() {
         // Can't `abort()` here because it would break code that does runtime
         // checks.  e.g. `if (typeof SDL === 'undefined')`.
         var msg = '`' + sym + '` is a library symbol and not included by default; add it to your library.js __deps or to DEFAULT_LIBRARY_FUNCS_TO_INCLUDE on the command line';
@@ -938,7 +1154,7 @@ function missingLibrarySymbol(sym) {
         if (!librarySymbol.startsWith('_')) {
           librarySymbol = '$' + sym;
         }
-        msg += " (e.g. -sDEFAULT_LIBRARY_FUNCS_TO_INCLUDE='" + librarySymbol + "')";
+        msg += " (e.g. -sDEFAULT_LIBRARY_FUNCS_TO_INCLUDE=" + librarySymbol + ")";
         if (isExportedByForceFilesystem(sym)) {
           msg += '. Alternatively, forcing filesystem support (-sFORCE_FILESYSTEM) can export this for you';
         }
@@ -956,8 +1172,8 @@ function unexportedRuntimeSymbol(sym) {
   if (!Object.getOwnPropertyDescriptor(Module, sym)) {
     Object.defineProperty(Module, sym, {
       configurable: true,
-      get() {
-        var msg = "'" + sym + "' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the Emscripten FAQ)";
+      get: function() {
+        var msg = "'" + sym + "' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ)";
         if (isExportedByForceFilesystem(sym)) {
           msg += '. Alternatively, forcing filesystem support (-sFORCE_FILESYSTEM) can export this for you';
         }
@@ -970,13 +1186,15 @@ function unexportedRuntimeSymbol(sym) {
 // Used by XXXXX_DEBUG settings to output debug messages.
 function dbg(text) {
   // TODO(sbc): Make this configurable somehow.  Its not always convenient for
-  // logging to show up as warnings.
-  console.warn.apply(console, arguments);
+  // logging to show up as errors.
+  console.error(text);
 }
+
 // end include: runtime_debug.js
 // === Body ===
 
 function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out of bounds: [0,' + size + ')'; }
+
 
 
 // end include: preamble.js
@@ -984,199 +1202,42 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
   /** @constructor */
   function ExitStatus(status) {
       this.name = 'ExitStatus';
-      this.message = `Program terminated with exit(${status})`;
+      this.message = 'Program terminated with exit(' + status + ')';
       this.status = status;
     }
 
-  var callRuntimeCallbacks = (callbacks) => {
+  function callRuntimeCallbacks(callbacks) {
       while (callbacks.length > 0) {
         // Pass the module as the first argument.
         callbacks.shift()(Module);
       }
-    };
-
-  var decrementExceptionRefcount = (ptr) => ___cxa_decrement_exception_refcount(ptr);
-
-  
-  
-  var withStackSave = (f) => {
-      var stack = stackSave();
-      var ret = f();
-      stackRestore(stack);
-      return ret;
-    };
-  
-  var UTF8Decoder = typeof TextDecoder != 'undefined' ? new TextDecoder('utf8') : undefined;
-  
-    /**
-     * Given a pointer 'idx' to a null-terminated UTF8-encoded string in the given
-     * array that contains uint8 values, returns a copy of that string as a
-     * Javascript String object.
-     * heapOrArray is either a regular array, or a JavaScript typed array view.
-     * @param {number} idx
-     * @param {number=} maxBytesToRead
-     * @return {string}
-     */
-  var UTF8ArrayToString = (heapOrArray, idx, maxBytesToRead) => {
-      var endIdx = idx + maxBytesToRead;
-      var endPtr = idx;
-      // TextDecoder needs to know the byte length in advance, it doesn't stop on
-      // null terminator by itself.  Also, use the length info to avoid running tiny
-      // strings through TextDecoder, since .subarray() allocates garbage.
-      // (As a tiny code save trick, compare endPtr against endIdx using a negation,
-      // so that undefined means Infinity)
-      while (heapOrArray[endPtr] && !(endPtr >= endIdx)) ++endPtr;
-  
-      if (endPtr - idx > 16 && heapOrArray.buffer && UTF8Decoder) {
-        return UTF8Decoder.decode(heapOrArray.subarray(idx, endPtr));
-      }
-      var str = '';
-      // If building with TextDecoder, we have already computed the string length
-      // above, so test loop end condition against that
-      while (idx < endPtr) {
-        // For UTF8 byte structure, see:
-        // http://en.wikipedia.org/wiki/UTF-8#Description
-        // https://www.ietf.org/rfc/rfc2279.txt
-        // https://tools.ietf.org/html/rfc3629
-        var u0 = heapOrArray[idx++];
-        if (!(u0 & 0x80)) { str += String.fromCharCode(u0); continue; }
-        var u1 = heapOrArray[idx++] & 63;
-        if ((u0 & 0xE0) == 0xC0) { str += String.fromCharCode(((u0 & 31) << 6) | u1); continue; }
-        var u2 = heapOrArray[idx++] & 63;
-        if ((u0 & 0xF0) == 0xE0) {
-          u0 = ((u0 & 15) << 12) | (u1 << 6) | u2;
-        } else {
-          if ((u0 & 0xF8) != 0xF0) warnOnce('Invalid UTF-8 leading byte ' + ptrToString(u0) + ' encountered when deserializing a UTF-8 string in wasm memory to a JS string!');
-          u0 = ((u0 & 7) << 18) | (u1 << 12) | (u2 << 6) | (heapOrArray[idx++] & 63);
-        }
-  
-        if (u0 < 0x10000) {
-          str += String.fromCharCode(u0);
-        } else {
-          var ch = u0 - 0x10000;
-          str += String.fromCharCode(0xD800 | (ch >> 10), 0xDC00 | (ch & 0x3FF));
-        }
-      }
-      return str;
-    };
-  
-    /**
-     * Given a pointer 'ptr' to a null-terminated UTF8-encoded string in the
-     * emscripten HEAP, returns a copy of that string as a Javascript String object.
-     *
-     * @param {number} ptr
-     * @param {number=} maxBytesToRead - An optional length that specifies the
-     *   maximum number of bytes to read. You can omit this parameter to scan the
-     *   string until the first 0 byte. If maxBytesToRead is passed, and the string
-     *   at [ptr, ptr+maxBytesToReadr[ contains a null byte in the middle, then the
-     *   string will cut short at that byte index (i.e. maxBytesToRead will not
-     *   produce a string of exact length [ptr, ptr+maxBytesToRead[) N.B. mixing
-     *   frequent uses of UTF8ToString() with and without maxBytesToRead may throw
-     *   JS JIT optimizations off, so it is worth to consider consistently using one
-     * @return {string}
-     */
-  var UTF8ToString = (ptr, maxBytesToRead) => {
-      assert(typeof ptr == 'number');
-      return ptr ? UTF8ArrayToString(HEAPU8, ptr, maxBytesToRead) : '';
-    };
-  var getExceptionMessageCommon = (ptr) => withStackSave(() => {
-      var type_addr_addr = stackAlloc(4);
-      var message_addr_addr = stackAlloc(4);
-      ___get_exception_message(ptr, type_addr_addr, message_addr_addr);
-      var type_addr = HEAPU32[((type_addr_addr)>>2)];
-      var message_addr = HEAPU32[((message_addr_addr)>>2)];
-      var type = UTF8ToString(type_addr);
-      _free(type_addr);
-      var message;
-      if (message_addr) {
-        message = UTF8ToString(message_addr);
-        _free(message_addr);
-      }
-      return [type, message];
-    });
-  var getExceptionMessage = (ptr) => getExceptionMessageCommon(ptr);
-  Module['getExceptionMessage'] = getExceptionMessage;
-
-  
-    /**
-     * @param {number} ptr
-     * @param {string} type
-     */
-  function getValue(ptr, type = 'i8') {
-    if (type.endsWith('*')) type = '*';
-    switch (type) {
-      case 'i1': return HEAP8[((ptr)>>0)];
-      case 'i8': return HEAP8[((ptr)>>0)];
-      case 'i16': return HEAP16[((ptr)>>1)];
-      case 'i32': return HEAP32[((ptr)>>2)];
-      case 'i64': abort('to do getValue(i64) use WASM_BIGINT');
-      case 'float': return HEAPF32[((ptr)>>2)];
-      case 'double': return HEAPF64[((ptr)>>3)];
-      case '*': return HEAPU32[((ptr)>>2)];
-      default: abort(`invalid type for getValue: ${type}`);
     }
-  }
-
-  var incrementExceptionRefcount = (ptr) => ___cxa_increment_exception_refcount(ptr);
-
-  var ptrToString = (ptr) => {
-      assert(typeof ptr === 'number');
-      // With CAN_ADDRESS_2GB or MEMORY64, pointers are already unsigned.
-      ptr >>>= 0;
-      return '0x' + ptr.toString(16).padStart(8, '0');
-    };
 
   
-    /**
-     * @param {number} ptr
-     * @param {number} value
-     * @param {string} type
-     */
-  function setValue(ptr, value, type = 'i8') {
-    if (type.endsWith('*')) type = '*';
-    switch (type) {
-      case 'i1': HEAP8[((ptr)>>0)] = value; break;
-      case 'i8': HEAP8[((ptr)>>0)] = value; break;
-      case 'i16': HEAP16[((ptr)>>1)] = value; break;
-      case 'i32': HEAP32[((ptr)>>2)] = value; break;
-      case 'i64': abort('to do setValue(i64) use WASM_BIGINT');
-      case 'float': HEAPF32[((ptr)>>2)] = value; break;
-      case 'double': HEAPF64[((ptr)>>3)] = value; break;
-      case '*': HEAPU32[((ptr)>>2)] = value; break;
-      default: abort(`invalid type for setValue: ${type}`);
+  var wasmTableMirror = [];
+  
+  function getWasmTableEntry(funcPtr) {
+      var func = wasmTableMirror[funcPtr];
+      if (!func) {
+        if (funcPtr >= wasmTableMirror.length) wasmTableMirror.length = funcPtr + 1;
+        wasmTableMirror[funcPtr] = func = wasmTable.get(funcPtr);
+      }
+      assert(wasmTable.get(funcPtr) == func, "JavaScript-side Wasm function table mirror is out of date!");
+      return func;
     }
-  }
-
-  var warnOnce = (text) => {
-      if (!warnOnce.shown) warnOnce.shown = {};
-      if (!warnOnce.shown[text]) {
-        warnOnce.shown[text] = 1;
-        if (ENVIRONMENT_IS_NODE) text = 'warning: ' + text;
-        err(text);
+  function exception_decRef(info) {
+      // A rethrown exception can reach refcount 0; it must not be discarded
+      // Its next handler will clear the rethrown flag and addRef it, prior to
+      // final decRef and destruction here
+      if (info.release_ref() && !info.get_rethrown()) {
+        var destructor = info.get_destructor();
+        if (destructor) {
+          // In Wasm, destructors return 'this' as in ARM
+          getWasmTableEntry(destructor)(info.excPtr);
+        }
+        ___cxa_free_exception(info.excPtr);
       }
-    };
-
-  var ___assert_fail = (condition, filename, line, func) => {
-      abort(`Assertion failed: ${UTF8ToString(condition)}, at: ` + [filename ? UTF8ToString(filename) : 'unknown filename', line, func ? UTF8ToString(func) : 'unknown function']);
-    };
-
-  var exceptionCaught =  [];
-  
-  
-  var uncaughtExceptionCount = 0;
-  var ___cxa_begin_catch = (ptr) => {
-      var info = new ExceptionInfo(ptr);
-      if (!info.get_caught()) {
-        info.set_caught(true);
-        uncaughtExceptionCount--;
-      }
-      info.set_rethrown(false);
-      exceptionCaught.push(info);
-      ___cxa_increment_exception_refcount(info.excPtr);
-      return info.get_exception_ptr();
-    };
-
-  var exceptionLast = 0;
+    }
   
   /** @constructor */
   function ExceptionInfo(excPtr) {
@@ -1199,21 +1260,25 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         return HEAPU32[(((this.ptr)+(8))>>2)];
       };
   
-      this.set_caught = function(caught) {
+      this.set_refcount = function(refcount) {
+        HEAP32[((this.ptr)>>2)] = refcount;
+      };
+  
+      this.set_caught = function (caught) {
         caught = caught ? 1 : 0;
         HEAP8[(((this.ptr)+(12))>>0)] = caught;
       };
   
-      this.get_caught = function() {
+      this.get_caught = function () {
         return HEAP8[(((this.ptr)+(12))>>0)] != 0;
       };
   
-      this.set_rethrown = function(rethrown) {
+      this.set_rethrown = function (rethrown) {
         rethrown = rethrown ? 1 : 0;
         HEAP8[(((this.ptr)+(13))>>0)] = rethrown;
       };
   
-      this.get_rethrown = function() {
+      this.get_rethrown = function () {
         return HEAP8[(((this.ptr)+(13))>>0)] != 0;
       };
   
@@ -1222,7 +1287,23 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         this.set_adjusted_ptr(0);
         this.set_type(type);
         this.set_destructor(destructor);
+        this.set_refcount(0);
+        this.set_caught(false);
+        this.set_rethrown(false);
       }
+  
+      this.add_ref = function() {
+        var value = HEAP32[((this.ptr)>>2)];
+        HEAP32[((this.ptr)>>2)] = value + 1;
+      };
+  
+      // Returns true if last reference released.
+      this.release_ref = function() {
+        var prev = HEAP32[((this.ptr)>>2)];
+        HEAP32[((this.ptr)>>2)] = prev - 1;
+        assert(prev > 0);
+        return prev === 1;
+      };
   
       this.set_adjusted_ptr = function(adjustedPtr) {
         HEAPU32[(((this.ptr)+(16))>>2)] = adjustedPtr;
@@ -1248,18 +1329,155 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         return this.excPtr;
       };
     }
+  function ___cxa_decrement_exception_refcount(ptr) {
+      if (!ptr) return;
+      exception_decRef(new ExceptionInfo(ptr));
+    }
+  function decrementExceptionRefcount(ptr) {
+      ___cxa_decrement_exception_refcount(ptr);
+    }
+
   
-  var ___resumeException = (ptr) => {
-      if (!exceptionLast) {
-        exceptionLast = new CppException(ptr);
+  
+  function withStackSave(f) {
+      var stack = stackSave();
+      var ret = f();
+      stackRestore(stack);
+      return ret;
+    }
+  function getExceptionMessageCommon(ptr) {
+      return withStackSave(function() {
+        var type_addr_addr = stackAlloc(4);
+        var message_addr_addr = stackAlloc(4);
+        ___get_exception_message(ptr, type_addr_addr, message_addr_addr);
+        var type_addr = HEAPU32[((type_addr_addr)>>2)];
+        var message_addr = HEAPU32[((message_addr_addr)>>2)];
+        var type = UTF8ToString(type_addr);
+        _free(type_addr);
+        var message;
+        if (message_addr) {
+          message = UTF8ToString(message_addr);
+          _free(message_addr);
+        }
+        return [type, message];
+      });
+    }
+  function getExceptionMessage(ptr) {
+      return getExceptionMessageCommon(ptr);
+    }
+  Module["getExceptionMessage"] = getExceptionMessage;
+
+  
+    /**
+     * @param {number} ptr
+     * @param {string} type
+     */
+  function getValue(ptr, type = 'i8') {
+    if (type.endsWith('*')) type = '*';
+    switch (type) {
+      case 'i1': return HEAP8[((ptr)>>0)];
+      case 'i8': return HEAP8[((ptr)>>0)];
+      case 'i16': return HEAP16[((ptr)>>1)];
+      case 'i32': return HEAP32[((ptr)>>2)];
+      case 'i64': return HEAP32[((ptr)>>2)];
+      case 'float': return HEAPF32[((ptr)>>2)];
+      case 'double': return HEAPF64[((ptr)>>3)];
+      case '*': return HEAPU32[((ptr)>>2)];
+      default: abort('invalid type for getValue: ' + type);
+    }
+  }
+
+  function exception_addRef(info) {
+      info.add_ref();
+    }
+  
+  function ___cxa_increment_exception_refcount(ptr) {
+      if (!ptr) return;
+      exception_addRef(new ExceptionInfo(ptr));
+    }
+  function incrementExceptionRefcount(ptr) {
+      ___cxa_increment_exception_refcount(ptr);
+    }
+
+  function ptrToString(ptr) {
+      assert(typeof ptr === 'number');
+      return '0x' + ptr.toString(16).padStart(8, '0');
+    }
+
+  
+    /**
+     * @param {number} ptr
+     * @param {number} value
+     * @param {string} type
+     */
+  function setValue(ptr, value, type = 'i8') {
+    if (type.endsWith('*')) type = '*';
+    switch (type) {
+      case 'i1': HEAP8[((ptr)>>0)] = value; break;
+      case 'i8': HEAP8[((ptr)>>0)] = value; break;
+      case 'i16': HEAP16[((ptr)>>1)] = value; break;
+      case 'i32': HEAP32[((ptr)>>2)] = value; break;
+      case 'i64': (tempI64 = [value>>>0,(tempDouble=value,(+(Math.abs(tempDouble))) >= 1.0 ? (tempDouble > 0.0 ? ((Math.min((+(Math.floor((tempDouble)/4294967296.0))), 4294967295.0))|0)>>>0 : (~~((+(Math.ceil((tempDouble - +(((~~(tempDouble)))>>>0))/4294967296.0)))))>>>0) : 0)],HEAP32[((ptr)>>2)] = tempI64[0],HEAP32[(((ptr)+(4))>>2)] = tempI64[1]); break;
+      case 'float': HEAPF32[((ptr)>>2)] = value; break;
+      case 'double': HEAPF64[((ptr)>>3)] = value; break;
+      case '*': HEAPU32[((ptr)>>2)] = value; break;
+      default: abort('invalid type for setValue: ' + type);
+    }
+  }
+
+  function warnOnce(text) {
+      if (!warnOnce.shown) warnOnce.shown = {};
+      if (!warnOnce.shown[text]) {
+        warnOnce.shown[text] = 1;
+        if (ENVIRONMENT_IS_NODE) text = 'warning: ' + text;
+        err(text);
       }
-      throw exceptionLast;
-    };
+    }
+
+  function ___assert_fail(condition, filename, line, func) {
+      abort('Assertion failed: ' + UTF8ToString(condition) + ', at: ' + [filename ? UTF8ToString(filename) : 'unknown filename', line, func ? UTF8ToString(func) : 'unknown function']);
+    }
+
+  var exceptionCaught =  [];
   
   
-  var findMatchingCatch = (args) => {
-      var thrown =
-        exceptionLast && exceptionLast.excPtr;
+  var uncaughtExceptionCount = 0;
+  function ___cxa_begin_catch(ptr) {
+      var info = new ExceptionInfo(ptr);
+      if (!info.get_caught()) {
+        info.set_caught(true);
+        uncaughtExceptionCount--;
+      }
+      info.set_rethrown(false);
+      exceptionCaught.push(info);
+      exception_addRef(info);
+      return info.get_exception_ptr();
+    }
+
+  
+  var exceptionLast = 0;
+  
+  function ___cxa_end_catch() {
+      // Clear state flag.
+      _setThrew(0);
+      assert(exceptionCaught.length > 0);
+      // Call destructor if one is registered then clear it.
+      var info = exceptionCaught.pop();
+  
+      exception_decRef(info);
+      exceptionLast = 0; // XXX in decRef?
+    }
+
+  
+  
+  function ___resumeException(ptr) {
+      if (!exceptionLast) { exceptionLast = ptr; }
+      throw new CppException(ptr);
+    }
+  
+  
+  function ___cxa_find_matching_catch() {
+      var thrown = exceptionLast;
       if (!thrown) {
         // just pass through the null ptr
         setTempRet0(0);
@@ -1279,9 +1497,8 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
       // Due to inheritance, those types may not precisely match the
       // type of the thrown object. Find one which matches, and
       // return the type of the catch block which should be called.
-      for (var arg in args) {
-        var caughtType = args[arg];
-  
+      for (var i = 0; i < arguments.length; i++) {
+        var caughtType = arguments[i];
         if (caughtType === 0 || caughtType === thrownType) {
           // Catch all clause matched or exactly the same type is caught
           break;
@@ -1294,35 +1511,51 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
       }
       setTempRet0(thrownType);
       return thrown;
-    };
-  var ___cxa_find_matching_catch_2 = () => findMatchingCatch([]);
+    }
+  var ___cxa_find_matching_catch_2 = ___cxa_find_matching_catch;
 
-  var ___cxa_find_matching_catch_3 = (arg0) => findMatchingCatch([arg0]);
+  var ___cxa_find_matching_catch_3 = ___cxa_find_matching_catch;
 
   
   
-  var ___cxa_throw = (ptr, type, destructor) => {
+  function ___cxa_rethrow() {
+      var info = exceptionCaught.pop();
+      if (!info) {
+        abort('no exception to throw');
+      }
+      var ptr = info.excPtr;
+      if (!info.get_rethrown()) {
+        // Only pop if the corresponding push was through rethrow_primary_exception
+        exceptionCaught.push(info);
+        info.set_rethrown(true);
+        info.set_caught(false);
+        uncaughtExceptionCount++;
+      }
+      exceptionLast = ptr;
+      throw new CppException(ptr);
+    }
+
+  
+  
+  function ___cxa_throw(ptr, type, destructor) {
       var info = new ExceptionInfo(ptr);
       // Initialize ExceptionInfo content after it was allocated in __cxa_allocate_exception.
       info.init(type, destructor);
-      exceptionLast = new CppException(ptr);
+      exceptionLast = ptr;
       uncaughtExceptionCount++;
-      throw exceptionLast;
-    };
+      throw new CppException(ptr);
+    }
 
 
-  var setErrNo = (value) => {
+  function setErrNo(value) {
       HEAP32[((___errno_location())>>2)] = value;
       return value;
-    };
+    }
   
-  var PATH = {
-  isAbs:(path) => path.charAt(0) === '/',
-  splitPath:(filename) => {
+  var PATH = {isAbs:(path) => path.charAt(0) === '/',splitPath:(filename) => {
         var splitPathRe = /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/;
         return splitPathRe.exec(filename).slice(1);
-      },
-  normalizeArray:(parts, allowAboveRoot) => {
+      },normalizeArray:(parts, allowAboveRoot) => {
         // if the path tries to go above the root, `up` ends up > 0
         var up = 0;
         for (var i = parts.length - 1; i >= 0; i--) {
@@ -1344,8 +1577,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           }
         }
         return parts;
-      },
-  normalize:(path) => {
+      },normalize:(path) => {
         var isAbsolute = PATH.isAbs(path),
             trailingSlash = path.substr(-1) === '/';
         // Normalize the path
@@ -1357,8 +1589,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           path += '/';
         }
         return (isAbsolute ? '/' : '') + path;
-      },
-  dirname:(path) => {
+      },dirname:(path) => {
         var result = PATH.splitPath(path),
             root = result[0],
             dir = result[1];
@@ -1371,8 +1602,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           dir = dir.substr(0, dir.length - 1);
         }
         return root + dir;
-      },
-  basename:(path) => {
+      },basename:(path) => {
         // EMSCRIPTEN return '/'' for '/', not an empty string
         if (path === '/') return '/';
         path = PATH.normalize(path);
@@ -1380,53 +1610,36 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         var lastSlash = path.lastIndexOf('/');
         if (lastSlash === -1) return path;
         return path.substr(lastSlash+1);
-      },
-  join:function() {
+      },join:function() {
         var paths = Array.prototype.slice.call(arguments);
         return PATH.normalize(paths.join('/'));
-      },
-  join2:(l, r) => {
+      },join2:(l, r) => {
         return PATH.normalize(l + '/' + r);
-      },
-  };
+      }};
   
-  var initRandomFill = () => {
+  function getRandomDevice() {
       if (typeof crypto == 'object' && typeof crypto['getRandomValues'] == 'function') {
         // for modern web browsers
-        return (view) => crypto.getRandomValues(view);
+        var randomBuffer = new Uint8Array(1);
+        return () => { crypto.getRandomValues(randomBuffer); return randomBuffer[0]; };
       } else
       if (ENVIRONMENT_IS_NODE) {
         // for nodejs with or without crypto support included
         try {
           var crypto_module = require('crypto');
-          var randomFillSync = crypto_module['randomFillSync'];
-          if (randomFillSync) {
-            // nodejs with LTS crypto support
-            return (view) => crypto_module['randomFillSync'](view);
-          }
-          // very old nodejs with the original crypto API
-          var randomBytes = crypto_module['randomBytes'];
-          return (view) => (
-            view.set(randomBytes(view.byteLength)),
-            // Return the original view to match modern native implementations.
-            view
-          );
+          // nodejs has crypto support
+          return () => crypto_module['randomBytes'](1)[0];
         } catch (e) {
           // nodejs doesn't have crypto support
         }
       }
       // we couldn't find a proper implementation, as Math.random() is not suitable for /dev/random, see emscripten-core/emscripten/pull/7096
-      abort("no cryptographic support found for randomDevice. consider polyfilling it if you want to use something insecure like Math.random(), e.g. put this in a --pre-js: var crypto = { getRandomValues: (array) => { for (var i = 0; i < array.length; i++) array[i] = (Math.random()*256)|0 } };");
-    };
-  var randomFill = (view) => {
-      // Lazily init on the first invocation.
-      return (randomFill = initRandomFill())(view);
-    };
+      return () => abort("no cryptographic support found for randomDevice. consider polyfilling it if you want to use something insecure like Math.random(), e.g. put this in a --pre-js: var crypto = { getRandomValues: function(array) { for (var i = 0; i < array.length; i++) array[i] = (Math.random()*256)|0 } };");
+    }
   
   
   
-  var PATH_FS = {
-  resolve:function() {
+  var PATH_FS = {resolve:function() {
         var resolvedPath = '',
           resolvedAbsolute = false;
         for (var i = arguments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
@@ -1444,8 +1657,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         // handle relative paths to be safe (might happen when process.cwd() fails)
         resolvedPath = PATH.normalizeArray(resolvedPath.split('/').filter((p) => !!p), !resolvedAbsolute).join('/');
         return ((resolvedAbsolute ? '/' : '') + resolvedPath) || '.';
-      },
-  relative:(from, to) => {
+      },relative:(from, to) => {
         from = PATH_FS.resolve(from).substr(1);
         to = PATH_FS.resolve(to).substr(1);
         function trim(arr) {
@@ -1476,81 +1688,9 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         }
         outputParts = outputParts.concat(toParts.slice(samePartsLength));
         return outputParts.join('/');
-      },
-  };
+      }};
   
   
-  
-  var FS_stdin_getChar_buffer = [];
-  
-  var lengthBytesUTF8 = (str) => {
-      var len = 0;
-      for (var i = 0; i < str.length; ++i) {
-        // Gotcha: charCodeAt returns a 16-bit word that is a UTF-16 encoded code
-        // unit, not a Unicode code point of the character! So decode
-        // UTF16->UTF32->UTF8.
-        // See http://unicode.org/faq/utf_bom.html#utf16-3
-        var c = str.charCodeAt(i); // possibly a lead surrogate
-        if (c <= 0x7F) {
-          len++;
-        } else if (c <= 0x7FF) {
-          len += 2;
-        } else if (c >= 0xD800 && c <= 0xDFFF) {
-          len += 4; ++i;
-        } else {
-          len += 3;
-        }
-      }
-      return len;
-    };
-  
-  var stringToUTF8Array = (str, heap, outIdx, maxBytesToWrite) => {
-      assert(typeof str === 'string');
-      // Parameter maxBytesToWrite is not optional. Negative values, 0, null,
-      // undefined and false each don't write out any bytes.
-      if (!(maxBytesToWrite > 0))
-        return 0;
-  
-      var startIdx = outIdx;
-      var endIdx = outIdx + maxBytesToWrite - 1; // -1 for string null terminator.
-      for (var i = 0; i < str.length; ++i) {
-        // Gotcha: charCodeAt returns a 16-bit word that is a UTF-16 encoded code
-        // unit, not a Unicode code point of the character! So decode
-        // UTF16->UTF32->UTF8.
-        // See http://unicode.org/faq/utf_bom.html#utf16-3
-        // For UTF8 byte structure, see http://en.wikipedia.org/wiki/UTF-8#Description
-        // and https://www.ietf.org/rfc/rfc2279.txt
-        // and https://tools.ietf.org/html/rfc3629
-        var u = str.charCodeAt(i); // possibly a lead surrogate
-        if (u >= 0xD800 && u <= 0xDFFF) {
-          var u1 = str.charCodeAt(++i);
-          u = 0x10000 + ((u & 0x3FF) << 10) | (u1 & 0x3FF);
-        }
-        if (u <= 0x7F) {
-          if (outIdx >= endIdx) break;
-          heap[outIdx++] = u;
-        } else if (u <= 0x7FF) {
-          if (outIdx + 1 >= endIdx) break;
-          heap[outIdx++] = 0xC0 | (u >> 6);
-          heap[outIdx++] = 0x80 | (u & 63);
-        } else if (u <= 0xFFFF) {
-          if (outIdx + 2 >= endIdx) break;
-          heap[outIdx++] = 0xE0 | (u >> 12);
-          heap[outIdx++] = 0x80 | ((u >> 6) & 63);
-          heap[outIdx++] = 0x80 | (u & 63);
-        } else {
-          if (outIdx + 3 >= endIdx) break;
-          if (u > 0x10FFFF) warnOnce('Invalid Unicode code point ' + ptrToString(u) + ' encountered when serializing a JS string to a UTF-8 string in wasm memory! (Valid unicode code points should be in range 0-0x10FFFF).');
-          heap[outIdx++] = 0xF0 | (u >> 18);
-          heap[outIdx++] = 0x80 | ((u >> 12) & 63);
-          heap[outIdx++] = 0x80 | ((u >> 6) & 63);
-          heap[outIdx++] = 0x80 | (u & 63);
-        }
-      }
-      // Null-terminate the pointer to the buffer.
-      heap[outIdx] = 0;
-      return outIdx - startIdx;
-    };
   /** @type {function(string, boolean=, number=)} */
   function intArrayFromString(stringy, dontAddNull, length) {
     var len = length > 0 ? length : lengthBytesUTF8(stringy)+1;
@@ -1559,63 +1699,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
     if (dontAddNull) u8array.length = numBytesWritten;
     return u8array;
   }
-  var FS_stdin_getChar = () => {
-      if (!FS_stdin_getChar_buffer.length) {
-        var result = null;
-        if (ENVIRONMENT_IS_NODE) {
-          // we will read data by chunks of BUFSIZE
-          var BUFSIZE = 256;
-          var buf = Buffer.alloc(BUFSIZE);
-          var bytesRead = 0;
-  
-          // For some reason we must suppress a closure warning here, even though
-          // fd definitely exists on process.stdin, and is even the proper way to
-          // get the fd of stdin,
-          // https://github.com/nodejs/help/issues/2136#issuecomment-523649904
-          // This started to happen after moving this logic out of library_tty.js,
-          // so it is related to the surrounding code in some unclear manner.
-          /** @suppress {missingProperties} */
-          var fd = process.stdin.fd;
-  
-          try {
-            bytesRead = fs.readSync(fd, buf);
-          } catch(e) {
-            // Cross-platform differences: on Windows, reading EOF throws an exception, but on other OSes,
-            // reading EOF returns 0. Uniformize behavior by treating the EOF exception to return 0.
-            if (e.toString().includes('EOF')) bytesRead = 0;
-            else throw e;
-          }
-  
-          if (bytesRead > 0) {
-            result = buf.slice(0, bytesRead).toString('utf-8');
-          } else {
-            result = null;
-          }
-        } else
-        if (typeof window != 'undefined' &&
-          typeof window.prompt == 'function') {
-          // Browser.
-          result = window.prompt('Input: ');  // returns null on cancel
-          if (result !== null) {
-            result += '\n';
-          }
-        } else if (typeof readline == 'function') {
-          // Command line.
-          result = readline();
-          if (result !== null) {
-            result += '\n';
-          }
-        }
-        if (!result) {
-          return null;
-        }
-        FS_stdin_getChar_buffer = intArrayFromString(result, true);
-      }
-      return FS_stdin_getChar_buffer.shift();
-    };
-  var TTY = {
-  ttys:[],
-  init() {
+  var TTY = {ttys:[],init:function () {
         // https://github.com/emscripten-core/emscripten/pull/1555
         // if (ENVIRONMENT_IS_NODE) {
         //   // currently, FS.init does not distinguish if process.stdin is a file or TTY
@@ -1624,8 +1708,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         //   // with text files until FS.init can be refactored.
         //   process.stdin.setEncoding('utf8');
         // }
-      },
-  shutdown() {
+      },shutdown:function() {
         // https://github.com/emscripten-core/emscripten/pull/1555
         // if (ENVIRONMENT_IS_NODE) {
         //   // inolen: any idea as to why node -e 'process.stdin.read()' wouldn't exit immediately (with process.stdin being a tty)?
@@ -1635,28 +1718,22 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         //   // isaacs: do process.stdin.pause() and i'd think it'd probably close the pending call
         //   process.stdin.pause();
         // }
-      },
-  register(dev, ops) {
+      },register:function(dev, ops) {
         TTY.ttys[dev] = { input: [], output: [], ops: ops };
         FS.registerDevice(dev, TTY.stream_ops);
-      },
-  stream_ops:{
-  open(stream) {
+      },stream_ops:{open:function(stream) {
           var tty = TTY.ttys[stream.node.rdev];
           if (!tty) {
             throw new FS.ErrnoError(43);
           }
           stream.tty = tty;
           stream.seekable = false;
-        },
-  close(stream) {
+        },close:function(stream) {
           // flush any pending line data
           stream.tty.ops.fsync(stream.tty);
-        },
-  fsync(stream) {
+        },fsync:function(stream) {
           stream.tty.ops.fsync(stream.tty);
-        },
-  read(stream, buffer, offset, length, pos /* ignored */) {
+        },read:function(stream, buffer, offset, length, pos /* ignored */) {
           if (!stream.tty || !stream.tty.ops.get_char) {
             throw new FS.ErrnoError(60);
           }
@@ -1679,8 +1756,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
             stream.node.timestamp = Date.now();
           }
           return bytesRead;
-        },
-  write(stream, buffer, offset, length, pos) {
+        },write:function(stream, buffer, offset, length, pos) {
           if (!stream.tty || !stream.tty.ops.put_char) {
             throw new FS.ErrnoError(60);
           }
@@ -1695,85 +1771,92 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
             stream.node.timestamp = Date.now();
           }
           return i;
-        },
-  },
-  default_tty_ops:{
-  get_char(tty) {
-          return FS_stdin_getChar();
-        },
-  put_char(tty, val) {
+        }},default_tty_ops:{get_char:function(tty) {
+          if (!tty.input.length) {
+            var result = null;
+            if (ENVIRONMENT_IS_NODE) {
+              // we will read data by chunks of BUFSIZE
+              var BUFSIZE = 256;
+              var buf = Buffer.alloc(BUFSIZE);
+              var bytesRead = 0;
+  
+              try {
+                bytesRead = fs.readSync(process.stdin.fd, buf, 0, BUFSIZE, -1);
+              } catch(e) {
+                // Cross-platform differences: on Windows, reading EOF throws an exception, but on other OSes,
+                // reading EOF returns 0. Uniformize behavior by treating the EOF exception to return 0.
+                if (e.toString().includes('EOF')) bytesRead = 0;
+                else throw e;
+              }
+  
+              if (bytesRead > 0) {
+                result = buf.slice(0, bytesRead).toString('utf-8');
+              } else {
+                result = null;
+              }
+            } else
+            if (typeof window != 'undefined' &&
+              typeof window.prompt == 'function') {
+              // Browser.
+              result = window.prompt('Input: ');  // returns null on cancel
+              if (result !== null) {
+                result += '\n';
+              }
+            } else if (typeof readline == 'function') {
+              // Command line.
+              result = readline();
+              if (result !== null) {
+                result += '\n';
+              }
+            }
+            if (!result) {
+              return null;
+            }
+            tty.input = intArrayFromString(result, true);
+          }
+          return tty.input.shift();
+        },put_char:function(tty, val) {
           if (val === null || val === 10) {
             out(UTF8ArrayToString(tty.output, 0));
             tty.output = [];
           } else {
             if (val != 0) tty.output.push(val); // val == 0 would cut text output off in the middle.
           }
-        },
-  fsync(tty) {
+        },fsync:function(tty) {
           if (tty.output && tty.output.length > 0) {
             out(UTF8ArrayToString(tty.output, 0));
             tty.output = [];
           }
-        },
-  ioctl_tcgets(tty) {
-          // typical setting
-          return {
-            c_iflag: 25856,
-            c_oflag: 5,
-            c_cflag: 191,
-            c_lflag: 35387,
-            c_cc: [
-              0x03, 0x1c, 0x7f, 0x15, 0x04, 0x00, 0x01, 0x00, 0x11, 0x13, 0x1a, 0x00,
-              0x12, 0x0f, 0x17, 0x16, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            ]
-          };
-        },
-  ioctl_tcsets(tty, optional_actions, data) {
-          // currently just ignore
-          return 0;
-        },
-  ioctl_tiocgwinsz(tty) {
-          return [24, 80];
-        },
-  },
-  default_tty1_ops:{
-  put_char(tty, val) {
+        }},default_tty1_ops:{put_char:function(tty, val) {
           if (val === null || val === 10) {
             err(UTF8ArrayToString(tty.output, 0));
             tty.output = [];
           } else {
             if (val != 0) tty.output.push(val);
           }
-        },
-  fsync(tty) {
+        },fsync:function(tty) {
           if (tty.output && tty.output.length > 0) {
             err(UTF8ArrayToString(tty.output, 0));
             tty.output = [];
           }
-        },
-  },
-  };
+        }}};
   
   
-  var zeroMemory = (address, size) => {
+  function zeroMemory(address, size) {
       HEAPU8.fill(0, address, address + size);
       return address;
-    };
+    }
   
-  var alignMemory = (size, alignment) => {
+  function alignMemory(size, alignment) {
       assert(alignment, "alignment argument is required");
       return Math.ceil(size / alignment) * alignment;
-    };
-  var mmapAlloc = (size) => {
+    }
+  function mmapAlloc(size) {
       abort('internal error: mmapAlloc called but `emscripten_builtin_memalign` native symbol not exported');
-    };
-  var MEMFS = {
-  ops_table:null,
-  mount(mount) {
+    }
+  var MEMFS = {ops_table:null,mount:function(mount) {
         return MEMFS.createNode(null, '/', 16384 | 511 /* 0777 */, 0);
-      },
-  createNode(parent, name, mode, dev) {
+      },createNode:function(parent, name, mode, dev) {
         if (FS.isBlkdev(mode) || FS.isFIFO(mode)) {
           // no supported
           throw new FS.ErrnoError(63);
@@ -1854,13 +1937,11 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           parent.timestamp = node.timestamp;
         }
         return node;
-      },
-  getFileDataAsTypedArray(node) {
+      },getFileDataAsTypedArray:function(node) {
         if (!node.contents) return new Uint8Array(0);
         if (node.contents.subarray) return node.contents.subarray(0, node.usedBytes); // Make sure to not return excess unused bytes.
         return new Uint8Array(node.contents);
-      },
-  expandFileStorage(node, newCapacity) {
+      },expandFileStorage:function(node, newCapacity) {
         var prevCapacity = node.contents ? node.contents.length : 0;
         if (prevCapacity >= newCapacity) return; // No need to expand, the storage was already large enough.
         // Don't expand strictly to the given requested limit if it's only a very small increase, but instead geometrically grow capacity.
@@ -1872,8 +1953,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         var oldContents = node.contents;
         node.contents = new Uint8Array(newCapacity); // Allocate new storage.
         if (node.usedBytes > 0) node.contents.set(oldContents.subarray(0, node.usedBytes), 0); // Copy old data over to the new storage.
-      },
-  resizeFileStorage(node, newSize) {
+      },resizeFileStorage:function(node, newSize) {
         if (node.usedBytes == newSize) return;
         if (newSize == 0) {
           node.contents = null; // Fully decommit when requesting a resize to zero.
@@ -1886,9 +1966,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           }
           node.usedBytes = newSize;
         }
-      },
-  node_ops:{
-  getattr(node) {
+      },node_ops:{getattr:function(node) {
           var attr = {};
           // device numbers reuse inode numbers.
           attr.dev = FS.isChrdev(node.mode) ? node.id : 1;
@@ -1915,8 +1993,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           attr.blksize = 4096;
           attr.blocks = Math.ceil(attr.size / attr.blksize);
           return attr;
-        },
-  setattr(node, attr) {
+        },setattr:function(node, attr) {
           if (attr.mode !== undefined) {
             node.mode = attr.mode;
           }
@@ -1926,14 +2003,11 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           if (attr.size !== undefined) {
             MEMFS.resizeFileStorage(node, attr.size);
           }
-        },
-  lookup(parent, name) {
+        },lookup:function(parent, name) {
           throw FS.genericErrors[44];
-        },
-  mknod(parent, name, mode, dev) {
+        },mknod:function(parent, name, mode, dev) {
           return MEMFS.createNode(parent, name, mode, dev);
-        },
-  rename(old_node, new_dir, new_name) {
+        },rename:function(old_node, new_dir, new_name) {
           // if we're overwriting a directory at new_name, make sure it's empty.
           if (FS.isDir(old_node.mode)) {
             var new_node;
@@ -1954,20 +2028,17 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           new_dir.contents[new_name] = old_node;
           new_dir.timestamp = old_node.parent.timestamp;
           old_node.parent = new_dir;
-        },
-  unlink(parent, name) {
+        },unlink:function(parent, name) {
           delete parent.contents[name];
           parent.timestamp = Date.now();
-        },
-  rmdir(parent, name) {
+        },rmdir:function(parent, name) {
           var node = FS.lookupNode(parent, name);
           for (var i in node.contents) {
             throw new FS.ErrnoError(55);
           }
           delete parent.contents[name];
           parent.timestamp = Date.now();
-        },
-  readdir(node) {
+        },readdir:function(node) {
           var entries = ['.', '..'];
           for (var key in node.contents) {
             if (!node.contents.hasOwnProperty(key)) {
@@ -1976,21 +2047,16 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
             entries.push(key);
           }
           return entries;
-        },
-  symlink(parent, newname, oldpath) {
+        },symlink:function(parent, newname, oldpath) {
           var node = MEMFS.createNode(parent, newname, 511 /* 0777 */ | 40960, 0);
           node.link = oldpath;
           return node;
-        },
-  readlink(node) {
+        },readlink:function(node) {
           if (!FS.isLink(node.mode)) {
             throw new FS.ErrnoError(28);
           }
           return node.link;
-        },
-  },
-  stream_ops:{
-  read(stream, buffer, offset, length, position) {
+        }},stream_ops:{read:function(stream, buffer, offset, length, position) {
           var contents = stream.node.contents;
           if (position >= stream.node.usedBytes) return 0;
           var size = Math.min(stream.node.usedBytes - position, length);
@@ -2001,8 +2067,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
             for (var i = 0; i < size; i++) buffer[offset + i] = contents[position + i];
           }
           return size;
-        },
-  write(stream, buffer, offset, length, position, canOwn) {
+        },write:function(stream, buffer, offset, length, position, canOwn) {
           // The data buffer should be a typed array view
           assert(!(buffer instanceof ArrayBuffer));
           // If the buffer is located in main memory (HEAP), and if
@@ -2045,8 +2110,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           }
           node.usedBytes = Math.max(node.usedBytes, position + length);
           return length;
-        },
-  llseek(stream, offset, whence) {
+        },llseek:function(stream, offset, whence) {
           var position = offset;
           if (whence === 1) {
             position += stream.position;
@@ -2059,12 +2123,10 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
             throw new FS.ErrnoError(28);
           }
           return position;
-        },
-  allocate(stream, offset, length) {
+        },allocate:function(stream, offset, length) {
           MEMFS.expandFileStorage(stream.node, offset + length);
           stream.node.usedBytes = Math.max(stream.node.usedBytes, offset + length);
-        },
-  mmap(stream, length, position, prot, flags) {
+        },mmap:function(stream, length, position, prot, flags) {
           if (!FS.isFile(stream.node.mode)) {
             throw new FS.ErrnoError(43);
           }
@@ -2093,239 +2155,40 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
             }
             HEAP8.set(contents, ptr);
           }
-          return { ptr, allocated };
-        },
-  msync(stream, buffer, offset, length, mmapFlags) {
+          return { ptr: ptr, allocated: allocated };
+        },msync:function(stream, buffer, offset, length, mmapFlags) {
           MEMFS.stream_ops.write(stream, buffer, 0, length, offset, false);
           // should we check if bytesWritten and length are the same?
           return 0;
-        },
-  },
-  };
+        }}};
   
   /** @param {boolean=} noRunDep */
-  var asyncLoad = (url, onload, onerror, noRunDep) => {
-      var dep = !noRunDep ? getUniqueRunDependency(`al ${url}`) : '';
+  function asyncLoad(url, onload, onerror, noRunDep) {
+      var dep = !noRunDep ? getUniqueRunDependency('al ' + url) : '';
       readAsync(url, (arrayBuffer) => {
-        assert(arrayBuffer, `Loading data file "${url}" failed (no arrayBuffer).`);
+        assert(arrayBuffer, 'Loading data file "' + url + '" failed (no arrayBuffer).');
         onload(new Uint8Array(arrayBuffer));
         if (dep) removeRunDependency(dep);
       }, (event) => {
         if (onerror) {
           onerror();
         } else {
-          throw `Loading data file "${url}" failed.`;
+          throw 'Loading data file "' + url + '" failed.';
         }
       });
       if (dep) addRunDependency(dep);
-    };
+    }
   
   
-  var FS_createDataFile = (parent, name, fileData, canRead, canWrite, canOwn) => {
-      return FS.createDataFile(parent, name, fileData, canRead, canWrite, canOwn);
-    };
+  var ERRNO_MESSAGES = {0:"Success",1:"Arg list too long",2:"Permission denied",3:"Address already in use",4:"Address not available",5:"Address family not supported by protocol family",6:"No more processes",7:"Socket already connected",8:"Bad file number",9:"Trying to read unreadable message",10:"Mount device busy",11:"Operation canceled",12:"No children",13:"Connection aborted",14:"Connection refused",15:"Connection reset by peer",16:"File locking deadlock error",17:"Destination address required",18:"Math arg out of domain of func",19:"Quota exceeded",20:"File exists",21:"Bad address",22:"File too large",23:"Host is unreachable",24:"Identifier removed",25:"Illegal byte sequence",26:"Connection already in progress",27:"Interrupted system call",28:"Invalid argument",29:"I/O error",30:"Socket is already connected",31:"Is a directory",32:"Too many symbolic links",33:"Too many open files",34:"Too many links",35:"Message too long",36:"Multihop attempted",37:"File or path name too long",38:"Network interface is not configured",39:"Connection reset by network",40:"Network is unreachable",41:"Too many open files in system",42:"No buffer space available",43:"No such device",44:"No such file or directory",45:"Exec format error",46:"No record locks available",47:"The link has been severed",48:"Not enough core",49:"No message of desired type",50:"Protocol not available",51:"No space left on device",52:"Function not implemented",53:"Socket is not connected",54:"Not a directory",55:"Directory not empty",56:"State not recoverable",57:"Socket operation on non-socket",59:"Not a typewriter",60:"No such device or address",61:"Value too large for defined data type",62:"Previous owner died",63:"Not super-user",64:"Broken pipe",65:"Protocol error",66:"Unknown protocol",67:"Protocol wrong type for socket",68:"Math result not representable",69:"Read only file system",70:"Illegal seek",71:"No such process",72:"Stale file handle",73:"Connection timed out",74:"Text file busy",75:"Cross-device link",100:"Device not a stream",101:"Bad font file fmt",102:"Invalid slot",103:"Invalid request code",104:"No anode",105:"Block device required",106:"Channel number out of range",107:"Level 3 halted",108:"Level 3 reset",109:"Link number out of range",110:"Protocol driver not attached",111:"No CSI structure available",112:"Level 2 halted",113:"Invalid exchange",114:"Invalid request descriptor",115:"Exchange full",116:"No data (for no delay io)",117:"Timer expired",118:"Out of streams resources",119:"Machine is not on the network",120:"Package not installed",121:"The object is remote",122:"Advertise error",123:"Srmount error",124:"Communication error on send",125:"Cross mount point (not really error)",126:"Given log. name not unique",127:"f.d. invalid for this operation",128:"Remote address changed",129:"Can   access a needed shared lib",130:"Accessing a corrupted shared lib",131:".lib section in a.out corrupted",132:"Attempting to link in too many libs",133:"Attempting to exec a shared library",135:"Streams pipe error",136:"Too many users",137:"Socket type not supported",138:"Not supported",139:"Protocol family not supported",140:"Can't send after socket shutdown",141:"Too many references",142:"Host is down",148:"No medium (in tape drive)",156:"Level 2 not synchronized"};
   
-  var preloadPlugins = Module['preloadPlugins'] || [];
-  var FS_handledByPreloadPlugin = (byteArray, fullname, finish, onerror) => {
-      // Ensure plugins are ready.
-      if (typeof Browser != 'undefined') Browser.init();
+  var ERRNO_CODES = {};
   
-      var handled = false;
-      preloadPlugins.forEach((plugin) => {
-        if (handled) return;
-        if (plugin['canHandle'](fullname)) {
-          plugin['handle'](byteArray, fullname, finish, onerror);
-          handled = true;
-        }
-      });
-      return handled;
-    };
-  var FS_createPreloadedFile = (parent, name, url, canRead, canWrite, onload, onerror, dontCreateFile, canOwn, preFinish) => {
-      // TODO we should allow people to just pass in a complete filename instead
-      // of parent and name being that we just join them anyways
-      var fullname = name ? PATH_FS.resolve(PATH.join2(parent, name)) : parent;
-      var dep = getUniqueRunDependency(`cp ${fullname}`); // might have several active requests for the same fullname
-      function processData(byteArray) {
-        function finish(byteArray) {
-          if (preFinish) preFinish();
-          if (!dontCreateFile) {
-            FS_createDataFile(parent, name, byteArray, canRead, canWrite, canOwn);
-          }
-          if (onload) onload();
-          removeRunDependency(dep);
-        }
-        if (FS_handledByPreloadPlugin(byteArray, fullname, finish, () => {
-          if (onerror) onerror();
-          removeRunDependency(dep);
-        })) {
-          return;
-        }
-        finish(byteArray);
-      }
-      addRunDependency(dep);
-      if (typeof url == 'string') {
-        asyncLoad(url, (byteArray) => processData(byteArray), onerror);
-      } else {
-        processData(url);
-      }
-    };
-  
-  var FS_modeStringToFlags = (str) => {
-      var flagModes = {
-        'r': 0,
-        'r+': 2,
-        'w': 512 | 64 | 1,
-        'w+': 512 | 64 | 2,
-        'a': 1024 | 64 | 1,
-        'a+': 1024 | 64 | 2,
-      };
-      var flags = flagModes[str];
-      if (typeof flags == 'undefined') {
-        throw new Error(`Unknown file open mode: ${str}`);
-      }
-      return flags;
-    };
-  
-  var FS_getMode = (canRead, canWrite) => {
-      var mode = 0;
-      if (canRead) mode |= 292 | 73;
-      if (canWrite) mode |= 146;
-      return mode;
-    };
-  
-  
-  
-  
-  var ERRNO_MESSAGES = {
-  0:"Success",
-  1:"Arg list too long",
-  2:"Permission denied",
-  3:"Address already in use",
-  4:"Address not available",
-  5:"Address family not supported by protocol family",
-  6:"No more processes",
-  7:"Socket already connected",
-  8:"Bad file number",
-  9:"Trying to read unreadable message",
-  10:"Mount device busy",
-  11:"Operation canceled",
-  12:"No children",
-  13:"Connection aborted",
-  14:"Connection refused",
-  15:"Connection reset by peer",
-  16:"File locking deadlock error",
-  17:"Destination address required",
-  18:"Math arg out of domain of func",
-  19:"Quota exceeded",
-  20:"File exists",
-  21:"Bad address",
-  22:"File too large",
-  23:"Host is unreachable",
-  24:"Identifier removed",
-  25:"Illegal byte sequence",
-  26:"Connection already in progress",
-  27:"Interrupted system call",
-  28:"Invalid argument",
-  29:"I/O error",
-  30:"Socket is already connected",
-  31:"Is a directory",
-  32:"Too many symbolic links",
-  33:"Too many open files",
-  34:"Too many links",
-  35:"Message too long",
-  36:"Multihop attempted",
-  37:"File or path name too long",
-  38:"Network interface is not configured",
-  39:"Connection reset by network",
-  40:"Network is unreachable",
-  41:"Too many open files in system",
-  42:"No buffer space available",
-  43:"No such device",
-  44:"No such file or directory",
-  45:"Exec format error",
-  46:"No record locks available",
-  47:"The link has been severed",
-  48:"Not enough core",
-  49:"No message of desired type",
-  50:"Protocol not available",
-  51:"No space left on device",
-  52:"Function not implemented",
-  53:"Socket is not connected",
-  54:"Not a directory",
-  55:"Directory not empty",
-  56:"State not recoverable",
-  57:"Socket operation on non-socket",
-  59:"Not a typewriter",
-  60:"No such device or address",
-  61:"Value too large for defined data type",
-  62:"Previous owner died",
-  63:"Not super-user",
-  64:"Broken pipe",
-  65:"Protocol error",
-  66:"Unknown protocol",
-  67:"Protocol wrong type for socket",
-  68:"Math result not representable",
-  69:"Read only file system",
-  70:"Illegal seek",
-  71:"No such process",
-  72:"Stale file handle",
-  73:"Connection timed out",
-  74:"Text file busy",
-  75:"Cross-device link",
-  100:"Device not a stream",
-  101:"Bad font file fmt",
-  102:"Invalid slot",
-  103:"Invalid request code",
-  104:"No anode",
-  105:"Block device required",
-  106:"Channel number out of range",
-  107:"Level 3 halted",
-  108:"Level 3 reset",
-  109:"Link number out of range",
-  110:"Protocol driver not attached",
-  111:"No CSI structure available",
-  112:"Level 2 halted",
-  113:"Invalid exchange",
-  114:"Invalid request descriptor",
-  115:"Exchange full",
-  116:"No data (for no delay io)",
-  117:"Timer expired",
-  118:"Out of streams resources",
-  119:"Machine is not on the network",
-  120:"Package not installed",
-  121:"The object is remote",
-  122:"Advertise error",
-  123:"Srmount error",
-  124:"Communication error on send",
-  125:"Cross mount point (not really error)",
-  126:"Given log. name not unique",
-  127:"f.d. invalid for this operation",
-  128:"Remote address changed",
-  129:"Can   access a needed shared lib",
-  130:"Accessing a corrupted shared lib",
-  131:".lib section in a.out corrupted",
-  132:"Attempting to link in too many libs",
-  133:"Attempting to exec a shared library",
-  135:"Streams pipe error",
-  136:"Too many users",
-  137:"Socket type not supported",
-  138:"Not supported",
-  139:"Protocol family not supported",
-  140:"Can't send after socket shutdown",
-  141:"Too many references",
-  142:"Host is down",
-  148:"No medium (in tape drive)",
-  156:"Level 2 not synchronized",
-  };
-  
-  var ERRNO_CODES = {
-  };
-  
-  var demangle = (func) => {
+  function demangle(func) {
       warnOnce('warning: build with -sDEMANGLE_SUPPORT to link in libcxxabi demangling');
       return func;
-    };
-  var demangleAll = (text) => {
+    }
+  function demangleAll(text) {
       var regex =
         /\b_Z[\w\d_]+/g;
       return text.replace(regex,
@@ -2333,24 +2196,8 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           var y = demangle(x);
           return x === y ? x : (y + ' [' + x + ']');
         });
-    };
-  var FS = {
-  root:null,
-  mounts:[],
-  devices:{
-  },
-  streams:[],
-  nextInode:1,
-  nameTable:null,
-  currentPath:"/",
-  initialized:false,
-  ignorePermissions:true,
-  ErrnoError:null,
-  genericErrors:{
-  },
-  filesystems:null,
-  syncFSRequests:0,
-  lookupPath(path, opts = {}) {
+    }
+  var FS = {root:null,mounts:[],devices:{},streams:[],nextInode:1,nameTable:null,currentPath:"/",initialized:false,ignorePermissions:true,ErrnoError:null,genericErrors:{},filesystems:null,syncFSRequests:0,lookupPath:(path, opts = {}) => {
         path = PATH_FS.resolve(path);
   
         if (!path) return { path: '', node: null };
@@ -2408,33 +2255,29 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         }
   
         return { path: current_path, node: current };
-      },
-  getPath(node) {
+      },getPath:(node) => {
         var path;
         while (true) {
           if (FS.isRoot(node)) {
             var mount = node.mount.mountpoint;
             if (!path) return mount;
-            return mount[mount.length-1] !== '/' ? `${mount}/${path}` : mount + path;
+            return mount[mount.length-1] !== '/' ? mount + '/' + path : mount + path;
           }
-          path = path ? `${node.name}/${path}` : node.name;
+          path = path ? node.name + '/' + path : node.name;
           node = node.parent;
         }
-      },
-  hashName(parentid, name) {
+      },hashName:(parentid, name) => {
         var hash = 0;
   
         for (var i = 0; i < name.length; i++) {
           hash = ((hash << 5) - hash + name.charCodeAt(i)) | 0;
         }
         return ((parentid + hash) >>> 0) % FS.nameTable.length;
-      },
-  hashAddNode(node) {
+      },hashAddNode:(node) => {
         var hash = FS.hashName(node.parent.id, node.name);
         node.name_next = FS.nameTable[hash];
         FS.nameTable[hash] = node;
-      },
-  hashRemoveNode(node) {
+      },hashRemoveNode:(node) => {
         var hash = FS.hashName(node.parent.id, node.name);
         if (FS.nameTable[hash] === node) {
           FS.nameTable[hash] = node.name_next;
@@ -2448,8 +2291,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
             current = current.name_next;
           }
         }
-      },
-  lookupNode(parent, name) {
+      },lookupNode:(parent, name) => {
         var errCode = FS.mayLookup(parent);
         if (errCode) {
           throw new FS.ErrnoError(errCode, parent);
@@ -2463,53 +2305,46 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         }
         // if we failed to find it in the cache, call into the VFS
         return FS.lookup(parent, name);
-      },
-  createNode(parent, name, mode, rdev) {
+      },createNode:(parent, name, mode, rdev) => {
         assert(typeof parent == 'object')
         var node = new FS.FSNode(parent, name, mode, rdev);
   
         FS.hashAddNode(node);
   
         return node;
-      },
-  destroyNode(node) {
+      },destroyNode:(node) => {
         FS.hashRemoveNode(node);
-      },
-  isRoot(node) {
+      },isRoot:(node) => {
         return node === node.parent;
-      },
-  isMountpoint(node) {
+      },isMountpoint:(node) => {
         return !!node.mounted;
-      },
-  isFile(mode) {
+      },isFile:(mode) => {
         return (mode & 61440) === 32768;
-      },
-  isDir(mode) {
+      },isDir:(mode) => {
         return (mode & 61440) === 16384;
-      },
-  isLink(mode) {
+      },isLink:(mode) => {
         return (mode & 61440) === 40960;
-      },
-  isChrdev(mode) {
+      },isChrdev:(mode) => {
         return (mode & 61440) === 8192;
-      },
-  isBlkdev(mode) {
+      },isBlkdev:(mode) => {
         return (mode & 61440) === 24576;
-      },
-  isFIFO(mode) {
+      },isFIFO:(mode) => {
         return (mode & 61440) === 4096;
-      },
-  isSocket(mode) {
+      },isSocket:(mode) => {
         return (mode & 49152) === 49152;
-      },
-  flagsToPermissionString(flag) {
+      },flagModes:{"r":0,"r+":2,"w":577,"w+":578,"a":1089,"a+":1090},modeStringToFlags:(str) => {
+        var flags = FS.flagModes[str];
+        if (typeof flags == 'undefined') {
+          throw new Error('Unknown file open mode: ' + str);
+        }
+        return flags;
+      },flagsToPermissionString:(flag) => {
         var perms = ['r', 'w', 'rw'][flag & 3];
         if ((flag & 512)) {
           perms += 'w';
         }
         return perms;
-      },
-  nodePermissions(node, perms) {
+      },nodePermissions:(node, perms) => {
         if (FS.ignorePermissions) {
           return 0;
         }
@@ -2522,22 +2357,19 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           return 2;
         }
         return 0;
-      },
-  mayLookup(dir) {
+      },mayLookup:(dir) => {
         var errCode = FS.nodePermissions(dir, 'x');
         if (errCode) return errCode;
         if (!dir.node_ops.lookup) return 2;
         return 0;
-      },
-  mayCreate(dir, name) {
+      },mayCreate:(dir, name) => {
         try {
           var node = FS.lookupNode(dir, name);
           return 20;
         } catch (e) {
         }
         return FS.nodePermissions(dir, 'wx');
-      },
-  mayDelete(dir, name, isdir) {
+      },mayDelete:(dir, name, isdir) => {
         var node;
         try {
           node = FS.lookupNode(dir, name);
@@ -2561,8 +2393,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           }
         }
         return 0;
-      },
-  mayOpen(node, flags) {
+      },mayOpen:(node, flags) => {
         if (!node) {
           return 44;
         }
@@ -2575,25 +2406,14 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           }
         }
         return FS.nodePermissions(node, FS.flagsToPermissionString(flags));
-      },
-  MAX_OPEN_FDS:4096,
-  nextfd() {
-        for (var fd = 0; fd <= FS.MAX_OPEN_FDS; fd++) {
+      },MAX_OPEN_FDS:4096,nextfd:(fd_start = 0, fd_end = FS.MAX_OPEN_FDS) => {
+        for (var fd = fd_start; fd <= fd_end; fd++) {
           if (!FS.streams[fd]) {
             return fd;
           }
         }
         throw new FS.ErrnoError(33);
-      },
-  getStreamChecked(fd) {
-        var stream = FS.getStream(fd);
-        if (!stream) {
-          throw new FS.ErrnoError(8);
-        }
-        return stream;
-      },
-  getStream:(fd) => FS.streams[fd],
-  createStream(stream, fd = -1) {
+      },getStream:(fd) => FS.streams[fd],createStream:(stream, fd_start, fd_end) => {
         if (!FS.FSStream) {
           FS.FSStream = /** @constructor */ function() {
             this.shared = { };
@@ -2602,50 +2422,45 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           Object.defineProperties(FS.FSStream.prototype, {
             object: {
               /** @this {FS.FSStream} */
-              get() { return this.node; },
+              get: function() { return this.node; },
               /** @this {FS.FSStream} */
-              set(val) { this.node = val; }
+              set: function(val) { this.node = val; }
             },
             isRead: {
               /** @this {FS.FSStream} */
-              get() { return (this.flags & 2097155) !== 1; }
+              get: function() { return (this.flags & 2097155) !== 1; }
             },
             isWrite: {
               /** @this {FS.FSStream} */
-              get() { return (this.flags & 2097155) !== 0; }
+              get: function() { return (this.flags & 2097155) !== 0; }
             },
             isAppend: {
               /** @this {FS.FSStream} */
-              get() { return (this.flags & 1024); }
+              get: function() { return (this.flags & 1024); }
             },
             flags: {
               /** @this {FS.FSStream} */
-              get() { return this.shared.flags; },
+              get: function() { return this.shared.flags; },
               /** @this {FS.FSStream} */
-              set(val) { this.shared.flags = val; },
+              set: function(val) { this.shared.flags = val; },
             },
             position : {
               /** @this {FS.FSStream} */
-              get() { return this.shared.position; },
+              get: function() { return this.shared.position; },
               /** @this {FS.FSStream} */
-              set(val) { this.shared.position = val; },
+              set: function(val) { this.shared.position = val; },
             },
           });
         }
         // clone it, so we can return an instance of FSStream
         stream = Object.assign(new FS.FSStream(), stream);
-        if (fd == -1) {
-          fd = FS.nextfd();
-        }
+        var fd = FS.nextfd(fd_start, fd_end);
         stream.fd = fd;
         FS.streams[fd] = stream;
         return stream;
-      },
-  closeStream(fd) {
+      },closeStream:(fd) => {
         FS.streams[fd] = null;
-      },
-  chrdev_stream_ops:{
-  open(stream) {
+      },chrdev_stream_ops:{open:(stream) => {
           var device = FS.getDevice(stream.node.rdev);
           // override node's stream ops with the device's
           stream.stream_ops = device.stream_ops;
@@ -2653,19 +2468,11 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           if (stream.stream_ops.open) {
             stream.stream_ops.open(stream);
           }
-        },
-  llseek() {
+        },llseek:() => {
           throw new FS.ErrnoError(70);
-        },
-  },
-  major:(dev) => ((dev) >> 8),
-  minor:(dev) => ((dev) & 0xff),
-  makedev:(ma, mi) => ((ma) << 8 | (mi)),
-  registerDevice(dev, ops) {
+        }},major:(dev) => ((dev) >> 8),minor:(dev) => ((dev) & 0xff),makedev:(ma, mi) => ((ma) << 8 | (mi)),registerDevice:(dev, ops) => {
         FS.devices[dev] = { stream_ops: ops };
-      },
-  getDevice:(dev) => FS.devices[dev],
-  getMounts(mount) {
+      },getDevice:(dev) => FS.devices[dev],getMounts:(mount) => {
         var mounts = [];
         var check = [mount];
   
@@ -2678,8 +2485,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         }
   
         return mounts;
-      },
-  syncfs(populate, callback) {
+      },syncfs:(populate, callback) => {
         if (typeof populate == 'function') {
           callback = populate;
           populate = false;
@@ -2688,7 +2494,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         FS.syncFSRequests++;
   
         if (FS.syncFSRequests > 1) {
-          err(`warning: ${FS.syncFSRequests} FS.syncfs operations in flight at once, probably just doing extra work`);
+          err('warning: ' + FS.syncFSRequests + ' FS.syncfs operations in flight at once, probably just doing extra work');
         }
   
         var mounts = FS.getMounts(FS.root.mount);
@@ -2720,8 +2526,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           }
           mount.type.syncfs(mount, populate, done);
         });
-      },
-  mount(type, opts, mountpoint) {
+      },mount:(type, opts, mountpoint) => {
         if (typeof type == 'string') {
           // The filesystem was not included, and instead we have an error
           // message stored in the variable.
@@ -2749,9 +2554,9 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         }
   
         var mount = {
-          type,
-          opts,
-          mountpoint,
+          type: type,
+          opts: opts,
+          mountpoint: mountpoint,
           mounts: []
         };
   
@@ -2773,8 +2578,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         }
   
         return mountRoot;
-      },
-  unmount(mountpoint) {
+      },unmount:(mountpoint) => {
         var lookup = FS.lookupPath(mountpoint, { follow_mount: false });
   
         if (!FS.isMountpoint(lookup.node)) {
@@ -2807,11 +2611,9 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         var idx = node.mount.mounts.indexOf(mount);
         assert(idx !== -1);
         node.mount.mounts.splice(idx, 1);
-      },
-  lookup(parent, name) {
+      },lookup:(parent, name) => {
         return parent.node_ops.lookup(parent, name);
-      },
-  mknod(path, mode, dev) {
+      },mknod:(path, mode, dev) => {
         var lookup = FS.lookupPath(path, { parent: true });
         var parent = lookup.node;
         var name = PATH.basename(path);
@@ -2826,20 +2628,17 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           throw new FS.ErrnoError(63);
         }
         return parent.node_ops.mknod(parent, name, mode, dev);
-      },
-  create(path, mode) {
+      },create:(path, mode) => {
         mode = mode !== undefined ? mode : 438 /* 0666 */;
         mode &= 4095;
         mode |= 32768;
         return FS.mknod(path, mode, 0);
-      },
-  mkdir(path, mode) {
+      },mkdir:(path, mode) => {
         mode = mode !== undefined ? mode : 511 /* 0777 */;
         mode &= 511 | 512;
         mode |= 16384;
         return FS.mknod(path, mode, 0);
-      },
-  mkdirTree(path, mode) {
+      },mkdirTree:(path, mode) => {
         var dirs = path.split('/');
         var d = '';
         for (var i = 0; i < dirs.length; ++i) {
@@ -2851,16 +2650,14 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
             if (e.errno != 20) throw e;
           }
         }
-      },
-  mkdev(path, mode, dev) {
+      },mkdev:(path, mode, dev) => {
         if (typeof dev == 'undefined') {
           dev = mode;
           mode = 438 /* 0666 */;
         }
         mode |= 8192;
         return FS.mknod(path, mode, dev);
-      },
-  symlink(oldpath, newpath) {
+      },symlink:(oldpath, newpath) => {
         if (!PATH_FS.resolve(oldpath)) {
           throw new FS.ErrnoError(44);
         }
@@ -2878,8 +2675,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           throw new FS.ErrnoError(63);
         }
         return parent.node_ops.symlink(parent, newname, oldpath);
-      },
-  rename(old_path, new_path) {
+      },rename:(old_path, new_path) => {
         var old_dirname = PATH.dirname(old_path);
         var new_dirname = PATH.dirname(new_path);
         var old_name = PATH.basename(old_path);
@@ -2960,8 +2756,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           // changed its name)
           FS.hashAddNode(old_node);
         }
-      },
-  rmdir(path) {
+      },rmdir:(path) => {
         var lookup = FS.lookupPath(path, { parent: true });
         var parent = lookup.node;
         var name = PATH.basename(path);
@@ -2978,16 +2773,14 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         }
         parent.node_ops.rmdir(parent, name);
         FS.destroyNode(node);
-      },
-  readdir(path) {
+      },readdir:(path) => {
         var lookup = FS.lookupPath(path, { follow: true });
         var node = lookup.node;
         if (!node.node_ops.readdir) {
           throw new FS.ErrnoError(54);
         }
         return node.node_ops.readdir(node);
-      },
-  unlink(path) {
+      },unlink:(path) => {
         var lookup = FS.lookupPath(path, { parent: true });
         var parent = lookup.node;
         if (!parent) {
@@ -3010,8 +2803,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         }
         parent.node_ops.unlink(parent, name);
         FS.destroyNode(node);
-      },
-  readlink(path) {
+      },readlink:(path) => {
         var lookup = FS.lookupPath(path);
         var link = lookup.node;
         if (!link) {
@@ -3021,8 +2813,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           throw new FS.ErrnoError(28);
         }
         return PATH_FS.resolve(FS.getPath(link.parent), link.node_ops.readlink(link));
-      },
-  stat(path, dontFollow) {
+      },stat:(path, dontFollow) => {
         var lookup = FS.lookupPath(path, { follow: !dontFollow });
         var node = lookup.node;
         if (!node) {
@@ -3032,11 +2823,9 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           throw new FS.ErrnoError(63);
         }
         return node.node_ops.getattr(node);
-      },
-  lstat(path) {
+      },lstat:(path) => {
         return FS.stat(path, true);
-      },
-  chmod(path, mode, dontFollow) {
+      },chmod:(path, mode, dontFollow) => {
         var node;
         if (typeof path == 'string') {
           var lookup = FS.lookupPath(path, { follow: !dontFollow });
@@ -3051,15 +2840,15 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           mode: (mode & 4095) | (node.mode & ~4095),
           timestamp: Date.now()
         });
-      },
-  lchmod(path, mode) {
+      },lchmod:(path, mode) => {
         FS.chmod(path, mode, true);
-      },
-  fchmod(fd, mode) {
-        var stream = FS.getStreamChecked(fd);
+      },fchmod:(fd, mode) => {
+        var stream = FS.getStream(fd);
+        if (!stream) {
+          throw new FS.ErrnoError(8);
+        }
         FS.chmod(stream.node, mode);
-      },
-  chown(path, uid, gid, dontFollow) {
+      },chown:(path, uid, gid, dontFollow) => {
         var node;
         if (typeof path == 'string') {
           var lookup = FS.lookupPath(path, { follow: !dontFollow });
@@ -3074,15 +2863,15 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           timestamp: Date.now()
           // we ignore the uid / gid for now
         });
-      },
-  lchown(path, uid, gid) {
+      },lchown:(path, uid, gid) => {
         FS.chown(path, uid, gid, true);
-      },
-  fchown(fd, uid, gid) {
-        var stream = FS.getStreamChecked(fd);
+      },fchown:(fd, uid, gid) => {
+        var stream = FS.getStream(fd);
+        if (!stream) {
+          throw new FS.ErrnoError(8);
+        }
         FS.chown(stream.node, uid, gid);
-      },
-  truncate(path, len) {
+      },truncate:(path, len) => {
         if (len < 0) {
           throw new FS.ErrnoError(28);
         }
@@ -3110,26 +2899,26 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           size: len,
           timestamp: Date.now()
         });
-      },
-  ftruncate(fd, len) {
-        var stream = FS.getStreamChecked(fd);
+      },ftruncate:(fd, len) => {
+        var stream = FS.getStream(fd);
+        if (!stream) {
+          throw new FS.ErrnoError(8);
+        }
         if ((stream.flags & 2097155) === 0) {
           throw new FS.ErrnoError(28);
         }
         FS.truncate(stream.node, len);
-      },
-  utime(path, atime, mtime) {
+      },utime:(path, atime, mtime) => {
         var lookup = FS.lookupPath(path, { follow: true });
         var node = lookup.node;
         node.node_ops.setattr(node, {
           timestamp: Math.max(atime, mtime)
         });
-      },
-  open(path, flags, mode) {
+      },open:(path, flags, mode) => {
         if (path === "") {
           throw new FS.ErrnoError(44);
         }
-        flags = typeof flags == 'string' ? FS_modeStringToFlags(flags) : flags;
+        flags = typeof flags == 'string' ? FS.modeStringToFlags(flags) : flags;
         mode = typeof mode == 'undefined' ? 438 /* 0666 */ : mode;
         if ((flags & 64)) {
           mode = (mode & 4095) | 32768;
@@ -3193,9 +2982,9 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
   
         // register the stream with the filesystem
         var stream = FS.createStream({
-          node,
+          node: node,
           path: FS.getPath(node),  // we want the absolute path to the node
-          flags,
+          flags: flags,
           seekable: true,
           position: 0,
           stream_ops: node.stream_ops,
@@ -3214,8 +3003,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           }
         }
         return stream;
-      },
-  close(stream) {
+      },close:(stream) => {
         if (FS.isClosed(stream)) {
           throw new FS.ErrnoError(8);
         }
@@ -3230,11 +3018,9 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           FS.closeStream(stream.fd);
         }
         stream.fd = null;
-      },
-  isClosed(stream) {
+      },isClosed:(stream) => {
         return stream.fd === null;
-      },
-  llseek(stream, offset, whence) {
+      },llseek:(stream, offset, whence) => {
         if (FS.isClosed(stream)) {
           throw new FS.ErrnoError(8);
         }
@@ -3247,9 +3033,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         stream.position = stream.stream_ops.llseek(stream, offset, whence);
         stream.ungotten = [];
         return stream.position;
-      },
-  read(stream, buffer, offset, length, position) {
-        assert(offset >= 0);
+      },read:(stream, buffer, offset, length, position) => {
         if (length < 0 || position < 0) {
           throw new FS.ErrnoError(28);
         }
@@ -3274,9 +3058,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         var bytesRead = stream.stream_ops.read(stream, buffer, offset, length, position);
         if (!seeking) stream.position += bytesRead;
         return bytesRead;
-      },
-  write(stream, buffer, offset, length, position, canOwn) {
-        assert(offset >= 0);
+      },write:(stream, buffer, offset, length, position, canOwn) => {
         if (length < 0 || position < 0) {
           throw new FS.ErrnoError(28);
         }
@@ -3305,8 +3087,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         var bytesWritten = stream.stream_ops.write(stream, buffer, offset, length, position, canOwn);
         if (!seeking) stream.position += bytesWritten;
         return bytesWritten;
-      },
-  allocate(stream, offset, length) {
+      },allocate:(stream, offset, length) => {
         if (FS.isClosed(stream)) {
           throw new FS.ErrnoError(8);
         }
@@ -3323,8 +3104,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           throw new FS.ErrnoError(138);
         }
         stream.stream_ops.allocate(stream, offset, length);
-      },
-  mmap(stream, length, position, prot, flags) {
+      },mmap:(stream, length, position, prot, flags) => {
         // User requests writing to file (prot & PROT_WRITE != 0).
         // Checking if we have permissions to write to the file unless
         // MAP_PRIVATE flag is set. According to POSIX spec it is possible
@@ -3343,26 +3123,21 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           throw new FS.ErrnoError(43);
         }
         return stream.stream_ops.mmap(stream, length, position, prot, flags);
-      },
-  msync(stream, buffer, offset, length, mmapFlags) {
-        assert(offset >= 0);
+      },msync:(stream, buffer, offset, length, mmapFlags) => {
         if (!stream.stream_ops.msync) {
           return 0;
         }
         return stream.stream_ops.msync(stream, buffer, offset, length, mmapFlags);
-      },
-  munmap:(stream) => 0,
-  ioctl(stream, cmd, arg) {
+      },munmap:(stream) => 0,ioctl:(stream, cmd, arg) => {
         if (!stream.stream_ops.ioctl) {
           throw new FS.ErrnoError(59);
         }
         return stream.stream_ops.ioctl(stream, cmd, arg);
-      },
-  readFile(path, opts = {}) {
+      },readFile:(path, opts = {}) => {
         opts.flags = opts.flags || 0;
         opts.encoding = opts.encoding || 'binary';
         if (opts.encoding !== 'utf8' && opts.encoding !== 'binary') {
-          throw new Error(`Invalid encoding type "${opts.encoding}"`);
+          throw new Error('Invalid encoding type "' + opts.encoding + '"');
         }
         var ret;
         var stream = FS.open(path, opts.flags);
@@ -3377,8 +3152,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         }
         FS.close(stream);
         return ret;
-      },
-  writeFile(path, data, opts = {}) {
+      },writeFile:(path, data, opts = {}) => {
         opts.flags = opts.flags || 577;
         var stream = FS.open(path, opts.flags, opts.mode);
         if (typeof data == 'string') {
@@ -3391,9 +3165,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           throw new Error('Unsupported data type');
         }
         FS.close(stream);
-      },
-  cwd:() => FS.currentPath,
-  chdir(path) {
+      },cwd:() => FS.currentPath,chdir:(path) => {
         var lookup = FS.lookupPath(path, { follow: true });
         if (lookup.node === null) {
           throw new FS.ErrnoError(44);
@@ -3406,13 +3178,11 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           throw new FS.ErrnoError(errCode);
         }
         FS.currentPath = lookup.path;
-      },
-  createDefaultDirectories() {
+      },createDefaultDirectories:() => {
         FS.mkdir('/tmp');
         FS.mkdir('/home');
         FS.mkdir('/home/web_user');
-      },
-  createDefaultDevices() {
+      },createDefaultDevices:() => {
         // create /dev
         FS.mkdir('/dev');
         // setup /dev/null
@@ -3429,34 +3199,27 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         FS.mkdev('/dev/tty', FS.makedev(5, 0));
         FS.mkdev('/dev/tty1', FS.makedev(6, 0));
         // setup /dev/[u]random
-        // use a buffer to avoid overhead of individual crypto calls per byte
-        var randomBuffer = new Uint8Array(1024), randomLeft = 0;
-        var randomByte = () => {
-          if (randomLeft === 0) {
-            randomLeft = randomFill(randomBuffer).byteLength;
-          }
-          return randomBuffer[--randomLeft];
-        };
-        FS.createDevice('/dev', 'random', randomByte);
-        FS.createDevice('/dev', 'urandom', randomByte);
+        var random_device = getRandomDevice();
+        FS.createDevice('/dev', 'random', random_device);
+        FS.createDevice('/dev', 'urandom', random_device);
         // we're not going to emulate the actual shm device,
         // just create the tmp dirs that reside in it commonly
         FS.mkdir('/dev/shm');
         FS.mkdir('/dev/shm/tmp');
-      },
-  createSpecialDirectories() {
+      },createSpecialDirectories:() => {
         // create /proc/self/fd which allows /proc/self/fd/6 => readlink gives the
         // name of the stream for fd 6 (see test_unistd_ttyname)
         FS.mkdir('/proc');
         var proc_self = FS.mkdir('/proc/self');
         FS.mkdir('/proc/self/fd');
         FS.mount({
-          mount() {
+          mount: () => {
             var node = FS.createNode(proc_self, 'fd', 16384 | 511 /* 0777 */, 73);
             node.node_ops = {
-              lookup(parent, name) {
+              lookup: (parent, name) => {
                 var fd = +name;
-                var stream = FS.getStreamChecked(fd);
+                var stream = FS.getStream(fd);
+                if (!stream) throw new FS.ErrnoError(8);
                 var ret = {
                   parent: null,
                   mount: { mountpoint: 'fake' },
@@ -3469,8 +3232,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
             return node;
           }
         }, {}, '/proc/self/fd');
-      },
-  createStandardStreams() {
+      },createStandardStreams:() => {
         // TODO deprecate the old functionality of a single
         // input / output callback and that utilizes FS.createDevice
         // and instead require a unique set of stream ops
@@ -3499,11 +3261,10 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         var stdin = FS.open('/dev/stdin', 0);
         var stdout = FS.open('/dev/stdout', 1);
         var stderr = FS.open('/dev/stderr', 1);
-        assert(stdin.fd === 0, `invalid handle for stdin (${stdin.fd})`);
-        assert(stdout.fd === 1, `invalid handle for stdout (${stdout.fd})`);
-        assert(stderr.fd === 2, `invalid handle for stderr (${stderr.fd})`);
-      },
-  ensureErrnoError() {
+        assert(stdin.fd === 0, 'invalid handle for stdin (' + stdin.fd + ')');
+        assert(stdout.fd === 1, 'invalid handle for stdout (' + stdout.fd + ')');
+        assert(stderr.fd === 2, 'invalid handle for stderr (' + stderr.fd + ')');
+      },ensureErrnoError:() => {
         if (FS.ErrnoError) return;
         FS.ErrnoError = /** @this{Object} */ function ErrnoError(errno, node) {
           // We set the `name` property to be able to identify `FS.ErrnoError`
@@ -3541,8 +3302,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           FS.genericErrors[code] = new FS.ErrnoError(code);
           FS.genericErrors[code].stack = '<generic error, no stack>';
         });
-      },
-  staticInit() {
+      },staticInit:() => {
         FS.ensureErrnoError();
   
         FS.nameTable = new Array(4096);
@@ -3556,8 +3316,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         FS.filesystems = {
           'MEMFS': MEMFS,
         };
-      },
-  init(input, output, error) {
+      },init:(input, output, error) => {
         assert(!FS.init.initialized, 'FS.init was previously called. If you want to initialize later with custom parameters, remove any earlier calls (note that one is automatically added to the generated code)');
         FS.init.initialized = true;
   
@@ -3569,8 +3328,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         Module['stderr'] = error || Module['stderr'];
   
         FS.createStandardStreams();
-      },
-  quit() {
+      },quit:() => {
         FS.init.initialized = false;
         // force-flush all streams, so we get musl std streams printed out
         _fflush(0);
@@ -3582,15 +3340,18 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           }
           FS.close(stream);
         }
-      },
-  findObject(path, dontResolveLastLink) {
+      },getMode:(canRead, canWrite) => {
+        var mode = 0;
+        if (canRead) mode |= 292 | 73;
+        if (canWrite) mode |= 146;
+        return mode;
+      },findObject:(path, dontResolveLastLink) => {
         var ret = FS.analyzePath(path, dontResolveLastLink);
         if (!ret.exists) {
           return null;
         }
         return ret.object;
-      },
-  analyzePath(path, dontResolveLastLink) {
+      },analyzePath:(path, dontResolveLastLink) => {
         // operate from within the context of the symlink's target
         try {
           var lookup = FS.lookupPath(path, { follow: !dontResolveLastLink });
@@ -3617,8 +3378,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           ret.error = e.errno;
         };
         return ret;
-      },
-  createPath(parent, path, canRead, canWrite) {
+      },createPath:(parent, path, canRead, canWrite) => {
         parent = typeof parent == 'string' ? parent : FS.getPath(parent);
         var parts = path.split('/').reverse();
         while (parts.length) {
@@ -3633,19 +3393,17 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           parent = current;
         }
         return current;
-      },
-  createFile(parent, name, properties, canRead, canWrite) {
+      },createFile:(parent, name, properties, canRead, canWrite) => {
         var path = PATH.join2(typeof parent == 'string' ? parent : FS.getPath(parent), name);
-        var mode = FS_getMode(canRead, canWrite);
+        var mode = FS.getMode(canRead, canWrite);
         return FS.create(path, mode);
-      },
-  createDataFile(parent, name, data, canRead, canWrite, canOwn) {
+      },createDataFile:(parent, name, data, canRead, canWrite, canOwn) => {
         var path = name;
         if (parent) {
           parent = typeof parent == 'string' ? parent : FS.getPath(parent);
           path = name ? PATH.join2(parent, name) : parent;
         }
-        var mode = FS_getMode(canRead, canWrite);
+        var mode = FS.getMode(canRead, canWrite);
         var node = FS.create(path, mode);
         if (data) {
           if (typeof data == 'string') {
@@ -3661,25 +3419,24 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           FS.chmod(node, mode);
         }
         return node;
-      },
-  createDevice(parent, name, input, output) {
+      },createDevice:(parent, name, input, output) => {
         var path = PATH.join2(typeof parent == 'string' ? parent : FS.getPath(parent), name);
-        var mode = FS_getMode(!!input, !!output);
+        var mode = FS.getMode(!!input, !!output);
         if (!FS.createDevice.major) FS.createDevice.major = 64;
         var dev = FS.makedev(FS.createDevice.major++, 0);
         // Create a fake device that a set of stream ops to emulate
         // the old behavior.
         FS.registerDevice(dev, {
-          open(stream) {
+          open: (stream) => {
             stream.seekable = false;
           },
-          close(stream) {
+          close: (stream) => {
             // flush any pending line data
             if (output && output.buffer && output.buffer.length) {
               output(10);
             }
           },
-          read(stream, buffer, offset, length, pos /* ignored */) {
+          read: (stream, buffer, offset, length, pos /* ignored */) => {
             var bytesRead = 0;
             for (var i = 0; i < length; i++) {
               var result;
@@ -3700,7 +3457,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
             }
             return bytesRead;
           },
-          write(stream, buffer, offset, length, pos) {
+          write: (stream, buffer, offset, length, pos) => {
             for (var i = 0; i < length; i++) {
               try {
                 output(buffer[offset+i]);
@@ -3715,8 +3472,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           }
         });
         return FS.mkdev(path, mode, dev);
-      },
-  forceLoadFile(obj) {
+      },forceLoadFile:(obj) => {
         if (obj.isDevice || obj.isFolder || obj.link || obj.contents) return true;
         if (typeof XMLHttpRequest != 'undefined') {
           throw new Error("Lazy loading should have been performed (contents set) in createLazyFile, but it was not. Lazy loading only works in web workers. Use --embed-file or --preload-file in emcc on the main thread.");
@@ -3733,8 +3489,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         } else {
           throw new Error('Cannot load without read() or XMLHttpRequest.');
         }
-      },
-  createLazyFile(parent, name, url, canRead, canWrite) {
+      },createLazyFile:(parent, name, url, canRead, canWrite) => {
         // Lazy chunked Uint8Array (implements get and length from Uint8Array). Actual getting is abstracted away for eventual reuse.
         /** @constructor */
         function LazyUint8Array() {
@@ -3897,34 +3652,120 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
             throw new FS.ErrnoError(48);
           }
           writeChunks(stream, HEAP8, ptr, length, position);
-          return { ptr, allocated: true };
+          return { ptr: ptr, allocated: true };
         };
         node.stream_ops = stream_ops;
         return node;
-      },
-  absolutePath() {
+      },createPreloadedFile:(parent, name, url, canRead, canWrite, onload, onerror, dontCreateFile, canOwn, preFinish) => {
+        // TODO we should allow people to just pass in a complete filename instead
+        // of parent and name being that we just join them anyways
+        var fullname = name ? PATH_FS.resolve(PATH.join2(parent, name)) : parent;
+        var dep = getUniqueRunDependency('cp ' + fullname); // might have several active requests for the same fullname
+        function processData(byteArray) {
+          function finish(byteArray) {
+            if (preFinish) preFinish();
+            if (!dontCreateFile) {
+              FS.createDataFile(parent, name, byteArray, canRead, canWrite, canOwn);
+            }
+            if (onload) onload();
+            removeRunDependency(dep);
+          }
+          if (Browser.handledByPreloadPlugin(byteArray, fullname, finish, () => {
+            if (onerror) onerror();
+            removeRunDependency(dep);
+          })) {
+            return;
+          }
+          finish(byteArray);
+        }
+        addRunDependency(dep);
+        if (typeof url == 'string') {
+          asyncLoad(url, (byteArray) => processData(byteArray), onerror);
+        } else {
+          processData(url);
+        }
+      },indexedDB:() => {
+        return window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
+      },DB_NAME:() => {
+        return 'EM_FS_' + window.location.pathname;
+      },DB_VERSION:20,DB_STORE_NAME:"FILE_DATA",saveFilesToDB:(paths, onload = (() => {}), onerror = (() => {})) => {
+        var indexedDB = FS.indexedDB();
+        try {
+          var openRequest = indexedDB.open(FS.DB_NAME(), FS.DB_VERSION);
+        } catch (e) {
+          return onerror(e);
+        }
+        openRequest.onupgradeneeded = () => {
+          out('creating db');
+          var db = openRequest.result;
+          db.createObjectStore(FS.DB_STORE_NAME);
+        };
+        openRequest.onsuccess = () => {
+          var db = openRequest.result;
+          var transaction = db.transaction([FS.DB_STORE_NAME], 'readwrite');
+          var files = transaction.objectStore(FS.DB_STORE_NAME);
+          var ok = 0, fail = 0, total = paths.length;
+          function finish() {
+            if (fail == 0) onload(); else onerror();
+          }
+          paths.forEach((path) => {
+            var putRequest = files.put(FS.analyzePath(path).object.contents, path);
+            putRequest.onsuccess = () => { ok++; if (ok + fail == total) finish() };
+            putRequest.onerror = () => { fail++; if (ok + fail == total) finish() };
+          });
+          transaction.onerror = onerror;
+        };
+        openRequest.onerror = onerror;
+      },loadFilesFromDB:(paths, onload = (() => {}), onerror = (() => {})) => {
+        var indexedDB = FS.indexedDB();
+        try {
+          var openRequest = indexedDB.open(FS.DB_NAME(), FS.DB_VERSION);
+        } catch (e) {
+          return onerror(e);
+        }
+        openRequest.onupgradeneeded = onerror; // no database to load from
+        openRequest.onsuccess = () => {
+          var db = openRequest.result;
+          try {
+            var transaction = db.transaction([FS.DB_STORE_NAME], 'readonly');
+          } catch(e) {
+            onerror(e);
+            return;
+          }
+          var files = transaction.objectStore(FS.DB_STORE_NAME);
+          var ok = 0, fail = 0, total = paths.length;
+          function finish() {
+            if (fail == 0) onload(); else onerror();
+          }
+          paths.forEach((path) => {
+            var getRequest = files.get(path);
+            getRequest.onsuccess = () => {
+              if (FS.analyzePath(path).exists) {
+                FS.unlink(path);
+              }
+              FS.createDataFile(PATH.dirname(path), PATH.basename(path), getRequest.result, true, true, true);
+              ok++;
+              if (ok + fail == total) finish();
+            };
+            getRequest.onerror = () => { fail++; if (ok + fail == total) finish() };
+          });
+          transaction.onerror = onerror;
+        };
+        openRequest.onerror = onerror;
+      },absolutePath:() => {
         abort('FS.absolutePath has been removed; use PATH_FS.resolve instead');
-      },
-  createFolder() {
+      },createFolder:() => {
         abort('FS.createFolder has been removed; use FS.mkdir instead');
-      },
-  createLink() {
+      },createLink:() => {
         abort('FS.createLink has been removed; use FS.symlink instead');
-      },
-  joinPath() {
+      },joinPath:() => {
         abort('FS.joinPath has been removed; use PATH.join instead');
-      },
-  mmapAlloc() {
+      },mmapAlloc:() => {
         abort('FS.mmapAlloc has been replaced by the top level function mmapAlloc');
-      },
-  standardizePath() {
+      },standardizePath:() => {
         abort('FS.standardizePath has been removed; use PATH.normalize instead');
-      },
-  };
-  
-  var SYSCALLS = {
-  DEFAULT_POLLMASK:5,
-  calculateAt(dirfd, path, allowEmpty) {
+      }};
+  var SYSCALLS = {DEFAULT_POLLMASK:5,calculateAt:function(dirfd, path, allowEmpty) {
         if (PATH.isAbs(path)) {
           return path;
         }
@@ -3943,8 +3784,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           return dir;
         }
         return PATH.join2(dir, path);
-      },
-  doStat(func, path, buf) {
+      },doStat:function(func, path, buf) {
         try {
           var stat = func(path);
         } catch (e) {
@@ -3955,27 +3795,27 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           throw e;
         }
         HEAP32[((buf)>>2)] = stat.dev;
-        HEAP32[(((buf)+(4))>>2)] = stat.mode;
-        HEAPU32[(((buf)+(8))>>2)] = stat.nlink;
-        HEAP32[(((buf)+(12))>>2)] = stat.uid;
-        HEAP32[(((buf)+(16))>>2)] = stat.gid;
-        HEAP32[(((buf)+(20))>>2)] = stat.rdev;
-        (tempI64 = [stat.size>>>0,(tempDouble=stat.size,(+(Math.abs(tempDouble))) >= 1.0 ? (tempDouble > 0.0 ? (+(Math.floor((tempDouble)/4294967296.0)))>>>0 : (~~((+(Math.ceil((tempDouble - +(((~~(tempDouble)))>>>0))/4294967296.0)))))>>>0) : 0)], HEAP32[(((buf)+(24))>>2)] = tempI64[0],HEAP32[(((buf)+(28))>>2)] = tempI64[1]);
-        HEAP32[(((buf)+(32))>>2)] = 4096;
-        HEAP32[(((buf)+(36))>>2)] = stat.blocks;
+        HEAP32[(((buf)+(8))>>2)] = stat.ino;
+        HEAP32[(((buf)+(12))>>2)] = stat.mode;
+        HEAPU32[(((buf)+(16))>>2)] = stat.nlink;
+        HEAP32[(((buf)+(20))>>2)] = stat.uid;
+        HEAP32[(((buf)+(24))>>2)] = stat.gid;
+        HEAP32[(((buf)+(28))>>2)] = stat.rdev;
+        (tempI64 = [stat.size>>>0,(tempDouble=stat.size,(+(Math.abs(tempDouble))) >= 1.0 ? (tempDouble > 0.0 ? ((Math.min((+(Math.floor((tempDouble)/4294967296.0))), 4294967295.0))|0)>>>0 : (~~((+(Math.ceil((tempDouble - +(((~~(tempDouble)))>>>0))/4294967296.0)))))>>>0) : 0)],HEAP32[(((buf)+(40))>>2)] = tempI64[0],HEAP32[(((buf)+(44))>>2)] = tempI64[1]);
+        HEAP32[(((buf)+(48))>>2)] = 4096;
+        HEAP32[(((buf)+(52))>>2)] = stat.blocks;
         var atime = stat.atime.getTime();
         var mtime = stat.mtime.getTime();
         var ctime = stat.ctime.getTime();
-        (tempI64 = [Math.floor(atime / 1000)>>>0,(tempDouble=Math.floor(atime / 1000),(+(Math.abs(tempDouble))) >= 1.0 ? (tempDouble > 0.0 ? (+(Math.floor((tempDouble)/4294967296.0)))>>>0 : (~~((+(Math.ceil((tempDouble - +(((~~(tempDouble)))>>>0))/4294967296.0)))))>>>0) : 0)], HEAP32[(((buf)+(40))>>2)] = tempI64[0],HEAP32[(((buf)+(44))>>2)] = tempI64[1]);
-        HEAPU32[(((buf)+(48))>>2)] = (atime % 1000) * 1000;
-        (tempI64 = [Math.floor(mtime / 1000)>>>0,(tempDouble=Math.floor(mtime / 1000),(+(Math.abs(tempDouble))) >= 1.0 ? (tempDouble > 0.0 ? (+(Math.floor((tempDouble)/4294967296.0)))>>>0 : (~~((+(Math.ceil((tempDouble - +(((~~(tempDouble)))>>>0))/4294967296.0)))))>>>0) : 0)], HEAP32[(((buf)+(56))>>2)] = tempI64[0],HEAP32[(((buf)+(60))>>2)] = tempI64[1]);
-        HEAPU32[(((buf)+(64))>>2)] = (mtime % 1000) * 1000;
-        (tempI64 = [Math.floor(ctime / 1000)>>>0,(tempDouble=Math.floor(ctime / 1000),(+(Math.abs(tempDouble))) >= 1.0 ? (tempDouble > 0.0 ? (+(Math.floor((tempDouble)/4294967296.0)))>>>0 : (~~((+(Math.ceil((tempDouble - +(((~~(tempDouble)))>>>0))/4294967296.0)))))>>>0) : 0)], HEAP32[(((buf)+(72))>>2)] = tempI64[0],HEAP32[(((buf)+(76))>>2)] = tempI64[1]);
-        HEAPU32[(((buf)+(80))>>2)] = (ctime % 1000) * 1000;
-        (tempI64 = [stat.ino>>>0,(tempDouble=stat.ino,(+(Math.abs(tempDouble))) >= 1.0 ? (tempDouble > 0.0 ? (+(Math.floor((tempDouble)/4294967296.0)))>>>0 : (~~((+(Math.ceil((tempDouble - +(((~~(tempDouble)))>>>0))/4294967296.0)))))>>>0) : 0)], HEAP32[(((buf)+(88))>>2)] = tempI64[0],HEAP32[(((buf)+(92))>>2)] = tempI64[1]);
+        (tempI64 = [Math.floor(atime / 1000)>>>0,(tempDouble=Math.floor(atime / 1000),(+(Math.abs(tempDouble))) >= 1.0 ? (tempDouble > 0.0 ? ((Math.min((+(Math.floor((tempDouble)/4294967296.0))), 4294967295.0))|0)>>>0 : (~~((+(Math.ceil((tempDouble - +(((~~(tempDouble)))>>>0))/4294967296.0)))))>>>0) : 0)],HEAP32[(((buf)+(56))>>2)] = tempI64[0],HEAP32[(((buf)+(60))>>2)] = tempI64[1]);
+        HEAPU32[(((buf)+(64))>>2)] = (atime % 1000) * 1000;
+        (tempI64 = [Math.floor(mtime / 1000)>>>0,(tempDouble=Math.floor(mtime / 1000),(+(Math.abs(tempDouble))) >= 1.0 ? (tempDouble > 0.0 ? ((Math.min((+(Math.floor((tempDouble)/4294967296.0))), 4294967295.0))|0)>>>0 : (~~((+(Math.ceil((tempDouble - +(((~~(tempDouble)))>>>0))/4294967296.0)))))>>>0) : 0)],HEAP32[(((buf)+(72))>>2)] = tempI64[0],HEAP32[(((buf)+(76))>>2)] = tempI64[1]);
+        HEAPU32[(((buf)+(80))>>2)] = (mtime % 1000) * 1000;
+        (tempI64 = [Math.floor(ctime / 1000)>>>0,(tempDouble=Math.floor(ctime / 1000),(+(Math.abs(tempDouble))) >= 1.0 ? (tempDouble > 0.0 ? ((Math.min((+(Math.floor((tempDouble)/4294967296.0))), 4294967295.0))|0)>>>0 : (~~((+(Math.ceil((tempDouble - +(((~~(tempDouble)))>>>0))/4294967296.0)))))>>>0) : 0)],HEAP32[(((buf)+(88))>>2)] = tempI64[0],HEAP32[(((buf)+(92))>>2)] = tempI64[1]);
+        HEAPU32[(((buf)+(96))>>2)] = (ctime % 1000) * 1000;
+        (tempI64 = [stat.ino>>>0,(tempDouble=stat.ino,(+(Math.abs(tempDouble))) >= 1.0 ? (tempDouble > 0.0 ? ((Math.min((+(Math.floor((tempDouble)/4294967296.0))), 4294967295.0))|0)>>>0 : (~~((+(Math.ceil((tempDouble - +(((~~(tempDouble)))>>>0))/4294967296.0)))))>>>0) : 0)],HEAP32[(((buf)+(104))>>2)] = tempI64[0],HEAP32[(((buf)+(108))>>2)] = tempI64[1]);
         return 0;
-      },
-  doMsync(addr, stream, len, flags, offset) {
+      },doMsync:function(addr, stream, len, flags, offset) {
         if (!FS.isFile(stream.node.mode)) {
           throw new FS.ErrnoError(43);
         }
@@ -3985,25 +3825,19 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         }
         var buffer = HEAPU8.slice(addr, addr + len);
         FS.msync(stream, buffer, offset, len, flags);
-      },
-  varargs:undefined,
-  get() {
+      },varargs:undefined,get:function() {
         assert(SYSCALLS.varargs != undefined);
-        // the `+` prepended here is necessary to convince the JSCompiler that varargs is indeed a number.
-        var ret = HEAP32[((+SYSCALLS.varargs)>>2)];
         SYSCALLS.varargs += 4;
+        var ret = HEAP32[(((SYSCALLS.varargs)-(4))>>2)];
         return ret;
-      },
-  getp() { return SYSCALLS.get() },
-  getStr(ptr) {
+      },getStr:function(ptr) {
         var ret = UTF8ToString(ptr);
         return ret;
-      },
-  getStreamFromFD(fd) {
-        var stream = FS.getStreamChecked(fd);
+      },getStreamFromFD:function(fd) {
+        var stream = FS.getStream(fd);
+        if (!stream) throw new FS.ErrnoError(8);
         return stream;
-      },
-  };
+      }};
   function ___syscall_fcntl64(fd, cmd, varargs) {
   SYSCALLS.varargs = varargs;
   try {
@@ -4014,9 +3848,6 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           var arg = SYSCALLS.get();
           if (arg < 0) {
             return -28;
-          }
-          while (FS.streams[arg]) {
-            arg++;
           }
           var newStream;
           newStream = FS.createStream(stream, arg);
@@ -4032,8 +3863,10 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           stream.flags |= arg;
           return 0;
         }
-        case 5: {
-          var arg = SYSCALLS.getp();
+        case 5:
+        /* case 5: Currently in musl F_GETLK64 has same value as F_GETLK, so omitted to avoid duplicate case blocks. If that changes, uncomment this */ {
+          
+          var arg = SYSCALLS.get();
           var offset = 0;
           // We're always unlocked.
           HEAP16[(((arg)+(offset))>>1)] = 2;
@@ -4041,6 +3874,10 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         }
         case 6:
         case 7:
+        /* case 6: Currently in musl F_SETLK64 has same value as F_SETLK, so omitted to avoid duplicate case blocks. If that changes, uncomment this */
+        /* case 7: Currently in musl F_SETLKW64 has same value as F_SETLKW, so omitted to avoid duplicate case blocks. If that changes, uncomment this */
+          
+          
           return 0; // Pretend that the locking is successful.
         case 16:
         case 8:
@@ -4065,53 +3902,23 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
   
       var stream = SYSCALLS.getStreamFromFD(fd);
       switch (op) {
-        case 21509: {
-          if (!stream.tty) return -59;
-          return 0;
-        }
+        case 21509:
         case 21505: {
           if (!stream.tty) return -59;
-          if (stream.tty.ops.ioctl_tcgets) {
-            var termios = stream.tty.ops.ioctl_tcgets(stream);
-            var argp = SYSCALLS.getp();
-            HEAP32[((argp)>>2)] = termios.c_iflag || 0;
-            HEAP32[(((argp)+(4))>>2)] = termios.c_oflag || 0;
-            HEAP32[(((argp)+(8))>>2)] = termios.c_cflag || 0;
-            HEAP32[(((argp)+(12))>>2)] = termios.c_lflag || 0;
-            for (var i = 0; i < 32; i++) {
-              HEAP8[(((argp + i)+(17))>>0)] = termios.c_cc[i] || 0;
-            }
-            return 0;
-          }
           return 0;
         }
         case 21510:
         case 21511:
-        case 21512: {
-          if (!stream.tty) return -59;
-          return 0; // no-op, not actually adjusting terminal settings
-        }
+        case 21512:
         case 21506:
         case 21507:
         case 21508: {
           if (!stream.tty) return -59;
-          if (stream.tty.ops.ioctl_tcsets) {
-            var argp = SYSCALLS.getp();
-            var c_iflag = HEAP32[((argp)>>2)];
-            var c_oflag = HEAP32[(((argp)+(4))>>2)];
-            var c_cflag = HEAP32[(((argp)+(8))>>2)];
-            var c_lflag = HEAP32[(((argp)+(12))>>2)];
-            var c_cc = []
-            for (var i = 0; i < 32; i++) {
-              c_cc.push(HEAP8[(((argp + i)+(17))>>0)]);
-            }
-            return stream.tty.ops.ioctl_tcsets(stream.tty, op, { c_iflag, c_oflag, c_cflag, c_lflag, c_cc });
-          }
           return 0; // no-op, not actually adjusting terminal settings
         }
         case 21519: {
           if (!stream.tty) return -59;
-          var argp = SYSCALLS.getp();
+          var argp = SYSCALLS.get();
           HEAP32[((argp)>>2)] = 0;
           return 0;
         }
@@ -4120,29 +3927,19 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           return -28; // not supported
         }
         case 21531: {
-          var argp = SYSCALLS.getp();
+          var argp = SYSCALLS.get();
           return FS.ioctl(stream, op, argp);
         }
         case 21523: {
           // TODO: in theory we should write to the winsize struct that gets
           // passed in, but for now musl doesn't read anything on it
           if (!stream.tty) return -59;
-          if (stream.tty.ops.ioctl_tiocgwinsz) {
-            var winsize = stream.tty.ops.ioctl_tiocgwinsz(stream.tty);
-            var argp = SYSCALLS.getp();
-            HEAP16[((argp)>>1)] = winsize[0];
-            HEAP16[(((argp)+(2))>>1)] = winsize[1];
-          }
           return 0;
         }
         case 21524: {
           // TODO: technically, this ioctl call should change the window size.
           // but, since emscripten doesn't have any concept of a terminal window
           // yet, we'll just silently throw it away as we do TIOCGWINSZ
-          if (!stream.tty) return -59;
-          return 0;
-        }
-        case 21515: {
           if (!stream.tty) return -59;
           return 0;
         }
@@ -4168,37 +3965,38 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
   }
   }
 
-  var _abort = () => {
+  function _abort() {
       abort('native code called abort()');
-    };
+    }
 
-  var _emscripten_memcpy_js = (dest, src, num) => HEAPU8.copyWithin(dest, src, src + num);
+  function _emscripten_memcpy_big(dest, src, num) {
+      HEAPU8.copyWithin(dest, src, src + num);
+    }
 
-  var getHeapMax = () =>
+  function getHeapMax() {
       // Stay one Wasm page short of 4GB: while e.g. Chrome is able to allocate
       // full 4GB Wasm memories, the size will wrap back to 0 bytes in Wasm side
       // for any code that deals with heap sizes, which would require special
       // casing all heap size related code to treat 0 specially.
-      2147483648;
+      return 2147483648;
+    }
   
-  var growMemory = (size) => {
+  function emscripten_realloc_buffer(size) {
       var b = wasmMemory.buffer;
-      var pages = (size - b.byteLength + 65535) / 65536;
       try {
         // round size grow request up to wasm page size (fixed 64KB per spec)
-        wasmMemory.grow(pages); // .grow() takes a delta compared to the previous size
+        wasmMemory.grow((size - b.byteLength + 65535) >>> 16); // .grow() takes a delta compared to the previous size
         updateMemoryViews();
         return 1 /*success*/;
       } catch(e) {
-        err(`growMemory: Attempted to grow heap from ${b.byteLength} bytes to ${size} bytes, but got error: ${e}`);
+        err('emscripten_realloc_buffer: Attempted to grow heap from ' + b.byteLength  + ' bytes to ' + size + ' bytes, but got error: ' + e);
       }
       // implicit 0 return to save code size (caller will cast "undefined" into 0
       // anyhow)
-    };
-  var _emscripten_resize_heap = (requestedSize) => {
+    }
+  function _emscripten_resize_heap(requestedSize) {
       var oldSize = HEAPU8.length;
-      // With CAN_ADDRESS_2GB or MEMORY64, pointers are already unsigned.
-      requestedSize >>>= 0;
+      requestedSize = requestedSize >>> 0;
       // With multithreaded builds, races can happen (another thread might increase the size
       // in between), so return a failure, and let the caller retry.
       assert(requestedSize > oldSize);
@@ -4224,11 +4022,11 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
       // (the wasm binary specifies it, so if we tried, we'd fail anyhow).
       var maxHeapSize = getHeapMax();
       if (requestedSize > maxHeapSize) {
-        err(`Cannot enlarge memory, requested ${requestedSize} bytes, but the limit is ${maxHeapSize} bytes!`);
+        err('Cannot enlarge memory, asked to go up to ' + requestedSize + ' bytes, but the limit is ' + maxHeapSize + ' bytes!');
         return false;
       }
   
-      var alignUp = (x, multiple) => x + (multiple - x % multiple) % multiple;
+      let alignUp = (x, multiple) => x + (multiple - x % multiple) % multiple;
   
       // Loop through potential heap size increases. If we attempt a too eager
       // reservation that fails, cut down on the attempted size and reserve a
@@ -4240,15 +4038,15 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
   
         var newSize = Math.min(maxHeapSize, alignUp(Math.max(requestedSize, overGrownHeapSize), 65536));
   
-        var replacement = growMemory(newSize);
+        var replacement = emscripten_realloc_buffer(newSize);
         if (replacement) {
   
           return true;
         }
       }
-      err(`Failed to grow the heap from ${oldSize} bytes to ${newSize} bytes, not enough memory!`);
+      err('Failed to grow the heap from ' + oldSize + ' bytes to ' + newSize + ' bytes, not enough memory!');
       return false;
-    };
+    }
 
   function _fd_close(fd) {
   try {
@@ -4263,13 +4061,13 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
   }
 
   /** @param {number=} offset */
-  var doReadv = (stream, iov, iovcnt, offset) => {
+  function doReadv(stream, iov, iovcnt, offset) {
       var ret = 0;
       for (var i = 0; i < iovcnt; i++) {
         var ptr = HEAPU32[((iov)>>2)];
         var len = HEAPU32[(((iov)+(4))>>2)];
         iov += 8;
-        var curr = FS.read(stream, HEAP8, ptr, len, offset);
+        var curr = FS.read(stream, HEAP8,ptr, len, offset);
         if (curr < 0) return -1;
         ret += curr;
         if (curr < len) break; // nothing more to read
@@ -4278,7 +4076,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         }
       }
       return ret;
-    };
+    }
   
   function _fd_read(fd, iov, iovcnt, pnum) {
   try {
@@ -4293,39 +4091,38 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
   }
   }
 
-  
-  var convertI32PairToI53Checked = (lo, hi) => {
+  function convertI32PairToI53Checked(lo, hi) {
       assert(lo == (lo >>> 0) || lo == (lo|0)); // lo should either be a i32 or a u32
       assert(hi === (hi|0));                    // hi should be a i32
       return ((hi + 0x200000) >>> 0 < 0x400001 - !!lo) ? (lo >>> 0) + hi * 4294967296 : NaN;
-    };
-  function _fd_seek(fd,offset_low, offset_high,whence,newOffset) {
-    var offset = convertI32PairToI53Checked(offset_low, offset_high);;
+    }
   
-    
+  
+  
+  
+  function _fd_seek(fd, offset_low, offset_high, whence, newOffset) {
   try {
   
-      if (isNaN(offset)) return 61;
+      var offset = convertI32PairToI53Checked(offset_low, offset_high); if (isNaN(offset)) return 61;
       var stream = SYSCALLS.getStreamFromFD(fd);
       FS.llseek(stream, offset, whence);
-      (tempI64 = [stream.position>>>0,(tempDouble=stream.position,(+(Math.abs(tempDouble))) >= 1.0 ? (tempDouble > 0.0 ? (+(Math.floor((tempDouble)/4294967296.0)))>>>0 : (~~((+(Math.ceil((tempDouble - +(((~~(tempDouble)))>>>0))/4294967296.0)))))>>>0) : 0)], HEAP32[((newOffset)>>2)] = tempI64[0],HEAP32[(((newOffset)+(4))>>2)] = tempI64[1]);
+      (tempI64 = [stream.position>>>0,(tempDouble=stream.position,(+(Math.abs(tempDouble))) >= 1.0 ? (tempDouble > 0.0 ? ((Math.min((+(Math.floor((tempDouble)/4294967296.0))), 4294967295.0))|0)>>>0 : (~~((+(Math.ceil((tempDouble - +(((~~(tempDouble)))>>>0))/4294967296.0)))))>>>0) : 0)],HEAP32[((newOffset)>>2)] = tempI64[0],HEAP32[(((newOffset)+(4))>>2)] = tempI64[1]);
       if (stream.getdents && offset === 0 && whence === 0) stream.getdents = null; // reset readdir state
       return 0;
     } catch (e) {
     if (typeof FS == 'undefined' || !(e.name === 'ErrnoError')) throw e;
     return e.errno;
   }
-  ;
   }
 
   /** @param {number=} offset */
-  var doWritev = (stream, iov, iovcnt, offset) => {
+  function doWritev(stream, iov, iovcnt, offset) {
       var ret = 0;
       for (var i = 0; i < iovcnt; i++) {
         var ptr = HEAPU32[((iov)>>2)];
         var len = HEAPU32[(((iov)+(4))>>2)];
         iov += 8;
-        var curr = FS.write(stream, HEAP8, ptr, len, offset);
+        var curr = FS.write(stream, HEAP8,ptr, len, offset);
         if (curr < 0) return -1;
         ret += curr;
         if (typeof offset !== 'undefined') {
@@ -4333,7 +4130,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         }
       }
       return ret;
-    };
+    }
   
   function _fd_write(fd, iov, iovcnt, pnum) {
   try {
@@ -4350,49 +4147,27 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
 
 
 
-  var wasmTableMirror = [];
-  
-  var wasmTable;
-  var getWasmTableEntry = (funcPtr) => {
-      var func = wasmTableMirror[funcPtr];
-      if (!func) {
-        if (funcPtr >= wasmTableMirror.length) wasmTableMirror.length = funcPtr + 1;
-        wasmTableMirror[funcPtr] = func = wasmTable.get(funcPtr);
-      }
-      assert(wasmTable.get(funcPtr) == func, "JavaScript-side Wasm function table mirror is out of date!");
-      return func;
-    };
-
-
-  
-  var stringToUTF8 = (str, outPtr, maxBytesToWrite) => {
-      assert(typeof maxBytesToWrite == 'number', 'stringToUTF8(str, outPtr, maxBytesToWrite) is missing the third parameter that specifies the length of the output buffer!');
-      return stringToUTF8Array(str, HEAPU8, outPtr, maxBytesToWrite);
-    };
-  
-  /** @suppress {duplicate } */
-  var stringToNewUTF8 = (str) => {
+  function allocateUTF8(str) {
       var size = lengthBytesUTF8(str) + 1;
       var ret = _malloc(size);
-      if (ret) stringToUTF8(str, ret, size);
+      if (ret) stringToUTF8Array(str, HEAP8, ret, size);
       return ret;
-    };
-  var allocateUTF8 = stringToNewUTF8;
+    }
 
-  var uleb128Encode = (n, target) => {
+  function uleb128Encode(n, target) {
       assert(n < 16384);
       if (n < 128) {
         target.push(n);
       } else {
         target.push((n % 128) | 128, n >> 7);
       }
-    };
+    }
   
-  var sigToWasmTypes = (sig) => {
-      assert(!sig.includes('j'), 'i64 not permitted in function signatures when WASM_BIGINT is disabled');
+  function sigToWasmTypes(sig) {
       var typeNames = {
         'i': 'i32',
-        'j': 'i64',
+        // i64 values will be split into two i32s.
+        'j': 'i32',
         'f': 'f32',
         'd': 'f64',
         'p': 'i32',
@@ -4404,11 +4179,14 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
       for (var i = 1; i < sig.length; ++i) {
         assert(sig[i] in typeNames, 'invalid signature char: ' + sig[i]);
         type.parameters.push(typeNames[sig[i]]);
+        if (sig[i] === 'j') {
+          type.parameters.push('i32');
+        }
       }
       return type;
-    };
+    }
   
-  var generateFuncType = (sig, target) => {
+  function generateFuncType(sig, target){
       var sigRet = sig.slice(0, 1);
       var sigParam = sig.slice(1);
       var typeCodes = {
@@ -4418,7 +4196,7 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         'f': 0x7d, // f32
         'd': 0x7c, // f64
       };
-  
+    
       // Parameters, length + signatures
       target.push(0x60 /* form: func */);
       uleb128Encode(sigParam.length, target);
@@ -4434,10 +4212,8 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
       } else {
         target.push(0x01, typeCodes[sigRet]);
       }
-    };
-  var convertJsFunctionToWasm = (func, sig) => {
-  
-      assert(!sig.includes('j'), 'i64 not permitted in function signatures when WASM_BIGINT is disabled');
+    }
+  function convertJsFunctionToWasm(func, sig) {
   
       // If the type reflection proposal is available, use the new
       // "WebAssembly.Function" constructor.
@@ -4480,10 +4256,10 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
       var instance = new WebAssembly.Instance(module, { 'e': { 'f': func } });
       var wrappedFunc = instance.exports['f'];
       return wrappedFunc;
-    };
+    }
   
   
-  var updateTableMap = (offset, count) => {
+  function updateTableMap(offset, count) {
       if (functionsInTableMap) {
         for (var i = offset; i < offset + count; i++) {
           var item = getWasmTableEntry(i);
@@ -4493,23 +4269,21 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
           }
         }
       }
-    };
+    }
   
-  var functionsInTableMap;
-  
-  var getFunctionAddress = (func) => {
+  var functionsInTableMap = undefined;
+  function getFunctionAddress(func) {
       // First, create the map if this is the first use.
       if (!functionsInTableMap) {
         functionsInTableMap = new WeakMap();
         updateTableMap(0, wasmTable.length);
       }
       return functionsInTableMap.get(func) || 0;
-    };
+    }
   
   
   var freeTableIndexes = [];
-  
-  var getEmptyTableSlot = () => {
+  function getEmptyTableSlot() {
       // Reuse a free index if there is one, otherwise grow.
       if (freeTableIndexes.length) {
         return freeTableIndexes.pop();
@@ -4524,20 +4298,18 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
         throw 'Unable to grow wasm table. Set ALLOW_TABLE_GROWTH.';
       }
       return wasmTable.length - 1;
-    };
+    }
   
   
-  
-  var setWasmTableEntry = (idx, func) => {
+  function setWasmTableEntry(idx, func) {
       wasmTable.set(idx, func);
       // With ABORT_ON_WASM_EXCEPTIONS wasmTable.get is overriden to return wrapped
       // functions so we need to call it here to retrieve the potential wrapper correctly
       // instead of just storing 'func' directly into wasmTableMirror
       wasmTableMirror[idx] = wasmTable.get(idx);
-    };
-  
+    }
   /** @param {string=} sig */
-  var addFunction = (func, sig) => {
+  function addFunction(func, sig) {
       assert(typeof func != 'undefined');
       // Check if the function is already in the table, to ensure each function
       // gets a unique index.
@@ -4566,28 +4338,19 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
       functionsInTableMap.set(func, ret);
   
       return ret;
-    };
+    }
 
-  var getCFunc = (ident) => {
+  function getCFunc(ident) {
       var func = Module['_' + ident]; // closure exported function
       assert(func, 'Cannot call unknown function ' + ident + ', make sure it is exported');
       return func;
-    };
+    }
   
   
-  var writeArrayToMemory = (array, buffer) => {
+  function writeArrayToMemory(array, buffer) {
       assert(array.length >= 0, 'writeArrayToMemory array must have a length (should be an array or typed array)')
       HEAP8.set(array, buffer);
-    };
-  
-  
-  var stringToUTF8OnStack = (str) => {
-      var size = lengthBytesUTF8(str) + 1;
-      var ret = stackAlloc(size);
-      stringToUTF8(str, ret, size);
-      return ret;
-    };
-  
+    }
   
     /**
      * @param {string|null=} returnType
@@ -4595,14 +4358,16 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
      * @param {Arguments|Array=} args
      * @param {Object=} opts
      */
-  var ccall = (ident, returnType, argTypes, args, opts) => {
+  function ccall(ident, returnType, argTypes, args, opts) {
       // For fast lookup of conversion functions
       var toC = {
         'string': (str) => {
           var ret = 0;
           if (str !== null && str !== undefined && str !== 0) { // null string
             // at most 4 bytes per UTF-8 code point, +1 for the trailing '\0'
-            ret = stringToUTF8OnStack(str);
+            var len = (str.length << 2) + 1;
+            ret = stackAlloc(len);
+            stringToUTF8(str, ret, len);
           }
           return ret;
         },
@@ -4645,18 +4410,18 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
   
       ret = onDone(ret);
       return ret;
-    };
+    }
   
     /**
      * @param {string=} returnType
      * @param {Array=} argTypes
      * @param {Object=} opts
      */
-  var cwrap = (ident, returnType, argTypes, opts) => {
+  function cwrap(ident, returnType, argTypes, opts) {
       return function() {
         return ccall(ident, returnType, argTypes, arguments, opts);
       }
-    };
+    }
 
 
   var FSNode = /** @constructor */ function(parent, name, mode, rdev) {
@@ -4704,7 +4469,6 @@ function array_bounds_check_error(idx,size) { throw 'Array index ' + idx + ' out
    }
   });
   FS.FSNode = FSNode;
-  FS.createPreloadedFile = FS_createPreloadedFile;
   FS.staticInit();;
 ERRNO_CODES = {
       'EPERM': 63,
@@ -4833,1126 +4597,2152 @@ function checkIncomingModuleAPI() {
   ignoredModuleProp('fetchSettings');
 }
 var wasmImports = {
-  /** @export */
-  __assert_fail: ___assert_fail,
-  /** @export */
-  __cxa_begin_catch: ___cxa_begin_catch,
-  /** @export */
-  __cxa_find_matching_catch_2: ___cxa_find_matching_catch_2,
-  /** @export */
-  __cxa_find_matching_catch_3: ___cxa_find_matching_catch_3,
-  /** @export */
-  __cxa_throw: ___cxa_throw,
-  /** @export */
-  __resumeException: ___resumeException,
-  /** @export */
-  __syscall_fcntl64: ___syscall_fcntl64,
-  /** @export */
-  __syscall_ioctl: ___syscall_ioctl,
-  /** @export */
-  __syscall_openat: ___syscall_openat,
-  /** @export */
-  abort: _abort,
-  /** @export */
-  emscripten_memcpy_js: _emscripten_memcpy_js,
-  /** @export */
-  emscripten_resize_heap: _emscripten_resize_heap,
-  /** @export */
-  fd_close: _fd_close,
-  /** @export */
-  fd_read: _fd_read,
-  /** @export */
-  fd_seek: _fd_seek,
-  /** @export */
-  fd_write: _fd_write,
-  /** @export */
-  invoke_diii: invoke_diii,
-  /** @export */
-  invoke_diiidiiiii: invoke_diiidiiiii,
-  /** @export */
-  invoke_ii: invoke_ii,
-  /** @export */
-  invoke_iidddiidd: invoke_iidddiidd,
-  /** @export */
-  invoke_iiddiiddiidid: invoke_iiddiiddiidid,
-  /** @export */
-  invoke_iiddiidiidiiiii: invoke_iiddiidiidiiiii,
-  /** @export */
-  invoke_iii: invoke_iii,
-  /** @export */
-  invoke_iiii: invoke_iiii,
-  /** @export */
-  invoke_iiiii: invoke_iiiii,
-  /** @export */
-  invoke_iiiiidididdidddddidddii: invoke_iiiiidididdidddddidddii,
-  /** @export */
-  invoke_iiiiii: invoke_iiiiii,
-  /** @export */
-  invoke_v: invoke_v,
-  /** @export */
-  invoke_vi: invoke_vi,
-  /** @export */
-  invoke_viddidiidd: invoke_viddidiidd,
-  /** @export */
-  invoke_vidii: invoke_vidii,
-  /** @export */
-  invoke_vii: invoke_vii,
-  /** @export */
-  invoke_viididi: invoke_viididi,
-  /** @export */
-  invoke_viii: invoke_viii,
-  /** @export */
-  invoke_viiiddddd: invoke_viiiddddd,
-  /** @export */
-  invoke_viiii: invoke_viiii,
-  /** @export */
-  invoke_viiiiddddddddddddii: invoke_viiiiddddddddddddii,
-  /** @export */
-  invoke_viiiii: invoke_viiiii,
-  /** @export */
-  invoke_viiiiiiiiiiiii: invoke_viiiiiiiiiiiii
+  "__assert_fail": ___assert_fail,
+  "__cxa_begin_catch": ___cxa_begin_catch,
+  "__cxa_end_catch": ___cxa_end_catch,
+  "__cxa_find_matching_catch_2": ___cxa_find_matching_catch_2,
+  "__cxa_find_matching_catch_3": ___cxa_find_matching_catch_3,
+  "__cxa_rethrow": ___cxa_rethrow,
+  "__cxa_throw": ___cxa_throw,
+  "__resumeException": ___resumeException,
+  "__syscall_fcntl64": ___syscall_fcntl64,
+  "__syscall_ioctl": ___syscall_ioctl,
+  "__syscall_openat": ___syscall_openat,
+  "abort": _abort,
+  "emscripten_memcpy_big": _emscripten_memcpy_big,
+  "emscripten_resize_heap": _emscripten_resize_heap,
+  "fd_close": _fd_close,
+  "fd_read": _fd_read,
+  "fd_seek": _fd_seek,
+  "fd_write": _fd_write,
+  "invoke_diii": invoke_diii,
+  "invoke_diiidiiiii": invoke_diiidiiiii,
+  "invoke_ii": invoke_ii,
+  "invoke_iidddiidd": invoke_iidddiidd,
+  "invoke_iiddiiddiidid": invoke_iiddiiddiidid,
+  "invoke_iiddiidiidiiiii": invoke_iiddiidiidiiiii,
+  "invoke_iii": invoke_iii,
+  "invoke_iiii": invoke_iiii,
+  "invoke_iiiii": invoke_iiiii,
+  "invoke_iiiiidididdidddddidddii": invoke_iiiiidididdidddddidddii,
+  "invoke_iiiiii": invoke_iiiiii,
+  "invoke_v": invoke_v,
+  "invoke_vi": invoke_vi,
+  "invoke_viddidiidd": invoke_viddidiidd,
+  "invoke_vidii": invoke_vidii,
+  "invoke_vii": invoke_vii,
+  "invoke_viididi": invoke_viididi,
+  "invoke_viii": invoke_viii,
+  "invoke_viiiddddd": invoke_viiiddddd,
+  "invoke_viiii": invoke_viiii,
+  "invoke_viiiiddddddddddddii": invoke_viiiiddddddddddddii,
+  "invoke_viiiii": invoke_viiiii,
+  "invoke_viiiiiiiiiiiii": invoke_viiiiiiiiiiiii
 };
-var wasmExports = createWasm();
-var ___wasm_call_ctors = createExportWrapper('__wasm_call_ctors');
-var _fflush = Module['_fflush'] = createExportWrapper('fflush');
-var _webidl_free = Module['_webidl_free'] = createExportWrapper('webidl_free');
-var _free = Module['_free'] = createExportWrapper('free');
-var _webidl_malloc = Module['_webidl_malloc'] = createExportWrapper('webidl_malloc');
-var _malloc = Module['_malloc'] = createExportWrapper('malloc');
-var _emscripten_bind_VoidPtr___destroy___0 = Module['_emscripten_bind_VoidPtr___destroy___0'] = createExportWrapper('emscripten_bind_VoidPtr___destroy___0');
-var _emscripten_bind_DoublePtr___destroy___0 = Module['_emscripten_bind_DoublePtr___destroy___0'] = createExportWrapper('emscripten_bind_DoublePtr___destroy___0');
-var _emscripten_bind_BoolVector_BoolVector_0 = Module['_emscripten_bind_BoolVector_BoolVector_0'] = createExportWrapper('emscripten_bind_BoolVector_BoolVector_0');
-var _emscripten_bind_BoolVector_BoolVector_1 = Module['_emscripten_bind_BoolVector_BoolVector_1'] = createExportWrapper('emscripten_bind_BoolVector_BoolVector_1');
-var _emscripten_bind_BoolVector_resize_1 = Module['_emscripten_bind_BoolVector_resize_1'] = createExportWrapper('emscripten_bind_BoolVector_resize_1');
-var _emscripten_bind_BoolVector_get_1 = Module['_emscripten_bind_BoolVector_get_1'] = createExportWrapper('emscripten_bind_BoolVector_get_1');
-var _emscripten_bind_BoolVector_set_2 = Module['_emscripten_bind_BoolVector_set_2'] = createExportWrapper('emscripten_bind_BoolVector_set_2');
-var _emscripten_bind_BoolVector_size_0 = Module['_emscripten_bind_BoolVector_size_0'] = createExportWrapper('emscripten_bind_BoolVector_size_0');
-var _emscripten_bind_BoolVector___destroy___0 = Module['_emscripten_bind_BoolVector___destroy___0'] = createExportWrapper('emscripten_bind_BoolVector___destroy___0');
-var _emscripten_bind_CharVector_CharVector_0 = Module['_emscripten_bind_CharVector_CharVector_0'] = createExportWrapper('emscripten_bind_CharVector_CharVector_0');
-var _emscripten_bind_CharVector_CharVector_1 = Module['_emscripten_bind_CharVector_CharVector_1'] = createExportWrapper('emscripten_bind_CharVector_CharVector_1');
-var _emscripten_bind_CharVector_resize_1 = Module['_emscripten_bind_CharVector_resize_1'] = createExportWrapper('emscripten_bind_CharVector_resize_1');
-var _emscripten_bind_CharVector_get_1 = Module['_emscripten_bind_CharVector_get_1'] = createExportWrapper('emscripten_bind_CharVector_get_1');
-var _emscripten_bind_CharVector_set_2 = Module['_emscripten_bind_CharVector_set_2'] = createExportWrapper('emscripten_bind_CharVector_set_2');
-var _emscripten_bind_CharVector_size_0 = Module['_emscripten_bind_CharVector_size_0'] = createExportWrapper('emscripten_bind_CharVector_size_0');
-var _emscripten_bind_CharVector___destroy___0 = Module['_emscripten_bind_CharVector___destroy___0'] = createExportWrapper('emscripten_bind_CharVector___destroy___0');
-var _emscripten_bind_IntVector_IntVector_0 = Module['_emscripten_bind_IntVector_IntVector_0'] = createExportWrapper('emscripten_bind_IntVector_IntVector_0');
-var _emscripten_bind_IntVector_IntVector_1 = Module['_emscripten_bind_IntVector_IntVector_1'] = createExportWrapper('emscripten_bind_IntVector_IntVector_1');
-var _emscripten_bind_IntVector_resize_1 = Module['_emscripten_bind_IntVector_resize_1'] = createExportWrapper('emscripten_bind_IntVector_resize_1');
-var _emscripten_bind_IntVector_get_1 = Module['_emscripten_bind_IntVector_get_1'] = createExportWrapper('emscripten_bind_IntVector_get_1');
-var _emscripten_bind_IntVector_set_2 = Module['_emscripten_bind_IntVector_set_2'] = createExportWrapper('emscripten_bind_IntVector_set_2');
-var _emscripten_bind_IntVector_size_0 = Module['_emscripten_bind_IntVector_size_0'] = createExportWrapper('emscripten_bind_IntVector_size_0');
-var _emscripten_bind_IntVector___destroy___0 = Module['_emscripten_bind_IntVector___destroy___0'] = createExportWrapper('emscripten_bind_IntVector___destroy___0');
-var _emscripten_bind_DoubleVector_DoubleVector_0 = Module['_emscripten_bind_DoubleVector_DoubleVector_0'] = createExportWrapper('emscripten_bind_DoubleVector_DoubleVector_0');
-var _emscripten_bind_DoubleVector_DoubleVector_1 = Module['_emscripten_bind_DoubleVector_DoubleVector_1'] = createExportWrapper('emscripten_bind_DoubleVector_DoubleVector_1');
-var _emscripten_bind_DoubleVector_resize_1 = Module['_emscripten_bind_DoubleVector_resize_1'] = createExportWrapper('emscripten_bind_DoubleVector_resize_1');
-var _emscripten_bind_DoubleVector_get_1 = Module['_emscripten_bind_DoubleVector_get_1'] = createExportWrapper('emscripten_bind_DoubleVector_get_1');
-var _emscripten_bind_DoubleVector_set_2 = Module['_emscripten_bind_DoubleVector_set_2'] = createExportWrapper('emscripten_bind_DoubleVector_set_2');
-var _emscripten_bind_DoubleVector_size_0 = Module['_emscripten_bind_DoubleVector_size_0'] = createExportWrapper('emscripten_bind_DoubleVector_size_0');
-var _emscripten_bind_DoubleVector___destroy___0 = Module['_emscripten_bind_DoubleVector___destroy___0'] = createExportWrapper('emscripten_bind_DoubleVector___destroy___0');
-var _emscripten_bind_SpeciesMasterTableRecordVector_SpeciesMasterTableRecordVector_0 = Module['_emscripten_bind_SpeciesMasterTableRecordVector_SpeciesMasterTableRecordVector_0'] = createExportWrapper('emscripten_bind_SpeciesMasterTableRecordVector_SpeciesMasterTableRecordVector_0');
-var _emscripten_bind_SpeciesMasterTableRecordVector_SpeciesMasterTableRecordVector_1 = Module['_emscripten_bind_SpeciesMasterTableRecordVector_SpeciesMasterTableRecordVector_1'] = createExportWrapper('emscripten_bind_SpeciesMasterTableRecordVector_SpeciesMasterTableRecordVector_1');
-var _emscripten_bind_SpeciesMasterTableRecordVector_resize_1 = Module['_emscripten_bind_SpeciesMasterTableRecordVector_resize_1'] = createExportWrapper('emscripten_bind_SpeciesMasterTableRecordVector_resize_1');
-var _emscripten_bind_SpeciesMasterTableRecordVector_get_1 = Module['_emscripten_bind_SpeciesMasterTableRecordVector_get_1'] = createExportWrapper('emscripten_bind_SpeciesMasterTableRecordVector_get_1');
-var _emscripten_bind_SpeciesMasterTableRecordVector_set_2 = Module['_emscripten_bind_SpeciesMasterTableRecordVector_set_2'] = createExportWrapper('emscripten_bind_SpeciesMasterTableRecordVector_set_2');
-var _emscripten_bind_SpeciesMasterTableRecordVector_size_0 = Module['_emscripten_bind_SpeciesMasterTableRecordVector_size_0'] = createExportWrapper('emscripten_bind_SpeciesMasterTableRecordVector_size_0');
-var _emscripten_bind_SpeciesMasterTableRecordVector___destroy___0 = Module['_emscripten_bind_SpeciesMasterTableRecordVector___destroy___0'] = createExportWrapper('emscripten_bind_SpeciesMasterTableRecordVector___destroy___0');
-var _emscripten_bind_FireSize_getBackingSpreadRate_1 = Module['_emscripten_bind_FireSize_getBackingSpreadRate_1'] = createExportWrapper('emscripten_bind_FireSize_getBackingSpreadRate_1');
-var _emscripten_bind_FireSize_getEccentricity_0 = Module['_emscripten_bind_FireSize_getEccentricity_0'] = createExportWrapper('emscripten_bind_FireSize_getEccentricity_0');
-var _emscripten_bind_FireSize_getEllipticalA_3 = Module['_emscripten_bind_FireSize_getEllipticalA_3'] = createExportWrapper('emscripten_bind_FireSize_getEllipticalA_3');
-var _emscripten_bind_FireSize_getEllipticalB_3 = Module['_emscripten_bind_FireSize_getEllipticalB_3'] = createExportWrapper('emscripten_bind_FireSize_getEllipticalB_3');
-var _emscripten_bind_FireSize_getEllipticalC_3 = Module['_emscripten_bind_FireSize_getEllipticalC_3'] = createExportWrapper('emscripten_bind_FireSize_getEllipticalC_3');
-var _emscripten_bind_FireSize_getFireArea_4 = Module['_emscripten_bind_FireSize_getFireArea_4'] = createExportWrapper('emscripten_bind_FireSize_getFireArea_4');
-var _emscripten_bind_FireSize_getFireLength_3 = Module['_emscripten_bind_FireSize_getFireLength_3'] = createExportWrapper('emscripten_bind_FireSize_getFireLength_3');
-var _emscripten_bind_FireSize_getFireLengthToWidthRatio_0 = Module['_emscripten_bind_FireSize_getFireLengthToWidthRatio_0'] = createExportWrapper('emscripten_bind_FireSize_getFireLengthToWidthRatio_0');
-var _emscripten_bind_FireSize_getFirePerimeter_4 = Module['_emscripten_bind_FireSize_getFirePerimeter_4'] = createExportWrapper('emscripten_bind_FireSize_getFirePerimeter_4');
-var _emscripten_bind_FireSize_getFlankingSpreadRate_1 = Module['_emscripten_bind_FireSize_getFlankingSpreadRate_1'] = createExportWrapper('emscripten_bind_FireSize_getFlankingSpreadRate_1');
-var _emscripten_bind_FireSize_getHeadingToBackingRatio_0 = Module['_emscripten_bind_FireSize_getHeadingToBackingRatio_0'] = createExportWrapper('emscripten_bind_FireSize_getHeadingToBackingRatio_0');
-var _emscripten_bind_FireSize_getMaxFireWidth_3 = Module['_emscripten_bind_FireSize_getMaxFireWidth_3'] = createExportWrapper('emscripten_bind_FireSize_getMaxFireWidth_3');
-var _emscripten_bind_FireSize_calculateFireBasicDimensions_5 = Module['_emscripten_bind_FireSize_calculateFireBasicDimensions_5'] = createExportWrapper('emscripten_bind_FireSize_calculateFireBasicDimensions_5');
-var _emscripten_bind_FireSize___destroy___0 = Module['_emscripten_bind_FireSize___destroy___0'] = createExportWrapper('emscripten_bind_FireSize___destroy___0');
-var _emscripten_bind_SIGContainAdapter_SIGContainAdapter_0 = Module['_emscripten_bind_SIGContainAdapter_SIGContainAdapter_0'] = createExportWrapper('emscripten_bind_SIGContainAdapter_SIGContainAdapter_0');
-var _emscripten_bind_SIGContainAdapter_getContainmentStatus_0 = Module['_emscripten_bind_SIGContainAdapter_getContainmentStatus_0'] = createExportWrapper('emscripten_bind_SIGContainAdapter_getContainmentStatus_0');
-var _emscripten_bind_SIGContainAdapter_getFirePerimeterX_0 = Module['_emscripten_bind_SIGContainAdapter_getFirePerimeterX_0'] = createExportWrapper('emscripten_bind_SIGContainAdapter_getFirePerimeterX_0');
-var _emscripten_bind_SIGContainAdapter_getFirePerimeterY_0 = Module['_emscripten_bind_SIGContainAdapter_getFirePerimeterY_0'] = createExportWrapper('emscripten_bind_SIGContainAdapter_getFirePerimeterY_0');
-var _emscripten_bind_SIGContainAdapter_getAttackDistance_1 = Module['_emscripten_bind_SIGContainAdapter_getAttackDistance_1'] = createExportWrapper('emscripten_bind_SIGContainAdapter_getAttackDistance_1');
-var _emscripten_bind_SIGContainAdapter_getFinalContainmentArea_1 = Module['_emscripten_bind_SIGContainAdapter_getFinalContainmentArea_1'] = createExportWrapper('emscripten_bind_SIGContainAdapter_getFinalContainmentArea_1');
-var _emscripten_bind_SIGContainAdapter_getFinalCost_0 = Module['_emscripten_bind_SIGContainAdapter_getFinalCost_0'] = createExportWrapper('emscripten_bind_SIGContainAdapter_getFinalCost_0');
-var _emscripten_bind_SIGContainAdapter_getFinalFireLineLength_1 = Module['_emscripten_bind_SIGContainAdapter_getFinalFireLineLength_1'] = createExportWrapper('emscripten_bind_SIGContainAdapter_getFinalFireLineLength_1');
-var _emscripten_bind_SIGContainAdapter_getFinalFireSize_1 = Module['_emscripten_bind_SIGContainAdapter_getFinalFireSize_1'] = createExportWrapper('emscripten_bind_SIGContainAdapter_getFinalFireSize_1');
-var _emscripten_bind_SIGContainAdapter_getFinalTimeSinceReport_1 = Module['_emscripten_bind_SIGContainAdapter_getFinalTimeSinceReport_1'] = createExportWrapper('emscripten_bind_SIGContainAdapter_getFinalTimeSinceReport_1');
-var _emscripten_bind_SIGContainAdapter_getFireBackAtAttack_0 = Module['_emscripten_bind_SIGContainAdapter_getFireBackAtAttack_0'] = createExportWrapper('emscripten_bind_SIGContainAdapter_getFireBackAtAttack_0');
-var _emscripten_bind_SIGContainAdapter_getFireBackAtReport_0 = Module['_emscripten_bind_SIGContainAdapter_getFireBackAtReport_0'] = createExportWrapper('emscripten_bind_SIGContainAdapter_getFireBackAtReport_0');
-var _emscripten_bind_SIGContainAdapter_getFireHeadAtAttack_0 = Module['_emscripten_bind_SIGContainAdapter_getFireHeadAtAttack_0'] = createExportWrapper('emscripten_bind_SIGContainAdapter_getFireHeadAtAttack_0');
-var _emscripten_bind_SIGContainAdapter_getFireHeadAtReport_0 = Module['_emscripten_bind_SIGContainAdapter_getFireHeadAtReport_0'] = createExportWrapper('emscripten_bind_SIGContainAdapter_getFireHeadAtReport_0');
-var _emscripten_bind_SIGContainAdapter_getFireSizeAtInitialAttack_1 = Module['_emscripten_bind_SIGContainAdapter_getFireSizeAtInitialAttack_1'] = createExportWrapper('emscripten_bind_SIGContainAdapter_getFireSizeAtInitialAttack_1');
-var _emscripten_bind_SIGContainAdapter_getLengthToWidthRatio_0 = Module['_emscripten_bind_SIGContainAdapter_getLengthToWidthRatio_0'] = createExportWrapper('emscripten_bind_SIGContainAdapter_getLengthToWidthRatio_0');
-var _emscripten_bind_SIGContainAdapter_getPerimeterAtContainment_1 = Module['_emscripten_bind_SIGContainAdapter_getPerimeterAtContainment_1'] = createExportWrapper('emscripten_bind_SIGContainAdapter_getPerimeterAtContainment_1');
-var _emscripten_bind_SIGContainAdapter_getPerimeterAtInitialAttack_1 = Module['_emscripten_bind_SIGContainAdapter_getPerimeterAtInitialAttack_1'] = createExportWrapper('emscripten_bind_SIGContainAdapter_getPerimeterAtInitialAttack_1');
-var _emscripten_bind_SIGContainAdapter_getReportSize_1 = Module['_emscripten_bind_SIGContainAdapter_getReportSize_1'] = createExportWrapper('emscripten_bind_SIGContainAdapter_getReportSize_1');
-var _emscripten_bind_SIGContainAdapter_getReportRate_1 = Module['_emscripten_bind_SIGContainAdapter_getReportRate_1'] = createExportWrapper('emscripten_bind_SIGContainAdapter_getReportRate_1');
-var _emscripten_bind_SIGContainAdapter_getTactic_0 = Module['_emscripten_bind_SIGContainAdapter_getTactic_0'] = createExportWrapper('emscripten_bind_SIGContainAdapter_getTactic_0');
-var _emscripten_bind_SIGContainAdapter_getFirePerimeterPointCount_0 = Module['_emscripten_bind_SIGContainAdapter_getFirePerimeterPointCount_0'] = createExportWrapper('emscripten_bind_SIGContainAdapter_getFirePerimeterPointCount_0');
-var _emscripten_bind_SIGContainAdapter_removeAllResourcesWithThisDesc_1 = Module['_emscripten_bind_SIGContainAdapter_removeAllResourcesWithThisDesc_1'] = createExportWrapper('emscripten_bind_SIGContainAdapter_removeAllResourcesWithThisDesc_1');
-var _emscripten_bind_SIGContainAdapter_removeResourceAt_1 = Module['_emscripten_bind_SIGContainAdapter_removeResourceAt_1'] = createExportWrapper('emscripten_bind_SIGContainAdapter_removeResourceAt_1');
-var _emscripten_bind_SIGContainAdapter_removeResourceWithThisDesc_1 = Module['_emscripten_bind_SIGContainAdapter_removeResourceWithThisDesc_1'] = createExportWrapper('emscripten_bind_SIGContainAdapter_removeResourceWithThisDesc_1');
-var _emscripten_bind_SIGContainAdapter_addResource_8 = Module['_emscripten_bind_SIGContainAdapter_addResource_8'] = createExportWrapper('emscripten_bind_SIGContainAdapter_addResource_8');
-var _emscripten_bind_SIGContainAdapter_doContainRun_0 = Module['_emscripten_bind_SIGContainAdapter_doContainRun_0'] = createExportWrapper('emscripten_bind_SIGContainAdapter_doContainRun_0');
-var _emscripten_bind_SIGContainAdapter_removeAllResources_0 = Module['_emscripten_bind_SIGContainAdapter_removeAllResources_0'] = createExportWrapper('emscripten_bind_SIGContainAdapter_removeAllResources_0');
-var _emscripten_bind_SIGContainAdapter_setAttackDistance_2 = Module['_emscripten_bind_SIGContainAdapter_setAttackDistance_2'] = createExportWrapper('emscripten_bind_SIGContainAdapter_setAttackDistance_2');
-var _emscripten_bind_SIGContainAdapter_setFireStartTime_1 = Module['_emscripten_bind_SIGContainAdapter_setFireStartTime_1'] = createExportWrapper('emscripten_bind_SIGContainAdapter_setFireStartTime_1');
-var _emscripten_bind_SIGContainAdapter_setLwRatio_1 = Module['_emscripten_bind_SIGContainAdapter_setLwRatio_1'] = createExportWrapper('emscripten_bind_SIGContainAdapter_setLwRatio_1');
-var _emscripten_bind_SIGContainAdapter_setMaxFireSize_1 = Module['_emscripten_bind_SIGContainAdapter_setMaxFireSize_1'] = createExportWrapper('emscripten_bind_SIGContainAdapter_setMaxFireSize_1');
-var _emscripten_bind_SIGContainAdapter_setMaxFireTime_1 = Module['_emscripten_bind_SIGContainAdapter_setMaxFireTime_1'] = createExportWrapper('emscripten_bind_SIGContainAdapter_setMaxFireTime_1');
-var _emscripten_bind_SIGContainAdapter_setMaxSteps_1 = Module['_emscripten_bind_SIGContainAdapter_setMaxSteps_1'] = createExportWrapper('emscripten_bind_SIGContainAdapter_setMaxSteps_1');
-var _emscripten_bind_SIGContainAdapter_setMinSteps_1 = Module['_emscripten_bind_SIGContainAdapter_setMinSteps_1'] = createExportWrapper('emscripten_bind_SIGContainAdapter_setMinSteps_1');
-var _emscripten_bind_SIGContainAdapter_setReportRate_2 = Module['_emscripten_bind_SIGContainAdapter_setReportRate_2'] = createExportWrapper('emscripten_bind_SIGContainAdapter_setReportRate_2');
-var _emscripten_bind_SIGContainAdapter_setReportSize_2 = Module['_emscripten_bind_SIGContainAdapter_setReportSize_2'] = createExportWrapper('emscripten_bind_SIGContainAdapter_setReportSize_2');
-var _emscripten_bind_SIGContainAdapter_setRetry_1 = Module['_emscripten_bind_SIGContainAdapter_setRetry_1'] = createExportWrapper('emscripten_bind_SIGContainAdapter_setRetry_1');
-var _emscripten_bind_SIGContainAdapter_setTactic_1 = Module['_emscripten_bind_SIGContainAdapter_setTactic_1'] = createExportWrapper('emscripten_bind_SIGContainAdapter_setTactic_1');
-var _emscripten_bind_SIGContainAdapter___destroy___0 = Module['_emscripten_bind_SIGContainAdapter___destroy___0'] = createExportWrapper('emscripten_bind_SIGContainAdapter___destroy___0');
-var _emscripten_bind_SIGIgnite_SIGIgnite_0 = Module['_emscripten_bind_SIGIgnite_SIGIgnite_0'] = createExportWrapper('emscripten_bind_SIGIgnite_SIGIgnite_0');
-var _emscripten_bind_SIGIgnite_initializeMembers_0 = Module['_emscripten_bind_SIGIgnite_initializeMembers_0'] = createExportWrapper('emscripten_bind_SIGIgnite_initializeMembers_0');
-var _emscripten_bind_SIGIgnite_getFuelBedType_0 = Module['_emscripten_bind_SIGIgnite_getFuelBedType_0'] = createExportWrapper('emscripten_bind_SIGIgnite_getFuelBedType_0');
-var _emscripten_bind_SIGIgnite_getLightningChargeType_0 = Module['_emscripten_bind_SIGIgnite_getLightningChargeType_0'] = createExportWrapper('emscripten_bind_SIGIgnite_getLightningChargeType_0');
-var _emscripten_bind_SIGIgnite_calculateFirebrandIgnitionProbability_0 = Module['_emscripten_bind_SIGIgnite_calculateFirebrandIgnitionProbability_0'] = createExportWrapper('emscripten_bind_SIGIgnite_calculateFirebrandIgnitionProbability_0');
-var _emscripten_bind_SIGIgnite_calculateLightningIgnitionProbability_1 = Module['_emscripten_bind_SIGIgnite_calculateLightningIgnitionProbability_1'] = createExportWrapper('emscripten_bind_SIGIgnite_calculateLightningIgnitionProbability_1');
-var _emscripten_bind_SIGIgnite_setAirTemperature_2 = Module['_emscripten_bind_SIGIgnite_setAirTemperature_2'] = createExportWrapper('emscripten_bind_SIGIgnite_setAirTemperature_2');
-var _emscripten_bind_SIGIgnite_setDuffDepth_2 = Module['_emscripten_bind_SIGIgnite_setDuffDepth_2'] = createExportWrapper('emscripten_bind_SIGIgnite_setDuffDepth_2');
-var _emscripten_bind_SIGIgnite_setIgnitionFuelBedType_1 = Module['_emscripten_bind_SIGIgnite_setIgnitionFuelBedType_1'] = createExportWrapper('emscripten_bind_SIGIgnite_setIgnitionFuelBedType_1');
-var _emscripten_bind_SIGIgnite_setLightningChargeType_1 = Module['_emscripten_bind_SIGIgnite_setLightningChargeType_1'] = createExportWrapper('emscripten_bind_SIGIgnite_setLightningChargeType_1');
-var _emscripten_bind_SIGIgnite_setMoistureHundredHour_2 = Module['_emscripten_bind_SIGIgnite_setMoistureHundredHour_2'] = createExportWrapper('emscripten_bind_SIGIgnite_setMoistureHundredHour_2');
-var _emscripten_bind_SIGIgnite_setMoistureOneHour_2 = Module['_emscripten_bind_SIGIgnite_setMoistureOneHour_2'] = createExportWrapper('emscripten_bind_SIGIgnite_setMoistureOneHour_2');
-var _emscripten_bind_SIGIgnite_setSunShade_2 = Module['_emscripten_bind_SIGIgnite_setSunShade_2'] = createExportWrapper('emscripten_bind_SIGIgnite_setSunShade_2');
-var _emscripten_bind_SIGIgnite_updateIgniteInputs_11 = Module['_emscripten_bind_SIGIgnite_updateIgniteInputs_11'] = createExportWrapper('emscripten_bind_SIGIgnite_updateIgniteInputs_11');
-var _emscripten_bind_SIGIgnite_getAirTemperature_1 = Module['_emscripten_bind_SIGIgnite_getAirTemperature_1'] = createExportWrapper('emscripten_bind_SIGIgnite_getAirTemperature_1');
-var _emscripten_bind_SIGIgnite_getDuffDepth_1 = Module['_emscripten_bind_SIGIgnite_getDuffDepth_1'] = createExportWrapper('emscripten_bind_SIGIgnite_getDuffDepth_1');
-var _emscripten_bind_SIGIgnite_getFirebrandIgnitionProbability_1 = Module['_emscripten_bind_SIGIgnite_getFirebrandIgnitionProbability_1'] = createExportWrapper('emscripten_bind_SIGIgnite_getFirebrandIgnitionProbability_1');
-var _emscripten_bind_SIGIgnite_getFuelTemperature_1 = Module['_emscripten_bind_SIGIgnite_getFuelTemperature_1'] = createExportWrapper('emscripten_bind_SIGIgnite_getFuelTemperature_1');
-var _emscripten_bind_SIGIgnite_getMoistureHundredHour_1 = Module['_emscripten_bind_SIGIgnite_getMoistureHundredHour_1'] = createExportWrapper('emscripten_bind_SIGIgnite_getMoistureHundredHour_1');
-var _emscripten_bind_SIGIgnite_getMoistureOneHour_1 = Module['_emscripten_bind_SIGIgnite_getMoistureOneHour_1'] = createExportWrapper('emscripten_bind_SIGIgnite_getMoistureOneHour_1');
-var _emscripten_bind_SIGIgnite_getSunShade_1 = Module['_emscripten_bind_SIGIgnite_getSunShade_1'] = createExportWrapper('emscripten_bind_SIGIgnite_getSunShade_1');
-var _emscripten_bind_SIGIgnite_isFuelDepthNeeded_0 = Module['_emscripten_bind_SIGIgnite_isFuelDepthNeeded_0'] = createExportWrapper('emscripten_bind_SIGIgnite_isFuelDepthNeeded_0');
-var _emscripten_bind_SIGIgnite___destroy___0 = Module['_emscripten_bind_SIGIgnite___destroy___0'] = createExportWrapper('emscripten_bind_SIGIgnite___destroy___0');
-var _emscripten_bind_SIGMoistureScenarios_SIGMoistureScenarios_0 = Module['_emscripten_bind_SIGMoistureScenarios_SIGMoistureScenarios_0'] = createExportWrapper('emscripten_bind_SIGMoistureScenarios_SIGMoistureScenarios_0');
-var _emscripten_bind_SIGMoistureScenarios_getIsMoistureScenarioDefinedByIndex_1 = Module['_emscripten_bind_SIGMoistureScenarios_getIsMoistureScenarioDefinedByIndex_1'] = createExportWrapper('emscripten_bind_SIGMoistureScenarios_getIsMoistureScenarioDefinedByIndex_1');
-var _emscripten_bind_SIGMoistureScenarios_getIsMoistureScenarioDefinedByName_1 = Module['_emscripten_bind_SIGMoistureScenarios_getIsMoistureScenarioDefinedByName_1'] = createExportWrapper('emscripten_bind_SIGMoistureScenarios_getIsMoistureScenarioDefinedByName_1');
-var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByIndex_2 = Module['_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByIndex_2'] = createExportWrapper('emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByIndex_2');
-var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByName_2 = Module['_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByName_2'] = createExportWrapper('emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByName_2');
-var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByIndex_2 = Module['_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByIndex_2'] = createExportWrapper('emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByIndex_2');
-var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByName_2 = Module['_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByName_2'] = createExportWrapper('emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByName_2');
-var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByIndex_2 = Module['_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByIndex_2'] = createExportWrapper('emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByIndex_2');
-var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByName_2 = Module['_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByName_2'] = createExportWrapper('emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByName_2');
-var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByIndex_2 = Module['_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByIndex_2'] = createExportWrapper('emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByIndex_2');
-var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByName_2 = Module['_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByName_2'] = createExportWrapper('emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByName_2');
-var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByIndex_2 = Module['_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByIndex_2'] = createExportWrapper('emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByIndex_2');
-var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByName_2 = Module['_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByName_2'] = createExportWrapper('emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByName_2');
-var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioIndexByName_1 = Module['_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioIndexByName_1'] = createExportWrapper('emscripten_bind_SIGMoistureScenarios_getMoistureScenarioIndexByName_1');
-var _emscripten_bind_SIGMoistureScenarios_getNumberOfMoistureScenarios_0 = Module['_emscripten_bind_SIGMoistureScenarios_getNumberOfMoistureScenarios_0'] = createExportWrapper('emscripten_bind_SIGMoistureScenarios_getNumberOfMoistureScenarios_0');
-var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioDescriptionByIndex_1 = Module['_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioDescriptionByIndex_1'] = createExportWrapper('emscripten_bind_SIGMoistureScenarios_getMoistureScenarioDescriptionByIndex_1');
-var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioDescriptionByName_1 = Module['_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioDescriptionByName_1'] = createExportWrapper('emscripten_bind_SIGMoistureScenarios_getMoistureScenarioDescriptionByName_1');
-var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioNameByIndex_1 = Module['_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioNameByIndex_1'] = createExportWrapper('emscripten_bind_SIGMoistureScenarios_getMoistureScenarioNameByIndex_1');
-var _emscripten_bind_SIGMoistureScenarios___destroy___0 = Module['_emscripten_bind_SIGMoistureScenarios___destroy___0'] = createExportWrapper('emscripten_bind_SIGMoistureScenarios___destroy___0');
-var _emscripten_bind_SIGSpot_SIGSpot_0 = Module['_emscripten_bind_SIGSpot_SIGSpot_0'] = createExportWrapper('emscripten_bind_SIGSpot_SIGSpot_0');
-var _emscripten_bind_SIGSpot_getDownwindCanopyMode_0 = Module['_emscripten_bind_SIGSpot_getDownwindCanopyMode_0'] = createExportWrapper('emscripten_bind_SIGSpot_getDownwindCanopyMode_0');
-var _emscripten_bind_SIGSpot_getLocation_0 = Module['_emscripten_bind_SIGSpot_getLocation_0'] = createExportWrapper('emscripten_bind_SIGSpot_getLocation_0');
-var _emscripten_bind_SIGSpot_getTreeSpecies_0 = Module['_emscripten_bind_SIGSpot_getTreeSpecies_0'] = createExportWrapper('emscripten_bind_SIGSpot_getTreeSpecies_0');
-var _emscripten_bind_SIGSpot_getBurningPileFlameHeight_1 = Module['_emscripten_bind_SIGSpot_getBurningPileFlameHeight_1'] = createExportWrapper('emscripten_bind_SIGSpot_getBurningPileFlameHeight_1');
-var _emscripten_bind_SIGSpot_getCoverHeightUsedForBurningPile_1 = Module['_emscripten_bind_SIGSpot_getCoverHeightUsedForBurningPile_1'] = createExportWrapper('emscripten_bind_SIGSpot_getCoverHeightUsedForBurningPile_1');
-var _emscripten_bind_SIGSpot_getCoverHeightUsedForSurfaceFire_1 = Module['_emscripten_bind_SIGSpot_getCoverHeightUsedForSurfaceFire_1'] = createExportWrapper('emscripten_bind_SIGSpot_getCoverHeightUsedForSurfaceFire_1');
-var _emscripten_bind_SIGSpot_getCoverHeightUsedForTorchingTrees_1 = Module['_emscripten_bind_SIGSpot_getCoverHeightUsedForTorchingTrees_1'] = createExportWrapper('emscripten_bind_SIGSpot_getCoverHeightUsedForTorchingTrees_1');
-var _emscripten_bind_SIGSpot_getDBH_1 = Module['_emscripten_bind_SIGSpot_getDBH_1'] = createExportWrapper('emscripten_bind_SIGSpot_getDBH_1');
-var _emscripten_bind_SIGSpot_getDownwindCoverHeight_1 = Module['_emscripten_bind_SIGSpot_getDownwindCoverHeight_1'] = createExportWrapper('emscripten_bind_SIGSpot_getDownwindCoverHeight_1');
-var _emscripten_bind_SIGSpot_getFlameDurationForTorchingTrees_1 = Module['_emscripten_bind_SIGSpot_getFlameDurationForTorchingTrees_1'] = createExportWrapper('emscripten_bind_SIGSpot_getFlameDurationForTorchingTrees_1');
-var _emscripten_bind_SIGSpot_getFlameHeightForTorchingTrees_1 = Module['_emscripten_bind_SIGSpot_getFlameHeightForTorchingTrees_1'] = createExportWrapper('emscripten_bind_SIGSpot_getFlameHeightForTorchingTrees_1');
-var _emscripten_bind_SIGSpot_getFlameRatioForTorchingTrees_0 = Module['_emscripten_bind_SIGSpot_getFlameRatioForTorchingTrees_0'] = createExportWrapper('emscripten_bind_SIGSpot_getFlameRatioForTorchingTrees_0');
-var _emscripten_bind_SIGSpot_getMaxFirebrandHeightFromBurningPile_1 = Module['_emscripten_bind_SIGSpot_getMaxFirebrandHeightFromBurningPile_1'] = createExportWrapper('emscripten_bind_SIGSpot_getMaxFirebrandHeightFromBurningPile_1');
-var _emscripten_bind_SIGSpot_getMaxFirebrandHeightFromSurfaceFire_1 = Module['_emscripten_bind_SIGSpot_getMaxFirebrandHeightFromSurfaceFire_1'] = createExportWrapper('emscripten_bind_SIGSpot_getMaxFirebrandHeightFromSurfaceFire_1');
-var _emscripten_bind_SIGSpot_getMaxFirebrandHeightFromTorchingTrees_1 = Module['_emscripten_bind_SIGSpot_getMaxFirebrandHeightFromTorchingTrees_1'] = createExportWrapper('emscripten_bind_SIGSpot_getMaxFirebrandHeightFromTorchingTrees_1');
-var _emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromBurningPile_1 = Module['_emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromBurningPile_1'] = createExportWrapper('emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromBurningPile_1');
-var _emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromSurfaceFire_1 = Module['_emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromSurfaceFire_1'] = createExportWrapper('emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromSurfaceFire_1');
-var _emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromTorchingTrees_1 = Module['_emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromTorchingTrees_1'] = createExportWrapper('emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromTorchingTrees_1');
-var _emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromBurningPile_1 = Module['_emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromBurningPile_1'] = createExportWrapper('emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromBurningPile_1');
-var _emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromSurfaceFire_1 = Module['_emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromSurfaceFire_1'] = createExportWrapper('emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromSurfaceFire_1');
-var _emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromTorchingTrees_1 = Module['_emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromTorchingTrees_1'] = createExportWrapper('emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromTorchingTrees_1');
-var _emscripten_bind_SIGSpot_getRidgeToValleyDistance_1 = Module['_emscripten_bind_SIGSpot_getRidgeToValleyDistance_1'] = createExportWrapper('emscripten_bind_SIGSpot_getRidgeToValleyDistance_1');
-var _emscripten_bind_SIGSpot_getRidgeToValleyElevation_1 = Module['_emscripten_bind_SIGSpot_getRidgeToValleyElevation_1'] = createExportWrapper('emscripten_bind_SIGSpot_getRidgeToValleyElevation_1');
-var _emscripten_bind_SIGSpot_getSurfaceFlameLength_1 = Module['_emscripten_bind_SIGSpot_getSurfaceFlameLength_1'] = createExportWrapper('emscripten_bind_SIGSpot_getSurfaceFlameLength_1');
-var _emscripten_bind_SIGSpot_getTreeHeight_1 = Module['_emscripten_bind_SIGSpot_getTreeHeight_1'] = createExportWrapper('emscripten_bind_SIGSpot_getTreeHeight_1');
-var _emscripten_bind_SIGSpot_getWindSpeedAtTwentyFeet_1 = Module['_emscripten_bind_SIGSpot_getWindSpeedAtTwentyFeet_1'] = createExportWrapper('emscripten_bind_SIGSpot_getWindSpeedAtTwentyFeet_1');
-var _emscripten_bind_SIGSpot_getTorchingTrees_0 = Module['_emscripten_bind_SIGSpot_getTorchingTrees_0'] = createExportWrapper('emscripten_bind_SIGSpot_getTorchingTrees_0');
-var _emscripten_bind_SIGSpot_calculateAll_0 = Module['_emscripten_bind_SIGSpot_calculateAll_0'] = createExportWrapper('emscripten_bind_SIGSpot_calculateAll_0');
-var _emscripten_bind_SIGSpot_calculateSpottingDistanceFromBurningPile_0 = Module['_emscripten_bind_SIGSpot_calculateSpottingDistanceFromBurningPile_0'] = createExportWrapper('emscripten_bind_SIGSpot_calculateSpottingDistanceFromBurningPile_0');
-var _emscripten_bind_SIGSpot_calculateSpottingDistanceFromSurfaceFire_0 = Module['_emscripten_bind_SIGSpot_calculateSpottingDistanceFromSurfaceFire_0'] = createExportWrapper('emscripten_bind_SIGSpot_calculateSpottingDistanceFromSurfaceFire_0');
-var _emscripten_bind_SIGSpot_calculateSpottingDistanceFromTorchingTrees_0 = Module['_emscripten_bind_SIGSpot_calculateSpottingDistanceFromTorchingTrees_0'] = createExportWrapper('emscripten_bind_SIGSpot_calculateSpottingDistanceFromTorchingTrees_0');
-var _emscripten_bind_SIGSpot_initializeMembers_0 = Module['_emscripten_bind_SIGSpot_initializeMembers_0'] = createExportWrapper('emscripten_bind_SIGSpot_initializeMembers_0');
-var _emscripten_bind_SIGSpot_setBurningPileFlameHeight_2 = Module['_emscripten_bind_SIGSpot_setBurningPileFlameHeight_2'] = createExportWrapper('emscripten_bind_SIGSpot_setBurningPileFlameHeight_2');
-var _emscripten_bind_SIGSpot_setDBH_2 = Module['_emscripten_bind_SIGSpot_setDBH_2'] = createExportWrapper('emscripten_bind_SIGSpot_setDBH_2');
-var _emscripten_bind_SIGSpot_setDownwindCanopyMode_1 = Module['_emscripten_bind_SIGSpot_setDownwindCanopyMode_1'] = createExportWrapper('emscripten_bind_SIGSpot_setDownwindCanopyMode_1');
-var _emscripten_bind_SIGSpot_setDownwindCoverHeight_2 = Module['_emscripten_bind_SIGSpot_setDownwindCoverHeight_2'] = createExportWrapper('emscripten_bind_SIGSpot_setDownwindCoverHeight_2');
-var _emscripten_bind_SIGSpot_setFlameLength_2 = Module['_emscripten_bind_SIGSpot_setFlameLength_2'] = createExportWrapper('emscripten_bind_SIGSpot_setFlameLength_2');
-var _emscripten_bind_SIGSpot_setLocation_1 = Module['_emscripten_bind_SIGSpot_setLocation_1'] = createExportWrapper('emscripten_bind_SIGSpot_setLocation_1');
-var _emscripten_bind_SIGSpot_setRidgeToValleyDistance_2 = Module['_emscripten_bind_SIGSpot_setRidgeToValleyDistance_2'] = createExportWrapper('emscripten_bind_SIGSpot_setRidgeToValleyDistance_2');
-var _emscripten_bind_SIGSpot_setRidgeToValleyElevation_2 = Module['_emscripten_bind_SIGSpot_setRidgeToValleyElevation_2'] = createExportWrapper('emscripten_bind_SIGSpot_setRidgeToValleyElevation_2');
-var _emscripten_bind_SIGSpot_setTorchingTrees_1 = Module['_emscripten_bind_SIGSpot_setTorchingTrees_1'] = createExportWrapper('emscripten_bind_SIGSpot_setTorchingTrees_1');
-var _emscripten_bind_SIGSpot_setTreeHeight_2 = Module['_emscripten_bind_SIGSpot_setTreeHeight_2'] = createExportWrapper('emscripten_bind_SIGSpot_setTreeHeight_2');
-var _emscripten_bind_SIGSpot_setTreeSpecies_1 = Module['_emscripten_bind_SIGSpot_setTreeSpecies_1'] = createExportWrapper('emscripten_bind_SIGSpot_setTreeSpecies_1');
-var _emscripten_bind_SIGSpot_setWindSpeedAtTwentyFeet_2 = Module['_emscripten_bind_SIGSpot_setWindSpeedAtTwentyFeet_2'] = createExportWrapper('emscripten_bind_SIGSpot_setWindSpeedAtTwentyFeet_2');
-var _emscripten_bind_SIGSpot_setWindSpeed_2 = Module['_emscripten_bind_SIGSpot_setWindSpeed_2'] = createExportWrapper('emscripten_bind_SIGSpot_setWindSpeed_2');
-var _emscripten_bind_SIGSpot_setWindSpeedAndWindHeightInputMode_3 = Module['_emscripten_bind_SIGSpot_setWindSpeedAndWindHeightInputMode_3'] = createExportWrapper('emscripten_bind_SIGSpot_setWindSpeedAndWindHeightInputMode_3');
-var _emscripten_bind_SIGSpot_setWindHeightInputMode_1 = Module['_emscripten_bind_SIGSpot_setWindHeightInputMode_1'] = createExportWrapper('emscripten_bind_SIGSpot_setWindHeightInputMode_1');
-var _emscripten_bind_SIGSpot_updateSpotInputsForBurningPile_12 = Module['_emscripten_bind_SIGSpot_updateSpotInputsForBurningPile_12'] = createExportWrapper('emscripten_bind_SIGSpot_updateSpotInputsForBurningPile_12');
-var _emscripten_bind_SIGSpot_updateSpotInputsForSurfaceFire_12 = Module['_emscripten_bind_SIGSpot_updateSpotInputsForSurfaceFire_12'] = createExportWrapper('emscripten_bind_SIGSpot_updateSpotInputsForSurfaceFire_12');
-var _emscripten_bind_SIGSpot_updateSpotInputsForTorchingTrees_16 = Module['_emscripten_bind_SIGSpot_updateSpotInputsForTorchingTrees_16'] = createExportWrapper('emscripten_bind_SIGSpot_updateSpotInputsForTorchingTrees_16');
-var _emscripten_bind_SIGSpot___destroy___0 = Module['_emscripten_bind_SIGSpot___destroy___0'] = createExportWrapper('emscripten_bind_SIGSpot___destroy___0');
-var _emscripten_bind_SIGFuelModels_SIGFuelModels_0 = Module['_emscripten_bind_SIGFuelModels_SIGFuelModels_0'] = createExportWrapper('emscripten_bind_SIGFuelModels_SIGFuelModels_0');
-var _emscripten_bind_SIGFuelModels_SIGFuelModels_1 = Module['_emscripten_bind_SIGFuelModels_SIGFuelModels_1'] = createExportWrapper('emscripten_bind_SIGFuelModels_SIGFuelModels_1');
-var _emscripten_bind_SIGFuelModels_equal_1 = Module['_emscripten_bind_SIGFuelModels_equal_1'] = createExportWrapper('emscripten_bind_SIGFuelModels_equal_1');
-var _emscripten_bind_SIGFuelModels_clearCustomFuelModel_1 = Module['_emscripten_bind_SIGFuelModels_clearCustomFuelModel_1'] = createExportWrapper('emscripten_bind_SIGFuelModels_clearCustomFuelModel_1');
-var _emscripten_bind_SIGFuelModels_getIsDynamic_1 = Module['_emscripten_bind_SIGFuelModels_getIsDynamic_1'] = createExportWrapper('emscripten_bind_SIGFuelModels_getIsDynamic_1');
-var _emscripten_bind_SIGFuelModels_isAllFuelLoadZero_1 = Module['_emscripten_bind_SIGFuelModels_isAllFuelLoadZero_1'] = createExportWrapper('emscripten_bind_SIGFuelModels_isAllFuelLoadZero_1');
-var _emscripten_bind_SIGFuelModels_isFuelModelDefined_1 = Module['_emscripten_bind_SIGFuelModels_isFuelModelDefined_1'] = createExportWrapper('emscripten_bind_SIGFuelModels_isFuelModelDefined_1');
-var _emscripten_bind_SIGFuelModels_isFuelModelReserved_1 = Module['_emscripten_bind_SIGFuelModels_isFuelModelReserved_1'] = createExportWrapper('emscripten_bind_SIGFuelModels_isFuelModelReserved_1');
-var _emscripten_bind_SIGFuelModels_setCustomFuelModel_21 = Module['_emscripten_bind_SIGFuelModels_setCustomFuelModel_21'] = createExportWrapper('emscripten_bind_SIGFuelModels_setCustomFuelModel_21');
-var _emscripten_bind_SIGFuelModels_getFuelCode_1 = Module['_emscripten_bind_SIGFuelModels_getFuelCode_1'] = createExportWrapper('emscripten_bind_SIGFuelModels_getFuelCode_1');
-var _emscripten_bind_SIGFuelModels_getFuelName_1 = Module['_emscripten_bind_SIGFuelModels_getFuelName_1'] = createExportWrapper('emscripten_bind_SIGFuelModels_getFuelName_1');
-var _emscripten_bind_SIGFuelModels_getFuelLoadHundredHour_2 = Module['_emscripten_bind_SIGFuelModels_getFuelLoadHundredHour_2'] = createExportWrapper('emscripten_bind_SIGFuelModels_getFuelLoadHundredHour_2');
-var _emscripten_bind_SIGFuelModels_getFuelLoadLiveHerbaceous_2 = Module['_emscripten_bind_SIGFuelModels_getFuelLoadLiveHerbaceous_2'] = createExportWrapper('emscripten_bind_SIGFuelModels_getFuelLoadLiveHerbaceous_2');
-var _emscripten_bind_SIGFuelModels_getFuelLoadLiveWoody_2 = Module['_emscripten_bind_SIGFuelModels_getFuelLoadLiveWoody_2'] = createExportWrapper('emscripten_bind_SIGFuelModels_getFuelLoadLiveWoody_2');
-var _emscripten_bind_SIGFuelModels_getFuelLoadOneHour_2 = Module['_emscripten_bind_SIGFuelModels_getFuelLoadOneHour_2'] = createExportWrapper('emscripten_bind_SIGFuelModels_getFuelLoadOneHour_2');
-var _emscripten_bind_SIGFuelModels_getFuelLoadTenHour_2 = Module['_emscripten_bind_SIGFuelModels_getFuelLoadTenHour_2'] = createExportWrapper('emscripten_bind_SIGFuelModels_getFuelLoadTenHour_2');
-var _emscripten_bind_SIGFuelModels_getFuelbedDepth_2 = Module['_emscripten_bind_SIGFuelModels_getFuelbedDepth_2'] = createExportWrapper('emscripten_bind_SIGFuelModels_getFuelbedDepth_2');
-var _emscripten_bind_SIGFuelModels_getHeatOfCombustionDead_2 = Module['_emscripten_bind_SIGFuelModels_getHeatOfCombustionDead_2'] = createExportWrapper('emscripten_bind_SIGFuelModels_getHeatOfCombustionDead_2');
-var _emscripten_bind_SIGFuelModels_getMoistureOfExtinctionDead_2 = Module['_emscripten_bind_SIGFuelModels_getMoistureOfExtinctionDead_2'] = createExportWrapper('emscripten_bind_SIGFuelModels_getMoistureOfExtinctionDead_2');
-var _emscripten_bind_SIGFuelModels_getSavrLiveHerbaceous_2 = Module['_emscripten_bind_SIGFuelModels_getSavrLiveHerbaceous_2'] = createExportWrapper('emscripten_bind_SIGFuelModels_getSavrLiveHerbaceous_2');
-var _emscripten_bind_SIGFuelModels_getSavrLiveWoody_2 = Module['_emscripten_bind_SIGFuelModels_getSavrLiveWoody_2'] = createExportWrapper('emscripten_bind_SIGFuelModels_getSavrLiveWoody_2');
-var _emscripten_bind_SIGFuelModels_getSavrOneHour_2 = Module['_emscripten_bind_SIGFuelModels_getSavrOneHour_2'] = createExportWrapper('emscripten_bind_SIGFuelModels_getSavrOneHour_2');
-var _emscripten_bind_SIGFuelModels_getHeatOfCombustionLive_2 = Module['_emscripten_bind_SIGFuelModels_getHeatOfCombustionLive_2'] = createExportWrapper('emscripten_bind_SIGFuelModels_getHeatOfCombustionLive_2');
-var _emscripten_bind_SIGFuelModels___destroy___0 = Module['_emscripten_bind_SIGFuelModels___destroy___0'] = createExportWrapper('emscripten_bind_SIGFuelModels___destroy___0');
-var _emscripten_bind_SIGSurface_SIGSurface_1 = Module['_emscripten_bind_SIGSurface_SIGSurface_1'] = createExportWrapper('emscripten_bind_SIGSurface_SIGSurface_1');
-var _emscripten_bind_SIGSurface_getAspenFireSeverity_0 = Module['_emscripten_bind_SIGSurface_getAspenFireSeverity_0'] = createExportWrapper('emscripten_bind_SIGSurface_getAspenFireSeverity_0');
-var _emscripten_bind_SIGSurface_getChaparralFuelType_0 = Module['_emscripten_bind_SIGSurface_getChaparralFuelType_0'] = createExportWrapper('emscripten_bind_SIGSurface_getChaparralFuelType_0');
-var _emscripten_bind_SIGSurface_getMoistureInputMode_0 = Module['_emscripten_bind_SIGSurface_getMoistureInputMode_0'] = createExportWrapper('emscripten_bind_SIGSurface_getMoistureInputMode_0');
-var _emscripten_bind_SIGSurface_getWindAdjustmentFactorCalculationMethod_0 = Module['_emscripten_bind_SIGSurface_getWindAdjustmentFactorCalculationMethod_0'] = createExportWrapper('emscripten_bind_SIGSurface_getWindAdjustmentFactorCalculationMethod_0');
-var _emscripten_bind_SIGSurface_getWindAndSpreadOrientationMode_0 = Module['_emscripten_bind_SIGSurface_getWindAndSpreadOrientationMode_0'] = createExportWrapper('emscripten_bind_SIGSurface_getWindAndSpreadOrientationMode_0');
-var _emscripten_bind_SIGSurface_getWindHeightInputMode_0 = Module['_emscripten_bind_SIGSurface_getWindHeightInputMode_0'] = createExportWrapper('emscripten_bind_SIGSurface_getWindHeightInputMode_0');
-var _emscripten_bind_SIGSurface_getWindUpslopeAlignmentMode_0 = Module['_emscripten_bind_SIGSurface_getWindUpslopeAlignmentMode_0'] = createExportWrapper('emscripten_bind_SIGSurface_getWindUpslopeAlignmentMode_0');
-var _emscripten_bind_SIGSurface_getSurfaceRunInDirectionOf_0 = Module['_emscripten_bind_SIGSurface_getSurfaceRunInDirectionOf_0'] = createExportWrapper('emscripten_bind_SIGSurface_getSurfaceRunInDirectionOf_0');
-var _emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByIndex_1 = Module['_emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByIndex_1'] = createExportWrapper('emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByIndex_1');
-var _emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByName_1 = Module['_emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByName_1'] = createExportWrapper('emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByName_1');
-var _emscripten_bind_SIGSurface_getIsUsingChaparral_0 = Module['_emscripten_bind_SIGSurface_getIsUsingChaparral_0'] = createExportWrapper('emscripten_bind_SIGSurface_getIsUsingChaparral_0');
-var _emscripten_bind_SIGSurface_getIsUsingPalmettoGallberry_0 = Module['_emscripten_bind_SIGSurface_getIsUsingPalmettoGallberry_0'] = createExportWrapper('emscripten_bind_SIGSurface_getIsUsingPalmettoGallberry_0');
-var _emscripten_bind_SIGSurface_getIsUsingWesternAspen_0 = Module['_emscripten_bind_SIGSurface_getIsUsingWesternAspen_0'] = createExportWrapper('emscripten_bind_SIGSurface_getIsUsingWesternAspen_0');
-var _emscripten_bind_SIGSurface_isAllFuelLoadZero_1 = Module['_emscripten_bind_SIGSurface_isAllFuelLoadZero_1'] = createExportWrapper('emscripten_bind_SIGSurface_isAllFuelLoadZero_1');
-var _emscripten_bind_SIGSurface_isFuelDynamic_1 = Module['_emscripten_bind_SIGSurface_isFuelDynamic_1'] = createExportWrapper('emscripten_bind_SIGSurface_isFuelDynamic_1');
-var _emscripten_bind_SIGSurface_isFuelModelDefined_1 = Module['_emscripten_bind_SIGSurface_isFuelModelDefined_1'] = createExportWrapper('emscripten_bind_SIGSurface_isFuelModelDefined_1');
-var _emscripten_bind_SIGSurface_isFuelModelReserved_1 = Module['_emscripten_bind_SIGSurface_isFuelModelReserved_1'] = createExportWrapper('emscripten_bind_SIGSurface_isFuelModelReserved_1');
-var _emscripten_bind_SIGSurface_isMoistureClassInputNeededForCurrentFuelModel_1 = Module['_emscripten_bind_SIGSurface_isMoistureClassInputNeededForCurrentFuelModel_1'] = createExportWrapper('emscripten_bind_SIGSurface_isMoistureClassInputNeededForCurrentFuelModel_1');
-var _emscripten_bind_SIGSurface_isUsingTwoFuelModels_0 = Module['_emscripten_bind_SIGSurface_isUsingTwoFuelModels_0'] = createExportWrapper('emscripten_bind_SIGSurface_isUsingTwoFuelModels_0');
-var _emscripten_bind_SIGSurface_setCurrentMoistureScenarioByIndex_1 = Module['_emscripten_bind_SIGSurface_setCurrentMoistureScenarioByIndex_1'] = createExportWrapper('emscripten_bind_SIGSurface_setCurrentMoistureScenarioByIndex_1');
-var _emscripten_bind_SIGSurface_setCurrentMoistureScenarioByName_1 = Module['_emscripten_bind_SIGSurface_setCurrentMoistureScenarioByName_1'] = createExportWrapper('emscripten_bind_SIGSurface_setCurrentMoistureScenarioByName_1');
-var _emscripten_bind_SIGSurface_calculateFlameLength_3 = Module['_emscripten_bind_SIGSurface_calculateFlameLength_3'] = createExportWrapper('emscripten_bind_SIGSurface_calculateFlameLength_3');
-var _emscripten_bind_SIGSurface_getAgeOfRough_0 = Module['_emscripten_bind_SIGSurface_getAgeOfRough_0'] = createExportWrapper('emscripten_bind_SIGSurface_getAgeOfRough_0');
-var _emscripten_bind_SIGSurface_getAspect_0 = Module['_emscripten_bind_SIGSurface_getAspect_0'] = createExportWrapper('emscripten_bind_SIGSurface_getAspect_0');
-var _emscripten_bind_SIGSurface_getAspenCuringLevel_1 = Module['_emscripten_bind_SIGSurface_getAspenCuringLevel_1'] = createExportWrapper('emscripten_bind_SIGSurface_getAspenCuringLevel_1');
-var _emscripten_bind_SIGSurface_getAspenDBH_1 = Module['_emscripten_bind_SIGSurface_getAspenDBH_1'] = createExportWrapper('emscripten_bind_SIGSurface_getAspenDBH_1');
-var _emscripten_bind_SIGSurface_getAspenLoadDeadOneHour_1 = Module['_emscripten_bind_SIGSurface_getAspenLoadDeadOneHour_1'] = createExportWrapper('emscripten_bind_SIGSurface_getAspenLoadDeadOneHour_1');
-var _emscripten_bind_SIGSurface_getAspenLoadDeadTenHour_1 = Module['_emscripten_bind_SIGSurface_getAspenLoadDeadTenHour_1'] = createExportWrapper('emscripten_bind_SIGSurface_getAspenLoadDeadTenHour_1');
-var _emscripten_bind_SIGSurface_getAspenLoadLiveHerbaceous_1 = Module['_emscripten_bind_SIGSurface_getAspenLoadLiveHerbaceous_1'] = createExportWrapper('emscripten_bind_SIGSurface_getAspenLoadLiveHerbaceous_1');
-var _emscripten_bind_SIGSurface_getAspenLoadLiveWoody_1 = Module['_emscripten_bind_SIGSurface_getAspenLoadLiveWoody_1'] = createExportWrapper('emscripten_bind_SIGSurface_getAspenLoadLiveWoody_1');
-var _emscripten_bind_SIGSurface_getAspenSavrDeadOneHour_1 = Module['_emscripten_bind_SIGSurface_getAspenSavrDeadOneHour_1'] = createExportWrapper('emscripten_bind_SIGSurface_getAspenSavrDeadOneHour_1');
-var _emscripten_bind_SIGSurface_getAspenSavrDeadTenHour_1 = Module['_emscripten_bind_SIGSurface_getAspenSavrDeadTenHour_1'] = createExportWrapper('emscripten_bind_SIGSurface_getAspenSavrDeadTenHour_1');
-var _emscripten_bind_SIGSurface_getAspenSavrLiveHerbaceous_1 = Module['_emscripten_bind_SIGSurface_getAspenSavrLiveHerbaceous_1'] = createExportWrapper('emscripten_bind_SIGSurface_getAspenSavrLiveHerbaceous_1');
-var _emscripten_bind_SIGSurface_getAspenSavrLiveWoody_1 = Module['_emscripten_bind_SIGSurface_getAspenSavrLiveWoody_1'] = createExportWrapper('emscripten_bind_SIGSurface_getAspenSavrLiveWoody_1');
-var _emscripten_bind_SIGSurface_getBackingFirelineIntensity_1 = Module['_emscripten_bind_SIGSurface_getBackingFirelineIntensity_1'] = createExportWrapper('emscripten_bind_SIGSurface_getBackingFirelineIntensity_1');
-var _emscripten_bind_SIGSurface_getBackingFlameLength_1 = Module['_emscripten_bind_SIGSurface_getBackingFlameLength_1'] = createExportWrapper('emscripten_bind_SIGSurface_getBackingFlameLength_1');
-var _emscripten_bind_SIGSurface_getBackingSpreadDistance_1 = Module['_emscripten_bind_SIGSurface_getBackingSpreadDistance_1'] = createExportWrapper('emscripten_bind_SIGSurface_getBackingSpreadDistance_1');
-var _emscripten_bind_SIGSurface_getBackingSpreadRate_1 = Module['_emscripten_bind_SIGSurface_getBackingSpreadRate_1'] = createExportWrapper('emscripten_bind_SIGSurface_getBackingSpreadRate_1');
-var _emscripten_bind_SIGSurface_getBulkDensity_1 = Module['_emscripten_bind_SIGSurface_getBulkDensity_1'] = createExportWrapper('emscripten_bind_SIGSurface_getBulkDensity_1');
-var _emscripten_bind_SIGSurface_getCanopyCover_1 = Module['_emscripten_bind_SIGSurface_getCanopyCover_1'] = createExportWrapper('emscripten_bind_SIGSurface_getCanopyCover_1');
-var _emscripten_bind_SIGSurface_getCanopyHeight_1 = Module['_emscripten_bind_SIGSurface_getCanopyHeight_1'] = createExportWrapper('emscripten_bind_SIGSurface_getCanopyHeight_1');
-var _emscripten_bind_SIGSurface_getChaparralAge_1 = Module['_emscripten_bind_SIGSurface_getChaparralAge_1'] = createExportWrapper('emscripten_bind_SIGSurface_getChaparralAge_1');
-var _emscripten_bind_SIGSurface_getChaparralDaysSinceMayFirst_0 = Module['_emscripten_bind_SIGSurface_getChaparralDaysSinceMayFirst_0'] = createExportWrapper('emscripten_bind_SIGSurface_getChaparralDaysSinceMayFirst_0');
-var _emscripten_bind_SIGSurface_getChaparralDeadFuelFraction_0 = Module['_emscripten_bind_SIGSurface_getChaparralDeadFuelFraction_0'] = createExportWrapper('emscripten_bind_SIGSurface_getChaparralDeadFuelFraction_0');
-var _emscripten_bind_SIGSurface_getChaparralDeadMoistureOfExtinction_1 = Module['_emscripten_bind_SIGSurface_getChaparralDeadMoistureOfExtinction_1'] = createExportWrapper('emscripten_bind_SIGSurface_getChaparralDeadMoistureOfExtinction_1');
-var _emscripten_bind_SIGSurface_getChaparralDensity_3 = Module['_emscripten_bind_SIGSurface_getChaparralDensity_3'] = createExportWrapper('emscripten_bind_SIGSurface_getChaparralDensity_3');
-var _emscripten_bind_SIGSurface_getChaparralFuelBedDepth_1 = Module['_emscripten_bind_SIGSurface_getChaparralFuelBedDepth_1'] = createExportWrapper('emscripten_bind_SIGSurface_getChaparralFuelBedDepth_1');
-var _emscripten_bind_SIGSurface_getChaparralFuelDeadLoadFraction_0 = Module['_emscripten_bind_SIGSurface_getChaparralFuelDeadLoadFraction_0'] = createExportWrapper('emscripten_bind_SIGSurface_getChaparralFuelDeadLoadFraction_0');
-var _emscripten_bind_SIGSurface_getChaparralHeatOfCombustion_3 = Module['_emscripten_bind_SIGSurface_getChaparralHeatOfCombustion_3'] = createExportWrapper('emscripten_bind_SIGSurface_getChaparralHeatOfCombustion_3');
-var _emscripten_bind_SIGSurface_getChaparralLiveMoistureOfExtinction_1 = Module['_emscripten_bind_SIGSurface_getChaparralLiveMoistureOfExtinction_1'] = createExportWrapper('emscripten_bind_SIGSurface_getChaparralLiveMoistureOfExtinction_1');
-var _emscripten_bind_SIGSurface_getChaparralLoadDeadHalfInchToLessThanOneInch_1 = Module['_emscripten_bind_SIGSurface_getChaparralLoadDeadHalfInchToLessThanOneInch_1'] = createExportWrapper('emscripten_bind_SIGSurface_getChaparralLoadDeadHalfInchToLessThanOneInch_1');
-var _emscripten_bind_SIGSurface_getChaparralLoadDeadLessThanQuarterInch_1 = Module['_emscripten_bind_SIGSurface_getChaparralLoadDeadLessThanQuarterInch_1'] = createExportWrapper('emscripten_bind_SIGSurface_getChaparralLoadDeadLessThanQuarterInch_1');
-var _emscripten_bind_SIGSurface_getChaparralLoadDeadOneInchToThreeInch_1 = Module['_emscripten_bind_SIGSurface_getChaparralLoadDeadOneInchToThreeInch_1'] = createExportWrapper('emscripten_bind_SIGSurface_getChaparralLoadDeadOneInchToThreeInch_1');
-var _emscripten_bind_SIGSurface_getChaparralLoadDeadQuarterInchToLessThanHalfInch_1 = Module['_emscripten_bind_SIGSurface_getChaparralLoadDeadQuarterInchToLessThanHalfInch_1'] = createExportWrapper('emscripten_bind_SIGSurface_getChaparralLoadDeadQuarterInchToLessThanHalfInch_1');
-var _emscripten_bind_SIGSurface_getChaparralLoadLiveHalfInchToLessThanOneInch_1 = Module['_emscripten_bind_SIGSurface_getChaparralLoadLiveHalfInchToLessThanOneInch_1'] = createExportWrapper('emscripten_bind_SIGSurface_getChaparralLoadLiveHalfInchToLessThanOneInch_1');
-var _emscripten_bind_SIGSurface_getChaparralLoadLiveLeaves_1 = Module['_emscripten_bind_SIGSurface_getChaparralLoadLiveLeaves_1'] = createExportWrapper('emscripten_bind_SIGSurface_getChaparralLoadLiveLeaves_1');
-var _emscripten_bind_SIGSurface_getChaparralLoadLiveOneInchToThreeInch_1 = Module['_emscripten_bind_SIGSurface_getChaparralLoadLiveOneInchToThreeInch_1'] = createExportWrapper('emscripten_bind_SIGSurface_getChaparralLoadLiveOneInchToThreeInch_1');
-var _emscripten_bind_SIGSurface_getChaparralLoadLiveQuarterInchToLessThanHalfInch_1 = Module['_emscripten_bind_SIGSurface_getChaparralLoadLiveQuarterInchToLessThanHalfInch_1'] = createExportWrapper('emscripten_bind_SIGSurface_getChaparralLoadLiveQuarterInchToLessThanHalfInch_1');
-var _emscripten_bind_SIGSurface_getChaparralLoadLiveStemsLessThanQuaterInch_1 = Module['_emscripten_bind_SIGSurface_getChaparralLoadLiveStemsLessThanQuaterInch_1'] = createExportWrapper('emscripten_bind_SIGSurface_getChaparralLoadLiveStemsLessThanQuaterInch_1');
-var _emscripten_bind_SIGSurface_getChaparralMoisture_3 = Module['_emscripten_bind_SIGSurface_getChaparralMoisture_3'] = createExportWrapper('emscripten_bind_SIGSurface_getChaparralMoisture_3');
-var _emscripten_bind_SIGSurface_getChaparralTotalDeadFuelLoad_1 = Module['_emscripten_bind_SIGSurface_getChaparralTotalDeadFuelLoad_1'] = createExportWrapper('emscripten_bind_SIGSurface_getChaparralTotalDeadFuelLoad_1');
-var _emscripten_bind_SIGSurface_getChaparralTotalFuelLoad_1 = Module['_emscripten_bind_SIGSurface_getChaparralTotalFuelLoad_1'] = createExportWrapper('emscripten_bind_SIGSurface_getChaparralTotalFuelLoad_1');
-var _emscripten_bind_SIGSurface_getChaparralTotalLiveFuelLoad_1 = Module['_emscripten_bind_SIGSurface_getChaparralTotalLiveFuelLoad_1'] = createExportWrapper('emscripten_bind_SIGSurface_getChaparralTotalLiveFuelLoad_1');
-var _emscripten_bind_SIGSurface_getCharacteristicMoistureByLifeState_2 = Module['_emscripten_bind_SIGSurface_getCharacteristicMoistureByLifeState_2'] = createExportWrapper('emscripten_bind_SIGSurface_getCharacteristicMoistureByLifeState_2');
-var _emscripten_bind_SIGSurface_getCharacteristicMoistureDead_1 = Module['_emscripten_bind_SIGSurface_getCharacteristicMoistureDead_1'] = createExportWrapper('emscripten_bind_SIGSurface_getCharacteristicMoistureDead_1');
-var _emscripten_bind_SIGSurface_getCharacteristicMoistureLive_1 = Module['_emscripten_bind_SIGSurface_getCharacteristicMoistureLive_1'] = createExportWrapper('emscripten_bind_SIGSurface_getCharacteristicMoistureLive_1');
-var _emscripten_bind_SIGSurface_getCharacteristicSAVR_1 = Module['_emscripten_bind_SIGSurface_getCharacteristicSAVR_1'] = createExportWrapper('emscripten_bind_SIGSurface_getCharacteristicSAVR_1');
-var _emscripten_bind_SIGSurface_getCrownRatio_0 = Module['_emscripten_bind_SIGSurface_getCrownRatio_0'] = createExportWrapper('emscripten_bind_SIGSurface_getCrownRatio_0');
-var _emscripten_bind_SIGSurface_getDirectionOfMaxSpread_0 = Module['_emscripten_bind_SIGSurface_getDirectionOfMaxSpread_0'] = createExportWrapper('emscripten_bind_SIGSurface_getDirectionOfMaxSpread_0');
-var _emscripten_bind_SIGSurface_getDirectionOfInterest_0 = Module['_emscripten_bind_SIGSurface_getDirectionOfInterest_0'] = createExportWrapper('emscripten_bind_SIGSurface_getDirectionOfInterest_0');
-var _emscripten_bind_SIGSurface_getDirectionOfBacking_0 = Module['_emscripten_bind_SIGSurface_getDirectionOfBacking_0'] = createExportWrapper('emscripten_bind_SIGSurface_getDirectionOfBacking_0');
-var _emscripten_bind_SIGSurface_getDirectionOfFlanking_0 = Module['_emscripten_bind_SIGSurface_getDirectionOfFlanking_0'] = createExportWrapper('emscripten_bind_SIGSurface_getDirectionOfFlanking_0');
-var _emscripten_bind_SIGSurface_getElapsedTime_1 = Module['_emscripten_bind_SIGSurface_getElapsedTime_1'] = createExportWrapper('emscripten_bind_SIGSurface_getElapsedTime_1');
-var _emscripten_bind_SIGSurface_getEllipticalA_1 = Module['_emscripten_bind_SIGSurface_getEllipticalA_1'] = createExportWrapper('emscripten_bind_SIGSurface_getEllipticalA_1');
-var _emscripten_bind_SIGSurface_getEllipticalB_1 = Module['_emscripten_bind_SIGSurface_getEllipticalB_1'] = createExportWrapper('emscripten_bind_SIGSurface_getEllipticalB_1');
-var _emscripten_bind_SIGSurface_getEllipticalC_1 = Module['_emscripten_bind_SIGSurface_getEllipticalC_1'] = createExportWrapper('emscripten_bind_SIGSurface_getEllipticalC_1');
-var _emscripten_bind_SIGSurface_getFireLength_1 = Module['_emscripten_bind_SIGSurface_getFireLength_1'] = createExportWrapper('emscripten_bind_SIGSurface_getFireLength_1');
-var _emscripten_bind_SIGSurface_getMaxFireWidth_1 = Module['_emscripten_bind_SIGSurface_getMaxFireWidth_1'] = createExportWrapper('emscripten_bind_SIGSurface_getMaxFireWidth_1');
-var _emscripten_bind_SIGSurface_getFireArea_1 = Module['_emscripten_bind_SIGSurface_getFireArea_1'] = createExportWrapper('emscripten_bind_SIGSurface_getFireArea_1');
-var _emscripten_bind_SIGSurface_getFireEccentricity_0 = Module['_emscripten_bind_SIGSurface_getFireEccentricity_0'] = createExportWrapper('emscripten_bind_SIGSurface_getFireEccentricity_0');
-var _emscripten_bind_SIGSurface_getFireLengthToWidthRatio_0 = Module['_emscripten_bind_SIGSurface_getFireLengthToWidthRatio_0'] = createExportWrapper('emscripten_bind_SIGSurface_getFireLengthToWidthRatio_0');
-var _emscripten_bind_SIGSurface_getFirePerimeter_1 = Module['_emscripten_bind_SIGSurface_getFirePerimeter_1'] = createExportWrapper('emscripten_bind_SIGSurface_getFirePerimeter_1');
-var _emscripten_bind_SIGSurface_getFirelineIntensity_1 = Module['_emscripten_bind_SIGSurface_getFirelineIntensity_1'] = createExportWrapper('emscripten_bind_SIGSurface_getFirelineIntensity_1');
-var _emscripten_bind_SIGSurface_getFlameLength_1 = Module['_emscripten_bind_SIGSurface_getFlameLength_1'] = createExportWrapper('emscripten_bind_SIGSurface_getFlameLength_1');
-var _emscripten_bind_SIGSurface_getFlankingFirelineIntensity_1 = Module['_emscripten_bind_SIGSurface_getFlankingFirelineIntensity_1'] = createExportWrapper('emscripten_bind_SIGSurface_getFlankingFirelineIntensity_1');
-var _emscripten_bind_SIGSurface_getFlankingFlameLength_1 = Module['_emscripten_bind_SIGSurface_getFlankingFlameLength_1'] = createExportWrapper('emscripten_bind_SIGSurface_getFlankingFlameLength_1');
-var _emscripten_bind_SIGSurface_getFlankingSpreadRate_1 = Module['_emscripten_bind_SIGSurface_getFlankingSpreadRate_1'] = createExportWrapper('emscripten_bind_SIGSurface_getFlankingSpreadRate_1');
-var _emscripten_bind_SIGSurface_getFlankingSpreadDistance_1 = Module['_emscripten_bind_SIGSurface_getFlankingSpreadDistance_1'] = createExportWrapper('emscripten_bind_SIGSurface_getFlankingSpreadDistance_1');
-var _emscripten_bind_SIGSurface_getFuelHeatOfCombustionDead_2 = Module['_emscripten_bind_SIGSurface_getFuelHeatOfCombustionDead_2'] = createExportWrapper('emscripten_bind_SIGSurface_getFuelHeatOfCombustionDead_2');
-var _emscripten_bind_SIGSurface_getFuelHeatOfCombustionLive_2 = Module['_emscripten_bind_SIGSurface_getFuelHeatOfCombustionLive_2'] = createExportWrapper('emscripten_bind_SIGSurface_getFuelHeatOfCombustionLive_2');
-var _emscripten_bind_SIGSurface_getFuelLoadHundredHour_2 = Module['_emscripten_bind_SIGSurface_getFuelLoadHundredHour_2'] = createExportWrapper('emscripten_bind_SIGSurface_getFuelLoadHundredHour_2');
-var _emscripten_bind_SIGSurface_getFuelLoadLiveHerbaceous_2 = Module['_emscripten_bind_SIGSurface_getFuelLoadLiveHerbaceous_2'] = createExportWrapper('emscripten_bind_SIGSurface_getFuelLoadLiveHerbaceous_2');
-var _emscripten_bind_SIGSurface_getFuelLoadLiveWoody_2 = Module['_emscripten_bind_SIGSurface_getFuelLoadLiveWoody_2'] = createExportWrapper('emscripten_bind_SIGSurface_getFuelLoadLiveWoody_2');
-var _emscripten_bind_SIGSurface_getFuelLoadOneHour_2 = Module['_emscripten_bind_SIGSurface_getFuelLoadOneHour_2'] = createExportWrapper('emscripten_bind_SIGSurface_getFuelLoadOneHour_2');
-var _emscripten_bind_SIGSurface_getFuelLoadTenHour_2 = Module['_emscripten_bind_SIGSurface_getFuelLoadTenHour_2'] = createExportWrapper('emscripten_bind_SIGSurface_getFuelLoadTenHour_2');
-var _emscripten_bind_SIGSurface_getFuelMoistureOfExtinctionDead_2 = Module['_emscripten_bind_SIGSurface_getFuelMoistureOfExtinctionDead_2'] = createExportWrapper('emscripten_bind_SIGSurface_getFuelMoistureOfExtinctionDead_2');
-var _emscripten_bind_SIGSurface_getFuelSavrLiveHerbaceous_2 = Module['_emscripten_bind_SIGSurface_getFuelSavrLiveHerbaceous_2'] = createExportWrapper('emscripten_bind_SIGSurface_getFuelSavrLiveHerbaceous_2');
-var _emscripten_bind_SIGSurface_getFuelSavrLiveWoody_2 = Module['_emscripten_bind_SIGSurface_getFuelSavrLiveWoody_2'] = createExportWrapper('emscripten_bind_SIGSurface_getFuelSavrLiveWoody_2');
-var _emscripten_bind_SIGSurface_getFuelSavrOneHour_2 = Module['_emscripten_bind_SIGSurface_getFuelSavrOneHour_2'] = createExportWrapper('emscripten_bind_SIGSurface_getFuelSavrOneHour_2');
-var _emscripten_bind_SIGSurface_getFuelbedDepth_2 = Module['_emscripten_bind_SIGSurface_getFuelbedDepth_2'] = createExportWrapper('emscripten_bind_SIGSurface_getFuelbedDepth_2');
-var _emscripten_bind_SIGSurface_getHeadingSpreadRate_1 = Module['_emscripten_bind_SIGSurface_getHeadingSpreadRate_1'] = createExportWrapper('emscripten_bind_SIGSurface_getHeadingSpreadRate_1');
-var _emscripten_bind_SIGSurface_getHeadingToBackingRatio_0 = Module['_emscripten_bind_SIGSurface_getHeadingToBackingRatio_0'] = createExportWrapper('emscripten_bind_SIGSurface_getHeadingToBackingRatio_0');
-var _emscripten_bind_SIGSurface_getHeatPerUnitArea_1 = Module['_emscripten_bind_SIGSurface_getHeatPerUnitArea_1'] = createExportWrapper('emscripten_bind_SIGSurface_getHeatPerUnitArea_1');
-var _emscripten_bind_SIGSurface_getHeatSink_1 = Module['_emscripten_bind_SIGSurface_getHeatSink_1'] = createExportWrapper('emscripten_bind_SIGSurface_getHeatSink_1');
-var _emscripten_bind_SIGSurface_getHeatSource_1 = Module['_emscripten_bind_SIGSurface_getHeatSource_1'] = createExportWrapper('emscripten_bind_SIGSurface_getHeatSource_1');
-var _emscripten_bind_SIGSurface_getHeightOfUnderstory_1 = Module['_emscripten_bind_SIGSurface_getHeightOfUnderstory_1'] = createExportWrapper('emscripten_bind_SIGSurface_getHeightOfUnderstory_1');
-var _emscripten_bind_SIGSurface_getLiveFuelMoistureOfExtinction_1 = Module['_emscripten_bind_SIGSurface_getLiveFuelMoistureOfExtinction_1'] = createExportWrapper('emscripten_bind_SIGSurface_getLiveFuelMoistureOfExtinction_1');
-var _emscripten_bind_SIGSurface_getMidflameWindspeed_1 = Module['_emscripten_bind_SIGSurface_getMidflameWindspeed_1'] = createExportWrapper('emscripten_bind_SIGSurface_getMidflameWindspeed_1');
-var _emscripten_bind_SIGSurface_getMoistureDeadAggregateValue_1 = Module['_emscripten_bind_SIGSurface_getMoistureDeadAggregateValue_1'] = createExportWrapper('emscripten_bind_SIGSurface_getMoistureDeadAggregateValue_1');
-var _emscripten_bind_SIGSurface_getMoistureHundredHour_1 = Module['_emscripten_bind_SIGSurface_getMoistureHundredHour_1'] = createExportWrapper('emscripten_bind_SIGSurface_getMoistureHundredHour_1');
-var _emscripten_bind_SIGSurface_getMoistureLiveAggregateValue_1 = Module['_emscripten_bind_SIGSurface_getMoistureLiveAggregateValue_1'] = createExportWrapper('emscripten_bind_SIGSurface_getMoistureLiveAggregateValue_1');
-var _emscripten_bind_SIGSurface_getMoistureLiveHerbaceous_1 = Module['_emscripten_bind_SIGSurface_getMoistureLiveHerbaceous_1'] = createExportWrapper('emscripten_bind_SIGSurface_getMoistureLiveHerbaceous_1');
-var _emscripten_bind_SIGSurface_getMoistureLiveWoody_1 = Module['_emscripten_bind_SIGSurface_getMoistureLiveWoody_1'] = createExportWrapper('emscripten_bind_SIGSurface_getMoistureLiveWoody_1');
-var _emscripten_bind_SIGSurface_getMoistureOneHour_1 = Module['_emscripten_bind_SIGSurface_getMoistureOneHour_1'] = createExportWrapper('emscripten_bind_SIGSurface_getMoistureOneHour_1');
-var _emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByIndex_2 = Module['_emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByIndex_2'] = createExportWrapper('emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByIndex_2');
-var _emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByName_2 = Module['_emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByName_2'] = createExportWrapper('emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByName_2');
-var _emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByIndex_2 = Module['_emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByIndex_2'] = createExportWrapper('emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByIndex_2');
-var _emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByName_2 = Module['_emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByName_2'] = createExportWrapper('emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByName_2');
-var _emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByIndex_2 = Module['_emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByIndex_2'] = createExportWrapper('emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByIndex_2');
-var _emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByName_2 = Module['_emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByName_2'] = createExportWrapper('emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByName_2');
-var _emscripten_bind_SIGSurface_getMoistureScenarioOneHourByIndex_2 = Module['_emscripten_bind_SIGSurface_getMoistureScenarioOneHourByIndex_2'] = createExportWrapper('emscripten_bind_SIGSurface_getMoistureScenarioOneHourByIndex_2');
-var _emscripten_bind_SIGSurface_getMoistureScenarioOneHourByName_2 = Module['_emscripten_bind_SIGSurface_getMoistureScenarioOneHourByName_2'] = createExportWrapper('emscripten_bind_SIGSurface_getMoistureScenarioOneHourByName_2');
-var _emscripten_bind_SIGSurface_getMoistureScenarioTenHourByIndex_2 = Module['_emscripten_bind_SIGSurface_getMoistureScenarioTenHourByIndex_2'] = createExportWrapper('emscripten_bind_SIGSurface_getMoistureScenarioTenHourByIndex_2');
-var _emscripten_bind_SIGSurface_getMoistureScenarioTenHourByName_2 = Module['_emscripten_bind_SIGSurface_getMoistureScenarioTenHourByName_2'] = createExportWrapper('emscripten_bind_SIGSurface_getMoistureScenarioTenHourByName_2');
-var _emscripten_bind_SIGSurface_getMoistureTenHour_1 = Module['_emscripten_bind_SIGSurface_getMoistureTenHour_1'] = createExportWrapper('emscripten_bind_SIGSurface_getMoistureTenHour_1');
-var _emscripten_bind_SIGSurface_getOverstoryBasalArea_1 = Module['_emscripten_bind_SIGSurface_getOverstoryBasalArea_1'] = createExportWrapper('emscripten_bind_SIGSurface_getOverstoryBasalArea_1');
-var _emscripten_bind_SIGSurface_getPalmettoGallberryCoverage_1 = Module['_emscripten_bind_SIGSurface_getPalmettoGallberryCoverage_1'] = createExportWrapper('emscripten_bind_SIGSurface_getPalmettoGallberryCoverage_1');
-var _emscripten_bind_SIGSurface_getPalmettoGallberryHeatOfCombustionDead_1 = Module['_emscripten_bind_SIGSurface_getPalmettoGallberryHeatOfCombustionDead_1'] = createExportWrapper('emscripten_bind_SIGSurface_getPalmettoGallberryHeatOfCombustionDead_1');
-var _emscripten_bind_SIGSurface_getPalmettoGallberryHeatOfCombustionLive_1 = Module['_emscripten_bind_SIGSurface_getPalmettoGallberryHeatOfCombustionLive_1'] = createExportWrapper('emscripten_bind_SIGSurface_getPalmettoGallberryHeatOfCombustionLive_1');
-var _emscripten_bind_SIGSurface_getPalmettoGallberryMoistureOfExtinctionDead_1 = Module['_emscripten_bind_SIGSurface_getPalmettoGallberryMoistureOfExtinctionDead_1'] = createExportWrapper('emscripten_bind_SIGSurface_getPalmettoGallberryMoistureOfExtinctionDead_1');
-var _emscripten_bind_SIGSurface_getPalmettoGallberyDeadFineFuelLoad_1 = Module['_emscripten_bind_SIGSurface_getPalmettoGallberyDeadFineFuelLoad_1'] = createExportWrapper('emscripten_bind_SIGSurface_getPalmettoGallberyDeadFineFuelLoad_1');
-var _emscripten_bind_SIGSurface_getPalmettoGallberyDeadFoliageLoad_1 = Module['_emscripten_bind_SIGSurface_getPalmettoGallberyDeadFoliageLoad_1'] = createExportWrapper('emscripten_bind_SIGSurface_getPalmettoGallberyDeadFoliageLoad_1');
-var _emscripten_bind_SIGSurface_getPalmettoGallberyDeadMediumFuelLoad_1 = Module['_emscripten_bind_SIGSurface_getPalmettoGallberyDeadMediumFuelLoad_1'] = createExportWrapper('emscripten_bind_SIGSurface_getPalmettoGallberyDeadMediumFuelLoad_1');
-var _emscripten_bind_SIGSurface_getPalmettoGallberyFuelBedDepth_1 = Module['_emscripten_bind_SIGSurface_getPalmettoGallberyFuelBedDepth_1'] = createExportWrapper('emscripten_bind_SIGSurface_getPalmettoGallberyFuelBedDepth_1');
-var _emscripten_bind_SIGSurface_getPalmettoGallberyLitterLoad_1 = Module['_emscripten_bind_SIGSurface_getPalmettoGallberyLitterLoad_1'] = createExportWrapper('emscripten_bind_SIGSurface_getPalmettoGallberyLitterLoad_1');
-var _emscripten_bind_SIGSurface_getPalmettoGallberyLiveFineFuelLoad_1 = Module['_emscripten_bind_SIGSurface_getPalmettoGallberyLiveFineFuelLoad_1'] = createExportWrapper('emscripten_bind_SIGSurface_getPalmettoGallberyLiveFineFuelLoad_1');
-var _emscripten_bind_SIGSurface_getPalmettoGallberyLiveFoliageLoad_1 = Module['_emscripten_bind_SIGSurface_getPalmettoGallberyLiveFoliageLoad_1'] = createExportWrapper('emscripten_bind_SIGSurface_getPalmettoGallberyLiveFoliageLoad_1');
-var _emscripten_bind_SIGSurface_getPalmettoGallberyLiveMediumFuelLoad_1 = Module['_emscripten_bind_SIGSurface_getPalmettoGallberyLiveMediumFuelLoad_1'] = createExportWrapper('emscripten_bind_SIGSurface_getPalmettoGallberyLiveMediumFuelLoad_1');
-var _emscripten_bind_SIGSurface_getReactionIntensity_1 = Module['_emscripten_bind_SIGSurface_getReactionIntensity_1'] = createExportWrapper('emscripten_bind_SIGSurface_getReactionIntensity_1');
-var _emscripten_bind_SIGSurface_getResidenceTime_1 = Module['_emscripten_bind_SIGSurface_getResidenceTime_1'] = createExportWrapper('emscripten_bind_SIGSurface_getResidenceTime_1');
-var _emscripten_bind_SIGSurface_getSlope_1 = Module['_emscripten_bind_SIGSurface_getSlope_1'] = createExportWrapper('emscripten_bind_SIGSurface_getSlope_1');
-var _emscripten_bind_SIGSurface_getSlopeFactor_0 = Module['_emscripten_bind_SIGSurface_getSlopeFactor_0'] = createExportWrapper('emscripten_bind_SIGSurface_getSlopeFactor_0');
-var _emscripten_bind_SIGSurface_getSpreadDistance_1 = Module['_emscripten_bind_SIGSurface_getSpreadDistance_1'] = createExportWrapper('emscripten_bind_SIGSurface_getSpreadDistance_1');
-var _emscripten_bind_SIGSurface_getSpreadDistanceInDirectionOfInterest_1 = Module['_emscripten_bind_SIGSurface_getSpreadDistanceInDirectionOfInterest_1'] = createExportWrapper('emscripten_bind_SIGSurface_getSpreadDistanceInDirectionOfInterest_1');
-var _emscripten_bind_SIGSurface_getSpreadRate_1 = Module['_emscripten_bind_SIGSurface_getSpreadRate_1'] = createExportWrapper('emscripten_bind_SIGSurface_getSpreadRate_1');
-var _emscripten_bind_SIGSurface_getSpreadRateInDirectionOfInterest_1 = Module['_emscripten_bind_SIGSurface_getSpreadRateInDirectionOfInterest_1'] = createExportWrapper('emscripten_bind_SIGSurface_getSpreadRateInDirectionOfInterest_1');
-var _emscripten_bind_SIGSurface_getSurfaceFireReactionIntensityForLifeState_1 = Module['_emscripten_bind_SIGSurface_getSurfaceFireReactionIntensityForLifeState_1'] = createExportWrapper('emscripten_bind_SIGSurface_getSurfaceFireReactionIntensityForLifeState_1');
-var _emscripten_bind_SIGSurface_getWindDirection_0 = Module['_emscripten_bind_SIGSurface_getWindDirection_0'] = createExportWrapper('emscripten_bind_SIGSurface_getWindDirection_0');
-var _emscripten_bind_SIGSurface_getWindSpeed_2 = Module['_emscripten_bind_SIGSurface_getWindSpeed_2'] = createExportWrapper('emscripten_bind_SIGSurface_getWindSpeed_2');
-var _emscripten_bind_SIGSurface_getAspenFuelModelNumber_0 = Module['_emscripten_bind_SIGSurface_getAspenFuelModelNumber_0'] = createExportWrapper('emscripten_bind_SIGSurface_getAspenFuelModelNumber_0');
-var _emscripten_bind_SIGSurface_getFuelModelNumber_0 = Module['_emscripten_bind_SIGSurface_getFuelModelNumber_0'] = createExportWrapper('emscripten_bind_SIGSurface_getFuelModelNumber_0');
-var _emscripten_bind_SIGSurface_getMoistureScenarioIndexByName_1 = Module['_emscripten_bind_SIGSurface_getMoistureScenarioIndexByName_1'] = createExportWrapper('emscripten_bind_SIGSurface_getMoistureScenarioIndexByName_1');
-var _emscripten_bind_SIGSurface_getNumberOfMoistureScenarios_0 = Module['_emscripten_bind_SIGSurface_getNumberOfMoistureScenarios_0'] = createExportWrapper('emscripten_bind_SIGSurface_getNumberOfMoistureScenarios_0');
-var _emscripten_bind_SIGSurface_getFuelCode_1 = Module['_emscripten_bind_SIGSurface_getFuelCode_1'] = createExportWrapper('emscripten_bind_SIGSurface_getFuelCode_1');
-var _emscripten_bind_SIGSurface_getFuelName_1 = Module['_emscripten_bind_SIGSurface_getFuelName_1'] = createExportWrapper('emscripten_bind_SIGSurface_getFuelName_1');
-var _emscripten_bind_SIGSurface_getMoistureScenarioDescriptionByIndex_1 = Module['_emscripten_bind_SIGSurface_getMoistureScenarioDescriptionByIndex_1'] = createExportWrapper('emscripten_bind_SIGSurface_getMoistureScenarioDescriptionByIndex_1');
-var _emscripten_bind_SIGSurface_getMoistureScenarioDescriptionByName_1 = Module['_emscripten_bind_SIGSurface_getMoistureScenarioDescriptionByName_1'] = createExportWrapper('emscripten_bind_SIGSurface_getMoistureScenarioDescriptionByName_1');
-var _emscripten_bind_SIGSurface_getMoistureScenarioNameByIndex_1 = Module['_emscripten_bind_SIGSurface_getMoistureScenarioNameByIndex_1'] = createExportWrapper('emscripten_bind_SIGSurface_getMoistureScenarioNameByIndex_1');
-var _emscripten_bind_SIGSurface_doSurfaceRun_0 = Module['_emscripten_bind_SIGSurface_doSurfaceRun_0'] = createExportWrapper('emscripten_bind_SIGSurface_doSurfaceRun_0');
-var _emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfInterest_2 = Module['_emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfInterest_2'] = createExportWrapper('emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfInterest_2');
-var _emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfMaxSpread_0 = Module['_emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfMaxSpread_0'] = createExportWrapper('emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfMaxSpread_0');
-var _emscripten_bind_SIGSurface_initializeMembers_0 = Module['_emscripten_bind_SIGSurface_initializeMembers_0'] = createExportWrapper('emscripten_bind_SIGSurface_initializeMembers_0');
-var _emscripten_bind_SIGSurface_setAgeOfRough_1 = Module['_emscripten_bind_SIGSurface_setAgeOfRough_1'] = createExportWrapper('emscripten_bind_SIGSurface_setAgeOfRough_1');
-var _emscripten_bind_SIGSurface_setAspect_1 = Module['_emscripten_bind_SIGSurface_setAspect_1'] = createExportWrapper('emscripten_bind_SIGSurface_setAspect_1');
-var _emscripten_bind_SIGSurface_setAspenCuringLevel_2 = Module['_emscripten_bind_SIGSurface_setAspenCuringLevel_2'] = createExportWrapper('emscripten_bind_SIGSurface_setAspenCuringLevel_2');
-var _emscripten_bind_SIGSurface_setAspenDBH_2 = Module['_emscripten_bind_SIGSurface_setAspenDBH_2'] = createExportWrapper('emscripten_bind_SIGSurface_setAspenDBH_2');
-var _emscripten_bind_SIGSurface_setAspenFireSeverity_1 = Module['_emscripten_bind_SIGSurface_setAspenFireSeverity_1'] = createExportWrapper('emscripten_bind_SIGSurface_setAspenFireSeverity_1');
-var _emscripten_bind_SIGSurface_setAspenFuelModelNumber_1 = Module['_emscripten_bind_SIGSurface_setAspenFuelModelNumber_1'] = createExportWrapper('emscripten_bind_SIGSurface_setAspenFuelModelNumber_1');
-var _emscripten_bind_SIGSurface_setCanopyCover_2 = Module['_emscripten_bind_SIGSurface_setCanopyCover_2'] = createExportWrapper('emscripten_bind_SIGSurface_setCanopyCover_2');
-var _emscripten_bind_SIGSurface_setCanopyHeight_2 = Module['_emscripten_bind_SIGSurface_setCanopyHeight_2'] = createExportWrapper('emscripten_bind_SIGSurface_setCanopyHeight_2');
-var _emscripten_bind_SIGSurface_setChaparralFuelBedDepth_2 = Module['_emscripten_bind_SIGSurface_setChaparralFuelBedDepth_2'] = createExportWrapper('emscripten_bind_SIGSurface_setChaparralFuelBedDepth_2');
-var _emscripten_bind_SIGSurface_setChaparralFuelDeadLoadFraction_1 = Module['_emscripten_bind_SIGSurface_setChaparralFuelDeadLoadFraction_1'] = createExportWrapper('emscripten_bind_SIGSurface_setChaparralFuelDeadLoadFraction_1');
-var _emscripten_bind_SIGSurface_setChaparralFuelLoadInputMode_1 = Module['_emscripten_bind_SIGSurface_setChaparralFuelLoadInputMode_1'] = createExportWrapper('emscripten_bind_SIGSurface_setChaparralFuelLoadInputMode_1');
-var _emscripten_bind_SIGSurface_setChaparralFuelType_1 = Module['_emscripten_bind_SIGSurface_setChaparralFuelType_1'] = createExportWrapper('emscripten_bind_SIGSurface_setChaparralFuelType_1');
-var _emscripten_bind_SIGSurface_setChaparralTotalFuelLoad_2 = Module['_emscripten_bind_SIGSurface_setChaparralTotalFuelLoad_2'] = createExportWrapper('emscripten_bind_SIGSurface_setChaparralTotalFuelLoad_2');
-var _emscripten_bind_SIGSurface_setCrownRatio_1 = Module['_emscripten_bind_SIGSurface_setCrownRatio_1'] = createExportWrapper('emscripten_bind_SIGSurface_setCrownRatio_1');
-var _emscripten_bind_SIGSurface_setDirectionOfInterest_1 = Module['_emscripten_bind_SIGSurface_setDirectionOfInterest_1'] = createExportWrapper('emscripten_bind_SIGSurface_setDirectionOfInterest_1');
-var _emscripten_bind_SIGSurface_setElapsedTime_2 = Module['_emscripten_bind_SIGSurface_setElapsedTime_2'] = createExportWrapper('emscripten_bind_SIGSurface_setElapsedTime_2');
-var _emscripten_bind_SIGSurface_setFirstFuelModelNumber_1 = Module['_emscripten_bind_SIGSurface_setFirstFuelModelNumber_1'] = createExportWrapper('emscripten_bind_SIGSurface_setFirstFuelModelNumber_1');
-var _emscripten_bind_SIGSurface_setFuelModels_1 = Module['_emscripten_bind_SIGSurface_setFuelModels_1'] = createExportWrapper('emscripten_bind_SIGSurface_setFuelModels_1');
-var _emscripten_bind_SIGSurface_setHeightOfUnderstory_2 = Module['_emscripten_bind_SIGSurface_setHeightOfUnderstory_2'] = createExportWrapper('emscripten_bind_SIGSurface_setHeightOfUnderstory_2');
-var _emscripten_bind_SIGSurface_setIsUsingChaparral_1 = Module['_emscripten_bind_SIGSurface_setIsUsingChaparral_1'] = createExportWrapper('emscripten_bind_SIGSurface_setIsUsingChaparral_1');
-var _emscripten_bind_SIGSurface_setIsUsingPalmettoGallberry_1 = Module['_emscripten_bind_SIGSurface_setIsUsingPalmettoGallberry_1'] = createExportWrapper('emscripten_bind_SIGSurface_setIsUsingPalmettoGallberry_1');
-var _emscripten_bind_SIGSurface_setIsUsingWesternAspen_1 = Module['_emscripten_bind_SIGSurface_setIsUsingWesternAspen_1'] = createExportWrapper('emscripten_bind_SIGSurface_setIsUsingWesternAspen_1');
-var _emscripten_bind_SIGSurface_setMoistureDeadAggregate_2 = Module['_emscripten_bind_SIGSurface_setMoistureDeadAggregate_2'] = createExportWrapper('emscripten_bind_SIGSurface_setMoistureDeadAggregate_2');
-var _emscripten_bind_SIGSurface_setMoistureHundredHour_2 = Module['_emscripten_bind_SIGSurface_setMoistureHundredHour_2'] = createExportWrapper('emscripten_bind_SIGSurface_setMoistureHundredHour_2');
-var _emscripten_bind_SIGSurface_setMoistureInputMode_1 = Module['_emscripten_bind_SIGSurface_setMoistureInputMode_1'] = createExportWrapper('emscripten_bind_SIGSurface_setMoistureInputMode_1');
-var _emscripten_bind_SIGSurface_setMoistureLiveAggregate_2 = Module['_emscripten_bind_SIGSurface_setMoistureLiveAggregate_2'] = createExportWrapper('emscripten_bind_SIGSurface_setMoistureLiveAggregate_2');
-var _emscripten_bind_SIGSurface_setMoistureLiveHerbaceous_2 = Module['_emscripten_bind_SIGSurface_setMoistureLiveHerbaceous_2'] = createExportWrapper('emscripten_bind_SIGSurface_setMoistureLiveHerbaceous_2');
-var _emscripten_bind_SIGSurface_setMoistureLiveWoody_2 = Module['_emscripten_bind_SIGSurface_setMoistureLiveWoody_2'] = createExportWrapper('emscripten_bind_SIGSurface_setMoistureLiveWoody_2');
-var _emscripten_bind_SIGSurface_setMoistureOneHour_2 = Module['_emscripten_bind_SIGSurface_setMoistureOneHour_2'] = createExportWrapper('emscripten_bind_SIGSurface_setMoistureOneHour_2');
-var _emscripten_bind_SIGSurface_setMoistureScenarios_1 = Module['_emscripten_bind_SIGSurface_setMoistureScenarios_1'] = createExportWrapper('emscripten_bind_SIGSurface_setMoistureScenarios_1');
-var _emscripten_bind_SIGSurface_setMoistureTenHour_2 = Module['_emscripten_bind_SIGSurface_setMoistureTenHour_2'] = createExportWrapper('emscripten_bind_SIGSurface_setMoistureTenHour_2');
-var _emscripten_bind_SIGSurface_setOverstoryBasalArea_2 = Module['_emscripten_bind_SIGSurface_setOverstoryBasalArea_2'] = createExportWrapper('emscripten_bind_SIGSurface_setOverstoryBasalArea_2');
-var _emscripten_bind_SIGSurface_setPalmettoCoverage_2 = Module['_emscripten_bind_SIGSurface_setPalmettoCoverage_2'] = createExportWrapper('emscripten_bind_SIGSurface_setPalmettoCoverage_2');
-var _emscripten_bind_SIGSurface_setSecondFuelModelNumber_1 = Module['_emscripten_bind_SIGSurface_setSecondFuelModelNumber_1'] = createExportWrapper('emscripten_bind_SIGSurface_setSecondFuelModelNumber_1');
-var _emscripten_bind_SIGSurface_setSlope_2 = Module['_emscripten_bind_SIGSurface_setSlope_2'] = createExportWrapper('emscripten_bind_SIGSurface_setSlope_2');
-var _emscripten_bind_SIGSurface_setSurfaceFireSpreadDirectionMode_1 = Module['_emscripten_bind_SIGSurface_setSurfaceFireSpreadDirectionMode_1'] = createExportWrapper('emscripten_bind_SIGSurface_setSurfaceFireSpreadDirectionMode_1');
-var _emscripten_bind_SIGSurface_setSurfaceRunInDirectionOf_1 = Module['_emscripten_bind_SIGSurface_setSurfaceRunInDirectionOf_1'] = createExportWrapper('emscripten_bind_SIGSurface_setSurfaceRunInDirectionOf_1');
-var _emscripten_bind_SIGSurface_setTwoFuelModelsFirstFuelModelCoverage_2 = Module['_emscripten_bind_SIGSurface_setTwoFuelModelsFirstFuelModelCoverage_2'] = createExportWrapper('emscripten_bind_SIGSurface_setTwoFuelModelsFirstFuelModelCoverage_2');
-var _emscripten_bind_SIGSurface_setTwoFuelModelsMethod_1 = Module['_emscripten_bind_SIGSurface_setTwoFuelModelsMethod_1'] = createExportWrapper('emscripten_bind_SIGSurface_setTwoFuelModelsMethod_1');
-var _emscripten_bind_SIGSurface_setUserProvidedWindAdjustmentFactor_1 = Module['_emscripten_bind_SIGSurface_setUserProvidedWindAdjustmentFactor_1'] = createExportWrapper('emscripten_bind_SIGSurface_setUserProvidedWindAdjustmentFactor_1');
-var _emscripten_bind_SIGSurface_setWindAdjustmentFactorCalculationMethod_1 = Module['_emscripten_bind_SIGSurface_setWindAdjustmentFactorCalculationMethod_1'] = createExportWrapper('emscripten_bind_SIGSurface_setWindAdjustmentFactorCalculationMethod_1');
-var _emscripten_bind_SIGSurface_setWindAndSpreadOrientationMode_1 = Module['_emscripten_bind_SIGSurface_setWindAndSpreadOrientationMode_1'] = createExportWrapper('emscripten_bind_SIGSurface_setWindAndSpreadOrientationMode_1');
-var _emscripten_bind_SIGSurface_setWindDirection_1 = Module['_emscripten_bind_SIGSurface_setWindDirection_1'] = createExportWrapper('emscripten_bind_SIGSurface_setWindDirection_1');
-var _emscripten_bind_SIGSurface_setWindHeightInputMode_1 = Module['_emscripten_bind_SIGSurface_setWindHeightInputMode_1'] = createExportWrapper('emscripten_bind_SIGSurface_setWindHeightInputMode_1');
-var _emscripten_bind_SIGSurface_setWindSpeed_2 = Module['_emscripten_bind_SIGSurface_setWindSpeed_2'] = createExportWrapper('emscripten_bind_SIGSurface_setWindSpeed_2');
-var _emscripten_bind_SIGSurface_updateSurfaceInputs_20 = Module['_emscripten_bind_SIGSurface_updateSurfaceInputs_20'] = createExportWrapper('emscripten_bind_SIGSurface_updateSurfaceInputs_20');
-var _emscripten_bind_SIGSurface_updateSurfaceInputsForPalmettoGallbery_24 = Module['_emscripten_bind_SIGSurface_updateSurfaceInputsForPalmettoGallbery_24'] = createExportWrapper('emscripten_bind_SIGSurface_updateSurfaceInputsForPalmettoGallbery_24');
-var _emscripten_bind_SIGSurface_updateSurfaceInputsForTwoFuelModels_24 = Module['_emscripten_bind_SIGSurface_updateSurfaceInputsForTwoFuelModels_24'] = createExportWrapper('emscripten_bind_SIGSurface_updateSurfaceInputsForTwoFuelModels_24');
-var _emscripten_bind_SIGSurface_updateSurfaceInputsForWesternAspen_25 = Module['_emscripten_bind_SIGSurface_updateSurfaceInputsForWesternAspen_25'] = createExportWrapper('emscripten_bind_SIGSurface_updateSurfaceInputsForWesternAspen_25');
-var _emscripten_bind_SIGSurface_setFuelModelNumber_1 = Module['_emscripten_bind_SIGSurface_setFuelModelNumber_1'] = createExportWrapper('emscripten_bind_SIGSurface_setFuelModelNumber_1');
-var _emscripten_bind_SIGSurface___destroy___0 = Module['_emscripten_bind_SIGSurface___destroy___0'] = createExportWrapper('emscripten_bind_SIGSurface___destroy___0');
-var _emscripten_bind_PalmettoGallberry_PalmettoGallberry_0 = Module['_emscripten_bind_PalmettoGallberry_PalmettoGallberry_0'] = createExportWrapper('emscripten_bind_PalmettoGallberry_PalmettoGallberry_0');
-var _emscripten_bind_PalmettoGallberry_initializeMembers_0 = Module['_emscripten_bind_PalmettoGallberry_initializeMembers_0'] = createExportWrapper('emscripten_bind_PalmettoGallberry_initializeMembers_0');
-var _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadFineFuelLoad_2 = Module['_emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadFineFuelLoad_2'] = createExportWrapper('emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadFineFuelLoad_2');
-var _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadFoliageLoad_2 = Module['_emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadFoliageLoad_2'] = createExportWrapper('emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadFoliageLoad_2');
-var _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadMediumFuelLoad_2 = Module['_emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadMediumFuelLoad_2'] = createExportWrapper('emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadMediumFuelLoad_2');
-var _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyFuelBedDepth_1 = Module['_emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyFuelBedDepth_1'] = createExportWrapper('emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyFuelBedDepth_1');
-var _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLitterLoad_2 = Module['_emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLitterLoad_2'] = createExportWrapper('emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLitterLoad_2');
-var _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveFineFuelLoad_2 = Module['_emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveFineFuelLoad_2'] = createExportWrapper('emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveFineFuelLoad_2');
-var _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveFoliageLoad_3 = Module['_emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveFoliageLoad_3'] = createExportWrapper('emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveFoliageLoad_3');
-var _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveMediumFuelLoad_2 = Module['_emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveMediumFuelLoad_2'] = createExportWrapper('emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveMediumFuelLoad_2');
-var _emscripten_bind_PalmettoGallberry_getHeatOfCombustionDead_0 = Module['_emscripten_bind_PalmettoGallberry_getHeatOfCombustionDead_0'] = createExportWrapper('emscripten_bind_PalmettoGallberry_getHeatOfCombustionDead_0');
-var _emscripten_bind_PalmettoGallberry_getHeatOfCombustionLive_0 = Module['_emscripten_bind_PalmettoGallberry_getHeatOfCombustionLive_0'] = createExportWrapper('emscripten_bind_PalmettoGallberry_getHeatOfCombustionLive_0');
-var _emscripten_bind_PalmettoGallberry_getMoistureOfExtinctionDead_0 = Module['_emscripten_bind_PalmettoGallberry_getMoistureOfExtinctionDead_0'] = createExportWrapper('emscripten_bind_PalmettoGallberry_getMoistureOfExtinctionDead_0');
-var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadFineFuelLoad_0 = Module['_emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadFineFuelLoad_0'] = createExportWrapper('emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadFineFuelLoad_0');
-var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadFoliageLoad_0 = Module['_emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadFoliageLoad_0'] = createExportWrapper('emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadFoliageLoad_0');
-var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadMediumFuelLoad_0 = Module['_emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadMediumFuelLoad_0'] = createExportWrapper('emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadMediumFuelLoad_0');
-var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyFuelBedDepth_0 = Module['_emscripten_bind_PalmettoGallberry_getPalmettoGallberyFuelBedDepth_0'] = createExportWrapper('emscripten_bind_PalmettoGallberry_getPalmettoGallberyFuelBedDepth_0');
-var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyLitterLoad_0 = Module['_emscripten_bind_PalmettoGallberry_getPalmettoGallberyLitterLoad_0'] = createExportWrapper('emscripten_bind_PalmettoGallberry_getPalmettoGallberyLitterLoad_0');
-var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveFineFuelLoad_0 = Module['_emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveFineFuelLoad_0'] = createExportWrapper('emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveFineFuelLoad_0');
-var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveFoliageLoad_0 = Module['_emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveFoliageLoad_0'] = createExportWrapper('emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveFoliageLoad_0');
-var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveMediumFuelLoad_0 = Module['_emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveMediumFuelLoad_0'] = createExportWrapper('emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveMediumFuelLoad_0');
-var _emscripten_bind_PalmettoGallberry___destroy___0 = Module['_emscripten_bind_PalmettoGallberry___destroy___0'] = createExportWrapper('emscripten_bind_PalmettoGallberry___destroy___0');
-var _emscripten_bind_WesternAspen_WesternAspen_0 = Module['_emscripten_bind_WesternAspen_WesternAspen_0'] = createExportWrapper('emscripten_bind_WesternAspen_WesternAspen_0');
-var _emscripten_bind_WesternAspen_initializeMembers_0 = Module['_emscripten_bind_WesternAspen_initializeMembers_0'] = createExportWrapper('emscripten_bind_WesternAspen_initializeMembers_0');
-var _emscripten_bind_WesternAspen_calculateAspenMortality_3 = Module['_emscripten_bind_WesternAspen_calculateAspenMortality_3'] = createExportWrapper('emscripten_bind_WesternAspen_calculateAspenMortality_3');
-var _emscripten_bind_WesternAspen_getAspenFuelBedDepth_1 = Module['_emscripten_bind_WesternAspen_getAspenFuelBedDepth_1'] = createExportWrapper('emscripten_bind_WesternAspen_getAspenFuelBedDepth_1');
-var _emscripten_bind_WesternAspen_getAspenHeatOfCombustionDead_0 = Module['_emscripten_bind_WesternAspen_getAspenHeatOfCombustionDead_0'] = createExportWrapper('emscripten_bind_WesternAspen_getAspenHeatOfCombustionDead_0');
-var _emscripten_bind_WesternAspen_getAspenHeatOfCombustionLive_0 = Module['_emscripten_bind_WesternAspen_getAspenHeatOfCombustionLive_0'] = createExportWrapper('emscripten_bind_WesternAspen_getAspenHeatOfCombustionLive_0');
-var _emscripten_bind_WesternAspen_getAspenLoadDeadOneHour_0 = Module['_emscripten_bind_WesternAspen_getAspenLoadDeadOneHour_0'] = createExportWrapper('emscripten_bind_WesternAspen_getAspenLoadDeadOneHour_0');
-var _emscripten_bind_WesternAspen_getAspenLoadDeadTenHour_0 = Module['_emscripten_bind_WesternAspen_getAspenLoadDeadTenHour_0'] = createExportWrapper('emscripten_bind_WesternAspen_getAspenLoadDeadTenHour_0');
-var _emscripten_bind_WesternAspen_getAspenLoadLiveHerbaceous_0 = Module['_emscripten_bind_WesternAspen_getAspenLoadLiveHerbaceous_0'] = createExportWrapper('emscripten_bind_WesternAspen_getAspenLoadLiveHerbaceous_0');
-var _emscripten_bind_WesternAspen_getAspenLoadLiveWoody_0 = Module['_emscripten_bind_WesternAspen_getAspenLoadLiveWoody_0'] = createExportWrapper('emscripten_bind_WesternAspen_getAspenLoadLiveWoody_0');
-var _emscripten_bind_WesternAspen_getAspenMoistureOfExtinctionDead_0 = Module['_emscripten_bind_WesternAspen_getAspenMoistureOfExtinctionDead_0'] = createExportWrapper('emscripten_bind_WesternAspen_getAspenMoistureOfExtinctionDead_0');
-var _emscripten_bind_WesternAspen_getAspenMortality_0 = Module['_emscripten_bind_WesternAspen_getAspenMortality_0'] = createExportWrapper('emscripten_bind_WesternAspen_getAspenMortality_0');
-var _emscripten_bind_WesternAspen_getAspenSavrDeadOneHour_0 = Module['_emscripten_bind_WesternAspen_getAspenSavrDeadOneHour_0'] = createExportWrapper('emscripten_bind_WesternAspen_getAspenSavrDeadOneHour_0');
-var _emscripten_bind_WesternAspen_getAspenSavrDeadTenHour_0 = Module['_emscripten_bind_WesternAspen_getAspenSavrDeadTenHour_0'] = createExportWrapper('emscripten_bind_WesternAspen_getAspenSavrDeadTenHour_0');
-var _emscripten_bind_WesternAspen_getAspenSavrLiveHerbaceous_0 = Module['_emscripten_bind_WesternAspen_getAspenSavrLiveHerbaceous_0'] = createExportWrapper('emscripten_bind_WesternAspen_getAspenSavrLiveHerbaceous_0');
-var _emscripten_bind_WesternAspen_getAspenSavrLiveWoody_0 = Module['_emscripten_bind_WesternAspen_getAspenSavrLiveWoody_0'] = createExportWrapper('emscripten_bind_WesternAspen_getAspenSavrLiveWoody_0');
-var _emscripten_bind_WesternAspen___destroy___0 = Module['_emscripten_bind_WesternAspen___destroy___0'] = createExportWrapper('emscripten_bind_WesternAspen___destroy___0');
-var _emscripten_bind_SIGCrown_SIGCrown_1 = Module['_emscripten_bind_SIGCrown_SIGCrown_1'] = createExportWrapper('emscripten_bind_SIGCrown_SIGCrown_1');
-var _emscripten_bind_SIGCrown_getFireType_0 = Module['_emscripten_bind_SIGCrown_getFireType_0'] = createExportWrapper('emscripten_bind_SIGCrown_getFireType_0');
-var _emscripten_bind_SIGCrown_getIsMoistureScenarioDefinedByIndex_1 = Module['_emscripten_bind_SIGCrown_getIsMoistureScenarioDefinedByIndex_1'] = createExportWrapper('emscripten_bind_SIGCrown_getIsMoistureScenarioDefinedByIndex_1');
-var _emscripten_bind_SIGCrown_getIsMoistureScenarioDefinedByName_1 = Module['_emscripten_bind_SIGCrown_getIsMoistureScenarioDefinedByName_1'] = createExportWrapper('emscripten_bind_SIGCrown_getIsMoistureScenarioDefinedByName_1');
-var _emscripten_bind_SIGCrown_isAllFuelLoadZero_1 = Module['_emscripten_bind_SIGCrown_isAllFuelLoadZero_1'] = createExportWrapper('emscripten_bind_SIGCrown_isAllFuelLoadZero_1');
-var _emscripten_bind_SIGCrown_isFuelDynamic_1 = Module['_emscripten_bind_SIGCrown_isFuelDynamic_1'] = createExportWrapper('emscripten_bind_SIGCrown_isFuelDynamic_1');
-var _emscripten_bind_SIGCrown_isFuelModelDefined_1 = Module['_emscripten_bind_SIGCrown_isFuelModelDefined_1'] = createExportWrapper('emscripten_bind_SIGCrown_isFuelModelDefined_1');
-var _emscripten_bind_SIGCrown_isFuelModelReserved_1 = Module['_emscripten_bind_SIGCrown_isFuelModelReserved_1'] = createExportWrapper('emscripten_bind_SIGCrown_isFuelModelReserved_1');
-var _emscripten_bind_SIGCrown_setCurrentMoistureScenarioByIndex_1 = Module['_emscripten_bind_SIGCrown_setCurrentMoistureScenarioByIndex_1'] = createExportWrapper('emscripten_bind_SIGCrown_setCurrentMoistureScenarioByIndex_1');
-var _emscripten_bind_SIGCrown_setCurrentMoistureScenarioByName_1 = Module['_emscripten_bind_SIGCrown_setCurrentMoistureScenarioByName_1'] = createExportWrapper('emscripten_bind_SIGCrown_setCurrentMoistureScenarioByName_1');
-var _emscripten_bind_SIGCrown_getAspect_0 = Module['_emscripten_bind_SIGCrown_getAspect_0'] = createExportWrapper('emscripten_bind_SIGCrown_getAspect_0');
-var _emscripten_bind_SIGCrown_getCanopyBaseHeight_1 = Module['_emscripten_bind_SIGCrown_getCanopyBaseHeight_1'] = createExportWrapper('emscripten_bind_SIGCrown_getCanopyBaseHeight_1');
-var _emscripten_bind_SIGCrown_getCanopyBulkDensity_1 = Module['_emscripten_bind_SIGCrown_getCanopyBulkDensity_1'] = createExportWrapper('emscripten_bind_SIGCrown_getCanopyBulkDensity_1');
-var _emscripten_bind_SIGCrown_getCanopyCover_1 = Module['_emscripten_bind_SIGCrown_getCanopyCover_1'] = createExportWrapper('emscripten_bind_SIGCrown_getCanopyCover_1');
-var _emscripten_bind_SIGCrown_getCanopyHeight_1 = Module['_emscripten_bind_SIGCrown_getCanopyHeight_1'] = createExportWrapper('emscripten_bind_SIGCrown_getCanopyHeight_1');
-var _emscripten_bind_SIGCrown_getCriticalOpenWindSpeed_1 = Module['_emscripten_bind_SIGCrown_getCriticalOpenWindSpeed_1'] = createExportWrapper('emscripten_bind_SIGCrown_getCriticalOpenWindSpeed_1');
-var _emscripten_bind_SIGCrown_getCrownCriticalFireSpreadRate_1 = Module['_emscripten_bind_SIGCrown_getCrownCriticalFireSpreadRate_1'] = createExportWrapper('emscripten_bind_SIGCrown_getCrownCriticalFireSpreadRate_1');
-var _emscripten_bind_SIGCrown_getCrownCriticalSurfaceFirelineIntensity_1 = Module['_emscripten_bind_SIGCrown_getCrownCriticalSurfaceFirelineIntensity_1'] = createExportWrapper('emscripten_bind_SIGCrown_getCrownCriticalSurfaceFirelineIntensity_1');
-var _emscripten_bind_SIGCrown_getCrownCriticalSurfaceFlameLength_1 = Module['_emscripten_bind_SIGCrown_getCrownCriticalSurfaceFlameLength_1'] = createExportWrapper('emscripten_bind_SIGCrown_getCrownCriticalSurfaceFlameLength_1');
-var _emscripten_bind_SIGCrown_getCrownFireActiveRatio_0 = Module['_emscripten_bind_SIGCrown_getCrownFireActiveRatio_0'] = createExportWrapper('emscripten_bind_SIGCrown_getCrownFireActiveRatio_0');
-var _emscripten_bind_SIGCrown_getCrownFireArea_1 = Module['_emscripten_bind_SIGCrown_getCrownFireArea_1'] = createExportWrapper('emscripten_bind_SIGCrown_getCrownFireArea_1');
-var _emscripten_bind_SIGCrown_getCrownFirePerimeter_1 = Module['_emscripten_bind_SIGCrown_getCrownFirePerimeter_1'] = createExportWrapper('emscripten_bind_SIGCrown_getCrownFirePerimeter_1');
-var _emscripten_bind_SIGCrown_getCrownTransitionRatio_0 = Module['_emscripten_bind_SIGCrown_getCrownTransitionRatio_0'] = createExportWrapper('emscripten_bind_SIGCrown_getCrownTransitionRatio_0');
-var _emscripten_bind_SIGCrown_getCrownFireLengthToWidthRatio_0 = Module['_emscripten_bind_SIGCrown_getCrownFireLengthToWidthRatio_0'] = createExportWrapper('emscripten_bind_SIGCrown_getCrownFireLengthToWidthRatio_0');
-var _emscripten_bind_SIGCrown_getCrownFireSpreadDistance_1 = Module['_emscripten_bind_SIGCrown_getCrownFireSpreadDistance_1'] = createExportWrapper('emscripten_bind_SIGCrown_getCrownFireSpreadDistance_1');
-var _emscripten_bind_SIGCrown_getCrownFireSpreadRate_1 = Module['_emscripten_bind_SIGCrown_getCrownFireSpreadRate_1'] = createExportWrapper('emscripten_bind_SIGCrown_getCrownFireSpreadRate_1');
-var _emscripten_bind_SIGCrown_getCrownFirelineIntensity_1 = Module['_emscripten_bind_SIGCrown_getCrownFirelineIntensity_1'] = createExportWrapper('emscripten_bind_SIGCrown_getCrownFirelineIntensity_1');
-var _emscripten_bind_SIGCrown_getCrownFlameLength_1 = Module['_emscripten_bind_SIGCrown_getCrownFlameLength_1'] = createExportWrapper('emscripten_bind_SIGCrown_getCrownFlameLength_1');
-var _emscripten_bind_SIGCrown_getCrownFractionBurned_0 = Module['_emscripten_bind_SIGCrown_getCrownFractionBurned_0'] = createExportWrapper('emscripten_bind_SIGCrown_getCrownFractionBurned_0');
-var _emscripten_bind_SIGCrown_getCrownRatio_0 = Module['_emscripten_bind_SIGCrown_getCrownRatio_0'] = createExportWrapper('emscripten_bind_SIGCrown_getCrownRatio_0');
-var _emscripten_bind_SIGCrown_getFinalFirelineIntesity_1 = Module['_emscripten_bind_SIGCrown_getFinalFirelineIntesity_1'] = createExportWrapper('emscripten_bind_SIGCrown_getFinalFirelineIntesity_1');
-var _emscripten_bind_SIGCrown_getFinalHeatPerUnitArea_1 = Module['_emscripten_bind_SIGCrown_getFinalHeatPerUnitArea_1'] = createExportWrapper('emscripten_bind_SIGCrown_getFinalHeatPerUnitArea_1');
-var _emscripten_bind_SIGCrown_getFinalSpreadRate_1 = Module['_emscripten_bind_SIGCrown_getFinalSpreadRate_1'] = createExportWrapper('emscripten_bind_SIGCrown_getFinalSpreadRate_1');
-var _emscripten_bind_SIGCrown_getFinalSpreadDistance_1 = Module['_emscripten_bind_SIGCrown_getFinalSpreadDistance_1'] = createExportWrapper('emscripten_bind_SIGCrown_getFinalSpreadDistance_1');
-var _emscripten_bind_SIGCrown_getFinalFireArea_1 = Module['_emscripten_bind_SIGCrown_getFinalFireArea_1'] = createExportWrapper('emscripten_bind_SIGCrown_getFinalFireArea_1');
-var _emscripten_bind_SIGCrown_getFinalFirePerimeter_1 = Module['_emscripten_bind_SIGCrown_getFinalFirePerimeter_1'] = createExportWrapper('emscripten_bind_SIGCrown_getFinalFirePerimeter_1');
-var _emscripten_bind_SIGCrown_getFuelHeatOfCombustionDead_2 = Module['_emscripten_bind_SIGCrown_getFuelHeatOfCombustionDead_2'] = createExportWrapper('emscripten_bind_SIGCrown_getFuelHeatOfCombustionDead_2');
-var _emscripten_bind_SIGCrown_getFuelHeatOfCombustionLive_2 = Module['_emscripten_bind_SIGCrown_getFuelHeatOfCombustionLive_2'] = createExportWrapper('emscripten_bind_SIGCrown_getFuelHeatOfCombustionLive_2');
-var _emscripten_bind_SIGCrown_getFuelLoadHundredHour_2 = Module['_emscripten_bind_SIGCrown_getFuelLoadHundredHour_2'] = createExportWrapper('emscripten_bind_SIGCrown_getFuelLoadHundredHour_2');
-var _emscripten_bind_SIGCrown_getFuelLoadLiveHerbaceous_2 = Module['_emscripten_bind_SIGCrown_getFuelLoadLiveHerbaceous_2'] = createExportWrapper('emscripten_bind_SIGCrown_getFuelLoadLiveHerbaceous_2');
-var _emscripten_bind_SIGCrown_getFuelLoadLiveWoody_2 = Module['_emscripten_bind_SIGCrown_getFuelLoadLiveWoody_2'] = createExportWrapper('emscripten_bind_SIGCrown_getFuelLoadLiveWoody_2');
-var _emscripten_bind_SIGCrown_getFuelLoadOneHour_2 = Module['_emscripten_bind_SIGCrown_getFuelLoadOneHour_2'] = createExportWrapper('emscripten_bind_SIGCrown_getFuelLoadOneHour_2');
-var _emscripten_bind_SIGCrown_getFuelLoadTenHour_2 = Module['_emscripten_bind_SIGCrown_getFuelLoadTenHour_2'] = createExportWrapper('emscripten_bind_SIGCrown_getFuelLoadTenHour_2');
-var _emscripten_bind_SIGCrown_getFuelMoistureOfExtinctionDead_2 = Module['_emscripten_bind_SIGCrown_getFuelMoistureOfExtinctionDead_2'] = createExportWrapper('emscripten_bind_SIGCrown_getFuelMoistureOfExtinctionDead_2');
-var _emscripten_bind_SIGCrown_getFuelSavrLiveHerbaceous_2 = Module['_emscripten_bind_SIGCrown_getFuelSavrLiveHerbaceous_2'] = createExportWrapper('emscripten_bind_SIGCrown_getFuelSavrLiveHerbaceous_2');
-var _emscripten_bind_SIGCrown_getFuelSavrLiveWoody_2 = Module['_emscripten_bind_SIGCrown_getFuelSavrLiveWoody_2'] = createExportWrapper('emscripten_bind_SIGCrown_getFuelSavrLiveWoody_2');
-var _emscripten_bind_SIGCrown_getFuelSavrOneHour_2 = Module['_emscripten_bind_SIGCrown_getFuelSavrOneHour_2'] = createExportWrapper('emscripten_bind_SIGCrown_getFuelSavrOneHour_2');
-var _emscripten_bind_SIGCrown_getFuelbedDepth_2 = Module['_emscripten_bind_SIGCrown_getFuelbedDepth_2'] = createExportWrapper('emscripten_bind_SIGCrown_getFuelbedDepth_2');
-var _emscripten_bind_SIGCrown_getMoistureFoliar_1 = Module['_emscripten_bind_SIGCrown_getMoistureFoliar_1'] = createExportWrapper('emscripten_bind_SIGCrown_getMoistureFoliar_1');
-var _emscripten_bind_SIGCrown_getMoistureHundredHour_1 = Module['_emscripten_bind_SIGCrown_getMoistureHundredHour_1'] = createExportWrapper('emscripten_bind_SIGCrown_getMoistureHundredHour_1');
-var _emscripten_bind_SIGCrown_getMoistureLiveHerbaceous_1 = Module['_emscripten_bind_SIGCrown_getMoistureLiveHerbaceous_1'] = createExportWrapper('emscripten_bind_SIGCrown_getMoistureLiveHerbaceous_1');
-var _emscripten_bind_SIGCrown_getMoistureLiveWoody_1 = Module['_emscripten_bind_SIGCrown_getMoistureLiveWoody_1'] = createExportWrapper('emscripten_bind_SIGCrown_getMoistureLiveWoody_1');
-var _emscripten_bind_SIGCrown_getMoistureOneHour_1 = Module['_emscripten_bind_SIGCrown_getMoistureOneHour_1'] = createExportWrapper('emscripten_bind_SIGCrown_getMoistureOneHour_1');
-var _emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByIndex_2 = Module['_emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByIndex_2'] = createExportWrapper('emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByIndex_2');
-var _emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByName_2 = Module['_emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByName_2'] = createExportWrapper('emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByName_2');
-var _emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByIndex_2 = Module['_emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByIndex_2'] = createExportWrapper('emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByIndex_2');
-var _emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByName_2 = Module['_emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByName_2'] = createExportWrapper('emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByName_2');
-var _emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByIndex_2 = Module['_emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByIndex_2'] = createExportWrapper('emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByIndex_2');
-var _emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByName_2 = Module['_emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByName_2'] = createExportWrapper('emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByName_2');
-var _emscripten_bind_SIGCrown_getMoistureScenarioOneHourByIndex_2 = Module['_emscripten_bind_SIGCrown_getMoistureScenarioOneHourByIndex_2'] = createExportWrapper('emscripten_bind_SIGCrown_getMoistureScenarioOneHourByIndex_2');
-var _emscripten_bind_SIGCrown_getMoistureScenarioOneHourByName_2 = Module['_emscripten_bind_SIGCrown_getMoistureScenarioOneHourByName_2'] = createExportWrapper('emscripten_bind_SIGCrown_getMoistureScenarioOneHourByName_2');
-var _emscripten_bind_SIGCrown_getMoistureScenarioTenHourByIndex_2 = Module['_emscripten_bind_SIGCrown_getMoistureScenarioTenHourByIndex_2'] = createExportWrapper('emscripten_bind_SIGCrown_getMoistureScenarioTenHourByIndex_2');
-var _emscripten_bind_SIGCrown_getMoistureScenarioTenHourByName_2 = Module['_emscripten_bind_SIGCrown_getMoistureScenarioTenHourByName_2'] = createExportWrapper('emscripten_bind_SIGCrown_getMoistureScenarioTenHourByName_2');
-var _emscripten_bind_SIGCrown_getMoistureTenHour_1 = Module['_emscripten_bind_SIGCrown_getMoistureTenHour_1'] = createExportWrapper('emscripten_bind_SIGCrown_getMoistureTenHour_1');
-var _emscripten_bind_SIGCrown_getSlope_1 = Module['_emscripten_bind_SIGCrown_getSlope_1'] = createExportWrapper('emscripten_bind_SIGCrown_getSlope_1');
-var _emscripten_bind_SIGCrown_getSurfaceFireSpreadDistance_1 = Module['_emscripten_bind_SIGCrown_getSurfaceFireSpreadDistance_1'] = createExportWrapper('emscripten_bind_SIGCrown_getSurfaceFireSpreadDistance_1');
-var _emscripten_bind_SIGCrown_getSurfaceFireSpreadRate_1 = Module['_emscripten_bind_SIGCrown_getSurfaceFireSpreadRate_1'] = createExportWrapper('emscripten_bind_SIGCrown_getSurfaceFireSpreadRate_1');
-var _emscripten_bind_SIGCrown_getWindDirection_0 = Module['_emscripten_bind_SIGCrown_getWindDirection_0'] = createExportWrapper('emscripten_bind_SIGCrown_getWindDirection_0');
-var _emscripten_bind_SIGCrown_getWindSpeed_2 = Module['_emscripten_bind_SIGCrown_getWindSpeed_2'] = createExportWrapper('emscripten_bind_SIGCrown_getWindSpeed_2');
-var _emscripten_bind_SIGCrown_getFuelModelNumber_0 = Module['_emscripten_bind_SIGCrown_getFuelModelNumber_0'] = createExportWrapper('emscripten_bind_SIGCrown_getFuelModelNumber_0');
-var _emscripten_bind_SIGCrown_getMoistureScenarioIndexByName_1 = Module['_emscripten_bind_SIGCrown_getMoistureScenarioIndexByName_1'] = createExportWrapper('emscripten_bind_SIGCrown_getMoistureScenarioIndexByName_1');
-var _emscripten_bind_SIGCrown_getNumberOfMoistureScenarios_0 = Module['_emscripten_bind_SIGCrown_getNumberOfMoistureScenarios_0'] = createExportWrapper('emscripten_bind_SIGCrown_getNumberOfMoistureScenarios_0');
-var _emscripten_bind_SIGCrown_getFuelCode_1 = Module['_emscripten_bind_SIGCrown_getFuelCode_1'] = createExportWrapper('emscripten_bind_SIGCrown_getFuelCode_1');
-var _emscripten_bind_SIGCrown_getFuelName_1 = Module['_emscripten_bind_SIGCrown_getFuelName_1'] = createExportWrapper('emscripten_bind_SIGCrown_getFuelName_1');
-var _emscripten_bind_SIGCrown_getMoistureScenarioDescriptionByIndex_1 = Module['_emscripten_bind_SIGCrown_getMoistureScenarioDescriptionByIndex_1'] = createExportWrapper('emscripten_bind_SIGCrown_getMoistureScenarioDescriptionByIndex_1');
-var _emscripten_bind_SIGCrown_getMoistureScenarioDescriptionByName_1 = Module['_emscripten_bind_SIGCrown_getMoistureScenarioDescriptionByName_1'] = createExportWrapper('emscripten_bind_SIGCrown_getMoistureScenarioDescriptionByName_1');
-var _emscripten_bind_SIGCrown_getMoistureScenarioNameByIndex_1 = Module['_emscripten_bind_SIGCrown_getMoistureScenarioNameByIndex_1'] = createExportWrapper('emscripten_bind_SIGCrown_getMoistureScenarioNameByIndex_1');
-var _emscripten_bind_SIGCrown_doCrownRun_0 = Module['_emscripten_bind_SIGCrown_doCrownRun_0'] = createExportWrapper('emscripten_bind_SIGCrown_doCrownRun_0');
-var _emscripten_bind_SIGCrown_doCrownRunRothermel_0 = Module['_emscripten_bind_SIGCrown_doCrownRunRothermel_0'] = createExportWrapper('emscripten_bind_SIGCrown_doCrownRunRothermel_0');
-var _emscripten_bind_SIGCrown_doCrownRunScottAndReinhardt_0 = Module['_emscripten_bind_SIGCrown_doCrownRunScottAndReinhardt_0'] = createExportWrapper('emscripten_bind_SIGCrown_doCrownRunScottAndReinhardt_0');
-var _emscripten_bind_SIGCrown_initializeMembers_0 = Module['_emscripten_bind_SIGCrown_initializeMembers_0'] = createExportWrapper('emscripten_bind_SIGCrown_initializeMembers_0');
-var _emscripten_bind_SIGCrown_setAspect_1 = Module['_emscripten_bind_SIGCrown_setAspect_1'] = createExportWrapper('emscripten_bind_SIGCrown_setAspect_1');
-var _emscripten_bind_SIGCrown_setCanopyBaseHeight_2 = Module['_emscripten_bind_SIGCrown_setCanopyBaseHeight_2'] = createExportWrapper('emscripten_bind_SIGCrown_setCanopyBaseHeight_2');
-var _emscripten_bind_SIGCrown_setCanopyBulkDensity_2 = Module['_emscripten_bind_SIGCrown_setCanopyBulkDensity_2'] = createExportWrapper('emscripten_bind_SIGCrown_setCanopyBulkDensity_2');
-var _emscripten_bind_SIGCrown_setCanopyCover_2 = Module['_emscripten_bind_SIGCrown_setCanopyCover_2'] = createExportWrapper('emscripten_bind_SIGCrown_setCanopyCover_2');
-var _emscripten_bind_SIGCrown_setCanopyHeight_2 = Module['_emscripten_bind_SIGCrown_setCanopyHeight_2'] = createExportWrapper('emscripten_bind_SIGCrown_setCanopyHeight_2');
-var _emscripten_bind_SIGCrown_setCrownRatio_1 = Module['_emscripten_bind_SIGCrown_setCrownRatio_1'] = createExportWrapper('emscripten_bind_SIGCrown_setCrownRatio_1');
-var _emscripten_bind_SIGCrown_setFuelModelNumber_1 = Module['_emscripten_bind_SIGCrown_setFuelModelNumber_1'] = createExportWrapper('emscripten_bind_SIGCrown_setFuelModelNumber_1');
-var _emscripten_bind_SIGCrown_setCrownFireCalculationMethod_1 = Module['_emscripten_bind_SIGCrown_setCrownFireCalculationMethod_1'] = createExportWrapper('emscripten_bind_SIGCrown_setCrownFireCalculationMethod_1');
-var _emscripten_bind_SIGCrown_setElapsedTime_2 = Module['_emscripten_bind_SIGCrown_setElapsedTime_2'] = createExportWrapper('emscripten_bind_SIGCrown_setElapsedTime_2');
-var _emscripten_bind_SIGCrown_setFuelModels_1 = Module['_emscripten_bind_SIGCrown_setFuelModels_1'] = createExportWrapper('emscripten_bind_SIGCrown_setFuelModels_1');
-var _emscripten_bind_SIGCrown_setMoistureDeadAggregate_2 = Module['_emscripten_bind_SIGCrown_setMoistureDeadAggregate_2'] = createExportWrapper('emscripten_bind_SIGCrown_setMoistureDeadAggregate_2');
-var _emscripten_bind_SIGCrown_setMoistureFoliar_2 = Module['_emscripten_bind_SIGCrown_setMoistureFoliar_2'] = createExportWrapper('emscripten_bind_SIGCrown_setMoistureFoliar_2');
-var _emscripten_bind_SIGCrown_setMoistureHundredHour_2 = Module['_emscripten_bind_SIGCrown_setMoistureHundredHour_2'] = createExportWrapper('emscripten_bind_SIGCrown_setMoistureHundredHour_2');
-var _emscripten_bind_SIGCrown_setMoistureInputMode_1 = Module['_emscripten_bind_SIGCrown_setMoistureInputMode_1'] = createExportWrapper('emscripten_bind_SIGCrown_setMoistureInputMode_1');
-var _emscripten_bind_SIGCrown_setMoistureLiveAggregate_2 = Module['_emscripten_bind_SIGCrown_setMoistureLiveAggregate_2'] = createExportWrapper('emscripten_bind_SIGCrown_setMoistureLiveAggregate_2');
-var _emscripten_bind_SIGCrown_setMoistureLiveHerbaceous_2 = Module['_emscripten_bind_SIGCrown_setMoistureLiveHerbaceous_2'] = createExportWrapper('emscripten_bind_SIGCrown_setMoistureLiveHerbaceous_2');
-var _emscripten_bind_SIGCrown_setMoistureLiveWoody_2 = Module['_emscripten_bind_SIGCrown_setMoistureLiveWoody_2'] = createExportWrapper('emscripten_bind_SIGCrown_setMoistureLiveWoody_2');
-var _emscripten_bind_SIGCrown_setMoistureOneHour_2 = Module['_emscripten_bind_SIGCrown_setMoistureOneHour_2'] = createExportWrapper('emscripten_bind_SIGCrown_setMoistureOneHour_2');
-var _emscripten_bind_SIGCrown_setMoistureScenarios_1 = Module['_emscripten_bind_SIGCrown_setMoistureScenarios_1'] = createExportWrapper('emscripten_bind_SIGCrown_setMoistureScenarios_1');
-var _emscripten_bind_SIGCrown_setMoistureTenHour_2 = Module['_emscripten_bind_SIGCrown_setMoistureTenHour_2'] = createExportWrapper('emscripten_bind_SIGCrown_setMoistureTenHour_2');
-var _emscripten_bind_SIGCrown_setSlope_2 = Module['_emscripten_bind_SIGCrown_setSlope_2'] = createExportWrapper('emscripten_bind_SIGCrown_setSlope_2');
-var _emscripten_bind_SIGCrown_setUserProvidedWindAdjustmentFactor_1 = Module['_emscripten_bind_SIGCrown_setUserProvidedWindAdjustmentFactor_1'] = createExportWrapper('emscripten_bind_SIGCrown_setUserProvidedWindAdjustmentFactor_1');
-var _emscripten_bind_SIGCrown_setWindAdjustmentFactorCalculationMethod_1 = Module['_emscripten_bind_SIGCrown_setWindAdjustmentFactorCalculationMethod_1'] = createExportWrapper('emscripten_bind_SIGCrown_setWindAdjustmentFactorCalculationMethod_1');
-var _emscripten_bind_SIGCrown_setWindAndSpreadOrientationMode_1 = Module['_emscripten_bind_SIGCrown_setWindAndSpreadOrientationMode_1'] = createExportWrapper('emscripten_bind_SIGCrown_setWindAndSpreadOrientationMode_1');
-var _emscripten_bind_SIGCrown_setWindDirection_1 = Module['_emscripten_bind_SIGCrown_setWindDirection_1'] = createExportWrapper('emscripten_bind_SIGCrown_setWindDirection_1');
-var _emscripten_bind_SIGCrown_setWindHeightInputMode_1 = Module['_emscripten_bind_SIGCrown_setWindHeightInputMode_1'] = createExportWrapper('emscripten_bind_SIGCrown_setWindHeightInputMode_1');
-var _emscripten_bind_SIGCrown_setWindSpeed_2 = Module['_emscripten_bind_SIGCrown_setWindSpeed_2'] = createExportWrapper('emscripten_bind_SIGCrown_setWindSpeed_2');
-var _emscripten_bind_SIGCrown_updateCrownInputs_24 = Module['_emscripten_bind_SIGCrown_updateCrownInputs_24'] = createExportWrapper('emscripten_bind_SIGCrown_updateCrownInputs_24');
-var _emscripten_bind_SIGCrown_updateCrownsSurfaceInputs_20 = Module['_emscripten_bind_SIGCrown_updateCrownsSurfaceInputs_20'] = createExportWrapper('emscripten_bind_SIGCrown_updateCrownsSurfaceInputs_20');
-var _emscripten_bind_SIGCrown_getFinalFlameLength_1 = Module['_emscripten_bind_SIGCrown_getFinalFlameLength_1'] = createExportWrapper('emscripten_bind_SIGCrown_getFinalFlameLength_1');
-var _emscripten_bind_SIGCrown___destroy___0 = Module['_emscripten_bind_SIGCrown___destroy___0'] = createExportWrapper('emscripten_bind_SIGCrown___destroy___0');
-var _emscripten_bind_SpeciesMasterTableRecord_SpeciesMasterTableRecord_0 = Module['_emscripten_bind_SpeciesMasterTableRecord_SpeciesMasterTableRecord_0'] = createExportWrapper('emscripten_bind_SpeciesMasterTableRecord_SpeciesMasterTableRecord_0');
-var _emscripten_bind_SpeciesMasterTableRecord_SpeciesMasterTableRecord_1 = Module['_emscripten_bind_SpeciesMasterTableRecord_SpeciesMasterTableRecord_1'] = createExportWrapper('emscripten_bind_SpeciesMasterTableRecord_SpeciesMasterTableRecord_1');
-var _emscripten_bind_SpeciesMasterTableRecord___destroy___0 = Module['_emscripten_bind_SpeciesMasterTableRecord___destroy___0'] = createExportWrapper('emscripten_bind_SpeciesMasterTableRecord___destroy___0');
-var _emscripten_bind_SpeciesMasterTable_SpeciesMasterTable_0 = Module['_emscripten_bind_SpeciesMasterTable_SpeciesMasterTable_0'] = createExportWrapper('emscripten_bind_SpeciesMasterTable_SpeciesMasterTable_0');
-var _emscripten_bind_SpeciesMasterTable_initializeMasterTable_0 = Module['_emscripten_bind_SpeciesMasterTable_initializeMasterTable_0'] = createExportWrapper('emscripten_bind_SpeciesMasterTable_initializeMasterTable_0');
-var _emscripten_bind_SpeciesMasterTable_getSpeciesTableIndexFromSpeciesCode_1 = Module['_emscripten_bind_SpeciesMasterTable_getSpeciesTableIndexFromSpeciesCode_1'] = createExportWrapper('emscripten_bind_SpeciesMasterTable_getSpeciesTableIndexFromSpeciesCode_1');
-var _emscripten_bind_SpeciesMasterTable_getSpeciesTableIndexFromSpeciesCodeAndEquationType_2 = Module['_emscripten_bind_SpeciesMasterTable_getSpeciesTableIndexFromSpeciesCodeAndEquationType_2'] = createExportWrapper('emscripten_bind_SpeciesMasterTable_getSpeciesTableIndexFromSpeciesCodeAndEquationType_2');
-var _emscripten_bind_SpeciesMasterTable_insertRecord_12 = Module['_emscripten_bind_SpeciesMasterTable_insertRecord_12'] = createExportWrapper('emscripten_bind_SpeciesMasterTable_insertRecord_12');
-var _emscripten_bind_SpeciesMasterTable___destroy___0 = Module['_emscripten_bind_SpeciesMasterTable___destroy___0'] = createExportWrapper('emscripten_bind_SpeciesMasterTable___destroy___0');
-var _emscripten_bind_SIGMortality_SIGMortality_1 = Module['_emscripten_bind_SIGMortality_SIGMortality_1'] = createExportWrapper('emscripten_bind_SIGMortality_SIGMortality_1');
-var _emscripten_bind_SIGMortality_getBeetleDamage_0 = Module['_emscripten_bind_SIGMortality_getBeetleDamage_0'] = createExportWrapper('emscripten_bind_SIGMortality_getBeetleDamage_0');
-var _emscripten_bind_SIGMortality_getCrownDamageEquationCode_0 = Module['_emscripten_bind_SIGMortality_getCrownDamageEquationCode_0'] = createExportWrapper('emscripten_bind_SIGMortality_getCrownDamageEquationCode_0');
-var _emscripten_bind_SIGMortality_getCrownDamageEquationCodeAtSpeciesTableIndex_1 = Module['_emscripten_bind_SIGMortality_getCrownDamageEquationCodeAtSpeciesTableIndex_1'] = createExportWrapper('emscripten_bind_SIGMortality_getCrownDamageEquationCodeAtSpeciesTableIndex_1');
-var _emscripten_bind_SIGMortality_getCrownDamageEquationCodeFromSpeciesCode_1 = Module['_emscripten_bind_SIGMortality_getCrownDamageEquationCodeFromSpeciesCode_1'] = createExportWrapper('emscripten_bind_SIGMortality_getCrownDamageEquationCodeFromSpeciesCode_1');
-var _emscripten_bind_SIGMortality_getCrownDamageType_0 = Module['_emscripten_bind_SIGMortality_getCrownDamageType_0'] = createExportWrapper('emscripten_bind_SIGMortality_getCrownDamageType_0');
-var _emscripten_bind_SIGMortality_getEquationType_0 = Module['_emscripten_bind_SIGMortality_getEquationType_0'] = createExportWrapper('emscripten_bind_SIGMortality_getEquationType_0');
-var _emscripten_bind_SIGMortality_getEquationTypeAtSpeciesTableIndex_1 = Module['_emscripten_bind_SIGMortality_getEquationTypeAtSpeciesTableIndex_1'] = createExportWrapper('emscripten_bind_SIGMortality_getEquationTypeAtSpeciesTableIndex_1');
-var _emscripten_bind_SIGMortality_getFireSeverity_0 = Module['_emscripten_bind_SIGMortality_getFireSeverity_0'] = createExportWrapper('emscripten_bind_SIGMortality_getFireSeverity_0');
-var _emscripten_bind_SIGMortality_getFlameLengthOrScorchHeightSwitch_0 = Module['_emscripten_bind_SIGMortality_getFlameLengthOrScorchHeightSwitch_0'] = createExportWrapper('emscripten_bind_SIGMortality_getFlameLengthOrScorchHeightSwitch_0');
-var _emscripten_bind_SIGMortality_getRegion_0 = Module['_emscripten_bind_SIGMortality_getRegion_0'] = createExportWrapper('emscripten_bind_SIGMortality_getRegion_0');
-var _emscripten_bind_SIGMortality_checkIsInRegionAtSpeciesTableIndex_2 = Module['_emscripten_bind_SIGMortality_checkIsInRegionAtSpeciesTableIndex_2'] = createExportWrapper('emscripten_bind_SIGMortality_checkIsInRegionAtSpeciesTableIndex_2');
-var _emscripten_bind_SIGMortality_checkIsInRegionFromSpeciesCode_2 = Module['_emscripten_bind_SIGMortality_checkIsInRegionFromSpeciesCode_2'] = createExportWrapper('emscripten_bind_SIGMortality_checkIsInRegionFromSpeciesCode_2');
-var _emscripten_bind_SIGMortality_updateInputsForSpeciesCodeAndEquationType_2 = Module['_emscripten_bind_SIGMortality_updateInputsForSpeciesCodeAndEquationType_2'] = createExportWrapper('emscripten_bind_SIGMortality_updateInputsForSpeciesCodeAndEquationType_2');
-var _emscripten_bind_SIGMortality_calculateMortality_1 = Module['_emscripten_bind_SIGMortality_calculateMortality_1'] = createExportWrapper('emscripten_bind_SIGMortality_calculateMortality_1');
-var _emscripten_bind_SIGMortality_calculateScorchHeight_7 = Module['_emscripten_bind_SIGMortality_calculateScorchHeight_7'] = createExportWrapper('emscripten_bind_SIGMortality_calculateScorchHeight_7');
-var _emscripten_bind_SIGMortality_getBarkThickness_1 = Module['_emscripten_bind_SIGMortality_getBarkThickness_1'] = createExportWrapper('emscripten_bind_SIGMortality_getBarkThickness_1');
-var _emscripten_bind_SIGMortality_getBasalAreaKillled_0 = Module['_emscripten_bind_SIGMortality_getBasalAreaKillled_0'] = createExportWrapper('emscripten_bind_SIGMortality_getBasalAreaKillled_0');
-var _emscripten_bind_SIGMortality_getBasalAreaPostfire_0 = Module['_emscripten_bind_SIGMortality_getBasalAreaPostfire_0'] = createExportWrapper('emscripten_bind_SIGMortality_getBasalAreaPostfire_0');
-var _emscripten_bind_SIGMortality_getBasalAreaPrefire_0 = Module['_emscripten_bind_SIGMortality_getBasalAreaPrefire_0'] = createExportWrapper('emscripten_bind_SIGMortality_getBasalAreaPrefire_0');
-var _emscripten_bind_SIGMortality_getBoleCharHeight_1 = Module['_emscripten_bind_SIGMortality_getBoleCharHeight_1'] = createExportWrapper('emscripten_bind_SIGMortality_getBoleCharHeight_1');
-var _emscripten_bind_SIGMortality_getCambiumKillRating_0 = Module['_emscripten_bind_SIGMortality_getCambiumKillRating_0'] = createExportWrapper('emscripten_bind_SIGMortality_getCambiumKillRating_0');
-var _emscripten_bind_SIGMortality_getCrownDamage_0 = Module['_emscripten_bind_SIGMortality_getCrownDamage_0'] = createExportWrapper('emscripten_bind_SIGMortality_getCrownDamage_0');
-var _emscripten_bind_SIGMortality_getCrownRatio_0 = Module['_emscripten_bind_SIGMortality_getCrownRatio_0'] = createExportWrapper('emscripten_bind_SIGMortality_getCrownRatio_0');
-var _emscripten_bind_SIGMortality_getCalculatedScorchHeight_1 = Module['_emscripten_bind_SIGMortality_getCalculatedScorchHeight_1'] = createExportWrapper('emscripten_bind_SIGMortality_getCalculatedScorchHeight_1');
-var _emscripten_bind_SIGMortality_getDBH_1 = Module['_emscripten_bind_SIGMortality_getDBH_1'] = createExportWrapper('emscripten_bind_SIGMortality_getDBH_1');
-var _emscripten_bind_SIGMortality_getFlameLengthOrScorchHeightValue_1 = Module['_emscripten_bind_SIGMortality_getFlameLengthOrScorchHeightValue_1'] = createExportWrapper('emscripten_bind_SIGMortality_getFlameLengthOrScorchHeightValue_1');
-var _emscripten_bind_SIGMortality_getKilledTrees_0 = Module['_emscripten_bind_SIGMortality_getKilledTrees_0'] = createExportWrapper('emscripten_bind_SIGMortality_getKilledTrees_0');
-var _emscripten_bind_SIGMortality_getProbabilityOfMortality_1 = Module['_emscripten_bind_SIGMortality_getProbabilityOfMortality_1'] = createExportWrapper('emscripten_bind_SIGMortality_getProbabilityOfMortality_1');
-var _emscripten_bind_SIGMortality_getTotalPrefireTrees_0 = Module['_emscripten_bind_SIGMortality_getTotalPrefireTrees_0'] = createExportWrapper('emscripten_bind_SIGMortality_getTotalPrefireTrees_0');
-var _emscripten_bind_SIGMortality_getTreeCrownLengthScorched_1 = Module['_emscripten_bind_SIGMortality_getTreeCrownLengthScorched_1'] = createExportWrapper('emscripten_bind_SIGMortality_getTreeCrownLengthScorched_1');
-var _emscripten_bind_SIGMortality_getTreeCrownVolumeScorched_1 = Module['_emscripten_bind_SIGMortality_getTreeCrownVolumeScorched_1'] = createExportWrapper('emscripten_bind_SIGMortality_getTreeCrownVolumeScorched_1');
-var _emscripten_bind_SIGMortality_getTreeDensityPerUnitArea_1 = Module['_emscripten_bind_SIGMortality_getTreeDensityPerUnitArea_1'] = createExportWrapper('emscripten_bind_SIGMortality_getTreeDensityPerUnitArea_1');
-var _emscripten_bind_SIGMortality_getTreeHeight_1 = Module['_emscripten_bind_SIGMortality_getTreeHeight_1'] = createExportWrapper('emscripten_bind_SIGMortality_getTreeHeight_1');
-var _emscripten_bind_SIGMortality_postfireCanopyCover_0 = Module['_emscripten_bind_SIGMortality_postfireCanopyCover_0'] = createExportWrapper('emscripten_bind_SIGMortality_postfireCanopyCover_0');
-var _emscripten_bind_SIGMortality_prefireCanopyCover_0 = Module['_emscripten_bind_SIGMortality_prefireCanopyCover_0'] = createExportWrapper('emscripten_bind_SIGMortality_prefireCanopyCover_0');
-var _emscripten_bind_SIGMortality_getBarkEquationNumberAtSpeciesTableIndex_1 = Module['_emscripten_bind_SIGMortality_getBarkEquationNumberAtSpeciesTableIndex_1'] = createExportWrapper('emscripten_bind_SIGMortality_getBarkEquationNumberAtSpeciesTableIndex_1');
-var _emscripten_bind_SIGMortality_getBarkEquationNumberFromSpeciesCode_1 = Module['_emscripten_bind_SIGMortality_getBarkEquationNumberFromSpeciesCode_1'] = createExportWrapper('emscripten_bind_SIGMortality_getBarkEquationNumberFromSpeciesCode_1');
-var _emscripten_bind_SIGMortality_getCrownCoefficientCodeAtSpeciesTableIndex_1 = Module['_emscripten_bind_SIGMortality_getCrownCoefficientCodeAtSpeciesTableIndex_1'] = createExportWrapper('emscripten_bind_SIGMortality_getCrownCoefficientCodeAtSpeciesTableIndex_1');
-var _emscripten_bind_SIGMortality_getCrownCoefficientCodeFromSpeciesCode_1 = Module['_emscripten_bind_SIGMortality_getCrownCoefficientCodeFromSpeciesCode_1'] = createExportWrapper('emscripten_bind_SIGMortality_getCrownCoefficientCodeFromSpeciesCode_1');
-var _emscripten_bind_SIGMortality_getCrownScorchOrBoleCharEquationNumber_0 = Module['_emscripten_bind_SIGMortality_getCrownScorchOrBoleCharEquationNumber_0'] = createExportWrapper('emscripten_bind_SIGMortality_getCrownScorchOrBoleCharEquationNumber_0');
-var _emscripten_bind_SIGMortality_getMortalityEquationNumberAtSpeciesTableIndex_1 = Module['_emscripten_bind_SIGMortality_getMortalityEquationNumberAtSpeciesTableIndex_1'] = createExportWrapper('emscripten_bind_SIGMortality_getMortalityEquationNumberAtSpeciesTableIndex_1');
-var _emscripten_bind_SIGMortality_getMortalityEquationNumberFromSpeciesCode_1 = Module['_emscripten_bind_SIGMortality_getMortalityEquationNumberFromSpeciesCode_1'] = createExportWrapper('emscripten_bind_SIGMortality_getMortalityEquationNumberFromSpeciesCode_1');
-var _emscripten_bind_SIGMortality_getNumberOfRecordsInSpeciesTable_0 = Module['_emscripten_bind_SIGMortality_getNumberOfRecordsInSpeciesTable_0'] = createExportWrapper('emscripten_bind_SIGMortality_getNumberOfRecordsInSpeciesTable_0');
-var _emscripten_bind_SIGMortality_getSpeciesTableIndexFromSpeciesCode_1 = Module['_emscripten_bind_SIGMortality_getSpeciesTableIndexFromSpeciesCode_1'] = createExportWrapper('emscripten_bind_SIGMortality_getSpeciesTableIndexFromSpeciesCode_1');
-var _emscripten_bind_SIGMortality_getSpeciesTableIndexFromSpeciesCodeAndEquationType_2 = Module['_emscripten_bind_SIGMortality_getSpeciesTableIndexFromSpeciesCodeAndEquationType_2'] = createExportWrapper('emscripten_bind_SIGMortality_getSpeciesTableIndexFromSpeciesCodeAndEquationType_2');
-var _emscripten_bind_SIGMortality_getSpeciesCode_0 = Module['_emscripten_bind_SIGMortality_getSpeciesCode_0'] = createExportWrapper('emscripten_bind_SIGMortality_getSpeciesCode_0');
-var _emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegion_1 = Module['_emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegion_1'] = createExportWrapper('emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegion_1');
-var _emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegionAndEquationType_2 = Module['_emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegionAndEquationType_2'] = createExportWrapper('emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegionAndEquationType_2');
-var _emscripten_bind_SIGMortality_getCommonNameAtSpeciesTableIndex_1 = Module['_emscripten_bind_SIGMortality_getCommonNameAtSpeciesTableIndex_1'] = createExportWrapper('emscripten_bind_SIGMortality_getCommonNameAtSpeciesTableIndex_1');
-var _emscripten_bind_SIGMortality_getCommonNameFromSpeciesCode_1 = Module['_emscripten_bind_SIGMortality_getCommonNameFromSpeciesCode_1'] = createExportWrapper('emscripten_bind_SIGMortality_getCommonNameFromSpeciesCode_1');
-var _emscripten_bind_SIGMortality_getScientificNameAtSpeciesTableIndex_1 = Module['_emscripten_bind_SIGMortality_getScientificNameAtSpeciesTableIndex_1'] = createExportWrapper('emscripten_bind_SIGMortality_getScientificNameAtSpeciesTableIndex_1');
-var _emscripten_bind_SIGMortality_getScientificNameFromSpeciesCode_1 = Module['_emscripten_bind_SIGMortality_getScientificNameFromSpeciesCode_1'] = createExportWrapper('emscripten_bind_SIGMortality_getScientificNameFromSpeciesCode_1');
-var _emscripten_bind_SIGMortality_getSpeciesCodeAtSpeciesTableIndex_1 = Module['_emscripten_bind_SIGMortality_getSpeciesCodeAtSpeciesTableIndex_1'] = createExportWrapper('emscripten_bind_SIGMortality_getSpeciesCodeAtSpeciesTableIndex_1');
-var _emscripten_bind_SIGMortality_getRequiredFieldVector_0 = Module['_emscripten_bind_SIGMortality_getRequiredFieldVector_0'] = createExportWrapper('emscripten_bind_SIGMortality_getRequiredFieldVector_0');
-var _emscripten_bind_SIGMortality_setAirTemperature_2 = Module['_emscripten_bind_SIGMortality_setAirTemperature_2'] = createExportWrapper('emscripten_bind_SIGMortality_setAirTemperature_2');
-var _emscripten_bind_SIGMortality_setBeetleDamage_1 = Module['_emscripten_bind_SIGMortality_setBeetleDamage_1'] = createExportWrapper('emscripten_bind_SIGMortality_setBeetleDamage_1');
-var _emscripten_bind_SIGMortality_setMidFlameWindSpeed_2 = Module['_emscripten_bind_SIGMortality_setMidFlameWindSpeed_2'] = createExportWrapper('emscripten_bind_SIGMortality_setMidFlameWindSpeed_2');
-var _emscripten_bind_SIGMortality_setBoleCharHeight_2 = Module['_emscripten_bind_SIGMortality_setBoleCharHeight_2'] = createExportWrapper('emscripten_bind_SIGMortality_setBoleCharHeight_2');
-var _emscripten_bind_SIGMortality_setCambiumKillRating_1 = Module['_emscripten_bind_SIGMortality_setCambiumKillRating_1'] = createExportWrapper('emscripten_bind_SIGMortality_setCambiumKillRating_1');
-var _emscripten_bind_SIGMortality_setCrownDamage_1 = Module['_emscripten_bind_SIGMortality_setCrownDamage_1'] = createExportWrapper('emscripten_bind_SIGMortality_setCrownDamage_1');
-var _emscripten_bind_SIGMortality_setCrownRatio_1 = Module['_emscripten_bind_SIGMortality_setCrownRatio_1'] = createExportWrapper('emscripten_bind_SIGMortality_setCrownRatio_1');
-var _emscripten_bind_SIGMortality_setDBH_2 = Module['_emscripten_bind_SIGMortality_setDBH_2'] = createExportWrapper('emscripten_bind_SIGMortality_setDBH_2');
-var _emscripten_bind_SIGMortality_setEquationType_1 = Module['_emscripten_bind_SIGMortality_setEquationType_1'] = createExportWrapper('emscripten_bind_SIGMortality_setEquationType_1');
-var _emscripten_bind_SIGMortality_setFireSeverity_1 = Module['_emscripten_bind_SIGMortality_setFireSeverity_1'] = createExportWrapper('emscripten_bind_SIGMortality_setFireSeverity_1');
-var _emscripten_bind_SIGMortality_setFirelineIntensity_2 = Module['_emscripten_bind_SIGMortality_setFirelineIntensity_2'] = createExportWrapper('emscripten_bind_SIGMortality_setFirelineIntensity_2');
-var _emscripten_bind_SIGMortality_setFlameLengthOrScorchHeightSwitch_1 = Module['_emscripten_bind_SIGMortality_setFlameLengthOrScorchHeightSwitch_1'] = createExportWrapper('emscripten_bind_SIGMortality_setFlameLengthOrScorchHeightSwitch_1');
-var _emscripten_bind_SIGMortality_setFlameLengthOrScorchHeightValue_2 = Module['_emscripten_bind_SIGMortality_setFlameLengthOrScorchHeightValue_2'] = createExportWrapper('emscripten_bind_SIGMortality_setFlameLengthOrScorchHeightValue_2');
-var _emscripten_bind_SIGMortality_setRegion_1 = Module['_emscripten_bind_SIGMortality_setRegion_1'] = createExportWrapper('emscripten_bind_SIGMortality_setRegion_1');
-var _emscripten_bind_SIGMortality_setSurfaceFireFlameLength_2 = Module['_emscripten_bind_SIGMortality_setSurfaceFireFlameLength_2'] = createExportWrapper('emscripten_bind_SIGMortality_setSurfaceFireFlameLength_2');
-var _emscripten_bind_SIGMortality_setSurfaceFireScorchHeight_2 = Module['_emscripten_bind_SIGMortality_setSurfaceFireScorchHeight_2'] = createExportWrapper('emscripten_bind_SIGMortality_setSurfaceFireScorchHeight_2');
-var _emscripten_bind_SIGMortality_setSpeciesCode_1 = Module['_emscripten_bind_SIGMortality_setSpeciesCode_1'] = createExportWrapper('emscripten_bind_SIGMortality_setSpeciesCode_1');
-var _emscripten_bind_SIGMortality_setTreeDensityPerUnitArea_2 = Module['_emscripten_bind_SIGMortality_setTreeDensityPerUnitArea_2'] = createExportWrapper('emscripten_bind_SIGMortality_setTreeDensityPerUnitArea_2');
-var _emscripten_bind_SIGMortality_setTreeHeight_2 = Module['_emscripten_bind_SIGMortality_setTreeHeight_2'] = createExportWrapper('emscripten_bind_SIGMortality_setTreeHeight_2');
-var _emscripten_bind_SIGMortality_getEquationTypeFromSpeciesCode_1 = Module['_emscripten_bind_SIGMortality_getEquationTypeFromSpeciesCode_1'] = createExportWrapper('emscripten_bind_SIGMortality_getEquationTypeFromSpeciesCode_1');
-var _emscripten_bind_SIGMortality___destroy___0 = Module['_emscripten_bind_SIGMortality___destroy___0'] = createExportWrapper('emscripten_bind_SIGMortality___destroy___0');
-var _emscripten_bind_WindSpeedUtility_WindSpeedUtility_0 = Module['_emscripten_bind_WindSpeedUtility_WindSpeedUtility_0'] = createExportWrapper('emscripten_bind_WindSpeedUtility_WindSpeedUtility_0');
-var _emscripten_bind_WindSpeedUtility_windSpeedAtMidflame_2 = Module['_emscripten_bind_WindSpeedUtility_windSpeedAtMidflame_2'] = createExportWrapper('emscripten_bind_WindSpeedUtility_windSpeedAtMidflame_2');
-var _emscripten_bind_WindSpeedUtility_windSpeedAtTwentyFeetFromTenMeter_1 = Module['_emscripten_bind_WindSpeedUtility_windSpeedAtTwentyFeetFromTenMeter_1'] = createExportWrapper('emscripten_bind_WindSpeedUtility_windSpeedAtTwentyFeetFromTenMeter_1');
-var _emscripten_bind_WindSpeedUtility___destroy___0 = Module['_emscripten_bind_WindSpeedUtility___destroy___0'] = createExportWrapper('emscripten_bind_WindSpeedUtility___destroy___0');
-var _emscripten_bind_SIGFineDeadFuelMoistureTool_SIGFineDeadFuelMoistureTool_0 = Module['_emscripten_bind_SIGFineDeadFuelMoistureTool_SIGFineDeadFuelMoistureTool_0'] = createExportWrapper('emscripten_bind_SIGFineDeadFuelMoistureTool_SIGFineDeadFuelMoistureTool_0');
-var _emscripten_bind_SIGFineDeadFuelMoistureTool_calculate_0 = Module['_emscripten_bind_SIGFineDeadFuelMoistureTool_calculate_0'] = createExportWrapper('emscripten_bind_SIGFineDeadFuelMoistureTool_calculate_0');
-var _emscripten_bind_SIGFineDeadFuelMoistureTool_setTimeOfDayIndex_1 = Module['_emscripten_bind_SIGFineDeadFuelMoistureTool_setTimeOfDayIndex_1'] = createExportWrapper('emscripten_bind_SIGFineDeadFuelMoistureTool_setTimeOfDayIndex_1');
-var _emscripten_bind_SIGFineDeadFuelMoistureTool_setSlopeIndex_1 = Module['_emscripten_bind_SIGFineDeadFuelMoistureTool_setSlopeIndex_1'] = createExportWrapper('emscripten_bind_SIGFineDeadFuelMoistureTool_setSlopeIndex_1');
-var _emscripten_bind_SIGFineDeadFuelMoistureTool_setShadingIndex_1 = Module['_emscripten_bind_SIGFineDeadFuelMoistureTool_setShadingIndex_1'] = createExportWrapper('emscripten_bind_SIGFineDeadFuelMoistureTool_setShadingIndex_1');
-var _emscripten_bind_SIGFineDeadFuelMoistureTool_setAspectIndex_1 = Module['_emscripten_bind_SIGFineDeadFuelMoistureTool_setAspectIndex_1'] = createExportWrapper('emscripten_bind_SIGFineDeadFuelMoistureTool_setAspectIndex_1');
-var _emscripten_bind_SIGFineDeadFuelMoistureTool_setRHIndex_1 = Module['_emscripten_bind_SIGFineDeadFuelMoistureTool_setRHIndex_1'] = createExportWrapper('emscripten_bind_SIGFineDeadFuelMoistureTool_setRHIndex_1');
-var _emscripten_bind_SIGFineDeadFuelMoistureTool_setElevationIndex_1 = Module['_emscripten_bind_SIGFineDeadFuelMoistureTool_setElevationIndex_1'] = createExportWrapper('emscripten_bind_SIGFineDeadFuelMoistureTool_setElevationIndex_1');
-var _emscripten_bind_SIGFineDeadFuelMoistureTool_setDryBulbIndex_1 = Module['_emscripten_bind_SIGFineDeadFuelMoistureTool_setDryBulbIndex_1'] = createExportWrapper('emscripten_bind_SIGFineDeadFuelMoistureTool_setDryBulbIndex_1');
-var _emscripten_bind_SIGFineDeadFuelMoistureTool_setMonthIndex_1 = Module['_emscripten_bind_SIGFineDeadFuelMoistureTool_setMonthIndex_1'] = createExportWrapper('emscripten_bind_SIGFineDeadFuelMoistureTool_setMonthIndex_1');
-var _emscripten_bind_SIGFineDeadFuelMoistureTool_getFineDeadFuelMoisture_0 = Module['_emscripten_bind_SIGFineDeadFuelMoistureTool_getFineDeadFuelMoisture_0'] = createExportWrapper('emscripten_bind_SIGFineDeadFuelMoistureTool_getFineDeadFuelMoisture_0');
-var _emscripten_bind_SIGFineDeadFuelMoistureTool_getSlopeIndexSize_0 = Module['_emscripten_bind_SIGFineDeadFuelMoistureTool_getSlopeIndexSize_0'] = createExportWrapper('emscripten_bind_SIGFineDeadFuelMoistureTool_getSlopeIndexSize_0');
-var _emscripten_bind_SIGFineDeadFuelMoistureTool_getElevationIndexSize_0 = Module['_emscripten_bind_SIGFineDeadFuelMoistureTool_getElevationIndexSize_0'] = createExportWrapper('emscripten_bind_SIGFineDeadFuelMoistureTool_getElevationIndexSize_0');
-var _emscripten_bind_SIGFineDeadFuelMoistureTool_getMonthIndexSize_0 = Module['_emscripten_bind_SIGFineDeadFuelMoistureTool_getMonthIndexSize_0'] = createExportWrapper('emscripten_bind_SIGFineDeadFuelMoistureTool_getMonthIndexSize_0');
-var _emscripten_bind_SIGFineDeadFuelMoistureTool_getDryBulbTemperatureIndexSize_0 = Module['_emscripten_bind_SIGFineDeadFuelMoistureTool_getDryBulbTemperatureIndexSize_0'] = createExportWrapper('emscripten_bind_SIGFineDeadFuelMoistureTool_getDryBulbTemperatureIndexSize_0');
-var _emscripten_bind_SIGFineDeadFuelMoistureTool_getReferenceMoisture_0 = Module['_emscripten_bind_SIGFineDeadFuelMoistureTool_getReferenceMoisture_0'] = createExportWrapper('emscripten_bind_SIGFineDeadFuelMoistureTool_getReferenceMoisture_0');
-var _emscripten_bind_SIGFineDeadFuelMoistureTool_calculateByIndex_8 = Module['_emscripten_bind_SIGFineDeadFuelMoistureTool_calculateByIndex_8'] = createExportWrapper('emscripten_bind_SIGFineDeadFuelMoistureTool_calculateByIndex_8');
-var _emscripten_bind_SIGFineDeadFuelMoistureTool_getTimeOfDayIndexSize_0 = Module['_emscripten_bind_SIGFineDeadFuelMoistureTool_getTimeOfDayIndexSize_0'] = createExportWrapper('emscripten_bind_SIGFineDeadFuelMoistureTool_getTimeOfDayIndexSize_0');
-var _emscripten_bind_SIGFineDeadFuelMoistureTool_getCorrectionMoisture_0 = Module['_emscripten_bind_SIGFineDeadFuelMoistureTool_getCorrectionMoisture_0'] = createExportWrapper('emscripten_bind_SIGFineDeadFuelMoistureTool_getCorrectionMoisture_0');
-var _emscripten_bind_SIGFineDeadFuelMoistureTool_getAspectIndexSize_0 = Module['_emscripten_bind_SIGFineDeadFuelMoistureTool_getAspectIndexSize_0'] = createExportWrapper('emscripten_bind_SIGFineDeadFuelMoistureTool_getAspectIndexSize_0');
-var _emscripten_bind_SIGFineDeadFuelMoistureTool_getShadingIndexSize_0 = Module['_emscripten_bind_SIGFineDeadFuelMoistureTool_getShadingIndexSize_0'] = createExportWrapper('emscripten_bind_SIGFineDeadFuelMoistureTool_getShadingIndexSize_0');
-var _emscripten_bind_SIGFineDeadFuelMoistureTool_getRelativeHumidityIndexSize_0 = Module['_emscripten_bind_SIGFineDeadFuelMoistureTool_getRelativeHumidityIndexSize_0'] = createExportWrapper('emscripten_bind_SIGFineDeadFuelMoistureTool_getRelativeHumidityIndexSize_0');
-var _emscripten_bind_SIGFineDeadFuelMoistureTool___destroy___0 = Module['_emscripten_bind_SIGFineDeadFuelMoistureTool___destroy___0'] = createExportWrapper('emscripten_bind_SIGFineDeadFuelMoistureTool___destroy___0');
-var _emscripten_bind_SIGSlopeTool_SIGSlopeTool_0 = Module['_emscripten_bind_SIGSlopeTool_SIGSlopeTool_0'] = createExportWrapper('emscripten_bind_SIGSlopeTool_SIGSlopeTool_0');
-var _emscripten_bind_SIGSlopeTool_getCentimetersPerKilometerAtIndex_1 = Module['_emscripten_bind_SIGSlopeTool_getCentimetersPerKilometerAtIndex_1'] = createExportWrapper('emscripten_bind_SIGSlopeTool_getCentimetersPerKilometerAtIndex_1');
-var _emscripten_bind_SIGSlopeTool_getCentimetersPerKilometerAtRepresentativeFraction_1 = Module['_emscripten_bind_SIGSlopeTool_getCentimetersPerKilometerAtRepresentativeFraction_1'] = createExportWrapper('emscripten_bind_SIGSlopeTool_getCentimetersPerKilometerAtRepresentativeFraction_1');
-var _emscripten_bind_SIGSlopeTool_getHorizontalDistance_2 = Module['_emscripten_bind_SIGSlopeTool_getHorizontalDistance_2'] = createExportWrapper('emscripten_bind_SIGSlopeTool_getHorizontalDistance_2');
-var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceAtIndex_2 = Module['_emscripten_bind_SIGSlopeTool_getHorizontalDistanceAtIndex_2'] = createExportWrapper('emscripten_bind_SIGSlopeTool_getHorizontalDistanceAtIndex_2');
-var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceFifteen_1 = Module['_emscripten_bind_SIGSlopeTool_getHorizontalDistanceFifteen_1'] = createExportWrapper('emscripten_bind_SIGSlopeTool_getHorizontalDistanceFifteen_1');
-var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceFourtyFive_1 = Module['_emscripten_bind_SIGSlopeTool_getHorizontalDistanceFourtyFive_1'] = createExportWrapper('emscripten_bind_SIGSlopeTool_getHorizontalDistanceFourtyFive_1');
-var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceMaxSlope_1 = Module['_emscripten_bind_SIGSlopeTool_getHorizontalDistanceMaxSlope_1'] = createExportWrapper('emscripten_bind_SIGSlopeTool_getHorizontalDistanceMaxSlope_1');
-var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceNinety_1 = Module['_emscripten_bind_SIGSlopeTool_getHorizontalDistanceNinety_1'] = createExportWrapper('emscripten_bind_SIGSlopeTool_getHorizontalDistanceNinety_1');
-var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceSeventy_1 = Module['_emscripten_bind_SIGSlopeTool_getHorizontalDistanceSeventy_1'] = createExportWrapper('emscripten_bind_SIGSlopeTool_getHorizontalDistanceSeventy_1');
-var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceSixty_1 = Module['_emscripten_bind_SIGSlopeTool_getHorizontalDistanceSixty_1'] = createExportWrapper('emscripten_bind_SIGSlopeTool_getHorizontalDistanceSixty_1');
-var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceThirty_1 = Module['_emscripten_bind_SIGSlopeTool_getHorizontalDistanceThirty_1'] = createExportWrapper('emscripten_bind_SIGSlopeTool_getHorizontalDistanceThirty_1');
-var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceZero_1 = Module['_emscripten_bind_SIGSlopeTool_getHorizontalDistanceZero_1'] = createExportWrapper('emscripten_bind_SIGSlopeTool_getHorizontalDistanceZero_1');
-var _emscripten_bind_SIGSlopeTool_getInchesPerMileAtIndex_1 = Module['_emscripten_bind_SIGSlopeTool_getInchesPerMileAtIndex_1'] = createExportWrapper('emscripten_bind_SIGSlopeTool_getInchesPerMileAtIndex_1');
-var _emscripten_bind_SIGSlopeTool_getInchesPerMileAtRepresentativeFraction_1 = Module['_emscripten_bind_SIGSlopeTool_getInchesPerMileAtRepresentativeFraction_1'] = createExportWrapper('emscripten_bind_SIGSlopeTool_getInchesPerMileAtRepresentativeFraction_1');
-var _emscripten_bind_SIGSlopeTool_getKilometersPerCentimeterAtIndex_1 = Module['_emscripten_bind_SIGSlopeTool_getKilometersPerCentimeterAtIndex_1'] = createExportWrapper('emscripten_bind_SIGSlopeTool_getKilometersPerCentimeterAtIndex_1');
-var _emscripten_bind_SIGSlopeTool_getKilometersPerCentimeterAtRepresentativeFraction_1 = Module['_emscripten_bind_SIGSlopeTool_getKilometersPerCentimeterAtRepresentativeFraction_1'] = createExportWrapper('emscripten_bind_SIGSlopeTool_getKilometersPerCentimeterAtRepresentativeFraction_1');
-var _emscripten_bind_SIGSlopeTool_getMilesPerInchAtIndex_1 = Module['_emscripten_bind_SIGSlopeTool_getMilesPerInchAtIndex_1'] = createExportWrapper('emscripten_bind_SIGSlopeTool_getMilesPerInchAtIndex_1');
-var _emscripten_bind_SIGSlopeTool_getMilesPerInchAtRepresentativeFraction_1 = Module['_emscripten_bind_SIGSlopeTool_getMilesPerInchAtRepresentativeFraction_1'] = createExportWrapper('emscripten_bind_SIGSlopeTool_getMilesPerInchAtRepresentativeFraction_1');
-var _emscripten_bind_SIGSlopeTool_getSlopeElevationChangeFromMapMeasurements_1 = Module['_emscripten_bind_SIGSlopeTool_getSlopeElevationChangeFromMapMeasurements_1'] = createExportWrapper('emscripten_bind_SIGSlopeTool_getSlopeElevationChangeFromMapMeasurements_1');
-var _emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurements_1 = Module['_emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurements_1'] = createExportWrapper('emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurements_1');
-var _emscripten_bind_SIGSlopeTool_getSlopeHorizontalDistanceFromMapMeasurements_1 = Module['_emscripten_bind_SIGSlopeTool_getSlopeHorizontalDistanceFromMapMeasurements_1'] = createExportWrapper('emscripten_bind_SIGSlopeTool_getSlopeHorizontalDistanceFromMapMeasurements_1');
-var _emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurementsInDegrees_0 = Module['_emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurementsInDegrees_0'] = createExportWrapper('emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurementsInDegrees_0');
-var _emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurementsInPercent_0 = Module['_emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurementsInPercent_0'] = createExportWrapper('emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurementsInPercent_0');
-var _emscripten_bind_SIGSlopeTool_getNumberOfHorizontalDistances_0 = Module['_emscripten_bind_SIGSlopeTool_getNumberOfHorizontalDistances_0'] = createExportWrapper('emscripten_bind_SIGSlopeTool_getNumberOfHorizontalDistances_0');
-var _emscripten_bind_SIGSlopeTool_getNumberOfRepresentativeFractions_0 = Module['_emscripten_bind_SIGSlopeTool_getNumberOfRepresentativeFractions_0'] = createExportWrapper('emscripten_bind_SIGSlopeTool_getNumberOfRepresentativeFractions_0');
-var _emscripten_bind_SIGSlopeTool_getRepresentativeFractionAtIndex_1 = Module['_emscripten_bind_SIGSlopeTool_getRepresentativeFractionAtIndex_1'] = createExportWrapper('emscripten_bind_SIGSlopeTool_getRepresentativeFractionAtIndex_1');
-var _emscripten_bind_SIGSlopeTool_getRepresentativeFractionAtRepresentativeFraction_1 = Module['_emscripten_bind_SIGSlopeTool_getRepresentativeFractionAtRepresentativeFraction_1'] = createExportWrapper('emscripten_bind_SIGSlopeTool_getRepresentativeFractionAtRepresentativeFraction_1');
-var _emscripten_bind_SIGSlopeTool_calculateHorizontalDistance_0 = Module['_emscripten_bind_SIGSlopeTool_calculateHorizontalDistance_0'] = createExportWrapper('emscripten_bind_SIGSlopeTool_calculateHorizontalDistance_0');
-var _emscripten_bind_SIGSlopeTool_calculateSlopeFromMapMeasurements_0 = Module['_emscripten_bind_SIGSlopeTool_calculateSlopeFromMapMeasurements_0'] = createExportWrapper('emscripten_bind_SIGSlopeTool_calculateSlopeFromMapMeasurements_0');
-var _emscripten_bind_SIGSlopeTool_setCalculatedMapDistance_2 = Module['_emscripten_bind_SIGSlopeTool_setCalculatedMapDistance_2'] = createExportWrapper('emscripten_bind_SIGSlopeTool_setCalculatedMapDistance_2');
-var _emscripten_bind_SIGSlopeTool_setContourInterval_2 = Module['_emscripten_bind_SIGSlopeTool_setContourInterval_2'] = createExportWrapper('emscripten_bind_SIGSlopeTool_setContourInterval_2');
-var _emscripten_bind_SIGSlopeTool_setMapDistance_2 = Module['_emscripten_bind_SIGSlopeTool_setMapDistance_2'] = createExportWrapper('emscripten_bind_SIGSlopeTool_setMapDistance_2');
-var _emscripten_bind_SIGSlopeTool_setMapRepresentativeFraction_1 = Module['_emscripten_bind_SIGSlopeTool_setMapRepresentativeFraction_1'] = createExportWrapper('emscripten_bind_SIGSlopeTool_setMapRepresentativeFraction_1');
-var _emscripten_bind_SIGSlopeTool_setMaxSlopeSteepness_1 = Module['_emscripten_bind_SIGSlopeTool_setMaxSlopeSteepness_1'] = createExportWrapper('emscripten_bind_SIGSlopeTool_setMaxSlopeSteepness_1');
-var _emscripten_bind_SIGSlopeTool_setNumberOfContours_1 = Module['_emscripten_bind_SIGSlopeTool_setNumberOfContours_1'] = createExportWrapper('emscripten_bind_SIGSlopeTool_setNumberOfContours_1');
-var _emscripten_bind_SIGSlopeTool___destroy___0 = Module['_emscripten_bind_SIGSlopeTool___destroy___0'] = createExportWrapper('emscripten_bind_SIGSlopeTool___destroy___0');
-var _emscripten_bind_VaporPressureDeficitCalculator_VaporPressureDeficitCalculator_0 = Module['_emscripten_bind_VaporPressureDeficitCalculator_VaporPressureDeficitCalculator_0'] = createExportWrapper('emscripten_bind_VaporPressureDeficitCalculator_VaporPressureDeficitCalculator_0');
-var _emscripten_bind_VaporPressureDeficitCalculator_runCalculation_0 = Module['_emscripten_bind_VaporPressureDeficitCalculator_runCalculation_0'] = createExportWrapper('emscripten_bind_VaporPressureDeficitCalculator_runCalculation_0');
-var _emscripten_bind_VaporPressureDeficitCalculator_setTemperature_2 = Module['_emscripten_bind_VaporPressureDeficitCalculator_setTemperature_2'] = createExportWrapper('emscripten_bind_VaporPressureDeficitCalculator_setTemperature_2');
-var _emscripten_bind_VaporPressureDeficitCalculator_setRelativeHumidity_2 = Module['_emscripten_bind_VaporPressureDeficitCalculator_setRelativeHumidity_2'] = createExportWrapper('emscripten_bind_VaporPressureDeficitCalculator_setRelativeHumidity_2');
-var _emscripten_bind_VaporPressureDeficitCalculator_getVaporPressureDeficit_1 = Module['_emscripten_bind_VaporPressureDeficitCalculator_getVaporPressureDeficit_1'] = createExportWrapper('emscripten_bind_VaporPressureDeficitCalculator_getVaporPressureDeficit_1');
-var _emscripten_bind_VaporPressureDeficitCalculator___destroy___0 = Module['_emscripten_bind_VaporPressureDeficitCalculator___destroy___0'] = createExportWrapper('emscripten_bind_VaporPressureDeficitCalculator___destroy___0');
-var _emscripten_enum_AreaUnits_AreaUnitsEnum_SquareFeet = Module['_emscripten_enum_AreaUnits_AreaUnitsEnum_SquareFeet'] = createExportWrapper('emscripten_enum_AreaUnits_AreaUnitsEnum_SquareFeet');
-var _emscripten_enum_AreaUnits_AreaUnitsEnum_Acres = Module['_emscripten_enum_AreaUnits_AreaUnitsEnum_Acres'] = createExportWrapper('emscripten_enum_AreaUnits_AreaUnitsEnum_Acres');
-var _emscripten_enum_AreaUnits_AreaUnitsEnum_Hectares = Module['_emscripten_enum_AreaUnits_AreaUnitsEnum_Hectares'] = createExportWrapper('emscripten_enum_AreaUnits_AreaUnitsEnum_Hectares');
-var _emscripten_enum_AreaUnits_AreaUnitsEnum_SquareMeters = Module['_emscripten_enum_AreaUnits_AreaUnitsEnum_SquareMeters'] = createExportWrapper('emscripten_enum_AreaUnits_AreaUnitsEnum_SquareMeters');
-var _emscripten_enum_AreaUnits_AreaUnitsEnum_SquareMiles = Module['_emscripten_enum_AreaUnits_AreaUnitsEnum_SquareMiles'] = createExportWrapper('emscripten_enum_AreaUnits_AreaUnitsEnum_SquareMiles');
-var _emscripten_enum_AreaUnits_AreaUnitsEnum_SquareKilometers = Module['_emscripten_enum_AreaUnits_AreaUnitsEnum_SquareKilometers'] = createExportWrapper('emscripten_enum_AreaUnits_AreaUnitsEnum_SquareKilometers');
-var _emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareFeetPerAcre = Module['_emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareFeetPerAcre'] = createExportWrapper('emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareFeetPerAcre');
-var _emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareMetersPerHectare = Module['_emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareMetersPerHectare'] = createExportWrapper('emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareMetersPerHectare');
-var _emscripten_enum_FractionUnits_FractionUnitsEnum_Fraction = Module['_emscripten_enum_FractionUnits_FractionUnitsEnum_Fraction'] = createExportWrapper('emscripten_enum_FractionUnits_FractionUnitsEnum_Fraction');
-var _emscripten_enum_FractionUnits_FractionUnitsEnum_Percent = Module['_emscripten_enum_FractionUnits_FractionUnitsEnum_Percent'] = createExportWrapper('emscripten_enum_FractionUnits_FractionUnitsEnum_Percent');
-var _emscripten_enum_LengthUnits_LengthUnitsEnum_Feet = Module['_emscripten_enum_LengthUnits_LengthUnitsEnum_Feet'] = createExportWrapper('emscripten_enum_LengthUnits_LengthUnitsEnum_Feet');
-var _emscripten_enum_LengthUnits_LengthUnitsEnum_Inches = Module['_emscripten_enum_LengthUnits_LengthUnitsEnum_Inches'] = createExportWrapper('emscripten_enum_LengthUnits_LengthUnitsEnum_Inches');
-var _emscripten_enum_LengthUnits_LengthUnitsEnum_Millimeters = Module['_emscripten_enum_LengthUnits_LengthUnitsEnum_Millimeters'] = createExportWrapper('emscripten_enum_LengthUnits_LengthUnitsEnum_Millimeters');
-var _emscripten_enum_LengthUnits_LengthUnitsEnum_Centimeters = Module['_emscripten_enum_LengthUnits_LengthUnitsEnum_Centimeters'] = createExportWrapper('emscripten_enum_LengthUnits_LengthUnitsEnum_Centimeters');
-var _emscripten_enum_LengthUnits_LengthUnitsEnum_Meters = Module['_emscripten_enum_LengthUnits_LengthUnitsEnum_Meters'] = createExportWrapper('emscripten_enum_LengthUnits_LengthUnitsEnum_Meters');
-var _emscripten_enum_LengthUnits_LengthUnitsEnum_Chains = Module['_emscripten_enum_LengthUnits_LengthUnitsEnum_Chains'] = createExportWrapper('emscripten_enum_LengthUnits_LengthUnitsEnum_Chains');
-var _emscripten_enum_LengthUnits_LengthUnitsEnum_Miles = Module['_emscripten_enum_LengthUnits_LengthUnitsEnum_Miles'] = createExportWrapper('emscripten_enum_LengthUnits_LengthUnitsEnum_Miles');
-var _emscripten_enum_LengthUnits_LengthUnitsEnum_Kilometers = Module['_emscripten_enum_LengthUnits_LengthUnitsEnum_Kilometers'] = createExportWrapper('emscripten_enum_LengthUnits_LengthUnitsEnum_Kilometers');
-var _emscripten_enum_LoadingUnits_LoadingUnitsEnum_PoundsPerSquareFoot = Module['_emscripten_enum_LoadingUnits_LoadingUnitsEnum_PoundsPerSquareFoot'] = createExportWrapper('emscripten_enum_LoadingUnits_LoadingUnitsEnum_PoundsPerSquareFoot');
-var _emscripten_enum_LoadingUnits_LoadingUnitsEnum_TonsPerAcre = Module['_emscripten_enum_LoadingUnits_LoadingUnitsEnum_TonsPerAcre'] = createExportWrapper('emscripten_enum_LoadingUnits_LoadingUnitsEnum_TonsPerAcre');
-var _emscripten_enum_LoadingUnits_LoadingUnitsEnum_TonnesPerHectare = Module['_emscripten_enum_LoadingUnits_LoadingUnitsEnum_TonnesPerHectare'] = createExportWrapper('emscripten_enum_LoadingUnits_LoadingUnitsEnum_TonnesPerHectare');
-var _emscripten_enum_LoadingUnits_LoadingUnitsEnum_KilogramsPerSquareMeter = Module['_emscripten_enum_LoadingUnits_LoadingUnitsEnum_KilogramsPerSquareMeter'] = createExportWrapper('emscripten_enum_LoadingUnits_LoadingUnitsEnum_KilogramsPerSquareMeter');
-var _emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareFeetOverCubicFeet = Module['_emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareFeetOverCubicFeet'] = createExportWrapper('emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareFeetOverCubicFeet');
-var _emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareMetersOverCubicMeters = Module['_emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareMetersOverCubicMeters'] = createExportWrapper('emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareMetersOverCubicMeters');
-var _emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareInchesOverCubicInches = Module['_emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareInchesOverCubicInches'] = createExportWrapper('emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareInchesOverCubicInches');
-var _emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareCentimetersOverCubicCentimeters = Module['_emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareCentimetersOverCubicCentimeters'] = createExportWrapper('emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareCentimetersOverCubicCentimeters');
-var _emscripten_enum_SpeedUnits_SpeedUnitsEnum_FeetPerMinute = Module['_emscripten_enum_SpeedUnits_SpeedUnitsEnum_FeetPerMinute'] = createExportWrapper('emscripten_enum_SpeedUnits_SpeedUnitsEnum_FeetPerMinute');
-var _emscripten_enum_SpeedUnits_SpeedUnitsEnum_ChainsPerHour = Module['_emscripten_enum_SpeedUnits_SpeedUnitsEnum_ChainsPerHour'] = createExportWrapper('emscripten_enum_SpeedUnits_SpeedUnitsEnum_ChainsPerHour');
-var _emscripten_enum_SpeedUnits_SpeedUnitsEnum_MetersPerSecond = Module['_emscripten_enum_SpeedUnits_SpeedUnitsEnum_MetersPerSecond'] = createExportWrapper('emscripten_enum_SpeedUnits_SpeedUnitsEnum_MetersPerSecond');
-var _emscripten_enum_SpeedUnits_SpeedUnitsEnum_MetersPerMinute = Module['_emscripten_enum_SpeedUnits_SpeedUnitsEnum_MetersPerMinute'] = createExportWrapper('emscripten_enum_SpeedUnits_SpeedUnitsEnum_MetersPerMinute');
-var _emscripten_enum_SpeedUnits_SpeedUnitsEnum_MilesPerHour = Module['_emscripten_enum_SpeedUnits_SpeedUnitsEnum_MilesPerHour'] = createExportWrapper('emscripten_enum_SpeedUnits_SpeedUnitsEnum_MilesPerHour');
-var _emscripten_enum_SpeedUnits_SpeedUnitsEnum_KilometersPerHour = Module['_emscripten_enum_SpeedUnits_SpeedUnitsEnum_KilometersPerHour'] = createExportWrapper('emscripten_enum_SpeedUnits_SpeedUnitsEnum_KilometersPerHour');
-var _emscripten_enum_PressureUnits_PressureUnitsEnum_Pascal = Module['_emscripten_enum_PressureUnits_PressureUnitsEnum_Pascal'] = createExportWrapper('emscripten_enum_PressureUnits_PressureUnitsEnum_Pascal');
-var _emscripten_enum_PressureUnits_PressureUnitsEnum_HectoPascal = Module['_emscripten_enum_PressureUnits_PressureUnitsEnum_HectoPascal'] = createExportWrapper('emscripten_enum_PressureUnits_PressureUnitsEnum_HectoPascal');
-var _emscripten_enum_PressureUnits_PressureUnitsEnum_KiloPascal = Module['_emscripten_enum_PressureUnits_PressureUnitsEnum_KiloPascal'] = createExportWrapper('emscripten_enum_PressureUnits_PressureUnitsEnum_KiloPascal');
-var _emscripten_enum_PressureUnits_PressureUnitsEnum_MegaPascal = Module['_emscripten_enum_PressureUnits_PressureUnitsEnum_MegaPascal'] = createExportWrapper('emscripten_enum_PressureUnits_PressureUnitsEnum_MegaPascal');
-var _emscripten_enum_PressureUnits_PressureUnitsEnum_GigaPascal = Module['_emscripten_enum_PressureUnits_PressureUnitsEnum_GigaPascal'] = createExportWrapper('emscripten_enum_PressureUnits_PressureUnitsEnum_GigaPascal');
-var _emscripten_enum_PressureUnits_PressureUnitsEnum_Bar = Module['_emscripten_enum_PressureUnits_PressureUnitsEnum_Bar'] = createExportWrapper('emscripten_enum_PressureUnits_PressureUnitsEnum_Bar');
-var _emscripten_enum_PressureUnits_PressureUnitsEnum_Atmosphere = Module['_emscripten_enum_PressureUnits_PressureUnitsEnum_Atmosphere'] = createExportWrapper('emscripten_enum_PressureUnits_PressureUnitsEnum_Atmosphere');
-var _emscripten_enum_PressureUnits_PressureUnitsEnum_TechnicalAtmosphere = Module['_emscripten_enum_PressureUnits_PressureUnitsEnum_TechnicalAtmosphere'] = createExportWrapper('emscripten_enum_PressureUnits_PressureUnitsEnum_TechnicalAtmosphere');
-var _emscripten_enum_PressureUnits_PressureUnitsEnum_PoundPerSquareInch = Module['_emscripten_enum_PressureUnits_PressureUnitsEnum_PoundPerSquareInch'] = createExportWrapper('emscripten_enum_PressureUnits_PressureUnitsEnum_PoundPerSquareInch');
-var _emscripten_enum_SlopeUnits_SlopeUnitsEnum_Degrees = Module['_emscripten_enum_SlopeUnits_SlopeUnitsEnum_Degrees'] = createExportWrapper('emscripten_enum_SlopeUnits_SlopeUnitsEnum_Degrees');
-var _emscripten_enum_SlopeUnits_SlopeUnitsEnum_Percent = Module['_emscripten_enum_SlopeUnits_SlopeUnitsEnum_Percent'] = createExportWrapper('emscripten_enum_SlopeUnits_SlopeUnitsEnum_Percent');
-var _emscripten_enum_DensityUnits_DensityUnitsEnum_PoundsPerCubicFoot = Module['_emscripten_enum_DensityUnits_DensityUnitsEnum_PoundsPerCubicFoot'] = createExportWrapper('emscripten_enum_DensityUnits_DensityUnitsEnum_PoundsPerCubicFoot');
-var _emscripten_enum_DensityUnits_DensityUnitsEnum_KilogramsPerCubicMeter = Module['_emscripten_enum_DensityUnits_DensityUnitsEnum_KilogramsPerCubicMeter'] = createExportWrapper('emscripten_enum_DensityUnits_DensityUnitsEnum_KilogramsPerCubicMeter');
-var _emscripten_enum_HeatOfCombustionUnits_HeatOfCombustionUnitsEnum_BtusPerPound = Module['_emscripten_enum_HeatOfCombustionUnits_HeatOfCombustionUnitsEnum_BtusPerPound'] = createExportWrapper('emscripten_enum_HeatOfCombustionUnits_HeatOfCombustionUnitsEnum_BtusPerPound');
-var _emscripten_enum_HeatOfCombustionUnits_HeatOfCombustionUnitsEnum_KilojoulesPerKilogram = Module['_emscripten_enum_HeatOfCombustionUnits_HeatOfCombustionUnitsEnum_KilojoulesPerKilogram'] = createExportWrapper('emscripten_enum_HeatOfCombustionUnits_HeatOfCombustionUnitsEnum_KilojoulesPerKilogram');
-var _emscripten_enum_HeatSinkUnits_HeatSinkUnitsEnum_BtusPerCubicFoot = Module['_emscripten_enum_HeatSinkUnits_HeatSinkUnitsEnum_BtusPerCubicFoot'] = createExportWrapper('emscripten_enum_HeatSinkUnits_HeatSinkUnitsEnum_BtusPerCubicFoot');
-var _emscripten_enum_HeatSinkUnits_HeatSinkUnitsEnum_KilojoulesPerCubicMeter = Module['_emscripten_enum_HeatSinkUnits_HeatSinkUnitsEnum_KilojoulesPerCubicMeter'] = createExportWrapper('emscripten_enum_HeatSinkUnits_HeatSinkUnitsEnum_KilojoulesPerCubicMeter');
-var _emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_BtusPerSquareFoot = Module['_emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_BtusPerSquareFoot'] = createExportWrapper('emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_BtusPerSquareFoot');
-var _emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_KilojoulesPerSquareMeter = Module['_emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_KilojoulesPerSquareMeter'] = createExportWrapper('emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_KilojoulesPerSquareMeter');
-var _emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_KilowattSecondsPerSquareMeter = Module['_emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_KilowattSecondsPerSquareMeter'] = createExportWrapper('emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_KilowattSecondsPerSquareMeter');
-var _emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_BtusPerSquareFootPerMinute = Module['_emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_BtusPerSquareFootPerMinute'] = createExportWrapper('emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_BtusPerSquareFootPerMinute');
-var _emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_BtusPerSquareFootPerSecond = Module['_emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_BtusPerSquareFootPerSecond'] = createExportWrapper('emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_BtusPerSquareFootPerSecond');
-var _emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_KilojoulesPerSquareMeterPerSecond = Module['_emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_KilojoulesPerSquareMeterPerSecond'] = createExportWrapper('emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_KilojoulesPerSquareMeterPerSecond');
-var _emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_KilojoulesPerSquareMeterPerMinute = Module['_emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_KilojoulesPerSquareMeterPerMinute'] = createExportWrapper('emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_KilojoulesPerSquareMeterPerMinute');
-var _emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_KilowattsPerSquareMeter = Module['_emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_KilowattsPerSquareMeter'] = createExportWrapper('emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_KilowattsPerSquareMeter');
-var _emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_BtusPerFootPerSecond = Module['_emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_BtusPerFootPerSecond'] = createExportWrapper('emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_BtusPerFootPerSecond');
-var _emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_BtusPerFootPerMinute = Module['_emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_BtusPerFootPerMinute'] = createExportWrapper('emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_BtusPerFootPerMinute');
-var _emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_KilojoulesPerMeterPerSecond = Module['_emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_KilojoulesPerMeterPerSecond'] = createExportWrapper('emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_KilojoulesPerMeterPerSecond');
-var _emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_KilojoulesPerMeterPerMinute = Module['_emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_KilojoulesPerMeterPerMinute'] = createExportWrapper('emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_KilojoulesPerMeterPerMinute');
-var _emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_KilowattsPerMeter = Module['_emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_KilowattsPerMeter'] = createExportWrapper('emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_KilowattsPerMeter');
-var _emscripten_enum_TemperatureUnits_TemperatureUnitsEnum_Fahrenheit = Module['_emscripten_enum_TemperatureUnits_TemperatureUnitsEnum_Fahrenheit'] = createExportWrapper('emscripten_enum_TemperatureUnits_TemperatureUnitsEnum_Fahrenheit');
-var _emscripten_enum_TemperatureUnits_TemperatureUnitsEnum_Celsius = Module['_emscripten_enum_TemperatureUnits_TemperatureUnitsEnum_Celsius'] = createExportWrapper('emscripten_enum_TemperatureUnits_TemperatureUnitsEnum_Celsius');
-var _emscripten_enum_TemperatureUnits_TemperatureUnitsEnum_Kelvin = Module['_emscripten_enum_TemperatureUnits_TemperatureUnitsEnum_Kelvin'] = createExportWrapper('emscripten_enum_TemperatureUnits_TemperatureUnitsEnum_Kelvin');
-var _emscripten_enum_TimeUnits_TimeUnitsEnum_Minutes = Module['_emscripten_enum_TimeUnits_TimeUnitsEnum_Minutes'] = createExportWrapper('emscripten_enum_TimeUnits_TimeUnitsEnum_Minutes');
-var _emscripten_enum_TimeUnits_TimeUnitsEnum_Seconds = Module['_emscripten_enum_TimeUnits_TimeUnitsEnum_Seconds'] = createExportWrapper('emscripten_enum_TimeUnits_TimeUnitsEnum_Seconds');
-var _emscripten_enum_TimeUnits_TimeUnitsEnum_Hours = Module['_emscripten_enum_TimeUnits_TimeUnitsEnum_Hours'] = createExportWrapper('emscripten_enum_TimeUnits_TimeUnitsEnum_Hours');
-var _emscripten_enum_ContainTactic_ContainTacticEnum_HeadAttack = Module['_emscripten_enum_ContainTactic_ContainTacticEnum_HeadAttack'] = createExportWrapper('emscripten_enum_ContainTactic_ContainTacticEnum_HeadAttack');
-var _emscripten_enum_ContainTactic_ContainTacticEnum_RearAttack = Module['_emscripten_enum_ContainTactic_ContainTacticEnum_RearAttack'] = createExportWrapper('emscripten_enum_ContainTactic_ContainTacticEnum_RearAttack');
-var _emscripten_enum_ContainStatus_ContainStatusEnum_Unreported = Module['_emscripten_enum_ContainStatus_ContainStatusEnum_Unreported'] = createExportWrapper('emscripten_enum_ContainStatus_ContainStatusEnum_Unreported');
-var _emscripten_enum_ContainStatus_ContainStatusEnum_Reported = Module['_emscripten_enum_ContainStatus_ContainStatusEnum_Reported'] = createExportWrapper('emscripten_enum_ContainStatus_ContainStatusEnum_Reported');
-var _emscripten_enum_ContainStatus_ContainStatusEnum_Attacked = Module['_emscripten_enum_ContainStatus_ContainStatusEnum_Attacked'] = createExportWrapper('emscripten_enum_ContainStatus_ContainStatusEnum_Attacked');
-var _emscripten_enum_ContainStatus_ContainStatusEnum_Contained = Module['_emscripten_enum_ContainStatus_ContainStatusEnum_Contained'] = createExportWrapper('emscripten_enum_ContainStatus_ContainStatusEnum_Contained');
-var _emscripten_enum_ContainStatus_ContainStatusEnum_Overrun = Module['_emscripten_enum_ContainStatus_ContainStatusEnum_Overrun'] = createExportWrapper('emscripten_enum_ContainStatus_ContainStatusEnum_Overrun');
-var _emscripten_enum_ContainStatus_ContainStatusEnum_Exhausted = Module['_emscripten_enum_ContainStatus_ContainStatusEnum_Exhausted'] = createExportWrapper('emscripten_enum_ContainStatus_ContainStatusEnum_Exhausted');
-var _emscripten_enum_ContainStatus_ContainStatusEnum_Overflow = Module['_emscripten_enum_ContainStatus_ContainStatusEnum_Overflow'] = createExportWrapper('emscripten_enum_ContainStatus_ContainStatusEnum_Overflow');
-var _emscripten_enum_ContainStatus_ContainStatusEnum_SizeLimitExceeded = Module['_emscripten_enum_ContainStatus_ContainStatusEnum_SizeLimitExceeded'] = createExportWrapper('emscripten_enum_ContainStatus_ContainStatusEnum_SizeLimitExceeded');
-var _emscripten_enum_ContainStatus_ContainStatusEnum_TimeLimitExceeded = Module['_emscripten_enum_ContainStatus_ContainStatusEnum_TimeLimitExceeded'] = createExportWrapper('emscripten_enum_ContainStatus_ContainStatusEnum_TimeLimitExceeded');
-var _emscripten_enum_ContainFlank_ContainFlankEnum_LeftFlank = Module['_emscripten_enum_ContainFlank_ContainFlankEnum_LeftFlank'] = createExportWrapper('emscripten_enum_ContainFlank_ContainFlankEnum_LeftFlank');
-var _emscripten_enum_ContainFlank_ContainFlankEnum_RightFlank = Module['_emscripten_enum_ContainFlank_ContainFlankEnum_RightFlank'] = createExportWrapper('emscripten_enum_ContainFlank_ContainFlankEnum_RightFlank');
-var _emscripten_enum_ContainFlank_ContainFlankEnum_BothFlanks = Module['_emscripten_enum_ContainFlank_ContainFlankEnum_BothFlanks'] = createExportWrapper('emscripten_enum_ContainFlank_ContainFlankEnum_BothFlanks');
-var _emscripten_enum_ContainFlank_ContainFlankEnum_NeitherFlank = Module['_emscripten_enum_ContainFlank_ContainFlankEnum_NeitherFlank'] = createExportWrapper('emscripten_enum_ContainFlank_ContainFlankEnum_NeitherFlank');
-var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PonderosaPineLitter = Module['_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PonderosaPineLitter'] = createExportWrapper('emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PonderosaPineLitter');
-var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodRottenChunky = Module['_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodRottenChunky'] = createExportWrapper('emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodRottenChunky');
-var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodPowderDeep = Module['_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodPowderDeep'] = createExportWrapper('emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodPowderDeep');
-var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkWoodPowderShallow = Module['_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkWoodPowderShallow'] = createExportWrapper('emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkWoodPowderShallow');
-var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_LodgepolePineDuff = Module['_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_LodgepolePineDuff'] = createExportWrapper('emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_LodgepolePineDuff');
-var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_DouglasFirDuff = Module['_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_DouglasFirDuff'] = createExportWrapper('emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_DouglasFirDuff');
-var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_HighAltitudeMixed = Module['_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_HighAltitudeMixed'] = createExportWrapper('emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_HighAltitudeMixed');
-var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PeatMoss = Module['_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PeatMoss'] = createExportWrapper('emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PeatMoss');
-var _emscripten_enum_LightningCharge_LightningChargeEnum_Negative = Module['_emscripten_enum_LightningCharge_LightningChargeEnum_Negative'] = createExportWrapper('emscripten_enum_LightningCharge_LightningChargeEnum_Negative');
-var _emscripten_enum_LightningCharge_LightningChargeEnum_Positive = Module['_emscripten_enum_LightningCharge_LightningChargeEnum_Positive'] = createExportWrapper('emscripten_enum_LightningCharge_LightningChargeEnum_Positive');
-var _emscripten_enum_LightningCharge_LightningChargeEnum_Unknown = Module['_emscripten_enum_LightningCharge_LightningChargeEnum_Unknown'] = createExportWrapper('emscripten_enum_LightningCharge_LightningChargeEnum_Unknown');
-var _emscripten_enum_SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum_CLOSED = Module['_emscripten_enum_SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum_CLOSED'] = createExportWrapper('emscripten_enum_SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum_CLOSED');
-var _emscripten_enum_SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum_OPEN = Module['_emscripten_enum_SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum_OPEN'] = createExportWrapper('emscripten_enum_SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum_OPEN');
-var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_ENGELMANN_SPRUCE = Module['_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_ENGELMANN_SPRUCE'] = createExportWrapper('emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_ENGELMANN_SPRUCE');
-var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_DOUGLAS_FIR = Module['_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_DOUGLAS_FIR'] = createExportWrapper('emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_DOUGLAS_FIR');
-var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SUBALPINE_FIR = Module['_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SUBALPINE_FIR'] = createExportWrapper('emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SUBALPINE_FIR');
-var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_WESTERN_HEMLOCK = Module['_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_WESTERN_HEMLOCK'] = createExportWrapper('emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_WESTERN_HEMLOCK');
-var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_PONDEROSA_PINE = Module['_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_PONDEROSA_PINE'] = createExportWrapper('emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_PONDEROSA_PINE');
-var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LODGEPOLE_PINE = Module['_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LODGEPOLE_PINE'] = createExportWrapper('emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LODGEPOLE_PINE');
-var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_WESTERN_WHITE_PINE = Module['_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_WESTERN_WHITE_PINE'] = createExportWrapper('emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_WESTERN_WHITE_PINE');
-var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_GRAND_FIR = Module['_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_GRAND_FIR'] = createExportWrapper('emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_GRAND_FIR');
-var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_BALSAM_FIR = Module['_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_BALSAM_FIR'] = createExportWrapper('emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_BALSAM_FIR');
-var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SLASH_PINE = Module['_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SLASH_PINE'] = createExportWrapper('emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SLASH_PINE');
-var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LONGLEAF_PINE = Module['_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LONGLEAF_PINE'] = createExportWrapper('emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LONGLEAF_PINE');
-var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_POND_PINE = Module['_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_POND_PINE'] = createExportWrapper('emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_POND_PINE');
-var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SHORTLEAF_PINE = Module['_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SHORTLEAF_PINE'] = createExportWrapper('emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SHORTLEAF_PINE');
-var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LOBLOLLY_PINE = Module['_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LOBLOLLY_PINE'] = createExportWrapper('emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LOBLOLLY_PINE');
-var _emscripten_enum_SpotFireLocation_SpotFireLocationEnum_MIDSLOPE_WINDWARD = Module['_emscripten_enum_SpotFireLocation_SpotFireLocationEnum_MIDSLOPE_WINDWARD'] = createExportWrapper('emscripten_enum_SpotFireLocation_SpotFireLocationEnum_MIDSLOPE_WINDWARD');
-var _emscripten_enum_SpotFireLocation_SpotFireLocationEnum_VALLEY_BOTTOM = Module['_emscripten_enum_SpotFireLocation_SpotFireLocationEnum_VALLEY_BOTTOM'] = createExportWrapper('emscripten_enum_SpotFireLocation_SpotFireLocationEnum_VALLEY_BOTTOM');
-var _emscripten_enum_SpotFireLocation_SpotFireLocationEnum_MIDSLOPE_LEEWARD = Module['_emscripten_enum_SpotFireLocation_SpotFireLocationEnum_MIDSLOPE_LEEWARD'] = createExportWrapper('emscripten_enum_SpotFireLocation_SpotFireLocationEnum_MIDSLOPE_LEEWARD');
-var _emscripten_enum_SpotFireLocation_SpotFireLocationEnum_RIDGE_TOP = Module['_emscripten_enum_SpotFireLocation_SpotFireLocationEnum_RIDGE_TOP'] = createExportWrapper('emscripten_enum_SpotFireLocation_SpotFireLocationEnum_RIDGE_TOP');
-var _emscripten_enum_FuelLifeState_FuelLifeStateEnum_Dead = Module['_emscripten_enum_FuelLifeState_FuelLifeStateEnum_Dead'] = createExportWrapper('emscripten_enum_FuelLifeState_FuelLifeStateEnum_Dead');
-var _emscripten_enum_FuelLifeState_FuelLifeStateEnum_Live = Module['_emscripten_enum_FuelLifeState_FuelLifeStateEnum_Live'] = createExportWrapper('emscripten_enum_FuelLifeState_FuelLifeStateEnum_Live');
-var _emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxLifeStates = Module['_emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxLifeStates'] = createExportWrapper('emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxLifeStates');
-var _emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxLiveSizeClasses = Module['_emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxLiveSizeClasses'] = createExportWrapper('emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxLiveSizeClasses');
-var _emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxDeadSizeClasses = Module['_emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxDeadSizeClasses'] = createExportWrapper('emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxDeadSizeClasses');
-var _emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxParticles = Module['_emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxParticles'] = createExportWrapper('emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxParticles');
-var _emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxSavrSizeClasses = Module['_emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxSavrSizeClasses'] = createExportWrapper('emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxSavrSizeClasses');
-var _emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxFuelModels = Module['_emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxFuelModels'] = createExportWrapper('emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxFuelModels');
-var _emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Low = Module['_emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Low'] = createExportWrapper('emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Low');
-var _emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Moderate = Module['_emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Moderate'] = createExportWrapper('emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Moderate');
-var _emscripten_enum_ChaparralFuelType_ChaparralFuelTypeEnum_NotSet = Module['_emscripten_enum_ChaparralFuelType_ChaparralFuelTypeEnum_NotSet'] = createExportWrapper('emscripten_enum_ChaparralFuelType_ChaparralFuelTypeEnum_NotSet');
-var _emscripten_enum_ChaparralFuelType_ChaparralFuelTypeEnum_Chamise = Module['_emscripten_enum_ChaparralFuelType_ChaparralFuelTypeEnum_Chamise'] = createExportWrapper('emscripten_enum_ChaparralFuelType_ChaparralFuelTypeEnum_Chamise');
-var _emscripten_enum_ChaparralFuelType_ChaparralFuelTypeEnum_MixedBrush = Module['_emscripten_enum_ChaparralFuelType_ChaparralFuelTypeEnum_MixedBrush'] = createExportWrapper('emscripten_enum_ChaparralFuelType_ChaparralFuelTypeEnum_MixedBrush');
-var _emscripten_enum_ChaparralFuelLoadInputMode_ChaparralFuelInputLoadModeEnum_DirectFuelLoad = Module['_emscripten_enum_ChaparralFuelLoadInputMode_ChaparralFuelInputLoadModeEnum_DirectFuelLoad'] = createExportWrapper('emscripten_enum_ChaparralFuelLoadInputMode_ChaparralFuelInputLoadModeEnum_DirectFuelLoad');
-var _emscripten_enum_ChaparralFuelLoadInputMode_ChaparralFuelInputLoadModeEnum_FuelLoadFromDepthAndChaparralType = Module['_emscripten_enum_ChaparralFuelLoadInputMode_ChaparralFuelInputLoadModeEnum_FuelLoadFromDepthAndChaparralType'] = createExportWrapper('emscripten_enum_ChaparralFuelLoadInputMode_ChaparralFuelInputLoadModeEnum_FuelLoadFromDepthAndChaparralType');
-var _emscripten_enum_MoistureInputMode_MoistureInputModeEnum_BySizeClass = Module['_emscripten_enum_MoistureInputMode_MoistureInputModeEnum_BySizeClass'] = createExportWrapper('emscripten_enum_MoistureInputMode_MoistureInputModeEnum_BySizeClass');
-var _emscripten_enum_MoistureInputMode_MoistureInputModeEnum_AllAggregate = Module['_emscripten_enum_MoistureInputMode_MoistureInputModeEnum_AllAggregate'] = createExportWrapper('emscripten_enum_MoistureInputMode_MoistureInputModeEnum_AllAggregate');
-var _emscripten_enum_MoistureInputMode_MoistureInputModeEnum_DeadAggregateAndLiveSizeClass = Module['_emscripten_enum_MoistureInputMode_MoistureInputModeEnum_DeadAggregateAndLiveSizeClass'] = createExportWrapper('emscripten_enum_MoistureInputMode_MoistureInputModeEnum_DeadAggregateAndLiveSizeClass');
-var _emscripten_enum_MoistureInputMode_MoistureInputModeEnum_LiveAggregateAndDeadSizeClass = Module['_emscripten_enum_MoistureInputMode_MoistureInputModeEnum_LiveAggregateAndDeadSizeClass'] = createExportWrapper('emscripten_enum_MoistureInputMode_MoistureInputModeEnum_LiveAggregateAndDeadSizeClass');
-var _emscripten_enum_MoistureInputMode_MoistureInputModeEnum_MoistureScenario = Module['_emscripten_enum_MoistureInputMode_MoistureInputModeEnum_MoistureScenario'] = createExportWrapper('emscripten_enum_MoistureInputMode_MoistureInputModeEnum_MoistureScenario');
-var _emscripten_enum_MoistureClassInput_MoistureClassInputEnum_OneHour = Module['_emscripten_enum_MoistureClassInput_MoistureClassInputEnum_OneHour'] = createExportWrapper('emscripten_enum_MoistureClassInput_MoistureClassInputEnum_OneHour');
-var _emscripten_enum_MoistureClassInput_MoistureClassInputEnum_TenHour = Module['_emscripten_enum_MoistureClassInput_MoistureClassInputEnum_TenHour'] = createExportWrapper('emscripten_enum_MoistureClassInput_MoistureClassInputEnum_TenHour');
-var _emscripten_enum_MoistureClassInput_MoistureClassInputEnum_HundredHour = Module['_emscripten_enum_MoistureClassInput_MoistureClassInputEnum_HundredHour'] = createExportWrapper('emscripten_enum_MoistureClassInput_MoistureClassInputEnum_HundredHour');
-var _emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveHerbaceous = Module['_emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveHerbaceous'] = createExportWrapper('emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveHerbaceous');
-var _emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveWoody = Module['_emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveWoody'] = createExportWrapper('emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveWoody');
-var _emscripten_enum_MoistureClassInput_MoistureClassInputEnum_DeadAggregate = Module['_emscripten_enum_MoistureClassInput_MoistureClassInputEnum_DeadAggregate'] = createExportWrapper('emscripten_enum_MoistureClassInput_MoistureClassInputEnum_DeadAggregate');
-var _emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveAggregate = Module['_emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveAggregate'] = createExportWrapper('emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveAggregate');
-var _emscripten_enum_SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum_FromIgnitionPoint = Module['_emscripten_enum_SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum_FromIgnitionPoint'] = createExportWrapper('emscripten_enum_SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum_FromIgnitionPoint');
-var _emscripten_enum_SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum_FromPerimeter = Module['_emscripten_enum_SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum_FromPerimeter'] = createExportWrapper('emscripten_enum_SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum_FromPerimeter');
-var _emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_NoMethod = Module['_emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_NoMethod'] = createExportWrapper('emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_NoMethod');
-var _emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_Arithmetic = Module['_emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_Arithmetic'] = createExportWrapper('emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_Arithmetic');
-var _emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_Harmonic = Module['_emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_Harmonic'] = createExportWrapper('emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_Harmonic');
-var _emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_TwoDimensional = Module['_emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_TwoDimensional'] = createExportWrapper('emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_TwoDimensional');
-var _emscripten_enum_WindAdjustmentFactorShelterMethod_WindAdjustmentFactorShelterMethodEnum_Unsheltered = Module['_emscripten_enum_WindAdjustmentFactorShelterMethod_WindAdjustmentFactorShelterMethodEnum_Unsheltered'] = createExportWrapper('emscripten_enum_WindAdjustmentFactorShelterMethod_WindAdjustmentFactorShelterMethodEnum_Unsheltered');
-var _emscripten_enum_WindAdjustmentFactorShelterMethod_WindAdjustmentFactorShelterMethodEnum_Sheltered = Module['_emscripten_enum_WindAdjustmentFactorShelterMethod_WindAdjustmentFactorShelterMethodEnum_Sheltered'] = createExportWrapper('emscripten_enum_WindAdjustmentFactorShelterMethod_WindAdjustmentFactorShelterMethodEnum_Sheltered');
-var _emscripten_enum_WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum_UserInput = Module['_emscripten_enum_WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum_UserInput'] = createExportWrapper('emscripten_enum_WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum_UserInput');
-var _emscripten_enum_WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum_UseCrownRatio = Module['_emscripten_enum_WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum_UseCrownRatio'] = createExportWrapper('emscripten_enum_WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum_UseCrownRatio');
-var _emscripten_enum_WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum_DontUseCrownRatio = Module['_emscripten_enum_WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum_DontUseCrownRatio'] = createExportWrapper('emscripten_enum_WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum_DontUseCrownRatio');
-var _emscripten_enum_WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum_RelativeToUpslope = Module['_emscripten_enum_WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum_RelativeToUpslope'] = createExportWrapper('emscripten_enum_WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum_RelativeToUpslope');
-var _emscripten_enum_WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum_RelativeToNorth = Module['_emscripten_enum_WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum_RelativeToNorth'] = createExportWrapper('emscripten_enum_WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum_RelativeToNorth');
-var _emscripten_enum_WindHeightInputMode_WindHeightInputModeEnum_DirectMidflame = Module['_emscripten_enum_WindHeightInputMode_WindHeightInputModeEnum_DirectMidflame'] = createExportWrapper('emscripten_enum_WindHeightInputMode_WindHeightInputModeEnum_DirectMidflame');
-var _emscripten_enum_WindHeightInputMode_WindHeightInputModeEnum_TwentyFoot = Module['_emscripten_enum_WindHeightInputMode_WindHeightInputModeEnum_TwentyFoot'] = createExportWrapper('emscripten_enum_WindHeightInputMode_WindHeightInputModeEnum_TwentyFoot');
-var _emscripten_enum_WindHeightInputMode_WindHeightInputModeEnum_TenMeter = Module['_emscripten_enum_WindHeightInputMode_WindHeightInputModeEnum_TenMeter'] = createExportWrapper('emscripten_enum_WindHeightInputMode_WindHeightInputModeEnum_TenMeter');
-var _emscripten_enum_WindUpslopeAlignmentMode_NotAligned = Module['_emscripten_enum_WindUpslopeAlignmentMode_NotAligned'] = createExportWrapper('emscripten_enum_WindUpslopeAlignmentMode_NotAligned');
-var _emscripten_enum_WindUpslopeAlignmentMode_Aligned = Module['_emscripten_enum_WindUpslopeAlignmentMode_Aligned'] = createExportWrapper('emscripten_enum_WindUpslopeAlignmentMode_Aligned');
-var _emscripten_enum_SurfaceRunInDirectionOf_MaxSpread = Module['_emscripten_enum_SurfaceRunInDirectionOf_MaxSpread'] = createExportWrapper('emscripten_enum_SurfaceRunInDirectionOf_MaxSpread');
-var _emscripten_enum_SurfaceRunInDirectionOf_DirectionOfInterest = Module['_emscripten_enum_SurfaceRunInDirectionOf_DirectionOfInterest'] = createExportWrapper('emscripten_enum_SurfaceRunInDirectionOf_DirectionOfInterest');
-var _emscripten_enum_FireType_FireTypeEnum_Surface = Module['_emscripten_enum_FireType_FireTypeEnum_Surface'] = createExportWrapper('emscripten_enum_FireType_FireTypeEnum_Surface');
-var _emscripten_enum_FireType_FireTypeEnum_Torching = Module['_emscripten_enum_FireType_FireTypeEnum_Torching'] = createExportWrapper('emscripten_enum_FireType_FireTypeEnum_Torching');
-var _emscripten_enum_FireType_FireTypeEnum_ConditionalCrownFire = Module['_emscripten_enum_FireType_FireTypeEnum_ConditionalCrownFire'] = createExportWrapper('emscripten_enum_FireType_FireTypeEnum_ConditionalCrownFire');
-var _emscripten_enum_FireType_FireTypeEnum_Crowning = Module['_emscripten_enum_FireType_FireTypeEnum_Crowning'] = createExportWrapper('emscripten_enum_FireType_FireTypeEnum_Crowning');
-var _emscripten_enum_BeetleDamage_not_set = Module['_emscripten_enum_BeetleDamage_not_set'] = createExportWrapper('emscripten_enum_BeetleDamage_not_set');
-var _emscripten_enum_BeetleDamage_no = Module['_emscripten_enum_BeetleDamage_no'] = createExportWrapper('emscripten_enum_BeetleDamage_no');
-var _emscripten_enum_BeetleDamage_yes = Module['_emscripten_enum_BeetleDamage_yes'] = createExportWrapper('emscripten_enum_BeetleDamage_yes');
-var _emscripten_enum_CrownFireCalculationMethod_rothermel = Module['_emscripten_enum_CrownFireCalculationMethod_rothermel'] = createExportWrapper('emscripten_enum_CrownFireCalculationMethod_rothermel');
-var _emscripten_enum_CrownFireCalculationMethod_scott_and_reinhardt = Module['_emscripten_enum_CrownFireCalculationMethod_scott_and_reinhardt'] = createExportWrapper('emscripten_enum_CrownFireCalculationMethod_scott_and_reinhardt');
-var _emscripten_enum_CrownDamageEquationCode_not_set = Module['_emscripten_enum_CrownDamageEquationCode_not_set'] = createExportWrapper('emscripten_enum_CrownDamageEquationCode_not_set');
-var _emscripten_enum_CrownDamageEquationCode_white_fir = Module['_emscripten_enum_CrownDamageEquationCode_white_fir'] = createExportWrapper('emscripten_enum_CrownDamageEquationCode_white_fir');
-var _emscripten_enum_CrownDamageEquationCode_subalpine_fir = Module['_emscripten_enum_CrownDamageEquationCode_subalpine_fir'] = createExportWrapper('emscripten_enum_CrownDamageEquationCode_subalpine_fir');
-var _emscripten_enum_CrownDamageEquationCode_incense_cedar = Module['_emscripten_enum_CrownDamageEquationCode_incense_cedar'] = createExportWrapper('emscripten_enum_CrownDamageEquationCode_incense_cedar');
-var _emscripten_enum_CrownDamageEquationCode_western_larch = Module['_emscripten_enum_CrownDamageEquationCode_western_larch'] = createExportWrapper('emscripten_enum_CrownDamageEquationCode_western_larch');
-var _emscripten_enum_CrownDamageEquationCode_whitebark_pine = Module['_emscripten_enum_CrownDamageEquationCode_whitebark_pine'] = createExportWrapper('emscripten_enum_CrownDamageEquationCode_whitebark_pine');
-var _emscripten_enum_CrownDamageEquationCode_engelmann_spruce = Module['_emscripten_enum_CrownDamageEquationCode_engelmann_spruce'] = createExportWrapper('emscripten_enum_CrownDamageEquationCode_engelmann_spruce');
-var _emscripten_enum_CrownDamageEquationCode_sugar_pine = Module['_emscripten_enum_CrownDamageEquationCode_sugar_pine'] = createExportWrapper('emscripten_enum_CrownDamageEquationCode_sugar_pine');
-var _emscripten_enum_CrownDamageEquationCode_red_fir = Module['_emscripten_enum_CrownDamageEquationCode_red_fir'] = createExportWrapper('emscripten_enum_CrownDamageEquationCode_red_fir');
-var _emscripten_enum_CrownDamageEquationCode_ponderosa_pine = Module['_emscripten_enum_CrownDamageEquationCode_ponderosa_pine'] = createExportWrapper('emscripten_enum_CrownDamageEquationCode_ponderosa_pine');
-var _emscripten_enum_CrownDamageEquationCode_ponderosa_kill = Module['_emscripten_enum_CrownDamageEquationCode_ponderosa_kill'] = createExportWrapper('emscripten_enum_CrownDamageEquationCode_ponderosa_kill');
-var _emscripten_enum_CrownDamageEquationCode_douglas_fir = Module['_emscripten_enum_CrownDamageEquationCode_douglas_fir'] = createExportWrapper('emscripten_enum_CrownDamageEquationCode_douglas_fir');
-var _emscripten_enum_CrownDamageType_not_set = Module['_emscripten_enum_CrownDamageType_not_set'] = createExportWrapper('emscripten_enum_CrownDamageType_not_set');
-var _emscripten_enum_CrownDamageType_crown_length = Module['_emscripten_enum_CrownDamageType_crown_length'] = createExportWrapper('emscripten_enum_CrownDamageType_crown_length');
-var _emscripten_enum_CrownDamageType_crown_volume = Module['_emscripten_enum_CrownDamageType_crown_volume'] = createExportWrapper('emscripten_enum_CrownDamageType_crown_volume');
-var _emscripten_enum_CrownDamageType_crown_kill = Module['_emscripten_enum_CrownDamageType_crown_kill'] = createExportWrapper('emscripten_enum_CrownDamageType_crown_kill');
-var _emscripten_enum_EquationType_not_set = Module['_emscripten_enum_EquationType_not_set'] = createExportWrapper('emscripten_enum_EquationType_not_set');
-var _emscripten_enum_EquationType_crown_scorch = Module['_emscripten_enum_EquationType_crown_scorch'] = createExportWrapper('emscripten_enum_EquationType_crown_scorch');
-var _emscripten_enum_EquationType_bole_char = Module['_emscripten_enum_EquationType_bole_char'] = createExportWrapper('emscripten_enum_EquationType_bole_char');
-var _emscripten_enum_EquationType_crown_damage = Module['_emscripten_enum_EquationType_crown_damage'] = createExportWrapper('emscripten_enum_EquationType_crown_damage');
-var _emscripten_enum_FireSeverity_not_set = Module['_emscripten_enum_FireSeverity_not_set'] = createExportWrapper('emscripten_enum_FireSeverity_not_set');
-var _emscripten_enum_FireSeverity_empty = Module['_emscripten_enum_FireSeverity_empty'] = createExportWrapper('emscripten_enum_FireSeverity_empty');
-var _emscripten_enum_FireSeverity_low = Module['_emscripten_enum_FireSeverity_low'] = createExportWrapper('emscripten_enum_FireSeverity_low');
-var _emscripten_enum_FlameLengthOrScorchHeightSwitch_flame_length = Module['_emscripten_enum_FlameLengthOrScorchHeightSwitch_flame_length'] = createExportWrapper('emscripten_enum_FlameLengthOrScorchHeightSwitch_flame_length');
-var _emscripten_enum_FlameLengthOrScorchHeightSwitch_scorch_height = Module['_emscripten_enum_FlameLengthOrScorchHeightSwitch_scorch_height'] = createExportWrapper('emscripten_enum_FlameLengthOrScorchHeightSwitch_scorch_height');
-var _emscripten_enum_RegionCode_interior_west = Module['_emscripten_enum_RegionCode_interior_west'] = createExportWrapper('emscripten_enum_RegionCode_interior_west');
-var _emscripten_enum_RegionCode_pacific_west = Module['_emscripten_enum_RegionCode_pacific_west'] = createExportWrapper('emscripten_enum_RegionCode_pacific_west');
-var _emscripten_enum_RegionCode_north_east = Module['_emscripten_enum_RegionCode_north_east'] = createExportWrapper('emscripten_enum_RegionCode_north_east');
-var _emscripten_enum_RegionCode_south_east = Module['_emscripten_enum_RegionCode_south_east'] = createExportWrapper('emscripten_enum_RegionCode_south_east');
-var _emscripten_enum_RequiredFieldNames_region = Module['_emscripten_enum_RequiredFieldNames_region'] = createExportWrapper('emscripten_enum_RequiredFieldNames_region');
-var _emscripten_enum_RequiredFieldNames_flame_length_or_scorch_height_switch = Module['_emscripten_enum_RequiredFieldNames_flame_length_or_scorch_height_switch'] = createExportWrapper('emscripten_enum_RequiredFieldNames_flame_length_or_scorch_height_switch');
-var _emscripten_enum_RequiredFieldNames_flame_length_or_scorch_height_value = Module['_emscripten_enum_RequiredFieldNames_flame_length_or_scorch_height_value'] = createExportWrapper('emscripten_enum_RequiredFieldNames_flame_length_or_scorch_height_value');
-var _emscripten_enum_RequiredFieldNames_equation_type = Module['_emscripten_enum_RequiredFieldNames_equation_type'] = createExportWrapper('emscripten_enum_RequiredFieldNames_equation_type');
-var _emscripten_enum_RequiredFieldNames_dbh = Module['_emscripten_enum_RequiredFieldNames_dbh'] = createExportWrapper('emscripten_enum_RequiredFieldNames_dbh');
-var _emscripten_enum_RequiredFieldNames_tree_height = Module['_emscripten_enum_RequiredFieldNames_tree_height'] = createExportWrapper('emscripten_enum_RequiredFieldNames_tree_height');
-var _emscripten_enum_RequiredFieldNames_crown_ratio = Module['_emscripten_enum_RequiredFieldNames_crown_ratio'] = createExportWrapper('emscripten_enum_RequiredFieldNames_crown_ratio');
-var _emscripten_enum_RequiredFieldNames_crown_damage = Module['_emscripten_enum_RequiredFieldNames_crown_damage'] = createExportWrapper('emscripten_enum_RequiredFieldNames_crown_damage');
-var _emscripten_enum_RequiredFieldNames_cambium_kill_rating = Module['_emscripten_enum_RequiredFieldNames_cambium_kill_rating'] = createExportWrapper('emscripten_enum_RequiredFieldNames_cambium_kill_rating');
-var _emscripten_enum_RequiredFieldNames_beetle_damage = Module['_emscripten_enum_RequiredFieldNames_beetle_damage'] = createExportWrapper('emscripten_enum_RequiredFieldNames_beetle_damage');
-var _emscripten_enum_RequiredFieldNames_bole_char_height = Module['_emscripten_enum_RequiredFieldNames_bole_char_height'] = createExportWrapper('emscripten_enum_RequiredFieldNames_bole_char_height');
-var _emscripten_enum_RequiredFieldNames_bark_thickness = Module['_emscripten_enum_RequiredFieldNames_bark_thickness'] = createExportWrapper('emscripten_enum_RequiredFieldNames_bark_thickness');
-var _emscripten_enum_RequiredFieldNames_fire_severity = Module['_emscripten_enum_RequiredFieldNames_fire_severity'] = createExportWrapper('emscripten_enum_RequiredFieldNames_fire_severity');
-var _emscripten_enum_RequiredFieldNames_num_inputs = Module['_emscripten_enum_RequiredFieldNames_num_inputs'] = createExportWrapper('emscripten_enum_RequiredFieldNames_num_inputs');
-var _emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_NORTH = Module['_emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_NORTH'] = createExportWrapper('emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_NORTH');
-var _emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_EAST = Module['_emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_EAST'] = createExportWrapper('emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_EAST');
-var _emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_SOUTH = Module['_emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_SOUTH'] = createExportWrapper('emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_SOUTH');
-var _emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_WEST = Module['_emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_WEST'] = createExportWrapper('emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_WEST');
-var _emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_TEN_TO_TWENTY_NINE_DEGREES_F = Module['_emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_TEN_TO_TWENTY_NINE_DEGREES_F'] = createExportWrapper('emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_TEN_TO_TWENTY_NINE_DEGREES_F');
-var _emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_THRITY_TO_FOURTY_NINE_DEGREES_F = Module['_emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_THRITY_TO_FOURTY_NINE_DEGREES_F'] = createExportWrapper('emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_THRITY_TO_FOURTY_NINE_DEGREES_F');
-var _emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_FIFTY_TO_SIXTY_NINE_DEGREES_F = Module['_emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_FIFTY_TO_SIXTY_NINE_DEGREES_F'] = createExportWrapper('emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_FIFTY_TO_SIXTY_NINE_DEGREES_F');
-var _emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_SEVENTY_TO_EIGHTY_NINE_DEGREES_F = Module['_emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_SEVENTY_TO_EIGHTY_NINE_DEGREES_F'] = createExportWrapper('emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_SEVENTY_TO_EIGHTY_NINE_DEGREES_F');
-var _emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_NINETY_TO_ONE_HUNDRED_NINE_DEGREES_F = Module['_emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_NINETY_TO_ONE_HUNDRED_NINE_DEGREES_F'] = createExportWrapper('emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_NINETY_TO_ONE_HUNDRED_NINE_DEGREES_F');
-var _emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_GREATER_THAN_ONE_HUNDRED_NINE_DEGREES_F = Module['_emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_GREATER_THAN_ONE_HUNDRED_NINE_DEGREES_F'] = createExportWrapper('emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_GREATER_THAN_ONE_HUNDRED_NINE_DEGREES_F');
-var _emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_BELOW_1000_TO_2000_FT = Module['_emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_BELOW_1000_TO_2000_FT'] = createExportWrapper('emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_BELOW_1000_TO_2000_FT');
-var _emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_LEVEL_WITHIN_1000_FT = Module['_emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_LEVEL_WITHIN_1000_FT'] = createExportWrapper('emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_LEVEL_WITHIN_1000_FT');
-var _emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_ABOVE_1000_TO_2000_FT = Module['_emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_ABOVE_1000_TO_2000_FT'] = createExportWrapper('emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_ABOVE_1000_TO_2000_FT');
-var _emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_MAY_JUNE_JULY = Module['_emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_MAY_JUNE_JULY'] = createExportWrapper('emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_MAY_JUNE_JULY');
-var _emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_FEB_MAR_APR_AUG_SEP_OCT = Module['_emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_FEB_MAR_APR_AUG_SEP_OCT'] = createExportWrapper('emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_FEB_MAR_APR_AUG_SEP_OCT');
-var _emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_NOV_DEC_JAN = Module['_emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_NOV_DEC_JAN'] = createExportWrapper('emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_NOV_DEC_JAN');
-var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_ZERO_TO_FOUR_PERCENT = Module['_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_ZERO_TO_FOUR_PERCENT'] = createExportWrapper('emscripten_enum_FDFMToolRHIndex_RHIndexEnum_ZERO_TO_FOUR_PERCENT');
-var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIVE_TO_NINE_PERCENT = Module['_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIVE_TO_NINE_PERCENT'] = createExportWrapper('emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIVE_TO_NINE_PERCENT');
-var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TEN_TO_FOURTEEN_PERCENT = Module['_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TEN_TO_FOURTEEN_PERCENT'] = createExportWrapper('emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TEN_TO_FOURTEEN_PERCENT');
-var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTEEN_TO_NINETEEN_PERCENT = Module['_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTEEN_TO_NINETEEN_PERCENT'] = createExportWrapper('emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTEEN_TO_NINETEEN_PERCENT');
-var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TWENTY_TO_TWENTY_FOUR_PERCENT = Module['_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TWENTY_TO_TWENTY_FOUR_PERCENT'] = createExportWrapper('emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TWENTY_TO_TWENTY_FOUR_PERCENT');
-var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TWENTY_FIVE_TO_TWENTY_NINE_PERCENT = Module['_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TWENTY_FIVE_TO_TWENTY_NINE_PERCENT'] = createExportWrapper('emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TWENTY_FIVE_TO_TWENTY_NINE_PERCENT');
-var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_THIRTY_TO_THIRTY_FOUR_PERCENT = Module['_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_THIRTY_TO_THIRTY_FOUR_PERCENT'] = createExportWrapper('emscripten_enum_FDFMToolRHIndex_RHIndexEnum_THIRTY_TO_THIRTY_FOUR_PERCENT');
-var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_THIRTY_FIVE_TO_THIRTY_NINE_PERCENT = Module['_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_THIRTY_FIVE_TO_THIRTY_NINE_PERCENT'] = createExportWrapper('emscripten_enum_FDFMToolRHIndex_RHIndexEnum_THIRTY_FIVE_TO_THIRTY_NINE_PERCENT');
-var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FORTY_TO_FORTY_FOUR_PERCENT = Module['_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FORTY_TO_FORTY_FOUR_PERCENT'] = createExportWrapper('emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FORTY_TO_FORTY_FOUR_PERCENT');
-var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FORTY_FIVE_TO_FORTY_NINE_PERCENT = Module['_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FORTY_FIVE_TO_FORTY_NINE_PERCENT'] = createExportWrapper('emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FORTY_FIVE_TO_FORTY_NINE_PERCENT');
-var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTY_TO_FIFTY_FOUR_PERCENT = Module['_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTY_TO_FIFTY_FOUR_PERCENT'] = createExportWrapper('emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTY_TO_FIFTY_FOUR_PERCENT');
-var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTY_FIVE_TO_FIFTY_NINE_PERCENT = Module['_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTY_FIVE_TO_FIFTY_NINE_PERCENT'] = createExportWrapper('emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTY_FIVE_TO_FIFTY_NINE_PERCENT');
-var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SIXTY_TO_SIXTY_FOUR_PERCENT = Module['_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SIXTY_TO_SIXTY_FOUR_PERCENT'] = createExportWrapper('emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SIXTY_TO_SIXTY_FOUR_PERCENT');
-var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SIXTY_FIVE_TO_SIXTY_NINE_PERCENT = Module['_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SIXTY_FIVE_TO_SIXTY_NINE_PERCENT'] = createExportWrapper('emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SIXTY_FIVE_TO_SIXTY_NINE_PERCENT');
-var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SEVENTY_TO_SEVENTY_FOUR_PERCENT = Module['_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SEVENTY_TO_SEVENTY_FOUR_PERCENT'] = createExportWrapper('emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SEVENTY_TO_SEVENTY_FOUR_PERCENT');
-var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SEVENTY_FIVE_TO_SEVENTY_NINE_PERCENT = Module['_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SEVENTY_FIVE_TO_SEVENTY_NINE_PERCENT'] = createExportWrapper('emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SEVENTY_FIVE_TO_SEVENTY_NINE_PERCENT');
-var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_EIGHTY_TO_EIGHTY_FOUR_PERCENT = Module['_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_EIGHTY_TO_EIGHTY_FOUR_PERCENT'] = createExportWrapper('emscripten_enum_FDFMToolRHIndex_RHIndexEnum_EIGHTY_TO_EIGHTY_FOUR_PERCENT');
-var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_EIGHTY_FIVE_TO_EIGHTY_NINE_PERCENT = Module['_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_EIGHTY_FIVE_TO_EIGHTY_NINE_PERCENT'] = createExportWrapper('emscripten_enum_FDFMToolRHIndex_RHIndexEnum_EIGHTY_FIVE_TO_EIGHTY_NINE_PERCENT');
-var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_NINETY_TO_NINETY_FOUR_PERCENT = Module['_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_NINETY_TO_NINETY_FOUR_PERCENT'] = createExportWrapper('emscripten_enum_FDFMToolRHIndex_RHIndexEnum_NINETY_TO_NINETY_FOUR_PERCENT');
-var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_NINETY_FIVE_TO_NINETY_NINE_PERCENT = Module['_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_NINETY_FIVE_TO_NINETY_NINE_PERCENT'] = createExportWrapper('emscripten_enum_FDFMToolRHIndex_RHIndexEnum_NINETY_FIVE_TO_NINETY_NINE_PERCENT');
-var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_ONE_HUNDRED_PERCENT = Module['_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_ONE_HUNDRED_PERCENT'] = createExportWrapper('emscripten_enum_FDFMToolRHIndex_RHIndexEnum_ONE_HUNDRED_PERCENT');
-var _emscripten_enum_FDFMToolShadingIndex_ShadingIndexEnum_EXPOSED = Module['_emscripten_enum_FDFMToolShadingIndex_ShadingIndexEnum_EXPOSED'] = createExportWrapper('emscripten_enum_FDFMToolShadingIndex_ShadingIndexEnum_EXPOSED');
-var _emscripten_enum_FDFMToolShadingIndex_ShadingIndexEnum_SHADED = Module['_emscripten_enum_FDFMToolShadingIndex_ShadingIndexEnum_SHADED'] = createExportWrapper('emscripten_enum_FDFMToolShadingIndex_ShadingIndexEnum_SHADED');
-var _emscripten_enum_FDFMToolSlopeIndex_SlopeIndexEnum_ZERO_TO_THIRTY_PERCENT = Module['_emscripten_enum_FDFMToolSlopeIndex_SlopeIndexEnum_ZERO_TO_THIRTY_PERCENT'] = createExportWrapper('emscripten_enum_FDFMToolSlopeIndex_SlopeIndexEnum_ZERO_TO_THIRTY_PERCENT');
-var _emscripten_enum_FDFMToolSlopeIndex_SlopeIndexEnum_GREATER_THAN_OR_EQUAL_TO_THIRTY_ONE_PERCENT = Module['_emscripten_enum_FDFMToolSlopeIndex_SlopeIndexEnum_GREATER_THAN_OR_EQUAL_TO_THIRTY_ONE_PERCENT'] = createExportWrapper('emscripten_enum_FDFMToolSlopeIndex_SlopeIndexEnum_GREATER_THAN_OR_EQUAL_TO_THIRTY_ONE_PERCENT');
-var _emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_EIGHT_HUNDRED_HOURS_TO_NINE_HUNDRED_FIFTY_NINE = Module['_emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_EIGHT_HUNDRED_HOURS_TO_NINE_HUNDRED_FIFTY_NINE'] = createExportWrapper('emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_EIGHT_HUNDRED_HOURS_TO_NINE_HUNDRED_FIFTY_NINE');
-var _emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_TEN_HUNDRED_HOURS_TO_ELEVEN__HUNDRED_FIFTY_NINE = Module['_emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_TEN_HUNDRED_HOURS_TO_ELEVEN__HUNDRED_FIFTY_NINE'] = createExportWrapper('emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_TEN_HUNDRED_HOURS_TO_ELEVEN__HUNDRED_FIFTY_NINE');
-var _emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_TWELVE_HUNDRED_HOURS_TO_THIRTEEN_HUNDRED_FIFTY_NINE = Module['_emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_TWELVE_HUNDRED_HOURS_TO_THIRTEEN_HUNDRED_FIFTY_NINE'] = createExportWrapper('emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_TWELVE_HUNDRED_HOURS_TO_THIRTEEN_HUNDRED_FIFTY_NINE');
-var _emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_FOURTEEN_HUNDRED_HOURS_TO_FIFTEEN_HUNDRED_FIFTY_NINE = Module['_emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_FOURTEEN_HUNDRED_HOURS_TO_FIFTEEN_HUNDRED_FIFTY_NINE'] = createExportWrapper('emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_FOURTEEN_HUNDRED_HOURS_TO_FIFTEEN_HUNDRED_FIFTY_NINE');
-var _emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_SIXTEEN_HUNDRED_HOURS_TO_SIXTEEN_HUNDRED_FIFTY_NINE = Module['_emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_SIXTEEN_HUNDRED_HOURS_TO_SIXTEEN_HUNDRED_FIFTY_NINE'] = createExportWrapper('emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_SIXTEEN_HUNDRED_HOURS_TO_SIXTEEN_HUNDRED_FIFTY_NINE');
-var _emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_EIGHTTEEN_HUNDRED_HOURS_TO_SUNSET = Module['_emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_EIGHTTEEN_HUNDRED_HOURS_TO_SUNSET'] = createExportWrapper('emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_EIGHTTEEN_HUNDRED_HOURS_TO_SUNSET');
-var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_NINTEEN_HUNDRED_EIGHTY = Module['_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_NINTEEN_HUNDRED_EIGHTY'] = createExportWrapper('emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_NINTEEN_HUNDRED_EIGHTY');
-var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_THREE_THOUSAND_NINEHUNDRED_SIXTY = Module['_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_THREE_THOUSAND_NINEHUNDRED_SIXTY'] = createExportWrapper('emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_THREE_THOUSAND_NINEHUNDRED_SIXTY');
-var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SEVEN_THOUSAND_NINEHUNDRED_TWENTY = Module['_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SEVEN_THOUSAND_NINEHUNDRED_TWENTY'] = createExportWrapper('emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SEVEN_THOUSAND_NINEHUNDRED_TWENTY');
-var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TEN_THOUSAND = Module['_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TEN_THOUSAND'] = createExportWrapper('emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TEN_THOUSAND');
-var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIFTEEN_THOUSAND_EIGHT_HUNDRED_FORTY = Module['_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIFTEEN_THOUSAND_EIGHT_HUNDRED_FORTY'] = createExportWrapper('emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIFTEEN_THOUSAND_EIGHT_HUNDRED_FORTY');
-var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWENTY_ONE_THOUSAND_ONE_HUNDRED_TWENTY = Module['_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWENTY_ONE_THOUSAND_ONE_HUNDRED_TWENTY'] = createExportWrapper('emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWENTY_ONE_THOUSAND_ONE_HUNDRED_TWENTY');
-var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWENTY_FOUR_THOUSAND = Module['_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWENTY_FOUR_THOUSAND'] = createExportWrapper('emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWENTY_FOUR_THOUSAND');
-var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_THRITY_ONE_THOUSAND_SIX_HUNDRED_EIGHTY = Module['_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_THRITY_ONE_THOUSAND_SIX_HUNDRED_EIGHTY'] = createExportWrapper('emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_THRITY_ONE_THOUSAND_SIX_HUNDRED_EIGHTY');
-var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIFTY_THOUSAND = Module['_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIFTY_THOUSAND'] = createExportWrapper('emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIFTY_THOUSAND');
-var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SIXTY_TWO_THOUSAND_FIVE_HUNDRED = Module['_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SIXTY_TWO_THOUSAND_FIVE_HUNDRED'] = createExportWrapper('emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SIXTY_TWO_THOUSAND_FIVE_HUNDRED');
-var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SIXTY_THREE_THOUSAND_THREE_HUNDRED_SIXTY = Module['_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SIXTY_THREE_THOUSAND_THREE_HUNDRED_SIXTY'] = createExportWrapper('emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SIXTY_THREE_THOUSAND_THREE_HUNDRED_SIXTY');
-var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_HUNDRED_THOUSAND = Module['_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_HUNDRED_THOUSAND'] = createExportWrapper('emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_HUNDRED_THOUSAND');
-var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_HUNDRED_TWENTY_SIX_THOUSAND_SEVEN_HUNDRED_TWENTY = Module['_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_HUNDRED_TWENTY_SIX_THOUSAND_SEVEN_HUNDRED_TWENTY'] = createExportWrapper('emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_HUNDRED_TWENTY_SIX_THOUSAND_SEVEN_HUNDRED_TWENTY');
-var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWO_HUNDRED_FIFTY_THOUSAND = Module['_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWO_HUNDRED_FIFTY_THOUSAND'] = createExportWrapper('emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWO_HUNDRED_FIFTY_THOUSAND');
-var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWO_HUNDRED_FIFTY_THREE_THOUSAND_FOUR_HUNDRED_FORTY = Module['_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWO_HUNDRED_FIFTY_THREE_THOUSAND_FOUR_HUNDRED_FORTY'] = createExportWrapper('emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWO_HUNDRED_FIFTY_THREE_THOUSAND_FOUR_HUNDRED_FORTY');
-var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIVE_HUNDRED_SIX_THOUSAND_EIGHT_HUNDRED_EIGHTY = Module['_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIVE_HUNDRED_SIX_THOUSAND_EIGHT_HUNDRED_EIGHTY'] = createExportWrapper('emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIVE_HUNDRED_SIX_THOUSAND_EIGHT_HUNDRED_EIGHTY');
-var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_MILLION = Module['_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_MILLION'] = createExportWrapper('emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_MILLION');
-var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_MILLION_THIRTEEN_THOUSAND_SEVEN_HUNDRED_SIXTY = Module['_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_MILLION_THIRTEEN_THOUSAND_SEVEN_HUNDRED_SIXTY'] = createExportWrapper('emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_MILLION_THIRTEEN_THOUSAND_SEVEN_HUNDRED_SIXTY');
-var _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_UPSLOPE_ZERO_DEGREES = Module['_emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_UPSLOPE_ZERO_DEGREES'] = createExportWrapper('emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_UPSLOPE_ZERO_DEGREES');
-var _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_FIFTEEN_DEGREES_FROM_UPSLOPE = Module['_emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_FIFTEEN_DEGREES_FROM_UPSLOPE'] = createExportWrapper('emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_FIFTEEN_DEGREES_FROM_UPSLOPE');
-var _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_THIRTY_DEGREES_FROM_UPSLOPE = Module['_emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_THIRTY_DEGREES_FROM_UPSLOPE'] = createExportWrapper('emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_THIRTY_DEGREES_FROM_UPSLOPE');
-var _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_FORTY_FIVE_DEGREES_FROM_UPSLOPE = Module['_emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_FORTY_FIVE_DEGREES_FROM_UPSLOPE'] = createExportWrapper('emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_FORTY_FIVE_DEGREES_FROM_UPSLOPE');
-var _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_SIXTY_DEGREES_FROM_UPSLOPE = Module['_emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_SIXTY_DEGREES_FROM_UPSLOPE'] = createExportWrapper('emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_SIXTY_DEGREES_FROM_UPSLOPE');
-var _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_SEVENTY_FIVE_DEGREES_FROM_UPSLOPE = Module['_emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_SEVENTY_FIVE_DEGREES_FROM_UPSLOPE'] = createExportWrapper('emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_SEVENTY_FIVE_DEGREES_FROM_UPSLOPE');
-var _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_CROSS_SLOPE_NINETY_DEGREES = Module['_emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_CROSS_SLOPE_NINETY_DEGREES'] = createExportWrapper('emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_CROSS_SLOPE_NINETY_DEGREES');
-var ___cxa_free_exception = createExportWrapper('__cxa_free_exception');
-var ___errno_location = createExportWrapper('__errno_location');
-var _setThrew = createExportWrapper('setThrew');
-var setTempRet0 = createExportWrapper('setTempRet0');
-var _emscripten_stack_init = () => (_emscripten_stack_init = wasmExports['emscripten_stack_init'])();
-var _emscripten_stack_get_free = () => (_emscripten_stack_get_free = wasmExports['emscripten_stack_get_free'])();
-var _emscripten_stack_get_base = () => (_emscripten_stack_get_base = wasmExports['emscripten_stack_get_base'])();
-var _emscripten_stack_get_end = () => (_emscripten_stack_get_end = wasmExports['emscripten_stack_get_end'])();
-var stackSave = createExportWrapper('stackSave');
-var stackRestore = createExportWrapper('stackRestore');
-var stackAlloc = createExportWrapper('stackAlloc');
-var _emscripten_stack_get_current = () => (_emscripten_stack_get_current = wasmExports['emscripten_stack_get_current'])();
-var ___cxa_increment_exception_refcount = createExportWrapper('__cxa_increment_exception_refcount');
-var ___cxa_decrement_exception_refcount = createExportWrapper('__cxa_decrement_exception_refcount');
-var ___get_exception_message = Module['___get_exception_message'] = createExportWrapper('__get_exception_message');
-var ___cxa_can_catch = createExportWrapper('__cxa_can_catch');
-var ___cxa_is_pointer_type = createExportWrapper('__cxa_is_pointer_type');
-var dynCall_jiji = Module['dynCall_jiji'] = createExportWrapper('dynCall_jiji');
-var ___start_em_js = Module['___start_em_js'] = 117926;
-var ___stop_em_js = Module['___stop_em_js'] = 118024;
+var asm = createWasm();
+/** @type {function(...*):?} */
+var ___wasm_call_ctors = createExportWrapper("__wasm_call_ctors");
+/** @type {function(...*):?} */
+var getTempRet0 = createExportWrapper("getTempRet0");
+/** @type {function(...*):?} */
+var _fflush = Module["_fflush"] = createExportWrapper("fflush");
+/** @type {function(...*):?} */
+var _emscripten_bind_VoidPtr___destroy___0 = Module["_emscripten_bind_VoidPtr___destroy___0"] = createExportWrapper("emscripten_bind_VoidPtr___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_DoublePtr___destroy___0 = Module["_emscripten_bind_DoublePtr___destroy___0"] = createExportWrapper("emscripten_bind_DoublePtr___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_BoolVector_BoolVector_0 = Module["_emscripten_bind_BoolVector_BoolVector_0"] = createExportWrapper("emscripten_bind_BoolVector_BoolVector_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_BoolVector_BoolVector_1 = Module["_emscripten_bind_BoolVector_BoolVector_1"] = createExportWrapper("emscripten_bind_BoolVector_BoolVector_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_BoolVector_resize_1 = Module["_emscripten_bind_BoolVector_resize_1"] = createExportWrapper("emscripten_bind_BoolVector_resize_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_BoolVector_get_1 = Module["_emscripten_bind_BoolVector_get_1"] = createExportWrapper("emscripten_bind_BoolVector_get_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_BoolVector_set_2 = Module["_emscripten_bind_BoolVector_set_2"] = createExportWrapper("emscripten_bind_BoolVector_set_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_BoolVector_size_0 = Module["_emscripten_bind_BoolVector_size_0"] = createExportWrapper("emscripten_bind_BoolVector_size_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_BoolVector___destroy___0 = Module["_emscripten_bind_BoolVector___destroy___0"] = createExportWrapper("emscripten_bind_BoolVector___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_CharVector_CharVector_0 = Module["_emscripten_bind_CharVector_CharVector_0"] = createExportWrapper("emscripten_bind_CharVector_CharVector_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_CharVector_CharVector_1 = Module["_emscripten_bind_CharVector_CharVector_1"] = createExportWrapper("emscripten_bind_CharVector_CharVector_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_CharVector_resize_1 = Module["_emscripten_bind_CharVector_resize_1"] = createExportWrapper("emscripten_bind_CharVector_resize_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_CharVector_get_1 = Module["_emscripten_bind_CharVector_get_1"] = createExportWrapper("emscripten_bind_CharVector_get_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_CharVector_set_2 = Module["_emscripten_bind_CharVector_set_2"] = createExportWrapper("emscripten_bind_CharVector_set_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_CharVector_size_0 = Module["_emscripten_bind_CharVector_size_0"] = createExportWrapper("emscripten_bind_CharVector_size_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_CharVector___destroy___0 = Module["_emscripten_bind_CharVector___destroy___0"] = createExportWrapper("emscripten_bind_CharVector___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_IntVector_IntVector_0 = Module["_emscripten_bind_IntVector_IntVector_0"] = createExportWrapper("emscripten_bind_IntVector_IntVector_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_IntVector_IntVector_1 = Module["_emscripten_bind_IntVector_IntVector_1"] = createExportWrapper("emscripten_bind_IntVector_IntVector_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_IntVector_resize_1 = Module["_emscripten_bind_IntVector_resize_1"] = createExportWrapper("emscripten_bind_IntVector_resize_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_IntVector_get_1 = Module["_emscripten_bind_IntVector_get_1"] = createExportWrapper("emscripten_bind_IntVector_get_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_IntVector_set_2 = Module["_emscripten_bind_IntVector_set_2"] = createExportWrapper("emscripten_bind_IntVector_set_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_IntVector_size_0 = Module["_emscripten_bind_IntVector_size_0"] = createExportWrapper("emscripten_bind_IntVector_size_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_IntVector___destroy___0 = Module["_emscripten_bind_IntVector___destroy___0"] = createExportWrapper("emscripten_bind_IntVector___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_DoubleVector_DoubleVector_0 = Module["_emscripten_bind_DoubleVector_DoubleVector_0"] = createExportWrapper("emscripten_bind_DoubleVector_DoubleVector_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_DoubleVector_DoubleVector_1 = Module["_emscripten_bind_DoubleVector_DoubleVector_1"] = createExportWrapper("emscripten_bind_DoubleVector_DoubleVector_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_DoubleVector_resize_1 = Module["_emscripten_bind_DoubleVector_resize_1"] = createExportWrapper("emscripten_bind_DoubleVector_resize_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_DoubleVector_get_1 = Module["_emscripten_bind_DoubleVector_get_1"] = createExportWrapper("emscripten_bind_DoubleVector_get_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_DoubleVector_set_2 = Module["_emscripten_bind_DoubleVector_set_2"] = createExportWrapper("emscripten_bind_DoubleVector_set_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_DoubleVector_size_0 = Module["_emscripten_bind_DoubleVector_size_0"] = createExportWrapper("emscripten_bind_DoubleVector_size_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_DoubleVector___destroy___0 = Module["_emscripten_bind_DoubleVector___destroy___0"] = createExportWrapper("emscripten_bind_DoubleVector___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SpeciesMasterTableRecordVector_SpeciesMasterTableRecordVector_0 = Module["_emscripten_bind_SpeciesMasterTableRecordVector_SpeciesMasterTableRecordVector_0"] = createExportWrapper("emscripten_bind_SpeciesMasterTableRecordVector_SpeciesMasterTableRecordVector_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SpeciesMasterTableRecordVector_SpeciesMasterTableRecordVector_1 = Module["_emscripten_bind_SpeciesMasterTableRecordVector_SpeciesMasterTableRecordVector_1"] = createExportWrapper("emscripten_bind_SpeciesMasterTableRecordVector_SpeciesMasterTableRecordVector_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SpeciesMasterTableRecordVector_resize_1 = Module["_emscripten_bind_SpeciesMasterTableRecordVector_resize_1"] = createExportWrapper("emscripten_bind_SpeciesMasterTableRecordVector_resize_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SpeciesMasterTableRecordVector_get_1 = Module["_emscripten_bind_SpeciesMasterTableRecordVector_get_1"] = createExportWrapper("emscripten_bind_SpeciesMasterTableRecordVector_get_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SpeciesMasterTableRecordVector_set_2 = Module["_emscripten_bind_SpeciesMasterTableRecordVector_set_2"] = createExportWrapper("emscripten_bind_SpeciesMasterTableRecordVector_set_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SpeciesMasterTableRecordVector_size_0 = Module["_emscripten_bind_SpeciesMasterTableRecordVector_size_0"] = createExportWrapper("emscripten_bind_SpeciesMasterTableRecordVector_size_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SpeciesMasterTableRecordVector___destroy___0 = Module["_emscripten_bind_SpeciesMasterTableRecordVector___destroy___0"] = createExportWrapper("emscripten_bind_SpeciesMasterTableRecordVector___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_FireSize_getBackingSpreadRate_1 = Module["_emscripten_bind_FireSize_getBackingSpreadRate_1"] = createExportWrapper("emscripten_bind_FireSize_getBackingSpreadRate_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_FireSize_getEccentricity_0 = Module["_emscripten_bind_FireSize_getEccentricity_0"] = createExportWrapper("emscripten_bind_FireSize_getEccentricity_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_FireSize_getEllipticalA_3 = Module["_emscripten_bind_FireSize_getEllipticalA_3"] = createExportWrapper("emscripten_bind_FireSize_getEllipticalA_3");
+/** @type {function(...*):?} */
+var _emscripten_bind_FireSize_getEllipticalB_3 = Module["_emscripten_bind_FireSize_getEllipticalB_3"] = createExportWrapper("emscripten_bind_FireSize_getEllipticalB_3");
+/** @type {function(...*):?} */
+var _emscripten_bind_FireSize_getEllipticalC_3 = Module["_emscripten_bind_FireSize_getEllipticalC_3"] = createExportWrapper("emscripten_bind_FireSize_getEllipticalC_3");
+/** @type {function(...*):?} */
+var _emscripten_bind_FireSize_getFireArea_4 = Module["_emscripten_bind_FireSize_getFireArea_4"] = createExportWrapper("emscripten_bind_FireSize_getFireArea_4");
+/** @type {function(...*):?} */
+var _emscripten_bind_FireSize_getFireLength_3 = Module["_emscripten_bind_FireSize_getFireLength_3"] = createExportWrapper("emscripten_bind_FireSize_getFireLength_3");
+/** @type {function(...*):?} */
+var _emscripten_bind_FireSize_getFireLengthToWidthRatio_0 = Module["_emscripten_bind_FireSize_getFireLengthToWidthRatio_0"] = createExportWrapper("emscripten_bind_FireSize_getFireLengthToWidthRatio_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_FireSize_getFirePerimeter_4 = Module["_emscripten_bind_FireSize_getFirePerimeter_4"] = createExportWrapper("emscripten_bind_FireSize_getFirePerimeter_4");
+/** @type {function(...*):?} */
+var _emscripten_bind_FireSize_getFlankingSpreadRate_1 = Module["_emscripten_bind_FireSize_getFlankingSpreadRate_1"] = createExportWrapper("emscripten_bind_FireSize_getFlankingSpreadRate_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_FireSize_getHeadingToBackingRatio_0 = Module["_emscripten_bind_FireSize_getHeadingToBackingRatio_0"] = createExportWrapper("emscripten_bind_FireSize_getHeadingToBackingRatio_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_FireSize_getMaxFireWidth_3 = Module["_emscripten_bind_FireSize_getMaxFireWidth_3"] = createExportWrapper("emscripten_bind_FireSize_getMaxFireWidth_3");
+/** @type {function(...*):?} */
+var _emscripten_bind_FireSize_calculateFireBasicDimensions_5 = Module["_emscripten_bind_FireSize_calculateFireBasicDimensions_5"] = createExportWrapper("emscripten_bind_FireSize_calculateFireBasicDimensions_5");
+/** @type {function(...*):?} */
+var _emscripten_bind_FireSize___destroy___0 = Module["_emscripten_bind_FireSize___destroy___0"] = createExportWrapper("emscripten_bind_FireSize___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_SIGContainAdapter_0 = Module["_emscripten_bind_SIGContainAdapter_SIGContainAdapter_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_SIGContainAdapter_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getContainmentStatus_0 = Module["_emscripten_bind_SIGContainAdapter_getContainmentStatus_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getContainmentStatus_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getFirePerimeterX_0 = Module["_emscripten_bind_SIGContainAdapter_getFirePerimeterX_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFirePerimeterX_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getFirePerimeterY_0 = Module["_emscripten_bind_SIGContainAdapter_getFirePerimeterY_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFirePerimeterY_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getAttackDistance_1 = Module["_emscripten_bind_SIGContainAdapter_getAttackDistance_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getAttackDistance_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getFinalContainmentArea_1 = Module["_emscripten_bind_SIGContainAdapter_getFinalContainmentArea_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFinalContainmentArea_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getFinalCost_0 = Module["_emscripten_bind_SIGContainAdapter_getFinalCost_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFinalCost_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getFinalFireLineLength_1 = Module["_emscripten_bind_SIGContainAdapter_getFinalFireLineLength_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFinalFireLineLength_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getFinalFireSize_1 = Module["_emscripten_bind_SIGContainAdapter_getFinalFireSize_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFinalFireSize_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getFinalTimeSinceReport_1 = Module["_emscripten_bind_SIGContainAdapter_getFinalTimeSinceReport_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFinalTimeSinceReport_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getFireBackAtAttack_0 = Module["_emscripten_bind_SIGContainAdapter_getFireBackAtAttack_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFireBackAtAttack_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getFireBackAtReport_0 = Module["_emscripten_bind_SIGContainAdapter_getFireBackAtReport_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFireBackAtReport_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getFireHeadAtAttack_0 = Module["_emscripten_bind_SIGContainAdapter_getFireHeadAtAttack_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFireHeadAtAttack_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getFireHeadAtReport_0 = Module["_emscripten_bind_SIGContainAdapter_getFireHeadAtReport_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFireHeadAtReport_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getFireSizeAtInitialAttack_1 = Module["_emscripten_bind_SIGContainAdapter_getFireSizeAtInitialAttack_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFireSizeAtInitialAttack_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getLengthToWidthRatio_0 = Module["_emscripten_bind_SIGContainAdapter_getLengthToWidthRatio_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getLengthToWidthRatio_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getPerimeterAtContainment_1 = Module["_emscripten_bind_SIGContainAdapter_getPerimeterAtContainment_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getPerimeterAtContainment_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getPerimeterAtInitialAttack_1 = Module["_emscripten_bind_SIGContainAdapter_getPerimeterAtInitialAttack_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getPerimeterAtInitialAttack_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getReportSize_1 = Module["_emscripten_bind_SIGContainAdapter_getReportSize_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getReportSize_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getReportRate_1 = Module["_emscripten_bind_SIGContainAdapter_getReportRate_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getReportRate_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getTactic_0 = Module["_emscripten_bind_SIGContainAdapter_getTactic_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getTactic_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getFirePerimeterPointCount_0 = Module["_emscripten_bind_SIGContainAdapter_getFirePerimeterPointCount_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFirePerimeterPointCount_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_removeAllResourcesWithThisDesc_1 = Module["_emscripten_bind_SIGContainAdapter_removeAllResourcesWithThisDesc_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_removeAllResourcesWithThisDesc_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_removeResourceAt_1 = Module["_emscripten_bind_SIGContainAdapter_removeResourceAt_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_removeResourceAt_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_removeResourceWithThisDesc_1 = Module["_emscripten_bind_SIGContainAdapter_removeResourceWithThisDesc_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_removeResourceWithThisDesc_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_addResource_8 = Module["_emscripten_bind_SIGContainAdapter_addResource_8"] = createExportWrapper("emscripten_bind_SIGContainAdapter_addResource_8");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_doContainRun_0 = Module["_emscripten_bind_SIGContainAdapter_doContainRun_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_doContainRun_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_removeAllResources_0 = Module["_emscripten_bind_SIGContainAdapter_removeAllResources_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_removeAllResources_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_setAttackDistance_2 = Module["_emscripten_bind_SIGContainAdapter_setAttackDistance_2"] = createExportWrapper("emscripten_bind_SIGContainAdapter_setAttackDistance_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_setFireStartTime_1 = Module["_emscripten_bind_SIGContainAdapter_setFireStartTime_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_setFireStartTime_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_setLwRatio_1 = Module["_emscripten_bind_SIGContainAdapter_setLwRatio_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_setLwRatio_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_setMaxFireSize_1 = Module["_emscripten_bind_SIGContainAdapter_setMaxFireSize_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_setMaxFireSize_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_setMaxFireTime_1 = Module["_emscripten_bind_SIGContainAdapter_setMaxFireTime_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_setMaxFireTime_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_setMaxSteps_1 = Module["_emscripten_bind_SIGContainAdapter_setMaxSteps_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_setMaxSteps_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_setMinSteps_1 = Module["_emscripten_bind_SIGContainAdapter_setMinSteps_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_setMinSteps_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_setReportRate_2 = Module["_emscripten_bind_SIGContainAdapter_setReportRate_2"] = createExportWrapper("emscripten_bind_SIGContainAdapter_setReportRate_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_setReportSize_2 = Module["_emscripten_bind_SIGContainAdapter_setReportSize_2"] = createExportWrapper("emscripten_bind_SIGContainAdapter_setReportSize_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_setRetry_1 = Module["_emscripten_bind_SIGContainAdapter_setRetry_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_setRetry_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_setTactic_1 = Module["_emscripten_bind_SIGContainAdapter_setTactic_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_setTactic_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter___destroy___0 = Module["_emscripten_bind_SIGContainAdapter___destroy___0"] = createExportWrapper("emscripten_bind_SIGContainAdapter___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_SIGIgnite_0 = Module["_emscripten_bind_SIGIgnite_SIGIgnite_0"] = createExportWrapper("emscripten_bind_SIGIgnite_SIGIgnite_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_initializeMembers_0 = Module["_emscripten_bind_SIGIgnite_initializeMembers_0"] = createExportWrapper("emscripten_bind_SIGIgnite_initializeMembers_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_getFuelBedType_0 = Module["_emscripten_bind_SIGIgnite_getFuelBedType_0"] = createExportWrapper("emscripten_bind_SIGIgnite_getFuelBedType_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_getLightningChargeType_0 = Module["_emscripten_bind_SIGIgnite_getLightningChargeType_0"] = createExportWrapper("emscripten_bind_SIGIgnite_getLightningChargeType_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_calculateFirebrandIgnitionProbability_0 = Module["_emscripten_bind_SIGIgnite_calculateFirebrandIgnitionProbability_0"] = createExportWrapper("emscripten_bind_SIGIgnite_calculateFirebrandIgnitionProbability_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_calculateLightningIgnitionProbability_1 = Module["_emscripten_bind_SIGIgnite_calculateLightningIgnitionProbability_1"] = createExportWrapper("emscripten_bind_SIGIgnite_calculateLightningIgnitionProbability_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_setAirTemperature_2 = Module["_emscripten_bind_SIGIgnite_setAirTemperature_2"] = createExportWrapper("emscripten_bind_SIGIgnite_setAirTemperature_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_setDuffDepth_2 = Module["_emscripten_bind_SIGIgnite_setDuffDepth_2"] = createExportWrapper("emscripten_bind_SIGIgnite_setDuffDepth_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_setIgnitionFuelBedType_1 = Module["_emscripten_bind_SIGIgnite_setIgnitionFuelBedType_1"] = createExportWrapper("emscripten_bind_SIGIgnite_setIgnitionFuelBedType_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_setLightningChargeType_1 = Module["_emscripten_bind_SIGIgnite_setLightningChargeType_1"] = createExportWrapper("emscripten_bind_SIGIgnite_setLightningChargeType_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_setMoistureHundredHour_2 = Module["_emscripten_bind_SIGIgnite_setMoistureHundredHour_2"] = createExportWrapper("emscripten_bind_SIGIgnite_setMoistureHundredHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_setMoistureOneHour_2 = Module["_emscripten_bind_SIGIgnite_setMoistureOneHour_2"] = createExportWrapper("emscripten_bind_SIGIgnite_setMoistureOneHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_setSunShade_2 = Module["_emscripten_bind_SIGIgnite_setSunShade_2"] = createExportWrapper("emscripten_bind_SIGIgnite_setSunShade_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_updateIgniteInputs_11 = Module["_emscripten_bind_SIGIgnite_updateIgniteInputs_11"] = createExportWrapper("emscripten_bind_SIGIgnite_updateIgniteInputs_11");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_getAirTemperature_1 = Module["_emscripten_bind_SIGIgnite_getAirTemperature_1"] = createExportWrapper("emscripten_bind_SIGIgnite_getAirTemperature_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_getDuffDepth_1 = Module["_emscripten_bind_SIGIgnite_getDuffDepth_1"] = createExportWrapper("emscripten_bind_SIGIgnite_getDuffDepth_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_getFirebrandIgnitionProbability_1 = Module["_emscripten_bind_SIGIgnite_getFirebrandIgnitionProbability_1"] = createExportWrapper("emscripten_bind_SIGIgnite_getFirebrandIgnitionProbability_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_getFuelTemperature_1 = Module["_emscripten_bind_SIGIgnite_getFuelTemperature_1"] = createExportWrapper("emscripten_bind_SIGIgnite_getFuelTemperature_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_getMoistureHundredHour_1 = Module["_emscripten_bind_SIGIgnite_getMoistureHundredHour_1"] = createExportWrapper("emscripten_bind_SIGIgnite_getMoistureHundredHour_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_getMoistureOneHour_1 = Module["_emscripten_bind_SIGIgnite_getMoistureOneHour_1"] = createExportWrapper("emscripten_bind_SIGIgnite_getMoistureOneHour_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_getSunShade_1 = Module["_emscripten_bind_SIGIgnite_getSunShade_1"] = createExportWrapper("emscripten_bind_SIGIgnite_getSunShade_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_isFuelDepthNeeded_0 = Module["_emscripten_bind_SIGIgnite_isFuelDepthNeeded_0"] = createExportWrapper("emscripten_bind_SIGIgnite_isFuelDepthNeeded_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite___destroy___0 = Module["_emscripten_bind_SIGIgnite___destroy___0"] = createExportWrapper("emscripten_bind_SIGIgnite___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMoistureScenarios_SIGMoistureScenarios_0 = Module["_emscripten_bind_SIGMoistureScenarios_SIGMoistureScenarios_0"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_SIGMoistureScenarios_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMoistureScenarios_getIsMoistureScenarioDefinedByIndex_1 = Module["_emscripten_bind_SIGMoistureScenarios_getIsMoistureScenarioDefinedByIndex_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getIsMoistureScenarioDefinedByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMoistureScenarios_getIsMoistureScenarioDefinedByName_1 = Module["_emscripten_bind_SIGMoistureScenarios_getIsMoistureScenarioDefinedByName_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getIsMoistureScenarioDefinedByName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByIndex_2 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByIndex_2"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByIndex_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByName_2 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByName_2"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByName_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByIndex_2 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByIndex_2"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByIndex_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByName_2 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByName_2"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByName_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByIndex_2 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByIndex_2"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByIndex_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByName_2 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByName_2"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByName_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByIndex_2 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByIndex_2"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByIndex_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByName_2 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByName_2"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByName_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByIndex_2 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByIndex_2"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByIndex_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByName_2 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByName_2"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByName_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioIndexByName_1 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioIndexByName_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioIndexByName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMoistureScenarios_getNumberOfMoistureScenarios_0 = Module["_emscripten_bind_SIGMoistureScenarios_getNumberOfMoistureScenarios_0"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getNumberOfMoistureScenarios_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioDescriptionByIndex_1 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioDescriptionByIndex_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioDescriptionByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioDescriptionByName_1 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioDescriptionByName_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioDescriptionByName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioNameByIndex_1 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioNameByIndex_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioNameByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMoistureScenarios___destroy___0 = Module["_emscripten_bind_SIGMoistureScenarios___destroy___0"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_SIGSpot_0 = Module["_emscripten_bind_SIGSpot_SIGSpot_0"] = createExportWrapper("emscripten_bind_SIGSpot_SIGSpot_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getDownwindCanopyMode_0 = Module["_emscripten_bind_SIGSpot_getDownwindCanopyMode_0"] = createExportWrapper("emscripten_bind_SIGSpot_getDownwindCanopyMode_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getLocation_0 = Module["_emscripten_bind_SIGSpot_getLocation_0"] = createExportWrapper("emscripten_bind_SIGSpot_getLocation_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getTreeSpecies_0 = Module["_emscripten_bind_SIGSpot_getTreeSpecies_0"] = createExportWrapper("emscripten_bind_SIGSpot_getTreeSpecies_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getBurningPileFlameHeight_1 = Module["_emscripten_bind_SIGSpot_getBurningPileFlameHeight_1"] = createExportWrapper("emscripten_bind_SIGSpot_getBurningPileFlameHeight_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getCoverHeightUsedForBurningPile_1 = Module["_emscripten_bind_SIGSpot_getCoverHeightUsedForBurningPile_1"] = createExportWrapper("emscripten_bind_SIGSpot_getCoverHeightUsedForBurningPile_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getCoverHeightUsedForSurfaceFire_1 = Module["_emscripten_bind_SIGSpot_getCoverHeightUsedForSurfaceFire_1"] = createExportWrapper("emscripten_bind_SIGSpot_getCoverHeightUsedForSurfaceFire_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getCoverHeightUsedForTorchingTrees_1 = Module["_emscripten_bind_SIGSpot_getCoverHeightUsedForTorchingTrees_1"] = createExportWrapper("emscripten_bind_SIGSpot_getCoverHeightUsedForTorchingTrees_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getDBH_1 = Module["_emscripten_bind_SIGSpot_getDBH_1"] = createExportWrapper("emscripten_bind_SIGSpot_getDBH_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getDownwindCoverHeight_1 = Module["_emscripten_bind_SIGSpot_getDownwindCoverHeight_1"] = createExportWrapper("emscripten_bind_SIGSpot_getDownwindCoverHeight_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getFlameDurationForTorchingTrees_1 = Module["_emscripten_bind_SIGSpot_getFlameDurationForTorchingTrees_1"] = createExportWrapper("emscripten_bind_SIGSpot_getFlameDurationForTorchingTrees_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getFlameHeightForTorchingTrees_1 = Module["_emscripten_bind_SIGSpot_getFlameHeightForTorchingTrees_1"] = createExportWrapper("emscripten_bind_SIGSpot_getFlameHeightForTorchingTrees_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getFlameRatioForTorchingTrees_0 = Module["_emscripten_bind_SIGSpot_getFlameRatioForTorchingTrees_0"] = createExportWrapper("emscripten_bind_SIGSpot_getFlameRatioForTorchingTrees_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getMaxFirebrandHeightFromBurningPile_1 = Module["_emscripten_bind_SIGSpot_getMaxFirebrandHeightFromBurningPile_1"] = createExportWrapper("emscripten_bind_SIGSpot_getMaxFirebrandHeightFromBurningPile_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getMaxFirebrandHeightFromSurfaceFire_1 = Module["_emscripten_bind_SIGSpot_getMaxFirebrandHeightFromSurfaceFire_1"] = createExportWrapper("emscripten_bind_SIGSpot_getMaxFirebrandHeightFromSurfaceFire_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getMaxFirebrandHeightFromTorchingTrees_1 = Module["_emscripten_bind_SIGSpot_getMaxFirebrandHeightFromTorchingTrees_1"] = createExportWrapper("emscripten_bind_SIGSpot_getMaxFirebrandHeightFromTorchingTrees_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromBurningPile_1 = Module["_emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromBurningPile_1"] = createExportWrapper("emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromBurningPile_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromSurfaceFire_1 = Module["_emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromSurfaceFire_1"] = createExportWrapper("emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromSurfaceFire_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromTorchingTrees_1 = Module["_emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromTorchingTrees_1"] = createExportWrapper("emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromTorchingTrees_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromBurningPile_1 = Module["_emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromBurningPile_1"] = createExportWrapper("emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromBurningPile_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromSurfaceFire_1 = Module["_emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromSurfaceFire_1"] = createExportWrapper("emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromSurfaceFire_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromTorchingTrees_1 = Module["_emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromTorchingTrees_1"] = createExportWrapper("emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromTorchingTrees_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getRidgeToValleyDistance_1 = Module["_emscripten_bind_SIGSpot_getRidgeToValleyDistance_1"] = createExportWrapper("emscripten_bind_SIGSpot_getRidgeToValleyDistance_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getRidgeToValleyElevation_1 = Module["_emscripten_bind_SIGSpot_getRidgeToValleyElevation_1"] = createExportWrapper("emscripten_bind_SIGSpot_getRidgeToValleyElevation_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getSurfaceFlameLength_1 = Module["_emscripten_bind_SIGSpot_getSurfaceFlameLength_1"] = createExportWrapper("emscripten_bind_SIGSpot_getSurfaceFlameLength_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getTreeHeight_1 = Module["_emscripten_bind_SIGSpot_getTreeHeight_1"] = createExportWrapper("emscripten_bind_SIGSpot_getTreeHeight_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getWindSpeedAtTwentyFeet_1 = Module["_emscripten_bind_SIGSpot_getWindSpeedAtTwentyFeet_1"] = createExportWrapper("emscripten_bind_SIGSpot_getWindSpeedAtTwentyFeet_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getTorchingTrees_0 = Module["_emscripten_bind_SIGSpot_getTorchingTrees_0"] = createExportWrapper("emscripten_bind_SIGSpot_getTorchingTrees_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_calculateAll_0 = Module["_emscripten_bind_SIGSpot_calculateAll_0"] = createExportWrapper("emscripten_bind_SIGSpot_calculateAll_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_calculateSpottingDistanceFromBurningPile_0 = Module["_emscripten_bind_SIGSpot_calculateSpottingDistanceFromBurningPile_0"] = createExportWrapper("emscripten_bind_SIGSpot_calculateSpottingDistanceFromBurningPile_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_calculateSpottingDistanceFromSurfaceFire_0 = Module["_emscripten_bind_SIGSpot_calculateSpottingDistanceFromSurfaceFire_0"] = createExportWrapper("emscripten_bind_SIGSpot_calculateSpottingDistanceFromSurfaceFire_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_calculateSpottingDistanceFromTorchingTrees_0 = Module["_emscripten_bind_SIGSpot_calculateSpottingDistanceFromTorchingTrees_0"] = createExportWrapper("emscripten_bind_SIGSpot_calculateSpottingDistanceFromTorchingTrees_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_initializeMembers_0 = Module["_emscripten_bind_SIGSpot_initializeMembers_0"] = createExportWrapper("emscripten_bind_SIGSpot_initializeMembers_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_setBurningPileFlameHeight_2 = Module["_emscripten_bind_SIGSpot_setBurningPileFlameHeight_2"] = createExportWrapper("emscripten_bind_SIGSpot_setBurningPileFlameHeight_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_setDBH_2 = Module["_emscripten_bind_SIGSpot_setDBH_2"] = createExportWrapper("emscripten_bind_SIGSpot_setDBH_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_setDownwindCanopyMode_1 = Module["_emscripten_bind_SIGSpot_setDownwindCanopyMode_1"] = createExportWrapper("emscripten_bind_SIGSpot_setDownwindCanopyMode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_setDownwindCoverHeight_2 = Module["_emscripten_bind_SIGSpot_setDownwindCoverHeight_2"] = createExportWrapper("emscripten_bind_SIGSpot_setDownwindCoverHeight_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_setFlameLength_2 = Module["_emscripten_bind_SIGSpot_setFlameLength_2"] = createExportWrapper("emscripten_bind_SIGSpot_setFlameLength_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_setLocation_1 = Module["_emscripten_bind_SIGSpot_setLocation_1"] = createExportWrapper("emscripten_bind_SIGSpot_setLocation_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_setRidgeToValleyDistance_2 = Module["_emscripten_bind_SIGSpot_setRidgeToValleyDistance_2"] = createExportWrapper("emscripten_bind_SIGSpot_setRidgeToValleyDistance_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_setRidgeToValleyElevation_2 = Module["_emscripten_bind_SIGSpot_setRidgeToValleyElevation_2"] = createExportWrapper("emscripten_bind_SIGSpot_setRidgeToValleyElevation_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_setTorchingTrees_1 = Module["_emscripten_bind_SIGSpot_setTorchingTrees_1"] = createExportWrapper("emscripten_bind_SIGSpot_setTorchingTrees_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_setTreeHeight_2 = Module["_emscripten_bind_SIGSpot_setTreeHeight_2"] = createExportWrapper("emscripten_bind_SIGSpot_setTreeHeight_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_setTreeSpecies_1 = Module["_emscripten_bind_SIGSpot_setTreeSpecies_1"] = createExportWrapper("emscripten_bind_SIGSpot_setTreeSpecies_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_setWindSpeedAtTwentyFeet_2 = Module["_emscripten_bind_SIGSpot_setWindSpeedAtTwentyFeet_2"] = createExportWrapper("emscripten_bind_SIGSpot_setWindSpeedAtTwentyFeet_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_setWindSpeed_2 = Module["_emscripten_bind_SIGSpot_setWindSpeed_2"] = createExportWrapper("emscripten_bind_SIGSpot_setWindSpeed_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_setWindSpeedAndWindHeightInputMode_3 = Module["_emscripten_bind_SIGSpot_setWindSpeedAndWindHeightInputMode_3"] = createExportWrapper("emscripten_bind_SIGSpot_setWindSpeedAndWindHeightInputMode_3");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_setWindHeightInputMode_1 = Module["_emscripten_bind_SIGSpot_setWindHeightInputMode_1"] = createExportWrapper("emscripten_bind_SIGSpot_setWindHeightInputMode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_updateSpotInputsForBurningPile_12 = Module["_emscripten_bind_SIGSpot_updateSpotInputsForBurningPile_12"] = createExportWrapper("emscripten_bind_SIGSpot_updateSpotInputsForBurningPile_12");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_updateSpotInputsForSurfaceFire_12 = Module["_emscripten_bind_SIGSpot_updateSpotInputsForSurfaceFire_12"] = createExportWrapper("emscripten_bind_SIGSpot_updateSpotInputsForSurfaceFire_12");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_updateSpotInputsForTorchingTrees_16 = Module["_emscripten_bind_SIGSpot_updateSpotInputsForTorchingTrees_16"] = createExportWrapper("emscripten_bind_SIGSpot_updateSpotInputsForTorchingTrees_16");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot___destroy___0 = Module["_emscripten_bind_SIGSpot___destroy___0"] = createExportWrapper("emscripten_bind_SIGSpot___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_SIGFuelModels_0 = Module["_emscripten_bind_SIGFuelModels_SIGFuelModels_0"] = createExportWrapper("emscripten_bind_SIGFuelModels_SIGFuelModels_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_SIGFuelModels_1 = Module["_emscripten_bind_SIGFuelModels_SIGFuelModels_1"] = createExportWrapper("emscripten_bind_SIGFuelModels_SIGFuelModels_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_equal_1 = Module["_emscripten_bind_SIGFuelModels_equal_1"] = createExportWrapper("emscripten_bind_SIGFuelModels_equal_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_clearCustomFuelModel_1 = Module["_emscripten_bind_SIGFuelModels_clearCustomFuelModel_1"] = createExportWrapper("emscripten_bind_SIGFuelModels_clearCustomFuelModel_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_getIsDynamic_1 = Module["_emscripten_bind_SIGFuelModels_getIsDynamic_1"] = createExportWrapper("emscripten_bind_SIGFuelModels_getIsDynamic_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_isAllFuelLoadZero_1 = Module["_emscripten_bind_SIGFuelModels_isAllFuelLoadZero_1"] = createExportWrapper("emscripten_bind_SIGFuelModels_isAllFuelLoadZero_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_isFuelModelDefined_1 = Module["_emscripten_bind_SIGFuelModels_isFuelModelDefined_1"] = createExportWrapper("emscripten_bind_SIGFuelModels_isFuelModelDefined_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_isFuelModelReserved_1 = Module["_emscripten_bind_SIGFuelModels_isFuelModelReserved_1"] = createExportWrapper("emscripten_bind_SIGFuelModels_isFuelModelReserved_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_setCustomFuelModel_21 = Module["_emscripten_bind_SIGFuelModels_setCustomFuelModel_21"] = createExportWrapper("emscripten_bind_SIGFuelModels_setCustomFuelModel_21");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_getFuelCode_1 = Module["_emscripten_bind_SIGFuelModels_getFuelCode_1"] = createExportWrapper("emscripten_bind_SIGFuelModels_getFuelCode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_getFuelName_1 = Module["_emscripten_bind_SIGFuelModels_getFuelName_1"] = createExportWrapper("emscripten_bind_SIGFuelModels_getFuelName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_getFuelLoadHundredHour_2 = Module["_emscripten_bind_SIGFuelModels_getFuelLoadHundredHour_2"] = createExportWrapper("emscripten_bind_SIGFuelModels_getFuelLoadHundredHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_getFuelLoadLiveHerbaceous_2 = Module["_emscripten_bind_SIGFuelModels_getFuelLoadLiveHerbaceous_2"] = createExportWrapper("emscripten_bind_SIGFuelModels_getFuelLoadLiveHerbaceous_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_getFuelLoadLiveWoody_2 = Module["_emscripten_bind_SIGFuelModels_getFuelLoadLiveWoody_2"] = createExportWrapper("emscripten_bind_SIGFuelModels_getFuelLoadLiveWoody_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_getFuelLoadOneHour_2 = Module["_emscripten_bind_SIGFuelModels_getFuelLoadOneHour_2"] = createExportWrapper("emscripten_bind_SIGFuelModels_getFuelLoadOneHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_getFuelLoadTenHour_2 = Module["_emscripten_bind_SIGFuelModels_getFuelLoadTenHour_2"] = createExportWrapper("emscripten_bind_SIGFuelModels_getFuelLoadTenHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_getFuelbedDepth_2 = Module["_emscripten_bind_SIGFuelModels_getFuelbedDepth_2"] = createExportWrapper("emscripten_bind_SIGFuelModels_getFuelbedDepth_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_getHeatOfCombustionDead_2 = Module["_emscripten_bind_SIGFuelModels_getHeatOfCombustionDead_2"] = createExportWrapper("emscripten_bind_SIGFuelModels_getHeatOfCombustionDead_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_getMoistureOfExtinctionDead_2 = Module["_emscripten_bind_SIGFuelModels_getMoistureOfExtinctionDead_2"] = createExportWrapper("emscripten_bind_SIGFuelModels_getMoistureOfExtinctionDead_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_getSavrLiveHerbaceous_2 = Module["_emscripten_bind_SIGFuelModels_getSavrLiveHerbaceous_2"] = createExportWrapper("emscripten_bind_SIGFuelModels_getSavrLiveHerbaceous_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_getSavrLiveWoody_2 = Module["_emscripten_bind_SIGFuelModels_getSavrLiveWoody_2"] = createExportWrapper("emscripten_bind_SIGFuelModels_getSavrLiveWoody_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_getSavrOneHour_2 = Module["_emscripten_bind_SIGFuelModels_getSavrOneHour_2"] = createExportWrapper("emscripten_bind_SIGFuelModels_getSavrOneHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_getHeatOfCombustionLive_2 = Module["_emscripten_bind_SIGFuelModels_getHeatOfCombustionLive_2"] = createExportWrapper("emscripten_bind_SIGFuelModels_getHeatOfCombustionLive_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels___destroy___0 = Module["_emscripten_bind_SIGFuelModels___destroy___0"] = createExportWrapper("emscripten_bind_SIGFuelModels___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_SIGSurface_1 = Module["_emscripten_bind_SIGSurface_SIGSurface_1"] = createExportWrapper("emscripten_bind_SIGSurface_SIGSurface_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getAspenFireSeverity_0 = Module["_emscripten_bind_SIGSurface_getAspenFireSeverity_0"] = createExportWrapper("emscripten_bind_SIGSurface_getAspenFireSeverity_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralFuelType_0 = Module["_emscripten_bind_SIGSurface_getChaparralFuelType_0"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralFuelType_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureInputMode_0 = Module["_emscripten_bind_SIGSurface_getMoistureInputMode_0"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureInputMode_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getWindAdjustmentFactorCalculationMethod_0 = Module["_emscripten_bind_SIGSurface_getWindAdjustmentFactorCalculationMethod_0"] = createExportWrapper("emscripten_bind_SIGSurface_getWindAdjustmentFactorCalculationMethod_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getWindAndSpreadOrientationMode_0 = Module["_emscripten_bind_SIGSurface_getWindAndSpreadOrientationMode_0"] = createExportWrapper("emscripten_bind_SIGSurface_getWindAndSpreadOrientationMode_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getWindHeightInputMode_0 = Module["_emscripten_bind_SIGSurface_getWindHeightInputMode_0"] = createExportWrapper("emscripten_bind_SIGSurface_getWindHeightInputMode_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getWindUpslopeAlignmentMode_0 = Module["_emscripten_bind_SIGSurface_getWindUpslopeAlignmentMode_0"] = createExportWrapper("emscripten_bind_SIGSurface_getWindUpslopeAlignmentMode_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getSurfaceRunInDirectionOf_0 = Module["_emscripten_bind_SIGSurface_getSurfaceRunInDirectionOf_0"] = createExportWrapper("emscripten_bind_SIGSurface_getSurfaceRunInDirectionOf_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByIndex_1 = Module["_emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByIndex_1"] = createExportWrapper("emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByName_1 = Module["_emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByName_1"] = createExportWrapper("emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getIsUsingChaparral_0 = Module["_emscripten_bind_SIGSurface_getIsUsingChaparral_0"] = createExportWrapper("emscripten_bind_SIGSurface_getIsUsingChaparral_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getIsUsingPalmettoGallberry_0 = Module["_emscripten_bind_SIGSurface_getIsUsingPalmettoGallberry_0"] = createExportWrapper("emscripten_bind_SIGSurface_getIsUsingPalmettoGallberry_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getIsUsingWesternAspen_0 = Module["_emscripten_bind_SIGSurface_getIsUsingWesternAspen_0"] = createExportWrapper("emscripten_bind_SIGSurface_getIsUsingWesternAspen_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_isAllFuelLoadZero_1 = Module["_emscripten_bind_SIGSurface_isAllFuelLoadZero_1"] = createExportWrapper("emscripten_bind_SIGSurface_isAllFuelLoadZero_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_isFuelDynamic_1 = Module["_emscripten_bind_SIGSurface_isFuelDynamic_1"] = createExportWrapper("emscripten_bind_SIGSurface_isFuelDynamic_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_isFuelModelDefined_1 = Module["_emscripten_bind_SIGSurface_isFuelModelDefined_1"] = createExportWrapper("emscripten_bind_SIGSurface_isFuelModelDefined_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_isFuelModelReserved_1 = Module["_emscripten_bind_SIGSurface_isFuelModelReserved_1"] = createExportWrapper("emscripten_bind_SIGSurface_isFuelModelReserved_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_isMoistureClassInputNeededForCurrentFuelModel_1 = Module["_emscripten_bind_SIGSurface_isMoistureClassInputNeededForCurrentFuelModel_1"] = createExportWrapper("emscripten_bind_SIGSurface_isMoistureClassInputNeededForCurrentFuelModel_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_isUsingTwoFuelModels_0 = Module["_emscripten_bind_SIGSurface_isUsingTwoFuelModels_0"] = createExportWrapper("emscripten_bind_SIGSurface_isUsingTwoFuelModels_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setCurrentMoistureScenarioByIndex_1 = Module["_emscripten_bind_SIGSurface_setCurrentMoistureScenarioByIndex_1"] = createExportWrapper("emscripten_bind_SIGSurface_setCurrentMoistureScenarioByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setCurrentMoistureScenarioByName_1 = Module["_emscripten_bind_SIGSurface_setCurrentMoistureScenarioByName_1"] = createExportWrapper("emscripten_bind_SIGSurface_setCurrentMoistureScenarioByName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_calculateFlameLength_3 = Module["_emscripten_bind_SIGSurface_calculateFlameLength_3"] = createExportWrapper("emscripten_bind_SIGSurface_calculateFlameLength_3");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getAgeOfRough_0 = Module["_emscripten_bind_SIGSurface_getAgeOfRough_0"] = createExportWrapper("emscripten_bind_SIGSurface_getAgeOfRough_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getAspect_0 = Module["_emscripten_bind_SIGSurface_getAspect_0"] = createExportWrapper("emscripten_bind_SIGSurface_getAspect_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getAspenCuringLevel_1 = Module["_emscripten_bind_SIGSurface_getAspenCuringLevel_1"] = createExportWrapper("emscripten_bind_SIGSurface_getAspenCuringLevel_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getAspenDBH_1 = Module["_emscripten_bind_SIGSurface_getAspenDBH_1"] = createExportWrapper("emscripten_bind_SIGSurface_getAspenDBH_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getAspenLoadDeadOneHour_1 = Module["_emscripten_bind_SIGSurface_getAspenLoadDeadOneHour_1"] = createExportWrapper("emscripten_bind_SIGSurface_getAspenLoadDeadOneHour_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getAspenLoadDeadTenHour_1 = Module["_emscripten_bind_SIGSurface_getAspenLoadDeadTenHour_1"] = createExportWrapper("emscripten_bind_SIGSurface_getAspenLoadDeadTenHour_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getAspenLoadLiveHerbaceous_1 = Module["_emscripten_bind_SIGSurface_getAspenLoadLiveHerbaceous_1"] = createExportWrapper("emscripten_bind_SIGSurface_getAspenLoadLiveHerbaceous_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getAspenLoadLiveWoody_1 = Module["_emscripten_bind_SIGSurface_getAspenLoadLiveWoody_1"] = createExportWrapper("emscripten_bind_SIGSurface_getAspenLoadLiveWoody_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getAspenSavrDeadOneHour_1 = Module["_emscripten_bind_SIGSurface_getAspenSavrDeadOneHour_1"] = createExportWrapper("emscripten_bind_SIGSurface_getAspenSavrDeadOneHour_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getAspenSavrDeadTenHour_1 = Module["_emscripten_bind_SIGSurface_getAspenSavrDeadTenHour_1"] = createExportWrapper("emscripten_bind_SIGSurface_getAspenSavrDeadTenHour_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getAspenSavrLiveHerbaceous_1 = Module["_emscripten_bind_SIGSurface_getAspenSavrLiveHerbaceous_1"] = createExportWrapper("emscripten_bind_SIGSurface_getAspenSavrLiveHerbaceous_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getAspenSavrLiveWoody_1 = Module["_emscripten_bind_SIGSurface_getAspenSavrLiveWoody_1"] = createExportWrapper("emscripten_bind_SIGSurface_getAspenSavrLiveWoody_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getBackingFirelineIntensity_1 = Module["_emscripten_bind_SIGSurface_getBackingFirelineIntensity_1"] = createExportWrapper("emscripten_bind_SIGSurface_getBackingFirelineIntensity_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getBackingFlameLength_1 = Module["_emscripten_bind_SIGSurface_getBackingFlameLength_1"] = createExportWrapper("emscripten_bind_SIGSurface_getBackingFlameLength_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getBackingSpreadDistance_1 = Module["_emscripten_bind_SIGSurface_getBackingSpreadDistance_1"] = createExportWrapper("emscripten_bind_SIGSurface_getBackingSpreadDistance_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getBackingSpreadRate_1 = Module["_emscripten_bind_SIGSurface_getBackingSpreadRate_1"] = createExportWrapper("emscripten_bind_SIGSurface_getBackingSpreadRate_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getBulkDensity_1 = Module["_emscripten_bind_SIGSurface_getBulkDensity_1"] = createExportWrapper("emscripten_bind_SIGSurface_getBulkDensity_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getCanopyCover_1 = Module["_emscripten_bind_SIGSurface_getCanopyCover_1"] = createExportWrapper("emscripten_bind_SIGSurface_getCanopyCover_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getCanopyHeight_1 = Module["_emscripten_bind_SIGSurface_getCanopyHeight_1"] = createExportWrapper("emscripten_bind_SIGSurface_getCanopyHeight_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralAge_1 = Module["_emscripten_bind_SIGSurface_getChaparralAge_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralAge_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralDaysSinceMayFirst_0 = Module["_emscripten_bind_SIGSurface_getChaparralDaysSinceMayFirst_0"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralDaysSinceMayFirst_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralDeadFuelFraction_0 = Module["_emscripten_bind_SIGSurface_getChaparralDeadFuelFraction_0"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralDeadFuelFraction_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralDeadMoistureOfExtinction_1 = Module["_emscripten_bind_SIGSurface_getChaparralDeadMoistureOfExtinction_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralDeadMoistureOfExtinction_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralDensity_3 = Module["_emscripten_bind_SIGSurface_getChaparralDensity_3"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralDensity_3");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralFuelBedDepth_1 = Module["_emscripten_bind_SIGSurface_getChaparralFuelBedDepth_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralFuelBedDepth_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralFuelDeadLoadFraction_0 = Module["_emscripten_bind_SIGSurface_getChaparralFuelDeadLoadFraction_0"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralFuelDeadLoadFraction_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralHeatOfCombustion_3 = Module["_emscripten_bind_SIGSurface_getChaparralHeatOfCombustion_3"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralHeatOfCombustion_3");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralLiveMoistureOfExtinction_1 = Module["_emscripten_bind_SIGSurface_getChaparralLiveMoistureOfExtinction_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralLiveMoistureOfExtinction_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralLoadDeadHalfInchToLessThanOneInch_1 = Module["_emscripten_bind_SIGSurface_getChaparralLoadDeadHalfInchToLessThanOneInch_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralLoadDeadHalfInchToLessThanOneInch_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralLoadDeadLessThanQuarterInch_1 = Module["_emscripten_bind_SIGSurface_getChaparralLoadDeadLessThanQuarterInch_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralLoadDeadLessThanQuarterInch_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralLoadDeadOneInchToThreeInch_1 = Module["_emscripten_bind_SIGSurface_getChaparralLoadDeadOneInchToThreeInch_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralLoadDeadOneInchToThreeInch_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralLoadDeadQuarterInchToLessThanHalfInch_1 = Module["_emscripten_bind_SIGSurface_getChaparralLoadDeadQuarterInchToLessThanHalfInch_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralLoadDeadQuarterInchToLessThanHalfInch_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralLoadLiveHalfInchToLessThanOneInch_1 = Module["_emscripten_bind_SIGSurface_getChaparralLoadLiveHalfInchToLessThanOneInch_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralLoadLiveHalfInchToLessThanOneInch_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralLoadLiveLeaves_1 = Module["_emscripten_bind_SIGSurface_getChaparralLoadLiveLeaves_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralLoadLiveLeaves_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralLoadLiveOneInchToThreeInch_1 = Module["_emscripten_bind_SIGSurface_getChaparralLoadLiveOneInchToThreeInch_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralLoadLiveOneInchToThreeInch_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralLoadLiveQuarterInchToLessThanHalfInch_1 = Module["_emscripten_bind_SIGSurface_getChaparralLoadLiveQuarterInchToLessThanHalfInch_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralLoadLiveQuarterInchToLessThanHalfInch_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralLoadLiveStemsLessThanQuaterInch_1 = Module["_emscripten_bind_SIGSurface_getChaparralLoadLiveStemsLessThanQuaterInch_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralLoadLiveStemsLessThanQuaterInch_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralMoisture_3 = Module["_emscripten_bind_SIGSurface_getChaparralMoisture_3"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralMoisture_3");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralTotalDeadFuelLoad_1 = Module["_emscripten_bind_SIGSurface_getChaparralTotalDeadFuelLoad_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralTotalDeadFuelLoad_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralTotalFuelLoad_1 = Module["_emscripten_bind_SIGSurface_getChaparralTotalFuelLoad_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralTotalFuelLoad_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralTotalLiveFuelLoad_1 = Module["_emscripten_bind_SIGSurface_getChaparralTotalLiveFuelLoad_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralTotalLiveFuelLoad_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getCharacteristicMoistureByLifeState_2 = Module["_emscripten_bind_SIGSurface_getCharacteristicMoistureByLifeState_2"] = createExportWrapper("emscripten_bind_SIGSurface_getCharacteristicMoistureByLifeState_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getCharacteristicMoistureDead_1 = Module["_emscripten_bind_SIGSurface_getCharacteristicMoistureDead_1"] = createExportWrapper("emscripten_bind_SIGSurface_getCharacteristicMoistureDead_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getCharacteristicMoistureLive_1 = Module["_emscripten_bind_SIGSurface_getCharacteristicMoistureLive_1"] = createExportWrapper("emscripten_bind_SIGSurface_getCharacteristicMoistureLive_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getCharacteristicSAVR_1 = Module["_emscripten_bind_SIGSurface_getCharacteristicSAVR_1"] = createExportWrapper("emscripten_bind_SIGSurface_getCharacteristicSAVR_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getCrownRatio_0 = Module["_emscripten_bind_SIGSurface_getCrownRatio_0"] = createExportWrapper("emscripten_bind_SIGSurface_getCrownRatio_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getDirectionOfMaxSpread_0 = Module["_emscripten_bind_SIGSurface_getDirectionOfMaxSpread_0"] = createExportWrapper("emscripten_bind_SIGSurface_getDirectionOfMaxSpread_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getDirectionOfInterest_0 = Module["_emscripten_bind_SIGSurface_getDirectionOfInterest_0"] = createExportWrapper("emscripten_bind_SIGSurface_getDirectionOfInterest_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getDirectionOfBacking_0 = Module["_emscripten_bind_SIGSurface_getDirectionOfBacking_0"] = createExportWrapper("emscripten_bind_SIGSurface_getDirectionOfBacking_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getDirectionOfFlanking_0 = Module["_emscripten_bind_SIGSurface_getDirectionOfFlanking_0"] = createExportWrapper("emscripten_bind_SIGSurface_getDirectionOfFlanking_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getElapsedTime_1 = Module["_emscripten_bind_SIGSurface_getElapsedTime_1"] = createExportWrapper("emscripten_bind_SIGSurface_getElapsedTime_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getEllipticalA_1 = Module["_emscripten_bind_SIGSurface_getEllipticalA_1"] = createExportWrapper("emscripten_bind_SIGSurface_getEllipticalA_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getEllipticalB_1 = Module["_emscripten_bind_SIGSurface_getEllipticalB_1"] = createExportWrapper("emscripten_bind_SIGSurface_getEllipticalB_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getEllipticalC_1 = Module["_emscripten_bind_SIGSurface_getEllipticalC_1"] = createExportWrapper("emscripten_bind_SIGSurface_getEllipticalC_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFireLength_1 = Module["_emscripten_bind_SIGSurface_getFireLength_1"] = createExportWrapper("emscripten_bind_SIGSurface_getFireLength_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMaxFireWidth_1 = Module["_emscripten_bind_SIGSurface_getMaxFireWidth_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMaxFireWidth_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFireArea_1 = Module["_emscripten_bind_SIGSurface_getFireArea_1"] = createExportWrapper("emscripten_bind_SIGSurface_getFireArea_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFireEccentricity_0 = Module["_emscripten_bind_SIGSurface_getFireEccentricity_0"] = createExportWrapper("emscripten_bind_SIGSurface_getFireEccentricity_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFireLengthToWidthRatio_0 = Module["_emscripten_bind_SIGSurface_getFireLengthToWidthRatio_0"] = createExportWrapper("emscripten_bind_SIGSurface_getFireLengthToWidthRatio_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFirePerimeter_1 = Module["_emscripten_bind_SIGSurface_getFirePerimeter_1"] = createExportWrapper("emscripten_bind_SIGSurface_getFirePerimeter_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFirelineIntensity_1 = Module["_emscripten_bind_SIGSurface_getFirelineIntensity_1"] = createExportWrapper("emscripten_bind_SIGSurface_getFirelineIntensity_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFlameLength_1 = Module["_emscripten_bind_SIGSurface_getFlameLength_1"] = createExportWrapper("emscripten_bind_SIGSurface_getFlameLength_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFlankingFirelineIntensity_1 = Module["_emscripten_bind_SIGSurface_getFlankingFirelineIntensity_1"] = createExportWrapper("emscripten_bind_SIGSurface_getFlankingFirelineIntensity_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFlankingFlameLength_1 = Module["_emscripten_bind_SIGSurface_getFlankingFlameLength_1"] = createExportWrapper("emscripten_bind_SIGSurface_getFlankingFlameLength_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFlankingSpreadRate_1 = Module["_emscripten_bind_SIGSurface_getFlankingSpreadRate_1"] = createExportWrapper("emscripten_bind_SIGSurface_getFlankingSpreadRate_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFlankingSpreadDistance_1 = Module["_emscripten_bind_SIGSurface_getFlankingSpreadDistance_1"] = createExportWrapper("emscripten_bind_SIGSurface_getFlankingSpreadDistance_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelHeatOfCombustionDead_2 = Module["_emscripten_bind_SIGSurface_getFuelHeatOfCombustionDead_2"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelHeatOfCombustionDead_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelHeatOfCombustionLive_2 = Module["_emscripten_bind_SIGSurface_getFuelHeatOfCombustionLive_2"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelHeatOfCombustionLive_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelLoadHundredHour_2 = Module["_emscripten_bind_SIGSurface_getFuelLoadHundredHour_2"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelLoadHundredHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelLoadLiveHerbaceous_2 = Module["_emscripten_bind_SIGSurface_getFuelLoadLiveHerbaceous_2"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelLoadLiveHerbaceous_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelLoadLiveWoody_2 = Module["_emscripten_bind_SIGSurface_getFuelLoadLiveWoody_2"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelLoadLiveWoody_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelLoadOneHour_2 = Module["_emscripten_bind_SIGSurface_getFuelLoadOneHour_2"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelLoadOneHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelLoadTenHour_2 = Module["_emscripten_bind_SIGSurface_getFuelLoadTenHour_2"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelLoadTenHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelMoistureOfExtinctionDead_2 = Module["_emscripten_bind_SIGSurface_getFuelMoistureOfExtinctionDead_2"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelMoistureOfExtinctionDead_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelSavrLiveHerbaceous_2 = Module["_emscripten_bind_SIGSurface_getFuelSavrLiveHerbaceous_2"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelSavrLiveHerbaceous_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelSavrLiveWoody_2 = Module["_emscripten_bind_SIGSurface_getFuelSavrLiveWoody_2"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelSavrLiveWoody_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelSavrOneHour_2 = Module["_emscripten_bind_SIGSurface_getFuelSavrOneHour_2"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelSavrOneHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelbedDepth_2 = Module["_emscripten_bind_SIGSurface_getFuelbedDepth_2"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelbedDepth_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getHeadingSpreadRate_1 = Module["_emscripten_bind_SIGSurface_getHeadingSpreadRate_1"] = createExportWrapper("emscripten_bind_SIGSurface_getHeadingSpreadRate_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getHeadingToBackingRatio_0 = Module["_emscripten_bind_SIGSurface_getHeadingToBackingRatio_0"] = createExportWrapper("emscripten_bind_SIGSurface_getHeadingToBackingRatio_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getHeatPerUnitArea_1 = Module["_emscripten_bind_SIGSurface_getHeatPerUnitArea_1"] = createExportWrapper("emscripten_bind_SIGSurface_getHeatPerUnitArea_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getHeatSink_1 = Module["_emscripten_bind_SIGSurface_getHeatSink_1"] = createExportWrapper("emscripten_bind_SIGSurface_getHeatSink_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getHeatSource_1 = Module["_emscripten_bind_SIGSurface_getHeatSource_1"] = createExportWrapper("emscripten_bind_SIGSurface_getHeatSource_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getHeightOfUnderstory_1 = Module["_emscripten_bind_SIGSurface_getHeightOfUnderstory_1"] = createExportWrapper("emscripten_bind_SIGSurface_getHeightOfUnderstory_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getLiveFuelMoistureOfExtinction_1 = Module["_emscripten_bind_SIGSurface_getLiveFuelMoistureOfExtinction_1"] = createExportWrapper("emscripten_bind_SIGSurface_getLiveFuelMoistureOfExtinction_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMidflameWindspeed_1 = Module["_emscripten_bind_SIGSurface_getMidflameWindspeed_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMidflameWindspeed_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureDeadAggregateValue_1 = Module["_emscripten_bind_SIGSurface_getMoistureDeadAggregateValue_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureDeadAggregateValue_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureHundredHour_1 = Module["_emscripten_bind_SIGSurface_getMoistureHundredHour_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureHundredHour_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureLiveAggregateValue_1 = Module["_emscripten_bind_SIGSurface_getMoistureLiveAggregateValue_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureLiveAggregateValue_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureLiveHerbaceous_1 = Module["_emscripten_bind_SIGSurface_getMoistureLiveHerbaceous_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureLiveHerbaceous_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureLiveWoody_1 = Module["_emscripten_bind_SIGSurface_getMoistureLiveWoody_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureLiveWoody_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureOneHour_1 = Module["_emscripten_bind_SIGSurface_getMoistureOneHour_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureOneHour_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByIndex_2 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByIndex_2"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByIndex_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByName_2 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByName_2"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByName_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByIndex_2 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByIndex_2"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByIndex_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByName_2 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByName_2"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByName_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByIndex_2 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByIndex_2"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByIndex_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByName_2 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByName_2"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByName_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioOneHourByIndex_2 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioOneHourByIndex_2"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioOneHourByIndex_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioOneHourByName_2 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioOneHourByName_2"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioOneHourByName_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioTenHourByIndex_2 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioTenHourByIndex_2"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioTenHourByIndex_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioTenHourByName_2 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioTenHourByName_2"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioTenHourByName_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureTenHour_1 = Module["_emscripten_bind_SIGSurface_getMoistureTenHour_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureTenHour_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getOverstoryBasalArea_1 = Module["_emscripten_bind_SIGSurface_getOverstoryBasalArea_1"] = createExportWrapper("emscripten_bind_SIGSurface_getOverstoryBasalArea_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getPalmettoGallberryCoverage_1 = Module["_emscripten_bind_SIGSurface_getPalmettoGallberryCoverage_1"] = createExportWrapper("emscripten_bind_SIGSurface_getPalmettoGallberryCoverage_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getPalmettoGallberryHeatOfCombustionDead_1 = Module["_emscripten_bind_SIGSurface_getPalmettoGallberryHeatOfCombustionDead_1"] = createExportWrapper("emscripten_bind_SIGSurface_getPalmettoGallberryHeatOfCombustionDead_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getPalmettoGallberryHeatOfCombustionLive_1 = Module["_emscripten_bind_SIGSurface_getPalmettoGallberryHeatOfCombustionLive_1"] = createExportWrapper("emscripten_bind_SIGSurface_getPalmettoGallberryHeatOfCombustionLive_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getPalmettoGallberryMoistureOfExtinctionDead_1 = Module["_emscripten_bind_SIGSurface_getPalmettoGallberryMoistureOfExtinctionDead_1"] = createExportWrapper("emscripten_bind_SIGSurface_getPalmettoGallberryMoistureOfExtinctionDead_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getPalmettoGallberyDeadFineFuelLoad_1 = Module["_emscripten_bind_SIGSurface_getPalmettoGallberyDeadFineFuelLoad_1"] = createExportWrapper("emscripten_bind_SIGSurface_getPalmettoGallberyDeadFineFuelLoad_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getPalmettoGallberyDeadFoliageLoad_1 = Module["_emscripten_bind_SIGSurface_getPalmettoGallberyDeadFoliageLoad_1"] = createExportWrapper("emscripten_bind_SIGSurface_getPalmettoGallberyDeadFoliageLoad_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getPalmettoGallberyDeadMediumFuelLoad_1 = Module["_emscripten_bind_SIGSurface_getPalmettoGallberyDeadMediumFuelLoad_1"] = createExportWrapper("emscripten_bind_SIGSurface_getPalmettoGallberyDeadMediumFuelLoad_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getPalmettoGallberyFuelBedDepth_1 = Module["_emscripten_bind_SIGSurface_getPalmettoGallberyFuelBedDepth_1"] = createExportWrapper("emscripten_bind_SIGSurface_getPalmettoGallberyFuelBedDepth_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getPalmettoGallberyLitterLoad_1 = Module["_emscripten_bind_SIGSurface_getPalmettoGallberyLitterLoad_1"] = createExportWrapper("emscripten_bind_SIGSurface_getPalmettoGallberyLitterLoad_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getPalmettoGallberyLiveFineFuelLoad_1 = Module["_emscripten_bind_SIGSurface_getPalmettoGallberyLiveFineFuelLoad_1"] = createExportWrapper("emscripten_bind_SIGSurface_getPalmettoGallberyLiveFineFuelLoad_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getPalmettoGallberyLiveFoliageLoad_1 = Module["_emscripten_bind_SIGSurface_getPalmettoGallberyLiveFoliageLoad_1"] = createExportWrapper("emscripten_bind_SIGSurface_getPalmettoGallberyLiveFoliageLoad_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getPalmettoGallberyLiveMediumFuelLoad_1 = Module["_emscripten_bind_SIGSurface_getPalmettoGallberyLiveMediumFuelLoad_1"] = createExportWrapper("emscripten_bind_SIGSurface_getPalmettoGallberyLiveMediumFuelLoad_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getReactionIntensity_1 = Module["_emscripten_bind_SIGSurface_getReactionIntensity_1"] = createExportWrapper("emscripten_bind_SIGSurface_getReactionIntensity_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getResidenceTime_1 = Module["_emscripten_bind_SIGSurface_getResidenceTime_1"] = createExportWrapper("emscripten_bind_SIGSurface_getResidenceTime_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getSlope_1 = Module["_emscripten_bind_SIGSurface_getSlope_1"] = createExportWrapper("emscripten_bind_SIGSurface_getSlope_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getSlopeFactor_0 = Module["_emscripten_bind_SIGSurface_getSlopeFactor_0"] = createExportWrapper("emscripten_bind_SIGSurface_getSlopeFactor_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getSpreadDistance_1 = Module["_emscripten_bind_SIGSurface_getSpreadDistance_1"] = createExportWrapper("emscripten_bind_SIGSurface_getSpreadDistance_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getSpreadDistanceInDirectionOfInterest_1 = Module["_emscripten_bind_SIGSurface_getSpreadDistanceInDirectionOfInterest_1"] = createExportWrapper("emscripten_bind_SIGSurface_getSpreadDistanceInDirectionOfInterest_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getSpreadRate_1 = Module["_emscripten_bind_SIGSurface_getSpreadRate_1"] = createExportWrapper("emscripten_bind_SIGSurface_getSpreadRate_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getSpreadRateInDirectionOfInterest_1 = Module["_emscripten_bind_SIGSurface_getSpreadRateInDirectionOfInterest_1"] = createExportWrapper("emscripten_bind_SIGSurface_getSpreadRateInDirectionOfInterest_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getSurfaceFireReactionIntensityForLifeState_1 = Module["_emscripten_bind_SIGSurface_getSurfaceFireReactionIntensityForLifeState_1"] = createExportWrapper("emscripten_bind_SIGSurface_getSurfaceFireReactionIntensityForLifeState_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getWindDirection_0 = Module["_emscripten_bind_SIGSurface_getWindDirection_0"] = createExportWrapper("emscripten_bind_SIGSurface_getWindDirection_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getWindSpeed_2 = Module["_emscripten_bind_SIGSurface_getWindSpeed_2"] = createExportWrapper("emscripten_bind_SIGSurface_getWindSpeed_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getAspenFuelModelNumber_0 = Module["_emscripten_bind_SIGSurface_getAspenFuelModelNumber_0"] = createExportWrapper("emscripten_bind_SIGSurface_getAspenFuelModelNumber_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelModelNumber_0 = Module["_emscripten_bind_SIGSurface_getFuelModelNumber_0"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelModelNumber_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioIndexByName_1 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioIndexByName_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioIndexByName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getNumberOfMoistureScenarios_0 = Module["_emscripten_bind_SIGSurface_getNumberOfMoistureScenarios_0"] = createExportWrapper("emscripten_bind_SIGSurface_getNumberOfMoistureScenarios_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelCode_1 = Module["_emscripten_bind_SIGSurface_getFuelCode_1"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelCode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelName_1 = Module["_emscripten_bind_SIGSurface_getFuelName_1"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioDescriptionByIndex_1 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioDescriptionByIndex_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioDescriptionByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioDescriptionByName_1 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioDescriptionByName_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioDescriptionByName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioNameByIndex_1 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioNameByIndex_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioNameByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_doSurfaceRun_0 = Module["_emscripten_bind_SIGSurface_doSurfaceRun_0"] = createExportWrapper("emscripten_bind_SIGSurface_doSurfaceRun_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfInterest_2 = Module["_emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfInterest_2"] = createExportWrapper("emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfInterest_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfMaxSpread_0 = Module["_emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfMaxSpread_0"] = createExportWrapper("emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfMaxSpread_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_initializeMembers_0 = Module["_emscripten_bind_SIGSurface_initializeMembers_0"] = createExportWrapper("emscripten_bind_SIGSurface_initializeMembers_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setAgeOfRough_1 = Module["_emscripten_bind_SIGSurface_setAgeOfRough_1"] = createExportWrapper("emscripten_bind_SIGSurface_setAgeOfRough_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setAspect_1 = Module["_emscripten_bind_SIGSurface_setAspect_1"] = createExportWrapper("emscripten_bind_SIGSurface_setAspect_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setAspenCuringLevel_2 = Module["_emscripten_bind_SIGSurface_setAspenCuringLevel_2"] = createExportWrapper("emscripten_bind_SIGSurface_setAspenCuringLevel_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setAspenDBH_2 = Module["_emscripten_bind_SIGSurface_setAspenDBH_2"] = createExportWrapper("emscripten_bind_SIGSurface_setAspenDBH_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setAspenFireSeverity_1 = Module["_emscripten_bind_SIGSurface_setAspenFireSeverity_1"] = createExportWrapper("emscripten_bind_SIGSurface_setAspenFireSeverity_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setAspenFuelModelNumber_1 = Module["_emscripten_bind_SIGSurface_setAspenFuelModelNumber_1"] = createExportWrapper("emscripten_bind_SIGSurface_setAspenFuelModelNumber_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setCanopyCover_2 = Module["_emscripten_bind_SIGSurface_setCanopyCover_2"] = createExportWrapper("emscripten_bind_SIGSurface_setCanopyCover_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setCanopyHeight_2 = Module["_emscripten_bind_SIGSurface_setCanopyHeight_2"] = createExportWrapper("emscripten_bind_SIGSurface_setCanopyHeight_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setChaparralFuelBedDepth_2 = Module["_emscripten_bind_SIGSurface_setChaparralFuelBedDepth_2"] = createExportWrapper("emscripten_bind_SIGSurface_setChaparralFuelBedDepth_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setChaparralFuelDeadLoadFraction_1 = Module["_emscripten_bind_SIGSurface_setChaparralFuelDeadLoadFraction_1"] = createExportWrapper("emscripten_bind_SIGSurface_setChaparralFuelDeadLoadFraction_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setChaparralFuelLoadInputMode_1 = Module["_emscripten_bind_SIGSurface_setChaparralFuelLoadInputMode_1"] = createExportWrapper("emscripten_bind_SIGSurface_setChaparralFuelLoadInputMode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setChaparralFuelType_1 = Module["_emscripten_bind_SIGSurface_setChaparralFuelType_1"] = createExportWrapper("emscripten_bind_SIGSurface_setChaparralFuelType_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setChaparralTotalFuelLoad_2 = Module["_emscripten_bind_SIGSurface_setChaparralTotalFuelLoad_2"] = createExportWrapper("emscripten_bind_SIGSurface_setChaparralTotalFuelLoad_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setCrownRatio_1 = Module["_emscripten_bind_SIGSurface_setCrownRatio_1"] = createExportWrapper("emscripten_bind_SIGSurface_setCrownRatio_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setDirectionOfInterest_1 = Module["_emscripten_bind_SIGSurface_setDirectionOfInterest_1"] = createExportWrapper("emscripten_bind_SIGSurface_setDirectionOfInterest_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setElapsedTime_2 = Module["_emscripten_bind_SIGSurface_setElapsedTime_2"] = createExportWrapper("emscripten_bind_SIGSurface_setElapsedTime_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setFirstFuelModelNumber_1 = Module["_emscripten_bind_SIGSurface_setFirstFuelModelNumber_1"] = createExportWrapper("emscripten_bind_SIGSurface_setFirstFuelModelNumber_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setFuelModels_1 = Module["_emscripten_bind_SIGSurface_setFuelModels_1"] = createExportWrapper("emscripten_bind_SIGSurface_setFuelModels_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setHeightOfUnderstory_2 = Module["_emscripten_bind_SIGSurface_setHeightOfUnderstory_2"] = createExportWrapper("emscripten_bind_SIGSurface_setHeightOfUnderstory_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setIsUsingChaparral_1 = Module["_emscripten_bind_SIGSurface_setIsUsingChaparral_1"] = createExportWrapper("emscripten_bind_SIGSurface_setIsUsingChaparral_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setIsUsingPalmettoGallberry_1 = Module["_emscripten_bind_SIGSurface_setIsUsingPalmettoGallberry_1"] = createExportWrapper("emscripten_bind_SIGSurface_setIsUsingPalmettoGallberry_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setIsUsingWesternAspen_1 = Module["_emscripten_bind_SIGSurface_setIsUsingWesternAspen_1"] = createExportWrapper("emscripten_bind_SIGSurface_setIsUsingWesternAspen_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setMoistureDeadAggregate_2 = Module["_emscripten_bind_SIGSurface_setMoistureDeadAggregate_2"] = createExportWrapper("emscripten_bind_SIGSurface_setMoistureDeadAggregate_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setMoistureHundredHour_2 = Module["_emscripten_bind_SIGSurface_setMoistureHundredHour_2"] = createExportWrapper("emscripten_bind_SIGSurface_setMoistureHundredHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setMoistureInputMode_1 = Module["_emscripten_bind_SIGSurface_setMoistureInputMode_1"] = createExportWrapper("emscripten_bind_SIGSurface_setMoistureInputMode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setMoistureLiveAggregate_2 = Module["_emscripten_bind_SIGSurface_setMoistureLiveAggregate_2"] = createExportWrapper("emscripten_bind_SIGSurface_setMoistureLiveAggregate_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setMoistureLiveHerbaceous_2 = Module["_emscripten_bind_SIGSurface_setMoistureLiveHerbaceous_2"] = createExportWrapper("emscripten_bind_SIGSurface_setMoistureLiveHerbaceous_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setMoistureLiveWoody_2 = Module["_emscripten_bind_SIGSurface_setMoistureLiveWoody_2"] = createExportWrapper("emscripten_bind_SIGSurface_setMoistureLiveWoody_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setMoistureOneHour_2 = Module["_emscripten_bind_SIGSurface_setMoistureOneHour_2"] = createExportWrapper("emscripten_bind_SIGSurface_setMoistureOneHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setMoistureScenarios_1 = Module["_emscripten_bind_SIGSurface_setMoistureScenarios_1"] = createExportWrapper("emscripten_bind_SIGSurface_setMoistureScenarios_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setMoistureTenHour_2 = Module["_emscripten_bind_SIGSurface_setMoistureTenHour_2"] = createExportWrapper("emscripten_bind_SIGSurface_setMoistureTenHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setOverstoryBasalArea_2 = Module["_emscripten_bind_SIGSurface_setOverstoryBasalArea_2"] = createExportWrapper("emscripten_bind_SIGSurface_setOverstoryBasalArea_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setPalmettoCoverage_2 = Module["_emscripten_bind_SIGSurface_setPalmettoCoverage_2"] = createExportWrapper("emscripten_bind_SIGSurface_setPalmettoCoverage_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setSecondFuelModelNumber_1 = Module["_emscripten_bind_SIGSurface_setSecondFuelModelNumber_1"] = createExportWrapper("emscripten_bind_SIGSurface_setSecondFuelModelNumber_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setSlope_2 = Module["_emscripten_bind_SIGSurface_setSlope_2"] = createExportWrapper("emscripten_bind_SIGSurface_setSlope_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setSurfaceFireSpreadDirectionMode_1 = Module["_emscripten_bind_SIGSurface_setSurfaceFireSpreadDirectionMode_1"] = createExportWrapper("emscripten_bind_SIGSurface_setSurfaceFireSpreadDirectionMode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setSurfaceRunInDirectionOf_1 = Module["_emscripten_bind_SIGSurface_setSurfaceRunInDirectionOf_1"] = createExportWrapper("emscripten_bind_SIGSurface_setSurfaceRunInDirectionOf_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setTwoFuelModelsFirstFuelModelCoverage_2 = Module["_emscripten_bind_SIGSurface_setTwoFuelModelsFirstFuelModelCoverage_2"] = createExportWrapper("emscripten_bind_SIGSurface_setTwoFuelModelsFirstFuelModelCoverage_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setTwoFuelModelsMethod_1 = Module["_emscripten_bind_SIGSurface_setTwoFuelModelsMethod_1"] = createExportWrapper("emscripten_bind_SIGSurface_setTwoFuelModelsMethod_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setUserProvidedWindAdjustmentFactor_1 = Module["_emscripten_bind_SIGSurface_setUserProvidedWindAdjustmentFactor_1"] = createExportWrapper("emscripten_bind_SIGSurface_setUserProvidedWindAdjustmentFactor_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setWindAdjustmentFactorCalculationMethod_1 = Module["_emscripten_bind_SIGSurface_setWindAdjustmentFactorCalculationMethod_1"] = createExportWrapper("emscripten_bind_SIGSurface_setWindAdjustmentFactorCalculationMethod_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setWindAndSpreadOrientationMode_1 = Module["_emscripten_bind_SIGSurface_setWindAndSpreadOrientationMode_1"] = createExportWrapper("emscripten_bind_SIGSurface_setWindAndSpreadOrientationMode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setWindDirection_1 = Module["_emscripten_bind_SIGSurface_setWindDirection_1"] = createExportWrapper("emscripten_bind_SIGSurface_setWindDirection_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setWindHeightInputMode_1 = Module["_emscripten_bind_SIGSurface_setWindHeightInputMode_1"] = createExportWrapper("emscripten_bind_SIGSurface_setWindHeightInputMode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setWindSpeed_2 = Module["_emscripten_bind_SIGSurface_setWindSpeed_2"] = createExportWrapper("emscripten_bind_SIGSurface_setWindSpeed_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_updateSurfaceInputs_20 = Module["_emscripten_bind_SIGSurface_updateSurfaceInputs_20"] = createExportWrapper("emscripten_bind_SIGSurface_updateSurfaceInputs_20");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_updateSurfaceInputsForPalmettoGallbery_24 = Module["_emscripten_bind_SIGSurface_updateSurfaceInputsForPalmettoGallbery_24"] = createExportWrapper("emscripten_bind_SIGSurface_updateSurfaceInputsForPalmettoGallbery_24");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_updateSurfaceInputsForTwoFuelModels_24 = Module["_emscripten_bind_SIGSurface_updateSurfaceInputsForTwoFuelModels_24"] = createExportWrapper("emscripten_bind_SIGSurface_updateSurfaceInputsForTwoFuelModels_24");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_updateSurfaceInputsForWesternAspen_25 = Module["_emscripten_bind_SIGSurface_updateSurfaceInputsForWesternAspen_25"] = createExportWrapper("emscripten_bind_SIGSurface_updateSurfaceInputsForWesternAspen_25");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setFuelModelNumber_1 = Module["_emscripten_bind_SIGSurface_setFuelModelNumber_1"] = createExportWrapper("emscripten_bind_SIGSurface_setFuelModelNumber_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface___destroy___0 = Module["_emscripten_bind_SIGSurface___destroy___0"] = createExportWrapper("emscripten_bind_SIGSurface___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_PalmettoGallberry_0 = Module["_emscripten_bind_PalmettoGallberry_PalmettoGallberry_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_PalmettoGallberry_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_initializeMembers_0 = Module["_emscripten_bind_PalmettoGallberry_initializeMembers_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_initializeMembers_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadFineFuelLoad_2 = Module["_emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadFineFuelLoad_2"] = createExportWrapper("emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadFineFuelLoad_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadFoliageLoad_2 = Module["_emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadFoliageLoad_2"] = createExportWrapper("emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadFoliageLoad_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadMediumFuelLoad_2 = Module["_emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadMediumFuelLoad_2"] = createExportWrapper("emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadMediumFuelLoad_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyFuelBedDepth_1 = Module["_emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyFuelBedDepth_1"] = createExportWrapper("emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyFuelBedDepth_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLitterLoad_2 = Module["_emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLitterLoad_2"] = createExportWrapper("emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLitterLoad_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveFineFuelLoad_2 = Module["_emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveFineFuelLoad_2"] = createExportWrapper("emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveFineFuelLoad_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveFoliageLoad_3 = Module["_emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveFoliageLoad_3"] = createExportWrapper("emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveFoliageLoad_3");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveMediumFuelLoad_2 = Module["_emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveMediumFuelLoad_2"] = createExportWrapper("emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveMediumFuelLoad_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_getHeatOfCombustionDead_0 = Module["_emscripten_bind_PalmettoGallberry_getHeatOfCombustionDead_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getHeatOfCombustionDead_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_getHeatOfCombustionLive_0 = Module["_emscripten_bind_PalmettoGallberry_getHeatOfCombustionLive_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getHeatOfCombustionLive_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_getMoistureOfExtinctionDead_0 = Module["_emscripten_bind_PalmettoGallberry_getMoistureOfExtinctionDead_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getMoistureOfExtinctionDead_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadFineFuelLoad_0 = Module["_emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadFineFuelLoad_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadFineFuelLoad_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadFoliageLoad_0 = Module["_emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadFoliageLoad_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadFoliageLoad_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadMediumFuelLoad_0 = Module["_emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadMediumFuelLoad_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadMediumFuelLoad_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyFuelBedDepth_0 = Module["_emscripten_bind_PalmettoGallberry_getPalmettoGallberyFuelBedDepth_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getPalmettoGallberyFuelBedDepth_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyLitterLoad_0 = Module["_emscripten_bind_PalmettoGallberry_getPalmettoGallberyLitterLoad_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getPalmettoGallberyLitterLoad_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveFineFuelLoad_0 = Module["_emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveFineFuelLoad_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveFineFuelLoad_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveFoliageLoad_0 = Module["_emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveFoliageLoad_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveFoliageLoad_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveMediumFuelLoad_0 = Module["_emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveMediumFuelLoad_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveMediumFuelLoad_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry___destroy___0 = Module["_emscripten_bind_PalmettoGallberry___destroy___0"] = createExportWrapper("emscripten_bind_PalmettoGallberry___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_WesternAspen_WesternAspen_0 = Module["_emscripten_bind_WesternAspen_WesternAspen_0"] = createExportWrapper("emscripten_bind_WesternAspen_WesternAspen_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_WesternAspen_initializeMembers_0 = Module["_emscripten_bind_WesternAspen_initializeMembers_0"] = createExportWrapper("emscripten_bind_WesternAspen_initializeMembers_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_WesternAspen_calculateAspenMortality_3 = Module["_emscripten_bind_WesternAspen_calculateAspenMortality_3"] = createExportWrapper("emscripten_bind_WesternAspen_calculateAspenMortality_3");
+/** @type {function(...*):?} */
+var _emscripten_bind_WesternAspen_getAspenFuelBedDepth_1 = Module["_emscripten_bind_WesternAspen_getAspenFuelBedDepth_1"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenFuelBedDepth_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_WesternAspen_getAspenHeatOfCombustionDead_0 = Module["_emscripten_bind_WesternAspen_getAspenHeatOfCombustionDead_0"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenHeatOfCombustionDead_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_WesternAspen_getAspenHeatOfCombustionLive_0 = Module["_emscripten_bind_WesternAspen_getAspenHeatOfCombustionLive_0"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenHeatOfCombustionLive_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_WesternAspen_getAspenLoadDeadOneHour_0 = Module["_emscripten_bind_WesternAspen_getAspenLoadDeadOneHour_0"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenLoadDeadOneHour_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_WesternAspen_getAspenLoadDeadTenHour_0 = Module["_emscripten_bind_WesternAspen_getAspenLoadDeadTenHour_0"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenLoadDeadTenHour_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_WesternAspen_getAspenLoadLiveHerbaceous_0 = Module["_emscripten_bind_WesternAspen_getAspenLoadLiveHerbaceous_0"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenLoadLiveHerbaceous_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_WesternAspen_getAspenLoadLiveWoody_0 = Module["_emscripten_bind_WesternAspen_getAspenLoadLiveWoody_0"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenLoadLiveWoody_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_WesternAspen_getAspenMoistureOfExtinctionDead_0 = Module["_emscripten_bind_WesternAspen_getAspenMoistureOfExtinctionDead_0"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenMoistureOfExtinctionDead_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_WesternAspen_getAspenMortality_0 = Module["_emscripten_bind_WesternAspen_getAspenMortality_0"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenMortality_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_WesternAspen_getAspenSavrDeadOneHour_0 = Module["_emscripten_bind_WesternAspen_getAspenSavrDeadOneHour_0"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenSavrDeadOneHour_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_WesternAspen_getAspenSavrDeadTenHour_0 = Module["_emscripten_bind_WesternAspen_getAspenSavrDeadTenHour_0"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenSavrDeadTenHour_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_WesternAspen_getAspenSavrLiveHerbaceous_0 = Module["_emscripten_bind_WesternAspen_getAspenSavrLiveHerbaceous_0"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenSavrLiveHerbaceous_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_WesternAspen_getAspenSavrLiveWoody_0 = Module["_emscripten_bind_WesternAspen_getAspenSavrLiveWoody_0"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenSavrLiveWoody_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_WesternAspen___destroy___0 = Module["_emscripten_bind_WesternAspen___destroy___0"] = createExportWrapper("emscripten_bind_WesternAspen___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_SIGCrown_1 = Module["_emscripten_bind_SIGCrown_SIGCrown_1"] = createExportWrapper("emscripten_bind_SIGCrown_SIGCrown_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFireType_0 = Module["_emscripten_bind_SIGCrown_getFireType_0"] = createExportWrapper("emscripten_bind_SIGCrown_getFireType_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getIsMoistureScenarioDefinedByIndex_1 = Module["_emscripten_bind_SIGCrown_getIsMoistureScenarioDefinedByIndex_1"] = createExportWrapper("emscripten_bind_SIGCrown_getIsMoistureScenarioDefinedByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getIsMoistureScenarioDefinedByName_1 = Module["_emscripten_bind_SIGCrown_getIsMoistureScenarioDefinedByName_1"] = createExportWrapper("emscripten_bind_SIGCrown_getIsMoistureScenarioDefinedByName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_isAllFuelLoadZero_1 = Module["_emscripten_bind_SIGCrown_isAllFuelLoadZero_1"] = createExportWrapper("emscripten_bind_SIGCrown_isAllFuelLoadZero_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_isFuelDynamic_1 = Module["_emscripten_bind_SIGCrown_isFuelDynamic_1"] = createExportWrapper("emscripten_bind_SIGCrown_isFuelDynamic_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_isFuelModelDefined_1 = Module["_emscripten_bind_SIGCrown_isFuelModelDefined_1"] = createExportWrapper("emscripten_bind_SIGCrown_isFuelModelDefined_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_isFuelModelReserved_1 = Module["_emscripten_bind_SIGCrown_isFuelModelReserved_1"] = createExportWrapper("emscripten_bind_SIGCrown_isFuelModelReserved_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setCurrentMoistureScenarioByIndex_1 = Module["_emscripten_bind_SIGCrown_setCurrentMoistureScenarioByIndex_1"] = createExportWrapper("emscripten_bind_SIGCrown_setCurrentMoistureScenarioByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setCurrentMoistureScenarioByName_1 = Module["_emscripten_bind_SIGCrown_setCurrentMoistureScenarioByName_1"] = createExportWrapper("emscripten_bind_SIGCrown_setCurrentMoistureScenarioByName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getAspect_0 = Module["_emscripten_bind_SIGCrown_getAspect_0"] = createExportWrapper("emscripten_bind_SIGCrown_getAspect_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCanopyBaseHeight_1 = Module["_emscripten_bind_SIGCrown_getCanopyBaseHeight_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCanopyBaseHeight_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCanopyBulkDensity_1 = Module["_emscripten_bind_SIGCrown_getCanopyBulkDensity_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCanopyBulkDensity_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCanopyCover_1 = Module["_emscripten_bind_SIGCrown_getCanopyCover_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCanopyCover_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCanopyHeight_1 = Module["_emscripten_bind_SIGCrown_getCanopyHeight_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCanopyHeight_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCriticalOpenWindSpeed_1 = Module["_emscripten_bind_SIGCrown_getCriticalOpenWindSpeed_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCriticalOpenWindSpeed_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCrownCriticalFireSpreadRate_1 = Module["_emscripten_bind_SIGCrown_getCrownCriticalFireSpreadRate_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownCriticalFireSpreadRate_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCrownCriticalSurfaceFirelineIntensity_1 = Module["_emscripten_bind_SIGCrown_getCrownCriticalSurfaceFirelineIntensity_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownCriticalSurfaceFirelineIntensity_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCrownCriticalSurfaceFlameLength_1 = Module["_emscripten_bind_SIGCrown_getCrownCriticalSurfaceFlameLength_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownCriticalSurfaceFlameLength_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCrownFireActiveRatio_0 = Module["_emscripten_bind_SIGCrown_getCrownFireActiveRatio_0"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownFireActiveRatio_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCrownFireArea_1 = Module["_emscripten_bind_SIGCrown_getCrownFireArea_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownFireArea_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCrownFirePerimeter_1 = Module["_emscripten_bind_SIGCrown_getCrownFirePerimeter_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownFirePerimeter_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCrownTransitionRatio_0 = Module["_emscripten_bind_SIGCrown_getCrownTransitionRatio_0"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownTransitionRatio_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCrownFireLengthToWidthRatio_0 = Module["_emscripten_bind_SIGCrown_getCrownFireLengthToWidthRatio_0"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownFireLengthToWidthRatio_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCrownFireSpreadDistance_1 = Module["_emscripten_bind_SIGCrown_getCrownFireSpreadDistance_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownFireSpreadDistance_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCrownFireSpreadRate_1 = Module["_emscripten_bind_SIGCrown_getCrownFireSpreadRate_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownFireSpreadRate_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCrownFirelineIntensity_1 = Module["_emscripten_bind_SIGCrown_getCrownFirelineIntensity_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownFirelineIntensity_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCrownFlameLength_1 = Module["_emscripten_bind_SIGCrown_getCrownFlameLength_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownFlameLength_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCrownFractionBurned_0 = Module["_emscripten_bind_SIGCrown_getCrownFractionBurned_0"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownFractionBurned_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCrownRatio_0 = Module["_emscripten_bind_SIGCrown_getCrownRatio_0"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownRatio_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFinalFirelineIntesity_1 = Module["_emscripten_bind_SIGCrown_getFinalFirelineIntesity_1"] = createExportWrapper("emscripten_bind_SIGCrown_getFinalFirelineIntesity_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFinalHeatPerUnitArea_1 = Module["_emscripten_bind_SIGCrown_getFinalHeatPerUnitArea_1"] = createExportWrapper("emscripten_bind_SIGCrown_getFinalHeatPerUnitArea_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFinalSpreadRate_1 = Module["_emscripten_bind_SIGCrown_getFinalSpreadRate_1"] = createExportWrapper("emscripten_bind_SIGCrown_getFinalSpreadRate_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFinalSpreadDistance_1 = Module["_emscripten_bind_SIGCrown_getFinalSpreadDistance_1"] = createExportWrapper("emscripten_bind_SIGCrown_getFinalSpreadDistance_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFinalFireArea_1 = Module["_emscripten_bind_SIGCrown_getFinalFireArea_1"] = createExportWrapper("emscripten_bind_SIGCrown_getFinalFireArea_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFinalFirePerimeter_1 = Module["_emscripten_bind_SIGCrown_getFinalFirePerimeter_1"] = createExportWrapper("emscripten_bind_SIGCrown_getFinalFirePerimeter_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelHeatOfCombustionDead_2 = Module["_emscripten_bind_SIGCrown_getFuelHeatOfCombustionDead_2"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelHeatOfCombustionDead_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelHeatOfCombustionLive_2 = Module["_emscripten_bind_SIGCrown_getFuelHeatOfCombustionLive_2"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelHeatOfCombustionLive_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelLoadHundredHour_2 = Module["_emscripten_bind_SIGCrown_getFuelLoadHundredHour_2"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelLoadHundredHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelLoadLiveHerbaceous_2 = Module["_emscripten_bind_SIGCrown_getFuelLoadLiveHerbaceous_2"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelLoadLiveHerbaceous_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelLoadLiveWoody_2 = Module["_emscripten_bind_SIGCrown_getFuelLoadLiveWoody_2"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelLoadLiveWoody_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelLoadOneHour_2 = Module["_emscripten_bind_SIGCrown_getFuelLoadOneHour_2"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelLoadOneHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelLoadTenHour_2 = Module["_emscripten_bind_SIGCrown_getFuelLoadTenHour_2"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelLoadTenHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelMoistureOfExtinctionDead_2 = Module["_emscripten_bind_SIGCrown_getFuelMoistureOfExtinctionDead_2"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelMoistureOfExtinctionDead_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelSavrLiveHerbaceous_2 = Module["_emscripten_bind_SIGCrown_getFuelSavrLiveHerbaceous_2"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelSavrLiveHerbaceous_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelSavrLiveWoody_2 = Module["_emscripten_bind_SIGCrown_getFuelSavrLiveWoody_2"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelSavrLiveWoody_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelSavrOneHour_2 = Module["_emscripten_bind_SIGCrown_getFuelSavrOneHour_2"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelSavrOneHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelbedDepth_2 = Module["_emscripten_bind_SIGCrown_getFuelbedDepth_2"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelbedDepth_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureFoliar_1 = Module["_emscripten_bind_SIGCrown_getMoistureFoliar_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureFoliar_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureHundredHour_1 = Module["_emscripten_bind_SIGCrown_getMoistureHundredHour_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureHundredHour_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureLiveHerbaceous_1 = Module["_emscripten_bind_SIGCrown_getMoistureLiveHerbaceous_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureLiveHerbaceous_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureLiveWoody_1 = Module["_emscripten_bind_SIGCrown_getMoistureLiveWoody_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureLiveWoody_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureOneHour_1 = Module["_emscripten_bind_SIGCrown_getMoistureOneHour_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureOneHour_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByIndex_2 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByIndex_2"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByIndex_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByName_2 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByName_2"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByName_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByIndex_2 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByIndex_2"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByIndex_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByName_2 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByName_2"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByName_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByIndex_2 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByIndex_2"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByIndex_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByName_2 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByName_2"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByName_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioOneHourByIndex_2 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioOneHourByIndex_2"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioOneHourByIndex_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioOneHourByName_2 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioOneHourByName_2"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioOneHourByName_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioTenHourByIndex_2 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioTenHourByIndex_2"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioTenHourByIndex_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioTenHourByName_2 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioTenHourByName_2"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioTenHourByName_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureTenHour_1 = Module["_emscripten_bind_SIGCrown_getMoistureTenHour_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureTenHour_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getSlope_1 = Module["_emscripten_bind_SIGCrown_getSlope_1"] = createExportWrapper("emscripten_bind_SIGCrown_getSlope_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getSurfaceFireSpreadDistance_1 = Module["_emscripten_bind_SIGCrown_getSurfaceFireSpreadDistance_1"] = createExportWrapper("emscripten_bind_SIGCrown_getSurfaceFireSpreadDistance_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getSurfaceFireSpreadRate_1 = Module["_emscripten_bind_SIGCrown_getSurfaceFireSpreadRate_1"] = createExportWrapper("emscripten_bind_SIGCrown_getSurfaceFireSpreadRate_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getWindDirection_0 = Module["_emscripten_bind_SIGCrown_getWindDirection_0"] = createExportWrapper("emscripten_bind_SIGCrown_getWindDirection_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getWindSpeed_2 = Module["_emscripten_bind_SIGCrown_getWindSpeed_2"] = createExportWrapper("emscripten_bind_SIGCrown_getWindSpeed_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelModelNumber_0 = Module["_emscripten_bind_SIGCrown_getFuelModelNumber_0"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelModelNumber_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioIndexByName_1 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioIndexByName_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioIndexByName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getNumberOfMoistureScenarios_0 = Module["_emscripten_bind_SIGCrown_getNumberOfMoistureScenarios_0"] = createExportWrapper("emscripten_bind_SIGCrown_getNumberOfMoistureScenarios_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelCode_1 = Module["_emscripten_bind_SIGCrown_getFuelCode_1"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelCode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelName_1 = Module["_emscripten_bind_SIGCrown_getFuelName_1"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioDescriptionByIndex_1 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioDescriptionByIndex_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioDescriptionByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioDescriptionByName_1 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioDescriptionByName_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioDescriptionByName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioNameByIndex_1 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioNameByIndex_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioNameByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_doCrownRun_0 = Module["_emscripten_bind_SIGCrown_doCrownRun_0"] = createExportWrapper("emscripten_bind_SIGCrown_doCrownRun_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_doCrownRunRothermel_0 = Module["_emscripten_bind_SIGCrown_doCrownRunRothermel_0"] = createExportWrapper("emscripten_bind_SIGCrown_doCrownRunRothermel_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_doCrownRunScottAndReinhardt_0 = Module["_emscripten_bind_SIGCrown_doCrownRunScottAndReinhardt_0"] = createExportWrapper("emscripten_bind_SIGCrown_doCrownRunScottAndReinhardt_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_initializeMembers_0 = Module["_emscripten_bind_SIGCrown_initializeMembers_0"] = createExportWrapper("emscripten_bind_SIGCrown_initializeMembers_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setAspect_1 = Module["_emscripten_bind_SIGCrown_setAspect_1"] = createExportWrapper("emscripten_bind_SIGCrown_setAspect_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setCanopyBaseHeight_2 = Module["_emscripten_bind_SIGCrown_setCanopyBaseHeight_2"] = createExportWrapper("emscripten_bind_SIGCrown_setCanopyBaseHeight_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setCanopyBulkDensity_2 = Module["_emscripten_bind_SIGCrown_setCanopyBulkDensity_2"] = createExportWrapper("emscripten_bind_SIGCrown_setCanopyBulkDensity_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setCanopyCover_2 = Module["_emscripten_bind_SIGCrown_setCanopyCover_2"] = createExportWrapper("emscripten_bind_SIGCrown_setCanopyCover_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setCanopyHeight_2 = Module["_emscripten_bind_SIGCrown_setCanopyHeight_2"] = createExportWrapper("emscripten_bind_SIGCrown_setCanopyHeight_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setCrownRatio_1 = Module["_emscripten_bind_SIGCrown_setCrownRatio_1"] = createExportWrapper("emscripten_bind_SIGCrown_setCrownRatio_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setFuelModelNumber_1 = Module["_emscripten_bind_SIGCrown_setFuelModelNumber_1"] = createExportWrapper("emscripten_bind_SIGCrown_setFuelModelNumber_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setCrownFireCalculationMethod_1 = Module["_emscripten_bind_SIGCrown_setCrownFireCalculationMethod_1"] = createExportWrapper("emscripten_bind_SIGCrown_setCrownFireCalculationMethod_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setElapsedTime_2 = Module["_emscripten_bind_SIGCrown_setElapsedTime_2"] = createExportWrapper("emscripten_bind_SIGCrown_setElapsedTime_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setFuelModels_1 = Module["_emscripten_bind_SIGCrown_setFuelModels_1"] = createExportWrapper("emscripten_bind_SIGCrown_setFuelModels_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setMoistureDeadAggregate_2 = Module["_emscripten_bind_SIGCrown_setMoistureDeadAggregate_2"] = createExportWrapper("emscripten_bind_SIGCrown_setMoistureDeadAggregate_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setMoistureFoliar_2 = Module["_emscripten_bind_SIGCrown_setMoistureFoliar_2"] = createExportWrapper("emscripten_bind_SIGCrown_setMoistureFoliar_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setMoistureHundredHour_2 = Module["_emscripten_bind_SIGCrown_setMoistureHundredHour_2"] = createExportWrapper("emscripten_bind_SIGCrown_setMoistureHundredHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setMoistureInputMode_1 = Module["_emscripten_bind_SIGCrown_setMoistureInputMode_1"] = createExportWrapper("emscripten_bind_SIGCrown_setMoistureInputMode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setMoistureLiveAggregate_2 = Module["_emscripten_bind_SIGCrown_setMoistureLiveAggregate_2"] = createExportWrapper("emscripten_bind_SIGCrown_setMoistureLiveAggregate_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setMoistureLiveHerbaceous_2 = Module["_emscripten_bind_SIGCrown_setMoistureLiveHerbaceous_2"] = createExportWrapper("emscripten_bind_SIGCrown_setMoistureLiveHerbaceous_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setMoistureLiveWoody_2 = Module["_emscripten_bind_SIGCrown_setMoistureLiveWoody_2"] = createExportWrapper("emscripten_bind_SIGCrown_setMoistureLiveWoody_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setMoistureOneHour_2 = Module["_emscripten_bind_SIGCrown_setMoistureOneHour_2"] = createExportWrapper("emscripten_bind_SIGCrown_setMoistureOneHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setMoistureScenarios_1 = Module["_emscripten_bind_SIGCrown_setMoistureScenarios_1"] = createExportWrapper("emscripten_bind_SIGCrown_setMoistureScenarios_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setMoistureTenHour_2 = Module["_emscripten_bind_SIGCrown_setMoistureTenHour_2"] = createExportWrapper("emscripten_bind_SIGCrown_setMoistureTenHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setSlope_2 = Module["_emscripten_bind_SIGCrown_setSlope_2"] = createExportWrapper("emscripten_bind_SIGCrown_setSlope_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setUserProvidedWindAdjustmentFactor_1 = Module["_emscripten_bind_SIGCrown_setUserProvidedWindAdjustmentFactor_1"] = createExportWrapper("emscripten_bind_SIGCrown_setUserProvidedWindAdjustmentFactor_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setWindAdjustmentFactorCalculationMethod_1 = Module["_emscripten_bind_SIGCrown_setWindAdjustmentFactorCalculationMethod_1"] = createExportWrapper("emscripten_bind_SIGCrown_setWindAdjustmentFactorCalculationMethod_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setWindAndSpreadOrientationMode_1 = Module["_emscripten_bind_SIGCrown_setWindAndSpreadOrientationMode_1"] = createExportWrapper("emscripten_bind_SIGCrown_setWindAndSpreadOrientationMode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setWindDirection_1 = Module["_emscripten_bind_SIGCrown_setWindDirection_1"] = createExportWrapper("emscripten_bind_SIGCrown_setWindDirection_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setWindHeightInputMode_1 = Module["_emscripten_bind_SIGCrown_setWindHeightInputMode_1"] = createExportWrapper("emscripten_bind_SIGCrown_setWindHeightInputMode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setWindSpeed_2 = Module["_emscripten_bind_SIGCrown_setWindSpeed_2"] = createExportWrapper("emscripten_bind_SIGCrown_setWindSpeed_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_updateCrownInputs_24 = Module["_emscripten_bind_SIGCrown_updateCrownInputs_24"] = createExportWrapper("emscripten_bind_SIGCrown_updateCrownInputs_24");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_updateCrownsSurfaceInputs_20 = Module["_emscripten_bind_SIGCrown_updateCrownsSurfaceInputs_20"] = createExportWrapper("emscripten_bind_SIGCrown_updateCrownsSurfaceInputs_20");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFinalFlameLength_1 = Module["_emscripten_bind_SIGCrown_getFinalFlameLength_1"] = createExportWrapper("emscripten_bind_SIGCrown_getFinalFlameLength_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown___destroy___0 = Module["_emscripten_bind_SIGCrown___destroy___0"] = createExportWrapper("emscripten_bind_SIGCrown___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SpeciesMasterTableRecord_SpeciesMasterTableRecord_0 = Module["_emscripten_bind_SpeciesMasterTableRecord_SpeciesMasterTableRecord_0"] = createExportWrapper("emscripten_bind_SpeciesMasterTableRecord_SpeciesMasterTableRecord_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SpeciesMasterTableRecord_SpeciesMasterTableRecord_1 = Module["_emscripten_bind_SpeciesMasterTableRecord_SpeciesMasterTableRecord_1"] = createExportWrapper("emscripten_bind_SpeciesMasterTableRecord_SpeciesMasterTableRecord_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SpeciesMasterTableRecord___destroy___0 = Module["_emscripten_bind_SpeciesMasterTableRecord___destroy___0"] = createExportWrapper("emscripten_bind_SpeciesMasterTableRecord___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SpeciesMasterTable_SpeciesMasterTable_0 = Module["_emscripten_bind_SpeciesMasterTable_SpeciesMasterTable_0"] = createExportWrapper("emscripten_bind_SpeciesMasterTable_SpeciesMasterTable_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SpeciesMasterTable_initializeMasterTable_0 = Module["_emscripten_bind_SpeciesMasterTable_initializeMasterTable_0"] = createExportWrapper("emscripten_bind_SpeciesMasterTable_initializeMasterTable_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SpeciesMasterTable_getSpeciesTableIndexFromSpeciesCode_1 = Module["_emscripten_bind_SpeciesMasterTable_getSpeciesTableIndexFromSpeciesCode_1"] = createExportWrapper("emscripten_bind_SpeciesMasterTable_getSpeciesTableIndexFromSpeciesCode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SpeciesMasterTable_getSpeciesTableIndexFromSpeciesCodeAndEquationType_2 = Module["_emscripten_bind_SpeciesMasterTable_getSpeciesTableIndexFromSpeciesCodeAndEquationType_2"] = createExportWrapper("emscripten_bind_SpeciesMasterTable_getSpeciesTableIndexFromSpeciesCodeAndEquationType_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SpeciesMasterTable_insertRecord_12 = Module["_emscripten_bind_SpeciesMasterTable_insertRecord_12"] = createExportWrapper("emscripten_bind_SpeciesMasterTable_insertRecord_12");
+/** @type {function(...*):?} */
+var _emscripten_bind_SpeciesMasterTable___destroy___0 = Module["_emscripten_bind_SpeciesMasterTable___destroy___0"] = createExportWrapper("emscripten_bind_SpeciesMasterTable___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_SIGMortality_1 = Module["_emscripten_bind_SIGMortality_SIGMortality_1"] = createExportWrapper("emscripten_bind_SIGMortality_SIGMortality_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getBeetleDamage_0 = Module["_emscripten_bind_SIGMortality_getBeetleDamage_0"] = createExportWrapper("emscripten_bind_SIGMortality_getBeetleDamage_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getCrownDamageEquationCode_0 = Module["_emscripten_bind_SIGMortality_getCrownDamageEquationCode_0"] = createExportWrapper("emscripten_bind_SIGMortality_getCrownDamageEquationCode_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getCrownDamageEquationCodeAtSpeciesTableIndex_1 = Module["_emscripten_bind_SIGMortality_getCrownDamageEquationCodeAtSpeciesTableIndex_1"] = createExportWrapper("emscripten_bind_SIGMortality_getCrownDamageEquationCodeAtSpeciesTableIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getCrownDamageEquationCodeFromSpeciesCode_1 = Module["_emscripten_bind_SIGMortality_getCrownDamageEquationCodeFromSpeciesCode_1"] = createExportWrapper("emscripten_bind_SIGMortality_getCrownDamageEquationCodeFromSpeciesCode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getCrownDamageType_0 = Module["_emscripten_bind_SIGMortality_getCrownDamageType_0"] = createExportWrapper("emscripten_bind_SIGMortality_getCrownDamageType_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getEquationType_0 = Module["_emscripten_bind_SIGMortality_getEquationType_0"] = createExportWrapper("emscripten_bind_SIGMortality_getEquationType_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getEquationTypeAtSpeciesTableIndex_1 = Module["_emscripten_bind_SIGMortality_getEquationTypeAtSpeciesTableIndex_1"] = createExportWrapper("emscripten_bind_SIGMortality_getEquationTypeAtSpeciesTableIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getFireSeverity_0 = Module["_emscripten_bind_SIGMortality_getFireSeverity_0"] = createExportWrapper("emscripten_bind_SIGMortality_getFireSeverity_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getFlameLengthOrScorchHeightSwitch_0 = Module["_emscripten_bind_SIGMortality_getFlameLengthOrScorchHeightSwitch_0"] = createExportWrapper("emscripten_bind_SIGMortality_getFlameLengthOrScorchHeightSwitch_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getRegion_0 = Module["_emscripten_bind_SIGMortality_getRegion_0"] = createExportWrapper("emscripten_bind_SIGMortality_getRegion_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_checkIsInRegionAtSpeciesTableIndex_2 = Module["_emscripten_bind_SIGMortality_checkIsInRegionAtSpeciesTableIndex_2"] = createExportWrapper("emscripten_bind_SIGMortality_checkIsInRegionAtSpeciesTableIndex_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_checkIsInRegionFromSpeciesCode_2 = Module["_emscripten_bind_SIGMortality_checkIsInRegionFromSpeciesCode_2"] = createExportWrapper("emscripten_bind_SIGMortality_checkIsInRegionFromSpeciesCode_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_updateInputsForSpeciesCodeAndEquationType_2 = Module["_emscripten_bind_SIGMortality_updateInputsForSpeciesCodeAndEquationType_2"] = createExportWrapper("emscripten_bind_SIGMortality_updateInputsForSpeciesCodeAndEquationType_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_calculateMortality_1 = Module["_emscripten_bind_SIGMortality_calculateMortality_1"] = createExportWrapper("emscripten_bind_SIGMortality_calculateMortality_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_calculateScorchHeight_7 = Module["_emscripten_bind_SIGMortality_calculateScorchHeight_7"] = createExportWrapper("emscripten_bind_SIGMortality_calculateScorchHeight_7");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getBarkThickness_1 = Module["_emscripten_bind_SIGMortality_getBarkThickness_1"] = createExportWrapper("emscripten_bind_SIGMortality_getBarkThickness_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getBasalAreaKillled_0 = Module["_emscripten_bind_SIGMortality_getBasalAreaKillled_0"] = createExportWrapper("emscripten_bind_SIGMortality_getBasalAreaKillled_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getBasalAreaPostfire_0 = Module["_emscripten_bind_SIGMortality_getBasalAreaPostfire_0"] = createExportWrapper("emscripten_bind_SIGMortality_getBasalAreaPostfire_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getBasalAreaPrefire_0 = Module["_emscripten_bind_SIGMortality_getBasalAreaPrefire_0"] = createExportWrapper("emscripten_bind_SIGMortality_getBasalAreaPrefire_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getBoleCharHeight_1 = Module["_emscripten_bind_SIGMortality_getBoleCharHeight_1"] = createExportWrapper("emscripten_bind_SIGMortality_getBoleCharHeight_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getCambiumKillRating_0 = Module["_emscripten_bind_SIGMortality_getCambiumKillRating_0"] = createExportWrapper("emscripten_bind_SIGMortality_getCambiumKillRating_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getCrownDamage_0 = Module["_emscripten_bind_SIGMortality_getCrownDamage_0"] = createExportWrapper("emscripten_bind_SIGMortality_getCrownDamage_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getCrownRatio_0 = Module["_emscripten_bind_SIGMortality_getCrownRatio_0"] = createExportWrapper("emscripten_bind_SIGMortality_getCrownRatio_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getCalculatedScorchHeight_1 = Module["_emscripten_bind_SIGMortality_getCalculatedScorchHeight_1"] = createExportWrapper("emscripten_bind_SIGMortality_getCalculatedScorchHeight_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getDBH_1 = Module["_emscripten_bind_SIGMortality_getDBH_1"] = createExportWrapper("emscripten_bind_SIGMortality_getDBH_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getFlameLengthOrScorchHeightValue_1 = Module["_emscripten_bind_SIGMortality_getFlameLengthOrScorchHeightValue_1"] = createExportWrapper("emscripten_bind_SIGMortality_getFlameLengthOrScorchHeightValue_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getKilledTrees_0 = Module["_emscripten_bind_SIGMortality_getKilledTrees_0"] = createExportWrapper("emscripten_bind_SIGMortality_getKilledTrees_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getProbabilityOfMortality_1 = Module["_emscripten_bind_SIGMortality_getProbabilityOfMortality_1"] = createExportWrapper("emscripten_bind_SIGMortality_getProbabilityOfMortality_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getTotalPrefireTrees_0 = Module["_emscripten_bind_SIGMortality_getTotalPrefireTrees_0"] = createExportWrapper("emscripten_bind_SIGMortality_getTotalPrefireTrees_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getTreeCrownLengthScorched_1 = Module["_emscripten_bind_SIGMortality_getTreeCrownLengthScorched_1"] = createExportWrapper("emscripten_bind_SIGMortality_getTreeCrownLengthScorched_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getTreeCrownLengthScorchedBacking_1 = Module["_emscripten_bind_SIGMortality_getTreeCrownLengthScorchedBacking_1"] = createExportWrapper("emscripten_bind_SIGMortality_getTreeCrownLengthScorchedBacking_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getTreeCrownLengthScorchedFlanking_1 = Module["_emscripten_bind_SIGMortality_getTreeCrownLengthScorchedFlanking_1"] = createExportWrapper("emscripten_bind_SIGMortality_getTreeCrownLengthScorchedFlanking_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getTreeCrownVolumeScorched_1 = Module["_emscripten_bind_SIGMortality_getTreeCrownVolumeScorched_1"] = createExportWrapper("emscripten_bind_SIGMortality_getTreeCrownVolumeScorched_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getTreeCrownVolumeScorchedBacking_1 = Module["_emscripten_bind_SIGMortality_getTreeCrownVolumeScorchedBacking_1"] = createExportWrapper("emscripten_bind_SIGMortality_getTreeCrownVolumeScorchedBacking_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getTreeCrownVolumeScorchedFlanking_1 = Module["_emscripten_bind_SIGMortality_getTreeCrownVolumeScorchedFlanking_1"] = createExportWrapper("emscripten_bind_SIGMortality_getTreeCrownVolumeScorchedFlanking_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getTreeDensityPerUnitArea_1 = Module["_emscripten_bind_SIGMortality_getTreeDensityPerUnitArea_1"] = createExportWrapper("emscripten_bind_SIGMortality_getTreeDensityPerUnitArea_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getTreeHeight_1 = Module["_emscripten_bind_SIGMortality_getTreeHeight_1"] = createExportWrapper("emscripten_bind_SIGMortality_getTreeHeight_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_postfireCanopyCover_0 = Module["_emscripten_bind_SIGMortality_postfireCanopyCover_0"] = createExportWrapper("emscripten_bind_SIGMortality_postfireCanopyCover_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_prefireCanopyCover_0 = Module["_emscripten_bind_SIGMortality_prefireCanopyCover_0"] = createExportWrapper("emscripten_bind_SIGMortality_prefireCanopyCover_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getBarkEquationNumberAtSpeciesTableIndex_1 = Module["_emscripten_bind_SIGMortality_getBarkEquationNumberAtSpeciesTableIndex_1"] = createExportWrapper("emscripten_bind_SIGMortality_getBarkEquationNumberAtSpeciesTableIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getBarkEquationNumberFromSpeciesCode_1 = Module["_emscripten_bind_SIGMortality_getBarkEquationNumberFromSpeciesCode_1"] = createExportWrapper("emscripten_bind_SIGMortality_getBarkEquationNumberFromSpeciesCode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getCrownCoefficientCodeAtSpeciesTableIndex_1 = Module["_emscripten_bind_SIGMortality_getCrownCoefficientCodeAtSpeciesTableIndex_1"] = createExportWrapper("emscripten_bind_SIGMortality_getCrownCoefficientCodeAtSpeciesTableIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getCrownCoefficientCodeFromSpeciesCode_1 = Module["_emscripten_bind_SIGMortality_getCrownCoefficientCodeFromSpeciesCode_1"] = createExportWrapper("emscripten_bind_SIGMortality_getCrownCoefficientCodeFromSpeciesCode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getCrownScorchOrBoleCharEquationNumber_0 = Module["_emscripten_bind_SIGMortality_getCrownScorchOrBoleCharEquationNumber_0"] = createExportWrapper("emscripten_bind_SIGMortality_getCrownScorchOrBoleCharEquationNumber_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getMortalityEquationNumberAtSpeciesTableIndex_1 = Module["_emscripten_bind_SIGMortality_getMortalityEquationNumberAtSpeciesTableIndex_1"] = createExportWrapper("emscripten_bind_SIGMortality_getMortalityEquationNumberAtSpeciesTableIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getMortalityEquationNumberFromSpeciesCode_1 = Module["_emscripten_bind_SIGMortality_getMortalityEquationNumberFromSpeciesCode_1"] = createExportWrapper("emscripten_bind_SIGMortality_getMortalityEquationNumberFromSpeciesCode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getNumberOfRecordsInSpeciesTable_0 = Module["_emscripten_bind_SIGMortality_getNumberOfRecordsInSpeciesTable_0"] = createExportWrapper("emscripten_bind_SIGMortality_getNumberOfRecordsInSpeciesTable_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getSpeciesTableIndexFromSpeciesCode_1 = Module["_emscripten_bind_SIGMortality_getSpeciesTableIndexFromSpeciesCode_1"] = createExportWrapper("emscripten_bind_SIGMortality_getSpeciesTableIndexFromSpeciesCode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getSpeciesTableIndexFromSpeciesCodeAndEquationType_2 = Module["_emscripten_bind_SIGMortality_getSpeciesTableIndexFromSpeciesCodeAndEquationType_2"] = createExportWrapper("emscripten_bind_SIGMortality_getSpeciesTableIndexFromSpeciesCodeAndEquationType_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getSpeciesCode_0 = Module["_emscripten_bind_SIGMortality_getSpeciesCode_0"] = createExportWrapper("emscripten_bind_SIGMortality_getSpeciesCode_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegion_1 = Module["_emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegion_1"] = createExportWrapper("emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegion_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegionAndEquationType_2 = Module["_emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegionAndEquationType_2"] = createExportWrapper("emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegionAndEquationType_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getCommonNameAtSpeciesTableIndex_1 = Module["_emscripten_bind_SIGMortality_getCommonNameAtSpeciesTableIndex_1"] = createExportWrapper("emscripten_bind_SIGMortality_getCommonNameAtSpeciesTableIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getCommonNameFromSpeciesCode_1 = Module["_emscripten_bind_SIGMortality_getCommonNameFromSpeciesCode_1"] = createExportWrapper("emscripten_bind_SIGMortality_getCommonNameFromSpeciesCode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getScientificNameAtSpeciesTableIndex_1 = Module["_emscripten_bind_SIGMortality_getScientificNameAtSpeciesTableIndex_1"] = createExportWrapper("emscripten_bind_SIGMortality_getScientificNameAtSpeciesTableIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getScientificNameFromSpeciesCode_1 = Module["_emscripten_bind_SIGMortality_getScientificNameFromSpeciesCode_1"] = createExportWrapper("emscripten_bind_SIGMortality_getScientificNameFromSpeciesCode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getSpeciesCodeAtSpeciesTableIndex_1 = Module["_emscripten_bind_SIGMortality_getSpeciesCodeAtSpeciesTableIndex_1"] = createExportWrapper("emscripten_bind_SIGMortality_getSpeciesCodeAtSpeciesTableIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getRequiredFieldVector_0 = Module["_emscripten_bind_SIGMortality_getRequiredFieldVector_0"] = createExportWrapper("emscripten_bind_SIGMortality_getRequiredFieldVector_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setAirTemperature_2 = Module["_emscripten_bind_SIGMortality_setAirTemperature_2"] = createExportWrapper("emscripten_bind_SIGMortality_setAirTemperature_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setBeetleDamage_1 = Module["_emscripten_bind_SIGMortality_setBeetleDamage_1"] = createExportWrapper("emscripten_bind_SIGMortality_setBeetleDamage_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setMidFlameWindSpeed_2 = Module["_emscripten_bind_SIGMortality_setMidFlameWindSpeed_2"] = createExportWrapper("emscripten_bind_SIGMortality_setMidFlameWindSpeed_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setBoleCharHeight_2 = Module["_emscripten_bind_SIGMortality_setBoleCharHeight_2"] = createExportWrapper("emscripten_bind_SIGMortality_setBoleCharHeight_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setCambiumKillRating_1 = Module["_emscripten_bind_SIGMortality_setCambiumKillRating_1"] = createExportWrapper("emscripten_bind_SIGMortality_setCambiumKillRating_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setCrownDamage_1 = Module["_emscripten_bind_SIGMortality_setCrownDamage_1"] = createExportWrapper("emscripten_bind_SIGMortality_setCrownDamage_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setCrownRatio_1 = Module["_emscripten_bind_SIGMortality_setCrownRatio_1"] = createExportWrapper("emscripten_bind_SIGMortality_setCrownRatio_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setDBH_2 = Module["_emscripten_bind_SIGMortality_setDBH_2"] = createExportWrapper("emscripten_bind_SIGMortality_setDBH_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setEquationType_1 = Module["_emscripten_bind_SIGMortality_setEquationType_1"] = createExportWrapper("emscripten_bind_SIGMortality_setEquationType_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setFireSeverity_1 = Module["_emscripten_bind_SIGMortality_setFireSeverity_1"] = createExportWrapper("emscripten_bind_SIGMortality_setFireSeverity_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setFirelineIntensity_2 = Module["_emscripten_bind_SIGMortality_setFirelineIntensity_2"] = createExportWrapper("emscripten_bind_SIGMortality_setFirelineIntensity_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setFlameLengthOrScorchHeightSwitch_1 = Module["_emscripten_bind_SIGMortality_setFlameLengthOrScorchHeightSwitch_1"] = createExportWrapper("emscripten_bind_SIGMortality_setFlameLengthOrScorchHeightSwitch_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setFlameLengthOrScorchHeightValue_2 = Module["_emscripten_bind_SIGMortality_setFlameLengthOrScorchHeightValue_2"] = createExportWrapper("emscripten_bind_SIGMortality_setFlameLengthOrScorchHeightValue_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setRegion_1 = Module["_emscripten_bind_SIGMortality_setRegion_1"] = createExportWrapper("emscripten_bind_SIGMortality_setRegion_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setSurfaceFireFlameLength_2 = Module["_emscripten_bind_SIGMortality_setSurfaceFireFlameLength_2"] = createExportWrapper("emscripten_bind_SIGMortality_setSurfaceFireFlameLength_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setSurfaceFireFlameLengthBacking_2 = Module["_emscripten_bind_SIGMortality_setSurfaceFireFlameLengthBacking_2"] = createExportWrapper("emscripten_bind_SIGMortality_setSurfaceFireFlameLengthBacking_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setSurfaceFireFlameLengthFlanking_2 = Module["_emscripten_bind_SIGMortality_setSurfaceFireFlameLengthFlanking_2"] = createExportWrapper("emscripten_bind_SIGMortality_setSurfaceFireFlameLengthFlanking_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setSurfaceFireScorchHeight_2 = Module["_emscripten_bind_SIGMortality_setSurfaceFireScorchHeight_2"] = createExportWrapper("emscripten_bind_SIGMortality_setSurfaceFireScorchHeight_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setSurfaceFireScorchHeightBacking_2 = Module["_emscripten_bind_SIGMortality_setSurfaceFireScorchHeightBacking_2"] = createExportWrapper("emscripten_bind_SIGMortality_setSurfaceFireScorchHeightBacking_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setSurfaceFireScorchHeightFlanking_2 = Module["_emscripten_bind_SIGMortality_setSurfaceFireScorchHeightFlanking_2"] = createExportWrapper("emscripten_bind_SIGMortality_setSurfaceFireScorchHeightFlanking_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setSpeciesCode_1 = Module["_emscripten_bind_SIGMortality_setSpeciesCode_1"] = createExportWrapper("emscripten_bind_SIGMortality_setSpeciesCode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setTreeDensityPerUnitArea_2 = Module["_emscripten_bind_SIGMortality_setTreeDensityPerUnitArea_2"] = createExportWrapper("emscripten_bind_SIGMortality_setTreeDensityPerUnitArea_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setTreeHeight_2 = Module["_emscripten_bind_SIGMortality_setTreeHeight_2"] = createExportWrapper("emscripten_bind_SIGMortality_setTreeHeight_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getEquationTypeFromSpeciesCode_1 = Module["_emscripten_bind_SIGMortality_getEquationTypeFromSpeciesCode_1"] = createExportWrapper("emscripten_bind_SIGMortality_getEquationTypeFromSpeciesCode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality___destroy___0 = Module["_emscripten_bind_SIGMortality___destroy___0"] = createExportWrapper("emscripten_bind_SIGMortality___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_WindSpeedUtility_WindSpeedUtility_0 = Module["_emscripten_bind_WindSpeedUtility_WindSpeedUtility_0"] = createExportWrapper("emscripten_bind_WindSpeedUtility_WindSpeedUtility_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_WindSpeedUtility_windSpeedAtMidflame_2 = Module["_emscripten_bind_WindSpeedUtility_windSpeedAtMidflame_2"] = createExportWrapper("emscripten_bind_WindSpeedUtility_windSpeedAtMidflame_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_WindSpeedUtility_windSpeedAtTwentyFeetFromTenMeter_1 = Module["_emscripten_bind_WindSpeedUtility_windSpeedAtTwentyFeetFromTenMeter_1"] = createExportWrapper("emscripten_bind_WindSpeedUtility_windSpeedAtTwentyFeetFromTenMeter_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_WindSpeedUtility___destroy___0 = Module["_emscripten_bind_WindSpeedUtility___destroy___0"] = createExportWrapper("emscripten_bind_WindSpeedUtility___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_SIGFineDeadFuelMoistureTool_0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_SIGFineDeadFuelMoistureTool_0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_SIGFineDeadFuelMoistureTool_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_calculate_0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_calculate_0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_calculate_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_setTimeOfDayIndex_1 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_setTimeOfDayIndex_1"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_setTimeOfDayIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_setSlopeIndex_1 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_setSlopeIndex_1"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_setSlopeIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_setShadingIndex_1 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_setShadingIndex_1"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_setShadingIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_setAspectIndex_1 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_setAspectIndex_1"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_setAspectIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_setRHIndex_1 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_setRHIndex_1"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_setRHIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_setElevationIndex_1 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_setElevationIndex_1"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_setElevationIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_setDryBulbIndex_1 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_setDryBulbIndex_1"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_setDryBulbIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_setMonthIndex_1 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_setMonthIndex_1"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_setMonthIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_getFineDeadFuelMoisture_0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_getFineDeadFuelMoisture_0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_getFineDeadFuelMoisture_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_getSlopeIndexSize_0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_getSlopeIndexSize_0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_getSlopeIndexSize_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_getElevationIndexSize_0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_getElevationIndexSize_0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_getElevationIndexSize_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_getMonthIndexSize_0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_getMonthIndexSize_0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_getMonthIndexSize_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_getDryBulbTemperatureIndexSize_0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_getDryBulbTemperatureIndexSize_0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_getDryBulbTemperatureIndexSize_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_getReferenceMoisture_0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_getReferenceMoisture_0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_getReferenceMoisture_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_calculateByIndex_8 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_calculateByIndex_8"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_calculateByIndex_8");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_getTimeOfDayIndexSize_0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_getTimeOfDayIndexSize_0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_getTimeOfDayIndexSize_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_getCorrectionMoisture_0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_getCorrectionMoisture_0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_getCorrectionMoisture_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_getAspectIndexSize_0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_getAspectIndexSize_0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_getAspectIndexSize_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_getShadingIndexSize_0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_getShadingIndexSize_0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_getShadingIndexSize_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_getRelativeHumidityIndexSize_0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_getRelativeHumidityIndexSize_0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_getRelativeHumidityIndexSize_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool___destroy___0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool___destroy___0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_SIGSlopeTool_0 = Module["_emscripten_bind_SIGSlopeTool_SIGSlopeTool_0"] = createExportWrapper("emscripten_bind_SIGSlopeTool_SIGSlopeTool_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getCentimetersPerKilometerAtIndex_1 = Module["_emscripten_bind_SIGSlopeTool_getCentimetersPerKilometerAtIndex_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getCentimetersPerKilometerAtIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getCentimetersPerKilometerAtRepresentativeFraction_1 = Module["_emscripten_bind_SIGSlopeTool_getCentimetersPerKilometerAtRepresentativeFraction_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getCentimetersPerKilometerAtRepresentativeFraction_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistance_2 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistance_2"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistance_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceAtIndex_2 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistanceAtIndex_2"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistanceAtIndex_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceFifteen_1 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistanceFifteen_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistanceFifteen_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceFourtyFive_1 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistanceFourtyFive_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistanceFourtyFive_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceMaxSlope_1 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistanceMaxSlope_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistanceMaxSlope_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceNinety_1 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistanceNinety_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistanceNinety_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceSeventy_1 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistanceSeventy_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistanceSeventy_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceSixty_1 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistanceSixty_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistanceSixty_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceThirty_1 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistanceThirty_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistanceThirty_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceZero_1 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistanceZero_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistanceZero_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getInchesPerMileAtIndex_1 = Module["_emscripten_bind_SIGSlopeTool_getInchesPerMileAtIndex_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getInchesPerMileAtIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getInchesPerMileAtRepresentativeFraction_1 = Module["_emscripten_bind_SIGSlopeTool_getInchesPerMileAtRepresentativeFraction_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getInchesPerMileAtRepresentativeFraction_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getKilometersPerCentimeterAtIndex_1 = Module["_emscripten_bind_SIGSlopeTool_getKilometersPerCentimeterAtIndex_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getKilometersPerCentimeterAtIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getKilometersPerCentimeterAtRepresentativeFraction_1 = Module["_emscripten_bind_SIGSlopeTool_getKilometersPerCentimeterAtRepresentativeFraction_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getKilometersPerCentimeterAtRepresentativeFraction_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getMilesPerInchAtIndex_1 = Module["_emscripten_bind_SIGSlopeTool_getMilesPerInchAtIndex_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getMilesPerInchAtIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getMilesPerInchAtRepresentativeFraction_1 = Module["_emscripten_bind_SIGSlopeTool_getMilesPerInchAtRepresentativeFraction_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getMilesPerInchAtRepresentativeFraction_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getSlopeElevationChangeFromMapMeasurements_1 = Module["_emscripten_bind_SIGSlopeTool_getSlopeElevationChangeFromMapMeasurements_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getSlopeElevationChangeFromMapMeasurements_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurements_1 = Module["_emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurements_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurements_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getSlopeHorizontalDistanceFromMapMeasurements_1 = Module["_emscripten_bind_SIGSlopeTool_getSlopeHorizontalDistanceFromMapMeasurements_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getSlopeHorizontalDistanceFromMapMeasurements_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurementsInDegrees_0 = Module["_emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurementsInDegrees_0"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurementsInDegrees_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurementsInPercent_0 = Module["_emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurementsInPercent_0"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurementsInPercent_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getNumberOfHorizontalDistances_0 = Module["_emscripten_bind_SIGSlopeTool_getNumberOfHorizontalDistances_0"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getNumberOfHorizontalDistances_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getNumberOfRepresentativeFractions_0 = Module["_emscripten_bind_SIGSlopeTool_getNumberOfRepresentativeFractions_0"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getNumberOfRepresentativeFractions_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getRepresentativeFractionAtIndex_1 = Module["_emscripten_bind_SIGSlopeTool_getRepresentativeFractionAtIndex_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getRepresentativeFractionAtIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getRepresentativeFractionAtRepresentativeFraction_1 = Module["_emscripten_bind_SIGSlopeTool_getRepresentativeFractionAtRepresentativeFraction_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getRepresentativeFractionAtRepresentativeFraction_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_calculateHorizontalDistance_0 = Module["_emscripten_bind_SIGSlopeTool_calculateHorizontalDistance_0"] = createExportWrapper("emscripten_bind_SIGSlopeTool_calculateHorizontalDistance_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_calculateSlopeFromMapMeasurements_0 = Module["_emscripten_bind_SIGSlopeTool_calculateSlopeFromMapMeasurements_0"] = createExportWrapper("emscripten_bind_SIGSlopeTool_calculateSlopeFromMapMeasurements_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_setCalculatedMapDistance_2 = Module["_emscripten_bind_SIGSlopeTool_setCalculatedMapDistance_2"] = createExportWrapper("emscripten_bind_SIGSlopeTool_setCalculatedMapDistance_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_setContourInterval_2 = Module["_emscripten_bind_SIGSlopeTool_setContourInterval_2"] = createExportWrapper("emscripten_bind_SIGSlopeTool_setContourInterval_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_setMapDistance_2 = Module["_emscripten_bind_SIGSlopeTool_setMapDistance_2"] = createExportWrapper("emscripten_bind_SIGSlopeTool_setMapDistance_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_setMapRepresentativeFraction_1 = Module["_emscripten_bind_SIGSlopeTool_setMapRepresentativeFraction_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_setMapRepresentativeFraction_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_setMaxSlopeSteepness_1 = Module["_emscripten_bind_SIGSlopeTool_setMaxSlopeSteepness_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_setMaxSlopeSteepness_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_setNumberOfContours_1 = Module["_emscripten_bind_SIGSlopeTool_setNumberOfContours_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_setNumberOfContours_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool___destroy___0 = Module["_emscripten_bind_SIGSlopeTool___destroy___0"] = createExportWrapper("emscripten_bind_SIGSlopeTool___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_VaporPressureDeficitCalculator_VaporPressureDeficitCalculator_0 = Module["_emscripten_bind_VaporPressureDeficitCalculator_VaporPressureDeficitCalculator_0"] = createExportWrapper("emscripten_bind_VaporPressureDeficitCalculator_VaporPressureDeficitCalculator_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_VaporPressureDeficitCalculator_runCalculation_0 = Module["_emscripten_bind_VaporPressureDeficitCalculator_runCalculation_0"] = createExportWrapper("emscripten_bind_VaporPressureDeficitCalculator_runCalculation_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_VaporPressureDeficitCalculator_setTemperature_2 = Module["_emscripten_bind_VaporPressureDeficitCalculator_setTemperature_2"] = createExportWrapper("emscripten_bind_VaporPressureDeficitCalculator_setTemperature_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_VaporPressureDeficitCalculator_setRelativeHumidity_2 = Module["_emscripten_bind_VaporPressureDeficitCalculator_setRelativeHumidity_2"] = createExportWrapper("emscripten_bind_VaporPressureDeficitCalculator_setRelativeHumidity_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_VaporPressureDeficitCalculator_getVaporPressureDeficit_1 = Module["_emscripten_bind_VaporPressureDeficitCalculator_getVaporPressureDeficit_1"] = createExportWrapper("emscripten_bind_VaporPressureDeficitCalculator_getVaporPressureDeficit_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_VaporPressureDeficitCalculator___destroy___0 = Module["_emscripten_bind_VaporPressureDeficitCalculator___destroy___0"] = createExportWrapper("emscripten_bind_VaporPressureDeficitCalculator___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_enum_AreaUnits_AreaUnitsEnum_SquareFeet = Module["_emscripten_enum_AreaUnits_AreaUnitsEnum_SquareFeet"] = createExportWrapper("emscripten_enum_AreaUnits_AreaUnitsEnum_SquareFeet");
+/** @type {function(...*):?} */
+var _emscripten_enum_AreaUnits_AreaUnitsEnum_Acres = Module["_emscripten_enum_AreaUnits_AreaUnitsEnum_Acres"] = createExportWrapper("emscripten_enum_AreaUnits_AreaUnitsEnum_Acres");
+/** @type {function(...*):?} */
+var _emscripten_enum_AreaUnits_AreaUnitsEnum_Hectares = Module["_emscripten_enum_AreaUnits_AreaUnitsEnum_Hectares"] = createExportWrapper("emscripten_enum_AreaUnits_AreaUnitsEnum_Hectares");
+/** @type {function(...*):?} */
+var _emscripten_enum_AreaUnits_AreaUnitsEnum_SquareMeters = Module["_emscripten_enum_AreaUnits_AreaUnitsEnum_SquareMeters"] = createExportWrapper("emscripten_enum_AreaUnits_AreaUnitsEnum_SquareMeters");
+/** @type {function(...*):?} */
+var _emscripten_enum_AreaUnits_AreaUnitsEnum_SquareMiles = Module["_emscripten_enum_AreaUnits_AreaUnitsEnum_SquareMiles"] = createExportWrapper("emscripten_enum_AreaUnits_AreaUnitsEnum_SquareMiles");
+/** @type {function(...*):?} */
+var _emscripten_enum_AreaUnits_AreaUnitsEnum_SquareKilometers = Module["_emscripten_enum_AreaUnits_AreaUnitsEnum_SquareKilometers"] = createExportWrapper("emscripten_enum_AreaUnits_AreaUnitsEnum_SquareKilometers");
+/** @type {function(...*):?} */
+var _emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareFeetPerAcre = Module["_emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareFeetPerAcre"] = createExportWrapper("emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareFeetPerAcre");
+/** @type {function(...*):?} */
+var _emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareMetersPerHectare = Module["_emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareMetersPerHectare"] = createExportWrapper("emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareMetersPerHectare");
+/** @type {function(...*):?} */
+var _emscripten_enum_FractionUnits_FractionUnitsEnum_Fraction = Module["_emscripten_enum_FractionUnits_FractionUnitsEnum_Fraction"] = createExportWrapper("emscripten_enum_FractionUnits_FractionUnitsEnum_Fraction");
+/** @type {function(...*):?} */
+var _emscripten_enum_FractionUnits_FractionUnitsEnum_Percent = Module["_emscripten_enum_FractionUnits_FractionUnitsEnum_Percent"] = createExportWrapper("emscripten_enum_FractionUnits_FractionUnitsEnum_Percent");
+/** @type {function(...*):?} */
+var _emscripten_enum_LengthUnits_LengthUnitsEnum_Feet = Module["_emscripten_enum_LengthUnits_LengthUnitsEnum_Feet"] = createExportWrapper("emscripten_enum_LengthUnits_LengthUnitsEnum_Feet");
+/** @type {function(...*):?} */
+var _emscripten_enum_LengthUnits_LengthUnitsEnum_Inches = Module["_emscripten_enum_LengthUnits_LengthUnitsEnum_Inches"] = createExportWrapper("emscripten_enum_LengthUnits_LengthUnitsEnum_Inches");
+/** @type {function(...*):?} */
+var _emscripten_enum_LengthUnits_LengthUnitsEnum_Millimeters = Module["_emscripten_enum_LengthUnits_LengthUnitsEnum_Millimeters"] = createExportWrapper("emscripten_enum_LengthUnits_LengthUnitsEnum_Millimeters");
+/** @type {function(...*):?} */
+var _emscripten_enum_LengthUnits_LengthUnitsEnum_Centimeters = Module["_emscripten_enum_LengthUnits_LengthUnitsEnum_Centimeters"] = createExportWrapper("emscripten_enum_LengthUnits_LengthUnitsEnum_Centimeters");
+/** @type {function(...*):?} */
+var _emscripten_enum_LengthUnits_LengthUnitsEnum_Meters = Module["_emscripten_enum_LengthUnits_LengthUnitsEnum_Meters"] = createExportWrapper("emscripten_enum_LengthUnits_LengthUnitsEnum_Meters");
+/** @type {function(...*):?} */
+var _emscripten_enum_LengthUnits_LengthUnitsEnum_Chains = Module["_emscripten_enum_LengthUnits_LengthUnitsEnum_Chains"] = createExportWrapper("emscripten_enum_LengthUnits_LengthUnitsEnum_Chains");
+/** @type {function(...*):?} */
+var _emscripten_enum_LengthUnits_LengthUnitsEnum_Miles = Module["_emscripten_enum_LengthUnits_LengthUnitsEnum_Miles"] = createExportWrapper("emscripten_enum_LengthUnits_LengthUnitsEnum_Miles");
+/** @type {function(...*):?} */
+var _emscripten_enum_LengthUnits_LengthUnitsEnum_Kilometers = Module["_emscripten_enum_LengthUnits_LengthUnitsEnum_Kilometers"] = createExportWrapper("emscripten_enum_LengthUnits_LengthUnitsEnum_Kilometers");
+/** @type {function(...*):?} */
+var _emscripten_enum_LoadingUnits_LoadingUnitsEnum_PoundsPerSquareFoot = Module["_emscripten_enum_LoadingUnits_LoadingUnitsEnum_PoundsPerSquareFoot"] = createExportWrapper("emscripten_enum_LoadingUnits_LoadingUnitsEnum_PoundsPerSquareFoot");
+/** @type {function(...*):?} */
+var _emscripten_enum_LoadingUnits_LoadingUnitsEnum_TonsPerAcre = Module["_emscripten_enum_LoadingUnits_LoadingUnitsEnum_TonsPerAcre"] = createExportWrapper("emscripten_enum_LoadingUnits_LoadingUnitsEnum_TonsPerAcre");
+/** @type {function(...*):?} */
+var _emscripten_enum_LoadingUnits_LoadingUnitsEnum_TonnesPerHectare = Module["_emscripten_enum_LoadingUnits_LoadingUnitsEnum_TonnesPerHectare"] = createExportWrapper("emscripten_enum_LoadingUnits_LoadingUnitsEnum_TonnesPerHectare");
+/** @type {function(...*):?} */
+var _emscripten_enum_LoadingUnits_LoadingUnitsEnum_KilogramsPerSquareMeter = Module["_emscripten_enum_LoadingUnits_LoadingUnitsEnum_KilogramsPerSquareMeter"] = createExportWrapper("emscripten_enum_LoadingUnits_LoadingUnitsEnum_KilogramsPerSquareMeter");
+/** @type {function(...*):?} */
+var _emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareFeetOverCubicFeet = Module["_emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareFeetOverCubicFeet"] = createExportWrapper("emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareFeetOverCubicFeet");
+/** @type {function(...*):?} */
+var _emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareMetersOverCubicMeters = Module["_emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareMetersOverCubicMeters"] = createExportWrapper("emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareMetersOverCubicMeters");
+/** @type {function(...*):?} */
+var _emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareInchesOverCubicInches = Module["_emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareInchesOverCubicInches"] = createExportWrapper("emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareInchesOverCubicInches");
+/** @type {function(...*):?} */
+var _emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareCentimetersOverCubicCentimeters = Module["_emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareCentimetersOverCubicCentimeters"] = createExportWrapper("emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareCentimetersOverCubicCentimeters");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpeedUnits_SpeedUnitsEnum_FeetPerMinute = Module["_emscripten_enum_SpeedUnits_SpeedUnitsEnum_FeetPerMinute"] = createExportWrapper("emscripten_enum_SpeedUnits_SpeedUnitsEnum_FeetPerMinute");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpeedUnits_SpeedUnitsEnum_ChainsPerHour = Module["_emscripten_enum_SpeedUnits_SpeedUnitsEnum_ChainsPerHour"] = createExportWrapper("emscripten_enum_SpeedUnits_SpeedUnitsEnum_ChainsPerHour");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpeedUnits_SpeedUnitsEnum_MetersPerSecond = Module["_emscripten_enum_SpeedUnits_SpeedUnitsEnum_MetersPerSecond"] = createExportWrapper("emscripten_enum_SpeedUnits_SpeedUnitsEnum_MetersPerSecond");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpeedUnits_SpeedUnitsEnum_MetersPerMinute = Module["_emscripten_enum_SpeedUnits_SpeedUnitsEnum_MetersPerMinute"] = createExportWrapper("emscripten_enum_SpeedUnits_SpeedUnitsEnum_MetersPerMinute");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpeedUnits_SpeedUnitsEnum_MilesPerHour = Module["_emscripten_enum_SpeedUnits_SpeedUnitsEnum_MilesPerHour"] = createExportWrapper("emscripten_enum_SpeedUnits_SpeedUnitsEnum_MilesPerHour");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpeedUnits_SpeedUnitsEnum_KilometersPerHour = Module["_emscripten_enum_SpeedUnits_SpeedUnitsEnum_KilometersPerHour"] = createExportWrapper("emscripten_enum_SpeedUnits_SpeedUnitsEnum_KilometersPerHour");
+/** @type {function(...*):?} */
+var _emscripten_enum_PressureUnits_PressureUnitsEnum_Pascal = Module["_emscripten_enum_PressureUnits_PressureUnitsEnum_Pascal"] = createExportWrapper("emscripten_enum_PressureUnits_PressureUnitsEnum_Pascal");
+/** @type {function(...*):?} */
+var _emscripten_enum_PressureUnits_PressureUnitsEnum_HectoPascal = Module["_emscripten_enum_PressureUnits_PressureUnitsEnum_HectoPascal"] = createExportWrapper("emscripten_enum_PressureUnits_PressureUnitsEnum_HectoPascal");
+/** @type {function(...*):?} */
+var _emscripten_enum_PressureUnits_PressureUnitsEnum_KiloPascal = Module["_emscripten_enum_PressureUnits_PressureUnitsEnum_KiloPascal"] = createExportWrapper("emscripten_enum_PressureUnits_PressureUnitsEnum_KiloPascal");
+/** @type {function(...*):?} */
+var _emscripten_enum_PressureUnits_PressureUnitsEnum_MegaPascal = Module["_emscripten_enum_PressureUnits_PressureUnitsEnum_MegaPascal"] = createExportWrapper("emscripten_enum_PressureUnits_PressureUnitsEnum_MegaPascal");
+/** @type {function(...*):?} */
+var _emscripten_enum_PressureUnits_PressureUnitsEnum_GigaPascal = Module["_emscripten_enum_PressureUnits_PressureUnitsEnum_GigaPascal"] = createExportWrapper("emscripten_enum_PressureUnits_PressureUnitsEnum_GigaPascal");
+/** @type {function(...*):?} */
+var _emscripten_enum_PressureUnits_PressureUnitsEnum_Bar = Module["_emscripten_enum_PressureUnits_PressureUnitsEnum_Bar"] = createExportWrapper("emscripten_enum_PressureUnits_PressureUnitsEnum_Bar");
+/** @type {function(...*):?} */
+var _emscripten_enum_PressureUnits_PressureUnitsEnum_Atmosphere = Module["_emscripten_enum_PressureUnits_PressureUnitsEnum_Atmosphere"] = createExportWrapper("emscripten_enum_PressureUnits_PressureUnitsEnum_Atmosphere");
+/** @type {function(...*):?} */
+var _emscripten_enum_PressureUnits_PressureUnitsEnum_TechnicalAtmosphere = Module["_emscripten_enum_PressureUnits_PressureUnitsEnum_TechnicalAtmosphere"] = createExportWrapper("emscripten_enum_PressureUnits_PressureUnitsEnum_TechnicalAtmosphere");
+/** @type {function(...*):?} */
+var _emscripten_enum_PressureUnits_PressureUnitsEnum_PoundPerSquareInch = Module["_emscripten_enum_PressureUnits_PressureUnitsEnum_PoundPerSquareInch"] = createExportWrapper("emscripten_enum_PressureUnits_PressureUnitsEnum_PoundPerSquareInch");
+/** @type {function(...*):?} */
+var _emscripten_enum_SlopeUnits_SlopeUnitsEnum_Degrees = Module["_emscripten_enum_SlopeUnits_SlopeUnitsEnum_Degrees"] = createExportWrapper("emscripten_enum_SlopeUnits_SlopeUnitsEnum_Degrees");
+/** @type {function(...*):?} */
+var _emscripten_enum_SlopeUnits_SlopeUnitsEnum_Percent = Module["_emscripten_enum_SlopeUnits_SlopeUnitsEnum_Percent"] = createExportWrapper("emscripten_enum_SlopeUnits_SlopeUnitsEnum_Percent");
+/** @type {function(...*):?} */
+var _emscripten_enum_DensityUnits_DensityUnitsEnum_PoundsPerCubicFoot = Module["_emscripten_enum_DensityUnits_DensityUnitsEnum_PoundsPerCubicFoot"] = createExportWrapper("emscripten_enum_DensityUnits_DensityUnitsEnum_PoundsPerCubicFoot");
+/** @type {function(...*):?} */
+var _emscripten_enum_DensityUnits_DensityUnitsEnum_KilogramsPerCubicMeter = Module["_emscripten_enum_DensityUnits_DensityUnitsEnum_KilogramsPerCubicMeter"] = createExportWrapper("emscripten_enum_DensityUnits_DensityUnitsEnum_KilogramsPerCubicMeter");
+/** @type {function(...*):?} */
+var _emscripten_enum_HeatOfCombustionUnits_HeatOfCombustionUnitsEnum_BtusPerPound = Module["_emscripten_enum_HeatOfCombustionUnits_HeatOfCombustionUnitsEnum_BtusPerPound"] = createExportWrapper("emscripten_enum_HeatOfCombustionUnits_HeatOfCombustionUnitsEnum_BtusPerPound");
+/** @type {function(...*):?} */
+var _emscripten_enum_HeatOfCombustionUnits_HeatOfCombustionUnitsEnum_KilojoulesPerKilogram = Module["_emscripten_enum_HeatOfCombustionUnits_HeatOfCombustionUnitsEnum_KilojoulesPerKilogram"] = createExportWrapper("emscripten_enum_HeatOfCombustionUnits_HeatOfCombustionUnitsEnum_KilojoulesPerKilogram");
+/** @type {function(...*):?} */
+var _emscripten_enum_HeatSinkUnits_HeatSinkUnitsEnum_BtusPerCubicFoot = Module["_emscripten_enum_HeatSinkUnits_HeatSinkUnitsEnum_BtusPerCubicFoot"] = createExportWrapper("emscripten_enum_HeatSinkUnits_HeatSinkUnitsEnum_BtusPerCubicFoot");
+/** @type {function(...*):?} */
+var _emscripten_enum_HeatSinkUnits_HeatSinkUnitsEnum_KilojoulesPerCubicMeter = Module["_emscripten_enum_HeatSinkUnits_HeatSinkUnitsEnum_KilojoulesPerCubicMeter"] = createExportWrapper("emscripten_enum_HeatSinkUnits_HeatSinkUnitsEnum_KilojoulesPerCubicMeter");
+/** @type {function(...*):?} */
+var _emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_BtusPerSquareFoot = Module["_emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_BtusPerSquareFoot"] = createExportWrapper("emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_BtusPerSquareFoot");
+/** @type {function(...*):?} */
+var _emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_KilojoulesPerSquareMeter = Module["_emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_KilojoulesPerSquareMeter"] = createExportWrapper("emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_KilojoulesPerSquareMeter");
+/** @type {function(...*):?} */
+var _emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_KilowattSecondsPerSquareMeter = Module["_emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_KilowattSecondsPerSquareMeter"] = createExportWrapper("emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_KilowattSecondsPerSquareMeter");
+/** @type {function(...*):?} */
+var _emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_BtusPerSquareFootPerMinute = Module["_emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_BtusPerSquareFootPerMinute"] = createExportWrapper("emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_BtusPerSquareFootPerMinute");
+/** @type {function(...*):?} */
+var _emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_BtusPerSquareFootPerSecond = Module["_emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_BtusPerSquareFootPerSecond"] = createExportWrapper("emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_BtusPerSquareFootPerSecond");
+/** @type {function(...*):?} */
+var _emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_KilojoulesPerSquareMeterPerSecond = Module["_emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_KilojoulesPerSquareMeterPerSecond"] = createExportWrapper("emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_KilojoulesPerSquareMeterPerSecond");
+/** @type {function(...*):?} */
+var _emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_KilojoulesPerSquareMeterPerMinute = Module["_emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_KilojoulesPerSquareMeterPerMinute"] = createExportWrapper("emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_KilojoulesPerSquareMeterPerMinute");
+/** @type {function(...*):?} */
+var _emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_KilowattsPerSquareMeter = Module["_emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_KilowattsPerSquareMeter"] = createExportWrapper("emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_KilowattsPerSquareMeter");
+/** @type {function(...*):?} */
+var _emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_BtusPerFootPerSecond = Module["_emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_BtusPerFootPerSecond"] = createExportWrapper("emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_BtusPerFootPerSecond");
+/** @type {function(...*):?} */
+var _emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_BtusPerFootPerMinute = Module["_emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_BtusPerFootPerMinute"] = createExportWrapper("emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_BtusPerFootPerMinute");
+/** @type {function(...*):?} */
+var _emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_KilojoulesPerMeterPerSecond = Module["_emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_KilojoulesPerMeterPerSecond"] = createExportWrapper("emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_KilojoulesPerMeterPerSecond");
+/** @type {function(...*):?} */
+var _emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_KilojoulesPerMeterPerMinute = Module["_emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_KilojoulesPerMeterPerMinute"] = createExportWrapper("emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_KilojoulesPerMeterPerMinute");
+/** @type {function(...*):?} */
+var _emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_KilowattsPerMeter = Module["_emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_KilowattsPerMeter"] = createExportWrapper("emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_KilowattsPerMeter");
+/** @type {function(...*):?} */
+var _emscripten_enum_TemperatureUnits_TemperatureUnitsEnum_Fahrenheit = Module["_emscripten_enum_TemperatureUnits_TemperatureUnitsEnum_Fahrenheit"] = createExportWrapper("emscripten_enum_TemperatureUnits_TemperatureUnitsEnum_Fahrenheit");
+/** @type {function(...*):?} */
+var _emscripten_enum_TemperatureUnits_TemperatureUnitsEnum_Celsius = Module["_emscripten_enum_TemperatureUnits_TemperatureUnitsEnum_Celsius"] = createExportWrapper("emscripten_enum_TemperatureUnits_TemperatureUnitsEnum_Celsius");
+/** @type {function(...*):?} */
+var _emscripten_enum_TemperatureUnits_TemperatureUnitsEnum_Kelvin = Module["_emscripten_enum_TemperatureUnits_TemperatureUnitsEnum_Kelvin"] = createExportWrapper("emscripten_enum_TemperatureUnits_TemperatureUnitsEnum_Kelvin");
+/** @type {function(...*):?} */
+var _emscripten_enum_TimeUnits_TimeUnitsEnum_Minutes = Module["_emscripten_enum_TimeUnits_TimeUnitsEnum_Minutes"] = createExportWrapper("emscripten_enum_TimeUnits_TimeUnitsEnum_Minutes");
+/** @type {function(...*):?} */
+var _emscripten_enum_TimeUnits_TimeUnitsEnum_Seconds = Module["_emscripten_enum_TimeUnits_TimeUnitsEnum_Seconds"] = createExportWrapper("emscripten_enum_TimeUnits_TimeUnitsEnum_Seconds");
+/** @type {function(...*):?} */
+var _emscripten_enum_TimeUnits_TimeUnitsEnum_Hours = Module["_emscripten_enum_TimeUnits_TimeUnitsEnum_Hours"] = createExportWrapper("emscripten_enum_TimeUnits_TimeUnitsEnum_Hours");
+/** @type {function(...*):?} */
+var _emscripten_enum_ContainTactic_ContainTacticEnum_HeadAttack = Module["_emscripten_enum_ContainTactic_ContainTacticEnum_HeadAttack"] = createExportWrapper("emscripten_enum_ContainTactic_ContainTacticEnum_HeadAttack");
+/** @type {function(...*):?} */
+var _emscripten_enum_ContainTactic_ContainTacticEnum_RearAttack = Module["_emscripten_enum_ContainTactic_ContainTacticEnum_RearAttack"] = createExportWrapper("emscripten_enum_ContainTactic_ContainTacticEnum_RearAttack");
+/** @type {function(...*):?} */
+var _emscripten_enum_ContainStatus_ContainStatusEnum_Unreported = Module["_emscripten_enum_ContainStatus_ContainStatusEnum_Unreported"] = createExportWrapper("emscripten_enum_ContainStatus_ContainStatusEnum_Unreported");
+/** @type {function(...*):?} */
+var _emscripten_enum_ContainStatus_ContainStatusEnum_Reported = Module["_emscripten_enum_ContainStatus_ContainStatusEnum_Reported"] = createExportWrapper("emscripten_enum_ContainStatus_ContainStatusEnum_Reported");
+/** @type {function(...*):?} */
+var _emscripten_enum_ContainStatus_ContainStatusEnum_Attacked = Module["_emscripten_enum_ContainStatus_ContainStatusEnum_Attacked"] = createExportWrapper("emscripten_enum_ContainStatus_ContainStatusEnum_Attacked");
+/** @type {function(...*):?} */
+var _emscripten_enum_ContainStatus_ContainStatusEnum_Contained = Module["_emscripten_enum_ContainStatus_ContainStatusEnum_Contained"] = createExportWrapper("emscripten_enum_ContainStatus_ContainStatusEnum_Contained");
+/** @type {function(...*):?} */
+var _emscripten_enum_ContainStatus_ContainStatusEnum_Overrun = Module["_emscripten_enum_ContainStatus_ContainStatusEnum_Overrun"] = createExportWrapper("emscripten_enum_ContainStatus_ContainStatusEnum_Overrun");
+/** @type {function(...*):?} */
+var _emscripten_enum_ContainStatus_ContainStatusEnum_Exhausted = Module["_emscripten_enum_ContainStatus_ContainStatusEnum_Exhausted"] = createExportWrapper("emscripten_enum_ContainStatus_ContainStatusEnum_Exhausted");
+/** @type {function(...*):?} */
+var _emscripten_enum_ContainStatus_ContainStatusEnum_Overflow = Module["_emscripten_enum_ContainStatus_ContainStatusEnum_Overflow"] = createExportWrapper("emscripten_enum_ContainStatus_ContainStatusEnum_Overflow");
+/** @type {function(...*):?} */
+var _emscripten_enum_ContainStatus_ContainStatusEnum_SizeLimitExceeded = Module["_emscripten_enum_ContainStatus_ContainStatusEnum_SizeLimitExceeded"] = createExportWrapper("emscripten_enum_ContainStatus_ContainStatusEnum_SizeLimitExceeded");
+/** @type {function(...*):?} */
+var _emscripten_enum_ContainStatus_ContainStatusEnum_TimeLimitExceeded = Module["_emscripten_enum_ContainStatus_ContainStatusEnum_TimeLimitExceeded"] = createExportWrapper("emscripten_enum_ContainStatus_ContainStatusEnum_TimeLimitExceeded");
+/** @type {function(...*):?} */
+var _emscripten_enum_ContainFlank_ContainFlankEnum_LeftFlank = Module["_emscripten_enum_ContainFlank_ContainFlankEnum_LeftFlank"] = createExportWrapper("emscripten_enum_ContainFlank_ContainFlankEnum_LeftFlank");
+/** @type {function(...*):?} */
+var _emscripten_enum_ContainFlank_ContainFlankEnum_RightFlank = Module["_emscripten_enum_ContainFlank_ContainFlankEnum_RightFlank"] = createExportWrapper("emscripten_enum_ContainFlank_ContainFlankEnum_RightFlank");
+/** @type {function(...*):?} */
+var _emscripten_enum_ContainFlank_ContainFlankEnum_BothFlanks = Module["_emscripten_enum_ContainFlank_ContainFlankEnum_BothFlanks"] = createExportWrapper("emscripten_enum_ContainFlank_ContainFlankEnum_BothFlanks");
+/** @type {function(...*):?} */
+var _emscripten_enum_ContainFlank_ContainFlankEnum_NeitherFlank = Module["_emscripten_enum_ContainFlank_ContainFlankEnum_NeitherFlank"] = createExportWrapper("emscripten_enum_ContainFlank_ContainFlankEnum_NeitherFlank");
+/** @type {function(...*):?} */
+var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PonderosaPineLitter = Module["_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PonderosaPineLitter"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PonderosaPineLitter");
+/** @type {function(...*):?} */
+var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodRottenChunky = Module["_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodRottenChunky"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodRottenChunky");
+/** @type {function(...*):?} */
+var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodPowderDeep = Module["_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodPowderDeep"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodPowderDeep");
+/** @type {function(...*):?} */
+var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkWoodPowderShallow = Module["_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkWoodPowderShallow"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkWoodPowderShallow");
+/** @type {function(...*):?} */
+var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_LodgepolePineDuff = Module["_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_LodgepolePineDuff"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_LodgepolePineDuff");
+/** @type {function(...*):?} */
+var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_DouglasFirDuff = Module["_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_DouglasFirDuff"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_DouglasFirDuff");
+/** @type {function(...*):?} */
+var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_HighAltitudeMixed = Module["_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_HighAltitudeMixed"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_HighAltitudeMixed");
+/** @type {function(...*):?} */
+var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PeatMoss = Module["_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PeatMoss"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PeatMoss");
+/** @type {function(...*):?} */
+var _emscripten_enum_LightningCharge_LightningChargeEnum_Negative = Module["_emscripten_enum_LightningCharge_LightningChargeEnum_Negative"] = createExportWrapper("emscripten_enum_LightningCharge_LightningChargeEnum_Negative");
+/** @type {function(...*):?} */
+var _emscripten_enum_LightningCharge_LightningChargeEnum_Positive = Module["_emscripten_enum_LightningCharge_LightningChargeEnum_Positive"] = createExportWrapper("emscripten_enum_LightningCharge_LightningChargeEnum_Positive");
+/** @type {function(...*):?} */
+var _emscripten_enum_LightningCharge_LightningChargeEnum_Unknown = Module["_emscripten_enum_LightningCharge_LightningChargeEnum_Unknown"] = createExportWrapper("emscripten_enum_LightningCharge_LightningChargeEnum_Unknown");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum_CLOSED = Module["_emscripten_enum_SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum_CLOSED"] = createExportWrapper("emscripten_enum_SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum_CLOSED");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum_OPEN = Module["_emscripten_enum_SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum_OPEN"] = createExportWrapper("emscripten_enum_SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum_OPEN");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_ENGELMANN_SPRUCE = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_ENGELMANN_SPRUCE"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_ENGELMANN_SPRUCE");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_DOUGLAS_FIR = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_DOUGLAS_FIR"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_DOUGLAS_FIR");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SUBALPINE_FIR = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SUBALPINE_FIR"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SUBALPINE_FIR");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_WESTERN_HEMLOCK = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_WESTERN_HEMLOCK"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_WESTERN_HEMLOCK");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_PONDEROSA_PINE = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_PONDEROSA_PINE"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_PONDEROSA_PINE");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LODGEPOLE_PINE = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LODGEPOLE_PINE"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LODGEPOLE_PINE");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_WESTERN_WHITE_PINE = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_WESTERN_WHITE_PINE"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_WESTERN_WHITE_PINE");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_GRAND_FIR = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_GRAND_FIR"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_GRAND_FIR");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_BALSAM_FIR = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_BALSAM_FIR"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_BALSAM_FIR");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SLASH_PINE = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SLASH_PINE"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SLASH_PINE");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LONGLEAF_PINE = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LONGLEAF_PINE"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LONGLEAF_PINE");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_POND_PINE = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_POND_PINE"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_POND_PINE");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SHORTLEAF_PINE = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SHORTLEAF_PINE"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SHORTLEAF_PINE");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LOBLOLLY_PINE = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LOBLOLLY_PINE"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LOBLOLLY_PINE");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotFireLocation_SpotFireLocationEnum_MIDSLOPE_WINDWARD = Module["_emscripten_enum_SpotFireLocation_SpotFireLocationEnum_MIDSLOPE_WINDWARD"] = createExportWrapper("emscripten_enum_SpotFireLocation_SpotFireLocationEnum_MIDSLOPE_WINDWARD");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotFireLocation_SpotFireLocationEnum_VALLEY_BOTTOM = Module["_emscripten_enum_SpotFireLocation_SpotFireLocationEnum_VALLEY_BOTTOM"] = createExportWrapper("emscripten_enum_SpotFireLocation_SpotFireLocationEnum_VALLEY_BOTTOM");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotFireLocation_SpotFireLocationEnum_MIDSLOPE_LEEWARD = Module["_emscripten_enum_SpotFireLocation_SpotFireLocationEnum_MIDSLOPE_LEEWARD"] = createExportWrapper("emscripten_enum_SpotFireLocation_SpotFireLocationEnum_MIDSLOPE_LEEWARD");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotFireLocation_SpotFireLocationEnum_RIDGE_TOP = Module["_emscripten_enum_SpotFireLocation_SpotFireLocationEnum_RIDGE_TOP"] = createExportWrapper("emscripten_enum_SpotFireLocation_SpotFireLocationEnum_RIDGE_TOP");
+/** @type {function(...*):?} */
+var _emscripten_enum_FuelLifeState_FuelLifeStateEnum_Dead = Module["_emscripten_enum_FuelLifeState_FuelLifeStateEnum_Dead"] = createExportWrapper("emscripten_enum_FuelLifeState_FuelLifeStateEnum_Dead");
+/** @type {function(...*):?} */
+var _emscripten_enum_FuelLifeState_FuelLifeStateEnum_Live = Module["_emscripten_enum_FuelLifeState_FuelLifeStateEnum_Live"] = createExportWrapper("emscripten_enum_FuelLifeState_FuelLifeStateEnum_Live");
+/** @type {function(...*):?} */
+var _emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxLifeStates = Module["_emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxLifeStates"] = createExportWrapper("emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxLifeStates");
+/** @type {function(...*):?} */
+var _emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxLiveSizeClasses = Module["_emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxLiveSizeClasses"] = createExportWrapper("emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxLiveSizeClasses");
+/** @type {function(...*):?} */
+var _emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxDeadSizeClasses = Module["_emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxDeadSizeClasses"] = createExportWrapper("emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxDeadSizeClasses");
+/** @type {function(...*):?} */
+var _emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxParticles = Module["_emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxParticles"] = createExportWrapper("emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxParticles");
+/** @type {function(...*):?} */
+var _emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxSavrSizeClasses = Module["_emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxSavrSizeClasses"] = createExportWrapper("emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxSavrSizeClasses");
+/** @type {function(...*):?} */
+var _emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxFuelModels = Module["_emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxFuelModels"] = createExportWrapper("emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxFuelModels");
+/** @type {function(...*):?} */
+var _emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Low = Module["_emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Low"] = createExportWrapper("emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Low");
+/** @type {function(...*):?} */
+var _emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Moderate = Module["_emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Moderate"] = createExportWrapper("emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Moderate");
+/** @type {function(...*):?} */
+var _emscripten_enum_ChaparralFuelType_ChaparralFuelTypeEnum_NotSet = Module["_emscripten_enum_ChaparralFuelType_ChaparralFuelTypeEnum_NotSet"] = createExportWrapper("emscripten_enum_ChaparralFuelType_ChaparralFuelTypeEnum_NotSet");
+/** @type {function(...*):?} */
+var _emscripten_enum_ChaparralFuelType_ChaparralFuelTypeEnum_Chamise = Module["_emscripten_enum_ChaparralFuelType_ChaparralFuelTypeEnum_Chamise"] = createExportWrapper("emscripten_enum_ChaparralFuelType_ChaparralFuelTypeEnum_Chamise");
+/** @type {function(...*):?} */
+var _emscripten_enum_ChaparralFuelType_ChaparralFuelTypeEnum_MixedBrush = Module["_emscripten_enum_ChaparralFuelType_ChaparralFuelTypeEnum_MixedBrush"] = createExportWrapper("emscripten_enum_ChaparralFuelType_ChaparralFuelTypeEnum_MixedBrush");
+/** @type {function(...*):?} */
+var _emscripten_enum_ChaparralFuelLoadInputMode_ChaparralFuelInputLoadModeEnum_DirectFuelLoad = Module["_emscripten_enum_ChaparralFuelLoadInputMode_ChaparralFuelInputLoadModeEnum_DirectFuelLoad"] = createExportWrapper("emscripten_enum_ChaparralFuelLoadInputMode_ChaparralFuelInputLoadModeEnum_DirectFuelLoad");
+/** @type {function(...*):?} */
+var _emscripten_enum_ChaparralFuelLoadInputMode_ChaparralFuelInputLoadModeEnum_FuelLoadFromDepthAndChaparralType = Module["_emscripten_enum_ChaparralFuelLoadInputMode_ChaparralFuelInputLoadModeEnum_FuelLoadFromDepthAndChaparralType"] = createExportWrapper("emscripten_enum_ChaparralFuelLoadInputMode_ChaparralFuelInputLoadModeEnum_FuelLoadFromDepthAndChaparralType");
+/** @type {function(...*):?} */
+var _emscripten_enum_MoistureInputMode_MoistureInputModeEnum_BySizeClass = Module["_emscripten_enum_MoistureInputMode_MoistureInputModeEnum_BySizeClass"] = createExportWrapper("emscripten_enum_MoistureInputMode_MoistureInputModeEnum_BySizeClass");
+/** @type {function(...*):?} */
+var _emscripten_enum_MoistureInputMode_MoistureInputModeEnum_AllAggregate = Module["_emscripten_enum_MoistureInputMode_MoistureInputModeEnum_AllAggregate"] = createExportWrapper("emscripten_enum_MoistureInputMode_MoistureInputModeEnum_AllAggregate");
+/** @type {function(...*):?} */
+var _emscripten_enum_MoistureInputMode_MoistureInputModeEnum_DeadAggregateAndLiveSizeClass = Module["_emscripten_enum_MoistureInputMode_MoistureInputModeEnum_DeadAggregateAndLiveSizeClass"] = createExportWrapper("emscripten_enum_MoistureInputMode_MoistureInputModeEnum_DeadAggregateAndLiveSizeClass");
+/** @type {function(...*):?} */
+var _emscripten_enum_MoistureInputMode_MoistureInputModeEnum_LiveAggregateAndDeadSizeClass = Module["_emscripten_enum_MoistureInputMode_MoistureInputModeEnum_LiveAggregateAndDeadSizeClass"] = createExportWrapper("emscripten_enum_MoistureInputMode_MoistureInputModeEnum_LiveAggregateAndDeadSizeClass");
+/** @type {function(...*):?} */
+var _emscripten_enum_MoistureInputMode_MoistureInputModeEnum_MoistureScenario = Module["_emscripten_enum_MoistureInputMode_MoistureInputModeEnum_MoistureScenario"] = createExportWrapper("emscripten_enum_MoistureInputMode_MoistureInputModeEnum_MoistureScenario");
+/** @type {function(...*):?} */
+var _emscripten_enum_MoistureClassInput_MoistureClassInputEnum_OneHour = Module["_emscripten_enum_MoistureClassInput_MoistureClassInputEnum_OneHour"] = createExportWrapper("emscripten_enum_MoistureClassInput_MoistureClassInputEnum_OneHour");
+/** @type {function(...*):?} */
+var _emscripten_enum_MoistureClassInput_MoistureClassInputEnum_TenHour = Module["_emscripten_enum_MoistureClassInput_MoistureClassInputEnum_TenHour"] = createExportWrapper("emscripten_enum_MoistureClassInput_MoistureClassInputEnum_TenHour");
+/** @type {function(...*):?} */
+var _emscripten_enum_MoistureClassInput_MoistureClassInputEnum_HundredHour = Module["_emscripten_enum_MoistureClassInput_MoistureClassInputEnum_HundredHour"] = createExportWrapper("emscripten_enum_MoistureClassInput_MoistureClassInputEnum_HundredHour");
+/** @type {function(...*):?} */
+var _emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveHerbaceous = Module["_emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveHerbaceous"] = createExportWrapper("emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveHerbaceous");
+/** @type {function(...*):?} */
+var _emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveWoody = Module["_emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveWoody"] = createExportWrapper("emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveWoody");
+/** @type {function(...*):?} */
+var _emscripten_enum_MoistureClassInput_MoistureClassInputEnum_DeadAggregate = Module["_emscripten_enum_MoistureClassInput_MoistureClassInputEnum_DeadAggregate"] = createExportWrapper("emscripten_enum_MoistureClassInput_MoistureClassInputEnum_DeadAggregate");
+/** @type {function(...*):?} */
+var _emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveAggregate = Module["_emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveAggregate"] = createExportWrapper("emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveAggregate");
+/** @type {function(...*):?} */
+var _emscripten_enum_SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum_FromIgnitionPoint = Module["_emscripten_enum_SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum_FromIgnitionPoint"] = createExportWrapper("emscripten_enum_SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum_FromIgnitionPoint");
+/** @type {function(...*):?} */
+var _emscripten_enum_SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum_FromPerimeter = Module["_emscripten_enum_SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum_FromPerimeter"] = createExportWrapper("emscripten_enum_SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum_FromPerimeter");
+/** @type {function(...*):?} */
+var _emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_NoMethod = Module["_emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_NoMethod"] = createExportWrapper("emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_NoMethod");
+/** @type {function(...*):?} */
+var _emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_Arithmetic = Module["_emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_Arithmetic"] = createExportWrapper("emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_Arithmetic");
+/** @type {function(...*):?} */
+var _emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_Harmonic = Module["_emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_Harmonic"] = createExportWrapper("emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_Harmonic");
+/** @type {function(...*):?} */
+var _emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_TwoDimensional = Module["_emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_TwoDimensional"] = createExportWrapper("emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_TwoDimensional");
+/** @type {function(...*):?} */
+var _emscripten_enum_WindAdjustmentFactorShelterMethod_WindAdjustmentFactorShelterMethodEnum_Unsheltered = Module["_emscripten_enum_WindAdjustmentFactorShelterMethod_WindAdjustmentFactorShelterMethodEnum_Unsheltered"] = createExportWrapper("emscripten_enum_WindAdjustmentFactorShelterMethod_WindAdjustmentFactorShelterMethodEnum_Unsheltered");
+/** @type {function(...*):?} */
+var _emscripten_enum_WindAdjustmentFactorShelterMethod_WindAdjustmentFactorShelterMethodEnum_Sheltered = Module["_emscripten_enum_WindAdjustmentFactorShelterMethod_WindAdjustmentFactorShelterMethodEnum_Sheltered"] = createExportWrapper("emscripten_enum_WindAdjustmentFactorShelterMethod_WindAdjustmentFactorShelterMethodEnum_Sheltered");
+/** @type {function(...*):?} */
+var _emscripten_enum_WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum_UserInput = Module["_emscripten_enum_WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum_UserInput"] = createExportWrapper("emscripten_enum_WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum_UserInput");
+/** @type {function(...*):?} */
+var _emscripten_enum_WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum_UseCrownRatio = Module["_emscripten_enum_WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum_UseCrownRatio"] = createExportWrapper("emscripten_enum_WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum_UseCrownRatio");
+/** @type {function(...*):?} */
+var _emscripten_enum_WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum_DontUseCrownRatio = Module["_emscripten_enum_WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum_DontUseCrownRatio"] = createExportWrapper("emscripten_enum_WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum_DontUseCrownRatio");
+/** @type {function(...*):?} */
+var _emscripten_enum_WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum_RelativeToUpslope = Module["_emscripten_enum_WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum_RelativeToUpslope"] = createExportWrapper("emscripten_enum_WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum_RelativeToUpslope");
+/** @type {function(...*):?} */
+var _emscripten_enum_WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum_RelativeToNorth = Module["_emscripten_enum_WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum_RelativeToNorth"] = createExportWrapper("emscripten_enum_WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum_RelativeToNorth");
+/** @type {function(...*):?} */
+var _emscripten_enum_WindHeightInputMode_WindHeightInputModeEnum_DirectMidflame = Module["_emscripten_enum_WindHeightInputMode_WindHeightInputModeEnum_DirectMidflame"] = createExportWrapper("emscripten_enum_WindHeightInputMode_WindHeightInputModeEnum_DirectMidflame");
+/** @type {function(...*):?} */
+var _emscripten_enum_WindHeightInputMode_WindHeightInputModeEnum_TwentyFoot = Module["_emscripten_enum_WindHeightInputMode_WindHeightInputModeEnum_TwentyFoot"] = createExportWrapper("emscripten_enum_WindHeightInputMode_WindHeightInputModeEnum_TwentyFoot");
+/** @type {function(...*):?} */
+var _emscripten_enum_WindHeightInputMode_WindHeightInputModeEnum_TenMeter = Module["_emscripten_enum_WindHeightInputMode_WindHeightInputModeEnum_TenMeter"] = createExportWrapper("emscripten_enum_WindHeightInputMode_WindHeightInputModeEnum_TenMeter");
+/** @type {function(...*):?} */
+var _emscripten_enum_WindUpslopeAlignmentMode_NotAligned = Module["_emscripten_enum_WindUpslopeAlignmentMode_NotAligned"] = createExportWrapper("emscripten_enum_WindUpslopeAlignmentMode_NotAligned");
+/** @type {function(...*):?} */
+var _emscripten_enum_WindUpslopeAlignmentMode_Aligned = Module["_emscripten_enum_WindUpslopeAlignmentMode_Aligned"] = createExportWrapper("emscripten_enum_WindUpslopeAlignmentMode_Aligned");
+/** @type {function(...*):?} */
+var _emscripten_enum_SurfaceRunInDirectionOf_MaxSpread = Module["_emscripten_enum_SurfaceRunInDirectionOf_MaxSpread"] = createExportWrapper("emscripten_enum_SurfaceRunInDirectionOf_MaxSpread");
+/** @type {function(...*):?} */
+var _emscripten_enum_SurfaceRunInDirectionOf_DirectionOfInterest = Module["_emscripten_enum_SurfaceRunInDirectionOf_DirectionOfInterest"] = createExportWrapper("emscripten_enum_SurfaceRunInDirectionOf_DirectionOfInterest");
+/** @type {function(...*):?} */
+var _emscripten_enum_FireType_FireTypeEnum_Surface = Module["_emscripten_enum_FireType_FireTypeEnum_Surface"] = createExportWrapper("emscripten_enum_FireType_FireTypeEnum_Surface");
+/** @type {function(...*):?} */
+var _emscripten_enum_FireType_FireTypeEnum_Torching = Module["_emscripten_enum_FireType_FireTypeEnum_Torching"] = createExportWrapper("emscripten_enum_FireType_FireTypeEnum_Torching");
+/** @type {function(...*):?} */
+var _emscripten_enum_FireType_FireTypeEnum_ConditionalCrownFire = Module["_emscripten_enum_FireType_FireTypeEnum_ConditionalCrownFire"] = createExportWrapper("emscripten_enum_FireType_FireTypeEnum_ConditionalCrownFire");
+/** @type {function(...*):?} */
+var _emscripten_enum_FireType_FireTypeEnum_Crowning = Module["_emscripten_enum_FireType_FireTypeEnum_Crowning"] = createExportWrapper("emscripten_enum_FireType_FireTypeEnum_Crowning");
+/** @type {function(...*):?} */
+var _emscripten_enum_BeetleDamage_not_set = Module["_emscripten_enum_BeetleDamage_not_set"] = createExportWrapper("emscripten_enum_BeetleDamage_not_set");
+/** @type {function(...*):?} */
+var _emscripten_enum_BeetleDamage_no = Module["_emscripten_enum_BeetleDamage_no"] = createExportWrapper("emscripten_enum_BeetleDamage_no");
+/** @type {function(...*):?} */
+var _emscripten_enum_BeetleDamage_yes = Module["_emscripten_enum_BeetleDamage_yes"] = createExportWrapper("emscripten_enum_BeetleDamage_yes");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownFireCalculationMethod_rothermel = Module["_emscripten_enum_CrownFireCalculationMethod_rothermel"] = createExportWrapper("emscripten_enum_CrownFireCalculationMethod_rothermel");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownFireCalculationMethod_scott_and_reinhardt = Module["_emscripten_enum_CrownFireCalculationMethod_scott_and_reinhardt"] = createExportWrapper("emscripten_enum_CrownFireCalculationMethod_scott_and_reinhardt");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageEquationCode_not_set = Module["_emscripten_enum_CrownDamageEquationCode_not_set"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_not_set");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageEquationCode_white_fir = Module["_emscripten_enum_CrownDamageEquationCode_white_fir"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_white_fir");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageEquationCode_subalpine_fir = Module["_emscripten_enum_CrownDamageEquationCode_subalpine_fir"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_subalpine_fir");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageEquationCode_incense_cedar = Module["_emscripten_enum_CrownDamageEquationCode_incense_cedar"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_incense_cedar");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageEquationCode_western_larch = Module["_emscripten_enum_CrownDamageEquationCode_western_larch"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_western_larch");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageEquationCode_whitebark_pine = Module["_emscripten_enum_CrownDamageEquationCode_whitebark_pine"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_whitebark_pine");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageEquationCode_engelmann_spruce = Module["_emscripten_enum_CrownDamageEquationCode_engelmann_spruce"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_engelmann_spruce");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageEquationCode_sugar_pine = Module["_emscripten_enum_CrownDamageEquationCode_sugar_pine"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_sugar_pine");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageEquationCode_red_fir = Module["_emscripten_enum_CrownDamageEquationCode_red_fir"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_red_fir");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageEquationCode_ponderosa_pine = Module["_emscripten_enum_CrownDamageEquationCode_ponderosa_pine"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_ponderosa_pine");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageEquationCode_ponderosa_kill = Module["_emscripten_enum_CrownDamageEquationCode_ponderosa_kill"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_ponderosa_kill");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageEquationCode_douglas_fir = Module["_emscripten_enum_CrownDamageEquationCode_douglas_fir"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_douglas_fir");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageType_not_set = Module["_emscripten_enum_CrownDamageType_not_set"] = createExportWrapper("emscripten_enum_CrownDamageType_not_set");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageType_crown_length = Module["_emscripten_enum_CrownDamageType_crown_length"] = createExportWrapper("emscripten_enum_CrownDamageType_crown_length");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageType_crown_volume = Module["_emscripten_enum_CrownDamageType_crown_volume"] = createExportWrapper("emscripten_enum_CrownDamageType_crown_volume");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageType_crown_kill = Module["_emscripten_enum_CrownDamageType_crown_kill"] = createExportWrapper("emscripten_enum_CrownDamageType_crown_kill");
+/** @type {function(...*):?} */
+var _emscripten_enum_EquationType_not_set = Module["_emscripten_enum_EquationType_not_set"] = createExportWrapper("emscripten_enum_EquationType_not_set");
+/** @type {function(...*):?} */
+var _emscripten_enum_EquationType_crown_scorch = Module["_emscripten_enum_EquationType_crown_scorch"] = createExportWrapper("emscripten_enum_EquationType_crown_scorch");
+/** @type {function(...*):?} */
+var _emscripten_enum_EquationType_bole_char = Module["_emscripten_enum_EquationType_bole_char"] = createExportWrapper("emscripten_enum_EquationType_bole_char");
+/** @type {function(...*):?} */
+var _emscripten_enum_EquationType_crown_damage = Module["_emscripten_enum_EquationType_crown_damage"] = createExportWrapper("emscripten_enum_EquationType_crown_damage");
+/** @type {function(...*):?} */
+var _emscripten_enum_FireSeverity_not_set = Module["_emscripten_enum_FireSeverity_not_set"] = createExportWrapper("emscripten_enum_FireSeverity_not_set");
+/** @type {function(...*):?} */
+var _emscripten_enum_FireSeverity_empty = Module["_emscripten_enum_FireSeverity_empty"] = createExportWrapper("emscripten_enum_FireSeverity_empty");
+/** @type {function(...*):?} */
+var _emscripten_enum_FireSeverity_low = Module["_emscripten_enum_FireSeverity_low"] = createExportWrapper("emscripten_enum_FireSeverity_low");
+/** @type {function(...*):?} */
+var _emscripten_enum_FlameLengthOrScorchHeightSwitch_flame_length = Module["_emscripten_enum_FlameLengthOrScorchHeightSwitch_flame_length"] = createExportWrapper("emscripten_enum_FlameLengthOrScorchHeightSwitch_flame_length");
+/** @type {function(...*):?} */
+var _emscripten_enum_FlameLengthOrScorchHeightSwitch_scorch_height = Module["_emscripten_enum_FlameLengthOrScorchHeightSwitch_scorch_height"] = createExportWrapper("emscripten_enum_FlameLengthOrScorchHeightSwitch_scorch_height");
+/** @type {function(...*):?} */
+var _emscripten_enum_RegionCode_interior_west = Module["_emscripten_enum_RegionCode_interior_west"] = createExportWrapper("emscripten_enum_RegionCode_interior_west");
+/** @type {function(...*):?} */
+var _emscripten_enum_RegionCode_pacific_west = Module["_emscripten_enum_RegionCode_pacific_west"] = createExportWrapper("emscripten_enum_RegionCode_pacific_west");
+/** @type {function(...*):?} */
+var _emscripten_enum_RegionCode_north_east = Module["_emscripten_enum_RegionCode_north_east"] = createExportWrapper("emscripten_enum_RegionCode_north_east");
+/** @type {function(...*):?} */
+var _emscripten_enum_RegionCode_south_east = Module["_emscripten_enum_RegionCode_south_east"] = createExportWrapper("emscripten_enum_RegionCode_south_east");
+/** @type {function(...*):?} */
+var _emscripten_enum_RequiredFieldNames_region = Module["_emscripten_enum_RequiredFieldNames_region"] = createExportWrapper("emscripten_enum_RequiredFieldNames_region");
+/** @type {function(...*):?} */
+var _emscripten_enum_RequiredFieldNames_flame_length_or_scorch_height_switch = Module["_emscripten_enum_RequiredFieldNames_flame_length_or_scorch_height_switch"] = createExportWrapper("emscripten_enum_RequiredFieldNames_flame_length_or_scorch_height_switch");
+/** @type {function(...*):?} */
+var _emscripten_enum_RequiredFieldNames_flame_length_or_scorch_height_value = Module["_emscripten_enum_RequiredFieldNames_flame_length_or_scorch_height_value"] = createExportWrapper("emscripten_enum_RequiredFieldNames_flame_length_or_scorch_height_value");
+/** @type {function(...*):?} */
+var _emscripten_enum_RequiredFieldNames_equation_type = Module["_emscripten_enum_RequiredFieldNames_equation_type"] = createExportWrapper("emscripten_enum_RequiredFieldNames_equation_type");
+/** @type {function(...*):?} */
+var _emscripten_enum_RequiredFieldNames_dbh = Module["_emscripten_enum_RequiredFieldNames_dbh"] = createExportWrapper("emscripten_enum_RequiredFieldNames_dbh");
+/** @type {function(...*):?} */
+var _emscripten_enum_RequiredFieldNames_tree_height = Module["_emscripten_enum_RequiredFieldNames_tree_height"] = createExportWrapper("emscripten_enum_RequiredFieldNames_tree_height");
+/** @type {function(...*):?} */
+var _emscripten_enum_RequiredFieldNames_crown_ratio = Module["_emscripten_enum_RequiredFieldNames_crown_ratio"] = createExportWrapper("emscripten_enum_RequiredFieldNames_crown_ratio");
+/** @type {function(...*):?} */
+var _emscripten_enum_RequiredFieldNames_crown_damage = Module["_emscripten_enum_RequiredFieldNames_crown_damage"] = createExportWrapper("emscripten_enum_RequiredFieldNames_crown_damage");
+/** @type {function(...*):?} */
+var _emscripten_enum_RequiredFieldNames_cambium_kill_rating = Module["_emscripten_enum_RequiredFieldNames_cambium_kill_rating"] = createExportWrapper("emscripten_enum_RequiredFieldNames_cambium_kill_rating");
+/** @type {function(...*):?} */
+var _emscripten_enum_RequiredFieldNames_beetle_damage = Module["_emscripten_enum_RequiredFieldNames_beetle_damage"] = createExportWrapper("emscripten_enum_RequiredFieldNames_beetle_damage");
+/** @type {function(...*):?} */
+var _emscripten_enum_RequiredFieldNames_bole_char_height = Module["_emscripten_enum_RequiredFieldNames_bole_char_height"] = createExportWrapper("emscripten_enum_RequiredFieldNames_bole_char_height");
+/** @type {function(...*):?} */
+var _emscripten_enum_RequiredFieldNames_bark_thickness = Module["_emscripten_enum_RequiredFieldNames_bark_thickness"] = createExportWrapper("emscripten_enum_RequiredFieldNames_bark_thickness");
+/** @type {function(...*):?} */
+var _emscripten_enum_RequiredFieldNames_fire_severity = Module["_emscripten_enum_RequiredFieldNames_fire_severity"] = createExportWrapper("emscripten_enum_RequiredFieldNames_fire_severity");
+/** @type {function(...*):?} */
+var _emscripten_enum_RequiredFieldNames_num_inputs = Module["_emscripten_enum_RequiredFieldNames_num_inputs"] = createExportWrapper("emscripten_enum_RequiredFieldNames_num_inputs");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_NORTH = Module["_emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_NORTH"] = createExportWrapper("emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_NORTH");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_EAST = Module["_emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_EAST"] = createExportWrapper("emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_EAST");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_SOUTH = Module["_emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_SOUTH"] = createExportWrapper("emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_SOUTH");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_WEST = Module["_emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_WEST"] = createExportWrapper("emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_WEST");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_TEN_TO_TWENTY_NINE_DEGREES_F = Module["_emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_TEN_TO_TWENTY_NINE_DEGREES_F"] = createExportWrapper("emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_TEN_TO_TWENTY_NINE_DEGREES_F");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_THRITY_TO_FOURTY_NINE_DEGREES_F = Module["_emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_THRITY_TO_FOURTY_NINE_DEGREES_F"] = createExportWrapper("emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_THRITY_TO_FOURTY_NINE_DEGREES_F");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_FIFTY_TO_SIXTY_NINE_DEGREES_F = Module["_emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_FIFTY_TO_SIXTY_NINE_DEGREES_F"] = createExportWrapper("emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_FIFTY_TO_SIXTY_NINE_DEGREES_F");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_SEVENTY_TO_EIGHTY_NINE_DEGREES_F = Module["_emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_SEVENTY_TO_EIGHTY_NINE_DEGREES_F"] = createExportWrapper("emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_SEVENTY_TO_EIGHTY_NINE_DEGREES_F");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_NINETY_TO_ONE_HUNDRED_NINE_DEGREES_F = Module["_emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_NINETY_TO_ONE_HUNDRED_NINE_DEGREES_F"] = createExportWrapper("emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_NINETY_TO_ONE_HUNDRED_NINE_DEGREES_F");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_GREATER_THAN_ONE_HUNDRED_NINE_DEGREES_F = Module["_emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_GREATER_THAN_ONE_HUNDRED_NINE_DEGREES_F"] = createExportWrapper("emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_GREATER_THAN_ONE_HUNDRED_NINE_DEGREES_F");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_BELOW_1000_TO_2000_FT = Module["_emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_BELOW_1000_TO_2000_FT"] = createExportWrapper("emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_BELOW_1000_TO_2000_FT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_LEVEL_WITHIN_1000_FT = Module["_emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_LEVEL_WITHIN_1000_FT"] = createExportWrapper("emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_LEVEL_WITHIN_1000_FT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_ABOVE_1000_TO_2000_FT = Module["_emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_ABOVE_1000_TO_2000_FT"] = createExportWrapper("emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_ABOVE_1000_TO_2000_FT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_MAY_JUNE_JULY = Module["_emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_MAY_JUNE_JULY"] = createExportWrapper("emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_MAY_JUNE_JULY");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_FEB_MAR_APR_AUG_SEP_OCT = Module["_emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_FEB_MAR_APR_AUG_SEP_OCT"] = createExportWrapper("emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_FEB_MAR_APR_AUG_SEP_OCT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_NOV_DEC_JAN = Module["_emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_NOV_DEC_JAN"] = createExportWrapper("emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_NOV_DEC_JAN");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_ZERO_TO_FOUR_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_ZERO_TO_FOUR_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_ZERO_TO_FOUR_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIVE_TO_NINE_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIVE_TO_NINE_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIVE_TO_NINE_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TEN_TO_FOURTEEN_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TEN_TO_FOURTEEN_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TEN_TO_FOURTEEN_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTEEN_TO_NINETEEN_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTEEN_TO_NINETEEN_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTEEN_TO_NINETEEN_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TWENTY_TO_TWENTY_FOUR_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TWENTY_TO_TWENTY_FOUR_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TWENTY_TO_TWENTY_FOUR_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TWENTY_FIVE_TO_TWENTY_NINE_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TWENTY_FIVE_TO_TWENTY_NINE_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TWENTY_FIVE_TO_TWENTY_NINE_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_THIRTY_TO_THIRTY_FOUR_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_THIRTY_TO_THIRTY_FOUR_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_THIRTY_TO_THIRTY_FOUR_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_THIRTY_FIVE_TO_THIRTY_NINE_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_THIRTY_FIVE_TO_THIRTY_NINE_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_THIRTY_FIVE_TO_THIRTY_NINE_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FORTY_TO_FORTY_FOUR_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FORTY_TO_FORTY_FOUR_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FORTY_TO_FORTY_FOUR_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FORTY_FIVE_TO_FORTY_NINE_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FORTY_FIVE_TO_FORTY_NINE_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FORTY_FIVE_TO_FORTY_NINE_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTY_TO_FIFTY_FOUR_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTY_TO_FIFTY_FOUR_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTY_TO_FIFTY_FOUR_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTY_FIVE_TO_FIFTY_NINE_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTY_FIVE_TO_FIFTY_NINE_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTY_FIVE_TO_FIFTY_NINE_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SIXTY_TO_SIXTY_FOUR_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SIXTY_TO_SIXTY_FOUR_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SIXTY_TO_SIXTY_FOUR_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SIXTY_FIVE_TO_SIXTY_NINE_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SIXTY_FIVE_TO_SIXTY_NINE_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SIXTY_FIVE_TO_SIXTY_NINE_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SEVENTY_TO_SEVENTY_FOUR_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SEVENTY_TO_SEVENTY_FOUR_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SEVENTY_TO_SEVENTY_FOUR_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SEVENTY_FIVE_TO_SEVENTY_NINE_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SEVENTY_FIVE_TO_SEVENTY_NINE_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SEVENTY_FIVE_TO_SEVENTY_NINE_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_EIGHTY_TO_EIGHTY_FOUR_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_EIGHTY_TO_EIGHTY_FOUR_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_EIGHTY_TO_EIGHTY_FOUR_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_EIGHTY_FIVE_TO_EIGHTY_NINE_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_EIGHTY_FIVE_TO_EIGHTY_NINE_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_EIGHTY_FIVE_TO_EIGHTY_NINE_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_NINETY_TO_NINETY_FOUR_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_NINETY_TO_NINETY_FOUR_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_NINETY_TO_NINETY_FOUR_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_NINETY_FIVE_TO_NINETY_NINE_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_NINETY_FIVE_TO_NINETY_NINE_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_NINETY_FIVE_TO_NINETY_NINE_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_ONE_HUNDRED_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_ONE_HUNDRED_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_ONE_HUNDRED_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolShadingIndex_ShadingIndexEnum_EXPOSED = Module["_emscripten_enum_FDFMToolShadingIndex_ShadingIndexEnum_EXPOSED"] = createExportWrapper("emscripten_enum_FDFMToolShadingIndex_ShadingIndexEnum_EXPOSED");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolShadingIndex_ShadingIndexEnum_SHADED = Module["_emscripten_enum_FDFMToolShadingIndex_ShadingIndexEnum_SHADED"] = createExportWrapper("emscripten_enum_FDFMToolShadingIndex_ShadingIndexEnum_SHADED");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolSlopeIndex_SlopeIndexEnum_ZERO_TO_THIRTY_PERCENT = Module["_emscripten_enum_FDFMToolSlopeIndex_SlopeIndexEnum_ZERO_TO_THIRTY_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolSlopeIndex_SlopeIndexEnum_ZERO_TO_THIRTY_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolSlopeIndex_SlopeIndexEnum_GREATER_THAN_OR_EQUAL_TO_THIRTY_ONE_PERCENT = Module["_emscripten_enum_FDFMToolSlopeIndex_SlopeIndexEnum_GREATER_THAN_OR_EQUAL_TO_THIRTY_ONE_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolSlopeIndex_SlopeIndexEnum_GREATER_THAN_OR_EQUAL_TO_THIRTY_ONE_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_EIGHT_HUNDRED_HOURS_TO_NINE_HUNDRED_FIFTY_NINE = Module["_emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_EIGHT_HUNDRED_HOURS_TO_NINE_HUNDRED_FIFTY_NINE"] = createExportWrapper("emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_EIGHT_HUNDRED_HOURS_TO_NINE_HUNDRED_FIFTY_NINE");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_TEN_HUNDRED_HOURS_TO_ELEVEN__HUNDRED_FIFTY_NINE = Module["_emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_TEN_HUNDRED_HOURS_TO_ELEVEN__HUNDRED_FIFTY_NINE"] = createExportWrapper("emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_TEN_HUNDRED_HOURS_TO_ELEVEN__HUNDRED_FIFTY_NINE");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_TWELVE_HUNDRED_HOURS_TO_THIRTEEN_HUNDRED_FIFTY_NINE = Module["_emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_TWELVE_HUNDRED_HOURS_TO_THIRTEEN_HUNDRED_FIFTY_NINE"] = createExportWrapper("emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_TWELVE_HUNDRED_HOURS_TO_THIRTEEN_HUNDRED_FIFTY_NINE");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_FOURTEEN_HUNDRED_HOURS_TO_FIFTEEN_HUNDRED_FIFTY_NINE = Module["_emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_FOURTEEN_HUNDRED_HOURS_TO_FIFTEEN_HUNDRED_FIFTY_NINE"] = createExportWrapper("emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_FOURTEEN_HUNDRED_HOURS_TO_FIFTEEN_HUNDRED_FIFTY_NINE");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_SIXTEEN_HUNDRED_HOURS_TO_SIXTEEN_HUNDRED_FIFTY_NINE = Module["_emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_SIXTEEN_HUNDRED_HOURS_TO_SIXTEEN_HUNDRED_FIFTY_NINE"] = createExportWrapper("emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_SIXTEEN_HUNDRED_HOURS_TO_SIXTEEN_HUNDRED_FIFTY_NINE");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_EIGHTTEEN_HUNDRED_HOURS_TO_SUNSET = Module["_emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_EIGHTTEEN_HUNDRED_HOURS_TO_SUNSET"] = createExportWrapper("emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_EIGHTTEEN_HUNDRED_HOURS_TO_SUNSET");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_NINTEEN_HUNDRED_EIGHTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_NINTEEN_HUNDRED_EIGHTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_NINTEEN_HUNDRED_EIGHTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_THREE_THOUSAND_NINEHUNDRED_SIXTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_THREE_THOUSAND_NINEHUNDRED_SIXTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_THREE_THOUSAND_NINEHUNDRED_SIXTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SEVEN_THOUSAND_NINEHUNDRED_TWENTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SEVEN_THOUSAND_NINEHUNDRED_TWENTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SEVEN_THOUSAND_NINEHUNDRED_TWENTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TEN_THOUSAND = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TEN_THOUSAND"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TEN_THOUSAND");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIFTEEN_THOUSAND_EIGHT_HUNDRED_FORTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIFTEEN_THOUSAND_EIGHT_HUNDRED_FORTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIFTEEN_THOUSAND_EIGHT_HUNDRED_FORTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWENTY_ONE_THOUSAND_ONE_HUNDRED_TWENTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWENTY_ONE_THOUSAND_ONE_HUNDRED_TWENTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWENTY_ONE_THOUSAND_ONE_HUNDRED_TWENTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWENTY_FOUR_THOUSAND = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWENTY_FOUR_THOUSAND"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWENTY_FOUR_THOUSAND");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_THRITY_ONE_THOUSAND_SIX_HUNDRED_EIGHTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_THRITY_ONE_THOUSAND_SIX_HUNDRED_EIGHTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_THRITY_ONE_THOUSAND_SIX_HUNDRED_EIGHTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIFTY_THOUSAND = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIFTY_THOUSAND"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIFTY_THOUSAND");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SIXTY_TWO_THOUSAND_FIVE_HUNDRED = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SIXTY_TWO_THOUSAND_FIVE_HUNDRED"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SIXTY_TWO_THOUSAND_FIVE_HUNDRED");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SIXTY_THREE_THOUSAND_THREE_HUNDRED_SIXTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SIXTY_THREE_THOUSAND_THREE_HUNDRED_SIXTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SIXTY_THREE_THOUSAND_THREE_HUNDRED_SIXTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_HUNDRED_THOUSAND = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_HUNDRED_THOUSAND"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_HUNDRED_THOUSAND");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_HUNDRED_TWENTY_SIX_THOUSAND_SEVEN_HUNDRED_TWENTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_HUNDRED_TWENTY_SIX_THOUSAND_SEVEN_HUNDRED_TWENTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_HUNDRED_TWENTY_SIX_THOUSAND_SEVEN_HUNDRED_TWENTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWO_HUNDRED_FIFTY_THOUSAND = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWO_HUNDRED_FIFTY_THOUSAND"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWO_HUNDRED_FIFTY_THOUSAND");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWO_HUNDRED_FIFTY_THREE_THOUSAND_FOUR_HUNDRED_FORTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWO_HUNDRED_FIFTY_THREE_THOUSAND_FOUR_HUNDRED_FORTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWO_HUNDRED_FIFTY_THREE_THOUSAND_FOUR_HUNDRED_FORTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIVE_HUNDRED_SIX_THOUSAND_EIGHT_HUNDRED_EIGHTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIVE_HUNDRED_SIX_THOUSAND_EIGHT_HUNDRED_EIGHTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIVE_HUNDRED_SIX_THOUSAND_EIGHT_HUNDRED_EIGHTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_MILLION = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_MILLION"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_MILLION");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_MILLION_THIRTEEN_THOUSAND_SEVEN_HUNDRED_SIXTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_MILLION_THIRTEEN_THOUSAND_SEVEN_HUNDRED_SIXTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_MILLION_THIRTEEN_THOUSAND_SEVEN_HUNDRED_SIXTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_UPSLOPE_ZERO_DEGREES = Module["_emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_UPSLOPE_ZERO_DEGREES"] = createExportWrapper("emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_UPSLOPE_ZERO_DEGREES");
+/** @type {function(...*):?} */
+var _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_FIFTEEN_DEGREES_FROM_UPSLOPE = Module["_emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_FIFTEEN_DEGREES_FROM_UPSLOPE"] = createExportWrapper("emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_FIFTEEN_DEGREES_FROM_UPSLOPE");
+/** @type {function(...*):?} */
+var _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_THIRTY_DEGREES_FROM_UPSLOPE = Module["_emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_THIRTY_DEGREES_FROM_UPSLOPE"] = createExportWrapper("emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_THIRTY_DEGREES_FROM_UPSLOPE");
+/** @type {function(...*):?} */
+var _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_FORTY_FIVE_DEGREES_FROM_UPSLOPE = Module["_emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_FORTY_FIVE_DEGREES_FROM_UPSLOPE"] = createExportWrapper("emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_FORTY_FIVE_DEGREES_FROM_UPSLOPE");
+/** @type {function(...*):?} */
+var _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_SIXTY_DEGREES_FROM_UPSLOPE = Module["_emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_SIXTY_DEGREES_FROM_UPSLOPE"] = createExportWrapper("emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_SIXTY_DEGREES_FROM_UPSLOPE");
+/** @type {function(...*):?} */
+var _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_SEVENTY_FIVE_DEGREES_FROM_UPSLOPE = Module["_emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_SEVENTY_FIVE_DEGREES_FROM_UPSLOPE"] = createExportWrapper("emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_SEVENTY_FIVE_DEGREES_FROM_UPSLOPE");
+/** @type {function(...*):?} */
+var _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_CROSS_SLOPE_NINETY_DEGREES = Module["_emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_CROSS_SLOPE_NINETY_DEGREES"] = createExportWrapper("emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_CROSS_SLOPE_NINETY_DEGREES");
+/** @type {function(...*):?} */
+var ___cxa_free_exception = createExportWrapper("__cxa_free_exception");
+/** @type {function(...*):?} */
+var ___errno_location = createExportWrapper("__errno_location");
+/** @type {function(...*):?} */
+var _malloc = Module["_malloc"] = createExportWrapper("malloc");
+/** @type {function(...*):?} */
+var _free = Module["_free"] = createExportWrapper("free");
+/** @type {function(...*):?} */
+var _setThrew = createExportWrapper("setThrew");
+/** @type {function(...*):?} */
+var setTempRet0 = createExportWrapper("setTempRet0");
+/** @type {function(...*):?} */
+var _emscripten_stack_init = function() {
+  return (_emscripten_stack_init = Module["asm"]["emscripten_stack_init"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var _emscripten_stack_get_free = function() {
+  return (_emscripten_stack_get_free = Module["asm"]["emscripten_stack_get_free"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var _emscripten_stack_get_base = function() {
+  return (_emscripten_stack_get_base = Module["asm"]["emscripten_stack_get_base"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var _emscripten_stack_get_end = function() {
+  return (_emscripten_stack_get_end = Module["asm"]["emscripten_stack_get_end"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var stackSave = createExportWrapper("stackSave");
+/** @type {function(...*):?} */
+var stackRestore = createExportWrapper("stackRestore");
+/** @type {function(...*):?} */
+var stackAlloc = createExportWrapper("stackAlloc");
+/** @type {function(...*):?} */
+var _emscripten_stack_get_current = function() {
+  return (_emscripten_stack_get_current = Module["asm"]["emscripten_stack_get_current"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var ___get_exception_message = Module["___get_exception_message"] = createExportWrapper("__get_exception_message");
+/** @type {function(...*):?} */
+var ___cxa_can_catch = createExportWrapper("__cxa_can_catch");
+/** @type {function(...*):?} */
+var ___cxa_is_pointer_type = createExportWrapper("__cxa_is_pointer_type");
+/** @type {function(...*):?} */
+var dynCall_jiji = Module["dynCall_jiji"] = createExportWrapper("dynCall_jiji");
+var ___start_em_js = Module['___start_em_js'] = 117576;
+var ___stop_em_js = Module['___stop_em_js'] = 117674;
 function invoke_vii(index,a1,a2) {
   var sp = stackSave();
   try {
@@ -6210,26 +7000,14 @@ function invoke_v(index) {
 // include: postamble.js
 // === Auto-generated postamble setup entry stuff ===
 
-Module['ccall'] = ccall;
-Module['cwrap'] = cwrap;
-Module['addFunction'] = addFunction;
-Module['UTF8ToString'] = UTF8ToString;
-Module['allocateUTF8'] = allocateUTF8;
+Module["UTF8ToString"] = UTF8ToString;
+Module["ccall"] = ccall;
+Module["cwrap"] = cwrap;
+Module["addFunction"] = addFunction;
+Module["allocateUTF8"] = allocateUTF8;
 var missingLibrarySymbols = [
-  'writeI53ToI64',
-  'writeI53ToI64Clamped',
-  'writeI53ToI64Signaling',
-  'writeI53ToU64Clamped',
-  'writeI53ToU64Signaling',
-  'readI53FromI64',
-  'readI53FromU64',
-  'convertI32PairToI53',
-  'convertU32PairToI53',
+  'stringToNewUTF8',
   'exitJS',
-  'isLeapYear',
-  'ydayFromDate',
-  'arraySum',
-  'addDays',
   'inetPton4',
   'inetNtop4',
   'inetPton6',
@@ -6237,8 +7015,7 @@ var missingLibrarySymbols = [
   'readSockaddr',
   'writeSockaddr',
   'getHostByName',
-  'getCallstack',
-  'emscriptenLog',
+  'traverseStack',
   'convertPCtoSourceLocation',
   'readEmAsmArgs',
   'jstoi_q',
@@ -6256,13 +7033,21 @@ var missingLibrarySymbols = [
   'maybeExit',
   'safeSetTimeout',
   'asmjsMangle',
-  'handleAllocatorInit',
   'HandleAllocator',
   'getNativeTypeSize',
   'STACK_SIZE',
   'STACK_ALIGN',
   'POINTER_SIZE',
   'ASSERTIONS',
+  'writeI53ToI64',
+  'writeI53ToI64Clamped',
+  'writeI53ToI64Signaling',
+  'writeI53ToU64Clamped',
+  'writeI53ToU64Signaling',
+  'readI53FromI64',
+  'readI53FromU64',
+  'convertI32PairToI53',
+  'convertU32PairToI53',
   'removeFunction',
   'reallyNegative',
   'unSign',
@@ -6278,6 +7063,11 @@ var missingLibrarySymbols = [
   'UTF32ToString',
   'stringToUTF32',
   'lengthBytesUTF32',
+  'allocateUTF8OnStack',
+  'writeStringToMemory',
+  'writeAsciiToMemory',
+  'getSocketFromFD',
+  'getSocketAddress',
   'registerKeyEventCallback',
   'maybeCStringToJsString',
   'findEventTarget',
@@ -6324,55 +7114,43 @@ var missingLibrarySymbols = [
   'stackTrace',
   'getEnvStrings',
   'checkWasiClock',
-  'wasiRightsToMuslOFlags',
-  'wasiOFlagsToMuslOFlags',
   'createDyncallWrapper',
   'setImmediateWrapped',
   'clearImmediateWrapped',
   'polyfillSetImmediate',
   'getPromise',
   'makePromise',
-  'idsToPromises',
   'makePromiseCallback',
   'setMainLoop',
-  'getSocketFromFD',
-  'getSocketAddress',
-  'FS_unlink',
-  'FS_mkdirTree',
   '_setNetworkCallback',
   'heapObjectForWebGLType',
   'heapAccessShiftForWebGLHeap',
-  'webgl_enable_ANGLE_instanced_arrays',
-  'webgl_enable_OES_vertex_array_object',
-  'webgl_enable_WEBGL_draw_buffers',
-  'webgl_enable_WEBGL_multi_draw',
   'emscriptenWebGLGet',
   'computeUnpackAlignedImageSize',
-  'colorChannelsInGlTextureFormat',
   'emscriptenWebGLGetTexPixelData',
-  '__glGenObject',
   'emscriptenWebGLGetUniform',
   'webglGetUniformLocation',
   'webglPrepareUniformLocationsBeforeFirstUse',
   'webglGetLeftBracePos',
   'emscriptenWebGLGetVertexAttrib',
-  '__glGetActiveAttribOrUniform',
   'writeGLArray',
-  'registerWebGlEventCallback',
-  'runAndAbortIfError',
   'SDL_unicode',
   'SDL_ttfContext',
   'SDL_audio',
+  'GLFW_Window',
+  'runAndAbortIfError',
   'ALLOC_NORMAL',
   'ALLOC_STACK',
   'allocate',
-  'writeStringToMemory',
-  'writeAsciiToMemory',
 ];
 missingLibrarySymbols.forEach(missingLibrarySymbol)
 
 var unexportedSymbols = [
   'run',
+  'UTF8ArrayToString',
+  'stringToUTF8Array',
+  'stringToUTF8',
+  'lengthBytesUTF8',
   'addOnPreRun',
   'addOnInit',
   'addOnPreMain',
@@ -6382,17 +7160,18 @@ var unexportedSymbols = [
   'removeRunDependency',
   'FS_createFolder',
   'FS_createPath',
+  'FS_createDataFile',
+  'FS_createPreloadedFile',
   'FS_createLazyFile',
   'FS_createLink',
   'FS_createDevice',
-  'FS_readFile',
+  'FS_unlink',
   'out',
   'err',
   'callMain',
   'abort',
   'keepRuntimeAlive',
   'wasmMemory',
-  'wasmExports',
   'stackAlloc',
   'stackSave',
   'stackRestore',
@@ -6400,24 +7179,18 @@ var unexportedSymbols = [
   'setTempRet0',
   'writeStackCookie',
   'checkStackCookie',
-  'convertI32PairToI53Checked',
   'ptrToString',
   'zeroMemory',
   'getHeapMax',
-  'growMemory',
+  'emscripten_realloc_buffer',
   'ENV',
-  'MONTH_DAYS_REGULAR',
-  'MONTH_DAYS_LEAP',
-  'MONTH_DAYS_REGULAR_CUMULATIVE',
-  'MONTH_DAYS_LEAP_CUMULATIVE',
   'ERRNO_CODES',
   'ERRNO_MESSAGES',
   'setErrNo',
   'DNS',
   'Protocols',
   'Sockets',
-  'initRandomFill',
-  'randomFill',
+  'getRandomDevice',
   'timers',
   'warnOnce',
   'UNWIND_CACHE',
@@ -6425,7 +7198,7 @@ var unexportedSymbols = [
   'asyncLoad',
   'alignMemory',
   'mmapAlloc',
-  'wasmTable',
+  'convertI32PairToI53Checked',
   'getCFunc',
   'uleb128Encode',
   'sigToWasmTypes',
@@ -6440,16 +7213,10 @@ var unexportedSymbols = [
   'getValue',
   'PATH',
   'PATH_FS',
-  'UTF8Decoder',
-  'UTF8ArrayToString',
-  'stringToUTF8Array',
-  'stringToUTF8',
-  'lengthBytesUTF8',
   'intArrayFromString',
   'UTF16Decoder',
-  'stringToNewUTF8',
-  'stringToUTF8OnStack',
   'writeArrayToMemory',
+  'SYSCALLS',
   'JSEvents',
   'specialHTMLTargets',
   'currentFullscreenStrategy',
@@ -6459,44 +7226,36 @@ var unexportedSymbols = [
   'ExitStatus',
   'doReadv',
   'doWritev',
+  'dlopenMissingError',
   'promiseMap',
   'uncaughtExceptionCount',
   'exceptionLast',
   'exceptionCaught',
   'ExceptionInfo',
-  'findMatchingCatch',
+  'exception_addRef',
+  'exception_decRef',
   'getExceptionMessageCommon',
   'incrementExceptionRefcount',
   'decrementExceptionRefcount',
   'getExceptionMessage',
   'Browser',
   'wget',
-  'SYSCALLS',
-  'preloadPlugins',
-  'FS_createPreloadedFile',
-  'FS_modeStringToFlags',
-  'FS_getMode',
-  'FS_stdin_getChar_buffer',
-  'FS_stdin_getChar',
   'FS',
-  'FS_createDataFile',
   'MEMFS',
   'TTY',
   'PIPEFS',
   'SOCKFS',
   'tempFixedLengthArray',
   'miniTempWebGLFloatBuffers',
-  'miniTempWebGLIntBuffers',
   'GL',
-  'emscripten_webgl_power_preferences',
   'AL',
-  'GLUT',
-  'EGL',
-  'GLEW',
-  'IDBStore',
   'SDL',
   'SDL_gfx',
-  'allocateUTF8OnStack',
+  'GLUT',
+  'EGL',
+  'GLFW',
+  'GLEW',
+  'IDBStore',
 ];
 unexportedSymbols.forEach(unexportedRuntimeSymbol);
 
@@ -6602,7 +7361,7 @@ function checkUnflushedContent() {
   out = oldOut;
   err = oldErr;
   if (has) {
-    warnOnce('stdio streams had content in them that was not flushed. you should set EXIT_RUNTIME to 1 (see the Emscripten FAQ), or make sure to emit a newline when you printf etc.');
+    warnOnce('stdio streams had content in them that was not flushed. you should set EXIT_RUNTIME to 1 (see the FAQ), or make sure to emit a newline when you printf etc.');
   }
 }
 
@@ -6617,7 +7376,7 @@ run();
 
 
 // end include: postamble.js
-// include: /Users/rjsheperd/Code/sig/behave-polylith/behave-lib/include/js/glue.js
+// include: /home/kcheung/work/code/behave-polylith/behave-lib/include/js/glue.js
 
 // Bindings utilities
 
@@ -6694,15 +7453,15 @@ var ensureCache = {
   temps: [], // extra allocations
   needed: 0, // the total size we need next time
 
-  prepare() {
+  prepare: function() {
     if (ensureCache.needed) {
       // clear the temps
       for (var i = 0; i < ensureCache.temps.length; i++) {
-        Module['_webidl_free'](ensureCache.temps[i]);
+        Module['_free'](ensureCache.temps[i]);
       }
       ensureCache.temps.length = 0;
       // prepare to allocate a bigger buffer
-      Module['_webidl_free'](ensureCache.buffer);
+      Module['_free'](ensureCache.buffer);
       ensureCache.buffer = 0;
       ensureCache.size += ensureCache.needed;
       // clean up
@@ -6710,12 +7469,12 @@ var ensureCache = {
     }
     if (!ensureCache.buffer) { // happens first time, or when we need to grow
       ensureCache.size += 128; // heuristic, avoid many small grow events
-      ensureCache.buffer = Module['_webidl_malloc'](ensureCache.size);
+      ensureCache.buffer = Module['_malloc'](ensureCache.size);
       assert(ensureCache.buffer);
     }
     ensureCache.pos = 0;
   },
-  alloc(array, view) {
+  alloc: function(array, view) {
     assert(ensureCache.buffer);
     var bytes = view.BYTES_PER_ELEMENT;
     var len = array.length * bytes;
@@ -6725,7 +7484,7 @@ var ensureCache = {
       // we failed to allocate in the buffer, ensureCache time around :(
       assert(len > 0); // null terminator, at least
       ensureCache.needed += len;
-      ret = Module['_webidl_malloc'](len);
+      ret = Module['_malloc'](len);
       ensureCache.temps.push(ret);
     } else {
       // we can allocate in the buffer
@@ -6734,7 +7493,7 @@ var ensureCache = {
     }
     return ret;
   },
-  copy(array, view, offset) {
+  copy: function(array, view, offset) {
     offset >>>= 0;
     var bytes = view.BYTES_PER_ELEMENT;
     switch (bytes) {
@@ -6803,7 +7562,6 @@ function ensureFloat64(value) {
   }
   return value;
 }
-
 
 // VoidPtr
 /** @suppress {undefinedVars, duplicate} @this{Object} */function VoidPtr() { throw "cannot construct a VoidPtr, no constructor in IDL" }
@@ -10878,10 +11636,34 @@ SIGMortality.prototype['getTreeCrownLengthScorched'] = SIGMortality.prototype.ge
   return _emscripten_bind_SIGMortality_getTreeCrownLengthScorched_1(self, mortalityRateUnits);
 };;
 
+SIGMortality.prototype['getTreeCrownLengthScorchedBacking'] = SIGMortality.prototype.getTreeCrownLengthScorchedBacking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(mortalityRateUnits) {
+  var self = this.ptr;
+  if (mortalityRateUnits && typeof mortalityRateUnits === 'object') mortalityRateUnits = mortalityRateUnits.ptr;
+  return _emscripten_bind_SIGMortality_getTreeCrownLengthScorchedBacking_1(self, mortalityRateUnits);
+};;
+
+SIGMortality.prototype['getTreeCrownLengthScorchedFlanking'] = SIGMortality.prototype.getTreeCrownLengthScorchedFlanking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(mortalityRateUnits) {
+  var self = this.ptr;
+  if (mortalityRateUnits && typeof mortalityRateUnits === 'object') mortalityRateUnits = mortalityRateUnits.ptr;
+  return _emscripten_bind_SIGMortality_getTreeCrownLengthScorchedFlanking_1(self, mortalityRateUnits);
+};;
+
 SIGMortality.prototype['getTreeCrownVolumeScorched'] = SIGMortality.prototype.getTreeCrownVolumeScorched = /** @suppress {undefinedVars, duplicate} @this{Object} */function(mortalityRateUnits) {
   var self = this.ptr;
   if (mortalityRateUnits && typeof mortalityRateUnits === 'object') mortalityRateUnits = mortalityRateUnits.ptr;
   return _emscripten_bind_SIGMortality_getTreeCrownVolumeScorched_1(self, mortalityRateUnits);
+};;
+
+SIGMortality.prototype['getTreeCrownVolumeScorchedBacking'] = SIGMortality.prototype.getTreeCrownVolumeScorchedBacking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(mortalityRateUnits) {
+  var self = this.ptr;
+  if (mortalityRateUnits && typeof mortalityRateUnits === 'object') mortalityRateUnits = mortalityRateUnits.ptr;
+  return _emscripten_bind_SIGMortality_getTreeCrownVolumeScorchedBacking_1(self, mortalityRateUnits);
+};;
+
+SIGMortality.prototype['getTreeCrownVolumeScorchedFlanking'] = SIGMortality.prototype.getTreeCrownVolumeScorchedFlanking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(mortalityRateUnits) {
+  var self = this.ptr;
+  if (mortalityRateUnits && typeof mortalityRateUnits === 'object') mortalityRateUnits = mortalityRateUnits.ptr;
+  return _emscripten_bind_SIGMortality_getTreeCrownVolumeScorchedFlanking_1(self, mortalityRateUnits);
 };;
 
 SIGMortality.prototype['getTreeDensityPerUnitArea'] = SIGMortality.prototype.getTreeDensityPerUnitArea = /** @suppress {undefinedVars, duplicate} @this{Object} */function(areaUnits) {
@@ -11129,11 +11911,39 @@ SIGMortality.prototype['setSurfaceFireFlameLength'] = SIGMortality.prototype.set
   _emscripten_bind_SIGMortality_setSurfaceFireFlameLength_2(self, value, lengthUnits);
 };;
 
+SIGMortality.prototype['setSurfaceFireFlameLengthBacking'] = SIGMortality.prototype.setSurfaceFireFlameLengthBacking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, lengthUnits) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  _emscripten_bind_SIGMortality_setSurfaceFireFlameLengthBacking_2(self, value, lengthUnits);
+};;
+
+SIGMortality.prototype['setSurfaceFireFlameLengthFlanking'] = SIGMortality.prototype.setSurfaceFireFlameLengthFlanking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, lengthUnits) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  _emscripten_bind_SIGMortality_setSurfaceFireFlameLengthFlanking_2(self, value, lengthUnits);
+};;
+
 SIGMortality.prototype['setSurfaceFireScorchHeight'] = SIGMortality.prototype.setSurfaceFireScorchHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, lengthUnits) {
   var self = this.ptr;
   if (value && typeof value === 'object') value = value.ptr;
   if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
   _emscripten_bind_SIGMortality_setSurfaceFireScorchHeight_2(self, value, lengthUnits);
+};;
+
+SIGMortality.prototype['setSurfaceFireScorchHeightBacking'] = SIGMortality.prototype.setSurfaceFireScorchHeightBacking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, lengthUnits) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  _emscripten_bind_SIGMortality_setSurfaceFireScorchHeightBacking_2(self, value, lengthUnits);
+};;
+
+SIGMortality.prototype['setSurfaceFireScorchHeightFlanking'] = SIGMortality.prototype.setSurfaceFireScorchHeightFlanking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, lengthUnits) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  _emscripten_bind_SIGMortality_setSurfaceFireScorchHeightFlanking_2(self, value, lengthUnits);
 };;
 
 SIGMortality.prototype['setSpeciesCode'] = SIGMortality.prototype.setSpeciesCode = /** @suppress {undefinedVars, duplicate} @this{Object} */function(speciesCode) {
@@ -11601,7 +12411,8 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
 (function() {
   function setupEnums() {
     
-// $AreaUnits_AreaUnitsEnum
+
+    // AreaUnits_AreaUnitsEnum
 
     Module['SquareFeet'] = _emscripten_enum_AreaUnits_AreaUnitsEnum_SquareFeet();
 
@@ -11616,21 +12427,24 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['SquareKilometers'] = _emscripten_enum_AreaUnits_AreaUnitsEnum_SquareKilometers();
 
     
-// $BasalAreaUnits_BasalAreaUnitsEnum
+
+    // BasalAreaUnits_BasalAreaUnitsEnum
 
     Module['SquareFeetPerAcre'] = _emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareFeetPerAcre();
 
     Module['SquareMetersPerHectare'] = _emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareMetersPerHectare();
 
     
-// $FractionUnits_FractionUnitsEnum
+
+    // FractionUnits_FractionUnitsEnum
 
     Module['Fraction'] = _emscripten_enum_FractionUnits_FractionUnitsEnum_Fraction();
 
     Module['Percent'] = _emscripten_enum_FractionUnits_FractionUnitsEnum_Percent();
 
     
-// $LengthUnits_LengthUnitsEnum
+
+    // LengthUnits_LengthUnitsEnum
 
     Module['Feet'] = _emscripten_enum_LengthUnits_LengthUnitsEnum_Feet();
 
@@ -11649,7 +12463,8 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['Kilometers'] = _emscripten_enum_LengthUnits_LengthUnitsEnum_Kilometers();
 
     
-// $LoadingUnits_LoadingUnitsEnum
+
+    // LoadingUnits_LoadingUnitsEnum
 
     Module['PoundsPerSquareFoot'] = _emscripten_enum_LoadingUnits_LoadingUnitsEnum_PoundsPerSquareFoot();
 
@@ -11660,7 +12475,8 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['KilogramsPerSquareMeter'] = _emscripten_enum_LoadingUnits_LoadingUnitsEnum_KilogramsPerSquareMeter();
 
     
-// $SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum
+
+    // SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum
 
     Module['SquareFeetOverCubicFeet'] = _emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareFeetOverCubicFeet();
 
@@ -11671,7 +12487,8 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['SquareCentimetersOverCubicCentimeters'] = _emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareCentimetersOverCubicCentimeters();
 
     
-// $SpeedUnits_SpeedUnitsEnum
+
+    // SpeedUnits_SpeedUnitsEnum
 
     Module['FeetPerMinute'] = _emscripten_enum_SpeedUnits_SpeedUnitsEnum_FeetPerMinute();
 
@@ -11686,7 +12503,8 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['KilometersPerHour'] = _emscripten_enum_SpeedUnits_SpeedUnitsEnum_KilometersPerHour();
 
     
-// $PressureUnits_PressureUnitsEnum
+
+    // PressureUnits_PressureUnitsEnum
 
     Module['Pascal'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_Pascal();
 
@@ -11707,35 +12525,40 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['PoundPerSquareInch'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_PoundPerSquareInch();
 
     
-// $SlopeUnits_SlopeUnitsEnum
+
+    // SlopeUnits_SlopeUnitsEnum
 
     Module['Degrees'] = _emscripten_enum_SlopeUnits_SlopeUnitsEnum_Degrees();
 
     Module['Percent'] = _emscripten_enum_SlopeUnits_SlopeUnitsEnum_Percent();
 
     
-// $DensityUnits_DensityUnitsEnum
+
+    // DensityUnits_DensityUnitsEnum
 
     Module['PoundsPerCubicFoot'] = _emscripten_enum_DensityUnits_DensityUnitsEnum_PoundsPerCubicFoot();
 
     Module['KilogramsPerCubicMeter'] = _emscripten_enum_DensityUnits_DensityUnitsEnum_KilogramsPerCubicMeter();
 
     
-// $HeatOfCombustionUnits_HeatOfCombustionUnitsEnum
+
+    // HeatOfCombustionUnits_HeatOfCombustionUnitsEnum
 
     Module['BtusPerPound'] = _emscripten_enum_HeatOfCombustionUnits_HeatOfCombustionUnitsEnum_BtusPerPound();
 
     Module['KilojoulesPerKilogram'] = _emscripten_enum_HeatOfCombustionUnits_HeatOfCombustionUnitsEnum_KilojoulesPerKilogram();
 
     
-// $HeatSinkUnits_HeatSinkUnitsEnum
+
+    // HeatSinkUnits_HeatSinkUnitsEnum
 
     Module['BtusPerCubicFoot'] = _emscripten_enum_HeatSinkUnits_HeatSinkUnitsEnum_BtusPerCubicFoot();
 
     Module['KilojoulesPerCubicMeter'] = _emscripten_enum_HeatSinkUnits_HeatSinkUnitsEnum_KilojoulesPerCubicMeter();
 
     
-// $HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum
+
+    // HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum
 
     Module['BtusPerSquareFoot'] = _emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_BtusPerSquareFoot();
 
@@ -11744,7 +12567,8 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['KilowattSecondsPerSquareMeter'] = _emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_KilowattSecondsPerSquareMeter();
 
     
-// $HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum
+
+    // HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum
 
     Module['BtusPerSquareFootPerMinute'] = _emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_BtusPerSquareFootPerMinute();
 
@@ -11757,7 +12581,8 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['KilowattsPerSquareMeter'] = _emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_KilowattsPerSquareMeter();
 
     
-// $FirelineIntensityUnits_FirelineIntensityUnitsEnum
+
+    // FirelineIntensityUnits_FirelineIntensityUnitsEnum
 
     Module['BtusPerFootPerSecond'] = _emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_BtusPerFootPerSecond();
 
@@ -11770,7 +12595,8 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['KilowattsPerMeter'] = _emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_KilowattsPerMeter();
 
     
-// $TemperatureUnits_TemperatureUnitsEnum
+
+    // TemperatureUnits_TemperatureUnitsEnum
 
     Module['Fahrenheit'] = _emscripten_enum_TemperatureUnits_TemperatureUnitsEnum_Fahrenheit();
 
@@ -11779,7 +12605,8 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['Kelvin'] = _emscripten_enum_TemperatureUnits_TemperatureUnitsEnum_Kelvin();
 
     
-// $TimeUnits_TimeUnitsEnum
+
+    // TimeUnits_TimeUnitsEnum
 
     Module['Minutes'] = _emscripten_enum_TimeUnits_TimeUnitsEnum_Minutes();
 
@@ -11788,14 +12615,16 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['Hours'] = _emscripten_enum_TimeUnits_TimeUnitsEnum_Hours();
 
     
-// $ContainTactic_ContainTacticEnum
+
+    // ContainTactic_ContainTacticEnum
 
     Module['HeadAttack'] = _emscripten_enum_ContainTactic_ContainTacticEnum_HeadAttack();
 
     Module['RearAttack'] = _emscripten_enum_ContainTactic_ContainTacticEnum_RearAttack();
 
     
-// $ContainStatus_ContainStatusEnum
+
+    // ContainStatus_ContainStatusEnum
 
     Module['Unreported'] = _emscripten_enum_ContainStatus_ContainStatusEnum_Unreported();
 
@@ -11816,7 +12645,8 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['TimeLimitExceeded'] = _emscripten_enum_ContainStatus_ContainStatusEnum_TimeLimitExceeded();
 
     
-// $ContainFlank_ContainFlankEnum
+
+    // ContainFlank_ContainFlankEnum
 
     Module['LeftFlank'] = _emscripten_enum_ContainFlank_ContainFlankEnum_LeftFlank();
 
@@ -11827,7 +12657,8 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['NeitherFlank'] = _emscripten_enum_ContainFlank_ContainFlankEnum_NeitherFlank();
 
     
-// $IgnitionFuelBedType_IgnitionFuelBedTypeEnum
+
+    // IgnitionFuelBedType_IgnitionFuelBedTypeEnum
 
     Module['PonderosaPineLitter'] = _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PonderosaPineLitter();
 
@@ -11846,7 +12677,8 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['PeatMoss'] = _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PeatMoss();
 
     
-// $LightningCharge_LightningChargeEnum
+
+    // LightningCharge_LightningChargeEnum
 
     Module['Negative'] = _emscripten_enum_LightningCharge_LightningChargeEnum_Negative();
 
@@ -11855,14 +12687,16 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['Unknown'] = _emscripten_enum_LightningCharge_LightningChargeEnum_Unknown();
 
     
-// $SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum
+
+    // SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum
 
     Module['CLOSED'] = _emscripten_enum_SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum_CLOSED();
 
     Module['OPEN'] = _emscripten_enum_SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum_OPEN();
 
     
-// $SpotTreeSpecies_SpotTreeSpeciesEnum
+
+    // SpotTreeSpecies_SpotTreeSpeciesEnum
 
     Module['ENGELMANN_SPRUCE'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_ENGELMANN_SPRUCE();
 
@@ -11893,7 +12727,8 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['LOBLOLLY_PINE'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LOBLOLLY_PINE();
 
     
-// $SpotFireLocation_SpotFireLocationEnum
+
+    // SpotFireLocation_SpotFireLocationEnum
 
     Module['MIDSLOPE_WINDWARD'] = _emscripten_enum_SpotFireLocation_SpotFireLocationEnum_MIDSLOPE_WINDWARD();
 
@@ -11904,14 +12739,16 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['RIDGE_TOP'] = _emscripten_enum_SpotFireLocation_SpotFireLocationEnum_RIDGE_TOP();
 
     
-// $FuelLifeState_FuelLifeStateEnum
+
+    // FuelLifeState_FuelLifeStateEnum
 
     Module['Dead'] = _emscripten_enum_FuelLifeState_FuelLifeStateEnum_Dead();
 
     Module['Live'] = _emscripten_enum_FuelLifeState_FuelLifeStateEnum_Live();
 
     
-// $FuelConstantsEnum_FuelConstantsEnum
+
+    // FuelConstantsEnum_FuelConstantsEnum
 
     Module['MaxLifeStates'] = _emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxLifeStates();
 
@@ -11926,14 +12763,16 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['MaxFuelModels'] = _emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxFuelModels();
 
     
-// $AspenFireSeverity_AspenFireSeverityEnum
+
+    // AspenFireSeverity_AspenFireSeverityEnum
 
     Module['Low'] = _emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Low();
 
     Module['Moderate'] = _emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Moderate();
 
     
-// $ChaparralFuelType_ChaparralFuelTypeEnum
+
+    // ChaparralFuelType_ChaparralFuelTypeEnum
 
     Module['NotSet'] = _emscripten_enum_ChaparralFuelType_ChaparralFuelTypeEnum_NotSet();
 
@@ -11942,14 +12781,16 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['MixedBrush'] = _emscripten_enum_ChaparralFuelType_ChaparralFuelTypeEnum_MixedBrush();
 
     
-// $ChaparralFuelLoadInputMode_ChaparralFuelInputLoadModeEnum
+
+    // ChaparralFuelLoadInputMode_ChaparralFuelInputLoadModeEnum
 
     Module['DirectFuelLoad'] = _emscripten_enum_ChaparralFuelLoadInputMode_ChaparralFuelInputLoadModeEnum_DirectFuelLoad();
 
     Module['FuelLoadFromDepthAndChaparralType'] = _emscripten_enum_ChaparralFuelLoadInputMode_ChaparralFuelInputLoadModeEnum_FuelLoadFromDepthAndChaparralType();
 
     
-// $MoistureInputMode_MoistureInputModeEnum
+
+    // MoistureInputMode_MoistureInputModeEnum
 
     Module['BySizeClass'] = _emscripten_enum_MoistureInputMode_MoistureInputModeEnum_BySizeClass();
 
@@ -11962,7 +12803,8 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['MoistureScenario'] = _emscripten_enum_MoistureInputMode_MoistureInputModeEnum_MoistureScenario();
 
     
-// $MoistureClassInput_MoistureClassInputEnum
+
+    // MoistureClassInput_MoistureClassInputEnum
 
     Module['OneHour'] = _emscripten_enum_MoistureClassInput_MoistureClassInputEnum_OneHour();
 
@@ -11979,14 +12821,16 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['LiveAggregate'] = _emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveAggregate();
 
     
-// $SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum
+
+    // SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum
 
     Module['FromIgnitionPoint'] = _emscripten_enum_SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum_FromIgnitionPoint();
 
     Module['FromPerimeter'] = _emscripten_enum_SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum_FromPerimeter();
 
     
-// $TwoFuelModelsMethod_TwoFuelModelsMethodEnum
+
+    // TwoFuelModelsMethod_TwoFuelModelsMethodEnum
 
     Module['NoMethod'] = _emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_NoMethod();
 
@@ -11997,14 +12841,16 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['TwoDimensional'] = _emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_TwoDimensional();
 
     
-// $WindAdjustmentFactorShelterMethod_WindAdjustmentFactorShelterMethodEnum
+
+    // WindAdjustmentFactorShelterMethod_WindAdjustmentFactorShelterMethodEnum
 
     Module['Unsheltered'] = _emscripten_enum_WindAdjustmentFactorShelterMethod_WindAdjustmentFactorShelterMethodEnum_Unsheltered();
 
     Module['Sheltered'] = _emscripten_enum_WindAdjustmentFactorShelterMethod_WindAdjustmentFactorShelterMethodEnum_Sheltered();
 
     
-// $WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum
+
+    // WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum
 
     Module['UserInput'] = _emscripten_enum_WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum_UserInput();
 
@@ -12013,14 +12859,16 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['DontUseCrownRatio'] = _emscripten_enum_WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum_DontUseCrownRatio();
 
     
-// $WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum
+
+    // WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum
 
     Module['RelativeToUpslope'] = _emscripten_enum_WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum_RelativeToUpslope();
 
     Module['RelativeToNorth'] = _emscripten_enum_WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum_RelativeToNorth();
 
     
-// $WindHeightInputMode_WindHeightInputModeEnum
+
+    // WindHeightInputMode_WindHeightInputModeEnum
 
     Module['DirectMidflame'] = _emscripten_enum_WindHeightInputMode_WindHeightInputModeEnum_DirectMidflame();
 
@@ -12029,21 +12877,24 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['TenMeter'] = _emscripten_enum_WindHeightInputMode_WindHeightInputModeEnum_TenMeter();
 
     
-// $WindUpslopeAlignmentMode
+
+    // WindUpslopeAlignmentMode
 
     Module['NotAligned'] = _emscripten_enum_WindUpslopeAlignmentMode_NotAligned();
 
     Module['Aligned'] = _emscripten_enum_WindUpslopeAlignmentMode_Aligned();
 
     
-// $SurfaceRunInDirectionOf
+
+    // SurfaceRunInDirectionOf
 
     Module['MaxSpread'] = _emscripten_enum_SurfaceRunInDirectionOf_MaxSpread();
 
     Module['DirectionOfInterest'] = _emscripten_enum_SurfaceRunInDirectionOf_DirectionOfInterest();
 
     
-// $FireType_FireTypeEnum
+
+    // FireType_FireTypeEnum
 
     Module['Surface'] = _emscripten_enum_FireType_FireTypeEnum_Surface();
 
@@ -12054,7 +12905,8 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['Crowning'] = _emscripten_enum_FireType_FireTypeEnum_Crowning();
 
     
-// $BeetleDamage
+
+    // BeetleDamage
 
     Module['not_set'] = _emscripten_enum_BeetleDamage_not_set();
 
@@ -12063,14 +12915,16 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['yes'] = _emscripten_enum_BeetleDamage_yes();
 
     
-// $CrownFireCalculationMethod
+
+    // CrownFireCalculationMethod
 
     Module['rothermel'] = _emscripten_enum_CrownFireCalculationMethod_rothermel();
 
     Module['scott_and_reinhardt'] = _emscripten_enum_CrownFireCalculationMethod_scott_and_reinhardt();
 
     
-// $CrownDamageEquationCode
+
+    // CrownDamageEquationCode
 
     Module['not_set'] = _emscripten_enum_CrownDamageEquationCode_not_set();
 
@@ -12097,7 +12951,8 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['douglas_fir'] = _emscripten_enum_CrownDamageEquationCode_douglas_fir();
 
     
-// $CrownDamageType
+
+    // CrownDamageType
 
     Module['not_set'] = _emscripten_enum_CrownDamageType_not_set();
 
@@ -12108,7 +12963,8 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['crown_kill'] = _emscripten_enum_CrownDamageType_crown_kill();
 
     
-// $EquationType
+
+    // EquationType
 
     Module['not_set'] = _emscripten_enum_EquationType_not_set();
 
@@ -12119,7 +12975,8 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['crown_damage'] = _emscripten_enum_EquationType_crown_damage();
 
     
-// $FireSeverity
+
+    // FireSeverity
 
     Module['not_set'] = _emscripten_enum_FireSeverity_not_set();
 
@@ -12128,14 +12985,16 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['low'] = _emscripten_enum_FireSeverity_low();
 
     
-// $FlameLengthOrScorchHeightSwitch
+
+    // FlameLengthOrScorchHeightSwitch
 
     Module['flame_length'] = _emscripten_enum_FlameLengthOrScorchHeightSwitch_flame_length();
 
     Module['scorch_height'] = _emscripten_enum_FlameLengthOrScorchHeightSwitch_scorch_height();
 
     
-// $RegionCode
+
+    // RegionCode
 
     Module['interior_west'] = _emscripten_enum_RegionCode_interior_west();
 
@@ -12146,7 +13005,8 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['south_east'] = _emscripten_enum_RegionCode_south_east();
 
     
-// $RequiredFieldNames
+
+    // RequiredFieldNames
 
     Module['region'] = _emscripten_enum_RequiredFieldNames_region();
 
@@ -12177,7 +13037,8 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['num_inputs'] = _emscripten_enum_RequiredFieldNames_num_inputs();
 
     
-// $FDFMToolAspectIndex_AspectIndexEnum
+
+    // FDFMToolAspectIndex_AspectIndexEnum
 
     Module['NORTH'] = _emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_NORTH();
 
@@ -12188,7 +13049,8 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['WEST'] = _emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_WEST();
 
     
-// $FDFMToolDryBulbIndex_DryBulbIndexEnum
+
+    // FDFMToolDryBulbIndex_DryBulbIndexEnum
 
     Module['TEN_TO_TWENTY_NINE_DEGREES_F'] = _emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_TEN_TO_TWENTY_NINE_DEGREES_F();
 
@@ -12203,7 +13065,8 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['GREATER_THAN_ONE_HUNDRED_NINE_DEGREES_F'] = _emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_GREATER_THAN_ONE_HUNDRED_NINE_DEGREES_F();
 
     
-// $FDFMToolElevationIndex_ElevationIndexEnum
+
+    // FDFMToolElevationIndex_ElevationIndexEnum
 
     Module['BELOW_1000_TO_2000_FT'] = _emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_BELOW_1000_TO_2000_FT();
 
@@ -12212,7 +13075,8 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['ABOVE_1000_TO_2000_FT'] = _emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_ABOVE_1000_TO_2000_FT();
 
     
-// $FDFMToolMonthIndex_MonthIndexEnum
+
+    // FDFMToolMonthIndex_MonthIndexEnum
 
     Module['MAY_JUNE_JULY'] = _emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_MAY_JUNE_JULY();
 
@@ -12221,7 +13085,8 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['NOV_DEC_JAN'] = _emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_NOV_DEC_JAN();
 
     
-// $FDFMToolRHIndex_RHIndexEnum
+
+    // FDFMToolRHIndex_RHIndexEnum
 
     Module['ZERO_TO_FOUR_PERCENT'] = _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_ZERO_TO_FOUR_PERCENT();
 
@@ -12266,21 +13131,24 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['ONE_HUNDRED_PERCENT'] = _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_ONE_HUNDRED_PERCENT();
 
     
-// $FDFMToolShadingIndex_ShadingIndexEnum
+
+    // FDFMToolShadingIndex_ShadingIndexEnum
 
     Module['EXPOSED'] = _emscripten_enum_FDFMToolShadingIndex_ShadingIndexEnum_EXPOSED();
 
     Module['SHADED'] = _emscripten_enum_FDFMToolShadingIndex_ShadingIndexEnum_SHADED();
 
     
-// $FDFMToolSlopeIndex_SlopeIndexEnum
+
+    // FDFMToolSlopeIndex_SlopeIndexEnum
 
     Module['ZERO_TO_THIRTY_PERCENT'] = _emscripten_enum_FDFMToolSlopeIndex_SlopeIndexEnum_ZERO_TO_THIRTY_PERCENT();
 
     Module['GREATER_THAN_OR_EQUAL_TO_THIRTY_ONE_PERCENT'] = _emscripten_enum_FDFMToolSlopeIndex_SlopeIndexEnum_GREATER_THAN_OR_EQUAL_TO_THIRTY_ONE_PERCENT();
 
     
-// $FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum
+
+    // FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum
 
     Module['EIGHT_HUNDRED_HOURS_TO_NINE_HUNDRED_FIFTY_NINE'] = _emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_EIGHT_HUNDRED_HOURS_TO_NINE_HUNDRED_FIFTY_NINE();
 
@@ -12295,7 +13163,8 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['EIGHTTEEN_HUNDRED_HOURS_TO_SUNSET'] = _emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_EIGHTTEEN_HUNDRED_HOURS_TO_SUNSET();
 
     
-// $RepresentativeFraction_RepresentativeFractionEnum
+
+    // RepresentativeFraction_RepresentativeFractionEnum
 
     Module['NINTEEN_HUNDRED_EIGHTY'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_NINTEEN_HUNDRED_EIGHTY();
 
@@ -12334,7 +13203,8 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['ONE_MILLION_THIRTEEN_THOUSAND_SEVEN_HUNDRED_SIXTY'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_MILLION_THIRTEEN_THOUSAND_SEVEN_HUNDRED_SIXTY();
 
     
-// $HorizontalDistanceIndex_HorizontalDistanceIndexEnum
+
+    // HorizontalDistanceIndex_HorizontalDistanceIndexEnum
 
     Module['UPSLOPE_ZERO_DEGREES'] = _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_UPSLOPE_ZERO_DEGREES();
 
@@ -12355,4 +13225,5 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
   else addOnInit(setupEnums);
 })();
 
-// end include: /Users/rjsheperd/Code/sig/behave-polylith/behave-lib/include/js/glue.js
+
+// end include: /home/kcheung/work/code/behave-polylith/behave-lib/include/js/glue.js

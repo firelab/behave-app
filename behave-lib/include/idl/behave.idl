@@ -1049,7 +1049,11 @@ interface SIGMortality {
   [Const] double getProbabilityOfMortality(FractionUnits_FractionUnitsEnum probabilityUnits);
   [Const] double getTotalPrefireTrees();
   [Const] double getTreeCrownLengthScorched(FractionUnits_FractionUnitsEnum mortalityRateUnits);
+  [Const] double getTreeCrownLengthScorchedBacking(FractionUnits_FractionUnitsEnum mortalityRateUnits);
+  [Const] double getTreeCrownLengthScorchedFlanking(FractionUnits_FractionUnitsEnum mortalityRateUnits);
   [Const] double getTreeCrownVolumeScorched(FractionUnits_FractionUnitsEnum mortalityRateUnits);
+  [Const] double getTreeCrownVolumeScorchedBacking(FractionUnits_FractionUnitsEnum mortalityRateUnits);
+  [Const] double getTreeCrownVolumeScorchedFlanking(FractionUnits_FractionUnitsEnum mortalityRateUnits);
   [Const] double getTreeDensityPerUnitArea(AreaUnits_AreaUnitsEnum areaUnits);
   [Const] double getTreeHeight(LengthUnits_LengthUnitsEnum treeHeightUnits);
   double postfireCanopyCover();
@@ -1088,7 +1092,11 @@ interface SIGMortality {
   void setFlameLengthOrScorchHeightValue(double flameLengthOrScorchHeightValue, LengthUnits_LengthUnitsEnum flameLengthOrScorchHeightUnits);
   void setRegion(RegionCode region);
   void setSurfaceFireFlameLength(double value, LengthUnits_LengthUnitsEnum lengthUnits);
+  void setSurfaceFireFlameLengthBacking(double value, LengthUnits_LengthUnitsEnum lengthUnits);
+  void setSurfaceFireFlameLengthFlanking(double value, LengthUnits_LengthUnitsEnum lengthUnits);
   void setSurfaceFireScorchHeight(double value, LengthUnits_LengthUnitsEnum lengthUnits);
+  void setSurfaceFireScorchHeightBacking(double value, LengthUnits_LengthUnitsEnum lengthUnits);
+  void setSurfaceFireScorchHeightFlanking(double value, LengthUnits_LengthUnitsEnum lengthUnits);
   void setSpeciesCode(DOMString speciesCode);
   void setTreeDensityPerUnitArea(double numberOfTrees, AreaUnits_AreaUnitsEnum areaUnits);
   void setTreeHeight(double treeHeight, LengthUnits_LengthUnitsEnum treeHeightUnits);

@@ -409,6 +409,7 @@ Module.SIGMortality = class {
   checkIsInRegionFromSpeciesCode() {}
   updateInputsForSpeciesCodeAndEquationType() {}
   calculateMortality() {}
+  calculateMortalityAllDirections() {}
   calculateScorchHeight() {}
   getBarkThickness() {}
   getBasalAreaKillled() {}
@@ -423,9 +424,15 @@ Module.SIGMortality = class {
   getFlameLengthOrScorchHeightValue() {}
   getKilledTrees() {}
   getProbabilityOfMortality() {}
+  getProbabilityOfMortalityBacking() {}
+  getProbabilityOfMortalityFlanking() {}
   getTotalPrefireTrees() {}
   getTreeCrownLengthScorched() {}
+  getTreeCrownLengthScorchedBacking() {}
+  getTreeCrownLengthScorchedFlanking() {}
   getTreeCrownVolumeScorched() {}
+  getTreeCrownVolumeScorchedBacking() {}
+  getTreeCrownVolumeScorchedFlanking() {}
   getTreeDensityPerUnitArea() {}
   getTreeHeight() {}
   postfireCanopyCover() {}
@@ -464,6 +471,10 @@ Module.SIGMortality = class {
   setRegion() {}
   setSurfaceFireFlameLength() {}
   setSurfaceFireScorchHeight() {}
+  setSurfaceFireFlameLengthBacking() {}
+  setSurfaceFireScorchHeightBacking() {}
+  setSurfaceFireFlameLengthFlanking() {}
+  setSurfaceFireScorchHeightFlanking() {}
   setSpeciesCode() {}
   setTreeDensityPerUnitArea() {}
   setTreeHeight() {}
