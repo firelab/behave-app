@@ -231,7 +231,7 @@ double SIGMortality::getCalculatedScorchHeight(LengthUnits::LengthUnitsEnum scor
                                scorchHeightUnits);
 }
 
-double SIGMortality::calculateMortality(FractionUnits::FractionUnitsEnum probablityUnits) {
+void SIGMortality::calculateMortalityAllDirections(FractionUnits::FractionUnitsEnum probablityUnits) {
   heading_.calculateMortality(probablityUnits);
   backing_.calculateMortality(probablityUnits);
   flanking_.calculateMortality(probablityUnits);

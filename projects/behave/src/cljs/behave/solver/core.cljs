@@ -263,7 +263,7 @@
 
          mortality-module
          (-> {:init-fn  mortality/init
-              :run-fn   mortality/calculateMortality
+              :run-fn   mortality/calculateMortalityAllDirections
               :fns      (ns-publics 'behave.lib.mortality)
               :gv-uuids (q/class-to-group-variables "SIGMortality")}
              (add-links))

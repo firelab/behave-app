@@ -2451,6 +2451,10 @@ double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_calculateMortality_1(SI
   return self->calculateMortality(probablityUnits);
 }
 
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_calculateMortalityAllDirections_1(SIGMortality* self, FractionUnits_FractionUnitsEnum probablityUnits) {
+  self->calculateMortalityAllDirections(probablityUnits);
+}
+
 double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_calculateScorchHeight_7(SIGMortality* self, double firelineIntensity, FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits, double midFlameWindSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, double airTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnits, LengthUnits_LengthUnitsEnum scorchHeightUnits) {
   return self->calculateScorchHeight(firelineIntensity, firelineIntensityUnits, midFlameWindSpeed, windSpeedUnits, airTemperature, temperatureUnits, scorchHeightUnits);
 }

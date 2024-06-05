@@ -5843,6 +5843,8 @@ var _emscripten_bind_SIGMortality_updateInputsForSpeciesCodeAndEquationType_2 = 
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_calculateMortality_1 = Module["_emscripten_bind_SIGMortality_calculateMortality_1"] = createExportWrapper("emscripten_bind_SIGMortality_calculateMortality_1");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_calculateMortalityAllDirections_1 = Module["_emscripten_bind_SIGMortality_calculateMortalityAllDirections_1"] = createExportWrapper("emscripten_bind_SIGMortality_calculateMortalityAllDirections_1");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_calculateScorchHeight_7 = Module["_emscripten_bind_SIGMortality_calculateScorchHeight_7"] = createExportWrapper("emscripten_bind_SIGMortality_calculateScorchHeight_7");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getBarkThickness_1 = Module["_emscripten_bind_SIGMortality_getBarkThickness_1"] = createExportWrapper("emscripten_bind_SIGMortality_getBarkThickness_1");
@@ -11540,6 +11542,12 @@ SIGMortality.prototype['calculateMortality'] = SIGMortality.prototype.calculateM
   var self = this.ptr;
   if (probablityUnits && typeof probablityUnits === 'object') probablityUnits = probablityUnits.ptr;
   return _emscripten_bind_SIGMortality_calculateMortality_1(self, probablityUnits);
+};;
+
+SIGMortality.prototype['calculateMortalityAllDirections'] = SIGMortality.prototype.calculateMortalityAllDirections = /** @suppress {undefinedVars, duplicate} @this{Object} */function(probablityUnits) {
+  var self = this.ptr;
+  if (probablityUnits && typeof probablityUnits === 'object') probablityUnits = probablityUnits.ptr;
+  _emscripten_bind_SIGMortality_calculateMortalityAllDirections_1(self, probablityUnits);
 };;
 
 SIGMortality.prototype['calculateScorchHeight'] = SIGMortality.prototype.calculateScorchHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firelineIntensity, firelineIntensityUnits, midFlameWindSpeed, windSpeedUnits, airTemperature, temperatureUnits, scorchHeightUnits) {

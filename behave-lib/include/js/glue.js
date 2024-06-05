@@ -4164,6 +4164,12 @@ SIGMortality.prototype['calculateMortality'] = SIGMortality.prototype.calculateM
   return _emscripten_bind_SIGMortality_calculateMortality_1(self, probablityUnits);
 };;
 
+SIGMortality.prototype['calculateMortalityAllDirections'] = SIGMortality.prototype.calculateMortalityAllDirections = /** @suppress {undefinedVars, duplicate} @this{Object} */function(probablityUnits) {
+  var self = this.ptr;
+  if (probablityUnits && typeof probablityUnits === 'object') probablityUnits = probablityUnits.ptr;
+  _emscripten_bind_SIGMortality_calculateMortalityAllDirections_1(self, probablityUnits);
+};;
+
 SIGMortality.prototype['calculateScorchHeight'] = SIGMortality.prototype.calculateScorchHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firelineIntensity, firelineIntensityUnits, midFlameWindSpeed, windSpeedUnits, airTemperature, temperatureUnits, scorchHeightUnits) {
   var self = this.ptr;
   if (firelineIntensity && typeof firelineIntensity === 'object') firelineIntensity = firelineIntensity.ptr;

@@ -1033,6 +1033,7 @@ interface SIGMortality {
   boolean checkIsInRegionFromSpeciesCode(DOMString speciesCode, RegionCode region);
   boolean updateInputsForSpeciesCodeAndEquationType(DOMString speciesCode, EquationType equationType);
   double calculateMortality(FractionUnits_FractionUnitsEnum probablityUnits);
+  void calculateMortalityAllDirections(FractionUnits_FractionUnitsEnum probablityUnits);
   double calculateScorchHeight(double firelineIntensity, FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits, double midFlameWindSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, double airTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnits, LengthUnits_LengthUnitsEnum scorchHeightUnits);
   [Const] double getBarkThickness(LengthUnits_LengthUnitsEnum barkThicknessUnits);
   [Const] double getBasalAreaKillled();
