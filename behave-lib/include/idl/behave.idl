@@ -1048,6 +1048,8 @@ interface SIGMortality {
   [Const] double getFlameLengthOrScorchHeightValue(LengthUnits_LengthUnitsEnum flameLengthOrScorchHeightUnits);
   [Const] double getKilledTrees();
   [Const] double getProbabilityOfMortality(FractionUnits_FractionUnitsEnum probabilityUnits);
+  [Const] double getProbabilityOfMortalityBacking(FractionUnits_FractionUnitsEnum probabilityUnits);
+  [Const] double getProbabilityOfMortalityFlanking(FractionUnits_FractionUnitsEnum probabilityUnits);
   [Const] double getTotalPrefireTrees();
   [Const] double getTreeCrownLengthScorched(FractionUnits_FractionUnitsEnum mortalityRateUnits);
   [Const] double getTreeCrownLengthScorchedBacking(FractionUnits_FractionUnitsEnum mortalityRateUnits);

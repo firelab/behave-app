@@ -5873,6 +5873,10 @@ var _emscripten_bind_SIGMortality_getKilledTrees_0 = Module["_emscripten_bind_SI
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getProbabilityOfMortality_1 = Module["_emscripten_bind_SIGMortality_getProbabilityOfMortality_1"] = createExportWrapper("emscripten_bind_SIGMortality_getProbabilityOfMortality_1");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getProbabilityOfMortalityBacking_1 = Module["_emscripten_bind_SIGMortality_getProbabilityOfMortalityBacking_1"] = createExportWrapper("emscripten_bind_SIGMortality_getProbabilityOfMortalityBacking_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getProbabilityOfMortalityFlanking_1 = Module["_emscripten_bind_SIGMortality_getProbabilityOfMortalityFlanking_1"] = createExportWrapper("emscripten_bind_SIGMortality_getProbabilityOfMortalityFlanking_1");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getTotalPrefireTrees_0 = Module["_emscripten_bind_SIGMortality_getTotalPrefireTrees_0"] = createExportWrapper("emscripten_bind_SIGMortality_getTotalPrefireTrees_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getTreeCrownLengthScorched_1 = Module["_emscripten_bind_SIGMortality_getTreeCrownLengthScorched_1"] = createExportWrapper("emscripten_bind_SIGMortality_getTreeCrownLengthScorched_1");
@@ -11631,6 +11635,18 @@ SIGMortality.prototype['getProbabilityOfMortality'] = SIGMortality.prototype.get
   var self = this.ptr;
   if (probabilityUnits && typeof probabilityUnits === 'object') probabilityUnits = probabilityUnits.ptr;
   return _emscripten_bind_SIGMortality_getProbabilityOfMortality_1(self, probabilityUnits);
+};;
+
+SIGMortality.prototype['getProbabilityOfMortalityBacking'] = SIGMortality.prototype.getProbabilityOfMortalityBacking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(probabilityUnits) {
+  var self = this.ptr;
+  if (probabilityUnits && typeof probabilityUnits === 'object') probabilityUnits = probabilityUnits.ptr;
+  return _emscripten_bind_SIGMortality_getProbabilityOfMortalityBacking_1(self, probabilityUnits);
+};;
+
+SIGMortality.prototype['getProbabilityOfMortalityFlanking'] = SIGMortality.prototype.getProbabilityOfMortalityFlanking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(probabilityUnits) {
+  var self = this.ptr;
+  if (probabilityUnits && typeof probabilityUnits === 'object') probabilityUnits = probabilityUnits.ptr;
+  return _emscripten_bind_SIGMortality_getProbabilityOfMortalityFlanking_1(self, probabilityUnits);
 };;
 
 SIGMortality.prototype['getTotalPrefireTrees'] = SIGMortality.prototype.getTotalPrefireTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {

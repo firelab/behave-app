@@ -2511,6 +2511,14 @@ const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getProbabilityOfM
   return self->getProbabilityOfMortality(probabilityUnits);
 }
 
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getProbabilityOfMortalityBacking_1(SIGMortality* self, FractionUnits_FractionUnitsEnum probabilityUnits) {
+  return self->getProbabilityOfMortalityBacking(probabilityUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getProbabilityOfMortalityFlanking_1(SIGMortality* self, FractionUnits_FractionUnitsEnum probabilityUnits) {
+  return self->getProbabilityOfMortalityFlanking(probabilityUnits);
+}
+
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getTotalPrefireTrees_0(SIGMortality* self) {
   return self->getTotalPrefireTrees();
 }

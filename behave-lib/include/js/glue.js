@@ -4253,6 +4253,18 @@ SIGMortality.prototype['getProbabilityOfMortality'] = SIGMortality.prototype.get
   return _emscripten_bind_SIGMortality_getProbabilityOfMortality_1(self, probabilityUnits);
 };;
 
+SIGMortality.prototype['getProbabilityOfMortalityBacking'] = SIGMortality.prototype.getProbabilityOfMortalityBacking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(probabilityUnits) {
+  var self = this.ptr;
+  if (probabilityUnits && typeof probabilityUnits === 'object') probabilityUnits = probabilityUnits.ptr;
+  return _emscripten_bind_SIGMortality_getProbabilityOfMortalityBacking_1(self, probabilityUnits);
+};;
+
+SIGMortality.prototype['getProbabilityOfMortalityFlanking'] = SIGMortality.prototype.getProbabilityOfMortalityFlanking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(probabilityUnits) {
+  var self = this.ptr;
+  if (probabilityUnits && typeof probabilityUnits === 'object') probabilityUnits = probabilityUnits.ptr;
+  return _emscripten_bind_SIGMortality_getProbabilityOfMortalityFlanking_1(self, probabilityUnits);
+};;
+
 SIGMortality.prototype['getTotalPrefireTrees'] = SIGMortality.prototype.getTotalPrefireTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   return _emscripten_bind_SIGMortality_getTotalPrefireTrees_0(self);

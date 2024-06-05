@@ -215,7 +215,9 @@
                                (:db/id))]
      (cond-> {:transact [{:db/id output-id :output/enabled? enabled?}]}
        (true? enabled?)
-       (update :fx #(into (vec %) [[:dispatch [:worksheet/add-table-filter ws-uuid group-variable-uuid]]
+       (update :fx #(into (vec %) [[:dispatch [:worksheet/remove-table-filter ws-uuid group-variable-uuid]]
+                                   [:dispatch [:worksheet/remove-y-axis-limit ws-uuid group-variable-uuid]]
+                                   [:dispatch [:worksheet/add-table-filter ws-uuid group-variable-uuid]]
                                    [:dispatch [:worksheet/add-y-axis-limit ws-uuid group-variable-uuid]]]))
 
        (false? enabled?)
@@ -225,7 +227,9 @@
      {:transact [{:worksheet/_outputs         [:worksheet/uuid ws-uuid]
                   :output/group-variable-uuid group-variable-uuid
                   :output/enabled?            enabled?}]
-      :fx       [[:dispatch [:worksheet/add-table-filter ws-uuid group-variable-uuid]]
+      :fx       [[:dispatch [:worksheet/remove-table-filter ws-uuid group-variable-uuid]]
+                 [:dispatch [:worksheet/remove-y-axis-limit ws-uuid group-variable-uuid]]
+                 [:dispatch [:worksheet/add-table-filter ws-uuid group-variable-uuid]]
                  [:dispatch [:worksheet/add-y-axis-limit ws-uuid group-variable-uuid]]]})))
 
 (rf/reg-event-fx

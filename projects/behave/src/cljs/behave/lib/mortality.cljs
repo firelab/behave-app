@@ -119,6 +119,12 @@
 (defn getProbabilityOfMortality [self probabilityUnits]
   (.getProbabilityOfMortality self probabilityUnits))
 
+(defn getProbabilityOfMortalityBacking [self probabilityUnits]
+  (.getProbabilityOfMortalityBacking self probabilityUnits))
+
+(defn getProbabilityOfMortalityFlanking [self probabilityUnits]
+  (.getProbabilityOfMortalityFlanking self probabilityUnits))
+
 (defn getRegion [self]
   (.getRegion self))
 
@@ -229,6 +235,12 @@
 
 (defn setSurfaceFireFlameLength [self value lengthUnits]
   (.setSurfaceFireFlameLength self value lengthUnits))
+
+(defn setSurfaceFireFlameLengthBacking [self value lengthUnits]
+  (.setSurfaceFireFlameLengthBacking self value lengthUnits))
+
+(defn setSurfaceFireFlameLengthFlanking [self value lengthUnits]
+  (.setSurfaceFireFlameLengthFlanking self value lengthUnits))
 
 (defn setTreeDensityPerUnitArea [self numberOfTrees areaUnits]
   (.setTreeDensityPerUnitArea self numberOfTrees areaUnits))
