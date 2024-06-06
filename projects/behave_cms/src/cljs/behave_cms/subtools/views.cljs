@@ -86,9 +86,9 @@
   (let [subtool          (rf/subscribe [:entity [:bp/nid nid] '[* {:tool/_subtools [*]}]])
         subtool-eid      (:db/id @subtool)
         tool-nid         (get-in @subtool [:tool/_subtools 0 :bp/nid])
-        variables        (rf/subscribe [:subtool/variables subtool-eid])
-        input-variables  (rf/subscribe [:subtool/input-variables subtool-eid])
-        output-variables (rf/subscribe [:subtool/output-variables subtool-eid])]
+        variables        (rf/subscribe [:subtool/variables nid])
+        input-variables  (rf/subscribe [:subtool/input-variables nid])
+        output-variables (rf/subscribe [:subtool/output-variables nid])]
     [:<>
      [sidebar
       "Input Variables"
