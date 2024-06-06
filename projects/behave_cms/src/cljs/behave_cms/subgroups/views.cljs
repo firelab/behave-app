@@ -56,12 +56,10 @@
         group-variables  (rf/subscribe [:group/variables group-id])
         query            (rf/subscribe [:state [:search :variables]])
         all-variables    (rf/subscribe [:group/search-variables @query])
-        _ (prn "all-variables:" @all-variables)
         all-variable-ids (set (map :db/id @all-variables))
         gv-ids           (set (map #(get-in % [:variable/_group-variables 0 :db/id]) @group-variables))
         remaining-ids    (difference all-variable-ids gv-ids)
         remaining        (filter #(-> % (:db/id) (remaining-ids)) @all-variables)]
-    (prn "remaining:" remaining)
     [:div.row
      [:h4 "Add Variable:"]
      [variable-search
