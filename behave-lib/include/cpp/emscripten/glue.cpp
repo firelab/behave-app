@@ -2711,14 +2711,6 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setSurfaceFireScorchHeigh
   self->setSurfaceFireScorchHeight(value, lengthUnits);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setSurfaceFireScorchHeightBacking_2(SIGMortality* self, double value, LengthUnits_LengthUnitsEnum lengthUnits) {
-  self->setSurfaceFireScorchHeightBacking(value, lengthUnits);
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setSurfaceFireScorchHeightFlanking_2(SIGMortality* self, double value, LengthUnits_LengthUnitsEnum lengthUnits) {
-  self->setSurfaceFireScorchHeightFlanking(value, lengthUnits);
-}
-
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setSpeciesCode_1(SIGMortality* self, char* speciesCode) {
   self->setSpeciesCode(speciesCode);
 }

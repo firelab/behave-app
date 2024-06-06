@@ -1098,8 +1098,6 @@ interface SIGMortality {
   void setSurfaceFireFlameLengthBacking(double value, LengthUnits_LengthUnitsEnum lengthUnits);
   void setSurfaceFireFlameLengthFlanking(double value, LengthUnits_LengthUnitsEnum lengthUnits);
   void setSurfaceFireScorchHeight(double value, LengthUnits_LengthUnitsEnum lengthUnits);
-  void setSurfaceFireScorchHeightBacking(double value, LengthUnits_LengthUnitsEnum lengthUnits);
-  void setSurfaceFireScorchHeightFlanking(double value, LengthUnits_LengthUnitsEnum lengthUnits);
   void setSpeciesCode(DOMString speciesCode);
   void setTreeDensityPerUnitArea(double numberOfTrees, AreaUnits_AreaUnitsEnum areaUnits);
   void setTreeHeight(double treeHeight, LengthUnits_LengthUnitsEnum treeHeightUnits);

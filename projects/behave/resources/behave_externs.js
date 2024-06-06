@@ -472,9 +472,7 @@ Module.SIGMortality = class {
   setSurfaceFireFlameLength() {}
   setSurfaceFireScorchHeight() {}
   setSurfaceFireFlameLengthBacking() {}
-  setSurfaceFireScorchHeightBacking() {}
   setSurfaceFireFlameLengthFlanking() {}
-  setSurfaceFireScorchHeightFlanking() {}
   setSpeciesCode() {}
   setTreeDensityPerUnitArea() {}
   setTreeHeight() {}

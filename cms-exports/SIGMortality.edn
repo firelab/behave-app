@@ -75,12 +75,6 @@
    {:type "FlameLengthOrScorchHeightSwitch",
     :id "getFlameLengthOrScorchHeightSwitch",
     :parameters []},
-   :setSurfaceFireScorchHeightBacking
-   {:type "void",
-    :id "setSurfaceFireScorchHeightBacking",
-    :parameters
-    [{:id "value", :type "double"}
-     {:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
    :setFlameLengthOrScorchHeightSwitch
    {:type "void",
     :id "setFlameLengthOrScorchHeightSwitch",
@@ -317,12 +311,6 @@
     :id "getTreeHeight",
     :parameters
     [{:id "treeHeightUnits", :type "LengthUnits::LengthUnitsEnum"}]},
-   :setSurfaceFireScorchHeightFlanking
-   {:type "void",
-    :id "setSurfaceFireScorchHeightFlanking",
-    :parameters
-    [{:id "value", :type "double"}
-     {:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
    :getCrownDamageEquationCodeFromSpeciesCode
    {:type "CrownDamageEquationCode",
     :id "getCrownDamageEquationCodeFromSpeciesCode",

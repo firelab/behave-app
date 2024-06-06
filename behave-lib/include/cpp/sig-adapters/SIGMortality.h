@@ -40,11 +40,9 @@ public:
 
   // SIGMortality Setters Backing Direction
   void setSurfaceFireFlameLengthBacking(double value, LengthUnits::LengthUnitsEnum lengthUnits);
-  void setSurfaceFireScorchHeightBacking(double value, LengthUnits::LengthUnitsEnum lengthUnits);
 
   // SIGMortality Setters Flanking Direction
   void setSurfaceFireFlameLengthFlanking(double value, LengthUnits::LengthUnitsEnum lengthUnits);
-  void setSurfaceFireScorchHeightFlanking(double value, LengthUnits::LengthUnitsEnum lengthUnits);
 
   // SIGMortality Getters
   char *getSpeciesCode() const;

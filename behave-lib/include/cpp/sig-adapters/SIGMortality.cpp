@@ -91,18 +91,6 @@ void SIGMortality::setSurfaceFireScorchHeight(double value, LengthUnits::LengthU
   heading_.setFlameLengthOrScorchHeightValue(value, lengthUnits);
 };
 
-void SIGMortality::setSurfaceFireScorchHeightBacking(double value, LengthUnits::LengthUnitsEnum lengthUnits)
-{
-  backing_.setFlameLengthOrScorchHeightSwitch(FlameLengthOrScorchHeightSwitch::scorch_height);
-  backing_.setFlameLengthOrScorchHeightValue(value, lengthUnits);
-};
-
-void SIGMortality::setSurfaceFireScorchHeightFlanking(double value, LengthUnits::LengthUnitsEnum lengthUnits)
-{
-  flanking_.setFlameLengthOrScorchHeightSwitch(FlameLengthOrScorchHeightSwitch::scorch_height);
-  flanking_.setFlameLengthOrScorchHeightValue(value, lengthUnits);
-};
-
 char* SIGMortality::getSpeciesCode() const
 {
   return SIGString::str2charptr(heading_.getSpeciesCode());
