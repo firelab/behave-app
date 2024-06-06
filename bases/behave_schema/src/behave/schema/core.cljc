@@ -35,10 +35,18 @@
                    :db/cardinality :db.cardinality/one
                    :db/index       true}])
 
+(def nano-id-schema [{:db/ident       :bp/nid
+                      :db/doc         "Nano-ID of entity"
+                      :db/valueType   :db.type/string
+                      :db/unique      :db.unique/identity
+                      :db/cardinality :db.cardinality/one
+                      :db/index       true}])
+
 (def ^{:doc "Datalog Rules for VMS, CPP, and Worksheets"}
   rules r/all-rules)
 
 (def all-schemas (apply concat [uuid-schema
+                                nano-id-schema
                                 application/schema
                                 actions/schema
                                 behave-list/schema

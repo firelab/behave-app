@@ -128,11 +128,11 @@
 
 (defn group-variable-page
   "Renders the group-variable page. Takes in a group-variable UUID."
-  [{id :id}]
-  (let [gv-id           (parse-int id)
-        group-variable  (rf/subscribe [:entity gv-id '[* {:variable/_group-variables [*]
-                                                          :group/_group-variables    [*]
-                                                          :group-variable/actions    [*]}]])
+  [{nid :nid}]
+  (let [group-variable  (rf/subscribe [:entity [:bp/nid nid] '[* {:variable/_group-variables [*]
+                                                                  :group/_group-variables    [*]
+                                                                  :group-variable/actions    [*]}]])
+        gv-id           (:db/id @group-variable)
         is-output?      (rf/subscribe [:group-variable/output? gv-id])
         actions         (:group-variable/actions @group-variable)
         action-id       (rf/subscribe [:state :action])
@@ -144,7 +144,7 @@
       "Variables"
       @group-variables
       (:group/name group)
-      (str "/groups/" (:db/id group))]
+      (str "/groups/" (:bp/nid group))]
      [window
       sidebar-width
       [:div.container
@@ -167,7 +167,7 @@
         "CPP Functions"
         [:div.col-6
          [cpp-editor-form
-          (merge cpp-attrs {:id gv-id :editor-key :group-variables})]]]
+          (merge cpp-attrs {:id [:bp/nid nid] :editor-key :group-variables})]]]
 
        [:hr]
        [accordion

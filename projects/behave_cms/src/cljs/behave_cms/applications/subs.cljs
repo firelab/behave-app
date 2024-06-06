@@ -27,9 +27,9 @@
   :<- [:applications]
   (fn [applications _]
     (->> applications
-         (map (fn [{id :db/id app-name :application/name}]
+         (map (fn [{nid :bp/nid app-name :application/name}]
                 {:label app-name
-                 :link  (path-for app-routes :get-application :id id)}))
+                 :link  (path-for app-routes :get-application :nid nid)}))
          (sort-by :label))))
 
 ;;; Modules

@@ -87,7 +87,7 @@
 
   (fn [groups]
     (->> groups
-         (map (fn [{id :db/id name :group/name}]
+         (map (fn [{nid :bp/nid name :group/name}]
                 {:label name
-                 :link  (path-for app-routes :get-group :id id)}))
+                 :link  (path-for app-routes :get-group :nid nid)}))
          (sort-by :label))))

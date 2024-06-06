@@ -46,17 +46,18 @@
 (defn tools-page
   "Displays Tools page. Takes a map with:
   - :id [int] - Tool Entity ID"
-  [{tool-eid :id}]
-  (let [tool           (rf/subscribe [:entity tool-eid '[* {:application/_tools [*]}]])
-        application-id (get-in @tool [:application/_tools 0 :db/id])
-        subtools       (rf/subscribe [:tool/subtools tool-eid])
-        *subtool       (rf/subscribe [:state :subtool])]
+  [{nid :nid}]
+  (let [tool            (rf/subscribe [:entity [:bp/nid nid] '[* {:application/_tools [*]}]])
+        tool-eid        (:db/id @tool)
+        application-nid (get-in @tool [:application/_tools 0 :bp/nid])
+        subtools        (rf/subscribe [:tool/subtools tool-eid])
+        *subtool        (rf/subscribe [:state :subtool])]
     [:<>
      [sidebar
       "Subtools"
       (->sidebar-links @subtools :subtool/name :get-subtool)
       "Tools"
-      (str "/applications/" application-id)]
+      (str "/applications/" application-nid)]
      [window sidebar-width
       [:div.container
        [:div.row.mb-3.mt-4

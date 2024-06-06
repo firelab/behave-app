@@ -102,9 +102,9 @@
 
  (fn [groups _]
    (->> groups
-        (map (fn [{id :db/id name :group/name}]
+        (map (fn [{nid :bp/nid name :group/name}]
                {:label name
-                :link  (path-for app-routes :get-group :id id)}))
+                :link  (path-for app-routes :get-group :nid nid)}))
         (sort-by :label))))
 
 ;;; Conditionals
@@ -170,10 +170,10 @@
  (fn [variables]
    (->> variables
         (map (fn [variable]
-               (let [id   (:db/id variable)
+               (let [nid  (:bp/nid variable)
                      name (get-in variable [:variable/_group-variables 0 :variable/name])]
                  {:label name
-                  :link  (path-for app-routes :get-group-variable :id id)})))
+                  :link  (path-for app-routes :get-group-variable :nid nid)})))
         (sort-by :label))))
 
 ;;; Variables Search

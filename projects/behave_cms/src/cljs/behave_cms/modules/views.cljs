@@ -73,8 +73,9 @@
 (defn list-modules-page
   "Displays page for modules. Takes a single map with:
   - id [int] - Application Entity ID"
-  [{id :id}]
-  (let [application (rf/subscribe [:application id])
+  [{nid :nid}]
+  (let [application (rf/subscribe [:application [:bp/nid nid]])
+        id          (:db/id @application)
         modules     (rf/subscribe [:application/modules id])
         *module     (rf/subscribe [:state :module])
         tools       (rf/subscribe [:application/tools id])

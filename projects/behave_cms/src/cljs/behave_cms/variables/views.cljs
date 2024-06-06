@@ -1,22 +1,20 @@
 (ns behave-cms.variables.views
   (:require [reagent.core                      :as r]
             [re-frame.core                     :as rf]
-            [behave-cms.components.common      :refer [simple-table
-                                                       labeled-text-input
-                                                       labeled-float-input
-                                                       labeled-integer-input]]
+            [behave-cms.components.common      :refer [simple-table]]
             [behave-cms.components.entity-form :refer [entity-form]]
             [behave-cms.utils                  :as u]
             [behave-cms.events]
             [behave-cms.subs]))
 
-(def columns [:variable/name :variable/domain-uuid :variable/bp6-label :variable/bp6-code :variable/kind])
+(def ^:private columns
+  [:variable/name :variable/domain-uuid :variable/bp6-label :variable/bp6-code :variable/kind])
 
-(defn variables-table []
+(defn- variables-table []
   (let [variables (rf/subscribe [:pull-with-attr :variable/name])
         on-select #(do
-                     (rf/dispatch [:state/set-state :variable (:db/id %)]))
-        on-delete #(when (js/confirm (str "Are you sure you want to delete the variable " (:variable_name %) "?"))
+                     (rf/dispatch [:state/set-state :variables [:bp/nid (:bp/nid %)]]))
+        on-delete #(when (js/confirm (str "Are you sure you want to delete the variable " (:variable/name %) "?"))
                      (rf/dispatch [:api/delete-entity %]))]
     [simple-table
      columns
@@ -24,7 +22,7 @@
      {:on-select on-select
       :on-delete on-delete}]))
 
-(def continuous-variable-properties
+(def ^:private continuous-variable-properties
   [{:label "Dimension"       :field-key :variable/dimension-uuid    :type :dimension}
    {:label "English Units"   :field-key :variable/english-unit-uuid :type :unit :system :english}
    {:label "English Decimal" :field-key :variable/english-decimals  :type :int}
@@ -113,7 +111,7 @@
                 id        (:db/id list)]
             [:option {:key id :value id :selected (= id @value)} list-name])))]]]))
 
-(defn variable-form [id]
+(defn- variable-form [id]
   (let [variable  (rf/subscribe [:entity id])
         editor    (rf/subscribe [:state [:editors :variables]])
         get-field (fn [& fields]
@@ -168,7 +166,7 @@
 
 (defn list-variables-page [_]
   (let [loaded?   (rf/subscribe [:state :loaded?])
-        *variable (rf/subscribe [:state :variable])]
+        *variable (rf/subscribe [:state :variables])]
     (if @loaded?
       [:div.container
        [:div.row.my-3

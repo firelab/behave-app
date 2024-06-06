@@ -62,7 +62,7 @@
         entities-route (name entity)
         get-entity     (->kw "get-" entity-str)]
     [entities-route [["" (->kw entities-route)]
-                     [["/" [long :id]] get-entity]]]))
+                     [["/" :nid] get-entity]]]))
 
 (def api-routes
   (add-trailing-slashes-to-roots

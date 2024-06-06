@@ -82,18 +82,19 @@
 (defn subtools-page
   "Displays Subtools page. Takes a map with:
   - :id [int] - Subtool Entity ID"
-  [{subtool-eid :id}]
-  (let [subtool          (rf/subscribe [:entity subtool-eid '[* {:tool/_subtools [*]}]])
-        tool-eid         (get-in @subtool [:tool/_subtools 0 :db/id])
-        variables        (rf/subscribe [:subtool/variables subtool-eid])
-        input-variables  (rf/subscribe [:subtool/input-variables subtool-eid])
-        output-variables (rf/subscribe [:subtool/output-variables subtool-eid])]
+  [{nid :nid}]
+  (let [subtool          (rf/subscribe [:entity [:bp/nid nid] '[* {:tool/_subtools [*]}]])
+        subtool-eid      (:db/id @subtool)
+        tool-nid         (get-in @subtool [:tool/_subtools 0 :bp/nid])
+        variables        (rf/subscribe [:subtool/variables nid])
+        input-variables  (rf/subscribe [:subtool/input-variables nid])
+        output-variables (rf/subscribe [:subtool/output-variables nid])]
     [:<>
      [sidebar
       "Input Variables"
       (->sidebar-links @input-variables :variable/name :get-subtool-variable)
       "Subtools"
-      (str "/tools/" tool-eid)
+      (str "/tools/" tool-nid)
       "Output Variables"
       (->sidebar-links @output-variables :variable/name :get-subtool-variable)]
      [window sidebar-width

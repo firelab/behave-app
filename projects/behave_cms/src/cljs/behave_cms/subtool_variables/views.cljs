@@ -19,20 +19,20 @@
 (defn subtool-variable-page
   "Renders the subtool-variable page. Takes in a map with:
    - :id [int]: Subtool variable's entity ID."
-  [{eid :id}]
-  (let [subtool-variable (rf/subscribe [:entity eid '[* {:variable/_subtool-variables [*]
-                                                         :subtool/_variables           [*]}]])
-
-        subtool          (get-in @subtool-variable [:subtool/_variables 0])
+  [{nid :nid}]
+  (let [subtool-variable (rf/subscribe [:entity [:bp/nid nid] '[* {:variable/_subtool-variables [*]
+                                                                   :subtool/_variables          [:bp/nid :subtool/name]}]])
+        subtool-name     (get-in @subtool-variable [:subtool/_variables 0 :subtool/name])
+        subtool-nid      (get-in @subtool-variable [:subtool/_variables 0 :bp/nid])
         variable         (get-in @subtool-variable [:variable/_subtool-variables 0])
-        input-variables  (rf/subscribe [:subtool/input-variables (:db/id subtool)])
-        output-variables (rf/subscribe [:subtool/output-variables (:db/id subtool)])]
+        input-variables  (rf/subscribe [:subtool/input-variables subtool-nid])
+        output-variables (rf/subscribe [:subtool/output-variables subtool-nid])]
     [:<>
      [sidebar
       "Input Variables"
       (->sidebar-links @input-variables :variable/name :get-subtool-variable)
-      "Subtools"
-      (str "/subtools/" (:db/id subtool))
+      (str subtool-name " Subtool")
+      (str "/subtools/" subtool-nid)
       "Output Variables"
       (->sidebar-links @output-variables :variable/name :get-subtool-variable)]
      [window
@@ -53,4 +53,4 @@
         "CPP Functions"
         [:div.col-6
          [cpp-editor-form
-          (merge cpp-attrs {:id eid :editor-key :subtool-variables})]]]]]]))
+          (merge cpp-attrs {:id [:bp/nid nid] :editor-key :subtool-variables})]]]]]]))
