@@ -21,6 +21,11 @@
                    (println (format "Done! \n\n Please add \"projects/%s/src\" to the :paths section of your deps.edn file." project)))
 
   ;;; Datomic
+  -today     (str (java.time.LocalDate/now))
+
+  dump       {:depends [-today]
+              :task    (shell (format "pg_dump -U datomic datomic -Fc --file=datomic-backup-%s.dump" -today))}
+
   -datomic    (str (io/file (str (fs/home)) ".datomic" "current" "bin"))
   transactor  {:depends [-datomic]
                :task
