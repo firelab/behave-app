@@ -158,21 +158,6 @@
              (or (vector? value) (seq? orig-value)))
         (update-in state path into value)))))
 
-;;; Sidebar
-
-(reg-event-fx
-  :sidebar/select
-  (fn [cofx [_ entity-type nid]]
-    (let [path (path-for app-routes (keyword (str "get-" (name (singular entity-type)))) :nid nid)]
-      {:db (assoc-in (:db cofx) [:state :sidebar (singular entity-type)] nid)
-       :fx [[:dispatch [:navigate path]]]})))
-
-(reg-event-fx
-  :sidebar/reset
-  (fn [cofx [_ parent-type parent-nid]]
-    {:db (update-in (:db cofx) [:state :sidebar] assoc (singular parent-type) nil)
-     :fx [[:dispatch [:navigate (path-for app-routes parent-type :nid parent-nid)]]]}))
-
 ;;; AJAX/Fetch Effects
 
 (defn request [{:keys [uri method data on-success on-error fn-args]}]
