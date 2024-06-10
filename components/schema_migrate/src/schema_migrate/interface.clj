@@ -1,6 +1,26 @@
 (ns schema-migrate.interface
   (:require [schema-migrate.core :as c]))
 
+(def ^{:argslist '([conn attr nname])
+       :doc      "Get the :bp/uuid using the name for the specified name attribute"}
+  name->uuid c/name->uuid)
+
+(def ^{:argslist '([conn attr nname])
+       :doc      "Get the :bp/nid using the name for the specified name attribute"}
+  name->nid c/name->nid)
+
+(def ^{:argslist '([conn nname])
+       :doc      "Get the :bp/uuid using the cpp namepsace name"}
+  cpp-ns->uuid c/cpp-ns->uuid)
+
+(def ^{:argslist '([conn nname])
+       :doc      "Get the :bp/uuid using the cpp class name"}
+  cpp-class->uuid c/cpp-class->uuid)
+
+(def ^{:argslist '([conn nname])
+       :doc      "Get the :bp/uuid using the cpp function name"}
+  cpp-fn->uuid c/cpp-fn->uuid)
+
 (def ^{:argslist '([conn t])
        :doc      "Get the :bp/uuid using translation-key"}
   t-key->uuid c/t-key->uuid)
@@ -12,6 +32,10 @@
 (def ^{:argslist '([conn t])
        :doc      "Get the :db/id using translation-key"}
   t-key->eid c/t-key->eid)
+
+(def ^{:argslist '([conn attr])
+       :doc      "Walk through every element in data and insert :bp/uuid and :bp/nid"}
+  postwalk-assoc-uuid+nid c/postwalk-assoc-uuid+nid)
 
 (def ^{:argslist '([conn attr])
        :doc      "Sets :db/isComponent true for a given schema attribute.

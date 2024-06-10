@@ -1,14 +1,75 @@
 (ns schema-migrate.core
-  (:require [datomic.api :as d]
-            [datomic-store.main :as ds]))
+  (:require
+   [clojure.walk :as walk]
+   [datascript.core :refer [squuid]]
+   [datomic.api :as d]
+   [datomic-store.main :as ds]
+   [nano-id.core :refer [nano-id]]))
+
+(defn name->uuid
+  "Get the :bp/uuid using the name for the specified name attribute"
+  [conn attr nname]
+  (d/q '[:find ?uuid .
+         :in $ ?attr ?name
+         :where
+         [?e ?attr ?name]
+         [?e :bp/uuid ?uuid]]
+        (d/db conn)
+        attr
+        nname))
+
+(defn name->nid
+  "Get the :bp/nid using the name for the specified name attribute"
+  [conn attr nname]
+  (d/q '[:find ?nid .
+         :in $ ?attr ?name
+         :where
+         [?e ?attr ?name]
+         [?e :bp/nid ?nid]]
+        (d/db conn)
+        attr
+        nname))
+
+(defn cpp-ns->uuid
+  "Get the :bp/uuid using the cpp namepsace name"
+  [conn nname]
+  (d/q '[:find ?uuid .
+         :in $ % ?name
+         :where
+         [?e :cpp.namespace/name ?name]
+         [?e :bp/uuid ?uuid]]
+        (d/db conn)
+        nname))
+
+(defn cpp-class->uuid
+  "Get the :bp/uuid using the cpp class name"
+  [conn nname]
+  (d/q '[:find ?uuid .
+         :in $ % ?name
+         :where
+         [?e :cpp.class/name ?name]
+         [?e :bp/uuid ?uuid]]
+        (d/db conn)
+        nname))
+
+(defn cpp-fn->uuid
+  "Get the :bp/uuid using the cpp function name"
+  [conn nname]
+  (d/q '[:find ?uuid .
+         :in $ % ?name
+         :where
+         [?e :cpp.function/name ?name]
+         [?e :bp/uuid ?uuid]]
+        (d/db conn)
+        nname))
 
 (defn- submodule [conn t]
   (->> t
        (d/q '[:find ?e .
               :in $ ?t
               :where [?e :submodule/translation-key ?t]]
-            (ds/unwrap-db conn)
-            t)
+             (ds/unwrap-db conn)
+             t)
        (d/entity (ds/unwrap-db conn))))
 
 (defn t-key->uuid
@@ -31,14 +92,31 @@
   [conn t]
   (:db/id (t-key->entity conn t)))
 
+(defn- insert-bp-uuid [x]
+  (if (map? x)
+    (assoc x :bp/uuid (str (squuid)))
+    x))
+
+(defn- insert-bp-nid [x]
+  (if (map? x)
+    (assoc x :bp/nid (nano-id))
+    x))
+
+(defn postwalk-assoc-uuid+nid
+  "Walk through every element in data and update/insert :bp/uuid and :bp/nid"
+  [data]
+  (->> data
+       (walk/postwalk insert-bp-uuid)
+       (walk/postwalk insert-bp-nid)))
+
 (defn make-attr-is-component-payload
   "Returns a payload for updating a given attribute to include :db/isComponent true"
   [conn attr]
   (when-let [eid (d/q '[:find ?e .
                         :in $ ?attr
                         :where [?e :db/ident ?attr]]
-                      (ds/unwrap-db conn)
-                      attr)]
+                       (ds/unwrap-db conn)
+                       attr)]
     {:db/id          eid
      :db/isComponent true}))
 

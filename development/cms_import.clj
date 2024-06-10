@@ -9,7 +9,8 @@
    [datascript.core :refer [squuid]]
    [string-utils.interface :refer [->str]]
    [datom-utils.interface :refer [safe-deref unwrap]]
-   [me.raynes.fs :as fs]))
+   [me.raynes.fs :as fs]
+   [nano-id.core :refer [nano-id]]))
 
 (defn dissoc-in [m keys]
   (update-in m (butlast keys) dissoc (last keys)))
@@ -40,11 +41,13 @@
 
 (defn ->class [[class-name methods]]
   (let [->param            (fn [i p] (merge {:cpp.parameter/order i
+                                             :bp/nid              (nano-id)
                                              :bp/uuid             (str (squuid))}
                                             (rename-keys p {:id   :cpp.parameter/name
                                                             :type :cpp.parameter/type})))
         ->fn               (fn [[_ {:keys [type id parameters]}]]
                              (merge {:bp/uuid                (str (squuid))
+                                     :bp/nid                 (nano-id)
                                      :cpp.function/name      id
                                      :cpp.function/parameter (vec (map-indexed ->param parameters))}
                                     (when type {:cpp.function/return-type type})))
@@ -70,7 +73,8 @@
       (assoc :db/id existing-class-eid)
 
       (not existing-class-eid)
-      (assoc :bp/uuid            (str (squuid))))))
+      (merge {:bp/uuid (str (squuid))
+              :bp/nid  (nano-id)}))))
 
 (defn lookup-ns-id [ns-name conn]
   (d/q '[:find ?e .
