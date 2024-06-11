@@ -257,7 +257,7 @@ Be sure that PostgreSQL is running on port 5432.
 
 **** Running the Datomic Console
 #+BEGIN_SRC bash
-  bb console
+  bb console --port <port>
 #+END_SRC
 
 Then visit [[http://localhost:8000/browse][localhost:8000/browse]]
@@ -265,8 +265,7 @@ Then visit [[http://localhost:8000/browse][localhost:8000/browse]]
 **** Restoring CMS using a backup file
 
 #+begin_src sh
-psql -U datomic -d datomic -c 'DROP TABLE datomic_kvs'
-pg_restore -d datomic datomic-2024-04-03.dump
+bb restore --file <datomic-2024-##-##.dump>
 #+end_src
 
 * Behave-Lib
