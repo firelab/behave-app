@@ -11,15 +11,21 @@
 
 ;;; Helpers
 
-(defn inverse-attr
+(defn- inverse-attr
   [attr]
   (keyword (str/join "/_" (str/split (->str attr) #"/"))))
 
-(defn on-submit [entity-id cond-attr]
-  (rf/dispatch [:ds/transact
+(defn- on-submit [entity-id cond-attr]
+  (rf/dispatch [:api/create-entity
                 (merge @(rf/subscribe [:state [:editors :conditional cond-attr]])
                        {(inverse-attr cond-attr) entity-id})])
   (rf/dispatch [:state/set-state [:editors :conditional] {}]))
+
+(defn- toggle-item [x xs]
+  (let [xs-set (set xs)]
+    (vec (if (xs-set x)
+           (remove #(= x %) xs)
+           (conj xs x)))))
 
 ;;; Components
 
@@ -38,7 +44,9 @@
         :on-change on-change}]
       [:label.form-check-label {:for value} label]])])
 
-(defn conditionals-table [entity-id conditionals cond-attr cond-op-attr]
+(defn conditionals-table
+  "Table of conditionals for entity."
+  [entity-id conditionals _cond-attr cond-op-attr]
   (let [entity (rf/subscribe [:entity entity-id])]
     [:<>
      [dropdown
@@ -54,13 +62,9 @@
       {:on-delete #(when (js/confirm (str "Are you sure you want to delete the conditional " (:variable/name %) "?"))
                      (rf/dispatch [:api/delete-entity %]))}]]))
 
-(defn toggle-item [x xs]
-  (let [xs-set (set xs)]
-    (vec (if (xs-set x)
-           (remove #(= x %) xs)
-           (conj xs x)))))
-
-(defn manage-module-conditionals [entity-id cond-attr]
+(defn manage-module-conditionals
+  "Form to manage Module conditionals for entity."
+  [entity-id cond-attr]
   (let [cond-path   [:editors :conditional cond-attr]
         set-field   (fn [path v] (rf/dispatch [:state/set-state path v]))
         get-field   #(rf/subscribe [:state %])
@@ -77,7 +81,9 @@
       (get-field module-path)
       #(set-field module-path (toggle-item (u/input-value %) @*modules))]]))
 
-(defn manage-variable-conditionals [entity-id cond-attr]
+(defn manage-variable-conditionals
+  "Form to manage Variable conditionals for entity."
+  [entity-id cond-attr]
   (let [var-path    [:editors :variable-lookup]
         cond-path   [:editors :conditional cond-attr]
         get-field   #(rf/subscribe [:state %])

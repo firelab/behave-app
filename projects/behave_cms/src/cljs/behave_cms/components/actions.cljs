@@ -5,14 +5,21 @@
    [behave-cms.utils             :as u]
    [reagent.core                 :as r]
    [re-frame.core                :as rf]
-   [string-utils.interface       :refer [->str]]))
+   [string-utils.interface       :refer [->str]]
+   [datascript.core              :refer [squuid]]
+   [nano-id.core                 :refer [nano-id]]))
 
 ;;; Helpers
 
-(defn- on-submit [entity-id]
-  (rf/dispatch [:ds/transact
-                (merge @(rf/subscribe [:state [:editors :action]])
-                       {:group-variable/_actions entity-id})])
+(defn- add-uuid-nid [m]
+  (merge {:bp/uuid (str (squuid)) :bp/nid (nano-id)} m))
+
+(defn- on-submit [entity-id action-id]
+  (let [create-or-update (if action-id :api/update-entity :api/create-entity)]
+    (rf/dispatch [create-or-update
+                  (-> @(rf/subscribe [:state [:editors :action]])
+                      (merge {:group-variable/_actions entity-id})
+                      (update :action/conditionals #(mapv add-uuid-nid %)))]))
   (rf/dispatch [:state/set-state :action nil])
   (rf/dispatch [:state/set-state :editors {}]))
 
@@ -42,7 +49,9 @@
           :on-change on-change}]
         [:label.form-check-label {:for value} label]])]))
 
-(defn actions-table [actions]
+(defn actions-table
+  "Displays actions for an entity."
+  [actions]
   [simple-table
    [:action/name :action/type :action/target-value]
    (sort-by :action/name actions)
@@ -50,10 +59,12 @@
     :on-delete #(when (js/confirm (str "Are you sure you want to delete the action " (:action/name %) "?"))
                   (rf/dispatch [:api/delete-entity %]))}])
 
-(defn manage-conditional [group-id conditional idx]
+(defn manage-conditional
+  "Displays editor for modifying conditionals."
+  [group-id conditional idx]
   ;; Select Parents
   (when (:db/id conditional)
-    (let [cond-gv-id                        @(rf/subscribe [:bp/lookup (:conditional/group-variable-uuid conditional)])
+    (let [cond-gv-id               @(rf/subscribe [:bp/lookup (:conditional/group-variable-uuid conditional)])
           [module submodule group] @(rf/subscribe [:group-variable/module-submodule-group cond-gv-id])]
       (rf/dispatch [:state/set-state [:editors :variable-lookup idx] {:module module :submodule submodule :group group}])))
 
@@ -142,7 +153,8 @@
                       (map (fn [{value :list-option/value label :list-option/name}]
                              {:value value :label label}) @options))}]]]]))
 
-(defn add-conditionals [gv-id]
+(defn- add-conditionals
+  [gv-id]
   (r/with-let [group-id        (get-in @(rf/subscribe [:pull '[{:group/_group-variables [*]}] gv-id]) [:group/_group-variables :db/id])
                cond-path       [:editors :action]
                conditionals    (rf/subscribe [:state (conj cond-path :action/conditionals)])
@@ -176,7 +188,9 @@
                                (add-conditional))}
       "Add Conditional"]]))
 
-(defn manage-action [gv-id action-id is-output?]
+(defn manage-action
+  "Editor form for action."
+  [gv-id action-id is-output?]
   ;; Set editing state to action
   (when-not (nil? action-id)
     (rf/dispatch [:state/set-state [:editors :action] @(rf/subscribe [:pull '[* {:action/conditionals [*]}] action-id])]))
@@ -190,7 +204,7 @@
         list-options (get-list-options gv-id)]
 
     [:form.row
-     {:on-submit (u/on-submit #(on-submit gv-id))}
+     {:on-submit (u/on-submit #(on-submit gv-id action-id))}
      [:h4 (str (if @action-id "Edit" "Add") " Action:")]
      [:<> 
       [labeled-input
