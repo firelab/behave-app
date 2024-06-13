@@ -1043,9 +1043,10 @@ interface SIGMortality {
   [Const] double getCambiumKillRating();
   [Const] double getCrownDamage();
   [Const] double getCrownRatio();
-  [Const] double getCalculatedScorchHeight(LengthUnits_LengthUnitsEnum scorchHeightUnits);
   [Const] double getDBH(LengthUnits_LengthUnitsEnum diameterUnits);
   [Const] double getFlameLengthOrScorchHeightValue(LengthUnits_LengthUnitsEnum flameLengthOrScorchHeightUnits);
+  [Const] double getFlameLength(LengthUnits_LengthUnitsEnum flameLengthUnits);
+  [Const] double getScorchHeight(LengthUnits_LengthUnitsEnum scorchHeightUnits);
   [Const] double getKilledTrees();
   [Const] double getProbabilityOfMortality(FractionUnits_FractionUnitsEnum probabilityUnits);
   [Const] double getProbabilityOfMortalityBacking(FractionUnits_FractionUnitsEnum probabilityUnits);
@@ -1093,10 +1094,15 @@ interface SIGMortality {
   void setFirelineIntensity(double firelineIntensity, FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits);
   void setFlameLengthOrScorchHeightSwitch(FlameLengthOrScorchHeightSwitch flameLengthOrScorchHeightSwitch);
   void setFlameLengthOrScorchHeightValue(double flameLengthOrScorchHeightValue, LengthUnits_LengthUnitsEnum flameLengthOrScorchHeightUnits);
+  void setFlameLength(double flameLength, LengthUnits_LengthUnitsEnum flameLengthUnits);
+  void setScorchHeight(double scorchHeight, LengthUnits_LengthUnitsEnum scorchHeightUnits);
   void setRegion(RegionCode region);
   void setSurfaceFireFlameLength(double value, LengthUnits_LengthUnitsEnum lengthUnits);
   void setSurfaceFireFlameLengthBacking(double value, LengthUnits_LengthUnitsEnum lengthUnits);
   void setSurfaceFireFlameLengthFlanking(double value, LengthUnits_LengthUnitsEnum lengthUnits);
+  void setSurfaceFireFirelineIntensity(double value, FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits);
+    void setSurfaceFireFirelineIntensityBacking(double value, FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits);
+    void setSurfaceFireFirelineIntensityFlanking(double value, FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits);
   void setSurfaceFireScorchHeight(double value, LengthUnits_LengthUnitsEnum lengthUnits);
   void setSpeciesCode(DOMString speciesCode);
   void setTreeDensityPerUnitArea(double numberOfTrees, AreaUnits_AreaUnitsEnum areaUnits);

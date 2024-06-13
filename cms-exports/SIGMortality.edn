@@ -1,7 +1,7 @@
 {:global
  {:SIGMortality
   {:calculateMortalityAllDirections
-   {:type "double",
+   {:type "void",
     :id "calculateMortalityAllDirections",
     :parameters
     [{:id "probablityUnits",
@@ -126,6 +126,12 @@
     :parameters [{:id "index", :type "int"}]},
    :prefireCanopyCover
    {:type "double", :id "prefireCanopyCover", :parameters []},
+   :setScorchHeight
+   {:type "void",
+    :id "setScorchHeight",
+    :parameters
+    [{:id "scorchHeight", :type "double"}
+     {:id "scorchHeightUnits", :type "LengthUnits::LengthUnitsEnum"}]},
    :getScientificNameAtSpeciesTableIndex
    {:type "char",
     :id "getScientificNameAtSpeciesTableIndex",
@@ -180,11 +186,25 @@
    {:type "int",
     :id "getMortalityEquationNumberFromSpeciesCode",
     :parameters [{:id "speciesCode", :type "char"}]},
+   :setSurfaceFireFirelineIntensityFlanking
+   {:type "void",
+    :id "setSurfaceFireFirelineIntensityFlanking",
+    :parameters
+    [{:id "value", :type "double"}
+     {:id "firelineIntensityUnits",
+      :type "FirelineIntensityUnits::FirelineIntensityUnitsEnum"}]},
    :getTreeCrownVolumeScorched
    {:type "double",
     :id "getTreeCrownVolumeScorched",
     :parameters
     [{:id "fractionUnits", :type "FractionUnits::FractionUnitsEnum"}]},
+   :setSurfaceFireFirelineIntensity
+   {:type "void",
+    :id "setSurfaceFireFirelineIntensity",
+    :parameters
+    [{:id "value", :type "double"}
+     {:id "firelineIntensityUnits",
+      :type "FirelineIntensityUnits::FirelineIntensityUnitsEnum"}]},
    :operator=
    {:type "Mortality",
     :id "operator=",
@@ -297,6 +317,11 @@
    {:type "int",
     :id "getCrownCoefficientCodeAtSpeciesTableIndex",
     :parameters [{:id "index", :type "int"}]},
+   :getScorchHeight
+   {:type "double",
+    :id "getScorchHeight",
+    :parameters
+    [{:id "scorchHeightUnits", :type "LengthUnits::LengthUnitsEnum"}]},
    :getCambiumKillRating
    {:type "double", :id "getCambiumKillRating", :parameters []},
    :setCrownRatio
@@ -340,6 +365,13 @@
     :id "getTreeCrownLengthScorchedBacking",
     :parameters
     [{:id "fractionUnits", :type "FractionUnits::FractionUnitsEnum"}]},
+   :setSurfaceFireFirelineIntensityBacking
+   {:type "void",
+    :id "setSurfaceFireFirelineIntensityBacking",
+    :parameters
+    [{:id "value", :type "double"}
+     {:id "firelineIntensityUnits",
+      :type "FirelineIntensityUnits::FirelineIntensityUnitsEnum"}]},
    :setFlameLengthOrScorchHeightValue
    {:type "void",
     :id "setFlameLengthOrScorchHeightValue",
@@ -379,6 +411,17 @@
     :parameters
     [{:id "dbh", :type "double"}
      {:id "diameterUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :setFlameLength
+   {:type "void",
+    :id "setFlameLength",
+    :parameters
+    [{:id "flameLength", :type "double"}
+     {:id "flameLengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getFlameLength
+   {:type "double",
+    :id "getFlameLength",
+    :parameters
+    [{:id "flameLengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
    :getSpeciesTableIndexFromSpeciesCode
    {:type "int",
     :id "getSpeciesTableIndexFromSpeciesCode",

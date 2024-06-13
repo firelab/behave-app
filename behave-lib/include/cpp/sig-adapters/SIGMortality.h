@@ -28,21 +28,22 @@ public:
   void setDBH(double dbh, LengthUnits::LengthUnitsEnum diameterUnits);
   void setBoleCharHeight(double boleCharHeight, LengthUnits::LengthUnitsEnum boleCharHeightUnits);
   void setEquationType(EquationType equationType);
+  void setAirTemperature(double airTemperature, TemperatureUnits::TemperatureUnitsEnum temperatureUnits);
+  void setMidFlameWindSpeed(double midFlameWindSpeed, SpeedUnits::SpeedUnitsEnum windSpeedUnits);
 
   // SIGMortality Setters Heading Direction
   void setSurfaceFireFlameLength(double value, LengthUnits::LengthUnitsEnum lengthUnits);
+  void setSurfaceFireFirelineIntensity(double value, FirelineIntensityUnits::FirelineIntensityUnitsEnum firelineIntensityUnits);
   void setSurfaceFireScorchHeight(double value, LengthUnits::LengthUnitsEnum lengthUnits);
-  void setFirelineIntensity(double firelineIntensity,
-                            FirelineIntensityUnits::FirelineIntensityUnitsEnum firelineIntensityUnits);
-  void setMidFlameWindSpeed(double midFlameWindSpeed, SpeedUnits::SpeedUnitsEnum windSpeedUnits);
-  void setAirTemperature(double airTemperature, TemperatureUnits::TemperatureUnitsEnum temperatureUnits);
   bool updateInputsForSpeciesCodeAndEquationType(char *speciesCode, EquationType equationType);
 
   // SIGMortality Setters Backing Direction
   void setSurfaceFireFlameLengthBacking(double value, LengthUnits::LengthUnitsEnum lengthUnits);
+  void setSurfaceFireFirelineIntensityBacking(double value, FirelineIntensityUnits::FirelineIntensityUnitsEnum firelineIntensityUnits);
 
   // SIGMortality Setters Flanking Direction
   void setSurfaceFireFlameLengthFlanking(double value, LengthUnits::LengthUnitsEnum lengthUnits);
+  void setSurfaceFireFirelineIntensityFlanking(double value, FirelineIntensityUnits::FirelineIntensityUnitsEnum firelineIntensityUnits);
 
   // SIGMortality Getters
   char *getSpeciesCode() const;

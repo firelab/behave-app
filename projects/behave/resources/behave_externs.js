@@ -422,6 +422,8 @@ Module.SIGMortality = class {
   getCalculatedScorchHeight() {}
   getDBH() {}
   getFlameLengthOrScorchHeightValue() {}
+  getFlameLength() {}
+  getScorchHeight() {}
   getKilledTrees() {}
   getProbabilityOfMortality() {}
   getProbabilityOfMortalityBacking() {}
@@ -468,14 +470,20 @@ Module.SIGMortality = class {
   setFirelineIntensity() {}
   setFlameLengthOrScorchHeightSwitch() {}
   setFlameLengthOrScorchHeightValue() {}
+  setFlameLength() {}
+  setScorchHeight() {}
   setRegion() {}
   setSurfaceFireFlameLength() {}
   setSurfaceFireScorchHeight() {}
   setSurfaceFireFlameLengthBacking() {}
   setSurfaceFireFlameLengthFlanking() {}
+  setSurfaceFireFirelineIntensity() {}
+  setSurfaceFireFirelineIntensityBacking() {}
+  setSurfaceFireFirelineIntensityFlanking() {}
   setSpeciesCode() {}
   setTreeDensityPerUnitArea() {}
   setTreeHeight() {}
+  setMidFlameWindSpeed() {}
   getEquationTypeFromSpeciesCode() {}
 };
 
