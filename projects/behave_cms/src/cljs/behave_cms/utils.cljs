@@ -690,7 +690,9 @@
           (recur))))
     exit-chan))
 
-(defn atom? [a]
+(defn atom?
+  "Returns true if `a` is one of: Atom, Reagant Atom (RAtom), or Re-Frame reaction."
+  [a]
   (or (instance? Atom a)
       (instance? RAtom a)
       (instance? Reaction a)))
