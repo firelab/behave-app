@@ -112,14 +112,14 @@
 ;; checkbox label (= value @state) on-change]))
 
 (defn labeled-input
-  "Input and label pair component. Takes as `opts`
-  - type
-  - call-back
-  - disabled?
-  - autofocus?
-  - required?"
-  [label state & [{:keys [type autocomplete disabled? call-back autofocus? required? placeholder]
-                   :or {type "text" disabled? false call-back #(reset! state (u/input-value %)) required? false}}]]
+  "Input and label pair component. Takes as `opts`:
+   - `type`      - Input type (e.g. `\"text\"`)
+   - `on-change` - On change event handler.
+   - `disabled?` - Disable input.
+   - `autofocus?`- Autofocus input.
+   - `required?` - Whether input is required. "
+  [label state & [{:keys [type autocomplete disabled? on-change autofocus? required? placeholder]
+                   :or {type "text" disabled? false on-change #(reset! state (u/input-value %)) required? false}}]]
   [:div.my-3
    [:label.form-label {:for (->kebab label)} label]
    [:input.form-control
@@ -131,9 +131,10 @@
      :id            (->kebab label)
      :type          type
      :value         @state
-     :on-change     call-back}]])
+     :on-change     on-change}]])
 
 (defn labeled-float-input
+  "Float input."
   [label state call-back & [opts]]
   (apply labeled-input
          label
@@ -141,6 +142,7 @@
          (merge opts {:text "number" :call-back #(call-back (u/input-float-value %))})))
 
 (defn labeled-integer-input
+  "Integer input."
   [label state call-back & [opts]]
   (apply labeled-input
          label
@@ -148,6 +150,7 @@
          (merge opts {:text "number" :call-back #(call-back (u/input-int-value %))})))
 
 (defn labeled-text-input
+  "Text input."
   [label state call-back & [opts]]
   (apply labeled-input
          label
@@ -155,6 +158,7 @@
          (merge opts {:type "text" :call-back #(call-back (u/input-value %))})))
 
 (defn labeled-file-input
+  "File input."
   [label state call-back & [opts]]
   (apply labeled-input
          label
