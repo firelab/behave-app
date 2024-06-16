@@ -185,6 +185,244 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SpeciesMasterTableRecordVector___destr
   delete self;
 }
 
+// AreaUnits
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_AreaUnits_toBaseUnits_2(AreaUnits* self, double value, AreaUnits_AreaUnitsEnum units) {
+  return self->toBaseUnits(value, units);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_AreaUnits_fromBaseUnits_2(AreaUnits* self, double value, AreaUnits_AreaUnitsEnum units) {
+  return self->fromBaseUnits(value, units);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_AreaUnits___destroy___0(AreaUnits* self) {
+  delete self;
+}
+
+// BasalAreaUnits
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_BasalAreaUnits_toBaseUnits_2(BasalAreaUnits* self, double value, BasalAreaUnits_BasalAreaUnitsEnum units) {
+  return self->toBaseUnits(value, units);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_BasalAreaUnits_fromBaseUnits_2(BasalAreaUnits* self, double value, BasalAreaUnits_BasalAreaUnitsEnum units) {
+  return self->fromBaseUnits(value, units);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_BasalAreaUnits___destroy___0(BasalAreaUnits* self) {
+  delete self;
+}
+
+// FractionUnits
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_FractionUnits_toBaseUnits_2(FractionUnits* self, double value, FractionUnits_FractionUnitsEnum units) {
+  return self->toBaseUnits(value, units);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_FractionUnits_fromBaseUnits_2(FractionUnits* self, double value, FractionUnits_FractionUnitsEnum units) {
+  return self->fromBaseUnits(value, units);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_FractionUnits___destroy___0(FractionUnits* self) {
+  delete self;
+}
+
+// LengthUnits
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_LengthUnits_toBaseUnits_2(LengthUnits* self, double value, LengthUnits_LengthUnitsEnum units) {
+  return self->toBaseUnits(value, units);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_LengthUnits_fromBaseUnits_2(LengthUnits* self, double value, LengthUnits_LengthUnitsEnum units) {
+  return self->fromBaseUnits(value, units);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_LengthUnits___destroy___0(LengthUnits* self) {
+  delete self;
+}
+
+// LoadingUnits
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_LoadingUnits_toBaseUnits_2(LoadingUnits* self, double value, LoadingUnits_LoadingUnitsEnum units) {
+  return self->toBaseUnits(value, units);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_LoadingUnits_fromBaseUnits_2(LoadingUnits* self, double value, LoadingUnits_LoadingUnitsEnum units) {
+  return self->fromBaseUnits(value, units);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_LoadingUnits___destroy___0(LoadingUnits* self) {
+  delete self;
+}
+
+// SurfaceAreaToVolumeUnits
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SurfaceAreaToVolumeUnits_toBaseUnits_2(SurfaceAreaToVolumeUnits* self, double value, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum units) {
+  return self->toBaseUnits(value, units);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SurfaceAreaToVolumeUnits_fromBaseUnits_2(SurfaceAreaToVolumeUnits* self, double value, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum units) {
+  return self->fromBaseUnits(value, units);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SurfaceAreaToVolumeUnits___destroy___0(SurfaceAreaToVolumeUnits* self) {
+  delete self;
+}
+
+// SpeedUnits
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SpeedUnits_toBaseUnits_2(SpeedUnits* self, double value, SpeedUnits_SpeedUnitsEnum units) {
+  return self->toBaseUnits(value, units);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SpeedUnits_fromBaseUnits_2(SpeedUnits* self, double value, SpeedUnits_SpeedUnitsEnum units) {
+  return self->fromBaseUnits(value, units);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SpeedUnits___destroy___0(SpeedUnits* self) {
+  delete self;
+}
+
+// PressureUnits
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_PressureUnits_toBaseUnits_2(PressureUnits* self, double value, PressureUnits_PressureUnitsEnum units) {
+  return self->toBaseUnits(value, units);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_PressureUnits_fromBaseUnits_2(PressureUnits* self, double value, PressureUnits_PressureUnitsEnum units) {
+  return self->fromBaseUnits(value, units);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_PressureUnits___destroy___0(PressureUnits* self) {
+  delete self;
+}
+
+// SlopeUnits
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SlopeUnits_toBaseUnits_2(SlopeUnits* self, double value, SlopeUnits_SlopeUnitsEnum units) {
+  return self->toBaseUnits(value, units);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SlopeUnits_fromBaseUnits_2(SlopeUnits* self, double value, SlopeUnits_SlopeUnitsEnum units) {
+  return self->fromBaseUnits(value, units);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SlopeUnits___destroy___0(SlopeUnits* self) {
+  delete self;
+}
+
+// DensityUnits
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_DensityUnits_toBaseUnits_2(DensityUnits* self, double value, DensityUnits_DensityUnitsEnum units) {
+  return self->toBaseUnits(value, units);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_DensityUnits_fromBaseUnits_2(DensityUnits* self, double value, DensityUnits_DensityUnitsEnum units) {
+  return self->fromBaseUnits(value, units);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_DensityUnits___destroy___0(DensityUnits* self) {
+  delete self;
+}
+
+// HeatOfCombustionUnits
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_HeatOfCombustionUnits_toBaseUnits_2(HeatOfCombustionUnits* self, double value, HeatOfCombustionUnits_HeatOfCombustionUnitsEnum units) {
+  return self->toBaseUnits(value, units);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_HeatOfCombustionUnits_fromBaseUnits_2(HeatOfCombustionUnits* self, double value, HeatOfCombustionUnits_HeatOfCombustionUnitsEnum units) {
+  return self->fromBaseUnits(value, units);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_HeatOfCombustionUnits___destroy___0(HeatOfCombustionUnits* self) {
+  delete self;
+}
+
+// HeatSinkUnits
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_HeatSinkUnits_toBaseUnits_2(HeatSinkUnits* self, double value, HeatSinkUnits_HeatSinkUnitsEnum units) {
+  return self->toBaseUnits(value, units);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_HeatSinkUnits_fromBaseUnits_2(HeatSinkUnits* self, double value, HeatSinkUnits_HeatSinkUnitsEnum units) {
+  return self->fromBaseUnits(value, units);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_HeatSinkUnits___destroy___0(HeatSinkUnits* self) {
+  delete self;
+}
+
+// HeatPerUnitAreaUnits
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_HeatPerUnitAreaUnits_toBaseUnits_2(HeatPerUnitAreaUnits* self, double value, HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum units) {
+  return self->toBaseUnits(value, units);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_HeatPerUnitAreaUnits_fromBaseUnits_2(HeatPerUnitAreaUnits* self, double value, HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum units) {
+  return self->fromBaseUnits(value, units);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_HeatPerUnitAreaUnits___destroy___0(HeatPerUnitAreaUnits* self) {
+  delete self;
+}
+
+// HeatSourceAndReactionIntensityUnits
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_HeatSourceAndReactionIntensityUnits_toBaseUnits_2(HeatSourceAndReactionIntensityUnits* self, double value, HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum units) {
+  return self->toBaseUnits(value, units);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_HeatSourceAndReactionIntensityUnits_fromBaseUnits_2(HeatSourceAndReactionIntensityUnits* self, double value, HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum units) {
+  return self->fromBaseUnits(value, units);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_HeatSourceAndReactionIntensityUnits___destroy___0(HeatSourceAndReactionIntensityUnits* self) {
+  delete self;
+}
+
+// FirelineIntensityUnits
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_FirelineIntensityUnits_toBaseUnits_2(FirelineIntensityUnits* self, double value, FirelineIntensityUnits_FirelineIntensityUnitsEnum units) {
+  return self->toBaseUnits(value, units);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_FirelineIntensityUnits_fromBaseUnits_2(FirelineIntensityUnits* self, double value, FirelineIntensityUnits_FirelineIntensityUnitsEnum units) {
+  return self->fromBaseUnits(value, units);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_FirelineIntensityUnits___destroy___0(FirelineIntensityUnits* self) {
+  delete self;
+}
+
+// TemperatureUnits
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_TemperatureUnits_toBaseUnits_2(TemperatureUnits* self, double value, TemperatureUnits_TemperatureUnitsEnum units) {
+  return self->toBaseUnits(value, units);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_TemperatureUnits_fromBaseUnits_2(TemperatureUnits* self, double value, TemperatureUnits_TemperatureUnitsEnum units) {
+  return self->fromBaseUnits(value, units);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_TemperatureUnits___destroy___0(TemperatureUnits* self) {
+  delete self;
+}
+
+// TimeUnits
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_TimeUnits_toBaseUnits_2(TimeUnits* self, double value, TimeUnits_TimeUnitsEnum units) {
+  return self->toBaseUnits(value, units);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_TimeUnits_fromBaseUnits_2(TimeUnits* self, double value, TimeUnits_TimeUnitsEnum units) {
+  return self->fromBaseUnits(value, units);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_TimeUnits___destroy___0(TimeUnits* self) {
+  delete self;
+}
+
 // FireSize
 
 double EMSCRIPTEN_KEEPALIVE emscripten_bind_FireSize_getBackingSpreadRate_1(FireSize* self, SpeedUnits_SpeedUnitsEnum spreadRateUnits) {

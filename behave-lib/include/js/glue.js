@@ -414,6 +414,448 @@ SpeciesMasterTableRecordVector.prototype['size'] = SpeciesMasterTableRecordVecto
   var self = this.ptr;
   _emscripten_bind_SpeciesMasterTableRecordVector___destroy___0(self);
 };
+// AreaUnits
+/** @suppress {undefinedVars, duplicate} @this{Object} */function AreaUnits() { throw "cannot construct a AreaUnits, no constructor in IDL" }
+AreaUnits.prototype = Object.create(WrapperObject.prototype);
+AreaUnits.prototype.constructor = AreaUnits;
+AreaUnits.prototype.__class__ = AreaUnits;
+AreaUnits.__cache__ = {};
+Module['AreaUnits'] = AreaUnits;
+
+AreaUnits.prototype['toBaseUnits'] = AreaUnits.prototype.toBaseUnits = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, units) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  return _emscripten_bind_AreaUnits_toBaseUnits_2(self, value, units);
+};;
+
+AreaUnits.prototype['fromBaseUnits'] = AreaUnits.prototype.fromBaseUnits = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, units) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  return _emscripten_bind_AreaUnits_fromBaseUnits_2(self, value, units);
+};;
+
+  AreaUnits.prototype['__destroy__'] = AreaUnits.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_AreaUnits___destroy___0(self);
+};
+// BasalAreaUnits
+/** @suppress {undefinedVars, duplicate} @this{Object} */function BasalAreaUnits() { throw "cannot construct a BasalAreaUnits, no constructor in IDL" }
+BasalAreaUnits.prototype = Object.create(WrapperObject.prototype);
+BasalAreaUnits.prototype.constructor = BasalAreaUnits;
+BasalAreaUnits.prototype.__class__ = BasalAreaUnits;
+BasalAreaUnits.__cache__ = {};
+Module['BasalAreaUnits'] = BasalAreaUnits;
+
+BasalAreaUnits.prototype['toBaseUnits'] = BasalAreaUnits.prototype.toBaseUnits = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, units) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  return _emscripten_bind_BasalAreaUnits_toBaseUnits_2(self, value, units);
+};;
+
+BasalAreaUnits.prototype['fromBaseUnits'] = BasalAreaUnits.prototype.fromBaseUnits = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, units) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  return _emscripten_bind_BasalAreaUnits_fromBaseUnits_2(self, value, units);
+};;
+
+  BasalAreaUnits.prototype['__destroy__'] = BasalAreaUnits.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_BasalAreaUnits___destroy___0(self);
+};
+// FractionUnits
+/** @suppress {undefinedVars, duplicate} @this{Object} */function FractionUnits() { throw "cannot construct a FractionUnits, no constructor in IDL" }
+FractionUnits.prototype = Object.create(WrapperObject.prototype);
+FractionUnits.prototype.constructor = FractionUnits;
+FractionUnits.prototype.__class__ = FractionUnits;
+FractionUnits.__cache__ = {};
+Module['FractionUnits'] = FractionUnits;
+
+FractionUnits.prototype['toBaseUnits'] = FractionUnits.prototype.toBaseUnits = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, units) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  return _emscripten_bind_FractionUnits_toBaseUnits_2(self, value, units);
+};;
+
+FractionUnits.prototype['fromBaseUnits'] = FractionUnits.prototype.fromBaseUnits = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, units) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  return _emscripten_bind_FractionUnits_fromBaseUnits_2(self, value, units);
+};;
+
+  FractionUnits.prototype['__destroy__'] = FractionUnits.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_FractionUnits___destroy___0(self);
+};
+// LengthUnits
+/** @suppress {undefinedVars, duplicate} @this{Object} */function LengthUnits() { throw "cannot construct a LengthUnits, no constructor in IDL" }
+LengthUnits.prototype = Object.create(WrapperObject.prototype);
+LengthUnits.prototype.constructor = LengthUnits;
+LengthUnits.prototype.__class__ = LengthUnits;
+LengthUnits.__cache__ = {};
+Module['LengthUnits'] = LengthUnits;
+
+LengthUnits.prototype['toBaseUnits'] = LengthUnits.prototype.toBaseUnits = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, units) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  return _emscripten_bind_LengthUnits_toBaseUnits_2(self, value, units);
+};;
+
+LengthUnits.prototype['fromBaseUnits'] = LengthUnits.prototype.fromBaseUnits = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, units) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  return _emscripten_bind_LengthUnits_fromBaseUnits_2(self, value, units);
+};;
+
+  LengthUnits.prototype['__destroy__'] = LengthUnits.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_LengthUnits___destroy___0(self);
+};
+// LoadingUnits
+/** @suppress {undefinedVars, duplicate} @this{Object} */function LoadingUnits() { throw "cannot construct a LoadingUnits, no constructor in IDL" }
+LoadingUnits.prototype = Object.create(WrapperObject.prototype);
+LoadingUnits.prototype.constructor = LoadingUnits;
+LoadingUnits.prototype.__class__ = LoadingUnits;
+LoadingUnits.__cache__ = {};
+Module['LoadingUnits'] = LoadingUnits;
+
+LoadingUnits.prototype['toBaseUnits'] = LoadingUnits.prototype.toBaseUnits = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, units) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  return _emscripten_bind_LoadingUnits_toBaseUnits_2(self, value, units);
+};;
+
+LoadingUnits.prototype['fromBaseUnits'] = LoadingUnits.prototype.fromBaseUnits = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, units) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  return _emscripten_bind_LoadingUnits_fromBaseUnits_2(self, value, units);
+};;
+
+  LoadingUnits.prototype['__destroy__'] = LoadingUnits.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_LoadingUnits___destroy___0(self);
+};
+// SurfaceAreaToVolumeUnits
+/** @suppress {undefinedVars, duplicate} @this{Object} */function SurfaceAreaToVolumeUnits() { throw "cannot construct a SurfaceAreaToVolumeUnits, no constructor in IDL" }
+SurfaceAreaToVolumeUnits.prototype = Object.create(WrapperObject.prototype);
+SurfaceAreaToVolumeUnits.prototype.constructor = SurfaceAreaToVolumeUnits;
+SurfaceAreaToVolumeUnits.prototype.__class__ = SurfaceAreaToVolumeUnits;
+SurfaceAreaToVolumeUnits.__cache__ = {};
+Module['SurfaceAreaToVolumeUnits'] = SurfaceAreaToVolumeUnits;
+
+SurfaceAreaToVolumeUnits.prototype['toBaseUnits'] = SurfaceAreaToVolumeUnits.prototype.toBaseUnits = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, units) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  return _emscripten_bind_SurfaceAreaToVolumeUnits_toBaseUnits_2(self, value, units);
+};;
+
+SurfaceAreaToVolumeUnits.prototype['fromBaseUnits'] = SurfaceAreaToVolumeUnits.prototype.fromBaseUnits = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, units) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  return _emscripten_bind_SurfaceAreaToVolumeUnits_fromBaseUnits_2(self, value, units);
+};;
+
+  SurfaceAreaToVolumeUnits.prototype['__destroy__'] = SurfaceAreaToVolumeUnits.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_SurfaceAreaToVolumeUnits___destroy___0(self);
+};
+// SpeedUnits
+/** @suppress {undefinedVars, duplicate} @this{Object} */function SpeedUnits() { throw "cannot construct a SpeedUnits, no constructor in IDL" }
+SpeedUnits.prototype = Object.create(WrapperObject.prototype);
+SpeedUnits.prototype.constructor = SpeedUnits;
+SpeedUnits.prototype.__class__ = SpeedUnits;
+SpeedUnits.__cache__ = {};
+Module['SpeedUnits'] = SpeedUnits;
+
+SpeedUnits.prototype['toBaseUnits'] = SpeedUnits.prototype.toBaseUnits = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, units) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  return _emscripten_bind_SpeedUnits_toBaseUnits_2(self, value, units);
+};;
+
+SpeedUnits.prototype['fromBaseUnits'] = SpeedUnits.prototype.fromBaseUnits = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, units) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  return _emscripten_bind_SpeedUnits_fromBaseUnits_2(self, value, units);
+};;
+
+  SpeedUnits.prototype['__destroy__'] = SpeedUnits.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_SpeedUnits___destroy___0(self);
+};
+// PressureUnits
+/** @suppress {undefinedVars, duplicate} @this{Object} */function PressureUnits() { throw "cannot construct a PressureUnits, no constructor in IDL" }
+PressureUnits.prototype = Object.create(WrapperObject.prototype);
+PressureUnits.prototype.constructor = PressureUnits;
+PressureUnits.prototype.__class__ = PressureUnits;
+PressureUnits.__cache__ = {};
+Module['PressureUnits'] = PressureUnits;
+
+PressureUnits.prototype['toBaseUnits'] = PressureUnits.prototype.toBaseUnits = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, units) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  return _emscripten_bind_PressureUnits_toBaseUnits_2(self, value, units);
+};;
+
+PressureUnits.prototype['fromBaseUnits'] = PressureUnits.prototype.fromBaseUnits = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, units) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  return _emscripten_bind_PressureUnits_fromBaseUnits_2(self, value, units);
+};;
+
+  PressureUnits.prototype['__destroy__'] = PressureUnits.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_PressureUnits___destroy___0(self);
+};
+// SlopeUnits
+/** @suppress {undefinedVars, duplicate} @this{Object} */function SlopeUnits() { throw "cannot construct a SlopeUnits, no constructor in IDL" }
+SlopeUnits.prototype = Object.create(WrapperObject.prototype);
+SlopeUnits.prototype.constructor = SlopeUnits;
+SlopeUnits.prototype.__class__ = SlopeUnits;
+SlopeUnits.__cache__ = {};
+Module['SlopeUnits'] = SlopeUnits;
+
+SlopeUnits.prototype['toBaseUnits'] = SlopeUnits.prototype.toBaseUnits = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, units) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  return _emscripten_bind_SlopeUnits_toBaseUnits_2(self, value, units);
+};;
+
+SlopeUnits.prototype['fromBaseUnits'] = SlopeUnits.prototype.fromBaseUnits = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, units) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  return _emscripten_bind_SlopeUnits_fromBaseUnits_2(self, value, units);
+};;
+
+  SlopeUnits.prototype['__destroy__'] = SlopeUnits.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_SlopeUnits___destroy___0(self);
+};
+// DensityUnits
+/** @suppress {undefinedVars, duplicate} @this{Object} */function DensityUnits() { throw "cannot construct a DensityUnits, no constructor in IDL" }
+DensityUnits.prototype = Object.create(WrapperObject.prototype);
+DensityUnits.prototype.constructor = DensityUnits;
+DensityUnits.prototype.__class__ = DensityUnits;
+DensityUnits.__cache__ = {};
+Module['DensityUnits'] = DensityUnits;
+
+DensityUnits.prototype['toBaseUnits'] = DensityUnits.prototype.toBaseUnits = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, units) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  return _emscripten_bind_DensityUnits_toBaseUnits_2(self, value, units);
+};;
+
+DensityUnits.prototype['fromBaseUnits'] = DensityUnits.prototype.fromBaseUnits = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, units) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  return _emscripten_bind_DensityUnits_fromBaseUnits_2(self, value, units);
+};;
+
+  DensityUnits.prototype['__destroy__'] = DensityUnits.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_DensityUnits___destroy___0(self);
+};
+// HeatOfCombustionUnits
+/** @suppress {undefinedVars, duplicate} @this{Object} */function HeatOfCombustionUnits() { throw "cannot construct a HeatOfCombustionUnits, no constructor in IDL" }
+HeatOfCombustionUnits.prototype = Object.create(WrapperObject.prototype);
+HeatOfCombustionUnits.prototype.constructor = HeatOfCombustionUnits;
+HeatOfCombustionUnits.prototype.__class__ = HeatOfCombustionUnits;
+HeatOfCombustionUnits.__cache__ = {};
+Module['HeatOfCombustionUnits'] = HeatOfCombustionUnits;
+
+HeatOfCombustionUnits.prototype['toBaseUnits'] = HeatOfCombustionUnits.prototype.toBaseUnits = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, units) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  return _emscripten_bind_HeatOfCombustionUnits_toBaseUnits_2(self, value, units);
+};;
+
+HeatOfCombustionUnits.prototype['fromBaseUnits'] = HeatOfCombustionUnits.prototype.fromBaseUnits = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, units) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  return _emscripten_bind_HeatOfCombustionUnits_fromBaseUnits_2(self, value, units);
+};;
+
+  HeatOfCombustionUnits.prototype['__destroy__'] = HeatOfCombustionUnits.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_HeatOfCombustionUnits___destroy___0(self);
+};
+// HeatSinkUnits
+/** @suppress {undefinedVars, duplicate} @this{Object} */function HeatSinkUnits() { throw "cannot construct a HeatSinkUnits, no constructor in IDL" }
+HeatSinkUnits.prototype = Object.create(WrapperObject.prototype);
+HeatSinkUnits.prototype.constructor = HeatSinkUnits;
+HeatSinkUnits.prototype.__class__ = HeatSinkUnits;
+HeatSinkUnits.__cache__ = {};
+Module['HeatSinkUnits'] = HeatSinkUnits;
+
+HeatSinkUnits.prototype['toBaseUnits'] = HeatSinkUnits.prototype.toBaseUnits = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, units) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  return _emscripten_bind_HeatSinkUnits_toBaseUnits_2(self, value, units);
+};;
+
+HeatSinkUnits.prototype['fromBaseUnits'] = HeatSinkUnits.prototype.fromBaseUnits = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, units) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  return _emscripten_bind_HeatSinkUnits_fromBaseUnits_2(self, value, units);
+};;
+
+  HeatSinkUnits.prototype['__destroy__'] = HeatSinkUnits.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_HeatSinkUnits___destroy___0(self);
+};
+// HeatPerUnitAreaUnits
+/** @suppress {undefinedVars, duplicate} @this{Object} */function HeatPerUnitAreaUnits() { throw "cannot construct a HeatPerUnitAreaUnits, no constructor in IDL" }
+HeatPerUnitAreaUnits.prototype = Object.create(WrapperObject.prototype);
+HeatPerUnitAreaUnits.prototype.constructor = HeatPerUnitAreaUnits;
+HeatPerUnitAreaUnits.prototype.__class__ = HeatPerUnitAreaUnits;
+HeatPerUnitAreaUnits.__cache__ = {};
+Module['HeatPerUnitAreaUnits'] = HeatPerUnitAreaUnits;
+
+HeatPerUnitAreaUnits.prototype['toBaseUnits'] = HeatPerUnitAreaUnits.prototype.toBaseUnits = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, units) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  return _emscripten_bind_HeatPerUnitAreaUnits_toBaseUnits_2(self, value, units);
+};;
+
+HeatPerUnitAreaUnits.prototype['fromBaseUnits'] = HeatPerUnitAreaUnits.prototype.fromBaseUnits = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, units) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  return _emscripten_bind_HeatPerUnitAreaUnits_fromBaseUnits_2(self, value, units);
+};;
+
+  HeatPerUnitAreaUnits.prototype['__destroy__'] = HeatPerUnitAreaUnits.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_HeatPerUnitAreaUnits___destroy___0(self);
+};
+// HeatSourceAndReactionIntensityUnits
+/** @suppress {undefinedVars, duplicate} @this{Object} */function HeatSourceAndReactionIntensityUnits() { throw "cannot construct a HeatSourceAndReactionIntensityUnits, no constructor in IDL" }
+HeatSourceAndReactionIntensityUnits.prototype = Object.create(WrapperObject.prototype);
+HeatSourceAndReactionIntensityUnits.prototype.constructor = HeatSourceAndReactionIntensityUnits;
+HeatSourceAndReactionIntensityUnits.prototype.__class__ = HeatSourceAndReactionIntensityUnits;
+HeatSourceAndReactionIntensityUnits.__cache__ = {};
+Module['HeatSourceAndReactionIntensityUnits'] = HeatSourceAndReactionIntensityUnits;
+
+HeatSourceAndReactionIntensityUnits.prototype['toBaseUnits'] = HeatSourceAndReactionIntensityUnits.prototype.toBaseUnits = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, units) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  return _emscripten_bind_HeatSourceAndReactionIntensityUnits_toBaseUnits_2(self, value, units);
+};;
+
+HeatSourceAndReactionIntensityUnits.prototype['fromBaseUnits'] = HeatSourceAndReactionIntensityUnits.prototype.fromBaseUnits = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, units) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  return _emscripten_bind_HeatSourceAndReactionIntensityUnits_fromBaseUnits_2(self, value, units);
+};;
+
+  HeatSourceAndReactionIntensityUnits.prototype['__destroy__'] = HeatSourceAndReactionIntensityUnits.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_HeatSourceAndReactionIntensityUnits___destroy___0(self);
+};
+// FirelineIntensityUnits
+/** @suppress {undefinedVars, duplicate} @this{Object} */function FirelineIntensityUnits() { throw "cannot construct a FirelineIntensityUnits, no constructor in IDL" }
+FirelineIntensityUnits.prototype = Object.create(WrapperObject.prototype);
+FirelineIntensityUnits.prototype.constructor = FirelineIntensityUnits;
+FirelineIntensityUnits.prototype.__class__ = FirelineIntensityUnits;
+FirelineIntensityUnits.__cache__ = {};
+Module['FirelineIntensityUnits'] = FirelineIntensityUnits;
+
+FirelineIntensityUnits.prototype['toBaseUnits'] = FirelineIntensityUnits.prototype.toBaseUnits = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, units) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  return _emscripten_bind_FirelineIntensityUnits_toBaseUnits_2(self, value, units);
+};;
+
+FirelineIntensityUnits.prototype['fromBaseUnits'] = FirelineIntensityUnits.prototype.fromBaseUnits = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, units) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  return _emscripten_bind_FirelineIntensityUnits_fromBaseUnits_2(self, value, units);
+};;
+
+  FirelineIntensityUnits.prototype['__destroy__'] = FirelineIntensityUnits.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_FirelineIntensityUnits___destroy___0(self);
+};
+// TemperatureUnits
+/** @suppress {undefinedVars, duplicate} @this{Object} */function TemperatureUnits() { throw "cannot construct a TemperatureUnits, no constructor in IDL" }
+TemperatureUnits.prototype = Object.create(WrapperObject.prototype);
+TemperatureUnits.prototype.constructor = TemperatureUnits;
+TemperatureUnits.prototype.__class__ = TemperatureUnits;
+TemperatureUnits.__cache__ = {};
+Module['TemperatureUnits'] = TemperatureUnits;
+
+TemperatureUnits.prototype['toBaseUnits'] = TemperatureUnits.prototype.toBaseUnits = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, units) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  return _emscripten_bind_TemperatureUnits_toBaseUnits_2(self, value, units);
+};;
+
+TemperatureUnits.prototype['fromBaseUnits'] = TemperatureUnits.prototype.fromBaseUnits = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, units) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  return _emscripten_bind_TemperatureUnits_fromBaseUnits_2(self, value, units);
+};;
+
+  TemperatureUnits.prototype['__destroy__'] = TemperatureUnits.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_TemperatureUnits___destroy___0(self);
+};
+// TimeUnits
+/** @suppress {undefinedVars, duplicate} @this{Object} */function TimeUnits() { throw "cannot construct a TimeUnits, no constructor in IDL" }
+TimeUnits.prototype = Object.create(WrapperObject.prototype);
+TimeUnits.prototype.constructor = TimeUnits;
+TimeUnits.prototype.__class__ = TimeUnits;
+TimeUnits.__cache__ = {};
+Module['TimeUnits'] = TimeUnits;
+
+TimeUnits.prototype['toBaseUnits'] = TimeUnits.prototype.toBaseUnits = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, units) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  return _emscripten_bind_TimeUnits_toBaseUnits_2(self, value, units);
+};;
+
+TimeUnits.prototype['fromBaseUnits'] = TimeUnits.prototype.fromBaseUnits = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, units) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (units && typeof units === 'object') units = units.ptr;
+  return _emscripten_bind_TimeUnits_fromBaseUnits_2(self, value, units);
+};;
+
+  TimeUnits.prototype['__destroy__'] = TimeUnits.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_TimeUnits___destroy___0(self);
+};
 // FireSize
 /** @suppress {undefinedVars, duplicate} @this{Object} */function FireSize() { throw "cannot construct a FireSize, no constructor in IDL" }
 FireSize.prototype = Object.create(WrapperObject.prototype);
@@ -4983,189 +5425,189 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     
 // $AreaUnits_AreaUnitsEnum
 
-    Module['SquareFeet'] = _emscripten_enum_AreaUnits_AreaUnitsEnum_SquareFeet();
+    Module['AreaUnits']['SquareFeet'] = _emscripten_enum_AreaUnits_AreaUnitsEnum_SquareFeet();
 
-    Module['Acres'] = _emscripten_enum_AreaUnits_AreaUnitsEnum_Acres();
+    Module['AreaUnits']['Acres'] = _emscripten_enum_AreaUnits_AreaUnitsEnum_Acres();
 
-    Module['Hectares'] = _emscripten_enum_AreaUnits_AreaUnitsEnum_Hectares();
+    Module['AreaUnits']['Hectares'] = _emscripten_enum_AreaUnits_AreaUnitsEnum_Hectares();
 
-    Module['SquareMeters'] = _emscripten_enum_AreaUnits_AreaUnitsEnum_SquareMeters();
+    Module['AreaUnits']['SquareMeters'] = _emscripten_enum_AreaUnits_AreaUnitsEnum_SquareMeters();
 
-    Module['SquareMiles'] = _emscripten_enum_AreaUnits_AreaUnitsEnum_SquareMiles();
+    Module['AreaUnits']['SquareMiles'] = _emscripten_enum_AreaUnits_AreaUnitsEnum_SquareMiles();
 
-    Module['SquareKilometers'] = _emscripten_enum_AreaUnits_AreaUnitsEnum_SquareKilometers();
+    Module['AreaUnits']['SquareKilometers'] = _emscripten_enum_AreaUnits_AreaUnitsEnum_SquareKilometers();
 
     
 // $BasalAreaUnits_BasalAreaUnitsEnum
 
-    Module['SquareFeetPerAcre'] = _emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareFeetPerAcre();
+    Module['BasalAreaUnits']['SquareFeetPerAcre'] = _emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareFeetPerAcre();
 
-    Module['SquareMetersPerHectare'] = _emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareMetersPerHectare();
+    Module['BasalAreaUnits']['SquareMetersPerHectare'] = _emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareMetersPerHectare();
 
     
 // $FractionUnits_FractionUnitsEnum
 
-    Module['Fraction'] = _emscripten_enum_FractionUnits_FractionUnitsEnum_Fraction();
+    Module['FractionUnits']['Fraction'] = _emscripten_enum_FractionUnits_FractionUnitsEnum_Fraction();
 
-    Module['Percent'] = _emscripten_enum_FractionUnits_FractionUnitsEnum_Percent();
+    Module['FractionUnits']['Percent'] = _emscripten_enum_FractionUnits_FractionUnitsEnum_Percent();
 
     
 // $LengthUnits_LengthUnitsEnum
 
-    Module['Feet'] = _emscripten_enum_LengthUnits_LengthUnitsEnum_Feet();
+    Module['LengthUnits']['Feet'] = _emscripten_enum_LengthUnits_LengthUnitsEnum_Feet();
 
-    Module['Inches'] = _emscripten_enum_LengthUnits_LengthUnitsEnum_Inches();
+    Module['LengthUnits']['Inches'] = _emscripten_enum_LengthUnits_LengthUnitsEnum_Inches();
 
-    Module['Millimeters'] = _emscripten_enum_LengthUnits_LengthUnitsEnum_Millimeters();
+    Module['LengthUnits']['Millimeters'] = _emscripten_enum_LengthUnits_LengthUnitsEnum_Millimeters();
 
-    Module['Centimeters'] = _emscripten_enum_LengthUnits_LengthUnitsEnum_Centimeters();
+    Module['LengthUnits']['Centimeters'] = _emscripten_enum_LengthUnits_LengthUnitsEnum_Centimeters();
 
-    Module['Meters'] = _emscripten_enum_LengthUnits_LengthUnitsEnum_Meters();
+    Module['LengthUnits']['Meters'] = _emscripten_enum_LengthUnits_LengthUnitsEnum_Meters();
 
-    Module['Chains'] = _emscripten_enum_LengthUnits_LengthUnitsEnum_Chains();
+    Module['LengthUnits']['Chains'] = _emscripten_enum_LengthUnits_LengthUnitsEnum_Chains();
 
-    Module['Miles'] = _emscripten_enum_LengthUnits_LengthUnitsEnum_Miles();
+    Module['LengthUnits']['Miles'] = _emscripten_enum_LengthUnits_LengthUnitsEnum_Miles();
 
-    Module['Kilometers'] = _emscripten_enum_LengthUnits_LengthUnitsEnum_Kilometers();
+    Module['LengthUnits']['Kilometers'] = _emscripten_enum_LengthUnits_LengthUnitsEnum_Kilometers();
 
     
 // $LoadingUnits_LoadingUnitsEnum
 
-    Module['PoundsPerSquareFoot'] = _emscripten_enum_LoadingUnits_LoadingUnitsEnum_PoundsPerSquareFoot();
+    Module['LoadingUnits']['PoundsPerSquareFoot'] = _emscripten_enum_LoadingUnits_LoadingUnitsEnum_PoundsPerSquareFoot();
 
-    Module['TonsPerAcre'] = _emscripten_enum_LoadingUnits_LoadingUnitsEnum_TonsPerAcre();
+    Module['LoadingUnits']['TonsPerAcre'] = _emscripten_enum_LoadingUnits_LoadingUnitsEnum_TonsPerAcre();
 
-    Module['TonnesPerHectare'] = _emscripten_enum_LoadingUnits_LoadingUnitsEnum_TonnesPerHectare();
+    Module['LoadingUnits']['TonnesPerHectare'] = _emscripten_enum_LoadingUnits_LoadingUnitsEnum_TonnesPerHectare();
 
-    Module['KilogramsPerSquareMeter'] = _emscripten_enum_LoadingUnits_LoadingUnitsEnum_KilogramsPerSquareMeter();
+    Module['LoadingUnits']['KilogramsPerSquareMeter'] = _emscripten_enum_LoadingUnits_LoadingUnitsEnum_KilogramsPerSquareMeter();
 
     
 // $SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum
 
-    Module['SquareFeetOverCubicFeet'] = _emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareFeetOverCubicFeet();
+    Module['SurfaceAreaToVolumeUnits']['SquareFeetOverCubicFeet'] = _emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareFeetOverCubicFeet();
 
-    Module['SquareMetersOverCubicMeters'] = _emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareMetersOverCubicMeters();
+    Module['SurfaceAreaToVolumeUnits']['SquareMetersOverCubicMeters'] = _emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareMetersOverCubicMeters();
 
-    Module['SquareInchesOverCubicInches'] = _emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareInchesOverCubicInches();
+    Module['SurfaceAreaToVolumeUnits']['SquareInchesOverCubicInches'] = _emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareInchesOverCubicInches();
 
-    Module['SquareCentimetersOverCubicCentimeters'] = _emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareCentimetersOverCubicCentimeters();
+    Module['SurfaceAreaToVolumeUnits']['SquareCentimetersOverCubicCentimeters'] = _emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareCentimetersOverCubicCentimeters();
 
     
 // $SpeedUnits_SpeedUnitsEnum
 
-    Module['FeetPerMinute'] = _emscripten_enum_SpeedUnits_SpeedUnitsEnum_FeetPerMinute();
+    Module['SpeedUnits']['FeetPerMinute'] = _emscripten_enum_SpeedUnits_SpeedUnitsEnum_FeetPerMinute();
 
-    Module['ChainsPerHour'] = _emscripten_enum_SpeedUnits_SpeedUnitsEnum_ChainsPerHour();
+    Module['SpeedUnits']['ChainsPerHour'] = _emscripten_enum_SpeedUnits_SpeedUnitsEnum_ChainsPerHour();
 
-    Module['MetersPerSecond'] = _emscripten_enum_SpeedUnits_SpeedUnitsEnum_MetersPerSecond();
+    Module['SpeedUnits']['MetersPerSecond'] = _emscripten_enum_SpeedUnits_SpeedUnitsEnum_MetersPerSecond();
 
-    Module['MetersPerMinute'] = _emscripten_enum_SpeedUnits_SpeedUnitsEnum_MetersPerMinute();
+    Module['SpeedUnits']['MetersPerMinute'] = _emscripten_enum_SpeedUnits_SpeedUnitsEnum_MetersPerMinute();
 
-    Module['MilesPerHour'] = _emscripten_enum_SpeedUnits_SpeedUnitsEnum_MilesPerHour();
+    Module['SpeedUnits']['MilesPerHour'] = _emscripten_enum_SpeedUnits_SpeedUnitsEnum_MilesPerHour();
 
-    Module['KilometersPerHour'] = _emscripten_enum_SpeedUnits_SpeedUnitsEnum_KilometersPerHour();
+    Module['SpeedUnits']['KilometersPerHour'] = _emscripten_enum_SpeedUnits_SpeedUnitsEnum_KilometersPerHour();
 
     
 // $PressureUnits_PressureUnitsEnum
 
-    Module['Pascal'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_Pascal();
+    Module['PressureUnits']['Pascal'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_Pascal();
 
-    Module['HectoPascal'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_HectoPascal();
+    Module['PressureUnits']['HectoPascal'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_HectoPascal();
 
-    Module['KiloPascal'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_KiloPascal();
+    Module['PressureUnits']['KiloPascal'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_KiloPascal();
 
-    Module['MegaPascal'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_MegaPascal();
+    Module['PressureUnits']['MegaPascal'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_MegaPascal();
 
-    Module['GigaPascal'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_GigaPascal();
+    Module['PressureUnits']['GigaPascal'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_GigaPascal();
 
-    Module['Bar'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_Bar();
+    Module['PressureUnits']['Bar'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_Bar();
 
-    Module['Atmosphere'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_Atmosphere();
+    Module['PressureUnits']['Atmosphere'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_Atmosphere();
 
-    Module['TechnicalAtmosphere'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_TechnicalAtmosphere();
+    Module['PressureUnits']['TechnicalAtmosphere'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_TechnicalAtmosphere();
 
-    Module['PoundPerSquareInch'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_PoundPerSquareInch();
+    Module['PressureUnits']['PoundPerSquareInch'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_PoundPerSquareInch();
 
     
 // $SlopeUnits_SlopeUnitsEnum
 
-    Module['Degrees'] = _emscripten_enum_SlopeUnits_SlopeUnitsEnum_Degrees();
+    Module['SlopeUnits']['Degrees'] = _emscripten_enum_SlopeUnits_SlopeUnitsEnum_Degrees();
 
-    Module['Percent'] = _emscripten_enum_SlopeUnits_SlopeUnitsEnum_Percent();
+    Module['SlopeUnits']['Percent'] = _emscripten_enum_SlopeUnits_SlopeUnitsEnum_Percent();
 
     
 // $DensityUnits_DensityUnitsEnum
 
-    Module['PoundsPerCubicFoot'] = _emscripten_enum_DensityUnits_DensityUnitsEnum_PoundsPerCubicFoot();
+    Module['DensityUnits']['PoundsPerCubicFoot'] = _emscripten_enum_DensityUnits_DensityUnitsEnum_PoundsPerCubicFoot();
 
-    Module['KilogramsPerCubicMeter'] = _emscripten_enum_DensityUnits_DensityUnitsEnum_KilogramsPerCubicMeter();
+    Module['DensityUnits']['KilogramsPerCubicMeter'] = _emscripten_enum_DensityUnits_DensityUnitsEnum_KilogramsPerCubicMeter();
 
     
 // $HeatOfCombustionUnits_HeatOfCombustionUnitsEnum
 
-    Module['BtusPerPound'] = _emscripten_enum_HeatOfCombustionUnits_HeatOfCombustionUnitsEnum_BtusPerPound();
+    Module['HeatOfCombustionUnits']['BtusPerPound'] = _emscripten_enum_HeatOfCombustionUnits_HeatOfCombustionUnitsEnum_BtusPerPound();
 
-    Module['KilojoulesPerKilogram'] = _emscripten_enum_HeatOfCombustionUnits_HeatOfCombustionUnitsEnum_KilojoulesPerKilogram();
+    Module['HeatOfCombustionUnits']['KilojoulesPerKilogram'] = _emscripten_enum_HeatOfCombustionUnits_HeatOfCombustionUnitsEnum_KilojoulesPerKilogram();
 
     
 // $HeatSinkUnits_HeatSinkUnitsEnum
 
-    Module['BtusPerCubicFoot'] = _emscripten_enum_HeatSinkUnits_HeatSinkUnitsEnum_BtusPerCubicFoot();
+    Module['HeatSinkUnits']['BtusPerCubicFoot'] = _emscripten_enum_HeatSinkUnits_HeatSinkUnitsEnum_BtusPerCubicFoot();
 
-    Module['KilojoulesPerCubicMeter'] = _emscripten_enum_HeatSinkUnits_HeatSinkUnitsEnum_KilojoulesPerCubicMeter();
+    Module['HeatSinkUnits']['KilojoulesPerCubicMeter'] = _emscripten_enum_HeatSinkUnits_HeatSinkUnitsEnum_KilojoulesPerCubicMeter();
 
     
 // $HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum
 
-    Module['BtusPerSquareFoot'] = _emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_BtusPerSquareFoot();
+    Module['HeatPerUnitAreaUnits']['BtusPerSquareFoot'] = _emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_BtusPerSquareFoot();
 
-    Module['KilojoulesPerSquareMeter'] = _emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_KilojoulesPerSquareMeter();
+    Module['HeatPerUnitAreaUnits']['KilojoulesPerSquareMeter'] = _emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_KilojoulesPerSquareMeter();
 
-    Module['KilowattSecondsPerSquareMeter'] = _emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_KilowattSecondsPerSquareMeter();
+    Module['HeatPerUnitAreaUnits']['KilowattSecondsPerSquareMeter'] = _emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_KilowattSecondsPerSquareMeter();
 
     
 // $HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum
 
-    Module['BtusPerSquareFootPerMinute'] = _emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_BtusPerSquareFootPerMinute();
+    Module['HeatSourceAndReactionIntensityUnits']['BtusPerSquareFootPerMinute'] = _emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_BtusPerSquareFootPerMinute();
 
-    Module['BtusPerSquareFootPerSecond'] = _emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_BtusPerSquareFootPerSecond();
+    Module['HeatSourceAndReactionIntensityUnits']['BtusPerSquareFootPerSecond'] = _emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_BtusPerSquareFootPerSecond();
 
-    Module['KilojoulesPerSquareMeterPerSecond'] = _emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_KilojoulesPerSquareMeterPerSecond();
+    Module['HeatSourceAndReactionIntensityUnits']['KilojoulesPerSquareMeterPerSecond'] = _emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_KilojoulesPerSquareMeterPerSecond();
 
-    Module['KilojoulesPerSquareMeterPerMinute'] = _emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_KilojoulesPerSquareMeterPerMinute();
+    Module['HeatSourceAndReactionIntensityUnits']['KilojoulesPerSquareMeterPerMinute'] = _emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_KilojoulesPerSquareMeterPerMinute();
 
-    Module['KilowattsPerSquareMeter'] = _emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_KilowattsPerSquareMeter();
+    Module['HeatSourceAndReactionIntensityUnits']['KilowattsPerSquareMeter'] = _emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_KilowattsPerSquareMeter();
 
     
 // $FirelineIntensityUnits_FirelineIntensityUnitsEnum
 
-    Module['BtusPerFootPerSecond'] = _emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_BtusPerFootPerSecond();
+    Module['FirelineIntensityUnits']['BtusPerFootPerSecond'] = _emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_BtusPerFootPerSecond();
 
-    Module['BtusPerFootPerMinute'] = _emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_BtusPerFootPerMinute();
+    Module['FirelineIntensityUnits']['BtusPerFootPerMinute'] = _emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_BtusPerFootPerMinute();
 
-    Module['KilojoulesPerMeterPerSecond'] = _emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_KilojoulesPerMeterPerSecond();
+    Module['FirelineIntensityUnits']['KilojoulesPerMeterPerSecond'] = _emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_KilojoulesPerMeterPerSecond();
 
-    Module['KilojoulesPerMeterPerMinute'] = _emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_KilojoulesPerMeterPerMinute();
+    Module['FirelineIntensityUnits']['KilojoulesPerMeterPerMinute'] = _emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_KilojoulesPerMeterPerMinute();
 
-    Module['KilowattsPerMeter'] = _emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_KilowattsPerMeter();
+    Module['FirelineIntensityUnits']['KilowattsPerMeter'] = _emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_KilowattsPerMeter();
 
     
 // $TemperatureUnits_TemperatureUnitsEnum
 
-    Module['Fahrenheit'] = _emscripten_enum_TemperatureUnits_TemperatureUnitsEnum_Fahrenheit();
+    Module['TemperatureUnits']['Fahrenheit'] = _emscripten_enum_TemperatureUnits_TemperatureUnitsEnum_Fahrenheit();
 
-    Module['Celsius'] = _emscripten_enum_TemperatureUnits_TemperatureUnitsEnum_Celsius();
+    Module['TemperatureUnits']['Celsius'] = _emscripten_enum_TemperatureUnits_TemperatureUnitsEnum_Celsius();
 
-    Module['Kelvin'] = _emscripten_enum_TemperatureUnits_TemperatureUnitsEnum_Kelvin();
+    Module['TemperatureUnits']['Kelvin'] = _emscripten_enum_TemperatureUnits_TemperatureUnitsEnum_Kelvin();
 
     
 // $TimeUnits_TimeUnitsEnum
 
-    Module['Minutes'] = _emscripten_enum_TimeUnits_TimeUnitsEnum_Minutes();
+    Module['TimeUnits']['Minutes'] = _emscripten_enum_TimeUnits_TimeUnitsEnum_Minutes();
 
-    Module['Seconds'] = _emscripten_enum_TimeUnits_TimeUnitsEnum_Seconds();
+    Module['TimeUnits']['Seconds'] = _emscripten_enum_TimeUnits_TimeUnitsEnum_Seconds();
 
-    Module['Hours'] = _emscripten_enum_TimeUnits_TimeUnitsEnum_Hours();
+    Module['TimeUnits']['Hours'] = _emscripten_enum_TimeUnits_TimeUnitsEnum_Hours();
 
     
 // $ContainTactic_ContainTacticEnum
