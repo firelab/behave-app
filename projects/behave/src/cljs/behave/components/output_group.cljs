@@ -7,12 +7,14 @@
   (when @(rf/subscribe [:wizard/default-option ws-uuid gv-uuid])
     (rf/dispatch [:worksheet/upsert-output ws-uuid gv-uuid true]))
   (let [checked?       (rf/subscribe [:worksheet/output-enabled? ws-uuid gv-uuid])
-        on-focus-click #(rf/dispatch [:help/highlight-section help-key])]
+        on-focus-click #(rf/dispatch [:help/highlight-section help-key])
+        disabled?      (rf/subscribe [:wizard/disabled-output-group-variable? ws-uuid gv-uuid])]
     [:div.wizard-output
      {:on-click on-focus-click
       :on-focus on-focus-click}
      [c/checkbox {:label     @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
                   :checked?  @checked?
+                  :disabled? @disabled?
                   :on-change #(rf/dispatch [:worksheet/upsert-output ws-uuid gv-uuid (not @checked?)])}]]))
 
 (defn wizard-single-select-outupt [ws-uuid group all-group-variables]
