@@ -28,7 +28,13 @@
       [c/button {:variant  "primary"
                  :label    @(<t (bp "change_values"))
                  :size     "small"
-                 :on-click #(rf/dispatch [:wizard/edit-input edit-route repeat-id gv-uuid])}]]]))
+                 :on-click #(rf/dispatch [:wizard/edit-input edit-route repeat-id gv-uuid])}]
+      (when (or (nil? @values) (empty? @values))
+        [:div.wizard-review__run-description__message
+         [c/button {:label         "Required"
+                    :variant       "transparent-highlight"
+                    :icon-name     :help2
+                    :icon-position "left"}]])]]))
 
 (defmethod wizard-input :discrete [{gv-uuid  :bp/uuid
                                     help-key :group-variable/help-key
@@ -48,7 +54,13 @@
        [c/button {:variant  "primary"
                   :label    @(<t (bp "change_selection"))
                   :size     "small"
-                  :on-click #(rf/dispatch [:wizard/edit-input edit-route repeat-id gv-uuid])}]]]]))
+                  :on-click #(rf/dispatch [:wizard/edit-input edit-route repeat-id gv-uuid])}]
+       (when (or (nil? @*value) (empty? @*value))
+         [:div.wizard-review__run-description__message
+          [c/button {:label         "Required"
+                     :variant       "transparent-highlight"
+                     :icon-name     :help2
+                     :icon-position "left"}]])]]]))
 
 (defmethod wizard-input :multi-discrete [{gv-uuid  :bp/uuid
                                           help-key :group-variable/help-key
@@ -71,7 +83,13 @@
        [c/button {:variant  "primary"
                   :label    @(<t (bp "change_selection"))
                   :size     "small"
-                  :on-click #(rf/dispatch [:wizard/edit-input edit-route repeat-id gv-uuid])}]]]]))
+                  :on-click #(rf/dispatch [:wizard/edit-input edit-route repeat-id gv-uuid])}]
+       (when (or (nil? @*value) (empty? @*value))
+         [:div.wizard-review__run-description__message
+          [c/button {:label         "Required"
+                     :variant       "transparent-highlight"
+                     :icon-name     :help2
+                     :icon-position "left"}]])      ]]]))
 
 (defmethod wizard-input :text [{gv-uuid  :bp/uuid
                                 help-key :group-variable/help-key}

@@ -12,7 +12,7 @@
             [number-utils.core           :refer [parse-float to-precision]]
             [string-utils.interface      :refer [->str ->kebab]]
             [behave.translate            :refer [<t]]
-            [behave.wizard.subs :refer [all-conditionals-pass?]]
+            [behave.wizard.subs :refer [all-conditionals-pass?]]))
 
 ;; Helpers
 (defn make-tree
@@ -696,7 +696,7 @@
    (d/entity @@s/conn id)))
 
 (defn- missing-input? [value]
-  (or (nil? worksheet-value) (empty? worksheet-value)))
+  (or (nil? value) (empty? value)))
 
 (defn- process-group-for-missing-inputs [worksheet all-inputs missing-inputs? group]
   (when-let [group-variables (:group/group-variables group)]
@@ -731,7 +731,7 @@
     (rf/subscribe [:worksheet ws-uuid])])
  (fn [[modules worksheet] [_ ws-uuid]]
    (let [all-inputs      @(rf/subscribe [:worksheet/all-inputs ws-uuid])
-         missing-inputs? (atom [])]
+         missing-inputs? (atom false)]
      (doseq [module    modules
              submodule (filter #(and (= (:submodule/io %) :input)
                                      (all-conditionals-pass? worksheet (:submodule/conditionals-operator %) (:submodule/conditionals %)))
