@@ -320,7 +320,7 @@
                       :let      [edit-route (path-for routes
                                                       :ws/wizard
                                                       :ws-uuid   ws-uuid
-                                                      :module    module-name
+                                                      :module    (str/lower-case module-name)
                                                       :io        :input
                                                       :submodule (:slug submodule))]]
                   [:<>
