@@ -204,9 +204,7 @@
         *show-add-note-form?     (subscribe [:wizard/show-add-note-form?])
         on-back                  #(dispatch [:wizard/back])
         on-next                  #(dispatch [:wizard/next])
-        ;; *all-inputs-entered?     (subscribe [:worksheet/all-inputs-entered? ws-uuid module-id submodule])
         ;; *some-outputs-entered?   (subscribe [:worksheet/some-outputs-entered? ws-uuid module-id submodule])
-        ;; next-disabled?           (not (if (= io :input) @*all-inputs-entered? @*some-outputs-entered?))
         ]
     [:div.wizard-page
      [:div
