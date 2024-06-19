@@ -275,6 +275,7 @@
   (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler nil])
   (let [modules                  @(subscribe [:worksheet/modules ws-uuid])
         *warn-limit?             (subscribe [:wizard/warn-limit? ws-uuid])
+        *missing-inputs?         (subscribe [:worksheet/missing-inputs? ws-uuid])
         *multi-value-input-limit (subscribe [:wizard/multi-value-input-limit])
         *multi-value-input-count (subscribe [:wizard/multi-value-input-count ws-uuid])
         *notes                   (subscribe [:wizard/notes ws-uuid])
@@ -335,7 +336,8 @@
                        :variant  "secondary"
                        :on-click #(dispatch [:wizard/back])}]
             [c/button {:label         "Run"
-                       :disabled?     @*warn-limit?
+                       :disabled?     (or @*warn-limit?
+                                          @*missing-inputs?)
                        :variant       "highlight"
                        :icon-name     "arrow2"
                        :icon-position "right"
