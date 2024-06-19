@@ -129,13 +129,3 @@
      (-> value
          (to-fn from)
          (from-fn to)))))
-
-(comment 
-  (convert 1 :area 1 0)
-  (convert 1 :area "ac" "ft2")
-  (convert 1 "ac" "ft2")
-  (get-unit "ac")
-  (get-unit "ft2")
-
-  (get-unit "ft2"))
-

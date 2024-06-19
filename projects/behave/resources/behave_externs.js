@@ -670,6 +670,7 @@ Module.AreaUnits = class {
 Module.BasalAreaUnits = class {
   toBaseUnits() {}
   fromBaseUnits() {}
+};
 
 Module.FractionUnits = class {
   toBaseUnits() {}
