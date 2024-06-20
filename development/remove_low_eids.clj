@@ -6,6 +6,7 @@
    [behave.schema.core       :refer [all-schemas]]
    [nano-id.core             :refer [nano-id]]
    [clojure.string           :as str]
+   [clojure.set              :as set]
    [map-utils.interface      :refer [index-by]]
    [string-utils.interface   :refer [->str]]))
 
@@ -16,12 +17,15 @@
 (defn- remove-tx [e]
   [:db/retractEntity e])
 
+(defn- retract-tx [[e a v]]
+  [:db/retract e a v])
+
 (defn- retract-attrs-tx [e]
   (->> e
        (map (fn [[a v]]
               (cond
                 (vector? v)
-                (mapv (fn [x] [:db/retract (:db/id e) a (:db/id x)]) v)
+                (mapv (fn [x] [:db/retract (:db/id e) a (get x :db/id x)]) v)
 
                 (not= a :db/id)
                 [[:db/retract (:db/id e) a (if (vector? v) (map :db/id v) v)]]
@@ -31,6 +35,16 @@
        (apply concat)
        (remove nil?)
        (vec)))
+
+(defn- retract-old-entities-tx
+  "Retracts attributes of multiple entities, but leaves the `:db/id` in place."
+  [old-eid-map]
+  (apply concat
+         (map (fn [[id e]]
+                       (-> e
+                           (assoc :db/id id)
+                           (dissoc :bp/nid :bp/uuid)
+                           (retract-attrs-tx))) old-eid-map)))
 
 (defn- remap-tx
   "Given a map index of `{old-eid {:bp/nid ...}}`,
@@ -119,15 +133,19 @@
 
 (defn- old-eids->new-entities
   "Creates an index of old EID to 'new' entity
-   that only `keep-attrs` (with optional `new-ids?`, and `removed-attrs`)."
-  [db eids keep-attrs & {:keys [new-ids? remove-attrs]}]
-  (->> eids
-       (d/pull-many db '[*])
-       (map #(select-keys % (apply conj keep-attrs :db/id (when (not new-ids?) '(:bp/uuid :bp/nid)))))
-       (map #(if new-ids? (assoc % :bp/uuid (rand-uuid) :bp/nid (nano-id)) %))
-       (index-by :db/id)
-       (map (fn [[k v]] [k (apply dissoc v :db/id remove-attrs)]))
-       (into {})))
+   that only `keep-attrs` (with optional `new-ids?`)."
+  [db eids keep-attrs & {:keys [new-ids? ref-attrs]}]
+  (let [ref-attrs        (set/intersection (set ref-attrs) (set keep-attrs))
+        get-id-from-refs (if (seq ref-attrs)
+                           (apply comp (map (fn [attr] #(if (get % attr) (update % attr (partial mapv :db/id)) %)) ref-attrs))
+                           identity)]
+    (->> eids
+         (d/pull-many db '[*])
+         (map #(select-keys % (apply conj keep-attrs :db/id (when (not new-ids?) '(:bp/uuid :bp/nid)))))
+         (map #(if new-ids? (assoc % :bp/uuid (rand-uuid) :bp/nid (nano-id)) %))
+         (index-by :db/id)
+         (map (fn [[k v]] [k (-> v (dissoc :db/id) (get-id-from-refs))]))
+         (into {}))))
 
 ;;; Common Schemas
 
@@ -181,6 +199,22 @@
                  (str/starts-with? (->str %) "group")
                  (str/starts-with? (->str %) "variable")))))
 
+;;; Drivers
+
+(defn- refresh-entities!
+
+  [conn parent-eav-refs old-eid-map]
+  ;; Remove parent relations
+  (d/transact conn (map retract-tx parent-eav-refs))
+
+  ;; Remove old attributes
+  (d/transact conn (retract-old-entities-tx old-eid-map))
+
+  ;; TX new entities
+  (d/transact conn (vals old-eid-map))
+
+  ;; Remap parents
+  (d/transact conn (map (partial remap-tx old-eid-map) parent-eav-refs)))
 
 #_{:clj-kondo/ignore [:missing-docstring]}
 (do
@@ -189,64 +223,34 @@
 
   (cms/init-db!)
 
-  (def db (d/db @ds/datomic-conn))
+  (def conn @ds/datomic-conn)
+  (def db (d/db conn))
 
   ;;;; 1. Conditionals
   ;;; 1A. High Entities -> Low Entities
-  (def db-1 db)
-  (def conds-w-low-eids-high-refs (q-high-refs-low-eids db-1 cond-ref-attrs))
-  (def old-eid->new-cond (old-eids->new-entities db-1 (map last conds-w-low-eids-high-refs) cond-attrs {:new-ids? true}))
+  (def db-1a db)
+  (def conds-w-low-eids-high-refs (q-high-refs-low-eids db-1a cond-ref-attrs))
+  (def old-eid->new-cond (old-eids->new-entities db-1a (map last conds-w-low-eids-high-refs) cond-attrs {:new-ids? true :ref-attrs ref-attrs}))
 
-  ;; Remove old entities
-  (d/transact @ds/datomic-conn (map remove-tx (map last conds-w-low-eids-high-refs)))
+  (refresh-entities! conn conds-w-low-eids-high-refs old-eid->new-cond)
 
-  ;; TX new entities
-  (d/transact @ds/datomic-conn (vals old-eid->new-cond))
+  ;;; 1B. Conditionals of Low Entities -> Low Entities
+  (def db-1b (d/db conn))
+  (def conds-low-eids-low-refs (q-low-refs-low-eids db-1b cond-ref-attrs))
+  (def l2-eid->new-cond (old-eids->new-entities db-1b (map last conds-low-eids-low-refs) cond-attrs {:new-ids? true :ref-attrs ref-attrs}))
 
-  ;; Remap parents
-  (d/transact @ds/datomic-conn (map (partial remap-tx old-eid->new-cond) conds-w-low-eids-high-refs))
-
-  ;;; 1B. Low Entities -> Low Entities
-  (def conds-low-eids-low-refs (q-low-refs-low-eids db-1 cond-ref-attrs))
-  (def l2-eid->new-cond (old-eids->new-entities db-1 (map last conds-low-eids-low-refs) cond-attrs {:new-ids? true}))
-
-  ;; Remove old entities
-  (d/transact @ds/datomic-conn (map remove-tx (map last conds-low-eids-low-refs)))
-
-  ;; TX new entities
-  (d/transact @ds/datomic-conn (vals l2-eid->new-cond))
+  (refresh-entities! conn conds-low-eids-low-refs l2-eid->new-cond)
 
   ;;;; 2. Actions
   ;;; 2A. Actions with Low EIDs (Level 1)
 
-  (def db-2 (d/db @ds/datomic-conn))
-  (def l1-low-eid-w-high-refs (q-high-refs-for-low-eids db-2 ref-attrs (map first conds-low-eids-low-refs)))
-  (def l1-actions (filter #(= :group-variable/actions (second %)) l1-low-eid-w-high-refs))
+  (def db-2 (d/db conn))
+  (def l1-actions (q-high-refs-for-low-eids db-2 [:group-variable/actions] (map first conds-low-eids-low-refs)))
 
   ;; New entities
-  (def old-eid->new-l1-action (old-eids->new-entities db-2
-                                                      (map last l1-actions)
-                                                      action-attrs
-                                                      {:new-ids? true :remove-attrs [:action/conditionals]}))
+  (def old-eid->new-l1-action (old-eids->new-entities db-2 (map last l1-actions) action-attrs {:new-ids? true :ref-attrs ref-attrs}))
 
-  ;; Remove old entities
-  (d/transact @ds/datomic-conn (map remove-tx (map last l1-actions)))
-
-  ;; TX new entities
-  (d/transact @ds/datomic-conn (vals old-eid->new-l1-action))
-
-  ;; Update new Level 1 Actions with new Level 2 Conditionals
-  (def l1-actions->conds-tx (update-children-tx db-2
-                                                (map last l1-actions)
-                                                :action/conditionals
-                                                old-eid->new-l1-action
-                                                l2-eid->new-cond))
-
-  ;; TX update
-  (d/transact @ds/datomic-conn l1-actions->conds-tx)
-
-  ;; Remap parents of L1 Actions
-  (d/transact @ds/datomic-conn (map (partial remap-tx old-eid->new-l1-action) l1-actions))
+  (refresh-entities! conn l1-actions old-eid->new-l1-action)
 
   ;;;; 3. Translations
 
@@ -259,19 +263,9 @@
   (def low-eid-english-translations (remove #(not= (first %) english) low-eid-translations))
 
   ;; New entities
-  (def old-eid->new-translation (old-eids->new-entities db-3 (map last low-eid-english-translations) translation-attrs {:new-ids? true}))
+  (def old-eid->new-translation (old-eids->new-entities db-3 (map last low-eid-english-translations) translation-attrs {:new-ids? true :ref-attrs ref-attrs}))
 
-  ;; Remove refs from parents to current Entities
-  (d/transact @ds/datomic-conn (map remove-tx (map last low-eid-translations)))
-
-  ;; Remove translations that are unrelated to English
-  (d/transact @ds/datomic-conn (mapv remove-tx (map last (filter #(not= (first %) english) low-eid-translations))))
-
-  ;; TX new entities
-  (d/transact @ds/datomic-conn (vals old-eid->new-translation))
-
-  ;; TX refs from parents to new Entities
-  (d/transact @ds/datomic-conn (map (partial remap-tx old-eid->new-translation) low-eid-english-translations))
+  (refresh-entities! conn low-eid-english-translations old-eid->new-translation)
 
   ;;;; 4. List Options
 
@@ -280,16 +274,9 @@
   (def low-eid-list-options (q-high-refs-low-eids db [:list/options]))
 
   ;; New entities
-  (def old-eid->new-list-options (old-eids->new-entities db-4 (map last low-eid-list-options) list-option-attrs {:new-ids? true}))
+  (def old-eid->new-list-options (old-eids->new-entities db-4 (map last low-eid-list-options) list-option-attrs {:new-ids? true :ref-attrs ref-attrs}))
 
-  ;; Remove old entities
-  (d/transact @ds/datomic-conn (mapv remove-tx (map last low-eid-list-options)))
-
-  ;; TX new entities
-  (d/transact @ds/datomic-conn (vals old-eid->new-list-options))
-
-  ;; TX refs from parents to new Entities
-  (d/transact @ds/datomic-conn (map (partial remap-tx old-eid->new-list-options) low-eid-list-options))
+  (refresh-entities! conn low-eid-list-options old-eid->new-list-options)
 
   ;;;; 5. Group Variables
 
@@ -306,96 +293,43 @@
                                  (filter #(= :variable/group-variables (second %)))
                                  (map last))
                             group-variable-attrs
-                            {:new-ids? true}))
+                            {:new-ids? true :ref-attrs ref-attrs}))
 
   (def h2l-gv-parents (q-parent-refs db-5a ref-attrs (keys old-eid->h2l-group-variables)))
 
-  ;; Remove old entities
-  (d/transact @ds/datomic-conn (map remove-tx (keys old-eid->h2l-group-variables)))
+  (refresh-entities! conn h2l-gv-parents old-eid->h2l-group-variables)
 
-  ;; TX new entities
-  (d/transact @ds/datomic-conn (vals old-eid->h2l-group-variables))
-
-  ;; TX refs from parents to new Entities
-  (d/transact @ds/datomic-conn (map (partial remap-tx old-eid->h2l-group-variables) h2l-gv-parents))
-
-  ;;; Submodules
-  (d/pull db-5b '[* {:group/_children [*]}] 6022)
+  ;;; 5B. Group Variable's Actions
 
   ;;; 5B. Subgroups w/ High references
 
-  (def db-5b (d/db @ds/datomic-conn))
+  (def db-5b (d/db conn))
 
   (def subgroups-w-high-refs (q-high-refs-low-eids db-5b group-variable-ref-attrs))
 
   ;; New entities
   (def old-eid->subgroups-w-high-refs
-    (->> 
      (old-eids->new-entities db-5b
-                             (map last subgroups-w-high-refs)
+                             (map last subgroups-w-high-refs) 
                              group-attrs
-                             {:new-ids? true})
-     (map (fn [[k v]] [k (cond-> v
-                           (:group/conditionals v)
-                           (update :group/conditionals (partial mapv :db/id))
+                             {:new-ids? true :ref-attrs ref-attrs}))
 
-                           (:group/group-variables v)
-                           (update :group/group-variables (partial mapv :db/id)))]))
-     (into {})))
-
-  ;; Remove old attributes - necessary to avoid retracting subcomponents
-  (d/transact @ds/datomic-conn
-              (apply concat (map retract-attrs-tx
-                                 (d/pull-many db-5b
-                                              '[* {:group/conditionals [:db/id] :group/group-variables [:db/id]}]
-                                              (keys old-eid->subgroups-w-high-refs)))))
-
-  ;; Remove old entities
-  (d/transact @ds/datomic-conn (map remove-tx (keys old-eid->subgroups-w-high-refs)))
-
-  ;; TX new entities
-  (d/transact @ds/datomic-conn (vals old-eid->subgroups-w-high-refs))
-
-  ;; TX refs from parents to new Entities
-  (d/transact @ds/datomic-conn (map (partial remap-tx old-eid->subgroups-w-high-refs) subgroups-w-high-refs))
-
+  (refresh-entities! conn subgroups-w-high-refs old-eid->subgroups-w-high-refs)
 
   ;;; 5C. Subgroups w/ Low EID references
 
-  (def db-5c (d/db @ds/datomic-conn))
+  (def db-5c (d/db conn))
 
   (def l2-subgroups (q-low-refs-low-eids db-5c group-variable-ref-attrs))
 
   ;; New entities
   (def old-eid->l2-subgroups
-    (->> 
-     (old-eids->new-entities db-5c
-                             (map last l2-subgroups)
-                             group-attrs
-                             {:new-ids? true})
-     (map (fn [[k v]] [k (cond-> v
-                           (:group/conditionals v)
-                           (update :group/conditionals (partial mapv :db/id))
+    (old-eids->new-entities db-5c
+                            (map last l2-subgroups)
+                            group-attrs
+                            {:new-ids? true :ref-attrs ref-attrs}))
 
-                           (:group/group-variables v)
-                           (update :group/group-variables (partial mapv :db/id)))]))
-     (into {})))
-
-  ;; Remove old attributes - necessary to avoid retracting subcomponents
-  (d/transact @ds/datomic-conn
-              (apply concat (map retract-attrs-tx
-                                 (d/pull-many db-5c
-                                              '[* {:group/conditionals [:db/id] :group/group-variables [:db/id]}]
-                                              (keys old-eid->l2-subgroups)))))
-
-  ;; Remove old entities
-  (d/transact @ds/datomic-conn (map remove-tx (keys old-eid->l2-subgroups)))
-
-  ;; TX new entities
-  (d/transact @ds/datomic-conn (vals old-eid->l2-subgroups))
-
-  ;; TX refs from parents to new Entities
-  (d/transact @ds/datomic-conn (map (partial remap-tx old-eid->l2-subgroups) l2-subgroups))
+  (refresh-entities! conn l2-subgroups old-eid->l2-subgroups)
 
   ;;; 5D. Groups w/ Low EID references
 
@@ -409,34 +343,13 @@
 
   ;; New entities
   (def old-eid->l1-groups
-    (->>
-     (old-eids->new-entities db-5d
-                             (map last l1-groups)
-                             group-attrs
-                             {:new-ids? true})
-     (map (fn [[k v]] [k (cond-> v
-                           (:group/conditionals v)
-                           (update :group/conditionals (partial mapv :db/id))
+    (old-eids->new-entities db-5d
+                            (map last l1-groups)
+                            group-attrs
+                            {:new-ids? true :ref-attrs ref-attrs}))
 
-                           (:group/children v)
-                           (update :group/children (partial mapv :db/id)))]))
-     (into {})))
 
-  ;; Remove old attributes - necessary to avoid retracting subcomponents
-  (d/transact @ds/datomic-conn
-              (apply concat (map retract-attrs-tx
-                                 (d/pull-many db-5d
-                                              '[* {:group/conditionals [:db/id] :group/children [:db/id]}]
-                                              (keys old-eid->l1-groups)))))
-
-  ;; Remove old entities
-  (d/transact @ds/datomic-conn (map remove-tx (keys old-eid->l1-groups)))
-
-  ;; TX new entities
-  (d/transact @ds/datomic-conn (vals old-eid->l1-groups))
-
-  ;; TX refs from parents to new Entities
-  (d/transact @ds/datomic-conn (map (partial remap-tx old-eid->l1-groups) l1-groups))
+  (refresh-entities! conn l1-groups old-eid->l1-groups)
 
   ;;; 5E. Groups w/ High references
 
@@ -446,34 +359,12 @@
 
   ;; New entities
   (def old-eid->l1-groups-w-high-refs
-    (->>
-     (old-eids->new-entities db-5e
-                             (map last l1-groups-w-high-refs)
-                             group-attrs
-                             {:new-ids? true})
-     (map (fn [[k v]] [k (cond-> v
-                           (:group/conditionals v)
-                           (update :group/conditionals (partial mapv :db/id))
+    (old-eids->new-entities db-5e
+                            (map last l1-groups-w-high-refs)
+                            group-attrs
+                            {:new-ids? true :ref-attrs ref-attrs}))
 
-                           (:group/children v)
-                           (update :group/children (partial mapv :db/id)))]))
-     (into {})))
-
-  ;; Remove old attributes - necessary to avoid retracting subcomponents
-  (d/transact @ds/datomic-conn
-              (apply concat (map retract-attrs-tx
-                                 (d/pull-many db-5e
-                                              '[* {:group/conditionals [:db/id] :group/children [:db/id]}]
-                                              (keys old-eid->l1-groups-w-high-refs)))))
-
-  ;; Remove old entities
-  (d/transact @ds/datomic-conn (map remove-tx (keys old-eid->l1-groups-w-high-refs)))
-
-  ;; TX new entities
-  (d/transact @ds/datomic-conn (vals old-eid->l1-groups-w-high-refs))
-
-  ;; TX refs from parents to new Entities
-  (d/transact @ds/datomic-conn (map (partial remap-tx old-eid->l1-groups-w-high-refs) l1-groups))
+  (refresh-entities! conn l1-groups-w-high-refs old-eid->l1-groups-w-high-refs)
 
   ;;;; 6. Remove Low EIDs w/ dangling `:group-variable/*?` attributes
 
@@ -489,5 +380,7 @@
   (empty? (concat (q-high-refs-low-eids db-7 ref-attrs)
                   (q-low-refs-low-eids db-7 ref-attrs)
                   (q-low-eids db-7 all-attrs)))
+
+  (d/pull-many db-7 '[*] (q-low-eids db-7 all-attrs))
 
   )
