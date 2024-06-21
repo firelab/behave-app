@@ -20,8 +20,6 @@
 (defn- add-uuid-nid [m]
   (merge {:bp/uuid (str (squuid)) :bp/nid (nano-id)} m))
 
-(defonce ^:private action-draft (atom nil))
-
 (defn- update-conditional-tx [conditional]
   (let [nid         [:bp/nid (:bp/nid conditional)]
         original    @(rf/subscribe [:pull '[*] nid])
@@ -54,26 +52,11 @@
                     (merge {:group-variable/_actions entity-id})
                     (update :action/conditionals #(mapv add-uuid-nid %)))]))
 
-(comment
-  @action-draft
-  (rf/subscribe [:pull '[* {:action/conditionals [*]}] [:bp/nid (:bp/nid @action-draft)]])
-  (update-action! nil @action-draft)
-  (update-conditional-tx (first (:action/conditionals @action-draft)))
-
-  (rf/dispatch [:state/set-state [:editors :action] @action-draft])
-  (on-submit :entity-id @action-draft)
-  (filter #(some? (:bp/nid %)) (:action/conditionals @action-draft))
-
-  )
-
-
 (defn- on-submit [entity-id action-id]
   (let [draft @(rf/subscribe [:state [:editors :action]])]
-    (reset! action-draft draft)
     (if action-id
       (update-action! action-id draft)
       (create-action! entity-id draft))
-
     (rf/dispatch [:state/set-state :action nil])
     (rf/dispatch [:state/set-state :editors {}])))
 
@@ -104,9 +87,8 @@
 
 (defn manage-module-conditional
   "Form to manage Module conditionals for entity."
-  [entity-id conditional idx]
+  [entity-id _conditional idx]
   (let [cond-path   [:editors :action :action/conditionals idx]
-        modules     (rf/subscribe [:state (conj cond-path :conditional/values)])
         set-field   (fn [path v] (rf/dispatch [:state/set-state path v]))
         get-field   #(rf/subscribe [:state %])
         module-path (conj cond-path :conditional/values)
@@ -215,11 +197,6 @@
                        {:value "false" :label "False"}]
                       (map (fn [{value :list-option/value label :list-option/name}]
                              {:value value :label label}) @options))}]]]]))
-(comment
-  (rf/subscribe [:state [:editors :action :action/conditionals 0]])
-
-  )
-
 (defn- manage-conditional
   "Displays editor for modifying conditionals."
   [group-id conditional idx]
@@ -230,8 +207,6 @@
                                  (merge 
                                   (select-keys conditional [:db/id :bp/nid :bp/uuid])
                                   {:conditional/type % :conditional/operator :equal})])]
-
-    (println [:MANAGE-COND cond-path idx @cond-type])
 
     [:div.mb-2
      {:key   idx
