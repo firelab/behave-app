@@ -272,7 +272,6 @@
     (rf/dispatch [:state/set-state [:editors :action] @(rf/subscribe [:pull '[* {:action/conditionals [*]}] action-id])]))
 
   (let [action-path  [:editors :action]
-        action-id    (rf/subscribe [:state :action])
         get-field    (fn [attr] (rf/subscribe [:state (conj action-path attr)]))
         set-field    (fn [attr v]
                        (rf/dispatch [:state/set-state (conj action-path attr) v]))
@@ -281,7 +280,7 @@
 
     [:form.row
      {:on-submit (u/on-submit #(on-submit gv-id action-id))}
-     [:h4 (str (if @action-id "Edit" "Add") " Action:")]
+     [:h4 (str (if action-id "Edit" "Add") " Action:")]
      [:<> 
       [labeled-input
        "Action Name:"
