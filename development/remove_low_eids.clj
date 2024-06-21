@@ -14,6 +14,9 @@
 
 (def ^:private rand-uuid (comp str d/squuid))
 
+(defn- excise-tx [e]
+  {:db/excise e})
+
 (defn- remove-tx [e]
   [:db/retractEntity e])
 
@@ -37,14 +40,21 @@
        (vec)))
 
 (defn- retract-old-entities-tx
-  "Retracts attributes of multiple entities, but leaves the `:db/id` in place."
-  [old-eid-map]
-  (apply concat
-         (map (fn [[id e]]
-                       (-> e
-                           (assoc :db/id id)
-                           (dissoc :bp/nid :bp/uuid)
-                           (retract-attrs-tx))) old-eid-map)))
+  "Retracts attributes of multiple entities,
+  but leaves the `:db/id` (and optionally `:bp/uuid` and `:bp/nid`) in place."
+  [old-eid-map & [remove-uuid-nid?]]
+  (let [keep-uuid-nid? (not remove-uuid-nid?)]
+    (apply concat
+           (map (fn [[id e]]
+                  (cond-> e
+                    :always
+                    (assoc :db/id id)
+
+                    keep-uuid-nid?
+                    (dissoc :bp/nid :bp/uuid)
+
+                    :always
+                    (retract-attrs-tx))) old-eid-map))))
 
 (defn- remap-tx
   "Given a map index of `{old-eid {:bp/nid ...}}`,
@@ -177,14 +187,25 @@
                  (str/starts-with? (->str %) "variable")))))
 
 ;;; Drivers
+(defn- remove-dangling-entities!
+  "Remove entities which no longer have any attributes."
+  [conn eids]
+  (let [db             (d/db conn)
+        remaining      (d/pull-many db '[*] eids)
+        eids-to-remove (filter #(= '(:db/id) (keys %)) remaining)]
+    (d/transact conn (mapv remove-tx eids-to-remove))
+    (d/transact conn (mapv excise-tx eids-to-remove))))
 
 (defn- refresh-entities!
-  [conn parent-eav-refs old-eid-map]
+  [conn parent-eav-refs old-eid-map & {:keys [remove-uuid-nid?]}]
   ;; Remove parent relations
   (d/transact conn (map retract-tx parent-eav-refs))
 
   ;; Remove old attributes
-  (d/transact conn (retract-old-entities-tx old-eid-map))
+  (d/transact conn (retract-old-entities-tx old-eid-map remove-uuid-nid?))
+
+  ;; Remove dangling entities
+  (remove-dangling-entities! conn (keys old-eid-map))
 
   ;; TX new entities
   (d/transact conn (vals old-eid-map))
@@ -239,7 +260,7 @@
                             translation-attrs
                             {:new-ids? true :ref-attrs ref-attrs}))
 
-  (refresh-entities! conn english-translations new-translations)
+  (refresh-entities! conn english-translations new-translations {:remove-uuid-nid? true})
 
   (def non-english-translations (filter #(not= (first %) english) translation-refs))
   (d/transact conn (map remove-tx (map last non-english-translations)))
@@ -255,7 +276,7 @@
                             list-option-attrs
                             {:new-ids? true :ref-attrs ref-attrs}))
 
-  (refresh-entities! conn list-option-refs new-list-options)
+  (refresh-entities! conn list-option-refs new-list-options {:remove-uuid-nid? true})
 
   ;;; 5. Group Variables, Subgroups, Groups
   ;;; 5A. Group Variables
@@ -271,11 +292,11 @@
                                  (filter #(= :variable/group-variables (second %)))
                                  (map last))
                             group-variable-attrs
-                            {:new-ids? true :ref-attrs ref-attrs}))
+                            {:ref-attrs ref-attrs}))
 
   (def gv-parents (q-parent-refs db-5a ref-attrs (keys new-group-variables)))
 
-  (refresh-entities! conn gv-parents new-group-variables)
+  (refresh-entities! conn gv-parents new-group-variables {:remove-uuid-nid? true})
 
   ;;; 5B. Subgroups
 
@@ -290,12 +311,11 @@
                                   (filter #(= :group/children (second %)))
                                   (map last))
                              group-attrs
-                             {:new-ids? true :ref-attrs ref-attrs}))
+                             {:ref-attrs ref-attrs}))
 
-  (refresh-entities! conn subgroup-refs new-subgroups)
+  (refresh-entities! conn subgroup-refs new-subgroups {:remove-uuid-nid? true})
 
   ;;; 5C. Groups
-
   (def db-5c (d/db @ds/datomic-conn))
   (def group-refs (q-refs-low-eids db-5c [:submodule/groups]))
 
@@ -305,9 +325,9 @@
                                  (filter #(= :submodule/groups (second %)))
                                  (map last))
                             group-attrs
-                            {:new-ids? true :ref-attrs ref-attrs}))
+                            {:ref-attrs ref-attrs}))
 
-  (refresh-entities! conn group-refs new-groups)
+  (refresh-entities! conn group-refs new-groups {:remove-uuid-nid? true})
 
   ;;;; 6. Remove Low EIDs w/ dangling `:group-variable/*?` attributes
 
@@ -328,7 +348,7 @@
   (def remaining-eids
     (->> (q-low-eids db-7 all-attrs)
          (d/pull-many db-7 '[*])
-         (filter #(= remaining-keys (set (keys %))))
+         (filter #(set/subset? remaining-keys (set (keys %))))
          (map :db/id)))
 
   (d/transact conn (map remove-tx remaining-eids))
