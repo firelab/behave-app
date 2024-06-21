@@ -9,13 +9,35 @@
   "Checks is every character is digit in `s`."
   [s]
   #?(:cljs (every? (comp not js/isNaN js/parseInt) s)
-     :clj  nil))
+     :clj  (try
+             (number? (Integer/parseInt s))
+             (catch Exception _ false))))
 
-(defn parse-int [s]
+(defn is-int?
+  "Checks if `s` is an integer."
+  [s]
+  #?(:cljs (every? (comp not js/isNaN js/parseInt) s)
+     :clj  (try
+             (number? (Integer/parseInt s))
+             (catch Exception _ false))))
+
+(defn is-float?
+  "Checks if `s` is a float."
+  [s]
+  #?(:cljs ((comp not js/isNaN js/parseFloat) s)
+     :clj  (try
+             (float? (Float/parseFloat s))
+             (catch Exception _ false))))
+
+(defn parse-int
+  "Parse string `s` into an integer."
+  [s]
   #?(:clj  (Integer/parseInt s)
      :cljs (js/parseInt s)))
 
-(defn parse-float [s]
+(defn parse-float
+  "Parse string `s` into a float."
+  [s]
   #?(:clj  (Float/parseFloat s)
      :cljs (js/parseFloat s)))
 
@@ -113,3 +135,18 @@
   "Finds the value of a specific id if one exists."
   [coll id]
   (some #(when (= (:opt-id %) id) %) coll))
+
+(defn remove-nth
+  "Removes the nth element from a collection"
+  [coll n]
+  (if (and (<= 0 n) (coll? coll) (> (count coll) n))
+    (cond
+      (list? coll)
+      (concat (take n coll) (drop (inc n) coll))
+
+      (vector? coll)
+      (vec (concat (subvec coll 0 n) (subvec coll (inc n))))
+
+      :else
+      coll)
+    coll))
