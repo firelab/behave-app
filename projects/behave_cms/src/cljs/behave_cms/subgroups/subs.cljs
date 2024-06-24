@@ -51,11 +51,12 @@
                      :in $ ?gv-uuid
                      :where
                      [?gv :bp/uuid ?gv-uuid]
-                     [?v :variable/group-variables ?gv]
-                     [?v :variable/list ?l]]
+                     [?v  :variable/group-variables ?gv]
+                     [?v  :variable/kind :discrete]
+                     [?v  :variable/list ?l]]
                    [gv-uuid]]))
-  (fn [list]
-    @(subscribe [:pull-children :list/options list])))
+  (fn [list-eid]
+    @(subscribe [:pull-children :list/options list-eid])))
 
 (reg-sub
  :submodule/is-output?
