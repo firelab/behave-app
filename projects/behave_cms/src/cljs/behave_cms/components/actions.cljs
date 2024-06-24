@@ -1,20 +1,80 @@
 (ns behave-cms.components.actions
   (:require
-   [behave.schema.conditionals]
-   [behave-cms.components.common :refer [dropdown simple-table labeled-input]]
+   [behave-cms.components.common :refer [btn-sm
+                                         checkboxes
+                                         dropdown
+                                         simple-table
+                                         labeled-input
+                                         labeled-float-input
+                                         radio-buttons]]
    [behave-cms.utils             :as u]
-   [reagent.core                 :as r]
+   [behave.schema.conditionals]
+   [clojure.string               :as str]
+   [clojure.set                  :as set]
+   [datascript.core              :refer [squuid]]
+   [nano-id.core                 :refer [nano-id]]
    [re-frame.core                :as rf]
+   [reagent.core                 :as r]
    [string-utils.interface       :refer [->str]]))
 
 ;;; Helpers
 
-(defn- on-submit [entity-id]
-  (rf/dispatch [:ds/transact
-                (merge @(rf/subscribe [:state [:editors :action]])
-                       {:group-variable/_actions entity-id})])
-  (rf/dispatch [:state/set-state :action nil])
-  (rf/dispatch [:state/set-state :editors {}]))
+(defn- add-uuid-nid [m]
+  (merge {:bp/uuid (str (squuid)) :bp/nid (nano-id)} m))
+
+(defn- update-conditional-tx
+  "Custom TX to ensure the conditional's values are added/removed properly."
+  [conditional]
+  (let [nid         [:bp/nid (:bp/nid conditional)]
+        original    @(rf/subscribe [:pull '[*] nid])
+        orig-values (set (:conditional/values original))
+        values      (set (:conditional/values conditional))]
+    (if (= values orig-values)
+      [conditional]
+      (let [old-values (set/difference orig-values values)
+            new-values (set/difference values orig-values)
+            add-tx     (mapv (fn [v] [:db/add nid :conditional/values v]) new-values)
+            retract-tx (mapv (fn [v] [:db/retract nid :conditional/values v]) old-values)]
+        (concat [(dissoc conditional :conditional/values)]
+                add-tx
+                retract-tx)))))
+
+(defn- remove-tx [uuid]
+  [:db/retractEntity [:bp/uuid uuid]])
+
+(defn- update-action! [action-id draft]
+  (let [draft-conds         (:action/conditionals draft)
+        existing-conds      (filter #(some? (:bp/uuid %)) draft-conds)
+        original-cond-uuids (->> @(rf/subscribe [:pull-children :action/conditionals action-id '[:bp/uuid]])
+                                 (map :bp/uuid)
+                                 (filter some?)
+                                 (set))
+        removed-conds       (set/difference original-cond-uuids
+                                            (->> existing-conds (map :bp/uuid) (set)))
+        new-conds           (->> draft-conds
+                                 (filter #(nil? (:bp/uuid %)))
+                                 (mapv add-uuid-nid))
+        draft-tx            (if (seq new-conds)
+                              (assoc draft :action/conditionals new-conds)
+                              (dissoc draft :action/conditionals))
+        remove-cond-tx      (mapv (comp remove-tx) removed-conds)
+        conds-tx            (mapv (comp update-conditional-tx add-uuid-nid) existing-conds)]
+    (rf/dispatch [:ds/transact (concat (apply concat [draft-tx] conds-tx) remove-cond-tx)])))
+
+(defn- create-action! [entity-id draft]
+  (rf/dispatch [:api/create-entity
+                (-> draft
+                    (merge {:group-variable/_actions entity-id})
+                    (update :action/conditionals #(mapv add-uuid-nid %)))]))
+
+(defn- on-submit [entity-id action-id]
+  (let [draft @(rf/subscribe [:state [:editors :action]])]
+    (if action-id
+      (update-action! action-id draft)
+      (create-action! entity-id draft))
+    (rf/dispatch [:state/set-state :action nil])
+    (rf/dispatch [:state/set-state :editors {}])))
+
 
 (defn- get-list-options [gv-id]
   (get-in @(rf/subscribe [:pull '[{:variable/_group-variables
@@ -22,27 +82,17 @@
                                      [{:list/options [*]}]}]}] gv-id])
           [:variable/_group-variables 0 :variable/list :list/options]))
 
+(defn- toggle-item [x xs]
+  (let [xs-set (set xs)]
+    (vec (if (xs-set x)
+           (remove #(= x %) xs)
+           (conj xs x)))))
+
 ;;; Components
 
-(defn radio-buttons
-  "A component for radio button."
-  [group-label options selected on-change]
-  (let [selected (if (nil? @selected) nil (name @selected))]
-    [:div.mb-3
-     [:label.form-label group-label]
-     (for [{:keys [label value]} options]
-       ^{:key value}
-       [:div.form-check
-        [:input.form-check-input
-         {:type      "radio"
-          :name      (u/sentence->kebab group-label)
-          :checked   (= selected value)
-          :id        value
-          :value     (name value)
-          :on-change on-change}]
-        [:label.form-check-label {:for value} label]])]))
-
-(defn actions-table [actions]
+(defn actions-table
+  "Displays actions for an entity."
+  [actions]
   [simple-table
    [:action/name :action/type :action/target-value]
    (sort-by :action/name actions)
@@ -50,10 +100,33 @@
     :on-delete #(when (js/confirm (str "Are you sure you want to delete the action " (:action/name %) "?"))
                   (rf/dispatch [:api/delete-entity %]))}])
 
-(defn manage-conditional [group-id conditional idx]
+(defn manage-module-conditional
+  "Form to manage Module conditionals for entity."
+  [entity-id _conditional idx]
+  (let [cond-path   [:editors :action :action/conditionals idx]
+        set-field   (fn [path v] (rf/dispatch [:state/set-state path v]))
+        get-field   #(rf/subscribe [:state %])
+        module-path (conj cond-path :conditional/values)
+        all-modules (rf/subscribe [:subgroup/app-modules entity-id])
+        *modules    (get-field module-path)
+        options     (map (fn [{label :module/name}]
+                           {:value (str/lower-case label) :label label})
+                         @all-modules)]
+    [:div.mb-2
+     {:key idx
+      :style {:background "whitesmoke" :padding "1em"}}
+     [:h6 "Enabled with Modules:"]
+     [checkboxes
+      options
+      (get-field module-path)
+      #(set-field module-path (toggle-item (u/input-value %) @*modules))]]))
+
+(defn manage-variable-conditional
+  "Displays editor for modifying conditionals."
+  [group-id conditional idx]
   ;; Select Parents
   (when (:db/id conditional)
-    (let [cond-gv-id                        @(rf/subscribe [:bp/lookup (:conditional/group-variable-uuid conditional)])
+    (let [cond-gv-id               @(rf/subscribe [:bp/lookup (:conditional/group-variable-uuid conditional)])
           [module submodule group] @(rf/subscribe [:group-variable/module-submodule-group cond-gv-id])]
       (rf/dispatch [:state/set-state [:editors :variable-lookup idx] {:module module :submodule submodule :group group}])))
 
@@ -64,15 +137,18 @@
         modules     (rf/subscribe [:subgroup/app-modules group-id])
         submodules  (rf/subscribe [:pull-children :module/submodules @(get-field (conj var-path :module))])
         groups      (rf/subscribe [:submodule/groups-w-subgroups @(get-field (conj var-path :submodule))])
-        is-output?  (rf/subscribe [:submodule/is-output? @(get-field (conj var-path :submodule))]) 
-        variables   (rf/subscribe [(if @is-output? :group/variables :group/discrete-variables) @(get-field (conj var-path :group))])
-        options     (rf/subscribe [:group/discrete-variable-options @(get-field (conj cond-path :conditional/group-variable-uuid))])
-        multiple?   (= :in @(get-field (conj cond-path :conditional/operator)))
-        reset-cond! #(set-field cond-path {:conditional/type :group-variable})]
+        is-output?  (rf/subscribe [:submodule/is-output? @(get-field (conj var-path :submodule))])
+        *group      (get-field (conj var-path :group))
+        variables   (rf/subscribe [:group/variables @*group])
+        *gv-uuid    (get-field (conj cond-path :conditional/group-variable-uuid))
+        *gv-kind    (rf/subscribe [:group-variable/kind @*gv-uuid])
+        options     (rf/subscribe [:group/discrete-variable-options @*gv-uuid])
+        *operator   (get-field (conj cond-path :conditional/operator))
+        multiple?   (= :in @*operator)
+        reset-cond! #(set-field cond-path {:conditional/type :group-variable})
+        *values     (get-field (conj cond-path :conditional/values))]
 
-    [:div.mb-2
-     {:key idx
-      :style {:background "whitesmoke" :padding "1em"}}
+    [:<>
      [:div.row
       [:div.col-4
        [dropdown
@@ -111,38 +187,86 @@
       [:div.col-4
        [dropdown
         {:label     "Variable:"
-         :selected  (get-field (conj cond-path :conditional/group-variable-uuid))
+         :selected  @*gv-uuid
          :on-select #(do
                        (set-field (conj cond-path :conditional/values) nil)
                        (set-field (conj cond-path :conditional/group-variable-uuid)
                                   (u/input-value %)))
-         :options   (map (fn [{value :bp/uuid label :variable/name}]
-                           {:value value :label label}) @variables)}]]
+         :options   (map
+                     (fn [{value :bp/uuid label :variable/name kind :variable/kind}]
+                       {:value value
+                        :label (if @is-output? label (str label " - " (->str kind)))})
+                     @variables)}]]
 
       [:div.col-4
        [dropdown
         {:label     "Operator:"
-         :selected  (get-field (conj cond-path :conditional/operator))
+         :selected  (->str @*operator)
          :on-select #(set-field (conj cond-path :conditional/operator)
                                 (keyword (u/input-value %)))
          :options   (filter some? [{:value "equal" :label "="}
                                    {:value "not-equal" :label "!="}
-                                   (when-not @is-output? {:value :in :label "IN"})])}]]
+                                   (when (and (not @is-output?) (= @*gv-kind :discrete))
+                                     {:value :in :label "IN"})])}]]
 
       [:div.col-4
-       [dropdown
-        {:label     "Value:"
-         :selected  (get-field (conj cond-path :conditional/values))
-         :multiple? multiple?
-         :on-select #(let [vs (u/input-multi-select %)]
-                       (set-field (conj cond-path :conditional/values) vs))
-         :options   (if @is-output?
-                      [{:value "true" :label "True"}
-                       {:value "false" :label "False"}]
-                      (map (fn [{value :list-option/value label :list-option/name}]
-                             {:value value :label label}) @options))}]]]]))
+       (if (or (nil? @*gv-uuid) @is-output? (= @*gv-kind :discrete))
+         [dropdown
+          {:label     "Value:"
+           :selected  @*values
+           :multiple? multiple?
+           :on-select #(let [vs (u/input-multi-select %)]
+                         (set-field (conj cond-path :conditional/values) vs))
+           :options   (if @is-output?
+                        [{:value "true" :label "True"}
+                         {:value "false" :label "False"}]
+                        (map (fn [{value :list-option/value label :list-option/name}]
+                               {:value value :label label}) @options))}]
 
-(defn add-conditionals [gv-id]
+         [labeled-float-input
+          "Value:"
+          (u/->text-input-value @*values)
+          #(set-field (conj cond-path :conditional/values) [(str %)])
+          {:zero-margin? true}])]]]))
+
+(defn- manage-conditional
+  "Displays editor for modifying conditionals."
+  [group-id conditional idx remove-cond!]
+  (let [cond-path   [:editors :action :action/conditionals idx]
+        cond-type   (rf/subscribe [:state (conj cond-path :conditional/type)])
+        set-type    #(rf/dispatch [:state/set-state
+                                 cond-path
+                                 (merge 
+                                  (select-keys conditional [:db/id :bp/nid :bp/uuid])
+                                  {:conditional/type % :conditional/operator :equal})])]
+
+    [:div.mb-2
+     {:key   idx
+      :style {:background "whitesmoke" :padding "1em"}}
+
+     [:div
+      {:style {:color "red" :float "right"}}
+      [btn-sm :outline-danger "X" (u/on-submit #(remove-cond! idx))]]
+
+     [:div.row.mb-1
+      [radio-buttons
+       "Conditional Type:"
+       (->str @cond-type)
+       [{:label "Module"   :value "module"}
+        {:label "Variable" :value "group-variable"}]
+       #(set-type (keyword (u/input-value %)))]]
+
+     (condp = @cond-type
+       :module 
+       [manage-module-conditional group-id conditional idx]
+
+       :group-variable
+       [manage-variable-conditional group-id conditional idx]
+
+       [:<>])]))
+
+(defn- add-conditionals
+  [gv-id]
   (r/with-let [group-id        (get-in @(rf/subscribe [:pull '[{:group/_group-variables [*]}] gv-id]) [:group/_group-variables :db/id])
                cond-path       [:editors :action]
                conditionals    (rf/subscribe [:state (conj cond-path :action/conditionals)])
@@ -151,7 +275,9 @@
                                               (conj cond-path :action/conditionals)
                                               (if (pos? (count @conditionals)) (conj @conditionals {}) [{}])])
                set-field       (fn [attr v]
-                                 (rf/dispatch [:state/set-state (conj cond-path attr) v]))]
+                                 (rf/dispatch [:state/set-state (conj cond-path attr) v]))
+               remove-cond!    #(when (js/confirm "Are you sure you want to remove this conditional?")
+                                  (rf/dispatch [:state/remove-nth (conj cond-path :action/conditionals) %]))]
 
     ;; Find the relevant modules for a variable
     [:<>
@@ -169,20 +295,21 @@
      (doall
       (for [idx (range (count @conditionals))]
         ^{:key idx}
-        [manage-conditional group-id (nth @conditionals idx) idx]))
+        [manage-conditional group-id (nth @conditionals idx) idx remove-cond!]))
 
      [:a.btn.btn-sm.btn-outline-secondary
       {:href "" :on-click #(do (.preventDefault %)
                                (add-conditional))}
       "Add Conditional"]]))
 
-(defn manage-action [gv-id action-id is-output?]
+(defn manage-action
+  "Editor form for action."
+  [gv-id action-id is-output?]
   ;; Set editing state to action
   (when-not (nil? action-id)
     (rf/dispatch [:state/set-state [:editors :action] @(rf/subscribe [:pull '[* {:action/conditionals [*]}] action-id])]))
 
   (let [action-path  [:editors :action]
-        action-id    (rf/subscribe [:state :action])
         get-field    (fn [attr] (rf/subscribe [:state (conj action-path attr)]))
         set-field    (fn [attr v]
                        (rf/dispatch [:state/set-state (conj action-path attr) v]))
@@ -190,19 +317,19 @@
         list-options (get-list-options gv-id)]
 
     [:form.row
-     {:on-submit (u/on-submit #(on-submit gv-id))}
-     [:h4 (str (if @action-id "Edit" "Add") " Action:")]
+     {:on-submit (u/on-submit #(on-submit gv-id action-id))}
+     [:h4 (str (if action-id "Edit" "Add") " Action:")]
      [:<> 
       [labeled-input
        "Action Name:"
        (get-field :action/name)
-       {:call-back #(set-field :action/name (u/input-value %))}]
+       {:on-change #(set-field :action/name (u/input-value %))}]
 
       [radio-buttons
        "Action Type:"
+       (->str @(get-field :action/type))
        [{:label "Select" :value "select"}
         {:label "Disable" :value "disable"}]
-       (get-field :action/type)
        #(set-field :action/type (keyword (u/input-value %)))]
 
       (when-not is-output?

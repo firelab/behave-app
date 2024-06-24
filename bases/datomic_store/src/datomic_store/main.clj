@@ -104,7 +104,10 @@
       (and (ref-attrs a) (number? v))
       (update 2 lookup-datomic-eid))))
 
-(def ^:private new-datom? (comp neg? first))
+(defn- new-datom? [datom]
+  (let [id (first datom)]
+    (and (not (vector? id))
+         (neg? id))))
 
 (defn- nid->id [db nid]
   (d/q '[:find ?e .

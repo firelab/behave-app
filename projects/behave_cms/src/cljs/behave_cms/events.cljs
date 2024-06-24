@@ -20,7 +20,8 @@
             [behave-cms.subgroups.events]
             [behave-cms.variables.events]
             [behave-cms.routes  :refer [app-routes singular]]
-            [behave-cms.utils   :as u]))
+            [behave-cms.utils   :as u]
+            [data-utils.interface :refer [remove-nth]]))
 
 ;;; Initialization
 
@@ -157,6 +158,14 @@
         (and (or (vector? orig-value) (seq? orig-value))
              (or (vector? value) (seq? orig-value)))
         (update-in state path into value)))))
+
+(reg-event-db
+  :state/remove-nth
+  (path :state)
+  (fn [db [_ path n]]
+    (let [v (get-in db path)]
+      (println [:REMOVE-NTH [:ARGS path n] path v (remove-nth v n) (assoc-in db path (remove-nth v n))])
+      (assoc-in db path (remove-nth v n)))))
 
 ;;; AJAX/Fetch Effects
 

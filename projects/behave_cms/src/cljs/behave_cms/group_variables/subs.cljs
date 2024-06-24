@@ -60,6 +60,17 @@
         @@conn rules group-variable-id)))
 
 (reg-sub
+ :group-variable/kind
+ (fn [_ [_ group-variable-uuid]]
+   (d/q '[:find ?kind .
+          :in $ ?gv-uuid
+          :where
+          [?gv :bp/uuid ?gv-uuid]
+          [?v :variable/group-variables ?gv]
+          [?v :variable/kind ?kind]]
+        @@conn group-variable-uuid)))
+
+(reg-sub
  :group-variable/module-submodule-group
  (fn [_ [_ group-variable-id]]
    (d/q '[:find [?m ?sm ?g]

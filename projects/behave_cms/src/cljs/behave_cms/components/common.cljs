@@ -5,28 +5,12 @@
             [re-frame.core          :as rf]
             [string-utils.interface :refer [->str ->kebab]]
             [behave-cms.styles      :as $]
-            [behave-cms.utils       :as u]))
+            [behave-cms.utils       :as u]
+            [nano-id.core           :refer [nano-id]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; UI Styles
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defn- $labeled-input []
-  {:display        "flex"
-   :flex           1
-   :flex-direction "column"
-   :padding-bottom ".5rem"
-   :width          "100%"})
-
-(defn- $radio [checked?]
-  (merge
-   (when checked? {:background-color ($/color-picker :border-color 0.6)})
-   {:border        "2px solid"
-    :border-color  ($/color-picker :border-color)
-    :border-radius "100%"
-    :height        "1rem"
-    :margin-right  ".4rem"
-    :width         "1rem"}))
 
 (defn- $accordion [expanded?]
   (merge
@@ -39,7 +23,9 @@
 ;; UI Components
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn accordion [title & content]
+(defn accordion
+  "A component for an accordion."
+  [title & content]
   (r/with-let [expanded? (r/atom false)]
     ^{:key title}
     [:div.row.accordion {:class (<class $accordion @expanded?)}
@@ -70,19 +56,25 @@
 
 (defn radio-buttons
   "A component for radio button."
-  [group-label state options]
-  [:div.mb-3
-   [:label.form-label group-label]
-   (for [{:keys [label value]} options]
-     ^{:key value}
-     [:div.form-check
-      [:input.form-check-input
-       {:type      "radio"
-        :name      (->kebab group-label)
-        :id        value
-        :value     value
-        :on-change #(reset! state (u/input-value %))}]
-      [:label.form-check-label {:for value} label]])])
+  [group-label state options & [on-change]]
+  (let [on-change (if (fn? on-change) on-change #(reset! state (u/input-value %)))
+        state     (if (u/atom? state) @state state)
+        id        (nano-id)
+        options   (map #(assoc % :opt-id (str "-" (nano-id))) options)]
+    [:fieldset.mb-3
+     {:id id}
+     [:label.form-label group-label]
+     (for [{:keys [label value opt-id]} options]
+       ^{:key value}
+       [:div.form-check
+        [:input.form-check-input
+         {:type      "radio"
+          :name      id
+          :checked   (= state value)
+          :id        opt-id
+          :value     value
+          :on-change on-change}]
+        [:label.form-check-label {:for opt-id} label]])]))
 
 (defn checkbox
   "A component for check box."
@@ -102,67 +94,82 @@
 (defn checkboxes
   "Multiple check boxes."
   [options state on-change]
-  [:<>
-   (for [{:keys [label value]} options]
-     ^{:key value}
-     [:div.form-check
-      [:input.form-check-input
-       {:type      "checkbox"
-        :id        value
-        :value     value
-        :on-change on-change}]
-      [:label.form-check-label {:for value} label]])])
+  (let [state (set (if (u/atom? state) @state state))
+        id    (nano-id)]
+    [:fieldset
+     {:id id}
+     (for [{:keys [label value]} options]
+       ^{:key value}
+       [:div.form-check
+        [:input.form-check-input
+         {:type      "checkbox"
+          :name      id
+          :id        value
+          :value     value
+          :checked   (some? (state value))
+          :on-change on-change}]
+        [:label.form-check-label {:for value} label]])]))
+
 ;; checkbox label (= value @state) on-change]))
 
 (defn labeled-input
-  "Input and label pair component. Takes as `opts`
-  - type
-  - call-back
-  - disabled?
-  - autofocus?
-  - required?"
-  [label state & [{:keys [type autocomplete disabled? call-back autofocus? required? placeholder]
-                   :or {type "text" disabled? false call-back #(reset! state (u/input-value %)) required? false}}]]
-  [:div.my-3
-   [:label.form-label {:for (->kebab label)} label]
-   [:input.form-control
-    {:auto-complete autocomplete
-     :auto-focus    autofocus?
-     :disabled      disabled?
-     :required      required?
-     :placeholder   placeholder
-     :id            (->kebab label)
-     :type          type
-     :value         @state
-     :on-change     call-back}]])
+  "Input and label pair component. Takes as `opts`:
+   - `:type`         - Input type (e.g. `\"text\"`)
+   - `:on-change`    - On change event handler.
+   - `:disabled?`    - Disable input.
+   - `:autofocus?`   - Autofocus input.
+   - `:required?`    - Whether input is required.
+   - `:zero-margin?` - Enable zero margin."
+  [label state & {:keys [type autocomplete disabled? on-change autofocus? required? placeholder zero-margin?]
+                   :as opts
+                   :or {type "text" disabled? false on-change #(reset! state (u/input-value %)) required? false}}]
+  (let [state (if (u/atom? state) @state state)
+        id    (nano-id)]
+    [:div
+     {:class [(if zero-margin? "" "my-3")]}
+     [:label.form-label {:for id} label]
+     [:input.form-control
+      {:auto-complete autocomplete
+       :auto-focus    autofocus?
+       :disabled      disabled?
+       :required      required?
+       :placeholder   placeholder
+       :id            id
+       :type          type
+       :value         state
+       :on-change     on-change}]]))
 
 (defn labeled-float-input
-  [label state call-back & [opts]]
-  (apply labeled-input
-         label
-         state
-         (merge opts {:text "number" :call-back #(call-back (u/input-float-value %))})))
+  "Float input."
+  [label state on-change & [opts]]
+  (labeled-input
+   label
+   state
+   (merge opts {:text "number" :on-change #(on-change (u/input-float-value %))})))
 
 (defn labeled-integer-input
-  [label state call-back & [opts]]
-  (apply labeled-input
-         label
-         state
-         (merge opts {:text "number" :call-back #(call-back (u/input-int-value %))})))
+  "Integer input."
+  [label state on-change & [opts]]
+  (labeled-input
+   label
+   state
+   (merge opts {:text "number" :on-change #(on-change (u/input-int-value %))})))
 
 (defn labeled-text-input
-  [label state call-back & [opts]]
-  (apply labeled-input
-         label
-         state
-         (merge opts {:type "text" :call-back #(call-back (u/input-value %))})))
+  "Text input."
+  [label state on-change & [opts]]
+  (labeled-input
+   label
+   state
+   (merge opts {:type "text" :on-change #(on-change (u/input-value %))})))
 
 (defn labeled-file-input
-  [label state call-back & [opts]]
-  (apply labeled-input
-         label
-         state
-         (merge opts {:type "file" :call-back #(call-back (u/input-file %))})))
+  "File input."
+  [label state on-change & [opts]]
+  (labeled-input
+   label
+   state
+   (merge opts {:type "file" :on-change #(on-change (u/input-file %))})))
 
 (defn limited-date-picker
   "Creates a date input with limited dates."
@@ -224,22 +231,43 @@
                  :value button-text}]
         (when footer (footer))]]]]]))
 
-(defn btn [style label action & [{:keys [icon]}]]
-  [:button {:class    ["btn" (when style (str "btn-" (name style))) "mx-1"]
+(defn btn
+  "Bootstrap button. Can be passed:
+   - `style`  - Button style (e.g. `\"primary\"`)
+   - `label`  - Button label
+   - `action` - Fn to call when button is pressed.
+   - `opts`   - Optional hashmap.
+
+  `opts` can take:
+  - `size` - Button size (e.g. `:sm`/`:md`/`:lg`)
+  - `icon` - Font Awesome icon name to display to the left of the label."
+  [style label action & [{:keys [icon size]}]]
+  [:button {:class    ["btn"
+                       (when style (str "btn-" (name style)))
+                       (when size (str "btn-" (name size)))
+                       "mx-1"]
             :on-click action}
    (when icon
      [:span {:class ["fa-solid" (str "fa-" icon)]}])
    label])
 
-(defn btn-sm [style label action & [{:keys [icon]}]]
-  [:button {:class    ["btn" "btn-sm" (when style (str "btn-" (name style))) "mx-1"]
-            :on-click action}
-   (when icon
-     [:span {:class ["fa-solid" (str "fa-" icon)]}])
-   (when label
-     [:span {:class [(when icon "ms-2")]} label])])
+(defn btn-sm
+  "Small Bootstrap button. See ``behave-cms.components.common/btn``."
+  [style label action & [opts]]
+  [btn style label action (merge opts {:size :sm})])
 
-(defn simple-table [columns rows & [{:keys [on-select on-delete on-increase on-decrease]}]]
+(defn simple-table
+  "Produces a simple table with:
+  - `columns` - A vector of attribute keywords (e.g. `:entity/name`)
+  - `rows`    - A vector of hash-maps with matching attribute keywords
+  - `opt-fns` - An optional hash-map of functions
+
+  `opt-fns` can contain the following K/V pairs:
+  - `:on-select`   - Fn callled a table row is selected.
+  - `:on-delete`   - Fn callled a table row is deleted.
+  - `:on-decrease` - Fn callled a table row position is increased.
+  - `:on-decrease` - Fn callled a table row position is decreased."
+  [columns rows & [{:keys [on-select on-delete on-increase on-decrease]}]]
   [:table.table.table-hover
    [:thead
     [:tr
@@ -271,7 +299,9 @@
         (when on-decrease [btn-sm :outline-secondary nil #(on-decrease row) {:icon "arrow-up"}])
         (when on-increase [btn-sm :outline-secondary nil #(on-increase row) {:icon "arrow-down"}])]])]])
 
-(defn window [sidebar-width & children]
+(defn window
+  "Window container to ensure a fixed window."
+  [sidebar-width & children]
   [:div.window {:style {:position "fixed"
                         :top      "50px"
                         :left     sidebar-width
