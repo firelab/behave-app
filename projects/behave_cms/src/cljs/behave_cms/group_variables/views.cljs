@@ -185,7 +185,7 @@
           [actions-table actions]]]
         [:div.row
          [:div.col-12
-          [manage-action gv-id @action-id @is-output?]]]]
+          [manage-action [:bp/nid nid] @action-id @is-output?]]]]
 
        [:hr]
        [accordion

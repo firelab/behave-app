@@ -752,3 +752,20 @@
                                nil
                                band-val))))
        last-clicked-info))
+
+(defn ->text-input-value
+  "Convert a value `v` to be compatible for a text input."
+  [v]
+  (let [v (if (atom? v) @v v)]
+    (cond
+      (nil? v)
+      ""
+
+      (vector? v)
+      (first v)
+
+      (string? v)
+      v
+
+      (number? v)
+      (str v))))

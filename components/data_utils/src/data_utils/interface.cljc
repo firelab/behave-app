@@ -6,6 +6,14 @@
   is-digit? c/is-digit?)
 
 (def ^{:argslist '([s])
+       :doc      "Checks if `s` is an integer." }
+  is-int? c/is-int?)
+
+(def ^{:argslist '([s])
+       :doc      "Checks if `s` is an float." }
+  is-float? c/is-float?)
+
+(def ^{:argslist '([s])
        :doc      "Parses a string into an integer (CLJ/CLJS)"}
   parse-int c/parse-int)
 
@@ -49,3 +57,7 @@
 (def ^{:argslist '([v coll])
        :doc      "Returns the two values from a sorted collection that bound v."}
   find-boundary-values c/find-boundary-values)
+
+(def ^{:argslist '([coll n])
+       :doc      "Removes the nth element from a collection"}
+  remove-nth c/remove-nth)

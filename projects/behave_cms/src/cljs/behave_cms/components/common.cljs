@@ -59,21 +59,22 @@
   [group-label state options & [on-change]]
   (let [on-change (if (fn? on-change) on-change #(reset! state (u/input-value %)))
         state     (if (u/atom? state) @state state)
-        id        (nano-id)]
+        id        (nano-id)
+        options   (map #(assoc % :opt-id (str "-" (nano-id))) options)]
     [:fieldset.mb-3
      {:id id}
      [:label.form-label group-label]
-     (for [{:keys [label value]} options]
+     (for [{:keys [label value opt-id]} options]
        ^{:key value}
        [:div.form-check
         [:input.form-check-input
          {:type      "radio"
           :name      id
           :checked   (= state value)
-          :id        value
+          :id        opt-id
           :value     value
           :on-change on-change}]
-        [:label.form-check-label {:for value} label]])]))
+        [:label.form-check-label {:for opt-id} label]])]))
 
 (defn checkbox
   "A component for check box."
@@ -112,54 +113,63 @@
 ;; checkbox label (= value @state) on-change]))
 
 (defn labeled-input
-  "Input and label pair component. Takes as `opts`
-  - type
-  - call-back
-  - disabled?
-  - autofocus?
-  - required?"
-  [label state & [{:keys [type autocomplete disabled? call-back autofocus? required? placeholder]
-                   :or {type "text" disabled? false call-back #(reset! state (u/input-value %)) required? false}}]]
-  [:div.my-3
-   [:label.form-label {:for (->kebab label)} label]
-   [:input.form-control
-    {:auto-complete autocomplete
-     :auto-focus    autofocus?
-     :disabled      disabled?
-     :required      required?
-     :placeholder   placeholder
-     :id            (->kebab label)
-     :type          type
-     :value         @state
-     :on-change     call-back}]])
+  "Input and label pair component. Takes as `opts`:
+   - `:type`         - Input type (e.g. `\"text\"`)
+   - `:on-change`    - On change event handler.
+   - `:disabled?`    - Disable input.
+   - `:autofocus?`   - Autofocus input.
+   - `:required?`    - Whether input is required.
+   - `:zero-margin?` - Enable zero margin."
+  [label state & {:keys [type autocomplete disabled? on-change autofocus? required? placeholder zero-margin?]
+                   :as opts
+                   :or {type "text" disabled? false on-change #(reset! state (u/input-value %)) required? false}}]
+  (let [state (if (u/atom? state) @state state)
+        id    (nano-id)]
+    [:div
+     {:class [(if zero-margin? "" "my-3")]}
+     [:label.form-label {:for id} label]
+     [:input.form-control
+      {:auto-complete autocomplete
+       :auto-focus    autofocus?
+       :disabled      disabled?
+       :required      required?
+       :placeholder   placeholder
+       :id            id
+       :type          type
+       :value         state
+       :on-change     on-change}]]))
 
 (defn labeled-float-input
-  [label state call-back & [opts]]
-  (apply labeled-input
-         label
-         state
-         (merge opts {:text "number" :call-back #(call-back (u/input-float-value %))})))
+  "Float input."
+  [label state on-change & [opts]]
+  (labeled-input
+   label
+   state
+   (merge opts {:text "number" :on-change #(on-change (u/input-float-value %))})))
 
 (defn labeled-integer-input
-  [label state call-back & [opts]]
-  (apply labeled-input
-         label
-         state
-         (merge opts {:text "number" :call-back #(call-back (u/input-int-value %))})))
+  "Integer input."
+  [label state on-change & [opts]]
+  (labeled-input
+   label
+   state
+   (merge opts {:text "number" :on-change #(on-change (u/input-int-value %))})))
 
 (defn labeled-text-input
-  [label state call-back & [opts]]
-  (apply labeled-input
-         label
-         state
-         (merge opts {:type "text" :call-back #(call-back (u/input-value %))})))
+  "Text input."
+  [label state on-change & [opts]]
+  (labeled-input
+   label
+   state
+   (merge opts {:type "text" :on-change #(on-change (u/input-value %))})))
 
 (defn labeled-file-input
-  [label state call-back & [opts]]
-  (apply labeled-input
-         label
-         state
-         (merge opts {:type "file" :call-back #(call-back (u/input-file %))})))
+  "File input."
+  [label state on-change & [opts]]
+  (labeled-input
+   label
+   state
+   (merge opts {:type "file" :on-change #(on-change (u/input-file %))})))
 
 (defn limited-date-picker
   "Creates a date input with limited dates."
@@ -243,7 +253,7 @@
 
 (defn btn-sm
   "Small Bootstrap button. See ``behave-cms.components.common/btn``."
-  [style label action & opts]
+  [style label action & [opts]]
   [btn style label action (merge opts {:size :sm})])
 
 (defn simple-table

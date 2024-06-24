@@ -4,7 +4,11 @@
    [clojure.string               :as str]
    [clojure.set                  :as set]
    [behave.schema.conditionals]
-   [behave-cms.components.common :refer [dropdown checkboxes simple-table radio-buttons]]
+   [behave-cms.components.common :refer [dropdown
+                                         checkboxes
+                                         simple-table
+                                         labeled-float-input
+                                         radio-buttons]]
    [behave-cms.utils             :as u]
    [re-frame.core                :as rf]
    [string-utils.interface       :refer [->str]]))
@@ -47,8 +51,6 @@
            (remove #(= x %) xs)
            (conj xs x)))))
 
-(toggle-item "surface" ["surface"])
-
 (defn- update-draft [cond-attr conditional]
   (let [cond-path   [:editors :conditional cond-attr]
         conditional @(rf/subscribe [:pull '[*] [:bp/nid (:bp/nid conditional)]])]
@@ -90,7 +92,6 @@
         options     (map (fn [{label :module/name}]
                            {:value (str/lower-case label) :label label})
                          @all-modules)]
-    (println [:MODULES @*modules])
     [:div
      [:h6 "Enabled with Modules:"]
      [checkboxes
@@ -116,10 +117,15 @@
         submodules  (rf/subscribe [:pull-children :module/submodules @(get-field (conj var-path :module))])
         groups      (rf/subscribe [:submodule/groups-w-subgroups @(get-field (conj var-path :submodule))])
         is-output?  (rf/subscribe [:submodule/is-output? @(get-field (conj var-path :submodule))]) 
-        variables   (rf/subscribe [(if @is-output? :group/variables :group/discrete-variables) @(get-field (conj var-path :group))])
-        options     (rf/subscribe [:group/discrete-variable-options @(get-field (conj cond-path :conditional/group-variable-uuid))])
-        multiple?   (= :in @(get-field (conj cond-path :conditional/operator)))
-        reset-cond! #(set-field cond-path {:conditional/type :group-variable})]
+        *group      (get-field (conj var-path :group))
+        variables   (rf/subscribe [:group/variables @*group])
+        *gv-uuid    (get-field (conj cond-path :conditional/group-variable-uuid))
+        *gv-kind    (rf/subscribe [:group-variable/kind @*gv-uuid])
+        options     (rf/subscribe [:group/discrete-variable-options @*gv-uuid])
+        *operator   (get-field (conj cond-path :conditional/operator))
+        multiple?   (= :in @*operator)
+        reset-cond! #(set-field cond-path {:conditional/type :group-variable})
+        *values     (get-field (conj cond-path :conditional/values))]
 
     [:<> 
      [dropdown
@@ -141,7 +147,7 @@
                      (set-field (conj var-path :submodule) (u/input-int-value %)))
        :options   (map (fn [{value :db/id label :submodule/name io :submodule/io}]
                          {:value value :label (str label " (" (->str io) ")")})
-                       (sort-by (juxt :submodule/io :submodule/name) @submodules))}]
+                     (sort-by (juxt :submodule/io :submodule/name) @submodules))}]
 
      [dropdown
       {:label     "Group/Subgroup:"
@@ -164,24 +170,32 @@
 
      [dropdown
       {:label     "Operator:"
-       :selected  (->str (:conditional/operator conditional))
+       :selected  (->str @*operator)
        :on-select #(set-field (conj cond-path :conditional/operator)
                               (keyword (u/input-value %)))
        :options   (filter some? [{:value "equal" :label "="}
                                  {:value "not-equal" :label "!="}
-                                 (when-not @is-output? {:value "in" :label "IN"})])}]
+                                 (when (and (not @is-output?) (= @*gv-kind :discrete))
+                                   {:value :in :label "IN"})])}]
 
-     [dropdown
-      {:label     "Value:"
-       :selected  (:conditional/values conditional)
-       :multiple? multiple?
-       :on-select #(let [vs (u/input-multi-select %)]
-                     (set-field (conj cond-path :conditional/values) vs))
-       :options   (if @is-output?
-                    [{:value "true" :label "True"}
-                     {:value "false" :label "False"}]
-                    (map (fn [{value :list-option/value label :list-option/name}]
-                           {:value value :label label}) @options))}]]))
+     (if (or (nil? @*gv-uuid) @is-output? (= @*gv-kind :discrete))
+       [dropdown
+        {:label     "Value:"
+         :selected  @*values
+         :multiple? multiple?
+         :on-select #(let [vs (u/input-multi-select %)]
+                       (set-field (conj cond-path :conditional/values) vs))
+         :options   (if @is-output?
+                      [{:value "true" :label "True"}
+                       {:value "false" :label "False"}]
+                      (map (fn [{value :list-option/value label :list-option/name}]
+                             {:value value :label label}) @options))}]
+
+       [labeled-float-input
+        "Value:"
+        (u/->text-input-value @*values)
+        #(set-field (conj cond-path :conditional/values) [(str %)])
+        {:zero-margin? true}])]))
 
 (defn manage-conditionals
   "Component to manage conditional for an entity. Takes:

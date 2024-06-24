@@ -2,6 +2,7 @@
 
 ;;; Fix Conditionals w/o UUIDs/Nano IDs
 
+#_{:clj-kondo/ignore [:missing-docstring]}
 (do
   (require '[datomic.api :as d])
   (require '[datomic-store.main :as ds])
@@ -13,10 +14,8 @@
   ;; Get DB
   (cms/init-db!)
 
-  #_{:clj-kondo/ignore [:missing-docstring]}
   (def db (d/db @ds/datomic-conn))
 
-  #_{:clj-kondo/ignore [:missing-docstring]}
   (def conditionals-wo-uuids-nids
     (d/q '[:find  [?e ...]
                   :where
@@ -24,7 +23,6 @@
                   [(missing? $ ?e :bp/uuid)]
                   [(missing? $ ?e :bp/nid)]] db))
 
-  #_{:clj-kondo/ignore [:missing-docstring]}
   (def actions-wo-uuids-nids
     (d/q '[:find  [?e ...]
                   :where
@@ -32,7 +30,6 @@
                   [(missing? $ ?e :bp/uuid)]
                   [(missing? $ ?e :bp/nid)]] db))
 
-  #_{:clj-kondo/ignore [:missing-docstring]}
   (def add-uuid-nid-tx
     (mapv (fn [eid] {:db/id   eid
                      :bp/uuid (rand-uuid)
