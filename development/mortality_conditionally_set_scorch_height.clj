@@ -31,9 +31,9 @@
          :where
          [?e :cpp.namespace/name ?name]
          [?e :bp/uuid ?uuid]]
-       (d/db conn)
-       vms-rules
-       name))
+        (d/db conn)
+        vms-rules
+        name))
 
 #_{:clj-kondo/ignore [:missing-docstring]}
 (defn cpp-class->uuid [nname]
@@ -42,9 +42,9 @@
          :where
          [?e :cpp.class/name ?name]
          [?e :bp/uuid ?uuid]]
-       (d/db conn)
-       vms-rules
-       nname))
+        (d/db conn)
+        vms-rules
+        nname))
 
 #_{:clj-kondo/ignore [:missing-docstring]}
 (defn cpp-fn->uuid [nname]
@@ -53,9 +53,9 @@
          :where
          [?e :cpp.function/name ?name]
          [?e :bp/uuid ?uuid]]
-       (d/db conn)
-       vms-rules
-       nname))
+        (d/db conn)
+        vms-rules
+        nname))
 
 #_{:clj-kondo/ignore [:missing-docstring]}
 (defn insert-bp-uuid [x]
@@ -80,9 +80,20 @@
   (d/q '[:find ?e .
          :in $ ?attr ?name
          :where [?e ?attr ?name]]
-       (d/db conn)
-       attr
-       nname))
+        (d/db conn)
+        attr
+        nname))
+
+#_{:clj-kondo/ignore [:missing-docstring]}
+(def domain-name->uuid
+  (->> (d/q '[:find ?name ?uuid
+              :in $
+              :where
+              [?e :domain/name ?name]
+              [?e :bp/uuid ?uuid]]
+             (d/db conn))
+       (sort-by first)
+       (into (sorted-map))))
 
 #_{:clj-kondo/ignore [:missing-docstring]}
 (defn build-translations-payload [t-key->translation]
@@ -95,16 +106,15 @@
                                          :in $
                                          :where
                                          [?e :language/name "English"]]
-                                       (d/db conn))
+                                        (d/db conn))
         language-translation-refs {:db/id                english-language-eid
                                    :language/translation (map :db/id translations)}]
     (into [language-translation-refs]
           translations)))
 
 ;; ===========================================================================================================
-;; Payload and Transact
+;; Build Payload
 ;; ===========================================================================================================
-
 
 ;; Table taken from behave-mirror/src/behave/species_master_table.cpp
 #_{:clj-kondo/ignore [:missing-docstring]}
@@ -748,42 +758,130 @@
   (map :species-code crown-scorch-species))
 
 #_{:clj-kondo/ignore [:missing-docstring]}
-(def payload
-  [{:db/id                 (sm/t-key->eid conn "behaveplus:mortality:output:tree_mortality:tree_mortality")
-    :group/group-variables [(-> {:db/id                             -1
-                                 :group-variable/cpp-namespace      (cpp-ns->uuid "global")
-                                 :group-variable/cpp-class          (cpp-class->uuid "SIGMortality")
-                                 :group-variable/cpp-function       (cpp-fn->uuid "getScorchHeight")
-                                 :group-variable/conditionally-set? true
-                                 :group-variable/actions
-                                 [{:action/name                  "Enable if any of the selected mortality tree species uses crown scorch as the mortality equation type"
-                                   :action/type                  :select
-                                   :action/conditionals
-                                   #{{:conditional/group-variable-uuid
-                                      (sm/t-key->uuid conn "behaveplus:mortality:input:fuelvegetation_overstory:mortality_tree_species:mortality_tree_species")
-                                      :conditional/type     :group-variable
-                                      :conditional/operator :in
-                                      :conditional/values   (set crown-scorch-species-codes)}}
-                                   :action/conditionals-operator :and}]
-                                 :group-variable/translation-key
-                                 "behaveplus:mortality:output:tree_mortality:tree_mortality:scorch-height"
-                                 :group-variable/result-translation-key
-                                 "behaveplus:mortality:result:tree_mortality:tree_mortality:scorch-height"
-                                 :group-variable/help-key
-                                 "behaveplus:mortality:output:tree_mortality:tree_mortality:scorch-height:help"}
-                                postwalk-assoc-uuid+nid)]}
+(def new-entities
+  [{:variable/name            "Scorch Height Backing"
+    :variable/kind            :continuous,
+    :variable/domain-uuid     (domain-name->uuid "Flame Length & Scorch Ht")
+    :variable/group-variables [-2]}
 
-   {:db/id                    (name->eid :variable/name "Scorch Height")
-    :variable/group-variables [-1]}])
+   {:variable/name            "Scorch Height Flanking"
+    :variable/kind            :continuous,
+    :variable/domain-uuid     (domain-name->uuid "Flame Length & Scorch Ht")
+    :variable/group-variables [-3]}
+
+   ;; Scorch Height (output)
+   {:db/id                             -1
+    :group-variable/cpp-namespace      (cpp-ns->uuid "global")
+    :group-variable/cpp-class          (cpp-class->uuid "SIGMortality")
+    :group-variable/cpp-function       (cpp-fn->uuid "getScorchHeight")
+    :group-variable/conditionally-set? true
+    :group-variable/actions
+    [{:action/name                  "Enable if selected tree species uses crown scorch equation type"
+      :action/type                  :select
+      :action/conditionals
+      #{{:conditional/group-variable-uuid
+         (sm/t-key->uuid conn "behaveplus:mortality:input:fuelvegetation_overstory:mortality_tree_species:mortality_tree_species")
+         :conditional/type     :group-variable
+         :conditional/operator :in
+         :conditional/values   (set crown-scorch-species-codes)}}
+      :action/conditionals-operator :and}]
+    :group-variable/translation-key
+    "behaveplus:mortality:output:tree_mortality:tree_mortality:scorch-height"
+    :group-variable/result-translation-key
+    "behaveplus:mortality:result:tree_mortality:tree_mortality:scorch-height"
+    :group-variable/help-key
+    "behaveplus:mortality:output:tree_mortality:tree_mortality:scorch-height:help"}
+
+   ;; Scorch Height Backing (output)
+   {:db/id                             -2
+    :group-variable/cpp-namespace      (cpp-ns->uuid "global")
+    :group-variable/cpp-class          (cpp-class->uuid "SIGMortality")
+    :group-variable/cpp-function       (cpp-fn->uuid "getScorchHeightBacking")
+    :group-variable/conditionally-set? true
+    :group-variable/actions
+    [{:action/name "Enable if selected tree species uses crown scorch equation type and Surface Spread Direction is Heading,Backing,Flanking"
+      :action/type :select
+      :action/conditionals
+      #{{:conditional/group-variable-uuid
+         (sm/t-key->uuid conn "behaveplus:mortality:input:fuelvegetation_overstory:mortality_tree_species:mortality_tree_species")
+         :conditional/type     :group-variable
+         :conditional/operator :in
+         :conditional/values   (set crown-scorch-species-codes)}
+
+        {:conditional/type     :module
+         :conditional/operator :equal
+         :conditional/values   #{"surface" "mortality"}}
+
+        {:conditional/group-variable-uuid
+         (sm/t-key->uuid conn "behaveplus:surface:output:fire_behavior:surface_fire:direction_mode:heading_backing_flanking")
+         :conditional/type     :group-variable
+         :conditional/operator :equal
+         :conditional/values   "true"}}
+      :action/conditionals-operator :and}]
+    :group-variable/translation-key
+    "behaveplus:mortality:output:tree_mortality:tree_mortality:scorch-height-backing"
+    :group-variable/result-translation-key
+    "behaveplus:mortality:result:tree_mortality:tree_mortality:scorch-height-backing"
+    :group-variable/help-key
+    "behaveplus:mortality:output:tree_mortality:tree_mortality:scorch-height-backing:help"}
+
+   ;; Scorch Height Flanking (output)
+   {:db/id                             -3
+    :group-variable/cpp-namespace      (cpp-ns->uuid "global")
+    :group-variable/cpp-class          (cpp-class->uuid "SIGMortality")
+    :group-variable/cpp-function       (cpp-fn->uuid "getScorchHeightFlanking")
+    :group-variable/conditionally-set? true
+    :group-variable/actions
+    [{:action/name "Enable if selected tree species uses crown scorch equation type and Surface Spread Direction is Heading,Backing,Flanking"
+      :action/type :select
+      :action/conditionals
+      #{{:conditional/group-variable-uuid
+         (sm/t-key->uuid conn "behaveplus:mortality:input:fuelvegetation_overstory:mortality_tree_species:mortality_tree_species")
+         :conditional/type     :group-variable
+         :conditional/operator :in
+         :conditional/values   (set crown-scorch-species-codes)}
+
+        {:conditional/type     :module
+         :conditional/operator :equal
+         :conditional/values   #{"surface" "mortality"}}
+
+        {:conditional/group-variable-uuid
+         (sm/t-key->uuid conn "behaveplus:surface:output:fire_behavior:surface_fire:direction_mode:heading_backing_flanking")
+         :conditional/type     :group-variable
+         :conditional/operator :equal
+         :conditional/values   "true"}}
+      :action/conditionals-operator :and}]
+    :group-variable/translation-key
+    "behaveplus:mortality:output:tree_mortality:tree_mortality:scorch-height-flanking"
+    :group-variable/result-translation-key
+    "behaveplus:mortality:result:tree_mortality:tree_mortality:scorch-height-flanking"
+    :group-variable/help-key
+    "behaveplus:mortality:output:tree_mortality:tree_mortality:scorch-height-flanking:help"}])
 
 #_{:clj-kondo/ignore [:missing-docstring]}
+(def new-refs
+  [{:db/id                 (sm/t-key->eid conn "behaveplus:mortality:output:tree_mortality:tree_mortality")
+    :group/group-variables [-1 -2 -3]}
+   {:db/id                    (name->eid :variable/name "Scorch Height")
+    :variable/group-variables [-1]}]
+
+  #_{:clj-kondo/ignore [:missing-docstring]})
 (def translation-payload
-  (build-translations-payload {"behaveplus:mortality:output:tree_mortality:tree_mortality:scorch-height" "Scorch Height"}))
+  (build-translations-payload {"behaveplus:mortality:output:tree_mortality:tree_mortality:scorch-height"          "Scorch Height"
+                               "behaveplus:mortality:output:tree_mortality:tree_mortality:scorch-height-backing"  "Scorch Height Backing"
+                               "behaveplus:mortality:output:tree_mortality:tree_mortality:scorch-height-flanking" "Scorch Height Flanking"}))
+
+(def final-payload (concat (postwalk-assoc-uuid+nid new-entities)
+                           new-refs))
+
+;; ===========================================================================================================
+;; Run Transaction
+;; ===========================================================================================================
 
 (comment
   (do
     #_{:clj-kondo/ignore [:missing-docstring]}
-    (def tx-data (d/transact conn payload))
+    (def tx-data (d/transact conn final-payload))
     #_{:clj-kondo/ignore [:missing-docstring]}
     (def tx-data-2 (d/transact conn translation-payload))))
 
