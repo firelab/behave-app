@@ -108,7 +108,13 @@
   (.setFlameLength self flameLengthUnits))
 
 (defn getScorchHeight [self scorchHeightUnits]
-  (.setScorchHeight self scorchHeightUnits))
+  (.getScorchHeight self scorchHeightUnits))
+
+(defn getScorchHeightBacking [self scorchHeightUnits]
+  (.getScorchHeightBacking self scorchHeightUnits))
+
+(defn getScorchHeightFlanking [self scorchHeightUnits]
+  (.getScorchHeightFlanking self scorchHeightUnits))
 
 (defn getKilledTrees [self]
   (.getKilledTrees self))

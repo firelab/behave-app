@@ -146,6 +146,21 @@ double SIGMortality::getProbabilityOfMortalityFlanking(FractionUnits::FractionUn
     return flanking_.getProbabilityOfMortality(probabilityUnits);
 }
 
+double SIGMortality::getScorchHeight(LengthUnits::LengthUnitsEnum scorchHeightUnits)
+{
+    return heading_.getScorchHeight(scorchHeightUnits);
+}
+
+double SIGMortality::getScorchHeightBacking(LengthUnits::LengthUnitsEnum scorchHeightUnits)
+{
+    return backing_.getScorchHeight(scorchHeightUnits);
+}
+
+double SIGMortality::getScorchHeightFlanking(LengthUnits::LengthUnitsEnum scorchHeightUnits)
+{
+    return flanking_.getScorchHeight(scorchHeightUnits);
+}
+
 char* SIGMortality::getCommonNameAtSpeciesTableIndex(int index) const
 {
     return SIGString::str2charptr(heading_.getCommonNameAtSpeciesTableIndex(index));

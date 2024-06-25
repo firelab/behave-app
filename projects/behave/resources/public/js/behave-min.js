@@ -5871,6 +5871,10 @@ var _emscripten_bind_SIGMortality_getFlameLength_1 = Module["_emscripten_bind_SI
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getScorchHeight_1 = Module["_emscripten_bind_SIGMortality_getScorchHeight_1"] = createExportWrapper("emscripten_bind_SIGMortality_getScorchHeight_1");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getScorchHeightBacking_1 = Module["_emscripten_bind_SIGMortality_getScorchHeightBacking_1"] = createExportWrapper("emscripten_bind_SIGMortality_getScorchHeightBacking_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getScorchHeightFlanking_1 = Module["_emscripten_bind_SIGMortality_getScorchHeightFlanking_1"] = createExportWrapper("emscripten_bind_SIGMortality_getScorchHeightFlanking_1");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getKilledTrees_0 = Module["_emscripten_bind_SIGMortality_getKilledTrees_0"] = createExportWrapper("emscripten_bind_SIGMortality_getKilledTrees_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getProbabilityOfMortality_1 = Module["_emscripten_bind_SIGMortality_getProbabilityOfMortality_1"] = createExportWrapper("emscripten_bind_SIGMortality_getProbabilityOfMortality_1");
@@ -11638,6 +11642,18 @@ SIGMortality.prototype['getScorchHeight'] = SIGMortality.prototype.getScorchHeig
   var self = this.ptr;
   if (scorchHeightUnits && typeof scorchHeightUnits === 'object') scorchHeightUnits = scorchHeightUnits.ptr;
   return _emscripten_bind_SIGMortality_getScorchHeight_1(self, scorchHeightUnits);
+};;
+
+SIGMortality.prototype['getScorchHeightBacking'] = SIGMortality.prototype.getScorchHeightBacking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(scorchHeightUnits) {
+  var self = this.ptr;
+  if (scorchHeightUnits && typeof scorchHeightUnits === 'object') scorchHeightUnits = scorchHeightUnits.ptr;
+  return _emscripten_bind_SIGMortality_getScorchHeightBacking_1(self, scorchHeightUnits);
+};;
+
+SIGMortality.prototype['getScorchHeightFlanking'] = SIGMortality.prototype.getScorchHeightFlanking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(scorchHeightUnits) {
+  var self = this.ptr;
+  if (scorchHeightUnits && typeof scorchHeightUnits === 'object') scorchHeightUnits = scorchHeightUnits.ptr;
+  return _emscripten_bind_SIGMortality_getScorchHeightFlanking_1(self, scorchHeightUnits);
 };;
 
 SIGMortality.prototype['getKilledTrees'] = SIGMortality.prototype.getKilledTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {

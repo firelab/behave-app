@@ -2507,6 +2507,14 @@ const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getScorchHeight_1
   return self->getScorchHeight(scorchHeightUnits);
 }
 
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getScorchHeightBacking_1(SIGMortality* self, LengthUnits_LengthUnitsEnum scorchHeightUnits) {
+  return self->getScorchHeightBacking(scorchHeightUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getScorchHeightFlanking_1(SIGMortality* self, LengthUnits_LengthUnitsEnum scorchHeightUnits) {
+  return self->getScorchHeightFlanking(scorchHeightUnits);
+}
+
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getKilledTrees_0(SIGMortality* self) {
   return self->getKilledTrees();
 }

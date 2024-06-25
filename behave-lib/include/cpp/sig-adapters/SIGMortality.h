@@ -72,16 +72,19 @@ public:
   double getProbabilityOfMortality(FractionUnits::FractionUnitsEnum probabilityUnits) const;
   double getTreeCrownLengthScorched(FractionUnits::FractionUnitsEnum fractionUnits) const;
   double getTreeCrownVolumeScorched(FractionUnits::FractionUnitsEnum fractionUnits) const;
+  double getScorchHeight(LengthUnits::LengthUnitsEnum scorchHeightUnits);
 
   // SIGMortality Getters Backing
   double getProbabilityOfMortalityBacking(FractionUnits::FractionUnitsEnum probabilityUnits) const;
   double getTreeCrownLengthScorchedBacking(FractionUnits::FractionUnitsEnum fractionUnits) const;
   double getTreeCrownVolumeScorchedBacking(FractionUnits::FractionUnitsEnum fractionUnits) const;
+  double getScorchHeightBacking(LengthUnits::LengthUnitsEnum scorchHeightUnits);
 
   // SIGMortality Getters Flanking
   double getTreeCrownLengthScorchedFlanking(FractionUnits::FractionUnitsEnum fractionUnits) const;
   double getTreeCrownVolumeScorchedFlanking(FractionUnits::FractionUnitsEnum fractionUnits) const;
   double getProbabilityOfMortalityFlanking(FractionUnits::FractionUnitsEnum probabilityUnits) const;
+  double getScorchHeightFlanking(LengthUnits::LengthUnitsEnum scorchHeightUnits);
 
 protected:
   Mortality heading_;

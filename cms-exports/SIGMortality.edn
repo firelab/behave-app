@@ -322,6 +322,16 @@
     :id "getScorchHeight",
     :parameters
     [{:id "scorchHeightUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getScorchHeightBacking
+   {:type "double",
+    :id   "getScorchHeightBacking",
+    :parameters
+    [{:id "scorchHeightUnits", :type "LengthUnits::LengthUnitsEnum"}]}
+   :getScorchHeightFlanking
+   {:type "double",
+    :id   "getScorchHeightFlanking",
+    :parameters
+    [{:id "scorchHeightUnits", :type "LengthUnits::LengthUnitsEnum"}]}
    :getCambiumKillRating
    {:type "double", :id "getCambiumKillRating", :parameters []},
    :setCrownRatio

@@ -447,6 +447,9 @@ Module.SIGMortality = class {
   getMortalityEquationNumberAtSpeciesTableIndex() {}
   getMortalityEquationNumberFromSpeciesCode() {}
   getNumberOfRecordsInSpeciesTable() {}
+  getScorchHeight(){}
+  getScorchHeightBacking(){}
+  getScorchHeightFlanking(){}
   getSpeciesTableIndexFromSpeciesCode() {}
   getSpeciesTableIndexFromSpeciesCodeAndEquationType() {}
   getSpeciesCode() {}
