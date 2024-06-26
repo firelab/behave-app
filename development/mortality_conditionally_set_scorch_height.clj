@@ -10,6 +10,15 @@
             [nano-id.core :refer [nano-id]]))
 
 ;; ===========================================================================================================
+;; Overview
+;; ===========================================================================================================
+
+;; - Create 2 new variables for the Scorch Height in the Backing and Flanking direction
+;; - Create 3 new conditionally set group variables for Scorch Height, one for each direction.
+;;   - Condition: Enable only when selected tree species is in the list of speices that uses crown
+;;     scorch as the equation type.
+
+;; ===========================================================================================================
 ;; Initialize
 ;; ===========================================================================================================
 
