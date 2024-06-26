@@ -58,7 +58,9 @@
   postwalk-insert c/postwalk-insert)
 
 (def ^{:argslist '([conn eid-start t-key->translation-map])
-       :doc      "Given a map of translation-key to it's translation create a payload that creates
-       these translation entities as well as adding these refs to the exisitng Enlgish language
-       entity. `eid-start` is optional and will be used as the starting eid for the translation entities"}
+       :doc      "Given a map of translation-key to it's translation create a payload that creates these
+                  translation entities as well as adding these refs to the exisitng Enlgish language
+                  entity. `eid-start` is optional and will be used as the starting eid for the
+                  translation entities (prevents eid overlap if you wish to include this payload in
+                  the same transaction where you've manually assigned :db/id)."}
   build-translations-payload c/build-translations-payload)

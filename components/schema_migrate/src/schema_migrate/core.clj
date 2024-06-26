@@ -156,7 +156,9 @@
 (defn build-translations-payload
   "Given a map of translation-key to it's translation create a payload that creates these
   translation entities as well as adding these refs to the exisitng Enlgish language entity.
-  `eid-start` is optional and will be used as the starting eid for the translation entities"
+  `eid-start` is optional and will be used as the starting eid for the
+  translation entities (prevents eid overlap if you wish to include this payload
+  in the same transaction where you've manually assigned :db/id). "
   ([conn t-key->translation-map]
    (build-translations-payload conn 0 t-key->translation-map))
 
