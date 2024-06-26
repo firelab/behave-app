@@ -14,12 +14,10 @@
 ;; ===========================================================================================================
 
 ;; - Create 2 new variables for the Scorch Height in the Backing and Flanking direction
-;; - Create 3 new conditionally set group variables for Scorch Height, one for each direction.
+;; - Create 3 new conditionally set group variables for Scorch Height one for each direction.
 ;;   - Condition: Enable only when selected tree species is in the list of speices that uses crown
 ;;     scorch as the equation type.
 
-;; ===========================================================================================================
-;; Initialize
 ;; ===========================================================================================================
 
 (cms/init-db!)
@@ -34,66 +32,6 @@
 ;; ===========================================================================================================
 
 #_{:clj-kondo/ignore [:missing-docstring]}
-(defn cpp-ns->uuid [name]
-  (d/q '[:find ?uuid .
-         :in $ % ?name
-         :where
-         [?e :cpp.namespace/name ?name]
-         [?e :bp/uuid ?uuid]]
-        (d/db conn)
-        vms-rules
-        name))
-
-#_{:clj-kondo/ignore [:missing-docstring]}
-(defn cpp-class->uuid [nname]
-  (d/q '[:find ?uuid .
-         :in $ % ?name
-         :where
-         [?e :cpp.class/name ?name]
-         [?e :bp/uuid ?uuid]]
-        (d/db conn)
-        vms-rules
-        nname))
-
-#_{:clj-kondo/ignore [:missing-docstring]}
-(defn cpp-fn->uuid [nname]
-  (d/q '[:find ?uuid .
-         :in $ % ?name
-         :where
-         [?e :cpp.function/name ?name]
-         [?e :bp/uuid ?uuid]]
-        (d/db conn)
-        vms-rules
-        nname))
-
-#_{:clj-kondo/ignore [:missing-docstring]}
-(defn insert-bp-uuid [x]
-  (if (map? x)
-    (assoc x :bp/uuid (str (squuid)))
-    x))
-
-#_{:clj-kondo/ignore [:missing-docstring]}
-(defn insert-bp-nid [x]
-  (if (map? x)
-    (assoc x :bp/nid (nano-id))
-    x))
-
-#_{:clj-kondo/ignore [:missing-docstring]}
-(defn postwalk-assoc-uuid+nid [data]
-  (->> data
-       (walk/postwalk insert-bp-uuid)
-       (walk/postwalk insert-bp-nid)))
-
-#_{:clj-kondo/ignore [:missing-docstring]}
-(defn name->eid [attr nname]
-  (d/q '[:find ?e .
-         :in $ ?attr ?name
-         :where [?e ?attr ?name]]
-        (d/db conn)
-        attr
-        nname))
-
-#_{:clj-kondo/ignore [:missing-docstring]}
 (def domain-name->uuid
   (->> (d/q '[:find ?name ?uuid
               :in $
@@ -104,23 +42,6 @@
        (sort-by first)
        (into (sorted-map))))
 
-#_{:clj-kondo/ignore [:missing-docstring]}
-(defn build-translations-payload [t-key->translation]
-  (let [translations              (map-indexed (fn [idx [t-key translation]]
-                                                 {:db/id                   (* (inc idx) -1)
-                                                  :translation/key         t-key
-                                                  :translation/translation translation})
-                                               t-key->translation)
-        english-language-eid      (d/q '[:find ?e .
-                                         :in $
-                                         :where
-                                         [?e :language/name "English"]]
-                                        (d/db conn))
-        language-translation-refs {:db/id                english-language-eid
-                                   :language/translation (map :db/id translations)}]
-    (into [language-translation-refs]
-          translations)))
-
 ;; ===========================================================================================================
 ;; Build Payload
 ;; ===========================================================================================================
@@ -128,509 +49,509 @@
 ;; Table taken from behave-mirror/src/behave/species_master_table.cpp
 #_{:clj-kondo/ignore [:missing-docstring]}
 (def species-master-table-vals
-  [["ABAM", "Abies amabilis", "Pacific silver fir", 1, 26, 1, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ABBA", "Abies balsamea", "Balsam fir", 1, 10, 2, 1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ABBAB", "Abies balsamea", "Balsam fir", 1, 10, 2, 1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ABBAP", "Abies balsamea", "Balsam fir", 1, 10, 2, 1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ABLAL", "Abies balsamea", "Balsam fir", 1, 10, 2, 1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ABCO", "Abies concolor", "White fir", 10, 27, 2, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ABCO", "Abies concolor", "White fir", -1, 27, 2, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-white_fir],
-   ["ABCOC", "Abies concolor", "White fir", 10, 27, 2, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ABCOC", "Abies concolor", "White fir", -1, 27, 2, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-white_fir],
-   ["ABLO", "Abies lowiana", "Sierra white fir", 10, 27, 2, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ABLO", "Abies lowiana", "Sierra white fir", -1, 27, 2, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-white_fir],
-   ["ABGR", "Abies grandis", "Grand fir", 11, 25, 3, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ABGR", "Abies grandis", "Grand fir", -1, 25, 3, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-subalpine_fir],
-   ["ABGRI2", "Abies grandis", "Grand fir", 11, 25, 3, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ABGRI2", "Abies grandis", "Grand fir", -1, 25, 3, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-subalpine_fir],
-   ["ABGRG", "Abies grandis", "Grand fir", 11, 25, 3, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ABGRG", "Abies grandis", "Grand fir", -1, 25, 3, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-subalpine_fir],
-   ["ABGRI", "Abies grandis", "Grand fir", 11, 25, 3, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ABGRI", "Abies grandis", "Grand fir", -1, 25, 3, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-subalpine_fir],
-   ["ABGRJ", "Abies grandis", "Grand fir", 11, 25, 3, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ABGRJ", "Abies grandis", "Grand fir", -1, 25, 3, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-subalpine_fir],
-   ["ABLA", "Abies lasiocarpa", "Subalpine fir", 11, 20, 4, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ABLA", "Abies lasiocarpa", "Subalpine fir", -1, 20, 4, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-subalpine_fir],
-   ["ABLAA", "Abies lasiocarpa", "Corkbark fir", 11, 20, 4, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ABLAA", "Abies lasiocarpa", "Corkbark fir", -1, 20, 4, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-subalpine_fir],
-   ["ABLAL", "Abies lasiocarpa", "Subalpine fir", 11, 20, 4, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ABLAL", "Abies lasiocarpa", "Subalpine fir", -1, 20, 4, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-subalpine_fir],
-   ["ABMA", "Abies magnifica", "Red Fir", 16, 18, 5, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ABMA", "Abies magnifica", "Red Fir", -1, 18, 5, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-red_fir],
-   ["ABMAM", "Abies magnifica", "California red fir", 16, 36, 5, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ABMAM", "Abies magnifica", "California red fir", -1, 36, 5, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-red_fir],
-   ["ABMAS", "Abies magnifica", "Shasta red fir", 16, 36, 5, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ABMAS", "Abies magnifica", "Shasta red fir", -1, 36, 5, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-red_fir],
-   ["ABMAC", "Abies magnifica", "Shasta red fir", 16, 36, 5, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ABMAC", "Abies magnifica", "Shasta red fir", -1, 36, 5, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-red_fir],
-   ["ABMAS2", "Abies magnifica", "Shasta red fir", 16, 36, 5, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ABMAS2", "Abies magnifica", "Shasta red fir", -1, 36, 5, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-red_fir],
-   ["ABNO", "Abies nobilis", "Noble Fir", 1, 24, 7, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ABPR", "Abies procera", "Noble Fir", 1, 24, 7, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ABISPP", "Abies species", "Firs", 1, 30, 2, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ACBA3", "Acer barbatum", "Southern sugar maple", 1, 8, 21, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ACBAL", "Acer barbatum", "Southern sugar maple", 1, 8, 21, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ACBAV", "Acer barbatum", "Southern sugar maple", 1, 8, 21, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ACLE", "Acer leucoderme", "Chalk maple", 1, 8, 21, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ACMA3", "Acer macrophyllum", "Bigleaf maple", 1, 3, 21, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ACNE2", "Acer negundo", "Boxelder", 1, 13, 21, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ACNEA", "Acer negundo", "Arizona boxelder", 1, 13, 21, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ACNEC2", "Acer negundo", "California boxelder", 1, 13, 21, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ACNEC", "Acer negundo", "California boxelder", 1, 13, 21, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ACNE12", "Acer negundo", "Boxelder", 1, 13, 21, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ACNEI", "Acer negundo", "Boxelder", 1, 13, 21, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ACNEN", "Acer negundo", "Boxelder", 1, 13, 21, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ACNEV2", "Acer negundo", "Boxelder", 1, 13, 21, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ACNET", "Acer negundo", "Boxelder", 1, 13, 21, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ACNEL", "Acer negundo", "Boxelder", 1, 13, 21, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ACNEV", "Acer negundo", "Boxelder", 1, 13, 21, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ACNI5", "Acer nigrum", "Black maple", 1, 14, 21, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ACNIP", "Acer nigrum", "Black maple", 1, 14, 21, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ACPE", "Acer pensylvanicum", "Striped maple", 1, 24, 21, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ACRU", "Acer rubrum", "Red maple", 100, 7, 21, -1, -1, -1, 4, :EquationType-bole_char, :CrownDamageEquationCode-not_set],
-   ["ACRU", "Acer rubrum", "Red maple", 1, 7, 21, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ACRUD", "Acer rubrum", "Red maple", 100, 7, 21, -1, -1, -1, 4, :EquationType-bole_char, :CrownDamageEquationCode-not_set],
-   ["ACRUD", "Acer rubrum", "Drummond's maple", 1, 7, 21, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ACRUD2", "Acer rubrum", "Red maple", 100, 7, 21, -1, -1, -1, 4, :EquationType-bole_char, :CrownDamageEquationCode-not_set],
-   ["ACRUD2", "Acer rubrum", "Drummond's maple", 1, 7, 21, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ACRUR", "Acer rubrum", "Red maple", 100, 7, 21, -1, -1, -1, 4, :EquationType-bole_char, :CrownDamageEquationCode-not_set],
-   ["ACRUR", "Acer rubrum", "Red maple", 1, 7, 21, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ACRUT2", "Acer rubrum", "Red maple", 100, 7, 21, -1, -1, -1, 4, :EquationType-bole_char, :CrownDamageEquationCode-not_set],
-   ["ACRUT2", "Acer rubrum", "Red maple", 1, 7, 21, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ACRUT", "Acer rubrum", "Red maple", 100, 7, 21, -1, -1, -1, 4, :EquationType-bole_char, :CrownDamageEquationCode-not_set],
-   ["ACRUT", "Acer rubrum", "Red maple", 1, 7, 21, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ACRUT3", "Acer rubrum", "Red maple", 100, 7, 21, -1, -1, -1, 4, :EquationType-bole_char, :CrownDamageEquationCode-not_set],
-   ["ACRUT3", "Acer rubrum", "Red maple", 1, 7, 21, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ACSA2", "Acer saccharinum", "Silver maple", 1, 10, 21, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ACSAL3", "Acer saccharinum", "Silver maple", 1, 10, 21, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ACSAW", "Acer saccharinum", "Silver maple", 1, 10, 21, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ACSA3", "Acer saccharum", "Sugar maple", 1, 12, 21, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ACSAS", "Acer saccharum", "Sugar maple", 1, 12, 21, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ACSAG", "Acer saccharum", "Sugar maple", 1, 12, 21, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ACSAR", "Acer saccharum", "Sugar maple", 1, 12, 21, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ACSAS2", "Acer saccharum", "Sugar maple", 1, 12, 21, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ACSAO", "Acer saccharum", "Sugar maple", 1, 12, 21, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ACSAS4", "Acer saccharum", "Sugar maple", 1, 12, 21, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ACSP2", "Acer spicatum", "Mountain maple", 1, 19, 21, -1, -1, 3, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ACESPP", "Acer species", "Maples", 1, 8, 21, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["AEGL", "Aesculus glabra", "Ohio buckeye", 1, 15, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["AEGLA", "Aesculus glabra", "Ohio buckeye", 1, 15, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["AEGLB", "Aesculus glabra", "Ohio buckeye", 1, 15, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["AEGLG", "Aesculus glabra", "Ohio buckeye", 1, 15, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["AEGLL", "Aesculus glabra", "Ohio buckeye", 1, 15, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["AEGLM", "Aesculus glabra", "Ohio buckeye", 1, 15, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["AEGLM2", "Aesculus glabra", "Ohio buckeye", 1, 15, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["AEGLP", "Aesculus glabra", "Ohio buckeye", 1, 15, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["AEGLS", "Aesculus glabra", "Ohio buckeye", 1, 15, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["AEFL", "Aesculus flava", "Yellow buckeye", 1, 29, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["AEOC2", "Aesculus octandra", "Yellow buckeye", 1, 29, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["AIAL", "Ailanthus altissima", "Ailanthus", 1, 29, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ALRH2", "Alnus rhombifolia", "White alder", 1, 1, 23, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ALRHB", "Alnus rhombifolia", "White alder", 1, 1, 23, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ALRU2", "Alnus rubra", "Red alder", 1, 1, 22, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ALOR", "Alnus rubra", "Red alder", 1, 1, 22, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["AMAR3", "Amelanchier arborea", "Common serviceberry", 1, 29, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["AMARA3", "Amelanchier arborea", "Alabama serviceberry", 1, 29, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["AMARA4", "Amelanchier arborea", "Common serviceberry", 1, 29, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["AMARA5", "Amelanchier arborea", "Downy serviceberry", 1, 29, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ARME", "Arbutus menziesii", "Pacific madrone", 1, 34, 39, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["BEAL2", "Betula alleghaniensis", "Yellow birch", 1, 10, 24, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["BEALA", "Betula alleghaniensis", "Yellow birch", 1, 10, 24, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["BEALF", "Betula alleghaniensis", "Yellow birch", 1, 10, 24, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["BEALM", "Betula alleghaniensis", "Yellow birch", 1, 10, 24, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["BELE", "Betula lenta", "Sweet birch", 1, 9, 24, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["BENI", "Betula nigra", "River Birch", 1, 8, 24, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["BEOC2", "Betula occidentalis", "Water birch", 1, 1, 24, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["BEOCI", "Betula occidentalis", "Water birch", 1, 1, 24, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["BEPA", "Betula papyrifera", "Paper birch", 1, 1, 24, -1, 2, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["BEPAC2", "Betula papyrifera", "Mountian paper birch", 1, 1, 24, -1, 2, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["BEPAP", "Betula papyrifera", "Paper birch", 1, 1, 24, -1, 2, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["BEPAK", "Betula papyrifera", "Kenai birch", 1, 1, 24, -1, 2, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["BEPAP", "Betula papyrifera", "Paper birch", 1, 1, 24, -1, 2, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["BEPAC", "Betula papyrifera", "Paper birch", 1, 1, 24, -1, 2, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["BEPAE", "Betula papyrifera", "Paper birch", 1, 1, 24, -1, 2, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["BEPAM2", "Betula papyrifera", "Paper birch", 1, 1, 24, -1, 2, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["BEPAP2", "Betula papyrifera", "Paper birch", 1, 1, 24, -1, 2, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["BETSPP", "Betula species", "Birches", 1, 1, 24, -1, 2, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CEOC", "Celtis occidentalis", "Common hackberry", 1, 14, 24, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CEOCC", "Celtis occidentalis", "Common hackberry", 1, 14, 24, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CEOCC3", "Celtis occidentalis", "Common hackberry", 1, 14, 24, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CEOCC4", "Celtis occidentalis", "Common hackberry", 1, 14, 24, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CEOCO2", "Celtis occidentalis", "Common hackberry", 1, 14, 24, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CEOCP", "Celtis occidentalis", "Common hackberry", 1, 14, 24, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CANO9", "Callitropsis nootkatensis", "Alaska cedar", 1, 2, 9, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CAAQ2", "Carya aquatica", "Water hickory", 1, 19, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CAAQA3", "Carya aquatica", "Water hickory", 1, 19, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CACA18", "Carpinus caroliniana", "American hornbeam", 1, 9, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CACAC2", "Carpinus caroliniana", "American hornbeam", 1, 9, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CACAV", "Carpinus caroliniana", "American hornbeam", 1, 9, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CACAV2", "Carpinus caroliniana", "American hornbeam", 1, 9, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CAAL27", "Carya alba", "Mockernut hickory", 1, 22, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CACA38", "Carya carolinae - septentrionalis", "Shagbark hi", 1, 19, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CACOL3", "Carya cordiformis", "Bitternut hickory", 1, 16, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CACO15", "Carya cordiformis", "Bitternut hickory", 1, 16, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CAGL8", "Carya glabra", "Pignut hickory", 1, 16, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CAGLG2", "Carya glabra", "Pignut hickory", 1, 16, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CAGLH", "Carya glabra", "Pignut hickory", 1, 16, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CAGLM", "Carya glabra", "Pignut hickory", 1, 16, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CAIL2", "Carya illinoinensis", "Pecan", 1, 15, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CALA21", "Carya laciniosa", "Shellbark hickory", 1, 22, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CAOV2", "Carya ovata", "Shagbark hickory", 1, 19, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CAOVC", "Carya ovata", "Shagbark hickory", 1, 19, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CAOVA", "Carya ovata", "Shagbark hickory", 1, 19, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CAOVF", "Carya ovata", "Shagbark hickory", 1, 19, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CAOVN", "Carya ovata", "Shagbark hickory", 1, 19, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CAOVP", "Carya ovata", "Shagbark hickory", 1, 19, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CAOVA", "Carya ovata", "Shagbark hickory", 1, 19, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CARSPP", "Carya species", "Hickories", 1, 23, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CATE9", "Carya texana", "Black hickory", 1, 19, 39, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CATEA", "Carya texana", "Black hickory", 1, 19, 39, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CATEV", "Carya texana", "Black hickory", 1, 19, 39, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CATO6", "Carya tomentosa", "Mockernut hickory", 1, 22, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CATOS", "Carya tomentosa", "Mockernut hickory", 1, 22, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CACHM", "Castanopsis chrysophylla", "Giant chinkapin", 1, 24, 25, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CACH6", "Castanopsis chrysophylla", "Giant chinkapin", 1, 24, 25, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CADE12", "Castanea dentata", "American chestnut", 1, 19, 39, -1, -1, 3, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CAAM29", "Castanea americana", "American chestnut", 1, 19, 39, -1, -1, 3, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CATSPP", "Catalpa species", "Catalpas", 1, 16, 39, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CELA", "Celtis laevigata", "Sugarberry", 1, 15, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CELAB", "Celtis laevigata", "Sugarberry", 1, 15, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CELAL", "Celtis laevigata", "Sugarberry", 1, 15, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CELAA", "Celtis laevigata", "Sugarberry", 1, 15, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CELAB2", "Celtis laevigata", "Sugarberry", 1, 15, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CELAR", "Celtis laevigata", "Netleaf hackberry", 1, 15, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CELAT8", "Celtis laevigata", "Texan sugarberry", 1, 15, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CECA4", "Cercis canadensis", "Eastern redbud", 1, 14, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CECAC", "Cercis canadensis", "Eastern redbud", 1, 14, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CECAM", "Cercis canadensis", "Mexican redbud", 1, 14, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CECAM2", "Cercis canadensis", "Mexican redbud", 1, 14, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CECAT", "Cercis canadensis", "Texas redbud", 1, 14, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CECAT2", "Cercis canadensis", "Texas redbud", 1, 14, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CHLA", "Chamaecyparis lawsoniana", "PortOrford - cedar", 1, 39, 9, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CHNO", "Chamaecyparis nootkatensis", "Alaska - cedar", 1, 2, 9, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CHTH2", "Chamaecyparis thyoides", "Atlantic white - cedar", 1, 4, 9, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CHTHH", "Chamaecyparis thyoides", "Atlantic white - cedar", 1, 4, 9, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CHCHC4", "Chrysolepis chrysophylla", "Giant chinkapin", 1, 24, 25, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CHCHM", "Chrysolepis chrysophylla", "Giant chinkapin", 1, 24, 25, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["COFL2", "Cornus florida", "Flowering dogwood", 101, 20, 34, -1, -1, -1, 4, :EquationType-bole_char, :CrownDamageEquationCode-not_set],
-   ["COFL2", "Cornus florida", "Flowering dogwood", 1, 20, 34, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CONU4", "Cornus nuttallii", "Pacific dogwood", 1, 35, 34, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CORSPP", "Cornus species", "Dogwoods", 1, 10, 34, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CRDO2", "Crataegus douglasii", "Black hawthorn", 1, 17, 35, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CRDOD", "Crataegus douglasii", "Black hawthorn", 1, 17, 35, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CRASPP", "Crataegus species", "Hawthorns", 1, 35, 35, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CUNO", "Cupressus nootkatensis", "Nootka Cypress", 1, 2, 9, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CUTH", "Cupressus thyoides", "Atlantic white - cedar", 1, 4, 9, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CUTHH", "Cupressus thyoides", "Atlantic white - cedar", 1, 4, 9, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["DIVI5", "Diospyros virginiana", "Persimmon", 1, 20, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["DIVIM2", "Diospyros virginiana", "Persimmon", 1, 20, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["DIVIP2", "Diospyros virginiana", "Persimmon", 1, 20, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["DIVIP3", "Diospyros virginiana", "Persimmon", 1, 20, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["DIVIV4", "Diospyros virginiana", "Persimmon", 1, 20, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["FAGR", "Fagus grandifolia", "American beech", 1, 4, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["FAGRH", "Fagus grandifolia", "American beech", 1, 4, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["FAGRC", "Fagus grandifolia", "American beech", 1, 4, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["FRAM2", "Fraxinus americana", "White ash", 1, 21, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["FRAMB", "Fraxinus americana", "White ash", 1, 21, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["FRAMC", "Fraxinus americana", "White ash", 1, 21, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["FRAMC2", "Fraxinus americana", "White ash", 1, 21, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["FRAMJ", "Fraxinus americana", "White ash", 1, 21, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["FRAMM", "Fraxinus americana", "White ash", 1, 21, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["FRNI", "Fraxinus nigra", "Black ash", 1, 14, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["FRPE", "Fraxinus pennsylvanica", "Green ash", 1, 18, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["FRPEA", "Fraxinus pennsylvanica", "Green ash", 1, 18, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["FRPEI", "Fraxinus pennsylvanica", "Green ash", 1, 18, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["FRPEL", "Fraxinus pennsylvanica", "Green ash", 1, 18, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["FRPES", "Fraxinus pennsylvanica", "Green ash", 1, 18, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["FRPR", "Fraxinus profunda", "Pumpkin ash", 1, 16, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["FRQU", "Fraxinus quadrangulata", "Blue ash", 1, 9, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["FRASPP", "Fraxinus species", "Ashes", 1, 21, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["GLTR", "Gleditsia triacanthos", "Honeylocust", 1, 17, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["GLTRI", "Gleditsia triacanthos", "Honeylocust", 1, 17, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["GOLA", "Gordonia lasianthus", "Loblolly bay", 1, 17, 39, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["GYDI", "Gymnocladus dioicus", "Kentucky coffeetree", 1, 10, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["HALSPP", "Halesia species", "Silverbells", 1, 17, 39, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ILOP", "Ilex opaca", "American holly", 1, 21, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ILOPA", "Ilex opaca", "American holly", 1, 21, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["ILOPO", "Ilex opaca", "American holly", 1, 21, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["JUCI", "Juglans cinerea", "Butternut", 1, 20, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["JUNI", "Juglans nigra", "Black walnut", 1, 20, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["JUOC", "Juniperus occidentalis", "Western juniper", 1, 24, 29, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["JUOCO", "Juniperus occidentalis", "Western juniper", 1, 24, 29, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["JUNSPP", "Juniperus species", "Junipers / Redcedars", 1, 19, 29, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["JUVI", "Juniperus virginiana", "Eastern redcedar", 1, 19, 18, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["JUVIS", "Juniperus virginiana", "Eastern redcedar", 1, 19, 18, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["JUVIS3", "Juniperus virginiana", "Eastern redcedar", 1, 19, 18, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["JUVIS", "Juniperus virginiana", "Southern redcedar", 1, 19, 18, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["JUVIV", "Juniperus virginiana", "Southern redcedar", 1, 19, 18, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["JUVIC", "Juniperus virginiana", "Eastern redcedar", 1, 19, 18, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["JUVIC2", "Juniperus virginiana", "Eastern redcedar", 1, 19, 18, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["LALA", "Larix laricina", "Tamarack", 1, 10, 14, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["LALAA9", "Larix laricina", "Tamarack", 1, 10, 14, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["LALAA5", "Larix laricina", "Tamarack", 1, 10, 14, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["LALY", "Larix lyallii", "Subalpine Larch", 1, 29, 30, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["LAOC", "Larix occidentalis", "Western Larch", 14, 36, 14, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["LAOC", "Larix occidentalis", "Western Larch", -1, 36, 14, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-western_larch],
-   ["CADE27", "Calocedrus decurrens", "Incense - cedar", 12, 34, 18, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["CADE27", "Calocedrus decurrens", "Incense - cedar", -1, 34, 18, -1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-incense_cedar],
-   ["LIDE", "Libocedrus decurrens", "Incense - cedar", 12, 34, 18, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["LIDE", "Libocedrus decurrens", "Incense - cedar", -1, 34, 18, -1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-incense_cedar],
-   ["LIST2", "Liquidambar styraciflua", "Sweetgum", 1, 34, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["LITU", "Liriodendron tulipifera", "Tuliptree", 1, 29, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["LIDE3", "Lithocarpus densiflorus", "Tanoak", 1, 30, 39, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["LIDED2", "Lithocarpus densiflorus", "Tanoak", 1, 30, 39, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["LIDEE", "Lithocarpus densiflorus", "Tanoak", 1, 30, 39, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["MAPO", "Maclura pomifera", "Osage - orange", 1, 16, 39, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["MAAC", "Magnolia acuminata", "Cucumber - tree", 1, 15, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["MAACC2", "Magnolia acuminata", "Cucumber - tree", 1, 15, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["MAACO", "Magnolia acuminata", "Cucumber - tree", 1, 15, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["MAACS", "Magnolia acuminata", "Cucumber - tree", 1, 15, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["MAGR4", "Magnolia grandiflora", "Southern magnolia", 1, 12, 39, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["MAMA2", "Magnolia macrophylla", "Bigleaf magnolia", 1, 12, 39, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["MAGSPP", "Magnolia species", "Magnolias", 1, 18, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["MAVI2", "Magnolia virginiana", "Sweetbay", 1, 19, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["MAVIT2", "Magnolia virginiana", "Sweetbay", 1, 19, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["MAVIA2", "Magnolia virginiana", "Sweetbay", 1, 19, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["MAVIP", "Magnolia virginiana", "Sweetbay", 1, 19, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["MALPRU", "Prunus species", "Apples / Cherries", 1, 17, 39, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["MALSPP", "Malus species", "Apples", 1, 22, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["MOAL", "Morus alba", "White mulberry", 1, 17, 39, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["MOALM", "Morus alba", "White mulberry", 1, 17, 39, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["MOALT", "Morus alba", "White mulberry", 1, 17, 39, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["MORU2", "Morus rubra", "Red mulberry", 1, 17, 39, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["MORUR", "Morus rubra", "Red mulberry", 1, 17, 39, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["MORUT", "Morus rubra", "Red mulberry", 1, 17, 39, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["MORSPP", "Morus species", "Mulberries", 1, 12, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["NYAQ2", "Nyssa aquatica", "Water tupelo", 1, 32, 39, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["NYOG", "Nyssa ogeche", "Ogeechee tupelo", 1, 32, 39, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["NYSSPP", "Nyssa species", "Tupelos", 1, 23, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["NYSY", "Nyssa sylvatica", "Blackgum", 102, 32, 39, -1, -1, -1, 4, :EquationType-bole_char, :CrownDamageEquationCode-not_set],
-   ["NYSY", "Nyssa sylvatica", "Blackgum", 1, 32, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["NYSYB", "Nyssa sylvatica", "Blackgum", 102, 32, 39, -1, -1, -1, 4, :EquationType-bole_char, :CrownDamageEquationCode-not_set],
-   ["NYSYC", "Nyssa sylvatica", "Blackgum", 102, 32, 39, -1, -1, -1, 4, :EquationType-bole_char, :CrownDamageEquationCode-not_set],
-   ["NYSYC", "Nyssa sylvatica", "Blackgum", 1, 32, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["NYSYD", "Nyssa sylvatica", "Blackgum", 102, 32, 39, -1, -1, -1, 4, :EquationType-bole_char, :CrownDamageEquationCode-not_set],
-   ["NYSYD", "Nyssa sylvatica", "Blackgum", 1, 32, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["NYSYT", "Nyssa sylvatica", "Blackgum", 102, 32, 39, -1, -1, -1, 4, :EquationType-bole_char, :CrownDamageEquationCode-not_set],
-   ["NYSYT", "Nyssa sylvatica", "Blackgum", 1, 32, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["NYSYU", "Nyssa sylvatica", "Blackgum", 102, 32, 39, -1, -1, -1, 4, :EquationType-bole_char, :CrownDamageEquationCode-not_set],
-   ["NYUR2", "Nyssa sylvatica", "Blackgum", 102, 32, 39, -1, -1, -1, 4, :EquationType-bole_char, :CrownDamageEquationCode-not_set],
-   ["NYBI", "Nyssa sylvatica", "Blackgum", 102, 32, 39, -1, -1, -1, 4, :EquationType-bole_char, :CrownDamageEquationCode-not_set],
-   ["NYBI", "Nyssa biflora", "Swamp tupelo", 1, 32, 39, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["OSVI", "Ostrya virginiana", "Hophornbeam", 1, 16, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["OSVIC", "Ostrya virginiana", "Chisos hophornbeam", 1, 16, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["OSVIV", "Ostrya virginiana", "Hophornbeam", 1, 16, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["OSVIL", "Ostrya virginiana", "Hophornbeam", 1, 16, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["OXAR", "Oxydendrum arboreum", "Sourwood", 103, 15, 39, -1, -1, -1, 4, :EquationType-bole_char, :CrownDamageEquationCode-not_set],
-   ["OXAR", "Oxydendrum arboreum", "Sourwood", 1, 15, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PATO2", "Paulownia tomentosa", "Princesstree", 1, 29, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PEBO", "Persea borbonia", "Redbay", 1, 17, 39, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIAB", "Picea abies", "Norway spruce", 3, 8, 10, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIEN", "Picea engelmannii", "Engelmann spruce", 15, 15, 10, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIEN", "Picea engelmannii", "Engelmann spruce", -1, 15, 10, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-engelmann_spruce],
-   ["PIENE", "Picea engelmannii", "Engelmann spruce", 15, 15, 10, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIENE", "Picea engelmannii", "Engelmann spruce", -1, 15, 10, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-engelmann_spruce],
-   ["PIENM2", "Picea engelmannii", "Engelmann spruce", 15, 15, 10, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIENM2", "Picea engelmannii", "Engelmann spruce", -1, 15, 10, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-engelmann_spruce],
-   ["PIENM", "Picea engelmannii", "Engelmann spruce", 15, 15, 10, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIENM", "Picea engelmannii", "Engelmann spruce", -1, 15, 10, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-engelmann_spruce],
-   ["PIGL", "Picea glauca", "White spruce", 3, 4, 10, 1, 2, 3, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIMA", "Picea mariana", "Black spruce", 3, 11, 10, -1, 2, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIMAM4", "Picea mariana", "Black spruce", 3, 11, 10, -1, 2, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIPU", "Picea pungens", "Blue spruce", 3, 10, 10, 1, -1, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIPUG3", "Picea pungens", "Blue spruce", 3, 10, 10, 1, -1, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIPUA", "Picea pungens", "Blue spruce", 3, 10, 10, 1, -1, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIRU", "Picea rubens", "Red spruce", 3, 13, 10, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PISI", "Picea sitchensis", "Sitka spruce", 3, 6, 10, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PICSPP", "Picea species", "Spruces", 3, 13, 10, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIAL", "Pinus albicaulis", "Whitebark pine", 17, 9, 31, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIAL", "Pinus albicaulis", "Whitebark pine", -1, 9, 31, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-whitebark_pine],
-   ["PIAT", "Pinus attenuata", "Knobcone pine", 1, 9, 32, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIBA2", "Pinus banksiana", "Jack pine", 1, 19, 11, -1, -1, 3, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PICL", "Pinus clausa", "Sand pine", 1, 14, 11, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PICLI", "Pinus clausa", "Sand pine", 1, 14, 11, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PICLI2", "Pinus clausa", "Sand pine", 1, 14, 11, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PICO", "Pinus contorta", "Lodgepole pine", 17, 7, 11, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PICO", "Pinus contorta", "Lodgepole pine", -1, 7, 11, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-whitebark_pine],
-   ["PICOB", "Pinus contorta", "Bolander beach pine", 17, 7, 11, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PICOB", "Pinus contorta", "Bolander beach pine", -1, 7, 11, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-whitebark_pine],
-   ["PICOB2", "Pinus contorta", "Bolander beach pine", 17, 7, 11, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PICOB2", "Pinus contorta", "Bolander beach pine", -1, 7, 11, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-whitebark_pine],
-   ["PICOC", "Pinus contorta", "Beach pine", 17, 7, 11, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PICOC", "Pinus contorta", "Beach pine", -1, 7, 11, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-whitebark_pine],
-   ["PICOC2", "Pinus contorta", "Beach pine", 17, 7, 11, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PICOC2", "Pinus contorta", "Beach pine", -1, 7, 11, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-whitebark_pine],
-   ["PICOL", "Pinus contorta", "Lodgepole pine", 17, 7, 11, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PICOL", "Pinus contorta", "Lodgepole pine", -1, 7, 11, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-whitebark_pine],
-   ["PICOL2", "Pinus contorta", "Lodgepole pine", 17, 7, 11, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PICOL2", "Pinus contorta", "Lodgepole pine", -1, 7, 11, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-whitebark_pine],
-   ["PICOM", "Pinus contorta", "Sierra lodgepole pine", 17, 7, 11, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PICOM", "Pinus contorta", "Sierra lodgepole pine", -1, 7, 11, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-whitebark_pine],
-   ["PICOM4", "Pinus contorta", "Sierra lodgepole pine", 17, 7, 11, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PICOM4", "Pinus contorta", "Sierra lodgepole pine", -1, 7, 11, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-whitebark_pine],
-   ["PIEC2", "Pinus echinata", "Shortleaf pine", 1, 16, 15, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIEL", "Pinus elliottii", "Slash pine", 1, 31, 15, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIELD", "Pinus elliottii", "Florida slash pine", 1, 31, 15, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIELA", "Pinus elliottii", "Florida slash pine", 1, 31, 15, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIELA2", "Pinus elliottii", "Florida slash pine", 1, 31, 15, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIELE2", "Pinus elliottii", "Slash pine", 1, 31, 15, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIFL2", "Pinus flexilis", "Limber pine", 1, 9, 31, 1, -1, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIFLA", "Pinus flexilis", "Limber pine", 1, 9, 31, 1, -1, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIFLA2", "Pinus flexilis", "Limber pine", 1, 9, 31, 1, -1, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIFLC", "Pinus flexilis", "Limber pine", 1, 9, 31, 1, -1, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIFLC2", "Pinus flexilis", "Limber pine", 1, 9, 31, 1, -1, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIGL2", "Pinus glabra", "Spruce pine", 1, 14, 11, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIJE", "Pinus jeffreyi", "Jeffrey pine", 19, 37, 12, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIJE", "Pinus jeffreyi", "Jeffrey pine", -1, 37, 12, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-ponderosa_pine],
-   ["PIJEK", "Pinus jeffreyi", "Jeffrey pine", -1, 37, 12, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-ponderosa_kill],
-   ["PILA", "Pinus lambertiana", "Sugar pine", 18, 38, 13, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PILA", "Pinus lambertiana", "Sugar pine", -1, 38, 13, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-sugar_pine],
-   ["PIMO3", "Pinus monticola", "Western white pine", 1, 14, 14, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIPA2", "Pinus palustris", "Longleaf pine", 5, 100, 15, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIPO", "Pinus ponderosa", "Ponderosa pine", 19, 36, 15, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIPO", "Pinus ponderosa", "Ponderosa pine", -1, 36, 15, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-ponderosa_pine],
-   ["PIPO_BH", "Pinus ponderosa", "Ponderosa Pine Black Hills", 21, 36, 15, 1, -1, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIPO_BH", "Pinus ponderosa", "Ponderosa Pine Black Hills", -1, 36, 15, 1, -1, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-ponderosa_pine],
-   ["PIPOB2", "Pinus ponderosa", "Ponderosa pine", 19, 36, 15, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIPOB2", "Pinus ponderosa", "Ponderosa pine", -1, 36, 15, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-ponderosa_pine],
-   ["PIPOB", "Pinus ponderosa", "Ponderosa pine", 19, 36, 15, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIPOB", "Pinus ponderosa", "Ponderosa pine", -1, 36, 15, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-ponderosa_pine],
-   ["PIPOP2", "Pinus ponderosa", "Ponderosa pine", 19, 36, 15, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIPOP2", "Pinus ponderosa", "Ponderosa pine", -1, 36, 15, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-ponderosa_pine],
-   ["PIPOB3", "Pinus ponderosa", "Ponderosa pine", 19, 36, 15, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIPOB3", "Pinus ponderosa", "Ponderosa pine", -1, 36, 15, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-ponderosa_pine],
-   ["PIPOP", "Pinus ponderosa", "Ponderosa pine", 19, 36, 15, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIPOP", "Pinus ponderosa", "Ponderosa pine", -1, 36, 15, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-ponderosa_pine],
-   ["PIPOS", "Pinus ponderosa", "Ponderosa pine", 19, 36, 15, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIPOS", "Pinus ponderosa", "Ponderosa pine", -1, 36, 15, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-ponderosa_pine],
-   ["PIPOS2", "Pinus ponderosa", "Ponderosa pine", 19, 36, 15, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIPOS2", "Pinus ponderosa", "Ponderosa pine", -1, 36, 15, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-ponderosa_pine],
-   ["PIPOW2", "Pinus ponderosa", "Washoe pine", 19, 36, 15, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIPOW2", "Pinus ponderosa", "Washoe pine", -1, 36, 15, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-ponderosa_pine],
-   ["PIPOW", "Pinus ponderosa", "Washoe pine", 19, 36, 15, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIPOW", "Pinus ponderosa", "Washoe pine", -1, 36, 15, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-ponderosa_pine],
-   ["PIPOK", "Pinus ponderosa", "Ponderosa pine", -1, 36, 15, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-ponderosa_kill],
-   ["PIPOBK", "Pinus ponderosa", "Ponderosa pine", -1, 36, 15, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-ponderosa_kill],
-   ["PIPOP2K", "Pinus ponderosa", "Ponderosa pine", -1, 36, 15, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-ponderosa_kill],
-   ["PIPOB3K", "Pinus ponderosa", "Ponderosa pine", -1, 36, 15, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-ponderosa_kill],
-   ["PIPOPK", "Pinus ponderosa", "Ponderosa pine", -1, 36, 15, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-ponderosa_kill],
-   ["PIPOSK", "Pinus ponderosa", "Ponderosa pine", -1, 36, 15, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-ponderosa_kill],
-   ["PIPOS2K", "Pinus ponderosa", "Ponderosa pine", -1, 36, 15, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-ponderosa_kill],
-   ["PIPOW2K", "Pinus ponderosa", "Washoe pine", -1, 36, 15, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-ponderosa_kill],
-   ["PIPOWK", "Pinus ponderosa", "Washoe pine", -1, 36, 15, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-ponderosa_kill],
-   ["PIPU5", "Pinus pungens", "Table mountain pine", 1, 19, 11, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIRE", "Pinus resinosa", "Red pine", 1, 22, 11, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIRI", "Pinus rigida", "Pitch pine", 1, 24, 11, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PISA2", "Pinus sabiniana", "Gray pine", 1, 12, 15, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PISE", "Pinus serotina", "Pond pine", 1, 35, 11, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PINSPP", "Pinus species", "Pines", 1, 9, 11, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIST", "Pinus strobus", "Eastern white pine", 1, 24, 14, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PISY", "Pinus sylvestris", "Scots pine", 1, 9, 11, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PITA", "Pinus taeda", "Loblolly pine", 1, 30, 15, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PIVI2", "Pinus virginiana", "Virginia pine", 1, 12, 11, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PLOC", "Platanus occidentalis", "American sycamore", 1, 12, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PLOCG", "Platanus occidentalis", "American sycamore", 1, 12, 39, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["POBA2", "Populus balsamifera", "Balsam poplar", 1, 19, 27, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["POBAB2", "Populus balsamifera", "Balsam poplar", 1, 19, 27, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["POBAC2", "Populus balsamifera", "Balsam poplar", 1, 19, 27, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["POBAF", "Populus balsamifera", "Balsam poplar", 1, 19, 27, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["POBAL", "Populus balsamifera", "Balsam poplar", 1, 19, 27, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["POBAM", "Populus balsamifera", "Balsam poplar", 1, 19, 27, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["POBAS2", "Populus balsamifera", "Balsam poplar", 1, 19, 27, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["POBAT", "Populus balsamifera", "Black cottonwood", 1, 23, 27, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["POBAC3", "Populus balsamifera", "Black cottonwood", 1, 23, 27, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PODE3", "Populus deltoides", "Eastern cottonwood", 1, 19, 27, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PODED", "Populus deltoides", "Eastern cottonwood", 1, 19, 27, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PODEA", "Populus deltoides", "Eastern cottonwood", 1, 19, 27, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PODEM2", "Populus deltoides", "Eastern cottonwood", 1, 19, 27, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PODEP", "Populus deltoides", "Eastern cottonwood", 1, 19, 27, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PODEV", "Populus deltoides", "Eastern cottonwood", 1, 19, 27, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PODEM", "Populus deltoides", "Plains cottonwood", 1, 19, 27, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PODEO", "Populus deltoides", "Plains cottonwood", 1, 19, 27, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PODEW", "Populus deltoides", "Rio Grande cottonwood", 1, 19, 27, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PODEW3", "Populus deltoides", "Rio Grande cottonwood", 1, 19, 27, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["POGR4", "Populus grandidentata", "Bigtooth aspen", 1, 18, 26, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["POGRA2", "Populus grandidentata", "Bigtooth aspen", 1, 18, 26, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["POGRM4", "Populus grandidentata", "Bigtooth aspen", 1, 18, 26, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["POGRS", "Populus grandidentata", "Bigtooth aspen", 1, 18, 26, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["POHE4", "Populus heterophylla", "Swamp cottonwood", 1, 29, 27, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["POPSPP", "Populus species", "Poplars", 1, 17, 27, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["POTR5", "Populus tremuloides", "Quaking aspen", 4, 23, 26, 1, 2, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["POTRA", "Populus tremuloides", "Quaking aspen", 4, 23, 26, 1, 2, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["POTR5", "Populus tremuloides", "Quaking aspen", 4, 23, 26, 1, 2, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["POTRC2", "Populus tremuloides", "Quaking aspen", 4, 23, 26, 1, 2, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["POTR12", "Populus tremuloides", "Quaking aspen", 4, 23, 26, 1, 2, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["POTRM", "Populus tremuloides", "Quaking aspen", 4, 23, 26, 1, 2, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["POTRR", "Populus tremuloides", "Quaking aspen", 4, 23, 26, 1, 2, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["POTRV", "Populus tremuloides", "Quaking aspen", 4, 23, 26, 1, 2, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["POTR15", "Populus trichocarpa", "Black cottonwood", 1, 23, 27, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["POTRH", "Populus trichocarpa", "Black cottonwood", 1, 23, 27, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["POTRC", "Populus trichocarpa", "Black cottonwood", 1, 23, 27, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["POTRH2", "Populus trichocarpa", "Black cottonwood", 1, 23, 27, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["POTRI", "Populus trichocarpa", "Black cottonwood", 1, 23, 27, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PRAM", "Prunus americana", "American plum", 1, 19, 39, -1, -1, 3, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PREM", "Prunus emarginata", "Bitter cherry", 1, 35, 36, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PREME", "Prunus emarginata", "Bitter cherry", 1, 35, 36, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PREMC", "Prunus emarginata", "Bitter cherry", 1, 35, 36, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PREMM", "Prunus emarginata", "Bitter cherry", 1, 35, 36, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PRPE2", "Prunus pensylvanica", "Pin cherry", 1, 24, 36, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PRPEP", "Prunus pensylvanica", "Pin cherry", 1, 24, 36, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PRPES", "Prunus pensylvanica", "Pin cherry", 1, 24, 36, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PRPEC", "Prunus pensylvanica", "Pin cherry", 1, 24, 36, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PRSE2", "Prunus serotina", "Black cherry", 1, 9, 36, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PRSEE", "Prunus serotina", "Black cherry", 1, 9, 36, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PRSEE2", "Prunus serotina", "Black cherry", 1, 9, 36, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PRSER2", "Prunus serotina", "Black cherry", 1, 9, 36, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PRSES", "Prunus serotina", "Black cherry", 1, 9, 36, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PRSEV", "Prunus serotina", "Black cherry", 1, 9, 36, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PRUSPP", "Prunus species", "Cherries", 1, 29, 36, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PRVI", "Prunus virginiana", "Chokecherry", 1, 19, 36, -1, -1, 3, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PRVID", "Prunus virginiana", "Western chokecherry", 1, 19, 36, -1, -1, 3, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PRVID2", "Prunus virginiana", "Chokecherry", 1, 19, 36, -1, -1, 3, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PRVIM", "Prunus virginiana", "Black chokecherry", 1, 19, 36, -1, -1, 3, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PRVIM2", "Prunus virginiana", "Chokecherry", 1, 19, 36, -1, -1, 3, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PRVIV", "Prunus virginiana", "Chokecherry", 1, 19, 36, -1, -1, 3, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PSME", "Pseudotsuga menziesii", "Douglas - fir", 20, 36, 16, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PSME", "Pseudotsuga menziesii", "Douglas - fir", -1, 36, 16, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-douglas_fir],
-   ["PSMEG", "Pseudotsuga menziesii", "Rocky Mtn Douglas - fir", 20, 36, 16, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PSMEG", "Pseudotsuga menziesii", "Rocky Mtn Douglas - fir", -1, 36, 16, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-douglas_fir],
-   ["PSMEF", "Pseudotsuga menziesii", "Douglas - fir", 20, 36, 16, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PSMEF", "Pseudotsuga menziesii", "Douglas - fir", -1, 36, 16, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-douglas_fir],
-   ["PSMEM", "Pseudotsuga menziesii", "Douglas - fir", 20, 36, 16, 1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["PSMEM", "Pseudotsuga menziesii", "Douglas - fir", -1, 36, 16, 1, 2, -1, -1, :EquationType-crown_damage, :CrownDamageEquationCode-douglas_fir],
-   ["QUAG", "Quercus agrifolia", "California live oak", 1, 29, 28, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["QUAGA", "Quercus agrifolia", "California live oak", 1, 29, 28, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["QUAGO", "Quercus agrifolia", "Coastal live oak", 1, 29, 28, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["QUAL", "Quercus alba", "White oak", 104, 19, 28, -1, -1, -1, 4, :EquationType-bole_char, :CrownDamageEquationCode-not_set],
-   ["QUAL", "Quercus alba", "White oak", 1, 19, 28, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["QUALS", "Quercus alba", "White oak", 104, 19, 28, -1, -1, -1, 4, :EquationType-bole_char, :CrownDamageEquationCode-not_set],
-   ["QUALS", "Quercus alba", "White oak", 1, 19, 28, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["QUALS2", "Quercus alba", "White oak", 104, 19, 28, -1, -1, -1, 4, :EquationType-bole_char, :CrownDamageEquationCode-not_set],
-   ["QUALS2", "Quercus alba", "White oak", 1, 19, 28, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["QUAL3", "Quercus alba", "White oak", 104, 19, 28, -1, -1, -1, 4, :EquationType-bole_char, :CrownDamageEquationCode-not_set],
-   ["QUBI", "Quercus bicolor", "Swamp white oak", 1, 24, 28, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["QUCH2", "Quercus chrysolepis", "Canyon live oak", 1, 3, 28, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["QUCHC", "Quercus chrysolepis", "Canyon live oak", 1, 3, 28, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["QUCHN", "Quercus chrysolepis", "Canyon live oak", 1, 3, 28, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["QUCO2", "Quercus coccinea", "Scarlet oak", 105, 19, 28, -1, -1, -1, 4, :EquationType-bole_char, :CrownDamageEquationCode-not_set],
-   ["QUCO2", "Quercus coccinea", "Scarlet oak", 1, 19, 28, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["QUCOC", "Quercus coccinea", "Scarlet oak", 105, 19, 28, -1, -1, -1, 4, :EquationType-bole_char, :CrownDamageEquationCode-not_set],
-   ["QUCOC", "Quercus coccinea", "Scarlet oak", 1, 19, 28, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["QUCOT", "Quercus coccinea", "Scarlet oak", 105, 19, 28, -1, -1, -1, 4, :EquationType-bole_char, :CrownDamageEquationCode-not_set],
-   ["QUCOT", "Quercus coccinea", "Scarlet oak", 1, 19, 28, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["QUDU", "Quercus douglasii", "Blue oak", 1, 12, 28, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["QUEL", "Quercus ellipsoidalis", "Northern pin oak", 1, 17, 28, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["QUEN", "Quercus engelmannii", "Engelmann oak", 1, 33, 28, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["QUFA", "Quercus falcata", "Southern red oak", 1, 23, 28, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["QUFAT", "Quercus falcata", "Southern red oak", 1, 23, 28, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["QUGA4", "Quercus garryana", "Oregon white oak", 1, 8, 28, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["QUGAG2", "Quercus garryana", "Oregon white oak", 1, 8, 28, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["QUGAS", "Quercus garryana", "Oregon white oak", 1, 8, 28, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["QUIM", "Quercus imbricaria", "Shingle oak", 1, 20, 28, -1, -1, 3, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["QUIN", "Quercus incana", "Bluejack oak", 1, 17, 28, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["QUKE", "Quercus kelloggii", "Califonia black oak", 1, 9, 28, -1, 2, -1, -1, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["QULA2", "Quercus laevis", "Turkey oak", 1, 16, 28, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
-   ["QULA3", "Quercus laurifolia", "Laurel oak", 1, 15, 28, -1, -1, -1, 4, :EquationType-crown_scorch, :CrownDamageEquationCode-not_set],
+  [["ABAM" "Abies amabilis" "Pacific silver fir" 1 26 1 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ABBA" "Abies balsamea" "Balsam fir" 1 10 2 1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ABBAB" "Abies balsamea" "Balsam fir" 1 10 2 1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ABBAP" "Abies balsamea" "Balsam fir" 1 10 2 1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ABLAL" "Abies balsamea" "Balsam fir" 1 10 2 1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ABCO" "Abies concolor" "White fir" 10 27 2 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ABCO" "Abies concolor" "White fir" -1 27 2 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-white_fir]
+   ["ABCOC" "Abies concolor" "White fir" 10 27 2 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ABCOC" "Abies concolor" "White fir" -1 27 2 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-white_fir]
+   ["ABLO" "Abies lowiana" "Sierra white fir" 10 27 2 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ABLO" "Abies lowiana" "Sierra white fir" -1 27 2 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-white_fir]
+   ["ABGR" "Abies grandis" "Grand fir" 11 25 3 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ABGR" "Abies grandis" "Grand fir" -1 25 3 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-subalpine_fir]
+   ["ABGRI2" "Abies grandis" "Grand fir" 11 25 3 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ABGRI2" "Abies grandis" "Grand fir" -1 25 3 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-subalpine_fir]
+   ["ABGRG" "Abies grandis" "Grand fir" 11 25 3 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ABGRG" "Abies grandis" "Grand fir" -1 25 3 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-subalpine_fir]
+   ["ABGRI" "Abies grandis" "Grand fir" 11 25 3 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ABGRI" "Abies grandis" "Grand fir" -1 25 3 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-subalpine_fir]
+   ["ABGRJ" "Abies grandis" "Grand fir" 11 25 3 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ABGRJ" "Abies grandis" "Grand fir" -1 25 3 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-subalpine_fir]
+   ["ABLA" "Abies lasiocarpa" "Subalpine fir" 11 20 4 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ABLA" "Abies lasiocarpa" "Subalpine fir" -1 20 4 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-subalpine_fir]
+   ["ABLAA" "Abies lasiocarpa" "Corkbark fir" 11 20 4 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ABLAA" "Abies lasiocarpa" "Corkbark fir" -1 20 4 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-subalpine_fir]
+   ["ABLAL" "Abies lasiocarpa" "Subalpine fir" 11 20 4 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ABLAL" "Abies lasiocarpa" "Subalpine fir" -1 20 4 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-subalpine_fir]
+   ["ABMA" "Abies magnifica" "Red Fir" 16 18 5 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ABMA" "Abies magnifica" "Red Fir" -1 18 5 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-red_fir]
+   ["ABMAM" "Abies magnifica" "California red fir" 16 36 5 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ABMAM" "Abies magnifica" "California red fir" -1 36 5 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-red_fir]
+   ["ABMAS" "Abies magnifica" "Shasta red fir" 16 36 5 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ABMAS" "Abies magnifica" "Shasta red fir" -1 36 5 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-red_fir]
+   ["ABMAC" "Abies magnifica" "Shasta red fir" 16 36 5 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ABMAC" "Abies magnifica" "Shasta red fir" -1 36 5 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-red_fir]
+   ["ABMAS2" "Abies magnifica" "Shasta red fir" 16 36 5 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ABMAS2" "Abies magnifica" "Shasta red fir" -1 36 5 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-red_fir]
+   ["ABNO" "Abies nobilis" "Noble Fir" 1 24 7 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ABPR" "Abies procera" "Noble Fir" 1 24 7 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ABISPP" "Abies species" "Firs" 1 30 2 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ACBA3" "Acer barbatum" "Southern sugar maple" 1 8 21 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ACBAL" "Acer barbatum" "Southern sugar maple" 1 8 21 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ACBAV" "Acer barbatum" "Southern sugar maple" 1 8 21 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ACLE" "Acer leucoderme" "Chalk maple" 1 8 21 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ACMA3" "Acer macrophyllum" "Bigleaf maple" 1 3 21 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ACNE2" "Acer negundo" "Boxelder" 1 13 21 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ACNEA" "Acer negundo" "Arizona boxelder" 1 13 21 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ACNEC2" "Acer negundo" "California boxelder" 1 13 21 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ACNEC" "Acer negundo" "California boxelder" 1 13 21 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ACNE12" "Acer negundo" "Boxelder" 1 13 21 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ACNEI" "Acer negundo" "Boxelder" 1 13 21 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ACNEN" "Acer negundo" "Boxelder" 1 13 21 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ACNEV2" "Acer negundo" "Boxelder" 1 13 21 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ACNET" "Acer negundo" "Boxelder" 1 13 21 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ACNEL" "Acer negundo" "Boxelder" 1 13 21 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ACNEV" "Acer negundo" "Boxelder" 1 13 21 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ACNI5" "Acer nigrum" "Black maple" 1 14 21 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ACNIP" "Acer nigrum" "Black maple" 1 14 21 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ACPE" "Acer pensylvanicum" "Striped maple" 1 24 21 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ACRU" "Acer rubrum" "Red maple" 100 7 21 -1 -1 -1 4 :EquationType-bole_char :CrownDamageEquationCode-not_set]
+   ["ACRU" "Acer rubrum" "Red maple" 1 7 21 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ACRUD" "Acer rubrum" "Red maple" 100 7 21 -1 -1 -1 4 :EquationType-bole_char :CrownDamageEquationCode-not_set]
+   ["ACRUD" "Acer rubrum" "Drummond's maple" 1 7 21 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ACRUD2" "Acer rubrum" "Red maple" 100 7 21 -1 -1 -1 4 :EquationType-bole_char :CrownDamageEquationCode-not_set]
+   ["ACRUD2" "Acer rubrum" "Drummond's maple" 1 7 21 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ACRUR" "Acer rubrum" "Red maple" 100 7 21 -1 -1 -1 4 :EquationType-bole_char :CrownDamageEquationCode-not_set]
+   ["ACRUR" "Acer rubrum" "Red maple" 1 7 21 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ACRUT2" "Acer rubrum" "Red maple" 100 7 21 -1 -1 -1 4 :EquationType-bole_char :CrownDamageEquationCode-not_set]
+   ["ACRUT2" "Acer rubrum" "Red maple" 1 7 21 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ACRUT" "Acer rubrum" "Red maple" 100 7 21 -1 -1 -1 4 :EquationType-bole_char :CrownDamageEquationCode-not_set]
+   ["ACRUT" "Acer rubrum" "Red maple" 1 7 21 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ACRUT3" "Acer rubrum" "Red maple" 100 7 21 -1 -1 -1 4 :EquationType-bole_char :CrownDamageEquationCode-not_set]
+   ["ACRUT3" "Acer rubrum" "Red maple" 1 7 21 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ACSA2" "Acer saccharinum" "Silver maple" 1 10 21 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ACSAL3" "Acer saccharinum" "Silver maple" 1 10 21 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ACSAW" "Acer saccharinum" "Silver maple" 1 10 21 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ACSA3" "Acer saccharum" "Sugar maple" 1 12 21 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ACSAS" "Acer saccharum" "Sugar maple" 1 12 21 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ACSAG" "Acer saccharum" "Sugar maple" 1 12 21 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ACSAR" "Acer saccharum" "Sugar maple" 1 12 21 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ACSAS2" "Acer saccharum" "Sugar maple" 1 12 21 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ACSAO" "Acer saccharum" "Sugar maple" 1 12 21 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ACSAS4" "Acer saccharum" "Sugar maple" 1 12 21 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ACSP2" "Acer spicatum" "Mountain maple" 1 19 21 -1 -1 3 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ACESPP" "Acer species" "Maples" 1 8 21 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["AEGL" "Aesculus glabra" "Ohio buckeye" 1 15 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["AEGLA" "Aesculus glabra" "Ohio buckeye" 1 15 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["AEGLB" "Aesculus glabra" "Ohio buckeye" 1 15 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["AEGLG" "Aesculus glabra" "Ohio buckeye" 1 15 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["AEGLL" "Aesculus glabra" "Ohio buckeye" 1 15 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["AEGLM" "Aesculus glabra" "Ohio buckeye" 1 15 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["AEGLM2" "Aesculus glabra" "Ohio buckeye" 1 15 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["AEGLP" "Aesculus glabra" "Ohio buckeye" 1 15 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["AEGLS" "Aesculus glabra" "Ohio buckeye" 1 15 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["AEFL" "Aesculus flava" "Yellow buckeye" 1 29 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["AEOC2" "Aesculus octandra" "Yellow buckeye" 1 29 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["AIAL" "Ailanthus altissima" "Ailanthus" 1 29 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ALRH2" "Alnus rhombifolia" "White alder" 1 1 23 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ALRHB" "Alnus rhombifolia" "White alder" 1 1 23 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ALRU2" "Alnus rubra" "Red alder" 1 1 22 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ALOR" "Alnus rubra" "Red alder" 1 1 22 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["AMAR3" "Amelanchier arborea" "Common serviceberry" 1 29 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["AMARA3" "Amelanchier arborea" "Alabama serviceberry" 1 29 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["AMARA4" "Amelanchier arborea" "Common serviceberry" 1 29 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["AMARA5" "Amelanchier arborea" "Downy serviceberry" 1 29 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ARME" "Arbutus menziesii" "Pacific madrone" 1 34 39 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["BEAL2" "Betula alleghaniensis" "Yellow birch" 1 10 24 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["BEALA" "Betula alleghaniensis" "Yellow birch" 1 10 24 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["BEALF" "Betula alleghaniensis" "Yellow birch" 1 10 24 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["BEALM" "Betula alleghaniensis" "Yellow birch" 1 10 24 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["BELE" "Betula lenta" "Sweet birch" 1 9 24 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["BENI" "Betula nigra" "River Birch" 1 8 24 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["BEOC2" "Betula occidentalis" "Water birch" 1 1 24 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["BEOCI" "Betula occidentalis" "Water birch" 1 1 24 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["BEPA" "Betula papyrifera" "Paper birch" 1 1 24 -1 2 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["BEPAC2" "Betula papyrifera" "Mountian paper birch" 1 1 24 -1 2 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["BEPAP" "Betula papyrifera" "Paper birch" 1 1 24 -1 2 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["BEPAK" "Betula papyrifera" "Kenai birch" 1 1 24 -1 2 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["BEPAP" "Betula papyrifera" "Paper birch" 1 1 24 -1 2 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["BEPAC" "Betula papyrifera" "Paper birch" 1 1 24 -1 2 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["BEPAE" "Betula papyrifera" "Paper birch" 1 1 24 -1 2 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["BEPAM2" "Betula papyrifera" "Paper birch" 1 1 24 -1 2 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["BEPAP2" "Betula papyrifera" "Paper birch" 1 1 24 -1 2 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["BETSPP" "Betula species" "Birches" 1 1 24 -1 2 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CEOC" "Celtis occidentalis" "Common hackberry" 1 14 24 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CEOCC" "Celtis occidentalis" "Common hackberry" 1 14 24 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CEOCC3" "Celtis occidentalis" "Common hackberry" 1 14 24 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CEOCC4" "Celtis occidentalis" "Common hackberry" 1 14 24 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CEOCO2" "Celtis occidentalis" "Common hackberry" 1 14 24 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CEOCP" "Celtis occidentalis" "Common hackberry" 1 14 24 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CANO9" "Callitropsis nootkatensis" "Alaska cedar" 1 2 9 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CAAQ2" "Carya aquatica" "Water hickory" 1 19 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CAAQA3" "Carya aquatica" "Water hickory" 1 19 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CACA18" "Carpinus caroliniana" "American hornbeam" 1 9 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CACAC2" "Carpinus caroliniana" "American hornbeam" 1 9 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CACAV" "Carpinus caroliniana" "American hornbeam" 1 9 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CACAV2" "Carpinus caroliniana" "American hornbeam" 1 9 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CAAL27" "Carya alba" "Mockernut hickory" 1 22 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CACA38" "Carya carolinae - septentrionalis" "Shagbark hi" 1 19 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CACOL3" "Carya cordiformis" "Bitternut hickory" 1 16 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CACO15" "Carya cordiformis" "Bitternut hickory" 1 16 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CAGL8" "Carya glabra" "Pignut hickory" 1 16 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CAGLG2" "Carya glabra" "Pignut hickory" 1 16 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CAGLH" "Carya glabra" "Pignut hickory" 1 16 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CAGLM" "Carya glabra" "Pignut hickory" 1 16 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CAIL2" "Carya illinoinensis" "Pecan" 1 15 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CALA21" "Carya laciniosa" "Shellbark hickory" 1 22 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CAOV2" "Carya ovata" "Shagbark hickory" 1 19 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CAOVC" "Carya ovata" "Shagbark hickory" 1 19 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CAOVA" "Carya ovata" "Shagbark hickory" 1 19 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CAOVF" "Carya ovata" "Shagbark hickory" 1 19 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CAOVN" "Carya ovata" "Shagbark hickory" 1 19 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CAOVP" "Carya ovata" "Shagbark hickory" 1 19 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CAOVA" "Carya ovata" "Shagbark hickory" 1 19 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CARSPP" "Carya species" "Hickories" 1 23 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CATE9" "Carya texana" "Black hickory" 1 19 39 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CATEA" "Carya texana" "Black hickory" 1 19 39 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CATEV" "Carya texana" "Black hickory" 1 19 39 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CATO6" "Carya tomentosa" "Mockernut hickory" 1 22 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CATOS" "Carya tomentosa" "Mockernut hickory" 1 22 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CACHM" "Castanopsis chrysophylla" "Giant chinkapin" 1 24 25 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CACH6" "Castanopsis chrysophylla" "Giant chinkapin" 1 24 25 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CADE12" "Castanea dentata" "American chestnut" 1 19 39 -1 -1 3 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CAAM29" "Castanea americana" "American chestnut" 1 19 39 -1 -1 3 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CATSPP" "Catalpa species" "Catalpas" 1 16 39 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CELA" "Celtis laevigata" "Sugarberry" 1 15 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CELAB" "Celtis laevigata" "Sugarberry" 1 15 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CELAL" "Celtis laevigata" "Sugarberry" 1 15 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CELAA" "Celtis laevigata" "Sugarberry" 1 15 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CELAB2" "Celtis laevigata" "Sugarberry" 1 15 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CELAR" "Celtis laevigata" "Netleaf hackberry" 1 15 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CELAT8" "Celtis laevigata" "Texan sugarberry" 1 15 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CECA4" "Cercis canadensis" "Eastern redbud" 1 14 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CECAC" "Cercis canadensis" "Eastern redbud" 1 14 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CECAM" "Cercis canadensis" "Mexican redbud" 1 14 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CECAM2" "Cercis canadensis" "Mexican redbud" 1 14 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CECAT" "Cercis canadensis" "Texas redbud" 1 14 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CECAT2" "Cercis canadensis" "Texas redbud" 1 14 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CHLA" "Chamaecyparis lawsoniana" "PortOrford - cedar" 1 39 9 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CHNO" "Chamaecyparis nootkatensis" "Alaska - cedar" 1 2 9 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CHTH2" "Chamaecyparis thyoides" "Atlantic white - cedar" 1 4 9 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CHTHH" "Chamaecyparis thyoides" "Atlantic white - cedar" 1 4 9 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CHCHC4" "Chrysolepis chrysophylla" "Giant chinkapin" 1 24 25 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CHCHM" "Chrysolepis chrysophylla" "Giant chinkapin" 1 24 25 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["COFL2" "Cornus florida" "Flowering dogwood" 101 20 34 -1 -1 -1 4 :EquationType-bole_char :CrownDamageEquationCode-not_set]
+   ["COFL2" "Cornus florida" "Flowering dogwood" 1 20 34 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CONU4" "Cornus nuttallii" "Pacific dogwood" 1 35 34 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CORSPP" "Cornus species" "Dogwoods" 1 10 34 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CRDO2" "Crataegus douglasii" "Black hawthorn" 1 17 35 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CRDOD" "Crataegus douglasii" "Black hawthorn" 1 17 35 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CRASPP" "Crataegus species" "Hawthorns" 1 35 35 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CUNO" "Cupressus nootkatensis" "Nootka Cypress" 1 2 9 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CUTH" "Cupressus thyoides" "Atlantic white - cedar" 1 4 9 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CUTHH" "Cupressus thyoides" "Atlantic white - cedar" 1 4 9 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["DIVI5" "Diospyros virginiana" "Persimmon" 1 20 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["DIVIM2" "Diospyros virginiana" "Persimmon" 1 20 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["DIVIP2" "Diospyros virginiana" "Persimmon" 1 20 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["DIVIP3" "Diospyros virginiana" "Persimmon" 1 20 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["DIVIV4" "Diospyros virginiana" "Persimmon" 1 20 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["FAGR" "Fagus grandifolia" "American beech" 1 4 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["FAGRH" "Fagus grandifolia" "American beech" 1 4 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["FAGRC" "Fagus grandifolia" "American beech" 1 4 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["FRAM2" "Fraxinus americana" "White ash" 1 21 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["FRAMB" "Fraxinus americana" "White ash" 1 21 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["FRAMC" "Fraxinus americana" "White ash" 1 21 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["FRAMC2" "Fraxinus americana" "White ash" 1 21 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["FRAMJ" "Fraxinus americana" "White ash" 1 21 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["FRAMM" "Fraxinus americana" "White ash" 1 21 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["FRNI" "Fraxinus nigra" "Black ash" 1 14 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["FRPE" "Fraxinus pennsylvanica" "Green ash" 1 18 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["FRPEA" "Fraxinus pennsylvanica" "Green ash" 1 18 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["FRPEI" "Fraxinus pennsylvanica" "Green ash" 1 18 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["FRPEL" "Fraxinus pennsylvanica" "Green ash" 1 18 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["FRPES" "Fraxinus pennsylvanica" "Green ash" 1 18 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["FRPR" "Fraxinus profunda" "Pumpkin ash" 1 16 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["FRQU" "Fraxinus quadrangulata" "Blue ash" 1 9 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["FRASPP" "Fraxinus species" "Ashes" 1 21 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["GLTR" "Gleditsia triacanthos" "Honeylocust" 1 17 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["GLTRI" "Gleditsia triacanthos" "Honeylocust" 1 17 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["GOLA" "Gordonia lasianthus" "Loblolly bay" 1 17 39 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["GYDI" "Gymnocladus dioicus" "Kentucky coffeetree" 1 10 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["HALSPP" "Halesia species" "Silverbells" 1 17 39 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ILOP" "Ilex opaca" "American holly" 1 21 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ILOPA" "Ilex opaca" "American holly" 1 21 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["ILOPO" "Ilex opaca" "American holly" 1 21 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["JUCI" "Juglans cinerea" "Butternut" 1 20 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["JUNI" "Juglans nigra" "Black walnut" 1 20 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["JUOC" "Juniperus occidentalis" "Western juniper" 1 24 29 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["JUOCO" "Juniperus occidentalis" "Western juniper" 1 24 29 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["JUNSPP" "Juniperus species" "Junipers / Redcedars" 1 19 29 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["JUVI" "Juniperus virginiana" "Eastern redcedar" 1 19 18 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["JUVIS" "Juniperus virginiana" "Eastern redcedar" 1 19 18 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["JUVIS3" "Juniperus virginiana" "Eastern redcedar" 1 19 18 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["JUVIS" "Juniperus virginiana" "Southern redcedar" 1 19 18 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["JUVIV" "Juniperus virginiana" "Southern redcedar" 1 19 18 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["JUVIC" "Juniperus virginiana" "Eastern redcedar" 1 19 18 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["JUVIC2" "Juniperus virginiana" "Eastern redcedar" 1 19 18 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["LALA" "Larix laricina" "Tamarack" 1 10 14 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["LALAA9" "Larix laricina" "Tamarack" 1 10 14 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["LALAA5" "Larix laricina" "Tamarack" 1 10 14 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["LALY" "Larix lyallii" "Subalpine Larch" 1 29 30 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["LAOC" "Larix occidentalis" "Western Larch" 14 36 14 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["LAOC" "Larix occidentalis" "Western Larch" -1 36 14 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-western_larch]
+   ["CADE27" "Calocedrus decurrens" "Incense - cedar" 12 34 18 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["CADE27" "Calocedrus decurrens" "Incense - cedar" -1 34 18 -1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-incense_cedar]
+   ["LIDE" "Libocedrus decurrens" "Incense - cedar" 12 34 18 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["LIDE" "Libocedrus decurrens" "Incense - cedar" -1 34 18 -1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-incense_cedar]
+   ["LIST2" "Liquidambar styraciflua" "Sweetgum" 1 34 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["LITU" "Liriodendron tulipifera" "Tuliptree" 1 29 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["LIDE3" "Lithocarpus densiflorus" "Tanoak" 1 30 39 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["LIDED2" "Lithocarpus densiflorus" "Tanoak" 1 30 39 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["LIDEE" "Lithocarpus densiflorus" "Tanoak" 1 30 39 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["MAPO" "Maclura pomifera" "Osage - orange" 1 16 39 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["MAAC" "Magnolia acuminata" "Cucumber - tree" 1 15 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["MAACC2" "Magnolia acuminata" "Cucumber - tree" 1 15 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["MAACO" "Magnolia acuminata" "Cucumber - tree" 1 15 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["MAACS" "Magnolia acuminata" "Cucumber - tree" 1 15 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["MAGR4" "Magnolia grandiflora" "Southern magnolia" 1 12 39 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["MAMA2" "Magnolia macrophylla" "Bigleaf magnolia" 1 12 39 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["MAGSPP" "Magnolia species" "Magnolias" 1 18 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["MAVI2" "Magnolia virginiana" "Sweetbay" 1 19 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["MAVIT2" "Magnolia virginiana" "Sweetbay" 1 19 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["MAVIA2" "Magnolia virginiana" "Sweetbay" 1 19 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["MAVIP" "Magnolia virginiana" "Sweetbay" 1 19 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["MALPRU" "Prunus species" "Apples / Cherries" 1 17 39 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["MALSPP" "Malus species" "Apples" 1 22 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["MOAL" "Morus alba" "White mulberry" 1 17 39 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["MOALM" "Morus alba" "White mulberry" 1 17 39 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["MOALT" "Morus alba" "White mulberry" 1 17 39 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["MORU2" "Morus rubra" "Red mulberry" 1 17 39 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["MORUR" "Morus rubra" "Red mulberry" 1 17 39 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["MORUT" "Morus rubra" "Red mulberry" 1 17 39 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["MORSPP" "Morus species" "Mulberries" 1 12 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["NYAQ2" "Nyssa aquatica" "Water tupelo" 1 32 39 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["NYOG" "Nyssa ogeche" "Ogeechee tupelo" 1 32 39 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["NYSSPP" "Nyssa species" "Tupelos" 1 23 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["NYSY" "Nyssa sylvatica" "Blackgum" 102 32 39 -1 -1 -1 4 :EquationType-bole_char :CrownDamageEquationCode-not_set]
+   ["NYSY" "Nyssa sylvatica" "Blackgum" 1 32 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["NYSYB" "Nyssa sylvatica" "Blackgum" 102 32 39 -1 -1 -1 4 :EquationType-bole_char :CrownDamageEquationCode-not_set]
+   ["NYSYC" "Nyssa sylvatica" "Blackgum" 102 32 39 -1 -1 -1 4 :EquationType-bole_char :CrownDamageEquationCode-not_set]
+   ["NYSYC" "Nyssa sylvatica" "Blackgum" 1 32 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["NYSYD" "Nyssa sylvatica" "Blackgum" 102 32 39 -1 -1 -1 4 :EquationType-bole_char :CrownDamageEquationCode-not_set]
+   ["NYSYD" "Nyssa sylvatica" "Blackgum" 1 32 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["NYSYT" "Nyssa sylvatica" "Blackgum" 102 32 39 -1 -1 -1 4 :EquationType-bole_char :CrownDamageEquationCode-not_set]
+   ["NYSYT" "Nyssa sylvatica" "Blackgum" 1 32 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["NYSYU" "Nyssa sylvatica" "Blackgum" 102 32 39 -1 -1 -1 4 :EquationType-bole_char :CrownDamageEquationCode-not_set]
+   ["NYUR2" "Nyssa sylvatica" "Blackgum" 102 32 39 -1 -1 -1 4 :EquationType-bole_char :CrownDamageEquationCode-not_set]
+   ["NYBI" "Nyssa sylvatica" "Blackgum" 102 32 39 -1 -1 -1 4 :EquationType-bole_char :CrownDamageEquationCode-not_set]
+   ["NYBI" "Nyssa biflora" "Swamp tupelo" 1 32 39 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["OSVI" "Ostrya virginiana" "Hophornbeam" 1 16 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["OSVIC" "Ostrya virginiana" "Chisos hophornbeam" 1 16 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["OSVIV" "Ostrya virginiana" "Hophornbeam" 1 16 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["OSVIL" "Ostrya virginiana" "Hophornbeam" 1 16 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["OXAR" "Oxydendrum arboreum" "Sourwood" 103 15 39 -1 -1 -1 4 :EquationType-bole_char :CrownDamageEquationCode-not_set]
+   ["OXAR" "Oxydendrum arboreum" "Sourwood" 1 15 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PATO2" "Paulownia tomentosa" "Princesstree" 1 29 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PEBO" "Persea borbonia" "Redbay" 1 17 39 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIAB" "Picea abies" "Norway spruce" 3 8 10 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIEN" "Picea engelmannii" "Engelmann spruce" 15 15 10 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIEN" "Picea engelmannii" "Engelmann spruce" -1 15 10 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-engelmann_spruce]
+   ["PIENE" "Picea engelmannii" "Engelmann spruce" 15 15 10 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIENE" "Picea engelmannii" "Engelmann spruce" -1 15 10 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-engelmann_spruce]
+   ["PIENM2" "Picea engelmannii" "Engelmann spruce" 15 15 10 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIENM2" "Picea engelmannii" "Engelmann spruce" -1 15 10 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-engelmann_spruce]
+   ["PIENM" "Picea engelmannii" "Engelmann spruce" 15 15 10 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIENM" "Picea engelmannii" "Engelmann spruce" -1 15 10 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-engelmann_spruce]
+   ["PIGL" "Picea glauca" "White spruce" 3 4 10 1 2 3 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIMA" "Picea mariana" "Black spruce" 3 11 10 -1 2 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIMAM4" "Picea mariana" "Black spruce" 3 11 10 -1 2 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIPU" "Picea pungens" "Blue spruce" 3 10 10 1 -1 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIPUG3" "Picea pungens" "Blue spruce" 3 10 10 1 -1 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIPUA" "Picea pungens" "Blue spruce" 3 10 10 1 -1 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIRU" "Picea rubens" "Red spruce" 3 13 10 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PISI" "Picea sitchensis" "Sitka spruce" 3 6 10 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PICSPP" "Picea species" "Spruces" 3 13 10 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIAL" "Pinus albicaulis" "Whitebark pine" 17 9 31 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIAL" "Pinus albicaulis" "Whitebark pine" -1 9 31 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-whitebark_pine]
+   ["PIAT" "Pinus attenuata" "Knobcone pine" 1 9 32 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIBA2" "Pinus banksiana" "Jack pine" 1 19 11 -1 -1 3 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PICL" "Pinus clausa" "Sand pine" 1 14 11 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PICLI" "Pinus clausa" "Sand pine" 1 14 11 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PICLI2" "Pinus clausa" "Sand pine" 1 14 11 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PICO" "Pinus contorta" "Lodgepole pine" 17 7 11 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PICO" "Pinus contorta" "Lodgepole pine" -1 7 11 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-whitebark_pine]
+   ["PICOB" "Pinus contorta" "Bolander beach pine" 17 7 11 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PICOB" "Pinus contorta" "Bolander beach pine" -1 7 11 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-whitebark_pine]
+   ["PICOB2" "Pinus contorta" "Bolander beach pine" 17 7 11 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PICOB2" "Pinus contorta" "Bolander beach pine" -1 7 11 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-whitebark_pine]
+   ["PICOC" "Pinus contorta" "Beach pine" 17 7 11 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PICOC" "Pinus contorta" "Beach pine" -1 7 11 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-whitebark_pine]
+   ["PICOC2" "Pinus contorta" "Beach pine" 17 7 11 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PICOC2" "Pinus contorta" "Beach pine" -1 7 11 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-whitebark_pine]
+   ["PICOL" "Pinus contorta" "Lodgepole pine" 17 7 11 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PICOL" "Pinus contorta" "Lodgepole pine" -1 7 11 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-whitebark_pine]
+   ["PICOL2" "Pinus contorta" "Lodgepole pine" 17 7 11 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PICOL2" "Pinus contorta" "Lodgepole pine" -1 7 11 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-whitebark_pine]
+   ["PICOM" "Pinus contorta" "Sierra lodgepole pine" 17 7 11 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PICOM" "Pinus contorta" "Sierra lodgepole pine" -1 7 11 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-whitebark_pine]
+   ["PICOM4" "Pinus contorta" "Sierra lodgepole pine" 17 7 11 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PICOM4" "Pinus contorta" "Sierra lodgepole pine" -1 7 11 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-whitebark_pine]
+   ["PIEC2" "Pinus echinata" "Shortleaf pine" 1 16 15 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIEL" "Pinus elliottii" "Slash pine" 1 31 15 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIELD" "Pinus elliottii" "Florida slash pine" 1 31 15 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIELA" "Pinus elliottii" "Florida slash pine" 1 31 15 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIELA2" "Pinus elliottii" "Florida slash pine" 1 31 15 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIELE2" "Pinus elliottii" "Slash pine" 1 31 15 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIFL2" "Pinus flexilis" "Limber pine" 1 9 31 1 -1 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIFLA" "Pinus flexilis" "Limber pine" 1 9 31 1 -1 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIFLA2" "Pinus flexilis" "Limber pine" 1 9 31 1 -1 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIFLC" "Pinus flexilis" "Limber pine" 1 9 31 1 -1 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIFLC2" "Pinus flexilis" "Limber pine" 1 9 31 1 -1 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIGL2" "Pinus glabra" "Spruce pine" 1 14 11 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIJE" "Pinus jeffreyi" "Jeffrey pine" 19 37 12 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIJE" "Pinus jeffreyi" "Jeffrey pine" -1 37 12 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-ponderosa_pine]
+   ["PIJEK" "Pinus jeffreyi" "Jeffrey pine" -1 37 12 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-ponderosa_kill]
+   ["PILA" "Pinus lambertiana" "Sugar pine" 18 38 13 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PILA" "Pinus lambertiana" "Sugar pine" -1 38 13 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-sugar_pine]
+   ["PIMO3" "Pinus monticola" "Western white pine" 1 14 14 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIPA2" "Pinus palustris" "Longleaf pine" 5 100 15 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIPO" "Pinus ponderosa" "Ponderosa pine" 19 36 15 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIPO" "Pinus ponderosa" "Ponderosa pine" -1 36 15 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-ponderosa_pine]
+   ["PIPO_BH" "Pinus ponderosa" "Ponderosa Pine Black Hills" 21 36 15 1 -1 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIPO_BH" "Pinus ponderosa" "Ponderosa Pine Black Hills" -1 36 15 1 -1 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-ponderosa_pine]
+   ["PIPOB2" "Pinus ponderosa" "Ponderosa pine" 19 36 15 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIPOB2" "Pinus ponderosa" "Ponderosa pine" -1 36 15 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-ponderosa_pine]
+   ["PIPOB" "Pinus ponderosa" "Ponderosa pine" 19 36 15 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIPOB" "Pinus ponderosa" "Ponderosa pine" -1 36 15 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-ponderosa_pine]
+   ["PIPOP2" "Pinus ponderosa" "Ponderosa pine" 19 36 15 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIPOP2" "Pinus ponderosa" "Ponderosa pine" -1 36 15 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-ponderosa_pine]
+   ["PIPOB3" "Pinus ponderosa" "Ponderosa pine" 19 36 15 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIPOB3" "Pinus ponderosa" "Ponderosa pine" -1 36 15 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-ponderosa_pine]
+   ["PIPOP" "Pinus ponderosa" "Ponderosa pine" 19 36 15 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIPOP" "Pinus ponderosa" "Ponderosa pine" -1 36 15 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-ponderosa_pine]
+   ["PIPOS" "Pinus ponderosa" "Ponderosa pine" 19 36 15 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIPOS" "Pinus ponderosa" "Ponderosa pine" -1 36 15 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-ponderosa_pine]
+   ["PIPOS2" "Pinus ponderosa" "Ponderosa pine" 19 36 15 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIPOS2" "Pinus ponderosa" "Ponderosa pine" -1 36 15 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-ponderosa_pine]
+   ["PIPOW2" "Pinus ponderosa" "Washoe pine" 19 36 15 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIPOW2" "Pinus ponderosa" "Washoe pine" -1 36 15 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-ponderosa_pine]
+   ["PIPOW" "Pinus ponderosa" "Washoe pine" 19 36 15 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIPOW" "Pinus ponderosa" "Washoe pine" -1 36 15 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-ponderosa_pine]
+   ["PIPOK" "Pinus ponderosa" "Ponderosa pine" -1 36 15 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-ponderosa_kill]
+   ["PIPOBK" "Pinus ponderosa" "Ponderosa pine" -1 36 15 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-ponderosa_kill]
+   ["PIPOP2K" "Pinus ponderosa" "Ponderosa pine" -1 36 15 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-ponderosa_kill]
+   ["PIPOB3K" "Pinus ponderosa" "Ponderosa pine" -1 36 15 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-ponderosa_kill]
+   ["PIPOPK" "Pinus ponderosa" "Ponderosa pine" -1 36 15 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-ponderosa_kill]
+   ["PIPOSK" "Pinus ponderosa" "Ponderosa pine" -1 36 15 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-ponderosa_kill]
+   ["PIPOS2K" "Pinus ponderosa" "Ponderosa pine" -1 36 15 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-ponderosa_kill]
+   ["PIPOW2K" "Pinus ponderosa" "Washoe pine" -1 36 15 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-ponderosa_kill]
+   ["PIPOWK" "Pinus ponderosa" "Washoe pine" -1 36 15 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-ponderosa_kill]
+   ["PIPU5" "Pinus pungens" "Table mountain pine" 1 19 11 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIRE" "Pinus resinosa" "Red pine" 1 22 11 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIRI" "Pinus rigida" "Pitch pine" 1 24 11 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PISA2" "Pinus sabiniana" "Gray pine" 1 12 15 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PISE" "Pinus serotina" "Pond pine" 1 35 11 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PINSPP" "Pinus species" "Pines" 1 9 11 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIST" "Pinus strobus" "Eastern white pine" 1 24 14 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PISY" "Pinus sylvestris" "Scots pine" 1 9 11 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PITA" "Pinus taeda" "Loblolly pine" 1 30 15 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PIVI2" "Pinus virginiana" "Virginia pine" 1 12 11 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PLOC" "Platanus occidentalis" "American sycamore" 1 12 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PLOCG" "Platanus occidentalis" "American sycamore" 1 12 39 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["POBA2" "Populus balsamifera" "Balsam poplar" 1 19 27 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["POBAB2" "Populus balsamifera" "Balsam poplar" 1 19 27 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["POBAC2" "Populus balsamifera" "Balsam poplar" 1 19 27 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["POBAF" "Populus balsamifera" "Balsam poplar" 1 19 27 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["POBAL" "Populus balsamifera" "Balsam poplar" 1 19 27 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["POBAM" "Populus balsamifera" "Balsam poplar" 1 19 27 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["POBAS2" "Populus balsamifera" "Balsam poplar" 1 19 27 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["POBAT" "Populus balsamifera" "Black cottonwood" 1 23 27 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["POBAC3" "Populus balsamifera" "Black cottonwood" 1 23 27 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PODE3" "Populus deltoides" "Eastern cottonwood" 1 19 27 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PODED" "Populus deltoides" "Eastern cottonwood" 1 19 27 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PODEA" "Populus deltoides" "Eastern cottonwood" 1 19 27 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PODEM2" "Populus deltoides" "Eastern cottonwood" 1 19 27 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PODEP" "Populus deltoides" "Eastern cottonwood" 1 19 27 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PODEV" "Populus deltoides" "Eastern cottonwood" 1 19 27 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PODEM" "Populus deltoides" "Plains cottonwood" 1 19 27 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PODEO" "Populus deltoides" "Plains cottonwood" 1 19 27 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PODEW" "Populus deltoides" "Rio Grande cottonwood" 1 19 27 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PODEW3" "Populus deltoides" "Rio Grande cottonwood" 1 19 27 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["POGR4" "Populus grandidentata" "Bigtooth aspen" 1 18 26 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["POGRA2" "Populus grandidentata" "Bigtooth aspen" 1 18 26 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["POGRM4" "Populus grandidentata" "Bigtooth aspen" 1 18 26 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["POGRS" "Populus grandidentata" "Bigtooth aspen" 1 18 26 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["POHE4" "Populus heterophylla" "Swamp cottonwood" 1 29 27 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["POPSPP" "Populus species" "Poplars" 1 17 27 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["POTR5" "Populus tremuloides" "Quaking aspen" 4 23 26 1 2 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["POTRA" "Populus tremuloides" "Quaking aspen" 4 23 26 1 2 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["POTR5" "Populus tremuloides" "Quaking aspen" 4 23 26 1 2 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["POTRC2" "Populus tremuloides" "Quaking aspen" 4 23 26 1 2 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["POTR12" "Populus tremuloides" "Quaking aspen" 4 23 26 1 2 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["POTRM" "Populus tremuloides" "Quaking aspen" 4 23 26 1 2 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["POTRR" "Populus tremuloides" "Quaking aspen" 4 23 26 1 2 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["POTRV" "Populus tremuloides" "Quaking aspen" 4 23 26 1 2 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["POTR15" "Populus trichocarpa" "Black cottonwood" 1 23 27 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["POTRH" "Populus trichocarpa" "Black cottonwood" 1 23 27 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["POTRC" "Populus trichocarpa" "Black cottonwood" 1 23 27 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["POTRH2" "Populus trichocarpa" "Black cottonwood" 1 23 27 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["POTRI" "Populus trichocarpa" "Black cottonwood" 1 23 27 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PRAM" "Prunus americana" "American plum" 1 19 39 -1 -1 3 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PREM" "Prunus emarginata" "Bitter cherry" 1 35 36 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PREME" "Prunus emarginata" "Bitter cherry" 1 35 36 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PREMC" "Prunus emarginata" "Bitter cherry" 1 35 36 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PREMM" "Prunus emarginata" "Bitter cherry" 1 35 36 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PRPE2" "Prunus pensylvanica" "Pin cherry" 1 24 36 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PRPEP" "Prunus pensylvanica" "Pin cherry" 1 24 36 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PRPES" "Prunus pensylvanica" "Pin cherry" 1 24 36 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PRPEC" "Prunus pensylvanica" "Pin cherry" 1 24 36 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PRSE2" "Prunus serotina" "Black cherry" 1 9 36 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PRSEE" "Prunus serotina" "Black cherry" 1 9 36 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PRSEE2" "Prunus serotina" "Black cherry" 1 9 36 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PRSER2" "Prunus serotina" "Black cherry" 1 9 36 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PRSES" "Prunus serotina" "Black cherry" 1 9 36 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PRSEV" "Prunus serotina" "Black cherry" 1 9 36 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PRUSPP" "Prunus species" "Cherries" 1 29 36 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PRVI" "Prunus virginiana" "Chokecherry" 1 19 36 -1 -1 3 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PRVID" "Prunus virginiana" "Western chokecherry" 1 19 36 -1 -1 3 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PRVID2" "Prunus virginiana" "Chokecherry" 1 19 36 -1 -1 3 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PRVIM" "Prunus virginiana" "Black chokecherry" 1 19 36 -1 -1 3 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PRVIM2" "Prunus virginiana" "Chokecherry" 1 19 36 -1 -1 3 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PRVIV" "Prunus virginiana" "Chokecherry" 1 19 36 -1 -1 3 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PSME" "Pseudotsuga menziesii" "Douglas - fir" 20 36 16 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PSME" "Pseudotsuga menziesii" "Douglas - fir" -1 36 16 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-douglas_fir]
+   ["PSMEG" "Pseudotsuga menziesii" "Rocky Mtn Douglas - fir" 20 36 16 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PSMEG" "Pseudotsuga menziesii" "Rocky Mtn Douglas - fir" -1 36 16 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-douglas_fir]
+   ["PSMEF" "Pseudotsuga menziesii" "Douglas - fir" 20 36 16 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PSMEF" "Pseudotsuga menziesii" "Douglas - fir" -1 36 16 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-douglas_fir]
+   ["PSMEM" "Pseudotsuga menziesii" "Douglas - fir" 20 36 16 1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["PSMEM" "Pseudotsuga menziesii" "Douglas - fir" -1 36 16 1 2 -1 -1 :EquationType-crown_damage :CrownDamageEquationCode-douglas_fir]
+   ["QUAG" "Quercus agrifolia" "California live oak" 1 29 28 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["QUAGA" "Quercus agrifolia" "California live oak" 1 29 28 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["QUAGO" "Quercus agrifolia" "Coastal live oak" 1 29 28 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["QUAL" "Quercus alba" "White oak" 104 19 28 -1 -1 -1 4 :EquationType-bole_char :CrownDamageEquationCode-not_set]
+   ["QUAL" "Quercus alba" "White oak" 1 19 28 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["QUALS" "Quercus alba" "White oak" 104 19 28 -1 -1 -1 4 :EquationType-bole_char :CrownDamageEquationCode-not_set]
+   ["QUALS" "Quercus alba" "White oak" 1 19 28 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["QUALS2" "Quercus alba" "White oak" 104 19 28 -1 -1 -1 4 :EquationType-bole_char :CrownDamageEquationCode-not_set]
+   ["QUALS2" "Quercus alba" "White oak" 1 19 28 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["QUAL3" "Quercus alba" "White oak" 104 19 28 -1 -1 -1 4 :EquationType-bole_char :CrownDamageEquationCode-not_set]
+   ["QUBI" "Quercus bicolor" "Swamp white oak" 1 24 28 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["QUCH2" "Quercus chrysolepis" "Canyon live oak" 1 3 28 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["QUCHC" "Quercus chrysolepis" "Canyon live oak" 1 3 28 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["QUCHN" "Quercus chrysolepis" "Canyon live oak" 1 3 28 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["QUCO2" "Quercus coccinea" "Scarlet oak" 105 19 28 -1 -1 -1 4 :EquationType-bole_char :CrownDamageEquationCode-not_set]
+   ["QUCO2" "Quercus coccinea" "Scarlet oak" 1 19 28 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["QUCOC" "Quercus coccinea" "Scarlet oak" 105 19 28 -1 -1 -1 4 :EquationType-bole_char :CrownDamageEquationCode-not_set]
+   ["QUCOC" "Quercus coccinea" "Scarlet oak" 1 19 28 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["QUCOT" "Quercus coccinea" "Scarlet oak" 105 19 28 -1 -1 -1 4 :EquationType-bole_char :CrownDamageEquationCode-not_set]
+   ["QUCOT" "Quercus coccinea" "Scarlet oak" 1 19 28 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["QUDU" "Quercus douglasii" "Blue oak" 1 12 28 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["QUEL" "Quercus ellipsoidalis" "Northern pin oak" 1 17 28 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["QUEN" "Quercus engelmannii" "Engelmann oak" 1 33 28 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["QUFA" "Quercus falcata" "Southern red oak" 1 23 28 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["QUFAT" "Quercus falcata" "Southern red oak" 1 23 28 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["QUGA4" "Quercus garryana" "Oregon white oak" 1 8 28 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["QUGAG2" "Quercus garryana" "Oregon white oak" 1 8 28 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["QUGAS" "Quercus garryana" "Oregon white oak" 1 8 28 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["QUIM" "Quercus imbricaria" "Shingle oak" 1 20 28 -1 -1 3 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["QUIN" "Quercus incana" "Bluejack oak" 1 17 28 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["QUKE" "Quercus kelloggii" "Califonia black oak" 1 9 28 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["QULA2" "Quercus laevis" "Turkey oak" 1 16 28 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
+   ["QULA3" "Quercus laurifolia" "Laurel oak" 1 15 28 -1 -1 -1 4 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
    ["QULO" "Quercus lobata" "Valley oak" 1 22 28 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
    ["QULOA" "Quercus lobata" "Valley oak" 1 22 28 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
    ["QULOI" "Quercus lobata" "Valley oak" 1 22 28 -1 2 -1 -1 :EquationType-crown_scorch :CrownDamageEquationCode-not_set]
@@ -769,20 +690,20 @@
 #_{:clj-kondo/ignore [:missing-docstring]}
 (def new-entities
   [{:variable/name            "Scorch Height Backing"
-    :variable/kind            :continuous,
+    :variable/kind            :continuous
     :variable/domain-uuid     (domain-name->uuid "Flame Length & Scorch Ht")
     :variable/group-variables [-2]}
 
    {:variable/name            "Scorch Height Flanking"
-    :variable/kind            :continuous,
+    :variable/kind            :continuous
     :variable/domain-uuid     (domain-name->uuid "Flame Length & Scorch Ht")
     :variable/group-variables [-3]}
 
    ;; Scorch Height (output)
    {:db/id                             -1
-    :group-variable/cpp-namespace      (cpp-ns->uuid "global")
-    :group-variable/cpp-class          (cpp-class->uuid "SIGMortality")
-    :group-variable/cpp-function       (cpp-fn->uuid "getScorchHeight")
+    :group-variable/cpp-namespace      (sm/cpp-ns->uuid conn "global")
+    :group-variable/cpp-class          (sm/cpp-class->uuid conn "SIGMortality")
+    :group-variable/cpp-function       (sm/cpp-fn->uuid conn "getScorchHeight")
     :group-variable/conditionally-set? true
     :group-variable/actions
     [{:action/name                  "Enable if selected tree species uses crown scorch equation type"
@@ -803,12 +724,12 @@
 
    ;; Scorch Height Backing (output)
    {:db/id                             -2
-    :group-variable/cpp-namespace      (cpp-ns->uuid "global")
-    :group-variable/cpp-class          (cpp-class->uuid "SIGMortality")
-    :group-variable/cpp-function       (cpp-fn->uuid "getScorchHeightBacking")
+    :group-variable/cpp-namespace      (sm/cpp-ns->uuid conn "global")
+    :group-variable/cpp-class          (sm/cpp-class->uuid conn "SIGMortality")
+    :group-variable/cpp-function       (sm/cpp-fn->uuid conn "getScorchHeightBacking")
     :group-variable/conditionally-set? true
     :group-variable/actions
-    [{:action/name "Enable if selected tree species uses crown scorch equation type and Surface Spread Direction is Heading,Backing,Flanking"
+    [{:action/name "Enable if selected tree species uses crown scorch equation type and Surface Spread Direction is HeadingBackingFlanking"
       :action/type :select
       :action/conditionals
       #{{:conditional/group-variable-uuid
@@ -836,12 +757,12 @@
 
    ;; Scorch Height Flanking (output)
    {:db/id                             -3
-    :group-variable/cpp-namespace      (cpp-ns->uuid "global")
-    :group-variable/cpp-class          (cpp-class->uuid "SIGMortality")
-    :group-variable/cpp-function       (cpp-fn->uuid "getScorchHeightFlanking")
+    :group-variable/cpp-namespace      (sm/cpp-ns->uuid conn "global")
+    :group-variable/cpp-class          (sm/cpp-class->uuid conn "SIGMortality")
+    :group-variable/cpp-function       (sm/cpp-fn->uuid conn "getScorchHeightFlanking")
     :group-variable/conditionally-set? true
     :group-variable/actions
-    [{:action/name "Enable if selected tree species uses crown scorch equation type and Surface Spread Direction is Heading,Backing,Flanking"
+    [{:action/name "Enable if selected tree species uses crown scorch equation type and Surface Spread Direction is HeadingBackingFlanking"
       :action/type :select
       :action/conditionals
       #{{:conditional/group-variable-uuid
@@ -871,34 +792,32 @@
 (def new-refs
   [{:db/id                 (sm/t-key->eid conn "behaveplus:mortality:output:tree_mortality:tree_mortality")
     :group/group-variables [-1 -2 -3]}
-   {:db/id                    (name->eid :variable/name "Scorch Height")
+   {:db/id                    (sm/name->eid conn :variable/name "Scorch Height")
     :variable/group-variables [-1]}]
 
   #_{:clj-kondo/ignore [:missing-docstring]})
-(def translation-payload
-  (build-translations-payload {"behaveplus:mortality:output:tree_mortality:tree_mortality:scorch-height"          "Scorch Height"
-                               "behaveplus:mortality:output:tree_mortality:tree_mortality:scorch-height-backing"  "Scorch Height Backing"
-                               "behaveplus:mortality:output:tree_mortality:tree_mortality:scorch-height-flanking" "Scorch Height Flanking"}))
+(def new-translations
+  (sm/build-translations-payload
+   conn
+   100
+   {"behaveplus:mortality:output:tree_mortality:tree_mortality:scorch-height"          "Scorch Height"
+    "behaveplus:mortality:output:tree_mortality:tree_mortality:scorch-height-backing"  "Scorch Height Backing"
+    "behaveplus:mortality:output:tree_mortality:tree_mortality:scorch-height-flanking" "Scorch Height Flanking"}))
 
-(def final-payload (concat (postwalk-assoc-uuid+nid new-entities)
-                           new-refs))
+(def final-payload (concat (sm/postwalk-insert new-entities)
+                           new-refs
+                           new-translations))
 
 ;; ===========================================================================================================
-;; Run Transaction
+;; Transact Payload
 ;; ===========================================================================================================
 
 (comment
-  (do
-    #_{:clj-kondo/ignore [:missing-docstring]}
-    (def tx-data (d/transact conn final-payload))
-    #_{:clj-kondo/ignore [:missing-docstring]}
-    (def tx-data-2 (d/transact conn translation-payload))))
+  (def tx-data (d/transact conn final-payload)))
 
 ;; ===========================================================================================================
 ;; In case we need to rollback.
 ;; ===========================================================================================================
 
 (comment
-  (do
-    (sm/rollback-tx! conn @tx-data-2)
-    (sm/rollback-tx! conn @tx-data)))
+  (sm/rollback-tx! conn @tx-data))
