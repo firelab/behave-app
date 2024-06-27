@@ -71,6 +71,7 @@
        (filter #(= (:equationType %) "EquationType::crown_scorch"))
        (map :speciesCode)))
 
+#_{:clj-kondo/ignore [:missing-docstring]}
 (def existing-entities
   [{:db/id                             (sm/t-key->eid conn "behaveplus:mortality:output:tree_mortality:tree_mortality:tree_crown_volume_scorched")
     :group-variable/cpp-function       (sm/cpp-fn->uuid conn "getTreeCrownVolumeScorched")
@@ -180,6 +181,7 @@
     :group-variable/help-key
     "behaveplus:mortality:output:tree_mortality:tree_mortality:tree_crown_volume_scorched_flanking:help"}])
 
+#_{:clj-kondo/ignore [:missing-docstring]}
 (def new-entities-tree-crown-length-scorched
   [{:variable/name            "Tree Crown Length Scorched Backing"
     :variable/kind            :continuous
@@ -274,12 +276,14 @@
     "behaveplus:mortality:output:tree_mortality:tree_mortality:tree_crown_length_scorched_backing"  "Crown Length Scorched Backing"
     "behaveplus:mortality:output:tree_mortality:tree_mortality:tree_crown_length_scorched_flanking" "Crown Length Scorched Flanking"}))
 
+#_{:clj-kondo/ignore [:missing-docstring]}
 (def final-payload (concat existing-entities
                            (sm/postwalk-insert new-entities-tree-crown-volume-scorched)
                            (sm/postwalk-insert new-entities-tree-crown-length-scorched)
                            new-refs
                            new-translations))
 
+#_{:clj-kondo/ignore [:missing-docstring]}
 (defn build-reset-order-payload [eid group-attr order-attr]
   (let [eids (map :db/id (->> (d/entity (d/db conn) eid)
                               group-attr
@@ -289,6 +293,7 @@
                      order-attr index})
                   eids)))
 
+#_{:clj-kondo/ignore [:missing-docstring]}
 (def reset-gv-order-payload
   (build-reset-order-payload (sm/t-key->eid conn "behaveplus:mortality:output:tree_mortality:tree_mortality")
                              :group/group-variables
@@ -299,8 +304,11 @@
 ;; ===========================================================================================================
 
 (comment
-  (def tx-data (d/transact conn final-payload))
-  (def tx-data-2 (d/transact conn reset-gv-order-payload)))
+  (do
+    #_{:clj-kondo/ignore [:missing-docstring]}
+    (def tx-data (d/transact conn final-payload))
+    #_{:clj-kondo/ignore [:missing-docstring]}
+    (def tx-data-2 (d/transact conn reset-gv-order-payload))))
 
 ;; ===========================================================================================================
 ;; In case we need to rollback.
