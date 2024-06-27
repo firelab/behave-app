@@ -176,14 +176,14 @@
 (defn getTotalPrefireTrees [self]
   (.getTotalPrefireTrees self))
 
-(defn getTreeCrownLengthScorched [self mortalityRateUnits]
-  (.getTreeCrownLengthScorched self mortalityRateUnits))
+(defn getTreeCrownLengthScorched [self lengthUnits]
+  (.getTreeCrownLengthScorched self lengthUnits))
 
-(defn getTreeCrownLengthScorchedBacking [self mortalityRateUnits]
-  (.getTreeCrownLengthScorched self mortalityRateUnits))
+(defn getTreeCrownLengthScorchedBacking [self lengthUnits]
+  (.getTreeCrownLengthScorchedBacking self lengthUnits))
 
-(defn getTreeCrownLengthScorchedFlanking [self mortalityRateUnits]
-  (.getTreeCrownLengthScorched self mortalityRateUnits))
+(defn getTreeCrownLengthScorchedFlanking [self lengthUnits]
+  (.getTreeCrownLengthScorchedFlanking self lengthUnits))
 
 (defn getTreeCrownVolumeScorched [self mortalityRateUnits]
   (.getTreeCrownVolumeScorched self mortalityRateUnits))
@@ -192,7 +192,7 @@
   (.getTreeCrownVolumeScorchedBacking self mortalityRateUnits))
 
 (defn getTreeCrownVolumeScorchedFlanking [self mortalityRateUnits]
-  (.getTreeCrownVolumeScorched self mortalityRateUnits))
+  (.getTreeCrownVolumeScorchedFlanking self mortalityRateUnits))
 
 (defn getTreeDensityPerUnitArea [self areaUnits]
   (.getTreeDensityPerUnitArea self areaUnits))

@@ -243,32 +243,32 @@ void SIGMortality::calculateMortalityAllDirections(FractionUnits::FractionUnitsE
 
 double SIGMortality::getTreeCrownLengthScorched(LengthUnits::LengthUnitsEnum lengthUnits) const
 {
-    heading_.getTreeCrownLengthScorched(lengthUnits);
+    return heading_.getTreeCrownLengthScorched(lengthUnits);
 }
 
 double SIGMortality::getTreeCrownLengthScorchedBacking(LengthUnits::LengthUnitsEnum lengthUnits) const
 {
-    backing_.getTreeCrownLengthScorched(lengthUnits);
+    return backing_.getTreeCrownLengthScorched(lengthUnits);
 }
 
 double SIGMortality::getTreeCrownLengthScorchedFlanking(LengthUnits::LengthUnitsEnum lengthUnits) const
 {
-    flanking_.getTreeCrownLengthScorched(lengthUnits);
+    return flanking_.getTreeCrownLengthScorched(lengthUnits);
 }
 
 double SIGMortality::getTreeCrownVolumeScorched(FractionUnits::FractionUnitsEnum fractionUnits) const
 {
-    heading_.getTreeCrownVolumeScorched(fractionUnits);
+    return heading_.getTreeCrownVolumeScorched(fractionUnits);
 }
 
 double SIGMortality::getTreeCrownVolumeScorchedBacking(FractionUnits::FractionUnitsEnum fractionUnits) const
 {
-    backing_.getTreeCrownVolumeScorched(fractionUnits);
+    return backing_.getTreeCrownVolumeScorched(fractionUnits);
 }
 
 double SIGMortality::getTreeCrownVolumeScorchedFlanking(FractionUnits::FractionUnitsEnum fractionUnits) const
 {
-    flanking_.getTreeCrownVolumeScorched(fractionUnits);
+    return flanking_.getTreeCrownVolumeScorched(fractionUnits);
 }
 
 

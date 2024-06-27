@@ -103,7 +103,7 @@
        :action/conditionals-operator :and}])}])
 
 #_{:clj-kondo/ignore [:missing-docstring]}
-(def new-entities-treecrown-volume-scorched
+(def new-entities-tree-crown-volume-scorched
   [{:variable/name            "Tree Crown Volume Scorched Backing"
     :variable/kind            :continuous
     :variable/domain-uuid     (domain-name->uuid "Probability of Mortality & Crown Vol Scorched")
@@ -269,20 +269,38 @@
    100
    {"behaveplus:mortality:output:tree_mortality:tree_mortality:tree_crown_volume_scorched"          "Crown Volume Scorched"
     "behaveplus:mortality:output:tree_mortality:tree_mortality:tree_crown_volume_scorched_backing"  "Crown Volume Scorched Backing"
-    "behaveplus:mortality:output:tree_mortality:tree_mortality:tree_crown_volume_scorched_flanking" "Crown Volume Scorched Flanking"}))
+    "behaveplus:mortality:output:tree_mortality:tree_mortality:tree_crown_volume_scorched_flanking" "Crown Volume Scorched Flanking"
+    "behaveplus:mortality:output:tree_mortality:tree_mortality:tree_crown_length_scorched"          "Crown Length Scorched"
+    "behaveplus:mortality:output:tree_mortality:tree_mortality:tree_crown_length_scorched_backing"  "Crown Length Scorched Backing"
+    "behaveplus:mortality:output:tree_mortality:tree_mortality:tree_crown_length_scorched_flanking" "Crown Length Scorched Flanking"}))
 
 (def final-payload (concat existing-entities
-                           (sm/postwalk-insert new-entities-treecrown-volume-scorched)
+                           (sm/postwalk-insert new-entities-tree-crown-volume-scorched)
                            (sm/postwalk-insert new-entities-tree-crown-length-scorched)
                            new-refs
                            new-translations))
+
+(defn build-reset-order-payload [eid group-attr order-attr]
+  (let [eids (map :db/id (->> (d/entity (d/db conn) eid)
+                              group-attr
+                              (sort-by order-attr)))]
+    (map-indexed  (fn [index v]
+                    {:db/id     v
+                     order-attr index})
+                  eids)))
+
+(def reset-gv-order-payload
+  (build-reset-order-payload (sm/t-key->eid conn "behaveplus:mortality:output:tree_mortality:tree_mortality")
+                             :group/group-variables
+                             :group-variable/order))
 
 ;; ===========================================================================================================
 ;; Transact Payload
 ;; ===========================================================================================================
 
 (comment
-  (def tx-data (d/transact conn final-payload)))
+  (def tx-data (d/transact conn final-payload))
+  (def tx-data-2 (d/transact conn reset-gv-order-payload)))
 
 ;; ===========================================================================================================
 ;; In case we need to rollback.
@@ -290,6 +308,7 @@
 
 (comment
   (do
+    (sm/rollback-tx! conn @tx-data-2)
     (sm/rollback-tx! conn @tx-data)
     (sm/rollback-tx! conn @cms-import-tx)
     (sm/rollback-tx! conn @cms-remove-tx)))
