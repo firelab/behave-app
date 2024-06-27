@@ -179,7 +179,19 @@
 (defn getTreeCrownLengthScorched [self mortalityRateUnits]
   (.getTreeCrownLengthScorched self mortalityRateUnits))
 
+(defn getTreeCrownLengthScorchedBacking [self mortalityRateUnits]
+  (.getTreeCrownLengthScorched self mortalityRateUnits))
+
+(defn getTreeCrownLengthScorchedFlanking [self mortalityRateUnits]
+  (.getTreeCrownLengthScorched self mortalityRateUnits))
+
 (defn getTreeCrownVolumeScorched [self mortalityRateUnits]
+  (.getTreeCrownVolumeScorched self mortalityRateUnits))
+
+(defn getTreeCrownVolumeScorchedBacking [self mortalityRateUnits]
+  (.getTreeCrownVolumeScorchedBacking self mortalityRateUnits))
+
+(defn getTreeCrownVolumeScorchedFlanking [self mortalityRateUnits]
   (.getTreeCrownVolumeScorched self mortalityRateUnits))
 
 (defn getTreeDensityPerUnitArea [self areaUnits]
