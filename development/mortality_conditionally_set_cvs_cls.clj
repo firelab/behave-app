@@ -24,6 +24,9 @@
 #_{:clj-kondo/ignore [:missing-docstring]}
 (def conn (default-conn))
 
+;; We need to remove these functions because they have the wrong units.
+;; getTreeCrownLengthScorched should have length units not MortalityRateUnits
+;; getTreeCrownVolumeScorched should have fractionUnits not MortalityRateUnits
 #_{:clj-kondo/ignore [:missing-docstring]}
 (def cms-remove-tx
   (d/transact conn [[:db/retractEntity [:bp/uuid (sm/cpp-fn->uuid conn "getTreeCrownLengthScorched")]]
