@@ -21,5 +21,5 @@
               (run 'stop)
               (run 'pull)
               (run 'build-js)
-              (run 'uber)
+              ;; (run 'uber)
               (run 'start))}}
