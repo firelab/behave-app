@@ -8,7 +8,7 @@
             [behave.components.results.matrices   :refer [result-matrices]]
             [behave.components.results.graphs     :refer [result-graphs]]
             [behave.components.results.inputs.views :refer [inputs-table]]
-            [behave.components.results.table      :refer [result-table-download-link]]
+            [behave.components.results.table      :refer [result-table-download-link directional-result-tables]]
             [behave.tool.views                    :refer [tool tool-selector]]
             [behave-routing.main                  :refer [routes current-route-order]]
             [behave.translate                     :refer [<t bp]]
@@ -626,14 +626,15 @@
 
 (defn wizard-results-page [{:keys [route-handler io ws-uuid] :as params}]
   (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
-  (let [*worksheet          (subscribe [:worksheet ws-uuid])
-        *ws-date            (subscribe [:wizard/worksheet-date ws-uuid])
-        *notes              (subscribe [:wizard/notes ws-uuid])
-        *tab-selected       (subscribe [:wizard/results-tab-selected])
-        *cell-data          (subscribe [:worksheet/result-table-cell-data ws-uuid])
-        table-enabled?      (get-in @*worksheet [:worksheet/table-settings :table-settings/enabled?])
-        show-tool-selector? @(subscribe [:tool/show-tool-selector?])
-        selected-tool-uuid  @(subscribe [:tool/selected-tool-uuid])]
+  (let [*worksheet           (subscribe [:worksheet ws-uuid])
+        *ws-date             (subscribe [:wizard/worksheet-date ws-uuid])
+        *notes               (subscribe [:wizard/notes ws-uuid])
+        *tab-selected        (subscribe [:wizard/results-tab-selected])
+        *cell-data           (subscribe [:worksheet/result-table-cell-data ws-uuid])
+        *directional-tables? (subscribe [:wizard/output-directional-tables? ws-uuid])
+        table-enabled?       (get-in @*worksheet [:worksheet/table-settings :table-settings/enabled?])
+        show-tool-selector?  @(subscribe [:tool/show-tool-selector?])
+        selected-tool-uuid   @(subscribe [:tool/selected-tool-uuid])]
     [:<>
      (when show-tool-selector?
        [tool-selector])
@@ -692,7 +693,9 @@
          (when (and table-enabled? (seq @*cell-data))
            [:div.wizard-results__table {:id "table"}
             [:div.wizard-notes__header @(<t (bp "table"))]
-            [result-matrices ws-uuid]
+            (if @*directional-tables?
+              [directional-result-tables ws-uuid]
+              [result-matrices ws-uuid])
             [:div.wizard-notes__header @(<t (bp "runs_table"))]
             [result-table-download-link ws-uuid]])
          (result-graphs ws-uuid @*cell-data)

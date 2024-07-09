@@ -702,3 +702,9 @@
 
  (fn [[sidebar-hidden? help-area-hidden?]]
    (and sidebar-hidden? help-area-hidden?)))
+
+(reg-sub
+ :wizard/output-directional-tables?
+ (fn [[_ ws-uuid]] (subscribe [:worksheet/output-directions ws-uuid]))
+ (fn [output-directions]
+   (> (count output-directions) 1)))
