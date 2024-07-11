@@ -724,6 +724,29 @@
           (sort-by (juxt #(.indexOf gv-order (first %))
                          #(second %)))))))
 
+
+(rf/reg-sub
+ :worksheet/pivot-table-headers
+ (fn [_]
+   (rf/subscribe [:vms/group-variable-order]))
+ (fn [gv-order [_ ws-uuid gvs]]
+   (let [headers @(rf/subscribe [:query
+                                 '[:find ?gv-uuid ?repeat-id ?units
+                                   :in $ ?ws-uuid
+                                   :where
+                                   [?w :worksheet/uuid ?ws-uuid]
+                                   [?w :worksheet/result-table ?r]
+                                   [?r :result-table/headers ?h]
+                                   [?h :result-header/repeat-id ?repeat-id]
+                                   [?h :result-header/group-variable-uuid ?gv-uuid]
+                                   [?h :result-header/units ?units]]
+                                 [ws-uuid]])]
+     (->> headers
+          (filter (fn [[gv-uuid]]
+                    (contains? (set gvs) gv-uuid)))
+          (sort-by (juxt #(.indexOf gv-order (first %))
+                         #(second %)))))))
+
 ;; returns a map of group-variable uuid to units
 (rf/reg-sub
  :worksheet/result-table-units

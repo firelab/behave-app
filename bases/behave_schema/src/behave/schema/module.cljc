@@ -59,7 +59,10 @@
     :db/doc         "Module's diagrams"
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
-   ])
+
+   {:db/ident :module/pivot-tables
+    :db/doc         "Module's pivot tables"
+    :db/valueType   :db.type/ref}])
 
 ;;; Testing
 

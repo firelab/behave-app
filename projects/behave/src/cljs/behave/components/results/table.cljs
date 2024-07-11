@@ -99,6 +99,49 @@
 (defn result-table-download-link [ws-uuid]
   [:div [table-exporter (build-result-table-data {:ws-uuid ws-uuid})]])
 
+(defn raw-result-table [ws-uuid]
+  (c/table (build-result-table-data {:ws-uuid ws-uuid})))
+
+(defn pivot-table-data
+  "Pivots table data around a collection of pivot rows (these must be keys in the row-data)
+   and pivot-valus (an optional collection of tuples [key keyword] where keyword is one of #{:sum
+  :count :max :min})."
+  [pivot-rows pivot-values row-data]
+  (->> row-data
+       (group-by (apply juxt pivot-rows))
+       (map (fn [[k v]]
+              (into (zipmap pivot-rows k)
+                    (mapv (fn [[gv-uuid p-fn]]
+                            [gv-uuid (reduce
+                                      (fn [acc x]
+                                        (case p-fn
+                                          :sum   (+ (gv-uuid x) acc)
+                                          :count (inc acc)
+                                          :max   (max acc (gv-uuid x))
+                                          :min   (min acc (gv-uuid x))))
+                                      (case p-fn
+                                        :sum   0
+                                        :count 0
+                                        :max   ##-Inf
+                                        :min   ##Inf)
+                                      v)])
+                          pivot-values))))))
+
+(defn pivot-table
+  [ws-uuid]
+  (let [pivot-rows-uuids ["64a75ef0-f948-47a7-b5c7-34dd7d94f2a5"  ; Species code
+                          ;; "64a75ef0-d293-48ef-a636-b57118ed0d00"  ; Canopy height
+                          "64a8f4b1-9da5-4b5d-a75c-bb187b61dfdb"] ; mortality equation
+        table-data       (build-result-table-data {:ws-uuid ws-uuid
+                                                   :headers @(subscribe [:worksheet/pivot-table-headers
+                                                                         ws-uuid
+                                                                         pivot-rows-uuids])})
+        pivot-rows       (map #(keyword (str % "-0")) pivot-rows-uuids)
+        pivot-values     nil]
+    (c/table (update table-data
+                     :rows
+                     #(pivot-table-data pivot-rows pivot-values %)))))
+
 (defn directional-result-tables [ws-uuid]
   (let [directions @(subscribe [:worksheet/output-directions ws-uuid])]
     (when (seq directions)

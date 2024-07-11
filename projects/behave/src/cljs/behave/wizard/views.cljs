@@ -8,7 +8,10 @@
             [behave.components.results.matrices   :refer [result-matrices]]
             [behave.components.results.graphs     :refer [result-graphs]]
             [behave.components.results.inputs.views :refer [inputs-table]]
-            [behave.components.results.table      :refer [result-table-download-link directional-result-tables]]
+            [behave.components.results.table      :refer [result-table-download-link
+                                                          directional-result-tables
+                                                          pivot-table
+                                                          raw-result-table]]
             [behave.tool.views                    :refer [tool tool-selector]]
             [behave-routing.main                  :refer [routes current-route-order]]
             [behave.translate                     :refer [<t bp]]
@@ -697,6 +700,8 @@
               [directional-result-tables ws-uuid]
               [result-matrices ws-uuid])
             [:div.wizard-notes__header @(<t (bp "runs_table"))]
+            [pivot-table ws-uuid]
+            [raw-result-table ws-uuid]
             [result-table-download-link ws-uuid]])
          (result-graphs ws-uuid @*cell-data)
          (result-diagrams ws-uuid)]]

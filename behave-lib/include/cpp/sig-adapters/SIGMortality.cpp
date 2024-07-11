@@ -271,5 +271,17 @@ double SIGMortality::getTreeCrownVolumeScorchedFlanking(FractionUnits::FractionU
     return flanking_.getTreeCrownVolumeScorched(fractionUnits);
 }
 
-
-
+void SIGMortality::getCVSorCLS()
+{
+    cls = heading_.getTreeCrownLengthScorched(LengthUnits::Feet);
+    cvs = heading_.getTreeCrownVolumeScorchedScorched(FractionUnits::Percent);
+    if (cls == -1 && cvs == -1) {
+        return "None";
+    } else if (cls != -1 && cvs != -1) {
+        return "BOTH";
+    } else if (cls != -1) {
+        return "CLS";
+    } else {
+        return "CVS";
+    }
+};
