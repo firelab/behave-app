@@ -1219,4 +1219,8 @@ body {
   fill: var(--medblue-4);
 }
 
+.wizard-results__pivot-tables .table {
+  margin-bottom: 20px;
+}
+
 /* - End Container Close Button - */
