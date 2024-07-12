@@ -15,7 +15,7 @@
 (s/def :pivot-value/group-variable-uuid  uuid-string?)
 (s/def :pivot-value/function  valid-pivot-value-fn?)
 
-(s/def :behave/pivot-table-row (s/keys :req [:pivot-value/group-variable-uuid]))
+(s/def :behave/pivot-table-row (s/keys :req [:pivot-row/group-variable-uuid]))
 
 (s/def :behave/pivot-table-value (s/keys :req [:pivot-value/group-variable-uuid
                                                :pivot-value/function]))
@@ -66,6 +66,9 @@
   (s/valid? :behave/pivot-table
             {:pivot-table/rows   [(str (random-uuid))]
              :pivot-table/values #{1}})
+
+  (s/valid? :behave/pivot-table-row
+            {:pivot-value/group-variable-uuid (str (random-uuid))})
 
   (s/valid? :behave/pivot-table-value
             {:pivot-value/group-variable-uuid (str (random-uuid))

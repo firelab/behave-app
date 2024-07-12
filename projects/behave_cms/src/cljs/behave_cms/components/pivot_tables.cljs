@@ -3,7 +3,7 @@
    [clojure.spec.alpha           :as s]
    [clojure.string               :as str]
    [behave.schema.conditionals]
-   [behave-cms.components.common :refer [dropdown checkboxes simple-table]]
+   [behave-cms.components.common :refer [dropdown]]
    [behave-cms.utils             :as u]
    [reagent.core                 :as r]
    [re-frame.core                :as rf]
@@ -12,24 +12,18 @@
 
 ;;; Helpers
 
-(defn inverse-attr
+(defn- inverse-attr
   [attr]
   (->> (str/split (->str attr) "/")
        (str/join "/_")
        keyword))
 
-(defn on-submit [entity-id cond-attr]
-  (prn "data:" (merge @(rf/subscribe [:state [:editors :conditional cond-attr]])
-                      {(inverse-attr cond-attr) entity-id}))
+(defn- on-submit [entity-id pivot-attr]
   (rf/dispatch [:ds/transact
-                (merge @(rf/subscribe [:state [:editors :conditional cond-attr]])
-                       {(inverse-attr cond-attr) entity-id})])
+                (merge @(rf/subscribe [:state [:editors :pivot-table pivot-attr]])
+                       {(inverse-attr pivot-attr) entity-id})])
   (rf/dispatch-sync [:state/set-state [:editors :variable-lookup] nil])
-  (rf/dispatch [:state/set-state [:editors :conditional] {}]))
-
-(comment
-  {:pivot-table/_rows             -1
-   :pivot-row/group-variable-uuid "some-uuid"})
+  (rf/dispatch [:state/set-state [:editors :pivot-table] {}]))
 
 ;;; Components
 
@@ -48,24 +42,26 @@
         :on-change on-change}]
       [:label.form-check-label {:for value} label]])])
 
-(defn manage-variable-conditionals [cond-attr entity-id]
-  (let [var-path    [:editors :variable-lookup]
-        cond-path   [:editors :conditional @cond-attr]
-        get-field   #(rf/subscribe [:state %])
-        set-field   (fn [path v] (rf/dispatch [:state/set-state path v]))
-        modules     (rf/subscribe [:module/app-modules entity-id])
-        submodules  (rf/subscribe [:pull-children :module/submodules @(get-field (conj var-path :module))])
-        groups      (rf/subscribe [:submodule/groups-w-subgroups @(get-field (conj var-path :submodule))])
-        is-output?  (rf/subscribe [:submodule/is-output? @(get-field (conj var-path :submodule))])
-        variables   (rf/subscribe [(if @is-output? :group/variables :group/discrete-variables)
-                                   @(get-field (conj var-path :group))])
-        reset-cond! #(set-field cond-path {})]
+(defn column-field-selectors
+  "a commponent to select the necessary fields for a pivot column"
+  [pivot-attr entity-id]
+  (let [var-path     [:editors :variable-lookup]
+        pivot-path   [:editors :pivot-table @pivot-attr]
+        get-field    #(rf/subscribe [:state %])
+        set-field    (fn [path v] (rf/dispatch [:state/set-state path v]))
+        modules      (rf/subscribe [:module/app-modules entity-id])
+        submodules   (rf/subscribe [:pull-children :module/submodules @(get-field (conj var-path :module))])
+        groups       (rf/subscribe [:submodule/groups-w-subgroups @(get-field (conj var-path :submodule))])
+        is-output?   (rf/subscribe [:submodule/is-output? @(get-field (conj var-path :submodule))])
+        variables    (rf/subscribe [(if @is-output? :group/variables :group/discrete-variables)
+                                    @(get-field (conj var-path :group))])
+        reset-entry! #(set-field pivot-path {})]
     [:<>
      [dropdown
       {:label     "Module:"
        :selected  (get-field (conj var-path :module))
        :on-select #(do
-                     (reset-cond!)
+                     (reset-entry!)
                      (set-field var-path {})
                      (set-field (conj var-path :module) (u/input-int-value %)))
        :options   (map (fn [{value :db/id label :module/name}]
@@ -75,7 +71,7 @@
       {:label     "Submodule:"
        :selected  (get-field (conj var-path :submodule))
        :on-select #(do
-                     (reset-cond!)
+                     (reset-entry!)
                      (set-field (conj var-path :group) nil)
                      (set-field (conj var-path :submodule) (u/input-int-value %)))
        :options   (map (fn [{value :db/id label :submodule/name io :submodule/io}]
@@ -86,63 +82,59 @@
       {:label     "Group/Subgroup:"
        :selected  (get-field (conj var-path :group))
        :on-select #(do
-                     (reset-cond!)
+                     (reset-entry!)
                      (set-field (conj var-path :group) (u/input-int-value %)))
        :options   (map (fn [{value :db/id label :group/name}]
                          {:value value :label label}) @groups)}]
 
      [dropdown
       {:label     "Variable:"
-       :selected  (get-field (conj cond-path (if (= @cond-attr :pivot-table/rows)
-                                               :pivot-row/group-variable-uuid
-                                               :pivot-value/group-variable-uuid)))
-       :on-select #(do
-                     (set-field (conj cond-path (if (= @cond-attr :pivot-table/rows)
-                                                  :pivot-row/group-variable-uuid
-                                                  :pivot-value/group-variable-uuid))
-                                (u/input-value %)))
+       :selected  (get-field (conj pivot-path (if (= @pivot-attr :pivot-table/rows)
+                                                :pivot-row/group-variable-uuid
+                                                :pivot-value/group-variable-uuid)))
+       :on-select #(set-field (conj pivot-path (if (= @pivot-attr :pivot-table/rows)
+                                                 :pivot-row/group-variable-uuid
+                                                 :pivot-value/group-variable-uuid))
+                              (u/input-value %))
        :options   (map (fn [{value :bp/uuid label :variable/name}]
                          {:value value :label label}) @variables)}]
 
-     (when (= @cond-attr :pivot-table/values)
+     (when (= @pivot-attr :pivot-table/values)
        [dropdown
         {:label     "Function"
-         :on-select #(set-field (conj cond-path :pivot-value/function)
+         :on-select #(set-field (conj pivot-path :pivot-value/function)
                                 (keyword (u/input-value %)))
          :options   [{:value :sum :label "sum"}
+                     {:value :min :label "min"}
                      {:value :max :label "max"}
-                     {:value :min :label "min"}]}])]))
+                     {:value :max :label "count"}]}])]))
 
-(defn manage-conditionals
-  "Component to manage conditional for an entity. Takes:
-   - entity-id [int]: the ID of the entity
-   - cond-attr [keyword]: the attribute name of the conditionals (e.g. `:group/conditionals`)"
+(defn manage-pivot-table
+  "Component to manage a pivot table column for an pivot table entity. Takes:
+   - module-id [int]: the ID of the module the pivot table belongs to
+   - pivot-table-id [int]: the ID of the pivot table"
   [module-id pivot-table-id]
-  (r/with-let [state     (r/atom :pivot-table/rows)
-               cond-attr @state
-               cond-path [:editors :conditional @state]
-               set-type  #(do (reset! state %)
-                              (rf/dispatch-sync [:state/set-state [:editors :variable-lookup] nil])
-                              (rf/dispatch-sync [:state/set-state cond-path nil]))
-               conditional (rf/subscribe [:state cond-path])]
-    [:form.row
-     {:on-submit (u/on-submit #(on-submit pivot-table-id @state))}
-     [:h4 "Manage Pivot Table Rows/Values:"]
+  (r/with-let [pivot-attr (r/atom :pivot-table/rows)]
+    (let [pivot-path  [:editors :pivot-table @pivot-attr]
+          set-type    #(do (reset! pivot-attr %)
+                           (rf/dispatch-sync [:state/set-state [:editors :variable-lookup] nil])
+                           (rf/dispatch-sync [:state/set-state pivot-path nil]))
+          pivot-field (rf/subscribe [:state pivot-path])]
+      [:form.row
+       {:on-submit (u/on-submit #(on-submit pivot-table-id @pivot-attr))}
+       [:h4 "Manage Pivot Table Rows/Values:"]
 
-     [radio-buttons
-      "Rows/Values"
-      [{:label "Rows" :value "pivot-table/rows"}
-       {:label "Values" :value "pivot-table/values"}]
-      #(do (set-type (u/input-keyword %)))]
+       [radio-buttons
+        "Rows/Values"
+        [{:label "Rows" :value "pivot-table/rows"}
+         {:label "Values" :value "pivot-table/values"}]
+        #(set-type (u/input-keyword %))]
 
-     [manage-variable-conditionals state module-id]
+       [column-field-selectors pivot-attr module-id]
 
-     [:button.btn.btn-sm.btn-outline-primary.mt-4
-      {:type     "submit"
-       ;; :disabled (or (not (s/valid? :behave/pivot-table-value @conditional))
-       ;;               (not (s/valid? :behave/pivot-table @conditional)))
-       }
-      "Save"]]))
-
-(defn pivot-table-editor [pivot-tables]
-  [:div [manage-conditionals nil nil]])
+       [:button.btn.btn-sm.btn-outline-primary.mt-4
+        {:type     "submit"
+         :disabled (if (= @pivot-attr :pivot-table/rows)
+                     (not (s/valid? :behave/pivot-table-row @pivot-field))
+                     (not (s/valid? :behave/pivot-table-value @pivot-field)))}
+        "Save"]])))

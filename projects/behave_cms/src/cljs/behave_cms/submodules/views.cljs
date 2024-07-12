@@ -1,12 +1,11 @@
 (ns behave-cms.submodules.views
   (:require [re-frame.core                      :as rf]
-            [behave-cms.components.common       :refer [accordion simple-table window]]
+            [behave-cms.components.common       :refer [accordion btn-sm simple-table window]]
             [behave-cms.components.entity-form  :refer [entity-form]]
             [behave-cms.components.sidebar      :refer [sidebar sidebar-width]]
             [behave-cms.components.translations :refer [all-translations]]
             [behave-cms.help.views              :refer [help-editor]]
-            [behave-cms.components.pivot-tables :refer [pivot-table-editor manage-conditionals]]
-            [behave-cms.components.common :refer [btn-sm]]
+            [behave-cms.components.pivot-tables :refer [manage-pivot-table]]
             [behave-cms.submodules.subs]))
 
 (defn- submodule-form [module-id id num-submodules]
@@ -120,5 +119,5 @@
                   "Delete Pivot Table"
                   #(rf/dispatch [:api/delete-entity pivot-table-id])]]
                 [:div.col-6
-                 [manage-conditionals id pivot-table-id]]]))
+                 [manage-pivot-table id pivot-table-id]]]))
            (:module/pivot-tables @module)))]]]]]))
