@@ -274,7 +274,7 @@ double SIGMortality::getTreeCrownVolumeScorchedFlanking(FractionUnits::FractionU
 char* SIGMortality::getCVSorCLS()
 {
     double cls = heading_.getTreeCrownLengthScorched(LengthUnits::Feet);
-    double cvs = heading_.getTreeCrownVolumeScorched(FractionUnits::Percent);
+    double cvs = heading_.getTreeCrownVolumeScorched(FractionUnits::Fraction);
     if (cls == -1 && cvs == -1) {
         return SIGString::str2charptr("None");
     } else if (cls != -1 && cvs != -1) {
