@@ -8,12 +8,14 @@
 
 ;;; Spec
 
-(s/def :pivot-table/rows  (s/coll-of uuid-string?))
+(s/def :pivot-table/rows    many-ref?)
 (s/def :pivot-table/values  many-ref?)
 
 (s/def :pivot-value/function  keyword?)
 (s/def :pivot-value/group-variable-uuid  uuid-string?)
 (s/def :pivot-value/function  valid-pivot-value-fn?)
+
+(s/def :behave/pivot-table-row (s/keys :req [:pivot-value/group-variable-uuid]))
 
 (s/def :behave/pivot-table-value (s/keys :req [:pivot-value/group-variable-uuid
                                                :pivot-value/function]))
@@ -25,34 +27,40 @@
 (def
   ^{:doc "Schema for pivot table."}
   schema
-  [{:db/ident       :pivot-table/title-translation-key
-    :db/doc         "Pivot Table's translation-key"
+  [{:db/ident       :pivot-table/tittle
+    :db/doc         "Pivot Table's tittle"
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one
     :db/unique      :db.unique/identity}
 
    {:db/ident       :pivot-table/rows
-    :db/doc         "Pivot Table's rows, where each member is a group-variable uuid string."
-    :db/valueType   :db.type/string
-    :db/cardinality :db.cardinality/many}
+    :db/doc         "Pivot Table's rows, see :pivot-row schema"
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
 
    {:db/ident       :pivot-table/values
     :db/doc         "Pivot Table's values, see :pivot-value schema"
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
+
+   ;; pivot-row
+   {:db/ident       :pivot-row/group-variable-uuid
+    :db/doc         "Pivot Table's input group variable uuids"
     :db/valueType   :db.type/string
-    :db/cardinality :db.cardinality/many}
+    :db/cardinality :db.cardinality/one}
 
    ;;pivot-value
    {:db/ident       :pivot-value/group-variable-uuid
     :db/doc         "Pivot Table's input group variable uuids"
     :db/valueType   :db.type/string
-    :db/cardinality :db.cardinality/many
-    :db/isComponent true}
+    :db/cardinality :db.cardinality/one}
 
    {:db/ident       :pivot-value/function
     :db/doc         "Function used to summarize the values"
     :db/valueType   :db.type/keyword
-    :db/cardinality :db.cardinality/one
-    :db/isComponent true}])
+    :db/cardinality :db.cardinality/one}])
 
 (comment
   (s/valid? :behave/pivot-table

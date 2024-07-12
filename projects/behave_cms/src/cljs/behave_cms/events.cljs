@@ -255,6 +255,7 @@
 (reg-event-fx
  :api/delete-entity
  (fn [_ [_ arg]]
+   (prn ":api/delete-entity" arg)
    (let [id (cond
               (number? arg)
               arg
