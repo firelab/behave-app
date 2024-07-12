@@ -10,7 +10,7 @@
             [behave.components.results.inputs.views :refer [inputs-table]]
             [behave.components.results.table      :refer [result-table-download-link
                                                           directional-result-tables
-                                                          pivot-table
+                                                          pivot-tables
                                                           raw-result-table]]
             [behave.tool.views                    :refer [tool tool-selector]]
             [behave-routing.main                  :refer [routes current-route-order]]
@@ -696,12 +696,12 @@
          (when (and table-enabled? (seq @*cell-data))
            [:div.wizard-results__table {:id "table"}
             [:div.wizard-notes__header @(<t (bp "table"))]
+            [pivot-tables ws-uuid]
             (if @*directional-tables?
               [directional-result-tables ws-uuid]
               [result-matrices ws-uuid])
             [:div.wizard-notes__header @(<t (bp "runs_table"))]
-            [pivot-table ws-uuid]
-            [raw-result-table ws-uuid]
+            ;; [raw-result-table ws-uuid]
             [result-table-download-link ws-uuid]])
          (result-graphs ws-uuid @*cell-data)
          (result-diagrams ws-uuid)]]
