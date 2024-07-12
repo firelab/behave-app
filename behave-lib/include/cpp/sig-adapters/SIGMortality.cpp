@@ -271,17 +271,17 @@ double SIGMortality::getTreeCrownVolumeScorchedFlanking(FractionUnits::FractionU
     return flanking_.getTreeCrownVolumeScorched(fractionUnits);
 }
 
-void SIGMortality::getCVSorCLS()
+char* SIGMortality::getCVSorCLS()
 {
-    cls = heading_.getTreeCrownLengthScorched(LengthUnits::Feet);
-    cvs = heading_.getTreeCrownVolumeScorchedScorched(FractionUnits::Percent);
+    double cls = heading_.getTreeCrownLengthScorched(LengthUnits::Feet);
+    double cvs = heading_.getTreeCrownVolumeScorched(FractionUnits::Percent);
     if (cls == -1 && cvs == -1) {
-        return "None";
+        return SIGString::str2charptr("None");
     } else if (cls != -1 && cvs != -1) {
-        return "BOTH";
+        return SIGString::str2charptr("Both");
     } else if (cls != -1) {
-        return "CLS";
+        return SIGString::str2charptr("CLS");
     } else {
-        return "CVS";
+        return SIGString::str2charptr("CVS");
     }
 };

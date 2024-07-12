@@ -5863,6 +5863,8 @@ var _emscripten_bind_SIGMortality_getCrownDamage_0 = Module["_emscripten_bind_SI
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getCrownRatio_0 = Module["_emscripten_bind_SIGMortality_getCrownRatio_0"] = createExportWrapper("emscripten_bind_SIGMortality_getCrownRatio_0");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getCVSorCLS_0 = Module["_emscripten_bind_SIGMortality_getCVSorCLS_0"] = createExportWrapper("emscripten_bind_SIGMortality_getCVSorCLS_0");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getDBH_1 = Module["_emscripten_bind_SIGMortality_getDBH_1"] = createExportWrapper("emscripten_bind_SIGMortality_getDBH_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getFlameLengthOrScorchHeightValue_1 = Module["_emscripten_bind_SIGMortality_getFlameLengthOrScorchHeightValue_1"] = createExportWrapper("emscripten_bind_SIGMortality_getFlameLengthOrScorchHeightValue_1");
@@ -6759,8 +6761,8 @@ var ___cxa_can_catch = createExportWrapper("__cxa_can_catch");
 var ___cxa_is_pointer_type = createExportWrapper("__cxa_is_pointer_type");
 /** @type {function(...*):?} */
 var dynCall_jiji = Module["dynCall_jiji"] = createExportWrapper("dynCall_jiji");
-var ___start_em_js = Module['___start_em_js'] = 117576;
-var ___stop_em_js = Module['___stop_em_js'] = 117674;
+var ___start_em_js = Module['___start_em_js'] = 117608;
+var ___stop_em_js = Module['___stop_em_js'] = 117706;
 function invoke_vii(index,a1,a2) {
   var sp = stackSave();
   try {
@@ -11618,6 +11620,11 @@ SIGMortality.prototype['getCrownDamage'] = SIGMortality.prototype.getCrownDamage
 SIGMortality.prototype['getCrownRatio'] = SIGMortality.prototype.getCrownRatio = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   return _emscripten_bind_SIGMortality_getCrownRatio_0(self);
+};;
+
+SIGMortality.prototype['getCVSorCLS'] = SIGMortality.prototype.getCVSorCLS = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  return UTF8ToString(_emscripten_bind_SIGMortality_getCVSorCLS_0(self));
 };;
 
 SIGMortality.prototype['getDBH'] = SIGMortality.prototype.getDBH = /** @suppress {undefinedVars, duplicate} @this{Object} */function(diameterUnits) {

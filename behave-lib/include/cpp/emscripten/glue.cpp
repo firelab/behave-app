@@ -2491,6 +2491,10 @@ const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getCrownRatio_0(S
   return self->getCrownRatio();
 }
 
+char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getCVSorCLS_0(SIGMortality* self) {
+  return self->getCVSorCLS();
+}
+
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getDBH_1(SIGMortality* self, LengthUnits_LengthUnitsEnum diameterUnits) {
   return self->getDBH(diameterUnits);
 }
