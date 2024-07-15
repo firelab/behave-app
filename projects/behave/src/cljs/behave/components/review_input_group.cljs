@@ -34,7 +34,7 @@
                  :on-click #(rf/dispatch [:wizard/edit-input edit-route repeat-id gv-uuid])}]
       (when (missing-input? @values)
         [:div.wizard-review__run-description__message
-         [c/button {:label         "Required"
+         [c/button {:label         @(<t (bp "required"))
                     :variant       "transparent-highlight"
                     :icon-name     :help2
                     :icon-position "left"}]])]]))
@@ -60,7 +60,7 @@
                   :on-click #(rf/dispatch [:wizard/edit-input edit-route repeat-id gv-uuid])}]
        (when (missing-input? @*value)
          [:div.wizard-review__run-description__message
-          [c/button {:label         "Required"
+          [c/button {:label         @(<t (bp "required"))
                      :variant       "transparent-highlight"
                      :icon-name     :help2
                      :icon-position "left"}]])]]]))
@@ -89,7 +89,7 @@
                   :on-click #(rf/dispatch [:wizard/edit-input edit-route repeat-id gv-uuid])}]
        (when (missing-input? @*value)
          [:div.wizard-review__run-description__message
-          [c/button {:label         "Required"
+          [c/button {:label         @(<t (bp "required"))
                      :variant       "transparent-highlight"
                      :icon-name     :help2
                      :icon-position "left"}]])      ]]]))
@@ -121,7 +121,7 @@
      [wizard-input (first variables) ws-uuid group-uuid repeat-id true route]
      (when (and (some #(missing-input? %) ws-values) first-value)
        [:div.wizard-review__run-description__message
-        [c/button {:label         "Required"
+        [c/button {:label         @(<t (bp "required"))
                    :variant       "transparent-highlight"
                    :icon-name     :help2
                    :icon-position "left"}]])
