@@ -419,7 +419,6 @@ Module.SIGMortality = class {
   getCambiumKillRating() {}
   getCrownDamage() {}
   getCrownRatio() {}
-  getCalculatedScorchHeight() {}
   getDBH() {}
   getFlameLengthOrScorchHeightValue() {}
   getFlameLength() {}

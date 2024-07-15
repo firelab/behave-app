@@ -44,9 +44,6 @@
 (defn getBoleCharHeight [self boleCharHeightUnits]
   (.getBoleCharHeight self boleCharHeightUnits))
 
-(defn getCalculatedScorchHeight [self scorchHeightUnits]
-  (.getCalculatedScorchHeight self scorchHeightUnits))
-
 (defn getCambiumKillRating [self]
   (.getCambiumKillRating self))
 

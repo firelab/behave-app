@@ -65,7 +65,6 @@ public:
   SpeciesMasterTableRecordVector *getSpeciesRecordVectorForRegion(RegionCode region);
   SpeciesMasterTableRecordVector *getSpeciesRecordVectorForRegionAndEquationType(RegionCode region,
                                                                                  EquationType equationType);
-  double getCalculatedScorchHeight(LengthUnits::LengthUnitsEnum scorchHeightUnits);
   void calculateMortalityAllDirections(FractionUnits::FractionUnitsEnum probablityUnits);
 
   // SIGMortality Getters Heading
