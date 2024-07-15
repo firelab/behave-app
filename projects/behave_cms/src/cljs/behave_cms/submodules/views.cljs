@@ -101,7 +101,8 @@
                    pivot-table-fields   @(rf/subscribe [:pivot-table/fields pivot-table-id])
                    pivot-table-values   @(rf/subscribe [:pivot-table/values pivot-table-id])
                    pivot-column-id-atom (r/atom nil)]
-               [accordion
+               [:<>
+                [accordion
                 (:pivot-table/tittle pivot-table)
                 [:div.col-6
                  [simple-table
@@ -120,5 +121,6 @@
                   #(when (js/confirm (str "Are you sure you want to delete this pivot table?"))
                      (rf/dispatch [:api/delete-entity pivot-table-id]))]]
                 [:div.col-6
-                 [manage-pivot-table-column id pivot-table-id pivot-column-id-atom]]]))
+                 [manage-pivot-table-column id pivot-table-id pivot-column-id-atom]]]
+                [:hr]]))
            (:module/pivot-tables @module)))]]]]]))
