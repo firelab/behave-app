@@ -64,3 +64,11 @@
                   translation entities (prevents eid overlap if you wish to include this payload in
                   the same transaction where you've manually assigned :db/id)."}
   build-translations-payload c/build-translations-payload)
+
+(def ^{:argslist '([uuid operator value])
+       :doc "Payload for a Group Variable Conditional."}
+  ->gv-conditional c/->gv-conditional)
+
+(def ^{:argslist '([operator values])
+       :doc "Payload for a Module Conditional."}
+  ->module-conditional c/->module-conditional)

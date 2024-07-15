@@ -173,9 +173,10 @@
            (log-solver [:ADD-LINK
                         [:SRC src-group-uuid 0 src-uuid [value unit-uuid]]
                         [:DST group-uuid 0 dst-uuid [value unit-uuid]]])
-           (assoc-in acc
-                     [group-uuid 0 dst-uuid]
-                     [value unit-uuid]))
+           (when (nil? (get-in acc [group-uuid 0 dst-uuid]))
+             (assoc-in acc
+                       [group-uuid 0 dst-uuid]
+                       [value unit-uuid])))
          acc))
      inputs
      destination-links)))

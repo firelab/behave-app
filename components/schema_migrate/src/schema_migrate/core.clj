@@ -6,6 +6,10 @@
    [datomic-store.main :as ds]
    [nano-id.core :refer [nano-id]]))
 
+(def
+  ^{:doc "Random UUID in string format."}
+  rand-uuid (comp str squuid))
+
 (defn name->uuid
   "Get the :bp/uuid using the name for the specified name attribute"
   [conn attr nname]
@@ -180,3 +184,22 @@
                                     :language/translation (map :db/id translations)}]
      (into [language-translation-refs]
            translations))))
+
+(defn ->gv-conditional
+  "Payload for a Group Variable Conditional."
+  [uuid operator value]
+  {:bp/uuid                         (rand-uuid)
+   :bp/nid                          (nano-id)
+   :conditional/group-variable-uuid uuid
+   :conditional/type                :group-variable
+   :conditional/operator            operator
+   :conditional/values              value})
+
+(defn ->module-conditional
+  "Payload for a Module Conditional."
+  [operator values]
+  {:bp/uuid              (rand-uuid)
+   :bp/nid               (nano-id)
+   :conditional/type     :module
+   :conditional/operator operator
+   :conditional/values   values})
