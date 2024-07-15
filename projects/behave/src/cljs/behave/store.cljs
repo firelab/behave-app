@@ -149,12 +149,7 @@
                                          :modules (vec modules)
                                          :uuid    ws-uuid}])
       (reset! current-route-order @(rf/subscribe [:wizard/route-order ws-uuid]))
-      (rf/dispatch-sync [:navigate (str "/worksheets/"
-                                        ws-uuid
-                                        "/modules/"
-                                        (->str (first modules))
-                                        "/output/"
-                                        submodule)]))))
+      (rf/dispatch-sync [:navigate (first @current-route-order)]))))
 
 (defn new-worksheet! [nname modules submodule]
   (ajax-request {:uri             "/init"
