@@ -135,20 +135,19 @@
     (when (seq tables)
       [:div.wizard-results__pivot-tables
        (for [pivot-table tables]
-         (let [pivot-rows-uuids       (map :pivot-row/group-variable-uuid (:pivot-table/rows pivot-table))
-               pivot-val-uuids        (map :pivot-value/group-variable-uuid (:pivot-table/values pivot-table))
+         (let [pivot-fields-uuids     @(subscribe [:worksheet/pivot-table-fields (:db/id pivot-table)])
+               pivot-values           @(subscribe [:worksheet/pivot-table-values (:db/id pivot-table)])
                table-data             (build-result-table-data {:ws-uuid ws-uuid
                                                                 :tittle  (:pivot-table/tittle pivot-table)
                                                                 :headers @(subscribe [:worksheet/pivot-table-headers
                                                                                       ws-uuid
-                                                                                      (concat pivot-rows-uuids
-                                                                                              pivot-val-uuids)])})
+                                                                                      (concat pivot-fields-uuids
+                                                                                              (map first pivot-values))])})
                gv-uuid->table-keyword (fn [gv-uuid] (keyword (str gv-uuid "-0")))
-               pivot-rows             (map gv-uuid->table-keyword pivot-rows-uuids)
-               pivot-values           (map (fn [{gv-uuid  :pivot-value/group-variable-uuid
-                                                 function :pivot-value/function}]
-                                          [(gv-uuid->table-keyword gv-uuid) function])
-                                        (:pivot-table/values pivot-table))]
+               pivot-rows             (map gv-uuid->table-keyword pivot-fields-uuids)
+               pivot-values           (map (fn [[gv-uuid function]]
+                                             [(gv-uuid->table-keyword gv-uuid) function])
+                                           pivot-values)]
            (c/table (update table-data
                             :rows
                             #(pivot-table-data pivot-rows pivot-values %)))))])))

@@ -9,19 +9,19 @@
             [behave-cms.submodules.subs]))
 
 (defn- submodule-form [module-id id num-submodules]
-  [entity-form {:entity        :submodule
-                :parent-field  :module/_submodules
-                :parent-id     module-id
-                :id            id
-                :fields        [{:label     "Name"
-                                 :required? true
-                                 :field-key :submodule/name}
-                                {:label     "I/O"
-                                 :field-key :submodule/io
-                                 :type      :radio
-                                 :options   [{:label "Input" :value :input}
-                                             {:label "Output" :value :output}]}]
-                :on-create     #(assoc % :submodule/order num-submodules)}])
+  [entity-form {:entity       :submodule
+                :parent-field :module/_submodules
+                :parent-id    module-id
+                :id           id
+                :fields       [{:label     "Name"
+                                :required? true
+                                :field-key :submodule/name}
+                               {:label     "I/O"
+                                :field-key :submodule/io
+                                :type      :radio
+                                :options   [{:label "Input" :value :input}
+                                            {:label "Output" :value :output}]}]
+                :on-create    #(assoc % :submodule/order num-submodules)}])
 
 (defn- manage-submodule [module-id *submodule num-submodules]
   [:div.col-6
@@ -34,7 +34,7 @@
    [simple-table
     [:submodule/name]
     (->> submodules (sort-by :submodule/order))
-    {:on-select   #(rf/dispatch [:state/set-state :submodule (:db/id %)])
+    {:on-select   #(rf/dispatch [:state/set-state-state :submodule (:db/id %)])
      :on-delete   #(when (js/confirm (str "Are you sure you want to delete the submodule "
                                           (:submodule/name %) "?"))
                      (rf/dispatch [:api/delete-entity %]))
@@ -54,11 +54,12 @@
   "Display submodules page. Takes a map with:
    - id [int]: Submodule entity ID."
   [{:keys [nid]}]
-  (let [module      (rf/subscribe [:entity [:bp/nid nid] '[* {:application/_modules [:db/id :application/name :bp/nid]}]])
-        id          (:db/id @module)
-        application (get-in @module [:application/_modules 0])
-        submodules  (rf/subscribe [:sidebar/submodules id])
-        submodule   (rf/subscribe [:state :submodule])]
+  (let [module                (rf/subscribe [:entity [:bp/nid nid] '[* {:application/_modules [:db/id :application/name :bp/nid]}]])
+        id                    (:db/id @module)
+        application           (get-in @module [:application/_modules 0])
+        submodules            (rf/subscribe [:sidebar/submodules id])
+        submodule             (rf/subscribe [:state :submodule])
+        pivot-table-column-id (rf/subscribe [:state :pivot-column-id])]
     [:<>
      [sidebar
       "Submodules"
@@ -97,23 +98,25 @@
           (map
            (fn [pivot-table]
              (let [pivot-table-id     (:db/id pivot-table)
-                   pivot-table-rows   @(rf/subscribe [:pivot-table/rows pivot-table-id])
+                   pivot-table-fields @(rf/subscribe [:pivot-table/fields pivot-table-id])
                    pivot-table-values @(rf/subscribe [:pivot-table/values pivot-table-id])]
                [accordion
                 (:pivot-table/tittle pivot-table)
                 [:div.col-6
                  [simple-table
                   [:variable/name]
-                  pivot-table-rows
+                  pivot-table-fields
                   {:on-delete #(when (js/confirm (str "Are you sure you want to delete the pivot table row "
                                                       (:variable/name %) "?"))
-                                 (rf/dispatch [:api/delete-entity (:db/id %)]))}]
+                                 (rf/dispatch [:api/delete-entity (:db/id %)]))
+                   :on-select #(rf/dispatch [:state/set-state :pivot-column-id (:db/id %)])}]
                  [simple-table
-                  [:variable/name :pivot-value/function]
+                  [:variable/name :pivot-column/function]
                   pivot-table-values
                   {:on-delete #(when (js/confirm (str "Are you sure you want to delete the pivot table value "
                                                       (:variable/name %) "?"))
-                                 (rf/dispatch [:api/delete-entity (:db/id %)]))}]
+                                 (rf/dispatch [:api/delete-entity (:db/id %)]))
+                   :on-select #(rf/dispatch [:state/set-state :pivot-column-id (:db/id %)])}]
                  [btn-sm
                   :outline-danger
                   "Delete Pivot Table"

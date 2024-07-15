@@ -942,24 +942,26 @@
         @@vms-conn @@s/conn rules ws-uuid)))
 
 (rf/reg-sub
- :worksheet/pivot-table-rows
+ :worksheet/pivot-table-fields
  (fn [_ [_ pivot-table-id]]
    (d/q '[:find  [?gv-uuid ...]
           :in    $ ?p
           :where
-          [?p :pivot-table/rows ?r]
-          [?r :pivot-row/group-variable-uuid ?gv-uuid]]
+          [?p :pivot-table/columns ?c]
+          [?c :pivot-column/type :field]
+          [?c :pivot-column/group-variable-uuid ?gv-uuid]]
         @@vms-conn pivot-table-id)))
 
 (rf/reg-sub
  :worksheet/pivot-table-values
  (fn [_ [_ pivot-table-id]]
-   (d/q '[:find  ?gv-uuid ?fn
+   (d/q '[:find  ?gv-uuid ?function
           :in    $ ?p
           :where
-          [?p :pivot-table/values ?v]
-          [?v :pivot-value/group-variable-uuid ?gv-uuid]
-          [?v :pivot-value/function ?fn]]
+          [?p :pivot-table/columns ?c]
+          [?c :pivot-column/type :value]
+          [?c :pivot-column/group-variable-uuid ?gv-uuid]
+          [?c :pivot-column/function ?function]]
         @@vms-conn pivot-table-id)))
 
 (rf/reg-sub
@@ -968,15 +970,3 @@
    (rf/subscribe [:worksheet/modules ws-uuid]))
  (fn [modules]
    (mapcat :module/pivot-tables modules)))
-
-(comment 
-  (rf/subscribe [:worksheet/pivot-table-rows 6342])
-
-  (rf/subscribe [:worksheet/pivot-table-values 6342])
-
-  (->> @(rf/subscribe [:worksheet/pivot-tables "66911fb3-d2c7-4a82-9a70-5123241abedf"])
-       first
-       (:pivot-table/rows)
-       (map :pivot-row/group-variable-uuid))
-
-  )

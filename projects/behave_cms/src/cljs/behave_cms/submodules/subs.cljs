@@ -25,14 +25,15 @@
 
 
 (reg-sub
- :pivot-table/rows
+ :pivot-table/fields
  (fn [[_ pivot-table-id]]
    (subscribe [:query
-               '[:find ?r ?name
+               '[:find ?c ?name
                  :in  $ ?p
                  :where
-                 [?p :pivot-table/rows ?r]
-                 [?r :pivot-row/group-variable-uuid ?gv-uuid]
+                 [?p :pivot-table/columns ?c]
+                 [?c :pivot-column/type :field]
+                 [?c :pivot-column/group-variable-uuid ?gv-uuid]
                  [?gv :bp/uuid ?gv-uuid]
                  [?v :variable/group-variables ?gv]
                  [?v :variable/name ?name]]
@@ -46,14 +47,15 @@
  :pivot-table/values
  (fn [[_ pivot-table-id]]
    (subscribe [:query
-               '[:find ?v ?name
+               '[:find ?c ?name
                  :in  $ ?p
                  :where
-                 [?p :pivot-table/values ?v]
-                 [?v :pivot-value/group-variable-uuid ?gv-uuid]
+                 [?p :pivot-table/columns ?c]
+                 [?c :pivot-column/type :value]
+                 [?c :pivot-column/group-variable-uuid ?gv-uuid]
                  [?gv :bp/uuid ?gv-uuid]
-                 [?var :variable/group-variables ?gv]
-                 [?var :variable/name ?name]]
+                 [?v :variable/group-variables ?gv]
+                 [?v :variable/name ?name]]
                [pivot-table-id]]))
  (fn [results]
    (mapv (fn [[id name]]
