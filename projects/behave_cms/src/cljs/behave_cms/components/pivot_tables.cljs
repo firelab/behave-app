@@ -18,13 +18,13 @@
        (str/join "/_")
        keyword))
 
-(defn- on-submit [entity-id pivot-attr]
+(defn- on-submit [entity-id pivot-attr pivot-column-id-atom]
   (rf/dispatch-sync [:ds/transact
                      (merge @(rf/subscribe [:state [:editors :pivot-table entity-id]])
                             {(inverse-attr pivot-attr) entity-id})])
-  (rf/dispatch-sync [:state/set-state [:editors :variable-lookup] nil])
+  (rf/dispatch-sync [:state/set-state [:editors :variable-lookup entity-id] nil])
   (rf/dispatch-sync [:state/set-state [:editors :pivot-table entity-id] {}])
-  (rf/dispatch-sync [:state/set-state :pivot-column-id nil]))
+  (reset! pivot-column-id-atom nil))
 
 ;;; Components
 
@@ -46,29 +46,14 @@
           :on-change on-change}]
         [:label.form-check-label {:for value} label]])]))
 
-#_(defn radio-buttons
-    "A component for radio button."
-    [group-label options on-change]
-    [:div.mb-3
-     [:label.form-label group-label]
-     (for [{:keys [label value]} options]
-       [:div.form-check
-        [:input.form-check-input
-         {:type      "radio"
-          :name      (u/sentence->kebab group-label)
-          :id        value
-          :value     value
-          :on-change on-change}]
-        [:label.form-check-label {:for value} label]])])
-
-(defn column-field-selectors
+(defn pivot-column-field-selectors
   "a commponent to select the necessary fields for a pivot column"
-  [state module-id pivot-table-id pivot-column]
+  [state module-id pivot-table-id pivot-column-id-atom pivot-column]
   (when (:pivot-column/group-variable-uuid pivot-column)
     (let [gv-id                    @(rf/subscribe [:bp/lookup (:pivot-column/group-variable-uuid pivot-column)])
           [module submodule group] @(rf/subscribe [:group-variable/module-submodule-group gv-id])]
-      (rf/dispatch [:state/set-state [:editors :variable-lookup] {:module module :submodule submodule :group group}])))
-  (let [var-path          [:editors :variable-lookup]
+      (rf/dispatch [:state/set-state [:editors :variable-lookup pivot-table-id] {:module module :submodule submodule :group group}])))
+  (let [var-path          [:editors :variable-lookup pivot-table-id]
         pivot-column-path [:editors :pivot-table pivot-table-id]
         get-field         #(rf/subscribe [:state %])
         set-field         (fn [path v] (rf/dispatch [:state/set-state path v]))
@@ -77,10 +62,10 @@
         groups            (rf/subscribe [:submodule/groups-w-subgroups @(get-field (conj var-path :submodule))])
         variables         (rf/subscribe [:group/variables @(get-field (conj var-path :group))])
         reset-gv-uuid!    #(do
-                             (rf/dispatch-sync [:state/set-state :pivot-column-id nil])
+                             (reset! pivot-column-id-atom nil)
                              (set-field pivot-column-path (dissoc pivot-column :pivot-column/group-variable-uuid)))
         reset-function!   #(do
-                             (rf/dispatch-sync [:state/set-state :pivot-column-id nil])
+                             (reset! pivot-column-id-atom nil)
                              (set-field pivot-column-path (dissoc pivot-column :pivot-column/function)))]
     [:<>
      [dropdown
@@ -134,43 +119,42 @@
                      {:value "max" :label "max"}
                      {:value "count" :label "count"}]}])]))
 
-(defn manage-pivot-table
+(defn manage-pivot-table-column
   "Component to manage a pivot table column for an pivot table entity. Takes:
    - module-id [int]: the ID of the module the pivot table belongs to
-   - pivot-table-id [int]: the ID of the pivot table"
-  [module-id pivot-table-id]
-  (let [pivot-column-id @(rf/subscribe [:state :pivot-column-id])]
-    (r/with-let [state (r/atom "field")
-                 pivot-column-path  [:editors :pivot-table pivot-table-id]
-                 set-type    #(do (reset! state %)
-                                  (rf/dispatch-sync [:state/set-state [:editors :variable-lookup] nil])
-                                  (rf/dispatch-sync [:state/set-state pivot-column-path nil])
-                                  (rf/dispatch-sync [:state/set-state
-                                                     (conj pivot-column-path :pivot-column/type)
-                                                     (if (= % "field") :field :value)]))
-                 get-field (fn [attr] (rf/subscribe [:state (conj pivot-column-path attr)]))
-                 pivot-column (rf/subscribe [:state pivot-column-path])]
-      (when-not (nil? pivot-column-id)
-        (let [existing-pivot-column @(rf/subscribe [:entity pivot-column-id])]
-          (rf/dispatch [:state/set-state [:editors :pivot-table pivot-table-id] existing-pivot-column])
-          (when (= (:pivot-column/type existing-pivot-column) :value)
-            (reset! state "value"))))
-      [:form.row
-       {:on-submit (u/on-submit #(on-submit pivot-table-id :pivot-table/columns))}
-       [:h4 "Manage Pivot Table Columns:"]
-       [radio-buttons
-        "Column Type"
-        [{:label "Field" :value "field"}
-         {:label "Value" :value "value"}]
-        (get-field :pivot-column/type)
-        #(set-type (u/input-value %))]
+   - pivot-table-id [int]: the ID of the pivot table
+   - pivot-column-id-atom: atom to determine if an existing `pivot-table/column` is being edited"
+  [module-id pivot-table-id pivot-column-id-atom]
+  (r/with-let [state (r/atom "field")
+               pivot-column-path  [:editors :pivot-table pivot-table-id]
+               set-type    #(do (reset! state %)
+                                (rf/dispatch-sync [:state/set-state [:editors :variable-lookup pivot-table-id] nil])
+                                (rf/dispatch-sync [:state/set-state pivot-column-path nil])
+                                (rf/dispatch-sync [:state/set-state
+                                                   (conj pivot-column-path :pivot-column/type)
+                                                   (if (= % "field") :field :value)]))
+               get-field (fn [attr] (rf/subscribe [:state (conj pivot-column-path attr)]))
+               pivot-column (rf/subscribe [:state pivot-column-path])]
+    (when-not (nil? @pivot-column-id-atom)
+      (let [existing-pivot-column @(rf/subscribe [:entity @pivot-column-id-atom])]
+        (rf/dispatch [:state/set-state [:editors :pivot-table pivot-table-id] existing-pivot-column])
+        (when (= (:pivot-column/type existing-pivot-column) :value)
+          (reset! state "value"))))
+    [:form.row
+     {:on-submit (u/on-submit #(on-submit pivot-table-id :pivot-table/columns pivot-column-id-atom))}
+     [:h4 "Manage Pivot Table Columns:"]
+     [radio-buttons
+      "Column Type"
+      [{:label "Field" :value "field"}
+       {:label "Value" :value "value"}]
+      (get-field :pivot-column/type)
+      #(set-type (u/input-value %))]
 
-       [column-field-selectors state module-id pivot-table-id @pivot-column]
+     [pivot-column-field-selectors state module-id pivot-table-id pivot-column-id-atom @pivot-column]
 
-       [:button.btn.btn-sm.btn-outline-primary.mt-4
-        {:type "submit"
-         :disabled (if (= @state "field")
-                     (not (s/valid? :behave/pivot-table-column-field @pivot-column))
-                     (not (s/valid? :behave/pivot-table-column-value @pivot-column)))
-         }
-        (if (:db/id @pivot-column) "Save" "Create")]])))
+     [:button.btn.btn-sm.btn-outline-primary.mt-4
+      {:type     "submit"
+       :disabled (if (= @state "field")
+                   (not (s/valid? :behave/pivot-table-column-field @pivot-column))
+                   (not (s/valid? :behave/pivot-table-column-value @pivot-column)))}
+      (if (:db/id @pivot-column) "Save" "Create")]]))

@@ -5,7 +5,8 @@
             [behave-cms.components.sidebar      :refer [sidebar sidebar-width]]
             [behave-cms.components.translations :refer [all-translations]]
             [behave-cms.help.views              :refer [help-editor]]
-            [behave-cms.components.pivot-tables :refer [manage-pivot-table]]
+            [reagent.core                 :as r]
+            [behave-cms.components.pivot-tables :refer [manage-pivot-table-column]]
             [behave-cms.submodules.subs]))
 
 (defn- submodule-form [module-id id num-submodules]
@@ -58,8 +59,7 @@
         id                    (:db/id @module)
         application           (get-in @module [:application/_modules 0])
         submodules            (rf/subscribe [:sidebar/submodules id])
-        submodule             (rf/subscribe [:state :submodule])
-        pivot-table-column-id (rf/subscribe [:state :pivot-column-id])]
+        submodule             (rf/subscribe [:state :submodule])]
     [:<>
      [sidebar
       "Submodules"
@@ -97,30 +97,28 @@
          (doall
           (map
            (fn [pivot-table]
-             (let [pivot-table-id     (:db/id pivot-table)
-                   pivot-table-fields @(rf/subscribe [:pivot-table/fields pivot-table-id])
-                   pivot-table-values @(rf/subscribe [:pivot-table/values pivot-table-id])]
+             (let [pivot-table-id       (:db/id pivot-table)
+                   pivot-table-fields   @(rf/subscribe [:pivot-table/fields pivot-table-id])
+                   pivot-table-values   @(rf/subscribe [:pivot-table/values pivot-table-id])
+                   pivot-column-id-atom (r/atom nil)]
                [accordion
                 (:pivot-table/tittle pivot-table)
                 [:div.col-6
                  [simple-table
                   [:variable/name]
                   pivot-table-fields
-                  {:on-delete #(when (js/confirm (str "Are you sure you want to delete the pivot table row "
-                                                      (:variable/name %) "?"))
-                                 (rf/dispatch [:api/delete-entity (:db/id %)]))
-                   :on-select #(rf/dispatch [:state/set-state :pivot-column-id (:db/id %)])}]
+                  {:on-delete #(rf/dispatch [:api/delete-entity (:db/id %)])
+                   :on-select #(reset! pivot-column-id-atom (:db/id %))}]
                  [simple-table
                   [:variable/name :pivot-column/function]
                   pivot-table-values
-                  {:on-delete #(when (js/confirm (str "Are you sure you want to delete the pivot table value "
-                                                      (:variable/name %) "?"))
-                                 (rf/dispatch [:api/delete-entity (:db/id %)]))
-                   :on-select #(rf/dispatch [:state/set-state :pivot-column-id (:db/id %)])}]
+                  {:on-delete #(rf/dispatch [:api/delete-entity (:db/id %)])
+                   :on-select #(reset! pivot-column-id-atom (:db/id %))}]
                  [btn-sm
                   :outline-danger
                   "Delete Pivot Table"
-                  #(rf/dispatch [:api/delete-entity pivot-table-id])]]
+                  #(when (js/confirm (str "Are you sure you want to delete this pivot table?"))
+                     (rf/dispatch [:api/delete-entity pivot-table-id]))]]
                 [:div.col-6
-                 [manage-pivot-table id pivot-table-id]]]))
+                 [manage-pivot-table-column id pivot-table-id pivot-column-id-atom]]]))
            (:module/pivot-tables @module)))]]]]]))
