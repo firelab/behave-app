@@ -4,7 +4,8 @@
             [behave.components.results.graphs       :refer [result-graphs]]
             [behave.components.results.diagrams     :refer [result-diagrams]]
             [behave.components.results.matrices     :refer [result-matrices]]
-            [behave.components.results.inputs.views :refer [inputs-table]]))
+            [behave.components.results.inputs.views :refer [inputs-table]]
+            [behave.components.results.table        :refer [pivot-tables]]))
 
 (defn- wizard-notes [notes]
   (when (seq notes)
@@ -35,6 +36,7 @@
      [inputs-table ws-uuid]
      [wizard-notes notes]
      [:div.wizard-print__header "Results"]
+     [pivot-tables ws-uuid]
      [result-matrices ws-uuid]
      [result-graphs ws-uuid graph-data]
      [result-diagrams ws-uuid]]))
