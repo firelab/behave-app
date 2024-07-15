@@ -11,7 +11,8 @@
             [map-utils.interface         :refer [index-by]]
             [number-utils.core           :refer [parse-float to-precision]]
             [string-utils.interface      :refer [->str ->kebab]]
-            [behave.translate            :refer [<t]]))
+            [behave.translate            :refer [<t]]
+            [behave.wizard.subs :refer [all-conditionals-pass?]]))
 
 ;; Helpers
 (defn make-tree
@@ -694,35 +695,52 @@
  (fn [id _]
    (d/entity @@s/conn id)))
 
-(rf/reg-sub
- :worksheet/all-inputs-entered?
- (fn [_ [_ ws-uuid module-id submodule]]
-   true
-   #_(let [submodule                             @(rf/subscribe [:wizard/*submodule module-id submodule :input])
-         groups                                @(rf/subscribe [:wizard/groups (:db/id submodule)])
-         groups-repeat                         (filter #(true? (:group/repeat? %)) groups)
-         groups-not-repeat                     (remove #(true? (:group/repeat? %)) groups)
-         all-inputs                            @(rf/subscribe [:worksheet/all-inputs ws-uuid])
-         groups-not-repeat-all-values-entered? (->> (for [group    groups-not-repeat
-                                                          variable (:group/group-variables group)
-                                                          :let     [group-uuid (:bp/uuid group)
-                                                                    var-uuid   (:bp/uuid variable)]]
-                                                      (get-in all-inputs [group-uuid 0 var-uuid]))
-                                                    (every? seq))
-         groups-repeat-all-values-entered?     (every? (fn [group]
-                                                         (let [group-uuid   (:bp/uuid group)
-                                                               vars-needed  (* (count (:group/group-variables group))
-                                                                               (count @(rf/subscribe [:worksheet/group-repeat-ids ws-uuid group-uuid])))
-                                                               vars-entered (reduce (fn [acc [_repeat-id variables]]
-                                                                                      (+ acc (count (filter (fn has-value? [[_variable-id val]]
-                                                                                                              (seq val))
-                                                                                                            variables))))
-                                                                                    0
-                                                                                    (get all-inputs group-uuid))]
-                                                           (= vars-needed vars-entered)))
-                                                       groups-repeat)]
+(defn- missing-input? [value]
+  (or (nil? value) (empty? value)))
 
-     (and groups-not-repeat-all-values-entered? groups-repeat-all-values-entered?))))
+(defn- process-group-for-missing-inputs [worksheet all-inputs missing-inputs? group]
+  (when-let [group-variables (:group/group-variables group)]
+    (if (:group/repeat? group)
+      (let [repeat-ids (d/q '[:find  [?rid ...]
+                              :in    $ ?ws-uuid ?group-uuid
+                              :where
+                              [?w :worksheet/uuid ?ws-uuid]
+                              [?w :worksheet/input-groups ?ig]
+                              [?ig :input-group/group-uuid ?group-uuid]
+                              [?ig :input-group/repeat-id ?rid]]
+                            @@s/conn (:worksheet/uuid worksheet) (:bp/uuid group))]
+        (doseq [group-variable group-variables
+                repeat-id      repeat-ids]
+          (let [worksheet-value (get-in all-inputs [(:bp/uuid group) repeat-id (:bp/uuid group-variable)])]
+            (when (missing-input? worksheet-value)
+              (reset! missing-inputs? true)))))
+      (doseq [group-variable group-variables]
+        (let [worksheet-value (get-in all-inputs [(:bp/uuid group) 0 (:bp/uuid group-variable)])]
+          (when (missing-input? worksheet-value)
+            (reset! missing-inputs? true))))))
+  (when-let [children (:group/children group)]
+    (doseq [group (filter #(and (all-conditionals-pass? worksheet (:group/conditionals-operator %) (:group/conditionals %))
+                                (not (:group/research? %)))
+                          children)]
+      (process-group-for-missing-inputs worksheet all-inputs missing-inputs? group))))
+
+(rf/reg-sub
+ :worksheet/missing-inputs?
+ (fn [[_ ws-uuid]]
+   [(rf/subscribe [:worksheet/modules ws-uuid])
+    (rf/subscribe [:worksheet ws-uuid])])
+ (fn [[modules worksheet] [_ ws-uuid]]
+   (let [all-inputs      @(rf/subscribe [:worksheet/all-inputs ws-uuid])
+         missing-inputs? (atom false)]
+     (doseq [module    modules
+             submodule (filter #(and (= (:submodule/io %) :input)
+                                     (all-conditionals-pass? worksheet (:submodule/conditionals-operator %) (:submodule/conditionals %)))
+                               (:module/submodules module))
+             group     (filter #(and (all-conditionals-pass? worksheet (:group/conditionals-operator %) (:group/conditionals %))
+                                     (not (:group/research? %)))
+                               (:submodule/groups submodule))]
+       (process-group-for-missing-inputs worksheet all-inputs missing-inputs? group))
+     @missing-inputs?)))
 
 (rf/reg-sub
  :worksheet/some-outputs-entered?

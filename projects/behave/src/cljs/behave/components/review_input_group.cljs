@@ -5,6 +5,9 @@
             [behave.translate        :refer [<t bp]]
             [clojure.string :as str]))
 
+(defn- missing-input? [value]
+  (or (nil? value) (empty? value)))
+
 (defmulti wizard-input (fn [variable _ _ _ _] (if (:group-variable/discrete-multiple? variable)
                                                 :multi-discrete
                                                 (:variable/kind variable))))
@@ -28,7 +31,13 @@
       [c/button {:variant  "primary"
                  :label    @(<t (bp "change_values"))
                  :size     "small"
-                 :on-click #(rf/dispatch [:wizard/edit-input edit-route repeat-id gv-uuid])}]]]))
+                 :on-click #(rf/dispatch [:wizard/edit-input edit-route repeat-id gv-uuid])}]
+      (when (missing-input? @values)
+        [:div.wizard-review__run-description__message
+         [c/button {:label         @(<t (bp "required"))
+                    :variant       "transparent-highlight"
+                    :icon-name     :help2
+                    :icon-position "left"}]])]]))
 
 (defmethod wizard-input :discrete [{gv-uuid  :bp/uuid
                                     help-key :group-variable/help-key
@@ -48,7 +57,13 @@
        [c/button {:variant  "primary"
                   :label    @(<t (bp "change_selection"))
                   :size     "small"
-                  :on-click #(rf/dispatch [:wizard/edit-input edit-route repeat-id gv-uuid])}]]]]))
+                  :on-click #(rf/dispatch [:wizard/edit-input edit-route repeat-id gv-uuid])}]
+       (when (missing-input? @*value)
+         [:div.wizard-review__run-description__message
+          [c/button {:label         @(<t (bp "required"))
+                     :variant       "transparent-highlight"
+                     :icon-name     :help2
+                     :icon-position "left"}]])]]]))
 
 (defmethod wizard-input :multi-discrete [{gv-uuid  :bp/uuid
                                           help-key :group-variable/help-key
@@ -71,7 +86,13 @@
        [c/button {:variant  "primary"
                   :label    @(<t (bp "change_selection"))
                   :size     "small"
-                  :on-click #(rf/dispatch [:wizard/edit-input edit-route repeat-id gv-uuid])}]]]]))
+                  :on-click #(rf/dispatch [:wizard/edit-input edit-route repeat-id gv-uuid])}]
+       (when (missing-input? @*value)
+         [:div.wizard-review__run-description__message
+          [c/button {:label         @(<t (bp "required"))
+                     :variant       "transparent-highlight"
+                     :icon-name     :help2
+                     :icon-position "left"}]])      ]]]))
 
 (defmethod wizard-input :text [{gv-uuid  :bp/uuid
                                 help-key :group-variable/help-key}
@@ -92,26 +113,35 @@
                   :size     "small"
                   :on-click #(rf/dispatch [:wizard/edit-input edit-route repeat-id gv-uuid])}])]))
 
-(defn- repeat-group-input [variable ws-uuid group-uuid repeat-id route]
-  [:div.wizard-review-repeat-group__input
-   [wizard-input variable ws-uuid group-uuid repeat-id true route]
-   [:div.wizard-review-repeat-group__message
-    [c/button {:label         @(<t (bp "managing_resources"))
-               :variant       "transparent-highlight"
-               :icon-name     :help2
-               :icon-position "left"}]
-    @(<t (bp "you_can_edit_andor_delete_resources"))
-    [:div.wizard-review-repeat-group__manage
-     [c/button {:variant   "primary"
-                :label     @(<t (bp "delete"))
-                :size      "small"
-                :icon-name "delete"
-                :on-click  #(rf/dispatch [:worksheet/delete-repeat-input-group ws-uuid group-uuid repeat-id])}]
-     [c/button {:variant   "secondary"
-                :label     @(<t (bp "edit"))
-                :size      "small"
-                :icon-name "edit"
-                :on-click  #(rf/dispatch [:wizard/edit-input route repeat-id (:bp/uuid variable)])}]]]])
+(defn- repeat-group-input [variables ws-uuid group-uuid repeat-id route]
+  (let [first-value @(rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id (:bp/uuid (first variables))])
+        ws-values   (map #(deref (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id (:bp/uuid %)]))
+                       (rest variables))]
+    [:div.wizard-review-repeat-group__input
+     [wizard-input (first variables) ws-uuid group-uuid repeat-id true route]
+     (when (and (some #(missing-input? %) ws-values) first-value)
+       [:div.wizard-review__run-description__message
+        [c/button {:label         @(<t (bp "required"))
+                   :variant       "transparent-highlight"
+                   :icon-name     :help2
+                   :icon-position "left"}]])
+     [:div.wizard-review-repeat-group__message
+      [c/button {:label         @(<t (bp "managing_resources"))
+                 :variant       "transparent-highlight"
+                 :icon-name     :help2
+                 :icon-position "left"}]
+      @(<t (bp "you_can_edit_andor_delete_resources"))
+      [:div.wizard-review-repeat-group__manage
+       [c/button {:variant   "primary"
+                  :label     @(<t (bp "delete"))
+                  :size      "small"
+                  :icon-name "delete"
+                  :on-click  #(rf/dispatch [:worksheet/delete-repeat-input-group ws-uuid group-uuid repeat-id])}]
+       [c/button {:variant   "secondary"
+                  :label     @(<t (bp "edit"))
+                  :size      "small"
+                  :icon-name "edit"
+                  :on-click  #(rf/dispatch [:wizard/edit-input route repeat-id (:bp/uuid (first variables))])}]]]]))
 
 (defn repeat-group [ws-uuid group variables edit-route]
   (let [{group-name :group/name
@@ -126,9 +156,9 @@
           [:div.wizard-repeat-group__header
            (str group-name " #" (inc index))]]
          [:div.wizard-group__inputs
-          (let [variable (first (sort-by :group-variable/variable-order variables))]
+          (let [variables (sort-by :group-variable/variable-order variables)]
             [:div.wizard-input
-             [repeat-group-input variable ws-uuid group-uuid repeat-id edit-route]])]])
+             [repeat-group-input variables ws-uuid group-uuid repeat-id edit-route]])]])
       @*repeat-ids)
      [:div {:style {:display         "flex"
                     :padding         "20px"

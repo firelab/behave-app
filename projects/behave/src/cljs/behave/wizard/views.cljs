@@ -204,9 +204,7 @@
         *show-add-note-form?     (subscribe [:wizard/show-add-note-form?])
         on-back                  #(dispatch [:wizard/back])
         on-next                  #(dispatch [:wizard/next])
-        ;; *all-inputs-entered?     (subscribe [:worksheet/all-inputs-entered? ws-uuid module-id submodule])
         ;; *some-outputs-entered?   (subscribe [:worksheet/some-outputs-entered? ws-uuid module-id submodule])
-        ;; next-disabled?           (not (if (= io :input) @*all-inputs-entered? @*some-outputs-entered?))
         ]
     [:div.wizard-page
      [:div
@@ -275,6 +273,7 @@
   (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler nil])
   (let [modules                  @(subscribe [:worksheet/modules ws-uuid])
         *warn-limit?             (subscribe [:wizard/warn-limit? ws-uuid])
+        *missing-inputs?         (subscribe [:worksheet/missing-inputs? ws-uuid])
         *multi-value-input-limit (subscribe [:wizard/multi-value-input-limit])
         *multi-value-input-count (subscribe [:wizard/multi-value-input-count ws-uuid])
         *notes                   (subscribe [:wizard/notes ws-uuid])
@@ -319,7 +318,7 @@
                       :let      [edit-route (path-for routes
                                                       :ws/wizard
                                                       :ws-uuid   ws-uuid
-                                                      :module    module-name
+                                                      :module    (str/lower-case module-name)
                                                       :io        :input
                                                       :submodule (:slug submodule))]]
                   [:<>
@@ -335,7 +334,8 @@
                        :variant  "secondary"
                        :on-click #(dispatch [:wizard/back])}]
             [c/button {:label         "Run"
-                       :disabled?     @*warn-limit?
+                       :disabled?     (or @*warn-limit?
+                                          @*missing-inputs?)
                        :variant       "highlight"
                        :icon-name     "arrow2"
                        :icon-position "right"
