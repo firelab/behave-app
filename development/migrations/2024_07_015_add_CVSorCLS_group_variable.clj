@@ -35,7 +35,7 @@
    {:db/id                                 -1
     :group-variable/cpp-namespace          (sm/cpp-ns->uuid conn "global")
     :group-variable/cpp-class              (sm/cpp-class->uuid conn "SIGMortality")
-    :group-variable/cpp-function           (sm/cpp-fn->uuid conn "getTreeCrownVolumeScorchedBacking")
+    :group-variable/cpp-function           (sm/cpp-fn->uuid conn "getCVSorCLS")
     :group-variable/conditionally-set?     true
     :group-variable/actions                [{:action/name                  "Enable whenever mortality is ran"
                                              :action/type                  :select
