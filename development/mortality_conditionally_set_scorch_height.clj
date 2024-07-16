@@ -6,6 +6,7 @@
    [behave-cms.server :as cms]
    [cms-import :refer [add-export-file-to-conn]]
    [clojure.data.csv :as csv]
+   [csv-parser.interface :refer [fetch-csv]]
    [clojure.java.io :as io]))
 
 ;; ===========================================================================================================
@@ -45,18 +46,10 @@
 ;; Build Payload
 ;; ===========================================================================================================
 
-(defn- csv-data->maps [csv-data]
-  (map zipmap
-       (->> (first csv-data)
-            (map keyword)
-            repeat)
-       (rest csv-data)))
-
 ;; Table taken from behave-mirror/src/behave/species_master_table.cpp
 #_{:clj-kondo/ignore [:missing-docstring]}
 (def species-master-table
-  (with-open [reader (io/reader "projects/behave_cms/resources/public/csv/mortality_tree_species_master_table.csv")]
-    (csv-data->maps (doall (csv/read-csv reader)))))
+  (fetch-csv "projects/behave_cms/resources/public/csv/mortality_tree_species_master_table.csv"))
 
 #_{:clj-kondo/ignore [:missing-docstring]}
 (def crown-scorch-species-codes
