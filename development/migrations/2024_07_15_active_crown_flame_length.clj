@@ -20,21 +20,21 @@
          (:group/group-variables)
          (map :bp/uuid)))
 
-  ;; Active Crown Fire Length Input
-  (def active-crown-fire-length-group
-    (sm/t-key->eid db "behaveplus:crown:input:spotting:fire_behavior:active_crown_flame_length"))
+  ;; Fire Behavior Input Group
+  (def fire-behavior-input-group
+    (sm/t-key->eid db "behaveplus:crown:input:spotting:fire_behavior"))
 
   ;; Add Conditional
 
-  (def active-crown-fire-length-tx
-    {:db/id                       active-crown-fire-length-group
+  (def new-cond-tx
+    {:db/id                       fire-behavior-input-group
      :group/conditionals-operator :and
      :group/conditionals          (map
                                    (fn [uuid]
                                      (sm/->gv-conditional uuid :equal "false"))
                                    crown-fire-behavior-outputs)})
 
-  (def tx (d/transact @ds/datomic-conn [active-crown-fire-length-tx]))
+  (def tx (d/transact @ds/datomic-conn [new-cond-tx]))
 
   ;; Rollback
   #_(sm/rollback-tx! @ds/datomic-conn tx)

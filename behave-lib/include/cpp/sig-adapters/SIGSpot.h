@@ -39,6 +39,7 @@
 class SIGSpot : public Spot {
 public:
   void calculateAll();
+  void setFlameLength(double flameLength, LengthUnits::LengthUnitsEnum flameLengthUnits);
   void setWindSpeedAndWindHeightInputMode(double windwindSpeed, SpeedUnits::SpeedUnitsEnum windSpeedUnits, WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode);
   void setWindSpeed(double windSpeed, SpeedUnits::SpeedUnitsEnum windSpeedUnits);
   void setWindHeightInputMode(WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode);
