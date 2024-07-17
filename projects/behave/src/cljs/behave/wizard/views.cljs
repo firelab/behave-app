@@ -60,12 +60,8 @@
 (defmethod submodule-page :output [_ ws-uuid groups]
   [:<> (build-groups ws-uuid groups output-group)])
 
-(defn- io-tabs [first-module {:keys [ws-uuid io] :as params}]
-  (let [module-id       (:db/id first-module)
-        module-name     (str/lower-case (:module/name first-module))
-        i-subs          @(subscribe [:wizard/submodules-conditionally-filtered ws-uuid module-id :input])
-        o-subs          @(subscribe [:wizard/submodules-conditionally-filtered ws-uuid module-id :output])
-        first-submodule (:slug (first (if (= io :input) o-subs i-subs)))]
+(defn- io-tabs [{:keys [ws-uuid io] :as params}]
+  (let [[module-name slug] @(subscribe [:wizard/first-module+submodule ws-uuid (if (= io :output) :input :output)])]
     [:div.wizard-header__io-tabs
      [c/tab-group {:variant   "outline-primary"
                    :flat-edge "top"
@@ -74,7 +70,7 @@
                                  (dispatch [:wizard/select-tab (merge params
                                                                       {:module    module-name
                                                                        :io        (:tab %)
-                                                                       :submodule first-submodule})]))
+                                                                       :submodule slug})]))
                    :tabs      [{:label "Outputs" :tab :output :selected? (= io :output)}
                                {:label "Inputs" :tab :input :selected? (= io :input)}]}]]))
 
@@ -96,7 +92,7 @@
 (defn- wizard-header [{:keys [ws-uuid io submodule module] :as params} modules]
   (let [*show-notes? (subscribe [:wizard/show-notes?])]
     [:div.wizard-header
-     [io-tabs (first modules) params]
+     [io-tabs params]
      [:div.wizard-header__banner
       [:div.wizard-header__banner__icon
        [c/icon :modules]]

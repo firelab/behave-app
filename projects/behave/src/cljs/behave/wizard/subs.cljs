@@ -344,22 +344,30 @@
      (.setTime d created-date)
      (.toLocaleDateString d))))
 
+(defn- first-module+submodule
+  "Returns the first module & submodule for a particular I/O."
+  [ws-uuid modules io]
+  (->> modules
+       (map (fn [module]
+              (let [submodules @(subscribe [:wizard/submodules-conditionally-filtered ws-uuid (:db/id module) io])]
+                (when (seq submodules)
+                  (map #(assoc % :module-name (str/lower-case (:module/name module))) submodules)))))
+       (flatten)
+       (remove nil?)
+       (first)
+       ((juxt :module-name :slug))))
+
 (reg-sub
  :wizard/first-module+submodule
  (fn [[_ ws-uuid _]]
    (subscribe [:worksheet ws-uuid]))
 
  (fn [worksheet [_ ws-uuid io]]
-   (when-let [module (some->> worksheet
+   (when-let [modules (some->> worksheet
                               :worksheet/modules
                               (map #(deref (subscribe [:wizard/*module (name %)])))
-                              (sort-by :module/order)
-                              first)]
-     (let [module-id  (:db/id module)
-           submodules (->> @(subscribe [:wizard/submodules-conditionally-filtered ws-uuid module-id io])
-                           (sort-by :submodule/order))]
-
-       [(str/lower-case (:module/name module)) (:slug (first submodules))]))))
+                              (sort-by :module/order))]
+     (first-module+submodule ws-uuid modules io))))
 
 ;;; show-group?
 (defn- csv? [s] (< 1 (count (str/split s #","))))
