@@ -78,6 +78,20 @@
        (d/db conn)
        nname))
 
+(defn cpp-param->uuid
+  "Get the :bp/uuid using the cpp function name and parameter name."
+  [conn fn-name param-name]
+  (d/q '[:find ?uuid .
+         :in $ ?fn-name ?p-name
+         :where
+         [?f :cpp.function/name ?fn-name]
+         [?f :cpp.function/parameter ?p]
+         [?p :cpp.parameter/name ?p-name]
+         [?p :bp/uuid ?uuid]]
+       (d/db conn)
+       fn-name
+       param-name))
+
 (defn- submodule [conn t]
   (->> t
        (d/q '[:find ?e .
@@ -203,3 +217,41 @@
    :conditional/type     :module
    :conditional/operator operator
    :conditional/values   values})
+
+(defn ->group
+  "Payload for a new Group."
+  [submodule-eid gname t-key]
+  {:bp/uuid               (rand-uuid)
+   :bp/nid                (nano-id)
+   :submdodule/_groups    submodule-eid
+   :group/name            gname
+   :group/translation-key t-key
+   :group/help-key        (str t-key ":help")})
+
+(defn ->subgroup
+  "Payload for a new Subgroup."
+  [parent-group-eid gname t-key]
+  {:bp/uuid               (rand-uuid)
+   :bp/nid                (nano-id)
+   :group/_children       parent-group-eid
+   :group/name            gname
+   :group/translation-key t-key
+   :group/help-key        (str t-key ":help")})
+
+(defn ->group-variable
+  "Payload for a new Group Variable."
+  [group-eid variable-eid t-key]
+  {:bp/uuid                        (rand-uuid)
+   :bp/nid                         (nano-id)
+   :group/_group-variables         group-eid
+   :variable/_group-variables      variable-eid
+   :group-variable/translation-key t-key
+   :group-variable/help-key        (str t-key ":help")})
+
+(defn ->link
+  "Payload for a new Link."
+  [source-eid destination-eid]
+  {:bp/uuid          (rand-uuid)
+   :bp/nid           (nano-id)
+   :link/source      source-eid
+   :link/destination destination-eid})

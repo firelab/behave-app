@@ -275,6 +275,12 @@
     :id "getFlameDurationForTorchingTrees",
     :parameters
     [{:id "durationUnits", :type "TimeUnits::TimeUnitsEnum"}]},
+   :setActiveCrownFlameLength
+   {:type "void",
+    :id "setActiveCrownFlameLength",
+    :parameters
+    [{:id "flameLength", :type "double"}
+     {:id "flameLengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
    :setFlameLength
    {:type "void",
     :id "setFlameLength",

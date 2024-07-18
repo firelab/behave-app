@@ -379,6 +379,7 @@ interface SIGSpot {
   void calculateSpottingDistanceFromSurfaceFire();
   void calculateSpottingDistanceFromTorchingTrees();
   void initializeMembers();
+  void setActiveCrownFlameLength(double flameLength, LengthUnits_LengthUnitsEnum flameLengthUnits);
   void setBurningPileFlameHeight(double buringPileflameHeight, LengthUnits_LengthUnitsEnum flameHeightUnits);
   void setDBH(double DBH, LengthUnits_LengthUnitsEnum DBHUnits);
   void setDownwindCanopyMode(SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum downwindCanopyMode);

@@ -38,7 +38,7 @@ void SIGSpot::calculateAll() {
   Spot::calculateSpottingDistanceFromTorchingTrees();
 }
 
-void SIGSpot::setFlameLength(double flameLength, LengthUnits::LengthUnitsEnum flameLengthUnits)
+void SIGSpot::setActiveCrownFlameLength(double flameLength, LengthUnits::LengthUnitsEnum flameLengthUnits)
 {
   if (flameLength > 0.0) {
     setFlameLength(flameLength, flameLengthUnits);

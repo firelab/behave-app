@@ -21,10 +21,6 @@
   (with-open [out-file (clojure.java.io/writer f)]
     (clojure.pprint/pprint m out-file)))
 
-(cms/init-db!)
-
-(def conn (default-conn))
-
 (defn cms-import [{:keys [behave-file
                           sig-adapter-file
                           out-file-name
@@ -39,7 +35,7 @@
 
     (write-pprint-edn merged-edn (str "cms-exports/" out-file-name))))
 
-(defn ->class [[class-name methods]]
+(defn ->class [conn [class-name fns]]
   (let [->param            (fn [i p] (merge {:cpp.parameter/order i
                                              :bp/nid              (nano-id)
                                              :bp/uuid             (str (squuid))}
@@ -90,12 +86,17 @@
         namespaces (reduce (fn [acc ns] (assoc acc ns (lookup-ns-id (->str ns) (d/db conn)))) {} (keys source-edn))
         tx         (mapv (fn [[ns-key ns-id]]
                            (merge {:cpp.namespace/name  (->str ns-key)
-                                   :cpp.namespace/class (mapv ->class (get source-edn ns-key))}
+                                   :cpp.namespace/class (mapv (partial ->class conn) (get source-edn ns-key))}
                                   (when ns-id {:db/id ns-id})))
                          namespaces)]
     (d/transact conn tx)))
 
 (comment
+
+  (cms/init-db!)
+
+  (def conn (default-conn))
+
   (def surface-edn (read-string (slurp (fs/expand-home "~/Code/sig/hatchet/exports/surface.edn"))))
   (def sig-surface-edn (read-string (slurp (fs/expand-home "~/Code/sig/hatchet/exports/SIGSurface.edn"))))
 
