@@ -14,12 +14,16 @@
 #include "mortality.h"
 #include "mortality_inputs.h"
 #include "species_master_table.h"
+#include "surfaceInputEnums.h"
 
 class SIGMortality : public Mortality {
 public:
   SIGMortality() = delete; // There is no default constructor
   explicit SIGMortality(SpeciesMasterTable &speciesMasterTable);
   SIGMortality(const SIGMortality &rhs);
+
+  // Init Methods
+  void initializeMembers();
 
   // SIGMortality Setters. Sets for all Directions
   void setSpeciesCode(char *speciesCode);
@@ -30,6 +34,10 @@ public:
   void setEquationType(EquationType equationType);
   void setAirTemperature(double airTemperature, TemperatureUnits::TemperatureUnitsEnum temperatureUnits);
   void setMidFlameWindSpeed(double midFlameWindSpeed, SpeedUnits::SpeedUnitsEnum windSpeedUnits);
+  void setUserProvidedWindAdjustmentFactor(double userProvidedWindAdjustmentFactor);
+  void setWindHeightInputMode(WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode);
+  void setWindSpeed(double windSpeed, SpeedUnits::SpeedUnitsEnum windSpeedUnits);
+  void setWindSpeedAndWindHeightInputMode(double windwindSpeed, SpeedUnits::SpeedUnitsEnum windSpeedUnits, WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode, double userProvidedWindAdjustmentFactor);
 
   // SIGMortality Setters Heading Direction
   void setSurfaceFireFlameLength(double value, LengthUnits::LengthUnitsEnum lengthUnits);
@@ -95,4 +103,7 @@ protected:
   double fireLineIntensity_;
   double midFlameWindSpeed_;
   double airTemperature_;
+  double windSpeed_;
+  double userProvidedWindAdjustmentFactor_;
+  WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode_;
 };

@@ -319,6 +319,32 @@
     :parameters
     [{:id "midFlameWindSpeed", :type "double"}
      {:id "windSpeedUnits", :type "SpeedUnits::SpeedUnitsEnum"}]},
+   :setUserProvidedWindAdjustmentFactor
+   {:id "setUserProvidedWindAdjustmentFactor",
+    :parameters
+    [{:id "userProvidedWindAdjustmentFactor", :type "double"}],
+    :type "void"},
+   :setWindHeightInputMode
+   {:id "setWindHeightInputMode",
+    :parameters
+    [{:id "windHeightInputMode",
+      :type "WindHeightInputMode::WindHeightInputModeEnum"}],
+    :type "void"},
+   :setWindSpeed
+   {:id "setWindSpeed",
+    :parameters
+    [{:id "windSpeed", :type "double"}
+     {:id "windSpeedUnits", :type "SpeedUnits::SpeedUnitsEnum"}],
+    :type "void"},
+   :setWindSpeedAndWindHeightInputMode
+   {:id "setWindSpeedAndWindHeightInputMode",
+    :parameters
+    [{:id "windwindSpeed", :type "double"}
+     {:id "windSpeedUnits", :type "SpeedUnits::SpeedUnitsEnum"}
+     {:id "windHeightInputMode",
+      :type "WindHeightInputMode::WindHeightInputModeEnum"}
+     {:id "userProvidedWindAdjustmentFactor", :type "double"}],
+    :type "void"},
    :checkIsInRegionFromSpeciesCode
    {:type "bool",
     :id "checkIsInRegionFromSpeciesCode",

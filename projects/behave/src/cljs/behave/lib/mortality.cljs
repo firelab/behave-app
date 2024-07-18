@@ -8,6 +8,9 @@
   ([speciesMasterTable]
    (js/Module.SIGMortality. speciesMasterTable)))
 
+(defn initializeMembers [self]
+  (.initializeMembers self))
+
 (defn calculateMortality [self probablityUnits]
   (.calculateMortality self probablityUnits))
 
@@ -286,6 +289,18 @@
 
 (defn setTreeHeight [self treeHeight treeHeightUnits]
   (.setTreeHeight self treeHeight treeHeightUnits))
+
+(defn setUserProvidedWindAdjustmentFactor [self userProvidedWindAdjustmentFactor]
+  (.setUserProvidedWindAdjustmentFactor self userProvidedWindAdjustmentFactor))
+
+(defn setWindHeightInputMode [self windHeightInputMode]
+  (.setWindHeightInputMode self windHeightInputMode))
+
+(defn setWindSpeed [self windSpeed windSpeedUnits]
+  (.setWindSpeed self windSpeed windSpeedUnits))
+
+(defn setWindSpeedAndWindHeightInputMode [self windwindSpeed windSpeedUnits windHeightInputMode userProvidedWindAdjustmentFactor]
+  (.setWindSpeedAndWindHeightInputMode self windwindSpeed windSpeedUnits windHeightInputMode userProvidedWindAdjustmentFactor))
 
 (defn updateInputsForSpeciesCodeAndEquationType [self speciesCode equationType]
   (.updateInputsForSpeciesCodeAndEquationType self speciesCode equationType))

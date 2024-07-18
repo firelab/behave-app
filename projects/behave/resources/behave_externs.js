@@ -412,21 +412,60 @@ Module.SIGMortality = class {
   calculateMortality() {}
   calculateMortalityAllDirections() {}
   calculateScorchHeight() {}
+  checkIsInRegionAtSpeciesTableIndex() {}
+  checkIsInRegionFromSpeciesCode() {}
+  getBarkEquationNumberAtSpeciesTableIndex() {}
+  getBarkEquationNumberFromSpeciesCode() {}
   getBarkThickness() {}
   getBasalAreaKillled() {}
   getBasalAreaPostfire() {}
   getBasalAreaPrefire() {}
+  getBeetleDamage() {}
   getBoleCharHeight() {}
+  getCalculatedScorchHeight() {}
   getCambiumKillRating() {}
+  getCommonNameAtSpeciesTableIndex() {}
+  getCommonNameFromSpeciesCode() {}
+  getCrownCoefficientCodeAtSpeciesTableIndex() {}
+  getCrownCoefficientCodeFromSpeciesCode() {}
   getCrownDamage() {}
+  getCrownDamageEquationCode() {}
+  getCrownDamageEquationCodeAtSpeciesTableIndex() {}
+  getCrownDamageEquationCodeFromSpeciesCode() {}
+  getCrownDamageType() {}
   getCrownRatio() {}
+  getCrownScorchOrBoleCharEquationNumber() {}
   getDBH() {}
-  getFlameLengthOrScorchHeightValue() {}
+  getEquationType() {}
+  getEquationTypeAtSpeciesTableIndex() {}
+  getEquationTypeFromSpeciesCode() {}
+  getFireSeverity() {}
   getFlameLength() {}
+  getFlameLengthOrScorchHeightSwitch() {}
+  getFlameLengthOrScorchHeightValue() {}
   getKilledTrees() {}
+  getMortalityEquationNumberAtSpeciesTableIndex() {}
+  getMortalityEquationNumberFromSpeciesCode() {}
+  getNumberOfRecordsInSpeciesTable() {}
   getProbabilityOfMortality() {}
   getProbabilityOfMortalityBacking() {}
   getProbabilityOfMortalityFlanking() {}
+  getRegion() {}
+  getRequiredFieldVector() {}
+  getScientificNameAtSpeciesTableIndex() {}
+  getScientificNameFromSpeciesCode() {}
+  getScorchHeight() {}
+  getScorchHeight(){}
+  getScorchHeightBacking(){}
+  getScorchHeightFlanking(){}
+  getSpeciesCode() {}
+  getSpeciesCodeAtSpeciesTableIndex() {}
+  getSpeciesRecordAtIndex() {}
+  getSpeciesRecordBySpeciesCodeAndEquationType() {}
+  getSpeciesRecordVectorForRegion() {}
+  getSpeciesRecordVectorForRegionAndEquationType() {}
+  getSpeciesTableIndexFromSpeciesCode() {}
+  getSpeciesTableIndexFromSpeciesCodeAndEquationType() {}
   getTotalPrefireTrees() {}
   getTreeCrownLengthScorched() {}
   getTreeCrownLengthScorchedBacking() {}
@@ -436,30 +475,9 @@ Module.SIGMortality = class {
   getTreeCrownVolumeScorchedFlanking() {}
   getTreeDensityPerUnitArea() {}
   getTreeHeight() {}
+  initializeMembers() {}
   postfireCanopyCover() {}
   prefireCanopyCover() {}
-  getBarkEquationNumberAtSpeciesTableIndex() {}
-  getBarkEquationNumberFromSpeciesCode() {}
-  getCrownCoefficientCodeAtSpeciesTableIndex() {}
-  getCrownCoefficientCodeFromSpeciesCode() {}
-  getCrownScorchOrBoleCharEquationNumber() {}
-  getMortalityEquationNumberAtSpeciesTableIndex() {}
-  getMortalityEquationNumberFromSpeciesCode() {}
-  getNumberOfRecordsInSpeciesTable() {}
-  getScorchHeight(){}
-  getScorchHeightBacking(){}
-  getScorchHeightFlanking(){}
-  getSpeciesTableIndexFromSpeciesCode() {}
-  getSpeciesTableIndexFromSpeciesCodeAndEquationType() {}
-  getSpeciesCode() {}
-  getSpeciesRecordVectorForRegion() {}
-  getSpeciesRecordVectorForRegionAndEquationType() {}
-  getCommonNameAtSpeciesTableIndex() {}
-  getCommonNameFromSpeciesCode() {}
-  getScientificNameAtSpeciesTableIndex() {}
-  getScientificNameFromSpeciesCode() {}
-  getSpeciesCodeAtSpeciesTableIndex() {}
-  getRequiredFieldVector() {}
   setAirTemperature() {}
   setBeetleDamage() {}
   setBoleCharHeight() {}
@@ -470,23 +488,27 @@ Module.SIGMortality = class {
   setEquationType() {}
   setFireSeverity() {}
   setFirelineIntensity() {}
+  setFlameLength() {}
   setFlameLengthOrScorchHeightSwitch() {}
   setFlameLengthOrScorchHeightValue() {}
-  setFlameLength() {}
-  setScorchHeight() {}
+  setMidFlameWindSpeed() {}
   setRegion() {}
-  setSurfaceFireFlameLength() {}
-  setSurfaceFireScorchHeight() {}
-  setSurfaceFireFlameLengthBacking() {}
-  setSurfaceFireFlameLengthFlanking() {}
+  setScorchHeight() {}
+  setSpeciesCode() {}
   setSurfaceFireFirelineIntensity() {}
   setSurfaceFireFirelineIntensityBacking() {}
   setSurfaceFireFirelineIntensityFlanking() {}
-  setSpeciesCode() {}
+  setSurfaceFireFlameLength() {}
+  setSurfaceFireFlameLengthBacking() {}
+  setSurfaceFireFlameLengthFlanking() {}
+  setSurfaceFireScorchHeight() {}
   setTreeDensityPerUnitArea() {}
   setTreeHeight() {}
-  setMidFlameWindSpeed() {}
-  getEquationTypeFromSpeciesCode() {}
+  setUserProvidedWindAdjustmentFactor() {}
+  setWindHeightInputMode() {}
+  setWindSpeed() {}
+  setWindSpeedAndWindHeightInputMode() {}
+  updateInputsForSpeciesCodeAndEquationType() {}
 };
 
 Module.SIGSpot = class {

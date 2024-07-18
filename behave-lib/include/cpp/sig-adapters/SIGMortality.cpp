@@ -18,13 +18,32 @@ SIGMortality::SIGMortality(SpeciesMasterTable& speciesMasterTable)
     : Mortality(speciesMasterTable),
       heading_(speciesMasterTable),
       backing_(speciesMasterTable),
-      flanking_(speciesMasterTable) {}
+      flanking_(speciesMasterTable)
+{
+  initializeMembers();
+}
 
 SIGMortality::SIGMortality(const SIGMortality& rhs)
     : Mortality(static_cast <Mortality> (rhs)),
       heading_(static_cast <Mortality> (rhs)),
       backing_(static_cast <Mortality> (rhs)),
-      flanking_(static_cast <Mortality> (rhs)) {}
+      flanking_(static_cast <Mortality> (rhs))
+{
+    fireLineIntensity_ = rhs.fireLineIntensity_;
+    midFlameWindSpeed_ = rhs.midFlameWindSpeed_;
+    airTemperature_ = rhs.airTemperature_;
+    windSpeed_ = rhs.windSpeed_;
+    userProvidedWindAdjustmentFactor_ = rhs.userProvidedWindAdjustmentFactor_;
+    windHeightInputMode_ = WindHeightInputMode::DirectMidflame;
+}
+
+void SIGMortality::initializeMembers() {
+    fireLineIntensity_ = 0.0;
+    midFlameWindSpeed_ = 0.0;
+    airTemperature_ = 0.0;
+    windSpeed_ = 0.0;
+    userProvidedWindAdjustmentFactor_ = 0.0;
+}
 
 void SIGMortality::setSpeciesCode(char* speciesCode)
 {
@@ -79,6 +98,46 @@ void SIGMortality::setMidFlameWindSpeed(double midFlameWindSpeed, SpeedUnits::Sp
     heading_.setMidFlameWindSpeed(midFlameWindSpeed, windSpeedUnits);
     backing_.setMidFlameWindSpeed(midFlameWindSpeed, windSpeedUnits);
     flanking_.setMidFlameWindSpeed(midFlameWindSpeed, windSpeedUnits);
+}
+
+/* Wind Speed */
+
+void SIGMortality::setUserProvidedWindAdjustmentFactor(double userProvidedWindAdjustmentFactor)
+{
+  setWindSpeedAndWindHeightInputMode(windSpeed_, SpeedUnits::FeetPerMinute, windHeightInputMode_, userProvidedWindAdjustmentFactor);
+}
+
+void SIGMortality::setWindSpeedAndWindHeightInputMode(double windSpeed, SpeedUnits::SpeedUnitsEnum windSpeedUnits, WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode, double userProvidedWindAdjustmentFactor) {
+  // Set member variables
+  windSpeed_ = SpeedUnits::toBaseUnits(windSpeed, windSpeedUnits);
+  windHeightInputMode_ = windHeightInputMode;
+  userProvidedWindAdjustmentFactor_ = userProvidedWindAdjustmentFactor;
+
+  if (windSpeed > 0.0 && userProvidedWindAdjustmentFactor > 0.0) {
+
+    // Calculate wind speed at 20 feet
+    double midFlameWindSpeed = 0.0;
+
+    if (windHeightInputMode_ == WindHeightInputMode::DirectMidflame) {
+      midFlameWindSpeed = windSpeed_;
+    } else if (windHeightInputMode_ == WindHeightInputMode::TenMeter) {
+      // Adjust by dividing by 1.15 to obtain 20-ft Wind Speed, then adjust using user-provided WAF
+      midFlameWindSpeed = (windSpeed_ / 1.15) * userProvidedWindAdjustmentFactor_;
+    } else {
+      // Adjust using user-provided WAF
+      midFlameWindSpeed = windSpeed_ * userProvidedWindAdjustmentFactor_;
+    }
+
+    setMidFlameWindSpeed(midFlameWindSpeed, SpeedUnits::FeetPerMinute);
+  }
+}
+
+void SIGMortality::setWindSpeed(double windSpeed, SpeedUnits::SpeedUnitsEnum windSpeedUnits) {
+  setWindSpeedAndWindHeightInputMode(windSpeed, windSpeedUnits, windHeightInputMode_, userProvidedWindAdjustmentFactor_);
+}
+
+void SIGMortality::setWindHeightInputMode(WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode) {
+  setWindSpeedAndWindHeightInputMode(windSpeed_, SpeedUnits::FeetPerMinute, windHeightInputMode, userProvidedWindAdjustmentFactor_);
 }
 
 void SIGMortality::setSurfaceFireFlameLength(double value, LengthUnits::LengthUnitsEnum lengthUnits)
