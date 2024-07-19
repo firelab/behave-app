@@ -61,46 +61,63 @@
 
 (defn links-editor
   "Displays the links editor."
-  [gv-id]
-  (let [*link       (rf/subscribe [:state :link])
-        is-output?  (rf/subscribe [:group-variable/is-output? gv-id])
+  [gv-id link-eid]
+
+  ;; Pre-populate Editor
+  (when link-eid
+    (let [link                     @(rf/subscribe [:entity link-eid])
+          variable                 (get-in link [:link/destination :db/id])
+          [module submodule group] @(rf/subscribe [:group-variable/module-submodule-group variable])]
+
+      (rf/dispatch [:state/set-state
+                    [:editors :variable-lookup]
+                    {:module    module
+                     :submodule submodule
+                     :group     group
+                     :variable  variable}])))
+
+  (let [is-output?  (rf/subscribe [:group-variable/is-output? gv-id])
         opposite-io (fn [{io :submodule/io}] (= io (if is-output? :input :output)))
 
         ;; Create a link with current group variable as the source.
         ->link      (fn [other-gv-id]
                       {:link/source gv-id :link/destination other-gv-id})
         p           #(conj [:editors :variable-lookup] %)
-        get         #(rf/subscribe [:state %])
-        set         (fn [path v] (rf/dispatch [:state/set-state path v]))
+        get-field   #(rf/subscribe [:state %])
+        set-field   (fn [path v] (rf/dispatch [:state/set-state path v]))
         modules     (rf/subscribe [:group-variable/app-modules gv-id])
-        submodules  (rf/subscribe [:pull-children :module/submodules @(get (p :module))])
-        groups      (rf/subscribe [:group-variable/submodule-groups-and-subgroups @(get (p :submodule))])
-        variables   (rf/subscribe [:group/variables @(get (p :group))])
-        disabled?   (r/track #(some nil? (map (fn [k] @(get (p k))) [:module :submodule :group :variable])))
+        submodules  (rf/subscribe [:pull-children :module/submodules @(get-field (p :module))])
+        groups      (rf/subscribe [:group-variable/submodule-groups-and-subgroups @(get-field (p :submodule))])
+        variables   (rf/subscribe [:group/variables @(get-field (p :group))])
+        disabled?   (r/track #(some nil? (map (fn [k] @(get-field (p k))) [:module :submodule :group :variable])))
         on-submit   #(rf/dispatch [:api/upsert-entity
                                    (merge
-                                    (->link @(get (p :variable)))
-                                    (when @*link {:db/id @*link}))])]
+                                    (->link @(get-field (p :variable)))
+                                    (when link-eid {:db/id link-eid}))])]
     [:div.col-6
-     [:h4 (str (if @*link "Update" "Add") " Destination Link")]
+     [:h4 (str (if link-eid "Update" "Add") " Destination Link")]
 
      [:form
       {:on-submit (u/on-submit on-submit)}
       [dropdown {:label     "Module:"
+                 :selected  @(get-field (p :module))
                  :options   (map (->option :module/name) @modules)
-                 :on-select #(set (p :module) (u/input-int-value %))}]
+                 :on-select #(set-field (p :module) (u/input-int-value %))}]
       [dropdown {:label     "Submodule:"
+                 :selected  @(get-field (p :submodule))
                  :options   (map (->option :submodule/name)
                                  (if is-output?
                                    (filter opposite-io @submodules)
                                    @submodules))
-                 :on-select #(set (p :submodule) (u/input-int-value %))}]
+                 :on-select #(set-field (p :submodule) (u/input-int-value %))}]
       [dropdown {:label     "Groups:"
+                 :selected  @(get-field (p :group))
                  :options   (map (->option :group/name) @groups)
-                 :on-select #(set (p :group) (u/input-int-value %))}]
+                 :on-select #(set-field (p :group) (u/input-int-value %))}]
       [dropdown {:label     "Variable:"
+                 :selected  @(get-field (p :variable))
                  :options   (map (->option :variable/name) @variables)
-                 :on-select #(set (p :variable) (u/input-int-value %))}]
+                 :on-select #(set-field (p :variable) (u/input-int-value %))}]
       [:button.btn.btn-sm.btn-outline-primary {:type "submit" :disabled @disabled?} "Save"]]]))
 
 
@@ -138,7 +155,8 @@
         action-id       (rf/subscribe [:state :action])
         group           (:group/_group-variables @group-variable)
         variable        (get-in @group-variable [:variable/_group-variables 0])
-        group-variables (rf/subscribe [:sidebar/variables (:db/id group)])]
+        group-variables (rf/subscribe [:sidebar/variables (:db/id group)])
+        link            (rf/subscribe [:state :link])]
     [:<>
      [sidebar
       "Variables"
@@ -175,7 +193,7 @@
         [:div.col-12
          [:div.row
           [links-table gv-id]
-          [links-editor gv-id]]]]
+          [links-editor gv-id @link]]]]
 
        [:hr]
        [accordion
