@@ -14,28 +14,32 @@
    z2: a map with the key :name who's value is used to look up values in data for the z2-axis
       - Optionally set the number of columns of subplots to display usin :columns -> long.
         (defaults to 1)."
-  [{:keys [data x y z z2 width height]}]
+  [{:keys [data x y z z2 width height] :as params}]
+  (prn "params:" params)
   (when (and x y)
-    (let [line-chart {:mark     (cond-> {:type "line"}
+    (let [line-chart {:mark     (cond-> {:type (if (:discrete? x)
+                                                 "bar"
+                                                 "line")}
                                   (:scale y)
                                   (assoc :clip true))
                       :encoding (cond-> {:x     (cond-> {:field (:name x)
-                                                         :type  "quantitative"}
-                                                  (:scale x)
+                                                         :type  (if (:discrete? x)
+                                                                  "nominal"
+                                                                  "quantitative")}
+                                                  (and (not (:discrete? x)) (:scale x))
                                                   (assoc :scale {:domain (:scale x)}))
                                          :y     (cond-> {:field     (:name y)
-                                                         :type      "quantitative"
-                                                         :aggregate "average"}
+                                                         :type      "quantitative"}
                                                   (:scale y)
                                                   (assoc :scale {:domain (:scale y)}))}
                                   z
-                                  (-> (assoc :shape {:field  (:name z)
-                                                     :type   "nominal"
-                                                     :legend nil})
-                                      (assoc :color {:field  (:name z)
-                                                     :type   "nominal"
-                                                     :legend nil}))
-
+                                  (merge {:shape {:field  (:name z)
+                                                  :type   "nominal"
+                                                  :legend nil}
+                                          :color {:field  (:name z)
+                                                  :type   "nominal"
+                                                  :legend nil}
+                                          :xOffset {:field (:name z)}})
                                   z2
                                   (assoc :facet {:field   (:name z2)
                                                  :type    "nominal"

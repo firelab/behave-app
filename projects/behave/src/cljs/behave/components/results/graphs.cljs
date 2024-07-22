@@ -39,15 +39,19 @@
              (let [x-axis-group-variable-uuid  (:graph-settings/x-axis-group-variable-uuid graph-settings)
                    z-axis-group-variable-uuid  (:graph-settings/z-axis-group-variable-uuid graph-settings)
                    z2-axis-group-variable-uuid (:graph-settings/z2-axis-group-variable-uuid graph-settings)]
-               (result-chart {:data   graph-data
-                              :x      {:name  @(subscribe [:wizard/gv-uuid->resolve-result-variable-name
-                                                           x-axis-group-variable-uuid])
-                                       :scale [x-min x-max]}
-                              :y      {:name  @(subscribe [:wizard/gv-uuid->resolve-result-variable-name output-uuid])
-                                       :scale [y-min y-max]}
-                              :z      {:name @(subscribe [:wizard/gv-uuid->resolve-result-variable-name z-axis-group-variable-uuid])}
-                              :z2     {:name    @(subscribe [:wizard/gv-uuid->resolve-result-variable-name
-                                                             z2-axis-group-variable-uuid])
-                                       :columns 2}
-                              :width  250
-                              :height 250}))]])]))))
+               (result-chart
+                {:data   graph-data
+                 :x      {:name      @(subscribe [:wizard/gv-uuid->resolve-result-variable-name
+                                                  x-axis-group-variable-uuid])
+                          :scale     (when (and x-min x-max) [x-min x-max])
+                          :discrete? @(subscribe [:wizard/discrete-group-variable? x-axis-group-variable-uuid])}
+                 :y      {:name  @(subscribe [:wizard/gv-uuid->resolve-result-variable-name output-uuid])
+                          :scale (when (and y-min y-max) [y-min y-max])}
+                 :z      {:name @(subscribe [:wizard/gv-uuid->resolve-result-variable-name
+                                             z-axis-group-variable-uuid])
+                          :discrete? true}
+                 :z2     {:name    @(subscribe [:wizard/gv-uuid->resolve-result-variable-name
+                                                z2-axis-group-variable-uuid])
+                          :columns 2}
+                 :width  250
+                 :height 250}))]])]))))

@@ -84,7 +84,7 @@
                 re-frame-utils/re-frame-utils      {:mvn/version "0.1.0"}
                 cljsjs/vega                        {:mvn/version "5.20.2-0"}
                 cljsjs/vega-embed                  {:mvn/version "6.0.0-0"}
-                cljsjs/vega-lite                   {:mvn/version "5.1.1-0"}
+                cljsjs/vega-lite                   {:mvn/version "5.14.1-0"}
                 day8.re-frame/test                 {:mvn/version "0.1.5"}
                 austinbirch/reactive-entity        {:mvn/version "0.2.0"}
 
