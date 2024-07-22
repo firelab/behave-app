@@ -424,7 +424,6 @@ Module.SIGMortality = class {
   getDBH() {}
   getFlameLengthOrScorchHeightValue() {}
   getFlameLength() {}
-  getScorchHeight() {}
   getKilledTrees() {}
   getProbabilityOfMortality() {}
   getProbabilityOfMortalityBacking() {}

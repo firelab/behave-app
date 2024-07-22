@@ -14,7 +14,7 @@
 (s/def :pivot-column/group-variable-uuid  uuid-string?)
 (s/def :pivot-column/function  valid-pivot-value-fn?)
 
-(s/def :behave/pivot-table (s/keys :req [:pivot-table/tittle
+(s/def :behave/pivot-table (s/keys :req [:pivot-table/title
                                          :pivot-table/columns]))
 
 (s/def :behave/pivot-table-column-field (s/keys :req [:pivot-column/group-variable-uuid]))
@@ -26,8 +26,8 @@
 (def
   ^{:doc "Schema for pivot table."}
   schema
-  [{:db/ident       :pivot-table/tittle
-    :db/doc         "Pivot Table's tittle"
+  [{:db/ident       :pivot-table/title
+    :db/doc         "Pivot Table's title"
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one
     :db/unique      :db.unique/identity}
@@ -61,7 +61,7 @@
 
 (comment
   (s/valid? :behave/pivot-table
-            {:pivot-table/tittle "My Pivot Table"
+            {:pivot-table/title "My Pivot Table"
              :pivot-table/columns #{1 2 3}})
 
   (s/valid? :behave/pivot-table-column-field

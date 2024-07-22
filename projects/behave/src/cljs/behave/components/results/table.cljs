@@ -39,9 +39,9 @@
       (gstring/format "Download Raw CSV (%s.csv / %s)" title (format-bytes (.-size blob) 0))]]))
 
 (defn- build-result-table-data
-  [{:keys [ws-uuid headers tittle]
+  [{:keys [ws-uuid headers title]
     :or   {headers @(subscribe [:worksheet/result-table-headers-sorted ws-uuid])
-           tittle  "Results Table"}}]
+           title  "Results Table"}}]
   (let [*cell-data                (subscribe [:worksheet/result-table-cell-data ws-uuid])
         table-setting-filters     (subscribe [:worksheet/table-settings-filters ws-uuid])
         map-units-settings-entity @(subscribe [:worksheet/map-units-settings-entity ws-uuid])
@@ -50,7 +50,7 @@
         map-rep-frac              (:map-units-settings/map-rep-fraction map-units-settings-entity)
         map-units-variables       @(subscribe [:worksheet/result-table-units ws-uuid])
         formatters                @(subscribe [:worksheet/result-table-formatters (map first headers)])]
-    {:title   tittle
+    {:title   title
      :headers (reduce (fn resolve-uuid [acc [gv-uuid _repeat-id units]]
                         (let [var-name @(subscribe [:wizard/gv-uuid->resolve-result-variable-name gv-uuid])]
                           (cond-> acc
@@ -138,7 +138,7 @@
          (let [pivot-fields-uuids     @(subscribe [:worksheet/pivot-table-fields (:db/id pivot-table)])
                pivot-values           @(subscribe [:worksheet/pivot-table-values (:db/id pivot-table)])
                table-data             (build-result-table-data {:ws-uuid ws-uuid
-                                                                :tittle  (:pivot-table/tittle pivot-table)
+                                                                :title  (:pivot-table/title pivot-table)
                                                                 :headers @(subscribe [:worksheet/pivot-table-headers
                                                                                       ws-uuid
                                                                                       (concat pivot-fields-uuids
@@ -160,4 +160,4 @@
          (c/table (build-result-table-data
                    {:ws-uuid ws-uuid
                     :headers @(subscribe [:worksheet/result-table-headers-sorted-direction ws-uuid direction])
-                    :tittle  (str/capitalize (name direction))})))])))
+                    :title  (str/capitalize (name direction))})))])))
