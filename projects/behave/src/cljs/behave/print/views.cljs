@@ -6,6 +6,7 @@
             [behave.components.results.matrices     :refer [result-matrices]]
             [behave.components.results.inputs.views :refer [inputs-table]]
             [behave.components.results.table        :refer [pivot-tables]]))
+            [behave.components.results.table        :refer [directional-result-tables]]))
 
 (defn- wizard-notes [notes]
   (when (seq notes)
@@ -24,11 +25,12 @@
 (defn print-page [{:keys [ws-uuid]}]
   (dispatch [:dev/close-after-print])
   (js/setTimeout #(dispatch [:dev/print]) 1000)
-  (let [worksheet       @(subscribe [:worksheet ws-uuid])
-        ws-name         (:worksheet/name worksheet)
-        ws-date-created (:worksheet/created worksheet)
-        notes           @(subscribe [:wizard/notes ws-uuid])
-        graph-data      @(subscribe [:worksheet/result-table-cell-data ws-uuid])]
+  (let [worksheet           @(subscribe [:worksheet ws-uuid])
+        ws-name             (:worksheet/name worksheet)
+        ws-date-created     (:worksheet/created worksheet)
+        notes               @(subscribe [:wizard/notes ws-uuid])
+        graph-data          @(subscribe [:worksheet/result-table-cell-data ws-uuid])
+        directional-tables? @(subscribe [:wizard/output-directional-tables? ws-uuid])]
     [:div.print
      [:div.print__ws-name ws-name]
      [:div.print__ws-date (epoch->date-string ws-date-created)]
@@ -37,6 +39,8 @@
      [wizard-notes notes]
      [:div.wizard-print__header "Results"]
      [pivot-tables ws-uuid]
-     [result-matrices ws-uuid]
+     (if directional-tables?
+       [directional-result-tables ws-uuid]
+       [result-matrices ws-uuid])
      [result-graphs ws-uuid graph-data]
      [result-diagrams ws-uuid]]))

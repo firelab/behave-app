@@ -35,7 +35,7 @@
    ["behaveplus:surface:output:fire_behavior:surface_fire:backing_flame_length" :backing]
    ["behaveplus:surface:output:fire_behavior:surface_fire:flanking_flame_length" :flanking]
 
-   ["behaveplus:surface:output:fire_behavior:surface_fire:rate_of_spread":heading]
+   ["behaveplus:surface:output:fire_behavior:surface_fire:heading_rate_of_spread" :heading]
    ["behaveplus:surface:output:fire_behavior:surface_fire:backing_rate_of_spread" :backing]
    ["behaveplus:surface:output:fire_behavior:surface_fire:flanking_rate_of_spread" :flanking]
 
