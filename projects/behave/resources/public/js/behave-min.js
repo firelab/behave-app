@@ -5941,6 +5941,12 @@ var _emscripten_bind_SIGMortality_setAirTemperature_2 = Module["_emscripten_bind
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_setBeetleDamage_1 = Module["_emscripten_bind_SIGMortality_setBeetleDamage_1"] = createExportWrapper("emscripten_bind_SIGMortality_setBeetleDamage_1");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setBoleCharHeightFromFlameLengthHeading_2 = Module["_emscripten_bind_SIGMortality_setBoleCharHeightFromFlameLengthHeading_2"] = createExportWrapper("emscripten_bind_SIGMortality_setBoleCharHeightFromFlameLengthHeading_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setBoleCharHeightFromFlameLengthBacking_2 = Module["_emscripten_bind_SIGMortality_setBoleCharHeightFromFlameLengthBacking_2"] = createExportWrapper("emscripten_bind_SIGMortality_setBoleCharHeightFromFlameLengthBacking_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setBoleCharHeightFromFlameLengthFlanking_2 = Module["_emscripten_bind_SIGMortality_setBoleCharHeightFromFlameLengthFlanking_2"] = createExportWrapper("emscripten_bind_SIGMortality_setBoleCharHeightFromFlameLengthFlanking_2");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_setMidFlameWindSpeed_2 = Module["_emscripten_bind_SIGMortality_setMidFlameWindSpeed_2"] = createExportWrapper("emscripten_bind_SIGMortality_setMidFlameWindSpeed_2");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_setBoleCharHeight_2 = Module["_emscripten_bind_SIGMortality_setBoleCharHeight_2"] = createExportWrapper("emscripten_bind_SIGMortality_setBoleCharHeight_2");
@@ -11845,6 +11851,27 @@ SIGMortality.prototype['setBeetleDamage'] = SIGMortality.prototype.setBeetleDama
   var self = this.ptr;
   if (beetleDamage && typeof beetleDamage === 'object') beetleDamage = beetleDamage.ptr;
   _emscripten_bind_SIGMortality_setBeetleDamage_1(self, beetleDamage);
+};;
+
+SIGMortality.prototype['setBoleCharHeightFromFlameLengthHeading'] = SIGMortality.prototype.setBoleCharHeightFromFlameLengthHeading = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameLength, lengthUnits) {
+  var self = this.ptr;
+  if (flameLength && typeof flameLength === 'object') flameLength = flameLength.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  _emscripten_bind_SIGMortality_setBoleCharHeightFromFlameLengthHeading_2(self, flameLength, lengthUnits);
+};;
+
+SIGMortality.prototype['setBoleCharHeightFromFlameLengthBacking'] = SIGMortality.prototype.setBoleCharHeightFromFlameLengthBacking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameLength, lengthUnits) {
+  var self = this.ptr;
+  if (flameLength && typeof flameLength === 'object') flameLength = flameLength.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  _emscripten_bind_SIGMortality_setBoleCharHeightFromFlameLengthBacking_2(self, flameLength, lengthUnits);
+};;
+
+SIGMortality.prototype['setBoleCharHeightFromFlameLengthFlanking'] = SIGMortality.prototype.setBoleCharHeightFromFlameLengthFlanking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameLength, lengthUnits) {
+  var self = this.ptr;
+  if (flameLength && typeof flameLength === 'object') flameLength = flameLength.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  _emscripten_bind_SIGMortality_setBoleCharHeightFromFlameLengthFlanking_2(self, flameLength, lengthUnits);
 };;
 
 SIGMortality.prototype['setMidFlameWindSpeed'] = SIGMortality.prototype.setMidFlameWindSpeed = /** @suppress {undefinedVars, duplicate} @this{Object} */function(midFlameWindSpeed, windSpeedUnits) {

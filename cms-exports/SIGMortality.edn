@@ -275,6 +275,24 @@
     [{:id "boleCharHeight", :type "double"}
      {:id "boleCharHeightUnits",
       :type "LengthUnits::LengthUnitsEnum"}]},
+   :setBoleCharHeightFromFlameLengthHeading
+   {:type "void",
+    :id   "setBoleCharHeightFromFlameLengthHeading",
+    :parameters
+    [{:id "flameLength", :type "double"}
+     {:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :setBoleCharHeightFromFlameLengthBacking
+   {:type "void",
+    :id   "setBoleCharHeightFromFlameLengthBacking",
+    :parameters
+    [{:id "flameLength", :type "double"}
+     {:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :setBoleCharHeightFromFlameLengthFlanking
+   {:type "void",
+    :id   "setBoleCharHeightFromFlameLengthFlanking",
+    :parameters
+    [{:id "flameLength", :type "double"}
+     {:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
    :setMidFlameWindSpeed
    {:type "void",
     :id "setMidFlameWindSpeed",
