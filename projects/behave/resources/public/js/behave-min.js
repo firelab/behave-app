@@ -5843,6 +5843,8 @@ var _emscripten_bind_SIGMortality_updateInputsForSpeciesCodeAndEquationType_2 = 
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_calculateMortality_1 = Module["_emscripten_bind_SIGMortality_calculateMortality_1"] = createExportWrapper("emscripten_bind_SIGMortality_calculateMortality_1");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_calculateMortalityAllDirections_1 = Module["_emscripten_bind_SIGMortality_calculateMortalityAllDirections_1"] = createExportWrapper("emscripten_bind_SIGMortality_calculateMortalityAllDirections_1");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_calculateScorchHeight_7 = Module["_emscripten_bind_SIGMortality_calculateScorchHeight_7"] = createExportWrapper("emscripten_bind_SIGMortality_calculateScorchHeight_7");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getBarkThickness_1 = Module["_emscripten_bind_SIGMortality_getBarkThickness_1"] = createExportWrapper("emscripten_bind_SIGMortality_getBarkThickness_1");
@@ -5861,21 +5863,41 @@ var _emscripten_bind_SIGMortality_getCrownDamage_0 = Module["_emscripten_bind_SI
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getCrownRatio_0 = Module["_emscripten_bind_SIGMortality_getCrownRatio_0"] = createExportWrapper("emscripten_bind_SIGMortality_getCrownRatio_0");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGMortality_getCalculatedScorchHeight_1 = Module["_emscripten_bind_SIGMortality_getCalculatedScorchHeight_1"] = createExportWrapper("emscripten_bind_SIGMortality_getCalculatedScorchHeight_1");
+var _emscripten_bind_SIGMortality_getCVSorCLS_0 = Module["_emscripten_bind_SIGMortality_getCVSorCLS_0"] = createExportWrapper("emscripten_bind_SIGMortality_getCVSorCLS_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getDBH_1 = Module["_emscripten_bind_SIGMortality_getDBH_1"] = createExportWrapper("emscripten_bind_SIGMortality_getDBH_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getFlameLengthOrScorchHeightValue_1 = Module["_emscripten_bind_SIGMortality_getFlameLengthOrScorchHeightValue_1"] = createExportWrapper("emscripten_bind_SIGMortality_getFlameLengthOrScorchHeightValue_1");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getFlameLength_1 = Module["_emscripten_bind_SIGMortality_getFlameLength_1"] = createExportWrapper("emscripten_bind_SIGMortality_getFlameLength_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getScorchHeight_1 = Module["_emscripten_bind_SIGMortality_getScorchHeight_1"] = createExportWrapper("emscripten_bind_SIGMortality_getScorchHeight_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getScorchHeightBacking_1 = Module["_emscripten_bind_SIGMortality_getScorchHeightBacking_1"] = createExportWrapper("emscripten_bind_SIGMortality_getScorchHeightBacking_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getScorchHeightFlanking_1 = Module["_emscripten_bind_SIGMortality_getScorchHeightFlanking_1"] = createExportWrapper("emscripten_bind_SIGMortality_getScorchHeightFlanking_1");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getKilledTrees_0 = Module["_emscripten_bind_SIGMortality_getKilledTrees_0"] = createExportWrapper("emscripten_bind_SIGMortality_getKilledTrees_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getProbabilityOfMortality_1 = Module["_emscripten_bind_SIGMortality_getProbabilityOfMortality_1"] = createExportWrapper("emscripten_bind_SIGMortality_getProbabilityOfMortality_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getProbabilityOfMortalityBacking_1 = Module["_emscripten_bind_SIGMortality_getProbabilityOfMortalityBacking_1"] = createExportWrapper("emscripten_bind_SIGMortality_getProbabilityOfMortalityBacking_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getProbabilityOfMortalityFlanking_1 = Module["_emscripten_bind_SIGMortality_getProbabilityOfMortalityFlanking_1"] = createExportWrapper("emscripten_bind_SIGMortality_getProbabilityOfMortalityFlanking_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getTotalPrefireTrees_0 = Module["_emscripten_bind_SIGMortality_getTotalPrefireTrees_0"] = createExportWrapper("emscripten_bind_SIGMortality_getTotalPrefireTrees_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getTreeCrownLengthScorched_1 = Module["_emscripten_bind_SIGMortality_getTreeCrownLengthScorched_1"] = createExportWrapper("emscripten_bind_SIGMortality_getTreeCrownLengthScorched_1");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getTreeCrownLengthScorchedBacking_1 = Module["_emscripten_bind_SIGMortality_getTreeCrownLengthScorchedBacking_1"] = createExportWrapper("emscripten_bind_SIGMortality_getTreeCrownLengthScorchedBacking_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getTreeCrownLengthScorchedFlanking_1 = Module["_emscripten_bind_SIGMortality_getTreeCrownLengthScorchedFlanking_1"] = createExportWrapper("emscripten_bind_SIGMortality_getTreeCrownLengthScorchedFlanking_1");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getTreeCrownVolumeScorched_1 = Module["_emscripten_bind_SIGMortality_getTreeCrownVolumeScorched_1"] = createExportWrapper("emscripten_bind_SIGMortality_getTreeCrownVolumeScorched_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getTreeCrownVolumeScorchedBacking_1 = Module["_emscripten_bind_SIGMortality_getTreeCrownVolumeScorchedBacking_1"] = createExportWrapper("emscripten_bind_SIGMortality_getTreeCrownVolumeScorchedBacking_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getTreeCrownVolumeScorchedFlanking_1 = Module["_emscripten_bind_SIGMortality_getTreeCrownVolumeScorchedFlanking_1"] = createExportWrapper("emscripten_bind_SIGMortality_getTreeCrownVolumeScorchedFlanking_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getTreeDensityPerUnitArea_1 = Module["_emscripten_bind_SIGMortality_getTreeDensityPerUnitArea_1"] = createExportWrapper("emscripten_bind_SIGMortality_getTreeDensityPerUnitArea_1");
 /** @type {function(...*):?} */
@@ -5927,6 +5949,12 @@ var _emscripten_bind_SIGMortality_setAirTemperature_2 = Module["_emscripten_bind
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_setBeetleDamage_1 = Module["_emscripten_bind_SIGMortality_setBeetleDamage_1"] = createExportWrapper("emscripten_bind_SIGMortality_setBeetleDamage_1");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setBoleCharHeightFromFlameLengthHeading_2 = Module["_emscripten_bind_SIGMortality_setBoleCharHeightFromFlameLengthHeading_2"] = createExportWrapper("emscripten_bind_SIGMortality_setBoleCharHeightFromFlameLengthHeading_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setBoleCharHeightFromFlameLengthBacking_2 = Module["_emscripten_bind_SIGMortality_setBoleCharHeightFromFlameLengthBacking_2"] = createExportWrapper("emscripten_bind_SIGMortality_setBoleCharHeightFromFlameLengthBacking_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setBoleCharHeightFromFlameLengthFlanking_2 = Module["_emscripten_bind_SIGMortality_setBoleCharHeightFromFlameLengthFlanking_2"] = createExportWrapper("emscripten_bind_SIGMortality_setBoleCharHeightFromFlameLengthFlanking_2");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_setMidFlameWindSpeed_2 = Module["_emscripten_bind_SIGMortality_setMidFlameWindSpeed_2"] = createExportWrapper("emscripten_bind_SIGMortality_setMidFlameWindSpeed_2");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_setBoleCharHeight_2 = Module["_emscripten_bind_SIGMortality_setBoleCharHeight_2"] = createExportWrapper("emscripten_bind_SIGMortality_setBoleCharHeight_2");
@@ -5949,9 +5977,23 @@ var _emscripten_bind_SIGMortality_setFlameLengthOrScorchHeightSwitch_1 = Module[
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_setFlameLengthOrScorchHeightValue_2 = Module["_emscripten_bind_SIGMortality_setFlameLengthOrScorchHeightValue_2"] = createExportWrapper("emscripten_bind_SIGMortality_setFlameLengthOrScorchHeightValue_2");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setFlameLength_2 = Module["_emscripten_bind_SIGMortality_setFlameLength_2"] = createExportWrapper("emscripten_bind_SIGMortality_setFlameLength_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setScorchHeight_2 = Module["_emscripten_bind_SIGMortality_setScorchHeight_2"] = createExportWrapper("emscripten_bind_SIGMortality_setScorchHeight_2");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_setRegion_1 = Module["_emscripten_bind_SIGMortality_setRegion_1"] = createExportWrapper("emscripten_bind_SIGMortality_setRegion_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_setSurfaceFireFlameLength_2 = Module["_emscripten_bind_SIGMortality_setSurfaceFireFlameLength_2"] = createExportWrapper("emscripten_bind_SIGMortality_setSurfaceFireFlameLength_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setSurfaceFireFlameLengthBacking_2 = Module["_emscripten_bind_SIGMortality_setSurfaceFireFlameLengthBacking_2"] = createExportWrapper("emscripten_bind_SIGMortality_setSurfaceFireFlameLengthBacking_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setSurfaceFireFlameLengthFlanking_2 = Module["_emscripten_bind_SIGMortality_setSurfaceFireFlameLengthFlanking_2"] = createExportWrapper("emscripten_bind_SIGMortality_setSurfaceFireFlameLengthFlanking_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setSurfaceFireFirelineIntensity_2 = Module["_emscripten_bind_SIGMortality_setSurfaceFireFirelineIntensity_2"] = createExportWrapper("emscripten_bind_SIGMortality_setSurfaceFireFirelineIntensity_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setSurfaceFireFirelineIntensityBacking_2 = Module["_emscripten_bind_SIGMortality_setSurfaceFireFirelineIntensityBacking_2"] = createExportWrapper("emscripten_bind_SIGMortality_setSurfaceFireFirelineIntensityBacking_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setSurfaceFireFirelineIntensityFlanking_2 = Module["_emscripten_bind_SIGMortality_setSurfaceFireFirelineIntensityFlanking_2"] = createExportWrapper("emscripten_bind_SIGMortality_setSurfaceFireFirelineIntensityFlanking_2");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_setSurfaceFireScorchHeight_2 = Module["_emscripten_bind_SIGMortality_setSurfaceFireScorchHeight_2"] = createExportWrapper("emscripten_bind_SIGMortality_setSurfaceFireScorchHeight_2");
 /** @type {function(...*):?} */
@@ -6725,8 +6767,8 @@ var ___cxa_can_catch = createExportWrapper("__cxa_can_catch");
 var ___cxa_is_pointer_type = createExportWrapper("__cxa_is_pointer_type");
 /** @type {function(...*):?} */
 var dynCall_jiji = Module["dynCall_jiji"] = createExportWrapper("dynCall_jiji");
-var ___start_em_js = Module['___start_em_js'] = 117576;
-var ___stop_em_js = Module['___stop_em_js'] = 117674;
+var ___start_em_js = Module['___start_em_js'] = 117608;
+var ___stop_em_js = Module['___stop_em_js'] = 117706;
 function invoke_vii(index,a1,a2) {
   var sp = stackSave();
   try {
@@ -11526,6 +11568,12 @@ SIGMortality.prototype['calculateMortality'] = SIGMortality.prototype.calculateM
   return _emscripten_bind_SIGMortality_calculateMortality_1(self, probablityUnits);
 };;
 
+SIGMortality.prototype['calculateMortalityAllDirections'] = SIGMortality.prototype.calculateMortalityAllDirections = /** @suppress {undefinedVars, duplicate} @this{Object} */function(probablityUnits) {
+  var self = this.ptr;
+  if (probablityUnits && typeof probablityUnits === 'object') probablityUnits = probablityUnits.ptr;
+  _emscripten_bind_SIGMortality_calculateMortalityAllDirections_1(self, probablityUnits);
+};;
+
 SIGMortality.prototype['calculateScorchHeight'] = SIGMortality.prototype.calculateScorchHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firelineIntensity, firelineIntensityUnits, midFlameWindSpeed, windSpeedUnits, airTemperature, temperatureUnits, scorchHeightUnits) {
   var self = this.ptr;
   if (firelineIntensity && typeof firelineIntensity === 'object') firelineIntensity = firelineIntensity.ptr;
@@ -11580,10 +11628,9 @@ SIGMortality.prototype['getCrownRatio'] = SIGMortality.prototype.getCrownRatio =
   return _emscripten_bind_SIGMortality_getCrownRatio_0(self);
 };;
 
-SIGMortality.prototype['getCalculatedScorchHeight'] = SIGMortality.prototype.getCalculatedScorchHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(scorchHeightUnits) {
+SIGMortality.prototype['getCVSorCLS'] = SIGMortality.prototype.getCVSorCLS = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  if (scorchHeightUnits && typeof scorchHeightUnits === 'object') scorchHeightUnits = scorchHeightUnits.ptr;
-  return _emscripten_bind_SIGMortality_getCalculatedScorchHeight_1(self, scorchHeightUnits);
+  return UTF8ToString(_emscripten_bind_SIGMortality_getCVSorCLS_0(self));
 };;
 
 SIGMortality.prototype['getDBH'] = SIGMortality.prototype.getDBH = /** @suppress {undefinedVars, duplicate} @this{Object} */function(diameterUnits) {
@@ -11598,6 +11645,30 @@ SIGMortality.prototype['getFlameLengthOrScorchHeightValue'] = SIGMortality.proto
   return _emscripten_bind_SIGMortality_getFlameLengthOrScorchHeightValue_1(self, flameLengthOrScorchHeightUnits);
 };;
 
+SIGMortality.prototype['getFlameLength'] = SIGMortality.prototype.getFlameLength = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameLengthUnits) {
+  var self = this.ptr;
+  if (flameLengthUnits && typeof flameLengthUnits === 'object') flameLengthUnits = flameLengthUnits.ptr;
+  return _emscripten_bind_SIGMortality_getFlameLength_1(self, flameLengthUnits);
+};;
+
+SIGMortality.prototype['getScorchHeight'] = SIGMortality.prototype.getScorchHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(scorchHeightUnits) {
+  var self = this.ptr;
+  if (scorchHeightUnits && typeof scorchHeightUnits === 'object') scorchHeightUnits = scorchHeightUnits.ptr;
+  return _emscripten_bind_SIGMortality_getScorchHeight_1(self, scorchHeightUnits);
+};;
+
+SIGMortality.prototype['getScorchHeightBacking'] = SIGMortality.prototype.getScorchHeightBacking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(scorchHeightUnits) {
+  var self = this.ptr;
+  if (scorchHeightUnits && typeof scorchHeightUnits === 'object') scorchHeightUnits = scorchHeightUnits.ptr;
+  return _emscripten_bind_SIGMortality_getScorchHeightBacking_1(self, scorchHeightUnits);
+};;
+
+SIGMortality.prototype['getScorchHeightFlanking'] = SIGMortality.prototype.getScorchHeightFlanking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(scorchHeightUnits) {
+  var self = this.ptr;
+  if (scorchHeightUnits && typeof scorchHeightUnits === 'object') scorchHeightUnits = scorchHeightUnits.ptr;
+  return _emscripten_bind_SIGMortality_getScorchHeightFlanking_1(self, scorchHeightUnits);
+};;
+
 SIGMortality.prototype['getKilledTrees'] = SIGMortality.prototype.getKilledTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   return _emscripten_bind_SIGMortality_getKilledTrees_0(self);
@@ -11609,21 +11680,57 @@ SIGMortality.prototype['getProbabilityOfMortality'] = SIGMortality.prototype.get
   return _emscripten_bind_SIGMortality_getProbabilityOfMortality_1(self, probabilityUnits);
 };;
 
+SIGMortality.prototype['getProbabilityOfMortalityBacking'] = SIGMortality.prototype.getProbabilityOfMortalityBacking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(probabilityUnits) {
+  var self = this.ptr;
+  if (probabilityUnits && typeof probabilityUnits === 'object') probabilityUnits = probabilityUnits.ptr;
+  return _emscripten_bind_SIGMortality_getProbabilityOfMortalityBacking_1(self, probabilityUnits);
+};;
+
+SIGMortality.prototype['getProbabilityOfMortalityFlanking'] = SIGMortality.prototype.getProbabilityOfMortalityFlanking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(probabilityUnits) {
+  var self = this.ptr;
+  if (probabilityUnits && typeof probabilityUnits === 'object') probabilityUnits = probabilityUnits.ptr;
+  return _emscripten_bind_SIGMortality_getProbabilityOfMortalityFlanking_1(self, probabilityUnits);
+};;
+
 SIGMortality.prototype['getTotalPrefireTrees'] = SIGMortality.prototype.getTotalPrefireTrees = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   return _emscripten_bind_SIGMortality_getTotalPrefireTrees_0(self);
 };;
 
-SIGMortality.prototype['getTreeCrownLengthScorched'] = SIGMortality.prototype.getTreeCrownLengthScorched = /** @suppress {undefinedVars, duplicate} @this{Object} */function(mortalityRateUnits) {
+SIGMortality.prototype['getTreeCrownLengthScorched'] = SIGMortality.prototype.getTreeCrownLengthScorched = /** @suppress {undefinedVars, duplicate} @this{Object} */function(treeCrownLengthScorchedUnits) {
   var self = this.ptr;
-  if (mortalityRateUnits && typeof mortalityRateUnits === 'object') mortalityRateUnits = mortalityRateUnits.ptr;
-  return _emscripten_bind_SIGMortality_getTreeCrownLengthScorched_1(self, mortalityRateUnits);
+  if (treeCrownLengthScorchedUnits && typeof treeCrownLengthScorchedUnits === 'object') treeCrownLengthScorchedUnits = treeCrownLengthScorchedUnits.ptr;
+  return _emscripten_bind_SIGMortality_getTreeCrownLengthScorched_1(self, treeCrownLengthScorchedUnits);
 };;
 
-SIGMortality.prototype['getTreeCrownVolumeScorched'] = SIGMortality.prototype.getTreeCrownVolumeScorched = /** @suppress {undefinedVars, duplicate} @this{Object} */function(mortalityRateUnits) {
+SIGMortality.prototype['getTreeCrownLengthScorchedBacking'] = SIGMortality.prototype.getTreeCrownLengthScorchedBacking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(treeCrownLengthScorchedUnits) {
   var self = this.ptr;
-  if (mortalityRateUnits && typeof mortalityRateUnits === 'object') mortalityRateUnits = mortalityRateUnits.ptr;
-  return _emscripten_bind_SIGMortality_getTreeCrownVolumeScorched_1(self, mortalityRateUnits);
+  if (treeCrownLengthScorchedUnits && typeof treeCrownLengthScorchedUnits === 'object') treeCrownLengthScorchedUnits = treeCrownLengthScorchedUnits.ptr;
+  return _emscripten_bind_SIGMortality_getTreeCrownLengthScorchedBacking_1(self, treeCrownLengthScorchedUnits);
+};;
+
+SIGMortality.prototype['getTreeCrownLengthScorchedFlanking'] = SIGMortality.prototype.getTreeCrownLengthScorchedFlanking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(treeCrownLengthScorchedUnits) {
+  var self = this.ptr;
+  if (treeCrownLengthScorchedUnits && typeof treeCrownLengthScorchedUnits === 'object') treeCrownLengthScorchedUnits = treeCrownLengthScorchedUnits.ptr;
+  return _emscripten_bind_SIGMortality_getTreeCrownLengthScorchedFlanking_1(self, treeCrownLengthScorchedUnits);
+};;
+
+SIGMortality.prototype['getTreeCrownVolumeScorched'] = SIGMortality.prototype.getTreeCrownVolumeScorched = /** @suppress {undefinedVars, duplicate} @this{Object} */function(getTreeCrownVolumeScorchedUnits) {
+  var self = this.ptr;
+  if (getTreeCrownVolumeScorchedUnits && typeof getTreeCrownVolumeScorchedUnits === 'object') getTreeCrownVolumeScorchedUnits = getTreeCrownVolumeScorchedUnits.ptr;
+  return _emscripten_bind_SIGMortality_getTreeCrownVolumeScorched_1(self, getTreeCrownVolumeScorchedUnits);
+};;
+
+SIGMortality.prototype['getTreeCrownVolumeScorchedBacking'] = SIGMortality.prototype.getTreeCrownVolumeScorchedBacking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(getTreeCrownVolumeScorchedUnits) {
+  var self = this.ptr;
+  if (getTreeCrownVolumeScorchedUnits && typeof getTreeCrownVolumeScorchedUnits === 'object') getTreeCrownVolumeScorchedUnits = getTreeCrownVolumeScorchedUnits.ptr;
+  return _emscripten_bind_SIGMortality_getTreeCrownVolumeScorchedBacking_1(self, getTreeCrownVolumeScorchedUnits);
+};;
+
+SIGMortality.prototype['getTreeCrownVolumeScorchedFlanking'] = SIGMortality.prototype.getTreeCrownVolumeScorchedFlanking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(getTreeCrownVolumeScorchedUnits) {
+  var self = this.ptr;
+  if (getTreeCrownVolumeScorchedUnits && typeof getTreeCrownVolumeScorchedUnits === 'object') getTreeCrownVolumeScorchedUnits = getTreeCrownVolumeScorchedUnits.ptr;
+  return _emscripten_bind_SIGMortality_getTreeCrownVolumeScorchedFlanking_1(self, getTreeCrownVolumeScorchedUnits);
 };;
 
 SIGMortality.prototype['getTreeDensityPerUnitArea'] = SIGMortality.prototype.getTreeDensityPerUnitArea = /** @suppress {undefinedVars, duplicate} @this{Object} */function(areaUnits) {
@@ -11787,6 +11894,27 @@ SIGMortality.prototype['setBeetleDamage'] = SIGMortality.prototype.setBeetleDama
   _emscripten_bind_SIGMortality_setBeetleDamage_1(self, beetleDamage);
 };;
 
+SIGMortality.prototype['setBoleCharHeightFromFlameLengthHeading'] = SIGMortality.prototype.setBoleCharHeightFromFlameLengthHeading = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameLength, lengthUnits) {
+  var self = this.ptr;
+  if (flameLength && typeof flameLength === 'object') flameLength = flameLength.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  _emscripten_bind_SIGMortality_setBoleCharHeightFromFlameLengthHeading_2(self, flameLength, lengthUnits);
+};;
+
+SIGMortality.prototype['setBoleCharHeightFromFlameLengthBacking'] = SIGMortality.prototype.setBoleCharHeightFromFlameLengthBacking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameLength, lengthUnits) {
+  var self = this.ptr;
+  if (flameLength && typeof flameLength === 'object') flameLength = flameLength.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  _emscripten_bind_SIGMortality_setBoleCharHeightFromFlameLengthBacking_2(self, flameLength, lengthUnits);
+};;
+
+SIGMortality.prototype['setBoleCharHeightFromFlameLengthFlanking'] = SIGMortality.prototype.setBoleCharHeightFromFlameLengthFlanking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameLength, lengthUnits) {
+  var self = this.ptr;
+  if (flameLength && typeof flameLength === 'object') flameLength = flameLength.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  _emscripten_bind_SIGMortality_setBoleCharHeightFromFlameLengthFlanking_2(self, flameLength, lengthUnits);
+};;
+
 SIGMortality.prototype['setMidFlameWindSpeed'] = SIGMortality.prototype.setMidFlameWindSpeed = /** @suppress {undefinedVars, duplicate} @this{Object} */function(midFlameWindSpeed, windSpeedUnits) {
   var self = this.ptr;
   if (midFlameWindSpeed && typeof midFlameWindSpeed === 'object') midFlameWindSpeed = midFlameWindSpeed.ptr;
@@ -11858,6 +11986,20 @@ SIGMortality.prototype['setFlameLengthOrScorchHeightValue'] = SIGMortality.proto
   _emscripten_bind_SIGMortality_setFlameLengthOrScorchHeightValue_2(self, flameLengthOrScorchHeightValue, flameLengthOrScorchHeightUnits);
 };;
 
+SIGMortality.prototype['setFlameLength'] = SIGMortality.prototype.setFlameLength = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameLength, flameLengthUnits) {
+  var self = this.ptr;
+  if (flameLength && typeof flameLength === 'object') flameLength = flameLength.ptr;
+  if (flameLengthUnits && typeof flameLengthUnits === 'object') flameLengthUnits = flameLengthUnits.ptr;
+  _emscripten_bind_SIGMortality_setFlameLength_2(self, flameLength, flameLengthUnits);
+};;
+
+SIGMortality.prototype['setScorchHeight'] = SIGMortality.prototype.setScorchHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(scorchHeight, scorchHeightUnits) {
+  var self = this.ptr;
+  if (scorchHeight && typeof scorchHeight === 'object') scorchHeight = scorchHeight.ptr;
+  if (scorchHeightUnits && typeof scorchHeightUnits === 'object') scorchHeightUnits = scorchHeightUnits.ptr;
+  _emscripten_bind_SIGMortality_setScorchHeight_2(self, scorchHeight, scorchHeightUnits);
+};;
+
 SIGMortality.prototype['setRegion'] = SIGMortality.prototype.setRegion = /** @suppress {undefinedVars, duplicate} @this{Object} */function(region) {
   var self = this.ptr;
   if (region && typeof region === 'object') region = region.ptr;
@@ -11869,6 +12011,41 @@ SIGMortality.prototype['setSurfaceFireFlameLength'] = SIGMortality.prototype.set
   if (value && typeof value === 'object') value = value.ptr;
   if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
   _emscripten_bind_SIGMortality_setSurfaceFireFlameLength_2(self, value, lengthUnits);
+};;
+
+SIGMortality.prototype['setSurfaceFireFlameLengthBacking'] = SIGMortality.prototype.setSurfaceFireFlameLengthBacking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, lengthUnits) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  _emscripten_bind_SIGMortality_setSurfaceFireFlameLengthBacking_2(self, value, lengthUnits);
+};;
+
+SIGMortality.prototype['setSurfaceFireFlameLengthFlanking'] = SIGMortality.prototype.setSurfaceFireFlameLengthFlanking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, lengthUnits) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  _emscripten_bind_SIGMortality_setSurfaceFireFlameLengthFlanking_2(self, value, lengthUnits);
+};;
+
+SIGMortality.prototype['setSurfaceFireFirelineIntensity'] = SIGMortality.prototype.setSurfaceFireFirelineIntensity = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, firelineIntensityUnits) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (firelineIntensityUnits && typeof firelineIntensityUnits === 'object') firelineIntensityUnits = firelineIntensityUnits.ptr;
+  _emscripten_bind_SIGMortality_setSurfaceFireFirelineIntensity_2(self, value, firelineIntensityUnits);
+};;
+
+SIGMortality.prototype['setSurfaceFireFirelineIntensityBacking'] = SIGMortality.prototype.setSurfaceFireFirelineIntensityBacking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, firelineIntensityUnits) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (firelineIntensityUnits && typeof firelineIntensityUnits === 'object') firelineIntensityUnits = firelineIntensityUnits.ptr;
+  _emscripten_bind_SIGMortality_setSurfaceFireFirelineIntensityBacking_2(self, value, firelineIntensityUnits);
+};;
+
+SIGMortality.prototype['setSurfaceFireFirelineIntensityFlanking'] = SIGMortality.prototype.setSurfaceFireFirelineIntensityFlanking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, firelineIntensityUnits) {
+  var self = this.ptr;
+  if (value && typeof value === 'object') value = value.ptr;
+  if (firelineIntensityUnits && typeof firelineIntensityUnits === 'object') firelineIntensityUnits = firelineIntensityUnits.ptr;
+  _emscripten_bind_SIGMortality_setSurfaceFireFirelineIntensityFlanking_2(self, value, firelineIntensityUnits);
 };;
 
 SIGMortality.prototype['setSurfaceFireScorchHeight'] = SIGMortality.prototype.setSurfaceFireScorchHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(value, lengthUnits) {
