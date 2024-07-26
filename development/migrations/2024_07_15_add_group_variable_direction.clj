@@ -1,4 +1,4 @@
-(ns add-group-variable-direction
+(ns migrations.2024_07_15_add_group_variable_direction
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]
