@@ -6,6 +6,7 @@
             [behave-cms.components.common       :refer [accordion
                                                         checkbox
                                                         dropdown
+                                                        radio-buttons
                                                         simple-table
                                                         window]]
             [behave-cms.components.actions      :refer [actions-table manage-action]]
@@ -117,12 +118,30 @@
       #(do (swap! *value? not)
            (update!))]]))
 
+(defn- dropdown-setting [label attr entity]
+  (let [{id :db/id} entity
+        selected    (get entity attr)]
+    [:div.mt-1
+     [dropdown {:label     label
+                :selected  selected
+                :options   [{:label "Heading"
+                             :value "heading"}
+                            {:label "Backing"
+                             :value "backing"}
+                            {:label "Flanking"
+                             :value "flanking"}]
+                :on-select #(do
+                              (if (= (u/input-keyword %) (keyword "Select Direction..."))
+                                (rf/dispatch [:api/retract-entity-attr entity attr])
+                                (rf/dispatch [:api/update-entity {:db/id id attr (u/input-keyword %)}])))}]]))
+
 (defn- settings [group-variable]
   [:div.row.mt-2
    [bool-setting "Research Variable?" :group-variable/research? group-variable]
    [bool-setting "Discrete Multiple?" :group-variable/discrete-multiple? group-variable]
    [bool-setting "Conditionally Set?" :group-variable/conditionally-set? group-variable]
-   [bool-setting "Hide from Results?" :group-variable/hide-result? group-variable]])
+   [bool-setting "Hide from Results?" :group-variable/hide-result? group-variable]
+   [dropdown-setting "Direction" :group-variable/direction group-variable]])
 
 ;;; Public Views
 

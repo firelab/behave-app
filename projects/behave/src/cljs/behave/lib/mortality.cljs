@@ -149,6 +149,9 @@
 (defn getSpeciesCode [self]
   (.getSpeciesCode self))
 
+(defn getCVSorCLS [self]
+  (.getCVSorCLS self))
+
 (defn getSpeciesCodeAtSpeciesTableIndex [self index]
   (.getSpeciesCodeAtSpeciesTableIndex self index))
 

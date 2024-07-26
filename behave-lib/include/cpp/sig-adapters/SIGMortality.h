@@ -69,6 +69,7 @@ public:
   SpeciesMasterTableRecordVector *getSpeciesRecordVectorForRegionAndEquationType(RegionCode region,
                                                                                  EquationType equationType);
   void calculateMortalityAllDirections(FractionUnits::FractionUnitsEnum probablityUnits);
+  char *getCVSorCLS();
 
   // SIGMortality Getters Heading
   double getProbabilityOfMortality(FractionUnits::FractionUnitsEnum probabilityUnits) const;

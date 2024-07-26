@@ -597,7 +597,34 @@
 
              ;;get value
              [?c :result-cell/value ?value]]
-    :variables [ws-uuid]}))
+    :variables
+    [ws-uuid]}))
+
+(defn- is-directional? [gv-uuid direction]
+  (= (d/q '[:find  ?direction .
+            :in $ ?gv-uuid
+            :where
+            [?gv :bp/uuid ?gv-uuid]
+            [?gv :group-variable/direction ?direction]]
+          @@vms-conn
+          gv-uuid)
+     direction))
+
+(rf/reg-sub
+ :worksheet/result-table-cell-data-direction
+ (fn [[_ ws-uuid]]
+   [(rf/subscribe [:worksheet/result-table-cell-data ws-uuid])
+    (rf/subscribe [:worksheet/multi-value-input-uuids ws-uuid])])
+ (fn [[data multi-input-uuids] [_ _ direction]]
+   (filterv
+    (fn [[_ col-uuid]]
+      (or (contains? (set multi-input-uuids) col-uuid)
+          (is-directional? col-uuid direction)))
+    data)))
+
+(comment
+  (rf/subscribe [:worksheet/multi-value-input-uuids "6685957e-39fc-454d-bd3d-6f7dafa5775a"])
+  (rf/subscribe [:worksheet/result-table-cell-data-direction "6685957e-39fc-454d-bd3d-6f7dafa5775a" :heading]))
 
 (rf/reg-sub
  :worksheet/output-uuid->result-min-values
@@ -670,6 +697,53 @@
                                    [?h :result-header/units ?units]]
                                  [ws-uuid]])]
      (->> headers
+          (sort-by (juxt #(.indexOf gv-order (first %))
+                         #(second %)))))))
+
+(rf/reg-sub
+ :worksheet/result-table-headers-sorted-direction
+ (fn [[_ ws-uuid]]
+   [(rf/subscribe [:vms/group-variable-order])
+    (rf/subscribe [:worksheet/multi-value-input-uuids ws-uuid])])
+ (fn [[gv-order multi-input-uuids] [_ ws-uuid direction]]
+   (let [headers @(rf/subscribe [:query
+                                 '[:find ?gv-uuid ?repeat-id ?units
+                                   :in $ ?ws-uuid
+                                   :where
+                                   [?w :worksheet/uuid ?ws-uuid]
+                                   [?w :worksheet/result-table ?r]
+                                   [?r :result-table/headers ?h]
+                                   [?h :result-header/repeat-id ?repeat-id]
+                                   [?h :result-header/group-variable-uuid ?gv-uuid]
+                                   [?h :result-header/units ?units]]
+                                 [ws-uuid]])]
+     (->> headers
+          (filter (fn [[gv-uuid]]
+                   (or (contains? (set multi-input-uuids) gv-uuid)
+                       (is-directional? gv-uuid direction))))
+          (sort-by (juxt #(.indexOf gv-order (first %))
+                         #(second %)))))))
+
+
+(rf/reg-sub
+ :worksheet/pivot-table-headers
+ (fn [_]
+   (rf/subscribe [:vms/group-variable-order]))
+ (fn [gv-order [_ ws-uuid gvs]]
+   (let [headers @(rf/subscribe [:query
+                                 '[:find ?gv-uuid ?repeat-id ?units
+                                   :in $ ?ws-uuid
+                                   :where
+                                   [?w :worksheet/uuid ?ws-uuid]
+                                   [?w :worksheet/result-table ?r]
+                                   [?r :result-table/headers ?h]
+                                   [?h :result-header/repeat-id ?repeat-id]
+                                   [?h :result-header/group-variable-uuid ?gv-uuid]
+                                   [?h :result-header/units ?units]]
+                                 [ws-uuid]])]
+     (->> headers
+          (filter (fn [[gv-uuid]]
+                    (contains? (set gvs) gv-uuid)))
           (sort-by (juxt #(.indexOf gv-order (first %))
                          #(second %)))))))
 
@@ -852,3 +926,47 @@
           (group-variable _ ?gv ?v)
           [?v :variable/domain-uuid ?domain-uuid]]
         @@vms-conn @@s/conn rules ws-uuid domain-uuid)))
+
+(rf/reg-sub
+ :worksheet/output-directions
+ (fn [_ [_ ws-uuid]]
+   (d/q '[:find  [?direction ...]
+          :in    $ $ws % ?ws-uuid
+          :where
+          [$ws ?w :worksheet/uuid ?ws-uuid]
+          [$ws ?w :worksheet/outputs ?o]
+          [$ws ?o :output/group-variable-uuid ?gv-uuid]
+          [$ws ?o :output/enabled? true]
+          (lookup ?gv-uuid ?gv)
+          [?gv :group-variable/direction ?direction]]
+        @@vms-conn @@s/conn rules ws-uuid)))
+
+(rf/reg-sub
+ :worksheet/pivot-table-fields
+ (fn [_ [_ pivot-table-id]]
+   (d/q '[:find  [?gv-uuid ...]
+          :in    $ ?p
+          :where
+          [?p :pivot-table/columns ?c]
+          [?c :pivot-column/type :field]
+          [?c :pivot-column/group-variable-uuid ?gv-uuid]]
+        @@vms-conn pivot-table-id)))
+
+(rf/reg-sub
+ :worksheet/pivot-table-values
+ (fn [_ [_ pivot-table-id]]
+   (d/q '[:find  ?gv-uuid ?function
+          :in    $ ?p
+          :where
+          [?p :pivot-table/columns ?c]
+          [?c :pivot-column/type :value]
+          [?c :pivot-column/group-variable-uuid ?gv-uuid]
+          [?c :pivot-column/function ?function]]
+        @@vms-conn pivot-table-id)))
+
+(rf/reg-sub
+ :worksheet/pivot-tables
+ (fn [[_ ws-uuid]]
+   (rf/subscribe [:worksheet/modules ws-uuid]))
+ (fn [modules]
+   (mapcat :module/pivot-tables modules)))

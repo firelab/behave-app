@@ -2,6 +2,10 @@
   (:require [clojure.spec.alpha :as s]
             [behave.schema.utils :refer [valid-key? uuid-string? zero-pos?]]))
 
+;;; Validation Fns
+
+(def ^:private valid-direction? (s/and keyword? #(#{:heading :backing :flanking} %)))
+
 ;;; Spec
 
 (s/def :group-variable/uuid            uuid-string?)
@@ -13,6 +17,9 @@
 (s/def :group-variable/order           zero-pos?)
 (s/def :group-variable/translation-key valid-key?)
 (s/def :group-variable/research?       boolean?)
+(s/def :group-variable/direction       valid-direction?)
+
+
 
 (s/def :behave/group-variable (s/keys :req [:group-variable/uuid
                                             :group-variable/order
@@ -22,7 +29,8 @@
                                             :group-variable/cpp-namespace
                                             :group-variable/cpp-function]
                                       :opt [:group-variable/cpp-parameter
-                                            :group-variable/research?]))
+                                            :group-variable/research?
+                                            :group-variable/direction]))
 
 ;;; Schema
 
@@ -100,7 +108,12 @@
     :db/doc         "Group variable's actions."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many
-    :db/isComponent true}])
+    :db/isComponent true}
+
+   {:db/ident       :group-variable/direction
+    :db/doc         "Group variable's direction."
+    :db/valueType   :db.type/keyword
+    :db/cardinality :db.cardinality/one}])
 
 ;;; Tests
 

@@ -1043,6 +1043,7 @@ interface SIGMortality {
   [Const] double getCambiumKillRating();
   [Const] double getCrownDamage();
   [Const] double getCrownRatio();
+  DOMString getCVSorCLS();
   [Const] double getDBH(LengthUnits_LengthUnitsEnum diameterUnits);
   [Const] double getFlameLengthOrScorchHeightValue(LengthUnits_LengthUnitsEnum flameLengthOrScorchHeightUnits);
   [Const] double getFlameLength(LengthUnits_LengthUnitsEnum flameLengthUnits);
