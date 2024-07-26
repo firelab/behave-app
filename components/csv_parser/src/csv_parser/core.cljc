@@ -1,8 +1,8 @@
 (ns csv-parser.core
   (:require [clojure.core.async :refer [go <!]]
             [clojure.string     :as str]
-            [clojure.data.csv :as csv]
-            [clojure.java.io :as io]
+            #?(:clj [clojure.data.csv :as csv])
+            #?(:clj [clojure.java.io :as io])
             #?(:cljs [cljs.core.async.interop :refer-macros [<p!]])))
 
 (defn- numeric? [n]
