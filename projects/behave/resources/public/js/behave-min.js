@@ -11684,40 +11684,40 @@ SIGMortality.prototype['getTotalPrefireTrees'] = SIGMortality.prototype.getTotal
   return _emscripten_bind_SIGMortality_getTotalPrefireTrees_0(self);
 };;
 
-SIGMortality.prototype['getTreeCrownLengthScorched'] = SIGMortality.prototype.getTreeCrownLengthScorched = /** @suppress {undefinedVars, duplicate} @this{Object} */function(mortalityRateUnits) {
+SIGMortality.prototype['getTreeCrownLengthScorched'] = SIGMortality.prototype.getTreeCrownLengthScorched = /** @suppress {undefinedVars, duplicate} @this{Object} */function(treeCrownLengthScorchedUnits) {
   var self = this.ptr;
-  if (mortalityRateUnits && typeof mortalityRateUnits === 'object') mortalityRateUnits = mortalityRateUnits.ptr;
-  return _emscripten_bind_SIGMortality_getTreeCrownLengthScorched_1(self, mortalityRateUnits);
+  if (treeCrownLengthScorchedUnits && typeof treeCrownLengthScorchedUnits === 'object') treeCrownLengthScorchedUnits = treeCrownLengthScorchedUnits.ptr;
+  return _emscripten_bind_SIGMortality_getTreeCrownLengthScorched_1(self, treeCrownLengthScorchedUnits);
 };;
 
-SIGMortality.prototype['getTreeCrownLengthScorchedBacking'] = SIGMortality.prototype.getTreeCrownLengthScorchedBacking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(mortalityRateUnits) {
+SIGMortality.prototype['getTreeCrownLengthScorchedBacking'] = SIGMortality.prototype.getTreeCrownLengthScorchedBacking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(treeCrownLengthScorchedUnits) {
   var self = this.ptr;
-  if (mortalityRateUnits && typeof mortalityRateUnits === 'object') mortalityRateUnits = mortalityRateUnits.ptr;
-  return _emscripten_bind_SIGMortality_getTreeCrownLengthScorchedBacking_1(self, mortalityRateUnits);
+  if (treeCrownLengthScorchedUnits && typeof treeCrownLengthScorchedUnits === 'object') treeCrownLengthScorchedUnits = treeCrownLengthScorchedUnits.ptr;
+  return _emscripten_bind_SIGMortality_getTreeCrownLengthScorchedBacking_1(self, treeCrownLengthScorchedUnits);
 };;
 
-SIGMortality.prototype['getTreeCrownLengthScorchedFlanking'] = SIGMortality.prototype.getTreeCrownLengthScorchedFlanking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(mortalityRateUnits) {
+SIGMortality.prototype['getTreeCrownLengthScorchedFlanking'] = SIGMortality.prototype.getTreeCrownLengthScorchedFlanking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(treeCrownLengthScorchedUnits) {
   var self = this.ptr;
-  if (mortalityRateUnits && typeof mortalityRateUnits === 'object') mortalityRateUnits = mortalityRateUnits.ptr;
-  return _emscripten_bind_SIGMortality_getTreeCrownLengthScorchedFlanking_1(self, mortalityRateUnits);
+  if (treeCrownLengthScorchedUnits && typeof treeCrownLengthScorchedUnits === 'object') treeCrownLengthScorchedUnits = treeCrownLengthScorchedUnits.ptr;
+  return _emscripten_bind_SIGMortality_getTreeCrownLengthScorchedFlanking_1(self, treeCrownLengthScorchedUnits);
 };;
 
-SIGMortality.prototype['getTreeCrownVolumeScorched'] = SIGMortality.prototype.getTreeCrownVolumeScorched = /** @suppress {undefinedVars, duplicate} @this{Object} */function(mortalityRateUnits) {
+SIGMortality.prototype['getTreeCrownVolumeScorched'] = SIGMortality.prototype.getTreeCrownVolumeScorched = /** @suppress {undefinedVars, duplicate} @this{Object} */function(getTreeCrownVolumeScorchedUnits) {
   var self = this.ptr;
-  if (mortalityRateUnits && typeof mortalityRateUnits === 'object') mortalityRateUnits = mortalityRateUnits.ptr;
-  return _emscripten_bind_SIGMortality_getTreeCrownVolumeScorched_1(self, mortalityRateUnits);
+  if (getTreeCrownVolumeScorchedUnits && typeof getTreeCrownVolumeScorchedUnits === 'object') getTreeCrownVolumeScorchedUnits = getTreeCrownVolumeScorchedUnits.ptr;
+  return _emscripten_bind_SIGMortality_getTreeCrownVolumeScorched_1(self, getTreeCrownVolumeScorchedUnits);
 };;
 
-SIGMortality.prototype['getTreeCrownVolumeScorchedBacking'] = SIGMortality.prototype.getTreeCrownVolumeScorchedBacking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(mortalityRateUnits) {
+SIGMortality.prototype['getTreeCrownVolumeScorchedBacking'] = SIGMortality.prototype.getTreeCrownVolumeScorchedBacking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(getTreeCrownVolumeScorchedUnits) {
   var self = this.ptr;
-  if (mortalityRateUnits && typeof mortalityRateUnits === 'object') mortalityRateUnits = mortalityRateUnits.ptr;
-  return _emscripten_bind_SIGMortality_getTreeCrownVolumeScorchedBacking_1(self, mortalityRateUnits);
+  if (getTreeCrownVolumeScorchedUnits && typeof getTreeCrownVolumeScorchedUnits === 'object') getTreeCrownVolumeScorchedUnits = getTreeCrownVolumeScorchedUnits.ptr;
+  return _emscripten_bind_SIGMortality_getTreeCrownVolumeScorchedBacking_1(self, getTreeCrownVolumeScorchedUnits);
 };;
 
-SIGMortality.prototype['getTreeCrownVolumeScorchedFlanking'] = SIGMortality.prototype.getTreeCrownVolumeScorchedFlanking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(mortalityRateUnits) {
+SIGMortality.prototype['getTreeCrownVolumeScorchedFlanking'] = SIGMortality.prototype.getTreeCrownVolumeScorchedFlanking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(getTreeCrownVolumeScorchedUnits) {
   var self = this.ptr;
-  if (mortalityRateUnits && typeof mortalityRateUnits === 'object') mortalityRateUnits = mortalityRateUnits.ptr;
-  return _emscripten_bind_SIGMortality_getTreeCrownVolumeScorchedFlanking_1(self, mortalityRateUnits);
+  if (getTreeCrownVolumeScorchedUnits && typeof getTreeCrownVolumeScorchedUnits === 'object') getTreeCrownVolumeScorchedUnits = getTreeCrownVolumeScorchedUnits.ptr;
+  return _emscripten_bind_SIGMortality_getTreeCrownVolumeScorchedFlanking_1(self, getTreeCrownVolumeScorchedUnits);
 };;
 
 SIGMortality.prototype['getTreeDensityPerUnitArea'] = SIGMortality.prototype.getTreeDensityPerUnitArea = /** @suppress {undefinedVars, duplicate} @this{Object} */function(areaUnits) {

@@ -91,7 +91,7 @@
    {:type "double",
     :id "getTreeCrownLengthScorched",
     :parameters
-    [{:id "fractionUnits", :type "FractionUnits::FractionUnitsEnum"}]},
+    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
    :setRegion
    {:type "void",
     :id "setRegion",
@@ -213,7 +213,7 @@
    {:type "double",
     :id "getTreeCrownLengthScorchedFlanking",
     :parameters
-    [{:id "fractionUnits", :type "FractionUnits::FractionUnitsEnum"}]},
+    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
    :getMortalityEquationNumberAtSpeciesTableIndex
    {:type "int",
     :id "getMortalityEquationNumberAtSpeciesTableIndex",
@@ -374,7 +374,7 @@
    {:type "double",
     :id "getTreeCrownLengthScorchedBacking",
     :parameters
-    [{:id "fractionUnits", :type "FractionUnits::FractionUnitsEnum"}]},
+    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
    :setSurfaceFireFirelineIntensityBacking
    {:type "void",
     :id "setSurfaceFireFirelineIntensityBacking",

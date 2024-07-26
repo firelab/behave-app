@@ -1054,12 +1054,12 @@ interface SIGMortality {
   [Const] double getProbabilityOfMortalityBacking(FractionUnits_FractionUnitsEnum probabilityUnits);
   [Const] double getProbabilityOfMortalityFlanking(FractionUnits_FractionUnitsEnum probabilityUnits);
   [Const] double getTotalPrefireTrees();
-  [Const] double getTreeCrownLengthScorched(FractionUnits_FractionUnitsEnum mortalityRateUnits);
-  [Const] double getTreeCrownLengthScorchedBacking(FractionUnits_FractionUnitsEnum mortalityRateUnits);
-  [Const] double getTreeCrownLengthScorchedFlanking(FractionUnits_FractionUnitsEnum mortalityRateUnits);
-  [Const] double getTreeCrownVolumeScorched(FractionUnits_FractionUnitsEnum mortalityRateUnits);
-  [Const] double getTreeCrownVolumeScorchedBacking(FractionUnits_FractionUnitsEnum mortalityRateUnits);
-  [Const] double getTreeCrownVolumeScorchedFlanking(FractionUnits_FractionUnitsEnum mortalityRateUnits);
+  [Const] double getTreeCrownLengthScorched(LengthUnits_LengthUnitsEnum treeCrownLengthScorchedUnits);
+  [Const] double getTreeCrownLengthScorchedBacking(LengthUnits_LengthUnitsEnum treeCrownLengthScorchedUnits);
+  [Const] double getTreeCrownLengthScorchedFlanking(LengthUnits_LengthUnitsEnum treeCrownLengthScorchedUnits);
+  [Const] double getTreeCrownVolumeScorched(FractionUnits_FractionUnitsEnum getTreeCrownVolumeScorchedUnits);
+  [Const] double getTreeCrownVolumeScorchedBacking(FractionUnits_FractionUnitsEnum getTreeCrownVolumeScorchedUnits);
+  [Const] double getTreeCrownVolumeScorchedFlanking(FractionUnits_FractionUnitsEnum getTreeCrownVolumeScorchedUnits);
   [Const] double getTreeDensityPerUnitArea(AreaUnits_AreaUnitsEnum areaUnits);
   [Const] double getTreeHeight(LengthUnits_LengthUnitsEnum treeHeightUnits);
   double postfireCanopyCover();
