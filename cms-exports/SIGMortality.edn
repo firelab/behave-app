@@ -91,7 +91,7 @@
    {:type "double",
     :id "getTreeCrownLengthScorched",
     :parameters
-    [{:id "fractionUnits", :type "FractionUnits::FractionUnitsEnum"}]},
+    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
    :setRegion
    {:type "void",
     :id "setRegion",
@@ -213,7 +213,7 @@
    {:type "double",
     :id "getTreeCrownLengthScorchedFlanking",
     :parameters
-    [{:id "fractionUnits", :type "FractionUnits::FractionUnitsEnum"}]},
+    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
    :getMortalityEquationNumberAtSpeciesTableIndex
    {:type "int",
     :id "getMortalityEquationNumberAtSpeciesTableIndex",
@@ -322,6 +322,16 @@
     :id "getScorchHeight",
     :parameters
     [{:id "scorchHeightUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getScorchHeightBacking
+   {:type "double",
+    :id   "getScorchHeightBacking",
+    :parameters
+    [{:id "scorchHeightUnits", :type "LengthUnits::LengthUnitsEnum"}]}
+   :getScorchHeightFlanking
+   {:type "double",
+    :id   "getScorchHeightFlanking",
+    :parameters
+    [{:id "scorchHeightUnits", :type "LengthUnits::LengthUnitsEnum"}]}
    :getCambiumKillRating
    {:type "double", :id "getCambiumKillRating", :parameters []},
    :setCrownRatio
@@ -364,7 +374,7 @@
    {:type "double",
     :id "getTreeCrownLengthScorchedBacking",
     :parameters
-    [{:id "fractionUnits", :type "FractionUnits::FractionUnitsEnum"}]},
+    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
    :setSurfaceFireFirelineIntensityBacking
    {:type "void",
     :id "setSurfaceFireFirelineIntensityBacking",

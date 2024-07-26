@@ -2507,6 +2507,14 @@ const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getScorchHeight_1
   return self->getScorchHeight(scorchHeightUnits);
 }
 
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getScorchHeightBacking_1(SIGMortality* self, LengthUnits_LengthUnitsEnum scorchHeightUnits) {
+  return self->getScorchHeightBacking(scorchHeightUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getScorchHeightFlanking_1(SIGMortality* self, LengthUnits_LengthUnitsEnum scorchHeightUnits) {
+  return self->getScorchHeightFlanking(scorchHeightUnits);
+}
+
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getKilledTrees_0(SIGMortality* self) {
   return self->getKilledTrees();
 }
@@ -2527,28 +2535,28 @@ const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getTotalPrefireTr
   return self->getTotalPrefireTrees();
 }
 
-const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getTreeCrownLengthScorched_1(SIGMortality* self, FractionUnits_FractionUnitsEnum mortalityRateUnits) {
-  return self->getTreeCrownLengthScorched(mortalityRateUnits);
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getTreeCrownLengthScorched_1(SIGMortality* self, LengthUnits_LengthUnitsEnum treeCrownLengthScorchedUnits) {
+  return self->getTreeCrownLengthScorched(treeCrownLengthScorchedUnits);
 }
 
-const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getTreeCrownLengthScorchedBacking_1(SIGMortality* self, FractionUnits_FractionUnitsEnum mortalityRateUnits) {
-  return self->getTreeCrownLengthScorchedBacking(mortalityRateUnits);
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getTreeCrownLengthScorchedBacking_1(SIGMortality* self, LengthUnits_LengthUnitsEnum treeCrownLengthScorchedUnits) {
+  return self->getTreeCrownLengthScorchedBacking(treeCrownLengthScorchedUnits);
 }
 
-const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getTreeCrownLengthScorchedFlanking_1(SIGMortality* self, FractionUnits_FractionUnitsEnum mortalityRateUnits) {
-  return self->getTreeCrownLengthScorchedFlanking(mortalityRateUnits);
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getTreeCrownLengthScorchedFlanking_1(SIGMortality* self, LengthUnits_LengthUnitsEnum treeCrownLengthScorchedUnits) {
+  return self->getTreeCrownLengthScorchedFlanking(treeCrownLengthScorchedUnits);
 }
 
-const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getTreeCrownVolumeScorched_1(SIGMortality* self, FractionUnits_FractionUnitsEnum mortalityRateUnits) {
-  return self->getTreeCrownVolumeScorched(mortalityRateUnits);
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getTreeCrownVolumeScorched_1(SIGMortality* self, FractionUnits_FractionUnitsEnum getTreeCrownVolumeScorchedUnits) {
+  return self->getTreeCrownVolumeScorched(getTreeCrownVolumeScorchedUnits);
 }
 
-const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getTreeCrownVolumeScorchedBacking_1(SIGMortality* self, FractionUnits_FractionUnitsEnum mortalityRateUnits) {
-  return self->getTreeCrownVolumeScorchedBacking(mortalityRateUnits);
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getTreeCrownVolumeScorchedBacking_1(SIGMortality* self, FractionUnits_FractionUnitsEnum getTreeCrownVolumeScorchedUnits) {
+  return self->getTreeCrownVolumeScorchedBacking(getTreeCrownVolumeScorchedUnits);
 }
 
-const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getTreeCrownVolumeScorchedFlanking_1(SIGMortality* self, FractionUnits_FractionUnitsEnum mortalityRateUnits) {
-  return self->getTreeCrownVolumeScorchedFlanking(mortalityRateUnits);
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getTreeCrownVolumeScorchedFlanking_1(SIGMortality* self, FractionUnits_FractionUnitsEnum getTreeCrownVolumeScorchedUnits) {
+  return self->getTreeCrownVolumeScorchedFlanking(getTreeCrownVolumeScorchedUnits);
 }
 
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getTreeDensityPerUnitArea_1(SIGMortality* self, AreaUnits_AreaUnitsEnum areaUnits) {
