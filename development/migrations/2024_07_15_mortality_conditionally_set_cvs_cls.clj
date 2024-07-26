@@ -1,4 +1,4 @@
-(ns mortality-conditionally-set-cvs-cls
+(ns migrations.2024_07_15_mortality_conditionally_set_cvs_cls
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]
