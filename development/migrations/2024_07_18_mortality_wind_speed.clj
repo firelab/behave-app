@@ -67,8 +67,8 @@
              (merge {:db/id                        temp-id
                      :group-variable/cpp-namespace (sm/cpp-ns->uuid conn "global")
                      :group-variable/cpp-class     (sm/cpp-class->uuid conn class-name)
-                     :group-variable/cpp-function  (sm/cpp-fn->uuid conn fn-name)
-                     :group-variable/cpp-parameter (sm/cpp-param->uuid conn fn-name p-name)}))))
+                     :group-variable/cpp-function  (sm/cpp-fn->uuid conn class-name fn-name)
+                     :group-variable/cpp-parameter (sm/cpp-param->uuid conn class-name fn-name p-name)}))))
      (map merge new-group-vars new-groups-tx)))
 
   ;; Link Variables from Surface Wind Inputs to new Inputs

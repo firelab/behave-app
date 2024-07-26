@@ -69,28 +69,56 @@
 
 (defn cpp-fn->uuid
   "Get the :bp/uuid using the cpp function name"
-  [conn nname]
-  (d/q '[:find ?uuid .
-         :in $ ?name
-         :where
-         [?e :cpp.function/name ?name]
-         [?e :bp/uuid ?uuid]]
-       (d/db conn)
-       nname))
+  ([conn nname]
+   (d/q '[:find ?uuid .
+          :in $ ?name
+          :where
+          [?e :cpp.function/name ?name]
+          [?e :bp/uuid ?uuid]]
+        (d/db conn)
+        nname))
+
+  ([conn class-name fn-name]
+   (d/q '[:find ?uuid .
+          :in $ ?class-name ?fn-name
+          :where
+          [?c :cpp.class/name ?class-name]
+          [?c :cpp.class/function ?f]
+          [?f :cpp.function/name ?fn-name]
+          [?f :bp/uuid ?uuid]]
+        (d/db conn)
+        class-name
+        fn-name)))
 
 (defn cpp-param->uuid
   "Get the :bp/uuid using the cpp function name and parameter name."
-  [conn fn-name param-name]
-  (d/q '[:find ?uuid .
-         :in $ ?fn-name ?p-name
-         :where
-         [?f :cpp.function/name ?fn-name]
-         [?f :cpp.function/parameter ?p]
-         [?p :cpp.parameter/name ?p-name]
-         [?p :bp/uuid ?uuid]]
-       (d/db conn)
-       fn-name
-       param-name))
+
+  ([conn fn-name param-name]
+   (d/q '[:find ?uuid .
+          :in $ ?fn-name ?p-name
+          :where
+          [?f :cpp.function/name ?fn-name]
+          [?f :cpp.function/parameter ?p]
+          [?p :cpp.parameter/name ?p-name]
+          [?p :bp/uuid ?uuid]]
+        (d/db conn)
+        fn-name
+        param-name))
+
+  ([conn class-name fn-name param-name]
+   (d/q '[:find ?uuid .
+          :in $ ?class-name ?fn-name ?p-name
+          :where
+          [?c :cpp.class/name ?class-name]
+          [?c :cpp.class/function ?f]
+          [?f :cpp.function/name ?fn-name]
+          [?f :cpp.function/parameter ?p]
+          [?p :cpp.parameter/name ?p-name]
+          [?p :bp/uuid ?uuid]]
+        (d/db conn)
+        class-name
+        fn-name
+        param-name)))
 
 (defn- submodule [conn t]
   (->> t
