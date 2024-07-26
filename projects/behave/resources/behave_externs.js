@@ -463,9 +463,6 @@ Module.SIGMortality = class {
   setAirTemperature() {}
   setBeetleDamage() {}
   setBoleCharHeight() {}
-  setBoleCharHeightFromFlameLengthHeading(){}
-  setBoleCharHeightFromFlameLengthBacking(){}
-  setBoleCharHeightFromFlameLengthFlanking(){}
   setCambiumKillRating() {}
   setCrownDamage() {}
   setCrownRatio() {}

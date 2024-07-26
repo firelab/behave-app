@@ -84,16 +84,25 @@ void SIGMortality::setMidFlameWindSpeed(double midFlameWindSpeed, SpeedUnits::Sp
 void SIGMortality::setSurfaceFireFlameLength(double value, LengthUnits::LengthUnitsEnum lengthUnits)
 {
     heading_.setFlameLength(value, lengthUnits);
+
+    double boleCharHeight = LengthUnits::toBaseUnits(value, lengthUnits) / 1.8;
+    heading_.setBoleCharHeight(boleCharHeight, LengthUnits::Feet);
 }
 
 void SIGMortality::setSurfaceFireFlameLengthBacking(double value, LengthUnits::LengthUnitsEnum lengthUnits)
 {
     backing_.setFlameLength(value, lengthUnits);
+
+    double boleCharHeight = LengthUnits::toBaseUnits(value, lengthUnits) / 1.8;
+    backing_.setBoleCharHeight(boleCharHeight, LengthUnits::Feet);
 }
 
 void SIGMortality::setSurfaceFireFlameLengthFlanking(double value, LengthUnits::LengthUnitsEnum lengthUnits)
 {
     flanking_.setFlameLength(value, lengthUnits);
+
+    double boleCharHeight = LengthUnits::toBaseUnits(value, lengthUnits) / 1.8;
+    flanking_.setBoleCharHeight(boleCharHeight, LengthUnits::Feet);
 }
 
 void SIGMortality::setSurfaceFireScorchHeight(double value, LengthUnits::LengthUnitsEnum lengthUnits)
@@ -285,24 +294,3 @@ char* SIGMortality::getCVSorCLS()
         return SIGString::str2charptr("CVS");
     }
 };
-
-void SIGMortality::setBoleCharHeightFromFlameLengthHeading(double flameLength,
-                                                           LengthUnits::LengthUnitsEnum flameLengthunits)
-{
-  double boleCharHeight = LengthUnits::toBaseUnits(flameLength, flameLengthunits) / 1.8;
-  heading_.setBoleCharHeight(boleCharHeight, LengthUnits::Feet);
-}
-
-void SIGMortality::setBoleCharHeightFromFlameLengthBacking(double flameLength,
-                                                           LengthUnits::LengthUnitsEnum flameLengthunits)
-{
-  double boleCharHeight = LengthUnits::toBaseUnits(flameLength, flameLengthunits) / 1.8;
-  backing_.setBoleCharHeight(boleCharHeight, LengthUnits::Feet);
-}
-
-void SIGMortality::setBoleCharHeightFromFlameLengthFlanking(double flameLength,
-                                                            LengthUnits::LengthUnitsEnum flameLengthunits)
-{
-  double boleCharHeight = LengthUnits::toBaseUnits(flameLength, flameLengthunits) / 1.8;
-  flanking_.setBoleCharHeight(boleCharHeight, LengthUnits::Feet);
-}

@@ -4490,27 +4490,6 @@ SIGMortality.prototype['setBeetleDamage'] = SIGMortality.prototype.setBeetleDama
   _emscripten_bind_SIGMortality_setBeetleDamage_1(self, beetleDamage);
 };;
 
-SIGMortality.prototype['setBoleCharHeightFromFlameLengthHeading'] = SIGMortality.prototype.setBoleCharHeightFromFlameLengthHeading = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameLength, lengthUnits) {
-  var self = this.ptr;
-  if (flameLength && typeof flameLength === 'object') flameLength = flameLength.ptr;
-  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
-  _emscripten_bind_SIGMortality_setBoleCharHeightFromFlameLengthHeading_2(self, flameLength, lengthUnits);
-};;
-
-SIGMortality.prototype['setBoleCharHeightFromFlameLengthBacking'] = SIGMortality.prototype.setBoleCharHeightFromFlameLengthBacking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameLength, lengthUnits) {
-  var self = this.ptr;
-  if (flameLength && typeof flameLength === 'object') flameLength = flameLength.ptr;
-  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
-  _emscripten_bind_SIGMortality_setBoleCharHeightFromFlameLengthBacking_2(self, flameLength, lengthUnits);
-};;
-
-SIGMortality.prototype['setBoleCharHeightFromFlameLengthFlanking'] = SIGMortality.prototype.setBoleCharHeightFromFlameLengthFlanking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameLength, lengthUnits) {
-  var self = this.ptr;
-  if (flameLength && typeof flameLength === 'object') flameLength = flameLength.ptr;
-  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
-  _emscripten_bind_SIGMortality_setBoleCharHeightFromFlameLengthFlanking_2(self, flameLength, lengthUnits);
-};;
-
 SIGMortality.prototype['setMidFlameWindSpeed'] = SIGMortality.prototype.setMidFlameWindSpeed = /** @suppress {undefinedVars, duplicate} @this{Object} */function(midFlameWindSpeed, windSpeedUnits) {
   var self = this.ptr;
   if (midFlameWindSpeed && typeof midFlameWindSpeed === 'object') midFlameWindSpeed = midFlameWindSpeed.ptr;

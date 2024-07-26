@@ -36,17 +36,14 @@ public:
   void setSurfaceFireFirelineIntensity(double value, FirelineIntensityUnits::FirelineIntensityUnitsEnum firelineIntensityUnits);
   void setSurfaceFireScorchHeight(double value, LengthUnits::LengthUnitsEnum lengthUnits);
   bool updateInputsForSpeciesCodeAndEquationType(char *speciesCode, EquationType equationType);
-  void setBoleCharHeightFromFlameLengthHeading(double flameLength, LengthUnits::LengthUnitsEnum flameLengthunits);
 
   // SIGMortality Setters Backing Direction
   void setSurfaceFireFlameLengthBacking(double value, LengthUnits::LengthUnitsEnum lengthUnits);
   void setSurfaceFireFirelineIntensityBacking(double value, FirelineIntensityUnits::FirelineIntensityUnitsEnum firelineIntensityUnits);
-  void setBoleCharHeightFromFlameLengthBacking(double flameLength, LengthUnits::LengthUnitsEnum flameLengthunits);
 
   // SIGMortality Setters Flanking Direction
   void setSurfaceFireFlameLengthFlanking(double value, LengthUnits::LengthUnitsEnum lengthUnits);
   void setSurfaceFireFirelineIntensityFlanking(double value, FirelineIntensityUnits::FirelineIntensityUnitsEnum firelineIntensityUnits);
-  void setBoleCharHeightFromFlameLengthFlanking(double flameLength, LengthUnits::LengthUnitsEnum flameLengthunits);
 
   // SIGMortality Getters
   char *getSpeciesCode() const;
