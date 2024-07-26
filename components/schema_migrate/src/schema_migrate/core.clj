@@ -223,7 +223,7 @@
   [submodule-eid gname t-key]
   {:bp/uuid               (rand-uuid)
    :bp/nid                (nano-id)
-   :submdodule/_groups    submodule-eid
+   :submodule/_groups     submodule-eid
    :group/name            gname
    :group/translation-key t-key
    :group/help-key        (str t-key ":help")})
