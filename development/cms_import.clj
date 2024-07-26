@@ -35,7 +35,7 @@
 
     (write-pprint-edn merged-edn (str "cms-exports/" out-file-name))))
 
-(defn ->class [conn [class-name fns]]
+(defn ->class [conn [class-name functions]]
   (let [->param            (fn [i p] (merge {:cpp.parameter/order i
                                              :bp/nid              (nano-id)
                                              :bp/uuid             (str (squuid))}
@@ -65,7 +65,7 @@
                                 (d/db conn)
                                 (->str class-name))]
     (cond-> {:cpp.class/name     (->str class-name)
-             :cpp.class/function (vec (->> (filter has-name? (map ->fn methods))
+             :cpp.class/function (vec (->> (filter has-name? (map ->fn functions))
                                            (remove existing-fn?)))}
 
       existing-class-eid
