@@ -34,9 +34,12 @@
                                      (sm/->gv-conditional uuid :equal "false"))
                                    crown-fire-behavior-outputs)})
 
-  (def tx (d/transact @ds/datomic-conn [new-cond-tx]))
+  (comment
+    (def tx (d/transact @ds/datomic-conn [new-cond-tx]))
+    )
 
   ;; Rollback
-  #_(sm/rollback-tx! @ds/datomic-conn tx)
-
+  (comment
+    (sm/rollback-tx! @ds/datomic-conn tx)
+    )
 )
