@@ -5,8 +5,7 @@
             [behave.components.results.diagrams     :refer [result-diagrams]]
             [behave.components.results.matrices     :refer [result-matrices]]
             [behave.components.results.inputs.views :refer [inputs-table]]
-            [behave.components.results.table        :refer [pivot-tables]]))
-            [behave.components.results.table        :refer [directional-result-tables]]))
+            [behave.components.results.table        :refer [pivot-tables directional-result-tables]]))
 
 (defn- wizard-notes [notes]
   (when (seq notes)
