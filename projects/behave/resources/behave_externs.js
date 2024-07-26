@@ -393,22 +393,6 @@ Module.SIGIgnite = class {
 
 Module.SIGMortality = class {
   constructor() {}
-  getBeetleDamage() {}
-  getCrownDamageEquationCode() {}
-  getCrownDamageEquationCodeAtSpeciesTableIndex() {}
-  getCrownDamageEquationCodeFromSpeciesCode() {}
-  getCrownDamageType() {}
-  getCVSorCLS() {}
-  getEquationType() {}
-  getEquationTypeAtSpeciesTableIndex() {}
-  getFireSeverity() {}
-  getFlameLengthOrScorchHeightSwitch() {}
-  getRegion() {}
-  getSpeciesRecordAtIndex() {}
-  getSpeciesRecordBySpeciesCodeAndEquationType() {}
-  checkIsInRegionAtSpeciesTableIndex() {}
-  checkIsInRegionFromSpeciesCode() {}
-  updateInputsForSpeciesCodeAndEquationType() {}
   calculateMortality() {}
   calculateMortalityAllDirections() {}
   calculateScorchHeight() {}
@@ -435,6 +419,7 @@ Module.SIGMortality = class {
   getCrownDamageType() {}
   getCrownRatio() {}
   getCrownScorchOrBoleCharEquationNumber() {}
+  getCVSorCLS() {}
   getDBH() {}
   getEquationType() {}
   getEquationTypeAtSpeciesTableIndex() {}
