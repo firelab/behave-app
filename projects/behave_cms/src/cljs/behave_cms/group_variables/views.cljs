@@ -121,7 +121,6 @@
 (defn- dropdown-setting [label attr entity]
   (let [{id :db/id} entity
         selected    (get entity attr)]
-    (prn "entity:" entity)
     [:div.mt-1
      [dropdown {:label     label
                 :selected  selected

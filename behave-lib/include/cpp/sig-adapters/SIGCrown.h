@@ -33,7 +33,7 @@
 // TODO: Allow for use case in which Crown is run completely without Surface, will involve allowing direct input of HPUA
 //       and surface flame length, as well as setting all other pertinent surface inputs in Crown's copy of Surface - WMC 11/16
 
-#pragma once
+#  pragma once
 
 #include "behaveUnits.h"
 #include "crownInputs.h"

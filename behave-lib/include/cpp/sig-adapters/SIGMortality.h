@@ -67,6 +67,7 @@ public:
                                                                                  EquationType equationType);
   double getCalculatedScorchHeight(LengthUnits::LengthUnitsEnum scorchHeightUnits);
   void calculateMortalityAllDirections(FractionUnits::FractionUnitsEnum probablityUnits);
+  char *getCVSorCLS();
 
   // SIGMortality Getters Heading
   double getProbabilityOfMortality(FractionUnits::FractionUnitsEnum probabilityUnits) const;

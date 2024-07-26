@@ -11,6 +11,7 @@
             [behave.schema.list             :as behave-list]
             [behave.schema.link             :as link]
             [behave.schema.module           :as module]
+            [behave.schema.pivot-table      :as pivot-table]
             [behave.schema.submodule        :as submodule]
             [behave.schema.translation      :as translation]
             [behave.schema.tool             :as tool]
@@ -60,6 +61,7 @@
                                 language/schema
                                 link/schema
                                 module/schema
+                                pivot-table/schema
                                 submodule/schema
                                 subtool-variable/schema
                                 subtool/schema

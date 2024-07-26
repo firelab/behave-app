@@ -439,4 +439,6 @@
    :getBarkEquationNumberFromSpeciesCode
    {:type "int",
     :id "getBarkEquationNumberFromSpeciesCode",
-    :parameters [{:id "speciesCode", :type "char"}]}}}}
+    :parameters [{:id "speciesCode", :type "char"}]}
+   :getCVSorCLS
+   {:type "char", :id "getCVSorCLS", :parameters []}}}}

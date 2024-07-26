@@ -39,9 +39,9 @@
       (gstring/format "Download Raw CSV (%s.csv / %s)" title (format-bytes (.-size blob) 0))]]))
 
 (defn- build-result-table-data
-  [{:keys [ws-uuid headers tittle]
+  [{:keys [ws-uuid headers title]
     :or   {headers @(subscribe [:worksheet/result-table-headers-sorted ws-uuid])
-           tittle  "Results Table"}}]
+           title  "Results Table"}}]
   (let [*cell-data                (subscribe [:worksheet/result-table-cell-data ws-uuid])
         table-setting-filters     (subscribe [:worksheet/table-settings-filters ws-uuid])
         map-units-settings-entity @(subscribe [:worksheet/map-units-settings-entity ws-uuid])
@@ -50,7 +50,7 @@
         map-rep-frac              (:map-units-settings/map-rep-fraction map-units-settings-entity)
         map-units-variables       @(subscribe [:worksheet/result-table-units ws-uuid])
         formatters                @(subscribe [:worksheet/result-table-formatters (map first headers)])]
-    {:title   tittle
+    {:title   title
      :headers (reduce (fn resolve-uuid [acc [gv-uuid _repeat-id units]]
                         (let [var-name @(subscribe [:wizard/gv-uuid->resolve-result-variable-name gv-uuid])]
                           (cond-> acc
@@ -99,6 +99,59 @@
 (defn result-table-download-link [ws-uuid]
   [:div [table-exporter (build-result-table-data {:ws-uuid ws-uuid})]])
 
+(defn raw-result-table [ws-uuid]
+  (c/table (build-result-table-data {:ws-uuid ws-uuid})))
+
+(defn pivot-table-data
+  "Pivots table data around a collection of pivot rows (these must be keys in the row-data)
+   and pivot-valus (an optional collection of tuples [key keyword] where keyword is one of #{:sum
+  :count :max :min})."
+  [pivot-rows pivot-values row-data]
+  (->> row-data
+       (group-by (apply juxt pivot-rows))
+       (map (fn [[k v]]
+              (into (zipmap pivot-rows k)
+                    (mapv (fn [[gv-uuid p-fn]]
+                            [gv-uuid (reduce
+                                      (fn [acc x]
+                                        (case p-fn
+                                          :sum   (+ (gv-uuid x) acc)
+                                          :count (inc acc)
+                                          :max   (max acc (gv-uuid x))
+                                          :min   (min acc (gv-uuid x))))
+                                      (case p-fn
+                                        :sum   0
+                                        :count 0
+                                        :max   ##-Inf
+                                        :min   ##Inf)
+                                      v)])
+                          pivot-values))))))
+
+(defn pivot-tables
+  "Returns a collection of pivot table components with specifications (i.e. columns, summation
+  functions, etc) from the vms"
+  [ws-uuid]
+  (let [tables @(subscribe [:worksheet/pivot-tables ws-uuid])]
+    (when (seq tables)
+      [:div.wizard-results__pivot-tables
+       (for [pivot-table tables]
+         (let [pivot-fields-uuids     @(subscribe [:worksheet/pivot-table-fields (:db/id pivot-table)])
+               pivot-values           @(subscribe [:worksheet/pivot-table-values (:db/id pivot-table)])
+               table-data             (build-result-table-data {:ws-uuid ws-uuid
+                                                                :title  (:pivot-table/title pivot-table)
+                                                                :headers @(subscribe [:worksheet/pivot-table-headers
+                                                                                      ws-uuid
+                                                                                      (concat pivot-fields-uuids
+                                                                                              (map first pivot-values))])})
+               gv-uuid->table-keyword (fn [gv-uuid] (keyword (str gv-uuid "-0")))
+               pivot-rows             (map gv-uuid->table-keyword pivot-fields-uuids)
+               pivot-values           (map (fn [[gv-uuid function]]
+                                             [(gv-uuid->table-keyword gv-uuid) function])
+                                           pivot-values)]
+           (c/table (update table-data
+                            :rows
+                            #(pivot-table-data pivot-rows pivot-values %)))))])))
+
 (defn directional-result-tables [ws-uuid]
   (let [directions @(subscribe [:worksheet/output-directions ws-uuid])]
     (when (seq directions)
@@ -107,4 +160,4 @@
          (c/table (build-result-table-data
                    {:ws-uuid ws-uuid
                     :headers @(subscribe [:worksheet/result-table-headers-sorted-direction ws-uuid direction])
-                    :tittle  (str/capitalize (name direction))})))])))
+                    :title  (str/capitalize (name direction))})))])))

@@ -398,6 +398,7 @@ Module.SIGMortality = class {
   getCrownDamageEquationCodeAtSpeciesTableIndex() {}
   getCrownDamageEquationCodeFromSpeciesCode() {}
   getCrownDamageType() {}
+  getCVSorCLS() {}
   getEquationType() {}
   getEquationTypeAtSpeciesTableIndex() {}
   getFireSeverity() {}
@@ -423,7 +424,6 @@ Module.SIGMortality = class {
   getDBH() {}
   getFlameLengthOrScorchHeightValue() {}
   getFlameLength() {}
-  getScorchHeight() {}
   getKilledTrees() {}
   getProbabilityOfMortality() {}
   getProbabilityOfMortalityBacking() {}

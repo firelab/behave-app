@@ -5,6 +5,7 @@
             [behave.components.results.diagrams     :refer [result-diagrams]]
             [behave.components.results.matrices     :refer [result-matrices]]
             [behave.components.results.inputs.views :refer [inputs-table]]
+            [behave.components.results.table        :refer [pivot-tables]]))
             [behave.components.results.table        :refer [directional-result-tables]]))
 
 (defn- wizard-notes [notes]
@@ -37,6 +38,7 @@
      [inputs-table ws-uuid]
      [wizard-notes notes]
      [:div.wizard-print__header "Results"]
+     [pivot-tables ws-uuid]
      (if directional-tables?
        [directional-result-tables ws-uuid]
        [result-matrices ws-uuid])
