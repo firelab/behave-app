@@ -22,24 +22,21 @@
 
   (def scorch-height-t-key "behaveplus:mortality:compute-scorch-height")
 
-  (def scorch-height-input-group
+  (def scorch-height-input-submodule
     (sm/t-key->eid db scorch-height-t-key))
 
-  (def new-subgroups
+  (def new-groups
     ["Wind Speed" "Wind Measured at" "Wind Adjustment Factor"])
 
-  (def new-subgroups-tx
-    (map #(-> (sm/->subgroup scorch-height-input-group
-                             %
-                             (str scorch-height-t-key ":" (->snake %)))
-              (merge {:group/conditionals-operator :or
-                      :group/conditionals
-                      [(sm/->module-conditional :equals ["surface"])]}))
-         new-subgroups))
-
-  (def tx-1 (d/transact @ds/datomic-conn new-subgroups-tx))
-
-  #_(sm/rollback-tx! @ds/datomic-conn tx-1)
+  (def new-groups-tx
+    (map-indexed (fn [idx group-name]
+                   (-> (sm/->group scorch-height-input-submodule
+                                   group-name
+                                   (str scorch-height-t-key ":" (->snake group-name)))
+                       (merge {:db/id (* -1 (inc idx)):group/conditionals-operator :or
+                               :group/conditionals
+                               [(sm/->module-conditional :equals ["surface"])]})))
+         new-groups))
 
   ;; Add new Group Variables
 
@@ -58,21 +55,20 @@
       :p-name     "userProvidedWindAdjustmentFactor"}])
 
   (def new-group-vars-tx
-    (map
-     (fn [{:keys [v-name class-name fn-name p-name]}]
-       (let [subgroup-t-key (str scorch-height-t-key ":" (->snake v-name))
-             subgroup-eid   (sm/t-key->eid db subgroup-t-key)]
-         (-> (sm/->group-variable subgroup-eid
+    (map-indexed
+     (fn [idx {:keys [v-name class-name fn-name p-name] :as group-variable}]
+       (let [temp-id     (* -1 (+ 10 idx))
+             group-eid   (:db/id group-variable)
+             group-t-key (:group/translation-key group-variable)]
+         (-> (sm/->group-variable group-eid
                                   (sm/name->eid conn :variable/name v-name)
-                                  (str subgroup-t-key ":" (->snake v-name)))
-             (merge {:group-variable/cpp-namespace (sm/cpp-ns->uuid conn "global")
+                                  (str group-t-key ":" (->snake v-name)))
+             (merge {:db/id                        temp-id
+                     :group-variable/cpp-namespace (sm/cpp-ns->uuid conn "global")
                      :group-variable/cpp-class     (sm/cpp-class->uuid conn class-name)
                      :group-variable/cpp-function  (sm/cpp-fn->uuid conn fn-name)
-                     :group-variable/cpp-parameter (sm/cpp-param->uuid conn fn-name p-name)})))) new-group-vars))
-
-  (def tx-2 (d/transact @ds/datomic-conn new-group-vars-tx))
-
-  #_(sm/rollback-tx! @ds/datomic-conn tx-2)
+                     :group-variable/cpp-parameter (sm/cpp-param->uuid conn fn-name p-name)}))))
+     (map merge new-group-vars new-groups-tx)))
 
   ;; Link Variables from Surface Wind Inputs to new Inputs
 
@@ -90,7 +86,7 @@
           [surface-wind-speed-variable
            surface-wind-height-variable
            surface-waf-variable]
-          (map :bp/uuid new-group-vars-tx))
+          (map :db/id new-group-vars-tx))
          (partition 2)
          (map vec)))
 
@@ -100,8 +96,12 @@
        (sm/->link source [:bp/uuid destination-uuid]))
      new-links))
 
-  (def tx-3 (d/transact @ds/datomic-conn new-links-tx))
+  (comment
+    (def tx (d/transact @ds/datomic-conn [new-groups-tx new-group-vars-tx new-links-tx]))
+    )
 
-  #_(sm/rollback-tx! @ds/datomic-conn tx-3)
+  (comment
+    (sm/rollback-tx! @ds/datomic-conn tx)
+    )
 
   )
