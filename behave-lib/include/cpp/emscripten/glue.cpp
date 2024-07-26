@@ -2663,6 +2663,18 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setBeetleDamage_1(SIGMort
   self->setBeetleDamage(beetleDamage);
 }
 
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setBoleCharHeightFromFlameLengthHeading_2(SIGMortality* self, double flameLength, LengthUnits_LengthUnitsEnum lengthUnits) {
+  self->setBoleCharHeightFromFlameLengthHeading(flameLength, lengthUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setBoleCharHeightFromFlameLengthBacking_2(SIGMortality* self, double flameLength, LengthUnits_LengthUnitsEnum lengthUnits) {
+  self->setBoleCharHeightFromFlameLengthBacking(flameLength, lengthUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setBoleCharHeightFromFlameLengthFlanking_2(SIGMortality* self, double flameLength, LengthUnits_LengthUnitsEnum lengthUnits) {
+  self->setBoleCharHeightFromFlameLengthFlanking(flameLength, lengthUnits);
+}
+
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setMidFlameWindSpeed_2(SIGMortality* self, double midFlameWindSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits) {
   self->setMidFlameWindSpeed(midFlameWindSpeed, windSpeedUnits);
 }

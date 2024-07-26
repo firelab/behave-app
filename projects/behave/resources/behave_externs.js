@@ -420,7 +420,6 @@ Module.SIGMortality = class {
   getCambiumKillRating() {}
   getCrownDamage() {}
   getCrownRatio() {}
-  getCalculatedScorchHeight() {}
   getDBH() {}
   getFlameLengthOrScorchHeightValue() {}
   getFlameLength() {}
@@ -464,6 +463,9 @@ Module.SIGMortality = class {
   setAirTemperature() {}
   setBeetleDamage() {}
   setBoleCharHeight() {}
+  setBoleCharHeightFromFlameLengthHeading(){}
+  setBoleCharHeightFromFlameLengthBacking(){}
+  setBoleCharHeightFromFlameLengthFlanking(){}
   setCambiumKillRating() {}
   setCrownDamage() {}
   setCrownRatio() {}

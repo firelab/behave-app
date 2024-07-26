@@ -1086,6 +1086,9 @@ interface SIGMortality {
   BoolVector getRequiredFieldVector();
   void setAirTemperature(double airTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnits);
   void setBeetleDamage(BeetleDamage beetleDamage);
+  void setBoleCharHeightFromFlameLengthHeading(double flameLength, LengthUnits_LengthUnitsEnum lengthUnits);
+  void setBoleCharHeightFromFlameLengthBacking(double flameLength, LengthUnits_LengthUnitsEnum lengthUnits);
+  void setBoleCharHeightFromFlameLengthFlanking(double flameLength, LengthUnits_LengthUnitsEnum lengthUnits);
   void setMidFlameWindSpeed(double midFlameWindSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits);
   void setBoleCharHeight(double boleCharHeight, LengthUnits_LengthUnitsEnum boleCharHeightUnits);
   void setCambiumKillRating(double cambiumKillRating);

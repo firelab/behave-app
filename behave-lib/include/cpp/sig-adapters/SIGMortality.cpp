@@ -285,3 +285,24 @@ char* SIGMortality::getCVSorCLS()
         return SIGString::str2charptr("CVS");
     }
 };
+
+void SIGMortality::setBoleCharHeightFromFlameLengthHeading(double flameLength,
+                                                           LengthUnits::LengthUnitsEnum flameLengthunits)
+{
+  double boleCharHeight = LengthUnits::toBaseUnits(flameLength, flameLengthunits) / 1.8;
+  heading_.setBoleCharHeight(boleCharHeight, LengthUnits::Feet);
+}
+
+void SIGMortality::setBoleCharHeightFromFlameLengthBacking(double flameLength,
+                                                           LengthUnits::LengthUnitsEnum flameLengthunits)
+{
+  double boleCharHeight = LengthUnits::toBaseUnits(flameLength, flameLengthunits) / 1.8;
+  backing_.setBoleCharHeight(boleCharHeight, LengthUnits::Feet);
+}
+
+void SIGMortality::setBoleCharHeightFromFlameLengthFlanking(double flameLength,
+                                                            LengthUnits::LengthUnitsEnum flameLengthunits)
+{
+  double boleCharHeight = LengthUnits::toBaseUnits(flameLength, flameLengthunits) / 1.8;
+  flanking_.setBoleCharHeight(boleCharHeight, LengthUnits::Feet);
+}

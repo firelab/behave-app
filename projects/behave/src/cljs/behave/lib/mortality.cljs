@@ -44,9 +44,6 @@
 (defn getBoleCharHeight [self boleCharHeightUnits]
   (.getBoleCharHeight self boleCharHeightUnits))
 
-(defn getCalculatedScorchHeight [self scorchHeightUnits]
-  (.getCalculatedScorchHeight self scorchHeightUnits))
-
 (defn getCambiumKillRating [self]
   (.getCambiumKillRating self))
 
@@ -220,6 +217,15 @@
 
 (defn setBoleCharHeight [self boleCharHeight boleCharHeightUnits]
   (.setBoleCharHeight self boleCharHeight boleCharHeightUnits))
+
+(defn setBoleCharHeightFromFlameLengthHeading [self flameLength lengthUnits]
+  (.setBoleCharHeightFromFlameLengthHeading self flameLength lengthUnits))
+
+(defn setBoleCharHeightFromFlameLengthBacking [self flameLength lengthUnits]
+  (.setBoleCharHeightFromFlameLengthHeading self flameLength lengthUnits))
+
+(defn setBoleCharHeightFromFlameLengthFlanking [self flameLength lengthUnits]
+  (.setBoleCharHeightFromFlameLengthHeading self flameLength lengthUnits))
 
 (defn setCambiumKillRating [self cambiumKillRating]
   (.setCambiumKillRating self cambiumKillRating))
