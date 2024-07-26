@@ -440,7 +440,8 @@
                                                      ws-uuid
                                                      :graph-settings/enabled?]))
         multi-valued-input-uuids @(subscribe [:worksheet/multi-value-input-uuids ws-uuid])
-        multi-valued-input-count (count multi-valued-input-uuids)]
+        multi-valued-input-count (count multi-valued-input-uuids)
+        x-axis-limits            (first @(subscribe [:worksheet/graph-settings-x-axis-limits ws-uuid]))]
     (letfn [(radio-group [{:keys [label attr variables on-change]}]
               (let [*values   (subscribe [:worksheet/get-graph-settings-attr ws-uuid attr])
                     selected? (first @*values)]
@@ -478,10 +479,10 @@
                                :attr      :graph-settings/z2-axis-group-variable-uuid
                                :variables group-variables}])
 
-           (>= multi-valued-input-count 1)
+           (and (>= multi-valued-input-count 1) (not @(subscribe [:wizard/discrete-group-variable? (first x-axis-limits)])))
            (conj (let [[gv-uuid
                         min-val
-                        max-val]                 (first @(subscribe [:worksheet/graph-settings-x-axis-limits ws-uuid]))
+                        max-val]                 x-axis-limits
                        v-name                    @(subscribe [:wizard/gv-uuid->resolve-result-variable-name gv-uuid])
                        [default-min default-max] @(subscribe [:wizard/x-axis-limit-min+max-defaults ws-uuid gv-uuid])]
                    [:div.settings-form

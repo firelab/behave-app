@@ -708,3 +708,17 @@
  (fn [[_ ws-uuid]] (subscribe [:worksheet/output-directions ws-uuid]))
  (fn [output-directions]
    (> (count output-directions) 1)))
+
+(defn- group-variable-discrete?
+  [gv-uuid]
+  (= (d/q '[:find  ?kind .
+            :in    $ % ?gv-uuid
+            :where
+            (variable-kind ?gv-uuid ?kind)]
+          @@vms-conn rules gv-uuid)
+     :discrete))
+
+(reg-sub
+ :wizard/discrete-group-variable?
+ (fn [_ [_ gv-uuid]]
+   (group-variable-discrete? gv-uuid)))
