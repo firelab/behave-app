@@ -67,17 +67,16 @@
          (map :bp/uuid)))
 
   ;; Crown Fire Size Outputs
-  (def crown-fire-size
-    (sm/t-key->eid db "behaveplus:surface:output:size"))
-
   (def crown-fire-size-outputs
-    (->> (d/pull db '[{:submodule/groups [{:group/group-variables [:bp/uuid]}]}] crown-fire-size)
-         (:submodule/groups)
-         (map #(->> % (:group/group-variables) (map :bp/uuid)))
-         (flatten)))
+    (->>
+     ["behaveplus:crown:output:size:fire_area:fire_area"
+      "behaveplus:crown:output:size:fire_perimeter:fire_perimeter"
+      "behaveplus:crown:output:size:length_to_width_ratio:length_to_width_ratio"
+      "behaveplus:crown:output:size:spread_distance:spread_distance"]
+     (map (partial sm/t-key->uuid db))))
 
   ;; Crown Fire Type Outputs
-  
+
   (def crown-fire-type
     (sm/t-key->eid db "behaveplus:crown:output:fire_type"))
 
@@ -106,11 +105,7 @@
     (def tx (d/transact @ds/datomic-conn (concat remove-existing-conds-tx enable-crown-submodules-tx enable-surface-submodules-tx)))
     )
 
-  (def db-after (d/db @ds/datomic-conn))
-
-  (d/pull db-after '[:submodule/conditionals :submodule/conditionals-operator] (sm/t-key->eid db-after "behaveplus:crown:input:canopy_fuel"))
-
-  ;; Rollback
-  #_(sm/rollback-tx! @ds/datomic-conn tx)
-
+  (comment
+    (sm/rollback-tx! @ds/datomic-conn tx)
+    )
   )
