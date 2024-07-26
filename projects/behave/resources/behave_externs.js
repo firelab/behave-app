@@ -419,9 +419,10 @@ Module.SIGMortality = class {
   getCambiumKillRating() {}
   getCrownDamage() {}
   getCrownRatio() {}
-  getCalculatedScorchHeight() {}
   getDBH() {}
   getFlameLengthOrScorchHeightValue() {}
+  getFlameLength() {}
+  getScorchHeight() {}
   getKilledTrees() {}
   getProbabilityOfMortality() {}
   getProbabilityOfMortalityBacking() {}
@@ -445,6 +446,9 @@ Module.SIGMortality = class {
   getMortalityEquationNumberAtSpeciesTableIndex() {}
   getMortalityEquationNumberFromSpeciesCode() {}
   getNumberOfRecordsInSpeciesTable() {}
+  getScorchHeight(){}
+  getScorchHeightBacking(){}
+  getScorchHeightFlanking(){}
   getSpeciesTableIndexFromSpeciesCode() {}
   getSpeciesTableIndexFromSpeciesCodeAndEquationType() {}
   getSpeciesCode() {}
@@ -471,14 +475,20 @@ Module.SIGMortality = class {
   setFirelineIntensity() {}
   setFlameLengthOrScorchHeightSwitch() {}
   setFlameLengthOrScorchHeightValue() {}
+  setFlameLength() {}
+  setScorchHeight() {}
   setRegion() {}
   setSurfaceFireFlameLength() {}
   setSurfaceFireScorchHeight() {}
   setSurfaceFireFlameLengthBacking() {}
   setSurfaceFireFlameLengthFlanking() {}
+  setSurfaceFireFirelineIntensity() {}
+  setSurfaceFireFirelineIntensityBacking() {}
+  setSurfaceFireFirelineIntensityFlanking() {}
   setSpeciesCode() {}
   setTreeDensityPerUnitArea() {}
   setTreeHeight() {}
+  setMidFlameWindSpeed() {}
   getEquationTypeFromSpeciesCode() {}
 };
 

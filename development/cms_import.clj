@@ -54,10 +54,13 @@
         has-name?          (comp some? :cpp.function/name)
         existing-fn?       #(some?
                              (d/q '[:find ?e .
-                                    :in $ ?fn-name
+                                    :in $ ?class-name ?fn-name
                                     :where
+                                    [?c :cpp.class/name ?class-name]
+                                    [?c :cpp.class/function ?e]
                                     [?e :cpp.function/name ?fn-name]]
                                   (d/db conn)
+                                  (->str class-name)
                                   (->str (:cpp.function/name %))))
         existing-class-eid (d/q '[:find ?e .
                                   :in $ ?class-name
