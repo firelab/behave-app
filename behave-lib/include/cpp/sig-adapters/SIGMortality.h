@@ -56,6 +56,7 @@ public:
   int getBarkEquationNumberFromSpeciesCode(char *speciesCode) const;
   int getCrownCoefficientCodeFromSpeciesCode(char *speciesCode) const;
   EquationType getEquationTypeFromSpeciesCode(char *speciesCode) const;
+  EquationType getEquationType() const;
   CrownDamageEquationCode getCrownDamageEquationCodeFromSpeciesCode(char *speciesCode) const;
   int getSpeciesTableIndexFromSpeciesCode(char *speciesNameCode) const;
   int getSpeciesTableIndexFromSpeciesCodeAndEquationType(char *speciesNameCode, EquationType equationType) const;

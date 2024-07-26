@@ -294,3 +294,9 @@ char* SIGMortality::getCVSorCLS()
         return SIGString::str2charptr("CVS");
     }
 };
+
+EquationType SIGMortality::getEquationType() const
+{
+    return heading_.getEquationType();
+}
+
