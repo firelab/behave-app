@@ -1,4 +1,4 @@
-(ns migrations.2024-07-015-mortality-conditionally-set-scorch-height
+(ns migrations.2024-07-15-mortality-conditionally-set-scorch-height
   (:require
    [schema-migrate.interface :as sm]
    [datomic.api :as d]
