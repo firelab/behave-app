@@ -26,19 +26,23 @@
 ;; ===========================================================================================================
 
 (defn- build-gv [tempid direction]
-  (sm/postwalk-assoc-uuid+nid
-   {:group/name            (str "Bole Char Height " (str/capitalize (name direction)))
-    :group/group-variables [{:db/id                        (* (inc tempid) -1)
-                             :group-variable/cpp-namespace (sm/cpp-ns->uuid conn "global")
-                             :group-variable/cpp-class     (sm/cpp-class->uuid conn "SIGMortality")
-                             :group-variable/cpp-function  (sm/cpp-fn->uuid conn (str "setBoleCharHeightFromFlameLength" (str/capitalize (name direction))))
-                             :group-variable/research? true
-                             :group-variable/translation-key
-                             (format "behaveplus:mortality:input:fuelvegetation_overstory:bole-char-height-%s:bole-char-height-%s" (name direction) (name direction))
-                             :group-variable/help-key
-                             (format "behaveplus:mortality:input:fuelvegetation_overstory:bole-char-height-%s:bole-char-height-%s:help" (name direction) (name direction))
-                             :group-variable/result-translation-key
-                             (format "behaveplus:mortality:result:fuelvegetation_overstory:bole-char-height-%s:bole-char-height-%s" (name direction) (name direction))}]}))
+  (let [dir (name direction)]
+    (sm/postwalk-assoc-uuid+nid
+     {:group/name            (str "Bole Char Height " (str/capitalize (name direction)))
+      :group/group-variables [{:db/id                        (* (inc tempid) -1)
+                               :group-variable/cpp-namespace (sm/cpp-ns->uuid conn "global")
+                               :group-variable/cpp-class     (sm/cpp-class->uuid conn "SIGMortality")
+                               :group-variable/cpp-function  (sm/cpp-fn->uuid conn (str "setBoleCharHeightFromFlameLength" (str/capitalize dir)))
+                               :group-variable/translation-key
+                               (format "behaveplus:mortality:input:fuelvegetation_overstory:bole-char-height-%s:bole-char-height-%s" dir dir)
+                               :group-variable/help-key
+                               (format "behaveplus:mortality:input:fuelvegetation_overstory:bole-char-height-%s:bole-char-height-%s:help" dir dir)
+                               :group-variable/result-translation-key
+                               (format "behaveplus:mortality:result:fuelvegetation_overstory:bole-char-height-%s:bole-char-height-%s" dir dir)}]
+      :group/conditionals    [{:conditional/type     :module
+                               :conditional/operator :in
+                               :conditional/values   #{"surface" "crown" "mortality" "contain"}}]
+      :group/translation-key (format "behaveplus:mortality:input:fuelvegetation_overstory:bole-char-height-%s" dir)})))
 
 (defn build-v [[direction tempid]]
   (sm/postwalk-assoc-uuid+nid
