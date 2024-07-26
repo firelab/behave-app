@@ -34,7 +34,7 @@
   "Get the :bp/uuid using the cpp namepsace name"
   [conn nname]
   (d/q '[:find ?uuid .
-         :in $ % ?name
+         :in $ ?name
          :where
          [?e :cpp.namespace/name ?name]
          [?e :bp/uuid ?uuid]]
@@ -45,7 +45,7 @@
   "Get the :bp/uuid using the cpp class name"
   [conn nname]
   (d/q '[:find ?uuid .
-         :in $ % ?name
+         :in $ ?name
          :where
          [?e :cpp.class/name ?name]
          [?e :bp/uuid ?uuid]]
@@ -56,7 +56,7 @@
   "Get the :bp/uuid using the cpp function name"
   [conn nname]
   (d/q '[:find ?uuid .
-         :in $ % ?name
+         :in $ ?name
          :where
          [?e :cpp.function/name ?name]
          [?e :bp/uuid ?uuid]]

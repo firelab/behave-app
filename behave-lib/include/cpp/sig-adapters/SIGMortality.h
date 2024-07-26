@@ -37,12 +37,15 @@ public:
   void setMidFlameWindSpeed(double midFlameWindSpeed, SpeedUnits::SpeedUnitsEnum windSpeedUnits);
   void setAirTemperature(double airTemperature, TemperatureUnits::TemperatureUnitsEnum temperatureUnits);
   bool updateInputsForSpeciesCodeAndEquationType(char *speciesCode, EquationType equationType);
+  void setBoleCharHeightFromFlameLengthHeading(double flameLength, LengthUnits::LengthUnitsEnum flameLengthunits);
 
   // SIGMortality Setters Backing Direction
   void setSurfaceFireFlameLengthBacking(double value, LengthUnits::LengthUnitsEnum lengthUnits);
+  void setBoleCharHeightFromFlameLengthBacking(double flameLength, LengthUnits::LengthUnitsEnum flameLengthunits);
 
   // SIGMortality Setters Flanking Direction
   void setSurfaceFireFlameLengthFlanking(double value, LengthUnits::LengthUnitsEnum lengthUnits);
+  void setBoleCharHeightFromFlameLengthFlanking(double flameLength, LengthUnits::LengthUnitsEnum flameLengthunits);
 
   // SIGMortality Getters
   char *getSpeciesCode() const;
