@@ -33,9 +33,10 @@
                    (-> (sm/->group scorch-height-input-submodule
                                    group-name
                                    (str scorch-height-t-key ":" (->snake group-name)))
-                       (merge {:db/id (* -1 (inc idx)):group/conditionals-operator :or
+                       (merge {:db/id                       (* -1 (inc idx))
+                               :group/conditionals-operator :or
                                :group/conditionals
-                               [(sm/->module-conditional :equals ["surface"])]})))
+                               [(sm/->module-conditional :equals "surface")]})))
          new-groups))
 
   ;; Add new Group Variables
@@ -93,11 +94,11 @@
   (def new-links-tx
     (map
      (fn [[source destination-uuid]]
-       (sm/->link source [:bp/uuid destination-uuid]))
+       (sm/->link source destination-uuid))
      new-links))
 
   (comment
-    (def tx (d/transact @ds/datomic-conn [new-groups-tx new-group-vars-tx new-links-tx]))
+    (def tx (d/transact @ds/datomic-conn (concat new-groups-tx new-group-vars-tx new-links-tx)))
     )
 
   (comment
