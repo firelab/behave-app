@@ -34,7 +34,7 @@
              cljsjs/react-dom              {:mvn/version "16.13.0-0" :exclusions [cljsjs/react-dom-server]}
              cljsjs/vega                   {:mvn/version "5.20.2-0"}
              cljsjs/vega-embed             {:mvn/version "6.0.0-0"}
-             cljsjs/vega-lite              {:mvn/version "5.1.1-0"}
+             cljsjs/vega-lite              {:mvn/version "5.14.1-0"}
              austinbirch/reactive-entity   {:mvn/version "0.2.0"}
              com.google.guava/guava        {:mvn/version "31.0.1-jre"}
 
