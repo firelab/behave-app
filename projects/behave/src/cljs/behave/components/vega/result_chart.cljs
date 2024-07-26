@@ -14,8 +14,7 @@
    z2: a map with the key :name who's value is used to look up values in data for the z2-axis
       - Optionally set the number of columns of subplots to display usin :columns -> long.
         (defaults to 1)."
-  [{:keys [data x y z z2 width height] :as params}]
-  (prn "params:" params)
+  [{:keys [data x y z z2 width height]}]
   (when (and x y)
     (let [line-chart {:mark     (cond-> {:type (if (:discrete? x)
                                                  "bar"
