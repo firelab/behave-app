@@ -398,6 +398,7 @@ Module.SIGMortality = class {
   getCrownDamageEquationCodeAtSpeciesTableIndex() {}
   getCrownDamageEquationCodeFromSpeciesCode() {}
   getCrownDamageType() {}
+  getCVSorCLS() {}
   getEquationType() {}
   getEquationTypeAtSpeciesTableIndex() {}
   getFireSeverity() {}
@@ -409,6 +410,7 @@ Module.SIGMortality = class {
   checkIsInRegionFromSpeciesCode() {}
   updateInputsForSpeciesCodeAndEquationType() {}
   calculateMortality() {}
+  calculateMortalityAllDirections() {}
   calculateScorchHeight() {}
   getBarkThickness() {}
   getBasalAreaKillled() {}
@@ -418,14 +420,20 @@ Module.SIGMortality = class {
   getCambiumKillRating() {}
   getCrownDamage() {}
   getCrownRatio() {}
-  getCalculatedScorchHeight() {}
   getDBH() {}
   getFlameLengthOrScorchHeightValue() {}
+  getFlameLength() {}
   getKilledTrees() {}
   getProbabilityOfMortality() {}
+  getProbabilityOfMortalityBacking() {}
+  getProbabilityOfMortalityFlanking() {}
   getTotalPrefireTrees() {}
   getTreeCrownLengthScorched() {}
+  getTreeCrownLengthScorchedBacking() {}
+  getTreeCrownLengthScorchedFlanking() {}
   getTreeCrownVolumeScorched() {}
+  getTreeCrownVolumeScorchedBacking() {}
+  getTreeCrownVolumeScorchedFlanking() {}
   getTreeDensityPerUnitArea() {}
   getTreeHeight() {}
   postfireCanopyCover() {}
@@ -438,6 +446,9 @@ Module.SIGMortality = class {
   getMortalityEquationNumberAtSpeciesTableIndex() {}
   getMortalityEquationNumberFromSpeciesCode() {}
   getNumberOfRecordsInSpeciesTable() {}
+  getScorchHeight(){}
+  getScorchHeightBacking(){}
+  getScorchHeightFlanking(){}
   getSpeciesTableIndexFromSpeciesCode() {}
   getSpeciesTableIndexFromSpeciesCodeAndEquationType() {}
   getSpeciesCode() {}
@@ -452,6 +463,9 @@ Module.SIGMortality = class {
   setAirTemperature() {}
   setBeetleDamage() {}
   setBoleCharHeight() {}
+  setBoleCharHeightFromFlameLengthHeading(){}
+  setBoleCharHeightFromFlameLengthBacking(){}
+  setBoleCharHeightFromFlameLengthFlanking(){}
   setCambiumKillRating() {}
   setCrownDamage() {}
   setCrownRatio() {}
@@ -461,12 +475,20 @@ Module.SIGMortality = class {
   setFirelineIntensity() {}
   setFlameLengthOrScorchHeightSwitch() {}
   setFlameLengthOrScorchHeightValue() {}
+  setFlameLength() {}
+  setScorchHeight() {}
   setRegion() {}
   setSurfaceFireFlameLength() {}
   setSurfaceFireScorchHeight() {}
+  setSurfaceFireFlameLengthBacking() {}
+  setSurfaceFireFlameLengthFlanking() {}
+  setSurfaceFireFirelineIntensity() {}
+  setSurfaceFireFirelineIntensityBacking() {}
+  setSurfaceFireFirelineIntensityFlanking() {}
   setSpeciesCode() {}
   setTreeDensityPerUnitArea() {}
   setTreeHeight() {}
+  setMidFlameWindSpeed() {}
   getEquationTypeFromSpeciesCode() {}
 };
 

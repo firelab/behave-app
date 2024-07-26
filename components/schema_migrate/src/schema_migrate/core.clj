@@ -1,6 +1,78 @@
 (ns schema-migrate.core
-  (:require [datomic.api :as d]
-            [datomic-store.main :as ds]))
+  (:require
+   [clojure.walk :as walk]
+   [datascript.core :refer [squuid]]
+   [datomic.api :as d]
+   [datomic-store.main :as ds]
+   [nano-id.core :refer [nano-id]]))
+
+(defn name->uuid
+  "Get the :bp/uuid using the name for the specified name attribute"
+  [conn attr nname]
+  (d/q '[:find ?uuid .
+         :in $ ?attr ?name
+         :where
+         [?e ?attr ?name]
+         [?e :bp/uuid ?uuid]]
+       (d/db conn)
+       attr
+       nname))
+
+(defn name->nid
+  "Get the :bp/nid using the name for the specified name attribute"
+  [conn attr nname]
+  (d/q '[:find ?nid .
+         :in $ ?attr ?name
+         :where
+         [?e ?attr ?name]
+         [?e :bp/nid ?nid]]
+       (d/db conn)
+       attr
+       nname))
+
+(defn name->eid
+  "Get the datomic entity id given the attribute and name. May not work as expected if attr and name
+  is not unique."
+  [conn attr nname]
+  (d/q '[:find ?e .
+         :in $ ?attr ?name
+         :where [?e ?attr ?name]]
+       (d/db conn)
+       attr
+       nname))
+
+(defn cpp-ns->uuid
+  "Get the :bp/uuid using the cpp namepsace name"
+  [conn nname]
+  (d/q '[:find ?uuid .
+         :in $ ?name
+         :where
+         [?e :cpp.namespace/name ?name]
+         [?e :bp/uuid ?uuid]]
+       (d/db conn)
+       nname))
+
+(defn cpp-class->uuid
+  "Get the :bp/uuid using the cpp class name"
+  [conn nname]
+  (d/q '[:find ?uuid .
+         :in $ ?name
+         :where
+         [?e :cpp.class/name ?name]
+         [?e :bp/uuid ?uuid]]
+       (d/db conn)
+       nname))
+
+(defn cpp-fn->uuid
+  "Get the :bp/uuid using the cpp function name"
+  [conn nname]
+  (d/q '[:find ?uuid .
+         :in $ ?name
+         :where
+         [?e :cpp.function/name ?name]
+         [?e :bp/uuid ?uuid]]
+       (d/db conn)
+       nname))
 
 (defn- submodule [conn t]
   (->> t
@@ -63,3 +135,48 @@
                        (map #(do [(if (:added %) :db/retract :db/add) (:e %) (:a %) (:v %)]))
                        reverse)] ; reverse order of inverted datoms.
       (ds/transact conn newdata))))
+
+(defn- insert-bp-uuid [x]
+  (if (map? x)
+    (assoc x :bp/uuid (str (squuid)))
+    x))
+
+(defn- insert-bp-nid [x]
+  (if (map? x)
+    (assoc x :bp/nid (nano-id))
+    x))
+
+(defn postwalk-insert
+  "Postwalk over data and insert bp/uuid and bp/nid into every map form"
+  [data]
+  (->> data
+       (walk/postwalk insert-bp-uuid)
+       (walk/postwalk insert-bp-nid)))
+
+(defn build-translations-payload
+  "Given a map of translation-key to it's translation create a payload that creates these
+  translation entities as well as adding these refs to the exisitng Enlgish language entity.
+  `eid-start` is optional and will be used as the starting eid for the
+  translation entities (prevents eid overlap if you wish to include this payload
+  in the same transaction where you've manually assigned :db/id). "
+  ([conn t-key->translation-map]
+   (build-translations-payload conn 0 t-key->translation-map))
+
+  ([conn eid-start t-key->translation-map]
+   (let [translations              (map-indexed (fn [idx [t-key translation]]
+                                                  {:db/id                   (-> idx
+                                                                                inc
+                                                                                (+ eid-start)
+                                                                                (* -1))
+                                                   :translation/key         t-key
+                                                   :translation/translation translation})
+                                                t-key->translation-map)
+         english-language-eid      (d/q '[:find ?e .
+                                          :in $
+                                          :where
+                                          [?e :language/name "English"]]
+                                        (d/db conn))
+         language-translation-refs {:db/id                english-language-eid
+                                    :language/translation (map :db/id translations)}]
+     (into [language-translation-refs]
+           translations))))

@@ -256,6 +256,12 @@
       {:transact [data]})))
 
 (reg-event-fx
+ :api/retract-entity-attr
+ (fn [_ [_ entity attr]]
+   (when-let [id (:db/id entity)]
+     {:transact [[:db/retract id attr]]})))
+
+(reg-event-fx
  :api/delete-entity
  (fn [_ [_ arg]]
    (let [id (cond
