@@ -26,7 +26,6 @@
             [re-frame.core                        :refer [dispatch dispatch-sync subscribe]]
             [string-utils.interface               :refer [->kebab]]
             [reagent.core                         :as r]
-            [behave.solver.core            :refer [solve-worksheet]]
             [string-utils.core :as s]
             [clojure.string :as str]))
 
@@ -56,12 +55,6 @@
 
 (defmethod submodule-page :output [_ ws-uuid groups]
   [:<> (build-groups ws-uuid groups output-group)])
-
-(defn- module+submodule [io path]
-  (let [module-regex    (gstring/format "(?<=modules/).*(?=/%s)" (name io))
-        submodule-regex (gstring/format "(?<=%s/).*" (name io))]
-    [(re-find (re-pattern module-regex) path)
-     (re-find (re-pattern submodule-regex) path)]))
 
 (defn- io-tabs [{:keys [ws-uuid io] :as params}]
   (let [on-click #(when (not= io (:tab %))
