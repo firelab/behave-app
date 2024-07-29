@@ -29,7 +29,6 @@
             [re-frame.core                        :refer [dispatch dispatch-sync subscribe]]
             [string-utils.interface               :refer [->kebab]]
             [reagent.core                         :as r]
-            [behave.solver.core            :refer [solve-worksheet]]
             [string-utils.core :as s]
             [clojure.string :as str]))
 
@@ -61,16 +60,20 @@
   [:<> (build-groups ws-uuid groups output-group)])
 
 (defn- io-tabs [{:keys [ws-uuid io] :as params}]
-  (let [[module-name slug] @(subscribe [:wizard/first-module+submodule ws-uuid (if (= io :output) :input :output)])]
+  (let [on-click #(when (not= io (:tab %))
+                    (let [next-io                      (:tab %)
+                          [module-slug submodule-slug] @(subscribe [:wizard/first-module+submodule
+                                                                    ws-uuid
+                                                                    next-io])]
+                      (dispatch [:wizard/select-tab (merge params
+                                                           {:module    module-slug
+                                                            :io        next-io
+                                                            :submodule submodule-slug})])))]
     [:div.wizard-header__io-tabs
      [c/tab-group {:variant   "outline-primary"
                    :flat-edge "top"
                    :align     "right"
-                   :on-click  #(when (not= io (:tab %))
-                                 (dispatch [:wizard/select-tab (merge params
-                                                                      {:module    module-name
-                                                                       :io        (:tab %)
-                                                                       :submodule slug})]))
+                   :on-click  on-click
                    :tabs      [{:label "Outputs" :tab :output :selected? (= io :output)}
                                {:label "Inputs" :tab :input :selected? (= io :input)}]}]]))
 
@@ -101,17 +104,18 @@
       [:div.wizard-header__banner__notes-button
        (show-or-close-notes-button @*show-notes?)]]
      [:div.wizard-header__submodules
-      (for [m    modules
-            :let [submodules (if (= io :output)
-                                 (->> @(subscribe [:wizard/submodules-io-output-only (:db/id m)])
-                                      (filter (fn [{id :db/id
-                                                    op :submodule/conditionals-operator}]
-                                                @(subscribe [:wizard/show-submodule? ws-uuid id op]))))
-                                 (->> @(subscribe [:wizard/submodules-io-input-only (:db/id m)])
-                                      (filter (fn [{id :db/id
-                                                    op :submodule/conditionals-operator}]
-                                                @(subscribe [:wizard/show-submodule? ws-uuid id op])))))
-                    module-name (str/lower-case (:module/name m))]]
+      (for [m     modules
+            :let  [submodules (if (= io :output)
+                                (->> @(subscribe [:wizard/submodules-io-output-only (:db/id m)])
+                                     (filter (fn [{id :db/id
+                                                   op :submodule/conditionals-operator}]
+                                               @(subscribe [:wizard/show-submodule? ws-uuid id op]))))
+                                (->> @(subscribe [:wizard/submodules-io-input-only (:db/id m)])
+                                     (filter (fn [{id :db/id
+                                                   op :submodule/conditionals-operator}]
+                                               @(subscribe [:wizard/show-submodule? ws-uuid id op])))))
+                   module-name (str/lower-case (:module/name m))]
+            :when (seq submodules)]
         [:div.wizard-header__submodules__group
          {:data-theme-color module-name}
          [c/tab-group {:variant  "outline-primary"

@@ -8,7 +8,8 @@
             [string-utils.interface :refer [->kebab]]
             [clojure.string         :as str]
             [bidi.bidi              :refer [path-for]]
-            [behave-routing.main    :refer [routes]]))
+            [behave-routing.main    :refer [routes]]
+            [goog.string            :as gstring]))
 
 ;;; Helpers
 
@@ -360,14 +361,16 @@
 (reg-sub
  :wizard/first-module+submodule
  (fn [[_ ws-uuid _]]
-   (subscribe [:worksheet ws-uuid]))
+   (subscribe [:wizard/route-order ws-uuid]))
 
- (fn [worksheet [_ ws-uuid io]]
-   (when-let [modules (some->> worksheet
-                              :worksheet/modules
-                              (map #(deref (subscribe [:wizard/*module (name %)])))
-                              (sort-by :module/order))]
-     (first-module+submodule ws-uuid modules io))))
+ (fn [route-order [_ _ws-uuid io]]
+   (let [first-path      (first (filter
+                                 (fn [path] (str/includes? path (name io)))
+                                 route-order))
+         module-regex    (gstring/format "(?<=modules/).*(?=/%s)" (name io))
+         submodule-regex (gstring/format "(?<=%s/).*" (name io))]
+     [(re-find (re-pattern module-regex) first-path)
+      (re-find (re-pattern submodule-regex) first-path)])))
 
 ;;; show-group?
 (defn- csv? [s] (< 1 (count (str/split s #","))))
