@@ -707,6 +707,10 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_initializeMembers_0(SIGSpot* s
   self->initializeMembers();
 }
 
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_setActiveCrownFlameLength_2(SIGSpot* self, double flameLength, LengthUnits_LengthUnitsEnum flameLengthUnits) {
+  self->setActiveCrownFlameLength(flameLength, flameLengthUnits);
+}
+
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_setBurningPileFlameHeight_2(SIGSpot* self, double buringPileflameHeight, LengthUnits_LengthUnitsEnum flameHeightUnits) {
   self->setBurningPileFlameHeight(buringPileflameHeight, flameHeightUnits);
 }
@@ -2395,44 +2399,8 @@ SIGMortality* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_SIGMortality_1(S
   return new SIGMortality(*speciesMasterTable);
 }
 
-const BeetleDamage EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getBeetleDamage_0(SIGMortality* self) {
-  return self->getBeetleDamage();
-}
-
-const CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getCrownDamageEquationCode_0(SIGMortality* self) {
-  return self->getCrownDamageEquationCode();
-}
-
-const CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getCrownDamageEquationCodeAtSpeciesTableIndex_1(SIGMortality* self, int index) {
-  return self->getCrownDamageEquationCodeAtSpeciesTableIndex(index);
-}
-
-const CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getCrownDamageEquationCodeFromSpeciesCode_1(SIGMortality* self, char* speciesCode) {
-  return self->getCrownDamageEquationCodeFromSpeciesCode(speciesCode);
-}
-
-const CrownDamageType EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getCrownDamageType_0(SIGMortality* self) {
-  return self->getCrownDamageType();
-}
-
-const EquationType EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getEquationType_0(SIGMortality* self) {
-  return self->getEquationType();
-}
-
-const EquationType EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getEquationTypeAtSpeciesTableIndex_1(SIGMortality* self, int index) {
-  return self->getEquationTypeAtSpeciesTableIndex(index);
-}
-
-const FireSeverity EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getFireSeverity_0(SIGMortality* self) {
-  return self->getFireSeverity();
-}
-
-const FlameLengthOrScorchHeightSwitch EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getFlameLengthOrScorchHeightSwitch_0(SIGMortality* self) {
-  return self->getFlameLengthOrScorchHeightSwitch();
-}
-
-const RegionCode EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getRegion_0(SIGMortality* self) {
-  return self->getRegion();
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_initializeMembers_0(SIGMortality* self) {
+  self->initializeMembers();
 }
 
 bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_checkIsInRegionAtSpeciesTableIndex_2(SIGMortality* self, int index, RegionCode region) {
@@ -2453,6 +2421,90 @@ double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_calculateMortality_1(SI
 
 double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_calculateScorchHeight_7(SIGMortality* self, double firelineIntensity, FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits, double midFlameWindSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, double airTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnits, LengthUnits_LengthUnitsEnum scorchHeightUnits) {
   return self->calculateScorchHeight(firelineIntensity, firelineIntensityUnits, midFlameWindSpeed, windSpeedUnits, airTemperature, temperatureUnits, scorchHeightUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_calculateMortalityAllDirections_1(SIGMortality* self, FractionUnits_FractionUnitsEnum probablityUnits) {
+  self->calculateMortalityAllDirections(probablityUnits);
+}
+
+BoolVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getRequiredFieldVector_0(SIGMortality* self) {
+  return self->getRequiredFieldVector();
+}
+
+const BeetleDamage EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getBeetleDamage_0(SIGMortality* self) {
+  return self->getBeetleDamage();
+}
+
+const CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getCrownDamageEquationCode_0(SIGMortality* self) {
+  return self->getCrownDamageEquationCode();
+}
+
+const CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getCrownDamageEquationCodeAtSpeciesTableIndex_1(SIGMortality* self, int index) {
+  return self->getCrownDamageEquationCodeAtSpeciesTableIndex(index);
+}
+
+const CrownDamageEquationCode EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getCrownDamageEquationCodeFromSpeciesCode_1(SIGMortality* self, char* speciesCode) {
+  return self->getCrownDamageEquationCodeFromSpeciesCode(speciesCode);
+}
+
+const CrownDamageType EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getCrownDamageType_0(SIGMortality* self) {
+  return self->getCrownDamageType();
+}
+
+const char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getCommonNameAtSpeciesTableIndex_1(SIGMortality* self, int index) {
+  return self->getCommonNameAtSpeciesTableIndex(index);
+}
+
+const char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getCommonNameFromSpeciesCode_1(SIGMortality* self, char* speciesCode) {
+  return self->getCommonNameFromSpeciesCode(speciesCode);
+}
+
+const char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getScientificNameAtSpeciesTableIndex_1(SIGMortality* self, int index) {
+  return self->getScientificNameAtSpeciesTableIndex(index);
+}
+
+const char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getScientificNameFromSpeciesCode_1(SIGMortality* self, char* speciesCode) {
+  return self->getScientificNameFromSpeciesCode(speciesCode);
+}
+
+const char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getSpeciesCode_0(SIGMortality* self) {
+  return self->getSpeciesCode();
+}
+
+const char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getSpeciesCodeAtSpeciesTableIndex_1(SIGMortality* self, int index) {
+  return self->getSpeciesCodeAtSpeciesTableIndex(index);
+}
+
+const EquationType EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getEquationType_0(SIGMortality* self) {
+  return self->getEquationType();
+}
+
+const EquationType EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getEquationTypeAtSpeciesTableIndex_1(SIGMortality* self, int index) {
+  return self->getEquationTypeAtSpeciesTableIndex(index);
+}
+
+const EquationType EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getEquationTypeFromSpeciesCode_1(SIGMortality* self, char* speciesCode) {
+  return self->getEquationTypeFromSpeciesCode(speciesCode);
+}
+
+const FireSeverity EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getFireSeverity_0(SIGMortality* self) {
+  return self->getFireSeverity();
+}
+
+const FlameLengthOrScorchHeightSwitch EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getFlameLengthOrScorchHeightSwitch_0(SIGMortality* self) {
+  return self->getFlameLengthOrScorchHeightSwitch();
+}
+
+const RegionCode EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getRegion_0(SIGMortality* self) {
+  return self->getRegion();
+}
+
+const SpeciesMasterTableRecordVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegion_1(SIGMortality* self, RegionCode region) {
+  return self->getSpeciesRecordVectorForRegion(region);
+}
+
+const SpeciesMasterTableRecordVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegionAndEquationType_2(SIGMortality* self, RegionCode region, EquationType equationType) {
+  return self->getSpeciesRecordVectorForRegionAndEquationType(region, equationType);
 }
 
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getBarkThickness_1(SIGMortality* self, LengthUnits_LengthUnitsEnum barkThicknessUnits) {
@@ -2487,12 +2539,16 @@ const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getCrownRatio_0(S
   return self->getCrownRatio();
 }
 
-const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getCalculatedScorchHeight_1(SIGMortality* self, LengthUnits_LengthUnitsEnum scorchHeightUnits) {
-  return self->getCalculatedScorchHeight(scorchHeightUnits);
+char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getCVSorCLS_0(SIGMortality* self) {
+  return self->getCVSorCLS();
 }
 
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getDBH_1(SIGMortality* self, LengthUnits_LengthUnitsEnum diameterUnits) {
   return self->getDBH(diameterUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getFlameLength_1(SIGMortality* self, LengthUnits_LengthUnitsEnum flameLengthUnits) {
+  return self->getFlameLength(flameLengthUnits);
 }
 
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getFlameLengthOrScorchHeightValue_1(SIGMortality* self, LengthUnits_LengthUnitsEnum flameLengthOrScorchHeightUnits) {
@@ -2507,16 +2563,52 @@ const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getProbabilityOfM
   return self->getProbabilityOfMortality(probabilityUnits);
 }
 
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getProbabilityOfMortalityBacking_1(SIGMortality* self, FractionUnits_FractionUnitsEnum probabilityUnits) {
+  return self->getProbabilityOfMortalityBacking(probabilityUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getProbabilityOfMortalityFlanking_1(SIGMortality* self, FractionUnits_FractionUnitsEnum probabilityUnits) {
+  return self->getProbabilityOfMortalityFlanking(probabilityUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getScorchHeight_1(SIGMortality* self, LengthUnits_LengthUnitsEnum scorchHeightUnits) {
+  return self->getScorchHeight(scorchHeightUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getScorchHeightBacking_1(SIGMortality* self, LengthUnits_LengthUnitsEnum scorchHeightUnits) {
+  return self->getScorchHeightBacking(scorchHeightUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getScorchHeightFlanking_1(SIGMortality* self, LengthUnits_LengthUnitsEnum scorchHeightUnits) {
+  return self->getScorchHeightFlanking(scorchHeightUnits);
+}
+
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getTotalPrefireTrees_0(SIGMortality* self) {
   return self->getTotalPrefireTrees();
 }
 
-const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getTreeCrownLengthScorched_1(SIGMortality* self, FractionUnits_FractionUnitsEnum mortalityRateUnits) {
-  return self->getTreeCrownLengthScorched(mortalityRateUnits);
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getTreeCrownLengthScorched_1(SIGMortality* self, LengthUnits_LengthUnitsEnum treeCrownLengthScorchedUnits) {
+  return self->getTreeCrownLengthScorched(treeCrownLengthScorchedUnits);
 }
 
-const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getTreeCrownVolumeScorched_1(SIGMortality* self, FractionUnits_FractionUnitsEnum mortalityRateUnits) {
-  return self->getTreeCrownVolumeScorched(mortalityRateUnits);
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getTreeCrownLengthScorchedBacking_1(SIGMortality* self, LengthUnits_LengthUnitsEnum treeCrownLengthScorchedUnits) {
+  return self->getTreeCrownLengthScorchedBacking(treeCrownLengthScorchedUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getTreeCrownLengthScorchedFlanking_1(SIGMortality* self, LengthUnits_LengthUnitsEnum treeCrownLengthScorchedUnits) {
+  return self->getTreeCrownLengthScorchedFlanking(treeCrownLengthScorchedUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getTreeCrownVolumeScorched_1(SIGMortality* self, FractionUnits_FractionUnitsEnum getTreeCrownVolumeScorchedUnits) {
+  return self->getTreeCrownVolumeScorched(getTreeCrownVolumeScorchedUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getTreeCrownVolumeScorchedBacking_1(SIGMortality* self, FractionUnits_FractionUnitsEnum getTreeCrownVolumeScorchedUnits) {
+  return self->getTreeCrownVolumeScorchedBacking(getTreeCrownVolumeScorchedUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getTreeCrownVolumeScorchedFlanking_1(SIGMortality* self, FractionUnits_FractionUnitsEnum getTreeCrownVolumeScorchedUnits) {
+  return self->getTreeCrownVolumeScorchedFlanking(getTreeCrownVolumeScorchedUnits);
 }
 
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getTreeDensityPerUnitArea_1(SIGMortality* self, AreaUnits_AreaUnitsEnum areaUnits) {
@@ -2527,11 +2619,11 @@ const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getTreeHeight_1(S
   return self->getTreeHeight(treeHeightUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_postfireCanopyCover_0(SIGMortality* self) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_postfireCanopyCover_0(SIGMortality* self) {
   return self->postfireCanopyCover();
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_prefireCanopyCover_0(SIGMortality* self) {
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_prefireCanopyCover_0(SIGMortality* self) {
   return self->prefireCanopyCover();
 }
 
@@ -2575,52 +2667,12 @@ const int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getSpeciesTableIndex
   return self->getSpeciesTableIndexFromSpeciesCodeAndEquationType(speciesNameCode, equationType);
 }
 
-const char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getSpeciesCode_0(SIGMortality* self) {
-  return self->getSpeciesCode();
-}
-
-SpeciesMasterTableRecordVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegion_1(SIGMortality* self, RegionCode region) {
-  return self->getSpeciesRecordVectorForRegion(region);
-}
-
-SpeciesMasterTableRecordVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegionAndEquationType_2(SIGMortality* self, RegionCode region, EquationType equationType) {
-  return self->getSpeciesRecordVectorForRegionAndEquationType(region, equationType);
-}
-
-const char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getCommonNameAtSpeciesTableIndex_1(SIGMortality* self, int index) {
-  return self->getCommonNameAtSpeciesTableIndex(index);
-}
-
-const char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getCommonNameFromSpeciesCode_1(SIGMortality* self, char* speciesCode) {
-  return self->getCommonNameFromSpeciesCode(speciesCode);
-}
-
-const char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getScientificNameAtSpeciesTableIndex_1(SIGMortality* self, int index) {
-  return self->getScientificNameAtSpeciesTableIndex(index);
-}
-
-const char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getScientificNameFromSpeciesCode_1(SIGMortality* self, char* speciesCode) {
-  return self->getScientificNameFromSpeciesCode(speciesCode);
-}
-
-const char* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getSpeciesCodeAtSpeciesTableIndex_1(SIGMortality* self, int index) {
-  return self->getSpeciesCodeAtSpeciesTableIndex(index);
-}
-
-BoolVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getRequiredFieldVector_0(SIGMortality* self) {
-  return self->getRequiredFieldVector();
-}
-
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setAirTemperature_2(SIGMortality* self, double airTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnits) {
   self->setAirTemperature(airTemperature, temperatureUnits);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setBeetleDamage_1(SIGMortality* self, BeetleDamage beetleDamage) {
   self->setBeetleDamage(beetleDamage);
-}
-
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setMidFlameWindSpeed_2(SIGMortality* self, double midFlameWindSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits) {
-  self->setMidFlameWindSpeed(midFlameWindSpeed, windSpeedUnits);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setBoleCharHeight_2(SIGMortality* self, double boleCharHeight, LengthUnits_LengthUnitsEnum boleCharHeightUnits) {
@@ -2655,6 +2707,10 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setFirelineIntensity_2(SI
   self->setFirelineIntensity(firelineIntensity, firelineIntensityUnits);
 }
 
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setFlameLength_2(SIGMortality* self, double flameLength, LengthUnits_LengthUnitsEnum flameLengthUnits) {
+  self->setFlameLength(flameLength, flameLengthUnits);
+}
+
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setFlameLengthOrScorchHeightSwitch_1(SIGMortality* self, FlameLengthOrScorchHeightSwitch flameLengthOrScorchHeightSwitch) {
   self->setFlameLengthOrScorchHeightSwitch(flameLengthOrScorchHeightSwitch);
 }
@@ -2663,20 +2719,48 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setFlameLengthOrScorchHei
   self->setFlameLengthOrScorchHeightValue(flameLengthOrScorchHeightValue, flameLengthOrScorchHeightUnits);
 }
 
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setMidFlameWindSpeed_2(SIGMortality* self, double midFlameWindSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits) {
+  self->setMidFlameWindSpeed(midFlameWindSpeed, windSpeedUnits);
+}
+
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setRegion_1(SIGMortality* self, RegionCode region) {
   self->setRegion(region);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setScorchHeight_2(SIGMortality* self, double scorchHeight, LengthUnits_LengthUnitsEnum scorchHeightUnits) {
+  self->setScorchHeight(scorchHeight, scorchHeightUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setSpeciesCode_1(SIGMortality* self, char* speciesCode) {
+  self->setSpeciesCode(speciesCode);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setSurfaceFireFirelineIntensity_2(SIGMortality* self, double value, FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits) {
+  self->setSurfaceFireFirelineIntensity(value, firelineIntensityUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setSurfaceFireFirelineIntensityBacking_2(SIGMortality* self, double value, FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits) {
+  self->setSurfaceFireFirelineIntensityBacking(value, firelineIntensityUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setSurfaceFireFirelineIntensityFlanking_2(SIGMortality* self, double value, FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits) {
+  self->setSurfaceFireFirelineIntensityFlanking(value, firelineIntensityUnits);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setSurfaceFireFlameLength_2(SIGMortality* self, double value, LengthUnits_LengthUnitsEnum lengthUnits) {
   self->setSurfaceFireFlameLength(value, lengthUnits);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setSurfaceFireScorchHeight_2(SIGMortality* self, double value, LengthUnits_LengthUnitsEnum lengthUnits) {
-  self->setSurfaceFireScorchHeight(value, lengthUnits);
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setSurfaceFireFlameLengthBacking_2(SIGMortality* self, double value, LengthUnits_LengthUnitsEnum lengthUnits) {
+  self->setSurfaceFireFlameLengthBacking(value, lengthUnits);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setSpeciesCode_1(SIGMortality* self, char* speciesCode) {
-  self->setSpeciesCode(speciesCode);
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setSurfaceFireFlameLengthFlanking_2(SIGMortality* self, double value, LengthUnits_LengthUnitsEnum lengthUnits) {
+  self->setSurfaceFireFlameLengthFlanking(value, lengthUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setSurfaceFireScorchHeight_2(SIGMortality* self, double value, LengthUnits_LengthUnitsEnum lengthUnits) {
+  self->setSurfaceFireScorchHeight(value, lengthUnits);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setTreeDensityPerUnitArea_2(SIGMortality* self, double numberOfTrees, AreaUnits_AreaUnitsEnum areaUnits) {
@@ -2687,8 +2771,20 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setTreeHeight_2(SIGMortal
   self->setTreeHeight(treeHeight, treeHeightUnits);
 }
 
-EquationType EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getEquationTypeFromSpeciesCode_1(SIGMortality* self, char* speciesCode) {
-  return self->getEquationTypeFromSpeciesCode(speciesCode);
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setUserProvidedWindAdjustmentFactor_1(SIGMortality* self, double userProvidedWindAdjustmentFactor) {
+  self->setUserProvidedWindAdjustmentFactor(userProvidedWindAdjustmentFactor);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setWindHeightInputMode_1(SIGMortality* self, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode) {
+  self->setWindHeightInputMode(windHeightInputMode);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setWindSpeed_2(SIGMortality* self, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits) {
+  self->setWindSpeed(windSpeed, windSpeedUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setWindSpeedAndWindHeightInputMode_4(SIGMortality* self, double windwindSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double userProvidedWindAdjustmentFactor) {
+  self->setWindSpeedAndWindHeightInputMode(windwindSpeed, windSpeedUnits, windHeightInputMode, userProvidedWindAdjustmentFactor);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality___destroy___0(SIGMortality* self) {

@@ -38,6 +38,13 @@ void SIGSpot::calculateAll() {
   Spot::calculateSpottingDistanceFromTorchingTrees();
 }
 
+void SIGSpot::setActiveCrownFlameLength(double flameLength, LengthUnits::LengthUnitsEnum flameLengthUnits)
+{
+  if (flameLength > 0.0) {
+    setFlameLength(flameLength, flameLengthUnits);
+  }
+}
+
 void SIGSpot::setWindSpeedAndWindHeightInputMode(double windSpeed, SpeedUnits::SpeedUnitsEnum windSpeedUnits, WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode) {
   // Set member variables
   windSpeed_ = SpeedUnits::toBaseUnits(windSpeed, windSpeedUnits);
@@ -47,7 +54,7 @@ void SIGSpot::setWindSpeedAndWindHeightInputMode(double windSpeed, SpeedUnits::S
   double windSpeedAtTwentyFeet = 0;
 
   if (windHeightInputMode_ == WindHeightInputMode::TenMeter) {
-    windSpeedAtTwentyFeet = windSpeed_ * 1.15;
+    windSpeedAtTwentyFeet = windSpeed_ / 1.15;
   } else {
     windSpeedAtTwentyFeet = windSpeed_;
   }

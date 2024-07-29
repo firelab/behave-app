@@ -28,6 +28,9 @@
      [?m :module/submodules ?sm]
      [?a :application/modules ?m]]
 
+    [(app-root ?a ?m)
+     [?a :application/modules ?m]]
+
     ;; -- Recursive rule to find Submodule root for a subgroup
     [(submodule-root ?submodule ?subgroup)
      [?submodule :submodule/groups ?subgroup]]

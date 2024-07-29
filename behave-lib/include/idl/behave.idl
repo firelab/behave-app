@@ -379,6 +379,7 @@ interface SIGSpot {
   void calculateSpottingDistanceFromSurfaceFire();
   void calculateSpottingDistanceFromTorchingTrees();
   void initializeMembers();
+  void setActiveCrownFlameLength(double flameLength, LengthUnits_LengthUnitsEnum flameLengthUnits);
   void setBurningPileFlameHeight(double buringPileflameHeight, LengthUnits_LengthUnitsEnum flameHeightUnits);
   void setDBH(double DBH, LengthUnits_LengthUnitsEnum DBHUnits);
   void setDownwindCanopyMode(SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum downwindCanopyMode);
@@ -1017,23 +1018,36 @@ interface SpeciesMasterTable {
 
 interface SIGMortality {
   void SIGMortality([Ref] SpeciesMasterTable speciesMasterTable);
-  [Const] BeetleDamage getBeetleDamage();
-  [Const] CrownDamageEquationCode getCrownDamageEquationCode();
-  [Const] CrownDamageEquationCode getCrownDamageEquationCodeAtSpeciesTableIndex(long index);
-  [Const] CrownDamageEquationCode getCrownDamageEquationCodeFromSpeciesCode(DOMString speciesCode);
-  [Const] CrownDamageType getCrownDamageType();
-  [Const] EquationType getEquationType();
-  [Const] EquationType getEquationTypeAtSpeciesTableIndex(long index);
-  [Const] FireSeverity getFireSeverity();
-  [Const] FlameLengthOrScorchHeightSwitch getFlameLengthOrScorchHeightSwitch();
-  [Const] RegionCode getRegion();
-  // SpeciesMasterTableRecord getSpeciesRecordAtIndex(long index);
-  // SpeciesMasterTableRecord getSpeciesRecordBySpeciesCodeAndEquationType(DOMString speciesCode, EquationType equationType);
+  void initializeMembers();
+
   boolean checkIsInRegionAtSpeciesTableIndex(long index, RegionCode region);
   boolean checkIsInRegionFromSpeciesCode(DOMString speciesCode, RegionCode region);
   boolean updateInputsForSpeciesCodeAndEquationType(DOMString speciesCode, EquationType equationType);
   double calculateMortality(FractionUnits_FractionUnitsEnum probablityUnits);
   double calculateScorchHeight(double firelineIntensity, FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits, double midFlameWindSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, double airTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnits, LengthUnits_LengthUnitsEnum scorchHeightUnits);
+  void calculateMortalityAllDirections(FractionUnits_FractionUnitsEnum probablityUnits);
+
+  // Getters
+  BoolVector getRequiredFieldVector();
+  [Const] BeetleDamage getBeetleDamage();
+  [Const] CrownDamageEquationCode getCrownDamageEquationCode();
+  [Const] CrownDamageEquationCode getCrownDamageEquationCodeAtSpeciesTableIndex(long index);
+  [Const] CrownDamageEquationCode getCrownDamageEquationCodeFromSpeciesCode(DOMString speciesCode);
+  [Const] CrownDamageType getCrownDamageType();
+  [Const] DOMString getCommonNameAtSpeciesTableIndex(long index);
+  [Const] DOMString getCommonNameFromSpeciesCode(DOMString speciesCode);
+  [Const] DOMString getScientificNameAtSpeciesTableIndex(long index);
+  [Const] DOMString getScientificNameFromSpeciesCode(DOMString speciesCode);
+  [Const] DOMString getSpeciesCode();
+  [Const] DOMString getSpeciesCodeAtSpeciesTableIndex(long index);
+  [Const] EquationType getEquationType();
+  [Const] EquationType getEquationTypeAtSpeciesTableIndex(long index);
+  [Const] EquationType getEquationTypeFromSpeciesCode(DOMString speciesCode);
+  [Const] FireSeverity getFireSeverity();
+  [Const] FlameLengthOrScorchHeightSwitch getFlameLengthOrScorchHeightSwitch();
+  [Const] RegionCode getRegion();
+  [Const] SpeciesMasterTableRecordVector getSpeciesRecordVectorForRegion(RegionCode region);
+  [Const] SpeciesMasterTableRecordVector getSpeciesRecordVectorForRegionAndEquationType(RegionCode region, EquationType equationType);
   [Const] double getBarkThickness(LengthUnits_LengthUnitsEnum barkThicknessUnits);
   [Const] double getBasalAreaKillled();
   [Const] double getBasalAreaPostfire();
@@ -1042,18 +1056,28 @@ interface SIGMortality {
   [Const] double getCambiumKillRating();
   [Const] double getCrownDamage();
   [Const] double getCrownRatio();
-  [Const] double getCalculatedScorchHeight(LengthUnits_LengthUnitsEnum scorchHeightUnits);
+  DOMString getCVSorCLS();
   [Const] double getDBH(LengthUnits_LengthUnitsEnum diameterUnits);
+  [Const] double getFlameLength(LengthUnits_LengthUnitsEnum flameLengthUnits);
   [Const] double getFlameLengthOrScorchHeightValue(LengthUnits_LengthUnitsEnum flameLengthOrScorchHeightUnits);
   [Const] double getKilledTrees();
   [Const] double getProbabilityOfMortality(FractionUnits_FractionUnitsEnum probabilityUnits);
+  [Const] double getProbabilityOfMortalityBacking(FractionUnits_FractionUnitsEnum probabilityUnits);
+  [Const] double getProbabilityOfMortalityFlanking(FractionUnits_FractionUnitsEnum probabilityUnits);
+  [Const] double getScorchHeight(LengthUnits_LengthUnitsEnum scorchHeightUnits);
+  [Const] double getScorchHeightBacking(LengthUnits_LengthUnitsEnum scorchHeightUnits);
+  [Const] double getScorchHeightFlanking(LengthUnits_LengthUnitsEnum scorchHeightUnits);
   [Const] double getTotalPrefireTrees();
-  [Const] double getTreeCrownLengthScorched(FractionUnits_FractionUnitsEnum mortalityRateUnits);
-  [Const] double getTreeCrownVolumeScorched(FractionUnits_FractionUnitsEnum mortalityRateUnits);
+  [Const] double getTreeCrownLengthScorched(LengthUnits_LengthUnitsEnum treeCrownLengthScorchedUnits);
+  [Const] double getTreeCrownLengthScorchedBacking(LengthUnits_LengthUnitsEnum treeCrownLengthScorchedUnits);
+  [Const] double getTreeCrownLengthScorchedFlanking(LengthUnits_LengthUnitsEnum treeCrownLengthScorchedUnits);
+  [Const] double getTreeCrownVolumeScorched(FractionUnits_FractionUnitsEnum getTreeCrownVolumeScorchedUnits);
+  [Const] double getTreeCrownVolumeScorchedBacking(FractionUnits_FractionUnitsEnum getTreeCrownVolumeScorchedUnits);
+  [Const] double getTreeCrownVolumeScorchedFlanking(FractionUnits_FractionUnitsEnum getTreeCrownVolumeScorchedUnits);
   [Const] double getTreeDensityPerUnitArea(AreaUnits_AreaUnitsEnum areaUnits);
   [Const] double getTreeHeight(LengthUnits_LengthUnitsEnum treeHeightUnits);
-  double postfireCanopyCover();
-  double prefireCanopyCover();
+  [Const] double postfireCanopyCover();
+  [Const] double prefireCanopyCover();
   [Const] long getBarkEquationNumberAtSpeciesTableIndex(long index);
   [Const] long getBarkEquationNumberFromSpeciesCode(DOMString speciesCode);
   [Const] long getCrownCoefficientCodeAtSpeciesTableIndex(long index);
@@ -1064,18 +1088,10 @@ interface SIGMortality {
   [Const] long getNumberOfRecordsInSpeciesTable();
   [Const] long getSpeciesTableIndexFromSpeciesCode(DOMString speciesNameCode);
   [Const] long getSpeciesTableIndexFromSpeciesCodeAndEquationType(DOMString speciesNameCode, EquationType equationType);
-  [Const] DOMString getSpeciesCode();
-  SpeciesMasterTableRecordVector getSpeciesRecordVectorForRegion(RegionCode region);
-  SpeciesMasterTableRecordVector getSpeciesRecordVectorForRegionAndEquationType(RegionCode region, EquationType equationType);
-  [Const] DOMString getCommonNameAtSpeciesTableIndex(long index);
-  [Const] DOMString getCommonNameFromSpeciesCode(DOMString speciesCode);
-  [Const] DOMString getScientificNameAtSpeciesTableIndex(long index);
-  [Const] DOMString getScientificNameFromSpeciesCode(DOMString speciesCode);
-  [Const] DOMString getSpeciesCodeAtSpeciesTableIndex(long index);
-  BoolVector getRequiredFieldVector();
+
+  // Setters
   void setAirTemperature(double airTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnits);
   void setBeetleDamage(BeetleDamage beetleDamage);
-  void setMidFlameWindSpeed(double midFlameWindSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits);
   void setBoleCharHeight(double boleCharHeight, LengthUnits_LengthUnitsEnum boleCharHeightUnits);
   void setCambiumKillRating(double cambiumKillRating);
   void setCrownDamage(double crownDamage);
@@ -1084,15 +1100,26 @@ interface SIGMortality {
   void setEquationType(EquationType equationType);
   void setFireSeverity(FireSeverity fireSeverity);
   void setFirelineIntensity(double firelineIntensity, FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits);
+  void setFlameLength(double flameLength, LengthUnits_LengthUnitsEnum flameLengthUnits);
   void setFlameLengthOrScorchHeightSwitch(FlameLengthOrScorchHeightSwitch flameLengthOrScorchHeightSwitch);
   void setFlameLengthOrScorchHeightValue(double flameLengthOrScorchHeightValue, LengthUnits_LengthUnitsEnum flameLengthOrScorchHeightUnits);
+  void setMidFlameWindSpeed(double midFlameWindSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits);
   void setRegion(RegionCode region);
-  void setSurfaceFireFlameLength(double value, LengthUnits_LengthUnitsEnum lengthUnits);
-  void setSurfaceFireScorchHeight(double value, LengthUnits_LengthUnitsEnum lengthUnits);
+  void setScorchHeight(double scorchHeight, LengthUnits_LengthUnitsEnum scorchHeightUnits);
   void setSpeciesCode(DOMString speciesCode);
+  void setSurfaceFireFirelineIntensity(double value, FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits);
+  void setSurfaceFireFirelineIntensityBacking(double value, FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits);
+  void setSurfaceFireFirelineIntensityFlanking(double value, FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits);
+  void setSurfaceFireFlameLength(double value, LengthUnits_LengthUnitsEnum lengthUnits);
+  void setSurfaceFireFlameLengthBacking(double value, LengthUnits_LengthUnitsEnum lengthUnits);
+  void setSurfaceFireFlameLengthFlanking(double value, LengthUnits_LengthUnitsEnum lengthUnits);
+  void setSurfaceFireScorchHeight(double value, LengthUnits_LengthUnitsEnum lengthUnits);
   void setTreeDensityPerUnitArea(double numberOfTrees, AreaUnits_AreaUnitsEnum areaUnits);
   void setTreeHeight(double treeHeight, LengthUnits_LengthUnitsEnum treeHeightUnits);
-  EquationType getEquationTypeFromSpeciesCode(DOMString speciesCode);
+  void setUserProvidedWindAdjustmentFactor(double userProvidedWindAdjustmentFactor);
+  void setWindHeightInputMode(WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode);
+  void setWindSpeed(double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits);
+  void setWindSpeedAndWindHeightInputMode(double windwindSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double userProvidedWindAdjustmentFactor);
 };
 
 interface WindSpeedUtility {

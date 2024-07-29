@@ -1,26 +1,28 @@
 (ns behave-cms.submodules.views
-  (:require [re-frame.core                      :as rf]
-            [behave-cms.components.common       :refer [accordion simple-table window]]
+  (:require [behave-cms.components.common       :refer [accordion btn-sm simple-table window]]
             [behave-cms.components.entity-form  :refer [entity-form]]
             [behave-cms.components.sidebar      :refer [sidebar sidebar-width]]
             [behave-cms.components.translations :refer [all-translations]]
             [behave-cms.help.views              :refer [help-editor]]
-            [behave-cms.submodules.subs]))
+            [behave-cms.components.pivot-tables :refer [manage-pivot-table-column]]
+            [behave-cms.submodules.subs]
+            [re-frame.core                      :as rf]
+            [reagent.core                       :as r]))
 
 (defn- submodule-form [module-id id num-submodules]
-  [entity-form {:entity        :submodule
-                :parent-field  :module/_submodules
-                :parent-id     module-id
-                :id            id
-                :fields        [{:label     "Name"
-                                 :required? true
-                                 :field-key :submodule/name}
-                                {:label     "I/O"
-                                 :field-key :submodule/io
-                                 :type      :radio
-                                 :options   [{:label "Input" :value :input}
-                                             {:label "Output" :value :output}]}]
-                :on-create     #(assoc % :submodule/order num-submodules)}])
+  [entity-form {:entity       :submodule
+                :parent-field :module/_submodules
+                :parent-id    module-id
+                :id           id
+                :fields       [{:label     "Name"
+                                :required? true
+                                :field-key :submodule/name}
+                               {:label     "I/O"
+                                :field-key :submodule/io
+                                :type      :radio
+                                :options   [{:label "Input" :value :input}
+                                            {:label "Output" :value :output}]}]
+                :on-create    #(assoc % :submodule/order num-submodules)}])
 
 (defn- manage-submodule [module-id *submodule num-submodules]
   [:div.col-6
@@ -81,4 +83,44 @@
        [accordion
         "Help Page"
         [:div.col-12
-         [help-editor (:module/help-key @module)]]]]]]))
+         [help-editor (:module/help-key @module)]]]
+       [:hr]
+       [accordion
+        "Pivot Tables"
+        [:div.col-12
+         [entity-form {:entity       :pivot-table
+                       :parent-field :module/_pivot-tables
+                       :parent-id    (:db/id @module)
+                       :fields       [{:label     "Tittle"
+                                       :required? true
+                                       :field-key :pivot-table/title}]}]
+         (doall
+          (map
+           (fn [pivot-table]
+             (let [pivot-table-id       (:db/id pivot-table)
+                   pivot-table-fields   @(rf/subscribe [:pivot-table/fields pivot-table-id])
+                   pivot-table-values   @(rf/subscribe [:pivot-table/values pivot-table-id])
+                   pivot-column-id-atom (r/atom nil)]
+               [:<>
+                [accordion
+                 (:pivot-table/title pivot-table)
+                 [:div.col-6
+                  [simple-table
+                   [:variable/name]
+                   pivot-table-fields
+                   {:on-delete #(rf/dispatch [:api/delete-entity (:db/id %)])
+                    :on-select #(reset! pivot-column-id-atom (:db/id %))}]
+                  [simple-table
+                   [:variable/name :pivot-column/function]
+                   pivot-table-values
+                   {:on-delete #(rf/dispatch [:api/delete-entity (:db/id %)])
+                    :on-select #(reset! pivot-column-id-atom (:db/id %))}]
+                  [btn-sm
+                   :outline-danger
+                   "Delete Pivot Table"
+                   #(when (js/confirm (str "Are you sure you want to delete this pivot table?"))
+                      (rf/dispatch [:api/delete-entity pivot-table-id]))]]
+                 [:div.col-6
+                  [manage-pivot-table-column id pivot-table-id pivot-column-id-atom]]]
+                [:hr]]))
+           (:module/pivot-tables @module)))]]]]]))

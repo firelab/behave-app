@@ -8,7 +8,10 @@
             [behave.components.results.matrices   :refer [result-matrices]]
             [behave.components.results.graphs     :refer [result-graphs]]
             [behave.components.results.inputs.views :refer [inputs-table]]
-            [behave.components.results.table      :refer [result-table-download-link]]
+            [behave.components.results.table      :refer [result-table-download-link
+                                                          directional-result-tables
+                                                          pivot-tables
+                                                          raw-result-table]]
             [behave.tool.views                    :refer [tool tool-selector]]
             [behave-routing.main                  :refer [routes current-route-order]]
             [behave.translate                     :refer [<t bp]]
@@ -26,7 +29,6 @@
             [re-frame.core                        :refer [dispatch dispatch-sync subscribe]]
             [string-utils.interface               :refer [->kebab]]
             [reagent.core                         :as r]
-            [behave.solver.core            :refer [solve-worksheet]]
             [string-utils.core :as s]
             [clojure.string :as str]))
 
@@ -57,21 +59,21 @@
 (defmethod submodule-page :output [_ ws-uuid groups]
   [:<> (build-groups ws-uuid groups output-group)])
 
-(defn- io-tabs [first-module {:keys [ws-uuid io] :as params}]
-  (let [module-id       (:db/id first-module)
-        module-name     (str/lower-case (:module/name first-module))
-        i-subs          @(subscribe [:wizard/submodules-conditionally-filtered ws-uuid module-id :input])
-        o-subs          @(subscribe [:wizard/submodules-conditionally-filtered ws-uuid module-id :output])
-        first-submodule (:slug (first (if (= io :input) o-subs i-subs)))]
+(defn- io-tabs [{:keys [ws-uuid io] :as params}]
+  (let [on-click #(when (not= io (:tab %))
+                    (let [next-io                      (:tab %)
+                          [module-slug submodule-slug] @(subscribe [:wizard/first-module+submodule
+                                                                    ws-uuid
+                                                                    next-io])]
+                      (dispatch [:wizard/select-tab (merge params
+                                                           {:module    module-slug
+                                                            :io        next-io
+                                                            :submodule submodule-slug})])))]
     [:div.wizard-header__io-tabs
      [c/tab-group {:variant   "outline-primary"
                    :flat-edge "top"
                    :align     "right"
-                   :on-click  #(when (not= io (:tab %))
-                                 (dispatch [:wizard/select-tab (merge params
-                                                                      {:module    module-name
-                                                                       :io        (:tab %)
-                                                                       :submodule first-submodule})]))
+                   :on-click  on-click
                    :tabs      [{:label "Outputs" :tab :output :selected? (= io :output)}
                                {:label "Inputs" :tab :input :selected? (= io :input)}]}]]))
 
@@ -93,7 +95,7 @@
 (defn- wizard-header [{:keys [ws-uuid io submodule module] :as params} modules]
   (let [*show-notes? (subscribe [:wizard/show-notes?])]
     [:div.wizard-header
-     [io-tabs (first modules) params]
+     [io-tabs params]
      [:div.wizard-header__banner
       [:div.wizard-header__banner__icon
        [c/icon :modules]]
@@ -102,17 +104,18 @@
       [:div.wizard-header__banner__notes-button
        (show-or-close-notes-button @*show-notes?)]]
      [:div.wizard-header__submodules
-      (for [m    modules
-            :let [submodules (if (= io :output)
-                                 (->> @(subscribe [:wizard/submodules-io-output-only (:db/id m)])
-                                      (filter (fn [{id :db/id
-                                                    op :submodule/conditionals-operator}]
-                                                @(subscribe [:wizard/show-submodule? ws-uuid id op]))))
-                                 (->> @(subscribe [:wizard/submodules-io-input-only (:db/id m)])
-                                      (filter (fn [{id :db/id
-                                                    op :submodule/conditionals-operator}]
-                                                @(subscribe [:wizard/show-submodule? ws-uuid id op])))))
-                    module-name (str/lower-case (:module/name m))]]
+      (for [m     modules
+            :let  [submodules (if (= io :output)
+                                (->> @(subscribe [:wizard/submodules-io-output-only (:db/id m)])
+                                     (filter (fn [{id :db/id
+                                                   op :submodule/conditionals-operator}]
+                                               @(subscribe [:wizard/show-submodule? ws-uuid id op]))))
+                                (->> @(subscribe [:wizard/submodules-io-input-only (:db/id m)])
+                                     (filter (fn [{id :db/id
+                                                   op :submodule/conditionals-operator}]
+                                               @(subscribe [:wizard/show-submodule? ws-uuid id op])))))
+                   module-name (str/lower-case (:module/name m))]
+            :when (seq submodules)]
         [:div.wizard-header__submodules__group
          {:data-theme-color module-name}
          [c/tab-group {:variant  "outline-primary"
@@ -437,7 +440,8 @@
                                                      ws-uuid
                                                      :graph-settings/enabled?]))
         multi-valued-input-uuids @(subscribe [:worksheet/multi-value-input-uuids ws-uuid])
-        multi-valued-input-count (count multi-valued-input-uuids)]
+        multi-valued-input-count (count multi-valued-input-uuids)
+        x-axis-limits            (first @(subscribe [:worksheet/graph-settings-x-axis-limits ws-uuid]))]
     (letfn [(radio-group [{:keys [label attr variables on-change]}]
               (let [*values   (subscribe [:worksheet/get-graph-settings-attr ws-uuid attr])
                     selected? (first @*values)]
@@ -475,10 +479,10 @@
                                :attr      :graph-settings/z2-axis-group-variable-uuid
                                :variables group-variables}])
 
-           (>= multi-valued-input-count 1)
+           (and (>= multi-valued-input-count 1) (not @(subscribe [:wizard/discrete-group-variable? (first x-axis-limits)])))
            (conj (let [[gv-uuid
                         min-val
-                        max-val]                 (first @(subscribe [:worksheet/graph-settings-x-axis-limits ws-uuid]))
+                        max-val]                 x-axis-limits
                        v-name                    @(subscribe [:wizard/gv-uuid->resolve-result-variable-name gv-uuid])
                        [default-min default-max] @(subscribe [:wizard/x-axis-limit-min+max-defaults ws-uuid gv-uuid])]
                    [:div.settings-form
@@ -626,14 +630,15 @@
 
 (defn wizard-results-page [{:keys [route-handler io ws-uuid] :as params}]
   (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
-  (let [*worksheet          (subscribe [:worksheet ws-uuid])
-        *ws-date            (subscribe [:wizard/worksheet-date ws-uuid])
-        *notes              (subscribe [:wizard/notes ws-uuid])
-        *tab-selected       (subscribe [:wizard/results-tab-selected])
-        *cell-data          (subscribe [:worksheet/result-table-cell-data ws-uuid])
-        table-enabled?      (get-in @*worksheet [:worksheet/table-settings :table-settings/enabled?])
-        show-tool-selector? @(subscribe [:tool/show-tool-selector?])
-        selected-tool-uuid  @(subscribe [:tool/selected-tool-uuid])]
+  (let [*worksheet           (subscribe [:worksheet ws-uuid])
+        *ws-date             (subscribe [:wizard/worksheet-date ws-uuid])
+        *notes               (subscribe [:wizard/notes ws-uuid])
+        *tab-selected        (subscribe [:wizard/results-tab-selected])
+        *cell-data           (subscribe [:worksheet/result-table-cell-data ws-uuid])
+        *directional-tables? (subscribe [:wizard/output-directional-tables? ws-uuid])
+        table-enabled?       (get-in @*worksheet [:worksheet/table-settings :table-settings/enabled?])
+        show-tool-selector?  @(subscribe [:tool/show-tool-selector?])
+        selected-tool-uuid   @(subscribe [:tool/selected-tool-uuid])]
     [:<>
      (when show-tool-selector?
        [tool-selector])
@@ -692,8 +697,12 @@
          (when (and table-enabled? (seq @*cell-data))
            [:div.wizard-results__table {:id "table"}
             [:div.wizard-notes__header @(<t (bp "table"))]
-            [result-matrices ws-uuid]
+            [pivot-tables ws-uuid]
+            (if @*directional-tables?
+              [directional-result-tables ws-uuid]
+              [result-matrices ws-uuid])
             [:div.wizard-notes__header @(<t (bp "runs_table"))]
+            ;; [raw-result-table ws-uuid]
             [result-table-download-link ws-uuid]])
          (result-graphs ws-uuid @*cell-data)
          (result-diagrams ws-uuid)]]

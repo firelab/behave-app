@@ -319,19 +319,14 @@ make install
 
 #+begin_src clojure
 (ns cms-import)
-
-(require '[behave-cms.server :refer [init-datahike!]])
-
-(init-datahike!)
-
-;; Combine edn files
-(cms-import {:behave-file      "hatchet/behave-mirror/surface.edn"
-             :sig-adapter-file "hatchet/sig-adapters/SIGSurface.edn"
+;; Combine edn files from hatchet
+(cms-import {:behave-file      "path/to/hatchet/output/surface.edn"
+             :sig-adapter-file "path/to/hatchet/output/SIGSurface.edn"
              :out-file-name    "SIGSurface.edn"
              :from-key         :Surface
              :to-key           :SIGSurface})
 
-(add-export-file-to-conn "./cms-exports/SIGSurface.edn" @ds/conn)
+(add-export-file-to-conn "./cms-exports/SIGSurface.edn" conn)
 #+end_src
 
 * Schema ERDs

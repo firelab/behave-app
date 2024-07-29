@@ -751,6 +751,10 @@ body {
   width: 100%;
 }
 
+.wizard-results__directional-tables .table {
+  margin-bottom: 20px;
+}
+
 .table td {
   text-align:left;
 }
@@ -1213,6 +1217,10 @@ body {
 
 .container__close > .button .button__icon:hover {
   fill: var(--medblue-4);
+}
+
+.wizard-results__pivot-tables .table {
+  margin-bottom: 20px;
 }
 
 /* - End Container Close Button - */

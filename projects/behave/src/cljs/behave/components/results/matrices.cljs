@@ -43,7 +43,9 @@
                                                   var-name @(subscribe [:wizard/gv-uuid->resolve-result-variable-name output-gv-uuid])]
                                               (cond-> acc
                                                 :always (conj {:output var-name
-                                                               :value  (fmt-fn value)
+                                                               :value  (if (neg? value)
+                                                                         "-"
+                                                                         (fmt-fn value))
                                                                :units  units})
 
                                                 (process-map-units? output-gv-uuid)
@@ -82,7 +84,9 @@
                                                  (assoc acc [(input-fmt-fn row) col-uuid]
                                                         (let [shade-value? (shade-cell-value? table-setting-filters col-uuid v)]
                                                           [:div.result-matrix-cell-value
-                                                           [:div (fmt-fn v)]
+                                                           [:div (if (neg? v)
+                                                                   "-"
+                                                                   (fmt-fn v))]
                                                            (when shade-value?
                                                              [:div "(X)"])]))))
                                              {}
@@ -110,12 +114,14 @@
                                 (cond-> acc
                                   (process-map-units? j)
                                   (assoc [i (str j "-map-units")]
-                                         (-> value
-                                             (to-map-units
-                                              (get units-lookup j)
-                                              map-units
-                                              map-rep-frac)
-                                             fmt-fn)))))
+                                         (if (neg? value)
+                                           "-"
+                                           (-> value
+                                               (to-map-units
+                                                (get units-lookup j)
+                                                map-units
+                                                map-rep-frac)
+                                               fmt-fn))))))
                             matrix-data-formatted
                             matrix-data-formatted)]
     [:div.print__result-table
@@ -152,7 +158,9 @@
                                                        [(row-fmt-fn x) (col-fmt-fn y)]
                                                        (let [shade-value? (shade-cell-value? table-setting-filters output-gv-uuid x)]
                                                          [:div.result-matrix-cell-value
-                                                          [:div (output-fmt-fn v)]
+                                                          [:div (if (neg? v)
+                                                                  "-"
+                                                                  (output-fmt-fn v))]
                                                           (when shade-value?
                                                             [:div "(X)"])])))
                                               {}
@@ -170,9 +178,11 @@
           (when (process-map-units? output-gv-uuid)
             [:div.print__result-table
              (let [data (reduce-kv (fn [acc [i j] value]
-                                     (assoc acc [i j] (-> value
-                                                          (to-map-units output-units map-units map-rep-frac)
-                                                          output-fmt-fn)))
+                                     (assoc acc [i j] (if (neg? value)
+                                                       "-"
+                                                       (-> value
+                                                           (to-map-units output-units map-units map-rep-frac)
+                                                           output-fmt-fn))))
                                    matrix-data-formatted
                                    matrix-data-formatted)]
                (c/matrix-table {:title          (gstring/format @(<t (bp "s_map_units_(s)")) output-name map-units)
