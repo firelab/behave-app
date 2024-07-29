@@ -439,7 +439,6 @@ Module.SIGMortality = class {
   getRequiredFieldVector() {}
   getScientificNameAtSpeciesTableIndex() {}
   getScientificNameFromSpeciesCode() {}
-  getScorchHeight() {}
   getScorchHeight(){}
   getScorchHeightBacking(){}
   getScorchHeightFlanking(){}
