@@ -58,12 +58,14 @@
 
 (defn- io-tabs [{:keys [ws-uuid io] :as params}]
   (let [on-click #(when (not= io (:tab %))
-                    (let [next-io            (:tab %)
-                          [module submodule] @(subscribe [:wizard/first-module+submodule ws-uuid next-io])]
+                    (let [next-io                      (:tab %)
+                          [module-slug submodule-slug] @(subscribe [:wizard/first-module+submodule
+                                                                    ws-uuid
+                                                                    next-io])]
                       (dispatch [:wizard/select-tab (merge params
-                                                           {:module    module
+                                                           {:module    module-slug
                                                             :io        next-io
-                                                            :submodule submodule})])))]
+                                                            :submodule submodule-slug})])))]
     [:div.wizard-header__io-tabs
      [c/tab-group {:variant   "outline-primary"
                    :flat-edge "top"
