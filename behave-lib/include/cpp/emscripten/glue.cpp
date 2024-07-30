@@ -2527,6 +2527,14 @@ const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getBoleCharHeight
   return self->getBoleCharHeight(boleCharHeightUnits);
 }
 
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getBoleCharHeightBacking_1(SIGMortality* self, LengthUnits_LengthUnitsEnum boleCharHeightUnits) {
+  return self->getBoleCharHeightBacking(boleCharHeightUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getBoleCharHeightFlanking_1(SIGMortality* self, LengthUnits_LengthUnitsEnum boleCharHeightUnits) {
+  return self->getBoleCharHeightFlanking(boleCharHeightUnits);
+}
+
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getCambiumKillRating_0(SIGMortality* self) {
   return self->getCambiumKillRating();
 }

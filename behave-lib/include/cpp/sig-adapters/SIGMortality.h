@@ -82,18 +82,21 @@ public:
   double getTreeCrownLengthScorched(LengthUnits::LengthUnitsEnum lengthUnits) const;
   double getTreeCrownVolumeScorched(FractionUnits::FractionUnitsEnum fractionUnits) const;
   double getScorchHeight(LengthUnits::LengthUnitsEnum scorchHeightUnits);
+  double getBoleCharHeight(LengthUnits::LengthUnitsEnum boleCharHeightUnits) const;
 
   // SIGMortality Getters Backing
   double getProbabilityOfMortalityBacking(FractionUnits::FractionUnitsEnum probabilityUnits) const;
   double getTreeCrownLengthScorchedBacking(LengthUnits::LengthUnitsEnum lengthUnits) const;
   double getTreeCrownVolumeScorchedBacking(FractionUnits::FractionUnitsEnum fractionUnits) const;
   double getScorchHeightBacking(LengthUnits::LengthUnitsEnum scorchHeightUnits);
+  double getBoleCharHeightBacking(LengthUnits::LengthUnitsEnum boleCharHeightUnits) const;
 
   // SIGMortality Getters Flanking
   double getProbabilityOfMortalityFlanking(FractionUnits::FractionUnitsEnum probabilityUnits) const;
   double getTreeCrownLengthScorchedFlanking(LengthUnits::LengthUnitsEnum lengthUnits) const;
   double getTreeCrownVolumeScorchedFlanking(FractionUnits::FractionUnitsEnum fractionUnits) const;
   double getScorchHeightFlanking(LengthUnits::LengthUnitsEnum scorchHeightUnits);
+  double getBoleCharHeightFlanking(LengthUnits::LengthUnitsEnum boleCharHeightUnits) const;
 
 protected:
   Mortality heading_;

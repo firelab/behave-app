@@ -1053,6 +1053,8 @@ interface SIGMortality {
   [Const] double getBasalAreaPostfire();
   [Const] double getBasalAreaPrefire();
   [Const] double getBoleCharHeight(LengthUnits_LengthUnitsEnum boleCharHeightUnits);
+  [Const] double getBoleCharHeightBacking(LengthUnits_LengthUnitsEnum boleCharHeightUnits);
+  [Const] double getBoleCharHeightFlanking(LengthUnits_LengthUnitsEnum boleCharHeightUnits);
   [Const] double getCambiumKillRating();
   [Const] double getCrownDamage();
   [Const] double getCrownRatio();

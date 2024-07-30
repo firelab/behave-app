@@ -359,3 +359,17 @@ EquationType SIGMortality::getEquationType() const
     return heading_.getEquationType();
 }
 
+double SIGMortality::getBoleCharHeight(LengthUnits::LengthUnitsEnum boleCharHeightUnits) const
+{
+    return heading_.getBoleCharHeight(boleCharHeightUnits);
+}
+
+double SIGMortality::getBoleCharHeightBacking(LengthUnits::LengthUnitsEnum boleCharHeightUnits) const
+{
+    return backing_.getBoleCharHeight(boleCharHeightUnits);
+}
+
+double SIGMortality::getBoleCharHeightFlanking(LengthUnits::LengthUnitsEnum boleCharHeightUnits) const
+{
+    return flanking_.getBoleCharHeight(boleCharHeightUnits);
+}

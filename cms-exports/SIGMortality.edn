@@ -50,6 +50,18 @@
     :parameters
     [{:id "boleCharHeightUnits",
       :type "LengthUnits::LengthUnitsEnum"}]},
+   :getBoleCharHeightBacking
+   {:type "double",
+    :id   "getBoleCharHeightBacking",
+    :parameters
+    [{:id   "boleCharHeightUnits",
+      :type "LengthUnits::LengthUnitsEnum"}]}
+   :getBoleCharHeightFlanking
+   {:type "double",
+    :id   "getBoleCharHeightFlanking",
+    :parameters
+    [{:id   "boleCharHeightUnits",
+      :type "LengthUnits::LengthUnitsEnum"}]}
    :getCommonNameFromSpeciesCode
    {:type "char",
     :id "getCommonNameFromSpeciesCode",

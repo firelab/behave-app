@@ -5881,6 +5881,10 @@ var _emscripten_bind_SIGMortality_getBasalAreaPrefire_0 = Module["_emscripten_bi
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getBoleCharHeight_1 = Module["_emscripten_bind_SIGMortality_getBoleCharHeight_1"] = createExportWrapper("emscripten_bind_SIGMortality_getBoleCharHeight_1");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getBoleCharHeightBacking_1 = Module["_emscripten_bind_SIGMortality_getBoleCharHeightBacking_1"] = createExportWrapper("emscripten_bind_SIGMortality_getBoleCharHeightBacking_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getBoleCharHeightFlanking_1 = Module["_emscripten_bind_SIGMortality_getBoleCharHeightFlanking_1"] = createExportWrapper("emscripten_bind_SIGMortality_getBoleCharHeightFlanking_1");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getCambiumKillRating_0 = Module["_emscripten_bind_SIGMortality_getCambiumKillRating_0"] = createExportWrapper("emscripten_bind_SIGMortality_getCambiumKillRating_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getCrownDamage_0 = Module["_emscripten_bind_SIGMortality_getCrownDamage_0"] = createExportWrapper("emscripten_bind_SIGMortality_getCrownDamage_0");
@@ -11694,6 +11698,18 @@ SIGMortality.prototype['getBoleCharHeight'] = SIGMortality.prototype.getBoleChar
   var self = this.ptr;
   if (boleCharHeightUnits && typeof boleCharHeightUnits === 'object') boleCharHeightUnits = boleCharHeightUnits.ptr;
   return _emscripten_bind_SIGMortality_getBoleCharHeight_1(self, boleCharHeightUnits);
+};;
+
+SIGMortality.prototype['getBoleCharHeightBacking'] = SIGMortality.prototype.getBoleCharHeightBacking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(boleCharHeightUnits) {
+  var self = this.ptr;
+  if (boleCharHeightUnits && typeof boleCharHeightUnits === 'object') boleCharHeightUnits = boleCharHeightUnits.ptr;
+  return _emscripten_bind_SIGMortality_getBoleCharHeightBacking_1(self, boleCharHeightUnits);
+};;
+
+SIGMortality.prototype['getBoleCharHeightFlanking'] = SIGMortality.prototype.getBoleCharHeightFlanking = /** @suppress {undefinedVars, duplicate} @this{Object} */function(boleCharHeightUnits) {
+  var self = this.ptr;
+  if (boleCharHeightUnits && typeof boleCharHeightUnits === 'object') boleCharHeightUnits = boleCharHeightUnits.ptr;
+  return _emscripten_bind_SIGMortality_getBoleCharHeightFlanking_1(self, boleCharHeightUnits);
 };;
 
 SIGMortality.prototype['getCambiumKillRating'] = SIGMortality.prototype.getCambiumKillRating = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {

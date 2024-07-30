@@ -47,6 +47,12 @@
 (defn getBoleCharHeight [self boleCharHeightUnits]
   (.getBoleCharHeight self boleCharHeightUnits))
 
+(defn getBoleCharHeightBacking [self boleCharHeightUnits]
+  (.getBoleCharHeightBacking self boleCharHeightUnits))
+
+(defn getBoleCharHeightFlanking [self boleCharHeightUnits]
+  (.getBoleCharHeightFlanking self boleCharHeightUnits))
+
 (defn getCambiumKillRating [self]
   (.getCambiumKillRating self))
 

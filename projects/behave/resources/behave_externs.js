@@ -406,6 +406,8 @@ Module.SIGMortality = class {
   getBasalAreaPrefire() {}
   getBeetleDamage() {}
   getBoleCharHeight() {}
+  getBoleCharHeightBacking() {}
+  getBoleCharHeightFlanking() {}
   getCalculatedScorchHeight() {}
   getCambiumKillRating() {}
   getCommonNameAtSpeciesTableIndex() {}
