@@ -81,7 +81,7 @@
        :doc "Payload for a new Group."}
   ->group c/->group)
 
-(def ^{:arglists '([submodule-eid gname t-key])
+(def ^{:arglists '([group-eid gname t-key])
        :doc "Payload for a Subgroup."}
   ->subgroup c/->subgroup)
 
