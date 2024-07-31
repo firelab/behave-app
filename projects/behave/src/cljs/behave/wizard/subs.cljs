@@ -345,32 +345,20 @@
      (.setTime d created-date)
      (.toLocaleDateString d))))
 
-(defn- first-module+submodule
-  "Returns the first module & submodule for a particular I/O."
-  [ws-uuid modules io]
-  (->> modules
-       (map (fn [module]
-              (let [submodules @(subscribe [:wizard/submodules-conditionally-filtered ws-uuid (:db/id module) io])]
-                (when (seq submodules)
-                  (map #(assoc % :module-name (str/lower-case (:module/name module))) submodules)))))
-       (flatten)
-       (remove nil?)
-       (first)
-       ((juxt :module-name :slug))))
-
 (reg-sub
  :wizard/first-module+submodule
  (fn [[_ ws-uuid _]]
    (subscribe [:wizard/route-order ws-uuid]))
 
  (fn [route-order [_ _ws-uuid io]]
-   (let [first-path      (first (filter
-                                 (fn [path] (str/includes? path (name io)))
-                                 route-order))
-         module-regex    (gstring/format "(?<=modules/).*(?=/%s)" (name io))
-         submodule-regex (gstring/format "(?<=%s/).*" (name io))]
-     [(re-find (re-pattern module-regex) first-path)
-      (re-find (re-pattern submodule-regex) first-path)])))
+   (when io
+     (let [first-path      (first (filter
+                                   (fn [path] (str/includes? path (name io)))
+                                   route-order))
+           module-regex    (gstring/format "(?<=modules/).*(?=/%s)" (name io))
+           submodule-regex (gstring/format "(?<=%s/).*" (name io))]
+       [(re-find (re-pattern module-regex) first-path)
+        (re-find (re-pattern submodule-regex) first-path)]))))
 
 ;;; show-group?
 (defn- csv? [s] (< 1 (count (str/split s #","))))
