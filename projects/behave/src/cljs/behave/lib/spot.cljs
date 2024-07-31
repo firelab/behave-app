@@ -157,3 +157,6 @@
 
 (defn getWindSpeedAtTwentyFeet [self windSpeedUnits]
   (.getWindSpeedAtTwentyFeet self windSpeedUnits))
+
+(defn setActiveCrownFlameLength [self windSpeed windSpeedUnits]
+  (.setActiveCrownFlameLength self windSpeed windSpeedUnits))
