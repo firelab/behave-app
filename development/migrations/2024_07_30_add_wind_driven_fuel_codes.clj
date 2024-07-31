@@ -154,11 +154,21 @@
       :group-variable/cpp-parameter      (sm/cpp-param->uuid conn "SIGSurface" "setFuelModelNumber" "fuelModelNumber")
       :group-variable/discrete-multiple? true}))
 
+  ;; Enable Fuel Moisture submodule when Spot Wind Driven is selected
+
+  (def fuel-moisture-submodule (sm/t-key->eid db "behaveplus:surface:input:fuel_moisture"))
+
+  (def enable-fuel-moisture-submodule-tx
+    {:db/id fuel-moisture-submodule
+     :submodule/conditionals
+     [(sm/->gv-conditional spot-wind-driven-surface-fire-output :equal "true")]})
+
   (comment
     (def tx (d/transact conn [wind-driven-fuel-code-list-tx
                               wind-driven-fuel-code-variable-tx
                               wind-driven-fuel-code-subgroup-tx
-                              wind-driven-group-variable-tx]))
+                              wind-driven-group-variable-tx
+                              enable-fuel-moisture-submodule-tx]))
     )
 
   (comment
