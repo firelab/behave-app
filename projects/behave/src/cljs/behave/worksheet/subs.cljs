@@ -784,11 +784,13 @@
                               [?ig :input-group/repeat-id ?rid]]
                             @@s/conn (:worksheet/uuid worksheet) (:bp/uuid group))]
         (doseq [group-variable group-variables
-                repeat-id      repeat-ids]
+                repeat-id      repeat-ids
+                :when          (not (:group-variable/conditionally-set? group-variable))]
           (let [worksheet-value (get-in all-inputs [(:bp/uuid group) repeat-id (:bp/uuid group-variable)])]
             (when (missing-input? worksheet-value)
               (reset! missing-inputs? true)))))
-      (doseq [group-variable group-variables]
+      (doseq [group-variable group-variables
+              :when (not (:group-variable/conditionally-set? group-variable))]
         (let [worksheet-value (get-in all-inputs [(:bp/uuid group) 0 (:bp/uuid group-variable)])]
           (when (missing-input? worksheet-value)
             (reset! missing-inputs? true))))))
