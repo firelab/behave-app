@@ -12,6 +12,20 @@ Feature: Surface Only Worksheets
       - Wind and Slope > Wind and Slope are:
       - Wind and Slope > Slope
       """
+
+Feature: Mortality Only
+  Scenario: Mortality Only Test
+    Given I have started a Mortality Worksheet
+    When I select the output "Rate of Spread" in the "Fire Behavior" submodule
+    Then the following input Submodule > Groups are displayed:
+      """
+      - Fuel Model
+      - Fuel Moisture > Moisture Input Mode
+      - Wind and Slope > Wind Measured at:
+      - Wind and Slope > Wind Speed
+      - Wind and Slope > Wind and Slope are:
+      - Wind and Slope > Slope
+      """
 # Scenario: Length-to-Width Output Selected
 #   Given I have started a Surface Worksheet
 #   When I select the output "Length-to-Width Ratio" in the "Size" submodule
