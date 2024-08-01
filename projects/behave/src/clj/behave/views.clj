@@ -9,19 +9,21 @@
 
 ;;; Macros
 
-(defmacro inline-resource [resource-path]
-  (slurp (clojure.java.io/resource resource-path)))
+(defmacro inline-resource
+  "Inlines a file from the /resources directory."
+  [resource-path]
+  (slurp (io/resource resource-path)))
 
 ;;; State
 
-(def vms-version (atom nil))
+(def ^:private *vms-version (atom nil))
 
 ;;; Helpers
 
 (declare reset-vms-version!)
 
 (defn- get-vms-version []
-  {:vms-version (if @vms-version @vms-version (reset-vms-version!))})
+  {:vms-version (if @*vms-version @*vms-version (reset-vms-version!))})
 
 (defn- add-v-query [paths]
  (let [{:keys [vms-version]} (get-vms-version)]
@@ -78,9 +80,11 @@
 (defn reset-vms-version!
   "Resets the VMS version based on the file hash."
   []
-  (reset! vms-version (digest/md5 (io/file (io/resource "public/layout.msgpack")))))
+  (reset! *vms-version (digest/md5 (slurp (io/resource "public/layout.msgpack")))))
 
-(defn render-tests-page [_request]
+(defn render-tests-page
+  "Renders the site for tests."
+  [_request]
   {:status  200
    :headers {"Content-Type" "text/html"}
    :body    (html5
@@ -90,7 +94,9 @@
               [:div#app-testing]
               (include-js "/js/behave-min.js" "/cljs/app-testing.js")])})
 
-(defn render-page [{:keys [route-params] :as match}]
+(defn render-page
+  "Renders a page."
+  [{:keys [route-params] :as match}]
   (fn [{:keys [params figwheel?]}]
     (let [init-params
           (merge route-params
