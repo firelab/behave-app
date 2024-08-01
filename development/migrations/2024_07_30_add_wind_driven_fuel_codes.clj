@@ -154,11 +154,18 @@
       :group-variable/cpp-parameter      (sm/cpp-param->uuid conn "SIGSurface" "setFuelModelNumber" "fuelModelNumber")
       :group-variable/discrete-multiple? true}))
 
+  (def new-translations-tx
+    (sm/build-translations-payload
+     conn
+     100
+     {"behaveplus:surface:input:fuel_models:standard:wind-driven-fuel-model:wind-driven-fuel-model" "Wind Driven Fuel Model"}))
+
   (comment
     (def tx (d/transact conn [wind-driven-fuel-code-list-tx
                               wind-driven-fuel-code-variable-tx
                               wind-driven-fuel-code-subgroup-tx
-                              wind-driven-group-variable-tx]))
+                              wind-driven-group-variable-tx
+                              new-translations-tx]))
     )
 
   (comment
