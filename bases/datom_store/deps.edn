@@ -2,8 +2,9 @@
  :deps {;; Bases
 
         ;; Components
-        sig/datom-utils        {:local/root "../../components/datom_utils"}
-        sig/ds-schema-utils    {:local/root "../../components/ds_schema_utils"}
+        sig/datom-utils     {:local/root "../../components/datom_utils"}
+        sig/ds-schema-utils {:local/root "../../components/ds_schema_utils"}
+        sig/logging         {:local/root "../../components/logging"}
 
         ;; Clojure Deps
         datascript/datascript                   {:mvn/version "1.5.3"}
