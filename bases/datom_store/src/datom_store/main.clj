@@ -8,7 +8,8 @@
                                                  safe-deref
                                                  split-datoms
                                                  unsafe-attrs
-                                                 unwrap]])
+                                                 unwrap]]
+            [logging.interface           :refer [log-str]])
   (:import [java.sql DriverManager]))
 
 ;;; Helpers
@@ -58,7 +59,6 @@
   (let [db-file (get-db-file config)
         exists? (fs/exists? db-file)
         storage (create-storage! db-file)]
-    (println [:EXISTS? db-file exists? storage])
     (if exists?
       (d/restore-conn storage)
       (d/create-conn (->ds-schema schema) {:storage storage}))))
@@ -140,7 +140,7 @@
                           (apply disj $ existing-schema)
                           (filter #($ (:db/ident %)) new-schema))]
     (when (seq new-schema)
-      (print "Migrating DB with new schema: " new-schema)
+      (log-str "Migrating DB with new schema: " new-schema)
       (transact db new-schema))))
 
 ;;; CRUD Operations

@@ -1,6 +1,5 @@
 (ns logging.interface
-  (:require [triangulum.logging :as l]
-            [logging.core :as core]))
+  (:require [logging.core :as core]))
 
 (def ^{:argslist '([config])
        :doc      "Starts triangulum logging service with configuration.
@@ -17,7 +16,7 @@
 (def ^{:argslist '([& s])
        :doc      "A variadic version of log which concatenates all of the strings into one log line.
             Uses the default options for log."}
-  log-str l/log-str)
+  log-str core/log-str)
 
 (def
   ^{:argslist '([data] [data opts])
@@ -28,4 +27,4 @@
     - :newline       [bool] (Default: true) - Force a newline.
     - :pprint        [bool] (Default: false) - Pretty print data.
     - :force-stdout  [bool] (Default: false) - Display log message to stdout as well."}
-  log l/log)
+  log core/log)
