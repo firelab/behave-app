@@ -89,4 +89,9 @@
 (defn os-path
   "Translates a path in either Windows/Unix format into a path compatible with the current system."
   [path]
-  (str (apply fs/file (str/split path #"[/\\]"))))
+  (-> path
+      (str/replace #"~" (str (fs/home)))
+      (str/replace "$HOME" (str (fs/home)))
+      (str/split #"[/\\]")
+      (->> (apply fs/file))
+      (str)))
