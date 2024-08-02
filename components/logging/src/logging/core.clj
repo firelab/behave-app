@@ -104,28 +104,7 @@
 (defn- capture-std-err! []
   (let [log-filename    (str (.format (SimpleDateFormat. "YYYY-MM-dd") (Date.)) ".log")
         log-file-stream (java.io.PrintStream. (str @output-path log-filename))]
-    (System/setErr log-file-stream)
-
-  (.setUncaughtExceptionHandler
-   (Thread/currentThread)
-   (reify
-     Thread$UncaughtExceptionHandler
-     (uncaughtException [_ _ e]
-       (let [sw (java.io.StringWriter.)
-             pw (java.io.PrintWriter. sw)]
-         (.printStackTrace e System/err)
-         (log-str "UNCAUGHT EXCEPTION ON ANOTHER THREAD")
-         (log-str (str sw))))))
-
-    (Thread/setDefaultUncaughtExceptionHandler
-     (reify Thread$UncaughtExceptionHandler
-       (uncaughtException [_ _ e]
-       (let [sw (java.io.StringWriter.)
-             pw (java.io.PrintWriter. sw)]
-         (.printStackTrace e pw)
-         (log-str "UNCAUGHT EXCEPTION ON ANOTHER THREAD")
-         (log-str (str sw))))))
-     ))
+    (System/setErr log-file-stream)))
 
 (defn start-logging!
   "Begins the logging service."
@@ -143,27 +122,3 @@
   []
   (set-log-path! "")
   (reset! memory-logging nil))
-
-
-(comment
-
-  (start-logging! {:log-dir "/Users/rjsheperd/.behave/logs/" :capture-std-err true})
-
-  (def log-filename (str (.format (SimpleDateFormat. "YYYY-MM-dd") (Date.)) ".log"))
-  (def log-file-stream (java.io.PrintStream. (str @output-path log-filename)))
-
-  (.setUncaughtExceptionHandler
-   (Thread/currentThread)
-   (reify
-     Thread$UncaughtExceptionHandler
-     (uncaughtException [_ _ e]
-       (let [sw (java.io.StringWriter.)
-             pw (java.io.PrintWriter. sw)]
-         (.printStackTrace e pw)
-         (println (str sw))))))
-
-  (throw (ex-info "Hello! it's good to see you" {:derp 3}))
-  (log-str "Derp")
-
-
-  )
