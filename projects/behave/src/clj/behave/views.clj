@@ -90,8 +90,6 @@
                             :left             "0"
                             :width            "100vw"
                             :z-index          "10000"}}
-       [:script {:type "text/javascript"}
-        "setTimeout (function () {document.getElementById('banner').style.display='none'}, 10000);"]
        (map (fn [line]
               [:p {:style {:font-size   "18px"
                            :font-weight "bold"
