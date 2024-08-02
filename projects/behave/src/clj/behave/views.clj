@@ -74,8 +74,12 @@
             (str/join "\n"))])))
 
 (defn- announcement-banner []
-  (let [announcement (-> (slurp "./projects/behave/resources/public/announcment.txt")
-                         (str/split #"\n"))]            ; TODO This will be moved to the front end for better UX.
+  (let [a11t-file    (io/resource "public/announcement.txt")
+        announcement (if (nil? a11t-file)
+                         []
+                         (-> a11t-file
+                             (slurp)
+                             (str/split #"\n")))]
     (when-not (empty? (first announcement))
       [:div#banner {:style {:background-color "#f96841"
                             :box-shadow       "3px 1px 4px 0 rgb(0, 0, 0, 0.25)"
@@ -146,8 +150,7 @@
        :body    (html5
                   (head-meta-css)
                   [:body
-                   (when (.exists (io/as-file "./projects/behave/resources/public/announcment.txt"))
-                     (announcement-banner))
+                   (announcement-banner)
                    [:div#app]
                    (cljs-init init-params figwheel?)
                    (include-js "/js/behave-min.js" "/js/katex.min.js" "/js/bodymovin.js")
