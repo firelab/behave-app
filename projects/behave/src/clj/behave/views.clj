@@ -75,6 +75,53 @@
              (inline-resource "onload.js")]
             (str/join "\n"))])))
 
+(defn- announcement-banner []
+  (let [a11t-file    (io/resource "public/announcement.txt")
+        announcement (if (nil? a11t-file)
+                         []
+                         (-> a11t-file
+                             (slurp)
+                             (str/split #"\n")))]
+    (when-not (empty? (first announcement))
+      [:div#banner {:style {:background-color "#f96841"
+                            :box-shadow       "3px 1px 4px 0 rgb(0, 0, 0, 0.25)"
+                            :color            "#ffffff"
+                            :display          (if (pos? (count announcement)) "block" "none")
+                            :margin           "0px"
+                            :padding          "5px"
+                            :position         "fixed"
+                            :text-align       "center"
+                            :top              "0"
+                            :right            "0"
+                            :left             "0"
+                            :width            "100vw"
+                            :z-index          "10000"}}
+       (map (fn [line]
+              [:p {:style {:font-size   "18px"
+                           :font-weight "bold"
+                           :margin      "0 30px 0 0"}
+                   :key   line}
+               line])
+            announcement)
+       [:button {:style   {:align-items      "center"
+                           :background-color "transparent"
+                           :border-color     "#ffffff"
+                           :border-radius    "50%"
+                           :border-style     "solid"
+                           :border-width     "2px"
+                           :cursor           "pointer"
+                           :display          "flex"
+                           :height           "25px"
+                           :padding          "0"
+                           :position         "fixed"
+                           :right            "10px"
+                           :top              "5px"
+                           :width            "25px"}
+                 :onClick "document.getElementById('banner').style.display='none'"}
+        [:svg {:width "24px" :height "24px" :viewBox "0 0 48 48" :fill "#ffffff"}
+         [:path {:d "M38 12.83l-2.83-2.83-11.17 11.17-11.17-11.17-2.83 2.83 11.17 11.17-11.17 11.17 2.83 2.83
+                     11.17-11.17 11.17 11.17 2.83-2.83-11.17-11.17z"}]]]])))
+
 ;;; Public Fns
 
 (defn reset-vms-version!
@@ -109,6 +156,7 @@
        :body    (html5
                   (head-meta-css)
                   [:body
+                   (announcement-banner)
                    [:div#app]
                    (cljs-init init-params figwheel?)
                    (include-js "/js/behave-min.js" "/js/katex.min.js" "/js/bodymovin.js")
