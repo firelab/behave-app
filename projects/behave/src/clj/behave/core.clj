@@ -116,10 +116,6 @@
   (str/includes? (str/lower-case uri) "php"))
 
 (defn- routing-handler [{:keys [uri] :as request}]
-
-  ;; TODO: REMOVE
-  (throw (Exception. "my exception message"))
-
   (let [next-handler (cond
                        (bad-uri? uri)                     (not-found "404 Not Found")
                        (str/starts-with? uri "/init")     #'init-handler
