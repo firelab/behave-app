@@ -34,6 +34,8 @@
 (Then "(?m)the following input Submodule > Groups are displayed: {submodule-groups}"
       (fn [{:keys [driver]} submodule-groups]
         (navigate-to-inputs driver)
+        (let [wait (w/wait driver 5000)]
+          (.until wait (w/presence-of (by/css ".wizard-page__body"))))
         (let [submodule-groups (extract-submodule-groups submodule-groups)]
           ;; incorrect-groups (filter (fn [[_submodule group]] (= "Slope" group)) submodule-groups)]
           (doall (map (partial group-exits? driver) submodule-groups))
