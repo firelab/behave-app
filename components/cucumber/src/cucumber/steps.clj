@@ -14,7 +14,3 @@
 (def ^{:doc      "Step definition."
        :argslist '([step-text perform])}
   When s/When)
-
-(def ^{:doc      "Step definition."
-       :argslist '([step-text perform])}
-  And s/Thn)

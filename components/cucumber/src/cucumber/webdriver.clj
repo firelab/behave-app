@@ -2,7 +2,7 @@
   (:require [cucumber.remote :as remote])
   (:import [org.openqa.selenium By WebDriver]
            [org.openqa.selenium.safari SafariDriver]
-           [org.openqa.selenium.chrome ChromeDriver]
+           [org.openqa.selenium.chrome ChromeDriver ChromeOptions]
            [org.openqa.selenium.firefox FirefoxDriver]
            [org.openqa.selenium JavascriptExecutor]
            [org.openqa.selenium.support.ui WebDriverWait ExpectedConditions]
@@ -64,8 +64,18 @@
 (defn chrome-driver
   "Instatiate a Chrome WebDriver."
   [_]
-  (System/setProperty "webdriver.chrome.driver" "/usr/local/bin/chromedriver")
-  (ChromeDriver.))
+  (let [options (ChromeOptions.)]
+    (.setBinary    options "/usr/bin/google-chrome")
+    (.addArguments options (into-array
+                            ["start-maximized"         ; // open Browser in maximized mode
+                             "disable-infobars"        ; // disabling infobars
+                             "--disable-extensions"    ; // disabling extensions
+                             "--disable-gpu"           ; // applicable to windows os only
+                             "--disable-dev-shm-usage" ; // overcome limited resource problems
+                             "--no-sandbox"            ; // Bypass OS security model
+                             "--remote-debugging-port=9222"]))
+    (System/setProperty "webdriver.chrome.driver" "/usr/local/bin/chromedriver")
+    (ChromeDriver. options)))
 
 (defn firefox-driver
   "Instatiate a Firefox WebDriver."

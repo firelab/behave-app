@@ -41,7 +41,8 @@
   (-> (e/find-el driver (by/css ".button--highlight"))
       (e/click!))
 
-  (w/execute-script! driver "window.scrollTo(0,0)"))
+  (w/execute-script! driver "window.scrollTo(0,0)")
+  {:driver driver})
 
 (Given "I have started a Surface Worksheet" (partial select-independent-worksheet [:surface]))
 
