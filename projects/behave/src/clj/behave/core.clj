@@ -59,10 +59,10 @@
     (reset! kill-channel kill-chan)
     (reset! cancel-channel cancel-chan)))
 
-(defn- init-config! []
+(defn init-config! []
   (load-config (io/resource "config.edn")))
 
-(defn- init-db! [{:keys [config]}]
+(defn init-db! [{:keys [config]}]
   (let [config (update-in config
                           [:store :path]
                           os-path)]
@@ -70,7 +70,7 @@
     (io/make-parents (get-in config [:store :path]))
     (store/connect! config)))
 
-(defn- vms-sync! []
+(defn vms-sync! []
   (let [{:keys [secret-token url]} (get-config :vms)]
     (pmap #(% secret-token url) [export-from-vms export-images-from-vms])))
 

@@ -1,8 +1,12 @@
 (ns user)
 
 (comment
-  (require '[behave.core :as core])
-  (core/init!)
+  (require '[behave.core :as core]
+           '[config.interface :refer [get-config load-config]])
+
+  (core/init-config!)
+  (core/init-db! (get-config :database))
+
   (core/vms-sync!)
 
   (require '[behave-cms.server :as cms])
