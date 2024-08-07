@@ -16,7 +16,8 @@ Feature: Surface Only Worksheets
       - Wind and Slope > Slope
       """
 
-      # - Wind and Slope > Wind measured at: @kenny this fails because Wind measured at: has a trailing space in the dom
+      # - Wind and Slope > Wind measured at: @kenny this fails because Wind measured at: has a
+      # - trailing space in the dom and (extract-submodule-groups) trims this.
 
 # Feature: Mortality Only
 #   Scenario: Mortality Only Test
