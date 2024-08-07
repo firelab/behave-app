@@ -533,14 +533,14 @@ body {
   overflow-x: auto;
   overflow-y: auto;
   width: 100%;
-  height: 575px;
+  max-height: 575px;
 }
 
 .review-wizard-page__body {
   overflow-x: auto;
   overflow-y: auto;
   width: 100%;
-  height: 495px;
+  max-height: 495px;
 }
 
 /* .wizard-io { */
