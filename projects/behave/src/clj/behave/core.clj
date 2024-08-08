@@ -59,9 +59,11 @@
     (reset! kill-channel kill-chan)
     (reset! cancel-channel cancel-chan)))
 
+#_{:clj-kondo/ignore [:missing-docstring]}
 (defn init-config! []
   (load-config (io/resource "config.edn")))
 
+#_{:clj-kondo/ignore [:missing-docstring]}
 (defn init-db! [{:keys [config]}]
   (let [config (update-in config
                           [:store :path]
