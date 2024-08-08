@@ -59,10 +59,10 @@
     (reset! kill-channel kill-chan)
     (reset! cancel-channel cancel-chan)))
 
-(defn- init-config! []
+(defn init-config! []
   (load-config (io/resource "config.edn")))
 
-(defn- init-db! [{:keys [config]}]
+(defn init-db! [{:keys [config]}]
   (let [config (update-in config
                           [:store :path]
                           os-path)]

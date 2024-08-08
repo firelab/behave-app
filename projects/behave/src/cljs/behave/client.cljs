@@ -86,8 +86,7 @@
            {:href     "#"
             :on-click #(rf/dispatch [:navigate "/"])
             :tabindex 0}
-           [:img.behave-identity__logo
-            {:src "/images/logo.png"}]]]
+           [:img {:src "/images/logo.svg"}]]]
          [:td.page__top__toolbar-container
           [toolbar params]]]]
        [:div.page__main
