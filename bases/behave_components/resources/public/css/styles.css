@@ -105,7 +105,7 @@ html {
   --uppercase: uppercase;
   /* Application should use these variables for changing themes */
 
-  --themed-tab-group-edge-color: var(--black)
+  --themed-tab-group-edge-color: var(--black);
   --themed-tab-background-color: var(--black);
   --themed-header: var(--black);
 
