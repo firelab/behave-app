@@ -23,13 +23,13 @@
                           :size      {:control "radio"
                                       :options ["small" "normal" "large"]}}}))
 
-(def ^:export OutlinePrimaryTab (template {:variant "outline-primary"
+(def ^:export OutlinePrimaryTab (template {:variant "primary"
                                            :label   "General Units"}))
 
-(def ^:export OutlineSecondaryTab (template {:variant   "outline-secondary"
+(def ^:export OutlineSecondaryTab (template {:variant   "secondary"
                                              :icon-name "help2"
                                              :label     "Help"}))
 
-(def ^:export OutlineHighlightTab (template {:variant   "outline-highlight"
+(def ^:export OutlineHighlightTab (template {:variant   "highlight"
                                              :icon-name "notes"
                                              :label     "Notes"}))

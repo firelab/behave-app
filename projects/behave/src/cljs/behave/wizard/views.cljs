@@ -667,7 +667,7 @@
            [:div.wizard-header__results-toolbar__date__label (str @(<t (bp "run_date")) ":")]
            [:div.wizard-header__results-toolbar__date__value @*ws-date]]]
          [:div.wizard-header__results-tabs
-          [c/tab-group {:variant  "outline-highlight"
+          [c/tab-group {:variant  "highlight"
                         :on-click #(dispatch [:wizard/results-select-tab %])
                         :tabs     (cond-> [{:label     "Notes"
                                             :tab       :notes

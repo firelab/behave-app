@@ -334,7 +334,7 @@
        :doc
        "Tab component which takes a hash-map of:
        - `:label`     Button's label as a string.
-       - `:variant`   String of either \"outline-primary\", \"outline-secondary\", or \"outline-highlight\".
+       - `:variant`   String of either \"primary\", \"secondary\", or \"highlight\".
        - `:selected?` Whether the tab is selected.
        - `:on-click`  Function called when tab is clicked.
        - `:icon-name` Icon to display. See [[icon]].
@@ -356,7 +356,7 @@
        :doc
        "Tab Group component which takes a hash-map of:
        - `:tabs`      Vector of tab hash-maps. See [[tab]].
-       - `:variant`   String of either \"outline-primary\", \"outline-secondary\", or \"outline-highlight\".
+       - `:variant`   String of either \"primary\", \"secondary\", or \"highlight\".
        - `:flat-edge` String of either \"top\" or \"bottom\".
        - `:size`      String of either \"small\" , \"normal\", or \"large\".
        - `:on-click`  Function called when tab is clicked.
