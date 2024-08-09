@@ -1,27 +1,31 @@
 (ns behave.components.tab
-  (:require [behave.components.button :refer [button]]))
+  (:require [behave.components.icon.core :refer [icon]]))
 
-(defn tab [{:keys [label variant selected? on-click icon-name disabled? flat-edge size _order-id]
-            :or   {order-id  0
-                   flat-edge "bottom"
-                   size      "normal"}
-            :as   t}]
+(defn tab [{:keys [label variant selected? on-click icon-name disabled? flat-edge icon-position]
+            :or   {flat-edge     "bottom"
+                   icon-position "left"}
+            :as t}]
   [:div {:class ["tab"
                  (when variant (str "tab--" variant))
                  (when selected? "tab--selected")]}
-   [button (cond-> {:variant   variant
-                    :label     label
-                    :flat-edge flat-edge
-                    :size      size
-                    :selected? selected?
-                    :disabled? disabled?
-                    :on-click  #(on-click t)}
-             icon-name (assoc :icon-name icon-name :icon-position "left"))]])
+   [:button {:class    ["tab__button"
+                        (when variant (str "tab__button--" variant))
+                        (when flat-edge (str "tab__button--flat-edge-" flat-edge))
+                        (when selected? (str "tab__button--selected"))]
+             :disabled disabled?
+             :on-click #(on-click t)}
+    (when (and icon-name (= icon-position "left"))
+      [:div {:class "button__icon"}
+       [icon icon-name]])
+    (when (seq label)
+      [:div {:class "button__label"} label])
+    (when (and icon-name (= icon-position "right"))
+      [:div {:class "button__icon"}
+       [icon icon-name]])]])
 
-(defn tab-group [{:keys [tabs variant flat-edge size on-click align]
-                  :or   {variant   "outline-primary"
+(defn tab-group [{:keys [tabs variant flat-edge on-click align]
+                  :or   {variant   "primary"
                          flat-edge "bottom"
-                         size      "normal"
                          align     "left"}}]
   (let [tabs (js->clj tabs :keywordize-keys true)]
     [:div {:class ["tab-group"
@@ -31,5 +35,4 @@
      (for [t (sort-by :order-id tabs)]
        [tab (merge t {:variant   variant
                       :flat-edge flat-edge
-                      :size      size
                       :on-click  on-click})])]))

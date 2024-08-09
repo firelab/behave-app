@@ -81,7 +81,7 @@
         :aria-live "polite"}
        [:div.help-area__tabs-container
         [:div.help-area__tabs
-         [c/tab-group {:variant  "outline-primary"
+         [c/tab-group {:variant  "primary"
                        :on-click #(dispatch [:help/select-tab %])
                        :size     "small"
                        :tabs     (cond-> [{:label     "Help" :icon-name "help2"

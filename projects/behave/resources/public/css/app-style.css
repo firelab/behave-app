@@ -1,19 +1,31 @@
 @charset "UTF-8";
 
 [data-theme-color="surface" i] {
-  --theme-color-2: var(--green-3);
+  --themed-tab-group-edge-color: var(--darkgreen-1);
+  --themed-tab-background-color: #E7EEC9;
+  --themed-header-bottom-border-color: var(--darkgreen-1);
+  --themed-header-background-color: #E7EEC9;
 }
 
 [data-theme-color="contain" i] {
-  --theme-color-2: var(--red-2);
+  --themed-tab-background-color: #FFC9C9;
+  --themed-tab-group-edge-color: #CB5757;
+  --themed-header-background-color: #FFC9C9;
+  --themed-header-bottom-border-color: #CB5757;
 }
 
 [data-theme-color="mortality" i] {
-  --theme-color-2: var(--red-3);
+  --themed-tab-group-edge-color: var(--red-3);
+  --themed-tab-background-color: #F0D1B3;
+  --themed-header-background-color: #F0D1B3;
+  --themed-header-bottom-border-color: var(--red-3);
 }
 
 [data-theme-color="crown" i] {
-  --theme-color-2: var(--orange-2);
+  --themed-tab-background-color: #FFE3B8;
+  --themed-tab-group-edge-color: #E0A172;
+  --themed-header-background-color: #FFE3B8;
+  --themed-header-bottom-border-color: #E0A172;
 }
 
 body {
@@ -346,7 +358,7 @@ body {
   text-align: center;
   text-align: left;
   color: var(--white);
-  background-color: var(--medblue-4);
+  background-color: var(--darkblue-7);
 }
 
 .workflow-select__header__title > .tab > .button {
@@ -501,9 +513,11 @@ body {
 }
 
 .wizard-group__header {
+  font-weight: var(--font-weight-bold);
   padding: 5px 18px;
-  color: white;
-  background-color: var(--theme-color-2);
+  color: var(--black);
+  background-color: var(--themed-header-background-color);
+  border-bottom: 2px solid var(--themed-header-bottom-border-color);
 }
 
 .wizard-graph__output-header,
@@ -844,23 +858,6 @@ body {
 .help-area__tabs {
   position: relative;
   top: 11px;
-}
-
-.help-area__tabs > .tab-group > .tab > .button {
-  min-width: 0px;
-  padding: 8px;
-  border: 1px solid var(--medblue-4);
-  background-color: var(--white);
-}
-
-.help-area__tabs > .tab-group > .tab--selected > .button {
-  background-color: var(--medblue-4);
-}
-
-.help-area__tabs > .tab-group > .tab > .button:hover {
-  border-color: var(--medblue-4);
-  background-color: var(--medblue-4);
-  color: var(--white);
 }
 
 .help-area__content {

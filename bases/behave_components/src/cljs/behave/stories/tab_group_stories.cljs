@@ -23,26 +23,28 @@
                                       :options ["left" "right"]}}}))
 
 (def ^:export Default
-  (template {:tabs [{:label     "First"
+  (template {:tabs [{:label     "Help"
+                     :icon-name "help2"
                      :selected? (= @selected 0)
                      :order-id  0}
-                    {:label     "Second"
+                    {:label     "Help Manual"
+                     :icon-name "help-manual"
                      :selected? (= @selected 1)
                      :order-id  1}]}))
 
 (def ^:export OutlineSecondary
-  (template {:variant "outline-secondary"
-             :tabs    [{:label     "Help"
-                        :icon-name "help2"
-                        :selected? (= @selected 0)
-                        :order-id  0}
-                       {:label     "Help Manual"
-                        :icon-name "help-manual"
-                        :selected? (= @selected 1)
-                        :order-id  1}]}))
+  (template {:variant   "secondary"
+             :flat-edge "top"
+             :align     "right"
+             :tabs      [{:label     "inputs"
+                          :selected? (= @selected 0)
+                          :order-id  0}
+                         {:label     "outputs"
+                          :selected? (= @selected 1)
+                          :order-id  1}]}))
 
 (def ^:export OutlineHighlight
-  (template {:variant "outline-highlight"
+  (template {:variant "highlight"
              :tabs    [{:label     "Notes"
                         :icon-name "notes"
                         :selected? (= @selected 0)

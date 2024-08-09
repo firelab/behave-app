@@ -65,12 +65,17 @@
                           [module-slug submodule-slug] @(subscribe [:wizard/first-module+submodule
                                                                     ws-uuid
                                                                     next-io])]
+                      (prn "ws-uuid" ws-uuid)
+                      (prn "next-io" next-io)
+                      (prn "module-slug:" module-slug)
+                      (prn "module-slug:" module-slug)
+                      (prn "submodule-slug:" submodule-slug)
                       (dispatch [:wizard/select-tab (merge params
                                                            {:module    module-slug
                                                             :io        next-io
                                                             :submodule submodule-slug})])))]
     [:div.wizard-header__io-tabs
-     [c/tab-group {:variant   "outline-primary"
+     [c/tab-group {:variant   "secondary"
                    :flat-edge "top"
                    :align     "right"
                    :on-click  on-click
@@ -87,7 +92,7 @@
                 :on-click      #(dispatch [:wizard/toggle-show-notes])}]]
     [:div.wizard-header__banner__notes-button--plus
      [c/button {:label         "Show Notes"
-                :variant       "outline-primary"
+                :variant       "primary"
                 :icon-name     :plus
                 :icon-position "left"
                 :on-click      #(dispatch [:wizard/toggle-show-notes])}]]))
@@ -118,7 +123,7 @@
             :when (seq submodules)]
         [:div.wizard-header__submodules__group
          {:data-theme-color module-name}
-         [c/tab-group {:variant  "outline-primary"
+         [c/tab-group {:variant  "themed"
                        :on-click #(dispatch [:wizard/select-tab
                                              (merge params {:submodule (:tab %)
                                                             :module    module-name})])
