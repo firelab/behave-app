@@ -1,16 +1,5 @@
 @charset "UTF-8";
 
-:root {
-  --surface-primary: var(--darkgreen-1);
-  --surface-secondary: #E7EEC9;
-  --contain-primary: #CB5757;
-  --contain-secondary: #FFC9C9;
-  --mortality-primary: var(--red-3);
-  --mortality-secondary: #F0D1B3;
-  --crown-primary: #E0A172;
-  --crown-secondary: #FFE3B8;
-}
-
 [data-theme-color="surface" i] {
   --themed-tab-group-edge-color: var(--surface-primary);
   --themed-tab-background-color: var(--surface-secondary);

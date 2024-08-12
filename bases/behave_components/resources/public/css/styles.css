@@ -74,6 +74,17 @@ html {
   --yellow-3: #FFE93C;
   --yellow-4: #EDCD47;
 
+  /* Behave Colors*/
+
+  --surface-primary: #94A839;
+  --surface-secondary: #E7EEC9;
+  --contain-primary: #CB5757;
+  --contain-secondary: #FFC9C9;
+  --mortality-primary: #80470F;
+  --mortality-secondary: #F0D1B3;
+  --crown-primary: #FF9D71;
+  --crown-secondary: #FFE3B8;
+
   /* Fonts */
   --font-family: 'Roboto', 'sans-serif';
   --font-family-roboto: 'Roboto', 'sans-serif';
@@ -1868,25 +1879,25 @@ p {
 /* -- Contain Variant -- */
 
 .module-icon--contain.module-icon--selected .module-icon__tail__end {
-  fill: var(--red-1);
+  fill: var(--contain-primary);
 }
 /* -- End Contain Variant -- */
 /* -- Crown Variant -- */
 
 .module-icon--crown.module-icon--selected .module-icon__tail__end {
-  fill: var(--orange-2);
+  fill: var(--crown-primary);
 }
 /* -- End Crown Variant -- */
 /* -- Mortality Variant -- */
 
 .module-icon--mortality.module-icon--selected .module-icon__tail__end {
-  fill: var(--red-1);
+  fill: var(--mortality-primary);
 }
 /* -- End Mortality  Variant -- */
 /* -- Surface Variant -- */
 
 .module-icon--surface.module-icon--selected .module-icon__tail__end {
-  fill: var(--green-3);
+  fill: var(--surface-primary);
 }
 /* -- End Surface Variant -- */
 /* - End Module Icons - */
