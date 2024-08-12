@@ -72,7 +72,7 @@
     (io/make-parents (get-in config [:store :path]))
     (store/connect! config)))
 
-(defn- vms-sync! []
+(defn vms-sync! []
   (let [{:keys [secret-token url]} (get-config :vms)]
     (pmap #(% secret-token url) [export-from-vms export-images-from-vms])))
 
