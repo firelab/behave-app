@@ -65,11 +65,6 @@
                           [module-slug submodule-slug] @(subscribe [:wizard/first-module+submodule
                                                                     ws-uuid
                                                                     next-io])]
-                      (prn "ws-uuid" ws-uuid)
-                      (prn "next-io" next-io)
-                      (prn "module-slug:" module-slug)
-                      (prn "module-slug:" module-slug)
-                      (prn "submodule-slug:" submodule-slug)
                       (dispatch [:wizard/select-tab (merge params
                                                            {:module    module-slug
                                                             :io        next-io
