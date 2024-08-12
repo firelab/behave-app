@@ -1,31 +1,42 @@
 @charset "UTF-8";
 
+:root {
+  --surface-primary: var(--darkgreen-1);
+  --surface-secondary: #E7EEC9;
+  --contain-primary: #CB5757;
+  --contain-secondary: #FFC9C9;
+  --mortality-primary: var(--red-3);
+  --mortality-secondary: #F0D1B3;
+  --crown-primary: #E0A172;
+  --crown-secondary: #FFE3B8;
+}
+
 [data-theme-color="surface" i] {
-  --themed-tab-group-edge-color: var(--darkgreen-1);
-  --themed-tab-background-color: #E7EEC9;
-  --themed-header-bottom-border-color: var(--darkgreen-1);
-  --themed-header-background-color: #E7EEC9;
+  --themed-tab-group-edge-color: var(--surface-primary);
+  --themed-tab-background-color: var(--surface-secondary);
+  --themed-header-bottom-border-color: var(--surface-primary);
+  --themed-header-background-color: var(--surface-secondary);
 }
 
 [data-theme-color="contain" i] {
-  --themed-tab-background-color: #FFC9C9;
-  --themed-tab-group-edge-color: #CB5757;
-  --themed-header-background-color: #FFC9C9;
-  --themed-header-bottom-border-color: #CB5757;
+  --themed-tab-group-edge-color: var(--contain-primary);
+  --themed-tab-background-color: var(--contain-secondary);
+  --themed-header-bottom-border-color: var(--contain-primary);
+  --themed-header-background-color: var(--contain-secondary);
 }
 
 [data-theme-color="mortality" i] {
-  --themed-tab-group-edge-color: var(--red-3);
-  --themed-tab-background-color: #F0D1B3;
-  --themed-header-background-color: #F0D1B3;
-  --themed-header-bottom-border-color: var(--red-3);
+  --themed-tab-group-edge-color: var(--mortality-primary);
+  --themed-tab-background-color: var(--mortality-secondary);
+  --themed-header-bottom-border-color: var(--mortality-primary);
+  --themed-header-background-color: var(--mortality-secondary);
 }
 
 [data-theme-color="crown" i] {
-  --themed-tab-background-color: #FFE3B8;
-  --themed-tab-group-edge-color: #E0A172;
-  --themed-header-background-color: #FFE3B8;
-  --themed-header-bottom-border-color: #E0A172;
+  --themed-tab-group-edge-color: var(--crown-primary);
+  --themed-tab-background-color: var(--crown-secondary);
+  --themed-header-bottom-border-color: var(--crown-primary);
+  --themed-header-background-color: var(--crown-secondary);
 }
 
 body {

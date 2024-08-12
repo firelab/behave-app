@@ -22,7 +22,7 @@
                           :align     {:control "radio"
                                       :options ["left" "right"]}}}))
 
-(def ^:export Default
+(def ^:export Primary
   (template {:tabs [{:label     "Help"
                      :icon-name "help2"
                      :selected? (= @selected 0)
@@ -32,7 +32,7 @@
                      :selected? (= @selected 1)
                      :order-id  1}]}))
 
-(def ^:export OutlineSecondary
+(def ^:export Secondary
   (template {:variant   "secondary"
              :flat-edge "top"
              :align     "right"
@@ -43,8 +43,23 @@
                           :selected? (= @selected 1)
                           :order-id  1}]}))
 
-(def ^:export OutlineHighlight
+(def ^:export Highlight
   (template {:variant "highlight"
+             :tabs    [{:label     "Notes"
+                        :icon-name "notes"
+                        :selected? (= @selected 0)
+                        :order-id  0}
+                       {:label     "Tables"
+                        :icon-name "tables"
+                        :selected? (= @selected 1)
+                        :order-id  1}
+                       {:label     "Graphs"
+                        :icon-name "graphs"
+                        :selected? (= @selected 2)
+                        :order-id  2}]}))
+
+(def ^:export Themed
+  (template {:variant "themed"
              :tabs    [{:label     "Notes"
                         :icon-name "notes"
                         :selected? (= @selected 0)
