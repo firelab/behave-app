@@ -380,11 +380,17 @@ body {
 }
 
 .workflow-select__content__name {
+  margin-top: 20px;
   padding: 15px;
+}
+
+.workflow-select__content .card-group {
+  row-gap: 19px;
 }
 
 .workflow-select__content .card-group__card .card {
   min-width: 70%;
+  min-height: 100%;
 }
 
 .workflow-select__content .module-icon__hover-mask {
