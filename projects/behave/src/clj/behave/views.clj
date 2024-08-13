@@ -83,7 +83,7 @@
                              (slurp)
                              (str/split #"\n")))]
     (when-not (empty? (first announcement))
-      [:div#banner {:style {:background-color "#f96841"
+      [:div#banner {:style {:background-color "#082233"
                             :box-shadow       "3px 1px 4px 0 rgb(0, 0, 0, 0.25)"
                             :color            "#ffffff"
                             :display          (if (pos? (count announcement)) "block" "none")
