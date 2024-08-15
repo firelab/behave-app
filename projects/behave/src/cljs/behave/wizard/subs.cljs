@@ -228,10 +228,10 @@
    @(subscribe [:vms/query '[:find ?unit-short-code .
                              :in    $ ?gv-uuid
                              :where
-                             [?gv :bp/uuid ?gv-uuid]
+                             [?gv :db/id [:bp/uuid ?gv-uuid]]
                              [?v :variable/group-variables ?gv]
                              [?v :variable/native-unit-uuid ?unit-uuid]
-                             [?u :bp/uuid ?unit-uuid]
+                             [?u :db/id [:bp/uuid ?unit-uuid]]
                              [?u :unit/short-code ?unit-short-code]]
                 gv-uuid])))
 
@@ -284,7 +284,7 @@
    @(subscribe [:vms/query '[:find [?s-name ?io]
                              :in    $ ?uuid
                              :where
-                             [?s :bp/uuid ?uuid]
+                             [?s :db/id [:bp/uuid ?uuid]]
                              [?s :submodule/name ?s-name]
                              [?s :submodule/io ?io]]
                 submodule-uuid])))
@@ -414,27 +414,32 @@
         (every? true? resolved-conditionals)))
     true))
 
+(defn- find-parent-submodule
+  [group]
+  (let [submodule (:submodule/_groups group)]
+    (cond
+      submodule submodule
+      group     (find-parent-submodule (:group/_children group))
+      :else     nil)))
+
 (reg-sub
  :wizard/conditional-io+group-uuid
  (fn [_ [_ gv-uuid]]
-   (d/q '[:find  ?io ?g-uuid
-          :keys   io  group-uuid
-          :in    $ % ?gv-uuid
-          :where
-          (conditional-variable ?io ?g-uuid ?gv-uuid)]
-        @@vms-conn rules gv-uuid)))
+   (let [group (-> (d/entity @@vms-conn [:bp/uuid gv-uuid])
+                   (:group/_group-variables))
+         io    (-> group
+                   (find-parent-submodule)
+                   (:submodule/io))]
+     {:io         io
+      :group-uuid (:bp/uuid group)})))
 
 (reg-sub
  :wizard/_select-actions
  (fn [_ [_ gv-uuid]]
-   (->> (d/q '[:find [?a ...]
-               :in $ ?gv-uuid
-               :where
-               [?gv :bp/uuid ?gv-uuid]
-               [?gv :group-variable/actions ?a]
-               [?a :action/type :select]]
-             @@vms-conn gv-uuid)
-        (map #(d/touch (d/entity @@vms-conn %))))))
+   (->> (d/entity @@vms-conn [:bp/uuid gv-uuid])
+        (:group-variable/actions)
+        (filter #(= (:action/type %) :select))
+        (map d/touch))))
 
 (reg-sub
  :wizard/default-option
@@ -456,13 +461,10 @@
 (reg-sub
  :wizard/_disabled-actions
  (fn [_ [_ gv-uuid]]
-   (d/q '[:find [(pull ?a [* {:action/conditionals [*]}]) ...]
-          :in $ ?gv-uuid
-          :where
-          [?gv :bp/uuid ?gv-uuid]
-          [?gv :group-variable/actions ?a]
-          [?a :action/type :disable]]
-        @@vms-conn gv-uuid)))
+   (->> (d/entity @@vms-conn [:bp/uuid gv-uuid])
+        (:group-variable/actions)
+        (filter #(= (:action/type %) :disable))
+        (map d/touch))))
 
 (reg-sub
  :wizard/disabled-options
@@ -525,7 +527,7 @@
           :where
           [?d :diagram/group-variable ?gv]
           [?d :diagram/input-group-variables ?g]
-          [?g :bp/uuid ?gv-uuid]]
+          [?g  :bp/uuid ?gv-uuid]]
         @@vms-conn [:bp/uuid gv-uuid])))
 
 (reg-sub
@@ -616,8 +618,8 @@
             (d/q '[:find ?g-uuid .
                    :in $ % ?gv
                    :where
-                   [?g :bp/uuid ?g-uuid]
-                   (group-variable ?g ?gv ?v)]
+                   (group-variable ?g ?gv ?v)
+                   [?g :bp/uuid ?g-uuid]]
                  @@vms-conn
                  rules
                  (:db/id group-variable)))
