@@ -557,34 +557,27 @@
                                                (long @map-rep-frac-atom)])}]]]))
 
 (defn- table-settings [ws-uuid]
-  (let [*worksheet                (subscribe [:worksheet ws-uuid])
-        table-settings            (:worksheet/table-settings @*worksheet)
-        table-enabled?            (:table-settings/enabled? table-settings)
-        map-units-settings-entity @(subscribe [:worksheet/map-units-settings-entity ws-uuid])
+  (let [map-units-settings-entity @(subscribe [:worksheet/map-units-settings-entity ws-uuid])
         map-units-enabled?        (:map-units-settings/enabled? map-units-settings-entity)]
-    [:<> [c/checkbox {:label     (s/capitalize-words @(<t (bp "display_table_results")))
-                      :checked?  table-enabled?
-                      :on-change #(dispatch [:worksheet/toggle-table-settings ws-uuid])}]
-     (when table-enabled?
-       [:div.table-settings
-        [c/checkbox {:label     (s/capitalize-words @(<t (bp "convert_to_map_units")))
-                     :checked?  map-units-enabled?
-                     :on-change #(dispatch [:worksheet/toggle-map-units-settings ws-uuid])}]
-        (when map-units-enabled?
-          [map-units-form ws-uuid])
-        [settings-form {:ws-uuid     ws-uuid
-                        :title       @(<t (bp "table_shading_filters"))
-                        :headers     (mapv
-                                      #(str/upper-case %)
-                                      [(str @(<t (bp "enabled")) "?")
-                                       @(<t (bp "output_variable"))
-                                       @(<t (bp "range"))
-                                       @(<t (bp "minimum"))
-                                       @(<t (bp "maximum"))])
-                        :rf-event-id :worksheet/update-table-filter-attr
-                        :rf-sub-id   :worksheet/table-settings-filters
-                        :min-attr-id :table-filter/min
-                        :max-attr-id :table-filter/max}]])]))
+    [:div.table-settings
+     [c/checkbox {:label     (s/capitalize-words @(<t (bp "convert_to_map_units")))
+                  :checked?  map-units-enabled?
+                  :on-change #(dispatch [:worksheet/toggle-map-units-settings ws-uuid])}]
+     (when map-units-enabled?
+       [map-units-form ws-uuid])
+     [settings-form {:ws-uuid     ws-uuid
+                     :title       @(<t (bp "table_shading_filters"))
+                     :headers     (mapv
+                                   #(str/upper-case %)
+                                   [(str @(<t (bp "enabled")) "?")
+                                    @(<t (bp "output_variable"))
+                                    @(<t (bp "range"))
+                                    @(<t (bp "minimum"))
+                                    @(<t (bp "maximum"))])
+                     :rf-event-id :worksheet/update-table-filter-attr
+                     :rf-sub-id   :worksheet/table-settings-filters
+                     :min-attr-id :table-filter/min
+                     :max-attr-id :table-filter/max}]]))
 
 (defn wizard-results-settings-page [{:keys [route-handler io ws-uuid] :as params}]
   (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
@@ -613,14 +606,15 @@
           (show-or-close-notes-button @*show-notes?)]]
         (when @*show-notes?
           (wizard-notes @*notes))
-        [:div.wizard-results__table-settings
-         [:div.wizard-results__table-settings__header "Table Settings"]
-         [:div.wizard-results__table-settings__content
-          [table-settings ws-uuid]]]
-        [:div.wizard-results__graph-settings
-         [:div.wizard-results__graph-settings__header "Graph Settings"]
-         [:div.wizard-results__graph-settings__content
-          [graph-settings ws-uuid]]]]]
+        [:div.wizard-page__body
+         [:div.wizard-results__table-settings
+          [:div.wizard-results__table-settings__header "Table Settings"]
+          [:div.wizard-results__table-settings__content
+           [table-settings ws-uuid]]]
+         [:div.wizard-results__graph-settings
+          [:div.wizard-results__graph-settings__header "Graph Settings"]
+          [:div.wizard-results__graph-settings__content
+           [graph-settings ws-uuid]]]]]]
       [wizard-navigation {:next-label @(<t (bp "next"))
                           :on-next    on-next
                           :back-label @(<t (bp "back"))
@@ -636,7 +630,6 @@
         *tab-selected        (subscribe [:wizard/results-tab-selected])
         *cell-data           (subscribe [:worksheet/result-table-cell-data ws-uuid])
         *directional-tables? (subscribe [:wizard/output-directional-tables? ws-uuid])
-        table-enabled?       (get-in @*worksheet [:worksheet/table-settings :table-settings/enabled?])
         show-tool-selector?  @(subscribe [:tool/show-tool-selector?])
         selected-tool-uuid   @(subscribe [:tool/selected-tool-uuid])]
     [:<>
@@ -694,7 +687,7 @@
          [:div.wizard-notes__header {:id "inputs"}
           @(<t (bp "inputs_table"))]
          [inputs-table ws-uuid]
-         (when (and table-enabled? (seq @*cell-data))
+         (when (seq @*cell-data)
            [:div.wizard-results__table {:id "table"}
             [:div.wizard-notes__header @(<t (bp "table"))]
             [pivot-tables ws-uuid]
