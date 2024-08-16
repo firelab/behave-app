@@ -41,39 +41,54 @@
                                                               0 ;repeat-id
                                                               gv-uuid])]
                                      (when (seq value)
-                                       [{:input  (indent-name level (:group/name current-group))
-                                         :units  units
-                                         :values (if (:group-variable/discrete-multiple? fvar)
-                                                   (->> (str/split value ",")
-                                                        (map fmt-fn)
-                                                        (str/join ","))
-                                                   (cond-> value
+                                       (if (:group-variable/discrete-multiple? fvar)
+                                         (let [values (->> (str/split value ",")
+                                                           (map fmt-fn))]
+                                           (into [{:input  (indent-name level (:group/name current-group))
+                                                   :units  units
+                                                   :values (first values)}]
+                                                 (map (fn [value]
+                                                        {:input  ""
+                                                         :units  units
+                                                         :values value})
+                                                      (rest values))))
+                                         [{:input  (indent-name level (:group/name current-group))
+                                           :units  units
+                                           :values (cond-> value
                                                      (not (csv? value))
-                                                     fmt-fn))}]))
+                                                     fmt-fn)}])))
                                    multi-var?
                                    (into [{:input (indent-name level (:group/name current-group))}]
                                          (let [repeat-ids @(subscribe [:worksheet/group-repeat-ids ws-uuid (:bp/uuid current-group)])]
                                            (mapcat (fn [repeat-id]
                                                      (into [{:input (indent-name (inc level) (str (:group/name current-group) " " (inc repeat-id)))}]
-                                                           (for [variable variables
-                                                                 :let     [value @(subscribe [:worksheet/input-value
-                                                                                              ws-uuid
-                                                                                              (:bp/uuid current-group)
-                                                                                              repeat-id
-                                                                                              (:bp/uuid variable)])]
-                                                                 :when    (seq value)]
-                                                             (let [gv-uuid    (:bp/uuid (first variables))
-                                                                   fmt-fn     (get formatters gv-uuid identity)
-                                                                   units-used (get gv-uuid->units gv-uuid)]
-                                                               {:input  (indent-name (+ level 2) @(subscribe [:wizard/gv-uuid->default-variable-name (:bp/uuid variable)]))
-                                                                :units  units-used
-                                                                :values (if (:group-variable/discrete-multiple? variable)
-                                                                          (->> (str/split value "")
-                                                                               (map fmt-fn)
-                                                                               (str/join ","))
-                                                                          (cond-> value
-                                                                            (not (csv? value))
-                                                                            fmt-fn))}))))
+                                                           (flatten
+                                                            (for [variable variables
+                                                                  :let     [value @(subscribe [:worksheet/input-value
+                                                                                               ws-uuid
+                                                                                               (:bp/uuid current-group)
+                                                                                               repeat-id
+                                                                                               (:bp/uuid variable)])]
+                                                                  :when    (seq value)]
+                                                              (let [gv-uuid    (:bp/uuid (first variables))
+                                                                    fmt-fn     (get formatters gv-uuid identity)
+                                                                    units-used (get gv-uuid->units gv-uuid)]
+                                                                (if (:group-variable/discrete-multiple? variable)
+                                                                  (let [values (->> (str/split value ",")
+                                                                                    (map fmt-fn))]
+                                                                    (into [{:input  (indent-name level (:group/name current-group))
+                                                                            :units  units-used
+                                                                            :values (first values)}]
+                                                                          (map (fn [value]
+                                                                                 {:input  ""
+                                                                                  :units  units-used
+                                                                                  :values value})
+                                                                               (rest values))))
+                                                                  [{:input  (indent-name level (:group/name current-group))
+                                                                    :units  units-used
+                                                                    :values (cond-> value
+                                                                              (not (csv? value))
+                                                                              fmt-fn)}]))))))
                                                    repeat-ids)))
                                    :else
                                    [])
@@ -109,7 +124,7 @@
   (let [*worksheet     (subscribe [:worksheet ws-uuid])
         modules        (:worksheet/modules @*worksheet)
         all-inputs     @(subscribe [:worksheet/all-inputs-vector ws-uuid])
-        formatters     @(subscribe [:worksheet/result-table-formatters (map #(nth % 2) all-inputs)])
+        formatters     @(subscribe [:result.inputs/table-formatters (map #(nth % 2) all-inputs)])
         gv-uuid->units @(subscribe [:worksheet/result-table-gv-uuid->units ws-uuid])]
     [:div.print__inputs_tables {:id "inputs"}
      (for [module-kw modules]

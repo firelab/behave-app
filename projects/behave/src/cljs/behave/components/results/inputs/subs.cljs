@@ -1,10 +1,12 @@
 (ns behave.components.results.inputs.subs
-  (:require [behave.vms.store    :refer [vms-conn]]
+  (:require [behave.schema.core  :refer [rules]]
+            [behave.translate    :refer [<t]]
+            [behave.vms.store    :refer [vms-conn]]
             [behave.wizard.subs  :refer [all-conditionals-pass?]]
             [clojure.walk        :refer [prewalk]]
             [datascript.core     :as d]
             [datascript.impl.entity]
-            [behave.schema.core     :refer [rules]]
+            [map-utils.interface :refer [index-by]]
             [re-frame.core       :refer [reg-sub subscribe]]))
 
 (defn- export-entity
@@ -44,7 +46,7 @@
           (group ?s ?g)
           (group-variable ?g ?gv ?v)
           [?gv :group-variable/conditionally-set? true]]
-        @@vms-conn rules s-uuid)))
+         @@vms-conn rules s-uuid)))
 
 (reg-sub
  :result.inputs/submodules
@@ -70,3 +72,31 @@
                            (has-conditionally-set-group-variables? s-uuid)))))
         (filter-group-variables worksheet)
         (sort-by :submodule/order))))
+
+(defn- create-formatter [variable]
+  (let [v-kind (:variable/kind variable)]
+    (if (= v-kind :discrete)
+      (let [{llist :variable/list}  (d/pull @@vms-conn
+                                            '[{:variable/list [* {:list/options [*]}]}]
+                                            (:db/id variable))
+            {options :list/options} llist
+            options                 (index-by :list-option/value options)]
+        (fn discrete-fmt [value]
+          (if-let [option (get options value)]
+            @(<t (:list-option/translation-key option))
+            value)))
+      identity)))
+
+(reg-sub
+ :result.inputs/table-formatters
+ (fn [_ [_ gv-uuids]]
+   (let [results (d/q '[:find ?gv-uuid (pull ?v [*])
+                        :in $ % [?gv-uuid ...]
+                        :where
+                        (lookup ?gv-uuid ?gv)
+                        (group-variable _ ?gv ?v)]
+                       @@vms-conn rules gv-uuids)]
+     (into {} (map
+               (fn [[gv-uuid variable]]
+                 [gv-uuid (create-formatter variable)])
+               results)))))
