@@ -99,6 +99,11 @@
   (set-session-storage! {:redirect-from from-page})
   (jump-to-url! "/login"))
 
+(defn scroll-top!
+  "Scroll to top of the window."
+  []
+  (.scrollTo js/window 0 0))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Utility Functions - Debouncers
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
