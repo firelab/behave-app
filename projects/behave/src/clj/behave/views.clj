@@ -97,7 +97,8 @@
                             :width            "100vw"
                             :z-index          "10000"}}
        (map (fn [line]
-              [:p {:style {:font-size   "18px"
+              [:p {:style {:color       "#ffffff"
+                           :font-size   "18px"
                            :font-weight "bold"
                            :margin      "0 30px 0 0"}
                    :key   line}
