@@ -1,6 +1,7 @@
 (ns behave.events
   (:require [browser-utils.core :refer [add-script
                                         script-exist?
+                                        scroll-top!
                                         set-local-storage!
                                         clear-local-storage!
                                         assoc-in-local-storage!
@@ -98,6 +99,7 @@
  (fn [{db :db} [_ new-route]]
    (when-let [[new-history new-position new-route] (navigate (:router db) new-route)]
      {:db                 (assoc db :router {:history new-history :curr-position new-position})
+      :browser/scroll-top {}
       :history/push-state {:position new-position
                            :route    new-route}})))
 
@@ -151,6 +153,13 @@
    {:http-xhrio {:method          :get
                  :uri             "/close?cancel=true"
                  :response-format (ajax/text-response-format)}}))
+
+;; Browser behavior
+
+(rf/reg-fx
+ :browser/scroll-top
+ (fn [_ _]
+   (scroll-top!)))
 
 ;;; Translations
 
