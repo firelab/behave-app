@@ -64,8 +64,7 @@
    {:db (-> db
             (dissoc :selected-subtool)
             (assoc :selected-tool tool-uuid))
-    :fx [[:dispatch [:tool/close-tool-selector]]
-         [:dispatch [:help/select-tab {:tab :tools}]]]}))
+    :fx [[:dispatch [:tool/close-tool-selector]]]}))
 
 (rf/reg-event-db
  :tool/select-subtool
