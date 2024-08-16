@@ -373,10 +373,9 @@
              ttype               :conditional/type
              op                  :conditional/operator
              values              :conditional/values}]
-           (let [{:keys [group-uuid io]} (-> (subscribe [:wizard/conditional-io+group-uuid
-                                                         group-variable-uuid])
-                                             deref
-                                             first)
+           (let [{:keys [group-uuid io]} @(subscribe [:wizard/conditional-io+group-uuid
+                                                      group-variable-uuid])
+                 _ (prn [group-uuid io])
                  conditional-values-set  (set values)
                  worksheet-value         (cond
                                            (= ttype :module)
