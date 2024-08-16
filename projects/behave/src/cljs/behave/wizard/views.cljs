@@ -70,7 +70,7 @@
                                                             :io        next-io
                                                             :submodule submodule-slug})])))]
     [:div.wizard-header__io-tabs
-     [c/tab-group {:variant   "outline-primary"
+     [c/tab-group {:variant   "secondary"
                    :flat-edge "top"
                    :align     "right"
                    :on-click  on-click
@@ -87,7 +87,7 @@
                 :on-click      #(dispatch [:wizard/toggle-show-notes])}]]
     [:div.wizard-header__banner__notes-button--plus
      [c/button {:label         "Show Notes"
-                :variant       "outline-primary"
+                :variant       "primary"
                 :icon-name     :plus
                 :icon-position "left"
                 :on-click      #(dispatch [:wizard/toggle-show-notes])}]]))
@@ -118,7 +118,7 @@
             :when (seq submodules)]
         [:div.wizard-header__submodules__group
          {:data-theme-color module-name}
-         [c/tab-group {:variant  "outline-primary"
+         [c/tab-group {:variant  "themed"
                        :on-click #(dispatch [:wizard/select-tab
                                              (merge params {:submodule (:tab %)
                                                             :module    module-name})])
@@ -655,7 +655,7 @@
            [:div.wizard-header__results-toolbar__date__label (str @(<t (bp "run_date")) ":")]
            [:div.wizard-header__results-toolbar__date__value @*ws-date]]]
          [:div.wizard-header__results-tabs
-          [c/tab-group {:variant  "outline-highlight"
+          [c/tab-group {:variant  "highlight"
                         :on-click #(dispatch [:wizard/results-select-tab %])
                         :tabs     (cond-> [{:label     "Notes"
                                             :tab       :notes

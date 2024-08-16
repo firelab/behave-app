@@ -94,7 +94,7 @@
 (defn settings-page [params]
   (let [*tab-selected (rf/subscribe [:state [:settings :units :current-tab]])]
     [:div.settings
-     [c/tab-group {:variant  "outline-secondary"
+     [c/tab-group {:variant  "secondary"
                    :on-click #(rf/dispatch [:state/set [:settings :units :current-tab] (:tab %)])
                    :tabs     [{:label     @(<t (bp "general_units"))
                                :tab       :general-units

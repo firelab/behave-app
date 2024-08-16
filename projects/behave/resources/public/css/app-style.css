@@ -1,19 +1,31 @@
 @charset "UTF-8";
 
 [data-theme-color="surface" i] {
-  --theme-color-2: var(--green-3);
+  --themed-tab-group-edge-color: var(--surface-primary);
+  --themed-tab-background-color: var(--surface-secondary);
+  --themed-header-bottom-border-color: var(--surface-primary);
+  --themed-header-background-color: var(--surface-secondary);
 }
 
 [data-theme-color="contain" i] {
-  --theme-color-2: var(--red-2);
+  --themed-tab-group-edge-color: var(--contain-primary);
+  --themed-tab-background-color: var(--contain-secondary);
+  --themed-header-bottom-border-color: var(--contain-primary);
+  --themed-header-background-color: var(--contain-secondary);
 }
 
 [data-theme-color="mortality" i] {
-  --theme-color-2: var(--red-3);
+  --themed-tab-group-edge-color: var(--mortality-primary);
+  --themed-tab-background-color: var(--mortality-secondary);
+  --themed-header-bottom-border-color: var(--mortality-primary);
+  --themed-header-background-color: var(--mortality-secondary);
 }
 
 [data-theme-color="crown" i] {
-  --theme-color-2: var(--orange-2);
+  --themed-tab-group-edge-color: var(--crown-primary);
+  --themed-tab-background-color: var(--crown-secondary);
+  --themed-header-bottom-border-color: var(--crown-primary);
+  --themed-header-background-color: var(--crown-secondary);
 }
 
 body {
@@ -217,7 +229,7 @@ body {
   border-radius: 8px 8px 0px 0px;
   line-height: 48px;
   text-align: center;
-  color: var(--theme-color-4);
+  color: var(--darkblue-4);
   background-color: var(--lightblue-2);
 }
 
@@ -258,7 +270,7 @@ body {
   font-weight: var(--font-weight-medium);
   text-transform: uppercase;
   color: var(--white);
-  background-color: var(--theme-color-4);
+  background-color: var(--darkblue-4);
 }
 /* -- End Working Area -- */
 
@@ -350,7 +362,7 @@ body {
   text-align: center;
   text-align: left;
   color: var(--white);
-  background-color: var(--medblue-4);
+  background-color: var(--darkblue-7);
 }
 
 .workflow-select__header__title > .tab > .button {
@@ -370,6 +382,7 @@ body {
   display: flex;
   flex-direction: row;
   padding: 13px;
+  background-color: var(--gray-1);
 }
 
 .workflow-select__content {
@@ -422,7 +435,12 @@ body {
 
 .wizard-header__io-tabs {
   position: relative;
+  margin-top: 4px;
   top: -5px;
+}
+
+.wizard-header__io-tabs > .tab-group {
+  border-top: none;
 }
 
 .wizard-header__banner {
@@ -511,9 +529,11 @@ body {
 }
 
 .wizard-group__header {
+  font-weight: var(--font-weight-bold);
   padding: 5px 18px;
-  color: white;
-  background-color: var(--theme-color-2);
+  color: var(--black);
+  background-color: var(--themed-header-background-color);
+  border-bottom: 2px solid var(--themed-header-bottom-border-color);
 }
 
 .wizard-graph__output-header,
@@ -654,8 +674,9 @@ body {
 
 .wizard-review__module {
   padding: 10px;
-  color: var(--white);
-  background: var(--theme-color-2);
+  color: var(--black);
+  background: var(--themed-header-background-color);
+  border-bottom: 2px solid var(--themed-header-bottom-border-color);
 }
 
 .wizard-review-repeat-group__input {
@@ -864,23 +885,6 @@ body {
 .help-area__tabs {
   position: relative;
   top: 11px;
-}
-
-.help-area__tabs > .tab-group > .tab > .button {
-  min-width: 0px;
-  padding: 8px;
-  border: 1px solid var(--medblue-4);
-  background-color: var(--white);
-}
-
-.help-area__tabs > .tab-group > .tab--selected > .button {
-  background-color: var(--medblue-4);
-}
-
-.help-area__tabs > .tab-group > .tab > .button:hover {
-  border-color: var(--medblue-4);
-  background-color: var(--medblue-4);
-  color: var(--white);
 }
 
 .help-area__content {
@@ -1109,7 +1113,7 @@ body {
 }
 
 .tool__close > .button:hover {
-  color: var(--theme-color-4);
+  color: var(--darkblue-4);
   background-color: var(--white);
 }
 
