@@ -75,7 +75,7 @@
 
 (defn- create-formatter [variable]
   (let [v-kind (:variable/kind variable)]
-    (if (or (= v-kind :discrete))
+    (if (= v-kind :discrete)
       (let [{llist :variable/list}  (d/pull @@vms-conn
                                             '[{:variable/list [* {:list/options [*]}]}]
                                             (:db/id variable))
