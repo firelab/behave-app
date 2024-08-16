@@ -302,52 +302,52 @@
             [:div.wizard-header__banner__icon
              [c/icon :modules]]
             [:div.wizard-header__banner__title "Review Modules"]
-            (show-or-close-notes-button @*show-notes?)]
-           [:div.wizard-review
-            [run-description ws-uuid]
-            (when @*show-notes?
-              (wizard-notes @*notes))
-            (for [module modules
-                  :let   [module-name (:module/name module)]]
-              [:div
-               [:div.wizard-review__module
-                {:data-theme-color module-name}
-                (gstring/format "%s Inputs"  @(<t (:module/translation-key module)))]
-               [:div.wizard-review__submodule
-                (for [submodule @(subscribe [:wizard/submodules-conditionally-filtered
-                                             ws-uuid
-                                             (:db/id module)
-                                             :input])
-                      :let      [edit-route (path-for routes
-                                                      :ws/wizard
-                                                      :ws-uuid   ws-uuid
-                                                      :module    (str/lower-case module-name)
-                                                      :io        :input
-                                                      :submodule (:slug submodule))]]
-                  [:<>
-                   [:div.wizard-review__submodule-header (:submodule/name submodule)]
-                   (build-groups  ws-uuid
-                                  (:submodule/groups submodule)
-                                  (partial review/input-group edit-route))])]])]
-           (when (true? @*warn-limit?)
-             [:div.wizard-warning
-              (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])
-           [:div.wizard-navigation
-            [c/button {:label    "Back"
-                       :variant  "secondary"
-                       :on-click #(dispatch [:wizard/back])}]
-            [c/button {:label         "Run"
-                       :disabled?     (or @*warn-limit?
-                                          @*missing-inputs?)
-                       :variant       "highlight"
-                       :icon-name     "arrow2"
-                       :icon-position "right"
-                       :on-click      #(do (dispatch-sync [:wizard/before-solve params])
-                                           (js/setTimeout
-                                            (fn []
-                                              (dispatch-sync [:wizard/solve params])
-                                              (dispatch-sync [:wizard/after-solve params]))
-                                            300))}]]]]]])]))
+            (show-or-close-notes-button @*show-notes?)]]
+          [:div.wizard-review
+           [run-description ws-uuid]
+           (when @*show-notes?
+             (wizard-notes @*notes))
+           (for [module modules
+                 :let   [module-name (:module/name module)]]
+             [:div
+              [:div.wizard-review__module
+               {:data-theme-color module-name}
+               (gstring/format "%s Inputs"  @(<t (:module/translation-key module)))]
+              [:div.wizard-review__submodule
+               (for [submodule @(subscribe [:wizard/submodules-conditionally-filtered
+                                            ws-uuid
+                                            (:db/id module)
+                                            :input])
+                     :let      [edit-route (path-for routes
+                                                     :ws/wizard
+                                                     :ws-uuid   ws-uuid
+                                                     :module    (str/lower-case module-name)
+                                                     :io        :input
+                                                     :submodule (:slug submodule))]]
+                 [:<>
+                  [:div.wizard-review__submodule-header (:submodule/name submodule)]
+                  (build-groups  ws-uuid
+                                 (:submodule/groups submodule)
+                                 (partial review/input-group edit-route))])]])]
+          (when (true? @*warn-limit?)
+            [:div.wizard-warning
+             (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])
+          [:div.wizard-navigation
+           [c/button {:label    "Back"
+                      :variant  "secondary"
+                      :on-click #(dispatch [:wizard/back])}]
+           [c/button {:label         "Run"
+                      :disabled?     (or @*warn-limit?
+                                         @*missing-inputs?)
+                      :variant       "highlight"
+                      :icon-name     "arrow2"
+                      :icon-position "right"
+                      :on-click      #(do (dispatch-sync [:wizard/before-solve params])
+                                          (js/setTimeout
+                                           (fn []
+                                             (dispatch-sync [:wizard/solve params])
+                                             (dispatch-sync [:wizard/after-solve params]))
+                                           300))}]]]]])]))
 
 ;; Wizard Results Settings
 
@@ -688,7 +688,7 @@
                                            :tab       :diagram
                                            :icon-name :graphs
                                            :selected? (= @*tab-selected :diagram)} ))}]]]
-        [:div.wizard-page__body
+        [:div.review-wizard-page__body
          [:div.wizard-results__notes {:id "notes"}
           (wizard-notes @*notes)]
          [:div.wizard-notes__header {:id "inputs"}

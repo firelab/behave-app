@@ -73,6 +73,7 @@ body {
 
 .page__main {
   display: flex;
+  height: 825px;
   padding: 170px 0px 40px;
 }
 
@@ -186,6 +187,7 @@ body {
 }
 
 .sidebar-group:not(:first-child) {
+  height: 100%;
   margin-top: 20px;
 }
 
@@ -246,6 +248,8 @@ body {
   margin-right: 30px;
   margin-left: 30px;
   border-radius: 8px 8px 0px 0px;
+  background-color: var(--white);
+  box-shadow: 0px 2px 3px var(--gray-4);
 }
 
 .working-area--sidebar-hidden {
@@ -382,17 +386,23 @@ body {
 
 .workflow-select__content {
   overflow-x: hidden;
-  overflow-y: scroll;
+  overflow-y: auto;
   padding-top: 15px;
   background-color: var(--white);
 }
 
 .workflow-select__content__name {
+  margin-top: 20px;
   padding: 15px;
+}
+
+.workflow-select__content .card-group {
+  row-gap: 19px;
 }
 
 .workflow-select__content .card-group__card .card {
   min-width: 70%;
+  min-height: 100%;
 }
 
 .workflow-select__content .module-icon__hover-mask {
@@ -535,10 +545,17 @@ body {
 }
 
 .wizard-page__body {
-  overflow-x: scroll;
-  overflow-y: scroll;
+  overflow-x: auto;
+  overflow-y: auto;
   width: 100%;
-  height: 540px;
+  max-height: 575px;
+}
+
+.review-wizard-page__body {
+  overflow-x: auto;
+  overflow-y: auto;
+  width: 100%;
+  max-height: 495px;
 }
 
 /* .wizard-io { */
@@ -845,6 +862,9 @@ body {
 .help-area {
   width: 400px;
   min-width: 400px;
+  border-radius: 8px 8px 0px 0px;
+  background-color: var(--white);
+  box-shadow: 0px 2px 3px var(--gray-4);
 }
 
 .help-area__tabs-container {
