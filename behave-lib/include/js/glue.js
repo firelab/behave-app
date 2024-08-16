@@ -74,15 +74,15 @@ var ensureCache = {
   temps: [], // extra allocations
   needed: 0, // the total size we need next time
 
-  prepare: function() {
+  prepare() {
     if (ensureCache.needed) {
       // clear the temps
       for (var i = 0; i < ensureCache.temps.length; i++) {
-        Module['_free'](ensureCache.temps[i]);
+        Module['_webidl_free'](ensureCache.temps[i]);
       }
       ensureCache.temps.length = 0;
       // prepare to allocate a bigger buffer
-      Module['_free'](ensureCache.buffer);
+      Module['_webidl_free'](ensureCache.buffer);
       ensureCache.buffer = 0;
       ensureCache.size += ensureCache.needed;
       // clean up
@@ -90,12 +90,12 @@ var ensureCache = {
     }
     if (!ensureCache.buffer) { // happens first time, or when we need to grow
       ensureCache.size += 128; // heuristic, avoid many small grow events
-      ensureCache.buffer = Module['_malloc'](ensureCache.size);
+      ensureCache.buffer = Module['_webidl_malloc'](ensureCache.size);
       assert(ensureCache.buffer);
     }
     ensureCache.pos = 0;
   },
-  alloc: function(array, view) {
+  alloc(array, view) {
     assert(ensureCache.buffer);
     var bytes = view.BYTES_PER_ELEMENT;
     var len = array.length * bytes;
@@ -105,7 +105,7 @@ var ensureCache = {
       // we failed to allocate in the buffer, ensureCache time around :(
       assert(len > 0); // null terminator, at least
       ensureCache.needed += len;
-      ret = Module['_malloc'](len);
+      ret = Module['_webidl_malloc'](len);
       ensureCache.temps.push(ret);
     } else {
       // we can allocate in the buffer
@@ -114,7 +114,7 @@ var ensureCache = {
     }
     return ret;
   },
-  copy: function(array, view, offset) {
+  copy(array, view, offset) {
     offset >>>= 0;
     var bytes = view.BYTES_PER_ELEMENT;
     switch (bytes) {
@@ -5589,8 +5589,7 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
 (function() {
   function setupEnums() {
     
-
-    // AreaUnits_AreaUnitsEnum
+// $AreaUnits_AreaUnitsEnum
 
     Module['AreaUnits']['SquareFeet'] = _emscripten_enum_AreaUnits_AreaUnitsEnum_SquareFeet();
 
@@ -5605,24 +5604,21 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['AreaUnits']['SquareKilometers'] = _emscripten_enum_AreaUnits_AreaUnitsEnum_SquareKilometers();
 
     
-
-    // BasalAreaUnits_BasalAreaUnitsEnum
+// $BasalAreaUnits_BasalAreaUnitsEnum
 
     Module['BasalAreaUnits']['SquareFeetPerAcre'] = _emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareFeetPerAcre();
 
     Module['BasalAreaUnits']['SquareMetersPerHectare'] = _emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareMetersPerHectare();
 
     
-
-    // FractionUnits_FractionUnitsEnum
+// $FractionUnits_FractionUnitsEnum
 
     Module['FractionUnits']['Fraction'] = _emscripten_enum_FractionUnits_FractionUnitsEnum_Fraction();
 
     Module['FractionUnits']['Percent'] = _emscripten_enum_FractionUnits_FractionUnitsEnum_Percent();
 
     
-
-    // LengthUnits_LengthUnitsEnum
+// $LengthUnits_LengthUnitsEnum
 
     Module['LengthUnits']['Feet'] = _emscripten_enum_LengthUnits_LengthUnitsEnum_Feet();
 
@@ -5641,8 +5637,7 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['LengthUnits']['Kilometers'] = _emscripten_enum_LengthUnits_LengthUnitsEnum_Kilometers();
 
     
-
-    // LoadingUnits_LoadingUnitsEnum
+// $LoadingUnits_LoadingUnitsEnum
 
     Module['LoadingUnits']['PoundsPerSquareFoot'] = _emscripten_enum_LoadingUnits_LoadingUnitsEnum_PoundsPerSquareFoot();
 
@@ -5653,8 +5648,7 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['LoadingUnits']['KilogramsPerSquareMeter'] = _emscripten_enum_LoadingUnits_LoadingUnitsEnum_KilogramsPerSquareMeter();
 
     
-
-    // SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum
+// $SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum
 
     Module['SurfaceAreaToVolumeUnits']['SquareFeetOverCubicFeet'] = _emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareFeetOverCubicFeet();
 
@@ -5665,8 +5659,7 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['SurfaceAreaToVolumeUnits']['SquareCentimetersOverCubicCentimeters'] = _emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareCentimetersOverCubicCentimeters();
 
     
-
-    // SpeedUnits_SpeedUnitsEnum
+// $SpeedUnits_SpeedUnitsEnum
 
     Module['SpeedUnits']['FeetPerMinute'] = _emscripten_enum_SpeedUnits_SpeedUnitsEnum_FeetPerMinute();
 
@@ -5681,8 +5674,7 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['SpeedUnits']['KilometersPerHour'] = _emscripten_enum_SpeedUnits_SpeedUnitsEnum_KilometersPerHour();
 
     
-
-    // PressureUnits_PressureUnitsEnum
+// $PressureUnits_PressureUnitsEnum
 
     Module['PressureUnits']['Pascal'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_Pascal();
 
@@ -5703,40 +5695,35 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['PressureUnits']['PoundPerSquareInch'] = _emscripten_enum_PressureUnits_PressureUnitsEnum_PoundPerSquareInch();
 
     
-
-    // SlopeUnits_SlopeUnitsEnum
+// $SlopeUnits_SlopeUnitsEnum
 
     Module['SlopeUnits']['Degrees'] = _emscripten_enum_SlopeUnits_SlopeUnitsEnum_Degrees();
 
     Module['SlopeUnits']['Percent'] = _emscripten_enum_SlopeUnits_SlopeUnitsEnum_Percent();
 
     
-
-    // DensityUnits_DensityUnitsEnum
+// $DensityUnits_DensityUnitsEnum
 
     Module['DensityUnits']['PoundsPerCubicFoot'] = _emscripten_enum_DensityUnits_DensityUnitsEnum_PoundsPerCubicFoot();
 
     Module['DensityUnits']['KilogramsPerCubicMeter'] = _emscripten_enum_DensityUnits_DensityUnitsEnum_KilogramsPerCubicMeter();
 
     
-
-    // HeatOfCombustionUnits_HeatOfCombustionUnitsEnum
+// $HeatOfCombustionUnits_HeatOfCombustionUnitsEnum
 
     Module['HeatOfCombustionUnits']['BtusPerPound'] = _emscripten_enum_HeatOfCombustionUnits_HeatOfCombustionUnitsEnum_BtusPerPound();
 
     Module['HeatOfCombustionUnits']['KilojoulesPerKilogram'] = _emscripten_enum_HeatOfCombustionUnits_HeatOfCombustionUnitsEnum_KilojoulesPerKilogram();
 
     
-
-    // HeatSinkUnits_HeatSinkUnitsEnum
+// $HeatSinkUnits_HeatSinkUnitsEnum
 
     Module['HeatSinkUnits']['BtusPerCubicFoot'] = _emscripten_enum_HeatSinkUnits_HeatSinkUnitsEnum_BtusPerCubicFoot();
 
     Module['HeatSinkUnits']['KilojoulesPerCubicMeter'] = _emscripten_enum_HeatSinkUnits_HeatSinkUnitsEnum_KilojoulesPerCubicMeter();
 
     
-
-    // HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum
+// $HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum
 
     Module['HeatPerUnitAreaUnits']['BtusPerSquareFoot'] = _emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_BtusPerSquareFoot();
 
@@ -5745,8 +5732,7 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['HeatPerUnitAreaUnits']['KilowattSecondsPerSquareMeter'] = _emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_KilowattSecondsPerSquareMeter();
 
     
-
-    // HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum
+// $HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum
 
     Module['HeatSourceAndReactionIntensityUnits']['BtusPerSquareFootPerMinute'] = _emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_BtusPerSquareFootPerMinute();
 
@@ -5759,8 +5745,7 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['HeatSourceAndReactionIntensityUnits']['KilowattsPerSquareMeter'] = _emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_KilowattsPerSquareMeter();
 
     
-
-    // FirelineIntensityUnits_FirelineIntensityUnitsEnum
+// $FirelineIntensityUnits_FirelineIntensityUnitsEnum
 
     Module['FirelineIntensityUnits']['BtusPerFootPerSecond'] = _emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_BtusPerFootPerSecond();
 
@@ -5773,8 +5758,7 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['FirelineIntensityUnits']['KilowattsPerMeter'] = _emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_KilowattsPerMeter();
 
     
-
-    // TemperatureUnits_TemperatureUnitsEnum
+// $TemperatureUnits_TemperatureUnitsEnum
 
     Module['TemperatureUnits']['Fahrenheit'] = _emscripten_enum_TemperatureUnits_TemperatureUnitsEnum_Fahrenheit();
 
@@ -5783,8 +5767,7 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['TemperatureUnits']['Kelvin'] = _emscripten_enum_TemperatureUnits_TemperatureUnitsEnum_Kelvin();
 
     
-
-    // TimeUnits_TimeUnitsEnum
+// $TimeUnits_TimeUnitsEnum
 
     Module['TimeUnits']['Minutes'] = _emscripten_enum_TimeUnits_TimeUnitsEnum_Minutes();
 
@@ -5793,16 +5776,14 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['TimeUnits']['Hours'] = _emscripten_enum_TimeUnits_TimeUnitsEnum_Hours();
 
     
-
-    // ContainTactic_ContainTacticEnum
+// $ContainTactic_ContainTacticEnum
 
     Module['HeadAttack'] = _emscripten_enum_ContainTactic_ContainTacticEnum_HeadAttack();
 
     Module['RearAttack'] = _emscripten_enum_ContainTactic_ContainTacticEnum_RearAttack();
 
     
-
-    // ContainStatus_ContainStatusEnum
+// $ContainStatus_ContainStatusEnum
 
     Module['Unreported'] = _emscripten_enum_ContainStatus_ContainStatusEnum_Unreported();
 
@@ -5823,8 +5804,7 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['TimeLimitExceeded'] = _emscripten_enum_ContainStatus_ContainStatusEnum_TimeLimitExceeded();
 
     
-
-    // ContainFlank_ContainFlankEnum
+// $ContainFlank_ContainFlankEnum
 
     Module['LeftFlank'] = _emscripten_enum_ContainFlank_ContainFlankEnum_LeftFlank();
 
@@ -5835,8 +5815,7 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['NeitherFlank'] = _emscripten_enum_ContainFlank_ContainFlankEnum_NeitherFlank();
 
     
-
-    // IgnitionFuelBedType_IgnitionFuelBedTypeEnum
+// $IgnitionFuelBedType_IgnitionFuelBedTypeEnum
 
     Module['PonderosaPineLitter'] = _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PonderosaPineLitter();
 
@@ -5855,8 +5834,7 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['PeatMoss'] = _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PeatMoss();
 
     
-
-    // LightningCharge_LightningChargeEnum
+// $LightningCharge_LightningChargeEnum
 
     Module['Negative'] = _emscripten_enum_LightningCharge_LightningChargeEnum_Negative();
 
@@ -5865,16 +5843,14 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['Unknown'] = _emscripten_enum_LightningCharge_LightningChargeEnum_Unknown();
 
     
-
-    // SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum
+// $SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum
 
     Module['CLOSED'] = _emscripten_enum_SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum_CLOSED();
 
     Module['OPEN'] = _emscripten_enum_SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum_OPEN();
 
     
-
-    // SpotTreeSpecies_SpotTreeSpeciesEnum
+// $SpotTreeSpecies_SpotTreeSpeciesEnum
 
     Module['ENGELMANN_SPRUCE'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_ENGELMANN_SPRUCE();
 
@@ -5905,8 +5881,7 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['LOBLOLLY_PINE'] = _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LOBLOLLY_PINE();
 
     
-
-    // SpotFireLocation_SpotFireLocationEnum
+// $SpotFireLocation_SpotFireLocationEnum
 
     Module['MIDSLOPE_WINDWARD'] = _emscripten_enum_SpotFireLocation_SpotFireLocationEnum_MIDSLOPE_WINDWARD();
 
@@ -5917,16 +5892,14 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['RIDGE_TOP'] = _emscripten_enum_SpotFireLocation_SpotFireLocationEnum_RIDGE_TOP();
 
     
-
-    // FuelLifeState_FuelLifeStateEnum
+// $FuelLifeState_FuelLifeStateEnum
 
     Module['Dead'] = _emscripten_enum_FuelLifeState_FuelLifeStateEnum_Dead();
 
     Module['Live'] = _emscripten_enum_FuelLifeState_FuelLifeStateEnum_Live();
 
     
-
-    // FuelConstantsEnum_FuelConstantsEnum
+// $FuelConstantsEnum_FuelConstantsEnum
 
     Module['MaxLifeStates'] = _emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxLifeStates();
 
@@ -5941,16 +5914,14 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['MaxFuelModels'] = _emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxFuelModels();
 
     
-
-    // AspenFireSeverity_AspenFireSeverityEnum
+// $AspenFireSeverity_AspenFireSeverityEnum
 
     Module['Low'] = _emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Low();
 
     Module['Moderate'] = _emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Moderate();
 
     
-
-    // ChaparralFuelType_ChaparralFuelTypeEnum
+// $ChaparralFuelType_ChaparralFuelTypeEnum
 
     Module['NotSet'] = _emscripten_enum_ChaparralFuelType_ChaparralFuelTypeEnum_NotSet();
 
@@ -5959,16 +5930,14 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['MixedBrush'] = _emscripten_enum_ChaparralFuelType_ChaparralFuelTypeEnum_MixedBrush();
 
     
-
-    // ChaparralFuelLoadInputMode_ChaparralFuelInputLoadModeEnum
+// $ChaparralFuelLoadInputMode_ChaparralFuelInputLoadModeEnum
 
     Module['DirectFuelLoad'] = _emscripten_enum_ChaparralFuelLoadInputMode_ChaparralFuelInputLoadModeEnum_DirectFuelLoad();
 
     Module['FuelLoadFromDepthAndChaparralType'] = _emscripten_enum_ChaparralFuelLoadInputMode_ChaparralFuelInputLoadModeEnum_FuelLoadFromDepthAndChaparralType();
 
     
-
-    // MoistureInputMode_MoistureInputModeEnum
+// $MoistureInputMode_MoistureInputModeEnum
 
     Module['BySizeClass'] = _emscripten_enum_MoistureInputMode_MoistureInputModeEnum_BySizeClass();
 
@@ -5981,8 +5950,7 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['MoistureScenario'] = _emscripten_enum_MoistureInputMode_MoistureInputModeEnum_MoistureScenario();
 
     
-
-    // MoistureClassInput_MoistureClassInputEnum
+// $MoistureClassInput_MoistureClassInputEnum
 
     Module['OneHour'] = _emscripten_enum_MoistureClassInput_MoistureClassInputEnum_OneHour();
 
@@ -5999,16 +5967,14 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['LiveAggregate'] = _emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveAggregate();
 
     
-
-    // SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum
+// $SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum
 
     Module['FromIgnitionPoint'] = _emscripten_enum_SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum_FromIgnitionPoint();
 
     Module['FromPerimeter'] = _emscripten_enum_SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum_FromPerimeter();
 
     
-
-    // TwoFuelModelsMethod_TwoFuelModelsMethodEnum
+// $TwoFuelModelsMethod_TwoFuelModelsMethodEnum
 
     Module['NoMethod'] = _emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_NoMethod();
 
@@ -6019,16 +5985,14 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['TwoDimensional'] = _emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_TwoDimensional();
 
     
-
-    // WindAdjustmentFactorShelterMethod_WindAdjustmentFactorShelterMethodEnum
+// $WindAdjustmentFactorShelterMethod_WindAdjustmentFactorShelterMethodEnum
 
     Module['Unsheltered'] = _emscripten_enum_WindAdjustmentFactorShelterMethod_WindAdjustmentFactorShelterMethodEnum_Unsheltered();
 
     Module['Sheltered'] = _emscripten_enum_WindAdjustmentFactorShelterMethod_WindAdjustmentFactorShelterMethodEnum_Sheltered();
 
     
-
-    // WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum
+// $WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum
 
     Module['UserInput'] = _emscripten_enum_WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum_UserInput();
 
@@ -6037,16 +6001,14 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['DontUseCrownRatio'] = _emscripten_enum_WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum_DontUseCrownRatio();
 
     
-
-    // WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum
+// $WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum
 
     Module['RelativeToUpslope'] = _emscripten_enum_WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum_RelativeToUpslope();
 
     Module['RelativeToNorth'] = _emscripten_enum_WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum_RelativeToNorth();
 
     
-
-    // WindHeightInputMode_WindHeightInputModeEnum
+// $WindHeightInputMode_WindHeightInputModeEnum
 
     Module['DirectMidflame'] = _emscripten_enum_WindHeightInputMode_WindHeightInputModeEnum_DirectMidflame();
 
@@ -6055,24 +6017,21 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['TenMeter'] = _emscripten_enum_WindHeightInputMode_WindHeightInputModeEnum_TenMeter();
 
     
-
-    // WindUpslopeAlignmentMode
+// $WindUpslopeAlignmentMode
 
     Module['NotAligned'] = _emscripten_enum_WindUpslopeAlignmentMode_NotAligned();
 
     Module['Aligned'] = _emscripten_enum_WindUpslopeAlignmentMode_Aligned();
 
     
-
-    // SurfaceRunInDirectionOf
+// $SurfaceRunInDirectionOf
 
     Module['MaxSpread'] = _emscripten_enum_SurfaceRunInDirectionOf_MaxSpread();
 
     Module['DirectionOfInterest'] = _emscripten_enum_SurfaceRunInDirectionOf_DirectionOfInterest();
 
     
-
-    // FireType_FireTypeEnum
+// $FireType_FireTypeEnum
 
     Module['Surface'] = _emscripten_enum_FireType_FireTypeEnum_Surface();
 
@@ -6083,8 +6042,7 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['Crowning'] = _emscripten_enum_FireType_FireTypeEnum_Crowning();
 
     
-
-    // BeetleDamage
+// $BeetleDamage
 
     Module['not_set'] = _emscripten_enum_BeetleDamage_not_set();
 
@@ -6093,16 +6051,14 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['yes'] = _emscripten_enum_BeetleDamage_yes();
 
     
-
-    // CrownFireCalculationMethod
+// $CrownFireCalculationMethod
 
     Module['rothermel'] = _emscripten_enum_CrownFireCalculationMethod_rothermel();
 
     Module['scott_and_reinhardt'] = _emscripten_enum_CrownFireCalculationMethod_scott_and_reinhardt();
 
     
-
-    // CrownDamageEquationCode
+// $CrownDamageEquationCode
 
     Module['not_set'] = _emscripten_enum_CrownDamageEquationCode_not_set();
 
@@ -6129,8 +6085,7 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['douglas_fir'] = _emscripten_enum_CrownDamageEquationCode_douglas_fir();
 
     
-
-    // CrownDamageType
+// $CrownDamageType
 
     Module['not_set'] = _emscripten_enum_CrownDamageType_not_set();
 
@@ -6141,8 +6096,7 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['crown_kill'] = _emscripten_enum_CrownDamageType_crown_kill();
 
     
-
-    // EquationType
+// $EquationType
 
     Module['not_set'] = _emscripten_enum_EquationType_not_set();
 
@@ -6153,8 +6107,7 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['crown_damage'] = _emscripten_enum_EquationType_crown_damage();
 
     
-
-    // FireSeverity
+// $FireSeverity
 
     Module['not_set'] = _emscripten_enum_FireSeverity_not_set();
 
@@ -6163,16 +6116,14 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['low'] = _emscripten_enum_FireSeverity_low();
 
     
-
-    // FlameLengthOrScorchHeightSwitch
+// $FlameLengthOrScorchHeightSwitch
 
     Module['flame_length'] = _emscripten_enum_FlameLengthOrScorchHeightSwitch_flame_length();
 
     Module['scorch_height'] = _emscripten_enum_FlameLengthOrScorchHeightSwitch_scorch_height();
 
     
-
-    // RegionCode
+// $RegionCode
 
     Module['interior_west'] = _emscripten_enum_RegionCode_interior_west();
 
@@ -6183,8 +6134,7 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['south_east'] = _emscripten_enum_RegionCode_south_east();
 
     
-
-    // RequiredFieldNames
+// $RequiredFieldNames
 
     Module['region'] = _emscripten_enum_RequiredFieldNames_region();
 
@@ -6215,8 +6165,7 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['num_inputs'] = _emscripten_enum_RequiredFieldNames_num_inputs();
 
     
-
-    // FDFMToolAspectIndex_AspectIndexEnum
+// $FDFMToolAspectIndex_AspectIndexEnum
 
     Module['NORTH'] = _emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_NORTH();
 
@@ -6227,8 +6176,7 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['WEST'] = _emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_WEST();
 
     
-
-    // FDFMToolDryBulbIndex_DryBulbIndexEnum
+// $FDFMToolDryBulbIndex_DryBulbIndexEnum
 
     Module['TEN_TO_TWENTY_NINE_DEGREES_F'] = _emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_TEN_TO_TWENTY_NINE_DEGREES_F();
 
@@ -6243,8 +6191,7 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['GREATER_THAN_ONE_HUNDRED_NINE_DEGREES_F'] = _emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_GREATER_THAN_ONE_HUNDRED_NINE_DEGREES_F();
 
     
-
-    // FDFMToolElevationIndex_ElevationIndexEnum
+// $FDFMToolElevationIndex_ElevationIndexEnum
 
     Module['BELOW_1000_TO_2000_FT'] = _emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_BELOW_1000_TO_2000_FT();
 
@@ -6253,8 +6200,7 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['ABOVE_1000_TO_2000_FT'] = _emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_ABOVE_1000_TO_2000_FT();
 
     
-
-    // FDFMToolMonthIndex_MonthIndexEnum
+// $FDFMToolMonthIndex_MonthIndexEnum
 
     Module['MAY_JUNE_JULY'] = _emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_MAY_JUNE_JULY();
 
@@ -6263,8 +6209,7 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['NOV_DEC_JAN'] = _emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_NOV_DEC_JAN();
 
     
-
-    // FDFMToolRHIndex_RHIndexEnum
+// $FDFMToolRHIndex_RHIndexEnum
 
     Module['ZERO_TO_FOUR_PERCENT'] = _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_ZERO_TO_FOUR_PERCENT();
 
@@ -6309,24 +6254,21 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['ONE_HUNDRED_PERCENT'] = _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_ONE_HUNDRED_PERCENT();
 
     
-
-    // FDFMToolShadingIndex_ShadingIndexEnum
+// $FDFMToolShadingIndex_ShadingIndexEnum
 
     Module['EXPOSED'] = _emscripten_enum_FDFMToolShadingIndex_ShadingIndexEnum_EXPOSED();
 
     Module['SHADED'] = _emscripten_enum_FDFMToolShadingIndex_ShadingIndexEnum_SHADED();
 
     
-
-    // FDFMToolSlopeIndex_SlopeIndexEnum
+// $FDFMToolSlopeIndex_SlopeIndexEnum
 
     Module['ZERO_TO_THIRTY_PERCENT'] = _emscripten_enum_FDFMToolSlopeIndex_SlopeIndexEnum_ZERO_TO_THIRTY_PERCENT();
 
     Module['GREATER_THAN_OR_EQUAL_TO_THIRTY_ONE_PERCENT'] = _emscripten_enum_FDFMToolSlopeIndex_SlopeIndexEnum_GREATER_THAN_OR_EQUAL_TO_THIRTY_ONE_PERCENT();
 
     
-
-    // FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum
+// $FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum
 
     Module['EIGHT_HUNDRED_HOURS_TO_NINE_HUNDRED_FIFTY_NINE'] = _emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_EIGHT_HUNDRED_HOURS_TO_NINE_HUNDRED_FIFTY_NINE();
 
@@ -6341,8 +6283,7 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['EIGHTTEEN_HUNDRED_HOURS_TO_SUNSET'] = _emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_EIGHTTEEN_HUNDRED_HOURS_TO_SUNSET();
 
     
-
-    // RepresentativeFraction_RepresentativeFractionEnum
+// $RepresentativeFraction_RepresentativeFractionEnum
 
     Module['NINTEEN_HUNDRED_EIGHTY'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_NINTEEN_HUNDRED_EIGHTY();
 
@@ -6381,8 +6322,7 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['ONE_MILLION_THIRTEEN_THOUSAND_SEVEN_HUNDRED_SIXTY'] = _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_MILLION_THIRTEEN_THOUSAND_SEVEN_HUNDRED_SIXTY();
 
     
-
-    // HorizontalDistanceIndex_HorizontalDistanceIndexEnum
+// $HorizontalDistanceIndex_HorizontalDistanceIndexEnum
 
     Module['UPSLOPE_ZERO_DEGREES'] = _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_UPSLOPE_ZERO_DEGREES();
 
