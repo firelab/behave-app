@@ -601,7 +601,6 @@ p {
 
 /* -- Tab Group Variants -- */
 
-.tab-group--primary.tab-group--flat-edge-bottom,
 .tab-group--primary.tab-group--flat-edge-bottom {
   border-bottom: 4px solid var(--darkblue-7);
 }

@@ -229,7 +229,7 @@ body {
   border-radius: 8px 8px 0px 0px;
   line-height: 48px;
   text-align: center;
-  color: var(--theme-color-4);
+  color: var(--darkblue-4);
   background-color: var(--lightblue-2);
 }
 
@@ -270,7 +270,7 @@ body {
   font-weight: var(--font-weight-medium);
   text-transform: uppercase;
   color: var(--white);
-  background-color: var(--theme-color-4);
+  background-color: var(--darkblue-4);
 }
 /* -- End Working Area -- */
 
@@ -382,6 +382,7 @@ body {
   display: flex;
   flex-direction: row;
   padding: 13px;
+  background-color: var(--gray-1);
 }
 
 .workflow-select__content {
@@ -434,7 +435,12 @@ body {
 
 .wizard-header__io-tabs {
   position: relative;
+  margin-top: 4px;
   top: -5px;
+}
+
+.wizard-header__io-tabs > .tab-group {
+  border-top: none;
 }
 
 .wizard-header__banner {
@@ -668,8 +674,9 @@ body {
 
 .wizard-review__module {
   padding: 10px;
-  color: var(--white);
-  background: var(--theme-color-2);
+  color: var(--black);
+  background: var(--themed-header-background-color);
+  border-bottom: 2px solid var(--themed-header-bottom-border-color);
 }
 
 .wizard-review-repeat-group__input {
@@ -1106,7 +1113,7 @@ body {
 }
 
 .tool__close > .button:hover {
-  color: var(--theme-color-4);
+  color: var(--darkblue-4);
   background-color: var(--white);
 }
 

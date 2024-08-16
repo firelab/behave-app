@@ -205,9 +205,7 @@
     [:div.tool
      [:div.accordion
       [:div.accordion__header
-       [c/tab {:variant   "outline-primary"
-               :selected? true
-               :label     tool-name}]
+       tool-name
        [:div.tool__close
         [c/button {:icon-name "close"
                    :on-click  #(rf/dispatch [:tool/close-tool])
@@ -215,7 +213,7 @@
                    :variant   "secondary"}]]]
       [:div.accordion__body
        (when (> (count subtools) 1)
-         [c/tab-group {:variant  "outline-primary"
+         [c/tab-group {:variant  "primary"
                        :on-click #(rf/dispatch [:tool/select-subtool (:tab %)])
                        :tabs     (map (fn [{s-name :subtool/name s-uuid :bp/uuid}]
                                         {:label     s-name
