@@ -687,3 +687,91 @@ Module.VaporPressureDeficitCalculator = class {
     setRelativeHumidity() {}
     getVaporPressureDeficit() {}
 };
+
+// Units
+
+Module.AreaUnits = class {
+  toBaseUnits() {}
+  fromBaseUnits() {}
+};
+
+Module.BasalAreaUnits = class {
+  toBaseUnits() {}
+  fromBaseUnits() {}
+};
+
+Module.FractionUnits = class {
+  toBaseUnits() {}
+  fromBaseUnits() {}
+};
+
+Module.LengthUnits = class {
+  toBaseUnits() {}
+  fromBaseUnits() {}
+};
+
+Module.LoadingUnits = class {
+  toBaseUnits() {}
+  fromBaseUnits() {}
+};
+
+Module.SurfaceAreaToVolumeUnits = class {
+  toBaseUnits() {}
+  fromBaseUnits() {}
+};
+
+Module.SpeedUnits = class {
+  toBaseUnits() {}
+  fromBaseUnits() {}
+};
+
+Module.PressureUnits = class {
+  toBaseUnits() {}
+  fromBaseUnits() {}
+};
+
+Module.SlopeUnits = class {
+  toBaseUnits() {}
+  fromBaseUnits() {}
+};
+
+Module.DensityUnits = class {
+  toBaseUnits() {}
+  fromBaseUnits() {}
+};
+
+
+Module.HeatOfCombustionUnits = class {
+  toBaseUnits() {}
+  fromBaseUnits() {}
+};
+
+Module.HeatSinkUnits = class {
+  toBaseUnits() {}
+  fromBaseUnits() {}
+};
+
+Module.HeatPerUnitAreaUnits = class {
+  toBaseUnits() {}
+  fromBaseUnits() {}
+};
+
+Module.HeatSourceAndReactionIntensityUnits = class {
+  toBaseUnits() {}
+  fromBaseUnits() {}
+};
+
+Module.FirelineIntensityUnits = class {
+  toBaseUnits() {}
+  fromBaseUnits() {}
+};
+
+Module.TemperatureUnits = class {
+  toBaseUnits() {}
+  fromBaseUnits() {}
+};
+
+Module.TimeUnits = class {
+  toBaseUnits() {}
+  fromBaseUnits() {}
+};
