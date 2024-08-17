@@ -1291,6 +1291,7 @@ p {
 }
 
 .input-text__error {
+  margin-top: 0.5em;
   color: var(--error);
   font-size: var(--font-size-10);
 }

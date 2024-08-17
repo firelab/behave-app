@@ -1,13 +1,10 @@
 (ns behave.components.input-group
   (:require [reagent.core            :as r]
             [re-frame.core           :as rf]
-            [goog.string             :as gstring]
             [behave.components.core  :as c]
             [dom-utils.interface     :refer [input-value]]
             [data-utils.core         :refer-macros [vmap]]
-            [number-utils.interface  :refer [is-numeric? parse-float]]
             [string-utils.interface  :refer [->kebab]]
-            [behave.lib.units        :refer [convert]]
             [behave.translate        :refer [<t bp]]
             [behave.utils            :refer [inclusive-range]]
             [behave.components.unit-selector :refer [unit-display]]
@@ -21,42 +18,6 @@
 (defn- highlight-help-section [help-key]
   (rf/dispatch [:help/highlight-section help-key]))
 
-(defn- in-range?
-  "Identifies if a value `v` is within `v-min` and `v-max`."
-  [v-min v-max v]
-  (and (not (neg? v))
-       (cond
-         (and (some? v-max) (some? v-min))
-         (<= v-min v v-max)
-
-         (some? v-min)
-         (<= v-min v)
-
-         (some? v-max)
-         (<= 0 v v-max))))
-
-(defn- values-in-range?
-  [var-min var-max v]
-  (if (empty? v) true
-      (let [values (->> (str/split (str v) #"[, ]") (remove empty?))]
-        (and (every? is-numeric? values)
-             (every? (partial in-range? var-min var-max) (map parse-float values))))))
-
-(defn- invalid-values-error-msg
-  [v-min v-max]
-  (let [msg (cond
-              (and v-min v-max)
-              ["Error: Value(s) are not within range (min: %,2f, max: %,2f)" v-min v-max]
-
-              v-min
-              ["Error: Value(s) are not within range (min: %,2f)" v-min]
-
-              v-max
-              ["Error: Value(s) are not within range (min: %,2f, min: %,2f)" 0 v-max]
-
-              :else
-              ["Error: Value(s) are not positive." 0 v-max])]
-    (apply gstring/format msg)))
 
 ;;; Components
 
@@ -68,8 +29,8 @@
 (defmethod wizard-input nil [variable] (println [:NO-KIND-VAR variable]))
 
 (defmethod wizard-input :continuous [{gv-uuid           :bp/uuid
-                                      var-max           :variable/maximum
                                       var-min           :variable/minimum
+                                      var-max           :variable/maximum
                                       dimension-uuid    :variable/dimension-uuid
                                       domain-uuid       :variable/domain-uuid
                                       native-unit-uuid  :variable/native-unit-uuid
@@ -93,7 +54,9 @@
                                         (rf/dispatch [:wizard/update-input-units
                                                       (vmap ws-uuid group-uuid repeat-id gv-uuid value new-units-uuid old-units-uuid)]))
                show-range-selector? (rf/subscribe [:wizard/show-range-selector? gv-uuid repeat-id])]
-    (let [value-atom (r/atom @value)]
+    (let [value-atom         (r/atom @value)
+          *outside-range?    (rf/subscribe [:wizard/outside-range? native-unit-uuid @*unit-uuid var-min var-max @value])
+          *outside-range-msg (rf/subscribe [:wizard/outside-range-error-msg native-unit-uuid @*unit-uuid var-min var-max])]
       [:div
        [:div.wizard-input
         [:div.wizard-input__input
@@ -106,10 +69,8 @@
                         :placeholder  (when repeat-group? "Values")
                         :value-atom   value-atom
                         :required?    true
-                        :min          var-min
-                        :max          var-max
-                        :error?       warn-limit?
-                        :error-msg    (invalid-values-error-msg var-min var-max)
+                        :error?       (or warn-limit? @*outside-range?)
+                        :error-msg    @*outside-range-msg
                         :on-change    #(reset! value-atom (input-value %))
                         :on-key-press (fn [event]
                                         (when-not (contains? acceptable-char-codes (.-charCode event))

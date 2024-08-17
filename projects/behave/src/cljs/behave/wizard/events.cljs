@@ -5,6 +5,7 @@
             [behave.vms.store              :as vms]
             [behave.store                  :as s]
             [bidi.bidi                     :refer [path-for]]
+            [goog.string                   :as gstring]
             [clojure.string                :as str]
             [clojure.walk                  :refer [postwalk]]
             [datascript.core               :as d]
@@ -12,6 +13,23 @@
             [number-utils.interface        :refer [is-numeric? parse-float]]
             [string-utils.interface        :refer [->str]]
             [vimsical.re-frame.cofx.inject :as inject]))
+
+;;; Helpers
+
+(defn- convert-values
+  [from to v & [precision]]
+  {:pre [(string? from) (string? to) (or (nil? v) (string? v))]}
+  (if (empty? v)
+    nil
+    (let [convert-fn #(convert % from to)
+          values     (->> (str/split (str v) #"[, ]")
+                      (remove empty?))]
+      (when (every? is-numeric? values)
+        (->> (map (comp convert-fn parse-float) values)
+             (map #(.toFixed % (or precision 2)))
+             (str/join ","))))))
+
+;;; Subscriptions
 
 (rf/reg-event-fx
  :wizard/select-tab
@@ -234,8 +252,7 @@
    (let [new-unit-short-code    (:unit/short-code (vms/entity-from-uuid new-units-uuid))
          old-unit-short-code    (:unit/short-code (vms/entity-from-uuid old-units-uuid))
          different-unit-chosen? (not= new-unit-short-code old-unit-short-code)
-         new-value              (when (is-numeric? value)
-                                  (convert (parse-float value) old-unit-short-code new-unit-short-code))
+         new-value              (convert-values old-unit-short-code new-unit-short-code value)
          effects                (cond-> [[:dispatch [:worksheet/update-input-units
                                                      ws-uuid group-uuid repeat-id gv-uuid new-units-uuid]]]
 
