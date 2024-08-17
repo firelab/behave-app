@@ -67,7 +67,7 @@
    {:short "psi"         :system "english" :enum enum/pressure-units                :dimension :pressure-units          :unit "PoundPerSquareInch"}])
 
 (def ^:private metric-units
-  [{:short "cm"       :system "metric" :enum enum/length-units                  :dimension :length                  :unit "centimeters"}
+  [{:short "cm"       :system "metric" :enum enum/length-units                  :dimension :length                  :unit "Centimeters"}
    {:short "ha"       :system "metric" :enum enum/area-units                    :dimension :area                    :unit "Hectares"}
    {:short "kJ/kg"    :system "metric" :enum enum/heat-combustion-units         :dimension :heat-combustion         :unit "KilojoulesPerKilogram"}
    {:short "kJ/m2"    :system "metric" :enum enum/heat-unit-per-unit-area-units :dimension :heat-unit-per-unit-area :unit "KilojoulesPerSquareMeter"}

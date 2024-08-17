@@ -1,9 +1,13 @@
 (ns behave.components.input-group
   (:require [reagent.core            :as r]
             [re-frame.core           :as rf]
+            [goog.string             :as gstring]
             [behave.components.core  :as c]
             [dom-utils.interface     :refer [input-value]]
+            [data-utils.core         :refer-macros [vmap]]
+            [number-utils.interface  :refer [is-numeric? parse-float]]
             [string-utils.interface  :refer [->kebab]]
+            [behave.lib.units        :refer [convert]]
             [behave.translate        :refer [<t bp]]
             [behave.utils            :refer [inclusive-range]]
             [behave.components.unit-selector :refer [unit-display]]
@@ -11,11 +15,48 @@
 
 ;;; Helpers
 
-(defn upsert-input [ws-uuid group-uuid repeat-id gv-uuid value & [units]]
+(defn- upsert-input [ws-uuid group-uuid repeat-id gv-uuid value & [units]]
   (rf/dispatch [:wizard/upsert-input-variable ws-uuid group-uuid repeat-id gv-uuid value units]))
 
-(defn highlight-help-section [help-key]
+(defn- highlight-help-section [help-key]
   (rf/dispatch [:help/highlight-section help-key]))
+
+(defn- in-range?
+  "Identifies if a value `v` is within `v-min` and `v-max`."
+  [v-min v-max v]
+  (and (not (neg? v))
+       (cond
+         (and (some? v-max) (some? v-min))
+         (<= v-min v v-max)
+
+         (some? v-min)
+         (<= v-min v)
+
+         (some? v-max)
+         (<= 0 v v-max))))
+
+(defn- values-in-range?
+  [var-min var-max v]
+  (if (empty? v) true
+      (let [values (->> (str/split (str v) #"[, ]") (remove empty?))]
+        (and (every? is-numeric? values)
+             (every? (partial in-range? var-min var-max) (map parse-float values))))))
+
+(defn- invalid-values-error-msg
+  [v-min v-max]
+  (let [msg (cond
+              (and v-min v-max)
+              ["Error: Value(s) are not within range (min: %,2f, max: %,2f)" v-min v-max]
+
+              v-min
+              ["Error: Value(s) are not within range (min: %,2f)" v-min]
+
+              v-max
+              ["Error: Value(s) are not within range (min: %,2f, min: %,2f)" 0 v-max]
+
+              :else
+              ["Error: Value(s) are not positive." 0 v-max])]
+    (apply gstring/format msg)))
 
 ;;; Components
 
@@ -41,11 +82,16 @@
                                      repeat-group?]
   (r/with-let [*domain               (rf/subscribe [:vms/entity-from-uuid domain-uuid])
                value                 (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id gv-uuid])
+               native-unit-uuid      (or (:domain/native-unit-uuid @*domain) native-unit-uuid)
                *unit-uuid            (rf/subscribe [:worksheet/input-units ws-uuid group-uuid repeat-id gv-uuid])
                warn-limit?           (true? @(rf/subscribe [:state :warn-multi-value-input-limit]))
                acceptable-char-codes (set (map #(.charCodeAt % 0) "0123456789., "))
                on-focus-click        (partial highlight-help-section help-key)
-               on-change-units       #(rf/dispatch [:wizard/update-input-units ws-uuid group-uuid repeat-id gv-uuid %])
+               on-change-units       #(let [new-units-uuid %
+                                            old-units-uuid (or @*unit-uuid native-unit-uuid)
+                                            value          @value]
+                                        (rf/dispatch [:wizard/update-input-units
+                                                      (vmap ws-uuid group-uuid repeat-id gv-uuid value new-units-uuid old-units-uuid)]))
                show-range-selector? (rf/subscribe [:wizard/show-range-selector? gv-uuid repeat-id])]
     (let [value-atom (r/atom @value)]
       [:div
@@ -53,7 +99,7 @@
         [:div.wizard-input__input
          {:on-click on-focus-click
           :on-focus on-focus-click}
-         [c/text-input {:id           (str repeat-id "-" uuid)
+         [c/text-input {:id           (str repeat-id "-" gv-uuid)
                         :label        (if repeat-group?
                                         @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
                                         "Values:")
@@ -63,6 +109,7 @@
                         :min          var-min
                         :max          var-max
                         :error?       warn-limit?
+                        :error-msg    (invalid-values-error-msg var-min var-max)
                         :on-change    #(reset! value-atom (input-value %))
                         :on-key-press (fn [event]
                                         (when-not (contains? acceptable-char-codes (.-charCode event))
@@ -182,7 +229,7 @@
     [:div.wizard-input
      {:on-click on-focus-click
       :on-focus on-focus-click}
-     [c/text-input {:id            (str repeat-id "-" uuid)
+     [c/text-input {:id            (str repeat-id "-" gv-uuid)
                     :label         (if repeat-group?
                                      @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
                                      "Values:")
