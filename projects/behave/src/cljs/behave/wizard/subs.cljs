@@ -35,7 +35,7 @@
 
 (defn- values-in-range?
   [var-min var-max v]
-  {:pre [(number? var-min) (number? var-max) (or (nil? v) (string? v))]}
+  {:pre [(or (nil? v) (string? v))]}
   (if (empty? v)
     true
     (let [values (->> (str/split (str v) #"[, ]") (remove empty?))]
