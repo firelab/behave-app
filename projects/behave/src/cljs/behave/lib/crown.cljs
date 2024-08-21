@@ -75,8 +75,8 @@
 (defn getCrownFractionBurned [self]
   (.getCrownFractionBurned self))
 
-(defn getCrownRatio [self]
-  (.getCrownRatio self))
+(defn getCrownRatio [self crownRatioUnits]
+  (.getCrownRatio self crownRatioUnits))
 
 (defn getCrownTransitionRatio [self]
   (.getCrownTransitionRatio self))
@@ -267,8 +267,8 @@
 (defn setCrownFireCalculationMethod [self CrownFireCalculationMethod]
   (.setCrownFireCalculationMethod self CrownFireCalculationMethod))
 
-(defn setCrownRatio [self crownRatio]
-  (.setCrownRatio self crownRatio))
+(defn setCrownRatio [self crownRatio crownRatioUnits]
+  (.setCrownRatio self crownRatio crownRatioUnits))
 
 (defn setElapsedTime [self elapsedTime timeUnits]
   (.setElapsedTime self elapsedTime timeUnits))

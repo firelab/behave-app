@@ -58,11 +58,11 @@ void SIGMortality::setTreeHeight(double treeHeight, LengthUnits::LengthUnitsEnum
     flanking_.setTreeHeight(treeHeight, treeHeightUnits);
 }
 
-void SIGMortality::setCrownRatio(double crownRatio)
+void SIGMortality::setCrownRatio(double crownRatio, FractionUnits::FractionUnitsEnum crownRatioUnits)
 {
-    heading_.setCrownRatio(crownRatio);
-    backing_.setCrownRatio(crownRatio);
-    flanking_.setCrownRatio(crownRatio);
+    heading_.setCrownRatio(crownRatio, crownRatioUnits);
+    backing_.setCrownRatio(crownRatio, crownRatioUnits);
+    flanking_.setCrownRatio(crownRatio, crownRatioUnits);
 }
 
 void SIGMortality::setDBH(double dbh, LengthUnits::LengthUnitsEnum diameterUnits)

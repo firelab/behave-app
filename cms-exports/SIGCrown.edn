@@ -397,7 +397,8 @@
    :setCrownRatio
    {:type "void",
     :id "setCrownRatio",
-    :parameters [{:id "crownRatio", :type "double"}]},
+    :parameters [{:id "crownRatio", :type "double"}
+                 {:id "crownRatioUnits", :type "FractionUnits::FractionUnitsEnum"}]},
    :getFuelLoadTenHour
    {:type "double",
     :id "getFuelLoadTenHour",
@@ -425,7 +426,9 @@
    :doCrownRunRothermel
    {:type "void", :id "doCrownRunRothermel", :parameters []},
    :getCrownRatio
-   {:type "double", :id "getCrownRatio", :parameters []},
+   {:type "double", :id "getCrownRatio",
+    :parameters
+    [{:id "crownRatioUnits", :type "FractionUnits::FractionUnitsEnum"}]},
    :getCanopyBaseHeight
    {:type "double",
     :id "getCanopyBaseHeight",
