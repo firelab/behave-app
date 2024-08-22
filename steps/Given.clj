@@ -13,12 +13,12 @@
    [:mortality]          "Mortality Only"})
 
 (defn- select-independent-worksheet
-  [modules {:keys [driver]}]
+  [modules {:keys [driver url]}]
   (w/maximize driver)
 
   (if (= "https://behave-dev.sig-gis.com" (w/execute-script! driver "window.location.href"))
     (w/execute-script! driver "window.location.href = window.location.href")
-    (w/goto driver "https://behave-dev.sig-gis.com"))
+    (w/goto driver url))
 
   (let [wait (w/wait driver 5000)]
     (.until wait (w/presence-of (by/css ".card__header"))))

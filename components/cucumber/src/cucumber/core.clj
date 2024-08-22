@@ -21,6 +21,11 @@
     :default "chrome"
     :parse-fn #(s/lower-case %)
     :validate [#(contains? (:browsers valid-options) %) (str "Must be one of: " (:browsers valid-options))]]
+   [nil "--url" "URL to run the tests on."
+    :id :url
+    :validate [#(string? %) "Must be a string"]]
+   [nil "--browser-path" "Path to the browser executable (e.g. '/usr/bin/google-chrome')"
+    :id :browser-path]
    ["-r" "--remote" "Run using a remote driver"]
    [nil "--browser-version BROWSER VERSION" "Browser version to test in Remote Driver (-r), defaults to '88.0'"
     :id :browser-version

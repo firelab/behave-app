@@ -63,9 +63,9 @@
 
 (defn chrome-driver
   "Instatiate a Chrome WebDriver."
-  [_]
+  [{:keys [browser-path]}]
   (let [options (ChromeOptions.)]
-    (.setBinary    options "/usr/bin/google-chrome")
+    (when browser-path (.setBinary options browser-path))
     (.addArguments options (into-array
                             ["start-maximized"         ; // open Browser in maximized mode
                              "disable-infobars"        ; // disabling infobars
