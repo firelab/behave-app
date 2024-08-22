@@ -23,4 +23,5 @@
    {:db/ident       :cpp.function/parameter
     :db/doc         "Function's parameters."
     :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/many}])
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}])

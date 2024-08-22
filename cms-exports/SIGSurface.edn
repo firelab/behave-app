@@ -743,7 +743,8 @@
    :setCrownRatio
    {:type "void",
     :id "setCrownRatio",
-    :parameters [{:id "crownRatio", :type "double"}]},
+    :parameters [{:id "crownRatio", :type "double"}
+                 {:id "crownRatioUnits", :type "FractionUnits::FractionUnitsEnum"}]},
    :getFuelLoadTenHour
    {:type "double",
     :id "getFuelLoadTenHour",
@@ -823,7 +824,9 @@
     :parameters
     [{:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}]},
    :getCrownRatio
-   {:type "double", :id "getCrownRatio", :parameters []},
+   {:type "double", :id "getCrownRatio",
+    :parameters
+    [{:id "crownRatioUnits", :type "FractionUnits::FractionUnitsEnum"}]},
    :getIsUsingChaparral
    {:type "bool", :id "getIsUsingChaparral", :parameters []},
    :getMoistureScenarioDescriptionByIndex
