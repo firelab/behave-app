@@ -4,7 +4,8 @@
 
 #_{:clj-kondo/ignore [:missing-docstring]}
 (do
-  (require '[behave-cms.server        :as cms]
+  (require '[clojure.set              :as set]
+           '[behave-cms.server        :as cms]
            '[datomic.api              :as d]
            '[datomic-store.main       :as ds]
            '[schema-migrate.interface :as sm])
@@ -12,6 +13,10 @@
   (cms/init-db!)
 
   (def db (d/db @ds/datomic-conn))
+
+  ;; Helpers
+  (defn sets-to-vector [sets]
+    (vec (apply set/union sets)))
 
   ;; Wind and Slope Groups
 
@@ -42,6 +47,18 @@
       "behaveplus:crown:output:size:spread_distance:spread_distance"]
      (map (partial sm/t-key->uuid db))))
 
+  ;; Crown Fire Type Outputs
+
+  (def crown-fire-type-groups
+    [(sm/t-key->eid db "behaveplus:crown:output:fire_type:active_or_independent_crown_fire")
+     (sm/t-key->eid db "behaveplus:crown:output:fire_type:transition_to_crown_fire")])
+
+  (def crown-fire-type-outputs
+    (->> (map (partial d/entity db) crown-fire-type-groups)
+         (map :group/group-variables)
+         (flatten)
+         (sets-to-vector)
+         (map :bp/uuid)))
 
   ;; Add Conditionals
   (def wind-and-slope-are-conds-tx
@@ -49,14 +66,14 @@
      wind-and-slope-are-group-eid
 
      :group/conditionals
-     (mapv #(sm/->gv-conditional % :equal "true") (concat surface-size-outputs crown-fire-size-outputs))})
+     (mapv #(sm/->gv-conditional % :equal "true") (concat surface-size-outputs crown-fire-size-outputs crown-fire-type-outputs))})
 
   (def slope-conds-tx
     {:db/id
     slope-group-eid
 
      :group/conditionals
-     (mapv #(sm/->gv-conditional % :equal "true") (concat surface-size-outputs crown-fire-size-outputs))})
+     (mapv #(sm/->gv-conditional % :equal "true") (concat surface-size-outputs crown-fire-size-outputs crown-fire-type-outputs))})
 
   (comment
     (def tx (d/transact @ds/datomic-conn [wind-and-slope-are-conds-tx slope-conds-tx]))
