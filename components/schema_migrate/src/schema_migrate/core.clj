@@ -1,10 +1,11 @@
 (ns schema-migrate.core
   (:require
-   [clojure.walk :as walk]
-   [datascript.core :refer [squuid]]
-   [datomic.api :as d]
+   [clojure.walk       :as walk]
+   [clojure.string     :as str]
+   [datascript.core    :refer [squuid]]
+   [datomic.api        :as d]
    [datomic-store.main :as ds]
-   [nano-id.core :refer [nano-id]]))
+   [nano-id.core       :refer [nano-id]]))
 
 (def
   ^{:doc "Random UUID in string format."}
@@ -129,6 +130,19 @@
             t)
        (d/entity (ds/unwrap-db conn))))
 
+(defn eid->t-key
+  "Returns an entity's translation key."
+  [conn eid]
+  (d/q '[:find ?k .
+         :in $ ?e
+         :where
+         (or
+          [?e :application/translation-key ?k]
+          [?e :module/translation-key ?k]
+          [?e :submodule/translation-key ?k]
+          [?e :group/translation-key ?k]
+          [?e :group-variable/translation-key ?k])] (d/db conn) eid))
+
 (defn t-key->uuid
   "Get the :bp/uuid using translation-key"
   [conn t]
@@ -226,6 +240,20 @@
                                     :language/translation (map :db/id translations)}]
      (into [language-translation-refs]
            translations))))
+
+(defn remove-nested-i18ns-tx
+  "Removes an entity (and it's components), along with all nested
+   translation keys."
+  [conn t-key]
+  (let [i18ns (d/q '[:find [?e ...]
+                     :in $ ?t-key
+                     :where
+                     [?e :translation/key ?key]
+                     (or
+                      [(= ?key ?t-key)]
+                      [(clojure.string/starts-with? ?key ?t-key)])] (d/db conn) t-key)]
+
+    (map (fn [eid] [:db/retractEntity eid]) i18ns)))
 
 (defn ->gv-conditional
   "Payload for a Group Variable Conditional."
