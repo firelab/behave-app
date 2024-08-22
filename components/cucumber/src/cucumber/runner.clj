@@ -7,7 +7,16 @@
    [tegere.runner      :refer [run]]
    [cucumber.webdriver :as w]))
 
+;; Debug
+
+(def ^:private driver-atom (atom nil))
+
 ;; Step processing
+
+(defn- get-driver [{:keys [debug?] :as opts}]
+  (if debug?
+    (or @driver-atom (reset! driver-atom (w/driver opts)))
+    (w/driver opts)))
 
 (defn load-steps!
   "Loads a directory of steps."
@@ -21,24 +30,46 @@
          (catch Exception e
            (println (format "Unable to load namespace: %s \n %s" step-file (.getMessage e)))))))))
 
+
 (defn run-cucumber-tests
   "Runs cucumber tests "
-  [{:keys [features steps] :as opts}]
+  [{:keys [features steps url debug?] :as opts}]
 
   (when steps
     (load-steps! (io/file steps)))
 
-  (let [driver (w/driver opts)]
+  (let [driver (get-driver opts)]
+    (println [:WEBDRIVER ]driver)
     (run (load-feature-files (io/file features))
       @registry
       {}
-      {:initial-ctx {:driver driver}})
-    ;; Do something with output
-    #_(w/quit driver)))
+      {:initial-ctx {:driver driver :url url}})
+
+      ;; Do something with output
+
+      ;; Quit Driver
+      (when-not debug?
+        (w/quit driver))))
 
 
 (comment
-  (run-cucumber-tests {:features "./../../features"
-                       :steps    "./../../steps"
-                       :browser  :chrome})
- )
+
+  (load-steps! (io/file "./../../steps"))
+
+  ;; Mac
+  (run-cucumber-tests {;; :debug?   true
+                       :features "./../../features"
+                       ;; :steps    "./../../steps"
+                       :browser  :chrome
+                       :url      "http://localhost:8081/worksheets"})
+
+  (get-driver {:debug? true :browser :chrome})
+
+  ;; Linux
+  (run-cucumber-tests {:debug?       true
+                       :features     "./../../features"
+                       :steps        "./../../steps"
+                       :browser      :chrome
+                       :browser-path "/usr/bin/google-chrome"
+                       :url          "http://localhost:8081/worksheets"})
+  )

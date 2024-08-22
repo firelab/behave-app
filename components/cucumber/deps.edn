@@ -1,4 +1,4 @@
-{:paths   ["src" "resources"]
+{:paths   ["src" "resources" "../../steps"]
  :deps    {org.seleniumhq.selenium/selenium-java {:mvn/version "4.23.0"}
            tegere/tegere                         {:mvn/version "0.1.5"}}
  :aliases {:cucumber {:main-opts ["-m" "cucumber.core"]}
