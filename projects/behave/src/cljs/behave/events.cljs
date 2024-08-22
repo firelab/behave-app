@@ -159,7 +159,8 @@
 (rf/reg-fx
  :browser/scroll-top
  (fn [_ _]
-   (scroll-top!)))
+   (scroll-top!)
+   (scroll-top! (.querySelector js/window ".wizard-page__body"))))
 
 ;;; Translations
 

@@ -100,9 +100,11 @@
   (jump-to-url! "/login"))
 
 (defn scroll-top!
-  "Scroll to top of the window."
-  []
-  (.scrollTo js/window 0 0))
+  "Scroll to top of the window or an HTML element."
+  ([]
+   (.scrollTo js/window 0 0))
+  ([e]
+   (set! (- .scrollTop e) 0)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Utility Functions - Debouncers
