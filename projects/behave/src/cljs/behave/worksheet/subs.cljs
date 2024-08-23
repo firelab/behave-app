@@ -916,17 +916,9 @@
                                :where
                                [?ws :worksheet/uuid ?ws-uuid]
                                [?ws :worksheet/result-table ?t]
-                               [?t  :result-table/rows ?rr]
-                               [?rr :result-row/cells ?c]
-
-                               ;; Filter only input variables
-                               [?ig :input-group/inputs ?i]
-                               [?i  :input/group-variable-uuid ?gv-uuid]
-
-                               ;; Get  gv-uuid, value and units
-                               [?rh :result-header/group-variable-uuid ?gv-uuid]
-                               [?rh :result-header/units ?units]
-                               [?c  :result-cell/header ?rh]]
+                               [?t  :result-table/headers ?h]
+                               [?h  :result-header/group-variable-uuid ?gv-uuid]
+                               [?h  :result-header/units ?units]]
                              @@s/conn ws-uuid)]
      (into {} gv-uuids+units))))
 
