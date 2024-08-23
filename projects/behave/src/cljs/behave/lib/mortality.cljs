@@ -83,8 +83,8 @@
 (defn getCrownDamageType [self]
   (.getCrownDamageType self))
 
-(defn getCrownRatio [self]
-  (.getCrownRatio self))
+(defn getCrownRatio [self crownRatioUnits]
+  (.getCrownRatio self crownRatioUnits))
 
 (defn getCrownScorchOrBoleCharEquationNumber [self]
   (.getCrownScorchOrBoleCharEquationNumber self))
@@ -233,8 +233,8 @@
 (defn setCrownDamage [self crownDamage]
   (.setCrownDamage self crownDamage))
 
-(defn setCrownRatio [self crownRatio]
-  (.setCrownRatio self crownRatio))
+(defn setCrownRatio [self crownRatio crownRatioUnits]
+  (.setCrownRatio self crownRatio crownRatioUnits))
 
 (defn setDBH [self dbh diameterUnits]
   (.setDBH self dbh diameterUnits))

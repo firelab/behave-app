@@ -613,7 +613,7 @@ interface SIGSurface {
   [Const] double getCharacteristicMoistureDead(FractionUnits_FractionUnitsEnum moistureUnits);
   [Const] double getCharacteristicMoistureLive(FractionUnits_FractionUnitsEnum moistureUnits);
   [Const] double getCharacteristicSAVR(SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum savrUnits);
-  [Const] double getCrownRatio();
+  [Const] double getCrownRatio(FractionUnits_FractionUnitsEnum crownRatioUnits);
   [Const] double getDirectionOfMaxSpread();
   [Const] double getDirectionOfInterest();
   [Const] double getDirectionOfBacking();
@@ -721,7 +721,7 @@ interface SIGSurface {
   void setChaparralFuelLoadInputMode(ChaparralFuelLoadInputMode_ChaparralFuelInputLoadModeEnum fuelLoadInputMode);
   void setChaparralFuelType(ChaparralFuelType_ChaparralFuelTypeEnum chaparralFuelType);
   void setChaparralTotalFuelLoad(double chaparralTotalFuelLoad, LoadingUnits_LoadingUnitsEnum fuelLoadUnits);
-  void setCrownRatio(double crownRatio);
+  void setCrownRatio(double crownRatio, FractionUnits_FractionUnitsEnum crownRatioUnits);
   void setDirectionOfInterest(double directionOfInterest);
   void setElapsedTime(double elapsedTime, TimeUnits_TimeUnitsEnum timeUnits);
   void setFirstFuelModelNumber(long firstFuelModelNumber);
@@ -753,10 +753,10 @@ interface SIGSurface {
   void setWindDirection(double windDirection);
   void setWindHeightInputMode(WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode);
   void setWindSpeed(double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits);
-  void updateSurfaceInputs(long fuelModelNumber, double moistureOneHour, double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody, FractionUnits_FractionUnitsEnum moistureUnits, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double windDirection, WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double slope, SlopeUnits_SlopeUnitsEnum slopeUnits, double aspect, double canopyCover, FractionUnits_FractionUnitsEnum coverUnits, double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits, double crownRatio);
-  void updateSurfaceInputsForPalmettoGallbery(double moistureOneHour, double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody, FractionUnits_FractionUnitsEnum moistureUnits, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double windDirection, WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double ageOfRough, double heightOfUnderstory, double palmettoCoverage, double overstoryBasalArea, BasalAreaUnits_BasalAreaUnitsEnum basalAreaUnits, double slope, SlopeUnits_SlopeUnitsEnum slopeUnits, double aspect, double canopyCover, FractionUnits_FractionUnitsEnum coverUnits, double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits, double crownRatio);
-  void updateSurfaceInputsForTwoFuelModels(long firstFuelModelNumber, long secondFuelModelNumber, double moistureOneHour, double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody, FractionUnits_FractionUnitsEnum moistureUnits, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double windDirection, WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double firstFuelModelCoverage, FractionUnits_FractionUnitsEnum firstFuelModelCoverageUnits, TwoFuelModelsMethod_TwoFuelModelsMethodEnum twoFuelModelsMethod, double slope, SlopeUnits_SlopeUnitsEnum slopeUnits, double aspect, double canopyCover, FractionUnits_FractionUnitsEnum canopyFractionUnits, double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits, double crownRatio);
-  void updateSurfaceInputsForWesternAspen(long aspenFuelModelNumber, double aspenCuringLevel, FractionUnits_FractionUnitsEnum curingLevelUnits, AspenFireSeverity_AspenFireSeverityEnum aspenFireSeverity, double dbh, LengthUnits_LengthUnitsEnum dbhUnits, double moistureOneHour, double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody, FractionUnits_FractionUnitsEnum moistureUnits, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double windDirection, WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double slope, SlopeUnits_SlopeUnitsEnum slopeUnits, double aspect, double canopyCover, FractionUnits_FractionUnitsEnum coverUnits, double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits, double crownRatio);
+  void updateSurfaceInputs(long fuelModelNumber, double moistureOneHour, double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody, FractionUnits_FractionUnitsEnum moistureUnits, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double windDirection, WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double slope, SlopeUnits_SlopeUnitsEnum slopeUnits, double aspect, double canopyCover, FractionUnits_FractionUnitsEnum coverUnits, double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits, double crownRatio, FractionUnits_FractionUnitsEnum crownRatioUnits);
+  void updateSurfaceInputsForPalmettoGallbery(double moistureOneHour, double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody, FractionUnits_FractionUnitsEnum moistureUnits, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double windDirection, WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double ageOfRough, double heightOfUnderstory, double palmettoCoverage, double overstoryBasalArea, BasalAreaUnits_BasalAreaUnitsEnum basalAreaUnits, double slope, SlopeUnits_SlopeUnitsEnum slopeUnits, double aspect, double canopyCover, FractionUnits_FractionUnitsEnum coverUnits, double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits, double crownRatio, FractionUnits_FractionUnitsEnum crownRatioUnits);
+  void updateSurfaceInputsForTwoFuelModels(long firstFuelModelNumber, long secondFuelModelNumber, double moistureOneHour, double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody, FractionUnits_FractionUnitsEnum moistureUnits, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double windDirection, WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double firstFuelModelCoverage, FractionUnits_FractionUnitsEnum firstFuelModelCoverageUnits, TwoFuelModelsMethod_TwoFuelModelsMethodEnum twoFuelModelsMethod, double slope, SlopeUnits_SlopeUnitsEnum slopeUnits, double aspect, double canopyCover, FractionUnits_FractionUnitsEnum canopyFractionUnits, double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits, double crownRatio, FractionUnits_FractionUnitsEnum crownRatioUnitso);
+  void updateSurfaceInputsForWesternAspen(long aspenFuelModelNumber, double aspenCuringLevel, FractionUnits_FractionUnitsEnum curingLevelUnits, AspenFireSeverity_AspenFireSeverityEnum aspenFireSeverity, double dbh, LengthUnits_LengthUnitsEnum dbhUnits, double moistureOneHour, double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody, FractionUnits_FractionUnitsEnum moistureUnits, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double windDirection, WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double slope, SlopeUnits_SlopeUnitsEnum slopeUnits, double aspect, double canopyCover, FractionUnits_FractionUnitsEnum coverUnits, double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits, double crownRatio, FractionUnits_FractionUnitsEnum crownRatioUnits);
   void setFuelModelNumber(long fuelModelNumber);
 };
 
@@ -917,7 +917,7 @@ interface SIGCrown {
   [Const] double getCrownFirelineIntensity(FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits);
   [Const] double getCrownFlameLength(LengthUnits_LengthUnitsEnum flameLengthUnits);
   [Const] double getCrownFractionBurned();
-  [Const] double getCrownRatio();
+  [Const] double getCrownRatio(FractionUnits_FractionUnitsEnum crownRatioUnits);
   [Const] double getFinalFirelineIntesity(FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits);
   [Const] double getFinalHeatPerUnitArea(HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum heatPerUnitAreaUnits);
   [Const] double getFinalSpreadRate(SpeedUnits_SpeedUnitsEnum spreadRateUnits);
@@ -974,7 +974,7 @@ interface SIGCrown {
   void setCanopyBulkDensity(double canopyBulkDensity, DensityUnits_DensityUnitsEnum densityUnits);
   void setCanopyCover(double canopyCover, FractionUnits_FractionUnitsEnum coverUnits);
   void setCanopyHeight(double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits);
-  void setCrownRatio(double crownRatio);
+  void setCrownRatio(double crownRatio, FractionUnits_FractionUnitsEnum crownRatioUnits);
   void setFuelModelNumber(long fuelModelNumber);
   void setCrownFireCalculationMethod(CrownFireCalculationMethod CrownFireCalculationMethod);
   void setElapsedTime(double elapsedTime, TimeUnits_TimeUnitsEnum timeUnits);
@@ -996,8 +996,8 @@ interface SIGCrown {
   void setWindDirection(double windDirection);
   void setWindHeightInputMode(WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode);
   void setWindSpeed(double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits);
-  void updateCrownInputs(long fuelModelNumber, double moistureOneHour, double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody, double moistureFoliar, FractionUnits_FractionUnitsEnum moistureUnits, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double windDirection, WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double slope, SlopeUnits_SlopeUnitsEnum slopeUnits, double aspect, double canopyCover, FractionUnits_FractionUnitsEnum coverUnits, double canopyHeight, double canopyBaseHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits, double crownRatio, double canopyBulkDensity, DensityUnits_DensityUnitsEnum densityUnits);
-  void updateCrownsSurfaceInputs(long fuelModelNumber, double moistureOneHour, double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody, FractionUnits_FractionUnitsEnum moistureUnits, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double windDirection, WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double slope, SlopeUnits_SlopeUnitsEnum slopeUnits, double aspect, double canopyCover, FractionUnits_FractionUnitsEnum coverUnits, double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits, double crownRatio);
+  void updateCrownInputs(long fuelModelNumber, double moistureOneHour, double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody, double moistureFoliar, FractionUnits_FractionUnitsEnum moistureUnits, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double windDirection, WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double slope, SlopeUnits_SlopeUnitsEnum slopeUnits, double aspect, double canopyCover, FractionUnits_FractionUnitsEnum coverUnits, double canopyHeight, double canopyBaseHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits, double crownRatio, FractionUnits_FractionUnitsEnum crownRatioUnits, double canopyBulkDensity, DensityUnits_DensityUnitsEnum densityUnits);
+  void updateCrownsSurfaceInputs(long fuelModelNumber, double moistureOneHour, double moistureTenHour, double moistureHundredHour, double moistureLiveHerbaceous, double moistureLiveWoody, FractionUnits_FractionUnitsEnum moistureUnits, double windSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode, double windDirection, WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum windAndSpreadOrientationMode, double slope, SlopeUnits_SlopeUnitsEnum slopeUnits, double aspect, double canopyCover, FractionUnits_FractionUnitsEnum coverUnits, double canopyHeight, LengthUnits_LengthUnitsEnum canopyHeightUnits, double crownRatio, FractionUnits_FractionUnitsEnum crownRatioUnits);
   double getFinalFlameLength(LengthUnits_LengthUnitsEnum flameLengthUnits);
 };
 
@@ -1057,7 +1057,7 @@ interface SIGMortality {
   [Const] double getBoleCharHeightFlanking(LengthUnits_LengthUnitsEnum boleCharHeightUnits);
   [Const] double getCambiumKillRating();
   [Const] double getCrownDamage();
-  [Const] double getCrownRatio();
+  [Const] double getCrownRatio(FractionUnits_FractionUnitsEnum crownRatioUnits);
   DOMString getCVSorCLS();
   [Const] double getDBH(LengthUnits_LengthUnitsEnum diameterUnits);
   [Const] double getFlameLength(LengthUnits_LengthUnitsEnum flameLengthUnits);
@@ -1097,7 +1097,7 @@ interface SIGMortality {
   void setBoleCharHeight(double boleCharHeight, LengthUnits_LengthUnitsEnum boleCharHeightUnits);
   void setCambiumKillRating(double cambiumKillRating);
   void setCrownDamage(double crownDamage);
-  void setCrownRatio(double crownRatio);
+  void setCrownRatio(double crownRatio, FractionUnits_FractionUnitsEnum crownRatioUnits);
   void setDBH(double dbh, LengthUnits_LengthUnitsEnum diameterUnits);
   void setEquationType(EquationType equationType);
   void setFireSeverity(FireSeverity fireSeverity);

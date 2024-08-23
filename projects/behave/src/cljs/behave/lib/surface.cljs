@@ -164,8 +164,8 @@
 (defn getCharacteristicSAVR [self savrUnits]
   (.getCharacteristicSAVR self savrUnits))
 
-(defn getCrownRatio [self]
-  (.getCrownRatio self))
+(defn getCrownRatio [self crownRatioUnits]
+  (.getCrownRatio self crownRatioUnits))
 
 (defn getDirectionOfInterest [self]
   (.getDirectionOfInterest self))
@@ -548,8 +548,8 @@
 (defn setChaparralTotalFuelLoad [self chaparralTotalFuelLoad fuelLoadUnits]
   (.setChaparralTotalFuelLoad self chaparralTotalFuelLoad fuelLoadUnits))
 
-(defn setCrownRatio [self crownRatio]
-  (.setCrownRatio self crownRatio))
+(defn setCrownRatio [self crownRatio crownRatioUnits]
+  (.setCrownRatio self crownRatio crownRatioUnits))
 
 (defn setCurrentMoistureScenarioByIndex [self value]
   (.setCurrentMoistureScenarioByIndex self value))

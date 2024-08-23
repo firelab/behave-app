@@ -222,6 +222,7 @@ void testCrownModule(int row, struct TestInfo& testInfo, CrownTestInputs& inputs
                                     inputs.canopyBaseHeight,
                                     inputs.canopyHeightUnits,
                                     inputs.crownRatio,
+                                    FractionUnits::Fraction,
                                     inputs.canopyBulkDensity,
                                     inputs.canopyBulkDensityUnits);
 

@@ -292,7 +292,8 @@ void testSurfaceModule(int row, struct TestInfo& testInfo, SurfaceTestInputs& in
                                         inputs.canopyCoverUnits,
                                         inputs.canopyHeight,
                                         inputs.canopyHeightUnits,
-                                        inputs.crownRatio);
+                                        inputs.crownRatio,
+                                        FractionUnits::Fraction);
 
   // Perform Run
   behaveRun.surface.doSurfaceRunInDirectionOfMaxSpread();
