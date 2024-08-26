@@ -28,7 +28,7 @@
    (fn [node]
      (cond->> node
        (is-collection-of-groups node)
-       (filter (fn [{conditional-op :group/conditional-operator
+       (filter (fn [{conditional-op :group/conditionals-operator
                      conditionals   :group/conditionals
                      research?      :group/research?}]
                  (and (not research?)
