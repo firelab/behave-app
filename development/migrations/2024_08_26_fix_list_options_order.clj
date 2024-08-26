@@ -14,37 +14,57 @@
 #_{:clj-kondo/ignore [:missing-docstring]}
 (def conn (default-conn))
 
-(def list-options (d/q '[:find  ?order ?name ?lo
-                         :in $
-                         :where
-                         [?l :list/name "SurfaceFuelModels"]
-                         [?l :list/options ?lo]
-                         [?lo :list-option/name ?name]
-                         [?lo :list-option/order ?order]]
-                       (d/db conn)))
+
+;; ===========================================================================================================
+;; helpers
+;; ===========================================================================================================
+
+#_{:clj-kondo/ignore [:missing-docstring]}
+(defn parse-fuel-model-name [n]
+  (map read-string (str/split (re-find #".+(?= - )" n) #"/")))
+
+;; ===========================================================================================================
+;; Build Payload
+;; ===========================================================================================================
+
+#_{:clj-kondo/ignore [:missing-docstring]}
+(def list-options
+  (d/q '[:find  ?order ?name ?lo
+         :in $
+         :where
+         [?l :list/name "SurfaceFuelModels"]
+         [?l :list/options ?lo]
+         [?lo :list-option/name ?name]
+         [?lo :list-option/order ?order]]
+       (d/db conn)))
 
 ;; handles cases when both values left and right of slashes are number (i.e. 1/1 , 2/2)
+#_{:clj-kondo/ignore [:missing-docstring]}
 (def first-group-sorted
   (->> list-options
        (filter (fn [[_ n]]
-                 (let [[v1 v2] (map read-string (str/split (re-find #".+(?= - )" n) #"/"))]
+                 (let [[v1 v2] (parse-fuel-model-name n)]
                    (and (number? v1) (number? v2)))))
        (sort-by (fn [[_ n]]
-                  (let [[v1 v2] (map read-string (str/split (re-find #".+(?= - )" n) #"/"))]
+                  (let [[v1 v2] (parse-fuel-model-name n)]
                     [v1 v2])))))
 
 ;; handles all other cases (i.e. GS1/121)
+#_{:clj-kondo/ignore [:missing-docstring]}
 (def second-group-sorted
   (->> list-options
        (remove (fn [[_ n]]
-                 (let [[v1 v2] (map read-string (str/split (re-find #".+(?= - )" n) #"/"))]
+                 (let [[v1 v2] (parse-fuel-model-name n)]
                    (and (number? v1) (number? v2)))))
        (sort-by (fn [[_ n]]
-                  (let [[v1 v2] (map read-string (str/split (re-find #".+(?= - )" n) #"/"))]
+                  (let [[v1 v2] (parse-fuel-model-name n)]
                     [v1 v2])))))
 
-(def all-list-options-sorted (concat first-group-sorted second-group-sorted))
+#_{:clj-kondo/ignore [:missing-docstring]}
+(def all-list-options-sorted
+  (concat first-group-sorted second-group-sorted))
 
+#_{:clj-kondo/ignore [:missing-docstring]}
 (def payload
   (map-indexed
    (fn [idx [_ _ eid]]
