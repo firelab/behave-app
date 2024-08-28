@@ -511,6 +511,10 @@ body {
   margin-left: 20px;
 }
 
+.wizard-header__submodules__group {
+  align-content: end;
+}
+
 .wizard-header__submodules__group:last-child {
   flex-grow: 1;
 }
