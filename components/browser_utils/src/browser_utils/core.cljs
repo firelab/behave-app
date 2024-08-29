@@ -104,7 +104,7 @@
   ([]
    (.scrollTo js/window 0 0))
   ([e]
-   (set! (- .scrollTop e) 0)))
+   (set! (.-scrollTop e) 0)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Utility Functions - Debouncers

@@ -160,7 +160,8 @@
  :browser/scroll-top
  (fn [_ _]
    (scroll-top!)
-   (scroll-top! (.querySelector js/window ".wizard-page__body"))))
+   (when-let [$wizard-body (.querySelector js/document ".wizard-page__body")]
+     (scroll-top! $wizard-body))))
 
 ;;; Translations
 
