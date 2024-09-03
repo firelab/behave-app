@@ -993,6 +993,12 @@
     :parameters
     [{:id "firelineIntensityUnits",
       :type "FirelineIntensityUnits::FirelineIntensityUnitsEnum"}]},
+   :getFirelineIntensityInDirectionOfInterest
+   {:type "double",
+    :id   "getFirelineIntensityInDirectionOfInterest",
+    :parameters
+    [{:id   "firelineIntensityUnits",
+      :type "FirelineIntensityUnits::FirelineIntensityUnitsEnum"}]}
    :getWindAdjustmentFactor
    {:type "double", :id "getWindAdjustmentFactor", :parameters []},
    :setAspenDBH
@@ -1072,6 +1078,11 @@
     :id "getFlameLength",
     :parameters
     [{:id "flameLengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :getFlameLengthInDirectionOfInterest
+   {:type "double",
+    :id   "getFlameLengthInDirectionOfInterest",
+    :parameters
+    [{:id "flameLengthUnits", :type "LengthUnits::LengthUnitsEnum"}]}
    :updateSurfaceInputsForPalmettoGallbery
    {:type "void",
     :id "updateSurfaceInputsForPalmettoGallbery",

@@ -1,7 +1,7 @@
 (ns schema-migrate.core
   (:require
    [clojure.walk       :as walk]
-   [clojure.string     :as str]
+   [clojure.string     :as s]
    [datascript.core    :refer [squuid]]
    [datomic.api        :as d]
    [datomic-store.main :as ds]
@@ -297,12 +297,13 @@
 (defn ->group-variable
   "Payload for a new Group Variable."
   [group-eid variable-eid t-key]
-  {:bp/uuid                        (rand-uuid)
-   :bp/nid                         (nano-id)
-   :group/_group-variables         group-eid
-   :variable/_group-variables      variable-eid
-   :group-variable/translation-key t-key
-   :group-variable/help-key        (str t-key ":help")})
+  {:bp/uuid                               (rand-uuid)
+   :bp/nid                                (nano-id)
+   :group/_group-variables                group-eid
+   :variable/_group-variables             variable-eid
+   :group-variable/translation-key        t-key
+   :group-variable/result-translation-key (s/replace t-key ":output:" ":result:")
+   :group-variable/help-key               (str t-key ":help")})
 
 (defn ->link
   "Payload for a new Link."

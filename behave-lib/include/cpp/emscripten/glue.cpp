@@ -1223,8 +1223,16 @@ const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getFirelineIntensit
   return self->getFirelineIntensity(firelineIntensityUnits);
 }
 
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getFirelineIntensityInDirectionOfInterest_1(SIGSurface* self, FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits) {
+  return self->getFirelineIntensityInDirectionOfInterest(firelineIntensityUnits);
+}
+
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getFlameLength_1(SIGSurface* self, LengthUnits_LengthUnitsEnum flameLengthUnits) {
   return self->getFlameLength(flameLengthUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getFlameLengthInDirectionOfInterest_1(SIGSurface* self, LengthUnits_LengthUnitsEnum flameLengthUnits) {
+  return self->getFlameLengthInDirectionOfInterest(flameLengthUnits);
 }
 
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getFlankingFirelineIntensity_1(SIGSurface* self, FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits) {

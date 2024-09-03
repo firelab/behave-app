@@ -629,7 +629,9 @@ interface SIGSurface {
   [Const] double getFireLengthToWidthRatio();
   [Const] double getFirePerimeter(LengthUnits_LengthUnitsEnum lengthUnits);
   [Const] double getFirelineIntensity(FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits);
+  [Const] double getFirelineIntensityInDirectionOfInterest(FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits);
   [Const] double getFlameLength(LengthUnits_LengthUnitsEnum flameLengthUnits);
+  [Const] double getFlameLengthInDirectionOfInterest(LengthUnits_LengthUnitsEnum flameLengthUnits);
   [Const] double getFlankingFirelineIntensity(FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits);
   [Const] double getFlankingFlameLength(LengthUnits_LengthUnitsEnum flameLengthUnits);
   [Const] double getFlankingSpreadRate(SpeedUnits_SpeedUnitsEnum spreadRateUnits);

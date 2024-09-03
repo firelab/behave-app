@@ -212,8 +212,14 @@
 (defn getFirelineIntensity [self firelineIntensityUnits]
   (.getFirelineIntensity self firelineIntensityUnits))
 
+(defn getFirelineIntensityInDirectionOfInterest [self firelineIntensityUnits]
+  (.getFirelineIntensityInDirectionOfInterest self firelineIntensityUnits))
+
 (defn getFlameLength [self flameLengthUnits]
   (.getFlameLength self flameLengthUnits))
+
+(defn getFlameLengthInDirectionOfInterest [self flameLengthUnits]
+  (.getFlameLengthInDirectionOfInterest self flameLengthUnits))
 
 (defn getFlankingDirection [self]
   (.getDirectionOfFlanking self))
