@@ -627,7 +627,7 @@ body {
 }
 
 .wizard-input__units__text {
-  font-size: var(--font-size-14);
+  font-size: var(--font-size-15);
   color: var(--gray-5);
 }
 
