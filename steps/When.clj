@@ -23,8 +23,10 @@
 
 (defn- find-groups [driver groups]
   (doseq [group groups]
-    (-> (e/find-el driver (by/css ".wizard-group__header"))
-        (e/find-el (by/attr= :text group)))))
+    (let [wait (w/wait driver 300)]
+      (.until wait (w/presence-of-nested-elements
+                    (by/css ".wizard-group__header")
+                    (by/attr= :text group))))))
 
 (defn- select-output [driver output]
   (-> (e/find-el driver (by/css ".wizard-group__outputs"))
@@ -33,8 +35,6 @@
 
 (defn- select-submodule-and-output [driver [submodule & groups]]
   (select-submodule driver submodule)
-  (let [wait (w/wait driver 5000)]
-    (.until wait (w/presence-of (by/css ".wizard"))))
   (find-groups driver (butlast groups))
   (select-output driver (last groups)))
 

@@ -40,16 +40,17 @@
 
   (let [driver (get-driver opts)]
     (println [:WEBDRIVER ]driver)
-    (run (load-feature-files (io/file features))
-      @registry
-      {}
-      {:initial-ctx {:driver driver :url url}})
+    (let [results (run (load-feature-files (io/file features))
+                    @registry
+                    {}
+                    {:initial-ctx {:driver driver :url url}})]
 
       ;; Do something with output
 
       ;; Quit Driver
       (when-not debug?
-        (w/quit driver))))
+        (w/quit driver))
+      results)))
 
 
 (comment
@@ -72,4 +73,21 @@
                        :browser      :chrome
                        :browser-path "/usr/bin/google-chrome"
                        :url          "http://localhost:8081/worksheets"})
+
+  (def run-test-10-times
+    (let [results (doall (map (fn [_]
+                                (run-cucumber-tests {:debug?       true
+                                                     :features     "./../../features"
+                                                     :steps        "./../../steps"
+                                                     :browser      :chrome
+                                                     :browser-path "/usr/bin/google-chrome"
+                                                     :url          "http://localhost:8081/worksheets"}))
+                              (range 10)))
+          failed  (apply + (map #(get-in % [:tegere.runner/outcome-summary :tegere.runner/features-failed])
+                               results))
+          passed  (apply + (map #(get-in % [:tegere.runner/outcome-summary :tegere.runner/features-passed])
+                               results))]
+      (prn "passed: " passed)
+      (prn "failed: " failed)))
+
   )

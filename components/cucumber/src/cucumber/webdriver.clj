@@ -18,6 +18,11 @@
   [^By by]
   (ExpectedConditions/presenceOfElementLocated by));
 
+(defn presence-of-nested-elements
+  "Expect the presence of a child element under a parent element."
+  [^By parent ^By child]
+  (ExpectedConditions/presenceOfNestedElementsLocatedBy parent child))
+
 (defn quit
   "Quit the webdriver."
   [^WebDriver driver]
