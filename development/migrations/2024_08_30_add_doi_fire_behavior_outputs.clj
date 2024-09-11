@@ -1,13 +1,9 @@
 (ns migrations.2024-08-30-add-doi-fire-behavior-outputs
   (:require [schema-migrate.interface :as sm]
-            [behave.schema.rules :refer [vms-rules]]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]
             [behave-cms.server :as cms]
-            [nano-id.core :refer [nano-id]]
-            [cms-import :refer [add-export-file-to-conn]]
-            [datascript.core :refer [squuid]]
-            [clojure.walk :as walk]))
+            [cms-import :refer [add-export-file-to-conn]]))
 
 ;; ===========================================================================================================
 ;; Initialize
