@@ -92,6 +92,9 @@
        uuid->entity
        :cpp.enum-member/value))
 
+(defn unit [unit-uuid]
+  (uuid->entity unit-uuid))
+
 (defn group-variable->fn
   "Given a uuid for a group-variable return a sequence of function params:
   [entity-id function-name count-of-function-parameters]."
