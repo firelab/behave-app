@@ -7,7 +7,7 @@
 
 ;;; helpers
 (defn uuid->entity
-  "Given a UUID Return a datascript entity"
+  "Given a UUID Return a datascript entity."
   [uuid_]
   (d/entity @@vms-conn [:bp/uuid uuid_]))
 
@@ -24,7 +24,8 @@
     (apply d/q query-after @@vms-conn @@store/conn rules args)))
 
 (defn variable
-  "Given a uuid for a group variable return its associated variable as a datascript entity"
+  "Given a uuid for a group-variable or subtool-variable return its associated variable as a
+  datascript entity."
   [group-variable-uuid]
   (let [group-variable-entity (uuid->entity group-variable-uuid)]
     (or (-> group-variable-entity
@@ -35,7 +36,7 @@
             first))))
 
 (defn variable-kind
-  "Given a uuid for a group variable return the `:variable/kind` of its associated variable"
+  "Given a uuid for a group variable return the `:variable/kind` of its associated variable."
   [group-variable-uuid]
   (-> group-variable-uuid
       variable
@@ -51,7 +52,7 @@
 (defn fn-params
   "Given an Function entity id, return a sequence of parameter info.
   Parameter info has the form:
-  [entity-id name type order]"
+  [entity-id name type order]."
   [function-id]
   (let [function-entity (d/entity @@vms-conn function-id)
         function-params (:cpp.function/parameter function-entity)]
@@ -64,12 +65,15 @@
          (sort-by #(nth % 3)))))
 
 (defn variable-uuid
+  "Given a uuid for a group-variable return the uuid of it's associated variable."
   [group-variable-uuid]
   (-> group-variable-uuid
       variable
       :bp/uuid))
 
 (defn variable-native-units-uuid
+  "Given a uuid for a group-variable return either the native-unit uuid from its associated domain
+  entity or from it's assocated variable entity."
   [group-variable-uuid]
   (let [var-entity (variable group-variable-uuid)]
     (or (-> var-entity
@@ -79,19 +83,18 @@
         (-> var-entity
             :variable/native-unit-uuid))))
 
-(defn unit-uuid->enum-value [unit-uuid]
+(defn unit-uuid->enum-value
+  "Given a uuid to a unit entity return the enum value for that unit."
+  [unit-uuid]
   (->> unit-uuid
        uuid->entity
        :unit/cpp-enum-member-uuid
        uuid->entity
        :cpp.enum-member/value))
 
-(defn unit [unit-uuid]
-  (d/pull @@vms-conn '[*] [:bp/uuid unit-uuid]))
-
 (defn group-variable->fn
   "Given a uuid for a group-variable return a sequence of function params:
-  [entity-id function-name count-of-function-parameters]"
+  [entity-id function-name count-of-function-parameters]."
   [group-variable-uuid]
   (let [group-variable-entity (uuid->entity group-variable-uuid)
         cpp-fn-uuid           (:group-variable/cpp-function group-variable-entity)
@@ -103,7 +106,7 @@
      (count cpp-fn-params)]))
 
 (defn subtool-variable->fn
-  "Given a uuid for a subtool-variable return a tuple of [function-eid function-name]"
+  "Given a uuid for a subtool-variable return a tuple of [function-eid function-name]."
   [subtool-variable-uuid]
   (let [subtool-variable-entity (uuid->entity subtool-variable-uuid)
         cpp-fn-uuid             (:subtool-variable/cpp-function-uuid subtool-variable-entity)
@@ -113,7 +116,7 @@
      fn-name]))
 
 (defn subtool-compute->fn-name
-  "Given a uuid for a subtool-variable return its associated function's name"
+  "Given a uuid for a subtool-variable return its associated function's name."
   [subtool-uuid]
   (-> subtool-uuid
       uuid->entity
@@ -122,14 +125,16 @@
       :cpp.function/name))
 
 (defn group-variable->group
-  "Given a uuid for a group-varible return it's parent group's uuid"
+  "Given a uuid for a group-varible return it's parent group's uuid."
   [group-variable-uuid]
   (-> group-variable-uuid
       uuid->entity
       :group/_group-variables
       :bp/uuid))
 
-(defn module-diagrams [module-name]
+(defn module-diagrams
+  "Given a module-name #{surface contain mortality crown} return a sequence of diagram entities."
+  [module-name]
   (d/q '[:find [(pull ?d [* {:diagram/group-variable [:bp/uuid]}]) ...]
          :in $ ?module-name
          :where
@@ -142,7 +147,7 @@
        module-name))
 
 (defn parameter->group-variable
-  "Given a prameter entity id return the uuid for it's associated group variable"
+  "Given a prameter entity id return the uuid for it's associated group variable."
   [parameter-id]
   (let [param-uuid (->> parameter-id
                        (d/entity @@vms-conn)
@@ -154,7 +159,10 @@
            [?gv :bp/uuid ?gv-uuid]]
           @@vms-conn param-uuid)))
 
-(defn class-to-group-variables [class-name]
+(defn class-to-group-variables
+  "Given a class-name (i.e. SIGSurface), return a list of group-variable uuids that belong to that
+  class."
+  [class-name]
   (set
    (d/q '[:find [?gv-uuid ...]
           :in $ ?class-name
@@ -165,7 +173,10 @@
           [?gv :bp/uuid ?gv-uuid]]
          @@vms-conn class-name)))
 
-(defn class-to-subtool-variables [class-name]
+(defn class-to-subtool-variables
+  "Given a class-name (i.e. SIGSlopeTool), return a list of subtool-variable uuids that belong to that
+  class."
+  [class-name]
   (set
    (d/q '[:find [?sv-uuid ...]
           :in $ ?class-name
@@ -176,7 +187,9 @@
           [?sv :bp/uuid ?sv-uuid]]
          @@vms-conn class-name)))
 
-(defn source-links [gv-uuids]
+(defn source-links
+  "Given a colleciton of group-variable uuids return a map of the given uuids to it's associated `:link/destination`."
+  [gv-uuids]
   (into {}
         (d/q '[:find ?gv-uuid ?destination-uuid
                :in $ [?gv-uuid ...]
@@ -204,10 +217,12 @@
              rules
              (vec gv-uuids))))
 
-(defn destination-links [gv-uuids]
+(defn destination-links
+  "Given a colleciton of group-variable uuids return a map of the given uuids to it's associated `:link/source`."
+  [gv-uuids]
   (into {}
         (d/q '[:find ?source-uuid ?gv-uuid
-               :in [?gv-uuid ...]
+               :in $ [?gv-uuid ...]
                :where
                [?d :bp/uuid ?gv-uuid]
                [?l :link/destination ?d]
@@ -216,9 +231,14 @@
              @@vms-conn
              (vec gv-uuids))))
 
-(defn worksheet-modules [ws-uuid]
-  (set (q-vms '[:find [?modules ...]
-                :in ?ws-uuid
-                :where
-                [$ws ?w :worksheet/uuid ?ws-uuid]
-                [$ws ?w :worksheet/modules ?modules]] ws-uuid)))
+(defn worksheet-modules
+  "Given a worksheet uuid return a sequence of modules."
+  [ws-uuid]
+  (set
+   (d/q '[:find [?modules ...]
+          :in $ ?ws-uuid
+          :where
+          [?w :worksheet/uuid ?ws-uuid]
+          [?w :worksheet/modules ?modules]]
+        @@store/conn
+        ws-uuid)))
