@@ -72,11 +72,12 @@
                                                                   :when    (seq value)]
                                                               (let [gv-uuid    (:bp/uuid (first variables))
                                                                     fmt-fn     (get formatters gv-uuid identity)
-                                                                    units-used (get gv-uuid->units gv-uuid)]
+                                                                    units-used (get gv-uuid->units gv-uuid)
+                                                                    variable-name @(subscribe [:wizard/gv-uuid->default-variable-name (:bp/uuid variable)])]
                                                                 (if (:group-variable/discrete-multiple? variable)
                                                                   (let [values (->> (str/split value ",")
                                                                                     (map fmt-fn))]
-                                                                    (into [{:input  (indent-name level (:group/name current-group))
+                                                                    (into [{:input  (indent-name (+ level 2) variable-name)
                                                                             :units  units-used
                                                                             :values (first values)}]
                                                                           (map (fn [value]
@@ -84,7 +85,7 @@
                                                                                   :units  units-used
                                                                                   :values value})
                                                                                (rest values))))
-                                                                  [{:input  (indent-name level (:group/name current-group))
+                                                                  [{:input  (indent-name (+ level 2) variable-name)
                                                                     :units  units-used
                                                                     :values (cond-> value
                                                                               (not (csv? value))
