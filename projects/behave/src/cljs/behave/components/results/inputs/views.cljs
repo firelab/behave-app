@@ -63,7 +63,7 @@
                                            (mapcat (fn [repeat-id]
                                                      (into [{:input (indent-name (inc level) (str (:group/name current-group) " " (inc repeat-id)))}]
                                                            (flatten
-                                                            (for [variable variables
+                                                            (for [variable (sort-by :group-variable/order variables)
                                                                   :let     [value @(subscribe [:worksheet/input-value
                                                                                                ws-uuid
                                                                                                (:bp/uuid current-group)
