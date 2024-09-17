@@ -8,6 +8,7 @@
             [behave.lib.mortality     :as mortality]
             [behave.lib.surface       :as surface]
             [behave.lib.spot          :as spot]
+            [behave.lib.ignite        :as ignite]
             [behave.logger            :refer [log]]
             [clojure.string           :as str]
             [clojure.set              :as set]
@@ -273,6 +274,13 @@
               :run-fn   spot/calculateAll
               :fns      (ns-publics 'behave.lib.spot)
               :gv-uuids (q/class-to-group-variables "SIGSpot")}
+             (add-links))
+
+         ignite-module
+         (-> {:init-fn  ignite/init
+              :run-fn   ignite/calculateFirebrandIgnitionProbability
+              :fns      (ns-publics 'behave.lib.ignite)
+              :gv-uuids (q/class-to-group-variables "SIGIgnite")}
              (add-links))]
 
      (->> all-inputs
@@ -301,6 +309,9 @@
 
                         (pos? (count (set/intersection modules #{:surface :crown})))
                         (run-module spot-module)
+
+                        (contains? modules :surface)
+                        (run-module ignite-module)
 
                         :always
                         (remove-source-link-outputs surface-module)
