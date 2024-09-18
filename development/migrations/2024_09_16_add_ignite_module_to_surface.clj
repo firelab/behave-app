@@ -131,6 +131,55 @@
     "behaveplus:surface:output:fire_behavior:ignition"                                        "Ignition"
     "behaveplus:surface:output:fire_behavior:probability_of_ignition:probability_of_ignition" "Probability of Ignition"}))
 
+(def add-conditionals-for-wind-input-submodule
+  [{:db/id                  (sm/t-key->eid conn "behaveplus:surface:input:wind_speed")
+    :submodule/conditionals (sm/postwalk-insert
+                             [{:conditional/group-variable-uuid (sm/t-key->uuid conn "behaveplus:surface:output:fire_behavior:surface_fire:rate_of_spread")
+                               :conditional/type                :group-variable
+                               :conditional/operator            :equal
+                               :conditional/values              ["true"]}
+
+                              {:conditional/group-variable-uuid (sm/t-key->uuid conn "behaveplus:surface:output:fire_behavior:surface_fire:flame_length")
+                               :conditional/type                :group-variable
+                               :conditional/operator            :equal
+                               :conditional/values              ["true"]}
+
+                              {:conditional/group-variable-uuid (sm/t-key->uuid conn "behaveplus:surface:output:fire_behavior:surface_fire:fireline_intensity")
+                               :conditional/type                :group-variable
+                               :conditional/operator            :equal
+                               :conditional/values              ["true"]}
+
+                              {:conditional/group-variable-uuid (sm/t-key->uuid conn "behaveplus:surface:output:size:surface___fire_size:fire_area")
+                               :conditional/type                :group-variable
+                               :conditional/operator            :equal
+                               :conditional/values              ["true"]}
+
+                              {:conditional/group-variable-uuid (sm/t-key->uuid conn "behaveplus:surface:output:size:surface___fire_size:fire_perimeter")
+                               :conditional/type                :group-variable
+                               :conditional/operator            :equal
+                               :conditional/values              ["true"]}
+
+                              {:conditional/group-variable-uuid (sm/t-key->uuid conn "behaveplus:surface:output:size:surface___fire_size:length-to-width-ratio")
+                               :conditional/type                :group-variable
+                               :conditional/operator            :equal
+                               :conditional/values              ["true"]}
+
+                              {:conditional/group-variable-uuid (sm/t-key->uuid conn "behaveplus:surface:output:size:surface___fire_size:spread-distance")
+                               :conditional/type                :group-variable
+                               :conditional/operator            :equal
+                               :conditional/values              ["true"]}
+
+                              {:conditional/group-variable-uuid (sm/t-key->uuid conn "behaveplus:surface:output:spot:maximum_spotting_distance:burning_pile")
+                               :conditional/type                :group-variable
+                               :conditional/operator            :equal
+                               :conditional/values              ["true"]}
+
+                              {:conditional/group-variable-uuid (sm/t-key->uuid conn "behaveplus:surface:output:spot:maximum_spotting_distance:wind_driven_surface_fire")
+                               :conditional/type                :group-variable
+                               :conditional/operator            :equal
+                               :conditional/values              ["true"]}])
+    :submodule/conditionals-operator :or}])
+
 ;; ===========================================================================================================
 ;; Transact Payload
 ;; ===========================================================================================================
@@ -138,7 +187,10 @@
 (comment
   (do
     #_{:clj-kondo/ignore [:missing-docstring]}
-    (def tx-data (d/transact conn (concat payload translation-payload)))
+    (def tx-data (d/transact conn (concat payload
+                                          translation-payload
+                                          add-conditionals-for-wind-input-submodule
+                                          )))
 
     #_{:clj-kondo/ignore [:missing-docstring]}
     (def add-conditional-payload
