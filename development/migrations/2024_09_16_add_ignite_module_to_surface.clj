@@ -81,7 +81,7 @@
                                                                :group-variable/result-translation-key "behaveplus:surface:result:weather:air_temperature:air_temperature"
                                                                :group-variable/help-key               "behaveplus:surface:input:weather:air_temperature:air_temperature:help"})]}
 
-                                   {:group/name "Fuel Shading from the Sun"
+                                   {:group/name            "Fuel Shading from the Sun"
                                     :group/order           0
                                     :group/translation-key "behaveplus:surface:input:weather:fuel_shading_from_the_sun"
                                     :group/group-variables [(let [cpp-uuids (sm/cpp-uuids conn {:cpp-namespace "global"
@@ -188,8 +188,7 @@
     #_{:clj-kondo/ignore [:missing-docstring]}
     (def tx-data (d/transact conn (concat payload
                                           translation-payload
-                                          add-conditionals-for-wind-input-submodule
-                                          )))
+                                          add-conditionals-for-wind-input-submodule)))
 
     #_{:clj-kondo/ignore [:missing-docstring]}
     (def add-conditional-payload
