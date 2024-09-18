@@ -24,14 +24,13 @@
 #_{:clj-kondo/ignore [:missing-docstring]}
 (def payload
   [{:db/id                 (sm/t-key->eid conn "behaveplus:surface:output:fire_behavior:surface_fire")
-    :group/order           18
     :group/group-variables (sm/postwalk-insert
                             [(let [cpp-uuids (sm/cpp-uuids conn {:cpp-namespace "global"
                                                                  :cpp-class     "SIGSurface"
                                                                  :cpp-function  "getMoistureOneHour"})]
                                {:db/id                                 -1
                                 :variable/_group-variables             (sm/name->eid conn :variable/name "1-h Fuel Moisture")
-                                :group-variable/order                  0
+                                :group-variable/order                  19
                                 :group-variable/cpp-namespace          (:cpp-namespace cpp-uuids)
                                 :group-variable/cpp-class              (:cpp-class cpp-uuids)
                                 :group-variable/cpp-function           (:cpp-function cpp-uuids)
@@ -100,7 +99,7 @@
    {:db/id            (sm/t-key->eid conn "behaveplus:surface:output:fire_behavior")
     :submodule/groups (sm/postwalk-insert
                        [{:group/name            "Ignition"
-                         :group/order           3
+                         :group/order           2
                          :group/translation-key "behaveplus:surface:output:fire_behavior:ignition"
                          :group/group-variables [(let [cpp-uuids (sm/cpp-uuids conn {:cpp-namespace "global"
                                                                                      :cpp-class     "SIGIgnite"
