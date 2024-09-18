@@ -113,6 +113,7 @@
                                                     :group-variable/result-translation-key "behaveplus:surface:result:fire_behavior:probability_of_ignition:probability_of_ignition"
                                                     :group-variable/help-key               "behaveplus:surface:output:fire_behavior:probability_of_ignition:probability_of_ignition:help"})]}])}
 
+   ;; add link from Surface > 1-h Fuel Moisture (output) > Weather > 1-h Fuel Moisture (input)
    (sm/->link -1 -2)])
 
 #_{:clj-kondo/ignore [:missing-docstring]}
