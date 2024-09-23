@@ -72,7 +72,10 @@
                                                      repeat-id
                                                      gv-uuid
                                                      @value-atom)}]]
-        [:div.wizard-input__range-selector-button
+        [:div
+         {:class [(if @show-range-selector?
+                    "wizard-input__range-selector-button--selected"
+                    "wizard-input__range-selector-button")]}
          [c/button {:variant  "secondary"
                     :label    @(<t (bp "range_selector"))
                     :on-click #(rf/dispatch [:wizard/toggle-show-range-selector gv-uuid repeat-id])}]]

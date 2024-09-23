@@ -575,7 +575,7 @@ body {
 /* } */
 
 .wizard-group__inputs {
-  padding: 25px 30px;
+  padding: 16px 12px;
 }
 
 .wizard-repeat-group__header {
@@ -597,7 +597,7 @@ body {
 
 .wizard-input {
   display:flex;
-  padding: 25px 30px;
+  align-items: center;
 }
 
 .wizard-input + .wizard-input {
@@ -613,23 +613,30 @@ body {
   padding: 5px;
 }
 
-.wizard-input__description {
+.wizard-input__units {
+  padding-left: 45px;
   width: 20%;
 }
 
-.wizard-input__description__units {
-  font-size: var(--font-size-14);
+.wizard-input__unit-selector .input-dropdown__select-wrapper {
+  margin-top: 0px;
+}
+
+.input-dropdown__select-wrapper__select {
+  height: 33px;
+}
+
+.wizard-input__units__text {
+  font-size: var(--font-size-15);
   color: var(--gray-5);
 }
 
-.wizard-input__description .button {
-  margin-top: 5px;
-  padding-bottom: 0px;
+.wizard-input__range-selector {
+  padding-top: 20px;
 }
 
-.wizard-input__range-selector-button {
-  width: 50%;
-  margin-top: 5px;
+.wizard-input__range-selector-button--selected button {
+  background-color: var(--darkblue-3);
 }
 
 /* -- Wizard review -- */
