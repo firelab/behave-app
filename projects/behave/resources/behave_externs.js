@@ -36,8 +36,8 @@ Module.SIGContainAdapter = class {
 };
 
 Module.SIGSurface = class {
-  constructor() {}
   calculateFlameLength() {}
+  constructor() {}
   doSurfaceRun() {}
   doSurfaceRunInDirectionOfInterest() {}
   doSurfaceRunInDirectionOfMaxSpread() {}
@@ -93,6 +93,8 @@ Module.SIGSurface = class {
   getDirectionOfBacking() {}
   getDirectionOfFlanking() {}
   getDirectionOfInterest() {}
+  getDirectionOfInterestFirelineIntensity() {}
+  getDirectionOfInterestFlameLength() {}
   getDirectionOfMaxSpread() {}
   getElapsedTime() {}
   getEllipticalA() {}
@@ -678,7 +680,7 @@ Module.SIGMoistureScenarios = class {
   getMoistureScenarioTenHourByIndex() {}
   getMoistureScenarioTenHourByName() {}
   getNumberOfMoistureScenarios() {}
-}
+};
 
 Module.VaporPressureDeficitCalculator = class {
     init() {}

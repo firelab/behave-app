@@ -2098,10 +2098,22 @@ SIGSurface.prototype['getFirelineIntensity'] = SIGSurface.prototype.getFirelineI
   return _emscripten_bind_SIGSurface_getFirelineIntensity_1(self, firelineIntensityUnits);
 };;
 
+SIGSurface.prototype['getFirelineIntensityInDirectionOfInterest'] = SIGSurface.prototype.getFirelineIntensityInDirectionOfInterest = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firelineIntensityUnits) {
+  var self = this.ptr;
+  if (firelineIntensityUnits && typeof firelineIntensityUnits === 'object') firelineIntensityUnits = firelineIntensityUnits.ptr;
+  return _emscripten_bind_SIGSurface_getFirelineIntensityInDirectionOfInterest_1(self, firelineIntensityUnits);
+};;
+
 SIGSurface.prototype['getFlameLength'] = SIGSurface.prototype.getFlameLength = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameLengthUnits) {
   var self = this.ptr;
   if (flameLengthUnits && typeof flameLengthUnits === 'object') flameLengthUnits = flameLengthUnits.ptr;
   return _emscripten_bind_SIGSurface_getFlameLength_1(self, flameLengthUnits);
+};;
+
+SIGSurface.prototype['getFlameLengthInDirectionOfInterest'] = SIGSurface.prototype.getFlameLengthInDirectionOfInterest = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameLengthUnits) {
+  var self = this.ptr;
+  if (flameLengthUnits && typeof flameLengthUnits === 'object') flameLengthUnits = flameLengthUnits.ptr;
+  return _emscripten_bind_SIGSurface_getFlameLengthInDirectionOfInterest_1(self, flameLengthUnits);
 };;
 
 SIGSurface.prototype['getFlankingFirelineIntensity'] = SIGSurface.prototype.getFlankingFirelineIntensity = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firelineIntensityUnits) {
