@@ -93,8 +93,8 @@ Module.SIGSurface = class {
   getDirectionOfBacking() {}
   getDirectionOfFlanking() {}
   getDirectionOfInterest() {}
-  getDirectionOfInterestFirelineIntensity() {}
-  getDirectionOfInterestFlameLength() {}
+  getFlameLengthInDirectionOfInterest() {}
+  getFirelineIntensityInDirectionOfInterest() {}
   getDirectionOfMaxSpread() {}
   getElapsedTime() {}
   getEllipticalA() {}
