@@ -27,9 +27,12 @@
 
 (defn- group-exits? [driver [submodule & groups]]
   (select-submodule driver submodule)
-  (let [wait (w/wait driver 5000)]
-    (.until wait (w/presence-of (by/css ".wizard-page__body"))))
-  (doall (map #(e/find-el driver (by/attr= :text %)) groups)))
+  (doall
+   (map #(let [wait (w/wait driver 300)]
+           (.until wait (w/presence-of-nested-elements
+                         (by/css ".wizard-page__body")
+                         (by/attr= :text %))))
+        groups)))
 
 (Then "(?m)the following input Submodule > Groups are displayed: {submodule-groups}"
       (fn [{:keys [driver]} submodule-groups]
