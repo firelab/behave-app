@@ -3,6 +3,7 @@
             [behave.schema.actions          :as actions]
             [behave.schema.conditionals     :as conditionals]
             [behave.schema.domain           :as domain]
+            [behave.schema.group-variable-order-override :as group-variable-order-override]
             [behave.schema.diagrams         :as diagrams]
             [behave.schema.group            :as group]
             [behave.schema.group-variable   :as group-variable]
@@ -71,6 +72,7 @@
                                 user/schema
                                 variable/schema
                                 worksheet/schema
+                                group-variable-order-override/schema
 
                                 ;; CPP
                                 cpp-class/schema

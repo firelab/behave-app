@@ -78,7 +78,13 @@
     :db/doc         "Application's help key."
     :db/valueType   :db.type/string
     :db/unique      :db.unique/identity
-    :db/cardinality :db.cardinality/one}])
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :application/group-variable-order-overrides
+    :db/doc         ""
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}])
 
 ;;; Testing
 

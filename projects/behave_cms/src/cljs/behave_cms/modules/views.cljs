@@ -5,7 +5,8 @@
    [behave-cms.components.sidebar      :refer [sidebar sidebar-width ->sidebar-links]]
    [behave-cms.components.translations :refer [app-translations]]
    [behave-cms.help.views              :refer [help-editor]]
-   [behave-cms.components.entity-form  :refer [entity-form]]))
+   [behave-cms.components.entity-form  :refer [entity-form]]
+   [behave-cms.components.group-variable-selector :refer [group-variable-selector]]))
 
 ;;; Modules
 
@@ -68,18 +69,40 @@
    [:h4 (str (if *tool "Edit" "Add") " Tool")
     [tool-form application-id *tool num-tools]]])
 
+;; Group Variable Order Override Table
+(defn group-variable-order-override-table
+  ""
+  [app-id]
+  (let [group-variable-order-overrides (rf/subscribe [:application/group-variable-order-overrides app-id])]
+    [:div.col-6
+     [:div
+      [:h4 "Group Variables"]
+      [:p "Use this list to sort group variables ahead of the normal sort order accross all modules in this application"]
+      [simple-table
+       [:variable/name]
+       (sort-by :group-variable-order-override/order @group-variable-order-overrides)
+       {:on-select   #(do (prn "on-select:" %)
+                          (rf/dispatch [:state/set-state :group-variable-order-override %]))
+        :on-delete   #(rf/dispatch [:api/delete-entity %])
+        :on-increase #(rf/dispatch [:api/reorder % @group-variable-order-overrides
+                                    :group-variable-order-override/order :inc])
+        :on-decrease #(rf/dispatch [:api/reorder % @group-variable-order-overrides
+                                    :group-variable-order-override/order :dec])}]]]))
+
 ;;; Public
 
 (defn list-modules-page
   "Displays page for modules. Takes a single map with:
   - id [int] - Application Entity ID"
   [{nid :nid}]
-  (let [application (rf/subscribe [:application [:bp/nid nid]])
-        id          (:db/id @application)
-        modules     (rf/subscribe [:application/modules id])
-        *module     (rf/subscribe [:state :module])
-        tools       (rf/subscribe [:application/tools id])
-        *tool       (rf/subscribe [:state :tool])]
+  (let [application       (rf/subscribe [:application [:bp/nid nid]])
+        id                (:db/id @application)
+        modules           (rf/subscribe [:application/modules id])
+        *module           (rf/subscribe [:state :module])
+        tools             (rf/subscribe [:application/tools id])
+        *tool             (rf/subscribe [:state :tool])
+        gv-order-override (rf/subscribe [:state :group-variable-order-override])
+        gv-id             (:db/id (:group-variable-order-override/group-variable @gv-order-override))]
     [:<>
      [sidebar
       "Modules"
@@ -111,4 +134,23 @@
        [:hr]
        [accordion
         "Application Translations"
-        [app-translations (:application/translation-key @application)]]]]]))
+        [app-translations (:application/translation-key @application)]]
+       [:hr]
+       [accordion
+        "Application Group Varible Order Overrides"
+        [:div.col-12
+         [:div.row
+          [group-variable-order-override-table (:db/id @application)]
+          [group-variable-selector
+           {:state-path          [:editors :application/group-variable-order-override :variable-lookup]
+            :app-id              (:db/id @application)
+            :gv-id               gv-id
+            :on-submit           #(let [gv-count @(rf/subscribe [:application/group-variable-order-overrides-count (:db/id @application)])]
+                                    (rf/dispatch [:api/upsert-entity
+                                                  (if (:db/id @gv-order-override)
+                                                    {:db/id                                        (:db/id @gv-order-override)
+                                                     :group-variable-order-override/group-variable %}
+                                                    {:application/_group-variable-order-overrides  (:db/id @application)
+                                                     :group-variable-order-override/group-variable %
+                                                     :group-variable-order-override/order          gv-count})])
+                                    (rf/dispatch [:state/set-state :group-variable-order-override nil]))}]]]]]]]))
