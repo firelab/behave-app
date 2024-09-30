@@ -126,7 +126,7 @@
                                          (mapv #(:bp/uuid (:group-variable-order-override/group-variable %))
                                                (:application/group-variable-order-overrides
                                                 (d/entity @@vms-conn app-id))))]
-     (concat application-gv-order-overrides normal-order))))
+     (distinct (concat application-gv-order-overrides normal-order)))))
 
 (reg-sub
  :vms/units-uuid->short-code
