@@ -81,8 +81,7 @@
       [simple-table
        [:variable/name]
        (sort-by :group-variable-order-override/order @group-variable-order-overrides)
-       {:on-select   #(do (prn "on-select:" %)
-                          (rf/dispatch [:state/set-state :group-variable-order-override %]))
+       {:on-select   #(rf/dispatch [:state/set-state :group-variable-order-override %])
         :on-delete   #(rf/dispatch [:api/delete-entity %])
         :on-increase #(rf/dispatch [:api/reorder % @group-variable-order-overrides
                                     :group-variable-order-override/order :inc])
