@@ -95,13 +95,13 @@
   - id [int] - Application Entity ID"
   [{nid :nid}]
   (let [application       (rf/subscribe [:application [:bp/nid nid]])
-        id                (:db/id @application)
-        modules           (rf/subscribe [:application/modules id])
+        app-id            (:db/id @application)
+        modules           (rf/subscribe [:application/modules app-id])
         *module           (rf/subscribe [:state :module])
-        tools             (rf/subscribe [:application/tools id])
+        tools             (rf/subscribe [:application/tools app-id])
         *tool             (rf/subscribe [:state :tool])
         gv-order-override (rf/subscribe [:state :group-variable-order-override])
-        gv-id             (:db/id (:group-variable-order-override/group-variable @gv-order-override))]
+        gv-id-to-edit     (:db/id (:group-variable-order-override/group-variable @gv-order-override))]
     [:<>
      [sidebar
       "Modules"
@@ -116,15 +116,15 @@
         [:h2 (:application/name @application)]]
        [accordion
         "Modules"
-        [modules-table id]
-        [manage-module id @*module (count @modules)]]
+        [modules-table app-id]
+        [manage-module app-id @*module (count @modules)]]
        [:hr]
        [accordion
         "Tools"
         [:div.col-6
-         [tools-table id]]
+         [tools-table app-id]]
         [:div.col-6
-         [manage-tool id @*tool (count @tools)]]]
+         [manage-tool app-id @*tool (count @tools)]]]
        [:hr]
        [accordion
         "Help Page"
@@ -139,17 +139,16 @@
         "Application Group Varible Order Overrides"
         [:div.col-12
          [:div.row
-          [group-variable-order-override-table (:db/id @application)]
+          [group-variable-order-override-table app-id]
           [group-variable-selector
-           {:state-path          [:editors :application/group-variable-order-override :variable-lookup]
-            :app-id              (:db/id @application)
-            :gv-id               gv-id
-            :on-submit           #(let [gv-count @(rf/subscribe [:application/group-variable-order-overrides-count (:db/id @application)])]
-                                    (rf/dispatch [:api/upsert-entity
-                                                  (if (:db/id @gv-order-override)
-                                                    {:db/id                                        (:db/id @gv-order-override)
-                                                     :group-variable-order-override/group-variable %}
-                                                    {:application/_group-variable-order-overrides  (:db/id @application)
-                                                     :group-variable-order-override/group-variable %
-                                                     :group-variable-order-override/order          gv-count})])
-                                    (rf/dispatch [:state/set-state :group-variable-order-override nil]))}]]]]]]]))
+           {:app-id    app-id
+            :gv-id     gv-id-to-edit
+            :on-submit #(let [gv-count @(rf/subscribe [:application/group-variable-order-overrides-count app-id])]
+                           (rf/dispatch [:api/upsert-entity
+                                         (if (:db/id @gv-order-override)
+                                           {:db/id                                        (:db/id @gv-order-override)
+                                            :group-variable-order-override/group-variable %}
+                                           {:application/_group-variable-order-overrides  app-id
+                                            :group-variable-order-override/group-variable %
+                                            :group-variable-order-override/order          gv-count})])
+                           (rf/dispatch [:state/set-state :group-variable-order-override nil]))}]]]]]]]))
