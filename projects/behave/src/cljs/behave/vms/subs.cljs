@@ -99,7 +99,7 @@
    (let [app-id                         @(q '[:find ?app-id .
                                               :in $ ?app-name
                                               :where
-                                              [?app-id :application/modules ?app-name]]
+                                              [?app-id :application/name ?app-name]]
                                             "BehavePlus")
          module-eids                    @(q '[:find [?m ...]
                                               :in $ ?app-id
