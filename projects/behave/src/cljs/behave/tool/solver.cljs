@@ -19,20 +19,15 @@
   (or (str/includes? parameter-type "Enum")
       (str/includes? parameter-type "Units")))
 
-(defn- variable-units
-  ([sv-uuid]
-   (variable-units sv-uuid nil))
-  ([sv-uuid selected-units-uuid]
-   (if selected-units-uuid
-     (q/unit-uuid->enum-value selected-units-uuid)
-     (let [var-uuid     (q/variable-uuid sv-uuid)
-           *var-entity  (rf/subscribe [:vms/entity-from-uuid var-uuid])
-           domain-uuid  (:variable/domain-uuid @*var-entity)
-           *cached-unit (rf/subscribe [:settings/cached-unit domain-uuid])
-           unit-uuid    (or @*cached-unit
-                            (q/variable-native-units-uuid sv-uuid)
-                            :none)]
-       (q/unit-uuid->enum-value unit-uuid)))))
+(defn- resolve-units-uuid-from-vms-or-cached-settings
+  [sv-uuid]
+  (let [var-uuid     (q/variable-uuid sv-uuid)
+        *var-entity  (rf/subscribe [:vms/entity-from-uuid var-uuid])
+        domain-uuid  (:variable/domain-uuid @*var-entity)
+        *cached-unit (rf/subscribe [:settings/cached-unit domain-uuid])]
+    (or @*cached-unit
+        (q/variable-native-units-uuid sv-uuid)
+        :none)))
 
 (defn- apply-single-cpp-fn [fns tool-obj sv-uuid value units]
   (let [[fn-id fn-name] (q/subtool-variable->fn sv-uuid)
@@ -71,26 +66,32 @@
       :else nil)))
 
 (defn- run-tool
-  [{:keys [fns inputs output-uuids compute-fn]}]
+  [{:keys [fns inputs outputs compute-fn]}]
   (let [init-fn  (fns "init")
         tool-obj (init-fn)]
 
     ;; Set inputs
     (doseq [[sv-uuid variable] inputs]
       (let [{value :input/value units-uuid :input/units-uuid} variable
-            units                                             (variable-units sv-uuid units-uuid)]
-        (apply-single-cpp-fn fns tool-obj sv-uuid value units)))
+            units-uuid                                        (or units-uuid
+                                                                  (resolve-units-uuid-from-vms-or-cached-settings
+                                                                   sv-uuid))
+            units-enum                                        (q/unit-uuid->enum-value units-uuid)]
+        (apply-single-cpp-fn fns tool-obj sv-uuid value units-enum)))
 
     ;; Compute Tool
     (compute-fn tool-obj)
 
     ;; Get outputs
     (into {}
-          (map (fn [output-uuid]
-                 (let [units (variable-units output-uuid)
-                       value (apply-output-cpp-fn fns tool-obj output-uuid units)]
-                   [output-uuid (format-intl-number "en-US" value 2)]))
-               output-uuids))))
+          (map (fn [[output-uuid selected-unit]]
+                 (let [units-uuid   (or selected-unit
+                                        (resolve-units-uuid-from-vms-or-cached-settings output-uuid))
+                       units-enum   (q/unit-uuid->enum-value units-uuid)
+                       output-value (apply-output-cpp-fn fns tool-obj output-uuid units-enum)]
+                   [output-uuid {:output/value      (format-intl-number "en-US" output-value 2)
+                                 :output/units-uuid units-uuid}]))
+               outputs))))
 
 (defn- get-compute-fn [subtool-uuid fns]
   (let [fn-name (q/subtool-compute->fn-name subtool-uuid)]
@@ -111,8 +112,8 @@
   (let [tool-entity (rf/subscribe [:tool/entity tool-uuid])
         lib-ns      (kebab->snake (:tool/lib-ns @tool-entity))
         fns         (list-cljs-fns lib-ns)
-        params      {:fns          fns
-                     :inputs       @(rf/subscribe [:tool/all-inputs tool-uuid subtool-uuid])
-                     :output-uuids @(rf/subscribe [:tool/all-output-uuids subtool-uuid])
-                     :compute-fn   (get-compute-fn subtool-uuid fns)}]
+        params      {:fns        fns
+                     :inputs     @(rf/subscribe [:tool/all-inputs tool-uuid subtool-uuid])
+                     :outputs    @(rf/subscribe [:tool/all-outputs tool-uuid subtool-uuid])
+                     :compute-fn (get-compute-fn subtool-uuid fns)}]
     (run-tool params)))

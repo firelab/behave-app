@@ -44,6 +44,20 @@
               variable-uuid]
              value)))
 
+(rf/reg-event-fx
+ :tool/update-output-units
+ (rf/path db-tool)
+ (fn [{:keys [db]} [_ tool-uuid subtool-uuid variable-uuid unit-uuid auto-compute?]]
+   (cond-> {:db (assoc-in db
+                          [:data
+                           tool-uuid
+                           subtool-uuid
+                           :tool/outputs
+                           variable-uuid
+                           :output/units-uuid]
+                          unit-uuid)}
+     auto-compute? (assoc :fx [[:dispatch [:tool/solve tool-uuid subtool-uuid]]]))))
+
 (rf/reg-event-db
  :tool/close-tool-selector
  (fn [db _]

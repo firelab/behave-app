@@ -102,7 +102,8 @@
                tool-uuid
                subtool-uuid
                :tool/outputs
-               subtool-variable-uuid])))
+               subtool-variable-uuid
+               :output/value])))
 
 (reg-sub
  :tool/all-inputs
@@ -115,16 +116,25 @@
                :tool/inputs])))
 
 (reg-sub
- :tool/all-output-uuids
- (fn [_ [_ subtool-uuid]]
-   (d/q '[:find [?output-uuids ...]
-          :in $ ?uuid
-          :where
-          [?s  :bp/uuid ?uuid]
-          [?s  :subtool/variables ?sv]
-          [?sv :subtool-variable/io :output]
-          [?sv :bp/uuid ?output-uuids]]
-        @@s/vms-conn subtool-uuid)))
+ :tool/all-outputs
+ (fn [db [_ tool-uuid subtool-uuid]]
+   (->> (d/q '[:find [?output-uuids ...]
+               :in $ ?uuid
+               :where
+               [?s  :bp/uuid ?uuid]
+               [?s  :subtool/variables ?sv]
+               [?sv :subtool-variable/io :output]
+               [?sv :bp/uuid ?output-uuids]]
+             @@s/vms-conn subtool-uuid)
+        (map (fn [output-uuid]
+               [output-uuid (get-in db [:state
+                                        :tool
+                                        :data
+                                        tool-uuid
+                                        subtool-uuid
+                                        :tool/outputs
+                                        output-uuid
+                                        :output/units-uuid])])))))
 
 (comment
   (rf/subscribe [:tool/all-inputs
