@@ -20,6 +20,7 @@
             [behave-cms.subgroups.events]
             [behave-cms.variables.events]
             [behave-cms.routes  :refer [app-routes singular]]
+            [behave-cms.subtools.events]
             [behave-cms.utils   :as u]
             [data-utils.interface :refer [remove-nth]]))
 

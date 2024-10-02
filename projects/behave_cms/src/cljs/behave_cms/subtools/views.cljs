@@ -71,7 +71,8 @@
     [:variable/name
      :subtool-variable/io]
     variables
-    {:on-delete   #(when (js/confirm (str "Are you sure you want to delete the variable "
+    {:on-select   #(rf/dispatch [:subtool/edit-variable (first (:variable/_subtool-variables %))])
+     :on-delete   #(when (js/confirm (str "Are you sure you want to delete the variable "
                                           (:variable/name %) "?"))
                      (rf/dispatch [:api/delete-entity %]))
      :on-increase #(rf/dispatch [:api/reorder % variables :subtool-variable/order :inc])
