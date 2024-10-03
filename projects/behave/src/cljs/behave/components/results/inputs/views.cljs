@@ -64,16 +64,16 @@
                                                      (into [{:input (indent-name (inc level) (str (:group/name current-group) " " (inc repeat-id)))}]
                                                            (flatten
                                                             (for [variable (sort-by :group-variable/order variables)
-                                                                  :let     [value @(subscribe [:worksheet/input-value
+                                                                  :let     [gv-uuid (:bp/uuid variable)
+                                                                            value @(subscribe [:worksheet/input-value
                                                                                                ws-uuid
                                                                                                (:bp/uuid current-group)
                                                                                                repeat-id
                                                                                                (:bp/uuid variable)])]
                                                                   :when    (seq value)]
-                                                              (let [gv-uuid    (:bp/uuid (first variables))
-                                                                    fmt-fn     (get formatters gv-uuid identity)
-                                                                    units-used (get gv-uuid->units gv-uuid)
-                                                                    variable-name @(subscribe [:wizard/gv-uuid->default-variable-name (:bp/uuid variable)])]
+                                                              (let [fmt-fn        (get formatters gv-uuid identity)
+                                                                    units-used    (get gv-uuid->units gv-uuid)
+                                                                    variable-name @(subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])]
                                                                 (if (:group-variable/discrete-multiple? variable)
                                                                   (let [values (->> (str/split value ",")
                                                                                     (map fmt-fn))]

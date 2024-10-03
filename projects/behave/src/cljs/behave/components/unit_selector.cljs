@@ -50,9 +50,11 @@
                show-selector? (r/atom false)
                on-click       #(do
                                  (on-change-units %)
-                                 (reset! show-selector? false))]
+                                 (reset! show-selector? false))
+               pre-selected-unit (or (get units-by-uuid *unit-uuid) default-unit)]
     [:div.wizard-input__units
      (if (or (>= 1 (count units)) (nil? @dimension))
       [:div.wizard-input__units__text
-       (str @(<t (bp "units_used")) " " (:unit/short-code (or (get units-by-uuid *unit-uuid) default-unit)))]
-      [unit-selector *unit-uuid units on-click])]))
+       (str @(<t (bp "units_used")) " " (:unit/short-code pre-selected-unit))]
+      [unit-selector (:bp/uuid pre-selected-unit) units on-click])]))
+
