@@ -425,6 +425,19 @@
         (remove (fn [[_ hide-result?]] (true? hide-result?)))
         (map first))))
 
+(rf/reg-sub
+ :worksheet/all-output-uuids-include-hide-results?
+ (fn [_ [_ ws-uuid]]
+   (->> (d/q '[:find  [?uuid ...]
+               :in  $ ?ws-uuid
+               :where
+               [?w :worksheet/uuid ?ws-uuid]
+               [?w :worksheet/outputs ?o]
+               [?o :output/group-variable-uuid ?uuid]
+               [?o :output/enabled? true]]
+             @@s/conn
+             ws-uuid))))
+
 (rp/reg-sub
  :worksheet/get-table-settings-attr
  (fn [_ [_ ws-uuid attr]]
