@@ -663,6 +663,10 @@ double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_getMaxMountainousTerrainSpot
   return self->getMaxMountainousTerrainSpottingDistanceFromTorchingTrees(spottingDistanceUnits);
 }
 
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromActiveCrown_1(SIGSpot* self, LengthUnits_LengthUnitsEnum spottingDistanceUnits) {
+  return self->getMaxMountainousTerrainSpottingDistanceFromActiveCrown(spottingDistanceUnits);
+}
+
 double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_getRidgeToValleyDistance_1(SIGSpot* self, LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits) {
   return self->getRidgeToValleyDistance(ridgeToValleyDistanceUnits);
 }
@@ -725,6 +729,10 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_setDownwindCanopyMode_1(SIGSpo
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_setDownwindCoverHeight_2(SIGSpot* self, double downwindCoverHeight, LengthUnits_LengthUnitsEnum coverHeightUnits) {
   self->setDownwindCoverHeight(downwindCoverHeight, coverHeightUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_setFireType_1(SIGSpot* self, FireType_FireTypeEnum fireType) {
+  self->setFireType(fireType);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_setFlameLength_2(SIGSpot* self, double flameLength, LengthUnits_LengthUnitsEnum flameLengthUnits) {
