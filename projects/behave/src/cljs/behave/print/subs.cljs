@@ -125,7 +125,7 @@
         multi-valued-inputs                         @(rf/subscribe [:print/matrix-table-multi-valued-inputs ws-uuid])
         [row-name row-units row-gv-uuid row-values] (first multi-valued-inputs)
         [col-name col-units col-gv-uuid col-values] (second multi-valued-inputs)
-        output-uuids                                @(rf/subscribe [:worksheet/all-output-uuids ws-uuid])]
+        output-uuids                                @(rf/subscribe [:worksheet/output-uuids-filtered ws-uuid])]
 
     #_(rf/subscribe [:print/matrix-table-two-multi-valued-inputs ws-uuid
                      row-gv-uuid
@@ -140,6 +140,6 @@
     (first output-uuids)
     )
 
-  (rf/subscribe [:worksheet/all-output-uuids ws-uuid])
+  (rf/subscribe [:worksheet/output-uuids-filtered ws-uuid])
 
   )

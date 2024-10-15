@@ -407,7 +407,7 @@
         (sort-by #(.indexOf gv-order %)))))
 
 (rf/reg-sub
- :worksheet/all-output-uuids
+ :worksheet/output-uuids-filtered
  (fn [_ [_ ws-uuid]]
    (->> (d/q '[:find  ?uuid ?hide-result
                :in    $ $ws % ?ws-uuid
@@ -426,7 +426,7 @@
         (map first))))
 
 (rf/reg-sub
- :worksheet/all-output-uuids-include-hide-results?
+ :worksheet/all-output-uuids
  (fn [_ [_ ws-uuid]]
    (->> (d/q '[:find  [?uuid ...]
                :in  $ ?ws-uuid
@@ -644,7 +644,7 @@
  :worksheet/output-uuid->result-min-values
  (fn [[_ ws-uuid]]
    [(rf/subscribe [:worksheet/result-table-cell-data ws-uuid])
-    (rf/subscribe [:worksheet/all-output-uuids ws-uuid])])
+    (rf/subscribe [:worksheet/output-uuids-filtered ws-uuid])])
  (fn [[result-table-cell-data all-output-uuids] _]
    (reduce
     (fn [acc [_row-id gv-uuid _repeat-id value]]
@@ -661,7 +661,7 @@
  :worksheet/output-min+max-values
  (fn [[_ ws-uuid]]
    [(rf/subscribe [:worksheet/result-table-cell-data ws-uuid])
-    (rf/subscribe [:worksheet/all-output-uuids ws-uuid])])
+    (rf/subscribe [:worksheet/output-uuids-filtered ws-uuid])])
  (fn [[result-table-cell-data all-output-uuids] _]
    (reduce
     (fn [acc [_row-id gv-uuid _repeat-id value]]
@@ -680,7 +680,7 @@
  :worksheet/output-uuid->result-max-values
  (fn [[_ ws-uuid]]
    [(rf/subscribe [:worksheet/result-table-cell-data ws-uuid])
-    (rf/subscribe [:worksheet/all-output-uuids ws-uuid])])
+    (rf/subscribe [:worksheet/output-uuids-filtered ws-uuid])])
  (fn [[result-table-cell-data all-output-uuids] _]
    (reduce
     (fn [acc [_row-id gv-uuid _repeat-id value]]
@@ -834,7 +834,7 @@
 (rf/reg-sub
  :worksheet/some-outputs-entered?
  (fn [[_ ws-uuid]]
-   (rf/subscribe [:worksheet/all-output-uuids ws-uuid]))
+   (rf/subscribe [:worksheet/output-uuids-filtered ws-uuid]))
 
  (fn [all-output-uuids [_ _ws-uuid module-id submodule-slug]]
    (if (seq all-output-uuids)

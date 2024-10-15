@@ -68,7 +68,7 @@
                            (surface/getWindHeightInputMode module))]))
 
 (defn store-all-diagrams! [{:keys [ws-uuid row-id module diagrams]}]
-  (let [all-outputs @(rf/subscribe [:worksheet/all-output-uuids-include-hide-results? ws-uuid])]
+  (let [all-outputs @(rf/subscribe [:worksheet/all-output-uuids ws-uuid])]
    (doseq [diagram diagrams]
      (let [group-variable-uuid (get-in diagram [:diagram/group-variable :bp/uuid])]
        (when (some #{group-variable-uuid} all-outputs)

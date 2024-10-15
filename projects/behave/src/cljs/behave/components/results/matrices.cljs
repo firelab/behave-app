@@ -199,7 +199,7 @@
         units-lookup                   @(subscribe [:worksheet/result-table-units ws-uuid])
         table-setting-filters          @(subscribe [:worksheet/table-settings-filters ws-uuid])
         gv-order                       @(subscribe [:vms/group-variable-order ws-uuid])
-        output-gv-uuids                (->> (subscribe [:worksheet/all-output-uuids ws-uuid])
+        output-gv-uuids                (->> (subscribe [:worksheet/output-uuids-filtered ws-uuid])
                                             deref
                                             (sort-by #(.indexOf gv-order %)))]
     [construct-result-matrices

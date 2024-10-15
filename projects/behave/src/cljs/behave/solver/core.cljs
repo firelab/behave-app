@@ -228,7 +228,7 @@
   ([ws-uuid]
    (let [modules     (set (q/worksheet-modules ws-uuid))
          all-inputs  @(rf/subscribe [:worksheet/all-inputs+units-vector ws-uuid])
-         all-outputs @(rf/subscribe [:worksheet/all-output-uuids ws-uuid])]
+         all-outputs @(rf/subscribe [:worksheet/output-uuids-filtered ws-uuid])]
 
      (-> (solve-worksheet ws-uuid modules all-inputs all-outputs)
          (t/add-to-results-table ws-uuid))))
