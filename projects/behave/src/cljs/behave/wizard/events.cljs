@@ -164,12 +164,17 @@
                     [:state [:worksheet :*workflow]]))
   (rf/inject-cofx ::inject/sub
                   (fn [[_ ws-uuid [_ io]]]
-                    [:wizard/first-module+submodule ws-uuid io]))]
+                    (when ws-uuid
+                      [:wizard/first-module+submodule ws-uuid io])))]
  (fn [{module                 :state
        first-module+submodule :wizard/first-module+submodule} [_ ws-uuid route-handler+io]]
    (let [[handler io]          route-handler+io
          [ws-module submodule] first-module+submodule]
+     (prn "handler:" handler)
      (when-let [path (cond
+                       (= handler :ws/all)
+                       (str "/worksheets/")
+
                        (= handler :ws/independent)
                        (str "/worksheets/" (->str module))
 

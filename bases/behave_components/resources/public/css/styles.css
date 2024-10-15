@@ -1101,9 +1101,11 @@ p {
   align-items: center;
   padding: 10px 20px;
   border: 1px solid var(--gray-3);
+  cursor: pointer;
 }
 
 .input-browse__input {
+  opacity: 0;
   position: absolute;
   top: 0px;
   right: 0px;
