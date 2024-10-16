@@ -106,12 +106,14 @@
  (fn [_cfx [_event-id route repeat-id var-uuid]]
    {:fx [[:dispatch [:navigate route]]
          [:dispatch-later {:ms       200
-                           :dispatch [:wizard/scroll-into-view (str repeat-id  "-" var-uuid)]}]]}))
+                           :dispatch [:wizard/scroll-into-view
+                                      "wizard-page__body"
+                                      (str repeat-id  "-" var-uuid)]}]]}))
 
 (rf/reg-event-fx
  :wizard/scroll-into-view
- (fn [_cfx [_event-id id]]
-   (let [content (first (.getElementsByClassName js/document "wizard-page__body"))
+ (fn [_cfx [_event-id class id]]
+   (let [content (first (.getElementsByClassName js/document class))
          section (.getElementById js/document id)
          buffer  (* 0.01 (.-offsetHeight content))
          top     (- (.-offsetTop section) (.-offsetTop content) buffer)]
@@ -155,7 +157,7 @@
  :wizard/results-select-tab
  (fn [_cfx [_ {:keys [tab]}]]
    {:fx [[:dispatch [:state/set [:worksheet :results :tab-selected] tab]]
-         [:dispatch [:wizard/scroll-into-view (name tab)]]]}))
+         [:dispatch [:wizard/scroll-into-view "review-wizard-page__body" (name tab)]]]}))
 
 (rf/reg-event-fx
  :wizard/progress-bar-navigate
