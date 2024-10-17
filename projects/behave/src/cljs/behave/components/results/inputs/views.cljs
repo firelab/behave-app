@@ -44,7 +44,7 @@
                                        (if (:group-variable/discrete-multiple? fvar)
                                          (let [values (->> (str/split value ",")
                                                            (map fmt-fn))]
-                                           (into [{:input  (indent-name level (:group/name current-group))
+                                           (into [{:input  (indent-name level @(<t (:group/translation-key current-group)))
                                                    :units  units
                                                    :values (first values)}]
                                                  (map (fn [value]
@@ -52,16 +52,16 @@
                                                          :units  units
                                                          :values value})
                                                       (rest values))))
-                                         [{:input  (indent-name level (:group/name current-group))
+                                         [{:input  (indent-name level @(<t (:group/translation-key current-group)))
                                            :units  units
                                            :values (cond-> value
                                                      (not (csv? value))
                                                      fmt-fn)}])))
                                    multi-var?
-                                   (into [{:input (indent-name level (:group/name current-group))}]
+                                   (into [{:input (indent-name level @(<t (:group/translation-key current-group)))}]
                                          (let [repeat-ids @(subscribe [:worksheet/group-repeat-ids ws-uuid (:bp/uuid current-group)])]
                                            (mapcat (fn [repeat-id]
-                                                     (into [{:input (indent-name (inc level) (str (:group/name current-group) " " (inc repeat-id)))}]
+                                                     (into [{:input (indent-name (inc level) (str @(<t (:group/translation-key current-group)) " " (inc repeat-id)))}]
                                                            (flatten
                                                             (for [variable (sort-by :group-variable/order variables)
                                                                   :let     [gv-uuid (:bp/uuid variable)
