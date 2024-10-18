@@ -44,7 +44,7 @@
                                        (if (:group-variable/discrete-multiple? fvar)
                                          (let [values (->> (str/split value ",")
                                                            (map fmt-fn))]
-                                           (into [{:input  (indent-name level @(<t (:group/translation-key current-group)))
+                                           (into [{:input  (indent-name level @(subscribe [:result.inputs/resolve-group-name (:bp/uuid current-group)]))
                                                    :units  units
                                                    :values (first values)}]
                                                  (map (fn [value]
@@ -52,7 +52,7 @@
                                                          :units  units
                                                          :values value})
                                                       (rest values))))
-                                         [{:input  (indent-name level @(<t (:group/translation-key current-group)))
+                                         [{:input  (indent-name level @(subscribe [:result.inputs/resolve-group-name (:bp/uuid current-group)]))
                                            :units  units
                                            :values (cond-> value
                                                      (not (csv? value))

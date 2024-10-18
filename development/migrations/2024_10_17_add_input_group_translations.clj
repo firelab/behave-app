@@ -4,7 +4,7 @@
             [behave-cms.store :refer [default-conn]]
             [behave.schema.rules :refer [vms-rules]]
             [behave-cms.server :as cms]
-            [cms-import :refer [add-export-file-to-conn]]))
+            [clojure.string :as str]))
 
 ;; ===========================================================================================================
 ;; Initialize
@@ -15,7 +15,8 @@
 #_{:clj-kondo/ignore [:missing-docstring]}
 (def conn (default-conn))
 
-(def payload
+#_{:clj-kondo/ignore [:missing-docstring]}
+(def add-translation-to-existing-translation-keys
   (->> (d/q '[:find ?t-key ?name
               :in $ %
               :where
@@ -23,10 +24,33 @@
               [?e :group/name ?name]]
             (d/db conn)
             vms-rules)
-       (reduce (fn [acc [t-key name]]
-                 (assoc acc t-key name))
+       (reduce (fn [acc [t-key nname]]
+                 (assoc acc t-key nname))
                {})
        (sm/build-translations-payload conn)))
+
+#_{:clj-kondo/ignore [:missing-docstring]}
+(def add-new-result-translation-keys-to-group-entities
+  (->> (d/q '[:find ?e ?t-key ?name
+              :in $ %
+              :where
+              [?e :group/translation-key ?t-key]
+              [?e :group/name ?name]]
+            (d/db conn)
+            vms-rules)
+       (map (fn [[eid t-key]]
+              {:db/id                        eid
+               :group/result-translation-key (str/replace t-key #":input:|:output:" ":result:")}))))
+
+#_{:clj-kondo/ignore [:missing-docstring]}
+(def payload
+  (concat add-translation-to-existing-translation-keys
+          add-new-result-translation-keys-to-group-entities))
+
+;; adds new translations for Wind Measured at -> wind Tpe in results input table
+#_{:clj-kondo/ignore [:missing-docstring]}
+(def add-new-translations-payload
+  (sm/build-translations-payload conn {"behaveplus:surface:result:wind_speed:wind_height" "wind type"}))
 
 ;; ===========================================================================================================
 ;; Transact Payload
@@ -34,11 +58,14 @@
 
 (comment
   #_{:clj-kondo/ignore [:missing-docstring]}
-  (def tx-data (d/transact conn payload)))
+  (do (def tx-data (d/transact conn payload ))
+      (def tx-data-2 (d/transact conn add-new-translations-payload))))
 
 ;; ===========================================================================================================
 ;; In case we need to rollback.
 ;; ===========================================================================================================
 
 (comment
-  (sm/rollback-tx! conn @tx-data))
+  (do
+    (sm/rollback-tx! conn @tx-data-2)
+    (sm/rollback-tx! conn @tx-data)))

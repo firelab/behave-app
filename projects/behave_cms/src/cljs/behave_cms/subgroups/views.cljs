@@ -155,7 +155,8 @@
        ^{:key "translations"}
        [accordion
         "Translations"
-        [all-translations (:group/translation-key @group)]]
+        [all-translations (:group/translation-key @group)]
+        [all-translations (:group/result-translation-key @group)]]
        [:hr]
        ^{:key "help"}
        [accordion

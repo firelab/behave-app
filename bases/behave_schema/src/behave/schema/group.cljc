@@ -77,7 +77,13 @@
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :group/translation-key
-    :db/doc         "Group's translation key."
+    :db/doc         "Group's translation key in the wizard."
+    :db/valueType   :db.type/string
+    :db/unique      :db.unique/identity
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :group/result-translation-key
+    :db/doc         "Group's translation key in the results page."
     :db/valueType   :db.type/string
     :db/unique      :db.unique/identity
     :db/cardinality :db.cardinality/one}
