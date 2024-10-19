@@ -37,17 +37,19 @@
                                            paragraph
                                            set-line-state]]))
 
-(defn- render-latex [s]
-  (try
-    (.renderToString js/katex s)
-    (catch js/Error _ s)))
+#?(:cljs 
+   (defn- render-latex [s]
+     (try
+       (.renderToString js/katex s)
+       (catch js/Error _ s))))
 
-(defn- latex [text state]
-  [(if-not (or (:codeblock state) (:code state))
-     (-> text
-         (str/replace #"^\$\$\s(.*)\s\$\$$" #(render-latex (second %)))
-         (str/replace #"\$\s(.*)\s\$" #(render-latex (second %))))
-     text) state])
+#?(:cljs 
+   (defn- latex [text state]
+     [(if-not (or (:codeblock state) (:code state))
+        (-> text
+            (str/replace #"^\$\$\s(.*)\s\$\$$" #(render-latex (second %)))
+            (str/replace #"\$\s(.*)\s\$" #(render-latex (second %))))
+        text) state]))
 
 (def ^:private custom-transform-vector
   [set-line-state
@@ -83,12 +85,15 @@
    thaw-strings
    dashes
    clear-line-state
-   latex])
+   #?(:cljs latex)])
 
 (defn- md->html [text]
-  (md/md->html text
+  #?(:cljs (md/md->html text
                :replacement-transformers
-               custom-transform-vector))
+               custom-transform-vector)
+     :clj (md/md-to-html-string text
+                                :replacement-transformers
+                                custom-transform-vector)))
 
 (def special-svg-attrs
   {:zoomandpan          :zoom-and-pan,

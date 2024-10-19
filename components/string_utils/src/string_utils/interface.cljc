@@ -41,6 +41,10 @@
        :doc "Converts `s` in snake-case to camelCase string."}
   snake->camel c/snake->camel)
 
+(def ^{:argslist '[s]
+       :doc      "Snake/kebab string to 'Capitalized Sentence'"}
+  ->capitalize-sentence c/->capitalize-sentence)
+
 (def ^{:argslist '[& s]
        :doc "Converts multiple strings into a snake-cased, colon-delimited string.
 
