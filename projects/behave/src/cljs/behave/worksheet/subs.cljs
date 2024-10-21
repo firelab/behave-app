@@ -750,7 +750,9 @@
 
 (rf/reg-sub
  :worksheet/csv-export-headers
- (fn [_ [_ ws-uuid]]
+ (fn [_]
+   (rf/subscribe [:vms/group-variable-order]))
+ (fn [gv-order [_ ws-uuid]]
    (->> (d/q '[:find  ?gv-uuid ?repeat-id ?units ?hide-csv
                :in    $ $ws % ?ws-uuid
                :where
@@ -763,8 +765,9 @@
                (lookup ?gv-uuid ?gv)
                [(get-else $ ?gv :group-variable/hide-csv? false) ?hide-csv]]
              @@vms-conn @@s/conn rules ws-uuid)
-        (remove (fn [[_ _ _ hide-csv?]] hide-csv?)))))
-
+        (remove (fn [[_ _ _ hide-csv?]] hide-csv?))
+        (sort-by (juxt #(.indexOf gv-order (first %))
+                       #(second %))))))
 ;; returns a map of group-variable uuid to units
 (rf/reg-sub
  :worksheet/result-table-units
