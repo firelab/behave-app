@@ -61,27 +61,7 @@
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :group-variable/research?
-    :db/doc         "Whether a Group Variable is for research."
-    :db/valueType   :db.type/boolean
-    :db/cardinality :db.cardinality/one}
-
-   {:db/ident       :group-variable/discrete-multiple?
-    :db/doc         "Whether a Group Variable is a multi discrete variable."
-    :db/valueType   :db.type/boolean
-    :db/cardinality :db.cardinality/one}
-
-   {:db/ident       :group-variable/conditionally-set?
-    :db/doc         "Whether a Group Variable is conditionally set and should not be shown."
-    :db/valueType   :db.type/boolean
-    :db/cardinality :db.cardinality/one}
-
-   {:db/ident       :group-variable/hide-result?
-    :db/doc         "Whether a Group Variable is hidden from results, used primarly for conditionally set group-variables logic."
-    :db/valueType   :db.type/boolean
-    :db/cardinality :db.cardinality/one}
-
-   {:db/ident       :group-variable/order
+      {:db/ident       :group-variable/order
     :db/doc         "Group variable's order."
     :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
@@ -113,7 +93,35 @@
    {:db/ident       :group-variable/direction
     :db/doc         "Group variable's direction."
     :db/valueType   :db.type/keyword
-    :db/cardinality :db.cardinality/one}])
+    :db/cardinality :db.cardinality/one}
+
+   ;; Boolean Settings
+   {:db/ident       :group-variable/research?
+    :db/doc         "Whether a Group Variable is for research."
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :group-variable/discrete-multiple?
+    :db/doc         "Whether a Group Variable is a multi discrete variable."
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :group-variable/conditionally-set?
+    :db/doc         "Whether a Group Variable is conditionally set and should not be shown."
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :group-variable/hide-result?
+    :db/doc         "Whether a Group Variable is hidden from results, used primarly for conditionally set group-variables logic."
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :group-variable/hide-csv?
+    :db/doc         "Whether a Gropu Variable is excluded from the csv export"
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
+
+   ])
 
 ;;; Tests
 

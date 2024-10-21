@@ -158,6 +158,7 @@
    [bool-setting "Discrete Multiple?" :group-variable/discrete-multiple? group-variable]
    [bool-setting "Conditionally Set?" :group-variable/conditionally-set? group-variable]
    [bool-setting "Hide from Results?" :group-variable/hide-result? group-variable]
+   [bool-setting "Hide from csv?" :group-variable/hide-csv? group-variable]
    [dropdown-setting "Direction" :group-variable/direction group-variable]])
 
 ;;; Public Views
