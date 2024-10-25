@@ -352,13 +352,13 @@
 
  (fn [route-order [_ _ws-uuid io]]
    (when io
-     (let [first-path      (first (filter
+     (when-let [first-path (first (filter
                                    (fn [path] (str/includes? path (name io)))
-                                   route-order))
-           module-regex    (gstring/format "(?<=modules/).*(?=/%s)" (name io))
-           submodule-regex (gstring/format "(?<=%s/).*" (name io))]
-       [(re-find (re-pattern module-regex) first-path)
-        (re-find (re-pattern submodule-regex) first-path)]))))
+                                   route-order))]
+       (let [module-regex    (gstring/format "(?<=modules/).*(?=/%s)" (name io))
+             submodule-regex (gstring/format "(?<=%s/).*" (name io))]
+         [(re-find (re-pattern module-regex) first-path)
+          (re-find (re-pattern submodule-regex) first-path)])))))
 
 ;;; show-group?
 (defn- csv? [s] (< 1 (count (str/split s #","))))

@@ -65,10 +65,11 @@
                           [module-slug submodule-slug] @(subscribe [:wizard/first-module+submodule
                                                                     ws-uuid
                                                                     next-io])]
-                      (dispatch [:wizard/select-tab (merge params
-                                                           {:module    module-slug
-                                                            :io        next-io
-                                                            :submodule submodule-slug})])))]
+                      (when (and module-slug submodule-slug)
+                        (dispatch [:wizard/select-tab (merge params
+                                                             {:module    module-slug
+                                                              :io        next-io
+                                                              :submodule submodule-slug})]))))]
     [:div.wizard-header__io-tabs
      [c/tab-group {:variant   "secondary"
                    :flat-edge "top"

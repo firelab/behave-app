@@ -26,6 +26,11 @@
        :doc      "Get the :bp/uuid using the cpp function name"}
   cpp-fn->uuid c/cpp-fn->uuid)
 
+(def ^{:arglists '([conn m])
+       :doc      "Given a map of with the names of a namespace, class and function, return a map
+                   that resolves the names to a uuid. Requires all three names."}
+  cpp-uuids c/cpp-uuids)
+
 (def ^{:arglists '([conn fn-name param-name])
        :doc      "Get the :bp/uuid using the cpp function name and parameter name."}
   cpp-param->uuid c/cpp-param->uuid)
