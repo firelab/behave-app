@@ -42,7 +42,7 @@
   [{:keys [ws-uuid headers title]
     :or   {headers @(subscribe [:worksheet/result-table-headers-sorted ws-uuid])
            title  "Results Table"}}]
-  (let [headers-set (set (map first headers))
+  (let [headers-set               (set (map first headers))
         *cell-data                (subscribe [:worksheet/result-table-cell-data ws-uuid])
         table-setting-filters     (subscribe [:worksheet/table-settings-filters ws-uuid])
         map-units-settings-entity @(subscribe [:worksheet/map-units-settings-entity ws-uuid])

@@ -61,7 +61,7 @@
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
-      {:db/ident       :group-variable/order
+   {:db/ident       :group-variable/order
     :db/doc         "Group variable's order."
     :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
@@ -117,7 +117,7 @@
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :group-variable/hide-csv?
-    :db/doc         "Whether a Gropu Variable is excluded from the csv export"
+    :db/doc         "Whether a Group Variable is excluded from the csv export"
     :db/valueType   :db.type/boolean
     :db/cardinality :db.cardinality/one}
 
@@ -126,11 +126,11 @@
 ;;; Tests
 
 (comment
-  (s/explain :behave/group-variable {:group-variable/uuid           (str (random-uuid))
-                                    :group-variable/order           0
-                                    :group-variable/translation-key "behave:contain:fire:group:var"
-                                    :group-variable/help-key        "behave:contain:fire:group:var:help"
-                                    :group-variable/cpp-class       "BehaveContain"
-                                    :group-variable/cpp-namespace   "global"
-                                    :group-variable/cpp-function    "setFireSize"})
-)
+  (s/explain :behave/group-variable {:group-variable/uuid            (str (random-uuid))
+                                     :group-variable/order           0
+                                     :group-variable/translation-key "behave:contain:fire:group:var"
+                                     :group-variable/help-key        "behave:contain:fire:group:var:help"
+                                     :group-variable/cpp-class       "BehaveContain"
+                                     :group-variable/cpp-namespace   "global"
+                                     :group-variable/cpp-function    "setFireSize"})
+  )
