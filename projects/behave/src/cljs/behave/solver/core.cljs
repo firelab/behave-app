@@ -211,11 +211,10 @@
     (run-fn module)
 
     ;; Store diagrams
-    (store-all-diagrams! {:ws-uuid     ws-uuid
-                          :all-outputs all-outputs
-                          :row-id      row-id
-                          :diagrams    diagrams
-                          :module      module})
+    (store-all-diagrams! {:ws-uuid  ws-uuid
+                          :row-id   row-id
+                          :diagrams diagrams
+                          :module   module})
 
     ;; Get outputs, merge existing inputs/outputs with new inputs/outputs
     (update row :outputs merge (get-outputs module fns module-outputs))))
@@ -230,7 +229,7 @@
   ([ws-uuid]
    (let [modules     (set (q/worksheet-modules ws-uuid))
          all-inputs  @(rf/subscribe [:worksheet/all-inputs+units-vector ws-uuid])
-         all-outputs @(rf/subscribe [:worksheet/all-output-uuids ws-uuid])]
+         all-outputs @(rf/subscribe [:worksheet/output-uuids-filtered ws-uuid])]
 
      (-> (solve-worksheet ws-uuid modules all-inputs all-outputs)
          (t/add-to-results-table ws-uuid))))

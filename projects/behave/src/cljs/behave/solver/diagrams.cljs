@@ -67,11 +67,12 @@
      (surface/getWindSpeed module (enums/speed-units "ChainsPerHour")
                            (surface/getWindHeightInputMode module))]))
 
-(defn store-all-diagrams! [{:keys [ws-uuid all-outputs row-id module diagrams]}]
-  (doseq [diagram diagrams]
-    (let [group-variable-uuid (get-in diagram [:diagram/group-variable :bp/uuid])]
-      (when (some #{group-variable-uuid} all-outputs)
-        (rf/dispatch (build-event-vector {:ws-uuid ws-uuid
-                                          :diagram diagram
-                                          :row-id  row-id
-                                          :module  module}))))))
+(defn store-all-diagrams! [{:keys [ws-uuid row-id module diagrams]}]
+  (let [all-outputs @(rf/subscribe [:worksheet/all-output-uuids ws-uuid])]
+   (doseq [diagram diagrams]
+     (let [group-variable-uuid (get-in diagram [:diagram/group-variable :bp/uuid])]
+       (when (some #{group-variable-uuid} all-outputs)
+         (rf/dispatch (build-event-vector {:ws-uuid ws-uuid
+                                           :diagram diagram
+                                           :row-id  row-id
+                                           :module  module})))))))
