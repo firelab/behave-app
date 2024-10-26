@@ -69,7 +69,7 @@
    [:h4 (str (if *tool "Edit" "Add") " Tool")
     [tool-form application-id *tool num-tools]]])
 
-;; Group Variable Order Override Table
+;; Priortzed Results Table
 (defn prioritized-results-table
   ""
   [app-id]
@@ -94,14 +94,14 @@
   "Displays page for modules. Takes a single map with:
   - id [int] - Application Entity ID"
   [{nid :nid}]
-  (let [application       (rf/subscribe [:application [:bp/nid nid]])
-        app-id            (:db/id @application)
-        modules           (rf/subscribe [:application/modules app-id])
-        *module           (rf/subscribe [:state :module])
-        tools             (rf/subscribe [:application/tools app-id])
-        *tool             (rf/subscribe [:state :tool])
-        gv-order-override (rf/subscribe [:state :prioritized-results])
-        gv-id-to-edit     (:db/id (:prioritized-results/group-variable @gv-order-override))]
+  (let [application        (rf/subscribe [:application [:bp/nid nid]])
+        app-id             (:db/id @application)
+        modules            (rf/subscribe [:application/modules app-id])
+        *module            (rf/subscribe [:state :module])
+        tools              (rf/subscribe [:application/tools app-id])
+        *tool              (rf/subscribe [:state :tool])
+        prioritzed-results (rf/subscribe [:state :prioritized-results])
+        gv-id-to-edit      (:db/id (:prioritized-results/group-variable @prioritzed-results ))]
     [:<>
      [sidebar
       "Modules"
@@ -136,7 +136,7 @@
         [app-translations (:application/translation-key @application)]]
        [:hr]
        [accordion
-        "Application Group Varible Order Overrides"
+        "Application's Prioritized Results"
         [:div.col-12
          [:div.row
           [prioritized-results-table app-id]
@@ -144,11 +144,11 @@
            {:app-id    app-id
             :gv-id     gv-id-to-edit
             :on-submit #(let [gv-count @(rf/subscribe [:application/prioritized-results-count app-id])]
-                           (rf/dispatch [:api/upsert-entity
-                                         (if (:db/id @gv-order-override)
-                                           {:db/id                                        (:db/id @gv-order-override)
-                                            :prioritized-results/group-variable %}
-                                           {:application/_prioritized-results  app-id
-                                            :prioritized-results/group-variable %
-                                            :prioritized-results/order          gv-count})])
-                           (rf/dispatch [:state/set-state :prioritized-results nil]))}]]]]]]]))
+                          (rf/dispatch [:api/upsert-entity
+                                        (if (:db/id @prioritzed-results )
+                                          {:db/id                              (:db/id @prioritzed-results )
+                                           :prioritized-results/group-variable %}
+                                          {:application/_prioritized-results   app-id
+                                           :prioritized-results/group-variable %
+                                           :prioritized-results/order          gv-count})])
+                          (rf/dispatch [:state/set-state :prioritized-results nil]))}]]]]]]]))

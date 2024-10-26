@@ -50,7 +50,7 @@
    (rf/subscribe [:pull-children :application/tools application-id]))
  identity)
 
-;; Results Order Overrides
+;; Prioritized Results
 (rf/reg-sub
  :application/prioritized-results
 
