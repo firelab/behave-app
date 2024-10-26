@@ -248,7 +248,10 @@
  (fn [_ [_ data]]
    {:transact
     [(merge data
-            (when (nil? (:db/id data)) {:db/id -1}))]}))
+            (when (nil? (:db/id data))
+              {:db/id -1
+               :bp/uuid (str (squuid))
+               :bp/nid  (nano-id)}))]}))
 
 (reg-event-fx
   :api/update-entity

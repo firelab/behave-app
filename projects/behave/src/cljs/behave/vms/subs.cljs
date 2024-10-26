@@ -95,23 +95,37 @@
 (reg-sub
  :vms/group-variable-order
  (fn [_]
-   (let [module-eids @(q '[:find [?e ...]
-                           :where [?e :module/name ?name]])
-         modules     (mapv entity-from-eid module-eids)]
-
-     (->> (for [module (->> modules
-                            (sort-by :module/order))]
-            (let [submodules        (:module/submodules module)
-                  input-submodules  (->> (filter #(= (:submodule/io %) :input) submodules)
-                                         (sort-by :submodule/order))
-                  output-submodules (->> (filter #(= (:submodule/io %) :output) submodules)
-                                         (sort-by :submodule/order))]
-              (for [submodule (concat input-submodules output-submodules)]
-                (for [group (->> (:submodule/groups submodule)
-                                 (sort-by :group/order))]
-                  (process-group group)))))
-          (flatten)
-          (into [])))))
+   (let [app-id              @(q '[:find ?app-id .
+                                   :in $ ?app-name
+                                   :where
+                                   [?app-id :application/name ?app-name]]
+                                 "BehavePlus")
+         module-eids         @(q '[:find [?m ...]
+                                   :in $ ?app-id
+                                   :where
+                                   [?app-id :application/modules ?m]
+                                   [?m :module/name ?name]]
+                                 app-id)
+         modules             (mapv entity-from-eid module-eids)
+         normal-order        (->> (for [module (->> modules
+                                                    (sort-by :module/order))]
+                                    (let [submodules        (:module/submodules module)
+                                          input-submodules  (->> (filter #(= (:submodule/io %) :input) submodules)
+                                                                 (sort-by :submodule/order))
+                                          output-submodules (->> (filter #(= (:submodule/io %) :output) submodules)
+                                                                 (sort-by :submodule/order))]
+                                      (for [submodule (concat input-submodules output-submodules)]
+                                        (for [group (->> (:submodule/groups submodule)
+                                                         (sort-by :group/order))]
+                                          (process-group group)))))
+                                  (flatten)
+                                  (into []))
+         prioritized-results (sort-by
+                              :prioritized-results/order
+                              (mapv #(:bp/uuid (:prioritized-results/group-variable %))
+                                    (:application/prioritized-results
+                                     (d/entity @@vms-conn app-id))))]
+     (distinct (concat prioritized-results normal-order)))))
 
 (reg-sub
  :vms/units-uuid->short-code
