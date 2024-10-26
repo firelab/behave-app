@@ -632,7 +632,38 @@
         *cell-data           (subscribe [:worksheet/result-table-cell-data ws-uuid])
         *directional-tables? (subscribe [:wizard/output-directional-tables? ws-uuid])
         show-tool-selector?  @(subscribe [:tool/show-tool-selector?])
-        selected-tool-uuid   @(subscribe [:tool/selected-tool-uuid])]
+        selected-tool-uuid   @(subscribe [:tool/selected-tool-uuid])
+        tabs                 (cond-> []
+
+                               (seq @*notes)
+                               (conj {:label     "Notes"
+                                      :tab       :notes
+                                      :icon-name :notes
+                                      :selected? (= @*tab-selected :notes)})
+
+                               :always
+                               (into [{:label     "Inputs"
+                                       :tab       :inputs
+                                       :icon-name :tables
+                                       :selected? (= @*tab-selected :inputs)}
+                                      {:label     "Outputs"
+                                       :tab       :outputs
+                                       :icon-name :tables
+                                       :selected? (= @*tab-selected :outputs)}])
+
+                               (get-in @*worksheet [:worksheet/graph-settings :graph-settings/enabled?])
+                               (conj {:label     "Graph"
+                                      :tab       :graph
+                                      :icon-name :graphs
+                                      :selected? (= @*tab-selected :graph)})
+
+                               (seq (:worksheet/diagrams @*worksheet))
+                               (conj {:label     "Diagram"
+                                      :tab       :diagram
+                                      :icon-name :graphs
+                                      :selected? (= @*tab-selected :diagram)} ))]
+    (when (not @*tab-selected)
+      (dispatch-sync [:wizard/results-select-tab (first tabs)]))
     [:<>
      (when show-tool-selector?
        [tool-selector])
@@ -658,30 +689,7 @@
          [:div.wizard-header__results-tabs
           [c/tab-group {:variant  "highlight"
                         :on-click #(dispatch [:wizard/results-select-tab %])
-                        :tabs     (cond-> [{:label     "Notes"
-                                            :tab       :notes
-                                            :icon-name :notes
-                                            :selected? (= @*tab-selected :notes)}
-                                           {:label     "Inputs"
-                                            :tab       :inputs
-                                            :icon-name :tables
-                                            :selected? (= @*tab-selected :inputs)}
-                                           {:label     "Outputs"
-                                            :tab       :outputs
-                                            :icon-name :tables
-                                            :selected? (= @*tab-selected :outputs)}]
-
-                                    (get-in @*worksheet [:worksheet/graph-settings :graph-settings/enabled?])
-                                    (conj {:label     "Graph"
-                                           :tab       :graph
-                                           :icon-name :graphs
-                                           :selected? (= @*tab-selected :graph)})
-
-                                    (seq (:worksheet/diagrams @*worksheet))
-                                    (conj {:label     "Diagram"
-                                           :tab       :diagram
-                                           :icon-name :graphs
-                                           :selected? (= @*tab-selected :diagram)} ))}]]]
+                        :tabs     tabs}]]]
         [:div.review-wizard-page__body
          [:div.wizard-results__notes {:id "notes"}
           (wizard-notes @*notes)]
@@ -689,7 +697,7 @@
           @(<t (bp "inputs_table"))]
          [inputs-table ws-uuid]
          (when (seq @*cell-data)
-           [:div.wizard-results__table {:id "table"}
+           [:div.wizard-results__table {:id "outputs"}
             [:div.wizard-notes__header @(<t (bp "table"))]
             [pivot-tables ws-uuid]
             (if @*directional-tables?
