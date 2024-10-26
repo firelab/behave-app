@@ -1,13 +1,13 @@
 (ns behave.components.input-group
-  (:require [reagent.core            :as r]
-            [re-frame.core           :as rf]
-            [behave.components.core  :as c]
-            [dom-utils.interface     :refer [input-value]]
-            [string-utils.interface  :refer [->kebab]]
-            [behave.translate        :refer [<t bp]]
-            [behave.utils            :refer [inclusive-range]]
+  (:require [behave.components.core          :as c]
             [behave.components.unit-selector :refer [unit-display]]
-            [clojure.string :as str]))
+            [behave.translate                :refer [<t bp]]
+            [behave.utils                    :refer [inclusive-range]]
+            [clojure.string                  :as str]
+            [dom-utils.interface             :refer [input-value]]
+            [re-frame.core                   :as rf]
+            [reagent.core                    :as r]
+            [string-utils.interface          :refer [->kebab]]))
 
 ;;; Helpers
 
@@ -179,9 +179,9 @@
                                group-uuid
                                repeat-id
                                repeat-group?]
-  (let [value      (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id gv-uuid])
+  (let [value          (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id gv-uuid])
         on-focus-click (partial highlight-help-section help-key)
-        value-atom (r/atom @value)]
+        value-atom     (r/atom @value)]
     [:div.wizard-input
      {:on-click on-focus-click
       :on-focus on-focus-click}
@@ -196,11 +196,11 @@
                     :required?     true}]]))
 
 (defn repeat-group [ws-uuid group variables]
-  (let [{group-name :group/name
-         group-uuid :bp/uuid} group
-        *repeat-ids           (rf/subscribe [:worksheet/group-repeat-ids ws-uuid group-uuid])
-        next-repeat-id        (or  (some->> @*repeat-ids seq (apply max) inc)
-                                   0)]
+  (let [{group-translation-key :group/translation-key
+         group-uuid            :bp/uuid} group
+        *repeat-ids                      (rf/subscribe [:worksheet/group-repeat-ids ws-uuid group-uuid])
+        next-repeat-id                   (or  (some->> @*repeat-ids seq (apply max) inc)
+                                              0)]
     [:<>
      (map-indexed
       (fn [index repeat-id]
@@ -208,7 +208,7 @@
         [:<>
          [:div.wizard-repeat-group
           [:div.wizard-repeat-group__header
-           (str group-name " #" (inc index))]]
+           (str @(<t group-translation-key) " #" (inc index))]]
          [:div.wizard-group__inputs
           (for [variable variables]
             ^{:key (:db/id variable)}
@@ -226,7 +226,8 @@
   (let [variables (sort-by :group-variable/order variables)]
     [:div.wizard-group
      {:class (str "wizard-group--level-" level)}
-     [:div.wizard-group__header (:group/name group)]
+     [:div.wizard-group__header
+      @(<t (:group/translation-key group))]
      (if (:group/repeat? group)
        [repeat-group ws-uuid group variables]
        [:div.wizard-group__inputs

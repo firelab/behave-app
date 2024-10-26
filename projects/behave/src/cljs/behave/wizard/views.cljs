@@ -10,8 +10,7 @@
             [behave.components.results.inputs.views :refer [inputs-table]]
             [behave.components.results.table      :refer [result-table-download-link
                                                           directional-result-tables
-                                                          pivot-tables
-                                                          raw-result-table]]
+                                                          pivot-tables]]
             [behave.tool.views                    :refer [tool tool-selector]]
             [behave-routing.main                  :refer [routes current-route-order]]
             [behave.translate                     :refer [<t bp]]
