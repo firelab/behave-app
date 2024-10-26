@@ -1165,11 +1165,14 @@ body {
 .print {
   overflow-y: scroll;
 }
-
 .print__inputs-table .table-header__header,
 .print__inputs-table .table-cell {
   text-align: left;
   white-space: pre;
+}
+
+.print__inputs-table .table__title {
+  text-align: left;
 }
 
 .print__inputs-table .table {
