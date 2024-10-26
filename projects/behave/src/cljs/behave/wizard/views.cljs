@@ -183,14 +183,14 @@
 (defn wizard-expand []
   (let [working-area-expanded? @(subscribe [:wizard/working-area-expanded?])]
     (if working-area-expanded?
-        [:div.accordion__collapse
-         [c/button {:icon-name "collapse"
-                    :on-click  #(dispatch [:wizard/toggle-expand])
-                    :variant   "primary"}]]
-        [:div.accordion__expand
-         [c/button {:icon-name "expand"
-                    :on-click  #(dispatch [:wizard/toggle-expand])
-                    :variant   "primary"}]])))
+      [:div.accordion__collapse
+       [c/button {:icon-name "collapse"
+                  :on-click  #(dispatch [:wizard/toggle-expand])
+                  :variant   "primary"}]]
+      [:div.accordion__expand
+       [c/button {:icon-name "expand"
+                  :on-click  #(dispatch [:wizard/toggle-expand])
+                  :variant   "primary"}]])))
 
 (defn wizard-page [{:keys [module io submodule route-handler ws-uuid] :as params}]
   (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
@@ -636,29 +636,35 @@
         tabs                 (cond-> []
 
                                (seq @*notes)
-                               (conj {:label     "Notes"
+                               (conj {:label     (-> @(<t (bp "notes"))
+                                                     s/capitalize-words)
                                       :tab       :notes
                                       :icon-name :notes
                                       :selected? (= @*tab-selected :notes)})
 
                                :always
-                               (into [{:label     "Inputs"
+                               (into [{:label     (-> @(<t (bp "input_tables"))
+                                                      s/capitalize-words)
                                        :tab       :inputs
                                        :icon-name :tables
                                        :selected? (= @*tab-selected :inputs)}
-                                      {:label     "Outputs"
+
+                                      {:label     (-> @(<t (bp "output_tables"))
+                                                      s/capitalize-words)
                                        :tab       :outputs
                                        :icon-name :tables
                                        :selected? (= @*tab-selected :outputs)}])
 
                                (get-in @*worksheet [:worksheet/graph-settings :graph-settings/enabled?])
-                               (conj {:label     "Graph"
+                               (conj {:label     (-> @(<t (bp "output_graphs"))
+                                                     s/capitalize-words)
                                       :tab       :graph
                                       :icon-name :graphs
                                       :selected? (= @*tab-selected :graph)})
 
                                (seq (:worksheet/diagrams @*worksheet))
-                               (conj {:label     "Diagram"
+                               (conj {:label     (-> @(<t (bp "output_diagrams"))
+                                                     s/capitalize-words)
                                       :tab       :diagram
                                       :icon-name :graphs
                                       :selected? (= @*tab-selected :diagram)} ))]
@@ -694,11 +700,13 @@
          [:div.wizard-results__notes {:id "notes"}
           (wizard-notes @*notes)]
          [:div.wizard-notes__header {:id "inputs"}
-          @(<t (bp "inputs_table"))]
+          (-> @(<t (bp "input_tables"))
+              s/capitalize-words)]
          [inputs-table ws-uuid]
          (when (seq @*cell-data)
            [:div.wizard-results__table {:id "outputs"}
-            [:div.wizard-notes__header @(<t (bp "table"))]
+            [:div.wizard-notes__header (-> @(<t (bp "output_tables"))
+                                           s/capitalize-words)]
             [pivot-tables ws-uuid]
             (if @*directional-tables?
               [directional-result-tables ws-uuid]
