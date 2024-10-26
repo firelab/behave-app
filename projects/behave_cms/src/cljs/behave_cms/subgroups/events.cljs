@@ -3,6 +3,6 @@
 
 (rf/reg-event-fx
  :subgroups/edit-variables
- (fn [_ [_ eid]]
+ (fn [_ [_ variable]]
    {:fx [[:dispatch [:navigate "/variables"]]
-         [:dispatch [:state/set-state :variable eid]]]}))
+         [:dispatch [:state/set-state :variables [:bp/nid (:bp/nid variable)]]]]}))

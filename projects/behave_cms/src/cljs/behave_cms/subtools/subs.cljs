@@ -9,9 +9,7 @@
 
  (fn [variables]
    (->> (map (fn [sv] (let [variable (get-in sv [:variable/_subtool-variables 0])]
-                        (-> sv
-                            (dissoc :variable/_subtool-variables)
-                            (merge (dissoc variable :db/id :bp/nid)))))
+                        (merge sv (dissoc variable :db/id :bp/nid))))
              variables)
         (sort-by :subtool-variable/order))))
 
