@@ -2,8 +2,7 @@
   (:require [behave.schema.core :refer [rules]]
             [behave.vms.store   :refer [pull pull-many q entity-from-uuid entity-from-eid vms-conn entity-from-eid]]
             [datascript.core    :as d]
-            [re-frame.core      :refer [reg-sub subscribe]]
-            [re-frame.core :as rf]))
+            [re-frame.core      :refer [reg-sub subscribe]]))
 
 (reg-sub
  :vms/query
@@ -122,9 +121,9 @@
                                              (flatten)
                                              (into []))
          application-gv-order-overrides (sort-by
-                                         :group-variable-order-override/order
-                                         (mapv #(:bp/uuid (:group-variable-order-override/group-variable %))
-                                               (:application/group-variable-order-overrides
+                                         :prioritized-results/order
+                                         (mapv #(:bp/uuid (:prioritized-results/group-variable %))
+                                               (:application/prioritized-results
                                                 (d/entity @@vms-conn app-id))))]
      (distinct (concat application-gv-order-overrides normal-order)))))
 

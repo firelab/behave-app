@@ -70,23 +70,23 @@
     [tool-form application-id *tool num-tools]]])
 
 ;; Group Variable Order Override Table
-(defn group-variable-order-override-table
+(defn prioritized-results-table
   ""
   [app-id]
-  (let [group-variable-order-overrides (rf/subscribe [:application/group-variable-order-overrides app-id])]
+  (let [prioritized-results (rf/subscribe [:application/prioritized-results app-id])]
     [:div.col-6
      [:div
       [:h4 "Group Variables"]
       [:p "Use this list to sort group variables ahead of the normal sort order accross all modules in this application"]
       [simple-table
        [:variable/name]
-       (sort-by :group-variable-order-override/order @group-variable-order-overrides)
-       {:on-select   #(rf/dispatch [:state/set-state :group-variable-order-override %])
+       (sort-by :prioritized-results/order @prioritized-results)
+       {:on-select   #(rf/dispatch [:state/set-state :prioritized-results %])
         :on-delete   #(rf/dispatch [:api/delete-entity %])
-        :on-increase #(rf/dispatch [:api/reorder % @group-variable-order-overrides
-                                    :group-variable-order-override/order :inc])
-        :on-decrease #(rf/dispatch [:api/reorder % @group-variable-order-overrides
-                                    :group-variable-order-override/order :dec])}]]]))
+        :on-increase #(rf/dispatch [:api/reorder % @prioritized-results
+                                    :prioritized-results/order :inc])
+        :on-decrease #(rf/dispatch [:api/reorder % @prioritized-results
+                                    :prioritized-results/order :dec])}]]]))
 
 ;;; Public
 
@@ -100,8 +100,8 @@
         *module           (rf/subscribe [:state :module])
         tools             (rf/subscribe [:application/tools app-id])
         *tool             (rf/subscribe [:state :tool])
-        gv-order-override (rf/subscribe [:state :group-variable-order-override])
-        gv-id-to-edit     (:db/id (:group-variable-order-override/group-variable @gv-order-override))]
+        gv-order-override (rf/subscribe [:state :prioritized-results])
+        gv-id-to-edit     (:db/id (:prioritized-results/group-variable @gv-order-override))]
     [:<>
      [sidebar
       "Modules"
@@ -139,16 +139,16 @@
         "Application Group Varible Order Overrides"
         [:div.col-12
          [:div.row
-          [group-variable-order-override-table app-id]
+          [prioritized-results-table app-id]
           [group-variable-selector
            {:app-id    app-id
             :gv-id     gv-id-to-edit
-            :on-submit #(let [gv-count @(rf/subscribe [:application/group-variable-order-overrides-count app-id])]
+            :on-submit #(let [gv-count @(rf/subscribe [:application/prioritized-results-count app-id])]
                            (rf/dispatch [:api/upsert-entity
                                          (if (:db/id @gv-order-override)
                                            {:db/id                                        (:db/id @gv-order-override)
-                                            :group-variable-order-override/group-variable %}
-                                           {:application/_group-variable-order-overrides  app-id
-                                            :group-variable-order-override/group-variable %
-                                            :group-variable-order-override/order          gv-count})])
-                           (rf/dispatch [:state/set-state :group-variable-order-override nil]))}]]]]]]]))
+                                            :prioritized-results/group-variable %}
+                                           {:application/_prioritized-results  app-id
+                                            :prioritized-results/group-variable %
+                                            :prioritized-results/order          gv-count})])
+                           (rf/dispatch [:state/set-state :prioritized-results nil]))}]]]]]]]))

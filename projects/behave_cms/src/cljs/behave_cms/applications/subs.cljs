@@ -50,27 +50,27 @@
    (rf/subscribe [:pull-children :application/tools application-id]))
  identity)
 
-;; Group Variable Order Overrides
+;; Results Order Overrides
 (rf/reg-sub
- :application/group-variable-order-overrides
+ :application/prioritized-results
 
  (fn [[_ application-id]]
-   (rf/subscribe [:pull-children :application/group-variable-order-overrides application-id]))
+   (rf/subscribe [:pull-children :application/prioritized-results application-id]))
 
- (fn [group-variable-order-overrides _]
+ (fn [prioritized-results _]
    (map
-    (fn [{gv  :group-variable-order-override/group-variable
-          :as group-variable-order-override-entity}]
+    (fn [{gv  :prioritized-results/group-variable
+          :as prioritized-results-entity}]
       (let [gv-entity     (d/entity @@conn (:db/id gv))
             variable-name (->> gv-entity
                                :variable/_group-variables
                                first
                                :variable/name)]
-        (merge group-variable-order-override-entity
+        (merge prioritized-results-entity
                {:variable/name variable-name})))
-    group-variable-order-overrides)))
+    prioritized-results)))
 
 (rf/reg-sub
- :application/group-variable-order-overrides-count
+ :application/prioritized-results-count
  (fn [_ [_ app-id]]
-   (count (:application/group-variable-order-overrides (d/entity @@conn app-id)))))
+   (count (:application/prioritized-results (d/entity @@conn app-id)))))

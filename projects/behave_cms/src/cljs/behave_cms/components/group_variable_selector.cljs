@@ -1,9 +1,9 @@
 (ns behave-cms.components.group-variable-selector
-  (:require [clojure.set                        :refer [rename-keys]]
-            [behave-cms.components.common       :refer [dropdown]]
-            [reagent.core                       :as r]
-            [re-frame.core                      :as rf]
-            [behave-cms.utils                   :as u]))
+  (:require [clojure.set                  :refer [rename-keys]]
+            [behave-cms.components.common :refer [dropdown]]
+            [reagent.core                 :as r]
+            [re-frame.core                :as rf]
+            [behave-cms.utils             :as u]))
 
 (defn- ->option [name-key]
   (fn [m]

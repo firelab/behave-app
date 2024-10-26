@@ -80,8 +80,9 @@
     :db/unique      :db.unique/identity
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :application/group-variable-order-overrides
-    :db/doc         ""
+   {:db/ident       :application/prioritized-results
+    :db/doc         "Appication's prioritized results entries. These entries prioritizes a result's order
+                     over the natural order that comes from Modules, Submodules, Groups and Group-variables."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many
     :db/isComponent true}])
