@@ -6487,6 +6487,8 @@ var _emscripten_enum_SurfaceRunInDirectionOf_MaxSpread = Module["_emscripten_enu
 /** @type {function(...*):?} */
 var _emscripten_enum_SurfaceRunInDirectionOf_DirectionOfInterest = Module["_emscripten_enum_SurfaceRunInDirectionOf_DirectionOfInterest"] = createExportWrapper("emscripten_enum_SurfaceRunInDirectionOf_DirectionOfInterest");
 /** @type {function(...*):?} */
+var _emscripten_enum_SurfaceRunInDirectionOf_HeadingFlankingBacking = Module["_emscripten_enum_SurfaceRunInDirectionOf_HeadingFlankingBacking"] = createExportWrapper("emscripten_enum_SurfaceRunInDirectionOf_HeadingFlankingBacking");
+/** @type {function(...*):?} */
 var _emscripten_enum_FireType_FireTypeEnum_Surface = Module["_emscripten_enum_FireType_FireTypeEnum_Surface"] = createExportWrapper("emscripten_enum_FireType_FireTypeEnum_Surface");
 /** @type {function(...*):?} */
 var _emscripten_enum_FireType_FireTypeEnum_Torching = Module["_emscripten_enum_FireType_FireTypeEnum_Torching"] = createExportWrapper("emscripten_enum_FireType_FireTypeEnum_Torching");
@@ -13085,6 +13087,8 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['MaxSpread'] = _emscripten_enum_SurfaceRunInDirectionOf_MaxSpread();
 
     Module['DirectionOfInterest'] = _emscripten_enum_SurfaceRunInDirectionOf_DirectionOfInterest();
+
+    Module['HeadingFlankingBacking'] = _emscripten_enum_SurfaceRunInDirectionOf_HeadingFlankingBacking();
 
     
 

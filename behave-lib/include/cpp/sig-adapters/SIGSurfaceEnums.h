@@ -8,7 +8,8 @@ enum class WindUpslopeAlignmentMode {
 
 enum class SurfaceRunInDirectionOf {
   MaxSpread,
-  DirectionOfInterest
+  DirectionOfInterest,
+  HeadingFlankingBacking
 };
 
 #endif // SURFACEENUMS_H

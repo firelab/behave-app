@@ -3665,6 +3665,9 @@ SurfaceRunInDirectionOf EMSCRIPTEN_KEEPALIVE emscripten_enum_SurfaceRunInDirecti
 SurfaceRunInDirectionOf EMSCRIPTEN_KEEPALIVE emscripten_enum_SurfaceRunInDirectionOf_DirectionOfInterest() {
   return SurfaceRunInDirectionOf::DirectionOfInterest;
 }
+SurfaceRunInDirectionOf EMSCRIPTEN_KEEPALIVE emscripten_enum_SurfaceRunInDirectionOf_HeadingFlankingBacking() {
+  return SurfaceRunInDirectionOf::HeadingFlankingBacking;
+}
 
 // FireType_FireTypeEnum
 FireType_FireTypeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FireType_FireTypeEnum_Surface() {

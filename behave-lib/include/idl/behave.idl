@@ -541,7 +541,8 @@ enum WindUpslopeAlignmentMode {
 
 enum SurfaceRunInDirectionOf {
   "SurfaceRunInDirectionOf::MaxSpread",
-  "SurfaceRunInDirectionOf::DirectionOfInterest"
+  "SurfaceRunInDirectionOf::DirectionOfInterest",
+  "SurfaceRunInDirectionOf::HeadingFlankingBacking"
 };
 
 

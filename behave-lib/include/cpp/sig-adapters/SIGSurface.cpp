@@ -126,7 +126,7 @@ void SIGSurface::setSurfaceFireSpreadDirectionMode(SurfaceFireSpreadDirectionMod
 }
 
 void SIGSurface::doSurfaceRun() {
-  if (surfaceRunInDirectionOf_ == SurfaceRunInDirectionOf::MaxSpread) {
+    if (surfaceRunInDirectionOf_ == SurfaceRunInDirectionOf::MaxSpread || (surfaceRunInDirectionOf_ == SurfaceRunInDirectionOf::MaxSpread)) {
     doSurfaceRunInDirectionOfMaxSpread();
   } else {
     doSurfaceRunInDirectionOfInterest(directionOfInterest_, directionMode_);
