@@ -522,6 +522,7 @@ Module.SIGSpot = class {
   getMaxMountainousTerrainSpottingDistanceFromBurningPile() {}
   getMaxMountainousTerrainSpottingDistanceFromSurfaceFire() {}
   getMaxMountainousTerrainSpottingDistanceFromTorchingTrees() {}
+  getMaxMountainousTerrainSpottingDistanceFromActiveCrown() {}
   getRidgeToValleyDistance() {}
   getRidgeToValleyElevation() {}
   getSurfaceFlameLength() {}
@@ -538,6 +539,7 @@ Module.SIGSpot = class {
   setDBH() {}
   setDownwindCanopyMode() {}
   setDownwindCoverHeight() {}
+  setFireType () {}
   setFlameLength() {}
   setLocation() {}
   setRidgeToValleyDistance() {}

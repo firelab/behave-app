@@ -4957,6 +4957,8 @@ var _emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromSurface
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromTorchingTrees_1 = Module["_emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromTorchingTrees_1"] = createExportWrapper("emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromTorchingTrees_1");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromActiveCrown_1 = Module["_emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromActiveCrown_1"] = createExportWrapper("emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromActiveCrown_1");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGSpot_getRidgeToValleyDistance_1 = Module["_emscripten_bind_SIGSpot_getRidgeToValleyDistance_1"] = createExportWrapper("emscripten_bind_SIGSpot_getRidgeToValleyDistance_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSpot_getRidgeToValleyElevation_1 = Module["_emscripten_bind_SIGSpot_getRidgeToValleyElevation_1"] = createExportWrapper("emscripten_bind_SIGSpot_getRidgeToValleyElevation_1");
@@ -4988,6 +4990,8 @@ var _emscripten_bind_SIGSpot_setDBH_2 = Module["_emscripten_bind_SIGSpot_setDBH_
 var _emscripten_bind_SIGSpot_setDownwindCanopyMode_1 = Module["_emscripten_bind_SIGSpot_setDownwindCanopyMode_1"] = createExportWrapper("emscripten_bind_SIGSpot_setDownwindCanopyMode_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSpot_setDownwindCoverHeight_2 = Module["_emscripten_bind_SIGSpot_setDownwindCoverHeight_2"] = createExportWrapper("emscripten_bind_SIGSpot_setDownwindCoverHeight_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_setFireType_1 = Module["_emscripten_bind_SIGSpot_setFireType_1"] = createExportWrapper("emscripten_bind_SIGSpot_setFireType_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSpot_setFlameLength_2 = Module["_emscripten_bind_SIGSpot_setFlameLength_2"] = createExportWrapper("emscripten_bind_SIGSpot_setFlameLength_2");
 /** @type {function(...*):?} */
@@ -8611,6 +8615,12 @@ SIGSpot.prototype['getMaxMountainousTerrainSpottingDistanceFromTorchingTrees'] =
   return _emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromTorchingTrees_1(self, spottingDistanceUnits);
 };;
 
+SIGSpot.prototype['getMaxMountainousTerrainSpottingDistanceFromActiveCrown'] = SIGSpot.prototype.getMaxMountainousTerrainSpottingDistanceFromActiveCrown = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spottingDistanceUnits) {
+  var self = this.ptr;
+  if (spottingDistanceUnits && typeof spottingDistanceUnits === 'object') spottingDistanceUnits = spottingDistanceUnits.ptr;
+  return _emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromActiveCrown_1(self, spottingDistanceUnits);
+};;
+
 SIGSpot.prototype['getRidgeToValleyDistance'] = SIGSpot.prototype.getRidgeToValleyDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ridgeToValleyDistanceUnits) {
   var self = this.ptr;
   if (ridgeToValleyDistanceUnits && typeof ridgeToValleyDistanceUnits === 'object') ridgeToValleyDistanceUnits = ridgeToValleyDistanceUnits.ptr;
@@ -8703,6 +8713,12 @@ SIGSpot.prototype['setDownwindCoverHeight'] = SIGSpot.prototype.setDownwindCover
   if (downwindCoverHeight && typeof downwindCoverHeight === 'object') downwindCoverHeight = downwindCoverHeight.ptr;
   if (coverHeightUnits && typeof coverHeightUnits === 'object') coverHeightUnits = coverHeightUnits.ptr;
   _emscripten_bind_SIGSpot_setDownwindCoverHeight_2(self, downwindCoverHeight, coverHeightUnits);
+};;
+
+SIGSpot.prototype['setFireType'] = SIGSpot.prototype.setFireType = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fireType) {
+  var self = this.ptr;
+  if (fireType && typeof fireType === 'object') fireType = fireType.ptr;
+  _emscripten_bind_SIGSpot_setFireType_1(self, fireType);
 };;
 
 SIGSpot.prototype['setFlameLength'] = SIGSpot.prototype.setFlameLength = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameLength, flameLengthUnits) {

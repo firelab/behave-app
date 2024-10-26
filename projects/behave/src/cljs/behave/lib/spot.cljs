@@ -39,6 +39,9 @@
 (defn setFlameLength [self flameLength flameLengthUnits]
   (.setFlameLength self flameLength flameLengthUnits))
 
+(defn setFireType [self fireType]
+  (.setFireType self fireType))
+
 (defn setLocation [self location]
   (.setLocation self location))
 
@@ -136,6 +139,9 @@
 
 (defn getMaxMountainousTerrainSpottingDistanceFromTorchingTrees [self spottingDistanceUnits]
   (.getMaxMountainousTerrainSpottingDistanceFromTorchingTrees self spottingDistanceUnits))
+
+(defn getMaxMountainousTerrainSpottingDistanceFromActiveCrown [self spottingDistanceUnits]
+  (.getMaxMountainousTerrainSpottingDistanceFromActiveCrown self spottingDistanceUnits))
 
 (defn getRidgeToValleyDistance [self ridgeToValleyDistanceUnits]
   (.getRidgeToValleyDistance self ridgeToValleyDistanceUnits))

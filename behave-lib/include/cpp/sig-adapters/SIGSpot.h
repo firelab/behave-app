@@ -34,19 +34,24 @@
 #define _SIGSPOT_H_
 
 #include "spot.h"
+#include "crown.h"
 #include "surfaceInputEnums.h"
 
 class SIGSpot : public Spot {
 public:
   void calculateAll();
+  void setFireType(FireType::FireTypeEnum fireType);
   void setActiveCrownFlameLength(double flameLength, LengthUnits::LengthUnitsEnum flameLengthUnits);
   void setWindSpeedAndWindHeightInputMode(double windwindSpeed, SpeedUnits::SpeedUnitsEnum windSpeedUnits, WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode);
   void setWindSpeed(double windSpeed, SpeedUnits::SpeedUnitsEnum windSpeedUnits);
   void setWindHeightInputMode(WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode);
+  double getMaxMountainousTerrainSpottingDistanceFromTorchingTrees(LengthUnits::LengthUnitsEnum spottingDistanceUnits) const;
+  double getMaxMountainousTerrainSpottingDistanceFromActiveCrown(LengthUnits::LengthUnitsEnum spottingDistanceUnits) const;
 
 private:
   double windSpeed_;
   WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode_;
+  FireType::FireTypeEnum fireType_;
 };
 
 #endif // SPOT_H
