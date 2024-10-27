@@ -263,8 +263,8 @@ Module.SIGCrown = class {
   isFuelDynamic() {}
   isFuelModelDefined() {}
   isFuelModelReserved() {}
-  setMoistureScenarioByIndex() {}
-  setMoistureScenarioByName() {}
+  setCurrentMoistureScenarioByIndex() {}
+  setCurrentMoistureScenarioByName() {}
   getAspect() {}
   getCanopyBaseHeight() {}
   getCanopyBulkDensity() {}

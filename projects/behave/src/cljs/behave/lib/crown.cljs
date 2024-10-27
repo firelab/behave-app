@@ -303,11 +303,11 @@
 (defn setMoistureOneHour [self moistureOneHour moistureUnits]
   (.setMoistureOneHour self moistureOneHour moistureUnits))
 
-(defn setMoistureScenarioByIndex [self moistureScenarioIndex]
-  (.setMoistureScenarioByIndex self moistureScenarioIndex))
+(defn setCurrentMoistureScenarioByIndex [self moistureScenarioIndex]
+  (.setCurrentMoistureScenarioByIndex self moistureScenarioIndex))
 
-(defn setMoistureScenarioByName [self moistureScenarioName]
-  (.setMoistureScenarioByName self moistureScenarioName))
+(defn setCurrentMoistureScenarioByName [self moistureScenarioName]
+  (.setCurrentMoistureScenarioByName self moistureScenarioName))
 
 (defn setMoistureScenarios [self moistureScenarios]
   (.setMoistureScenarios self moistureScenarios))
