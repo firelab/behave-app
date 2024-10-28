@@ -29,11 +29,14 @@
                         [?v :variable/name "Moisture Scenario"]] db)))
 
   (def moisture-scenario-group-tx
-    (-> (sm/->group
-         (:db/id crown-fuel-moisture-submodule)
-         "Moisture Scenario"
-         (str (:submodule/translation-key crown-fuel-moisture-submodule) ":moisture_scenario"))
-        (assoc :db/id -1)))
+    (merge
+     (sm/->group
+      (:db/id crown-fuel-moisture-submodule)
+      "Moisture Scenario"
+      (str (:submodule/translation-key crown-fuel-moisture-submodule) ":moisture_scenario"))
+     {:db/id                       -1
+      :group/conditionals-operator :or
+      :group/conditionals          [(sm/->module-conditional :equal ["crown"])]}))
 
   (def moisture-scenario-gv-tx
     (merge
