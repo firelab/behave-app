@@ -1,0 +1,57 @@
+variable,min,max,units,key
+1-h Fuel Load,0,45,ton/ac,vSurfaceFuelLoadDead1
+1-h Fuel Moisture,1,60,%,vSurfaceFuelMoisDead1
+10-h Fuel Load,0,45,ton/ac,vSurfaceFuelLoadDead10
+10-h Fuel Moisture,1,60,%,vSurfaceFuelMoisDead10
+100-h Fuel Load,0,45,ton/ac,vSurfaceFuelLoadDead10
+100-h Fuel Moisture,1,60,%,vSurfaceFuelMoisDead10
+20-ft Wind Speed,0,80,mi/h,vWindSpeedAt20FtUpslope
+Aspen Fuel Curing Level,0,90,%,vSurfaceFuelAspenCuring
+Canopy Base Height,0,100,ft,vTreeCrownBaseHt
+Canopy Bulk Density,0.001,0.062,lb/ft3,vTreeCanopyBulkDens
+Canopy Cover,0,100,%,vTreeCanopyCover
+Canopy Height,0,300,ft,vTreeCrownBaseHt
+Chaparral Dead Load Fraction,10,64,%,vSurfaceFuelChaparralDeadFuelFraction
+Chaparral Total Fuel Load,0,31,ton/ac,vSurfaceFuelChaparralLoadTotalDead
+Contour Interval,1,1000,ft,vMapContourInterval
+Crown Fill Portion,0,,%,vSurfaceFuelBedLiveFraction
+Crown Ratio,0.1,1.0,,vTreeCrownRatio
+D.B.H.,2,40,in,vTreeDbh
+Dead Fuel Heat Content,"6,000","12,000",Btu/lb,vSurfaceFireReactionIntDead
+Dead Fuel Moisture,1,60,%,vSurfaceFuelMoisLifeDead
+Dead Fuel Moisture of Extinction,5,100,%,vSurfaceFuelMoisLifeDead
+Elapsed Time,0.1,8,h,vSurfaceFireElapsedTime
+Fire Size at Report,0.1,100,ac,vContainReportSize
+Foliar Moisture,30,300,%,vTreeFoliarMois
+Fuel Bed Depth,0.05,10.0,ft,vSurfaceFuelBedDepth
+Fuel Load Transfer Portion,0,100,%,vSurfaceFuelLoadTransferFraction
+Length-to-Width Ratio,1.0,7..0,ratio,vCrownFireLengthToWidth
+Line Construction Offset,0,100,ch,vContainAttackDist
+Live Fuel Heat Content,"6,000","12,000",Btu/lb,vSurfaceFireReactionIntLive
+Live Herbaceous Fuel Load,0,45,ton/ac,vSurfaceFuelLoadLiveHerb
+Live Herbaceous Fuel Moisture,30,300,%,vSurfaceFuelMoisLiveHerb
+Live Herbaceous Fuel SA/V,109,"4,000",ft2/ft3,vSurfaceFuelAspenLoadLiveHerb
+Live Woody Fuel Load,0,45,ton/ac,vSurfaceFuelLoadLiveWood
+Live Woody Fuel Moisture,30,300,%,vSurfaceFuelMoisLiveWood
+Live Woody Fuel SA/V,109,"4,000",ft2/ft3,vSurfaceFuelAspenLoadLiveWoody
+Map Distance,0.1,100,in,vMapDist
+Midflame Wind Speed,0,40,mi/h,vWindSpeedAtMidflameUpslope
+Number of Contour Intervals,1,100,,vMapContourInterval
+P-G Age of Rough,1,25,years,vContainResourcesUsed
+P-G Height of Understory,1,6,ft,vSurfaceFireHeatPerUnitArea
+P-G Overstory Basal Area,30,110,ft2/acre,vSurfaceFuelPalmettoOverstoryBasalArea
+P-G Palmetto Coverage,15,85,%,vSurfaceFuelPalmettoCover
+Relative Humidity,0,100,%,vWthrRelativeHumidity
+Resource Arrival Time,0,8,h,vContainResourceArrival
+Resource Base Cost,0,"500,000",,vContainResourceDuration
+Resource Duration,0,20,h,vContainResourceDuration
+Resource Hourly Cost,0,"500,000",,vContainResourceDuration
+Resource Line Production Rate,1.0,250,ch/h,vContainResourceDuration
+Scorch Height,0,200,ft,vSurfaceFireScorchHtAtVector
+Slope,0,30,%,vSiteSlopeDegrees
+Slope Steepness,0,604,%,vSiteSlopeDegrees
+Surface Fire Rate of Spread,0,500,ch/h,vSurfaceFireSpreadAtHead
+Surface Fire Spread Direction,0,360,deg,vSurfaceFireVectorDirFromUpslope
+Web Bulb Depression,-40,120,F,vWthrWetBulbTemp
+Wind Adjustment Factor,0.10,1.0,ratio,vWindAdjFactor
+Wind Speed,0,80,mi/h,vWindSpeedAt20FtUpslope
