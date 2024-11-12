@@ -1101,7 +1101,6 @@ p {
   align-items: center;
   padding: 10px 20px;
   border: 1px solid var(--gray-3);
-  cursor: pointer;
 }
 
 .input-browse__input {
@@ -1111,6 +1110,7 @@ p {
   right: 0px;
   bottom: 0px;
   left: 0px;
+  cursor: pointer;
 }
 
 .input-browse__label {

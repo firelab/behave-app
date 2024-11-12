@@ -170,7 +170,6 @@
        first-module+submodule :wizard/first-module+submodule} [_ ws-uuid route-handler+io]]
    (let [[handler io]          route-handler+io
          [ws-module submodule] first-module+submodule]
-     (prn "handler:" handler)
      (when-let [path (cond
                        (= handler :ws/all)
                        (str "/worksheets/")
