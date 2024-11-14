@@ -26,23 +26,24 @@
 ;; ===========================================================================================================
 
 (def conditionals
-  (mapv (fn [t-key]
-          {:conditional/group-variable-uuid (sm/t-key->uuid conn t-key)
-           :conditional/type                :group-variable
-           :conditional/operator            :equal
-           :conditional/values              ["true"]})
-        ["behaveplus:surface:output:fire_behavior:surface_fire:direction_mode:heading"
-         "behaveplus:surface:output:fire_behavior:surface_fire:direction_mode:direction_of_interest"
-         "behaveplus:surface:output:fire_behavior:surface_fire:direction_mode:heading_backing_flanking"
-         "behaveplus:surface:output:fire_behavior:surface_fire:rate_of_spread"
-         "behaveplus:surface:output:fire_behavior:surface_fire:flame_length"
-         "behaveplus:surface:output:fire_behavior:surface_fire:fireline_intensity"
-         "behaveplus:surface:output:spot:maximum_spotting_distance:burning_pile"
-         "behaveplus:surface:output:spot:maximum_spotting_distance:wind_driven_surface_fire"
-         "behaveplus:surface:output:size:surface___fire_size:fire_area"
-         "behaveplus:surface:output:size:surface___fire_size:fire_perimeter"
-         "behaveplus:surface:output:size:surface___fire_size:length-to-width-ratio"
-         "behaveplus:surface:output:size:surface___fire_size:spread-distance"]))
+  (-> (mapv (fn [t-key]
+              {:conditional/group-variable-uuid (sm/t-key->uuid conn t-key)
+               :conditional/type                :group-variable
+               :conditional/operator            :equal
+               :conditional/values              ["true"]})
+            ["behaveplus:surface:output:fire_behavior:surface_fire:direction_mode:heading"
+             "behaveplus:surface:output:fire_behavior:surface_fire:direction_mode:direction_of_interest"
+             "behaveplus:surface:output:fire_behavior:surface_fire:direction_mode:heading_backing_flanking"
+             "behaveplus:surface:output:fire_behavior:surface_fire:rate_of_spread"
+             "behaveplus:surface:output:fire_behavior:surface_fire:flame_length"
+             "behaveplus:surface:output:fire_behavior:surface_fire:fireline_intensity"
+             "behaveplus:surface:output:spot:maximum_spotting_distance:burning_pile"
+             "behaveplus:surface:output:spot:maximum_spotting_distance:wind_driven_surface_fire"
+             "behaveplus:surface:output:size:surface___fire_size:fire_area"
+             "behaveplus:surface:output:size:surface___fire_size:fire_perimeter"
+             "behaveplus:surface:output:size:surface___fire_size:length-to-width-ratio"
+             "behaveplus:surface:output:size:surface___fire_size:spread-distance"])
+      sm/postwalk-insert))
 
 #_{:clj-kondo/ignore [:missing-docstring]}
 (def payload
