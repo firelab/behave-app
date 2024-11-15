@@ -10,5 +10,5 @@ Feature: Ignite Only Worksheets
       """
       - Fuel Moisture > Moisture Input Mode
       - Weather > Air Temperature
-      - Weather > Fuel Shading from the Sun
+      - Weather > Fuel Shading From the Sun
       """
