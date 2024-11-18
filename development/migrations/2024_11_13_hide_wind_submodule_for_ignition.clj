@@ -42,7 +42,20 @@
              "behaveplus:surface:output:size:surface___fire_size:fire_area"
              "behaveplus:surface:output:size:surface___fire_size:fire_perimeter"
              "behaveplus:surface:output:size:surface___fire_size:length-to-width-ratio"
-             "behaveplus:surface:output:size:surface___fire_size:spread-distance"])
+             "behaveplus:surface:output:size:surface___fire_size:spread-distance"
+             "behaveplus:crown:output:fire_type:fire_behavior:rate_of_spread"
+             "behaveplus:crown:output:fire_type:fire_behavior:flame_length"
+             "behaveplus:crown:output:fire_type:fire_behavior:active-crown-fireline-intensity"
+             "behaveplus:crown:output:fire_type:active_or_independent_crown_fire:active_ratio"
+             "behaveplus:crown:output:fire_type:active_or_independent_crown_fire:critical_crown_rate_of_spread"
+             "behaveplus:crown:output:fire_type:transition_to_crown_fire:critical_surface_fireline_intensity"
+             "behaveplus:crown:output:fire_type:transition_to_crown_fire:critical_surface_flame_length"
+             "behaveplus:crown:output:fire_type:transition_to_crown_fire:critical_surface_rate_of_spread"
+             "behaveplus:crown:output:fire_type:transition_to_crown_fire:transition_ratio"
+             "behaveplus:crown:output:size:fire_area:fire_area"
+             "behaveplus:crown:output:size:fire_perimeter:fire_perimeter"
+             "behaveplus:crown:output:size:length_to_width_ratio"
+             "behaveplus:crown:output:size:spread_distance:spread_distance"])
       sm/postwalk-insert))
 
 #_{:clj-kondo/ignore [:missing-docstring]}
