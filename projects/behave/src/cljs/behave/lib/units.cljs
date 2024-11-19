@@ -1,8 +1,8 @@
 (ns behave.lib.units
   (:require
-   [clojure.string :as str]
-   [behave.lib.enums :as enum]
-   [map-utils.interface :refer [index-by]]
+   [clojure.string         :as str]
+   [behave.lib.enums       :as enum]
+   [map-utils.interface    :refer [index-by]]
    [string-utils.interface :refer [camel->kebab]]))
 
 (def ^:private dimensions
@@ -25,11 +25,15 @@
    "TimeUnits"])
 
 (def ^:private dimension-conversions
-  (into {} (map (fn [unit]
-                  [(-> unit (str/replace "Units" "") (camel->kebab) (keyword))
-                   {:to-fn   (aget js/Module unit "prototype" "toBaseUnits") 
-                    :from-fn (aget js/Module unit "prototype" "fromBaseUnits")}])
-                dimensions)))
+  (persistent!
+   (reduce
+    (fn [acc unit]
+      (assoc! acc
+              (-> unit (str/replace "Units" "") (camel->kebab) (keyword))
+              {:to-fn   (aget js/Module unit "prototype" "toBaseUnits")
+               :from-fn (aget js/Module unit "prototype" "fromBaseUnits")}))
+    (transient {})
+    dimensions)))
 
 (def ^:private unitless
   [{:short "#"}
