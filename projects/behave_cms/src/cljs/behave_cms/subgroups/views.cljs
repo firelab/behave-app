@@ -46,10 +46,10 @@
      [:variable/name :variable/domain-uuid :group-variable/conditionally-set?]
      (sort-by :group-variable/order @group-variables)
      {:on-delete   #(when (js/confirm (str "Are you sure you want to delete the variable " (:variable/name %) "?"))
-                      (rf/dispatch [:api/delete-entity %]))
+                     (rf/dispatch [:api/delete-entity %]))
       :on-increase #(rf/dispatch [:api/reorder % @group-variables :group-variable/order :inc])
       :on-decrease #(rf/dispatch [:api/reorder % @group-variables :group-variable/order :dec])
-      :on-select   #(rf/dispatch [:subgroups/edit-variables (:db/id (first (:variable/_group-variables %)))])}]))
+      :on-select   #(rf/dispatch [:subgroups/edit-variables (first (:variable/_group-variables %))])}]))
 
 (defn- add-variable [group-id]
   (let [translation-key  (rf/subscribe [:entity-attr group-id :group/translation-key])
@@ -155,7 +155,10 @@
        ^{:key "translations"}
        [accordion
         "Translations"
-        [all-translations (:group/translation-key @group)]]
+        [:h5 "Worksheet Translations"]
+        [all-translations (:group/translation-key @group)]
+        [:h5 "Result Translations"]
+        [all-translations (:group/result-translation-key @group)]]
        [:hr]
        ^{:key "help"}
        [accordion

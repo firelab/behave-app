@@ -49,7 +49,14 @@
         translation-attr   (gen-attr "translation-key")
         help-attr          (gen-attr "help-key")
         parent-translation (parent-translation-key parent)
-        translation-key    (str parent-translation ":" (->kebab (get state name-attr)))
+        translation-key    (str parent-translation
+                                ":"
+                                (when (= entity :submodule)
+                                  (cond
+                                    (= (:submodule/io state) :input)  "input:"
+                                    (= (:submodule/io state) :output) "output:"
+                                    :else                             nil))
+                                (->kebab (get state name-attr)))
         help-key           (str translation-key ":help")]
 
     (merge state

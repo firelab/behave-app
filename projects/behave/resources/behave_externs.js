@@ -36,8 +36,8 @@ Module.SIGContainAdapter = class {
 };
 
 Module.SIGSurface = class {
-  constructor() {}
   calculateFlameLength() {}
+  constructor() {}
   doSurfaceRun() {}
   doSurfaceRunInDirectionOfInterest() {}
   doSurfaceRunInDirectionOfMaxSpread() {}
@@ -93,6 +93,8 @@ Module.SIGSurface = class {
   getDirectionOfBacking() {}
   getDirectionOfFlanking() {}
   getDirectionOfInterest() {}
+  getFlameLengthInDirectionOfInterest() {}
+  getFirelineIntensityInDirectionOfInterest() {}
   getDirectionOfMaxSpread() {}
   getElapsedTime() {}
   getEllipticalA() {}
@@ -261,8 +263,8 @@ Module.SIGCrown = class {
   isFuelDynamic() {}
   isFuelModelDefined() {}
   isFuelModelReserved() {}
-  setMoistureScenarioByIndex() {}
-  setMoistureScenarioByName() {}
+  setCurrentMoistureScenarioByIndex() {}
+  setCurrentMoistureScenarioByName() {}
   getAspect() {}
   getCanopyBaseHeight() {}
   getCanopyBulkDensity() {}
@@ -520,6 +522,7 @@ Module.SIGSpot = class {
   getMaxMountainousTerrainSpottingDistanceFromBurningPile() {}
   getMaxMountainousTerrainSpottingDistanceFromSurfaceFire() {}
   getMaxMountainousTerrainSpottingDistanceFromTorchingTrees() {}
+  getMaxMountainousTerrainSpottingDistanceFromActiveCrown() {}
   getRidgeToValleyDistance() {}
   getRidgeToValleyElevation() {}
   getSurfaceFlameLength() {}
@@ -536,6 +539,7 @@ Module.SIGSpot = class {
   setDBH() {}
   setDownwindCanopyMode() {}
   setDownwindCoverHeight() {}
+  setFireType () {}
   setFlameLength() {}
   setLocation() {}
   setRidgeToValleyDistance() {}
@@ -678,7 +682,7 @@ Module.SIGMoistureScenarios = class {
   getMoistureScenarioTenHourByIndex() {}
   getMoistureScenarioTenHourByName() {}
   getNumberOfMoistureScenarios() {}
-}
+};
 
 Module.VaporPressureDeficitCalculator = class {
     init() {}

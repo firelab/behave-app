@@ -1,5 +1,6 @@
 (ns behave.components.output-group
   (:require [behave.components.core :as c]
+            [behave.translate       :refer [<t]]
             [re-frame.core          :as rf]))
 
 (defn wizard-output [ws-uuid {gv-uuid  :bp/uuid
@@ -42,7 +43,7 @@
 (defn output-group [ws-uuid group variables level]
   [:div.wizard-group
    {:class (str "wizard-group--level-" level)}
-   [:div.wizard-group__header (:group/name group)]
+   [:div.wizard-group__header @(<t (:group/translation-key group))]
    [:div.wizard-group__outputs
     (if (:group/single-select? group)
       [wizard-single-select-outupt ws-uuid group variables]

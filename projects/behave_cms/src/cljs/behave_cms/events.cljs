@@ -20,6 +20,7 @@
             [behave-cms.subgroups.events]
             [behave-cms.variables.events]
             [behave-cms.routes  :refer [app-routes singular]]
+            [behave-cms.subtools.events]
             [behave-cms.utils   :as u]
             [data-utils.interface :refer [remove-nth]]))
 
@@ -247,7 +248,10 @@
  (fn [_ [_ data]]
    {:transact
     [(merge data
-            (when (nil? (:db/id data)) {:db/id -1}))]}))
+            (when (nil? (:db/id data))
+              {:db/id -1
+               :bp/uuid (str (squuid))
+               :bp/nid  (nano-id)}))]}))
 
 (reg-event-fx
   :api/update-entity

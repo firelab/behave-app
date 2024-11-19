@@ -180,20 +180,11 @@ double SIGSurface::getFlankingSpreadDistance(LengthUnits::LengthUnitsEnum length
 
 double SIGSurface::getSpreadDistance(LengthUnits::LengthUnitsEnum lengthUnits) const {
   double elapsedTime = surfaceInputs_.getElapsedTime(TimeUnits::Minutes);
-
-  if (surfaceRunInDirectionOf_ == SurfaceRunInDirectionOf::MaxSpread) {
-    return Surface::getSpreadDistance(lengthUnits, elapsedTime, TimeUnits::Minutes);
-  } else {
-    return Surface::getSpreadDistanceInDirectionOfInterest(lengthUnits, elapsedTime, TimeUnits::Minutes);
-  }
+  return Surface::getSpreadDistance(lengthUnits, elapsedTime, TimeUnits::Minutes);
 }
 
 double SIGSurface::getSpreadRate(SpeedUnits::SpeedUnitsEnum spreadRateUnits) const {
-  if (surfaceRunInDirectionOf_ == SurfaceRunInDirectionOf::MaxSpread) {
     return Surface::getSpreadRate(spreadRateUnits);
-  } else {
-    return Surface::getSpreadRateInDirectionOfInterest(spreadRateUnits);
-  }
 }
 
 double SIGSurface::getHeadingSpreadRate(SpeedUnits::SpeedUnitsEnum spreadRateUnits) const {

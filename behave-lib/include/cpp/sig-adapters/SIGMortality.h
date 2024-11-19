@@ -28,7 +28,7 @@ public:
   // SIGMortality Setters. Sets for all Directions
   void setSpeciesCode(char *speciesCode);
   void setTreeHeight(double treeHeight, LengthUnits::LengthUnitsEnum treeHeightUnits);
-  void setCrownRatio(double crownRatio);
+  void setCrownRatio(double crownRatio, FractionUnits::FractionUnitsEnum crownRatioUnits);
   void setDBH(double dbh, LengthUnits::LengthUnitsEnum diameterUnits);
   void setBoleCharHeight(double boleCharHeight, LengthUnits::LengthUnitsEnum boleCharHeightUnits);
   void setEquationType(EquationType equationType);

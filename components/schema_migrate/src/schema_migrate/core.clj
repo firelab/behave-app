@@ -1,10 +1,11 @@
 (ns schema-migrate.core
   (:require
-   [clojure.walk :as walk]
-   [datascript.core :refer [squuid]]
-   [datomic.api :as d]
+   [clojure.walk       :as walk]
+   [clojure.string     :as s]
+   [datascript.core    :refer [squuid]]
+   [datomic.api        :as d]
    [datomic-store.main :as ds]
-   [nano-id.core :refer [nano-id]]))
+   [nano-id.core       :refer [nano-id]]))
 
 (def
   ^{:doc "Random UUID in string format."}
@@ -90,6 +91,28 @@
         class-name
         fn-name)))
 
+(defn cpp-uuids
+  "Given a map of with the names of a namespace, class and function, return a map
+  that resolves the names to a uuid. Requires all three names."
+  [conn {:keys [cpp-namespace cpp-class cpp-function]}]
+  (first
+   (d/q '[:find ?ns-uuid ?c-uuid ?f-uuid
+          :keys cpp-namespace cpp-class cpp-function
+          :in $ ?namespace ?class ?function
+          :where
+          [?n :cpp.namespace/name ?namespace]
+          [?n :cpp.namespace/class ?c]
+          [?n :bp/uuid ?ns-uuid]
+          [?c :cpp.class/name ?class]
+          [?c :bp/uuid ?c-uuid]
+          [?c :cpp.class/function ?fn]
+          [?fn :cpp.function/name ?function]
+          [?fn :bp/uuid ?f-uuid]]
+        (d/db conn)
+        cpp-namespace
+        cpp-class
+        cpp-function)))
+
 (defn cpp-param->uuid
   "Get the :bp/uuid using the cpp function name and parameter name."
 
@@ -128,6 +151,19 @@
             (ds/unwrap-db conn)
             t)
        (d/entity (ds/unwrap-db conn))))
+
+(defn eid->t-key
+  "Returns an entity's translation key."
+  [conn eid]
+  (d/q '[:find ?k .
+         :in $ ?e
+         :where
+         (or
+          [?e :application/translation-key ?k]
+          [?e :module/translation-key ?k]
+          [?e :submodule/translation-key ?k]
+          [?e :group/translation-key ?k]
+          [?e :group-variable/translation-key ?k])] (d/db conn) eid))
 
 (defn t-key->uuid
   "Get the :bp/uuid using translation-key"
@@ -227,6 +263,20 @@
      (into [language-translation-refs]
            translations))))
 
+(defn remove-nested-i18ns-tx
+  "Removes an entity (and it's components), along with all nested
+   translation keys."
+  [conn t-key]
+  (let [i18ns (d/q '[:find [?e ...]
+                     :in $ ?t-key
+                     :where
+                     [?e :translation/key ?key]
+                     (or
+                      [(= ?key ?t-key)]
+                      [(clojure.string/starts-with? ?key ?t-key)])] (d/db conn) t-key)]
+
+    (map (fn [eid] [:db/retractEntity eid]) i18ns)))
+
 (defn ->gv-conditional
   "Payload for a Group Variable Conditional."
   [uuid operator value]
@@ -269,12 +319,13 @@
 (defn ->group-variable
   "Payload for a new Group Variable."
   [group-eid variable-eid t-key]
-  {:bp/uuid                        (rand-uuid)
-   :bp/nid                         (nano-id)
-   :group/_group-variables         group-eid
-   :variable/_group-variables      variable-eid
-   :group-variable/translation-key t-key
-   :group-variable/help-key        (str t-key ":help")})
+  {:bp/uuid                               (rand-uuid)
+   :bp/nid                                (nano-id)
+   :group/_group-variables                group-eid
+   :variable/_group-variables             variable-eid
+   :group-variable/translation-key        t-key
+   :group-variable/result-translation-key (s/replace t-key ":output:" ":result:")
+   :group-variable/help-key               (str t-key ":help")})
 
 (defn ->link
   "Payload for a new Link."

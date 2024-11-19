@@ -407,7 +407,7 @@
         (sort-by #(.indexOf gv-order %)))))
 
 (rf/reg-sub
- :worksheet/all-output-uuids
+ :worksheet/output-uuids-filtered
  (fn [_ [_ ws-uuid]]
    (->> (d/q '[:find  ?uuid ?hide-result
                :in    $ $ws % ?ws-uuid
@@ -424,6 +424,19 @@
              ws-uuid)
         (remove (fn [[_ hide-result?]] (true? hide-result?)))
         (map first))))
+
+(rf/reg-sub
+ :worksheet/all-output-uuids
+ (fn [_ [_ ws-uuid]]
+   (->> (d/q '[:find  [?uuid ...]
+               :in  $ ?ws-uuid
+               :where
+               [?w :worksheet/uuid ?ws-uuid]
+               [?w :worksheet/outputs ?o]
+               [?o :output/group-variable-uuid ?uuid]
+               [?o :output/enabled? true]]
+             @@s/conn
+             ws-uuid))))
 
 (rp/reg-sub
  :worksheet/get-table-settings-attr
@@ -631,7 +644,7 @@
  :worksheet/output-uuid->result-min-values
  (fn [[_ ws-uuid]]
    [(rf/subscribe [:worksheet/result-table-cell-data ws-uuid])
-    (rf/subscribe [:worksheet/all-output-uuids ws-uuid])])
+    (rf/subscribe [:worksheet/output-uuids-filtered ws-uuid])])
  (fn [[result-table-cell-data all-output-uuids] _]
    (reduce
     (fn [acc [_row-id gv-uuid _repeat-id value]]
@@ -648,7 +661,7 @@
  :worksheet/output-min+max-values
  (fn [[_ ws-uuid]]
    [(rf/subscribe [:worksheet/result-table-cell-data ws-uuid])
-    (rf/subscribe [:worksheet/all-output-uuids ws-uuid])])
+    (rf/subscribe [:worksheet/output-uuids-filtered ws-uuid])])
  (fn [[result-table-cell-data all-output-uuids] _]
    (reduce
     (fn [acc [_row-id gv-uuid _repeat-id value]]
@@ -667,7 +680,7 @@
  :worksheet/output-uuid->result-max-values
  (fn [[_ ws-uuid]]
    [(rf/subscribe [:worksheet/result-table-cell-data ws-uuid])
-    (rf/subscribe [:worksheet/all-output-uuids ws-uuid])])
+    (rf/subscribe [:worksheet/output-uuids-filtered ws-uuid])])
  (fn [[result-table-cell-data all-output-uuids] _]
    (reduce
     (fn [acc [_row-id gv-uuid _repeat-id value]]
@@ -748,6 +761,26 @@
           (sort-by (juxt #(.indexOf gv-order (first %))
                          #(second %)))))))
 
+(rf/reg-sub
+ :worksheet/csv-export-headers
+ (fn [_]
+   (rf/subscribe [:vms/group-variable-order]))
+ (fn [gv-order [_ ws-uuid]]
+   (->> (d/q '[:find  ?gv-uuid ?repeat-id ?units ?hide-csv
+               :in    $ $ws % ?ws-uuid
+               :where
+               [$ws ?w :worksheet/uuid ?ws-uuid]
+               [$ws ?w :worksheet/result-table ?r]
+               [$ws ?r :result-table/headers ?h]
+               [$ws ?h :result-header/repeat-id ?repeat-id]
+               [$ws ?h :result-header/group-variable-uuid ?gv-uuid]
+               [$ws ?h :result-header/units ?units]
+               (lookup ?gv-uuid ?gv)
+               [(get-else $ ?gv :group-variable/hide-csv? false) ?hide-csv]]
+             @@vms-conn @@s/conn rules ws-uuid)
+        (remove (fn [[_ _ _ hide-csv?]] hide-csv?))
+        (sort-by (juxt #(.indexOf gv-order (first %))
+                       #(second %))))))
 ;; returns a map of group-variable uuid to units
 (rf/reg-sub
  :worksheet/result-table-units
@@ -821,7 +854,7 @@
 (rf/reg-sub
  :worksheet/some-outputs-entered?
  (fn [[_ ws-uuid]]
-   (rf/subscribe [:worksheet/all-output-uuids ws-uuid]))
+   (rf/subscribe [:worksheet/output-uuids-filtered ws-uuid]))
 
  (fn [all-output-uuids [_ _ws-uuid module-id submodule-slug]]
    (if (seq all-output-uuids)
@@ -916,17 +949,9 @@
                                :where
                                [?ws :worksheet/uuid ?ws-uuid]
                                [?ws :worksheet/result-table ?t]
-                               [?t  :result-table/rows ?rr]
-                               [?rr :result-row/cells ?c]
-
-                               ;; Filter only input variables
-                               [?ig :input-group/inputs ?i]
-                               [?i  :input/group-variable-uuid ?gv-uuid]
-
-                               ;; Get  gv-uuid, value and units
-                               [?rh :result-header/group-variable-uuid ?gv-uuid]
-                               [?rh :result-header/units ?units]
-                               [?c  :result-cell/header ?rh]]
+                               [?t  :result-table/headers ?h]
+                               [?h  :result-header/group-variable-uuid ?gv-uuid]
+                               [?h  :result-header/units ?units]]
                              @@s/conn ws-uuid)]
      (into {} gv-uuids+units))))
 

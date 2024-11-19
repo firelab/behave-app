@@ -139,9 +139,10 @@
                                 nil))]
     [:<>
      [:div.workflow-select
-      [:div.workflow-select__header
-       [:h3 @(<t (bp "module_selection"))]
-       [:p @(<t (bp "please_select_from_the_following_options"))]]
+      [workflow-select-header
+       {:icon        "modules"
+        :header      @(<t (bp "upload_an_existing_file"))
+        :description @(<t (bp "only_files_from_behave7_are_supported"))}]
       [:div.workflow-select__content
        [c/browse-input {:button-label @(<t (bp "browse"))
                         :accept       ".bpr,bpw,.bp6,.bp7,.sqlite"

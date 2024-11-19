@@ -393,7 +393,8 @@
    :setCrownRatio
    {:type "void",
     :id "setCrownRatio",
-    :parameters [{:id "crownRatio", :type "double"}]},
+    :parameters [{:id "crownRatio", :type "double"}
+                 {:id "crownRatioUnits", :type "FractionUnits::FractionUnitsEnum"}]},
    :getRegion {:type "RegionCode", :id "getRegion", :parameters []},
    :getFireSeverity
    {:type "FireSeverity", :id "getFireSeverity", :parameters []},
@@ -411,7 +412,10 @@
     :id "setEquationType",
     :parameters [{:id "equationType", :type "EquationType"}]},
    :getCrownRatio
-   {:type "double", :id "getCrownRatio", :parameters []},
+   {:type "double", :id "getCrownRatio",
+    :parameters
+    [{:id   "crownRatioUnits",
+      :type "FractionUnits::FractionUnitsEnum"}]},
    :getNumberOfRecordsInSpeciesTable
    {:type "int",
     :id "getNumberOfRecordsInSpeciesTable",

@@ -4,6 +4,7 @@
             [goog.string            :as gstring]
             [re-frame.core          :as rf]))
 
+#_{:clj-kondo/ignore [:missing-docstring]}
 (def step-kw->number
   {:work-style      1
    :module          2
@@ -13,6 +14,7 @@
    :result-settings 4
    :results         5})
 
+#_{:clj-kondo/ignore [:missing-docstring]}
 (def route-handler->step-number
   {:ws/all              1
    :ws/import           2
@@ -22,6 +24,7 @@
    :ws/results-settings 4
    :ws/results          5})
 
+#_{:clj-kondo/ignore [:missing-docstring]}
 (defn get-step-kw [route-handler io]
   (case [route-handler io]
     [:ws/wizard :input]        :module-inputs
@@ -34,7 +37,7 @@
     [:ws/guided nil]           :module
     [:ws/independent nil]      :module))
 
-(defn toolbar-tool [{icon-name :icon translation-key :label on-click :on-click :as s}]
+(defn- toolbar-tool [{icon-name :icon translation-key :label on-click :on-click :as s}]
   [:div.toolbar__tool
    [:div.toolbar__tool__icon
     [c/button {:variant   "transparent-primary"
@@ -52,6 +55,7 @@
         :always                           (assoc :completed? (>= progress id))
         :always                           (assoc :selected?  (= selected-step id))))))
 
+#_{:clj-kondo/ignore [:missing-docstring]}
 (defn get-step-number [route-handler io]
   (cond
     (and (= route-handler :ws/wizard)
@@ -66,12 +70,48 @@
     (get route-handler->step-number route-handler 0)))
 
 (defmulti progress-bar
-  (fn [{:keys [ws-uuid]}]
-    (if ws-uuid
-      :post-worksheet-creation
-      :pre-worksheet-creation)))
+  (fn [{:keys [ws-uuid route-handler]}]
+    (if (= route-handler :home)
+      :ws/all
+      (cond
+        ws-uuid       :ws/wizard
+        route-handler route-handler
+        :else         :none))))
 
-(defmethod progress-bar :pre-worksheet-creation
+(defmethod progress-bar :none
+  [_]
+  [c/progress {:completed-last-step-id 0
+               :steps                  []}])
+
+(defmethod progress-bar :ws/all
+  [_]
+  (let [steps [{:label            @(<t (bp "work_style"))
+                :completed?       true
+                :route-handler+io [:ws/all nil]}]]
+    [c/progress {:completed-last-step-id 1
+                 :steps                  (map-indexed (enrich-step 1 1 1)
+                                                      steps)}]))
+
+(defmethod progress-bar :ws/import
+  [{:keys [ws-uuid io route-handler] :as _params}]
+  (let [selected-step (get-step-number route-handler io)
+        progress      selected-step
+        steps         [{:label            @(<t (bp "work_style"))
+                        :completed?       true
+                        :route-handler+io [:ws/all nil]}
+                       {:label            @(<t (bp "upload_a_file"))
+                        :completed?       true
+                        :route-handler+io [:ws/import nil]}]]
+    [c/progress {:on-select              #(rf/dispatch [:wizard/progress-bar-navigate
+                                                        ws-uuid
+                                                        (:route-handler+io %)])
+                 :completed-last-step-id progress
+                 :steps                  (map-indexed (enrich-step progress
+                                                                   selected-step
+                                                                   10)
+                                                      steps)}]))
+
+(defmethod progress-bar :ws/independent
   [{:keys [ws-uuid io route-handler] :as _params}]
   (let [selected-step (get-step-number route-handler io)
         progress      selected-step
@@ -81,14 +121,16 @@
                        {:label            @(<t (bp "modules_selection"))
                         :completed?       true
                         :route-handler+io [:ws/independent nil]}]]
-    [c/progress {:on-select              #(rf/dispatch [:wizard/progress-bar-navigate ws-uuid (:route-handler+io %)])
+    [c/progress {:on-select              #(rf/dispatch [:wizard/progress-bar-navigate
+                                                        ws-uuid
+                                                        (:route-handler+io %)])
                  :completed-last-step-id progress
                  :steps                  (map-indexed (enrich-step progress
                                                                    selected-step
                                                                    10)
                                                       steps)}]))
 
-(defmethod progress-bar :post-worksheet-creation
+(defmethod progress-bar :ws/wizard
   [{:keys [ws-uuid io route-handler] :as _params}]
   (let [selected-step            (get-step-number route-handler io)
         steps                    [{:label            @(<t (bp "module_outputs_selections"))
@@ -112,13 +154,16 @@
                                       (:worksheet/furthest-visited-step)
                                       (get step-kw->number))
         progress                 furthest-visited-step-id]
-    [c/progress {:on-select              #(rf/dispatch [:wizard/progress-bar-navigate ws-uuid (:route-handler+io %)])
+    [c/progress {:on-select              #(rf/dispatch [:wizard/progress-bar-navigate
+                                                        ws-uuid
+                                                        (:route-handler+io %)])
                  :completed-last-step-id progress
                  :steps                  (map-indexed (enrich-step progress
                                                                    selected-step
                                                                    furthest-visited-step-id)
                                                       steps)}]))
 
+#_{:clj-kondo/ignore [:missing-docstring]}
 (defn toolbar [{:keys [ws-uuid] :as params}]
   (let [*loaded? (rf/subscribe [:app/loaded?])
         on-click #(js/console.log (str "Selected!" %))

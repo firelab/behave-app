@@ -154,6 +154,12 @@
     :parameters
     [{:id "spottingDistanceUnits",
       :type "LengthUnits::LengthUnitsEnum"}]},
+   :getMaxMountainousTerrainSpottingDistanceFromActiveCrown
+   {:type "double",
+    :id   "getMaxMountainousTerrainSpottingDistanceFromActiveCrown",
+    :parameters
+    [{:id   "spottingDistanceUnits",
+      :type "LengthUnits::LengthUnitsEnum"}]},
    :getMaxFlatTerrainSpottingDistanceFromBurningPile
    {:type "double",
     :id "getMaxFlatTerrainSpottingDistanceFromBurningPile",
@@ -281,6 +287,11 @@
     :parameters
     [{:id "flameLength", :type "double"}
      {:id "flameLengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :setFireType
+   {:type "void",
+    :id   "setFireType",
+    :parameters
+    [{:id "fireType", :type "FireType::FireTypeEnum"}]}
    :setFlameLength
    {:type "void",
     :id "setFlameLength",

@@ -7,7 +7,7 @@
         graph-enabled? (get-in worksheet [:worksheet/graph-settings :graph-settings/enabled?])
         graph-settings @(subscribe [:worksheet/graph-settings ws-uuid])]
     (when (and graph-enabled? graph-settings)
-      (let [*output-uuids (subscribe [:worksheet/all-output-uuids ws-uuid])
+      (let [*output-uuids (subscribe [:worksheet/output-uuids-filtered ws-uuid])
             graph-data    (->> cell-data
                                (group-by first)
                                (reduce (fn [acc [_row-id cell-data]]

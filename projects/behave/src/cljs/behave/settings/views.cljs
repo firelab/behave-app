@@ -33,8 +33,9 @@
        :on-change #(on-click (input-value %))
        :name      "unit-selector"
        :options   (distinct
-                   (concat [{:label @*unit-short-code
-                             :value cur-selected-unit-uuid}]
+                   (concat [{:label     @*unit-short-code
+                             :selected? true
+                             :value     cur-selected-unit-uuid}]
                            (->> units
                                 (map (fn [unit]
                                        {:label (:unit/short-code unit)

@@ -23,14 +23,17 @@
      [c/dropdown
       {:id            "unit-selector"
        :default-value @*unit-uuid
+       :selected      @*unit-uuid
        :on-change     #(on-click (input-value %))
        :name          "unit-selector"
-       :options       (concat [{:label "Select..." :value nil}]
-                              (->> units
-                                   (map (fn [unit]
-                                          {:label (:unit/name unit)
-                                           :value (:bp/uuid unit)}))
-                                   (sort-by :label)))}]]))
+       :options       (->> units
+                           (map (fn [unit]
+                                  (cond->
+                                      {:label (:unit/name unit)
+                                       :value (:bp/uuid unit)}
+                                    (= @*unit-uuid (:bp/uuid unit))
+                                    (assoc :selected? true))))
+                           (sort-by :label))}]]))
 
 (defn unit-display
   "Displays the units for a continuous variable, and enables unit selection."
@@ -47,19 +50,11 @@
                show-selector? (r/atom false)
                on-click       #(do
                                  (on-change-units %)
-                                 (reset! show-selector? false))]
-    [:div.wizard-input__description
-     (str @(<t (bp "units_used")) " " (:unit/short-code (or (get units-by-uuid *unit-uuid) default-unit)))
-     [:div.wizard-input__description__units
-      (when english-unit
-        [:div (str @(<t (bp "english_units")) " " (:unit/short-code english-unit))])
-      (when metric-unit
-        [:div (str @(<t (bp "metric_units")) " " (:unit/short-code metric-unit))])]
+                                 (reset! show-selector? false))
+               pre-selected-unit (or (get units-by-uuid *unit-uuid) default-unit)]
+    [:div.wizard-input__units
+     (if (or (>= 1 (count units)) (nil? @dimension))
+      [:div.wizard-input__units__text
+       (str @(<t (bp "units_used")) " " (:unit/short-code pre-selected-unit))]
+      [unit-selector (:bp/uuid pre-selected-unit) units on-click])]))
 
-     (when (and on-change-units (< 1 (count units)) @dimension)
-       [c/button {:variant  "secondary"
-                  :label    @(<t (bp "change_units"))
-                  :disabled? @show-selector?
-                  :on-click #(swap! show-selector? not)}])
-     (when @show-selector?
-       [unit-selector *unit-uuid units on-click])]))

@@ -5,6 +5,7 @@
             [behave.wizard.subs  :refer [all-conditionals-pass?]]
             [clojure.walk        :refer [prewalk]]
             [datascript.core     :as d]
+            [string-utils.interface :as s]
             [datascript.impl.entity]
             [map-utils.interface :refer [index-by]]
             [re-frame.core       :refer [reg-sub subscribe]]))
@@ -28,7 +29,7 @@
    (fn [node]
      (cond->> node
        (is-collection-of-groups node)
-       (filter (fn [{conditional-op :group/conditional-operator
+       (filter (fn [{conditional-op :group/conditionals-operator
                      conditionals   :group/conditionals
                      research?      :group/research?}]
                  (and (not research?)
@@ -46,7 +47,7 @@
           (group ?s ?g)
           (group-variable ?g ?gv ?v)
           [?gv :group-variable/conditionally-set? true]]
-         @@vms-conn rules s-uuid)))
+        @@vms-conn rules s-uuid)))
 
 (reg-sub
  :result.inputs/submodules
@@ -95,8 +96,16 @@
                         :where
                         (lookup ?gv-uuid ?gv)
                         (group-variable _ ?gv ?v)]
-                       @@vms-conn rules gv-uuids)]
+                      @@vms-conn rules gv-uuids)]
      (into {} (map
                (fn [[gv-uuid variable]]
                  [gv-uuid (create-formatter variable)])
                results)))))
+
+(reg-sub
+ :result.inputs/resolve-group-name
+ (fn [_ [_ group-uuid]]
+   (let [group-entity (d/entity @@vms-conn [:bp/uuid group-uuid])]
+     (-> (or @(<t (:group/result-translation-key group-entity))
+             @(<t (:group/translation-key group-entity)))
+         s/capitalize->words))))

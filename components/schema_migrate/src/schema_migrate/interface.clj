@@ -26,9 +26,18 @@
        :doc      "Get the :bp/uuid using the cpp function name"}
   cpp-fn->uuid c/cpp-fn->uuid)
 
+(def ^{:arglists '([conn m])
+       :doc      "Given a map of with the names of a namespace, class and function, return a map
+                   that resolves the names to a uuid. Requires all three names."}
+  cpp-uuids c/cpp-uuids)
+
 (def ^{:arglists '([conn fn-name param-name])
        :doc      "Get the :bp/uuid using the cpp function name and parameter name."}
   cpp-param->uuid c/cpp-param->uuid)
+
+(def ^{:arglists '([conn eid])
+       :doc      "Returns an entity's translation key."}
+  eid->t-key c/eid->t-key)
 
 (def ^{:arglists '([conn t])
        :doc      "Get the :bp/uuid using translation-key"}
@@ -68,6 +77,10 @@
                   translation entities (prevents eid overlap if you wish to include this payload in
                   the same transaction where you've manually assigned :db/id)."}
   build-translations-payload c/build-translations-payload)
+
+(def ^{:arglists '([conn t-key])
+       :doc      "Removes an entity's (and it's components) translation keys."}
+  remove-nested-i18ns-tx c/remove-nested-i18ns-tx)
 
 (def ^{:arglists '([uuid operator value])
        :doc "Payload for a Group Variable Conditional."}

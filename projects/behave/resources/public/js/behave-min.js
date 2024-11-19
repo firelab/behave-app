@@ -4912,6 +4912,7 @@ var wasmImports = {
   /** @export */
   invoke_viiiiiiiiiiiii: invoke_viiiiiiiiiiiii
 };
+<<<<<<< HEAD
 var wasmExports = createWasm();
 var ___wasm_call_ctors = createExportWrapper('__wasm_call_ctors');
 var _fflush = Module['_fflush'] = createExportWrapper('fflush');
@@ -6030,6 +6031,2156 @@ var ___cxa_is_pointer_type = createExportWrapper('__cxa_is_pointer_type');
 var dynCall_jiji = Module['dynCall_jiji'] = createExportWrapper('dynCall_jiji');
 var ___start_em_js = Module['___start_em_js'] = 117942;
 var ___stop_em_js = Module['___stop_em_js'] = 118040;
+=======
+var asm = createWasm();
+/** @type {function(...*):?} */
+var ___wasm_call_ctors = createExportWrapper("__wasm_call_ctors");
+/** @type {function(...*):?} */
+var getTempRet0 = createExportWrapper("getTempRet0");
+/** @type {function(...*):?} */
+var _fflush = Module["_fflush"] = createExportWrapper("fflush");
+/** @type {function(...*):?} */
+var _emscripten_bind_VoidPtr___destroy___0 = Module["_emscripten_bind_VoidPtr___destroy___0"] = createExportWrapper("emscripten_bind_VoidPtr___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_DoublePtr___destroy___0 = Module["_emscripten_bind_DoublePtr___destroy___0"] = createExportWrapper("emscripten_bind_DoublePtr___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_BoolVector_BoolVector_0 = Module["_emscripten_bind_BoolVector_BoolVector_0"] = createExportWrapper("emscripten_bind_BoolVector_BoolVector_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_BoolVector_BoolVector_1 = Module["_emscripten_bind_BoolVector_BoolVector_1"] = createExportWrapper("emscripten_bind_BoolVector_BoolVector_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_BoolVector_resize_1 = Module["_emscripten_bind_BoolVector_resize_1"] = createExportWrapper("emscripten_bind_BoolVector_resize_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_BoolVector_get_1 = Module["_emscripten_bind_BoolVector_get_1"] = createExportWrapper("emscripten_bind_BoolVector_get_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_BoolVector_set_2 = Module["_emscripten_bind_BoolVector_set_2"] = createExportWrapper("emscripten_bind_BoolVector_set_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_BoolVector_size_0 = Module["_emscripten_bind_BoolVector_size_0"] = createExportWrapper("emscripten_bind_BoolVector_size_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_BoolVector___destroy___0 = Module["_emscripten_bind_BoolVector___destroy___0"] = createExportWrapper("emscripten_bind_BoolVector___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_CharVector_CharVector_0 = Module["_emscripten_bind_CharVector_CharVector_0"] = createExportWrapper("emscripten_bind_CharVector_CharVector_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_CharVector_CharVector_1 = Module["_emscripten_bind_CharVector_CharVector_1"] = createExportWrapper("emscripten_bind_CharVector_CharVector_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_CharVector_resize_1 = Module["_emscripten_bind_CharVector_resize_1"] = createExportWrapper("emscripten_bind_CharVector_resize_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_CharVector_get_1 = Module["_emscripten_bind_CharVector_get_1"] = createExportWrapper("emscripten_bind_CharVector_get_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_CharVector_set_2 = Module["_emscripten_bind_CharVector_set_2"] = createExportWrapper("emscripten_bind_CharVector_set_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_CharVector_size_0 = Module["_emscripten_bind_CharVector_size_0"] = createExportWrapper("emscripten_bind_CharVector_size_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_CharVector___destroy___0 = Module["_emscripten_bind_CharVector___destroy___0"] = createExportWrapper("emscripten_bind_CharVector___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_IntVector_IntVector_0 = Module["_emscripten_bind_IntVector_IntVector_0"] = createExportWrapper("emscripten_bind_IntVector_IntVector_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_IntVector_IntVector_1 = Module["_emscripten_bind_IntVector_IntVector_1"] = createExportWrapper("emscripten_bind_IntVector_IntVector_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_IntVector_resize_1 = Module["_emscripten_bind_IntVector_resize_1"] = createExportWrapper("emscripten_bind_IntVector_resize_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_IntVector_get_1 = Module["_emscripten_bind_IntVector_get_1"] = createExportWrapper("emscripten_bind_IntVector_get_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_IntVector_set_2 = Module["_emscripten_bind_IntVector_set_2"] = createExportWrapper("emscripten_bind_IntVector_set_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_IntVector_size_0 = Module["_emscripten_bind_IntVector_size_0"] = createExportWrapper("emscripten_bind_IntVector_size_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_IntVector___destroy___0 = Module["_emscripten_bind_IntVector___destroy___0"] = createExportWrapper("emscripten_bind_IntVector___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_DoubleVector_DoubleVector_0 = Module["_emscripten_bind_DoubleVector_DoubleVector_0"] = createExportWrapper("emscripten_bind_DoubleVector_DoubleVector_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_DoubleVector_DoubleVector_1 = Module["_emscripten_bind_DoubleVector_DoubleVector_1"] = createExportWrapper("emscripten_bind_DoubleVector_DoubleVector_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_DoubleVector_resize_1 = Module["_emscripten_bind_DoubleVector_resize_1"] = createExportWrapper("emscripten_bind_DoubleVector_resize_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_DoubleVector_get_1 = Module["_emscripten_bind_DoubleVector_get_1"] = createExportWrapper("emscripten_bind_DoubleVector_get_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_DoubleVector_set_2 = Module["_emscripten_bind_DoubleVector_set_2"] = createExportWrapper("emscripten_bind_DoubleVector_set_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_DoubleVector_size_0 = Module["_emscripten_bind_DoubleVector_size_0"] = createExportWrapper("emscripten_bind_DoubleVector_size_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_DoubleVector___destroy___0 = Module["_emscripten_bind_DoubleVector___destroy___0"] = createExportWrapper("emscripten_bind_DoubleVector___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SpeciesMasterTableRecordVector_SpeciesMasterTableRecordVector_0 = Module["_emscripten_bind_SpeciesMasterTableRecordVector_SpeciesMasterTableRecordVector_0"] = createExportWrapper("emscripten_bind_SpeciesMasterTableRecordVector_SpeciesMasterTableRecordVector_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SpeciesMasterTableRecordVector_SpeciesMasterTableRecordVector_1 = Module["_emscripten_bind_SpeciesMasterTableRecordVector_SpeciesMasterTableRecordVector_1"] = createExportWrapper("emscripten_bind_SpeciesMasterTableRecordVector_SpeciesMasterTableRecordVector_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SpeciesMasterTableRecordVector_resize_1 = Module["_emscripten_bind_SpeciesMasterTableRecordVector_resize_1"] = createExportWrapper("emscripten_bind_SpeciesMasterTableRecordVector_resize_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SpeciesMasterTableRecordVector_get_1 = Module["_emscripten_bind_SpeciesMasterTableRecordVector_get_1"] = createExportWrapper("emscripten_bind_SpeciesMasterTableRecordVector_get_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SpeciesMasterTableRecordVector_set_2 = Module["_emscripten_bind_SpeciesMasterTableRecordVector_set_2"] = createExportWrapper("emscripten_bind_SpeciesMasterTableRecordVector_set_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SpeciesMasterTableRecordVector_size_0 = Module["_emscripten_bind_SpeciesMasterTableRecordVector_size_0"] = createExportWrapper("emscripten_bind_SpeciesMasterTableRecordVector_size_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SpeciesMasterTableRecordVector___destroy___0 = Module["_emscripten_bind_SpeciesMasterTableRecordVector___destroy___0"] = createExportWrapper("emscripten_bind_SpeciesMasterTableRecordVector___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_FireSize_getBackingSpreadRate_1 = Module["_emscripten_bind_FireSize_getBackingSpreadRate_1"] = createExportWrapper("emscripten_bind_FireSize_getBackingSpreadRate_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_FireSize_getEccentricity_0 = Module["_emscripten_bind_FireSize_getEccentricity_0"] = createExportWrapper("emscripten_bind_FireSize_getEccentricity_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_FireSize_getEllipticalA_3 = Module["_emscripten_bind_FireSize_getEllipticalA_3"] = createExportWrapper("emscripten_bind_FireSize_getEllipticalA_3");
+/** @type {function(...*):?} */
+var _emscripten_bind_FireSize_getEllipticalB_3 = Module["_emscripten_bind_FireSize_getEllipticalB_3"] = createExportWrapper("emscripten_bind_FireSize_getEllipticalB_3");
+/** @type {function(...*):?} */
+var _emscripten_bind_FireSize_getEllipticalC_3 = Module["_emscripten_bind_FireSize_getEllipticalC_3"] = createExportWrapper("emscripten_bind_FireSize_getEllipticalC_3");
+/** @type {function(...*):?} */
+var _emscripten_bind_FireSize_getFireArea_4 = Module["_emscripten_bind_FireSize_getFireArea_4"] = createExportWrapper("emscripten_bind_FireSize_getFireArea_4");
+/** @type {function(...*):?} */
+var _emscripten_bind_FireSize_getFireLength_3 = Module["_emscripten_bind_FireSize_getFireLength_3"] = createExportWrapper("emscripten_bind_FireSize_getFireLength_3");
+/** @type {function(...*):?} */
+var _emscripten_bind_FireSize_getFireLengthToWidthRatio_0 = Module["_emscripten_bind_FireSize_getFireLengthToWidthRatio_0"] = createExportWrapper("emscripten_bind_FireSize_getFireLengthToWidthRatio_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_FireSize_getFirePerimeter_4 = Module["_emscripten_bind_FireSize_getFirePerimeter_4"] = createExportWrapper("emscripten_bind_FireSize_getFirePerimeter_4");
+/** @type {function(...*):?} */
+var _emscripten_bind_FireSize_getFlankingSpreadRate_1 = Module["_emscripten_bind_FireSize_getFlankingSpreadRate_1"] = createExportWrapper("emscripten_bind_FireSize_getFlankingSpreadRate_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_FireSize_getHeadingToBackingRatio_0 = Module["_emscripten_bind_FireSize_getHeadingToBackingRatio_0"] = createExportWrapper("emscripten_bind_FireSize_getHeadingToBackingRatio_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_FireSize_getMaxFireWidth_3 = Module["_emscripten_bind_FireSize_getMaxFireWidth_3"] = createExportWrapper("emscripten_bind_FireSize_getMaxFireWidth_3");
+/** @type {function(...*):?} */
+var _emscripten_bind_FireSize_calculateFireBasicDimensions_5 = Module["_emscripten_bind_FireSize_calculateFireBasicDimensions_5"] = createExportWrapper("emscripten_bind_FireSize_calculateFireBasicDimensions_5");
+/** @type {function(...*):?} */
+var _emscripten_bind_FireSize___destroy___0 = Module["_emscripten_bind_FireSize___destroy___0"] = createExportWrapper("emscripten_bind_FireSize___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_SIGContainAdapter_0 = Module["_emscripten_bind_SIGContainAdapter_SIGContainAdapter_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_SIGContainAdapter_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getContainmentStatus_0 = Module["_emscripten_bind_SIGContainAdapter_getContainmentStatus_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getContainmentStatus_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getFirePerimeterX_0 = Module["_emscripten_bind_SIGContainAdapter_getFirePerimeterX_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFirePerimeterX_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getFirePerimeterY_0 = Module["_emscripten_bind_SIGContainAdapter_getFirePerimeterY_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFirePerimeterY_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getAttackDistance_1 = Module["_emscripten_bind_SIGContainAdapter_getAttackDistance_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getAttackDistance_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getFinalContainmentArea_1 = Module["_emscripten_bind_SIGContainAdapter_getFinalContainmentArea_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFinalContainmentArea_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getFinalCost_0 = Module["_emscripten_bind_SIGContainAdapter_getFinalCost_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFinalCost_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getFinalFireLineLength_1 = Module["_emscripten_bind_SIGContainAdapter_getFinalFireLineLength_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFinalFireLineLength_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getFinalFireSize_1 = Module["_emscripten_bind_SIGContainAdapter_getFinalFireSize_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFinalFireSize_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getFinalTimeSinceReport_1 = Module["_emscripten_bind_SIGContainAdapter_getFinalTimeSinceReport_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFinalTimeSinceReport_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getFireBackAtAttack_0 = Module["_emscripten_bind_SIGContainAdapter_getFireBackAtAttack_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFireBackAtAttack_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getFireBackAtReport_0 = Module["_emscripten_bind_SIGContainAdapter_getFireBackAtReport_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFireBackAtReport_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getFireHeadAtAttack_0 = Module["_emscripten_bind_SIGContainAdapter_getFireHeadAtAttack_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFireHeadAtAttack_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getFireHeadAtReport_0 = Module["_emscripten_bind_SIGContainAdapter_getFireHeadAtReport_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFireHeadAtReport_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getFireSizeAtInitialAttack_1 = Module["_emscripten_bind_SIGContainAdapter_getFireSizeAtInitialAttack_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFireSizeAtInitialAttack_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getLengthToWidthRatio_0 = Module["_emscripten_bind_SIGContainAdapter_getLengthToWidthRatio_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getLengthToWidthRatio_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getPerimeterAtContainment_1 = Module["_emscripten_bind_SIGContainAdapter_getPerimeterAtContainment_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getPerimeterAtContainment_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getPerimeterAtInitialAttack_1 = Module["_emscripten_bind_SIGContainAdapter_getPerimeterAtInitialAttack_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getPerimeterAtInitialAttack_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getReportSize_1 = Module["_emscripten_bind_SIGContainAdapter_getReportSize_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getReportSize_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getReportRate_1 = Module["_emscripten_bind_SIGContainAdapter_getReportRate_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getReportRate_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getTactic_0 = Module["_emscripten_bind_SIGContainAdapter_getTactic_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getTactic_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getFirePerimeterPointCount_0 = Module["_emscripten_bind_SIGContainAdapter_getFirePerimeterPointCount_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFirePerimeterPointCount_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_removeAllResourcesWithThisDesc_1 = Module["_emscripten_bind_SIGContainAdapter_removeAllResourcesWithThisDesc_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_removeAllResourcesWithThisDesc_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_removeResourceAt_1 = Module["_emscripten_bind_SIGContainAdapter_removeResourceAt_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_removeResourceAt_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_removeResourceWithThisDesc_1 = Module["_emscripten_bind_SIGContainAdapter_removeResourceWithThisDesc_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_removeResourceWithThisDesc_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_addResource_8 = Module["_emscripten_bind_SIGContainAdapter_addResource_8"] = createExportWrapper("emscripten_bind_SIGContainAdapter_addResource_8");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_doContainRun_0 = Module["_emscripten_bind_SIGContainAdapter_doContainRun_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_doContainRun_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_removeAllResources_0 = Module["_emscripten_bind_SIGContainAdapter_removeAllResources_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_removeAllResources_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_setAttackDistance_2 = Module["_emscripten_bind_SIGContainAdapter_setAttackDistance_2"] = createExportWrapper("emscripten_bind_SIGContainAdapter_setAttackDistance_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_setFireStartTime_1 = Module["_emscripten_bind_SIGContainAdapter_setFireStartTime_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_setFireStartTime_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_setLwRatio_1 = Module["_emscripten_bind_SIGContainAdapter_setLwRatio_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_setLwRatio_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_setMaxFireSize_1 = Module["_emscripten_bind_SIGContainAdapter_setMaxFireSize_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_setMaxFireSize_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_setMaxFireTime_1 = Module["_emscripten_bind_SIGContainAdapter_setMaxFireTime_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_setMaxFireTime_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_setMaxSteps_1 = Module["_emscripten_bind_SIGContainAdapter_setMaxSteps_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_setMaxSteps_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_setMinSteps_1 = Module["_emscripten_bind_SIGContainAdapter_setMinSteps_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_setMinSteps_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_setReportRate_2 = Module["_emscripten_bind_SIGContainAdapter_setReportRate_2"] = createExportWrapper("emscripten_bind_SIGContainAdapter_setReportRate_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_setReportSize_2 = Module["_emscripten_bind_SIGContainAdapter_setReportSize_2"] = createExportWrapper("emscripten_bind_SIGContainAdapter_setReportSize_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_setRetry_1 = Module["_emscripten_bind_SIGContainAdapter_setRetry_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_setRetry_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_setTactic_1 = Module["_emscripten_bind_SIGContainAdapter_setTactic_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_setTactic_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter___destroy___0 = Module["_emscripten_bind_SIGContainAdapter___destroy___0"] = createExportWrapper("emscripten_bind_SIGContainAdapter___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_SIGIgnite_0 = Module["_emscripten_bind_SIGIgnite_SIGIgnite_0"] = createExportWrapper("emscripten_bind_SIGIgnite_SIGIgnite_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_initializeMembers_0 = Module["_emscripten_bind_SIGIgnite_initializeMembers_0"] = createExportWrapper("emscripten_bind_SIGIgnite_initializeMembers_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_getFuelBedType_0 = Module["_emscripten_bind_SIGIgnite_getFuelBedType_0"] = createExportWrapper("emscripten_bind_SIGIgnite_getFuelBedType_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_getLightningChargeType_0 = Module["_emscripten_bind_SIGIgnite_getLightningChargeType_0"] = createExportWrapper("emscripten_bind_SIGIgnite_getLightningChargeType_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_calculateFirebrandIgnitionProbability_0 = Module["_emscripten_bind_SIGIgnite_calculateFirebrandIgnitionProbability_0"] = createExportWrapper("emscripten_bind_SIGIgnite_calculateFirebrandIgnitionProbability_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_calculateLightningIgnitionProbability_1 = Module["_emscripten_bind_SIGIgnite_calculateLightningIgnitionProbability_1"] = createExportWrapper("emscripten_bind_SIGIgnite_calculateLightningIgnitionProbability_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_setAirTemperature_2 = Module["_emscripten_bind_SIGIgnite_setAirTemperature_2"] = createExportWrapper("emscripten_bind_SIGIgnite_setAirTemperature_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_setDuffDepth_2 = Module["_emscripten_bind_SIGIgnite_setDuffDepth_2"] = createExportWrapper("emscripten_bind_SIGIgnite_setDuffDepth_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_setIgnitionFuelBedType_1 = Module["_emscripten_bind_SIGIgnite_setIgnitionFuelBedType_1"] = createExportWrapper("emscripten_bind_SIGIgnite_setIgnitionFuelBedType_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_setLightningChargeType_1 = Module["_emscripten_bind_SIGIgnite_setLightningChargeType_1"] = createExportWrapper("emscripten_bind_SIGIgnite_setLightningChargeType_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_setMoistureHundredHour_2 = Module["_emscripten_bind_SIGIgnite_setMoistureHundredHour_2"] = createExportWrapper("emscripten_bind_SIGIgnite_setMoistureHundredHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_setMoistureOneHour_2 = Module["_emscripten_bind_SIGIgnite_setMoistureOneHour_2"] = createExportWrapper("emscripten_bind_SIGIgnite_setMoistureOneHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_setSunShade_2 = Module["_emscripten_bind_SIGIgnite_setSunShade_2"] = createExportWrapper("emscripten_bind_SIGIgnite_setSunShade_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_updateIgniteInputs_11 = Module["_emscripten_bind_SIGIgnite_updateIgniteInputs_11"] = createExportWrapper("emscripten_bind_SIGIgnite_updateIgniteInputs_11");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_getAirTemperature_1 = Module["_emscripten_bind_SIGIgnite_getAirTemperature_1"] = createExportWrapper("emscripten_bind_SIGIgnite_getAirTemperature_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_getDuffDepth_1 = Module["_emscripten_bind_SIGIgnite_getDuffDepth_1"] = createExportWrapper("emscripten_bind_SIGIgnite_getDuffDepth_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_getFirebrandIgnitionProbability_1 = Module["_emscripten_bind_SIGIgnite_getFirebrandIgnitionProbability_1"] = createExportWrapper("emscripten_bind_SIGIgnite_getFirebrandIgnitionProbability_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_getFuelTemperature_1 = Module["_emscripten_bind_SIGIgnite_getFuelTemperature_1"] = createExportWrapper("emscripten_bind_SIGIgnite_getFuelTemperature_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_getMoistureHundredHour_1 = Module["_emscripten_bind_SIGIgnite_getMoistureHundredHour_1"] = createExportWrapper("emscripten_bind_SIGIgnite_getMoistureHundredHour_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_getMoistureOneHour_1 = Module["_emscripten_bind_SIGIgnite_getMoistureOneHour_1"] = createExportWrapper("emscripten_bind_SIGIgnite_getMoistureOneHour_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_getSunShade_1 = Module["_emscripten_bind_SIGIgnite_getSunShade_1"] = createExportWrapper("emscripten_bind_SIGIgnite_getSunShade_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite_isFuelDepthNeeded_0 = Module["_emscripten_bind_SIGIgnite_isFuelDepthNeeded_0"] = createExportWrapper("emscripten_bind_SIGIgnite_isFuelDepthNeeded_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGIgnite___destroy___0 = Module["_emscripten_bind_SIGIgnite___destroy___0"] = createExportWrapper("emscripten_bind_SIGIgnite___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMoistureScenarios_SIGMoistureScenarios_0 = Module["_emscripten_bind_SIGMoistureScenarios_SIGMoistureScenarios_0"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_SIGMoistureScenarios_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMoistureScenarios_getIsMoistureScenarioDefinedByIndex_1 = Module["_emscripten_bind_SIGMoistureScenarios_getIsMoistureScenarioDefinedByIndex_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getIsMoistureScenarioDefinedByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMoistureScenarios_getIsMoistureScenarioDefinedByName_1 = Module["_emscripten_bind_SIGMoistureScenarios_getIsMoistureScenarioDefinedByName_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getIsMoistureScenarioDefinedByName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByIndex_2 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByIndex_2"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByIndex_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByName_2 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByName_2"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioHundredHourByName_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByIndex_2 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByIndex_2"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByIndex_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByName_2 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByName_2"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveHerbaceousByName_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByIndex_2 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByIndex_2"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByIndex_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByName_2 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByName_2"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioLiveWoodyByName_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByIndex_2 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByIndex_2"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByIndex_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByName_2 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByName_2"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioOneHourByName_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByIndex_2 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByIndex_2"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByIndex_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByName_2 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByName_2"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioTenHourByName_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioIndexByName_1 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioIndexByName_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioIndexByName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMoistureScenarios_getNumberOfMoistureScenarios_0 = Module["_emscripten_bind_SIGMoistureScenarios_getNumberOfMoistureScenarios_0"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getNumberOfMoistureScenarios_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioDescriptionByIndex_1 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioDescriptionByIndex_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioDescriptionByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioDescriptionByName_1 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioDescriptionByName_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioDescriptionByName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMoistureScenarios_getMoistureScenarioNameByIndex_1 = Module["_emscripten_bind_SIGMoistureScenarios_getMoistureScenarioNameByIndex_1"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios_getMoistureScenarioNameByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMoistureScenarios___destroy___0 = Module["_emscripten_bind_SIGMoistureScenarios___destroy___0"] = createExportWrapper("emscripten_bind_SIGMoistureScenarios___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_SIGSpot_0 = Module["_emscripten_bind_SIGSpot_SIGSpot_0"] = createExportWrapper("emscripten_bind_SIGSpot_SIGSpot_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getDownwindCanopyMode_0 = Module["_emscripten_bind_SIGSpot_getDownwindCanopyMode_0"] = createExportWrapper("emscripten_bind_SIGSpot_getDownwindCanopyMode_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getLocation_0 = Module["_emscripten_bind_SIGSpot_getLocation_0"] = createExportWrapper("emscripten_bind_SIGSpot_getLocation_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getTreeSpecies_0 = Module["_emscripten_bind_SIGSpot_getTreeSpecies_0"] = createExportWrapper("emscripten_bind_SIGSpot_getTreeSpecies_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getBurningPileFlameHeight_1 = Module["_emscripten_bind_SIGSpot_getBurningPileFlameHeight_1"] = createExportWrapper("emscripten_bind_SIGSpot_getBurningPileFlameHeight_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getCoverHeightUsedForBurningPile_1 = Module["_emscripten_bind_SIGSpot_getCoverHeightUsedForBurningPile_1"] = createExportWrapper("emscripten_bind_SIGSpot_getCoverHeightUsedForBurningPile_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getCoverHeightUsedForSurfaceFire_1 = Module["_emscripten_bind_SIGSpot_getCoverHeightUsedForSurfaceFire_1"] = createExportWrapper("emscripten_bind_SIGSpot_getCoverHeightUsedForSurfaceFire_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getCoverHeightUsedForTorchingTrees_1 = Module["_emscripten_bind_SIGSpot_getCoverHeightUsedForTorchingTrees_1"] = createExportWrapper("emscripten_bind_SIGSpot_getCoverHeightUsedForTorchingTrees_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getDBH_1 = Module["_emscripten_bind_SIGSpot_getDBH_1"] = createExportWrapper("emscripten_bind_SIGSpot_getDBH_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getDownwindCoverHeight_1 = Module["_emscripten_bind_SIGSpot_getDownwindCoverHeight_1"] = createExportWrapper("emscripten_bind_SIGSpot_getDownwindCoverHeight_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getFlameDurationForTorchingTrees_1 = Module["_emscripten_bind_SIGSpot_getFlameDurationForTorchingTrees_1"] = createExportWrapper("emscripten_bind_SIGSpot_getFlameDurationForTorchingTrees_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getFlameHeightForTorchingTrees_1 = Module["_emscripten_bind_SIGSpot_getFlameHeightForTorchingTrees_1"] = createExportWrapper("emscripten_bind_SIGSpot_getFlameHeightForTorchingTrees_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getFlameRatioForTorchingTrees_0 = Module["_emscripten_bind_SIGSpot_getFlameRatioForTorchingTrees_0"] = createExportWrapper("emscripten_bind_SIGSpot_getFlameRatioForTorchingTrees_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getMaxFirebrandHeightFromBurningPile_1 = Module["_emscripten_bind_SIGSpot_getMaxFirebrandHeightFromBurningPile_1"] = createExportWrapper("emscripten_bind_SIGSpot_getMaxFirebrandHeightFromBurningPile_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getMaxFirebrandHeightFromSurfaceFire_1 = Module["_emscripten_bind_SIGSpot_getMaxFirebrandHeightFromSurfaceFire_1"] = createExportWrapper("emscripten_bind_SIGSpot_getMaxFirebrandHeightFromSurfaceFire_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getMaxFirebrandHeightFromTorchingTrees_1 = Module["_emscripten_bind_SIGSpot_getMaxFirebrandHeightFromTorchingTrees_1"] = createExportWrapper("emscripten_bind_SIGSpot_getMaxFirebrandHeightFromTorchingTrees_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromBurningPile_1 = Module["_emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromBurningPile_1"] = createExportWrapper("emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromBurningPile_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromSurfaceFire_1 = Module["_emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromSurfaceFire_1"] = createExportWrapper("emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromSurfaceFire_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromTorchingTrees_1 = Module["_emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromTorchingTrees_1"] = createExportWrapper("emscripten_bind_SIGSpot_getMaxFlatTerrainSpottingDistanceFromTorchingTrees_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromBurningPile_1 = Module["_emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromBurningPile_1"] = createExportWrapper("emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromBurningPile_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromSurfaceFire_1 = Module["_emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromSurfaceFire_1"] = createExportWrapper("emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromSurfaceFire_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromTorchingTrees_1 = Module["_emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromTorchingTrees_1"] = createExportWrapper("emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromTorchingTrees_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromActiveCrown_1 = Module["_emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromActiveCrown_1"] = createExportWrapper("emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromActiveCrown_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getRidgeToValleyDistance_1 = Module["_emscripten_bind_SIGSpot_getRidgeToValleyDistance_1"] = createExportWrapper("emscripten_bind_SIGSpot_getRidgeToValleyDistance_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getRidgeToValleyElevation_1 = Module["_emscripten_bind_SIGSpot_getRidgeToValleyElevation_1"] = createExportWrapper("emscripten_bind_SIGSpot_getRidgeToValleyElevation_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getSurfaceFlameLength_1 = Module["_emscripten_bind_SIGSpot_getSurfaceFlameLength_1"] = createExportWrapper("emscripten_bind_SIGSpot_getSurfaceFlameLength_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getTreeHeight_1 = Module["_emscripten_bind_SIGSpot_getTreeHeight_1"] = createExportWrapper("emscripten_bind_SIGSpot_getTreeHeight_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getWindSpeedAtTwentyFeet_1 = Module["_emscripten_bind_SIGSpot_getWindSpeedAtTwentyFeet_1"] = createExportWrapper("emscripten_bind_SIGSpot_getWindSpeedAtTwentyFeet_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_getTorchingTrees_0 = Module["_emscripten_bind_SIGSpot_getTorchingTrees_0"] = createExportWrapper("emscripten_bind_SIGSpot_getTorchingTrees_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_calculateAll_0 = Module["_emscripten_bind_SIGSpot_calculateAll_0"] = createExportWrapper("emscripten_bind_SIGSpot_calculateAll_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_calculateSpottingDistanceFromBurningPile_0 = Module["_emscripten_bind_SIGSpot_calculateSpottingDistanceFromBurningPile_0"] = createExportWrapper("emscripten_bind_SIGSpot_calculateSpottingDistanceFromBurningPile_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_calculateSpottingDistanceFromSurfaceFire_0 = Module["_emscripten_bind_SIGSpot_calculateSpottingDistanceFromSurfaceFire_0"] = createExportWrapper("emscripten_bind_SIGSpot_calculateSpottingDistanceFromSurfaceFire_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_calculateSpottingDistanceFromTorchingTrees_0 = Module["_emscripten_bind_SIGSpot_calculateSpottingDistanceFromTorchingTrees_0"] = createExportWrapper("emscripten_bind_SIGSpot_calculateSpottingDistanceFromTorchingTrees_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_initializeMembers_0 = Module["_emscripten_bind_SIGSpot_initializeMembers_0"] = createExportWrapper("emscripten_bind_SIGSpot_initializeMembers_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_setActiveCrownFlameLength_2 = Module["_emscripten_bind_SIGSpot_setActiveCrownFlameLength_2"] = createExportWrapper("emscripten_bind_SIGSpot_setActiveCrownFlameLength_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_setBurningPileFlameHeight_2 = Module["_emscripten_bind_SIGSpot_setBurningPileFlameHeight_2"] = createExportWrapper("emscripten_bind_SIGSpot_setBurningPileFlameHeight_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_setDBH_2 = Module["_emscripten_bind_SIGSpot_setDBH_2"] = createExportWrapper("emscripten_bind_SIGSpot_setDBH_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_setDownwindCanopyMode_1 = Module["_emscripten_bind_SIGSpot_setDownwindCanopyMode_1"] = createExportWrapper("emscripten_bind_SIGSpot_setDownwindCanopyMode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_setDownwindCoverHeight_2 = Module["_emscripten_bind_SIGSpot_setDownwindCoverHeight_2"] = createExportWrapper("emscripten_bind_SIGSpot_setDownwindCoverHeight_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_setFireType_1 = Module["_emscripten_bind_SIGSpot_setFireType_1"] = createExportWrapper("emscripten_bind_SIGSpot_setFireType_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_setFlameLength_2 = Module["_emscripten_bind_SIGSpot_setFlameLength_2"] = createExportWrapper("emscripten_bind_SIGSpot_setFlameLength_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_setLocation_1 = Module["_emscripten_bind_SIGSpot_setLocation_1"] = createExportWrapper("emscripten_bind_SIGSpot_setLocation_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_setRidgeToValleyDistance_2 = Module["_emscripten_bind_SIGSpot_setRidgeToValleyDistance_2"] = createExportWrapper("emscripten_bind_SIGSpot_setRidgeToValleyDistance_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_setRidgeToValleyElevation_2 = Module["_emscripten_bind_SIGSpot_setRidgeToValleyElevation_2"] = createExportWrapper("emscripten_bind_SIGSpot_setRidgeToValleyElevation_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_setTorchingTrees_1 = Module["_emscripten_bind_SIGSpot_setTorchingTrees_1"] = createExportWrapper("emscripten_bind_SIGSpot_setTorchingTrees_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_setTreeHeight_2 = Module["_emscripten_bind_SIGSpot_setTreeHeight_2"] = createExportWrapper("emscripten_bind_SIGSpot_setTreeHeight_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_setTreeSpecies_1 = Module["_emscripten_bind_SIGSpot_setTreeSpecies_1"] = createExportWrapper("emscripten_bind_SIGSpot_setTreeSpecies_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_setWindSpeedAtTwentyFeet_2 = Module["_emscripten_bind_SIGSpot_setWindSpeedAtTwentyFeet_2"] = createExportWrapper("emscripten_bind_SIGSpot_setWindSpeedAtTwentyFeet_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_setWindSpeed_2 = Module["_emscripten_bind_SIGSpot_setWindSpeed_2"] = createExportWrapper("emscripten_bind_SIGSpot_setWindSpeed_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_setWindSpeedAndWindHeightInputMode_3 = Module["_emscripten_bind_SIGSpot_setWindSpeedAndWindHeightInputMode_3"] = createExportWrapper("emscripten_bind_SIGSpot_setWindSpeedAndWindHeightInputMode_3");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_setWindHeightInputMode_1 = Module["_emscripten_bind_SIGSpot_setWindHeightInputMode_1"] = createExportWrapper("emscripten_bind_SIGSpot_setWindHeightInputMode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_updateSpotInputsForBurningPile_12 = Module["_emscripten_bind_SIGSpot_updateSpotInputsForBurningPile_12"] = createExportWrapper("emscripten_bind_SIGSpot_updateSpotInputsForBurningPile_12");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_updateSpotInputsForSurfaceFire_12 = Module["_emscripten_bind_SIGSpot_updateSpotInputsForSurfaceFire_12"] = createExportWrapper("emscripten_bind_SIGSpot_updateSpotInputsForSurfaceFire_12");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_updateSpotInputsForTorchingTrees_16 = Module["_emscripten_bind_SIGSpot_updateSpotInputsForTorchingTrees_16"] = createExportWrapper("emscripten_bind_SIGSpot_updateSpotInputsForTorchingTrees_16");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot___destroy___0 = Module["_emscripten_bind_SIGSpot___destroy___0"] = createExportWrapper("emscripten_bind_SIGSpot___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_SIGFuelModels_0 = Module["_emscripten_bind_SIGFuelModels_SIGFuelModels_0"] = createExportWrapper("emscripten_bind_SIGFuelModels_SIGFuelModels_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_SIGFuelModels_1 = Module["_emscripten_bind_SIGFuelModels_SIGFuelModels_1"] = createExportWrapper("emscripten_bind_SIGFuelModels_SIGFuelModels_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_equal_1 = Module["_emscripten_bind_SIGFuelModels_equal_1"] = createExportWrapper("emscripten_bind_SIGFuelModels_equal_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_clearCustomFuelModel_1 = Module["_emscripten_bind_SIGFuelModels_clearCustomFuelModel_1"] = createExportWrapper("emscripten_bind_SIGFuelModels_clearCustomFuelModel_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_getIsDynamic_1 = Module["_emscripten_bind_SIGFuelModels_getIsDynamic_1"] = createExportWrapper("emscripten_bind_SIGFuelModels_getIsDynamic_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_isAllFuelLoadZero_1 = Module["_emscripten_bind_SIGFuelModels_isAllFuelLoadZero_1"] = createExportWrapper("emscripten_bind_SIGFuelModels_isAllFuelLoadZero_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_isFuelModelDefined_1 = Module["_emscripten_bind_SIGFuelModels_isFuelModelDefined_1"] = createExportWrapper("emscripten_bind_SIGFuelModels_isFuelModelDefined_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_isFuelModelReserved_1 = Module["_emscripten_bind_SIGFuelModels_isFuelModelReserved_1"] = createExportWrapper("emscripten_bind_SIGFuelModels_isFuelModelReserved_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_setCustomFuelModel_21 = Module["_emscripten_bind_SIGFuelModels_setCustomFuelModel_21"] = createExportWrapper("emscripten_bind_SIGFuelModels_setCustomFuelModel_21");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_getFuelCode_1 = Module["_emscripten_bind_SIGFuelModels_getFuelCode_1"] = createExportWrapper("emscripten_bind_SIGFuelModels_getFuelCode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_getFuelName_1 = Module["_emscripten_bind_SIGFuelModels_getFuelName_1"] = createExportWrapper("emscripten_bind_SIGFuelModels_getFuelName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_getFuelLoadHundredHour_2 = Module["_emscripten_bind_SIGFuelModels_getFuelLoadHundredHour_2"] = createExportWrapper("emscripten_bind_SIGFuelModels_getFuelLoadHundredHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_getFuelLoadLiveHerbaceous_2 = Module["_emscripten_bind_SIGFuelModels_getFuelLoadLiveHerbaceous_2"] = createExportWrapper("emscripten_bind_SIGFuelModels_getFuelLoadLiveHerbaceous_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_getFuelLoadLiveWoody_2 = Module["_emscripten_bind_SIGFuelModels_getFuelLoadLiveWoody_2"] = createExportWrapper("emscripten_bind_SIGFuelModels_getFuelLoadLiveWoody_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_getFuelLoadOneHour_2 = Module["_emscripten_bind_SIGFuelModels_getFuelLoadOneHour_2"] = createExportWrapper("emscripten_bind_SIGFuelModels_getFuelLoadOneHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_getFuelLoadTenHour_2 = Module["_emscripten_bind_SIGFuelModels_getFuelLoadTenHour_2"] = createExportWrapper("emscripten_bind_SIGFuelModels_getFuelLoadTenHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_getFuelbedDepth_2 = Module["_emscripten_bind_SIGFuelModels_getFuelbedDepth_2"] = createExportWrapper("emscripten_bind_SIGFuelModels_getFuelbedDepth_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_getHeatOfCombustionDead_2 = Module["_emscripten_bind_SIGFuelModels_getHeatOfCombustionDead_2"] = createExportWrapper("emscripten_bind_SIGFuelModels_getHeatOfCombustionDead_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_getMoistureOfExtinctionDead_2 = Module["_emscripten_bind_SIGFuelModels_getMoistureOfExtinctionDead_2"] = createExportWrapper("emscripten_bind_SIGFuelModels_getMoistureOfExtinctionDead_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_getSavrLiveHerbaceous_2 = Module["_emscripten_bind_SIGFuelModels_getSavrLiveHerbaceous_2"] = createExportWrapper("emscripten_bind_SIGFuelModels_getSavrLiveHerbaceous_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_getSavrLiveWoody_2 = Module["_emscripten_bind_SIGFuelModels_getSavrLiveWoody_2"] = createExportWrapper("emscripten_bind_SIGFuelModels_getSavrLiveWoody_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_getSavrOneHour_2 = Module["_emscripten_bind_SIGFuelModels_getSavrOneHour_2"] = createExportWrapper("emscripten_bind_SIGFuelModels_getSavrOneHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels_getHeatOfCombustionLive_2 = Module["_emscripten_bind_SIGFuelModels_getHeatOfCombustionLive_2"] = createExportWrapper("emscripten_bind_SIGFuelModels_getHeatOfCombustionLive_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFuelModels___destroy___0 = Module["_emscripten_bind_SIGFuelModels___destroy___0"] = createExportWrapper("emscripten_bind_SIGFuelModels___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_SIGSurface_1 = Module["_emscripten_bind_SIGSurface_SIGSurface_1"] = createExportWrapper("emscripten_bind_SIGSurface_SIGSurface_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getAspenFireSeverity_0 = Module["_emscripten_bind_SIGSurface_getAspenFireSeverity_0"] = createExportWrapper("emscripten_bind_SIGSurface_getAspenFireSeverity_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralFuelType_0 = Module["_emscripten_bind_SIGSurface_getChaparralFuelType_0"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralFuelType_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureInputMode_0 = Module["_emscripten_bind_SIGSurface_getMoistureInputMode_0"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureInputMode_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getWindAdjustmentFactorCalculationMethod_0 = Module["_emscripten_bind_SIGSurface_getWindAdjustmentFactorCalculationMethod_0"] = createExportWrapper("emscripten_bind_SIGSurface_getWindAdjustmentFactorCalculationMethod_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getWindAndSpreadOrientationMode_0 = Module["_emscripten_bind_SIGSurface_getWindAndSpreadOrientationMode_0"] = createExportWrapper("emscripten_bind_SIGSurface_getWindAndSpreadOrientationMode_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getWindHeightInputMode_0 = Module["_emscripten_bind_SIGSurface_getWindHeightInputMode_0"] = createExportWrapper("emscripten_bind_SIGSurface_getWindHeightInputMode_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getWindUpslopeAlignmentMode_0 = Module["_emscripten_bind_SIGSurface_getWindUpslopeAlignmentMode_0"] = createExportWrapper("emscripten_bind_SIGSurface_getWindUpslopeAlignmentMode_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getSurfaceRunInDirectionOf_0 = Module["_emscripten_bind_SIGSurface_getSurfaceRunInDirectionOf_0"] = createExportWrapper("emscripten_bind_SIGSurface_getSurfaceRunInDirectionOf_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByIndex_1 = Module["_emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByIndex_1"] = createExportWrapper("emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByName_1 = Module["_emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByName_1"] = createExportWrapper("emscripten_bind_SIGSurface_getIsMoistureScenarioDefinedByName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getIsUsingChaparral_0 = Module["_emscripten_bind_SIGSurface_getIsUsingChaparral_0"] = createExportWrapper("emscripten_bind_SIGSurface_getIsUsingChaparral_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getIsUsingPalmettoGallberry_0 = Module["_emscripten_bind_SIGSurface_getIsUsingPalmettoGallberry_0"] = createExportWrapper("emscripten_bind_SIGSurface_getIsUsingPalmettoGallberry_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getIsUsingWesternAspen_0 = Module["_emscripten_bind_SIGSurface_getIsUsingWesternAspen_0"] = createExportWrapper("emscripten_bind_SIGSurface_getIsUsingWesternAspen_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_isAllFuelLoadZero_1 = Module["_emscripten_bind_SIGSurface_isAllFuelLoadZero_1"] = createExportWrapper("emscripten_bind_SIGSurface_isAllFuelLoadZero_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_isFuelDynamic_1 = Module["_emscripten_bind_SIGSurface_isFuelDynamic_1"] = createExportWrapper("emscripten_bind_SIGSurface_isFuelDynamic_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_isFuelModelDefined_1 = Module["_emscripten_bind_SIGSurface_isFuelModelDefined_1"] = createExportWrapper("emscripten_bind_SIGSurface_isFuelModelDefined_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_isFuelModelReserved_1 = Module["_emscripten_bind_SIGSurface_isFuelModelReserved_1"] = createExportWrapper("emscripten_bind_SIGSurface_isFuelModelReserved_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_isMoistureClassInputNeededForCurrentFuelModel_1 = Module["_emscripten_bind_SIGSurface_isMoistureClassInputNeededForCurrentFuelModel_1"] = createExportWrapper("emscripten_bind_SIGSurface_isMoistureClassInputNeededForCurrentFuelModel_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_isUsingTwoFuelModels_0 = Module["_emscripten_bind_SIGSurface_isUsingTwoFuelModels_0"] = createExportWrapper("emscripten_bind_SIGSurface_isUsingTwoFuelModels_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setCurrentMoistureScenarioByIndex_1 = Module["_emscripten_bind_SIGSurface_setCurrentMoistureScenarioByIndex_1"] = createExportWrapper("emscripten_bind_SIGSurface_setCurrentMoistureScenarioByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setCurrentMoistureScenarioByName_1 = Module["_emscripten_bind_SIGSurface_setCurrentMoistureScenarioByName_1"] = createExportWrapper("emscripten_bind_SIGSurface_setCurrentMoistureScenarioByName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_calculateFlameLength_3 = Module["_emscripten_bind_SIGSurface_calculateFlameLength_3"] = createExportWrapper("emscripten_bind_SIGSurface_calculateFlameLength_3");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getAgeOfRough_0 = Module["_emscripten_bind_SIGSurface_getAgeOfRough_0"] = createExportWrapper("emscripten_bind_SIGSurface_getAgeOfRough_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getAspect_0 = Module["_emscripten_bind_SIGSurface_getAspect_0"] = createExportWrapper("emscripten_bind_SIGSurface_getAspect_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getAspenCuringLevel_1 = Module["_emscripten_bind_SIGSurface_getAspenCuringLevel_1"] = createExportWrapper("emscripten_bind_SIGSurface_getAspenCuringLevel_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getAspenDBH_1 = Module["_emscripten_bind_SIGSurface_getAspenDBH_1"] = createExportWrapper("emscripten_bind_SIGSurface_getAspenDBH_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getAspenLoadDeadOneHour_1 = Module["_emscripten_bind_SIGSurface_getAspenLoadDeadOneHour_1"] = createExportWrapper("emscripten_bind_SIGSurface_getAspenLoadDeadOneHour_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getAspenLoadDeadTenHour_1 = Module["_emscripten_bind_SIGSurface_getAspenLoadDeadTenHour_1"] = createExportWrapper("emscripten_bind_SIGSurface_getAspenLoadDeadTenHour_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getAspenLoadLiveHerbaceous_1 = Module["_emscripten_bind_SIGSurface_getAspenLoadLiveHerbaceous_1"] = createExportWrapper("emscripten_bind_SIGSurface_getAspenLoadLiveHerbaceous_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getAspenLoadLiveWoody_1 = Module["_emscripten_bind_SIGSurface_getAspenLoadLiveWoody_1"] = createExportWrapper("emscripten_bind_SIGSurface_getAspenLoadLiveWoody_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getAspenSavrDeadOneHour_1 = Module["_emscripten_bind_SIGSurface_getAspenSavrDeadOneHour_1"] = createExportWrapper("emscripten_bind_SIGSurface_getAspenSavrDeadOneHour_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getAspenSavrDeadTenHour_1 = Module["_emscripten_bind_SIGSurface_getAspenSavrDeadTenHour_1"] = createExportWrapper("emscripten_bind_SIGSurface_getAspenSavrDeadTenHour_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getAspenSavrLiveHerbaceous_1 = Module["_emscripten_bind_SIGSurface_getAspenSavrLiveHerbaceous_1"] = createExportWrapper("emscripten_bind_SIGSurface_getAspenSavrLiveHerbaceous_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getAspenSavrLiveWoody_1 = Module["_emscripten_bind_SIGSurface_getAspenSavrLiveWoody_1"] = createExportWrapper("emscripten_bind_SIGSurface_getAspenSavrLiveWoody_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getBackingFirelineIntensity_1 = Module["_emscripten_bind_SIGSurface_getBackingFirelineIntensity_1"] = createExportWrapper("emscripten_bind_SIGSurface_getBackingFirelineIntensity_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getBackingFlameLength_1 = Module["_emscripten_bind_SIGSurface_getBackingFlameLength_1"] = createExportWrapper("emscripten_bind_SIGSurface_getBackingFlameLength_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getBackingSpreadDistance_1 = Module["_emscripten_bind_SIGSurface_getBackingSpreadDistance_1"] = createExportWrapper("emscripten_bind_SIGSurface_getBackingSpreadDistance_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getBackingSpreadRate_1 = Module["_emscripten_bind_SIGSurface_getBackingSpreadRate_1"] = createExportWrapper("emscripten_bind_SIGSurface_getBackingSpreadRate_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getBulkDensity_1 = Module["_emscripten_bind_SIGSurface_getBulkDensity_1"] = createExportWrapper("emscripten_bind_SIGSurface_getBulkDensity_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getCanopyCover_1 = Module["_emscripten_bind_SIGSurface_getCanopyCover_1"] = createExportWrapper("emscripten_bind_SIGSurface_getCanopyCover_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getCanopyHeight_1 = Module["_emscripten_bind_SIGSurface_getCanopyHeight_1"] = createExportWrapper("emscripten_bind_SIGSurface_getCanopyHeight_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralAge_1 = Module["_emscripten_bind_SIGSurface_getChaparralAge_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralAge_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralDaysSinceMayFirst_0 = Module["_emscripten_bind_SIGSurface_getChaparralDaysSinceMayFirst_0"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralDaysSinceMayFirst_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralDeadFuelFraction_0 = Module["_emscripten_bind_SIGSurface_getChaparralDeadFuelFraction_0"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralDeadFuelFraction_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralDeadMoistureOfExtinction_1 = Module["_emscripten_bind_SIGSurface_getChaparralDeadMoistureOfExtinction_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralDeadMoistureOfExtinction_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralDensity_3 = Module["_emscripten_bind_SIGSurface_getChaparralDensity_3"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralDensity_3");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralFuelBedDepth_1 = Module["_emscripten_bind_SIGSurface_getChaparralFuelBedDepth_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralFuelBedDepth_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralFuelDeadLoadFraction_0 = Module["_emscripten_bind_SIGSurface_getChaparralFuelDeadLoadFraction_0"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralFuelDeadLoadFraction_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralHeatOfCombustion_3 = Module["_emscripten_bind_SIGSurface_getChaparralHeatOfCombustion_3"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralHeatOfCombustion_3");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralLiveMoistureOfExtinction_1 = Module["_emscripten_bind_SIGSurface_getChaparralLiveMoistureOfExtinction_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralLiveMoistureOfExtinction_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralLoadDeadHalfInchToLessThanOneInch_1 = Module["_emscripten_bind_SIGSurface_getChaparralLoadDeadHalfInchToLessThanOneInch_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralLoadDeadHalfInchToLessThanOneInch_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralLoadDeadLessThanQuarterInch_1 = Module["_emscripten_bind_SIGSurface_getChaparralLoadDeadLessThanQuarterInch_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralLoadDeadLessThanQuarterInch_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralLoadDeadOneInchToThreeInch_1 = Module["_emscripten_bind_SIGSurface_getChaparralLoadDeadOneInchToThreeInch_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralLoadDeadOneInchToThreeInch_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralLoadDeadQuarterInchToLessThanHalfInch_1 = Module["_emscripten_bind_SIGSurface_getChaparralLoadDeadQuarterInchToLessThanHalfInch_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralLoadDeadQuarterInchToLessThanHalfInch_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralLoadLiveHalfInchToLessThanOneInch_1 = Module["_emscripten_bind_SIGSurface_getChaparralLoadLiveHalfInchToLessThanOneInch_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralLoadLiveHalfInchToLessThanOneInch_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralLoadLiveLeaves_1 = Module["_emscripten_bind_SIGSurface_getChaparralLoadLiveLeaves_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralLoadLiveLeaves_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralLoadLiveOneInchToThreeInch_1 = Module["_emscripten_bind_SIGSurface_getChaparralLoadLiveOneInchToThreeInch_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralLoadLiveOneInchToThreeInch_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralLoadLiveQuarterInchToLessThanHalfInch_1 = Module["_emscripten_bind_SIGSurface_getChaparralLoadLiveQuarterInchToLessThanHalfInch_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralLoadLiveQuarterInchToLessThanHalfInch_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralLoadLiveStemsLessThanQuaterInch_1 = Module["_emscripten_bind_SIGSurface_getChaparralLoadLiveStemsLessThanQuaterInch_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralLoadLiveStemsLessThanQuaterInch_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralMoisture_3 = Module["_emscripten_bind_SIGSurface_getChaparralMoisture_3"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralMoisture_3");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralTotalDeadFuelLoad_1 = Module["_emscripten_bind_SIGSurface_getChaparralTotalDeadFuelLoad_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralTotalDeadFuelLoad_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralTotalFuelLoad_1 = Module["_emscripten_bind_SIGSurface_getChaparralTotalFuelLoad_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralTotalFuelLoad_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getChaparralTotalLiveFuelLoad_1 = Module["_emscripten_bind_SIGSurface_getChaparralTotalLiveFuelLoad_1"] = createExportWrapper("emscripten_bind_SIGSurface_getChaparralTotalLiveFuelLoad_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getCharacteristicMoistureByLifeState_2 = Module["_emscripten_bind_SIGSurface_getCharacteristicMoistureByLifeState_2"] = createExportWrapper("emscripten_bind_SIGSurface_getCharacteristicMoistureByLifeState_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getCharacteristicMoistureDead_1 = Module["_emscripten_bind_SIGSurface_getCharacteristicMoistureDead_1"] = createExportWrapper("emscripten_bind_SIGSurface_getCharacteristicMoistureDead_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getCharacteristicMoistureLive_1 = Module["_emscripten_bind_SIGSurface_getCharacteristicMoistureLive_1"] = createExportWrapper("emscripten_bind_SIGSurface_getCharacteristicMoistureLive_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getCharacteristicSAVR_1 = Module["_emscripten_bind_SIGSurface_getCharacteristicSAVR_1"] = createExportWrapper("emscripten_bind_SIGSurface_getCharacteristicSAVR_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getCrownRatio_1 = Module["_emscripten_bind_SIGSurface_getCrownRatio_1"] = createExportWrapper("emscripten_bind_SIGSurface_getCrownRatio_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getDirectionOfMaxSpread_0 = Module["_emscripten_bind_SIGSurface_getDirectionOfMaxSpread_0"] = createExportWrapper("emscripten_bind_SIGSurface_getDirectionOfMaxSpread_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getDirectionOfInterest_0 = Module["_emscripten_bind_SIGSurface_getDirectionOfInterest_0"] = createExportWrapper("emscripten_bind_SIGSurface_getDirectionOfInterest_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getDirectionOfBacking_0 = Module["_emscripten_bind_SIGSurface_getDirectionOfBacking_0"] = createExportWrapper("emscripten_bind_SIGSurface_getDirectionOfBacking_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getDirectionOfFlanking_0 = Module["_emscripten_bind_SIGSurface_getDirectionOfFlanking_0"] = createExportWrapper("emscripten_bind_SIGSurface_getDirectionOfFlanking_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getElapsedTime_1 = Module["_emscripten_bind_SIGSurface_getElapsedTime_1"] = createExportWrapper("emscripten_bind_SIGSurface_getElapsedTime_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getEllipticalA_1 = Module["_emscripten_bind_SIGSurface_getEllipticalA_1"] = createExportWrapper("emscripten_bind_SIGSurface_getEllipticalA_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getEllipticalB_1 = Module["_emscripten_bind_SIGSurface_getEllipticalB_1"] = createExportWrapper("emscripten_bind_SIGSurface_getEllipticalB_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getEllipticalC_1 = Module["_emscripten_bind_SIGSurface_getEllipticalC_1"] = createExportWrapper("emscripten_bind_SIGSurface_getEllipticalC_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFireLength_1 = Module["_emscripten_bind_SIGSurface_getFireLength_1"] = createExportWrapper("emscripten_bind_SIGSurface_getFireLength_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMaxFireWidth_1 = Module["_emscripten_bind_SIGSurface_getMaxFireWidth_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMaxFireWidth_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFireArea_1 = Module["_emscripten_bind_SIGSurface_getFireArea_1"] = createExportWrapper("emscripten_bind_SIGSurface_getFireArea_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFireEccentricity_0 = Module["_emscripten_bind_SIGSurface_getFireEccentricity_0"] = createExportWrapper("emscripten_bind_SIGSurface_getFireEccentricity_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFireLengthToWidthRatio_0 = Module["_emscripten_bind_SIGSurface_getFireLengthToWidthRatio_0"] = createExportWrapper("emscripten_bind_SIGSurface_getFireLengthToWidthRatio_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFirePerimeter_1 = Module["_emscripten_bind_SIGSurface_getFirePerimeter_1"] = createExportWrapper("emscripten_bind_SIGSurface_getFirePerimeter_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFirelineIntensity_1 = Module["_emscripten_bind_SIGSurface_getFirelineIntensity_1"] = createExportWrapper("emscripten_bind_SIGSurface_getFirelineIntensity_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFirelineIntensityInDirectionOfInterest_1 = Module["_emscripten_bind_SIGSurface_getFirelineIntensityInDirectionOfInterest_1"] = createExportWrapper("emscripten_bind_SIGSurface_getFirelineIntensityInDirectionOfInterest_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFlameLength_1 = Module["_emscripten_bind_SIGSurface_getFlameLength_1"] = createExportWrapper("emscripten_bind_SIGSurface_getFlameLength_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFlameLengthInDirectionOfInterest_1 = Module["_emscripten_bind_SIGSurface_getFlameLengthInDirectionOfInterest_1"] = createExportWrapper("emscripten_bind_SIGSurface_getFlameLengthInDirectionOfInterest_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFlankingFirelineIntensity_1 = Module["_emscripten_bind_SIGSurface_getFlankingFirelineIntensity_1"] = createExportWrapper("emscripten_bind_SIGSurface_getFlankingFirelineIntensity_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFlankingFlameLength_1 = Module["_emscripten_bind_SIGSurface_getFlankingFlameLength_1"] = createExportWrapper("emscripten_bind_SIGSurface_getFlankingFlameLength_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFlankingSpreadRate_1 = Module["_emscripten_bind_SIGSurface_getFlankingSpreadRate_1"] = createExportWrapper("emscripten_bind_SIGSurface_getFlankingSpreadRate_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFlankingSpreadDistance_1 = Module["_emscripten_bind_SIGSurface_getFlankingSpreadDistance_1"] = createExportWrapper("emscripten_bind_SIGSurface_getFlankingSpreadDistance_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelHeatOfCombustionDead_2 = Module["_emscripten_bind_SIGSurface_getFuelHeatOfCombustionDead_2"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelHeatOfCombustionDead_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelHeatOfCombustionLive_2 = Module["_emscripten_bind_SIGSurface_getFuelHeatOfCombustionLive_2"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelHeatOfCombustionLive_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelLoadHundredHour_2 = Module["_emscripten_bind_SIGSurface_getFuelLoadHundredHour_2"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelLoadHundredHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelLoadLiveHerbaceous_2 = Module["_emscripten_bind_SIGSurface_getFuelLoadLiveHerbaceous_2"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelLoadLiveHerbaceous_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelLoadLiveWoody_2 = Module["_emscripten_bind_SIGSurface_getFuelLoadLiveWoody_2"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelLoadLiveWoody_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelLoadOneHour_2 = Module["_emscripten_bind_SIGSurface_getFuelLoadOneHour_2"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelLoadOneHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelLoadTenHour_2 = Module["_emscripten_bind_SIGSurface_getFuelLoadTenHour_2"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelLoadTenHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelMoistureOfExtinctionDead_2 = Module["_emscripten_bind_SIGSurface_getFuelMoistureOfExtinctionDead_2"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelMoistureOfExtinctionDead_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelSavrLiveHerbaceous_2 = Module["_emscripten_bind_SIGSurface_getFuelSavrLiveHerbaceous_2"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelSavrLiveHerbaceous_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelSavrLiveWoody_2 = Module["_emscripten_bind_SIGSurface_getFuelSavrLiveWoody_2"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelSavrLiveWoody_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelSavrOneHour_2 = Module["_emscripten_bind_SIGSurface_getFuelSavrOneHour_2"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelSavrOneHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelbedDepth_2 = Module["_emscripten_bind_SIGSurface_getFuelbedDepth_2"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelbedDepth_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getHeadingSpreadRate_1 = Module["_emscripten_bind_SIGSurface_getHeadingSpreadRate_1"] = createExportWrapper("emscripten_bind_SIGSurface_getHeadingSpreadRate_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getHeadingToBackingRatio_0 = Module["_emscripten_bind_SIGSurface_getHeadingToBackingRatio_0"] = createExportWrapper("emscripten_bind_SIGSurface_getHeadingToBackingRatio_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getHeatPerUnitArea_1 = Module["_emscripten_bind_SIGSurface_getHeatPerUnitArea_1"] = createExportWrapper("emscripten_bind_SIGSurface_getHeatPerUnitArea_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getHeatSink_1 = Module["_emscripten_bind_SIGSurface_getHeatSink_1"] = createExportWrapper("emscripten_bind_SIGSurface_getHeatSink_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getHeatSource_1 = Module["_emscripten_bind_SIGSurface_getHeatSource_1"] = createExportWrapper("emscripten_bind_SIGSurface_getHeatSource_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getHeightOfUnderstory_1 = Module["_emscripten_bind_SIGSurface_getHeightOfUnderstory_1"] = createExportWrapper("emscripten_bind_SIGSurface_getHeightOfUnderstory_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getLiveFuelMoistureOfExtinction_1 = Module["_emscripten_bind_SIGSurface_getLiveFuelMoistureOfExtinction_1"] = createExportWrapper("emscripten_bind_SIGSurface_getLiveFuelMoistureOfExtinction_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMidflameWindspeed_1 = Module["_emscripten_bind_SIGSurface_getMidflameWindspeed_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMidflameWindspeed_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureDeadAggregateValue_1 = Module["_emscripten_bind_SIGSurface_getMoistureDeadAggregateValue_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureDeadAggregateValue_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureHundredHour_1 = Module["_emscripten_bind_SIGSurface_getMoistureHundredHour_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureHundredHour_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureLiveAggregateValue_1 = Module["_emscripten_bind_SIGSurface_getMoistureLiveAggregateValue_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureLiveAggregateValue_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureLiveHerbaceous_1 = Module["_emscripten_bind_SIGSurface_getMoistureLiveHerbaceous_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureLiveHerbaceous_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureLiveWoody_1 = Module["_emscripten_bind_SIGSurface_getMoistureLiveWoody_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureLiveWoody_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureOneHour_1 = Module["_emscripten_bind_SIGSurface_getMoistureOneHour_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureOneHour_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByIndex_2 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByIndex_2"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByIndex_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByName_2 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByName_2"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioHundredHourByName_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByIndex_2 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByIndex_2"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByIndex_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByName_2 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByName_2"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioLiveHerbaceousByName_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByIndex_2 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByIndex_2"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByIndex_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByName_2 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByName_2"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioLiveWoodyByName_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioOneHourByIndex_2 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioOneHourByIndex_2"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioOneHourByIndex_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioOneHourByName_2 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioOneHourByName_2"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioOneHourByName_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioTenHourByIndex_2 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioTenHourByIndex_2"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioTenHourByIndex_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioTenHourByName_2 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioTenHourByName_2"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioTenHourByName_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureTenHour_1 = Module["_emscripten_bind_SIGSurface_getMoistureTenHour_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureTenHour_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getOverstoryBasalArea_1 = Module["_emscripten_bind_SIGSurface_getOverstoryBasalArea_1"] = createExportWrapper("emscripten_bind_SIGSurface_getOverstoryBasalArea_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getPalmettoGallberryCoverage_1 = Module["_emscripten_bind_SIGSurface_getPalmettoGallberryCoverage_1"] = createExportWrapper("emscripten_bind_SIGSurface_getPalmettoGallberryCoverage_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getPalmettoGallberryHeatOfCombustionDead_1 = Module["_emscripten_bind_SIGSurface_getPalmettoGallberryHeatOfCombustionDead_1"] = createExportWrapper("emscripten_bind_SIGSurface_getPalmettoGallberryHeatOfCombustionDead_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getPalmettoGallberryHeatOfCombustionLive_1 = Module["_emscripten_bind_SIGSurface_getPalmettoGallberryHeatOfCombustionLive_1"] = createExportWrapper("emscripten_bind_SIGSurface_getPalmettoGallberryHeatOfCombustionLive_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getPalmettoGallberryMoistureOfExtinctionDead_1 = Module["_emscripten_bind_SIGSurface_getPalmettoGallberryMoistureOfExtinctionDead_1"] = createExportWrapper("emscripten_bind_SIGSurface_getPalmettoGallberryMoistureOfExtinctionDead_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getPalmettoGallberyDeadFineFuelLoad_1 = Module["_emscripten_bind_SIGSurface_getPalmettoGallberyDeadFineFuelLoad_1"] = createExportWrapper("emscripten_bind_SIGSurface_getPalmettoGallberyDeadFineFuelLoad_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getPalmettoGallberyDeadFoliageLoad_1 = Module["_emscripten_bind_SIGSurface_getPalmettoGallberyDeadFoliageLoad_1"] = createExportWrapper("emscripten_bind_SIGSurface_getPalmettoGallberyDeadFoliageLoad_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getPalmettoGallberyDeadMediumFuelLoad_1 = Module["_emscripten_bind_SIGSurface_getPalmettoGallberyDeadMediumFuelLoad_1"] = createExportWrapper("emscripten_bind_SIGSurface_getPalmettoGallberyDeadMediumFuelLoad_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getPalmettoGallberyFuelBedDepth_1 = Module["_emscripten_bind_SIGSurface_getPalmettoGallberyFuelBedDepth_1"] = createExportWrapper("emscripten_bind_SIGSurface_getPalmettoGallberyFuelBedDepth_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getPalmettoGallberyLitterLoad_1 = Module["_emscripten_bind_SIGSurface_getPalmettoGallberyLitterLoad_1"] = createExportWrapper("emscripten_bind_SIGSurface_getPalmettoGallberyLitterLoad_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getPalmettoGallberyLiveFineFuelLoad_1 = Module["_emscripten_bind_SIGSurface_getPalmettoGallberyLiveFineFuelLoad_1"] = createExportWrapper("emscripten_bind_SIGSurface_getPalmettoGallberyLiveFineFuelLoad_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getPalmettoGallberyLiveFoliageLoad_1 = Module["_emscripten_bind_SIGSurface_getPalmettoGallberyLiveFoliageLoad_1"] = createExportWrapper("emscripten_bind_SIGSurface_getPalmettoGallberyLiveFoliageLoad_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getPalmettoGallberyLiveMediumFuelLoad_1 = Module["_emscripten_bind_SIGSurface_getPalmettoGallberyLiveMediumFuelLoad_1"] = createExportWrapper("emscripten_bind_SIGSurface_getPalmettoGallberyLiveMediumFuelLoad_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getReactionIntensity_1 = Module["_emscripten_bind_SIGSurface_getReactionIntensity_1"] = createExportWrapper("emscripten_bind_SIGSurface_getReactionIntensity_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getResidenceTime_1 = Module["_emscripten_bind_SIGSurface_getResidenceTime_1"] = createExportWrapper("emscripten_bind_SIGSurface_getResidenceTime_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getSlope_1 = Module["_emscripten_bind_SIGSurface_getSlope_1"] = createExportWrapper("emscripten_bind_SIGSurface_getSlope_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getSlopeFactor_0 = Module["_emscripten_bind_SIGSurface_getSlopeFactor_0"] = createExportWrapper("emscripten_bind_SIGSurface_getSlopeFactor_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getSpreadDistance_1 = Module["_emscripten_bind_SIGSurface_getSpreadDistance_1"] = createExportWrapper("emscripten_bind_SIGSurface_getSpreadDistance_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getSpreadDistanceInDirectionOfInterest_1 = Module["_emscripten_bind_SIGSurface_getSpreadDistanceInDirectionOfInterest_1"] = createExportWrapper("emscripten_bind_SIGSurface_getSpreadDistanceInDirectionOfInterest_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getSpreadRate_1 = Module["_emscripten_bind_SIGSurface_getSpreadRate_1"] = createExportWrapper("emscripten_bind_SIGSurface_getSpreadRate_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getSpreadRateInDirectionOfInterest_1 = Module["_emscripten_bind_SIGSurface_getSpreadRateInDirectionOfInterest_1"] = createExportWrapper("emscripten_bind_SIGSurface_getSpreadRateInDirectionOfInterest_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getSurfaceFireReactionIntensityForLifeState_1 = Module["_emscripten_bind_SIGSurface_getSurfaceFireReactionIntensityForLifeState_1"] = createExportWrapper("emscripten_bind_SIGSurface_getSurfaceFireReactionIntensityForLifeState_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getWindDirection_0 = Module["_emscripten_bind_SIGSurface_getWindDirection_0"] = createExportWrapper("emscripten_bind_SIGSurface_getWindDirection_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getWindSpeed_2 = Module["_emscripten_bind_SIGSurface_getWindSpeed_2"] = createExportWrapper("emscripten_bind_SIGSurface_getWindSpeed_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getAspenFuelModelNumber_0 = Module["_emscripten_bind_SIGSurface_getAspenFuelModelNumber_0"] = createExportWrapper("emscripten_bind_SIGSurface_getAspenFuelModelNumber_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelModelNumber_0 = Module["_emscripten_bind_SIGSurface_getFuelModelNumber_0"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelModelNumber_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioIndexByName_1 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioIndexByName_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioIndexByName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getNumberOfMoistureScenarios_0 = Module["_emscripten_bind_SIGSurface_getNumberOfMoistureScenarios_0"] = createExportWrapper("emscripten_bind_SIGSurface_getNumberOfMoistureScenarios_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelCode_1 = Module["_emscripten_bind_SIGSurface_getFuelCode_1"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelCode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getFuelName_1 = Module["_emscripten_bind_SIGSurface_getFuelName_1"] = createExportWrapper("emscripten_bind_SIGSurface_getFuelName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioDescriptionByIndex_1 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioDescriptionByIndex_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioDescriptionByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioDescriptionByName_1 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioDescriptionByName_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioDescriptionByName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getMoistureScenarioNameByIndex_1 = Module["_emscripten_bind_SIGSurface_getMoistureScenarioNameByIndex_1"] = createExportWrapper("emscripten_bind_SIGSurface_getMoistureScenarioNameByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_doSurfaceRun_0 = Module["_emscripten_bind_SIGSurface_doSurfaceRun_0"] = createExportWrapper("emscripten_bind_SIGSurface_doSurfaceRun_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfInterest_2 = Module["_emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfInterest_2"] = createExportWrapper("emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfInterest_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfMaxSpread_0 = Module["_emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfMaxSpread_0"] = createExportWrapper("emscripten_bind_SIGSurface_doSurfaceRunInDirectionOfMaxSpread_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_initializeMembers_0 = Module["_emscripten_bind_SIGSurface_initializeMembers_0"] = createExportWrapper("emscripten_bind_SIGSurface_initializeMembers_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setAgeOfRough_1 = Module["_emscripten_bind_SIGSurface_setAgeOfRough_1"] = createExportWrapper("emscripten_bind_SIGSurface_setAgeOfRough_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setAspect_1 = Module["_emscripten_bind_SIGSurface_setAspect_1"] = createExportWrapper("emscripten_bind_SIGSurface_setAspect_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setAspenCuringLevel_2 = Module["_emscripten_bind_SIGSurface_setAspenCuringLevel_2"] = createExportWrapper("emscripten_bind_SIGSurface_setAspenCuringLevel_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setAspenDBH_2 = Module["_emscripten_bind_SIGSurface_setAspenDBH_2"] = createExportWrapper("emscripten_bind_SIGSurface_setAspenDBH_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setAspenFireSeverity_1 = Module["_emscripten_bind_SIGSurface_setAspenFireSeverity_1"] = createExportWrapper("emscripten_bind_SIGSurface_setAspenFireSeverity_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setAspenFuelModelNumber_1 = Module["_emscripten_bind_SIGSurface_setAspenFuelModelNumber_1"] = createExportWrapper("emscripten_bind_SIGSurface_setAspenFuelModelNumber_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setCanopyCover_2 = Module["_emscripten_bind_SIGSurface_setCanopyCover_2"] = createExportWrapper("emscripten_bind_SIGSurface_setCanopyCover_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setCanopyHeight_2 = Module["_emscripten_bind_SIGSurface_setCanopyHeight_2"] = createExportWrapper("emscripten_bind_SIGSurface_setCanopyHeight_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setChaparralFuelBedDepth_2 = Module["_emscripten_bind_SIGSurface_setChaparralFuelBedDepth_2"] = createExportWrapper("emscripten_bind_SIGSurface_setChaparralFuelBedDepth_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setChaparralFuelDeadLoadFraction_1 = Module["_emscripten_bind_SIGSurface_setChaparralFuelDeadLoadFraction_1"] = createExportWrapper("emscripten_bind_SIGSurface_setChaparralFuelDeadLoadFraction_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setChaparralFuelLoadInputMode_1 = Module["_emscripten_bind_SIGSurface_setChaparralFuelLoadInputMode_1"] = createExportWrapper("emscripten_bind_SIGSurface_setChaparralFuelLoadInputMode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setChaparralFuelType_1 = Module["_emscripten_bind_SIGSurface_setChaparralFuelType_1"] = createExportWrapper("emscripten_bind_SIGSurface_setChaparralFuelType_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setChaparralTotalFuelLoad_2 = Module["_emscripten_bind_SIGSurface_setChaparralTotalFuelLoad_2"] = createExportWrapper("emscripten_bind_SIGSurface_setChaparralTotalFuelLoad_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setCrownRatio_2 = Module["_emscripten_bind_SIGSurface_setCrownRatio_2"] = createExportWrapper("emscripten_bind_SIGSurface_setCrownRatio_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setDirectionOfInterest_1 = Module["_emscripten_bind_SIGSurface_setDirectionOfInterest_1"] = createExportWrapper("emscripten_bind_SIGSurface_setDirectionOfInterest_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setElapsedTime_2 = Module["_emscripten_bind_SIGSurface_setElapsedTime_2"] = createExportWrapper("emscripten_bind_SIGSurface_setElapsedTime_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setFirstFuelModelNumber_1 = Module["_emscripten_bind_SIGSurface_setFirstFuelModelNumber_1"] = createExportWrapper("emscripten_bind_SIGSurface_setFirstFuelModelNumber_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setFuelModels_1 = Module["_emscripten_bind_SIGSurface_setFuelModels_1"] = createExportWrapper("emscripten_bind_SIGSurface_setFuelModels_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setHeightOfUnderstory_2 = Module["_emscripten_bind_SIGSurface_setHeightOfUnderstory_2"] = createExportWrapper("emscripten_bind_SIGSurface_setHeightOfUnderstory_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setIsUsingChaparral_1 = Module["_emscripten_bind_SIGSurface_setIsUsingChaparral_1"] = createExportWrapper("emscripten_bind_SIGSurface_setIsUsingChaparral_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setIsUsingPalmettoGallberry_1 = Module["_emscripten_bind_SIGSurface_setIsUsingPalmettoGallberry_1"] = createExportWrapper("emscripten_bind_SIGSurface_setIsUsingPalmettoGallberry_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setIsUsingWesternAspen_1 = Module["_emscripten_bind_SIGSurface_setIsUsingWesternAspen_1"] = createExportWrapper("emscripten_bind_SIGSurface_setIsUsingWesternAspen_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setMoistureDeadAggregate_2 = Module["_emscripten_bind_SIGSurface_setMoistureDeadAggregate_2"] = createExportWrapper("emscripten_bind_SIGSurface_setMoistureDeadAggregate_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setMoistureHundredHour_2 = Module["_emscripten_bind_SIGSurface_setMoistureHundredHour_2"] = createExportWrapper("emscripten_bind_SIGSurface_setMoistureHundredHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setMoistureInputMode_1 = Module["_emscripten_bind_SIGSurface_setMoistureInputMode_1"] = createExportWrapper("emscripten_bind_SIGSurface_setMoistureInputMode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setMoistureLiveAggregate_2 = Module["_emscripten_bind_SIGSurface_setMoistureLiveAggregate_2"] = createExportWrapper("emscripten_bind_SIGSurface_setMoistureLiveAggregate_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setMoistureLiveHerbaceous_2 = Module["_emscripten_bind_SIGSurface_setMoistureLiveHerbaceous_2"] = createExportWrapper("emscripten_bind_SIGSurface_setMoistureLiveHerbaceous_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setMoistureLiveWoody_2 = Module["_emscripten_bind_SIGSurface_setMoistureLiveWoody_2"] = createExportWrapper("emscripten_bind_SIGSurface_setMoistureLiveWoody_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setMoistureOneHour_2 = Module["_emscripten_bind_SIGSurface_setMoistureOneHour_2"] = createExportWrapper("emscripten_bind_SIGSurface_setMoistureOneHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setMoistureScenarios_1 = Module["_emscripten_bind_SIGSurface_setMoistureScenarios_1"] = createExportWrapper("emscripten_bind_SIGSurface_setMoistureScenarios_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setMoistureTenHour_2 = Module["_emscripten_bind_SIGSurface_setMoistureTenHour_2"] = createExportWrapper("emscripten_bind_SIGSurface_setMoistureTenHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setOverstoryBasalArea_2 = Module["_emscripten_bind_SIGSurface_setOverstoryBasalArea_2"] = createExportWrapper("emscripten_bind_SIGSurface_setOverstoryBasalArea_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setPalmettoCoverage_2 = Module["_emscripten_bind_SIGSurface_setPalmettoCoverage_2"] = createExportWrapper("emscripten_bind_SIGSurface_setPalmettoCoverage_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setSecondFuelModelNumber_1 = Module["_emscripten_bind_SIGSurface_setSecondFuelModelNumber_1"] = createExportWrapper("emscripten_bind_SIGSurface_setSecondFuelModelNumber_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setSlope_2 = Module["_emscripten_bind_SIGSurface_setSlope_2"] = createExportWrapper("emscripten_bind_SIGSurface_setSlope_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setSurfaceFireSpreadDirectionMode_1 = Module["_emscripten_bind_SIGSurface_setSurfaceFireSpreadDirectionMode_1"] = createExportWrapper("emscripten_bind_SIGSurface_setSurfaceFireSpreadDirectionMode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setSurfaceRunInDirectionOf_1 = Module["_emscripten_bind_SIGSurface_setSurfaceRunInDirectionOf_1"] = createExportWrapper("emscripten_bind_SIGSurface_setSurfaceRunInDirectionOf_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setTwoFuelModelsFirstFuelModelCoverage_2 = Module["_emscripten_bind_SIGSurface_setTwoFuelModelsFirstFuelModelCoverage_2"] = createExportWrapper("emscripten_bind_SIGSurface_setTwoFuelModelsFirstFuelModelCoverage_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setTwoFuelModelsMethod_1 = Module["_emscripten_bind_SIGSurface_setTwoFuelModelsMethod_1"] = createExportWrapper("emscripten_bind_SIGSurface_setTwoFuelModelsMethod_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setUserProvidedWindAdjustmentFactor_1 = Module["_emscripten_bind_SIGSurface_setUserProvidedWindAdjustmentFactor_1"] = createExportWrapper("emscripten_bind_SIGSurface_setUserProvidedWindAdjustmentFactor_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setWindAdjustmentFactorCalculationMethod_1 = Module["_emscripten_bind_SIGSurface_setWindAdjustmentFactorCalculationMethod_1"] = createExportWrapper("emscripten_bind_SIGSurface_setWindAdjustmentFactorCalculationMethod_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setWindAndSpreadOrientationMode_1 = Module["_emscripten_bind_SIGSurface_setWindAndSpreadOrientationMode_1"] = createExportWrapper("emscripten_bind_SIGSurface_setWindAndSpreadOrientationMode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setWindDirection_1 = Module["_emscripten_bind_SIGSurface_setWindDirection_1"] = createExportWrapper("emscripten_bind_SIGSurface_setWindDirection_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setWindHeightInputMode_1 = Module["_emscripten_bind_SIGSurface_setWindHeightInputMode_1"] = createExportWrapper("emscripten_bind_SIGSurface_setWindHeightInputMode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setWindSpeed_2 = Module["_emscripten_bind_SIGSurface_setWindSpeed_2"] = createExportWrapper("emscripten_bind_SIGSurface_setWindSpeed_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_updateSurfaceInputs_21 = Module["_emscripten_bind_SIGSurface_updateSurfaceInputs_21"] = createExportWrapper("emscripten_bind_SIGSurface_updateSurfaceInputs_21");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_updateSurfaceInputsForPalmettoGallbery_25 = Module["_emscripten_bind_SIGSurface_updateSurfaceInputsForPalmettoGallbery_25"] = createExportWrapper("emscripten_bind_SIGSurface_updateSurfaceInputsForPalmettoGallbery_25");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_updateSurfaceInputsForTwoFuelModels_25 = Module["_emscripten_bind_SIGSurface_updateSurfaceInputsForTwoFuelModels_25"] = createExportWrapper("emscripten_bind_SIGSurface_updateSurfaceInputsForTwoFuelModels_25");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_updateSurfaceInputsForWesternAspen_26 = Module["_emscripten_bind_SIGSurface_updateSurfaceInputsForWesternAspen_26"] = createExportWrapper("emscripten_bind_SIGSurface_updateSurfaceInputsForWesternAspen_26");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_setFuelModelNumber_1 = Module["_emscripten_bind_SIGSurface_setFuelModelNumber_1"] = createExportWrapper("emscripten_bind_SIGSurface_setFuelModelNumber_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface___destroy___0 = Module["_emscripten_bind_SIGSurface___destroy___0"] = createExportWrapper("emscripten_bind_SIGSurface___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_PalmettoGallberry_0 = Module["_emscripten_bind_PalmettoGallberry_PalmettoGallberry_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_PalmettoGallberry_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_initializeMembers_0 = Module["_emscripten_bind_PalmettoGallberry_initializeMembers_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_initializeMembers_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadFineFuelLoad_2 = Module["_emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadFineFuelLoad_2"] = createExportWrapper("emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadFineFuelLoad_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadFoliageLoad_2 = Module["_emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadFoliageLoad_2"] = createExportWrapper("emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadFoliageLoad_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadMediumFuelLoad_2 = Module["_emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadMediumFuelLoad_2"] = createExportWrapper("emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyDeadMediumFuelLoad_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyFuelBedDepth_1 = Module["_emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyFuelBedDepth_1"] = createExportWrapper("emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyFuelBedDepth_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLitterLoad_2 = Module["_emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLitterLoad_2"] = createExportWrapper("emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLitterLoad_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveFineFuelLoad_2 = Module["_emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveFineFuelLoad_2"] = createExportWrapper("emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveFineFuelLoad_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveFoliageLoad_3 = Module["_emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveFoliageLoad_3"] = createExportWrapper("emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveFoliageLoad_3");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveMediumFuelLoad_2 = Module["_emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveMediumFuelLoad_2"] = createExportWrapper("emscripten_bind_PalmettoGallberry_calculatePalmettoGallberyLiveMediumFuelLoad_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_getHeatOfCombustionDead_0 = Module["_emscripten_bind_PalmettoGallberry_getHeatOfCombustionDead_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getHeatOfCombustionDead_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_getHeatOfCombustionLive_0 = Module["_emscripten_bind_PalmettoGallberry_getHeatOfCombustionLive_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getHeatOfCombustionLive_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_getMoistureOfExtinctionDead_0 = Module["_emscripten_bind_PalmettoGallberry_getMoistureOfExtinctionDead_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getMoistureOfExtinctionDead_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadFineFuelLoad_0 = Module["_emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadFineFuelLoad_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadFineFuelLoad_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadFoliageLoad_0 = Module["_emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadFoliageLoad_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadFoliageLoad_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadMediumFuelLoad_0 = Module["_emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadMediumFuelLoad_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getPalmettoGallberyDeadMediumFuelLoad_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyFuelBedDepth_0 = Module["_emscripten_bind_PalmettoGallberry_getPalmettoGallberyFuelBedDepth_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getPalmettoGallberyFuelBedDepth_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyLitterLoad_0 = Module["_emscripten_bind_PalmettoGallberry_getPalmettoGallberyLitterLoad_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getPalmettoGallberyLitterLoad_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveFineFuelLoad_0 = Module["_emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveFineFuelLoad_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveFineFuelLoad_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveFoliageLoad_0 = Module["_emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveFoliageLoad_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveFoliageLoad_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveMediumFuelLoad_0 = Module["_emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveMediumFuelLoad_0"] = createExportWrapper("emscripten_bind_PalmettoGallberry_getPalmettoGallberyLiveMediumFuelLoad_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_PalmettoGallberry___destroy___0 = Module["_emscripten_bind_PalmettoGallberry___destroy___0"] = createExportWrapper("emscripten_bind_PalmettoGallberry___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_WesternAspen_WesternAspen_0 = Module["_emscripten_bind_WesternAspen_WesternAspen_0"] = createExportWrapper("emscripten_bind_WesternAspen_WesternAspen_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_WesternAspen_initializeMembers_0 = Module["_emscripten_bind_WesternAspen_initializeMembers_0"] = createExportWrapper("emscripten_bind_WesternAspen_initializeMembers_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_WesternAspen_calculateAspenMortality_3 = Module["_emscripten_bind_WesternAspen_calculateAspenMortality_3"] = createExportWrapper("emscripten_bind_WesternAspen_calculateAspenMortality_3");
+/** @type {function(...*):?} */
+var _emscripten_bind_WesternAspen_getAspenFuelBedDepth_1 = Module["_emscripten_bind_WesternAspen_getAspenFuelBedDepth_1"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenFuelBedDepth_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_WesternAspen_getAspenHeatOfCombustionDead_0 = Module["_emscripten_bind_WesternAspen_getAspenHeatOfCombustionDead_0"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenHeatOfCombustionDead_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_WesternAspen_getAspenHeatOfCombustionLive_0 = Module["_emscripten_bind_WesternAspen_getAspenHeatOfCombustionLive_0"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenHeatOfCombustionLive_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_WesternAspen_getAspenLoadDeadOneHour_0 = Module["_emscripten_bind_WesternAspen_getAspenLoadDeadOneHour_0"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenLoadDeadOneHour_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_WesternAspen_getAspenLoadDeadTenHour_0 = Module["_emscripten_bind_WesternAspen_getAspenLoadDeadTenHour_0"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenLoadDeadTenHour_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_WesternAspen_getAspenLoadLiveHerbaceous_0 = Module["_emscripten_bind_WesternAspen_getAspenLoadLiveHerbaceous_0"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenLoadLiveHerbaceous_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_WesternAspen_getAspenLoadLiveWoody_0 = Module["_emscripten_bind_WesternAspen_getAspenLoadLiveWoody_0"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenLoadLiveWoody_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_WesternAspen_getAspenMoistureOfExtinctionDead_0 = Module["_emscripten_bind_WesternAspen_getAspenMoistureOfExtinctionDead_0"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenMoistureOfExtinctionDead_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_WesternAspen_getAspenMortality_0 = Module["_emscripten_bind_WesternAspen_getAspenMortality_0"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenMortality_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_WesternAspen_getAspenSavrDeadOneHour_0 = Module["_emscripten_bind_WesternAspen_getAspenSavrDeadOneHour_0"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenSavrDeadOneHour_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_WesternAspen_getAspenSavrDeadTenHour_0 = Module["_emscripten_bind_WesternAspen_getAspenSavrDeadTenHour_0"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenSavrDeadTenHour_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_WesternAspen_getAspenSavrLiveHerbaceous_0 = Module["_emscripten_bind_WesternAspen_getAspenSavrLiveHerbaceous_0"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenSavrLiveHerbaceous_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_WesternAspen_getAspenSavrLiveWoody_0 = Module["_emscripten_bind_WesternAspen_getAspenSavrLiveWoody_0"] = createExportWrapper("emscripten_bind_WesternAspen_getAspenSavrLiveWoody_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_WesternAspen___destroy___0 = Module["_emscripten_bind_WesternAspen___destroy___0"] = createExportWrapper("emscripten_bind_WesternAspen___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_SIGCrown_1 = Module["_emscripten_bind_SIGCrown_SIGCrown_1"] = createExportWrapper("emscripten_bind_SIGCrown_SIGCrown_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFireType_0 = Module["_emscripten_bind_SIGCrown_getFireType_0"] = createExportWrapper("emscripten_bind_SIGCrown_getFireType_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getIsMoistureScenarioDefinedByIndex_1 = Module["_emscripten_bind_SIGCrown_getIsMoistureScenarioDefinedByIndex_1"] = createExportWrapper("emscripten_bind_SIGCrown_getIsMoistureScenarioDefinedByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getIsMoistureScenarioDefinedByName_1 = Module["_emscripten_bind_SIGCrown_getIsMoistureScenarioDefinedByName_1"] = createExportWrapper("emscripten_bind_SIGCrown_getIsMoistureScenarioDefinedByName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_isAllFuelLoadZero_1 = Module["_emscripten_bind_SIGCrown_isAllFuelLoadZero_1"] = createExportWrapper("emscripten_bind_SIGCrown_isAllFuelLoadZero_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_isFuelDynamic_1 = Module["_emscripten_bind_SIGCrown_isFuelDynamic_1"] = createExportWrapper("emscripten_bind_SIGCrown_isFuelDynamic_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_isFuelModelDefined_1 = Module["_emscripten_bind_SIGCrown_isFuelModelDefined_1"] = createExportWrapper("emscripten_bind_SIGCrown_isFuelModelDefined_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_isFuelModelReserved_1 = Module["_emscripten_bind_SIGCrown_isFuelModelReserved_1"] = createExportWrapper("emscripten_bind_SIGCrown_isFuelModelReserved_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setCurrentMoistureScenarioByIndex_1 = Module["_emscripten_bind_SIGCrown_setCurrentMoistureScenarioByIndex_1"] = createExportWrapper("emscripten_bind_SIGCrown_setCurrentMoistureScenarioByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setCurrentMoistureScenarioByName_1 = Module["_emscripten_bind_SIGCrown_setCurrentMoistureScenarioByName_1"] = createExportWrapper("emscripten_bind_SIGCrown_setCurrentMoistureScenarioByName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getAspect_0 = Module["_emscripten_bind_SIGCrown_getAspect_0"] = createExportWrapper("emscripten_bind_SIGCrown_getAspect_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCanopyBaseHeight_1 = Module["_emscripten_bind_SIGCrown_getCanopyBaseHeight_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCanopyBaseHeight_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCanopyBulkDensity_1 = Module["_emscripten_bind_SIGCrown_getCanopyBulkDensity_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCanopyBulkDensity_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCanopyCover_1 = Module["_emscripten_bind_SIGCrown_getCanopyCover_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCanopyCover_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCanopyHeight_1 = Module["_emscripten_bind_SIGCrown_getCanopyHeight_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCanopyHeight_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCriticalOpenWindSpeed_1 = Module["_emscripten_bind_SIGCrown_getCriticalOpenWindSpeed_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCriticalOpenWindSpeed_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCrownCriticalFireSpreadRate_1 = Module["_emscripten_bind_SIGCrown_getCrownCriticalFireSpreadRate_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownCriticalFireSpreadRate_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCrownCriticalSurfaceFirelineIntensity_1 = Module["_emscripten_bind_SIGCrown_getCrownCriticalSurfaceFirelineIntensity_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownCriticalSurfaceFirelineIntensity_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCrownCriticalSurfaceFlameLength_1 = Module["_emscripten_bind_SIGCrown_getCrownCriticalSurfaceFlameLength_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownCriticalSurfaceFlameLength_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCrownFireActiveRatio_0 = Module["_emscripten_bind_SIGCrown_getCrownFireActiveRatio_0"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownFireActiveRatio_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCrownFireArea_1 = Module["_emscripten_bind_SIGCrown_getCrownFireArea_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownFireArea_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCrownFirePerimeter_1 = Module["_emscripten_bind_SIGCrown_getCrownFirePerimeter_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownFirePerimeter_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCrownTransitionRatio_0 = Module["_emscripten_bind_SIGCrown_getCrownTransitionRatio_0"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownTransitionRatio_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCrownFireLengthToWidthRatio_0 = Module["_emscripten_bind_SIGCrown_getCrownFireLengthToWidthRatio_0"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownFireLengthToWidthRatio_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCrownFireSpreadDistance_1 = Module["_emscripten_bind_SIGCrown_getCrownFireSpreadDistance_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownFireSpreadDistance_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCrownFireSpreadRate_1 = Module["_emscripten_bind_SIGCrown_getCrownFireSpreadRate_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownFireSpreadRate_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCrownFirelineIntensity_1 = Module["_emscripten_bind_SIGCrown_getCrownFirelineIntensity_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownFirelineIntensity_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCrownFlameLength_1 = Module["_emscripten_bind_SIGCrown_getCrownFlameLength_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownFlameLength_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCrownFractionBurned_0 = Module["_emscripten_bind_SIGCrown_getCrownFractionBurned_0"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownFractionBurned_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getCrownRatio_1 = Module["_emscripten_bind_SIGCrown_getCrownRatio_1"] = createExportWrapper("emscripten_bind_SIGCrown_getCrownRatio_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFinalFirelineIntesity_1 = Module["_emscripten_bind_SIGCrown_getFinalFirelineIntesity_1"] = createExportWrapper("emscripten_bind_SIGCrown_getFinalFirelineIntesity_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFinalHeatPerUnitArea_1 = Module["_emscripten_bind_SIGCrown_getFinalHeatPerUnitArea_1"] = createExportWrapper("emscripten_bind_SIGCrown_getFinalHeatPerUnitArea_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFinalSpreadRate_1 = Module["_emscripten_bind_SIGCrown_getFinalSpreadRate_1"] = createExportWrapper("emscripten_bind_SIGCrown_getFinalSpreadRate_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFinalSpreadDistance_1 = Module["_emscripten_bind_SIGCrown_getFinalSpreadDistance_1"] = createExportWrapper("emscripten_bind_SIGCrown_getFinalSpreadDistance_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFinalFireArea_1 = Module["_emscripten_bind_SIGCrown_getFinalFireArea_1"] = createExportWrapper("emscripten_bind_SIGCrown_getFinalFireArea_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFinalFirePerimeter_1 = Module["_emscripten_bind_SIGCrown_getFinalFirePerimeter_1"] = createExportWrapper("emscripten_bind_SIGCrown_getFinalFirePerimeter_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelHeatOfCombustionDead_2 = Module["_emscripten_bind_SIGCrown_getFuelHeatOfCombustionDead_2"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelHeatOfCombustionDead_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelHeatOfCombustionLive_2 = Module["_emscripten_bind_SIGCrown_getFuelHeatOfCombustionLive_2"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelHeatOfCombustionLive_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelLoadHundredHour_2 = Module["_emscripten_bind_SIGCrown_getFuelLoadHundredHour_2"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelLoadHundredHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelLoadLiveHerbaceous_2 = Module["_emscripten_bind_SIGCrown_getFuelLoadLiveHerbaceous_2"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelLoadLiveHerbaceous_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelLoadLiveWoody_2 = Module["_emscripten_bind_SIGCrown_getFuelLoadLiveWoody_2"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelLoadLiveWoody_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelLoadOneHour_2 = Module["_emscripten_bind_SIGCrown_getFuelLoadOneHour_2"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelLoadOneHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelLoadTenHour_2 = Module["_emscripten_bind_SIGCrown_getFuelLoadTenHour_2"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelLoadTenHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelMoistureOfExtinctionDead_2 = Module["_emscripten_bind_SIGCrown_getFuelMoistureOfExtinctionDead_2"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelMoistureOfExtinctionDead_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelSavrLiveHerbaceous_2 = Module["_emscripten_bind_SIGCrown_getFuelSavrLiveHerbaceous_2"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelSavrLiveHerbaceous_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelSavrLiveWoody_2 = Module["_emscripten_bind_SIGCrown_getFuelSavrLiveWoody_2"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelSavrLiveWoody_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelSavrOneHour_2 = Module["_emscripten_bind_SIGCrown_getFuelSavrOneHour_2"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelSavrOneHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelbedDepth_2 = Module["_emscripten_bind_SIGCrown_getFuelbedDepth_2"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelbedDepth_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureFoliar_1 = Module["_emscripten_bind_SIGCrown_getMoistureFoliar_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureFoliar_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureHundredHour_1 = Module["_emscripten_bind_SIGCrown_getMoistureHundredHour_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureHundredHour_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureLiveHerbaceous_1 = Module["_emscripten_bind_SIGCrown_getMoistureLiveHerbaceous_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureLiveHerbaceous_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureLiveWoody_1 = Module["_emscripten_bind_SIGCrown_getMoistureLiveWoody_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureLiveWoody_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureOneHour_1 = Module["_emscripten_bind_SIGCrown_getMoistureOneHour_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureOneHour_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByIndex_2 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByIndex_2"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByIndex_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByName_2 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByName_2"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioHundredHourByName_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByIndex_2 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByIndex_2"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByIndex_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByName_2 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByName_2"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioLiveHerbaceousByName_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByIndex_2 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByIndex_2"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByIndex_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByName_2 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByName_2"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioLiveWoodyByName_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioOneHourByIndex_2 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioOneHourByIndex_2"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioOneHourByIndex_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioOneHourByName_2 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioOneHourByName_2"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioOneHourByName_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioTenHourByIndex_2 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioTenHourByIndex_2"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioTenHourByIndex_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioTenHourByName_2 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioTenHourByName_2"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioTenHourByName_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureTenHour_1 = Module["_emscripten_bind_SIGCrown_getMoistureTenHour_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureTenHour_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getSlope_1 = Module["_emscripten_bind_SIGCrown_getSlope_1"] = createExportWrapper("emscripten_bind_SIGCrown_getSlope_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getSurfaceFireSpreadDistance_1 = Module["_emscripten_bind_SIGCrown_getSurfaceFireSpreadDistance_1"] = createExportWrapper("emscripten_bind_SIGCrown_getSurfaceFireSpreadDistance_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getSurfaceFireSpreadRate_1 = Module["_emscripten_bind_SIGCrown_getSurfaceFireSpreadRate_1"] = createExportWrapper("emscripten_bind_SIGCrown_getSurfaceFireSpreadRate_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getWindDirection_0 = Module["_emscripten_bind_SIGCrown_getWindDirection_0"] = createExportWrapper("emscripten_bind_SIGCrown_getWindDirection_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getWindSpeed_2 = Module["_emscripten_bind_SIGCrown_getWindSpeed_2"] = createExportWrapper("emscripten_bind_SIGCrown_getWindSpeed_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelModelNumber_0 = Module["_emscripten_bind_SIGCrown_getFuelModelNumber_0"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelModelNumber_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioIndexByName_1 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioIndexByName_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioIndexByName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getNumberOfMoistureScenarios_0 = Module["_emscripten_bind_SIGCrown_getNumberOfMoistureScenarios_0"] = createExportWrapper("emscripten_bind_SIGCrown_getNumberOfMoistureScenarios_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelCode_1 = Module["_emscripten_bind_SIGCrown_getFuelCode_1"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelCode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFuelName_1 = Module["_emscripten_bind_SIGCrown_getFuelName_1"] = createExportWrapper("emscripten_bind_SIGCrown_getFuelName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioDescriptionByIndex_1 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioDescriptionByIndex_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioDescriptionByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioDescriptionByName_1 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioDescriptionByName_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioDescriptionByName_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getMoistureScenarioNameByIndex_1 = Module["_emscripten_bind_SIGCrown_getMoistureScenarioNameByIndex_1"] = createExportWrapper("emscripten_bind_SIGCrown_getMoistureScenarioNameByIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_doCrownRun_0 = Module["_emscripten_bind_SIGCrown_doCrownRun_0"] = createExportWrapper("emscripten_bind_SIGCrown_doCrownRun_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_doCrownRunRothermel_0 = Module["_emscripten_bind_SIGCrown_doCrownRunRothermel_0"] = createExportWrapper("emscripten_bind_SIGCrown_doCrownRunRothermel_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_doCrownRunScottAndReinhardt_0 = Module["_emscripten_bind_SIGCrown_doCrownRunScottAndReinhardt_0"] = createExportWrapper("emscripten_bind_SIGCrown_doCrownRunScottAndReinhardt_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_initializeMembers_0 = Module["_emscripten_bind_SIGCrown_initializeMembers_0"] = createExportWrapper("emscripten_bind_SIGCrown_initializeMembers_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setAspect_1 = Module["_emscripten_bind_SIGCrown_setAspect_1"] = createExportWrapper("emscripten_bind_SIGCrown_setAspect_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setCanopyBaseHeight_2 = Module["_emscripten_bind_SIGCrown_setCanopyBaseHeight_2"] = createExportWrapper("emscripten_bind_SIGCrown_setCanopyBaseHeight_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setCanopyBulkDensity_2 = Module["_emscripten_bind_SIGCrown_setCanopyBulkDensity_2"] = createExportWrapper("emscripten_bind_SIGCrown_setCanopyBulkDensity_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setCanopyCover_2 = Module["_emscripten_bind_SIGCrown_setCanopyCover_2"] = createExportWrapper("emscripten_bind_SIGCrown_setCanopyCover_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setCanopyHeight_2 = Module["_emscripten_bind_SIGCrown_setCanopyHeight_2"] = createExportWrapper("emscripten_bind_SIGCrown_setCanopyHeight_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setCrownRatio_2 = Module["_emscripten_bind_SIGCrown_setCrownRatio_2"] = createExportWrapper("emscripten_bind_SIGCrown_setCrownRatio_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setFuelModelNumber_1 = Module["_emscripten_bind_SIGCrown_setFuelModelNumber_1"] = createExportWrapper("emscripten_bind_SIGCrown_setFuelModelNumber_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setCrownFireCalculationMethod_1 = Module["_emscripten_bind_SIGCrown_setCrownFireCalculationMethod_1"] = createExportWrapper("emscripten_bind_SIGCrown_setCrownFireCalculationMethod_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setElapsedTime_2 = Module["_emscripten_bind_SIGCrown_setElapsedTime_2"] = createExportWrapper("emscripten_bind_SIGCrown_setElapsedTime_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setFuelModels_1 = Module["_emscripten_bind_SIGCrown_setFuelModels_1"] = createExportWrapper("emscripten_bind_SIGCrown_setFuelModels_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setMoistureDeadAggregate_2 = Module["_emscripten_bind_SIGCrown_setMoistureDeadAggregate_2"] = createExportWrapper("emscripten_bind_SIGCrown_setMoistureDeadAggregate_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setMoistureFoliar_2 = Module["_emscripten_bind_SIGCrown_setMoistureFoliar_2"] = createExportWrapper("emscripten_bind_SIGCrown_setMoistureFoliar_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setMoistureHundredHour_2 = Module["_emscripten_bind_SIGCrown_setMoistureHundredHour_2"] = createExportWrapper("emscripten_bind_SIGCrown_setMoistureHundredHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setMoistureInputMode_1 = Module["_emscripten_bind_SIGCrown_setMoistureInputMode_1"] = createExportWrapper("emscripten_bind_SIGCrown_setMoistureInputMode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setMoistureLiveAggregate_2 = Module["_emscripten_bind_SIGCrown_setMoistureLiveAggregate_2"] = createExportWrapper("emscripten_bind_SIGCrown_setMoistureLiveAggregate_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setMoistureLiveHerbaceous_2 = Module["_emscripten_bind_SIGCrown_setMoistureLiveHerbaceous_2"] = createExportWrapper("emscripten_bind_SIGCrown_setMoistureLiveHerbaceous_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setMoistureLiveWoody_2 = Module["_emscripten_bind_SIGCrown_setMoistureLiveWoody_2"] = createExportWrapper("emscripten_bind_SIGCrown_setMoistureLiveWoody_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setMoistureOneHour_2 = Module["_emscripten_bind_SIGCrown_setMoistureOneHour_2"] = createExportWrapper("emscripten_bind_SIGCrown_setMoistureOneHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setMoistureScenarios_1 = Module["_emscripten_bind_SIGCrown_setMoistureScenarios_1"] = createExportWrapper("emscripten_bind_SIGCrown_setMoistureScenarios_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setMoistureTenHour_2 = Module["_emscripten_bind_SIGCrown_setMoistureTenHour_2"] = createExportWrapper("emscripten_bind_SIGCrown_setMoistureTenHour_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setSlope_2 = Module["_emscripten_bind_SIGCrown_setSlope_2"] = createExportWrapper("emscripten_bind_SIGCrown_setSlope_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setUserProvidedWindAdjustmentFactor_1 = Module["_emscripten_bind_SIGCrown_setUserProvidedWindAdjustmentFactor_1"] = createExportWrapper("emscripten_bind_SIGCrown_setUserProvidedWindAdjustmentFactor_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setWindAdjustmentFactorCalculationMethod_1 = Module["_emscripten_bind_SIGCrown_setWindAdjustmentFactorCalculationMethod_1"] = createExportWrapper("emscripten_bind_SIGCrown_setWindAdjustmentFactorCalculationMethod_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setWindAndSpreadOrientationMode_1 = Module["_emscripten_bind_SIGCrown_setWindAndSpreadOrientationMode_1"] = createExportWrapper("emscripten_bind_SIGCrown_setWindAndSpreadOrientationMode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setWindDirection_1 = Module["_emscripten_bind_SIGCrown_setWindDirection_1"] = createExportWrapper("emscripten_bind_SIGCrown_setWindDirection_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setWindHeightInputMode_1 = Module["_emscripten_bind_SIGCrown_setWindHeightInputMode_1"] = createExportWrapper("emscripten_bind_SIGCrown_setWindHeightInputMode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_setWindSpeed_2 = Module["_emscripten_bind_SIGCrown_setWindSpeed_2"] = createExportWrapper("emscripten_bind_SIGCrown_setWindSpeed_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_updateCrownInputs_25 = Module["_emscripten_bind_SIGCrown_updateCrownInputs_25"] = createExportWrapper("emscripten_bind_SIGCrown_updateCrownInputs_25");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_updateCrownsSurfaceInputs_21 = Module["_emscripten_bind_SIGCrown_updateCrownsSurfaceInputs_21"] = createExportWrapper("emscripten_bind_SIGCrown_updateCrownsSurfaceInputs_21");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown_getFinalFlameLength_1 = Module["_emscripten_bind_SIGCrown_getFinalFlameLength_1"] = createExportWrapper("emscripten_bind_SIGCrown_getFinalFlameLength_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGCrown___destroy___0 = Module["_emscripten_bind_SIGCrown___destroy___0"] = createExportWrapper("emscripten_bind_SIGCrown___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SpeciesMasterTableRecord_SpeciesMasterTableRecord_0 = Module["_emscripten_bind_SpeciesMasterTableRecord_SpeciesMasterTableRecord_0"] = createExportWrapper("emscripten_bind_SpeciesMasterTableRecord_SpeciesMasterTableRecord_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SpeciesMasterTableRecord_SpeciesMasterTableRecord_1 = Module["_emscripten_bind_SpeciesMasterTableRecord_SpeciesMasterTableRecord_1"] = createExportWrapper("emscripten_bind_SpeciesMasterTableRecord_SpeciesMasterTableRecord_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SpeciesMasterTableRecord___destroy___0 = Module["_emscripten_bind_SpeciesMasterTableRecord___destroy___0"] = createExportWrapper("emscripten_bind_SpeciesMasterTableRecord___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SpeciesMasterTable_SpeciesMasterTable_0 = Module["_emscripten_bind_SpeciesMasterTable_SpeciesMasterTable_0"] = createExportWrapper("emscripten_bind_SpeciesMasterTable_SpeciesMasterTable_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SpeciesMasterTable_initializeMasterTable_0 = Module["_emscripten_bind_SpeciesMasterTable_initializeMasterTable_0"] = createExportWrapper("emscripten_bind_SpeciesMasterTable_initializeMasterTable_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SpeciesMasterTable_getSpeciesTableIndexFromSpeciesCode_1 = Module["_emscripten_bind_SpeciesMasterTable_getSpeciesTableIndexFromSpeciesCode_1"] = createExportWrapper("emscripten_bind_SpeciesMasterTable_getSpeciesTableIndexFromSpeciesCode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SpeciesMasterTable_getSpeciesTableIndexFromSpeciesCodeAndEquationType_2 = Module["_emscripten_bind_SpeciesMasterTable_getSpeciesTableIndexFromSpeciesCodeAndEquationType_2"] = createExportWrapper("emscripten_bind_SpeciesMasterTable_getSpeciesTableIndexFromSpeciesCodeAndEquationType_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SpeciesMasterTable_insertRecord_12 = Module["_emscripten_bind_SpeciesMasterTable_insertRecord_12"] = createExportWrapper("emscripten_bind_SpeciesMasterTable_insertRecord_12");
+/** @type {function(...*):?} */
+var _emscripten_bind_SpeciesMasterTable___destroy___0 = Module["_emscripten_bind_SpeciesMasterTable___destroy___0"] = createExportWrapper("emscripten_bind_SpeciesMasterTable___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_SIGMortality_1 = Module["_emscripten_bind_SIGMortality_SIGMortality_1"] = createExportWrapper("emscripten_bind_SIGMortality_SIGMortality_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_initializeMembers_0 = Module["_emscripten_bind_SIGMortality_initializeMembers_0"] = createExportWrapper("emscripten_bind_SIGMortality_initializeMembers_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_checkIsInRegionAtSpeciesTableIndex_2 = Module["_emscripten_bind_SIGMortality_checkIsInRegionAtSpeciesTableIndex_2"] = createExportWrapper("emscripten_bind_SIGMortality_checkIsInRegionAtSpeciesTableIndex_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_checkIsInRegionFromSpeciesCode_2 = Module["_emscripten_bind_SIGMortality_checkIsInRegionFromSpeciesCode_2"] = createExportWrapper("emscripten_bind_SIGMortality_checkIsInRegionFromSpeciesCode_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_updateInputsForSpeciesCodeAndEquationType_2 = Module["_emscripten_bind_SIGMortality_updateInputsForSpeciesCodeAndEquationType_2"] = createExportWrapper("emscripten_bind_SIGMortality_updateInputsForSpeciesCodeAndEquationType_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_calculateMortality_1 = Module["_emscripten_bind_SIGMortality_calculateMortality_1"] = createExportWrapper("emscripten_bind_SIGMortality_calculateMortality_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_calculateScorchHeight_7 = Module["_emscripten_bind_SIGMortality_calculateScorchHeight_7"] = createExportWrapper("emscripten_bind_SIGMortality_calculateScorchHeight_7");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_calculateMortalityAllDirections_1 = Module["_emscripten_bind_SIGMortality_calculateMortalityAllDirections_1"] = createExportWrapper("emscripten_bind_SIGMortality_calculateMortalityAllDirections_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getRequiredFieldVector_0 = Module["_emscripten_bind_SIGMortality_getRequiredFieldVector_0"] = createExportWrapper("emscripten_bind_SIGMortality_getRequiredFieldVector_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getBeetleDamage_0 = Module["_emscripten_bind_SIGMortality_getBeetleDamage_0"] = createExportWrapper("emscripten_bind_SIGMortality_getBeetleDamage_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getCrownDamageEquationCode_0 = Module["_emscripten_bind_SIGMortality_getCrownDamageEquationCode_0"] = createExportWrapper("emscripten_bind_SIGMortality_getCrownDamageEquationCode_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getCrownDamageEquationCodeAtSpeciesTableIndex_1 = Module["_emscripten_bind_SIGMortality_getCrownDamageEquationCodeAtSpeciesTableIndex_1"] = createExportWrapper("emscripten_bind_SIGMortality_getCrownDamageEquationCodeAtSpeciesTableIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getCrownDamageEquationCodeFromSpeciesCode_1 = Module["_emscripten_bind_SIGMortality_getCrownDamageEquationCodeFromSpeciesCode_1"] = createExportWrapper("emscripten_bind_SIGMortality_getCrownDamageEquationCodeFromSpeciesCode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getCrownDamageType_0 = Module["_emscripten_bind_SIGMortality_getCrownDamageType_0"] = createExportWrapper("emscripten_bind_SIGMortality_getCrownDamageType_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getCommonNameAtSpeciesTableIndex_1 = Module["_emscripten_bind_SIGMortality_getCommonNameAtSpeciesTableIndex_1"] = createExportWrapper("emscripten_bind_SIGMortality_getCommonNameAtSpeciesTableIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getCommonNameFromSpeciesCode_1 = Module["_emscripten_bind_SIGMortality_getCommonNameFromSpeciesCode_1"] = createExportWrapper("emscripten_bind_SIGMortality_getCommonNameFromSpeciesCode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getScientificNameAtSpeciesTableIndex_1 = Module["_emscripten_bind_SIGMortality_getScientificNameAtSpeciesTableIndex_1"] = createExportWrapper("emscripten_bind_SIGMortality_getScientificNameAtSpeciesTableIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getScientificNameFromSpeciesCode_1 = Module["_emscripten_bind_SIGMortality_getScientificNameFromSpeciesCode_1"] = createExportWrapper("emscripten_bind_SIGMortality_getScientificNameFromSpeciesCode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getSpeciesCode_0 = Module["_emscripten_bind_SIGMortality_getSpeciesCode_0"] = createExportWrapper("emscripten_bind_SIGMortality_getSpeciesCode_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getSpeciesCodeAtSpeciesTableIndex_1 = Module["_emscripten_bind_SIGMortality_getSpeciesCodeAtSpeciesTableIndex_1"] = createExportWrapper("emscripten_bind_SIGMortality_getSpeciesCodeAtSpeciesTableIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getEquationType_0 = Module["_emscripten_bind_SIGMortality_getEquationType_0"] = createExportWrapper("emscripten_bind_SIGMortality_getEquationType_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getEquationTypeAtSpeciesTableIndex_1 = Module["_emscripten_bind_SIGMortality_getEquationTypeAtSpeciesTableIndex_1"] = createExportWrapper("emscripten_bind_SIGMortality_getEquationTypeAtSpeciesTableIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getEquationTypeFromSpeciesCode_1 = Module["_emscripten_bind_SIGMortality_getEquationTypeFromSpeciesCode_1"] = createExportWrapper("emscripten_bind_SIGMortality_getEquationTypeFromSpeciesCode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getFireSeverity_0 = Module["_emscripten_bind_SIGMortality_getFireSeverity_0"] = createExportWrapper("emscripten_bind_SIGMortality_getFireSeverity_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getFlameLengthOrScorchHeightSwitch_0 = Module["_emscripten_bind_SIGMortality_getFlameLengthOrScorchHeightSwitch_0"] = createExportWrapper("emscripten_bind_SIGMortality_getFlameLengthOrScorchHeightSwitch_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getRegion_0 = Module["_emscripten_bind_SIGMortality_getRegion_0"] = createExportWrapper("emscripten_bind_SIGMortality_getRegion_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegion_1 = Module["_emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegion_1"] = createExportWrapper("emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegion_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegionAndEquationType_2 = Module["_emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegionAndEquationType_2"] = createExportWrapper("emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegionAndEquationType_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getBarkThickness_1 = Module["_emscripten_bind_SIGMortality_getBarkThickness_1"] = createExportWrapper("emscripten_bind_SIGMortality_getBarkThickness_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getBasalAreaKillled_0 = Module["_emscripten_bind_SIGMortality_getBasalAreaKillled_0"] = createExportWrapper("emscripten_bind_SIGMortality_getBasalAreaKillled_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getBasalAreaPostfire_0 = Module["_emscripten_bind_SIGMortality_getBasalAreaPostfire_0"] = createExportWrapper("emscripten_bind_SIGMortality_getBasalAreaPostfire_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getBasalAreaPrefire_0 = Module["_emscripten_bind_SIGMortality_getBasalAreaPrefire_0"] = createExportWrapper("emscripten_bind_SIGMortality_getBasalAreaPrefire_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getBoleCharHeight_1 = Module["_emscripten_bind_SIGMortality_getBoleCharHeight_1"] = createExportWrapper("emscripten_bind_SIGMortality_getBoleCharHeight_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getBoleCharHeightBacking_1 = Module["_emscripten_bind_SIGMortality_getBoleCharHeightBacking_1"] = createExportWrapper("emscripten_bind_SIGMortality_getBoleCharHeightBacking_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getBoleCharHeightFlanking_1 = Module["_emscripten_bind_SIGMortality_getBoleCharHeightFlanking_1"] = createExportWrapper("emscripten_bind_SIGMortality_getBoleCharHeightFlanking_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getCambiumKillRating_0 = Module["_emscripten_bind_SIGMortality_getCambiumKillRating_0"] = createExportWrapper("emscripten_bind_SIGMortality_getCambiumKillRating_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getCrownDamage_0 = Module["_emscripten_bind_SIGMortality_getCrownDamage_0"] = createExportWrapper("emscripten_bind_SIGMortality_getCrownDamage_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getCrownRatio_1 = Module["_emscripten_bind_SIGMortality_getCrownRatio_1"] = createExportWrapper("emscripten_bind_SIGMortality_getCrownRatio_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getCVSorCLS_0 = Module["_emscripten_bind_SIGMortality_getCVSorCLS_0"] = createExportWrapper("emscripten_bind_SIGMortality_getCVSorCLS_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getDBH_1 = Module["_emscripten_bind_SIGMortality_getDBH_1"] = createExportWrapper("emscripten_bind_SIGMortality_getDBH_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getFlameLength_1 = Module["_emscripten_bind_SIGMortality_getFlameLength_1"] = createExportWrapper("emscripten_bind_SIGMortality_getFlameLength_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getFlameLengthOrScorchHeightValue_1 = Module["_emscripten_bind_SIGMortality_getFlameLengthOrScorchHeightValue_1"] = createExportWrapper("emscripten_bind_SIGMortality_getFlameLengthOrScorchHeightValue_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getKilledTrees_0 = Module["_emscripten_bind_SIGMortality_getKilledTrees_0"] = createExportWrapper("emscripten_bind_SIGMortality_getKilledTrees_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getProbabilityOfMortality_1 = Module["_emscripten_bind_SIGMortality_getProbabilityOfMortality_1"] = createExportWrapper("emscripten_bind_SIGMortality_getProbabilityOfMortality_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getProbabilityOfMortalityBacking_1 = Module["_emscripten_bind_SIGMortality_getProbabilityOfMortalityBacking_1"] = createExportWrapper("emscripten_bind_SIGMortality_getProbabilityOfMortalityBacking_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getProbabilityOfMortalityFlanking_1 = Module["_emscripten_bind_SIGMortality_getProbabilityOfMortalityFlanking_1"] = createExportWrapper("emscripten_bind_SIGMortality_getProbabilityOfMortalityFlanking_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getScorchHeight_1 = Module["_emscripten_bind_SIGMortality_getScorchHeight_1"] = createExportWrapper("emscripten_bind_SIGMortality_getScorchHeight_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getScorchHeightBacking_1 = Module["_emscripten_bind_SIGMortality_getScorchHeightBacking_1"] = createExportWrapper("emscripten_bind_SIGMortality_getScorchHeightBacking_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getScorchHeightFlanking_1 = Module["_emscripten_bind_SIGMortality_getScorchHeightFlanking_1"] = createExportWrapper("emscripten_bind_SIGMortality_getScorchHeightFlanking_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getTotalPrefireTrees_0 = Module["_emscripten_bind_SIGMortality_getTotalPrefireTrees_0"] = createExportWrapper("emscripten_bind_SIGMortality_getTotalPrefireTrees_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getTreeCrownLengthScorched_1 = Module["_emscripten_bind_SIGMortality_getTreeCrownLengthScorched_1"] = createExportWrapper("emscripten_bind_SIGMortality_getTreeCrownLengthScorched_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getTreeCrownLengthScorchedBacking_1 = Module["_emscripten_bind_SIGMortality_getTreeCrownLengthScorchedBacking_1"] = createExportWrapper("emscripten_bind_SIGMortality_getTreeCrownLengthScorchedBacking_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getTreeCrownLengthScorchedFlanking_1 = Module["_emscripten_bind_SIGMortality_getTreeCrownLengthScorchedFlanking_1"] = createExportWrapper("emscripten_bind_SIGMortality_getTreeCrownLengthScorchedFlanking_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getTreeCrownVolumeScorched_1 = Module["_emscripten_bind_SIGMortality_getTreeCrownVolumeScorched_1"] = createExportWrapper("emscripten_bind_SIGMortality_getTreeCrownVolumeScorched_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getTreeCrownVolumeScorchedBacking_1 = Module["_emscripten_bind_SIGMortality_getTreeCrownVolumeScorchedBacking_1"] = createExportWrapper("emscripten_bind_SIGMortality_getTreeCrownVolumeScorchedBacking_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getTreeCrownVolumeScorchedFlanking_1 = Module["_emscripten_bind_SIGMortality_getTreeCrownVolumeScorchedFlanking_1"] = createExportWrapper("emscripten_bind_SIGMortality_getTreeCrownVolumeScorchedFlanking_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getTreeDensityPerUnitArea_1 = Module["_emscripten_bind_SIGMortality_getTreeDensityPerUnitArea_1"] = createExportWrapper("emscripten_bind_SIGMortality_getTreeDensityPerUnitArea_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getTreeHeight_1 = Module["_emscripten_bind_SIGMortality_getTreeHeight_1"] = createExportWrapper("emscripten_bind_SIGMortality_getTreeHeight_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_postfireCanopyCover_0 = Module["_emscripten_bind_SIGMortality_postfireCanopyCover_0"] = createExportWrapper("emscripten_bind_SIGMortality_postfireCanopyCover_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_prefireCanopyCover_0 = Module["_emscripten_bind_SIGMortality_prefireCanopyCover_0"] = createExportWrapper("emscripten_bind_SIGMortality_prefireCanopyCover_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getBarkEquationNumberAtSpeciesTableIndex_1 = Module["_emscripten_bind_SIGMortality_getBarkEquationNumberAtSpeciesTableIndex_1"] = createExportWrapper("emscripten_bind_SIGMortality_getBarkEquationNumberAtSpeciesTableIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getBarkEquationNumberFromSpeciesCode_1 = Module["_emscripten_bind_SIGMortality_getBarkEquationNumberFromSpeciesCode_1"] = createExportWrapper("emscripten_bind_SIGMortality_getBarkEquationNumberFromSpeciesCode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getCrownCoefficientCodeAtSpeciesTableIndex_1 = Module["_emscripten_bind_SIGMortality_getCrownCoefficientCodeAtSpeciesTableIndex_1"] = createExportWrapper("emscripten_bind_SIGMortality_getCrownCoefficientCodeAtSpeciesTableIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getCrownCoefficientCodeFromSpeciesCode_1 = Module["_emscripten_bind_SIGMortality_getCrownCoefficientCodeFromSpeciesCode_1"] = createExportWrapper("emscripten_bind_SIGMortality_getCrownCoefficientCodeFromSpeciesCode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getCrownScorchOrBoleCharEquationNumber_0 = Module["_emscripten_bind_SIGMortality_getCrownScorchOrBoleCharEquationNumber_0"] = createExportWrapper("emscripten_bind_SIGMortality_getCrownScorchOrBoleCharEquationNumber_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getMortalityEquationNumberAtSpeciesTableIndex_1 = Module["_emscripten_bind_SIGMortality_getMortalityEquationNumberAtSpeciesTableIndex_1"] = createExportWrapper("emscripten_bind_SIGMortality_getMortalityEquationNumberAtSpeciesTableIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getMortalityEquationNumberFromSpeciesCode_1 = Module["_emscripten_bind_SIGMortality_getMortalityEquationNumberFromSpeciesCode_1"] = createExportWrapper("emscripten_bind_SIGMortality_getMortalityEquationNumberFromSpeciesCode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getNumberOfRecordsInSpeciesTable_0 = Module["_emscripten_bind_SIGMortality_getNumberOfRecordsInSpeciesTable_0"] = createExportWrapper("emscripten_bind_SIGMortality_getNumberOfRecordsInSpeciesTable_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getSpeciesTableIndexFromSpeciesCode_1 = Module["_emscripten_bind_SIGMortality_getSpeciesTableIndexFromSpeciesCode_1"] = createExportWrapper("emscripten_bind_SIGMortality_getSpeciesTableIndexFromSpeciesCode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_getSpeciesTableIndexFromSpeciesCodeAndEquationType_2 = Module["_emscripten_bind_SIGMortality_getSpeciesTableIndexFromSpeciesCodeAndEquationType_2"] = createExportWrapper("emscripten_bind_SIGMortality_getSpeciesTableIndexFromSpeciesCodeAndEquationType_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setAirTemperature_2 = Module["_emscripten_bind_SIGMortality_setAirTemperature_2"] = createExportWrapper("emscripten_bind_SIGMortality_setAirTemperature_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setBeetleDamage_1 = Module["_emscripten_bind_SIGMortality_setBeetleDamage_1"] = createExportWrapper("emscripten_bind_SIGMortality_setBeetleDamage_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setBoleCharHeight_2 = Module["_emscripten_bind_SIGMortality_setBoleCharHeight_2"] = createExportWrapper("emscripten_bind_SIGMortality_setBoleCharHeight_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setCambiumKillRating_1 = Module["_emscripten_bind_SIGMortality_setCambiumKillRating_1"] = createExportWrapper("emscripten_bind_SIGMortality_setCambiumKillRating_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setCrownDamage_1 = Module["_emscripten_bind_SIGMortality_setCrownDamage_1"] = createExportWrapper("emscripten_bind_SIGMortality_setCrownDamage_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setCrownRatio_2 = Module["_emscripten_bind_SIGMortality_setCrownRatio_2"] = createExportWrapper("emscripten_bind_SIGMortality_setCrownRatio_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setDBH_2 = Module["_emscripten_bind_SIGMortality_setDBH_2"] = createExportWrapper("emscripten_bind_SIGMortality_setDBH_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setEquationType_1 = Module["_emscripten_bind_SIGMortality_setEquationType_1"] = createExportWrapper("emscripten_bind_SIGMortality_setEquationType_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setFireSeverity_1 = Module["_emscripten_bind_SIGMortality_setFireSeverity_1"] = createExportWrapper("emscripten_bind_SIGMortality_setFireSeverity_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setFirelineIntensity_2 = Module["_emscripten_bind_SIGMortality_setFirelineIntensity_2"] = createExportWrapper("emscripten_bind_SIGMortality_setFirelineIntensity_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setFlameLength_2 = Module["_emscripten_bind_SIGMortality_setFlameLength_2"] = createExportWrapper("emscripten_bind_SIGMortality_setFlameLength_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setFlameLengthOrScorchHeightSwitch_1 = Module["_emscripten_bind_SIGMortality_setFlameLengthOrScorchHeightSwitch_1"] = createExportWrapper("emscripten_bind_SIGMortality_setFlameLengthOrScorchHeightSwitch_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setFlameLengthOrScorchHeightValue_2 = Module["_emscripten_bind_SIGMortality_setFlameLengthOrScorchHeightValue_2"] = createExportWrapper("emscripten_bind_SIGMortality_setFlameLengthOrScorchHeightValue_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setMidFlameWindSpeed_2 = Module["_emscripten_bind_SIGMortality_setMidFlameWindSpeed_2"] = createExportWrapper("emscripten_bind_SIGMortality_setMidFlameWindSpeed_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setRegion_1 = Module["_emscripten_bind_SIGMortality_setRegion_1"] = createExportWrapper("emscripten_bind_SIGMortality_setRegion_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setScorchHeight_2 = Module["_emscripten_bind_SIGMortality_setScorchHeight_2"] = createExportWrapper("emscripten_bind_SIGMortality_setScorchHeight_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setSpeciesCode_1 = Module["_emscripten_bind_SIGMortality_setSpeciesCode_1"] = createExportWrapper("emscripten_bind_SIGMortality_setSpeciesCode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setSurfaceFireFirelineIntensity_2 = Module["_emscripten_bind_SIGMortality_setSurfaceFireFirelineIntensity_2"] = createExportWrapper("emscripten_bind_SIGMortality_setSurfaceFireFirelineIntensity_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setSurfaceFireFirelineIntensityBacking_2 = Module["_emscripten_bind_SIGMortality_setSurfaceFireFirelineIntensityBacking_2"] = createExportWrapper("emscripten_bind_SIGMortality_setSurfaceFireFirelineIntensityBacking_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setSurfaceFireFirelineIntensityFlanking_2 = Module["_emscripten_bind_SIGMortality_setSurfaceFireFirelineIntensityFlanking_2"] = createExportWrapper("emscripten_bind_SIGMortality_setSurfaceFireFirelineIntensityFlanking_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setSurfaceFireFlameLength_2 = Module["_emscripten_bind_SIGMortality_setSurfaceFireFlameLength_2"] = createExportWrapper("emscripten_bind_SIGMortality_setSurfaceFireFlameLength_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setSurfaceFireFlameLengthBacking_2 = Module["_emscripten_bind_SIGMortality_setSurfaceFireFlameLengthBacking_2"] = createExportWrapper("emscripten_bind_SIGMortality_setSurfaceFireFlameLengthBacking_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setSurfaceFireFlameLengthFlanking_2 = Module["_emscripten_bind_SIGMortality_setSurfaceFireFlameLengthFlanking_2"] = createExportWrapper("emscripten_bind_SIGMortality_setSurfaceFireFlameLengthFlanking_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setSurfaceFireScorchHeight_2 = Module["_emscripten_bind_SIGMortality_setSurfaceFireScorchHeight_2"] = createExportWrapper("emscripten_bind_SIGMortality_setSurfaceFireScorchHeight_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setTreeDensityPerUnitArea_2 = Module["_emscripten_bind_SIGMortality_setTreeDensityPerUnitArea_2"] = createExportWrapper("emscripten_bind_SIGMortality_setTreeDensityPerUnitArea_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setTreeHeight_2 = Module["_emscripten_bind_SIGMortality_setTreeHeight_2"] = createExportWrapper("emscripten_bind_SIGMortality_setTreeHeight_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setUserProvidedWindAdjustmentFactor_1 = Module["_emscripten_bind_SIGMortality_setUserProvidedWindAdjustmentFactor_1"] = createExportWrapper("emscripten_bind_SIGMortality_setUserProvidedWindAdjustmentFactor_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setWindHeightInputMode_1 = Module["_emscripten_bind_SIGMortality_setWindHeightInputMode_1"] = createExportWrapper("emscripten_bind_SIGMortality_setWindHeightInputMode_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setWindSpeed_2 = Module["_emscripten_bind_SIGMortality_setWindSpeed_2"] = createExportWrapper("emscripten_bind_SIGMortality_setWindSpeed_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality_setWindSpeedAndWindHeightInputMode_4 = Module["_emscripten_bind_SIGMortality_setWindSpeedAndWindHeightInputMode_4"] = createExportWrapper("emscripten_bind_SIGMortality_setWindSpeedAndWindHeightInputMode_4");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGMortality___destroy___0 = Module["_emscripten_bind_SIGMortality___destroy___0"] = createExportWrapper("emscripten_bind_SIGMortality___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_WindSpeedUtility_WindSpeedUtility_0 = Module["_emscripten_bind_WindSpeedUtility_WindSpeedUtility_0"] = createExportWrapper("emscripten_bind_WindSpeedUtility_WindSpeedUtility_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_WindSpeedUtility_windSpeedAtMidflame_2 = Module["_emscripten_bind_WindSpeedUtility_windSpeedAtMidflame_2"] = createExportWrapper("emscripten_bind_WindSpeedUtility_windSpeedAtMidflame_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_WindSpeedUtility_windSpeedAtTwentyFeetFromTenMeter_1 = Module["_emscripten_bind_WindSpeedUtility_windSpeedAtTwentyFeetFromTenMeter_1"] = createExportWrapper("emscripten_bind_WindSpeedUtility_windSpeedAtTwentyFeetFromTenMeter_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_WindSpeedUtility___destroy___0 = Module["_emscripten_bind_WindSpeedUtility___destroy___0"] = createExportWrapper("emscripten_bind_WindSpeedUtility___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_SIGFineDeadFuelMoistureTool_0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_SIGFineDeadFuelMoistureTool_0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_SIGFineDeadFuelMoistureTool_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_calculate_0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_calculate_0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_calculate_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_setTimeOfDayIndex_1 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_setTimeOfDayIndex_1"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_setTimeOfDayIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_setSlopeIndex_1 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_setSlopeIndex_1"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_setSlopeIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_setShadingIndex_1 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_setShadingIndex_1"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_setShadingIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_setAspectIndex_1 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_setAspectIndex_1"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_setAspectIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_setRHIndex_1 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_setRHIndex_1"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_setRHIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_setElevationIndex_1 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_setElevationIndex_1"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_setElevationIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_setDryBulbIndex_1 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_setDryBulbIndex_1"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_setDryBulbIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_setMonthIndex_1 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_setMonthIndex_1"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_setMonthIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_getFineDeadFuelMoisture_0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_getFineDeadFuelMoisture_0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_getFineDeadFuelMoisture_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_getSlopeIndexSize_0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_getSlopeIndexSize_0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_getSlopeIndexSize_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_getElevationIndexSize_0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_getElevationIndexSize_0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_getElevationIndexSize_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_getMonthIndexSize_0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_getMonthIndexSize_0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_getMonthIndexSize_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_getDryBulbTemperatureIndexSize_0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_getDryBulbTemperatureIndexSize_0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_getDryBulbTemperatureIndexSize_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_getReferenceMoisture_0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_getReferenceMoisture_0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_getReferenceMoisture_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_calculateByIndex_8 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_calculateByIndex_8"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_calculateByIndex_8");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_getTimeOfDayIndexSize_0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_getTimeOfDayIndexSize_0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_getTimeOfDayIndexSize_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_getCorrectionMoisture_0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_getCorrectionMoisture_0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_getCorrectionMoisture_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_getAspectIndexSize_0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_getAspectIndexSize_0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_getAspectIndexSize_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_getShadingIndexSize_0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_getShadingIndexSize_0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_getShadingIndexSize_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool_getRelativeHumidityIndexSize_0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool_getRelativeHumidityIndexSize_0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool_getRelativeHumidityIndexSize_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGFineDeadFuelMoistureTool___destroy___0 = Module["_emscripten_bind_SIGFineDeadFuelMoistureTool___destroy___0"] = createExportWrapper("emscripten_bind_SIGFineDeadFuelMoistureTool___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_SIGSlopeTool_0 = Module["_emscripten_bind_SIGSlopeTool_SIGSlopeTool_0"] = createExportWrapper("emscripten_bind_SIGSlopeTool_SIGSlopeTool_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getCentimetersPerKilometerAtIndex_1 = Module["_emscripten_bind_SIGSlopeTool_getCentimetersPerKilometerAtIndex_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getCentimetersPerKilometerAtIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getCentimetersPerKilometerAtRepresentativeFraction_1 = Module["_emscripten_bind_SIGSlopeTool_getCentimetersPerKilometerAtRepresentativeFraction_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getCentimetersPerKilometerAtRepresentativeFraction_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistance_2 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistance_2"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistance_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceAtIndex_2 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistanceAtIndex_2"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistanceAtIndex_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceFifteen_1 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistanceFifteen_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistanceFifteen_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceFourtyFive_1 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistanceFourtyFive_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistanceFourtyFive_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceMaxSlope_1 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistanceMaxSlope_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistanceMaxSlope_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceNinety_1 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistanceNinety_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistanceNinety_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceSeventy_1 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistanceSeventy_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistanceSeventy_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceSixty_1 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistanceSixty_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistanceSixty_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceThirty_1 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistanceThirty_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistanceThirty_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getHorizontalDistanceZero_1 = Module["_emscripten_bind_SIGSlopeTool_getHorizontalDistanceZero_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getHorizontalDistanceZero_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getInchesPerMileAtIndex_1 = Module["_emscripten_bind_SIGSlopeTool_getInchesPerMileAtIndex_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getInchesPerMileAtIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getInchesPerMileAtRepresentativeFraction_1 = Module["_emscripten_bind_SIGSlopeTool_getInchesPerMileAtRepresentativeFraction_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getInchesPerMileAtRepresentativeFraction_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getKilometersPerCentimeterAtIndex_1 = Module["_emscripten_bind_SIGSlopeTool_getKilometersPerCentimeterAtIndex_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getKilometersPerCentimeterAtIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getKilometersPerCentimeterAtRepresentativeFraction_1 = Module["_emscripten_bind_SIGSlopeTool_getKilometersPerCentimeterAtRepresentativeFraction_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getKilometersPerCentimeterAtRepresentativeFraction_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getMilesPerInchAtIndex_1 = Module["_emscripten_bind_SIGSlopeTool_getMilesPerInchAtIndex_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getMilesPerInchAtIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getMilesPerInchAtRepresentativeFraction_1 = Module["_emscripten_bind_SIGSlopeTool_getMilesPerInchAtRepresentativeFraction_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getMilesPerInchAtRepresentativeFraction_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getSlopeElevationChangeFromMapMeasurements_1 = Module["_emscripten_bind_SIGSlopeTool_getSlopeElevationChangeFromMapMeasurements_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getSlopeElevationChangeFromMapMeasurements_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurements_1 = Module["_emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurements_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurements_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getSlopeHorizontalDistanceFromMapMeasurements_1 = Module["_emscripten_bind_SIGSlopeTool_getSlopeHorizontalDistanceFromMapMeasurements_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getSlopeHorizontalDistanceFromMapMeasurements_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurementsInDegrees_0 = Module["_emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurementsInDegrees_0"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurementsInDegrees_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurementsInPercent_0 = Module["_emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurementsInPercent_0"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getSlopeFromMapMeasurementsInPercent_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getNumberOfHorizontalDistances_0 = Module["_emscripten_bind_SIGSlopeTool_getNumberOfHorizontalDistances_0"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getNumberOfHorizontalDistances_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getNumberOfRepresentativeFractions_0 = Module["_emscripten_bind_SIGSlopeTool_getNumberOfRepresentativeFractions_0"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getNumberOfRepresentativeFractions_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getRepresentativeFractionAtIndex_1 = Module["_emscripten_bind_SIGSlopeTool_getRepresentativeFractionAtIndex_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getRepresentativeFractionAtIndex_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_getRepresentativeFractionAtRepresentativeFraction_1 = Module["_emscripten_bind_SIGSlopeTool_getRepresentativeFractionAtRepresentativeFraction_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_getRepresentativeFractionAtRepresentativeFraction_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_calculateHorizontalDistance_0 = Module["_emscripten_bind_SIGSlopeTool_calculateHorizontalDistance_0"] = createExportWrapper("emscripten_bind_SIGSlopeTool_calculateHorizontalDistance_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_calculateSlopeFromMapMeasurements_0 = Module["_emscripten_bind_SIGSlopeTool_calculateSlopeFromMapMeasurements_0"] = createExportWrapper("emscripten_bind_SIGSlopeTool_calculateSlopeFromMapMeasurements_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_setCalculatedMapDistance_2 = Module["_emscripten_bind_SIGSlopeTool_setCalculatedMapDistance_2"] = createExportWrapper("emscripten_bind_SIGSlopeTool_setCalculatedMapDistance_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_setContourInterval_2 = Module["_emscripten_bind_SIGSlopeTool_setContourInterval_2"] = createExportWrapper("emscripten_bind_SIGSlopeTool_setContourInterval_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_setMapDistance_2 = Module["_emscripten_bind_SIGSlopeTool_setMapDistance_2"] = createExportWrapper("emscripten_bind_SIGSlopeTool_setMapDistance_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_setMapRepresentativeFraction_1 = Module["_emscripten_bind_SIGSlopeTool_setMapRepresentativeFraction_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_setMapRepresentativeFraction_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_setMaxSlopeSteepness_1 = Module["_emscripten_bind_SIGSlopeTool_setMaxSlopeSteepness_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_setMaxSlopeSteepness_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool_setNumberOfContours_1 = Module["_emscripten_bind_SIGSlopeTool_setNumberOfContours_1"] = createExportWrapper("emscripten_bind_SIGSlopeTool_setNumberOfContours_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSlopeTool___destroy___0 = Module["_emscripten_bind_SIGSlopeTool___destroy___0"] = createExportWrapper("emscripten_bind_SIGSlopeTool___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_bind_VaporPressureDeficitCalculator_VaporPressureDeficitCalculator_0 = Module["_emscripten_bind_VaporPressureDeficitCalculator_VaporPressureDeficitCalculator_0"] = createExportWrapper("emscripten_bind_VaporPressureDeficitCalculator_VaporPressureDeficitCalculator_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_VaporPressureDeficitCalculator_runCalculation_0 = Module["_emscripten_bind_VaporPressureDeficitCalculator_runCalculation_0"] = createExportWrapper("emscripten_bind_VaporPressureDeficitCalculator_runCalculation_0");
+/** @type {function(...*):?} */
+var _emscripten_bind_VaporPressureDeficitCalculator_setTemperature_2 = Module["_emscripten_bind_VaporPressureDeficitCalculator_setTemperature_2"] = createExportWrapper("emscripten_bind_VaporPressureDeficitCalculator_setTemperature_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_VaporPressureDeficitCalculator_setRelativeHumidity_2 = Module["_emscripten_bind_VaporPressureDeficitCalculator_setRelativeHumidity_2"] = createExportWrapper("emscripten_bind_VaporPressureDeficitCalculator_setRelativeHumidity_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_VaporPressureDeficitCalculator_getVaporPressureDeficit_1 = Module["_emscripten_bind_VaporPressureDeficitCalculator_getVaporPressureDeficit_1"] = createExportWrapper("emscripten_bind_VaporPressureDeficitCalculator_getVaporPressureDeficit_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_VaporPressureDeficitCalculator___destroy___0 = Module["_emscripten_bind_VaporPressureDeficitCalculator___destroy___0"] = createExportWrapper("emscripten_bind_VaporPressureDeficitCalculator___destroy___0");
+/** @type {function(...*):?} */
+var _emscripten_enum_AreaUnits_AreaUnitsEnum_SquareFeet = Module["_emscripten_enum_AreaUnits_AreaUnitsEnum_SquareFeet"] = createExportWrapper("emscripten_enum_AreaUnits_AreaUnitsEnum_SquareFeet");
+/** @type {function(...*):?} */
+var _emscripten_enum_AreaUnits_AreaUnitsEnum_Acres = Module["_emscripten_enum_AreaUnits_AreaUnitsEnum_Acres"] = createExportWrapper("emscripten_enum_AreaUnits_AreaUnitsEnum_Acres");
+/** @type {function(...*):?} */
+var _emscripten_enum_AreaUnits_AreaUnitsEnum_Hectares = Module["_emscripten_enum_AreaUnits_AreaUnitsEnum_Hectares"] = createExportWrapper("emscripten_enum_AreaUnits_AreaUnitsEnum_Hectares");
+/** @type {function(...*):?} */
+var _emscripten_enum_AreaUnits_AreaUnitsEnum_SquareMeters = Module["_emscripten_enum_AreaUnits_AreaUnitsEnum_SquareMeters"] = createExportWrapper("emscripten_enum_AreaUnits_AreaUnitsEnum_SquareMeters");
+/** @type {function(...*):?} */
+var _emscripten_enum_AreaUnits_AreaUnitsEnum_SquareMiles = Module["_emscripten_enum_AreaUnits_AreaUnitsEnum_SquareMiles"] = createExportWrapper("emscripten_enum_AreaUnits_AreaUnitsEnum_SquareMiles");
+/** @type {function(...*):?} */
+var _emscripten_enum_AreaUnits_AreaUnitsEnum_SquareKilometers = Module["_emscripten_enum_AreaUnits_AreaUnitsEnum_SquareKilometers"] = createExportWrapper("emscripten_enum_AreaUnits_AreaUnitsEnum_SquareKilometers");
+/** @type {function(...*):?} */
+var _emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareFeetPerAcre = Module["_emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareFeetPerAcre"] = createExportWrapper("emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareFeetPerAcre");
+/** @type {function(...*):?} */
+var _emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareMetersPerHectare = Module["_emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareMetersPerHectare"] = createExportWrapper("emscripten_enum_BasalAreaUnits_BasalAreaUnitsEnum_SquareMetersPerHectare");
+/** @type {function(...*):?} */
+var _emscripten_enum_FractionUnits_FractionUnitsEnum_Fraction = Module["_emscripten_enum_FractionUnits_FractionUnitsEnum_Fraction"] = createExportWrapper("emscripten_enum_FractionUnits_FractionUnitsEnum_Fraction");
+/** @type {function(...*):?} */
+var _emscripten_enum_FractionUnits_FractionUnitsEnum_Percent = Module["_emscripten_enum_FractionUnits_FractionUnitsEnum_Percent"] = createExportWrapper("emscripten_enum_FractionUnits_FractionUnitsEnum_Percent");
+/** @type {function(...*):?} */
+var _emscripten_enum_LengthUnits_LengthUnitsEnum_Feet = Module["_emscripten_enum_LengthUnits_LengthUnitsEnum_Feet"] = createExportWrapper("emscripten_enum_LengthUnits_LengthUnitsEnum_Feet");
+/** @type {function(...*):?} */
+var _emscripten_enum_LengthUnits_LengthUnitsEnum_Inches = Module["_emscripten_enum_LengthUnits_LengthUnitsEnum_Inches"] = createExportWrapper("emscripten_enum_LengthUnits_LengthUnitsEnum_Inches");
+/** @type {function(...*):?} */
+var _emscripten_enum_LengthUnits_LengthUnitsEnum_Millimeters = Module["_emscripten_enum_LengthUnits_LengthUnitsEnum_Millimeters"] = createExportWrapper("emscripten_enum_LengthUnits_LengthUnitsEnum_Millimeters");
+/** @type {function(...*):?} */
+var _emscripten_enum_LengthUnits_LengthUnitsEnum_Centimeters = Module["_emscripten_enum_LengthUnits_LengthUnitsEnum_Centimeters"] = createExportWrapper("emscripten_enum_LengthUnits_LengthUnitsEnum_Centimeters");
+/** @type {function(...*):?} */
+var _emscripten_enum_LengthUnits_LengthUnitsEnum_Meters = Module["_emscripten_enum_LengthUnits_LengthUnitsEnum_Meters"] = createExportWrapper("emscripten_enum_LengthUnits_LengthUnitsEnum_Meters");
+/** @type {function(...*):?} */
+var _emscripten_enum_LengthUnits_LengthUnitsEnum_Chains = Module["_emscripten_enum_LengthUnits_LengthUnitsEnum_Chains"] = createExportWrapper("emscripten_enum_LengthUnits_LengthUnitsEnum_Chains");
+/** @type {function(...*):?} */
+var _emscripten_enum_LengthUnits_LengthUnitsEnum_Miles = Module["_emscripten_enum_LengthUnits_LengthUnitsEnum_Miles"] = createExportWrapper("emscripten_enum_LengthUnits_LengthUnitsEnum_Miles");
+/** @type {function(...*):?} */
+var _emscripten_enum_LengthUnits_LengthUnitsEnum_Kilometers = Module["_emscripten_enum_LengthUnits_LengthUnitsEnum_Kilometers"] = createExportWrapper("emscripten_enum_LengthUnits_LengthUnitsEnum_Kilometers");
+/** @type {function(...*):?} */
+var _emscripten_enum_LoadingUnits_LoadingUnitsEnum_PoundsPerSquareFoot = Module["_emscripten_enum_LoadingUnits_LoadingUnitsEnum_PoundsPerSquareFoot"] = createExportWrapper("emscripten_enum_LoadingUnits_LoadingUnitsEnum_PoundsPerSquareFoot");
+/** @type {function(...*):?} */
+var _emscripten_enum_LoadingUnits_LoadingUnitsEnum_TonsPerAcre = Module["_emscripten_enum_LoadingUnits_LoadingUnitsEnum_TonsPerAcre"] = createExportWrapper("emscripten_enum_LoadingUnits_LoadingUnitsEnum_TonsPerAcre");
+/** @type {function(...*):?} */
+var _emscripten_enum_LoadingUnits_LoadingUnitsEnum_TonnesPerHectare = Module["_emscripten_enum_LoadingUnits_LoadingUnitsEnum_TonnesPerHectare"] = createExportWrapper("emscripten_enum_LoadingUnits_LoadingUnitsEnum_TonnesPerHectare");
+/** @type {function(...*):?} */
+var _emscripten_enum_LoadingUnits_LoadingUnitsEnum_KilogramsPerSquareMeter = Module["_emscripten_enum_LoadingUnits_LoadingUnitsEnum_KilogramsPerSquareMeter"] = createExportWrapper("emscripten_enum_LoadingUnits_LoadingUnitsEnum_KilogramsPerSquareMeter");
+/** @type {function(...*):?} */
+var _emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareFeetOverCubicFeet = Module["_emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareFeetOverCubicFeet"] = createExportWrapper("emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareFeetOverCubicFeet");
+/** @type {function(...*):?} */
+var _emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareMetersOverCubicMeters = Module["_emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareMetersOverCubicMeters"] = createExportWrapper("emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareMetersOverCubicMeters");
+/** @type {function(...*):?} */
+var _emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareInchesOverCubicInches = Module["_emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareInchesOverCubicInches"] = createExportWrapper("emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareInchesOverCubicInches");
+/** @type {function(...*):?} */
+var _emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareCentimetersOverCubicCentimeters = Module["_emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareCentimetersOverCubicCentimeters"] = createExportWrapper("emscripten_enum_SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum_SquareCentimetersOverCubicCentimeters");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpeedUnits_SpeedUnitsEnum_FeetPerMinute = Module["_emscripten_enum_SpeedUnits_SpeedUnitsEnum_FeetPerMinute"] = createExportWrapper("emscripten_enum_SpeedUnits_SpeedUnitsEnum_FeetPerMinute");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpeedUnits_SpeedUnitsEnum_ChainsPerHour = Module["_emscripten_enum_SpeedUnits_SpeedUnitsEnum_ChainsPerHour"] = createExportWrapper("emscripten_enum_SpeedUnits_SpeedUnitsEnum_ChainsPerHour");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpeedUnits_SpeedUnitsEnum_MetersPerSecond = Module["_emscripten_enum_SpeedUnits_SpeedUnitsEnum_MetersPerSecond"] = createExportWrapper("emscripten_enum_SpeedUnits_SpeedUnitsEnum_MetersPerSecond");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpeedUnits_SpeedUnitsEnum_MetersPerMinute = Module["_emscripten_enum_SpeedUnits_SpeedUnitsEnum_MetersPerMinute"] = createExportWrapper("emscripten_enum_SpeedUnits_SpeedUnitsEnum_MetersPerMinute");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpeedUnits_SpeedUnitsEnum_MilesPerHour = Module["_emscripten_enum_SpeedUnits_SpeedUnitsEnum_MilesPerHour"] = createExportWrapper("emscripten_enum_SpeedUnits_SpeedUnitsEnum_MilesPerHour");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpeedUnits_SpeedUnitsEnum_KilometersPerHour = Module["_emscripten_enum_SpeedUnits_SpeedUnitsEnum_KilometersPerHour"] = createExportWrapper("emscripten_enum_SpeedUnits_SpeedUnitsEnum_KilometersPerHour");
+/** @type {function(...*):?} */
+var _emscripten_enum_PressureUnits_PressureUnitsEnum_Pascal = Module["_emscripten_enum_PressureUnits_PressureUnitsEnum_Pascal"] = createExportWrapper("emscripten_enum_PressureUnits_PressureUnitsEnum_Pascal");
+/** @type {function(...*):?} */
+var _emscripten_enum_PressureUnits_PressureUnitsEnum_HectoPascal = Module["_emscripten_enum_PressureUnits_PressureUnitsEnum_HectoPascal"] = createExportWrapper("emscripten_enum_PressureUnits_PressureUnitsEnum_HectoPascal");
+/** @type {function(...*):?} */
+var _emscripten_enum_PressureUnits_PressureUnitsEnum_KiloPascal = Module["_emscripten_enum_PressureUnits_PressureUnitsEnum_KiloPascal"] = createExportWrapper("emscripten_enum_PressureUnits_PressureUnitsEnum_KiloPascal");
+/** @type {function(...*):?} */
+var _emscripten_enum_PressureUnits_PressureUnitsEnum_MegaPascal = Module["_emscripten_enum_PressureUnits_PressureUnitsEnum_MegaPascal"] = createExportWrapper("emscripten_enum_PressureUnits_PressureUnitsEnum_MegaPascal");
+/** @type {function(...*):?} */
+var _emscripten_enum_PressureUnits_PressureUnitsEnum_GigaPascal = Module["_emscripten_enum_PressureUnits_PressureUnitsEnum_GigaPascal"] = createExportWrapper("emscripten_enum_PressureUnits_PressureUnitsEnum_GigaPascal");
+/** @type {function(...*):?} */
+var _emscripten_enum_PressureUnits_PressureUnitsEnum_Bar = Module["_emscripten_enum_PressureUnits_PressureUnitsEnum_Bar"] = createExportWrapper("emscripten_enum_PressureUnits_PressureUnitsEnum_Bar");
+/** @type {function(...*):?} */
+var _emscripten_enum_PressureUnits_PressureUnitsEnum_Atmosphere = Module["_emscripten_enum_PressureUnits_PressureUnitsEnum_Atmosphere"] = createExportWrapper("emscripten_enum_PressureUnits_PressureUnitsEnum_Atmosphere");
+/** @type {function(...*):?} */
+var _emscripten_enum_PressureUnits_PressureUnitsEnum_TechnicalAtmosphere = Module["_emscripten_enum_PressureUnits_PressureUnitsEnum_TechnicalAtmosphere"] = createExportWrapper("emscripten_enum_PressureUnits_PressureUnitsEnum_TechnicalAtmosphere");
+/** @type {function(...*):?} */
+var _emscripten_enum_PressureUnits_PressureUnitsEnum_PoundPerSquareInch = Module["_emscripten_enum_PressureUnits_PressureUnitsEnum_PoundPerSquareInch"] = createExportWrapper("emscripten_enum_PressureUnits_PressureUnitsEnum_PoundPerSquareInch");
+/** @type {function(...*):?} */
+var _emscripten_enum_SlopeUnits_SlopeUnitsEnum_Degrees = Module["_emscripten_enum_SlopeUnits_SlopeUnitsEnum_Degrees"] = createExportWrapper("emscripten_enum_SlopeUnits_SlopeUnitsEnum_Degrees");
+/** @type {function(...*):?} */
+var _emscripten_enum_SlopeUnits_SlopeUnitsEnum_Percent = Module["_emscripten_enum_SlopeUnits_SlopeUnitsEnum_Percent"] = createExportWrapper("emscripten_enum_SlopeUnits_SlopeUnitsEnum_Percent");
+/** @type {function(...*):?} */
+var _emscripten_enum_DensityUnits_DensityUnitsEnum_PoundsPerCubicFoot = Module["_emscripten_enum_DensityUnits_DensityUnitsEnum_PoundsPerCubicFoot"] = createExportWrapper("emscripten_enum_DensityUnits_DensityUnitsEnum_PoundsPerCubicFoot");
+/** @type {function(...*):?} */
+var _emscripten_enum_DensityUnits_DensityUnitsEnum_KilogramsPerCubicMeter = Module["_emscripten_enum_DensityUnits_DensityUnitsEnum_KilogramsPerCubicMeter"] = createExportWrapper("emscripten_enum_DensityUnits_DensityUnitsEnum_KilogramsPerCubicMeter");
+/** @type {function(...*):?} */
+var _emscripten_enum_HeatOfCombustionUnits_HeatOfCombustionUnitsEnum_BtusPerPound = Module["_emscripten_enum_HeatOfCombustionUnits_HeatOfCombustionUnitsEnum_BtusPerPound"] = createExportWrapper("emscripten_enum_HeatOfCombustionUnits_HeatOfCombustionUnitsEnum_BtusPerPound");
+/** @type {function(...*):?} */
+var _emscripten_enum_HeatOfCombustionUnits_HeatOfCombustionUnitsEnum_KilojoulesPerKilogram = Module["_emscripten_enum_HeatOfCombustionUnits_HeatOfCombustionUnitsEnum_KilojoulesPerKilogram"] = createExportWrapper("emscripten_enum_HeatOfCombustionUnits_HeatOfCombustionUnitsEnum_KilojoulesPerKilogram");
+/** @type {function(...*):?} */
+var _emscripten_enum_HeatSinkUnits_HeatSinkUnitsEnum_BtusPerCubicFoot = Module["_emscripten_enum_HeatSinkUnits_HeatSinkUnitsEnum_BtusPerCubicFoot"] = createExportWrapper("emscripten_enum_HeatSinkUnits_HeatSinkUnitsEnum_BtusPerCubicFoot");
+/** @type {function(...*):?} */
+var _emscripten_enum_HeatSinkUnits_HeatSinkUnitsEnum_KilojoulesPerCubicMeter = Module["_emscripten_enum_HeatSinkUnits_HeatSinkUnitsEnum_KilojoulesPerCubicMeter"] = createExportWrapper("emscripten_enum_HeatSinkUnits_HeatSinkUnitsEnum_KilojoulesPerCubicMeter");
+/** @type {function(...*):?} */
+var _emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_BtusPerSquareFoot = Module["_emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_BtusPerSquareFoot"] = createExportWrapper("emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_BtusPerSquareFoot");
+/** @type {function(...*):?} */
+var _emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_KilojoulesPerSquareMeter = Module["_emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_KilojoulesPerSquareMeter"] = createExportWrapper("emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_KilojoulesPerSquareMeter");
+/** @type {function(...*):?} */
+var _emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_KilowattSecondsPerSquareMeter = Module["_emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_KilowattSecondsPerSquareMeter"] = createExportWrapper("emscripten_enum_HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum_KilowattSecondsPerSquareMeter");
+/** @type {function(...*):?} */
+var _emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_BtusPerSquareFootPerMinute = Module["_emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_BtusPerSquareFootPerMinute"] = createExportWrapper("emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_BtusPerSquareFootPerMinute");
+/** @type {function(...*):?} */
+var _emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_BtusPerSquareFootPerSecond = Module["_emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_BtusPerSquareFootPerSecond"] = createExportWrapper("emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_BtusPerSquareFootPerSecond");
+/** @type {function(...*):?} */
+var _emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_KilojoulesPerSquareMeterPerSecond = Module["_emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_KilojoulesPerSquareMeterPerSecond"] = createExportWrapper("emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_KilojoulesPerSquareMeterPerSecond");
+/** @type {function(...*):?} */
+var _emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_KilojoulesPerSquareMeterPerMinute = Module["_emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_KilojoulesPerSquareMeterPerMinute"] = createExportWrapper("emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_KilojoulesPerSquareMeterPerMinute");
+/** @type {function(...*):?} */
+var _emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_KilowattsPerSquareMeter = Module["_emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_KilowattsPerSquareMeter"] = createExportWrapper("emscripten_enum_HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum_KilowattsPerSquareMeter");
+/** @type {function(...*):?} */
+var _emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_BtusPerFootPerSecond = Module["_emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_BtusPerFootPerSecond"] = createExportWrapper("emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_BtusPerFootPerSecond");
+/** @type {function(...*):?} */
+var _emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_BtusPerFootPerMinute = Module["_emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_BtusPerFootPerMinute"] = createExportWrapper("emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_BtusPerFootPerMinute");
+/** @type {function(...*):?} */
+var _emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_KilojoulesPerMeterPerSecond = Module["_emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_KilojoulesPerMeterPerSecond"] = createExportWrapper("emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_KilojoulesPerMeterPerSecond");
+/** @type {function(...*):?} */
+var _emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_KilojoulesPerMeterPerMinute = Module["_emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_KilojoulesPerMeterPerMinute"] = createExportWrapper("emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_KilojoulesPerMeterPerMinute");
+/** @type {function(...*):?} */
+var _emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_KilowattsPerMeter = Module["_emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_KilowattsPerMeter"] = createExportWrapper("emscripten_enum_FirelineIntensityUnits_FirelineIntensityUnitsEnum_KilowattsPerMeter");
+/** @type {function(...*):?} */
+var _emscripten_enum_TemperatureUnits_TemperatureUnitsEnum_Fahrenheit = Module["_emscripten_enum_TemperatureUnits_TemperatureUnitsEnum_Fahrenheit"] = createExportWrapper("emscripten_enum_TemperatureUnits_TemperatureUnitsEnum_Fahrenheit");
+/** @type {function(...*):?} */
+var _emscripten_enum_TemperatureUnits_TemperatureUnitsEnum_Celsius = Module["_emscripten_enum_TemperatureUnits_TemperatureUnitsEnum_Celsius"] = createExportWrapper("emscripten_enum_TemperatureUnits_TemperatureUnitsEnum_Celsius");
+/** @type {function(...*):?} */
+var _emscripten_enum_TemperatureUnits_TemperatureUnitsEnum_Kelvin = Module["_emscripten_enum_TemperatureUnits_TemperatureUnitsEnum_Kelvin"] = createExportWrapper("emscripten_enum_TemperatureUnits_TemperatureUnitsEnum_Kelvin");
+/** @type {function(...*):?} */
+var _emscripten_enum_TimeUnits_TimeUnitsEnum_Minutes = Module["_emscripten_enum_TimeUnits_TimeUnitsEnum_Minutes"] = createExportWrapper("emscripten_enum_TimeUnits_TimeUnitsEnum_Minutes");
+/** @type {function(...*):?} */
+var _emscripten_enum_TimeUnits_TimeUnitsEnum_Seconds = Module["_emscripten_enum_TimeUnits_TimeUnitsEnum_Seconds"] = createExportWrapper("emscripten_enum_TimeUnits_TimeUnitsEnum_Seconds");
+/** @type {function(...*):?} */
+var _emscripten_enum_TimeUnits_TimeUnitsEnum_Hours = Module["_emscripten_enum_TimeUnits_TimeUnitsEnum_Hours"] = createExportWrapper("emscripten_enum_TimeUnits_TimeUnitsEnum_Hours");
+/** @type {function(...*):?} */
+var _emscripten_enum_ContainTactic_ContainTacticEnum_HeadAttack = Module["_emscripten_enum_ContainTactic_ContainTacticEnum_HeadAttack"] = createExportWrapper("emscripten_enum_ContainTactic_ContainTacticEnum_HeadAttack");
+/** @type {function(...*):?} */
+var _emscripten_enum_ContainTactic_ContainTacticEnum_RearAttack = Module["_emscripten_enum_ContainTactic_ContainTacticEnum_RearAttack"] = createExportWrapper("emscripten_enum_ContainTactic_ContainTacticEnum_RearAttack");
+/** @type {function(...*):?} */
+var _emscripten_enum_ContainStatus_ContainStatusEnum_Unreported = Module["_emscripten_enum_ContainStatus_ContainStatusEnum_Unreported"] = createExportWrapper("emscripten_enum_ContainStatus_ContainStatusEnum_Unreported");
+/** @type {function(...*):?} */
+var _emscripten_enum_ContainStatus_ContainStatusEnum_Reported = Module["_emscripten_enum_ContainStatus_ContainStatusEnum_Reported"] = createExportWrapper("emscripten_enum_ContainStatus_ContainStatusEnum_Reported");
+/** @type {function(...*):?} */
+var _emscripten_enum_ContainStatus_ContainStatusEnum_Attacked = Module["_emscripten_enum_ContainStatus_ContainStatusEnum_Attacked"] = createExportWrapper("emscripten_enum_ContainStatus_ContainStatusEnum_Attacked");
+/** @type {function(...*):?} */
+var _emscripten_enum_ContainStatus_ContainStatusEnum_Contained = Module["_emscripten_enum_ContainStatus_ContainStatusEnum_Contained"] = createExportWrapper("emscripten_enum_ContainStatus_ContainStatusEnum_Contained");
+/** @type {function(...*):?} */
+var _emscripten_enum_ContainStatus_ContainStatusEnum_Overrun = Module["_emscripten_enum_ContainStatus_ContainStatusEnum_Overrun"] = createExportWrapper("emscripten_enum_ContainStatus_ContainStatusEnum_Overrun");
+/** @type {function(...*):?} */
+var _emscripten_enum_ContainStatus_ContainStatusEnum_Exhausted = Module["_emscripten_enum_ContainStatus_ContainStatusEnum_Exhausted"] = createExportWrapper("emscripten_enum_ContainStatus_ContainStatusEnum_Exhausted");
+/** @type {function(...*):?} */
+var _emscripten_enum_ContainStatus_ContainStatusEnum_Overflow = Module["_emscripten_enum_ContainStatus_ContainStatusEnum_Overflow"] = createExportWrapper("emscripten_enum_ContainStatus_ContainStatusEnum_Overflow");
+/** @type {function(...*):?} */
+var _emscripten_enum_ContainStatus_ContainStatusEnum_SizeLimitExceeded = Module["_emscripten_enum_ContainStatus_ContainStatusEnum_SizeLimitExceeded"] = createExportWrapper("emscripten_enum_ContainStatus_ContainStatusEnum_SizeLimitExceeded");
+/** @type {function(...*):?} */
+var _emscripten_enum_ContainStatus_ContainStatusEnum_TimeLimitExceeded = Module["_emscripten_enum_ContainStatus_ContainStatusEnum_TimeLimitExceeded"] = createExportWrapper("emscripten_enum_ContainStatus_ContainStatusEnum_TimeLimitExceeded");
+/** @type {function(...*):?} */
+var _emscripten_enum_ContainFlank_ContainFlankEnum_LeftFlank = Module["_emscripten_enum_ContainFlank_ContainFlankEnum_LeftFlank"] = createExportWrapper("emscripten_enum_ContainFlank_ContainFlankEnum_LeftFlank");
+/** @type {function(...*):?} */
+var _emscripten_enum_ContainFlank_ContainFlankEnum_RightFlank = Module["_emscripten_enum_ContainFlank_ContainFlankEnum_RightFlank"] = createExportWrapper("emscripten_enum_ContainFlank_ContainFlankEnum_RightFlank");
+/** @type {function(...*):?} */
+var _emscripten_enum_ContainFlank_ContainFlankEnum_BothFlanks = Module["_emscripten_enum_ContainFlank_ContainFlankEnum_BothFlanks"] = createExportWrapper("emscripten_enum_ContainFlank_ContainFlankEnum_BothFlanks");
+/** @type {function(...*):?} */
+var _emscripten_enum_ContainFlank_ContainFlankEnum_NeitherFlank = Module["_emscripten_enum_ContainFlank_ContainFlankEnum_NeitherFlank"] = createExportWrapper("emscripten_enum_ContainFlank_ContainFlankEnum_NeitherFlank");
+/** @type {function(...*):?} */
+var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PonderosaPineLitter = Module["_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PonderosaPineLitter"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PonderosaPineLitter");
+/** @type {function(...*):?} */
+var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodRottenChunky = Module["_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodRottenChunky"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodRottenChunky");
+/** @type {function(...*):?} */
+var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodPowderDeep = Module["_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodPowderDeep"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodPowderDeep");
+/** @type {function(...*):?} */
+var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkWoodPowderShallow = Module["_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkWoodPowderShallow"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkWoodPowderShallow");
+/** @type {function(...*):?} */
+var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_LodgepolePineDuff = Module["_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_LodgepolePineDuff"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_LodgepolePineDuff");
+/** @type {function(...*):?} */
+var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_DouglasFirDuff = Module["_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_DouglasFirDuff"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_DouglasFirDuff");
+/** @type {function(...*):?} */
+var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_HighAltitudeMixed = Module["_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_HighAltitudeMixed"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_HighAltitudeMixed");
+/** @type {function(...*):?} */
+var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PeatMoss = Module["_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PeatMoss"] = createExportWrapper("emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PeatMoss");
+/** @type {function(...*):?} */
+var _emscripten_enum_LightningCharge_LightningChargeEnum_Negative = Module["_emscripten_enum_LightningCharge_LightningChargeEnum_Negative"] = createExportWrapper("emscripten_enum_LightningCharge_LightningChargeEnum_Negative");
+/** @type {function(...*):?} */
+var _emscripten_enum_LightningCharge_LightningChargeEnum_Positive = Module["_emscripten_enum_LightningCharge_LightningChargeEnum_Positive"] = createExportWrapper("emscripten_enum_LightningCharge_LightningChargeEnum_Positive");
+/** @type {function(...*):?} */
+var _emscripten_enum_LightningCharge_LightningChargeEnum_Unknown = Module["_emscripten_enum_LightningCharge_LightningChargeEnum_Unknown"] = createExportWrapper("emscripten_enum_LightningCharge_LightningChargeEnum_Unknown");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum_CLOSED = Module["_emscripten_enum_SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum_CLOSED"] = createExportWrapper("emscripten_enum_SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum_CLOSED");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum_OPEN = Module["_emscripten_enum_SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum_OPEN"] = createExportWrapper("emscripten_enum_SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum_OPEN");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_ENGELMANN_SPRUCE = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_ENGELMANN_SPRUCE"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_ENGELMANN_SPRUCE");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_DOUGLAS_FIR = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_DOUGLAS_FIR"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_DOUGLAS_FIR");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SUBALPINE_FIR = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SUBALPINE_FIR"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SUBALPINE_FIR");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_WESTERN_HEMLOCK = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_WESTERN_HEMLOCK"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_WESTERN_HEMLOCK");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_PONDEROSA_PINE = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_PONDEROSA_PINE"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_PONDEROSA_PINE");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LODGEPOLE_PINE = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LODGEPOLE_PINE"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LODGEPOLE_PINE");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_WESTERN_WHITE_PINE = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_WESTERN_WHITE_PINE"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_WESTERN_WHITE_PINE");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_GRAND_FIR = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_GRAND_FIR"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_GRAND_FIR");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_BALSAM_FIR = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_BALSAM_FIR"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_BALSAM_FIR");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SLASH_PINE = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SLASH_PINE"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SLASH_PINE");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LONGLEAF_PINE = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LONGLEAF_PINE"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LONGLEAF_PINE");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_POND_PINE = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_POND_PINE"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_POND_PINE");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SHORTLEAF_PINE = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SHORTLEAF_PINE"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_SHORTLEAF_PINE");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LOBLOLLY_PINE = Module["_emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LOBLOLLY_PINE"] = createExportWrapper("emscripten_enum_SpotTreeSpecies_SpotTreeSpeciesEnum_LOBLOLLY_PINE");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotFireLocation_SpotFireLocationEnum_MIDSLOPE_WINDWARD = Module["_emscripten_enum_SpotFireLocation_SpotFireLocationEnum_MIDSLOPE_WINDWARD"] = createExportWrapper("emscripten_enum_SpotFireLocation_SpotFireLocationEnum_MIDSLOPE_WINDWARD");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotFireLocation_SpotFireLocationEnum_VALLEY_BOTTOM = Module["_emscripten_enum_SpotFireLocation_SpotFireLocationEnum_VALLEY_BOTTOM"] = createExportWrapper("emscripten_enum_SpotFireLocation_SpotFireLocationEnum_VALLEY_BOTTOM");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotFireLocation_SpotFireLocationEnum_MIDSLOPE_LEEWARD = Module["_emscripten_enum_SpotFireLocation_SpotFireLocationEnum_MIDSLOPE_LEEWARD"] = createExportWrapper("emscripten_enum_SpotFireLocation_SpotFireLocationEnum_MIDSLOPE_LEEWARD");
+/** @type {function(...*):?} */
+var _emscripten_enum_SpotFireLocation_SpotFireLocationEnum_RIDGE_TOP = Module["_emscripten_enum_SpotFireLocation_SpotFireLocationEnum_RIDGE_TOP"] = createExportWrapper("emscripten_enum_SpotFireLocation_SpotFireLocationEnum_RIDGE_TOP");
+/** @type {function(...*):?} */
+var _emscripten_enum_FuelLifeState_FuelLifeStateEnum_Dead = Module["_emscripten_enum_FuelLifeState_FuelLifeStateEnum_Dead"] = createExportWrapper("emscripten_enum_FuelLifeState_FuelLifeStateEnum_Dead");
+/** @type {function(...*):?} */
+var _emscripten_enum_FuelLifeState_FuelLifeStateEnum_Live = Module["_emscripten_enum_FuelLifeState_FuelLifeStateEnum_Live"] = createExportWrapper("emscripten_enum_FuelLifeState_FuelLifeStateEnum_Live");
+/** @type {function(...*):?} */
+var _emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxLifeStates = Module["_emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxLifeStates"] = createExportWrapper("emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxLifeStates");
+/** @type {function(...*):?} */
+var _emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxLiveSizeClasses = Module["_emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxLiveSizeClasses"] = createExportWrapper("emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxLiveSizeClasses");
+/** @type {function(...*):?} */
+var _emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxDeadSizeClasses = Module["_emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxDeadSizeClasses"] = createExportWrapper("emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxDeadSizeClasses");
+/** @type {function(...*):?} */
+var _emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxParticles = Module["_emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxParticles"] = createExportWrapper("emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxParticles");
+/** @type {function(...*):?} */
+var _emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxSavrSizeClasses = Module["_emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxSavrSizeClasses"] = createExportWrapper("emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxSavrSizeClasses");
+/** @type {function(...*):?} */
+var _emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxFuelModels = Module["_emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxFuelModels"] = createExportWrapper("emscripten_enum_FuelConstantsEnum_FuelConstantsEnum_MaxFuelModels");
+/** @type {function(...*):?} */
+var _emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Low = Module["_emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Low"] = createExportWrapper("emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Low");
+/** @type {function(...*):?} */
+var _emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Moderate = Module["_emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Moderate"] = createExportWrapper("emscripten_enum_AspenFireSeverity_AspenFireSeverityEnum_Moderate");
+/** @type {function(...*):?} */
+var _emscripten_enum_ChaparralFuelType_ChaparralFuelTypeEnum_NotSet = Module["_emscripten_enum_ChaparralFuelType_ChaparralFuelTypeEnum_NotSet"] = createExportWrapper("emscripten_enum_ChaparralFuelType_ChaparralFuelTypeEnum_NotSet");
+/** @type {function(...*):?} */
+var _emscripten_enum_ChaparralFuelType_ChaparralFuelTypeEnum_Chamise = Module["_emscripten_enum_ChaparralFuelType_ChaparralFuelTypeEnum_Chamise"] = createExportWrapper("emscripten_enum_ChaparralFuelType_ChaparralFuelTypeEnum_Chamise");
+/** @type {function(...*):?} */
+var _emscripten_enum_ChaparralFuelType_ChaparralFuelTypeEnum_MixedBrush = Module["_emscripten_enum_ChaparralFuelType_ChaparralFuelTypeEnum_MixedBrush"] = createExportWrapper("emscripten_enum_ChaparralFuelType_ChaparralFuelTypeEnum_MixedBrush");
+/** @type {function(...*):?} */
+var _emscripten_enum_ChaparralFuelLoadInputMode_ChaparralFuelInputLoadModeEnum_DirectFuelLoad = Module["_emscripten_enum_ChaparralFuelLoadInputMode_ChaparralFuelInputLoadModeEnum_DirectFuelLoad"] = createExportWrapper("emscripten_enum_ChaparralFuelLoadInputMode_ChaparralFuelInputLoadModeEnum_DirectFuelLoad");
+/** @type {function(...*):?} */
+var _emscripten_enum_ChaparralFuelLoadInputMode_ChaparralFuelInputLoadModeEnum_FuelLoadFromDepthAndChaparralType = Module["_emscripten_enum_ChaparralFuelLoadInputMode_ChaparralFuelInputLoadModeEnum_FuelLoadFromDepthAndChaparralType"] = createExportWrapper("emscripten_enum_ChaparralFuelLoadInputMode_ChaparralFuelInputLoadModeEnum_FuelLoadFromDepthAndChaparralType");
+/** @type {function(...*):?} */
+var _emscripten_enum_MoistureInputMode_MoistureInputModeEnum_BySizeClass = Module["_emscripten_enum_MoistureInputMode_MoistureInputModeEnum_BySizeClass"] = createExportWrapper("emscripten_enum_MoistureInputMode_MoistureInputModeEnum_BySizeClass");
+/** @type {function(...*):?} */
+var _emscripten_enum_MoistureInputMode_MoistureInputModeEnum_AllAggregate = Module["_emscripten_enum_MoistureInputMode_MoistureInputModeEnum_AllAggregate"] = createExportWrapper("emscripten_enum_MoistureInputMode_MoistureInputModeEnum_AllAggregate");
+/** @type {function(...*):?} */
+var _emscripten_enum_MoistureInputMode_MoistureInputModeEnum_DeadAggregateAndLiveSizeClass = Module["_emscripten_enum_MoistureInputMode_MoistureInputModeEnum_DeadAggregateAndLiveSizeClass"] = createExportWrapper("emscripten_enum_MoistureInputMode_MoistureInputModeEnum_DeadAggregateAndLiveSizeClass");
+/** @type {function(...*):?} */
+var _emscripten_enum_MoistureInputMode_MoistureInputModeEnum_LiveAggregateAndDeadSizeClass = Module["_emscripten_enum_MoistureInputMode_MoistureInputModeEnum_LiveAggregateAndDeadSizeClass"] = createExportWrapper("emscripten_enum_MoistureInputMode_MoistureInputModeEnum_LiveAggregateAndDeadSizeClass");
+/** @type {function(...*):?} */
+var _emscripten_enum_MoistureInputMode_MoistureInputModeEnum_MoistureScenario = Module["_emscripten_enum_MoistureInputMode_MoistureInputModeEnum_MoistureScenario"] = createExportWrapper("emscripten_enum_MoistureInputMode_MoistureInputModeEnum_MoistureScenario");
+/** @type {function(...*):?} */
+var _emscripten_enum_MoistureClassInput_MoistureClassInputEnum_OneHour = Module["_emscripten_enum_MoistureClassInput_MoistureClassInputEnum_OneHour"] = createExportWrapper("emscripten_enum_MoistureClassInput_MoistureClassInputEnum_OneHour");
+/** @type {function(...*):?} */
+var _emscripten_enum_MoistureClassInput_MoistureClassInputEnum_TenHour = Module["_emscripten_enum_MoistureClassInput_MoistureClassInputEnum_TenHour"] = createExportWrapper("emscripten_enum_MoistureClassInput_MoistureClassInputEnum_TenHour");
+/** @type {function(...*):?} */
+var _emscripten_enum_MoistureClassInput_MoistureClassInputEnum_HundredHour = Module["_emscripten_enum_MoistureClassInput_MoistureClassInputEnum_HundredHour"] = createExportWrapper("emscripten_enum_MoistureClassInput_MoistureClassInputEnum_HundredHour");
+/** @type {function(...*):?} */
+var _emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveHerbaceous = Module["_emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveHerbaceous"] = createExportWrapper("emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveHerbaceous");
+/** @type {function(...*):?} */
+var _emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveWoody = Module["_emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveWoody"] = createExportWrapper("emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveWoody");
+/** @type {function(...*):?} */
+var _emscripten_enum_MoistureClassInput_MoistureClassInputEnum_DeadAggregate = Module["_emscripten_enum_MoistureClassInput_MoistureClassInputEnum_DeadAggregate"] = createExportWrapper("emscripten_enum_MoistureClassInput_MoistureClassInputEnum_DeadAggregate");
+/** @type {function(...*):?} */
+var _emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveAggregate = Module["_emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveAggregate"] = createExportWrapper("emscripten_enum_MoistureClassInput_MoistureClassInputEnum_LiveAggregate");
+/** @type {function(...*):?} */
+var _emscripten_enum_SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum_FromIgnitionPoint = Module["_emscripten_enum_SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum_FromIgnitionPoint"] = createExportWrapper("emscripten_enum_SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum_FromIgnitionPoint");
+/** @type {function(...*):?} */
+var _emscripten_enum_SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum_FromPerimeter = Module["_emscripten_enum_SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum_FromPerimeter"] = createExportWrapper("emscripten_enum_SurfaceFireSpreadDirectionMode_SurfaceFireSpreadDirectionModeEnum_FromPerimeter");
+/** @type {function(...*):?} */
+var _emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_NoMethod = Module["_emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_NoMethod"] = createExportWrapper("emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_NoMethod");
+/** @type {function(...*):?} */
+var _emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_Arithmetic = Module["_emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_Arithmetic"] = createExportWrapper("emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_Arithmetic");
+/** @type {function(...*):?} */
+var _emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_Harmonic = Module["_emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_Harmonic"] = createExportWrapper("emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_Harmonic");
+/** @type {function(...*):?} */
+var _emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_TwoDimensional = Module["_emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_TwoDimensional"] = createExportWrapper("emscripten_enum_TwoFuelModelsMethod_TwoFuelModelsMethodEnum_TwoDimensional");
+/** @type {function(...*):?} */
+var _emscripten_enum_WindAdjustmentFactorShelterMethod_WindAdjustmentFactorShelterMethodEnum_Unsheltered = Module["_emscripten_enum_WindAdjustmentFactorShelterMethod_WindAdjustmentFactorShelterMethodEnum_Unsheltered"] = createExportWrapper("emscripten_enum_WindAdjustmentFactorShelterMethod_WindAdjustmentFactorShelterMethodEnum_Unsheltered");
+/** @type {function(...*):?} */
+var _emscripten_enum_WindAdjustmentFactorShelterMethod_WindAdjustmentFactorShelterMethodEnum_Sheltered = Module["_emscripten_enum_WindAdjustmentFactorShelterMethod_WindAdjustmentFactorShelterMethodEnum_Sheltered"] = createExportWrapper("emscripten_enum_WindAdjustmentFactorShelterMethod_WindAdjustmentFactorShelterMethodEnum_Sheltered");
+/** @type {function(...*):?} */
+var _emscripten_enum_WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum_UserInput = Module["_emscripten_enum_WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum_UserInput"] = createExportWrapper("emscripten_enum_WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum_UserInput");
+/** @type {function(...*):?} */
+var _emscripten_enum_WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum_UseCrownRatio = Module["_emscripten_enum_WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum_UseCrownRatio"] = createExportWrapper("emscripten_enum_WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum_UseCrownRatio");
+/** @type {function(...*):?} */
+var _emscripten_enum_WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum_DontUseCrownRatio = Module["_emscripten_enum_WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum_DontUseCrownRatio"] = createExportWrapper("emscripten_enum_WindAdjustmentFactorCalculationMethod_WindAdjustmentFactorCalculationMethodEnum_DontUseCrownRatio");
+/** @type {function(...*):?} */
+var _emscripten_enum_WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum_RelativeToUpslope = Module["_emscripten_enum_WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum_RelativeToUpslope"] = createExportWrapper("emscripten_enum_WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum_RelativeToUpslope");
+/** @type {function(...*):?} */
+var _emscripten_enum_WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum_RelativeToNorth = Module["_emscripten_enum_WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum_RelativeToNorth"] = createExportWrapper("emscripten_enum_WindAndSpreadOrientationMode_WindAndSpreadOrientationModeEnum_RelativeToNorth");
+/** @type {function(...*):?} */
+var _emscripten_enum_WindHeightInputMode_WindHeightInputModeEnum_DirectMidflame = Module["_emscripten_enum_WindHeightInputMode_WindHeightInputModeEnum_DirectMidflame"] = createExportWrapper("emscripten_enum_WindHeightInputMode_WindHeightInputModeEnum_DirectMidflame");
+/** @type {function(...*):?} */
+var _emscripten_enum_WindHeightInputMode_WindHeightInputModeEnum_TwentyFoot = Module["_emscripten_enum_WindHeightInputMode_WindHeightInputModeEnum_TwentyFoot"] = createExportWrapper("emscripten_enum_WindHeightInputMode_WindHeightInputModeEnum_TwentyFoot");
+/** @type {function(...*):?} */
+var _emscripten_enum_WindHeightInputMode_WindHeightInputModeEnum_TenMeter = Module["_emscripten_enum_WindHeightInputMode_WindHeightInputModeEnum_TenMeter"] = createExportWrapper("emscripten_enum_WindHeightInputMode_WindHeightInputModeEnum_TenMeter");
+/** @type {function(...*):?} */
+var _emscripten_enum_WindUpslopeAlignmentMode_NotAligned = Module["_emscripten_enum_WindUpslopeAlignmentMode_NotAligned"] = createExportWrapper("emscripten_enum_WindUpslopeAlignmentMode_NotAligned");
+/** @type {function(...*):?} */
+var _emscripten_enum_WindUpslopeAlignmentMode_Aligned = Module["_emscripten_enum_WindUpslopeAlignmentMode_Aligned"] = createExportWrapper("emscripten_enum_WindUpslopeAlignmentMode_Aligned");
+/** @type {function(...*):?} */
+var _emscripten_enum_SurfaceRunInDirectionOf_MaxSpread = Module["_emscripten_enum_SurfaceRunInDirectionOf_MaxSpread"] = createExportWrapper("emscripten_enum_SurfaceRunInDirectionOf_MaxSpread");
+/** @type {function(...*):?} */
+var _emscripten_enum_SurfaceRunInDirectionOf_DirectionOfInterest = Module["_emscripten_enum_SurfaceRunInDirectionOf_DirectionOfInterest"] = createExportWrapper("emscripten_enum_SurfaceRunInDirectionOf_DirectionOfInterest");
+/** @type {function(...*):?} */
+var _emscripten_enum_FireType_FireTypeEnum_Surface = Module["_emscripten_enum_FireType_FireTypeEnum_Surface"] = createExportWrapper("emscripten_enum_FireType_FireTypeEnum_Surface");
+/** @type {function(...*):?} */
+var _emscripten_enum_FireType_FireTypeEnum_Torching = Module["_emscripten_enum_FireType_FireTypeEnum_Torching"] = createExportWrapper("emscripten_enum_FireType_FireTypeEnum_Torching");
+/** @type {function(...*):?} */
+var _emscripten_enum_FireType_FireTypeEnum_ConditionalCrownFire = Module["_emscripten_enum_FireType_FireTypeEnum_ConditionalCrownFire"] = createExportWrapper("emscripten_enum_FireType_FireTypeEnum_ConditionalCrownFire");
+/** @type {function(...*):?} */
+var _emscripten_enum_FireType_FireTypeEnum_Crowning = Module["_emscripten_enum_FireType_FireTypeEnum_Crowning"] = createExportWrapper("emscripten_enum_FireType_FireTypeEnum_Crowning");
+/** @type {function(...*):?} */
+var _emscripten_enum_BeetleDamage_not_set = Module["_emscripten_enum_BeetleDamage_not_set"] = createExportWrapper("emscripten_enum_BeetleDamage_not_set");
+/** @type {function(...*):?} */
+var _emscripten_enum_BeetleDamage_no = Module["_emscripten_enum_BeetleDamage_no"] = createExportWrapper("emscripten_enum_BeetleDamage_no");
+/** @type {function(...*):?} */
+var _emscripten_enum_BeetleDamage_yes = Module["_emscripten_enum_BeetleDamage_yes"] = createExportWrapper("emscripten_enum_BeetleDamage_yes");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownFireCalculationMethod_rothermel = Module["_emscripten_enum_CrownFireCalculationMethod_rothermel"] = createExportWrapper("emscripten_enum_CrownFireCalculationMethod_rothermel");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownFireCalculationMethod_scott_and_reinhardt = Module["_emscripten_enum_CrownFireCalculationMethod_scott_and_reinhardt"] = createExportWrapper("emscripten_enum_CrownFireCalculationMethod_scott_and_reinhardt");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageEquationCode_not_set = Module["_emscripten_enum_CrownDamageEquationCode_not_set"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_not_set");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageEquationCode_white_fir = Module["_emscripten_enum_CrownDamageEquationCode_white_fir"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_white_fir");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageEquationCode_subalpine_fir = Module["_emscripten_enum_CrownDamageEquationCode_subalpine_fir"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_subalpine_fir");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageEquationCode_incense_cedar = Module["_emscripten_enum_CrownDamageEquationCode_incense_cedar"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_incense_cedar");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageEquationCode_western_larch = Module["_emscripten_enum_CrownDamageEquationCode_western_larch"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_western_larch");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageEquationCode_whitebark_pine = Module["_emscripten_enum_CrownDamageEquationCode_whitebark_pine"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_whitebark_pine");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageEquationCode_engelmann_spruce = Module["_emscripten_enum_CrownDamageEquationCode_engelmann_spruce"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_engelmann_spruce");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageEquationCode_sugar_pine = Module["_emscripten_enum_CrownDamageEquationCode_sugar_pine"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_sugar_pine");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageEquationCode_red_fir = Module["_emscripten_enum_CrownDamageEquationCode_red_fir"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_red_fir");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageEquationCode_ponderosa_pine = Module["_emscripten_enum_CrownDamageEquationCode_ponderosa_pine"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_ponderosa_pine");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageEquationCode_ponderosa_kill = Module["_emscripten_enum_CrownDamageEquationCode_ponderosa_kill"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_ponderosa_kill");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageEquationCode_douglas_fir = Module["_emscripten_enum_CrownDamageEquationCode_douglas_fir"] = createExportWrapper("emscripten_enum_CrownDamageEquationCode_douglas_fir");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageType_not_set = Module["_emscripten_enum_CrownDamageType_not_set"] = createExportWrapper("emscripten_enum_CrownDamageType_not_set");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageType_crown_length = Module["_emscripten_enum_CrownDamageType_crown_length"] = createExportWrapper("emscripten_enum_CrownDamageType_crown_length");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageType_crown_volume = Module["_emscripten_enum_CrownDamageType_crown_volume"] = createExportWrapper("emscripten_enum_CrownDamageType_crown_volume");
+/** @type {function(...*):?} */
+var _emscripten_enum_CrownDamageType_crown_kill = Module["_emscripten_enum_CrownDamageType_crown_kill"] = createExportWrapper("emscripten_enum_CrownDamageType_crown_kill");
+/** @type {function(...*):?} */
+var _emscripten_enum_EquationType_not_set = Module["_emscripten_enum_EquationType_not_set"] = createExportWrapper("emscripten_enum_EquationType_not_set");
+/** @type {function(...*):?} */
+var _emscripten_enum_EquationType_crown_scorch = Module["_emscripten_enum_EquationType_crown_scorch"] = createExportWrapper("emscripten_enum_EquationType_crown_scorch");
+/** @type {function(...*):?} */
+var _emscripten_enum_EquationType_bole_char = Module["_emscripten_enum_EquationType_bole_char"] = createExportWrapper("emscripten_enum_EquationType_bole_char");
+/** @type {function(...*):?} */
+var _emscripten_enum_EquationType_crown_damage = Module["_emscripten_enum_EquationType_crown_damage"] = createExportWrapper("emscripten_enum_EquationType_crown_damage");
+/** @type {function(...*):?} */
+var _emscripten_enum_FireSeverity_not_set = Module["_emscripten_enum_FireSeverity_not_set"] = createExportWrapper("emscripten_enum_FireSeverity_not_set");
+/** @type {function(...*):?} */
+var _emscripten_enum_FireSeverity_empty = Module["_emscripten_enum_FireSeverity_empty"] = createExportWrapper("emscripten_enum_FireSeverity_empty");
+/** @type {function(...*):?} */
+var _emscripten_enum_FireSeverity_low = Module["_emscripten_enum_FireSeverity_low"] = createExportWrapper("emscripten_enum_FireSeverity_low");
+/** @type {function(...*):?} */
+var _emscripten_enum_FlameLengthOrScorchHeightSwitch_flame_length = Module["_emscripten_enum_FlameLengthOrScorchHeightSwitch_flame_length"] = createExportWrapper("emscripten_enum_FlameLengthOrScorchHeightSwitch_flame_length");
+/** @type {function(...*):?} */
+var _emscripten_enum_FlameLengthOrScorchHeightSwitch_scorch_height = Module["_emscripten_enum_FlameLengthOrScorchHeightSwitch_scorch_height"] = createExportWrapper("emscripten_enum_FlameLengthOrScorchHeightSwitch_scorch_height");
+/** @type {function(...*):?} */
+var _emscripten_enum_RegionCode_interior_west = Module["_emscripten_enum_RegionCode_interior_west"] = createExportWrapper("emscripten_enum_RegionCode_interior_west");
+/** @type {function(...*):?} */
+var _emscripten_enum_RegionCode_pacific_west = Module["_emscripten_enum_RegionCode_pacific_west"] = createExportWrapper("emscripten_enum_RegionCode_pacific_west");
+/** @type {function(...*):?} */
+var _emscripten_enum_RegionCode_north_east = Module["_emscripten_enum_RegionCode_north_east"] = createExportWrapper("emscripten_enum_RegionCode_north_east");
+/** @type {function(...*):?} */
+var _emscripten_enum_RegionCode_south_east = Module["_emscripten_enum_RegionCode_south_east"] = createExportWrapper("emscripten_enum_RegionCode_south_east");
+/** @type {function(...*):?} */
+var _emscripten_enum_RequiredFieldNames_region = Module["_emscripten_enum_RequiredFieldNames_region"] = createExportWrapper("emscripten_enum_RequiredFieldNames_region");
+/** @type {function(...*):?} */
+var _emscripten_enum_RequiredFieldNames_flame_length_or_scorch_height_switch = Module["_emscripten_enum_RequiredFieldNames_flame_length_or_scorch_height_switch"] = createExportWrapper("emscripten_enum_RequiredFieldNames_flame_length_or_scorch_height_switch");
+/** @type {function(...*):?} */
+var _emscripten_enum_RequiredFieldNames_flame_length_or_scorch_height_value = Module["_emscripten_enum_RequiredFieldNames_flame_length_or_scorch_height_value"] = createExportWrapper("emscripten_enum_RequiredFieldNames_flame_length_or_scorch_height_value");
+/** @type {function(...*):?} */
+var _emscripten_enum_RequiredFieldNames_equation_type = Module["_emscripten_enum_RequiredFieldNames_equation_type"] = createExportWrapper("emscripten_enum_RequiredFieldNames_equation_type");
+/** @type {function(...*):?} */
+var _emscripten_enum_RequiredFieldNames_dbh = Module["_emscripten_enum_RequiredFieldNames_dbh"] = createExportWrapper("emscripten_enum_RequiredFieldNames_dbh");
+/** @type {function(...*):?} */
+var _emscripten_enum_RequiredFieldNames_tree_height = Module["_emscripten_enum_RequiredFieldNames_tree_height"] = createExportWrapper("emscripten_enum_RequiredFieldNames_tree_height");
+/** @type {function(...*):?} */
+var _emscripten_enum_RequiredFieldNames_crown_ratio = Module["_emscripten_enum_RequiredFieldNames_crown_ratio"] = createExportWrapper("emscripten_enum_RequiredFieldNames_crown_ratio");
+/** @type {function(...*):?} */
+var _emscripten_enum_RequiredFieldNames_crown_damage = Module["_emscripten_enum_RequiredFieldNames_crown_damage"] = createExportWrapper("emscripten_enum_RequiredFieldNames_crown_damage");
+/** @type {function(...*):?} */
+var _emscripten_enum_RequiredFieldNames_cambium_kill_rating = Module["_emscripten_enum_RequiredFieldNames_cambium_kill_rating"] = createExportWrapper("emscripten_enum_RequiredFieldNames_cambium_kill_rating");
+/** @type {function(...*):?} */
+var _emscripten_enum_RequiredFieldNames_beetle_damage = Module["_emscripten_enum_RequiredFieldNames_beetle_damage"] = createExportWrapper("emscripten_enum_RequiredFieldNames_beetle_damage");
+/** @type {function(...*):?} */
+var _emscripten_enum_RequiredFieldNames_bole_char_height = Module["_emscripten_enum_RequiredFieldNames_bole_char_height"] = createExportWrapper("emscripten_enum_RequiredFieldNames_bole_char_height");
+/** @type {function(...*):?} */
+var _emscripten_enum_RequiredFieldNames_bark_thickness = Module["_emscripten_enum_RequiredFieldNames_bark_thickness"] = createExportWrapper("emscripten_enum_RequiredFieldNames_bark_thickness");
+/** @type {function(...*):?} */
+var _emscripten_enum_RequiredFieldNames_fire_severity = Module["_emscripten_enum_RequiredFieldNames_fire_severity"] = createExportWrapper("emscripten_enum_RequiredFieldNames_fire_severity");
+/** @type {function(...*):?} */
+var _emscripten_enum_RequiredFieldNames_num_inputs = Module["_emscripten_enum_RequiredFieldNames_num_inputs"] = createExportWrapper("emscripten_enum_RequiredFieldNames_num_inputs");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_NORTH = Module["_emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_NORTH"] = createExportWrapper("emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_NORTH");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_EAST = Module["_emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_EAST"] = createExportWrapper("emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_EAST");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_SOUTH = Module["_emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_SOUTH"] = createExportWrapper("emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_SOUTH");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_WEST = Module["_emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_WEST"] = createExportWrapper("emscripten_enum_FDFMToolAspectIndex_AspectIndexEnum_WEST");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_TEN_TO_TWENTY_NINE_DEGREES_F = Module["_emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_TEN_TO_TWENTY_NINE_DEGREES_F"] = createExportWrapper("emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_TEN_TO_TWENTY_NINE_DEGREES_F");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_THRITY_TO_FOURTY_NINE_DEGREES_F = Module["_emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_THRITY_TO_FOURTY_NINE_DEGREES_F"] = createExportWrapper("emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_THRITY_TO_FOURTY_NINE_DEGREES_F");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_FIFTY_TO_SIXTY_NINE_DEGREES_F = Module["_emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_FIFTY_TO_SIXTY_NINE_DEGREES_F"] = createExportWrapper("emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_FIFTY_TO_SIXTY_NINE_DEGREES_F");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_SEVENTY_TO_EIGHTY_NINE_DEGREES_F = Module["_emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_SEVENTY_TO_EIGHTY_NINE_DEGREES_F"] = createExportWrapper("emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_SEVENTY_TO_EIGHTY_NINE_DEGREES_F");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_NINETY_TO_ONE_HUNDRED_NINE_DEGREES_F = Module["_emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_NINETY_TO_ONE_HUNDRED_NINE_DEGREES_F"] = createExportWrapper("emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_NINETY_TO_ONE_HUNDRED_NINE_DEGREES_F");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_GREATER_THAN_ONE_HUNDRED_NINE_DEGREES_F = Module["_emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_GREATER_THAN_ONE_HUNDRED_NINE_DEGREES_F"] = createExportWrapper("emscripten_enum_FDFMToolDryBulbIndex_DryBulbIndexEnum_GREATER_THAN_ONE_HUNDRED_NINE_DEGREES_F");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_BELOW_1000_TO_2000_FT = Module["_emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_BELOW_1000_TO_2000_FT"] = createExportWrapper("emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_BELOW_1000_TO_2000_FT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_LEVEL_WITHIN_1000_FT = Module["_emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_LEVEL_WITHIN_1000_FT"] = createExportWrapper("emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_LEVEL_WITHIN_1000_FT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_ABOVE_1000_TO_2000_FT = Module["_emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_ABOVE_1000_TO_2000_FT"] = createExportWrapper("emscripten_enum_FDFMToolElevationIndex_ElevationIndexEnum_ABOVE_1000_TO_2000_FT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_MAY_JUNE_JULY = Module["_emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_MAY_JUNE_JULY"] = createExportWrapper("emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_MAY_JUNE_JULY");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_FEB_MAR_APR_AUG_SEP_OCT = Module["_emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_FEB_MAR_APR_AUG_SEP_OCT"] = createExportWrapper("emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_FEB_MAR_APR_AUG_SEP_OCT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_NOV_DEC_JAN = Module["_emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_NOV_DEC_JAN"] = createExportWrapper("emscripten_enum_FDFMToolMonthIndex_MonthIndexEnum_NOV_DEC_JAN");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_ZERO_TO_FOUR_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_ZERO_TO_FOUR_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_ZERO_TO_FOUR_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIVE_TO_NINE_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIVE_TO_NINE_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIVE_TO_NINE_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TEN_TO_FOURTEEN_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TEN_TO_FOURTEEN_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TEN_TO_FOURTEEN_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTEEN_TO_NINETEEN_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTEEN_TO_NINETEEN_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTEEN_TO_NINETEEN_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TWENTY_TO_TWENTY_FOUR_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TWENTY_TO_TWENTY_FOUR_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TWENTY_TO_TWENTY_FOUR_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TWENTY_FIVE_TO_TWENTY_NINE_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TWENTY_FIVE_TO_TWENTY_NINE_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_TWENTY_FIVE_TO_TWENTY_NINE_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_THIRTY_TO_THIRTY_FOUR_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_THIRTY_TO_THIRTY_FOUR_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_THIRTY_TO_THIRTY_FOUR_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_THIRTY_FIVE_TO_THIRTY_NINE_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_THIRTY_FIVE_TO_THIRTY_NINE_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_THIRTY_FIVE_TO_THIRTY_NINE_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FORTY_TO_FORTY_FOUR_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FORTY_TO_FORTY_FOUR_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FORTY_TO_FORTY_FOUR_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FORTY_FIVE_TO_FORTY_NINE_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FORTY_FIVE_TO_FORTY_NINE_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FORTY_FIVE_TO_FORTY_NINE_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTY_TO_FIFTY_FOUR_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTY_TO_FIFTY_FOUR_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTY_TO_FIFTY_FOUR_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTY_FIVE_TO_FIFTY_NINE_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTY_FIVE_TO_FIFTY_NINE_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_FIFTY_FIVE_TO_FIFTY_NINE_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SIXTY_TO_SIXTY_FOUR_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SIXTY_TO_SIXTY_FOUR_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SIXTY_TO_SIXTY_FOUR_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SIXTY_FIVE_TO_SIXTY_NINE_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SIXTY_FIVE_TO_SIXTY_NINE_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SIXTY_FIVE_TO_SIXTY_NINE_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SEVENTY_TO_SEVENTY_FOUR_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SEVENTY_TO_SEVENTY_FOUR_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SEVENTY_TO_SEVENTY_FOUR_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SEVENTY_FIVE_TO_SEVENTY_NINE_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SEVENTY_FIVE_TO_SEVENTY_NINE_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_SEVENTY_FIVE_TO_SEVENTY_NINE_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_EIGHTY_TO_EIGHTY_FOUR_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_EIGHTY_TO_EIGHTY_FOUR_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_EIGHTY_TO_EIGHTY_FOUR_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_EIGHTY_FIVE_TO_EIGHTY_NINE_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_EIGHTY_FIVE_TO_EIGHTY_NINE_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_EIGHTY_FIVE_TO_EIGHTY_NINE_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_NINETY_TO_NINETY_FOUR_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_NINETY_TO_NINETY_FOUR_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_NINETY_TO_NINETY_FOUR_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_NINETY_FIVE_TO_NINETY_NINE_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_NINETY_FIVE_TO_NINETY_NINE_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_NINETY_FIVE_TO_NINETY_NINE_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolRHIndex_RHIndexEnum_ONE_HUNDRED_PERCENT = Module["_emscripten_enum_FDFMToolRHIndex_RHIndexEnum_ONE_HUNDRED_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolRHIndex_RHIndexEnum_ONE_HUNDRED_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolShadingIndex_ShadingIndexEnum_EXPOSED = Module["_emscripten_enum_FDFMToolShadingIndex_ShadingIndexEnum_EXPOSED"] = createExportWrapper("emscripten_enum_FDFMToolShadingIndex_ShadingIndexEnum_EXPOSED");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolShadingIndex_ShadingIndexEnum_SHADED = Module["_emscripten_enum_FDFMToolShadingIndex_ShadingIndexEnum_SHADED"] = createExportWrapper("emscripten_enum_FDFMToolShadingIndex_ShadingIndexEnum_SHADED");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolSlopeIndex_SlopeIndexEnum_ZERO_TO_THIRTY_PERCENT = Module["_emscripten_enum_FDFMToolSlopeIndex_SlopeIndexEnum_ZERO_TO_THIRTY_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolSlopeIndex_SlopeIndexEnum_ZERO_TO_THIRTY_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolSlopeIndex_SlopeIndexEnum_GREATER_THAN_OR_EQUAL_TO_THIRTY_ONE_PERCENT = Module["_emscripten_enum_FDFMToolSlopeIndex_SlopeIndexEnum_GREATER_THAN_OR_EQUAL_TO_THIRTY_ONE_PERCENT"] = createExportWrapper("emscripten_enum_FDFMToolSlopeIndex_SlopeIndexEnum_GREATER_THAN_OR_EQUAL_TO_THIRTY_ONE_PERCENT");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_EIGHT_HUNDRED_HOURS_TO_NINE_HUNDRED_FIFTY_NINE = Module["_emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_EIGHT_HUNDRED_HOURS_TO_NINE_HUNDRED_FIFTY_NINE"] = createExportWrapper("emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_EIGHT_HUNDRED_HOURS_TO_NINE_HUNDRED_FIFTY_NINE");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_TEN_HUNDRED_HOURS_TO_ELEVEN__HUNDRED_FIFTY_NINE = Module["_emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_TEN_HUNDRED_HOURS_TO_ELEVEN__HUNDRED_FIFTY_NINE"] = createExportWrapper("emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_TEN_HUNDRED_HOURS_TO_ELEVEN__HUNDRED_FIFTY_NINE");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_TWELVE_HUNDRED_HOURS_TO_THIRTEEN_HUNDRED_FIFTY_NINE = Module["_emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_TWELVE_HUNDRED_HOURS_TO_THIRTEEN_HUNDRED_FIFTY_NINE"] = createExportWrapper("emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_TWELVE_HUNDRED_HOURS_TO_THIRTEEN_HUNDRED_FIFTY_NINE");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_FOURTEEN_HUNDRED_HOURS_TO_FIFTEEN_HUNDRED_FIFTY_NINE = Module["_emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_FOURTEEN_HUNDRED_HOURS_TO_FIFTEEN_HUNDRED_FIFTY_NINE"] = createExportWrapper("emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_FOURTEEN_HUNDRED_HOURS_TO_FIFTEEN_HUNDRED_FIFTY_NINE");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_SIXTEEN_HUNDRED_HOURS_TO_SIXTEEN_HUNDRED_FIFTY_NINE = Module["_emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_SIXTEEN_HUNDRED_HOURS_TO_SIXTEEN_HUNDRED_FIFTY_NINE"] = createExportWrapper("emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_SIXTEEN_HUNDRED_HOURS_TO_SIXTEEN_HUNDRED_FIFTY_NINE");
+/** @type {function(...*):?} */
+var _emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_EIGHTTEEN_HUNDRED_HOURS_TO_SUNSET = Module["_emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_EIGHTTEEN_HUNDRED_HOURS_TO_SUNSET"] = createExportWrapper("emscripten_enum_FDFMToolTimeOfDayIndex_TimeOfDayIndexEnum_EIGHTTEEN_HUNDRED_HOURS_TO_SUNSET");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_NINTEEN_HUNDRED_EIGHTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_NINTEEN_HUNDRED_EIGHTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_NINTEEN_HUNDRED_EIGHTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_THREE_THOUSAND_NINEHUNDRED_SIXTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_THREE_THOUSAND_NINEHUNDRED_SIXTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_THREE_THOUSAND_NINEHUNDRED_SIXTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SEVEN_THOUSAND_NINEHUNDRED_TWENTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SEVEN_THOUSAND_NINEHUNDRED_TWENTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SEVEN_THOUSAND_NINEHUNDRED_TWENTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TEN_THOUSAND = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TEN_THOUSAND"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TEN_THOUSAND");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIFTEEN_THOUSAND_EIGHT_HUNDRED_FORTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIFTEEN_THOUSAND_EIGHT_HUNDRED_FORTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIFTEEN_THOUSAND_EIGHT_HUNDRED_FORTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWENTY_ONE_THOUSAND_ONE_HUNDRED_TWENTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWENTY_ONE_THOUSAND_ONE_HUNDRED_TWENTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWENTY_ONE_THOUSAND_ONE_HUNDRED_TWENTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWENTY_FOUR_THOUSAND = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWENTY_FOUR_THOUSAND"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWENTY_FOUR_THOUSAND");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_THRITY_ONE_THOUSAND_SIX_HUNDRED_EIGHTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_THRITY_ONE_THOUSAND_SIX_HUNDRED_EIGHTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_THRITY_ONE_THOUSAND_SIX_HUNDRED_EIGHTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIFTY_THOUSAND = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIFTY_THOUSAND"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIFTY_THOUSAND");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SIXTY_TWO_THOUSAND_FIVE_HUNDRED = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SIXTY_TWO_THOUSAND_FIVE_HUNDRED"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SIXTY_TWO_THOUSAND_FIVE_HUNDRED");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SIXTY_THREE_THOUSAND_THREE_HUNDRED_SIXTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SIXTY_THREE_THOUSAND_THREE_HUNDRED_SIXTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_SIXTY_THREE_THOUSAND_THREE_HUNDRED_SIXTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_HUNDRED_THOUSAND = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_HUNDRED_THOUSAND"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_HUNDRED_THOUSAND");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_HUNDRED_TWENTY_SIX_THOUSAND_SEVEN_HUNDRED_TWENTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_HUNDRED_TWENTY_SIX_THOUSAND_SEVEN_HUNDRED_TWENTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_HUNDRED_TWENTY_SIX_THOUSAND_SEVEN_HUNDRED_TWENTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWO_HUNDRED_FIFTY_THOUSAND = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWO_HUNDRED_FIFTY_THOUSAND"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWO_HUNDRED_FIFTY_THOUSAND");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWO_HUNDRED_FIFTY_THREE_THOUSAND_FOUR_HUNDRED_FORTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWO_HUNDRED_FIFTY_THREE_THOUSAND_FOUR_HUNDRED_FORTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_TWO_HUNDRED_FIFTY_THREE_THOUSAND_FOUR_HUNDRED_FORTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIVE_HUNDRED_SIX_THOUSAND_EIGHT_HUNDRED_EIGHTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIVE_HUNDRED_SIX_THOUSAND_EIGHT_HUNDRED_EIGHTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_FIVE_HUNDRED_SIX_THOUSAND_EIGHT_HUNDRED_EIGHTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_MILLION = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_MILLION"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_MILLION");
+/** @type {function(...*):?} */
+var _emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_MILLION_THIRTEEN_THOUSAND_SEVEN_HUNDRED_SIXTY = Module["_emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_MILLION_THIRTEEN_THOUSAND_SEVEN_HUNDRED_SIXTY"] = createExportWrapper("emscripten_enum_RepresentativeFraction_RepresentativeFractionEnum_ONE_MILLION_THIRTEEN_THOUSAND_SEVEN_HUNDRED_SIXTY");
+/** @type {function(...*):?} */
+var _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_UPSLOPE_ZERO_DEGREES = Module["_emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_UPSLOPE_ZERO_DEGREES"] = createExportWrapper("emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_UPSLOPE_ZERO_DEGREES");
+/** @type {function(...*):?} */
+var _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_FIFTEEN_DEGREES_FROM_UPSLOPE = Module["_emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_FIFTEEN_DEGREES_FROM_UPSLOPE"] = createExportWrapper("emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_FIFTEEN_DEGREES_FROM_UPSLOPE");
+/** @type {function(...*):?} */
+var _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_THIRTY_DEGREES_FROM_UPSLOPE = Module["_emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_THIRTY_DEGREES_FROM_UPSLOPE"] = createExportWrapper("emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_THIRTY_DEGREES_FROM_UPSLOPE");
+/** @type {function(...*):?} */
+var _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_FORTY_FIVE_DEGREES_FROM_UPSLOPE = Module["_emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_FORTY_FIVE_DEGREES_FROM_UPSLOPE"] = createExportWrapper("emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_FORTY_FIVE_DEGREES_FROM_UPSLOPE");
+/** @type {function(...*):?} */
+var _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_SIXTY_DEGREES_FROM_UPSLOPE = Module["_emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_SIXTY_DEGREES_FROM_UPSLOPE"] = createExportWrapper("emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_SIXTY_DEGREES_FROM_UPSLOPE");
+/** @type {function(...*):?} */
+var _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_SEVENTY_FIVE_DEGREES_FROM_UPSLOPE = Module["_emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_SEVENTY_FIVE_DEGREES_FROM_UPSLOPE"] = createExportWrapper("emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_SEVENTY_FIVE_DEGREES_FROM_UPSLOPE");
+/** @type {function(...*):?} */
+var _emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_CROSS_SLOPE_NINETY_DEGREES = Module["_emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_CROSS_SLOPE_NINETY_DEGREES"] = createExportWrapper("emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_CROSS_SLOPE_NINETY_DEGREES");
+/** @type {function(...*):?} */
+var ___cxa_free_exception = createExportWrapper("__cxa_free_exception");
+/** @type {function(...*):?} */
+var ___errno_location = createExportWrapper("__errno_location");
+/** @type {function(...*):?} */
+var _malloc = Module["_malloc"] = createExportWrapper("malloc");
+/** @type {function(...*):?} */
+var _free = Module["_free"] = createExportWrapper("free");
+/** @type {function(...*):?} */
+var _setThrew = createExportWrapper("setThrew");
+/** @type {function(...*):?} */
+var setTempRet0 = createExportWrapper("setTempRet0");
+/** @type {function(...*):?} */
+var _emscripten_stack_init = function() {
+  return (_emscripten_stack_init = Module["asm"]["emscripten_stack_init"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var _emscripten_stack_get_free = function() {
+  return (_emscripten_stack_get_free = Module["asm"]["emscripten_stack_get_free"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var _emscripten_stack_get_base = function() {
+  return (_emscripten_stack_get_base = Module["asm"]["emscripten_stack_get_base"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var _emscripten_stack_get_end = function() {
+  return (_emscripten_stack_get_end = Module["asm"]["emscripten_stack_get_end"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var stackSave = createExportWrapper("stackSave");
+/** @type {function(...*):?} */
+var stackRestore = createExportWrapper("stackRestore");
+/** @type {function(...*):?} */
+var stackAlloc = createExportWrapper("stackAlloc");
+/** @type {function(...*):?} */
+var _emscripten_stack_get_current = function() {
+  return (_emscripten_stack_get_current = Module["asm"]["emscripten_stack_get_current"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var ___get_exception_message = Module["___get_exception_message"] = createExportWrapper("__get_exception_message");
+/** @type {function(...*):?} */
+var ___cxa_can_catch = createExportWrapper("__cxa_can_catch");
+/** @type {function(...*):?} */
+var ___cxa_is_pointer_type = createExportWrapper("__cxa_is_pointer_type");
+/** @type {function(...*):?} */
+var dynCall_jiji = Module["dynCall_jiji"] = createExportWrapper("dynCall_jiji");
+var ___start_em_js = Module['___start_em_js'] = 117608;
+var ___stop_em_js = Module['___stop_em_js'] = 117706;
+>>>>>>> main
 function invoke_vii(index,a1,a2) {
   var sp = stackSave();
   try {
@@ -8332,6 +10483,12 @@ SIGSpot.prototype['getMaxMountainousTerrainSpottingDistanceFromTorchingTrees'] =
   return _emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromTorchingTrees_1(self, spottingDistanceUnits);
 };;
 
+SIGSpot.prototype['getMaxMountainousTerrainSpottingDistanceFromActiveCrown'] = SIGSpot.prototype.getMaxMountainousTerrainSpottingDistanceFromActiveCrown = /** @suppress {undefinedVars, duplicate} @this{Object} */function(spottingDistanceUnits) {
+  var self = this.ptr;
+  if (spottingDistanceUnits && typeof spottingDistanceUnits === 'object') spottingDistanceUnits = spottingDistanceUnits.ptr;
+  return _emscripten_bind_SIGSpot_getMaxMountainousTerrainSpottingDistanceFromActiveCrown_1(self, spottingDistanceUnits);
+};;
+
 SIGSpot.prototype['getRidgeToValleyDistance'] = SIGSpot.prototype.getRidgeToValleyDistance = /** @suppress {undefinedVars, duplicate} @this{Object} */function(ridgeToValleyDistanceUnits) {
   var self = this.ptr;
   if (ridgeToValleyDistanceUnits && typeof ridgeToValleyDistanceUnits === 'object') ridgeToValleyDistanceUnits = ridgeToValleyDistanceUnits.ptr;
@@ -8424,6 +10581,12 @@ SIGSpot.prototype['setDownwindCoverHeight'] = SIGSpot.prototype.setDownwindCover
   if (downwindCoverHeight && typeof downwindCoverHeight === 'object') downwindCoverHeight = downwindCoverHeight.ptr;
   if (coverHeightUnits && typeof coverHeightUnits === 'object') coverHeightUnits = coverHeightUnits.ptr;
   _emscripten_bind_SIGSpot_setDownwindCoverHeight_2(self, downwindCoverHeight, coverHeightUnits);
+};;
+
+SIGSpot.prototype['setFireType'] = SIGSpot.prototype.setFireType = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fireType) {
+  var self = this.ptr;
+  if (fireType && typeof fireType === 'object') fireType = fireType.ptr;
+  _emscripten_bind_SIGSpot_setFireType_1(self, fireType);
 };;
 
 SIGSpot.prototype['setFlameLength'] = SIGSpot.prototype.setFlameLength = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameLength, flameLengthUnits) {
@@ -9147,9 +11310,10 @@ SIGSurface.prototype['getCharacteristicSAVR'] = SIGSurface.prototype.getCharacte
   return _emscripten_bind_SIGSurface_getCharacteristicSAVR_1(self, savrUnits);
 };;
 
-SIGSurface.prototype['getCrownRatio'] = SIGSurface.prototype.getCrownRatio = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+SIGSurface.prototype['getCrownRatio'] = SIGSurface.prototype.getCrownRatio = /** @suppress {undefinedVars, duplicate} @this{Object} */function(crownRatioUnits) {
   var self = this.ptr;
-  return _emscripten_bind_SIGSurface_getCrownRatio_0(self);
+  if (crownRatioUnits && typeof crownRatioUnits === 'object') crownRatioUnits = crownRatioUnits.ptr;
+  return _emscripten_bind_SIGSurface_getCrownRatio_1(self, crownRatioUnits);
 };;
 
 SIGSurface.prototype['getDirectionOfMaxSpread'] = SIGSurface.prototype.getDirectionOfMaxSpread = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
@@ -9236,10 +11400,22 @@ SIGSurface.prototype['getFirelineIntensity'] = SIGSurface.prototype.getFirelineI
   return _emscripten_bind_SIGSurface_getFirelineIntensity_1(self, firelineIntensityUnits);
 };;
 
+SIGSurface.prototype['getFirelineIntensityInDirectionOfInterest'] = SIGSurface.prototype.getFirelineIntensityInDirectionOfInterest = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firelineIntensityUnits) {
+  var self = this.ptr;
+  if (firelineIntensityUnits && typeof firelineIntensityUnits === 'object') firelineIntensityUnits = firelineIntensityUnits.ptr;
+  return _emscripten_bind_SIGSurface_getFirelineIntensityInDirectionOfInterest_1(self, firelineIntensityUnits);
+};;
+
 SIGSurface.prototype['getFlameLength'] = SIGSurface.prototype.getFlameLength = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameLengthUnits) {
   var self = this.ptr;
   if (flameLengthUnits && typeof flameLengthUnits === 'object') flameLengthUnits = flameLengthUnits.ptr;
   return _emscripten_bind_SIGSurface_getFlameLength_1(self, flameLengthUnits);
+};;
+
+SIGSurface.prototype['getFlameLengthInDirectionOfInterest'] = SIGSurface.prototype.getFlameLengthInDirectionOfInterest = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameLengthUnits) {
+  var self = this.ptr;
+  if (flameLengthUnits && typeof flameLengthUnits === 'object') flameLengthUnits = flameLengthUnits.ptr;
+  return _emscripten_bind_SIGSurface_getFlameLengthInDirectionOfInterest_1(self, flameLengthUnits);
 };;
 
 SIGSurface.prototype['getFlankingFirelineIntensity'] = SIGSurface.prototype.getFlankingFirelineIntensity = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firelineIntensityUnits) {
@@ -9823,10 +11999,11 @@ SIGSurface.prototype['setChaparralTotalFuelLoad'] = SIGSurface.prototype.setChap
   _emscripten_bind_SIGSurface_setChaparralTotalFuelLoad_2(self, chaparralTotalFuelLoad, fuelLoadUnits);
 };;
 
-SIGSurface.prototype['setCrownRatio'] = SIGSurface.prototype.setCrownRatio = /** @suppress {undefinedVars, duplicate} @this{Object} */function(crownRatio) {
+SIGSurface.prototype['setCrownRatio'] = SIGSurface.prototype.setCrownRatio = /** @suppress {undefinedVars, duplicate} @this{Object} */function(crownRatio, crownRatioUnits) {
   var self = this.ptr;
   if (crownRatio && typeof crownRatio === 'object') crownRatio = crownRatio.ptr;
-  _emscripten_bind_SIGSurface_setCrownRatio_1(self, crownRatio);
+  if (crownRatioUnits && typeof crownRatioUnits === 'object') crownRatioUnits = crownRatioUnits.ptr;
+  _emscripten_bind_SIGSurface_setCrownRatio_2(self, crownRatio, crownRatioUnits);
 };;
 
 SIGSurface.prototype['setDirectionOfInterest'] = SIGSurface.prototype.setDirectionOfInterest = /** @suppress {undefinedVars, duplicate} @this{Object} */function(directionOfInterest) {
@@ -10029,7 +12206,7 @@ SIGSurface.prototype['setWindSpeed'] = SIGSurface.prototype.setWindSpeed = /** @
   _emscripten_bind_SIGSurface_setWindSpeed_2(self, windSpeed, windSpeedUnits);
 };;
 
-SIGSurface.prototype['updateSurfaceInputs'] = SIGSurface.prototype.updateSurfaceInputs = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyHeightUnits, crownRatio) {
+SIGSurface.prototype['updateSurfaceInputs'] = SIGSurface.prototype.updateSurfaceInputs = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyHeightUnits, crownRatio, crownRatioUnits) {
   var self = this.ptr;
   if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
   if (moistureOneHour && typeof moistureOneHour === 'object') moistureOneHour = moistureOneHour.ptr;
@@ -10051,10 +12228,11 @@ SIGSurface.prototype['updateSurfaceInputs'] = SIGSurface.prototype.updateSurface
   if (canopyHeight && typeof canopyHeight === 'object') canopyHeight = canopyHeight.ptr;
   if (canopyHeightUnits && typeof canopyHeightUnits === 'object') canopyHeightUnits = canopyHeightUnits.ptr;
   if (crownRatio && typeof crownRatio === 'object') crownRatio = crownRatio.ptr;
-  _emscripten_bind_SIGSurface_updateSurfaceInputs_20(self, fuelModelNumber, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyHeightUnits, crownRatio);
+  if (crownRatioUnits && typeof crownRatioUnits === 'object') crownRatioUnits = crownRatioUnits.ptr;
+  _emscripten_bind_SIGSurface_updateSurfaceInputs_21(self, fuelModelNumber, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyHeightUnits, crownRatio, crownRatioUnits);
 };;
 
-SIGSurface.prototype['updateSurfaceInputsForPalmettoGallbery'] = SIGSurface.prototype.updateSurfaceInputsForPalmettoGallbery = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, ageOfRough, heightOfUnderstory, palmettoCoverage, overstoryBasalArea, basalAreaUnits, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyHeightUnits, crownRatio) {
+SIGSurface.prototype['updateSurfaceInputsForPalmettoGallbery'] = SIGSurface.prototype.updateSurfaceInputsForPalmettoGallbery = /** @suppress {undefinedVars, duplicate} @this{Object} */function(moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, ageOfRough, heightOfUnderstory, palmettoCoverage, overstoryBasalArea, basalAreaUnits, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyHeightUnits, crownRatio, crownRatioUnits) {
   var self = this.ptr;
   if (moistureOneHour && typeof moistureOneHour === 'object') moistureOneHour = moistureOneHour.ptr;
   if (moistureTenHour && typeof moistureTenHour === 'object') moistureTenHour = moistureTenHour.ptr;
@@ -10080,10 +12258,11 @@ SIGSurface.prototype['updateSurfaceInputsForPalmettoGallbery'] = SIGSurface.prot
   if (canopyHeight && typeof canopyHeight === 'object') canopyHeight = canopyHeight.ptr;
   if (canopyHeightUnits && typeof canopyHeightUnits === 'object') canopyHeightUnits = canopyHeightUnits.ptr;
   if (crownRatio && typeof crownRatio === 'object') crownRatio = crownRatio.ptr;
-  _emscripten_bind_SIGSurface_updateSurfaceInputsForPalmettoGallbery_24(self, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, ageOfRough, heightOfUnderstory, palmettoCoverage, overstoryBasalArea, basalAreaUnits, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyHeightUnits, crownRatio);
+  if (crownRatioUnits && typeof crownRatioUnits === 'object') crownRatioUnits = crownRatioUnits.ptr;
+  _emscripten_bind_SIGSurface_updateSurfaceInputsForPalmettoGallbery_25(self, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, ageOfRough, heightOfUnderstory, palmettoCoverage, overstoryBasalArea, basalAreaUnits, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyHeightUnits, crownRatio, crownRatioUnits);
 };;
 
-SIGSurface.prototype['updateSurfaceInputsForTwoFuelModels'] = SIGSurface.prototype.updateSurfaceInputsForTwoFuelModels = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firstFuelModelNumber, secondFuelModelNumber, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, firstFuelModelCoverage, firstFuelModelCoverageUnits, twoFuelModelsMethod, slope, slopeUnits, aspect, canopyCover, canopyFractionUnits, canopyHeight, canopyHeightUnits, crownRatio) {
+SIGSurface.prototype['updateSurfaceInputsForTwoFuelModels'] = SIGSurface.prototype.updateSurfaceInputsForTwoFuelModels = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firstFuelModelNumber, secondFuelModelNumber, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, firstFuelModelCoverage, firstFuelModelCoverageUnits, twoFuelModelsMethod, slope, slopeUnits, aspect, canopyCover, canopyFractionUnits, canopyHeight, canopyHeightUnits, crownRatio, crownRatioUnitso) {
   var self = this.ptr;
   if (firstFuelModelNumber && typeof firstFuelModelNumber === 'object') firstFuelModelNumber = firstFuelModelNumber.ptr;
   if (secondFuelModelNumber && typeof secondFuelModelNumber === 'object') secondFuelModelNumber = secondFuelModelNumber.ptr;
@@ -10109,10 +12288,11 @@ SIGSurface.prototype['updateSurfaceInputsForTwoFuelModels'] = SIGSurface.prototy
   if (canopyHeight && typeof canopyHeight === 'object') canopyHeight = canopyHeight.ptr;
   if (canopyHeightUnits && typeof canopyHeightUnits === 'object') canopyHeightUnits = canopyHeightUnits.ptr;
   if (crownRatio && typeof crownRatio === 'object') crownRatio = crownRatio.ptr;
-  _emscripten_bind_SIGSurface_updateSurfaceInputsForTwoFuelModels_24(self, firstFuelModelNumber, secondFuelModelNumber, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, firstFuelModelCoverage, firstFuelModelCoverageUnits, twoFuelModelsMethod, slope, slopeUnits, aspect, canopyCover, canopyFractionUnits, canopyHeight, canopyHeightUnits, crownRatio);
+  if (crownRatioUnitso && typeof crownRatioUnitso === 'object') crownRatioUnitso = crownRatioUnitso.ptr;
+  _emscripten_bind_SIGSurface_updateSurfaceInputsForTwoFuelModels_25(self, firstFuelModelNumber, secondFuelModelNumber, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, firstFuelModelCoverage, firstFuelModelCoverageUnits, twoFuelModelsMethod, slope, slopeUnits, aspect, canopyCover, canopyFractionUnits, canopyHeight, canopyHeightUnits, crownRatio, crownRatioUnitso);
 };;
 
-SIGSurface.prototype['updateSurfaceInputsForWesternAspen'] = SIGSurface.prototype.updateSurfaceInputsForWesternAspen = /** @suppress {undefinedVars, duplicate} @this{Object} */function(aspenFuelModelNumber, aspenCuringLevel, curingLevelUnits, aspenFireSeverity, dbh, dbhUnits, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyHeightUnits, crownRatio) {
+SIGSurface.prototype['updateSurfaceInputsForWesternAspen'] = SIGSurface.prototype.updateSurfaceInputsForWesternAspen = /** @suppress {undefinedVars, duplicate} @this{Object} */function(aspenFuelModelNumber, aspenCuringLevel, curingLevelUnits, aspenFireSeverity, dbh, dbhUnits, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyHeightUnits, crownRatio, crownRatioUnits) {
   var self = this.ptr;
   if (aspenFuelModelNumber && typeof aspenFuelModelNumber === 'object') aspenFuelModelNumber = aspenFuelModelNumber.ptr;
   if (aspenCuringLevel && typeof aspenCuringLevel === 'object') aspenCuringLevel = aspenCuringLevel.ptr;
@@ -10139,7 +12319,8 @@ SIGSurface.prototype['updateSurfaceInputsForWesternAspen'] = SIGSurface.prototyp
   if (canopyHeight && typeof canopyHeight === 'object') canopyHeight = canopyHeight.ptr;
   if (canopyHeightUnits && typeof canopyHeightUnits === 'object') canopyHeightUnits = canopyHeightUnits.ptr;
   if (crownRatio && typeof crownRatio === 'object') crownRatio = crownRatio.ptr;
-  _emscripten_bind_SIGSurface_updateSurfaceInputsForWesternAspen_25(self, aspenFuelModelNumber, aspenCuringLevel, curingLevelUnits, aspenFireSeverity, dbh, dbhUnits, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyHeightUnits, crownRatio);
+  if (crownRatioUnits && typeof crownRatioUnits === 'object') crownRatioUnits = crownRatioUnits.ptr;
+  _emscripten_bind_SIGSurface_updateSurfaceInputsForWesternAspen_26(self, aspenFuelModelNumber, aspenCuringLevel, curingLevelUnits, aspenFireSeverity, dbh, dbhUnits, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyHeightUnits, crownRatio, crownRatioUnits);
 };;
 
 SIGSurface.prototype['setFuelModelNumber'] = SIGSurface.prototype.setFuelModelNumber = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber) {
@@ -10555,9 +12736,10 @@ SIGCrown.prototype['getCrownFractionBurned'] = SIGCrown.prototype.getCrownFracti
   return _emscripten_bind_SIGCrown_getCrownFractionBurned_0(self);
 };;
 
-SIGCrown.prototype['getCrownRatio'] = SIGCrown.prototype.getCrownRatio = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+SIGCrown.prototype['getCrownRatio'] = SIGCrown.prototype.getCrownRatio = /** @suppress {undefinedVars, duplicate} @this{Object} */function(crownRatioUnits) {
   var self = this.ptr;
-  return _emscripten_bind_SIGCrown_getCrownRatio_0(self);
+  if (crownRatioUnits && typeof crownRatioUnits === 'object') crownRatioUnits = crownRatioUnits.ptr;
+  return _emscripten_bind_SIGCrown_getCrownRatio_1(self, crownRatioUnits);
 };;
 
 SIGCrown.prototype['getFinalFirelineIntesity'] = SIGCrown.prototype.getFinalFirelineIntesity = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firelineIntensityUnits) {
@@ -10930,10 +13112,11 @@ SIGCrown.prototype['setCanopyHeight'] = SIGCrown.prototype.setCanopyHeight = /**
   _emscripten_bind_SIGCrown_setCanopyHeight_2(self, canopyHeight, canopyHeightUnits);
 };;
 
-SIGCrown.prototype['setCrownRatio'] = SIGCrown.prototype.setCrownRatio = /** @suppress {undefinedVars, duplicate} @this{Object} */function(crownRatio) {
+SIGCrown.prototype['setCrownRatio'] = SIGCrown.prototype.setCrownRatio = /** @suppress {undefinedVars, duplicate} @this{Object} */function(crownRatio, crownRatioUnits) {
   var self = this.ptr;
   if (crownRatio && typeof crownRatio === 'object') crownRatio = crownRatio.ptr;
-  _emscripten_bind_SIGCrown_setCrownRatio_1(self, crownRatio);
+  if (crownRatioUnits && typeof crownRatioUnits === 'object') crownRatioUnits = crownRatioUnits.ptr;
+  _emscripten_bind_SIGCrown_setCrownRatio_2(self, crownRatio, crownRatioUnits);
 };;
 
 SIGCrown.prototype['setFuelModelNumber'] = SIGCrown.prototype.setFuelModelNumber = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber) {
@@ -11073,7 +13256,7 @@ SIGCrown.prototype['setWindSpeed'] = SIGCrown.prototype.setWindSpeed = /** @supp
   _emscripten_bind_SIGCrown_setWindSpeed_2(self, windSpeed, windSpeedUnits);
 };;
 
-SIGCrown.prototype['updateCrownInputs'] = SIGCrown.prototype.updateCrownInputs = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureFoliar, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyBaseHeight, canopyHeightUnits, crownRatio, canopyBulkDensity, densityUnits) {
+SIGCrown.prototype['updateCrownInputs'] = SIGCrown.prototype.updateCrownInputs = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureFoliar, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyBaseHeight, canopyHeightUnits, crownRatio, crownRatioUnits, canopyBulkDensity, densityUnits) {
   var self = this.ptr;
   if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
   if (moistureOneHour && typeof moistureOneHour === 'object') moistureOneHour = moistureOneHour.ptr;
@@ -11097,12 +13280,13 @@ SIGCrown.prototype['updateCrownInputs'] = SIGCrown.prototype.updateCrownInputs =
   if (canopyBaseHeight && typeof canopyBaseHeight === 'object') canopyBaseHeight = canopyBaseHeight.ptr;
   if (canopyHeightUnits && typeof canopyHeightUnits === 'object') canopyHeightUnits = canopyHeightUnits.ptr;
   if (crownRatio && typeof crownRatio === 'object') crownRatio = crownRatio.ptr;
+  if (crownRatioUnits && typeof crownRatioUnits === 'object') crownRatioUnits = crownRatioUnits.ptr;
   if (canopyBulkDensity && typeof canopyBulkDensity === 'object') canopyBulkDensity = canopyBulkDensity.ptr;
   if (densityUnits && typeof densityUnits === 'object') densityUnits = densityUnits.ptr;
-  _emscripten_bind_SIGCrown_updateCrownInputs_24(self, fuelModelNumber, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureFoliar, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyBaseHeight, canopyHeightUnits, crownRatio, canopyBulkDensity, densityUnits);
+  _emscripten_bind_SIGCrown_updateCrownInputs_25(self, fuelModelNumber, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureFoliar, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyBaseHeight, canopyHeightUnits, crownRatio, crownRatioUnits, canopyBulkDensity, densityUnits);
 };;
 
-SIGCrown.prototype['updateCrownsSurfaceInputs'] = SIGCrown.prototype.updateCrownsSurfaceInputs = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyHeightUnits, crownRatio) {
+SIGCrown.prototype['updateCrownsSurfaceInputs'] = SIGCrown.prototype.updateCrownsSurfaceInputs = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fuelModelNumber, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyHeightUnits, crownRatio, crownRatioUnits) {
   var self = this.ptr;
   if (fuelModelNumber && typeof fuelModelNumber === 'object') fuelModelNumber = fuelModelNumber.ptr;
   if (moistureOneHour && typeof moistureOneHour === 'object') moistureOneHour = moistureOneHour.ptr;
@@ -11124,7 +13308,8 @@ SIGCrown.prototype['updateCrownsSurfaceInputs'] = SIGCrown.prototype.updateCrown
   if (canopyHeight && typeof canopyHeight === 'object') canopyHeight = canopyHeight.ptr;
   if (canopyHeightUnits && typeof canopyHeightUnits === 'object') canopyHeightUnits = canopyHeightUnits.ptr;
   if (crownRatio && typeof crownRatio === 'object') crownRatio = crownRatio.ptr;
-  _emscripten_bind_SIGCrown_updateCrownsSurfaceInputs_20(self, fuelModelNumber, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyHeightUnits, crownRatio);
+  if (crownRatioUnits && typeof crownRatioUnits === 'object') crownRatioUnits = crownRatioUnits.ptr;
+  _emscripten_bind_SIGCrown_updateCrownsSurfaceInputs_21(self, fuelModelNumber, moistureOneHour, moistureTenHour, moistureHundredHour, moistureLiveHerbaceous, moistureLiveWoody, moistureUnits, windSpeed, windSpeedUnits, windHeightInputMode, windDirection, windAndSpreadOrientationMode, slope, slopeUnits, aspect, canopyCover, coverUnits, canopyHeight, canopyHeightUnits, crownRatio, crownRatioUnits);
 };;
 
 SIGCrown.prototype['getFinalFlameLength'] = SIGCrown.prototype.getFinalFlameLength = /** @suppress {undefinedVars, duplicate} @this{Object} */function(flameLengthUnits) {
@@ -11447,9 +13632,10 @@ SIGMortality.prototype['getCrownDamage'] = SIGMortality.prototype.getCrownDamage
   return _emscripten_bind_SIGMortality_getCrownDamage_0(self);
 };;
 
-SIGMortality.prototype['getCrownRatio'] = SIGMortality.prototype.getCrownRatio = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+SIGMortality.prototype['getCrownRatio'] = SIGMortality.prototype.getCrownRatio = /** @suppress {undefinedVars, duplicate} @this{Object} */function(crownRatioUnits) {
   var self = this.ptr;
-  return _emscripten_bind_SIGMortality_getCrownRatio_0(self);
+  if (crownRatioUnits && typeof crownRatioUnits === 'object') crownRatioUnits = crownRatioUnits.ptr;
+  return _emscripten_bind_SIGMortality_getCrownRatio_1(self, crownRatioUnits);
 };;
 
 SIGMortality.prototype['getCVSorCLS'] = SIGMortality.prototype.getCVSorCLS = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
@@ -11680,10 +13866,11 @@ SIGMortality.prototype['setCrownDamage'] = SIGMortality.prototype.setCrownDamage
   _emscripten_bind_SIGMortality_setCrownDamage_1(self, crownDamage);
 };;
 
-SIGMortality.prototype['setCrownRatio'] = SIGMortality.prototype.setCrownRatio = /** @suppress {undefinedVars, duplicate} @this{Object} */function(crownRatio) {
+SIGMortality.prototype['setCrownRatio'] = SIGMortality.prototype.setCrownRatio = /** @suppress {undefinedVars, duplicate} @this{Object} */function(crownRatio, crownRatioUnits) {
   var self = this.ptr;
   if (crownRatio && typeof crownRatio === 'object') crownRatio = crownRatio.ptr;
-  _emscripten_bind_SIGMortality_setCrownRatio_1(self, crownRatio);
+  if (crownRatioUnits && typeof crownRatioUnits === 'object') crownRatioUnits = crownRatioUnits.ptr;
+  _emscripten_bind_SIGMortality_setCrownRatio_2(self, crownRatio, crownRatioUnits);
 };;
 
 SIGMortality.prototype['setDBH'] = SIGMortality.prototype.setDBH = /** @suppress {undefinedVars, duplicate} @this{Object} */function(dbh, diameterUnits) {

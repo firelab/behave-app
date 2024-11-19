@@ -5,6 +5,12 @@
             [behave.schema.core  :refer [rules]]
             [behave.vms.store    :refer [vms-conn]]))
 
+;;; helpers
+(defn uuid->entity
+  "Given a UUID Return a datascript entity."
+  [uuid_]
+  (d/entity @@vms-conn [:bp/uuid uuid_]))
+
 ;;; VMS Queries
 
 (defn q-vms
@@ -17,37 +23,24 @@
         query-after     (vec (concat find '(:in $ $ws %) (rest in) where))]
     (apply d/q query-after @@vms-conn @@store/conn rules args)))
 
-(defn inputs+units+fn+params [module-name]
-  (q-vms '[:find ?uuid ?unit ?fn ?fn-name (count ?all-params) ?p-name ?p-type ?p-order
-           :keys
-           group-variable/uuid
-           group-variable/units
-           function/id
-           function/name
-           function/num-params
-           param/name
-           param/type
-           param/order
+(defn variable
+  "Given a uuid for a group-variable or subtool-variable return its associated variable as a
+  datascript entity."
+  [group-variable-uuid]
+  (let [group-variable-entity (uuid->entity group-variable-uuid)]
+    (or (-> group-variable-entity
+            :variable/_group-variables
+            first)
+        (-> group-variable-entity
+            :variable/_subtool-variables
+            first))))
 
-           :in ?module-name
-
-           :where
-           [?m :module/name ?module-name]
-           (module-input-vars ?m ?gv)
-           (lookup ?uuid ?gv)
-           (variable-fn ?uuid ?fn)
-           (varable-units ?uuid ?unit)
-           (variable-param ?uuid ?p)
-           (cpp-name ?fn ?fn-name)
-           (param-attrs ?p ?p-name ?p-type ?p-order)
-           (cpp-param ?fn ?all-params)]
-         module-name))
-
-(defn variable-kind [group-variable-uuid]
-  (q-vms '[:find  ?kind .
-           :in    ?gv-uuid
-           :where (variable-kind ?gv-uuid ?kind)]
-         group-variable-uuid))
+(defn variable-kind
+  "Given a uuid for a group variable return the `:variable/kind` of its associated variable."
+  [group-variable-uuid]
+  (-> group-variable-uuid
+      variable
+      :variable/kind))
 
 (defn parsed-value [group-variable-uuid value]
   (let [kind (variable-kind group-variable-uuid)]
@@ -56,171 +49,199 @@
       :continuous     (parse-float value)
       :text           value)))
 
-(defn fn-params [function-id]
-  (->> (q-vms '[:find ?p ?p-name ?p-type ?p-order
-                :in ?fn
-                :where (fn-params ?fn ?p ?p-name ?p-type ?p-order)]
-              function-id)
-       (sort-by #(nth % 3))))
+(defn fn-params
+  "Given an Function entity id, return a sequence of parameter info.
+  Parameter info has the form:
+  [entity-id name type order]."
+  [function-id]
+  (let [function-entity (d/entity @@vms-conn function-id)
+        function-params (:cpp.function/parameter function-entity)]
+    (->> function-params
+         (map (fn [param]
+                [(:db/id param)
+                 (:cpp.parameter/name param)
+                 (:cpp.parameter/type param)
+                 (:cpp.parameter/order param)]))
+         (sort-by #(nth % 3)))))
 
 (defn variable-uuid
+  "Given a uuid for a group-variable return the uuid of it's associated variable."
   [group-variable-uuid]
-  (q-vms '[:find  ?var-uuid .
-           :in    ?gv-uuid
-           :where
-           (variable-uuid ?gv-uuid ?var-uuid)]
-         group-variable-uuid))
-
-(defn variable-units [group-variable-uuid]
-  (q-vms '[:find  ?units .
-           :in    ?gv-uuid
-           :where
-           (variable-units ?gv-uuid ?units)]
-         group-variable-uuid))
+  (-> group-variable-uuid
+      variable
+      :bp/uuid))
 
 (defn variable-native-units-uuid
+  "Given a uuid for a group-variable return either the native-unit uuid from its associated domain
+  entity or from it's assocated variable entity."
   [group-variable-uuid]
-  (or
-   (q-vms '[:find  ?native-unit-uuid .
-            :in    ?gv-uuid
-            :where
-            (variable-native-units-uuid-from-domain ?gv-uuid ?native-unit-uuid)]
-          group-variable-uuid)
-   (q-vms '[:find  ?native-unit-uuid .
-            :in    ?gv-uuid
-            :where
-            (variable-native-units-uuid ?gv-uuid ?native-unit-uuid)]
-          group-variable-uuid)))
+  (let [var-entity (variable group-variable-uuid)]
+    (or (-> var-entity
+            :variable/domain-uuid
+            uuid->entity
+            :domain/native-unit-uuid)
+        (-> var-entity
+            :variable/native-unit-uuid))))
 
-(defn unit-uuid->enum-value [unit-uuid]
-  (q-vms '[:find  ?units .
-           :in    ?unit-uuid
-           :where
-           (units ?unit-uuid ?units)]
-         unit-uuid))
+(defn unit-uuid->enum-value
+  "Given a uuid to a unit entity return the enum value for that unit."
+  [unit-uuid]
+  (->> unit-uuid
+       uuid->entity
+       :unit/cpp-enum-member-uuid
+       uuid->entity
+       :cpp.enum-member/value))
 
 (defn unit [unit-uuid]
-  (d/pull @@vms-conn '[*] [:bp/uuid unit-uuid]))
+  (uuid->entity unit-uuid))
 
-;; Cannot use pull due to the use of UUID's to join CPP ns/class/fns
-(defn group-variable->fn [group-variable-uuid]
-  (or (q-vms '[:find  [?fn ?fn-name (count ?p)]
-               :in    ?gv-uuid
-               :where (variable-fn ?gv-uuid ?fn)
-                      [?fn :cpp.function/name ?fn-name]
-                      [?fn :cpp.function/parameters ?p]]
-             group-variable-uuid)
-      (-> (q-vms '[:find  [?fn ?fn-name]
-                   :in    ?gv-uuid
-                   :where (variable-fn ?gv-uuid ?fn)
-                          [?fn :cpp.function/name ?fn-name]]
-                 group-variable-uuid)
-          (conj 0))))
+(defn group-variable->fn
+  "Given a uuid for a group-variable return a sequence of function params:
+  [entity-id function-name count-of-function-parameters]."
+  [group-variable-uuid]
+  (let [group-variable-entity (uuid->entity group-variable-uuid)
+        cpp-fn-uuid           (:group-variable/cpp-function group-variable-entity)
+        cpp-fn-entity         (uuid->entity cpp-fn-uuid)
+        fn-name               (:cpp.function/name cpp-fn-entity)
+        cpp-fn-params         (:group-variable/cpp-parameter group-variable-entity)]
+    [(:db/id cpp-fn-entity)
+     fn-name
+     (count cpp-fn-params)]))
 
-(defn subtool-variable->fn [subtool-variable-uuid]
-  (q-vms '[:find  [?fn ?fn-name]
-           :in    ?gv-uuid
+(defn subtool-variable->fn
+  "Given a uuid for a subtool-variable return a tuple of [function-eid function-name]."
+  [subtool-variable-uuid]
+  (let [subtool-variable-entity (uuid->entity subtool-variable-uuid)
+        cpp-fn-uuid             (:subtool-variable/cpp-function-uuid subtool-variable-entity)
+        cpp-fn-entity           (uuid->entity cpp-fn-uuid)
+        fn-name                 (:cpp.function/name cpp-fn-entity)]
+    [(:db/id cpp-fn-entity)
+     fn-name]))
+
+(defn subtool-compute->fn-name
+  "Given a uuid for a subtool-variable return its associated function's name."
+  [subtool-uuid]
+  (-> subtool-uuid
+      uuid->entity
+      :subtool/cpp-function-uuid
+      uuid->entity
+      :cpp.function/name))
+
+(defn group-variable->group
+  "Given a uuid for a group-varible return it's parent group's uuid."
+  [group-variable-uuid]
+  (-> group-variable-uuid
+      uuid->entity
+      :group/_group-variables
+      :bp/uuid))
+
+(defn module-diagrams
+  "Given a module-name #{surface contain mortality crown} return a sequence of diagram entities."
+  [module-name]
+  (d/q '[:find [(pull ?d [* {:diagram/group-variable [:bp/uuid]}]) ...]
+         :in $ ?module-name
+         :where
+         [?m :module/name ?m-name]
+         [(str "(?i)" ?module-name) ?module-find]
+         [(re-pattern ?module-find) ?module-find-re]
+         [(re-find ?module-find-re ?m-name)]
+         [?m :module/diagrams ?d]]
+       @@vms-conn
+       module-name))
+
+(defn parameter->group-variable
+  "Given a prameter entity id return the uuid for it's associated group variable."
+  [parameter-id]
+  (let [param-uuid (->> parameter-id
+                       (d/entity @@vms-conn)
+                       :bp/uuid)]
+    (d/q '[:find  ?gv-uuid .
+           :in    $ ?p-uuid
            :where
-           (variable-fn ?gv-uuid ?fn)
-           [?fn :cpp.function/name ?fn-name]]
-         subtool-variable-uuid))
+           [?gv :group-variable/cpp-parameter ?p-uuid]
+           [?gv :bp/uuid ?gv-uuid]]
+          @@vms-conn param-uuid)))
 
-(defn subtool-compute->fn-name [subtool-uuid]
-  (q-vms '[:find  ?fn-name .
-           :in    ?gv-uuid
-           :where
-           (subtool-compute-fn ?gv-uuid ?fn)
-           [?fn :cpp.function/name ?fn-name]]
-         subtool-uuid))
+(defn class-to-group-variables
+  "Given a class-name (i.e. SIGSurface), return a list of group-variable uuids that belong to that
+  class."
+  [class-name]
+  (set
+   (d/q '[:find [?gv-uuid ...]
+          :in $ ?class-name
+          :where
+          [?c :cpp.class/name ?class-name]
+          [?c :bp/uuid ?c-uuid]
+          [?gv :group-variable/cpp-class ?c-uuid]
+          [?gv :bp/uuid ?gv-uuid]]
+         @@vms-conn class-name)))
 
-;; Used to get the parent group's UUID
-(defn group-variable->group [group-variable-uuid]
-  (q-vms '[:find ?group-uuid .
-           :in ?gv-uuid
-           :where
-           [?gv :bp/uuid ?gv-uuid]
-           (lookup ?gv-uuid ?gv)
-           (group-variable ?g ?gv)
-           (lookup ?group-uuid ?g)]
-         group-variable-uuid))
+(defn class-to-subtool-variables
+  "Given a class-name (i.e. SIGSlopeTool), return a list of subtool-variable uuids that belong to that
+  class."
+  [class-name]
+  (set
+   (d/q '[:find [?sv-uuid ...]
+          :in $ ?class-name
+          :where
+          [?c :cpp.class/name ?class-name]
+          [?c :bp/uuid ?c-uuid]
+          [?sv :subtool-variable/cpp-class-uuid ?c-uuid]
+          [?sv :bp/uuid ?sv-uuid]]
+         @@vms-conn class-name)))
 
-(defn module-diagrams [module-name]
-  (q-vms '[:find [(pull ?d [* {:diagram/group-variable [:bp/uuid]}]) ...]
-           :in ?module-name
-           :where
-           [?m :module/name ?m-name]
-           [(str "(?i)" ?module-name) ?module-find]
-           [(re-pattern ?module-find) ?module-find-re]
-           [(re-find ?module-find-re ?m-name)]
-           [?m :module/diagrams ?d]]
-         module-name))
-
-;; Cannot use pull due to the use of UUID's to join CPP ns/class/fns/param
-(defn parameter->group-variable [parameter-id]
-  (q-vms '[:find  ?gv-uuid .
-           :in    ?p
-           :where [?p :bp/uuid ?p-uuid]
-                  [?gv :group-variable/cpp-parameter ?p-uuid]
-                  [?gv :bp/uuid ?gv-uuid]]
-         parameter-id))
-
-(defn class-to-group-variables [class-name]
-  (set (q-vms '[:find [?gv-uuid ...]
-                :in ?class-name
-                :where
-                [?c :cpp.class/name ?class-name]
-                [?c :bp/uuid ?c-uuid]
-                [?gv :group-variable/cpp-class ?c-uuid]
-                [?gv :bp/uuid ?gv-uuid]] class-name)))
-
-(defn class-to-subtool-variables [class-name]
-  (set (q-vms '[:find [?sv-uuid ...]
-                :in ?class-name
-                :where
-                [?c :cpp.class/name ?class-name]
-                [?c :bp/uuid ?c-uuid]
-                [?sv :subtool-variable/cpp-class-uuid ?c-uuid]
-                [?sv :bp/uuid ?sv-uuid]] class-name)))
-
-(defn source-links [gv-uuids]
+(defn source-links
+  "Given a colleciton of group-variable uuids return a map of the given uuids to it's associated `:link/destination`."
+  [gv-uuids]
   (into {}
-        (q-vms '[:find ?gv-uuid ?destination-uuid
-                 :in [?gv-uuid ...]
-                 :where
-                 [?s :bp/uuid ?gv-uuid]
-                 [?l :link/source ?s]
-                 [?l :link/destination ?d]
-                 [?d :bp/uuid ?destination-uuid]]
-               (vec gv-uuids))))
+        (d/q '[:find ?gv-uuid ?destination-uuid
+               :in $ [?gv-uuid ...]
+               :where
+               [?s :bp/uuid ?gv-uuid]
+               [?l :link/source ?s]
+               [?l :link/destination ?d]
+               [?d :bp/uuid ?destination-uuid]]
+             @@vms-conn
+             (vec gv-uuids))))
 
 (defn output-source-links
   "Obtains outpout Group Variables that serve as sources to links."
   [gv-uuids]
   (into {}
-        (q-vms '[:find ?gv-uuid ?destination-uuid
-                 :in [?gv-uuid ...]
-                 :where
-                 [?s :bp/uuid ?gv-uuid]
-                 [?l :link/source ?s]
-                 [?l :link/destination ?d]
-                 (io ?s :output)
-                 [?d :bp/uuid ?destination-uuid]]
-               (vec gv-uuids))))
+        (d/q '[:find ?gv-uuid ?destination-uuid
+               :in $ % [?gv-uuid ...]
+               :where
+               [?s :bp/uuid ?gv-uuid]
+               [?l :link/source ?s]
+               [?l :link/destination ?d]
+               (io ?s :output)
+               [?d :bp/uuid ?destination-uuid]]
+             @@vms-conn
+             rules
+             (vec gv-uuids))))
 
-(defn destination-links [gv-uuids]
+(defn destination-links
+  "Given a colleciton of group-variable uuids return a map of the given uuids to it's associated `:link/source`."
+  [gv-uuids]
   (into {}
-        (q-vms '[:find ?source-uuid ?gv-uuid
-                 :in [?gv-uuid ...]
-                 :where
-                 [?d :bp/uuid ?gv-uuid]
-                 [?l :link/destination ?d]
-                 [?l :link/source ?s]
-                 [?s :bp/uuid ?source-uuid]]
-               (vec gv-uuids))))
+        (d/q '[:find ?source-uuid ?gv-uuid
+               :in $ [?gv-uuid ...]
+               :where
+               [?d :bp/uuid ?gv-uuid]
+               [?l :link/destination ?d]
+               [?l :link/source ?s]
+               [?s :bp/uuid ?source-uuid]]
+             @@vms-conn
+             (vec gv-uuids))))
 
-(defn worksheet-modules [ws-uuid]
-  (set (q-vms '[:find [?modules ...]
-                :in ?ws-uuid
-                :where
-                [$ws ?w :worksheet/uuid ?ws-uuid]
-                [$ws ?w :worksheet/modules ?modules]] ws-uuid)))
+(defn worksheet-modules
+  "Given a worksheet uuid return a sequence of modules."
+  [ws-uuid]
+  (set
+   (d/q '[:find [?modules ...]
+          :in $ ?ws-uuid
+          :where
+          [?w :worksheet/uuid ?ws-uuid]
+          [?w :worksheet/modules ?modules]]
+        @@store/conn
+        ws-uuid)))
