@@ -176,20 +176,38 @@
     [icon (if selected? "minus" "plus")]]
    label])
 
-(defn multi-select-input [{:keys [input-label options]}]
+(defn multi-select-input [{:keys [input-label options tags-enabled?]}]
   (r/with-let [selections (r/atom (->> options
                                        (filter #(true? (:selected? %)))
                                        (map (fn [{:keys [label value on-deselect]}] [label value on-deselect]))
                                        (into (sorted-set))))
-               show-options? (r/atom false)]
+               show-options? (r/atom false)
+               selected-tag (r/atom nil)]
     [:div.multi-select
      (when @show-options?
        [:<>
+        (when tags-enabled?
+          [:div.multi-select__tags
+           (for [tag (reduce (fn [acc x]
+                               (into acc x))
+                             #{}
+                             (map :tags options))]
+             ^{:key tag}
+             [:div.multi-select__tags__tag
+              [button {:label     (name tag)
+                       :variant   "outline-primary"
+                       :size      "small"
+                       :selected? (= @selected-tag tag)
+                       :on-click  #(if (= @selected-tag tag)
+                                     (reset! selected-tag nil)
+                                     (reset! selected-tag tag))}]])])
         [:div.multi-select__prompt
          (gstring/format "Please select from the following %ss (you can select multiple)" input-label)]
         [:div.multi-select__options
          (doall
-          (for [{:keys [label value on-select on-deselect]} options]
+          (for [{:keys [label value on-select on-deselect]} (cond->>  options
+                                                              (and tags-enabled? @selected-tag)
+                                                              (filter (fn [o] (contains? (:tags o) @selected-tag))))]
             ^{:key label}
             (let [selection [label value on-deselect]]
               [multi-select-option {:selected? (contains? @selections selection)

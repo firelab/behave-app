@@ -2214,4 +2214,18 @@ p {
   top: 0px;
 }
 
+.multi-select .button--selected {
+  color: var(--white);
+  background-color: var(--medblue-3);
+}
+
+.multi-select__tags {
+  display: flex;
+  flex-direction: row;
+}
+
+.multi-select__tags__tag {
+  padding-left: 5px;
+}
+
 /* - End Multi Select - */
