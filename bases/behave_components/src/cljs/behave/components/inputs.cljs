@@ -186,6 +186,8 @@
     [:div.multi-select
      (when @show-options?
        [:<>
+        [:div.multi-select__prompt
+         (gstring/format "Please select from the following %ss (you can select multiple)" input-label)]
         (when tags-enabled?
           [:div.multi-select__tags
            (for [tag (reduce (fn [acc x]
@@ -195,14 +197,12 @@
              ^{:key tag}
              [:div.multi-select__tags__tag
               [button {:label     (name tag)
-                       :variant   "outline-primary"
+                       :variant   "outline-secondary"
                        :size      "small"
                        :selected? (= @selected-tag tag)
                        :on-click  #(if (= @selected-tag tag)
                                      (reset! selected-tag nil)
                                      (reset! selected-tag tag))}]])])
-        [:div.multi-select__prompt
-         (gstring/format "Please select from the following %ss (you can select multiple)" input-label)]
         [:div.multi-select__options
          (doall
           (for [{:keys [label value on-select on-deselect]} (cond->>  options

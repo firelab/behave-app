@@ -2216,16 +2216,18 @@ p {
 
 .multi-select .button--selected {
   color: var(--white);
-  background-color: var(--medblue-3);
+  background-color: var(--medblue-2);
 }
 
 .multi-select__tags {
   display: flex;
   flex-direction: row;
+  padding-bottom: 15px;
+  padding-left: 20px;
 }
 
 .multi-select__tags__tag {
-  padding-left: 5px;
+  padding-right: 10px;
 }
 
 /* - End Multi Select - */
