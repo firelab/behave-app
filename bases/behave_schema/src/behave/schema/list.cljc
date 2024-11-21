@@ -79,6 +79,11 @@
     :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident       :list-option/tags
+    :db/doc         "List option's filter tags."
+    :db/valueType   :db.type/keyword
+    :db/cardinality :db.cardinality/many}
+
    {:db/ident       :list-option/translation-key
     :db/doc         "List option's translation key."
     :db/valueType   :db.type/string
