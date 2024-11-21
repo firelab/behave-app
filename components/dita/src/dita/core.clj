@@ -6,7 +6,10 @@
             [clojure.java.io :as io]
             [datomic.api :as d]
             [datomic-store.main :as ds]
-            [datom-utils.interface :refer [split-datoms]]))
+            [datom-utils.interface :refer [split-datoms]]
+            [behave-cms.server :as cms]
+            [behave.schema.core :refer [rules]]
+            [clojure.walk :refer [postwalk]]))
 
 (defn- help-page-content [db key]
   [key (d/q '[:find ?content .
@@ -47,19 +50,7 @@
                         (sort-by :submodule/order))]
     [(:module/name module) (map (partial submodule-help-pages db) submodules)]))
 
-  ;;; Workspace
-
-(def db (ds/unwrap-db ds/datomic-conn))
-
-(def app (d/q '[:find ?e .
-                :where [?e :application/name ?name]] db))
-
-(def modules
-  (:application/modules (d/entity db app)))
-
-(map :module/name modules)
-
-(map (partial get-module-help-pages db) modules)
+;;; XML
 
 (def DOCTYPES {:map   "<!DOCTYPE map PUBLIC \"-//OASIS//DTD DITA Map//EN\" \"map.dtd\">"
                :topic "<!DOCTYPE topic PUBLIC \"-//OASIS//DTD DITA Topic//EN\" \"topic.dtd\">"})
@@ -83,9 +74,6 @@
          [:div {:id "snippet" :data-help-key help-key}
           body]]])))))
 
-(generate-snippet "MySnippet" "behaveplus:help-key" [:p "Hello World"])
-
-
 (defn generate-topic [topic-id title resource-id body]
   (insert-topic-doctype
    (xml/indent-str
@@ -95,9 +83,6 @@
       [:prolog
        [:resourceid {:id resource-id}]]
       [:body body]]))))
-
-(generate-topic "Getting_Started" "Getting Started" "GT1"
-                [:h1 "Hello World"])
 
 (defn gen-topic-ref
   [{:keys [href title topics]}]
@@ -120,60 +105,169 @@
                :topics [{:href  "Content/Modules/Surface.dita"
                          :title "Surface"}]}])
 
+;;; Workspace
 
-;; Markdown to Hiccup
+(comment 
+  (cms/init-db!)
+  (def db (ds/unwrap-db ds/datomic-conn))
 
-db
+  (def app-eid
+    (d/q '[:find ?e .
+           :where [?e :application/name ?name]] db))
 
-;; Generate DITA Project Layout
+  (def modules
+    (:application/modules (d/entity db app)))
 
-;; Ditamap.ditamap
-;; Content
-;;  - Pages
-;;    - Installation
-;;    - About
-;;  - Modules
-;;    - Surface
-;;      - Outputs
-;;      - Inputs
-;;    - Contain
-;;      - Outputs
-;;      - Inputs
-;;    - Crown
-;;      - Outputs
-;;      - Inputs
-;;    - Mortality
-;;      - Outputs
-;;      - Inputs
+  (def modules-w-submodules
+    (map (fn [m]
+           (->> (:module/submodules m)
+                (map (juxt :submodule/io :submodule/name))
+                (map #(concat [(:module/name m)] %))))
+         modules))
+
+  (defn gen-structure [base-dir modules-w-submodules] 
+    (fs/with-cwd (fs/expand-home base-dir)
+      (fs/mkdirs "Resources/Images")
+      (fs/mkdirs "Resources/Snippets")
+
+      (for [module-w-submodule    modules-w-submodules
+            [module io submodule] module-w-submodule]
+        (let [io (if (= :input io) "Inputs" "Outputs")]
+          (fs/with-cwd (fs/expand-home base-dir)
+            (fs/mkdirs (format "Content/Modules/%s/%s" module io))
+            (fs/touch (format "Content/Modules/%s/%s/%s.dita" module io submodule)))))))
+
+  (def base-dir "~/Code/sig/behave-polylith/dita-test")
+  (gen-structure base-dir modules-w-submodules)
 
 
-(fs/mkdir "dita-test")
+  (def all-gvs (d/q '[:find ?s-name ?g-name ?v-name
+                      :in $ %
+                      :where
+                      [?g :group/group-variables ?gv]
+                      (submodule-root ?sm ?g)
+                      [?sm :submodule/name ?s-name]
+                      [?g :group/name ?g-name]
+                      [?v :variable/group-variables ?gv]
+                      [?v :variable/name ?v-name]]
+                    db rules))
 
-(defn gen-structure [modules] 
+  ;; Create a Clojure function that, given the following DataScript query,
+  ;; extracts each variable name as a vector with it's parents.
+
+  ;; The result should look like:
+  ;; [<module-name> <submodule-name> <group-1-name> ... <group-N-name> <variable-name>]
+
+  (def all-vars
+    (d/pull
+     db 
+     '[{:application/modules 
+        [:bp/nid
+         :module/name
+         {:module/submodules
+          [:bp/nid
+           :submodule/io
+           :submodule/order
+           :submodule/name
+           {:submodule/groups
+            [:bp/nid
+             :group/order
+             :group/name
+             {:group/group-variables
+              [:bp/nid
+               :group-variable/order
+               {:variable/_group-variables [:variable/name]}]}
+             {:group/children 6}]}]}]}]
+     app-eid))
+
+  (defn extract-vars [modules]
+    (for [m  modules
+          sm (:module/submodules m)
+          g  (:submodule/groups sm)
+          gv (:group/group-variables g)]
+      [(:module/name m)
+       (if (= :input (:submodule/io sm)) "Inputs" "Outputs")
+       (:submodule/name sm)
+       (:group/name g)
+       (get-in gv [:variable/_group-variables 0 :variable/name])]))
+   
+
+  (-> all-vars
+      (:application/modules)
+      (extract-vars))
+
+(extract-vars all-vars)
+
+
+;; Goals
+;; 1. Create a directory structure of Modules/IO/<submodule-name>.dita
+;; 2. Create snippts for all Variables linked via Group Variables, linked to their help key 
+;; 3. Create Submodule topic files with related Groups, Group Variable snippets
+
+  (map :module/name modules)
+
+  (map (partial get-module-help-pages db) modules)
+
+
+  (generate-snippet "MySnippet" "behaveplus:help-key" [:p "Hello World"])
+
+  (generate-topic "Getting_Started" "Getting Started" "GT1"
+                  [:h1 "Hello World"])
+
+  ;; Markdown to Hiccup
+
+  db
+
+  ;; Generate DITA Project Layout
+
+  ;; Ditamap.ditamap
+  ;; Content
+  ;;  - Pages
+  ;;    - Installation
+  ;;    - About
+  ;;  - Modules
+  ;;    - Surface
+  ;;      - Outputs
+  ;;      - Inputs
+  ;;    - Contain
+  ;;      - Outputs
+  ;;      - Inputs
+  ;;    - Crown
+  ;;      - Outputs
+  ;;      - Inputs
+  ;;    - Mortality
+  ;;      - Outputs
+  ;;      - Inputs
+
+
+  (fs/mkdir "dita-test")
+
+  (defn gen-structure [modules] 
+    (fs/with-cwd (fs/expand-home "~/Code/behave-polylith/dita-test")
+      (fs/mkdirs "Content/Modules")
+      (fs/mkdirs "Resources/Images")
+      (fs/mkdirs "Resources/Snippets")
+
+
+      (doall
+       (for [module modules]
+         (fs/mkdirs (str "Content/Modules/" module "/Inputs"))
+         (fs/mkdirs (str "Content/Modules/" module "/Outputs"))))
+
+
+      (fs/mkdirs "Content/Modules/Surface/Outputs")
+
+      (fs/mkdirs "Content/Modules/Surface/Inputs")
+      (fs/mkdirs "Content/Modules/Surface/Outputs")
+
+      )) 
+
   (fs/with-cwd (fs/expand-home "~/Code/behave-polylith/dita-test")
-    (fs/mkdirs "Content/Modules")
-    (fs/mkdirs "Resources/Images")
-    (fs/mkdirs "Resources/Snippets")
-
-
-    (doall
-     (for [module modules]
-       (fs/mkdirs (str "Content/Modules/" module "/Inputs"))
-       (fs/mkdirs (str "Content/Modules/" module "/Outputs"))
-       ))
-    (fs/mkdirs "Content/Modules/Surface/Outputs")
-
     (fs/mkdirs "Content/Modules/Surface/Inputs")
-    (fs/mkdirs "Content/Modules/Surface/Outputs")
+    (fs/mkdirs "Content/Modules/Surface/Outputs")) 
 
-    )) 
+  ;; Features
 
-(fs/with-cwd (fs/expand-home "~/Code/behave-polylith/dita-test")
-  (fs/mkdirs "Content/Modules/Surface/Inputs")
-  (fs/mkdirs "Content/Modules/Surface/Outputs")) 
+  ;; Modules
 
-;; Features
-
-;; Modules
-
-)
+  )
