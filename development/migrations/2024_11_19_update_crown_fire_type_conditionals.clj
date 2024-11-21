@@ -37,9 +37,10 @@
    "behaveplus:crown:output:size:spread_distance:spread_distance"])
 
 #_{:clj-kondo/ignore [:missing-docstring]}
-(def payload [{:db/id                        (sm/t-key-action-name->eid conn
-                                                                "behaveplus:crown:output:fire_type:fire_type:fire_type_required"
-                                                                "Select Fire Type")
+(def payload [{:db/id                        (sm/t-key-action-name->eid
+                                              conn
+                                              "behaveplus:crown:output:fire_type:fire_type:fire_type_required"
+                                              "Select Fire Type")
                :action/conditionals          (mapv (fn [t-key]
                                                      {:conditional/group-variable-uuid (sm/t-key->uuid conn t-key)
                                                       :conditional/type                :group-variable
