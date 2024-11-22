@@ -154,6 +154,7 @@
    [:label.form-label {:for (u/sentence->kebab label)} label]
    [:div.field-input__keywords
     {:style {:display        :flex
+             :flex-flow      "row wrap"
              :flex-direction :row
              :margin-bottom  "5px"}}
     (for [kkeyword @original-keywords]
@@ -161,6 +162,7 @@
        {:style {:position      "relative"
                 :padding       "2px 0px 2px 8px"
                 :margin-right  "10px"
+                :margin-bottom "2px"
                 :border        "2px solid grey"
                 :border-radius "10px"}}
        kkeyword
