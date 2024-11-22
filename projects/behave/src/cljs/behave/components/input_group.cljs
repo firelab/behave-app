@@ -152,6 +152,7 @@
                options                   (sort-by :list-option/order
                                                   (filter #(not (:list-option/hide? %))
                                                           (:list/options llist)))
+               tags-enabled?             (seq? (mapcat :list-option/tags options))
                on-select                 #(rf/dispatch [:worksheet/upsert-multi-select-input
                                                         ws-uuid group-uuid repeat-id gv-uuid %])
                on-deselect               #(rf/dispatch [:worksheet/remove-multi-select-input
@@ -160,9 +161,11 @@
                                              (str/split ",")
                                              (set))
                ->option                  (fn [{value :list-option/value
+                                               tags  :list-option/tags
                                                t-key :list-option/translation-key}]
                                            {:value       value
                                             :label       @(<t t-key)
+                                            :tags        (set tags)
                                             :on-select   on-select
                                             :on-deselect on-deselect
                                             :selected?   (contains? ws-input-values value)})]
@@ -170,8 +173,9 @@
      {:on-click on-focus-click
       :on-focus on-focus-click}
      [c/multi-select-input
-      {:input-label @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
-       :options     (doall (map ->option options))}]]))
+      {:input-label   @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
+       :tags-enabled? tags-enabled?
+       :options       (doall (map ->option options))}]]))
 
 (defmethod wizard-input :text [{gv-uuid  :bp/uuid
                                 help-key :group-variable/help-key}
