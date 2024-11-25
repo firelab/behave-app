@@ -185,6 +185,15 @@
   [conn t]
   (:db/id (t-key->entity conn t)))
 
+(defn t-key-action-name->eid
+  "Given a translation-key of a group-variable an action's name return the action's entity id"
+  [conn gv-t-key action-name]
+  (let [entity (t-key->entity conn gv-t-key)]
+    (->> (filter #(= (:action/name %) action-name)
+                 (:group-variable/actions entity))
+         first
+         :db/id)))
+
 (defn make-attr-is-component-payload
   "Returns a payload for updating a given attribute to include :db/isComponent true"
   [conn attr]
@@ -334,3 +343,4 @@
    :bp/nid           (nano-id)
    :link/source      source-eid
    :link/destination destination-eid})
+
