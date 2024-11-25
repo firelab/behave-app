@@ -192,7 +192,7 @@
           [:div.multi-select__tags
            (for [tag (reduce (fn [acc x]
                                (into acc x))
-                             #{}
+                             (sorted-set)
                              (map :tags options))]
              ^{:key tag}
              [:div.multi-select__tags__tag
