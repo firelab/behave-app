@@ -721,3 +721,9 @@
  :wizard/discrete-group-variable?
  (fn [_ [_ gv-uuid]]
    (group-variable-discrete? gv-uuid)))
+
+(reg-sub
+ :wizard/show-graph-settings?
+ (fn [[_ ws-uuid]] (subscribe [:wizard/multi-value-input-count ws-uuid]))
+ (fn [count _]
+   (pos? count)))
