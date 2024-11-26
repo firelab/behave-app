@@ -116,7 +116,7 @@
            :where [?e :application/name ?name]] db))
 
   (def modules
-    (:application/modules (d/entity db app)))
+    (:application/modules (d/entity db app-eid)))
 
   (def modules-w-submodules
     (map (fn [m]
@@ -140,7 +140,6 @@
   (def base-dir "~/Code/sig/behave-polylith/dita-test")
   (gen-structure base-dir modules-w-submodules)
 
-
   (def all-gvs (d/q '[:find ?s-name ?g-name ?v-name
                       :in $ %
                       :where
@@ -159,45 +158,93 @@
   ;; [<module-name> <submodule-name> <group-1-name> ... <group-N-name> <variable-name>]
 
   (def all-vars
-    (d/pull
-     db 
-     '[{:application/modules 
-        [:bp/nid
-         :module/name
-         {:module/submodules
-          [:bp/nid
-           :submodule/io
-           :submodule/order
-           :submodule/name
-           {:submodule/groups
-            [:bp/nid
-             :group/order
-             :group/name
-             {:group/group-variables
-              [:bp/nid
-               :group-variable/order
-               {:variable/_group-variables [:variable/name]}]}
-             {:group/children 6}]}]}]}]
-     app-eid))
+    (:application/modules 
+     (d/pull
+      db 
+      '[{:application/modules 
+         [:bp/nid
+          :module/name
+          :module/help-key
+          {:module/submodules
+           [:bp/nid
+            :submodule/io
+            :submodule/order
+            :submodule/name
+            :submodule/help-key
+            {:submodule/groups
+             [:bp/nid
+              :group/order
+              :group/name
+              :group/help-key
+              {:group/group-variables
+               [:bp/nid
+                :group-variable/help-key
+                :group-variable/orde
+                {:variable/_group-variables [:variable/name]}]}
+              {:group/children 6}]}]}]}]
+      app-eid)))
+
+  (defn nested-groups [group]
+    (if-let [children (:group/children group)]
+      children
+      []))
+
+  (defn extract-deeply-nested-gvs [modules]
+    (for [m  modules
+          sm (:module/submodules m)
+          g  (:submodule/groups sm)
+          c1 (nested-groups g)
+          c2 (nested-groups c1)
+          gv (:group/group-variables c2)]
+
+      [(:module/name m)
+       (if (= :input (:submodule/io sm)) "Inputs" "Outputs")
+       (:submodule/name sm)
+       (:group/name g)
+       (:group/name c1)
+       (:group/name c2)
+       (get-in gv [:variable/_group-variables 0 :variable/name])])
+
+  (defn extract-nested-gvs [modules]
+    (for [m  modules
+          sm (:module/submodules m)
+          g  (:submodule/groups sm)
+          c  (nested-groups g)
+          gv (:group/group-variables g)]
+
+      [[(:module/name m) (:module/help-key m)]
+       (if (= :input (:submodule/io sm)) "Inputs" "Outputs")
+       [(:submodule/name sm) (:submodule/order sm) (:submodule/help-key sm)]
+       [(:group/name c) (:group/help-key c)]
+       [(:group/name g) (:group/help-key g)]
+       [(get-in gv [:variable/_group-variables 0 :variable/name])
+        (:group-variable/help-key gv)]]))
 
   (defn extract-vars [modules]
     (for [m  modules
           sm (:module/submodules m)
           g  (:submodule/groups sm)
           gv (:group/group-variables g)]
-      [(:module/name m)
+      [[(:module/name m) (:module/help-key m)]
        (if (= :input (:submodule/io sm)) "Inputs" "Outputs")
-       (:submodule/name sm)
-       (:group/name g)
-       (get-in gv [:variable/_group-variables 0 :variable/name])]))
-   
+       ((juxt :submodule/order :submodule/name :submodule/help-key) sm)
+       ((juxt :group/order :group/name :group/help-key) g)
+       [(:group-variable/order gv)
+        (get-in gv [:variable/_group-variables 0 :variable/name])
+        (:group-variable/help-key gv)]]))
 
-  (-> all-vars
-      (:application/modules)
-      (extract-vars))
+  (concat
+   (extract-vars all-vars)
+   (extract-nested-gvs all-vars)
+   (extract-deeply-nested-gvs all-vars))
 
-(extract-vars all-vars)
+    (count (-> all-vars
+               (:application/modules)
+               (extract-nested-groups)))
 
+    (count (-> all-vars
+               (:application/modules)
+               (extract-vars)))
 
 ;; Goals
 ;; 1. Create a directory structure of Modules/IO/<submodule-name>.dita
