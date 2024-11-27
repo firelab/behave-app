@@ -51,6 +51,10 @@
        :doc      "Get the :db/id using translation-key"}
   t-key->eid c/t-key->eid)
 
+(def ^{:arglists '([conn t])
+       :doc      "Given a translation-key of a group-variable an action's name return the action's entity id"}
+  t-key-action-name->eid c/t-key-action-name->eid)
+
 (def ^{:arglists '([conn attr])
        :doc      "Sets :db/isComponent true for a given schema attribute.
                   Takes a datahike conn."}
