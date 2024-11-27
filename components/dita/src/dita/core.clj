@@ -22,6 +22,32 @@
 
 (def llast (comp last last))
 
+;;; Fix Markdown
+
+(def ^:private dita-mappings
+  {:h1     :title
+   :h2     :title
+   :h3     :title
+   :h4     :title
+   :h5     :title
+   :h6     :title
+   :a      :xref
+   :img    :image
+   :strong :b})
+
+(defn- md->dita [md]
+  (->> (md->hiccup md)
+       (postwalk (fn [e]
+                   (cond
+                     (dita-mappings e)
+                     (dita-mappings e)
+
+                     (:key e)
+                     (dissoc e :key)
+
+                     :else
+                     e)))))
+
 ;;; Queries
 
 (defn- q-help-page-content [db k]
@@ -44,33 +70,15 @@
 
 (defn- q-all-vars
   ;; Query for application structure variables
-  [db app-eid]
-  (:application/modules 
-   (d/pull
-    db 
-    '[{:application/modules 
-       [:bp/nid
-        :module/name
-        :module/help-key
-        :module/order
-        {:module/submodules
-         [:bp/nid
-          :submodule/io
-          :submodule/order
-          :submodule/name
-          :submodule/help-key
-          {:submodule/groups
-           [:bp/nid
-            :group/order
-            :group/name
-            :group/help-key
-            {:group/group-variables
-             [:bp/nid
-              :group-variable/help-key
-              :group-variable/order
-              {:variable/_group-variables [:variable/name]}]}
-            {:group/children 6}]}]}]}]
-    app-eid)))
+  [db]
+  (d/q '[:find ?nid ?v-name ?help-key
+         :keys :nid :v-name :help-key
+         :where
+         [?e :group/group-variables ?gv]
+         [?gv :bp/nid ?nid]
+         [?gv :group-variable/help-key ?help-key]
+         [?v :variable/group-variables ?gv]
+         [?v :variable/name ?v-name]] db))
 
 (defn- flatten-help-keys [acc g-or-gv]
   (let [acc (conj acc (or (:group/help-key g-or-gv)
@@ -122,9 +130,13 @@
     (insert-topic-doctype 
      (xml/indent-str
       (xml/sexp-as-element
-       [:topic {:id id :help-keys help-keys}
+       [:topic {:id id}
         [:title title]
-        [:body {:id "snippet"} body]])))))
+        [:body {:id "snippet"}
+         [:prolog
+          [:metadata help-keys]]
+         [:p
+          body]]])))))
 
 (defn generate-topic
   "Generates a DITA topic."
@@ -134,7 +146,10 @@
     (xml/sexp-as-element
      [:topic {:id topic-id :help-key help-key}
       [:title title]
-      [:body body]]))))
+      [:body
+       [:prolog
+        [:metadata help-key]]
+       body]]))))
 
 (defn- gen-topic-ref
   [{:keys [href subtopics]}]
@@ -161,36 +176,38 @@
     (fs/mkdirs "Resources/Images")
     (fs/mkdirs "Resources/Snippets/Variables")
 
-    (for [module modules
-          :let   [m-name    (:module/name module)
-                  help-key  (:module/help-key module)
-                  path      (format "Content/Modules/%s" m-name)
-                  dita-file (str (io/file (fs/expand-home base-dir) path "index.dita"))
-                  content   (or (q-help-content db help-key) (format "# %s" m-name))]]
-      (fs/with-cwd (fs/expand-home base-dir)
-        (fs/mkdirs path)
-        (spit dita-file
-              (generate-topic
-               (sentence->shortcode m-name)
-               m-name
-               help-key
-               (md->hiccup content)))))
+    (doall
+     (for [module modules
+           :let   [m-name    (:module/name module)
+                   help-key  (:module/help-key module)
+                   path      (format "Content/Modules/%s" m-name)
+                   dita-file (str (io/file (fs/expand-home base-dir) path "index.dita"))
+                   content   (or (q-help-content db help-key) (format "# %s" m-name))]]
+       (fs/with-cwd (fs/expand-home base-dir)
+         (fs/mkdirs path)
+         (spit dita-file
+               (generate-topic
+                (sentence->shortcode m-name)
+                m-name
+                help-key
+                (md->dita content))))))
 
-    (for [module-w-submodule             modules-w-submodules
-          [module io submodule help-key] module-w-submodule]
+    (doall
+     (for [module-w-submodule             modules-w-submodules
+           [module io submodule help-key] module-w-submodule]
 
-      (let [io        (if (= :input io) "Inputs" "Outputs")
-            path      (format "Content/Modules/%s/%s/%s" module io (sentence->shortcode submodule))
-            dita-file (str (io/file (fs/expand-home base-dir) path "index.dita"))
-            content   (or (q-help-content db help-key) (format "## %s" submodule))]
-        (fs/with-cwd (fs/expand-home base-dir)
-          (fs/mkdirs path)
-          (spit dita-file
-                (generate-topic
-                 (sentence->shortcode submodule)
-                 submodule
-                 help-key
-                 (md->hiccup content))))))))
+       (let [io        (if (= :input io) "Inputs" "Outputs")
+             path      (format "Content/Modules/%s/%s/%s" module io (sentence->shortcode submodule))
+             dita-file (str (io/file (fs/expand-home base-dir) path "index.dita"))
+             content   (or (q-help-content db help-key) (format "## %s" submodule))]
+         (fs/with-cwd (fs/expand-home base-dir)
+           (fs/mkdirs path)
+           (spit dita-file
+                 (generate-topic
+                  (sentence->shortcode submodule)
+                  submodule
+                  help-key
+                  (md->dita content)))))))))
 
 (defn- transform-structure [data]
   (postwalk
@@ -231,14 +248,14 @@
                                      :group-variable/order
                                      {:variable/_group-variables [:variable/name]}]}]
                                  [:bp/nid nid]))
-        var-path        (str (str/join (repeat (count (str/split href #"\/")) "../")) "Resources/Snippets/Variables/")
+        var-path        (str (str/join (repeat (- (count (str/split href #"\/")) 1) "../")) "Resources/Snippets/Variables/")
 
         var-dita-files
         (->> group-variables
              (sort-by :group-variable/order)
              (map #(get-in % [:variable/_group-variables 0 :variable/name]))
-             (map (comp (partial format "v%s.dita") sentence->shortcode))
-             (mapv (fn [v] [:div {:conref (str var-path v)}])))]
+             (map (comp #(str "v" %) sentence->shortcode #(or % "")))
+             (mapv (fn [v] [:p {:conref (str var-path v ".dita#" v "/snippet")}])))]
 
     (spit (io/file (fs/expand-home base-dir) href)
           (generate-topic
@@ -246,7 +263,7 @@
            name
            help-key
            (concat 
-            (md->hiccup 
+            (md->dita
              (or (q-help-content db help-key) (str "#### " name)))
             var-dita-files)))))
 
@@ -257,14 +274,14 @@
 (defn- create-ditamap-entry [db base-dir structure & [parent-path]]
   (map
    (fn [{:keys [id name io elements group?] :as el}]
-     (let [path (str parent-path "/" (when io (str (if (= :input io) "Inputs" "Outputs") "/")))
+     (let [path (str parent-path "/" (when io (str (if (= :input io) "Inputs" "Outputs") "/")) id)
            href (if (empty? elements)
-                  (str path id ".dita")
-                  (str path id "/index.dita"))]
+                  (str path ".dita")
+                  (str path "/index.dita"))]
 
-       (println "Creating" path)
-       (fs/with-cwd (fs/expand-home base-dir)
-         (fs/mkdirs path))
+       (when-not (empty? elements)
+         (fs/with-cwd (fs/expand-home base-dir)
+           (fs/mkdirs path)))
 
        (when group?
          (create-group-topic! db base-dir href el))
@@ -284,72 +301,20 @@
 
 (defn- convert-to-ditamap [db base-dir all-vars output-file]
   (let [structure       (transform-structure all-vars)
-        _               (println structure)
         ditamap-content (generate-ditamap db base-dir structure "Content/Modules")]
     (spit output-file ditamap-content)))
 
 ;;; Variable Snippets
 
-
-(defn- nested-groups [group]
-  (if-let [children (:group/children group)]
-    children
-    []))
-
-(defn- extract-deeply-nested-gvs [modules]
-  (for [m  (sort-by :module/name modules)
-        sm (->> (:module/submodules m) (sort-by :submodule/order))
-        g  (->> (:submodule/groups sm) (sort-by :group/order))
-        c1 (->> (nested-groups g) (sort-by :group/order))
-        c2 (->> (nested-groups c1) (sort-by :group/order))
-        gv (->> (:group/group-variables c2) (sort-by :group-variable/order))]
-    [(:module/name m)
-     (if (= :input (:submodule/io sm)) "Inputs" "Outputs")
-     ((juxt :submodule/name :submodule/help-key) sm)
-     ((juxt :group/name :group/help-key) g)
-     ((juxt :group/name :group/help-key) c1)
-     ((juxt :group/name :group/help-key) c2)
-     [(get-in gv [:variable/_group-variables 0 :variable/name])
-      (:group-variable/help-key gv)]]))
-
-(defn- extract-nested-gvs [modules]
-  (for [m  (sort-by :module/name modules)
-        sm (->> (:module/submodules m) (sort-by :submodule/order))
-        g  (->> (:submodule/groups sm) (sort-by :group/order))
-        c  (->> (nested-groups g) (sort-by :group/order))
-        gv (->> (:group/group-variables g) (sort-by :group-variable/order))]
-
-    [[(:module/name m) (:module/help-key m)]
-     (if (= :input (:submodule/io sm)) "Inputs" "Outputs")
-     ((juxt :submodule/name :submodule/help-key) sm)
-     ((juxt :group/name :group/help-key) g)
-     ((juxt :group/name :group/help-key) c)
-     [(get-in gv [:variable/_group-variables 0 :variable/name])
-      (:group-variable/help-key gv)]]))
-
-(defn- extract-vars [modules]
-  (for [m  (sort-by :module/name modules)
-        sm (->> (:module/submodules m) (sort-by :submodule/order))
-        g  (->> (:submodule/groups sm) (sort-by :group/order))
-        gv (->> (:group/group-variables g) (sort-by :group-variable/order))]
-    [[(:module/name m) (:module/help-key m)]
-     (if (= :input (:submodule/io sm)) "Inputs" "Outputs")
-     ((juxt :submodule/name :submodule/help-key) sm)
-     ((juxt :group/name :group/help-key) g)
-     [(get-in gv [:variable/_group-variables 0 :variable/name])
-      (:group-variable/help-key gv)]]))
-
-(defn- ->vars-w-shortcodes [flattened-vars]
+(defn- add-varable-shortcodes [vs]
   (map
-   #(let [gv     (last %)
-          v-name (first gv)]
-      (when v-name 
-        (assoc % (dec (count %)) (concat [(sentence->shortcode v-name)] gv))))
-   flattened-vars))
+   (fn [{:keys [v-name] :as v}]
+     (assoc v :id (sentence->shortcode v-name)))
+   vs))
 
 (defn- filter-single-vars [vs]
   (->> 
-   (group-by #(-> % (last) (first)) vs)
+   (group-by :id vs)
    (filter (fn [[_ v]]
              (= 1 (count v))))
    (vals)
@@ -358,7 +323,7 @@
 
 (defn- filter-duplicate-vars [vs]
   (->> 
-   (group-by #(-> % (last) (first)) vs)
+   (group-by :id vs)
    (filter (fn [[_ v]]
              (< 1 (count v))))))
 
@@ -373,32 +338,26 @@
           (generate-snippet id
                             v-name 
                             help-keys
-                            (md->hiccup content)))))
+                            (md->dita content)))))
 
-(defn- create-all-variable-snippets! [db base-dir app-eid]
-  (let [all-vars          (q-all-vars db app-eid)
-        flattened-vars    (concat
-                           (extract-vars all-vars)
-                           (extract-nested-gvs all-vars)
-                           (extract-deeply-nested-gvs all-vars))
-        vars-w-shortcodes (->vars-w-shortcodes flattened-vars)
+(defn- create-all-variable-snippets! [db base-dir]
+  (let [all-vars          (q-all-vars db)
+        vars-w-shortcodes (add-varable-shortcodes all-vars)
         single-vars       (filter-single-vars vars-w-shortcodes)
         duplicate-vars    (filter-duplicate-vars vars-w-shortcodes)]
 
     (doall 
-     (for [v single-vars
+     (for [{:keys [id v-name help-key]} single-vars
            :let
-           [[id v-name help-key] (last v)
-            content              (or (q-help-content db help-key) (str "#### " v-name))]]
+           [content (or (q-help-content db help-key) (str "#### " v-name))]]
        (create-variable-snippet! base-dir id v-name help-key content)))
 
     (doall 
      (for [[_ dups] duplicate-vars
            :let 
-           [[id v-name] (-> dups (first) (last))
-            help-keys   (map #(-> % (last) (last)) dups)
-            content     (or (find-content-for-duplicates db help-keys) (str "#### " v-name))]]
-
+           [{:keys [id v-name]} (first dups)
+            help-keys           (map :help-key dups)
+            content             (or (find-content-for-duplicates db help-keys) (str "#### " v-name))]]
        (create-variable-snippet! base-dir id v-name help-keys content)))))
 
 ;;; Workspace
@@ -406,7 +365,7 @@
 (comment 
 
   ;; Change this to where the dita project should exist
-  (def base-dir "~/Code/sig/behave-polylith/dita-test-2") 
+  (def base-dir "~/Code/sig/behave-polylith/dita-test-12")
 
   ;; Init DB
   (require '[behave-cms.server :as cms])
@@ -433,7 +392,7 @@
 
   ;; Create Variable snippets
 
-  (create-all-variable-snippets! db base-dir app-eid)
+  (create-all-variable-snippets! db base-dir)
 
   ;; Generate Group Topics
 
