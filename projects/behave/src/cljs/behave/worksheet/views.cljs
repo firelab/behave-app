@@ -123,7 +123,7 @@
       [wizard-navigation {:next-label     @(<t (bp "next"))
                           :back-label     @(<t (bp "back"))
                           :next-disabled? (empty? @*modules)
-                          :on-back        #(rf/dispatch [:navigate "/worksheets/"])
+                          :on-back        #(rf/dispatch [:wizard/navigate-home])
                           :on-next        #(rf/dispatch [:wizard/new-worksheet @name @*modules @*submodule])}]]]))
 
 (defn guided-worksheet-page [_params]
