@@ -4,6 +4,7 @@
             [behave.translate                :refer [<t bp]]
             [behave.utils                    :refer [inclusive-range]]
             [clojure.string                  :as str]
+            [data-utils.core                 :refer-macros [vmap]]
             [dom-utils.interface             :refer [input-value]]
             [re-frame.core                   :as rf]
             [reagent.core                    :as r]
