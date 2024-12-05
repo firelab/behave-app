@@ -248,14 +248,17 @@
                                      :group-variable/order
                                      {:variable/_group-variables [:variable/name]}]}]
                                  [:bp/nid nid]))
+        id-fn           (comp #(str "v" %) sentence->shortcode #(or % ""))
         var-path        (str (str/join (repeat (- (count (str/split href #"\/")) 1) "../")) "Resources/Snippets/Variables/")
 
         var-dita-files
         (->> group-variables
              (sort-by :group-variable/order)
-             (map #(get-in % [:variable/_group-variables 0 :variable/name]))
-             (map (comp #(str "v" %) sentence->shortcode #(or % "")))
-             (mapv (fn [v] [:p {:conref (str var-path v ".dita#" v "/snippet")}])))]
+             (map #(assoc % :id (id-fn (get-in % [:variable/_group-variables 0 :variable/name]))))
+             (mapv (fn [{:keys [id] :as v}]
+                     (let [help-key (:group-variable/help-key v)]
+                       [:div {:id help-key}
+                        [:p  {:conref (str var-path id ".dita#" id "/snippet")}]]))))]
 
     (spit (io/file (fs/expand-home base-dir) href)
           (generate-topic
