@@ -1,0 +1,35 @@
+Fuel Model Name,Fuel Model Code,"1-h Fuel Load
+ (t/ac)","10-h Fuel Load
+ (t/ac)","100-h Fuel Load
+ (t/ac)","Live Herbaceous Fuel Load
+ (t/ac)","Live Woody Fuel Load
+ (t/ac)",Fuel Model Type,"1-h SA/V
+ (ft2/ft3)","Live herbaceous SA/V
+ (ft2/ft3)","Live Woody SA/V
+ (ft2/ft3)","Fuel Bed Depth
+ ft","Dead Fuel Moisture of Extinction
+ (%)",Dead Fuel Heat Content (BTU/lb),"Live Fuel Heat Content
+ (BTU/lb)",Fuel Model Description
+SCAL17,150,1.3,1,1,2,2,Static,640,2200,640,4,20,8000,8000,"Chamise with Moderate Load Grass, 4 feet (Static)"
+SCAL15,151,2,3,1,0.5,2,Static,640,2200,640,3,13,10000,10000,"Chamise with Low Load Grass, 3 feet (Static)"
+SCAL16,152,2.2,4.8,1.8,3,2.8,Static,500,1500,500,6,15,8000,8000,North Slope Ceanothus with Moderate Load Grass (Static)
+SCAL14,153,3,4.5,1.1,1.4,5,Static,350,1500,250,3,15,9211,9211,Manzanita/Scrub Oak with Low Load Grass (Static)
+SCAL18,154,5.5,0.8,0.1,0.75,2.5,Static,640,1500,640,3,25,9200,9200,Coastal Sage/Buckwheat Scrub with Low Load Grass (Static)
+V-Hb,110,0.3,0,0,1.2,0,Dynamic,6000,6000,6000,0.35,24,19000,19000,"Short Gass, < 0.5 m (Dynamic)"
+V-Ha,111,0.5,0.1,0,2.5,0.3,Dynamic,4000,6000,4000,0.6,24,19000,19000,"Tall Grass, > 0.5 m (Dynamic)"
+V-MH,155,1,1,0,1.5,5.5,Dynamic,4500,8500,4000,0.55,25,19500,19500,"Short Green Shrub < 1 m With Grass, Discontinuous (< 1 m) often discontinuous and with grass (Dynamic)"
+V-MMb,156,4,0.5,0,0,7,Static,3000,3000,3000,0.9,20,20500,20500,"Short Shrub < 1 m, Low Dead Fraction and/or Thick Foliage (Static)"
+V-MAb,157,6,0.5,0,0,7.5,Static,4500,4500,4500,0.5,35,21000,21000,"Short Shrub < 1 m, High Dead Fraction and/or Thin Fuel (Static)"
+V-MMa,158,6,4,0,0,13,Static,2500,3000,3000,1.7,24,20500,20500,"Tall Shrub > 1 m, Low Dead Fraction and/or Thick Foliage (Static)"
+V-MAa,159,9.5,2.5,0,0,14.5,Static,3500,4000,4000,1.05,35,21000,21000,"Tall Shrub > 1 m, High Dead Fraction and/or Thin Fuel (Static)"
+M-EUCd,166,1.37,2.89,1.59,0,1.84,Static,4500,4200,5000,0.4,26,21000,20500,"Discontinuous Litter Eucalyptus Plantation, With or Without Shrub Understory (Static)"
+M-H,167,2.71,1,0,0.66,0.1,Dynamic,5500,8000,4500,0.1,30,20500,20500,"Deciduous or Conifer Litter, Shrub and Herb Understory"
+M-F,168,4.5,1.5,0.5,2.35,0.48,Dynamic,6000,8000,4500,0.3,35,19500,19500,"Deciduous or Conifer Litter, Shrub and Fern Understory (Dynamic)"
+M-CAD,169,4.54,1.87,0.61,0,9.08,Static,6000,4921,5000,0.63,30,20000,20000,"Deciduous Litter, Shrub Understory (Static)"
+M-ESC,170,5.65,1.5,0.48,0,7.89,Static,5000,4921,5500,0.5,27,20500,20500,"Sclerophyll Broadleaf Litter, Shrub Understory (Static)"
+M-PIN,171,7.21,3,0,0,6.89,Static,5500,5500,6000,0.5,40,20500,21500,"Medium-Long Needle Pine Litter, Shrub Understory (Static)"
+M-EUC,172,8.37,3.81,0,0,4.51,Static,4700,4200,5000,0.64,32,21000,21000,"Eucalyptus Litter, Shrub Understory (Static)"
+F-RAC,190,3.75,2,1,0,1.18,Static,6500,4921,4500,0.05,28,20500,20500,"Very Compact Litter, Short Needle Conifers (Static)"
+F-FOL,191,2.67,1.27,0.69,0,1.16,Static,4500,5500,5000,0.15,25,20500,20500,"Compact Litter, Deciduous or Evergreen Foliage (Static)"
+F-PIN,192,6.5,1.5,0,0,0,Static,5500,5500,5500,0.1,45,20500,21500,Litter from Medium-Long Needle Pine Trees (Static)
+F-EUC,193,4.63,2.96,1.27,0,1.12,Static,4200,4200,5000,0.32,26,21000,20500,"Pure Eucalyptus Litter, No Understory (Static)"
