@@ -368,7 +368,7 @@
 (comment 
 
   ;; Change this to where the dita project should exist
-  (def base-dir "~/Code/sig/behave-polylith/dita-test-12")
+  (def base-dir "~/Code/sig/behave-polylith/dita-test-16")
 
   ;; Init DB
   (require '[behave-cms.server :as cms])
@@ -423,6 +423,5 @@
       app-eid)))
 
   (convert-to-ditamap db base-dir all-groups (io/file (fs/expand-home base-dir) "behave.ditamap"))
-                      
 
   )
