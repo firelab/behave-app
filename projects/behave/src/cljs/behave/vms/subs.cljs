@@ -172,3 +172,13 @@
                [?t :translation/translation ?translation]]
              @@vms-conn language-short-code)
         (into {}))))
+
+(reg-sub
+ :vms/is-group-variable-discrete-multiple?
+ (fn [_ [_ gv-uuid]]
+   (d/q '[:find ?discrete-multiple .
+          :in $ ?gv-uuid
+          :where
+          [?gv :bp/uuid ?gv-uuid]
+          [?gv :group-variable/discrete-multiple? ?discrete-multiple]]
+        @@vms-conn gv-uuid)))
