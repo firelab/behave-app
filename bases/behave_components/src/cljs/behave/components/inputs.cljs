@@ -58,7 +58,7 @@
 ;; Number
 ;;==============================================================================
 
-(defn number-input [{:keys [label id name on-change on-blur disabled? error? min max value value-atom step]}]
+(defn number-input [{:keys [label id name on-change on-blur disabled? error? error-msg min max value value-atom step]}]
   [:div {:class ["input-number " (when error? "input-number--error")]}
    [:label
     {:class "input-number__label" :for id}
@@ -75,7 +75,9 @@
              :max       max}
       step       (assoc :step step)
       value      (assoc :value value)
-      value-atom (assoc :value @value-atom))]])
+      value-atom (assoc :value @value-atom))]
+   (when error?
+     [:div.input-number__error error-msg])])
 
 ;;==============================================================================
 ;; Range
@@ -234,7 +236,7 @@
 ;;==============================================================================
 
 (defn text-input
-  [{:keys [disabled? error? focused? id label name on-blur on-change on-focus
+  [{:keys [disabled? error? error-msg focused? id label name on-blur on-change on-focus
            placeholder value value-atom default-value on-key-press]}]
   [:div {:class ["input-text"
                  (when error?    "input-text--error")
@@ -253,4 +255,6 @@
              on-change     (assoc :on-change on-change)
              default-value (assoc :default-value default-value)
              value         (assoc :value value)
-             value-atom    (assoc :value @value-atom))]])
+             value-atom    (assoc :value @value-atom))]
+   (when error?
+     [:div.input-text__error error-msg])])

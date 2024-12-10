@@ -4,6 +4,7 @@
             [behave.translate                :refer [<t bp]]
             [behave.utils                    :refer [inclusive-range]]
             [clojure.string                  :as str]
+            [data-utils.core                 :refer-macros [vmap]]
             [dom-utils.interface             :refer [input-value]]
             [re-frame.core                   :as rf]
             [reagent.core                    :as r]
@@ -11,11 +12,12 @@
 
 ;;; Helpers
 
-(defn upsert-input [ws-uuid group-uuid repeat-id gv-uuid value & [units]]
+(defn- upsert-input [ws-uuid group-uuid repeat-id gv-uuid value & [units]]
   (rf/dispatch [:wizard/upsert-input-variable ws-uuid group-uuid repeat-id gv-uuid value units]))
 
-(defn highlight-help-section [help-key]
+(defn- highlight-help-section [help-key]
   (rf/dispatch [:help/highlight-section help-key]))
+
 
 ;;; Components
 
@@ -27,8 +29,8 @@
 (defmethod wizard-input nil [variable] (println [:NO-KIND-VAR variable]))
 
 (defmethod wizard-input :continuous [{gv-uuid           :bp/uuid
-                                      var-max           :variable/maximum
                                       var-min           :variable/minimum
+                                      var-max           :variable/maximum
                                       dimension-uuid    :variable/dimension-uuid
                                       domain-uuid       :variable/domain-uuid
                                       native-unit-uuid  :variable/native-unit-uuid
@@ -41,28 +43,34 @@
                                      repeat-group?]
   (r/with-let [*domain               (rf/subscribe [:vms/entity-from-uuid domain-uuid])
                value                 (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id gv-uuid])
+               native-unit-uuid      (or (:domain/native-unit-uuid @*domain) native-unit-uuid)
                *unit-uuid            (rf/subscribe [:worksheet/input-units ws-uuid group-uuid repeat-id gv-uuid])
                warn-limit?           (true? @(rf/subscribe [:state :warn-multi-value-input-limit]))
                acceptable-char-codes (set (map #(.charCodeAt % 0) "0123456789., "))
                on-focus-click        (partial highlight-help-section help-key)
-               on-change-units       #(rf/dispatch [:wizard/update-input-units ws-uuid group-uuid repeat-id gv-uuid %])
+               on-change-units       #(let [new-units-uuid %
+                                            old-units-uuid (or @*unit-uuid native-unit-uuid)
+                                            value          @value]
+                                        (rf/dispatch [:wizard/update-input-units
+                                                      (vmap ws-uuid group-uuid repeat-id gv-uuid value new-units-uuid old-units-uuid)]))
                show-range-selector? (rf/subscribe [:wizard/show-range-selector? gv-uuid repeat-id])]
-    (let [value-atom (r/atom @value)]
+    (let [value-atom         (r/atom @value)
+          *outside-range?    (rf/subscribe [:wizard/outside-range? native-unit-uuid @*unit-uuid var-min var-max @value])
+          *outside-range-msg (rf/subscribe [:wizard/outside-range-error-msg native-unit-uuid @*unit-uuid var-min var-max])]
       [:div
        [:div.wizard-input
         [:div.wizard-input__input
          {:on-click on-focus-click
           :on-focus on-focus-click}
-         [c/text-input {:id           (str repeat-id "-" uuid)
+         [c/text-input {:id           (str repeat-id "-" gv-uuid)
                         :label        (if repeat-group?
                                         @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
                                         "Values:")
                         :placeholder  (when repeat-group? "Values")
                         :value-atom   value-atom
                         :required?    true
-                        :min          var-min
-                        :max          var-max
-                        :error?       warn-limit?
+                        :error?       (or warn-limit? @*outside-range?)
+                        :error-msg    @*outside-range-msg
                         :on-change    #(reset! value-atom (input-value %))
                         :on-key-press (fn [event]
                                         (when-not (contains? acceptable-char-codes (.-charCode event))
@@ -185,7 +193,7 @@
     [:div.wizard-input
      {:on-click on-focus-click
       :on-focus on-focus-click}
-     [c/text-input {:id            (str repeat-id "-" uuid)
+     [c/text-input {:id            (str repeat-id "-" gv-uuid)
                     :label         (if repeat-group?
                                      @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
                                      "Values:")

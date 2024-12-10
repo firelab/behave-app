@@ -1,10 +1,12 @@
 (ns behave.wizard.subs
   (:require [behave.schema.core     :refer [rules]]
+            [behave.lib.units       :refer [convert]]
             [behave.vms.store       :refer [vms-conn]]
             [behave.translate       :refer [<t]]
             [clojure.set            :refer [rename-keys intersection]]
             [datascript.core        :as d]
             [re-frame.core          :refer [reg-sub subscribe] :as rf]
+            [number-utils.interface :refer [is-numeric? parse-float]]
             [string-utils.interface :refer [->kebab]]
             [clojure.string         :as str]
             [bidi.bidi              :refer [path-for]]
@@ -16,6 +18,46 @@
 (defn- matching-submodule? [io slug submodule]
   (and (= io (:submodule/io submodule))
        (= slug (:slug submodule))))
+
+(defn- in-range?
+  "Identifies if a value `v` is within `v-min` and `v-max`."
+  [v-min v-max v]
+  (and (not (neg? v))
+       (cond
+         (and (some? v-max) (some? v-min))
+         (<= v-min v v-max)
+
+         (some? v-min)
+         (<= v-min v)
+
+         (some? v-max)
+         (<= 0 v v-max))))
+
+(defn- values-in-range?
+  [var-min var-max v]
+  {:pre [(or (nil? v) (string? v))]}
+  (if (empty? v)
+    true
+    (let [values (->> (str/split (str v) #"[, ]") (remove empty?))]
+      (and (every? is-numeric? values)
+           (every? (partial in-range? var-min var-max)
+                   (map parse-float values))))))
+
+(defn- outside-range-error-msg
+  [v-min v-max]
+  (let [msg (cond
+              (and v-min v-max)
+              ["Error: Value(s) are not within range (min: %2f, max: %2f)" v-min v-max]
+
+              v-min
+              ["Error: Value(s) are not within range (min: %2f)" v-min]
+
+              v-max
+              ["Error: Value(s) are not within range (min: %2f, min: %2f)" 0 v-max]
+
+              :else
+              ["Error: Value(s) are not positive." 0 v-max])]
+    (apply gstring/format msg)))
 
 ;;; Subscriptions
 
@@ -269,6 +311,33 @@
  :wizard/multi-value-input-limit
  (fn [_db _query]
    multi-value-input-limit))
+
+;;; Outside Range
+
+(reg-sub
+ :wizard/outside-range?
+ (fn [[_ native-unit-uuid unit-uuid _ _ _]]
+   [(rf/subscribe [:vms/units-uuid->short-code native-unit-uuid])
+    (rf/subscribe [:vms/units-uuid->short-code unit-uuid])])
+ (fn [[from-units to-units] [_ _ _ var-min var-max value]]
+   (not
+    (if (nil? to-units)
+        (values-in-range? var-min var-max value)
+        (values-in-range? (convert var-min from-units to-units)
+                          (convert var-max from-units to-units)
+                          value)))))
+
+(reg-sub
+ :wizard/outside-range-error-msg
+ (fn [[_ native-unit-uuid unit-uuid _ _ _]]
+   [(rf/subscribe [:vms/units-uuid->short-code native-unit-uuid])
+    (rf/subscribe [:vms/units-uuid->short-code unit-uuid])])
+
+ (fn [[from-units to-units] [_ _ _ var-min var-max]]
+   (if (nil? to-units)
+     (outside-range-error-msg var-min var-max)
+     (outside-range-error-msg (convert var-min from-units to-units)
+                              (convert var-max from-units to-units)))))
 
 (reg-sub
  :wizard/warn-limit?
