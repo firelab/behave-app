@@ -147,9 +147,9 @@
        ^{:key "conditionals"}
        [accordion
         "Conditionals"
-        [:div.col-8
+        [:div.col-9
          [conditionals-table id (concat @var-conditionals @module-conditionals) :group/conditionals :group/conditionals-operator]]
-        [:div.col-4
+        [:div.col-3
          [manage-conditionals id :group/conditionals]]]
        [:hr]
        ^{:key "translations"}

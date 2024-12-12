@@ -7,7 +7,6 @@
    [behave-cms.components.common :refer [dropdown
                                          checkboxes
                                          btn-sm
-                                         simple-table
                                          labeled-float-input
                                          radio-buttons]]
    [behave-cms.utils             :as u]
@@ -65,7 +64,7 @@
 (defn conditionals-table
   "Table of conditionals for entity."
   [entity-id conditionals cond-attr cond-op-attr]
-  (when conditionals
+  (when (seq conditionals)
     (let [entity (rf/subscribe [:entity entity-id])]
       [:div.conditionals-table
        [:div.line]

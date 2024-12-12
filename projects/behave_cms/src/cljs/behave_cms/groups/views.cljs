@@ -85,9 +85,9 @@
        ^{:key "conditionals"}
        [accordion
         "Conditionals"
-        [:div.col-6
+        [:div.col-9
          [conditionals-table submodule-eid (concat @var-conditionals @module-conditionals) :submodule/conditionals :submodule/conditionals-operator]]
-        [:div.col-6
+        [:div.col-3
          [manage-conditionals submodule-eid :submodule/conditionals]]]
 
        [:hr]
