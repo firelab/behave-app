@@ -6,6 +6,7 @@
    [behave.schema.conditionals]
    [behave-cms.components.common :refer [dropdown
                                          checkboxes
+                                         btn-sm
                                          simple-table
                                          labeled-float-input
                                          radio-buttons]]
@@ -32,9 +33,9 @@
             add-tx     (mapv (fn [v] [:db/add nid :conditional/values v]) new-values)
             retract-tx (mapv (fn [v] [:db/retract nid :conditional/values v]) old-values)]
         (rf/dispatch [:ds/transact
-                        (concat [(dissoc conditional :conditional/values)]
-                                add-tx
-                                retract-tx)])))))
+                      (concat [(dissoc conditional :conditional/values)]
+                              add-tx
+                              retract-tx)])))))
 
 (defn- on-submit [entity-id cond-attr]
   (let [conditional @(rf/subscribe [:state [:editors :conditional cond-attr]])]
@@ -64,21 +65,60 @@
 (defn conditionals-table
   "Table of conditionals for entity."
   [entity-id conditionals cond-attr cond-op-attr]
-  (let [entity (rf/subscribe [:entity entity-id])]
-    [:<>
-     [dropdown
-      {:label     "Combined Operator:"
-       :selected  (->str (get @entity cond-op-attr))
-       :on-select #(rf/dispatch [:api/update-entity
-                                 {:db/id entity-id cond-op-attr (keyword (u/input-value %))}])
-       :options   [{:value "and" :label "AND"}
-                   {:value "or" :label "OR"}]}]
-     [simple-table
-      [:variable/name :conditional/operator :conditional/values]
-      (sort-by :variable/name conditionals)
-      {:on-select #(update-draft cond-attr %)
-       :on-delete #(when (js/confirm (str "Are you sure you want to delete the conditional " (:variable/name %) "?"))
-                     (rf/dispatch [:api/delete-entity %]))}]]))
+  (when conditionals
+    (let [entity (rf/subscribe [:entity entity-id])]
+      [:div.conditionals-table
+       [:div.line]
+       [:div.conditionals-table__operator
+        [dropdown
+         {
+          ;;:label     "Combined Operator:"
+          :selected  (->str (get @entity cond-op-attr))
+          :on-select #(rf/dispatch [:api/update-entity
+                                    {:db/id entity-id cond-op-attr (keyword (u/input-value %))}])
+          :options   [{:value "and" :label "AND"}
+                      {:value "or" :label "OR"}]}]]
+       [:div.line]
+       [:div.conditionals-table__entries
+        (map
+         (fn [{gv-uuid          :conditional/group-variable-uuid
+               op               :conditional/operator
+               values           :conditional/values
+               eid              :db/id
+               sub-conditionals :conditional/sub-conditionals
+               :as              conditional-entity}]
+           (let [v-name @(rf/subscribe [:gv-uuid->variable-name gv-uuid])]
+             [:div.conditionals-table__row
+              (when (seq sub-conditionals)
+                [:div.conditionals-table__operator
+                 [:div.line]
+                 [dropdown
+                  {:selected  "and"
+                   :disabled? true
+                   :options   [{:value "and" :label "AND"}]}]
+                 [:div.line]])
+              [:div {:class ["conditionals-table__row__conditional"
+                             (when (seq sub-conditionals)
+                               "conditionals-table__row__conditional__with-sub-conditionals")]}
+               [:div.conditionals-table__row__conditional__group
+                [:div.conditionals-table__values
+                 [:div.conditionals-table__values__var-name "\"" v-name "\""]
+                 [:div.conditionals-table__values__op op]
+                 [:div.conditionals-table__values__values (str values)]
+                 [:div.conditionals-table__entry__manage
+                  [btn-sm :outline-secondary "Edit"   #(update-draft cond-attr conditional-entity)]
+                  [btn-sm :outline-danger    "Delete" #(when
+                                                           (js/confirm
+                                                            (str "Are you sure you want to delete the conditional "
+                                                                 (:variable/name %)
+                                                                 "?"))
+                                                         (rf/dispatch [:api/delete-entity conditional-entity]))]]]
+                (when (seq sub-conditionals)
+                  [:div.conditionals-table__row__sub-conditionals
+                   [conditionals-table eid sub-conditionals
+                    :group/conditionals
+                    :conditional/sub-conditional-operator]])]]]))
+         (sort-by :variable/name conditionals))]])))
 
 (defn manage-module-conditionals
   "Form to manage Module conditionals for entity."
@@ -116,7 +156,7 @@
         modules     (rf/subscribe [:subgroup/app-modules entity-id])
         submodules  (rf/subscribe [:pull-children :module/submodules @(get-field (conj var-path :module))])
         groups      (rf/subscribe [:submodule/groups-w-subgroups @(get-field (conj var-path :submodule))])
-        is-output?  (rf/subscribe [:submodule/is-output? @(get-field (conj var-path :submodule))]) 
+        is-output?  (rf/subscribe [:submodule/is-output? @(get-field (conj var-path :submodule))])
         *group      (get-field (conj var-path :group))
         variables   (rf/subscribe [:group/variables @*group])
         *gv-uuid    (get-field (conj cond-path :conditional/group-variable-uuid))
@@ -127,7 +167,7 @@
         reset-cond! #(set-field cond-path {:conditional/type :group-variable})
         *values     (get-field (conj cond-path :conditional/values))]
 
-    [:<> 
+    [:<>
      [dropdown
       {:label     "Module:"
        :selected  (get-field (conj var-path :module))
@@ -147,7 +187,7 @@
                      (set-field (conj var-path :submodule) (u/input-int-value %)))
        :options   (map (fn [{value :db/id label :submodule/name io :submodule/io}]
                          {:value value :label (str label " (" (->str io) ")")})
-                     (sort-by (juxt :submodule/io :submodule/name) @submodules))}]
+                       (sort-by (juxt :submodule/io :submodule/name) @submodules))}]
 
      [dropdown
       {:label     "Group/Subgroup:"
