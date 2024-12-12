@@ -33,8 +33,8 @@
 #_{:clj-kondo/ignore [:missing-docstring :shadowed-var]}
 (def payload (map (fn [{:keys [key min max]}]
                (-> {:db/id (get-in bp6-code->eids [key :eid])}        
-                   (assoc :variable/maximum (parse-double max))
-                   (assoc :variable/minimum (parse-double min))))
+                   (assoc :variable/maximum (-> max (str/replace #"," "") parse-double))
+                   (assoc :variable/minimum (-> max (str/replace #"," "") parse-double))))
              vars-min-max))
 
 ;; ===========================================================================================================
