@@ -70,9 +70,7 @@
        [:div.line]
        [:div.conditionals-table__operator
         [dropdown
-         {
-          ;;:label     "Combined Operator:"
-          :selected  (->str (get @entity cond-op-attr))
+         {:selected  (->str (get @entity cond-op-attr))
           :on-select #(rf/dispatch [:api/update-entity
                                     {:db/id entity-id cond-op-attr (keyword (u/input-value %))}])
           :options   [{:value "and" :label "AND"}
@@ -99,24 +97,24 @@
               [:div {:class ["conditionals-table__row__conditional"
                              (when (seq sub-conditionals)
                                "conditionals-table__row__conditional__with-sub-conditionals")]}
-               [:div.conditionals-table__row__conditional__group
-                [:div.conditionals-table__values
-                 [:div.conditionals-table__values__var-name "\"" v-name "\""]
-                 [:div.conditionals-table__values__op op]
-                 [:div.conditionals-table__values__values (str values)]
-                 [:div.conditionals-table__entry__manage
-                  [btn-sm :outline-secondary "Edit"   #(update-draft cond-attr conditional-entity)]
-                  [btn-sm :outline-danger    "Delete" #(when
-                                                           (js/confirm
-                                                            (str "Are you sure you want to delete the conditional "
-                                                                 (:variable/name %)
-                                                                 "?"))
-                                                         (rf/dispatch [:api/delete-entity conditional-entity]))]]]
-                (when (seq sub-conditionals)
-                  [:div.conditionals-table__row__sub-conditionals
-                   [conditionals-table eid sub-conditionals
-                    :group/conditionals
-                    :conditional/sub-conditional-operator]])]]]))
+               [:div.conditionals-table__values
+                [:div.conditionals-table__values__var-name "\"" v-name "\""]
+                [:div.conditionals-table__values__op op]
+                [:div.conditionals-table__values__values (str values)]
+                [:div.conditionals-table__entry__manage
+                 [btn-sm :outline-secondary "Edit"   #(update-draft cond-attr conditional-entity)]
+                 [btn-sm :outline-danger    "Delete" #(when
+                                                          (js/confirm
+                                                           (str "Are you sure you want to delete the conditional "
+                                                                (:variable/name %)
+                                                                "?"))
+                                                        (rf/dispatch [:api/delete-entity conditional-entity]))]
+                 [btn-sm :outline-secondary "Add Sub Conditional" #(prn "adding sub conditional" conditional-entity)]]]
+               (when (seq sub-conditionals)
+                 [:div.conditionals-table__row__sub-conditionals
+                  [conditionals-table eid sub-conditionals
+                   :group/conditionals
+                   :conditional/sub-conditional-operator]])]]))
          (sort-by :variable/name conditionals))]])))
 
 (defn manage-module-conditionals
