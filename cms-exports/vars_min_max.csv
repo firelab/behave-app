@@ -8,7 +8,7 @@ Resource Line Production Rate,1.0,250,ch/h,vContainResourceProd
 Number of Contour Intervals,1,100,,vMapContourCount
 Contour Interval,1,1000,ft,vMapContourInterval
 Map Distance,0.1,100,in,vMapDist
-Slope,0,30,%,vSiteSlopeDegrees
+Slope,0,30,%,vSiteSlopeFraction
 Elapsed Time,0.1,8,h,vSurfaceFireElapsedTime
 P-G Height of Understory,1,6,ft,vSurfaceFireHeatPerUnitArea
 Scorch Height,0,200,ft,vSurfaceFireScorchHtAtVector
