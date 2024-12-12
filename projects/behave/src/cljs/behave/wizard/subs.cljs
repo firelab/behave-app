@@ -321,10 +321,10 @@
     (rf/subscribe [:vms/units-uuid->short-code unit-uuid])])
  (fn [[from-units to-units] [_ _ _ var-min var-max value]]
    (not
-    (if (nil? to-units)
+    (if (or (nil? to-units) (= from-units to-units))
         (values-in-range? var-min var-max value)
-        (values-in-range? (convert var-min from-units to-units)
-                          (convert var-max from-units to-units)
+        (values-in-range? (convert var-min from-units to-units 2)
+                          (convert var-max from-units to-units 2)
                           value)))))
 
 (reg-sub
@@ -334,10 +334,10 @@
     (rf/subscribe [:vms/units-uuid->short-code unit-uuid])])
 
  (fn [[from-units to-units] [_ _ _ var-min var-max]]
-   (if (nil? to-units)
+   (if (or (nil? to-units) (= from-units to-units))
      (outside-range-error-msg var-min var-max)
-     (outside-range-error-msg (convert var-min from-units to-units)
-                              (convert var-max from-units to-units)))))
+     (outside-range-error-msg (convert var-min from-units to-units 2)
+                              (convert var-max from-units to-units 2)))))
 
 (reg-sub
  :wizard/warn-limit?

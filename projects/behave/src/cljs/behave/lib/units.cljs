@@ -1,5 +1,6 @@
 (ns behave.lib.units
   (:require
+   [cljs.math              :refer [pow round]]
    [clojure.string         :as str]
    [behave.lib.enums       :as enum]
    [map-utils.interface    :refer [index-by]]
@@ -122,14 +123,22 @@
   (let [unit (get all-units short-hand)]
     (get (:enum unit) (:unit unit))))
 
+(defn round-to-decimals
+  "Round given value to number of decimal places."
+  [value decimals]
+  (let [factor (pow 10 decimals)]
+    (/ (round (* value factor)) factor)))
+
 (defn convert
   "Conversion `value`in `dimension` `from` units `to` new units."
   ([value from to]
-   (convert value (get-in all-units [from :dimension]) from to))
-  ([value dimension from to]
-   (let [{:keys [to-fn from-fn]} (get dimension-conversions dimension)
+   (convert value from to nil))
+  ([value from to decimals]
+   (let [dimension (get-in all-units [from :dimension])
+         {:keys [to-fn from-fn]} (get dimension-conversions dimension)
          to                      (if (string? to) (get-unit to) to)
-         from                    (if (string? from) (get-unit from) from)]
-     (-> value
-         (to-fn from)
-         (from-fn to)))))
+         from                    (if (string? from) (get-unit from) from)
+         result                  (-> value
+                                     (to-fn from)
+                                     (from-fn to))]
+     (if decimals (round-to-decimals result decimals) result))))
