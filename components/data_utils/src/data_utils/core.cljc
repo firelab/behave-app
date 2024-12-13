@@ -2,6 +2,24 @@
   (:require [clojure.string :as str]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Macros
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defmacro vmap
+  "Creates a hash-map using just variable names.
+
+  Example:
+  ```
+  (let [a 1
+        b 2
+        c 3]
+    (hmap a b c)) ; => {:a 1 :b 2 :c 3}
+  ```
+  "
+  [& vars]
+  `(hash-map ~@(mapcat (fn [v] [(keyword (name v)) v]) vars)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Utility Functions - Data Utils
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

@@ -82,8 +82,17 @@
 (defn pull-many [pattern ids]
   (posh-pull-many @vms-conn pattern ids))
 
-(defn entity-from-uuid [uuid]
-  (d/entity @@vms-conn [:bp/uuid uuid]))
+(defn entity-from-uuid
+  "Return a re-frame entity using a UUID (maps to the `:bp/uuid` attribute)"
+  [bp-uuid]
+  (d/entity @@vms-conn [:bp/uuid bp-uuid]))
 
-(defn entity-from-eid [eid]
+(defn entity-from-nid
+  "Return a re-frame entity using a Nano-ID (maps to the `:bp/nid` attribute)"
+  [bp-nid]
+  (d/entity @@vms-conn [:bp/nid bp-nid]))
+
+(defn entity-from-eid
+  "Return a re-frame entity using an entity ID (maps to the `:db/id` attribute)"
+  [eid]
   (d/entity @@vms-conn eid))
