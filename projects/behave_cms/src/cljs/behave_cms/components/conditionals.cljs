@@ -355,7 +355,8 @@
                                       [:show-sub-conditional-editor conditional-eid]
                                       (fn [state] (not state))])
                         (rf/dispatch [:state/set-state
-                                      [:show-sub-conditional-editor conditional-eid] true])))]]]
+                                      :show-sub-conditional-editor
+                                      {conditional-eid true}])))]]]
                 (when @(rf/subscribe [:state [:show-sub-conditional-editor conditional-eid]])
                   [add-sub-conditionals
                    parent-eid
