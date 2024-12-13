@@ -41,7 +41,7 @@
     :db/isComponent true}
 
    {:db/ident       :conditional/sub-conditional-operator
-    :db/doc         "Subconditional's operator. Can be either: `:equal`, `:not-equal`, `:in`."
+    :db/doc         "Subconditional's operator. Can be either: `:and`, `:or`."
     :db/valueType   :db.type/keyword
     :db/cardinality :db.cardinality/one}])
 

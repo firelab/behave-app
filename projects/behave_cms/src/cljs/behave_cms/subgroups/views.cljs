@@ -148,7 +148,7 @@
        [accordion
         "Conditionals"
         [:div.col-9
-         [conditionals-table id (concat @var-conditionals @module-conditionals) :group/conditionals :group/conditionals-operator]]
+         [conditionals-table id id (concat @var-conditionals @module-conditionals) :group/conditionals :group/conditionals-operator]]
         [:div.col-3
          [manage-conditionals id :group/conditionals]]]
        [:hr]

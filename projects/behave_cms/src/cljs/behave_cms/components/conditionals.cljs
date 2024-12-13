@@ -11,9 +11,16 @@
                                          radio-buttons]]
    [behave-cms.utils             :as u]
    [re-frame.core                :as rf]
-   [string-utils.interface       :refer [->str]]))
+   [string-utils.interface       :refer [->str]]
+   [reagent.core :as r]))
 
 ;;; Helpers
+
+(defn- clear-editor []
+  (rf/dispatch [:state/set-state :editors {}]))
+
+(defn- clear-show-sub-conditional-editor []
+  (rf/dispatch [:state/set-state :show-sub-conditional-editor {}]))
 
 (defn- inverse-attr
   "Takes an attribute of the form `:parent/child` returns `:parent/_child`."
@@ -43,7 +50,7 @@
       (rf/dispatch [:api/create-entity
                     (merge conditional {(inverse-attr cond-attr) entity-id})])))
   (rf/dispatch [:state/set-state cond-attr nil])
-  (rf/dispatch [:state/set-state :editors {}]))
+  (clear-editor))
 
 (defn- toggle-item [x xs]
   (let [xs-set (set xs)]
@@ -60,62 +67,6 @@
       (rf/dispatch [:state/set-state cond-path conditional]))))
 
 ;;; Components
-
-(defn conditionals-table
-  "Table of conditionals for entity."
-  [entity-id conditionals cond-attr cond-op-attr]
-  (when (seq conditionals)
-    (let [entity (rf/subscribe [:entity entity-id])]
-      [:div.conditionals-table
-       [:div.line]
-       [:div.conditionals-table__operator
-        [dropdown
-         {:selected  (->str (get @entity cond-op-attr))
-          :on-select #(rf/dispatch [:api/update-entity
-                                    {:db/id entity-id cond-op-attr (keyword (u/input-value %))}])
-          :options   [{:value "and" :label "AND"}
-                      {:value "or" :label "OR"}]}]]
-       [:div.line]
-       [:div.conditionals-table__entries
-        (map
-         (fn [{gv-uuid          :conditional/group-variable-uuid
-               op               :conditional/operator
-               values           :conditional/values
-               eid              :db/id
-               sub-conditionals :conditional/sub-conditionals
-               :as              conditional-entity}]
-           (let [v-name @(rf/subscribe [:gv-uuid->variable-name gv-uuid])]
-             [:div.conditionals-table__row
-              (when (seq sub-conditionals)
-                [:div.conditionals-table__operator
-                 [:div.line]
-                 [dropdown
-                  {:selected  "and"
-                   :disabled? true
-                   :options   [{:value "and" :label "AND"}]}]
-                 [:div.line]])
-              [:div {:class ["conditionals-table__row__conditional"
-                             (when (seq sub-conditionals)
-                               "conditionals-table__row__conditional__with-sub-conditionals")]}
-               [:div.conditionals-table__values
-                [:div.conditionals-table__values__var-name "\"" v-name "\""]
-                [:div.conditionals-table__values__op op]
-                [:div.conditionals-table__values__values (str values)]
-                [:div.conditionals-table__entry__manage
-                 [btn-sm :outline-secondary "Edit"   #(update-draft cond-attr conditional-entity)]
-                 [btn-sm :outline-danger    "Delete" #(when
-                                                          (js/confirm
-                                                           (str "Are you sure you want to delete the conditional "
-                                                                (:variable/name %)
-                                                                "?"))
-                                                        (rf/dispatch [:api/delete-entity conditional-entity]))]
-                 [btn-sm :outline-secondary "Add Sub Conditional" #(prn "adding sub conditional" conditional-entity)]]]
-               (when (seq sub-conditionals)
-                 [:div.conditionals-table__row__sub-conditionals
-                  [conditionals-table eid sub-conditionals
-                   :group/conditionals
-                   :conditional/sub-conditional-operator]])]]))
-         (sort-by :variable/name conditionals))]])))
 
 (defn manage-module-conditionals
   "Form to manage Module conditionals for entity."
@@ -256,6 +207,59 @@
       (->str (:conditional/type @conditional))
       [{:label "Module" :value "module"}
        {:label "Variable" :value "group-variable"}]
+      #(do (clear-show-sub-conditional-editor)
+           (set-type (keyword (u/input-value %))))]
+
+     (condp = (:conditional/type @conditional)
+       :group-variable
+       [manage-variable-conditionals entity-id cond-attr @conditional]
+
+       :module
+       [manage-module-conditionals entity-id cond-attr @conditional]
+
+       [:<>])
+
+     [:button.btn.btn-sm.btn-outline-primary.mt-4
+      {:type     "submit"
+       :disabled (not (s/valid? :behave/conditional @conditional))}
+      "Save"]]))
+
+(defn add-sub-conditionals
+  "Component to manage conditional for an entity. Takes:
+   - entity-id [int]: the ID of the entity
+   - cond-attr [keyword]: the attribute name of the conditionals (e.g. `:group/conditionals`)"
+  [entity-id cond-attr sub-conditional-eid]
+
+  (let [cond-path   [:editors :conditional cond-attr]
+        set-type    #(rf/dispatch [:state/set-state
+                                   cond-path
+                                   {:conditional/type     %
+                                    :conditional/operator :equal}])
+        conditional (rf/subscribe [:state cond-path])]
+    (prn "entity-id" entity-id)
+    (prn "sub-conditional-eid" sub-conditional-eid)
+    [:form.row
+     {:on-submit (u/on-submit
+                  #(let [conditional @(rf/subscribe [:state [:editors :conditional cond-attr]])]
+                     (if (:bp/nid conditional)
+                       (update-conditional! conditional)
+                       (do
+                         (when (nil? (:conditional/sub-conditional-operator
+                                      @(rf/subscribe [:entity sub-conditional-eid])))
+                           (rf/dispatch [:ds/transact {:db/id                                sub-conditional-eid
+                                                       :conditional/sub-conditional-operator :and}]))
+                         (rf/dispatch [:api/create-entity
+                                       (merge conditional
+                                              {(inverse-attr cond-attr) sub-conditional-eid})])))
+                     (rf/dispatch [:state/set-state cond-attr nil])
+                     (clear-editor)
+                     (clear-show-sub-conditional-editor)))}
+     [:h4 "Add Sub Conditional"]
+     [radio-buttons
+      "Conditional Type:"
+      (->str (:conditional/type @conditional))
+      [{:label "Module" :value "module"}
+       {:label "Variable" :value "group-variable"}]
       #(set-type (keyword (u/input-value %)))]
 
      (condp = (:conditional/type @conditional)
@@ -271,3 +275,98 @@
       {:type     "submit"
        :disabled (not (s/valid? :behave/conditional @conditional))}
       "Save"]]))
+
+(defn conditionals-table
+  "Table of conditionals for entity.
+  - `parent-eid`: Used to keep track of the first-parent entity so
+    `manage-conditionals` can lookup the proper modules, submodules, etc
+
+  - `this-eid`: Starts as the same as the `parent-eid`, but on each recursive call
+    is updated to the conditional's entity id
+
+  - `conditionals`: sequence of conditional data for `this-eid`
+
+  - `cond-attr`: keyword. May start as `submodule/conditonals`,
+    `:group/conditionals`, etc. Recursive calls is updated to
+    `:conditional/subconditionals`
+
+  - `cond-attr`: keyword. May start as `:submodule/conditionals-operator`,
+    `group/conditional-operator`, etc. Recursive calls is updated to
+    `:conditional/subconditional-operator`"
+
+  [parent-eid this-eid conditionals cond-attr cond-op-attr]
+  (when (seq conditionals)
+    (let [entity (rf/subscribe [:entity this-eid])]
+      [:div.conditionals-table
+       [:div.line]
+       [:div.conditionals-table__operator
+        [dropdown
+         {:selected  (->str (get @entity cond-op-attr))
+          :on-select #(rf/dispatch [:api/update-entity
+                                    {:db/id this-eid cond-op-attr (keyword (u/input-value %))}])
+          :options   [{:value "and" :label "AND"}
+                      {:value "or" :label "OR"}]}]]
+       [:div.line]
+       [:div.conditionals-table__entries
+        (doall
+         (map
+          (fn [{gv-uuid          :conditional/group-variable-uuid
+                conditional-type :conditional/type
+                op               :conditional/operator
+                values           :conditional/values
+                conditional-eid  :db/id
+                :as              conditional-entity}]
+            (let [sub-conditionals (:conditional/sub-conditionals @(rf/subscribe [:entity conditional-eid]))
+                  v-name           (if (= conditional-type :module)
+                                     "Module"
+                                     @(rf/subscribe [:gv-uuid->variable-name gv-uuid]))]
+              [:div.conditionals-table__row
+               (when (seq sub-conditionals)
+                 [:div.conditionals-table__operator
+                  [:div.line]
+                  [dropdown
+                   {:selected  "and"
+                    :disabled? true
+                    :options   [{:value "and" :label "AND"}]}]
+                  [:div.line]])
+               [:div {:class ["conditionals-table__row__conditional"
+                              (when (seq sub-conditionals)
+                                "conditionals-table__row__conditional__with-sub-conditionals")]}
+                [:div.conditionals-table__values
+                 [:div.conditionals-table__values__var-name "\"" v-name "\""]
+                 [:div.conditionals-table__values__op op]
+                 [:div.conditionals-table__values__values (str values)]
+                 [:div.conditionals-table__entry__manage
+                  [btn-sm :outline-secondary "Edit"   #(do
+                                                         (clear-editor)
+                                                         (clear-show-sub-conditional-editor)
+                                                         (update-draft cond-attr conditional-entity))]
+                  [btn-sm :outline-danger    "Delete" #(when
+                                                           (js/confirm
+                                                            (str "Are you sure you want to delete the conditional "
+                                                                 (:variable/name %)
+                                                                 "?"))
+                                                         (rf/dispatch [:api/delete-entity conditional-entity]))]
+                  [btn-sm :outline-secondary "Add Sub Conditional"
+                   #(do
+                      (clear-editor)
+                      (if @(rf/subscribe [:state [:show-sub-conditional-editor conditional-eid]])
+                        (rf/dispatch [:state/update
+                                      [:show-sub-conditional-editor conditional-eid]
+                                      (fn [state] (not state))])
+                        (rf/dispatch [:state/set-state
+                                      [:show-sub-conditional-editor conditional-eid] true])))]]]
+                (when @(rf/subscribe [:state [:show-sub-conditional-editor conditional-eid]])
+                  [add-sub-conditionals
+                   parent-eid
+                   :conditional/sub-conditionals
+                   conditional-eid])
+                (when (seq sub-conditionals)
+                  [:div.conditionals-table__row__sub-conditionals
+                   [conditionals-table
+                    parent-eid
+                    conditional-eid
+                    sub-conditionals
+                    :group/conditionals
+                    :conditional/sub-conditional-operator]])]]))
+          (sort-by :variable/name conditionals)))]])))

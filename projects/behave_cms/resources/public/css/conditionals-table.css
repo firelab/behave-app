@@ -2,6 +2,7 @@
 
 .conditionals-table {
   /* position: relative; */
+  overflow-x: scroll;
   display: flex;
 }
 
@@ -74,4 +75,9 @@
 
 .conditionals-table__sub-conditional-and {
   border-right: 3px solid;
+}
+
+
+.conditionals-table__row__conditional .row {
+  margin-left: 0 !important;
 }
