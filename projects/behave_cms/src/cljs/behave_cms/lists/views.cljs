@@ -31,7 +31,7 @@
         on-delete #(when (js/confirm (str "Are you sure you want to delete the list " (:list-option/name %) "?"))
                      (rf/dispatch [:api/delete-entity %]))]
     [simple-table
-     [:list-option/name :list-option/value :list-option/order :list-option/default]
+     [:list-option/name :list-option/value :list-option/order :list-option/default :list-option/tags]
      (sort-by :list-option/order @list-options)
      {:on-select on-select
       :on-delete on-delete
@@ -41,7 +41,6 @@
 (defn list-option-form [list]
   (let [list-options (rf/subscribe [:pull-children :list/options (:db/id list)])
         *list-option (rf/subscribe [:state :list-option])]
-    (println list)
     [:<>
      [:h3 (if @*list-option "Edit Option" "Add Option")]
      [entity-form {:entity       :list-options
@@ -58,6 +57,9 @@
                                   {:label     "Index"
                                    :required? true
                                    :field-key :list-option/value}
+                                  {:label     "Tags"
+                                   :type      :keywords
+                                   :field-key :list-option/tags}
                                   {:label     "Hide Option?"
                                    :type      :checkbox
                                    :field-key :list-option/hide?
