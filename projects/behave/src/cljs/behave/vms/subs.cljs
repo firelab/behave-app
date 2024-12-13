@@ -1,6 +1,12 @@
 (ns behave.vms.subs
   (:require [behave.schema.core :refer [rules]]
-            [behave.vms.store   :refer [pull pull-many q entity-from-uuid entity-from-eid vms-conn entity-from-eid]]
+            [behave.vms.store   :refer [entity-from-eid
+                                        entity-from-nid
+                                        entity-from-uuid
+                                        pull
+                                        pull-many
+                                        q
+                                        vms-conn]]
             [datascript.core    :as d]
             [re-frame.core      :refer [reg-sub subscribe]]))
 
@@ -54,8 +60,13 @@
 
 (reg-sub
  :vms/entity-from-uuid
- (fn [_ [_ uuid]]
-   (entity-from-uuid uuid)))
+ (fn [_ [_ bp-uuid]]
+   (entity-from-uuid bp-uuid)))
+
+(reg-sub
+ :vms/entity-from-nid
+ (fn [_ [_ bp-nid]]
+   (entity-from-nid bp-nid)))
 
 (reg-sub
  :vms/entity-from-eid
@@ -130,12 +141,7 @@
 (reg-sub
  :vms/units-uuid->short-code
  (fn [_ [_ units-uuid]]
-   (d/q '[:find ?unit-short-code .
-          :in    $ ?units-uuid
-          :where
-          [?u :bp/uuid ?units-uuid]
-          [?u :unit/short-code ?unit-short-code]]
-        @@vms-conn units-uuid)))
+   (:unit/short-code (entity-from-uuid units-uuid))))
 
 (reg-sub
  :vms/native-units

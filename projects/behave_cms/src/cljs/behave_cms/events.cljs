@@ -266,6 +266,11 @@
      {:transact [[:db/retract id attr]]})))
 
 (reg-event-fx
+ :api/retract-entity-attr-value
+ (fn [_ [_ entity-id attr value]]
+   {:transact [[:db/retract entity-id attr value]]}))
+
+(reg-event-fx
  :api/delete-entity
  (fn [_ [_ arg]]
    (let [id (cond
