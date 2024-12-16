@@ -50,6 +50,11 @@
   margin: 5px 5px 5px 0px;
 }
 
+.conditionals-table__values__module-name {
+  font-weight: bold;
+  margin-right: 10px;
+}
+
 .conditionals-table__values__op {
   font-weight: bold;
   margin-left: 10px;

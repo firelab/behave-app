@@ -236,8 +236,6 @@
                                    {:conditional/type     %
                                     :conditional/operator :equal}])
         conditional (rf/subscribe [:state cond-path])]
-    (prn "entity-id" entity-id)
-    (prn "sub-conditional-eid" sub-conditional-eid)
     [:form.row
      {:on-submit (u/on-submit
                   #(let [conditional @(rf/subscribe [:state [:editors :conditional cond-attr]])]
@@ -317,6 +315,9 @@
                 conditional-eid  :db/id
                 :as              conditional-entity}]
             (let [sub-conditionals (:conditional/sub-conditionals @(rf/subscribe [:entity conditional-eid]))
+                  gv-id            @(rf/subscribe [:bp/lookup gv-uuid])
+                  [module-id]      @(rf/subscribe [:group-variable/module-submodule-group gv-id])
+                  module-name      @(rf/subscribe [:entity-attr module-id :module/name])
                   v-name           (if (= conditional-type :module)
                                      "Module"
                                      @(rf/subscribe [:gv-uuid->variable-name gv-uuid]))]
@@ -333,6 +334,7 @@
                               (when (seq sub-conditionals)
                                 "conditionals-table__row__conditional__with-sub-conditionals")]}
                 [:div.conditionals-table__values
+                 [:div.conditionals-table__values__module-name module-name]
                  [:div.conditionals-table__values__var-name "\"" v-name "\""]
                  [:div.conditionals-table__values__op op]
                  [:div.conditionals-table__values__values (str values)]
