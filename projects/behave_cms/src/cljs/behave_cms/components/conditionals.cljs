@@ -268,7 +268,7 @@
        :disabled (not (s/valid? :behave/conditional @conditional))}
       "Save"]]))
 
-(defn conditionals-table
+(defn conditionals-graph
   "Table of conditionals for entity.
   - `parent-eid`: Used to keep track of the first-parent entity so
     `manage-conditionals` can lookup the proper modules, submodules, etc
@@ -289,17 +289,17 @@
   [parent-eid this-eid conditionals cond-attr cond-op-attr]
   (when (seq conditionals)
     (let [entity (rf/subscribe [:entity this-eid])]
-      [:div.conditionals-table
-       [:div.line]
-       [:div.conditionals-table__operator
+      [:div.conditionals-graph
+       [:div.edge]
+       [:div.conditionals-graph__operator
         [dropdown
          {:selected  (->str (get @entity cond-op-attr))
           :on-select #(rf/dispatch [:api/update-entity
                                     {:db/id this-eid cond-op-attr (keyword (u/input-value %))}])
           :options   [{:value "and" :label "AND"}
                       {:value "or" :label "OR"}]}]]
-       [:div.line]
-       [:div.conditionals-table__entries
+       [:div.edge]
+       [:div.conditionals-graph__nodes
         (doall
          (map
           (fn [{gv-uuid          :conditional/group-variable-uuid
@@ -315,25 +315,25 @@
                   v-name           (if (= conditional-type :module)
                                      "Module"
                                      @(rf/subscribe [:gv-uuid->variable-name gv-uuid]))]
-              [:div.conditionals-table__row
+              [:div.conditionals-graph__node
                (when (seq sub-conditionals)
-                 [:div.conditionals-table__operator
-                  [:div.line]
+                 [:div.conditionals-graph__operator
+                  [:div.edge]
                   [dropdown
                    {:selected  "and"
                     :disabled? true
                     :options   [{:value "and" :label "AND"}]}]
-                  [:div.line]])
-               [:div {:class ["conditionals-table__row__conditional"
+                  [:div.edge]])
+               [:div {:class ["conditionals-graph__node__group"
                               (when (seq sub-conditionals)
-                                "conditionals-table__row__conditional__with-sub-conditionals")]}
-                [:div.conditionals-table__values
+                                "conditionals-graph__node__group--with-sub-conditionals")]}
+                [:div.conditionals-graph__node__group__conditional
                  (when (= conditional-type :group-variable)
-                   [:div.conditionals-table__values__module-name module-name])
-                 [:div.conditionals-table__values__var-name "\"" v-name "\""]
-                 [:div.conditionals-table__values__op op]
-                 [:div.conditionals-table__values__values (str values)]
-                 [:div.conditionals-table__entry__manage
+                   [:div.conditionals-graph__node__group__conditional__module-name module-name])
+                 [:div.conditionals-graph__node__group__conditional__var-name "\"" v-name "\""]
+                 [:div.conditionals-graph__node__group__conditional__op op]
+                 [:div.conditionals-graph__node__group__conditional__values (str values)]
+                 [:div.conditionals-graph__node__group__conditional__manage
                   [btn-sm :outline-secondary "Edit"   #(do
                                                          (clear-editor)
                                                          (clear-show-sub-conditional-editor)
@@ -355,13 +355,14 @@
                                       :show-sub-conditional-editor
                                       {conditional-eid true}])))]]]
                 (when @(rf/subscribe [:state [:show-sub-conditional-editor conditional-eid]])
-                  [add-sub-conditionals
-                   parent-eid
-                   :conditional/sub-conditionals
-                   conditional-eid])
+                  [:div.conditionals-graph__node__group__add-sub-conditionals-editor
+                   [add-sub-conditionals
+                    parent-eid
+                    :conditional/sub-conditionals
+                    conditional-eid]])
                 (when (seq sub-conditionals)
-                  [:div.conditionals-table__row__sub-conditionals
-                   [conditionals-table
+                  [:div.conditionals-graph__node__group__sub-conditionals
+                   [conditionals-graph
                     parent-eid
                     conditional-eid
                     sub-conditionals

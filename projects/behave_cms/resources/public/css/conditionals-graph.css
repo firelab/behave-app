@@ -1,0 +1,82 @@
+@charset "UTF-8";
+
+.conditionals-graph {
+  display: flex;
+  overflow-x: scroll;
+}
+
+.conditionals-graph .edge {
+  width: 10px;
+  transform:translateY(-50%);
+  border-bottom: 3px solid;
+}
+
+.conditionals-graph__operator {
+  display: flex;
+  align-items: center;
+}
+
+.conditionals-graph__operator .mb-3 {
+  display: flex;
+  align-items: center !important;
+  min-width: 90px;
+  margin-bottom: 0px !important;
+}
+
+.conditionals-graph__node {
+  display: flex;
+  flex-direction: row;
+  border-left: 3px solid;
+}
+
+.conditionals-graph__node:first-child {
+  border-top: 3px solid;
+}
+
+.conditionals-graph__node:last-child {
+  border-bottom: 3px solid;
+}
+
+.conditionals-graph__node__group {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 5px;
+}
+
+.conditionals-graph__node__group .row {
+  margin-left: 0 !important;
+}
+
+.conditionals-graph__node__group--with-sub-conditionals {
+  margin: 5px 5px 5px 0px;
+  border-top: 3px solid;
+  border-bottom: 3px solid;
+  border-left: 3px solid;
+}
+
+.conditionals-graph__node__group__conditional__module-name {
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.conditionals-graph__node__group__conditional__op {
+  margin-right: 10px;
+  margin-left: 10px;
+  font-weight: bold;
+}
+
+.conditionals-graph__node__group__conditional {
+  display: flex;
+  flex-direction: row;
+  padding: 5px;
+}
+
+.conditionals-graph__node__group__conditional__manage {
+  display: flex;
+  margin-left: 5px;
+}
+
+.conditionals-graph__node__group__sub-conditionals {
+  display: flex;
+  flex-direction: column;
+}

@@ -32,7 +32,7 @@
    [:meta {:name    "viewport"
            :content "width=device-width, initial-scale=1, shrink-to-fit=no"}]
    [:link {:rel "icon" :type "image/png" :href "/images/favicon.png"}]
-   (include-css "/css/bootstrap.min.css" "/css/katex.min.css" "/css/help.css" "/css/conditionals-table.css")
+   (include-css "/css/bootstrap.min.css" "/css/katex.min.css" "/css/help.css" "/css/conditionals-graph.css")
    (include-js (find-app-js) "/js/katex.min.js" "/js/fontawesome.js")])
 
 (defn- cljs-init
