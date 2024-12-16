@@ -1,18 +1,12 @@
 (ns behave-cms.components.conditionals
   (:require
+   [behave-cms.components.common :refer [btn-sm checkboxes dropdown labeled-float-input radio-buttons]]
+   [behave-cms.utils             :as u]
+   [clojure.set                  :as set]
    [clojure.spec.alpha           :as s]
    [clojure.string               :as str]
-   [clojure.set                  :as set]
-   [behave.schema.conditionals]
-   [behave-cms.components.common :refer [dropdown
-                                         checkboxes
-                                         btn-sm
-                                         labeled-float-input
-                                         radio-buttons]]
-   [behave-cms.utils             :as u]
    [re-frame.core                :as rf]
-   [string-utils.interface       :refer [->str]]
-   [reagent.core :as r]))
+   [string-utils.interface       :refer [->str]]))
 
 ;;; Helpers
 
