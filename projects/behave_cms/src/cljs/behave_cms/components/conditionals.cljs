@@ -334,7 +334,8 @@
                               (when (seq sub-conditionals)
                                 "conditionals-table__row__conditional__with-sub-conditionals")]}
                 [:div.conditionals-table__values
-                 [:div.conditionals-table__values__module-name module-name]
+                 (when (= conditional-type :group-variable)
+                   [:div.conditionals-table__values__module-name module-name])
                  [:div.conditionals-table__values__var-name "\"" v-name "\""]
                  [:div.conditionals-table__values__op op]
                  [:div.conditionals-table__values__values (str values)]
