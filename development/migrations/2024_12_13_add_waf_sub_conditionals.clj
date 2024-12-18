@@ -39,10 +39,9 @@
   [{:db/id                        waf-conditional-eid
     :conditional/sub-conditionals (sm/postwalk-insert
                                    (map t-key->conditional
-                                        ["behaveplus:surface:output:fire_behavior:surface_fire:rate_of_spread"
-                                         "behaveplus:surface:output:fire_behavior:surface_fire:fireline_intensity"
-                                         "behaveplus:surface:output:spot:maximum_spotting_distance:wind_driven_surface_fire"
-
+                                        ["behaveplus:surface:output:fire_behavior:surface_fire:direction_mode:heading"
+                                         "behaveplus:surface:output:fire_behavior:surface_fire:direction_mode:heading_backing_flanking"
+                                         "behaveplus:surface:output:fire_behavior:surface_fire:direction_mode:direction_of_interest"
                                          "behaveplus:crown:output:fire_type:fire_behavior:rate_of_spread"
                                          "behaveplus:crown:output:fire_type:fire_behavior:flame_length"
                                          "behaveplus:crown:output:fire_type:fire_behavior:active-crown-fireline-intensity"

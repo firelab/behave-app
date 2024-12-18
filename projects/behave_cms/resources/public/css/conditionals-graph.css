@@ -59,6 +59,10 @@
   font-weight: bold;
 }
 
+.conditionals-graph__node__group__conditional__var-name {
+  max-width: 250px;
+}
+
 .conditionals-graph__node__group__conditional__op {
   margin-right: 10px;
   margin-left: 10px;
