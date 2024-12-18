@@ -213,7 +213,10 @@
 
                        :else
                        (path-for routes handler :ws-uuid ws-uuid))]
-       {:fx [[:dispatch [:navigate path]]]}))))
+       {:fx (cond-> [[:dispatch [:navigate path]]]
+              (= handler :ws/all)
+              (into [[:dispatch [:state/set [:sidebar :*modules] nil]]
+                     [:dispatch [:state/set [:worksheet :*modules] nil]]]))}))))
 
 (rf/reg-event-fx
  :worksheet/map-units-enabled?
@@ -306,3 +309,10 @@
          all-hidden?       (and sidebar-hidden? help-area-hidden?)]
      {:fx [[:dispatch [:state/set [:sidebar :hidden?] (not all-hidden?)]]
            [:dispatch [:state/set [:help-area :hidden?] (not all-hidden?)]]]})))
+
+(rf/reg-event-fx
+ :wizard/navigate-home
+ (fn []
+   {:fx [[:dispatch [:navigate "/"]]
+         [:dispatch [:state/set [:sidebar :*modules] nil]]
+         [:dispatch [:state/set [:worksheet :*modules] nil]]]}))
