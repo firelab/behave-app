@@ -32,10 +32,14 @@
 (defn sidebar
   "A component for displaying a sidebar with two sections. One for a a list of active modules, and another for settings."
   [{:keys [ws-uuid]}]
-  (let [*hidden?         (rf/subscribe [:state [:sidebar :hidden?]])
-        *sidebar-modules (rf/subscribe [:state [:sidebar :*modules]])
-        on-select        #(do (rf/dispatch [:state/set [:sidebar :*modules] (:module %)])
-                              (rf/dispatch [:state/set [:worksheet :*modules] (:module %)]))]
+  (let [*loaded?          (rf/subscribe [:app/loaded?])
+        *hidden?          (rf/subscribe [:state [:sidebar :hidden?]])
+        worksheet-modules (when @*loaded? (:worksheet/modules @(rf/subscribe [:worksheet ws-uuid])))
+        sidebar-modules   (or worksheet-modules
+                              @(rf/subscribe [:state [:sidebar :*modules]]))
+        on-select         #(do (rf/dispatch [:state/set [:sidebar :*modules] (:module %)])
+                               (rf/dispatch [:state/set [:worksheet :*modules] (:module %)]))]
+
     (if @*hidden?
       [:div.sidebar__expand
        [c/button {:variant       "highlight"
@@ -46,11 +50,11 @@
                   :on-click      #(rf/dispatch [:state/update [:sidebar :hidden?] (partial not)])}]]
       [:div.sidebar-container
        [sidebar-group {:title   @(<t (bp "modules"))
-                       :modules (if @*sidebar-modules
-                                  (for [module @*sidebar-modules]
+                       :modules (if sidebar-modules
+                                  (for [module sidebar-modules]
                                     {:label     (str "behaveplus:" (name module))
                                      :icon      (name module)
-                                     :selected? (contains? @*sidebar-modules module)
+                                     :selected? (contains? sidebar-modules module)
                                      :module    #{module}
                                      :on-select #(when ws-uuid
                                                    (let [module-name    (name (first (:module %)))
@@ -60,25 +64,25 @@
                                   [{:label     "behaveplus:surface"
                                     :icon      "surface"
                                     :on-select on-select
-                                    :selected? (contains? @*sidebar-modules :surface)
+                                    :selected? (contains? sidebar-modules :surface)
                                     :module    #{:surface}}
 
                                    {:label     "behaveplus:crown"
                                     :icon      "crown"
                                     :on-select on-select
-                                    :selected? (contains? @*sidebar-modules :crown)
+                                    :selected? (contains? sidebar-modules :crown)
                                     :module    #{:surface :crown}}
 
                                    {:label     "behaveplus:contain"
                                     :icon      "contain"
                                     :on-select on-select
-                                    :selected? (contains? @*sidebar-modules :contain)
+                                    :selected? (contains? sidebar-modules :contain)
                                     :module    #{:surface :contain}}
 
                                    {:label     "behaveplus:mortality"
                                     :icon      "mortality"
                                     :on-select on-select
-                                    :selected? (contains? @*sidebar-modules :mortality)
+                                    :selected? (contains? sidebar-modules :mortality)
                                     :module    #{:mortality}}])}]
 
        [sidebar-group {:title   @(<t (bp "tools_and_settings"))

@@ -581,12 +581,13 @@
 
 (defn wizard-results-settings-page [{:keys [route-handler io ws-uuid] :as params}]
   (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
-  (let [*notes              (subscribe [:wizard/notes ws-uuid])
-        *show-notes?        (subscribe [:wizard/show-notes?])
-        on-back             #(dispatch [:wizard/back])
-        on-next             #(dispatch [:navigate (path-for routes :ws/results :ws-uuid ws-uuid)])
-        show-tool-selector? @(subscribe [:tool/show-tool-selector?])
-        selected-tool-uuid  @(subscribe [:tool/selected-tool-uuid])]
+  (let [*notes               (subscribe [:wizard/notes ws-uuid])
+        *show-notes?         (subscribe [:wizard/show-notes?])
+        on-back              #(dispatch [:wizard/back])
+        on-next              #(dispatch [:navigate (path-for routes :ws/results :ws-uuid ws-uuid)])
+        show-tool-selector?  @(subscribe [:tool/show-tool-selector?])
+        selected-tool-uuid   @(subscribe [:tool/selected-tool-uuid])
+        show-graph-settings? @(subscribe [:wizard/show-graph-settings? ws-uuid])]
     [:<>
      (when show-tool-selector?
        [tool-selector])
@@ -611,10 +612,11 @@
           [:div.wizard-results__table-settings__header "Table Settings"]
           [:div.wizard-results__table-settings__content
            [table-settings ws-uuid]]]
-         [:div.wizard-results__graph-settings
-          [:div.wizard-results__graph-settings__header "Graph Settings"]
-          [:div.wizard-results__graph-settings__content
-           [graph-settings ws-uuid]]]]]]
+         (when show-graph-settings?
+          [:div.wizard-results__graph-settings
+           [:div.wizard-results__graph-settings__header "Graph Settings"]
+           [:div.wizard-results__graph-settings__content
+            [graph-settings ws-uuid]]])]]]
       [wizard-navigation {:next-label @(<t (bp "next"))
                           :on-next    on-next
                           :back-label @(<t (bp "back"))
@@ -710,7 +712,7 @@
             (if @*directional-tables?
               [directional-result-tables ws-uuid]
               [result-matrices ws-uuid])
-            [:div.wizard-notes__header @(<t (bp "runs_table"))]
+            [:div.wizard-notes__header (s/capitalize-words @(<t (bp "download_run_results")))]
             ;; [raw-result-table ws-uuid]
             [result-table-download-link ws-uuid]])
          (result-graphs ws-uuid @*cell-data)
