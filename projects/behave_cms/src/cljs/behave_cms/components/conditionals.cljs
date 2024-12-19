@@ -37,15 +37,6 @@
                               add-tx
                               retract-tx)])))))
 
-(defn- on-submit [entity-id cond-attr]
-  (let [conditional @(rf/subscribe [:state [:editors :conditional cond-attr]])]
-    (if (:bp/nid conditional)
-      (update-conditional! conditional)
-      (rf/dispatch [:api/create-entity
-                    (merge conditional {(inverse-attr cond-attr) entity-id})])))
-  (rf/dispatch [:state/set-state cond-attr nil])
-  (clear-editor))
-
 (defn- toggle-item [x xs]
   (let [xs-set (set xs)]
     (vec (if (xs-set x)
@@ -179,29 +170,32 @@
         #(set-field (conj cond-path :conditional/values) [(str %)])
         {:zero-margin? true}])]))
 
-(defn manage-conditionals
+(defn- conditional-editor
   "Component to manage conditional for an entity. Takes:
+   - title: Header for this editor
    - entity-id [int]: the ID of the entity
-   - cond-attr [keyword]: the attribute name of the conditionals (e.g. `:group/conditionals`)"
-  [entity-id cond-attr]
-
+   - cond-attr [keyword]: the attribute name of the conditionals (e.g. `:group/conditionals`)
+   - on-submit: Function to call when `save` is clicked.
+  - clear-show-sub-conditional-editor?: Sub conditional editor may be showing when editing/adding an existing conditional for the group variable. But only one editor should show on the page. Set this to true to clear out the state.
+  "
+  [{:keys [title entity-id cond-attr on-submit clear-show-sub-conditional-editor?]}]
   (let [cond-path   [:editors :conditional cond-attr]
+        conditional (rf/subscribe [:state cond-path])
         set-type    #(rf/dispatch [:state/set-state
                                    cond-path
                                    {:conditional/type     %
-                                    :conditional/operator :equal}])
-        conditional (rf/subscribe [:state cond-path])]
-
+                                    :conditional/operator :equal}])]
     [:form.row
-     {:on-submit (u/on-submit #(on-submit entity-id cond-attr))}
-     [:h4 "Manage Conditionals:"]
+     {:on-submit (u/on-submit on-submit)}
+     [:h4 (str title ":")]
 
      [radio-buttons
       "Conditional Type:"
       (->str (:conditional/type @conditional))
       [{:label "Module" :value "module"}
        {:label "Variable" :value "group-variable"}]
-      #(do (clear-show-sub-conditional-editor)
+      #(do (when clear-show-sub-conditional-editor?
+             (clear-show-sub-conditional-editor))
            (set-type (keyword (u/input-value %))))]
 
      (condp = (:conditional/type @conditional)
@@ -216,57 +210,52 @@
      [:button.btn.btn-sm.btn-outline-primary.mt-4
       {:type     "submit"
        :disabled (not (s/valid? :behave/conditional @conditional))}
-      "Save"]]))
+      "Save"]]) )
+
+(defn manage-conditionals
+  "Component to manage conditional for an entity. Takes:
+   - entity-id [int]: the ID of the entity (e.g. submodule, group)
+   - cond-attr [keyword]: the attribute name of the conditionals (e.g. `:group/conditionals`)"
+  [entity-id cond-attr]
+  [conditional-editor
+   {:title                              "Manage Conditionals"
+    :entity-id                          entity-id
+    :cond-attr                          cond-attr
+    :clear-show-sub-conditional-editor? true
+    :on-submit
+    #(do (let [conditional @(rf/subscribe [:state [:editors :conditional cond-attr]])]
+        (if (:bp/nid conditional)
+          (update-conditional! conditional)
+          (rf/dispatch [:api/create-entity
+                        (merge conditional {(inverse-attr cond-attr) entity-id})])))
+         (rf/dispatch [:state/set-state cond-attr nil])
+         (clear-editor))}])
 
 (defn add-sub-conditionals
   "Component to manage conditional for an entity. Takes:
-   - entity-id [int]: the ID of the entity
-   - cond-attr [keyword]: the attribute name of the conditionals (e.g. `:group/conditionals`)"
+   - entity-id [int]: the ID of the entity (e.g. submodule, group)
+   - cond-attr [keyword]: the attribute name of the conditionals (e.g. `:conditional/sub-conditionals`)
+   - sub-conditional-eid: the ID of the sub conditional"
   [entity-id cond-attr sub-conditional-eid]
-
-  (let [cond-path   [:editors :conditional cond-attr]
-        set-type    #(rf/dispatch [:state/set-state
-                                   cond-path
-                                   {:conditional/type     %
-                                    :conditional/operator :equal}])
-        conditional (rf/subscribe [:state cond-path])]
-    [:form.row
-     {:on-submit (u/on-submit
-                  #(let [conditional @(rf/subscribe [:state [:editors :conditional cond-attr]])]
-                     (if (:bp/nid conditional)
-                       (update-conditional! conditional)
-                       (do
-                         (when (nil? (:conditional/sub-conditional-operator
-                                      @(rf/subscribe [:entity sub-conditional-eid])))
-                           (rf/dispatch [:ds/transact {:db/id                                sub-conditional-eid
-                                                       :conditional/sub-conditional-operator :and}]))
-                         (rf/dispatch [:api/create-entity
-                                       (merge conditional
-                                              {(inverse-attr cond-attr) sub-conditional-eid})])))
-                     (rf/dispatch [:state/set-state cond-attr nil])
-                     (clear-editor)
-                     (clear-show-sub-conditional-editor)))}
-     [:h4 "Add Sub Conditional"]
-     [radio-buttons
-      "Conditional Type:"
-      (->str (:conditional/type @conditional))
-      [{:label "Module" :value "module"}
-       {:label "Variable" :value "group-variable"}]
-      #(set-type (keyword (u/input-value %)))]
-
-     (condp = (:conditional/type @conditional)
-       :group-variable
-       [manage-variable-conditionals entity-id cond-attr @conditional]
-
-       :module
-       [manage-module-conditionals entity-id cond-attr @conditional]
-
-       [:<>])
-
-     [:button.btn.btn-sm.btn-outline-primary.mt-4
-      {:type     "submit"
-       :disabled (not (s/valid? :behave/conditional @conditional))}
-      "Save"]]))
+  [conditional-editor
+   {:title                              "Add Sub Conditional"
+    :entity-id                          entity-id
+    :cond-attr                          cond-attr
+    :on-submit
+    #(let [conditional @(rf/subscribe [:state [:editors :conditional cond-attr]])]
+       (if (:bp/nid conditional)
+         (update-conditional! conditional)
+         (do
+           (when (nil? (:conditional/sub-conditional-operator
+                        @(rf/subscribe [:entity sub-conditional-eid])))
+             (rf/dispatch [:ds/transact {:db/id                                sub-conditional-eid
+                                         :conditional/sub-conditional-operator :and}]))
+           (rf/dispatch [:api/create-entity
+                         (merge conditional
+                                {(inverse-attr cond-attr) sub-conditional-eid})])))
+       (rf/dispatch [:state/set-state cond-attr nil])
+       (clear-editor)
+       (clear-show-sub-conditional-editor))}])
 
 (defn conditionals-graph
   "Table of conditionals for entity.
