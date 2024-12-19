@@ -42,6 +42,7 @@
                                         ["behaveplus:surface:output:fire_behavior:surface_fire:direction_mode:heading"
                                          "behaveplus:surface:output:fire_behavior:surface_fire:direction_mode:heading_backing_flanking"
                                          "behaveplus:surface:output:fire_behavior:surface_fire:direction_mode:direction_of_interest"
+                                         "behaveplus:surface:output:spot:maximum_spotting_distance:wind_driven_surface_fire"
                                          "behaveplus:crown:output:fire_type:fire_behavior:rate_of_spread"
                                          "behaveplus:crown:output:fire_type:fire_behavior:flame_length"
                                          "behaveplus:crown:output:fire_type:fire_behavior:active-crown-fireline-intensity"
