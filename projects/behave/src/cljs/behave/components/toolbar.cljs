@@ -71,12 +71,12 @@
 
 (defmulti progress-bar
   (fn [{:keys [ws-uuid route-handler]}]
-    (if (= route-handler :home)
-      :ws/all
-      (cond
-        ws-uuid       :ws/wizard
-        route-handler route-handler
-        :else         :none))))
+    (cond
+      (or (= route-handler :home)
+          (= route-handler :settings/all)) :ws/all
+      ws-uuid                              :ws/wizard
+      route-handler                        route-handler
+      :else                                :none)))
 
 (defmethod progress-bar :none
   [_]
