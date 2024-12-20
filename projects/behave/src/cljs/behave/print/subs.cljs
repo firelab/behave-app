@@ -13,8 +13,11 @@
  (fn [[uuid+values units-lookup] _]
    (->> uuid+values
         (map (fn resolve-gv-uuid [[gv-uuid values]]
-               (let [var-name @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])]
-                 [var-name (get units-lookup gv-uuid) gv-uuid (split-commas-or-spaces values)]))))))
+               (let [var-name          @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
+                     discrte-multiple? @(rf/subscribe [:vms/is-group-variable-discrete-multiple? gv-uuid])]
+                 [var-name (get units-lookup gv-uuid) gv-uuid (cond->> (split-commas-or-spaces values)
+                                                                discrte-multiple?
+                                                                (sort-by #(long %)))]))))))
 
 (rf/reg-sub
  :worksheet/matrix-table-data-single-multi-valued-input
