@@ -91,7 +91,7 @@ double SIGCrown::getCrownCriticalSurfaceFirelineIntensity(FirelineIntensityUnits
 
 double SIGCrown::getCrownCriticalSurfaceFlameLength(LengthUnits::LengthUnitsEnum flameLengthUnits) const
 {
-  return LengthUnits::fromBaseUnits(crownFlameLength_, flameLengthUnits);
+  return LengthUnits::fromBaseUnits(crownCriticalSurfaceFlameLength_, flameLengthUnits);
 }
 
 double SIGCrown::getCrownFireActiveRatio() const {
