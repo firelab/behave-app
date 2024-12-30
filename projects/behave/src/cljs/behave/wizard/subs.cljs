@@ -441,7 +441,9 @@
            [{group-variable-uuid :conditional/group-variable-uuid
              ttype               :conditional/type
              op                  :conditional/operator
-             values              :conditional/values}]
+             values              :conditional/values
+             sub-conditionals    :conditional/sub-conditionals
+             sub-conditional-op  :conditional/sub-conditional-operator}]
            (let [{:keys [group-uuid io]} @(subscribe [:wizard/conditional-io+group-uuid
                                                       group-variable-uuid])
                  conditional-values-set  (set values)
@@ -460,17 +462,24 @@
                                                         group-uuid
                                                         0
                                                         group-variable-uuid]))
-                 worksheet-value-set (cond
-                                       (= ttype :module)      (set worksheet-value)
-                                       (csv? worksheet-value) (set (map str/trim (str/split worksheet-value ",")))
-                                       :else                  #{worksheet-value})]
-             (case op
-               :equal     (if (= ttype :module)
-                            (= conditional-values-set worksheet-value-set)
-                            (= (first conditional-values-set)
-                               (if worksheet-value (str worksheet-value) "false")))
-               :not-equal (not= (first conditional-values-set) (str worksheet-value))
-               :in        (intersect? conditional-values-set worksheet-value-set))))
+                 worksheet-value-set       (cond
+                                             (= ttype :module)      (set worksheet-value)
+                                             (csv? worksheet-value) (set (map str/trim (str/split worksheet-value ",")))
+                                             :else                  #{worksheet-value})
+                 sub-resolved-conditionals (when sub-conditionals
+                                             (if (= sub-conditional-op :or)
+                                               (some true? (resolve-conditionals worksheet sub-conditionals))
+                                               (every? true? (resolve-conditionals worksheet sub-conditionals))))
+                 this-conditional          (case op
+                                             :equal     (if (= ttype :module)
+                                                          (= conditional-values-set worksheet-value-set)
+                                                          (= (first conditional-values-set)
+                                                             (if worksheet-value (str worksheet-value) "false")))
+                                             :not-equal (not= (first conditional-values-set) (str worksheet-value))
+                                             :in        (intersect? conditional-values-set worksheet-value-set))]
+             (if sub-conditionals
+               (and this-conditional sub-resolved-conditionals)
+               this-conditional)))
          conditionals)))
 
 (defn all-conditionals-pass? [worksheet conditionals-operator conditionals]

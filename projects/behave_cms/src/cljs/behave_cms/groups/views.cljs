@@ -2,7 +2,7 @@
   (:require [re-frame.core :as rf]
             [string-utils.interface :refer [->str]]
             [behave-cms.components.common          :refer [accordion checkbox simple-table window]]
-            [behave-cms.components.conditionals    :refer [conditionals-table manage-conditionals]]
+            [behave-cms.components.conditionals    :refer [conditionals-graph manage-conditionals]]
             [behave-cms.components.entity-form     :refer [entity-form]]
             [behave-cms.components.sidebar         :refer [sidebar sidebar-width]]
             [behave-cms.components.translations    :refer [all-translations]]
@@ -85,9 +85,9 @@
        ^{:key "conditionals"}
        [accordion
         "Conditionals"
-        [:div.col-6
-         [conditionals-table submodule-eid (concat @var-conditionals @module-conditionals) :submodule/conditionals :submodule/conditionals-operator]]
-        [:div.col-6
+        [:div.col-9
+         [conditionals-graph submodule-eid submodule-eid (concat @var-conditionals @module-conditionals) :submodule/conditionals :submodule/conditionals-operator]]
+        [:div.col-3
          [manage-conditionals submodule-eid :submodule/conditionals]]]
 
        [:hr]

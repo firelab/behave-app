@@ -32,5 +32,16 @@
    {:db/ident       :conditional/values
     :db/doc         "Conditional's values which can be matched against. When `:conditional/type` is `:module`, values are the lower cased strings of the modules (e.g. ['surface' 'crown']). Otherwise, values are the values that the group-variable may hold (e.g 'true'/'false'). The `:group-conditional/operator` determines the comparison method."
     :db/valueType   :db.type/string
-    :db/cardinality :db.cardinality/many}])
+    :db/cardinality :db.cardinality/many}
+
+   {:db/ident       :conditional/sub-conditionals
+    :db/doc         "Conditional's sub-conditionals to also evaluate. This Conditional and it's subconditional will use the :and operator when combining "
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
+
+   {:db/ident       :conditional/sub-conditional-operator
+    :db/doc         "Subconditional's operator. Can be either: `:and`, `:or`."
+    :db/valueType   :db.type/keyword
+    :db/cardinality :db.cardinality/one}])
 
