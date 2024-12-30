@@ -31,7 +31,9 @@
          (<= v-min v)
 
          (some? v-max)
-         (<= 0 v v-max))))
+         (<= 0 v v-max)
+
+         :else true)))
 
 (defn- values-in-range?
   [var-min var-max v]
