@@ -192,3 +192,15 @@
          (filter #(= (name %) "name"))
          first
          (get entity)))))
+
+(rf/reg-sub
+ :gv-uuid->variable-name
+ (fn [_ [_ uuid]]
+   (d/q '[:find ?name .
+          :in  $ ?gv-uuid
+          :where
+          [?gv :bp/uuid ?gv-uuid]
+          [?v :variable/group-variables ?gv]
+          [?v :variable/name ?name]]
+        @@s/conn
+        uuid)))
