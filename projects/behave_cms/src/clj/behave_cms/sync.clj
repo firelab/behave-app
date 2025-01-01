@@ -1,12 +1,22 @@
 (ns behave-cms.sync
   (:require [datom-compressor.interface :as c]
             [datomic-store.main         :as s]
-            [data-utils.interface       :refer [parse-int is-float?]]
+            [data-utils.interface       :refer [parse-int]]
             [transport.interface        :refer [clj-> mime->type]]
             [behave-cms.views           :refer [data-response]]
-            [behave-cms.store :refer [attribute->value-type]]
+            [datomic.api :as d]
             [behave.schema.core         :refer [all-schemas]])
   (:import  [java.io ByteArrayInputStream]))
+
+(defn- attribute->value-type [attr]
+  (d/q '[:find ?value-type .
+         :in $ ?attr
+         :where
+         [?e :db/ident ?attr]
+         [?e :db/valueType ?v]
+         [?v :db/ident ?value-type]]
+        (d/db @s/datomic-conn)
+        attr))
 
 (defn sync-handler [{:keys [request-method params accept session] :as all}]
   (let [res-type (or (mime->type accept) :edn)]
