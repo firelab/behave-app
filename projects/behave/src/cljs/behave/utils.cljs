@@ -7,7 +7,12 @@
   ([start end] (range start (inc end)))
   ([start end step] (when (pos? step)
                       (if (< 0 step 1.0)
-                        (let [step-precision (count-precision step)]
-                          (map #(to-precision % step-precision)
-                               (range start (+ end step) step)))
+                        (let [step-precision (max (count-precision start)
+                                                  (count-precision end)
+                                                  (count-precision step))
+                              computed-range (map #(to-precision % step-precision)
+                                                  (range start (+ end step) step))]
+                          (if (> (last computed-range) end)
+                            (butlast computed-range)
+                            computed-range))
                         (range start (+ end step) step)))))
