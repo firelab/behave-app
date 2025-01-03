@@ -21,10 +21,12 @@
 (defn- update-results! [id value compute-fn compute-args args result]
   (swap! args assoc id value)
   (when (and (= (count @args) (count compute-args))
-             (every? (comp not js/isNaN) @args))
-    (->> (apply compute-fn @args)
-         (result->string)
-         (reset! result))))
+             (every? (comp not js/isNaN) (vals @args)))
+    (let [sorted-arg-ids (sort (keys @args))
+          args           (map @args sorted-arg-ids)]
+      (->> (apply compute-fn args)
+           (result->string)
+           (reset! result)))))
 
 (defn- create-input-elements [compute-args compute-fn args result]
   (map-indexed (fn [id arg]
@@ -53,7 +55,7 @@
                compute-args))
 
 (defn compute [{:keys [compute-fn compute-args compute-btn-label on-compute]}]
-  (r/with-let [args         (r/atom [])
+  (r/with-let [args         (r/atom {})
                result       (r/atom nil)
                compute-args (js->clj compute-args :keywordize-keys true)]
     [:div {:class "compute"}
