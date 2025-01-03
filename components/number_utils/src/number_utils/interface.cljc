@@ -33,3 +33,6 @@
        :doc      "Sets a decimal to precision specific."}
   decimal-precision c/decimal-precision)
 
+(def ^{:argslist '([n])
+       :doc      "Counts the number of decimal places in a number"}
+  count-precision c/count-precision)
