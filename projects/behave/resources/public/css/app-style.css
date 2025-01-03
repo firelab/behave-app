@@ -898,12 +898,18 @@ body {
   top: 11px;
 }
 
+/* Help Area Content */
+
 .help-area__content {
   overflow-x: hidden;
   overflow-y: scroll;
   max-height: 730px;
   font-family: 'Roboto', sans-serif;
   background: var(--white);
+}
+
+.help-section__content {
+  padding: 0px 10px;
 }
 
 .help-area__content h1,
@@ -921,13 +927,14 @@ body {
 /* Help Headers */
 
 .help-area__content h1 {
-    padding-bottom: 0px;
+    margin-top: 20px;
     font-size: 2em;
     font-weight: 500;
     line-height: 32px;
 }
 
 .help-area__content h2 {
+    margin-top: 20px;
     padding-bottom: 6px;
     border-bottom: 1px solid #707070;
     font-size: 1.700em;
@@ -936,6 +943,7 @@ body {
 }
 
 .help-area__content h3 {
+    margin-top: 20px;
     font-size: 1.300em;
     font-weight: 300;
     line-height: 1.600em;
@@ -950,8 +958,8 @@ body {
 }
 
 .help-area__content h5 {
-    margin-bottom: 0px;
-    padding: 10px 10px 10px 10px;
+    margin: 20px -10px 0px;
+    padding: 10px;
     font-size: 1.200em;
     font-weight: 500;
     line-height: 18px;
@@ -969,8 +977,7 @@ body {
 }
 
 .help-area__content p {
-    margin-top: 12px;
-    margin-bottom: 30px;
+    margin-top: 10px;
     font-size: 1.000em;
     font-weight: 400;
     line-height: 26px;
@@ -980,13 +987,29 @@ body {
     padding-bottom: 6px;
 }
 
+.help-area__content ul {
+    padding-top: 10px;
+    padding-left: 20px;
+}
+
+.help-area__content ul > li > p {
+    margin: 0px;
+    padding: 0px;
+}
+
+/* Help Images */
+
+.help-area__content img {
+    height: auto;
+    width: 100%;
+}
+
 /* Highlight */
 
 .help-area__content .highlight > .help-section__content {
     width: 100%;
     margin-top: 20px;
     margin-bottom: 20px;
-    padding: 0px;
     background: #EDF2F5;
 }
 
@@ -994,21 +1017,13 @@ body {
 .help-area__content .highlight > .help-section__content h2,
 .help-area__content .highlight > .help-section__content h3,
 .help-area__content .highlight > .help-section__content h4,
-.help-area__content .highlight > .help-section__content h5,
-.help-area__content .highlight > .help-section__content h6 {
-    margin-bottom: 0px;
-    padding: 10px;
+.help-area__content .highlight > .help-section__content h5 {
     text-decoration: underline;
     color: white;
     background: #5788A7;
 }
 
-.help-area__content .highlight > .help-section__content p {
-    margin-top: 0px;
-    padding: 10px;
-}
-
-.help-area__expand > .button{
+.help-area__expand > .button {
   width: 30px;
   height: 50px;
 }

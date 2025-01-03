@@ -1,3 +1,6 @@
 [submodule "behave-lib/behave-mirror"]
 	path = behave-lib/behave-mirror
 	url = git@github.com:firelab/behave.git
+[submodule "bases/behave-docs"]
+	path = bases/behave-docs
+	url = git@github.com:firelab/behave-docs.git

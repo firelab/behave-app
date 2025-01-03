@@ -1,9 +1,9 @@
 (ns behave.help.views
-  (:require [re-frame.core             :refer [subscribe dispatch dispatch-sync]]
-            [reagent.core            :as r]
-            [markdown2hiccup.interface :refer [md->hiccup]]
-            [behave.components.core    :as c]
-            [behave.translate          :refer [<t]]
+  (:require [re-frame.core          :refer [subscribe dispatch dispatch-sync]]
+            [reagent.core           :as r]
+            [hickory.core           :as h]
+            [behave.components.core :as c]
+            [behave.translate       :refer [<t]]
             [behave.help.events]
             [behave.help.subs]))
 
@@ -41,7 +41,9 @@
            :class [(when highlight? "highlight")]}
      (when (not-empty @help-contents)
        [:div.help-section__content
-        (md->hiccup (first @help-contents))])]))
+        (-> @help-contents
+            (h/parse-fragment)
+            (->> (map h/as-hiccup)))])]))
 
 (defn- help-content [help-keys & [children]]
   (let [help-highlighted-key (subscribe [:help/current-highlighted-key])]

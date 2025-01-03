@@ -15,9 +15,10 @@
  :help/content
  (fn [_ [_ help-key]]
    @(rf/subscribe [:vms/query
-                   '[:find  [?content]
+                   '[:find  ?content .
                      :in    $ ?help-key
-                     :where [?e :help-page/key ?help-key]
+                     :where
+                     [?e :help-page/key ?help-key]
                      [?e :help-page/content ?content]]
                    help-key])))
 
