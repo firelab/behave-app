@@ -4,10 +4,21 @@
             [data-utils.interface       :refer [parse-int]]
             [transport.interface        :refer [clj-> mime->type]]
             [behave-cms.views           :refer [data-response]]
+            [datomic.api :as d]
             [behave.schema.core         :refer [all-schemas]])
   (:import  [java.io ByteArrayInputStream]))
 
-(defn sync-handler [{:keys [request-method params accept session]}]
+(defn- attribute->value-type [attr]
+  (d/q '[:find ?value-type .
+         :in $ ?attr
+         :where
+         [?e :db/ident ?attr]
+         [?e :db/valueType ?v]
+         [?v :db/ident ?value-type]]
+        (d/db @s/datomic-conn)
+        attr))
+
+(defn sync-handler [{:keys [request-method params accept session] :as all}]
   (let [res-type (or (mime->type accept) :edn)]
     (condp = request-method
       :get
@@ -23,7 +34,17 @@
 
       :post
       (if (:user-uuid session)
-        (let [_ (s/sync-datoms s/datomic-conn (:tx-data params) true all-schemas)]
+        (let [clean-tx-data (mapv
+                             (fn [[id attr value tx op :as datom]]
+                               (let [attribute     (first (filter keyword? datom))
+                                     attr-type     (attribute->value-type attribute)
+                                     updated-value (case attr-type
+                                                     :db.type/double (double value)
+                                                     :db.type/long   (long value)
+                                                     value)]
+                                 [id attr updated-value tx op]))
+                             (:tx-data params))
+              _             (s/sync-datoms s/datomic-conn clean-tx-data true all-schemas)]
           {:status  201
            :body    (clj-> {:success true} res-type)
            :headers {"Content-Type" accept}})

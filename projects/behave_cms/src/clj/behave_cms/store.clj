@@ -1,7 +1,8 @@
 (ns behave-cms.store
   (:require [behave.schema.core :refer [all-schemas]]
             [datomic-store.main :as s]
-            [config.interface   :refer [get-config]]))
+            [config.interface   :refer [get-config]]
+            [datomic.api :as d]))
 
 (defn connect! [db-config & [reset?]]
   (if reset?
