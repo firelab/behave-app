@@ -3113,8 +3113,8 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFineDeadFuelMoistureTool_setMonthIn
   self->setMonthIndex(monthIndex);
 }
 
-int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFineDeadFuelMoistureTool_getFineDeadFuelMoisture_0(SIGFineDeadFuelMoistureTool* self) {
-  return self->getFineDeadFuelMoisture();
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFineDeadFuelMoistureTool_getFineDeadFuelMoisture_1(SIGFineDeadFuelMoistureTool* self, FractionUnits_FractionUnitsEnum desiredUnits) {
+  return self->getFineDeadFuelMoisture(desiredUnits);
 }
 
 int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFineDeadFuelMoistureTool_getSlopeIndexSize_0(SIGFineDeadFuelMoistureTool* self) {
@@ -3133,8 +3133,8 @@ int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFineDeadFuelMoistureTool_getDryBulbT
   return self->getDryBulbTemperatureIndexSize();
 }
 
-int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFineDeadFuelMoistureTool_getReferenceMoisture_0(SIGFineDeadFuelMoistureTool* self) {
-  return self->getReferenceMoisture();
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFineDeadFuelMoistureTool_getReferenceMoisture_1(SIGFineDeadFuelMoistureTool* self, FractionUnits_FractionUnitsEnum desiredUnits) {
+  return self->getReferenceMoisture(desiredUnits);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFineDeadFuelMoistureTool_calculateByIndex_8(SIGFineDeadFuelMoistureTool* self, int aspectIndex, int dryBulbIndex, int elevationIndex, int monthIndex, int relativeHumidityIndex, int shadingIndex, int slopeIndex, int timeOfDayIndex) {
@@ -3145,8 +3145,8 @@ int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFineDeadFuelMoistureTool_getTimeOfDa
   return self->getTimeOfDayIndexSize();
 }
 
-int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFineDeadFuelMoistureTool_getCorrectionMoisture_0(SIGFineDeadFuelMoistureTool* self) {
-  return self->getCorrectionMoisture();
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFineDeadFuelMoistureTool_getCorrectionMoisture_1(SIGFineDeadFuelMoistureTool* self, FractionUnits_FractionUnitsEnum desiredUnits) {
+  return self->getCorrectionMoisture(desiredUnits);
 }
 
 int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGFineDeadFuelMoistureTool_getAspectIndexSize_0(SIGFineDeadFuelMoistureTool* self) {

@@ -15,8 +15,8 @@
 (defn getAspectLabelAtIndex [self index]
   (.getAspectLabelAtIndex self index))
 
-(defn getCorrectionMoisture [self]
-  (.getCorrectionMoisture self))
+(defn getCorrectionMoisture [self units]
+  (.getCorrectionMoisture self units))
 
 (defn getDryBulbTemperatureIndexSize [self]
   (.getDryBulbTemperatureIndexSize self))
@@ -30,8 +30,8 @@
 (defn getElevationLabelAtIndex [self index]
   (.getElevationLabelAtIndex self index))
 
-(defn getFineDeadFuelMoisture [self]
-  (.getFineDeadFuelMoisture self))
+(defn getFineDeadFuelMoisture [self units]
+  (.getFineDeadFuelMoisture self units))
 
 (defn getMonthIndexSize [self]
   (.getMonthIndexSize self))
@@ -39,8 +39,8 @@
 (defn getMonthLabelAtIndex [self index]
   (.getMonthLabelAtIndex self index))
 
-(defn getReferenceMoisture [self]
-  (.getReferenceMoisture self))
+(defn getReferenceMoisture [self units]
+  (.getReferenceMoisture self units))
 
 (defn getRelativeHumidityIndexSize [self]
   (.getRelativeHumidityIndexSize self))
