@@ -24,6 +24,7 @@
 ;; Payload
 ;; ===========================================================================================================
 
+#_{:clj-kondo/ignore [:missing-docstring]}
 (defn build-reset-order-payload
   [eid group-attr order-attr]
   (let [eids (map :db/id (->> (d/entity (d/db conn) eid)
@@ -34,6 +35,7 @@
                      order-attr index})
                   eids)))
 
+#_{:clj-kondo/ignore [:missing-docstring]}
 (def update-function-return-type-payload
   (->> "1-HR Fuel Moisture"
        (sm/name->eid conn :subtool/name)
@@ -48,25 +50,16 @@
                                :cpp.function/parameter   [{:cpp.parameter/name "desiredUnits",
                                                            :cpp.parameter/type "ProbabilityUnits::ProbabilityUnitsEnum"}]}))))
 
-(->> "Ignite"
-     (sm/name->eid conn :subtool/name)
-     (d/entity (d/db conn))
-     :subtool/variables
-     (filter #(= (:subtool-variable/io %) :output))
-     (map #(d/entity (d/db conn) (:db/id %)))
-     (map :subtool-variable/cpp-function-uuid)
-     (map #(d/entity (d/db conn) [:bp/uuid %]))
-     (map d/touch))
-
-
-
 #_{:clj-kondo/ignore [:missing-docstring]}
 (def update-order-payload
   (build-reset-order-payload (sm/name->eid conn :subtool/name "1-HR Fuel Moisture")
                              :subtool/variables
                              :subtool-variable/order))
 
-(def final-payload (concat update-function-return-type-payload update-order-payload))
+#_{:clj-kondo/ignore [:missing-docstring]}
+(def final-payload
+  (concat update-function-return-type-payload
+          update-order-payload))
 
 ;; ===========================================================================================================
 ;; Transact Payload
