@@ -33,6 +33,12 @@
          (re-matches #"\n\s+" node))
     nil
 
+    ;; Ensure all <a> elements open in new tab
+    (and (vector? node)
+         (= :a (first node))
+         (map? (second node)))
+    (assoc-in node [1 :target] "_blank")
+
     (and (vector? node)
          (= :img (first node)))
     (if (-> node (second) (:src))
