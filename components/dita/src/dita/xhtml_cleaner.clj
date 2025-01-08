@@ -81,14 +81,19 @@
     ;; Help Page
     {:key help-key :content content}))
 
-(defn clean-variable
+(defn clean-variables
   "Given a variable help file, remove extraneous HTML elements and:
-   - Modify all H1 to H4"
+   - Modify all H4 to H6
+   - Modify all H1 to H4
+
+  Returns a vector of maps of `{:key <help-key> :content <content>}`"
   [filename]
-  (let [topic  (clean-topic filename)
-        h4->h5 #(str/replace % #"h4" "h6")
-        h1->h4 #(str/replace % #"h1" "h5")]
-    (update topic :content (comp h1->h4 h4->h5))))
+  (let [topic   (clean-topic filename)
+        ks      (-> topic (:key) (str/split #" "))
+        h4->h6  #(str/replace % #"h4" "h6")
+        h1->h4  #(str/replace % #"h1" "h5")
+        content (-> topic (:content) (h1->h4) (h4->h6))]
+    (mapv (fn [k] {:key k :content content}) ks)))
 
 (comment
 

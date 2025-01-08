@@ -6,7 +6,7 @@
    [behave-cms.server        :as cms]
    [datomic.api              :as d]
    [datomic-store.main       :as ds]
-   [dita.xhtml-cleaner       :refer [clean-topic clean-variable]]
+   [dita.xhtml-cleaner       :refer [clean-topic clean-variables]]
    [schema-migrate.interface :as sm]))
 
 #_{:clj-kondo/ignore [:missing-docstring]}
@@ -35,8 +35,11 @@
 
   ;;; Variables
   (def variable-snippets-dir (io/file (str behave-docs) "Resources" "Snippets" "Variables"))
-  (def variable-snippets (fs/glob variable-snippets-dir "*.htm"))
-  (def cleaned-variables (map clean-variable variable-snippets))
+  (def variable-snippets (fs/glob variable-snippets-dir "*htm"))
+  #_(count variable-snippets)
+
+  (def cleaned-variables (mapcat clean-variables variable-snippets))
+  #_(count cleaned-variables)
 
   (def topics-help-tx
     (->> cleaned-topics
