@@ -62,10 +62,10 @@
     :submodule/groups (groups-in-scorch-height-input-submodule "Wind Measured at")]
 
    [:db/retract (sm/t-key->eid conn "behaveplus:mortality:compute-scorch-height")
-    :submodule/groups (groups-in-scorch-height-input-submodule "Wind Adjustment Factor")]
+    :submodule/groups (groups-in-scorch-height-input-submodule "Wind Adjustment Factor")]])
 
-   ;; Delete "Scorch Height (input)" submodule
-   [:db/retractEntity (sm/t-key->eid conn "behaveplus:mortality:compute-scorch-height")]])
+(def delete-scorch-height-submodule-payload
+  [[:db/retractEntity (sm/t-key->eid conn "behaveplus:mortality:compute-scorch-height")]])
 
 ;; ===========================================================================================================
 ;; Transact Payload
@@ -73,11 +73,17 @@
 
 (comment
   #_{:clj-kondo/ignore [:missing-docstring]}
-  (def tx-data (d/transact conn payload)))
+  (do
+    (def tx-data (d/transact conn payload))
+    (def tx-data-2 (d/transact conn delete-scorch-height-submodule-payload)))
+  )
 
 ;; ===========================================================================================================
 ;; In case we need to rollback.
 ;; ===========================================================================================================
 
 (comment
-  (sm/rollback-tx! conn @tx-data))
+  (do
+    (sm/rollback-tx! conn @tx-data-2)
+    (sm/rollback-tx! conn @tx-data))
+  )
