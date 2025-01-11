@@ -26,7 +26,7 @@
 
 (defn is-numeric? [v]
   (if (string? v)
-    (some? (re-matches #"^-?([\d]+[\d\,]*\.*[\d]+)$|^-?([\d]+)$" v))
+    (some? (re-matches #"^-?([\d]*[\d\,]*\.*[\d]+)$|^-?([\d]+)$" v))
     (number? v)))
 
 (defn num-str-compare

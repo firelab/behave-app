@@ -1,7 +1,7 @@
 {:global
  {:SIGFineDeadFuelMoistureTool
   {:getFineDeadFuelMoisture
-   {:type "int", :id "getFineDeadFuelMoisture", :parameters []},
+   {:type "FractionUnits::FractionUnitsEnum", :id "getFineDeadFuelMoisture", :parameters []},
    :getAspectLabelAtIndex
    {:type "std::string",
     :id "getAspectLabelAtIndex",
@@ -69,7 +69,7 @@
     :id "getDryBulbTemperatureLabelAtIndex",
     :parameters [{:id "index", :type "int"}]},
    :getReferenceMoisture
-   {:type "int", :id "getReferenceMoisture", :parameters []},
+   {:type "FractionUnits::FractionUnitsEnum", :id "getReferenceMoisture", :parameters []},
    :calculateByIndex
    {:type "void",
     :id "calculateByIndex",
@@ -89,7 +89,7 @@
     :id "getMonthLabelAtIndex",
     :parameters [{:id "index", :type "int"}]},
    :getCorrectionMoisture
-   {:type "int", :id "getCorrectionMoisture", :parameters []},
+   {:type "FractionUnits::FractionUnitsEnum", :id "getCorrectionMoisture", :parameters []},
    :setElevationIndex
    {:type "void",
     :id "setElevationIndex",
