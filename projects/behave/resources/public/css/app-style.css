@@ -1086,10 +1086,10 @@ body {
 }
 
 .tool-input .input-radio-group__label {
-  padding: 0px 10px 0px 5px;
+  padding: 0px 10px 0px 0px;
   font-size: var(--font-size-14);
-  font-weight: var(--font-weight-bold);
-  color: black;
+  font-weight: 400;
+  color: var(--gray-6);
 }
 
 .tool-input + .tool-input:last-child {
@@ -1110,6 +1110,11 @@ body {
 .tool-input__description__units {
   font-size: var(--font-size-14);
   color: var(--gray-5);
+}
+
+.tool-output__output .input-text__label {
+  font-weight: var(--font-weight-bold);
+  color: var(--black);
 }
 
 .tool__close {
