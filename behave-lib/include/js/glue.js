@@ -5286,9 +5286,10 @@ SIGFineDeadFuelMoistureTool.prototype['setMonthIndex'] = SIGFineDeadFuelMoisture
   _emscripten_bind_SIGFineDeadFuelMoistureTool_setMonthIndex_1(self, monthIndex);
 };;
 
-SIGFineDeadFuelMoistureTool.prototype['getFineDeadFuelMoisture'] = SIGFineDeadFuelMoistureTool.prototype.getFineDeadFuelMoisture = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+SIGFineDeadFuelMoistureTool.prototype['getFineDeadFuelMoisture'] = SIGFineDeadFuelMoistureTool.prototype.getFineDeadFuelMoisture = /** @suppress {undefinedVars, duplicate} @this{Object} */function(desiredUnits) {
   var self = this.ptr;
-  return _emscripten_bind_SIGFineDeadFuelMoistureTool_getFineDeadFuelMoisture_0(self);
+  if (desiredUnits && typeof desiredUnits === 'object') desiredUnits = desiredUnits.ptr;
+  return _emscripten_bind_SIGFineDeadFuelMoistureTool_getFineDeadFuelMoisture_1(self, desiredUnits);
 };;
 
 SIGFineDeadFuelMoistureTool.prototype['getSlopeIndexSize'] = SIGFineDeadFuelMoistureTool.prototype.getSlopeIndexSize = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
@@ -5311,9 +5312,10 @@ SIGFineDeadFuelMoistureTool.prototype['getDryBulbTemperatureIndexSize'] = SIGFin
   return _emscripten_bind_SIGFineDeadFuelMoistureTool_getDryBulbTemperatureIndexSize_0(self);
 };;
 
-SIGFineDeadFuelMoistureTool.prototype['getReferenceMoisture'] = SIGFineDeadFuelMoistureTool.prototype.getReferenceMoisture = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+SIGFineDeadFuelMoistureTool.prototype['getReferenceMoisture'] = SIGFineDeadFuelMoistureTool.prototype.getReferenceMoisture = /** @suppress {undefinedVars, duplicate} @this{Object} */function(desiredUnits) {
   var self = this.ptr;
-  return _emscripten_bind_SIGFineDeadFuelMoistureTool_getReferenceMoisture_0(self);
+  if (desiredUnits && typeof desiredUnits === 'object') desiredUnits = desiredUnits.ptr;
+  return _emscripten_bind_SIGFineDeadFuelMoistureTool_getReferenceMoisture_1(self, desiredUnits);
 };;
 
 SIGFineDeadFuelMoistureTool.prototype['calculateByIndex'] = SIGFineDeadFuelMoistureTool.prototype.calculateByIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(aspectIndex, dryBulbIndex, elevationIndex, monthIndex, relativeHumidityIndex, shadingIndex, slopeIndex, timeOfDayIndex) {
@@ -5334,9 +5336,10 @@ SIGFineDeadFuelMoistureTool.prototype['getTimeOfDayIndexSize'] = SIGFineDeadFuel
   return _emscripten_bind_SIGFineDeadFuelMoistureTool_getTimeOfDayIndexSize_0(self);
 };;
 
-SIGFineDeadFuelMoistureTool.prototype['getCorrectionMoisture'] = SIGFineDeadFuelMoistureTool.prototype.getCorrectionMoisture = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+SIGFineDeadFuelMoistureTool.prototype['getCorrectionMoisture'] = SIGFineDeadFuelMoistureTool.prototype.getCorrectionMoisture = /** @suppress {undefinedVars, duplicate} @this{Object} */function(desiredUnits) {
   var self = this.ptr;
-  return _emscripten_bind_SIGFineDeadFuelMoistureTool_getCorrectionMoisture_0(self);
+  if (desiredUnits && typeof desiredUnits === 'object') desiredUnits = desiredUnits.ptr;
+  return _emscripten_bind_SIGFineDeadFuelMoistureTool_getCorrectionMoisture_1(self, desiredUnits);
 };;
 
 SIGFineDeadFuelMoistureTool.prototype['getAspectIndexSize'] = SIGFineDeadFuelMoistureTool.prototype.getAspectIndexSize = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {

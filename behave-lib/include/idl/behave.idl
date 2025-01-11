@@ -1301,15 +1301,15 @@ interface SIGFineDeadFuelMoistureTool {
   void setElevationIndex(FDFMToolElevationIndex_ElevationIndexEnum elevationIndex);
   void setDryBulbIndex(FDFMToolDryBulbIndex_DryBulbIndexEnum dryBulbIndex);
   void setMonthIndex(FDFMToolMonthIndex_MonthIndexEnum monthIndex);
-  long getFineDeadFuelMoisture();
+  double getFineDeadFuelMoisture(FractionUnits_FractionUnitsEnum desiredUnits);
   long getSlopeIndexSize();
   long getElevationIndexSize();
   long getMonthIndexSize();
   long getDryBulbTemperatureIndexSize();
-  long getReferenceMoisture();
+  double getReferenceMoisture(FractionUnits_FractionUnitsEnum desiredUnits);
   void calculateByIndex(long aspectIndex, long dryBulbIndex, long elevationIndex, long monthIndex, long relativeHumidityIndex, long shadingIndex, long slopeIndex, long timeOfDayIndex);
   long getTimeOfDayIndexSize();
-  long getCorrectionMoisture();
+  double getCorrectionMoisture(FractionUnits_FractionUnitsEnum desiredUnits);
   long getAspectIndexSize();
   long getShadingIndexSize();
   long getRelativeHumidityIndexSize();
