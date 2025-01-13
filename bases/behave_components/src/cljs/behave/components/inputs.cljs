@@ -189,7 +189,7 @@
      (when @show-options?
        [:<>
         [:div.multi-select__prompt
-         (gstring/format "Please select from the following %ss (you can select multiple)" input-label)]
+         (gstring/format "Please select from the following %s (you can select multiple)" input-label)]
         (when tags-enabled?
           [:div.multi-select__tags
            (for [tag (reduce (fn [acc x]
