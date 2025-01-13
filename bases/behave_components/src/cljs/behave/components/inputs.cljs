@@ -224,7 +224,7 @@
                                                           (on-select value)))))}])))]])
      [:div.multi-select__selections
       [:div.multi-select__selections__header
-       [:div (gstring/format "Selected %ss" input-label)]
+       [:div (gstring/format "Selected %s" input-label)]
        [:div.multi-select__selections__header__button (if (false? @show-options?)
                                                         [button {:label     "Select More"
                                                                  :variant   "primary"
