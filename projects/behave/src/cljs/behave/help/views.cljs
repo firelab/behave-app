@@ -1,5 +1,6 @@
 (ns behave.help.views
-  (:require [re-frame.core          :refer [subscribe dispatch dispatch-sync]]
+  (:require [clojure.walk           :refer [postwalk]]
+            [re-frame.core          :refer [subscribe dispatch dispatch-sync]]
             [reagent.core           :as r]
             [hickory.core           :as h]
             [behave.components.core :as c]
@@ -7,11 +8,44 @@
             [behave.help.events]
             [behave.help.subs]))
 
+;;; Helper Functions
+
 (defn- test-guides []
   (let [guides-manuals (<t "behaveplus:guides_and_manuals")]
     [:div
      [:h1 @guides-manuals]
      [:h2 "Here are some guides."]]))
+
+(defn- display-group? [ws-uuid group]
+  (and (not (:group/research? group)) 
+       @(subscribe [:wizard/show-group?
+                    ws-uuid
+                    (:db/id group)
+                    (:group/conditionals-operator group)])))
+
+(defn- flatten-help-keys [acc g-or-gv]
+  (let [acc (conj acc (or (:group/help-key g-or-gv)
+                          (:group-variable/help-key g-or-gv)))]
+    (cond-> acc
+      (seq (:group/group-variables g-or-gv))
+      (concat (map (partial flatten-help-keys []) (sort-by :group-variables/order (:group/group-variables g-or-gv))))
+
+      (seq (:group/children g-or-gv))
+      (concat (map (partial flatten-help-keys []) (sort-by :group/order (:group/children g-or-gv)))))))
+
+(defn- ->filter-groups-walk-fn [ws-uuid]
+  (fn [node]
+    (cond
+      (:group/name node)
+      (if (display-group? ws-uuid node) node nil)
+
+      (or 
+       (:group-variable/research? node)
+       (:group-variable/conditionally-set? node))
+      nil
+
+      :else
+      node)))
 
 (defn- get-help-keys [params]
   (cond
@@ -23,11 +57,24 @@
     (:page params)
 
     (and (:module params) (:submodule params))
-    (let [{:keys [module submodule io]} params
-          *module                       (subscribe [:wizard/*module module])
-          *submodule                    (subscribe [:wizard/*submodule (:db/id @*module) submodule io])
-          submodule-help-keys           (subscribe [:help/submodule-help-keys (:db/id @*submodule)])]
-      (concat [(:module/help-key @*module)] @submodule-help-keys))
+    (let [{:keys [ws-uuid module submodule io]} params
+          [_ first-output-submodule]            @(subscribe [:wizard/first-module+submodule ws-uuid :output])
+          *module                               (subscribe [:wizard/*module module])
+          *submodule                            (subscribe [:wizard/*submodule (:db/id @*module) submodule io])
+          submodule-id                          (:db/id @*submodule)
+          *groups                               (subscribe [:vms/pull-children :submodule/groups submodule-id
+                                                            '[* {:group/group-variables [*]} {:group/children 6}]])
+          submodule-help-keys                   (->> @*groups
+                                                     (sort-by :group/order)
+                                                     (postwalk (->filter-groups-walk-fn ws-uuid))
+                                                     (mapcat (partial flatten-help-keys []))
+                                                     (flatten)
+                                                     (filter some?)
+                                                     (concat [(:submodule/help-key @*submodule)])
+                                                     (vec))]
+      (if (and (= io :output) (= first-output-submodule submodule))
+        (concat [(:module/help-key @*module)] submodule-help-keys)
+        submodule-help-keys))
 
     :else
     "behaveplus:help"))
@@ -61,7 +108,11 @@
                 ^{:key help-key}
                 [help-section help-key (= help-key @help-highlighted-key)])))]))
 
-(defn help-area [params]
+;;; Public
+
+(defn help-area
+  "Displays the Help Area for a particular page."
+  [params]
   (r/with-let [_ (dispatch-sync [:help/select-tab {:tab :module}])]
    (let [hidden?               (subscribe [:state [:help-area :hidden?]])
          current-tab           (subscribe [:help/current-tab])
