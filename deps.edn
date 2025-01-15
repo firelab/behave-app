@@ -15,6 +15,7 @@
                  "components/date_utils/src"
                  "components/datom_compressor/src"
                  "components/datom_utils/src"
+                 "components/dita/src"
                  "components/dom_utils/src"
                  "components/ds_schema_utils/src"
                  "components/logging/src"
