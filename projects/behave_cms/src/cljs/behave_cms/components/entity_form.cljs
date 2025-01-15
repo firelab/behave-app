@@ -4,7 +4,7 @@
             [re-frame.core     :as rf]
             [string-utils.interface :refer [->kebab ->str]]
             [behave.schema.core :refer [all-schemas]]
-            [behave-cms.components.common :refer [dropdown]]
+            [behave-cms.components.common :refer [dropdown btn-sm]]
             [behave-cms.utils  :as u]))
 
 ;;; Constants
@@ -49,11 +49,18 @@
         translation-attr   (gen-attr "translation-key")
         help-attr          (gen-attr "help-key")
         parent-translation (parent-translation-key parent)
-        translation-key    (str parent-translation ":" (->kebab (get state name-attr)))
+        translation-key    (str parent-translation
+                                ":"
+                                (when (= entity :submodule)
+                                  (cond
+                                    (= (:submodule/io state) :input)  "input:"
+                                    (= (:submodule/io state) :output) "output:"
+                                    :else                             nil))
+                                (->kebab (get state name-attr)))
         help-key           (str translation-key ":help")]
 
     (merge state
-           {parent-field     parent-id}
+           {parent-field parent-id}
            (when (db-translation-attrs translation-attr) {translation-attr translation-key})
            (when (db-help-attrs help-attr) {help-attr help-key})
            ;; Prevent overwriting the translation/help keys once assigned
@@ -125,7 +132,7 @@
      :on-change     #(on-change (u/input-int-value %))}]])
 
 (defmethod field-input :default [{:keys [type label autocomplete disabled? autofocus? required? placeholder on-change state]
-                                  :or {type "text" disabled? false required? false}}]
+                                  :or   {type "text" disabled? false required? false}}]
   [:div.my-3
    [:label.form-label {:for (u/sentence->kebab label)} label]
    [:input.form-control
@@ -138,6 +145,38 @@
      :type          type
      :value         @state
      :on-change     #(on-change (u/input-value %))}]])
+
+(defmethod field-input :keywords
+  [{:keys [label autocomplete disabled? autofocus? required? placeholder on-change state original-keywords
+           on-delete-keyword]
+    :or   {disabled? false required? false}}]
+  [:div.my-3
+   [:label.form-label {:for (u/sentence->kebab label)} label]
+   [:div.field-input__keywords
+    {:style {:display        :flex
+             :flex-flow      "row wrap"
+             :flex-direction :row
+             :margin-bottom  "5px"}}
+    (for [kkeyword @original-keywords]
+      [:div.text-center
+       {:style {:position      "relative"
+                :padding       "2px 0px 2px 8px"
+                :margin-right  "10px"
+                :margin-bottom "2px"
+                :border        "2px solid grey"
+                :border-radius "10px"}}
+       kkeyword
+       [btn-sm :close nil #(on-delete-keyword kkeyword)]])]
+   [:input.form-control
+    {:auto-complete autocomplete
+     :auto-focus    autofocus?
+     :disabled      disabled?
+     :required      required?
+     :placeholder   placeholder
+     :id            (u/sentence->kebab label)
+     :type          type
+     :value         @state
+     :on-change     #(on-change (keyword (u/input-value %)))}]])
 
 
 ;;; Public Fns
@@ -186,30 +225,44 @@
                                                           :else
                                                           "")]
                                              result)))
-        on-submit    (u/on-submit #(let [state @(rf/subscribe [:state [:editors entity]])]
-                                     (cond-> state
-                                       id
-                                       (merge {:db/id id})
+        on-submit (u/on-submit #(let [state @(rf/subscribe [:state [:editors entity]])]
+                                  (cond-> state
+                                    id
+                                    (merge {:db/id id})
 
-                                       (and id (fn? on-update))
-                                       (on-update)
+                                    (and id (fn? on-update))
+                                    (on-update)
 
-                                       (and (nil? id) parent-field parent-id)
-                                       (merge-parent-fields original entity parent-field parent-id parent)
+                                    (and (nil? id) parent-field parent-id)
+                                    (merge-parent-fields original entity parent-field parent-id parent)
 
-                                       (and (nil? id) (fn? on-create))
-                                       (on-create)
+                                    (and (nil? id) (fn? on-create))
+                                    (on-create)
 
-                                       true
-                                       (upsert-entity!))
-                                     (rf/dispatch [:state/set-state entity nil])
-                                     (rf/dispatch [:state/set-state [:editors entity] {}])))]
+                                    true
+                                    (upsert-entity!))
+                                  (rf/dispatch [:state/set-state entity nil])
+                                  (rf/dispatch [:state/set-state [:editors entity] {}])))]
     [:form {:on-submit on-submit}
-     (for [{:keys [field-key] :as field} fields]
+     (for [{:keys [field-key type] :as field} fields]
        ^{:key field-key}
-       [field-input (assoc field
-                           :on-change (update-state field-key)
-                           :state     (get-state field-key))])
+       (if (= type :keywords)
+         [field-input (merge field
+                             {:on-change (update-state field-key)
+                              :state     (r/track #(let [result (cond
+                                                                  (not (nil? @(rf/subscribe [:state [:editors entity field-key]])))
+                                                                  @(rf/subscribe [:state [:editors entity field-key]])
+
+                                                                  :else
+                                                                  "")]
+                                                     result))
+                              :on-delete-keyword (fn [kkeyword]
+                                                   (rf/dispatch [:api/retract-entity-attr-value
+                                                                 id :list-option/tags kkeyword]))
+                              :original-keywords (r/track #(get @(rf/subscribe [:entity id]) field-key))})]
+         [field-input (assoc field
+                             :on-change (update-state field-key)
+                             :state     (get-state field-key))]))
      [:button.btn.btn-sm.btn-outline-primary
       {:type "submit"}
       (if id "Update" "Create")]]))

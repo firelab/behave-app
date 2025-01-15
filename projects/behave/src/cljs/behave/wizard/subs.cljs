@@ -1,10 +1,12 @@
 (ns behave.wizard.subs
   (:require [behave.schema.core     :refer [rules]]
+            [behave.lib.units       :refer [convert]]
             [behave.vms.store       :refer [vms-conn]]
             [behave.translate       :refer [<t]]
             [clojure.set            :refer [rename-keys intersection]]
             [datascript.core        :as d]
             [re-frame.core          :refer [reg-sub subscribe] :as rf]
+            [number-utils.interface :refer [is-numeric? parse-float]]
             [string-utils.interface :refer [->kebab]]
             [clojure.string         :as str]
             [bidi.bidi              :refer [path-for]]
@@ -16,6 +18,48 @@
 (defn- matching-submodule? [io slug submodule]
   (and (= io (:submodule/io submodule))
        (= slug (:slug submodule))))
+
+(defn- in-range?
+  "Identifies if a value `v` is within `v-min` and `v-max`."
+  [v-min v-max v]
+  (and (not (neg? v))
+       (cond
+         (and (some? v-max) (some? v-min))
+         (<= v-min v v-max)
+
+         (some? v-min)
+         (<= v-min v)
+
+         (some? v-max)
+         (<= 0 v v-max)
+
+         :else true)))
+
+(defn- values-in-range?
+  [var-min var-max v]
+  {:pre [(or (nil? v) (string? v))]}
+  (if (empty? v)
+    true
+    (let [values (->> (str/split (str v) #"[, ]") (remove empty?))]
+      (and (every? is-numeric? values)
+           (every? (partial in-range? var-min var-max)
+                   (map parse-float values))))))
+
+(defn- outside-range-error-msg
+  [v-min v-max]
+  (let [msg (cond
+              (and v-min v-max)
+              ["Error: Value(s) are not within range (min: %2f, max: %2f)" v-min v-max]
+
+              v-min
+              ["Error: Value(s) are not within range (min: %2f)" v-min]
+
+              v-max
+              ["Error: Value(s) are not within range (min: %2f, min: %2f)" 0 v-max]
+
+              :else
+              ["Error: Value(s) are not positive." 0 v-max])]
+    (apply gstring/format msg)))
 
 ;;; Subscriptions
 
@@ -270,6 +314,33 @@
  (fn [_db _query]
    multi-value-input-limit))
 
+;;; Outside Range
+
+(reg-sub
+ :wizard/outside-range?
+ (fn [[_ native-unit-uuid unit-uuid _ _ _]]
+   [(rf/subscribe [:vms/units-uuid->short-code native-unit-uuid])
+    (rf/subscribe [:vms/units-uuid->short-code unit-uuid])])
+ (fn [[from-units to-units] [_ _ _ var-min var-max value]]
+   (not
+    (if (or (nil? to-units) (= from-units to-units))
+        (values-in-range? var-min var-max value)
+        (values-in-range? (convert var-min from-units to-units 2)
+                          (convert var-max from-units to-units 2)
+                          value)))))
+
+(reg-sub
+ :wizard/outside-range-error-msg
+ (fn [[_ native-unit-uuid unit-uuid _ _ _]]
+   [(rf/subscribe [:vms/units-uuid->short-code native-unit-uuid])
+    (rf/subscribe [:vms/units-uuid->short-code unit-uuid])])
+
+ (fn [[from-units to-units] [_ _ _ var-min var-max]]
+   (if (or (nil? to-units) (= from-units to-units))
+     (outside-range-error-msg var-min var-max)
+     (outside-range-error-msg (convert var-min from-units to-units 2)
+                              (convert var-max from-units to-units 2)))))
+
 (reg-sub
  :wizard/warn-limit?
  (fn [[_id ws-uuid]]
@@ -352,13 +423,13 @@
 
  (fn [route-order [_ _ws-uuid io]]
    (when io
-     (let [first-path      (first (filter
+     (when-let [first-path (first (filter
                                    (fn [path] (str/includes? path (name io)))
-                                   route-order))
-           module-regex    (gstring/format "(?<=modules/).*(?=/%s)" (name io))
-           submodule-regex (gstring/format "(?<=%s/).*" (name io))]
-       [(re-find (re-pattern module-regex) first-path)
-        (re-find (re-pattern submodule-regex) first-path)]))))
+                                   route-order))]
+       (let [module-regex    (gstring/format "(?<=modules/).*(?=/%s)" (name io))
+             submodule-regex (gstring/format "(?<=%s/).*" (name io))]
+         [(re-find (re-pattern module-regex) first-path)
+          (re-find (re-pattern submodule-regex) first-path)])))))
 
 ;;; show-group?
 (defn- csv? [s] (< 1 (count (str/split s #","))))
@@ -372,7 +443,9 @@
            [{group-variable-uuid :conditional/group-variable-uuid
              ttype               :conditional/type
              op                  :conditional/operator
-             values              :conditional/values}]
+             values              :conditional/values
+             sub-conditionals    :conditional/sub-conditionals
+             sub-conditional-op  :conditional/sub-conditional-operator}]
            (let [{:keys [group-uuid io]} @(subscribe [:wizard/conditional-io+group-uuid
                                                       group-variable-uuid])
                  conditional-values-set  (set values)
@@ -391,17 +464,24 @@
                                                         group-uuid
                                                         0
                                                         group-variable-uuid]))
-                 worksheet-value-set (cond
-                                       (= ttype :module)      (set worksheet-value)
-                                       (csv? worksheet-value) (set (map str/trim (str/split worksheet-value ",")))
-                                       :else                  #{worksheet-value})]
-             (case op
-               :equal     (if (= ttype :module)
-                            (= conditional-values-set worksheet-value-set)
-                            (= (first conditional-values-set)
-                               (if worksheet-value (str worksheet-value) "false")))
-               :not-equal (not= (first conditional-values-set) (str worksheet-value))
-               :in        (intersect? conditional-values-set worksheet-value-set))))
+                 worksheet-value-set       (cond
+                                             (= ttype :module)      (set worksheet-value)
+                                             (csv? worksheet-value) (set (map str/trim (str/split worksheet-value ",")))
+                                             :else                  #{worksheet-value})
+                 sub-resolved-conditionals (when sub-conditionals
+                                             (if (= sub-conditional-op :or)
+                                               (some true? (resolve-conditionals worksheet sub-conditionals))
+                                               (every? true? (resolve-conditionals worksheet sub-conditionals))))
+                 this-conditional          (case op
+                                             :equal     (if (= ttype :module)
+                                                          (= conditional-values-set worksheet-value-set)
+                                                          (= (first conditional-values-set)
+                                                             (if worksheet-value (str worksheet-value) "false")))
+                                             :not-equal (not= (first conditional-values-set) (str worksheet-value))
+                                             :in        (intersect? conditional-values-set worksheet-value-set))]
+             (if sub-conditionals
+               (and this-conditional sub-resolved-conditionals)
+               this-conditional)))
          conditionals)))
 
 (defn all-conditionals-pass? [worksheet conditionals-operator conditionals]
@@ -721,3 +801,9 @@
  :wizard/discrete-group-variable?
  (fn [_ [_ gv-uuid]]
    (group-variable-discrete? gv-uuid)))
+
+(reg-sub
+ :wizard/show-graph-settings?
+ (fn [[_ ws-uuid]] (subscribe [:wizard/multi-value-input-count ws-uuid]))
+ (fn [count _]
+   (pos? count)))

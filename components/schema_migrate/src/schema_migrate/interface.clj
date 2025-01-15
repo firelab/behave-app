@@ -26,6 +26,11 @@
        :doc      "Get the :bp/uuid using the cpp function name"}
   cpp-fn->uuid c/cpp-fn->uuid)
 
+(def ^{:arglists '([conn m])
+       :doc      "Given a map of with the names of a namespace, class and function, return a map
+                   that resolves the names to a uuid. Requires all three names."}
+  cpp-uuids c/cpp-uuids)
+
 (def ^{:arglists '([conn fn-name param-name])
        :doc      "Get the :bp/uuid using the cpp function name and parameter name."}
   cpp-param->uuid c/cpp-param->uuid)
@@ -45,6 +50,10 @@
 (def ^{:arglists '([conn t])
        :doc      "Get the :db/id using translation-key"}
   t-key->eid c/t-key->eid)
+
+(def ^{:arglists '([conn t])
+       :doc      "Given a translation-key of a group-variable an action's name return the action's entity id"}
+  t-key-action-name->eid c/t-key-action-name->eid)
 
 (def ^{:arglists '([conn attr])
        :doc      "Sets :db/isComponent true for a given schema attribute.

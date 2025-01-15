@@ -84,7 +84,7 @@
          [:td.page__top__logo
           [:div.behave-identity
            {:href     "#"
-            :on-click #(rf/dispatch [:navigate "/"])
+            :on-click #(rf/dispatch [:wizard/navigate-home])
             :tabindex 0}
            [:img {:src "/images/logo.svg"}]]]
          [:td.page__top__toolbar-container

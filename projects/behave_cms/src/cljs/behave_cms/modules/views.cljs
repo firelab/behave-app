@@ -5,7 +5,8 @@
    [behave-cms.components.sidebar      :refer [sidebar sidebar-width ->sidebar-links]]
    [behave-cms.components.translations :refer [app-translations]]
    [behave-cms.help.views              :refer [help-editor]]
-   [behave-cms.components.entity-form  :refer [entity-form]]))
+   [behave-cms.components.entity-form  :refer [entity-form]]
+   [behave-cms.components.group-variable-selector :refer [group-variable-selector]]))
 
 ;;; Modules
 
@@ -68,18 +69,39 @@
    [:h4 (str (if *tool "Edit" "Add") " Tool")
     [tool-form application-id *tool num-tools]]])
 
+;; Priortzed Results Table
+(defn prioritized-results-table
+  ""
+  [app-id]
+  (let [prioritized-results (rf/subscribe [:application/prioritized-results app-id])]
+    [:div.col-6
+     [:div
+      [:h4 "Group Variables"]
+      [:p "Use this list to sort group variables ahead of the normal sort order accross all modules in this application"]
+      [simple-table
+       [:variable/name]
+       (sort-by :prioritized-results/order @prioritized-results)
+       {:on-select   #(rf/dispatch [:state/set-state :prioritized-results %])
+        :on-delete   #(rf/dispatch [:api/delete-entity %])
+        :on-increase #(rf/dispatch [:api/reorder % @prioritized-results
+                                    :prioritized-results/order :inc])
+        :on-decrease #(rf/dispatch [:api/reorder % @prioritized-results
+                                    :prioritized-results/order :dec])}]]]))
+
 ;;; Public
 
 (defn list-modules-page
   "Displays page for modules. Takes a single map with:
   - id [int] - Application Entity ID"
   [{nid :nid}]
-  (let [application (rf/subscribe [:application [:bp/nid nid]])
-        id          (:db/id @application)
-        modules     (rf/subscribe [:application/modules id])
-        *module     (rf/subscribe [:state :module])
-        tools       (rf/subscribe [:application/tools id])
-        *tool       (rf/subscribe [:state :tool])]
+  (let [application        (rf/subscribe [:application [:bp/nid nid]])
+        app-id             (:db/id @application)
+        modules            (rf/subscribe [:application/modules app-id])
+        *module            (rf/subscribe [:state :module])
+        tools              (rf/subscribe [:application/tools app-id])
+        *tool              (rf/subscribe [:state :tool])
+        prioritzed-results (rf/subscribe [:state :prioritized-results])
+        gv-id-to-edit      (:db/id (:prioritized-results/group-variable @prioritzed-results ))]
     [:<>
      [sidebar
       "Modules"
@@ -94,15 +116,15 @@
         [:h2 (:application/name @application)]]
        [accordion
         "Modules"
-        [modules-table id]
-        [manage-module id @*module (count @modules)]]
+        [modules-table app-id]
+        [manage-module app-id @*module (count @modules)]]
        [:hr]
        [accordion
         "Tools"
         [:div.col-6
-         [tools-table id]]
+         [tools-table app-id]]
         [:div.col-6
-         [manage-tool id @*tool (count @tools)]]]
+         [manage-tool app-id @*tool (count @tools)]]]
        [:hr]
        [accordion
         "Help Page"
@@ -111,4 +133,22 @@
        [:hr]
        [accordion
         "Application Translations"
-        [app-translations (:application/translation-key @application)]]]]]))
+        [app-translations (:application/translation-key @application)]]
+       [:hr]
+       [accordion
+        "Application's Prioritized Results"
+        [:div.col-12
+         [:div.row
+          [prioritized-results-table app-id]
+          [group-variable-selector
+           {:app-id    app-id
+            :gv-id     gv-id-to-edit
+            :on-submit #(let [gv-count @(rf/subscribe [:application/prioritized-results-count app-id])]
+                          (rf/dispatch [:api/upsert-entity
+                                        (if (:db/id @prioritzed-results )
+                                          {:db/id                              (:db/id @prioritzed-results )
+                                           :prioritized-results/group-variable %}
+                                          {:application/_prioritized-results   app-id
+                                           :prioritized-results/group-variable %
+                                           :prioritized-results/order          gv-count})])
+                          (rf/dispatch [:state/set-state :prioritized-results nil]))}]]]]]]]))

@@ -1,14 +1,35 @@
 (ns behave.wizard.events
   (:require [behave-routing.main           :refer [routes current-route-order]]
+            [behave.lib.units              :refer [convert]]
             [behave.solver.core            :refer [solve-worksheet]]
+            [behave.vms.store              :as vms]
             [behave.store                  :as s]
             [bidi.bidi                     :refer [path-for]]
+            [goog.string                   :as gstring]
             [clojure.string                :as str]
             [clojure.walk                  :refer [postwalk]]
             [datascript.core               :as d]
             [re-frame.core                 :as rf]
+            [number-utils.interface        :refer [is-numeric? parse-float]]
             [string-utils.interface        :refer [->str]]
             [vimsical.re-frame.cofx.inject :as inject]))
+
+;;; Helpers
+
+(defn- convert-values
+  [from to v & [precision]]
+  {:pre [(string? from) (string? to) (or (nil? v) (string? v))]}
+  (if (empty? v)
+    nil
+    (let [convert-fn #(convert % from to)
+          values     (->> (str/split (str v) #"[, ]")
+                      (remove empty?))]
+      (when (every? is-numeric? values)
+        (->> (map (comp convert-fn parse-float) values)
+             (map #(.toFixed % (or precision 2)))
+             (str/join ","))))))
+
+;;; Subscriptions
 
 (rf/reg-event-fx
  :wizard/select-tab
@@ -34,7 +55,7 @@
                               (and (zero? current-path-index) @s/worksheet-from-file?)
                               "/worksheets/import"
 
-                              (and (zero? current-path-index))
+                              (zero? current-path-index)
                               "/worksheets/independent"
 
                               :else
@@ -106,12 +127,14 @@
  (fn [_cfx [_event-id route repeat-id var-uuid]]
    {:fx [[:dispatch [:navigate route]]
          [:dispatch-later {:ms       200
-                           :dispatch [:wizard/scroll-into-view (str repeat-id  "-" var-uuid)]}]]}))
+                           :dispatch [:wizard/scroll-into-view
+                                      "wizard-page__body"
+                                      (str repeat-id  "-" var-uuid)]}]]}))
 
 (rf/reg-event-fx
  :wizard/scroll-into-view
- (fn [_cfx [_event-id id]]
-   (let [content (first (.getElementsByClassName js/document "wizard-page__body"))
+ (fn [_cfx [_event-id class id]]
+   (let [content (first (.getElementsByClassName js/document class))
          section (.getElementById js/document id)
          buffer  (* 0.01 (.-offsetHeight content))
          top     (- (.-offsetTop section) (.-offsetTop content) buffer)]
@@ -155,7 +178,7 @@
  :wizard/results-select-tab
  (fn [_cfx [_ {:keys [tab]}]]
    {:fx [[:dispatch [:state/set [:worksheet :results :tab-selected] tab]]
-         [:dispatch [:wizard/scroll-into-view (name tab)]]]}))
+         [:dispatch [:wizard/scroll-into-view "review-wizard-page__body" (name tab)]]]}))
 
 (rf/reg-event-fx
  :wizard/progress-bar-navigate
@@ -164,12 +187,16 @@
                     [:state [:worksheet :*workflow]]))
   (rf/inject-cofx ::inject/sub
                   (fn [[_ ws-uuid [_ io]]]
-                    [:wizard/first-module+submodule ws-uuid io]))]
+                    (when ws-uuid
+                      [:wizard/first-module+submodule ws-uuid io])))]
  (fn [{module                 :state
        first-module+submodule :wizard/first-module+submodule} [_ ws-uuid route-handler+io]]
    (let [[handler io]          route-handler+io
          [ws-module submodule] first-module+submodule]
      (when-let [path (cond
+                       (= handler :ws/all)
+                       (str "/worksheets/")
+
                        (= handler :ws/independent)
                        (str "/worksheets/" (->str module))
 
@@ -186,7 +213,10 @@
 
                        :else
                        (path-for routes handler :ws-uuid ws-uuid))]
-       {:fx [[:dispatch [:navigate path]]]}))))
+       {:fx (cond-> [[:dispatch [:navigate path]]]
+              (= handler :ws/all)
+              (into [[:dispatch [:state/set [:sidebar :*modules] nil]]
+                     [:dispatch [:state/set [:worksheet :*modules] nil]]]))}))))
 
 (rf/reg-event-fx
  :worksheet/map-units-enabled?
@@ -227,26 +257,20 @@
 ;; Also clear the input value from the worksheet.
 (rf/reg-event-fx
  :wizard/update-input-units
- [(rf/inject-cofx ::inject/sub
-                  (fn [[_ ws-uuid group-uuid repeat-id group-variable-uuid _]]
-                    [:worksheet/input ws-uuid group-uuid repeat-id group-variable-uuid]))
-  (rf/inject-cofx ::inject/sub
-                  (fn [[_ _ _ _ group-variable-uuid]]
-                    [:vms/native-units group-variable-uuid]))]
- (fn [{input            :worksheet/input
-       vms-native-units :vms/native-units} [_ ws-uuid group-uuid repeat-id group-variable-uuid units]]
-   (let [ws-input-units         (:input/units input)
-         different-unit-chosen? (or (and (nil? ws-input-units)
-                                         (not= vms-native-units units))
-                                    (and (some? ws-input-units) (not= ws-input-units units)))
+ (fn [_ [_ {:keys [ws-uuid group-uuid repeat-id gv-uuid new-units-uuid old-units-uuid value]}]]
+   (let [new-unit-short-code    (:unit/short-code (vms/entity-from-uuid new-units-uuid))
+         old-unit-short-code    (:unit/short-code (vms/entity-from-uuid old-units-uuid))
+         different-unit-chosen? (not= new-unit-short-code old-unit-short-code)
+         new-value              (convert-values old-unit-short-code new-unit-short-code value)
          effects                (cond-> [[:dispatch [:worksheet/update-input-units
-                                                     ws-uuid group-uuid repeat-id group-variable-uuid units]]]
+                                                     ws-uuid group-uuid repeat-id gv-uuid new-units-uuid]]]
 
                                   different-unit-chosen?
                                   (conj [:dispatch [:worksheet/set-furthest-vistited-step ws-uuid :ws/wizard :input]])
 
-                                  different-unit-chosen?
-                                  (conj [:dispatch [:worksheet/clear-input-value (:db/id input)]]))]
+                                  (and (some? new-value) different-unit-chosen?)
+                                  (conj [:dispatch [:wizard/upsert-input-variable
+                                                    ws-uuid group-uuid repeat-id gv-uuid new-value]]))]
      {:fx effects})))
 
 (rf/reg-event-fx
@@ -285,3 +309,10 @@
          all-hidden?       (and sidebar-hidden? help-area-hidden?)]
      {:fx [[:dispatch [:state/set [:sidebar :hidden?] (not all-hidden?)]]
            [:dispatch [:state/set [:help-area :hidden?] (not all-hidden?)]]]})))
+
+(rf/reg-event-fx
+ :wizard/navigate-home
+ (fn []
+   {:fx [[:dispatch [:navigate "/"]]
+         [:dispatch [:state/set [:sidebar :*modules] nil]]
+         [:dispatch [:state/set [:worksheet :*modules] nil]]]}))

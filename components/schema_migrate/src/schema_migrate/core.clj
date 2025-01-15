@@ -91,6 +91,28 @@
         class-name
         fn-name)))
 
+(defn cpp-uuids
+  "Given a map of with the names of a namespace, class and function, return a map
+  that resolves the names to a uuid. Requires all three names."
+  [conn {:keys [cpp-namespace cpp-class cpp-function]}]
+  (first
+   (d/q '[:find ?ns-uuid ?c-uuid ?f-uuid
+          :keys cpp-namespace cpp-class cpp-function
+          :in $ ?namespace ?class ?function
+          :where
+          [?n :cpp.namespace/name ?namespace]
+          [?n :cpp.namespace/class ?c]
+          [?n :bp/uuid ?ns-uuid]
+          [?c :cpp.class/name ?class]
+          [?c :bp/uuid ?c-uuid]
+          [?c :cpp.class/function ?fn]
+          [?fn :cpp.function/name ?function]
+          [?fn :bp/uuid ?f-uuid]]
+        (d/db conn)
+        cpp-namespace
+        cpp-class
+        cpp-function)))
+
 (defn cpp-param->uuid
   "Get the :bp/uuid using the cpp function name and parameter name."
 
@@ -162,6 +184,15 @@
   "Get the db/id using translation-key"
   [conn t]
   (:db/id (t-key->entity conn t)))
+
+(defn t-key-action-name->eid
+  "Given a translation-key of a group-variable an action's name return the action's entity id"
+  [conn gv-t-key action-name]
+  (let [entity (t-key->entity conn gv-t-key)]
+    (->> (filter #(= (:action/name %) action-name)
+                 (:group-variable/actions entity))
+         first
+         :db/id)))
 
 (defn make-attr-is-component-payload
   "Returns a payload for updating a given attribute to include :db/isComponent true"
@@ -312,3 +343,4 @@
    :bp/nid           (nano-id)
    :link/source      source-eid
    :link/destination destination-eid})
+

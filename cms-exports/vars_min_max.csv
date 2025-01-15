@@ -1,0 +1,52 @@
+variable,min,max,units,key
+Line Construction Offset,0,100,ch,vContainAttackDist
+Length-to-Width Ratio,1.0,7.0,ratio,vContainReportRatio
+Fire Size at Report,0.1,100,ac,vContainReportSize
+Resource Arrival Time,0,8,h,vContainResourceArrival
+Resource Duration,0,20,h,vContainResourceDuration
+Resource Line Production Rate,1.0,250,ch/h,vContainResourceProd
+Number of Contour Intervals,1,100,,vMapContourCount
+Contour Interval,1,1000,ft,vMapContourInterval
+Map Distance,0.1,100,in,vMapDist
+Slope,0,604,%,vSiteSlopeFraction
+Elapsed Time,0.1,8,h,vSurfaceFireElapsedTime
+P-G Height of Understory,1,6,ft,vSurfaceFireHeatPerUnitArea
+Scorch Height,0,200,ft,vSurfaceFireScorchHtAtVector
+Surface Fire Rate of Spread,0,500,ch/h,vSurfaceFireSpreadAtHead
+Surface Fire Spread Direction,0,360,deg,vSurfaceFireVectorDirFromUpslope
+Aspen Fuel Curing Level,0,90,%,vSurfaceFuelAspenCuring
+Fuel Bed Depth,0.05,10.0,ft,vSurfaceFuelBedDepth
+Dead Fuel Moisture of Extinction,5,100,%,vSurfaceFuelBedMextDead
+Chaparral Dead Load Fraction,10,64,%,vSurfaceFuelChaparralDeadFuelFraction
+Chaparral Total Fuel Load,0,31,ton/ac,vSurfaceFuelChaparralLoadTotalDead
+1-h Fuel Load,0,45,ton/ac,vSurfaceFuelLoadDead1
+10-h Fuel Load,0,45,ton/ac,vSurfaceFuelLoadDead10
+100-h Fuel Load,0,45,ton/ac,vSurfaceFuelLoadDead100
+Live Herbaceous Fuel Load,0,45,ton/ac,vSurfaceFuelLoadLiveHerb
+Live Woody Fuel Load,0,45,ton/ac,vSurfaceFuelLoadLiveWood
+Fuel Load Transfer Portion,0,100,%,vSurfaceFuelLoadTransferFraction
+1-h Fuel Moisture,1,60,%,vSurfaceFuelMoisDead1
+10-h Fuel Moisture,1,60,%,vSurfaceFuelMoisDead10
+100-h Fuel Moisture,1,60,%,vSurfaceFuelMoisDead100
+Dead Fuel Moisture,1,60,%,vSurfaceFuelMoisLifeDead
+Live Herbaceous Fuel Moisture,30,300,%,vSurfaceFuelMoisLiveHerb
+Live Woody Fuel Moisture,30,300,%,vSurfaceFuelMoisLiveWood
+P-G Age of Rough,1,25,years,vSurfaceFuelPalmettoAge
+P-G Palmetto Coverage,15,85,%,vSurfaceFuelPalmettoCover
+P-G Overstory Basal Area,30,110,ft2/acre,vSurfaceFuelPalmettoOverstoryBasalArea
+Dead Fuel Heat Content,"6,000","12,000",Btu/lb,vSurfaceFireReactionIntDead
+Live Fuel Heat Content,"6,000","12,000",Btu/lb,vSurfaceFireReactionIntLive
+Live Herbaceous Fuel SA/V,109,"4,000",ft2/ft3,vSurfaceFuelSavrLiveHerb
+Live Woody Fuel SA/V,109,"4,000",ft2/ft3,vSurfaceFuelSavrLiveWood
+Canopy Bulk Density,0.001,0.062,lb/ft3,vTreeCanopyBulkDens
+Canopy Cover,0,100,%,vTreeCanopyCover
+Canopy Height,0,300,ft,vTreeCoverHt
+Canopy Base Height,0,100,ft,vTreeCrownBaseHt
+Crown Ratio,0.1,1.0,,vTreeCrownRatio
+D.B.H.,2,40,in,vTreeDbh
+Foliar Moisture,30,300,%,vTreeFoliarMois
+Wind Adjustment Factor,0.10,1.0,ratio,vWindAdjFactor
+20-ft Wind Speed,0,80,mi/h,vWindSpeedAt20FtUpslope
+Midflame Wind Speed,0,40,mi/h,vWindSpeedAtMidflameUpslope
+Relative Humidity,0,100,%,vWthrRelativeHumidity
+Web Bulb Depression,-40,120,F,vWthrWetBulbTemp

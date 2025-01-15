@@ -1,4 +1,5 @@
-(ns number-utils.core)
+(ns number-utils.core
+  (:require [clojure.string :as str]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Utility Functions - Numbers and Calculations
@@ -25,7 +26,7 @@
 
 (defn is-numeric? [v]
   (if (string? v)
-    (re-matches #"^-?([\d]+[\d\,]*\.*[\d]+)$|^-?([\d]+)$" v)
+    (some? (re-matches #"^-?([\d]*[\d\,]*\.*[\d]+)$|^-?([\d]+)$" v))
     (number? v)))
 
 (defn num-str-compare
@@ -53,3 +54,11 @@
      :cljs (-> n
                (.toPrecision precision)
                (js/Number))))
+
+(defn count-precision
+  "Counts the number of decimal places for the given number"
+  [n]
+  (-> (str n)
+      (str/split ".")
+      second
+      count))

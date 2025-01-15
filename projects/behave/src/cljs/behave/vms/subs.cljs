@@ -1,6 +1,12 @@
 (ns behave.vms.subs
   (:require [behave.schema.core :refer [rules]]
-            [behave.vms.store   :refer [pull pull-many q entity-from-uuid entity-from-eid vms-conn entity-from-eid]]
+            [behave.vms.store   :refer [entity-from-eid
+                                        entity-from-nid
+                                        entity-from-uuid
+                                        pull
+                                        pull-many
+                                        q
+                                        vms-conn]]
             [datascript.core    :as d]
             [re-frame.core      :refer [reg-sub subscribe]]))
 
@@ -54,8 +60,13 @@
 
 (reg-sub
  :vms/entity-from-uuid
- (fn [_ [_ uuid]]
-   (entity-from-uuid uuid)))
+ (fn [_ [_ bp-uuid]]
+   (entity-from-uuid bp-uuid)))
+
+(reg-sub
+ :vms/entity-from-nid
+ (fn [_ [_ bp-nid]]
+   (entity-from-nid bp-nid)))
 
 (reg-sub
  :vms/entity-from-eid
@@ -95,33 +106,42 @@
 (reg-sub
  :vms/group-variable-order
  (fn [_]
-   (let [module-eids @(q '[:find [?e ...]
-                           :where [?e :module/name ?name]])
-         modules     (mapv entity-from-eid module-eids)]
-
-     (->> (for [module (->> modules
-                            (sort-by :module/order))]
-            (let [submodules        (:module/submodules module)
-                  input-submodules  (->> (filter #(= (:submodule/io %) :input) submodules)
-                                         (sort-by :submodule/order))
-                  output-submodules (->> (filter #(= (:submodule/io %) :output) submodules)
-                                         (sort-by :submodule/order))]
-              (for [submodule (concat input-submodules output-submodules)]
-                (for [group (->> (:submodule/groups submodule)
-                                 (sort-by :group/order))]
-                  (process-group group)))))
-          (flatten)
-          (into [])))))
+   (let [app-id              @(q '[:find ?app-id .
+                                   :in $ ?app-name
+                                   :where
+                                   [?app-id :application/name ?app-name]]
+                                 "BehavePlus")
+         module-eids         @(q '[:find [?m ...]
+                                   :in $ ?app-id
+                                   :where
+                                   [?app-id :application/modules ?m]
+                                   [?m :module/name ?name]]
+                                 app-id)
+         modules             (mapv entity-from-eid module-eids)
+         normal-order        (->> (for [module (->> modules
+                                                    (sort-by :module/order))]
+                                    (let [submodules        (:module/submodules module)
+                                          input-submodules  (->> (filter #(= (:submodule/io %) :input) submodules)
+                                                                 (sort-by :submodule/order))
+                                          output-submodules (->> (filter #(= (:submodule/io %) :output) submodules)
+                                                                 (sort-by :submodule/order))]
+                                      (for [submodule (concat input-submodules output-submodules)]
+                                        (for [group (->> (:submodule/groups submodule)
+                                                         (sort-by :group/order))]
+                                          (process-group group)))))
+                                  (flatten)
+                                  (into []))
+         prioritized-results (sort-by
+                              :prioritized-results/order
+                              (mapv #(:bp/uuid (:prioritized-results/group-variable %))
+                                    (:application/prioritized-results
+                                     (d/entity @@vms-conn app-id))))]
+     (distinct (concat prioritized-results normal-order)))))
 
 (reg-sub
  :vms/units-uuid->short-code
  (fn [_ [_ units-uuid]]
-   (d/q '[:find ?unit-short-code .
-          :in    $ ?units-uuid
-          :where
-          [?u :bp/uuid ?units-uuid]
-          [?u :unit/short-code ?unit-short-code]]
-        @@vms-conn units-uuid)))
+   (:unit/short-code (entity-from-uuid units-uuid))))
 
 (reg-sub
  :vms/native-units
@@ -158,3 +178,13 @@
                [?t :translation/translation ?translation]]
              @@vms-conn language-short-code)
         (into {}))))
+
+(reg-sub
+ :vms/is-group-variable-discrete-multiple?
+ (fn [_ [_ gv-uuid]]
+   (d/q '[:find ?discrete-multiple .
+          :in $ ?gv-uuid
+          :where
+          [?gv :bp/uuid ?gv-uuid]
+          [?gv :group-variable/discrete-multiple? ?discrete-multiple]]
+        @@vms-conn gv-uuid)))

@@ -1104,11 +1104,13 @@ p {
 }
 
 .input-browse__input {
+  opacity: 0;
   position: absolute;
   top: 0px;
   right: 0px;
   bottom: 0px;
   left: 0px;
+  cursor: pointer;
 }
 
 .input-browse__label {
@@ -1301,6 +1303,12 @@ p {
   box-shadow:  0px 1px 1px var(--error);
 }
 
+.input-text__error {
+  margin-top: 0.5em;
+  color: var(--error);
+  font-size: var(--font-size-10);
+}
+
 .input-text--disabled .input-text__input,
 .input-text--disabled .input-text__input:hover {
   border: 1px solid var(--gray-4);
@@ -1345,6 +1353,11 @@ p {
   border: 1px solid var(--error);
   color: var(--error);
   box-shadow:  0px 1px 1px var(--error);
+}
+
+.input-number__error {
+  color: var(--error);
+  font-size: var(--font-size-10);
 }
 
 .input-number--disabled .input-number__input,
@@ -2210,6 +2223,22 @@ p {
 
 .multi-select__selections__header__button .button__icon {
   top: 0px;
+}
+
+.multi-select .button--selected {
+  color: var(--white);
+  background-color: var(--medblue-2);
+}
+
+.multi-select__tags {
+  display: flex;
+  flex-direction: row;
+  padding-bottom: 15px;
+  padding-left: 20px;
+}
+
+.multi-select__tags__tag {
+  padding-right: 10px;
 }
 
 /* - End Multi Select - */

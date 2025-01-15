@@ -69,3 +69,23 @@ void SIGSpot::setWindSpeed(double windSpeed, SpeedUnits::SpeedUnitsEnum windSpee
 void SIGSpot::setWindHeightInputMode(WindHeightInputMode::WindHeightInputModeEnum windHeightInputMode) {
   setWindSpeedAndWindHeightInputMode(windSpeed_, SpeedUnits::FeetPerMinute, windHeightInputMode);
 }
+
+void SIGSpot::setFireType(FireType::FireTypeEnum fireType) {
+    fireType_ = fireType;
+}
+
+double SIGSpot::getMaxMountainousTerrainSpottingDistanceFromTorchingTrees(LengthUnits::LengthUnitsEnum spottingDistanceUnits) const {
+    if (fireType_ == FireType::Surface or fireType_ == FireType::Crowning or fireType_ == FireType::ConditionalCrownFire) {
+        return -1;
+    } else {
+        return Spot::getMaxMountainousTerrainSpottingDistanceFromTorchingTrees(spottingDistanceUnits);
+    }
+}
+
+double SIGSpot::getMaxMountainousTerrainSpottingDistanceFromActiveCrown(LengthUnits::LengthUnitsEnum spottingDistanceUnits) const {
+    if (fireType_ == FireType::Surface or fireType_ == FireType::Torching or fireType_ ==  FireType::ConditionalCrownFire) {
+        return -1;
+    } else {
+        return Spot::getMaxMountainousTerrainSpottingDistanceFromSurfaceFire(spottingDistanceUnits);
+    }
+}

@@ -8,7 +8,7 @@
 (def ^:private worksheet-modules
   {[:surface]            "Surface Only"
    [:surface :contain]   "Surface and Contain"
-   [:surface :crown]     "Surface and Crown"
+   [:surface :crown]     "Surface & Crown"
    [:surface :mortality] "Surface and Mortality"
    [:mortality]          "Mortality Only"})
 
@@ -46,7 +46,7 @@
 
 (Given "I have started a Surface Worksheet" (partial select-independent-worksheet [:surface]))
 
-(Given "I have started a Surface and Crown Worksheet" (partial select-independent-worksheet [:surface :crown]))
+(Given "I have started a Surface & Crown Worksheet" (partial select-independent-worksheet [:surface :crown]))
 
 (Given "I have started a Surface and Contain Worksheet" (partial select-independent-worksheet [:surface :contain]))
 

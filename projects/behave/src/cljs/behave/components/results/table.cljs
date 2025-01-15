@@ -1,9 +1,11 @@
 (ns behave.components.results.table
-  (:require [behave.units-conversion :refer [to-map-units]]
+  (:require [behave.components.core  :as c]
+            [behave.units-conversion :refer [to-map-units]]
+            [behave.translate        :refer [<t bp]]
             [clojure.string          :as str]
             [goog.string             :as gstring]
-            [behave.components.core  :as c]
-            [re-frame.core           :refer [subscribe]]))
+            [re-frame.core           :refer [subscribe]]
+            [string-utils.core       :as s]))
 
 (defn- procces-map-units?
   [map-units-enabled? v-uuid]
@@ -36,13 +38,17 @@
      [:a
       {:href     url
        :download (gstring/format "%s.csv" title)}
-      (gstring/format "Download Raw CSV (%s.csv / %s)" title (format-bytes (.-size blob) 0))]]))
+      (gstring/format "%s (%s)"
+                      (-> @(<t (bp "download_results_table"))
+                          s/capitalize-words)
+                      @(<t (bp "csv_file")))]]))
 
 (defn- build-result-table-data
   [{:keys [ws-uuid headers title]
     :or   {headers @(subscribe [:worksheet/result-table-headers-sorted ws-uuid])
            title  "Results Table"}}]
-  (let [*cell-data                (subscribe [:worksheet/result-table-cell-data ws-uuid])
+  (let [headers-set               (set (map first headers))
+        *cell-data                (subscribe [:worksheet/result-table-cell-data ws-uuid])
         table-setting-filters     (subscribe [:worksheet/table-settings-filters ws-uuid])
         map-units-settings-entity @(subscribe [:worksheet/map-units-settings-entity ws-uuid])
         map-units-enabled?        (:map-units-settings/enabled? map-units-settings-entity)
@@ -68,36 +74,42 @@
                           (conj (keyword (str/join "-" [gv-uuid repeat-id "map-units"])))))
                       []
                       headers)
-     :rows (->> (group-by first @*cell-data)
-                (sort-by key)
-                (map (fn [[_ data]]
-                       (reduce (fn [acc [_row-id uuid repeat-id value]]
-                                 (let [[_ min max enabled?] (first (filter
-                                                                    (fn [[gv-uuid]]
-                                                                      (= gv-uuid uuid))
-                                                                    @table-setting-filters))
-                                       fmt-fn               (get formatters uuid identity)
-                                       uuid+repeat-id-key   (keyword (str uuid "-" repeat-id))]
-                                   (cond-> acc
-                                     (and min max (not (<= min value max)) enabled?)
-                                     (assoc :shaded? true)
+     :rows (let [filtered-data (->> (filter (fn [[_k col-uuid]]
+                                              (contains? headers-set col-uuid))
+                                            @*cell-data)
+                                    (group-by first)
+                                    (sort-by key))]
+             (map (fn [[_ data]]
+                    (reduce (fn [acc [_row-id uuid repeat-id value]]
+                              (let [[_ min max enabled?] (first (filter
+                                                                 (fn [[gv-uuid]]
+                                                                   (= gv-uuid uuid))
+                                                                 @table-setting-filters))
+                                    fmt-fn               (get formatters uuid identity)
+                                    uuid+repeat-id-key   (keyword (str uuid "-" repeat-id))]
+                                (cond-> acc
+                                  (and min max (not (<= min value max)) enabled?)
+                                  (assoc :shaded? true)
 
-                                     :always
-                                     (assoc uuid+repeat-id-key (if (neg? value) "-" (fmt-fn value)))
+                                  :always
+                                  (assoc uuid+repeat-id-key (if (neg? value) "-" (fmt-fn value)))
 
-                                     (procces-map-units? map-units-enabled? uuid)
-                                     (assoc (keyword (str/join "-" [uuid repeat-id "map-units"]))
-                                            (-> value
-                                                (to-map-units
-                                                 (get map-units-variables uuid)
-                                                 map-units
-                                                 map-rep-frac)
-                                                fmt-fn)))))
-                               {}
-                               data))))}))
+                                  (procces-map-units? map-units-enabled? uuid)
+                                  (assoc (keyword (str/join "-" [uuid repeat-id "map-units"]))
+                                         (-> value
+                                             (to-map-units
+                                              (get map-units-variables uuid)
+                                              map-units
+                                              map-rep-frac)
+                                             fmt-fn)))))
+                            {}
+                            data))
+                  filtered-data))}))
 
 (defn result-table-download-link [ws-uuid]
-  [:div [table-exporter (build-result-table-data {:ws-uuid ws-uuid})]])
+  [:div [table-exporter (build-result-table-data {:ws-uuid ws-uuid
+                                                  :headers @(subscribe [:worksheet/csv-export-headers
+                                                                        ws-uuid])})]])
 
 (defn raw-result-table [ws-uuid]
   (c/table (build-result-table-data {:ws-uuid ws-uuid})))
@@ -138,7 +150,7 @@
          (let [pivot-fields-uuids     @(subscribe [:worksheet/pivot-table-fields (:db/id pivot-table)])
                pivot-values           @(subscribe [:worksheet/pivot-table-values (:db/id pivot-table)])
                table-data             (build-result-table-data {:ws-uuid ws-uuid
-                                                                :title  (:pivot-table/title pivot-table)
+                                                                :title   (:pivot-table/title pivot-table)
                                                                 :headers @(subscribe [:worksheet/pivot-table-headers
                                                                                       ws-uuid
                                                                                       (concat pivot-fields-uuids
@@ -160,4 +172,4 @@
          (c/table (build-result-table-data
                    {:ws-uuid ws-uuid
                     :headers @(subscribe [:worksheet/result-table-headers-sorted-direction ws-uuid direction])
-                    :title  (str/capitalize (name direction))})))])))
+                    :title   (str/capitalize (name direction))})))])))

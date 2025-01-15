@@ -39,7 +39,7 @@
          metric-unit-uuid  :variable/metric-unit-uuid
          help-key          :subtool-variable/help-key} variable
 
-        *domain               (rf/subscribe [:vms/entity-from-uuid domain-uuid])
+        *domain    (rf/subscribe [:vms/entity-from-uuid domain-uuid])
         *unit-uuid (rf/subscribe [:tool/input-units tool-uuid subtool-uuid sv-uuid])
         value      (rf/subscribe [:tool/input-value tool-uuid subtool-uuid sv-uuid])
         value-atom (r/atom @value)]
@@ -123,18 +123,17 @@
                             (map ->option options))}])]))
 
 (defn- tool-output
-  [{sv-uuid           :bp/uuid
-    domain-uuid       :variable/domain-uuid
-    var-name          :variable/name
-    dimension-uuid    :variable/dimension-uuid
-    native-unit-uuid  :variable/native-unit-uuid
-    english-unit-uuid :variable/english-unit-uuid
-    metric-unit-uuid  :variable/metric-unit-uuid
-    help-key          :subtool-variable/help-key}
-   tool-uuid
-   subtool-uuid]
-  (let [*domain (rf/subscribe [:vms/entity-from-uuid domain-uuid])
-        value   (rf/subscribe [:tool/output-value tool-uuid subtool-uuid sv-uuid])]
+  [{:keys [variable tool-uuid subtool-uuid auto-compute?]}]
+  (let [{sv-uuid           :bp/uuid
+         domain-uuid       :variable/domain-uuid
+         var-name          :variable/name
+         dimension-uuid    :variable/dimension-uuid
+         native-unit-uuid  :variable/native-unit-uuid
+         english-unit-uuid :variable/english-unit-uuid
+         metric-unit-uuid  :variable/metric-unit-uuid
+         help-key          :subtool-variable/help-key} variable
+        *domain                                        (rf/subscribe [:vms/entity-from-uuid domain-uuid])
+        value                                          (rf/subscribe [:tool/output-value tool-uuid subtool-uuid sv-uuid])]
     [:div.tool-output
      {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
      [:div.tool-output__output
@@ -149,19 +148,26 @@
       (or (:domain/dimension-uuid @*domain) dimension-uuid)
       (or (:domain/native-unit-uuid @*domain) native-unit-uuid)
       (or (:domain/english-unit-uuid @*domain) english-unit-uuid)
-      (or (:domain/metric-unit-uuid @*domain) metric-unit-uuid)]]))
+      (or (:domain/metric-unit-uuid @*domain) metric-unit-uuid)
+      #(rf/dispatch [:tool/update-output-units
+                     tool-uuid
+                     subtool-uuid
+                     sv-uuid
+                     %
+                     auto-compute?])]]))
 
 (defn- auto-compute-subtool [tool-uuid subtool-uuid]
   (rf/dispatch [:tool/solve tool-uuid subtool-uuid])
   (let [variables (rf/subscribe [:subtool/encriched-subtool-variables subtool-uuid])]
     [:div
-     (for [{io :subtool-variable/io :as variable} @variables]
+     (for [{io :subtool-variable/io :as variable} @variables
+           :let                                   [params  {:variable      variable
+                                                            :tool-uuid     tool-uuid
+                                                            :subtool-uuid  subtool-uuid
+                                                            :auto-compute? true}]]
        (if (= io :input)
-         [tool-input {:variable      variable
-                      :tool-uuid     tool-uuid
-                      :subtool-uuid  subtool-uuid
-                      :auto-compute? true}]
-         [tool-output variable tool-uuid subtool-uuid]))
+         [tool-input params]
+         [tool-output params]))
      [c/button {:label         @(<t (bp "close_tool"))
                 :variant       "secondary"
                 :icon-name     "close"
@@ -183,7 +189,11 @@
                  :icon-position "right"
                  :on-click      #(rf/dispatch [:tool/solve tool-uuid subtool-uuid])}]]
      (for [variable @output-variables]
-       [tool-output variable tool-uuid subtool-uuid])
+       [tool-output
+        {:variable      variable
+         :tool-uuid     tool-uuid
+         :subtool-uuid  subtool-uuid
+         :auto-compute? false}])
      [c/button {:label         @(<t (bp "close_tool"))
                 :variant       "secondary"
                 :icon-name     "close"

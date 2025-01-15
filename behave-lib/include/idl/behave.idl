@@ -54,14 +54,29 @@ enum AreaUnits_AreaUnitsEnum {
   "AreaUnits::SquareKilometers"
 };
 
+interface AreaUnits {
+  static double toBaseUnits(double value, AreaUnits_AreaUnitsEnum units);
+  static double fromBaseUnits(double value, AreaUnits_AreaUnitsEnum units);
+};
+
 enum BasalAreaUnits_BasalAreaUnitsEnum {
   "BasalAreaUnits::SquareFeetPerAcre",
   "BasalAreaUnits::SquareMetersPerHectare"
 };
 
+interface BasalAreaUnits {
+  static double toBaseUnits(double value, BasalAreaUnits_BasalAreaUnitsEnum units);
+  static double fromBaseUnits(double value, BasalAreaUnits_BasalAreaUnitsEnum units);
+};
+
 enum FractionUnits_FractionUnitsEnum {
   "FractionUnits::Fraction",
   "FractionUnits::Percent"
+};
+
+interface FractionUnits {
+  static double toBaseUnits(double value, FractionUnits_FractionUnitsEnum units);
+  static double fromBaseUnits(double value, FractionUnits_FractionUnitsEnum units);
 };
 
 enum LengthUnits_LengthUnitsEnum {
@@ -75,11 +90,21 @@ enum LengthUnits_LengthUnitsEnum {
   "LengthUnits::Kilometers"
 };
 
+interface LengthUnits {
+  static double toBaseUnits(double value, LengthUnits_LengthUnitsEnum units);
+  static double fromBaseUnits(double value, LengthUnits_LengthUnitsEnum units);
+};
+
 enum LoadingUnits_LoadingUnitsEnum {
   "LoadingUnits::PoundsPerSquareFoot",
   "LoadingUnits::TonsPerAcre",
   "LoadingUnits::TonnesPerHectare",
   "LoadingUnits::KilogramsPerSquareMeter"
+};
+
+interface LoadingUnits {
+  static double toBaseUnits(double value, LoadingUnits_LoadingUnitsEnum units);
+  static double fromBaseUnits(double value, LoadingUnits_LoadingUnitsEnum units);
 };
 
 enum SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum {
@@ -89,6 +114,11 @@ enum SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum {
   "SurfaceAreaToVolumeUnits::SquareCentimetersOverCubicCentimeters"
 };
 
+interface SurfaceAreaToVolumeUnits {
+  static double toBaseUnits(double value, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum units);
+  static double fromBaseUnits(double value, SurfaceAreaToVolumeUnits_SurfaceAreaToVolumeUnitsEnum units);
+};
+
 enum SpeedUnits_SpeedUnitsEnum {
   "SpeedUnits::FeetPerMinute",
   "SpeedUnits::ChainsPerHour",
@@ -96,6 +126,11 @@ enum SpeedUnits_SpeedUnitsEnum {
   "SpeedUnits::MetersPerMinute",
   "SpeedUnits::MilesPerHour",
   "SpeedUnits::KilometersPerHour"
+};
+
+interface SpeedUnits {
+  static double toBaseUnits(double value, SpeedUnits_SpeedUnitsEnum units);
+  static double fromBaseUnits(double value, SpeedUnits_SpeedUnitsEnum units);
 };
 
 enum PressureUnits_PressureUnitsEnum {
@@ -110,9 +145,19 @@ enum PressureUnits_PressureUnitsEnum {
   "PressureUnits::PoundPerSquareInch"
 };
 
+interface PressureUnits {
+  static double toBaseUnits(double value, PressureUnits_PressureUnitsEnum units);
+  static double fromBaseUnits(double value, PressureUnits_PressureUnitsEnum units);
+};
+
 enum SlopeUnits_SlopeUnitsEnum {
   "SlopeUnits::Degrees",
   "SlopeUnits::Percent"
+};
+
+interface SlopeUnits {
+  static double toBaseUnits(double value, SlopeUnits_SlopeUnitsEnum units);
+  static double fromBaseUnits(double value, SlopeUnits_SlopeUnitsEnum units);
 };
 
 enum DensityUnits_DensityUnitsEnum {
@@ -120,9 +165,19 @@ enum DensityUnits_DensityUnitsEnum {
   "DensityUnits::KilogramsPerCubicMeter"
 };
 
+interface DensityUnits {
+  static double toBaseUnits(double value, DensityUnits_DensityUnitsEnum units);
+  static double fromBaseUnits(double value, DensityUnits_DensityUnitsEnum units);
+};
+
 enum HeatOfCombustionUnits_HeatOfCombustionUnitsEnum {
   "HeatOfCombustionUnits::BtusPerPound",
   "HeatOfCombustionUnits::KilojoulesPerKilogram"
+};
+
+interface HeatOfCombustionUnits {
+  static double toBaseUnits(double value, HeatOfCombustionUnits_HeatOfCombustionUnitsEnum units);
+  static double fromBaseUnits(double value, HeatOfCombustionUnits_HeatOfCombustionUnitsEnum units);
 };
 
 enum HeatSinkUnits_HeatSinkUnitsEnum {
@@ -130,10 +185,20 @@ enum HeatSinkUnits_HeatSinkUnitsEnum {
   "HeatSinkUnits::KilojoulesPerCubicMeter"
 };
 
+interface HeatSinkUnits {
+  static double toBaseUnits(double value, HeatSinkUnits_HeatSinkUnitsEnum units);
+  static double fromBaseUnits(double value, HeatSinkUnits_HeatSinkUnitsEnum units);
+};
+
 enum HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum {
   "HeatPerUnitAreaUnits::BtusPerSquareFoot",
   "HeatPerUnitAreaUnits::KilojoulesPerSquareMeter",
   "HeatPerUnitAreaUnits::KilowattSecondsPerSquareMeter"
+};
+
+interface HeatPerUnitAreaUnits {
+  static double toBaseUnits(double value, HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum units);
+  static double fromBaseUnits(double value, HeatPerUnitAreaUnits_HeatPerUnitAreaUnitsEnum units);
 };
 
 enum HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum {
@@ -144,6 +209,11 @@ enum HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum
   "HeatSourceAndReactionIntensityUnits::KilowattsPerSquareMeter"
 };
 
+interface HeatSourceAndReactionIntensityUnits {
+  static double toBaseUnits(double value, HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum units);
+  static double fromBaseUnits(double value, HeatSourceAndReactionIntensityUnits_HeatSourceAndReactionIntensityUnitsEnum units);
+};
+
 enum FirelineIntensityUnits_FirelineIntensityUnitsEnum {
   "FirelineIntensityUnits::BtusPerFootPerSecond",
   "FirelineIntensityUnits::BtusPerFootPerMinute",
@@ -152,16 +222,31 @@ enum FirelineIntensityUnits_FirelineIntensityUnitsEnum {
   "FirelineIntensityUnits::KilowattsPerMeter"
 };
 
+interface FirelineIntensityUnits {
+  static double toBaseUnits(double value, FirelineIntensityUnits_FirelineIntensityUnitsEnum units);
+  static double fromBaseUnits(double value, FirelineIntensityUnits_FirelineIntensityUnitsEnum units);
+};
+
 enum TemperatureUnits_TemperatureUnitsEnum {
   "TemperatureUnits::Fahrenheit",
   "TemperatureUnits::Celsius",
   "TemperatureUnits::Kelvin"
 };
 
+interface TemperatureUnits {
+  static double toBaseUnits(double value, TemperatureUnits_TemperatureUnitsEnum units);
+  static double fromBaseUnits(double value, TemperatureUnits_TemperatureUnitsEnum units);
+};
+
 enum TimeUnits_TimeUnitsEnum {
   "TimeUnits::Minutes",
   "TimeUnits::Seconds",
   "TimeUnits::Hours"
+};
+
+interface TimeUnits {
+  static double toBaseUnits(double value, TimeUnits_TimeUnitsEnum units);
+  static double fromBaseUnits(double value, TimeUnits_TimeUnitsEnum units);
 };
 
 interface FireSize {
@@ -368,6 +453,7 @@ interface SIGSpot {
   double getMaxMountainousTerrainSpottingDistanceFromBurningPile(LengthUnits_LengthUnitsEnum spottingDistanceUnits);
   double getMaxMountainousTerrainSpottingDistanceFromSurfaceFire(LengthUnits_LengthUnitsEnum spottingDistanceUnits);
   double getMaxMountainousTerrainSpottingDistanceFromTorchingTrees(LengthUnits_LengthUnitsEnum spottingDistanceUnits);
+  double getMaxMountainousTerrainSpottingDistanceFromActiveCrown(LengthUnits_LengthUnitsEnum spottingDistanceUnits);
   double getRidgeToValleyDistance(LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits);
   double getRidgeToValleyElevation(LengthUnits_LengthUnitsEnum elevationUnits);
   double getSurfaceFlameLength(LengthUnits_LengthUnitsEnum surfaceFlameLengthUnits);
@@ -384,6 +470,7 @@ interface SIGSpot {
   void setDBH(double DBH, LengthUnits_LengthUnitsEnum DBHUnits);
   void setDownwindCanopyMode(SpotDownWindCanopyMode_SpotDownWindCanopyModeEnum downwindCanopyMode);
   void setDownwindCoverHeight(double downwindCoverHeight, LengthUnits_LengthUnitsEnum coverHeightUnits);
+  void setFireType (FireType_FireTypeEnum fireType);
   void setFlameLength(double flameLength, LengthUnits_LengthUnitsEnum flameLengthUnits);
   void setLocation(SpotFireLocation_SpotFireLocationEnum location);
   void setRidgeToValleyDistance(double ridgeToValleyDistance, LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits);
@@ -1214,15 +1301,15 @@ interface SIGFineDeadFuelMoistureTool {
   void setElevationIndex(FDFMToolElevationIndex_ElevationIndexEnum elevationIndex);
   void setDryBulbIndex(FDFMToolDryBulbIndex_DryBulbIndexEnum dryBulbIndex);
   void setMonthIndex(FDFMToolMonthIndex_MonthIndexEnum monthIndex);
-  long getFineDeadFuelMoisture();
+  double getFineDeadFuelMoisture(FractionUnits_FractionUnitsEnum desiredUnits);
   long getSlopeIndexSize();
   long getElevationIndexSize();
   long getMonthIndexSize();
   long getDryBulbTemperatureIndexSize();
-  long getReferenceMoisture();
+  double getReferenceMoisture(FractionUnits_FractionUnitsEnum desiredUnits);
   void calculateByIndex(long aspectIndex, long dryBulbIndex, long elevationIndex, long monthIndex, long relativeHumidityIndex, long shadingIndex, long slopeIndex, long timeOfDayIndex);
   long getTimeOfDayIndexSize();
-  long getCorrectionMoisture();
+  double getCorrectionMoisture(FractionUnits_FractionUnitsEnum desiredUnits);
   long getAspectIndexSize();
   long getShadingIndexSize();
   long getRelativeHumidityIndexSize();

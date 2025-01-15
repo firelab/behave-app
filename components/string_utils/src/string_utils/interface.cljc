@@ -26,6 +26,10 @@
   capitalize->sentence c/capitalize->sentence)
 
 (def ^{:argslist '[s]
+       :doc      "Converts `s` with all capitalized words."}
+  capitalize->words c/capitalize-words)
+
+(def ^{:argslist '[s]
        :doc "Converts `s` in kebab-case to CapitalizeCase string."}
   kebab->capitalize c/kebab->capitalize)
 

@@ -58,7 +58,7 @@
 ;; Number
 ;;==============================================================================
 
-(defn number-input [{:keys [label id name on-change on-blur disabled? error? min max value value-atom step]}]
+(defn number-input [{:keys [label id name on-change on-blur disabled? error? error-msg min max value value-atom step]}]
   [:div {:class ["input-number " (when error? "input-number--error")]}
    [:label
     {:class "input-number__label" :for id}
@@ -75,7 +75,9 @@
              :max       max}
       step       (assoc :step step)
       value      (assoc :value value)
-      value-atom (assoc :value @value-atom))]])
+      value-atom (assoc :value @value-atom))]
+   (when error?
+     [:div.input-number__error error-msg])])
 
 ;;==============================================================================
 ;; Range
@@ -176,20 +178,38 @@
     [icon (if selected? "minus" "plus")]]
    label])
 
-(defn multi-select-input [{:keys [input-label options]}]
+(defn multi-select-input [{:keys [input-label options tags-enabled?]}]
   (r/with-let [selections (r/atom (->> options
                                        (filter #(true? (:selected? %)))
                                        (map (fn [{:keys [label value on-deselect]}] [label value on-deselect]))
                                        (into (sorted-set))))
-               show-options? (r/atom false)]
+               show-options? (r/atom false)
+               selected-tag (r/atom nil)]
     [:div.multi-select
      (when @show-options?
        [:<>
         [:div.multi-select__prompt
-         (gstring/format "Please select from the following %ss (you can select multiple)" input-label)]
+         (gstring/format "Please select from the following %s (you can select multiple)" input-label)]
+        (when tags-enabled?
+          [:div.multi-select__tags
+           (for [tag (reduce (fn [acc x]
+                               (into acc x))
+                             (sorted-set)
+                             (map :tags options))]
+             ^{:key tag}
+             [:div.multi-select__tags__tag
+              [button {:label     (name tag)
+                       :variant   "outline-secondary"
+                       :size      "small"
+                       :selected? (= @selected-tag tag)
+                       :on-click  #(if (= @selected-tag tag)
+                                     (reset! selected-tag nil)
+                                     (reset! selected-tag tag))}]])])
         [:div.multi-select__options
          (doall
-          (for [{:keys [label value on-select on-deselect]} options]
+          (for [{:keys [label value on-select on-deselect]} (cond->>  options
+                                                              (and tags-enabled? @selected-tag)
+                                                              (filter (fn [o] (contains? (:tags o) @selected-tag))))]
             ^{:key label}
             (let [selection [label value on-deselect]]
               [multi-select-option {:selected? (contains? @selections selection)
@@ -204,7 +224,7 @@
                                                           (on-select value)))))}])))]])
      [:div.multi-select__selections
       [:div.multi-select__selections__header
-       [:div (gstring/format "Selected %ss" input-label)]
+       [:div (gstring/format "Selected %s" input-label)]
        [:div.multi-select__selections__header__button (if (false? @show-options?)
                                                         [button {:label     "Select More"
                                                                  :variant   "primary"
@@ -234,7 +254,7 @@
 ;;==============================================================================
 
 (defn text-input
-  [{:keys [disabled? error? focused? id label name on-blur on-change on-focus
+  [{:keys [disabled? error? error-msg focused? id label name on-blur on-change on-focus
            placeholder value value-atom default-value on-key-press]}]
   [:div {:class ["input-text"
                  (when error?    "input-text--error")
@@ -253,4 +273,6 @@
              on-change     (assoc :on-change on-change)
              default-value (assoc :default-value default-value)
              value         (assoc :value value)
-             value-atom    (assoc :value @value-atom))]])
+             value-atom    (assoc :value @value-atom))]
+   (when error?
+     [:div.input-text__error error-msg])])
