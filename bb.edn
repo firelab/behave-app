@@ -4,7 +4,8 @@
                [babashka.fs      :as fs]
                [babashka.process :refer [shell]]
                [manage           :as m]
-               [clojure.java.io  :as io])
+               [clojure.java.io  :as io]
+               [clojure.string   :as str])
 
   component   (let [component (first *command-line-args*)]
                 (println (format "Creating new component: %s" component))
@@ -29,7 +30,9 @@
 
   restore    (let [db-dump (:file (cli/parse-opts *command-line-args*))]
                 (shell "psql -U datomic -d datomic -c 'DROP TABLE IF EXISTS datomic_kvs'")
-                (shell (format "pg_restore -U datomic -d datomic %s" db-dump)))
+                (if (str/ends-with? db-dump "sql")
+                  (shell (format "psql -U datomic -d datomic --file %s" db-dump))
+                  (shell (format "pg_restore -U datomic -d datomic %s" db-dump))))
 
   -datomic    (str (io/file (str (fs/home)) ".datomic" "current" "bin"))
   transactor  {:depends [-datomic]
