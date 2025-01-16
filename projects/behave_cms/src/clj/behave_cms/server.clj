@@ -22,8 +22,8 @@
 (defn expand-home [s]
   (str/replace s #"^~" (System/getProperty "user.home")))
 
-(defn init-db! []
-  (load-config (io/resource "config.edn"))
+(defn init-db! [& [config-file]]
+  (load-config (or (io/resource "config.edn") config-file))
   (store/connect! (get-config :database)))
 
 (defn- expired? [last-mod-time]
