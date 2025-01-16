@@ -92,10 +92,10 @@
  :wizard/after-solve
  (fn [_ [_ {:keys [ws-uuid]}]]
    (let [path (path-for routes :ws/results-settings :ws-uuid ws-uuid :results-page :settings)]
-     {:fx [[:dispatch [:worksheet/update-all-table-filters-from-results ws-uuid]]
+     {:fx [[:dispatch [:navigate path]]
+           [:dispatch [:worksheet/update-all-table-filters-from-results ws-uuid]]
            [:dispatch [:worksheet/update-all-y-axis-limits-from-results ws-uuid]]
            [:dispatch [:worksheet/set-default-graph-settings ws-uuid]]
-           [:dispatch [:navigate path]]
            [:dispatch [:state/set :worksheet-computing? false]]]})))
 
 (defn- remove-nils
