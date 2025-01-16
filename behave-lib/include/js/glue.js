@@ -6109,6 +6109,8 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
 
     Module['DirectionOfInterest'] = _emscripten_enum_SurfaceRunInDirectionOf_DirectionOfInterest();
 
+    Module['HeadingBackingFlanking'] = _emscripten_enum_SurfaceRunInDirectionOf_HeadingBackingFlanking();
+
     
 
     // FireType_FireTypeEnum

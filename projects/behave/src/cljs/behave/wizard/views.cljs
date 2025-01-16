@@ -575,7 +575,7 @@
                                     @(<t (bp "minimum"))
                                     @(<t (bp "maximum"))])
                      :rf-event-id :worksheet/update-table-filter-attr
-                     :rf-sub-id   :worksheet/table-settings-filters
+                     :rf-sub-id   :worksheet/table-settings-filters-filtered
                      :min-attr-id :table-filter/min
                      :max-attr-id :table-filter/max}]]))
 

@@ -481,7 +481,6 @@
                          [?g :graph-settings/x-axis-limits ?y]]
                        ds
                        ws-uuid)]
-     (prn "eid:" eid)
      {:transact [(assoc {:db/id eid} attr value)]})))
 
 (rp/reg-event-fx
@@ -502,15 +501,20 @@
 
 (rp/reg-event-fx
  :worksheet/add-table-filter
- [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet ws-uuid]))]
- (fn [{:keys [worksheet]} [_ ws-uuid gv-uuid]]
-   (let [filter {:table-filter/group-variable-uuid gv-uuid
-                 :table-filter/enabled?            false}]
-     (if-let [id (get-in worksheet [:worksheet/table-settings :db/id])]
-       {:transact [{:db/id                  id
-                    :table-settings/filters [filter]}]}
-       {:transact [{:worksheet/_table-settings [:worksheet/uuid ws-uuid]
-                    :table-settings/filters    [filter]}]}))))
+ [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:worksheet-entity ws-uuid]))]
+ (fn [{:keys [worksheet-entity]} [_ ws-uuid gv-uuid]]
+   (let [existing-filters (->> (:worksheet/table-settings worksheet-entity)
+                               :table-settings/filters
+                               (map :table-filter/group-variable-uuid)
+                               set)
+         filter-entry     {:table-filter/group-variable-uuid gv-uuid
+                           :table-filter/enabled?            false}]
+     (when (not (contains? existing-filters gv-uuid))
+       (if-let [id (get-in worksheet-entity [:worksheet/table-settings :db/id])]
+         {:transact [{:db/id                  id
+                      :table-settings/filters [filter-entry]}]}
+         {:transact [{:worksheet/_table-settings [:worksheet/uuid ws-uuid]
+                      :table-settings/filters    [filter-entry]}]})))))
 
 (rp/reg-event-fx
  :worksheet/update-all-table-filters-from-results
