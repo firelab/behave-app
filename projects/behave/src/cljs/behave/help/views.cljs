@@ -59,8 +59,18 @@
     (and (:module params) (:submodule params))
     (let [{:keys [ws-uuid module submodule io]} params
           [_ first-output-submodule]            @(subscribe [:wizard/first-module+submodule ws-uuid :output])
+          second-module                         (-> @(subscribe [:worksheet ws-uuid])
+                                                    (:worksheet/modules)
+                                                    (set)
+                                                    (disj :surface)
+                                                    (first))
+          module                                (if (and (= second-module :mortality) (= io :output) (= submodule "fire-behavior"))
+                                                  (name second-module)
+                                                  module)
           *module                               (subscribe [:wizard/*module module])
-          *submodule                            (subscribe [:wizard/*submodule (:db/id @*module) submodule io])
+          *submodule                            (if (and (= second-module :mortality) (= io :output) (= submodule "fire-behavior"))
+                                                  (subscribe [:wizard/*submodule (:db/id @*module) "mortality" :output])
+                                                  (subscribe [:wizard/*submodule (:db/id @*module) submodule io]))
           submodule-id                          (:db/id @*submodule)
           *groups                               (subscribe [:vms/pull-children :submodule/groups submodule-id
                                                             '[* {:group/group-variables [*]} {:group/children 6}]])
@@ -72,7 +82,9 @@
                                                      (filter some?)
                                                      (concat [(:submodule/help-key @*submodule)])
                                                      (vec))]
-      (if (and (= io :output) (= first-output-submodule submodule))
+
+      (if (or (and (= second-module "mortality") (= io :output) (= submodule "fire-behavior"))
+              (and (= io :output) (= first-output-submodule submodule)))
         (concat [(:module/help-key @*module)] submodule-help-keys)
         submodule-help-keys))
 
