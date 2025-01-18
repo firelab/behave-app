@@ -27,3 +27,10 @@
  :help/select-tab
  (fn [db [_ new-tab]]
    (assoc-in db [:state :help-tab] (:tab new-tab))))
+
+(rf/reg-event-db
+ :help/open-image-viewer
+ (fn [db [_ url alt]]
+   (assoc-in db
+             [:state :help-area :image-modal]
+             {:title "Help Image" :src url :alt alt})))
