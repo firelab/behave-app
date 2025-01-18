@@ -1023,6 +1023,17 @@ body {
     background: #5788A7;
 }
 
+.help-area__content .highlight > .help-section__content h1,
+.help-area__content .highlight > .help-section__content h2,
+.help-area__content .highlight > .help-section__content h3,
+.help-area__content .highlight > .help-section__content h4 {
+    margin: 20px -10px 0px;
+    padding: 10px;
+}
+
+
+/* Help Expand / Close */
+
 .help-area__expand > .button {
   width: 30px;
   height: 50px;

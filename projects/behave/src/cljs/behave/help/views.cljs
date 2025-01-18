@@ -3,6 +3,7 @@
             [re-frame.core          :refer [subscribe dispatch dispatch-sync]]
             [reagent.core           :as r]
             [hickory.core           :as h]
+            [nano-id.core           :refer [nano-id]]
             [behave.components.core :as c]
             [behave.translate       :refer [<t]]
             [behave.help.events]
@@ -91,6 +92,37 @@
     :else
     "behaveplus:help"))
 
+(defn- xform-xhtml [e]
+  (cond
+    (= :tdiv e)
+    :div
+
+    ;; Remove style tags
+    (and (vector? e)
+         (map? (second e)))
+    (update e 1 dissoc :style)
+
+    :else
+    e))
+
+(defn- add-keys [e]
+  (if (and (vector? e)
+           (#{:p :div :h1 :h2 :h3 :h4 :h5 :h6} (first e)))
+    (assoc-in e [1 :key] (nano-id))
+    e))
+
+;;; Image Viewer
+
+(defn- open-image-viewer-fn [e]
+  (when (= "IMG" (.. e -target -nodeName))
+    (let [el (.-target e)
+          url (.-src el)
+          alt (.-alt el)]
+      (.log js/console el)
+      (dispatch [:help/open-image-viewer url alt]))))
+
+;;; Components
+
 (defn- help-section
   "Displays a help section. Optionally takes `highlight?` to highlight a section."
   [current-key highlight?]
@@ -102,7 +134,9 @@
        [:div.help-section__content
         (-> @help-contents
             (h/parse-fragment)
-            (->> (map h/as-hiccup)))])]))
+            (->> (map h/as-hiccup)
+                 (postwalk xform-xhtml)
+                 (postwalk add-keys)))])]))
 
 (defn- help-content [help-keys & [children]]
   (let [help-highlighted-key (subscribe [:help/current-highlighted-key])]

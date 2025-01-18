@@ -12,8 +12,9 @@
 
 ;;; Helpers
 
-(defn- today []
-  (str (java.time.LocalDate/now)))
+(defn- now []
+  (.format (java.time.LocalDateTime/now)
+           (java.time.format.DateTimeFormatter/ofPattern "yyyy-MM-dd-H-mm-ss")))
 
 (defn- q-english-lang-id [db]
   (d/q '[:find ?e .
@@ -23,7 +24,7 @@
 (defn- q-tx [db m-name]
   (d/q '[:find ?e .
          :where
-         [?e :bp/migration ?m-name]]
+         [?e :bp/migration-id ?m-name]]
        db m-name))
 
 (defn- remove-existing-pages-tx [db en-us]
@@ -50,7 +51,7 @@
 (defn- cleaned-variables-tx [behave-docs-base-dir english-lang]
   (let [variable-snippets-dir (io/file (str behave-docs-base-dir) "Resources" "Snippets" "Variables")
         variable-snippets     (->> (fs/glob variable-snippets-dir "*htm")
-                                   (filter #(str/includes? (slurp %) "bad snippet") ))
+                                   (remove #(str/includes? (slurp %) "bad snippet") ))
         cleaned-variables     (mapcat clean-variables variable-snippets)]
 
     (->> cleaned-variables
@@ -63,22 +64,22 @@
 
 (defn import-help
   "Imports help from `bases/behave-docs`."
-  [& args]
+  [& _]
   (cms/init-db! (io/file "projects/behave_cms/resources/config.edn"))
   (let [conn        @ds/datomic-conn
         db          (d/db conn)
         en-us       (q-english-lang-id db)
-        -today      (today)
-        add-tx      (format "help-import-add-%s" -today)
-        remove-tx   (format "help-import-remove-%s" -today)
+        -now        (now)
+        add-tx      (format "help-import-add-%s" -now)
+        remove-tx   (format "help-import-remove-%s" -now)
         ;; Behave Docs dir
         behave-docs (io/file "bases" "behave-docs" "XHTML_Output" "BehaveAppHelp")]
 
-    #_(println (format "Removing old help docs %s" -today))
+    #_(println (format "Removing old help docs %s" -now))
     (d/transact conn (concat [(sm/->migration remove-tx)]
                              (remove-existing-pages-tx db en-us)))
 
-    #_(println (format "Adding new help docs %s" -today))
+    #_(println (format "Adding new help docs %s" -now))
     (d/transact conn (concat [(sm/->migration add-tx)]
                              (cleaned-topics-tx behave-docs en-us)
                              (cleaned-variables-tx behave-docs en-us)))))
@@ -87,12 +88,30 @@
   "Rollback imports. Option to provide a transaction date."
   [& args]
   (cms/init-db!)
-  (let [a-date       (first args)
+  (let [a-datetime   (first args)
         conn         @ds/datomic-conn
         db           (d/db conn)
-        -today       (today)
-        tx-remove-id (q-tx db (format "help-import-remove-%s" (or a-date -today)))
-        tx-add-id    (q-tx db (format "help-import-add-%s" (or a-date -today)))]
+        -now         (now)
+        tx-remove-id (q-tx db (format "help-import-remove-%s" (or a-datetime -now)))
+        tx-add-id    (q-tx db (format "help-import-add-%s" (or a-datetime -now)))]
 
     (sm/rollback-tx! conn tx-remove-id)
     (sm/rollback-tx! conn tx-add-id)))
+
+(comment
+  (import-help)
+
+  (rollback-import "2025-01-18-20-02-31")
+
+  (let [behave-docs (io/file "bases" "behave-docs" "XHTML_Output" "BehaveAppHelp")
+        variable-snippets-dir (io/file (str behave-docs) "Resources" "Snippets" "Variables")
+        variable-snippets     (->> (fs/glob variable-snippets-dir "*htm")
+                                   (remove #(str/includes? (slurp %) "bad snippet")))
+        cleaned-variables     (mapcat clean-variables variable-snippets)]
+
+    cleaned-variables)
+
+  (def cvs *1)
+
+  (filter #(= (:key %) "behaveplus:surface:input:fuel_models:standard:fuel_model:fuel_model:help") cvs)
+  )

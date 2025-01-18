@@ -346,7 +346,7 @@
 
 (defn ->migration
   "New migration."
-  [name]
-  {:bp/uuid      (rand-uuid)
-   :bp/nid       (nano-id)
-   :bp/migration name})
+  [id]
+  {:bp/uuid         (rand-uuid)
+   :bp/nid          (nano-id)
+   :bp/migration-id id})

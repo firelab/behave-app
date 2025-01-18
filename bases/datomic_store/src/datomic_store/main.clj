@@ -172,12 +172,20 @@
       (transact conn schema))
     conn))
 
+(defn add-unsafe-attr
+  "Prevents all triples with `attr` from being synced."
+  [attr]
+  (swap! stored-unsafe-attrs conj attr))
+
 (defn connect!
   "Connects to DB, if it exists, or creates DB
    using a the `config` map and intializes the DB with `schema`.
-   Calls `setup-fn` after the connection for migrations, etc."
-  [config schema & [setup-fn]]
-  (reset! stored-unsafe-attrs (unsafe-attrs schema))
+
+   Optionally, calls `setup-fn` after the connection for migrations,
+   and takes a list of `addl-unsafe-attrs` keywords to prevent from
+   being synced."
+  [config schema & [setup-fn addl-unsafe-attrs]]
+  (reset! stored-unsafe-attrs (into (unsafe-attrs schema) addl-unsafe-attrs))
   (let [datomic-uri (->datomic-uri config)
         conn        (if (d/create-database datomic-uri)
                       (init-db! datomic-uri schema)
@@ -202,12 +210,14 @@
   (connect! config schema setup-fn))
 
 (defn default-conn
-  "Creates/connects to DataHike DB from `config`
-  `and `schema`."
-  [config schema & [setup-fn]]
+  "Creates/connects to DB using `config` and `schema`.
+   Optionally, takes the following positional args:
+   - `setup-fn` - Function to execute with DB connection (e.g. run migrations)
+   - `addl-unsafe-attrs` - List of attribute keywords to prevent from syncing"
+  [config schema & args]
   (if @datomic-conn
     @datomic-conn
-    (reset! datomic-conn (connect! config schema setup-fn))))
+    (reset! datomic-conn (apply connect! config schema args))))
 
 (defn release-conn!
   "Releases connection to DataHike."
