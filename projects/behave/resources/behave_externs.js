@@ -33,6 +33,18 @@ Module.SIGContainAdapter = class {
   getPerimeterAtContainment() {}
   getPerimeterAtInitialAttack() {}
   getResourcesUsed() {}
+  getFirePerimeterX(){}
+  getFirePerimeterY(){}
+  getFirePerimeterPointCount(){}
+  getFireBackAtReport(){}
+  getFireHeadAtReport(){}
+  getFireHeadAtAttack(){}
+  getFireBackAtAttack(){}
+  getLengthToWidthRatio(){}
+  getAttackDistance(){}
+  getReportSize(){}
+  getReportRate(){}
+  getTactic(){}
 };
 
 Module.SIGSurface = class {
