@@ -6,8 +6,7 @@
             [hickory.select :as select]
             [hickory.render :as hr]
             [hiccup.core :as hiccup]
-            [me.raynes.fs :as fs]
-            [nano-id.core :refer [nano-id]]))
+            [me.raynes.fs :as fs]))
 
 (def ^:private remove-nodes #{:meta :link})
 
@@ -53,10 +52,6 @@
       ;; Remove style tags
       (get-in node [1 :style])
       (update 1 dissoc :style)
-
-      ;; Add :key for React/Reagent
-      (#{:p :div :h1 :h2 :h3 :h4 :h5 :h6} (first node))
-      (update 1 assoc :key (nano-id))
 
       ;; Ensure all <a> elements open in new tab
       (= :a (first node))
