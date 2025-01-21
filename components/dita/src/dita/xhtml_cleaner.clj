@@ -1,12 +1,13 @@
 (ns dita.xhtml-cleaner
   (:require [clojure.java.io :as io]
             [clojure.string :as str]
+            [clojure.walk :refer [postwalk]]
             [hickory.core :as hickory]
             [hickory.select :as select]
             [hickory.render :as hr]
             [hiccup.core :as hiccup]
             [me.raynes.fs :as fs]
-            [clojure.walk :refer [postwalk]]))
+            [nano-id.core :refer [nano-id]]))
 
 (def ^:private remove-nodes #{:meta :link})
 
@@ -29,26 +30,45 @@
          (= "prolog" (-> node (second) :class)))
     nil
 
+    ;; Remove empty spaces & new lines
     (and (string? node)
          (re-matches #"\n\s+" node))
     nil
 
-    ;; Ensure all <a> elements open in new tab
+    ;; Remove images with empty :src
     (and (vector? node)
-         (= :a (first node))
-         (map? (second node)))
-    (assoc-in node [1 :target] "_blank")
+         (map? (second node))
+         (= :img (first node))
+         (empty? (-> node (second) (:src))))
+    nil
 
+    ;; Remap <tdiv> to <div>
+    (= :tdiv node)
+    :div
+
+    ;; Combined node transforms
     (and (vector? node)
-         (= :img (first node)))
-    (if (-> node (second) (:src))
-      (let [new-src (-> node
-                        (second)
-                        (:src)
-                        (str/replace "../" "")
-                        (str/replace "Resources/Images/" "/help/images/"))]
-        (assoc-in node [1 :src] new-src))
-      nil)
+         (map? (second node)))
+    (cond-> node
+      ;; Remove style tags
+      (get-in node [1 :style])
+      (update 1 dissoc :style)
+
+      ;; Add :key for React/Reagent
+      (#{:p :div :h1 :h2 :h3 :h4 :h5 :h6} (first node))
+      (update 1 assoc :key (nano-id))
+
+      ;; Ensure all <a> elements open in new tab
+      (= :a (first node))
+      (assoc-in [1 :target] "_blank")
+
+      ;; Remap :src attr of all <img> elements
+      (and (= :img (first node))
+           (some? (-> node (second) (:src))))
+      (update-in [1 :src]
+                 #(-> %
+                      (str/replace "../" "")
+                      (str/replace "Resources/Images/" "/help/images/"))))
 
     :else
     node))

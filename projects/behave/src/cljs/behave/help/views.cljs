@@ -3,7 +3,6 @@
             [re-frame.core          :refer [subscribe dispatch dispatch-sync]]
             [reagent.core           :as r]
             [hickory.core           :as h]
-            [nano-id.core           :refer [nano-id]]
             [behave.components.core :as c]
             [behave.translate       :refer [<t]]
             [behave.help.events]
@@ -92,25 +91,6 @@
     :else
     "behaveplus:help"))
 
-(defn- xform-xhtml [e]
-  (cond
-    (= :tdiv e)
-    :div
-
-    ;; Remove style tags
-    (and (vector? e)
-         (map? (second e)))
-    (update e 1 dissoc :style)
-
-    :else
-    e))
-
-(defn- add-keys [e]
-  (if (and (vector? e)
-           (#{:p :div :h1 :h2 :h3 :h4 :h5 :h6} (first e)))
-    (assoc-in e [1 :key] (nano-id))
-    e))
-
 ;;; Image Viewer
 
 (defn- open-image-viewer-fn [e]
@@ -134,9 +114,7 @@
        [:div.help-section__content
         (-> @help-contents
             (h/parse-fragment)
-            (->> (map h/as-hiccup)
-                 (postwalk xform-xhtml)
-                 (postwalk add-keys)))])]))
+            (->> (map h/as-hiccup)))])]))
 
 (defn- help-content [help-keys & [children]]
   (let [help-highlighted-key (subscribe [:help/current-highlighted-key])]
