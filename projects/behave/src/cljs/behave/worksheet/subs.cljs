@@ -12,7 +12,8 @@
             [number-utils.core           :refer [parse-float to-precision]]
             [string-utils.interface      :refer [->str ->kebab]]
             [behave.translate            :refer [<t]]
-            [behave.wizard.subs :refer [all-conditionals-pass?]]))
+            [behave.wizard.subs :refer [all-conditionals-pass?]]
+            [behave.vms.store :as vms]))
 
 ;; Helpers
 (defn make-tree
@@ -495,30 +496,42 @@
                  [?y :x-axis-limit/max ?max]]
     :variables [ws-uuid]}))
 
-(rf/reg-sub
+(rp/reg-sub
  :worksheet/table-settings-filters
  (fn [_ [_ ws-uuid]]
-   (->> (d/q '[:find ?group-var-uuid ?min ?max ?enabled ?kind
-               :in   $ws-db $vms-db ?ws-uuid
-               :where
-               [$ws-db ?w :worksheet/uuid ?ws-uuid]
-               [$ws-db ?w :worksheet/table-settings ?ts]
-               [$ws-db ?ts :table-settings/filters ?tf]
-               [$ws-db ?tf :table-filter/group-variable-uuid ?group-var-uuid]
-               [$ws-db ?tf :table-filter/min ?min]
-               [$ws-db ?tf :table-filter/max ?max]
-               [$ws-db ?tf :table-filter/enabled? ?enabled]
-               [$ws-db ?w :worksheet/outputs ?o]
-               [$ws-db ?o :output/group-variable-uuid ?group-var-uuid]
-               [$ws-db ?o :output/enabled? true]
-               [$vms-db ?gv :bp/uuid ?group-var-uuid]
-               [$vms-db ?v :variable/group-variables ?gv]
-               [$vms-db ?v :variable/kind ?kind]]
-             @@s/conn
-             @@vms-conn
-             ws-uuid)
-        (remove (fn [[_ _ _ _ kind]]
-                  (= kind :discrete))))))
+   {:type :query
+    :query '[:find ?group-var-uuid ?min ?max ?enabled
+             :in   $ ?ws-uuid
+             :where
+             [?w :worksheet/uuid ?ws-uuid]
+             [?w :worksheet/table-settings ?ts]
+             [?ts :table-settings/filters ?tf]
+             [?tf :table-filter/group-variable-uuid ?group-var-uuid]
+             [?tf :table-filter/min ?min]
+             [?tf :table-filter/max ?max]
+             [?tf :table-filter/enabled? ?enabled]
+             [?w :worksheet/outputs ?o]
+             [?o :output/group-variable-uuid ?group-var-uuid]
+             [?o :output/enabled? true]]
+    :variables [ws-uuid]}))
+
+(rf/reg-sub
+ :worksheet/table-settings-filters-filtered
+ (fn [[_ ws-uuid]] (rf/subscribe [:worksheet/table-settings-filters ws-uuid]))
+ (fn [table-settings-filters _]
+   (remove
+    (fn [[group-var-uuid]]
+      (let [kind (d/q '[:find ?kind .
+                        :in  $ ?group-var-uuid
+                        :where
+                        [?gv :bp/uuid ?group-var-uuid]
+                        [?v :variable/group-variables ?gv]
+                        [?v :variable/kind ?kind]]
+                      @@vms-conn
+                      group-var-uuid)]
+        (or (= kind :discrete)
+            (= kind :text))))
+    table-settings-filters)))
 
 ;; Results Table formatters
 

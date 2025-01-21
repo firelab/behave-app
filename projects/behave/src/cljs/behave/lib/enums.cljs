@@ -394,7 +394,8 @@
 (def surface-run-in-direction-of
   (enum "SurfaceRunInDirectionOf"
         ["SurfaceRunInDirectionOf::MaxSpread"
-         "SurfaceRunInDirectionOf::DirectionOfInterest"]))
+         "SurfaceRunInDirectionOf::DirectionOfInterest"
+         "SurfaceRunInDirectionOf::HeadingBackingFlanking"]))
 
 (def crown-fire-calculation-method
   (enum "CrownFireCalculationMethod"
