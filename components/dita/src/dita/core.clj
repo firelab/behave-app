@@ -1,12 +1,12 @@
 (ns dita.core
-  (:require [clojure.string :as str]
-            [clojure.data.xml :as xml]
-            [me.raynes.fs :as fs]
-            [clojure.java.io :as io]
-            [datomic.api :as d]
-            [datomic-store.main :as ds]
+  (:require [clojure.data.xml     :as xml]
+            [clojure.java.io      :as io]
+            [clojure.string       :as str]
+            [clojure.walk         :refer [postwalk]]
+            [datomic-store.main   :as ds]
+            [datomic.api          :as d]
             [markdown2hiccup.core :refer [md->hiccup]]
-            [clojure.walk :refer [postwalk]]))
+            [me.raynes.fs         :as fs]))
 
 ;;; Utils
 
@@ -80,37 +80,6 @@
          [?v :variable/group-variables ?gv]
          [?v :variable/name ?v-name]] db))
 
-(defn- flatten-help-keys [acc g-or-gv]
-  (let [acc (conj acc (or (:group/help-key g-or-gv)
-                          (:group-variable/help-key g-or-gv)))]
-    (cond-> acc
-      (seq (:group/group-variables g-or-gv))
-      (concat (map (partial flatten-help-keys []) (sort-by :group-variables/order (:group/group-variables g-or-gv))))
-
-      (seq (:group/children g-or-gv))
-      (concat (map (partial flatten-help-keys []) (sort-by :group/order (:group/children g-or-gv)))))))
-
-(defn- submodule-help-pages [db submodule]
-  [(:submodule/name submodule)
-   (-> submodule
-       (:db/id)
-       (->> (d/pull db '[{:submodule/groups
-                          [:group/help-key :group/order {:group/group-variables
-                                                         [:group-variable/help-key :group-variable/order]}
-                           {:group/children 6}]}]))
-       (:submodule/groups)
-       (->> (sort-by :group/order))
-       (->> (map (partial flatten-help-keys [])))
-       (concat)
-       (flatten)
-       (->> (map (partial q-help-page-content db)))
-       (vec))])
-
-(defn- get-module-help-pages [db module]
-  (let [submodules (->> (:module/submodules module)
-                        (sort-by :submodule/order))]
-    [(:module/name module) (map (partial submodule-help-pages db) submodules)]))
-
 ;;; XML
 
 (def ^:private DOCTYPES {:map   "<!DOCTYPE map PUBLIC \"-//OASIS//DTD DITA Map//EN\" \"map.dtd\">"
@@ -127,7 +96,7 @@
 (defn- generate-snippet [id title help-keys body-as-hiccup]
   (let [body      (if (empty? body-as-hiccup) nil body-as-hiccup)
         help-keys (if (string? help-keys) help-keys (str/join " " help-keys))]
-    (insert-topic-doctype 
+    (insert-topic-doctype
      (xml/indent-str
       (xml/sexp-as-element
        [:topic {:id id}
@@ -171,7 +140,7 @@
 
 (defn- gen-structure
   "Generate the structure of the project given modules & submodules"
-  [db base-dir modules modules-w-submodules] 
+  [db base-dir modules modules-w-submodules]
   (fs/with-cwd (fs/expand-home base-dir)
     (fs/mkdirs "Resources/Images")
     (fs/mkdirs "Resources/Snippets/Variables")
@@ -265,7 +234,7 @@
            id
            name
            help-key
-           (concat 
+           (concat
             (md->dita
              (or (q-help-content db help-key) (str "#### " name)))
             var-dita-files)))))
@@ -299,7 +268,7 @@
   (insert-map-doctype
    (xml/indent-str
     (xml/sexp-as-element
-     [:map 
+     [:map
       (create-ditamap-entry db base-dir structure parent-path)]))))
 
 (defn- convert-to-ditamap [db base-dir all-vars output-file]
@@ -316,7 +285,7 @@
    vs))
 
 (defn- filter-single-vars [vs]
-  (->> 
+  (->>
    (group-by :id vs)
    (filter (fn [[_ v]]
              (= 1 (count v))))
@@ -325,7 +294,7 @@
    (filter some?)))
 
 (defn- filter-duplicate-vars [vs]
-  (->> 
+  (->>
    (group-by :id vs)
    (filter (fn [[_ v]]
              (< 1 (count v))))))
@@ -339,7 +308,7 @@
         dita-file (str (io/file (fs/expand-home base-dir) "Resources" "Snippets" "Variables" dita-file))]
     (spit dita-file
           (generate-snippet id
-                            v-name 
+                            v-name
                             help-keys
                             (md->dita content)))))
 
@@ -349,15 +318,15 @@
         single-vars       (filter-single-vars vars-w-shortcodes)
         duplicate-vars    (filter-duplicate-vars vars-w-shortcodes)]
 
-    (doall 
+    (doall
      (for [{:keys [id v-name help-key]} single-vars
            :let
            [content (or (q-help-content db help-key) (str "#### " v-name))]]
        (create-variable-snippet! base-dir id v-name help-key content)))
 
-    (doall 
+    (doall
      (for [[_ dups] duplicate-vars
-           :let 
+           :let
            [{:keys [id v-name]} (first dups)
             help-keys           (map :help-key dups)
             content             (or (find-content-for-duplicates db help-keys) (str "#### " v-name))]]
@@ -365,7 +334,7 @@
 
 ;;; Workspace
 
-(comment 
+(comment
 
   ;; Change this to where the dita project should exist
   (def base-dir "~/Code/sig/behave-polylith/dita-test-16")
@@ -400,10 +369,10 @@
   ;; Generate Group Topics
 
   (def all-groups
-    (:application/modules 
+    (:application/modules
      (d/pull
-      db 
-      '[{:application/modules 
+      db
+      '[{:application/modules
          [:bp/nid
           :module/name
           :module/help-key

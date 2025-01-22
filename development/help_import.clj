@@ -1,14 +1,13 @@
 (ns help-import
-  (:require 
-   [clojure.java.io          :as io]
-   [clojure.string           :as str]
-   [clojure.set              :refer [rename-keys]]
-   [me.raynes.fs             :as fs]
-   [behave-cms.server        :as cms]
-   [datomic.api              :as d]
-   [datomic-store.main       :as ds]
-   [dita.xhtml-cleaner       :refer [clean-topic clean-variables]]
-   [schema-migrate.interface :as sm]))
+  (:require [clojure.java.io          :as io]
+            [clojure.set              :refer [rename-keys]]
+            [clojure.string           :as str]
+            [behave-cms.server        :as cms]
+            [datomic-store.main       :as ds]
+            [datomic.api              :as d]
+            [dita.xhtml-cleaner       :refer [clean-topic clean-variables]]
+            [me.raynes.fs             :as fs]
+            [schema-migrate.interface :as sm]))
 
 ;;; Helpers
 

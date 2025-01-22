@@ -1,12 +1,10 @@
 (ns dita.xhtml-cleaner
-  (:require [clojure.java.io :as io]
-            [clojure.string :as str]
-            [clojure.walk :refer [postwalk]]
-            [hickory.core :as hickory]
-            [hickory.select :as select]
-            [hickory.render :as hr]
-            [hiccup.core :as hiccup]
-            [me.raynes.fs :as fs]))
+  (:require [clojure.string  :as str]
+            [clojure.walk    :refer [postwalk]]
+            [hiccup.core     :as hiccup]
+            [hickory.core    :as hickory]
+            [hickory.render  :as hr]
+            [hickory.select  :as select]))
 
 (def ^:private remove-nodes #{:meta :link})
 
