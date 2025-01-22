@@ -1,17 +1,51 @@
 (ns behave.help.views
-  (:require [re-frame.core             :refer [subscribe dispatch dispatch-sync]]
-            [reagent.core            :as r]
-            [markdown2hiccup.interface :refer [md->hiccup]]
-            [behave.components.core    :as c]
-            [behave.translate          :refer [<t]]
+  (:require [clojure.walk           :refer [postwalk]]
+            [re-frame.core          :refer [subscribe dispatch dispatch-sync]]
+            [reagent.core           :as r]
+            [hickory.core           :as h]
+            [behave.components.core :as c]
+            [behave.translate       :refer [<t]]
             [behave.help.events]
             [behave.help.subs]))
+
+;;; Helper Functions
 
 (defn- test-guides []
   (let [guides-manuals (<t "behaveplus:guides_and_manuals")]
     [:div
      [:h1 @guides-manuals]
      [:h2 "Here are some guides."]]))
+
+(defn- display-group? [ws-uuid group]
+  (and (not (:group/research? group)) 
+       @(subscribe [:wizard/show-group?
+                    ws-uuid
+                    (:db/id group)
+                    (:group/conditionals-operator group)])))
+
+(defn- flatten-help-keys [acc g-or-gv]
+  (let [acc (conj acc (or (:group/help-key g-or-gv)
+                          (:group-variable/help-key g-or-gv)))]
+    (cond-> acc
+      (seq (:group/group-variables g-or-gv))
+      (concat (map (partial flatten-help-keys []) (sort-by :group-variables/order (:group/group-variables g-or-gv))))
+
+      (seq (:group/children g-or-gv))
+      (concat (map (partial flatten-help-keys []) (sort-by :group/order (:group/children g-or-gv)))))))
+
+(defn- ->filter-groups-walk-fn [ws-uuid]
+  (fn [node]
+    (cond
+      (:group/name node)
+      (if (display-group? ws-uuid node) node nil)
+
+      (or 
+       (:group-variable/research? node)
+       (:group-variable/conditionally-set? node))
+      nil
+
+      :else
+      node)))
 
 (defn- get-help-keys [params]
   (cond
@@ -23,14 +57,51 @@
     (:page params)
 
     (and (:module params) (:submodule params))
-    (let [{:keys [module submodule io]} params
-          *module                       (subscribe [:wizard/*module module])
-          *submodule                    (subscribe [:wizard/*submodule (:db/id @*module) submodule io])
-          submodule-help-keys           (subscribe [:help/submodule-help-keys (:db/id @*submodule)])]
-      (concat [(:module/help-key @*module)] @submodule-help-keys))
+    (let [{:keys [ws-uuid module submodule io]} params
+          [_ first-output-submodule]            @(subscribe [:wizard/first-module+submodule ws-uuid :output])
+          second-module                         (-> @(subscribe [:worksheet ws-uuid])
+                                                    (:worksheet/modules)
+                                                    (set)
+                                                    (disj :surface)
+                                                    (first))
+          module                                (if (and (= second-module :mortality) (= io :output) (= submodule "fire-behavior"))
+                                                  (name second-module)
+                                                  module)
+          *module                               (subscribe [:wizard/*module module])
+          *submodule                            (if (and (= second-module :mortality) (= io :output) (= submodule "fire-behavior"))
+                                                  (subscribe [:wizard/*submodule (:db/id @*module) "mortality" :output])
+                                                  (subscribe [:wizard/*submodule (:db/id @*module) submodule io]))
+          submodule-id                          (:db/id @*submodule)
+          *groups                               (subscribe [:vms/pull-children :submodule/groups submodule-id
+                                                            '[* {:group/group-variables [*]} {:group/children 6}]])
+          submodule-help-keys                   (->> @*groups
+                                                     (sort-by :group/order)
+                                                     (postwalk (->filter-groups-walk-fn ws-uuid))
+                                                     (mapcat (partial flatten-help-keys []))
+                                                     (flatten)
+                                                     (filter some?)
+                                                     (concat [(:submodule/help-key @*submodule)])
+                                                     (vec))]
+
+      (if (or (and (= second-module "mortality") (= io :output) (= submodule "fire-behavior"))
+              (and (= io :output) (= first-output-submodule submodule)))
+        (concat [(:module/help-key @*module)] submodule-help-keys)
+        submodule-help-keys))
 
     :else
     "behaveplus:help"))
+
+;;; Image Viewer
+
+(defn- open-image-viewer-fn [e]
+  (when (= "IMG" (.. e -target -nodeName))
+    (let [el (.-target e)
+          url (.-src el)
+          alt (.-alt el)]
+      (.log js/console el)
+      (dispatch [:help/open-image-viewer url alt]))))
+
+;;; Components
 
 (defn- help-section
   "Displays a help section. Optionally takes `highlight?` to highlight a section."
@@ -41,7 +112,9 @@
            :class [(when highlight? "highlight")]}
      (when (not-empty @help-contents)
        [:div.help-section__content
-        (md->hiccup (first @help-contents))])]))
+        (-> @help-contents
+            (h/parse-fragment)
+            (->> (map h/as-hiccup)))])]))
 
 (defn- help-content [help-keys & [children]]
   (let [help-highlighted-key (subscribe [:help/current-highlighted-key])]
@@ -59,7 +132,11 @@
                 ^{:key help-key}
                 [help-section help-key (= help-key @help-highlighted-key)])))]))
 
-(defn help-area [params]
+;;; Public
+
+(defn help-area
+  "Displays the Help Area for a particular page."
+  [params]
   (r/with-let [_ (dispatch-sync [:help/select-tab {:tab :module}])]
    (let [hidden?               (subscribe [:state [:help-area :hidden?]])
          current-tab           (subscribe [:help/current-tab])

@@ -344,3 +344,9 @@
    :link/source      source-eid
    :link/destination destination-eid})
 
+(defn ->migration
+  "New migration."
+  [id]
+  {:bp/uuid         (rand-uuid)
+   :bp/nid          (nano-id)
+   :bp/migration-id id})

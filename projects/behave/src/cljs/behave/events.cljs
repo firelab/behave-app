@@ -100,6 +100,7 @@
    (when-let [[new-history new-position new-route] (navigate (:router db) new-route)]
      {:db                 (assoc db :router {:history new-history :curr-position new-position})
       :browser/scroll-top {}
+      :help/scroll-top    {}
       :history/push-state {:position new-position
                            :route    new-route}})))
 

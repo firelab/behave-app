@@ -30,25 +30,33 @@
             [behave.schema.variable            :as variable]
             [behave.schema.worksheet           :as worksheet]))
 
-(def uuid-schema [{:db/ident       :bp/uuid
-                   :db/doc         "UUID of entity"
-                   :db/valueType   :db.type/string
-                   :db/unique      :db.unique/identity
-                   :db/cardinality :db.cardinality/one
-                   :db/index       true}])
+(def uuid-schema         [{:db/ident       :bp/uuid
+                           :db/doc         "UUID of entity"
+                           :db/valueType   :db.type/string
+                           :db/unique      :db.unique/identity
+                           :db/cardinality :db.cardinality/one
+                           :db/index       true}])
 
-(def nano-id-schema [{:db/ident       :bp/nid
-                      :db/doc         "Nano-ID of entity"
-                      :db/valueType   :db.type/string
-                      :db/unique      :db.unique/identity
-                      :db/cardinality :db.cardinality/one
-                      :db/index       true}])
+(def nano-id-schema      [{:db/ident       :bp/nid
+                           :db/doc         "Nano-ID of entity"
+                           :db/valueType   :db.type/string
+                           :db/unique      :db.unique/identity
+                           :db/cardinality :db.cardinality/one
+                           :db/index       true}])
+
+(def migration-id-schema [{:db/ident       :bp/migration-id
+                           :db/doc         "Migration Identifier"
+                           :db/valueType   :db.type/string
+                           :db/unique      :db.unique/identity
+                           :db/cardinality :db.cardinality/one
+                           :db/index       true}])
 
 (def ^{:doc "Datalog Rules for VMS, CPP, and Worksheets"}
   rules r/all-rules)
 
 (def all-schemas (apply concat [uuid-schema
                                 nano-id-schema
+                                migration-id-schema
                                 application/schema
                                 actions/schema
                                 behave-list/schema

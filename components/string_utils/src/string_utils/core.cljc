@@ -68,6 +68,13 @@
       (str/split #"_")
       (->> (map #(str (-> % (subs 0 1) (str/upper-case)) (subs % 1))) (str/join ""))))
 
+(defn ->capitalize-sentence
+  "Snake/kebab string to 'Capitalized Sentence'"
+  [s]
+  (-> s
+      (str/split #"[_-]")
+      (->> (map #(str (-> % (subs 0 1) (str/upper-case)) (subs % 1))) (str/join " "))))
+
 (defn snake->camel
   "snake-case string to camelCase"
   [s]

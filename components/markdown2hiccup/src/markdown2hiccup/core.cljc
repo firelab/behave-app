@@ -37,17 +37,19 @@
                                            paragraph
                                            set-line-state]]))
 
-(defn- render-latex [s]
-  (try
-    (.renderToString js/katex s)
-    (catch js/Error _ s)))
+#?(:cljs
+   (defn- render-latex [s]
+     (try
+       (.renderToString js/katex s)
+       (catch js/Error _ s))))
 
-(defn- latex [text state]
-  [(if-not (or (:codeblock state) (:code state))
-     (-> text
-         (str/replace #"^\$\$\s(.*)\s\$\$$" #(render-latex (second %)))
-         (str/replace #"\$\s(.*)\s\$" #(render-latex (second %))))
-     text) state])
+#?(:cljs
+   (defn- latex [text state]
+     [(if-not (or (:codeblock state) (:code state))
+        (-> text
+            (str/replace #"^\$\$\s(.*)\s\$\$$" #(render-latex (second %)))
+            (str/replace #"\$\s(.*)\s\$" #(render-latex (second %))))
+        text) state]))
 
 (def ^:private custom-transform-vector
   [set-line-state
@@ -83,14 +85,17 @@
    thaw-strings
    dashes
    clear-line-state
-   latex])
+   #?(:cljs latex)])
 
 (defn- md->html [text]
-  (md/md->html text
+  #?(:cljs (md/md->html text
                :replacement-transformers
-               custom-transform-vector))
+               custom-transform-vector)
+     :clj (md/md-to-html-string text
+                                :replacement-transformers
+                                custom-transform-vector)))
 
-(def special-svg-attrs
+(def ^:private special-svg-attrs
   {:zoomandpan          :zoom-and-pan,
    :surfacescale        :surface-scale,
    :keysplines          :key-splines,
@@ -155,7 +160,7 @@
    :clippathunits       :clip-path-units,
    :patterntransform    :pattern-transform})
 
-(def ^:private special-svg-attrs-keys (-> special-svg-attrs (keys) (set)))
+;; (def ^:private special-svg-attrs-keys (-> special-svg-attrs (keys) (set)))
 
 (defn- style-map [s]
   (println s)
@@ -170,10 +175,10 @@
        (md->html)
        (parse-fragment)
        (map as-hiccup)
-       ;(postwalk #(if (and (= :svg (first %))
-       ;                    (not-empty (set/intersection special-svg-attrs-keys (-> % (second) (keys) (set)))))
-       ;             (assoc % 1 (persistent! (reduce (fn [acc [k v]] (assoc! acc (get special-svg-attrs k k) v)) (transient {}) (second %))))
-       ;             %))
+       ;;(postwalk #(if (and (= :svg (first %))
+       ;;                    (not-empty (set/intersection special-svg-attrs-keys (-> % (second) (keys) (set)))))
+       ;;             (assoc % 1 (persistent! (reduce (fn [acc [k v]] (assoc! acc (get special-svg-attrs k k) v)) (transient {}) (second %))))
+       ;;             %))
        (postwalk #(if-let [style-str (get-in % [1 :style])]
                     (assoc-in % [1 :style] (style-map style-str))
                     %))

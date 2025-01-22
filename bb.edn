@@ -4,7 +4,8 @@
                [babashka.fs      :as fs]
                [babashka.process :refer [shell]]
                [manage           :as m]
-               [clojure.java.io  :as io])
+               [clojure.java.io  :as io]
+               [clojure.string   :as str])
 
   component   (let [component (first *command-line-args*)]
                 (println (format "Creating new component: %s" component))
@@ -21,28 +22,38 @@
                    (m/new-project project)
                    (println (format "Done! \n\n Please add \"projects/%s/src\" to the :paths section of your deps.edn file." project)))
 
+
+  ;;; Commands
+  import-help (do
+                (clojure "-X:dev:import-help")
+                (fs/copy-tree "bases/behave-docs/XHTML_Output/Resources/Images/"
+                              "projects/behave/resources/public/help/images"
+                              {:replace-existing true}))
+
   ;;; Datomic
-  -today     (str (java.time.LocalDate/now))
+  -today      (str (java.time.LocalDate/now))
 
-  dump       {:depends [-today]
-              :task    (shell (format "pg_dump -U datomic datomic -Fc --file=datomic-backup-%s.dump" -today))}
+  dump        {:depends [-today]
+               :task    (shell (format "pg_dump -U datomic datomic -Fc --file=datomic-backup-%s.dump" -today))}
 
-  restore    (let [db-dump (:file (cli/parse-opts *command-line-args*))]
-                (shell "psql -U datomic -d datomic -c 'DROP TABLE IF EXISTS datomic_kvs'")
-                (shell (format "pg_restore -U datomic -d datomic %s" db-dump)))
+  restore     (let [db-dump (:file (cli/parse-opts *command-line-args*))]
+                 (shell "psql -U datomic -d datomic -c 'DROP TABLE IF EXISTS datomic_kvs'")
+                 (if (str/ends-with? db-dump "sql")
+                   (shell (format "psql -U datomic -d datomic --file %s" db-dump))
+                   (shell (format "pg_restore -U datomic -d datomic %s" db-dump))))
 
-  -datomic    (str (io/file (str (fs/home)) ".datomic" "current" "bin"))
-  transactor  {:depends [-datomic]
-               :task
-               (let [transactor (io/file -datomic "transactor")
-                     options    "-Ddatomic.printConnectionInfo=true"
-                     config     (str (fs/cwd) "/bases/datomic_store/config/datomic-sql.properties")]
-                 (shell
-                  (format "%s %s %s" transactor options config)))}
+  -datomic     (str (io/file (str (fs/home)) ".datomic" "current" "bin"))
+  transactor   {:depends [-datomic]
+                :task
+                (let [transactor (io/file -datomic "transactor")
+                      options    "-Ddatomic.printConnectionInfo=true"
+                      config     (str (fs/cwd) "/bases/datomic_store/config/datomic-sql.properties")]
+                  (shell
+                   (format "%s %s %s" transactor options config)))}
 
-  console     {:depends [-datomic]
-               :task
-               (let [console (io/file -datomic "console")
-                     port    (or (:port (cli/parse-opts *command-line-args* {:coerce {:port :int}})) 8000)
-                     url     "datomic:sql://?jdbc:postgresql://localhost:5432/datomic?user=datomic&password=datomic"]
-                 (shell (format "%s -p %d db %s" console port url)))}}}
+  console      {:depends [-datomic]
+                :task
+                (let [console (io/file -datomic "console")
+                      port    (or (:port (cli/parse-opts *command-line-args* {:coerce {:port :int}})) 8000)
+                      url     "datomic:sql://?jdbc:postgresql://localhost:5432/datomic?user=datomic&password=datomic"]
+                  (shell (format "%s -p %d db %s" console port url)))}}}

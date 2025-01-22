@@ -15,6 +15,7 @@
                  "components/date_utils/src"
                  "components/datom_compressor/src"
                  "components/datom_utils/src"
+                 "components/dita/src"
                  "components/dom_utils/src"
                  "components/ds_schema_utils/src"
                  "components/logging/src"
@@ -145,6 +146,20 @@
     "projects/behave_cms/resources"]
    :main-opts ["-m" "figwheel.main" "-co" "cms-test.cljs.edn" "-m" "behave-cms.headless-test-runner"]}
 
-  :poly {:extra-deps {polylith/clj-poly
-                      {:mvn/version "0.2.17-alpha"}}
-         :main-opts  ["-m" "polylith.clj.core.poly-cli.core"]}}}
+  :poly
+  {:extra-deps {polylith/clj-poly
+                {:mvn/version "0.2.17-alpha"}}
+   :main-opts  ["-m" "polylith.clj.core.poly-cli.core"]}
+
+  :import-help
+  {:extra-paths
+   ["projects/behave_cms/src/clj"
+    "projects/behave_cms/src/cljc"]
+   :exec-fn help-import/import-help}
+
+  :rollback-help-import
+  {:extra-paths
+   ["projects/behave_cms/src/clj"
+    "projects/behave_cms/src/cljc"
+    "projects/behave_cms/resources"]
+   :exec-fn help-import/rollback-import}}}

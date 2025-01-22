@@ -109,3 +109,7 @@
 (def ^{:arglists '([source-eid destination-eid])
        :doc "Payload for a new Link."}
   ->link c/->link)
+
+(def ^{:arglists '([migration-name])
+       :doc "Payload for a new migration."}
+  ->migration c/->migration)
