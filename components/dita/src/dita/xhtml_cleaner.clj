@@ -85,7 +85,13 @@
 
 ;; Usage
 
-(defn clean-topic [filename]
+(defn clean-topic
+  "Given a topic file, remove extraneous HTML elements and:
+   - Modify all H4 to H5
+   - Modify all H2 to H4.
+
+  Returns a map of `{:key <help-key> :content <content>}`"
+  [filename]
   (let [clean-hiccup (clean-xhtml-file filename)
         help-key     (find-help-key filename)
         content      (-> clean-hiccup
@@ -115,22 +121,3 @@
         h1->h4  #(str/replace % #"h1" "h5")
         content (-> topic (:content) (h1->h4) (h4->h6))]
     (mapv (fn [k] {:key k :content content}) ks)))
-
-(comment
-
-  (def topics-dir (io/file ".." "behave-docs" "XHTML_Output" "BehaveAppHelp" "Content"))
-
-  (def topics (fs/find-files topics-dir #".*htm"))
-
-  (def cleaned-topics (mapv clean-variable variable-snippets))
-  (spit "topics.edn" (pr-str cleaned-topics))
-
-  (def variable-snippets-dir (io/file ".." "behave-docs" "XHTML_Output" "BehaveAppHelp" "Resources" "Snippets" "Variables"))
-  
-  (def variable-snippets (fs/glob variable-snippets-dir "*.htm"))
-
-  (def cleaned-variables (map clean-variable variable-snippets))
-  (spit "variables.edn" (pr-str cleaned-variables))
-
-
-  )
