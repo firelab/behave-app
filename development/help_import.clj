@@ -54,7 +54,7 @@
         cleaned-variables     (mapcat clean-variables variable-snippets)]
 
     (->> cleaned-variables
-         (remove #(or (nil? (:key %)) (nil? (:content %))))
+         (remove #(or (nil? %) (nil? (:key %)) (nil? (:content %))))
          (map #(-> %
                    (rename-keys {:key :help-page/key :content :help-page/content})
                    (assoc :language/_help-page english-lang))))))

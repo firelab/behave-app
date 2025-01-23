@@ -69,10 +69,10 @@
 (defn- find-help-key [file]
   (let [content (-> file (slurp) (hickory/parse) (hickory/as-hickory))]
     (->> content
-        (select/select (select/class :metadata))
-        (first)
-        (:content)
-        (first))))
+         (select/select (select/class :metadata))
+         (first)
+         (:content)
+         (first))))
 
 (defn- remove-unwanted-elements [hiccup]
   (postwalk remove-stylesheet-and-class hiccup))
@@ -104,7 +104,8 @@
                          (str/replace #"h2" "h4"))]
 
     ;; Help Page
-    {:key help-key :content content}))
+    (when (and help-key content)
+      {:key help-key :content content})))
 
 (defn clean-variables
   "Given a variable help file, remove extraneous HTML elements and:
@@ -113,9 +114,9 @@
 
   Returns a vector of maps of `{:key <help-key> :content <content>}`"
   [filename]
-  (let [topic   (clean-topic filename)
-        ks      (-> topic (:key) (str/split #" "))
-        h4->h6  #(str/replace % #"h4" "h6")
-        h1->h4  #(str/replace % #"h1" "h5")
-        content (-> topic (:content) (h1->h4) (h4->h6))]
-    (mapv (fn [k] {:key k :content content}) ks)))
+  (when-let [topic (clean-topic filename)]
+    (let [ks      (-> topic (:key) (str/split #" "))
+          h4->h6  #(str/replace % #"h4" "h6")
+          h1->h4  #(str/replace % #"h1" "h5")
+          content (-> topic (:content) (h1->h4) (h4->h6))]
+      (mapv (fn [k] {:key k :content content}) ks))))
