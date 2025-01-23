@@ -1978,7 +1978,8 @@ p {
 .modal {
   flex-direction: column;
   display: flex;
-  width: 477px;
+  min-width: 477px;
+  max-width: 90%;
   margin: 0;
   border: 1px solid var(--lightblue-5);
   border-radius: 3px;
@@ -2050,6 +2051,10 @@ p {
   justify-content: space-between;
   align-items: center;
   padding: 20px 50px;
+}
+
+.modal > .img {
+  width: 100%;
 }
 
 /* - End Modal Card - */

@@ -9,6 +9,7 @@
             [vimsical.re-frame.cofx.inject :as inject]
             [ajax.core :as ajax]
             [re-frame.core :as rf]
+            [behave.help.events]
             [behave.tool.events]))
 
 ;;; Initialization

@@ -157,6 +157,7 @@
        [:div
         {:class     ["help-area"
                      (when @(subscribe [:state [:sidebar :hidden?]]) "help-area--sidebar-hidden")]
+         :on-click  open-image-viewer-fn
          :aria-live "polite"}
         [:div.help-area__tabs-container
          [:div.help-area__tabs

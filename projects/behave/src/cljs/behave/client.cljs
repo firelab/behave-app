@@ -66,40 +66,52 @@
         sync-loaded?       (rf/subscribe [:state :sync-loaded?])
         vms-loaded?        (rf/subscribe [:state :vms-loaded?])
         vms-export-results (rf/subscribe [:state :vms-export-http-results])
+        image-modal        (rf/subscribe [:state [:help-area :image-modal]])
         page               (get handler->page (:handler @route) not-found)
         params             (-> (merge params (:route-params @route))
                                (assoc :route-handler (:handler @route)))]
-    (if (= (:handler @route) :ws/print)
-      (if (and @vms-loaded? @sync-loaded?)
-        [page params]
-        [:h3 "Loading..."])
-      [:div.page
-       (when @vms-export-results
-         [modal {:title          "Vms Sync"
-                 :close-on-click #(do (rf/dispatch [:state/set :vms-export-http-results nil])
-                                      (rf/dispatch [:app/reload]))
-                 :content        @vms-export-results}])
-       [:table.page__top
-        [:tr
-         [:td.page__top__logo
-          [:div.behave-identity
-           {:href     "#"
-            :on-click #(rf/dispatch [:wizard/navigate-home])
-            :tabindex 0}
-           [:img {:src "/images/logo.svg"}]]]
-         [:td.page__top__toolbar-container
-          [toolbar params]]]]
-       [:div.page__main
-        [sidebar params]
-        [:div {:class ["working-area"
-                       (when @(rf/subscribe [:state [:sidebar :hidden?]])
-                         "working-area--sidebar-hidden")
-                       (when @(rf/subscribe [:state [:help-area :hidden?]])
-                         "working-area--help-area-hidden")]}
-         (if (and @vms-loaded? @sync-loaded?)
-           [page params]
-           [:h3 "Loading..."])]
-        [help-area params]]])))
+    [:div.app-shell
+     [:div {:style {:display (if @image-modal "block" "none")}}
+      [:div.modal__background]
+      [modal {:title          (:title @image-modal)
+              :close-on-click #(rf/dispatch [:state/set [:help-area :image-modal] nil])
+              :content        [:div.image-viewer
+                               [:img {:src (:src @image-modal)}]
+                               [:p (:alt @image-modal)]]}]]
+
+     (if (= (:handler @route) :ws/print)
+       (if (and @vms-loaded? @sync-loaded?)
+         [page params]
+         [:h3 "Loading..."])
+       [:div.page
+        (when @vms-export-results
+          [modal {:title          "Vms Sync"
+                  :close-on-click #(do (rf/dispatch [:state/set :vms-export-http-results nil])
+                                       (rf/dispatch [:app/reload]))
+                  :content        [:div
+                                   {:style {:width "400px"}}
+                                   @vms-export-results]}])
+        [:table.page__top
+         [:tr
+          [:td.page__top__logo
+           [:div.behave-identity
+            {:href     "#"
+             :on-click #(rf/dispatch [:wizard/navigate-home])
+             :tabindex 0}
+            [:img {:src "/images/logo.svg"}]]]
+          [:td.page__top__toolbar-container
+           [toolbar params]]]]
+        [:div.page__main
+         [sidebar params]
+         [:div {:class ["working-area"
+                        (when @(rf/subscribe [:state [:sidebar :hidden?]])
+                          "working-area--sidebar-hidden")
+                        (when @(rf/subscribe [:state [:help-area :hidden?]])
+                          "working-area--help-area-hidden")]}
+          (if (and @vms-loaded? @sync-loaded?)
+            [page params]
+            [:h3 "Loading..."])]
+         [help-area params]]])]))
 
 (defn- ^:export init
   "Defines the init function to be called from window.onload()."
