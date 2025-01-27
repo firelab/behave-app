@@ -210,11 +210,11 @@
                                      (reset! selected-tag tag))}]])])
         (when (seq color-tags)
           [:div.multi-slect__color-tags
-           (for [id (map :color-tag options)]
+           (for [[id description] color-tags]
              ^{:key id}
-             [:div {:class ["multi-select__color-tags__tag"]
+             [:div {:class          ["multi-select__color-tags__tag"]
                     :data-color-tag id}
-              (get color-tags id)])])
+              description])])
         [:div.multi-select__options
          (doall
           (for [{:keys [label
