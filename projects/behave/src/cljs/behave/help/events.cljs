@@ -11,10 +11,10 @@
  :help/scroll-into-view
  (fn [help-key]
    (when-let [content (first (.getElementsByClassName js/document "help-area__content"))]
-     (let [section (.getElementById js/document help-key)
-           buffer  (* 0.05 (.-offsetHeight content))
-           top     (- (.-offsetTop section) (.-offsetTop content) buffer)]
-       (.scroll content #js {:top top :behavior "smooth"})))))
+     (when-let [section (.getElementById js/document help-key)]
+       (let [buffer (* 0.05 (.-offsetHeight content))
+             top    (- (.-offsetTop section) (.-offsetTop content) buffer)]
+         (.scroll content #js {:top top :behavior "smooth"}))))))
 
 (rf/reg-event-db
  :help/scroll-top
