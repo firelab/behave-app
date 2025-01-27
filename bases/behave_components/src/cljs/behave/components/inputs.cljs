@@ -180,7 +180,7 @@
     [icon (if selected? "minus" "plus")]]
    label])
 
-(defn multi-select-input [{:keys [input-label options tags-enabled? color-tags-enabled?]}]
+(defn multi-select-input [{:keys [input-label options tags-enabled? color-tags]}]
   (r/with-let [selections (r/atom (->> options
                                        (filter #(true? (:selected? %)))
                                        (map (fn [{:keys [label value on-deselect color-tag]}]
@@ -208,13 +208,13 @@
                        :on-click  #(if (= @selected-tag tag)
                                      (reset! selected-tag nil)
                                      (reset! selected-tag tag))}]])])
-        (when color-tags-enabled?
+        (when (seq color-tags)
           [:div.multi-slect__color-tags
-           (for [{:keys [id text]} (set (map :color-tag options))]
+           (for [id (map :color-tag options)]
              ^{:key id}
              [:div {:class ["multi-select__color-tags__tag"]
                     :data-color-tag id}
-              text])])
+              (get color-tags id)])])
         [:div.multi-select__options
          (doall
           (for [{:keys [label
@@ -227,7 +227,7 @@
             ^{:key label}
             (let [selection [label value on-deselect color-tag]]
               [multi-select-option {:selected? (contains? @selections selection)
-                                    :color-tag (:id color-tag)
+                                    :color-tag color-tag
                                     :label     label
                                     :on-click  #(do (if (contains? @selections selection)
                                                       (do
@@ -262,7 +262,7 @@
                                                          :on-click #(do
                                                                       (reset! selections (disj @selections selection))
                                                                       (when on-deselect (on-deselect value)))}
-                                                  color-tag (assoc :data-color-tag (:id color-tag)))
+                                                  color-tag (assoc :data-color-tag color-tag))
                                                 [:div.multi-select__option__icon--minus
                                                  [icon "minus"]]
                                                 label])])]]))
