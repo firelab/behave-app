@@ -48,6 +48,12 @@
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident       :list/color-tags
+    :db/doc         ""
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
+
    {:db/ident       :list/options
     :db/doc         "List's options."
     :db/valueType   :db.type/ref
@@ -84,6 +90,11 @@
     :db/valueType   :db.type/keyword
     :db/cardinality :db.cardinality/many}
 
+   {:db/ident       :list-option/color-tag
+    :db/doc         "List option's color tag."
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/one}
+
    {:db/ident       :list-option/translation-key
     :db/doc         "List option's translation key."
     :db/valueType   :db.type/string
@@ -98,7 +109,21 @@
    {:db/ident       :list-option/hide?
     :db/doc         "Used to hid a list option."
     :db/valueType   :db.type/boolean
-    :db/cardinality :db.cardinality/one}])
+    :db/cardinality :db.cardinality/one}
+
+   ;; List Color tags
+   {:db/ident       :color-tag/id
+    :db/doc         ""
+    :db/valueType   :db.type/keyword
+    :db/cardinality :db.cardinality/one
+    :db/unique      :db.unique/identity}
+
+   {:db/ident       :color-tag/translation-key
+    :db/doc         ""
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one
+    :db/unique      :db.unique/identity}
+   ])
 
 ;;; Tests
 

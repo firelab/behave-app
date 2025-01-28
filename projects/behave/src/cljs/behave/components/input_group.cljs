@@ -168,22 +168,32 @@
                ws-input-values           (-> @(rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id gv-uuid])
                                              (str/split ",")
                                              (set))
-               ->option                  (fn [{value :list-option/value
-                                               tags  :list-option/tags
-                                               t-key :list-option/translation-key}]
+               ->option                  (fn [{value     :list-option/value
+                                               tags      :list-option/tags
+                                               color-tag :list-option/color-tag
+                                               t-key     :list-option/translation-key}]
                                            {:value       value
                                             :label       @(<t t-key)
                                             :tags        (set tags)
                                             :on-select   on-select
                                             :on-deselect on-deselect
-                                            :selected?   (contains? ws-input-values value)})]
+                                            :selected?   (contains? ws-input-values value)
+                                            :color-tag (:color-tag/id
+                                                        @(rf/subscribe [:vms/entity-from-eid (:db/id color-tag)]))})]
+    :color-tag/id
     [:div.wizard-input
      {:on-click on-focus-click
       :on-focus on-focus-click}
      [c/multi-select-input
-      {:input-label   @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
-       :tags-enabled? tags-enabled?
-       :options       (doall (map ->option options))}]]))
+      (cond-> {:input-label   @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
+               :tags-enabled? tags-enabled?
+               :options       (doall (map ->option options))}
+        (:list/color-tags llist)
+        (assoc :color-tags (reduce (fn [acc {id              :color-tag/id
+                                             translation-key :color-tag/translation-key}]
+                                     (assoc acc id @(<t translation-key)))
+                                   {}
+                                   (:list/color-tags llist))))]]))
 
 (defmethod wizard-input :text [{gv-uuid  :bp/uuid
                                 help-key :group-variable/help-key}
