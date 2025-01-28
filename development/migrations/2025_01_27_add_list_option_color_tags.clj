@@ -47,12 +47,48 @@
                        {:color-tag/id              :chapparal-and-coastal-sage-shrub
                         :color-tag/translation-key "behaveplus:list:surfacefuelmodels:color-tag:chaparral-and-coastal-sage-shrub"}])}])
 
+(def grass
+  #{"110" "111"})
+
+(def shrub
+  #{"150" "151" "152" "153" "154" "155" "156" "157" "158" "159"})
+
+(def timber-understory
+  #{"166" "167" "168" "169" "170" "171" "172"})
+
+(def timber-litter
+  #{"190" "191" "192" "193"})
+
+
+
 (def add-new-translations-payload
   (sm/build-translations-payload
    conn
    {"behaveplus:list:surfacefuelmodels:color-tag:standard"                         "Standard Fuel Models (Anderson, Scott and Burgan)"
     "behaveplus:list:surfacefuelmodels:color-tag:mediteranean"                     "Mediterannean Fuel Models (Fernandes et al; Portugal)"
     "behaveplus:list:surfacefuelmodels:color-tag:chaparral-and-coastal-sage-shrub" "Chapparral & Coastal Sage Shrub (Weise, Southern CA)"}))
+
+(def add-mising-tags-payload
+  (concat (->> list-options
+               (filter #(contains? grass (:list-option/value %)))
+               (map (fn [{eid :db/id}]
+                      {:db/id            eid
+                       :list-option/tags [:Grass]})))
+          (->> list-options
+               (filter #(contains? shrub (:list-option/value %)))
+               (map (fn [{eid :db/id}]
+                      {:db/id            eid
+                       :list-option/tags [:Shrub]})))
+          (->> list-options
+               (filter #(contains? timber-understory (:list-option/value %)))
+               (map (fn [{eid :db/id}]
+                      {:db/id            eid
+                       :list-option/tags [:Timber-Understory]})))
+          (->> list-options
+               (filter #(contains? timber-litter (:list-option/value %)))
+               (map (fn [{eid :db/id}]
+                      {:db/id            eid
+                       :list-option/tags [:Timber-Litter]})))))
 
 ;; ===========================================================================================================
 ;; Transact Payload
@@ -61,32 +97,32 @@
 (comment
   #_{:clj-kondo/ignore [:missing-docstring]}
   (do
-    (def tx-data (d/transact conn (concat payload add-new-translations-payload)))
+    (def tx-data (d/transact conn (concat payload add-new-translations-payload add-mising-tags-payload)))
 
     ;; (sm/t-key->eid conn "behaveplus:list:surfacefuelmodels:color-tag:standard")
 
     (def standard-list-options-payload
       (->> list-options
            (filter #(contains? standard (:list-option/value %)))
-           (map :db/id)
-           (map (fn [eid]
+           (map (fn [{eid :db/id}]
                   {:db/id                 eid
+                   :list-option/hide? false
                    :list-option/color-tag (sm/t-key->eid conn "behaveplus:list:surfacefuelmodels:color-tag:standard")}))))
 
     (def mediteranean-list-options-payload
       (->> list-options
            (filter #(contains? mediteranean (:list-option/value %)))
-           (map :db/id)
-           (map (fn [eid]
+           (map (fn [{eid :db/id}]
                   {:db/id                 eid
+                   :list-option/hide? false
                    :list-option/color-tag (sm/t-key->eid conn "behaveplus:list:surfacefuelmodels:color-tag:mediteranean")}))))
 
     (def chapparal-and-coastal-sage-shrub-payload
       (->> list-options
            (filter #(contains? chapparal-and-coastal-sage-shrub (:list-option/value %)))
-           (map :db/id)
-           (map (fn [eid]
+           (map (fn [{eid :db/id}]
                   {:db/id                 eid
+                   :list-option/hide? false
                    :list-option/color-tag (sm/t-key->eid conn "behaveplus:list:surfacefuelmodels:color-tag:chaparral-and-coastal-sage-shrub")}))))
 
     (def tx-data-2 (d/transact conn (concat standard-list-options-payload
