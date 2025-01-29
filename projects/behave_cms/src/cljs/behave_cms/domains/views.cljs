@@ -57,7 +57,7 @@
              (rf/dispatch [:api/delete-entity %]))]
       (prn "domain:" @domain)
       [:div
-       {:style {:height "400px" :overflow-y "scroll"}}
+       {:style {:height "400px"}}
        [simple-table
         [:domain/name]
         (sort-by :domain/name @domain)
@@ -96,7 +96,7 @@
         on-delete  #(when (js/confirm (str "Are you sure you want to delete the domain set " (:domain-set/name %) "?"))
                       (rf/dispatch [:api/delete-entity %]))]
     [:div
-     {:style {:height "400px" :overflow-y "scroll"}}
+     {:style {:height "400px"}}
      [simple-table
       [:domain-set/name]
       (sort-by :domain-set/name @domain-set)

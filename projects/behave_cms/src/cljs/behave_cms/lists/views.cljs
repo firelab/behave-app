@@ -26,21 +26,31 @@
       :on-delete on-delete}]))
 
 (defn list-options-table [list]
-  (let [list-options (rf/subscribe [:pull-children :list/options (:db/id list)])
-        on-select #(rf/dispatch [:state/set-state :list-option %])
-        on-delete #(when (js/confirm (str "Are you sure you want to delete the list " (:list-option/name %) "?"))
-                     (rf/dispatch [:api/delete-entity %]))]
+  (let [list-options (->> (rf/subscribe [:pull-children :list/options (:db/id list)])
+                          deref
+                          (map (fn [option]
+                                 (update option :list-option/color-tag
+                                         #(:color-tag/id @(rf/subscribe [:entity (:db/id %)]))))))
+        on-select    #(rf/dispatch [:state/set-state :list-option %])
+        on-delete    #(when (js/confirm (str "Are you sure you want to delete the list " (:list-option/name %) "?"))
+                        (rf/dispatch [:api/delete-entity %]))]
     [simple-table
-     [:list-option/name :list-option/value :list-option/order :list-option/default :list-option/tags]
-     (sort-by :list-option/order @list-options)
-     {:on-select on-select
-      :on-delete on-delete
-      :on-increase #(rf/dispatch [:api/reorder % @list-options :list-option/order :inc])
-      :on-decrease #(rf/dispatch [:api/reorder % @list-options :list-option/order :dec])}]))
+     [:list-option/name :list-option/value :list-option/order
+      :list-option/default :list-option/tags :list-option/color-tag]
+     (sort-by :list-option/order list-options)
+     {:on-select   on-select
+      :on-delete   on-delete
+      :on-increase #(rf/dispatch [:api/reorder % list-options :list-option/order :inc])
+      :on-decrease #(rf/dispatch [:api/reorder % list-options :list-option/order :dec])}]))
 
 (defn list-option-form [list]
-  (let [list-options (rf/subscribe [:pull-children :list/options (:db/id list)])
-        *list-option (rf/subscribe [:state :list-option])]
+  (let [list-options      (rf/subscribe [:pull-children :list/options (:db/id list)])
+        *list-option      (rf/subscribe [:state :list-option])
+        color-tag-options (mapv (fn [{eid :db/id}]
+                                  (let [color-tag @(rf/subscribe [:entity eid])]
+                                    {:value eid
+                                     :label (:color-tag/id color-tag)}))
+                                (:list/color-tags list))]
     [:<>
      [:h3 (if @*list-option "Edit Option" "Add Option")]
      [entity-form {:entity       :list-options
@@ -57,9 +67,13 @@
                                   {:label     "Index"
                                    :required? true
                                    :field-key :list-option/value}
-                                  {:label     "Tags"
+                                  {:label     "Filter Tags"
                                    :type      :keywords
                                    :field-key :list-option/tags}
+                                  {:label     "Color Tag"
+                                   :type      :select
+                                   :options   color-tag-options
+                                   :field-key :list-option/color-tag}
                                   {:label     "Hide Option?"
                                    :type      :checkbox
                                    :field-key :list-option/hide?
@@ -86,22 +100,23 @@
                              :required? true
                              :field-key :list/name}]}]]]
    [:div.row
-    [:div.col-6
+    [:div.col-7
      [:h4 "All Options"]
-     [list-options-table list]]
-    [:div.col-6
+     [:div {:style {:height "800px"}}
+      [list-options-table list]]]
+    [:div.col-5
      [list-option-form list]]]])
 
 (defn list-lists-page [_]
-(let [loaded? (rf/subscribe [:state :loaded?])
-      *list   (rf/subscribe [:state :list])]
+  (let [loaded? (rf/subscribe [:state :loaded?])
+        *list   (rf/subscribe [:state :list])]
     (if @loaded?
       [:div.container
        [:div.row.my-3
         [:div.col-12
          [:h3 "Lists"]
          [:div
-          {:style {:height "400px" :overflow-y "scroll"}}
+          {:style {:height "400px"}}
           [lists-table]]]]
        [list-form @*list]]
       [:div "Loading..."])))
