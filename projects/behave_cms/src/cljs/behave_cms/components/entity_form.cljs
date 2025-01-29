@@ -78,6 +78,14 @@
      :on-select #(on-change (u/input-value %))
      :selected  @state}]])
 
+(defmethod field-input :ref-select [{:keys [label options on-change state]}]
+  [:div.mb-3
+   [dropdown
+    {:label     label
+     :options   options
+     :on-select #(on-change (long (u/input-value %)))
+     :selected  (:db/id @state)}]])
+
 (defmethod field-input :checkbox [{:keys [label options on-change state]}]
   (let [group-label label]
     [:div.mb-3

@@ -71,7 +71,7 @@
                                    :type      :keywords
                                    :field-key :list-option/tags}
                                   {:label     "Color Tag"
-                                   :type      :select
+                                   :type      :ref-select
                                    :options   color-tag-options
                                    :field-key :list-option/color-tag}
                                   {:label     "Hide Option?"
