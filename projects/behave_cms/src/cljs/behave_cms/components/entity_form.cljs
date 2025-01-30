@@ -23,7 +23,6 @@
 ;;; Helpers
 
 (defn- upsert-entity! [data]
-  (prn "upsert-entity:" data)
   (let [rf-event (if (nil? (:db/id data)) :api/create-entity :api/update-entity)]
     (rf/dispatch [rf-event data])))
 
@@ -256,7 +255,6 @@
                                                           "")]
                                              result)))
         on-submit (u/on-submit #(let [state @(rf/subscribe [:state [:editors entity]])]
-                                  (prn "entity form on submit:" state)
                                   (cond-> state
                                     id
                                     (merge {:db/id id})
