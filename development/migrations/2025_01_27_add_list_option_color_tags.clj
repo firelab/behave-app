@@ -8,6 +8,11 @@
 ;; Overview
 ;; ===========================================================================================================
 
+;; 1.Add new reference attribute to list entities (:list/color-tags)
+;; 2. Update existing list options for the "SurfaceFuelModels" list with these color tags
+;; 3. Add missing filter tags and enable previously disabled mediterranean and Chapparal & Coastal Sage
+;;    Shrub fuel models
+
 ;; ===========================================================================================================
 ;; Initialize
 ;; ===========================================================================================================
