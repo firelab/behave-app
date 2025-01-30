@@ -49,7 +49,7 @@
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :list/color-tags
-    :db/doc         ""
+    :db/doc         "Lists's color tags."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many
     :db/isComponent true}
@@ -113,17 +113,16 @@
 
    ;; List Color tags
    {:db/ident       :color-tag/id
-    :db/doc         ""
+    :db/doc         "Color tag's keyword id."
     :db/valueType   :db.type/keyword
     :db/cardinality :db.cardinality/one
     :db/unique      :db.unique/identity}
 
    {:db/ident       :color-tag/translation-key
-    :db/doc         ""
+    :db/doc         "Color tag's description translation key."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one
-    :db/unique      :db.unique/identity}
-   ])
+    :db/unique      :db.unique/identity}])
 
 ;;; Tests
 
