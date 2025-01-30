@@ -26,18 +26,22 @@
 ;; Payload
 ;; ===========================================================================================================
 
+#_{:clj-kondo/ignore [:missing-docstring]}
 (def standard
   #{"1" "2" "3" "101" "102" "103" "104" "105" "106" "107" "108" "109" "121" "122" "123" "124" "4" "5" "6" "7" "141"
     "142" "143" "144" "145" "146" "147" "148" "149" "161" "162" "163" "164" "165" "8" "9" "10" "181" "182" "183"
     "184" "185" "186" "187" "188" "189" "11" "12" "13" "201" "202" "203" "204" "91" "92" "93" "98" "99"})
 
+#_{:clj-kondo/ignore [:missing-docstring]}
 (def mediterranean
   #{"110" "111" "155" "156" "157" "158" "159" "166" "167" "168" "169" "170" "171" "172"
     "190" "191" "192" "193"})
 
+#_{:clj-kondo/ignore [:missing-docstring]}
 (def chapparal-and-coastal-sage-shrub
   #{"150" "151" "152" "153" "154"})
 
+#_{:clj-kondo/ignore [:missing-docstring]}
 (def list-options
   (:list/options (d/entity (d/db conn) (sm/name->eid conn :list/name "SurfaceFuelModels"))))
 
@@ -52,20 +56,25 @@
                        {:color-tag/id              :chapparal-and-coastal-sage-shrub
                         :color-tag/translation-key "behaveplus:list:surfacefuelmodels:color-tag:chaparral-and-coastal-sage-shrub"}])}])
 
+#_{:clj-kondo/ignore [:missing-docstring]}
 (def grass
   #{"110" "111"})
 
+#_{:clj-kondo/ignore [:missing-docstring]}
 (def shrub
   #{"150" "151" "152" "153" "154" "155" "156" "157" "158" "159"})
 
+#_{:clj-kondo/ignore [:missing-docstring]}
 (def timber-understory
   #{"166" "167" "168" "169" "170" "171" "172"})
 
+#_{:clj-kondo/ignore [:missing-docstring]}
 (def timber-litter
   #{"190" "191" "192" "193"})
 
 
 
+#_{:clj-kondo/ignore [:missing-docstring]}
 (def add-new-translations-payload
   (sm/build-translations-payload
    conn
