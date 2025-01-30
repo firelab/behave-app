@@ -26,7 +26,7 @@
     "142" "143" "144" "145" "146" "147" "148" "149" "161" "162" "163" "164" "165" "8" "9" "10" "181" "182" "183"
     "184" "185" "186" "187" "188" "189" "11" "12" "13" "201" "202" "203" "204" "91" "92" "93" "98" "99"})
 
-(def mediteranean
+(def mediterranean
   #{"110" "111" "155" "156" "157" "158" "159" "166" "167" "168" "169" "170" "171" "172"
     "190" "191" "192" "193"})
 
@@ -42,8 +42,8 @@
     :list/color-tags (sm/postwalk-insert
                       [{:color-tag/id              :standard
                         :color-tag/translation-key "behaveplus:list:surfacefuelmodels:color-tag:standard"}
-                       {:color-tag/id              :mediterannean
-                        :color-tag/translation-key "behaveplus:list:surfacefuelmodels:color-tag:mediteranean"}
+                       {:color-tag/id              :mediterranean
+                        :color-tag/translation-key "behaveplus:list:surfacefuelmodels:color-tag:mediterranean"}
                        {:color-tag/id              :chapparal-and-coastal-sage-shrub
                         :color-tag/translation-key "behaveplus:list:surfacefuelmodels:color-tag:chaparral-and-coastal-sage-shrub"}])}])
 
@@ -65,7 +65,7 @@
   (sm/build-translations-payload
    conn
    {"behaveplus:list:surfacefuelmodels:color-tag:standard"                         "Standard Fuel Models (Anderson, Scott and Burgan)"
-    "behaveplus:list:surfacefuelmodels:color-tag:mediteranean"                     "Mediterannean Fuel Models (Fernandes et al; Portugal)"
+    "behaveplus:list:surfacefuelmodels:color-tag:mediterranean"                    "Mediterranean Fuel Models (Fernandes et al; Portugal)"
     "behaveplus:list:surfacefuelmodels:color-tag:chaparral-and-coastal-sage-shrub" "Chapparral & Coastal Sage Shrub (Weise, Southern CA)"}))
 
 (def add-mising-tags-payload
@@ -106,27 +106,27 @@
            (filter #(contains? standard (:list-option/value %)))
            (map (fn [{eid :db/id}]
                   {:db/id                 eid
-                   :list-option/hide? false
+                   :list-option/hide?     false
                    :list-option/color-tag (sm/t-key->eid conn "behaveplus:list:surfacefuelmodels:color-tag:standard")}))))
 
-    (def mediteranean-list-options-payload
+    (def mediterranean-list-options-payload
       (->> list-options
-           (filter #(contains? mediteranean (:list-option/value %)))
+           (filter #(contains? mediterranean (:list-option/value %)))
            (map (fn [{eid :db/id}]
                   {:db/id                 eid
-                   :list-option/hide? false
-                   :list-option/color-tag (sm/t-key->eid conn "behaveplus:list:surfacefuelmodels:color-tag:mediteranean")}))))
+                   :list-option/hide?     false
+                   :list-option/color-tag (sm/t-key->eid conn "behaveplus:list:surfacefuelmodels:color-tag:mediterranean")}))))
 
     (def chapparal-and-coastal-sage-shrub-payload
       (->> list-options
            (filter #(contains? chapparal-and-coastal-sage-shrub (:list-option/value %)))
            (map (fn [{eid :db/id}]
                   {:db/id                 eid
-                   :list-option/hide? false
+                   :list-option/hide?     false
                    :list-option/color-tag (sm/t-key->eid conn "behaveplus:list:surfacefuelmodels:color-tag:chaparral-and-coastal-sage-shrub")}))))
 
     (def tx-data-2 (d/transact conn (concat standard-list-options-payload
-                                            mediteranean-list-options-payload
+                                            mediterranean-list-options-payload
                                             chapparal-and-coastal-sage-shrub-payload))))
   )
 
