@@ -1014,6 +1014,7 @@ body {
 .help-area__content img {
     height: auto;
     width: 100%;
+    cursor: pointer;
 }
 
 /* Highlight */
@@ -1303,3 +1304,36 @@ body {
 }
 
 /* - End Container Close Button - */
+
+
+/* - Image Viewer - */
+
+.app-shell .modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 1001;
+  transform: translate(-50%, -50%);
+}
+
+.modal__body > .image-viewer {
+  padding: 10px;
+}
+
+.modal__body > .image-viewer .p {
+  padding-top: 10px;
+  font-weight: bold
+}
+
+.app-shell .modal__background {
+  background: black;
+  opacity: 0.4;
+  z-index: 1000;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0%;
+  left: 0%;
+}
+
+/* - End Image Viewer - */
