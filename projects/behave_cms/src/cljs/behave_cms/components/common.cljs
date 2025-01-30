@@ -276,8 +276,7 @@
    [:table.table.table-hover
     {:style {:border-collapse "collapse"}}
     [:thead
-     {:style {:width      "100%"
-              :background "white"
+     {:style {:background "white"
               :position   "sticky"
               :top        "0"}}
      [:tr

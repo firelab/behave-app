@@ -23,6 +23,7 @@
 ;;; Helpers
 
 (defn- upsert-entity! [data]
+  (prn "upsert-entity:" data)
   (let [rf-event (if (nil? (:db/id data)) :api/create-entity :api/update-entity)]
     (rf/dispatch [rf-event data])))
 
@@ -186,6 +187,27 @@
      :value         @state
      :on-change     #(on-change (keyword (u/input-value %)))}]])
 
+(defmethod field-input :keyword
+  [{:keys [label autocomplete disabled? autofocus? required? placeholder on-change state]
+    :or   {disabled? false required? false}}]
+  [:div.my-3
+   [:label.form-label {:for (u/sentence->kebab label)} label]
+   [:div.field-input__keywords
+    {:style {:display        :flex
+             :flex-flow      "row wrap"
+             :flex-direction :row
+             :margin-bottom  "5px"}}]
+   [:input.form-control
+    {:auto-complete autocomplete
+     :auto-focus    autofocus?
+     :disabled      disabled?
+     :required      required?
+     :placeholder   placeholder
+     :id            (u/sentence->kebab label)
+     :type          type
+     :value         @state
+     :on-change     #(on-change (keyword (u/input-value %)))}]])
+
 
 ;;; Public Fns
 
@@ -234,6 +256,7 @@
                                                           "")]
                                              result)))
         on-submit (u/on-submit #(let [state @(rf/subscribe [:state [:editors entity]])]
+                                  (prn "entity form on submit:" state)
                                   (cond-> state
                                     id
                                     (merge {:db/id id})
