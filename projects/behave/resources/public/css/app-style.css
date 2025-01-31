@@ -32,7 +32,7 @@
   --themed-multi-select-option-color: var(--yellow-3);
 }
 
-[data-color-tag="mediterannean" i] {
+[data-color-tag="mediterranean" i] {
   --themed-multi-select-option-color: var(--darkgreen-1)
 }
 
