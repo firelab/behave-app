@@ -36,8 +36,6 @@
                  "bases/datomic_store/src"
                  "bases/datom_store/src"]
 
-   ;;test
-
 
    :extra-deps {;; Clojure Deps
                 bk/ring-gzip                            {:mvn/version "0.3.0"}
