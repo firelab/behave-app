@@ -210,7 +210,7 @@
                                      @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
                                      "Values:")
                     :placeholder   (when repeat-group? "Value")
-                    :default-value (first @value)
+                    :default-value @value
                     :on-change     #(reset! value-atom (input-value %))
                     :on-blur       #(upsert-input ws-uuid group-uuid repeat-id gv-uuid (input-value %))
                     :required?     true}]]))
