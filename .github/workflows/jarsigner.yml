@@ -6,19 +6,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
       - name: Sign JAR
         uses: addnab/docker-run-action@v3
         with:
           image: rjsheperd/jarsigner:latest
-          options: |
-            -e SM_API_KEY=$SM_API_KEY \
-            -e SM_HOST=$SM_HOST \
-            -e SM_CLIENT_CERT_FILE=$SM_CLIENT_CERT_FILE \
-            -e SM_CLIENT_CERT_PASSWORD=$SM_CLIENT_CERT_PASSWORD \
-            -e SM_KEYPAIR=$SM_KEYPAIR
           run: |
             echo $SM_API_KEY
             echo $SM_KEYPAIR
