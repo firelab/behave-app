@@ -1,89 +1,79 @@
 name: Build and Sign JAR
-
-on:
-  push
-
+on: push
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Prepare java
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'temurin'
-        java-version: '21'
+      - name: Prepare java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
 
-    - name: Install clojure tools
-      uses: DeLaGuardo/setup-clojure@13.1
-      with:
-        cli: 'latest'
+      - name: Install clojure tools
+        uses: DeLaGuardo/setup-clojure@13.1
+        with:
+          cli: 'latest'
 
-    - name: Setup Babashka
-      uses: turtlequeue/setup-babashka@v1.7.0
-      with:
-        babashka-version: 1.3.189
+      - name: Setup Babashka
+        uses: turtlequeue/setup-babashka@v1.7.0
+        with:
+          babashka-version: 1.3.189
 
-    - name: Build JAR
-      env:
-        VMS_URL: ${{ secrets.VMS_URL }}
-        VMS_AUTH_TOKEN: ${{ secrets.VMS_SECRET_TOKEN }}
-      run: |
-        cd projects/behave
-        clojure -X:download-vms :url "$VMS_URL" :auth-token "$VMS_AUTH_TOKEN"
-        bb build-js
-        mv resources/config.standalone.edn resources/config.edn
-        bb uber
+      - name: Build JAR
+        env:
+          VMS_URL: ${{ secrets.VMS_URL }}
+          VMS_AUTH_TOKEN: ${{ secrets.VMS_SECRET_TOKEN }}
+        run: |
+          cd projects/behave
+          clojure -X:download-vms :url "$VMS_URL" :auth-token "$VMS_AUTH_TOKEN"
+          bb build-js
+          mv resources/config.standalone.edn resources/config.edn
+          bb uber
 
-    - name: Verify assets
-      run: ls -l projects/behave/target/*.jar
+      - name: Verify assets
+        run: ls -l projects/behave/target/*.jar
 
-    - name: Sign JAR
-      uses: addnab/docker-run-action@v3
-      env:
-        SM_API_KEY: ${{ secrets.SM_API_KEY }}
-        SM_HOST: ${{ secrets.SM_HOST }}
-        SM_CLIENT_CERT_FILE: ${{ secrets.SM_CLIENT_CERT_FILE }}
-        SM_CLIENT_CERT_PASSWORD: ${{ secrets.SM_CLIENT_CERT_PASSWORD }}
-        SM_KEYPAIR: ${{ secrets.SM_KEYPAIR }}
-      with:
-         image: rjsheperd/jarsigner:latest
-         shell: bash
-         options: |
-           -v projects/behave/target/:/app/target/ \
-           -e SM_API_KEY=$SM_API_KEY \
-           -e SM_HOST=$SM_HOST \
-           -e SM_CLIENT_CERT_FILE=$SM_CLIENT_CERT_FILE \
-           -e SM_CLIENT_CERT_PASSWORD=$SM_CLIENT_CERT_PASSWORD \
-           -e SM_KEYPAIR=$SM_KEYPAIR
-         run: |
-           # export SM_API_KEY=$SM_API_KEY
-           # export SM_HOST=$SM_HOST
-           # export SM_CLIENT_CERT_FILE=$SM_CLIENT_CERT_FILE
-           # export SM_CLIENT_CERT_PASSWORD=$SM_CLIENT_CERT_PASSWORD
-           # export SM_KEYPAIR=$SM_KEYPAIR
-           JAR=$(ls /app/target/*.jar)
-           jarsigner -J-Djava.class.path=/app/lib/digicert-jce-1.0.jar:/app/lib/bcprov-jdk18on-1.77.jar \
-          -keystore NONE \
-          -storetype DIGICERT \
-          -storepass changeit \
-          -providerClass com.digicert.jce.Provider \
-          -signedjar "${JAR%.*}-signed.jar"\
-          -sigalg SHA256withRSA \
-          -tsa http://timestamp.digicert.com \
-          $JAR \
-          $SM_KEYPAIR
+      - name: Sign JAR
+        uses: addnab/docker-run-action@v3
+        env:
+          SM_API_KEY: ${{ secrets.SM_API_KEY }}
+          SM_HOST: ${{ secrets.SM_HOST }}
+          SM_CLIENT_CERT_FILE: ${{ secrets.SM_CLIENT_CERT_FILE }}
+          SM_CLIENT_CERT_PASSWORD: ${{ secrets.SM_CLIENT_CERT_PASSWORD }}
+          SM_KEYPAIR: ${{ secrets.SM_KEYPAIR }}
+        with:
+          image: rjsheperd/jarsigner:latest
+          options: |
+            -v projects/behave/target/:/app/target/ \
+            -e SM_API_KEY=$SM_API_KEY \
+            -e SM_HOST=$SM_HOST \
+            -e SM_CLIENT_CERT_FILE=$SM_CLIENT_CERT_FILE \
+            -e SM_CLIENT_CERT_PASSWORD=$SM_CLIENT_CERT_PASSWORD \
+            -e SM_KEYPAIR=$SM_KEYPAIR
+            run: |
+              JAR=$(ls /app/target/*.jar)
+              jarsigner -J-Djava.class.path=/app/lib/digicert-jce-1.0.jar:/app/lib/bcprov-jdk18on-1.77.jar \
+              -keystore NONE \
+              -storetype DIGICERT \
+              -storepass changeit \
+              -providerClass com.digicert.jce.Provider \
+              -signedjar "${JAR%.*}-signed.jar"\
+              -sigalg SHA256withRSA \
+              -tsa http://timestamp.digicert.com \
+              $JAR \
+              $SM_KEYPAIR
 
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4
-      env:
-        SHA: $(git rev-parse --short HEAD)
-      with:
-        name: behave7-$SHA.jar
-        path: projects/behave/target/*-signed.jar
-        retention-days: 90
-        compression-level: 0
-        overwrite: true
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        env:
+          SHA: $(git rev-parse --short HEAD)
+        with:
+          name: behave7-$SHA.jar
+          path: projects/behave/target/*-signed.jar
+          retention-days: 90
+          compression-level: 0
+          overwrite: true
