@@ -27,30 +27,15 @@ jobs:
       with:
         babashka-version: 1.3.189
 
-   - name: Build JAR
-     env:
-       VMS_URL: ${{ secrets.VMS_URL }}
-       VMS_AUTH_TOKEN: ${{ secrets.VMS_SECRET_TOKEN }}
-     run: |
-       cd projects/behave
-       clj -X:download-vms :url $VMS_URL :auth-token $VMS_AUTH_TOKEN
-       bb build-js
-       bb uber
-
-   # - name: Build JAR
-   #   uses: addnab/docker-run-action@v3
-   #   with:
-   #     image: rjsheperd/clojure-bb-bun:latest
-   #     options: -v ${{ github.workspace }}:/behave-polylith
-   #     env:
-   #       VMS_URL: ${{ secrets.VMS_URL }}
-   #       VMS_AUTH_TOKEN: ${{ secrets.VMS_SECRET_TOKEN }}
-   #     run: |
-   #       cd /behave-polylith/projects/behave
-   #       clj -X:download-vms :url $URL :auth-token $AUTH_TOKEN
-   #       bb build-js
-   #       git config --global --add safe.directory /behave-polylith
-   #       bb uber
+    - name: Build JAR
+      env:
+        VMS_URL: ${{ secrets.VMS_URL }}
+        VMS_AUTH_TOKEN: ${{ secrets.VMS_SECRET_TOKEN }}
+      run: |
+        cd projects/behave
+        clj -X:download-vms :url $VMS_URL :auth-token $VMS_AUTH_TOKEN
+        bb build-js
+        bb uber
 
     - name: Verify assets
       run: ls -l projects/behave/target/*.jar
