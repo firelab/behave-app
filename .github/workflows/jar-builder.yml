@@ -46,27 +46,24 @@ jobs:
           image: rjsheperd/jarsigner:latest
           shell: bash
           options: |
-            -v ${{ github.workspace }}/projects/behave/target/:/app/target/
             -e SM_API_KEY=${{ secrets.SM_API_KEY }}
             -e SM_KEYPAIR=${{ secrets.SM_KEYPAIR }}
-            #> -e SM_HOST=${{ secrets.SM_HOST }}
-            #> -e SM_CLIENT_CERT_FILE=${{ secrets.SM_CLIENT_CERT_FILE }}
-            #> -e SM_CLIENT_CERT_PASSWORD=${{ secrets.SM_CLIENT_CERT_PASSWORD }}
+            -v ${{ github.workspace }}:/app/code
           run: |
             echo $SM_API_KEY
             echo $SM_KEYPAIR
-            ls -lha /app/target/
+            ls -lha /app/code/projects/behave/target/
 
-              # JAR=$(ls /app/target/*.jar)
-              # jarsigner -J-Djava.class.path=/app/lib/digicert-jce-1.0.jar:/app/lib/bcprov-jdk18on-1.77.jar \
-              # -keystore NONE \
-              # -storetype DIGICERT \
-              # -storepass changeit \
-              # -providerClass com.digicert.jce.Provider \
-              # -signedjar "${JAR%.*}-signed.jar"\
-              # -sigalg SHA256withRSA \
-              # -tsa http://timestamp.digicert.com \
-              # $JAR \
+            # JAR=$(ls /app/target/*.jar)
+            # jarsigner -J-Djava.class.path=/app/lib/digicert-jce-1.0.jar:/app/lib/bcprov-jdk18on-1.77.jar \
+            # -keystore NONE \
+            # -storetype DIGICERT \
+            # -storepass changeit \
+            # -providerClass com.digicert.jce.Provider \
+            # -signedjar "${JAR%.*}-signed.jar"\
+            # -sigalg SHA256withRSA \
+            # -tsa http://timestamp.digicert.com \
+            # $JAR \
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
