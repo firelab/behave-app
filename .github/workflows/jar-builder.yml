@@ -35,6 +35,7 @@ jobs:
         cd projects/behave
         clojure -X:download-vms :url "$VMS_URL" :auth-token "$VMS_AUTH_TOKEN"
         bb build-js
+        mv resources/config.standalone.edn resources/config.edn
         bb uber
 
     - name: Verify assets
