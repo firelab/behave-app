@@ -18,9 +18,9 @@ jobs:
         java-version: '21'
 
     - name: Install clojure tools
-      uses: DeLaGuardo/setup-clojure@13.0
+      uses: DeLaGuardo/setup-clojure@13.1
       with:
-        cli: 1.12.0
+        cli: 'latest'
 
     - name: Setup Babashka
       uses: turtlequeue/setup-babashka@v1.7.0
