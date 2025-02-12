@@ -51,6 +51,7 @@ jobs:
           SM_KEYPAIR: ${{ secrets.SM_KEYPAIR }}
         with:
           image: rjsheperd/jarsigner:latest
+          shell: bash
           options: |
             -v ${{ github.workspace }}/projects/behave/target/:/app/target/ \
             -e SM_API_KEY=$SM_API_KEY \

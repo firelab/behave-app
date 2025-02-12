@@ -11,7 +11,7 @@ jobs:
         with:
           image: rjsheperd/jarsigner:latest
           options: |
-            -e SM_API_KEY=${{ secrets.SM_API_KEY }} \
+            -e SM_API_KEY=${{ secrets.SM_API_KEY }}
             -e SM_KEYPAIR=${{ secrets.SM_KEYPAIR }}
           shell: bash
           run: |
