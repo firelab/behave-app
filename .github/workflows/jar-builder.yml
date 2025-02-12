@@ -17,7 +17,7 @@ jobs:
         image: rjsheperd/clojure-bb-bun:latest
         options: -v ${{ github.workspace }}:/behave-polylith
         run: |
-          cd projects/behave
+          cd /behave-polylith/projects/behave
           bb build-js
 
     - name: Verify assets
