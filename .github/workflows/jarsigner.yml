@@ -10,6 +10,7 @@ jobs:
         uses: addnab/docker-run-action@v3
         with:
           image: rjsheperd/jarsigner:latest
+          options: |
+            -e SM_API_KEY=${{ secrets.SM_API_KEY }}
           run: |
             echo $SM_API_KEY
-            echo $SM_KEYPAIR
