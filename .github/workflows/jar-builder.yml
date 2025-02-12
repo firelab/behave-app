@@ -1,8 +1,7 @@
 name: Build and Sign JAR
 
-on:
-  push:
-    branches: [main]
+on: push
+#: branches: [main]
 
 jobs:
   build:
@@ -43,22 +42,16 @@ jobs:
 
       - name: Sign JAR
         uses: addnab/docker-run-action@v3
-        env:
-          SM_API_KEY: ${{ secrets.SM_API_KEY }}
-          SM_HOST: ${{ secrets.SM_HOST }}
-          SM_CLIENT_CERT_FILE: ${{ secrets.SM_CLIENT_CERT_FILE }}
-          SM_CLIENT_CERT_PASSWORD: ${{ secrets.SM_CLIENT_CERT_PASSWORD }}
-          SM_KEYPAIR: ${{ secrets.SM_KEYPAIR }}
         with:
           image: rjsheperd/jarsigner:latest
           shell: bash
           options: |
-            -v ${{ github.workspace }}/projects/behave/target/:/app/target/ \
-            -e SM_API_KEY=$SM_API_KEY \
-            -e SM_HOST=$SM_HOST \
-            -e SM_CLIENT_CERT_FILE=$SM_CLIENT_CERT_FILE \
-            -e SM_CLIENT_CERT_PASSWORD=$SM_CLIENT_CERT_PASSWORD \
-            -e SM_KEYPAIR=$SM_KEYPAIR
+            -v ${{ github.workspace }}/projects/behave/target/:/app/target/
+            -e SM_API_KEY=${{ secrets.SM_API_KEY }}
+            -e SM_KEYPAIR=${{ secrets.SM_KEYPAIR }}
+            #> -e SM_HOST=${{ secrets.SM_HOST }}
+            #> -e SM_CLIENT_CERT_FILE=${{ secrets.SM_CLIENT_CERT_FILE }}
+            #> -e SM_CLIENT_CERT_PASSWORD=${{ secrets.SM_CLIENT_CERT_PASSWORD }}
           run: |
             echo $SM_API_KEY
             echo $SM_KEYPAIR
