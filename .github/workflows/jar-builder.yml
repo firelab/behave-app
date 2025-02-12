@@ -59,7 +59,7 @@ jobs:
             ls -lha
 
             # Get JAR file
-            cd /app/projects/behave/target/
+            cd /app/code/projects/behave/target/
             JAR=$(ls *.jar)
             echo $JAR
 
