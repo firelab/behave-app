@@ -18,7 +18,9 @@ jobs:
         options: -v ${{ github.workspace }}:/behave-polylith
         run: |
           cd /behave-polylith/projects/behave
+          clj -X:download-vms :url ${{ secrets.VMS_URL }} :auth-token ${{ secrets.VMS_SECRET_TOKEN }}
           bb build-js
+          bb uber
 
     - name: Verify assets
-      run: ls -l projects/behave/resources/public/cljs
+      run: ls -l projects/behave/target/*.jar
