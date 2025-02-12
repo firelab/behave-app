@@ -1,0 +1,24 @@
+name: Build and Sign JAR
+
+on:
+  push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Build JAR
+      uses: addnab/docker-run-action@v3
+      with:
+        image: rjsheperd/clojure-bb-bun:latest
+        options: -v ${{ github.workspace }}:/behave-polylith
+        run: |
+          cd projects/behave
+          bb build-js
+
+    - name: Verify assets
+      run: ls -l projects/behave/resources/public/cljs
