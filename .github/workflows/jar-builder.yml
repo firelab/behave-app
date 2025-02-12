@@ -1,5 +1,9 @@
 name: Build and Sign JAR
-on: push
+
+on:
+  push:
+    branches: [main]
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -54,10 +58,10 @@ jobs:
             -e SM_CLIENT_CERT_FILE=$SM_CLIENT_CERT_FILE \
             -e SM_CLIENT_CERT_PASSWORD=$SM_CLIENT_CERT_PASSWORD \
             -e SM_KEYPAIR=$SM_KEYPAIR
-            run: |
-              echo $SM_API_KEY
-              echo $SM_KEYPAIR
-              ls -lha /app/target/
+          run: |
+            echo $SM_API_KEY
+            echo $SM_KEYPAIR
+            ls -lha /app/target/
 
               # JAR=$(ls /app/target/*.jar)
               # jarsigner -J-Djava.class.path=/app/lib/digicert-jce-1.0.jar:/app/lib/bcprov-jdk18on-1.77.jar \
