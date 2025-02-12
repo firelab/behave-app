@@ -33,7 +33,7 @@ jobs:
         VMS_AUTH_TOKEN: ${{ secrets.VMS_SECRET_TOKEN }}
       run: |
         cd projects/behave
-        clj -X:download-vms :url $VMS_URL :auth-token $VMS_AUTH_TOKEN
+        clojure -X:download-vms :url $VMS_URL :auth-token $VMS_AUTH_TOKEN
         bb build-js
         bb uber
 
