@@ -56,12 +56,10 @@ jobs:
             # Decode cert
             echo $SM_CLIENT_CERT_FILE_BASE_64 | decode > behave.p12
             export SM_CLIENT_CERT_FILE=/app/behave.p12
-            ls -lha
 
             # Get JAR file
             cd /app/code/projects/behave/target/
             JAR=$(ls *.jar)
-            echo $JAR
 
             # Sign JAR
             jarsigner -J-Djava.class.path=/app/lib/digicert-jce-1.0.jar:/app/lib/bcprov-jdk18on-1.77.jar \
@@ -73,7 +71,7 @@ jobs:
             -sigalg SHA256withRSA \
             -tsa http://timestamp.digicert.com \
             $JAR \
-            $SM_KEYPAIR
+            "$SM_KEYPAIR"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
