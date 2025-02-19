@@ -14,7 +14,7 @@
 #include "mortality_equation_table.h"
 #include "SIGCollections.h"
 
-SIGMortality::SIGMortality(SpeciesMasterTable& speciesMasterTable)
+SIGMortality::SIGMortality(SpeciesMasterTable<SpeciesMasterTableRecord>& speciesMasterTable)
     : Mortality(speciesMasterTable),
       heading_(speciesMasterTable),
       backing_(speciesMasterTable),

@@ -45,7 +45,7 @@ class SIGBehaveRun
 {
 public:
     SIGBehaveRun() = delete; // There is no default constructor
-    explicit SIGBehaveRun(SIGFuelModels& fuelModels, SpeciesMasterTable& speciesMasterTable);
+    SIGBehaveRun(SIGFuelModels& fuelModels, SpeciesMasterTable<SpeciesMasterTableRecord>& speciesMasterTable);
 
     SIGBehaveRun(const SIGBehaveRun& rhs);
     SIGBehaveRun& operator=(const SIGBehaveRun& rhs);
@@ -104,5 +104,5 @@ public:
     SIGFuelModels* fuelModels_;
 
     // Tree species data for Mortality Module
-    SpeciesMasterTable* speciesMasterTable_;
+    SpeciesMasterTable<SpeciesMasterTableRecord>* speciesMasterTable_;
 };

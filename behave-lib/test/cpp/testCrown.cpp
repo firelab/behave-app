@@ -56,7 +56,7 @@ int main(int argc, char * argv[])
   FuelModels fuelModels;
   CrownTestInputs crownInputs;
   CrownTestOutputs crownOutputs;
-  SpeciesMasterTable mortalitySpeciesTable;
+  SpeciesMasterTableRegion mortalitySpeciesTable;
   BehaveRun behaveRun(fuelModels, mortalitySpeciesTable);
 
   std::string csvFilename{argv[1]};

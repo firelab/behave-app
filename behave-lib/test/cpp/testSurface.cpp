@@ -97,7 +97,7 @@ int main(int argc, char * argv[])
   FuelModels fuelModels;
   SurfaceTestInputs surfaceInputs;
   SurfaceTestOutputs surfaceOutputs;
-  SpeciesMasterTable mortalitySpeciesTable;
+  SpeciesMasterTableRegion mortalitySpeciesTable;
   BehaveRun behaveRun(fuelModels, mortalitySpeciesTable);
 
   std::string csvFilename{argv[1]};

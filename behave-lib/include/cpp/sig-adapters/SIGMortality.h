@@ -19,7 +19,7 @@
 class SIGMortality : public Mortality {
 public:
   SIGMortality() = delete; // There is no default constructor
-  explicit SIGMortality(SpeciesMasterTable &speciesMasterTable);
+  SIGMortality(SpeciesMasterTable<SpeciesMasterTableRecord> &speciesMasterTable);
   SIGMortality(const SIGMortality &rhs);
 
   // Init Methods

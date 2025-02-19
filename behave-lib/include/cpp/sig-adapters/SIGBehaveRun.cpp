@@ -28,7 +28,7 @@
 
 #include "SIGBehaveRun.h"
 
-SIGBehaveRun::SIGBehaveRun(SIGFuelModels& fuelModels, SpeciesMasterTable& speciesMasterTable)
+SIGBehaveRun::SIGBehaveRun(SIGFuelModels& fuelModels, SpeciesMasterTable<SpeciesMasterTableRecord>& speciesMasterTable)
     : surface(fuelModels),
     crown(fuelModels),
     mortality(speciesMasterTable)
