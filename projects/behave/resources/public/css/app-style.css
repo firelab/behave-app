@@ -28,6 +28,18 @@
   --themed-header-background-color: var(--crown-secondary);
 }
 
+[data-color-tag="standard" i] {
+  --themed-multi-select-option-color: var(--yellow-3);
+}
+
+[data-color-tag="mediterranean" i] {
+  --themed-multi-select-option-color: var(--darkgreen-1)
+}
+
+[data-color-tag="chapparal-and-coastal-sage-shrub" i] {
+  --themed-multi-select-option-color: var(--orange-4);
+}
+
 body {
   background-color: var(--gray-2);
 }

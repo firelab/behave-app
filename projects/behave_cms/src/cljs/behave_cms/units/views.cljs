@@ -42,7 +42,7 @@
              (rf/dispatch [:api/delete-entity %]))
           ]
       [:div
-       {:style {:height "400px" :overflow-y "scroll"}}
+       {:style {:height "400px"}}
        [simple-table
         [:unit/name]
         (sort-by :unit/name @units)
@@ -77,7 +77,7 @@
         on-delete  #(when (js/confirm (str "Are you sure you want to delete the dimension " (:dimension/name %) "?"))
                       (rf/dispatch [:api/delete-entity %]))]
     [:div
-     {:style {:height "400px" :overflow-y "scroll"}}
+     {:style {:height "400px"}}
      [simple-table
       [:dimension/name]
       (sort-by :dimension/name @dimensions)
