@@ -651,6 +651,10 @@ body {
   background-color: var(--darkblue-3);
 }
 
+.wizard-group__inputs__delete {
+  margin-top: 5px;
+}
+
 /* -- Wizard review -- */
 
 .wizard-review {

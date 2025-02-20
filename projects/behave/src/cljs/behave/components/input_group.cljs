@@ -234,7 +234,13 @@
          [:div.wizard-group__inputs
           (for [variable variables]
             ^{:key (:db/id variable)}
-            [wizard-input variable ws-uuid group-uuid repeat-id true])]])
+            [wizard-input variable ws-uuid group-uuid repeat-id true])
+          [:div.wizard-group__inputs__delete
+           [c/button {:variant   "highlight"
+                     :label     @(<t (bp "delete"))
+                     :size      "small"
+                     :icon-name "delete"
+                     :on-click  #(rf/dispatch [:worksheet/delete-repeat-input-group ws-uuid group-uuid repeat-id])}]]]])
       @*repeat-ids)
      [:div {:style {:display         "flex"
                     :padding         "20px"
