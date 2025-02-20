@@ -1,7 +1,9 @@
 name: Build and Sign JAR
 
-on: push
-#: branches: [main]
+on:
+  push:
+    tags:
+    - '*'
 
 jobs:
   build:
@@ -64,13 +66,6 @@ jobs:
             # Sign JAR
             ./sign.sh $JAR
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        env:
-          SHA: $(git rev-parse --short HEAD)
+      - uses: ncipollo/release-action@v1
         with:
-          name: behave7-$SHA.jar
-          path: projects/behave/target/*-signed.jar
-          retention-days: 90
-          compression-level: 0
-          overwrite: true
+          artifacts: "projects/behave/target/*-signed.jar"
