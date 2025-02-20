@@ -356,14 +356,26 @@
 
 (reg-sub
  :wizard/input-min-max-placeholder
- (fn [_ [_ var-min var-max native-unit-short-code new-unit-short-code :as params]]
+ (fn [_ [_ var-min var-max native-unit-short-code new-unit-short-code]]
    (let [var-min-str (str var-min)
          var-max-str (str var-max)]
-    (if (= native-unit-short-code new-unit-short-code)
-      (str var-min " - " var-max)
-      (str (convert-values native-unit-short-code new-unit-short-code var-min-str)
-           " - "
-           (convert-values native-unit-short-code new-unit-short-code var-max-str))))))
+     (cond
+       (and var-min var-max (= native-unit-short-code new-unit-short-code))
+       (str var-min " - " var-max)
+
+       (and var-min var-max)
+       (str (convert-values native-unit-short-code new-unit-short-code var-min-str)
+            " - "
+            (convert-values native-unit-short-code new-unit-short-code var-max-str))
+
+       var-min
+       (str var-min " - +INF")
+
+       var-max
+       (str "-INF - " var-max)
+
+       :else
+       nil))))
 
 (reg-sub
  :wizard/warn-limit?
