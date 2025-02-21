@@ -341,6 +341,42 @@
      (outside-range-error-msg (convert var-min from-units to-units 2)
                               (convert var-max from-units to-units 2)))))
 
+(defn- convert-values
+  [from to v & [precision]]
+  {:pre [(string? from) (string? to) (or (nil? v) (string? v))]}
+  (if (empty? v)
+    nil
+    (let [convert-fn #(convert % from to)
+          values     (->> (str/split (str v) #"[, ]")
+                          (remove empty?))]
+      (when (every? is-numeric? values)
+        (->> (map (comp convert-fn parse-float) values)
+             (map #(.toFixed % (or precision 2)))
+             (str/join ","))))))
+
+(reg-sub
+ :wizard/input-min-max-placeholder
+ (fn [_ [_ var-min var-max native-unit-short-code new-unit-short-code]]
+   (let [var-min-str (str var-min)
+         var-max-str (str var-max)]
+     (cond
+       (and var-min var-max (= native-unit-short-code new-unit-short-code))
+       (str var-min " - " var-max)
+
+       (and var-min var-max)
+       (str (convert-values native-unit-short-code new-unit-short-code var-min-str)
+            " - "
+            (convert-values native-unit-short-code new-unit-short-code var-max-str))
+
+       var-min
+       (str var-min " - +INF")
+
+       var-max
+       (str "-INF - " var-max)
+
+       :else
+       nil))))
+
 (reg-sub
  :wizard/warn-limit?
  (fn [[_id ws-uuid]]
