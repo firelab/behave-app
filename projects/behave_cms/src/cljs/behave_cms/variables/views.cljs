@@ -173,7 +173,7 @@
         [:div.col-12
          [:h3 "Variables"]
          [:div
-          {:style {:height "400px" :overflow-y "scroll"}}
+          {:style {:height "400px"}}
           [variables-table]]]]
        [variable-form @*variable]]
       [:div "Loading..."])))

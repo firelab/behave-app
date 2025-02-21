@@ -268,36 +268,47 @@
   - `:on-decrease` - Fn callled a table row position is increased.
   - `:on-decrease` - Fn callled a table row position is decreased."
   [columns rows & [{:keys [on-select on-delete on-increase on-decrease]}]]
-  [:table.table.table-hover
-   [:thead
-    [:tr
-     (for [column (map #(-> %
-                            (name)
-                            (str/replace #"[_-]" " ")
-                            (str/replace #"uuid" "")
-                            (str/capitalize))
-                       columns)]
-       [:th {:key column} column])
-     (when (or on-select on-delete) [:th {:style {:whitespace "nowrap"}} "Modify"])
-     (when (or on-increase on-decrease) [:th "Reorder"])]]
+  [:div
+   {:style {:width      "100%"
+            :height     "100%"
+            :margin     "0 auto";
+            :overflow-y "scroll"}}
+   [:table.table.table-hover
+    {:style {:border-collapse "collapse"}}
+    [:thead
+     {:style {:background "white"
+              :position   "sticky"
+              :top        "0"}}
+     [:tr
+      (for [column (map #(-> %
+                             (name)
+                             (str/replace #"[_-]" " ")
+                             (str/replace #"uuid" "")
+                             (str/capitalize))
+                        columns)]
+        [:th {:key column}
+         column])
+      (when (or on-select on-delete) [:th {:style {:whitespace "nowrap"}} "Modify"])
+      (when (or on-increase on-decrease) [:th {:style {:whitespace "nowrap"}} "Reorder"])]]
 
-   [:tbody
-    (for [row rows]
-      ^{:key (:db/id row)}
-      [:tr
-       (for [column columns
-             :let [value (get row column "")]]
-         [:td {:key column} (if-let [nname @(rf/subscribe [:entity-uuid->name value])]
-                              nname
-                              (->str value))])
-       (when (or on-select on-delete)
-         [:td {:key "modify" :class "td" :style {:white-space "nowrap"}}
-          (when on-select [btn-sm :outline-secondary "Edit"   #(on-select row)])
-          (when on-delete [btn-sm :outline-danger    "Delete" #(on-delete row)])])
-       [:td
-        {:key "order"}
-        (when on-decrease [btn-sm :outline-secondary nil #(on-decrease row) {:icon "arrow-up"}])
-        (when on-increase [btn-sm :outline-secondary nil #(on-increase row) {:icon "arrow-down"}])]])]])
+    [:tbody
+     {:style {:width "100%"}}
+     (for [row rows]
+       ^{:key (:db/id row)}
+       [:tr
+        (for [column columns
+              :let   [value (get row column "")]]
+          [:td {:key column} (if-let [nname @(rf/subscribe [:entity-uuid->name value])]
+                               nname
+                               (->str value))])
+        (when (or on-select on-delete)
+          [:td {:key "modify" :class "td" :style {:white-space "nowrap"}}
+           (when on-select [btn-sm :outline-secondary "Edit"   #(on-select row)])
+           (when on-delete [btn-sm :outline-danger    "Delete" #(on-delete row)])])
+        [:td
+         {:key "order"}
+         (when on-decrease [btn-sm :outline-secondary nil #(on-decrease row) {:icon "arrow-up"}])
+         (when on-increase [btn-sm :outline-secondary nil #(on-increase row) {:icon "arrow-down"}])]])]]])
 
 (defn window
   "Window container to ensure a fixed window."

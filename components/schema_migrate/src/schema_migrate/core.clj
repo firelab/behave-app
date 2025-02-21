@@ -172,6 +172,7 @@
                    (d/entity (ds/unwrap-db conn) [:group-variable/result-translation-key t])
                    (d/entity (ds/unwrap-db conn) [:group/translation-key t])
                    (d/entity (ds/unwrap-db conn) [:module/translation-key t])
+                   (d/entity (ds/unwrap-db conn) [:color-tag/translation-key t])
                    (submodule conn t))]
     (:bp/uuid (d/touch e))))
 

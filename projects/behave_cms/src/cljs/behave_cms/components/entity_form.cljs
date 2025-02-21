@@ -78,6 +78,14 @@
      :on-select #(on-change (u/input-value %))
      :selected  @state}]])
 
+(defmethod field-input :ref-select [{:keys [label options on-change state]}]
+  [:div.mb-3
+   [dropdown
+    {:label     label
+     :options   options
+     :on-select #(on-change (long (u/input-value %)))
+     :selected  (:db/id @state)}]])
+
 (defmethod field-input :checkbox [{:keys [label options on-change state]}]
   (let [group-label label]
     [:div.mb-3
@@ -167,6 +175,27 @@
                 :border-radius "10px"}}
        kkeyword
        [btn-sm :close nil #(on-delete-keyword kkeyword)]])]
+   [:input.form-control
+    {:auto-complete autocomplete
+     :auto-focus    autofocus?
+     :disabled      disabled?
+     :required      required?
+     :placeholder   placeholder
+     :id            (u/sentence->kebab label)
+     :type          type
+     :value         @state
+     :on-change     #(on-change (keyword (u/input-value %)))}]])
+
+(defmethod field-input :keyword
+  [{:keys [label autocomplete disabled? autofocus? required? placeholder on-change state]
+    :or   {disabled? false required? false}}]
+  [:div.my-3
+   [:label.form-label {:for (u/sentence->kebab label)} label]
+   [:div.field-input__keywords
+    {:style {:display        :flex
+             :flex-flow      "row wrap"
+             :flex-direction :row
+             :margin-bottom  "5px"}}]
    [:input.form-control
     {:auto-complete autocomplete
      :auto-focus    autofocus?
