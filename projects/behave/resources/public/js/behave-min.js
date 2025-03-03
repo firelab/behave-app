@@ -5473,6 +5473,12 @@ var _emscripten_bind_SIGSurface_getSpreadRateInDirectionOfInterest_1 = Module["_
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getSurfaceFireReactionIntensityForLifeState_1 = Module["_emscripten_bind_SIGSurface_getSurfaceFireReactionIntensityForLifeState_1"] = createExportWrapper("emscripten_bind_SIGSurface_getSurfaceFireReactionIntensityForLifeState_1");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getTotalLiveFuelLoad_1 = Module["_emscripten_bind_SIGSurface_getTotalLiveFuelLoad_1"] = createExportWrapper("emscripten_bind_SIGSurface_getTotalLiveFuelLoad_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getTotalDeadFuelLoad_1 = Module["_emscripten_bind_SIGSurface_getTotalDeadFuelLoad_1"] = createExportWrapper("emscripten_bind_SIGSurface_getTotalDeadFuelLoad_1");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSurface_getTotalDeadHerbaceousFuelLoad_1 = Module["_emscripten_bind_SIGSurface_getTotalDeadHerbaceousFuelLoad_1"] = createExportWrapper("emscripten_bind_SIGSurface_getTotalDeadHerbaceousFuelLoad_1");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getWindDirection_0 = Module["_emscripten_bind_SIGSurface_getWindDirection_0"] = createExportWrapper("emscripten_bind_SIGSurface_getWindDirection_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSurface_getWindSpeed_2 = Module["_emscripten_bind_SIGSurface_getWindSpeed_2"] = createExportWrapper("emscripten_bind_SIGSurface_getWindSpeed_2");
@@ -10502,6 +10508,24 @@ SIGSurface.prototype['getSurfaceFireReactionIntensityForLifeState'] = SIGSurface
   var self = this.ptr;
   if (lifeState && typeof lifeState === 'object') lifeState = lifeState.ptr;
   return _emscripten_bind_SIGSurface_getSurfaceFireReactionIntensityForLifeState_1(self, lifeState);
+};;
+
+SIGSurface.prototype['getTotalLiveFuelLoad'] = SIGSurface.prototype.getTotalLiveFuelLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
+  var self = this.ptr;
+  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
+  return _emscripten_bind_SIGSurface_getTotalLiveFuelLoad_1(self, loadingUnits);
+};;
+
+SIGSurface.prototype['getTotalDeadFuelLoad'] = SIGSurface.prototype.getTotalDeadFuelLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
+  var self = this.ptr;
+  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
+  return _emscripten_bind_SIGSurface_getTotalDeadFuelLoad_1(self, loadingUnits);
+};;
+
+SIGSurface.prototype['getTotalDeadHerbaceousFuelLoad'] = SIGSurface.prototype.getTotalDeadHerbaceousFuelLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
+  var self = this.ptr;
+  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
+  return _emscripten_bind_SIGSurface_getTotalDeadHerbaceousFuelLoad_1(self, loadingUnits);
 };;
 
 SIGSurface.prototype['getWindDirection'] = SIGSurface.prototype.getWindDirection = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {

@@ -783,6 +783,9 @@ interface SIGSurface {
   [Const] double getSpreadRate(SpeedUnits_SpeedUnitsEnum spreadRateUnits);
   [Const] double getSpreadRateInDirectionOfInterest(SpeedUnits_SpeedUnitsEnum spreadRateUnits);
   [Const] double getSurfaceFireReactionIntensityForLifeState(FuelLifeState_FuelLifeStateEnum lifeState);
+  [Const] double getTotalLiveFuelLoad(LoadingUnits_LoadingUnitsEnum loadingUnits);
+  [Const] double getTotalDeadFuelLoad(LoadingUnits_LoadingUnitsEnum loadingUnits);
+  [Const] double getTotalDeadHerbaceousFuelLoad(LoadingUnits_LoadingUnitsEnum loadingUnits);
   [Const] double getWindDirection();
   [Const] double getWindSpeed(SpeedUnits_SpeedUnitsEnum windSpeedUnits, WindHeightInputMode_WindHeightInputModeEnum windHeightInputMode);
   [Const] long getAspenFuelModelNumber();

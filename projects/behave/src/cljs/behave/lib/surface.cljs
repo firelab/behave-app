@@ -467,6 +467,15 @@
 (defn getSurfaceFireReactionIntensityLive [self]
   (.getSurfaceFireReactionIntensityLive self))
 
+(defn getgetTotalLiveFuelLoad [self loadingUnits]
+  (.getTotalLiveFuelLoad self loadingUnits))
+
+(defn getTotalDeadFuelLoad [self loadingUnits]
+  (.getTotalDeadFuelLoad self loadingUnits))
+
+(defn getTotalDeadHerbaceousFuelLoad [self loadingUnits]
+  (.getTotalDeadHerbaceousFuelLoad self loadingUnits))
+
 (defn getSurfaceRunInDirectionOf [self]
   (.getSurfaceRunInDirectionOf self))
 
