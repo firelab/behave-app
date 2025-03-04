@@ -17,11 +17,11 @@
 (defn calculateMortalityAllDirections [self probablityUnits]
   (.calculateMortalityAllDirections self probablityUnits))
 
-(defn checkIsInRegionAtSpeciesTableIndex [self index region]
-  (.checkIsInRegionAtSpeciesTableIndex self index region))
+(defn checkIsInGACCRegionAtSpeciesTableIndex [self index region]
+  (.checkIsInGACCRegionAtSpeciesTableIndex self index region))
 
-(defn checkIsInRegionFromSpeciesCode [self speciesCode region]
-  (.checkIsInRegionFromSpeciesCode self speciesCode region))
+(defn checkIsInGACCRegionFromSpeciesCode [self speciesCode region]
+  (.checkIsInGACCRegionFromSpeciesCode self speciesCode region))
 
 (defn getBarkEquationNumberAtSpeciesTableIndex [self index]
   (.getBarkEquationNumberAtSpeciesTableIndex self index))
@@ -143,8 +143,8 @@
 (defn getProbabilityOfMortalityFlanking [self probabilityUnits]
   (.getProbabilityOfMortalityFlanking self probabilityUnits))
 
-(defn getRegion [self]
-  (.getRegion self))
+(defn getGACCRegion [self]
+  (.getGACCRegion self))
 
 (defn getRequiredFieldVector [self]
   (.getRequiredFieldVector self))
@@ -170,11 +170,11 @@
 (defn getSpeciesRecordBySpeciesCodeAndEquationType [self speciesCode equationType]
   (.getSpeciesRecordBySpeciesCodeAndEquationType self speciesCode equationType))
 
-(defn getSpeciesRecordVectorForRegion [self region]
-  (.getSpeciesRecordVectorForRegion self region))
+(defn getSpeciesRecordVectorForGACCRegion [self region]
+  (.getSpeciesRecordVectorForGACCRegion self region))
 
-(defn getSpeciesRecordVectorForRegionAndEquationType [self region equationType]
-  (.getSpeciesRecordVectorForRegionAndEquationType self region equationType))
+(defn getSpeciesRecordVectorForGACCRegionAndEquationType [self region equationType]
+  (.getSpeciesRecordVectorForGACCRegionAndEquationType self region equationType))
 
 (defn getSpeciesTableIndexFromSpeciesCode [self speciesNameCode]
   (.getSpeciesTableIndexFromSpeciesCode self speciesNameCode))
@@ -263,8 +263,8 @@
 (defn setMidFlameWindSpeed [self midFlameWindSpeed windSpeedUnits]
   (.setMidFlameWindSpeed self midFlameWindSpeed windSpeedUnits))
 
-(defn setRegion [self region]
-  (.setRegion self region))
+(defn setGACCRegion [self region]
+  (.setGACCRegion self region))
 
 (defn setSpeciesCode [self speciesCode]
   (.setSpeciesCode self speciesCode))

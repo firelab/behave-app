@@ -71,8 +71,8 @@ public:
   SpeciesMasterTableRecord getSpeciesRecordBySpeciesCodeAndEquationType(char *speciesCode,
                                                                         EquationType equationType) const;
   BoolVector *getRequiredFieldVector();
-  SpeciesMasterTableRecordVector *getSpeciesRecordVectorForRegion(RegionCode region);
-  SpeciesMasterTableRecordVector *getSpeciesRecordVectorForRegionAndEquationType(RegionCode region,
+  SpeciesMasterTableRecordVector *getSpeciesRecordVectorForGACCRegion(GACC region);
+  SpeciesMasterTableRecordVector *getSpeciesRecordVectorForGACCRegionAndEquationType(GACC region,
                                                                                  EquationType equationType);
   void calculateMortalityAllDirections(FractionUnits::FractionUnitsEnum probablityUnits);
   char *getCVSorCLS();

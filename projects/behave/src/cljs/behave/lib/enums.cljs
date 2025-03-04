@@ -287,12 +287,18 @@
          "RequiredFieldNames::fire_severity"
          "RequiredFieldNames::num_inputs"]))
 
-(def region-code
-  (enum "RegionCode"
-        ["RegionCode::interior_west"
-         "RegionCode::pacific_east"
-         "RegionCode::south_east"
-         "RegionCode::north_east"]))
+(def gacc
+  (enum "GACC"
+        ["GACC::NotSet"
+         "GACC::Alaska"
+         "GACC::California"
+         "GACC::EasternArea"
+         "GACC::GreatBasin"
+         "GACC::NorthernRockies"
+         "GACC::Northwest"
+         "GACC::RockeyMountain"
+         "GACC::SouthernArea"
+         "GACC::Southwest"]))
 
 (def slope-units
   (enum "SlopeUnits_SlopeUnitsEnum"

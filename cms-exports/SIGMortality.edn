@@ -1,160 +1,153 @@
 {:global
  {:SIGMortality
   {:calculateMortalityAllDirections
-   {:type "void",
-    :id "calculateMortalityAllDirections",
+   {:id "calculateMortalityAllDirections",
     :parameters
     [{:id "probablityUnits",
-      :type "FractionUnits::FractionUnitsEnum"}]},
+      :type "FractionUnits::FractionUnitsEnum"}],
+    :type "void"},
    :getEquationTypeFromSpeciesCode
-   {:type "EquationType",
-    :id "getEquationTypeFromSpeciesCode",
-    :parameters [{:id "speciesCode", :type "char"}]},
+   {:id "getEquationTypeFromSpeciesCode",
+    :parameters [{:id "speciesCode", :type "char"}],
+    :type "EquationType"},
    :getFlameLengthOrScorchHeightValue
-   {:type "double",
-    :id "getFlameLengthOrScorchHeightValue",
+   {:id "getFlameLengthOrScorchHeightValue",
     :parameters
     [{:id "flameLengthOrScorchHeightUnits",
-      :type "LengthUnits::LengthUnitsEnum"}]},
+      :type "LengthUnits::LengthUnitsEnum"}],
+    :type "double"},
    :setSurfaceFireFlameLengthBacking
-   {:type "void",
-    :id "setSurfaceFireFlameLengthBacking",
+   {:id "setSurfaceFireFlameLengthBacking",
     :parameters
     [{:id "value", :type "double"}
-     {:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+     {:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}],
+    :type "void"},
    :SIGMortality
    {:id "SIGMortality",
     :parameters [{:id "rhs", :type "SIGMortality"}]},
    :getCrownCoefficientCodeFromSpeciesCode
-   {:type "int",
-    :id "getCrownCoefficientCodeFromSpeciesCode",
-    :parameters [{:id "speciesCode", :type "char"}]},
+   {:id "getCrownCoefficientCodeFromSpeciesCode",
+    :parameters [{:id "speciesCode", :type "char"}],
+    :type "int"},
+   :setGACCRegion
+   {:id "setGACCRegion",
+    :parameters [{:id "region", :type "GACC"}],
+    :type "void"},
    :setTreeHeight
-   {:type "void",
-    :id "setTreeHeight",
+   {:id "setTreeHeight",
     :parameters
     [{:id "treeHeight", :type "double"}
-     {:id "treeHeightUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+     {:id "treeHeightUnits", :type "LengthUnits::LengthUnitsEnum"}],
+    :type "void"},
    :setAirTemperature
-   {:type "void",
-    :id "setAirTemperature",
+   {:id "setAirTemperature",
     :parameters
     [{:id "airTemperature", :type "double"}
      {:id "temperatureUnits",
-      :type "TemperatureUnits::TemperatureUnitsEnum"}]},
+      :type "TemperatureUnits::TemperatureUnitsEnum"}],
+    :type "void"},
    :getBasalAreaPrefire
-   {:type "double", :id "getBasalAreaPrefire", :parameters []},
+   {:id "getBasalAreaPrefire", :parameters [], :type "double"},
    :getBoleCharHeight
-   {:type "double",
-    :id "getBoleCharHeight",
+   {:id "getBoleCharHeight",
     :parameters
     [{:id "boleCharHeightUnits",
-      :type "LengthUnits::LengthUnitsEnum"}]},
-   :getBoleCharHeightBacking
-   {:type "double",
-    :id   "getBoleCharHeightBacking",
-    :parameters
-    [{:id   "boleCharHeightUnits",
-      :type "LengthUnits::LengthUnitsEnum"}]}
-   :getBoleCharHeightFlanking
-   {:type "double",
-    :id   "getBoleCharHeightFlanking",
-    :parameters
-    [{:id   "boleCharHeightUnits",
-      :type "LengthUnits::LengthUnitsEnum"}]}
+      :type "LengthUnits::LengthUnitsEnum"}],
+    :type "double"},
    :getCommonNameFromSpeciesCode
-   {:type "char",
-    :id "getCommonNameFromSpeciesCode",
-    :parameters [{:id "speciesCode", :type "char"}]},
+   {:id "getCommonNameFromSpeciesCode",
+    :parameters [{:id "speciesCode", :type "char"}],
+    :type "char"},
    :getTreeCrownVolumeScorchedFlanking
-   {:type "double",
-    :id "getTreeCrownVolumeScorchedFlanking",
+   {:id "getTreeCrownVolumeScorchedFlanking",
     :parameters
-    [{:id "fractionUnits", :type "FractionUnits::FractionUnitsEnum"}]},
+    [{:id "fractionUnits", :type "FractionUnits::FractionUnitsEnum"}],
+    :type "double"},
+   :setWindHeightInputMode
+   {:id "setWindHeightInputMode",
+    :parameters
+    [{:id "windHeightInputMode",
+      :type "WindHeightInputMode::WindHeightInputModeEnum"}],
+    :type "void"},
    :getBeetleDamage
-   {:type "BeetleDamage", :id "getBeetleDamage", :parameters []},
+   {:id "getBeetleDamage", :parameters [], :type "BeetleDamage"},
    :getCommonNameAtSpeciesTableIndex
-   {:type "char",
-    :id "getCommonNameAtSpeciesTableIndex",
-    :parameters [{:id "index", :type "int"}]},
+   {:id "getCommonNameAtSpeciesTableIndex",
+    :parameters [{:id "index", :type "int"}],
+    :type "char"},
+   :getCVSorCLS {:id "getCVSorCLS", :parameters [], :type "char"},
    :getBarkThickness
-   {:type "double",
-    :id "getBarkThickness",
+   {:id "getBarkThickness",
     :parameters
-    [{:id "barkThicknessUnits",
-      :type "LengthUnits::LengthUnitsEnum"}]},
+    [{:id "barkThicknessUnits", :type "LengthUnits::LengthUnitsEnum"}],
+    :type "double"},
    :getFlameLengthOrScorchHeightSwitch
-   {:type "FlameLengthOrScorchHeightSwitch",
-    :id "getFlameLengthOrScorchHeightSwitch",
-    :parameters []},
+   {:id "getFlameLengthOrScorchHeightSwitch",
+    :parameters [],
+    :type "FlameLengthOrScorchHeightSwitch"},
    :setFlameLengthOrScorchHeightSwitch
-   {:type "void",
-    :id "setFlameLengthOrScorchHeightSwitch",
+   {:id "setFlameLengthOrScorchHeightSwitch",
     :parameters
     [{:id "flameLengthOrScorchHeightSwitch",
-      :type "FlameLengthOrScorchHeightSwitch"}]},
+      :type "FlameLengthOrScorchHeightSwitch"}],
+    :type "void"},
    :postfireCanopyCover
-   {:type "double", :id "postfireCanopyCover", :parameters []},
+   {:id "postfireCanopyCover", :parameters [], :type "double"},
    :setFireSeverity
-   {:type "void",
-    :id "setFireSeverity",
-    :parameters [{:id "fireSeverity", :type "FireSeverity"}]},
+   {:id "setFireSeverity",
+    :parameters [{:id "fireSeverity", :type "FireSeverity"}],
+    :type "void"},
    :getTreeCrownLengthScorched
-   {:type "double",
-    :id "getTreeCrownLengthScorched",
+   {:id "getTreeCrownLengthScorched",
     :parameters
-    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
-   :setRegion
-   {:type "void",
-    :id "setRegion",
-    :parameters [{:id "region", :type "RegionCode"}]},
-   :checkIsInRegionAtSpeciesTableIndex
-   {:type "bool",
-    :id "checkIsInRegionAtSpeciesTableIndex",
-    :parameters
-    [{:id "index", :type "int"} {:id "region", :type "RegionCode"}]},
+    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}],
+    :type "double"},
    :getSpeciesCodeAtSpeciesTableIndex
-   {:type "char",
-    :id "getSpeciesCodeAtSpeciesTableIndex",
-    :parameters [{:id "index", :type "int"}]},
+   {:id "getSpeciesCodeAtSpeciesTableIndex",
+    :parameters [{:id "index", :type "int"}],
+    :type "char"},
    :getProbabilityOfMortality
-   {:type "double",
-    :id "getProbabilityOfMortality",
+   {:id "getProbabilityOfMortality",
     :parameters
     [{:id "probabilityUnits",
-      :type "FractionUnits::FractionUnitsEnum"}]},
+      :type "FractionUnits::FractionUnitsEnum"}],
+    :type "double"},
    :getDBH
-   {:type "double",
-    :id "getDBH",
+   {:id "getDBH",
     :parameters
-    [{:id "diameterUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+    [{:id "diameterUnits", :type "LengthUnits::LengthUnitsEnum"}],
+    :type "double"},
    :getCrownDamageEquationCode
-   {:type "CrownDamageEquationCode",
-    :id "getCrownDamageEquationCode",
-    :parameters []},
+   {:id "getCrownDamageEquationCode",
+    :parameters [],
+    :type "CrownDamageEquationCode"},
+   :checkIsInGACCRegionFromSpeciesCode
+   {:id "checkIsInGACCRegionFromSpeciesCode",
+    :parameters
+    [{:id "speciesCode", :type "string"} {:id "region", :type "GACC"}],
+    :type "bool"},
    :getBarkEquationNumberAtSpeciesTableIndex
-   {:type "int",
-    :id "getBarkEquationNumberAtSpeciesTableIndex",
-    :parameters [{:id "index", :type "int"}]},
+   {:id "getBarkEquationNumberAtSpeciesTableIndex",
+    :parameters [{:id "index", :type "int"}],
+    :type "int"},
    :prefireCanopyCover
-   {:type "double", :id "prefireCanopyCover", :parameters []},
+   {:id "prefireCanopyCover", :parameters [], :type "double"},
    :setScorchHeight
-   {:type "void",
-    :id "setScorchHeight",
+   {:id "setScorchHeight",
     :parameters
     [{:id "scorchHeight", :type "double"}
-     {:id "scorchHeightUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+     {:id "scorchHeightUnits", :type "LengthUnits::LengthUnitsEnum"}],
+    :type "void"},
    :getScientificNameAtSpeciesTableIndex
-   {:type "char",
-    :id "getScientificNameAtSpeciesTableIndex",
-    :parameters [{:id "index", :type "int"}]},
+   {:id "getScientificNameAtSpeciesTableIndex",
+    :parameters [{:id "index", :type "int"}],
+    :type "char"},
    :setBeetleDamage
-   {:type "void",
-    :id "setBeetleDamage",
-    :parameters [{:id "beetleDamage", :type "BeetleDamage"}]},
+   {:id "setBeetleDamage",
+    :parameters [{:id "beetleDamage", :type "BeetleDamage"}],
+    :type "void"},
    :calculateScorchHeight
-   {:type "double",
-    :id "calculateScorchHeight",
+   {:id "calculateScorchHeight",
     :parameters
     [{:id "firelineIntensity", :type "double"}
      {:id "firelineIntensityUnits",
@@ -164,190 +157,172 @@
      {:id "airTemperature", :type "double"}
      {:id "temperatureUnits",
       :type "TemperatureUnits::TemperatureUnitsEnum"}
-     {:id "scorchHeightUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+     {:id "scorchHeightUnits", :type "LengthUnits::LengthUnitsEnum"}],
+    :type "double"},
    :getKilledTrees
-   {:type "double", :id "getKilledTrees", :parameters []},
+   {:id "getKilledTrees", :parameters [], :type "double"},
    :calculateMortality
-   {:type "double",
-    :id "calculateMortality",
+   {:id "calculateMortality",
     :parameters
     [{:id "probablityUnits",
-      :type "FractionUnits::FractionUnitsEnum"}]},
+      :type "FractionUnits::FractionUnitsEnum"}],
+    :type "double"},
    :getRequiredFieldVector
-   {:type "BoolVector", :id "getRequiredFieldVector", :parameters []},
+   {:id "getRequiredFieldVector", :parameters [], :type "BoolVector"},
    :getCrownScorchOrBoleCharEquationNumber
-   {:type "int",
-    :id "getCrownScorchOrBoleCharEquationNumber",
-    :parameters []},
+   {:id "getCrownScorchOrBoleCharEquationNumber",
+    :parameters [],
+    :type "int"},
    :setCrownDamage
-   {:type "void",
-    :id "setCrownDamage",
-    :parameters [{:id "crownDamage", :type "double"}]},
-   :getSpeciesRecordVectorForRegion
-   {:type "SpeciesMasterTableRecordVector",
-    :id "getSpeciesRecordVectorForRegion",
-    :parameters [{:id "region", :type "RegionCode"}]},
+   {:id "setCrownDamage",
+    :parameters [{:id "crownDamage", :type "double"}],
+    :type "void"},
    :setFirelineIntensity
-   {:type "void",
-    :id "setFirelineIntensity",
+   {:id "setFirelineIntensity",
     :parameters
     [{:id "firelineIntensity", :type "double"}
      {:id "firelineIntensityUnits",
-      :type "FirelineIntensityUnits::FirelineIntensityUnitsEnum"}]},
+      :type "FirelineIntensityUnits::FirelineIntensityUnitsEnum"}],
+    :type "void"},
    :getMortalityEquationNumberFromSpeciesCode
-   {:type "int",
-    :id "getMortalityEquationNumberFromSpeciesCode",
-    :parameters [{:id "speciesCode", :type "char"}]},
+   {:id "getMortalityEquationNumberFromSpeciesCode",
+    :parameters [{:id "speciesCode", :type "char"}],
+    :type "int"},
+   :checkIsInGACCRegionAtSpeciesTableIndex
+   {:id "checkIsInGACCRegionAtSpeciesTableIndex",
+    :parameters
+    [{:id "index", :type "int"} {:id "region", :type "GACC"}],
+    :type "bool"},
    :setSurfaceFireFirelineIntensityFlanking
-   {:type "void",
-    :id "setSurfaceFireFirelineIntensityFlanking",
+   {:id "setSurfaceFireFirelineIntensityFlanking",
     :parameters
     [{:id "value", :type "double"}
      {:id "firelineIntensityUnits",
-      :type "FirelineIntensityUnits::FirelineIntensityUnitsEnum"}]},
+      :type "FirelineIntensityUnits::FirelineIntensityUnitsEnum"}],
+    :type "void"},
    :getTreeCrownVolumeScorched
-   {:type "double",
-    :id "getTreeCrownVolumeScorched",
+   {:id "getTreeCrownVolumeScorched",
     :parameters
-    [{:id "fractionUnits", :type "FractionUnits::FractionUnitsEnum"}]},
+    [{:id "fractionUnits", :type "FractionUnits::FractionUnitsEnum"}],
+    :type "double"},
    :setSurfaceFireFirelineIntensity
-   {:type "void",
-    :id "setSurfaceFireFirelineIntensity",
+   {:id "setSurfaceFireFirelineIntensity",
     :parameters
     [{:id "value", :type "double"}
      {:id "firelineIntensityUnits",
-      :type "FirelineIntensityUnits::FirelineIntensityUnitsEnum"}]},
+      :type "FirelineIntensityUnits::FirelineIntensityUnitsEnum"}],
+    :type "void"},
    :operator=
-   {:type "Mortality",
-    :id "operator=",
-    :parameters [{:id "rhs", :type "Mortality"}]},
+   {:id "operator=",
+    :parameters [{:id "rhs", :type "Mortality"}],
+    :type "Mortality"},
    :getTreeCrownLengthScorchedFlanking
-   {:type "double",
-    :id "getTreeCrownLengthScorchedFlanking",
+   {:id "getTreeCrownLengthScorchedFlanking",
     :parameters
-    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
-   :getMortalityEquationNumberAtSpeciesTableIndex
-   {:type "int",
-    :id "getMortalityEquationNumberAtSpeciesTableIndex",
-    :parameters [{:id "index", :type "int"}]},
-   :getSpeciesRecordBySpeciesCodeAndEquationType
-   {:type "SpeciesMasterTableRecord",
-    :id "getSpeciesRecordBySpeciesCodeAndEquationType",
-    :parameters
-    [{:id "speciesCode", :type "char"}
-     {:id "equationType", :type "EquationType"}]},
-   :getTreeCrownVolumeScorchedBacking
-   {:type "double",
-    :id "getTreeCrownVolumeScorchedBacking",
-    :parameters
-    [{:id "fractionUnits", :type "FractionUnits::FractionUnitsEnum"}]},
-   :getCrownDamageType
-   {:type "CrownDamageType", :id "getCrownDamageType", :parameters []},
-   :getScientificNameFromSpeciesCode
-   {:type "char",
-    :id "getScientificNameFromSpeciesCode",
-    :parameters [{:id "speciesCode", :type "char"}]},
-   :setTreeDensityPerUnitArea
-   {:type "void",
-    :id "setTreeDensityPerUnitArea",
-    :parameters
-    [{:id "numberOfTrees", :type "double"}
-     {:id "areaUnits", :type "AreaUnits::AreaUnitsEnum"}]},
-   :getEquationType
-   {:type "EquationType", :id "getEquationType", :parameters []},
-   :setSurfaceFireFlameLengthFlanking
-   {:type "void",
-    :id "setSurfaceFireFlameLengthFlanking",
-    :parameters
-    [{:id "value", :type "double"}
-     {:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
-   :getCalculatedScorchHeight
-   {:type "double",
-    :id "getCalculatedScorchHeight",
-    :parameters
-    [{:id "scorchHeightUnits", :type "LengthUnits::LengthUnitsEnum"}]},
-   :getCrownDamage
-   {:type "double", :id "getCrownDamage", :parameters []},
-   :setSpeciesCode
-   {:type "void",
-    :id "setSpeciesCode",
-    :parameters [{:id "speciesCode", :type "char"}]},
-   :setSurfaceFireScorchHeight
-   {:type "void",
-    :id "setSurfaceFireScorchHeight",
-    :parameters
-    [{:id "value", :type "double"}
-     {:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
-   :getBasalAreaPostfire
-   {:type "double", :id "getBasalAreaPostfire", :parameters []},
-   :setCambiumKillRating
-   {:type "void",
-    :id "setCambiumKillRating",
-    :parameters [{:id "cambiumKillRating", :type "double"}]},
-   :getProbabilityOfMortalityBacking
-   {:type "double",
-    :id "getProbabilityOfMortalityBacking",
-    :parameters
-    [{:id "probabilityUnits",
-      :type "FractionUnits::FractionUnitsEnum"}]},
-   :getSpeciesRecordAtIndex
-   {:type "SpeciesMasterTableRecord",
-    :id "getSpeciesRecordAtIndex",
-    :parameters [{:id "index", :type "int"}]},
-   :getTotalPrefireTrees
-   {:type "double", :id "getTotalPrefireTrees", :parameters []},
-   :getCrownDamageEquationCodeAtSpeciesTableIndex
-   {:type "CrownDamageEquationCode",
-    :id "getCrownDamageEquationCodeAtSpeciesTableIndex",
-    :parameters [{:id "index", :type "int"}]},
-   :setBoleCharHeight
-   {:type "void",
-    :id "setBoleCharHeight",
-    :parameters
-    [{:id "boleCharHeight", :type "double"}
-     {:id "boleCharHeightUnits",
-      :type "LengthUnits::LengthUnitsEnum"}]},
-   :setBoleCharHeightFromFlameLengthHeading
-   {:type "void",
-    :id   "setBoleCharHeightFromFlameLengthHeading",
-    :parameters
-    [{:id "flameLength", :type "double"}
-     {:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
-   :setBoleCharHeightFromFlameLengthBacking
-   {:type "void",
-    :id   "setBoleCharHeightFromFlameLengthBacking",
-    :parameters
-    [{:id "flameLength", :type "double"}
-     {:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
-   :setBoleCharHeightFromFlameLengthFlanking
-   {:type "void",
-    :id   "setBoleCharHeightFromFlameLengthFlanking",
-    :parameters
-    [{:id "flameLength", :type "double"}
-     {:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
-   :setMidFlameWindSpeed
-   {:type "void",
-    :id "setMidFlameWindSpeed",
-    :parameters
-    [{:id "midFlameWindSpeed", :type "double"}
-     {:id "windSpeedUnits", :type "SpeedUnits::SpeedUnitsEnum"}]},
+    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}],
+    :type "double"},
    :setUserProvidedWindAdjustmentFactor
    {:id "setUserProvidedWindAdjustmentFactor",
     :parameters
     [{:id "userProvidedWindAdjustmentFactor", :type "double"}],
     :type "void"},
-   :setWindHeightInputMode
-   {:id "setWindHeightInputMode",
+   :getMortalityEquationNumberAtSpeciesTableIndex
+   {:id "getMortalityEquationNumberAtSpeciesTableIndex",
+    :parameters [{:id "index", :type "int"}],
+    :type "int"},
+   :getSpeciesRecordBySpeciesCodeAndEquationType
+   {:id "getSpeciesRecordBySpeciesCodeAndEquationType",
     :parameters
-    [{:id "windHeightInputMode",
-      :type "WindHeightInputMode::WindHeightInputModeEnum"}],
+    [{:id "speciesCode", :type "char"}
+     {:id "equationType", :type "EquationType"}],
+    :type "SpeciesMasterTableRecord"},
+   :getTreeCrownVolumeScorchedBacking
+   {:id "getTreeCrownVolumeScorchedBacking",
+    :parameters
+    [{:id "fractionUnits", :type "FractionUnits::FractionUnitsEnum"}],
+    :type "double"},
+   :getCrownDamageType
+   {:id "getCrownDamageType", :parameters [], :type "CrownDamageType"},
+   :getScientificNameFromSpeciesCode
+   {:id "getScientificNameFromSpeciesCode",
+    :parameters [{:id "speciesCode", :type "char"}],
+    :type "char"},
+   :setTreeDensityPerUnitArea
+   {:id "setTreeDensityPerUnitArea",
+    :parameters
+    [{:id "numberOfTrees", :type "double"}
+     {:id "areaUnits", :type "AreaUnits::AreaUnitsEnum"}],
     :type "void"},
-   :setWindSpeed
-   {:id "setWindSpeed",
+   :getEquationType
+   {:id "getEquationType", :parameters [], :type "EquationType"},
+   :setSurfaceFireFlameLengthFlanking
+   {:id "setSurfaceFireFlameLengthFlanking",
     :parameters
-    [{:id "windSpeed", :type "double"}
+    [{:id "value", :type "double"}
+     {:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}],
+    :type "void"},
+   :getCrownDamage
+   {:id "getCrownDamage", :parameters [], :type "double"},
+   :setSpeciesCode
+   {:id "setSpeciesCode",
+    :parameters [{:id "speciesCode", :type "char"}],
+    :type "void"},
+   :setSurfaceFireScorchHeight
+   {:id "setSurfaceFireScorchHeight",
+    :parameters
+    [{:id "value", :type "double"}
+     {:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}],
+    :type "void"},
+   :getBasalAreaPostfire
+   {:id "getBasalAreaPostfire", :parameters [], :type "double"},
+   :setCambiumKillRating
+   {:id "setCambiumKillRating",
+    :parameters [{:id "cambiumKillRating", :type "double"}],
+    :type "void"},
+   :getProbabilityOfMortalityBacking
+   {:id "getProbabilityOfMortalityBacking",
+    :parameters
+    [{:id "probabilityUnits",
+      :type "FractionUnits::FractionUnitsEnum"}],
+    :type "double"},
+   :getSpeciesRecordAtIndex
+   {:id "getSpeciesRecordAtIndex",
+    :parameters [{:id "index", :type "int"}],
+    :type "SpeciesMasterTableRecord"},
+   :getTotalPrefireTrees
+   {:id "getTotalPrefireTrees", :parameters [], :type "double"},
+   :getGACCRegion {:id "getGACCRegion", :parameters [], :type "GACC"},
+   :getSpeciesRecordVectorForGACCRegion
+   {:id "getSpeciesRecordVectorForGACCRegion",
+    :parameters [{:id "region", :type "GACC"}],
+    :type "SpeciesMasterTableRecordVector"},
+   :getCrownDamageEquationCodeAtSpeciesTableIndex
+   {:id "getCrownDamageEquationCodeAtSpeciesTableIndex",
+    :parameters [{:id "index", :type "int"}],
+    :type "CrownDamageEquationCode"},
+   :setBoleCharHeight
+   {:id "setBoleCharHeight",
+    :parameters
+    [{:id "boleCharHeight", :type "double"}
+     {:id "boleCharHeightUnits",
+      :type "LengthUnits::LengthUnitsEnum"}],
+    :type "void"},
+   :setMidFlameWindSpeed
+   {:id "setMidFlameWindSpeed",
+    :parameters
+    [{:id "midFlameWindSpeed", :type "double"}
      {:id "windSpeedUnits", :type "SpeedUnits::SpeedUnitsEnum"}],
     :type "void"},
+   :updateInputsForSpeciesCodeAndEquationType
+   {:id "updateInputsForSpeciesCodeAndEquationType",
+    :parameters
+    [{:id "speciesCode", :type "char"}
+     {:id "equationType", :type "EquationType"}],
+    :type "bool"},
+   :getCrownCoefficientCodeAtSpeciesTableIndex
+   {:id "getCrownCoefficientCodeAtSpeciesTableIndex",
+    :parameters [{:id "index", :type "int"}],
+    :type "int"},
    :setWindSpeedAndWindHeightInputMode
    {:id "setWindSpeedAndWindHeightInputMode",
     :parameters
@@ -357,148 +332,152 @@
       :type "WindHeightInputMode::WindHeightInputModeEnum"}
      {:id "userProvidedWindAdjustmentFactor", :type "double"}],
     :type "void"},
-   :checkIsInRegionFromSpeciesCode
-   {:type "bool",
-    :id "checkIsInRegionFromSpeciesCode",
-    :parameters
-    [{:id "speciesCode", :type "string"}
-     {:id "region", :type "RegionCode"}]},
-   :updateInputsForSpeciesCodeAndEquationType
-   {:type "bool",
-    :id "updateInputsForSpeciesCodeAndEquationType",
-    :parameters
-    [{:id "speciesCode", :type "char"}
-     {:id "equationType", :type "EquationType"}]},
-   :getCrownCoefficientCodeAtSpeciesTableIndex
-   {:type "int",
-    :id "getCrownCoefficientCodeAtSpeciesTableIndex",
-    :parameters [{:id "index", :type "int"}]},
    :getScorchHeight
-   {:type "double",
-    :id "getScorchHeight",
+   {:id "getScorchHeight",
     :parameters
-    [{:id "scorchHeightUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+    [{:id "scorchHeightUnits", :type "LengthUnits::LengthUnitsEnum"}],
+    :type "double"},
    :getScorchHeightBacking
-   {:type "double",
-    :id   "getScorchHeightBacking",
+   {:id "getScorchHeightBacking",
     :parameters
-    [{:id "scorchHeightUnits", :type "LengthUnits::LengthUnitsEnum"}]}
-   :getScorchHeightFlanking
-   {:type "double",
-    :id   "getScorchHeightFlanking",
-    :parameters
-    [{:id "scorchHeightUnits", :type "LengthUnits::LengthUnitsEnum"}]}
+    [{:id "scorchHeightUnits", :type "LengthUnits::LengthUnitsEnum"}],
+    :type "double"},
    :getCambiumKillRating
-   {:type "double", :id "getCambiumKillRating", :parameters []},
+   {:id "getCambiumKillRating", :parameters [], :type "double"},
+   :getBoleCharHeightFlanking
+   {:id "getBoleCharHeightFlanking",
+    :parameters
+    [{:id "boleCharHeightUnits",
+      :type "LengthUnits::LengthUnitsEnum"}],
+    :type "double"},
+   :getSpeciesRecordVectorForGACCRegionAndEquationType
+   {:id "getSpeciesRecordVectorForGACCRegionAndEquationType",
+    :parameters
+    [{:id "region", :type "GACC"}
+     {:id "equationType", :type "EquationType"}],
+    :type "SpeciesMasterTableRecordVector"},
    :setCrownRatio
-   {:type "void",
-    :id "setCrownRatio",
-    :parameters [{:id "crownRatio", :type "double"}
-                 {:id "crownRatioUnits", :type "FractionUnits::FractionUnitsEnum"}]},
-   :getRegion {:type "RegionCode", :id "getRegion", :parameters []},
+   {:id "setCrownRatio",
+    :parameters
+    [{:id "crownRatio", :type "double"}
+     {:id "crownRatioUnits",
+      :type "FractionUnits::FractionUnitsEnum"}],
+    :type "void"},
+   :initializeMembers
+   {:id "initializeMembers", :parameters [], :type "void"},
    :getFireSeverity
-   {:type "FireSeverity", :id "getFireSeverity", :parameters []},
+   {:id "getFireSeverity", :parameters [], :type "FireSeverity"},
    :getTreeHeight
-   {:type "double",
-    :id "getTreeHeight",
+   {:id "getTreeHeight",
     :parameters
-    [{:id "treeHeightUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+    [{:id "treeHeightUnits", :type "LengthUnits::LengthUnitsEnum"}],
+    :type "double"},
    :getCrownDamageEquationCodeFromSpeciesCode
-   {:type "CrownDamageEquationCode",
-    :id "getCrownDamageEquationCodeFromSpeciesCode",
-    :parameters [{:id "speciesCode", :type "char"}]},
+   {:id "getCrownDamageEquationCodeFromSpeciesCode",
+    :parameters [{:id "speciesCode", :type "char"}],
+    :type "CrownDamageEquationCode"},
    :setEquationType
-   {:type "void",
-    :id "setEquationType",
-    :parameters [{:id "equationType", :type "EquationType"}]},
+   {:id "setEquationType",
+    :parameters [{:id "equationType", :type "EquationType"}],
+    :type "void"},
    :getCrownRatio
-   {:type "double", :id "getCrownRatio",
+   {:id "getCrownRatio",
     :parameters
-    [{:id   "crownRatioUnits",
-      :type "FractionUnits::FractionUnitsEnum"}]},
+    [{:id "crownRatioUnits",
+      :type "FractionUnits::FractionUnitsEnum"}],
+    :type "double"},
    :getNumberOfRecordsInSpeciesTable
-   {:type "int",
-    :id "getNumberOfRecordsInSpeciesTable",
-    :parameters []},
-   :getSpeciesRecordVectorForRegionAndEquationType
-   {:type "SpeciesMasterTableRecordVector",
-    :id "getSpeciesRecordVectorForRegionAndEquationType",
-    :parameters
-    [{:id "region", :type "RegionCode"}
-     {:id "equationType", :type "EquationType"}]},
+   {:id "getNumberOfRecordsInSpeciesTable",
+    :parameters [],
+    :type "int"},
    :getTreeDensityPerUnitArea
-   {:type "double",
-    :id "getTreeDensityPerUnitArea",
-    :parameters [{:id "areaUnits", :type "AreaUnits::AreaUnitsEnum"}]},
+   {:id "getTreeDensityPerUnitArea",
+    :parameters [{:id "areaUnits", :type "AreaUnits::AreaUnitsEnum"}],
+    :type "double"},
    :getTreeCrownLengthScorchedBacking
-   {:type "double",
-    :id "getTreeCrownLengthScorchedBacking",
+   {:id "getTreeCrownLengthScorchedBacking",
     :parameters
-    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+    [{:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}],
+    :type "double"},
+   :getBoleCharHeightBacking
+   {:id "getBoleCharHeightBacking",
+    :parameters
+    [{:id "boleCharHeightUnits",
+      :type "LengthUnits::LengthUnitsEnum"}],
+    :type "double"},
    :setSurfaceFireFirelineIntensityBacking
-   {:type "void",
-    :id "setSurfaceFireFirelineIntensityBacking",
+   {:id "setSurfaceFireFirelineIntensityBacking",
     :parameters
     [{:id "value", :type "double"}
      {:id "firelineIntensityUnits",
-      :type "FirelineIntensityUnits::FirelineIntensityUnitsEnum"}]},
+      :type "FirelineIntensityUnits::FirelineIntensityUnitsEnum"}],
+    :type "void"},
    :setFlameLengthOrScorchHeightValue
-   {:type "void",
-    :id "setFlameLengthOrScorchHeightValue",
+   {:id "setFlameLengthOrScorchHeightValue",
     :parameters
     [{:id "flameLengthOrScorchHeightValue", :type "double"}
      {:id "flameLengthOrScorchHeightUnits",
-      :type "LengthUnits::LengthUnitsEnum"}]},
+      :type "LengthUnits::LengthUnitsEnum"}],
+    :type "void"},
+   :getScorchHeightFlanking
+   {:id "getScorchHeightFlanking",
+    :parameters
+    [{:id "scorchHeightUnits", :type "LengthUnits::LengthUnitsEnum"}],
+    :type "double"},
+   :setWindSpeed
+   {:id "setWindSpeed",
+    :parameters
+    [{:id "windSpeed", :type "double"}
+     {:id "windSpeedUnits", :type "SpeedUnits::SpeedUnitsEnum"}],
+    :type "void"},
    :getProbabilityOfMortalityFlanking
-   {:type "double",
-    :id "getProbabilityOfMortalityFlanking",
+   {:id "getProbabilityOfMortalityFlanking",
     :parameters
     [{:id "probabilityUnits",
-      :type "FractionUnits::FractionUnitsEnum"}]},
+      :type "FractionUnits::FractionUnitsEnum"}],
+    :type "double"},
    :getEquationTypeAtSpeciesTableIndex
-   {:type "EquationType",
-    :id "getEquationTypeAtSpeciesTableIndex",
-    :parameters [{:id "index", :type "int"}]},
+   {:id "getEquationTypeAtSpeciesTableIndex",
+    :parameters [{:id "index", :type "int"}],
+    :type "EquationType"},
    :getBasalAreaKillled
-   {:type "double", :id "getBasalAreaKillled", :parameters []},
+   {:id "getBasalAreaKillled", :parameters [], :type "double"},
    :getSpeciesCode
-   {:type "char", :id "getSpeciesCode", :parameters []},
+   {:id "getSpeciesCode", :parameters [], :type "char"},
    :getSpeciesTableIndexFromSpeciesCodeAndEquationType
-   {:type "int",
-    :id "getSpeciesTableIndexFromSpeciesCodeAndEquationType",
+   {:id "getSpeciesTableIndexFromSpeciesCodeAndEquationType",
     :parameters
     [{:id "speciesNameCode", :type "char"}
-     {:id "equationType", :type "EquationType"}]},
+     {:id "equationType", :type "EquationType"}],
+    :type "int"},
    :setSurfaceFireFlameLength
-   {:type "void",
-    :id "setSurfaceFireFlameLength",
+   {:id "setSurfaceFireFlameLength",
     :parameters
     [{:id "value", :type "double"}
-     {:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+     {:id "lengthUnits", :type "LengthUnits::LengthUnitsEnum"}],
+    :type "void"},
    :setDBH
-   {:type "void",
-    :id "setDBH",
+   {:id "setDBH",
     :parameters
     [{:id "dbh", :type "double"}
-     {:id "diameterUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+     {:id "diameterUnits", :type "LengthUnits::LengthUnitsEnum"}],
+    :type "void"},
    :setFlameLength
-   {:type "void",
-    :id "setFlameLength",
+   {:id "setFlameLength",
     :parameters
     [{:id "flameLength", :type "double"}
-     {:id "flameLengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+     {:id "flameLengthUnits", :type "LengthUnits::LengthUnitsEnum"}],
+    :type "void"},
    :getFlameLength
-   {:type "double",
-    :id "getFlameLength",
+   {:id "getFlameLength",
     :parameters
-    [{:id "flameLengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+    [{:id "flameLengthUnits", :type "LengthUnits::LengthUnitsEnum"}],
+    :type "double"},
    :getSpeciesTableIndexFromSpeciesCode
-   {:type "int",
-    :id "getSpeciesTableIndexFromSpeciesCode",
-    :parameters [{:id "speciesNameCode", :type "char"}]},
+   {:id "getSpeciesTableIndexFromSpeciesCode",
+    :parameters [{:id "speciesNameCode", :type "char"}],
+    :type "int"},
    :getBarkEquationNumberFromSpeciesCode
-   {:type "int",
-    :id "getBarkEquationNumberFromSpeciesCode",
-    :parameters [{:id "speciesCode", :type "char"}]}
-   :getCVSorCLS
-   {:type "char", :id "getCVSorCLS", :parameters []}}}}
+   {:id "getBarkEquationNumberFromSpeciesCode",
+    :parameters [{:id "speciesCode", :type "char"}],
+    :type "int"}}}}
