@@ -84,5 +84,6 @@
                                             "-e" "(require,'behave.server)"]}
              :check-deps       {:extra-deps {olical/depot {:mvn/version "2.3.0"}}
                                 :main-opts  ["-m" "depot.outdated.main"]}
+             :download-vms     {:exec-fn behave.download-vms/exec-export-from-vms}
              :test             {:extra-paths ["test/cljs"]
                                 :extra-deps  {}}}}
