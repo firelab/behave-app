@@ -1733,6 +1733,18 @@ const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getSurfaceFireReact
   return self->getSurfaceFireReactionIntensityForLifeState(lifeState);
 }
 
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getTotalLiveFuelLoad_1(SIGSurface* self, LoadingUnits_LoadingUnitsEnum loadingUnits) {
+  return self->getTotalLiveFuelLoad(loadingUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getTotalDeadFuelLoad_1(SIGSurface* self, LoadingUnits_LoadingUnitsEnum loadingUnits) {
+  return self->getTotalDeadFuelLoad(loadingUnits);
+}
+
+const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getTotalDeadHerbaceousFuelLoad_1(SIGSurface* self, LoadingUnits_LoadingUnitsEnum loadingUnits) {
+  return self->getTotalDeadHerbaceousFuelLoad(loadingUnits);
+}
+
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSurface_getWindDirection_0(SIGSurface* self) {
   return self->getWindDirection();
 }
