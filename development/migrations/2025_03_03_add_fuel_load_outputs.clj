@@ -18,6 +18,7 @@
 #_{:clj-kondo/ignore [:missing-docstring]}
 (def conn (default-conn))
 
+#_{:clj-kondo/ignore [:missing-docstring]}
 (def cms-import-tx
   (add-export-file-to-conn "./cms-exports/SIGSurface.edn" conn))
 
@@ -27,41 +28,39 @@
 
 #_{:clj-kondo/ignore [:missing-docstring]}
 (def payload
-  [{:db/id (sm/t-key->eid conn "behaveplus:surface:output:wind-and-fuel")
-    :submodule/groups
-    (sm/postwalk-insert
-     [{:group/name                   "Fuel"
-       :group/group-variables        [{:group-variable/order                  0
-                                       :group-variable/cpp-namespace          (sm/cpp-ns->uuid conn "global")
-                                       :variable/_group-variables             (sm/name->eid conn :variable/name "Total Live Fuel Load")
-                                       :group-variable/cpp-class              (sm/cpp-class->uuid conn "SIGSurface")
-                                       :group-variable/cpp-function           (sm/cpp-fn->uuid conn "getTotalLiveFuelLoad")
-                                       :group-variable/translation-key        "behaveplus:surface:output:wind-and-fuel:fuel:total-live-fuel-load"
-                                       :group-variable/result-translation-key "behaveplus:surface:result:wind-and-fuel:fuel:total-live-fuel-load"
-                                       :group-variable/help-key               "behaveplus:surface:output:wind-and-fuel:fuel:total-live-fuel-load:help"}
-                                      {:group-variable/order                  1
-                                       :variable/_group-variables             (sm/name->eid conn :variable/name "Total Dead Fuel Load")
-                                       :group-variable/cpp-namespace          (sm/cpp-ns->uuid conn "global")
-                                       :group-variable/cpp-class              (sm/cpp-class->uuid conn "SIGSurface")
-                                       :group-variable/cpp-function           (sm/cpp-fn->uuid conn "getTotalDeadFuelLoad")
-                                       :group-variable/translation-key        "behaveplus:surface:output:wind-and-fuel:fuel:total-dead-fuel-load"
-                                       :group-variable/result-translation-key "behaveplus:surface:result:wind-and-fuel:fuel:total-dead-fuel-load"
-                                       :group-variable/help-key               "behaveplus:surface:output:wind-and-fuel:fuel:total-dead-fuel-load:help"}
-                                      {:group-variable/order                  2
-                                       :variable/_group-variables             (sm/name->eid conn :variable/name "Dead Herbaceous Fuel Load")
-                                       :group-variable/cpp-namespace          (sm/cpp-ns->uuid conn "global")
-                                       :group-variable/cpp-class              (sm/cpp-class->uuid conn "SIGSurface")
-                                       :group-variable/cpp-function           (sm/cpp-fn->uuid conn "getTotalDeadHerbaceousFuelLoad")
-                                       :group-variable/translation-key        "behaveplus:surface:output:wind-and-fuel:fuel:total-dead-herbaceous-fuel-load"
-                                       :group-variable/result-translation-key "behaveplus:surface:result:wind-and-fuel:fuel:total-dead-herbaceous-fuel-load"
-                                       :group-variable/help-key               "behaveplus:surface:output:wind-and-fuel:fuel:total-dead-herbaceous-fuel-load:help"}]
-       :group/order                  1
-       :group/translation-key        "behaveplus:surface:output:wind-and-fuel:fuel"
-       :group/help-key               "behaveplus:surface:output:wind-and-fuel:fuel:help"
-       :group/result-translation-key "behaveplus:surface:result:wind-and-fuel:fuel"}])}]
+  [(sm/postwalk-insert
+    {:group/name                   "Fuel"
+     :submodule/_groups            (sm/t-key->eid conn "behaveplus:surface:output:wind-and-fuel")
+     :group/group-variables        [{:group-variable/order                  0
+                                     :group-variable/cpp-namespace          (sm/cpp-ns->uuid conn "global")
+                                     :variable/_group-variables             (sm/name->eid conn :variable/name "Total Live Fuel Load")
+                                     :group-variable/cpp-class              (sm/cpp-class->uuid conn "SIGSurface")
+                                     :group-variable/cpp-function           (sm/cpp-fn->uuid conn "getTotalLiveFuelLoad")
+                                     :group-variable/translation-key        "behaveplus:surface:output:wind-and-fuel:fuel:total-live-fuel-load"
+                                     :group-variable/result-translation-key "behaveplus:surface:result:wind-and-fuel:fuel:total-live-fuel-load"
+                                     :group-variable/help-key               "behaveplus:surface:output:wind-and-fuel:fuel:total-live-fuel-load:help"}
+                                    {:group-variable/order                  1
+                                     :variable/_group-variables             (sm/name->eid conn :variable/name "Total Dead Fuel Load")
+                                     :group-variable/cpp-namespace          (sm/cpp-ns->uuid conn "global")
+                                     :group-variable/cpp-class              (sm/cpp-class->uuid conn "SIGSurface")
+                                     :group-variable/cpp-function           (sm/cpp-fn->uuid conn "getTotalDeadFuelLoad")
+                                     :group-variable/translation-key        "behaveplus:surface:output:wind-and-fuel:fuel:total-dead-fuel-load"
+                                     :group-variable/result-translation-key "behaveplus:surface:result:wind-and-fuel:fuel:total-dead-fuel-load"
+                                     :group-variable/help-key               "behaveplus:surface:output:wind-and-fuel:fuel:total-dead-fuel-load:help"}
+                                    {:group-variable/order                  2
+                                     :variable/_group-variables             (sm/name->eid conn :variable/name "Dead Herbaceous Fuel Load")
+                                     :group-variable/cpp-namespace          (sm/cpp-ns->uuid conn "global")
+                                     :group-variable/cpp-class              (sm/cpp-class->uuid conn "SIGSurface")
+                                     :group-variable/cpp-function           (sm/cpp-fn->uuid conn "getTotalDeadHerbaceousFuelLoad")
+                                     :group-variable/translation-key        "behaveplus:surface:output:wind-and-fuel:fuel:total-dead-herbaceous-fuel-load"
+                                     :group-variable/result-translation-key "behaveplus:surface:result:wind-and-fuel:fuel:total-dead-herbaceous-fuel-load"
+                                     :group-variable/help-key               "behaveplus:surface:output:wind-and-fuel:fuel:total-dead-herbaceous-fuel-load:help"}]
+     :group/order                  1
+     :group/translation-key        "behaveplus:surface:output:wind-and-fuel:fuel"
+     :group/help-key               "behaveplus:surface:output:wind-and-fuel:fuel:help"
+     :group/result-translation-key "behaveplus:surface:result:wind-and-fuel:fuel"})])
 
-  )
-
+#_{:clj-kondo/ignore [:missing-docstring]}
 (def add-new-translations-payload
   (sm/build-translations-payload conn 100
                                  {"behaveplus:surface:output:wind-and-fuel:fuel"                                 "Fuel"
