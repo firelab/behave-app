@@ -75,7 +75,7 @@ void SIGSpot::setFireType(FireType::FireTypeEnum fireType) {
 }
 
 double SIGSpot::getMaxMountainousTerrainSpottingDistanceFromTorchingTrees(LengthUnits::LengthUnitsEnum spottingDistanceUnits) const {
-    if (fireType_ == FireType::Surface or fireType_ == FireType::Crowning or fireType_ == FireType::ConditionalCrownFire) {
+    if (fireType_ == FireType::Crowning) {
         return -1;
     } else {
         return Spot::getMaxMountainousTerrainSpottingDistanceFromTorchingTrees(spottingDistanceUnits);
