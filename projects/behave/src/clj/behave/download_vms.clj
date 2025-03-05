@@ -22,7 +22,9 @@
         (unzip-file file files-dir))
       (log-str "Completed downloading images from VMS!"))))
 
-(defn export-from-vms [auth-token & [url]]
+(defn export-from-vms
+  "Downloads data from VMS"
+  [auth-token & [url]]
   (log-str "Beginning download from VMS...")
   (let [{:keys [status body] :as response}
         (client/get (str (or url "https://firelab.sig-gis.com") "/sync?auth-token=" auth-token)
@@ -34,3 +36,8 @@
       (io/copy body file)
       (reset-vms-version!)
       (log-str "Completed downloading from VMS!"))))
+
+(defn exec-export-from-vms
+  "Executable version of `export-from-vms`"
+  [{:keys [url auth-token]}]
+  (export-from-vms auth-token url))
