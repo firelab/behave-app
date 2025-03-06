@@ -1111,19 +1111,20 @@ SIGContainAdapter.prototype['removeResourceWithThisDesc'] = SIGContainAdapter.pr
   return _emscripten_bind_SIGContainAdapter_removeResourceWithThisDesc_1(self, desc);
 };;
 
-SIGContainAdapter.prototype['addResource'] = SIGContainAdapter.prototype.addResource = /** @suppress {undefinedVars, duplicate} @this{Object} */function(arrival, duration, timeUnit, productionRate, productionRateUnits, description, baseCost, hourCost) {
+SIGContainAdapter.prototype['addResource'] = SIGContainAdapter.prototype.addResource = /** @suppress {undefinedVars, duplicate} @this{Object} */function(arrival, arrivalTimeUnit, duration, durationTimeUnit, productionRate, productionRateUnits, description, baseCost, hourCost) {
   var self = this.ptr;
   ensureCache.prepare();
   if (arrival && typeof arrival === 'object') arrival = arrival.ptr;
+  if (arrivalTimeUnit && typeof arrivalTimeUnit === 'object') arrivalTimeUnit = arrivalTimeUnit.ptr;
   if (duration && typeof duration === 'object') duration = duration.ptr;
-  if (timeUnit && typeof timeUnit === 'object') timeUnit = timeUnit.ptr;
+  if (durationTimeUnit && typeof durationTimeUnit === 'object') durationTimeUnit = durationTimeUnit.ptr;
   if (productionRate && typeof productionRate === 'object') productionRate = productionRate.ptr;
   if (productionRateUnits && typeof productionRateUnits === 'object') productionRateUnits = productionRateUnits.ptr;
   if (description && typeof description === 'object') description = description.ptr;
   else description = ensureString(description);
   if (baseCost && typeof baseCost === 'object') baseCost = baseCost.ptr;
   if (hourCost && typeof hourCost === 'object') hourCost = hourCost.ptr;
-  _emscripten_bind_SIGContainAdapter_addResource_8(self, arrival, duration, timeUnit, productionRate, productionRateUnits, description, baseCost, hourCost);
+  _emscripten_bind_SIGContainAdapter_addResource_9(self, arrival, arrivalTimeUnit, duration, durationTimeUnit, productionRate, productionRateUnits, description, baseCost, hourCost);
 };;
 
 SIGContainAdapter.prototype['doContainRun'] = SIGContainAdapter.prototype.doContainRun = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {

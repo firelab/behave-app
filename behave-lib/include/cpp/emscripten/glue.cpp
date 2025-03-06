@@ -579,8 +579,8 @@ int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_removeResourceWithThi
   return self->removeResourceWithThisDesc(desc);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_addResource_8(SIGContainAdapter* self, double arrival, double duration, TimeUnits_TimeUnitsEnum timeUnit, double productionRate, SpeedUnits_SpeedUnitsEnum productionRateUnits, char* description, double baseCost, double hourCost) {
-  self->addResource(arrival, duration, timeUnit, productionRate, productionRateUnits, description, baseCost, hourCost);
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_addResource_9(SIGContainAdapter* self, double arrival, TimeUnits_TimeUnitsEnum arrivalTimeUnit, double duration, TimeUnits_TimeUnitsEnum durationTimeUnit, double productionRate, SpeedUnits_SpeedUnitsEnum productionRateUnits, char* description, double baseCost, double hourCost) {
+  self->addResource(arrival, arrivalTimeUnit, duration, durationTimeUnit, productionRate, productionRateUnits, description, baseCost, hourCost);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_doContainRun_0(SIGContainAdapter* self) {

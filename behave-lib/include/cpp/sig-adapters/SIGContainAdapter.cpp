@@ -32,11 +32,21 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
-void SIGContainAdapter::addResource(double arrival, double duration, TimeUnits::TimeUnitsEnum timeUnits, double productionRate, SpeedUnits::SpeedUnitsEnum productionRateUnits, const char * description, double baseCost, double hourCost)
+void SIGContainAdapter::addResource(double arrival,
+                                    TimeUnits::TimeUnitsEnum arrivalTimeUnits,
+                                    double duration,
+                                    TimeUnits::TimeUnitsEnum durationTimeUnits,
+                                    double productionRate,
+                                    SpeedUnits::SpeedUnitsEnum productionRateUnits,
+                                    const char * description,
+                                    double baseCost,
+                                    double hourCost)
 {
-  ContainAdapter::addResource(arrival,
-                              duration,
-                              timeUnits,
+  double durationInMinutes = TimeUnits::toBaseUnits(duration, arrivalTimeUnits);
+  double arrivalInMinutes = TimeUnits::toBaseUnits(arrival, durationTimeUnits);
+  ContainAdapter::addResource(arrivalInMinutes,
+                              durationInMinutes,
+                              TimeUnits::Minutes,
                               productionRate,
                               productionRateUnits,
                               std::string(description),
