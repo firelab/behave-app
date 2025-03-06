@@ -2651,8 +2651,8 @@ int EMSCRIPTEN_KEEPALIVE emscripten_bind_SpeciesMasterTable_getSpeciesTableIndex
   return self->getSpeciesTableIndexFromSpeciesCodeAndEquationType(speciesCode, equationType);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SpeciesMasterTable_insertRecord_12(SpeciesMasterTable* self, char* speciesCode, char* scientificName, char* commonName, int mortalityEquation, int brkEqu, int crownCoefficientCode, int region1, int region2, int region3, int region4, EquationType equationType, CrownDamageEquationCode crownDamageEquationCode) {
-  self->insertRecord(speciesCode, scientificName, commonName, mortalityEquation, brkEqu, crownCoefficientCode, region1, region2, region3, region4, equationType, crownDamageEquationCode);
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SpeciesMasterTable_insertRecord_17(SpeciesMasterTable* self, char* speciesCode, char* scientificName, char* commonName, int mortalityEquation, int brkEqu, int crownCoefficientCode, int Alaska, int California, int EasternArea, int GreatBasin, int NorthernRockies, int Northwest, int RocketyMountain, int SouthernArea, int SouthWest, EquationType equationType, CrownDamageEquationCode crownDamageEquationCode) {
+  self->insertRecord(speciesCode, scientificName, commonName, mortalityEquation, brkEqu, crownCoefficientCode, Alaska, California, EasternArea, GreatBasin, NorthernRockies, Northwest, RocketyMountain, SouthernArea, SouthWest, equationType, crownDamageEquationCode);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SpeciesMasterTable___destroy___0(SpeciesMasterTable* self) {
@@ -2669,12 +2669,12 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_initializeMembers_0(SIGMo
   self->initializeMembers();
 }
 
-bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_checkIsInRegionAtSpeciesTableIndex_2(SIGMortality* self, int index, RegionCode region) {
-  return self->checkIsInRegionAtSpeciesTableIndex(index, region);
+bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_checkIsInGACCRegionAtSpeciesTableIndex_2(SIGMortality* self, int index, GACC region) {
+  return self->checkIsInGACCRegionAtSpeciesTableIndex(index, region);
 }
 
-bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_checkIsInRegionFromSpeciesCode_2(SIGMortality* self, char* speciesCode, RegionCode region) {
-  return self->checkIsInRegionFromSpeciesCode(speciesCode, region);
+bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_checkIsInGACCRegionFromSpeciesCode_2(SIGMortality* self, char* speciesCode, GACC region) {
+  return self->checkIsInGACCRegionFromSpeciesCode(speciesCode, region);
 }
 
 bool EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_updateInputsForSpeciesCodeAndEquationType_2(SIGMortality* self, char* speciesCode, EquationType equationType) {
@@ -2761,16 +2761,16 @@ const FlameLengthOrScorchHeightSwitch EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMo
   return self->getFlameLengthOrScorchHeightSwitch();
 }
 
-const RegionCode EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getRegion_0(SIGMortality* self) {
-  return self->getRegion();
+const GACC EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getGACCRegion_0(SIGMortality* self) {
+  return self->getGACCRegion();
 }
 
-const SpeciesMasterTableRecordVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegion_1(SIGMortality* self, RegionCode region) {
-  return self->getSpeciesRecordVectorForRegion(region);
+const SpeciesMasterTableRecordVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getSpeciesRecordVectorForGACCRegion_1(SIGMortality* self, GACC region) {
+  return self->getSpeciesRecordVectorForGACCRegion(region);
 }
 
-const SpeciesMasterTableRecordVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegionAndEquationType_2(SIGMortality* self, RegionCode region, EquationType equationType) {
-  return self->getSpeciesRecordVectorForRegionAndEquationType(region, equationType);
+const SpeciesMasterTableRecordVector* EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getSpeciesRecordVectorForGACCRegionAndEquationType_2(SIGMortality* self, GACC region, EquationType equationType) {
+  return self->getSpeciesRecordVectorForGACCRegionAndEquationType(region, equationType);
 }
 
 const double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_getBarkThickness_1(SIGMortality* self, LengthUnits_LengthUnitsEnum barkThicknessUnits) {
@@ -2997,8 +2997,8 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setMidFlameWindSpeed_2(SI
   self->setMidFlameWindSpeed(midFlameWindSpeed, windSpeedUnits);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setRegion_1(SIGMortality* self, RegionCode region) {
-  self->setRegion(region);
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setGACCRegion_1(SIGMortality* self, GACC region) {
+  self->setGACCRegion(region);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGMortality_setScorchHeight_2(SIGMortality* self, double scorchHeight, LengthUnits_LengthUnitsEnum scorchHeightUnits) {
@@ -4037,18 +4037,36 @@ FlameLengthOrScorchHeightSwitch EMSCRIPTEN_KEEPALIVE emscripten_enum_FlameLength
   return FlameLengthOrScorchHeightSwitch::scorch_height;
 }
 
-// RegionCode
-RegionCode EMSCRIPTEN_KEEPALIVE emscripten_enum_RegionCode_interior_west() {
-  return RegionCode::interior_west;
+// GACC
+GACC EMSCRIPTEN_KEEPALIVE emscripten_enum_GACC_NotSet() {
+  return GACC::NotSet;
 }
-RegionCode EMSCRIPTEN_KEEPALIVE emscripten_enum_RegionCode_pacific_west() {
-  return RegionCode::pacific_west;
+GACC EMSCRIPTEN_KEEPALIVE emscripten_enum_GACC_Alaska() {
+  return GACC::Alaska;
 }
-RegionCode EMSCRIPTEN_KEEPALIVE emscripten_enum_RegionCode_north_east() {
-  return RegionCode::north_east;
+GACC EMSCRIPTEN_KEEPALIVE emscripten_enum_GACC_California() {
+  return GACC::California;
 }
-RegionCode EMSCRIPTEN_KEEPALIVE emscripten_enum_RegionCode_south_east() {
-  return RegionCode::south_east;
+GACC EMSCRIPTEN_KEEPALIVE emscripten_enum_GACC_EasternArea() {
+  return GACC::EasternArea;
+}
+GACC EMSCRIPTEN_KEEPALIVE emscripten_enum_GACC_GreatBasin() {
+  return GACC::GreatBasin;
+}
+GACC EMSCRIPTEN_KEEPALIVE emscripten_enum_GACC_NorthernRockies() {
+  return GACC::NorthernRockies;
+}
+GACC EMSCRIPTEN_KEEPALIVE emscripten_enum_GACC_Northwest() {
+  return GACC::Northwest;
+}
+GACC EMSCRIPTEN_KEEPALIVE emscripten_enum_GACC_RockeyMountain() {
+  return GACC::RockeyMountain;
+}
+GACC EMSCRIPTEN_KEEPALIVE emscripten_enum_GACC_SouthernArea() {
+  return GACC::SouthernArea;
+}
+GACC EMSCRIPTEN_KEEPALIVE emscripten_enum_GACC_Southwest() {
+  return GACC::Southwest;
 }
 
 // RequiredFieldNames

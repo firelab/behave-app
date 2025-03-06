@@ -956,11 +956,17 @@ enum FlameLengthOrScorchHeightSwitch {
   "FlameLengthOrScorchHeightSwitch::scorch_height"
 };
 
-enum RegionCode {
-  "RegionCode::interior_west",
-  "RegionCode::pacific_west",
-  "RegionCode::north_east",
-  "RegionCode::south_east"
+enum GACC {
+    "GACC::NotSet",
+    "GACC::Alaska",
+    "GACC::California",
+    "GACC::EasternArea",
+    "GACC::GreatBasin",
+    "GACC::NorthernRockies",
+    "GACC::Northwest",
+    "GACC::RockeyMountain",
+    "GACC::SouthernArea",
+    "GACC::Southwest",
 };
 
 enum RequiredFieldNames {
@@ -1106,15 +1112,31 @@ interface SpeciesMasterTable {
   void initializeMasterTable();
   long getSpeciesTableIndexFromSpeciesCode(DOMString speciesCode);
   long getSpeciesTableIndexFromSpeciesCodeAndEquationType(DOMString speciesCode, EquationType equationType);
-  void insertRecord(DOMString speciesCode, DOMString scientificName, DOMString commonName, long mortalityEquation, long brkEqu, long crownCoefficientCode, long region1, long region2, long region3, long region4, EquationType equationType, CrownDamageEquationCode crownDamageEquationCode);
+    void insertRecord(DOMString speciesCode,
+                      DOMString scientificName,
+                      DOMString commonName,
+                      long  mortalityEquation,
+                      long  brkEqu,
+                      long  crownCoefficientCode,
+                      long Alaska,
+                      long California,
+                      long EasternArea,
+                      long GreatBasin,
+                      long NorthernRockies,
+                      long Northwest,
+                      long RocketyMountain,
+                      long SouthernArea,
+                      long SouthWest,
+                      EquationType equationType,
+                      CrownDamageEquationCode crownDamageEquationCode);
 };
 
 interface SIGMortality {
   void SIGMortality([Ref] SpeciesMasterTable speciesMasterTable);
   void initializeMembers();
 
-  boolean checkIsInRegionAtSpeciesTableIndex(long index, RegionCode region);
-  boolean checkIsInRegionFromSpeciesCode(DOMString speciesCode, RegionCode region);
+  boolean checkIsInGACCRegionAtSpeciesTableIndex(long index, GACC region);
+  boolean checkIsInGACCRegionFromSpeciesCode(DOMString speciesCode, GACC region);
   boolean updateInputsForSpeciesCodeAndEquationType(DOMString speciesCode, EquationType equationType);
   double calculateMortality(FractionUnits_FractionUnitsEnum probablityUnits);
   double calculateScorchHeight(double firelineIntensity, FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits, double midFlameWindSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits, double airTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnits, LengthUnits_LengthUnitsEnum scorchHeightUnits);
@@ -1138,9 +1160,9 @@ interface SIGMortality {
   [Const] EquationType getEquationTypeFromSpeciesCode(DOMString speciesCode);
   [Const] FireSeverity getFireSeverity();
   [Const] FlameLengthOrScorchHeightSwitch getFlameLengthOrScorchHeightSwitch();
-  [Const] RegionCode getRegion();
-  [Const] SpeciesMasterTableRecordVector getSpeciesRecordVectorForRegion(RegionCode region);
-  [Const] SpeciesMasterTableRecordVector getSpeciesRecordVectorForRegionAndEquationType(RegionCode region, EquationType equationType);
+  [Const] GACC getGACCRegion();
+  [Const] SpeciesMasterTableRecordVector getSpeciesRecordVectorForGACCRegion(GACC region);
+  [Const] SpeciesMasterTableRecordVector getSpeciesRecordVectorForGACCRegionAndEquationType(GACC region, EquationType equationType);
   [Const] double getBarkThickness(LengthUnits_LengthUnitsEnum barkThicknessUnits);
   [Const] double getBasalAreaKillled();
   [Const] double getBasalAreaPostfire();
@@ -1199,7 +1221,7 @@ interface SIGMortality {
   void setFlameLengthOrScorchHeightSwitch(FlameLengthOrScorchHeightSwitch flameLengthOrScorchHeightSwitch);
   void setFlameLengthOrScorchHeightValue(double flameLengthOrScorchHeightValue, LengthUnits_LengthUnitsEnum flameLengthOrScorchHeightUnits);
   void setMidFlameWindSpeed(double midFlameWindSpeed, SpeedUnits_SpeedUnitsEnum windSpeedUnits);
-  void setRegion(RegionCode region);
+  void setGACCRegion(GACC region);
   void setScorchHeight(double scorchHeight, LengthUnits_LengthUnitsEnum scorchHeightUnits);
   void setSpeciesCode(DOMString speciesCode);
   void setSurfaceFireFirelineIntensity(double value, FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits);

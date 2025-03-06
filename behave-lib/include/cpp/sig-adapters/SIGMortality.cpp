@@ -291,14 +291,14 @@ BoolVector* SIGMortality::getRequiredFieldVector()
     return ptr;
 }
 
-SpeciesMasterTableRecordVector* SIGMortality::getSpeciesRecordVectorForRegion(RegionCode region) {
-    vector<SpeciesMasterTableRecord> results = Mortality::getSpeciesRecordVectorForRegion(region);
+SpeciesMasterTableRecordVector* SIGMortality::getSpeciesRecordVectorForGACCRegion(GACC region) {
+    vector<SpeciesMasterTableRecord> results = Mortality::getSpeciesRecordVectorForGACCRegion(region);
     SpeciesMasterTableRecordVector *ptr = new SpeciesMasterTableRecordVector(results);
     return ptr;
 }
 
-SpeciesMasterTableRecordVector* SIGMortality::getSpeciesRecordVectorForRegionAndEquationType(RegionCode region, EquationType equationType) {
-    vector<SpeciesMasterTableRecord> results = Mortality::getSpeciesRecordVectorForRegionAndEquationType(region, equationType);
+SpeciesMasterTableRecordVector* SIGMortality::getSpeciesRecordVectorForGACCRegionAndEquationType(GACC region, EquationType equationType) {
+    vector<SpeciesMasterTableRecord> results = Mortality::getSpeciesRecordVectorForGACCRegionAndEquationType(region, equationType);
     SpeciesMasterTableRecordVector *ptr = new SpeciesMasterTableRecordVector(results);
     return ptr;
 }

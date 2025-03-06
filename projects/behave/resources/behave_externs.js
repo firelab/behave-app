@@ -413,8 +413,8 @@ Module.SIGMortality = class {
   calculateMortality() {}
   calculateMortalityAllDirections() {}
   calculateScorchHeight() {}
-  checkIsInRegionAtSpeciesTableIndex() {}
-  checkIsInRegionFromSpeciesCode() {}
+  checkIsInGACCRegionAtSpeciesTableIndex() {}
+  checkIsInGACCRegionFromSpeciesCode() {}
   getBarkEquationNumberAtSpeciesTableIndex() {}
   getBarkEquationNumberFromSpeciesCode() {}
   getBarkThickness() {}
@@ -454,7 +454,7 @@ Module.SIGMortality = class {
   getProbabilityOfMortality() {}
   getProbabilityOfMortalityBacking() {}
   getProbabilityOfMortalityFlanking() {}
-  getRegion() {}
+  getGACCRegion() {}
   getRequiredFieldVector() {}
   getScientificNameAtSpeciesTableIndex() {}
   getScientificNameFromSpeciesCode() {}
@@ -465,8 +465,8 @@ Module.SIGMortality = class {
   getSpeciesCodeAtSpeciesTableIndex() {}
   getSpeciesRecordAtIndex() {}
   getSpeciesRecordBySpeciesCodeAndEquationType() {}
-  getSpeciesRecordVectorForRegion() {}
-  getSpeciesRecordVectorForRegionAndEquationType() {}
+  getSpeciesRecordVectorForGACCRegion() {}
+  getSpeciesRecordVectorForGACCRegionAndEquationType() {}
   getSpeciesTableIndexFromSpeciesCode() {}
   getSpeciesTableIndexFromSpeciesCodeAndEquationType() {}
   getTotalPrefireTrees() {}
@@ -495,7 +495,7 @@ Module.SIGMortality = class {
   setFlameLengthOrScorchHeightSwitch() {}
   setFlameLengthOrScorchHeightValue() {}
   setMidFlameWindSpeed() {}
-  setRegion() {}
+  setGACCRegion() {}
   setScorchHeight() {}
   setSpeciesCode() {}
   setSurfaceFireFirelineIntensity() {}
