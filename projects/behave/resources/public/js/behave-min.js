@@ -4637,7 +4637,7 @@ var wasmImports = {
   "invoke_viiii": invoke_viiii,
   "invoke_viiiiddddddddddddii": invoke_viiiiddddddddddddii,
   "invoke_viiiii": invoke_viiiii,
-  "invoke_viiiiiiiiiiiii": invoke_viiiiiiiiiiiii
+  "invoke_viiiiiiiiiiiiiiiiii": invoke_viiiiiiiiiiiiiiiiii
 };
 var asm = createWasm();
 /** @type {function(...*):?} */
@@ -5921,7 +5921,7 @@ var _emscripten_bind_SpeciesMasterTable_getSpeciesTableIndexFromSpeciesCode_1 = 
 /** @type {function(...*):?} */
 var _emscripten_bind_SpeciesMasterTable_getSpeciesTableIndexFromSpeciesCodeAndEquationType_2 = Module["_emscripten_bind_SpeciesMasterTable_getSpeciesTableIndexFromSpeciesCodeAndEquationType_2"] = createExportWrapper("emscripten_bind_SpeciesMasterTable_getSpeciesTableIndexFromSpeciesCodeAndEquationType_2");
 /** @type {function(...*):?} */
-var _emscripten_bind_SpeciesMasterTable_insertRecord_12 = Module["_emscripten_bind_SpeciesMasterTable_insertRecord_12"] = createExportWrapper("emscripten_bind_SpeciesMasterTable_insertRecord_12");
+var _emscripten_bind_SpeciesMasterTable_insertRecord_17 = Module["_emscripten_bind_SpeciesMasterTable_insertRecord_17"] = createExportWrapper("emscripten_bind_SpeciesMasterTable_insertRecord_17");
 /** @type {function(...*):?} */
 var _emscripten_bind_SpeciesMasterTable___destroy___0 = Module["_emscripten_bind_SpeciesMasterTable___destroy___0"] = createExportWrapper("emscripten_bind_SpeciesMasterTable___destroy___0");
 /** @type {function(...*):?} */
@@ -5929,9 +5929,9 @@ var _emscripten_bind_SIGMortality_SIGMortality_1 = Module["_emscripten_bind_SIGM
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_initializeMembers_0 = Module["_emscripten_bind_SIGMortality_initializeMembers_0"] = createExportWrapper("emscripten_bind_SIGMortality_initializeMembers_0");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGMortality_checkIsInRegionAtSpeciesTableIndex_2 = Module["_emscripten_bind_SIGMortality_checkIsInRegionAtSpeciesTableIndex_2"] = createExportWrapper("emscripten_bind_SIGMortality_checkIsInRegionAtSpeciesTableIndex_2");
+var _emscripten_bind_SIGMortality_checkIsInGACCRegionAtSpeciesTableIndex_2 = Module["_emscripten_bind_SIGMortality_checkIsInGACCRegionAtSpeciesTableIndex_2"] = createExportWrapper("emscripten_bind_SIGMortality_checkIsInGACCRegionAtSpeciesTableIndex_2");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGMortality_checkIsInRegionFromSpeciesCode_2 = Module["_emscripten_bind_SIGMortality_checkIsInRegionFromSpeciesCode_2"] = createExportWrapper("emscripten_bind_SIGMortality_checkIsInRegionFromSpeciesCode_2");
+var _emscripten_bind_SIGMortality_checkIsInGACCRegionFromSpeciesCode_2 = Module["_emscripten_bind_SIGMortality_checkIsInGACCRegionFromSpeciesCode_2"] = createExportWrapper("emscripten_bind_SIGMortality_checkIsInGACCRegionFromSpeciesCode_2");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_updateInputsForSpeciesCodeAndEquationType_2 = Module["_emscripten_bind_SIGMortality_updateInputsForSpeciesCodeAndEquationType_2"] = createExportWrapper("emscripten_bind_SIGMortality_updateInputsForSpeciesCodeAndEquationType_2");
 /** @type {function(...*):?} */
@@ -5975,11 +5975,11 @@ var _emscripten_bind_SIGMortality_getFireSeverity_0 = Module["_emscripten_bind_S
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getFlameLengthOrScorchHeightSwitch_0 = Module["_emscripten_bind_SIGMortality_getFlameLengthOrScorchHeightSwitch_0"] = createExportWrapper("emscripten_bind_SIGMortality_getFlameLengthOrScorchHeightSwitch_0");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGMortality_getRegion_0 = Module["_emscripten_bind_SIGMortality_getRegion_0"] = createExportWrapper("emscripten_bind_SIGMortality_getRegion_0");
+var _emscripten_bind_SIGMortality_getGACCRegion_0 = Module["_emscripten_bind_SIGMortality_getGACCRegion_0"] = createExportWrapper("emscripten_bind_SIGMortality_getGACCRegion_0");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegion_1 = Module["_emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegion_1"] = createExportWrapper("emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegion_1");
+var _emscripten_bind_SIGMortality_getSpeciesRecordVectorForGACCRegion_1 = Module["_emscripten_bind_SIGMortality_getSpeciesRecordVectorForGACCRegion_1"] = createExportWrapper("emscripten_bind_SIGMortality_getSpeciesRecordVectorForGACCRegion_1");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegionAndEquationType_2 = Module["_emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegionAndEquationType_2"] = createExportWrapper("emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegionAndEquationType_2");
+var _emscripten_bind_SIGMortality_getSpeciesRecordVectorForGACCRegionAndEquationType_2 = Module["_emscripten_bind_SIGMortality_getSpeciesRecordVectorForGACCRegionAndEquationType_2"] = createExportWrapper("emscripten_bind_SIGMortality_getSpeciesRecordVectorForGACCRegionAndEquationType_2");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_getBarkThickness_1 = Module["_emscripten_bind_SIGMortality_getBarkThickness_1"] = createExportWrapper("emscripten_bind_SIGMortality_getBarkThickness_1");
 /** @type {function(...*):?} */
@@ -6093,7 +6093,7 @@ var _emscripten_bind_SIGMortality_setFlameLengthOrScorchHeightValue_2 = Module["
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_setMidFlameWindSpeed_2 = Module["_emscripten_bind_SIGMortality_setMidFlameWindSpeed_2"] = createExportWrapper("emscripten_bind_SIGMortality_setMidFlameWindSpeed_2");
 /** @type {function(...*):?} */
-var _emscripten_bind_SIGMortality_setRegion_1 = Module["_emscripten_bind_SIGMortality_setRegion_1"] = createExportWrapper("emscripten_bind_SIGMortality_setRegion_1");
+var _emscripten_bind_SIGMortality_setGACCRegion_1 = Module["_emscripten_bind_SIGMortality_setGACCRegion_1"] = createExportWrapper("emscripten_bind_SIGMortality_setGACCRegion_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGMortality_setScorchHeight_2 = Module["_emscripten_bind_SIGMortality_setScorchHeight_2"] = createExportWrapper("emscripten_bind_SIGMortality_setScorchHeight_2");
 /** @type {function(...*):?} */
@@ -6659,13 +6659,25 @@ var _emscripten_enum_FlameLengthOrScorchHeightSwitch_flame_length = Module["_ems
 /** @type {function(...*):?} */
 var _emscripten_enum_FlameLengthOrScorchHeightSwitch_scorch_height = Module["_emscripten_enum_FlameLengthOrScorchHeightSwitch_scorch_height"] = createExportWrapper("emscripten_enum_FlameLengthOrScorchHeightSwitch_scorch_height");
 /** @type {function(...*):?} */
-var _emscripten_enum_RegionCode_interior_west = Module["_emscripten_enum_RegionCode_interior_west"] = createExportWrapper("emscripten_enum_RegionCode_interior_west");
+var _emscripten_enum_GACC_NotSet = Module["_emscripten_enum_GACC_NotSet"] = createExportWrapper("emscripten_enum_GACC_NotSet");
 /** @type {function(...*):?} */
-var _emscripten_enum_RegionCode_pacific_west = Module["_emscripten_enum_RegionCode_pacific_west"] = createExportWrapper("emscripten_enum_RegionCode_pacific_west");
+var _emscripten_enum_GACC_Alaska = Module["_emscripten_enum_GACC_Alaska"] = createExportWrapper("emscripten_enum_GACC_Alaska");
 /** @type {function(...*):?} */
-var _emscripten_enum_RegionCode_north_east = Module["_emscripten_enum_RegionCode_north_east"] = createExportWrapper("emscripten_enum_RegionCode_north_east");
+var _emscripten_enum_GACC_California = Module["_emscripten_enum_GACC_California"] = createExportWrapper("emscripten_enum_GACC_California");
 /** @type {function(...*):?} */
-var _emscripten_enum_RegionCode_south_east = Module["_emscripten_enum_RegionCode_south_east"] = createExportWrapper("emscripten_enum_RegionCode_south_east");
+var _emscripten_enum_GACC_EasternArea = Module["_emscripten_enum_GACC_EasternArea"] = createExportWrapper("emscripten_enum_GACC_EasternArea");
+/** @type {function(...*):?} */
+var _emscripten_enum_GACC_GreatBasin = Module["_emscripten_enum_GACC_GreatBasin"] = createExportWrapper("emscripten_enum_GACC_GreatBasin");
+/** @type {function(...*):?} */
+var _emscripten_enum_GACC_NorthernRockies = Module["_emscripten_enum_GACC_NorthernRockies"] = createExportWrapper("emscripten_enum_GACC_NorthernRockies");
+/** @type {function(...*):?} */
+var _emscripten_enum_GACC_Northwest = Module["_emscripten_enum_GACC_Northwest"] = createExportWrapper("emscripten_enum_GACC_Northwest");
+/** @type {function(...*):?} */
+var _emscripten_enum_GACC_RockeyMountain = Module["_emscripten_enum_GACC_RockeyMountain"] = createExportWrapper("emscripten_enum_GACC_RockeyMountain");
+/** @type {function(...*):?} */
+var _emscripten_enum_GACC_SouthernArea = Module["_emscripten_enum_GACC_SouthernArea"] = createExportWrapper("emscripten_enum_GACC_SouthernArea");
+/** @type {function(...*):?} */
+var _emscripten_enum_GACC_Southwest = Module["_emscripten_enum_GACC_Southwest"] = createExportWrapper("emscripten_enum_GACC_Southwest");
 /** @type {function(...*):?} */
 var _emscripten_enum_RequiredFieldNames_region = Module["_emscripten_enum_RequiredFieldNames_region"] = createExportWrapper("emscripten_enum_RequiredFieldNames_region");
 /** @type {function(...*):?} */
@@ -6889,8 +6901,8 @@ var ___cxa_can_catch = createExportWrapper("__cxa_can_catch");
 var ___cxa_is_pointer_type = createExportWrapper("__cxa_is_pointer_type");
 /** @type {function(...*):?} */
 var dynCall_jiji = Module["dynCall_jiji"] = createExportWrapper("dynCall_jiji");
-var ___start_em_js = Module['___start_em_js'] = 122120;
-var ___stop_em_js = Module['___stop_em_js'] = 122218;
+var ___start_em_js = Module['___start_em_js'] = 118920;
+var ___stop_em_js = Module['___stop_em_js'] = 119018;
 function invoke_vii(index,a1,a2) {
   var sp = stackSave();
   try {
@@ -7122,10 +7134,10 @@ function invoke_viddidiidd(index,a1,a2,a3,a4,a5,a6,a7,a8,a9) {
   }
 }
 
-function invoke_viiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13) {
+function invoke_viiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18) {
   var sp = stackSave();
   try {
-    getWasmTableEntry(index)(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13);
+    getWasmTableEntry(index)(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18);
   } catch(e) {
     stackRestore(sp);
     if (!(e instanceof EmscriptenEH)) throw e;
@@ -12050,7 +12062,7 @@ SpeciesMasterTable.prototype['getSpeciesTableIndexFromSpeciesCodeAndEquationType
   return _emscripten_bind_SpeciesMasterTable_getSpeciesTableIndexFromSpeciesCodeAndEquationType_2(self, speciesCode, equationType);
 };;
 
-SpeciesMasterTable.prototype['insertRecord'] = SpeciesMasterTable.prototype.insertRecord = /** @suppress {undefinedVars, duplicate} @this{Object} */function(speciesCode, scientificName, commonName, mortalityEquation, brkEqu, crownCoefficientCode, region1, region2, region3, region4, equationType, crownDamageEquationCode) {
+SpeciesMasterTable.prototype['insertRecord'] = SpeciesMasterTable.prototype.insertRecord = /** @suppress {undefinedVars, duplicate} @this{Object} */function(speciesCode, scientificName, commonName, mortalityEquation, brkEqu, crownCoefficientCode, Alaska, California, EasternArea, GreatBasin, NorthernRockies, Northwest, RocketyMountain, SouthernArea, SouthWest, equationType, crownDamageEquationCode) {
   var self = this.ptr;
   ensureCache.prepare();
   if (speciesCode && typeof speciesCode === 'object') speciesCode = speciesCode.ptr;
@@ -12062,13 +12074,18 @@ SpeciesMasterTable.prototype['insertRecord'] = SpeciesMasterTable.prototype.inse
   if (mortalityEquation && typeof mortalityEquation === 'object') mortalityEquation = mortalityEquation.ptr;
   if (brkEqu && typeof brkEqu === 'object') brkEqu = brkEqu.ptr;
   if (crownCoefficientCode && typeof crownCoefficientCode === 'object') crownCoefficientCode = crownCoefficientCode.ptr;
-  if (region1 && typeof region1 === 'object') region1 = region1.ptr;
-  if (region2 && typeof region2 === 'object') region2 = region2.ptr;
-  if (region3 && typeof region3 === 'object') region3 = region3.ptr;
-  if (region4 && typeof region4 === 'object') region4 = region4.ptr;
+  if (Alaska && typeof Alaska === 'object') Alaska = Alaska.ptr;
+  if (California && typeof California === 'object') California = California.ptr;
+  if (EasternArea && typeof EasternArea === 'object') EasternArea = EasternArea.ptr;
+  if (GreatBasin && typeof GreatBasin === 'object') GreatBasin = GreatBasin.ptr;
+  if (NorthernRockies && typeof NorthernRockies === 'object') NorthernRockies = NorthernRockies.ptr;
+  if (Northwest && typeof Northwest === 'object') Northwest = Northwest.ptr;
+  if (RocketyMountain && typeof RocketyMountain === 'object') RocketyMountain = RocketyMountain.ptr;
+  if (SouthernArea && typeof SouthernArea === 'object') SouthernArea = SouthernArea.ptr;
+  if (SouthWest && typeof SouthWest === 'object') SouthWest = SouthWest.ptr;
   if (equationType && typeof equationType === 'object') equationType = equationType.ptr;
   if (crownDamageEquationCode && typeof crownDamageEquationCode === 'object') crownDamageEquationCode = crownDamageEquationCode.ptr;
-  _emscripten_bind_SpeciesMasterTable_insertRecord_12(self, speciesCode, scientificName, commonName, mortalityEquation, brkEqu, crownCoefficientCode, region1, region2, region3, region4, equationType, crownDamageEquationCode);
+  _emscripten_bind_SpeciesMasterTable_insertRecord_17(self, speciesCode, scientificName, commonName, mortalityEquation, brkEqu, crownCoefficientCode, Alaska, California, EasternArea, GreatBasin, NorthernRockies, Northwest, RocketyMountain, SouthernArea, SouthWest, equationType, crownDamageEquationCode);
 };;
 
   SpeciesMasterTable.prototype['__destroy__'] = SpeciesMasterTable.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
@@ -12092,20 +12109,20 @@ SIGMortality.prototype['initializeMembers'] = SIGMortality.prototype.initializeM
   _emscripten_bind_SIGMortality_initializeMembers_0(self);
 };;
 
-SIGMortality.prototype['checkIsInRegionAtSpeciesTableIndex'] = SIGMortality.prototype.checkIsInRegionAtSpeciesTableIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index, region) {
+SIGMortality.prototype['checkIsInGACCRegionAtSpeciesTableIndex'] = SIGMortality.prototype.checkIsInGACCRegionAtSpeciesTableIndex = /** @suppress {undefinedVars, duplicate} @this{Object} */function(index, region) {
   var self = this.ptr;
   if (index && typeof index === 'object') index = index.ptr;
   if (region && typeof region === 'object') region = region.ptr;
-  return !!(_emscripten_bind_SIGMortality_checkIsInRegionAtSpeciesTableIndex_2(self, index, region));
+  return !!(_emscripten_bind_SIGMortality_checkIsInGACCRegionAtSpeciesTableIndex_2(self, index, region));
 };;
 
-SIGMortality.prototype['checkIsInRegionFromSpeciesCode'] = SIGMortality.prototype.checkIsInRegionFromSpeciesCode = /** @suppress {undefinedVars, duplicate} @this{Object} */function(speciesCode, region) {
+SIGMortality.prototype['checkIsInGACCRegionFromSpeciesCode'] = SIGMortality.prototype.checkIsInGACCRegionFromSpeciesCode = /** @suppress {undefinedVars, duplicate} @this{Object} */function(speciesCode, region) {
   var self = this.ptr;
   ensureCache.prepare();
   if (speciesCode && typeof speciesCode === 'object') speciesCode = speciesCode.ptr;
   else speciesCode = ensureString(speciesCode);
   if (region && typeof region === 'object') region = region.ptr;
-  return !!(_emscripten_bind_SIGMortality_checkIsInRegionFromSpeciesCode_2(self, speciesCode, region));
+  return !!(_emscripten_bind_SIGMortality_checkIsInGACCRegionFromSpeciesCode_2(self, speciesCode, region));
 };;
 
 SIGMortality.prototype['updateInputsForSpeciesCodeAndEquationType'] = SIGMortality.prototype.updateInputsForSpeciesCodeAndEquationType = /** @suppress {undefinedVars, duplicate} @this{Object} */function(speciesCode, equationType) {
@@ -12243,22 +12260,22 @@ SIGMortality.prototype['getFlameLengthOrScorchHeightSwitch'] = SIGMortality.prot
   return _emscripten_bind_SIGMortality_getFlameLengthOrScorchHeightSwitch_0(self);
 };;
 
-SIGMortality.prototype['getRegion'] = SIGMortality.prototype.getRegion = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+SIGMortality.prototype['getGACCRegion'] = SIGMortality.prototype.getGACCRegion = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  return _emscripten_bind_SIGMortality_getRegion_0(self);
+  return _emscripten_bind_SIGMortality_getGACCRegion_0(self);
 };;
 
-SIGMortality.prototype['getSpeciesRecordVectorForRegion'] = SIGMortality.prototype.getSpeciesRecordVectorForRegion = /** @suppress {undefinedVars, duplicate} @this{Object} */function(region) {
+SIGMortality.prototype['getSpeciesRecordVectorForGACCRegion'] = SIGMortality.prototype.getSpeciesRecordVectorForGACCRegion = /** @suppress {undefinedVars, duplicate} @this{Object} */function(region) {
   var self = this.ptr;
   if (region && typeof region === 'object') region = region.ptr;
-  return wrapPointer(_emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegion_1(self, region), SpeciesMasterTableRecordVector);
+  return wrapPointer(_emscripten_bind_SIGMortality_getSpeciesRecordVectorForGACCRegion_1(self, region), SpeciesMasterTableRecordVector);
 };;
 
-SIGMortality.prototype['getSpeciesRecordVectorForRegionAndEquationType'] = SIGMortality.prototype.getSpeciesRecordVectorForRegionAndEquationType = /** @suppress {undefinedVars, duplicate} @this{Object} */function(region, equationType) {
+SIGMortality.prototype['getSpeciesRecordVectorForGACCRegionAndEquationType'] = SIGMortality.prototype.getSpeciesRecordVectorForGACCRegionAndEquationType = /** @suppress {undefinedVars, duplicate} @this{Object} */function(region, equationType) {
   var self = this.ptr;
   if (region && typeof region === 'object') region = region.ptr;
   if (equationType && typeof equationType === 'object') equationType = equationType.ptr;
-  return wrapPointer(_emscripten_bind_SIGMortality_getSpeciesRecordVectorForRegionAndEquationType_2(self, region, equationType), SpeciesMasterTableRecordVector);
+  return wrapPointer(_emscripten_bind_SIGMortality_getSpeciesRecordVectorForGACCRegionAndEquationType_2(self, region, equationType), SpeciesMasterTableRecordVector);
 };;
 
 SIGMortality.prototype['getBarkThickness'] = SIGMortality.prototype.getBarkThickness = /** @suppress {undefinedVars, duplicate} @this{Object} */function(barkThicknessUnits) {
@@ -12604,10 +12621,10 @@ SIGMortality.prototype['setMidFlameWindSpeed'] = SIGMortality.prototype.setMidFl
   _emscripten_bind_SIGMortality_setMidFlameWindSpeed_2(self, midFlameWindSpeed, windSpeedUnits);
 };;
 
-SIGMortality.prototype['setRegion'] = SIGMortality.prototype.setRegion = /** @suppress {undefinedVars, duplicate} @this{Object} */function(region) {
+SIGMortality.prototype['setGACCRegion'] = SIGMortality.prototype.setGACCRegion = /** @suppress {undefinedVars, duplicate} @this{Object} */function(region) {
   var self = this.ptr;
   if (region && typeof region === 'object') region = region.ptr;
-  _emscripten_bind_SIGMortality_setRegion_1(self, region);
+  _emscripten_bind_SIGMortality_setGACCRegion_1(self, region);
 };;
 
 SIGMortality.prototype['setScorchHeight'] = SIGMortality.prototype.setScorchHeight = /** @suppress {undefinedVars, duplicate} @this{Object} */function(scorchHeight, scorchHeightUnits) {
@@ -13739,15 +13756,27 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
 
     
 
-    // RegionCode
+    // GACC
 
-    Module['interior_west'] = _emscripten_enum_RegionCode_interior_west();
+    Module['NotSet'] = _emscripten_enum_GACC_NotSet();
 
-    Module['pacific_west'] = _emscripten_enum_RegionCode_pacific_west();
+    Module['Alaska'] = _emscripten_enum_GACC_Alaska();
 
-    Module['north_east'] = _emscripten_enum_RegionCode_north_east();
+    Module['California'] = _emscripten_enum_GACC_California();
 
-    Module['south_east'] = _emscripten_enum_RegionCode_south_east();
+    Module['EasternArea'] = _emscripten_enum_GACC_EasternArea();
+
+    Module['GreatBasin'] = _emscripten_enum_GACC_GreatBasin();
+
+    Module['NorthernRockies'] = _emscripten_enum_GACC_NorthernRockies();
+
+    Module['Northwest'] = _emscripten_enum_GACC_Northwest();
+
+    Module['RockeyMountain'] = _emscripten_enum_GACC_RockeyMountain();
+
+    Module['SouthernArea'] = _emscripten_enum_GACC_SouthernArea();
+
+    Module['Southwest'] = _emscripten_enum_GACC_Southwest();
 
     
 

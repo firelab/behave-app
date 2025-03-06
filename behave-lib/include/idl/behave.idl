@@ -954,16 +954,16 @@ enum FlameLengthOrScorchHeightSwitch {
 };
 
 enum GACC {
-    "GACC::NotSet,
-    "GACC::Alaska,
-    "GACC::California,
-    "GACC::EasternArea,
-    "GACC::GreatBasin,
-    "GACC::NorthernRockies,
-    "GACC::Northwest,
-    "GACC::RockeyMountain,
-    "GACC::SouthernArea,
-    "GACC::Southwest,
+    "GACC::NotSet",
+    "GACC::Alaska",
+    "GACC::California",
+    "GACC::EasternArea",
+    "GACC::GreatBasin",
+    "GACC::NorthernRockies",
+    "GACC::Northwest",
+    "GACC::RockeyMountain",
+    "GACC::SouthernArea",
+    "GACC::Southwest",
 };
 
 enum RequiredFieldNames {
@@ -1109,23 +1109,23 @@ interface SpeciesMasterTable {
   void initializeMasterTable();
   long getSpeciesTableIndexFromSpeciesCode(DOMString speciesCode);
   long getSpeciesTableIndexFromSpeciesCodeAndEquationType(DOMString speciesCode, EquationType equationType);
-  void insertRecord(string speciesCode,
-                    string scientificName,
-                    string commonName,
-                    int  mortalityEquation,
-                    int  brkEqu,
-                    int  crownCoefficientCode,
-                    int8_t Alaska,
-                    int8_t California,
-                    int8_t EasternArea,
-                    int8_t GreatBasin,
-                    int8_t NorthernRockies,
-                    int8_t Northwest,
-                    int8_t RocketyMountain,
-                    int8_t SouthernArea,
-                    int8_t SouthWest,
-                    EquationType equationType,
-                    CrownDamageEquationCode crownDamageEquationCode);
+    void insertRecord(DOMString speciesCode,
+                      DOMString scientificName,
+                      DOMString commonName,
+                      long  mortalityEquation,
+                      long  brkEqu,
+                      long  crownCoefficientCode,
+                      long Alaska,
+                      long California,
+                      long EasternArea,
+                      long GreatBasin,
+                      long NorthernRockies,
+                      long Northwest,
+                      long RocketyMountain,
+                      long SouthernArea,
+                      long SouthWest,
+                      EquationType equationType,
+                      CrownDamageEquationCode crownDamageEquationCode);
 };
 
 interface SIGMortality {
