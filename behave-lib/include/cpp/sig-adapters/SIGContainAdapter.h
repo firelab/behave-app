@@ -39,8 +39,9 @@ public:
 
   // Inputs
   void addResource(double arrival,
+                   TimeUnits::TimeUnitsEnum arrivalTimeUnit,
                    double duration,
-                   TimeUnits::TimeUnitsEnum timeUnit,
+                   TimeUnits::TimeUnitsEnum durationTimeUnit,
                    double productionRate,
                    SpeedUnits::SpeedUnitsEnum productionRateUnits,
                    const char * description = "",
