@@ -127,6 +127,7 @@
     :id "addResource",
     :parameters
     [{:id "arrival", :type "double"}
+     {:id "arrivalTimeUnit", :type "double"}
      {:id "duration", :type "double"}
      {:id "timeUnit", :type "TimeUnits::TimeUnitsEnum"}
      {:id "productionRate", :type "double"}

@@ -42,16 +42,16 @@ void SIGContainAdapter::addResource(double arrival,
                                     double baseCost,
                                     double hourCost)
 {
-  double durationInMinutes = TimeUnits::toBaseUnits(duration, arrivalTimeUnits);
-  double arrivalInMinutes = TimeUnits::toBaseUnits(arrival, durationTimeUnits);
-  ContainAdapter::addResource(arrivalInMinutes,
-                              durationInMinutes,
-                              TimeUnits::Minutes,
-                              productionRate,
-                              productionRateUnits,
-                              std::string(description),
-                              baseCost,
-                              hourCost);
+    double arrivalInMinutes = TimeUnits::toBaseUnits(arrival, arrivalTimeUnits);
+    double durationInMinutes = TimeUnits::toBaseUnits(duration, durationTimeUnits);
+    ContainAdapter::addResource(arrivalInMinutes,
+                                durationInMinutes,
+                                TimeUnits::Minutes,
+                                productionRate,
+                                productionRateUnits,
+                                std::string(description),
+                                baseCost,
+                                hourCost);
 }
 
 int SIGContainAdapter::removeResourceWithThisDesc(const char * desc)
