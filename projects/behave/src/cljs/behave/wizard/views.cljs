@@ -380,6 +380,7 @@
                                             (sort-by #(.indexOf @*gv-order (first %))))
         *default-max-values            (subscribe [:worksheet/output-uuid->result-max-values ws-uuid])
         *default-min-values            (subscribe [:worksheet/output-uuid->result-min-values ws-uuid])
+        units-lookup                   @(subscribe [:worksheet/result-table-units ws-uuid])
         maximums                       (number-inputs {:saved-entries  (map (fn remove-min-val[[gv-uuid _min-val max-val enabled?]]
                                                                               [gv-uuid max-val enabled?])
                                                                             gv-uuid+min+max-entries-sorted)
@@ -400,7 +401,9 @@
                                                 (gstring/format fmt min-val max-val)))
                                             gv-uuid+min+max-entries-sorted)
         names                          (map (fn get-variable-name [[gv-uuid _min _max]]
-                                              @(subscribe [:wizard/gv-uuid->resolve-result-variable-name gv-uuid]))
+                                              (gstring/format "%s (%s)"
+                                                              @(subscribe [:wizard/gv-uuid->resolve-result-variable-name gv-uuid])
+                                                              (get units-lookup gv-uuid)))
                                             gv-uuid+min+max-entries-sorted)
         enabled-check-boxes            (when (= rf-event-id :worksheet/update-table-filter-attr)
                                          (map (fn [[gv-uuid _min _max enabled?]]
@@ -441,7 +444,8 @@
                                                      :graph-settings/enabled?]))
         multi-valued-input-uuids @(subscribe [:worksheet/multi-value-input-uuids ws-uuid])
         multi-valued-input-count (count multi-valued-input-uuids)
-        x-axis-limits            (first @(subscribe [:worksheet/graph-settings-x-axis-limits ws-uuid]))]
+        x-axis-limits            (first @(subscribe [:worksheet/graph-settings-x-axis-limits ws-uuid]))
+        units-lookup                   @(subscribe [:worksheet/result-table-units ws-uuid])]
     (letfn [(radio-group [{:keys [label attr variables on-change]}]
               (let [*values   (subscribe [:worksheet/get-graph-settings-attr ws-uuid attr])
                     selected? (first @*values)]
@@ -493,7 +497,9 @@
                                              @(<t (bp "maximum"))]
                                             (mapv #(str/upper-case %)))
                               :columns [:v-name :input-range :min :max]
-                              :rows    [{:v-name      v-name
+                              :rows    [{:v-name      (gstring/format "%s (%s)"
+                                                                      v-name
+                                                                      (get units-lookup gv-uuid))
                                          :input-range (str default-min "-" default-max)
                                          :min         (let [value-atom (r/atom min-val)]
                                                         [c/number-input {:enabled?   enabled?
