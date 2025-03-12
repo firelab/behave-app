@@ -86,7 +86,8 @@
      :on-select #(on-change (long (u/input-value %)))
      :selected  (:db/id @state)}]])
 
-(defmethod field-input :checkbox [{:keys [label options on-change state]}]
+(defmethod field-input :checkbox [{:keys [label options on-change state disabled?]
+                                   :or   {disabled? false}}]
   (let [group-label label]
     [:div.mb-3
      [:label.form-label group-label]
@@ -98,8 +99,10 @@
                          @state)]
           ^{:key id}
           [:div.form-check
+           {:disabled disabled?}
            [:input.form-check-input
             {:type      "checkbox"
+             :disabled  disabled?
              :id        id
              :checked   checked?
              :on-change #(on-change (.. % -target -checked))}]

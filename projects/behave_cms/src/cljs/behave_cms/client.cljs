@@ -3,6 +3,7 @@
             [reagent.core                       :as r]
             [reagent.dom                        :refer [render]]
             [re-frame.core                      :as rf]
+            [re-frisk.core                      :as re-frisk]
             [behave-cms.store                   :as s]
             [behave-cms.config                  :refer [update-config]]
             [behave-cms.events]
@@ -130,7 +131,8 @@
                      @original-params)]
     (update-config (:client-config clj-params))
     (render-root cur-params)
-    (rf/dispatch-sync [:initialize])))
+    (rf/dispatch-sync [:initialize])
+    (re-frisk/enable)))
 
 (defn- ^:after-load mount-root!
   "A hook for figwheel to call the init function again."

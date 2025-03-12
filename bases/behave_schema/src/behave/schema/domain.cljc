@@ -25,21 +25,21 @@
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :domain/native-unit-uuid
-    :db/doc         "Doman's default native-unit uuid"
+    :db/doc         "Domain's default native-unit uuid"
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :domain/english-unit-uuid
-    :db/doc         "Doman's default english-unit uuid"
+    :db/doc         "Domain's default english-unit uuid"
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :domain/metric-unit-uuid
-    :db/doc         "Doman's default matric-unit uuid"
+    :db/doc         "Domain's default metric-unit uuid"
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :domain/dimension-uuid
-    :db/doc         "Doman's dimension uuid"
+    :db/doc         "Domain's dimension uuid"
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}])
