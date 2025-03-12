@@ -685,7 +685,8 @@
          [:div.wizard-header__banner {:style {:margin-top "20px"}}
           [:div.wizard-header__banner__icon
            [c/icon :modules]]
-          "Results"]
+          [:div.wizard-header__banner__title
+           @(<t (bp "results"))]]
          [:div.wizard-header__results-toolbar
           [:div.wizard-header__results-toolbar__file-name
            [:div.wizard-header__results-toolbar__file-name__label (str @(<t (bp "file_name")) ":")]
