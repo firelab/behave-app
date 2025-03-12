@@ -301,7 +301,7 @@
            [:div.wizard-header__banner {:style {:margin-top "20px"}}
             [:div.wizard-header__banner__icon
              [c/icon :modules]]
-            [:div.wizard-header__banner__title "Review Modules"]
+            [:div.wizard-header__banner__title @(<t (bp "worksheet_review"))]
             (show-or-close-notes-button @*show-notes?)]]
           [:div.wizard-review
            [run-description ws-uuid]
@@ -603,7 +603,7 @@
           [:div.wizard-header__banner__icon
            [c/icon :modules]]
           [:div.wizard-header__banner__title
-           "Results Selection"]
+           @(<t (bp "result_settings"))]
           (show-or-close-notes-button @*show-notes?)]]
         (when @*show-notes?
           (wizard-notes @*notes))

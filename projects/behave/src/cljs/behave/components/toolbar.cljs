@@ -133,10 +133,10 @@
 (defmethod progress-bar :ws/wizard
   [{:keys [ws-uuid io route-handler] :as _params}]
   (let [selected-step            (get-step-number route-handler io)
-        steps                    [{:label            @(<t (bp "module_outputs_selections"))
+        steps                    [{:label            @(<t (bp "module_output_selections"))
                                    :completed?       false
                                    :route-handler+io [:ws/wizard :output]}
-                                  {:label            @(<t (bp "module_inputs_selections"))
+                                  {:label            @(<t (bp "module_input_selections"))
                                    :completed?       false
                                    :route-handler+io [:ws/wizard :input]}
                                   {:label            @(<t (bp "worksheet_review"))
@@ -145,7 +145,7 @@
                                   {:label            @(<t (bp "result_settings"))
                                    :completed?       false
                                    :route-handler+io [:ws/result-settings nil]}
-                                  {:label            @(<t (bp "run_results"))
+                                  {:label            @(<t (bp "results"))
                                    :completed?       false
                                    :route-handler+io [:ws/results nil]}]
         *worksheet               (rf/subscribe [:worksheet ws-uuid])
