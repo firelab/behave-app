@@ -44,7 +44,7 @@
                                   ws-uuid
                                   (:db/id group)
                                   (:group/conditionals-operator group)]))
-            (let [variables (->> group (:group/group-variables) (sort-by :group-variable/variable-order))]
+            (let [variables (->> group (:group/group-variables) (sort-by :group-variable/order))]
               [:<>
                [component-fn ws-uuid group variables level]
                [:div.wizard-subgroup__indent
