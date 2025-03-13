@@ -9,8 +9,8 @@
   (.doContainRun self))
 
 ;; Inputs
-(defn addResource [self arrival duration timeUnit productionRate productionRateUnits description]
-  (.addResource self arrival duration timeUnit productionRate productionRateUnits description))
+(defn addResource [self arrival arrivalTimeUnit duration durationTimeUnit productionRate productionRateUnits description]
+  (.addResource self arrival arrivalTimeUnit duration durationTimeUnit productionRate productionRateUnits description))
 
 (defn setAttackDistance [self attackDistance lengthUnits]
   (.setAttackDistance self attackDistance lengthUnits))

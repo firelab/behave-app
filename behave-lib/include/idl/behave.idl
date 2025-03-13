@@ -316,7 +316,7 @@ interface SIGContainAdapter {
   long removeAllResourcesWithThisDesc([Const] DOMString desc);
   long removeResourceAt(long index);
   long removeResourceWithThisDesc([Const] DOMString desc);
-  void addResource(double arrival, double duration, TimeUnits_TimeUnitsEnum timeUnit, double productionRate, SpeedUnits_SpeedUnitsEnum productionRateUnits, DOMString description, double baseCost, double hourCost);
+  void addResource(double arrival, TimeUnits_TimeUnitsEnum arrivalTimeUnit, double duration, TimeUnits_TimeUnitsEnum durationTimeUnit, double productionRate, SpeedUnits_SpeedUnitsEnum productionRateUnits, DOMString description, double baseCost, double hourCost);
   void doContainRun();
   void removeAllResources();
   void setAttackDistance(double attackDistance, LengthUnits_LengthUnitsEnum lengthUnits);
