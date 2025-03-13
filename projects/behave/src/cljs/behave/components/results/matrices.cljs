@@ -89,11 +89,11 @@
                                                (let [fmt-fn (get formatters col-uuid identity)]
                                                  (assoc acc [(input-fmt-fn row) col-uuid]
                                                         [:div {:class ["result-matrix-cell-value"
-                                                                        (when (contains? rows-to-shade-set row)
-                                                                          "table-cell__shaded")]}
-                                                         [:div (if (neg? v)
-                                                                 "-"
-                                                                 (fmt-fn v))]])))
+                                                                       (when (contains? rows-to-shade-set row)
+                                                                         "table-cell__shaded")]}
+                                                         (if (neg? v)
+                                                           "-"
+                                                           (fmt-fn v))])))
                                              {}
                                              matrix-data-raw)
         map-units-settings-entity @(subscribe [:worksheet/map-units-settings-entity ws-uuid])
