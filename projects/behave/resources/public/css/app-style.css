@@ -1281,6 +1281,7 @@ body {
 /* - Results Tables - */
 
 .result-matrix-cell-value {
+  position: relative;
   display: flex;
   flex-direction: row;
 }

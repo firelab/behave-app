@@ -88,12 +88,12 @@
         matrix-data-formatted     (reduce-kv (fn [acc [row col-uuid] v]
                                                (let [fmt-fn (get formatters col-uuid identity)]
                                                  (assoc acc [(input-fmt-fn row) col-uuid]
-                                                        [:div.result-matrix-cell-value
+                                                        [:div {:class ["result-matrix-cell-value"
+                                                                        (when (contains? rows-to-shade-set row)
+                                                                          "table-cell__shaded")]}
                                                          [:div (if (neg? v)
                                                                  "-"
-                                                                 (fmt-fn v))]
-                                                         (when (contains? rows-to-shade-set row)
-                                                           [:div "(X)"])])))
+                                                                 (fmt-fn v))]])))
                                              {}
                                              matrix-data-raw)
         map-units-settings-entity @(subscribe [:worksheet/map-units-settings-entity ws-uuid])
@@ -232,7 +232,8 @@
                                             deref
                                             (remove #(contains? pivot-table-uuids %))
                                             (sort-by #(.indexOf gv-order %)))]
-    [construct-result-matrices
+    [:div.wizard-results
+     [construct-result-matrices
      {:ws-uuid               ws-uuid
       :process-map-units?    (fn [v-uuid]
                                (and map-units-enabled?
@@ -244,4 +245,4 @@
                                         (merge {:units (get units-lookup gv-uuid)}))) output-gv-uuids)
       :units-lookup          units-lookup
       :formatters            @(subscribe [:worksheet/result-table-formatters output-gv-uuids])
-      :table-setting-filters table-setting-filters}]))
+      :table-setting-filters table-setting-filters}]]))
