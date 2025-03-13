@@ -2979,6 +2979,24 @@ SIGSurface.prototype['getSurfaceFireReactionIntensityForLifeState'] = SIGSurface
   return _emscripten_bind_SIGSurface_getSurfaceFireReactionIntensityForLifeState_1(self, lifeState);
 };;
 
+SIGSurface.prototype['getTotalLiveFuelLoad'] = SIGSurface.prototype.getTotalLiveFuelLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
+  var self = this.ptr;
+  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
+  return _emscripten_bind_SIGSurface_getTotalLiveFuelLoad_1(self, loadingUnits);
+};;
+
+SIGSurface.prototype['getTotalDeadFuelLoad'] = SIGSurface.prototype.getTotalDeadFuelLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
+  var self = this.ptr;
+  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
+  return _emscripten_bind_SIGSurface_getTotalDeadFuelLoad_1(self, loadingUnits);
+};;
+
+SIGSurface.prototype['getTotalDeadHerbaceousFuelLoad'] = SIGSurface.prototype.getTotalDeadHerbaceousFuelLoad = /** @suppress {undefinedVars, duplicate} @this{Object} */function(loadingUnits) {
+  var self = this.ptr;
+  if (loadingUnits && typeof loadingUnits === 'object') loadingUnits = loadingUnits.ptr;
+  return _emscripten_bind_SIGSurface_getTotalDeadHerbaceousFuelLoad_1(self, loadingUnits);
+};;
+
 SIGSurface.prototype['getWindDirection'] = SIGSurface.prototype.getWindDirection = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   return _emscripten_bind_SIGSurface_getWindDirection_0(self);

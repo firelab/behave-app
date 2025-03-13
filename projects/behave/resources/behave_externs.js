@@ -198,6 +198,9 @@ Module.SIGSurface = class {
   getSpreadRateInDirectionOfInterest() {}
   getSurfaceFireReactionIntensityForLifeState() {}
   getSurfaceRunInDirectionOf() {}
+  getTotalLiveFuelLoad() {}
+  getTotalDeadFuelLoad() {}
+  getTotalDeadHerbaceousFuelLoad() {}
   getWindAdjustmentFactorCalculationMethod() {}
   getWindAndSpreadOrientationMode() {}
   getWindDirection() {}

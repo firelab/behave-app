@@ -1179,4 +1179,19 @@
    {:type "double",
     :id "getMidflameWindspeed",
     :parameters
-    [{:id "windSpeedUnits", :type "SpeedUnits::SpeedUnitsEnum"}]}}}}
+    [{:id "windSpeedUnits", :type "SpeedUnits::SpeedUnitsEnum"}]}
+   :getTotalDeadFuelLoad
+   {:id   "getTotalDeadFuelLoad",
+    :parameters
+    [{:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}],
+    :type "double"},
+   :getTotalDeadHerbaceousFuelLoad
+   {:id   "getTotalDeadHerbaceousFuelLoad",
+    :parameters
+    [{:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}],
+    :type "double"},
+   :getTotalLiveFuelLoad
+   {:id   "getTotalLiveFuelLoad",
+    :parameters
+    [{:id "loadingUnits", :type "LoadingUnits::LoadingUnitsEnum"}],
+    :type "double"}}}}
