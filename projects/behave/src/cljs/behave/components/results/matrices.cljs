@@ -181,12 +181,12 @@
                                          (fn [acc [x y] v]
                                            (assoc acc
                                                   [(row-fmt-fn x) (col-fmt-fn y)]
-                                                  [:div.result-matrix-cell-value
-                                                   [:div (if (neg? v)
-                                                           "-"
-                                                           (output-fmt-fn v))]
-                                                   (when (contains? row-cols-to-shade-set [x y])
-                                                     [:div "(X)"])]))
+                                                  [:div {:class ["result-matrix-cell-value"
+                                                                 (when (contains? row-cols-to-shade-set [x y])
+                                                                   "table-cell__shaded")]}
+                                                   (if (neg? v)
+                                                     "-"
+                                                     (output-fmt-fn v))]))
                                          {}
                                          matrix-data-raw)
                  row-headers            (map (fn [value] {:name (row-fmt-fn value) :key (row-fmt-fn value)}) row-values)
