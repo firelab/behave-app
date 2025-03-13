@@ -73,7 +73,7 @@
    ])
 
 (def translation-payload
-  (sm/build-translations-payload conn 100 {"behaveplus:crown:output:size:crown-fire-size" "Size"}))
+  (sm/build-translations-payload conn 100 {"behaveplus:crown:output:size:crown-fire-size" "Crown - Fire Size"}))
 
 (def remove-groups-payload
   [[:db/retractEntity
