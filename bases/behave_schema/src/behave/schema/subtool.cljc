@@ -71,6 +71,11 @@
    {:db/ident       :subtool/cpp-parameter-uuid
     :db/doc         "Subtool calculation parameter's ref to it's C++ parameter."
     :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :subtool/hide?
+    :db/doc         "Whether or not to hide subtool"
+    :db/valueType   :db.type/boolean
     :db/cardinality :db.cardinality/one}])
 
 (comment
