@@ -206,7 +206,8 @@
   (let [{subtools  :tool/subtools
          tool-name :tool/name
          tool-uuid :bp/uuid}  @(rf/subscribe [:tool/entity tool-uuid])
-        first-subtool-uuid    (:bp/uuid (first subtools))
+        filtered-subtools     (remove #(:subtool/hide? %) subtools)
+        first-subtool-uuid    (:bp/uuid (first filtered-subtools))
         selected-subtool-uuid (rf/subscribe [:tool/selected-subtool-uuid])
         subtool-uuid          (or @selected-subtool-uuid first-subtool-uuid)
         subtool               (rf/subscribe [:vms/entity-from-uuid subtool-uuid])]
@@ -222,14 +223,14 @@
                    :size      "small"
                    :variant   "secondary"}]]]
       [:div.accordion__body
-       (when (> (count subtools) 1)
+       (when (> (count filtered-subtools) 1)
          [c/tab-group {:variant  "primary"
                        :on-click #(rf/dispatch [:tool/select-subtool (:tab %)])
                        :tabs     (map (fn [{s-name :subtool/name s-uuid :bp/uuid}]
                                         {:label     s-name
                                          :tab       s-uuid
                                          :selected? (= subtool-uuid s-uuid)})
-                                      subtools)}])
+                                      filtered-subtools)}])
        (if (:subtool/auto-compute? @subtool)
          [auto-compute-subtool tool-uuid subtool-uuid]
          [manual-subtool tool-uuid subtool-uuid])]]]))
