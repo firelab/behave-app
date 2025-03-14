@@ -1273,6 +1273,32 @@ body {
     overflow-y: visible;
   }
 
+  .wizard-results .table-cell__shaded::before {
+    content: '';
+    display: none;
+  }
+
+  .wizard-results .table-cell__shaded {
+    text-decoration: line-through;
+  }
+
+  .wizard-print__header {
+    color: black;
+    text-decoration: underline;
+  }
+
+  .table,
+  .table-cell,
+  .table__title,
+  .table-header__header,
+  .table-header__header[scope="row"],
+  .table-header__header[scope="col"]
+  {
+    background-color: white;
+    border-color: black;
+    color: black;
+  }
+
 }
 
 /* -- End Print View -- */
@@ -1290,7 +1316,7 @@ body {
   margin-bottom: 20px;
 }
 
-.wizard-results .table-cell__shaded::after {
+.wizard-results .table-cell__shaded::before {
   position: absolute;
   top: 0;
   left: 0;
