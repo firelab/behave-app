@@ -1244,6 +1244,11 @@ body {
 
 @media print {
 
+  * {
+    -webkit-print-color-adjust: exact !important; /*Chrome, Safari */
+    color-adjust: exact !important;  /*Firefox*/
+  }
+
   .page:after,
   .help-area,
   .page__top,
@@ -1271,32 +1276,6 @@ body {
   .wizard-page__body {
     overflow-x: visible;
     overflow-y: visible;
-  }
-
-  .wizard-results .table-cell__shaded::before {
-    content: '';
-    display: none;
-  }
-
-  .wizard-results .table-cell__shaded {
-    text-decoration: line-through;
-  }
-
-  .wizard-print__header {
-    color: black;
-    text-decoration: underline;
-  }
-
-  .table,
-  .table-cell,
-  .table__title,
-  .table-header__header,
-  .table-header__header[scope="row"],
-  .table-header__header[scope="col"]
-  {
-    background-color: white;
-    border-color: black;
-    color: black;
   }
 
 }
