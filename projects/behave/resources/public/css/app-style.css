@@ -1249,6 +1249,10 @@ body {
     color-adjust: exact !important;  /*Firefox*/
   }
 
+  body {
+    background-color: var(--white);
+  }
+
   .page:after,
   .help-area,
   .page__top,
