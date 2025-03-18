@@ -3,7 +3,7 @@
             [reagent.core  :as r]
             [re-frame.core :as rf]
             [string-utils.interface :refer [->kebab]]
-            [behave-cms.components.common          :refer [accordion radio-buttons simple-table window]]
+            [behave-cms.components.common          :refer [accordion radio-buttons simple-table window checkbox]]
             [behave-cms.components.cpp-editor      :refer [cpp-editor-form]]
             [behave-cms.help.views                 :refer [help-editor]]
             [behave-cms.components.sidebar         :refer [->sidebar-links sidebar sidebar-width]]
@@ -78,6 +78,21 @@
      :on-increase #(rf/dispatch [:api/reorder % variables :subtool-variable/order :inc])
      :on-decrease #(rf/dispatch [:api/reorder % variables :subtool-variable/order :dec])}]])
 
+(defn- bool-setting [label attr entity]
+  (let [{id :db/id} entity
+        *value?     (atom (get entity attr))
+        update!     #(rf/dispatch [:api/update-entity {:db/id id attr @*value?}])]
+    [:div.mt-1
+     [checkbox
+      label
+      @*value?
+      #(do (swap! *value? not)
+           (update!))]]))
+
+(defn- settings [subtool]
+  [:div.row.mt-2
+   [bool-setting "Hide?" :subtool/hide? subtool]])
+
 ;;; Public
 
 (defn subtools-page
@@ -123,4 +138,10 @@
        [accordion
         "Help Page"
         [:div.col-12
-         [help-editor (:subtool/help-key @subtool)]]]]]]))
+         [help-editor (:subtool/help-key @subtool)]]]
+       [:hr]
+       [accordion
+        "Settings"
+        [:div.col-12
+         [:div.row
+          [settings @subtool]]]]]]]))
