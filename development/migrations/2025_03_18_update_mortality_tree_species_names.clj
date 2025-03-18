@@ -34,9 +34,9 @@
        t-key))
 
 #_{:clj-kondo/ignore [:missing-docstring]}
-(defn update-translation [translation]
-  (let [common-name (str/trim (re-find #"^[^\(]+" translation))
-        latin+code (re-find #"(?<=\().+?(?=\))" translation)]
+(defn update-label [label]
+  (let [common-name (str/trim (re-find #"^[^\(]+" label))
+        latin+code  (re-find #"(?<=\().+?(?=\))" label)]
     (format "%s (%s)" latin+code common-name)))
 
 #_{:clj-kondo/ignore [:missing-docstring]}
@@ -47,7 +47,7 @@
        (map (fn [option]
               (let [nname (:list-option/name option)]
                 {:db/id            (:db/id option)
-                 :list-option/name (update-translation nname)})))))
+                 :list-option/name (update-label nname)})))))
 
 #_{:clj-kondo/ignore [:missing-docstring]}
 (def update-list-option-translations
@@ -57,7 +57,7 @@
        (map (fn [option]
               (let [[eid translation] (t-key->translation (:list-option/translation-key option))]
                 {:db/id                   eid
-                 :translation/translation (update-translation translation)})))))
+                 :translation/translation (update-label translation)})))))
 
 #_{:clj-kondo/ignore [:missing-docstring]}
 (def payload (concat update-list-option-names update-list-option-translations))
