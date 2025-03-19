@@ -9,7 +9,7 @@
 ;; Overview
 ;; ===========================================================================================================
 
-;; Update tags for list options under  SurfaceFuelModel and MortalitySpeciesMasterList. Replace "-" with "_"
+;; Update tags for list options under  SurfaceFuelModel and MortalitySpeciesMasterList. Replace "-" with space
 
 ;; ===========================================================================================================
 ;; Initialize
@@ -29,8 +29,8 @@
   (for [tag   tags
         :when (str/includes? (name tag) "-")]
     (if (= tag :Rockey-Mountain)
-      :Rocky_Mountain
-      (keyword (str/replace (name tag) "-" "_")))))
+      (keyword "Rocky Mountain")
+      (keyword (str/replace (name tag) "-" " ")))))
 
 (defn remove-existing-tags [eid tags]
   (for [tag   tags
