@@ -8,8 +8,7 @@
 ;; Domain
 (defn- domain-editor [domain-set-eid domain-eid]
   (let [dimensions-options (rf/subscribe [:domains/options :dimension/name])
-        dimension-uuid     (rf/subscribe [:state [:editors :domain :domain/dimension-uuid]])
-        units-options      (rf/subscribe [:domains/options :unit/name])]
+        units-options      (rf/subscribe [:domains/dimension-units])]
     [:<>
      [:h3 (if domain-eid "Edit Domain" "Add Domain")]
      [entity-form {:entity       :domain
