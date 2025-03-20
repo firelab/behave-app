@@ -49,9 +49,8 @@
                                   {:label     "Filtered Units"
                                    :type      :checkbox
                                    :required? true
-                                   :field-key :domain/filtered-units
-                                   :options   @units-options}
-                                  ]
+                                   :field-key :domain/filtered-unit-uuids
+                                   :options   @units-options}]
                    :on-update #(cond-> %
                                  (:domain/decimals %)
                                  (update :domain/decimals long))}]]))
