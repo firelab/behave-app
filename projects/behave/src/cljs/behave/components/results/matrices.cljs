@@ -5,10 +5,10 @@
             [goog.string             :as gstring]
             [re-frame.core           :refer [subscribe]]))
 
-(defn- shade-cell-value? [table-setting-filters col-uuid value]
+(defn- shade-cell-value? [table-setting-filters output-gv-uuid value]
   (let [[_ mmin mmax enabled?] (first (filter
                                        (fn [[gv-uuid]]
-                                         (= gv-uuid col-uuid))
+                                         (= gv-uuid output-gv-uuid))
                                        table-setting-filters))]
     (and enabled? mmin mmax (not (<= mmin value mmax)))))
 
@@ -79,16 +79,21 @@
                                                multi-var-gv-uuid
                                                multi-var-values
                                                (map :bp/uuid output-entities)])
+        rows-to-shade-set         (reduce-kv (fn [acc [row col-uuid] v]
+                                               (cond-> acc
+                                                 (shade-cell-value? table-setting-filters col-uuid v)
+                                                 (conj row)))
+                                             #{}
+                                             matrix-data-raw)
         matrix-data-formatted     (reduce-kv (fn [acc [row col-uuid] v]
                                                (let [fmt-fn (get formatters col-uuid identity)]
                                                  (assoc acc [(input-fmt-fn row) col-uuid]
-                                                        (let [shade-value? (shade-cell-value? table-setting-filters col-uuid v)]
-                                                          [:div.result-matrix-cell-value
-                                                           [:div (if (neg? v)
-                                                                   "-"
-                                                                   (fmt-fn v))]
-                                                           (when shade-value?
-                                                             [:div "(X)"])]))))
+                                                        [:div {:class ["result-matrix-cell-value"
+                                                                       (when (contains? rows-to-shade-set row)
+                                                                         "table-cell__shaded")]}
+                                                         (if (neg? v)
+                                                           "-"
+                                                           (fmt-fn v))])))
                                              {}
                                              matrix-data-raw)
         map-units-settings-entity @(subscribe [:worksheet/map-units-settings-entity ws-uuid])
@@ -139,7 +144,24 @@
         map-units-settings-entity                   @(subscribe [:worksheet/map-units-settings-entity ws-uuid])
         map-units                                   (:map-units-settings/units map-units-settings-entity)
         map-rep-frac                                (:map-units-settings/map-rep-fraction map-units-settings-entity)
-        input-formatters                            @(subscribe [:worksheet/result-table-formatters [row-gv-uuid col-gv-uuid]])]
+        input-formatters                            @(subscribe [:worksheet/result-table-formatters [row-gv-uuid col-gv-uuid]])
+        row-cols-to-shade-set                       (reduce (fn [acc {output-gv-uuid :bp/uuid}]
+                                                              (let [matrix-data-raw @(subscribe [:print/matrix-table-two-multi-valued-inputs ws-uuid
+                                                                                                 row-gv-uuid
+                                                                                                 row-values
+                                                                                                 col-gv-uuid
+                                                                                                 col-values
+                                                                                                 output-gv-uuid])]
+                                                                (into acc
+                                                                      (reduce-kv
+                                                                       (fn [acc [x y] v]
+                                                                         (cond-> acc
+                                                                           (shade-cell-value? table-setting-filters output-gv-uuid v)
+                                                                           (conj [x y])))
+                                                                       #{}
+                                                                       matrix-data-raw))))
+                                                            #{}
+                                                            output-entities)]
     [:div.print__construct-result-matrices
      (for [{output-gv-uuid :bp/uuid
             output-units   :units} output-entities]
@@ -159,13 +181,12 @@
                                          (fn [acc [x y] v]
                                            (assoc acc
                                                   [(row-fmt-fn x) (col-fmt-fn y)]
-                                                  (let [shade-value? (shade-cell-value? table-setting-filters output-gv-uuid x)]
-                                                    [:div.result-matrix-cell-value
-                                                     [:div (if (neg? v)
-                                                             "-"
-                                                             (output-fmt-fn v))]
-                                                     (when shade-value?
-                                                       [:div "(X)"])])))
+                                                  [:div {:class ["result-matrix-cell-value"
+                                                                 (when (contains? row-cols-to-shade-set [x y])
+                                                                   "table-cell__shaded")]}
+                                                   (if (neg? v)
+                                                     "-"
+                                                     (output-fmt-fn v))]))
                                          {}
                                          matrix-data-raw)
                  row-headers            (map (fn [value] {:name (row-fmt-fn value) :key (row-fmt-fn value)}) row-values)
@@ -211,7 +232,8 @@
                                             deref
                                             (remove #(contains? pivot-table-uuids %))
                                             (sort-by #(.indexOf gv-order %)))]
-    [construct-result-matrices
+    [:div.wizard-results
+     [construct-result-matrices
      {:ws-uuid               ws-uuid
       :process-map-units?    (fn [v-uuid]
                                (and map-units-enabled?
@@ -223,4 +245,4 @@
                                         (merge {:units (get units-lookup gv-uuid)}))) output-gv-uuids)
       :units-lookup          units-lookup
       :formatters            @(subscribe [:worksheet/result-table-formatters output-gv-uuids])
-      :table-setting-filters table-setting-filters}]))
+      :table-setting-filters table-setting-filters}]]))
