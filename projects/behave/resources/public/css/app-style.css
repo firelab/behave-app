@@ -1244,13 +1244,10 @@ body {
 
 @media print {
 
-  * {
+  body {
+    background-color: var(--white) !important;
     -webkit-print-color-adjust: exact !important; /*Chrome, Safari */
     color-adjust: exact !important;  /*Firefox*/
-  }
-
-  body {
-    background-color: var(--white);
   }
 
   .page:after,
