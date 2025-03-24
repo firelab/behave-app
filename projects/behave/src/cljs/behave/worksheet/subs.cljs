@@ -483,7 +483,7 @@
 
 (rf/reg-sub
  :worksheet/graph-settings-y-axis-limits-filtered
- (fn [[_ ws-uuid]] (rf/subscribe [:worksheet/table-settings-filters ws-uuid]))
+ (fn [[_ ws-uuid]] (rf/subscribe [:worksheet/graph-settings-y-axis-limits ws-uuid]))
  (fn [table-settings-filters _]
    (remove
     (fn [[group-var-uuid]]
