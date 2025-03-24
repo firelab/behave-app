@@ -27,6 +27,7 @@
         [:div.wizard-results__graphs {:id "graph"}
          [:div.wizard-graph__header "Graphs"]
          (for [output-uuid @*output-uuids
+               :when       (not @(subscribe [:wizard/discrete-group-variable? output-uuid]))
                :let        [y-axis-limit (->> (:graph-settings/y-axis-limits graph-settings)
                                               (filter #(= output-uuid (:y-axis-limit/group-variable-uuid %)))
                                               (first))

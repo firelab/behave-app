@@ -529,7 +529,7 @@
                                                     @(<t (bp "maximum"))]
                                                    (mapv #(str/upper-case %)))
                                  :rf-event-id :worksheet/update-y-axis-limit-attr
-                                 :rf-sub-id   :worksheet/graph-settings-y-axis-limits
+                                 :rf-sub-id   :worksheet/graph-settings-y-axis-limits-filtered
                                  :min-attr-id :y-axis-limit/min
                                  :max-attr-id :y-axis-limit/max}])))])))
 
