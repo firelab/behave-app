@@ -481,6 +481,24 @@
              [?o :output/enabled? true]]
     :variables [ws-uuid]}))
 
+(rf/reg-sub
+ :worksheet/graph-settings-y-axis-limits-filtered
+ (fn [[_ ws-uuid]] (rf/subscribe [:worksheet/graph-settings-y-axis-limits ws-uuid]))
+ (fn [table-settings-filters _]
+   (remove
+    (fn [[group-var-uuid]]
+      (let [kind (d/q '[:find ?kind .
+                        :in  $ ?group-var-uuid
+                        :where
+                        [?gv :bp/uuid ?group-var-uuid]
+                        [?v :variable/group-variables ?gv]
+                        [?v :variable/kind ?kind]]
+                      @@vms-conn
+                      group-var-uuid)]
+        (or (= kind :discrete)
+            (= kind :text))))
+    table-settings-filters)))
+
 (rp/reg-sub
  :worksheet/graph-settings-x-axis-limits
  (fn [_ [_ ws-uuid]]
