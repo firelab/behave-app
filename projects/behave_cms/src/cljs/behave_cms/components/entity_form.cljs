@@ -86,6 +86,31 @@
      :on-select #(on-change (long (u/input-value %)))
      :selected  (:db/id @state)}]])
 
+(defmethod field-input :set [{:keys [label options on-change state disabled?]
+                              :or   {disabled? false}}]
+  (let [state-as-set (set @state)
+        group-label  label]
+    [:div.mb-3
+     [:label.form-label group-label]
+     (doall
+      (for [{:keys [label value]} options]
+        (let [id       (u/sentence->kebab (str group-label ":" value))
+              checked? (state-as-set value)]
+          ^{:key id}
+          [:div.form-check
+           {:disabled disabled?}
+           [:input.form-check-input
+            {:type      "checkbox"
+             :disabled  disabled?
+             :id        id
+             :checked   checked?
+             :on-change #(let [enable? (.. % -target -checked)
+                               state'  (vec (if enable?
+                                              (conj state-as-set value)
+                                              (disj state-as-set value)))]
+                           (on-change state'))}]
+           [:label.form-check-label {:for id} label]])))]))
+
 (defmethod field-input :checkbox [{:keys [label options on-change state disabled?]
                                    :or   {disabled? false}}]
   (let [group-label label]

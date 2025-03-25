@@ -20,8 +20,9 @@
  (fn [[_ dimension-eid]]
    [(rf/subscribe [:domains/editor])
     (rf/subscribe [:pull '[*] dimension-eid])])
- (fn [[domain domain-editor]]
-   (let [dimension-uuid (or domain-editor (:domain/dimension-uuid domain))
+ (fn [[domain-editor domain]]
+   (let [dimension-uuid (or (:domain/dimension-uuid domain-editor)
+                            (:domain/dimension-uuid domain))
          dimension-eid  (rf/subscribe [:query '[:find ?e .
                                                 :where [?e :bp/uuid ?uuid]
                                                 :in $ ?uuid]
