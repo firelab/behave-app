@@ -11,7 +11,7 @@
              ring/ring-defaults            {:mvn/version "0.3.3"}
              me.raynes/fs                  {:mvn/version "1.4.6"}
              sig-gis/triangulum            {:git/url "https://github.com/sig-gis/triangulum"
-                                            :sha     "cbde4216663611a378b6bf48645c9e136dc1a759"}
+                                            :sha     "3d41dab63e1bc8ebe046f64db44ae3df986f5bdf"}
 
              ;; Common
              cljs-ajax/cljs-ajax                     {:mvn/version "0.8.4"}
