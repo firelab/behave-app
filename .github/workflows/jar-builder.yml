@@ -78,7 +78,7 @@ jobs:
 
       - uses: ncipollo/release-action@v1
         with:
-          name: ${{ version }}
+          name: ${{ env.version }}
           artifacts: "projects/behave/target/*.jar"
           artifactContentType: "application/java-archive"
           tag: ${{ github.ref }}
