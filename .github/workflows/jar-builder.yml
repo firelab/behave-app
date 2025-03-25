@@ -71,6 +71,7 @@ jobs:
 
       - uses: ncipollo/release-action@v1
         with:
+          name: echo ${{ github.ref }} | sed -e 's/refs\/tags\///g'
           artifacts: "projects/behave/target/*.jar"
           artifactContentType: "application/java-archive"
           tag: ${{ github.ref }}
