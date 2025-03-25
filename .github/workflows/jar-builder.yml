@@ -47,7 +47,8 @@ jobs:
           VERSION: echo ${{ github.ref }} | sed -e 's/refs\/tags\///g'
         run: |
           cd projects/behave/target
-          mv *.jar behave-$VERSION.jar
+          echo $VERSION
+          mv $(ls *.jar) behave-$VERSION.jar
 
       # - name: Sign JAR
       #   uses: addnab/docker-run-action@v3
