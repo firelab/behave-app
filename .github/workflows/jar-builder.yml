@@ -42,8 +42,12 @@ jobs:
       - name: Verify assets
         run: ls -l projects/behave/target/*.jar
 
-      - name: echo github ref
-        run: echo ${{ github.ref }}
+      - name: Rename Jar
+        env:
+          VERSION: echo ${{ github.ref }} | sed -e 's/refs\/tags\///g'
+        run: |
+          cd projects/behave/target
+          mv *.jar behave-$VERSION.jar
 
       # - name: Sign JAR
       #   uses: addnab/docker-run-action@v3
