@@ -395,7 +395,8 @@
  (fn [{worksheet               :worksheet
        multi-value-input-uuids :worksheet/multi-value-input-uuids} [_ ws-uuid]]
    (when (pos? (count multi-value-input-uuids))
-     (let [graph-setting-id (get-in worksheet [:worksheet/graph-settings :db/id])]
+     (let [graph-setting-id (get-in worksheet [:worksheet/graph-settings :db/id])
+           gv-uuids         (sort-by #(deref (rf/subscribe [:wizard/discrete-group-variable? %])) multi-value-input-uuids)]
        (cond-> {:transact [; First clear any existing graph settings.
                            [:db/retract graph-setting-id :graph-settings/x-axis-group-variable-uuid]
                            [:db/retract graph-setting-id :graph-settings/y-axis-group-variable-uuid]
@@ -405,17 +406,17 @@
 
                              ;; sets default x-axis selection if available
                              (first multi-value-input-uuids)
-                             (assoc :graph-settings/x-axis-group-variable-uuid (first multi-value-input-uuids))
+                             (assoc :graph-settings/x-axis-group-variable-uuid (first gv-uuids))
 
                              ;; sets default z-axis selection if available
                              (second multi-value-input-uuids)
-                             (assoc :graph-settings/z-axis-group-variable-uuid (second multi-value-input-uuids))
+                             (assoc :graph-settings/z-axis-group-variable-uuid (second gv-uuids))
 
                              ;; sets default z2-axis selection if available
                              (nth multi-value-input-uuids 2 nil)
-                             (assoc :graph-settings/z2-axis-group-variable-uuid (nth multi-value-input-uuids 2)))]}
-         (first multi-value-input-uuids)
-         (assoc :fx [[:dispatch [:worksheet/upsert-x-axis-limit ws-uuid (first multi-value-input-uuids)]]]))))))
+                             (assoc :graph-settings/z2-axis-group-variable-uuid (nth gv-uuids 2)))]}
+         (first gv-uuids)
+         (assoc :fx [[:dispatch [:worksheet/upsert-x-axis-limit ws-uuid (first gv-uuids)]]]))))))
 
 (rp/reg-event-fx
  :worksheet/toggle-graph-settings
