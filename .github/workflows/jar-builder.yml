@@ -42,12 +42,15 @@ jobs:
       - name: Verify assets
         run: ls -l projects/behave/target/*.jar
 
+      - name: Set the version
+        run: |
+          VERSION=$(echo ${{ github.ref }} | sed -e 's/refs\/tags\///g')
+          echo "version=$VERSION" >> "$GITHUB_ENV"
+
       - name: Rename Jar
         run: |
           cd projects/behave/target
-          VERSION=$(echo ${{ github.ref }} | sed -e 's/refs\/tags\///g')
-          echo $VERSION
-          mv $(ls *.jar) behave-$VERSION.jar
+          mv $(ls *.jar) behave-$version.jar
 
       # - name: Sign JAR
       #   uses: addnab/docker-run-action@v3
@@ -75,7 +78,7 @@ jobs:
 
       - uses: ncipollo/release-action@v1
         with:
-          name: echo ${{ github.ref }} | sed -e 's/refs\/tags\///g'
+          name: $version
           artifacts: "projects/behave/target/*.jar"
           artifactContentType: "application/java-archive"
           tag: ${{ github.ref }}
