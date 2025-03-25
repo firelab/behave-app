@@ -43,10 +43,9 @@ jobs:
         run: ls -l projects/behave/target/*.jar
 
       - name: Rename Jar
-        env:
-          VERSION: echo ${{ github.ref }} | sed -e 's/refs\/tags\///g'
         run: |
           cd projects/behave/target
+          VERSION=$(echo ${{ github.ref }} | sed -e 's/refs\/tags\///g')
           echo $VERSION
           mv $(ls *.jar) behave-$VERSION.jar
 
