@@ -1,9 +1,9 @@
 name: Build and Sign JAR
 
-on: push
-  # push:
-    # tags:
-    # - '*'
+on:
+  push:
+    tags:
+    - '*'
 
 jobs:
   build:
@@ -73,5 +73,5 @@ jobs:
         with:
           artifacts: "projects/behave/target/*.jar"
           artifactContentType: "application/java-archive"
-          tag: "v7.0.0-alpha"
+          tag: ${{ github.ref }}
           makeLatest: true
