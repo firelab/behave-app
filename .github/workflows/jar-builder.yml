@@ -63,17 +63,12 @@ jobs:
           cd projects/behave/target
           mv $(ls *.jar) behave-$version.jar
 
-      - name: Clojure deps build cache
-        description: Cache Maven (m2) dependencies for clojure projects
-        runs:
-          using: composite
-          steps:
-            - uses: actions/cache@v2
-              with:
-                path: ~/.m2/repository
-                key: ${{ runner.os }}-maven-${{ hashFiles('**/deps.edn') }}
-                restore-keys: |
-                  ${{ runner.os }}-maven-
+      - uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/deps.edn') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
 
       # - name: Sign JAR
       #   uses: addnab/docker-run-action@v3
