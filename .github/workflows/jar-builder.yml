@@ -63,10 +63,10 @@ jobs:
           cd projects/behave/target
           mv $(ls *.jar) behave-$version.jar
 
-      - name: 'Clojure deps build cache'
-        description: 'Cache Maven (m2) dependencies for clojure projects'
+      - name: Clojure deps build cache
+        description: Cache Maven (m2) dependencies for clojure projects
         runs:
-          using: "composite"
+          using: composite
           steps:
             - uses: actions/cache@v2
               with:
