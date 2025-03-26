@@ -52,7 +52,7 @@ jobs:
             clojure-deps-${{ runner.os }}
 
       - name: Debug Cache Hit
-        run: echo "Cache hit: ${{ steps.cache-clojure.outputs.cache-hit }}"
+        run: echo "Cache hit ${{ steps.cache-clojure.outputs.cache-hit }}"
 
       - name: Build JAR
         env:
