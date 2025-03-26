@@ -51,6 +51,9 @@ jobs:
           restore-keys: |
             clojure-deps-${{ runner.os }}
 
+      - name: Debug Cache Hit
+        run: echo "Cache hit: ${{ steps.cache-clojure.outputs.cache-hit }}"
+
       - name: Build JAR
         env:
           VMS_URL: ${{ secrets.VMS_URL }}
