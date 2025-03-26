@@ -33,6 +33,16 @@ jobs:
           VERSION=$(echo ${{ github.ref }} | sed -e 's/refs\/tags\///g')
           echo "version=$VERSION" >> "$GITHUB_ENV"
 
+      - name: Set the date
+        run: |
+          DATE=$( echo $(date '+%Y-%m-%d'))
+          echo "date=$DATE" >> "$GITHUB_ENV"
+
+      - name: Set release name
+        run: |
+          $RELEASE=$(echo "$VERSION ($DATE)"
+          echo "release=$RELEASE" >> "$GITHUB_ENV"
+
       - name: Build JAR
         env:
           VMS_URL: ${{ secrets.VMS_URL }}
@@ -79,7 +89,7 @@ jobs:
 
       - uses: ncipollo/release-action@v1
         with:
-          name: ${{ env.version }}
+          name: ${{ env.release }}
           artifacts: "projects/behave/target/*.jar"
           artifactContentType: "application/java-archive"
           tag: ${{ github.ref }}
