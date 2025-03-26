@@ -23,17 +23,6 @@ jobs:
         with:
           cli: 'latest'
 
-      - name: Download Dependencies
-        run: clojure -P
-
-      - name: Cache Clojure dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2/repository
-          key: clojure-deps-${{ runner.os }}-${{ hashFiles('**/deps.edn') }}
-          restore-keys: |
-            clojure-deps-${{ runner.os }}
-
       - name: Setup Babashka
         uses: turtlequeue/setup-babashka@v1.7.0
         with:
@@ -65,6 +54,14 @@ jobs:
           mv resources/config.standalone.edn resources/config.edn
           echo "{:version $version}" > resources/version.edn
           bb uber
+
+      - name: Cache Clojure dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: clojure-deps-${{ runner.os }}-${{ hashFiles('**/deps.edn') }}
+          restore-keys: |
+            clojure-deps-${{ runner.os }}
 
       - name: Verify assets
         run: ls -l projects/behave/target/*.jar
