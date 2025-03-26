@@ -44,15 +44,12 @@ jobs:
           echo "release=$RELEASE" >> "$GITHUB_ENV"
 
       - name: Cache Clojure dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: clojure-deps-${{ runner.os }}-${{ hashFiles('**/deps.edn') }}
           restore-keys: |
             clojure-deps-${{ runner.os }}
-
-      - name: Debug Cache Hit
-        run: echo "Cache hit ${{ steps.cache-clojure.outputs.cache-hit }}"
 
       - name: Build JAR
         env:
