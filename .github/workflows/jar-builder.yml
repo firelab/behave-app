@@ -63,7 +63,7 @@ jobs:
           cd projects/behave/target
           mv $(ls *.jar) behave-$version.jar
 
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/deps.edn') }}
