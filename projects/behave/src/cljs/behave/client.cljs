@@ -98,8 +98,9 @@
             {:href     "#"
              :on-click #(rf/dispatch [:wizard/navigate-home])
              :tabindex 0}
-            [:img {:src "/images/logo.svg"}]
-            [:div version]]]
+            [:div
+             [:img {:src "/images/logo.svg"}]
+             [:div version]]]]
           [:td.page__top__toolbar-container
            [toolbar params]]]]
         [:div.page__main
