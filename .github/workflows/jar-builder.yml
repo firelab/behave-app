@@ -40,7 +40,7 @@ jobs:
 
       - name: Set release name
         run: |
-          RELEASE=$(echo "$VERSION ($DATE)")
+          RELEASE=$(echo "$version ($date)")
           echo "release=$RELEASE" >> "$GITHUB_ENV"
 
       - name: Build JAR
