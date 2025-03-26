@@ -43,6 +43,14 @@ jobs:
           RELEASE=$(echo "$version ($date)")
           echo "release=$RELEASE" >> "$GITHUB_ENV"
 
+      - name: Cache Clojure dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: clojure-deps-${{ runner.os }}-${{ hashFiles('**/deps.edn') }}
+          restore-keys: |
+            clojure-deps-${{ runner.os }}
+
       - name: Build JAR
         env:
           VMS_URL: ${{ secrets.VMS_URL }}
@@ -54,14 +62,6 @@ jobs:
           mv resources/config.standalone.edn resources/config.edn
           echo "{:version $version}" > resources/version.edn
           bb uber
-
-      - name: Cache Clojure dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2/repository
-          key: clojure-deps-${{ runner.os }}-${{ hashFiles('**/deps.edn') }}
-          restore-keys: |
-            clojure-deps-${{ runner.os }}
 
       - name: Verify assets
         run: ls -l projects/behave/target/*.jar
