@@ -1,9 +1,6 @@
 name: Build and Sign JAR
 
-on:
-  push:
-    tags:
-    - '*'
+on: push
 
 jobs:
   build:
@@ -95,10 +92,10 @@ jobs:
             # Sign JAR
             ./sign.sh $JAR
 
-      - uses: ncipollo/release-action@v1
-        with:
-          name: ${{ env.release }}
-          artifacts: "projects/behave/target/*.jar"
-          artifactContentType: "application/java-archive"
-          tag: ${{ github.ref }}
-          makeLatest: true
+    #  - uses: ncipollo/release-action@v1
+    #    with:
+    #      name: ${{ env.release }}
+    #      artifacts: "projects/behave/target/*.jar"
+    #      artifactContentType: "application/java-archive"
+    #      tag: ${{ github.ref }}
+    #      makeLatest: true
