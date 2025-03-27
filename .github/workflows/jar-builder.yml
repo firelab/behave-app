@@ -63,10 +63,10 @@ jobs:
       - name: Verify assets
         run: ls -l projects/behave/target/*.jar
 
-      - name: Rename Jar
-        run: |
-          cd projects/behave/target
-          mv $(ls *.jar) behave-$version.jar
+      # - name: Rename Jar
+      #   run: |
+      #     cd projects/behave/target
+      #     mv $(ls *.jar) behave-$version.jar
 
       - name: Sign JAR
         uses: addnab/docker-run-action@v3
