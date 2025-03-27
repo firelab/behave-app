@@ -12,6 +12,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Cache project dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-clojure-${{ hashFiles('**/deps.edn') }}
+          restore-keys: |
+            ${{ runner.os }}-clojure
+
       - name: Prepare java
         uses: actions/setup-java@v4
         with:
@@ -63,29 +71,29 @@ jobs:
           cd projects/behave/target
           mv $(ls *.jar) behave-$version.jar
 
-      # - name: Sign JAR
-      #   uses: addnab/docker-run-action@v3
-      #   with:
-      #     image: rjsheperd/jarsigner:latest
-      #     shell: bash
-      #     options: |
-      #       -e SM_API_KEY=${{ secrets.SM_API_KEY }}
-      #       -e SM_KEYPAIR=${{ secrets.SM_KEYPAIR }}
-      #       -e SM_HOST=${{ secrets.SM_HOST }}
-      #       -e SM_CLIENT_CERT_FILE_BASE_64=${{ secrets.SM_CLIENT_CERT_FILE_BASE_64 }}
-      #       -e SM_CLIENT_CERT_PASSWORD=${{secrets.SM_CLIENT_CERT_PASSWORD }}
-      #       -v ${{ github.workspace }}:/app/code
-      #     run: |
-      #       # Decode cert
-      #       echo $SM_CLIENT_CERT_FILE_BASE_64 | base64 -d > behave.p12
-      #       export SM_CLIENT_CERT_FILE=/app/behave.p12
+      - name: Sign JAR
+        uses: addnab/docker-run-action@v3
+        with:
+          image: rjsheperd/jarsigner:latest
+          shell: bash
+          options: |
+            -e SM_API_KEY=${{ secrets.SM_API_KEY }}
+            -e SM_KEYPAIR=${{ secrets.SM_KEYPAIR }}
+            -e SM_HOST=${{ secrets.SM_HOST }}
+            -e SM_CLIENT_CERT_FILE_BASE_64=${{ secrets.SM_CLIENT_CERT_FILE_BASE_64 }}
+            -e SM_CLIENT_CERT_PASSWORD=${{secrets.SM_CLIENT_CERT_PASSWORD }}
+            -v ${{ github.workspace }}:/app/code
+          run: |
+            # Decode cert
+            echo $SM_CLIENT_CERT_FILE_BASE_64 | base64 -d > behave.p12
+            export SM_CLIENT_CERT_FILE=/app/behave.p12
 
-      #       # Get JAR file
-      #       JAR=$(ls /app/code/projects/behave/target/*.jar)
-      #       echo $JAR
+            # Get JAR file
+            JAR=$(ls /app/code/projects/behave/target/*.jar)
+            echo $JAR
 
-      #       # Sign JAR
-      #       ./sign.sh $JAR
+            # Sign JAR
+            ./sign.sh $JAR
 
       - uses: ncipollo/release-action@v1
         with:
