@@ -1,7 +1,8 @@
 name: Clojure Format Check
 
 on:
-  push
+  push:
+    branches: *
   pull_request:
     types: [opened, synchronize, reopened]
 
