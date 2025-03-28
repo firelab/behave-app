@@ -17,9 +17,11 @@
      (extend-msgpack
       java.util.Date
       100
+      #_{:clj-kondo/ignore [:unresolved-symbol]}
       (pack [date]
             (msg/pack (.format sdf date)))
 
+      #_{:clj-kondo/ignore [:unresolved-symbol]}
       (unpack [bytes]
               (.parse sdf (msg/unpack bytes))))))
 
@@ -107,10 +109,14 @@
 
 ;;; Public
 
-(defn pack [datoms]
+(defn pack
+  "Packs datoms into a Run-Length Encoded MessagePack file."
+  [datoms]
   (-> datoms (prepare) (msg/pack)))
 
-(defn unpack [packed]
+(defn unpack
+  "Unpacks datoms from a Run-Length Encoded MessagePack file."
+  [packed]
   (-> packed
       #?(:cljs (->array-buffer))
       (msg/unpack)

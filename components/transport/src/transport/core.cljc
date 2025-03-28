@@ -22,9 +22,11 @@
      (extend-msgpack
       java.util.Date
       100
+      #_{:clj-kondo/ignore [:unresolved-symbol]}
       (pack [date]
             (msg/pack (.format sdf date)))
 
+      #_{:clj-kondo/ignore [:unresolved-symbol]}
       (unpack [bytes]
               (.parse sdf (msg/unpack bytes))))))
 
@@ -38,37 +40,50 @@
 (def ^:private type->mime-mapping (map-invert mime->type-mapping))
 
 (defn mime->type
+  "Converts a MIME-Type to a simple keyword of: `:edn`, `:json`, `:transit`, `:msgpack`."
   [mime]
   (get mime->type-mapping mime))
 
 (defn type->mime
+  "Converts a simple keyword of: `:edn`, `:json`, `:transit`, `:msgpack` to a MIME-Type."
   [t]
   (get type->mime-mapping t))
 
 ;;; EDN
 
-(defn clj->edn [x]
+(defn clj->edn
+  "Converts a Clojure data structure to an EDN representation."
+  [x]
   (pr-str x))
 
-(defn edn->clj [s]
+(defn edn->clj
+  "Converts a EDN string to Clojure data structure."
+  [s]
   (edn/read-string s))
 
 ;;; JSON
 
-(defn clj->json [x]
+(defn clj->json
+  "Converts a Clojure data structure to JSON."
+  [x]
   #?(:clj (json/write-str x)
      :cljs (.stringify js/JSON (clj->js x))))
 
-(defn json->clj [s]
+(defn json->clj
+  "Converts a JSON string to a Clojure data structure."
+  [s]
   #?(:clj (json/read-str s :key-fn keyword)
      :cljs (js->clj (.parse js/JSON s) :keywordize-keys true)))
 
 ;;; MessagePack
 
-(defn clj->msgpack [x]
+(defn clj->msgpack
+  "Converts a Clojure data structure to MessagePack file."
+  [x]
   (msg/pack x))
 
-(defn- ->array-buffer [packed]
+(defn- ->array-buffer
+  [packed]
   #?(:clj  packed
      :cljs (cond
              (instance? js/ArrayBuffer packed)
@@ -79,14 +94,18 @@
                      (.-byteOffset packed)
                      (+ (.-byteLength packed) (.-byteOffset packed))))))
 
-(defn msgpack->clj [s]
+(defn msgpack->clj
+  "Converts a MessagePack file to a Clojure data structure."
+  [s]
   (-> s
       (->array-buffer)
       (msg/unpack)))
 
 ;;; Transit
 
-(defn clj->transit [x]
+(defn clj->transit
+  "Converts Clojure data structure to a Transit file."
+  [x]
   #?(:clj
      (let [out (ByteArrayOutputStream. 4096)]
        (transit/write (transit/writer out :json) x)
@@ -95,7 +114,9 @@
      :cljs
      (transit/write (transit/writer :json) x)))
 
-(defn transit->clj [s]
+(defn transit->clj
+  "Converts Transit file to a Clojure data structure."
+  [s]
   #?(:clj
      (let [in (ByteArrayInputStream. (.getBytes s))]
        (transit/read (transit/reader in :json)))
@@ -106,6 +127,11 @@
 ;;; Universal
 
 (defn clj->
+  "Universal conversion FROM Clojure data structure to `transport`, which is one of:
+  - `:edn`
+  - `:json`
+  - `:msgpack`
+  - `:transit`"
   [x transport]
   (condp = transport
     :edn     (clj->edn x)
@@ -115,6 +141,11 @@
     :else    (clj->edn x)))
 
 (defn ->clj
+  "Universal conversion TO Clojure data structure from `transport`, which is one of:
+  - `:edn`
+  - `:json`
+  - `:msgpack`
+  - `:transit`"
   [s transport]
   (condp = transport
     :edn     (edn->clj s)

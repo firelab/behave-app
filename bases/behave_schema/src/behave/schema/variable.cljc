@@ -4,7 +4,7 @@
 
 ;;; Validation Fns
 
-(def valid-kind? #(#{:continuous :discrete :text} %))
+(def ^:private valid-kind? #(#{:continuous :discrete :text} %))
 
 ;;; Spec
 
@@ -30,6 +30,7 @@
 ;; Discrete Variables
 (s/def :variable/list             (s/or :int integer? :str string?))
 
+#_{:clj-kondo/ignore [:missing-docstring]}
 (defmulti kind :variable/kind)
 
 (defmethod kind :continuous [_]
