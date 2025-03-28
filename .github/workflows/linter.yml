@@ -1,0 +1,19 @@
+name: Clojure Kondo (clj-kondo) Linter
+
+on: push
+#  pull_request:
+#    branches:
+#      - main
+
+jobs:
+  clj-kondo:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - uses: DeLaGuardo/clojure-lint-action@master
+      with:
+        clj-kondo-args: |
+          --lint components/**/src components/**/test bases/**/src bases/**/test projects/**/src projects/**/test 
+        github_token: ${{ secrets.GITHUB_TOKEN }}
