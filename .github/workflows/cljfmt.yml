@@ -11,19 +11,36 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Install cljfmt
+    - name: Cache cljfmt
+      id: cache-cljfmt
+      uses: actions/cache@v4
+      with:
+        path: $HOME/.local/bin
+        key: ${{ runner.os }}-cljfmt
+        restore-keys: |
+          ${{ runner.os }}-cljfmt
+
+    - name: Add local bin directory
       run: |
         mkdir -p $HOME/.local/bin
+        export PATH=$HOME/.local/bin:$PATH
+        ls $HOME
+
+    - name: Install cljfmt
+      if: steps.cache-cljfmt.outputs.cache-hit != 'true'
+      run: |
         curl -sLO https://raw.githubusercontent.com/rjsheperd/cljfmt/HEAD/install.sh
         chmod +x install.sh
         ./install.sh $HOME/.local/bin
-        export PATH=$HOME/.local/bin:$PATH
 
     - name: Run cljfmt on .clj files
-      run: cljfmt check --file-pattern '**/*.clj'
+      run: |
+        cljfmt check --file-pattern **/*.clj
 
     - name: Run cljfmt on .cljs files
-      run: cljfmt check --file-pattern '**/*.cljs'
+      run: |
+        cljfmt check --file-pattern **/*.cljs
 
     - name: Run cljfmt on .cljc files
-      run: cljfmt check --file-pattern '**/*.cljc'
+      run: |
+        cljfmt check --file-pattern **/*.cljc
