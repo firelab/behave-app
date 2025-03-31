@@ -34,3 +34,10 @@
    (assoc-in db
              [:state :help-area :image-modal]
              {:title "Help Image" :src url :alt alt})))
+
+(rf/reg-event-db
+ :help/open-table-viewer
+ (fn [db [_ table]]
+   (assoc-in db
+             [:state :help-area :table-modal]
+             table)))

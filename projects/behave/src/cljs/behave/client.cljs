@@ -61,24 +61,38 @@
   (when (= mode "prod")
     (.addEventListener js/window "beforeunload" before-unload-fn)))
 
+(defn- image-modal []
+  (let [*image-modal   (rf/subscribe [:state [:help-area :image-modal]])
+        close-modal-fn #(rf/dispatch [:state/set [:help-area :image-modal] nil])]
+    [:div {:style {:display (if @*image-modal "block" "none")}}
+     [:div.modal__background
+      {:on-click close-modal-fn}]
+     [modal {:title          (:title @*image-modal)
+             :close-on-click close-modal-fn
+             :content        [:div.image-viewer
+                              [:img.image-viewer__image {:src (:src @*image-modal)}]
+                              [:p.image-viewer__description (:alt @*image-modal)]]}]]))
+
+(defn- table-modal []
+  (let [*table-modal   (rf/subscribe [:state [:help-area :table-modal]])
+        close-modal-fn #(rf/dispatch [:state/set [:help-area :table-modal] nil])]
+    [:div {:style {:display (if @*table-modal "block" "none")}}
+     [:div.modal__background
+      {:on-click close-modal-fn}]
+     [modal {:close-on-click close-modal-fn
+             :content        [:div.table-viewer @*table-modal]}]]))
+
 (defn app-shell [params]
   (let [route              (rf/subscribe [:handler])
         sync-loaded?       (rf/subscribe [:state :sync-loaded?])
         vms-loaded?        (rf/subscribe [:state :vms-loaded?])
         vms-export-results (rf/subscribe [:state :vms-export-http-results])
-        image-modal        (rf/subscribe [:state [:help-area :image-modal]])
         page               (get handler->page (:handler @route) not-found)
         params             (-> (merge params (:route-params @route))
                                (assoc :route-handler (:handler @route)))]
     [:div.app-shell
-     [:div {:style {:display (if @image-modal "block" "none")}}
-      [:div.modal__background]
-      [modal {:title          (:title @image-modal)
-              :close-on-click #(rf/dispatch [:state/set [:help-area :image-modal] nil])
-              :content        [:div.image-viewer
-                               [:img {:src (:src @image-modal)}]
-                               [:p (:alt @image-modal)]]}]]
-
+     [image-modal]
+     [table-modal]
      (if (= (:handler @route) :ws/print)
        (if (and @vms-loaded? @sync-loaded?)
          [page params]
