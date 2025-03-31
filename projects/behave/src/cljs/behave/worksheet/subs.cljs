@@ -1034,3 +1034,14 @@
    (rf/subscribe [:worksheet/modules ws-uuid]))
  (fn [modules]
    (mapcat :module/pivot-tables modules)))
+
+(rp/reg-sub
+ :worksheet/version
+ (fn [_ [_ ws-uuid]]
+   {:type      :query
+    :query     '[:find  ?version .
+                 :in    $ ?ws-uuid
+                 :where
+                 [?w :worksheet/uuid ?ws-uuid]
+                 [?w :worksheet/version ?version]]
+    :variables [ws-uuid]}))
