@@ -121,7 +121,9 @@
     (let [datoms (mapv #(apply d/datom %) (c/unpack body))]
       (rf/dispatch-sync [:ds/initialize (->ds-schema all-schemas) datoms])
       (rf/dispatch-sync [:state/set :sync-loaded? true])
-      (rf/dispatch-sync [:wizard/navigate-to-latest-worksheet]))))
+      (rf/dispatch-sync [:state/set :ws-version
+                         @(rf/subscribe [:worksheet/version @(rf/subscribe [:worksheet/latest])])]))))
+
 
 (defn open-worksheet! [{:keys [file]}]
   (let [form-data (js/FormData.)]

@@ -299,6 +299,10 @@ body {
   padding-right: 15px
 }
 
+.workflow-select__warning {
+  padding: 5px;
+}
+
 .accordion {
   position: relative;
 }

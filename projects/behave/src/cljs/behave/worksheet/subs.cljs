@@ -33,14 +33,15 @@
 (defn re-entity-from-eid [eid]
   (re/entity eid))
 
-;; Retrieve all worksheet UUID's
-(rp/reg-sub
+(rf/reg-sub
  :worksheet/all
  (fn [_ _]
-   {:type  :query
-    :query '[:find  ?created ?uuid
-             :where [?ws :worksheet/uuid ?uuid]
-             [?ws :worksheet/created ?created]]}))
+   (d/q '[:find ?created ?uuid
+          :in $
+          :where
+          [?e :worksheet/uuid ?uuid]
+          [?e :worksheet/created ?created]]
+        @@s/conn)))
 
 ;; Retrieve latest worksheet UUID
 (rf/reg-sub

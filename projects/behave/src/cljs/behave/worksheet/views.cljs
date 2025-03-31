@@ -2,12 +2,12 @@
   (:require [behave.components.core       :as c]
             [behave.components.navigation :refer [wizard-navigation]]
             [behave.tool.views            :refer [tool tool-selector]]
-            [behave.wizard.views          :refer [wizard-expand]]
             [behave.translate             :refer [<t bp]]
-            [behave.worksheet.events]
+            [behave.wizard.views          :refer [wizard-expand]]
+            [dom-utils.interface          :refer [input-value]]
+            [goog.string                  :as gstring]
             [re-frame.core                :as rf]
             [reagent.core                 :as r]
-            [dom-utils.interface          :refer [input-value]]
             [string-utils.interface       :refer [->str]]))
 
 (defn- workflow-select-header [{:keys [icon header description]}]
@@ -133,10 +133,14 @@
      [:h3 "TODO: FLESH OUT GUIDED WORKSHEET"]]]])
 
 (defn import-worksheet-page [_params]
-  (let [file-name (r/track #(or @(rf/subscribe [:state [:worksheet :file :name]])
+  (let [file-name   (r/track #(or @(rf/subscribe [:state [:worksheet :file :name]])
                                 @(<t (bp "select_a_file"))))
-        file      (r/track #(or @(rf/subscribe [:state [:worksheet :file :obj]])
-                                nil))]
+        file        (r/track #(or @(rf/subscribe [:state [:worksheet :file :obj]])
+                                nil))
+        ws-version  (r/track #(or @(rf/subscribe [:state :ws-version])
+                               nil))
+        app-version (r/track #(or @(rf/subscribe [:state :version])
+                                  nil))]
     [:<>
      [:div.workflow-select
       [workflow-select-header
@@ -147,12 +151,21 @@
        [c/browse-input {:button-label @(<t (bp "browse"))
                         :accept       ".bpr,bpw,.bp6,.bp7,.sqlite"
                         :label        @file-name
-                        :on-change    #(rf/dispatch [:ws/worksheet-selected (.. % -target -files)])}]
+                        :on-change    #(do (rf/dispatch-sync [:ws/worksheet-selected (.. % -target -files)])
+                                           (rf/dispatch-sync [:wizard/open @file]))}]
+       (when (and @app-version @ws-version (not= @app-version @ws-version))
+         [:div.workflow-select__warning
+          (str
+           (gstring/format
+            @(<t (bp "the-applicaiton-version-is-%s-but-your-run-is-%s"))
+            @app-version @ws-version)
+           " "
+           @(<t (bp "review-your-outputs-and-inputs-before-calculating-this-run")))])
        [wizard-navigation {:next-label @(<t (bp "next"))
                            :back-label @(<t (bp "back"))
                            :on-back    #(rf/dispatch [:navigate "/worksheets/"])
                            ;;TODO Get full file path from file
-                           :on-next    #(rf/dispatch [:wizard/open @file])}]]]]))
+                           :on-next    #(rf/dispatch [:wizard/navigate-to-latest-worksheet])}]]]]))
 
 ;; TODO use title
 (defn new-worksheet-page [params]
