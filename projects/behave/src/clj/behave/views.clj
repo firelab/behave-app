@@ -28,7 +28,7 @@
   {:vms-version (if @*vms-version @*vms-version (reset-vms-version!))})
 
 (defn- get-app-version []
-  (if @*app-version @*app-version (reset-app-version!)))
+  {:app-version (if @*app-version @*app-version (reset-app-version!))})
 
 (defn- add-v-query [paths]
  (let [{:keys [vms-version]} (get-vms-version)]
@@ -138,7 +138,7 @@
 (defn reset-app-version!
   "Resets the App version based on the file hash."
   []
-  (reset! *app-version (edn/read-string (slurp (io/resource "version.edn")))))
+  (reset! *app-version (:version (edn/read-string (slurp (io/resource "version.edn"))))))
 
 (defn render-tests-page
   "Renders the site for tests."

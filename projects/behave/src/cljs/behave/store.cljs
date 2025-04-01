@@ -150,7 +150,7 @@
       (rf/dispatch-sync [:worksheet/new {:name    nname
                                          :modules (vec modules)
                                          :uuid    ws-uuid
-                                         :version @(rf/subscribe [:state :version])}])
+                                         :version @(rf/subscribe [:state :app-version])}])
       (reset! current-route-order @(rf/subscribe [:wizard/route-order ws-uuid]))
       (rf/dispatch-sync [:navigate (first @current-route-order)]))))
 
