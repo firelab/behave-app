@@ -139,7 +139,7 @@
                                 nil))
         ws-version  (r/track #(or @(rf/subscribe [:state :ws-version])
                                nil))
-        app-version (r/track #(or @(rf/subscribe [:state :version])
+        app-version (r/track #(or @(rf/subscribe [:state :app-version])
                                   nil))]
     [:<>
      [:div.workflow-select
