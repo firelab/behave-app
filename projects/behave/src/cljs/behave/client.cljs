@@ -61,7 +61,7 @@
   (when (= mode "prod")
     (.addEventListener js/window "beforeunload" before-unload-fn)))
 
-(defn app-shell [{:keys [version] :as params}]
+(defn app-shell [{:keys [app-version] :as params}]
   (let [route              (rf/subscribe [:handler])
         sync-loaded?       (rf/subscribe [:state :sync-loaded?])
         vms-loaded?        (rf/subscribe [:state :vms-loaded?])
@@ -100,7 +100,7 @@
              :tabindex 0}
             [:div
              [:img {:src "/images/logo.svg"}]
-             [:div version]]]]
+             [:div app-version]]]]
           [:td.page__top__toolbar-container
            [toolbar params]]]]
         [:div.page__main
@@ -122,7 +122,7 @@
   [params]
   (let [params (js->clj params :keywordize-keys true)]
     (reset! route-params-atom params)
-    (rf/dispatch [:state/set :version (:version params)])
+    (rf/dispatch [:state/set :app-version (:app-version params)])
     (rf/dispatch-sync [:initialize])
     (rf/dispatch-sync [:navigate (-> js/window .-location .-pathname)])
     (.addEventListener js/window "popstate" #(rf/dispatch [:popstate %]))
