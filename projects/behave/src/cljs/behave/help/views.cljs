@@ -1,5 +1,6 @@
 (ns behave.help.views
   (:require [clojure.walk           :refer [postwalk]]
+            [clojure.string         :as str]
             [re-frame.core          :refer [subscribe dispatch dispatch-sync]]
             [reagent.core           :as r]
             [hickory.core           :as h]
@@ -7,6 +8,18 @@
             [behave.translate       :refer [<t]]
             [behave.help.events]
             [behave.help.subs]))
+
+;;; HTML Decoding
+
+(defonce ^:private html-codes
+  {"&amp;"   "&"
+   "&lt;"    "<"
+   "&gt;"    ">"
+   "&quot;"  "\""
+   "&apos;"  "'"})
+
+(defn- decode-html-string [html-str]
+  (str/replace html-str #"&\w+?;" html-codes))
 
 ;;; Helper Functions
 
@@ -114,7 +127,8 @@
        [:div.help-section__content
         (-> @help-contents
             (h/parse-fragment)
-            (->> (map h/as-hiccup)))])]))
+            (->> (map h/as-hiccup)
+                 (postwalk #(if (string? %) (decode-html-string %) %))))])]))
 
 (defn- help-content [help-keys & [children]]
   (let [help-highlighted-key (subscribe [:help/current-highlighted-key])]
