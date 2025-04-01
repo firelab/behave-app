@@ -39,7 +39,7 @@
                             (map (fn [module-entity]
                                    (keyword (str/lower-case (:module/name module-entity))))
                                  @(rf/subscribe [:worksheet/modules ws-uuid])))
-        sidebar-modules   (or worksheet-modules
+        sidebar-modules   (or (seq worksheet-modules)
                               @(rf/subscribe [:state [:sidebar :*modules]]))
         on-select         #(do (rf/dispatch [:state/set [:sidebar :*modules] (:module %)])
                                (rf/dispatch [:state/set [:worksheet :*modules] (:module %)]))]
