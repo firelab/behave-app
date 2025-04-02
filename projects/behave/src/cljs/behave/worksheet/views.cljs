@@ -157,7 +157,7 @@
          [:div.workflow-select__warning
           (str
            (gstring/format
-            @(<t (bp "the-applicaiton-version-is-%s-but-your-run-is-%s"))
+            @(<t (bp "the-application-version-is-%s-but-your-run-is-%s"))
             @app-version @ws-version)
            " "
            @(<t (bp "review-your-outputs-and-inputs-before-calculating-this-run")))])

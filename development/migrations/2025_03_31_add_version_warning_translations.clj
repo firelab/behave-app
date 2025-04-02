@@ -25,7 +25,7 @@
 (def payload
   (sm/build-translations-payload
    conn
-   {"behaveplus:the-applicaiton-version-is-%s-but-your-run-is-%s"           "The application version is \"%s\" but your run is \"%s\"."
+   {"behaveplus:the-application-version-is-%s-but-your-run-is-%s"           "The application version is \"%s\" but your run is \"%s\"."
     "behaveplus:review-your-outputs-and-inputs-before-calculating-this-run" "Review your outputs and inputs before calculating this run."}))
 
 ;; ===========================================================================================================
