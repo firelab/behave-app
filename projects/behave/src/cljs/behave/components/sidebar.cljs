@@ -3,6 +3,7 @@
    [behave.components.core :as c]
    [behave.components.a11y :refer [on-enter]]
    [behave.translate       :refer [<t bp]]
+   [clojure.string         :as str]
    [re-frame.core          :as rf]))
 
 (defn- sidebar-module [{icon-name       :icon
@@ -34,8 +35,11 @@
   [{:keys [ws-uuid]}]
   (let [*loaded?          (rf/subscribe [:app/loaded?])
         *hidden?          (rf/subscribe [:state [:sidebar :hidden?]])
-        worksheet-modules (when @*loaded? (:worksheet/modules @(rf/subscribe [:worksheet ws-uuid])))
-        sidebar-modules   (or worksheet-modules
+        worksheet-modules (when @*loaded?
+                            (map (fn [module-entity]
+                                   (keyword (str/lower-case (:module/name module-entity))))
+                                 @(rf/subscribe [:worksheet/modules ws-uuid])))
+        sidebar-modules   (or (seq worksheet-modules)
                               @(rf/subscribe [:state [:sidebar :*modules]]))
         on-select         #(do (rf/dispatch [:state/set [:sidebar :*modules] (:module %)])
                                (rf/dispatch [:state/set [:worksheet :*modules] (:module %)]))]
