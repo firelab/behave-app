@@ -1,22 +1,15 @@
 (ns behave.components.sidebar
   (:require
    [behave.components.core :as c]
-   [behave.components.a11y :refer [on-enter]]
    [behave.translate       :refer [<t bp]]
    [clojure.string         :as str]
    [re-frame.core          :as rf]))
 
 (defn- sidebar-module [{icon-name       :icon
                         translation-key :label
-                        on-select       :on-select
-                        selected?       :selected?
-                        disabled?       :disabled? :as c}]
+                        selected?       :selected?}]
   (let [translation (<t translation-key)]
-    [:div {:class        "sidebar-group__module"
-           :on-click     (when (not disabled?)
-                           #(on-select c))
-           :tabindex     0
-           :on-key-press (on-enter #(on-select c))}
+    [:div {:class "sidebar-group__module"}
      [:div.sidebar-group__module__icon
       [c/icon {:icon-name icon-name
                :selected? selected?}]]
@@ -40,9 +33,7 @@
                                    (keyword (str/lower-case (:module/name module-entity))))
                                  @(rf/subscribe [:worksheet/modules ws-uuid])))
         sidebar-modules   (or (seq worksheet-modules)
-                              @(rf/subscribe [:state [:sidebar :*modules]]))
-        on-select         #(do (rf/dispatch [:state/set [:sidebar :*modules] (:module %)])
-                               (rf/dispatch [:state/set [:worksheet :*modules] (:module %)]))]
+                              @(rf/subscribe [:state [:sidebar :*modules]]))]
 
     (if @*hidden?
       [:div.sidebar__expand
@@ -59,33 +50,24 @@
                                     {:label     (str "behaveplus:" (name module))
                                      :icon      (name module)
                                      :selected? (contains? sidebar-modules module)
-                                     :module    #{module}
-                                     :on-select #(when ws-uuid
-                                                   (let [module-name    (name (first (:module %)))
-                                                         *module        (rf/subscribe [:wizard/*module module-name])
-                                                         submodule-slug (:slug (first @(rf/subscribe [:wizard/submodules-io-output-only (:db/id @*module)])))]
-                                                     (rf/dispatch [:navigate (str "/worksheets/" ws-uuid "/modules/" module-name "/output/" submodule-slug)])))})
+                                     :module    #{module}})
                                   [{:label     "behaveplus:surface"
                                     :icon      "surface"
-                                    :on-select on-select
                                     :selected? (contains? sidebar-modules :surface)
                                     :module    #{:surface}}
 
                                    {:label     "behaveplus:crown"
                                     :icon      "crown"
-                                    :on-select on-select
                                     :selected? (contains? sidebar-modules :crown)
                                     :module    #{:surface :crown}}
 
                                    {:label     "behaveplus:contain"
                                     :icon      "contain"
-                                    :on-select on-select
                                     :selected? (contains? sidebar-modules :contain)
                                     :module    #{:surface :contain}}
 
                                    {:label     "behaveplus:mortality"
                                     :icon      "mortality"
-                                    :on-select on-select
                                     :selected? (contains? sidebar-modules :mortality)
                                     :module    #{:mortality}}])}]
 
