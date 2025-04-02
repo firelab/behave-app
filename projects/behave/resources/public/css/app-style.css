@@ -447,8 +447,8 @@ body {
 
 .wizard-header__io-tabs {
   position: relative;
-  margin-top: 4px;
   top: -5px;
+  margin-top: 4px;
 }
 
 .wizard-header__io-tabs > .tab-group {
@@ -868,7 +868,6 @@ body {
   padding: 18px 0px 18px 0px;
   border-top: solid 1px var(--gray-4);
   border-bottom: dashed 1px var(--gray-4);
-  font-family: 'Roboto', sans-serif;
   font-size: var(--font-size-16);
   color: var(--black);
 }
@@ -920,7 +919,6 @@ body {
   overflow-x: hidden;
   overflow-y: scroll;
   max-height: 730px;
-  font-family: 'Roboto', sans-serif;
   background: var(--white);
 }
 
@@ -1013,15 +1011,69 @@ body {
     padding: 0px;
 }
 
+/* Help Tables */
+
+.help-area__content table {
+  border-collapse: collapse;
+}
+
+.help-area__content table td,
+.help-area__content table th {
+  padding: 2px;
+  border: 1px solid black;
+}
+
+.help-area__content table > thead {
+  background: var(--gray-3);
+}
+
+.help-area__content table td,
+.help-area__content table th {
+  padding: 5px;
+}
+
+.help-area__content table > thead > tr > th > p {
+  font-weight: bold;
+}
+
+.help-area__content table {
+  cursor: pointer;
+}
+
+.help-area__content table {
+  position: relative;
+}
+
+.help-area__content table:hover > ::after {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 20px;
+  padding: 10px 20px;
+  border: 1px solid var(--lightblue-3);
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  color: var(--white);
+  background: var(--orange-4);
+  content: 'Expand';
+}
+
+.help-area__content img:hover {
+  opacity: 0.8;
+}
+
 /* Help Images */
 
 .help-area__content img {
-    height: auto;
-    width: 100%;
-    cursor: pointer;
+  width: 100%;
+  height: auto;
+  cursor: pointer;
 }
 
-/* Highlight */
+.help-area__content img:hover {
+  opacity: 0.8;
+}
 
 .help-area__content .highlight > .help-section__content {
     width: 100%;
@@ -1334,34 +1386,86 @@ body {
 /* - End Container Close Button - */
 
 
-/* - Image Viewer - */
+/* - Viewers - */
 
 .app-shell .modal {
   position: fixed;
   top: 50%;
   left: 50%;
   z-index: 1001;
+  max-width: 80%;
+  max-height: 60%;
   transform: translate(-50%, -50%);
 }
 
-.modal__body > .image-viewer {
-  padding: 10px;
-}
-
-.modal__body > .image-viewer .p {
-  padding-top: 10px;
-  font-weight: bold
-}
-
 .app-shell .modal__background {
-  background: black;
-  opacity: 0.4;
-  z-index: 1000;
   position: fixed;
   top: 0;
   right: 0;
   bottom: 0%;
   left: 0%;
+  z-index: 1000;
+  background: black;
+  opacity: 0.4;
 }
 
-/* - End Image Viewer - */
+/* -- Image Viewer -- */
+
+.image-viewer {
+  max-width: 100%;
+  padding: 30px;
+}
+
+.image-viewer__image {
+  max-width: 100%;
+}
+
+.image-viewer__description {
+  padding-top: 10px;
+  font-weight: bold
+}
+
+/* -- End Image Viewer -- */
+
+/* -- Table Viewer -- */
+
+.table-viewer > table {
+  max-width: 100%;
+  padding: 30px;
+}
+
+.table-viewer table {
+  border-collapse: collapse;
+}
+
+.table-viewer table td,
+.table-viewer table th {
+  padding: 2px;
+  border: 1px solid black;
+}
+
+.table-viewer table > thead {
+  background: var(--gray-3);
+}
+
+.table-viewer table td,
+.table-viewer table th {
+  padding: 5px;
+}
+
+.table-viewer table > thead > tr > th > p {
+  font-weight: bold;
+}
+
+.table-viewer table ul {
+    padding-top: 10px;
+    padding-left: 20px;
+}
+
+.table-viewer table ul > li > p {
+    margin: 0px;
+    padding: 0px;
+}
+
+/* -- End Table Viewer -- */
+/* - End Viewers -- */

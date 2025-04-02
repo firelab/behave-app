@@ -91,15 +91,52 @@
     :else
     "behaveplus:help"))
 
-;;; Image Viewer
+;;; Image / Table Viewer
+
+(defonce ^:private TABLE-ELEMENTS #{"TABLE" "TH" "TD" "TR" "THEAD"})
+
+(defn- is-table-descendant? [el]
+  (let [parent   (.-parentNode el)
+        node-name (.-nodeName parent)]
+    (.log js/console parent node-name)
+    (cond
+      (TABLE-ELEMENTS node-name)
+      true
+
+      (or (= "BODY" node-name)
+          (= "help-section__content" (.-className parent)))
+      false
+
+      :else
+      (recur parent))))
+
+;; Update the following function to use Hickory `parse-fragment`
+(defn- element->hiccup [el]
+  (let [html-fragment (.-outerHTML el)
+        parsed        (h/parse-fragment html-fragment)]
+    (h/as-hiccup (first parsed))))
+
+(defn- get-table-parent [el]
+  (let [parent    (.-parentNode el)
+        node-name (.-nodeName parent)]
+    (if (= "TABLE" node-name)
+      parent
+      (recur parent))))
 
 (defn- open-image-viewer-fn [e]
-  (when (= "IMG" (.. e -target -nodeName))
-    (let [el (.-target e)
-          url (.-src el)
-          alt (.-alt el)]
-      (.log js/console el)
-      (dispatch [:help/open-image-viewer url alt]))))
+  (let [el (.-target e)]
+    (cond
+      (= "IMG" (.-nodeName el))
+      (let [url (.-src el)
+            alt (.-alt el)]
+        (dispatch [:help/open-image-viewer url alt]))
+
+      (is-table-descendant? el)
+      (let [table (get-table-parent el)]
+        (dispatch [:help/open-table-viewer (element->hiccup table)]))
+
+      :else
+      nil)))
 
 ;;; Components
 
