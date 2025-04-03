@@ -17,13 +17,18 @@
 ;;; State
 
 (def ^:private *vms-version (atom nil))
+(def ^:private *app-version (atom nil))
 
 ;;; Helpers
 
 (declare reset-vms-version!)
+(declare reset-app-version!)
 
 (defn- get-vms-version []
   {:vms-version (if @*vms-version @*vms-version (reset-vms-version!))})
+
+(defn- get-app-version []
+  {:app-version (if @*app-version @*app-version (reset-app-version!))})
 
 (defn- add-v-query [paths]
  (let [{:keys [vms-version]} (get-vms-version)]
@@ -49,7 +54,7 @@
   "Specifies head tag elements."
   []
   [:head
-   [:title (get-config :site :title)]
+   [:title (format "%s (%s)"  (get-config :site :title) (:app-version (get-app-version)))]
    [:meta {:name    "description"
            :content (get-config :site :description)}]
    [:meta {:name "robots" :content "index, follow"}]
@@ -130,6 +135,11 @@
   []
   (reset! *vms-version (digest/md5 (slurp (io/resource "public/layout.msgpack")))))
 
+(defn reset-app-version!
+  "Resets the App version based on the file hash."
+  []
+  (reset! *app-version (:version (edn/read-string (slurp (io/resource "version.edn"))))))
+
 (defn render-tests-page
   "Renders the site for tests."
   [_request]
@@ -151,7 +161,8 @@
                  params
                  (get-config :client)
                  (get-config :server)
-                 (get-vms-version))]
+                 (get-vms-version)
+                 (get-app-version))]
       {:status  (if (some? match) 200 404)
        :headers {"Content-Type" "text/html"}
        :body    (html5

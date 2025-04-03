@@ -299,6 +299,10 @@ body {
   padding-right: 15px
 }
 
+.workflow-select__warning {
+  padding: 5px;
+}
+
 .accordion {
   position: relative;
 }
@@ -1264,6 +1268,19 @@ body {
 
 .print__ws-date {
   text-align: center;
+}
+
+.print__header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.print__header img {
+  width: 6%
+}
+
+.print__header__info {
+  flex-direciton: column
 }
 
 .print {

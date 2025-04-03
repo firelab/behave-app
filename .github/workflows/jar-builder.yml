@@ -28,6 +28,21 @@ jobs:
         with:
           babashka-version: 1.3.189
 
+      - name: Set the version
+        run: |
+          VERSION=$(echo ${{ github.ref }} | sed -e 's/refs\/tags\///g')
+          echo "version=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Set the date
+        run: |
+          DATE=$( echo $(date '+%Y-%m-%d'))
+          echo "date=$DATE" >> "$GITHUB_ENV"
+
+      - name: Set release name
+        run: |
+          RELEASE=$(echo "$version ($date)")
+          echo "release=$RELEASE" >> "$GITHUB_ENV"
+
       - name: Build JAR
         env:
           VMS_URL: ${{ secrets.VMS_URL }}
@@ -37,6 +52,7 @@ jobs:
           clojure -X:download-vms :url "$VMS_URL" :auth-token "$VMS_AUTH_TOKEN"
           bb build-js
           mv resources/config.standalone.edn resources/config.edn
+          echo "{:version $version}" > resources/version.edn
           bb uber
 
       - name: Verify assets
@@ -66,6 +82,15 @@ jobs:
             # Sign JAR
             ./sign.sh $JAR
 
+      - name: Rename Jar
+        run: |
+          cd projects/behave/target
+          mv $(ls *-signed.jar) behave-$version.jar
+
       - uses: ncipollo/release-action@v1
         with:
-          artifacts: "projects/behave/target/*-signed.jar"
+          name: ${{ env.release }}
+          artifacts: "projects/behave/target/*-${{ env.version }}.jar"
+          artifactContentType: "application/java-archive"
+          tag: ${{ github.ref }}
+          makeLatest: true
