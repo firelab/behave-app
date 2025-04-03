@@ -1218,6 +1218,19 @@ body {
   text-align: center;
 }
 
+.print__header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.print__header img {
+  width: 5%
+}
+
+.print__header__info {
+  flex-direciton: column
+}
+
 .print {
   overflow-y: scroll;
 }

@@ -25,16 +25,17 @@
   (dispatch [:dev/close-after-print])
   (js/setTimeout #(dispatch [:dev/print]) 1000)
   (let [worksheet           @(subscribe [:worksheet ws-uuid])
-        ws-name             (:worksheet/name worksheet)
         ws-date-created     (:worksheet/created worksheet)
         ws-version          (:worksheet/version worksheet)
         notes               @(subscribe [:wizard/notes ws-uuid])
         graph-data          @(subscribe [:worksheet/result-table-cell-data ws-uuid])
         directional-tables? @(subscribe [:wizard/output-directional-tables? ws-uuid])]
     [:div.print
-     [:img {:src "/images/logo.svg"}]
-     [:div (str "Version: " ws-version)]
-     [:div (str "Created: " (epoch->date-string ws-date-created))]
+     [:div.print__header
+      [:img {:src "/images/logo.svg"}]
+      [:div.print__header__info
+       [:div (str "Version: " ws-version)]
+       [:div (str "Created: " (epoch->date-string ws-date-created))]]]
      [:div.wizard-print__header "Inputs"]
      [inputs-table ws-uuid]
      [wizard-notes notes]
