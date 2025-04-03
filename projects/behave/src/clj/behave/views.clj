@@ -54,7 +54,7 @@
   "Specifies head tag elements."
   []
   [:head
-   [:title (format "%s %s"  (get-config :site :title) (:app-version (get-app-version)))]
+   [:title (format "%s (%s)"  (get-config :site :title) (:app-version (get-app-version)))]
    [:meta {:name    "description"
            :content (get-config :site :description)}]
    [:meta {:name "robots" :content "index, follow"}]
