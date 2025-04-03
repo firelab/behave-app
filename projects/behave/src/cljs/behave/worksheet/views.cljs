@@ -115,11 +115,7 @@
                                           :icons     [{:icon-name "contain"}]
                                           :selected? (= @*modules [:contain])
                                           :module    [:contain]}
-                                       ]}]
-       [:div.workflow-select__content__name
-
-        [c/text-input {:label     "Worksheet Name"
-                       :on-change #(rf/dispatch [:state/set [:worksheet :name] (input-value %)])}]]]
+                                       ]}]]
       [wizard-navigation {:next-label     @(<t (bp "next"))
                           :back-label     @(<t (bp "back"))
                           :next-disabled? (empty? @*modules)

@@ -40,9 +40,7 @@
                                    (keyword (str/lower-case (:module/name module-entity))))
                                  @(rf/subscribe [:worksheet/modules ws-uuid])))
         sidebar-modules   (or (seq worksheet-modules)
-                              @(rf/subscribe [:state [:sidebar :*modules]]))
-        on-select         #(do (rf/dispatch [:state/set [:sidebar :*modules] (:module %)])
-                               (rf/dispatch [:state/set [:worksheet :*modules] (:module %)]))]
+                              @(rf/subscribe [:state [:sidebar :*modules]]))]
 
     (if @*hidden?
       [:div.sidebar__expand
@@ -53,53 +51,46 @@
                   :flat-edge     "left"
                   :on-click      #(rf/dispatch [:state/update [:sidebar :hidden?] (partial not)])}]]
       [:div.sidebar-container
-       [sidebar-group {:title   @(<t (bp "modules"))
-                       :modules (if sidebar-modules
-                                  (for [module sidebar-modules]
-                                    {:label     (str "behaveplus:" (name module))
-                                     :icon      (name module)
-                                     :selected? (contains? sidebar-modules module)
-                                     :module    #{module}
-                                     :on-select #(when ws-uuid
-                                                   (let [module-name    (name (first (:module %)))
-                                                         *module        (rf/subscribe [:wizard/*module module-name])
-                                                         submodule-slug (:slug (first @(rf/subscribe [:wizard/submodules-io-output-only (:db/id @*module)])))]
-                                                     (rf/dispatch [:navigate (str "/worksheets/" ws-uuid "/modules/" module-name "/output/" submodule-slug)])))})
-                                  [{:label     "behaveplus:surface"
-                                    :icon      "surface"
-                                    :on-select on-select
-                                    :selected? (contains? sidebar-modules :surface)
-                                    :module    #{:surface}}
+       [:div.sidebar-container__modules
+        [sidebar-group {:title   @(<t (bp "modules"))
+                        :modules (if sidebar-modules
+                                   (for [module sidebar-modules]
+                                     {:label     (str "behaveplus:" (name module))
+                                      :icon      (name module)
+                                      :selected? (contains? sidebar-modules module)
+                                      :module    #{module}})
+                                   [{:label     "behaveplus:surface"
+                                     :icon      "surface"
+                                     :selected? (contains? sidebar-modules :surface)
+                                     :module    #{:surface}}
 
-                                   {:label     "behaveplus:crown"
-                                    :icon      "crown"
-                                    :on-select on-select
-                                    :selected? (contains? sidebar-modules :crown)
-                                    :module    #{:surface :crown}}
+                                    {:label     "behaveplus:crown"
+                                     :icon      "crown"
+                                     :selected? (contains? sidebar-modules :crown)
+                                     :module    #{:surface :crown}}
 
-                                   {:label     "behaveplus:contain"
-                                    :icon      "contain"
-                                    :on-select on-select
-                                    :selected? (contains? sidebar-modules :contain)
-                                    :module    #{:surface :contain}}
+                                    {:label     "behaveplus:contain"
+                                     :icon      "contain"
+                                     :selected? (contains? sidebar-modules :contain)
+                                     :module    #{:surface :contain}}
 
-                                   {:label     "behaveplus:mortality"
-                                    :icon      "mortality"
-                                    :on-select on-select
-                                    :selected? (contains? sidebar-modules :mortality)
-                                    :module    #{:mortality}}])}]
+                                    {:label     "behaveplus:mortality"
+                                     :icon      "mortality"
+                                     :selected? (contains? sidebar-modules :mortality)
+                                     :module    #{:mortality}}])}]]
 
-       [sidebar-group {:title   @(<t (bp "tools_and_settings"))
-                       :modules [{:label     "behaveplus:tools"
-                                  :icon      "tools2"
-                                  :on-select #(rf/dispatch [:state/set [:sidebar :*tools-or-settings] :tools])}
-                                 {:label     "behaveplus:settings"
-                                  :icon      "settings2"
-                                  :on-select #(if ws-uuid
-                                                (rf/dispatch [:navigate (str "/worksheets/"
-                                                                             ws-uuid
-                                                                             "/settings")])
-                                                (rf/dispatch [:navigate "/settings"]))}]}]
+       [:div.sidebar-container__tools-settings
+        [sidebar-group {:title   @(<t (bp "tools_and_settings"))
+                        :modules [{:label     "behaveplus:tools"
+                                   :icon      "tools2"
+                                   :on-select #(rf/dispatch [:state/set [:sidebar :*tools-or-settings] :tools])}
+                                  {:label     "behaveplus:settings"
+                                   :icon      "settings2"
+                                   :on-select #(if ws-uuid
+                                                 (rf/dispatch [:navigate (str "/worksheets/"
+                                                                              ws-uuid
+                                                                              "/settings")])
+                                                 (rf/dispatch [:navigate "/settings"]))}]}]]
        [:div.sidebar-close
         [:div.container__close
          [c/button {:icon-name "close"
