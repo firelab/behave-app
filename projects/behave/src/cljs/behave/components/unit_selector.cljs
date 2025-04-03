@@ -38,8 +38,12 @@
 (defn unit-display
   "Displays the units for a continuous variable, and enables unit selection."
   [domain-uuid *unit-uuid dimension-uuid native-unit-uuid english-unit-uuid metric-unit-uuid & [on-change-units]]
-  (r/with-let [dimension         (rf/subscribe [:vms/entity-from-uuid dimension-uuid])
-               units             (:dimension/units @dimension)
+  (r/with-let [domain            (rf/subscribe [:vms/entity-from-uuid domain-uuid])
+               dimension         (rf/subscribe [:vms/entity-from-uuid dimension-uuid])
+               filtered-units    (set (:domain/filtered-unit-uuids @domain))
+               units             (cond->> (:dimension/units @dimension)
+                                   (seq filtered-units)
+                                   (filter #(filtered-units (:bp/uuid %))))
                units-by-uuid     (index-by :bp/uuid units)
                *cached-unit-uuid (rf/subscribe [:settings/cached-unit domain-uuid])
                *cached-unit      (rf/subscribe [:vms/entity-from-uuid @*cached-unit-uuid])
