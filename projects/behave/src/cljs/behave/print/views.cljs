@@ -10,7 +10,7 @@
 (defn- wizard-notes [notes]
   (when (seq notes)
     [:div.wizard-notes
-     [:div.wizard-print__header "Run's Notes"]
+     [:div.wizard-print__header "Run Notes"]
      (doall (for [[id & _rest :as note] notes]
               ^{:key id}
               (let [[_note-id note-name note-content] note]
@@ -19,20 +19,23 @@
                  [:div.wizard-note__content note-content]])))]))
 
 (defn- epoch->date-string [epoch]
-  (.toString (js/Date. epoch)))
+  (.toDateString (js/Date. epoch)))
 
 (defn print-page [{:keys [ws-uuid]}]
   (dispatch [:dev/close-after-print])
   (js/setTimeout #(dispatch [:dev/print]) 1000)
   (let [worksheet           @(subscribe [:worksheet ws-uuid])
-        ws-name             (:worksheet/name worksheet)
         ws-date-created     (:worksheet/created worksheet)
+        ws-version          (:worksheet/version worksheet)
         notes               @(subscribe [:wizard/notes ws-uuid])
         graph-data          @(subscribe [:worksheet/result-table-cell-data ws-uuid])
         directional-tables? @(subscribe [:wizard/output-directional-tables? ws-uuid])]
     [:div.print
-     [:div.print__ws-name ws-name]
-     [:div.print__ws-date (epoch->date-string ws-date-created)]
+     [:div.print__header
+      [:img {:src "/images/logo.svg"}]
+      [:div.print__header__info
+       [:div (str "Version: " ws-version)]
+       [:div (str "Created: " (epoch->date-string ws-date-created))]]]
      [:div.wizard-print__header "Inputs"]
      [inputs-table ws-uuid]
      [wizard-notes notes]

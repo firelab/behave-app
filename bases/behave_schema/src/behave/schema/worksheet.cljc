@@ -28,7 +28,12 @@
 ;;; Schema
 
 (def schema
-  [{:db/ident       :worksheet/uuid
+  [{:db/ident       :worksheet/version
+    :db/doc         "The application's version that was used to generate this worksheet"
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :worksheet/uuid
     :db/doc         "Worksheet's ID. UUID stored as a string."
     :db/valueType   :db.type/string
     :db/unique      :db.unique/identity
