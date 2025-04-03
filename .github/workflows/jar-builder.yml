@@ -85,13 +85,12 @@ jobs:
       - name: Rename Jar
         run: |
           cd projects/behave/target
-          rm *.jar
           mv $(ls *-signed.jar) behave-$version.jar
 
       - uses: ncipollo/release-action@v1
         with:
           name: ${{ env.release }}
-          artifacts: "projects/behave/target/*.jar"
+          artifacts: "projects/behave/target/*-${{ env.version }}.jar"
           artifactContentType: "application/java-archive"
           tag: ${{ github.ref }}
           makeLatest: true
