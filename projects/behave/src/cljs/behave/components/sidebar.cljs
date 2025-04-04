@@ -81,8 +81,8 @@
 
        [:div.sidebar-container__tools-settings
         [sidebar-group {:title   @(<t (bp "tools_and_settings"))
-                        :modules [{:label     "behaveplus:tools"
-                                   :icon      "tools2"
+                        :modules [{:label     "behaveplus:calculator"
+                                   :icon      "calculator"
                                    :on-select #(rf/dispatch [:state/set [:sidebar :*tools-or-settings] :tools])}
                                   {:label     "behaveplus:settings"
                                    :icon      "settings2"
