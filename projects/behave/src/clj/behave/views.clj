@@ -54,7 +54,9 @@
   "Specifies head tag elements."
   []
   [:head
-   [:title (format "%s (%s)"  (get-config :site :title) (:app-version (get-app-version)))]
+   [:title (if (:app-version (get-app-version))
+            (format "%s (%s)"  (get-config :site :title) (:app-version (get-app-version)))
+            (get-config :site :title))]
    [:meta {:name    "description"
            :content (get-config :site :description)}]
    [:meta {:name "robots" :content "index, follow"}]
@@ -138,7 +140,11 @@
 (defn reset-app-version!
   "Resets the App version based on the file hash."
   []
-  (reset! *app-version (:version (edn/read-string (slurp (io/resource "version.edn"))))))
+  (reset! *app-version (some->> "version.edn"
+                                io/resource
+                                slurp
+                                edn/read-string
+                                :version)))
 
 (defn render-tests-page
   "Renders the site for tests."
