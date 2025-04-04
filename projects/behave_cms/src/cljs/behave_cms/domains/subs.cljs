@@ -10,6 +10,30 @@
    (sort-by :domain/name lists)))
 
 (rf/reg-sub
+ :domains/editor
+ (fn [_]
+   (rf/subscribe [:state [:editors :domain]]))
+ identity)
+
+(rf/reg-sub
+ :domains/dimension-units
+ (fn [[_ dimension-eid]]
+   [(rf/subscribe [:domains/editor])
+    (rf/subscribe [:pull '[*] dimension-eid])])
+ (fn [[domain-editor domain]]
+   (let [dimension-uuid (or (:domain/dimension-uuid domain-editor)
+                            (:domain/dimension-uuid domain))
+         dimension-eid  (rf/subscribe [:query '[:find ?e .
+                                                :where [?e :bp/uuid ?uuid]
+                                                :in $ ?uuid]
+                                       [dimension-uuid]])]
+     (-> (rf/subscribe [:pull '[*] @dimension-eid])
+         (deref)
+         (:dimension/units)
+         (->> (map #(rename-keys % {:unit/name :label
+                                    :bp/uuid   :value})))))))
+
+(rf/reg-sub
  :domain-sets
  (fn [_]
    (rf/subscribe [:pull-with-attr :domain-set/name '[*]]))

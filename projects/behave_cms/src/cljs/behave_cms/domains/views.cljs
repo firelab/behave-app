@@ -8,7 +8,7 @@
 ;; Domain
 (defn- domain-editor [domain-set-eid domain-eid]
   (let [dimensions-options (rf/subscribe [:domains/options :dimension/name])
-        units-options      (rf/subscribe [:domains/options :unit/name])]
+        units-options      (rf/subscribe [:domains/dimension-units domain-eid])]
     [:<>
      [:h3 (if domain-eid "Edit Domain" "Add Domain")]
      [entity-form {:entity       :domain
@@ -43,6 +43,12 @@
                                    :type      :select
                                    :required? true
                                    :field-key :domain/metric-unit-uuid
+                                   :options   @units-options}
+
+                                  {:label     "Filtered Units"
+                                   :type      :set
+                                   :required? true
+                                   :field-key :domain/filtered-unit-uuids
                                    :options   @units-options}]
                    :on-update #(cond-> %
                                  (:domain/decimals %)

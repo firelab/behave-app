@@ -1,5 +1,6 @@
 (ns behave-cms.components.entity-form
   (:require [clojure.string :as str]
+            [clojure.set    :as set]
             [reagent.core      :as r]
             [re-frame.core     :as rf]
             [string-utils.interface :refer [->kebab ->str]]
@@ -8,23 +9,60 @@
             [behave-cms.utils  :as u]))
 
 ;;; Constants
-(def ^:private db-attrs             (map :db/ident all-schemas))
-(def ^:private db-translation-attrs (->> db-attrs
-                                         (filter #(-> %
-                                                      (->str)
-                                                      (str/ends-with? "translation-key")))
-                                         (set)))
-(def ^:private db-help-attrs        (->> db-attrs
-                                         (filter #(-> %
-                                                      (->str)
-                                                      (str/ends-with? "help-key")))
-                                         (set)))
+(def ^:private db-attrs                  (map :db/ident all-schemas))
+(def ^:private db-cardinality-many-attrs (->> all-schemas
+                                              (filter #(= :db.cardinality/many (:db/cardinality %)))
+                                              (map :db/ident)
+                                              (set)))
+(def ^:private db-translation-attrs      (->> db-attrs
+                                              (filter #(-> %
+                                                           (->str)
+                                                           (str/ends-with? "translation-key")))
+                                              (set)))
+(def ^:private db-help-attrs             (->> db-attrs
+                                              (filter #(-> %
+                                                           (->str)
+                                                           (str/ends-with? "help-key")))
+                                              (set)))
 
 ;;; Helpers
 
+(defn- cardinality-many-fields? [fields state]
+  (let [set-field-keys (->> fields
+                            (filter (fn [f] (= :set (:type f))))
+                            (map :field-key)
+                            (set))
+        state-keys     (set (keys state))]
+
+    (and (set/subset? set-field-keys db-cardinality-many-attrs)
+         (set/subset? state-keys db-cardinality-many-attrs))))
+
+(defn- gen-cardinality-many-retract-statements [new-data original cardinality-many-attrs]
+  (let [{id :db/id} original]
+    (->> cardinality-many-attrs
+         (map
+          (fn [attr]
+            (let [new-values (set (get new-data attr))
+                  old-values (set (get original attr))]
+              (map (fn [v] [:db/retract id attr v])
+                   (set/difference old-values new-values)))))
+         (apply concat))))
+
+(defn- retract-cardinality-many-values [new-data original]
+  (let [cardinality-many-attrs (->> original
+                                    (keys)
+                                    (filter db-cardinality-many-attrs))]
+    (if-not (seq cardinality-many-attrs)
+      new-data
+      (into [new-data]
+            (gen-cardinality-many-retract-statements new-data
+                                                     original
+                                                     cardinality-many-attrs)))))
+
 (defn- upsert-entity! [data]
-  (let [rf-event (if (nil? (:db/id data)) :api/create-entity :api/update-entity)]
-    (rf/dispatch [rf-event data])))
+  (if (vector? data)
+    (rf/dispatch [:ds/transact data])
+    (rf/dispatch [:api/upsert-entity data])))
 
 (defn- parent-translation-key
   "Gets the translation key from `:<parent>/translation-key`,
@@ -86,7 +124,33 @@
      :on-select #(on-change (long (u/input-value %)))
      :selected  (:db/id @state)}]])
 
-(defmethod field-input :checkbox [{:keys [label options on-change state]}]
+(defmethod field-input :set [{:keys [label options on-change state disabled?]
+                              :or   {disabled? false}}]
+  (let [state-as-set (set @state)
+        group-label  label]
+    [:div.mb-3
+     [:label.form-label group-label]
+     (doall
+      (for [{:keys [label value]} options]
+        (let [id       (u/sentence->kebab (str group-label ":" value))
+              checked? (state-as-set value)]
+          ^{:key id}
+          [:div.form-check
+           {:disabled disabled?}
+           [:input.form-check-input
+            {:type      "checkbox"
+             :disabled  disabled?
+             :id        id
+             :checked   checked?
+             :on-change #(let [enable? (.. % -target -checked)
+                               state'  (vec (if enable?
+                                              (conj state-as-set value)
+                                              (disj state-as-set value)))]
+                           (on-change state'))}]
+           [:label.form-check-label {:for id} label]])))]))
+
+(defmethod field-input :checkbox [{:keys [label options on-change state disabled?]
+                                   :or   {disabled? false}}]
   (let [group-label label]
     [:div.mb-3
      [:label.form-label group-label]
@@ -98,8 +162,10 @@
                          @state)]
           ^{:key id}
           [:div.form-check
+           {:disabled disabled?}
            [:input.form-check-input
             {:type      "checkbox"
+             :disabled  disabled?
              :id        id
              :checked   checked?
              :on-change #(on-change (.. % -target -checked))}]
@@ -268,7 +334,10 @@
                                     (and (nil? id) (fn? on-create))
                                     (on-create)
 
-                                    true
+                                    (and id (cardinality-many-fields? fields state))
+                                    (retract-cardinality-many-values original)
+
+                                    :always
                                     (upsert-entity!))
                                   (rf/dispatch [:state/set-state entity nil])
                                   (rf/dispatch [:state/set-state [:editors entity] {}])))]
