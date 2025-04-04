@@ -1861,6 +1861,29 @@ p {
 }
 /* -- End Tools Variant -- */
 
+/* --  Calculator Variant -- */
+
+.ring-icon--calculator:not(.ring-icon--disabled, .ring-icon--error):hover .ring-icon__outer-ring,
+.ring-icon--calculator:not(.ring-icon--disabled, .ring-icon--error):hover .ring-icon__icon,
+.ring-icon--calculator.ring-icon--selected:not(.ring-icon--disabled, .ring-icon--error) .ring-icon__icon,
+.ring-icon--calculator.ring-icon--selected .ring-icon__outer-ring,
+.ring-icon--calculator .ring-icon__background {
+  fill: var(--white);
+}
+
+
+.ring-icon--calculator:not(.ring-icon--disabled, .ring-icon--error):hover .calculator-icon-ring,
+.ring-icon--calculator .ring-icon__outer-ring {
+  visibility: hidden;
+}
+
+.ring-icon--calculator:not(.ring-icon--disabled, .ring-icon--error):hover .ring-icon__background,
+.ring-icon--calculator.ring-icon--selected .ring-icon__background,
+.ring-icon--calculator .ring-icon__icon {
+  fill: var(--orange-4);
+}
+/* -- End Calculator Variant -- */
+
 /* -- Disabled -- */
 
 .ring-icon--disabled .ring-icon__outer-ring,
