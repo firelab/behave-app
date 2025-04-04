@@ -34,7 +34,7 @@
      [:div.print__header
       [:img {:src "/images/logo.svg"}]
       [:div.print__header__info
-       (when ws-version [:div (str "Version: " ws-version)])
+       [:div (str "Version: " ws-version)]
        [:div (str "Created: " (epoch->date-string ws-date-created))]]]
      [:div.wizard-print__header "Inputs"]
      [inputs-table ws-uuid]
