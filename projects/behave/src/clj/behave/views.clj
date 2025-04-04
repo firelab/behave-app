@@ -168,7 +168,7 @@
        :body    (html5
                   (head-meta-css)
                   [:body
-                   (announcement-banner)
+                   (when (not (:ws-uuid route-params)) (announcement-banner))
                    [:div#app]
                    (cljs-init init-params figwheel?)
                    (include-js "/js/behave-min.js" "/js/katex.min.js" "/js/bodymovin.js")
