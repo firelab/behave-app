@@ -22,6 +22,7 @@
             [behave-cms.languages.views         :refer [list-languages-page]]
             [behave-cms.lists.views             :refer [list-lists-page]]
             [behave-cms.modules.views           :refer [list-modules-page]]
+            [behave-cms.tags.views              :refer [tags-page]]
             [behave-cms.tools.views             :refer [tools-page]]
             [behave-cms.units.views             :refer [units-page]]
             [behave-cms.subtools.views          :refer [subtools-page]]
@@ -41,6 +42,7 @@
    {:page "Variables"            :path "/variables"}
    {:page "Variable  Domains"    :path "/domains"}
    {:page "Lists"                :path "/lists"}
+   {:page "Tags"                 :path "/tags"}
    {:page "Units"                :path "/units"}
    {:page "Languages"            :path "/languages"}
    {:page "Invite User"          :path "/invite-user"}])
@@ -59,6 +61,7 @@
                 :languages            list-languages-page
                 :lists                list-lists-page
                 :units                units-page
+                :tags                 tags-page
                 :variables            list-variables-page})
 
 (def system-pages {:login          login-page

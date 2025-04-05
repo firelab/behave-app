@@ -162,7 +162,14 @@
    (subscribe [:vms/pull-children
                :submodule/groups
                submodule-id
-               '[* {:group/group-variables [* {:variable/_group-variables [* {:variable/list [* {:list/options [*]}]}]}]}
+               '[* {:group/group-variables
+                    [* {:variable/_group-variables
+                        [* {:variable/list
+                            [* {:list/tag-set [*]
+                                :list/color-tag-set [*]
+                                :list/options
+                                [* {:list-option/tag-refs      [*]
+                                    :list-option/color-tag-ref [*]}]}]}]}]}
                  {:group/children 6}]])) ;; recursively apply pattern up to 6 levels deep
 
  (fn [groups]

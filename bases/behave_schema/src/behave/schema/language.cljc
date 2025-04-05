@@ -38,6 +38,7 @@
    {:db/ident       :language/shortcode
     :db/doc         "Language's short code (e.g. 'en-US')."
     :db/valueType   :db.type/string
+    :db/unique      :db.unique/identity
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :language/translation

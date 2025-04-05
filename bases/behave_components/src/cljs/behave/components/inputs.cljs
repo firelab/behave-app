@@ -170,17 +170,34 @@
 ;; Multi Select
 ;;==============================================================================
 
-(defn multi-select-option [{:keys [selected? label on-click color-tag]}]
+(defn- multi-select-option [{:keys [selected? label on-click color-tag]}]
   [:div (cond-> {:class    ["multi-select__option"
                             (when selected? "multi-select__option--selected")
                             (when color-tag "multi-select__option__color-tag")]
+                 :style    {}
                  :on-click on-click}
-          color-tag (assoc :data-color-tag (name color-tag)))
+          color-tag
+          (assoc-in [:style :border-color] (:color color-tag)))
    [:div {:class [(if selected? "multi-select__option__icon--minus" "multi-select__option__icon--plus")]}
     [icon (if selected? "minus" "plus")]]
    label])
 
-(defn multi-select-input [{:keys [input-label options tags-enabled? color-tags]}]
+(defn multi-select-input
+  "Creates a multi-select input component with the following options:
+  - `input-label`: text to display as the label for the input.
+  - `options`: vector of maps with keys:
+     - `:selected?` - whether the option has been selected
+     - `:label`     - label of the option
+     - `:value`     - value of the option
+     - `:tags`      - a collection of keywords or numbers
+     - `:color-tag` - a map with at least the key `:color` representing a hex color.
+  - [Optional] `filter-tags`: vector of maps with keys:
+     - `:label` - label of the tag
+     - `:id`    - id of the tag (keyword or number)
+  - [Optional] `color-tags`:
+     - `:label` - label of the option
+     - `:color` - color of the tag"
+  [{:keys [input-label options filter-tags color-tags]}]
   (r/with-let [selections (r/atom (->> options
                                        (filter #(true? (:selected? %)))
                                        (map (fn [{:keys [label value on-deselect color-tag]}]
@@ -193,37 +210,36 @@
        [:<>
         [:div.multi-select__prompt
          (gstring/format "Please select from the following %s (you can select multiple)" input-label)]
-        (when tags-enabled?
+        (when filter-tags
           [:div.multi-select__tags
-           (for [tag (reduce (fn [acc x]
-                               (into acc x))
-                             (sorted-set)
-                             (map :tags options))]
-             ^{:key tag}
+           (for [{:keys [id label]} (if (-> filter-tags (first) (:order))
+                                      (sort-by :order filter-tags)
+                                      (sort-by :label filter-tags))]
+             ^{:key id}
              [:div.multi-select__tags__tag
-              [button {:label     (name tag)
+              [button {:label     label
                        :variant   "outline-secondary"
                        :size      "small"
-                       :selected? (= @selected-tag tag)
-                       :on-click  #(if (= @selected-tag tag)
+                       :selected? (= @selected-tag id)
+                       :on-click  #(if (= @selected-tag id)
                                      (reset! selected-tag nil)
-                                     (reset! selected-tag tag))}]])])
+                                     (reset! selected-tag id))}]])])
         (when (seq color-tags)
-          [:div.multi-slect__color-tags
-           (for [[id description] color-tags]
-             ^{:key id}
-             [:div {:class          ["multi-select__color-tags__tag"]
-                    :data-color-tag id}
-              description])])
+          [:div.multi-select__color-tags
+           (for [{:keys [label color]} color-tags]
+             ^{:key color}
+             [:div {:class "multi-select__color-tags__tag"
+                    :style {:border-color color}}
+              label])])
         [:div.multi-select__options
          (doall
           (for [{:keys [label
                         value
                         on-select
                         on-deselect
-                        color-tag]} (cond->>  options
-                                      (and tags-enabled? @selected-tag)
-                                      (filter (fn [o] (contains? (:tags o) @selected-tag))))]
+                        color-tag]} (cond->> options
+                                      (and filter-tags @selected-tag)
+                                      (filter (fn [id] (contains? (:tags id) @selected-tag))))]
             ^{:key label}
             (let [selection [label value on-deselect color-tag]]
               [multi-select-option {:selected? (contains? @selections selection)
@@ -259,10 +275,12 @@
                                                [:div
                                                 (cond-> {:class    ["multi-select__option--selected"
                                                                     (when color-tag "multi-select__option__color-tag")]
+                                                         :style    {}
                                                          :on-click #(do
                                                                       (reset! selections (disj @selections selection))
                                                                       (when on-deselect (on-deselect value)))}
-                                                  color-tag (assoc :data-color-tag color-tag))
+                                                  color-tag
+                                                  (assoc-in [:style :border-color] (:color color-tag)))
                                                 [:div.multi-select__option__icon--minus
                                                  [icon "minus"]]
                                                 label])])]]))
