@@ -11,6 +11,19 @@
    (rf/subscribe [:pull-with-attr :language/name]))
  identity)
 
+(rp/reg-sub
+  :language/english-eid
+  (fn [_ _]
+    {:type :query
+     :query '[:find ?e .
+              :where
+              [?e :language/shortcode "en-US"]]}))
+
+(comment
+  (rf/subscribe [:language/english-eid])
+
+  )
+
 ;;; Translations
 
 (rf/reg-sub

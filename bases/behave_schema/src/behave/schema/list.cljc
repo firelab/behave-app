@@ -48,7 +48,20 @@
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
+   ;;; Deprecated
    {:db/ident       :list/color-tags
+    :db/doc         "Lists's color tags."
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
+
+   {:db/ident       :list/tag-set
+    :db/doc         "Lists's color tags."
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
+
+   {:db/ident       :list/color-tag-set
     :db/doc         "Lists's color tags."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many
@@ -85,12 +98,24 @@
     :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 
+   ;;; Deprecated
    {:db/ident       :list-option/tags
     :db/doc         "List option's filter tags."
     :db/valueType   :db.type/keyword
     :db/cardinality :db.cardinality/many}
 
+   {:db/ident       :list-option/tag-refs
+    :db/doc         "List option's filter tags."
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many}
+
+   ;;; Deprecated
    {:db/ident       :list-option/color-tag
+    :db/doc         "List option's color tag."
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :list-option/color-tag-ref
     :db/doc         "List option's color tag."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/one}
@@ -112,6 +137,7 @@
     :db/cardinality :db.cardinality/one}
 
    ;; List Color tags
+   ;;; Deprecated
    {:db/ident       :color-tag/id
     :db/doc         "Color tag's keyword id."
     :db/valueType   :db.type/keyword
@@ -122,7 +148,53 @@
     :db/doc         "Color tag's description translation key."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one
-    :db/unique      :db.unique/identity}])
+    :db/unique      :db.unique/identity}
+
+   ;; Tag Sets
+   {:db/ident       :tag-set/name
+    :db/doc         "Tag set's name."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one
+    :db/unique      :db.unique/identity}
+
+   {:db/ident       :tag-set/color?
+    :db/doc         "Tag set color configuration."
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :tag-set/tags
+    :db/doc         "Tag set's tags."
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many}
+
+   {:db/ident       :tag-set/translation-key
+    :db/doc         "Tag's translation key."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one
+    :db/unique      :db.unique/identity}
+
+   ;; Tags
+   {:db/ident       :tag/name
+    :db/doc         "Tag set's name."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one
+    :db/unique      :db.unique/identity}
+
+   {:db/ident       :tag/translation-key
+    :db/doc         "Tag's translation key."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one
+    :db/unique      :db.unique/identity}
+
+   {:db/ident       :tag/order
+    :db/doc         "Tag's order."
+    :db/valueType   :db.type/long
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :tag/color
+    :db/doc         "Tag's color."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}])
 
 ;;; Tests
 
