@@ -316,3 +316,14 @@
    {:fx [[:dispatch [:navigate "/"]]
          [:dispatch [:state/set [:sidebar :*modules] nil]]
          [:dispatch [:state/set [:worksheet :*modules] nil]]]}))
+
+(rf/reg-event-fx
+ :wizard/toggle-disclaimer
+ [(rf/inject-cofx ::inject/sub (fn [_] [:local-storage/get]))
+  (rf/inject-cofx ::inject/sub (fn [_] [:state :show-disclaimer?]))]
+ (fn [{local-storage :local-storage/get
+       state         :state}]
+   {:fx [[:dispatch [:local-storage/update-in
+                     [:show-disclaimer?]
+                     (not (:show-disclaimer? local-storage))]]
+         [:dispatch [:state/set :show-disclaimer? (not state)]]]}))

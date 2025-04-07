@@ -127,7 +127,12 @@
           (if (and @vms-loaded? @sync-loaded?)
             [page params]
             [:h3 "Loading..."])]
-         [help-area params]]])]))
+         [help-area params]]
+        [:div.page__footer
+         [:div.page__footer__disclaimer
+          [:button {:on-click #(rf/dispatch [:wizard/toggle-disclaimer])}
+          "Disclaimer"]]]])]))
+
 
 (def route-params-atom (atom nil))
 

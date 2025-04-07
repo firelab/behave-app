@@ -86,7 +86,17 @@ body {
 .page__main {
   display: flex;
   height: 825px;
-  padding: 170px 0px 40px;
+  padding: 170px 0px 0px;
+}
+
+.page__footer {
+  display: flex;
+  flex-direciton: row;
+  height: 40px;
+  justify-content: center;
+}
+
+.page__footer__disclaimer {
 }
 
 .page .modal {
@@ -1485,4 +1495,8 @@ body {
 }
 
 /* -- End Table Viewer -- */
+
+.disclaimer__paragraph {
+  padding: 10px;
+}
 /* - End Viewers -- */

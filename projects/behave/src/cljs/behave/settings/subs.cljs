@@ -57,3 +57,13 @@
                        (conj (or decimals default-decimals)))))
                domain-units)
           (group-by first)))))
+
+(rf/reg-sub
+ :settings/show-disclaimer?
+ (fn [_]
+   (rf/subscribe [:local-storage/get]))
+
+ (fn [local-storage]
+   (if (contains? local-storage :show-disclaimer?)
+     (:show-disclaimer? local-storage)
+     true)))
