@@ -25,7 +25,7 @@
 
   ;;; Commands
   import-help (do
-                (clojure "-X:dev:import-help")
+                (clojure "-X:dev:import-help!")
                 (fs/copy-tree "bases/behave-docs/XHTML_Output/Resources/Images/"
                               "projects/behave/resources/public/help/images"
                               {:replace-existing true}))

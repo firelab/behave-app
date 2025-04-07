@@ -7,7 +7,8 @@
             [datomic.api              :as d]
             [dita.xhtml-cleaner       :refer [clean-topic clean-variables]]
             [me.raynes.fs             :as fs]
-            [schema-migrate.interface :as sm]))
+            [schema-migrate.interface :as sm]
+            [clojure.java.shell       :refer [sh]]))
 
 ;;; Helpers
 
@@ -31,6 +32,10 @@
        (d/pull db '[{:language/help-page [:db/id]}])
        (:language/help-page)
        (map (fn [p] [:db/retractEntity (:db/id p)]))))
+
+(defn- behave-docs-git-hash []
+  (let [process (sh "git" "rev-parse" "--short" "HEAD" :dir "bases/behave-docs")]
+    (str/replace (:out process) "\n" "")))
 
 ;;; Topics
 
@@ -61,38 +66,43 @@
 
 ;;; Public fns
 
-(defn import-help
+(defn import-help!
   "Imports help from `bases/behave-docs`."
   [& _]
   (cms/init-db! (io/file "projects/behave_cms/resources/config.edn"))
-  (let [conn        @ds/datomic-conn
-        db          (d/db conn)
-        en-us       (q-english-lang-id db)
-        -now        (now)
-        add-tx      (format "help-import-add-%s" -now)
-        remove-tx   (format "help-import-remove-%s" -now)
+  (let [conn         @ds/datomic-conn
+        db           (d/db conn)
+        en-us        (q-english-lang-id db)
+        git-hash     (behave-docs-git-hash)
+        add-tx       (format "help-import-add-%s" git-hash)
+        remove-tx    (format "help-import-remove-%s" git-hash)
         ;; Behave Docs dir
-        behave-docs (io/file "bases" "behave-docs" "XHTML_Output" "BehaveAppHelp")]
+        behave-docs  (io/file "bases" "behave-docs" "XHTML_Output" "BehaveAppHelp")
+        existing-tx? (d/q '[:find ?t .
+                            :in $ ?mid
+                            :where [?t :bp/migration-id ?mid]]
+                          (d/db @ds/datomic-conn) add-tx)]
 
-    #_(println (format "Removing old help docs %s" -now))
-    (d/transact conn (concat [(sm/->migration remove-tx)]
-                             (remove-existing-pages-tx db en-us)))
+    (when-not existing-tx?
+      #_(println (format "Removing old help docs from hash: %s" -now))
+      (d/transact conn (concat [(sm/->migration remove-tx)]
+                               (remove-existing-pages-tx db en-us)))
 
-    #_(println (format "Adding new help docs %s" -now))
-    (d/transact conn (concat [(sm/->migration add-tx)]
-                             (cleaned-topics-tx behave-docs en-us)
-                             (cleaned-variables-tx behave-docs en-us)))))
+      #_(println (format "Adding new help docs %s" -now))
+      (d/transact conn (concat [(sm/->migration add-tx)]
+                               (cleaned-topics-tx behave-docs en-us)
+                               (cleaned-variables-tx behave-docs en-us))))))
 
-(defn rollback-import
+(defn rollback-import!
   "Rollback imports. Option to provide a transaction date."
   [& args]
   (cms/init-db!)
   (let [a-datetime   (first args)
         conn         @ds/datomic-conn
         db           (d/db conn)
-        -now         (now)
-        tx-remove-id (q-tx db (format "help-import-remove-%s" (or a-datetime -now)))
-        tx-add-id    (q-tx db (format "help-import-add-%s" (or a-datetime -now)))]
+        git-hash     (behave-docs-git-hash)
+        tx-remove-id (q-tx db (format "help-import-remove-%s" (or a-datetime git-hash)))
+        tx-add-id    (q-tx db (format "help-import-add-%s" (or a-datetime git-hash)))]
 
     (sm/rollback-tx! conn tx-remove-id)
     (sm/rollback-tx! conn tx-add-id)))
