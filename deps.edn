@@ -155,11 +155,11 @@
   {:extra-paths
    ["projects/behave_cms/src/clj"
     "projects/behave_cms/src/cljc"]
-   :exec-fn help-import/import-help}
+   :exec-fn help-import/import-help!}
 
   :rollback-help-import
   {:extra-paths
    ["projects/behave_cms/src/clj"
     "projects/behave_cms/src/cljc"
     "projects/behave_cms/resources"]
-   :exec-fn help-import/rollback-import}}}
+   :exec-fn help-import/rollback-import!}}}
