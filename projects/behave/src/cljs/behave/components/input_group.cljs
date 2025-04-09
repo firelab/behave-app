@@ -168,7 +168,6 @@
                options                   (sort-by :list-option/order
                                                   (filter #(not (:list-option/hide? %))
                                                           (:list/options llist)))
-               tags-enabled?             (seq? (mapcat :list-option/tags options))
                on-select                 #(rf/dispatch [:worksheet/upsert-multi-select-input
                                                         ws-uuid group-uuid repeat-id gv-uuid %])
                on-deselect               #(rf/dispatch [:worksheet/remove-multi-select-input
@@ -177,31 +176,34 @@
                                              (str/split ",")
                                              (set))
                ->option                  (fn [{value     :list-option/value
-                                               tags      :list-option/tags
-                                               color-tag :list-option/color-tag
+                                               tags      :list-option/tag-refs
+                                               color-tag :list-option/color-tag-ref
                                                t-key     :list-option/translation-key}]
                                            {:value       value
                                             :label       @(<t t-key)
-                                            :tags        (set tags)
+                                            :tags        (map :bp/nid tags)
                                             :on-select   on-select
                                             :on-deselect on-deselect
                                             :selected?   (contains? ws-input-values value)
-                                            :color-tag (:color-tag/id
-                                                        @(rf/subscribe [:vms/entity-from-eid (:db/id color-tag)]))})]
+                                            :color-tag   color-tag})]
     :color-tag/id
     [:div.wizard-input
      {:on-click on-focus-click
       :on-focus on-focus-click}
      [c/multi-select-input
       (cond-> {:input-label   @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
-               :tags-enabled? tags-enabled?
                :options       (doall (map ->option options))}
-        (:list/color-tags llist)
-        (assoc :color-tags (reduce (fn [acc {id              :color-tag/id
-                                             translation-key :color-tag/translation-key}]
-                                     (assoc acc id @(<t translation-key)))
-                                   {}
-                                   (:list/color-tags llist))))]]))
+        (:list/tag-set llist)
+        (assoc :filter-tags (map (fn [{id              :bp/nid
+                                       translation-key :tag/translation-key}]
+                                   {:id id :label @(<t translation-key)})
+                                 (-> llist (:list/tags llist) (:tag-set/tags))))
+
+        (:list/color-tag-set llist)
+        (assoc :color-tags (map (fn [{color           :tag/color
+                                      translation-key :tag/translation-key}]
+                                  {:color color :label @(<t translation-key)})
+                                (-> llist (:list/color-tag-set) (:tag-set/tags)))))]]))
 
 (defmethod wizard-input :text [{gv-uuid  :bp/uuid
                                 help-key :group-variable/help-key}

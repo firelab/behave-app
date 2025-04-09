@@ -56,15 +56,15 @@
     :db/isComponent true}
 
    {:db/ident       :list/tag-set
-    :db/doc         "Lists's color tags."
+    :db/doc         "Lists's tag set for filtering options."
     :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/many
+    :db/cardinality :db.cardinality/one
     :db/isComponent true}
 
    {:db/ident       :list/color-tag-set
-    :db/doc         "Lists's color tags."
+    :db/doc         "Lists's color tag set."
     :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/many
+    :db/cardinality :db.cardinality/one
     :db/isComponent true}
 
    {:db/ident       :list/options
@@ -144,6 +144,7 @@
     :db/cardinality :db.cardinality/one
     :db/unique      :db.unique/identity}
 
+   ;;; Deprecated
    {:db/ident       :color-tag/translation-key
     :db/doc         "Color tag's description translation key."
     :db/valueType   :db.type/string
@@ -165,7 +166,8 @@
    {:db/ident       :tag-set/tags
     :db/doc         "Tag set's tags."
     :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/many}
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
 
    {:db/ident       :tag-set/translation-key
     :db/doc         "Tag's translation key."
