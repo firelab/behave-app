@@ -4,8 +4,7 @@
             [behave-cms.components.entity-form :refer [entity-form]]
             [behave-cms.events]
             [behave-cms.subs]
-            [behave-cms.components.translations :refer [all-translations]]
-            [clojure.string :as str]))
+            [behave-cms.components.translations :refer [all-translations]]))
 
 (defn- lists-table []
   (let [lists     (rf/subscribe [:pull-with-attr :list/name '[* {:list/options [*]}]])
@@ -19,39 +18,6 @@
      (sort-by :list/name @lists)
      {:on-select on-select
       :on-delete on-delete}]))
-
-(defn- color-tags-table [llist]
-  (let [color-tags (->> (rf/subscribe [:pull-children :list/color-tags (:db/id llist)])
-                        deref
-                        (map (fn [option]
-                               (update option :list-option/color-tag
-                                       #(:color-tag/id @(rf/subscribe [:entity (:db/id %)]))))))
-        on-select  #(rf/dispatch [:state/set-state :color-tag %])
-        on-delete  #(when (js/confirm (str "Are you sure you want to delete the list " (:color-tag/id %) "?"))
-                      (rf/dispatch [:api/delete-entity %])
-                      (rf/dispatch [:state/set-state :color-tag nil]))]
-    [simple-table
-     [:color-tag/id]
-     color-tags
-     {:on-select on-select
-      :on-delete on-delete}]))
-
-(defn- color-tag-form [llist]
-  (let [*color-tag (rf/subscribe [:state :color-tag])]
-    [:<>
-     [:h3 (if @*color-tag "Edit Color Tag" "Add Color Tag")]
-     [entity-form {:entity       :color-tags
-                   :parent-field :list/_color-tags
-                   :parent-id    (:db/id list)
-                   :id           (:db/id @*color-tag)
-                   :on-create    #(-> %
-                                      (assoc :color-tag/translation-key (str "behaveplus:list:" (str/lower-case (:list/name llist)) ":color-tag:" (name (:color-tag/id %)))))
-                   :fields       [{:label     "Name"
-                                   :required? true
-                                   :type      :keyword
-                                   :field-key :color-tag/id}]}]
-     [:h4 "Translation"]
-     [all-translations (:color-tag/translation-key @*color-tag)]]))
 
 (defn- list-options-table [llist]
   (let [list-options (->> (rf/subscribe [:pull-children :list/options (:db/id llist)])
@@ -75,11 +41,8 @@
 (defn- list-option-form [llist]
   (let [list-options      (rf/subscribe [:pull-children :list/options (:db/id llist)])
         *list-option      (rf/subscribe [:state :list-option])
-        color-tag-options (mapv (fn [{eid :db/id}]
-                                  (let [color-tag @(rf/subscribe [:entity eid])]
-                                    {:value eid
-                                     :label (:color-tag/id color-tag)}))
-                                (:list/color-tags llist))]
+        tag-options       (-> llist (:list/tag-set) (:tag-set/tags))
+        color-tag-options (-> llist (:list/color-tag-set) (:tag-set/tags))]
     [:<>
      [:h3 (if @*list-option "Edit Option" "Add Option")]
      [entity-form {:entity       :list-options
@@ -97,7 +60,8 @@
                                    :required? true
                                    :field-key :list-option/value}
                                   {:label     "Filter Tags"
-                                   :type      :keywords
+                                   :type      :ref-select
+                                   :options   tag-options
                                    :field-key :list-option/tags}
                                   {:label     "Color Tag"
                                    :type      :ref-select
@@ -118,31 +82,34 @@
      [all-translations (:list-option/result-translation-key @*list-option)]]))
 
 (defn- list-form [llist]
-  [:<>
-   [:div.row
-    [:h3 (if llist (str "Edit " (:list/name llist)) "Add List")]]
-   [:div.row
-    [:div.col-3
-     [entity-form {:entity :lists
-                   :id     (when llist (:db/id llist))
-                   :fields [{:label     "Name"
-                             :required? true
-                             :field-key :list/name}]}]]]
-   [:div.row
-    [:div.col-4
-     [:h4 "Color Tags"]
-     [:div
-      {:style {:height "300px"}}
-      [color-tags-table llist]]]
-    [:div.col-8
-     [color-tag-form llist]]]
-   [:div.row
-    [:div.col-8
-     [:h4 "All Options"]
-     [:div {:style {:height "800px"}}
-      [list-options-table llist]]]
-    [:div.col-4
-     [list-option-form llist]]]])
+  (let [tag-sets        (rf/subscribe [:pull-with-attr :tag-set/name])
+        color-tag-sets  (filter :tag-set/color? @tag-sets)
+        filter-tag-sets (remove :tag-set/color? @tag-sets)]
+    [:<>
+     [:div.row
+      [:h3 (if llist (str "Edit " (:list/name llist)) "Add List")]]
+     [:div.row
+      [:div.col-3
+       [entity-form {:entity :lists
+                     :id     (when llist (:db/id llist))
+                     :fields [{:label     "Name"
+                               :required? true
+                               :field-key :list/name}
+                              {:label     "Filter Tag Set"
+                               :type      :ref-select
+                               :options   filter-tag-sets
+                               :field-key :list/tag-set}
+                              {:label     "Color Tag Set"
+                               :type      :ref-select
+                               :options   color-tag-sets
+                               :field-key :list/color-tag-set}]}]]]
+     [:div.row
+      [:div.col-8
+       [:h4 "All Options"]
+       [:div {:style {:height "800px"}}
+        [list-options-table llist]]]
+      [:div.col-4
+       [list-option-form llist]]]]))
 
 (defn list-lists-page [_]
   (let [loaded? (rf/subscribe [:state :loaded?])
