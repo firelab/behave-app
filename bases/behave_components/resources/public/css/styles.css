@@ -2263,7 +2263,7 @@ p {
 
 .multi-select__color-tags__tag,
 .multi-select__option__color-tag {
-  border-left: 7px solid var(--themed-multi-select-option-color);
+  border-left: 7px solid;
 }
 
 .multi-select__color-tags__tag {
