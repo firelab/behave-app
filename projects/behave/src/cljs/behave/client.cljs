@@ -130,7 +130,8 @@
          [help-area params]]
         [:div.page__footer
          [:div.page__footer__disclaimer
-          [:button {:on-click #(rf/dispatch [:wizard/toggle-disclaimer])}
+          [:a {:href "#"
+               :on-click #(rf/dispatch [:wizard/toggle-disclaimer])}
           "Disclaimer"]]]])]))
 
 

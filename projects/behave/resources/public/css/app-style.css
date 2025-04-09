@@ -52,19 +52,6 @@ body {
 /* -- End App -- */
 
 /* -- Page -- */
-.page:after {
-  display: block;
-  position: fixed;
-  right: 0px;
-  bottom: 0px;
-  left: 0px;
-  height: 6px;
-  border-top: 6px solid var(--lightblue-2);
-  border-bottom: 12px solid var(--darkblue-5);
-  background-color: var(--medblue-1);
-  content: '';
-}
-
 .page__top {
   border-spacing: 0px;
   position: fixed;
@@ -91,12 +78,25 @@ body {
 
 .page__footer {
   display: flex;
-  flex-direciton: row;
-  height: 40px;
+  position: fixed;
+  flex-direction: row;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+  border-top: 5px solid var(--medblue-1);
+  background-color: var(--darkblue-5);
   justify-content: center;
+  padding: 5px;
 }
 
-.page__footer__disclaimer {
+.page__footer__disclaimer > a {
+  color: var(--white);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.page__footer__disclaimer > a:hover {
+  text-decoration: none;
 }
 
 .page .modal {
