@@ -108,7 +108,10 @@
 #_{:clj-kondo/ignore [:missing-docstring]}
 (def fuel-region-categories-tag-set (apply ->color-tag-set fuel-region-categories))
 #_{:clj-kondo/ignore [:missing-docstring]}
-(def fuel-region-categories-translations (apply ->tag-translations fuel-region-categories))
+(def fuel-region-categories-translations
+  {"behaveplus:tags:fuel-region-categories:standard"                         "Standard Fuel Models (Anderson, Scott and Burgan)"
+   "behaveplus:tags:fuel-region-categories:mediterranean"                    "Mediterranean Fuel Models (Fernandes et al; Portugal)"
+   "behaveplus:tags:fuel-region-categories:chapparal-and-coastal-sage-shrub" "Chaparral & Coastal Sage Shrub (Weise, Southern CA)"})
 
 ;;; Tag Sets
 #_{:clj-kondo/ignore [:missing-docstring]}
