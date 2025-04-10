@@ -147,14 +147,15 @@
            "Disclaimer"]]]])]))
 
 
-(def route-params-atom (atom nil))
+(def ^:private route-params-atom (atom nil))
 
 (defn- ^:export init
   "Defines the init function to be called from window.onload()."
   [params]
   (let [params (js->clj params :keywordize-keys true)]
     (reset! route-params-atom params)
-    (rf/dispatch [:state/set :app-version (:app-version params)])
+    (rf/dispatch-sync [:state/set :app-version (:app-version params)])
+    (rf/dispatch-sync [:state/set :jar-local? (:jar-local? params)])
     (rf/dispatch-sync [:initialize])
     (rf/dispatch-sync [:navigate (-> js/window .-location .-pathname)])
     (.addEventListener js/window "popstate" #(rf/dispatch [:popstate %]))
@@ -167,4 +168,4 @@
 (defn- ^:after-load mount-root!
   "A hook for figwheel to call the init function again."
   []
-  (init {}))
+  (init (or @route-params-atom {})))
