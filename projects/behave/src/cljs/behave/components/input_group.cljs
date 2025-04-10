@@ -186,7 +186,7 @@
                                              :on-deselect on-deselect
                                              :selected?   (contains? ws-input-values value)}
                                             (when tags {:tags (set (map :bp/nid tags))})
-                                            (when color-tag {:color (:tag/color color-tag)})))]
+                                            (when color-tag {:color-tag {:color (:tag/color color-tag)}})))]
     :color-tag/id
     [:div.wizard-input
      {:on-click on-focus-click
