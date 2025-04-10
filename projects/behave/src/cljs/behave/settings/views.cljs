@@ -12,14 +12,14 @@
 
 
 (defn- fuel-model-tab []
-  [:div "TODO Fuel Model Set Selection"])
+  [:div "Coming soon!"])
 
 ;;==============================================================================
 ;; Moisture Scenario Set Selection Tab
 ;;==============================================================================
 
 (defn- moisture-scenario-tab []
-  [:div "TODO Moisture Scenario Set Selection"])
+  [:div "Coming soon!"])
 
 ;;==============================================================================
 ;; General Units Tab
