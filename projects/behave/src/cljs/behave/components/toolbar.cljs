@@ -169,7 +169,7 @@
         on-click #(js/console.log (str "Selected!" %))
         tools    [{:icon     :home
                    :label    (bp "home")
-                   :on-click on-click}
+                   :on-click #(rf/dispatch [:wizard/navigate-home])}
                   {:icon     :save
                    :label    (bp "save")
                    :on-click #(when ws-uuid
@@ -180,7 +180,8 @@
                                                                 (or worksheet-name ws-uuid))])))}
                   {:icon     :print
                    :label    (bp "print")
-                   :on-click #(rf/dispatch [:toolbar/print ws-uuid])}
+                   :on-click (when ws-uuid
+                               #(rf/dispatch [:toolbar/print ws-uuid]))}
                   {:icon     :share
                    :label    (bp "share")
                    :on-click #(rf/dispatch [:dev/export-from-vms])}
