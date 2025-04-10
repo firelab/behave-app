@@ -185,20 +185,20 @@
                   {:icon     :share
                    :label    (bp "share")
                    :on-click #(rf/dispatch [:dev/export-from-vms])}
-                  {:icon     :zoom-in
-                   :label    (bp "zoom-in")
-                   :on-click on-click}
-                  {:icon     :zoom-out
-                   :label    (bp "zoom-out")
-                   :on-click on-click}]]
+                  #_{:icon     :zoom-in
+                     :label    (bp "zoom-in")
+                     :on-click on-click}
+                  #_{:icon     :zoom-out
+                     :label    (bp "zoom-out")
+                     :on-click on-click}]]
     [:div.toolbar
      [:div.toolbar__tools
       (for [tool tools]
         ^{:key (:label tool)}
         [toolbar-tool tool])
-      [c/text-input {:disabled?   false
-                     :error?      false
-                     :focused?    false
-                     :placeholder "Search"}]]
+      #_[c/text-input {:disabled?   false
+                       :error?      false
+                       :focused?    false
+                       :placeholder "Search"}]]
      (when @*loaded?
        [progress-bar params])]))
