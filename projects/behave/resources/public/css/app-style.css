@@ -1499,4 +1499,10 @@ body {
 .disclaimer__paragraph {
   padding: 10px;
 }
+
+.page__footer__disclaimer__link {
+  color: white;
+  cursor: pointer;
+  text-decoration: underline;
+}
 /* - End Viewers -- */
