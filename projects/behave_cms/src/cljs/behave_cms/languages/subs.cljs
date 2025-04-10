@@ -19,11 +19,6 @@
               :where
               [?e :language/shortcode "en-US"]]}))
 
-(comment
-  (rf/subscribe [:language/english-eid])
-
-  )
-
 ;;; Translations
 
 (rf/reg-sub
