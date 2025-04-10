@@ -1,4 +1,4 @@
-(ns migrations.template
+(ns migrations.2025-04-07-add-disclaimer-translation
   (:require [schema-migrate.interface :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]
