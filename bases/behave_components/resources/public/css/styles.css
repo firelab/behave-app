@@ -2284,6 +2284,12 @@ p {
   padding-right: 10px;
 }
 
+.multi-select__tags__tag > button {
+  font-size: var(--font-size-12);
+  font-weight: bold;
+}
+
+
 .multi-select__color-tags__tag,
 .multi-select__option__color-tag {
   border-left: 7px solid;
