@@ -187,7 +187,7 @@
 ;; ===========================================================================================================
 
 #_{:clj-kondo/ignore [:missing-docstring]}
-(def payload (concat tag-sets-payload translations-payload migrate-lists-payload))
+(def payload-new-tag-sets (concat tag-sets-payload translations-payload))
 
 ;; ===========================================================================================================
 ;; Transact Payload
@@ -195,11 +195,13 @@
 
 (comment
   #_{:clj-kondo/ignore [:missing-docstring]}
-  (def tx-data (d/transact conn payload)))
+  (def tx-data-1 (d/transact conn payload-new-tag-sets))
+  (def tx-data-2 (d/transact conn migrate-lists-payload)))
 
 ;; ===========================================================================================================
 ;; In case we need to rollback.
 ;; ===========================================================================================================
 
 (comment
-  (sm/rollback-tx! conn @tx-data))
+  (sm/rollback-tx! conn @tx-data-1)
+  (sm/rollback-tx! conn @tx-data-2))
