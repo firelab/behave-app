@@ -126,7 +126,9 @@
 
 (defmethod field-input :set [{:keys [label options on-change state disabled?]
                               :or   {disabled? false}}]
-  (let [state-as-set (set @state)
+  (let [state-as-set (set (if (-> @state (first) (:db/id))
+                            (map :db/id @state)
+                            @state))
         group-label  label]
     [:div.mb-3
      [:label.form-label group-label]
@@ -273,6 +275,26 @@
      :value         @state
      :on-change     #(on-change (keyword (u/input-value %)))}]])
 
+(defmethod field-input :color
+  [{:keys [label disabled? autofocus? required? placeholder on-change state]
+    :or   {disabled? false required? false}}]
+  [:div.my-3
+   [:label.form-label {:for (u/sentence->kebab label)} label]
+   [:div.field-input__keywords
+    {:style {:display        :flex
+             :flex-flow      "row wrap"
+             :flex-direction :row
+             :margin-bottom  "5px"}}]
+   [:input.form-control
+    {:auto-focus    autofocus?
+     :disabled      disabled?
+     :required      required?
+     :placeholder   placeholder
+     :id            (u/sentence->kebab label)
+     :type          "color"
+     :value         @state
+     :on-change     #(on-change (u/input-value %))}]])
+
 
 ;;; Public Fns
 
@@ -286,7 +308,7 @@
   - :fields         A vector of field maps. Uses text fields by default. Field can have a `:type`
                     of: `:number` `:radio`, `:checkbox`.
   - :on-create      Takes a function which is passed the state in the editor, whose result is
-                    then to the default `:api/create-entity` event. Used to perform minor changes
+                    then to the default `:api/upsert-entity` event. Used to perform minor changes
                     before an entity is created.
   - :on-update      Like `:on-create` but only applies when the entity already exists.
 

@@ -70,7 +70,8 @@
                                      :add-button-label  "Select More"
                                      :view-button-label "View"
                                      :input-label       "Input"
-                                     :tags-enabled?     true
+                                     :filter-tags       [{:id :odd :label "Odd" :order 2}
+                                                         {:id :even :label "Even" :order 1}]
                                      :options           [{:label       "option1"
                                                           :value       1
                                                           :tags        #{:odd}
@@ -117,58 +118,62 @@
 
 
 (defn ^:export Tags-and-color-tags []
-  (r/as-element [multi-select-input {:title               "Selected Inputs"
-                                     :prompt1             "View your Input selections"
-                                     :prompt2             "Your Input Selections"
-                                     :prompt3             "Please select from the following Inputs (you can select multiple)"
-                                     :add-button-label    "Select More"
-                                     :view-button-label   "View"
-                                     :input-label         "Input"
-                                     :tags-enabled?       true
-                                     :color-tags          {:example-color-tag1 "Text for Example Color 1"
-                                                           :example-color-tag2 "Text for Example Color 2"
-                                                           :example-color-tag3 "Text for Example Color 3"}
-                                     :options             [{:label       "option1"
-                                                            :value       1
-                                                            :tags        #{:odd}
-                                                            :color-tag   :example-color-tag1
-                                                            :on-deselect #(js/console.log "on-deselect:" %)
-                                                            :on-select   #(js/console.log "on-select:" %)
-                                                            :selected?   true}
+  (r/as-element [multi-select-input {:title             "Selected Inputs"
+                                     :prompt1           "View your Input selections"
+                                     :prompt2           "Your Input Selections"
+                                     :prompt3           "Please select from the following Inputs (you can select multiple)"
+                                     :add-button-label  "Select More"
+                                     :view-button-label "View"
+                                     :input-label       "Input"
+                                     :filter-tags       [{:id :odd :label "Odd" :order 1}
+                                                         {:id :even :label "Even" :order 2}]
+                                     :color-tags        [{:label "Example Color 1"
+                                                          :color "var(--green-2)"}
+                                                         {:label "Example Color 2"
+                                                          :color "var(--peach-2)"}
+                                                         {:label "Example Color 3"
+                                                          :color "var(--orange-2)"}]
+                                     :options           [{:label       "option1"
+                                                          :value       1
+                                                          :tags        #{:odd}
+                                                          :color-tag   {:color "var(--green-2)"}
+                                                          :on-deselect #(js/console.log "on-deselect:" %)
+                                                          :on-select   #(js/console.log "on-select:" %)
+                                                          :selected?   true}
 
-                                                           {:label       "option2"
-                                                            :tags        #{:even}
-                                                            :color-tag   :example-color-tag1
-                                                            :value       2
-                                                            :on-deselect #(js/console.log "on-deselect:" %)
-                                                            :on-select   #(js/console.log "on-select:" %)}
+                                                         {:label       "option-2"
+                                                          :tags        #{:even}
+                                                          :color-tag   {:color "var(--green-2)"}
+                                                          :value       2
+                                                          :on-deselect #(js/console.log "on-deselect:" %)
+                                                          :on-select   #(js/console.log "on-select:" %)}
 
-                                                           {:label       "option3"
-                                                            :value       3
-                                                            :tags        #{:odd}
-                                                            :color-tag   :example-color-tag2
-                                                            :on-deselect #(js/console.log "on-deselect:" %)
-                                                            :on-select   #(js/console.log "on-select:" %)
-                                                            :selected?   true}
+                                                         {:label       "option3"
+                                                          :value       3
+                                                          :tags        #{:odd}
+                                                          :color-tag   {:color "var(--peach-2)"}
+                                                          :on-deselect #(js/console.log "on-deselect:" %)
+                                                          :on-select   #(js/console.log "on-select:" %)
+                                                          :selected?   true}
 
-                                                           {:label       "option4"
-                                                            :value       4
-                                                            :tags        #{:even}
-                                                            :color-tag   :example-color-tag2
-                                                            :on-deselect #(js/console.log "on-deselect:" %)
-                                                            :on-select   #(js/console.log "on-select:" %)}
+                                                         {:label       "option4"
+                                                          :value       4
+                                                          :tags        #{:even}
+                                                          :color-tag   {:color "var(--peach-2)"}
+                                                          :on-deselect #(js/console.log "on-deselect:" %)
+                                                          :on-select   #(js/console.log "on-select:" %)}
 
-                                                           {:label       "option5"
-                                                            :value       5
-                                                            :tags        #{:odd}
-                                                            :color-tag   :example-color-tag3
-                                                            :on-deselect #(js/console.log "on-deselect:" %)
-                                                            :on-select   #(js/console.log "on-select:" %)
-                                                            :selected?   true}
+                                                         {:label       "option5"
+                                                          :value       5
+                                                          :tags        #{:odd}
+                                                          :color-tag   {:color "var(--orange-2)"}
+                                                          :on-deselect #(js/console.log "on-deselect:" %)
+                                                          :on-select   #(js/console.log "on-select:" %)
+                                                          :selected?   true}
 
-                                                           {:label       "option6"
-                                                            :value       6
-                                                            :tags        #{:even}
-                                                            :color-tag   :example-color-tag3
-                                                            :on-deselect #(js/console.log "on-deselect:" %)
-                                                            :on-select   #(js/console.log "on-select:" %)}]}]))
+                                                         {:label       "option6"
+                                                          :value       6
+                                                          :tags        #{:even}
+                                                          :color-tag   {:color "var(--orange-2)"}
+                                                          :on-deselect #(js/console.log "on-deselect:" %)
+                                                          :on-select   #(js/console.log "on-select:" %)}]}]))

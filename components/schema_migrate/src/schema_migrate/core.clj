@@ -287,6 +287,13 @@
 
     (map (fn [eid] [:db/retractEntity eid]) i18ns)))
 
+(defn ->entity
+  "Payload for an Entity"
+  [data]
+  (merge data
+         {:bp/uuid (rand-uuid)
+          :bp/nid  (nano-id)}))
+
 (defn ->gv-conditional
   "Payload for a Group Variable Conditional."
   [uuid operator value]
