@@ -198,13 +198,19 @@
         (assoc :filter-tags (map (fn [{id              :bp/nid
                                        translation-key :tag/translation-key}]
                                    {:id id :label @(<t translation-key)})
-                                 (-> llist (:list/tag-set llist) (:tag-set/tags))))
+                                 (-> llist
+                                     (:list/tag-set llist)
+                                     (:tag-set/tags)
+                                     (sort-by :tag/order))))
 
         (:list/color-tag-set llist)
         (assoc :color-tags (map (fn [{color           :tag/color
                                       translation-key :tag/translation-key}]
                                   {:color color :label @(<t translation-key)})
-                                (-> llist (:list/color-tag-set) (:tag-set/tags)))))]]))
+                                (-> llist
+                                    (:list/color-tag-set)
+                                    (:tag-set/tags)
+                                    (sort-by :tag/order)))))]]))
 
 (defmethod wizard-input :text [{gv-uuid  :bp/uuid
                                 help-key :group-variable/help-key}
