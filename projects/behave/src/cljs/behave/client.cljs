@@ -131,9 +131,7 @@
         [:div.page__footer
          [:div.page__footer__disclaimer
           [:span.page__footer__disclaimer__link
-           {:on-click #(do
-                         (prn "here")
-                         (rf/dispatch [:wizard/toggle-disclaimer]))}
+           {:on-click #(rf/dispatch [:wizard/toggle-disclaimer])}
            "Disclaimer"]]]])]))
 
 
