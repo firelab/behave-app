@@ -203,5 +203,5 @@
 ;; ===========================================================================================================
 
 (comment
-  (sm/rollback-tx! conn @tx-data-1)
-  (sm/rollback-tx! conn @tx-data-2))
+  (do (sm/rollback-tx! conn @tx-data-2)
+      (sm/rollback-tx! conn @tx-data-1)))
