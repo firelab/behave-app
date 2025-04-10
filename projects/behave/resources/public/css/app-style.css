@@ -89,13 +89,13 @@ body {
   padding: 5px;
 }
 
-.page__footer__disclaimer > a {
+.page__footer__disclaimer > span {
   color: var(--white);
-  text-decoration: underline;
   cursor: pointer;
+  text-decoration: underline;
 }
 
-.page__footer__disclaimer > a:hover {
+.page__footer__disclaimer > span:hover {
   text-decoration: none;
 }
 
