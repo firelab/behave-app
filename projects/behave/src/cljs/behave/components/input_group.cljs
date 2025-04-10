@@ -179,13 +179,14 @@
                                                tags      :list-option/tag-refs
                                                color-tag :list-option/color-tag-ref
                                                t-key     :list-option/translation-key}]
-                                           {:value       value
-                                            :label       @(<t t-key)
-                                            :tags        (map :bp/nid tags)
-                                            :on-select   on-select
-                                            :on-deselect on-deselect
-                                            :selected?   (contains? ws-input-values value)
-                                            :color-tag   color-tag})]
+                                           (merge
+                                            {:value       value
+                                             :label       @(<t t-key)
+                                             :on-select   on-select
+                                             :on-deselect on-deselect
+                                             :selected?   (contains? ws-input-values value)}
+                                            (when tags {:tags (set (map :bp/nid tags))})
+                                            (when color-tag {:color (:tag/color color-tag)})))]
     :color-tag/id
     [:div.wizard-input
      {:on-click on-focus-click
@@ -197,7 +198,7 @@
         (assoc :filter-tags (map (fn [{id              :bp/nid
                                        translation-key :tag/translation-key}]
                                    {:id id :label @(<t translation-key)})
-                                 (-> llist (:list/tags llist) (:tag-set/tags))))
+                                 (-> llist (:list/tag-set llist) (:tag-set/tags))))
 
         (:list/color-tag-set llist)
         (assoc :color-tags (map (fn [{color           :tag/color

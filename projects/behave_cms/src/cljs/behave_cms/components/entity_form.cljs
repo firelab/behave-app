@@ -126,7 +126,9 @@
 
 (defmethod field-input :set [{:keys [label options on-change state disabled?]
                               :or   {disabled? false}}]
-  (let [state-as-set (set @state)
+  (let [state-as-set (set (if (-> @state (first) (:db/id))
+                            (map :db/id @state)
+                            @state))
         group-label  label]
     [:div.mb-3
      [:label.form-label group-label]

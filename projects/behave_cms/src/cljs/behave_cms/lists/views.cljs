@@ -1,5 +1,6 @@
 (ns behave-cms.lists.views
-  (:require [re-frame.core                     :as rf]
+  (:require [clojure.set :refer [rename-keys]]
+            [re-frame.core                     :as rf]
             [behave-cms.components.common      :refer [simple-table]]
             [behave-cms.components.entity-form :refer [entity-form]]
             [behave-cms.events]
@@ -23,8 +24,9 @@
   (let [list-options (->> (rf/subscribe [:pull-children :list/options (:db/id llist)])
                           deref
                           (map (fn [option]
-                                 (update option :list-option/color-tag
-                                         #(:color-tag/id @(rf/subscribe [:entity (:db/id %)]))))))
+                                 (assoc option
+                                        :list-option/tags      @(rf/subscribe [:list-option/tags (:db/id option)])
+                                        :list-option/color-tag @(rf/subscribe [:list-option/color-tag (:db/id option)])))))
         on-select    #(rf/dispatch [:state/set-state :list-option %])
         on-delete    #(when (js/confirm (str "Are you sure you want to delete the list " (:list-option/name %) "?"))
                         (rf/dispatch [:api/delete-entity %])
@@ -41,8 +43,8 @@
 (defn- list-option-form [llist]
   (let [list-options      (rf/subscribe [:pull-children :list/options (:db/id llist)])
         *list-option      (rf/subscribe [:state :list-option])
-        tag-options       (-> llist (:list/tag-set) (:tag-set/tags))
-        color-tag-options (-> llist (:list/color-tag-set) (:tag-set/tags))]
+        tag-options       (rf/subscribe [:list-option/tags-to-select (:db/id llist)])
+        color-tag-options (rf/subscribe [:list-option/color-tags-to-select (:db/id llist)])]
     [:<>
      [:h3 (if @*list-option "Edit Option" "Add Option")]
      [entity-form {:entity       :list-options
@@ -60,13 +62,15 @@
                                    :required? true
                                    :field-key :list-option/value}
                                   {:label     "Filter Tags"
-                                   :type      :ref-select
-                                   :options   tag-options
-                                   :field-key :list-option/tags}
+                                   :type      :set
+                                   :is-ref?   true
+                                   :options   @tag-options
+                                   :field-key :list-option/tag-refs}
                                   {:label     "Color Tag"
                                    :type      :ref-select
-                                   :options   color-tag-options
-                                   :field-key :list-option/color-tag}
+                                   :disabled? (nil? (:list/color-tag-set llist))
+                                   :options   @color-tag-options
+                                   :field-key :list-option/color-tag-ref}
                                   {:label     "Hide Option?"
                                    :type      :checkbox
                                    :field-key :list-option/hide?
@@ -83,8 +87,9 @@
 
 (defn- list-form [llist]
   (let [tag-sets        (rf/subscribe [:pull-with-attr :tag-set/name])
-        color-tag-sets  (filter :tag-set/color? @tag-sets)
-        filter-tag-sets (remove :tag-set/color? @tag-sets)]
+        xform-tag-set   #(rename-keys % {:tag-set/name :label :db/id :value})
+        color-tag-sets  (map xform-tag-set (filter :tag-set/color? @tag-sets))
+        filter-tag-sets (map xform-tag-set (remove :tag-set/color? @tag-sets))]
     [:<>
      [:div.row
       [:h3 (if llist (str "Edit " (:list/name llist)) "Add List")]]

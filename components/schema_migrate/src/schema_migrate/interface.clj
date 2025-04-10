@@ -86,6 +86,10 @@
        :doc      "Removes an entity's (and it's components) translation keys."}
   remove-nested-i18ns-tx c/remove-nested-i18ns-tx)
 
+(def ^{:arglists '([data])
+       :doc "Payload for a new Entity, which adds a :bp/nid and :bp/uuid."}
+  ->entity c/->entity)
+
 (def ^{:arglists '([uuid operator value])
        :doc "Payload for a Group Variable Conditional."}
   ->gv-conditional c/->gv-conditional)

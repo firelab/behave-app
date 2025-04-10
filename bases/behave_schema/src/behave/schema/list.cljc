@@ -58,14 +58,12 @@
    {:db/ident       :list/tag-set
     :db/doc         "Lists's tag set for filtering options."
     :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/one
-    :db/isComponent true}
+    :db/cardinality :db.cardinality/one}
 
    {:db/ident       :list/color-tag-set
     :db/doc         "Lists's color tag set."
     :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/one
-    :db/isComponent true}
+    :db/cardinality :db.cardinality/one}
 
    {:db/ident       :list/options
     :db/doc         "List's options."
