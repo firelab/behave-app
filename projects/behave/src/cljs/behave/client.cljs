@@ -2,6 +2,7 @@
   (:require [clojure.string            :as str]
             [reagent.dom               :refer [render]]
             [re-frame.core             :as rf]
+            [behave.components.core    :as c]
             [behave.components.sidebar :refer [sidebar]]
             [behave.components.toolbar :refer [toolbar]]
             [behave.components.modal   :refer [modal]]
@@ -9,7 +10,7 @@
             [behave.settings.views     :as settings]
             [behave.store              :refer [load-store!]]
             [behave.tools              :as tools]
-            [behave.translate          :refer [<t]]
+            [behave.translate          :refer [<t bp]]
             [behave.vms.store          :refer [load-vms!]]
             [behave.wizard.views       :as wizard]
             [behave.print.views        :refer [print-page]]
@@ -83,13 +84,16 @@
              :content        [:div.table-viewer @*table-modal]}]]))
 
 (defn app-shell [{:keys [app-version] :as params}]
+  (rf/dispatch-sync
+   [:state/set :show-disclaimer? @(rf/subscribe [:settings/show-disclaimer?])])
   (let [route              (rf/subscribe [:handler])
         sync-loaded?       (rf/subscribe [:state :sync-loaded?])
         vms-loaded?        (rf/subscribe [:state :vms-loaded?])
         vms-export-results (rf/subscribe [:state :vms-export-http-results])
         page               (get handler->page (:handler @route) not-found)
         params             (-> (merge params (:route-params @route))
-                               (assoc :route-handler (:handler @route)))]
+                               (assoc :route-handler (:handler @route)))
+        show-disclaimer?    @(rf/subscribe [:state :show-disclaimer?])]
     [:div.app-shell
      [image-modal]
      [table-modal]
@@ -124,13 +128,21 @@
                           "working-area--sidebar-hidden")
                         (when @(rf/subscribe [:state [:help-area :hidden?]])
                           "working-area--help-area-hidden")]}
+          (when show-disclaimer?
+            [c/modal
+             {:title          "Disclaimer"
+              :close-on-click #(rf/dispatch [:wizard/toggle-disclaimer])
+              :content        [:div.disclaimer
+                               [:div.disclaimer__paragraph @(<t (bp "disclaimer-paragraph-1"))]
+                               [:div.disclaimer__paragraph @(<t (bp "disclaimer-paragraph-2"))]
+                               [:div.disclaimer__paragraph @(<t (bp "disclaimer-paragraph-3"))]]}])
           (if (and @vms-loaded? @sync-loaded?)
             [page params]
             [:h3 "Loading..."])]
          [help-area params]]
         [:div.page__footer
          [:div.page__footer__disclaimer
-          [:span.page__footer__disclaimer__link
+          [:span
            {:on-click #(rf/dispatch [:wizard/toggle-disclaimer])}
            "Disclaimer"]]]])]))
 

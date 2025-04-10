@@ -21,21 +21,10 @@
      [:p description]]]])
 
 (defn workflow-select [_params]
-  (rf/dispatch-sync
-   [:state/set :show-disclaimer? @(rf/subscribe [:settings/show-disclaimer?])])
   (let [*workflow           (rf/subscribe [:state [:worksheet :*workflow]])
         show-tool-selector? @(rf/subscribe [:tool/show-tool-selector?])
-        selected-tool-uuid  @(rf/subscribe [:tool/selected-tool-uuid])
-        show-disclaimer?    @(rf/subscribe [:state :show-disclaimer?])]
+        selected-tool-uuid  @(rf/subscribe [:tool/selected-tool-uuid])]
     [:<>
-     (when show-disclaimer?
-       [c/modal
-        {:title          "Disclaimer"
-         :close-on-click #(rf/dispatch [:wizard/toggle-disclaimer])
-         :content        [:div.disclaimer
-                          [:div.disclaimer__paragraph @(<t (bp "disclaimer-paragraph-1"))]
-                          [:div.disclaimer__paragraph @(<t (bp "disclaimer-paragraph-2"))]
-                          [:div.disclaimer__paragraph @(<t (bp "disclaimer-paragraph-3"))]]}])
      (when show-tool-selector?
        [tool-selector])
      (when (some? selected-tool-uuid)
