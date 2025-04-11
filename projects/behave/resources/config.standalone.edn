@@ -4,5 +4,6 @@
             :capture-std-err true}
  :site     {:title       "BehavePlus 7"
             :description "Wildfire Analysis toolkit."}
- :server   {:http-port 4242
-            :mode      "prod"}}
+ :server   {:http-port  4242
+            :mode       "prod"}
+ :client   {:jar-local? true}}

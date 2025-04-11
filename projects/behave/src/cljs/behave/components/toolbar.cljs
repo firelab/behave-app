@@ -165,8 +165,8 @@
 
 #_{:clj-kondo/ignore [:missing-docstring]}
 (defn toolbar [{:keys [ws-uuid] :as params}]
-  (let [*loaded? (rf/subscribe [:app/loaded?])
-        on-click #(js/console.log (str "Selected!" %))
+  (let [*loaded?    (rf/subscribe [:app/loaded?])
+        on-click    #(js/console.log (str "Selected!" %))
         tools    [{:icon     :home
                    :label    (bp "home")
                    :on-click #(rf/dispatch [:wizard/navigate-home])}
@@ -182,9 +182,10 @@
                    :label    (bp "print")
                    :on-click (when ws-uuid
                                #(rf/dispatch [:toolbar/print ws-uuid]))}
-                  {:icon     :share
-                   :label    (bp "share")
-                   :on-click #(rf/dispatch [:dev/export-from-vms])}
+                  (when-not (:jar-local? params)
+                    {:icon     :share
+                     :label    (bp "share")
+                     :on-click #(rf/dispatch [:dev/export-from-vms])})
                   #_{:icon     :zoom-in
                      :label    (bp "zoom-in")
                      :on-click on-click}
