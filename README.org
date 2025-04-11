@@ -1,5 +1,7 @@
 #+TITLE: Behave Polylith
 
+[[file:./projects/behave/resources/public/images/logo.svg]]
+
 * Prerequisites
 
 + OpenJDK 17
@@ -73,6 +75,10 @@ enable subscriptions on DataScript entities, reducing view logic.
 ** App (=projects/behave=)
 *** Schema
 
+#+ATTR_HTML: :align center
+[[file:./projects/behave/docs/schema.png]]
+
+**** COMMENT Schema Diagram
 #+begin_src dot :results value :file projects/behave/docs/schema.png
 digraph GitHub {
     graph [rankdir = "LR"]
@@ -334,7 +340,10 @@ make install
 
 This schema is used for the Behave VMS. It largely impacts the rendering UI of the Behave VMS and the Application.
 
-#+begin_src dot :results value :file projects/behave/docs/vms-schema.png
+[[./projects/behave/docs/vms-schema.png]]
+
+*** COMMENT VMS Diagram
+#+begin_src dot :results value :file ./projects/behave/docs/vms-schema.png
 // Relations (NOTE when a relation attribute of type :db/type/string instead of type :db.type/ref, this means the value is a UUID that matches the :bp/uuid of the related entity.)
 
 digraph GitHub {
@@ -666,13 +675,16 @@ digraph GitHub {
 #+end_src
 
 #+RESULTS:
-[[file:projects/behave/docs/vms-schema.png]]
+[[file:./projects/behave/docs/vms-schema.png]]
 
 ** Worksheet
 
 This schema is used to store instances of worksheet information in the Behave application.
 
-#+begin_src dot :results value :file projects/behave/docs/worksheet-schema.png
+[[file:./projects/behave/docs/worksheet-schema.png]]
+
+*** COMMENT Worksheet Diagram
+#+begin_src dot :results value :file ./projects/behave/docs/worksheet-schema.png
 // Relations (NOTE when a relation attribute of type :db/type/string instead of type :db.type/ref, this means the value is a UUID that matches the :bp/uuid of the related entity.)
 
 digraph GitHub {
@@ -866,13 +878,16 @@ digraph GitHub {
 #+end_src
 
 #+RESULTS:
-[[file:projects/behave/docs/worksheet-schema.png]]
+[[file:./projects/behave/docs/worksheet-schema.png]]
 
 ** VMS + Worksheet
 
 This Documents the schema for both the behave and behave_cms project.
 
-#+begin_src dot :results value :file projects/behave/docs/schema.png
+[[file:./projects/behave/docs/schema.png]]
+
+*** COMMENT Worksheet Diagram
+#+begin_src dot :results value :file ./projects/behave/docs/schema.png
 // Relations (NOTE when a relation attribute of type :db/type/string instead of type :db.type/ref, this means the value is a UUID that matches the :bp/uuid of the related entity.)
 
 digraph GitHub {
@@ -1387,4 +1402,4 @@ digraph GitHub {
 #+end_src
 
 #+RESULTS:
-[[file:projects/behave/docs/schema.png]]
+[[file:./projects/behave/docs/schema.png]]
