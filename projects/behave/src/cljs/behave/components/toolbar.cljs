@@ -166,7 +166,6 @@
 #_{:clj-kondo/ignore [:missing-docstring]}
 (defn toolbar [{:keys [ws-uuid] :as params}]
   (let [*loaded?    (rf/subscribe [:app/loaded?])
-        *jar-local? (rf/subscribe [:state :jar-local?])
         on-click    #(js/console.log (str "Selected!" %))
         tools    [{:icon     :home
                    :label    (bp "home")
@@ -183,7 +182,7 @@
                    :label    (bp "print")
                    :on-click (when ws-uuid
                                #(rf/dispatch [:toolbar/print ws-uuid]))}
-                  (when-not @*jar-local?
+                  (when-not (:jar-local? params)
                     {:icon     :share
                      :label    (bp "share")
                      :on-click #(rf/dispatch [:dev/export-from-vms])})
