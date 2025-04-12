@@ -8,9 +8,9 @@
 ** Supported By:
 #+BEGIN_HTML
 <div style="display:flex; flex-direction:row;">
-  <a href="https://usda.gov"><img src="./arch/images/usda-logo.svg" style="width:20%; max-height: 100px;" alt="US Department of Agriculture"></a>
-  <a href="https://research.fs.usda.gov/firelab"><img src="./arch/images/fs-logo.svg" style="width:20%; max-height: 100px; padding-left: 10%;" alt="US Forest Service"></a>
-  <a href="https://sig-gis.com"><img src="./arch/images/sig-logo.png" style="width:20%; max-height: 100px; padding-left: 10%" alt="Spatial Informatics Group, Inc."></a>
+  <a href="https://usda.gov"><img height="100" src="./arch/images/usda-logo.svg" style="width:20%;" alt="US Department of Agriculture"></a>
+  <a href="https://research.fs.usda.gov/firelab"><img height="100" src="./arch/images/fs-logo.svg" style="width:20%;" alt="US Forest Service"></a>
+  <a href="https://sig-gis.com"><img height="100" src="./arch/images/sig-logo.png" style="width:20%;" alt="Spatial Informatics Group, Inc."></a>
 </div>
 #+END_HTML
 
