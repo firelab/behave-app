@@ -1,0 +1,93 @@
+#+TITLE: 1. Getting Started
+
+Next: [[file:01_index.org][0. Architecture Overview]] | Prev: [[file:02_building_wasm.org][2. Building WebAssembly]]
+
+*** Prerequisites
+
++ OpenJDK 17
++ [[https://github.com/babashka/babashka#installation][Babashka]]
++ [[https://clojure.org/guides/install_clojure][Clojure]]
++ Postgres (>=12)
+
+*** Emacs/CIDER Setup
+
+1. Pull down the repository (~git clone git@gitlab.com:sig-gis/behave-polylith~)
+1. Pull down the submodules (~git submodule update --init --remote~)
+1. Follow the Datomic Setup (see below)
+1. Start the Datomic Transactor (see below)
+1. Open ~development/user.cljs~ in Emacs
+1. Start the CIDER nREPL ~cider-jack-in-clj&cljs~
+1. Choose ~figwheel-main~ and ~dev~ for the front-end build.
+1. Open ~http://localhost:8080~ in your browser.
+
+*** Datomic Setup
+
+**** Download & Setup Datomic Pro
+#+BEGIN_SRC bash
+  mkdir -p ~/.datomic
+  cd ~/.datomic
+  curl -O https://datomic-pro-downloads.s3.amazonaws.com/1.0.7075/datomic-pro-1.0.7075.zip
+  unzip *.zip
+  ln -s $PWD/datomic-pro-1.0.7075 $PWD/current
+  echo 'export PATH="$HOME/.datomic/current/bin:$PATH"' >> ~/.bashrc # Or ~/.zshrc
+#+END_SRC
+
+**** Setting up PostgreSQL for Datomic
+
+Be sure that PostgreSQL is running on port 5432.
+
+#+BEGIN_SRC bash
+  cd /bases/datomic_store/sql/
+  psql -U postgres -f 01_setup.sql # Creates the Datomic DB, User
+  psql -U datomic datomic -f 02_tables.sql # Sets up the KV table
+#+END_SRC
+
+**** Running the Transactor
+#+BEGIN_SRC bash
+  bb transactor
+#+END_SRC
+
+**** Running the Datomic Console
+#+BEGIN_SRC bash
+  bb console --port <port>
+#+END_SRC
+
+Then visit [[http://localhost:8000/browse][localhost:8000/browse]]
+
+**** Restoring CMS using a backup file
+
+#+begin_src sh
+bb restore --file <datomic-2024-##-##.dump>
+#+end_src
+
+*** Building the Behave UberJAR
+
+1. Navigate to ~projects/behave~. All paths described here will use this directory as root.
+
+2. Add/edit the ~resources/config.edn~ for your deployment. Below is
+   an example file:
+
+#+BEGIN_SRC clojure
+;; resources/config.edn
+{:database {:config {:store {:backend :file
+                             :path    "~/.behave/db"}}}
+ :site     {:title       "BehavePlus 7"
+            :description "Wildfire Analysis toolkit."}
+ :server   {:http-port 8007
+            :mode      "prod"}
+ :vms      {:secret-token "<vms-secret-token>"}}
+#+END_SRC
+
+3. Compile ClojureScript
+
+#+BEGIN_SRC bash
+bb build-js
+#+END_SRC
+
+4. Build the UberJAR
+
+#+BEGIN_SRC bash
+bb uber
+#+END_SRC
+
+5. Congratulations! You're now the owner of an UberJAR. (i.e. ~target/behave7-YYYY.MM.DD-####.jar~)
