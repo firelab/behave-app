@@ -58,8 +58,8 @@ Behave is a point system that calculates fire behavior for an area (or point) wi
 :END:
 - :fire: Uses up-to-date Fire Modeling equations, identical to those in [[https://research.fs.usda.gov/firelab/projects/flammap][FlamMap]]
 - :sparkles: Fresh new User Interface.
-- :books: Always-ready help documentation.
-- :printer: Export directly to PDF (No more screenshots!)
+- :books: View documentation side-by-side inside the app.
+- :printer: Export directly to PDF (No need to take screenshots!)
 
 ** License
 :PROPERTIES:
