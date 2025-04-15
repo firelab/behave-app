@@ -65,12 +65,9 @@
     "/cljs/app.js"))
 
 (def ^:private font-preloads
-  (->>  (io/resource "public/fonts")
-        (fs/list-dir)
-        (map #(-> %
-                  (str)
-                  (str/replace #"^.*public" "")
-                  (include-preload "font" "font/woff2" true)))))
+  (->>  ["Bold" "Light" "Regular"]
+        (map #(format "/fonts/Roboto-%s.woff2" %))
+        (map #(include-preload % "font" "font/woff2" true))))
 
 (def ^:private meta-preloads
   [(include-preload "/manifest.json" "fetch" "application/json" true)
