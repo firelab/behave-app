@@ -16,10 +16,12 @@
 
 ** Table of Contents
 - [[#latest-release][Latest Release]]
+- [[#installation][Installation]]
 - [[#overview][Overview]]
 - [[#features][Features]]
 - [[#license][License]]
 - [[./arch/00_index.org][Architecture]]
+- [[#contact][Contact]]
 
 ** Latest Release
 :PROPERTIES:
@@ -27,11 +29,28 @@
 :END:
 [[https://github.com/firelab/behave-app/releases/latest][Click here to download the latest release.]]
 
+** Installation
+:PROPERTIES:
+:CUSTOM_ID: installation
+:END:
+1. Download and install a Java Runtime Environment (JRE). Some options:
+   A. [[https://adoptium.net/temurin/releases/][Eclipse Temuring 21]]
+   B. [[https://docs.aws.amazon.com/corretto/latest/corretto-21-ug/downloads-list.html][Amazon Corretto 21]] 
+2. Download and install the [[https://www.google.com/chrome/index.html][Google Chrome Browser]]
+3. Download the Behave7 .JAR view the [[https://github.com/firelab/behave-app/releases/latest][latest release.]]
+4. Double click .JAR file to open the application.
+
 ** Overview
 :PROPERTIES:
 :CUSTOM_ID: overview
 :END:
-<INSERT OVERVIEW>
+The Behave fire modeling system is used to predict fire behavior in multiple situations.
+
+Behave can be used for any fire management application that involves modeling fire behavior and some fire effects.
+
+The system is composed of a collection of mathematical models that describe fire behavior and the fire environment.
+
+Behave is a point system that calculates fire behavior for an area (or point) with homogeneous fuels. The program simulates rate of fire spread, spotting distance, scorch height, tree mortality, fuel moisture, wind adjustment factor, as well as other variables.
 
 ** Features
 :PROPERTIES:
@@ -47,3 +66,13 @@
 :CUSTOM_ID: license
 :END:
 <INSERT LICENSE>
+
+** Architecture
+[[./arch/index.org][Learn more about the architecture of the Behave application here.]]
+
+** Contact Us
+:PROPERTIES:
+:CUSTOM_ID: contact
+:END:
+If you have feedback or would like to report a bug, please reach out
+to Faith Ann Heinsch at =faith.heinsch <at> usda.gov= or email =iia-helpdesk <at> usda.gov=.
