@@ -3,6 +3,7 @@
             [clojure.java.io    :as io]
             [clojure.string     :as str]
             [clojure.edn        :as edn]
+            [me.raynes.fs       :as fs]
             [config.interface   :refer [get-config]]
             [hiccup.page        :refer [html5] :as p]
             [clj-commons.digest :as digest]))
@@ -16,7 +17,7 @@
 
 ;;; State
 
-(def ^:private *vms-version (atom nil))
+(def ^:private *vms-version (atom (digest/md5 (slurp (io/resource "public/layout.msgpack")))))
 (def ^:private *app-version (atom nil))
 
 ;;; Helpers
@@ -32,7 +33,20 @@
 
 (defn- add-v-query [paths]
  (let [{:keys [vms-version]} (get-vms-version)]
-    (map #(str % "?v=" vms-version) paths)))
+   (cond
+     (string? paths)
+     (str paths "?v=" vms-version)
+
+     (coll? paths)
+     (map #(str % "?v=" vms-version) paths))))
+
+(defn- include-preload
+  "type "
+  [path & [as mime-type cross-origin?]]
+  [:link (merge {:rel "preload" :href path}
+                (when as {:as as})
+                (when mime-type {:type mime-type})
+                (when cross-origin? {:crossorigin true}))])
 
 (defn- include-css [& paths]
   (apply p/include-css (add-v-query paths)))
@@ -50,6 +64,39 @@
       (str "/cljs/" app))
     "/cljs/app.js"))
 
+(def ^:private font-preloads
+  (->>  (io/resource "public/fonts")
+        (fs/list-dir)
+        (map #(-> %
+                  (str)
+                  (str/replace #"^.*public" "")
+                  (include-preload "font" "font/woff2" true)))))
+
+(def ^:private meta-preloads
+  [(include-preload "/manifest.json" "fetch" "application/json" true)
+   (include-preload "/images/favicon.ico" "image" "image/vnd.microsoft.icon")
+   (include-preload "/images/apple-touch-icon.png" "image" "image/png")
+   (include-preload "/images/logo.svg" "image" "image/svg+xml")
+   (include-preload (add-v-query "/layout.msgpack") "fetch" "application/msgpack" true)
+   (include-preload "/js/behave-min.wasm" "fetch" "application/wasm" true)])
+
+(def ^:private css-files
+  ["/css/roboto-font.css" "/css/component-style.css" "/css/app-style.css"])
+
+(def ^:private js-files
+  ["/js/behave-min.js" "/js/katex.min.js" "/js/bodymovin.js"])
+
+(def ^:private css-preloads
+  (->> css-files
+       (add-v-query)
+       (map #(include-preload % "style" "text/css"))))
+
+(def ^:private js-preloads
+  (->> js-files
+       (add-v-query)
+       (concat [(find-app-js)])
+       (map #(include-preload % "script" "text/javascript"))))
+
 (defn- head-meta-css
   "Specifies head tag elements."
   []
@@ -63,10 +110,17 @@
    [:meta {:charset "utf-8"}]
    [:meta {:name    "viewport"
            :content "width=device-width, initial-scale=1, shrink-to-fit=no"}]
-   [:link {:rel "manifest" :href "/manifest.json"}]
-   [:link {:rel "icon" :type "image/png" :href "/images/favicon.ico"}]
-   [:link {:rel "apple-touch-icon" :href "/images/apple-touch-icon.png" :type "image/png"}]
-   (include-css "/css/roboto-font.css" "/css/component-style.css" "/css/app-style.css")])
+   #_[:link {:rel "preload" :href "/manifest.json" :as "fetch" :type "application/json"}]
+   (concat
+    meta-preloads
+    font-preloads
+    js-preloads
+    css-preloads
+    (apply include-css css-files)
+    [[:link {:rel "manifest" :href "/manifest.json"}]
+     [:link {:rel "icon" :type "image/png" :href "/images/favicon.ico"}]
+     [:link {:rel "apple-touch-icon" :href "/images/apple-touch-icon.png" :type "image/png"}]])])
+
 
 (defn- cljs-init
   "A JavaScript script that calls the `init` function in `client.cljs`.
@@ -177,5 +231,5 @@
                    (when (not (:ws-uuid route-params)) (announcement-banner))
                    [:div#app]
                    (cljs-init init-params figwheel?)
-                   (include-js "/js/behave-min.js" "/js/katex.min.js" "/js/bodymovin.js")
+                   (apply include-js js-files)
                    (when figwheel? (include-js (find-app-js)))])})))
