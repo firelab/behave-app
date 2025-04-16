@@ -127,6 +127,7 @@ You can find the tag sets associated with a group variable by:
 [[./images/vms-guide/Screenshot 2025-04-15 162354.png]]
 
 ** Variable Domains
+*** Variable Domain Entities
 
 The Variable Domain entities is used primarly to associate a group of variables to some default units and decimal precision. Domain entities are grouped into Domain sets, primarliy used for creating collapsing accordions in the application.
 
@@ -139,6 +140,15 @@ The Variable Domain entities is used primarly to associate a group of variables 
 #+ATTR_LATEX: :placement [H]
 #+CAPTION: VMS: Variable Domains.
 [[./images/vms-guide/Screenshot 2025-04-16 152830.png]]
+
+*** Variable Domains Associated with a Group Variable
+
+1. Find the Variable associated with your group variable of interest. see [[*Variable Associated with a Group Variable][Variable Associated with a Group Variable]] section
+2. You can find the domain associated to the variable under the "Domain" field
+
+#+ATTR_LATEX: :placement [H]
+#+CAPTION: VMS: The Domain associated with this variable.
+[[./images/vms-guide/Screenshot 2025-04-16 160738.png]]
 
 * Updating Text
 
@@ -187,6 +197,40 @@ Most texts for entities displayed in the application can be updated by changing 
 #+CAPTION: VMS: Updating translations on tags page.
 [[./images/vms-guide/Screenshot 2025-04-15 171421.png]]
 
-* Updating Default Custom Unit Preferences
+* Updating Default Unit Preferences
+
+** Unit
+
+1. Find the Domain assocaited with the variable you are interested in
+2. Click "Edit" on the Domain set
+3. Click "Edit" on the Domain found in step 1.
+4. Update the "Native Unit" field
+
+#+ATTR_LATEX: :placement [H]
+#+CAPTION: VMS: Updating translations on tags page.
+[[./images/vms-guide/Screenshot 2025-04-16 1612512.png]]
+
+** Precision
+
+1. Follow the steps from [[*Unit][above]] to find the Domain entity.
+1. Update the "Decimals" field
+
+#+ATTR_LATEX: :placement [H]
+#+CAPTION: VMS: Updating translations on tags page.
+[[./images/vms-guide/Screenshot 2025-04-16 161251.png]]
+
+
+* Updating Units Dropdown Selections
+
+In the Application's inputs page a user can change units via a drop down menu. By default a variable is linked to a "Dimension" (i.e. length) and will have all options availble to select. However there are cases when this list should be limited to a subset. If this is desired do the following:
+
+1. Find the Domain associated with the variable you are interested in. See [[*Variable Domains Associated with a Group Variable][Variable Domains Associated with a Group Variable]] section.
+2. Click "Edit" on the Domain set
+3. Click "Edit" on the Domain found in step 1.
+4. Under "Filtered Units" select a subset of your desired units
+
+#+ATTR_LATEX: :placement [H]
+#+CAPTION: VMS: Domains Page Updating Units dropdown to a subset of units.
+[[./images/vms-guide/Screenshot 2025-04-16 163044.png]]
 
 * Re-Ordering
