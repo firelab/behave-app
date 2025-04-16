@@ -1,0 +1,192 @@
+#+TITLE: HItchhiker's Guide to the VMS
+#+OPTIONS: toc:t
+#+LATEX_HEADER: \usepackage{float}
+#+LATEX_HEADER: \usepackage[margin=1in]{geometry}
+#+LATEX_HEADER: \usepackage{hyperref}
+#+LATEX_HEADER: \hypersetup{
+#+LATEX_HEADER:     colorlinks=true,
+#+LATEX_HEADER:     linkcolor=blue,
+#+LATEX_HEADER:     urlcolor=blue,
+#+LATEX_HEADER:     citecolor=blue
+#+LATEX_HEADER: }
+#+LATEX_HEADER:\usepackage{titlesec}
+#+LATEX_HEADER:\newcommand{\sectionbreak}{\clearpage}
+#+LATEX_HEADER:\newcommand{\subsectionbreak}{\clearpage}
+
+\newpage
+
+* Finding VMS elements in the Application
+
+The VMS holds the structure of our application. The data is a tree like structure that determines how the applicaiton is rendered. This section aims to help you understand how the data in the VMS translates to how it is shown in the application.
+
+** Modules/Submodules/Groups/Group Variables
+
+In the VMS Use the side bar to navigate down these paths:
+
+#+begin_verse
+Applications \to Modules \to Submodules \to Group \to Group Variables \to Variables
+#+end_verse
+
+Example:
+
+#+begin_verse
+BehavePlus \to Surface \to Fire Behavior(output) \to Surface Fire \to Heading Rate of Spread \to Heading Rate of Spread
+#+end_verse
+
+
+#+ATTR_LATEX: :placement [H] :width 0.75\textwidth
+#+CAPTION: VMS: Home page
+[[./images/vms-guide/Screenshot 2025-04-15 122636.png]]
+
+#+ATTR_LATEX: :placement [H] :width 0.75\textwidth
+#+CAPTION: Application: Outputs page after a Surface Only workhseet has been created.
+[[./images/vms-guide/Screenshot 2025-04-14 144743.png]]
+
+#+ATTR_LATEX: :placement [H] :width 0.75\textwidth
+#+CAPTION: Application: Inputs page after a Surface Only workhseet has been created. NOTE Groups can have sub groups.
+[[./images/vms-guide/Screenshot 2025-04-14 163337.png]]
+
+** Variables
+
+The Variables can be associated with multiple group variables but group variables can only be associated to a single variable. The Variable entity will hold information about Domains/Dimension/units
+
+*** Variable Entities
+
+1. Navigate to the "Variables" tab
+
+*** Variable Associated with a Group Variable
+
+1. Navigate to the Application \to Module \to Group page
+2. "Expand" the "Variables" accordion
+3. Find the variable you are interested in and click "Edit". This will take you to the "Variables" page and populate the form with the variable's info.
+
+#+ATTR_LATEX: :placement [H]
+#+CAPTION: VMS: Finding the variable associated with a group variable
+[[./images/vms-guide/Screenshot 2025-04-14 151243.png]]
+
+** List and List Options
+
+Certain Group Variables have a list associated with it (usually inputs). In the application lists show up as either radio selections or drop down selections.
+
+#+ATTR_LATEX: :placement [H] :width 0.75\textwidth
+#+CAPTION: Application: List options as radio selections.
+[[./images/vms-guide/Screenshot 2025-04-14 150013.png]]
+
+#+ATTR_LATEX: :placement [H] :width 0.75\textwidth
+#+CAPTION: Application: List options as multi select dropdown.
+[[./images/vms-guide/Screenshot 2025-04-14 150755.png]]
+
+In the VMS you can find the list associated to a group variable by:
+
+1. Navigating to the Module \to Submodule \to Group
+2. Click "Expand" on the "Variables" accordioin. Then click "Edit" on the Variable listed. This will Navigate you to the "Variables" page and populate the form with the variable's information.
+
+#+ATTR_LATEX: :placement [H]
+#+CAPTION: VMS: Group page
+[[./images/vms-guide/Screenshot 2025-04-14 151243.png]]
+
+3. Look for the "List" field and note the list selected.
+
+#+ATTR_LATEX: :placement [H]
+#+CAPTION: VMS: Variables page
+[[./images/vms-guide/Screenshot 2025-04-14 164610.png]]
+
+1. Navigate to the "List" tab and scroll down or (Ctrl +f) to find the list mentioned above.
+
+#+ATTR_LATEX: :placement [H]
+#+CAPTION: VMS: List page
+[[./images/vms-guide/Screenshot 2025-04-14 164814.png]]
+
+5. Click "Edit". This will populate the form at the bottom of the page.
+
+** Filter and Color Tags
+
+*** Filter and Color Tags Entities
+Filter and Color tags in the application can be found in input group variables that allow users to select multiple inputs.
+
+#+ATTR_LATEX: :placement [H]
+#+CAPTION: Application: Filter Tag and Color Tag example.
+[[./images/vms-guide/Screenshot 2025-04-14 163724.png]]
+
+You can find existing tags in the VMS by:
+1. Navigate to the "Tags" tab
+
+#+ATTR_LATEX: :placement [H] :width 0.50\textwidth
+#+CAPTION: VMS: Tags page
+[[./images/vms-guide/Screenshot 2025-04-15 145117.png]]
+
+*** Filter and Color Tags associated with a Group Variable
+You can find the tag sets associated with a group variable by:
+
+1. Find the list associated to the group variable, see [[*List and List Options][List and List Options]] section.
+2. Click "Edit" on the list
+3. Once the form on the list page has been populated you can find the associated tag sets.
+
+#+ATTR_LATEX: :placement [H]
+#+CAPTION: VMS: List page
+[[./images/vms-guide/Screenshot 2025-04-15 162354.png]]
+
+** Variable Domains
+
+The Variable Domain entities is used primarly to associate a group of variables to some default units and decimal precision. Domain entities are grouped into Domain sets, primarliy used for creating collapsing accordions in the application.
+
+#+ATTR_LATEX: :placement [H]
+#+CAPTION: Application: Custom Unit Preferences table.
+[[./images/vms-guide/Screenshot 2025-04-16 152012.png]]
+
+1. Navigate to the "Variable Domains" tab
+2. Click "Edit" on the "Domain Set". This will populate the form on the right with a list of domains that belong to this set.
+#+ATTR_LATEX: :placement [H]
+#+CAPTION: VMS: Variable Domains.
+[[./images/vms-guide/Screenshot 2025-04-16 152830.png]]
+
+* Updating Text
+
+Most texts for entities displayed in the application can be updated by changing the translation field for that entity..These entities will have 2 translation fields. One field is used in the worksheet wizard (pages before computation) and the second is used for the results page. Usually the result translations are a short form of the worksheet translations. Here are some of the common entities you might want to update. The application will default to the worksheet translation if a result translation is not present.
+
+** Submodule/Group/Group-Variables
+
+1. For these entities navigate to the entity page, see [[*Modules/Submodules/Groups/Group Variables][Modules/Submodules/Groups/Group Variables]] section.
+2. Update the "Translation" field.
+
+#+ATTR_LATEX: :placement [H] :width 0.50\textwidth
+#+CAPTION: VMS: Group page after navigating BehavePlus \to Surface \to Fire Behavior(output) \to Surface Fire
+[[./images/vms-guide/Screenshot 2025-04-14 145649.png]]
+
+
+
+** List Options
+
+#+ATTR_LATEX: :placement [H] :width 0.50\textwidth
+#+CAPTION: Application: Worksheet translations appear in the wizard.
+[[./images/vms-guide/Screenshot 2025-04-15 165647.png]]
+
+#+ATTR_LATEX: :placement [H] :width 0.50\textwidth
+#+CAPTION: Application: Result translations appear in the results matrices and tables.
+[[./images/vms-guide/Screenshot 2025-04-15 165841.png]]
+
+1. Find the list associated to the group variable, see [[*List and List Options][List and List Options]] section.
+2. Click "Edit" on the list.
+3. Find the list option you are interested in updating and click "Edit".
+4. Update the "Translation" field and the "Name" field.
+5. Navigate to the list associated with the group variable. see [[*List and List Options][List and List Options]]
+6. Click "Edit" on the list option you want to update.
+
+#+ATTR_LATEX: :placement [H] :width 0.75\textwidth
+#+CAPTION: VMS: List Page
+[[./images/vms-guide/Screenshot 2025-04-15 164954.png]]
+
+** Tags
+
+1. Navigate to the tag set associated with your group variable of interest. See [[*Filter and Color Tags associated with a Group Variable][Filter and Color Tags associated with a Group Variable]]
+2. Click "Edit" on the tag set. This will populate the table on the right.
+3. Click "Edit" on the tag option you'd like to update.
+4. Update the "Translation" field and the "Name" field.
+
+#+ATTR_LATEX: :placement [H]
+#+CAPTION: VMS: Updating translations on tags page.
+[[./images/vms-guide/Screenshot 2025-04-15 171421.png]]
+
+* Updating Default Custom Unit Preferences
+
+* Re-Ordering
