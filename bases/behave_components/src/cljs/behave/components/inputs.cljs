@@ -171,16 +171,17 @@
 ;;==============================================================================
 
 (defn- multi-select-option [{:keys [selected? label on-click color-tag]}]
-  [:div (cond-> {:class    ["multi-select__option"
-                            (when selected? "multi-select__option--selected")
-                            (when color-tag "multi-select__option__color-tag")]
-                 :style    {}
-                 :on-click on-click}
-          color-tag
-          (assoc-in [:style :border-color] (:color color-tag)))
-   [:div {:class [(if selected? "multi-select__option__icon--minus" "multi-select__option__icon--plus")]}
-    [icon (if selected? "minus" "plus")]]
-   label])
+  (let [color (:color color-tag)]
+    [:div (cond-> {:class    ["multi-select__option"
+                              (when selected? "multi-select__option--selected")
+                              (when color-tag "multi-select__option__color-tag")]
+                   :style    {}
+                   :on-click on-click}
+            color-tag
+            (assoc-in [:style :border-color] color))
+     [:div {:class [(if selected? "multi-select__option__icon--minus" "multi-select__option__icon--plus")]}
+      [icon (if selected? "minus" "plus")]]
+     label]))
 
 (defn multi-select-input
   "Creates a multi-select input component with the following options:
