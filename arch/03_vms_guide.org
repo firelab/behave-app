@@ -56,7 +56,7 @@ The Variables can be associated with multiple group variables but group variable
 
 *** Variable Associated with a Group Variable
 
-1. Navigate to the Application \to Module \to Group page
+1. Navigate to the Application \to Module \to Group
 2. "Expand" the "Variables" accordion
 3. Find the variable you are interested in and click "Edit". This will take you to the "Variables" page and populate the form with the variable's info.
 
@@ -150,6 +150,20 @@ The Variable Domain entities is used primarly to associate a group of variables 
 #+CAPTION: VMS: The Domain associated with this variable.
 [[./images/vms-guide/Screenshot 2025-04-16 160738.png]]
 
+** Units and Precision
+
+Default Units and Precision live in the Domain Entities.
+
+1. Find the Domain associated with your group variable see [[*Variable Domains Associated with a Group Variable][Variable Domains Associated with a Group Variable]] section.
+2. Navigate to the "Domains" page and lookup the domain.
+3. Click "Edit" on the "Domain Set" and "Edit" on the "Domain" entity to populate the forms.
+4. Default units is shown under "Native Unit"
+5. Default precision is shown under "Decimals"
+
+#+ATTR_LATEX: :placement [H]
+#+CAPTION: VMS: The Domain associated with this variable.
+[[./images/vms-guide/Screenshot 2025-04-16 16125122.png]]
+
 * Updating Text
 
 Most texts for entities displayed in the application can be updated by changing the translation field for that entity..These entities will have 2 translation fields. One field is used in the worksheet wizard (pages before computation) and the second is used for the results page. Usually the result translations are a short form of the worksheet translations. Here are some of the common entities you might want to update. The application will default to the worksheet translation if a result translation is not present.
@@ -199,9 +213,9 @@ Most texts for entities displayed in the application can be updated by changing 
 
 * Updating Default Unit Preferences
 
-** Unit
+** Units
 
-1. Find the Domain assocaited with the variable you are interested in
+1. Find the Domain associated with the variable you are interested in. See [[*Variable Domains Associated with a Group Variable][Variable Domains Associated with a Group Variable]] section.
 2. Click "Edit" on the Domain set
 3. Click "Edit" on the Domain found in step 1.
 4. Update the "Native Unit" field
@@ -212,13 +226,12 @@ Most texts for entities displayed in the application can be updated by changing 
 
 ** Precision
 
-1. Follow the steps from [[*Unit][above]] to find the Domain entity.
+1. Follow the steps from [[*Units][above]] to find the Domain entity.
 1. Update the "Decimals" field
 
 #+ATTR_LATEX: :placement [H]
 #+CAPTION: VMS: Updating translations on tags page.
 [[./images/vms-guide/Screenshot 2025-04-16 161251.png]]
-
 
 * Updating Units Dropdown Selections
 
