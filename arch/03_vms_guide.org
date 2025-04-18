@@ -247,3 +247,27 @@ In the Application's inputs page a user can change units via a drop down menu. B
 [[./images/vms-guide/Screenshot 2025-04-16 163044.png]]
 
 * Re-Ordering
+
+Certain entities can be re-ordered via the VMS. To do this:
+
+1. Find the parent entity of the entity you are trying to reorder (i.e. Need to reorder groups? find the submodule entity page. Need to reorder a list options? Find the List entity page.)
+2. Once you're on that page there should be a table that have a list of entities for you to reorder. Click on the "up" and "down" buttons to reorder
+
+#+ATTR_LATEX: :placement [H]
+#+CAPTION: Application: Reordering Direction Mode output selections.
+[[./images/vms-guide/Screenshot 2025-04-18 122848.png]]
+
+#+ATTR_LATEX: :placement [H]
+#+CAPTION: VMS: Reordering Direction Mode output selections: Navigate to BehavePlus \to Surface \to Fire Behavior(output) \to Direction Mode
+[[./images/vms-guide/Screenshot 2025-04-18 121904.png]]
+
+#+ATTR_LATEX: :placement [H]
+#+CAPTION: Application: Reordering fuel model codes.
+[[./images/vms-guide/Screenshot 2025-04-18 122936.png]]
+
+#+ATTR_LATEX: :placement [H]
+#+CAPTION: VMS: Reordering fuel model codes. Find list "SurfaceFuelModels" and click "Edit".
+[[./images/vms-guide/Screenshot 2025-04-18 122529.png]]
+
+
+
