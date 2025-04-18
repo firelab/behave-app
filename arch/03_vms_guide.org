@@ -1,5 +1,5 @@
-#+TITLE: HItchhiker's Guide to the VMS
-#+OPTIONS: toc:t
+#+TITLE: Hitchhiker's Guide to the Variable Management System (VMS) \includegraphics[]{./images/vms-guide/Screenshot 2025-04-18 123426.png}\par  \includegraphics[width=1.0\textwidth]{./images/vms-guide/Screenshot 2025-04-18 124034.png}\par
+#+OPTIONS: toc:t author:nil date:nil
 #+LATEX_HEADER: \usepackage{float}
 #+LATEX_HEADER: \usepackage[margin=1in]{geometry}
 #+LATEX_HEADER: \usepackage{hyperref}
@@ -12,8 +12,6 @@
 #+LATEX_HEADER:\usepackage{titlesec}
 #+LATEX_HEADER:\newcommand{\sectionbreak}{\clearpage}
 #+LATEX_HEADER:\newcommand{\subsectionbreak}{\clearpage}
-
-\newpage
 
 * Finding VMS elements in the Application
 
@@ -271,3 +269,5 @@ Certain entities can be re-ordered via the VMS. To do this:
 
 
 
+
+* Conditionals
