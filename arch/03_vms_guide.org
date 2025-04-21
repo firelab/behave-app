@@ -167,8 +167,8 @@ Conditionals serve one of two purposes. First and most common is to determine if
 
 *** Submodule/Group Conditionals
 
-To find a conditional that controls if Submodule/groups are hidden:
-1. Navigate to the Submodule/group entity page and expand the "Conditionals" accordion
+To find a conditional that controls if a submodule or group are hidden:
+1. Navigate to the submodule or group entity page and expand the "Conditionals" accordion
 
 #+ATTR_LATEX: :placement [H]
 #+CAPTION: VMS: Conditionals to only show the Spot(input) submodule if either these output variables are selected. NOTE: Clicking "Edit" on the conditional will populate the form on the right. This is usefull to see where this group variable belongs and not just it's module and name. (i.e. The conditional above belongs to the Surface (Module) \to Spot Output (Submodule) \to Maximum Spotting Distance (group).
