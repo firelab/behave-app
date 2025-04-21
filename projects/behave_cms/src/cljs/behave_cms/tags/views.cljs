@@ -2,6 +2,7 @@
   (:require [re-frame.core                     :as rf]
             [behave-cms.components.common      :refer [simple-table]]
             [behave-cms.components.entity-form :refer [entity-form]]
+            [behave-cms.components.translations :refer [all-translations]]
             [behave-cms.events]
             [behave-cms.subs]
             [string-utils.interface :refer [->kebab]]))
@@ -16,7 +17,8 @@
 
 (defn- tag-editor [tag-set-eid tag-eid]
   (let [tag-set (rf/subscribe [:entity tag-set-eid])
-        tags    (rf/subscribe [:pull-children :tag-set/tags tag-set-eid])]
+        tags    (rf/subscribe [:pull-children :tag-set/tags tag-set-eid])
+        tag-entity (rf/subscribe [:entity tag-eid])]
     [:<>
      [:h3 (if tag-eid "Edit Tag" "Add Tag")]
      [entity-form {:entity       :tag
@@ -31,16 +33,18 @@
                                    :type      :color
                                    :disabled? (:tag-set/color? @tag-set)
                                    :field-key :tag/color}]
-                   :on-create    (fn [data]
-                                   (let [translation (upsert-translation (:tag/translation-key data) (:tag/name data))]
+                   :on-create (fn [data]
+                                (let [translation (upsert-translation (:tag/translation-key data) (:tag/name data))]
                                      (rf/dispatch [:api/create-entity translation])
                                      (merge data {:tag/order (count @tags)})))
-                   :on-update    (fn [data]
+                   :on-update (fn [data]
                                    (if (:tag/name data)
                                      (let [translation (upsert-translation (:tag/translation-key data) (:tag/name data))]
                                        (rf/dispatch [:api/create-entity translation])
                                        data)
-                                     data))}]]))
+                                     data))}]
+     [:h4 "Worksheet Translation"]
+     [all-translations (:tag/translation-key @tag-entity)]]))
 
 (defn- tags-table [tag-set-eid]
   (when tag-set-eid
