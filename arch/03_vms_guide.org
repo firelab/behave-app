@@ -163,7 +163,7 @@ Default Units and Precision live in the Domain Entities.
 
 ** Conditionals
 
-Conditionals serve one of two purposes. First and most common is to determine if Submodule or group should be displayed in the application. The second purpose is to attach them to actions. When attached to actions the conditional determines if that action should be fired (i.e. setting an input group variable to a default value if a certain output group variable is selected).
+Conditionals serve one of two purposes. First and most common is to determine if a submodule or group should be displayed in the application. The second purpose is to attach them to actions. When attached to actions the conditional determines if that action should be fired (i.e. setting an input group variable to a default value if a certain output group variable is selected).
 
 *** Submodule/Group Conditionals
 
