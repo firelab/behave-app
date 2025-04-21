@@ -309,4 +309,3 @@ Certain entities can be re-ordered via the VMS. To do this:
 #+ATTR_LATEX: :placement [H]
 #+CAPTION: VMS: Reordering fuel model codes. Find list "SurfaceFuelModels" and click "Edit".
 [[./images/vms-guide/Screenshot 2025-04-18 122529.png]]
-
