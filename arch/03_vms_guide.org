@@ -197,6 +197,15 @@ To find a conditional attached to an action:
 #+CAPTION: VMS: Each action has one or more conditionals. The name of the action should describe what is necessary to trigger the action but to more closely look at the conditionals, click "Edit" on the action you are interested in.
 [[./images/vms-guide/Screenshot 2025-04-21 122436.png]]
 
+#+ATTR_LATEX: :placement [H]
+#+CAPTION: Application: "Midflame Wind Speed" is selected as an output
+[[./images/vms-guide/Screenshot 2025-04-21 123238.png]]
+
+
+#+ATTR_LATEX: :placement [H]
+#+CAPTION: Application: Action is triggered to disable "Midflame (Eye Level)" as an option in the inputs page.
+[[./images/vms-guide/Screenshot 2025-04-21 123312.png]]
+
 * Updating Text
 
 Most texts for entities displayed in the application can be updated by changing the translation field for that entity..These entities will have 2 translation fields. One field is used in the worksheet wizard (pages before computation) and the second is used for the results page. Usually the result translations are a short form of the worksheet translations. Here are some of the common entities you might want to update. The application will default to the worksheet translation if a result translation is not present.
