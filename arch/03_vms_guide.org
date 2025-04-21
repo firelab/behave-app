@@ -171,7 +171,7 @@ To find a conditional that controls if a submodule or group are hidden:
 1. Navigate to the submodule or group entity page and expand the "Conditionals" accordion
 
 #+ATTR_LATEX: :placement [H]
-#+CAPTION: VMS: Conditionals to only show the Spot(input) submodule if either these output variables are selected. NOTE: Clicking "Edit" on the conditional will populate the form on the right. This is usefull to see where this group variable belongs and not just it's module and name. (i.e. The conditional above belongs to the Surface (Module) \to Spot Output (Submodule) \to Maximum Spotting Distance (group).
+#+CAPTION: VMS: Conditionals to only show the Spot(input) submodule if either these output variables are selected. NOTE: Clicking "Edit" on the conditional will populate the form on the right. This is useful for seeing all the parent entities of this group (i.e. The conditional above belongs to the Surface (Module) \to Spot Output (Submodule) \to Maximum Spotting Distance (group).
 [[./images/vms-guide/Screenshot 2025-04-21 115338.png]]
 
 #+ATTR_LATEX: :placement [H]
