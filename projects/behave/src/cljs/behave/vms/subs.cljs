@@ -188,3 +188,14 @@
           [?gv :bp/uuid ?gv-uuid]
           [?gv :group-variable/discrete-multiple? ?discrete-multiple]]
         @@vms-conn gv-uuid)))
+
+(reg-sub
+ :vms/gv-uuid->list-eid
+ (fn [_ [_ gv-uuid]]
+   (d/q '[:find ?l .
+          :in $ ?gv-uuid
+          :where
+          [?gv :bp/uuid ?gv-uuid]
+          [?v :variable/group-variables ?gv]
+          [?v :variable/list ?l]]
+        @@vms-conn gv-uuid)))
