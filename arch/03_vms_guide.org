@@ -162,6 +162,41 @@ Default Units and Precision live in the Domain Entities.
 #+CAPTION: VMS: The Domain associated with this variable.
 [[./images/vms-guide/Screenshot 2025-04-16 16125122.png]]
 
+** Conditionals
+
+Conditionals serve one of two purposes. First and most common is to determine if Submodule or group should be displayed in the application. The second purpose is to attach them to actions. When attached to actions the conditional determines if that action should be fired (i.e. setting an input group variable to a default value if a certain output group variable is selected).
+
+*** Submodule/Group Conditionals
+
+To find a conditional that controls if Submodule/groups are hidden:
+1. Navigate to the Submodule/group entity page and expand the "Conditionals" accordion
+
+#+ATTR_LATEX: :placement [H]
+#+CAPTION: VMS: Conditionals to only show the Spot(input) submodule if either these output variables are selected. NOTE: Clicking "Edit" on the conditional will populate the form on the right. This is usefull to see where this group variable belongs and not just it's module and name. (i.e. The conditional above belongs to the Surface (Module) \to Spot Output (Submodule) \to Maximum Spotting Distance (group).
+[[./images/vms-guide/Screenshot 2025-04-21 115338.png]]
+
+#+ATTR_LATEX: :placement [H]
+#+CAPTION: Application: "Wind Driven Surface Fire" is selected as an output.
+[[./images/vms-guide/Screenshot 2025-04-21 115625.png]]
+
+
+#+ATTR_LATEX: :placement [H]
+#+CAPTION: Application: Since "Wind-Driven Surface Fire" is selected as an output, the Spot(Input) submodule passes the conditional and is displayed.
+[[./images/vms-guide/Screenshot 2025-04-21 115646.png]]
+
+*** Action Conditionals
+
+To find a conditional attached to an action:
+1. Navigate to the Group Variable entity page and expand the "Actions" accordion
+
+#+ATTR_LATEX: :placement [H]
+#+CAPTION: VMS: Group Variables can have multiple actions.
+[[./images/vms-guide/Screenshot 2025-04-21 122253.png]]
+
+#+ATTR_LATEX: :placement [H]
+#+CAPTION: VMS: Each action has one or more conditionals. The name of the action should describe what is necessary to trigger the action but to more closely look at the conditionals, click "Edit" on the action you are interested in.
+[[./images/vms-guide/Screenshot 2025-04-21 122436.png]]
+
 * Updating Text
 
 Most texts for entities displayed in the application can be updated by changing the translation field for that entity..These entities will have 2 translation fields. One field is used in the worksheet wizard (pages before computation) and the second is used for the results page. Usually the result translations are a short form of the worksheet translations. Here are some of the common entities you might want to update. The application will default to the worksheet translation if a result translation is not present.
@@ -248,7 +283,7 @@ In the Application's inputs page a user can change units via a drop down menu. B
 
 Certain entities can be re-ordered via the VMS. To do this:
 
-1. Find the parent entity of the entity you are trying to reorder (i.e. Need to reorder groups? find the submodule entity page. Need to reorder a list options? Find the List entity page.)
+1. Find the parent entity of the entity you are trying to reorder (i.e. Need to reorder groups? find the submodule entity page. Need to reorder a list options? Find the List entity page.). See  [[*Finding VMS elements in the Application][Finding VMS elements in the Application]]
 2. Once you're on that page there should be a table that have a list of entities for you to reorder. Click on the "up" and "down" buttons to reorder
 
 #+ATTR_LATEX: :placement [H]
@@ -267,7 +302,3 @@ Certain entities can be re-ordered via the VMS. To do this:
 #+CAPTION: VMS: Reordering fuel model codes. Find list "SurfaceFuelModels" and click "Edit".
 [[./images/vms-guide/Screenshot 2025-04-18 122529.png]]
 
-
-
-
-* Conditionals
