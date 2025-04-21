@@ -188,20 +188,20 @@ To find a conditional that controls if Submodule/groups are hidden:
 To find a conditional attached to an action:
 1. Navigate to the Group Variable entity page and expand the "Actions" accordion
 
-#+ATTR_LATEX: :placement [H]
+#+ATTR_LATEX: :placement [H] :width 0.75\textwidth
 #+CAPTION: VMS: Group Variables can have multiple actions.
 [[./images/vms-guide/Screenshot 2025-04-21 122253.png]]
 
-#+ATTR_LATEX: :placement [H]
+#+ATTR_LATEX: :placement [H] :width 0.75\textwidth
 #+CAPTION: VMS: Each action has one or more conditionals. The name of the action should describe what is necessary to trigger the action but to more closely look at the conditionals, click "Edit" on the action you are interested in.
 [[./images/vms-guide/Screenshot 2025-04-21 122436.png]]
 
-#+ATTR_LATEX: :placement [H]
+#+ATTR_LATEX: :placement [H] :width 0.75\textwidth
 #+CAPTION: Application: "Midflame Wind Speed" is selected as an output
 [[./images/vms-guide/Screenshot 2025-04-21 123238.png]]
 
 
-#+ATTR_LATEX: :placement [H]
+#+ATTR_LATEX: :placement [H] :width 0.75\textwidth
 #+CAPTION: Application: Action is triggered to disable "Midflame (Eye Level)" as an option in the inputs page.
 [[./images/vms-guide/Screenshot 2025-04-21 123312.png]]
 
