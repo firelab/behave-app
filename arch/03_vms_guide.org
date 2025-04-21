@@ -15,7 +15,7 @@
 
 * Finding VMS elements in the Application
 
-The VMS holds the structure of our application. The data is a tree like structure that determines how the applicaiton is rendered. This section aims to help you understand how the data in the VMS translates to how it is shown in the application.
+The VMS holds the structure of our application. The data is a tree like structure that determines how the application is rendered. This section aims to help you understand how the data in the VMS translates to how it is shown in the application.
 
 ** Modules/Submodules/Groups/Group Variables
 
@@ -31,17 +31,16 @@ Example:
 BehavePlus \to Surface \to Fire Behavior(output) \to Surface Fire \to Heading Rate of Spread \to Heading Rate of Spread
 #+end_verse
 
-
 #+ATTR_LATEX: :placement [H] :width 0.75\textwidth
 #+CAPTION: VMS: Home page
 [[./images/vms-guide/Screenshot 2025-04-15 122636.png]]
 
 #+ATTR_LATEX: :placement [H] :width 0.75\textwidth
-#+CAPTION: Application: Outputs page after a Surface Only workhseet has been created.
+#+CAPTION: Application: Outputs page after a Surface Only worksheet has been created.
 [[./images/vms-guide/Screenshot 2025-04-14 144743.png]]
 
 #+ATTR_LATEX: :placement [H] :width 0.75\textwidth
-#+CAPTION: Application: Inputs page after a Surface Only workhseet has been created. NOTE Groups can have sub groups.
+#+CAPTION: Application: Inputs page after a Surface Only worksheet has been created. NOTE Groups can have sub groups.
 [[./images/vms-guide/Screenshot 2025-04-14 163337.png]]
 
 ** Variables
@@ -71,13 +70,13 @@ Certain Group Variables have a list associated with it (usually inputs). In the 
 [[./images/vms-guide/Screenshot 2025-04-14 150013.png]]
 
 #+ATTR_LATEX: :placement [H] :width 0.75\textwidth
-#+CAPTION: Application: List options as multi select dropdown.
+#+CAPTION: Application: List options as multi select drop down.
 [[./images/vms-guide/Screenshot 2025-04-14 150755.png]]
 
 In the VMS you can find the list associated to a group variable by:
 
 1. Navigating to the Module \to Submodule \to Group
-2. Click "Expand" on the "Variables" accordioin. Then click "Edit" on the Variable listed. This will Navigate you to the "Variables" page and populate the form with the variable's information.
+2. Click "Expand" on the "Variables" accordion. Then click "Edit" on the Variable listed. This will Navigate you to the "Variables" page and populate the form with the variable's information.
 
 #+ATTR_LATEX: :placement [H]
 #+CAPTION: VMS: Group page
@@ -127,7 +126,7 @@ You can find the tag sets associated with a group variable by:
 ** Variable Domains
 *** Variable Domain Entities
 
-The Variable Domain entities is used primarly to associate a group of variables to some default units and decimal precision. Domain entities are grouped into Domain sets, primarliy used for creating collapsing accordions in the application.
+The Variable Domain entities is used primarily to associate a group of variables to some default units and decimal precision. Domain entities are grouped into Domain sets, primarily used for creating collapsing accordions in the application.
 
 #+ATTR_LATEX: :placement [H]
 #+CAPTION: Application: Custom Unit Preferences table.
@@ -277,7 +276,7 @@ Most texts for entities displayed in the application can be updated by changing 
 
 * Updating Units Dropdown Selections
 
-In the Application's inputs page a user can change units via a drop down menu. By default a variable is linked to a "Dimension" (i.e. length) and will have all options availble to select. However there are cases when this list should be limited to a subset. If this is desired do the following:
+In the Application's inputs page a user can change units via a drop down menu. By default a variable is linked to a "Dimension" (i.e. length) and will have all options available to select. However there are cases when this list should be limited to a subset. If this is desired do the following:
 
 1. Find the Domain associated with the variable you are interested in. See [[*Variable Domains Associated with a Group Variable][Variable Domains Associated with a Group Variable]] section.
 2. Click "Edit" on the Domain set
@@ -285,7 +284,7 @@ In the Application's inputs page a user can change units via a drop down menu. B
 4. Under "Filtered Units" select a subset of your desired units
 
 #+ATTR_LATEX: :placement [H]
-#+CAPTION: VMS: Domains Page Updating Units dropdown to a subset of units.
+#+CAPTION: VMS: Domains Page Updating Units drop down to a subset of units.
 [[./images/vms-guide/Screenshot 2025-04-16 163044.png]]
 
 * Re-Ordering
