@@ -10,8 +10,11 @@
             [transport.interface        :refer [clj-> mime->type]])
   (:import (java.io ByteArrayInputStream)))
 
+(defn- resource [s]
+  (.getResource (ClassLoader/getSystemClassLoader) s))
+
 (defn init! []
-  (load-config (io/resource "config.edn"))
+  (load-config (resource "config.edn"))
   (let [config (update-in (get-config :database :config)
                           [:store :path]
                           os-path)]
@@ -22,7 +25,7 @@
 (defn init-handler [{:keys [request-method accept] :as req}]
   (log-str "Request Received:" (select-keys req [:uri :request-method :params]))
   (let [res-type (or (mime->type accept) :edn)]
-    (when (= request-method :get)
+    (when (and (= request-method :get))
       (s/release-conn!)
       (reset! current-worksheet-atom nil)
       (init!)
