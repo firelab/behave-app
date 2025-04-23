@@ -52,6 +52,13 @@ body {
 /* -- End App -- */
 
 /* -- Page -- */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
 .page__top {
   border-spacing: 0px;
   position: fixed;
@@ -72,8 +79,9 @@ body {
 
 .page__main {
   display: flex;
+  flex: 1;
   height: 825px;
-  padding: 170px 0px 0px;
+  padding: 170px 0px 50px;
 }
 
 .page__footer {
