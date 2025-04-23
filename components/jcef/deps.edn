@@ -1,0 +1,3 @@
+{:paths ["src" "resources"]
+ :deps {me.friwi/jcefmaven {:mvn/version "110.0.25"}}
+ :aliases {:test {:extra-paths ["test"]}}}
