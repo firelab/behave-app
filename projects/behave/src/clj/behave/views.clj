@@ -1,6 +1,5 @@
 (ns behave.views
   (:require [clojure.data.json  :as json]
-            [clojure.java.io    :as io]
             [clojure.string     :as str]
             [clojure.edn        :as edn]
             [config.interface   :refer [get-config]]
@@ -9,10 +8,15 @@
 
 ;;; Macros
 
+(defn resource
+  "Retrieve resource from SystemClassLoader."
+  [path]
+  (.getResource (ClassLoader/getSystemClassLoader) path))
+
 (defmacro inline-resource
   "Inlines a file from the /resources directory."
   [resource-path]
-  (slurp (io/resource resource-path)))
+  (slurp (resource resource-path)))
 
 ;;; State
 
@@ -41,7 +45,7 @@
   (apply p/include-js (add-v-query paths)))
 
 (defn- find-app-js []
-  (if-let [manifest (io/resource "public/cljs/manifest.edn")]
+  (if-let [manifest (resource "public/cljs/manifest.edn")]
     (as-> (slurp manifest) app
       (edn/read-string app)
       (get app "resources/public/cljs/app.js" "resources/public/cljs/app.js")
@@ -86,7 +90,7 @@
             (str/join "\n"))])))
 
 (defn- announcement-banner []
-  (let [a11t-file    (io/resource "public/announcement.txt")
+  (let [a11t-file    (resource "public/announcement.txt")
         announcement (if (nil? a11t-file)
                          []
                          (-> a11t-file
@@ -138,13 +142,13 @@
 (defn reset-vms-version!
   "Resets the VMS version based on the file hash."
   []
-  (reset! *vms-version (digest/md5 (slurp (io/resource "public/layout.msgpack")))))
+  (reset! *vms-version (digest/md5 (slurp (resource "public/layout.msgpack")))))
 
 (defn reset-app-version!
   "Resets the App version based on the file hash."
   []
   (reset! *app-version (some->> "version.edn"
-                                io/resource
+                                resource
                                 slurp
                                 edn/read-string
                                 :version)))
