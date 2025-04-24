@@ -2,7 +2,7 @@
 {:database {:config {:store {:backend :file :path "~/.behave/db.sqlite"}}}
  :logging  {:log-dir         "~/.behave/logs"
             :capture-std-err true}
- :site     {:title       "BehavePlus 7"
+ :site     {:title       "Behave 7"
             :description "Wildfire Analysis toolkit."}
  :server   {:http-port  4242
             :mode       "prod"}
