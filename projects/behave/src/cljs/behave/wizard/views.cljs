@@ -443,12 +443,7 @@
         multi-valued-input-count (count multi-valued-input-uuids)
         x-axis-limits            (first @(subscribe [:worksheet/graph-settings-x-axis-limits ws-uuid]))
         units-lookup             @(subscribe [:worksheet/result-table-units ws-uuid])
-        saved-enabled?-setting   (first @(subscribe [:worksheet/get-graph-settings-attr
-                                                     ws-uuid
-                                                     :graph-settings/enabled?]))
-        enabled?                 (if (not (nil? saved-enabled?-setting))
-                                   saved-enabled?-setting
-                                   (pos? multi-valued-input-count))]
+        enabled?                 @(subscribe [:wizard/enable-graph-settings? ws-uuid])]
     (letfn [(radio-group [{:keys [label attr variables on-change]}]
               (let [*values   (subscribe [:worksheet/get-graph-settings-attr ws-uuid attr])
                     selected? (first @*values)]
