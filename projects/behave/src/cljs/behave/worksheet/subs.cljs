@@ -980,6 +980,16 @@
        value))))
 
 (rf/reg-sub
+ :worksheet/resolve-enum-order
+
+ (fn [_ [_ list-eid value]]
+   (let [list-entity             (d/touch (d/entity @@vms-conn list-eid))
+         {options :list/options} list-entity
+         options                 (index-by :list-option/value options)
+         option                  (get options value)]
+     (:list-option/order option))))
+
+(rf/reg-sub
  :worksheet/result-table-gv-uuid->units
  (fn [_ [_ ws-uuid]]
    (let [gv-uuids+units (d/q '[:find  ?gv-uuid ?units

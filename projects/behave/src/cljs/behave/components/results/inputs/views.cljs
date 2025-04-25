@@ -31,18 +31,20 @@
             single-var?      (= (count variables) 1)
             multi-var?       (> (count variables) 1)
             new-entries      (cond single-var?
-                                   (let [gv-uuid (:bp/uuid (first variables))
-                                         fmt-fn  (get formatters gv-uuid identity)
-                                         fvar    (first variables)
-                                         units   (get gv-uuid->units gv-uuid)
-                                         value   @(subscribe [:worksheet/input-value
-                                                              ws-uuid
-                                                              (:bp/uuid current-group)
-                                                              0 ;repeat-id
-                                                              gv-uuid])]
+                                   (let [gv-uuid      (:bp/uuid (first variables))
+                                         list-eid     @(subscribe [:vms/gv-uuid->list-eid gv-uuid])
+                                         fmt-fn       (get formatters gv-uuid identity)
+                                         fvar         (first variables)
+                                         units        (get gv-uuid->units gv-uuid)
+                                         value        @(subscribe [:worksheet/input-value
+                                                                   ws-uuid
+                                                                   (:bp/uuid current-group)
+                                                                   0 ;repeat-id
+                                                                   gv-uuid])]
                                      (when (seq value)
                                        (if (:group-variable/discrete-multiple? fvar)
                                          (let [values (->> (str/split value ",")
+                                                           (sort-by #(deref (subscribe [:worksheet/resolve-enum-order list-eid %])))
                                                            (map fmt-fn))]
                                            (into [{:input  (indent-name level @(subscribe [:result.inputs/resolve-group-name (:bp/uuid current-group)]))
                                                    :units  units
@@ -65,6 +67,7 @@
                                                            (flatten
                                                             (for [variable (sort-by :group-variable/order variables)
                                                                   :let     [gv-uuid (:bp/uuid variable)
+                                                                            list-eid     @(subscribe [:vms/gv-uuid->list-eid gv-uuid])
                                                                             value @(subscribe [:worksheet/input-value
                                                                                                ws-uuid
                                                                                                (:bp/uuid current-group)
@@ -76,6 +79,7 @@
                                                                     variable-name @(subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])]
                                                                 (if (:group-variable/discrete-multiple? variable)
                                                                   (let [values (->> (str/split value ",")
+                                                                                    (sort-by #(deref (subscribe [:worksheet/resolve-enum-order list-eid %])))
                                                                                     (map fmt-fn))]
                                                                     (into [{:input  (indent-name (+ level 2) variable-name)
                                                                             :units  units-used
