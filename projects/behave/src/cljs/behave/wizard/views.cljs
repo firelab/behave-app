@@ -660,7 +660,7 @@
                                        :icon-name :tables
                                        :selected? (= @*tab-selected :outputs)}])
 
-                               (get-in @*worksheet [:worksheet/graph-settings :graph-settings/enabled?])
+                               @(subscribe [:wizard/enable-graph-settings? ws-uuid])
                                (conj {:label     (-> @(<t (bp "output_graphs"))
                                                      s/capitalize-words)
                                       :tab       :graph

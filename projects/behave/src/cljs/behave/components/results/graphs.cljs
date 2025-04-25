@@ -3,8 +3,7 @@
             [re-frame.core                       :refer [subscribe]]))
 
 (defn result-graphs [ws-uuid cell-data]
-  (let [worksheet      @(subscribe [:worksheet ws-uuid])
-        graph-enabled? (get-in worksheet [:worksheet/graph-settings :graph-settings/enabled?])
+  (let [graph-enabled? @(subscribe [:wizard/enable-graph-settings? ws-uuid])
         graph-settings @(subscribe [:worksheet/graph-settings ws-uuid])]
     (when (and graph-enabled? graph-settings)
       (let [*output-uuids (subscribe [:worksheet/output-uuids-filtered ws-uuid])
