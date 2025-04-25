@@ -439,13 +439,11 @@
   (let [*multi-value-input-uuids (subscribe [:worksheet/multi-value-input-uuids ws-uuid])
         group-variables          (->> @*multi-value-input-uuids
                                       (map #(deref (subscribe [:wizard/group-variable %]))))
-        enabled?                 (first @(subscribe [:worksheet/get-graph-settings-attr
-                                                     ws-uuid
-                                                     :graph-settings/enabled?]))
         multi-valued-input-uuids @(subscribe [:worksheet/multi-value-input-uuids ws-uuid])
         multi-valued-input-count (count multi-valued-input-uuids)
         x-axis-limits            (first @(subscribe [:worksheet/graph-settings-x-axis-limits ws-uuid]))
-        units-lookup                   @(subscribe [:worksheet/result-table-units ws-uuid])]
+        units-lookup             @(subscribe [:worksheet/result-table-units ws-uuid])
+        enabled?                 @(subscribe [:wizard/enable-graph-settings? ws-uuid])]
     (letfn [(radio-group [{:keys [label attr variables on-change]}]
               (let [*values   (subscribe [:worksheet/get-graph-settings-attr ws-uuid attr])
                     selected? (first @*values)]
