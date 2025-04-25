@@ -446,7 +446,9 @@
         saved-enabled?-setting   (first @(subscribe [:worksheet/get-graph-settings-attr
                                                      ws-uuid
                                                      :graph-settings/enabled?]))
-        enabled?                 (or saved-enabled?-setting (pos? multi-valued-input-count))]
+        enabled?                 (if (not (nil? saved-enabled?-setting))
+                                   saved-enabled?-setting
+                                   (pos? multi-valued-input-count))]
     (letfn [(radio-group [{:keys [label attr variables on-change]}]
               (let [*values   (subscribe [:worksheet/get-graph-settings-attr ws-uuid attr])
                     selected? (first @*values)]
