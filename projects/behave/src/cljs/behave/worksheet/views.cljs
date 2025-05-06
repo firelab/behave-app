@@ -120,7 +120,7 @@
                           :back-label     @(<t (bp "back"))
                           :next-disabled? (empty? @*modules)
                           :on-back        #(rf/dispatch [:wizard/navigate-home])
-                          :on-next        #(rf/dispatch [:wizard/new-worksheet @name @*modules @*submodule])}]]]))
+                          :on-next        #(rf/dispatch [:wizard/new-worksheet @name @*modules @*submodule :guided])}]]]))
 
 (defn guided-worksheet-page [_params]
   [:<>

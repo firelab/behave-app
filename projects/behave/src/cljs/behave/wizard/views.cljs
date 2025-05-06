@@ -31,6 +31,9 @@
             [string-utils.core :as s]
             [clojure.string :as str]))
 
+;; TODO Might want to set this in a config file to the application
+(def ^:const multi-value-input-limit 3)
+
 ;;; Components
 (defn build-groups [ws-uuid groups component-fn & [level]]
   (let [level (if (nil? level) 0 level)]
@@ -48,34 +51,25 @@
               [:<>
                [component-fn ws-uuid group variables level]
                [:div.wizard-subgroup__indent
-                (build-groups ws-uuid (sort-by :group/order (:group/children group)) component-fn (inc level))]]))))])))
+                [build-groups ws-uuid (sort-by :group/order (:group/children group)) component-fn (inc level)]]]))))])))
 
 (defmulti submodule-page (fn [io _ _] io))
 
 (defmethod submodule-page :input [_ ws-uuid groups]
-  [:<> (build-groups ws-uuid groups input-group)])
+  [:<> [build-groups ws-uuid groups input-group]])
 
 (defmethod submodule-page :output [_ ws-uuid groups]
-  [:<> (build-groups ws-uuid groups output-group)])
+  [:<> [build-groups ws-uuid groups output-group]])
 
-(defn- io-tabs [{:keys [ws-uuid io] :as params}]
-  (let [on-click #(when (not= io (:tab %))
-                    (let [next-io                      (:tab %)
-                          [module-slug submodule-slug] @(subscribe [:wizard/first-module+submodule
-                                                                    ws-uuid
-                                                                    next-io])]
-                      (when (and module-slug submodule-slug)
-                        (dispatch [:wizard/select-tab (merge params
-                                                             {:module    module-slug
-                                                              :io        next-io
-                                                              :submodule submodule-slug})]))))]
-    [:div.wizard-header__io-tabs
-     [c/tab-group {:variant   "secondary"
-                   :flat-edge "top"
-                   :align     "right"
-                   :on-click  on-click
-                   :tabs      [{:label "Outputs" :tab :output :selected? (= io :output)}
-                               {:label "Inputs" :tab :input :selected? (= io :input)}]}]]))
+(defn- io-tabs [{:keys [io] :as _params} on-click]
+  [:div.wizard-header__io-tabs
+   [c/tab-group {:variant   "secondary"
+                 :flat-edge "top"
+                 :align     "right"
+                 :on-click  on-click
+                 :tabs      [{:label "Outputs" :tab :output :selected? (= io :output)}
+                             {:label "Inputs" :tab :input :selected? (= io :input)}]}]])
+
 
 (defn- show-or-close-notes-button [show-notes?]
   (if show-notes?
@@ -95,7 +89,16 @@
 (defn- wizard-header [{:keys [ws-uuid io submodule module] :as params} modules]
   (let [*show-notes? (subscribe [:wizard/show-notes?])]
     [:div.wizard-header
-     [io-tabs params]
+     [io-tabs params #(when (not= io (:tab %))
+                        (let [next-io                      (:tab %)
+                              [module-slug submodule-slug] @(subscribe [:wizard/first-module+submodule
+                                                                        ws-uuid
+                                                                        next-io])]
+                          (when (and module-slug submodule-slug)
+                            (dispatch [:wizard/select-tab (merge params
+                                                                 {:module    module-slug
+                                                                  :io        next-io
+                                                                  :submodule submodule-slug})]))))]
      [:div.wizard-header__banner
       [:div.wizard-header__banner__icon
        [c/icon :modules]]
@@ -247,6 +250,29 @@
                          ;; :next-disabled? next-disabled?
                          }]]))
 
+;;; Public Components
+(defn root-component [{:keys [ws-uuid workflow] :as params}]
+  (let [loaded?             (subscribe [:app/loaded?])
+        show-tool-selector? @(subscribe [:tool/show-tool-selector?])
+        selected-tool-uuid  @(subscribe [:tool/selected-tool-uuid])]
+    (when ws-uuid
+      (reset! current-route-order @(subscribe [:wizard/route-order ws-uuid workflow])))
+    [:<>
+     (when show-tool-selector?
+       [tool-selector])
+     (when (some? selected-tool-uuid)
+       [tool selected-tool-uuid])
+     [:div.accordion
+      [:div.accordion__header @(<t "behaveplus:working_area")]
+      [:div.wizard
+       (if @loaded?
+         [wizard-page params]
+         [:div.wizard__loading
+          [:h2 "Loading..."]])]
+      [wizard-expand]]]))
+
+;; Review page
+
 (defn run-description [ws-uuid]
   (let [*worksheet  (subscribe [:worksheet ws-uuid])
         description (:worksheet/run-description @*worksheet)
@@ -272,7 +298,7 @@
                    :icon-position "left"}]
         @(<t (bp "a_brief_phrase_documenting_the_run"))]]]]))
 
-(defn wizard-review-page [{:keys [route-handler ws-uuid] :as params}]
+(defn wizard-review-page [{:keys [route-handler ws-uuid workflow] :as params}]
   (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler nil])
   (let [modules                  @(subscribe [:worksheet/modules ws-uuid])
         *warn-limit?             (subscribe [:wizard/warn-limit? ws-uuid])
@@ -309,26 +335,23 @@
              (wizard-notes @*notes))
            (for [module modules
                  :let   [module-name (:module/name module)]]
-             [:div
+             [:div {:data-theme-color module-name}
               [:div.wizard-review__module
-               {:data-theme-color module-name}
                (gstring/format "%s Inputs"  @(<t (:module/translation-key module)))]
               [:div.wizard-review__submodule
                (for [submodule @(subscribe [:wizard/submodules-conditionally-filtered
                                             ws-uuid
                                             (:db/id module)
                                             :input])
-                     :let      [edit-route (path-for routes
-                                                     :ws/wizard
-                                                     :ws-uuid   ws-uuid
-                                                     :module    (str/lower-case module-name)
-                                                     :io        :input
-                                                     :submodule (:slug submodule))]]
+                     :let      [edit-route (path-for routes :ws/wizard
+                                                     {:ws-uuid   ws-uuid
+                                                      :workflow  :guided
+                                                      :module    (str/lower-case module-name)
+                                                      :io        :input
+                                                      :submodule (:slug submodule)})]]
                  [:<>
                   [:div.wizard-review__submodule-header (:submodule/name submodule)]
-                  (build-groups  ws-uuid
-                                 (:submodule/groups submodule)
-                                 (partial review/input-group edit-route))])]])]
+                  [build-groups  ws-uuid (:submodule/groups submodule) (partial review/input-group edit-route)]])]])]
           (when (true? @*warn-limit?)
             [:div.wizard-warning
              (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])
@@ -349,7 +372,7 @@
                                              (dispatch-sync [:wizard/after-solve params]))
                                            300))}]]]]])]))
 
-;; Wizard Results Settings
+;; Wizard Results Settings Page
 
 (defn update-setting-input [ws-uuid rf-event-id attr-id gv-uuid value]
   (dispatch [rf-event-id ws-uuid gv-uuid attr-id value]))
@@ -583,12 +606,16 @@
                      :min-attr-id :table-filter/min
                      :max-attr-id :table-filter/max}]]))
 
-(defn wizard-results-settings-page [{:keys [route-handler io ws-uuid] :as params}]
-  (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
+(defn wizard-results-settings-page [{:keys [route-handler ws-uuid workflow] :as params}]
+  (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler nil])
+  (when ws-uuid
+    (reset! current-route-order @(subscribe [:wizard/route-order ws-uuid workflow])))
   (let [*notes               (subscribe [:wizard/notes ws-uuid])
         *show-notes?         (subscribe [:wizard/show-notes?])
         on-back              #(dispatch [:wizard/back])
-        on-next              #(dispatch [:navigate (path-for routes :ws/results :ws-uuid ws-uuid)])
+        on-next              #(dispatch [:navigate (path-for routes :ws/results
+                                                             {:ws-uuid  ws-uuid
+                                                              :workflow workflow})])
         show-tool-selector?  @(subscribe [:tool/show-tool-selector?])
         selected-tool-uuid   @(subscribe [:tool/selected-tool-uuid])
         show-graph-settings? @(subscribe [:wizard/show-graph-settings? ws-uuid])]
@@ -626,10 +653,12 @@
                           :back-label @(<t (bp "back"))
                           :on-back    on-back}]]]))
 
-;; Wizard Results
+;; Wizard Results Page
 
-(defn wizard-results-page [{:keys [route-handler io ws-uuid] :as params}]
-  (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
+(defn wizard-results-page [{:keys [route-handler ws-uuid workflow] :as params}]
+  (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler nil])
+  (when ws-uuid
+    (reset! current-route-order @(subscribe [:wizard/route-order ws-uuid workflow])))
   (let [*worksheet           (subscribe [:worksheet ws-uuid])
         *ws-date             (subscribe [:wizard/worksheet-date ws-uuid])
         *notes               (subscribe [:wizard/notes ws-uuid])
@@ -727,26 +756,128 @@
                    :variant  "secondary"
                    :on-click #(dispatch [:wizard/back])}]]]]]))
 
-;; TODO Might want to set this in a config file to the application
-(def ^:const multi-value-input-limit 3)
+;; Standard Wizard Workflow Page
 
-;;; Public Components
-(defn root-component [{:keys [ws-uuid] :as params}]
-  (let [loaded?             (subscribe [:app/loaded?])
-        show-tool-selector? @(subscribe [:tool/show-tool-selector?])
-        selected-tool-uuid  @(subscribe [:tool/selected-tool-uuid])]
-    (when ws-uuid
-      (reset! current-route-order @(subscribe [:wizard/route-order ws-uuid])))
+(defn wizard-standard-page
+  [{:keys [route-handler ws-uuid io workflow] :as params}]
+  (dispatch-sync [:worksheet/update-furthest-visited-step ws-uuid route-handler io])
+  (when ws-uuid
+    (reset! current-route-order @(subscribe [:wizard/route-order ws-uuid workflow])))
+  (let [modules                  @(subscribe [:worksheet/modules ws-uuid])
+        *warn-limit?             (subscribe [:wizard/warn-limit? ws-uuid])
+        *missing-inputs?         (subscribe [:worksheet/missing-inputs? ws-uuid])
+        *multi-value-input-limit (subscribe [:wizard/multi-value-input-limit])
+        *multi-value-input-count (subscribe [:wizard/multi-value-input-count ws-uuid])
+        *notes                   (subscribe [:wizard/notes ws-uuid])
+        *show-notes?             (subscribe [:wizard/show-notes?])
+        *show-add-note-form?     (subscribe [:wizard/show-add-note-form?])
+        show-tool-selector?      @(subscribe [:tool/show-tool-selector?])
+        selected-tool-uuid       @(subscribe [:tool/selected-tool-uuid])
+        computing?               @(subscribe [:state :worksheet-computing?])]
     [:<>
      (when show-tool-selector?
        [tool-selector])
      (when (some? selected-tool-uuid)
        [tool selected-tool-uuid])
-     [:div.accordion
-      [:div.accordion__header @(<t "behaveplus:working_area")]
-      [:div.wizard
-       (if @loaded?
-         [wizard-page params]
-         [:div.wizard__loading
-          [:h2 "Loading..."]])]
-      [wizard-expand]]]))
+     (when computing?
+       [:h2 "Computing..."])
+     (when (not computing?)
+       [:div.accordion
+        [:div.accordion__header @(<t "behaveplus:working_area")]
+        [wizard-expand]
+        [:div.wizard
+         [:div.wizard-page
+          [:div.wizard-header
+           [io-tabs params #(when (not= io (:tab %))
+                              (if (= (:tab %) :input)
+                                (dispatch [:navigate (path-for routes :ws/wizard-standard
+                                                               {:ws-uuid  ws-uuid
+                                                                :workflow :standard
+                                                                :io       :input})])
+                                (dispatch [:navigate (path-for routes :ws/wizard-standard
+                                                               {:ws-uuid  ws-uuid
+                                                                :workflow :standard
+                                                                :io       :output})])))]
+           [:div.wizard-header__banner {:style {:margin-top "20px"}}
+            [:div.wizard-header__banner__icon
+             [c/icon :modules]]
+            [:div.wizard-header__banner__title
+             (if (= io :output)
+               @(<t (bp "module_output_selections"))
+               @(<t (bp "module_input_selections")))]
+            (show-or-close-notes-button @*show-notes?)]]
+          [:div.wizard-review
+           (when @*show-notes?
+             [:<>
+              [:div.wizard-add-notes
+               [c/button {:label         "Add Notes"
+                          :variant       "outline-primary"
+                          :icon-name     :plus
+                          :icon-position "left"
+                          :on-click      #(dispatch [:wizard/toggle-show-add-note-form])}]
+               (when @*show-add-note-form?
+                 [c/note {:title-label       "Note's Name / Category"
+                          :title-placeholder "Enter note's name or category"
+                          :title-value       ""
+                          :body-value        ""
+                          :on-save           #(dispatch [:wizard/create-note
+                                                         ws-uuid
+                                                         nil
+                                                         nil
+                                                         (name io)
+                                                         %])}])]
+              [wizard-notes @*notes]])
+           (for [module modules
+                 :let   [module-name (:module/name module)]]
+             [:div {:data-theme-color module-name}
+              [:div.wizard-standard__module
+               @(<t (:module/translation-key module))]
+              [:div.wizard-review__submodule
+               (if (= io :input)
+                 (doall
+                  (for [submodule @(subscribe [:wizard/submodules-conditionally-filtered
+                                               ws-uuid
+                                               (:db/id module)
+                                               :input])]
+                    [:<>
+                     [:div.wizard-standard__submodule-header (:submodule/name submodule)]
+                     [build-groups  ws-uuid (:submodule/groups submodule) input-group]]))
+                 ;; io is :output
+                 (for [submodule @(subscribe [:wizard/submodules-conditionally-filtered
+                                              ws-uuid
+                                              (:db/id module)
+                                              :output])]
+                   [:<>
+                    [:div.wizard-standard__submodule-header (:submodule/name submodule)]
+                    [build-groups  ws-uuid (:submodule/groups submodule) output-group]]))]])]
+          (when (true? @*warn-limit?)
+            [:div.wizard-warning
+             (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])
+          [:div.wizard-navigation
+           [c/button {:label    "Back"
+                      :variant  "secondary"
+                      :on-click #(dispatch [:wizard/back])}]
+           (if (= io :input)
+            [c/button {:label         "Run"
+                       :disabled?     (or @*warn-limit?
+                                          @*missing-inputs?)
+                       :variant       "highlight"
+                       :icon-name     "arrow2"
+                       :icon-position "right"
+                       :on-click      #(do (dispatch-sync [:wizard/before-solve params])
+                                           (js/setTimeout
+                                            (fn []
+                                              (dispatch-sync [:wizard/solve params])
+                                              (dispatch-sync [:wizard/after-solve params]))
+                                            300))}]
+            [c/button {:label         @(<t (bp "next"))
+                       :variant       "highlight"
+                       :icon-name     "arrow2"
+                       :icon-position "right"
+                       :on-click      #(dispatch [:navigate
+                                                  (path-for routes :ws/wizard-standard
+                                                            {:ws-uuid  ws-uuid
+                                                             :workflow :standard
+                                                             :io       :input})])}])]]]])]))
+
+

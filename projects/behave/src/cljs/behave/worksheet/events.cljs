@@ -599,13 +599,14 @@
                     submodule-io
                     {:keys [title body] :as _payload}]]
    (when-let [ws-id (d/entid ds [:worksheet/uuid ws-uuid])]
-     {:transact [{:db/id            -1
-                  :worksheet/_notes ws-id
-                  :note/name        (if (empty? title)
-                                      (str submodule-name " " submodule-io)
-                                      title)
-                  :note/content     body
-                  :note/submodule   submodule-uuid}]})))
+     {:transact [(cond-> {:db/id            -1
+                          :worksheet/_notes ws-id
+                          :note/name        (if (empty? title)
+                                              (str submodule-name " " submodule-io)
+                                              title)
+                          :note/content     body
+                          :note/submodule   submodule-uuid}
+                   submodule-uuid (assoc :note/submodule submodule-uuid))]})))
 
 (rp/reg-event-fx
  :worksheet/update-note
