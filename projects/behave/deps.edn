@@ -75,7 +75,13 @@
                                 :main-opts   ["-m" "figwheel.main" "-b" "compile-dev" "-r"]}
              :compile-cljs     {:main-opts ["-m" "behave.compile-cljs" "compile-prod.cljs.edn"]}
              :production       {:jvm-opts ["-XX:MaxRAMPercentage=90" "-XX:+PrintFlagsFinal"]}
-             :server           {:main-opts ["-m" "behave.core"]}
+             :server           {:main-opts ["-m" "behave.core"]
+                                :jvm-opts  ["--add-exports=java.base/java.lang=ALL-UNNAMED"
+                                            "--add-exports=java.desktop/sun.awt=ALL-UNNAMED"
+                                            "--add-exports=java.desktop/sun.java2d=ALL-UNNAMED"
+                                            "--add-opens=java.desktop/sun.awt=ALL-UNNAMED"
+                                            "--add-opens=java.desktop/sun.lwawt=ALL-UNNAMED"
+                                            "--add-opens=java.desktop/sun.lwawt.macosx=ALL-UNNAMED"]}
              :build            {:deps       {io.github.seancorfield/build-clj
                                              {:git/tag   "v0.8.5"
                                               :git/sha   "de693d0"

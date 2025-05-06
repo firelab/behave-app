@@ -17,7 +17,8 @@
             [clojure.string                    :as str]
             [config.interface                  :refer [get-config load-config]]
             [file-utils.interface              :refer [os-path]]
-            [logging.interface                 :as l :refer [log log-str]]
+            [jcef.interface                    :refer [create-cef-app!]]
+            [logging.interface                 :as l :refer [log-str]]
             [ring.middleware.content-type      :refer [wrap-content-type]]
             [ring.middleware.multipart-params  :refer [wrap-multipart-params]]
             [ring.middleware.keyword-params    :refer [wrap-keyword-params]]
@@ -45,6 +46,11 @@
   []
   (inst-ms (java.util.Date.)))
 
+(defn- kill-app!
+  "Use Runtime exit to kill entire JVM Process"
+  []
+  (.exit (Runtime/getRuntime) 0))
+
 (defn- watch-kill-signal!
   "Creates a channel to listen on for a 'kill' signal. Once a message is put on the kill channel, waits 10 seconds to cancel the kill."
   []
@@ -54,7 +60,7 @@
       (<! kill-chan)
       (let [[_ ch] (alts! [cancel-chan (timeout KILL-TIMEOUT-MS)])]
         (if (not= ch cancel-chan)
-          (.exit (Runtime/getRuntime) 0) ;; Exit only if we hit timeout. Uses Runtime exit to kill entire JVM Process
+          (kill-app!)
           (recur))))
     (reset! kill-channel kill-chan)
     (reset! cancel-channel cancel-chan)))
@@ -221,8 +227,12 @@
     (server/start-server! {:handler (create-handler-stack {:reload? (= mode "dev") :figwheel? false})
                            :port    http-port})
     (when (= "prod" mode)
-      (watch-kill-signal!) ;; Watch on the main thread
-      (browse-url (str "http://localhost:" http-port)))))
+      #_(watch-kill-signal!) ;; Watch on the main thread
+      #_(browse-url (str "http://localhost:" http-port))
+      (create-cef-app!
+       {:title    (get-config :site :title)
+        :url      (str "http://localhost:" http-port)
+        :on-close #(kill-app!)}))))
 
 (comment
   (-main)

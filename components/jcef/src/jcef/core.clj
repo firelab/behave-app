@@ -21,7 +21,7 @@
   - `:app`     - `JFrame` Application
   - `:browser` - `CefBrowser`
   - `:client`  - `CefClient`"
-  [{:keys [title url use-osr is-transparent address-bar? on-close]
+  [{:keys [title url use-osr is-transparent address-bar? on-close on-blur]
     :or   {use-osr false is-transparent false address-bar? false}}]
   (let [builder       (jcef-builder)
         _             (set! (.-windowless_rendering_enabled (.getCefSettings builder)) use-osr)
