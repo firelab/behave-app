@@ -4,11 +4,17 @@
            [org.cef CefApp CefApp$CefAppState]
            [org.cef.browser CefBrowser CefFrame CefMessageRouter]
            [org.cef.handler CefDisplayHandlerAdapter CefFocusHandlerAdapter]
-           [java.awt BorderLayout Component KeyboardFocusManager]
+           [java.awt BorderLayout Cursor GraphicsEnvironment KeyboardFocusManager]
            [java.awt.event ActionListener WindowAdapter]
-           [javax.swing JFrame JTextField]))
+           [javax.swing JFrame JTextField SwingUtilities]))
 
-(defn create-cef-app!
+(defn- max-screen-size
+  "Obtains the max screen size."
+  []
+  (let [bounds (.getMaximumWindowBounds (GraphicsEnvironment/getLocalGraphicsEnvironment))]
+    [(.-width bounds) (.-height bounds)]))
+
+(defn build-cef-app!
   "Creates a CEF app frame with the following options map:
    - `:title`           [Req.] - Title of the app.
    - `:url`             [Req.] - URL to start the browser at.
@@ -21,15 +27,10 @@
   - `:app`     - `JFrame` Application
   - `:browser` - `CefBrowser`
   - `:client`  - `CefClient`"
-  [{:keys [title url use-osr is-transparent address-bar? on-close on-blur]
-    :or   {use-osr false is-transparent false address-bar? false}}]
+  [{:keys [title url use-osr is-transparent address-bar? fullscreen? size on-close on-blur]
+    :or   {use-osr false is-transparent false address-bar? false fullscreen? false size [1024 768]}}]
   (let [builder       (jcef-builder)
         _             (set! (.-windowless_rendering_enabled (.getCefSettings builder)) use-osr)
-        _             (.setAppHandler builder
-                                      (proxy [MavenCefAppHandlerAdapter] []
-                                        (stateHasChanged [state]
-                                          (when (= state CefApp$CefAppState/TERMINATED)
-                                            (System/exit 0)))))
         cef-app       (.build builder)
         client        (.createClient cef-app)
         msg-router    (CefMessageRouter/create)
@@ -40,6 +41,7 @@
                         (.addActionListener (proxy [ActionListener] []
                                               (actionPerformed [_]
                                                 (.loadURL browser url)))))
+        size          (if fullscreen? (max-screen-size) size)
         browser-focus (atom true)
         jframe        (JFrame. title)
         content-pane  (.getContentPane jframe)
@@ -49,7 +51,13 @@
 
     (.addDisplayHandler client (proxy [CefDisplayHandlerAdapter] []
                                  (onAddressChange [_ _ url]
-                                   (.setText address url))))
+                                   (.setText address url))
+
+                                 (onCursorChange [browser cursorType]
+                                   (.. browser
+                                       (getUIComponent)
+                                       (setCursor (Cursor/getPredefinedCursor cursorType)))
+                                   false)))
 
     (.addFocusHandler client (proxy [CefFocusHandlerAdapter] []
                                (onGotFocus [_]
@@ -60,7 +68,7 @@
                                (onTakeFocus [_ _]
                                  (when (fn? on-blur) (on-blur))
                                  (reset! browser-focus false))))
-    
+
     (if address-bar?
       (doto content-pane
         (.add address BorderLayout/NORTH)
@@ -68,11 +76,26 @@
       (.add content-pane browser-ui BorderLayout/CENTER))
 
     (doto jframe
+      (.setDefaultCloseOperation JFrame/EXIT_ON_CLOSE) ;; Exit on Close
+      #_(.setUndecorated true) ;; Remove title bar
       (.pack)
-      (.setSize 1024 768)
+      (.setSize (first size) (second size))
       (.setVisible true)
       (.addWindowListener (proxy [WindowAdapter] []
                             (windowClosing [_]
                               (when (fn? on-close) (on-close))
                               (.dispose (CefApp/getInstance))))))
     result))
+
+(defn create-cef-app!
+  "Wrap builder in `invokeLater` to ensure it executes on separate thread."
+  [& args]
+  (SwingUtilities/invokeLater #(apply build-cef-app! args)))
+
+(comment
+  (create-cef-app!
+   {:title       "Behave-Dev"
+    :url         "http://behave-dev.sig-gis.com"
+    :fullscreen? true})
+
+  )

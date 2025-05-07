@@ -230,9 +230,9 @@
       #_(watch-kill-signal!) ;; Watch on the main thread
       #_(browse-url (str "http://localhost:" http-port))
       (create-cef-app!
-       {:title    (get-config :site :title)
-        :url      (str "http://localhost:" http-port)
-        :on-close #(kill-app!)}))))
+       {:title       (get-config :site :title)
+        :url         (str "http://localhost:" http-port)
+        :fullscreen? true}))))
 
 (comment
   (-main)
