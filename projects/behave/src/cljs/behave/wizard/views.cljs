@@ -29,7 +29,9 @@
             [string-utils.interface               :refer [->kebab]]
             [reagent.core                         :as r]
             [string-utils.core :as s]
-            [clojure.string :as str]))
+            [clojure.string :as str]
+            [behave.schema.submodule :as submodule]
+            [re-frame.core :as rf]))
 
 ;; TODO Might want to set this in a config file to the application
 (def ^:const multi-value-input-limit 3)
@@ -773,7 +775,20 @@
         *show-add-note-form?     (subscribe [:wizard/show-add-note-form?])
         show-tool-selector?      @(subscribe [:tool/show-tool-selector?])
         selected-tool-uuid       @(subscribe [:tool/selected-tool-uuid])
-        computing?               @(subscribe [:state :worksheet-computing?])]
+        computing?               @(subscribe [:state :worksheet-computing?])
+        all-submodules               (if (= io :input)
+                                   (mapcat (fn [module]
+                                             @(subscribe [:wizard/submodules-conditionally-filtered
+                                                          ws-uuid
+                                                          (:db/id module)
+                                                          :input]))
+                                           modules)
+                                   (mapcat (fn [module]
+                                             @(subscribe [:wizard/submodules-conditionally-filtered
+                                                          ws-uuid
+                                                          (:db/id module)
+                                                          :output]))
+                                           modules))]
     [:<>
      (when show-tool-selector?
        [tool-selector])
@@ -805,7 +820,14 @@
              (if (= io :output)
                @(<t (bp "module_output_selections"))
                @(<t (bp "module_input_selections")))]
-            (show-or-close-notes-button @*show-notes?)]]
+            (show-or-close-notes-button @*show-notes?)]
+           [:div.wizard-header__submodule-navigator
+            (let [->option (fn [{submodule-name :submodule/name}]
+                            {:value submodule-name
+                             :label submodule-name})]
+             [c/dropdown
+              {:on-change #(rf/dispatch [:wizard/scroll-into-view "wizard-review" (input-value %)])
+               :options   (map ->option all-submodules)}])]]
           [:div.wizard-review
            (when @*show-notes?
              [:<>
@@ -832,23 +854,29 @@
              [:div {:data-theme-color module-name}
               [:div.wizard-standard__module
                @(<t (:module/translation-key module))]
-              [:div.wizard-review__submodule
+              [:div.wizard-review__submodules
                (if (= io :input)
                  (doall
                   (for [submodule @(subscribe [:wizard/submodules-conditionally-filtered
                                                ws-uuid
                                                (:db/id module)
                                                :input])]
-                    [:<>
-                     [:div.wizard-standard__submodule-header (:submodule/name submodule)]
+                    ^{:key (:submodule/name submodule)}
+                    [:div.wizard-review__submodules__submodule
+                     {:id (:submodule/name submodule)}
+                     [:div.wizard-standard__submodule-header
+                      (:submodule/name submodule)]
                      [build-groups  ws-uuid (:submodule/groups submodule) input-group]]))
                  ;; io is :output
                  (for [submodule @(subscribe [:wizard/submodules-conditionally-filtered
                                               ws-uuid
                                               (:db/id module)
                                               :output])]
-                   [:<>
-                    [:div.wizard-standard__submodule-header (:submodule/name submodule)]
+                   ^{:key (:submodule/name submodule)}
+                   [:div.wizard-review__submodules__submodule
+                    {:id (:submodule/name submodule)}
+                    [:div.wizard-standard__submodule-header
+                     (:submodule/name submodule)]
                     [build-groups  ws-uuid (:submodule/groups submodule) output-group]]))]])]
           (when (true? @*warn-limit?)
             [:div.wizard-warning

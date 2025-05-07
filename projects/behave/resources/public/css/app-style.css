@@ -558,6 +558,17 @@ body {
   flex-direction: row;
 }
 
+.wizard-header__submodule-navigator {
+  padding: 5px 20px 5px 0px;
+  display: flex;
+  justify-content: flex-end;
+  background-color: #2B3238;
+}
+
+.wizard-header__submodule-navigator .input-dropdown__select-wrapper {
+  margin: 0;
+}
+
 .wizard-navigation {
   display: flex;
   flex-direction: row;
