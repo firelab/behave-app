@@ -37,10 +37,11 @@
                     (spit "classpath.conf")))
 
   conveyor   (do
-               (fs/delete "target/behave7.jar")
+               (when (fs/exists? "target/behave7.jar")
+                 (fs/delete "target/behave7.jar"))
                (run 'build-js)
-               (run 'uberjar)
+               (run 'uber)
                (run 'rename-jar)
                (shell "conveyor make app -o output/osx")
-               (shell "conveyor make windows-msix -o output/windows")
+               (shell "conveyor make windows-zip -o output/windows")
                (shell "conveyor make debian-package -o output/deb"))}}

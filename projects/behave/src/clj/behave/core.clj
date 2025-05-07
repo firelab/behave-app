@@ -31,6 +31,16 @@
 
 ;;; Constants
 
+(def ^:private system-os
+  (condp #(str/starts-with? %2 %1) (str/lower-case (System/getProperty "os.name"))
+    "mac"
+    :mac
+
+    "windows"
+    :windows
+
+    :linux))
+
 (def ^:private KILL-TIMEOUT-MS 5000) ;; 5 seconds
 
 ;;; State
@@ -214,6 +224,16 @@
   development-app
   (create-handler-stack {:figwheel? true :reload? true}))
 
+(defn- on-before-launch [title]
+  (condp = system-os
+    :mac
+    (do
+      (System/setProperty "apple.laf.useScreenMenuBar" "true")
+      (System/setProperty "apple.awt.application.appearance" "system")
+      (System/setProperty "com.apple.mrj.application.apple.menu.about.name" title)
+      (javax.swing.UIManager/setLookAndFeel
+       (javax.swing.UIManager/getSystemLookAndFeelClassName)))))
+
 (defn -main
   "Server start method."
   [& _args]
@@ -229,10 +249,27 @@
     (when (= "prod" mode)
       #_(watch-kill-signal!) ;; Watch on the main thread
       #_(browse-url (str "http://localhost:" http-port))
+
       (create-cef-app!
        {:title       (get-config :site :title)
         :url         (str "http://localhost:" http-port)
-        :fullscreen? true}))))
+        :fullscreen? true
+        :menu        [{:title "File"
+                       :items [{:label       "Open"
+                                :mnemonic    "O"
+                                :description "Opens a file"
+                                :shortcut    "O"
+                                :on-select   (fn [_]
+                                               (println "Hello Open File!"))}
+                               {:label       "Save"
+                                :mnemonic    "S"
+                                :description "Saves a file"
+                                :shortcut    "S"
+                                :on-select   (fn [_]
+                                               (println "Hello Save File!"))}]}]
+        :on-before-launch
+        (fn [_]
+          (on-before-launch (get-config :site :title)))}))))
 
 (comment
   (-main)
