@@ -776,19 +776,12 @@
         show-tool-selector?      @(subscribe [:tool/show-tool-selector?])
         selected-tool-uuid       @(subscribe [:tool/selected-tool-uuid])
         computing?               @(subscribe [:state :worksheet-computing?])
-        all-submodules               (if (= io :input)
-                                   (mapcat (fn [module]
-                                             @(subscribe [:wizard/submodules-conditionally-filtered
-                                                          ws-uuid
-                                                          (:db/id module)
-                                                          :input]))
-                                           modules)
-                                   (mapcat (fn [module]
-                                             @(subscribe [:wizard/submodules-conditionally-filtered
-                                                          ws-uuid
-                                                          (:db/id module)
-                                                          :output]))
-                                           modules))]
+        all-submodules           (mapcat (fn [module]
+                                           @(subscribe [:wizard/submodules-conditionally-filtered
+                                                        ws-uuid
+                                                        (:db/id module)
+                                                        io]))
+                                         modules)]
     [:<>
      (when show-tool-selector?
        [tool-selector])
