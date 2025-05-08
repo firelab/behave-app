@@ -777,10 +777,13 @@
         selected-tool-uuid       @(subscribe [:tool/selected-tool-uuid])
         computing?               @(subscribe [:state :worksheet-computing?])
         all-submodules           (mapcat (fn [module]
-                                           @(subscribe [:wizard/submodules-conditionally-filtered
-                                                        ws-uuid
-                                                        (:db/id module)
-                                                        io]))
+                                           (map (fn [submodule module]
+                                                  [(:module/name module) submodule])
+                                                @(subscribe [:wizard/submodules-conditionally-filtered
+                                                             ws-uuid
+                                                             (:db/id module)
+                                                             io])
+                                                (repeat module)))
                                          modules)]
     [:<>
      (when show-tool-selector?
@@ -815,12 +818,12 @@
                @(<t (bp "module_input_selections")))]
             (show-or-close-notes-button @*show-notes?)]
            [:div.wizard-header__submodule-navigator
-            (let [->option (fn [{submodule-name :submodule/name}]
-                            {:value submodule-name
-                             :label submodule-name})]
-             [c/dropdown
-              {:on-change #(rf/dispatch [:wizard/scroll-into-view "wizard-review" (input-value %)])
-               :options   (map ->option all-submodules)}])]]
+            (let [->option (fn [[module-name {submodule-name :submodule/name}]]
+                             {:value submodule-name
+                              :label (str module-name " - " submodule-name)})]
+              [c/dropdown
+               {:on-change #(rf/dispatch [:wizard/scroll-into-view "wizard-review" (input-value %)])
+                :options   (map ->option all-submodules)}])]]
           [:div.wizard-review
            (when @*show-notes?
              [:<>
