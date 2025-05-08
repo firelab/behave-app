@@ -604,8 +604,7 @@
                           :note/name        (if (empty? title)
                                               (str submodule-name " " submodule-io)
                                               title)
-                          :note/content     body
-                          :note/submodule   submodule-uuid}
+                          :note/content     body}
                    submodule-uuid (assoc :note/submodule submodule-uuid))]})))
 
 (rp/reg-event-fx
