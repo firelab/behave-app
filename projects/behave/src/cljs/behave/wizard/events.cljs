@@ -33,11 +33,15 @@
 
 (rf/reg-event-fx
  :wizard/select-tab
- (fn [_ [_ {:keys [ws-uuid module io submodule]}]]
+ (fn [_ [_ {:keys [ws-uuid module io submodule workflow]}]]
    (let [path (path-for routes
                         :ws/wizard
                         :ws-uuid ws-uuid
+<<<<<<< HEAD
                         :workflow :guided
+=======
+                        :workflow workflow
+>>>>>>> 59235c932c0f7a115797d9ae18868db486d8ddb5
                         :module module
                         :io io
                         :submodule submodule)]
