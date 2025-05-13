@@ -44,3 +44,15 @@
   ^{:argslist '([path])
     :doc "Translates a path in either Windows/Unix format into a path compatible with the current system."}
   os-path c/os-path)
+
+(def ^{:arglist '([org-name app-name])
+       :doc "Retrieve the type of OS, one of: `:windows` `:mac` `:linux`."}
+  os-type c/os-type)
+
+(def ^{:arglist '([org-name app-name])
+       :doc     "Returns the OS-specific location directory for logs."}
+  app-logs-dir c/app-logs-dir)
+
+(def ^{:arglist '([org-name app-name])
+       :doc     "Returns the OS-specific location for application data."}
+  app-data-dir c/app-data-dir)

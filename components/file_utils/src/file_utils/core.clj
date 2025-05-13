@@ -86,12 +86,74 @@
   [path]
   (io/file (.getFile (io/resource path))))
 
+(defn os-type
+  "Retrieve the type of OS, one of: `:windows` `:mac` `:linux`."
+  []
+  (let [os-name (System/getProperty "os.name")]
+    (cond
+      (str/starts-with? os-name "Windows")
+      :windows
+
+      (str/starts-with? os-name "Mac")
+      :mac
+
+      :else
+      :linux)))
+
+(defn app-data-dir
+  "Returns the OS-specific location for application data."
+  [org-name app-name]
+  (str
+   (apply io/file
+          (concat
+           (condp = (os-type)
+             :windows
+             [(System/getenv "LOCALAPPDATA")]
+
+             :mac
+             [(System/getenv "HOME") "Library" "Application Support"]
+
+             :linux
+             [(System/getenv "XDG_STATE_HOME")])
+           [org-name app-name "data"]))))
+
+(defn app-logs-dir
+  "Returns the OS-specific location directory for logs."
+  [org-name app-name]
+  (str 
+   (apply io/file
+          (concat
+           (condp = (os-type)
+             :windows
+             [(System/getenv "LOCALAPPDATA")]
+
+             :mac
+             [(System/getenv "HOME") "Library" "Application Support"]
+
+             :linux
+             [(System/getenv "XDG_STATE_HOME")])
+           [org-name app-name "logs"]))))
+
 (defn os-path
-  "Translates a path in either Windows/Unix format into a path compatible with the current system."
+  "Translates a path in either Windows/Unix format
+  into a path compatible with the current system."
   [path]
-  (-> path
-      (str/replace "~" (str (fs/home)))
-      (str/replace "$HOME" (str (fs/home)))
-      (str/split #"[/\\]")
-      (->> (apply fs/file))
-      (str)))
+  (let [path (str/split path #"[/\\]")]
+    (str
+     (apply io/file 
+            (map
+             #(cond
+                (str/starts-with? % "~")
+                (fs/home)
+
+                (= "$HOME" %)
+                (fs/home)
+
+                (str/starts-with? % "$")
+                (or (System/getenv (subs % 1)) %)
+
+                (str/starts-with? % "%")
+                (or (System/getenv (str/replace % #"%" "")) %)
+
+                :else
+                %) path)))))

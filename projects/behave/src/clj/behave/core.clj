@@ -16,7 +16,7 @@
             [clojure.stacktrace                :as st]
             [clojure.string                    :as str]
             [config.interface                  :refer [get-config load-config]]
-            [file-utils.interface              :refer [os-path]]
+            [file-utils.interface              :refer [os-path app-data-dir app-logs-dir]]
             [logging.interface                 :as l :refer [log log-str]]
             [ring.middleware.content-type      :refer [wrap-content-type]]
             [ring.middleware.multipart-params  :refer [wrap-multipart-params]]
@@ -62,6 +62,9 @@
 #_{:clj-kondo/ignore [:missing-docstring]}
 (defn init-config! []
   (load-config (io/resource "config.edn")))
+
+(defn- standalone-db-location [org-name app-name]
+  (str (io/file (app-data-dir org-name app-name) "db.sqlite")))
 
 #_{:clj-kondo/ignore [:missing-docstring]}
 (defn init-db! [{:keys [config]}]
@@ -212,10 +215,21 @@
   "Server start method."
   [& _args]
   (init-config!)
-  (start-logging! (get-config :logging))
-  (init-db! (get-config :database))
-  (let [mode      (get-config :server :mode)
-        http-port (or (get-config :server :http-port) 8080)]
+  (let [mode       (get-config :server :mode)
+        http-port  (or (get-config :server :http-port) 8080)
+        org-name   (get-config :site :org-name)
+        app-name   (get-config :site :app-name)
+        log-config (if (= "prod" mode)
+                     (assoc (get-config :logging) :log-dir (app-logs-dir org-name app-name))
+                     (get-config :logging))
+        db-config  (if (= "prod" mode)
+                     (assoc-in (get-config :database)
+                               [:config :store :path]
+                               (standalone-db-location org-name app-name))
+                     (get-config :database))]
+
+    (start-logging! log-config)
+    (init-db! db-config)
     (when (= "dev" mode) (vms-sync!))
     (log-str "Starting server!")
     (server/start-server! {:handler (create-handler-stack {:reload? (= mode "dev") :figwheel? false})
