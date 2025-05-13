@@ -427,7 +427,9 @@
    (let [graph-setting-id (get-in worksheet [:worksheet/graph-settings :db/id])
          enabled?         (get-in worksheet [:worksheet/graph-settings :graph-settings/enabled?])]
      {:transact [{:db/id                   graph-setting-id
-                  :graph-settings/enabled? (not enabled?)}]
+                  :graph-settings/enabled? (if (nil? enabled?)
+                                             false
+                                             (not enabled?))}]
       :fx       [[:dispatch [:worksheet/set-default-graph-settings ws-uuid]]]})))
 
 (rp/reg-event-fx

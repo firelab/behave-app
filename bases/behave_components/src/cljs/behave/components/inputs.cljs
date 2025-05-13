@@ -200,8 +200,8 @@
   [{:keys [input-label options filter-tags color-tags]}]
   (r/with-let [selections (r/atom (->> options
                                        (filter #(true? (:selected? %)))
-                                       (map (fn [{:keys [label value on-deselect color-tag]}]
-                                              [label value on-deselect color-tag]))
+                                       (map (fn [{:keys [label value on-deselect]}]
+                                              [label value on-deselect]))
                                        (into (sorted-set))))
                show-options? (r/atom false)
                selected-tag (r/atom nil)]
@@ -241,7 +241,7 @@
                                       (and filter-tags @selected-tag)
                                       (filter (fn [id] (contains? (:tags id) @selected-tag))))]
             ^{:key label}
-            (let [selection [label value on-deselect color-tag]]
+            (let [selection [label value on-deselect]]
               [multi-select-option {:selected? (contains? @selections selection)
                                     :color-tag color-tag
                                     :label     label

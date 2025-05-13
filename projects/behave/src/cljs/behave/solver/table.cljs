@@ -5,60 +5,112 @@
 
 ;;; Results Table Helpers
 
-(defn- add-table [ws-uuid]
-  (rf/dispatch [:worksheet/add-result-table ws-uuid]))
+(defn- ->table [tempid ws-uuid]
+  {:db/id                   tempid
+   :worksheet/_result-table [:worksheet/uuid ws-uuid]})
 
-(defn- add-row [ws-uuid row-id]
-  (rf/dispatch [:worksheet/add-result-table-row ws-uuid row-id]))
+(defn- ->row [tempid table-eid row-id cells]
+  {:db/id              tempid
+   :result-table/_rows table-eid
+   :result-row/id      row-id
+   :result-row/cells   cells})
 
-(defn- add-header [ws-uuid gv-id repeat-id units]
-  (rf/dispatch [:worksheet/add-result-table-header ws-uuid gv-id repeat-id units]))
+(defn- ->header [tempid table-eid gv-uuid repeat-id units]
+  {:db/id                             tempid
+   :result-table/_headers             table-eid
+   :result-header/group-variable-uuid gv-uuid
+   :result-header/repeat-id           repeat-id
+   :result-header/units               units})
 
-(defn- add-cell [ws-uuid row-id gv-id repeat-id value]
-  (rf/dispatch [:worksheet/add-result-table-cell ws-uuid row-id gv-id repeat-id (str value)]))
+(defn- ->cell [header-eid value]
+  {:result-cell/header header-eid
+   :result-cell/value  value})
 
 (defn- unit-label [unit-uuid]
   (or (:unit/short-code (q/unit unit-uuid)) ""))
 
-(defn- add-inputs-to-results-table [ws-uuid row-id inputs]
-  (doseq [[_ repeats] inputs]
-    (cond
-      ;; Single Group w/ Single Variable
-      (and (= 1 (count repeats)) (= 1 (count (first (vals repeats)))))
-      (let [[gv-id [value unit-uuid]] (ffirst (vals repeats))
-            units                     (unit-label unit-uuid)]
-        (log [:ADDING-INPUT ws-uuid row-id gv-id value units])
-        (add-header ws-uuid gv-id 0 units)
-        (add-cell ws-uuid row-id gv-id 0 value))
+(defn- map-result-headers [{:keys [inputs outputs]}]
+  (let [headers (atom [])]
+    (doseq [[_ repeats] inputs]
+      (cond
+        ;; Single Group w/ Single Variable
+        (and (= 1 (count repeats)) (= 1 (count (first (vals repeats)))))
+        (let [[gv-id [_value unit-uuid]] (ffirst (vals repeats))
+              units                     (unit-label unit-uuid)]
+          (swap! headers conj [gv-id 0 units]))
 
-      ;; Multiple Groups w/ Single Variable
-      (every? #(= 1 (count %)) (vals repeats))
-      (doseq [[repeat-id [_ repeat-group]] (map list repeats (range (count repeats)))]
-        (let [[gv-id [value unit-uuid]] (first repeat-group)
-            units                     (unit-label unit-uuid)]
-          (log [:ADDING-INPUT ws-uuid row-id gv-id value units])
-          (add-header ws-uuid gv-id repeat-id units)
-          (add-cell ws-uuid row-id gv-id repeat-id value)))
+        ;; Multiple Groups w/ Single Variable
+        (every? #(= 1 (count %)) (vals repeats))
+        (for [[repeat-id [_ repeat-group]] (map list repeats (range (count repeats)))]
+          (let [[gv-id [_value unit-uuid]] (first repeat-group)
+                units                     (unit-label unit-uuid)]
+            (swap! headers conj [gv-id repeat-id units])))
 
-      ;; Multiple Groups w/ Multiple Variables
-      :else
-      (doseq [[[_ repeat-group] repeat-id] (map list repeats (range (count repeats)))]
-        (doseq [[gv-id [value unit-uuid]] repeat-group]
-          (let [units (unit-label unit-uuid)]
-            (log [:ADDING-INPUT ws-uuid row-id gv-id value units])
-            (add-header ws-uuid gv-id repeat-id units)
-            (add-cell ws-uuid row-id gv-id repeat-id value)))))))
+        ;; Multiple Groups w/ Multiple Variables
+        :else
+        (for [[[_ repeat-group] repeat-id] (map list repeats (range (count repeats)))]
+          (doseq [[gv-id [_value unit-uuid]] repeat-group]
+            (let [units (unit-label unit-uuid)]
+              (swap! headers conj [gv-id repeat-id units]))))))
+    (concat @headers
+            (mapv (fn [[gv-id [_ unit-uuid]]]
+                    (let [units (unit-label unit-uuid)]
+                      [gv-id 0 units]))
+                  outputs))))
 
-(defn add-outputs-to-results-table [ws-uuid row-id outputs]
-  (doseq [[gv-id [value unit-uuid]] outputs]
-    (let [units (unit-label unit-uuid)]
-      (log [:ADDING-OUTPUT ws-uuid row-id gv-id value units])
-      (add-header ws-uuid gv-id 0 units)
-      (add-cell ws-uuid row-id gv-id 0 value))))
+(defn- map-outputs-to-cells [header-map outputs]
+  (map (fn [[gv-id [value unit-uuid]] ]
+         (let [units      (unit-label unit-uuid)
+               header-eid (get header-map [gv-id 0 units])]
+           (->cell header-eid value)))
+       outputs))
 
-(defn add-to-results-table [results ws-uuid]
-  (add-table ws-uuid)
-  (doseq [{:keys [row-id inputs outputs]} results]
-    (add-row ws-uuid row-id)
-    (add-inputs-to-results-table ws-uuid row-id inputs)
-    (add-outputs-to-results-table ws-uuid row-id outputs)))
+(defn- map-inputs-to-cells [header-map inputs]
+  (let [cells (atom [])]
+    (doseq [[_ repeats] inputs]
+      (cond
+        ;; Single Group w/ Single Variable
+        (and (= 1 (count repeats)) (= 1 (count (first (vals repeats)))))
+        (let [[gv-id [value unit-uuid]] (ffirst (vals repeats))
+              units                     (unit-label unit-uuid)
+              header-eid                (get header-map [gv-id 0 units])]
+          (swap! cells conj (->cell header-eid value)))
+
+        ;; Multiple Groups w/ Single Variable
+        (every? #(= 1 (count %)) (vals repeats))
+        (doseq [[repeat-id [_ repeat-group]] (map list repeats (range (count repeats)))]
+          (let [[gv-id [value unit-uuid]] (first repeat-group)
+                units                     (unit-label unit-uuid)
+                header-eid                (get header-map [gv-id repeat-id units])]
+            (swap! cells conj (->cell header-eid value))))
+
+        ;; Multiple Groups w/ Multiple Variables
+        :else
+        (doseq [[[_ repeat-group] repeat-id] (map list repeats (range (count repeats)))]
+          (doseq [[gv-id [value unit-uuid]] repeat-group]
+            (let [units      (unit-label unit-uuid)
+                  header-eid (get header-map [gv-id repeat-id units])]
+              (swap! cells conj (->cell header-eid value)))))))
+    @cells))
+
+(defn add-to-results-table
+  "Adds results to worksheet as a table."
+  [results ws-uuid]
+  (let [tempid      (atom -1)
+        table       (->table (swap! tempid dec) ws-uuid)
+        table-eid   (:db/id table)
+        headers-map (reduce (fn [m header-key]
+                              (assoc m header-key (swap! tempid dec)))
+                            {}
+                            (map-result-headers (first results)))
+        headers     (map (fn [[[gv-uuid repeat-id units] id]]
+                           (->header id table-eid gv-uuid repeat-id units)) headers-map)
+        rows        (map 
+                     (fn [{:keys [row-id inputs outputs]}]
+                       (let [row-eid      (swap! tempid dec)
+                             input-cells  (map-inputs-to-cells headers-map inputs)
+                             output-cells (map-outputs-to-cells headers-map outputs)]
+                         (->row row-eid table-eid row-id (concat input-cells output-cells)))) results)]
+
+    ;; Transact all at once
+    (rf/dispatch [:ds/transact-many (concat [table] headers rows)])))

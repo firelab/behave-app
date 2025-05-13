@@ -850,3 +850,15 @@
  (fn [[_ ws-uuid]] (subscribe [:wizard/multi-value-input-count ws-uuid]))
  (fn [count _]
    (pos? count)))
+
+(reg-sub
+ :wizard/enable-graph-settings?
+ (fn [[_ ws-uuid]]
+   [(subscribe [:worksheet/get-graph-settings-attr
+                ws-uuid
+                :graph-settings/enabled?])
+    (subscribe [:worksheet/multi-value-input-uuids ws-uuid])])
+ (fn [[saved-enabled?-setting multi-valued-inputs] _]
+   (if (not (nil? (first saved-enabled?-setting)))
+     (first saved-enabled?-setting)
+     (pos? (count multi-valued-inputs)))))

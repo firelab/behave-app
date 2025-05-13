@@ -59,13 +59,16 @@
             (get-config :site :title))]
    [:meta {:name    "description"
            :content (get-config :site :description)}]
+   [:meta {:name "apple-mobile-web-app-title" :content (get-config :site :title)}]
    [:meta {:name "robots" :content "index, follow"}]
    [:meta {:charset "utf-8"}]
    [:meta {:name    "viewport"
            :content "width=device-width, initial-scale=1, shrink-to-fit=no"}]
+   [:link {:rel "icon" :type "image/png" :href "/images/favicon-96x96.png" :sizes "96x96"}]
+   [:link {:rel "icon" :type "image/svg+xml" :href "/images/favicon.svg"}]
+   [:link {:rel "shortcut icon" :type "image/png" :href "/images/favicon.ico"}]
+   [:link {:rel "apple-touch-icon" :href "/images/apple-touch-icon.png" :type "image/png" :sizes "180x180"}]
    [:link {:rel "manifest" :href "/manifest.json"}]
-   [:link {:rel "icon" :type "image/png" :href "/images/favicon.ico"}]
-   [:link {:rel "apple-touch-icon" :href "/images/apple-touch-icon.png" :type "image/png"}]
    (include-css "/css/roboto-font.css" "/css/component-style.css" "/css/app-style.css")])
 
 (defn- cljs-init

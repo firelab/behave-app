@@ -85,7 +85,7 @@
         (swap! sync-txs union (txs datoms))
         (d/transact @conn datoms)))))
 
-(defn sync-latest-datoms! []
+(defn- sync-latest-datoms! []
   (ajax-request {:uri             "/sync"
                  :params          {:tx (:max-tx @@conn)}
                  :method          :get
@@ -192,3 +192,8 @@
  :ds/transact
  (fn [_ [_ tx-data]]
    (first tx-data)))
+
+(rp/reg-event-ds
+ :ds/transact-many
+ (fn [_ [_ tx-data]]
+   tx-data))

@@ -73,8 +73,10 @@
                                          repeat-id
                                          _repeat-group?
                                          edit-route]
-  (let [*value               (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id gv-uuid])
+  (let [list-eid             @(rf/subscribe [:vms/gv-uuid->list-eid gv-uuid])
+        *value               (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id gv-uuid])
         resolved-enum-values (->> (str/split @*value ",")
+                                  (sort-by #(deref (rf/subscribe [:worksheet/resolve-enum-order list-eid %])))
                                   (map #(deref (rf/subscribe [:worksheet/resolve-enum-value eid %]))))]
     [:div.wizard-input {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
      [:div.wizard-review__input
