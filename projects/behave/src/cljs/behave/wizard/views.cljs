@@ -345,7 +345,7 @@
                                             ws-uuid
                                             (:db/id module)
                                             :input])
-                     :let      [edit-route (path-for routes :ws/wizard
+                     :let      [edit-route (path-for routes :ws/wizard-guided
                                                      {:ws-uuid   ws-uuid
                                                       :workflow  :guided
                                                       :module    (str/lower-case module-name)

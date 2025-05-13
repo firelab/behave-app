@@ -583,6 +583,10 @@ body {
   background-color: var(--white);
 }
 
+.wizard-navigation--next-only {
+  justify-content: flex-end;
+}
+
 .wizard-group__header {
   font-weight: var(--font-weight-bold);
   padding: 5px 18px;
