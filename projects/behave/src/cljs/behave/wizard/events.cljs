@@ -35,7 +35,7 @@
  :wizard/select-tab
  (fn [_ [_ {:keys [ws-uuid module io submodule workflow]}]]
    (let [path (path-for routes
-                        :ws/wizard
+                        :ws/wizard-guided
                         :ws-uuid ws-uuid
                         :workflow workflow
                         :module module
@@ -57,7 +57,7 @@
                               "/worksheets/import"
 
                               (zero? current-path-index)
-                              "/worksheets/independent"
+                              "/worksheets"
 
                               :else
                               (get @current-route-order (dec current-path-index)))]
@@ -198,10 +198,10 @@
    (let [[handler io]          route-handler+io
          [ws-module submodule] first-module+submodule]
      (when-let [path (cond
-                       (= handler :ws/all)
+                       (= handler :ws/home)
                        (str "/worksheets/")
 
-                       (= handler :ws/independent)
+                       (= handler :ws/module-selection)
                        (str "/worksheets/" (->str module))
 
                        (and (= handler :ws/wizard-standard) io)
@@ -210,8 +210,8 @@
                                   :workflow :standard
                                   :io       io})
 
-                       (and (= handler :ws/wizard) io)
-                       (path-for routes :ws/wizard
+                       (and (= handler :ws/wizard-guided) io)
+                       (path-for routes :ws/wizard-guided
                                  {:ws-uuid   ws-uuid
                                   :workflow  :guided
                                   :module    ws-module
@@ -229,7 +229,7 @@
                                  {:ws-uuid  ws-uuid
                                   :workflow workflow}))]
        {:fx (cond-> [[:dispatch [:navigate path]]]
-              (= handler :ws/all)
+              (= handler :ws/home)
               (into [[:dispatch [:state/set [:sidebar :*modules] nil]]
                      [:dispatch [:state/set [:worksheet :*modules] nil]]]))}))))
 
@@ -263,7 +263,7 @@
                                       ws-uuid group-uuid repeat-id group-variable-uuid value]]]
 
                    (not= ws-input-value value)
-                   (conj [:dispatch [:worksheet/set-furthest-vistited-step ws-uuid :ws/wizard :input]]))]
+                   (conj [:dispatch [:worksheet/set-furthest-vistited-step ws-uuid :ws/wizard-guided :input]]))]
      {:fx effects})))
 
 
@@ -281,7 +281,7 @@
                                                      ws-uuid group-uuid repeat-id gv-uuid new-units-uuid]]]
 
                                   different-unit-chosen?
-                                  (conj [:dispatch [:worksheet/set-furthest-vistited-step ws-uuid :ws/wizard :input]])
+                                  (conj [:dispatch [:worksheet/set-furthest-vistited-step ws-uuid :ws/wizard-guided :input]])
 
                                   (and (some? new-value) different-unit-chosen?)
                                   (conj [:dispatch [:wizard/upsert-input-variable
@@ -296,12 +296,12 @@
 
 (rf/reg-event-fx
  :wizard/navigate-to-latest-worksheet
- (fn [_]
+ (fn [_ [_ workflow]]
    (let [ws-uuid (d/q '[:find ?uuid .
                         :in $
                         :where [?e :worksheet/uuid ?uuid]]
                       @@s/conn)]
-     (reset! current-route-order @(rf/subscribe [:wizard/route-order ws-uuid]))
+     (reset! current-route-order @(rf/subscribe [:wizard/route-order ws-uuid workflow]))
      {:fx [[:dispatch [:wizard/next]]]})))
 
 (rf/reg-event-fx

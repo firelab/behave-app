@@ -6,12 +6,13 @@
 
 #_{:clj-kondo/ignore [:missing-docstring]}
 (def step-priority
-  [[:ws/all nil]
+  [[:ws/home nil]
+   [:ws/workflow-selection nil]
    [:ws/import nil]
    [:ws/guided nil]
-   [:ws/independent nil]
-   [:ws/wizard :output]
-   [:ws/wizard :input]
+   [:ws/module-selection nil]
+   [:ws/wizard-guided :output]
+   [:ws/wizard-guided :input]
    [:ws/wizard-standard :output]
    [:ws/wizard-standard :input]
    [:ws/review nil]
@@ -39,8 +40,8 @@
   (fn [{:keys [route-handler workflow] :as params}]
     (cond
       (or (= route-handler :home)
-          (= route-handler :settings/all)) :ws/all
-      (= workflow :guided)                 :ws/wizard
+          (= route-handler :settings/all)) :ws/home
+      (= workflow :guided)                 :ws/wizard-guided
       (= workflow :standard)               :ws/wizard-standard
       route-handler                        route-handler
       :else                                :none)))
@@ -50,20 +51,86 @@
   [c/progress {:completed-last-step-id 0
                :steps                  []}])
 
-(defmethod progress-bar :ws/all
-  [_]
-  (let [steps [{:label            @(<t (bp "work_style"))
+(defmethod progress-bar :ws/home
+  [{:keys [ws-uuid workflow]}]
+  (let [steps [{:label            "Home"
                 :completed?       true
-                :route-handler+io [:ws/all nil]}]]
-    [c/progress {:completed-last-step-id 1
-                 :steps                  (map-indexed (enrich-step 1 1 1)
+                :selected?        true
+                :route-handler+io [:ws/home nil]}
+               {:label            "Workflow"
+                :completed?       false
+                :route-handler+io [:ws/workflow-selection nil]}]]
+    [c/progress {:on-select #(rf/dispatch [:wizard/progress-bar-navigate
+                                           ws-uuid
+                                           workflow
+                                           (:route-handler+io %)])
+                 :steps     steps}]))
+
+(defmethod progress-bar :ws/workflow-selection
+  [{:keys [ws-uuid io route-handler workflow] :as _params}]
+  (let [*new-or-import (rf/subscribe [:state [:worksheet :*new-or-import]])
+        steps          (if (= @*new-or-import :import)
+                         [{:label            "Home"
+                           :completed?       true
+                           :route-handler+io [:ws/home nil]}
+                          {:label            "Workflow"
+                           :completed?       true
+                           :route-handler+io [:ws/workflow-selection nil]}
+                          {:label            @(<t (bp "upload_a_file"))
+                           :completed?       true
+                           :route-handler+io [:ws/import nil]}]
+                         [{:label            "Home"
+                           :completed?       true
+                           :route-handler+io [:ws/home nil]}
+                          {:label            "Workflow"
+                           :completed?       true
+                           :route-handler+io [:ws/workflow-selection nil]}
+                          {:label            @(<t (bp "modules_selection"))
+                           :completed?       true
+                           :route-handler+io [:ws/module-selection nil]}])
+        selected-step  (.indexOf (mapv :route-handler+io steps) [route-handler io])
+        progress       selected-step]
+    [c/progress {:on-select              #(rf/dispatch [:wizard/progress-bar-navigate
+                                                        ws-uuid
+                                                        workflow
+                                                        (:route-handler+io %)])
+                 :completed-last-step-id progress
+                 :steps                  (map-indexed (enrich-step progress
+                                                                   selected-step
+                                                                   10)
+                                                      steps)}]))
+
+(defmethod progress-bar :ws/module-selection
+  [{:keys [ws-uuid io route-handler workflow] :as _params}]
+  (let [steps         [{:label            "Home"
+                        :completed?       true
+                        :route-handler+io [:ws/home nil]}
+                       {:label            "Workflow"
+                        :completed?       true
+                        :route-handler+io [:ws/workflow-selection nil]}
+                       {:label            @(<t (bp "modules_selection"))
+                        :completed?       true
+                        :route-handler+io [:ws/module-selection nil]}]
+        selected-step (.indexOf (mapv :route-handler+io steps) [route-handler io])
+        progress      selected-step]
+    [c/progress {:on-select              #(rf/dispatch [:wizard/progress-bar-navigate
+                                                        ws-uuid
+                                                        workflow
+                                                        (:route-handler+io %)])
+                 :completed-last-step-id progress
+                 :steps                  (map-indexed (enrich-step progress
+                                                                   selected-step
+                                                                   10)
                                                       steps)}]))
 
 (defmethod progress-bar :ws/import
   [{:keys [ws-uuid io route-handler workflow] :as _params}]
-  (let [steps         [{:label            @(<t (bp "work_style"))
+  (let [steps         [{:label            "Home"
                         :completed?       true
-                        :route-handler+io [:ws/all nil]}
+                        :route-handler+io [:ws/home nil]}
+                       {:label            "Workflow"
+                        :completed?       true
+                        :route-handler+io [:ws/workflow-selection nil]}
                        {:label            @(<t (bp "upload_a_file"))
                         :completed?       true
                         :route-handler+io [:ws/import nil]}]
@@ -79,34 +146,14 @@
                                                                    10)
                                                       steps)}]))
 
-(defmethod progress-bar :ws/independent
-  [{:keys [ws-uuid io route-handler workflow] :as _params}]
-  (let [steps         [{:label            @(<t (bp "work_style"))
-                        :completed?       true
-                        :route-handler+io [:ws/all nil]}
-                       {:label            @(<t (bp "modules_selection"))
-                        :completed?       true
-                        :route-handler+io [:ws/independent nil]}]
-        selected-step (.indexOf (mapv :route-handler+io steps) [route-handler io])
-        progress      selected-step]
-    [c/progress {:on-select              #(rf/dispatch [:wizard/progress-bar-navigate
-                                                        ws-uuid
-                                                        workflow
-                                                        (:route-handler+io %)])
-                 :completed-last-step-id progress
-                 :steps                  (map-indexed (enrich-step progress
-                                                                   selected-step
-                                                                   10)
-                                                      steps)}]))
-
-(defmethod progress-bar :ws/wizard
+(defmethod progress-bar :ws/wizard-guided
   [{:keys [ws-uuid io route-handler workflow] :as _params}]
   (let [steps                    [{:label            @(<t (bp "module_output_selections"))
                                    :completed?       false
-                                   :route-handler+io [:ws/wizard :output]}
+                                   :route-handler+io [:ws/wizard-guided :output]}
                                   {:label            @(<t (bp "module_input_selections"))
                                    :completed?       false
-                                   :route-handler+io [:ws/wizard :input]}
+                                   :route-handler+io [:ws/wizard-guided :input]}
                                   {:label            @(<t (bp "worksheet_review"))
                                    :completed?       false
                                    :route-handler+io [:ws/review nil]}
