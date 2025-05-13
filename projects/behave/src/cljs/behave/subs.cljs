@@ -149,3 +149,9 @@
  :local-storage/get
  (fn [_]
    (get-local-storage)))
+
+
+(rf/reg-sub
+ :local-storage/get-in
+ (fn [_ [_ path]]
+   (get-in (get-local-storage) path)))
