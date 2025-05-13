@@ -46,18 +46,21 @@
 
 (rf/reg-event-fx
  :wizard/back
- (fn [_]
+ (rf/inject-cofx ::inject/sub
+                 (fn [_]
+                   [:local-storage/get-in [:state :worksheet :*new-or-import]]))
+ (fn [{new-or-import :local-storage/get-in} _]
    (let [current-path       (str/replace
                              (. (. js/document -location) -href)
                              #"(^.*(?=(/worksheets)))"
                              "")
          current-path-index (.indexOf @current-route-order current-path)
          next-path          (cond
-                              (and (zero? current-path-index) @s/worksheet-from-file?)
+                              (and (zero? current-path-index) (= new-or-import :import))
                               "/worksheets/import"
 
-                              (zero? current-path-index)
-                              "/worksheets"
+                              (and (zero? current-path-index) (= new-or-import :new-worksheet))
+                              "/worksheets/module-selection"
 
                               :else
                               (get @current-route-order (dec current-path-index)))]
@@ -334,7 +337,7 @@
 
 (rf/reg-event-fx
  :wizard/toggle-disclaimer
- [(rf/inject-cofx ::inject/sub (fn [_] [:local-storage/get]))
+ [/(rf/inject-cofx ::inject/sub (fn [_] [:local-storage/get]))
   (rf/inject-cofx ::inject/sub (fn [_] [:state :show-disclaimer?]))]
  (fn [{local-storage :local-storage/get
        state         :state}]
