@@ -19,7 +19,7 @@
      [:p description]]]])
 
 (defn home-page [_params]
-  (let [*new-or-import      (rf/subscribe [:state [:worksheet :*new-or-import]])
+  (let [*new-or-import      (rf/subscribe [:local-storage/get-in [:state :worksheet :*new-or-import]])
         show-tool-selector? @(rf/subscribe [:tool/show-tool-selector?])
         selected-tool-uuid  @(rf/subscribe [:tool/selected-tool-uuid])]
     [:<>
@@ -33,7 +33,9 @@
         :header      @(<t (bp "welcome_message"))
         :description "Create a new worksheet or import an existing one."}]
       [:div.workflow-select__content
-       [c/card-group {:on-select      #(rf/dispatch [:state/set [:worksheet :*new-or-import] (:workflow %)])
+       [c/card-group {:on-select      #(do
+                                         (rf/dispatch [:local-storage/update-in [:state :worksheet :*new-or-import] (:workflow %)])
+                                         (rf/dispatch [:state/set [:worksheet :*new-or-import] (:workflow %)]))
                       :flex-direction "column"
                       :card-size      "large"
                       :cards          [{:title     "New Worksheet"
@@ -56,8 +58,9 @@
 
 ;; TODO use title
 (defn module-selection-page [_params]
-  (let [*workflow           (rf/subscribe [:state [:worksheet :*workflow]])
-        *modules            (rf/subscribe [:state [:worksheet :*modules]])
+  (let [*workflow           (rf/subscribe [:local-storage/get-in [:state :worksheet :*workflow]])
+        *modules            (rf/subscribe [:local-storage/get-in [:state  :worksheet :*modules]])
+        ;; *modules            (rf/subscribe [:state [:worksheet :*modules]])
         *submodule          (rf/subscribe [:worksheet/first-output-submodule-slug (first @*modules)])
         name                (rf/subscribe [:state [:worksheet :name]])
         show-tool-selector? @(rf/subscribe [:tool/show-tool-selector?])
@@ -73,8 +76,11 @@
         :header      @(<t (bp "module_selection"))
         :description @(<t (bp "please_select_from_the_following_options"))}]
       [:div.workflow-select__content
-       [c/card-group {:on-select      #(do (rf/dispatch [:state/set [:sidebar :*modules] (set (:module %))])
-                                           (rf/dispatch [:state/set [:worksheet :*modules] (:module %)]))
+       [c/card-group {:on-select #(do
+                                    (rf/dispatch [:local-storage/update-in [:state :worksheet :*modules] (:module %)])
+                                    (rf/dispatch [:state/set [:sidebar :*modules] (set (:module %))])
+                                    (rf/dispatch [:state/set [:worksheet :*modules] (:module %)]))
+
                       :flex-direction "row"
                       :cards          [{:order     1
                                         :title     @(<t (bp "surface_only"))
@@ -123,8 +129,8 @@
                           :on-next        #(rf/dispatch [:wizard/new-worksheet @name @*modules @*submodule @*workflow])}]]]))
 
 (defn workflow-selection-page [_params]
-  (let [*workflow           (rf/subscribe [:state [:worksheet :*workflow]])
-        *new-or-import      (rf/subscribe [:state [:worksheet :*new-or-import]])
+  (let [*workflow           (rf/subscribe [:local-storage/get-in [:state :worksheet :*workflow]])
+        *new-or-import      (rf/subscribe [:local-storage/get-in [:state :worksheet :*new-or-import]])
         name                (rf/subscribe [:state [:worksheet :name]])
         *modules            (rf/subscribe [:state [:worksheet :*modules]])
         *submodule          (rf/subscribe [:worksheet/first-output-submodule-slug (first @*modules)])
@@ -141,7 +147,9 @@
         :header      @(<t (bp "welcome_message"))
         :description "Please select a workflow."}]
       [:div.workflow-select__content
-       [c/card-group {:on-select      #(rf/dispatch [:state/set [:worksheet :*workflow] (:workflow %)])
+       [c/card-group {:on-select      #(do
+                                         (rf/dispatch [:local-storage/update-in [:state :worksheet :*workflow] (:workflow %)])
+                                         (rf/dispatch [:state/set [:worksheet :*workflow] (:workflow %)]))
                       :flex-direction "column"
                       :card-size      "large"
                       :cards          [{:title     @(<t "behaveplus:workflow:independent_title")
@@ -168,11 +176,11 @@
 
 (defn import-worksheet-page [_params]
   (let [file-name   (r/track #(or @(rf/subscribe [:state [:worksheet :file :name]])
-                                @(<t (bp "select_a_file"))))
+                                  @(<t (bp "select_a_file"))))
         file        (r/track #(or @(rf/subscribe [:state [:worksheet :file :obj]])
-                                nil))
+                                  nil))
         ws-version  (r/track #(or @(rf/subscribe [:state :ws-version])
-                               nil))
+                                  nil))
         app-version (r/track #(or @(rf/subscribe [:state :app-version])
                                   nil))]
     [:<>
@@ -200,4 +208,3 @@
                            :on-back    #(rf/dispatch [:navigate "/worksheets/workflow-selection"])
                            ;;TODO Get full file path from file
                            :on-next    #(rf/dispatch [:wizard/navigate-to-latest-worksheet])}]]]]))
-
