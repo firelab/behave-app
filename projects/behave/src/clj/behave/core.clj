@@ -1,5 +1,7 @@
 (ns behave.core
   (:gen-class)
+  (:import [javax.swing JFrame SwingUtilities UIManager]
+           [javax.imageio ImageIO])
   (:require [behave-routing.main               :refer [routes]]
             [behave.download-vms               :refer [export-from-vms export-images-from-vms]]
             [behave.init                       :refer [init-handler]]
@@ -227,15 +229,40 @@
   development-app
   (create-handler-stack {:figwheel? true :reload? true}))
 
-(defn- on-before-launch [title]
+(defn- set-properties! [props]
+  (doseq [[k v] props]
+    (System/setProperty k v)))
+
+(defn get-icons []
+  (->> ["public/images/android-chrome-192x192.png"
+        "public/images/android-touch-icon.png"
+        "public/images/favicon-96x96.png"]
+       (map #(ImageIO/read (io/resource %)))))
+
+;; See: https://docs.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
+(defn- on-before-launch [^JFrame jframe title]
+  (UIManager/setLookAndFeel
+   (UIManager/getSystemLookAndFeelClassName))
+  (SwingUtilities/updateComponentTreeUI jframe)
+
   (condp = system-os
-    :mac
+
+    ;; See: https://docs.oracle.com/javase/8/docs/technotes/guides/swing/1.4/w2k_props.html
+    :windows
     (do
-      (System/setProperty "apple.laf.useScreenMenuBar" "true")
-      (System/setProperty "apple.awt.application.appearance" "system")
-      (System/setProperty "com.apple.mrj.application.apple.menu.about.name" title)
-      (javax.swing.UIManager/setLookAndFeel
-       (javax.swing.UIManager/getSystemLookAndFeelClassName)))))
+      (.setUndecorated jframe true)
+      (.setIcons jframe (get-icons))
+      (set-properties! {}))
+
+    :linux
+    (set-properties! {"sun.java2d.xrender" "true"})
+
+    ;; See: https://alvinalexander.com/java/make-java-application-look-feel-native-mac-osx/
+    :mac
+    (set-properties!
+     {"apple.laf.useScreenMenuBar"                      "true"
+      "apple.awt.application.appearance"                "system"
+      "com.apple.mrj.application.apple.menu.about.name" title})))
 
 (defn -main
   "Server start method."
@@ -282,8 +309,8 @@
                                 :on-select   (fn [_]
                                                (println "Hello Save File!"))}]}]
         :on-before-launch
-        (fn [_]
-          (on-before-launch (get-config :site :title)))}))))
+        (fn [{:keys [frame]}]
+          (on-before-launch frame (get-config :site :title)))}))))
 
 (comment
   (-main)
