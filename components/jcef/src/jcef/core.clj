@@ -1,7 +1,8 @@
 (ns jcef.core
-  (:require [jcef.setup :refer [jcef-builder]])
+  (:require [jcef.setup :refer [jcef-builder]]
+            [jcef.resource-handlers :refer [create-local-request-handler]])
   (:import [org.cef CefApp]
-           [org.cef.browser CefMessageRouter]
+           [org.cef.browser CefBrowser CefMessageRouter]
            [org.cef.handler CefDisplayHandlerAdapter CefFocusHandlerAdapter]
            [java.awt BorderLayout Cursor GraphicsEnvironment KeyboardFocusManager Toolkit]
            [java.awt.event ActionEvent ActionListener WindowAdapter]
@@ -84,6 +85,18 @@
        (build-menu-bar menu-bar remaining)
        menu-bar))))
 
+(defn show-dev-tools!
+  "Show the Developer Tools for a CefBrowser"
+  [^CefBrowser browser]
+  (let [jframe       (JFrame. "DevTools")
+        content-pane (.getContentPane jframe)
+        dev-tools    (.getDevTools browser)]
+    (.add content-pane (.getUIComponent dev-tools) BorderLayout/CENTER)
+    (SwingUtilities/invokeLater #(doto jframe
+                                   (.pack)
+                                   (.setSize 800 600)
+                                   (.setVisible true)))))
+
 (defn build-cef-app!
   "Creates a CEF app frame with the following options map:
    - `:title`         [Req.] - Title of the app.
@@ -97,12 +110,15 @@
   - `:frame`   - `JFrame` Application
   - `:browser` - `CefBrowser`
   - `:client`  - `CefClient`"
-  [{:keys [title menu url use-osr transparent? address-bar? fullscreen? size on-close on-blur on-before-launch]
+  [{:keys [title menu url use-osr transparent? address-bar? fullscreen? dev-tools? size on-close on-blur on-before-launch]
     :or   {use-osr false transparent? false address-bar? false fullscreen? false size [1024 768]}}]
   (let [builder       (jcef-builder)
         _             (set! (.-windowless_rendering_enabled (.getCefSettings builder)) use-osr)
         cef-app       (.build builder)
         client        (.createClient cef-app)
+        req-handler   (create-local-request-handler "public" "http" "localhost:4242")
+        _             (doto client
+                        (.addRequestHandler req-handler))
         msg-router    (CefMessageRouter/create)
         _             (.addMessageRouter client msg-router)
         browser       (.createBrowser client url use-osr transparent?)
@@ -123,6 +139,9 @@
                        :frame        jframe
                        :msg-router   msg-router}
         menu-bar      (when menu (build-menu-bar app menu))]
+
+    (when dev-tools?
+      (show-dev-tools! browser))
 
     (.addDisplayHandler client (proxy [CefDisplayHandlerAdapter] []
                                  (onAddressChange [_ _ url]
@@ -190,34 +209,43 @@
         (callback (.getSelectedFile chooser))))))
 
 (comment
-  (build-cef-app!
-   {:title       "Behave-Dev"
-    :url         "http://behave-dev.sig-gis.com"
-    :fullscreen? true
-    :menu        [{:title "File"
-                   :items [{:label       "Open"
-                            :mnemonic    "O"
-                            :description "Opens a file"
-                            :shortcut    "O"
-                            :on-select   (fn [{:keys [app]}]
-                                           (open-file-chooser println
-                                                              (:frame app)
-                                                              "Behave7 Worksheet"
-                                                              "bp7")
-                                           (println "Hello Open File!"))}
-                           {:label       "Save"
-                            :mnemonic    "S"
-                            :description "Saves a file"
-                            :shortcut    "S"
-                            :on-select   (fn [{:keys [app]}]
-                                           (open-save-file println
-                                                           (:frame app)
-                                                           "Behave7 Worksheet"
-                                                           "bp7"))}]}]})
+  (def app 
+    (build-cef-app!
+     {:title       "Behave-Dev"
+      :url         "http://localhost:4242/"
+      :dev-tools?  true
+      :fullscreen? true
+      :menu        [{:title "File"
+                     :items [{:label       "Open"
+                              :mnemonic    "O"
+                              :description "Opens a file"
+                              :shortcut    "O"
+                              :on-select   (fn [{:keys [app]}]
+                                             (open-file-chooser println
+                                                                (:frame app)
+                                                                "Behave7 Worksheet"
+                                                                "bp7")
+                                             (println "Hello Open File!"))}
+                             {:label       "Save"
+                              :mnemonic    "S"
+                              :description "Saves a file"
+                              :shortcut    "S"
+                              :on-select   (fn [{:keys [app]}]
+                                             (open-save-file println
+                                                             (:frame app)
+                                                             "Behave7 Worksheet"
+                                                             "bp7"))}]}]}))
 
-  (def results *1)
+  (show-dev-tools! (:browser app))
 
-  results
+  (:client app)
+  (.removeRequestHandler (:client app))
+  (def local-req-handler (create-local-request-handler "public" "http" "localhost:4242"))
+  (.addRequestHandler (:client app) local-req-handler)
+  (.reloadIgnoreCache (:browser app))
+  #_(.reload (:browser app))
+
+  #_(.loadURL (:browser app) "http://localhost:4242/")
 
   (println "hi")
 
