@@ -1,6 +1,6 @@
 (ns jcef.core
   (:require [jcef.setup :refer [jcef-builder]]
-            [jcef.resource-handlers :refer [create-local-request-handler]])
+            [jcef.resource-handlers :as rh])
   (:import [org.cef CefApp]
            [org.cef.browser CefBrowser CefMessageRouter]
            [org.cef.handler CefDisplayHandlerAdapter CefFocusHandlerAdapter]
@@ -116,9 +116,6 @@
         _             (set! (.-windowless_rendering_enabled (.getCefSettings builder)) use-osr)
         cef-app       (.build builder)
         client        (.createClient cef-app)
-        req-handler   (create-local-request-handler "public" "http" "localhost:4242")
-        _             (doto client
-                        (.addRequestHandler req-handler))
         msg-router    (CefMessageRouter/create)
         _             (.addMessageRouter client msg-router)
         browser       (.createBrowser client url use-osr transparent?)
@@ -213,7 +210,6 @@
     (build-cef-app!
      {:title       "Behave-Dev"
       :url         "http://localhost:4242/"
-      :dev-tools?  true
       :fullscreen? true
       :menu        [{:title "File"
                      :items [{:label       "Open"

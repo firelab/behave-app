@@ -1,5 +1,6 @@
 (ns jcef.interface
-  (:require [jcef.core :as c]))
+  (:require [jcef.core :as c]
+            [jcef.resource-handlers :as rh]))
 
 (def ^{:arglists '([options])
        :doc      "Creates a CEF app frame with the following options map:
@@ -16,3 +17,8 @@
              - `:client`  - `CefClient`"}
 
   create-cef-app! c/create-cef-app!)
+
+
+(def ^{:arglists '([options])
+       :doc      "Creates a custom request/response handler for CEF browser."}
+  custom-jcef-request-handler rh/custom-jcef-request-handler)

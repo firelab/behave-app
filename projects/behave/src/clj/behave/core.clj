@@ -19,7 +19,7 @@
             [clojure.string                    :as str]
             [config.interface                  :refer [get-config load-config]]
             [file-utils.interface              :refer [os-path app-data-dir app-logs-dir]]
-            [jcef.interface                    :refer [create-cef-app!]]
+            [jcef.interface                    :refer [create-cef-app! custom-jcef-request-handler]]
             [logging.interface                 :as l :refer [log log-str]]
             [ring.middleware.content-type      :refer [wrap-content-type]]
             [ring.middleware.multipart-params  :refer [wrap-multipart-params]]
@@ -283,14 +283,14 @@
 
     (start-logging! log-config)
     (init-db! db-config)
-    (when (= "dev" mode) (vms-sync!))
-    (log-str "Starting server!")
-    (server/start-server! {:handler (create-handler-stack {:reload? (= mode "dev") :figwheel? false})
-                           :port    http-port})
-    (when (= "prod" mode)
-      #_(watch-kill-signal!) ;; Watch on the main thread
-      #_(browse-url (str "http://localhost:" http-port))
+    (cond
+      (= "dev" mode)
+      (vms-sync!)
+      (log-str "Starting server!")
+      (server/start-server! {:handler (create-handler-stack {:reload? (= mode "dev") :figwheel? false})
+                             :port    http-port})
 
+      (= "prod" mode)
       (create-cef-app!
        {:title       (get-config :site :title)
         :url         (str "http://localhost:" http-port)
@@ -309,7 +309,12 @@
                                 :on-select   (fn [_]
                                                (println "Hello Save File!"))}]}]
         :on-before-launch
-        (fn [{:keys [frame]}]
+        (fn [{:keys [client frame]}]
+          (.addRequestHandler client (rh/create-custom-request-handler "http"
+                                                                       "localhost:4242"
+                                                                       "public"
+                                                                       (create-handler-stack {:reload?   (= mode "dev")
+                                                                                              :figwheel? false})))
           (on-before-launch frame (get-config :site :title)))}))))
 
 (comment

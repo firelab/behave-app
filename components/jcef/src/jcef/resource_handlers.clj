@@ -17,6 +17,25 @@
     (subs s 1)
     s))
 
+(defn cef-request->ring-request [^CefRequest cef-request]
+  (let [url     (.getURL cef-request)
+        method  (keyword (.toLowerCase (.getMethod cef-request)))
+        headers (.getHeaderMap cef-request {})]
+    {:uri            url
+     :request-method method
+     :headers        (into {} headers)
+     :query-params   (into {} (.getHeaderMap cef-request))
+     :body           (when-not (#{:get :head :options} method)
+                       (.getPostData cef-request))}))
+
+(defn ring-response->cef-response [ring-response]
+  (let [cef-response (CefResponse/create)]
+    (doto cef-response
+      (.setStatus (or (:status ring-response) 200))
+      (.setMimeType (get-in ring-response [:headers "Content-Type"] "text/plain"))
+      (.setHeaderMap (get ring-response :headers {})))
+    cef-response))
+
 (defn- ->resource [public-dir path]
   (let [path (if (#{"/" ""} path) "index.html" path)]
     (.getResource (ClassLoader/getSystemClassLoader)
@@ -101,7 +120,18 @@
       (create-resource-handler resource {})
       (reject-handler))))
 
-(defn- create-local-resource-handler [public-dir _protocol _authority _browser _frame request & args]
+(defn- get-api-handler [handlers _browser _frame request & args]
+  (let [url           (URL. (.getURL request))
+        _req-protocol  (.getProtocol url)
+        _req-authority (.getAuthority url)
+        req-path      (.getPath url)
+        handler       (get handlers req-path)]
+    #_(println [:GET-RESOURCE-HANDLER public-dir req-protocol req-authority req-path resource])
+    (if handler
+      (apply create-handler-response handler (cef-request->ring-request request))
+      (reject-handler))))
+
+(defn- custom-resource-handler [public-dir _protocol _authority _browser _frame request & args]
   #_(println [:LOCAL-RESOURCE-HANDLER public-dir protocol authority args])
 
   (when (str/starts-with? (.getURL request) "http")
@@ -129,3 +159,14 @@
 
     (getResourceRequestHandler [& args]
        (apply create-local-resource-handler public-dir protocol authority args))))
+
+(defn custom-jcef-request-handler
+  "Generate a local request handler that serves resources prepended with `public-dir`."
+  [{:keys [protocol authority resource-dir handlers]}]
+  (proxy [CefRequestHandlerAdapter] []
+    (onBeforeBrowse​ [& args]
+      #_(println [:BEFORE-BROWSE args])
+      false)
+
+    (getResourceRequestHandler [& args]
+       (apply custom-resource-handler public-dir protocol authority args))))
