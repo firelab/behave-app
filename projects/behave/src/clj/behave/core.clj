@@ -18,8 +18,8 @@
             [clojure.stacktrace                :as st]
             [clojure.string                    :as str]
             [config.interface                  :refer [get-config load-config]]
-            [file-utils.interface              :refer [os-path app-data-dir app-logs-dir]]
-            [jcef.interface                    :refer [create-cef-app! custom-jcef-request-handler]]
+            [file-utils.interface              :refer [os-path os-type app-data-dir app-logs-dir]]
+            [jcef.interface                    :refer [create-cef-app!]]
             [logging.interface                 :as l :refer [log log-str]]
             [ring.middleware.content-type      :refer [wrap-content-type]]
             [ring.middleware.multipart-params  :refer [wrap-multipart-params]]
@@ -32,16 +32,6 @@
             [transport.interface               :refer [->clj mime->type]]))
 
 ;;; Constants
-
-(def ^:private system-os
-  (condp #(str/starts-with? %2 %1) (str/lower-case (System/getProperty "os.name"))
-    "mac"
-    :mac
-
-    "windows"
-    :windows
-
-    :linux))
 
 (def ^:private KILL-TIMEOUT-MS 5000) ;; 5 seconds
 
@@ -211,8 +201,14 @@
   (fn [request]
     (handler (assoc request :figwheel? figwheel?))))
 
+(defn- wrap-debug [handler]
+  (fn [request]
+    (println request)
+    (handler request)))
+
 (defn- create-handler-stack [{:keys [reload? figwheel?]}]
   (-> routing-handler
+      wrap-debug
       (wrap-figwheel figwheel?)
       wrap-params
       wrap-keyword-params
@@ -233,7 +229,7 @@
   (doseq [[k v] props]
     (System/setProperty k v)))
 
-(defn get-icons []
+(defn- get-icons []
   (->> ["public/images/android-chrome-192x192.png"
         "public/images/android-touch-icon.png"
         "public/images/favicon-96x96.png"]
@@ -245,7 +241,7 @@
    (UIManager/getSystemLookAndFeelClassName))
   (SwingUtilities/updateComponentTreeUI jframe)
 
-  (condp = system-os
+  (condp = (os-type)
 
     ;; See: https://docs.oracle.com/javase/8/docs/technotes/guides/swing/1.4/w2k_props.html
     :windows
@@ -285,10 +281,11 @@
     (init-db! db-config)
     (cond
       (= "dev" mode)
-      (vms-sync!)
-      (log-str "Starting server!")
-      (server/start-server! {:handler (create-handler-stack {:reload? (= mode "dev") :figwheel? false})
-                             :port    http-port})
+      (do 
+        #_(vms-sync!)
+        (log-str "Starting server!")
+        (server/start-server! {:handler (create-handler-stack {:reload? (= mode "dev") :figwheel? false})
+                               :port    http-port}))
 
       (= "prod" mode)
       (create-cef-app!
@@ -310,7 +307,7 @@
                                                (println "Hello Save File!"))}]}]
         :on-before-launch
         (fn [{:keys [client frame]}]
-          (.addRequestHandler client (rh/create-custom-request-handler "http"
+          #_(.addRequestHandler client (rh/create-custom-request-handler "http"
                                                                        "localhost:4242"
                                                                        "public"
                                                                        (create-handler-stack {:reload?   (= mode "dev")

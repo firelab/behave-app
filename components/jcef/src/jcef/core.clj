@@ -236,7 +236,7 @@
 
   (:client app)
   (.removeRequestHandler (:client app))
-  (def local-req-handler (create-local-request-handler "public" "http" "localhost:4242"))
+  (def local-req-handler (create-local-request-handler "public" "http" "localhost:4242" {}))
   (.addRequestHandler (:client app) local-req-handler)
   (.reloadIgnoreCache (:browser app))
   #_(.reload (:browser app))

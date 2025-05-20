@@ -7,8 +7,8 @@
             CefResourceHandlerAdapter
             CefResourceRequestHandlerAdapter]
            [org.cef.misc IntRef StringRef BoolRef]
-           [org.cef.network CefRequest CefResponse]
-           [java.io InputStream IOException]
+           [org.cef.network CefRequest CefResponse CefPostDataElement$Type]
+           [java.io InputStream IOException ByteArrayOutputStream]
            [java.net URL]
            [java.nio.file Paths Files]))
 
@@ -17,16 +17,57 @@
     (subs s 1)
     s))
 
+(defn post-data->stream [cef-request]
+  (let [post-data          (first (.. cef-request (getPostData) (getElements))) 
+        data-type          (.getType post-data)
+        byte-output-stream (ByteArrayOutputStream.)
+        byte-count         (.getByteCount post-data)]
+    (condp = data-type
+      CefPostDataElement$Type/PDE_TYPE_EMPTY
+      {:body byte-output-stream}
+
+      CefPostDataElement$Type/PDE_TYPE_BYTES
+      {:body           (.getBytes post-data (.getBytesCount post-data) byte-output-stream)
+       :content-length (.getByteCount post-data)}
+      
+      CefPostDataElement$Type/PDE_TYPE_FILE
+      {:filename       (.getFile data-type)
+       :body           (.getBytes post-data (.getBytesCount post-data) byte-output-stream)
+       :content-length (.getByteCount post-data)})))
+
 (defn cef-request->ring-request [^CefRequest cef-request]
-  (let [url     (.getURL cef-request)
-        method  (keyword (.toLowerCase (.getMethod cef-request)))
-        headers (.getHeaderMap cef-request {})]
+  (let [url            (.getURL cef-request)
+        port           (.getPort url)
+        content-length (.getPort url)
+        method         (keyword (.toLowerCase (.getMethod cef-request)))
+        headers        (.getHeaderMap cef-request {})]
     {:uri            url
      :request-method method
      :headers        (into {} headers)
-     :query-params   (into {} (.getHeaderMap cef-request))
+     :query-params   
      :body           (when-not (#{:get :head :options} method)
-                       (.getPostData cef-request))}))
+                       )
+     {:ssl-client-cert nil
+      :protocol HTTP/1.1
+      :params {}
+      :server-port 4242
+      :content-length nil
+      :content-type nil
+      :character-encoding nil
+      :uri /
+      :server-name localhost
+      :query-string nil
+      :body #object[org.eclipse.jetty.server.HttpInputOverHTTP 0xdcde6f HttpInputOverHTTP@dcde6f[c=0
+                                                                                                 q=0
+                                                                                                 [0]=null
+                                                                                                 s=STREAM]]
+      :multipart-params {}
+      :scheme :http
+      :request-method :get
+      :accept */*}
+
+
+     }))
 
 (defn ring-response->cef-response [ring-response]
   (let [cef-response (CefResponse/create)]
@@ -128,7 +169,8 @@
         handler       (get handlers req-path)]
     #_(println [:GET-RESOURCE-HANDLER public-dir req-protocol req-authority req-path resource])
     (if handler
-      (apply create-handler-response handler (cef-request->ring-request request))
+      handler
+      #_(apply create-handler-response handler (cef-request->ring-request request))
       (reject-handler))))
 
 (defn- custom-resource-handler [public-dir _protocol _authority _browser _frame request & args]
@@ -158,7 +200,7 @@
       false)
 
     (getResourceRequestHandler [& args]
-       (apply create-local-resource-handler public-dir protocol authority args))))
+       (apply custom-resource-handler public-dir protocol authority args))))
 
 (defn custom-jcef-request-handler
   "Generate a local request handler that serves resources prepended with `public-dir`."
@@ -169,4 +211,4 @@
       false)
 
     (getResourceRequestHandler [& args]
-       (apply custom-resource-handler public-dir protocol authority args))))
+       (apply custom-resource-handler resource-dir protocol authority handlers args))))

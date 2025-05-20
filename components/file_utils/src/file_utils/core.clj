@@ -22,18 +22,26 @@
 (defn- write-image-to-file [^BufferedImage image format-name ^File output-file]
   (ImageIO/write image format-name output-file))
 
-(defn resize-image [file image-max-size image-quality & [output-file]]
+(defn resize-image
+  "Resizes image to a maximum size, preserving aspect ratio. Also allows image quality to be adjusted.
+
+   Operates on:
+    - `file`           - Java File instance.
+    - `image-max-size` - Maximum size in pixels.
+    - `image-quality`  - Image quality, between 0.0 to 1.0.
+    - `output-file`    - (Optional) Output image file, as a Java File instance."
+  [file image-max-size image-quality & [output-file]]
   (let [image-quality  (or image-quality 1.0)
         output-stream  (ByteArrayOutputStream.)
-        format         (subs (fs/extension file) 1)
+        fmt            (subs (fs/extension file) 1)
         buffered-image (-> (doto (Thumbnails/fromFilenames [(.getPath file)])
                              (.size image-max-size image-max-size)
                              (.outputQuality image-quality))
                            (.asBufferedImage))]
     (try 
       (if output-file
-        (write-image-to-file buffered-image format output-file)
-        (write-image buffered-image format output-stream))
+        (write-image-to-file buffered-image fmt output-file)
+        (write-image buffered-image fmt output-stream))
       (finally (.close output-stream)))
     output-stream))
 
