@@ -4618,6 +4618,7 @@ var wasmImports = {
   "invoke_diii": invoke_diii,
   "invoke_diiidiiiii": invoke_diiidiiiii,
   "invoke_ii": invoke_ii,
+  "invoke_iidddddd": invoke_iidddddd,
   "invoke_iidddiidd": invoke_iidddiidd,
   "invoke_iiddiiddiidid": invoke_iiddiiddiidid,
   "invoke_iiddiidiidiiiii": invoke_iiddiidiidiiiii,
@@ -5096,6 +5097,8 @@ var _emscripten_bind_SIGSpot_setDownwindCoverHeight_2 = Module["_emscripten_bind
 var _emscripten_bind_SIGSpot_setFireType_1 = Module["_emscripten_bind_SIGSpot_setFireType_1"] = createExportWrapper("emscripten_bind_SIGSpot_setFireType_1");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSpot_setFlameLength_2 = Module["_emscripten_bind_SIGSpot_setFlameLength_2"] = createExportWrapper("emscripten_bind_SIGSpot_setFlameLength_2");
+/** @type {function(...*):?} */
+var _emscripten_bind_SIGSpot_setFirelineIntensity_2 = Module["_emscripten_bind_SIGSpot_setFirelineIntensity_2"] = createExportWrapper("emscripten_bind_SIGSpot_setFirelineIntensity_2");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGSpot_setLocation_1 = Module["_emscripten_bind_SIGSpot_setLocation_1"] = createExportWrapper("emscripten_bind_SIGSpot_setLocation_1");
 /** @type {function(...*):?} */
@@ -6907,8 +6910,8 @@ var ___cxa_can_catch = createExportWrapper("__cxa_can_catch");
 var ___cxa_is_pointer_type = createExportWrapper("__cxa_is_pointer_type");
 /** @type {function(...*):?} */
 var dynCall_jiji = Module["dynCall_jiji"] = createExportWrapper("dynCall_jiji");
-var ___start_em_js = Module['___start_em_js'] = 118920;
-var ___stop_em_js = Module['___stop_em_js'] = 119018;
+var ___start_em_js = Module['___start_em_js'] = 118984;
+var ___stop_em_js = Module['___stop_em_js'] = 119082;
 function invoke_vii(index,a1,a2) {
   var sp = stackSave();
   try {
@@ -7133,6 +7136,17 @@ function invoke_viddidiidd(index,a1,a2,a3,a4,a5,a6,a7,a8,a9) {
   var sp = stackSave();
   try {
     getWasmTableEntry(index)(a1,a2,a3,a4,a5,a6,a7,a8,a9);
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_iidddddd(index,a1,a2,a3,a4,a5,a6,a7) {
+  var sp = stackSave();
+  try {
+    return getWasmTableEntry(index)(a1,a2,a3,a4,a5,a6,a7);
   } catch(e) {
     stackRestore(sp);
     if (!(e instanceof EmscriptenEH)) throw e;
@@ -9291,6 +9305,13 @@ SIGSpot.prototype['setFlameLength'] = SIGSpot.prototype.setFlameLength = /** @su
   if (flameLength && typeof flameLength === 'object') flameLength = flameLength.ptr;
   if (flameLengthUnits && typeof flameLengthUnits === 'object') flameLengthUnits = flameLengthUnits.ptr;
   _emscripten_bind_SIGSpot_setFlameLength_2(self, flameLength, flameLengthUnits);
+};;
+
+SIGSpot.prototype['setFirelineIntensity'] = SIGSpot.prototype.setFirelineIntensity = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firelineIntensity, firelineIntensityUnits) {
+  var self = this.ptr;
+  if (firelineIntensity && typeof firelineIntensity === 'object') firelineIntensity = firelineIntensity.ptr;
+  if (firelineIntensityUnits && typeof firelineIntensityUnits === 'object') firelineIntensityUnits = firelineIntensityUnits.ptr;
+  _emscripten_bind_SIGSpot_setFirelineIntensity_2(self, firelineIntensity, firelineIntensityUnits);
 };;
 
 SIGSpot.prototype['setLocation'] = SIGSpot.prototype.setLocation = /** @suppress {undefinedVars, duplicate} @this{Object} */function(location) {

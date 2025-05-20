@@ -298,6 +298,12 @@
     :parameters
     [{:id "flameLength", :type "double"}
      {:id "flameLengthUnits", :type "LengthUnits::LengthUnitsEnum"}]},
+   :setFirelineIntensity
+   {:type "void",
+    :id   "setFirelineIntensity",
+    :parameters
+    [{:id "firelineIntensity", :type "double"}
+     {:id "firelineIntensityUnits", :type "FirelineIntensityUnits::FirelineIntensityUnitsEnum"}]}
    :getRidgeToValleyElevation
    {:type "double",
     :id "getRidgeToValleyElevation",

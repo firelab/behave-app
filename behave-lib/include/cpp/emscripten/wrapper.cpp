@@ -43,6 +43,7 @@
 #include "SIGIgnite.cpp"
 #include "spot.cpp"
 #include "spotInputs.cpp"
+#include "CrownFirebrandProcessor.cpp"
 #include "SIGSpot.cpp"
 #include "SIGMortality.cpp"
 #include "SIGSurface.cpp"
@@ -51,3 +52,4 @@
 #include "vaporPressureDeficitCalculator.cpp"
 #include "enums.cpp"
 #include "glue.cpp"
+

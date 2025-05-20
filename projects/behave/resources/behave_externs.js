@@ -556,6 +556,7 @@ Module.SIGSpot = class {
   setDownwindCoverHeight() {}
   setFireType () {}
   setFlameLength() {}
+  setFirelineIntensity() {}
   setLocation() {}
   setRidgeToValleyDistance() {}
   setRidgeToValleyElevation() {}
