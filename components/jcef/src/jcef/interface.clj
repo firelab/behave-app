@@ -21,4 +21,4 @@
 
 (def ^{:arglists '([options])
        :doc      "Creates a custom request/response handler for CEF browser."}
-  custom-jcef-request-handler rh/custom-jcef-request-handler)
+  custom-request-handler rh/custom-request-handler)

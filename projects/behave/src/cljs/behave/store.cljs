@@ -46,7 +46,7 @@
     (println ok body)))
 
 (defn load-store! []
-  (ajax-request {:uri             "/sync"
+  (ajax-request {:uri             "/api/sync"
                  :handler         load-data-handler
                  :format          {:content-type "application/text" :write str}
                  :response-format {:description  "ArrayBuffer"
@@ -56,7 +56,7 @@
 
 (defn- batch-sync-tx-data []
   (when-not (empty? @batch)
-    (ajax-request {:uri             "/sync"
+    (ajax-request {:uri             "/api/sync"
                    :params          {:tx-data @batch}
                    :method          :post
                    :handler         sync-tx-data-handler
@@ -86,7 +86,7 @@
         (d/transact @conn datoms)))))
 
 (defn- sync-latest-datoms! []
-  (ajax-request {:uri             "/sync"
+  (ajax-request {:uri             "/api/sync"
                  :params          {:tx (:max-tx @@conn)}
                  :method          :get
                  :handler         apply-latest-datoms
@@ -101,7 +101,7 @@
     (download body file-name "application/x-sqlite3")))
 
 (defn save-worksheet! [{:keys [ws-uuid file-name]}]
-  (ajax-request {:uri             "/save"
+  (ajax-request {:uri             "/api/save"
                  :params          {:ws-uuid   ws-uuid
                                    :file-name file-name}
                  :method          :post
@@ -128,7 +128,7 @@
 (defn open-worksheet! [{:keys [file]}]
   (let [form-data (js/FormData.)]
     (.append form-data "file" file)
-    (ajax-request {:uri             "/open"
+    (ajax-request {:uri             "/api/open"
                    :body            form-data
                    :method          :post
                    :handler         open-worksheet-handler
@@ -155,7 +155,7 @@
       (rf/dispatch-sync [:navigate (first @current-route-order)]))))
 
 (defn new-worksheet! [nname modules submodule]
-  (ajax-request {:uri             "/init"
+  (ajax-request {:uri             "/api/init"
                  :handler         (partial new-worksheet-handler nname modules submodule)
                  :method          :get
                  :format          {:content-type "application/text" :write str}

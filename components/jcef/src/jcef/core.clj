@@ -232,16 +232,24 @@
                                                              "Behave7 Worksheet"
                                                              "bp7"))}]}]}))
 
+  (require '[behave.core :refer [init-config! init-db! create-handler-stack create-api-handler-stack]])
+  (require ' [config.interface :refer [get-config load-config]])
   (show-dev-tools! (:browser app))
-
+  (init-config!)
+  (init-db! (get-config :database))
   (:client app)
   (.removeRequestHandler (:client app))
-  (def local-req-handler (create-local-request-handler "public" "http" "localhost:4242" {}))
+  (def local-req-handler (rh/custom-request-handler
+                          {:protocol     "http"
+                           :authority    "localhost:4242" 
+                           :resource-dir "public"
+                           :ring-handler (create-api-handler-stack)}))
   (.addRequestHandler (:client app) local-req-handler)
+  #_(.loadURL (:browser app) "http://localhost:4242/")
   (.reloadIgnoreCache (:browser app))
   #_(.reload (:browser app))
 
-  #_(.loadURL (:browser app) "http://localhost:4242/")
+  
 
   (println "hi")
 

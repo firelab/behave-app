@@ -19,7 +19,7 @@
             [clojure.string                    :as str]
             [config.interface                  :refer [get-config load-config]]
             [file-utils.interface              :refer [os-path os-type app-data-dir app-logs-dir]]
-            [jcef.interface                    :refer [create-cef-app!]]
+            [jcef.interface                    :refer [create-cef-app! custom-request-handler]]
             [logging.interface                 :as l :refer [log log-str]]
             [ring.middleware.content-type      :refer [wrap-content-type]]
             [ring.middleware.multipart-params  :refer [wrap-multipart-params]]
@@ -130,16 +130,16 @@
 
 (defn- routing-handler [{:keys [uri] :as request}]
   (let [next-handler (cond
-                       (bad-uri? uri)                     (not-found "404 Not Found")
-                       (str/starts-with? uri "/init")     #'init-handler
-                       (str/starts-with? uri "/vms-sync") #'vms-sync-handler
-                       (str/starts-with? uri "/sync")     #'sync-handler
-                       (str/starts-with? uri "/save")     #'save-handler
-                       (str/starts-with? uri "/open")     #'open-handler
-                       (str/starts-with? uri "/test")     #'render-tests-page
-                       (str/starts-with? uri "/close")    #'close-handler
-                       (match-route routes uri)           (render-page (match-route routes uri))
-                       :else                              (not-found "404 Not Found"))]
+                       (bad-uri? uri)                         (not-found "404 Not Found")
+                       (str/starts-with? uri "/api/init")     #'init-handler
+                       (str/starts-with? uri "/api/vms-sync") #'vms-sync-handler
+                       (str/starts-with? uri "/api/sync")     #'sync-handler
+                       (str/starts-with? uri "/api/save")     #'save-handler
+                       (str/starts-with? uri "/api/open")     #'open-handler
+                       (str/starts-with? uri "/api/test")     #'render-tests-page
+                       (str/starts-with? uri "/api/close")    #'close-handler
+                       (match-route routes uri)              (render-page (match-route routes uri))
+                       :else                                 (not-found "404 Not Found"))]
     (next-handler request)))
 
 (defn- wrap-query-params [handler]
@@ -148,8 +148,8 @@
       (handler req)
       (let [keyvals (-> (url-decode query-string)
                         (str/split #"&"))
-            params (reduce (fn [params keyval]
-                             (let [[k v] (str/split keyval #"=")]
+            params  (reduce (fn [params keyval]
+                              (let [[k v] (str/split keyval #"=")]
                                (assoc params (keyword k) (edn/read-string v))))
                            params keyvals)]
         (handler (assoc req :params params))))))
@@ -174,7 +174,7 @@
       (handler request)
       (catch Exception e
         (let [{:keys [data cause]} (Throwable->map e)
-               status (:status data)]
+              status               (:status data)]
           (log-str "Error: " cause)
           (log-str (st/print-stack-trace e))
           {:status (or status 500) :body cause})))))
@@ -184,9 +184,9 @@
   (let [m        (meta #'reloadable-clj-files)
         n-spaces (:ns m)
         ns-file  (-> n-spaces
-                    (str/replace "-" "_")
-                    (str/replace "." "/")
-                    (->> (format "/%s.clj")))
+                     (str/replace "-" "_")
+                     (str/replace "." "/")
+                     (->> (format "/%s.clj")))
         path     (:file m)]
     [(str/replace path #"/projects/.*" "/components")
      (str/replace path #"/projects/.*" "/bases")
@@ -206,7 +206,7 @@
     (println request)
     (handler request)))
 
-(defn- create-handler-stack [{:keys [reload? figwheel?]}]
+(defn create-handler-stack [{:keys [reload? figwheel?]}]
   (-> routing-handler
       wrap-debug
       (wrap-figwheel figwheel?)
@@ -219,6 +219,16 @@
       wrap-multipart-params
       wrap-exceptions
       (optional-middleware #(wrap-reload % {:dirs (reloadable-clj-files)}) reload?)))
+
+(defn create-api-handler-stack []
+  (-> routing-handler
+      wrap-debug
+      wrap-params
+      wrap-keyword-params
+      wrap-query-params
+      wrap-req-content-type+accept
+      wrap-multipart-params
+      wrap-exceptions))
 
 ;; This is for Figwheel
 (def ^{:doc "Figwheel handler."}
@@ -307,11 +317,10 @@
                                                (println "Hello Save File!"))}]}]
         :on-before-launch
         (fn [{:keys [client frame]}]
-          #_(.addRequestHandler client (rh/create-custom-request-handler "http"
-                                                                       "localhost:4242"
-                                                                       "public"
-                                                                       (create-handler-stack {:reload?   (= mode "dev")
-                                                                                              :figwheel? false})))
+          (.addRequestHandler client (custom-request-handler {:protocol     "http"
+                                                              :authority    "localhost:4242"
+                                                              :resource-dir "public"
+                                                              :ring-handler (create-api-handler-stack)}))
           (on-before-launch frame (get-config :site :title)))}))))
 
 (comment
