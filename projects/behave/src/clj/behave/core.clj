@@ -292,7 +292,7 @@
     (cond
       (= "dev" mode)
       (do 
-        #_(vms-sync!)
+        (vms-sync!)
         (log-str "Starting server!")
         (server/start-server! {:handler (create-handler-stack {:reload? (= mode "dev") :figwheel? false})
                                :port    http-port}))
