@@ -28,33 +28,33 @@
 #_{:clj-kondo/ignore [:missing-docstring]}
 (def payload
   [(sm/->group conn
-               {:submodule-eid   (sm/t-key->eid conn "behaveplus:surface:input:spot")
-                :order           4
-                :name            "Linked Inputs (Hidden)"
-                :hidden?         true
-                :translation-key "behaveplus:surface:input:spot:linked-inputs-hidden"
-                :children        [{:name            "Wind Measured at"
-                                   :order           0
-                                   :translation-key "behaveplus:surface:input:spot:linked-inputs-hidden:wind-measured-at"
-                                   :group-variables [{:db/id           -1
-                                                      :order           0
-                                                      :variable-eid    (sm/name->eid conn :variable/name "Wind Measured at")
-                                                      :cpp-namespace   "global"
-                                                      :cpp-class       "SIGSpot"
-                                                      :cpp-function    "setWindHeightInputMode"
-                                                      :cpp-parameter   ["SIGSpot" "setWindHeightInputMode" "windHeightInputMode"]
-                                                      :translation-key "behaveplus:surface:input:spot:linked-inputs-hidden:wind-measured-at:wind-measured-at"}]}
-                                  {:name            "Wind Speed"
-                                   :order           1
-                                   :translation-key "behaveplus:surface:input:spot:linked-inputs-hidden:wind-speed"
-                                   :group-variables [{:db/id           -2
-                                                      :order           0
-                                                      :variable-name   "Wind Measured at"
-                                                      :cpp-namespace   "global"
-                                                      :cpp-class       "SIGSpot"
-                                                      :cpp-function    "setWindHeightInputMode"
-                                                      :cpp-parameter   ["SIGSpot" "setWindSpeed" "windSpeed"]
-                                                      :translation-key "behaveplus:surface:input:spot:linked-inputs-hidden:wind-speed:wind-speed"}]}]})
+               {:parent-submodule-eid (sm/t-key->eid conn "behaveplus:surface:input:spot")
+                :order                4
+                :name                 "Linked Inputs (Hidden)"
+                :hidden?              true
+                :translation-key      "behaveplus:surface:input:spot:linked-inputs-hidden"
+                :children             [{:name            "Wind Measured at"
+                                        :order           0
+                                        :translation-key "behaveplus:surface:input:spot:linked-inputs-hidden:wind-measured-at"
+                                        :group-variables [{:db/id           -1
+                                                           :order           0
+                                                           :variable-eid    (sm/name->eid conn :variable/name "Wind Measured at")
+                                                           :cpp-namespace   "global"
+                                                           :cpp-class       "SIGSpot"
+                                                           :cpp-function    "setWindHeightInputMode"
+                                                           :cpp-parameter   ["SIGSpot" "setWindHeightInputMode" "windHeightInputMode"]
+                                                           :translation-key "behaveplus:surface:input:spot:linked-inputs-hidden:wind-measured-at:wind-measured-at"}]}
+                                       {:name            "Wind Speed"
+                                        :order           1
+                                        :translation-key "behaveplus:surface:input:spot:linked-inputs-hidden:wind-speed"
+                                        :group-variables [{:db/id           -2
+                                                           :order           0
+                                                           :variable-eid    (sm/name->eid conn :variable/name "Wind Speed")
+                                                           :cpp-namespace   "global"
+                                                           :cpp-class       "SIGSpot"
+                                                           :cpp-function    "setWindHeightInputMode"
+                                                           :cpp-parameter   ["SIGSpot" "setWindSpeed" "windSpeed"]
+                                                           :translation-key "behaveplus:surface:input:spot:linked-inputs-hidden:wind-speed:wind-speed"}]}]})
 
    (sm/->group conn {:parent-group-eid (sm/t-key->eid conn "behaveplus:crown:input:spotting:fire_behavior")
                      :order            2
@@ -63,7 +63,7 @@
                      :translation-key  "behaveplus:crown:input:spotting:fire_behavior:active-crown-fireline-intensity-hidden"
                      :group-variables  [{:db/id           -3
                                          :order           0
-                                         :variable-name   "Heading Fireline Intensity"
+                                         :variable-eid    nil
                                          :cpp-namespace   "global"
                                          :cpp-class       "SIGSpot"
                                          :cpp-function    "setWindHeightInputMode"
