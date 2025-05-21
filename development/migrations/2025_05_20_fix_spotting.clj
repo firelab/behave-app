@@ -63,7 +63,7 @@
                      :translation-key  "behaveplus:crown:input:spotting:fire_behavior:active-crown-fireline-intensity-hidden"
                      :group-variables  [{:db/id           -3
                                          :order           0
-                                         :variable-eid    nil
+                                         :variable-eid    (sm/name->eid conn :variable/name "Heading Fireline Intensity")
                                          :cpp-namespace   "global"
                                          :cpp-class       "SIGSpot"
                                          :cpp-function    "setWindHeightInputMode"
