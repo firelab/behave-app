@@ -354,25 +354,26 @@
 
 (defn ->group
   "Payload for a new Group."
-  [conn {:keys [parent-submodule-eid parent-group-eid name order translation-key conditionals group-variables children research? hidden?] :as params}]
+  [conn {:keys [parent-submodule-eid parent-group-eid name order translation-key conditionals group-variables subgroups research? hidden?] :as params}]
   (let [payload (if (spec/valid? :behave/group params)
                   params
                   (cond-> {}
-                    (nil? (:bp/uuid params)) (assoc :bp/uuid  (rand-uuid))
-                    (nil? (:bp/nid params))  (assoc :bp/nid  (nano-id))
-                    (:db/id params)          (assoc :db/id (:db/id params))
-                    parent-submodule-eid     (assoc :submodule/_groups parent-submodule-eid)
-                    parent-group-eid         (assoc :group/_children parent-group-eid)
-                    name                     (assoc :group/name name)
-                    order                    (assoc :group/order order)
-                    translation-key          (assoc :group/translation-key translation-key)
-                    translation-key          (assoc :group/result-translation-key (s/replace translation-key ":output:" ":result:"))
-                    translation-key          (assoc :group/help-key (str translation-key ":help"))
-                    conditionals             (assoc :group/conditionals (map #(->conditional conn %) conditionals))
-                    group-variables          (assoc :group/group-variables (map #(->group-variable conn %) group-variables))
-                    children                 (assoc :group/children (map #(->group conn %) children))
-                    research?                (assoc :group/research? research?)
-                    hidden?                  (assoc :group/hidden? hidden?)))]
+                    (nil? (:bp/uuid params))                            (assoc :bp/uuid  (rand-uuid))
+                    (nil? (:bp/nid params))                             (assoc :bp/nid  (nano-id))
+                    (:db/id params)                                     (assoc :db/id (:db/id params))
+                    parent-submodule-eid                                (assoc :submodule/_groups parent-submodule-eid)
+                    parent-group-eid                                    (assoc :group/_children parent-group-eid)
+                    name                                                (assoc :group/name name)
+                    order                                               (assoc :group/order order)
+                    translation-key                                     (assoc :group/translation-key translation-key)
+                    translation-key                                     (assoc :group/result-translation-key (s/replace translation-key ":output:" ":result:"))
+                    translation-key                                     (assoc :group/help-key (str translation-key ":help"))
+                    conditionals                                        (assoc :group/conditionals (map #(->conditional conn %) conditionals))
+                    (and group-variables (every? map? group-variables)) (assoc :group/group-variables (map #(->group-variable conn %) group-variables))
+                    (and group-variables (every? int? group-variables)) (assoc :group/group-variables group-variables)
+                    subgroups                                           (assoc :group/children (map #(->group conn %) subgroups))
+                    research?                                           (assoc :group/research? research?)
+                    hidden?                                             (assoc :group/hidden? hidden?)))]
     (if (spec/valid? :behave/group payload)
       payload
       (spec/explain :behave/group payload))))
@@ -382,17 +383,19 @@
   (let [payload (if (spec/valid? :behave/submodule params)
                   params
                   (cond-> {}
-                    (nil? (:bp/uuid params)) (assoc :bp/uuid  (rand-uuid))
-                    (nil? (:bp/nid params))  (assoc :bp/nid  (nano-id))
-                    io                       (assoc :submodule/io io)
-                    name                     (assoc :submodule/name name)
-                    order                    (assoc :submodule/order order)
-                    groups                   (assoc :submodule/groups (map #(->group conn %) groups))
-                    conditionals             (assoc :submodule/conditionals (map #(->conditional conn %) conditionals))
-                    conditionals-operator    (assoc :submodule/conditionals-operator conditionals-operator)
-                    translation-key          (assoc :submodule/translation-key translation-key)
-                    translation-key          (assoc :submodule/help-key (str translation-key ":help"))
-                    research?                (assoc :submodule/research? research?)))]
+                    (nil? (:bp/uuid params))          (assoc :bp/uuid  (rand-uuid))
+                    (nil? (:bp/nid params))           (assoc :bp/nid  (nano-id))
+                    io                                (assoc :submodule/io io)
+                    name                              (assoc :submodule/name name)
+                    order                             (assoc :submodule/order order)
+                    (and groups (every? map? groups)) (assoc :submodule/groups (map #(->group conn %) groups))
+                    (and groups (every? int? groups)) (assoc :submodule/groups groups)
+                    groups                            (assoc :submodule/groups (map #(->group conn %) groups))
+                    conditionals                      (assoc :submodule/conditionals (map #(->conditional conn %) conditionals))
+                    conditionals-operator             (assoc :submodule/conditionals-operator conditionals-operator)
+                    translation-key                   (assoc :submodule/translation-key translation-key)
+                    translation-key                   (assoc :submodule/help-key (str translation-key ":help"))
+                    research?                         (assoc :submodule/research? research?)))]
     (if (spec/valid? :behave/submodule payload)
       payload
       (spec/explain :behave/submodule payload))))

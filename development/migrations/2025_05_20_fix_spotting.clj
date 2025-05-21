@@ -33,7 +33,7 @@
                 :name                 "Linked Inputs (Hidden)"
                 :hidden?              true
                 :translation-key      "behaveplus:surface:input:spot:linked-inputs-hidden"
-                :children             [{:name            "Wind Measured at"
+                :subgroups            [{:name            "Wind Measured at"
                                         :order           0
                                         :translation-key "behaveplus:surface:input:spot:linked-inputs-hidden:wind-measured-at"
                                         :group-variables [{:db/id           -1

@@ -11,9 +11,9 @@
 (s/def :group/translation-key        (s/and string? valid-key?))
 (s/def :group/help-key               (s/and string? valid-key?))
 (s/def :group/children               (s/coll-of (s/or :group :behave/group
-                                                      :set set?)))
-(s/def :group/group-variables        (s/or :group-variables (s/coll-of :behave/group-variable)
-                                           :set set?))
+                                                      :refs  int?)))
+(s/def :group/group-variables        (s/coll-of (s/or :behave/group-variable :behave/group-variable
+                                                      :refs                  int?)))
 (s/def :group/research?              boolean?)
 (s/def :group/conditionals           (s/coll-of (s/or :behave/conditional :behave/conditional
                                                       :int int?)))
