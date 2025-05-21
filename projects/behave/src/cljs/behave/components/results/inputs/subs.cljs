@@ -31,8 +31,10 @@
        (is-collection-of-groups node)
        (filter (fn [{conditional-op :group/conditionals-operator
                      conditionals   :group/conditionals
-                     research?      :group/research?}]
+                     research?      :group/research?
+                     hidden?        :group/hidden?}]
                  (and (not research?)
+                      (not hidden?)
                       (all-conditionals-pass? worksheet
                                               conditional-op
                                               conditionals))))))

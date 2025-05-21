@@ -8,7 +8,8 @@
 
 ;;; Spec
 
-(s/def :group-variable/uuid            uuid-string?)
+(s/def :bp/uuid                        uuid-string?)
+(s/def :bp/nid                         string?)
 (s/def :group-variable/cpp-class       string?)
 (s/def :group-variable/cpp-function    string?)
 (s/def :group-variable/cpp-namespace   string?)
@@ -21,7 +22,8 @@
 
 
 
-(s/def :behave/group-variable (s/keys :req [:group-variable/uuid
+(s/def :behave/group-variable (s/keys :req [:bp/uuid
+                                            :bp/nid
                                             :group-variable/order
                                             :group-variable/translation-key
                                             :group-variable/help-key

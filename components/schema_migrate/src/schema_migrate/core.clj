@@ -5,6 +5,7 @@
    [datascript.core    :refer [squuid]]
    [datomic.api        :as d]
    [datomic-store.main :as ds]
+   [clojure.spec.alpha :as spec]
    [nano-id.core       :refer [nano-id]]))
 
 (def
@@ -313,36 +314,65 @@
    :conditional/operator operator
    :conditional/values   values})
 
-(defn ->group
-  "Payload for a new Group."
-  [submodule-eid gname t-key]
-  {:bp/uuid               (rand-uuid)
-   :bp/nid                (nano-id)
-   :submodule/_groups     submodule-eid
-   :group/name            gname
-   :group/translation-key t-key
-   :group/help-key        (str t-key ":help")})
-
-(defn ->subgroup
-  "Payload for a new Subgroup."
-  [parent-group-eid gname t-key]
-  {:bp/uuid               (rand-uuid)
-   :bp/nid                (nano-id)
-   :group/_children       parent-group-eid
-   :group/name            gname
-   :group/translation-key t-key
-   :group/help-key        (str t-key ":help")})
+(defn ->conditional
+  "Payload for a Conditional."
+  [{:keys [type operator values group-variable-uuid] :as params}]
+  (let [payload (cond-> {}
+                  (nil? (:bp/uuid params)) (assoc :bp/uuid  (rand-uuid))
+                  (nil? (:bp/nid params))  (assoc :bp/nid  (nano-id))
+                  group-variable-uuid      (assoc :conditional/group-variable-uuid group-variable-uuid)
+                  type                     (assoc :conditional/type type)
+                  operator                 (assoc :conditional/operator operator)
+                  values                   (assoc :conditional/values values)
+                  type                     (assoc :conditional/type type))]
+    (if (spec/valid? :behave/conditional payload)
+      payload
+      (spec/explain :behave/conditional payload))))
 
 (defn ->group-variable
   "Payload for a new Group Variable."
-  [group-eid variable-eid t-key]
-  {:bp/uuid                               (rand-uuid)
-   :bp/nid                                (nano-id)
-   :group/_group-variables                group-eid
-   :variable/_group-variables             variable-eid
-   :group-variable/translation-key        t-key
-   :group-variable/result-translation-key (s/replace t-key ":output:" ":result:")
-   :group-variable/help-key               (str t-key ":help")})
+  [conn {:keys [cpp-namespace group-eid cpp-class cpp-function cpp-parameter translation-key variable-name order] :as params}]
+  (let [payload (cond-> {}
+                  (nil? (:bp/uuid params)) (assoc :bp/uuid  (rand-uuid))
+                  (not  (:bp/nid params))  (assoc :bp/nid  (nano-id))
+                  (:db/id params)          (assoc :db/id (:db/id params))
+                  group-eid                (assoc :group/_group-variables group-eid)
+                  variable-name            (assoc :variable/_group-variables (name->eid conn :variable/name variable-name))
+                  order                    (assoc :group-variable/order order)
+                  cpp-namespace            (assoc :group-variable/cpp-namespace (cpp-ns->uuid conn cpp-namespace))
+                  cpp-class                (assoc :group-variable/cpp-class (cpp-class->uuid conn cpp-class))
+                  cpp-function             (assoc :group-variable/cpp-function (cpp-fn->uuid conn cpp-function))
+                  cpp-parameter            (assoc :group-variable/cpp-parameter (apply cpp-param->uuid conn cpp-parameter))
+                  translation-key          (assoc :group-variable/translation-key translation-key)
+                  translation-key          (assoc :group-variable/result-translation-key (s/replace translation-key ":output:" ":result:"))
+                  translation-key          (assoc :group-variable/help-key (str translation-key ":help")))]
+    (if (spec/valid? :behave/group-variable payload)
+      payload
+      (spec/explain :behave/group-variable payload))))
+
+(defn ->group
+  "Payload for a new Group."
+  [conn {:keys [eid submodule-eid parent-group-eid name order translation-key conditionals group-variables children research? hidden?] :as params}]
+  (let [payload (cond-> {}
+                  (nil? (:bp/uuid params)) (assoc :bp/uuid  (rand-uuid))
+                  (nil? (:bp/nid params))  (assoc :bp/nid  (nano-id))
+                  (:db/id params)          (assoc :db/id (:db/id params))
+                  eid                      (assoc :db/id eid)
+                  submodule-eid            (assoc :submodule/_groups submodule-eid)
+                  parent-group-eid         (assoc :group/_children parent-group-eid)
+                  name                     (assoc :group/name name)
+                  order                    (assoc :group/order order)
+                  translation-key          (assoc :group/translation-key translation-key)
+                  translation-key          (assoc :group/result-translation-key (s/replace translation-key ":output:" ":result:"))
+                  translation-key          (assoc :group/help-key (str translation-key ":help"))
+                  conditionals             (assoc :group/conditionals (map ->conditional conditionals))
+                  group-variables          (assoc :group/group-variables (map #(->group-variable conn %) group-variables))
+                  children                 (assoc :group/children (map #(->group conn %) children))
+                  research?                (assoc :group/research? research?)
+                  hidden?                  (assoc :group/hidden? hidden?))]
+    (if (spec/valid? :behave/group payload)
+      payload
+      (spec/explain :behave/group payload))))
 
 (defn ->link
   "Payload for a new Link."

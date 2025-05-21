@@ -628,6 +628,7 @@
  (fn [[worksheet conditionals group-entity] [_ _ws-uuid _group-id conditionals-operator]]
    (and (all-conditionals-pass? worksheet conditionals-operator conditionals)
         (not (:group/research? group-entity))
+        (not (:group/hidden? group-entity))
         (or (some #(not (:group-variable/conditionally-set? %)) (:group/group-variables group-entity))
             (seq (:group/children group-entity))))))
 

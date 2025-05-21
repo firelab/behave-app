@@ -98,15 +98,15 @@
        :doc "Payload for a Module Conditional."}
   ->module-conditional c/->module-conditional)
 
-(def ^{:arglists '([submodule-eid gname t-key])
+(def ^{:arglists '([params])
+       :doc      "Payload for a Conditional."}
+  ->module-conditional c/->conditional)
+
+(def ^{:arglists '([conn params])
        :doc "Payload for a new Group."}
   ->group c/->group)
 
-(def ^{:arglists '([group-eid gname t-key])
-       :doc "Payload for a Subgroup."}
-  ->subgroup c/->subgroup)
-
-(def ^{:arglists '([group-eid variable-eid t-key])
+(def ^{:arglists '([conn params])
        :doc "Payload for a new Group Variable."}
   ->group-variable c/->group-variable)
 

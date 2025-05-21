@@ -867,7 +867,8 @@
             (reset! missing-inputs? true))))))
   (when-let [children (:group/children group)]
     (doseq [group (filter #(and (all-conditionals-pass? worksheet (:group/conditionals-operator %) (:group/conditionals %))
-                                (not (:group/research? %)))
+                                (not (:group/research? %))
+                                (not (:group/hidden? %)))
                           children)]
       (process-group-for-missing-inputs worksheet all-inputs missing-inputs? group))))
 
@@ -884,7 +885,8 @@
                                      (all-conditionals-pass? worksheet (:submodule/conditionals-operator %) (:submodule/conditionals %)))
                                (:module/submodules module))
              group     (filter #(and (all-conditionals-pass? worksheet (:group/conditionals-operator %) (:group/conditionals %))
-                                     (not (:group/research? %)))
+                                     (not (:group/research? %))
+                                     (not (:group/hidden? %)))
                                (:submodule/groups submodule))]
        (process-group-for-missing-inputs worksheet all-inputs missing-inputs? group))
      @missing-inputs?)))
