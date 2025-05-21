@@ -241,7 +241,7 @@
 
 (defn- get-icons []
   (->> ["public/images/android-chrome-192x192.png"
-        "public/images/android-touch-icon.png"
+        "public/images/apple-touch-icon.png"
         "public/images/favicon-96x96.png"]
        (map #(ImageIO/read (io/resource %)))))
 
@@ -257,7 +257,7 @@
     :windows
     (do
       (.setUndecorated jframe true)
-      (.setIcons jframe (get-icons))
+      (.setIconImages jframe (get-icons))
       (set-properties! {}))
 
     :linux
