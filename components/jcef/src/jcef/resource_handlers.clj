@@ -1,6 +1,7 @@
 (ns jcef.resource-handlers
   (:require [clojure.string :as str]
-            [clojure.java.io :as io])
+            [clojure.java.io :as io]
+            [jcef.mime-type :refer [ext-mime-type]])
   (:import [org.cef.handler
             CefCookieAccessFilter
             CefRequestHandlerAdapter
@@ -9,8 +10,7 @@
            [org.cef.misc IntRef StringRef BoolRef]
            [org.cef.network CefRequest CefResponse CefPostDataElement$Type]
            [java.io InputStream IOException ByteArrayOutputStream]
-           [java.net URL]
-           [java.nio.file Paths Files]))
+           [java.net URL]))
 
 (defn- strip-leading-slash [s]
   (if (str/starts-with? s "/")
@@ -75,25 +75,8 @@
     (.getResource (ClassLoader/getSystemClassLoader)
                   (format "%s/%s" public-dir (strip-leading-slash path)))))
 
-(defn- ext [filename-or-resource]
-  (-> (str/split (str filename-or-resource) #"/")
-      (last)
-      (str/split #"\.")
-      (last)))
-
 (defn- mime-type [filename-or-resource]
-  (let [file-ext (ext filename-or-resource)
-        resource (if (string? filename-or-resource)
-                   (io/resource filename-or-resource)
-                   filename-or-resource)]
-    (condp = file-ext
-      "msgpack"
-      "application/msgpack"
-
-      (-> resource
-          (.toURI)
-          (Paths/get)
-          (Files/probeContentType)))))
+  (ext-mime-type (str filename-or-resource)))
 
 (defn- create-api-resource-handler [ring-response]
   (let [resource-input-stream (:body ring-response)]
