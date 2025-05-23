@@ -10,10 +10,10 @@
 (s/def :group/order                  (s/and integer? #(<= 0 %)))
 (s/def :group/translation-key        (s/and string? valid-key?))
 (s/def :group/help-key               (s/and string? valid-key?))
-(s/def :group/children               (s/coll-of (s/or :group :behave/group
-                                                      :refs  int?)))
+(s/def :group/children               (s/coll-of (s/or :behave/group :behave/group
+                                                      :ref  int?)))
 (s/def :group/group-variables        (s/coll-of (s/or :behave/group-variable :behave/group-variable
-                                                      :refs                  int?)))
+                                                      :ref                  int?)))
 (s/def :group/research?              boolean?)
 (s/def :group/conditionals           (s/coll-of (s/or :behave/conditional :behave/conditional
                                                       :int int?)))
@@ -30,7 +30,8 @@
                              :opt [:group/children
                                    :group/group-variables
                                    :group/hidden?
-                                   :group/research?]))
+                                   :group/research?
+                                   :group/conditionals]))
 
 ;;; Schema
 

@@ -48,7 +48,7 @@
        nname))
 
 (defn cpp-ns->uuid
-  "Given the namespace name, ret the :bp/uuid of the namespace entity"
+  "Given the namespace name, ret the :bp/uuid using the cpp namepsace name"
   [conn nname]
   (d/q '[:find ?uuid .
          :in $ ?name
@@ -307,15 +307,15 @@
 
 (defn ->conditional
   "Payload for a Conditional."
-  [_conn {:keys [type operator values group-variable-uuid] :as params}]
+  [_conn {:keys [ttype operator values group-variable-uuid] :as params}]
   (let [payload (cond-> {}
                   (nil? (:bp/uuid params)) (assoc :bp/uuid  (rand-uuid))
                   (nil? (:bp/nid params))  (assoc :bp/nid  (nano-id))
                   group-variable-uuid      (assoc :conditional/group-variable-uuid group-variable-uuid)
-                  type                     (assoc :conditional/type type)
+                  ttype                    (assoc :conditional/type ttype)
                   operator                 (assoc :conditional/operator operator)
                   values                   (assoc :conditional/values values)
-                  type                     (assoc :conditional/type type))]
+                  ttype                    (assoc :conditional/type ttype))]
     (if (spec/valid? :behave/conditional payload)
       payload
       (spec/explain :behave/conditional payload))))
@@ -345,7 +345,7 @@
 
 (defn ->group
   "Payload for a new Group."
-  [conn {:keys [parent-submodule-eid parent-group-eid name order translation-key conditionals group-variables subgroups research? hidden?] :as params}]
+  [conn {:keys [parent-submodule-eid parent-group-eid nname order translation-key conditionals group-variables subgroups research? hidden?] :as params}]
   (let [payload (if (spec/valid? :behave/group params)
                   params
                   (cond-> {}
@@ -354,7 +354,7 @@
                     (:db/id params)                                     (assoc :db/id (:db/id params))
                     parent-submodule-eid                                (assoc :submodule/_groups parent-submodule-eid)
                     parent-group-eid                                    (assoc :group/_children parent-group-eid)
-                    name                                                (assoc :group/name name)
+                    nname                                               (assoc :group/name nname)
                     order                                               (assoc :group/order order)
                     translation-key                                     (assoc :group/translation-key translation-key)
                     translation-key                                     (assoc :group/result-translation-key (s/replace translation-key ":output:" ":result:"))
@@ -370,14 +370,14 @@
       (spec/explain :behave/group payload))))
 
 (defn ->submodule
-  [conn {:keys [io name order groups research? translation-key conditionals conditionals-operator] :as params}]
+  [conn {:keys [io nname order groups research? translation-key conditionals conditionals-operator] :as params}]
   (let [payload (if (spec/valid? :behave/submodule params)
                   params
                   (cond-> {}
                     (nil? (:bp/uuid params))          (assoc :bp/uuid  (rand-uuid))
                     (nil? (:bp/nid params))           (assoc :bp/nid  (nano-id))
                     io                                (assoc :submodule/io io)
-                    name                              (assoc :submodule/name name)
+                    nname                             (assoc :submodule/name nname)
                     order                             (assoc :submodule/order order)
                     (and groups (every? map? groups)) (assoc :submodule/groups (map #(->group conn %) groups))
                     (and groups (every? int? groups)) (assoc :submodule/groups groups)
