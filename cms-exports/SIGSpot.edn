@@ -39,6 +39,12 @@
     :parameters
     [{:id "windSpeedAtTwentyFeet", :type "double"}
      {:id "windSpeedUnits", :type "SpeedUnits::SpeedUnitsEnum"}]},
+   :setWindSpeed
+   {:type "void",
+    :id   "setWindSpeed",
+    :parameters
+    [{:id "windSpeed", :type "double"}
+     {:id "windSpeedUnits", :type "SpeedUnits::SpeedUnitsEnum"}]}
    :setDownwindCoverHeight
    {:type "void",
     :id "setDownwindCoverHeight",

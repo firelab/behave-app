@@ -48,7 +48,7 @@
        nname))
 
 (defn cpp-ns->uuid
-  "Get the :bp/uuid using the cpp namepsace name"
+  "Given the namespace name, ret the :bp/uuid of the namespace entity"
   [conn nname]
   (d/q '[:find ?uuid .
          :in $ ?name
@@ -59,46 +59,63 @@
        nname))
 
 (defn cpp-class->uuid
-  "Get the :bp/uuid using the cpp class name"
-  [conn nname]
+  "Given the namespace and class, return the :bp/uuid of the class entity."
+  [conn nnamespace cclass]
   (d/q '[:find ?uuid .
-         :in $ ?name
+         :in $ ?namespace ?class
          :where
-         [?e :cpp.class/name ?name]
-         [?e :bp/uuid ?uuid]]
+         [?ns :cpp.namespace/name ?namespace]
+         [?ns :cpp.namespace/class ?c]
+         [?c :cpp.class/name ?class]
+         [?c :bp/uuid ?uuid]]
        (d/db conn)
-       nname))
+       nnamespace
+       cclass))
 
 (defn cpp-fn->uuid
-  "Get the :bp/uuid using the cpp function name"
-  ([conn nname]
+  "Given the namespace class and function name, return the :bp/uuid of the function entity."
+  ([conn nnamespace cclass fn-name]
    (d/q '[:find ?uuid .
-          :in $ ?name
+          :in $ ?namespace ?class ?fn-name
           :where
-          [?e :cpp.function/name ?name]
-          [?e :bp/uuid ?uuid]]
-        (d/db conn)
-        nname))
-
-  ([conn class-name fn-name]
-   (d/q '[:find ?uuid .
-          :in $ ?class-name ?fn-name
-          :where
-          [?c :cpp.class/name ?class-name]
+          [?ns :cpp.namespace/name ?namespace]
+          [?ns :cpp.namespace/class ?c]
+          [?c :cpp.class/name ?class]
           [?c :cpp.class/function ?f]
           [?f :cpp.function/name ?fn-name]
           [?f :bp/uuid ?uuid]]
         (d/db conn)
-        class-name
+        nnamespace
+        cclass
         fn-name)))
+
+(defn cpp-param->uuid
+  "Given the namespace, class, function name and parameter name, return the :bp/uuid of the parameter entity."
+  ([conn nnamespace cclass fn-name param-name]
+   (d/q '[:find ?uuid .
+          :in $ ?namespace ?class ?fn-name
+          :where
+          [?ns :cpp.namespace/name ?namespace]
+          [?ns :cpp.namespace/class ?c]
+          [?c :cpp.class/name ?class]
+          [?c :cpp.class/function ?f]
+          [?f :cpp.function/name ?fn-name]
+          [?f :cpp.function/parameter ?p]
+          [?p :cpp.parameter/name ?param-name]
+          [?p :bp/uuid ?uuid]]
+        (d/db conn)
+        nnamespace
+        cclass
+        fn-name
+        param-name)))
 
 (defn cpp-uuids
   "Given a map of with the names of a namespace, class and function, return a map
   that resolves the names to a uuid. Requires all three names."
-  [conn {:keys [cpp-namespace cpp-class cpp-function]}]
+  [conn {:keys [cpp-namespace cpp-class cpp-function cpp-param]}]
   (first
-   (d/q '[:find ?ns-uuid ?c-uuid ?f-uuid
-          :keys cpp-namespace cpp-class cpp-function
+   (d/q '[:find ?ns-uuid ?c-uuid ?f-uuid ?param-uuid
+          :keys cpp-namespace cpp-class cpp-function cpp-param
           :in $ ?namespace ?class ?function
           :where
           [?n :cpp.namespace/name ?namespace]
@@ -108,41 +125,15 @@
           [?c :bp/uuid ?c-uuid]
           [?c :cpp.class/function ?fn]
           [?fn :cpp.function/name ?function]
-          [?fn :bp/uuid ?f-uuid]]
+          [?fn :bp/uuid ?f-uuid]
+          [?f :cpp.function/parameter ?p]
+          [?p :cpp.parameter/name ?param-name]
+          [?p :bp/uuid ?param-uuid]]
         (d/db conn)
         cpp-namespace
         cpp-class
-        cpp-function)))
-
-(defn cpp-param->uuid
-  "Get the :bp/uuid using the cpp function name and parameter name."
-
-  ([conn fn-name param-name]
-   (d/q '[:find ?uuid .
-          :in $ ?fn-name ?p-name
-          :where
-          [?f :cpp.function/name ?fn-name]
-          [?f :cpp.function/parameter ?p]
-          [?p :cpp.parameter/name ?p-name]
-          [?p :bp/uuid ?uuid]]
-        (d/db conn)
-        fn-name
-        param-name))
-
-  ([conn class-name fn-name param-name]
-   (d/q '[:find ?uuid .
-          :in $ ?class-name ?fn-name ?p-name
-          :where
-          [?c :cpp.class/name ?class-name]
-          [?c :cpp.class/function ?f]
-          [?f :cpp.function/name ?fn-name]
-          [?f :cpp.function/parameter ?p]
-          [?p :cpp.parameter/name ?p-name]
-          [?p :bp/uuid ?uuid]]
-        (d/db conn)
-        class-name
-        fn-name
-        param-name)))
+        cpp-function
+        cpp-param)))
 
 (defn- submodule [conn t]
   (->> t
@@ -342,9 +333,9 @@
                     order                    (assoc :group-variable/order order)
                     variable-eid             (assoc :variable/_group-variables variable-eid)
                     cpp-namespace            (assoc :group-variable/cpp-namespace (cpp-ns->uuid conn cpp-namespace))
-                    cpp-class                (assoc :group-variable/cpp-class (cpp-class->uuid conn cpp-class))
-                    cpp-function             (assoc :group-variable/cpp-function (cpp-fn->uuid conn cpp-function))
-                    cpp-parameter            (assoc :group-variable/cpp-parameter (apply cpp-param->uuid conn cpp-parameter))
+                    cpp-class                (assoc :group-variable/cpp-class (cpp-class->uuid conn cpp-namespace cpp-class))
+                    cpp-function             (assoc :group-variable/cpp-function (cpp-fn->uuid conn cpp-namespace cpp-class cpp-function))
+                    cpp-parameter            (assoc :group-variable/cpp-parameter (cpp-param->uuid conn cpp-namespace cpp-class cpp-function cpp-parameter))
                     translation-key          (assoc :group-variable/translation-key translation-key)
                     translation-key          (assoc :group-variable/result-translation-key (s/replace translation-key ":output:" ":result:"))
                     translation-key          (assoc :group-variable/help-key (str translation-key ":help"))))]

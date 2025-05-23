@@ -18,11 +18,11 @@
        :doc      "Get the :bp/uuid using the cpp namepsace name"}
   cpp-ns->uuid c/cpp-ns->uuid)
 
-(def ^{:arglists '([conn nname])
+(def ^{:arglists '([conn nnamespace cclass])
        :doc      "Get the :bp/uuid using the cpp class name"}
   cpp-class->uuid c/cpp-class->uuid)
 
-(def ^{:arglists '([conn nname])
+(def ^{:arglists '([conn nnamespace cclass fn-name])
        :doc      "Get the :bp/uuid using the cpp function name"}
   cpp-fn->uuid c/cpp-fn->uuid)
 
@@ -31,7 +31,7 @@
                    that resolves the names to a uuid. Requires all three names."}
   cpp-uuids c/cpp-uuids)
 
-(def ^{:arglists '([conn fn-name param-name])
+(def ^{:arglists '([conn nnamespace cclass fn-name param-name])
        :doc      "Get the :bp/uuid using the cpp function name and parameter name."}
   cpp-param->uuid c/cpp-param->uuid)
 
