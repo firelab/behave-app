@@ -9,6 +9,10 @@
 ;; Overview
 ;; ===========================================================================================================
 
+;; 1. Add links from Surface wind inputs into spot
+;; 2. Create new hidden linked group variables inside spot to set wind inputs
+;; 3. Add new input "Crown Fireline Intensity" into Crown > Spot for computing Spotting distance from Active Crown
+
 ;; ===========================================================================================================
 ;; Initialize
 ;; ===========================================================================================================
