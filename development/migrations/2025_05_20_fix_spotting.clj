@@ -31,10 +31,10 @@
     conn
     {:parent-submodule-eid (sm/t-key->eid conn "behaveplus:surface:input:spot")
      :order                4
-     :name                 "Linked Inputs (Hidden)"
+     :group-name           "Linked Inputs (Hidden)"
      :hidden?              true
      :translation-key      "behaveplus:surface:input:spot:linked-inputs-hidden"
-     :subgroups            [{:name            "Wind Measured at"
+     :subgroups            [{:group-name      "Wind Measured at"
                              :order           0
                              :translation-key "behaveplus:surface:input:spot:linked-inputs-hidden:wind-measured-at"
                              :group-variables [{:db/id           -1
@@ -45,7 +45,7 @@
                                                 :cpp-class       "SIGSpot"
                                                 :cpp-function    "setWindHeightInputMode"
                                                 :cpp-parameter   "windHeightInputMode"}]}
-                            {:name            "Wind Speed"
+                            {:group-name      "Wind Speed"
                              :order           1
                              :translation-key "behaveplus:surface:input:spot:linked-inputs-hidden:wind-speed"
                              :group-variables [{:db/id           -2
@@ -60,7 +60,7 @@
     conn
     {:parent-group-eid (sm/t-key->eid conn "behaveplus:crown:input:spotting:fire_behavior")
      :order            2
-     :name             "Active Crown Fireline Intensity (Hidden)"
+     :group-name       "Active Crown Fireline Intensity (Hidden)"
      :translation-key  "behaveplus:crown:input:spotting:fire_behavior:active-crown-fireline-intensity-hidden"
      :hidden?          true
      :group-variables  [{:db/id           -3
