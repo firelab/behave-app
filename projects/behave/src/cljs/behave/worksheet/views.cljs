@@ -6,7 +6,8 @@
             [behave.wizard.views          :refer [wizard-expand]]
             [goog.string                  :as gstring]
             [re-frame.core                :as rf]
-            [reagent.core                 :as r]))
+            [reagent.core                 :as r]
+            [clojure.string :as str]))
 
 (defn- workflow-select-header [{:keys [icon header description]}]
   [:div.accordion
@@ -145,23 +146,23 @@
       [workflow-select-header
        {:icon        "existing-run" ;TODO update when LOGO is available
         :header      @(<t (bp "welcome_message"))
-        :description "Please select a workflow."}]
+        :description "Please select a workflow. Note that you can open using any workflow."}]
       [:div.workflow-select__content
        [c/card-group {:on-select      #(do
                                          (rf/dispatch [:local-storage/update-in [:state :worksheet :*workflow] (:workflow %)])
                                          (rf/dispatch [:state/set [:worksheet :*workflow] (:workflow %)]))
                       :flex-direction "column"
                       :card-size      "large"
-                      :cards          [{:title     @(<t "behaveplus:workflow:independent_title")
+                      :cards          [{:title     (str/join " " ["Open using" "Guided Workflow"])
                                         :content   "Recommended for students."
                                         :icons     [{:icon-name "guided-work"
                                                      :checked?  (= @*workflow :guided)}]
                                         :selected? (= @*workflow :guided)
                                         :order     0
                                         :workflow  :guided}
-                                       {:title     "Standard Workflow"
+                                       {:title     (str/join " " ["Open using" "Standard Workflow"])
                                         :content   "Recommended for intermittent users."
-                                        :icons     [{:icon-name "independent-work"
+                                        :icons     [{:icon-name "checklist"
                                                      :checked?  (= @*workflow :standard)}]
                                         :selected? (= @*workflow :standard)
                                         :order     1
