@@ -6,8 +6,7 @@
             [behave.wizard.views          :refer [wizard-expand]]
             [goog.string                  :as gstring]
             [re-frame.core                :as rf]
-            [reagent.core                 :as r]
-            [clojure.string :as str]))
+            [reagent.core                 :as r]))
 
 (defn- workflow-select-header [{:keys [icon header description]}]
   [:div.accordion
@@ -153,14 +152,14 @@
                                          (rf/dispatch [:state/set [:worksheet :*workflow] (:workflow %)]))
                       :flex-direction "column"
                       :card-size      "large"
-                      :cards          [{:title     (str/join " " ["Open using" "Guided Workflow"])
+                      :cards          [{:title     "Open using Guided Workflow"
                                         :content   "Recommended for students."
                                         :icons     [{:icon-name "guided-work"
                                                      :checked?  (= @*workflow :guided)}]
                                         :selected? (= @*workflow :guided)
                                         :order     0
                                         :workflow  :guided}
-                                       {:title     (str/join " " ["Open using" "Standard Workflow"])
+                                       {:title     "Open using Standard Workflow"
                                         :content   "Recommended for intermittent users."
                                         :icons     [{:icon-name "checklist"
                                                      :checked?  (= @*workflow :standard)}]
