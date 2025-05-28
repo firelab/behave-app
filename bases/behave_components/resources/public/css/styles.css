@@ -1889,6 +1889,25 @@ p {
 }
 /* -- End Calculator Variant -- */
 
+/* --  checklist Variant -- */
+
+.card:not(.card--disabled, .card--error):hover .ring-icon--checklist .ring-icon__outer-ring,
+.ring-icon--checklist:not(.ring-icon--disabled, .ring-icon--error):hover .ring-icon__outer-ring,
+.ring-icon--checklist.ring-icon--selected .ring-icon__outer-ring,
+.ring-icon--checklist .ring-icon__background {
+  fill: var(--medblue-3);
+}
+
+.ring-icon--checklist .ring-icon__outer-ring {
+  fill: var(--lightblue-3);
+}
+
+.ring-icon--checklist .ring-icon__icon {
+  fill: var(--white);
+}
+
+/* -- End Calculator Variant -- */
+
 /* -- Disabled -- */
 
 .ring-icon--disabled .ring-icon__outer-ring,
