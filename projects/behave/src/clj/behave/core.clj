@@ -20,7 +20,7 @@
             [config.interface                  :refer [get-config load-config]]
             [file-utils.interface              :refer [os-path os-type app-data-dir app-logs-dir]]
             [jcef.interface                    :refer [create-cef-app! custom-request-handler]]
-            [logging.interface                 :as l :refer [log log-str]]
+            [logging.interface                 :as l :refer [log-str]]
             [ring.middleware.content-type      :refer [wrap-content-type]]
             [ring.middleware.multipart-params  :refer [wrap-multipart-params]]
             [ring.middleware.keyword-params    :refer [wrap-keyword-params]]
@@ -201,14 +201,8 @@
   (fn [request]
     (handler (assoc request :figwheel? figwheel?))))
 
-(defn- wrap-debug [handler]
-  (fn [request]
-    (println request)
-    (handler request)))
-
 (defn create-handler-stack [{:keys [reload? figwheel?]}]
   (-> routing-handler
-      wrap-debug
       (wrap-figwheel figwheel?)
       wrap-params
       wrap-keyword-params
@@ -222,12 +216,10 @@
 
 (defn create-api-handler-stack []
   (-> routing-handler
-      wrap-debug
       wrap-params
       wrap-keyword-params
       wrap-query-params
       wrap-req-content-type+accept
-      wrap-multipart-params
       wrap-exceptions))
 
 ;; This is for Figwheel

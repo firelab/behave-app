@@ -206,37 +206,18 @@
         (callback (.getSelectedFile chooser))))))
 
 (comment
+  (require '[config.interface :refer [get-config load-config]])
+  (require '[behave.core :refer [init-config! init-db! create-api-handler-stack]])
+  (init-config!)
+  (init-db! (get-config :database))
+
   (def app 
     (build-cef-app!
      {:title       "Behave-Dev"
       :url         "http://localhost:4242/"
-      :fullscreen? true
-      :menu        [{:title "File"
-                     :items [{:label       "Open"
-                              :mnemonic    "O"
-                              :description "Opens a file"
-                              :shortcut    "O"
-                              :on-select   (fn [{:keys [app]}]
-                                             (open-file-chooser println
-                                                                (:frame app)
-                                                                "Behave7 Worksheet"
-                                                                "bp7")
-                                             (println "Hello Open File!"))}
-                             {:label       "Save"
-                              :mnemonic    "S"
-                              :description "Saves a file"
-                              :shortcut    "S"
-                              :on-select   (fn [{:keys [app]}]
-                                             (open-save-file println
-                                                             (:frame app)
-                                                             "Behave7 Worksheet"
-                                                             "bp7"))}]}]}))
+      :fullscreen? true}))
 
-  (require '[behave.core :refer [init-config! init-db! create-handler-stack create-api-handler-stack]])
-  (require ' [config.interface :refer [get-config load-config]])
   (show-dev-tools! (:browser app))
-  (init-config!)
-  (init-db! (get-config :database))
   (:client app)
   (.removeRequestHandler (:client app))
   (def local-req-handler (rh/custom-request-handler
