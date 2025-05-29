@@ -41,17 +41,21 @@
 
         ;; Multiple Groups w/ Single Variable
         (every? #(= 1 (count %)) (vals repeats))
-        (for [[repeat-id [_ repeat-group]] (map list repeats (range (count repeats)))]
+        (doseq [[repeat-id [_ repeat-group]] (map list repeats (range (count repeats)))]
           (let [[gv-id [_value unit-uuid]] (first repeat-group)
-                units                     (unit-label unit-uuid)]
+                units                      (unit-label unit-uuid)]
             (swap! headers conj [gv-id repeat-id units])))
 
         ;; Multiple Groups w/ Multiple Variables
         :else
-        (for [[[_ repeat-group] repeat-id] (map list repeats (range (count repeats)))]
-          (doseq [[gv-id [_value unit-uuid]] repeat-group]
-            (let [units (unit-label unit-uuid)]
-              (swap! headers conj [gv-id repeat-id units]))))))
+        (doseq [[gv-id repeat-id unit-uuid] (mapcat (fn [[repeat-id r]]
+                                                      (map
+                                                       (fn [[gv-id [_value units]]]
+                                                         [gv-id repeat-id units])
+                                                       r))
+                                                    repeats)]
+          (let [units (unit-label unit-uuid)]
+            (swap! headers conj [gv-id repeat-id units])))))
     (concat @headers
             (mapv (fn [[gv-id [_ unit-uuid]]]
                     (let [units (unit-label unit-uuid)]
