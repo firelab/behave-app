@@ -395,7 +395,7 @@
    (->> inputs
         (filter (fn multiple-values? [[gv-uuid value]]
                   (and
-                   (not (rf/subscribe [:wizard/text-group-variable? gv-uuid]))
+                   (not @(rf/subscribe [:wizard/text-group-variable? gv-uuid]))
                    (> (count (str/split value #",|\s"))
                       1)))))))
 
