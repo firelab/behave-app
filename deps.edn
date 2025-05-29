@@ -138,6 +138,13 @@
     "projects/behave/test/cljs"
     "projects/behave/resources"]}
 
+  :behave-slim/app
+  {:extra-paths
+   ["projects/behave_slim/src/clj"
+    "projects/behave_slim/src/cljs"
+    "projects/behave_slim/test/cljs"
+    "projects/behave_slim/resources"]}
+
   :behave/cms
   {:extra-paths
    ["projects/behave_cms/src/clj"
