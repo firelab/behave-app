@@ -393,9 +393,11 @@
 
  (fn [inputs _query]
    (->> inputs
-        (filter (fn multiple-values? [[_uuid value]]
-                  (> (count (str/split value #",|\s"))
-                     1))))))
+        (filter (fn multiple-values? [[gv-uuid value]]
+                  (and
+                   (not (rf/subscribe [:wizard/text-group-variable? gv-uuid]))
+                   (> (count (str/split value #",|\s"))
+                      1)))))))
 
 (rf/reg-sub
  :worksheet/multi-value-input-uuids

@@ -845,6 +845,20 @@
  (fn [_ [_ gv-uuid]]
    (group-variable-discrete? gv-uuid)))
 
+(defn- group-variable-text?
+  [gv-uuid]
+  (= (d/q '[:find  ?kind .
+            :in    $ % ?gv-uuid
+            :where
+            (variable-kind ?gv-uuid ?kind)]
+          @@vms-conn rules gv-uuid)
+     :text))
+
+(reg-sub
+ :wizard/text-group-variable?
+ (fn [_ [_ gv-uuid]]
+   (group-variable-text? gv-uuid)))
+
 (reg-sub
  :wizard/show-graph-settings?
  (fn [[_ ws-uuid]] (subscribe [:wizard/multi-value-input-count ws-uuid]))

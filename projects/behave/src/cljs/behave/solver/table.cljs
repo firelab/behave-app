@@ -30,37 +30,39 @@
   (or (:unit/short-code (q/unit unit-uuid)) ""))
 
 (defn- map-result-headers [{:keys [inputs outputs]}]
-  (let [headers (atom [])]
-    (doseq [[_ repeats] inputs]
-      (cond
-        ;; Single Group w/ Single Variable
-        (and (= 1 (count repeats)) (= 1 (count (first (vals repeats)))))
-        (let [[gv-id [_value unit-uuid]] (ffirst (vals repeats))
-              units                     (unit-label unit-uuid)]
-          (swap! headers conj [gv-id 0 units]))
+  (concat (reduce (fn [acc [_ repeats]]
+                    (cond
+                      ;; Single Group w/ Single Variable
+                      (and (= 1 (count repeats)) (= 1 (count (first (vals repeats)))))
+                      (let [[gv-id [_value unit-uuid]] (ffirst (vals repeats))
+                            units                      (unit-label unit-uuid)]
+                        (conj acc [gv-id 0 units]))
 
-        ;; Multiple Groups w/ Single Variable
-        (every? #(= 1 (count %)) (vals repeats))
-        (doseq [[repeat-id [_ repeat-group]] (map list repeats (range (count repeats)))]
-          (let [[gv-id [_value unit-uuid]] (first repeat-group)
-                units                      (unit-label unit-uuid)]
-            (swap! headers conj [gv-id repeat-id units])))
+                      ;; Multiple Groups w/ Single Variable
+                      (every? #(= 1 (count %)) (vals repeats))
+                      (into acc
+                            (for [[repeat-id [_ repeat-group]] (map list repeats (range (count repeats)))]
+                              (let [[gv-id [_value unit-uuid]] (first repeat-group)
+                                    units                      (unit-label unit-uuid)]
+                                [gv-id repeat-id units])))
 
-        ;; Multiple Groups w/ Multiple Variables
-        :else
-        (doseq [[gv-id repeat-id unit-uuid] (mapcat (fn [[repeat-id r]]
-                                                      (map
-                                                       (fn [[gv-id [_value units]]]
-                                                         [gv-id repeat-id units])
-                                                       r))
-                                                    repeats)]
-          (let [units (unit-label unit-uuid)]
-            (swap! headers conj [gv-id repeat-id units])))))
-    (concat @headers
-            (mapv (fn [[gv-id [_ unit-uuid]]]
-                    (let [units (unit-label unit-uuid)]
-                      [gv-id 0 units]))
-                  outputs))))
+                      ;; Multiple Groups w/ Multiple Variables
+                      :else
+                      (into acc
+                            (for [[gv-id repeat-id unit-uuid] (mapcat (fn [[repeat-id r]]
+                                                                        (map
+                                                                         (fn [[gv-id [_value units]]]
+                                                                           [gv-id repeat-id units])
+                                                                         r))
+                                                                      repeats)]
+                              (let [units (unit-label unit-uuid)]
+                                [gv-id repeat-id units])))))
+                  []
+                  inputs)
+          (mapv (fn [[gv-id [_ unit-uuid]]]
+                  (let [units (unit-label unit-uuid)]
+                    [gv-id 0 units]))
+                outputs)))
 
 (defn- map-outputs-to-cells [header-map outputs]
   (map (fn [[gv-id [value unit-uuid]] ]
