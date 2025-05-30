@@ -42,6 +42,6 @@
                (run 'build-js)
                (run 'uber)
                (run 'rename-jar)
-               (shell "conveyor make app -o output/osx")
-               (shell "conveyor make windows-zip -o output/windows")
-               (shell "conveyor make debian-package -o output/deb"))}}
+               (shell "conveyor make app -o output/osx --overwrite")
+               (shell "conveyor make windows-zip -o output/windows --overwrite")
+               #_(shell "conveyor make debian-package -o output/deb --overwrite"))}}

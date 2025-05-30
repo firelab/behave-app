@@ -9,7 +9,7 @@
             CefResourceHandlerAdapter
             CefResourceRequestHandlerAdapter]
            [org.cef.network CefRequest CefPostDataElement$Type]
-           [java.io IOException]
+           [java.io BufferedInputStream IOException]
            [java.net URL]))
 
 (defn- strip-leading-slash [s]
@@ -101,8 +101,28 @@
       :multipart-params   {}}
      post-data-map)))
 
+(defn- double-escape [^String x]
+  (.replace (.replace x "\\" "\\\\") "$" "\\$"))
+
+(defn- parse-bytes [encoded-bytes]
+  (->> (re-seq #"%.." encoded-bytes)
+       (map #(subs % 1))
+       (map #(.byteValue (Integer/parseInt % 16)))
+       (byte-array)))
+
+(defn percent-decode
+  "Decode every percent-encoded character in the given string using the
+  specified encoding, or UTF-8 by default."
+  [encoded & [encoding]]
+  (str/replace encoded
+               #"(?:%..)+"
+               (fn [cs]
+                 (-> (parse-bytes cs)
+                     (String. (or encoding "UTF-8"))
+                     (double-escape)))))
+
 (defn- ->resource [public-dir path]
-  (let [path (if (#{"/" ""} path) "index.html" path)]
+  (let [path (if (#{"/" ""} path) "index.html" (percent-decode path))]
     (.getResource (ClassLoader/getSystemClassLoader)
                   (format "%s/%s" public-dir (strip-leading-slash path)))))
 
@@ -148,7 +168,7 @@
         (.close resource-input-stream)))))
 
 (defn- create-resource-handler [resource headers]
-  (let [resource-input-stream (io/input-stream resource)
+  (let [resource-input-stream (BufferedInputStream. (io/input-stream resource))
         resource-mime-type    (mime-type resource)]
 
     (proxy [CefResourceHandlerAdapter] []
@@ -191,22 +211,22 @@
 
 (defn- reject-handler []
   (proxy [CefResourceHandlerAdapter] []
-    (processRequest [this request callback]
-      (.cancel callback)
+    (processRequest [& args]
+      (.cancel (last args))
       false)))
 
 (defn- get-api-handler [ring-handler _browser _frame request & _args]
   (let [url            (URL. (.getURL request))
         _req-protocol  (.getProtocol url)
         _req-authority (.getAuthority url)
-        _req-path       (.getPath url)
-        response       (ring-handler (cef-request->ring-request request))]
+        _req-path      (.getPath url)]
     #_(println [:GET-API-HANDLER _req-protocol _req-authority _req-path response])
     (try 
-      (create-api-resource-handler response)
-      (catch Exception ex 
-        (.printStackTrace ex)
-        (str "caught exception: " (.getMessage ex))))))
+      (let [response (ring-handler (cef-request->ring-request request))]
+        (create-api-resource-handler response))
+      (catch Exception e
+        (.printStackTrace e)
+        (str "caught exception: " (.getMessage e))))))
 
 (defn- get-resource-handler [public-dir _browser _frame request & _args]
   (let [url            (URL. (.getURL request))

@@ -121,7 +121,7 @@
   (fn [{:keys [content-type body query-string] :as req}]
     (if-let [req-type (mime->type content-type)]
       (let [query-params (->clj query-string req-type)
-            body-params  (->clj (slurp body) req-type)]
+            body-params  (when body (->clj (slurp body) req-type))]
         (handler (update req :params merge query-params body-params)))
       (handler req))))
 
@@ -188,3 +188,8 @@
       wrap-query-params
       wrap-req-content-type+accept
       wrap-exceptions))
+
+;; This is for Figwheel
+(def ^{:doc "Figwheel handler."}
+  development-app
+  (server-handler-stack {:figwheel? true :reload? true}))

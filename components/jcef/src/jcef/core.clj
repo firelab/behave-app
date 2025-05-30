@@ -1,11 +1,13 @@
 (ns jcef.core
-  (:require [jcef.setup :refer [jcef-builder]]
+  (:require [clojure.string :as str]
+            [clojure.java.browse :refer [browse-url]]
+            [jcef.setup :refer [jcef-builder]]
             [jcef.resource-handlers :as rh])
   (:import [org.cef CefApp]
            [org.cef.browser CefBrowser CefMessageRouter]
-           [org.cef.handler CefDisplayHandlerAdapter CefFocusHandlerAdapter]
+           [org.cef.handler CefDisplayHandlerAdapter CefFocusHandlerAdapter CefLifeSpanHandlerAdapter]
            [java.awt BorderLayout Cursor GraphicsEnvironment KeyboardFocusManager Toolkit]
-           [java.awt.event ActionEvent ActionListener WindowAdapter]
+           [java.awt.event ActionListener ComponentAdapter WindowAdapter]
            [javax.swing JFileChooser JFrame JMenu JMenuBar JMenuItem JTextField KeyStroke SwingUtilities]
            [javax.swing.filechooser FileNameExtensionFilter]))
 
@@ -110,7 +112,9 @@
   - `:frame`   - `JFrame` Application
   - `:browser` - `CefBrowser`
   - `:client`  - `CefClient`"
-  [{:keys [title menu url use-osr transparent? address-bar? fullscreen? dev-tools? size on-close on-blur on-before-launch]
+  [{:keys [title menu url use-osr size request-handler
+           transparent? address-bar? fullscreen? dev-tools?
+           on-close on-blur on-focus on-hidden on-shown on-before-launch]
     :or   {use-osr false transparent? false address-bar? false fullscreen? false size [1024 768]}}]
   (let [builder       (jcef-builder)
         _             (set! (.-windowless_rendering_enabled (.getCefSettings builder)) use-osr)
@@ -140,6 +144,23 @@
     (when dev-tools?
       (show-dev-tools! browser))
 
+    (when request-handler
+      (.addRequestHandler client request-handler))
+
+    (.addLifeSpanHandler client (proxy [CefLifeSpanHandlerAdapter] []
+                                  (onBeforePopup [browser popup-frame target-url target-frame-name popup-features
+                                                  window-info popup-client settings no-javascript-access callback]
+                                    (if (str/starts-with? target-url "http://localhost")
+                                      (do
+                                        (.setDefaultCloseOperation popup-frame JFrame/DO_NOTHING_ON_CLOSE) ;; Ignore close event
+                                        (when request-handler ;; Whether to use custom request handler
+                                          (.addRequestHandler popup-client request-handler))
+                                        false)
+                                      ;; Otherwise, open in the native browser
+                                      (do
+                                        (browse-url target-url)
+                                        true)))))
+
     (.addDisplayHandler client (proxy [CefDisplayHandlerAdapter] []
                                  (onAddressChange [_ _ url]
                                    (.setText address url))
@@ -150,14 +171,23 @@
                                        (setCursor (Cursor/getPredefinedCursor cursorType)))
                                    false)))
 
+    (.addComponentListener jframe (proxy [ComponentAdapter] []
+                             (componentHidden [& args]
+                               (when (fn? on-hidden)
+                                 (apply on-hidden app args)))
+                             (componentShown [& args]
+                               (when (fn? on-shown)
+                                 (apply on-shown app args)))))
+
     (.addFocusHandler client (proxy [CefFocusHandlerAdapter] []
-                               (onGotFocus [_]
+                               (onGotFocus [& args]
+                                 (when (fn? on-focus) (apply on-focus app args))
                                  (when-not @browser-focus
                                    (reset! browser-focus true)
                                    (.clearGlobalFocusOwner (KeyboardFocusManager/getCurrentKeyboardFocusManager))
                                    (.setFocus browser true)))
-                               (onTakeFocus [_ _]
-                                 (when (fn? on-blur) (on-blur))
+                               (onTakeFocus [& args]
+                                 (when (fn? on-blur) (apply on-blur app args))
                                  (reset! browser-focus false))))
 
     (when (fn? on-before-launch)
@@ -206,32 +236,35 @@
         (callback (.getSelectedFile chooser))))))
 
 (comment
-  (require '[config.interface :refer [get-config load-config]])
-  (require '[behave.core :refer [init-config! init-db! create-api-handler-stack]])
+  (require '[config.interface :refer [get-config]])
+  (require '[behave.server :refer [init-config! init-db!]])
+  (require '[behave.handlers :refer [create-cef-handler-stack]])
+  (require '[jcef.loading :refer [show-loader!]])
+  (require '[clojure.java.io :as io])
+
   (init-config!)
-  (init-db! (get-config :database))
+  (init-db! (get-config :database :config))
 
-  (def app 
-    (build-cef-app!
-     {:title       "Behave-Dev"
-      :url         "http://localhost:4242/"
-      :fullscreen? true}))
-
-  (show-dev-tools! (:browser app))
-  (:client app)
-  (.removeRequestHandler (:client app))
   (def local-req-handler (rh/custom-request-handler
                           {:protocol     "http"
                            :authority    "localhost:4242" 
                            :resource-dir "public"
-                           :ring-handler (create-api-handler-stack)}))
-  (.addRequestHandler (:client app) local-req-handler)
-  #_(.loadURL (:browser app) "http://localhost:4242/")
-  (.reloadIgnoreCache (:browser app))
-  #_(.reload (:browser app))
+                           :ring-handler (create-cef-handler-stack)}))
 
-  
+  (def loader (show-loader! "Behave7" (io/resource "public/images/android-chrome-512x512.png")))
 
-  (println "hi")
+  (def app (atom nil))
+
+  (create-cef-app!
+   {:title           "Behave-Dev"
+    :url             "http://localhost:4242/"
+    :fullscreen?     true
+    :on-shown        (fn [& _args] (println "Howdy there!")
+                       (reset! app (first _args))
+                       (.dispose (:frame loader)))
+    :on-hidden       (fn [& _args] (println "Goodbye!"))
+    :request-handler local-req-handler})
+
+  (show-dev-tools! (:browser @app))
 
   )

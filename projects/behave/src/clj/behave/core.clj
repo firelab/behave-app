@@ -7,7 +7,7 @@
             [behave.server        :refer [init-config! init-db!]]
             [file-utils.interface :refer [os-path os-type app-data-dir app-logs-dir]]
             [config.interface     :refer [get-config]]
-            [jcef.interface       :refer [create-cef-app! custom-request-handler]]
+            [jcef.interface       :refer [create-cef-app! custom-request-handler show-loader!]]
             [logging.interface    :as l :refer [log-str]]))
 
 ;;; Helpers
@@ -64,42 +64,54 @@
       "apple.awt.application.appearance"                "system"
       "com.apple.mrj.application.apple.menu.about.name" title})))
 
+(defonce ^:private the-app (atom nil))
+
 (defn -main
-  "Server start method."
+  "CEF client start method."
   [& _args]
   (init-config!)
-  (let [mode       (get-config :server :mode)
-        http-port  (or (get-config :server :http-port) 8080)
-        org-name   (get-config :site :org-name)
-        app-name   (get-config :site :app-name)
-        log-config (if (= "prod" mode)
-                     (assoc (get-config :logging) :log-dir (app-logs-dir org-name app-name))
-                     (get-config :logging))
-        db-config  (if (= "prod" mode)
-                     (assoc-in (get-config :database)
-                               [:config :store :path]
-                               (standalone-db-location org-name app-name))
-                     (get-config :database))]
+  (let [loader          (show-loader! "Behave7" (io/resource "public/images/android-chrome-512x512.png"))
+        mode            (get-config :server :mode)
+        http-port       (or (get-config :server :http-port) 8080)
+        org-name        (get-config :site :org-name)
+        app-name        (get-config :site :app-name)
+        log-config      (if (= "prod" mode)
+                            (assoc (get-config :logging) :log-dir (app-logs-dir org-name app-name))
+                            (get-config :logging))
+        db-config       (if (= "prod" mode)
+                            (assoc-in (get-config :database :config)
+                                      [:store :path]
+                                      (standalone-db-location org-name app-name))
+                            (get-config :database :config))
+        request-handler (custom-request-handler
+                         {:protocol     "http"
+                          :authority    (format "localhost:%s" http-port)
+                          :resource-dir "public"
+                          :ring-handler (create-cef-handler-stack)})]
 
     (start-logging! log-config)
     (init-db! db-config)
     (create-cef-app!
-     {:title       (get-config :site :title)
-      :url         (str "http://localhost:" http-port)
-      :fullscreen? true
-      :menu        [{:title "File"
-                     :items [{:label       "Open"
-                              :mnemonic    "O"
-                              :description "Opens a file"
-                              :shortcut    "O"
-                              :on-select   (fn [_]
-                                             (println "Hello Open File!"))}
-                             {:label       "Save"
-                              :mnemonic    "S"
-                              :description "Saves a file"
-                              :shortcut    "S"
-                              :on-select   (fn [_]
-                                             (println "Hello Save File!"))}]}]
+     {:title           (get-config :site :title)
+      :url             (str "http://localhost:" http-port)
+      :fullscreen?     true
+      :on-shown        (fn [app & _]
+                         (reset! the-app app)
+                         (.dispose (:frame loader)))
+      :request-handler request-handler
+      :menu            [{:title "File"
+                         :items [{:label       "Open"
+                                  :mnemonic    "O"
+                                  :description "Opens a file"
+                                  :shortcut    "O"
+                                  :on-select   (fn [_]
+                                                 (println "Hello Open File!"))}
+                                 {:label       "Save"
+                                  :mnemonic    "S"
+                                  :description "Saves a file"
+                                  :shortcut    "S"
+                                  :on-select   (fn [_]
+                                                 (println "Hello Save File!"))}]}]
       :on-before-launch
       (fn [{:keys [client frame]}]
         (.addRequestHandler client (custom-request-handler {:protocol     "http"
@@ -109,4 +121,7 @@
         (on-before-launch frame (get-config :site :title)))})))
 
 (comment
-  (-main))
+  (-main)
+  (require '[jcef.core :as jc])
+  (jc/show-dev-tools! (:browser @the-app))
+  )
