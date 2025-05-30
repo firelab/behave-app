@@ -46,7 +46,7 @@
         org-name  (get-config :site :org-name)
         app-name  (get-config :site :app-name)]
     (start-logging! (get-config :logging))
-    (init-db! (get-config :database :config)))
+    (init-db! (get-config :database :config))
     (log-str (format "Starting %s %s server at http://localhost:%s" org-name app-name http-port))
     (server/start-server! {:handler (server-handler-stack {:reload? (= mode "dev") :figwheel? false})
                            :port    http-port})
