@@ -4,26 +4,34 @@
 
 ;;; Spec
 
-(s/def :group/uuid                   uuid-string?)
+(s/def :bp/uuid                      uuid-string?)
+(s/def :bp/nid                       string?)
 (s/def :group/name                   string?)
 (s/def :group/order                  (s/and integer? #(<= 0 %)))
 (s/def :group/translation-key        (s/and string? valid-key?))
 (s/def :group/help-key               (s/and string? valid-key?))
-(s/def :group/children               set?)
-(s/def :group/group-variables        set?)
+(s/def :group/children               (s/coll-of (s/or :behave/group :behave/group
+                                                      :ref  int?)))
+(s/def :group/group-variables        (s/coll-of (s/or :behave/group-variable :behave/group-variable
+                                                      :ref                  int?)))
 (s/def :group/research?              boolean?)
-(s/def :group/conditionals           (s/coll-of int?))
+(s/def :group/conditionals           (s/coll-of (s/or :behave/conditional :behave/conditional
+                                                      :int int?)))
 (s/def :group/conditionals-operator  #{:and :or})
+(s/def :group/hidden?                boolean?)
 
 
-(s/def :behave/group (s/keys :req [:group/uuid
+(s/def :behave/group (s/keys :req [:bp/uuid
+                                   :bp/nid
                                    :group/name
                                    :group/order
                                    :group/translation-key
                                    :group/help-key]
                              :opt [:group/children
                                    :group/group-variables
-                                   :group/research?]))
+                                   :group/hidden?
+                                   :group/research?
+                                   :group/conditionals]))
 
 ;;; Schema
 
@@ -68,6 +76,11 @@
 
    {:db/ident       :group/single-select?
     :db/doc         "Whether a Group allows only one group-variable to be set"
+    :db/valueType   :db.type/boolean
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :group/hidden?
+    :db/doc         "Whether this group should always be hidden"
     :db/valueType   :db.type/boolean
     :db/cardinality :db.cardinality/one}
 

@@ -1749,6 +1749,13 @@ SIGSpot.prototype['setFlameLength'] = SIGSpot.prototype.setFlameLength = /** @su
   _emscripten_bind_SIGSpot_setFlameLength_2(self, flameLength, flameLengthUnits);
 };;
 
+SIGSpot.prototype['setFirelineIntensity'] = SIGSpot.prototype.setFirelineIntensity = /** @suppress {undefinedVars, duplicate} @this{Object} */function(firelineIntensity, firelineIntensityUnits) {
+  var self = this.ptr;
+  if (firelineIntensity && typeof firelineIntensity === 'object') firelineIntensity = firelineIntensity.ptr;
+  if (firelineIntensityUnits && typeof firelineIntensityUnits === 'object') firelineIntensityUnits = firelineIntensityUnits.ptr;
+  _emscripten_bind_SIGSpot_setFirelineIntensity_2(self, firelineIntensity, firelineIntensityUnits);
+};;
+
 SIGSpot.prototype['setLocation'] = SIGSpot.prototype.setLocation = /** @suppress {undefinedVars, duplicate} @this{Object} */function(location) {
   var self = this.ptr;
   if (location && typeof location === 'object') location = location.ptr;

@@ -472,6 +472,7 @@ interface SIGSpot {
   void setDownwindCoverHeight(double downwindCoverHeight, LengthUnits_LengthUnitsEnum coverHeightUnits);
   void setFireType (FireType_FireTypeEnum fireType);
   void setFlameLength(double flameLength, LengthUnits_LengthUnitsEnum flameLengthUnits);
+  void setFirelineIntensity(double firelineIntensity, FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits);
   void setLocation(SpotFireLocation_SpotFireLocationEnum location);
   void setRidgeToValleyDistance(double ridgeToValleyDistance, LengthUnits_LengthUnitsEnum ridgeToValleyDistanceUnits);
   void setRidgeToValleyElevation(double ridgeToValleyElevation, LengthUnits_LengthUnitsEnum elevationUnits);

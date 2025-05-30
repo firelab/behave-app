@@ -11,14 +11,16 @@
                                (group-by first)
                                (reduce (fn [acc [_row-id cell-data]]
                                          (conj acc
-                                               (reduce (fn [acc [_row-id col-uuid _repeat-id value]]
-                                                         (let [fmt-fn (-> @(subscribe [:worksheet/result-table-formatters [col-uuid]])
-                                                                          (get col-uuid identity))]
-                                                           (assoc acc
-                                                                  @(subscribe [:wizard/gv-uuid->resolve-result-variable-name col-uuid])
-                                                                  (fmt-fn value))))
-                                                       {}
-                                                       cell-data)))
+                                               (->> (reduce (fn [acc [_row-id col-uuid _repeat-id value]]
+                                                          (let [fmt-fn (-> @(subscribe [:worksheet/result-table-formatters [col-uuid]])
+                                                                           (get col-uuid identity))]
+                                                            (assoc acc
+                                                                   @(subscribe [:wizard/gv-uuid->resolve-result-variable-name col-uuid])
+                                                                   (fmt-fn value))))
+                                                        {}
+                                                        cell-data)
+                                                    (remove (fn [[_ value]] (= value -1)))
+                                                    (into {}))))
                                        []))
             x-axis-limit  (:graph-settings/x-axis-limits graph-settings)
             x-min         (:x-axis-limit/min x-axis-limit)

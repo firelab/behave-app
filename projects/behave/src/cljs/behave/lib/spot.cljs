@@ -166,3 +166,6 @@
 
 (defn setActiveCrownFlameLength [self windSpeed windSpeedUnits]
   (.setActiveCrownFlameLength self windSpeed windSpeedUnits))
+
+(defn setFirelineIntensity [self firelineIntensity firelineIntensityUnits]
+  (.setFirelineIntensity self firelineIntensity firelineIntensityUnits))

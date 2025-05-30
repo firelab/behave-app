@@ -36,6 +36,7 @@ void SIGSpot::calculateAll() {
   Spot::calculateSpottingDistanceFromBurningPile();
   Spot::calculateSpottingDistanceFromSurfaceFire();
   Spot::calculateSpottingDistanceFromTorchingTrees();
+  Spot::calculateSpottingDistanceFromActiveCrown();
 }
 
 void SIGSpot::setActiveCrownFlameLength(double flameLength, LengthUnits::LengthUnitsEnum flameLengthUnits)
@@ -75,17 +76,17 @@ void SIGSpot::setFireType(FireType::FireTypeEnum fireType) {
 }
 
 double SIGSpot::getMaxMountainousTerrainSpottingDistanceFromTorchingTrees(LengthUnits::LengthUnitsEnum spottingDistanceUnits) const {
-    if (fireType_ == FireType::Crowning) {
-        return -1;
-    } else {
+    if (fireType_ == FireType::Torching) {
         return Spot::getMaxMountainousTerrainSpottingDistanceFromTorchingTrees(spottingDistanceUnits);
+    } else {
+        return -1;
     }
 }
 
 double SIGSpot::getMaxMountainousTerrainSpottingDistanceFromActiveCrown(LengthUnits::LengthUnitsEnum spottingDistanceUnits) const {
-    if (fireType_ == FireType::Surface or fireType_ == FireType::Torching or fireType_ ==  FireType::ConditionalCrownFire) {
-        return -1;
+    if (fireType_ == FireType::Crowning) {
+        return Spot::getMaxMountainousTerrainSpottingDistanceFromActiveCrown(spottingDistanceUnits);
     } else {
-        return Spot::getMaxMountainousTerrainSpottingDistanceFromSurfaceFire(spottingDistanceUnits);
+        return -1;
     }
 }

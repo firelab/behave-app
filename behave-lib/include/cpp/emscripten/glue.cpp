@@ -977,6 +977,10 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_setFlameLength_2(SIGSpot* self
   self->setFlameLength(flameLength, flameLengthUnits);
 }
 
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_setFirelineIntensity_2(SIGSpot* self, double firelineIntensity, FirelineIntensityUnits_FirelineIntensityUnitsEnum firelineIntensityUnits) {
+  self->setFirelineIntensity(firelineIntensity, firelineIntensityUnits);
+}
+
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGSpot_setLocation_1(SIGSpot* self, SpotFireLocation_SpotFireLocationEnum location) {
   self->setLocation(location);
 }

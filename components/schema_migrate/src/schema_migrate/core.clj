@@ -5,6 +5,7 @@
    [datascript.core    :refer [squuid]]
    [datomic.api        :as d]
    [datomic-store.main :as ds]
+   [clojure.spec.alpha :as spec]
    [nano-id.core       :refer [nano-id]]))
 
 (def
@@ -47,7 +48,7 @@
        nname))
 
 (defn cpp-ns->uuid
-  "Get the :bp/uuid using the cpp namepsace name"
+  "Given the namespace name, ret the :bp/uuid using the cpp namepsace name"
   [conn nname]
   (d/q '[:find ?uuid .
          :in $ ?name
@@ -58,46 +59,63 @@
        nname))
 
 (defn cpp-class->uuid
-  "Get the :bp/uuid using the cpp class name"
-  [conn nname]
+  "Given the namespace and class, return the :bp/uuid of the class entity."
+  [conn nnamespace cclass]
   (d/q '[:find ?uuid .
-         :in $ ?name
+         :in $ ?namespace ?class
          :where
-         [?e :cpp.class/name ?name]
-         [?e :bp/uuid ?uuid]]
+         [?ns :cpp.namespace/name ?namespace]
+         [?ns :cpp.namespace/class ?c]
+         [?c :cpp.class/name ?class]
+         [?c :bp/uuid ?uuid]]
        (d/db conn)
-       nname))
+       nnamespace
+       cclass))
 
 (defn cpp-fn->uuid
-  "Get the :bp/uuid using the cpp function name"
-  ([conn nname]
+  "Given the namespace class and function name, return the :bp/uuid of the function entity."
+  ([conn nnamespace cclass fn-name]
    (d/q '[:find ?uuid .
-          :in $ ?name
+          :in $ ?namespace ?class ?fn-name
           :where
-          [?e :cpp.function/name ?name]
-          [?e :bp/uuid ?uuid]]
-        (d/db conn)
-        nname))
-
-  ([conn class-name fn-name]
-   (d/q '[:find ?uuid .
-          :in $ ?class-name ?fn-name
-          :where
-          [?c :cpp.class/name ?class-name]
+          [?ns :cpp.namespace/name ?namespace]
+          [?ns :cpp.namespace/class ?c]
+          [?c :cpp.class/name ?class]
           [?c :cpp.class/function ?f]
           [?f :cpp.function/name ?fn-name]
           [?f :bp/uuid ?uuid]]
         (d/db conn)
-        class-name
+        nnamespace
+        cclass
         fn-name)))
+
+(defn cpp-param->uuid
+  "Given the namespace, class, function name and parameter name, return the :bp/uuid of the parameter entity."
+  ([conn nnamespace cclass fn-name param-name]
+   (d/q '[:find ?uuid .
+          :in $ ?namespace ?class ?fn-name
+          :where
+          [?ns :cpp.namespace/name ?namespace]
+          [?ns :cpp.namespace/class ?c]
+          [?c :cpp.class/name ?class]
+          [?c :cpp.class/function ?f]
+          [?f :cpp.function/name ?fn-name]
+          [?f :cpp.function/parameter ?p]
+          [?p :cpp.parameter/name ?param-name]
+          [?p :bp/uuid ?uuid]]
+        (d/db conn)
+        nnamespace
+        cclass
+        fn-name
+        param-name)))
 
 (defn cpp-uuids
   "Given a map of with the names of a namespace, class and function, return a map
   that resolves the names to a uuid. Requires all three names."
-  [conn {:keys [cpp-namespace cpp-class cpp-function]}]
+  [conn {:keys [cpp-namespace cpp-class cpp-function cpp-param]}]
   (first
-   (d/q '[:find ?ns-uuid ?c-uuid ?f-uuid
-          :keys cpp-namespace cpp-class cpp-function
+   (d/q '[:find ?ns-uuid ?c-uuid ?f-uuid ?param-uuid
+          :keys cpp-namespace cpp-class cpp-function cpp-param
           :in $ ?namespace ?class ?function
           :where
           [?n :cpp.namespace/name ?namespace]
@@ -107,41 +125,15 @@
           [?c :bp/uuid ?c-uuid]
           [?c :cpp.class/function ?fn]
           [?fn :cpp.function/name ?function]
-          [?fn :bp/uuid ?f-uuid]]
+          [?fn :bp/uuid ?f-uuid]
+          [?f :cpp.function/parameter ?p]
+          [?p :cpp.parameter/name ?param-name]
+          [?p :bp/uuid ?param-uuid]]
         (d/db conn)
         cpp-namespace
         cpp-class
-        cpp-function)))
-
-(defn cpp-param->uuid
-  "Get the :bp/uuid using the cpp function name and parameter name."
-
-  ([conn fn-name param-name]
-   (d/q '[:find ?uuid .
-          :in $ ?fn-name ?p-name
-          :where
-          [?f :cpp.function/name ?fn-name]
-          [?f :cpp.function/parameter ?p]
-          [?p :cpp.parameter/name ?p-name]
-          [?p :bp/uuid ?uuid]]
-        (d/db conn)
-        fn-name
-        param-name))
-
-  ([conn class-name fn-name param-name]
-   (d/q '[:find ?uuid .
-          :in $ ?class-name ?fn-name ?p-name
-          :where
-          [?c :cpp.class/name ?class-name]
-          [?c :cpp.class/function ?f]
-          [?f :cpp.function/name ?fn-name]
-          [?f :cpp.function/parameter ?p]
-          [?p :cpp.parameter/name ?p-name]
-          [?p :bp/uuid ?uuid]]
-        (d/db conn)
-        class-name
-        fn-name
-        param-name)))
+        cpp-function
+        cpp-param)))
 
 (defn- submodule [conn t]
   (->> t
@@ -313,36 +305,91 @@
    :conditional/operator operator
    :conditional/values   values})
 
-(defn ->group
-  "Payload for a new Group."
-  [submodule-eid gname t-key]
-  {:bp/uuid               (rand-uuid)
-   :bp/nid                (nano-id)
-   :submodule/_groups     submodule-eid
-   :group/name            gname
-   :group/translation-key t-key
-   :group/help-key        (str t-key ":help")})
-
-(defn ->subgroup
-  "Payload for a new Subgroup."
-  [parent-group-eid gname t-key]
-  {:bp/uuid               (rand-uuid)
-   :bp/nid                (nano-id)
-   :group/_children       parent-group-eid
-   :group/name            gname
-   :group/translation-key t-key
-   :group/help-key        (str t-key ":help")})
+(defn ->conditional
+  "Payload for a Conditional."
+  [_conn {:keys [ttype operator values group-variable-uuid] :as params}]
+  (let [payload (cond-> {}
+                  (nil? (:bp/uuid params)) (assoc :bp/uuid  (rand-uuid))
+                  (nil? (:bp/nid params))  (assoc :bp/nid  (nano-id))
+                  group-variable-uuid      (assoc :conditional/group-variable-uuid group-variable-uuid)
+                  ttype                    (assoc :conditional/type ttype)
+                  operator                 (assoc :conditional/operator operator)
+                  values                   (assoc :conditional/values values)
+                  ttype                    (assoc :conditional/type ttype))]
+    (if (spec/valid? :behave/conditional payload)
+      payload
+      (spec/explain :behave/conditional payload))))
 
 (defn ->group-variable
   "Payload for a new Group Variable."
-  [group-eid variable-eid t-key]
-  {:bp/uuid                               (rand-uuid)
-   :bp/nid                                (nano-id)
-   :group/_group-variables                group-eid
-   :variable/_group-variables             variable-eid
-   :group-variable/translation-key        t-key
-   :group-variable/result-translation-key (s/replace t-key ":output:" ":result:")
-   :group-variable/help-key               (str t-key ":help")})
+  [conn {:keys [parent-group-eid order variable-eid  cpp-namespace cpp-class cpp-function cpp-parameter translation-key] :as params}]
+  (let [payload (if (spec/valid? :behave/group-variable params)
+                  params
+                  (cond-> {}
+                    (nil? (:bp/uuid params)) (assoc :bp/uuid  (rand-uuid))
+                    (not  (:bp/nid params))  (assoc :bp/nid  (nano-id))
+                    (:db/id params)          (assoc :db/id (:db/id params))
+                    parent-group-eid         (assoc :group/_group-variables parent-group-eid)
+                    order                    (assoc :group-variable/order order)
+                    variable-eid             (assoc :variable/_group-variables variable-eid)
+                    cpp-namespace            (assoc :group-variable/cpp-namespace (cpp-ns->uuid conn cpp-namespace))
+                    cpp-class                (assoc :group-variable/cpp-class (cpp-class->uuid conn cpp-namespace cpp-class))
+                    cpp-function             (assoc :group-variable/cpp-function (cpp-fn->uuid conn cpp-namespace cpp-class cpp-function))
+                    cpp-parameter            (assoc :group-variable/cpp-parameter (cpp-param->uuid conn cpp-namespace cpp-class cpp-function cpp-parameter))
+                    translation-key          (assoc :group-variable/translation-key translation-key)
+                    translation-key          (assoc :group-variable/result-translation-key (s/replace translation-key ":output:" ":result:"))
+                    translation-key          (assoc :group-variable/help-key (str translation-key ":help"))))]
+    (if (spec/valid? :behave/group-variable payload)
+      payload
+      (spec/explain :behave/group-variable payload))))
+
+(defn ->group
+  "Payload for a new Group."
+  [conn {:keys [parent-submodule-eid parent-group-eid group-name order translation-key conditionals group-variables subgroups research? hidden?] :as params}]
+  (let [payload (if (spec/valid? :behave/group params)
+                  params
+                  (cond-> {}
+                    (nil? (:bp/uuid params))                            (assoc :bp/uuid  (rand-uuid))
+                    (nil? (:bp/nid params))                             (assoc :bp/nid  (nano-id))
+                    (:db/id params)                                     (assoc :db/id (:db/id params))
+                    parent-submodule-eid                                (assoc :submodule/_groups parent-submodule-eid)
+                    parent-group-eid                                    (assoc :group/_children parent-group-eid)
+                    group-name                                          (assoc :group/name group-name)
+                    order                                               (assoc :group/order order)
+                    translation-key                                     (assoc :group/translation-key translation-key)
+                    translation-key                                     (assoc :group/result-translation-key (s/replace translation-key ":output:" ":result:"))
+                    translation-key                                     (assoc :group/help-key (str translation-key ":help"))
+                    conditionals                                        (assoc :group/conditionals (map #(->conditional conn %) conditionals))
+                    (and group-variables (every? map? group-variables)) (assoc :group/group-variables (map #(->group-variable conn %) group-variables))
+                    (and group-variables (every? int? group-variables)) (assoc :group/group-variables group-variables)
+                    subgroups                                           (assoc :group/children (map #(->group conn %) subgroups))
+                    research?                                           (assoc :group/research? research?)
+                    hidden?                                             (assoc :group/hidden? hidden?)))]
+    (if (spec/valid? :behave/group payload)
+      payload
+      (spec/explain :behave/group payload))))
+
+(defn ->submodule
+  [conn {:keys [io submodule-name order groups research? translation-key conditionals conditionals-operator] :as params}]
+  (let [payload (if (spec/valid? :behave/submodule params)
+                  params
+                  (cond-> {}
+                    (nil? (:bp/uuid params))          (assoc :bp/uuid  (rand-uuid))
+                    (nil? (:bp/nid params))           (assoc :bp/nid  (nano-id))
+                    io                                (assoc :submodule/io io)
+                    submodule-name                    (assoc :submodule/name submodule-name)
+                    order                             (assoc :submodule/order order)
+                    (and groups (every? map? groups)) (assoc :submodule/groups (map #(->group conn %) groups))
+                    (and groups (every? int? groups)) (assoc :submodule/groups groups)
+                    groups                            (assoc :submodule/groups (map #(->group conn %) groups))
+                    conditionals                      (assoc :submodule/conditionals (map #(->conditional conn %) conditionals))
+                    conditionals-operator             (assoc :submodule/conditionals-operator conditionals-operator)
+                    translation-key                   (assoc :submodule/translation-key translation-key)
+                    translation-key                   (assoc :submodule/help-key (str translation-key ":help"))
+                    research?                         (assoc :submodule/research? research?)))]
+    (if (spec/valid? :behave/submodule payload)
+      payload
+      (spec/explain :behave/submodule payload))))
 
 (defn ->link
   "Payload for a new Link."
