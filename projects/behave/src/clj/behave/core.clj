@@ -5,15 +5,10 @@
   (:require [clojure.java.io      :as io]
             [behave.handlers      :refer [create-cef-handler-stack]]
             [behave.server        :refer [init-config! init-db!]]
-            [file-utils.interface :refer [os-path os-type app-data-dir app-logs-dir]]
+            [file-utils.interface :refer [os-path os-type app-data-dir]]
             [config.interface     :refer [get-config]]
             [jcef.interface       :refer [create-cef-app! custom-request-handler show-loader!]]
             [logging.interface    :as l :refer [log-str]]))
-
-;;; Helpers
-
-(defn- standalone-db-location [org-name app-name]
-  (str (io/file (app-data-dir org-name app-name) "db.sqlite")))
 
 ;;; Logging
 
@@ -75,14 +70,16 @@
         http-port       (or (get-config :server :http-port) 8080)
         org-name        (get-config :site :org-name)
         app-name        (get-config :site :app-name)
+        my-app-data-dir (app-data-dir org-name app-name)
         log-config      (if (= "prod" mode)
-                            (assoc (get-config :logging) :log-dir (app-logs-dir org-name app-name))
-                            (get-config :logging))
+                          (assoc (get-config :logging) :log-dir (str (io/file my-app-data-dir "logs")))
+                          (get-config :logging))
         db-config       (if (= "prod" mode)
                             (assoc-in (get-config :database :config)
                                       [:store :path]
-                                      (standalone-db-location org-name app-name))
+                                      (str (io/file my-app-data-dir "db")))
                             (get-config :database :config))
+        cache-path      (str (io/file my-app-data-dir "webcache"))
         request-handler (custom-request-handler
                          {:protocol     "http"
                           :authority    (format "localhost:%s" http-port)
@@ -94,6 +91,7 @@
     (create-cef-app!
      {:title           (get-config :site :title)
       :url             (str "http://localhost:" http-port)
+      :cache-path      cache-path
       :fullscreen?     true
       :on-shown        (fn [app & _]
                          (reset! the-app app)

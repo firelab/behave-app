@@ -36,6 +36,10 @@
 (defn jcef-builder
   "Produces a `CEFAppBuilder` with the installation
    directory set according to the System OS."
-  []
-  (doto (CefAppBuilder.)
-    (.setInstallDir (get-jcef-dir))))
+  [cache-path]
+  (let [builder (CefAppBuilder.)]
+    (doto builder
+      (.setInstallDir (get-jcef-dir)))
+    (when cache-path
+      (set! (.cache_path (.getCefSettings builder)) cache-path))
+    builder))

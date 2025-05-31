@@ -111,36 +111,18 @@
 (defn app-data-dir
   "Returns the OS-specific location for application data."
   [org-name app-name]
-  (str
-   (apply io/file
-          (concat
-           (condp = (os-type)
-             :windows
-             [(System/getenv "LOCALAPPDATA")]
+  (apply io/file
+   (concat
+    (condp = (os-type)
+      :windows
+      [(System/getenv "LOCALAPPDATA")]
 
-             :mac
-             [(System/getenv "HOME") "Library" "Application Support"]
+      :mac
+      [(System/getenv "HOME") "Library" "Application Support"]
 
-             :linux
-             [(System/getenv "XDG_STATE_HOME")])
-           [org-name app-name "data"]))))
-
-(defn app-logs-dir
-  "Returns the OS-specific location directory for logs."
-  [org-name app-name]
-  (str 
-   (apply io/file
-          (concat
-           (condp = (os-type)
-             :windows
-             [(System/getenv "LOCALAPPDATA")]
-
-             :mac
-             [(System/getenv "HOME") "Library" "Application Support"]
-
-             :linux
-             [(System/getenv "XDG_STATE_HOME")])
-           [org-name app-name "logs"]))))
+      :linux
+      [(System/getenv "XDG_STATE_HOME")])
+    [org-name app-name])))
 
 (defn os-path
   "Translates a path in either Windows/Unix format

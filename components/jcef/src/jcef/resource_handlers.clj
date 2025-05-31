@@ -85,7 +85,6 @@
         headers       (java.util.HashMap.)
         _             (.getHeaderMap cef-request headers)
         headers       (update-keys (into {} headers) str/lower-case)
-        _             (println [:CEF-REQUEST-:HEADERS headers])
         post-data-map (when-not (#{:get :head :options} method)
                         (post-data->map headers cef-request))]
     (merge 
@@ -239,27 +238,26 @@
       (create-resource-handler resource {})
       (reject-handler))))
 
-(defn- custom-resource-handler [public-dir _protocol _authority ring-handler _browser _frame request & args]
-  (when (str/starts-with? (.getURL request) "http")
-    (proxy [CefResourceRequestHandlerAdapter] []
-      (onBeforeResourceLoad [& args]
-        false)
+(defn- custom-resource-handler [public-dir _protocol _authority ring-handler _browser _frame _request & args]
+  (proxy [CefResourceRequestHandlerAdapter] []
+    (onBeforeResourceLoad [& args]
+      false)
 
-      (getCookieAccessFilter [& args]
-        (cookie-filter))
+    (getCookieAccessFilter [& args]
+      (cookie-filter))
 
-      (getResourceHandler [& args]
-        (let [[_ _ request] args
-              url           (URL. (.getURL request))
-              req-path      (.getPath url)]
-          #_(println [:GET-RESOURCE-HANDLER url req-path])
-          (if (filename-ext req-path)
-            (apply get-resource-handler public-dir args)
-            (apply get-api-handler ring-handler args))))
+    (getResourceHandler [& args]
+      (let [[_ _ request] args
+            url           (URL. (.getURL request))
+            req-path      (.getPath url)]
+        #_(println [:GET-RESOURCE-HANDLER url req-path])
+        (if (filename-ext req-path)
+          (apply get-resource-handler public-dir args)
+          (apply get-api-handler ring-handler args))))
 
-      (onResourceResponse [& args]
-        #_(println [:ON-RESOURCE-RESPONSE args])
-        false))))
+    (onResourceResponse [& args]
+      #_(println [:ON-RESOURCE-RESPONSE args])
+      false)))
 
 (defn custom-request-handler
   "Generate a local request handler that serves resources prepended with `public-dir`."
