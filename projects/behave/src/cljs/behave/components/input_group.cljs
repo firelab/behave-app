@@ -37,7 +37,7 @@
                                       english-unit-uuid :variable/english-unit-uuid
                                       metric-unit-uuid  :variable/metric-unit-uuid
                                       help-key          :group-variable/help-key}
-                                     ws-uuid
+                                     {:keys [ws-uuid]}
                                      group-uuid
                                      repeat-id
                                      repeat-group?]
@@ -120,7 +120,7 @@
                                                         gv-uuid
                                                         @value-atom]))}]])]))
 
-(defmethod wizard-input :discrete [variable ws-uuid group-uuid repeat-id repeat-group?]
+(defmethod wizard-input :discrete [variable {:keys [ws-uuid]} group-uuid repeat-id repeat-group?]
   (r/with-let [{gv-uuid  :bp/uuid
                 help-key :group-variable/help-key
                 list     :variable/list} variable
@@ -160,7 +160,7 @@
          :options   (concat [{:label "Select..." :value "nil"}]
                             (map ->option options))}])]))
 
-(defmethod wizard-input :multi-discrete [variable ws-uuid group-uuid repeat-id _repeat-group?]
+(defmethod wizard-input :multi-discrete [variable {:keys [ws-uuid workflow]} group-uuid repeat-id _repeat-group?]
   (r/with-let [{gv-uuid  :bp/uuid
                 llist    :variable/list
                 help-key :group-variable/help-key} variable
@@ -187,13 +187,15 @@
                                              :selected?   (contains? ws-input-values value)}
                                             (when tags {:tags (set (map :bp/nid tags))})
                                             (when color-tag {:color-tag {:color (:tag/color color-tag)}})))]
+    (prn "workflow:" workflow)
     :color-tag/id
     [:div.wizard-input
      {:on-click on-focus-click
       :on-focus on-focus-click}
      [c/multi-select-input
-      (cond-> {:input-label   @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
-               :options       (doall (map ->option options))}
+      (cond-> {:input-label @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
+               :search      (= workflow :standard)
+               :options     (doall (map ->option options))}
         (:list/tag-set llist)
         (assoc :filter-tags (map (fn [{id              :bp/nid
                                        order           :tag/order
@@ -210,7 +212,7 @@
 
 (defmethod wizard-input :text [{gv-uuid  :bp/uuid
                                 help-key :group-variable/help-key}
-                               ws-uuid
+                               {:keys [ws-uuid]}
                                group-uuid
                                repeat-id
                                repeat-group?]
@@ -230,7 +232,7 @@
                     :on-blur       #(upsert-input ws-uuid group-uuid repeat-id gv-uuid (input-value %))
                     :required?     true}]]))
 
-(defn repeat-group [ws-uuid group variables]
+(defn repeat-group [{:keys [ws-uuid] :as params} group variables]
   (let [{group-translation-key :group/translation-key
          group-uuid            :bp/uuid} group
         *repeat-ids                      (rf/subscribe [:worksheet/group-repeat-ids ws-uuid group-uuid])
@@ -247,7 +249,7 @@
          [:div.wizard-group__inputs
           (for [variable variables]
             ^{:key (:db/id variable)}
-            [wizard-input variable ws-uuid group-uuid repeat-id true])
+            [wizard-input variable params group-uuid repeat-id true])
           [:div.wizard-group__inputs__delete
            [c/button {:variant   "highlight"
                      :label     @(<t (bp "delete"))
@@ -263,16 +265,16 @@
                  :label    "Add Resource"
                  :on-click #(rf/dispatch [:worksheet/add-input-group ws-uuid group-uuid next-repeat-id])}]]]))
 
-(defn input-group [ws-uuid group variables level]
+(defn input-group [params group variables level]
   (let [variables (sort-by :group-variable/order variables)]
     [:div.wizard-group
      {:class (str "wizard-group--level-" level)}
      [:div.wizard-group__header
       @(<t (:group/translation-key group))]
      (if (:group/repeat? group)
-       [repeat-group ws-uuid group variables]
+       [repeat-group params group variables]
        (when (seq variables)
          [:div.wizard-group__inputs
           (for [variable variables]
             ^{:key (:db/id variable)}
-            [wizard-input variable ws-uuid (:bp/uuid group) 0])]))]))
+            [wizard-input variable params (:bp/uuid group) 0])]))]))

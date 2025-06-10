@@ -37,7 +37,7 @@
 (def ^:const multi-value-input-limit 3)
 
 ;;; Components
-(defn build-groups [ws-uuid groups component-fn & [level]]
+(defn build-groups [{:keys [ws-uuid] :as params} groups component-fn & [level]]
   (let [level (if (nil? level) 0 level)]
     (when groups
       [:<>
@@ -51,17 +51,17 @@
                                   (:group/conditionals-operator group)]))
             (let [variables (->> group (:group/group-variables) (sort-by :group-variable/order))]
               [:<>
-               [component-fn ws-uuid group variables level]
+               [component-fn params group variables level]
                [:div.wizard-subgroup__indent
-                [build-groups ws-uuid (sort-by :group/order (:group/children group)) component-fn (inc level)]]]))))])))
+                [build-groups params (sort-by :group/order (:group/children group)) component-fn (inc level)]]]))))])))
 
 (defmulti submodule-page (fn [io _ _] io))
 
-(defmethod submodule-page :input [_ ws-uuid groups]
-  [:<> [build-groups ws-uuid groups input-group]])
+(defmethod submodule-page :input [params _ groups]
+  [:<> [build-groups params groups input-group]])
 
-(defmethod submodule-page :output [_ ws-uuid groups]
-  [:<> [build-groups ws-uuid groups output-group]])
+(defmethod submodule-page :output [params _ groups]
+  [:<> [build-groups params groups output-group]])
 
 (defn- io-tabs [{:keys [io] :as _params} on-click]
   [:div.wizard-header__io-tabs
@@ -240,7 +240,7 @@
           [wizard-notes @*notes]])
        [:div
         {:data-theme-color module}
-        [submodule-page io ws-uuid @*groups]]
+        [submodule-page params io @*groups]]
        (when (true? @*warn-limit?)
          [:div.wizard-warning
           (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])]]
@@ -864,7 +864,7 @@
                      {:id (:submodule/name submodule)}
                      [:div.wizard-standard__submodule-header
                       (:submodule/name submodule)]
-                     [build-groups  ws-uuid (:submodule/groups submodule) input-group]]))
+                     [build-groups params (:submodule/groups submodule) input-group]]))
                  ;; io is :output
                  (for [submodule @(subscribe [:wizard/submodules-conditionally-filtered
                                               ws-uuid
@@ -875,7 +875,7 @@
                     {:id (:submodule/name submodule)}
                     [:div.wizard-standard__submodule-header
                      (:submodule/name submodule)]
-                    [build-groups  ws-uuid (:submodule/groups submodule) output-group]]))]])]
+                    [build-groups params (:submodule/groups submodule) output-group]]))]])]
           (when (true? @*warn-limit?)
             [:div.wizard-warning
              (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])
