@@ -656,6 +656,7 @@ body {
 .wizard-input__input {
   width: 300px;
   padding: 5px;
+  padding: 5px 40px 5px 5px;
 }
 
 .wizard-input__units {
