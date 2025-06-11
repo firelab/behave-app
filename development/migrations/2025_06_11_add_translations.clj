@@ -1,5 +1,5 @@
-(ns migrations.template
-  (:require [schema-migrate.interface :as sm]
+(ns migrations.2025-06-11-add-translations
+  (:require [schema-migrate.interface :refer [bp] :as sm]
             [datomic.api :as d]
             [behave-cms.store :refer [default-conn]]
             [behave-cms.server :as cms]))
@@ -22,7 +22,18 @@
 ;; ===========================================================================================================
 
 #_{:clj-kondo/ignore [:missing-docstring]}
-(def payload [])
+(def payload
+  (sm/build-translations-payload
+   conn
+   {(bp "new_worksheet")                                    "New Worksheet"
+    (bp "create_a_new-worksheet_or_import_an_existing_one") "Create a new worksheet or import an existing one."
+    (bp "create_a_new_worksheet")                           "Create a New Worksheet"
+    (bp "open_using_guided_workflow")                       "Open using Guided Workflow"
+    (bp "recommended_for_students")                         "Recommended for students."
+    (bp "open_using_standard_workflow")                     "Open using Standard Workflow"
+    (bp "recommended_for_intermediate_users")               "Recommended for intermediate users."
+    (bp "please_select_a_workflow")                         "Please select a workflow."
+    (bp "note_that_that_you_can_open_using_any_workflow")   "Note that you can open using any workflow."}))
 
 ;; ===========================================================================================================
 ;; Transact Payload

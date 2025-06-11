@@ -31,15 +31,15 @@
       [workflow-select-header
        {:icon        "existing-run" ;TODO update when LOGO is available
         :header      @(<t (bp "welcome_message"))
-        :description "Create a new worksheet or import an existing one."}]
+        :description @(<t (bp "create_a_new-worksheet_or_import_an_existing_one"))}]
       [:div.workflow-select__content
        [c/card-group {:on-select      #(do
                                          (rf/dispatch [:local-storage/update-in [:state :worksheet :*new-or-import] (:workflow %)])
                                          (rf/dispatch [:state/set [:worksheet :*new-or-import] (:workflow %)]))
                       :flex-direction "column"
                       :card-size      "large"
-                      :cards          [{:title     "New Worksheet"
-                                        :content   "Create a New Worksheet"
+                      :cards          [{:title     @(<t (bp "new_worksheet"))
+                                        :content   @(<t (bp "behaveplus:create_a_new_worksheet"))
                                         :icons     [{:icon-name "worksheet"
                                                      :checked?  (= @*new-or-import :new-worksheet)}]
                                         :selected? (= @*new-or-import :new-worksheet)
@@ -131,9 +131,6 @@
 (defn workflow-selection-page [_params]
   (let [*workflow           (rf/subscribe [:local-storage/get-in [:state :worksheet :*workflow]])
         *new-or-import      (rf/subscribe [:local-storage/get-in [:state :worksheet :*new-or-import]])
-        name                (rf/subscribe [:state [:worksheet :name]])
-        *modules            (rf/subscribe [:state [:worksheet :*modules]])
-        *submodule          (rf/subscribe [:worksheet/first-output-submodule-slug (first @*modules)])
         show-tool-selector? @(rf/subscribe [:tool/show-tool-selector?])
         selected-tool-uuid  @(rf/subscribe [:tool/selected-tool-uuid])]
     [:<>
@@ -145,22 +142,25 @@
       [workflow-select-header
        {:icon        "existing-run" ;TODO update when LOGO is available
         :header      @(<t (bp "welcome_message"))
-        :description "Please select a workflow. Note that you can open using any workflow."}]
+        :description (str
+                      @(<t (bp "please_select_a_workflow"))
+                      @(<t (bp "please_select_a_workflow"))
+                      ((bp "note_that_that_you_can_open_using_any_workflow")))}]
       [:div.workflow-select__content
        [c/card-group {:on-select      #(do
                                          (rf/dispatch [:local-storage/update-in [:state :worksheet :*workflow] (:workflow %)])
                                          (rf/dispatch [:state/set [:worksheet :*workflow] (:workflow %)]))
                       :flex-direction "column"
                       :card-size      "large"
-                      :cards          [{:title     "Open using Guided Workflow"
-                                        :content   "Recommended for students."
+                      :cards          [{:title     @(<t (bp "open_using_guided_workflow"))
+                                        :content   @(<t (bp "recommended_for_students"))
                                         :icons     [{:icon-name "guided-work"
                                                      :checked?  (= @*workflow :guided)}]
                                         :selected? (= @*workflow :guided)
                                         :order     0
                                         :workflow  :guided}
-                                       {:title     "Open using Standard Workflow"
-                                        :content   "Recommended for intermittent users."
+                                       {:title     @(<t (bp "open_using_standard_workflow"))
+                                        :content   @(<t (bp "recommended_for_intermediate_users"))
                                         :icons     [{:icon-name "checklist"
                                                      :checked?  (= @*workflow :standard)}]
                                         :selected? (= @*workflow :standard)

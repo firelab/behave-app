@@ -117,3 +117,7 @@
 (def ^{:arglists '([migration-name])
        :doc "Payload for a new migration."}
   ->migration c/->migration)
+
+(def ^{:arglists '([s])
+       :doc      "add behaveplus: to `s`"}
+  bp c/bp)
