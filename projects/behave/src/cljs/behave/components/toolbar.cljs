@@ -5,37 +5,18 @@
             [re-frame.core          :as rf]))
 
 #_{:clj-kondo/ignore [:missing-docstring]}
-(def step-kw->number
-  {:work-style      1
-   :module          2
-   :module-outputs  1
-   :module-inputs   2
-   :review          3
-   :result-settings 4
-   :results         5})
-
-#_{:clj-kondo/ignore [:missing-docstring]}
-(def route-handler->step-number
-  {:ws/all              1
-   :ws/import           2
-   :ws/guided           2
-   :ws/independent      2
-   :ws/review           3
-   :ws/results-settings 4
-   :ws/results          5})
-
-#_{:clj-kondo/ignore [:missing-docstring]}
-(defn get-step-kw [route-handler io]
-  (case [route-handler io]
-    [:ws/wizard :input]        :module-inputs
-    [:ws/wizard :output]       :module-outputs
-    [:ws/review nil]           :review
-    [:ws/results-settings nil] :result-settings
-    [:ws/results nil]          :results
-    [:ws/all nil]              :work-style
-    [:ws/import nil]           :module
-    [:ws/guided nil]           :module
-    [:ws/independent nil]      :module))
+(def step-priority
+  [[:ws/all nil]
+   [:ws/import nil]
+   [:ws/guided nil]
+   [:ws/independent nil]
+   [:ws/wizard :output]
+   [:ws/wizard :input]
+   [:ws/wizard-standard :output]
+   [:ws/wizard-standard :input]
+   [:ws/review nil]
+   [:ws/results-settings nil]
+   [:ws/results nil]])
 
 (defn- toolbar-tool [{icon-name :icon translation-key :label on-click :on-click :as s}]
   [:div.toolbar__tool
@@ -48,33 +29,19 @@
 (defn- enrich-step
   [progress selected-step furthest-step-completed-id]
   (fn [idx step]
-    (let [id (inc idx)]
-      (cond-> step
-        (> id furthest-step-completed-id) (assoc :on-select #(println "disabled!"))
-        :always                           (assoc :step-id    id)
-        :always                           (assoc :completed? (>= progress id))
-        :always                           (assoc :selected?  (= selected-step id))))))
-
-#_{:clj-kondo/ignore [:missing-docstring]}
-(defn get-step-number [route-handler io]
-  (cond
-    (and (= route-handler :ws/wizard)
-         (= io :output))
-    1
-
-    (and (= route-handler :ws/wizard)
-         (= io :input))
-    2
-
-    :else
-    (get route-handler->step-number route-handler 0)))
+    (cond-> step
+      (> idx furthest-step-completed-id) (assoc :on-select #(println "disabled!"))
+      :always                            (assoc :step-id    idx)
+      :always                            (assoc :completed? (>= progress idx))
+      :always                            (assoc :selected?  (= selected-step idx)))))
 
 (defmulti progress-bar
-  (fn [{:keys [ws-uuid route-handler]}]
+  (fn [{:keys [route-handler workflow] :as params}]
     (cond
       (or (= route-handler :home)
           (= route-handler :settings/all)) :ws/all
-      ws-uuid                              :ws/wizard
+      (= workflow :guided)                 :ws/wizard
+      (= workflow :standard)               :ws/wizard-standard
       route-handler                        route-handler
       :else                                :none)))
 
@@ -93,17 +60,18 @@
                                                       steps)}]))
 
 (defmethod progress-bar :ws/import
-  [{:keys [ws-uuid io route-handler] :as _params}]
-  (let [selected-step (get-step-number route-handler io)
-        progress      selected-step
-        steps         [{:label            @(<t (bp "work_style"))
+  [{:keys [ws-uuid io route-handler workflow] :as _params}]
+  (let [steps         [{:label            @(<t (bp "work_style"))
                         :completed?       true
                         :route-handler+io [:ws/all nil]}
                        {:label            @(<t (bp "upload_a_file"))
                         :completed?       true
-                        :route-handler+io [:ws/import nil]}]]
+                        :route-handler+io [:ws/import nil]}]
+        selected-step (.indexOf (mapv :route-handler+io steps) [route-handler io])
+        progress      selected-step]
     [c/progress {:on-select              #(rf/dispatch [:wizard/progress-bar-navigate
                                                         ws-uuid
+                                                        workflow
                                                         (:route-handler+io %)])
                  :completed-last-step-id progress
                  :steps                  (map-indexed (enrich-step progress
@@ -112,17 +80,18 @@
                                                       steps)}]))
 
 (defmethod progress-bar :ws/independent
-  [{:keys [ws-uuid io route-handler] :as _params}]
-  (let [selected-step (get-step-number route-handler io)
-        progress      selected-step
-        steps         [{:label            @(<t (bp "work_style"))
+  [{:keys [ws-uuid io route-handler workflow] :as _params}]
+  (let [steps         [{:label            @(<t (bp "work_style"))
                         :completed?       true
                         :route-handler+io [:ws/all nil]}
                        {:label            @(<t (bp "modules_selection"))
                         :completed?       true
-                        :route-handler+io [:ws/independent nil]}]]
+                        :route-handler+io [:ws/independent nil]}]
+        selected-step (.indexOf (mapv :route-handler+io steps) [route-handler io])
+        progress      selected-step]
     [c/progress {:on-select              #(rf/dispatch [:wizard/progress-bar-navigate
                                                         ws-uuid
+                                                        workflow
                                                         (:route-handler+io %)])
                  :completed-last-step-id progress
                  :steps                  (map-indexed (enrich-step progress
@@ -131,9 +100,8 @@
                                                       steps)}]))
 
 (defmethod progress-bar :ws/wizard
-  [{:keys [ws-uuid io route-handler] :as _params}]
-  (let [selected-step            (get-step-number route-handler io)
-        steps                    [{:label            @(<t (bp "module_output_selections"))
+  [{:keys [ws-uuid io route-handler workflow] :as _params}]
+  (let [steps                    [{:label            @(<t (bp "module_output_selections"))
                                    :completed?       false
                                    :route-handler+io [:ws/wizard :output]}
                                   {:label            @(<t (bp "module_input_selections"))
@@ -144,18 +112,62 @@
                                    :route-handler+io [:ws/review nil]}
                                   {:label            @(<t (bp "result_settings"))
                                    :completed?       false
-                                   :route-handler+io [:ws/result-settings nil]}
+                                   :route-handler+io [:ws/results-settings nil]}
                                   {:label            @(<t (bp "results"))
                                    :completed?       false
                                    :route-handler+io [:ws/results nil]}]
+        selected-step            (.indexOf (mapv :route-handler+io steps) [route-handler io])
         *worksheet               (rf/subscribe [:worksheet ws-uuid])
-        furthest-visited-step-id (->> *worksheet
+        furthest-route-handler   (->> *worksheet
                                       (deref)
-                                      (:worksheet/furthest-visited-step)
-                                      (get step-kw->number))
+                                      (:worksheet/furthest-visited-route-handler))
+        furthest-io              (->> *worksheet
+                                      (deref)
+                                      (:worksheet/furthest-visited-io))
+        furthest-visited-step-id (.indexOf (mapv :route-handler+io steps) [furthest-route-handler furthest-io])
         progress                 furthest-visited-step-id]
     [c/progress {:on-select              #(rf/dispatch [:wizard/progress-bar-navigate
                                                         ws-uuid
+                                                        workflow
+                                                        (:route-handler+io %)])
+                 :completed-last-step-id progress
+                 :steps                  (map-indexed (enrich-step progress
+                                                                   selected-step
+                                                                   furthest-visited-step-id)
+                                                      steps)}]))
+
+(defmethod progress-bar :ws/wizard-standard
+  [{:keys [ws-uuid io route-handler workflow] :as _params}]
+  (let [steps                    [{:label            @(<t (bp "module_output_selections"))
+                                   :completed?       false
+                                   :route-handler+io [:ws/wizard-standard :output]}
+                                  {:label            @(<t (bp "module_input_selections"))
+                                   :completed?       false
+                                   :route-handler+io [:ws/wizard-standard :input]}
+                                  {:label            @(<t (bp "result_settings"))
+                                   :completed?       false
+                                   :route-handler+io [:ws/results-settings nil]}
+                                  {:label            @(<t (bp "results"))
+                                   :completed?       false
+                                   :route-handler+io [:ws/results nil]}]
+        ;; NOTE (kcheung 2025) For some reason when navigating using the progress bar from either inputs or outputs page the io for these route handlers is set to either "input" or "output" when it should be nil. This is a crude way of forcing it to be nil for now.
+        io                       (if (or (= route-handler :ws/results-settings)
+                                         (= route-handler :ws/results))
+                                   nil
+                                   io)
+        selected-step            (.indexOf (mapv :route-handler+io steps) [route-handler io])
+        *worksheet               (rf/subscribe [:worksheet ws-uuid])
+        furthest-route-handler   (->> *worksheet
+                                      (deref)
+                                      (:worksheet/furthest-visited-route-handler))
+        furthest-io              (->> *worksheet
+                                      (deref)
+                                      (:worksheet/furthest-visited-io))
+        furthest-visited-step-id (.indexOf (mapv :route-handler+io steps) [furthest-route-handler furthest-io])
+        progress                 furthest-visited-step-id]
+    [c/progress {:on-select              #(rf/dispatch [:wizard/progress-bar-navigate
+                                                        ws-uuid
+                                                        workflow
                                                         (:route-handler+io %)])
                  :completed-last-step-id progress
                  :steps                  (map-indexed (enrich-step progress
@@ -165,8 +177,9 @@
 
 #_{:clj-kondo/ignore [:missing-docstring]}
 (defn toolbar [{:keys [ws-uuid] :as params}]
-  (let [*loaded?    (rf/subscribe [:app/loaded?])
-        on-click    #(js/console.log (str "Selected!" %))
+  (prn "toolbar params:" params)
+  (let [*loaded? (rf/subscribe [:app/loaded?])
+        on-click #(js/console.log (str "Selected!" %))
         tools    [{:icon     :home
                    :label    (bp "home")
                    :on-click #(rf/dispatch [:wizard/navigate-home])}
