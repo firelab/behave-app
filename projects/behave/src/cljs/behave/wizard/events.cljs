@@ -33,10 +33,11 @@
 
 (rf/reg-event-fx
  :wizard/select-tab
- (fn [_ [_ {:keys [ws-uuid module io submodule]}]]
+ (fn [_ [_ {:keys [ws-uuid module io submodule workflow]}]]
    (let [path (path-for routes
                         :ws/wizard
                         :ws-uuid ws-uuid
+                        :workflow workflow
                         :module module
                         :io io
                         :submodule submodule)]
@@ -297,8 +298,8 @@
 
 (rf/reg-event-fx
  :wizard/new-worksheet
- (fn [_ [_ nname modules submodule]]
-   (s/new-worksheet! nname modules submodule)))
+ (fn [_ [_ nname modules submodule workflow]]
+   (s/new-worksheet! nname modules submodule workflow)))
 
 (rf/reg-event-fx
  :wizard/toggle-expand

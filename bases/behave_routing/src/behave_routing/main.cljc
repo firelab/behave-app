@@ -38,9 +38,10 @@
     "/independent"  :ws/independent
     "/import"       :ws/import
     ["/" :ws-uuid] [["" :ws/overview]
-                     module-routes
-                     result-routes
-                    ["/review" :ws/review]
+                    [["/" [keyword :workflow]] [module-routes
+                                                result-routes
+                                                ["/review" :ws/review]
+                                                [["/io/" [keyword :io]] :ws/wizard-standard]]]
                     ["/print" :ws/print]
                     ["/settings" :settings/all]]}])
 
