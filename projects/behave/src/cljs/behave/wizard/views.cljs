@@ -55,7 +55,7 @@
                [:div.wizard-subgroup__indent
                 [build-groups params (sort-by :group/order (:group/children group)) component-fn (inc level)]]]))))])))
 
-(defmulti submodule-page (fn [io _ _] io))
+(defmulti submodule-page (fn [_ io _ _] io))
 
 (defmethod submodule-page :input [params _ groups]
   [:<> [build-groups params groups input-group]])
