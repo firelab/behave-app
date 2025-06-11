@@ -144,8 +144,7 @@
         :header      @(<t (bp "welcome_message"))
         :description (str
                       @(<t (bp "please_select_a_workflow"))
-                      @(<t (bp "please_select_a_workflow"))
-                      ((bp "note_that_that_you_can_open_using_any_workflow")))}]
+                      @(<t (bp "note_that_that_you_can_open_using_any_workflow")))}]
       [:div.workflow-select__content
        [c/card-group {:on-select      #(do
                                          (rf/dispatch [:local-storage/update-in [:state :worksheet :*workflow] (:workflow %)])
