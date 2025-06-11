@@ -358,3 +358,8 @@
   {:bp/uuid         (rand-uuid)
    :bp/nid          (nano-id)
    :bp/migration-id id})
+
+(defn bp
+  "add behaveplus: to `s`"
+  [& s]
+  (apply str "behaveplus:" s))
