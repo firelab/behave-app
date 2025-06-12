@@ -35,8 +35,7 @@
     (bp "please_select_a_workflow")                         "Please select a workflow."
     (bp "note_that_that_you_can_open_using_any_workflow")   "Note that you can open using any workflow."
     (bp "home")                                             "Home"
-    (bp "workflow")                                         "Workflow"}
-   ))
+    (bp "workflow")                                         "Workflow"}))
 
 ;; ===========================================================================================================
 ;; Transact Payload
