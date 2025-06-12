@@ -143,17 +143,20 @@
           {:status (or status 500) :body cause})))))
 
 (defn- reloadable-clj-files
+  "Creates a list of files that can be fed to the ring-wrap-reload interceptor."
   []
-  (let [m        (meta #'reloadable-clj-files)
-        n-spaces (:ns m)
-        ns-file  (-> n-spaces
-                     (str/replace "-" "_")
-                     (str/replace "." "/")
-                     (->> (format "/%s.clj")))
-        path     (:file m)]
-    [(str/replace path #"/projects/.*" "/components")
-     (str/replace path #"/projects/.*" "/bases")
-     (str/replace path ns-file "")]))
+  (if (get-config :client :jar-local?)
+    ["src"]
+    (let [m        (meta #'reloadable-clj-files)
+          n-spaces (:ns m)
+          ns-file  (-> n-spaces
+                       (str/replace "-" "_")
+                       (str/replace "." "/")
+                       (->> (format "/%s.clj")))
+          path     (:file m)]
+      [(str/replace path #"/projects/.*" "/components")
+       (str/replace path #"/projects/.*" "/bases")
+       (str/replace path ns-file "")])))
 
 (defn- optional-middleware [handler mw use?]
   (if use?

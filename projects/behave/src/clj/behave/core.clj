@@ -19,10 +19,9 @@
   (log-str (get-config)))
 
 (defn- start-logging! [log-opts]
-  (let [log-opts (update log-opts :log-dir os-path)]
-    (io/make-parents (:log-dir log-opts))
-    (l/start-logging! log-opts)
-    (log-system-start!)))
+  (io/make-parents (:log-dir log-opts))
+  (l/start-logging! log-opts)
+  (log-system-start!))
 
 (defn- set-properties! [props]
   (doseq [[k v] props]
