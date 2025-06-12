@@ -237,12 +237,12 @@
                                                 (gstring/format "behave7-%s.bp7"
                                                                 (or worksheet-name ws-uuid))])))}
                   {:icon     :print
-                   :label    (bp "print")
+                   :label    @(<t (bp "print"))
                    :on-click (when ws-uuid
                                #(rf/dispatch [:toolbar/print ws-uuid]))}
                   (when-not (:jar-local? params)
                     {:icon     :share
-                     :label    (bp "share")
+                     :label    @(<t (bp "share"))
                      :on-click #(rf/dispatch [:dev/export-from-vms])})
                   #_{:icon     :zoom-in
                      :label    (bp "zoom-in")
