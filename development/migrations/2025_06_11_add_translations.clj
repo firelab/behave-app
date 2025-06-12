@@ -33,7 +33,10 @@
     (bp "open_using_standard_workflow")                     "Open using Standard Workflow"
     (bp "recommended_for_intermediate_users")               "Recommended for intermediate users."
     (bp "please_select_a_workflow")                         "Please select a workflow."
-    (bp "note_that_that_you_can_open_using_any_workflow")   "Note that you can open using any workflow."}))
+    (bp "note_that_that_you_can_open_using_any_workflow")   "Note that you can open using any workflow."
+    (bp "home")                                             "Home"
+    (bp "workflow")                                         "Workflow"}
+   ))
 
 ;; ===========================================================================================================
 ;; Transact Payload

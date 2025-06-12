@@ -53,11 +53,11 @@
 
 (defmethod progress-bar :ws/home
   [{:keys [ws-uuid workflow]}]
-  (let [steps [{:label            "Home"
+  (let [steps [{:label            @(<t (bp "home"))
                 :completed?       true
                 :selected?        true
                 :route-handler+io [:ws/home nil]}
-               {:label            "Workflow"
+               {:label            @(<t (bp "workflow"))
                 :completed?       false
                 :route-handler+io [:ws/workflow-selection nil]}]]
     [c/progress {:on-select #(rf/dispatch [:wizard/progress-bar-navigate
@@ -70,19 +70,19 @@
   [{:keys [ws-uuid io route-handler workflow] :as _params}]
   (let [*new-or-import (rf/subscribe [:state [:worksheet :*new-or-import]])
         steps          (if (= @*new-or-import :import)
-                         [{:label            "Home"
+                         [{:label            @(<t (bp "home"))
                            :completed?       true
                            :route-handler+io [:ws/home nil]}
-                          {:label            "Workflow"
+                          {:label            @(<t (bp "workflow"))
                            :completed?       true
                            :route-handler+io [:ws/workflow-selection nil]}
                           {:label            @(<t (bp "upload_a_file"))
                            :completed?       true
                            :route-handler+io [:ws/import nil]}]
-                         [{:label            "Home"
+                         [{:label            @(<t (bp "home"))
                            :completed?       true
                            :route-handler+io [:ws/home nil]}
-                          {:label            "Workflow"
+                          {:label            @(<t (bp "workflow"))
                            :completed?       true
                            :route-handler+io [:ws/workflow-selection nil]}
                           {:label            @(<t (bp "modules_selection"))
@@ -102,10 +102,10 @@
 
 (defmethod progress-bar :ws/module-selection
   [{:keys [ws-uuid io route-handler workflow] :as _params}]
-  (let [steps         [{:label            "Home"
+  (let [steps         [{:label            @(<t (bp "home"))
                         :completed?       true
                         :route-handler+io [:ws/home nil]}
-                       {:label            "Workflow"
+                       {:label            @(<t (bp "workflow"))
                         :completed?       true
                         :route-handler+io [:ws/workflow-selection nil]}
                        {:label            @(<t (bp "modules_selection"))
@@ -125,10 +125,10 @@
 
 (defmethod progress-bar :ws/import
   [{:keys [ws-uuid io route-handler workflow] :as _params}]
-  (let [steps         [{:label            "Home"
+  (let [steps         [{:label            @(bp "home")
                         :completed?       true
                         :route-handler+io [:ws/home nil]}
-                       {:label            "Workflow"
+                       {:label            @(bp "workflow")
                         :completed?       true
                         :route-handler+io [:ws/workflow-selection nil]}
                        {:label            @(<t (bp "upload_a_file"))
@@ -226,7 +226,6 @@
 (defn toolbar [{:keys [ws-uuid] :as params}]
   (prn "toolbar params:" params)
   (let [*loaded? (rf/subscribe [:app/loaded?])
-        on-click #(js/console.log (str "Selected!" %))
         tools    [{:icon     :home
                    :label    (bp "home")
                    :on-click #(rf/dispatch [:wizard/navigate-home])}
