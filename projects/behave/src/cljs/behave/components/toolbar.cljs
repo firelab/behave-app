@@ -125,10 +125,10 @@
 
 (defmethod progress-bar :ws/import
   [{:keys [ws-uuid io route-handler workflow] :as _params}]
-  (let [steps         [{:label            @(bp "home")
+  (let [steps         [{:label            @(<t (bp "home"))
                         :completed?       true
                         :route-handler+io [:ws/home nil]}
-                       {:label            @(bp "workflow")
+                       {:label            @(<t (bp "workflow"))
                         :completed?       true
                         :route-handler+io [:ws/workflow-selection nil]}
                        {:label            @(<t (bp "upload_a_file"))
