@@ -346,7 +346,6 @@ body {
 }
 
 .accordion__collapse > .button .button__icon {
-  top: -2px;
   left: 10px;
 }
 
@@ -376,7 +375,6 @@ body {
 }
 
 .accordion__expand > .button .button__icon {
-  top: -3px;
   left: 6px;
 }
 
