@@ -19,11 +19,11 @@
    [:ws/results-settings nil]
    [:ws/results nil]])
 
-(defn- toolbar-tool [{icon-name :icon translation-key :label on-click :on-click :as s}]
+(defn- toolbar-tool [{icon-name :icon label :label on-click :on-click :as s}]
   [:div.toolbar__tool
    [:div.toolbar__tool__icon
     [c/button {:variant   "transparent-primary"
-               :title     @(<t translation-key)
+               :label     label
                :icon-name icon-name
                :on-click  #(on-click s)}]]])
 
@@ -224,13 +224,12 @@
 
 #_{:clj-kondo/ignore [:missing-docstring]}
 (defn toolbar [{:keys [ws-uuid] :as params}]
-  (prn "toolbar params:" params)
   (let [*loaded? (rf/subscribe [:app/loaded?])
         tools    [{:icon     :home
-                   :label    (bp "home")
+                   :label    @(<t (bp "home"))
                    :on-click #(rf/dispatch [:wizard/navigate-home])}
                   {:icon     :save
-                   :label    (bp "save")
+                   :label    @(<t (bp "save"))
                    :on-click #(when ws-uuid
                                 (let [worksheet-name @(rf/subscribe [:worksheet/name ws-uuid])]
                                   (rf/dispatch [:wizard/save
