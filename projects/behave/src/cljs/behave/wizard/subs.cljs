@@ -780,7 +780,7 @@
 (defn- build-guided-submodule-path
   [rroutes ws-uuid submodule]
   (path-for rroutes
-            :ws/wizard
+            :ws/wizard-guided
             :workflow :guided
             :ws-uuid ws-uuid
             :module (str/lower-case (parent-module-name (:db/id submodule)))
