@@ -265,6 +265,27 @@
      (into [language-translation-refs]
            translations))))
 
+(defn update-translations-payload
+  "Creates a payload to update existing translations for specific language shortcode."
+  [conn shortcode translation-map]
+  (let [language-eid
+        (d/q '[:find ?e .
+               :in $ ?shortcode
+               :where
+               [?e :language/shortcode ?shortcode]]
+             (d/db conn) shortcode)
+        query-translation-eid
+        (fn [language-eid t-key]
+          (d/q '[:find ?t .
+                 :in $ ?lang ?t-key
+                 :where
+                 [?lang :language/translation ?t]
+                 [?t :translation/key ?t-key]]
+               (d/db conn) language-eid t-key))]
+    (map (fn [[t-key translation]]
+           {:db/id                   (query-translation-eid language-eid t-key)
+            :translation/translation translation}) translation-map)))
+
 (defn remove-nested-i18ns-tx
   "Removes an entity (and it's components), along with all nested
    translation keys."
