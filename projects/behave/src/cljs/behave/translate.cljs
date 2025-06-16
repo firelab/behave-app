@@ -3,7 +3,7 @@
 
 ;;; Configuration
 
-(def ^:private supported #{"en-US" "pt-PT"})
+(def ^:private supported #{"en-US"})
 (def ^:private default "en-US")
 
 ;;; Helpers
