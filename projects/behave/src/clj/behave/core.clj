@@ -96,19 +96,6 @@
                          (reset! the-app app)
                          (.dispose (:frame loader)))
       :request-handler request-handler
-      :menu            [{:title "File"
-                         :items [{:label       "Open"
-                                  :mnemonic    "O"
-                                  :description "Opens a file"
-                                  :shortcut    "O"
-                                  :on-select   (fn [_]
-                                                 (println "Hello Open File!"))}
-                                 {:label       "Save"
-                                  :mnemonic    "S"
-                                  :description "Saves a file"
-                                  :shortcut    "S"
-                                  :on-select   (fn [_]
-                                                 (println "Hello Save File!"))}]}]
       :on-before-launch
       (fn [{:keys [client frame]}]
         (.addRequestHandler client (custom-request-handler {:protocol     "http"
