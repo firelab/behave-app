@@ -593,6 +593,7 @@ body {
   border-bottom: 2px solid var(--themed-header-bottom-border-color);
 }
 
+.wizard-group__header--standard,
 .wizard-graph__output-header,
 .wizard-group--level-1 > .wizard-group__header {
   padding: 5px 18px;
