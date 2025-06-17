@@ -3,7 +3,8 @@
             [behave.components.a11y   :refer [on-space on-enter]]
             [behave.components.icon.core :refer [icon]]
             [reagent.core :as r]
-            [goog.string              :as gstring]))
+            [goog.string              :as gstring]
+            [clojure.string :as str]))
 
 ;;==============================================================================
 ;; Checkbox
@@ -167,8 +168,50 @@
          [option opt]))]]])
 
 ;;==============================================================================
+;; Text
+;;==============================================================================
+
+(defn text-input
+  [{:keys [disabled? error? error-msg focused? id label name on-blur on-change on-focus
+           placeholder value value-atom default-value on-key-press]}]
+  [:div {:class ["input-text"
+                 (when error?    "input-text--error")
+                 (when disabled? "input-text--disabled")
+                 (when focused?  "input-text--focused")]}
+   [:label {:class "input-text__label" :for id} label]
+   [:input (cond-> {:class         "input-text__input"
+                    :disabled      disabled?
+                    :id            id
+                    :name          name
+                    :on-blur       on-blur
+                    :on-key-press  on-key-press
+                    :on-focus      on-focus
+                    :placeholder   placeholder
+                    :type          "text"}
+             on-change     (assoc :on-change on-change)
+             default-value (assoc :default-value default-value)
+             value         (assoc :value value)
+             value-atom    (assoc :value @value-atom))]
+   (when error?
+     [:div.input-text__error error-msg])])
+
+
+;;==============================================================================
 ;; Multi Select
 ;;==============================================================================
+
+(defn on-matching-keys [keycodes f]
+  (fn [e]
+    (when (keycodes (.-charCode e))
+      (f))))
+
+(defn on-space-enter [f]
+  (on-matching-keys #{13 32} f))
+
+(defn input-value
+  "Returns the value property of the target property of an event."
+  [event]
+  (-> event .-target .-value))
 
 (defn- multi-select-option [{:keys [selected? label on-click color-tag]}]
   [:div (cond-> {:class    ["multi-select__option"
@@ -182,7 +225,7 @@
     [icon (if selected? "minus" "plus")]]
    label])
 
-(defn multi-select-input
+(defmulti multi-select-input
   "Creates a multi-select input component with the following options:
   - `input-label`: text to display as the label for the input.
   - `options`: vector of maps with keys:
@@ -194,9 +237,16 @@
   - [Optional] `filter-tags`: vector of maps with keys:
      - `:label` - label of the tag
      - `:id`    - id of the tag (keyword or number)
+  - [Optional] `search` - if set to true, the component will use search box to filter options. This will replace the use of `filter-tags`
   - [Optional] `color-tags`:
      - `:label` - label of the option
      - `:color` - color of the tag"
+  (fn [{:keys [search]}]
+    (if (true? search)
+      :search
+      :no-search)))
+
+(defmethod multi-select-input :no-search
   [{:keys [input-label options filter-tags color-tags]}]
   (r/with-let [selections (r/atom (->> options
                                        (filter #(true? (:selected? %)))
@@ -285,30 +335,89 @@
                                                  [icon "minus"]]
                                                 label])])]]))
 
-;;==============================================================================
-;; Text
-;;==============================================================================
-
-(defn text-input
-  [{:keys [disabled? error? error-msg focused? id label name on-blur on-change on-focus
-           placeholder value value-atom default-value on-key-press]}]
-  [:div {:class ["input-text"
-                 (when error?    "input-text--error")
-                 (when disabled? "input-text--disabled")
-                 (when focused?  "input-text--focused")]}
-   [:label {:class "input-text__label" :for id} label]
-   [:input (cond-> {:class         "input-text__input"
-                    :disabled      disabled?
-                    :id            id
-                    :name          name
-                    :on-blur       on-blur
-                    :on-key-press  on-key-press
-                    :on-focus      on-focus
-                    :placeholder   placeholder
-                    :type          "text"}
-             on-change     (assoc :on-change on-change)
-             default-value (assoc :default-value default-value)
-             value         (assoc :value value)
-             value-atom    (assoc :value @value-atom))]
-   (when error?
-     [:div.input-text__error error-msg])])
+(defmethod multi-select-input :search
+  [{:keys [input-label options color-tags]}]
+  (r/with-let [selections (r/atom (->> options
+                                       (filter #(true? (:selected? %)))
+                                       (map (fn [{:keys [label value on-deselect]}]
+                                              [label value on-deselect]))
+                                       (into (sorted-set))))
+               show-options? (r/atom false)
+               search (r/atom "")
+               filtered-options (r/atom options)]
+    [:div.multi-select--search
+     [:div.multi-select__prompt
+      (gstring/format "Please select from the following %s (you can select multiple)" input-label)]
+     (when (seq color-tags)
+       [:div.multi-select__color-tags
+        (for [{:keys [label color]} color-tags]
+          ^{:key color}
+          [:div {:class "multi-select__color-tags__tag"
+                 :style {:border-color color}}
+           label])])
+     [:div.multi-select__selections
+      [:div.multi-select__selections__header
+       [:div (gstring/format "Selected %s" input-label)]
+       [:div.multi-select__selections__header__button (if @show-options?
+                                                        [button {:label     "Hide Options"
+                                                                 :variant   "secondary"
+                                                                 :icon-name "minus"
+                                                                 :size      "small"
+                                                                 :on-click  #(do (reset! show-options? (not @show-options?))
+                                                                                 (reset! search nil))}]
+                                                        [button {:label     "Show All Options"
+                                                                 :variant   "primary"
+                                                                 :icon-name "plus"
+                                                                 :size      "small"
+                                                                 :on-click  #(reset! show-options? (not @show-options?))}])]]
+      [:div.multi-select-search__selections__body
+       (for [[label value on-deselect color-tag :as selection] @selections]
+         [:div
+          (cond-> {:class    ["multi-select-search"
+                              "multi-select__option--selected"
+                              (when color-tag "multi-select__option__color-tag")]
+                   :style    {}
+                   :on-click #(do
+                                (reset! selections (disj @selections selection))
+                                (when on-deselect (on-deselect value)))}
+            color-tag
+            (assoc-in [:style :border-color] (:color color-tag)))
+          [:div.multi-select__option__icon--minus
+           [icon "minus"]]
+          label])]
+      [text-input {:label        "Search"
+                   :on-key-press (on-enter (fn []
+                                             (when-let [{:keys [label value on-deselect on-select]} (first @filtered-options)]
+                                               (reset! selections (conj @selections [label value on-deselect]))
+                                               (reset! search nil)
+                                               (when on-select (on-select value)))))
+                   :on-change    #(do (reset! search (input-value %))
+                                      (reset! filtered-options (filter (fn [option]
+                                                                         (str/includes? (str/lower-case (:label option))
+                                                                                        (str/lower-case @search)))
+                                                                       options)))
+                   :value-atom   search}]]
+     (when (or (seq @search) @show-options?)
+       [:div.multi-select__options
+        (doall
+         (for [{:keys [label
+                       value
+                       on-select
+                       on-deselect
+                       color-tag]} (if (and @show-options? (not (seq @search)))
+                                     options
+                                     @filtered-options)]
+           ^{:key label}
+           (let [selection [label value on-deselect]]
+             [multi-select-option {:selected? (contains? @selections selection)
+                                   :color-tag color-tag
+                                   :label     label
+                                   :on-click  #(do (if (contains? @selections selection)
+                                                     (do
+                                                       (reset! selections (disj @selections selection))
+                                                       (when on-deselect (on-deselect value)))
+                                                     (do
+                                                       (reset! selections (conj @selections selection))
+                                                       (when on-select
+                                                         (on-select value))))
+                                                   (reset! search nil))}])))])]))

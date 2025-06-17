@@ -346,7 +346,6 @@ body {
 }
 
 .accordion__collapse > .button .button__icon {
-  top: -2px;
   left: 10px;
 }
 
@@ -376,7 +375,6 @@ body {
 }
 
 .accordion__expand > .button .button__icon {
-  top: -3px;
   left: 6px;
 }
 
@@ -589,6 +587,7 @@ body {
   border-bottom: 2px solid var(--themed-header-bottom-border-color);
 }
 
+.wizard-group__header--standard,
 .wizard-graph__output-header,
 .wizard-group--level-1 > .wizard-group__header {
   padding: 5px 18px;
