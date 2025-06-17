@@ -252,10 +252,10 @@
             [wizard-input variable params group-uuid repeat-id true])
           [:div.wizard-group__inputs__delete
            [c/button {:variant   "highlight"
-                     :label     @(<t (bp "delete"))
-                     :size      "small"
-                     :icon-name "delete"
-                     :on-click  #(rf/dispatch [:worksheet/delete-repeat-input-group ws-uuid group-uuid repeat-id])}]]]])
+                      :label     @(<t (bp "delete"))
+                      :size      "small"
+                      :icon-name "delete"
+                      :on-click  #(rf/dispatch [:worksheet/delete-repeat-input-group ws-uuid group-uuid repeat-id])}]]]])
       @*repeat-ids)
      [:div {:style {:display         "flex"
                     :padding         "20px"
@@ -265,11 +265,13 @@
                  :label    "Add Resource"
                  :on-click #(rf/dispatch [:worksheet/add-input-group ws-uuid group-uuid next-repeat-id])}]]]))
 
-(defn input-group [params group variables level]
+(defn input-group [{:keys [workflow] :as params} group variables level]
   (let [variables (sort-by :group-variable/order variables)]
     [:div.wizard-group
      {:class (str "wizard-group--level-" level)}
-     [:div.wizard-group__header
+     [:div {:class [(if (= workflow :standard)
+                      "wizard-group__header--standard"
+                      "wizard-group__header")]}
       @(<t (:group/translation-key group))]
      (if (:group/repeat? group)
        [repeat-group params group variables]
