@@ -271,7 +271,8 @@
       @(<t (:group/translation-key group))]
      (if (:group/repeat? group)
        [repeat-group ws-uuid group variables]
-       [:div.wizard-group__inputs
-        (for [variable variables]
-          ^{:key (:db/id variable)}
-          [wizard-input variable ws-uuid (:bp/uuid group) 0])])]))
+       (when (seq variables)
+         [:div.wizard-group__inputs
+          (for [variable variables]
+            ^{:key (:db/id variable)}
+            [wizard-input variable ws-uuid (:bp/uuid group) 0])]))]))

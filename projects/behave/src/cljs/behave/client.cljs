@@ -35,6 +35,7 @@
                     :ws/import           import-worksheet-page
                     :ws/guided           guided-worksheet-page
                     :ws/independent      independent-worksheet-page
+                    :ws/wizard-standard  wizard/wizard-standard-page
                     :ws/wizard           wizard/root-component
                     :ws/review           wizard/wizard-review-page
                     :ws/results-settings wizard/wizard-results-settings-page
