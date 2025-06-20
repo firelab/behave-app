@@ -32,7 +32,8 @@
      [:div.accordion__title  {:style {:display "flex" :flex-direction "row" :width "100%" :justify-content "space-between"}}
       [:h4 title]
       [:button.btn.btn-sm.btn-outline-secondary {:on-click #(swap! expanded? not)} (if @expanded? "Collapse" "Expand")]]
-     [:div.row.accordion__content content]]))
+     (when @expanded?
+      [:div.row.accordion__content content])]))
 
 (defn dropdown
   "A component for dropdowns."
@@ -267,14 +268,17 @@
   - `:on-delete`   - Fn callled a table row is deleted.
   - `:on-decrease` - Fn callled a table row position is increased.
   - `:on-decrease` - Fn callled a table row position is decreased."
-  [columns rows & [{:keys [on-select on-delete on-increase on-decrease]}]]
+  [columns rows & [{:keys [on-select on-delete on-increase on-decrease caption]}]]
   [:div
    {:style {:width      "100%"
-            :height     "100%"
             :margin     "0 auto";
             :overflow-y "scroll"}}
    [:table.table.table-hover
     {:style {:border-collapse "collapse"}}
+    (when caption
+      [:caption {:style {:caption-side "top"
+                         :text-align   "left"}}
+       caption])
     [:thead
      {:style {:background "white"
               :position   "sticky"

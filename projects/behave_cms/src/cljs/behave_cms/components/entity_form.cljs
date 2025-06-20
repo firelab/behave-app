@@ -6,6 +6,7 @@
             [string-utils.interface :refer [->kebab ->str]]
             [behave.schema.core :refer [all-schemas]]
             [behave-cms.components.common :refer [dropdown btn-sm]]
+            [behave-cms.components.group-variable-selector :refer [group-variable-selector]]
             [behave-cms.utils  :as u]))
 
 ;;; Constants
@@ -286,14 +287,46 @@
              :flex-direction :row
              :margin-bottom  "5px"}}]
    [:input.form-control
-    {:auto-focus    autofocus?
-     :disabled      disabled?
-     :required      required?
-     :placeholder   placeholder
-     :id            (u/sentence->kebab label)
-     :type          "color"
-     :value         @state
-     :on-change     #(on-change (u/input-value %))}]])
+    {:auto-focus  autofocus?
+     :disabled    disabled?
+     :required    required?
+     :placeholder placeholder
+     :id          (u/sentence->kebab label)
+     :type        "color"
+     :value       @state
+     :on-change   #(on-change (u/input-value %))}]])
+
+(defmethod field-input :group-variable
+  [{:keys [state-path app-id label autocomplete autofocus? required? placeholder on-change state]}]
+  (r/with-let [show-group-variable-selector? (r/atom false)]
+    [:div
+     [:label.form-label {:for (u/sentence->kebab label)} label]
+     [:div {:style {:display        :flex
+                    :flex-direction "row"}}
+      [:input.form-control
+       {:auto-complete autocomplete
+        :auto-focus    autofocus?
+        :disabled      true
+        :required      required?
+        :placeholder   placeholder
+        :id            (u/sentence->kebab label)
+        :type          type
+        :value         @(rf/subscribe [:gv-eid->variable-name @state])
+        :on-change     #(on-change (u/input-value %))}]
+      (when (not @show-group-variable-selector?)
+        [:button.btn.btn-sm.btn-outline-primary
+         {:type     "button"
+          :on-click #(swap! show-group-variable-selector? not)}
+         "Edit"])]
+     (when @show-group-variable-selector?
+       [group-variable-selector
+        (cond-> {:app-id     app-id
+                 :state-path state-path
+                 :gv-id      @state
+                 :title      "Group Variable Selector"
+                 :on-submit  #(do (on-change %)
+                                  (swap! show-group-variable-selector? not))}
+          :state-path (assoc :state-path (conj state-path :group-variable-lookup)))])]))
 
 
 ;;; Public Fns
@@ -329,12 +362,18 @@
                 :on-create     #(assoc % :submodule/order num-submodules)})
   ```"
   [{:keys [entity parent-field parent-id fields id on-create on-update] :as opts}]
-  (let [original     @(rf/subscribe [:entity id])
+  (let [state-path   (if id
+                       [:editors entity id]
+                       [:editors entity])
+        original     @(rf/subscribe [:entity id])
         parent       @(rf/subscribe [:entity parent-id])
-        update-state (fn [field] (fn [value] (rf/dispatch [:state/set-state [:editors entity field] value])))
+        update-state (fn [field] (fn [value] (rf/dispatch [:state/set-state (conj state-path field) value])))
         get-state    (fn [field] (r/track #(let [result (cond
-                                                          (not (nil? @(rf/subscribe [:state [:editors entity field]])))
-                                                          @(rf/subscribe [:state [:editors entity field]])
+                                                          (not (nil? @(rf/subscribe [:state (conj state-path field)])))
+                                                          @(rf/subscribe [:state (conj state-path field)])
+
+                                                          (not (nil? (:db/id (get original field))))
+                                                          (:db/id (get original field))
 
                                                           (not (nil? (get original field)))
                                                           (get original field)
@@ -342,7 +381,7 @@
                                                           :else
                                                           "")]
                                              result)))
-        on-submit (u/on-submit #(let [state @(rf/subscribe [:state [:editors entity]])]
+        on-submit (u/on-submit #(let [state @(rf/subscribe [:state state-path])]
                                   (cond-> state
                                     id
                                     (merge {:db/id id})
@@ -360,18 +399,22 @@
                                     (retract-cardinality-many-values original)
 
                                     :always
+                                    (dissoc :group-variable-lookup)
+
+                                    :always
                                     (upsert-entity!))
                                   (rf/dispatch [:state/set-state entity nil])
                                   (rf/dispatch [:state/set-state [:editors entity] {}])))]
     [:form {:on-submit on-submit}
      (for [{:keys [field-key type] :as field} fields]
        ^{:key field-key}
-       (if (= type :keywords)
+       (if
+         (= type :keywords)
          [field-input (merge field
                              {:on-change (update-state field-key)
                               :state     (r/track #(let [result (cond
-                                                                  (not (nil? @(rf/subscribe [:state [:editors entity field-key]])))
-                                                                  @(rf/subscribe [:state [:editors entity field-key]])
+                                                                  (not (nil? @(rf/subscribe [:state (conj state-path field-key)])))
+                                                                  @(rf/subscribe [:state (conj state-path field-key)])
 
                                                                   :else
                                                                   "")]
@@ -381,6 +424,7 @@
                                                                  id :list-option/tags kkeyword]))
                               :original-keywords (r/track #(get @(rf/subscribe [:entity id]) field-key))})]
          [field-input (assoc field
+                             :state-path state-path
                              :on-change (update-state field-key)
                              :state     (get-state field-key))]))
      [:button.btn.btn-sm.btn-outline-primary
