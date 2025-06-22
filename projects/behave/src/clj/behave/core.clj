@@ -44,7 +44,6 @@
     ;; See: https://docs.oracle.com/javase/8/docs/technotes/guides/swing/1.4/w2k_props.html
     :windows
     (do
-      (.setUndecorated jframe true)
       (.setIconImages jframe (get-icons))
       (set-properties! {}))
 
@@ -87,6 +86,7 @@
 
     (start-logging! log-config)
     (init-db! db-config)
+
     (create-cef-app!
      {:title           (get-config :site :title)
       :url             (str "http://localhost:" http-port)

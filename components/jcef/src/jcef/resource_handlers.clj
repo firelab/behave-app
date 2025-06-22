@@ -42,13 +42,30 @@
       (update-keys (apply hash-map entries) (comp keyword str/lower-case)))))
 
 (defn- copy-to-temp-file! [filename]
-(let [tempfile (create-temp-file filename)]
+  (let [tempfile (create-temp-file filename)]
     (io/copy (io/file filename) tempfile)
     tempfile))
 
+(defn- copy-bytes-to-temp-file! [temp-filename post-data-element]
+  (let [byte-count    (.getBytesCount post-data-element)
+        bytes-to-read (byte-array byte-count)
+        _             (.getBytes post-data-element byte-count bytes-to-read)]
+    (with-open [out-stream (io/output-stream temp-filename)]
+      (.write out-stream bytes-to-read))))
+
 (defn- post-data->map [headers cef-request]
   (let [content-type (get headers "content-type")]
-    (when (str/starts-with? content-type "multipart/form-data")
+    (cond
+      (= "application/edn" content-type)
+      (let [elements (java.util.Vector.)
+            _        (.. cef-request (getPostData) (getElements elements))]
+        (when (= 1 (count elements))
+          (let [temp-filename (str (io/file (fs/tmpdir) (str (random-uuid) ".edn")))]
+            (copy-bytes-to-temp-file! temp-filename (first elements))
+            (println "Copied bytes to" temp-filename)
+            {:body (io/input-stream temp-filename)})))
+
+      (str/starts-with? content-type "multipart/form-data")
       (let [boundary (second (re-find #"boundary=(.+)" content-type))
             elements (java.util.Vector.)
             _        (.. cef-request (getPostData) (getElements elements))
