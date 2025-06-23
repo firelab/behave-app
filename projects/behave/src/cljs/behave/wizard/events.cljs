@@ -277,7 +277,8 @@
  :wizard/save
  (fn [_ [_ ws-uuid file-name]]
    (s/save-worksheet! {:ws-uuid   ws-uuid
-                       :file-name file-name})))
+                       :file-name file-name})
+   {}))
 
 (rf/reg-event-fx
  :wizard/navigate-to-latest-worksheet

@@ -1,12 +1,16 @@
 (ns behave.core
   (:gen-class)
-  (:import [javax.swing JFrame SwingUtilities UIManager]
+  (:import
+   [org.cef.handler CefDownloadHandler]
+   [javax.swing JFrame SwingUtilities UIManager]
            [javax.imageio ImageIO])
   (:require [clojure.java.io      :as io]
+            [clojure.string       :as str]
             [behave.handlers      :refer [create-cef-handler-stack]]
             [behave.server        :refer [init-config! init-db!]]
-            [file-utils.interface :refer [os-path os-type app-data-dir]]
+            [file-utils.interface :refer [os-type app-data-dir]]
             [config.interface     :refer [get-config]]
+            [jcef.core            :refer [show-dev-tools!]]
             [jcef.interface       :refer [create-cef-app! custom-request-handler show-loader!]]
             [logging.interface    :as l :refer [log-str]]))
 
@@ -98,11 +102,20 @@
       :request-handler request-handler
       :on-before-launch
       (fn [{:keys [client frame]}]
+        (.addDownloadHandler client
+                             (proxy [CefDownloadHandler] []
+                               (onBeforeDownload [& args]
+                                 (let [[_browser _download-item suggested-name callback] args]
+                                   (when (str/ends-with? suggested-name ".bp7")
+                                     (.Continue callback nil true))))))
         (.addRequestHandler client (custom-request-handler {:protocol     "http"
                                                             :authority    "localhost:4242"
                                                             :resource-dir "public"
                                                             :ring-handler (create-cef-handler-stack)}))
-        (on-before-launch frame (get-config :site :title)))})))
+        (on-before-launch frame (get-config :site :title)))})
+
+    #_(Thread/sleep 1000)
+    #_(show-dev-tools! (:browser @the-app))))
 
 (comment
   (-main)

@@ -52,6 +52,7 @@
    "mov"      "video/quicktime"
    "m3u8"     "application/x-mpegurl"
    "m4v"      "video/mp4"
+   "map"      "application/json"
    "mjs"      "text/javascript"
    "mp3"      "audio/mpeg"
    "mp4"      "video/mp4"

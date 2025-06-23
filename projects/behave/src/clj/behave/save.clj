@@ -18,6 +18,7 @@
       (do (log-str "Download of " filename " has started.")
           {:status  200
            :headers {"Access-Control-Expose-Headers" "Content-Disposition"
+                     "Content-Type"                  "application/x-sqlite3"
                      "Content-Disposition"           (str "attachment; filename=" filename)}
            :body    file})
       (log-str filename " not found"))))

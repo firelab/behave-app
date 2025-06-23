@@ -62,7 +62,6 @@
         (when (= 1 (count elements))
           (let [temp-filename (str (io/file (fs/tmpdir) (str (random-uuid) ".edn")))]
             (copy-bytes-to-temp-file! temp-filename (first elements))
-            (println "Copied bytes to" temp-filename)
             {:body (io/input-stream temp-filename)})))
 
       (str/starts-with? content-type "multipart/form-data")
@@ -73,6 +72,7 @@
             (loop [remaining (rest elements)
                    element   (first elements)
                    result    []]
+              #_(println [:POST-DATA remaining elements result])
               (if (nil? element)
                 result
                 (recur (rest remaining)
@@ -138,7 +138,7 @@
                      (double-escape)))))
 
 (defn- ->resource [public-dir path]
-  (let [path (if (#{"/" ""} path) "index.html" (percent-decode path))]
+  (let [path (percent-decode path)]
     (.getResource (ClassLoader/getSystemClassLoader)
                   (format "%s/%s" public-dir (strip-leading-slash path)))))
 
@@ -148,9 +148,38 @@
 (defn- string->stream [s]
   (java.io.ByteArrayInputStream. (.getBytes s "UTF-8")))
 
+(defn- read-response [resource-input-stream data-out bytes-to-read bytes-read callback]
+  (try
+    (let [read-size (.read resource-input-stream data-out 0 bytes-to-read)]
+      (.set bytes-read read-size)
+      (if (not= read-size -1)
+        true
+        (do
+          (.set bytes-read 0)
+          (.close resource-input-stream)
+          false)))
+    (catch IOException e
+      (println [:IOException (ex-message e) (ex-data e)])
+      (.printStackTrace e)
+      (.close resource-input-stream)
+      (.cancel callback)
+      false)
+    (catch Exception e
+      (println [:Exception (ex-message e) (ex-data e)])
+      (.printStackTrace e)
+      (.close resource-input-stream)
+      (.cancel callback)
+      false)))
+
 (defn- create-api-resource-handler [ring-response]
-  (let [resource-input-stream (if (string? (:body ring-response))
+  (let [resource-input-stream (cond
+                                (string? (:body ring-response))
                                 (string->stream (:body ring-response))
+
+                                (instance? java.io.File (:body ring-response))
+                                (io/input-stream (:body ring-response))
+
+                                :else
                                 (:body ring-response))]
     (proxy [CefResourceHandlerAdapter] []
       (processRequest [& args]
@@ -166,19 +195,7 @@
         nil)
 
       (readResponse [data-out bytes-to-read bytes-read callback & args]
-        (try
-          (let [read-size (.read resource-input-stream data-out 0 bytes-to-read)]
-            (.set bytes-read read-size)
-            (if (not= read-size -1)
-              true
-              (do
-                (.set bytes-read 0)
-                (.close resource-input-stream)
-                false)))
-          (catch IOException _
-            (.close resource-input-stream)
-            (.cancel callback)
-            false)))
+        (read-response resource-input-stream data-out bytes-to-read bytes-read callback))
 
       (cancel [& args]
         (.close resource-input-stream)))))
@@ -268,7 +285,7 @@
             url           (URL. (.getURL request))
             req-path      (.getPath url)]
         #_(println [:GET-RESOURCE-HANDLER url req-path])
-        (if (filename-ext req-path)
+        (if (or (#{"/" ""} req-path) (filename-ext req-path))
           (apply get-resource-handler public-dir args)
           (apply get-api-handler ring-handler args))))
 
