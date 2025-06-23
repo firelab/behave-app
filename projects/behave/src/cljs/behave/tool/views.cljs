@@ -11,7 +11,7 @@
   "A Modal used for selecting a tool"
   []
   (let [tools @(rf/subscribe [:tool/all-tools])]
-    [c/modal {:title          "Select Tools"
+    [c/modal {:title          @(<t (bp "select_calculator"))
               :close-on-click #(rf/dispatch [:tool/close-tool-selector])
               :content        [c/card-group {:on-select      #(rf/dispatch [:tool/select-tool (:uuid %)])
                                              :flex-direction "column"
@@ -119,7 +119,7 @@
          :label     var-name
          :on-change on-change
          :name      (->kebab var-name)
-         :options   (concat [{:label "Select..." :value "nil"}]
+         :options   (concat [{:label @(<t (bp "select")) :value "nil"}]
                             (map ->option options))}])]))
 
 (defn- tool-output
@@ -168,7 +168,7 @@
        (if (= io :input)
          [tool-input params]
          [tool-output params]))
-     [c/button {:label         @(<t (bp "close_tool"))
+     [c/button {:label         @(<t (bp "close_calculator"))
                 :variant       "secondary"
                 :icon-name     "close"
                 :icon-position "right"
@@ -194,7 +194,7 @@
          :tool-uuid     tool-uuid
          :subtool-uuid  subtool-uuid
          :auto-compute? false}])
-     [c/button {:label         @(<t (bp "close_tool"))
+     [c/button {:label         @(<t (bp "close_calculator"))
                 :variant       "secondary"
                 :icon-name     "close"
                 :icon-position "right"
