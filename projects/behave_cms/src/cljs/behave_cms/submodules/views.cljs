@@ -146,7 +146,8 @@
           (doall
            (map
             (fn [search-table]
-              (r/with-let [search-table-column-gv-id-atom (r/atom nil)]
+              (r/with-let [search-table-column-id-atom (r/atom nil)
+                           search-table-column-gv-id-atom (r/atom nil)]
                 (let [search-table-id                (:db/id search-table)
                       search-table-columns           @(rf/subscribe [:search-table/columns search-table-id])]
                  [:<>
@@ -178,8 +179,10 @@
                       search-table-columns
                       {:caption     "Search Table Columns"
                        :on-delete   #(rf/dispatch [:api/delete-entity (:db/id %)])
-                       :on-select   #(reset! search-table-column-gv-id-atom
-                                             (:db/id (:search-table-column/group-variable %)))
+                       :on-select   #(do
+                                       (reset! search-table-column-id-atom (:db/id %))
+                                       (reset! search-table-column-gv-id-atom
+                                               (:db/id (:search-table-column/group-variable %))))
                        :on-increase #(rf/dispatch [:api/reorder % search-table-columns :search-table-column/order :inc])
                        :on-decrease #(rf/dispatch [:api/reorder % search-table-columns :search-table-column/order :dec])}]
                      [:div.col-6
@@ -195,12 +198,20 @@
                        :gv-id      @search-table-column-gv-id-atom
                        :title      "Search Table Column"
                        :on-submit  #(do
-                                      (let [next-order (count (:search-table/columns search-table))]
+                                      (if @search-table-column-id-atom
+                                        ;; update group variable in existing search-table column
                                         (rf/dispatch [:api/upsert-entity
-                                                      {:db/id search-table-id
-                                                       :search-table/columns
-                                                       [{:search-table-column/group-variable %
-                                                         :search-table-column/order          next-order}]}])))}]]]]
+                                                      {:db/id                              @search-table-column-id-atom
+                                                       :search-table-column/group-variable %}])
+                                        ;; Add a new column to the search-table
+                                        (let [next-order (count (:search-table/columns search-table))]
+                                          (rf/dispatch [:api/upsert-entity
+                                                        {:db/id search-table-id
+                                                         :search-table/columns
+                                                         [{:search-table-column/group-variable %
+                                                           :search-table-column/order          next-order}]}])))
+                                      (reset! search-table-column-id-atom nil)
+                                      (reset! search-table-column-gv-id-atom nil))}]]]]
                   [:hr]])))
             (:module/search-tables @module)))
           (if @show-add-search-table?
