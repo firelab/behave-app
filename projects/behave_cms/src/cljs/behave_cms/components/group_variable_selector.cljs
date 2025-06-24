@@ -48,7 +48,7 @@
           groups     (rf/subscribe [:group-variable/submodule-groups-and-subgroups @(get-field (p :submodule))])
           variables  (rf/subscribe [:group/variables @(get-field (p :group))])
           disabled?  (r/track #(some nil? (map (fn [k] @(get-field (p k))) [:module :submodule :group :group-variable])))]
-      [:div.col-6
+      [:div
        [:h4 (str (if gv-id "Update " "Add ") title)]
 
        [:form

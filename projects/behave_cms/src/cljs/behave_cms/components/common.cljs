@@ -268,9 +268,10 @@
   - `:on-delete`   - Fn callled a table row is deleted.
   - `:on-decrease` - Fn callled a table row position is increased.
   - `:on-decrease` - Fn callled a table row position is decreased."
-  [columns rows & [{:keys [on-select on-delete on-increase on-decrease caption]}]]
+  [columns rows & [{:keys [on-select on-delete on-increase on-decrease caption add-group-variable-fn]}]]
   [:div
    {:style {:width      "100%"
+            :height     "100%"
             :margin     "0 auto";
             :overflow-y "scroll"}}
    [:table.table.table-hover
@@ -279,6 +280,13 @@
       [:caption {:style {:caption-side "top"
                          :text-align   "left"}}
        caption])
+    (when add-group-variable-fn
+      [:caption {:style {:caption-side "bottom"
+                         :text-align   "right"}}
+       [btn-sm
+        :primary
+        "Add Group Variable"
+        add-group-variable-fn]])
     [:thead
      {:style {:background "white"
               :position   "sticky"

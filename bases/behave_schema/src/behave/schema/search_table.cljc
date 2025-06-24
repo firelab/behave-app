@@ -18,7 +18,8 @@
 (s/def :behave/search-table (s/keys :req [:search-table/title
                                           :search-table/group-variable
                                           :search-table/op]
-                                    :opt [:search-table/columns]))
+                                    :opt [:search-table/columns
+                                          :search-table/filters]))
 (def
   ^{:doc "Schema for search table."}
   schema
@@ -38,10 +39,26 @@
     :db/valueType   :db.type/keyword ;#{:min :max}
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident       :search-table/filters
+    :db/doc         ""
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many}
+
    {:db/ident       :search-table/columns
     :db/doc         "The output Group Variables to display in the table"
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
+
+   ;; search-table-filters
+   {:db/ident       :search-table-filter/group-variable
+    :db/doc         ""
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :search-table-filter/value
+    :db/doc         ""
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
 
    ;; search-table-column
    {:db/ident       :search-table-column/group-variable

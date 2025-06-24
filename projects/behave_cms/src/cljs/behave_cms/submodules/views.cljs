@@ -146,73 +146,71 @@
           (doall
            (map
             (fn [search-table]
-              (r/with-let [search-table-column-id-atom (r/atom nil)
-                           search-table-column-gv-id-atom (r/atom nil)]
-                (let [search-table-id                (:db/id search-table)
-                      search-table-columns           @(rf/subscribe [:search-table/columns search-table-id])]
-                 [:<>
-                  [accordion
-                   (:search-table/title search-table)
-                   [:div.row.col-12
-                    [entity-form {:entity       :search-table
-                                  :id           search-table-id
-                                  :parent-field :module/_search-tables
-                                  :parent-id    (:db/id @module)
-                                  :fields       [{:label     "Title"
-                                                  :required? true
-                                                  :field-key :search-table/title}
-                                                 {:label     "Group Variable"
-                                                  :app-id    @(rf/subscribe [:module/_app-module-id module-id])
-                                                  :required? true
-                                                  :field-key :search-table/group-variable
-                                                  :type      :group-variable}
-                                                 {:label     "Op"
-                                                  :required? true
-                                                  :field-key :search-table/op
-                                                  :type      :radio
-                                                  :options   [{:label "Minimum" :value :min}
-                                                              {:label "Maximum" :value :max}]}]
-                                  :on-create    #(do (swap! show-add-search-table? not) %)}]
-                    [:div.row.col-6
-                     [simple-table
-                      [:variable/name]
-                      search-table-columns
-                      {:caption     "Search Table Columns"
-                       :on-delete   #(rf/dispatch [:api/delete-entity (:db/id %)])
-                       :on-select   #(do
-                                       (reset! search-table-column-id-atom (:db/id %))
-                                       (reset! search-table-column-gv-id-atom
-                                               (:db/id (:search-table-column/group-variable %))))
-                       :on-increase #(rf/dispatch [:api/reorder % search-table-columns :search-table-column/order :inc])
-                       :on-decrease #(rf/dispatch [:api/reorder % search-table-columns :search-table-column/order :dec])}]
-                     [:div.col-6
-                      [btn-sm
-                       :outline-danger
-                       "Delete Search Table"
-                       #(when (js/confirm (str "Are you sure you want to delete this search table?"))
-                          (rf/dispatch [:api/delete-entity search-table-id]))]]]
-                    [:div.row.col-6
-                     [group-variable-selector
-                      {:app-id     @(rf/subscribe [:module/_app-module-id module-id])
-                       :state-path [:state :editors :search-table search-table-id :search-table/group-variable]
-                       :gv-id      @search-table-column-gv-id-atom
-                       :title      "Search Table Column"
-                       :on-submit  #(do
-                                      (if @search-table-column-id-atom
-                                        ;; update group variable in existing search-table column
-                                        (rf/dispatch [:api/upsert-entity
-                                                      {:db/id                              @search-table-column-id-atom
-                                                       :search-table-column/group-variable %}])
-                                        ;; Add a new column to the search-table
-                                        (let [next-order (count (:search-table/columns search-table))]
-                                          (rf/dispatch [:api/upsert-entity
-                                                        {:db/id search-table-id
-                                                         :search-table/columns
-                                                         [{:search-table-column/group-variable %
-                                                           :search-table-column/order          next-order}]}])))
-                                      (reset! search-table-column-id-atom nil)
-                                      (reset! search-table-column-gv-id-atom nil))}]]]]
-                  [:hr]])))
+              (let [search-table-id      (:db/id search-table)
+                    search-table-columns @(rf/subscribe [:search-table/columns search-table-id])]
+                [:<>
+                 [accordion
+                  (:search-table/title search-table)
+                  [:div.row.col-12
+                   [entity-form {:entity       :search-table
+                                 :id           search-table-id
+                                 :parent-field :module/_search-tables
+                                 :parent-id    (:db/id @module)
+                                 :fields       [{:label     "Title"
+                                                 :required? true
+                                                 :field-key :search-table/title}
+                                                {:label     "Group Variable"
+                                                 :app-id    @(rf/subscribe [:module/_app-module-id module-id])
+                                                 :required? true
+                                                 :field-key :search-table/group-variable
+                                                 :type      :group-variable}
+                                                {:label     "Op"
+                                                 :required? true
+                                                 :field-key :search-table/op
+                                                 :type      :radio
+                                                 :options   [{:label "Minimum" :value :min}
+                                                             {:label "Maximum" :value :max}]}]
+                                 :on-create    #(do (swap! show-add-search-table? not) %)}]
+                   (r/with-let [search-table-column-id-atom (r/atom nil)
+                                show-entity-form? (r/atom false)]
+                     (let [title      "Search Table Columns"]
+                       [:div {:style {:display "flex"}}
+                        [simple-table
+                         [:variable/name]
+                         search-table-columns
+                         {:caption               title
+                          :add-group-variable-fn #(swap! show-entity-form? not)
+                          :on-delete             #(rf/dispatch [:api/delete-entity (:db/id %)])
+                          :on-select             #(do
+                                                    (swap! show-entity-form? not)
+                                                    (reset! search-table-column-id-atom (:db/id %)))
+                          :on-increase           #(rf/dispatch [:api/reorder % search-table-columns :search-table-column/order :inc])
+                          :on-decrease           #(rf/dispatch [:api/reorder % search-table-columns :search-table-column/order :dec])}]
+                        (when @show-entity-form?
+                          [entity-form {:title        title
+                                        :id           @search-table-column-id-atom
+                                        :entity       :search-table-column
+                                        :parent-field :search-table/_columns
+                                        :parent-id    search-table-id
+                                        :fields       [{:label     "Group Variable"
+                                                        :app-id    @(rf/subscribe [:module/_app-module-id module-id])
+                                                        :required? true
+                                                        :field-key :search-table-column/group-variable
+                                                        :type      :group-variable}]
+                                        :on-update    #(do (reset! search-table-column-id-atom nil) %)
+                                        :on-create    #(do
+                                                         (reset! search-table-column-id-atom nil)
+                                                         (swap! show-entity-form? not)
+                                                         (let [next-order (count search-table-columns)]
+                                                           (assoc % :search-table-column/order next-order)))}])]))
+                   [:div.row
+                    {:style {:padding "5px"}}
+                    [btn-sm
+                     :outline-danger
+                     "Delete Search Table"
+                     #(when (js/confirm (str "Are you sure you want to delete this search table?"))
+                        (rf/dispatch [:api/delete-entity search-table-id]))]]]]
+                 [:hr]]))
             (:module/search-tables @module)))
           (if @show-add-search-table?
             [entity-form {:entity       :new-search-table

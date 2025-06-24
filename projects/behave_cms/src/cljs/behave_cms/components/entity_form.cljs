@@ -69,18 +69,18 @@
   "Gets the translation key from `:<parent>/translation-key`,
   `:<parent>/help-key`, or generates it from the `<parent>/name` attribute."
   [parent]
-  (let [attrs      (map ->str (keys parent))
-        h-or-t-key (->> attrs
-                        (filter #(or (str/ends-with? % "/translation-key")
-                                     (str/ends-with? % "/help-key")))
-                        (first)
-                        (keyword))
-        name-key   (->> attrs
-                        (filter #(str/ends-with? % "/name"))
-                        (first)
-                        (keyword))
-        name-kebab (->kebab (get parent name-key))]
-    (str/replace (get parent h-or-t-key name-kebab) #":help$" "")))
+  (let [attrs      (map ->str (keys parent))]
+    (when-let [h-or-t-key (->> attrs
+                               (filter #(or (str/ends-with? % "/translation-key")
+                                            (str/ends-with? % "/help-key")))
+                               (first)
+                               (keyword))]
+      (let [name-key   (->> attrs
+                            (filter #(str/ends-with? % "/name"))
+                            (first)
+                            (keyword))
+            name-kebab (->kebab (get parent name-key))]
+        (str/replace (get parent h-or-t-key name-kebab) #":help$" "")))))
 
 (defn- merge-parent-fields [state original entity parent-field parent-id parent]
   (let [gen-attr           #(keyword (str (->str entity) "/" %))
@@ -97,10 +97,9 @@
                                     :else                             nil))
                                 (->kebab (get state name-attr)))
         help-key           (str translation-key ":help")]
-
     (merge state
            {parent-field parent-id}
-           (when (db-translation-attrs translation-attr) {translation-attr translation-key})
+           (when (and parent-translation (db-translation-attrs translation-attr)) {translation-attr translation-key})
            (when (db-help-attrs help-attr) {help-attr help-key})
            ;; Prevent overwriting the translation/help keys once assigned
            (select-keys original [translation-attr help-attr]))))
@@ -361,10 +360,11 @@
                                              {:label \"Output\" :value :output}]}]
                 :on-create     #(assoc % :submodule/order num-submodules)})
   ```"
-  [{:keys [entity parent-field parent-id fields id on-create on-update] :as opts}]
-  (let [state-path   (if id
-                       [:editors entity id]
-                       [:editors entity])
+  [{:keys [entity parent-field parent-id fields id on-create on-update title] :as opts}]
+  (let [state-path (cond-> [:editors]
+                     entity    (conj entity)
+                     parent-id (conj parent-id)
+                     id        (conj id))
         original     @(rf/subscribe [:entity id])
         parent       @(rf/subscribe [:entity parent-id])
         update-state (fn [field] (fn [value] (rf/dispatch [:state/set-state (conj state-path field) value])))
@@ -403,13 +403,12 @@
 
                                     :always
                                     (upsert-entity!))
-                                  (rf/dispatch [:state/set-state entity nil])
-                                  (rf/dispatch [:state/set-state [:editors entity] {}])))]
+                                  (rf/dispatch [:state/set-state state-path nil])))]
     [:form {:on-submit on-submit}
      (for [{:keys [field-key type] :as field} fields]
        ^{:key field-key}
        (if
-         (= type :keywords)
+           (= type :keywords)
          [field-input (merge field
                              {:on-change (update-state field-key)
                               :state     (r/track #(let [result (cond
