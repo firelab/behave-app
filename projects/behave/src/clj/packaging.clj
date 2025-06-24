@@ -145,8 +145,7 @@
     :or   {src-dirs      ["src"]
            resource-dirs ["resources"]
            bindings      {}
-           compile-opts  {:direct-linking true
-                          :elide-meta     [:doc :file :line :added]}
+           compile-opts  {}
            java-opts     []
            manifest      {}}
     :as    params}]

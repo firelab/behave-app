@@ -4,6 +4,7 @@
             [clojure.java.io             :as io]
             [clojure.walk                :refer [prewalk]]
             [datascript.core             :as d]
+            [datascript.impl.entity      :refer [entity?]]
             [datascript.storage.sql.core :as storage-sql]
             [datom-store.main            :as s]
             [ds-schema-utils.interface   :refer [->ds-schema]]
@@ -28,16 +29,17 @@
   (prewalk
    (fn [x]
      (cond
-       (instance? datascript.impl.entity.Entity x) (dissoc (into {} x) :db/id)
-       (set? x)                                    (vec x)
-       :else                                       x))
+       (entity? x) (dissoc (into {} x) :db/id)
+       (set? x)    (vec x)
+       :else       x))
    entity))
 
 (defn save-handler
   "Checks if the current worksheet was opened, if so download the worksheet, otherwise generate a
   new sqlite db file with all the datoms related to the worksheet uuid given and download it."
   [{:keys [request-method params accept] :as req}]
-  (log-str "Request Received:" (select-keys req [:uri :request-method :params]))
+  (log-str [:save-request-received (select-keys req [:uri :request-method :params])])
+
   (if @current-worksheet-atom
     (download-file @current-worksheet-atom)
     (let [{:keys [ws-uuid]} params
@@ -45,6 +47,7 @@
           sql-conn          (DriverManager/getConnection (format "jdbc:sqlite:%s" db-file))
           storage           (storage-sql/make sql-conn {:dbtype :sqlite})
           conn              (d/create-conn (->ds-schema all-schemas) {:storage storage})]
+
       (when (= request-method :post)
         (let [worksheet (->> (d/touch (d/entity @@s/conn [:worksheet/uuid ws-uuid]))
                              datascript-entity->clj-map)]
