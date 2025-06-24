@@ -15,6 +15,7 @@
 (defn- $accordion [expanded?]
   (merge
     ^{:combinators {[:> :.accordion__content] {:max-height (if expanded? "auto" "0px")
+                                               :height "100%"
                                           :visibility (if expanded? "visible" "hidden")
                                           :transition "max-height 300ms ease-in-out"}}}
     {:transition "max-height 300ms ease-in-out"}))
@@ -285,7 +286,7 @@
                          :text-align   "right"}}
        [btn-sm
         :primary
-        "Add Group Variable"
+        "Add Entry"
         add-group-variable-fn]])
     [:thead
      {:style {:background "white"

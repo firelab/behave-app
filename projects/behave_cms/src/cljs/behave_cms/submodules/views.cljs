@@ -6,6 +6,7 @@
             [behave-cms.help.views              :refer [help-editor]]
             [behave-cms.components.pivot-tables :refer [manage-pivot-table-column]]
             [behave-cms.components.group-variable-selector :refer [group-variable-selector]]
+            [behave-cms.components.table-entity-form :refer [table-entity-form]]
             [behave-cms.submodules.subs]
             [re-frame.core                      :as rf]
             [reagent.core                       :as r]
@@ -48,7 +49,7 @@
   (let [submodules (rf/subscribe [:submodules module-id])
         inputs     (filter #(= :input (:submodule/io %)) @submodules)
         outputs    (filter #(= :output (:submodule/io %)) @submodules)]
-    [:div.col-6
+    [:div.col-6 {:style {:height "100%"}}
      [:row
       [submodules-table "Output Submodules" outputs]
       [submodules-table "Input Submodules" inputs]]]))
@@ -145,9 +146,8 @@
           [:hr]
           (doall
            (map
-            (fn [search-table]
-              (let [search-table-id      (:db/id search-table)
-                    search-table-columns @(rf/subscribe [:search-table/columns search-table-id])]
+            (fn []
+              (let [search-table-id      (:db/id search-table)]
                 [:<>
                  [accordion
                   (:search-table/title search-table)
@@ -171,38 +171,31 @@
                                                  :options   [{:label "Minimum" :value :min}
                                                              {:label "Maximum" :value :max}]}]
                                  :on-create    #(do (swap! show-add-search-table? not) %)}]
-                   (r/with-let [search-table-column-id-atom (r/atom nil)
-                                show-entity-form? (r/atom false)]
-                     (let [title      "Search Table Columns"]
-                       [:div {:style {:display "flex"}}
-                        [simple-table
-                         [:variable/name]
-                         search-table-columns
-                         {:caption               title
-                          :add-group-variable-fn #(swap! show-entity-form? not)
-                          :on-delete             #(rf/dispatch [:api/delete-entity (:db/id %)])
-                          :on-select             #(do
-                                                    (swap! show-entity-form? not)
-                                                    (reset! search-table-column-id-atom (:db/id %)))
-                          :on-increase           #(rf/dispatch [:api/reorder % search-table-columns :search-table-column/order :inc])
-                          :on-decrease           #(rf/dispatch [:api/reorder % search-table-columns :search-table-column/order :dec])}]
-                        (when @show-entity-form?
-                          [entity-form {:title        title
-                                        :id           @search-table-column-id-atom
-                                        :entity       :search-table-column
-                                        :parent-field :search-table/_columns
-                                        :parent-id    search-table-id
-                                        :fields       [{:label     "Group Variable"
-                                                        :app-id    @(rf/subscribe [:module/_app-module-id module-id])
-                                                        :required? true
-                                                        :field-key :search-table-column/group-variable
-                                                        :type      :group-variable}]
-                                        :on-update    #(do (reset! search-table-column-id-atom nil) %)
-                                        :on-create    #(do
-                                                         (reset! search-table-column-id-atom nil)
-                                                         (swap! show-entity-form? not)
-                                                         (let [next-order (count search-table-columns)]
-                                                           (assoc % :search-table-column/order next-order)))}])]))
+                   (let [tag-sets        (rf/subscribe [:pull-with-attr :tag-set/name])
+                         xform-tag-set   #(rename-keys % {:tag-set/name :label :db/id :value})
+                         color-tag-sets  (map xform-tag-set (filter :tag-set/color? @tag-sets))
+                         filter-tag-sets (map xform-tag-set (remove :tag-set/color? @tag-sets))]
+                    [table-entity-form {:title              "Search Table Filters"
+                                        :parent-id          search-table-id
+                                        :entities           @(rf/subscribe [:search-table/filters search-table-id])
+                                        :entity-form-fields [{:label     "Group Variable"
+                                                              :app-id    @(rf/subscribe [:module/_app-module-id module-id])
+                                                              :required? true
+                                                              :field-key :search-table-column/group-variable
+                                                              :type      :group-variable}
+                                                             {:label     "Value"
+                                                              :required? true
+                                                              :field-key :search-table-filter/value
+                                                              :type      :ref-select}]}])
+                   [table-entity-form {:title              "Search Table Columns"
+                                       :parent-id          search-table-id
+                                       :entities           @(rf/subscribe [:search-table/columns search-table-id])
+                                       :order-attr         :search-table-column/order
+                                       :entity-form-fields [{:label     "Group Variable"
+                                                             :app-id    @(rf/subscribe [:module/_app-module-id module-id])
+                                                             :required? true
+                                                             :field-key :search-table-column/group-variable
+                                                             :type      :group-variable}]}]
                    [:div.row
                     {:style {:padding "5px"}}
                     [btn-sm

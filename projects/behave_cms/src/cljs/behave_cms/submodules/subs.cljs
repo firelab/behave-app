@@ -80,3 +80,21 @@
             (mapv (fn [[id nname]]
                     (-> @(subscribe [:entity id])
                         (assoc :variable/name nname))) results))))
+
+(reg-sub
+ :search-table/filters
+ (fn [[_ search-table-eid]]
+   (subscribe [:query
+               '[:find ?c ?name
+                 :in  $ ?s
+                 :where
+                 [?s :search-table/filters ?c]
+                 [?c :search-table-filter/group-variable ?gv]
+                 [?v :variable/group-variables ?gv]
+                 [?v :variable/name ?name]]
+               [search-table-eid]]))
+ (fn [results]
+   (sort-by :search-table-column/order
+            (mapv (fn [[id nname]]
+                    (-> @(subscribe [:entity id])
+                        (assoc :variable/name nname))) results))))
