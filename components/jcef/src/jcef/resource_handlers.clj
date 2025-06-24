@@ -72,7 +72,6 @@
             (loop [remaining (rest elements)
                    element   (first elements)
                    result    []]
-              #_(println [:POST-DATA remaining elements result])
               (if (nil? element)
                 result
                 (recur (rest remaining)
@@ -158,15 +157,7 @@
           (.set bytes-read 0)
           (.close resource-input-stream)
           false)))
-    (catch IOException e
-      (println [:IOException (ex-message e) (ex-data e)])
-      (.printStackTrace e)
-      (.close resource-input-stream)
-      (.cancel callback)
-      false)
-    (catch Exception e
-      (println [:Exception (ex-message e) (ex-data e)])
-      (.printStackTrace e)
+    (catch Exception _
       (.close resource-input-stream)
       (.cancel callback)
       false)))
@@ -253,7 +244,6 @@
         _req-protocol  (.getProtocol url)
         _req-authority (.getAuthority url)
         _req-path      (.getPath url)]
-    #_(println [:GET-API-HANDLER _req-protocol _req-authority _req-path response])
     (try 
       (let [response (ring-handler (cef-request->ring-request request))]
         (create-api-resource-handler response))
@@ -267,7 +257,6 @@
         _req-authority (.getAuthority url)
         req-path      (.getPath url)
         resource      (->resource public-dir req-path)]
-    #_(println [:GET-RESOURCE-HANDLER public-dir _req-protocol _req-authority req-path resource])
     (if resource
       (create-resource-handler resource {})
       (reject-handler))))
@@ -284,13 +273,11 @@
       (let [[_ _ request] args
             url           (URL. (.getURL request))
             req-path      (.getPath url)]
-        #_(println [:GET-RESOURCE-HANDLER url req-path])
-        (if (or (#{"/" ""} req-path) (filename-ext req-path))
+        (if (filename-ext req-path)
           (apply get-resource-handler public-dir args)
           (apply get-api-handler ring-handler args))))
 
     (onResourceResponse [& args]
-      #_(println [:ON-RESOURCE-RESPONSE args])
       false)))
 
 (defn custom-request-handler
@@ -298,7 +285,6 @@
   [{:keys [protocol authority resource-dir ring-handler]}]
   (proxy [CefRequestHandlerAdapter] []
     (onBeforeBrowse​ [& args]
-      #_(println [:BEFORE-BROWSE args])
       false)
 
     (getResourceRequestHandler [& args]

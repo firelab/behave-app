@@ -7,11 +7,10 @@
   (:import [org.cef CefApp]
            [org.cef.browser CefBrowser CefMessageRouter]
            [org.cef.handler
-            CefDownloadHandlerAdapter
+            CefDownloadHandler
             CefDisplayHandlerAdapter
             CefFocusHandlerAdapter
             CefLifeSpanHandlerAdapter
-            CefLoadHandlerAdapter
             CefMessageRouterHandler]
            [java.awt BorderLayout Cursor GraphicsEnvironment KeyboardFocusManager Toolkit]
            [java.awt.event ActionListener ComponentAdapter WindowAdapter]
@@ -137,7 +136,6 @@
   "Creates a CEF app frame with the following options map:
    - `:title`         [Req.] - Title of the app.
    - `:url`           [Req.] - URL to start the browser at.
-   - `:cache-path`    [Req.] - Path to User's cache.
    - `:on-close`      [Opt.] - Function to execute when the window closes.
    - `:use-osr?`      [Opt.] - Use Windowless Rendering (Default: false)
    - `:transparent?`  [Opt.] - Transparent window (Default: false)
@@ -147,11 +145,11 @@
   - `:frame`   - `JFrame` Application
   - `:browser` - `CefBrowser`
   - `:client`  - `CefClient`"
-  [{:keys [title menu url use-osr? size request-handler cache-path
+  [{:keys [title menu url use-osr? size request-handler
            transparent? address-bar? fullscreen? dev-tools?
            on-close on-blur on-focus on-hidden on-shown on-before-launch]
     :or   {use-osr? false transparent? false address-bar? false fullscreen? false size [1024 768]}}]
-  (let [builder       (jcef-builder cache-path)
+  (let [builder       (jcef-builder)
         _             (set! (.-windowless_rendering_enabled (.getCefSettings builder)) use-osr?)
         cef-app       (.build builder)
         client        (.createClient cef-app)
@@ -182,14 +180,11 @@
     (when request-handler
       (.addRequestHandler client request-handler))
 
-
     (doto client 
-      (.addDownloadHandler (proxy [CefDownloadHandlerAdapter] []
-                             (onBeforeDownload​ [& args]
-                               (println [:DOWNLOAD args])
-                               (let [[callback filename] (reverse args)
-                                     suggested-filename (str (fs/file (fs/home) (fs/base-name filename)))]
-                                 (.Continue callback suggested-filename true)))))
+      (.addDownloadHandler (proxy [CefDownloadHandler] []
+                             (onBeforeDownload [& args]
+                               (let [callback (last args)]
+                                 (.Continue callback "" true)))))
 
       (.addDisplayHandler (proxy [CefDisplayHandlerAdapter] []
                             (onAddressChange [_ _ url]
