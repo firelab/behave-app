@@ -69,20 +69,20 @@
                  :flat-edge "top"
                  :align     "right"
                  :on-click  on-click
-                 :tabs      [{:label "Outputs" :tab :output :selected? (= io :output)}
-                             {:label "Inputs" :tab :input :selected? (= io :input)}]}]])
+                 :tabs      [{:label @(<t (bp "outputs")) :tab :output :selected? (= io :output)}
+                             {:label @(<t (bp "inputs")) :tab :input :selected? (= io :input)}]}]])
 
 
 (defn- show-or-close-notes-button [show-notes?]
   (if show-notes?
     [:div.wizard-header__banner__notes-button--minus
-     [c/button {:label         "Close Notes"
+     [c/button {:label         @(<t (bp "close_notes"))
                 :variant       "secondary"
                 :icon-name     :minus
                 :icon-position "left"
                 :on-click      #(dispatch [:wizard/toggle-show-notes])}]]
     [:div.wizard-header__banner__notes-button--plus
-     [c/button {:label         "Show Notes"
+     [c/button {:label         @(<t (bp "show_notes"))
                 :variant       "primary"
                 :icon-name     :plus
                 :icon-position "left"
@@ -221,14 +221,14 @@
        (when @*show-notes?
          [:<>
           [:div.wizard-add-notes
-           [c/button {:label         "Add Notes"
+           [c/button {:label         @(<t (bp "add_notes"))
                       :variant       "outline-primary"
                       :icon-name     :plus
                       :icon-position "left"
                       :on-click      #(dispatch [:wizard/toggle-show-add-note-form])}]
            (when @*show-add-note-form?
-             [c/note {:title-label       "Note's Name / Category"
-                      :title-placeholder "Enter note's name or category"
+             [c/note {:title-label       @(<t (bp "enter_notes_name_or_category"))
+                      :title-placeholder @(<t (bp "enter_notes_name_or_category"))
                       :title-value       ""
                       :body-value        ""
                       :on-save           #(dispatch [:wizard/create-note
@@ -270,7 +270,7 @@
        (if @loaded?
          [wizard-page params]
          [:div.wizard__loading
-          [:h2 "Loading..."]])]
+          [:h2 (str @(<t (bp "loading")) "...")]])]
       [wizard-expand]]]))
 
 ;; Review page
@@ -358,10 +358,10 @@
             [:div.wizard-warning
              (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])
           [:div.wizard-navigation
-           [c/button {:label    "Back"
+           [c/button {:label    @(<t (bp "back"))
                       :variant  "secondary"
                       :on-click #(dispatch [:wizard/back])}]
-           [c/button {:label         "Run"
+           [c/button {:label         @(<t (bp "run"))
                       :disabled?     (or @*warn-limit?
                                          @*missing-inputs?)
                       :variant       "highlight"
@@ -646,10 +646,10 @@
           [:div.wizard-results__table-settings__content
            [table-settings ws-uuid]]]
          (when show-graph-settings?
-          [:div.wizard-results__graph-settings
-           [:div.wizard-results__graph-settings__header "Graph Settings"]
-           [:div.wizard-results__graph-settings__content
-            [graph-settings ws-uuid]]])]]]
+           [:div.wizard-results__graph-settings
+            [:div.wizard-results__graph-settings__header "Graph Settings"]
+            [:div.wizard-results__graph-settings__content
+             [graph-settings ws-uuid]]])]]]
       [wizard-navigation {:next-label @(<t (bp "next"))
                           :on-next    on-next
                           :back-label @(<t (bp "back"))
@@ -754,7 +754,7 @@
          (result-graphs ws-uuid @*cell-data)
          (result-diagrams ws-uuid)]]
        [:div.wizard-navigation
-        [c/button {:label    "Back"
+        [c/button {:label    @(<t (bp "back"))
                    :variant  "secondary"
                    :on-click #(dispatch [:wizard/back])}]]]]]))
 
@@ -791,7 +791,7 @@
      (when (some? selected-tool-uuid)
        [tool selected-tool-uuid])
      (when computing?
-       [:h2 "Computing..."])
+       [:h2 (str @(<t (bp "computing")) "...")])
      (when (not computing?)
        [:div.accordion
         [:div.accordion__header @(<t "behaveplus:working_area")]
@@ -809,7 +809,7 @@
                                                                {:ws-uuid  ws-uuid
                                                                 :workflow :standard
                                                                 :io       :output})])))]
-           [:div.wizard-header__banner {:style {:margin-top "20px"}}
+           [:div.wizard-header__banner
             [:div.wizard-header__banner__icon
              [c/icon :modules]]
             [:div.wizard-header__banner__title
@@ -818,6 +818,10 @@
                @(<t (bp "module_input_selections")))]
             (show-or-close-notes-button @*show-notes?)]
            [:div.wizard-header__submodule-navigator
+            [:div.wizard-header__submodule-navigator__label
+             (if (= (count modules) 1)
+               (gstring/format "%s %s" (:module/name (first modules)) (str (str/capitalize (name io)) "s"))
+               (apply gstring/format "%s & %s %s" (conj (mapv :module/name modules) (str (str/capitalize (name io)) "s"))))]
             (let [->option (fn [[module-name {submodule-name :submodule/name}]]
                              {:value submodule-name
                               :label (str module-name " - " submodule-name)})]
@@ -828,14 +832,14 @@
            (when @*show-notes?
              [:<>
               [:div.wizard-add-notes
-               [c/button {:label         "Add Notes"
+               [c/button {:label         @(<t (bp "add_notes"))
                           :variant       "outline-primary"
                           :icon-name     :plus
                           :icon-position "left"
                           :on-click      #(dispatch [:wizard/toggle-show-add-note-form])}]
                (when @*show-add-note-form?
-                 [c/note {:title-label       "Note's Name / Category"
-                          :title-placeholder "Enter note's name or category"
+                 [c/note {:title-label       @(<t (bp "enter_notes_name_or_category"))
+                          :title-placeholder @(<t (bp "enter_notes_name_or_category"))
                           :title-value       ""
                           :body-value        ""
                           :on-save           #(dispatch [:wizard/create-note
@@ -848,8 +852,6 @@
            (for [module modules
                  :let   [module-name (:module/name module)]]
              [:div {:data-theme-color module-name}
-              [:div.wizard-standard__module
-               @(<t (:module/translation-key module))]
               [:div.wizard-review__submodules
                (if (= io :input)
                  (doall
@@ -878,30 +880,28 @@
             [:div.wizard-warning
              (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])
           [:div.wizard-navigation
-           [c/button {:label    "Back"
+           [c/button {:label    @(<t (bp "back"))
                       :variant  "secondary"
                       :on-click #(dispatch [:wizard/back])}]
            (if (= io :input)
-            [c/button {:label         "Run"
-                       :disabled?     (or @*warn-limit?
-                                          @*missing-inputs?)
-                       :variant       "highlight"
-                       :icon-name     "arrow2"
-                       :icon-position "right"
-                       :on-click      #(do (dispatch-sync [:wizard/before-solve params])
-                                           (js/setTimeout
-                                            (fn []
-                                              (dispatch-sync [:wizard/solve params])
-                                              (dispatch-sync [:wizard/after-solve params]))
-                                            300))}]
-            [c/button {:label         @(<t (bp "next"))
-                       :variant       "highlight"
-                       :icon-name     "arrow2"
-                       :icon-position "right"
-                       :on-click      #(dispatch [:navigate
-                                                  (path-for routes :ws/wizard-standard
-                                                            {:ws-uuid  ws-uuid
-                                                             :workflow :standard
-                                                             :io       :input})])}])]]]])]))
-
-
+             [c/button {:label         @(<t (bp "run"))
+                        :disabled?     (or @*warn-limit?
+                                           @*missing-inputs?)
+                        :variant       "highlight"
+                        :icon-name     "arrow2"
+                        :icon-position "right"
+                        :on-click      #(do (dispatch-sync [:wizard/before-solve params])
+                                            (js/setTimeout
+                                             (fn []
+                                               (dispatch-sync [:wizard/solve params])
+                                               (dispatch-sync [:wizard/after-solve params]))
+                                             300))}]
+             [c/button {:label         @(<t (bp "next"))
+                        :variant       "highlight"
+                        :icon-name     "arrow2"
+                        :icon-position "right"
+                        :on-click      #(dispatch [:navigate
+                                                   (path-for routes :ws/wizard-standard
+                                                             {:ws-uuid  ws-uuid
+                                                              :workflow :standard
+                                                              :io       :input})])}])]]]])]))

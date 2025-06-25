@@ -561,8 +561,14 @@ body {
 .wizard-header__submodule-navigator {
   padding: 5px 20px 5px 0px;
   display: flex;
-  justify-content: flex-end;
-  background-color: #2B3238;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--darkblue-5);
+}
+
+.wizard-header__submodule-navigator__label {
+  padding-left: 5px;
+  color: var(--white);
 }
 
 .wizard-header__submodule-navigator .input-dropdown__select-wrapper {
