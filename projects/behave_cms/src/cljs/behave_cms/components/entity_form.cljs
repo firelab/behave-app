@@ -296,7 +296,7 @@
      :on-change   #(on-change (u/input-value %))}]])
 
 (defmethod field-input :group-variable
-  [{:keys [state-path app-id label autocomplete autofocus? required? placeholder on-change state]}]
+  [{:keys [state-path field-key app-id label autocomplete autofocus? required? placeholder on-change state]}]
   (r/with-let [show-group-variable-selector? (r/atom false)]
     [:div
      [:label.form-label {:for (u/sentence->kebab label)} label]
@@ -325,8 +325,21 @@
                  :title      "Group Variable Selector"
                  :on-submit  #(do (on-change %)
                                   (swap! show-group-variable-selector? not))}
-          :state-path (assoc :state-path (conj state-path :group-variable-lookup)))])]))
+          :state-path (assoc :state-path (conj state-path :group-variable-lookup field-key)))])]))
 
+(defmethod field-input :group-variable-value
+  [{:keys [state-path label on-change state group-variable-field-key]}]
+  (let [gv-id            (get @(rf/subscribe [:state state-path]) group-variable-field-key)
+        gv-uuid          (:bp/uuid @(rf/subscribe [:entity gv-id]))
+        discrete-options @(rf/subscribe [:group/discrete-variable-options gv-uuid])
+        options          (map (fn [{value :list-option/value label :list-option/name}]
+                                {:value (str value) :label label})
+                              discrete-options)]
+    [dropdown
+     {:label     label
+      :options   options
+      :on-select #(on-change (u/input-value %))
+      :selected  @state}]))
 
 ;;; Public Fns
 
@@ -407,8 +420,7 @@
     [:form {:on-submit on-submit}
      (for [{:keys [field-key type] :as field} fields]
        ^{:key field-key}
-       (if
-           (= type :keywords)
+       (if (= type :keywords)
          [field-input (merge field
                              {:on-change (update-state field-key)
                               :state     (r/track #(let [result (cond

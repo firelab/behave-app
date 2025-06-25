@@ -55,6 +55,11 @@
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident       :search-table-filter/operator
+    :db/doc         "search table filter's operator. Can be either: `:equal`, `:not-equal`."
+    :db/valueType   :db.type/keyword
+    :db/cardinality :db.cardinality/one}
+
    {:db/ident       :search-table-filter/value
     :db/doc         ""
     :db/valueType   :db.type/string

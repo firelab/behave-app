@@ -146,8 +146,8 @@
           [:hr]
           (doall
            (map
-            (fn []
-              (let [search-table-id      (:db/id search-table)]
+            (fn [search-table]
+              (let [search-table-id (:db/id search-table)]
                 [:<>
                  [accordion
                   (:search-table/title search-table)
@@ -171,23 +171,30 @@
                                                  :options   [{:label "Minimum" :value :min}
                                                              {:label "Maximum" :value :max}]}]
                                  :on-create    #(do (swap! show-add-search-table? not) %)}]
-                   (let [tag-sets        (rf/subscribe [:pull-with-attr :tag-set/name])
-                         xform-tag-set   #(rename-keys % {:tag-set/name :label :db/id :value})
-                         color-tag-sets  (map xform-tag-set (filter :tag-set/color? @tag-sets))
-                         filter-tag-sets (map xform-tag-set (remove :tag-set/color? @tag-sets))]
-                    [table-entity-form {:title              "Search Table Filters"
-                                        :parent-id          search-table-id
-                                        :entities           @(rf/subscribe [:search-table/filters search-table-id])
-                                        :entity-form-fields [{:label     "Group Variable"
-                                                              :app-id    @(rf/subscribe [:module/_app-module-id module-id])
-                                                              :required? true
-                                                              :field-key :search-table-column/group-variable
-                                                              :type      :group-variable}
-                                                             {:label     "Value"
-                                                              :required? true
-                                                              :field-key :search-table-filter/value
-                                                              :type      :ref-select}]}])
+                   [table-entity-form {:title              "Search Table Filters"
+                                       :entity             :search-table-filters
+                                       :parent-field       :search-table/_filters
+                                       :parent-id          search-table-id
+                                       :entities           @(rf/subscribe [:search-table/filters search-table-id])
+                                       :entity-form-fields [{:label     "Group Variable"
+                                                             :field-key :search-table-filter/group-variable
+                                                             :app-id    @(rf/subscribe [:module/_app-module-id module-id])
+                                                             :required? true
+                                                             :type      :group-variable}
+                                                            {:label     "Operator"
+                                                             :field-key :search-table-filter/operator
+                                                             :required? true
+                                                             :type      :radio
+                                                             :options   [{:value :equal :label "="}
+                                                                         {:value :not-equal :label "!="}]}
+                                                            {:label                    "Value"
+                                                             :field-key                :search-table-filter/value
+                                                             :required?                true
+                                                             :group-variable-field-key :search-table-filter/group-variable
+                                                             :type                     :group-variable-value}]}]
                    [table-entity-form {:title              "Search Table Columns"
+                                       :entity             :search-table-columns
+                                       :parent-field       :search-table/_columns
                                        :parent-id          search-table-id
                                        :entities           @(rf/subscribe [:search-table/columns search-table-id])
                                        :order-attr         :search-table-column/order
