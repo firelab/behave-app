@@ -181,7 +181,8 @@
         ws-version  (r/track #(or @(rf/subscribe [:state :ws-version])
                                   nil))
         app-version (r/track #(or @(rf/subscribe [:state :app-version])
-                                  nil))]
+                                  nil))
+        *workflow           (rf/subscribe [:local-storage/get-in [:state :worksheet :*workflow]])]
     [:<>
      [:div.workflow-select
       [workflow-select-header
@@ -206,4 +207,4 @@
                            :back-label @(<t (bp "back"))
                            :on-back    #(rf/dispatch [:navigate "/worksheets/workflow-selection"])
                            ;;TODO Get full file path from file
-                           :on-next    #(rf/dispatch [:wizard/navigate-to-latest-worksheet])}]]]]))
+                           :on-next    #(rf/dispatch [:wizard/navigate-to-latest-worksheet @*workflow])}]]]]))
