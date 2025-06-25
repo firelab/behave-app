@@ -1283,7 +1283,11 @@ p {
 /* -- End Dropdown Input -- */
 
 /* -- Text Input -- */
-.input-text {}
+.input-text {
+  display: flex;
+  flex-direction: row;
+  align-items: center
+}
 
 .input-text__input {
   border:      1px solid var(--gray-3);
@@ -1294,6 +1298,7 @@ p {
   background:  var(--gray-1);
   outline:     none;
   box-shadow:  0px 1px 1px var(--gray-10);
+  width: 100%;
 }
 
 .input-text__label {

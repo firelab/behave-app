@@ -137,7 +137,7 @@
                                      :content-type "application/msgpack"
                                      :read         pr/-body}})))
 
-(defn new-worksheet-handler [nname modules submodule [ok body]]
+(defn new-worksheet-handler [nname modules submodule workflow [ok body]]
   (when ok
     (reset! worksheet-from-file? false)
     (reset! conn nil)
@@ -151,12 +151,12 @@
                                          :modules (vec modules)
                                          :uuid    ws-uuid
                                          :version @(rf/subscribe [:state :app-version])}])
-      (reset! current-route-order @(rf/subscribe [:wizard/route-order ws-uuid]))
+      (reset! current-route-order @(rf/subscribe [:wizard/route-order ws-uuid workflow]))
       (rf/dispatch-sync [:navigate (first @current-route-order)]))))
 
-(defn new-worksheet! [nname modules submodule]
+(defn new-worksheet! [nname modules submodule workflow]
   (ajax-request {:uri             "/init"
-                 :handler         (partial new-worksheet-handler nname modules submodule)
+                 :handler         (partial new-worksheet-handler nname modules submodule workflow)
                  :method          :get
                  :format          {:content-type "application/text" :write str}
                  :response-format {:description  "ArrayBuffer"
