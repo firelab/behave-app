@@ -29,21 +29,20 @@
   ["/modules"
    [[["/" :module]
      [[["/" [keyword :io]]
-       [[["/" :submodule] :ws/wizard]]]]]]])
+       [[["/" :submodule] :ws/wizard-guided]]]]]]])
 
 (def ^:private worksheet-routes
   ["worksheets"
-   {""              :ws/all
-    "/guided"       :ws/guided
-    "/independent"  :ws/independent
-    "/import"       :ws/import
-    ["/" :ws-uuid] [["" :ws/overview]
-                    [["/" [keyword :workflow]] [module-routes
-                                                result-routes
-                                                ["/review" :ws/review]
-                                                [["/io/" [keyword :io]] :ws/wizard-standard]]]
-                    ["/print" :ws/print]
-                    ["/settings" :settings/all]]}])
+   {""                    :ws/home
+    "/module-selection"   :ws/module-selection
+    "/workflow-selection" :ws/workflow-selection
+    "/import"             :ws/import
+    ["/" :ws-uuid]        [[["/" [keyword :workflow]] [module-routes
+                                                       result-routes
+                                                       ["/review" :ws/review]
+                                                       [["/io/" [keyword :io]] :ws/wizard-standard]]]
+                           ["/print" :ws/print]
+                           ["/settings" :settings/all]]}])
 
 (def ^:private settings-routes
   ["settings"
@@ -55,11 +54,6 @@
    {"" :tools/all
     ["/" [keyword :page]] :tools/page}])
 
-(def ^:private workflow-routes
-  ["workflow/"
-   {"guided"      :workflow/guided
-    "independent" :workflow/independent
-    "import"      :workflow/import}])
 
 (def ^:private demo-routes
   ["demo/"
@@ -70,7 +64,6 @@
   (add-trailing-slashes-to-roots
    ["/" [["" :home]
          demo-routes
-         workflow-routes
          worksheet-routes
          settings-routes
          tools-routes]]))
@@ -87,11 +80,8 @@
 (defn tools-path [page]
   (bidi/path-for routes :tools/page :page page))
 
-(defn worksheet-path [ws-uuid]
-  (bidi/path-for routes :ws/overview :ws-uuid ws-uuid))
-
 (defn wizard-path [ws-uuid module io submodule]
-  (bidi/path-for routes :ws/wizard :ws-uuid ws-uuid :module module :io io :submodule submodule))
+  (bidi/path-for routes :ws/wizard-guided :ws-uuid ws-uuid :module module :io io :submodule submodule))
 
 (comment
   (bidi/path-for result-routes :results)
