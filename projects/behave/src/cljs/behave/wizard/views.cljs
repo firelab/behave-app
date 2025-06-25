@@ -809,7 +809,7 @@
                                                                {:ws-uuid  ws-uuid
                                                                 :workflow :standard
                                                                 :io       :output})])))]
-           [:div.wizard-header__banner {:style {:margin-top "20px"}}
+           [:div.wizard-header__banner
             [:div.wizard-header__banner__icon
              [c/icon :modules]]
             [:div.wizard-header__banner__title
