@@ -19,7 +19,7 @@
      [:p description]]]])
 
 (defn home-page [_params]
-  (let [*new-or-import      (rf/subscribe [:local-storage/get-in [:state :worksheet :*new-or-import]])
+  (let [*new-or-import      (rf/subscribe [:wizard/get-cached-new-worksheet-or-import])
         show-tool-selector? @(rf/subscribe [:tool/show-tool-selector?])
         selected-tool-uuid  @(rf/subscribe [:tool/selected-tool-uuid])]
     [:<>
@@ -33,9 +33,7 @@
         :header      @(<t (bp "welcome_message"))
         :description @(<t (bp "create_a_new-worksheet_or_import_an_existing_one"))}]
       [:div.workflow-select__content
-       [c/card-group {:on-select      #(do
-                                         (rf/dispatch [:local-storage/update-in [:state :worksheet :*new-or-import] (:workflow %)])
-                                         (rf/dispatch [:state/set [:worksheet :*new-or-import] (:workflow %)]))
+       [c/card-group {:on-select      #(rf/dispatch [:wizard/update-cached-new-worksheet-or-import (:workflow %)])
                       :flex-direction "column"
                       :card-size      "large"
                       :cards          [{:title     @(<t (bp "new_worksheet"))
@@ -58,7 +56,7 @@
 
 ;; TODO use title
 (defn module-selection-page [_params]
-  (let [*workflow           (rf/subscribe [:local-storage/get-in [:state :worksheet :*workflow]])
+  (let [*workflow           (rf/subscribe [:wizard/get-cached-workflow])
         *modules            (rf/subscribe [:local-storage/get-in [:state  :worksheet :*modules]])
         ;; *modules            (rf/subscribe [:state [:worksheet :*modules]])
         *submodule          (rf/subscribe [:worksheet/first-output-submodule-slug (first @*modules)])
@@ -129,8 +127,8 @@
                           :on-next        #(rf/dispatch [:wizard/new-worksheet @name @*modules @*submodule @*workflow])}]]]))
 
 (defn workflow-selection-page [_params]
-  (let [*workflow           (rf/subscribe [:local-storage/get-in [:state :worksheet :*workflow]])
-        *new-or-import      (rf/subscribe [:local-storage/get-in [:state :worksheet :*new-or-import]])
+  (let [*workflow           (rf/subscribe [:wizard/get-cached-workflow])
+        *new-or-import      (rf/subscribe [:wizard/get-cached-new-worksheet-or-import])
         show-tool-selector? @(rf/subscribe [:tool/show-tool-selector?])
         selected-tool-uuid  @(rf/subscribe [:tool/selected-tool-uuid])]
     [:<>
@@ -146,9 +144,7 @@
                       @(<t (bp "please_select_a_workflow"))
                       @(<t (bp "note_that_that_you_can_open_using_any_workflow")))}]
       [:div.workflow-select__content
-       [c/card-group {:on-select      #(do
-                                         (rf/dispatch [:local-storage/update-in [:state :worksheet :*workflow] (:workflow %)])
-                                         (rf/dispatch [:state/set [:worksheet :*workflow] (:workflow %)]))
+       [c/card-group {:on-select      #(rf/dispatch [:wizard/update-cached-workflow (:workflow %)])
                       :flex-direction "column"
                       :card-size      "large"
                       :cards          [{:title     @(<t (bp "open_using_guided_workflow"))
@@ -182,7 +178,7 @@
                                   nil))
         app-version (r/track #(or @(rf/subscribe [:state :app-version])
                                   nil))
-        *workflow           (rf/subscribe [:local-storage/get-in [:state :worksheet :*workflow]])]
+        *workflow           (rf/subscribe [:wizard/get-cached-workflow])]
     [:<>
      [:div.workflow-select
       [workflow-select-header

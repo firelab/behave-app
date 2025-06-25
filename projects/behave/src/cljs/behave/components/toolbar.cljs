@@ -68,7 +68,7 @@
 
 (defmethod progress-bar :ws/workflow-selection
   [{:keys [ws-uuid io route-handler workflow] :as _params}]
-  (let [*new-or-import (rf/subscribe [:state [:worksheet :*new-or-import]])
+  (let [*new-or-import (rf/subscribe [:wizard/get-cached-new-worksheet-or-import])
         steps          (if (= @*new-or-import :import)
                          [{:label            @(<t (bp "home"))
                            :completed?       true

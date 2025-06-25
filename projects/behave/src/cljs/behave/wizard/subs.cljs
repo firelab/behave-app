@@ -869,3 +869,18 @@
    (if (not (nil? (first saved-enabled?-setting)))
      (first saved-enabled?-setting)
      (pos? (count multi-valued-inputs)))))
+
+
+(reg-sub
+ :wizard/get-cached-new-worksheet-or-import
+ (fn [_]
+   (subscribe [:local-storage/get-in [:state :*new-or-import]]))
+ (fn [new-or-import _]
+   new-or-import))
+
+(reg-sub
+ :wizard/get-cached-workflow
+ (fn [_]
+   (subscribe [:local-storage/get-in [:state :*workflow]]))
+ (fn [workflow _]
+   workflow))

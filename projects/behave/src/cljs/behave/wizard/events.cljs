@@ -23,7 +23,7 @@
     nil
     (let [convert-fn #(convert % from to)
           values     (->> (str/split (str v) #"[, ]")
-                      (remove empty?))]
+                          (remove empty?))]
       (when (every? is-numeric? values)
         (->> (map (comp convert-fn parse-float) values)
              (map #(.toFixed % (or precision 2)))
@@ -46,10 +46,8 @@
 
 (rf/reg-event-fx
  :wizard/back
- (rf/inject-cofx ::inject/sub
-                 (fn [_]
-                   [:local-storage/get-in [:state :worksheet :*new-or-import]]))
- (fn [{new-or-import :local-storage/get-in} _]
+ (rf/inject-cofx ::inject/sub (fn [_] [:wizard/get-cached-new-worksheet-or-import]))
+ (fn [{new-or-import :wizard/get-cached-new-worksheet-or-import} _]
    (let [current-path       (str/replace
                              (. (. js/document -location) -href)
                              #"(^.*(?=(/worksheets)))"
@@ -190,14 +188,10 @@
 (rf/reg-event-fx
  :wizard/progress-bar-navigate
  [(rf/inject-cofx ::inject/sub
-                  (fn [_]
-                    [:state [:worksheet :*workflow]]))
-  (rf/inject-cofx ::inject/sub
                   (fn [[_ ws-uuid _ [_ io]]]
                     (when ws-uuid
                       [:wizard/first-module+submodule ws-uuid io])))]
- (fn [{module                 :state
-       first-module+submodule :wizard/first-module+submodule} [_ ws-uuid workflow route-handler+io]]
+ (fn [{first-module+submodule :wizard/first-module+submodule} [_ ws-uuid workflow route-handler+io]]
    (let [[handler io]          route-handler+io
          [ws-module submodule] first-module+submodule]
      (when-let [path (cond
@@ -205,7 +199,7 @@
                        (str "/worksheets/")
 
                        (= handler :ws/module-selection)
-                       (str "/worksheets/" (->str module))
+                       (str "/worksheets/module-selection")
 
                        (and (= handler :ws/wizard-standard) io)
                        (path-for routes :ws/wizard-standard
@@ -223,8 +217,8 @@
 
                        (= handler :ws/results-settings)
                        (path-for routes :ws/results-settings
-                                 {:ws-uuid  ws-uuid
-                                  :workflow workflow
+                                 {:ws-uuid      ws-uuid
+                                  :workflow     workflow
                                   :results-page :settings})
 
                        :else
@@ -337,7 +331,7 @@
 
 (rf/reg-event-fx
  :wizard/toggle-disclaimer
- [/(rf/inject-cofx ::inject/sub (fn [_] [:local-storage/get]))
+ [(rf/inject-cofx ::inject/sub (fn [_] [:local-storage/get]))
   (rf/inject-cofx ::inject/sub (fn [_] [:state :show-disclaimer?]))]
  (fn [{local-storage :local-storage/get
        state         :state}]
@@ -345,3 +339,15 @@
                      [:show-disclaimer?]
                      (not (:show-disclaimer? local-storage))]]
          [:dispatch [:state/set :show-disclaimer? (not state)]]]}))
+
+(rf/reg-event-fx
+ :wizard/update-cached-new-worksheet-or-import
+ (fn [_ [_ new-worksheet-or-import]]
+   {:fx [[:dispatch [:local-storage/update-in [:state :*new-or-import] new-worksheet-or-import]]
+         [:dispatch [:state/set :*new-or-import new-worksheet-or-import]]]}))
+
+(rf/reg-event-fx
+ :wizard/update-cached-workflow
+ (fn [_ [_ workflow]]
+   {:fx [[:dispatch [:local-storage/update-in [:state :*workflow] workflow]]
+         [:dispatch [:state/set :*new-or-import workflow]]]}))
