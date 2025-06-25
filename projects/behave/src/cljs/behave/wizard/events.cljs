@@ -91,8 +91,11 @@
 
 (rf/reg-event-fx
  :wizard/after-solve
- (fn [_ [_ {:keys [ws-uuid]}]]
-   (let [path (path-for routes :ws/results-settings :ws-uuid ws-uuid :results-page :settings)]
+ (fn [_ [_ {:keys [ws-uuid workflow]}]]
+   (let [path (path-for routes :ws/results-settings
+                        :ws-uuid ws-uuid
+                        :workflow workflow
+                        :results-page :settings)]
      {:fx [[:dispatch [:navigate path]]
            [:dispatch [:worksheet/update-all-table-filters-from-results ws-uuid]]
            [:dispatch [:worksheet/update-all-y-axis-limits-from-results ws-uuid]]
@@ -187,11 +190,11 @@
                   (fn [_]
                     [:state [:worksheet :*workflow]]))
   (rf/inject-cofx ::inject/sub
-                  (fn [[_ ws-uuid [_ io]]]
+                  (fn [[_ ws-uuid _ [_ io]]]
                     (when ws-uuid
                       [:wizard/first-module+submodule ws-uuid io])))]
  (fn [{module                 :state
-       first-module+submodule :wizard/first-module+submodule} [_ ws-uuid route-handler+io]]
+       first-module+submodule :wizard/first-module+submodule} [_ ws-uuid workflow route-handler+io]]
    (let [[handler io]          route-handler+io
          [ws-module submodule] first-module+submodule]
      (when-let [path (cond
@@ -201,19 +204,30 @@
                        (= handler :ws/independent)
                        (str "/worksheets/" (->str module))
 
-                       io
-                       (path-for routes
-                                 :ws/wizard
-                                 :ws-uuid  ws-uuid
-                                 :module ws-module
-                                 :io io
-                                 :submodule submodule)
+                       (and (= handler :ws/wizard-standard) io)
+                       (path-for routes :ws/wizard-standard
+                                 {:ws-uuid  ws-uuid
+                                  :workflow :standard
+                                  :io       io})
 
-                       (= handler :ws/result-settings)
-                       (path-for routes :ws/results-settings :ws-uuid ws-uuid :results-page :settings)
+                       (and (= handler :ws/wizard) io)
+                       (path-for routes :ws/wizard
+                                 {:ws-uuid   ws-uuid
+                                  :workflow  :guided
+                                  :module    ws-module
+                                  :io        io
+                                  :submodule submodule})
+
+                       (= handler :ws/results-settings)
+                       (path-for routes :ws/results-settings
+                                 {:ws-uuid  ws-uuid
+                                  :workflow workflow
+                                  :results-page :settings})
 
                        :else
-                       (path-for routes handler :ws-uuid ws-uuid))]
+                       (path-for routes handler
+                                 {:ws-uuid  ws-uuid
+                                  :workflow workflow}))]
        {:fx (cond-> [[:dispatch [:navigate path]]]
               (= handler :ws/all)
               (into [[:dispatch [:state/set [:sidebar :*modules] nil]]

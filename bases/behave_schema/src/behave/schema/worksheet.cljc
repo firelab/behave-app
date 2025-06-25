@@ -54,7 +54,18 @@
     :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 
+   ;; Deprecated
    {:db/ident       :worksheet/furthest-visited-step
+    :db/doc         "Worksheet's furthest completed step."
+    :db/valueType   :db.type/keyword
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :worksheet/furthest-visited-route-handler
+    :db/doc         "Worksheet's furthest completed step."
+    :db/valueType   :db.type/keyword
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :worksheet/furthest-visited-io
     :db/doc         "Worksheet's furthest completed step."
     :db/valueType   :db.type/keyword
     :db/cardinality :db.cardinality/one}
