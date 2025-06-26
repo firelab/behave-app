@@ -33,6 +33,7 @@ Module.SIGContainAdapter = class {
   getPerimeterAtContainment() {}
   getPerimeterAtInitialAttack() {}
   getResourcesUsed() {}
+  getFinalProductionRate() {}
   getFirePerimeterX(){}
   getFirePerimeterY(){}
   getFirePerimeterPointCount(){}

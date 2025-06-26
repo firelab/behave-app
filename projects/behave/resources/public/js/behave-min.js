@@ -4872,6 +4872,8 @@ var _emscripten_bind_SIGContainAdapter_getFinalFireSize_1 = Module["_emscripten_
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGContainAdapter_getFinalTimeSinceReport_1 = Module["_emscripten_bind_SIGContainAdapter_getFinalTimeSinceReport_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFinalTimeSinceReport_1");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getFinalProductionRate_1 = Module["_emscripten_bind_SIGContainAdapter_getFinalProductionRate_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFinalProductionRate_1");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGContainAdapter_getFireBackAtAttack_0 = Module["_emscripten_bind_SIGContainAdapter_getFireBackAtAttack_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFireBackAtAttack_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGContainAdapter_getFireBackAtReport_0 = Module["_emscripten_bind_SIGContainAdapter_getFireBackAtReport_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFireBackAtReport_0");
@@ -8580,6 +8582,12 @@ SIGContainAdapter.prototype['getFinalTimeSinceReport'] = SIGContainAdapter.proto
   var self = this.ptr;
   if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
   return _emscripten_bind_SIGContainAdapter_getFinalTimeSinceReport_1(self, timeUnits);
+};;
+
+SIGContainAdapter.prototype['getFinalProductionRate'] = SIGContainAdapter.prototype.getFinalProductionRate = /** @suppress {undefinedVars, duplicate} @this{Object} */function(speedUnits) {
+  var self = this.ptr;
+  if (speedUnits && typeof speedUnits === 'object') speedUnits = speedUnits.ptr;
+  return _emscripten_bind_SIGContainAdapter_getFinalProductionRate_1(self, speedUnits);
 };;
 
 SIGContainAdapter.prototype['getFireBackAtAttack'] = SIGContainAdapter.prototype.getFireBackAtAttack = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {

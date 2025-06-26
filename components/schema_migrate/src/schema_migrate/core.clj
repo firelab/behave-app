@@ -314,15 +314,26 @@
                   group-variable-uuid      (assoc :conditional/group-variable-uuid group-variable-uuid)
                   ttype                    (assoc :conditional/type ttype)
                   operator                 (assoc :conditional/operator operator)
-                  values                   (assoc :conditional/values values)
-                  ttype                    (assoc :conditional/type ttype))]
+                  values                   (assoc :conditional/values values))]
     (if (spec/valid? :behave/conditional payload)
       payload
       (spec/explain :behave/conditional payload))))
 
+(defn ->action
+  "Payload for an Action."
+  [conn {:keys [nname ttype target-value conditionals]}]
+  (let [payload (cond-> {}
+                  nname        (assoc :action/name nname)
+                  ttype        (assoc :action/type ttype)
+                  target-value (assoc :action/target-value target-value)
+                  conditionals (assoc :action/conditionals (map #(->conditional conn %) conditionals)))]
+    (if (spec/valid? :behave/action payload)
+      payload
+      (spec/explain :behave/action payload))))
+
 (defn ->group-variable
   "Payload for a new Group Variable."
-  [conn {:keys [parent-group-eid order variable-eid  cpp-namespace cpp-class cpp-function cpp-parameter translation-key] :as params}]
+  [conn {:keys [parent-group-eid order variable-eid  cpp-namespace cpp-class cpp-function cpp-parameter translation-key conditionally-set? actions] :as params}]
   (let [payload (if (spec/valid? :behave/group-variable params)
                   params
                   (cond-> {}
@@ -338,7 +349,9 @@
                     cpp-parameter            (assoc :group-variable/cpp-parameter (cpp-param->uuid conn cpp-namespace cpp-class cpp-function cpp-parameter))
                     translation-key          (assoc :group-variable/translation-key translation-key)
                     translation-key          (assoc :group-variable/result-translation-key (s/replace translation-key ":output:" ":result:"))
-                    translation-key          (assoc :group-variable/help-key (str translation-key ":help"))))]
+                    translation-key          (assoc :group-variable/help-key (str translation-key ":help"))
+                    conditionally-set?       (assoc :group-variable/conditionally-set? conditionally-set?)
+                    (seq actions)            (assoc :group-variable/actions (map #(->action conn %) actions))))]
     (if (spec/valid? :behave/group-variable payload)
       payload
       (spec/explain :behave/group-variable payload))))
