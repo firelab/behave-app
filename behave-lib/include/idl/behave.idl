@@ -301,6 +301,7 @@ interface SIGContainAdapter {
   double getFinalFireLineLength(LengthUnits_LengthUnitsEnum lengthUnits);
   double getFinalFireSize(AreaUnits_AreaUnitsEnum areaUnits);
   double getFinalTimeSinceReport(TimeUnits_TimeUnitsEnum timeUnits);
+  double getFinalProductionRate(SpeedUnits_SpeedUnitsEnum speedUnits);
   double getFireBackAtAttack();
   double getFireBackAtReport();
   double getFireHeadAtAttack();
