@@ -328,8 +328,9 @@
           :state-path (assoc :state-path (conj state-path :group-variable-lookup field-key)))])]))
 
 (defmethod field-input :group-variable-value
-  [{:keys [state-path label on-change state group-variable-field-key]}]
-  (let [gv-id            (get @(rf/subscribe [:state state-path]) group-variable-field-key)
+  [{:keys [state-path label on-change state group-variable-field-key original]}]
+  (let [gv-id            (or (get @(rf/subscribe [:state state-path]) group-variable-field-key)
+                             (:db/id (get original group-variable-field-key)))
         gv-uuid          (:bp/uuid @(rf/subscribe [:entity gv-id]))
         discrete-options @(rf/subscribe [:group/discrete-variable-options gv-uuid])
         options          (map (fn [{value :list-option/value label :list-option/name}]
@@ -435,6 +436,7 @@
                                                                  id :list-option/tags kkeyword]))
                               :original-keywords (r/track #(get @(rf/subscribe [:entity id]) field-key))})]
          [field-input (assoc field
+                             :original original
                              :state-path state-path
                              :on-change (update-state field-key)
                              :state     (get-state field-key))]))

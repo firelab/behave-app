@@ -132,7 +132,7 @@
                                                  :required? true
                                                  :field-key :search-table/group-variable
                                                  :type      :group-variable}
-                                                {:label     "Op"
+                                                {:label     "Operator"
                                                  :required? true
                                                  :field-key :search-table/op
                                                  :type      :radio
@@ -142,7 +142,7 @@
                    [table-entity-form {:title              "Search Table Filters"
                                        :entity             :search-table-filter
                                        :entities           @(rf/subscribe [:search-table/filters search-table-id])
-                                       :table-header-attrs [:variable/name :search-table-filter/operator :search-table/value]
+                                       :table-header-attrs [:variable/name :search-table-filter/operator :search-table-filter/value]
                                        :entity-form-fields [{:label     "Group Variable"
                                                              :field-key :search-table-filter/group-variable
                                                              :app-id    @(rf/subscribe [:module/_app-module-id module-id])
@@ -194,7 +194,7 @@
                                           :required? true
                                           :field-key :search-table/group-variable
                                           :type      :group-variable}
-                                         {:label     "Op"
+                                         {:label     "Operator"
                                           :required? true
                                           :field-key :search-table/op
                                           :type      :radio
