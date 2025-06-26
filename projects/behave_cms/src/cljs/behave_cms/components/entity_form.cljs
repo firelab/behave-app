@@ -374,7 +374,7 @@
                                              {:label \"Output\" :value :output}]}]
                 :on-create     #(assoc % :submodule/order num-submodules)})
   ```"
-  [{:keys [entity parent-field parent-id fields id on-create on-update title] :as opts}]
+  [{:keys [entity parent-field parent-id fields id on-create on-update]}]
   (let [state-path (cond-> [:editors]
                      entity    (conj entity)
                      parent-id (conj parent-id)
