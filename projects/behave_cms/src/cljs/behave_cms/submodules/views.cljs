@@ -5,54 +5,10 @@
             [behave-cms.components.translations :refer [all-translations]]
             [behave-cms.help.views              :refer [help-editor]]
             [behave-cms.components.pivot-tables :refer [manage-pivot-table-column]]
-            [behave-cms.components.group-variable-selector :refer [group-variable-selector]]
             [behave-cms.components.table-entity-form :refer [table-entity-form]]
             [behave-cms.submodules.subs]
             [re-frame.core                      :as rf]
-            [reagent.core                       :as r]
-            [goog.string :as gstring]))
-
-(defn- submodule-form [module-id id num-submodules]
-  [entity-form {:entity       :submodule
-                :parent-field :module/_submodules
-                :parent-id    module-id
-                :id           id
-                :fields       [{:label     "Name"
-                                :required? true
-                                :field-key :submodule/name}
-                               {:label     "I/O"
-                                :field-key :submodule/io
-                                :type      :radio
-                                :options   [{:label "Input" :value :input}
-                                            {:label "Output" :value :output}]}]
-                :on-create    #(assoc % :submodule/order num-submodules)}])
-
-(defn- manage-submodule [module-id *submodule num-submodules]
-  [:div.col-6
-   [:h5 (if (nil? module-id) "Add" "Edit") " Submodule"
-    [submodule-form module-id *submodule num-submodules]]])
-
-(defn- submodules-table [label submodules]
-  [:<>
-   [:h5 label]
-   [simple-table
-    [:submodule/name]
-    (->> submodules (sort-by :submodule/order))
-    {:on-select   #(rf/dispatch [:state/set-state :submodule (:db/id %)])
-     :on-delete   #(when (js/confirm (str "Are you sure you want to delete the submodule "
-                                          (:submodule/name %) "?"))
-                     (rf/dispatch [:api/delete-entity %]))
-     :on-increase #(rf/dispatch [:api/reorder % submodules :submodule/order :inc])
-     :on-decrease #(rf/dispatch [:api/reorder % submodules :submodule/order :dec])}]])
-
-(defn- all-submodule-tables [module-id]
-  (let [submodules (rf/subscribe [:submodules module-id])
-        inputs     (filter #(= :input (:submodule/io %)) @submodules)
-        outputs    (filter #(= :output (:submodule/io %)) @submodules)]
-    [:div.col-6 {:style {:height "100%"}}
-     [:row
-      [submodules-table "Output Submodules" outputs]
-      [submodules-table "Input Submodules" inputs]]]))
+            [reagent.core                       :as r]))
 
 (defn submodules-page
   "Display submodules page. Takes a map with:
@@ -64,8 +20,7 @@
                                      '[* {:application/_modules [:db/id :application/name :bp/nid]}]])
           module-id   (:db/id @module)
           application (get-in @module [:application/_modules 0])
-          submodules  (rf/subscribe [:sidebar/submodules module-id])
-          submodule   (rf/subscribe [:state :submodule])]
+          submodules  (rf/subscribe [:sidebar/submodules module-id])]
       [:<>
        [sidebar
         "Submodules"
@@ -78,8 +33,21 @@
           [:h2 (:module/name @module)]]
          [accordion
           "Submodules"
-          [all-submodule-tables module-id]
-          [manage-submodule module-id @submodule (count @submodules)]]
+          [table-entity-form {:entity             :submodule
+                              :entities           @(rf/subscribe [:submodules module-id])
+                              :table-header-attrs [:submodule/name :submodule/io]
+                              :entity-form-fields [{:label     "Name"
+                                                    :required? true
+                                                    :field-key :submodule/name}
+                                                   {:label     "I/O"
+                                                    :field-key :submodule/io
+                                                    :type      :radio
+                                                    :options   [{:label "Input" :value :input}
+                                                                {:label "Output" :value :output}]}]
+                              :parent-field       :module/_submodules
+                              :parent-id          module-id
+                              :order-attr         :submodule/order
+                              }]]
          [:hr]
          [accordion
           "Translations"
@@ -172,9 +140,7 @@
                                                              {:label "Maximum" :value :max}]}]
                                  :on-create    #(do (swap! show-add-search-table? not) %)}]
                    [table-entity-form {:title              "Search Table Filters"
-                                       :entity             :search-table-filters
-                                       :parent-field       :search-table/_filters
-                                       :parent-id          search-table-id
+                                       :entity             :search-table-filter
                                        :entities           @(rf/subscribe [:search-table/filters search-table-id])
                                        :table-header-attrs [:variable/name :search-table-filter/operator :search-table/value]
                                        :entity-form-fields [{:label     "Group Variable"
@@ -192,19 +158,21 @@
                                                              :field-key                :search-table-filter/value
                                                              :required?                true
                                                              :group-variable-field-key :search-table-filter/group-variable
-                                                             :type                     :group-variable-value}]}]
-                   [table-entity-form {:title              "Search Table Columns"
-                                       :entity             :search-table-columns
-                                       :parent-field       :search-table/_columns
+                                                             :type                     :group-variable-value}]
                                        :parent-id          search-table-id
+                                       :parent-field       :search-table/_filters}]
+                   [table-entity-form {:title              "Search Table Columns"
+                                       :entity             :search-table-column
                                        :entities           @(rf/subscribe [:search-table/columns search-table-id])
                                        :table-header-attrs [:variable/name]
-                                       :order-attr         :search-table-column/order
                                        :entity-form-fields [{:label     "Group Variable"
                                                              :app-id    @(rf/subscribe [:module/_app-module-id module-id])
                                                              :required? true
                                                              :field-key :search-table-column/group-variable
-                                                             :type      :group-variable}]}]
+                                                             :type      :group-variable}]
+                                       :parent-id          search-table-id
+                                       :parent-field       :search-table/_columns
+                                       :order-attr         :search-table-column/order}]
                    [:div.row
                     {:style {:padding "5px"}}
                     [btn-sm
@@ -236,5 +204,4 @@
             [btn-sm
              :primary
              "Add Search Table"
-             #(swap! show-add-search-table? not)])]
-         ]]])))
+             #(swap! show-add-search-table? not)])]]]])))
