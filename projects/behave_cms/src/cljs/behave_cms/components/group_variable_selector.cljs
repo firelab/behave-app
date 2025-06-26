@@ -88,4 +88,4 @@
                    :selected  @(get-field (p :group-variable))
                    :options   (map (->option :variable/name) @variables)
                    :on-select #(set-field (p :group-variable) (u/input-int-value %))}]
-        [:button.btn.btn-sm.btn-outline-primary {:type "submit" :disabled @disabled?} "Save"]]])))
+        [:button.btn.btn-sm.btn-outline-primary {:type "submit" :disabled @disabled?} "Select"]]])))
