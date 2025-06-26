@@ -14,10 +14,9 @@
 
 (defn- $accordion [expanded?]
   (merge
-    ^{:combinators {[:> :.accordion__content] {:max-height (if expanded? "auto" "0px")
-                                               :height "100%"
-                                          :visibility (if expanded? "visible" "hidden")
-                                          :transition "max-height 300ms ease-in-out"}}}
+   ^{:combinators {[:> :.accordion__content] {:max-height (if expanded? "auto" "0px")
+                                              :visibility (if expanded? "visible" "hidden")
+                                              :transition "max-height 300ms ease-in-out"}}}
     {:transition "max-height 300ms ease-in-out"}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

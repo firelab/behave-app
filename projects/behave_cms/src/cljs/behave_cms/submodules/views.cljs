@@ -176,6 +176,7 @@
                                        :parent-field       :search-table/_filters
                                        :parent-id          search-table-id
                                        :entities           @(rf/subscribe [:search-table/filters search-table-id])
+                                       :table-header-attrs [:variable/name :search-table-filter/operator :search-table/value]
                                        :entity-form-fields [{:label     "Group Variable"
                                                              :field-key :search-table-filter/group-variable
                                                              :app-id    @(rf/subscribe [:module/_app-module-id module-id])
@@ -197,6 +198,7 @@
                                        :parent-field       :search-table/_columns
                                        :parent-id          search-table-id
                                        :entities           @(rf/subscribe [:search-table/columns search-table-id])
+                                       :table-header-attrs [:variable/name]
                                        :order-attr         :search-table-column/order
                                        :entity-form-fields [{:label     "Group Variable"
                                                              :app-id    @(rf/subscribe [:module/_app-module-id module-id])

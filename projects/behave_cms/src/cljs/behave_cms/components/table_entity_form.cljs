@@ -7,19 +7,23 @@
 
 (defn table-entity-form
   "A component that has simple table with a togglable entity-form. Use this whenever a parent entity has an attribute that has many refs to component entities."
-  [{:keys [parent-id entity parent-field entities order-attr title entity-form-fields table-columns]}]
+  [{:keys [parent-id entity parent-field entities order-attr title entity-form-fields table-header-attrs]}]
   (r/with-let [entity-id-atom (r/atom nil)
                show-entity-form? (r/atom false)]
     [:div {:style {:display "flex"}}
      [simple-table
-      (conj (map :field-key entity-form-fields) :variable/name)
+      (if (seq table-header-attrs)
+        table-header-attrs
+        (map :field-key entity-form-fields))
       entities
       (cond-> {:caption               title
                :add-group-variable-fn #(swap! show-entity-form? not)
                :on-delete             #(rf/dispatch [:api/delete-entity (:db/id %)])
                :on-select             #(do
-                                         (swap! show-entity-form? not)
-                                         (reset! entity-id-atom (:db/id %)))})
+                                         (if @show-entity-form?
+                                           (reset! entity-id-atom nil)
+                                           (reset! entity-id-atom (:db/id %)))
+                                         (swap! show-entity-form? not))})
       order-attr (merge {:on-increase #(rf/dispatch [:api/reorder % parent-id order-attr :inc])
                          :on-decrease #(rf/dispatch [:api/reorder % parent-id order-attr :dec])})]
      (when @show-entity-form?
