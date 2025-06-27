@@ -111,6 +111,10 @@
   ->action c/->action)
 
 (def ^{:arglists '([conn params])
+       :doc      "Payload for a new Variable."}
+  ->variable c/->variable)
+
+(def ^{:arglists '([conn params])
        :doc "Payload for a new Group Variable."}
   ->group-variable c/->group-variable)
 
