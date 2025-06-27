@@ -311,6 +311,7 @@
   (let [payload (cond-> {}
                   (nil? (:bp/uuid params)) (assoc :bp/uuid  (rand-uuid))
                   (nil? (:bp/nid params))  (assoc :bp/nid  (nano-id))
+                  (:db/id params)          (assoc :db/id (:db/id params))
                   group-variable-uuid      (assoc :conditional/group-variable-uuid group-variable-uuid)
                   ttype                    (assoc :conditional/type ttype)
                   operator                 (assoc :conditional/operator operator)
@@ -321,15 +322,37 @@
 
 (defn ->action
   "Payload for an Action."
-  [conn {:keys [nname ttype target-value conditionals]}]
+  [conn {:keys [nname ttype target-value conditionals] :as params}]
   (let [payload (cond-> {}
-                  nname        (assoc :action/name nname)
-                  ttype        (assoc :action/type ttype)
-                  target-value (assoc :action/target-value target-value)
-                  conditionals (assoc :action/conditionals (map #(->conditional conn %) conditionals)))]
+                  (nil? (:bp/uuid params)) (assoc :bp/uuid  (rand-uuid))
+                  (not  (:bp/nid params))  (assoc :bp/nid  (nano-id))
+                  (:db/id params)          (assoc :db/id (:db/id params))
+                  nname                    (assoc :action/name nname)
+                  ttype                    (assoc :action/type ttype)
+                  target-value             (assoc :action/target-value target-value)
+                  conditionals             (assoc :action/conditionals (map #(->conditional conn %) conditionals)))]
     (if (spec/valid? :behave/action payload)
       payload
       (spec/explain :behave/action payload))))
+
+(defn ->variable
+  [_conn {:keys [nname domain-uuid list-eid translation-key help-key kind bp6-label bp6-code map-units-convertible?] :as params}]
+  (let [payload (cond-> {}
+                  (nil? (:bp/uuid params)) (assoc :bp/uuid (rand-uuid))
+                  (not  (:bp/nid params))  (assoc :bp/nid  (nano-id))
+                  (:db/id params)          (assoc :db/id (:db/id params))
+                  nname                    (assoc :variable/name nname)
+                  kind                     (assoc :variable/kind kind)
+                  domain-uuid              (assoc :variable/domain-uuid domain-uuid)
+                  list-eid                 (assoc :variable/list list-eid)
+                  translation-key          (assoc :variable/translation-key translation-key)
+                  help-key                 (assoc :variable/help-translation-key help-key)
+                  bp6-label                (assoc :variable/bp6-label bp6-label)
+                  bp6-code                 (assoc :variable/bp6-code bp6-code)
+                  map-units-convertible?   (assoc :variable/map-units-convertible? map-units-convertible?))]
+    (if (spec/valid? :behave/variable payload)
+      payload
+      (spec/explain :behave/variable payload))))
 
 (defn ->group-variable
   "Payload for a new Group Variable."
@@ -351,7 +374,7 @@
                     translation-key          (assoc :group-variable/result-translation-key (s/replace translation-key ":output:" ":result:"))
                     translation-key          (assoc :group-variable/help-key (str translation-key ":help"))
                     conditionally-set?       (assoc :group-variable/conditionally-set? conditionally-set?)
-                    (seq actions)            (assoc :group-variable/actions (map #(->action conn %) actions))))]
+                    (seq actions)            (assoc :group-variable/actions (map #(cond->> % (map? %) (->action conn)) actions))))]
     (if (spec/valid? :behave/group-variable payload)
       payload
       (spec/explain :behave/group-variable payload))))
@@ -362,44 +385,43 @@
   (let [payload (if (spec/valid? :behave/group params)
                   params
                   (cond-> {}
-                    (nil? (:bp/uuid params))                            (assoc :bp/uuid  (rand-uuid))
-                    (nil? (:bp/nid params))                             (assoc :bp/nid  (nano-id))
-                    (:db/id params)                                     (assoc :db/id (:db/id params))
-                    parent-submodule-eid                                (assoc :submodule/_groups parent-submodule-eid)
-                    parent-group-eid                                    (assoc :group/_children parent-group-eid)
-                    group-name                                          (assoc :group/name group-name)
-                    order                                               (assoc :group/order order)
-                    translation-key                                     (assoc :group/translation-key translation-key)
-                    translation-key                                     (assoc :group/result-translation-key (s/replace translation-key ":output:" ":result:"))
-                    translation-key                                     (assoc :group/help-key (str translation-key ":help"))
-                    conditionals                                        (assoc :group/conditionals (map #(->conditional conn %) conditionals))
-                    (and group-variables (every? map? group-variables)) (assoc :group/group-variables (map #(->group-variable conn %) group-variables))
-                    (and group-variables (every? int? group-variables)) (assoc :group/group-variables group-variables)
-                    subgroups                                           (assoc :group/children (map #(->group conn %) subgroups))
-                    research?                                           (assoc :group/research? research?)
-                    hidden?                                             (assoc :group/hidden? hidden?)))]
+                    (nil? (:bp/uuid params)) (assoc :bp/uuid  (rand-uuid))
+                    (nil? (:bp/nid params))  (assoc :bp/nid  (nano-id))
+                    (:db/id params)          (assoc :db/id (:db/id params))
+                    parent-submodule-eid     (assoc :submodule/_groups parent-submodule-eid)
+                    parent-group-eid         (assoc :group/_children parent-group-eid)
+                    group-name               (assoc :group/name group-name)
+                    order                    (assoc :group/order order)
+                    translation-key          (assoc :group/translation-key translation-key)
+                    translation-key          (assoc :group/result-translation-key (s/replace translation-key ":output:" ":result:"))
+                    translation-key          (assoc :group/help-key (str translation-key ":help"))
+                    (seq conditionals)       (assoc :group/conditionals (map #(cond->> % (map? %) (->conditional conn)) conditionals))
+                    (seq group-variables)    (assoc :group/group-variables (map #(cond->> % (map? %) (->group-variable conn)) group-variables))
+                    (seq subgroups)          (assoc :group/children (map #(cond->> % (map? %) (->group conn)) subgroups))
+                    research?                (assoc :group/research? research?)
+                    hidden?                  (assoc :group/hidden? hidden?)))]
     (if (spec/valid? :behave/group payload)
       payload
       (spec/explain :behave/group payload))))
 
 (defn ->submodule
+  "Payload for a Submdoule"
   [conn {:keys [io submodule-name order groups research? translation-key conditionals conditionals-operator] :as params}]
   (let [payload (if (spec/valid? :behave/submodule params)
                   params
                   (cond-> {}
-                    (nil? (:bp/uuid params))          (assoc :bp/uuid  (rand-uuid))
-                    (nil? (:bp/nid params))           (assoc :bp/nid  (nano-id))
-                    io                                (assoc :submodule/io io)
-                    submodule-name                    (assoc :submodule/name submodule-name)
-                    order                             (assoc :submodule/order order)
-                    (and groups (every? map? groups)) (assoc :submodule/groups (map #(->group conn %) groups))
-                    (and groups (every? int? groups)) (assoc :submodule/groups groups)
-                    groups                            (assoc :submodule/groups (map #(->group conn %) groups))
-                    conditionals                      (assoc :submodule/conditionals (map #(->conditional conn %) conditionals))
-                    conditionals-operator             (assoc :submodule/conditionals-operator conditionals-operator)
-                    translation-key                   (assoc :submodule/translation-key translation-key)
-                    translation-key                   (assoc :submodule/help-key (str translation-key ":help"))
-                    research?                         (assoc :submodule/research? research?)))]
+                    (nil? (:bp/uuid params)) (assoc :bp/uuid  (rand-uuid))
+                    (nil? (:bp/nid params))  (assoc :bp/nid  (nano-id))
+                    (:db/id params)          (assoc :db/id (:db/id params))
+                    io                       (assoc :submodule/io io)
+                    submodule-name           (assoc :submodule/name submodule-name)
+                    order                    (assoc :submodule/order order)
+                    (seq groups)             (assoc :submodule/groups (map #(cond->> % (map? %) (->group conn)) groups))
+                    (seq conditionals)       (assoc :submodule/conditionals (map #(cond->> % (map? %) (->conditional conn)) conditionals))
+                    conditionals-operator    (assoc :submodule/conditionals-operator conditionals-operator)
+                    translation-key          (assoc :submodule/translation-key translation-key)
+                    translation-key          (assoc :submodule/help-key (str translation-key ":help"))
+                    research?                (assoc :submodule/research? research?)))]
     (if (spec/valid? :behave/submodule payload)
       payload
       (spec/explain :behave/submodule payload))))

@@ -27,23 +27,29 @@
 #_{:clj-kondo/ignore [:missing-docstring]}
 (def payload
   (concat
-   [(sm/->group-variable
+   [(sm/->variable
+     conn
+     {:db/id       -1
+      :nname       "Fireline Production Rate"
+      :domain-uuid (sm/name->uuid conn :domain/name "Line Production Rate")
+      :kind        :continuous})
+    (sm/->group-variable
      conn
      {:parent-group-eid   (sm/t-key->eid conn "behaveplus:contain:output:fire:containment")
       :order              0
-      :variable-eid       (sm/name->eid conn :variable/name "Resource Line Production Rate")
+      :variable-eid       -1
       :cpp-namespace      "global"
       :cpp-class          "SIGContainAdapter"
       :cpp-function       "getFinalProductionRate"
       :translation-key    "behaveplus:contain:output:fire:final_produciton_rate"
-      :actions            [{:nname        "Set to true when Contain module is ran"
+      :actions            [{:nname        "Set to true when Surface + Contain module is ran"
                             :ttype        :select
                             :target-value "true"
                             :conditionals [{:ttype    :module
                                             :operator :equal
                                             :values   ["contain" "surface"]}]}]
       :conditionally-set? true})]
-   (sm/build-translations-payload conn {"behaveplus:contain:output:fire:final_produciton_rate" "Final Production Rate"})))
+   (sm/build-translations-payload conn {"behaveplus:contain:output:fire:final_produciton_rate" "Fireline Production Rate"})))
 
 ;; ===========================================================================================================
 ;; Transact Payload
