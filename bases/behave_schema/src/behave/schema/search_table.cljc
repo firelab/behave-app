@@ -22,7 +22,7 @@
 ;; search-table
 (s/def :search-table/name  string?)
 (s/def :search-table/group-variable-uuid  uuid-string?)
-(s/def :search-table/op  (s/and keyword? #(#{:min :max} %)))
+(s/def :search-table/operator  (s/and keyword? #(#{:min :max} %)))
 (s/def :search-table/columns  (s/coll-of (s/or :behave/search-table-column :behave/search-table-column
                                                :ref                  int?)))
 (s/def :search-table/filters (s/coll-of (s/or :behave/search-table-filter :behave/search-table-filter
@@ -31,7 +31,7 @@
                                           :bp/nid
                                           :search-table/name
                                           :search-table/group-variable
-                                          :search-table/op]
+                                          :search-table/operator]
                                     :opt [:search-table/columns
                                           :search-table/filters]))
 
@@ -48,7 +48,7 @@
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :search-table/op
+   {:db/ident       :search-table/operatorerator
     :db/doc         "The operation used for search"
     :db/valueType   :db.type/keyword ;#{:min :max}
     :db/cardinality :db.cardinality/one}
@@ -77,7 +77,7 @@
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :search-table-filter/operator
+   {:db/ident       :search-table-filter/operatorerator
     :db/doc         "search table filter's operator. Can be either: `:equal`, `:not-equal`."
     :db/valueType   :db.type/keyword
     :db/cardinality :db.cardinality/one}

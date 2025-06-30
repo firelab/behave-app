@@ -134,7 +134,7 @@
                                                  :type      :group-variable}
                                                 {:label     "Operator"
                                                  :required? true
-                                                 :field-key :search-table/op
+                                                 :field-key :search-table/operator
                                                  :type      :radio
                                                  :options   [{:label "Minimum" :value :min}
                                                              {:label "Maximum" :value :max}]}]
@@ -142,14 +142,14 @@
                    [table-entity-form {:title              "Search Table Filters"
                                        :entity             :search-table-filter
                                        :entities           @(rf/subscribe [:search-table/filters search-table-id])
-                                       :table-header-attrs [:variable/name :search-table-filter/op :search-table-filter/value]
+                                       :table-header-attrs [:variable/name :search-table-filter/operator :search-table-filter/value]
                                        :entity-form-fields [{:label     "Group Variable"
                                                              :field-key :search-table-filter/group-variable
                                                              :app-id    @(rf/subscribe [:module/_app-module-id module-id])
                                                              :required? true
                                                              :type      :group-variable}
                                                             {:label     "Operator"
-                                                             :field-key :search-table-filter/op
+                                                             :field-key :search-table-filter/operator
                                                              :required? true
                                                              :type      :radio
                                                              :options   [{:value :equal :label "="}
@@ -205,7 +205,7 @@
                                           :type      :group-variable}
                                          {:label     "Operator"
                                           :required? true
-                                          :field-key :search-table/op
+                                          :field-key :search-table/operator
                                           :type      :radio
                                           :options   [{:label "Minimum" :value :min}
                                                       {:label "Maximum" :value :max}]}]

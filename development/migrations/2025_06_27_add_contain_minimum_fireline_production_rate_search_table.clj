@@ -28,9 +28,10 @@
             :module/search-tables
             [{:search-table/name            "Minimum Fireline Produciton Rate Summary"
               :search-table/group-variable  (sm/t-key->eid conn "behaveplus:contain:output:fire:containment:fireline_constructed")
-              :search-table/op              :min
+              :search-table/operator              :min
               :search-table/translation-key "behaveplus:contain:search_table:minimum_fireline_production_rate_summary"
               :search-table/filters         [{:search-table-filter/group-variable (sm/t-key->eid conn "behaveplus:contain:output:fire:containment:contain_status")
+                                              :search-table-filter/operator             :equal
                                               :search-table-filter/value          "3"}]
 
               :search-table/columns [{:search-table-column/name            "Minimum Production Rate for Containment"
