@@ -149,7 +149,7 @@
                                                              :required? true
                                                              :type      :group-variable}
                                                             {:label     "Operator"
-                                                             :field-key :search-table-filter/operator
+                                                             :field-key :search-table-filter/op
                                                              :required? true
                                                              :type      :radio
                                                              :options   [{:value :equal :label "="}
