@@ -2,10 +2,10 @@
   (:require [behave-cms.components.common       :refer [accordion btn-sm simple-table window]]
             [behave-cms.components.entity-form  :refer [entity-form]]
             [behave-cms.components.sidebar      :refer [sidebar sidebar-width]]
-            [behave-cms.components.translations :refer [all-translations]]
             [behave-cms.help.views              :refer [help-editor]]
             [behave-cms.components.pivot-tables :refer [manage-pivot-table-column]]
             [behave-cms.components.table-entity-form :refer [table-entity-form]]
+            [behave-cms.components.translations :refer [all-translations]]
             [behave-cms.submodules.subs]
             [re-frame.core                      :as rf]
             [reagent.core                       :as r]))
@@ -118,7 +118,7 @@
               (let [search-table-id (:db/id search-table)]
                 [:<>
                  [accordion
-                  (:search-table/title search-table)
+                  (:search-table/name search-table)
                   [:div.row.col-12
                    [entity-form {:entity       :search-table
                                  :id           search-table-id
@@ -126,7 +126,7 @@
                                  :parent-id    (:db/id @module)
                                  :fields       [{:label     "Title"
                                                  :required? true
-                                                 :field-key :search-table/title}
+                                                 :field-key :search-table/name}
                                                 {:label     "Group Variable"
                                                  :app-id    @(rf/subscribe [:module/_app-module-id module-id])
                                                  :required? true
@@ -164,12 +164,21 @@
                    [table-entity-form {:title              "Search Table Columns"
                                        :entity             :search-table-column
                                        :entities           @(rf/subscribe [:search-table/columns search-table-id])
-                                       :table-header-attrs [:variable/name]
-                                       :entity-form-fields [{:label     "Group Variable"
+                                       :table-header-attrs [:search-table-column/name :search-table-column/translation-key]
+                                       :entity-form-fields [{:label     "Name"
+                                                             :required? true
+                                                             :field-key :search-table-column/name
+                                                             :type      :default}
+                                                            {:label     "Group Variable"
                                                              :app-id    @(rf/subscribe [:module/_app-module-id module-id])
                                                              :required? true
                                                              :field-key :search-table-column/group-variable
-                                                             :type      :group-variable}]
+                                                             :type      :group-variable}
+                                                            {:label     "Translation Key (Optional: Auto Generated)"
+                                                             :app-id    @(rf/subscribe [:module/_app-module-id module-id])
+                                                             :required? false
+                                                             :field-key :search-table-column/translation-key
+                                                             :type      :translation-key}]
                                        :parent-id          search-table-id
                                        :parent-field       :search-table/_columns
                                        :order-attr         :search-table-column/order}]
@@ -183,12 +192,12 @@
                  [:hr]]))
             (:module/search-tables @module)))
           (if @show-add-search-table?
-            [entity-form {:entity       :new-search-table
+            [entity-form {:entity       :search-table
                           :parent-field :module/_search-tables
                           :parent-id    (:db/id @module)
                           :fields       [{:label     "Title"
                                           :required? true
-                                          :field-key :search-table/title}
+                                          :field-key :search-table/name}
                                          {:label     "Group Variable"
                                           :app-id    @(rf/subscribe [:module/_app-module-id module-id])
                                           :required? true

@@ -125,7 +125,7 @@
           ^{:key id}
           [:tr
            [:td language]
-           [:td translation-key]
+           [:td {:style {:width "20%"}}translation-key]
            [:td
             [translation-editor
              language-id

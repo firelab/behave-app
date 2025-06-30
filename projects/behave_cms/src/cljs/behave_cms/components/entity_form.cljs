@@ -4,6 +4,7 @@
             [reagent.core      :as r]
             [re-frame.core     :as rf]
             [string-utils.interface :refer [->kebab ->str]]
+            [behave-cms.components.translations :refer [all-translations]]
             [behave.schema.core :refer [all-schemas]]
             [behave-cms.components.common :refer [dropdown btn-sm]]
             [behave-cms.components.group-variable-selector :refer [group-variable-selector]]
@@ -90,11 +91,17 @@
         parent-translation (parent-translation-key parent)
         translation-key    (str parent-translation
                                 ":"
-                                (when (= entity :submodule)
-                                  (cond
-                                    (= (:submodule/io state) :input)  "input:"
-                                    (= (:submodule/io state) :output) "output:"
-                                    :else                             nil))
+                                (cond
+                                  (and (= entity :submodule) (= (:submodule/io state) :input))
+                                  "input:"
+
+                                  (and (= entity :submodule) (= (:submodule/io state) :output))
+                                  "output:"
+
+                                  (= entity :search-table)
+                                  "search-table:"
+
+                                  :else nil)
                                 (->kebab (get state name-attr)))
         help-key           (str translation-key ":help")]
     (merge state
@@ -341,6 +348,12 @@
       :options   options
       :on-select #(on-change (u/input-value %))
       :selected  @state}]))
+
+(defmethod field-input :translation-key
+  [{:keys [state]}]
+  (when (not-empty @state)
+    [:div.my-3
+     [all-translations @state]]))
 
 ;;; Public Fns
 

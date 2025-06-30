@@ -2,32 +2,46 @@
   (:require [clojure.spec.alpha  :as s]
             [behave.schema.utils :refer [uuid-string?]]))
 
-(def ^:private valid-search-table-op? (s/and keyword? #(#{:min :max} %)))
 ;;; Spec
-
-(s/def :search-table/title  string?)
-(s/def :search-table/group-variable-uuid  uuid-string?)
-(s/def :search-table/op  valid-search-table-op?)
-(s/def :search-table-column/group-variable-uuid  uuid-string?)
+;; search-table-column
+(s/def :search-table-column/group-variable  (s/coll-of (s/or :behave/group-variable :behave/group-variable
+                                                             :ref                  int?)))
 (s/def :search-table-column/order  int?)
-(s/def :search-table/columns  (s/coll-of :search-table/column))
+(s/def :behave/search-table-column (s/keys :req [:bp/uuid
+                                                 :bp/nid
+                                                 :search-table-column/group-variable
+                                                 :search-table-column/order]))
 
-(s/def :search-table/column (s/keys :req [:search-table-column/group-variable-uuid
-                                          :search-table-column/order]))
+;; search-table-filter
+(s/def :search-table-filter/group-variable (s/coll-of (s/or :behave/group-variable :behave/group-variable
+                                                            :ref                  int?)))
+(s/def :search-table-filter/value  string?)
+(s/def :behave/search-table-filter (s/keys :req [:search-table-filter/group-variable
+                                                 :search-table-filter/value]))
 
-(s/def :behave/search-table (s/keys :req [:search-table/title
+;; search-table
+(s/def :search-table/name  string?)
+(s/def :search-table/group-variable-uuid  uuid-string?)
+(s/def :search-table/op  (s/and keyword? #(#{:min :max} %)))
+(s/def :search-table/columns  (s/coll-of (s/or :behave/search-table-column :behave/search-table-column
+                                               :ref                  int?)))
+(s/def :search-table/filters (s/coll-of (s/or :behave/search-table-filter :behave/search-table-filter
+                                              :ref                  int?)))
+(s/def :behave/search-table (s/keys :req [:bp/uuid
+                                          :bp/nid
+                                          :search-table/name
                                           :search-table/group-variable
                                           :search-table/op]
                                     :opt [:search-table/columns
                                           :search-table/filters]))
+
 (def
   ^{:doc "Schema for search table."}
   schema
-  [{:db/ident       :search-table/title
-    :db/doc         "The Title of the Table"
+  [{:db/ident       :search-table/name
+    :db/doc         "Name of search-table"
     :db/valueType   :db.type/string
-    :db/cardinality :db.cardinality/one
-    :db/unique      :db.unique/identity}
+    :db/cardinality :db.cardinality/one}
 
    {:db/ident       :search-table/group-variable
     :db/doc         "The Group Variable to search for"
@@ -42,12 +56,20 @@
    {:db/ident       :search-table/filters
     :db/doc         ""
     :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/many}
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
 
    {:db/ident       :search-table/columns
     :db/doc         "The output Group Variables to display in the table"
     :db/valueType   :db.type/ref
-    :db/cardinality :db.cardinality/many}
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
+
+   {:db/ident       :search-table/translation-key
+    :db/doc         "The output Group Variables to display in the table"
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one
+    :db/unique      :db.unique/identity}
 
    ;; search-table-filters
    {:db/ident       :search-table-filter/group-variable
@@ -66,6 +88,11 @@
     :db/cardinality :db.cardinality/one}
 
    ;; search-table-column
+   {:db/ident       :search-table-column/name
+    :db/doc         ""
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
    {:db/ident       :search-table-column/group-variable
     :db/doc         ""
     :db/valueType   :db.type/ref
@@ -74,12 +101,18 @@
    {:db/ident       :search-table-column/order
     :db/doc         ""
     :db/valueType   :db.type/long
-    :db/cardinality :db.cardinality/one}])
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :search-table-column/translation-key
+    :db/doc         ""
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+   ])
 
 
 (comment
   (s/valid? :behave/search-table
-            {:search-table/title   "My Search Table"
+            {:search-table/name   "My Search Table"
              :search-table/columns #{{:search-table-column/group-variable-uuid (str (random-uuid))
                                       :search-table-column/order               0}
                                      {:search-table-column/group-variable-uuid (str (random-uuid))
