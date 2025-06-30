@@ -48,7 +48,7 @@
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :search-table/operatorerator
+   {:db/ident       :search-table/operator
     :db/doc         "The operation used for search"
     :db/valueType   :db.type/keyword ;#{:min :max}
     :db/cardinality :db.cardinality/one}
@@ -77,7 +77,7 @@
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :search-table-filter/operatorerator
+   {:db/ident       :search-table-filter/operator
     :db/doc         "search table filter's operator. Can be either: `:equal`, `:not-equal`."
     :db/valueType   :db.type/keyword
     :db/cardinality :db.cardinality/one}

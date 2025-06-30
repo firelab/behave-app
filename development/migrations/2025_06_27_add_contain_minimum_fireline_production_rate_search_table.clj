@@ -27,15 +27,15 @@
   (concat [{:db/id (sm/t-key->eid conn "behaveplus:contain")
             :module/search-tables
             [{:search-table/name            "Minimum Fireline Produciton Rate Summary"
-              :search-table/group-variable  (sm/t-key->eid conn "behaveplus:contain:output:fire:containment:fireline_constructed")
-              :search-table/operator              :min
-              :search-table/translation-key "behaveplus:contain:search_table:minimum_fireline_production_rate_summary"
+              :search-table/group-variable  (sm/t-key->eid conn "behaveplus:contain:output:fire:containment:final-production-rate")
+              :search-table/operator        :min
+              :search-table/translation-key "behaveplus:contain:search-table:minimum-fireline-production-rate-summary"
               :search-table/filters         [{:search-table-filter/group-variable (sm/t-key->eid conn "behaveplus:contain:output:fire:containment:contain_status")
-                                              :search-table-filter/operator             :equal
+                                              :search-table-filter/operator       :equal
                                               :search-table-filter/value          "3"}]
 
               :search-table/columns [{:search-table-column/name            "Minimum Production Rate for Containment"
-                                      :search-table-column/group-variable  (sm/t-key->eid conn "behaveplus:contain:output:fire:containment:fireline_constructed")
+                                      :search-table-column/group-variable  (sm/t-key->eid conn "behaveplus:contain:output:fire:containment:final-production-rate")
                                       :search-table-column/translation-key "behaveplus:contain:search-table:minimum-fireline-production-rate-summary:minimum-production-rate-for-containment"
                                       :search-table-column/order           0}
 
@@ -59,7 +59,7 @@
                                       :search-table-column/translation-key "behaveplus:contain:search-table:minimum-fireline-production-rate-summary:fire-area-at-start-of-containment"
                                       :search-table-column/order           4}
                                      ]}]}]
-          (sm/build-translations-payload conn {"behaveplus:contain:search_table:minimum_fireline_production_rate_summary"                                         "Minimum Fireline Produciton Rate Summary"
+          (sm/build-translations-payload conn {"behaveplus:contain:search-table:minimum-fireline-production-rate-summary"                                         "Minimum Fireline Produciton Rate Summary"
                                                "behaveplus:contain:search-table:minimum-fireline-production-rate-summary:minimum-production-rate-for-containment" "Minimum Production Rate for Containment"
                                                "behaveplus:contain:search-table:minimum-fireline-production-rate-summary:minimum-time-to-containment"             "Minimum Time to Containment"
                                                "behaveplus:contain:search-table:minimum-fireline-production-rate-summary:minimum-fireline-constructed"            "Minimum Fireline Constructed"

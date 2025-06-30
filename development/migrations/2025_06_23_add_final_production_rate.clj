@@ -41,7 +41,7 @@
       :cpp-namespace      "global"
       :cpp-class          "SIGContainAdapter"
       :cpp-function       "getFinalProductionRate"
-      :translation-key    "behaveplus:contain:output:fire:final-produciton-rate"
+      :translation-key    "behaveplus:contain:output:fire:containment:final-production-rate"
       :actions            [{:nname        "Set to true when Surface + Contain module is ran"
                             :ttype        :select
                             :target-value "true"
@@ -49,7 +49,7 @@
                                             :operator :equal
                                             :values   ["contain" "surface"]}]}]
       :conditionally-set? true})]
-   (sm/build-translations-payload conn {"behaveplus:contain:output:fire:final-produciton-rate" "Fireline Production Rate"})))
+   (sm/build-translations-payload conn {"behaveplus:contain:output:fire:containment:final-production-rate" "Fireline Production Rate"})))
 
 ;; ===========================================================================================================
 ;; Transact Payload
