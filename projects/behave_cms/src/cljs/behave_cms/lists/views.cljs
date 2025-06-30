@@ -5,7 +5,8 @@
             [behave-cms.components.entity-form :refer [entity-form]]
             [behave-cms.events]
             [behave-cms.subs]
-            [behave-cms.components.translations :refer [all-translations]]))
+            [behave-cms.components.translations :refer [all-translations]]
+            [string-utils.interface             :refer [->kebab]]))
 
 (defn- lists-table []
   (let [lists     (rf/subscribe [:pull-with-attr :list/name '[* {:list/options [*]}]])
@@ -53,8 +54,9 @@
                    :id           (:db/id @*list-option)
                    :on-create    #(-> %
                                       (assoc :list-option/order (count @list-options))
-                                      (assoc :list-option/translation-key (str "behaveplus:list-option:" (:list/name llist) ":" (:list-option/name %)))
-                                      (assoc :list-option/result-translation-key (str "behaveplus:list-option:result:" (:list/name llist) ":" (:list-option/name %))))
+                                      (assoc :list-option/translation-key (->kebab (str "behaveplus:list-option:" (:list/name llist) ":" (:list-option/name %))))
+                                      (assoc :list-option/result-translation-key (->kebab (str "behaveplus:list-option:result:" (:list/name llist) ":" (:list-option/name %))))
+                                      (assoc :list-option/export-translation-key (->kebab (str "behaveplus:list-option:export:" (:list/name llist) ":" (:list-option/name %)))))
                    :fields       [{:label     "Name"
                                    :required? true
                                    :field-key :list-option/name}
@@ -83,7 +85,9 @@
      [:h4 "Worksheet Translation"]
      [all-translations (:list-option/translation-key @*list-option)]
      [:h4 "Result Translation"]
-     [all-translations (:list-option/result-translation-key @*list-option)]]))
+     [all-translations (:list-option/result-translation-key @*list-option)]
+     [:h4 "Export Translation"]
+     [all-translations (:list-option/export-translation-key @*list-option)]]))
 
 (defn- list-form [llist]
   (let [tag-sets        (rf/subscribe [:pull-with-attr :tag-set/name])
