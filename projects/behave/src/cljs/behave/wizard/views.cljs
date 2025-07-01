@@ -777,13 +777,17 @@
         selected-tool-uuid       @(subscribe [:tool/selected-tool-uuid])
         computing?               @(subscribe [:state :worksheet-computing?])
         all-submodules           (mapcat (fn [module]
-                                           (doall (map (fn [submodule module]
-                                                         [(:module/name module) submodule])
-                                                       @(subscribe [:wizard/submodules-conditionally-filtered
-                                                                    ws-uuid
-                                                                    (:db/id module)
-                                                                    io])
-                                                       (repeat module))))
+                                           (map (fn [submodule module]
+                                                  [(:module/name module) submodule])
+                                                (let [submodules (if (= io :input)
+                                                                   (subscribe [:wizard/submodules-io-input-only (:db/id module)])
+                                                                   (subscribe [:wizard/submodules-io-output-only (:db/id module)]))]
+                                                  (doall (for [submodule @submodules
+                                                               :let      [{id :db/id
+                                                                           op :submodule/conditionals-operator} submodule]
+                                                               :when     @(subscribe [:wizard/show-submodule? ws-uuid id op])]
+                                                           submodule)))
+                                                (repeat module)))
                                          modules)]
     [:<>
      (when show-tool-selector?
