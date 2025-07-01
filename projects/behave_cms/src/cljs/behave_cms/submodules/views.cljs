@@ -91,7 +91,7 @@
          [entity-form {:entity       :pivot-table
                        :parent-field :module/_pivot-tables
                        :parent-id    (:db/id @module)
-                       :fields       [{:label     "Tittle"
+                       :fields       [{:label     "Title"
                                        :required? true
                                        :field-key :pivot-table/title}]}]
          (doall
@@ -108,8 +108,10 @@
                   [simple-table
                    [:variable/name]
                    pivot-table-fields
-                   {:on-delete #(rf/dispatch [:api/delete-entity (:db/id %)])
-                    :on-select #(reset! pivot-column-id-atom (:db/id %))}]
+                   {:on-increase #(rf/dispatch [:api/reorder % pivot-table-fields :pivot-column/order :inc])
+                    :on-decrease #(rf/dispatch [:api/reorder % pivot-table-fields :pivot-column/order :dec])
+                    :on-delete   #(rf/dispatch [:api/delete-entity (:db/id %)])
+                    :on-select   #(reset! pivot-column-id-atom (:db/id %))}]
                   [simple-table
                    [:variable/name :pivot-column/function]
                    pivot-table-values

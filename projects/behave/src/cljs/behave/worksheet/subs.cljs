@@ -778,28 +778,24 @@
           (sort-by (juxt #(.indexOf gv-order (first %))
                          #(second %)))))))
 
-
 (rf/reg-sub
  :worksheet/pivot-table-headers
- (fn [_]
-   (rf/subscribe [:vms/group-variable-order]))
- (fn [gv-order [_ ws-uuid gvs]]
-   (let [headers @(rf/subscribe [:query
-                                 '[:find ?gv-uuid ?repeat-id ?units
-                                   :in $ ?ws-uuid
-                                   :where
-                                   [?w :worksheet/uuid ?ws-uuid]
-                                   [?w :worksheet/result-table ?r]
-                                   [?r :result-table/headers ?h]
-                                   [?h :result-header/repeat-id ?repeat-id]
-                                   [?h :result-header/group-variable-uuid ?gv-uuid]
-                                   [?h :result-header/units ?units]]
-                                 [ws-uuid]])]
-     (->> headers
-          (filter (fn [[gv-uuid]]
-                    (contains? (set gvs) gv-uuid)))
-          (sort-by (juxt #(.indexOf gv-order (first %))
-                         #(second %)))))))
+ (fn [[_ ws-uuid gvs]]
+   (rf/subscribe [:query
+                  '[:find ?gv-uuid ?repeat-id ?units
+                    :in $ ?ws-uuid [?gv-uuid ...]
+                    :where
+                    [?w :worksheet/uuid ?ws-uuid]
+                    [?w :worksheet/result-table ?r]
+                    [?r :result-table/headers ?h]
+                    [?h :result-header/repeat-id ?repeat-id]
+                    [?h :result-header/group-variable-uuid ?gv-uuid]
+                    [?h :result-header/units ?units]]
+                  [ws-uuid gvs]]))
+ (fn [headers [_ _ gvs]]
+   (->> headers
+        (sort-by (juxt #(.indexOf gvs (first %))
+                       #(second %))))))
 
 (rf/reg-sub
  :worksheet/csv-export-headers
@@ -1039,15 +1035,24 @@
         @@vms-conn @@s/conn rules ws-uuid)))
 
 (rf/reg-sub
- :worksheet/pivot-table-fields
+ :worksheet/pivot-table-field-uuids
  (fn [_ [_ pivot-table-id]]
-   (d/q '[:find  [?gv-uuid ...]
+   (d/q '[:find  ?gv-uuid ?order
+          :keys  gv-uuid order
           :in    $ ?p
           :where
           [?p :pivot-table/columns ?c]
           [?c :pivot-column/type :field]
-          [?c :pivot-column/group-variable-uuid ?gv-uuid]]
+          [?c :pivot-column/group-variable-uuid ?gv-uuid]
+          [?c :pivot-column/order ?order]]
         @@vms-conn pivot-table-id)))
+
+(rf/reg-sub
+ :worksheet/pivot-table-fields
+ (fn [[_ pivot-table-id]]
+   (rf/subscribe [:worksheet/pivot-table-field-uuids pivot-table-id]))
+ (fn [fields]
+   (map :gv-uuid (sort-by :order fields))))
 
 (rf/reg-sub
  :worksheet/pivot-table-values
