@@ -462,7 +462,7 @@
 (reg-sub
  :wizard/first-module+submodule
  (fn [[_ ws-uuid _]]
-   (subscribe [:wizard/route-order ws-uuid]))
+   (subscribe [:wizard/route-order ws-uuid :guided]))
 
  (fn [route-order [_ _ws-uuid io]]
    (when io
@@ -778,10 +778,11 @@
          [?m :module/name ?module-name]]
        @@vms-conn rules submodule-id))
 
-(defn- build-path
+(defn- build-guided-submodule-path
   [rroutes ws-uuid submodule]
   (path-for rroutes
-            :ws/wizard
+            :ws/wizard-guided
+            :workflow :guided
             :ws-uuid ws-uuid
             :module (str/lower-case (parent-module-name (:db/id submodule)))
             :io (:submodule/io submodule)
@@ -806,17 +807,23 @@
    [(subscribe [:worksheet ws-uuid])
     (subscribe [:worksheet/modules ws-uuid])])
 
- (fn [[worksheet modules] [_ ws-uuid]]
+ (fn [[worksheet modules] [_ ws-uuid workflow]]
    (let [submodules        (all-shown-submodules worksheet modules)
          output-submodules (filter (fn [{io :submodule/io}] (= io :output)) submodules)
          input-submodules  (filter (fn [{io :submodule/io}] (= io :input)) submodules)]
-     (into []
-           (concat
-            (map (partial build-path routes ws-uuid) output-submodules)
-            (map (partial build-path routes ws-uuid) input-submodules)
-            [(path-for routes :ws/review :ws-uuid ws-uuid)
-             (path-for routes :ws/results-settings :ws-uuid ws-uuid :results-page :settings)
-             (path-for routes :ws/results :ws-uuid ws-uuid)])))))
+     (if (= workflow :guided)
+      (into []
+            (concat
+             (map (partial build-guided-submodule-path routes ws-uuid) output-submodules)
+             (map (partial build-guided-submodule-path routes ws-uuid) input-submodules)
+             [(path-for routes :ws/review :ws-uuid ws-uuid :workflow :guided)
+              (path-for routes :ws/results-settings :ws-uuid ws-uuid :results-page :settings :workflow :guided)
+              (path-for routes :ws/results :ws-uuid ws-uuid :workflow :guided)]))
+      [(path-for routes :ws/wizard-standard :ws-uuid ws-uuid :workflow :standard :io :output)
+       (path-for routes :ws/wizard-standard :ws-uuid ws-uuid :workflow :standard :io :input)
+       (path-for routes :ws/results-settings :ws-uuid ws-uuid :workflow :standard :results-page :settings)
+       (path-for routes :ws/results :ws-uuid ws-uuid :workflow :standard)]
+      ))))
 
 (reg-sub
  :wizard/working-area-expanded?
@@ -877,3 +884,18 @@
    (if (not (nil? (first saved-enabled?-setting)))
      (first saved-enabled?-setting)
      (pos? (count multi-valued-inputs)))))
+
+
+(reg-sub
+ :wizard/get-cached-new-worksheet-or-import
+ (fn [_]
+   (subscribe [:local-storage/get-in [:state :*new-or-import]]))
+ (fn [new-or-import _]
+   new-or-import))
+
+(reg-sub
+ :wizard/get-cached-workflow
+ (fn [_]
+   (subscribe [:local-storage/get-in [:state :*workflow]]))
+ (fn [workflow _]
+   workflow))
