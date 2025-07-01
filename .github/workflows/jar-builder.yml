@@ -58,34 +58,34 @@ jobs:
       - name: Verify assets
         run: ls -l projects/behave/target/*.jar
 
-      - name: Sign JAR
-        uses: addnab/docker-run-action@v3
-        with:
-          image: rjsheperd/jarsigner:latest
-          shell: bash
-          options: |
-            -e SM_API_KEY=${{ secrets.SM_API_KEY }}
-            -e SM_KEYPAIR=${{ secrets.SM_KEYPAIR }}
-            -e SM_HOST=${{ secrets.SM_HOST }}
-            -e SM_CLIENT_CERT_FILE_BASE_64=${{ secrets.SM_CLIENT_CERT_FILE_BASE_64 }}
-            -e SM_CLIENT_CERT_PASSWORD=${{secrets.SM_CLIENT_CERT_PASSWORD }}
-            -v ${{ github.workspace }}:/app/code
-          run: |
-            # Decode cert
-            echo $SM_CLIENT_CERT_FILE_BASE_64 | base64 -d > behave.p12
-            export SM_CLIENT_CERT_FILE=/app/behave.p12
+      # - name: Sign JAR
+      #   uses: addnab/docker-run-action@v3
+      #   with:
+      #     image: rjsheperd/jarsigner:latest
+      #     shell: bash
+      #     options: |
+      #       -e SM_API_KEY=${{ secrets.SM_API_KEY }}
+      #       -e SM_KEYPAIR=${{ secrets.SM_KEYPAIR }}
+      #       -e SM_HOST=${{ secrets.SM_HOST }}
+      #       -e SM_CLIENT_CERT_FILE_BASE_64=${{ secrets.SM_CLIENT_CERT_FILE_BASE_64 }}
+      #       -e SM_CLIENT_CERT_PASSWORD=${{secrets.SM_CLIENT_CERT_PASSWORD }}
+      #       -v ${{ github.workspace }}:/app/code
+      #     run: |
+      #       # Decode cert
+      #       echo $SM_CLIENT_CERT_FILE_BASE_64 | base64 -d > behave.p12
+      #       export SM_CLIENT_CERT_FILE=/app/behave.p12
 
-            # Get JAR file
-            JAR=$(ls /app/code/projects/behave/target/*.jar)
-            echo $JAR
+      #       # Get JAR file
+      #       JAR=$(ls /app/code/projects/behave/target/*.jar)
+      #       echo $JAR
 
-            # Sign JAR
-            ./sign.sh $JAR
+      #       # Sign JAR
+      #       ./sign.sh $JAR
 
       - name: Rename Jar
         run: |
           cd projects/behave/target
-          mv $(ls *-signed.jar) behave-$version.jar
+          mv $(ls *.jar) behave-$version.jar
 
       - uses: ncipollo/release-action@v1
         with:
