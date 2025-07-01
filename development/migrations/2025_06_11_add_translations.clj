@@ -25,7 +25,8 @@
 (def payload
   (sm/build-translations-payload
    conn
-   {(bp "new_worksheet")                                    "New Worksheet"
+   {(bp "show_notes")                                       "Show Notes"
+    (bp "new_worksheet")                                    "New Worksheet"
     (bp "create_a_new-worksheet_or_import_an_existing_one") "Create a new worksheet or import an existing one."
     (bp "create_a_new_worksheet")                           "Create a New Worksheet"
     (bp "open_using_guided_workflow")                       "Open using Guided Workflow"
