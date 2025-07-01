@@ -152,7 +152,6 @@
                                          :uuid    ws-uuid
                                          :version @(rf/subscribe [:state :app-version])}])
       (reset! current-route-order @(rf/subscribe [:wizard/route-order ws-uuid workflow]))
-      (prn "@current-route-order:" current-route-order)
       (rf/dispatch-sync [:navigate (first @current-route-order)]))))
 
 (defn new-worksheet! [nname modules submodule workflow]
