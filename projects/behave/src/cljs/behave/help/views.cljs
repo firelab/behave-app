@@ -60,7 +60,12 @@
       :else
       node)))
 
-(defn- get-help-keys [params]
+(defmulti get-help-keys
+  (fn [{:keys [workflow]}]
+    (or workflow :guided)))
+
+(defmethod get-help-keys :guided
+  [params]
   (cond
 
     (= (:page params) :units)
@@ -100,6 +105,43 @@
               (and (= io :output) (= first-output-submodule submodule)))
         (concat [(:module/help-key @*module)] submodule-help-keys)
         submodule-help-keys))
+
+    :else
+    "behaveplus:help"))
+
+(defmethod get-help-keys :standard
+  [{:keys [ws-uuid io] :as params}]
+  (cond
+
+    (= (:page params) :units)
+    []
+
+    (:page params)
+    (:page params)
+
+    (:io params)
+    (let [modules       @(subscribe [:worksheet/modules ws-uuid])
+          all-help-keys (reduce (fn [acc module]
+                                  (-> acc
+                                      (conj (:module/help-key module))
+                                      (into (mapcat (fn [submodule]
+                                                      (let [*groups (subscribe [:vms/pull-children :submodule/groups (:db/id submodule)
+                                                                                '[* {:group/group-variables [*]} {:group/children 6}]])]
+                                                        (->> @*groups
+                                                             (sort-by :group/order)
+                                                             (postwalk (->filter-groups-walk-fn ws-uuid))
+                                                             (mapcat (partial flatten-help-keys []))
+                                                             (flatten)
+                                                             (filter some?)
+                                                             (concat [(:submodule/help-key submodule)])
+                                                             (vec))))
+                                                    @(subscribe [:wizard/submodules-conditionally-filtered
+                                                                 ws-uuid
+                                                                 (:db/id module)
+                                                                 io])))))
+                                []
+                                modules)]
+      all-help-keys)
 
     :else
     "behaveplus:help"))

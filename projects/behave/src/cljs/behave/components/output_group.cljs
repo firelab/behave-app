@@ -40,10 +40,13 @@
       {:id      uuid
        :options (doall (map ->option all-group-variables))}]]))
 
-(defn output-group [ws-uuid group variables level]
+(defn output-group [{:keys [ws-uuid workflow]} group variables level]
   [:div.wizard-group
    {:class (str "wizard-group--level-" level)}
-   [:div.wizard-group__header @(<t (:group/translation-key group))]
+   [:div {:class [(if (= workflow :standard)
+                    "wizard-group__header--standard"
+                    "wizard-group__header")]}
+    @(<t (:group/translation-key group))]
    [:div.wizard-group__outputs
     (if (:group/single-select? group)
       [wizard-single-select-outupt ws-uuid group variables]
