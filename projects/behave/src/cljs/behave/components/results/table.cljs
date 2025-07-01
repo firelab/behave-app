@@ -234,8 +234,9 @@
                                                                        fmt-fn))))
                                                         {}
                                                         cell-data-at-row-searched)
-               search-table-columns-sorted      (remove (fn [search-table-column] (nil? (get table-row (keyword (:bp/uuid (:search-table-column/group-variable search-table-column))))))
-                                                        (sort-by :search-table-column/order search-table-columns))
+               search-table-columns-sorted      (->> search-table-columns
+                                                     (sort-by :search-table-column/order)
+                                                     (remove (fn [search-table-column] (nil? (get table-row (keyword (:bp/uuid (:search-table-column/group-variable search-table-column))))))))
                table-headers                    (into (mapv (fn [{search-table-column-group-variable  :search-table-column/group-variable
                                                                   search-table-column-translation-key :search-table-column/translation-key}]
                                                               (let [gv-uuid     (:bp/uuid search-table-column-group-variable)
