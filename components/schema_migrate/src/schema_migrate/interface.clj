@@ -82,6 +82,10 @@
                   the same transaction where you've manually assigned :db/id)."}
   build-translations-payload c/build-translations-payload)
 
+(def ^{:arglists '([conn eid-start t-key->translation-map])
+       :doc      "Creates a payload to update existing translations for specific language shortcode."}
+  update-translations-payload c/update-translations-payload)
+
 (def ^{:arglists '([conn t-key])
        :doc      "Removes an entity's (and it's components) translation keys."}
   remove-nested-i18ns-tx c/remove-nested-i18ns-tx)
@@ -125,3 +129,7 @@
 (def ^{:arglists '([migration-name])
        :->actiondoc "Payload for a new migration."}
   ->migration c/->migration)
+
+(def ^{:arglists '([s])
+       :doc      "add behaveplus: to `s`"}
+  bp c/bp)

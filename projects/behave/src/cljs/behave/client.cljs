@@ -15,10 +15,10 @@
             [behave.wizard.views       :as wizard]
             [behave.print.views        :refer [print-page]]
             [behave.demo.views         :refer [demo-output-diagram-page]]
-            [behave.worksheet.views    :refer [new-worksheet-page
+            [behave.worksheet.views    :refer [home-page
                                                import-worksheet-page
-                                               guided-worksheet-page
-                                               independent-worksheet-page]]
+                                               module-selection-page
+                                               workflow-selection-page]]
             [behave.events]
             [behave.subs]
             [day8.re-frame.http-fx]))
@@ -29,21 +29,22 @@
   [:div
    [:h1 (str @(<t "notfound") " :(")]])
 
-(def handler->page {:home                new-worksheet-page
-                    :demo/diagram        demo-output-diagram-page
-                    :ws/all              new-worksheet-page
-                    :ws/import           import-worksheet-page
-                    :ws/guided           guided-worksheet-page
-                    :ws/independent      independent-worksheet-page
-                    :ws/wizard           wizard/root-component
-                    :ws/review           wizard/wizard-review-page
-                    :ws/results-settings wizard/wizard-results-settings-page
-                    :ws/results          wizard/wizard-results-page
-                    :ws/print            print-page
-                    :settings/all        settings/settings-page
-                    :settings/page       settings/settings-page
-                    :tools/all           tools/root-component
-                    :tools/page          tools/root-component})
+(def handler->page {:home                  home-page
+                    :demo/diagram          demo-output-diagram-page
+                    :ws/home                home-page
+                    :ws/import             import-worksheet-page
+                    :ws/module-selection   module-selection-page
+                    :ws/workflow-selection workflow-selection-page
+                    :ws/wizard-standard    wizard/wizard-standard-page
+                    :ws/wizard-guided      wizard/root-component
+                    :ws/review             wizard/wizard-review-page
+                    :ws/results-settings   wizard/wizard-results-settings-page
+                    :ws/results            wizard/wizard-results-page
+                    :ws/print              print-page
+                    :settings/all          settings/settings-page
+                    :settings/page         settings/settings-page
+                    :tools/all             tools/root-component
+                    :tools/page            tools/root-component})
 
 (defn load-scripts! [{:keys [issue-collector sentry]}]
   (when issue-collector
