@@ -18,45 +18,49 @@
 #   http://msdn.microsoft.com/en-us/library/dd871305.aspx
 #############################################################################################
 
-OPTIONS=$(getopt -q -n ${0} -o hpl:o:n:w:a:i: -l help,lnk-target:,output-file:,name:,working-dir:,arguments:,icon:,printer-link -- "$@")
-
-eval set -- ${OPTIONS}
-
-IS_PRINTER_LNK=0
-while true; do
-  case "$1" in
-    -h|--help) HELP=1 ;;
-    -p|--printer-link) IS_PRINTER_LNK=1 ;;
-    -l|--lnk-target) LNK_TARGET="$2" ; shift ;;
-    -o|--output-file) OUTPUT_FILE="$2" ; shift ;;
-    -n|--name) param_HasName="$2" ; shift ;;
-    -w|--working-dir) param_HasWorkingDir="$2" ; shift ;;
-    -a|--arguments) param_HasArguments="$2" ; shift ;;
-    -i|--icon) param_HasIconLocation="$2" ; shift ;;
-    --)        shift ; break ;;
-    *)         echo "Option inconnue : $1" ; exit 1 ;;
-  esac
-  shift
-done
-
-if [ $# -ne 0 ]; then
-  echo "Option(s) inconnue(s) : $@"
-  exit 1
-fi
-
-[ ${#LNK_TARGET} -eq 0 ] || [ ${#OUTPUT_FILE} -eq 0 ] && echo "
+usage() {
+    echo "
 Usage :
- ${0} -l cible_du_fichier_lnk [-n description] [-w working_dir] [-a cmd_args] [-i icon_path] -o mon_fichier.lnk [-p]
+ ${0} -l lnk_file_target [-n description] [-w working_dir] [-a cmd_args] [-i icon_path] -o my_file.lnk [-p]
 
 Options :
- -l, --lnk-target               Précise la cible du raccourci
- -o, --output-file              Enregistre le raccourci dans un fichier
- -n, --name                     Spécifie une description au raccourci
- -w, --working-dir              Spécifie le répertoire de lancement de la commande
- -a, --arguments                Spécifie les arguments de la commande lancée
- -i, --icon                     Spécifie le chemin de l'icône
- -p, --printer-link             Génère un raccourci de type imprimante réseau
-" && exit 1
+ -l  Specifies the shortcut target
+ -o  Saves the shortcut to a file
+ -n  Specifies a description for the shortcut
+ -w  Specifies the starting directory for the command
+ -a  Specifies the arguments for the launched command
+ -i  Specifies the icon path
+ -p  Generates a network printer-type shortcut"
+    exit 1
+}
+
+# Initialize variables
+HELP=0
+IS_PRINTER_LNK=0
+
+if [ $? -ne 0 ]; then
+    echo "Error parsing options : $@" >&2
+    exit 1
+fi
+
+# IS_PRINTER_LNK=0
+while getopts "hpl:o:n:w:a:i:" opt; do
+  case "${opt}" in
+    h) usage ;;
+    p) IS_PRINTER_LNK=1 ;;
+    l) LNK_TARGET="$OPTARG" ;;
+    o) OUTPUT_FILE="$OPTARG" ;;
+    n) param_HasName="$OPTARG" ;;
+    w) param_HasWorkingDir="$OPTARG" ;;
+    a) param_HasArguments="$OPTARG" ;;
+    i) param_HasIconLocation="$OPTARG" ;;
+    \?) usage ;;
+    :) echo "Option -$OPTARG requires an argument." >&2; exit 1 ;;
+  esac
+done
+
+[ ${#LNK_TARGET} -eq 0 ] && echo "Error: no link target (-l) found." >&2 && usage
+[ ${#OUTPUT_FILE} -eq 0 ] && echo "Error: no output file (-o) found." >&2 && usage
 
 #############################################################################################
 # Fonctions
@@ -85,7 +89,7 @@ function convert_CLSID_to_DATA() {
 }
 
 #############################################################################################
-# Variables issues de la documentation officielle de Microsoft
+# Variables from Microsoft's official documentation
 #############################################################################################
 
 HasLinkTargetIDList=0x01
@@ -119,7 +123,7 @@ CLSID_Computer="20d04fe0-3aea-1069-a2d8-08002b30309d"				# Poste de travail
 CLSID_Network="208d2c60-3aea-1069-a2d7-08002b30309d"				# Favoris réseau
 
 #############################################################################################
-# Constantes trouvées à partir de l'analyse de fichiers lnk
+# Constants found from analyzing lnk files
 #############################################################################################
 
 PREFIX_LOCAL_ROOT='\x2f'							# Disque local
@@ -155,12 +159,12 @@ fi
 
 LinkFlags=$(gen_LinkFlags)
 
-# On retire l'anti-slash final s'il y en a un
+# Remove the final backslash if there is one
 LNK_TARGET=${LNK_TARGET%\\}
 
-# On sépare le chemin racine du lien de la cible finale
-# On distingue aussi si le lien est de type local ou réseau
-# On définie la valeur Item_Data suivant le cas d'un lien réseau ou local
+# Separate the root path of the link from the final target
+# Also determine if the link is of local or network type
+# Define the Item_Data value depending on whether it's a network or local link
 
 IS_ROOT_LNK=0
 IS_NETWORK_LNK=0
@@ -198,25 +202,25 @@ fi
 
 #############################################################################################
 
-# On sélectionne le préfixe qui sera utilisé pour afficher l'icône du raccourci
+# Select the prefix that will be used to display the shortcut's icon
 
 if [[ ${TARGET_LEAF} == *.??? ]]; then
 	PREFIX_OF_TARGET=${PREFIX_FILE}
-	TYPE_TARGET="fichier"
+	TYPE_TARGET="file"
 	FileAttributes=${FileAttributes_File}
 else
 	PREFIX_OF_TARGET=${PREFIX_FOLDER}
-	TYPE_TARGET="dossier"
+	TYPE_TARGET="folder"
 	FileAttributes=${FileAttributes_Directory}
 fi
 
 # On convertit les valeurs des cibles en binaire
 TARGET_ROOT=$(ascii2hex "${TARGET_ROOT}")
-TARGET_ROOT=${TARGET_ROOT}$(for i in `seq 1 21`;do echo -n '\x00';done) # Nécessaire à partir de Vista et supérieur sinon le lien est considéré comme vide (je n'ai trouvé nul part d'informations à ce sujet)
+TARGET_ROOT=${TARGET_ROOT}$(for i in `seq 1 21`;do echo -n '\x00';done) # Required from Vista and above, otherwise the link is considered empty (I couldn't find any information about this anywhere).
 
 TARGET_LEAF=$(ascii2hex "${TARGET_LEAF}")
 
-# On crée l'IDLIST qui représente le cœur du fichier LNK
+# Create the IDLIST which represents the core of the LNK file
 
 if [ ${IS_ROOT_LNK} -eq 1 ];then
 	IDLIST_ITEMS=$(gen_IDLIST ${Item_Data})$(gen_IDLIST ${PREFIX_ROOT}${TARGET_ROOT}${END_OF_STRING})
@@ -229,15 +233,15 @@ IDLIST=$(gen_IDLIST ${IDLIST_ITEMS})
 #############################################################################################
 
 if [ ${IS_NETWORK_LNK} -eq 1 ]; then
-	TYPE_LNK="réseau"
+	TYPE_LNK="network"
 	if [ ${IS_PRINTER_LNK} -eq 1 ]; then
-		TYPE_TARGET="imprimante"
+		TYPE_TARGET="printer"
 	fi
 else
 	TYPE_LNK="local"
 fi
 
-echo "Création d'un raccourci de type \""${TYPE_TARGET}" "${TYPE_LNK}"\" avec pour cible "${LNK_TARGET} ${param_HasArguments} 1>&2
+echo "Creation of a shortcut of type \""${TYPE_TARGET}" "${TYPE_LNK}"\" with target \"${LNK_TARGET}\" \"${param_HasArguments}\"" 1>&2
 
 echo -ne ${HeaderSize}${LinkCLSID}${LinkFlags}${FileAttributes}${CreationTime}${AccessTime}${WriteTime}${FileSize}${IconIndex}${ShowCommand}${Hotkey}${Reserved}${Reserved2}${Reserved3}${IDLIST}${TerminalID}${STRING_DATA} > "${OUTPUT_FILE}"
 
