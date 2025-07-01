@@ -242,7 +242,7 @@
                                #(rf/dispatch [:toolbar/print ws-uuid]))}
                   (when-not (:jar-local? params)
                     {:icon     :share
-                     :label    @(<t (bp "share"))
+                     :label    @(<t (bp "vms_sync"))
                      :on-click #(rf/dispatch [:dev/export-from-vms])})
                   #_{:icon     :zoom-in
                      :label    (bp "zoom-in")
