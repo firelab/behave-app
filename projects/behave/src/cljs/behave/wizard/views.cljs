@@ -710,7 +710,6 @@
           (-> @(<t (bp "input_tables"))
               s/capitalize-words)]
          [inputs-table ws-uuid]
-         (search-tables ws-uuid)
          (when (seq @*cell-data)
            [:div.wizard-results__table {:id "outputs"}
             [:div.wizard-notes__header (-> @(<t (bp "output_tables"))
