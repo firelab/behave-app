@@ -2,7 +2,7 @@
   (:require [re-frame.core    :as rf]
             [re-posh.core     :as rp]
             [datascript.core  :as d]
-            [behave.components.toolbar :refer [get-step-number step-kw->number get-step-kw]]
+            [behave.components.toolbar :refer [step-priority]]
             [behave.importer           :refer [import-worksheet]]
             [behave.logger             :refer [log]]
             [behave.solver.core        :refer [solve-worksheet]]
@@ -599,13 +599,13 @@
                     submodule-io
                     {:keys [title body] :as _payload}]]
    (when-let [ws-id (d/entid ds [:worksheet/uuid ws-uuid])]
-     {:transact [{:db/id            -1
-                  :worksheet/_notes ws-id
-                  :note/name        (if (empty? title)
-                                      (str submodule-name " " submodule-io)
-                                      title)
-                  :note/content     body
-                  :note/submodule   submodule-uuid}]})))
+     {:transact [(cond-> {:db/id            -1
+                          :worksheet/_notes ws-id
+                          :note/name        (if (empty? title)
+                                              (str submodule-name " " submodule-io)
+                                              title)
+                          :note/content     body}
+                   submodule-uuid (assoc :note/submodule submodule-uuid))]})))
 
 (rp/reg-event-fx
  :worksheet/update-note
@@ -627,18 +627,31 @@
  [(rp/inject-cofx :ds)]
  (fn [{:keys [ds]} [_ ws-uuid route-handler io]]
    (when-let [worksheet (d/entity ds [:worksheet/uuid ws-uuid])]
-     (let [worksheet-visited-step (get step-kw->number (:worksheet/furthest-visited-step worksheet))
-           current-step           (get-step-number route-handler io)]
-       (when (or (nil? worksheet-visited-step)
+     (let [furthest-handler       (:worksheet/furthest-visited-route-handler worksheet)
+           furthest-io            (:worksheet/furthest-visited-io worksheet)
+           worksheet-visited-step (.indexOf step-priority [furthest-handler furthest-io])
+           current-step           (.indexOf step-priority [route-handler io])]
+       (when (or (and (nil? (:worksheet/furthest-visited-route-handler worksheet))
+                      (nil? (:worksheet/furthest-visited-io worksheet)))
                  (< worksheet-visited-step current-step))
-         {:transact [{:db/id                           [:worksheet/uuid ws-uuid]
-                      :worksheet/furthest-visited-step (get-step-kw route-handler io)}]})))))
+         {:transact (if io
+                      [{:db/id                                    [:worksheet/uuid ws-uuid]
+                        :worksheet/furthest-visited-route-handler route-handler
+                        :worksheet/furthest-visited-io            io}]
+                      [{:db/id                                    [:worksheet/uuid ws-uuid]
+                        :worksheet/furthest-visited-route-handler route-handler}
+                       [:db/retract [:worksheet/uuid ws-uuid] :worksheet/furthest-visited-io]])})))))
 
 (rp/reg-event-fx
  :worksheet/set-furthest-vistited-step
  (fn [_ [_ ws-uuid route-handler io]]
-   {:transact [{:db/id                           [:worksheet/uuid ws-uuid]
-                :worksheet/furthest-visited-step (get-step-kw route-handler io)}]}))
+   {:transact (if io
+                [{:db/id                                    [:worksheet/uuid ws-uuid]
+                  :worksheet/furthest-visited-route-handler route-handler
+                  :worksheet/furthest-visited-io            io}]
+                [{:db/id                                    [:worksheet/uuid ws-uuid]
+                  :worksheet/furthest-visited-route-handler route-handler}
+                 [:db/retract [:worksheet/uuid ws-uuid] :worksheet/furthest-visited-io]])}))
 
 (rf/reg-event-fx
  :worksheet/delete-existing-diagrams

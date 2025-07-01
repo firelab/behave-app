@@ -346,7 +346,6 @@ body {
 }
 
 .accordion__collapse > .button .button__icon {
-  top: -2px;
   left: 10px;
 }
 
@@ -376,7 +375,6 @@ body {
 }
 
 .accordion__expand > .button .button__icon {
-  top: -3px;
   left: 6px;
 }
 
@@ -558,12 +556,33 @@ body {
   flex-direction: row;
 }
 
+.wizard-header__submodule-navigator {
+  padding: 5px 20px 5px 0px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--darkblue-5);
+}
+
+.wizard-header__submodule-navigator__label {
+  padding-left: 5px;
+  color: var(--white);
+}
+
+.wizard-header__submodule-navigator .input-dropdown__select-wrapper {
+  margin: 0;
+}
+
 .wizard-navigation {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   padding: 10px;
   background-color: var(--white);
+}
+
+.wizard-navigation--next-only {
+  justify-content: flex-end;
 }
 
 .wizard-group__header {
@@ -574,6 +593,7 @@ body {
   border-bottom: 2px solid var(--themed-header-bottom-border-color);
 }
 
+.wizard-group__header--standard,
 .wizard-graph__output-header,
 .wizard-group--level-1 > .wizard-group__header {
   padding: 5px 18px;
@@ -582,7 +602,7 @@ body {
 }
 
 .wizard-group--level-2 > .wizard-group__header {
-  padding: 5px 18px;
+  padding: 5px 36px;
   font-weight: var(--font-weight-500);
   color: black;
   background-color: white;
@@ -645,6 +665,7 @@ body {
 .wizard-input__input {
   width: 300px;
   padding: 5px;
+  padding: 5px 40px 5px 5px;
 }
 
 .wizard-input__units {
@@ -741,10 +762,11 @@ body {
 }
 
 .wizard-review__submodule-header {
-  padding: 27px 0px 0px 0px;
+  padding: 10px 0px 0px 0px;
   border-bottom: 2px solid var(--gray-4);
   font-size: var(--font-size-22);
   font-weight: var(--font-weight-bold);
+  background-color: var(--themed-header-background-color);
 }
 
 .wizard-review .input-text__input {
@@ -786,6 +808,28 @@ body {
   text-decoration: underline;
 }
 /* -- End Wizard review -- */
+
+/* -- Start Wizard Standard -- */
+
+.wizard-standard__module {
+  padding: 10px;
+  color: var(--black);
+  font-size: var(--font-size-22);
+  background: var(--themed-header-background-color);
+  border-bottom: 2px solid var(--themed-header-bottom-border-color);
+}
+
+.wizard-standard__submodule-header {
+  padding: 10px 0px 0px 0px;
+  border-bottom: 2px solid var(--gray-4);
+  font-weight: var(--font-weight-bold);
+  background-color: var(--themed-header-background-color);
+}
+
+
+
+
+/* -- End Wizard Standard -- */
 
 .wizard-results__table-settings__header,
 .wizard-results__graph-settings__header {
