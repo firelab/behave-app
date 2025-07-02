@@ -353,7 +353,7 @@
                                                       :submodule (:slug submodule)})]]
                  [:<>
                   [:div.wizard-review__submodule-header (:submodule/name submodule)]
-                  [build-groups  ws-uuid (:submodule/groups submodule) (partial review/input-group edit-route)]])]])]
+                  [build-groups (assoc params :edit-route edit-route) (:submodule/groups submodule) review/input-group]])]])]
           (when (true? @*warn-limit?)
             [:div.wizard-warning
              (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])
