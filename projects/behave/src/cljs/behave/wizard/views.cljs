@@ -779,10 +779,14 @@
         all-submodules           (mapcat (fn [module]
                                            (map (fn [submodule module]
                                                   [(:module/name module) submodule])
-                                                @(subscribe [:wizard/submodules-conditionally-filtered
-                                                             ws-uuid
-                                                             (:db/id module)
-                                                             io])
+                                                (let [submodules (if (= io :input)
+                                                                   (subscribe [:wizard/submodules-io-input-only (:db/id module)])
+                                                                   (subscribe [:wizard/submodules-io-output-only (:db/id module)]))]
+                                                  (doall (for [submodule @submodules
+                                                               :let      [{id :db/id
+                                                                           op :submodule/conditionals-operator} submodule]
+                                                               :when     @(subscribe [:wizard/show-submodule? ws-uuid id op])]
+                                                           submodule)))
                                                 (repeat module)))
                                          modules)]
     [:<>
@@ -849,33 +853,37 @@
                                                          (name io)
                                                          %])}])]
               [wizard-notes @*notes]])
-           (for [module modules
-                 :let   [module-name (:module/name module)]]
-             [:div {:data-theme-color module-name}
-              [:div.wizard-review__submodules
-               (if (= io :input)
-                 (doall
-                  (for [submodule @(subscribe [:wizard/submodules-conditionally-filtered
-                                               ws-uuid
-                                               (:db/id module)
-                                               :input])]
-                    ^{:key (:submodule/name submodule)}
-                    [:div.wizard-review__submodules__submodule
-                     {:id (:submodule/name submodule)}
-                     [:div.wizard-standard__submodule-header
-                      (:submodule/name submodule)]
-                     [build-groups params (:submodule/groups submodule) input-group]]))
-                 ;; io is :output
-                 (for [submodule @(subscribe [:wizard/submodules-conditionally-filtered
-                                              ws-uuid
-                                              (:db/id module)
-                                              :output])]
-                   ^{:key (:submodule/name submodule)}
-                   [:div.wizard-review__submodules__submodule
-                    {:id (:submodule/name submodule)}
-                    [:div.wizard-standard__submodule-header
-                     (:submodule/name submodule)]
-                    [build-groups params (:submodule/groups submodule) output-group]]))]])]
+           (doall
+            (for [module modules
+                  :let   [module-name (:module/name module)]]
+              [:div {:data-theme-color module-name}
+               [:div.wizard-review__submodules
+                (if (= io :input)
+                  (let [submodules (subscribe [:wizard/submodules-io-input-only (:db/id module)])]
+                    (doall
+                     (for [submodule @submodules
+                           :let      [{id :db/id
+                                       op :submodule/conditionals-operator} submodule]
+                           :when     @(subscribe [:wizard/show-submodule? ws-uuid id op])]
+                       ^{:key (:submodule/name submodule)}
+                       [:div.wizard-review__submodules__submodule
+                        {:id (:submodule/name submodule)}
+                        [:div.wizard-standard__submodule-header
+                         (:submodule/name submodule)]
+                        [build-groups params (:submodule/groups submodule) input-group]])))
+                  ;; io is :output
+                  (doall
+                   (let [submodules (subscribe [:wizard/submodules-io-output-only (:db/id module)])]
+                     (for [submodule @submodules
+                           :let      [{id :db/id
+                                       op :submodule/conditionals-operator} submodule]
+                           :when     @(subscribe [:wizard/show-submodule? ws-uuid id op])]
+                       ^{:key (:submodule/name submodule)}
+                       [:div.wizard-review__submodules__submodule
+                        {:id (:submodule/name submodule)}
+                        [:div.wizard-standard__submodule-header
+                         (:submodule/name submodule)]
+                        [build-groups params (:submodule/groups submodule) output-group]]))))]]))]
           (when (true? @*warn-limit?)
             [:div.wizard-warning
              (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])
