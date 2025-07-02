@@ -204,3 +204,15 @@
           [?v :variable/name ?name]]
         @@s/conn
         uuid)))
+
+
+(rf/reg-sub
+ :gv-eid->variable-name
+ (fn [_ [_ gv-eid]]
+   (d/q '[:find ?name .
+          :in  $ ?gv
+          :where
+          [?v :variable/group-variables ?gv]
+          [?v :variable/name ?name]]
+        @@s/conn
+        gv-eid)))
