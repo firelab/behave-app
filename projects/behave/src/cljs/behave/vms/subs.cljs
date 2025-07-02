@@ -199,3 +199,14 @@
           [?v :variable/group-variables ?gv]
           [?v :variable/list ?l]]
         @@vms-conn gv-uuid)))
+
+
+(reg-sub
+ :vms/group-variable-eid->variable-name
+ (fn [_ [_ group-variable-eid]]
+   (d/q '[:find ?v-name .
+          :in $ ?gv
+          :where
+          [?v :variable/group-variables ?gv]
+          [?v :variable/name ?v-name]]
+        @@vms-conn group-variable-eid)))

@@ -5,12 +5,13 @@
 (s/def :action/name                  not-empty-string?)
 (s/def :action/target-value          not-empty-string?)
 (s/def :action/type                  #{:select :disable})
-(s/def :action/conditionals          (s/coll-of int?))
+(s/def :action/conditionals          (s/coll-of (s/or :ref int?
+                                                      :conditoinal :behave/conditional)))
 (s/def :action/conditionals-operator #{:and :or})
 
-(s/def :behave/action (s/keys :opt [:action/name
-                                    :action/type
-                                    :action/target-value]))
+(s/def :behave/action (s/keys :req [:action/name
+                                    :action/type]
+                              :opt [:action/target-value]))
 
 (def schema
   [{:db/ident       :action/name

@@ -64,7 +64,14 @@
     :db/doc         "Module's pivot tables"
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many
-    :db/isComponent true}])
+    :db/isComponent true}
+
+   {:db/ident       :module/search-tables
+    :db/doc         "Module's search tables"
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
+   ])
 
 ;;; Testing
 

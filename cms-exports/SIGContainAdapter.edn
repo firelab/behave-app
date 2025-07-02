@@ -47,6 +47,10 @@
    {:type "double",
     :id "getFinalFireSize",
     :parameters [{:id "areaUnits", :type "AreaUnits::AreaUnitsEnum"}]},
+   :getFinalProductionRate,
+   {:type "double",
+    :id "getFinalProductionRate",
+    :parameters [{:id "productionRateUnits", :type "SpeedUnits::SpeedUnitsEnum"}]}
    :getFireSizeAtInitialAttack
    {:type "double",
     :id "getFireSizeAtInitialAttack",

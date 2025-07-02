@@ -14,9 +14,9 @@
 
 (defn- $accordion [expanded?]
   (merge
-    ^{:combinators {[:> :.accordion__content] {:max-height (if expanded? "auto" "0px")
-                                          :visibility (if expanded? "visible" "hidden")
-                                          :transition "max-height 300ms ease-in-out"}}}
+   ^{:combinators {[:> :.accordion__content] {:max-height (if expanded? "auto" "0px")
+                                              :visibility (if expanded? "visible" "hidden")
+                                              :transition "max-height 300ms ease-in-out"}}}
     {:transition "max-height 300ms ease-in-out"}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -32,7 +32,8 @@
      [:div.accordion__title  {:style {:display "flex" :flex-direction "row" :width "100%" :justify-content "space-between"}}
       [:h4 title]
       [:button.btn.btn-sm.btn-outline-secondary {:on-click #(swap! expanded? not)} (if @expanded? "Collapse" "Expand")]]
-     [:div.row.accordion__content content]]))
+     (when @expanded?
+      [:div.row.accordion__content content])]))
 
 (defn dropdown
   "A component for dropdowns."
@@ -267,7 +268,7 @@
   - `:on-delete`   - Fn callled a table row is deleted.
   - `:on-decrease` - Fn callled a table row position is increased.
   - `:on-decrease` - Fn callled a table row position is decreased."
-  [columns rows & [{:keys [on-select on-delete on-increase on-decrease]}]]
+  [columns rows & [{:keys [on-select on-delete on-increase on-decrease caption add-group-variable-fn]}]]
   [:div
    {:style {:width      "100%"
             :height     "100%"
@@ -275,6 +276,17 @@
             :overflow-y "scroll"}}
    [:table.table.table-hover
     {:style {:border-collapse "collapse"}}
+    (when caption
+      [:caption {:style {:caption-side "top"
+                         :text-align   "left"}}
+       caption])
+    (when add-group-variable-fn
+      [:caption {:style {:caption-side "bottom"
+                         :text-align   "right"}}
+       [btn-sm
+        :primary
+        "Add Entry"
+        add-group-variable-fn]])
     [:thead
      {:style {:background "white"
               :position   "sticky"

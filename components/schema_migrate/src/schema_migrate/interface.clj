@@ -102,13 +102,21 @@
        :doc "Payload for a Module Conditional."}
   ->module-conditional c/->module-conditional)
 
-(def ^{:arglists '([params])
+(def ^{:arglists '([conn params])
        :doc      "Payload for a Conditional."}
-  ->module-conditional c/->conditional)
+  ->conditional c/->conditional)
 
 (def ^{:arglists '([conn params])
        :doc "Payload for a new Group."}
   ->group c/->group)
+
+(def ^{:arglists '([conn params])
+       :doc      "Payload for an Action."}
+  ->action c/->action)
+
+(def ^{:arglists '([conn params])
+       :doc      "Payload for a new Variable."}
+  ->variable c/->variable)
 
 (def ^{:arglists '([conn params])
        :doc "Payload for a new Group Variable."}
@@ -119,7 +127,7 @@
   ->link c/->link)
 
 (def ^{:arglists '([migration-name])
-       :doc "Payload for a new migration."}
+       :->actiondoc "Payload for a new migration."}
   ->migration c/->migration)
 
 (def ^{:arglists '([s])

@@ -1024,6 +1024,12 @@ SIGContainAdapter.prototype['getFinalTimeSinceReport'] = SIGContainAdapter.proto
   return _emscripten_bind_SIGContainAdapter_getFinalTimeSinceReport_1(self, timeUnits);
 };;
 
+SIGContainAdapter.prototype['getFinalProductionRate'] = SIGContainAdapter.prototype.getFinalProductionRate = /** @suppress {undefinedVars, duplicate} @this{Object} */function(speedUnits) {
+  var self = this.ptr;
+  if (speedUnits && typeof speedUnits === 'object') speedUnits = speedUnits.ptr;
+  return _emscripten_bind_SIGContainAdapter_getFinalProductionRate_1(self, speedUnits);
+};;
+
 SIGContainAdapter.prototype['getFireBackAtAttack'] = SIGContainAdapter.prototype.getFireBackAtAttack = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   return _emscripten_bind_SIGContainAdapter_getFireBackAtAttack_0(self);

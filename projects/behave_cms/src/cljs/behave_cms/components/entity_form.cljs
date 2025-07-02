@@ -4,8 +4,10 @@
             [reagent.core      :as r]
             [re-frame.core     :as rf]
             [string-utils.interface :refer [->kebab ->str]]
+            [behave-cms.components.translations :refer [all-translations]]
             [behave.schema.core :refer [all-schemas]]
             [behave-cms.components.common :refer [dropdown btn-sm]]
+            [behave-cms.components.group-variable-selector :refer [group-variable-selector]]
             [behave-cms.utils  :as u]))
 
 ;;; Constants
@@ -68,18 +70,18 @@
   "Gets the translation key from `:<parent>/translation-key`,
   `:<parent>/help-key`, or generates it from the `<parent>/name` attribute."
   [parent]
-  (let [attrs      (map ->str (keys parent))
-        h-or-t-key (->> attrs
-                        (filter #(or (str/ends-with? % "/translation-key")
-                                     (str/ends-with? % "/help-key")))
-                        (first)
-                        (keyword))
-        name-key   (->> attrs
-                        (filter #(str/ends-with? % "/name"))
-                        (first)
-                        (keyword))
-        name-kebab (->kebab (get parent name-key))]
-    (str/replace (get parent h-or-t-key name-kebab) #":help$" "")))
+  (let [attrs      (map ->str (keys parent))]
+    (when-let [h-or-t-key (->> attrs
+                               (filter #(or (str/ends-with? % "/translation-key")
+                                            (str/ends-with? % "/help-key")))
+                               (first)
+                               (keyword))]
+      (let [name-key   (->> attrs
+                            (filter #(str/ends-with? % "/name"))
+                            (first)
+                            (keyword))
+            name-kebab (->kebab (get parent name-key))]
+        (str/replace (get parent h-or-t-key name-kebab) #":help$" "")))))
 
 (defn- merge-parent-fields [state original entity parent-field parent-id parent]
   (let [gen-attr           #(keyword (str (->str entity) "/" %))
@@ -89,17 +91,22 @@
         parent-translation (parent-translation-key parent)
         translation-key    (str parent-translation
                                 ":"
-                                (when (= entity :submodule)
-                                  (cond
-                                    (= (:submodule/io state) :input)  "input:"
-                                    (= (:submodule/io state) :output) "output:"
-                                    :else                             nil))
+                                (cond
+                                  (and (= entity :submodule) (= (:submodule/io state) :input))
+                                  "input:"
+
+                                  (and (= entity :submodule) (= (:submodule/io state) :output))
+                                  "output:"
+
+                                  (= entity :search-table)
+                                  "search-table:"
+
+                                  :else nil)
                                 (->kebab (get state name-attr)))
         help-key           (str translation-key ":help")]
-
     (merge state
            {parent-field parent-id}
-           (when (db-translation-attrs translation-attr) {translation-attr translation-key})
+           (when (and parent-translation (db-translation-attrs translation-attr)) {translation-attr translation-key})
            (when (db-help-attrs help-attr) {help-attr help-key})
            ;; Prevent overwriting the translation/help keys once assigned
            (select-keys original [translation-attr help-attr]))))
@@ -286,15 +293,67 @@
              :flex-direction :row
              :margin-bottom  "5px"}}]
    [:input.form-control
-    {:auto-focus    autofocus?
-     :disabled      disabled?
-     :required      required?
-     :placeholder   placeholder
-     :id            (u/sentence->kebab label)
-     :type          "color"
-     :value         @state
-     :on-change     #(on-change (u/input-value %))}]])
+    {:auto-focus  autofocus?
+     :disabled    disabled?
+     :required    required?
+     :placeholder placeholder
+     :id          (u/sentence->kebab label)
+     :type        "color"
+     :value       @state
+     :on-change   #(on-change (u/input-value %))}]])
 
+(defmethod field-input :group-variable
+  [{:keys [state-path field-key app-id label autocomplete autofocus? required? placeholder on-change state]}]
+  (r/with-let [show-group-variable-selector? (r/atom false)]
+    [:div
+     [:label.form-label {:for (u/sentence->kebab label)} label]
+     [:div {:style {:display        :flex
+                    :flex-direction "row"}}
+      [:input.form-control
+       {:auto-complete autocomplete
+        :auto-focus    autofocus?
+        :disabled      true
+        :required      required?
+        :placeholder   placeholder
+        :id            (u/sentence->kebab label)
+        :type          type
+        :value         @(rf/subscribe [:gv-eid->variable-name @state])
+        :on-change     #(on-change (u/input-value %))}]
+      (when (not @show-group-variable-selector?)
+        [:button.btn.btn-sm.btn-outline-primary
+         {:type     "button"
+          :on-click #(swap! show-group-variable-selector? not)}
+         "Edit"])]
+     (when @show-group-variable-selector?
+       [group-variable-selector
+        (cond-> {:app-id     app-id
+                 :state-path state-path
+                 :gv-id      @state
+                 :title      "Group Variable Selector"
+                 :on-submit  #(do (on-change %)
+                                  (swap! show-group-variable-selector? not))}
+          :state-path (assoc :state-path (conj state-path :group-variable-lookup field-key)))])]))
+
+(defmethod field-input :group-variable-value
+  [{:keys [state-path label on-change state group-variable-field-key original]}]
+  (let [gv-id            (or (get @(rf/subscribe [:state state-path]) group-variable-field-key)
+                             (:db/id (get original group-variable-field-key)))
+        gv-uuid          (:bp/uuid @(rf/subscribe [:entity gv-id]))
+        discrete-options @(rf/subscribe [:group/discrete-variable-options gv-uuid])
+        options          (map (fn [{value :list-option/value label :list-option/name}]
+                                {:value (str value) :label label})
+                              discrete-options)]
+    [dropdown
+     {:label     label
+      :options   options
+      :on-select #(on-change (u/input-value %))
+      :selected  @state}]))
+
+(defmethod field-input :translation-key
+  [{:keys [state]}]
+  (when (not-empty @state)
+    [:div.my-3
+     [all-translations @state]]))
 
 ;;; Public Fns
 
@@ -328,13 +387,20 @@
                                              {:label \"Output\" :value :output}]}]
                 :on-create     #(assoc % :submodule/order num-submodules)})
   ```"
-  [{:keys [entity parent-field parent-id fields id on-create on-update] :as opts}]
-  (let [original     @(rf/subscribe [:entity id])
+  [{:keys [entity parent-field parent-id fields id on-create on-update]}]
+  (let [state-path (cond-> [:editors]
+                     entity    (conj entity)
+                     parent-id (conj parent-id)
+                     id        (conj id))
+        original     @(rf/subscribe [:entity id])
         parent       @(rf/subscribe [:entity parent-id])
-        update-state (fn [field] (fn [value] (rf/dispatch [:state/set-state [:editors entity field] value])))
+        update-state (fn [field] (fn [value] (rf/dispatch [:state/set-state (conj state-path field) value])))
         get-state    (fn [field] (r/track #(let [result (cond
-                                                          (not (nil? @(rf/subscribe [:state [:editors entity field]])))
-                                                          @(rf/subscribe [:state [:editors entity field]])
+                                                          (not (nil? @(rf/subscribe [:state (conj state-path field)])))
+                                                          @(rf/subscribe [:state (conj state-path field)])
+
+                                                          (not (nil? (:db/id (get original field))))
+                                                          (:db/id (get original field))
 
                                                           (not (nil? (get original field)))
                                                           (get original field)
@@ -342,7 +408,7 @@
                                                           :else
                                                           "")]
                                              result)))
-        on-submit (u/on-submit #(let [state @(rf/subscribe [:state [:editors entity]])]
+        on-submit (u/on-submit #(let [state @(rf/subscribe [:state state-path])]
                                   (cond-> state
                                     id
                                     (merge {:db/id id})
@@ -360,9 +426,11 @@
                                     (retract-cardinality-many-values original)
 
                                     :always
+                                    (dissoc :group-variable-lookup)
+
+                                    :always
                                     (upsert-entity!))
-                                  (rf/dispatch [:state/set-state entity nil])
-                                  (rf/dispatch [:state/set-state [:editors entity] {}])))]
+                                  (rf/dispatch [:state/set-state state-path nil])))]
     [:form {:on-submit on-submit}
      (for [{:keys [field-key type] :as field} fields]
        ^{:key field-key}
@@ -370,8 +438,8 @@
          [field-input (merge field
                              {:on-change (update-state field-key)
                               :state     (r/track #(let [result (cond
-                                                                  (not (nil? @(rf/subscribe [:state [:editors entity field-key]])))
-                                                                  @(rf/subscribe [:state [:editors entity field-key]])
+                                                                  (not (nil? @(rf/subscribe [:state (conj state-path field-key)])))
+                                                                  @(rf/subscribe [:state (conj state-path field-key)])
 
                                                                   :else
                                                                   "")]
@@ -381,6 +449,8 @@
                                                                  id :list-option/tags kkeyword]))
                               :original-keywords (r/track #(get @(rf/subscribe [:entity id]) field-key))})]
          [field-input (assoc field
+                             :original original
+                             :state-path state-path
                              :on-change (update-state field-key)
                              :state     (get-state field-key))]))
      [:button.btn.btn-sm.btn-outline-primary
