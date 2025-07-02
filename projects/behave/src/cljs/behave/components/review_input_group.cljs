@@ -15,7 +15,8 @@
 (defmethod wizard-input :continuous [{gv-uuid  :bp/uuid
                                       help-key :group-variable/help-key}
                                      ws-uuid
-                                     group-uuid
+                                     {group-uuid :bp/uuid
+                                      group-translation-key :group/translation-key}
                                      repeat-id
                                      _repeat-group?
                                      edit-route]
@@ -24,7 +25,7 @@
     [:div.wizard-input
      [:div.wizard-review__input
       {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
-      [c/text-input {:label     @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
+      [c/text-input {:label     @(<t group-translation-key)
                      :value     @values
                      :error?    warn-limit?
                      :disabled? true}]
@@ -43,7 +44,8 @@
                                     help-key :group-variable/help-key
                                     eid      :db/id}
                                    ws-uuid
-                                   group-uuid
+                                   {group-uuid            :bp/uuid
+                                    group-translation-key :group/translation-key}
                                    repeat-id
                                    _repeat-group?
                                    edit-route]
@@ -52,7 +54,7 @@
     [:div.wizard-input {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
      [:div.wizard-review__input
       [:div.wizard-review__input--discrete
-       [:div.wizard-review__input--discrete__label (str @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid]) ":")]
+       [:div.wizard-review__input--discrete__label (str @(<t group-translation-key) ":")]
        [:div.wizard-review__input--discrete__value @*resolved-enum-value]
        [c/button {:variant  "primary"
                   :label    @(<t (bp "change_selection"))
@@ -69,7 +71,8 @@
                                           help-key :group-variable/help-key
                                           eid      :db/id}
                                          ws-uuid
-                                         group-uuid
+                                         {group-uuid            :bp/uuid
+                                          group-translation-key :group/translation-key}
                                          repeat-id
                                          _repeat-group?
                                          edit-route]
@@ -81,7 +84,7 @@
     [:div.wizard-input {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
      [:div.wizard-review__input
       [:div.wizard-review__input--discrete
-       [:div.wizard-review__input--discrete__label (str @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid]) "s:")]
+       [:div.wizard-review__input--discrete__label (str @(<t group-translation-key) "s:")]
        [:div.wizard-review__input--multi-discrete
         (for [enum resolved-enum-values]
           [:div.wizard-review__input--discrete__value enum])]
@@ -99,14 +102,15 @@
 (defmethod wizard-input :text [{gv-uuid  :bp/uuid
                                 help-key :group-variable/help-key}
                                ws-uuid
-                               group-uuid
+                               {group-uuid            :bp/uuid
+                                group-translation-key :group/translation-key}
                                repeat-id
                                repeat-group?
                                edit-route]
   (let [values (rf/subscribe [:worksheet/input-value ws-uuid group-uuid repeat-id gv-uuid])]
     [:div.wizard-input--review
      {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
-     [c/text-input {:label     @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
+     [c/text-input {:label     @(<t group-translation-key)
                     :value     @values
                     :disabled? true}]
      (when-not repeat-group?
@@ -167,8 +171,8 @@
                     :align-items     "center"
                     :justify-content "center"}}]]))
 
-(defn input-group [edit-route ws-uuid group variables]
-  (r/with-let [variables (sort-by :group-variable/variable-order variables)]
+(defn input-group [{:keys [edit-route ws-uuid]} group variables]
+  (let [variables (sort-by :group-variable/variable-order variables)]
     (when (seq variables)
       [:<>
        (if (:group/repeat? group)
@@ -176,4 +180,4 @@
          [:div.wizard-review-group__inputs
           (for [variable variables]
             ^{:key (:db/id variable)}
-            [wizard-input variable ws-uuid (:bp/uuid group) 0 false edit-route])])])))
+            [wizard-input variable ws-uuid group 0 false edit-route])])])))
