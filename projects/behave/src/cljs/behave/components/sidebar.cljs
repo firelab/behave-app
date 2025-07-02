@@ -80,8 +80,8 @@
                                      :module    #{:mortality}}])}]]
 
        [:div.sidebar-container__tools-settings
-        [sidebar-group {:title   @(<t (bp "tools_and_settings"))
-                        :modules [{:label     "behaveplus:calculator"
+        [sidebar-group {:title   @(<t (bp "calculators_and_settings"))
+                        :modules [{:label     "behaveplus:calculators"
                                    :icon      "calculator"
                                    :on-select #(rf/dispatch [:state/set [:sidebar :*tools-or-settings] :tools])}
                                   {:label     "behaveplus:settings"
