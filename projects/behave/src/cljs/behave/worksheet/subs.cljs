@@ -1078,3 +1078,10 @@
                  [?w :worksheet/uuid ?ws-uuid]
                  [?w :worksheet/version ?version]]
     :variables [ws-uuid]}))
+
+(rf/reg-sub
+ :worksheet/search-tables
+ (fn [[_ ws-uuid]]
+   (rf/subscribe [:worksheet/modules ws-uuid]))
+ (fn [modules]
+   (mapcat :module/search-tables modules)))
