@@ -49,65 +49,64 @@
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :search-table/operator
-    :db/doc         "The operation used for search"
+    :db/doc         "The operation used on the values for `:search-table/group-variable`. Can be either `:min` or `:max`"
     :db/valueType   :db.type/keyword ;#{:min :max}
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :search-table/filters
-    :db/doc         ""
+    :db/doc         "Search table filters"
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many
     :db/isComponent true}
 
    {:db/ident       :search-table/columns
-    :db/doc         "The output Group Variables to display in the table"
+    :db/doc         "Search table columns"
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many
     :db/isComponent true}
 
    {:db/ident       :search-table/translation-key
-    :db/doc         "The output Group Variables to display in the table"
+    :db/doc         "The search-table's translation-key"
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one
     :db/unique      :db.unique/identity}
 
    ;; search-table-filters
    {:db/ident       :search-table-filter/group-variable
-    :db/doc         ""
+    :db/doc         "The search table filter's Group Variable to operate on"
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :search-table-filter/operator
-    :db/doc         "search table filter's operator. Can be either: `:equal`, `:not-equal`."
+    :db/doc         "The operator to use on `:search-table-filter/group-variable`. Can be either: `:equal`, `:not-equal`."
     :db/valueType   :db.type/keyword
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :search-table-filter/value
-    :db/doc         ""
+    :db/doc         "The value to use for the `:search-table-filter/operator`"
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
    ;; search-table-column
    {:db/ident       :search-table-column/name
-    :db/doc         ""
+    :db/doc         "The search table column's name"
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :search-table-column/group-variable
-    :db/doc         ""
+    :db/doc         "The search table column's Group Variable"
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :search-table-column/order
-    :db/doc         ""
+    :db/doc         "The search table column's order"
     :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :search-table-column/translation-key
-    :db/doc         ""
+    :db/doc         "The search table column's translation-key"
     :db/valueType   :db.type/string
-    :db/cardinality :db.cardinality/one}
-   ])
+    :db/cardinality :db.cardinality/one}])
 
 
 (comment
