@@ -519,6 +519,10 @@ double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getFinalTimeSinceR
   return self->getFinalTimeSinceReport(timeUnits);
 }
 
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getFinalProductionRate_1(SIGContainAdapter* self, SpeedUnits_SpeedUnitsEnum speedUnits) {
+  return self->getFinalProductionRate(speedUnits);
+}
+
 double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getFireBackAtAttack_0(SIGContainAdapter* self) {
   return self->getFireBackAtAttack();
 }
