@@ -347,7 +347,7 @@
                filtered-options (r/atom options)]
     [:div.multi-select--search
      [:div.multi-select__prompt
-      (gstring/format "Please select from the following %s (you can select multiple)" input-label)]
+      (gstring/format "Select a %s. To make additional selections, click Enter after searching." input-label)]
      (when (seq color-tags)
        [:div.multi-select__color-tags
         (for [{:keys [label color]} color-tags]
