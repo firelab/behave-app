@@ -225,31 +225,31 @@
 #_{:clj-kondo/ignore [:missing-docstring]}
 (defn toolbar [{:keys [ws-uuid] :as params}]
   (let [*loaded? (rf/subscribe [:app/loaded?])
-        tools    [{:icon     :home
-                   :label    @(<t (bp "home"))
-                   :on-click #(rf/dispatch [:wizard/navigate-home])}
-                  {:icon     :save
-                   :label    @(<t (bp "save"))
-                   :on-click #(when ws-uuid
-                                (let [worksheet-name @(rf/subscribe [:worksheet/name ws-uuid])]
-                                  (rf/dispatch [:wizard/save
-                                                ws-uuid
-                                                (gstring/format "behave7-%s.bp7"
-                                                                (or worksheet-name ws-uuid))])))}
-                  {:icon     :print
-                   :label    @(<t (bp "print"))
-                   :on-click (when ws-uuid
-                               #(rf/dispatch [:toolbar/print ws-uuid]))}
-                  (when-not (:jar-local? params)
-                    {:icon     :share
-                     :label    @(<t (bp "vms_sync"))
-                     :on-click #(rf/dispatch [:dev/export-from-vms])})
-                  #_{:icon     :zoom-in
-                     :label    (bp "zoom-in")
-                     :on-click on-click}
-                  #_{:icon     :zoom-out
-                     :label    (bp "zoom-out")
-                     :on-click on-click}]]
+        tools    (cond-> [{:icon     :home
+                           :label    @(<t (bp "home"))
+                           :on-click #(rf/dispatch [:wizard/navigate-home])}
+                          {:icon     :save
+                           :label    @(<t (bp "save"))
+                           :on-click #(when ws-uuid
+                                        (let [worksheet-name @(rf/subscribe [:worksheet/name ws-uuid])]
+                                          (rf/dispatch [:wizard/save
+                                                        ws-uuid
+                                                        (gstring/format "behave7-%s.bp7"
+                                                                        (or worksheet-name ws-uuid))])))}
+                          {:icon     :print
+                           :label    @(<t (bp "print"))
+                           :on-click (when ws-uuid
+                                       #(rf/dispatch [:toolbar/print ws-uuid]))}
+                          #_{:icon     :zoom-in
+                             :label    (bp "zoom-in")
+                             :on-click on-click}
+                          #_{:icon     :zoom-out
+                             :label    (bp "zoom-out")
+                             :on-click on-click}]
+                   (not (:jar-local? params))
+                   (conj {:icon     :share
+                          :label    @(<t (bp "vms_sync"))
+                          :on-click #(rf/dispatch [:dev/export-from-vms])}))]
     [:div.toolbar
      [:div.toolbar__tools
       (for [tool tools]
