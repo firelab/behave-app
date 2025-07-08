@@ -228,6 +228,11 @@
 (defmulti multi-select-input
   "Creates a multi-select input component with the following options:
   - `input-label`: text to display as the label for the input.
+  - `prompt1`: text to display instructions
+  - `prompt2`: text to display when showing selected inputs
+  - `prompt3`: text to display when selected inputs are hidden
+  - `expand-options-button-label`: text to display on the button to expand options
+  - `collapse-options-button-label`: text to display on the button that collapses options
   - `options`: vector of maps with keys:
      - `:selected?` - whether the option has been selected
      - `:label`     - label of the option
@@ -247,7 +252,8 @@
       :no-search)))
 
 (defmethod multi-select-input :no-search
-  [{:keys [input-label options filter-tags color-tags]}]
+  [{:keys [input-label prompt1 prompt2 prompt3 expand-options-button-label
+           collapse-options-button-label options filter-tags color-tags]}]
   (r/with-let [selections (r/atom (->> options
                                        (filter #(true? (:selected? %)))
                                        (map (fn [{:keys [label value on-deselect]}]
@@ -258,8 +264,7 @@
     [:div.multi-select
      (when @show-options?
        [:<>
-        [:div.multi-select__prompt
-         (gstring/format "Please select from the following %s (you can select multiple)" input-label)]
+        [:div.multi-select__prompt prompt1]
         (when filter-tags
           [:div.multi-select__tags
            (for [{:keys [id label]} (if (-> filter-tags (first) (:order))
@@ -307,19 +312,17 @@
       [:div.multi-select__selections__header
        [:div (gstring/format "Selected %s" input-label)]
        [:div.multi-select__selections__header__button (if (false? @show-options?)
-                                                        [button {:label     "Select More"
+                                                        [button {:label     expand-options-button-label
                                                                  :variant   "primary"
                                                                  :icon-name "plus"
                                                                  :size      "small"
                                                                  :on-click  #(reset! show-options? (not @show-options?))}]
-                                                        [button {:label     "View"
+                                                        [button {:label     collapse-options-button-label
                                                                  :variant   "highlight"
                                                                  :icon-name "arrow"
                                                                  :size      "small"
                                                                  :on-click  #(reset! show-options? (not @show-options?))}])]]
-      [:div.multi-select__selections__description (if (false? @show-options?)
-                                                    (gstring/format "Your %s selections" input-label)
-                                                    (gstring/format "View your %s selections" input-label))]
+      [:div.multi-select__selections__description (if (false? @show-options?) prompt2 prompt3)]
       (when (false? @show-options?)
         [:div.multi-select__selections__body (for [[label value on-deselect color-tag :as selection] @selections]
                                                [:div
@@ -336,7 +339,7 @@
                                                 label])])]]))
 
 (defmethod multi-select-input :search
-  [{:keys [input-label options color-tags]}]
+  [{:keys [input-label prompt1 expand-options-button-label collapse-options-button-label options color-tags]}]
   (r/with-let [selections (r/atom (->> options
                                        (filter #(true? (:selected? %)))
                                        (map (fn [{:keys [label value on-deselect]}]
@@ -347,7 +350,7 @@
                filtered-options (r/atom options)]
     [:div.multi-select--search
      [:div.multi-select__prompt
-      (gstring/format "Select a %s. To make additional selections, click Enter after searching." input-label)]
+      prompt1]
      (when (seq color-tags)
        [:div.multi-select__color-tags
         (for [{:keys [label color]} color-tags]
@@ -359,13 +362,13 @@
       [:div.multi-select__selections__header
        [:div (gstring/format "Selected %s" input-label)]
        [:div.multi-select__selections__header__button (if @show-options?
-                                                        [button {:label     "Hide Options"
+                                                        [button {:label     collapse-options-button-label
                                                                  :variant   "secondary"
                                                                  :icon-name "minus"
                                                                  :size      "small"
                                                                  :on-click  #(do (reset! show-options? (not @show-options?))
                                                                                  (reset! search nil))}]
-                                                        [button {:label     "Show All Options"
+                                                        [button {:label     expand-options-button-label
                                                                  :variant   "primary"
                                                                  :icon-name "plus"
                                                                  :size      "small"
