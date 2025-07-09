@@ -67,6 +67,9 @@
 (defn getFinalTimeSinceReport [self timeUnits]
   (.getFinalTimeSinceReport self timeUnits))
 
+(defn getFinalProductionRate [self productionRateUnits]
+  (.getFinalProductionRate self productionRateUnits))
+
 (defn getFireBackAtAttack [self]
   (.getFireBackAtAttack self))
 

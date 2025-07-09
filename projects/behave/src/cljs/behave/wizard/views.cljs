@@ -10,7 +10,8 @@
             [behave.components.results.inputs.views :refer [inputs-table]]
             [behave.components.results.table      :refer [result-table-download-link
                                                           directional-result-tables
-                                                          pivot-tables]]
+                                                          pivot-tables
+                                                          search-tables]]
             [behave.tool.views                    :refer [tool tool-selector]]
             [behave-routing.main                  :refer [routes current-route-order]]
             [behave.translate                     :refer [<t bp]]
@@ -744,6 +745,7 @@
            [:div.wizard-results__table {:id "outputs"}
             [:div.wizard-notes__header (-> @(<t (bp "output_tables"))
                                            s/capitalize-words)]
+            (search-tables ws-uuid)
             [pivot-tables ws-uuid]
             (if @*directional-tables?
               [directional-result-tables ws-uuid]

@@ -20,6 +20,7 @@
             [behave.schema.pivot-table         :as pivot-table]
             [behave.schema.prioritized-results :as prioritized-results]
             [behave.schema.rules               :as r]
+            [behave.schema.search-table        :as search-table]
             [behave.schema.submodule           :as submodule]
             [behave.schema.subtool             :as subtool]
             [behave.schema.subtool-variable    :as subtool-variable]
@@ -81,6 +82,7 @@
                                 variable/schema
                                 worksheet/schema
                                 prioritized-results/schema
+                                search-table/schema
 
                                 ;; CPP
                                 cpp-class/schema

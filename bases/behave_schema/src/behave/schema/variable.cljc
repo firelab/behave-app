@@ -33,14 +33,15 @@
 (defmulti kind :variable/kind)
 
 (defmethod kind :continuous [_]
-  (s/keys :req [:variable/uuid
-                :variable/name
-                :variable/order
+  (s/keys :req [:bp/uuid
+                :bp/nid
+                :variable/name]
+          :opt [:variable/order
                 :variable/translation-key
                 :variable/help-key
                 :variable/maximum
-                :variable/minimum]
-          :opt [:variable/groups
+                :variable/minimum
+                :variable/groups
                 :variable/default_value
                 :variable/english_decimals
                 :variable/english_units
@@ -51,21 +52,28 @@
                 :variable/map-units-convertible?]))
 
 (defmethod kind :discrete [_]
-  (s/keys :req [:variable/uuid
+  (s/keys :req [:bp/uuid
+                :bp/nid
+                :variable/name
+                :variable/list]
+          :opt [:variable/uuid
                 :variable/name
                 :variable/order
                 :variable/translation-key
                 :variable/help-key
-                :variable/list]
-          :opt [:variable/groups]))
+                :variable/groups]))
 
 (defmethod kind :text [_]
-  (s/keys :req [:variable/uuid
+  (s/keys :req [:bp/uuid
+                :bp/nid
+                :variable/name]
+          :opt [:variable/list
+                :variable/uuid
                 :variable/name
                 :variable/order
                 :variable/translation-key
-                :variable/help-key]
-          :opt [:variable/groups]))
+                :variable/help-key
+                :variable/groups]))
 
 (s/def :behave/variable (s/multi-spec kind :variable/kind))
 

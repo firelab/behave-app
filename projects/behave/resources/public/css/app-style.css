@@ -1552,3 +1552,9 @@ body {
   padding: 10px;
 }
 /* - End Viewers -- */
+
+
+.wizard-results__search-tables .table-cell {
+  text-align: left;
+}
+
