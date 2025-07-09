@@ -1,4 +1,4 @@
-(ns behave-cms.components.search-tables
+(ns behave-cms.components.search-table
   (:require [behave-cms.components.common       :refer [accordion btn-sm]]
             [behave-cms.components.entity-form  :refer [entity-form]]
             [behave-cms.components.table-entity-form :refer [table-entity-form]]

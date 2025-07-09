@@ -6,7 +6,7 @@
             [behave-cms.components.pivot-tables :refer [manage-pivot-table-column]]
             [behave-cms.components.table-entity-form :refer [table-entity-form]]
             [behave-cms.components.translations :refer [all-translations]]
-            [behave-cms.components.search-tables :refer [search-tables]]
+            [behave-cms.components.search-table :refer [search-tables]]
             [behave-cms.submodules.subs]
             [re-frame.core                      :as rf]
             [reagent.core                       :as r]))
