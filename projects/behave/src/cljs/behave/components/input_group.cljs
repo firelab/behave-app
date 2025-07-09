@@ -1,6 +1,7 @@
 (ns behave.components.input-group
   (:require [behave.components.core          :as c]
             [behave.components.unit-selector :refer [unit-display]]
+            [goog.string                          :as gstring]
             [behave.translate                :refer [<t bp]]
             [behave.utils                    :refer [inclusive-range]]
             [clojure.string                  :as str]
@@ -187,28 +188,42 @@
                                              :selected?   (contains? ws-input-values value)}
                                             (when tags {:tags (set (map :bp/nid tags))})
                                             (when color-tag {:color-tag {:color (:tag/color color-tag)}})))]
-    (prn "workflow:" workflow)
-    :color-tag/id
-    [:div.wizard-input
-     {:on-click on-focus-click
-      :on-focus on-focus-click}
-     [c/multi-select-input
-      (cond-> {:input-label @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
-               :search      (= workflow :standard)
-               :options     (doall (map ->option options))}
-        (:list/tag-set llist)
-        (assoc :filter-tags (map (fn [{id              :bp/nid
-                                       order           :tag/order
-                                       translation-key :tag/translation-key}]
-                                   {:id id :label @(<t translation-key) :order order})
-                                 (-> llist (:list/tag-set) (:tag-set/tags))))
+    (let [*variable-name (rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])]
+      [:div.wizard-input
+       {:on-click on-focus-click
+        :on-focus on-focus-click}
+       [c/multi-select-input
+        (cond-> {:input-label @*variable-name
+                 :search      (= workflow :standard)
+                 :options     (doall (map ->option options))}
 
-        (:list/color-tag-set llist)
-        (assoc :color-tags (map (fn [{color           :tag/color
-                                      order           :tag/order
-                                      translation-key :tag/translation-key}]
-                                  {:color color :label @(<t translation-key) :order order})
-                                (-> llist (:list/color-tag-set) (:tag-set/tags)))))]]))
+
+          (= workflow :standard)
+          (merge {:search                        true
+                  :prompt1                       (gstring/format @(<t (bp "behave-components:input:multi-select:search:prompt1")) @*variable-name)
+                  :expand-options-button-label   (gstring/format @(<t (bp "behave-components:input:multi-select:search:expand-options-button-label")) @*variable-name)
+                  :collapse-options-button-label (gstring/format @(<t (bp "behave-components:input:multi-select:search:collapse-options-button-label")) @*variable-name)})
+
+          (= workflow :guided)
+          (merge {:prompt1                       (gstring/format @(<t (bp "behave-components:input:multi-select:no-search:prompt1")) @*variable-name)
+                  :prompt2                       (gstring/format @(<t (bp "behave-components:input:multi-select:no-search:prompt2")) @*variable-name)
+                  :prompt3                       (gstring/format @(<t (bp "behave-components:input:multi-select:no-search:prompt3")) @*variable-name)
+                  :expand-options-button-label   (gstring/format @(<t (bp "behave-components:input:multi-select:no-search:expand-options-button-label")) @*variable-name)
+                  :collapse-options-button-label (gstring/format @(<t (bp "behave-components:input:multi-select:no-search:collapse-options-button-label")) @*variable-name)})
+
+          (:list/tag-set llist)
+          (assoc :filter-tags (map (fn [{id              :bp/nid
+                                         order           :tag/order
+                                         translation-key :tag/translation-key}]
+                                     {:id id :label @(<t translation-key) :order order})
+                                   (-> llist (:list/tag-set) (:tag-set/tags))))
+
+          (:list/color-tag-set llist)
+          (assoc :color-tags (map (fn [{color           :tag/color
+                                        order           :tag/order
+                                        translation-key :tag/translation-key}]
+                                    {:color color :label @(<t translation-key) :order order})
+                                  (-> llist (:list/color-tag-set) (:tag-set/tags)))))]])))
 
 (defmethod wizard-input :text [{gv-uuid  :bp/uuid
                                 help-key :group-variable/help-key}
