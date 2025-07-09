@@ -1,6 +1,7 @@
 (ns behave.wizard.events
   (:require [behave-routing.main           :refer [routes current-route-order]]
             [behave.lib.units              :refer [convert]]
+            [browser-utils.core :refer [scroll-top!]]
             [behave.solver.core            :refer [solve-worksheet]]
             [behave.vms.store              :as vms]
             [behave.store                  :as s]
@@ -351,3 +352,12 @@
  (fn [_ [_ workflow]]
    {:fx [[:dispatch [:local-storage/update-in [:state :*workflow] workflow]]
          [:dispatch [:state/set :*new-or-import workflow]]]}))
+
+(rf/reg-event-fx
+ :wizard/standard-navigate-io-tab
+ (fn [_ [_ ws-uuid io]]
+   {:fx [[:dispatch [:navigate (path-for routes :ws/wizard-standard
+                                         {:ws-uuid  ws-uuid
+                                          :workflow :standard
+                                          :io       io})]]]
+    :browser/scroll-top {}}))

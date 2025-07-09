@@ -806,15 +806,7 @@
          [:div.wizard-page
           [:div.wizard-header
            [io-tabs params #(when (not= io (:tab %))
-                              (if (= (:tab %) :input)
-                                (dispatch [:navigate (path-for routes :ws/wizard-standard
-                                                               {:ws-uuid  ws-uuid
-                                                                :workflow :standard
-                                                                :io       :input})])
-                                (dispatch [:navigate (path-for routes :ws/wizard-standard
-                                                               {:ws-uuid  ws-uuid
-                                                                :workflow :standard
-                                                                :io       :output})])))]
+                              (dispatch [:wizard/standard-navigate-io-tab ws-uuid (:tab %)]))]
            [:div.wizard-header__banner
             [:div.wizard-header__banner__icon
              [c/icon :modules]]
@@ -823,18 +815,6 @@
                @(<t (bp "module_output_selections"))
                @(<t (bp "module_input_selections")))]
             (show-or-close-notes-button @*show-notes?)]
-           [:div.wizard-header__submodule-navigator
-            [:div.wizard-header__submodule-navigator__label
-             (if (= (count modules) 1)
-               (gstring/format "%s %s" (:module/name (first modules)) (str (str/capitalize (name io)) "s"))
-               (apply gstring/format "%s & %s %s" (conj (mapv :module/name modules) (str (str/capitalize (name io)) "s"))))]
-            (let [->option (fn [[module-name {submodule-name :submodule/name}]]
-                             {:value submodule-name
-                              :label (str module-name " - " submodule-name)})]
-              [c/dropdown
-               {:on-change #(rf/dispatch [:wizard/scroll-into-view "wizard-review" (input-value %)])
-                :options   (map ->option all-submodules)}])]]
-          [:div.wizard-review
            (when @*show-notes?
              [:<>
               [:div.wizard-add-notes
@@ -855,37 +835,48 @@
                                                          (name io)
                                                          %])}])]
               [wizard-notes @*notes]])
+           [:div.wizard-header__submodule-navigator
+            [:div.wizard-header__submodule-navigator__label
+             (if (= (count modules) 1)
+               (gstring/format "%s %s" (:module/name (first modules)) (str (str/capitalize (name io)) "s"))
+               (apply gstring/format "%s & %s %s" (conj (mapv :module/name modules) (str (str/capitalize (name io)) "s"))))]
+            (let [->option (fn [[module-name {submodule-name :submodule/name}]]
+                             {:value submodule-name
+                              :label (str module-name " - " submodule-name)})]
+              [c/dropdown
+               {:on-change #(rf/dispatch [:wizard/scroll-into-view "wizard-page__body" (input-value %)])
+                :options   (map ->option all-submodules)}])]]
+          [:div.wizard-page__body
            (doall
             (for [module modules
                   :let   [module-name (:module/name module)]]
               [:div {:data-theme-color module-name}
-               [:div.wizard-review__submodules
-                (if (= io :input)
-                  (let [submodules (subscribe [:wizard/submodules-io-input-only (:db/id module)])]
-                    (doall
-                     (for [submodule @submodules
-                           :let      [{id :db/id
-                                       op :submodule/conditionals-operator} submodule]
-                           :when     @(subscribe [:wizard/show-submodule? ws-uuid id op])]
-                       ^{:key (:submodule/name submodule)}
-                       [:div.wizard-review__submodules__submodule
-                        {:id (:submodule/name submodule)}
-                        [:div.wizard-standard__submodule-header
-                         (:submodule/name submodule)]
-                        [build-groups params (:submodule/groups submodule) input-group]])))
-                  ;; io is :output
-                  (doall
-                   (let [submodules (subscribe [:wizard/submodules-io-output-only (:db/id module)])]
-                     (for [submodule @submodules
-                           :let      [{id :db/id
-                                       op :submodule/conditionals-operator} submodule]
-                           :when     @(subscribe [:wizard/show-submodule? ws-uuid id op])]
-                       ^{:key (:submodule/name submodule)}
-                       [:div.wizard-review__submodules__submodule
-                        {:id (:submodule/name submodule)}
-                        [:div.wizard-standard__submodule-header
-                         (:submodule/name submodule)]
-                        [build-groups params (:submodule/groups submodule) output-group]]))))]]))]
+               (if (= io :input)
+                 (let [submodules (subscribe [:wizard/submodules-io-input-only (:db/id module)])]
+                   (doall
+                    (for [submodule @submodules
+                          :let      [{id :db/id
+                                      op :submodule/conditionals-operator} submodule]
+                          :when     @(subscribe [:wizard/show-submodule? ws-uuid id op])]
+                      ^{:key (:submodule/name submodule)}
+                      [:div
+                       {:id (:submodule/name submodule)}
+                       [:div.wizard-standard__submodule-header
+                        (:submodule/name submodule)]
+                       [build-groups params (:submodule/groups submodule) input-group]])))
+                 ;; io is :output
+                 (doall
+                  (let [submodules (subscribe [:wizard/submodules-io-output-only (:db/id module)])]
+                    (for [submodule @submodules
+                          :let      [{id :db/id
+                                      op :submodule/conditionals-operator} submodule]
+                          :when     @(subscribe [:wizard/show-submodule? ws-uuid id op])]
+                      ^{:key (:submodule/name submodule)}
+                      [:div
+                       {:id (:submodule/name submodule)}
+                       [:div.wizard-standard__submodule-header
+                        (:submodule/name submodule)]
+                       [build-groups params (:submodule/groups submodule) output-group]]))))]))]
           (when (true? @*warn-limit?)
             [:div.wizard-warning
              (gstring/format  @(<t (bp "warn_input_limit")) @*multi-value-input-count @*multi-value-input-limit)])
