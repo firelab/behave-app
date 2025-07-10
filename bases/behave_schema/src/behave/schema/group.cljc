@@ -35,14 +35,9 @@
 
 ;;; Schema
 
+#_{:clj-kondo/ignore [:missing-docstring]}
 (def schema
-  [{:db/ident       :group/uuid
-    :db/doc         "Group's UUID."
-    :db/valueType   :db.type/string
-    :db/unique      :db.unique/identity
-    :db/cardinality :db.cardinality/one}
-
-   {:db/ident       :group/children
+  [{:db/ident       :group/children
     :db/doc         "Group's children groups."
     :db/valueType   :db.type/ref
     :db/isComponent true

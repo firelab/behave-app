@@ -37,13 +37,7 @@
 ;;; Schema
 
 (def schema
-  [{:db/ident       :group-variable/uuid
-    :db/doc         "Group variable's UUID."
-    :db/valueType   :db.type/string
-    :db/unique      :db.unique/identity
-    :db/cardinality :db.cardinality/one}
-
-   {:db/ident       :group-variable/cpp-namespace
+  [{:db/ident       :group-variable/cpp-namespace
     :db/doc         "Group variable's C++ namespace."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
@@ -128,7 +122,7 @@
 ;;; Tests
 
 (comment
-  (s/explain :behave/group-variable {:group-variable/uuid            (str (random-uuid))
+  (s/explain :behave/group-variable {:bp/uuid                        (str (random-uuid))
                                      :group-variable/order           0
                                      :group-variable/translation-key "behave:contain:fire:group:var"
                                      :group-variable/help-key        "behave:contain:fire:group:var:help"
