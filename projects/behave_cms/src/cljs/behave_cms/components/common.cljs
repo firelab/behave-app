@@ -264,10 +264,10 @@
   - `opt-fns` - An optional hash-map of functions
 
   `opt-fns` can contain the following K/V pairs:
-  - `:on-select`   - Fn callled a table row is selected.
-  - `:on-delete`   - Fn callled a table row is deleted.
-  - `:on-decrease` - Fn callled a table row position is increased.
-  - `:on-decrease` - Fn callled a table row position is decreased."
+  - `:on-select`   - Fn called a table row is selected.
+  - `:on-delete`   - Fn called a table row is deleted.
+  - `:on-increase` - Fn called a table row position is increased.
+  - `:on-decrease` - Fn called a table row position is decreased."
   [columns rows & [{:keys [on-select on-delete on-increase on-decrease caption add-group-variable-fn]}]]
   [:div
    {:style {:width      "100%"
