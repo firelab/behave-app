@@ -30,7 +30,7 @@
      [:div.workflow-select
       [workflow-select-header
        {:icon        "existing-run" ;TODO update when LOGO is available
-        :header      @(<t (bp "welcome_message"))
+        :header      @(<t (bp "welcome_to_behave7"))
         :description @(<t (bp "create_a_new-worksheet_or_import_an_existing_one"))}]
       [:div.workflow-select__content
        [c/card-group {:on-select      #(rf/dispatch [:wizard/update-cached-new-worksheet-or-import (:workflow %)])
@@ -72,7 +72,7 @@
       [workflow-select-header
        {:icon        "modules"
         :header      @(<t (bp "module_selection"))
-        :description @(<t (bp "please_select_from_the_following_options"))}]
+        :description @(<t (bp "select_from_the_following_options"))}]
       [:div.workflow-select__content
        [c/card-group {:on-select #(do
                                     (rf/dispatch [:local-storage/update-in [:state :worksheet :*modules] (:module %)])
@@ -139,9 +139,9 @@
      [:div.workflow-select
       [workflow-select-header
        {:icon        "existing-run" ;TODO update when LOGO is available
-        :header      @(<t (bp "welcome_message"))
+        :header      @(<t (bp "welcome_to_behave7"))
         :description (str
-                      @(<t (bp "please_select_a_workflow"))
+                      @(<t (bp "select_a_workflow"))
                       @(<t (bp "note_that_that_you_can_open_using_any_workflow")))}]
       [:div.workflow-select__content
        [c/card-group {:on-select      #(rf/dispatch [:wizard/update-cached-workflow (:workflow %)])
