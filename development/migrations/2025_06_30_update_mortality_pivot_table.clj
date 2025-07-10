@@ -93,8 +93,7 @@
        (mapv #(assoc % :db/id (find-eid-by conn :pivot-column/group-variable-uuid %)))))
 
 #_{:clj-kondo/ignore [:missing-docstring]}
-(def payload (concat re-create-pivot-column-order-payload 
-                     [update-pivot-table-payload update-cvs-or-cls-variable-payload]
+(def payload (concat [update-pivot-table-payload update-cvs-or-cls-variable-payload]
                      update-cvs-or-cls-translation-payload
                      pivot-column-order-payload))
 
@@ -104,7 +103,9 @@
 
 (comment
   #_{:clj-kondo/ignore [:missing-docstring]}
-  (try (def tx-data @(d/transact conn payload))
+  (try
+    (def tx-data-1 @(d/transact conn re-create-pivot-column-order-payload))
+    (def tx-data-2 @(d/transact conn payload))
        (catch Exception e  (str "caught exception: " (.getMessage e)))))
 
 ;; ===========================================================================================================
@@ -112,5 +113,7 @@
 ;; ===========================================================================================================
 
 (comment
-  (sm/rollback-tx! conn @tx-data))
+  (do
+    (sm/rollback-tx! conn @tx-data-1)
+    (sm/rollback-tx! conn @tx-data-2)))
 
