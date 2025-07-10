@@ -26,7 +26,7 @@
 #_{:clj-kondo/ignore [:missing-docstring]}
 (def payload
   [;; Wind Direction
-   {:bp/nid                   (sm/t-key->eid conn "behaveplus:surface:input:wind_speed:wind_height:wind_height")
+   {:db/id                    (sm/t-key->eid conn "behaveplus:surface:input:wind_speed:wind_height:wind_height")
     :group-variable/hide-csv? true}
    ;; Surface Spread
    {:db/id                    (sm/t-key->eid conn "behaveplus:surface:input:directions_of_surface_spread__wind:surface_fire_wind__spread:surface-run-in-direction-of")
