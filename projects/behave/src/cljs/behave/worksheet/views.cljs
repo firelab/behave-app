@@ -107,12 +107,12 @@
                                                     {:icon-name "contain"}]
                                         :selected? (= @*modules [:surface :contain])
                                         :module    [:surface :contain]}
-                                       {:order     5
-                                        :title     @(<t (bp "mortality_only"))
-                                        :content   @(<t (bp "mortality:description"))
-                                        :icons     [{:icon-name "mortality"}]
-                                        :selected? (= @*modules [:mortality])
-                                        :module    [:mortality]}
+                                       #_{:order     5
+                                          :title     @(<t (bp "mortality_only"))
+                                          :content   @(<t (bp "mortality:description"))
+                                          :icons     [{:icon-name "mortality"}]
+                                          :selected? (= @*modules [:mortality])
+                                          :module    [:mortality]}
                                        #_{:order     6
                                           :title     @(<t (bp "contain_only"))
                                           :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
