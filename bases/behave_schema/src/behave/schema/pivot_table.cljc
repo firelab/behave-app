@@ -9,18 +9,23 @@
 
 ;;; Spec
 
-(s/def :pivot-table/columns  many-ref?)
-(s/def :pivot-column/function  keyword?)
-(s/def :pivot-column/group-variable-uuid  uuid-string?)
-(s/def :pivot-column/function  valid-pivot-value-fn?)
+(s/def :pivot-table/columns              many-ref?)
+(s/def :pivot-column/type                valid-pivot-column-type?)
+(s/def :pivot-column/group-variable-uuid uuid-string?)
+(s/def :pivot-column/order               int?)
+(s/def :pivot-column/function            valid-pivot-value-fn?)
 
 (s/def :behave/pivot-table (s/keys :req [:pivot-table/title
                                          :pivot-table/columns]))
 
-(s/def :behave/pivot-table-column-field (s/keys :req [:pivot-column/group-variable-uuid]))
+(s/def :behave/pivot-table-column-field (s/keys :req [:pivot-column/group-variable-uuid
+                                                      :pivot-column/type]
+                                                :opt [:pivot-column/order]))
 
 (s/def :behave/pivot-table-column-value (s/keys :req [:pivot-column/group-variable-uuid
-                                                      :pivot-column/function]))
+                                                      :pivot-column/type
+                                                      :pivot-column/function]
+                                                :opt [:pivot-column/order]))
 
 ;;; Schema
 (def
@@ -46,7 +51,7 @@
 
    {:db/ident       :pivot-column/order
     :db/doc         "Pivot Column's order"
-    :db/valueType   :db.type/string
+    :db/valueType   :db.type/long
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :pivot-column/group-variable-uuid
@@ -65,8 +70,10 @@
              :pivot-table/columns #{1 2 3}})
 
   (s/valid? :behave/pivot-table-column-field
-            {:pivot-column/group-variable-uuid (str (random-uuid))})
+            {:pivot-column/group-variable-uuid (str (random-uuid))
+             :pivot-column/type                :field})
 
   (s/valid? :behave/pivot-table-column-value
             {:pivot-column/group-variable-uuid (str (random-uuid))
+             :pivot-column/type                :value
              :pivot-column/function            :sum}))
