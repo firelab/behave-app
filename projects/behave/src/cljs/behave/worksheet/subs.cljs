@@ -1,19 +1,19 @@
 (ns behave.worksheet.subs
-  (:require [clojure.string              :as str]
-            [clojure.set                 :as set]
-            [austinbirch.reactive-entity :as re]
-            [datascript.core             :as d]
-            [re-posh.core                :as rp]
-            [re-frame.core               :as rf]
-            [behave.store                :as s]
-            [behave.vms.store            :refer [vms-conn]]
+  (:require [austinbirch.reactive-entity :as re]
             [behave.schema.core          :refer [rules]]
-            [map-utils.interface         :refer [index-by]]
-            [number-utils.core           :refer [parse-float to-precision]]
-            [string-utils.interface      :refer [->str ->kebab]]
+            [behave.store                :as s]
             [behave.translate            :refer [<t]]
-            [behave.wizard.subs :refer [all-conditionals-pass?]]
-            [behave.vms.store :as vms]))
+            [behave.vms.store            :as vms :refer [vms-conn]]
+            [behave.wizard.subs          :refer [all-conditionals-pass?]]
+            [clojure.set                 :as set]
+            [clojure.string              :as str]
+            [datascript.core             :as d]
+            [goog.string                 :as gstring]
+            [map-utils.interface         :refer [index-by]]
+            [number-utils.core           :refer [parse-float]]
+            [re-frame.core               :as rf]
+            [re-posh.core                :as rp]
+            [string-utils.interface      :refer [->kebab ->str]]))
 
 ;; Helpers
 (defn make-tree
@@ -565,9 +565,9 @@
             *cached-decimals   (rf/subscribe [:settings/cached-decimal domain-uuid])
             significant-digits (or @*cached-decimals (:domain/decimals domain))]
         (fn continuous-fmt [value]
-          (-> value
-              (parse-float)
-              (to-precision significant-digits))))
+          (cond->> value
+            :always            (parse-float)
+            significant-digits (gstring/format (str "%." significant-digits "f")))))
 
       (or (= v-kind :discrete) multi-discrete?)
       (let [{llist :variable/list}  (d/pull @@vms-conn '[{:variable/list [* {:list/options [*]}]}] (:db/id variable))
