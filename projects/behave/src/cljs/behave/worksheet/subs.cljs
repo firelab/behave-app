@@ -556,7 +556,7 @@
 
 ;; Results Table formatters
 
-(defn ^:private create-formatter [variable multi-discrete?]
+(defn ^:private create-formatter [variable multi-discrete? is-output?]
   (let [v-kind (:variable/kind variable)]
     (cond
       (= v-kind :continuous)
@@ -567,7 +567,7 @@
         (fn continuous-fmt [value]
           (cond->> value
             :always            (parse-float)
-            significant-digits (gstring/format (str "%." significant-digits "f")))))
+            (and significant-digits is-output?) (gstring/format (str "%." significant-digits "f")))))
 
       (or (= v-kind :discrete) multi-discrete?)
       (let [{llist :variable/list}  (d/pull @@vms-conn '[{:variable/list [* {:list/options [*]}]}] (:db/id variable))
@@ -585,7 +585,7 @@
 (rf/reg-sub
  :worksheet/result-table-formatters
  (fn [_ [_ gv-uuids]]
-   (let [results (d/q '[:find ?gv-uuid (pull ?v [*]) ?multi-discrete
+   (let [results (d/q '[:find ?gv ?gv-uuid (pull ?v [*]) ?multi-discrete
                         :in $ % [?gv-uuid ...]
                         :where
                         (lookup ?gv-uuid ?gv)
@@ -593,8 +593,9 @@
                         (group-variable _ ?gv ?v)]
                       @@vms-conn rules gv-uuids)]
      (into {} (map
-               (fn [[gv-uuid variable multi-discrete?]]
-                 [gv-uuid (create-formatter variable multi-discrete?)])
+               (fn [[gv-eid gv-uuid variable multi-discrete?]]
+                 (let [is-output? @(rf/subscribe [:vms/group-variable-is-output? gv-eid])]
+                  [gv-uuid (create-formatter variable multi-discrete? is-output?)]))
                results)))))
 
 (rp/reg-sub

@@ -210,3 +210,15 @@
           [?v :variable/group-variables ?gv]
           [?v :variable/name ?v-name]]
         @@vms-conn group-variable-eid)))
+
+(reg-sub
+ :vms/group-variable-is-output?
+ (fn [_ [_ group-variable-id]]
+   (d/q '[:find ?is-output .
+          :in $ % ?gv
+          :where
+          [?g :group/group-variables ?gv]
+          (submodule-root ?sm ?g)
+          [?sm :submodule/io ?io]
+          [(= ?io :output) ?is-output]]
+        @@vms-conn rules group-variable-id)))
