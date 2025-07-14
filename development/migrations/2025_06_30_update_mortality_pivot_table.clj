@@ -58,10 +58,14 @@
 ;; ===========================================================================================================
 
 #_{:clj-kondo/ignore [:missing-docstring]}
-(def re-create-pivot-column-order-payload 
-  (concat [[:db/retract pivot-column-order-attr-eid :db/ident]
-           [:db/retract pivot-column-order-attr-eid :db/doc]]
-          (filter #(= :pivot-column/order (:db/ident %)) schema)))
+(def deprecate-old-pivot-column-order-payload
+  [{:db/id    pivot-column-order-attr-eid
+    :db/ident :pivot-table/deprecated-order-type-string
+    :db/doc   "Depreacted Pivot Column's order (type string)"}])
+
+#_{:clj-kondo/ignore [:missing-docstring]}
+(def add-new-pivot-column-order-payload
+  (filter #(= :pivot-column/order (:db/ident %)) schema))
 
 #_{:clj-kondo/ignore [:missing-docstring]}
 (def update-pivot-table-payload
@@ -104,9 +108,10 @@
 (comment
   #_{:clj-kondo/ignore [:missing-docstring]}
   (try
-    (def tx-data-1 @(d/transact conn re-create-pivot-column-order-payload))
-    (def tx-data-2 @(d/transact conn payload))
-       (catch Exception e  (str "caught exception: " (.getMessage e)))))
+    (def tx-data-1 @(d/transact conn deprecate-old-pivot-column-order-payload))
+    (def tx-data-2 @(d/transact conn add-new-pivot-column-order-payload))
+    (def tx-data-3 @(d/transact conn payload))
+    (catch Exception e  (str "caught exception: " (.getMessage e)))))
 
 ;; ===========================================================================================================
 ;; In case we need to rollback.
