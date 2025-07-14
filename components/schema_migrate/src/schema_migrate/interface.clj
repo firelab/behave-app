@@ -55,6 +55,10 @@
        :doc      "Given a translation-key of a group-variable an action's name return the action's entity id"}
   t-key-action-name->eid c/t-key-action-name->eid)
 
+(def ^{:arglists '([conn bp6-code])
+       :doc "Given a Behave6 Variable code (e.g. `vSurfaceFuelCode`), returns the matching variable entity ID."}
+  bp6-code->variable-eid c/bp6-code->variable-eid)
+
 (def ^{:arglists '([conn attr])
        :doc      "Sets :db/isComponent true for a given schema attribute.
                   Takes a datahike conn."}

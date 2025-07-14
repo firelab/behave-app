@@ -187,6 +187,15 @@
          first
          :db/id)))
 
+(defn bp6-code->variable-eid
+  "Given a Behave6 Variable code (e.g. `vSurfaceFuelCode`), returns the matching variable entity ID."
+  [conn bp6-code]
+  (d/q '[:find ?e .
+         :in $ ?bp6-code
+         :where [?e :variable/bp6-code ?bp6-code]]
+       (d/db conn)
+       bp6-code))
+
 (defn make-attr-is-component-payload
   "Returns a payload for updating a given attribute to include :db/isComponent true"
   [conn attr]
