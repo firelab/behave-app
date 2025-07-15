@@ -86,7 +86,7 @@
                   the same transaction where you've manually assigned :db/id)."}
   build-translations-payload c/build-translations-payload)
 
-(def ^{:arglists '([conn eid-start t-key->translation-map])
+(def ^{:arglists '([conn shortcode t-key->translation-map])
        :doc      "Creates a payload to update existing translations for specific language shortcode."}
   update-translations-payload c/update-translations-payload)
 

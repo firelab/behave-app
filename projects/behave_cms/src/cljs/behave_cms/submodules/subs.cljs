@@ -39,9 +39,11 @@
                  [?v :variable/name ?name]]
                [pivot-table-id]]))
  (fn [results]
-   (mapv (fn [[id name]]
-           (-> @(subscribe [:entity id])
-               (assoc :variable/name name))) results)))
+   (->> results
+        (mapv (fn [[eid v-name]]
+                (-> @(subscribe [:entity eid])
+                    (assoc :variable/name v-name))))
+        (sort-by :pivot-column/order))))
 
 (reg-sub
  :pivot-table/values

@@ -78,9 +78,11 @@
                      [simple-table
                       [:variable/name]
                       pivot-table-fields
-                      {:caption   "Pivot Table Fields"
-                       :on-delete #(rf/dispatch [:api/delete-entity (:db/id %)])
-                       :on-select #(reset! pivot-column-id-atom (:db/id %))}]
+                      {:caption     "Pivot Table Fields"
+                       :on-increase #(rf/dispatch [:api/reorder % pivot-table-fields :pivot-column/order :inc])
+                       :on-decrease #(rf/dispatch [:api/reorder % pivot-table-fields :pivot-column/order :dec])
+                       :on-delete   #(rf/dispatch [:api/delete-entity (:db/id %)])
+                       :on-select   #(reset! pivot-column-id-atom (:db/id %))}]
                      [simple-table
                       [:variable/name :pivot-column/function]
                       pivot-table-values
