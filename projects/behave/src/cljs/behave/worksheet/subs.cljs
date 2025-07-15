@@ -1,19 +1,19 @@
 (ns behave.worksheet.subs
-  (:require [clojure.string              :as str]
-            [clojure.set                 :as set]
-            [austinbirch.reactive-entity :as re]
-            [datascript.core             :as d]
-            [re-posh.core                :as rp]
-            [re-frame.core               :as rf]
-            [behave.store                :as s]
-            [behave.vms.store            :refer [vms-conn]]
+  (:require [austinbirch.reactive-entity :as re]
             [behave.schema.core          :refer [rules]]
-            [map-utils.interface         :refer [index-by]]
-            [number-utils.core           :refer [parse-float to-precision]]
-            [string-utils.interface      :refer [->str ->kebab]]
+            [behave.store                :as s]
             [behave.translate            :refer [<t]]
-            [behave.wizard.subs :refer [all-conditionals-pass?]]
-            [behave.vms.store :as vms]))
+            [behave.vms.store            :as vms :refer [vms-conn]]
+            [behave.wizard.subs          :refer [all-conditionals-pass?]]
+            [clojure.set                 :as set]
+            [clojure.string              :as str]
+            [datascript.core             :as d]
+            [goog.string                 :as gstring]
+            [map-utils.interface         :refer [index-by]]
+            [number-utils.core           :refer [parse-float]]
+            [re-frame.core               :as rf]
+            [re-posh.core                :as rp]
+            [string-utils.interface      :refer [->kebab ->str]]))
 
 ;; Helpers
 (defn make-tree
@@ -556,7 +556,7 @@
 
 ;; Results Table formatters
 
-(defn ^:private create-formatter [variable multi-discrete?]
+(defn ^:private create-formatter [variable multi-discrete? is-output?]
   (let [v-kind (:variable/kind variable)]
     (cond
       (= v-kind :continuous)
@@ -565,9 +565,9 @@
             *cached-decimals   (rf/subscribe [:settings/cached-decimal domain-uuid])
             significant-digits (or @*cached-decimals (:domain/decimals domain))]
         (fn continuous-fmt [value]
-          (-> value
-              (parse-float)
-              (to-precision significant-digits))))
+          (cond->> value
+            :always            (parse-float)
+            (and significant-digits is-output?) (gstring/format (str "%." significant-digits "f")))))
 
       (or (= v-kind :discrete) multi-discrete?)
       (let [{llist :variable/list}  (d/pull @@vms-conn '[{:variable/list [* {:list/options [*]}]}] (:db/id variable))
@@ -585,7 +585,7 @@
 (rf/reg-sub
  :worksheet/result-table-formatters
  (fn [_ [_ gv-uuids]]
-   (let [results (d/q '[:find ?gv-uuid (pull ?v [*]) ?multi-discrete
+   (let [results (d/q '[:find ?gv ?gv-uuid (pull ?v [*]) ?multi-discrete
                         :in $ % [?gv-uuid ...]
                         :where
                         (lookup ?gv-uuid ?gv)
@@ -593,8 +593,9 @@
                         (group-variable _ ?gv ?v)]
                       @@vms-conn rules gv-uuids)]
      (into {} (map
-               (fn [[gv-uuid variable multi-discrete?]]
-                 [gv-uuid (create-formatter variable multi-discrete?)])
+               (fn [[gv-eid gv-uuid variable multi-discrete?]]
+                 (let [is-output? @(rf/subscribe [:vms/group-variable-is-output? gv-eid])]
+                  [gv-uuid (create-formatter variable multi-discrete? is-output?)]))
                results)))))
 
 (rp/reg-sub
