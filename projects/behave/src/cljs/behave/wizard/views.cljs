@@ -680,7 +680,7 @@
                                       :selected? (= @*tab-selected :notes)})
 
                                :always
-                               (into [{:label     (-> @(<t (bp "input_tables"))
+                               (into [{:label     (-> @(<t (bp "inputs"))
                                                       s/capitalize-words)
                                        :tab       :inputs
                                        :icon-name :tables
@@ -738,7 +738,7 @@
          [:div.wizard-results__notes {:id "notes"}
           (wizard-notes @*notes)]
          [:div.wizard-notes__header {:id "inputs"}
-          (-> @(<t (bp "input_tables"))
+          (-> @(<t (bp "inputs"))
               s/capitalize-words)]
          [inputs-table ws-uuid]
          (when (seq @*cell-data)
