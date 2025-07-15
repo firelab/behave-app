@@ -1410,6 +1410,14 @@ body {
     overflow-y: visible;
   }
 
+  .print__inputs-table,
+  .print__result-table,
+  .wizard-print__results,
+  .wizard-results__graphs,
+  .wizard-results__graph {
+    break-inside: avoid;
+  }
+
 }
 
 /* -- End Print View -- */
