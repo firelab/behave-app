@@ -129,6 +129,12 @@
     :db/cardinality :db.cardinality/one
     :db/unique      :db.unique/identity}
 
+   {:db/ident       :list-option/export-translation-key
+    :db/doc         "List option's translation key for export."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one
+    :db/unique      :db.unique/identity}
+
    {:db/ident       :list-option/hide?
     :db/doc         "Used to hid a list option."
     :db/valueType   :db.type/boolean

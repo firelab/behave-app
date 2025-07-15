@@ -24,10 +24,15 @@
           i        (js/Math.floor (/ (js/Math.log bbytes) (js/Math.log k)))]
       (gstring/format "%s %s" (.toFixed (js/parseFloat (/ bbytes (js/Math.pow k i))) dm) (nth sizes i)))))
 
+(defn- wrap-quotes
+  "Wraps string in quotes."
+  [s]
+  (gstring/format "\"%s\"" s))
+
 (defn table-exporter
   "Displays a link to download a CSV copy of the table."
   [{:keys [title headers columns rows]}]
-  (let [print-row  (fn [row] (str/join "," (map #(get row %) columns)))
+  (let [print-row  (fn [row] (str/join "," (map (comp wrap-quotes #(get row %)) columns)))
         csv-header (str/join "," headers)
         csv-rows   (str/join "\n" (map print-row rows))
         csv        (str csv-header "\n" csv-rows)
@@ -92,7 +97,7 @@
                                   (assoc :shaded? true)
 
                                   :always
-                                  (assoc uuid+repeat-id-key (if (neg? value) "-" (fmt-fn value)))
+                                  (assoc uuid+repeat-id-key (if (neg? value) "-" (fmt-fn value {:export? export?})))
 
                                   (procces-map-units? map-units-enabled? uuid)
                                   (assoc (keyword (str/join "-" [uuid repeat-id "map-units"]))
@@ -101,12 +106,14 @@
                                               (get map-units-variables uuid)
                                               map-units
                                               map-rep-frac)
-                                             fmt-fn)))))
+                                             (fmt-fn))))))
                             {}
                             data))
                   filtered-data))}))
 
-(defn result-table-download-link [ws-uuid]
+(defn result-table-download-link
+  "Creates a link to download the table as a CSV export."
+  [ws-uuid]
   [:div [table-exporter (build-result-table-data {:ws-uuid ws-uuid
                                                   :headers @(subscribe [:worksheet/csv-export-headers
                                                                         ws-uuid])})]])
