@@ -566,17 +566,21 @@
             significant-digits (or @*cached-decimals (:domain/decimals domain))]
         (fn continuous-fmt [value]
           (cond->> value
-            :always            (parse-float)
+            :always                             (parse-float)
             (and significant-digits is-output?) (gstring/format (str "%." significant-digits "f")))))
 
       (or (= v-kind :discrete) multi-discrete?)
       (let [{llist :variable/list}  (d/pull @@vms-conn '[{:variable/list [* {:list/options [*]}]}] (:db/id variable))
             {options :list/options} llist
             options                 (index-by :list-option/value options)]
-        (fn discrete-fmt [value]
+        (fn discrete-fmt [value & [{:keys [export?]}]]
           (if-let [option (get options value)]
-            (or @(<t (:list-option/result-translation-key option))
-                @(<t (:list-option/translation-key option)))
+            (if export?
+              (or @(<t (:list-option/export-translation-key option))
+                  @(<t (:list-option/result-translation-key option))
+                  @(<t (:list-option/translation-key option)))
+              (or @(<t (:list-option/result-translation-key option))
+                  @(<t (:list-option/translation-key option))))
             value)))
 
       (= v-kind :text)
