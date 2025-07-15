@@ -1173,40 +1173,7 @@ p {
   cursor: pointer;
 }
 
-.input-dropdown__select-wrapper::before {
-  position: absolute;
-  top: 0px;
-  right: 0px;
-  bottom: 0px;
-  z-index: 1;
-  width: 20px;
-  border: 1px solid var(--gray-5);
-  border-radius: 0px 4px 4px 0px;
-  background: var(--gray-3);
-  content: ' ';
-  cursor: pointer;
-}
-
-/* To modify fill in SVG elements in :after, we use the SVG as a mask
- * More info: https://stackoverflow.com/questions/21509982/change-svg-fill-color-in-before-or-after-css
- */
-.input-dropdown__select-wrapper::after {
-  mask: url('data:image/svg+xml; utf8, <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 8"><path d="M5.3,7.43a1,1,0,0,1-1.36.39,1,1,0,0,1-.39-.39L.25,1.49A1,1,0,0,1,.64.13.91.91,0,0,1,1.12,0h6.6a1,1,0,0,1,1,1,1,1,0,0,1-.12.49Z" transform="translate(-0.12 0) scale(0.4)"/></svg>');
-  -webkit-mask: url('data:image/svg+xml; utf8, <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 8"><path d="M5.3,7.43a1,1,0,0,1-1.36.39,1,1,0,0,1-.39-.39L.25,1.49A1,1,0,0,1,.64.13.91.91,0,0,1,1.12,0h6.6a1,1,0,0,1,1,1,1,1,0,0,1-.12.49Z" transform="translate(-0.12 0) scale(0.4)"/></svg>');
-  position: absolute;
-  top: 12px;
-  right: -2px;
-  bottom: 0px;
-  z-index: 2;
-  width: 16px;
-  height: 16px;
-  background-color: var(--gray-5);
-  content: ' ';
-  cursor: pointer;
-}
-
 .input-dropdown__select-wrapper__select {
-  appearance: none;
   position: relative;
   width: 100%;
   margin: 0;
