@@ -34,7 +34,7 @@
                                               (first))
                             y-min (:y-axis-limit/min y-axis-limit)
                             y-max (:y-axis-limit/max y-axis-limit)]]
-           [:<>
+           [:div.wizard-results__graph
             [:div.wizard-graph__output-header
              @(subscribe [:wizard/gv-uuid->resolve-result-variable-name output-uuid])]
             [:div.wizard-results__graph
