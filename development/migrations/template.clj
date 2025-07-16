@@ -22,7 +22,9 @@
 ;; ===========================================================================================================
 
 #_{:clj-kondo/ignore [:missing-docstring]}
-(def payload [])
+(def payload [{:db/id (sm/name->eid conn :variable/name "Air Temperature")
+               :variable/minimum -40.0
+               :variable/maximum 120.0}])
 
 ;; ===========================================================================================================
 ;; Transact Payload
