@@ -49,6 +49,7 @@
              sig/datom-utils               {:local/root "../../components/datom_utils" :exclusions [datascript/datascript io.replikativ/datahike]}
              sig/dom-utils                 {:local/root "../../components/dom_utils"}
              sig/ds-schema-utils           {:local/root "../../components/ds_schema_utils"}
+             sig/jcef                      {:local/root "../../components/jcef"}
              sig/map-utils                 {:local/root "../../components/map_utils"}
              sig/number-utils              {:local/root "../../components/number_utils"}
              sig/logging                   {:local/root "../../components/logging"}
@@ -74,12 +75,23 @@
                                 :main-opts   ["-m" "figwheel.main" "-b" "compile-dev" "-r"]}
              :compile-cljs     {:main-opts ["-m" "behave.compile-cljs" "compile-prod.cljs.edn"]}
              :production       {:jvm-opts ["-XX:MaxRAMPercentage=90" "-XX:+PrintFlagsFinal"]}
-             :server           {:main-opts ["-m" "behave.core"]}
+             :standalone       {:main-opts ["-m" "behave.core"]
+                                :jvm-opts  ["--add-exports=java.base/java.lang=ALL-UNNAMED"
+                                            "--add-exports=java.desktop/sun.awt=ALL-UNNAMED"
+                                            "--add-exports=java.desktop/sun.java2d=ALL-UNNAMED"
+                                            "--add-opens=java.desktop/sun.awt=ALL-UNNAMED"
+                                            "--add-opens=java.desktop/sun.lwawt=ALL-UNNAMED"
+                                            "--add-opens=java.desktop/sun.lwawt.macosx=ALL-UNNAMED"]}
+             :server           {:main-opts ["-m" "behave.server"]}
              :build            {:deps       {io.github.seancorfield/build-clj
                                              {:git/tag   "v0.8.5"
                                               :git/sha   "de693d0"
                                               :deps/root "slim"}}
                                 :ns-default build}
+             :build-uberjar    {:extra-deps  {org.clojure/tools.deps {:mvn/version "0.24.1523"}
+                                              slipset/deps-deploy    {:mvn/version "0.2.2"}}
+                                :exec-fn     packaging/build-uberjar
+                                :exec-args   {:app-name behave7 :main-ns behave.core}}
              :check-reflection {:main-opts ["-e" "(do,(set!,*warn-on-reflection*,true),nil)"
                                             "-e" "(require,'behave.server)"]}
              :check-deps       {:extra-deps {olical/depot {:mvn/version "2.3.0"}}

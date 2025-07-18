@@ -3,6 +3,8 @@
  :logging  {:log-dir         "~/.behave/logs"
             :capture-std-err true}
  :site     {:title       "Behave 7"
+            :org-name    "FireLab"
+            :app-name    "Behave7"
             :description "Wildfire Analysis toolkit."}
  :server   {:http-port  4242
             :mode       "prod"}

@@ -18,6 +18,7 @@
                  "components/dita/src"
                  "components/dom_utils/src"
                  "components/ds_schema_utils/src"
+                 "components/jcef/src"
                  "components/logging/src"
                  "components/file_utils/src"
                  "components/markdown2hiccup/src"
@@ -46,6 +47,7 @@
                 hiccup/hiccup                           {:mvn/version "2.0.0-alpha2"}
                 io.github.tonsky/datascript-storage-sql {:mvn/version "1.0.0"}
                 io.replikativ/datahike                  {:mvn/version "0.5.1506"}
+                me.friwi/jcefmaven                      {:mvn/version "110.0.25"}
                 me.raynes/fs                            {:mvn/version "1.4.6"}
                 net.coobird/thumbnailator               {:mvn/version "0.4.19"}
                 org.clj-commons/digest                  {:mvn/version "1.4.100"}
@@ -98,7 +100,16 @@
                 herb/herb                  {:mvn/version "0.10.0"}
                 hickory/hickory            {:mvn/version "0.7.1"}
                 markdown-clj/markdown-clj  {:mvn/version "1.11.1"}
-                org.clojure/tools.cli      {:mvn/version "1.0.194"}}}
+                org.clojure/tools.cli      {:mvn/version "1.0.194"}}
+
+   :jvm-opts ["--add-exports=java.base/java.lang=ALL-UNNAMED"
+              "--add-exports=java.desktop/sun.awt=ALL-UNNAMED"
+              "--add-exports=java.desktop/sun.lwawt=ALL-UNNAMED"
+              "--add-exports=java.desktop/sun.lwawt.macosx=ALL-UNNAMED"
+              "--add-exports=java.desktop/sun.java2d=ALL-UNNAMED"
+              "--add-opens=java.desktop/sun.awt=ALL-UNNAMED"
+              "--add-opens=java.desktop/sun.lwawt=ALL-UNNAMED"
+              "--add-opens=java.desktop/sun.lwawt.macosx=ALL-UNNAMED"]}
 
   :test {:extra-paths [;; Components
                        "components/browser_utils/test"
@@ -128,6 +139,13 @@
     "projects/behave/src/cljs"
     "projects/behave/test/cljs"
     "projects/behave/resources"]}
+
+  :behave-slim/app
+  {:extra-paths
+   ["projects/behave_slim/src/clj"
+    "projects/behave_slim/src/cljs"
+    "projects/behave_slim/test/cljs"
+    "projects/behave_slim/resources"]}
 
   :behave/cms
   {:extra-paths
