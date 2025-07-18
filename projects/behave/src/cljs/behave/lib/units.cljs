@@ -66,7 +66,7 @@
    {:short "mi"          :system "english" :enum enum/length-units                  :dimension :length                  :unit "Miles"}
    {:short "mi/h"        :system "english" :enum enum/speed-units                   :dimension :speed                   :unit "MilesPerHour"}
    {:short "ms"} ; FIXME
-   {:short "oF"          :system "english" :enum enum/temperature-units             :dimension :temperature-units       :unit "Fahrenheit"}
+   {:short "oF"          :system "english" :enum enum/temperature-units             :dimension :temperature             :unit "Fahrenheit"}
    {:short "per ac"} ; FIXME Tree Count
    {:short "ton/ac"      :system "english" :enum enum/loading-units                 :dimension :loading-units           :unit "TonnesPerAcre"}
    {:short "psi"         :system "english" :enum enum/pressure-units                :dimension :pressure-units          :unit "PoundPerSquareInch"}])
