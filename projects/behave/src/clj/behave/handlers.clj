@@ -136,11 +136,11 @@
     (try
       (handler request)
       (catch Exception e
-        (let [{:keys [data cause]} (Throwable->map e)
-              status               (:status data)]
-          (log-str "Error: " cause)
-          (log-str (st/print-stack-trace e))
-          {:status (or status 500) :body cause})))))
+        (let [{:keys [via cause trace]} (Throwable->map e)]
+          (log-str "Error: " cause "via" via)
+          (log-str request)
+          (log-str trace)
+          {:status 503 :body cause})))))
 
 (defn- reloadable-clj-files
   "Creates a list of files that can be fed to the ring-wrap-reload interceptor."
