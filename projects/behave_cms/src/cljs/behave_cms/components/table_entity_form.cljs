@@ -32,7 +32,7 @@
 
   "
   [{:keys [title entity entities table-header-attrs entity-form-fields parent-id parent-field order-attr
-           on-select on-create]}]
+           on-select on-create on-delete]}]
   (r/with-let [entity-id-atom (r/atom nil)
                show-entity-form? (r/atom false)]
     [:div {:style {:display "flex"
@@ -50,7 +50,8 @@
                                     (reset! entity-id-atom nil))
                 :on-delete     #(when (js/confirm (str "Are you sure you want to delete this "
                                                        (name entity)))
-                                  (rf/dispatch [:api/delete-entity (:db/id %)]))
+                                  (rf/dispatch-sync [:api/delete-entity (:db/id %)])
+                                  (when on-delete (on-delete)))
                 :on-select     #(do
                                   (when on-select (on-select %))
                                   (if @show-entity-form?
