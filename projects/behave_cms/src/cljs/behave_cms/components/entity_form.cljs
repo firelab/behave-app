@@ -70,7 +70,7 @@
   "Gets the translation key from `:<parent>/translation-key`,
   `:<parent>/help-key`, or generates it from the `<parent>/name` attribute."
   [parent]
-  (let [attrs      (map ->str (keys parent))]
+  (let [attrs (map ->str (keys parent))]
     (when-let [h-or-t-key (->> attrs
                                (filter #(or (str/ends-with? % "/translation-key")
                                             (str/ends-with? % "/help-key")))
@@ -103,7 +103,7 @@
 
                                   :else nil)
                                 (->kebab (get state name-attr)))
-        help-key           (str translation-key ":help")]
+        help-key (str translation-key ":help")]
     (merge state
            {parent-field parent-id}
            (when (and parent-translation (db-translation-attrs translation-attr)) {translation-attr translation-key})
@@ -355,6 +355,26 @@
     [:div.my-3
      [all-translations @state]]))
 
+(defmethod field-input :units
+  [{:keys [label on-change state original state-path dimension-attr unit-system]}]
+  (let [dimension-uuid   (or (get @(rf/subscribe [:state state-path]) dimension-attr)
+                             (get original dimension-attr))
+        dimension-eid    @(rf/subscribe [:bp/lookup dimension-uuid ])
+        dimension-entity @(rf/subscribe [:entity dimension-eid])
+        units            (cond->> (:dimension/units dimension-entity)
+                           unit-system (filter #(= (:unit/system %) unit-system)))]
+    [:div.mb-3
+     [dropdown
+      {:label     label
+       :options   (doall
+                   (for [{unit-name :unit/name short-code :unit/short-code unit-uuid :bp/uuid} units]
+                     ^{:key unit-uuid}
+                     {:value unit-uuid
+                      :label (str unit-name " (" short-code ")")}))
+       :disabled? (empty? units)
+       :on-select #(on-change (u/input-value %))
+       :selected  @state}]]))
+
 ;;; Public Fns
 
 (defn entity-form
@@ -388,10 +408,10 @@
                 :on-create     #(assoc % :submodule/order num-submodules)})
   ```"
   [{:keys [entity parent-field parent-id fields id on-create on-update]}]
-  (let [state-path (cond-> [:editors]
-                     entity    (conj entity)
-                     parent-id (conj parent-id)
-                     id        (conj id))
+  (let [state-path   (cond-> [:editors]
+                       entity    (conj entity)
+                       parent-id (conj parent-id)
+                       id        (conj id))
         original     @(rf/subscribe [:entity id])
         parent       @(rf/subscribe [:entity parent-id])
         update-state (fn [field] (fn [value] (rf/dispatch [:state/set-state (conj state-path field) value])))

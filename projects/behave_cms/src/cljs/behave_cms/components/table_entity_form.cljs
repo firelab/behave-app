@@ -31,27 +31,33 @@
   display buttons to re order the list in the table.
 
   "
-  [{:keys [title entity entities table-header-attrs entity-form-fields parent-id parent-field order-attr]}]
+  [{:keys [title entity entities table-header-attrs entity-form-fields parent-id parent-field order-attr
+           on-select]}]
   (r/with-let [entity-id-atom (r/atom nil)
                show-entity-form? (r/atom false)]
     [:div {:style {:display "flex"}}
-     [simple-table
-      (if (seq table-header-attrs)
-        table-header-attrs
-        (map :field-key entity-form-fields))
-      (if order-attr (sort-by order-attr entities) entities)
-      (cond-> {:caption               title
-               :add-group-variable-fn #(swap! show-entity-form? not)
-               :on-delete             #(when (js/confirm (str "Are you sure you want to delete this "
-                                                              (name entity)))
-                                         (rf/dispatch [:api/delete-entity (:db/id %)]))
-               :on-select             #(do
-                                         (if @show-entity-form?
-                                           (reset! entity-id-atom nil)
-                                           (reset! entity-id-atom (:db/id %)))
-                                         (swap! show-entity-form? not))}
-        order-attr (merge {:on-increase #(rf/dispatch [:api/reorder % entities order-attr :inc])
-                           :on-decrease #(rf/dispatch [:api/reorder % entities order-attr :dec])}))]
+     [:div {:style {:padding-right "10px"
+                    :width         "100%"}}
+      [simple-table
+       (if (seq table-header-attrs)
+         table-header-attrs
+         (map :field-key entity-form-fields))
+       (if order-attr (sort-by order-attr entities) entities)
+       (cond-> {:caption       title
+                :add-entity-fn #(do (swap! show-entity-form? not)
+                                    (reset! entity-id-atom nil))
+                :on-delete     #(when (js/confirm (str "Are you sure you want to delete this "
+                                                       (name entity)))
+                                  (rf/dispatch [:api/delete-entity (:db/id %)]))
+                :on-select     #(do
+                                  (when on-select (on-select %))
+                                  (if @show-entity-form?
+                                    (do (reset! entity-id-atom nil)
+                                        (when on-select (on-select nil)))
+                                    (reset! entity-id-atom (:db/id %)))
+                                  (swap! show-entity-form? not))}
+         order-attr (merge {:on-increase #(rf/dispatch [:api/reorder % entities order-attr :inc])
+                            :on-decrease #(rf/dispatch [:api/reorder % entities order-attr :dec])}))]]
      (when @show-entity-form?
        [entity-form {:title        title
                      :id           @entity-id-atom
