@@ -35,7 +35,9 @@
            on-select]}]
   (r/with-let [entity-id-atom (r/atom nil)
                show-entity-form? (r/atom false)]
-    [:div {:style {:display "flex"}}
+    [:div {:style {:display "flex"
+                   :height "100%"
+                   :padding "30px"}}
      [:div {:style {:padding-right "10px"
                     :width         "100%"}}
       [simple-table

@@ -269,65 +269,68 @@
   - `:on-increase` - Fn called a table row position is increased.
   - `:on-decrease` - Fn called a table row position is decreased."
   [columns rows & [{:keys [on-select on-delete on-increase on-decrease caption add-entity-fn]}]]
-  [:div
-   {:style {:width "100%"}}
-   [:table.table.table-hover
-    {:style {:border-collapse "collapse"}}
-    (when caption
-      [:caption {:style {:caption-side "top"
-                         :text-align   "left"}}
-       caption])
-    (when add-entity-fn
-      [:caption {:style {:caption-side "bottom"
-                         :text-align   "right"}}
-       [btn-sm
-        :primary
-        "Add Entry"
-        add-entity-fn]])
-    [:thead
-     {:style {:display      "table";
-              :background   "white"
-              :table-layout "fixed"}}
-     [:tr
-      {:style {:display      "table"
+  [:div {:style {:width   "100%"
+                 :height  "100%"}}
+   [:div.table-header {:style {:display         "flex"
+                               :flex-direction  "row"
+                               :align-items     "center"
+                               :justify-content "space-between"
+                               :border-bottom   "3px solid black"
+                               :padding "5px"}}
+    [:div caption]
+    [:div [btn-sm
+           :primary
+           "Add Entry"
+           add-entity-fn]]]
+   [:div.table-wrapper {:style {:height           "100%"
+                                :overflow-y       "auto"
+                                :scroll-snap-type "y mandatory"}}
+    [:table.table.table-hover
+     {:style {:border-collapse "collapse"
+              :width           "100%"}}
+     [:thead
+      {:style {:background-color "white"
+               :position         "sticky"
+               :top              0}}
+      [:tr
+       {:style {:scroll-snap-align "start"
+                :width             "100%"}}
+       (for [column (map #(-> %
+                              (name)
+                              (str/replace #"[_-]" " ")
+                              (str/replace #"uuid" "")
+                              (str/capitalize))
+                         columns)]
+         [:th {:key column}
+          column])
+       (when (or on-select on-delete) [:th {:style {:whitespace "nowrap"}} "Modify"])
+       (when (or on-increase on-decrease) [:th {:style {:whitespace "nowrap"}} "Reorder"])]]
+
+     [:tbody
+      {:style {
+               ;; :display      "table"
+               :overflow-y   "auto"
                :width        "100%"
                :table-layout "fixed"}}
-      (for [column (map #(-> %
-                             (name)
-                             (str/replace #"[_-]" " ")
-                             (str/replace #"uuid" "")
-                             (str/capitalize))
-                        columns)]
-        [:th {:key   column
-              :style {:width "calc(100% -1em)"}}
-         column])
-      (when (or on-select on-delete) [:th {:style {:whitespace "nowrap"}} "Modify"])
-      (when (or on-increase on-decrease) [:th {:style {:whitespace "nowrap"}} "Reorder"])]]
-
-    [:tbody
-     {:style {:display      "table"
-              :overflow-y   "auto"
-              :width        "100%"
-              :table-layout "fixed"}}
-     (for [row rows]
-       ^{:key (:db/id row)}
-       [:tr
-        (for [column columns
-              :let   [value (get row column "")]]
-          [:td {:key   column
-                :style {:word-break "break-all"}}
-           (if-let [nname @(rf/subscribe [:entity-uuid->name value])]
-             nname
-             (->str value))])
-        (when (or on-select on-delete)
-          [:td {:key "modify" :class "td" :style {:white-space "nowrap"}}
-           (when on-select [btn-sm :outline-secondary "Edit"   #(on-select row)])
-           (when on-delete [btn-sm :outline-danger    "Delete" #(on-delete row)])])
-        (when (and on-decrease on-increase)
-          [:td
-           {:key "order"}
-           [btn-sm :outline-secondary nil #(on-decrease row) {:icon "arrow-up"}]
-           [btn-sm :outline-secondary nil #(on-increase row) {:icon "arrow-down"}]])])]]])
+      (for [row rows]
+        ^{:key (:db/id row)}
+        [:tr {:style {:scroll-snap-align "start"}}
+         (for [column columns
+               :let   [value (get row column "")]]
+           [:td {:key   column
+                 :style {:word-break "break-all"}}
+            (if-let [nname @(rf/subscribe [:entity-uuid->name value])]
+              nname
+              (->str value))])
+         (when (or on-select on-delete)
+           [:td {:key "modify" :class "td" :style {:white-space "nowrap"}}
+            (when on-select [btn-sm :outline-secondary "Edit"   #(on-select row)])
+            (when on-delete [btn-sm :outline-danger    "Delete" #(on-delete row)])])
+         (when (and on-decrease on-increase)
+           [:td
+            {:key "order"}
+            [btn-sm :outline-secondary nil #(on-decrease row) {:icon "arrow-up"}]
+            [btn-sm :outline-secondary nil #(on-increase row) {:icon "arrow-down"}]])])]]]])
 
 (defn window
   "Window container to ensure a fixed window."

@@ -8,6 +8,7 @@
   (let [loaded? (rf/subscribe [:state :loaded?])]
     (if @loaded?
       [:div.container
+       {:style {:height "900px"}}
        [table-entity-form
         {:title              "Variables"
          :entity             :variable

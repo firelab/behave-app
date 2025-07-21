@@ -19,57 +19,59 @@
           color-tag-options (rf/subscribe [:list-option/color-tags-to-select (:db/id @selected-list-atom)])]
       (if @loaded?
         [:div.container
-         [table-entity-form
-          {:title              "Lists"
-           :entity             :list
-           :entities           (sort-by :list/name
-                                        @(rf/subscribe [:pull-with-attr :list/name]))
-           :on-select          #(reset! selected-list-atom %)
-           :table-header-attrs [:list/name]
-           :entity-form-fields [{:label     "Name"
-                                 :required? true
-                                 :field-key :list/name}
-                                {:label     "Filter Tag Set"
-                                 :type      :ref-select
-                                 :options   filter-tag-sets
-                                 :field-key :list/tag-set}
-                                {:label     "Color Tag Set"
-                                 :type      :ref-select
-                                 :options   color-tag-sets
-                                 :field-key :list/color-tag-set}]}]
-         [table-entity-form
-          {:title              "List Options"
-           :entity             :list-option
-           :entities           list-options
-           :table-header-attrs [:list-option/name
-                                :list-option/value
-                                :list-option/order
-                                :list-option/default
-                                :list-option/tags
-                                :list-option/color-tag]
-           :entity-form-fields [{:label     "Name"
-                                 :required? true
-                                 :field-key :list-option/name}
-                                {:label     "Index"
-                                 :required? true
-                                 :field-key :list-option/value}
-                                {:label     "Filter Tags"
-                                 :type      :set
-                                 :is-ref?   true
-                                 :options   @tag-options
-                                 :field-key :list-option/tag-refs}
-                                {:label     "Color Tag"
-                                 :type      :ref-select
-                                 :disabled? (nil? (:list/color-tag-set @selected-list-atom))
-                                 :options   @color-tag-options
-                                 :field-key :list-option/color-tag-ref}
-                                {:label     "Hide Option?"
-                                 :type      :checkbox
-                                 :field-key :list-option/hide?
-                                 :options   [{:value true}]}
-                                {:label     "Default"
-                                 :type      :radio
-                                 :field-key :list-option/default
-                                 :options   [{:label "False" :value false}
-                                             {:label "True" :value true}]}]}]]
+         [:div {:style {:height "500px"}}
+          [table-entity-form
+           {:title              "Lists"
+            :entity             :list
+            :entities           (sort-by :list/name
+                                         @(rf/subscribe [:pull-with-attr :list/name]))
+            :on-select          #(reset! selected-list-atom %)
+            :table-header-attrs [:list/name]
+            :entity-form-fields [{:label     "Name"
+                                  :required? true
+                                  :field-key :list/name}
+                                 {:label     "Filter Tag Set"
+                                  :type      :ref-select
+                                  :options   filter-tag-sets
+                                  :field-key :list/tag-set}
+                                 {:label     "Color Tag Set"
+                                  :type      :ref-select
+                                  :options   color-tag-sets
+                                  :field-key :list/color-tag-set}]}]]
+         [:div {:style {:height "500px"}}
+          [table-entity-form
+           {:title              "List Options"
+            :entity             :list-option
+            :entities           list-options
+            :table-header-attrs [:list-option/name
+                                 :list-option/value
+                                 :list-option/order
+                                 :list-option/default
+                                 :list-option/tags
+                                 :list-option/color-tag]
+            :entity-form-fields [{:label     "Name"
+                                  :required? true
+                                  :field-key :list-option/name}
+                                 {:label     "Index"
+                                  :required? true
+                                  :field-key :list-option/value}
+                                 {:label     "Filter Tags"
+                                  :type      :set
+                                  :is-ref?   true
+                                  :options   @tag-options
+                                  :field-key :list-option/tag-refs}
+                                 {:label     "Color Tag"
+                                  :type      :ref-select
+                                  :disabled? (nil? (:list/color-tag-set @selected-list-atom))
+                                  :options   @color-tag-options
+                                  :field-key :list-option/color-tag-ref}
+                                 {:label     "Hide Option?"
+                                  :type      :checkbox
+                                  :field-key :list-option/hide?
+                                  :options   [{:value true}]}
+                                 {:label     "Default"
+                                  :type      :radio
+                                  :field-key :list-option/default
+                                  :options   [{:label "False" :value false}
+                                              {:label "True" :value true}]}]}]]]
         [:div "Loading..."]))))
