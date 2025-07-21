@@ -32,7 +32,7 @@
 
   "
   [{:keys [title entity entities table-header-attrs entity-form-fields parent-id parent-field order-attr
-           on-select]}]
+           on-select on-create]}]
   (r/with-let [entity-id-atom (r/atom nil)
                show-entity-form? (r/atom false)]
     [:div {:style {:display "flex"
@@ -69,6 +69,7 @@
                      :fields       entity-form-fields
                      :on-update    #(do (reset! entity-id-atom nil) %)
                      :on-create    #(do
+                                      (when on-create (on-create))
                                       (reset! entity-id-atom nil)
                                       (swap! show-entity-form? not)
                                       (if order-attr

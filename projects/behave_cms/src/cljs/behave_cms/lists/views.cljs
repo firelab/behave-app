@@ -14,7 +14,6 @@
           color-tag-sets    (map xform-tag-set (filter :tag-set/color? @tag-sets))
           filter-tag-sets   (map xform-tag-set (remove :tag-set/color? @tag-sets))
           list-options      (map #(deref (rf/subscribe [:entity (:db/id %)])) (:list/options @selected-list-atom))
-          _                 (prn "list-options:" list-options)
           tag-options       (rf/subscribe [:list-option/tags-to-select (:db/id @selected-list-atom)])
           color-tag-options (rf/subscribe [:list-option/color-tags-to-select (:db/id @selected-list-atom)])]
       (if @loaded?
@@ -25,7 +24,7 @@
             :entity             :list
             :entities           (sort-by :list/name
                                          @(rf/subscribe [:pull-with-attr :list/name]))
-            :on-select          #(reset! selected-list-atom %)
+            :on-select          #(reset! selected-list-atom @(rf/subscribe [:entity (:db/id %)]))
             :table-header-attrs [:list/name]
             :entity-form-fields [{:label     "Name"
                                   :required? true
@@ -43,6 +42,9 @@
            {:title              "List Options"
             :entity             :list-option
             :entities           list-options
+            :parent-id          (:db/id @selected-list-atom)
+            :parent-field       :list/_options
+            :on-create          (reset! selected-list-atom @(rf/subscribe [:entity (:db/id @selected-list-atom)]))
             :table-header-attrs [:list-option/name
                                  :list-option/value
                                  :list-option/order

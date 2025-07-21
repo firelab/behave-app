@@ -269,14 +269,14 @@
   - `:on-increase` - Fn called a table row position is increased.
   - `:on-decrease` - Fn called a table row position is decreased."
   [columns rows & [{:keys [on-select on-delete on-increase on-decrease caption add-entity-fn]}]]
-  [:div {:style {:width   "100%"
-                 :height  "100%"}}
+  [:div {:style {:width  "100%"
+                 :height "100%"}}
    [:div.table-header {:style {:display         "flex"
                                :flex-direction  "row"
                                :align-items     "center"
                                :justify-content "space-between"
                                :border-bottom   "3px solid black"
-                               :padding "5px"}}
+                               :padding         "5px"}}
     [:div caption]
     [:div [btn-sm
            :primary
@@ -284,7 +284,8 @@
            add-entity-fn]]]
    [:div.table-wrapper {:style {:height           "100%"
                                 :overflow-y       "auto"
-                                :scroll-snap-type "y mandatory"}}
+                                :scroll-snap-type "y mandatory"
+                                :scroll-padding-top "41px"}}
     [:table.table.table-hover
      {:style {:border-collapse "collapse"
               :width           "100%"}}
@@ -292,9 +293,7 @@
       {:style {:background-color "white"
                :position         "sticky"
                :top              0}}
-      [:tr
-       {:style {:scroll-snap-align "start"
-                :width             "100%"}}
+      [:tr {:style {:width "100%"}}
        (for [column (map #(-> %
                               (name)
                               (str/replace #"[_-]" " ")
@@ -307,9 +306,7 @@
        (when (or on-increase on-decrease) [:th {:style {:whitespace "nowrap"}} "Reorder"])]]
 
      [:tbody
-      {:style {
-               ;; :display      "table"
-               :overflow-y   "auto"
+      {:style {:overflow-y   "auto"
                :width        "100%"
                :table-layout "fixed"}}
       (for [row rows]
