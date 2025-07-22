@@ -52,13 +52,14 @@
                                                        (name entity)))
                                   (rf/dispatch-sync [:api/delete-entity (:db/id %)])
                                   (when on-delete (on-delete)))
-                :on-select     #(do
-                                  (when on-select (on-select %))
-                                  (if @show-entity-form?
-                                    (do (reset! entity-id-atom nil)
-                                        (when on-select (on-select nil)))
-                                    (reset! entity-id-atom (:db/id %)))
-                                  (swap! show-entity-form? not))}
+                :on-select     #(if (and @show-entity-form? (= @entity-id-atom (:db/id %)))
+                                  (do (reset! entity-id-atom nil)
+                                      (reset! show-entity-form? false)
+                                      (when on-select (on-select nil)))
+                                  (do
+                                    (reset! show-entity-form? true)
+                                    (reset! entity-id-atom (:db/id %))
+                                    (when on-select (on-select %))))}
          order-attr (merge {:on-increase #(rf/dispatch [:api/reorder % entities order-attr :inc])
                             :on-decrease #(rf/dispatch [:api/reorder % entities order-attr :dec])}))]]
      (when @show-entity-form?

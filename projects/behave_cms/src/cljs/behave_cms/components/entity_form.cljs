@@ -375,6 +375,44 @@
        :on-select #(on-change (u/input-value %))
        :selected  @state}]]))
 
+(defmethod field-input :units-set
+  [{:keys [label on-change state original state-path dimension-attr unit-system disabled?]}]
+  (let [dimension-uuid   (or (get @(rf/subscribe [:state state-path]) dimension-attr)
+                             (get original dimension-attr))
+        dimension-eid    @(rf/subscribe [:bp/lookup dimension-uuid ])
+        dimension-entity @(rf/subscribe [:entity dimension-eid])
+        units            (cond->> (:dimension/units dimension-entity)
+                           unit-system (filter #(= (:unit/system %) unit-system)))
+        state-as-set     (set (if (-> @state (first) (:db/id))
+                            (map :db/id @state)
+                            @state))
+        group-label      label
+        options          (doall
+                          (for [{unit-name :unit/name short-code :unit/short-code unit-uuid :bp/uuid} units]
+                            ^{:key unit-uuid}
+                            {:value unit-uuid
+                             :label (str unit-name " (" short-code ")")}))]
+    [:div.mb-3
+     [:label.form-label group-label]
+     (doall
+      (for [{:keys [label value]} options]
+        (let [id       (u/sentence->kebab (str group-label ":" value))
+              checked? (state-as-set value)]
+          ^{:key id}
+          [:div.form-check
+           {:disabled disabled?}
+           [:input.form-check-input
+            {:type      "checkbox"
+             :disabled  disabled?
+             :id        id
+             :checked   checked?
+             :on-change #(let [enable? (.. % -target -checked)
+                               state'  (vec (if enable?
+                                              (conj state-as-set value)
+                                              (disj state-as-set value)))]
+                           (on-change state'))}]
+           [:label.form-check-label {:for id} label]])))]))
+
 ;;; Public Fns
 
 (defn entity-form

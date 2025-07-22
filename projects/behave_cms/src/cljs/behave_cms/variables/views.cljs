@@ -46,6 +46,16 @@
                                             {:label (:dimension/name dimension)
                                              :value (:bp/uuid dimension)})}
 
+                              {:label          "Native Units"
+                               :field-key      :variable/native-units-uuid
+                               :type           :units
+                               :dimension-attr :variable/dimension-uuid}
+
+                              {:label     "Native Decimals"
+                               :field-key :variable/native-decimals
+                               :type      :number
+                               :required? false}
+
                               {:label          "English Units"
                                :field-key      :variable/english-units-uuid
                                :type           :units
@@ -54,16 +64,6 @@
 
                               {:label     "English Decimals"
                                :field-key :variable/metric-decimals
-                               :type      :number
-                               :required? false}
-
-                              {:label          "Native Units"
-                               :field-key      :variable/native-units-uuid
-                               :type           :units
-                               :dimension-attr :variable/dimension-uuid}
-
-                              {:label     "Native Decimals"
-                               :field-key :variable/native-decimals
                                :type      :number
                                :required? false}
 
