@@ -47,6 +47,8 @@
        (if order-attr (sort-by order-attr entities) entities)
        (cond-> {:caption       title
                 :add-entity-fn #(do (swap! show-entity-form? not)
+                                    (rf/dispatch [:state/set-state :editors {}])
+                                    (when on-select (on-select nil))
                                     (reset! entity-id-atom nil))
                 :on-delete     #(when (js/confirm (str "Are you sure you want to delete this "
                                                        (name entity)))
@@ -55,6 +57,7 @@
                 :on-select     #(if (and @show-entity-form? (= @entity-id-atom (:db/id %)))
                                   (do (reset! entity-id-atom nil)
                                       (reset! show-entity-form? false)
+                                      (rf/dispatch [:state/set-state :editors {}])
                                       (when on-select (on-select nil)))
                                   (do
                                     (reset! show-entity-form? true)
