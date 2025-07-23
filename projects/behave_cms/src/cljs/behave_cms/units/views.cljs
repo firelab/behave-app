@@ -19,7 +19,9 @@
            {:title              "Dimensions"
             :entity             :dimension
             :entities           (sort-by :dimension/name dimensions)
-            :on-select          #(reset! selected-dimension-atom @(rf/subscribe [:touch-entity (:db/id %)]))
+            :on-select          #(if (= (:db/id %) (:db/id @selected-dimension-atom))
+                                   (reset! selected-dimension-atom nil)
+                                   (reset! selected-dimension-atom @(rf/subscribe [:re-entity (:db/id %)])))
             :table-header-attrs [:dimension/name]
             :entity-form-fields [{:label     "Name"
                                   :required? true :field-key :dimension/name}
@@ -33,12 +35,12 @@
             (let [units                         (:dimension/units @selected-dimension-atom)
                   enum-members                  @(rf/subscribe [:units/enum-member-options (:db/id @selected-dimension-atom)])
                   refresh-selected-list-atom-fn #(reset! selected-dimension-atom
-                                                         @(rf/subscribe [:touch-entity (:db/id @selected-dimension-atom)]))]
+                                                         @(rf/subscribe [:re-entity (:db/id @selected-dimension-atom)]))]
               [table-entity-form
                {:title              "Units"
                 :entity             :unit
                 :entities           (sort-by :unit/name units)
-                :on-select          #(reset! selected-unit-atom @(rf/subscribe [:touch-entity (:db/id %)]))
+                :on-select          #(reset! selected-unit-atom @(rf/subscribe [:re-entity (:db/id %)]))
                 :parent-id          (:db/id @selected-dimension-atom)
                 :parent-field       :dimension/_units
                 :on-create          refresh-selected-list-atom-fn

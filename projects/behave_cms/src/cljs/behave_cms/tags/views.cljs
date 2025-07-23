@@ -12,14 +12,16 @@
                selected-tag-atom (r/atom nil)]
     (let [tag-sets                      @(rf/subscribe [:pull-with-attr :tag-set/name])
           refresh-selected-list-atom-fn #(reset! selected-tag-set-atom
-                                                 @(rf/subscribe [:touch-entity (:db/id @selected-tag-set-atom)]))]
+                                                 @(rf/subscribe [:re-entity (:db/id @selected-tag-set-atom)]))]
       [:div.container
        [:div {:style {:height "500px"}}
         [table-entity-form
          {:title              "Tag Sets"
           :entity             :tag-set
           :entities           (sort-by :tag-set/name tag-sets)
-          :on-select          #(reset! selected-tag-set-atom @(rf/subscribe [:touch-entity (:db/id %)]))
+          :on-select          #(if (= (:db/id %) (:db/id @selected-tag-set-atom))
+                                 (reset! selected-tag-set-atom nil)
+                                 (reset! selected-tag-set-atom @(rf/subscribe [:re-entity (:db/id %)])))
           :table-header-attrs [:tag-set/name]
           :entity-form-fields [{:label     "Name"
                                 :required? true
@@ -36,7 +38,7 @@
              {:title              "Tags"
               :entity             :tag-set
               :entities           (sort-by :tag/name tags)
-              :on-select          #(reset! selected-tag-atom @(rf/subscribe [:touch-entity (:db/id %)]))
+              :on-select          #(reset! selected-tag-atom @(rf/subscribe [:re-entity (:db/id %)]))
               :parent-id          (:db/id @selected-tag-set-atom)
               :parent-field       :tag-set/_tags
               :on-create          refresh-selected-list-atom-fn

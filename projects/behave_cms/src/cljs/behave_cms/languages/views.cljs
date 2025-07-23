@@ -16,7 +16,7 @@
              {:title              "Languages"
               :entity             :language
               :entities           (sort-by :language/name languages)
-              :on-select          #(reset! selected-language-atom @(rf/subscribe [:touch-entity (:db/id %)]))
+              :on-select          #(reset! selected-language-atom @(rf/subscribe [:re-entity (:db/id %)]))
               :table-header-attrs [:language/name :language/shortcode]
               :entity-form-fields [{:label     "Language"
                                     :required? true

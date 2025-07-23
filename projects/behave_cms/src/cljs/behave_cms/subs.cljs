@@ -2,6 +2,7 @@
   (:require [clojure.string    :as str]
             [bidi.bidi         :refer (match-route)]
             [re-frame.core     :as rf]
+            [austinbirch.reactive-entity :as re]
             [re-posh.core      :as rp]
             [datascript.core   :as d]
             [behave-cms.routes :refer [app-routes]]
@@ -88,9 +89,10 @@
      :id      eid}))
 
 (rf/reg-sub
- :touch-entity
+ :re-entity
  (fn [_ [_ eid]]
-   (d/touch (d/entity @@s/conn eid))))
+   (when-let [entity (d/entity @@s/conn eid)]
+     (re/entity (:db/id entity)))))
 
 (rp/reg-query-sub
   :entity-attr

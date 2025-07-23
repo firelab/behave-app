@@ -32,7 +32,7 @@
 
   "
   [{:keys [title entity entities table-header-attrs entity-form-fields parent-id parent-field order-attr
-           on-select on-create on-delete]}]
+           on-select]}]
   (r/with-let [entity-id-atom (r/atom nil)
                show-entity-form? (r/atom false)]
     [:div {:style {:display "flex"
@@ -45,24 +45,23 @@
          table-header-attrs
          (map :field-key entity-form-fields))
        (if order-attr (sort-by order-attr entities) entities)
-       (cond-> {:caption       title
-                :add-entity-fn #(do (swap! show-entity-form? not)
+       (cond-> {:add-entity-fn #(do (swap! show-entity-form? not)
                                     (rf/dispatch [:state/set-state :editors {}])
-                                    (when on-select (on-select nil))
+                                    (when on-select (on-select %))
                                     (reset! entity-id-atom nil))
                 :on-delete     #(when (js/confirm (str "Are you sure you want to delete this "
                                                        (name entity)))
-                                  (rf/dispatch-sync [:api/delete-entity (:db/id %)])
-                                  (when on-delete (on-delete)))
-                :on-select     #(if (and @show-entity-form? (= @entity-id-atom (:db/id %)))
+                                  (rf/dispatch-sync [:api/delete-entity (:db/id %)]))
+                :on-select     #(if @show-entity-form?
                                   (do (reset! entity-id-atom nil)
                                       (reset! show-entity-form? false)
                                       (rf/dispatch [:state/set-state :editors {}])
-                                      (when on-select (on-select nil)))
+                                      (when on-select (on-select %)))
                                   (do
                                     (reset! show-entity-form? true)
                                     (reset! entity-id-atom (:db/id %))
                                     (when on-select (on-select %))))}
+         title      (assoc :caption title)
          order-attr (merge {:on-increase #(rf/dispatch [:api/reorder % entities order-attr :inc])
                             :on-decrease #(rf/dispatch [:api/reorder % entities order-attr :dec])}))]]
      (when @show-entity-form?
@@ -76,7 +75,6 @@
                       :fields       entity-form-fields
                       :on-update    #(do (reset! entity-id-atom nil) %)
                       :on-create    #(do
-                                       (when on-create (on-create))
                                        (reset! entity-id-atom nil)
                                        (swap! show-entity-form? not)
                                        (if order-attr

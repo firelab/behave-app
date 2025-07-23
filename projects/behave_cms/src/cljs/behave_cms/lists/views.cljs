@@ -24,7 +24,9 @@
             :entity             :list
             :entities           (sort-by :list/name
                                          @(rf/subscribe [:pull-with-attr :list/name]))
-            :on-select          #(reset! selected-list-atom @(rf/subscribe [:touch-entity (:db/id %)]))
+            :on-select          #(if (= (:db/id %) (:db/id @selected-list-atom))
+                                   (reset! selected-list-atom nil)
+                                   (reset! selected-list-atom @(rf/subscribe [:re-entity (:db/id %)])))
             :table-header-attrs [:list/name]
             :entity-form-fields [{:label     "Name"
                                   :required? true
@@ -40,18 +42,16 @@
          (when @selected-list-atom
            (let [list-options                  (:list/options @selected-list-atom)
                  tag-options                   (rf/subscribe [:list-option/tags-to-select (:db/id @selected-list-atom)])
-                 color-tag-options             (rf/subscribe [:list-option/color-tags-to-select (:db/id @selected-list-atom)])
-                 refresh-selected-list-atom-fn #(reset! selected-list-atom @(rf/subscribe [:touch-entity (:db/id @selected-list-atom)]))]
+                 color-tag-options             (rf/subscribe [:list-option/color-tags-to-select (:db/id @selected-list-atom)])]
              [:div {:style {:height "500px"}}
               [table-entity-form
                {:title              "List Options"
                 :entity             :list-option
                 :entities           list-options
-                :on-select          #(reset! selected-list-option-atom @(rf/subscribe [:touch-entity (:db/id %)]))
+                :on-select          #(reset! selected-list-option-atom @(rf/subscribe [:re-entity (:db/id %)]))
                 :parent-id          (:db/id @selected-list-atom)
                 :parent-field       :list/_options
-                :on-create          refresh-selected-list-atom-fn
-                :on-delete          refresh-selected-list-atom-fn
+                :order-attr         :list-option/order
                 :table-header-attrs [:list-option/name
                                      :list-option/value
                                      :list-option/order
@@ -61,10 +61,6 @@
                 :entity-form-fields [{:label     "Name"
                                       :required? true
                                       :field-key :list-option/name}
-                                     {:label     "Order"
-                                      :required? true
-                                      :type      :number
-                                      :field-key :list-option/order}
                                      {:label     "Index"
                                       :required? true
                                       :field-key :list-option/value}

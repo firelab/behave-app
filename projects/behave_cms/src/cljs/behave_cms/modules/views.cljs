@@ -1,92 +1,71 @@
 (ns behave-cms.modules.views
   (:require
    [re-frame.core                      :as rf]
-   [behave-cms.components.common       :refer [accordion simple-table window]]
+   [behave-cms.components.common       :refer [accordion window]]
    [behave-cms.components.sidebar      :refer [sidebar sidebar-width ->sidebar-links]]
    [behave-cms.components.translations :refer [app-translations]]
    [behave-cms.help.views              :refer [help-editor]]
-   [behave-cms.components.entity-form  :refer [entity-form]]
-   [behave-cms.components.group-variable-selector :refer [group-variable-selector]]))
+   [behave-cms.components.table-entity-form :refer [table-entity-form]]
+   [reagent.core :as r]))
 
 ;;; Modules
 
-(defn- module-form [application-id module-id num-modules]
-  [entity-form {:entity       :module
-                :parent-field :application/_modules
-                :parent-id    application-id
-                :id           module-id
-                :fields       [{:label     "Name"
-                                :required? true
-                                :field-key :module/name}]
-                :on-create    #(assoc % :module/order num-modules)}])
-
-(defn- manage-module [application-id *module num-modules]
-  [:div.col-6
-   [:h4 (str (if *module "Edit" "Add") " Module")
-    [module-form application-id *module num-modules]]])
-
-(defn- modules-table [application-id]
-  (let [modules (rf/subscribe [:application/modules application-id])]
-    [:div.col-6
-     [simple-table
-      [:module/name]
-      (sort-by :module/order @modules)
-      {:on-select   #(rf/dispatch [:state/set-state :module (:db/id %)])
-       :on-delete   #(when (js/confirm (str "Are you sure you want to delete the module " (:module/name %) "?"))
-                       (rf/dispatch [:api/delete-entity %]))
-       :on-increase #(rf/dispatch [:api/reorder % @modules :module/order :inc])
-       :on-decrease #(rf/dispatch [:api/reorder % @modules :module/order :dec])}]]))
+(defn- modules-table [app-id]
+  (r/with-let [selected-module-atom (r/atom nil)]
+    (let [modules @(rf/subscribe [:application/modules app-id])]
+      [:div.col-12
+       [table-entity-form
+        {:entity             :module
+         :entities           (sort-by :module/order modules)
+         :on-select          #(reset! selected-module-atom @(rf/subscribe [:re-entity (:db/id %)]))
+         :parent-id          app-id
+         :parent-field       :application/_modules
+         :table-header-attrs [:module/name :module/order]
+         :order-attr         :module/order
+         :entity-form-fields [{:label     "Name"
+                               :required? true
+                               :field-key :module/name}]}]])))
 
 ;;; Tools
 
-(defn- tools-table [application-id]
-  (let [tools     (rf/subscribe [:application/tools application-id])
-        on-select #(rf/dispatch [:state/set-state :tool (:db/id %)])
-        on-delete #(when (js/confirm (str "Are you sure you want to delete the tool " (:tool/name %) "?"))
-                     (rf/dispatch [:api/delete-entity %]))]
-
-    [simple-table
-     [:tool/name]
-     (sort-by :tool/order @tools)
-     {:on-select on-select
-      :on-delete on-delete}]))
-
-(defn- tool-form [application-id tool-id num-tools]
-  [entity-form {:entity       :tool
-                :parent-field :application/_tools
-                :parent-id    application-id
-                :id           tool-id
-                :fields       [{:label     "Name"
-                                :required? true
-                                :field-key :tool/name}
-                               {:label     "Library Namespace"
-                                :required? true
-                                :field-key :tool/lib-ns}]
-                :on-create    #(assoc % :tool/order num-tools)}])
-
-(defn- manage-tool [application-id *tool num-tools]
-  [:div.col-6
-   [:h4 (str (if *tool "Edit" "Add") " Tool")
-    [tool-form application-id *tool num-tools]]])
+(defn- tools-table [app-id]
+  (r/with-let [selected-tool-atom (r/atom nil)]
+    (let [tools @(rf/subscribe [:application/tools app-id])]
+      [:div.col-12
+       [table-entity-form
+        {:entity             :tool
+         :entities           (sort-by :tool/order tools)
+         :on-select          #(reset! selected-tool-atom @(rf/subscribe [:re-entity (:db/id %)]))
+         :parent-id          app-id
+         :parent-field       :application/_tools
+         :table-header-attrs [:tool/name :tool/order]
+         :order-attr         :tool/order
+         :entity-form-fields [{:label     "Name"
+                               :required? true
+                               :field-key :tool/name}
+                              {:label     "Library Namespace"
+                               :required? true
+                               :field-key :tool/lib-ns}]}]])))
 
 ;; Priortzed Results Table
-(defn prioritized-results-table
-  ""
+(defn- prioritized-results-table
   [app-id]
-  (let [prioritized-results (rf/subscribe [:application/prioritized-results app-id])]
-    [:div.col-6
-     [:div
-      [:h4 "Group Variables"]
-      [:p "Use this list to sort group variables ahead of the normal sort order accross all modules in this application"]
-      [simple-table
-       [:variable/name]
-       (sort-by :prioritized-results/order @prioritized-results)
-       {:on-select   #(rf/dispatch [:state/set-state :prioritized-results %])
-        :on-delete   #(rf/dispatch [:api/delete-entity %])
-        :on-increase #(rf/dispatch [:api/reorder % @prioritized-results
-                                    :prioritized-results/order :inc])
-        :on-decrease #(rf/dispatch [:api/reorder % @prioritized-results
-                                    :prioritized-results/order :dec])}]]]))
+  (r/with-let [selected-prioritized-results-atom (r/atom nil)]
+    (let [prioritized-results @(rf/subscribe [:application/prioritized-results app-id])]
+      [:div.col-12
+       [table-entity-form
+        {:entity             :tool
+         :entities           (sort-by :prioritized-results/order prioritized-results)
+         :on-select          #(reset! selected-prioritized-results-atom @(rf/subscribe [:re-entity (:db/id %)]))
+         :parent-id          app-id
+         :parent-field       :application/_prioritized-results
+         :table-header-attrs [:variable/name :prioritized-results/order]
+         :order-attr         :prioritized-results/order
+         :entity-form-fields [{:label     "Group Variable"
+                               :app-id    app-id
+                               :required? true
+                               :field-key :prioritized-results/group-variable
+                               :type      :group-variable}]}]])))
 
 ;;; Public
 
@@ -94,14 +73,10 @@
   "Displays page for modules. Takes a single map with:
   - id [int] - Application Entity ID"
   [{nid :nid}]
-  (let [application        (rf/subscribe [:application [:bp/nid nid]])
-        app-id             (:db/id @application)
-        modules            (rf/subscribe [:application/modules app-id])
-        *module            (rf/subscribe [:state :module])
-        tools              (rf/subscribe [:application/tools app-id])
-        *tool              (rf/subscribe [:state :tool])
-        prioritzed-results (rf/subscribe [:state :prioritized-results])
-        gv-id-to-edit      (:db/id (:prioritized-results/group-variable @prioritzed-results ))]
+  (let [application (rf/subscribe [:application [:bp/nid nid]])
+        app-id      (:db/id @application)
+        modules     (rf/subscribe [:application/modules app-id])
+        tools       (rf/subscribe [:application/tools app-id])]
     [:<>
      [sidebar
       "Modules"
@@ -116,15 +91,11 @@
         [:h2 (:application/name @application)]]
        [accordion
         "Modules"
-        [modules-table app-id]
-        [manage-module app-id @*module (count @modules)]]
+        [modules-table app-id]]
        [:hr]
        [accordion
         "Tools"
-        [:div.col-6
-         [tools-table app-id]]
-        [:div.col-6
-         [manage-tool app-id @*tool (count @tools)]]]
+        [tools-table app-id]]
        [:hr]
        [accordion
         "Help Page"
@@ -139,16 +110,4 @@
         "Application's Prioritized Results"
         [:div.col-12
          [:div.row
-          [prioritized-results-table app-id]
-          [group-variable-selector
-           {:app-id    app-id
-            :gv-id     gv-id-to-edit
-            :on-submit #(let [gv-count @(rf/subscribe [:application/prioritized-results-count app-id])]
-                          (rf/dispatch [:api/upsert-entity
-                                        (if (:db/id @prioritzed-results )
-                                          {:db/id                              (:db/id @prioritzed-results )
-                                           :prioritized-results/group-variable %}
-                                          {:application/_prioritized-results   app-id
-                                           :prioritized-results/group-variable %
-                                           :prioritized-results/order          gv-count})])
-                          (rf/dispatch [:state/set-state :prioritized-results nil]))}]]]]]]]))
+          [prioritized-results-table app-id]]]]]]]))
