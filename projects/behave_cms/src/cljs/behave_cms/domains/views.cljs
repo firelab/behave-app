@@ -12,7 +12,7 @@
                selected-domain-atom (r/atom nil)]
     (let [domain-set @(rf/subscribe [:pull-with-attr :domain-set/name])]
       [:div.container
-       [:div {:style {:height "500px"}}
+       [:div {:style {:height "400px"}}
         [table-entity-form
          {:title              "Domain Sets"
           :entity             :domain-set

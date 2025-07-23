@@ -52,7 +52,7 @@
                 :on-delete     #(when (js/confirm (str "Are you sure you want to delete this "
                                                        (name entity)))
                                   (rf/dispatch-sync [:api/delete-entity (:db/id %)]))
-                :on-select     #(if @show-entity-form?
+                :on-select     #(if (and @show-entity-form? (= @entity-id-atom (:db/id %)))
                                   (do (reset! entity-id-atom nil)
                                       (reset! show-entity-form? false)
                                       (rf/dispatch [:state/set-state :editors {}])
