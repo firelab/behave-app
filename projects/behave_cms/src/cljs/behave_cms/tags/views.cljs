@@ -8,16 +8,16 @@
 (defn tags-page [_]
   (r/with-let [selected-tag-set-atom (r/atom nil)
                selected-tag-atom (r/atom nil)]
-    (let [tag-sets @(rf/subscribe [:pull-with-attr :tag-set/name])
+    (let [tag-sets                      @(rf/subscribe [:pull-with-attr :tag-set/name])
           refresh-selected-list-atom-fn #(reset! selected-tag-set-atom
-                                                 @(rf/subscribe [:entity (:db/id @selected-tag-set-atom)]))]
+                                                 @(rf/subscribe [:touch-entity (:db/id @selected-tag-set-atom)]))]
       [:div.container
        [:div {:style {:height "500px"}}
         [table-entity-form
          {:title              "Tag Sets"
           :entity             :tag-set
           :entities           (sort-by :tag-set/name tag-sets)
-          :on-select          #(reset! selected-tag-set-atom @(rf/subscribe [:entity (:db/id %)]))
+          :on-select          #(reset! selected-tag-set-atom @(rf/subscribe [:touch-entity (:db/id %)]))
           :table-header-attrs [:tag-set/name]
           :entity-form-fields [{:label     "Name"
                                 :required? true
@@ -28,15 +28,13 @@
                                 :field-key :tag-set/color?
                                 :options   [{:value true}]}]}]]
        (when @selected-tag-set-atom
-         (let [tags (->> @selected-tag-set-atom
-                         :tag-set/tags
-                         (map #(deref (rf/subscribe [:entity (:db/id %)]))))]
+         (let [tags (:tag-set/tags @selected-tag-set-atom)]
            [:div {:style {:height "500px"}}
             [table-entity-form
              {:title              "Tags"
               :entity             :tag-set
               :entities           (sort-by :tag/name tags)
-              :on-select          #(reset! selected-tag-atom @(rf/subscribe [:entity (:db/id %)]))
+              :on-select          #(reset! selected-tag-atom @(rf/subscribe [:touch-entity (:db/id %)]))
               :parent-id          (:db/id @selected-tag-set-atom)
               :parent-field       :tag-set/_tags
               :on-create          refresh-selected-list-atom-fn

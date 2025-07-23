@@ -39,7 +39,8 @@
                                               :options   [{:label "Minimum" :value :min}
                                                           {:label "Maximum" :value :max}]}]
                               :on-create    #(do (swap! show-add-search-table? not) %)}]
-                [table-entity-form {:title              "Search Table Filters"
+                [:div {:style {:height "300px"}}
+                 [table-entity-form {:title              "Search Table Filters"
                                     :entity             :search-table-filter
                                     :entities           @(rf/subscribe [:search-table/filters search-table-id])
                                     :table-header-attrs [:variable/name :search-table-filter/operator :search-table-filter/value]
@@ -60,8 +61,9 @@
                                                           :group-variable-field-key :search-table-filter/group-variable
                                                           :type                     :group-variable-value}]
                                     :parent-id          search-table-id
-                                    :parent-field       :search-table/_filters}]
-                [table-entity-form {:title              "Search Table Columns"
+                                    :parent-field       :search-table/_filters}]]
+                [:div {:style {:height "300px"}}
+                 [table-entity-form {:title              "Search Table Columns"
                                     :entity             :search-table-column
                                     :entities           @(rf/subscribe [:search-table/columns search-table-id])
                                     :table-header-attrs [:search-table-column/name :search-table-column/translation-key]
@@ -81,7 +83,7 @@
                                                           :type      :translation-key}]
                                     :parent-id          search-table-id
                                     :parent-field       :search-table/_columns
-                                    :order-attr         :search-table-column/order}]
+                                    :order-attr         :search-table-column/order}]]
                 [:div.row
                  {:style {:padding "5px"}}
                  [btn-sm

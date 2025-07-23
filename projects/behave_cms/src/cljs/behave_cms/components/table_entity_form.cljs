@@ -66,18 +66,20 @@
          order-attr (merge {:on-increase #(rf/dispatch [:api/reorder % entities order-attr :inc])
                             :on-decrease #(rf/dispatch [:api/reorder % entities order-attr :dec])}))]]
      (when @show-entity-form?
-       [entity-form {:title        title
-                     :id           @entity-id-atom
-                     :entity       entity
-                     :parent-field parent-field
-                     :parent-id    parent-id
-                     :fields       entity-form-fields
-                     :on-update    #(do (reset! entity-id-atom nil) %)
-                     :on-create    #(do
-                                      (when on-create (on-create))
-                                      (reset! entity-id-atom nil)
-                                      (swap! show-entity-form? not)
-                                      (if order-attr
-                                        (let [next-order (count entities)]
-                                          (assoc % order-attr next-order))
-                                        %))}])]))
+       [:div {:style {:height "100%"
+                      :overflow-y "auto"}}
+        [entity-form {:title        title
+                      :id           @entity-id-atom
+                      :entity       entity
+                      :parent-field parent-field
+                      :parent-id    parent-id
+                      :fields       entity-form-fields
+                      :on-update    #(do (reset! entity-id-atom nil) %)
+                      :on-create    #(do
+                                       (when on-create (on-create))
+                                       (reset! entity-id-atom nil)
+                                       (swap! show-entity-form? not)
+                                       (if order-attr
+                                         (let [next-order (count entities)]
+                                           (assoc % order-attr next-order))
+                                         %))}]])]))

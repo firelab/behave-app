@@ -390,10 +390,7 @@
                 :on-create     #(assoc % :submodule/order num-submodules)})
   ```"
   [{:keys [entity parent-field parent-id fields id on-create on-update]}]
-  (let [state-path   (cond-> [:editors]
-                       entity    (conj entity)
-                       parent-id (conj parent-id)
-                       :always   (conj id))
+  (let [state-path   [:editors entity parent-id id]
         original     @(rf/subscribe [:entity id])
         parent       @(rf/subscribe [:entity parent-id])
         update-state (fn [field] (fn [value] (rf/dispatch [:state/set-state (conj state-path field) value])))
