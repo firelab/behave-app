@@ -5,7 +5,9 @@
             [behave-cms.subs]
             [reagent.core :as r]))
 
-(defn tags-page [_]
+(defn tags-page
+  "Page to manage Tag Sets and Tags"
+  [_]
   (r/with-let [selected-tag-set-atom (r/atom nil)
                selected-tag-atom (r/atom nil)]
     (let [tag-sets                      @(rf/subscribe [:pull-with-attr :tag-set/name])

@@ -5,7 +5,9 @@
             [behave-cms.subs]
             [reagent.core                       :as r]))
 
-(defn list-variables-page [_]
+(defn list-variables-page
+  "Page to manage Variables"
+  [_]
   (r/with-let [selected-variable-atom (r/atom nil)]
     (let [loaded?            (rf/subscribe [:state :loaded?])
           dimension-uuid     (or @(rf/subscribe [:state [:editors

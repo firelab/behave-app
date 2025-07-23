@@ -6,7 +6,9 @@
             [behave-cms.components.table-entity-form :refer [table-entity-form]]
             [reagent.core                       :as r]))
 
-(defn list-lists-page [_]
+(defn list-lists-page
+  "Page for managing Lists and List Options"
+  [_]
   (r/with-let [selected-list-atom (r/atom nil)
                selected-list-option-atom (r/atom nil)]
     (let [loaded?         (rf/subscribe [:state :loaded?])

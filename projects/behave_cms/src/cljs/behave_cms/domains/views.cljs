@@ -5,7 +5,9 @@
             [behave-cms.events]
             [behave-cms.subs]))
 
-(defn domains-page [_]
+(defn domains-page
+  "Page to manage Domain Sets and Domains"
+  [_]
   (r/with-let [selected-domain-set-atom (r/atom nil)
                selected-domain-atom (r/atom nil)]
     (let [domain-set                          @(rf/subscribe [:pull-with-attr :domain-set/name])
