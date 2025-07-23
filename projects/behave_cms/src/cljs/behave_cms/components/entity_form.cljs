@@ -181,7 +181,7 @@
              :on-change #(on-change (.. % -target -checked))}]
            [:label.form-check-label {:for id} label]])))]))
 
-(defmethod field-input :radio [{:keys [label options on-change state]}]
+(defmethod field-input :radio [{:keys [label options on-change state required?]}]
   (let [group-label label]
     [:div.mb-3
      [:label.form-label group-label]
@@ -195,6 +195,7 @@
             {:type      "radio"
              :name      (u/sentence->kebab group-label)
              :id        id
+             :required  required?
              :value     value
              :checked   (= @state value)
              :on-change #(on-change value)}]

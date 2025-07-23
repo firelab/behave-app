@@ -62,7 +62,7 @@
                                 {:label     "Native Units"
                                  :type      :select
                                  :field-key :variable/native-unit-uuid
-                                 :required? true
+                                 :required? false
                                  :disabled? (empty? units-in-dimension)
                                  :options   (->> units-in-dimension
                                                  (map units->option))}
@@ -89,7 +89,7 @@
                                 {:label     "Metric Units"
                                  :type      :select
                                  :field-key :variable/english-unit-uuid
-                                 :required? true
+                                 :required? false
                                  :disabled? (empty? units-in-dimension)
                                  :options   (->> units-in-dimension
                                                  (filter #(= (:unit/system %) :metric))
