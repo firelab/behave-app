@@ -87,6 +87,11 @@
      :pattern (or pattern '[*])
      :id      eid}))
 
+(rf/reg-sub
+ :touch-entity
+ (fn [_ [_ eid]]
+   (d/touch (d/entity @@s/conn eid))))
+
 (rp/reg-query-sub
   :entity-attr
   '[:find  ?v .

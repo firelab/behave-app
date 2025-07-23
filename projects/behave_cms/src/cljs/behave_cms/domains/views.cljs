@@ -10,29 +10,27 @@
                selected-domain-atom (r/atom nil)]
     (let [domain-set                          @(rf/subscribe [:pull-with-attr :domain-set/name])
           refersh-selected-domain-set-atom-fn #(reset! selected-domain-set-atom
-                                                       @(rf/subscribe [:entity (:db/id @selected-domain-set-atom)]))]
+                                                       @(rf/subscribe [:touch-entity (:db/id @selected-domain-set-atom)]))]
       [:div.container
        [:div {:style {:height "500px"}}
         [table-entity-form
          {:title              "Domain Sets"
           :entity             :domain-set
           :entities           (sort-by :domain-set/name domain-set)
-          :on-select          #(reset! selected-domain-set-atom @(rf/subscribe [:entity (:db/id %)]))
+          :on-select          #(reset! selected-domain-set-atom @(rf/subscribe [:touch-entity (:db/id %)]))
           :table-header-attrs [:domain-set/name]
           :entity-form-fields [{:label     "Name"
                                 :required? true
                                 :field-key :domain-set/name}]}]]
        (when @selected-domain-set-atom
-         (let [domains            (->> @selected-domain-set-atom
-                                       :domain-set/domains
-                                       (map #(deref (rf/subscribe [:entity (:db/id %)]))))
+         (let [domains            (:domain-set/domains @selected-domain-set-atom)
                dimension-uuid     (or @(rf/subscribe [:state (cond-> [:editors
                                                                       :domain
                                                                       (:db/id @selected-domain-set-atom)
                                                                       (:db/id @selected-domain-atom)
                                                                       :domain/dimension-uuid])])
                                       (:domain/dimension-uuid @selected-domain-atom))
-               dimension          @(rf/subscribe [:entity [:bp/uuid dimension-uuid]])
+               dimension          @(rf/subscribe [:touch-entity [:bp/uuid dimension-uuid]])
                units-in-dimension (:dimension/units dimension)
                units->option      (fn [{unit-name :unit/name short-code :unit/short-code unit-uuid :bp/uuid}]
                                     {:value unit-uuid
@@ -42,7 +40,7 @@
              {:title              "Domains"
               :entity             :domain
               :entities           (sort-by :domain/name domains)
-              :on-select          #(reset! selected-domain-atom @(rf/subscribe [:entity (:db/id %)]))
+              :on-select          #(reset! selected-domain-atom @(rf/subscribe [:touch-entity (:db/id %)]))
               :parent-id          (:db/id @selected-domain-set-atom)
               :parent-field       :domain-set/_domains
               :on-create          refersh-selected-domain-set-atom-fn

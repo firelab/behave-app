@@ -13,7 +13,7 @@
                                                          (:db/id @selected-variable-atom)
                                                          :variable/dimension-uuid]])
                                  (:variable/dimension-uuid @selected-variable-atom))
-          dimension          @(rf/subscribe [:entity [:bp/uuid dimension-uuid]])
+          dimension          @(rf/subscribe [:touch-entity [:bp/uuid dimension-uuid]])
           units-in-dimension (:dimension/units dimension)
           units->option      (fn [{unit-name :unit/name short-code :unit/short-code unit-uuid :bp/uuid}]
                                {:value unit-uuid
@@ -26,7 +26,7 @@
            :entity             :variable
            :entities           (sort-by :variable/name
                                         @(rf/subscribe [:pull-with-attr :variable/name]))
-           :on-select          #(reset! selected-variable-atom @(rf/subscribe [:entity (:db/id %)]))
+           :on-select          #(reset! selected-variable-atom @(rf/subscribe [:touch-entity (:db/id %)]))
            :table-header-attrs [:variable/name
                                 :variable/domain-uuid
                                 :variable/bp6-label

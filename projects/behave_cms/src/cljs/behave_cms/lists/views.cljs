@@ -22,7 +22,7 @@
             :entity             :list
             :entities           (sort-by :list/name
                                          @(rf/subscribe [:pull-with-attr :list/name]))
-            :on-select          #(reset! selected-list-atom @(rf/subscribe [:entity (:db/id %)]))
+            :on-select          #(reset! selected-list-atom @(rf/subscribe [:touch-entity (:db/id %)]))
             :table-header-attrs [:list/name]
             :entity-form-fields [{:label     "Name"
                                   :required? true
@@ -36,18 +36,16 @@
                                   :options   color-tag-sets
                                   :field-key :list/color-tag-set}]}]]
          (when @selected-list-atom
-           (let [list-options                  (->> @selected-list-atom
-                                                    :list/options
-                                                    (map #(deref (rf/subscribe [:entity (:db/id %)]))))
+           (let [list-options                  (:list/options @selected-list-atom)
                  tag-options                   (rf/subscribe [:list-option/tags-to-select (:db/id @selected-list-atom)])
                  color-tag-options             (rf/subscribe [:list-option/color-tags-to-select (:db/id @selected-list-atom)])
-                 refresh-selected-list-atom-fn #(reset! selected-list-atom @(rf/subscribe [:entity (:db/id @selected-list-atom)]))]
+                 refresh-selected-list-atom-fn #(reset! selected-list-atom @(rf/subscribe [:touch-entity (:db/id @selected-list-atom)]))]
              [:div {:style {:height "500px"}}
               [table-entity-form
                {:title              "List Options"
                 :entity             :list-option
                 :entities           list-options
-                :on-select          #(reset! selected-list-option-atom @(rf/subscribe [:entity (:db/id %)]))
+                :on-select          #(reset! selected-list-option-atom @(rf/subscribe [:touch-entity (:db/id %)]))
                 :parent-id          (:db/id @selected-list-atom)
                 :parent-field       :list/_options
                 :on-create          refresh-selected-list-atom-fn
