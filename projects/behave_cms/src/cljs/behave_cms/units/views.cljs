@@ -26,14 +26,20 @@
                                 :field-key :dimension/cpp-enum-uuid}]}]]
        (when @selected-dimension-atom
          [:div {:style {:height "500px"}}
-          (let [units        (:dimension/units @selected-dimension-atom)
-                enum-members @(rf/subscribe [:units/enum-member-options (:db/id @selected-dimension-atom)])]
+          (let [units                         (:dimension/units @selected-dimension-atom)
+                enum-members                  @(rf/subscribe [:units/enum-member-options (:db/id @selected-dimension-atom)])
+                refresh-selected-list-atom-fn #(reset! selected-dimension-atom
+                                                       @(rf/subscribe [:touch-entity (:db/id @selected-dimension-atom)]))]
             [table-entity-form
              {:title              "Units"
               :entity             :unit
               :entities           (sort-by :unit/name units)
               :on-select          #(reset! selected-unit-atom @(rf/subscribe [:touch-entity (:db/id %)]))
-              :table-header-attrs [:unit/name]
+              :parent-id          (:db/id @selected-dimension-atom)
+              :parent-field       :dimension/_units
+              :on-create          refresh-selected-list-atom-fn
+              :on-delete          refresh-selected-list-atom-fn
+              :table-header-attrs [:unit/name :unit/short-code :unit/system]
               :entity-form-fields [{:label     "Name"
                                     :required? true
                                     :field-key :unit/name}

@@ -277,7 +277,7 @@
                                :justify-content "space-between"
                                :border-bottom   "3px solid black"
                                :padding         "5px"}}
-    [:div caption]
+    [:div {:style {:font-size "1.5rem"}} caption]
     [:div [btn-sm
            :primary
            "Add Entry"
