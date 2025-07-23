@@ -418,8 +418,8 @@
                                     (and (nil? id) parent-field parent-id)
                                     (merge-parent-fields original entity parent-field parent-id parent)
 
-                                    ;; (and (nil? id) (fn? on-create))
-                                    ;; (on-create)
+                                    (and (nil? id) (fn? on-create))
+                                    (on-create)
 
                                     (and id (cardinality-many-fields? fields state))
                                     (retract-cardinality-many-values original)
@@ -428,11 +428,7 @@
                                     (dissoc :group-variable-lookup)
 
                                     :always
-                                    (upsert-entity!)
-
-                                    (and (nil? id) (fn? on-create))
-                                    (on-create)
-                                    )
+                                    (upsert-entity!))
                                   (rf/dispatch [:state/set-state state-path nil])))]
     [:form {:on-submit on-submit}
      (for [{:keys [field-key type] :as field} fields]

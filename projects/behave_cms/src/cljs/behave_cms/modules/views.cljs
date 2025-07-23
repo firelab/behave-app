@@ -20,7 +20,7 @@
          :on-select          #(reset! selected-module-atom @(rf/subscribe [:re-entity (:db/id %)]))
          :parent-id          app-id
          :parent-field       :application/_modules
-         :table-header-attrs [:module/name :module/order]
+         :table-header-attrs [:module/name]
          :order-attr         :module/order
          :entity-form-fields [{:label     "Name"
                                :required? true
@@ -38,7 +38,7 @@
          :on-select          #(reset! selected-tool-atom @(rf/subscribe [:re-entity (:db/id %)]))
          :parent-id          app-id
          :parent-field       :application/_tools
-         :table-header-attrs [:tool/name :tool/order]
+         :table-header-attrs [:tool/name]
          :order-attr         :tool/order
          :entity-form-fields [{:label     "Name"
                                :required? true
@@ -59,7 +59,7 @@
          :on-select          #(reset! selected-prioritized-results-atom @(rf/subscribe [:re-entity (:db/id %)]))
          :parent-id          app-id
          :parent-field       :application/_prioritized-results
-         :table-header-attrs [:variable/name :prioritized-results/order]
+         :table-header-attrs [:variable/name]
          :order-attr         :prioritized-results/order
          :entity-form-fields [{:label     "Group Variable"
                                :app-id    app-id
