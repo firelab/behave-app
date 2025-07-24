@@ -70,8 +70,8 @@
                   [:<>
                    [accordion
                     (:pivot-table/title pivot-table)
-                    (let [pivot-table-column-state-path  [:selected pivot-table-id :pivot-table-field]
-                          pivot-table-column-editor-path [:editors pivot-table-id :pivot-table-field]
+                    (let [pivot-table-column-state-path  [:selected :pivot-table pivot-table-id :pivot-column]
+                          pivot-table-column-editor-path [:editors :pivot-table pivot-table-id :pivot-column]
                           pivot-table-columns            (rf/subscribe [:pivot-table/columns pivot-table-id])
                           pivot-table-column             (rf/subscribe [:state pivot-table-column-state-path])]
                       [table-entity-form
