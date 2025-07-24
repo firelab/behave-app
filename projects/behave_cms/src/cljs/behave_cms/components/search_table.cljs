@@ -39,7 +39,7 @@
                                               :options   [{:label "Minimum" :value :min}
                                                           {:label "Maximum" :value :max}]}]
                               :on-create    #(do (swap! show-add-search-table? not) %)}]
-                [:div {:style {:height "300px"}}
+                [:div {:style {:height "500px"}}
                  [table-entity-form {:title              "Search Table Filters"
                                     :entity             :search-table-filter
                                     :entities           @(rf/subscribe [:search-table/filters search-table-id])
@@ -62,7 +62,7 @@
                                                           :type                     :group-variable-value}]
                                     :parent-id          search-table-id
                                     :parent-field       :search-table/_filters}]]
-                [:div {:style {:height "300px"}}
+                [:div {:style {:height "500px"}}
                  [table-entity-form {:title              "Search Table Columns"
                                     :entity             :search-table-column
                                     :entities           @(rf/subscribe [:search-table/columns search-table-id])
