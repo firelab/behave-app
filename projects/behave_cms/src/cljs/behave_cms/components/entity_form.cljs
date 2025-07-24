@@ -124,13 +124,22 @@
      :on-select #(on-change (u/input-value %))
      :selected  @state}]])
 
+(defmethod field-input :keyword-select [{:keys [label options on-change state disabled?]}]
+  [:div.mb-3
+   [dropdown
+    {:label     label
+     :options   options
+     :disabled? disabled?
+     :on-select #(on-change (keyword (u/input-value %)))
+     :selected  @state}]])
+
 (defmethod field-input :ref-select [{:keys [label options on-change state]}]
   [:div.mb-3
    [dropdown
     {:label     label
      :options   options
      :on-select #(on-change (long (u/input-value %)))
-     :selected  (:db/id @state)}]])
+     :selected  @state}]])
 
 (defmethod field-input :set [{:keys [label options on-change state disabled?]
                               :or   {disabled? false}}]
@@ -153,10 +162,10 @@
              :id        id
              :checked   checked?
              :on-change #(let [enable? (.. % -target -checked)
-                               state'  (vec (if enable?
-                                              (conj state-as-set value)
-                                              (disj state-as-set value)))]
-                           (on-change state'))}]
+                               state   (vec (if enable?
+                                             (conj state-as-set value)
+                                             (disj state-as-set value)))]
+                           (on-change state))}]
            [:label.form-check-label {:for id} label]])))]))
 
 (defmethod field-input :checkbox [{:keys [label options on-change state disabled?]
@@ -287,25 +296,26 @@
 (defmethod field-input :color
   [{:keys [label disabled? autofocus? required? placeholder on-change state]
     :or   {disabled? false required? false}}]
-  [:div.my-3
-   [:label.form-label {:for (u/sentence->kebab label)} label]
-   [:div.field-input__keywords
-    {:style {:display        :flex
-             :flex-flow      "row wrap"
-             :flex-direction :row
-             :margin-bottom  "5px"}}]
-   [:input.form-control
-    {:auto-focus  autofocus?
-     :disabled    disabled?
-     :required    required?
-     :placeholder placeholder
-     :id          (u/sentence->kebab label)
-     :type        "color"
-     :value       @state
-     :on-change   #(on-change (u/input-value %))}]])
+  (when (not disabled?)
+    [:div.my-3
+     [:label.form-label {:for (u/sentence->kebab label)} label]
+     [:div.field-input__keywords
+      {:style {:display        :flex
+               :flex-flow      "row wrap"
+               :flex-direction :row
+               :margin-bottom  "5px"}}]
+     [:input.form-control
+      {:auto-focus  autofocus?
+       :disabled    disabled?
+       :required    required?
+       :placeholder placeholder
+       :id          (u/sentence->kebab label)
+       :type        "color"
+       :value       @state
+       :on-change   #(on-change (u/input-value %))}]]))
 
 (defmethod field-input :group-variable
-  [{:keys [state-path field-key app-id label autocomplete autofocus? required? placeholder on-change state]}]
+  [{:keys [state-path field-key field-key-type app-id label autocomplete autofocus? required? placeholder on-change state]}]
   (r/with-let [show-group-variable-selector? (r/atom false)]
     [:div
      [:label.form-label {:for (u/sentence->kebab label)} label]
@@ -319,7 +329,9 @@
         :placeholder   placeholder
         :id            (u/sentence->kebab label)
         :type          type
-        :value         @(rf/subscribe [:gv-eid->variable-name @state])
+        :value         (if (= field-key-type :db.type/string)
+                         @(rf/subscribe [:gv-uuid->variable-name @state])
+                         @(rf/subscribe [:gv-eid->variable-name @state]))
         :on-change     #(on-change (u/input-value %))}]
       (when (not @show-group-variable-selector?)
         [:button.btn.btn-sm.btn-outline-primary
@@ -332,7 +344,9 @@
                  :state-path state-path
                  :gv-id      @state
                  :title      "Group Variable Selector"
-                 :on-submit  #(do (on-change %)
+                 :on-submit  #(do (on-change (if (= field-key-type :db.type/string)
+                                               @(rf/subscribe [:id->uuid %])
+                                               %))
                                   (swap! show-group-variable-selector? not))}
           :state-path (assoc :state-path (conj state-path :group-variable-lookup field-key)))])]))
 
@@ -389,8 +403,8 @@
                                              {:label \"Output\" :value :output}]}]
                 :on-create     #(assoc % :submodule/order num-submodules)})
   ```"
-  [{:keys [entity parent-field parent-id fields id on-create on-update]}]
-  (let [state-path   [:editors entity parent-id id]
+  [{:keys [entity parent-field parent-id fields id on-create on-update state-path]}]
+  (let [state-path   (or state-path [:editors entity parent-id id])
         original     @(rf/subscribe [:entity id])
         parent       @(rf/subscribe [:entity parent-id])
         update-state (fn [field] (fn [value] (rf/dispatch [:state/set-state (conj state-path field) value])))

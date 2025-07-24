@@ -23,6 +23,26 @@
                  :link  (path-for app-routes :get-submodule :nid nid)}))
          (sort-by :label))))
 
+(reg-sub
+ :pivot-table/columns
+ (fn [[_ pivot-table-id]]
+   (subscribe [:query
+               '[:find ?c ?name
+                 :in  $ ?p
+                 :where
+                 [?p :pivot-table/columns ?c]
+                 [?c :pivot-column/group-variable-uuid ?gv-uuid]
+                 [?gv :bp/uuid ?gv-uuid]
+                 [?v :variable/group-variables ?gv]
+                 [?v :variable/name ?name]]
+               [pivot-table-id]]))
+ (fn [results]
+   (->> results
+        (mapv (fn [[eid v-name]]
+                (-> @(subscribe [:entity eid])
+                    (assoc :variable/name v-name))))
+        (sort-by :pivot-column/order))))
+
 
 (reg-sub
  :pivot-table/fields

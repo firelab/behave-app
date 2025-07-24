@@ -185,6 +185,12 @@
    :in    $ ?uuid
    :where [?id :bp/uuid ?uuid]])
 
+(rp/reg-query-sub
+ :id->uuid
+ '[:find  ?uuid .
+   :in    $ ?id
+   :where [?id :bp/uuid ?uuid]])
+
 (rf/reg-sub
  :q-with-rules
  (fn [_ [_ query rules & args]]
@@ -223,3 +229,20 @@
           [?v :variable/name ?name]]
         @@s/conn
         gv-eid)))
+
+(rf/reg-sub
+ :gv-uuid->variable-name
+ (fn [_ [_ gv-uuid]]
+   (d/q '[:find ?name .
+          :in  $ ?gv-uuid
+          :where
+          [?gv :bp/uuid ?gv-uuid]
+          [?v :variable/group-variables ?gv]
+          [?v :variable/name ?name]]
+        @@s/conn
+        gv-uuid)))
+
+(rf/reg-sub
+ :attr-type
+ (fn [_ [_ attr-ident]]
+   (get-in @@s/conn [:schema attr-ident :db.valueType])))

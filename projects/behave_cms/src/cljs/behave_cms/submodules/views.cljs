@@ -3,7 +3,6 @@
             [behave-cms.components.entity-form  :refer [entity-form]]
             [behave-cms.components.sidebar      :refer [sidebar sidebar-width]]
             [behave-cms.help.views              :refer [help-editor]]
-            [behave-cms.components.pivot-tables :refer [manage-pivot-table-column]]
             [behave-cms.components.table-entity-form :refer [table-entity-form]]
             [behave-cms.components.translations :refer [all-translations]]
             [behave-cms.components.search-table :refer [search-tables]]
@@ -67,35 +66,50 @@
             (doall
              (map
               (fn [pivot-table]
-                (let [pivot-table-id       (:db/id pivot-table)
-                      pivot-table-fields   @(rf/subscribe [:pivot-table/fields pivot-table-id])
-                      pivot-table-values   @(rf/subscribe [:pivot-table/values pivot-table-id])
-                      pivot-column-id-atom (r/atom nil)]
+                (let [pivot-table-id (:db/id pivot-table)]
                   [:<>
                    [accordion
                     (:pivot-table/title pivot-table)
-                    [:div.row.col-6
-                     [simple-table
-                      [:variable/name]
-                      pivot-table-fields
-                      {:caption     "Pivot Table Fields"
-                       :on-increase #(rf/dispatch [:api/reorder % pivot-table-fields :pivot-column/order :inc])
-                       :on-decrease #(rf/dispatch [:api/reorder % pivot-table-fields :pivot-column/order :dec])
-                       :on-delete   #(rf/dispatch [:api/delete-entity (:db/id %)])
-                       :on-select   #(reset! pivot-column-id-atom (:db/id %))}]
-                     [simple-table
-                      [:variable/name :pivot-column/function]
-                      pivot-table-values
-                      {:caption   "Pivot Table Values"
-                       :on-delete #(rf/dispatch [:api/delete-entity (:db/id %)])
-                       :on-select #(reset! pivot-column-id-atom (:db/id %))}]
-                     [btn-sm
-                      :outline-danger
-                      "Delete Pivot Table"
-                      #(when (js/confirm (str "Are you sure you want to delete this pivot table?"))
-                         (rf/dispatch [:api/delete-entity pivot-table-id]))]]
-                    [:div.row.col-6
-                     [manage-pivot-table-column module-id pivot-table-id pivot-column-id-atom]]]
+                    (let [pivot-table-column-state-path  [:selected pivot-table-id :pivot-table-field]
+                          pivot-table-column-editor-path [:editors pivot-table-id :pivot-table-field]
+                          pivot-table-columns            (rf/subscribe [:pivot-table/columns pivot-table-id])
+                          pivot-table-column             (rf/subscribe [:state pivot-table-column-state-path])]
+                      [table-entity-form
+                       {:title              "Pivot Table Columns"
+                        :form-state-path    pivot-table-column-editor-path
+                        :entity             :pivot-table/columns
+                        :entities           (sort-by :pivot-column/order @pivot-table-columns)
+                        :parent-id          pivot-table-id
+                        :parent-field       :pivot-table/_columns
+                        :on-select          #(if (= (:db/id %) (:db/id @pivot-table-column))
+                                               (do (rf/dispatch [:state/set-state pivot-table-column-state-path nil])
+                                                   (rf/dispatch [:state/set-state pivot-table-column-state-path nil]))
+                                               (rf/dispatch [:state/set-state pivot-table-column-state-path
+                                                             @(rf/subscribe [:re-entity (:db/id %)])]))
+                        :order-attr         :pivot-column/order
+                        :table-header-attrs [:variable/name :pivot-column/type :pivot-column/function]
+                        :entity-form-fields (cond-> [{:label     "Column Type"
+                                                      :type      :radio
+                                                      :required? true
+                                                      :field-key :pivot-column/type
+                                                      :options   [{:label "Field" :value :field}
+                                                                  {:label "Value" :value :value}]}
+                                                     {:label          "Group Variable"
+                                                      :field-key      :pivot-column/group-variable-uuid
+                                                      :field-key-type :db.type/string
+                                                      :app-id         (:db/id application)
+                                                      :required?      true
+                                                      :type           :group-variable}]
+                                              (or (= (:pivot-column/type @pivot-table-column) :value)
+                                                  (= (:pivot-column/type @(rf/subscribe [:state pivot-table-column-editor-path])) :value))
+                                              (conj {:label     "Function"
+                                                     :type      :keyword-select
+                                                     :field-key :pivot-column/function
+                                                     :required  true
+                                                     :options   [{:value "sum" :label "sum"}
+                                                                 {:value "min" :label "min"}
+                                                                 {:value "max" :label "max"}
+                                                                 {:value "count" :label "count"}]}))}])]
                    [:hr]]))
               (:module/pivot-tables @module)))
             (if @show-add-pivot-table?

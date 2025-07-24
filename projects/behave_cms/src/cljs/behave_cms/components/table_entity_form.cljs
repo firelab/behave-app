@@ -5,6 +5,11 @@
    [re-frame.core                      :as rf]
    [reagent.core                       :as r]))
 
+(defn- clear-form-state-path! [form-state-path]
+  (if form-state-path
+    (rf/dispatch [:state/set-state form-state-path {}])
+    (rf/dispatch [:state/set-state :editors {}])))
+
 (defn table-entity-form
   "A component that has simple table with a togglable entity-form. Use this
   whenever a parent entity has an attribute that has many refs to component
@@ -32,7 +37,7 @@
 
   "
   [{:keys [title entity entities table-header-attrs entity-form-fields parent-id parent-field order-attr
-           on-select]}]
+           on-select form-state-path]}]
   (r/with-let [entity-id-atom (r/atom nil)
                show-entity-form? (r/atom false)]
     [:div {:style {:display "flex"
@@ -45,10 +50,10 @@
          table-header-attrs
          (map :field-key entity-form-fields))
        (if order-attr (sort-by order-attr entities) entities)
-       (cond-> {:add-entity-fn #(do (swap! show-entity-form? not)
+       (cond-> {:add-entity-fn #(do (when (nil? @entity-id-atom) (swap! show-entity-form? not))
                                     (rf/dispatch [:state/set-state :editors {}])
-                                    (when on-select (on-select %))
-                                    (reset! entity-id-atom nil))
+                                    (reset! entity-id-atom nil)
+                                    (when on-select (on-select %)))
                 :on-delete     #(when (js/confirm (str "Are you sure you want to delete this "
                                                        (name entity)))
                                   (rf/dispatch-sync [:api/delete-entity (:db/id %)]))
@@ -68,6 +73,7 @@
        [:div {:style {:height "100%"
                       :overflow-y "auto"}}
         [entity-form {:title        title
+                      :state-path   form-state-path
                       :id           @entity-id-atom
                       :entity       entity
                       :parent-field parent-field
