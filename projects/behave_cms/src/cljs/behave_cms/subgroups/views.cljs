@@ -40,22 +40,6 @@
       :on-increase #(rf/dispatch [:api/reorder % @subgroups :group/order :inc])
       :on-decrease #(rf/dispatch [:api/reorder % @subgroups :group/order :dec])}]))
 
-#_(defn- subgroups-table [group-id]
-  (r/with-let [selected-subgroup-atom (r/atom nil)]
-    (let [subgroups @(rf/subscribe [:group/subgroups group-id])]
-      [:div.col-12
-       [table-entity-form
-        {:entity             :module
-         :entities           (sort-by :module/order modules)
-         :on-select          #(reset! selected-module-atom @(rf/subscribe [:re-entity (:db/id %)]))
-         :parent-id          app-id
-         :parent-field       :application/_modules
-         :table-header-attrs [:module/name]
-         :order-attr         :module/order
-         :entity-form-fields [{:label     "Name"
-                               :required? true
-                               :field-key :module/name}]}]])))
-
 (defn- variables-table [group-id]
   (let [group-variables (rf/subscribe [:group/variables group-id])]
     [simple-table

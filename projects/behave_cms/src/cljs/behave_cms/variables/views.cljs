@@ -4,32 +4,38 @@
             [behave-cms.events]
             [behave-cms.subs]))
 
+;; helpers
+
+(defn- on-select [selected-entity-id state-path]
+  #(if (= (:db/id %) selected-entity-id)
+     (rf/dispatch [:state/set-state state-path nil])
+     (rf/dispatch [:state/set-state state-path
+                   @(rf/subscribe [:re-entity (:db/id %)])])))
+
+;; Variables
 (defn list-variables-page
   "Page to manage Variables"
   [_]
   (if @(rf/subscribe [:state :loaded?])
-    (let [selected-variable-state-path [:selected :variable]
-          variable-editor-path         [:editors  :variable]
-          selected-variable            (rf/subscribe [:state selected-variable-state-path])
-          dimension-uuid               (or @(rf/subscribe [:state (conj variable-editor-path :variable/dimension-uuid)])
-                                           (:variable/dimension-uuid @selected-variable))
-          dimension                    @(rf/subscribe [:re-entity [:bp/uuid dimension-uuid]])
-          units-in-dimension           (:dimension/units dimension)
-          units->option                (fn [{unit-name :unit/name short-code :unit/short-code unit-uuid :bp/uuid}]
-                                         {:value unit-uuid
-                                          :label (str unit-name " (" short-code ")")})]
+    (let [selected-state-path [:selected :tool]
+          editor-state-path   [:editors :tool]
+          selected-entity     (rf/subscribe [:state selected-state-path])
+          entities            (rf/subscribe [:pull-with-attr :variable/name])
+          dimension-uuid      (or @(rf/subscribe [:state (conj editor-state-path :variable/dimension-uuid)])
+                                  (:variable/dimension-uuid @selected-entity))
+          dimension           @(rf/subscribe [:re-entity [:bp/uuid dimension-uuid]])
+          units-in-dimension  (:dimension/units dimension)
+          units->option       (fn [{unit-name :unit/name short-code :unit/short-code unit-uuid :bp/uuid}]
+                                {:value unit-uuid
+                                 :label (str unit-name " (" short-code ")")})]
       [:div.container
        {:style {:height "900px"}}
        [table-entity-form
         {:title              "Variables"
-         :form-state-path    variable-editor-path
+         :form-state-path    editor-state-path
          :entity             :variable
-         :entities           (sort-by :variable/name
-                                      @(rf/subscribe [:pull-with-attr :variable/name]))
-         :on-select          #(if (= (:db/id %) (:db/id @selected-variable))
-                                (rf/dispatch [:state/set-state selected-variable-state-path nil])
-                                (rf/dispatch [:state/set-state selected-variable-state-path
-                                              @(rf/subscribe [:re-entity (:db/id %)])]))
+         :entities           (sort-by :variable/name @entities)
+         :on-select          (on-select (:db/id selected-entity) selected-state-path)
          :table-header-attrs [:variable/name
                               :variable/domain-uuid
                               :variable/bp6-label

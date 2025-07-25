@@ -10,23 +10,27 @@
             [re-frame.core                      :as rf]
             [reagent.core                       :as r]))
 
+(defn- on-select [selected-entity-id selected-state-path & [other-state-paths-to-clear]]
+  #(if (= (:db/id %) selected-entity-id)
+     (do (rf/dispatch [:state/set-state selected-state-path nil])
+         (doseq [path other-state-paths-to-clear]
+           (rf/dispatch [:state/set-state path nil])))
+     (rf/dispatch [:state/set-state selected-state-path
+                   @(rf/subscribe [:re-entity (:db/id %)])])))
+
 (defn- pivot-table [pivot-table-id application-id]
-  (let [pivot-table-column-state-path  [:selected :pivot-table pivot-table-id :pivot-column]
-        pivot-table-column-editor-path [:editors :pivot-table pivot-table-id :pivot-column]
-        pivot-table-columns            (rf/subscribe [:pivot-table/columns pivot-table-id])
-        pivot-table-column             (rf/subscribe [:state pivot-table-column-state-path])]
+  (let [selected-state-path [:selected :pivot-table pivot-table-id :pivot-column]
+        editor-path         [:editors :pivot-table pivot-table-id :pivot-column]
+        selected-entity     (rf/subscribe [:state selected-state-path])
+        entities            (rf/subscribe [:pivot-table/columns pivot-table-id])]
     [table-entity-form
      {:title              "Pivot Table Columns"
-      :form-state-path    pivot-table-column-editor-path
+      :form-state-path    selected-state-path
       :entity             :pivot-table/columns
-      :entities           (sort-by :pivot-column/order @pivot-table-columns)
+      :entities           (sort-by :pivot-column/order @entities)
       :parent-id          pivot-table-id
       :parent-field       :pivot-table/_columns
-      :on-select          #(if (= (:db/id %) (:db/id @pivot-table-column))
-                             (do (rf/dispatch [:state/set-state pivot-table-column-state-path nil])
-                                 (rf/dispatch [:state/set-state pivot-table-column-state-path nil]))
-                             (rf/dispatch [:state/set-state pivot-table-column-state-path
-                                           @(rf/subscribe [:re-entity (:db/id %)])]))
+      :on-select          (on-select (:db/id @selected-entity) selected-state-path)
       :order-attr         :pivot-column/order
       :table-header-attrs [:variable/name :pivot-column/type :pivot-column/function]
       :entity-form-fields (cond-> [{:label     "Column Type"
@@ -41,8 +45,8 @@
                                     :app-id         application-id
                                     :required?      true
                                     :type           :group-variable}]
-                            (or (= (:pivot-column/type @pivot-table-column) :value)
-                                (= (:pivot-column/type @(rf/subscribe [:state pivot-table-column-editor-path])) :value))
+                            (or (= (:pivot-column/type @selected-entity) :value)
+                                (= (:pivot-column/type @(rf/subscribe [:state editor-path])) :value))
                             (conj {:label     "Function"
                                    :type      :keyword-select
                                    :field-key :pivot-column/function
@@ -53,19 +57,15 @@
                                                {:value "count" :label "count"}]}))}]))
 
 (defn- submodules-table [module-id app-id]
-  (let [selected-submodule-state-path [:selected :submodule]
-        submodule-editor-path         [:editors :submodule]
-        selected-submodule            (rf/subscribe [:state selected-submodule-state-path])
-        submodule                     (rf/subscribe [:submodules module-id])]
+  (let [selected-state-path [:selected :submodule]
+        editor-state-path   [:editors :submodule]
+        selected-entity     (rf/subscribe [:state selected-state-path])
+        submodule           (rf/subscribe [:submodules module-id])]
     [table-entity-form
      {:entity             :submodule
-      :form-state-path    submodule-editor-path
+      :form-state-path    editor-state-path
       :entities           (sort-by :submodule/order @submodule)
-      :on-select          #(if (= (:db/id %) (:db/id @selected-submodule))
-                             (do (rf/dispatch [:state/set-state selected-submodule-state-path nil])
-                                 (rf/dispatch [:state/set-state selected-submodule-state-path nil]))
-                             (rf/dispatch [:state/set-state selected-submodule-state-path
-                                           @(rf/subscribe [:re-entity (:db/id %)])]))
+      :on-select          (on-select (:db/id @selected-entity) selected-state-path)
       :parent-id          app-id
       :parent-field       :application/_submodules
       :table-header-attrs [:submodule/name :submodule/io]

@@ -10,19 +10,18 @@
             [behave-cms.groups.subs]))
 
 (defn- groups-table [submodule-id]
-  (let [selected-group-state-path [:selected :group]
-        group-editor-path         [:editors :group]
-        selected-group            (rf/subscribe [:state selected-group-state-path])
-        groups                    (rf/subscribe [:groups submodule-id])]
+  (let [selected-state-path [:selected :group]
+        editor-state-path   [:editors :group]
+        selected-entity     (rf/subscribe [:state selected-state-path])
+        groups              (rf/subscribe [:groups submodule-id])]
     [:div.col-12
      [table-entity-form
       {:entity             :group
-       :form-state-path    group-editor-path
+       :form-state-path    editor-state-path
        :entities           (sort-by :group/order @groups)
-       :on-select          #(if (= (:db/id %) (:db/id @selected-group))
-                              (do (rf/dispatch [:state/set-state selected-group-state-path nil])
-                                  (rf/dispatch [:state/set-state selected-group-state-path nil]))
-                              (rf/dispatch [:state/set-state selected-group-state-path
+       :on-select          #(if (= (:db/id %) (:db/id @selected-entity))
+                              (rf/dispatch [:state/set-state selected-state-path nil])
+                              (rf/dispatch [:state/set-state selected-state-path
                                             @(rf/subscribe [:re-entity (:db/id %)])]))
        :parent-id          submodule-id
        :parent-field       :submodule/_groups

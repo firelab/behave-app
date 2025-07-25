@@ -4,64 +4,76 @@
             [behave-cms.events]
             [behave-cms.subs]))
 
+(defn- on-select [selected-entity-id selected-state-path & [other-state-paths-to-clear]]
+  #(if (= (:db/id %) selected-entity-id)
+     (do (rf/dispatch [:state/set-state selected-state-path nil])
+         (doseq [path other-state-paths-to-clear]
+           (rf/dispatch [:state/set-state path nil])))
+     (rf/dispatch [:state/set-state selected-state-path
+                   @(rf/subscribe [:re-entity (:db/id %)])])))
+
+(defn- units-table [selected-state-path editor-state-path selected-dimension-path]
+  (let [selected-entity    (rf/subscribe [:state selected-state-path])
+        selected-dimension (rf/subscribe [:state selected-dimension-path])
+        units              (:dimension/units @selected-dimension)
+        enum-members       @(rf/subscribe [:units/enum-member-options (:db/id @selected-dimension)])]
+    [table-entity-form
+     {:title              "Units"
+      :form-state-path    editor-state-path
+      :entity             :unit
+      :entities           (sort-by :unit/name units)
+      :on-select          (on-select (:db/id selected-entity) selected-state-path)
+      :parent-id          (:db/id @selected-dimension)
+      :parent-field       :dimension/_units
+      :table-header-attrs [:unit/name :unit/short-code :unit/system]
+      :entity-form-fields [{:label     "Name"
+                            :required? true
+                            :field-key :unit/name}
+                           {:label     "Short Code"
+                            :required? true
+                            :field-key :unit/short-code}
+                           {:label     "Enum Member"
+                            :type      :select
+                            :field-key :unit/cpp-enum-member-uuid
+                            :options   enum-members}
+                           {:label     "Default"
+                            :type      :radio
+                            :field-key :unit/system
+                            :options   [{:label "Metric" :value :metric}
+                                        {:label "English" :value :english}
+                                        {:label "Time" :value :time}]}]}]))
+
+(defn- dimensions-table [selected-state-path editor-state-path & other-state-paths-to-clear]
+  (let [selected-entity (rf/subscribe [:state selected-state-path])
+        entities        (rf/subscribe [:pull-with-attr :dimension/name])]
+    [table-entity-form
+     {:title              "Dimensions"
+      :form-state-path    editor-state-path
+      :entity             :dimension
+      :entities           (sort-by :dimension/name @entities)
+      :on-select          (on-select (:db/id @selected-entity) selected-state-path other-state-paths-to-clear)
+      :table-header-attrs [:dimension/name]
+      :entity-form-fields [{:label     "Name"
+                            :required? true :field-key :dimension/name}
+                           {:label     "Enum"
+                            :type      :select
+                            :required? true
+                            :options   @(rf/subscribe [:units/enum-options])
+                            :field-key :dimension/cpp-enum-uuid}]}]))
+
 (defn units-page
   "Page to manage Dimensions and Units"
   [_]
   (if @(rf/subscribe [:state :loaded?])
     (let [selected-dimension-state-path [:selected :dimension]
+          dimension-editor-state-path   [:editors  :dimension]
           selected-unit-state-path      [:selected :unit]
-          dimension-editor-path         [:editors  :dimension]
           unit-editor-path              [:editors  :unit]
-          selected-dimension            (rf/subscribe [:state selected-dimension-state-path])
-          dimensions                    (rf/subscribe [:pull-with-attr :dimension/name])]
+          selected-dimension            (rf/subscribe [:state selected-dimension-state-path])]
       [:div.container
        [:div {:style {:height "500px"}}
-        [table-entity-form
-         {:title              "Dimensions"
-          :form-state-path    dimension-editor-path
-          :entity             :dimension
-          :entities           (sort-by :dimension/name @dimensions)
-          :on-select          #(if (= (:db/id %) (:db/id @selected-dimension))
-                                 (do (rf/dispatch [:state/set-state selected-dimension-state-path nil])
-                                     (rf/dispatch [:state/set-state selected-dimension-state-path nil]))
-                                 (rf/dispatch [:state/set-state selected-dimension-state-path
-                                               @(rf/subscribe [:re-entity (:db/id %)])]))
-          :table-header-attrs [:dimension/name]
-          :entity-form-fields [{:label     "Name"
-                                :required? true :field-key :dimension/name}
-                               {:label     "Enum"
-                                :type      :select
-                                :required? true
-                                :options   @(rf/subscribe [:units/enum-options])
-                                :field-key :dimension/cpp-enum-uuid}]}]]
+        [dimensions-table selected-dimension-state-path dimension-editor-state-path]]
        (when @selected-dimension
          [:div {:style {:height "500px"}}
-          (let [units        (:dimension/units @selected-dimension)
-                enum-members @(rf/subscribe [:units/enum-member-options (:db/id @selected-dimension)])]
-            [table-entity-form
-             {:title              "Units"
-              :form-state-path    unit-editor-path
-              :entity             :unit
-              :entities           (sort-by :unit/name units)
-              :on-select          #(rf/dispatch [:state/set-state selected-unit-state-path
-                                                 @(rf/subscribe [:re-entity (:db/id %)])])
-              :parent-id          (:db/id @selected-dimension)
-              :parent-field       :dimension/_units
-              :table-header-attrs [:unit/name :unit/short-code :unit/system]
-              :entity-form-fields [{:label     "Name"
-                                    :required? true
-                                    :field-key :unit/name}
-                                   {:label     "Short Code"
-                                    :required? true
-                                    :field-key :unit/short-code}
-                                   {:label     "Enum Member"
-                                    :type      :select
-                                    :field-key :unit/cpp-enum-member-uuid
-                                    :options   enum-members}
-                                   {:label     "Default"
-                                    :type      :radio
-                                    :field-key :unit/system
-                                    :options   [{:label "Metric" :value :metric}
-                                                {:label "English" :value :english}
-                                                {:label "Time" :value :time}]}]}])])])
+          [units-table selected-unit-state-path unit-editor-path selected-dimension-state-path]])])
     [:div "Loading..."]))

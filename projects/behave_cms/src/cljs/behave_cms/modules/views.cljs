@@ -7,85 +7,80 @@
    [behave-cms.help.views              :refer [help-editor]]
    [behave-cms.components.table-entity-form :refer [table-entity-form]]))
 
+;; helpers
+
+(defn- on-select [selected-entity-id selected-state-path & [other-state-paths-to-clear]]
+  #(if (= (:db/id %) selected-entity-id)
+     (do (rf/dispatch [:state/set-state selected-state-path nil])
+         (doseq [path other-state-paths-to-clear]
+           (rf/dispatch [:state/set-state path nil])))
+     (rf/dispatch [:state/set-state selected-state-path
+                   @(rf/subscribe [:re-entity (:db/id %)])])))
+
 ;;; Modules
 
 (defn- modules-table [app-id]
-  (let [selected-module-state-path [:selected :module]
-        module-editor-path         [:editors :module]
-        selected-module            (rf/subscribe [:state selected-module-state-path])
-        modules                    (rf/subscribe [:application/modules app-id])]
-    [:div.col-12
-     [table-entity-form
-      {:entity             :module
-       :form-state-path    module-editor-path
-       :entities           (sort-by :module/order @modules)
-       :on-select          #(if (= (:db/id %) (:db/id @selected-module))
-                              (do (rf/dispatch [:state/set-state selected-module-state-path nil])
-                                  (rf/dispatch [:state/set-state selected-module-state-path nil]))
-                              (rf/dispatch [:state/set-state selected-module-state-path
-                                            @(rf/subscribe [:re-entity (:db/id %)])]))
-       :parent-id          app-id
-       :parent-field       :application/_modules
-       :table-header-attrs [:module/name]
-       :order-attr         :module/order
-       :entity-form-fields [{:label     "Name"
-                             :required? true
-                             :field-key :module/name}]}]]))
+  (let [selected-state-path [:selected :module]
+        editor-state-path   [:editors :module]
+        selected-entity     (rf/subscribe [:state selected-state-path])
+        entities            (rf/subscribe [:application/modules app-id])]
+    [table-entity-form
+     {:entity             :module
+      :form-state-path    editor-state-path
+      :entities           (sort-by :module/order @entities)
+      :on-select          (on-select (:db/id selected-entity) selected-state-path)
+      :parent-id          app-id
+      :parent-field       :application/_modules
+      :table-header-attrs [:module/name]
+      :order-attr         :module/order
+      :entity-form-fields [{:label     "Name"
+                            :required? true
+                            :field-key :module/name}]}]))
 
 ;;; Tools
 
 (defn- tools-table [app-id]
-  (let [selected-tool-state-path [:selected :tool]
-        tool-editor-path         [:editors :tool]
-        selected-tool            (rf/subscribe [:state selected-tool-state-path])
-        tools                    (rf/subscribe [:application/tools app-id])]
-    [:div.col-12
-     [table-entity-form
-      {:entity             :tool
-       :form-state-path    tool-editor-path
-       :entities           (sort-by :tool/order @tools)
-       :on-select          #(if (= (:db/id %) (:db/id @selected-tool))
-                              (do (rf/dispatch [:state/set-state selected-tool-state-path nil])
-                                  (rf/dispatch [:state/set-state selected-tool-state-path nil]))
-                              (rf/dispatch [:state/set-state selected-tool-state-path
-                                            @(rf/subscribe [:re-entity (:db/id %)])]))
-       :parent-id          app-id
-       :parent-field       :application/_tools
-       :table-header-attrs [:tool/name]
-       :order-attr         :tool/order
-       :entity-form-fields [{:label     "Name"
-                             :required? true
-                             :field-key :tool/name}
-                            {:label     "Library Namespace"
-                             :required? true
-                             :field-key :tool/lib-ns}]}]]))
+  (let [selected-state-path [:selected :tool]
+        editor-state-path   [:editors :tool]
+        selected-entity     (rf/subscribe [:state selected-state-path])
+        entities            (rf/subscribe [:application/tools app-id])]
+    [table-entity-form
+     {:entity             :tool
+      :form-state-path    editor-state-path
+      :entities           (sort-by :tool/order @entities)
+      :on-select          (on-select (:db/id selected-entity) selected-state-path)
+      :parent-id          app-id
+      :parent-field       :application/_tools
+      :table-header-attrs [:tool/name]
+      :order-attr         :tool/order
+      :entity-form-fields [{:label     "Name"
+                            :required? true
+                            :field-key :tool/name}
+                           {:label     "Library Namespace"
+                            :required? true
+                            :field-key :tool/lib-ns}]}]))
 
 ;; Priortzed Results Table
 (defn- prioritized-results-table
   [app-id]
-  (let [prioritized-results-state-path  [:selected :prioritized-results]
-        prioritized-results-editor-path [:editors :prioritized-results]
-        selected-prioritized-results    (rf/subscribe [:state prioritized-results-state-path])
-        prioritized-results             (rf/subscribe [:application/prioritized-results app-id])]
-    [:div.col-12
-     [table-entity-form
-      {:entity             :prioritized-results
-       :form-state-path    prioritized-results-editor-path
-       :entities           (sort-by :prioritized-results/order @prioritized-results)
-       :on-select          #(if (= (:db/id %) (:db/id @selected-prioritized-results))
-                              (do (rf/dispatch [:state/set-state prioritized-results-state-path nil])
-                                  (rf/dispatch [:state/set-state prioritized-results-state-path nil]))
-                              (rf/dispatch [:state/set-state prioritized-results-state-path
-                                            @(rf/subscribe [:re-entity (:db/id %)])]))
-       :parent-id          app-id
-       :parent-field       :application/_prioritized-results
-       :table-header-attrs [:variable/name]
-       :order-attr         :prioritized-results/order
-       :entity-form-fields [{:label     "Group Variable"
-                             :app-id    app-id
-                             :required? true
-                             :field-key :prioritized-results/group-variable
-                             :type      :group-variable}]}]]))
+  (let [selected-state-path [:selected :prioritized-results]
+        editor-state-path   [:editors :prioritized-results]
+        selected-entity     (rf/subscribe [:state selected-state-path])
+        entities            (rf/subscribe [:application/prioritized-results app-id])]
+    [table-entity-form
+     {:entity             :prioritized-results
+      :form-state-path    editor-state-path
+      :entities           (sort-by :prioritized-results/order @entities)
+      :on-select          (on-select (:db/id selected-entity) selected-state-path)
+      :parent-id          app-id
+      :parent-field       :application/_prioritized-results
+      :table-header-attrs [:variable/name]
+      :order-attr         :prioritized-results/order
+      :entity-form-fields [{:label     "Group Variable"
+                            :app-id    app-id
+                            :required? true
+                            :field-key :prioritized-results/group-variable
+                            :type      :group-variable}]}]))
 
 ;;; Public
 
