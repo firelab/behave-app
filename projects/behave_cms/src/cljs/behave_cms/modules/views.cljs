@@ -7,7 +7,8 @@
    [behave-cms.help.views              :refer [help-editor]]
    [behave-cms.components.table-entity-form :refer [table-entity-form]]))
 
-;; helpers
+
+;;; helpers
 
 (defn- on-select [selected-entity-id selected-state-path & [other-state-paths-to-clear]]
   #(if (= (:db/id %) selected-entity-id)

@@ -9,6 +9,14 @@
             [behave-cms.help.views                 :refer [help-editor]]
             [behave-cms.groups.subs]))
 
+(defn- on-select [selected-entity-id selected-state-path & [other-state-paths-to-clear]]
+  #(if (= (:db/id %) selected-entity-id)
+     (do (rf/dispatch [:state/set-state selected-state-path nil])
+         (doseq [path other-state-paths-to-clear]
+           (rf/dispatch [:state/set-state path nil])))
+     (rf/dispatch [:state/set-state selected-state-path
+                   @(rf/subscribe [:re-entity (:db/id %)])])))
+
 (defn- groups-table [submodule-id]
   (let [selected-state-path [:selected :group]
         editor-state-path   [:editors :group]
@@ -19,10 +27,7 @@
       {:entity             :group
        :form-state-path    editor-state-path
        :entities           (sort-by :group/order @groups)
-       :on-select          #(if (= (:db/id %) (:db/id @selected-entity))
-                              (rf/dispatch [:state/set-state selected-state-path nil])
-                              (rf/dispatch [:state/set-state selected-state-path
-                                            @(rf/subscribe [:re-entity (:db/id %)])]))
+       :on-select          (on-select (:db/id @selected-entity) selected-state-path)
        :parent-id          submodule-id
        :parent-field       :submodule/_groups
        :table-header-attrs [:group/name]
