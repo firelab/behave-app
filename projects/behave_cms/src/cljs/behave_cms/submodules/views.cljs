@@ -52,6 +52,33 @@
                                                {:value "max" :label "max"}
                                                {:value "count" :label "count"}]}))}]))
 
+(defn- submodules-table [module-id app-id]
+  (let [selected-submodule-state-path [:selected :submodule]
+        submodule-editor-path         [:editors :submodule]
+        selected-submodule            (rf/subscribe [:state selected-submodule-state-path])
+        submodule                     (rf/subscribe [:submodules module-id])]
+    [table-entity-form
+     {:entity             :submodule
+      :form-state-path    submodule-editor-path
+      :entities           (sort-by :submodule/order @submodule)
+      :on-select          #(if (= (:db/id %) (:db/id @selected-submodule))
+                             (do (rf/dispatch [:state/set-state selected-submodule-state-path nil])
+                                 (rf/dispatch [:state/set-state selected-submodule-state-path nil]))
+                             (rf/dispatch [:state/set-state selected-submodule-state-path
+                                           @(rf/subscribe [:re-entity (:db/id %)])]))
+      :parent-id          app-id
+      :parent-field       :application/_submodules
+      :table-header-attrs [:submodule/name :submodule/io]
+      :order-attr         :submodule/order
+      :entity-form-fields [{:label     "Name"
+                            :required? true
+                            :field-key :submodule/name}
+                           {:label     "I/O"
+                            :field-key :submodule/io
+                            :type      :radio
+                            :options   [{:label "Input" :value :input}
+                                        {:label "Output" :value :output}]}]}]))
+
 (defn submodules-page
   "Display submodules page. Takes a map with:
    - id [int]: Submodule entity ID."
@@ -74,21 +101,7 @@
           [:h2 (:module/name @module)]]
          [accordion
           "Submodules"
-          [table-entity-form {:entity             :submodule
-                              :entities           @(rf/subscribe [:submodules module-id])
-                              :table-header-attrs [:submodule/name :submodule/io]
-                              :entity-form-fields [{:label     "Name"
-                                                    :required? true
-                                                    :field-key :submodule/name}
-                                                   {:label     "I/O"
-                                                    :field-key :submodule/io
-                                                    :type      :radio
-                                                    :options   [{:label "Input" :value :input}
-                                                                {:label "Output" :value :output}]}]
-                              :parent-field       :module/_submodules
-                              :parent-id          module-id
-                              :order-attr         :submodule/order
-                              }]]
+          [submodules-table (:db/id @module) (:db/id application)]]
          [:hr]
          [accordion
           "Translations"
