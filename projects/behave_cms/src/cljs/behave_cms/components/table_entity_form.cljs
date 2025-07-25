@@ -5,10 +5,18 @@
    [re-frame.core                      :as rf]
    [reagent.core                       :as r]))
 
-(defn- clear-form-state-path! [form-state-path]
-  (if form-state-path
-    (rf/dispatch [:state/set-state form-state-path {}])
-    (rf/dispatch [:state/set-state :editors {}])))
+(defn on-select
+  "On select function to be passed into table-entity-form. Returns a function that expects an entity. Function will also update the `selected-state-path` as well as clearing the state of any related paths (`other-state-paths-to-clear`)"
+  [selected-state-path & other-state-paths-to-clear]
+  #(let [selected-entity-id (:db/id @(rf/subscribe [:state selected-state-path]))]
+     (if (= (:db/id %) selected-entity-id)
+       (do (rf/dispatch [:state/set-state selected-state-path nil])
+           (doseq [path other-state-paths-to-clear]
+             (rf/dispatch [:state/set-state path nil])))
+       (rf/dispatch [:state/set-state selected-state-path
+                     @(rf/subscribe [:re-entity (:db/id %)])]))
+     (doseq [path other-state-paths-to-clear]
+       (rf/dispatch [:state/set-state path nil]))))
 
 (defn table-entity-form
   "A component that has simple table with a togglable entity-form. Use this

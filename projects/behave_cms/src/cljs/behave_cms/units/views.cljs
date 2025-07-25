@@ -1,20 +1,11 @@
 (ns behave-cms.units.views
   (:require [re-frame.core                     :as rf]
-            [behave-cms.components.table-entity-form :refer [table-entity-form]]
+            [behave-cms.components.table-entity-form :refer [table-entity-form on-select]]
             [behave-cms.events]
             [behave-cms.subs]))
 
-(defn- on-select [selected-entity-id selected-state-path & [other-state-paths-to-clear]]
-  #(if (= (:db/id %) selected-entity-id)
-     (do (rf/dispatch [:state/set-state selected-state-path nil])
-         (doseq [path other-state-paths-to-clear]
-           (rf/dispatch [:state/set-state path nil])))
-     (rf/dispatch [:state/set-state selected-state-path
-                   @(rf/subscribe [:re-entity (:db/id %)])])))
-
 (defn- units-table [selected-state-path editor-state-path selected-dimension-path]
-  (let [selected-entity    (rf/subscribe [:state selected-state-path])
-        selected-dimension (rf/subscribe [:state selected-dimension-path])
+  (let [selected-dimension (rf/subscribe [:state selected-dimension-path])
         units              (:dimension/units @selected-dimension)
         enum-members       @(rf/subscribe [:units/enum-member-options (:db/id @selected-dimension)])]
     [table-entity-form
@@ -22,7 +13,7 @@
       :form-state-path    editor-state-path
       :entity             :unit
       :entities           (sort-by :unit/name units)
-      :on-select          (on-select (:db/id selected-entity) selected-state-path)
+      :on-select          (on-select selected-state-path)
       :parent-id          (:db/id @selected-dimension)
       :parent-field       :dimension/_units
       :table-header-attrs [:unit/name :unit/short-code :unit/system]
@@ -44,14 +35,13 @@
                                         {:label "Time" :value :time}]}]}]))
 
 (defn- dimensions-table [selected-state-path editor-state-path & other-state-paths-to-clear]
-  (let [selected-entity (rf/subscribe [:state selected-state-path])
-        entities        (rf/subscribe [:pull-with-attr :dimension/name])]
+  (let [entities (rf/subscribe [:pull-with-attr :dimension/name])]
     [table-entity-form
      {:title              "Dimensions"
       :form-state-path    editor-state-path
       :entity             :dimension
       :entities           (sort-by :dimension/name @entities)
-      :on-select          (on-select (:db/id @selected-entity) selected-state-path other-state-paths-to-clear)
+      :on-select          (on-select selected-state-path other-state-paths-to-clear)
       :table-header-attrs [:dimension/name]
       :entity-form-fields [{:label     "Name"
                             :required? true :field-key :dimension/name}

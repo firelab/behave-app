@@ -1,16 +1,8 @@
 (ns behave-cms.variables.views
   (:require [re-frame.core                     :as rf]
-            [behave-cms.components.table-entity-form :refer [table-entity-form]]
+            [behave-cms.components.table-entity-form :refer [table-entity-form on-select]]
             [behave-cms.events]
             [behave-cms.subs]))
-
-;; helpers
-
-(defn- on-select [selected-entity-id state-path]
-  #(if (= (:db/id %) selected-entity-id)
-     (rf/dispatch [:state/set-state state-path nil])
-     (rf/dispatch [:state/set-state state-path
-                   @(rf/subscribe [:re-entity (:db/id %)])])))
 
 ;; Variables
 (defn list-variables-page
@@ -35,7 +27,7 @@
          :form-state-path    editor-state-path
          :entity             :variable
          :entities           (sort-by :variable/name @entities)
-         :on-select          (on-select (:db/id selected-entity) selected-state-path)
+         :on-select          (on-select selected-state-path)
          :table-header-attrs [:variable/name
                               :variable/domain-uuid
                               :variable/bp6-label

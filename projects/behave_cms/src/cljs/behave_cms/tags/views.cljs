@@ -1,27 +1,18 @@
 (ns behave-cms.tags.views
   (:require [re-frame.core                     :as rf]
-            [behave-cms.components.table-entity-form :refer [table-entity-form]]
+            [behave-cms.components.table-entity-form :refer [table-entity-form on-select]]
             [behave-cms.events]
             [behave-cms.subs]))
 
-(defn- on-select [selected-entity-id selected-state-path & [other-state-paths-to-clear]]
-  #(if (= (:db/id %) selected-entity-id)
-     (do (rf/dispatch [:state/set-state selected-state-path nil])
-         (doseq [path other-state-paths-to-clear]
-           (rf/dispatch [:state/set-state path nil])))
-     (rf/dispatch [:state/set-state selected-state-path
-                   @(rf/subscribe [:re-entity (:db/id %)])])))
-
 (defn tags-table [selected-state-path editor-state-path selected-tag-set-path]
-  (let [selected-entity  (rf/subscribe [:state selected-state-path])
-        selected-tag-set (rf/subscribe [:state selected-tag-set-path])
+  (let [selected-tag-set (rf/subscribe [:state selected-tag-set-path])
         entities         (:tag-set/tags @selected-tag-set)]
     [table-entity-form
      {:title              "Tags"
       :form-state-path    editor-state-path
       :entity             :tag-set
       :entities           (sort-by :tag/name entities)
-      :on-select          (on-select (:db/id selected-entity) selected-state-path)
+      :on-select          (on-select selected-state-path)
       :parent-field       :tag-set/_tags
       :table-header-attrs [:tag/name]
       :order-attr         :tag/order
@@ -34,15 +25,14 @@
                             :disabled? (not (:tag-set/color? @selected-tag-set))
                             :field-key :tag/color}]}]))
 
-(defn- tag-sets-table [selected-state-path editor-state-path & other-state-paths-to-clear]
-  (let [selected-entity (rf/subscribe [:state selected-state-path])
-        entities        (rf/subscribe [:pull-with-attr :tag-set/name])]
+(defn- tag-sets-table [selected-state-path editor-state-path other-state-paths-to-clear]
+  (let [entities        (rf/subscribe [:pull-with-attr :tag-set/name])]
     [table-entity-form
      {:title              "Tag Sets"
       :form-state-path    editor-state-path
       :entity             :tag-set
       :entities           (sort-by :tag-set/name @entities)
-      :on-select          (on-select (:db/id @selected-entity) selected-state-path other-state-paths-to-clear)
+      :on-select          (on-select selected-state-path other-state-paths-to-clear)
       :table-header-attrs [:tag-set/name]
       :entity-form-fields [{:label     "Name"
                             :required? true

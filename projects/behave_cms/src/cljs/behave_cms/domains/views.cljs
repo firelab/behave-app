@@ -1,17 +1,8 @@
 (ns behave-cms.domains.views
   (:require [re-frame.core                     :as rf]
-            [behave-cms.components.table-entity-form :refer [table-entity-form]]
+            [behave-cms.components.table-entity-form :refer [table-entity-form on-select]]
             [behave-cms.events]
             [behave-cms.subs]))
-
-;; helpers
-(defn- on-select [selected-entity-id selected-state-path & [other-state-paths-to-clear]]
-  #(if (= (:db/id %) selected-entity-id)
-     (do (rf/dispatch [:state/set-state selected-state-path nil])
-         (doseq [path other-state-paths-to-clear]
-           (rf/dispatch [:state/set-state path nil])))
-     (rf/dispatch [:state/set-state selected-state-path
-                   @(rf/subscribe [:re-entity (:db/id %)])])))
 
 (defn- domains-table [selected-state-path editor-state-path selected-domain-set-path]
   (let [selected-entity     (rf/subscribe [:state selected-state-path])
@@ -30,7 +21,7 @@
        :form-state-path    editor-state-path
        :entity             :domain
        :entities           (sort-by :domain/name domains)
-       :on-select          (on-select (:db/id selected-entity) selected-state-path)
+       :on-select          (on-select selected-state-path)
        :parent-id          (:db/id @selected-domain-set)
        :parent-field       :domain-set/_domains
        :table-header-attrs [:domain/name]
@@ -84,14 +75,13 @@
                                              (map units->option))}]}]]))
 
 (defn- domain-sets-table [selected-state-path editor-state-path & other-state-paths-to-clear]
-  (let [selected-entity (rf/subscribe [:state selected-state-path])
-        entities        (rf/subscribe [:pull-with-attr :domain-set/name])]
+  (let [entities (rf/subscribe [:pull-with-attr :domain-set/name])]
     [table-entity-form
      {:title              "Domain Sets"
       :form-state-path    editor-state-path
       :entity             :domain-set
       :entities           (sort-by :domain-set/name @entities)
-      :on-select          (on-select (:db/id @selected-entity) selected-state-path other-state-paths-to-clear)
+      :on-select          (on-select selected-state-path other-state-paths-to-clear)
       :table-header-attrs [:domain-set/name]
       :entity-form-fields [{:label     "Name"
                             :required? true

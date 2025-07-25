@@ -5,31 +5,19 @@
    [behave-cms.components.sidebar      :refer [sidebar sidebar-width ->sidebar-links]]
    [behave-cms.components.translations :refer [app-translations]]
    [behave-cms.help.views              :refer [help-editor]]
-   [behave-cms.components.table-entity-form :refer [table-entity-form]]))
-
-
-;;; helpers
-
-(defn- on-select [selected-entity-id selected-state-path & [other-state-paths-to-clear]]
-  #(if (= (:db/id %) selected-entity-id)
-     (do (rf/dispatch [:state/set-state selected-state-path nil])
-         (doseq [path other-state-paths-to-clear]
-           (rf/dispatch [:state/set-state path nil])))
-     (rf/dispatch [:state/set-state selected-state-path
-                   @(rf/subscribe [:re-entity (:db/id %)])])))
+   [behave-cms.components.table-entity-form :refer [table-entity-form on-select]]))
 
 ;;; Modules
 
 (defn- modules-table [app-id]
   (let [selected-state-path [:selected :module]
         editor-state-path   [:editors :module]
-        selected-entity     (rf/subscribe [:state selected-state-path])
         entities            (rf/subscribe [:application/modules app-id])]
     [table-entity-form
      {:entity             :module
       :form-state-path    editor-state-path
       :entities           (sort-by :module/order @entities)
-      :on-select          (on-select (:db/id selected-entity) selected-state-path)
+      :on-select          (on-select selected-state-path)
       :parent-id          app-id
       :parent-field       :application/_modules
       :table-header-attrs [:module/name]
@@ -43,13 +31,12 @@
 (defn- tools-table [app-id]
   (let [selected-state-path [:selected :tool]
         editor-state-path   [:editors :tool]
-        selected-entity     (rf/subscribe [:state selected-state-path])
         entities            (rf/subscribe [:application/tools app-id])]
     [table-entity-form
      {:entity             :tool
       :form-state-path    editor-state-path
       :entities           (sort-by :tool/order @entities)
-      :on-select          (on-select (:db/id selected-entity) selected-state-path)
+      :on-select          (on-select selected-state-path)
       :parent-id          app-id
       :parent-field       :application/_tools
       :table-header-attrs [:tool/name]
@@ -66,13 +53,12 @@
   [app-id]
   (let [selected-state-path [:selected :prioritized-results]
         editor-state-path   [:editors :prioritized-results]
-        selected-entity     (rf/subscribe [:state selected-state-path])
         entities            (rf/subscribe [:application/prioritized-results app-id])]
     [table-entity-form
      {:entity             :prioritized-results
       :form-state-path    editor-state-path
       :entities           (sort-by :prioritized-results/order @entities)
-      :on-select          (on-select (:db/id selected-entity) selected-state-path)
+      :on-select          (on-select selected-state-path)
       :parent-id          app-id
       :parent-field       :application/_prioritized-results
       :table-header-attrs [:variable/name]

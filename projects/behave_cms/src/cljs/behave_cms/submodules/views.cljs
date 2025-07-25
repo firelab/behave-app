@@ -1,22 +1,14 @@
 (ns behave-cms.submodules.views
-  (:require [behave-cms.components.common       :refer [accordion btn-sm simple-table window]]
+  (:require [behave-cms.components.common       :refer [accordion btn-sm window]]
             [behave-cms.components.entity-form  :refer [entity-form]]
             [behave-cms.components.sidebar      :refer [sidebar sidebar-width]]
             [behave-cms.help.views              :refer [help-editor]]
-            [behave-cms.components.table-entity-form :refer [table-entity-form]]
+            [behave-cms.components.table-entity-form :refer [table-entity-form on-select]]
             [behave-cms.components.translations :refer [all-translations]]
             [behave-cms.components.search-table :refer [search-tables]]
             [behave-cms.submodules.subs]
             [re-frame.core                      :as rf]
             [reagent.core                       :as r]))
-
-(defn- on-select [selected-entity-id selected-state-path & [other-state-paths-to-clear]]
-  #(if (= (:db/id %) selected-entity-id)
-     (do (rf/dispatch [:state/set-state selected-state-path nil])
-         (doseq [path other-state-paths-to-clear]
-           (rf/dispatch [:state/set-state path nil])))
-     (rf/dispatch [:state/set-state selected-state-path
-                   @(rf/subscribe [:re-entity (:db/id %)])])))
 
 (defn- pivot-table [pivot-table-id application-id]
   (let [selected-state-path [:selected :pivot-table pivot-table-id :pivot-column]
@@ -30,7 +22,7 @@
       :entities           (sort-by :pivot-column/order @entities)
       :parent-id          pivot-table-id
       :parent-field       :pivot-table/_columns
-      :on-select          (on-select (:db/id @selected-entity) selected-state-path)
+      :on-select          (on-select selected-state-path)
       :order-attr         :pivot-column/order
       :table-header-attrs [:variable/name :pivot-column/type :pivot-column/function]
       :entity-form-fields (cond-> [{:label     "Column Type"
@@ -59,13 +51,12 @@
 (defn- submodules-table [module-id app-id]
   (let [selected-state-path [:selected :submodule]
         editor-state-path   [:editors :submodule]
-        selected-entity     (rf/subscribe [:state selected-state-path])
         submodule           (rf/subscribe [:submodules module-id])]
     [table-entity-form
      {:entity             :submodule
       :form-state-path    editor-state-path
       :entities           (sort-by :submodule/order @submodule)
-      :on-select          (on-select (:db/id @selected-entity) selected-state-path)
+      :on-select          (on-select selected-state-path)
       :parent-id          app-id
       :parent-field       :application/_submodules
       :table-header-attrs [:submodule/name :submodule/io]

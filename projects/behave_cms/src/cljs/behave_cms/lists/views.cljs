@@ -3,20 +3,10 @@
             [re-frame.core                     :as rf]
             [behave-cms.events]
             [behave-cms.subs]
-            [behave-cms.components.table-entity-form :refer [table-entity-form]]))
-
-;; helpers
-(defn- on-select [selected-entity-id selected-state-path & [other-state-paths-to-clear]]
-  #(if (= (:db/id %) selected-entity-id)
-     (do (rf/dispatch [:state/set-state selected-state-path nil])
-         (doseq [path other-state-paths-to-clear]
-           (rf/dispatch [:state/set-state path nil])))
-     (rf/dispatch [:state/set-state selected-state-path
-                   @(rf/subscribe [:re-entity (:db/id %)])])))
+            [behave-cms.components.table-entity-form :refer [table-entity-form on-select]]))
 
 (defn- list-option-table [selected-state-path editor-state-path selected-list-path]
-  (let [selected-entity   (rf/subscribe [:state selected-state-path])
-        selected-list     (rf/subscribe [:state selected-list-path])
+  (let [selected-list     (rf/subscribe [:state selected-list-path])
         list-options      (->> (rf/subscribe [:pull-children :list/options (:db/id @selected-list)])
                                deref
                                (map (fn [option]
@@ -30,7 +20,7 @@
       :form-state-path    editor-state-path
       :entity             :list-option
       :entities           list-options
-      :on-select          (on-select (:db/id selected-entity) selected-state-path)
+      :on-select          (on-select selected-state-path)
       :parent-id          (:db/id @selected-list)
       :parent-field       :list/_options
       :order-attr         :list-option/order
@@ -66,8 +56,7 @@
                                         {:label "True" :value true}]}]}]))
 
 (defn- list-table [selected-state-path editor-state-path selected-list-option-state-path]
-  (let [selected-entity (rf/subscribe [:state selected-state-path])
-        tag-sets        (rf/subscribe [:pull-with-attr :tag-set/name])
+  (let [tag-sets        (rf/subscribe [:pull-with-attr :tag-set/name])
         xform-tag-set   #(rename-keys % {:tag-set/name :label :db/id :value})
         color-tag-sets  (map xform-tag-set (filter :tag-set/color? @tag-sets))
         filter-tag-sets (map xform-tag-set (remove :tag-set/color? @tag-sets))]
@@ -77,7 +66,7 @@
       :entity             :list
       :entities           (sort-by :list/name
                                    @(rf/subscribe [:pull-with-attr :list/name]))
-      :on-select          (on-select (:db/id @selected-entity) selected-state-path selected-list-option-state-path)
+      :on-select          (on-select selected-state-path selected-list-option-state-path)
       :table-header-attrs [:list/name]
       :entity-form-fields [{:label     "Name"
                             :required? true

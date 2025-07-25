@@ -9,33 +9,22 @@
             [behave-cms.components.sidebar         :refer [sidebar sidebar-width]]
             [behave-cms.components.translations    :refer [all-translations]]
             [behave-cms.components.variable-search :refer [variable-search]]
-            [behave-cms.components.table-entity-form :refer [table-entity-form]]
+            [behave-cms.components.table-entity-form :refer [table-entity-form on-select]]
             [behave-cms.utils :as u]
             [behave-cms.subs]
             [behave-cms.events]))
-
-;;; helpers
-
-(defn- on-select [selected-entity-id selected-state-path & [other-state-paths-to-clear]]
-  #(if (= (:db/id %) selected-entity-id)
-     (do (rf/dispatch [:state/set-state selected-state-path nil])
-         (doseq [path other-state-paths-to-clear]
-           (rf/dispatch [:state/set-state path nil])))
-     (rf/dispatch [:state/set-state selected-state-path
-                   @(rf/subscribe [:re-entity (:db/id %)])])))
 
 ;;; Private Views
 (defn- subgroups-table [group-id]
   (let [selected-state-path [:selected :group]
         editor-state-path   [:editors :group]
-        selected-entity     (rf/subscribe [:state selected-state-path])
         groups              (rf/subscribe [:group/subgroups group-id])]
     [:div.col-12
      [table-entity-form
       {:entity             :group
        :form-state-path    editor-state-path
        :entities           (sort-by :group/order @groups)
-       :on-select          (on-select (:db/id @selected-entity) selected-state-path)
+       :on-select          (on-select selected-state-path)
        :parent-id          group-id
        :parent-field       :group/_children
        :table-header-attrs [:group/name]
