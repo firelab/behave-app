@@ -10,6 +10,48 @@
             [re-frame.core                      :as rf]
             [reagent.core                       :as r]))
 
+(defn- pivot-table [pivot-table-id application-id]
+  (let [pivot-table-column-state-path  [:selected :pivot-table pivot-table-id :pivot-column]
+        pivot-table-column-editor-path [:editors :pivot-table pivot-table-id :pivot-column]
+        pivot-table-columns            (rf/subscribe [:pivot-table/columns pivot-table-id])
+        pivot-table-column             (rf/subscribe [:state pivot-table-column-state-path])]
+    [table-entity-form
+     {:title              "Pivot Table Columns"
+      :form-state-path    pivot-table-column-editor-path
+      :entity             :pivot-table/columns
+      :entities           (sort-by :pivot-column/order @pivot-table-columns)
+      :parent-id          pivot-table-id
+      :parent-field       :pivot-table/_columns
+      :on-select          #(if (= (:db/id %) (:db/id @pivot-table-column))
+                             (do (rf/dispatch [:state/set-state pivot-table-column-state-path nil])
+                                 (rf/dispatch [:state/set-state pivot-table-column-state-path nil]))
+                             (rf/dispatch [:state/set-state pivot-table-column-state-path
+                                           @(rf/subscribe [:re-entity (:db/id %)])]))
+      :order-attr         :pivot-column/order
+      :table-header-attrs [:variable/name :pivot-column/type :pivot-column/function]
+      :entity-form-fields (cond-> [{:label     "Column Type"
+                                    :type      :radio
+                                    :required? true
+                                    :field-key :pivot-column/type
+                                    :options   [{:label "Field" :value :field}
+                                                {:label "Value" :value :value}]}
+                                   {:label          "Group Variable"
+                                    :field-key      :pivot-column/group-variable-uuid
+                                    :field-key-type :db.type/string
+                                    :app-id         application-id
+                                    :required?      true
+                                    :type           :group-variable}]
+                            (or (= (:pivot-column/type @pivot-table-column) :value)
+                                (= (:pivot-column/type @(rf/subscribe [:state pivot-table-column-editor-path])) :value))
+                            (conj {:label     "Function"
+                                   :type      :keyword-select
+                                   :field-key :pivot-column/function
+                                   :required  true
+                                   :options   [{:value "sum" :label "sum"}
+                                               {:value "min" :label "min"}
+                                               {:value "max" :label "max"}
+                                               {:value "count" :label "count"}]}))}]))
+
 (defn submodules-page
   "Display submodules page. Takes a map with:
    - id [int]: Submodule entity ID."
@@ -65,52 +107,12 @@
            [:div.col-12
             (doall
              (map
-              (fn [pivot-table]
-                (let [pivot-table-id (:db/id pivot-table)]
-                  [:<>
-                   [accordion
-                    (:pivot-table/title pivot-table)
-                    (let [pivot-table-column-state-path  [:selected :pivot-table pivot-table-id :pivot-column]
-                          pivot-table-column-editor-path [:editors :pivot-table pivot-table-id :pivot-column]
-                          pivot-table-columns            (rf/subscribe [:pivot-table/columns pivot-table-id])
-                          pivot-table-column             (rf/subscribe [:state pivot-table-column-state-path])]
-                      [table-entity-form
-                       {:title              "Pivot Table Columns"
-                        :form-state-path    pivot-table-column-editor-path
-                        :entity             :pivot-table/columns
-                        :entities           (sort-by :pivot-column/order @pivot-table-columns)
-                        :parent-id          pivot-table-id
-                        :parent-field       :pivot-table/_columns
-                        :on-select          #(if (= (:db/id %) (:db/id @pivot-table-column))
-                                               (do (rf/dispatch [:state/set-state pivot-table-column-state-path nil])
-                                                   (rf/dispatch [:state/set-state pivot-table-column-state-path nil]))
-                                               (rf/dispatch [:state/set-state pivot-table-column-state-path
-                                                             @(rf/subscribe [:re-entity (:db/id %)])]))
-                        :order-attr         :pivot-column/order
-                        :table-header-attrs [:variable/name :pivot-column/type :pivot-column/function]
-                        :entity-form-fields (cond-> [{:label     "Column Type"
-                                                      :type      :radio
-                                                      :required? true
-                                                      :field-key :pivot-column/type
-                                                      :options   [{:label "Field" :value :field}
-                                                                  {:label "Value" :value :value}]}
-                                                     {:label          "Group Variable"
-                                                      :field-key      :pivot-column/group-variable-uuid
-                                                      :field-key-type :db.type/string
-                                                      :app-id         (:db/id application)
-                                                      :required?      true
-                                                      :type           :group-variable}]
-                                              (or (= (:pivot-column/type @pivot-table-column) :value)
-                                                  (= (:pivot-column/type @(rf/subscribe [:state pivot-table-column-editor-path])) :value))
-                                              (conj {:label     "Function"
-                                                     :type      :keyword-select
-                                                     :field-key :pivot-column/function
-                                                     :required  true
-                                                     :options   [{:value "sum" :label "sum"}
-                                                                 {:value "min" :label "min"}
-                                                                 {:value "max" :label "max"}
-                                                                 {:value "count" :label "count"}]}))}])]
-                   [:hr]]))
+              (fn [pivot-table-entity]
+                [:<>
+                 [accordion
+                  (:pivot-table/title pivot-table-entity)
+                  [pivot-table (:db/id pivot-table-entity) (:db/id application)]]
+                 [:hr]])
               (:module/pivot-tables @module)))
             (if @show-add-pivot-table?
               [entity-form {:entity       :pivot-table
