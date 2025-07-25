@@ -47,11 +47,9 @@
 (defn- variables-table [group-id]
   (let [group-variables (rf/subscribe [:group/variables group-id])]
     [simple-table
-     [:variable/name :variable/domain-uuid :group-variable/conditionally-set?]
+     [:variable/name]
      (sort-by :group-variable/order @group-variables)
-     {:on-delete   #(when (js/confirm (str "Are you sure you want to delete the variable " (:variable/name %) "?"))
-                     (rf/dispatch [:api/delete-entity %]))
-      :on-increase #(rf/dispatch [:api/reorder % @group-variables :group-variable/order :inc])
+     {:on-increase #(rf/dispatch [:api/reorder % @group-variables :group-variable/order :inc])
       :on-decrease #(rf/dispatch [:api/reorder % @group-variables :group-variable/order :dec])
       :on-select   #(rf/dispatch [:subgroups/edit-variables (first (:variable/_group-variables %))])}]))
 
