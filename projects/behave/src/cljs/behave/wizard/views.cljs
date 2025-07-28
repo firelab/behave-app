@@ -747,9 +747,9 @@
                                            s/capitalize-words)]
             (search-tables ws-uuid)
             [pivot-tables ws-uuid]
-            (if @*directional-tables?
-              [directional-result-tables ws-uuid]
-              [result-matrices ws-uuid])
+            (when @*directional-tables?
+              [directional-result-tables ws-uuid])
+            [result-matrices ws-uuid]
             [:div.wizard-notes__header (s/capitalize-words @(<t (bp "download_run_results")))]
             ;; [raw-result-table ws-uuid]
             [result-table-download-link ws-uuid]])

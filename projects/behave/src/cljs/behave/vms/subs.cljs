@@ -222,3 +222,14 @@
           [?sm :submodule/io ?io]
           [(= ?io :output) ?is-output]]
         @@vms-conn rules group-variable-id)))
+
+
+(reg-sub
+ :vms/directional-group-variable-uuids
+ (fn [_]
+   (d/q '[:find  [?gv-uuid ...]
+          :in $
+          :where
+          [?gv :bp/uuid ?gv-uuid]
+          [?gv :group-variable/direction ?direction]]
+        @@vms-conn)))

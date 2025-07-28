@@ -224,6 +224,7 @@
         table-setting-filters          @(subscribe [:worksheet/table-settings-filters ws-uuid])
         gv-order                       @(subscribe [:vms/group-variable-order ws-uuid])
         pivot-tables                   @(subscribe [:worksheet/pivot-tables ws-uuid])
+        directional-uuids              (set @(subscribe [:vms/directional-group-variable-uuids]))
         pivot-table-uuids              (->> pivot-tables
                                             (mapcat (fn [pivot-table]
                                                       @(subscribe [:worksheet/pivot-table-fields (:db/id pivot-table)])))
@@ -231,6 +232,7 @@
         output-gv-uuids                (->> (subscribe [:worksheet/output-uuids-filtered ws-uuid])
                                             deref
                                             (remove #(contains? pivot-table-uuids %))
+                                            (remove #(contains? directional-uuids %))
                                             (sort-by #(.indexOf gv-order %)))]
     [:div.wizard-results
      [construct-result-matrices
