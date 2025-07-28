@@ -6,7 +6,7 @@
            '[config.interface :refer [get-config load-config]])
 
   (server/init-config!)
-  (server/init-db! (get-config :database))
+  (server/init-db! (get-config :database :config))
 
   (vms-sync!)
 
