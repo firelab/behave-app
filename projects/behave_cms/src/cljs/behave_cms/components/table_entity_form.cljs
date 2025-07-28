@@ -14,9 +14,7 @@
            (doseq [path other-state-paths-to-clear]
              (rf/dispatch [:state/set-state path nil])))
        (rf/dispatch [:state/set-state selected-state-path
-                     @(rf/subscribe [:re-entity (:db/id %)])]))
-     (doseq [path other-state-paths-to-clear]
-       (rf/dispatch [:state/set-state path nil]))))
+                     @(rf/subscribe [:re-entity (:db/id %)])]))))
 
 (defn table-entity-form
   "A component that has simple table with a togglable entity-form. Use this
@@ -45,7 +43,7 @@
 
   "
   [{:keys [title entity entities table-header-attrs entity-form-fields parent-id parent-field order-attr
-           on-select form-state-path]}]
+           form-state-path]}]
   (r/with-let [entity-id-atom (r/atom nil)
                show-entity-form? (r/atom false)]
     [:div {:style {:display "flex"
