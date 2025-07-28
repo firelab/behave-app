@@ -1,116 +1,59 @@
 (ns behave-cms.tags.views
   (:require [re-frame.core                     :as rf]
-            [behave-cms.components.common      :refer [simple-table]]
-            [behave-cms.components.entity-form :refer [entity-form]]
+            [behave-cms.components.table-entity-form :refer [table-entity-form on-select]]
             [behave-cms.events]
-            [behave-cms.subs]
-            [string-utils.interface :refer [->kebab]]))
+            [behave-cms.subs]))
 
-;;; Helpers
+(defn tags-table [selected-state-path editor-state-path selected-tag-set-path]
+  (let [selected-tag-set (rf/subscribe [:state selected-tag-set-path])
+        entities         (:tag-set/tags @selected-tag-set)]
+    [table-entity-form
+     {:title              "Tags"
+      :form-state-path    editor-state-path
+      :entity             :tag-set
+      :entities           (sort-by :tag/name entities)
+      :on-select          (on-select selected-state-path)
+      :parent-field       :tag-set/_tags
+      :table-header-attrs [:tag/name]
+      :order-attr         :tag/order
+      :entity-form-fields [{:label     "Name"
+                            :required? true
+                            :field-key :tag/name}
 
-(defn- upsert-translation [t-key translation]
-  (let [english-eid @(rf/subscribe [:language/english-eid])]
-    {:translation/key         t-key
-     :language/_translation   english-eid
-     :translation/translation translation}))
+                           {:label     "Color"
+                            :type      :color
+                            :disabled? (not (:tag-set/color? @selected-tag-set))
+                            :field-key :tag/color}]}]))
 
-(defn- tag-editor [tag-set-eid tag-eid]
-  (let [tag-set (rf/subscribe [:entity tag-set-eid])
-        tags    (rf/subscribe [:pull-children :tag-set/tags tag-set-eid])]
-    [:<>
-     [:h3 (if tag-eid "Edit Tag" "Add Tag")]
-     [entity-form {:entity       :tag
-                   :parent-field :tag-set/_tags
-                   :parent-id    tag-set-eid
-                   :id           tag-eid
-                   :fields       [{:label     "Name"
-                                   :required? true
-                                   :field-key :tag/name}
+(defn- tag-sets-table [selected-state-path editor-state-path other-state-paths-to-clear]
+  (let [entities        (rf/subscribe [:pull-with-attr :tag-set/name])]
+    [table-entity-form
+     {:title              "Tag Sets"
+      :form-state-path    editor-state-path
+      :entity             :tag-set
+      :entities           (sort-by :tag-set/name @entities)
+      :on-select          (on-select selected-state-path other-state-paths-to-clear)
+      :table-header-attrs [:tag-set/name]
+      :entity-form-fields [{:label     "Name"
+                            :required? true
+                            :field-key :tag-set/name}
 
-                                  {:label     "Color"
-                                   :type      :color
-                                   :disabled? (:tag-set/color? @tag-set)
-                                   :field-key :tag/color}]
-                   :on-create    (fn [data]
-                                   (let [translation (upsert-translation (:tag/translation-key data) (:tag/name data))]
-                                     (rf/dispatch [:api/create-entity translation])
-                                     (merge data {:tag/order (count @tags)})))
-                   :on-update    (fn [data]
-                                   (if (:tag/name data)
-                                     (let [translation (upsert-translation (:tag/translation-key data) (:tag/name data))]
-                                       (rf/dispatch [:api/create-entity translation])
-                                       data)
-                                     data))}]]))
+                           {:label     "Colored Tags?"
+                            :type      :checkbox
+                            :field-key :tag-set/color?
+                            :options   [{:value true}]}]}]))
 
-(defn- tags-table [tag-set-eid]
-  (when tag-set-eid
-    (let [tags      (rf/subscribe [:pull-children :tag-set/tags tag-set-eid])
-          on-select #(rf/dispatch [:state/select :tags (:db/id %)])
-          on-delete
-          #(when (js/confirm (str "Are you sure you want to delete the tag " (:tag/name %) "?"))
-             (rf/dispatch [:api/delete-entity %]))]
-      [:div
-       {:style {:height "400px"}}
-       [simple-table
-        [:tag/name]
-        (sort-by :tag/order @tags)
-        {:on-select on-select
-         :on-delete on-delete
-         :on-increase #(rf/dispatch [:api/reorder % @tags :tag/order :inc])
-         :on-decrease #(rf/dispatch [:api/reorder % @tags :tag/order :dec])}]])))
-
-;;; Dimension
-
-(defn- tag-set-editor [tag-set-eid tag-eid]
-  [:<>
-   [:div.row
-    [:h3 (str (if tag-set-eid "Edit" "Add") " Tag-Set")]]
-   [:div.row
-    [:div.col-6
-     [entity-form {:entity    :tag-sets
-                   :id        tag-set-eid
-                   :disabled? (boolean tag-eid)
-                   :fields    [{:label     "Name"
-                                :required? true
-                                :field-key :tag-set/name}
-
-                               {:label     "Colored Tags?"
-                                :type      :checkbox
-                                :field-key :tag-set/color?
-                                :options   [{:value true}]}]
-                   :on-create (fn [data]
-                                (let [translation-key (str "behaveplus:tags:" (->kebab (:tag-set/name data)))
-                                      translation     (upsert-translation translation-key (:tag-set/name data))]
-                                  (rf/dispatch [:api/create-entity translation])
-                                  (merge data {:tag-set/translation-key translation-key})))}]]]])
-
-(defn- tag-sets-table []
-  (let [tag-sets (rf/subscribe [:pull-with-attr :tag-set/name])
-        on-select  #(rf/dispatch [:state/select :tag-sets (:db/id %)])
-        on-delete  #(when (js/confirm (str "Are you sure you want to delete the tag set " (:tag-set/name %) "?"))
-                      (rf/dispatch [:api/delete-entity %]))]
-    [:div
-     {:style {:height "400px"}}
-     [simple-table
-      [:tag-set/name]
-      (sort-by :tag-set/name @tag-sets)
-      {:on-select on-select
-       :on-delete on-delete}]]))
-
-(defn tags-page [_]
-  (let [*tag-set (rf/subscribe [:selected :tag-sets])
-        *tag      (rf/subscribe [:selected :tags])]
+(defn tags-page
+  "Page to manage Tag Sets and Tags"
+  [_]
+  (let [selected-tag-set-state-path [:selected :tag-set]
+        tag-set-editor-path         [:editors  :tag-set]
+        selected-tag-state-path     [:selected :tag]
+        tag-editor-path             [:editors  :tag]
+        selected-tag-set            (rf/subscribe [:state selected-tag-set-state-path])]
     [:div.container
-     [:div.row.mt-3
-      [:h3 "Tag-Sets / Tags"]
-      [:div.row
-       [:div.col-6
-        [tag-sets-table]]
-       [:div.col-6
-        [tags-table @*tag-set]]]]
-     [:div.row.mt-3
-      [:div.col-6
-       [tag-set-editor @*tag-set @*tag]]
-      [:div.col-6
-       (when @*tag-set
-         [tag-editor @*tag-set @*tag])]]]))
+     [:div {:style {:height "500px"}}
+      [tag-sets-table selected-tag-set-state-path tag-set-editor-path selected-tag-state-path]]
+     (when @selected-tag-set
+       [:div {:style {:height "500px"}}
+        [tags-table selected-tag-state-path tag-editor-path selected-tag-set-state-path]])]))

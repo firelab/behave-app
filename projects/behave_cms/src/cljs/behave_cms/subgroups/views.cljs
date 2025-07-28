@@ -5,49 +5,40 @@
             [string-utils.interface :refer [->kebab]]
             [behave-cms.components.common          :refer [accordion checkbox simple-table window]]
             [behave-cms.components.conditionals    :refer [conditionals-graph manage-conditionals]]
-            [behave-cms.components.entity-form     :refer [entity-form]]
             [behave-cms.help.views                 :refer [help-editor]]
             [behave-cms.components.sidebar         :refer [sidebar sidebar-width]]
             [behave-cms.components.translations    :refer [all-translations]]
             [behave-cms.components.variable-search :refer [variable-search]]
+            [behave-cms.components.table-entity-form :refer [table-entity-form on-select]]
             [behave-cms.utils :as u]
             [behave-cms.subs]
             [behave-cms.events]))
 
 ;;; Private Views
-
-(defn- subgroup-form [group-id subgroup-id]
-  [entity-form {:entity       :group
-                :parent-field :group/_children
-                :parent-id    group-id
-                :id           subgroup-id
-                :fields       [{:label     "Name"
-                                :required? true
-                                :field-key :group/name}]}])
-
-(defn- manage-subgroup [group-id]
-  (let [subgroup (rf/subscribe [:state :subgroup])]
-    [subgroup-form group-id @subgroup]))
-
 (defn- subgroups-table [group-id]
-  (let [subgroups (rf/subscribe [:group/subgroups group-id])]
-    [simple-table
-     [:group/name]
-     (sort-by :group/order @subgroups)
-     {:on-select   #(rf/dispatch [:state/set-state :subgroup (:db/id %)])
-      :on-delete   #(when (js/confirm (str "Are you sure you want to delete the subgroup " (:group/name %) "?"))
-                      (rf/dispatch [:api/delete-entity %]))
-      :on-increase #(rf/dispatch [:api/reorder % @subgroups :group/order :inc])
-      :on-decrease #(rf/dispatch [:api/reorder % @subgroups :group/order :dec])}]))
+  (let [selected-state-path [:selected :group]
+        editor-state-path   [:editors :group]
+        groups              (rf/subscribe [:group/subgroups group-id])]
+    [:div.col-12
+     [table-entity-form
+      {:entity             :group
+       :form-state-path    editor-state-path
+       :entities           (sort-by :group/order @groups)
+       :on-select          (on-select selected-state-path)
+       :parent-id          group-id
+       :parent-field       :group/_children
+       :table-header-attrs [:group/name]
+       :order-attr         :group/order
+       :entity-form-fields [{:label     "Name"
+                             :required? true
+                             :field-key :group/name}]}]]))
 
 (defn- variables-table [group-id]
   (let [group-variables (rf/subscribe [:group/variables group-id])]
     [simple-table
-     [:variable/name :variable/domain-uuid :group-variable/conditionally-set?]
+     [:variable/name]
      (sort-by :group-variable/order @group-variables)
-     {:on-delete   #(when (js/confirm (str "Are you sure you want to delete the variable " (:variable/name %) "?"))
-                     (rf/dispatch [:api/delete-entity %]))
-      :on-increase #(rf/dispatch [:api/reorder % @group-variables :group-variable/order :inc])
+     {:on-increase #(rf/dispatch [:api/reorder % @group-variables :group-variable/order :inc])
       :on-decrease #(rf/dispatch [:api/reorder % @group-variables :group-variable/order :dec])
       :on-select   #(rf/dispatch [:subgroups/edit-variables (first (:variable/_group-variables %))])}]))
 
@@ -140,10 +131,7 @@
        ^{:key "subgroups"}
        [accordion
         "Subgroups"
-        [:div.col-6
-         [subgroups-table id]]
-        [:div.col-6
-         [manage-subgroup id]]]
+        [subgroups-table id]]
        [:hr]
        ^{:key "conditionals"}
        [accordion
