@@ -1,13 +1,14 @@
 (ns user)
 
 (comment
-  (require '[behave.core :as core]
+  (require '[behave.server :as server]
+           '[behave.handlers :refer [vms-sync!]]
            '[config.interface :refer [get-config load-config]])
 
-  (core/init-config!)
-  (core/init-db! (get-config :database))
+  (server/init-config!)
+  (server/init-db! (get-config :database :config))
 
-  (core/vms-sync!)
+  (vms-sync!)
 
   (require '[behave-cms.server :as cms])
   (cms/init-db!)

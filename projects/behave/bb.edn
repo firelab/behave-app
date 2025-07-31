@@ -1,25 +1,67 @@
 {:tasks 
- {-project  "cljweb-behave"
-  reload    (shell "systemctl --user daemon-reload")
-  status    {:depends [-project]
-             :task (shell (format "systemctl --user status %s" -project))}
-  start     {:depends [-project]
-             :task (shell (format "systemctl --user start %s" -project))}
-  stop      {:depends [-project]
-             :task (shell (format "systemctl --user stop %s" -project))}
-  build-js  (clojure "-M:compile-cljs")
-  uber      (clojure "-X triangulum.packaging/build-uberjar :app-name behave7 :main-ns behave.core")
-  pull      (do
-              (shell "git pull")
-              (shell "git submodule init")
-              (shell "git submodule update")
-              (shell "git submodule status"))
-  restart   (do
-              (run 'stop)
-              (run 'start))
-  deploy    (do
-              (run 'stop)
-              (run 'pull)
-              (run 'build-js)
-              ;; (run 'uber)
-              (run 'start))}}
+ {:requires  ([clojure.string :as str]
+              [babashka.fs :as fs])
+  -project   "cljweb-behave"
+  reload     (shell "systemctl --user daemon-reload")
+  status     {:depends [-project]
+              :task (shell (format "systemctl --user status %s" -project))}
+  start      {:depends [-project]
+              :task (shell (format "systemctl --user start %s" -project))}
+  stop       {:depends [-project]
+              :task (shell (format "systemctl --user stop %s" -project))}
+  build-js   (clojure "-M:compile-cljs")
+  uber       (clojure "-X:build-uberjar")
+  pull       (do
+               (shell "git pull")
+               (shell "git submodule init")
+               (shell "git submodule update")
+               (shell "git submodule status"))
+  restart    (do
+               (run 'stop)
+               (run 'start))
+  deploy     (do
+               (run 'stop)
+               (run 'pull)
+               (run 'build-js)
+               ;; (run 'uber)
+               (run 'start))
+
+  rename-jar (fs/move (first (fs/glob "./target" "behave7-*.jar")) "target/behave7.jar")
+
+  paths      (let [classpath (with-out-str (clojure "-A:server -Spath"))]
+               (->> (str/split classpath (re-pattern ":"))
+                    (filter (fn [p] (str/ends-with? p "jar")))
+                    (map (fn [p] (format "app.inputs += \"%s\"" p)))
+                    (str/join "\n")
+                    (spit "classpath.conf")))
+
+  add-to-zip
+  (let [zip-path    (first (fs/glob "output/windows" "*.zip"))
+        zip-file    (fs/file-name zip-path)
+        zip-release (str/replace zip-file ".zip" "-release.zip")
+        expanded    (str/replace (str zip-path) ".zip" "")
+        zip-extras  (fs/list-dir "zip-extras")]
+    (when (fs/exists? expanded)
+      (fs/delete-tree expanded))
+    (println (format "Unzipping `output/windows/%s` to `%s`" zip-file expanded))
+    (fs/unzip zip-path expanded)
+    (println "Copying zip-extras to" expanded)
+    (doall (for [f (fs/list-dir "zip-extras")]
+             (fs/copy f (format "%s/%s" expanded (fs/file-name f)))))
+    (println "Re-Zipping...")
+    (fs/zip zip-release expanded {:root expanded})
+    (fs/move zip-release (format "output/windows/%s" zip-release))
+    (fs/delete-tree expanded))
+
+  conveyor   (do
+               (when (fs/exists? "target/behave7.jar")
+                 (fs/delete "target/behave7.jar"))
+               (run 'build-js)
+               (run 'uber)
+               (run 'rename-jar)
+               (shell "conveyor make app -o output/osx --overwrite")
+               (shell "conveyor make windows-zip -o output/windows --overwrite")
+               (shell "unzip output/windows/*.zip -d output/windows/behave7-7.1.0")
+               (shell "cp zip-extras/* output/windows/behave7-7.1.0")
+               (run 'add-to-zip)
+               (shell "conveyor make debian-package -o output/deb --overwrite"))}}
