@@ -156,8 +156,13 @@
        (if (prev-output-uuids src-uuid)
          (let [output     (get prev-outputs src-uuid)
                group-uuid (q/group-variable->group dst-uuid)]
-           (log-solver [:ADD-LINK [:SRC-UUID src-uuid :DST-UUID dst-uuid] [:OUTPUT output :GROUP-UUID group-uuid]])
-           (assoc-in acc [group-uuid 0 dst-uuid] output))
+
+           ;; [BHP1-1356] Only apply output link when the input is empty
+           (if (nil? (get-in acc [group-uuid 0 dst-uuid]))
+             (do
+               (log-solver [:ADD-LINK [:SRC-UUID src-uuid] [:GROUP-UUID group-uuid :DST-UUID dst-uuid :OUTPUT output]])
+               (assoc-in acc [group-uuid 0 dst-uuid] output))
+             acc))
          acc))
      inputs
      destination-links)))
