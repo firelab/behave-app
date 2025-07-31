@@ -44,29 +44,27 @@
        (map :group-variable/translation-key)
        (set)))
 
-(def torching-trees-payload
+(def payload
   {:db/id (sm/t-key->eid conn "behaveplus:crown:input:spotting:linked_inputs:fire_type")
+   :group-variable/conditionally-set? true
    :group-variable/actions
-   [(sm/->entity {:action/name                  "Select 'Torching' Fire Type when 'Form Torching Trees' is selected and no other Crown outputs are selected."
+   [;; Torching
+    (sm/->entity {:action/name                  "Select 'Torching' Fire Type when 'Form Torching Trees' is selected and no other Crown outputs are selected."
                   :action/type                  :select
                   :action/target-value          "1"
                   :action/conditionals-operator :and
                   :action/conditionals
                   (concat [(->equal-cond torching-trees "true")]
-                          (map #(->equal-cond % "false") (disj crown-output-submodule-variables torching-trees)))})]})
+                          (map #(->equal-cond % "false") (disj crown-output-submodule-variables torching-trees)))})
 
-(def active-crown-payload
-  {:db/id (sm/t-key->eid conn "behaveplus:crown:input:spotting:linked_inputs:fire_type")
-   :group-variable/actions
-   [(sm/->entity {:action/name                  "Select 'Crowning' Fire Type when 'From Active Crown Fire' is selected and no other Crown outputs are selected."
+    ;; Crowning
+    (sm/->entity {:action/name                  "Select 'Crowning' Fire Type when 'From Active Crown Fire' is selected and no other Crown outputs are selected."
                   :action/type                  :select
                   :action/target-value          "3"
                   :action/conditionals-operator :and
                   :action/conditionals
                   (concat [(->equal-cond active-crown "true")]
                           (map #(->equal-cond % "false") (disj crown-output-submodule-variables active-crown)))})]})
-
-(def payload [torching-trees-payload active-crown-payload])
 
 ;; ===========================================================================================================
 ;; Transact Payload
