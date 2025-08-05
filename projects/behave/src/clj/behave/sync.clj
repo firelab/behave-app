@@ -5,7 +5,9 @@
             [logging.interface  :refer [log-str]])
   (:import  [java.io ByteArrayInputStream]))
 
-(defn sync-handler [{:keys [request-method params accept] :as req}]
+(defn sync-handler
+  "Handler responsible for syncing Datoms to Datastore."
+  [{:keys [request-method params accept] :as req}]
   (log-str "Request Received:" (select-keys req [:uri :request-method :params]))
   (let [res-type (or (mime->type accept) :edn)]
     (condp = request-method
@@ -20,7 +22,13 @@
          :headers {"Content-Type" accept}})
 
       :post
-      (let [tx-report (s/sync-datoms s/conn (:tx-data params))]
-        {:status  201
-         :body    (clj-> {:success true} res-type)
-         :headers {"Content-Type" accept}}))))
+      (try
+        (let [_tx-report (s/sync-datoms s/conn (:tx-data params))]
+          {:status  201
+           :body    (clj-> {:success true} res-type)
+           :headers {"Content-Type" accept}})
+        (catch Exception e
+          (log-str "Unable to Sync with payload" (:tx-data params) (ex-message e))
+          {:status  500
+           :body    (clj-> {:success false} res-type)
+           :headers {"Content-Type" accept}})))))

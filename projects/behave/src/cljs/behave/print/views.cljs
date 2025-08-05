@@ -43,8 +43,8 @@
       [:div.wizard-print__header "Results"]
       [search-tables ws-uuid]
       [pivot-tables ws-uuid]
-      (if directional-tables?
-        [directional-result-tables ws-uuid]
-        [result-matrices ws-uuid])
+      [result-matrices ws-uuid]
+      (when directional-tables?
+        [directional-result-tables ws-uuid])
       [result-graphs ws-uuid graph-data]
       [result-diagrams ws-uuid]]]))

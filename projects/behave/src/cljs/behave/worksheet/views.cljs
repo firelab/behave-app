@@ -187,7 +187,7 @@
         :description @(<t (bp "only_files_from_behave7_are_supported"))}]
       [:div.workflow-select__content
        [c/browse-input {:button-label @(<t (bp "browse"))
-                        :accept       ".bpr,bpw,.bp6,.bp7,.sqlite"
+                        :accept       ".bp7"
                         :label        @file-name
                         :on-change    #(do (rf/dispatch-sync [:ws/worksheet-selected (.. % -target -files)])
                                            (rf/dispatch-sync [:wizard/open @file]))}]

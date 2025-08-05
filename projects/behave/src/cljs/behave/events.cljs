@@ -146,14 +146,14 @@
  :system/close
  (fn [_ _]
    {:http-xhrio {:method          :get
-                 :uri             "/close"
+                 :uri             "/api/close"
                  :response-format (ajax/text-response-format)}}))
 
 (rf/reg-event-fx
  :system/cancel-close
  (fn [_ _]
    {:http-xhrio {:method          :get
-                 :uri             "/close?cancel=true"
+                 :uri             "/api/close?cancel=true"
                  :response-format (ajax/text-response-format)}}))
 
 ;; Browser behavior
@@ -184,7 +184,7 @@
  :dev/export-from-vms
  (fn [_ _]
    {:http-xhrio {:method          :get
-                 :uri             "/vms-sync"
+                 :uri             "/api/vms-sync"
                  :response-format (ajax/text-response-format)
                  :on-success      [:state/set :vms-export-http-results]
                  :on-failure      [:state/set :vms-export-http-results]}}))

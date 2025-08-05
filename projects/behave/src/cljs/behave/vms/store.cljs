@@ -47,7 +47,7 @@
                                    :read         pr/-body}}))
 
 (defn reload-vms! []
-  (ajax-request {:uri     "/vms-sync"
+  (ajax-request {:uri     "/api/vms-sync"
                  :handler reloaded-vms-data}))
 
 ;;; Public Fns
