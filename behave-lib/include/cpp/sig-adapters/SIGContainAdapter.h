@@ -66,6 +66,16 @@ public:
   double getReportSize( AreaUnits::AreaUnitsEnum areaUnits ) const;
   double getReportRate( SpeedUnits::SpeedUnitsEnum speedUnits ) const;
   int    getTactic( void ) const;
+  void   doContainRun();
+
+
+  void setAutoComputedResourceProductionRate(double productionRate, SpeedUnits::SpeedUnitsEnum speedUnits);
+  double getAutoComputedResourceProductionRate(SpeedUnits::SpeedUnitsEnum productionRateUnits);
+
+
+protected:
+  double autoComputedResourceProductionRate_;
+  // void doContainRun();
 };
 
 #endif //CONTAINADAPTER_H

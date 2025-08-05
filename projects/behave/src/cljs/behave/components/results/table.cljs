@@ -259,6 +259,11 @@
                                                               (keyword (:bp/uuid (:search-table-column/group-variable column))))
                                                             search-table-columns-sorted)
                                                       multi-valued-input-uuids)]
+           (prn "row-with-applied-search" row-with-applied-search)
+           ;; (prn "table-row" table-row)
+           ;; (prn "search-table-columns" search-table-columns)
+           ;; (prn "table-headers:" table-headers)
+           ;; (prn "search-table-columns-sorted:" search-table-columns-sorted)
            (c/table {:title   @(<t search-table-translation-key)
                      :headers table-headers
                      :columns table-columns
