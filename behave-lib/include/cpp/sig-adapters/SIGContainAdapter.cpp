@@ -146,6 +146,13 @@ void SIGContainAdapter::doContainRun()
 
 }
 
+// This is a modified version of the `doContainRun` function in
+// `https://github.com/firelab/behave/blob/a2bc39a2c5adc7a510e00ce697c7fabc3b82bd69/src/behave/ContainAdapter.cpp#L137-L244`
+// This function expects only a single Resource Arrival Time and Resource Duration to have been set
+// and will perform multiple contain simulations to search for the minimial resource production rate
+// that will cause the simulation to change from a Non Contained status to Contained. If such a scenario
+// does not exists, then the model stores the simulation at the initial maximum Production Rate of 10000 ch/h.
+
 void SIGContainAdapter::doContainRunWithOptimalResource()
 {
     if (ContainAdapter::reportRate_ < 0.00001)
@@ -212,7 +219,7 @@ void SIGContainAdapter::doContainRunWithOptimalResource()
             // run Binary Search for a contain simulation that uses the minimum production rate needed for containment.
             while (left <= right) {
                 int mid = (left + right) / 2;
-                std::cout << "mid: " << mid << std::endl;
+                // std::cout << "mid: " << mid << std::endl;
                 int currentProductionRate = mid;
                 Sem::ContainForce oldForce;
                 Sem::ContainForce* oldForcePointer = &oldForce;
@@ -238,7 +245,7 @@ void SIGContainAdapter::doContainRunWithOptimalResource()
                 // Do Contain simulation
                 currentContainSimPtr->run();
                 currentContainmentStatus = convertSemStatusToAdapterStatus(currentContainSimPtr->status());
-                std::cout << "currentContainmentStatus: " << currentContainmentStatus << std::endl;
+                // std::cout << "currentContainmentStatus: " << currentContainmentStatus << std::endl;
 
                 if ((previousContainmentStatus == ContainStatus::ContainStatusEnum::Contained &&
                      currentContainmentStatus == ContainStatus::ContainStatusEnum::Contained )
@@ -246,7 +253,7 @@ void SIGContainAdapter::doContainRunWithOptimalResource()
                     (previousContainmentStatus != ContainStatus::ContainStatusEnum::Contained &&
                      currentContainmentStatus == ContainStatus::ContainStatusEnum::Contained))
                 {
-                    std::cout << "search left" <<  std::endl;
+                    // std::cout << "search left" <<  std::endl;
                     right = mid - 1; //search left half
                     setAutoComputedResourceProductionRate(currentProductionRate, SpeedUnits::ChainsPerHour);
                     containSimPtrAtContainmentPtr = currentContainSimPtr;
@@ -258,7 +265,7 @@ void SIGContainAdapter::doContainRunWithOptimalResource()
                          (previousContainmentStatus != ContainStatus::ContainStatusEnum::Contained &&
                           currentContainmentStatus != ContainStatus::ContainStatusEnum::Contained))
                 {
-                    std::cout << "search right" <<  std::endl;
+                    // std::cout << "search right" <<  std::endl;
                     left = mid + 1; // Search right half
                     previousContainmentStatus = currentContainmentStatus;
                 }
