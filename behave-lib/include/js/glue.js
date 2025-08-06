@@ -6150,6 +6150,14 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
 
     
 
+    // ContainMode
+
+    Module['Default'] = _emscripten_enum_ContainMode_Default();
+
+    Module['ComputeOptimalResource'] = _emscripten_enum_ContainMode_ComputeOptimalResource();
+
+    
+
     // FireType_FireTypeEnum
 
     Module['Surface'] = _emscripten_enum_FireType_FireTypeEnum_Surface();

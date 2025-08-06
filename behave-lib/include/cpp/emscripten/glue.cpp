@@ -3927,6 +3927,14 @@ SurfaceRunInDirectionOf EMSCRIPTEN_KEEPALIVE emscripten_enum_SurfaceRunInDirecti
   return SurfaceRunInDirectionOf::HeadingBackingFlanking;
 }
 
+// ContainMode
+ContainMode EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainMode_Default() {
+  return ContainMode::Default;
+}
+ContainMode EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainMode_ComputeOptimalResource() {
+  return ContainMode::ComputeOptimalResource;
+}
+
 // FireType_FireTypeEnum
 FireType_FireTypeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_FireType_FireTypeEnum_Surface() {
   return FireType::Surface;

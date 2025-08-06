@@ -134,7 +134,19 @@ int SIGContainAdapter::getTactic( void ) const
     return ( tactic_ );
 }
 
+
 void SIGContainAdapter::doContainRun()
+{
+    if (containMode_ == ContainMode::Default)
+    {
+        ContainAdapter::doContainRun();
+    } else {
+        doContainRunWithOptimalResource();
+    }
+
+}
+
+void SIGContainAdapter::doContainRunWithOptimalResource()
 {
     if (ContainAdapter::reportRate_ < 0.00001)
     {
@@ -155,7 +167,7 @@ void SIGContainAdapter::doContainRun()
         Sem::ContainForce oldForce;
         Sem::ContainForce* oldForcePointer = &oldForce;
 
-        resourceArrival = 120; // min
+        resourceArrival = 0; // min
         resourceDuration = 480; // min
         resourceProduction = 10000; // ch/h
 
@@ -244,7 +256,7 @@ void SIGContainAdapter::doContainRun()
                           currentContainmentStatus != ContainStatus::ContainStatusEnum::Contained)
                          ||
                          (previousContainmentStatus != ContainStatus::ContainStatusEnum::Contained &&
-                          currentContainmentStatus != ContainStatus::ContainStatusEnum::Exhausted))
+                          currentContainmentStatus != ContainStatus::ContainStatusEnum::Contained))
                 {
                     std::cout << "search right" <<  std::endl;
                     left = mid + 1; // Search right half
@@ -298,8 +310,6 @@ void SIGContainAdapter::doContainRun()
 
         }
 
-        std::cout << "containmentStatus_: " << containmentStatus_ << std::endl;
-
         // Calculate effective windspeed needed for Size module
         // Find the effective windspeed
         double effectiveWindspeed = 4.0 * (lwRatio_ - 1.0);
@@ -349,4 +359,9 @@ void SIGContainAdapter::setAutoComputedResourceProductionRate(double productionR
 double SIGContainAdapter::getAutoComputedResourceProductionRate(SpeedUnits::SpeedUnitsEnum productionRateUnits)
 {
     return SpeedUnits::fromBaseUnits(autoComputedResourceProductionRate_, productionRateUnits);
+}
+
+void SIGContainAdapter::setContainMode(ContainMode containMode)
+{
+    containMode_ = containMode;
 }

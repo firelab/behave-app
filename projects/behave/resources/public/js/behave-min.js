@@ -7025,6 +7025,10 @@ var _emscripten_enum_SurfaceRunInDirectionOf_DirectionOfInterest = Module["_emsc
 /** @type {function(...*):?} */
 var _emscripten_enum_SurfaceRunInDirectionOf_HeadingBackingFlanking = Module["_emscripten_enum_SurfaceRunInDirectionOf_HeadingBackingFlanking"] = createExportWrapper("emscripten_enum_SurfaceRunInDirectionOf_HeadingBackingFlanking");
 /** @type {function(...*):?} */
+var _emscripten_enum_ContainMode_Default = Module["_emscripten_enum_ContainMode_Default"] = createExportWrapper("emscripten_enum_ContainMode_Default");
+/** @type {function(...*):?} */
+var _emscripten_enum_ContainMode_ComputeOptimalResource = Module["_emscripten_enum_ContainMode_ComputeOptimalResource"] = createExportWrapper("emscripten_enum_ContainMode_ComputeOptimalResource");
+/** @type {function(...*):?} */
 var _emscripten_enum_FireType_FireTypeEnum_Surface = Module["_emscripten_enum_FireType_FireTypeEnum_Surface"] = createExportWrapper("emscripten_enum_FireType_FireTypeEnum_Surface");
 /** @type {function(...*):?} */
 var _emscripten_enum_FireType_FireTypeEnum_Torching = Module["_emscripten_enum_FireType_FireTypeEnum_Torching"] = createExportWrapper("emscripten_enum_FireType_FireTypeEnum_Torching");
@@ -7345,8 +7349,8 @@ var dynCall_iiiiij = Module["dynCall_iiiiij"] = createExportWrapper("dynCall_iii
 var dynCall_iiiiijj = Module["dynCall_iiiiijj"] = createExportWrapper("dynCall_iiiiijj");
 /** @type {function(...*):?} */
 var dynCall_iiiiiijj = Module["dynCall_iiiiiijj"] = createExportWrapper("dynCall_iiiiiijj");
-var ___start_em_js = Module['___start_em_js'] = 134512;
-var ___stop_em_js = Module['___stop_em_js'] = 134610;
+var ___start_em_js = Module['___start_em_js'] = 134480;
+var ___stop_em_js = Module['___stop_em_js'] = 134578;
 function invoke_vii(index,a1,a2) {
   var sp = stackSave();
   try {
@@ -14261,6 +14265,14 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['DirectionOfInterest'] = _emscripten_enum_SurfaceRunInDirectionOf_DirectionOfInterest();
 
     Module['HeadingBackingFlanking'] = _emscripten_enum_SurfaceRunInDirectionOf_HeadingBackingFlanking();
+
+    
+
+    // ContainMode
+
+    Module['Default'] = _emscripten_enum_ContainMode_Default();
+
+    Module['ComputeOptimalResource'] = _emscripten_enum_ContainMode_ComputeOptimalResource();
 
     
 

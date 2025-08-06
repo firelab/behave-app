@@ -632,6 +632,10 @@ enum SurfaceRunInDirectionOf {
   "SurfaceRunInDirectionOf::HeadingBackingFlanking"
 };
 
+enum ContainMode {
+    "ContainMode::Default",
+    "ContainMode::ComputeOptimalResource"
+};
 
 interface SIGSurface {
   void SIGSurface([Ref] SIGFuelModels fuelModels);
