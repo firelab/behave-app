@@ -342,6 +342,8 @@
   (let [payload (cond-> {}
                   (nil? (:bp/uuid params)) (assoc :bp/uuid  (rand-uuid))
                   (nil? (:bp/nid params))  (assoc :bp/nid  (nano-id))
+                  (:bp/uuid params)        (assoc :bp/uuid (:bp/uuid params))
+                  (:bp/nid params)         (assoc :bp/nid (:bp/nid params))
                   (:db/id params)          (assoc :db/id (:db/id params))
                   group-variable-uuid      (assoc :conditional/group-variable-uuid group-variable-uuid)
                   ttype                    (assoc :conditional/type ttype)
@@ -357,6 +359,8 @@
   (let [payload (cond-> {}
                   (nil? (:bp/uuid params)) (assoc :bp/uuid  (rand-uuid))
                   (not  (:bp/nid params))  (assoc :bp/nid  (nano-id))
+                  (:bp/uuid params)        (assoc :bp/uuid (:bp/uuid params))
+                  (:bp/nid params)         (assoc :bp/nid (:bp/nid params))
                   (:db/id params)          (assoc :db/id (:db/id params))
                   nname                    (assoc :action/name nname)
                   ttype                    (assoc :action/type ttype)
@@ -371,6 +375,8 @@
   (let [payload (cond-> {}
                   (nil? (:bp/uuid params)) (assoc :bp/uuid (rand-uuid))
                   (not  (:bp/nid params))  (assoc :bp/nid  (nano-id))
+                  (:bp/uuid params)        (assoc :bp/uuid (:bp/uuid params))
+                  (:bp/nid params)         (assoc :bp/nid (:bp/nid params))
                   (:db/id params)          (assoc :db/id (:db/id params))
                   nname                    (assoc :variable/name nname)
                   kind                     (assoc :variable/kind kind)
@@ -393,6 +399,8 @@
                   (cond-> {}
                     (nil? (:bp/uuid params)) (assoc :bp/uuid  (rand-uuid))
                     (not  (:bp/nid params))  (assoc :bp/nid  (nano-id))
+                    (:bp/uuid params)        (assoc :bp/uuid (:bp/uuid params))
+                    (:bp/nid params)         (assoc :bp/nid (:bp/nid params))
                     (:db/id params)          (assoc :db/id (:db/id params))
                     parent-group-eid         (assoc :group/_group-variables parent-group-eid)
                     order                    (assoc :group-variable/order order)
@@ -418,6 +426,8 @@
                   (cond-> {}
                     (nil? (:bp/uuid params)) (assoc :bp/uuid  (rand-uuid))
                     (nil? (:bp/nid params))  (assoc :bp/nid  (nano-id))
+                    (:bp/uuid params)        (assoc :bp/uuid (:bp/uuid params))
+                    (:bp/nid params)         (assoc :bp/nid (:bp/nid params))
                     (:db/id params)          (assoc :db/id (:db/id params))
                     parent-submodule-eid     (assoc :submodule/_groups parent-submodule-eid)
                     parent-group-eid         (assoc :group/_children parent-group-eid)
@@ -443,6 +453,8 @@
                   (cond-> {}
                     (nil? (:bp/uuid params)) (assoc :bp/uuid  (rand-uuid))
                     (nil? (:bp/nid params))  (assoc :bp/nid  (nano-id))
+                    (:bp/uuid params)        (assoc :bp/uuid (:bp/uuid params))
+                    (:bp/nid params)         (assoc :bp/nid (:bp/nid params))
                     (:db/id params)          (assoc :db/id (:db/id params))
                     io                       (assoc :submodule/io io)
                     submodule-name           (assoc :submodule/name submodule-name)
