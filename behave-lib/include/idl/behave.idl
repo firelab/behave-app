@@ -289,6 +289,11 @@ enum ContainFlank_ContainFlankEnum {
   "ContainFlank::NeitherFlank"
 };
 
+enum ContainMode {
+    "ContainMode::Default",
+    "ContainMode::ComputeWithOptimalResource"
+};
+
 // Adapter to the ContainAdapter
 interface SIGContainAdapter {
   void SIGContainAdapter();
@@ -321,6 +326,7 @@ interface SIGContainAdapter {
   void doContainRun();
   void removeAllResources();
   void setAttackDistance(double attackDistance, LengthUnits_LengthUnitsEnum lengthUnits);
+  void setContainMode(ContainMode containmode);
   void setFireStartTime(long fireStartTime);
   void setLwRatio(double lwRatio);
   void setMaxFireSize(long maxFireSize);
@@ -329,6 +335,8 @@ interface SIGContainAdapter {
   void setMinSteps(long minSteps);
   void setReportRate(double reportRate, SpeedUnits_SpeedUnitsEnum speedUnits);
   void setReportSize(double reportSize, AreaUnits_AreaUnitsEnum areaUnits);
+  void setResourceArrivalTime(double arrivalTime, TimeUnits_TimeUnitsEnum timeUnits);
+  void setResourceDuration(double duration, TimeUnits_TimeUnitsEnum timeUnits);
   void setRetry(boolean retry);
   void setTactic(ContainTactic_ContainTacticEnum tactic);
 };
@@ -630,11 +638,6 @@ enum SurfaceRunInDirectionOf {
   "SurfaceRunInDirectionOf::MaxSpread",
   "SurfaceRunInDirectionOf::DirectionOfInterest",
   "SurfaceRunInDirectionOf::HeadingBackingFlanking"
-};
-
-enum ContainMode {
-    "ContainMode::Default",
-    "ContainMode::ComputeOptimalResource"
 };
 
 interface SIGSurface {

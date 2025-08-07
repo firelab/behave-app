@@ -35,7 +35,7 @@
 
 enum class ContainMode {
     Default,
-    ComputeOptimalResource
+    ComputeWithOptimalResource
 };
 
 class SIGContainAdapter : public ContainAdapter
@@ -73,17 +73,15 @@ public:
   int    getTactic( void ) const;
   void   doContainRun();
   void   doContainRunWithOptimalResource();
-
-
-  void setAutoComputedResourceProductionRate(double productionRate, SpeedUnits::SpeedUnitsEnum speedUnits);
-  double getAutoComputedResourceProductionRate(SpeedUnits::SpeedUnitsEnum productionRateUnits);
-  void setContainMode(ContainMode containMode);
-
+  void   setContainMode(ContainMode containMode);
+  void   setResourceArrivalTime(double arrivalTime, TimeUnits::TimeUnitsEnum timeUnits);
+  void   setResourceDuration(double duration, TimeUnits::TimeUnitsEnum timeUnits);
 
 protected:
   double autoComputedResourceProductionRate_;
-  // ContainMode containMode_ = ContainMode::ComputeOptimalResource;
   ContainMode containMode_ = ContainMode::Default;
+  double  resourceArrivalTime_; //min
+  double  resourceDuration_; //min
 };
 
 #endif //CONTAINADAPTER_H

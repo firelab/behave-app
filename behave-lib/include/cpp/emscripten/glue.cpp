@@ -599,6 +599,10 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_setAttackDistance_2(
   self->setAttackDistance(attackDistance, lengthUnits);
 }
 
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_setContainMode_1(SIGContainAdapter* self, ContainMode containmode) {
+  self->setContainMode(containmode);
+}
+
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_setFireStartTime_1(SIGContainAdapter* self, int fireStartTime) {
   self->setFireStartTime(fireStartTime);
 }
@@ -629,6 +633,14 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_setReportRate_2(SIGC
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_setReportSize_2(SIGContainAdapter* self, double reportSize, AreaUnits_AreaUnitsEnum areaUnits) {
   self->setReportSize(reportSize, areaUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_setResourceArrivalTime_2(SIGContainAdapter* self, double arrivalTime, TimeUnits_TimeUnitsEnum timeUnits) {
+  self->setResourceArrivalTime(arrivalTime, timeUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_setResourceDuration_2(SIGContainAdapter* self, double duration, TimeUnits_TimeUnitsEnum timeUnits) {
+  self->setResourceDuration(duration, timeUnits);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_setRetry_1(SIGContainAdapter* self, bool retry) {
@@ -3650,6 +3662,14 @@ ContainFlank_ContainFlankEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainFlank_
   return ContainFlank::NeitherFlank;
 }
 
+// ContainMode
+ContainMode EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainMode_Default() {
+  return ContainMode::Default;
+}
+ContainMode EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainMode_ComputeWithOptimalResource() {
+  return ContainMode::ComputeWithOptimalResource;
+}
+
 // IgnitionFuelBedType_IgnitionFuelBedTypeEnum
 IgnitionFuelBedType_IgnitionFuelBedTypeEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PonderosaPineLitter() {
   return IgnitionFuelBedType::PonderosaPineLitter;
@@ -3925,14 +3945,6 @@ SurfaceRunInDirectionOf EMSCRIPTEN_KEEPALIVE emscripten_enum_SurfaceRunInDirecti
 }
 SurfaceRunInDirectionOf EMSCRIPTEN_KEEPALIVE emscripten_enum_SurfaceRunInDirectionOf_HeadingBackingFlanking() {
   return SurfaceRunInDirectionOf::HeadingBackingFlanking;
-}
-
-// ContainMode
-ContainMode EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainMode_Default() {
-  return ContainMode::Default;
-}
-ContainMode EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainMode_ComputeOptimalResource() {
-  return ContainMode::ComputeOptimalResource;
 }
 
 // FireType_FireTypeEnum

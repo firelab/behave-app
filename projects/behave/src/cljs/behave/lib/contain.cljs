@@ -126,3 +126,12 @@
 
 (defn removeResourceWithThisDesc [self desc]
   (.removeResourceWithThisDesc self desc))
+
+(defn setResourceArrivalTime [self arrivalTime timeUnits]
+  (.setResourceArrivalTime self arrivalTime timeUnits))
+
+(defn setResourceDuration [self duration timeUnits]
+  (.setResourceDuration self duration timeUnits))
+
+(defn setContainMode [self containMode]
+  (.setContainMode self containMode))

@@ -167,16 +167,12 @@ void SIGContainAdapter::doContainRunWithOptimalResource()
             ContainAdapter::diurnalROS_[i] = ContainAdapter::reportRate_;
         }
 
-        double  resourceArrival;
-        double  resourceDuration;
-        double  resourceProduction;
-
         Sem::ContainForce oldForce;
         Sem::ContainForce* oldForcePointer = &oldForce;
 
-        resourceArrival = 0; // min
-        resourceDuration = 480; // min
-        resourceProduction = 10000; // ch/h
+        double resourceArrival = resourceArrivalTime_; // min
+        double resourceDuration = resourceDuration_; // min
+        double resourceProduction = 10000; // ch/h
 
         char* const desc = (char* const)"AutoComputed";
         oldForcePointer->addResource(resourceArrival,
@@ -255,7 +251,6 @@ void SIGContainAdapter::doContainRunWithOptimalResource()
                 {
                     // std::cout << "search left" <<  std::endl;
                     right = mid - 1; //search left half
-                    setAutoComputedResourceProductionRate(currentProductionRate, SpeedUnits::ChainsPerHour);
                     containSimPtrAtContainmentPtr = currentContainSimPtr;
                     previousContainmentStatus = currentContainmentStatus;
                 }
@@ -358,17 +353,17 @@ void SIGContainAdapter::doContainRunWithOptimalResource()
     }
 }
 
-void SIGContainAdapter::setAutoComputedResourceProductionRate(double productionRate, SpeedUnits::SpeedUnitsEnum productionRateUnits)
-{
-    autoComputedResourceProductionRate_ = SpeedUnits::toBaseUnits(productionRate, productionRateUnits);
-}
-
-double SIGContainAdapter::getAutoComputedResourceProductionRate(SpeedUnits::SpeedUnitsEnum productionRateUnits)
-{
-    return SpeedUnits::fromBaseUnits(autoComputedResourceProductionRate_, productionRateUnits);
-}
-
 void SIGContainAdapter::setContainMode(ContainMode containMode)
 {
     containMode_ = containMode;
+}
+
+void SIGContainAdapter::setResourceArrivalTime(double arrivalTime, TimeUnits::TimeUnitsEnum timeUnits)
+{
+    resourceArrivalTime_ = TimeUnits::toBaseUnits(arrivalTime, timeUnits);
+}
+
+void  SIGContainAdapter::setResourceDuration(double duration, TimeUnits::TimeUnitsEnum timeUnits)
+{
+    resourceDuration_ = TimeUnits::toBaseUnits(duration, timeUnits);
 }

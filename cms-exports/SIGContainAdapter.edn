@@ -23,6 +23,12 @@
     :parameters
     [{:id "reportRate", :type "double"}
      {:id "speedUnits", :type "SpeedUnits::SpeedUnitsEnum"}]},
+   :setContainMode
+   {:type "void",
+    :id   "setContainMode",
+    :parameters
+    [{:id   "containMode",
+      :type "ContainMode::ContainModeEnum"}]}
    :getPerimeterAtInitialAttack
    {:type "double",
     :id "getPerimeterAtInitialAttack",
@@ -139,21 +145,33 @@
      {:id "description", :type "char"}
      {:id "baseCost", :type "double"}
      {:id "hourCost", :type "double"}]},
+   :setResourceArrivalTime
+   {:type "void",
+    :id   "setResourceArrivalTime",
+    :parameters
+    [{:id "arrival", :type "double"}
+     {:id "timeUnit", :type "TimeUnits::TimeUnitsEnum"}]}
+   :setResourceDuration
+   {:type "void",
+    :id   "setResourceDuration",
+    :parameters
+    [{:id "duration", :type "double"}
+     {:id "timeUnit", :type "TimeUnits::TimeUnitsEnum"}]}
    :getFireHeadAtReport
-   {:type "double", :id "getFireHeadAtReport", :parameters []}}},
- :ContainAdapterEnums
- {:ContainTactic {:ContainTacticEnum ["HeadAttack" "RearAttack"]},
-  :ContainStatus
-  {:ContainStatusEnum
-   ["Unreported"
-    "Reported"
-    "Attacked"
-    "Contained"
-    "Overrun"
-    "Exhausted"
-    "Overflow"
-    "SizeLimitExceeded"
-    "TimeLimitExceeded"]},
-  :ContainFlank
-  {:ContainFlankEnum
-   ["LeftFlank" "RightFlank" "BothFlanks" "NeitherFlank"]}}}
+   {:type "double", :id "getFireHeadAtReport", :parameters []}
+   :ContainAdapterEnums
+   {:ContainTactic {:ContainTacticEnum ["HeadAttack" "RearAttack"]},
+    :ContainStatus
+    {:ContainStatusEnum
+     ["Unreported"
+      "Reported"
+      "Attacked"
+      "Contained"
+      "Overrun"
+      "Exhausted"
+      "Overflow"
+      "SizeLimitExceeded"
+      "TimeLimitExceeded"]},
+    :ContainFlank
+    {:ContainFlankEnum
+     ["LeftFlank" "RightFlank" "BothFlanks" "NeitherFlank"]}}}}}

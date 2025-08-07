@@ -1150,6 +1150,12 @@ SIGContainAdapter.prototype['setAttackDistance'] = SIGContainAdapter.prototype.s
   _emscripten_bind_SIGContainAdapter_setAttackDistance_2(self, attackDistance, lengthUnits);
 };;
 
+SIGContainAdapter.prototype['setContainMode'] = SIGContainAdapter.prototype.setContainMode = /** @suppress {undefinedVars, duplicate} @this{Object} */function(containmode) {
+  var self = this.ptr;
+  if (containmode && typeof containmode === 'object') containmode = containmode.ptr;
+  _emscripten_bind_SIGContainAdapter_setContainMode_1(self, containmode);
+};;
+
 SIGContainAdapter.prototype['setFireStartTime'] = SIGContainAdapter.prototype.setFireStartTime = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fireStartTime) {
   var self = this.ptr;
   if (fireStartTime && typeof fireStartTime === 'object') fireStartTime = fireStartTime.ptr;
@@ -1198,6 +1204,20 @@ SIGContainAdapter.prototype['setReportSize'] = SIGContainAdapter.prototype.setRe
   if (reportSize && typeof reportSize === 'object') reportSize = reportSize.ptr;
   if (areaUnits && typeof areaUnits === 'object') areaUnits = areaUnits.ptr;
   _emscripten_bind_SIGContainAdapter_setReportSize_2(self, reportSize, areaUnits);
+};;
+
+SIGContainAdapter.prototype['setResourceArrivalTime'] = SIGContainAdapter.prototype.setResourceArrivalTime = /** @suppress {undefinedVars, duplicate} @this{Object} */function(arrivalTime, timeUnits) {
+  var self = this.ptr;
+  if (arrivalTime && typeof arrivalTime === 'object') arrivalTime = arrivalTime.ptr;
+  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
+  _emscripten_bind_SIGContainAdapter_setResourceArrivalTime_2(self, arrivalTime, timeUnits);
+};;
+
+SIGContainAdapter.prototype['setResourceDuration'] = SIGContainAdapter.prototype.setResourceDuration = /** @suppress {undefinedVars, duplicate} @this{Object} */function(duration, timeUnits) {
+  var self = this.ptr;
+  if (duration && typeof duration === 'object') duration = duration.ptr;
+  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
+  _emscripten_bind_SIGContainAdapter_setResourceDuration_2(self, duration, timeUnits);
 };;
 
 SIGContainAdapter.prototype['setRetry'] = SIGContainAdapter.prototype.setRetry = /** @suppress {undefinedVars, duplicate} @this{Object} */function(retry) {
@@ -5912,6 +5932,14 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
 
     
 
+    // ContainMode
+
+    Module['Default'] = _emscripten_enum_ContainMode_Default();
+
+    Module['ComputeWithOptimalResource'] = _emscripten_enum_ContainMode_ComputeWithOptimalResource();
+
+    
+
     // IgnitionFuelBedType_IgnitionFuelBedTypeEnum
 
     Module['PonderosaPineLitter'] = _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PonderosaPineLitter();
@@ -6147,14 +6175,6 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
     Module['DirectionOfInterest'] = _emscripten_enum_SurfaceRunInDirectionOf_DirectionOfInterest();
 
     Module['HeadingBackingFlanking'] = _emscripten_enum_SurfaceRunInDirectionOf_HeadingBackingFlanking();
-
-    
-
-    // ContainMode
-
-    Module['Default'] = _emscripten_enum_ContainMode_Default();
-
-    Module['ComputeOptimalResource'] = _emscripten_enum_ContainMode_ComputeOptimalResource();
 
     
 
