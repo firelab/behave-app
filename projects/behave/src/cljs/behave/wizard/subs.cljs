@@ -837,7 +837,7 @@
  :wizard/output-directional-tables?
  (fn [[_ ws-uuid]] (subscribe [:worksheet/output-directions ws-uuid]))
  (fn [output-directions]
-   (> (count output-directions) 1)))
+   (pos? (count output-directions))))
 
 (defn- group-variable-discrete?
   [gv-uuid]
