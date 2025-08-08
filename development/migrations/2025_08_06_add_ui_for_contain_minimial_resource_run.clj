@@ -111,9 +111,9 @@
                                                  :cpp-parameter   "duration"
                                                  :translation-key "behaveplus:contain:input:suppression:resource:resource_duration:resource_duration"}]}]})]
    (sm/build-translations-payload conn 100 {"behaveplus:contain:input:suppression:contain_mode"                                         "Contain Mode"
-                                            "behaveplus:contain:input:suppression:resource"                                             "Resource"
-                                            "behaveplus:list-option:contain-mode:default"                                               "Default"
-                                            "behaveplus:list-option:contain-mode:compute-with-optimal-resource"                         "Compute With Optimal Resource Production Rate"
+                                            "behaveplus:contain:input:suppression:resource"                                             "Estimated Resource Arrival Time and Duration"
+                                            "behaveplus:list-option:contain-mode:default"                                               "Add Resources"
+                                            "behaveplus:list-option:contain-mode:compute-with-optimal-resource"                         "Calculate Minimum Production Rate Only"
                                             "behaveplus:contain:input:suppression:resource:resource_arrival_time"                       "Resource Arrival Time"
                                             "behaveplus:contain:input:suppression:resource:resource_arrival_time:resource_arrival_time" "Resource Arrival Time"
                                             "behaveplus:contain:input:suppression:resource:resource_duration"                           "Resource Duration"})
