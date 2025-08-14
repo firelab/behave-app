@@ -26,6 +26,7 @@ Module.SIGContainAdapter = class {
   removeResourceWithThisDesc() {}
   removeResourceAt() {}
   removeAllResourcesWithThisDesc() {}
+  getAutoComputedResourceProductionRate() {}
   getContainmentStatus() {}
   getFinalContainmentArea() {}
   getFinalCost() {}

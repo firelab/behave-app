@@ -4894,6 +4894,8 @@ var _emscripten_bind_SIGContainAdapter_getReportSize_1 = Module["_emscripten_bin
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGContainAdapter_getReportRate_1 = Module["_emscripten_bind_SIGContainAdapter_getReportRate_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getReportRate_1");
 /** @type {function(...*):?} */
+var _emscripten_bind_SIGContainAdapter_getAutoComputedResourceProductionRate_1 = Module["_emscripten_bind_SIGContainAdapter_getAutoComputedResourceProductionRate_1"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getAutoComputedResourceProductionRate_1");
+/** @type {function(...*):?} */
 var _emscripten_bind_SIGContainAdapter_getTactic_0 = Module["_emscripten_bind_SIGContainAdapter_getTactic_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getTactic_0");
 /** @type {function(...*):?} */
 var _emscripten_bind_SIGContainAdapter_getFirePerimeterPointCount_0 = Module["_emscripten_bind_SIGContainAdapter_getFirePerimeterPointCount_0"] = createExportWrapper("emscripten_bind_SIGContainAdapter_getFirePerimeterPointCount_0");
@@ -8653,6 +8655,12 @@ SIGContainAdapter.prototype['getReportRate'] = SIGContainAdapter.prototype.getRe
   var self = this.ptr;
   if (speedUnits && typeof speedUnits === 'object') speedUnits = speedUnits.ptr;
   return _emscripten_bind_SIGContainAdapter_getReportRate_1(self, speedUnits);
+};;
+
+SIGContainAdapter.prototype['getAutoComputedResourceProductionRate'] = SIGContainAdapter.prototype.getAutoComputedResourceProductionRate = /** @suppress {undefinedVars, duplicate} @this{Object} */function(speedUnits) {
+  var self = this.ptr;
+  if (speedUnits && typeof speedUnits === 'object') speedUnits = speedUnits.ptr;
+  return _emscripten_bind_SIGContainAdapter_getAutoComputedResourceProductionRate_1(self, speedUnits);
 };;
 
 SIGContainAdapter.prototype['getTactic'] = SIGContainAdapter.prototype.getTactic = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {

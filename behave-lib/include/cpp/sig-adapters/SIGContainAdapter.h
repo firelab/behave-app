@@ -71,11 +71,13 @@ public:
   double getReportSize( AreaUnits::AreaUnitsEnum areaUnits ) const;
   double getReportRate( SpeedUnits::SpeedUnitsEnum speedUnits ) const;
   int    getTactic( void ) const;
+  double getAutoComputedResourceProductionRate(SpeedUnits::SpeedUnitsEnum speedUnits);
   void   doContainRun();
   void   doContainRunWithOptimalResource();
   void   setContainMode(ContainMode containMode);
   void   setResourceArrivalTime(double arrivalTime, TimeUnits::TimeUnitsEnum timeUnits);
   void   setResourceDuration(double duration, TimeUnits::TimeUnitsEnum timeUnits);
+  void   setAutoComputedResourceProductionRate(double resourceProductionRate, SpeedUnits::SpeedUnitsEnum speedUnits);
 
 protected:
   double autoComputedResourceProductionRate_;

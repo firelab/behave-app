@@ -317,6 +317,7 @@ interface SIGContainAdapter {
   double getPerimeterAtInitialAttack(LengthUnits_LengthUnitsEnum lengthUnits);
   double getReportSize(AreaUnits_AreaUnitsEnum areaUnits);
   double getReportRate(SpeedUnits_SpeedUnitsEnum speedUnits);
+  double getAutoComputedResourceProductionRate(SpeedUnits_SpeedUnitsEnum speedUnits);
   long getTactic();
   long getFirePerimeterPointCount();
   long removeAllResourcesWithThisDesc([Const] DOMString desc);

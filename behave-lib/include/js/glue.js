@@ -1085,6 +1085,12 @@ SIGContainAdapter.prototype['getReportRate'] = SIGContainAdapter.prototype.getRe
   return _emscripten_bind_SIGContainAdapter_getReportRate_1(self, speedUnits);
 };;
 
+SIGContainAdapter.prototype['getAutoComputedResourceProductionRate'] = SIGContainAdapter.prototype.getAutoComputedResourceProductionRate = /** @suppress {undefinedVars, duplicate} @this{Object} */function(speedUnits) {
+  var self = this.ptr;
+  if (speedUnits && typeof speedUnits === 'object') speedUnits = speedUnits.ptr;
+  return _emscripten_bind_SIGContainAdapter_getAutoComputedResourceProductionRate_1(self, speedUnits);
+};;
+
 SIGContainAdapter.prototype['getTactic'] = SIGContainAdapter.prototype.getTactic = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
   return _emscripten_bind_SIGContainAdapter_getTactic_0(self);

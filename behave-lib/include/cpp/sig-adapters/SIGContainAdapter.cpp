@@ -134,6 +134,10 @@ int SIGContainAdapter::getTactic( void ) const
     return ( tactic_ );
 }
 
+double SIGContainAdapter::getAutoComputedResourceProductionRate(SpeedUnits::SpeedUnitsEnum speedUnits)
+{
+    return ( SpeedUnits::fromBaseUnits(autoComputedResourceProductionRate_, speedUnits ));
+}
 
 void SIGContainAdapter::doContainRun()
 {
@@ -251,6 +255,7 @@ void SIGContainAdapter::doContainRunWithOptimalResource()
                 {
                     // std::cout << "search left" <<  std::endl;
                     right = mid - 1; //search left half
+                    setAutoComputedResourceProductionRate(currentProductionRate, SpeedUnits::ChainsPerHour);
                     containSimPtrAtContainmentPtr = currentContainSimPtr;
                     previousContainmentStatus = currentContainmentStatus;
                 }
@@ -366,4 +371,9 @@ void SIGContainAdapter::setResourceArrivalTime(double arrivalTime, TimeUnits::Ti
 void  SIGContainAdapter::setResourceDuration(double duration, TimeUnits::TimeUnitsEnum timeUnits)
 {
     resourceDuration_ = TimeUnits::toBaseUnits(duration, timeUnits);
+}
+
+void SIGContainAdapter::setAutoComputedResourceProductionRate(double resourceProductionRate, SpeedUnits::SpeedUnitsEnum speedUnits)
+{
+    autoComputedResourceProductionRate_ = SpeedUnits::toBaseUnits(resourceProductionRate, speedUnits);
 }

@@ -46,6 +46,9 @@
   (.setTactic self tactic))
 
 ;; outputs
+(defn getAutoComputedResourceProductionRate [self speedUnits]
+  (.getAutoComputedResourceProductionRate self speedUnits))
+
 (defn getAttackDistance [self lengthUnits]
   (.getAttackDistance self lengthUnits))
 

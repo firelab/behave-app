@@ -21,6 +21,8 @@
 ;; Payload
 ;; ===========================================================================================================
 
+(sm/name->eid conn :search-table/name "Minimum Fireline Production Required for Containment")
+
 #_{:clj-kondo/ignore [:missing-docstring]}
 (def payload [])
 

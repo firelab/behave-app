@@ -563,6 +563,10 @@ double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getReportRate_1(SI
   return self->getReportRate(speedUnits);
 }
 
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getAutoComputedResourceProductionRate_1(SIGContainAdapter* self, SpeedUnits_SpeedUnitsEnum speedUnits) {
+  return self->getAutoComputedResourceProductionRate(speedUnits);
+}
+
 int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getTactic_0(SIGContainAdapter* self) {
   return self->getTactic();
 }

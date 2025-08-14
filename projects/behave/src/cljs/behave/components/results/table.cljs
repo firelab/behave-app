@@ -244,26 +244,25 @@
                search-table-columns-sorted      (->> search-table-columns
                                                      (sort-by :search-table-column/order)
                                                      (remove (fn [search-table-column] (nil? (get table-row (keyword (:bp/uuid (:search-table-column/group-variable search-table-column))))))))
-               table-headers                    (into (mapv (fn [{search-table-column-group-variable  :search-table-column/group-variable
-                                                                  search-table-column-translation-key :search-table-column/translation-key}]
-                                                              (let [gv-uuid     (:bp/uuid search-table-column-group-variable)
-                                                                    units       (get gv-uuid->units gv-uuid)
-                                                                    header-name @(<t search-table-column-translation-key)]
-                                                                (str header-name (when-not (empty? units) (gstring/format " (%s)" units)))))
-                                                            search-table-columns-sorted)
-                                                      (mapv #(let [header-name (deref (subscribe [:wizard/gv-uuid->resolve-result-variable-name %]))
-                                                                   units       (get gv-uuid->units %)]
-                                                               (str header-name (when-not (empty? units) (gstring/format " (%s)" units))))
-                                                            multi-valued-input-uuids))
-               table-columns                    (into (mapv (fn [column]
-                                                              (keyword (:bp/uuid (:search-table-column/group-variable column))))
-                                                            search-table-columns-sorted)
-                                                      multi-valued-input-uuids)]
-           (prn "row-with-applied-search" row-with-applied-search)
-           ;; (prn "table-row" table-row)
-           ;; (prn "search-table-columns" search-table-columns)
-           ;; (prn "table-headers:" table-headers)
-           ;; (prn "search-table-columns-sorted:" search-table-columns-sorted)
+
+               search-table-column-group-variable-uuids-set (set (map #(:bp/uuid (:search-table-column/group-variable %)) search-table-columns-sorted))
+               multi-valued-input-uuids-to-process          (remove #(contains? search-table-column-group-variable-uuids-set %) multi-valued-input-uuids)
+               table-headers                                (into (mapv (fn [{search-table-column-group-variable  :search-table-column/group-variable
+                                                                              search-table-column-translation-key :search-table-column/translation-key}]
+                                                                          (let [gv-uuid     (:bp/uuid search-table-column-group-variable)
+                                                                                units       (get gv-uuid->units gv-uuid)
+                                                                                header-name @(<t search-table-column-translation-key)]
+                                                                            (str header-name (when-not (empty? units) (gstring/format " (%s)" units)))))
+                                                                        search-table-columns-sorted)
+                                                                  (mapv #(let [header-name (deref (subscribe [:wizard/gv-uuid->resolve-result-variable-name %]))
+                                                                               units       (get gv-uuid->units %)]
+                                                                           (str header-name (when-not (empty? units) (gstring/format " (%s)" units))))
+                                                                        multi-valued-input-uuids-to-process))
+               table-columns                                (into
+                                                             (mapv (fn [column]
+                                                                     (keyword (:bp/uuid (:search-table-column/group-variable column))))
+                                                                   search-table-columns-sorted)
+                                                             multi-valued-input-uuids-to-process)]
            (c/table {:title   @(<t search-table-translation-key)
                      :headers table-headers
                      :columns table-columns
