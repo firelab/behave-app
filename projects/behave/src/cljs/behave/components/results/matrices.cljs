@@ -234,17 +234,18 @@
                                             (remove #(contains? pivot-table-uuids %))
                                             (remove #(contains? directional-uuids %))
                                             (sort-by #(.indexOf gv-order %)))]
-    [:div.wizard-results
-     [construct-result-matrices
-     {:ws-uuid               ws-uuid
-      :process-map-units?    (fn [v-uuid]
-                               (and map-units-enabled?
-                                    (map-unit-convertible-variables v-uuid)))
-      :multi-valued-inputs   @(subscribe [:print/matrix-table-multi-valued-inputs ws-uuid])
-      :output-gv-uuids       output-gv-uuids
-      :output-entities       (map (fn [gv-uuid]
-                                    (-> @(subscribe [:wizard/group-variable gv-uuid])
-                                        (merge {:units (get units-lookup gv-uuid)}))) output-gv-uuids)
-      :units-lookup          units-lookup
-      :formatters            @(subscribe [:worksheet/result-table-formatters output-gv-uuids])
-      :table-setting-filters table-setting-filters}]]))
+    (when (seq output-gv-uuids)
+     [:div.wizard-results
+      [construct-result-matrices
+       {:ws-uuid               ws-uuid
+        :process-map-units?    (fn [v-uuid]
+                                 (and map-units-enabled?
+                                      (map-unit-convertible-variables v-uuid)))
+        :multi-valued-inputs   @(subscribe [:print/matrix-table-multi-valued-inputs ws-uuid])
+        :output-gv-uuids       output-gv-uuids
+        :output-entities       (map (fn [gv-uuid]
+                                      (-> @(subscribe [:wizard/group-variable gv-uuid])
+                                          (merge {:units (get units-lookup gv-uuid)}))) output-gv-uuids)
+        :units-lookup          units-lookup
+        :formatters            @(subscribe [:worksheet/result-table-formatters output-gv-uuids])
+        :table-setting-filters table-setting-filters}]])))
