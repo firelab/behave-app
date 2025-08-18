@@ -50,12 +50,14 @@
 
                                                 (process-map-units? output-gv-uuid)
                                                 (conj {:output (gstring/format @(<t (bp "s_map_units")) var-name)
-                                                       :value  (-> value
-                                                                   (to-map-units
-                                                                    units
-                                                                    map-units
-                                                                    map-rep-frac)
-                                                                   fmt-fn)
+                                                       :value  (if (pos? value)
+                                                                 (-> value
+                                                                     (to-map-units
+                                                                      units
+                                                                      map-units
+                                                                      map-rep-frac)
+                                                                     fmt-fn)
+                                                                 "-")
                                                        :units  map-units}))))
                                           []
                                           output-entities)]
@@ -103,32 +105,34 @@
                                                                              output-units   :units}]
                                             (let [output-name @(subscribe [:wizard/gv-uuid->resolve-result-variable-name output-gv-uuid])]
                                               (cond-> acc
-                                                :always (conj {:name (header-label output-name output-units)
-                                                               :key  output-gv-uuid})
-
                                                 (process-map-units? output-gv-uuid)
                                                 (conj {:name (gstring/format @(<t (bp "s_map_units_(s)"))
                                                                              output-name
                                                                              map-units)
-                                                       :key  (str output-gv-uuid "-map-units")}))))
+                                                       :key  (str output-gv-uuid "-map-units")})
+                                                :always (conj {:name (header-label output-name output-units)
+                                                               :key  output-gv-uuid}))))
                                           []
                                           output-entities)
-        row-headers (map (fn [value] {:name (input-fmt-fn value) :key (input-fmt-fn value)}) multi-var-values)
-        final-data  (reduce (fn insert-map-units-values [acc [[i j] value]]
-                              (let [fmt-fn (get formatters j identity)]
+        row-headers               (map (fn [value] {:name (input-fmt-fn value) :key (input-fmt-fn value)}) multi-var-values)
+        final-data                (reduce (fn insert-map-units-values [acc [[row col] value]]
+                                            (let [fmt-fn (get formatters col identity)]
                                 (cond-> acc
-                                  (process-map-units? j)
-                                  (assoc [i (str j "-map-units")]
-                                         (if (neg? value)
-                                           "-"
-                                           (-> value
-                                               (to-map-units
-                                                (get units-lookup j)
-                                                map-units
-                                                map-rep-frac)
-                                               fmt-fn))))))
+                                  (process-map-units? col)
+                                  (assoc [(input-fmt-fn row) (str col "-map-units")]
+                                         [:div {:class ["result-matrix-cell-value"
+                                                        (when (contains? rows-to-shade-set col)
+                                                          "table-cell__shaded")]}
+                                          (if (neg? value)
+                                            "-"
+                                            (-> value
+                                                (to-map-units
+                                                 (get units-lookup col)
+                                                 map-units
+                                                 map-rep-frac)
+                                                fmt-fn))]))))
                             matrix-data-formatted
-                            matrix-data-formatted)]
+                            matrix-data-raw)]
     [:div.print__result-table
      (c/matrix-table {:title          @(<t (bp "results"))
                       :rows-label     (header-label multi-var-name multi-var-units)
@@ -154,10 +158,10 @@
                                                                                                  output-gv-uuid])]
                                                                 (into acc
                                                                       (reduce-kv
-                                                                       (fn [acc [x y] v]
+                                                                       (fn [acc [row col] value]
                                                                          (cond-> acc
-                                                                           (shade-cell-value? table-setting-filters output-gv-uuid v)
-                                                                           (conj [x y])))
+                                                                           (shade-cell-value? table-setting-filters output-gv-uuid value)
+                                                                           (conj [row col])))
                                                                        #{}
                                                                        matrix-data-raw))))
                                                             #{}
@@ -177,44 +181,48 @@
                                           output-gv-uuid])
              output-values   (map second matrix-data-raw)]
          (when (not (every? #(= "-1" %) output-values))
-           (let [ matrix-data-formatted (reduce-kv
-                                         (fn [acc [x y] v]
-                                           (assoc acc
-                                                  [(row-fmt-fn x) (col-fmt-fn y)]
-                                                  [:div {:class ["result-matrix-cell-value"
-                                                                 (when (contains? row-cols-to-shade-set [x y])
-                                                                   "table-cell__shaded")]}
-                                                   (if (neg? v)
-                                                     "-"
-                                                     (output-fmt-fn v))]))
-                                         {}
-                                         matrix-data-raw)
-                 row-headers            (map (fn [value] {:name (row-fmt-fn value) :key (row-fmt-fn value)}) row-values)
-                 column-headers         (map (fn [value] {:name (col-fmt-fn value) :key (col-fmt-fn value)}) col-values)]
+           (let [matrix-data-formatted (reduce-kv
+                                        (fn [acc [row col] value]
+                                          (assoc acc
+                                                 [(row-fmt-fn row) (col-fmt-fn col)]
+                                                 [:div {:class ["result-matrix-cell-value"
+                                                                (when (contains? row-cols-to-shade-set [row col])
+                                                                  "table-cell__shaded")]}
+                                                  (if (neg? value)
+                                                    "-"
+                                                    (output-fmt-fn value))]))
+                                        {}
+                                        matrix-data-raw)
+                 row-headers           (map (fn [value] {:name (row-fmt-fn value) :key (row-fmt-fn value)}) row-values)
+                 column-headers        (map (fn [value] {:name (col-fmt-fn value) :key (col-fmt-fn value)}) col-values)]
              [:<>
               [:div.print__result-table
+               (when (process-map-units? output-gv-uuid)
+                 [:div.print__result-table
+                  (let [data (reduce-kv (fn [acc [row col] value]
+                                          (assoc acc [(row-fmt-fn row) (col-fmt-fn col)]
+                                                 [:div {:class ["result-matrix-cell-value"
+                                                                (when (contains? row-cols-to-shade-set [row col])
+                                                                  "table-cell__shaded")]}
+                                                  (if (neg? value)
+                                                    "-"
+                                                    (-> value
+                                                        (to-map-units output-units map-units map-rep-frac)
+                                                        output-fmt-fn))]))
+                                        matrix-data-formatted
+                                        matrix-data-raw)]
+                    (c/matrix-table {:title          (gstring/format @(<t (bp "s_map_units_(s)")) output-name map-units)
+                                     :rows-label     (header-label row-name row-units)
+                                     :cols-label     (header-label col-name col-units)
+                                     :row-headers    row-headers
+                                     :column-headers column-headers
+                                     :data           data}))])
                (c/matrix-table {:title          (header-label output-name output-units)
                                 :rows-label     (header-label row-name row-units)
                                 :cols-label     (header-label col-name col-units)
                                 :row-headers    row-headers
                                 :column-headers column-headers
-                                :data           matrix-data-formatted})]
-              (when (process-map-units? output-gv-uuid)
-                [:div.print__result-table
-                 (let [data (reduce-kv (fn [acc [i j] value]
-                                         (assoc acc [i j] (if (neg? value)
-                                                            "-"
-                                                            (-> value
-                                                                (to-map-units output-units map-units map-rep-frac)
-                                                                output-fmt-fn))))
-                                       matrix-data-formatted
-                                       matrix-data-formatted)]
-                   (c/matrix-table {:title          (gstring/format @(<t (bp "s_map_units_(s)")) output-name map-units)
-                                    :rows-label     (header-label row-name row-units)
-                                    :cols-label     (header-label col-name col-units)
-                                    :row-headers    row-headers
-                                    :column-headers column-headers
-                                    :data           data}))])]))))]))
+                                :data           matrix-data-formatted})]]))))]))
 
 (defn result-matrices [ws-uuid]
   (let [map-units-settings-entity      @(subscribe [:worksheet/map-units-settings-entity ws-uuid])
@@ -236,15 +244,15 @@
                                             (sort-by #(.indexOf gv-order %)))]
     [:div.wizard-results
      [construct-result-matrices
-     {:ws-uuid               ws-uuid
-      :process-map-units?    (fn [v-uuid]
-                               (and map-units-enabled?
-                                    (map-unit-convertible-variables v-uuid)))
-      :multi-valued-inputs   @(subscribe [:print/matrix-table-multi-valued-inputs ws-uuid])
-      :output-gv-uuids       output-gv-uuids
-      :output-entities       (map (fn [gv-uuid]
-                                    (-> @(subscribe [:wizard/group-variable gv-uuid])
-                                        (merge {:units (get units-lookup gv-uuid)}))) output-gv-uuids)
-      :units-lookup          units-lookup
-      :formatters            @(subscribe [:worksheet/result-table-formatters output-gv-uuids])
-      :table-setting-filters table-setting-filters}]]))
+      {:ws-uuid               ws-uuid
+       :process-map-units?    (fn [v-uuid]
+                                (and map-units-enabled?
+                                     (map-unit-convertible-variables v-uuid)))
+       :multi-valued-inputs   @(subscribe [:print/matrix-table-multi-valued-inputs ws-uuid])
+       :output-gv-uuids       output-gv-uuids
+       :output-entities       (map (fn [gv-uuid]
+                                     (-> @(subscribe [:wizard/group-variable gv-uuid])
+                                         (merge {:units (get units-lookup gv-uuid)}))) output-gv-uuids)
+       :units-lookup          units-lookup
+       :formatters            @(subscribe [:worksheet/result-table-formatters output-gv-uuids])
+       :table-setting-filters table-setting-filters}]]))

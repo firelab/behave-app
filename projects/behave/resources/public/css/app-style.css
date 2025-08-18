@@ -1429,6 +1429,7 @@ body {
   position: relative;
   display: flex;
   flex-direction: row;
+  text-align: left;
 }
 
 .wizard-results__pivot-tables .table {
