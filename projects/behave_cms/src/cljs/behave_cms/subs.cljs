@@ -2,6 +2,7 @@
   (:require [clojure.string    :as str]
             [bidi.bidi         :refer (match-route)]
             [re-frame.core     :as rf]
+            [austinbirch.reactive-entity :as re]
             [re-posh.core      :as rp]
             [datascript.core   :as d]
             [behave-cms.routes :refer [app-routes]]
@@ -86,6 +87,12 @@
     {:type    :pull
      :pattern (or pattern '[*])
      :id      eid}))
+
+(rf/reg-sub
+ :re-entity
+ (fn [_ [_ eid]]
+   (when-let [entity (d/entity @@s/conn eid)]
+     (re/entity (:db/id entity)))))
 
 (rp/reg-query-sub
   :entity-attr
@@ -178,6 +185,12 @@
    :in    $ ?uuid
    :where [?id :bp/uuid ?uuid]])
 
+(rp/reg-query-sub
+ :id->uuid
+ '[:find  ?uuid .
+   :in    $ ?id
+   :where [?id :bp/uuid ?uuid]])
+
 (rf/reg-sub
  :q-with-rules
  (fn [_ [_ query rules & args]]
@@ -216,3 +229,20 @@
           [?v :variable/name ?name]]
         @@s/conn
         gv-eid)))
+
+(rf/reg-sub
+ :gv-uuid->variable-name
+ (fn [_ [_ gv-uuid]]
+   (d/q '[:find ?name .
+          :in  $ ?gv-uuid
+          :where
+          [?gv :bp/uuid ?gv-uuid]
+          [?v :variable/group-variables ?gv]
+          [?v :variable/name ?name]]
+        @@s/conn
+        gv-uuid)))
+
+(rf/reg-sub
+ :attr-type
+ (fn [_ [_ attr-ident]]
+   (get-in @@s/conn [:schema attr-ident :db.valueType])))

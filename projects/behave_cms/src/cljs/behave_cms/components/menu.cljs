@@ -12,7 +12,8 @@
 
 (defn menu
   [pages navigate!]
-  [:div.navbar {:style {:height "50px" :padding "0px" :background-color "#3f3f3f"}}
+  [:div.navbar {:style {:height "50px" :padding "0px" :background-color "#3f3f3f"
+                        :position "sticky" :top 0}}
    [:ul.nav
     [nav-link "FireLab VMS" "/" navigate!]
     (for [{:keys [page path]} pages]

@@ -5,6 +5,17 @@
    [re-frame.core                      :as rf]
    [reagent.core                       :as r]))
 
+(defn on-select
+  "On select function to be passed into table-entity-form. Returns a function that expects an entity. Function will also update the `selected-state-path` as well as clearing the state of any related paths (`other-state-paths-to-clear`)"
+  [selected-state-path & other-state-paths-to-clear]
+  #(let [selected-entity-id (:db/id @(rf/subscribe [:state selected-state-path]))]
+     (if (= (:db/id %) selected-entity-id)
+       (do (rf/dispatch [:state/set-state selected-state-path nil])
+           (doseq [path other-state-paths-to-clear]
+             (rf/dispatch [:state/set-state path nil])))
+       (rf/dispatch [:state/set-state selected-state-path
+                     @(rf/subscribe [:re-entity (:db/id %)])]))))
+
 (defn table-entity-form
   "A component that has simple table with a togglable entity-form. Use this
   whenever a parent entity has an attribute that has many refs to component
@@ -31,39 +42,54 @@
   display buttons to re order the list in the table.
 
   "
-  [{:keys [title entity entities table-header-attrs entity-form-fields parent-id parent-field order-attr]}]
+  [{:keys [title entity entities table-header-attrs entity-form-fields parent-id parent-field order-attr
+           form-state-path]}]
   (r/with-let [entity-id-atom (r/atom nil)
                show-entity-form? (r/atom false)]
-    [:div {:style {:display "flex"}}
-     [simple-table
-      (if (seq table-header-attrs)
-        table-header-attrs
-        (map :field-key entity-form-fields))
-      (if order-attr (sort-by order-attr entities) entities)
-      (cond-> {:caption               title
-               :add-group-variable-fn #(swap! show-entity-form? not)
-               :on-delete             #(when (js/confirm (str "Are you sure you want to delete this "
-                                                              (name entity)))
-                                         (rf/dispatch [:api/delete-entity (:db/id %)]))
-               :on-select             #(do
-                                         (if @show-entity-form?
-                                           (reset! entity-id-atom nil)
-                                           (reset! entity-id-atom (:db/id %)))
-                                         (swap! show-entity-form? not))}
-        order-attr (merge {:on-increase #(rf/dispatch [:api/reorder % entities order-attr :inc])
-                           :on-decrease #(rf/dispatch [:api/reorder % entities order-attr :dec])}))]
+    [:div {:style {:display "flex"
+                   :height "100%"
+                   :padding "30px"}}
+     [:div {:style {:padding-right "10px"
+                    :width         "100%"}}
+      [simple-table
+       (if (seq table-header-attrs)
+         table-header-attrs
+         (map :field-key entity-form-fields))
+       (if order-attr (sort-by order-attr entities) entities)
+       (cond-> {:add-entity-fn #(do (when (nil? @entity-id-atom) (swap! show-entity-form? not))
+                                    (rf/dispatch [:state/set-state :editors {}])
+                                    (reset! entity-id-atom nil)
+                                    (when on-select (on-select %)))
+                :on-delete     #(when (js/confirm (str "Are you sure you want to delete this "
+                                                       (name entity)))
+                                  (rf/dispatch-sync [:api/delete-entity (:db/id %)]))
+                :on-select     #(if (and @show-entity-form? (= @entity-id-atom (:db/id %)))
+                                  (do (reset! entity-id-atom nil)
+                                      (reset! show-entity-form? false)
+                                      (rf/dispatch [:state/set-state :editors {}])
+                                      (when on-select (on-select %)))
+                                  (do
+                                    (reset! show-entity-form? true)
+                                    (reset! entity-id-atom (:db/id %))
+                                    (when on-select (on-select %))))}
+         title      (assoc :caption title)
+         order-attr (merge {:on-increase #(rf/dispatch [:api/reorder % entities order-attr :inc])
+                            :on-decrease #(rf/dispatch [:api/reorder % entities order-attr :dec])}))]]
      (when @show-entity-form?
-       [entity-form {:title        title
-                     :id           @entity-id-atom
-                     :entity       entity
-                     :parent-field parent-field
-                     :parent-id    parent-id
-                     :fields       entity-form-fields
-                     :on-update    #(do (reset! entity-id-atom nil) %)
-                     :on-create    #(do
-                                      (reset! entity-id-atom nil)
-                                      (swap! show-entity-form? not)
-                                      (if order-attr
-                                        (let [next-order (count entities)]
-                                          (assoc % order-attr next-order))
-                                        %))}])]))
+       [:div {:style {:height "100%"
+                      :overflow-y "auto"}}
+        [entity-form {:title        title
+                      :state-path   form-state-path
+                      :id           @entity-id-atom
+                      :entity       entity
+                      :parent-field parent-field
+                      :parent-id    parent-id
+                      :fields       entity-form-fields
+                      :on-update    #(do (reset! entity-id-atom nil) %)
+                      :on-create    #(do
+                                       (reset! entity-id-atom nil)
+                                       (swap! show-entity-form? not)
+                                       (if order-attr
+                                         (let [next-order (count entities)]
+                                           (assoc % order-attr next-order))
+                                         %))}]])]))
