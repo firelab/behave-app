@@ -96,6 +96,7 @@ SET(SOURCE
     behave-mirror/src/behave/palmettoGallberry.cpp
     behave-mirror/src/behave/randfuel.cpp
     behave-mirror/src/behave/randthread.cpp
+    behave-mirror/src/behave/relativeHumidity.cpp
     behave-mirror/src/behave/safety.cpp
     behave-mirror/src/behave/slopeTool.cpp
     behave-mirror/src/behave/species_master_table.cpp
@@ -151,6 +152,7 @@ SET(HEADERS
     behave-mirror/src/behave/palmettoGallberry.h
     behave-mirror/src/behave/randfuel.h
     behave-mirror/src/behave/randthread.h
+    behave-mirror/src/behave/relativeHumidity.h
     behave-mirror/src/behave/safety.h
     behave-mirror/src/behave/slopeTool.h
     behave-mirror/src/behave/species_master_table.h

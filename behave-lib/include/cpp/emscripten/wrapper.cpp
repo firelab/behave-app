@@ -50,6 +50,7 @@
 #include "fineDeadFuelMoistureTool.cpp"
 #include "SIGFineDeadFuelMoistureTool.cpp"
 #include "vaporPressureDeficitCalculator.cpp"
+#include "relativeHumidity.cpp"
 #include "enums.cpp"
 #include "glue.cpp"
 
