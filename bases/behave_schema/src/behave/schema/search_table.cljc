@@ -43,6 +43,11 @@
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident       :search-table/order
+    :db/doc         "The order in which the search tables are displayed"
+    :db/valueType   :db.type/long
+    :db/cardinality :db.cardinality/one}
+
    {:db/ident       :search-table/group-variable
     :db/doc         "The Group Variable to search for"
     :db/valueType   :db.type/ref
@@ -64,6 +69,23 @@
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many
     :db/isComponent true}
+
+   {:db/ident       :search-table/conditionals
+    :db/doc         "Search Tables Conditionals for showing in results page."
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
+
+   {:db/ident       :search-table/conditionals-operator
+    :db/doc         "Search Table's conditional operator, which only applies for multiple conditionals. Can be either: `:and`, `:or`."
+    :db/valueType   :db.type/keyword
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :search-table/error-translation-key
+    :db/doc         "The search-table's translation-key for error message"
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one
+    :db/unique      :db.unique/identity}
 
    {:db/ident       :search-table/translation-key
     :db/doc         "The search-table's translation-key"
@@ -106,7 +128,8 @@
    {:db/ident       :search-table-column/translation-key
     :db/doc         "The search table column's translation-key"
     :db/valueType   :db.type/string
-    :db/cardinality :db.cardinality/one}])
+    :db/cardinality :db.cardinality/one
+    :db/unique      :db.unique/identity}])
 
 
 (comment

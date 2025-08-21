@@ -112,6 +112,17 @@
     :db/valueType   :db.type/boolean
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident       :group-variable/hide-result-conditionals
+    :db/doc         "Conditions to also be met for hiding group variable from results"
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many
+    :db/isComponent true}
+
+   {:db/ident       :group-variable/hide-result-conditional-operator
+    :db/doc         "Conditional operator, which only applies for multiple conditionals. Can be either: `:and`, `:or`."
+    :db/valueType   :db.type/keyword
+    :db/cardinality :db.cardinality/one}
+
    {:db/ident       :group-variable/hide-csv?
     :db/doc         "Whether a Group Variable is excluded from the csv export"
     :db/valueType   :db.type/boolean

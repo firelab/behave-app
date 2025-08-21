@@ -33,29 +33,23 @@
 
 (def contain-mode-gv-uuid (rand-uuid))
 
+(def search-table-to-update-eid
+  (->> "Minimum Fireline Production Required for Containment"
+       (sm/name->eid conn :search-table/name)))
+
+(def search-table-column-id-to-update
+  (->> "Minimum Fireline Production Required for Containment"
+       (sm/name->eid conn :search-table/name)
+       (d/entity (d/db conn))
+       :search-table/columns
+       (filter #(= (:search-table-column/translation-key %) "behaveplus:contain:search-table:minimum-fireline-production-rate-summary:minimum-production-rate-for-containment"))
+       first
+       :db/id))
+
 #_{:clj-kondo/ignore [:missing-docstring]}
 (def payload
   (concat
-   [;; add new group variable to get the autocomputed resource line production rate
-    (sm/->group-variable
-     conn
-     {:parent-group-eid   (sm/t-key->eid conn "behaveplus:contain:output:fire:containment")
-      :variable-eid       (sm/name->eid conn :variable/name "Resource Line Production Rate")
-      :order              6
-      :cpp-namespace      "global"
-      :cpp-class          "SIGContainAdapter"
-      :cpp-function       "getAutoComputedResourceProductionRate"
-      :translation-key    "behaveplus:contain:output:fire:containment:autocomputed_resource_production_rate"
-      :actions            [{:nname        "Set to True when Contain Mode is Compute with Optiomal Resource"
-                            :ttype        :select
-                            :target-value "true"
-                            :conditionals [{:ttype               :group-variable
-                                            :operator            :equal
-                                            :values              "1"
-                                            :group-variable-uuid contain-mode-gv-uuid}]}]
-      :conditionally-set? true})
-
-    ;; add new list option for contain mode with values Default and compute with optimized resource line production rate
+   [;; add new list option for contain mode with values Default and compute with optimized resource line production rate
     (sm/postwalk-insert
      {:db/id        -1
       :list/name    "ContainMode"
@@ -137,70 +131,140 @@
 
 
     ;; Add actions to conditionally set outputs needed by the search table "Minimum Fireline Production Required for Containment"
-    {:db/id                             (sm/t-key->eid conn "behaveplus:contain:output:fire:containment:contain_status")
-     :group-variable/actions            [(sm/->action conn
-                                                      {:nname        "Enable when Contain Mode is Compute with Optiomal Resource"
-                                                       :ttype        :select
-                                                       :target-value "true"
-                                                       :conditionals [{:ttype               :group-variable
+    {:db/id                                   (sm/t-key->eid conn "behaveplus:contain:output:fire:containment:fireline_constructed")
+     :group-variable/hide-result-conditionals [(sm/->conditional conn {:ttype               :group-variable
                                                                        :operator            :equal
                                                                        :values              "1"
-                                                                       :group-variable-uuid contain-mode-gv-uuid}]})]
-     :group-variable/conditionally-set? true}
+                                                                       :group-variable-uuid contain-mode-gv-uuid})]}
 
-    {:db/id                             (sm/t-key->eid conn "behaveplus:contain:output:fire:containment:fireline_constructed")
-     :group-variable/actions            [(sm/->action conn
-                                                      {:nname        "Enable when Contain Mode is Compute with Optiomal Resource"
-                                                       :ttype        :select
-                                                       :target-value "true"
-                                                       :conditionals [{:ttype               :group-variable
+    {:db/id                                   (sm/t-key->eid conn "behaveplus:contain:output:fire:containment:final-production-rate")
+     :group-variable/hide-result-conditionals [(sm/->conditional conn {:ttype               :group-variable
                                                                        :operator            :equal
                                                                        :values              "1"
-                                                                       :group-variable-uuid contain-mode-gv-uuid}]})]
-     :group-variable/conditionally-set? true}
+                                                                       :group-variable-uuid contain-mode-gv-uuid})]}
 
-    {:db/id                             (sm/t-key->eid conn "behaveplus:contain:output:fire:containment:final-production-rate")
-     :group-variable/actions            [(sm/->action conn
-                                                      {:nname        "Enable when Contain Mode is Compute with Optiomal Resource"
-                                                       :ttype        :select
-                                                       :target-value "true"
-                                                       :conditionals [{:ttype               :group-variable
+    {:db/id                                   (sm/t-key->eid conn "behaveplus:contain:output:fire:containment:time_from_report")
+     :group-variable/hide-result-conditionals [(sm/->conditional conn {:ttype               :group-variable
                                                                        :operator            :equal
                                                                        :values              "1"
-                                                                       :group-variable-uuid contain-mode-gv-uuid}]})]
-     :group-variable/conditionally-set? true}
+                                                                       :group-variable-uuid contain-mode-gv-uuid})]}
 
-    {:db/id                             (sm/t-key->eid conn "behaveplus:contain:output:fire:containment:time_from_report")
-     :group-variable/actions            [(sm/->action conn
-                                                      {:nname        "Enable when Contain Mode is Compute with Optiomal Resource"
-                                                       :ttype        :select
-                                                       :target-value "true"
-                                                       :conditionals [{:ttype               :group-variable
+    {:db/id                                   (sm/t-key->eid conn "behaveplus:contain:output:fire:containment:contained_area")
+     :group-variable/hide-result-conditionals [(sm/->conditional conn {:ttype               :group-variable
                                                                        :operator            :equal
                                                                        :values              "1"
-                                                                       :group-variable-uuid contain-mode-gv-uuid}]})]
-     :group-variable/conditionally-set? true}
+                                                                       :group-variable-uuid contain-mode-gv-uuid})]}
 
-    {:db/id                             (sm/t-key->eid conn "behaveplus:contain:output:fire:containment:contained_area")
-     :group-variable/actions            [(sm/->action conn
-                                                      {:nname        "Enable when Contain Mode is Compute with Optiomal Resource"
-                                                       :ttype        :select
-                                                       :target-value "true"
-                                                       :conditionals [{:ttype               :group-variable
+    {:db/id                                   (sm/t-key->eid conn "behaveplus:contain:output:fire:fire_size___at_resource_arrival_time:fire_area___at_resource_arrival_time")
+     :group-variable/hide-result-conditionals [(sm/->conditional conn {:ttype               :group-variable
                                                                        :operator            :equal
                                                                        :values              "1"
-                                                                       :group-variable-uuid contain-mode-gv-uuid}]})]
-     :group-variable/conditionally-set? true}
-    ]
+                                                                       :group-variable-uuid contain-mode-gv-uuid})]}
 
-   (sm/build-translations-payload conn 100 {"behaveplus:contain:input:suppression:contain_mode"                                         "Contain Mode"
-                                            "behaveplus:contain:input:suppression:resource"                                             "Estimated Resource Arrival Time and Duration"
-                                            "behaveplus:list-option:contain-mode:default"                                               "Add Resources"
-                                            "behaveplus:list-option:contain-mode:compute-with-optimal-resource"                         "Calculate Minimum Production Rate Only"
-                                            "behaveplus:contain:input:suppression:resource:resource_arrival_time"                       "Resource Arrival Time"
-                                            "behaveplus:contain:input:suppression:resource:resource_arrival_time:resource_arrival_time" "Resource Arrival Time"
-                                            "behaveplus:contain:input:suppression:resource:resource_duration"                           "Resource Duration"
-                                            "behaveplus:contain:output:fire:containment:autocomputed_resource_production_rate"          "Minimal Resource Production Rate for Containment"})))
+
+    ;; add new group variable to get the autocomputed resource line production rate
+    (sm/->group-variable
+     conn
+     {:db/id              -3
+      :parent-group-eid   (sm/t-key->eid conn "behaveplus:contain:output:fire:containment")
+      :variable-eid       (sm/name->eid conn :variable/name "Resource Line Production Rate")
+      :order              6
+      :cpp-namespace      "global"
+      :cpp-class          "SIGContainAdapter"
+      :cpp-function       "getAutoComputedResourceProductionRate"
+      :translation-key    "behaveplus:contain:output:fire:containment:autocomputed_resource_production_rate"
+      :conditionally-set? true
+      :actions            [{:nname        "Set to True when Contain Mode is Compute with Optiomal Resource"
+                            :ttype        :select
+                            :target-value "true"
+                            :conditionals [{:ttype               :group-variable
+                                            :operator            :equal
+                                            :values              "1"
+                                            :group-variable-uuid contain-mode-gv-uuid}]}]
+      :hide-result?       true})
+
+    ;; Add second search table that ueses the optimized Resource Line Production rate
+    {:db/id (sm/t-key->eid conn "behaveplus:contain")
+     :module/search-tables
+     [{:search-table/name                  "Minimum Fireline Production Required for Containment Optimized Resource"
+       :search-table/order                 1
+       :search-table/group-variable        (sm/t-key->eid conn "behaveplus:contain:output:fire:containment:final-production-rate")
+       :search-table/operator              :min
+       :search-table/error-translation-key "behaveplus:contain:search-table:error:minimum-fireline-production-required-for-containment-optimized-resource"
+       :search-table/translation-key       "behaveplus:contain:search-table:minimum-fireline-production-required-for-containment-optimized-resource"
+       :search-table/filters               [{:search-table-filter/group-variable (sm/t-key->eid conn "behaveplus:contain:output:fire:containment:contain_status")
+                                             :search-table-filter/operator       :equal
+                                             :search-table-filter/value          "3"}]
+
+       :search-table/columns [{:search-table-column/name            "Minimum Production Rate for Containment"
+                               :search-table-column/group-variable  -3
+                               :search-table-column/translation-key "behaveplus:contain:search-table:minimum-fireline-production-required-for-containment-optimized-resource:minimum-production-rate-for-containment"
+                               :search-table-column/order           0}
+
+                              {:search-table-column/name            "Minimum Time to Containment"
+                               :search-table-column/group-variable  (sm/t-key->eid conn "behaveplus:contain:output:fire:containment:time_from_report")
+                               :search-table-column/translation-key "behaveplus:contain:search-table:minimum-fireline-production-required-for-containment-optimized-resource:minimum-time-to-containment"
+                               :search-table-column/order           1}
+
+                              {:search-table-column/name            "Minimum Fireline Constructed"
+                               :search-table-column/group-variable  (sm/t-key->eid conn "behaveplus:contain:output:fire:containment:fireline_constructed")
+                               :search-table-column/translation-key "behaveplus:contain:search-table:minimum-fireline-production-required-for-containment-optimized-resource:minimum-fireline-constructed"
+                               :search-table-column/order           2}
+
+                              {:search-table-column/name            "Minimum Contained Area"
+                               :search-table-column/group-variable  (sm/t-key->eid conn "behaveplus:contain:output:fire:containment:contained_area")
+                               :search-table-column/translation-key "behaveplus:contain:search-table:minimum-fireline-production-required-for-containment-optimized-resource:minimum-contained-area"
+                               :search-table-column/order           3}
+
+                              {:search-table-column/name            "Fire Area at Start of Containment"
+                               :search-table-column/group-variable  (sm/t-key->eid conn "behaveplus:contain:output:fire:fire_size___at_resource_arrival_time:fire_area___at_resource_arrival_time")
+                               :search-table-column/translation-key "behaveplus:contain:search-table:minimum-fireline-production-required-for-containment-optimized-resource:fire-area-at-start-of-containment"
+                               :search-table-column/order           4}]
+
+       :search-table/conditionals-operator :and
+       :search-table/conditionals          [(sm/->conditional conn {:ttype               :group-variable
+                                                                    :operator            :equal
+                                                                    :values              "1"
+                                                                    :group-variable-uuid contain-mode-gv-uuid})]}]}
+
+    ;; update existing search table
+    {:db/id                              (sm/name->eid conn :search-table/name "Minimum Fireline Production Required for Containment")
+     :search-table/order                 0
+     :search-table/conditionals-operator :and
+     :search-table/conditionals          [(sm/->conditional conn {:ttype               :group-variable
+                                                                  :operator            :equal
+                                                                  :values              "0"
+                                                                  :group-variable-uuid contain-mode-gv-uuid})]
+     :search-table/error-translation-key "behaveplus:contain:search-table:error:minimum-fireline-production-rate-summary"}
+
+    {:db/id                              search-table-column-id-to-update
+     :search-table-column/group-variable (sm/t-key->eid conn "behaveplus:contain:input:suppression:resources:resource_line_production_rate")}]
+
+
+   (sm/build-translations-payload conn 100 {"behaveplus:contain:input:suppression:contain_mode"                                                                                               "Contain Mode"
+                                            "behaveplus:contain:input:suppression:resource"                                                                                                   "Estimated Resource Arrival Time and Duration"
+                                            "behaveplus:list-option:contain-mode:default"                                                                                                     "Add Resources"
+                                            "behaveplus:list-option:contain-mode:compute-with-optimal-resource"                                                                               "Calculate Minimum Production Rate Only"
+                                            "behaveplus:contain:input:suppression:resource:resource_arrival_time"                                                                             "Resource Arrival Time"
+                                            "behaveplus:contain:input:suppression:resource:resource_arrival_time:resource_arrival_time"                                                       "Resource Arrival Time"
+                                            "behaveplus:contain:input:suppression:resource:resource_duration"                                                                                 "Resource Duration"
+                                            "behaveplus:contain:output:fire:containment:autocomputed_resource_production_rate"                                                                "Minimal Resource Production Rate for Containment"
+                                            "behaveplus:contain:output:fire:containment:minimum-production-rate-for-containment-from-input"                                                   "Minimal Resource Production Rate for Containment"
+                                            "behaveplus:contain:search-table:error:minimum-fireline-production-required-for-containment-optimized-resource"                                   "Uncontainable under these conditions"
+                                            "behaveplus:contain:search-table:error:minimum-fireline-production-rate-summary"                                                                  "Uncontainable under these conditions"
+                                            "behaveplus:contain:search-table:minimum-fireline-production-required-for-containment-optimized-resource"                                         "Minimum Fireline Production Rate Summary"
+                                            "behaveplus:contain:search-table:minimum-fireline-production-required-for-containment-optimized-resource:minimum-production-rate-for-containment" "Minimum Production Rate for Containment"
+                                            "behaveplus:contain:search-table:minimum-fireline-production-required-for-containment-optimized-resource:minimum-time-to-containment"             "Minimum Time to Containment"
+                                            "behaveplus:contain:search-table:minimum-fireline-production-required-for-containment-optimized-resource:minimum-fireline-constructed"            "Minimum Fireline Constructed"
+                                            "behaveplus:contain:search-table:minimum-fireline-production-required-for-containment-optimized-resource:minimum-contained-area"                  "Minimum Contained Area"
+                                            "behaveplus:contain:search-table:minimum-fireline-production-required-for-containment-optimized-resource:fire-area-at-start-of-containment"       "Fire Area at Start of Containment"
+                                            })))
+
+
+
+
+
+
 
 ;; ===========================================================================================================
 ;; Transact Payload

@@ -411,6 +411,34 @@
         (sort-by #(.indexOf gv-order %)))))
 
 (rf/reg-sub
+ :worksheet/output-uuids-conditionally-filtered
+ (fn [[_ ws-uuid]]
+   (rf/subscribe [:worksheet ws-uuid]))
+ (fn [worksheet [_ ws-uuid]]
+   (->> (d/q '[:find  ?gv ?hide-result
+               :in    $ $ws % ?ws-uuid
+               :where
+               [$ws ?w :worksheet/uuid ?ws-uuid]
+               [$ws ?w :worksheet/outputs ?o]
+               [$ws ?o :output/group-variable-uuid ?uuid]
+               [$ws ?o :output/enabled? true]
+               (lookup ?uuid ?gv)
+               [(get-else $ ?gv :group-variable/hide-result? false) ?hide-result]]
+             @@vms-conn
+             @@s/conn
+             rules
+             ws-uuid)
+        (remove (fn [[_ hide-result?]] (true? hide-result?)))
+        (map first)
+        (map (fn [gv] @(rf/subscribe [:vms/entity-from-eid gv])))
+        (remove #(if (seq (:group-variable/hide-result-conditionals %))
+                   (all-conditionals-pass? worksheet
+                                           (:group-variable/hide-result-conditional-operator %)
+                                           (:group-variable/hide-result-conditionals %))
+                   false))
+        (map :bp/uuid))))
+
+(rf/reg-sub
  :worksheet/output-uuids-filtered
  (fn [_ [_ ws-uuid]]
    (->> (d/q '[:find  ?uuid ?hide-result
