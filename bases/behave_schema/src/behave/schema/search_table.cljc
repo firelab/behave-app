@@ -70,13 +70,13 @@
     :db/cardinality :db.cardinality/many
     :db/isComponent true}
 
-   {:db/ident       :search-table/conditionals
+   {:db/ident       :search-table/show-conditionals
     :db/doc         "Search Tables Conditionals for showing in results page."
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many
     :db/isComponent true}
 
-   {:db/ident       :search-table/conditionals-operator
+   {:db/ident       :search-table/show-conditionals-operator
     :db/doc         "Search Table's conditional operator, which only applies for multiple conditionals. Can be either: `:and`, `:or`."
     :db/valueType   :db.type/keyword
     :db/cardinality :db.cardinality/one}

@@ -1,10 +1,11 @@
 (ns behave-cms.components.search-table
-  (:require [behave-cms.components.common       :refer [accordion btn-sm]]
-            [behave-cms.components.entity-form  :refer [entity-form]]
+  (:require [behave-cms.components.conditionals      :refer [conditionals-graph manage-conditionals]]
+            [behave-cms.components.common            :refer [accordion btn-sm]]
+            [behave-cms.components.entity-form       :refer [entity-form]]
             [behave-cms.components.table-entity-form :refer [table-entity-form]]
             [behave-cms.submodules.subs]
-            [reagent.core                       :as r]
-            [re-frame.core                      :as rf]))
+            [reagent.core                            :as r]
+            [re-frame.core                           :as rf]))
 
 (defn search-tables
   "Component for displaying all existing search tables and a form for entering new ones"
@@ -82,6 +83,20 @@
                                     :parent-id          search-table-id
                                     :parent-field       :search-table/_columns
                                     :order-attr         :search-table-column/order}]
+                [:div
+                 [:div {:style {:color "#6c757d"}}
+                  "Show Table Conditionals"]
+                 [:hr]
+                 [:div.row
+                  [:div.col-9
+                   [conditionals-graph
+                    search-table-id
+                    search-table-id
+                    @(rf/subscribe [:group-variable/conditionals search-table-id :search-table/show-conditionals])
+                    :search-table/show-conditionals
+                    :search-table/show-conditionals-operator]]
+                  [:div.col-3
+                   [manage-conditionals search-table-id :search-table/show-conditionals]]]]
                 [:div.row
                  {:style {:padding "5px"}}
                  [btn-sm

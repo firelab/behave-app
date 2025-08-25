@@ -235,24 +235,24 @@
                                :search-table-column/translation-key "behaveplus:contain:search-table:minimum-fireline-production-required-for-containment-optimized-resource:fire-area-at-start-of-containment"
                                :search-table-column/order           4}]
 
-       :search-table/conditionals-operator :and
-       :search-table/conditionals          [(sm/->conditional conn {:ttype               :group-variable
-                                                                    :operator            :equal
-                                                                    :values              "1"
-                                                                    :group-variable-uuid contain-mode-gv-uuid})]}]}
+       :search-table/show-conditionals-operator :and
+       :search-table/show-conditionals          [(sm/->conditional conn {:ttype               :group-variable
+                                                                         :operator            :equal
+                                                                         :values              "1"
+                                                                         :group-variable-uuid contain-mode-gv-uuid})]}]}
 
     ;; update existing search table:
     ;; 1. updat order
     ;; 2. Add Conditional to show search table
     ;; 3. Add error message translation key
-    {:db/id                              (sm/name->eid conn :search-table/name "Minimum Fireline Production Required for Containment")
-     :search-table/order                 0
-     :search-table/conditionals-operator :and
-     :search-table/conditionals          [(sm/->conditional conn {:ttype               :group-variable
-                                                                  :operator            :equal
-                                                                  :values              "0"
-                                                                  :group-variable-uuid contain-mode-gv-uuid})]
-     :search-table/error-translation-key "behaveplus:contain:search-table:error:minimum-fireline-production-rate-summary"}
+    {:db/id                                   (sm/name->eid conn :search-table/name "Minimum Fireline Production Required for Containment")
+     :search-table/order                      0
+     :search-table/show-conditionals-operator :and
+     :search-table/show-conditionals          [(sm/->conditional conn {:ttype               :group-variable
+                                                                       :operator            :equal
+                                                                       :values              "0"
+                                                                       :group-variable-uuid contain-mode-gv-uuid})]
+     :search-table/error-translation-key      "behaveplus:contain:search-table:error:minimum-fireline-production-rate-summary"}
 
     {:db/id                              search-table-column-id-to-update
      :search-table-column/group-variable (sm/t-key->eid conn "behaveplus:contain:input:suppression:resources:resource_line_production_rate")}
@@ -271,7 +271,7 @@
                                                                                        :operator            :equal
                                                                                        :values              "1"
                                                                                        :group-variable-uuid contain-mode-gv-uuid})]}
-]
+    ]
 
    ;; re order suppression input groups
    (map
