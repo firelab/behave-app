@@ -1,16 +1,17 @@
 (ns behave-cms.group-variables.views
-  (:require [re-frame.core                      :as rf]
-            [behave-cms.components.common       :refer [accordion
-                                                        checkbox
-                                                        dropdown
-                                                        simple-table
-                                                        window]]
-            [behave-cms.components.actions      :refer [actions-table manage-action]]
-            [behave-cms.components.cpp-editor   :refer [cpp-editor-form]]
-            [behave-cms.components.sidebar      :refer [sidebar sidebar-width]]
-            [behave-cms.components.translations :refer [all-translations]]
-            [behave-cms.help.views              :refer [help-editor]]
-            [behave-cms.utils                   :as u]
+  (:require [re-frame.core                                 :as rf]
+            [behave-cms.components.common                  :refer [accordion
+                                                                   checkbox
+                                                                   dropdown
+                                                                   simple-table
+                                                                   window]]
+            [behave-cms.components.actions                 :refer [actions-table manage-action]]
+            [behave-cms.components.conditionals            :refer [conditionals-graph manage-conditionals]]
+            [behave-cms.components.cpp-editor              :refer [cpp-editor-form]]
+            [behave-cms.components.sidebar                 :refer [sidebar sidebar-width]]
+            [behave-cms.components.translations            :refer [all-translations]]
+            [behave-cms.help.views                         :refer [help-editor]]
+            [behave-cms.utils                              :as u]
             [behave-cms.components.group-variable-selector :refer [group-variable-selector]]))
 
 ;;; Constants
@@ -168,6 +169,32 @@
         [:div.row
          [:div.col-12
           [manage-action [:bp/nid nid] @action-id @is-output?]]]]
+
+       [:hr]
+       [accordion
+        "Hide from Results Conditionals"
+        [:div.col-9
+         [conditionals-graph
+          gv-id
+          gv-id
+          @(rf/subscribe [:group-variable/conditionals gv-id :group-variable/hide-result-conditionals])
+          :group-variable/hide-result-conditionals
+          :group-variable/hide-result-conditional-operator]]
+        [:div.col-3
+         [manage-conditionals gv-id :group-variable/hide-result-conditionals]]]
+
+       [:hr]
+       [accordion
+        "Hide Range Selector Conditionals"
+        [:div.col-9
+         [conditionals-graph
+          gv-id
+          gv-id
+          @(rf/subscribe [:group-variable/conditionals gv-id :group-variable/hide-range-selector-conditionals])
+          :group-variable/hide-range-selector-conditionals
+          :group-variable/hide-range-selector-conditional-operator]]
+        [:div.col-3
+         [manage-conditionals gv-id :group-variable/hide-range-selector-conditionals]]]
 
        [:hr]
        [accordion
