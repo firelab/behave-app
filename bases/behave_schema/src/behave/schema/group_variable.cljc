@@ -123,6 +123,16 @@
     :db/valueType   :db.type/keyword
     :db/cardinality :db.cardinality/one}
 
+   {:db/ident       :group-variable/hide-range-selector-conditionals
+    :db/doc         "Conditions to also be met for hiding range selector from results"
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many}
+
+   {:db/ident       :group-variable/hide-range-selector-conditional-operator
+    :db/doc         "Conditional operator, which only applies for multiple conditionals. Can be either: `:and`, `:or`."
+    :db/valueType   :db.type/keyword
+    :db/cardinality :db.cardinality/one}
+
    {:db/ident       :group-variable/hide-csv?
     :db/doc         "Whether a Group Variable is excluded from the csv export"
     :db/valueType   :db.type/boolean

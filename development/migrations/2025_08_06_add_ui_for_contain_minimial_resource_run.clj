@@ -78,7 +78,7 @@
      conn
      {:parent-submodule-eid (sm/t-key->eid conn "behaveplus:contain:input:suppression")
       :group-name           "Contain Mode"
-      :order                3
+      :order                0
       :translation-key      "behaveplus:contain:input:suppression:contain_mode"
       :group-variables      [{:bp/uuid         contain-mode-gv-uuid
                               :variable-eid    -2
@@ -91,7 +91,6 @@
 
     ;; Update order and add conditional to only show when contain mode is default for Resources group
     {:db/id              (sm/t-key->eid conn "behaveplus:contain:input:suppression:resources")
-     :group/order        4
      :group/conditionals [(sm/->conditional conn {:ttype               :group-variable
                                                   :operator            :equal
                                                   :values              "0"
@@ -111,55 +110,70 @@
       :subgroups            [{:group-name      "Resource Arrival Time"
                               :order           0
                               :translation-key "behaveplus:contain:input:suppression:resource:resource_arrival_time"
-                              :group-variables [{:variable-eid    (sm/name->eid conn :variable/name "Resource Arrival Time")
-                                                 :order           0
-                                                 :cpp-namespace   "global"
-                                                 :cpp-class       "SIGContainAdapter"
-                                                 :cpp-function    "setResourceArrivalTime"
-                                                 :cpp-parameter   "arrivalTime"
-                                                 :translation-key "behaveplus:contain:input:suppression:resource:resource_arrival_time:resource_arrival_time"}]}
+                              :group-variables [{:variable-eid                             (sm/name->eid conn :variable/name "Resource Arrival Time")
+                                                 :order                                    0
+                                                 :cpp-namespace                            "global"
+                                                 :cpp-class                                "SIGContainAdapter"
+                                                 :cpp-function                             "setResourceArrivalTime"
+                                                 :cpp-parameter                            "arrivalTime"
+                                                 :hide-range-selector-conditional-operator :and
+                                                 :hide-range-selector-conditionals         [{:ttype               :group-variable
+                                                                                             :operator            :equal
+                                                                                             :values              "1"
+                                                                                             :group-variable-uuid contain-mode-gv-uuid}]
+                                                 :translation-key                          "behaveplus:contain:input:suppression:resource:resource_arrival_time:resource_arrival_time"}]}
                              {:group-name      "Resource Duration"
                               :order           1
                               :translation-key "behaveplus:contain:input:suppression:resource:resource_duration"
-                              :group-variables [{:variable-eid    (sm/name->eid conn :variable/name "Resource Duration")
-                                                 :order           0
-                                                 :cpp-namespace   "global"
-                                                 :cpp-class       "SIGContainAdapter"
-                                                 :cpp-function    "setResourceDuration"
-                                                 :cpp-parameter   "duration"
-                                                 :translation-key "behaveplus:contain:input:suppression:resource:resource_duration:resource_duration"}]}]})
+                              :group-variables [{:variable-eid                             (sm/name->eid conn :variable/name "Resource Duration")
+                                                 :order                                    0
+                                                 :cpp-namespace                            "global"
+                                                 :cpp-class                                "SIGContainAdapter"
+                                                 :cpp-function                             "setResourceDuration"
+                                                 :cpp-parameter                            "duration"
+                                                 :hide-range-selector-conditional-operator :and
+                                                 :hide-range-selector-conditionals         [{:ttype               :group-variable
+                                                                                             :operator            :equal
+                                                                                             :values              "1"
+                                                                                             :group-variable-uuid contain-mode-gv-uuid}]
+                                                 :translation-key                          "behaveplus:contain:input:suppression:resource:resource_duration:resource_duration"}]}]})
 
 
     ;; Add actions to conditionally set outputs needed by the search table "Minimum Fireline Production Required for Containment"
-    {:db/id                                   (sm/t-key->eid conn "behaveplus:contain:output:fire:containment:fireline_constructed")
-     :group-variable/hide-result-conditionals [(sm/->conditional conn {:ttype               :group-variable
-                                                                       :operator            :equal
-                                                                       :values              "1"
-                                                                       :group-variable-uuid contain-mode-gv-uuid})]}
+    {:db/id                                           (sm/t-key->eid conn "behaveplus:contain:output:fire:containment:fireline_constructed")
+     :group-variable/hide-result-conditional-operator :and
+     :group-variable/hide-result-conditionals         [(sm/->conditional conn {:ttype               :group-variable
+                                                                               :operator            :equal
+                                                                               :values              "1"
+                                                                               :group-variable-uuid contain-mode-gv-uuid})]}
 
-    {:db/id                                   (sm/t-key->eid conn "behaveplus:contain:output:fire:containment:final-production-rate")
-     :group-variable/hide-result-conditionals [(sm/->conditional conn {:ttype               :group-variable
-                                                                       :operator            :equal
-                                                                       :values              "1"
-                                                                       :group-variable-uuid contain-mode-gv-uuid})]}
+    {:db/id                                           (sm/t-key->eid conn "behaveplus:contain:output:fire:containment:final-production-rate")
+     :group-variable/hide-result-conditional-operator :and
+     :group-variable/hide-result-conditionals         [(sm/->conditional conn {:ttype               :group-variable
+                                                                               :operator            :equal
+                                                                               :values              "1"
+                                                                               :group-variable-uuid contain-mode-gv-uuid})]}
 
-    {:db/id                                   (sm/t-key->eid conn "behaveplus:contain:output:fire:containment:time_from_report")
-     :group-variable/hide-result-conditionals [(sm/->conditional conn {:ttype               :group-variable
-                                                                       :operator            :equal
-                                                                       :values              "1"
-                                                                       :group-variable-uuid contain-mode-gv-uuid})]}
+    {:db/id                                           (sm/t-key->eid conn "behaveplus:contain:output:fire:containment:time_from_report")
+     :group-variable/hide-result-conditional-operator :and
+     :group-variable/hide-result-conditionals         [(sm/->conditional conn {:ttype               :group-variable
+                                                                               :operator            :equal
+                                                                               :values              "1"
+                                                                               :group-variable-uuid contain-mode-gv-uuid})]}
 
-    {:db/id                                   (sm/t-key->eid conn "behaveplus:contain:output:fire:containment:contained_area")
-     :group-variable/hide-result-conditionals [(sm/->conditional conn {:ttype               :group-variable
-                                                                       :operator            :equal
-                                                                       :values              "1"
-                                                                       :group-variable-uuid contain-mode-gv-uuid})]}
+    {:db/id                                           (sm/t-key->eid conn "behaveplus:contain:output:fire:containment:contained_area")
+     :group-variable/hide-result-conditional-operator :and
+     :group-variable/hide-result-conditionals         [(sm/->conditional conn {:ttype               :group-variable
+                                                                               :operator            :equal
+                                                                               :values              "1"
+                                                                               :group-variable-uuid contain-mode-gv-uuid})]}
 
-    {:db/id                                   (sm/t-key->eid conn "behaveplus:contain:output:fire:fire_size___at_resource_arrival_time:fire_area___at_resource_arrival_time")
-     :group-variable/hide-result-conditionals [(sm/->conditional conn {:ttype               :group-variable
-                                                                       :operator            :equal
-                                                                       :values              "1"
-                                                                       :group-variable-uuid contain-mode-gv-uuid})]}
+    {:db/id                                           (sm/t-key->eid conn "behaveplus:contain:output:fire:fire_size___at_resource_arrival_time:fire_area___at_resource_arrival_time")
+     :group-variable/hide-result-conditional-operator :and
+     :group-variable/hide-result-conditionals         [(sm/->conditional conn {:ttype               :group-variable
+                                                                               :operator            :equal
+                                                                               :values              "1"
+                                                                               :group-variable-uuid contain-mode-gv-uuid})]}
 
 
     ;; add new group variable to get the autocomputed resource line production rate
@@ -238,8 +252,31 @@
      :search-table/error-translation-key "behaveplus:contain:search-table:error:minimum-fireline-production-rate-summary"}
 
     {:db/id                              search-table-column-id-to-update
-     :search-table-column/group-variable (sm/t-key->eid conn "behaveplus:contain:input:suppression:resources:resource_line_production_rate")}]
+     :search-table-column/group-variable (sm/t-key->eid conn "behaveplus:contain:input:suppression:resources:resource_line_production_rate")}
 
+    ;; Ensure Range Selector is hidden for Contain inputs if contain mode is "Calculate Minimum Production Rate only"
+
+    {:db/id                                                   (sm/t-key->eid conn "behaveplus:contain:input:suppression:line_construction_offset:line_construction_offset")
+     :group-variable/hide-range-selector-conditional-operator :and
+     :group-variable/hide-range-selector-conditionals         [(sm/->conditional conn {:ttype               :group-variable
+                                                                                       :operator            :equal
+                                                                                       :values              "1"
+                                                                                       :group-variable-uuid contain-mode-gv-uuid})]}
+
+    {:db/id                                                   (sm/t-key->eid conn "behaveplus:contain:input:suppression:elapsed-time:elapsed-time")
+     :group-variable/hide-range-selector-conditional-operator :and
+     :group-variable/hide-range-selector-conditionals         [(sm/->conditional conn {:ttype               :group-variable
+                                                                                       :operator            :equal
+                                                                                       :values              "1"
+                                                                                       :group-variable-uuid contain-mode-gv-uuid})]}
+]
+
+   ;; re order suppression input groups
+   (map
+    (fn [group]
+      {:db/id       (:db/id group)
+       :group/order (inc (:group/order group))})
+    (sort-by :group/order (:submodule/groups (sm/t-key->entity conn "behaveplus:contain:input:suppression"))))
 
    (sm/build-translations-payload conn 100 {"behaveplus:contain:input:suppression:contain_mode"                                                                                               "Contain Mode"
                                             "behaveplus:contain:input:suppression:resource"                                                                                                   "Estimated Resource Arrival Time and Duration"

@@ -668,6 +668,18 @@
  (fn [{:keys [state]} [_ gv-uuid repeat-id]]
    (true? (get-in state [:show-range-selector? gv-uuid repeat-id]))))
 
+(reg-sub
+ :wizard/hide-range-selector?
+ (fn [[_ ws-uuid gv-uuid]]
+   [(subscribe [:worksheet ws-uuid])
+    (subscribe [:vms/entity-from-uuid gv-uuid])])
+ (fn [[worksheet group-variable-entity] _]
+   (let [conditionals (:group-variable/hide-range-selector-conditionals group-variable-entity)
+         op           (:group-variable/hide-range-selector-conditional-operator group-variable-entity)]
+     (if (seq conditionals)
+       (all-conditionals-pass? worksheet op conditionals)
+       false))))
+
 
 (defn index-by
   "Indexes collection by key or fn."
