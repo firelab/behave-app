@@ -889,7 +889,6 @@
  [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid]] [:wizard/search-table-output-group-variables ws-uuid]))]
  (fn [{group-variables :wizard/search-table-output-group-variables}
       [_ ws-uuid]]
-   (prn ":worksheet/process-search-table-output-group-variables" (map :bp/uuid group-variables))
    (let [payload (for [group-variable group-variables]
                    [:dispatch [:worksheet/upsert-output
                                ws-uuid
