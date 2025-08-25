@@ -197,7 +197,7 @@
                                             :group-variable-uuid contain-mode-gv-uuid}]}]
       :hide-result?       true})
 
-    ;; Add second search table that ueses the optimized Resource Line Production rate
+    ;; Add second search table that displays the optimized Resource Line Production rate instead of the input Resource Line Production Rate
     {:db/id (sm/t-key->eid conn "behaveplus:contain")
      :module/search-tables
      [{:search-table/name                  "Minimum Fireline Production Required for Containment Optimized Resource"
@@ -241,7 +241,10 @@
                                                                     :values              "1"
                                                                     :group-variable-uuid contain-mode-gv-uuid})]}]}
 
-    ;; update existing search table
+    ;; update existing search table:
+    ;; 1. updat order
+    ;; 2. Add Conditional to show search table
+    ;; 3. Add error message translation key
     {:db/id                              (sm/name->eid conn :search-table/name "Minimum Fireline Production Required for Containment")
      :search-table/order                 0
      :search-table/conditionals-operator :and
@@ -254,8 +257,7 @@
     {:db/id                              search-table-column-id-to-update
      :search-table-column/group-variable (sm/t-key->eid conn "behaveplus:contain:input:suppression:resources:resource_line_production_rate")}
 
-    ;; Ensure Range Selector is hidden for Contain inputs if contain mode is "Calculate Minimum Production Rate only"
-
+    ;; Add conditional to group variable to ensure Range Selector is hidden for Contain inputs if contain mode is "Calculate Minimum Production Rate only"
     {:db/id                                                   (sm/t-key->eid conn "behaveplus:contain:input:suppression:line_construction_offset:line_construction_offset")
      :group-variable/hide-range-selector-conditional-operator :and
      :group-variable/hide-range-selector-conditionals         [(sm/->conditional conn {:ttype               :group-variable
