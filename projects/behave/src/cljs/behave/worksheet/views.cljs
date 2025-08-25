@@ -113,12 +113,12 @@
                                           :icons     [{:icon-name "mortality"}]
                                           :selected? (= @*modules [:mortality])
                                           :module    [:mortality]}
-                                       {:order     6
-                                        :title     @(<t (bp "contain_only"))
-                                        :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-                                        :icons     [{:icon-name "contain"}]
-                                        :selected? (= @*modules [:contain])
-                                        :module    [:contain]}
+                                       #_{:order     6
+                                          :title     @(<t (bp "contain_only"))
+                                          :content   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                                          :icons     [{:icon-name "contain"}]
+                                          :selected? (= @*modules [:contain])
+                                          :module    [:contain]}
                                        ]}]]
       [wizard-navigation {:next-label     @(<t (bp "next"))
                           :back-label     @(<t (bp "back"))
