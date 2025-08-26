@@ -1,5 +1,5 @@
 (ns behave-cms.components.search-table
-  (:require [behave-cms.components.conditionals      :refer [conditionals-graph manage-conditionals]]
+  (:require [behave-cms.components.conditionals.views      :refer [conditionals-graph manage-conditionals]]
             [behave-cms.components.common            :refer [accordion btn-sm]]
             [behave-cms.components.entity-form       :refer [entity-form]]
             [behave-cms.components.table-entity-form :refer [table-entity-form]]
@@ -92,7 +92,6 @@
                    [conditionals-graph
                     search-table-id
                     search-table-id
-                    @(rf/subscribe [:group-variable/conditionals search-table-id :search-table/show-conditionals])
                     :search-table/show-conditionals
                     :search-table/show-conditionals-operator]]
                   [:div.col-3

@@ -6,7 +6,7 @@
                                                                    simple-table
                                                                    window]]
             [behave-cms.components.actions                 :refer [actions-table manage-action]]
-            [behave-cms.components.conditionals            :refer [conditionals-graph manage-conditionals]]
+            [behave-cms.components.conditionals.views            :refer [conditionals-graph manage-conditionals]]
             [behave-cms.components.cpp-editor              :refer [cpp-editor-form]]
             [behave-cms.components.sidebar                 :refer [sidebar sidebar-width]]
             [behave-cms.components.translations            :refer [all-translations]]
@@ -177,7 +177,6 @@
          [conditionals-graph
           gv-id
           gv-id
-          @(rf/subscribe [:group-variable/conditionals gv-id :group-variable/hide-result-conditionals])
           :group-variable/hide-result-conditionals
           :group-variable/hide-result-conditional-operator]]
         [:div.col-3
@@ -190,7 +189,6 @@
          [conditionals-graph
           gv-id
           gv-id
-          @(rf/subscribe [:group-variable/conditionals gv-id :group-variable/hide-range-selector-conditionals])
           :group-variable/hide-range-selector-conditionals
           :group-variable/hide-range-selector-conditional-operator]]
         [:div.col-3
