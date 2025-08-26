@@ -351,6 +351,6 @@
                     [conditionals-graph
                      parent-eid
                      conditional-eid
-                     :conditional/sub-conditionals
+                     cond-attr
                      :conditional/sub-conditional-operator]])]]))
            (sort-by :variable/name conditionals)))]]))))
