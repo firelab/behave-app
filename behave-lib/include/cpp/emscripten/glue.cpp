@@ -3398,54 +3398,62 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_VaporPressureDeficitCalculator___destr
   delete self;
 }
 
-// Interface: RelativeHumidityTool
+// Interface: SafeSeparationDistanceCalculator
 
 
-RelativeHumidityTool* EMSCRIPTEN_KEEPALIVE emscripten_bind_RelativeHumidityTool_RelativeHumidityTool_0() {
-  return new RelativeHumidityTool();
+SafeSeparationDistanceCalculator* EMSCRIPTEN_KEEPALIVE emscripten_bind_SafeSeparationDistanceCalculator_SafeSeparationDistanceCalculator_0() {
+  return new SafeSeparationDistanceCalculator();
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_RelativeHumidityTool_calculate_0(RelativeHumidityTool* self) {
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SafeSeparationDistanceCalculator_calculate_0(SafeSeparationDistanceCalculator* self) {
   self->calculate();
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_RelativeHumidityTool_getDryBulbTemperature_1(RelativeHumidityTool* self, TemperatureUnits_TemperatureUnitsEnum temperatureUnits) {
-  return self->getDryBulbTemperature(temperatureUnits);
+BurningCondition_BurningConditionEnum EMSCRIPTEN_KEEPALIVE emscripten_bind_SafeSeparationDistanceCalculator_getBurningCondition_0(SafeSeparationDistanceCalculator* self) {
+  return self->getBurningCondition();
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_RelativeHumidityTool_getSiteElevation_1(RelativeHumidityTool* self, LengthUnits_LengthUnitsEnum lengthUnits) {
-  return self->getSiteElevation(lengthUnits);
+SlopeClass_SlopeClassEnum EMSCRIPTEN_KEEPALIVE emscripten_bind_SafeSeparationDistanceCalculator_getSlopeClass_0(SafeSeparationDistanceCalculator* self) {
+  return self->getSlopeClass();
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_RelativeHumidityTool_getWetBulbTemperature_1(RelativeHumidityTool* self, TemperatureUnits_TemperatureUnitsEnum temperatureUnits) {
-  return self->getWetBulbTemperature(temperatureUnits);
+SpeedClass_SpeedClassEnum EMSCRIPTEN_KEEPALIVE emscripten_bind_SafeSeparationDistanceCalculator_getSpeedClass_0(SafeSeparationDistanceCalculator* self) {
+  return self->getSpeedClass();
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_RelativeHumidityTool_getDewPointTemperature_1(RelativeHumidityTool* self, TemperatureUnits_TemperatureUnitsEnum temperatureUnits) {
-  return self->getDewPointTemperature(temperatureUnits);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SafeSeparationDistanceCalculator_getSafeSeparationDistance_1(SafeSeparationDistanceCalculator* self, LengthUnits_LengthUnitsEnum lengthUnits) {
+  return self->getSafeSeparationDistance(lengthUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_RelativeHumidityTool_getRelativeHumidity_1(RelativeHumidityTool* self, FractionUnits_FractionUnitsEnum fractionUnits) {
-  return self->getRelativeHumidity(fractionUnits);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SafeSeparationDistanceCalculator_getSafetyZoneSize_1(SafeSeparationDistanceCalculator* self, AreaUnits_AreaUnitsEnum areaUnits) {
+  return self->getSafetyZoneSize(areaUnits);
 }
 
-double EMSCRIPTEN_KEEPALIVE emscripten_bind_RelativeHumidityTool_getWetBulbDepression_1(RelativeHumidityTool* self, TemperatureUnits_TemperatureUnitsEnum temperatureUnits) {
-  return self->getWetBulbDepression(temperatureUnits);
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SafeSeparationDistanceCalculator_getVegetationHeight_1(SafeSeparationDistanceCalculator* self, LengthUnits_LengthUnitsEnum lengthUnits) {
+  return self->getVegetationHeight(lengthUnits);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_RelativeHumidityTool_setDryBulbTemperature_2(RelativeHumidityTool* self, double dryBulbTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnits) {
-  self->setDryBulbTemperature(dryBulbTemperature, temperatureUnits);
+SafetyCondition_SafetyConditionEnum EMSCRIPTEN_KEEPALIVE emscripten_bind_SafeSeparationDistanceCalculator_getSafetyCondition_0(SafeSeparationDistanceCalculator* self) {
+  return self->getSafetyCondition();
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_RelativeHumidityTool_setSiteElevation_2(RelativeHumidityTool* self, double siteElevation, LengthUnits_LengthUnitsEnum lengthUnits) {
-  self->setSiteElevation(siteElevation, lengthUnits);
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SafeSeparationDistanceCalculator_setBurningCondition_1(SafeSeparationDistanceCalculator* self, BurningCondition_BurningConditionEnum condition) {
+  self->setBurningCondition(condition);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_RelativeHumidityTool_setWetBulbTemperature_2(RelativeHumidityTool* self, double wetBulbTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnits) {
-  self->setWetBulbTemperature(wetBulbTemperature, temperatureUnits);
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SafeSeparationDistanceCalculator_setSlopeClass_1(SafeSeparationDistanceCalculator* self, SlopeClass_SlopeClassEnum slope) {
+  self->setSlopeClass(slope);
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_RelativeHumidityTool___destroy___0(RelativeHumidityTool* self) {
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SafeSeparationDistanceCalculator_setSpeedClass_1(SafeSeparationDistanceCalculator* self, SpeedClass_SpeedClassEnum speed) {
+  self->setSpeedClass(speed);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SafeSeparationDistanceCalculator_setVegetationHeight_2(SafeSeparationDistanceCalculator* self, double height, LengthUnits_LengthUnitsEnum lengthUnits) {
+  self->setVegetationHeight(height, lengthUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SafeSeparationDistanceCalculator___destroy___0(SafeSeparationDistanceCalculator* self) {
   delete self;
 }
 
@@ -4443,6 +4451,50 @@ HorizontalDistanceIndex_HorizontalDistanceIndexEnum EMSCRIPTEN_KEEPALIVE emscrip
 }
 HorizontalDistanceIndex_HorizontalDistanceIndexEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_HorizontalDistanceIndex_HorizontalDistanceIndexEnum_CROSS_SLOPE_NINETY_DEGREES() {
   return HorizontalDistanceIndex::CROSS_SLOPE_NINETY_DEGREES;
+}
+
+// $BurningCondition_BurningConditionEnum
+BurningCondition_BurningConditionEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_BurningCondition_BurningConditionEnum_Low() {
+  return BurningCondition::Low;
+}
+BurningCondition_BurningConditionEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_BurningCondition_BurningConditionEnum_Moderate() {
+  return BurningCondition::Moderate;
+}
+BurningCondition_BurningConditionEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_BurningCondition_BurningConditionEnum_Extreme() {
+  return BurningCondition::Extreme;
+}
+
+// $SlopeClass_SlopeClassEnum
+SlopeClass_SlopeClassEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SlopeClass_SlopeClassEnum_Flat() {
+  return SlopeClass::Flat;
+}
+SlopeClass_SlopeClassEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SlopeClass_SlopeClassEnum_Moderate() {
+  return SlopeClass::Moderate;
+}
+SlopeClass_SlopeClassEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SlopeClass_SlopeClassEnum_Steep() {
+  return SlopeClass::Steep;
+}
+
+// $SpeedClass_SpeedClassEnum
+SpeedClass_SpeedClassEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SpeedClass_SpeedClassEnum_Light() {
+  return SpeedClass::Light;
+}
+SpeedClass_SpeedClassEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SpeedClass_SpeedClassEnum_Moderate() {
+  return SpeedClass::Moderate;
+}
+SpeedClass_SpeedClassEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SpeedClass_SpeedClassEnum_High() {
+  return SpeedClass::High;
+}
+
+// $SafetyCondition_SafetyConditionEnum
+SafetyCondition_SafetyConditionEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SafetyCondition_SafetyConditionEnum_Low() {
+  return SafetyCondition::Low;
+}
+SafetyCondition_SafetyConditionEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SafetyCondition_SafetyConditionEnum_Moderate() {
+  return SafetyCondition::Moderate;
+}
+SafetyCondition_SafetyConditionEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_SafetyCondition_SafetyConditionEnum_Extreme() {
+  return SafetyCondition::Extreme;
 }
 
 }

@@ -9,6 +9,7 @@
             [behave.lib.fine-dead-fuel-moisture-tool]
             [behave.lib.slope-tool]
             [behave.lib.relative-humidity]
+            [behave.lib.safe-separation-distance-calculator]
             [behave.lib.vapor-pressure-deficit-calculator]))
 
 (defn kebab->snake

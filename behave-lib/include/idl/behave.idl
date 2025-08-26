@@ -1421,25 +1421,25 @@ interface VaporPressureDeficitCalculator {
   double getVaporPressureDeficit(PressureUnits_PressureUnitsEnum units);
 };
 
-interface RelativeHumidityTool {
-  void RelativeHumidityTool();
-
-  // Calculate
-  void calculate();
-
-  // Getters
-  double getDryBulbTemperature(TemperatureUnits_TemperatureUnitsEnum temperatureUnits);
-  double getSiteElevation(LengthUnits_LengthUnitsEnum lengthUnits);
-  double getWetBulbTemperature(TemperatureUnits_TemperatureUnitsEnum temperatureUnits);
-  double getDewPointTemperature(TemperatureUnits_TemperatureUnitsEnum temperatureUnits);
-  double getRelativeHumidity(FractionUnits_FractionUnitsEnum fractionUnits);
-  double getWetBulbDepression(TemperatureUnits_TemperatureUnitsEnum temperatureUnits);
-
-  // Setters
-  void setDryBulbTemperature(double dryBulbTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnits);
-  void setSiteElevation(double siteElevation, LengthUnits_LengthUnitsEnum lengthUnits);
-  void setWetBulbTemperature(double wetBulbTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnits);
-};
+// interface RelativeHumidityTool {
+//   void RelativeHumidityTool();
+// 
+//   // Calculate
+//   void calculate();
+// 
+//   // Getters
+//   double getDryBulbTemperature(TemperatureUnits_TemperatureUnitsEnum temperatureUnits);
+//   double getSiteElevation(LengthUnits_LengthUnitsEnum lengthUnits);
+//   double getWetBulbTemperature(TemperatureUnits_TemperatureUnitsEnum temperatureUnits);
+//   double getDewPointTemperature(TemperatureUnits_TemperatureUnitsEnum temperatureUnits);
+//   double getRelativeHumidity(FractionUnits_FractionUnitsEnum fractionUnits);
+//   double getWetBulbDepression(TemperatureUnits_TemperatureUnitsEnum temperatureUnits);
+// 
+//   // Setters
+//   void setDryBulbTemperature(double dryBulbTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnits);
+//   void setSiteElevation(double siteElevation, LengthUnits_LengthUnitsEnum lengthUnits);
+//   void setWetBulbTemperature(double wetBulbTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnits);
+// };
 
 enum BurningCondition_BurningConditionEnum {
   "BurningCondition::Low",
@@ -1466,6 +1466,7 @@ enum SafetyCondition_SafetyConditionEnum {
 };
 
 interface SafeSeparationDistanceCalculator {
+  void SafeSeparationDistanceCalculator();
 
   // Calculate
   void calculate();
@@ -1473,12 +1474,15 @@ interface SafeSeparationDistanceCalculator {
   SlopeClass_SlopeClassEnum getSlopeClass();
   SpeedClass_SpeedClassEnum getSpeedClass();
 
+  // Getters
   double getSafeSeparationDistance(LengthUnits_LengthUnitsEnum lengthUnits);
-  double getSafetyZoneSite(AreaUnits_AreaUnitsEnum areaUnits);
+  double getSafetyZoneSize(AreaUnits_AreaUnitsEnum areaUnits);
   double getVegetationHeight(LengthUnits_LengthUnitsEnum lengthUnits);
+  SafetyCondition_SafetyConditionEnum getSafetyCondition();
 
+  // Setters
   void setBurningCondition(BurningCondition_BurningConditionEnum condition);
   void setSlopeClass(SlopeClass_SlopeClassEnum slope);
   void setSpeedClass(SpeedClass_SpeedClassEnum speed);
   void setVegetationHeight(double height, LengthUnits_LengthUnitsEnum lengthUnits);
-}
+};

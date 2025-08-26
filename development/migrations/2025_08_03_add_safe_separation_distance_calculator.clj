@@ -38,9 +38,27 @@
                        [?e :dimension/name "Area"]
                        [?e :bp/uuid ?uuid]] (d/db conn)))
 
-(d/q '[:find ?l ?t-key
-       :where [?l :list-option/translation-key ?t-key]] (d/db conn))
-
+(def safety-condition-color-tag-payload
+  [{:db/id                   -100
+    :tag-set/name            "Safety Conditions"
+    :tag-set/translation-key "behaveplus:tags:safety-conditions"
+    :tag-set/color?          true
+    :tag-set/tags
+    [{:db/id               -101
+      :tag/name            "Low"
+      :tag/color           "#FFFFFF"
+      :tag/translation-key "behaveplus:tags:safety-conditions:low"
+      :tag/order           0}
+     {:db/id               -102
+      :tag/name            "Moderate"
+      :tag/color           "#FFFF00"
+      :tag/translation-key "behaveplus:tags:safety-conditions:moderate"
+      :tag/order           1}
+     {:db/id               -103
+      :tag/name            "Extreme"
+      :tag/color           "#FF0000"
+      :tag/translation-key "behaveplus:tags:safety-conditions:extreme"
+      :tag/order           2}]}])
 
 (def missing-vars-payload
   [{:variable/name      "Burning Condition"
@@ -50,13 +68,13 @@
     :variable/list
     {:list/name    "Burning Condition"
      :list/options [{:list-option/name  "Low"
-                     :list-option/value 1
+                     :list-option/value "0"
                      :list-option/translation-key "behaveplus:list-option:burning-condition:low"}
                     {:list-option/name  "Moderate"
-                     :list-option/value 2
+                     :list-option/value "1"
                      :list-option/translation-key "behaveplus:list-option:burning-condition:moderate"}
                     {:list-option/name  "Extreme"
-                     :list-option/value 3
+                     :list-option/value "2"
                      :list-option/translation-key "behaveplus:list-option:burning-condition:extreme"}]}}
 
    {:variable/name      "Safety Condition"
@@ -64,17 +82,20 @@
     :variable/bp6-code  "vSafetyCondition"
     :variable/kind      :discrete
     :variable/list
-    {:list/name    "Safety Condition"
-     :list/translation-key ""
-     :list/options [{:list-option/name  "Low"
-                     :list-option/value 1
-                     :list-option/translation-key "behaveplus:list-option:safety-condition:low"}
-                    {:list-option/name  "Moderate"
-                     :list-option/value 2
-                     :list-option/translation-key "behaveplus:list-option:safety-condition:moderate"}
-                    {:list-option/name  "Extreme"
-                     :list-option/value 3
-                     :list-option/translation-key "behaveplus:list-option:safety-condition:extreme"}]}}
+    {:list/name          "Safety Condition"
+     :list/color-tag-set (sm/t-key->eid conn "behaveplus:tags:safety-conditions")
+     :list/options       [{:list-option/name            "Low"
+                           :list-option/value           "0"
+                           :list-option/translation-key "behaveplus:list-option:safety-condition:low"
+                           :list-option/color-tag-ref   (sm/t-key->eid conn "behaveplus:tags:safety-conditions:low")}
+                          {:list-option/name            "Moderate"
+                           :list-option/value           "1"
+                           :list-option/translation-key "behaveplus:list-option:safety-condition:moderate"
+                           :list-option/color-tag-ref   (sm/t-key->eid conn "behaveplus:tags:safety-conditions:moderate")}
+                          {:list-option/name            "Extreme"
+                           :list-option/value           "2"
+                           :list-option/translation-key "behaveplus:list-option:safety-condition:extreme"
+                           :list-option/color-tag-ref   (sm/t-key->eid conn "behaveplus:tags:safety-conditions:extreme")}]}}
 
    {:variable/name      "Slope Class"
     :variable/bp6-label "Slope Class"
@@ -83,13 +104,13 @@
     :variable/list
     {:list/name    "Slope Class"
      :list/options [{:list-option/name  "Flat"
-                     :list-option/value 1
+                     :list-option/value "0"
                      :list-option/translation-key "behaveplus:list-option:slope-class:low"}
                     {:list-option/name  "Moderate"
-                     :list-option/value 2
+                     :list-option/value "1"
                      :list-option/translation-key "behaveplus:list-option:slope-class:moderate"}
                     {:list-option/name  "Steep"
-                     :list-option/value 3
+                     :list-option/value "2"
                      :list-option/translation-key "behaveplus:list-option:slope-class:steep"}]}}
 
    {:variable/name      "Wind Speed Class"
@@ -99,13 +120,13 @@
     :variable/list
     {:list/name    "Wind Speed Class"
      :list/options [{:list-option/name  "Light"
-                     :list-option/value 1
+                     :list-option/value "0"
                      :list-option/translation-key "behaveplus:list-option:wind-speed-class:light"}
                     {:list-option/name  "Moderate"
-                     :list-option/value 2
+                     :list-option/value "1"
                      :list-option/translation-key "behaveplus:list-option:wind-speed-class:moderate"}
                     {:list-option/name  "High"
-                     :list-option/value 3
+                     :list-option/value "2"
                      :list-option/translation-key "behaveplus:list-option:wind-speed-class:high"}]}}
 
    {:variable/name           "Vegetation Height"
@@ -120,9 +141,9 @@
     :variable/kind           :continuous
     :variable/dimension-uuid length-dim-uuid}
 
-   {:variable/name           "Safety Zone Site"
-    :variable/bp6-label      "Safety Zone Site"
-    :variable/bp6-code       "vSafetyZoneSite"
+   {:variable/name           "Safety Zone Size"
+    :variable/bp6-label      "Safety Zone Size"
+    :variable/bp6-code       "vSafetyZoneSize"
     :variable/kind           :continuous
     :variable/dimension-uuid area-dim-uuid}])
 
@@ -224,8 +245,8 @@
         :subtool-variable/cpp-namespace-uuid global-namespace
         :subtool-variable/cpp-class-uuid     ssd-calc-class
         :subtool-variable/cpp-function-uuid  (ssd-fn-uuid "getSafetyZoneSize")
-        :subtool-variable/translation-key    (ssd-t-key "Safety Zone Site")
-        :subtool-variable/help-key           (ssd-t-key "Safety Zone Site")}
+        :subtool-variable/translation-key    (ssd-t-key "Safety Zone Size")
+        :subtool-variable/help-key           (ssd-t-key "Safety Zone Size")}
 
        {:db/id                               -7
         :subtool-variable/io                 :output
@@ -233,33 +254,69 @@
         :subtool-variable/cpp-namespace-uuid global-namespace
         :subtool-variable/cpp-class-uuid     ssd-calc-class
         :subtool-variable/cpp-function-uuid  (ssd-fn-uuid "getSafetyCondition")
-        :subtool-variable/translation-key    (ssd-t-key "Condition")
-        :subtool-variable/help-key           (ssd-t-key "Condition")}]}]}])
+        :subtool-variable/translation-key    (ssd-t-key "Safety Condition")
+        :subtool-variable/help-key           (ssd-t-key "Safety Condition")}]}]}])
 
 (def subtool-variables-payload
-  [{:db/id                      (sm/bp6-code->variable-eid conn "")
-    :variable/subtool-variables (sm/t-key->eid conn (ssd-t-key ))}
-   {:db/id                      (sm/bp6-code->variable-eid conn "")
-    :variable/subtool-variables (sm/t-key->eid conn )}
-   {:db/id                      (sm/bp6-code->variable-eid conn "")
-    :variable/subtool-variables (sm/t-key->eid conn )}
-   {:db/id                      (sm/bp6-code->variable-eid conn "")
-    :variable/subtool-variables (sm/t-key->eid conn )}
-   {:db/id                      (sm/bp6-code->variable-eid conn "")
-    :variable/subtool-variables (sm/t-key->eid conn )}
-   {:db/id                      (sm/bp6-code->variable-eid conn "")
-    :variable/subtool-variables (sm/t-key->eid conn )}])
+  [{:db/id                      (sm/bp6-code->variable-eid conn "vBurningCondition")
+    :variable/subtool-variables (sm/t-key->eid conn (ssd-t-key "Burning Condition"))}
+   {:db/id                      (sm/bp6-code->variable-eid conn "vSlopeClass")
+    :variable/subtool-variables (sm/t-key->eid conn (ssd-t-key "Slope Class"))}
+   {:db/id                      (sm/bp6-code->variable-eid conn "vWindSpeedClass")
+    :variable/subtool-variables (sm/t-key->eid conn (ssd-t-key "Wind Speed Class"))}
+   {:db/id                      (sm/bp6-code->variable-eid conn "vVegetationHeight")
+    :variable/subtool-variables (sm/t-key->eid conn (ssd-t-key "Vegetation Height"))}
+   {:db/id                      (sm/bp6-code->variable-eid conn "vSafeSeparationDistance")
+    :variable/subtool-variables (sm/t-key->eid conn (ssd-t-key "Safe Separation Distance"))}
+   {:db/id                      (sm/bp6-code->variable-eid conn "vSafetyZoneSize")
+    :variable/subtool-variables (sm/t-key->eid conn (ssd-t-key "Safety Zone Size"))}
+   {:db/id                      (sm/bp6-code->variable-eid conn "vSafetyCondition")
+    :variable/subtool-variables (sm/t-key->eid conn (ssd-t-key "Safety Condition"))}])
+
+(def translations-payload
+  (sm/build-translations-payload
+   conn
+   {"behaveplus:tags:safety-conditions"                                                  "Safety Conditions"
+    "behaveplus:tags:safety-conditions:low"                                              "Low"
+    "behaveplus:tags:safety-conditions:moderate"                                         "Moderate"
+    "behaveplus:tags:safety-conditions:extreme"                                          "Extreme"
+    "behaveplus:list-option:burning-condition:low"                                       "Low"
+    "behaveplus:list-option:burning-condition:moderate"                                  "Moderate"
+    "behaveplus:list-option:burning-condition:extreme"                                   "Extreme"
+    "behaveplus:list-option:safety-condition:low"                                        "Low"
+    "behaveplus:list-option:safety-condition:moderate"                                   "Moderate"
+    "behaveplus:list-option:safety-condition:extreme"                                    "Extreme"
+    "behaveplus:list-option:slope-class:low"                                             "Low"
+    "behaveplus:list-option:slope-class:moderate"                                        "Moderate"
+    "behaveplus:list-option:slope-class:steep"                                           "Steep"
+    "behaveplus:list-option:wind-speed-class:light"                                      "Light"
+    "behaveplus:list-option:wind-speed-class:moderate"                                   "Moderate"
+    "behaveplus:list-option:wind-speed-class:high"                                       "High"
+    "behaveplus:safe-separation-distance-calculator"                                     "Safe Separation Distance Calculator"
+    "behaveplus:safe-separation-distance-calculator:safe-separation-distance-calculator" "Safe Separation Distance Calculator"
+    (ssd-t-key "Burning Condition")                                                      "Burning Condition"
+    (ssd-t-key "Slope Class")                                                            "Slope Class"
+    (ssd-t-key "Wind Speed Class")                                                       "Wind Speed Class"
+    (ssd-t-key "Vegetation Height")                                                      "Vegetation Height"
+    (ssd-t-key "Safe Separation Distance")                                               "Safe Separation Distance"
+    (ssd-t-key "Safety Zone Size")                                                       "Safety Zone Size"
+    (ssd-t-key "Safety Condition")                                                       "Safety Condition"}))
 
 ;; ===========================================================================================================
 ;; Payload
 ;; ===========================================================================================================
 
 (comment
-  (def tx-data-1 (d/transact conn missing-vars-payload))
-  (def tx-data-2 (d/transact conn (sm/postwalk-insert rh-tool-payload)))
-  (def tx-data-3 (d/transact conn subtool-variables-payload)))
+  (def tx-data-1 (d/transact conn (sm/postwalk-insert safety-condition-color-tag-payload)))
+  (def tx-data-2 (d/transact conn (sm/postwalk-insert missing-vars-payload)))
+  (def tx-data-3 (d/transact conn (sm/postwalk-insert ssd-calc-payload)))
+  (def tx-data-4 (d/transact conn subtool-variables-payload))
+  (def tx-data-5 (d/transact conn translations-payload)))
 
+tx-data-5
 (comment
-  (do (sm/rollback-tx! conn @tx-data-3)
+  (do (sm/rollback-tx! conn @tx-data-5)
+      (sm/rollback-tx! conn @tx-data-4)
+      (sm/rollback-tx! conn @tx-data-3)
       (sm/rollback-tx! conn @tx-data-2)
       (sm/rollback-tx! conn @tx-data-1)))

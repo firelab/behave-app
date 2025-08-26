@@ -173,7 +173,7 @@
 
 (defn text-input
   [{:keys [disabled? error? error-msg focused? id label name on-blur on-change on-focus
-           placeholder value value-atom default-value on-key-press]}]
+           placeholder value value-atom default-value on-key-press background font-color]}]
   [:div {:class ["input-text"
                  (when error?    "input-text--error")
                  (when disabled? "input-text--disabled")
@@ -188,6 +188,8 @@
                     :on-focus      on-focus
                     :placeholder   placeholder
                     :type          "text"}
+             background    (assoc :style {:background background})
+             font-color    (assoc-in [:style :color] font-color)
              on-change     (assoc :on-change on-change)
              default-value (assoc :default-value default-value)
              value         (assoc :value value)
