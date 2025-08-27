@@ -5688,6 +5688,83 @@ VaporPressureDeficitCalculator.prototype['getVaporPressureDeficit'] = VaporPress
   var self = this.ptr;
   _emscripten_bind_VaporPressureDeficitCalculator___destroy___0(self);
 };
+// RelativeHumidityTool
+/** @suppress {undefinedVars, duplicate} @this{Object} */function RelativeHumidityTool() {
+  this.ptr = _emscripten_bind_RelativeHumidityTool_RelativeHumidityTool_0();
+  getCache(RelativeHumidityTool)[this.ptr] = this;
+};;
+RelativeHumidityTool.prototype = Object.create(WrapperObject.prototype);
+RelativeHumidityTool.prototype.constructor = RelativeHumidityTool;
+RelativeHumidityTool.prototype.__class__ = RelativeHumidityTool;
+RelativeHumidityTool.__cache__ = {};
+Module['RelativeHumidityTool'] = RelativeHumidityTool;
+
+RelativeHumidityTool.prototype['calculate'] = RelativeHumidityTool.prototype.calculate = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_RelativeHumidityTool_calculate_0(self);
+};;
+
+RelativeHumidityTool.prototype['getDryBulbTemperature'] = RelativeHumidityTool.prototype.getDryBulbTemperature = /** @suppress {undefinedVars, duplicate} @this{Object} */function(temperatureUnits) {
+  var self = this.ptr;
+  if (temperatureUnits && typeof temperatureUnits === 'object') temperatureUnits = temperatureUnits.ptr;
+  return _emscripten_bind_RelativeHumidityTool_getDryBulbTemperature_1(self, temperatureUnits);
+};;
+
+RelativeHumidityTool.prototype['getSiteElevation'] = RelativeHumidityTool.prototype.getSiteElevation = /** @suppress {undefinedVars, duplicate} @this{Object} */function(lengthUnits) {
+  var self = this.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  return _emscripten_bind_RelativeHumidityTool_getSiteElevation_1(self, lengthUnits);
+};;
+
+RelativeHumidityTool.prototype['getWetBulbTemperature'] = RelativeHumidityTool.prototype.getWetBulbTemperature = /** @suppress {undefinedVars, duplicate} @this{Object} */function(temperatureUnits) {
+  var self = this.ptr;
+  if (temperatureUnits && typeof temperatureUnits === 'object') temperatureUnits = temperatureUnits.ptr;
+  return _emscripten_bind_RelativeHumidityTool_getWetBulbTemperature_1(self, temperatureUnits);
+};;
+
+RelativeHumidityTool.prototype['getDewPointTemperature'] = RelativeHumidityTool.prototype.getDewPointTemperature = /** @suppress {undefinedVars, duplicate} @this{Object} */function(temperatureUnits) {
+  var self = this.ptr;
+  if (temperatureUnits && typeof temperatureUnits === 'object') temperatureUnits = temperatureUnits.ptr;
+  return _emscripten_bind_RelativeHumidityTool_getDewPointTemperature_1(self, temperatureUnits);
+};;
+
+RelativeHumidityTool.prototype['getRelativeHumidity'] = RelativeHumidityTool.prototype.getRelativeHumidity = /** @suppress {undefinedVars, duplicate} @this{Object} */function(fractionUnits) {
+  var self = this.ptr;
+  if (fractionUnits && typeof fractionUnits === 'object') fractionUnits = fractionUnits.ptr;
+  return _emscripten_bind_RelativeHumidityTool_getRelativeHumidity_1(self, fractionUnits);
+};;
+
+RelativeHumidityTool.prototype['getWetBulbDepression'] = RelativeHumidityTool.prototype.getWetBulbDepression = /** @suppress {undefinedVars, duplicate} @this{Object} */function(temperatureUnits) {
+  var self = this.ptr;
+  if (temperatureUnits && typeof temperatureUnits === 'object') temperatureUnits = temperatureUnits.ptr;
+  return _emscripten_bind_RelativeHumidityTool_getWetBulbDepression_1(self, temperatureUnits);
+};;
+
+RelativeHumidityTool.prototype['setDryBulbTemperature'] = RelativeHumidityTool.prototype.setDryBulbTemperature = /** @suppress {undefinedVars, duplicate} @this{Object} */function(dryBulbTemperature, temperatureUnits) {
+  var self = this.ptr;
+  if (dryBulbTemperature && typeof dryBulbTemperature === 'object') dryBulbTemperature = dryBulbTemperature.ptr;
+  if (temperatureUnits && typeof temperatureUnits === 'object') temperatureUnits = temperatureUnits.ptr;
+  _emscripten_bind_RelativeHumidityTool_setDryBulbTemperature_2(self, dryBulbTemperature, temperatureUnits);
+};;
+
+RelativeHumidityTool.prototype['setSiteElevation'] = RelativeHumidityTool.prototype.setSiteElevation = /** @suppress {undefinedVars, duplicate} @this{Object} */function(siteElevation, lengthUnits) {
+  var self = this.ptr;
+  if (siteElevation && typeof siteElevation === 'object') siteElevation = siteElevation.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  _emscripten_bind_RelativeHumidityTool_setSiteElevation_2(self, siteElevation, lengthUnits);
+};;
+
+RelativeHumidityTool.prototype['setWetBulbTemperature'] = RelativeHumidityTool.prototype.setWetBulbTemperature = /** @suppress {undefinedVars, duplicate} @this{Object} */function(wetBulbTemperature, temperatureUnits) {
+  var self = this.ptr;
+  if (wetBulbTemperature && typeof wetBulbTemperature === 'object') wetBulbTemperature = wetBulbTemperature.ptr;
+  if (temperatureUnits && typeof temperatureUnits === 'object') temperatureUnits = temperatureUnits.ptr;
+  _emscripten_bind_RelativeHumidityTool_setWetBulbTemperature_2(self, wetBulbTemperature, temperatureUnits);
+};;
+
+  RelativeHumidityTool.prototype['__destroy__'] = RelativeHumidityTool.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_RelativeHumidityTool___destroy___0(self);
+};
 (function() {
   function setupEnums() {
     

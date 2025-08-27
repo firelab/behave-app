@@ -3377,6 +3377,56 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_VaporPressureDeficitCalculator___destr
   delete self;
 }
 
+// RelativeHumidityTool
+
+RelativeHumidityTool* EMSCRIPTEN_KEEPALIVE emscripten_bind_RelativeHumidityTool_RelativeHumidityTool_0() {
+  return new RelativeHumidityTool();
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_RelativeHumidityTool_calculate_0(RelativeHumidityTool* self) {
+  self->calculate();
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_RelativeHumidityTool_getDryBulbTemperature_1(RelativeHumidityTool* self, TemperatureUnits_TemperatureUnitsEnum temperatureUnits) {
+  return self->getDryBulbTemperature(temperatureUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_RelativeHumidityTool_getSiteElevation_1(RelativeHumidityTool* self, LengthUnits_LengthUnitsEnum lengthUnits) {
+  return self->getSiteElevation(lengthUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_RelativeHumidityTool_getWetBulbTemperature_1(RelativeHumidityTool* self, TemperatureUnits_TemperatureUnitsEnum temperatureUnits) {
+  return self->getWetBulbTemperature(temperatureUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_RelativeHumidityTool_getDewPointTemperature_1(RelativeHumidityTool* self, TemperatureUnits_TemperatureUnitsEnum temperatureUnits) {
+  return self->getDewPointTemperature(temperatureUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_RelativeHumidityTool_getRelativeHumidity_1(RelativeHumidityTool* self, FractionUnits_FractionUnitsEnum fractionUnits) {
+  return self->getRelativeHumidity(fractionUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_RelativeHumidityTool_getWetBulbDepression_1(RelativeHumidityTool* self, TemperatureUnits_TemperatureUnitsEnum temperatureUnits) {
+  return self->getWetBulbDepression(temperatureUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_RelativeHumidityTool_setDryBulbTemperature_2(RelativeHumidityTool* self, double dryBulbTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnits) {
+  self->setDryBulbTemperature(dryBulbTemperature, temperatureUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_RelativeHumidityTool_setSiteElevation_2(RelativeHumidityTool* self, double siteElevation, LengthUnits_LengthUnitsEnum lengthUnits) {
+  self->setSiteElevation(siteElevation, lengthUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_RelativeHumidityTool_setWetBulbTemperature_2(RelativeHumidityTool* self, double wetBulbTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnits) {
+  self->setWetBulbTemperature(wetBulbTemperature, temperatureUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_RelativeHumidityTool___destroy___0(RelativeHumidityTool* self) {
+  delete self;
+}
+
 // AreaUnits_AreaUnitsEnum
 AreaUnits_AreaUnitsEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_AreaUnits_AreaUnitsEnum_SquareFeet() {
   return AreaUnits::SquareFeet;
