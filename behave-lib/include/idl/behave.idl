@@ -1421,25 +1421,25 @@ interface VaporPressureDeficitCalculator {
   double getVaporPressureDeficit(PressureUnits_PressureUnitsEnum units);
 };
 
-// interface RelativeHumidityTool {
-//   void RelativeHumidityTool();
-// 
-//   // Calculate
-//   void calculate();
-// 
-//   // Getters
-//   double getDryBulbTemperature(TemperatureUnits_TemperatureUnitsEnum temperatureUnits);
-//   double getSiteElevation(LengthUnits_LengthUnitsEnum lengthUnits);
-//   double getWetBulbTemperature(TemperatureUnits_TemperatureUnitsEnum temperatureUnits);
-//   double getDewPointTemperature(TemperatureUnits_TemperatureUnitsEnum temperatureUnits);
-//   double getRelativeHumidity(FractionUnits_FractionUnitsEnum fractionUnits);
-//   double getWetBulbDepression(TemperatureUnits_TemperatureUnitsEnum temperatureUnits);
-// 
-//   // Setters
-//   void setDryBulbTemperature(double dryBulbTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnits);
-//   void setSiteElevation(double siteElevation, LengthUnits_LengthUnitsEnum lengthUnits);
-//   void setWetBulbTemperature(double wetBulbTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnits);
-// };
+interface RelativeHumidityTool {
+  void RelativeHumidityTool();
+
+  // Calculate
+  void calculate();
+
+  // Getters
+  double getDryBulbTemperature(TemperatureUnits_TemperatureUnitsEnum temperatureUnits);
+  double getSiteElevation(LengthUnits_LengthUnitsEnum lengthUnits);
+  double getWetBulbTemperature(TemperatureUnits_TemperatureUnitsEnum temperatureUnits);
+  double getDewPointTemperature(TemperatureUnits_TemperatureUnitsEnum temperatureUnits);
+  double getRelativeHumidity(FractionUnits_FractionUnitsEnum fractionUnits);
+  double getWetBulbDepression(TemperatureUnits_TemperatureUnitsEnum temperatureUnits);
+
+  // Setters
+  void setDryBulbTemperature(double dryBulbTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnits);
+  void setSiteElevation(double siteElevation, LengthUnits_LengthUnitsEnum lengthUnits);
+  void setWetBulbTemperature(double wetBulbTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnits);
+};
 
 enum BurningCondition_BurningConditionEnum {
   "BurningCondition::Low",
