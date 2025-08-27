@@ -23,12 +23,6 @@
 #_{:clj-kondo/ignore [:missing-docstring]}
 (def conn (default-conn))
 
-(d/q '[:find ?e .
-       :where [?e :tool/name "Relative Humidity"]]
-     (d/db conn))
-
-(sm/t-key->eid "BehavePlus")
-
 ;; ===========================================================================================================
 ;; 1. Add Missing Variables
 ;; ===========================================================================================================
@@ -67,10 +61,8 @@
          :where [?e :application/name "BehavePlus"]]
        (d/db conn)))
 
-(def rh-tool
-  (d/q '[:find ?e .
-         :where [?e :tool/name "Relative Humidity"]]
-       (d/db conn)))
+(def global-namespace (sm/cpp-ns->uuid conn "global"))
+(def relative-humidity-class (sm/cpp-class->uuid conn "global" "RelativeHumidityTool"))
 
 (def rh-tool-payload
   [{:db/id -100
@@ -164,7 +156,7 @@
 ;; ===========================================================================================================
 
 (comment
-  (def tx-data-1 (d/transact conn missing-vars-payload))
+  (def tx-data-1 (d/transact conn (sm/postwalk-insert missing-vars-payload)))
   (def tx-data-2 (d/transact conn (sm/postwalk-insert rh-tool-payload)))
   (def tx-data-3 (d/transact conn subtool-variables-payload)))
 

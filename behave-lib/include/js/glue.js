@@ -1244,6 +1244,13 @@ SIGContainAdapter.prototype['getReportRate'] = SIGContainAdapter.prototype.getRe
 };
 
 /** @suppress {undefinedVars, duplicate} @this{Object} */
+SIGContainAdapter.prototype['getAutoComputedResourceProductionRate'] = SIGContainAdapter.prototype.getAutoComputedResourceProductionRate = function(speedUnits) {
+  var self = this.ptr;
+  if (speedUnits && typeof speedUnits === 'object') speedUnits = speedUnits.ptr;
+  return _emscripten_bind_SIGContainAdapter_getAutoComputedResourceProductionRate_1(self, speedUnits);
+};
+
+/** @suppress {undefinedVars, duplicate} @this{Object} */
 SIGContainAdapter.prototype['getTactic'] = SIGContainAdapter.prototype.getTactic = function() {
   var self = this.ptr;
   return _emscripten_bind_SIGContainAdapter_getTactic_0(self);
@@ -1318,6 +1325,13 @@ SIGContainAdapter.prototype['setAttackDistance'] = SIGContainAdapter.prototype.s
 };
 
 /** @suppress {undefinedVars, duplicate} @this{Object} */
+SIGContainAdapter.prototype['setContainMode'] = SIGContainAdapter.prototype.setContainMode = function(containmode) {
+  var self = this.ptr;
+  if (containmode && typeof containmode === 'object') containmode = containmode.ptr;
+  _emscripten_bind_SIGContainAdapter_setContainMode_1(self, containmode);
+};
+
+/** @suppress {undefinedVars, duplicate} @this{Object} */
 SIGContainAdapter.prototype['setFireStartTime'] = SIGContainAdapter.prototype.setFireStartTime = function(fireStartTime) {
   var self = this.ptr;
   if (fireStartTime && typeof fireStartTime === 'object') fireStartTime = fireStartTime.ptr;
@@ -1373,6 +1387,22 @@ SIGContainAdapter.prototype['setReportSize'] = SIGContainAdapter.prototype.setRe
   if (reportSize && typeof reportSize === 'object') reportSize = reportSize.ptr;
   if (areaUnits && typeof areaUnits === 'object') areaUnits = areaUnits.ptr;
   _emscripten_bind_SIGContainAdapter_setReportSize_2(self, reportSize, areaUnits);
+};
+
+/** @suppress {undefinedVars, duplicate} @this{Object} */
+SIGContainAdapter.prototype['setResourceArrivalTime'] = SIGContainAdapter.prototype.setResourceArrivalTime = function(arrivalTime, timeUnits) {
+  var self = this.ptr;
+  if (arrivalTime && typeof arrivalTime === 'object') arrivalTime = arrivalTime.ptr;
+  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
+  _emscripten_bind_SIGContainAdapter_setResourceArrivalTime_2(self, arrivalTime, timeUnits);
+};
+
+/** @suppress {undefinedVars, duplicate} @this{Object} */
+SIGContainAdapter.prototype['setResourceDuration'] = SIGContainAdapter.prototype.setResourceDuration = function(duration, timeUnits) {
+  var self = this.ptr;
+  if (duration && typeof duration === 'object') duration = duration.ptr;
+  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
+  _emscripten_bind_SIGContainAdapter_setResourceDuration_2(self, duration, timeUnits);
 };
 
 /** @suppress {undefinedVars, duplicate} @this{Object} */
@@ -6557,6 +6587,98 @@ VaporPressureDeficitCalculator.prototype['__destroy__'] = VaporPressureDeficitCa
   _emscripten_bind_VaporPressureDeficitCalculator___destroy___0(self);
 };
 
+// Interface: RelativeHumidityTool
+
+/** @suppress {undefinedVars, duplicate} @this{Object} */
+function RelativeHumidityTool() {
+  this.ptr = _emscripten_bind_RelativeHumidityTool_RelativeHumidityTool_0();
+  getCache(RelativeHumidityTool)[this.ptr] = this;
+};
+
+RelativeHumidityTool.prototype = Object.create(WrapperObject.prototype);
+RelativeHumidityTool.prototype.constructor = RelativeHumidityTool;
+RelativeHumidityTool.prototype.__class__ = RelativeHumidityTool;
+RelativeHumidityTool.__cache__ = {};
+Module['RelativeHumidityTool'] = RelativeHumidityTool;
+/** @suppress {undefinedVars, duplicate} @this{Object} */
+RelativeHumidityTool.prototype['calculate'] = RelativeHumidityTool.prototype.calculate = function() {
+  var self = this.ptr;
+  _emscripten_bind_RelativeHumidityTool_calculate_0(self);
+};
+
+/** @suppress {undefinedVars, duplicate} @this{Object} */
+RelativeHumidityTool.prototype['getDryBulbTemperature'] = RelativeHumidityTool.prototype.getDryBulbTemperature = function(temperatureUnits) {
+  var self = this.ptr;
+  if (temperatureUnits && typeof temperatureUnits === 'object') temperatureUnits = temperatureUnits.ptr;
+  return _emscripten_bind_RelativeHumidityTool_getDryBulbTemperature_1(self, temperatureUnits);
+};
+
+/** @suppress {undefinedVars, duplicate} @this{Object} */
+RelativeHumidityTool.prototype['getSiteElevation'] = RelativeHumidityTool.prototype.getSiteElevation = function(lengthUnits) {
+  var self = this.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  return _emscripten_bind_RelativeHumidityTool_getSiteElevation_1(self, lengthUnits);
+};
+
+/** @suppress {undefinedVars, duplicate} @this{Object} */
+RelativeHumidityTool.prototype['getWetBulbTemperature'] = RelativeHumidityTool.prototype.getWetBulbTemperature = function(temperatureUnits) {
+  var self = this.ptr;
+  if (temperatureUnits && typeof temperatureUnits === 'object') temperatureUnits = temperatureUnits.ptr;
+  return _emscripten_bind_RelativeHumidityTool_getWetBulbTemperature_1(self, temperatureUnits);
+};
+
+/** @suppress {undefinedVars, duplicate} @this{Object} */
+RelativeHumidityTool.prototype['getDewPointTemperature'] = RelativeHumidityTool.prototype.getDewPointTemperature = function(temperatureUnits) {
+  var self = this.ptr;
+  if (temperatureUnits && typeof temperatureUnits === 'object') temperatureUnits = temperatureUnits.ptr;
+  return _emscripten_bind_RelativeHumidityTool_getDewPointTemperature_1(self, temperatureUnits);
+};
+
+/** @suppress {undefinedVars, duplicate} @this{Object} */
+RelativeHumidityTool.prototype['getRelativeHumidity'] = RelativeHumidityTool.prototype.getRelativeHumidity = function(fractionUnits) {
+  var self = this.ptr;
+  if (fractionUnits && typeof fractionUnits === 'object') fractionUnits = fractionUnits.ptr;
+  return _emscripten_bind_RelativeHumidityTool_getRelativeHumidity_1(self, fractionUnits);
+};
+
+/** @suppress {undefinedVars, duplicate} @this{Object} */
+RelativeHumidityTool.prototype['getWetBulbDepression'] = RelativeHumidityTool.prototype.getWetBulbDepression = function(temperatureUnits) {
+  var self = this.ptr;
+  if (temperatureUnits && typeof temperatureUnits === 'object') temperatureUnits = temperatureUnits.ptr;
+  return _emscripten_bind_RelativeHumidityTool_getWetBulbDepression_1(self, temperatureUnits);
+};
+
+/** @suppress {undefinedVars, duplicate} @this{Object} */
+RelativeHumidityTool.prototype['setDryBulbTemperature'] = RelativeHumidityTool.prototype.setDryBulbTemperature = function(dryBulbTemperature, temperatureUnits) {
+  var self = this.ptr;
+  if (dryBulbTemperature && typeof dryBulbTemperature === 'object') dryBulbTemperature = dryBulbTemperature.ptr;
+  if (temperatureUnits && typeof temperatureUnits === 'object') temperatureUnits = temperatureUnits.ptr;
+  _emscripten_bind_RelativeHumidityTool_setDryBulbTemperature_2(self, dryBulbTemperature, temperatureUnits);
+};
+
+/** @suppress {undefinedVars, duplicate} @this{Object} */
+RelativeHumidityTool.prototype['setSiteElevation'] = RelativeHumidityTool.prototype.setSiteElevation = function(siteElevation, lengthUnits) {
+  var self = this.ptr;
+  if (siteElevation && typeof siteElevation === 'object') siteElevation = siteElevation.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  _emscripten_bind_RelativeHumidityTool_setSiteElevation_2(self, siteElevation, lengthUnits);
+};
+
+/** @suppress {undefinedVars, duplicate} @this{Object} */
+RelativeHumidityTool.prototype['setWetBulbTemperature'] = RelativeHumidityTool.prototype.setWetBulbTemperature = function(wetBulbTemperature, temperatureUnits) {
+  var self = this.ptr;
+  if (wetBulbTemperature && typeof wetBulbTemperature === 'object') wetBulbTemperature = wetBulbTemperature.ptr;
+  if (temperatureUnits && typeof temperatureUnits === 'object') temperatureUnits = temperatureUnits.ptr;
+  _emscripten_bind_RelativeHumidityTool_setWetBulbTemperature_2(self, wetBulbTemperature, temperatureUnits);
+};
+
+
+/** @suppress {undefinedVars, duplicate} @this{Object} */
+RelativeHumidityTool.prototype['__destroy__'] = RelativeHumidityTool.prototype.__destroy__ = function() {
+  var self = this.ptr;
+  _emscripten_bind_RelativeHumidityTool___destroy___0(self);
+};
+
 // Interface: SafeSeparationDistanceCalculator
 
 /** @suppress {undefinedVars, duplicate} @this{Object} */
@@ -6884,6 +7006,13 @@ SafeSeparationDistanceCalculator.prototype['__destroy__'] = SafeSeparationDistan
     Module['BothFlanks'] = _emscripten_enum_ContainFlank_ContainFlankEnum_BothFlanks();
 
     Module['NeitherFlank'] = _emscripten_enum_ContainFlank_ContainFlankEnum_NeitherFlank();
+
+    
+// $ContainMode
+
+    Module['Default'] = _emscripten_enum_ContainMode_Default();
+
+    Module['ComputeWithOptimalResource'] = _emscripten_enum_ContainMode_ComputeWithOptimalResource();
 
     
 // $IgnitionFuelBedType_IgnitionFuelBedTypeEnum

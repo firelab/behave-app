@@ -5067,6 +5067,7 @@ var _emscripten_bind_SIGContainAdapter_getPerimeterAtContainment_1 = Module['_em
 var _emscripten_bind_SIGContainAdapter_getPerimeterAtInitialAttack_1 = Module['_emscripten_bind_SIGContainAdapter_getPerimeterAtInitialAttack_1'] = makeInvalidEarlyAccess('_emscripten_bind_SIGContainAdapter_getPerimeterAtInitialAttack_1');
 var _emscripten_bind_SIGContainAdapter_getReportSize_1 = Module['_emscripten_bind_SIGContainAdapter_getReportSize_1'] = makeInvalidEarlyAccess('_emscripten_bind_SIGContainAdapter_getReportSize_1');
 var _emscripten_bind_SIGContainAdapter_getReportRate_1 = Module['_emscripten_bind_SIGContainAdapter_getReportRate_1'] = makeInvalidEarlyAccess('_emscripten_bind_SIGContainAdapter_getReportRate_1');
+var _emscripten_bind_SIGContainAdapter_getAutoComputedResourceProductionRate_1 = Module['_emscripten_bind_SIGContainAdapter_getAutoComputedResourceProductionRate_1'] = makeInvalidEarlyAccess('_emscripten_bind_SIGContainAdapter_getAutoComputedResourceProductionRate_1');
 var _emscripten_bind_SIGContainAdapter_getTactic_0 = Module['_emscripten_bind_SIGContainAdapter_getTactic_0'] = makeInvalidEarlyAccess('_emscripten_bind_SIGContainAdapter_getTactic_0');
 var _emscripten_bind_SIGContainAdapter_getFirePerimeterPointCount_0 = Module['_emscripten_bind_SIGContainAdapter_getFirePerimeterPointCount_0'] = makeInvalidEarlyAccess('_emscripten_bind_SIGContainAdapter_getFirePerimeterPointCount_0');
 var _emscripten_bind_SIGContainAdapter_removeAllResourcesWithThisDesc_1 = Module['_emscripten_bind_SIGContainAdapter_removeAllResourcesWithThisDesc_1'] = makeInvalidEarlyAccess('_emscripten_bind_SIGContainAdapter_removeAllResourcesWithThisDesc_1');
@@ -5076,6 +5077,7 @@ var _emscripten_bind_SIGContainAdapter_addResource_9 = Module['_emscripten_bind_
 var _emscripten_bind_SIGContainAdapter_doContainRun_0 = Module['_emscripten_bind_SIGContainAdapter_doContainRun_0'] = makeInvalidEarlyAccess('_emscripten_bind_SIGContainAdapter_doContainRun_0');
 var _emscripten_bind_SIGContainAdapter_removeAllResources_0 = Module['_emscripten_bind_SIGContainAdapter_removeAllResources_0'] = makeInvalidEarlyAccess('_emscripten_bind_SIGContainAdapter_removeAllResources_0');
 var _emscripten_bind_SIGContainAdapter_setAttackDistance_2 = Module['_emscripten_bind_SIGContainAdapter_setAttackDistance_2'] = makeInvalidEarlyAccess('_emscripten_bind_SIGContainAdapter_setAttackDistance_2');
+var _emscripten_bind_SIGContainAdapter_setContainMode_1 = Module['_emscripten_bind_SIGContainAdapter_setContainMode_1'] = makeInvalidEarlyAccess('_emscripten_bind_SIGContainAdapter_setContainMode_1');
 var _emscripten_bind_SIGContainAdapter_setFireStartTime_1 = Module['_emscripten_bind_SIGContainAdapter_setFireStartTime_1'] = makeInvalidEarlyAccess('_emscripten_bind_SIGContainAdapter_setFireStartTime_1');
 var _emscripten_bind_SIGContainAdapter_setLwRatio_1 = Module['_emscripten_bind_SIGContainAdapter_setLwRatio_1'] = makeInvalidEarlyAccess('_emscripten_bind_SIGContainAdapter_setLwRatio_1');
 var _emscripten_bind_SIGContainAdapter_setMaxFireSize_1 = Module['_emscripten_bind_SIGContainAdapter_setMaxFireSize_1'] = makeInvalidEarlyAccess('_emscripten_bind_SIGContainAdapter_setMaxFireSize_1');
@@ -5084,6 +5086,8 @@ var _emscripten_bind_SIGContainAdapter_setMaxSteps_1 = Module['_emscripten_bind_
 var _emscripten_bind_SIGContainAdapter_setMinSteps_1 = Module['_emscripten_bind_SIGContainAdapter_setMinSteps_1'] = makeInvalidEarlyAccess('_emscripten_bind_SIGContainAdapter_setMinSteps_1');
 var _emscripten_bind_SIGContainAdapter_setReportRate_2 = Module['_emscripten_bind_SIGContainAdapter_setReportRate_2'] = makeInvalidEarlyAccess('_emscripten_bind_SIGContainAdapter_setReportRate_2');
 var _emscripten_bind_SIGContainAdapter_setReportSize_2 = Module['_emscripten_bind_SIGContainAdapter_setReportSize_2'] = makeInvalidEarlyAccess('_emscripten_bind_SIGContainAdapter_setReportSize_2');
+var _emscripten_bind_SIGContainAdapter_setResourceArrivalTime_2 = Module['_emscripten_bind_SIGContainAdapter_setResourceArrivalTime_2'] = makeInvalidEarlyAccess('_emscripten_bind_SIGContainAdapter_setResourceArrivalTime_2');
+var _emscripten_bind_SIGContainAdapter_setResourceDuration_2 = Module['_emscripten_bind_SIGContainAdapter_setResourceDuration_2'] = makeInvalidEarlyAccess('_emscripten_bind_SIGContainAdapter_setResourceDuration_2');
 var _emscripten_bind_SIGContainAdapter_setRetry_1 = Module['_emscripten_bind_SIGContainAdapter_setRetry_1'] = makeInvalidEarlyAccess('_emscripten_bind_SIGContainAdapter_setRetry_1');
 var _emscripten_bind_SIGContainAdapter_setTactic_1 = Module['_emscripten_bind_SIGContainAdapter_setTactic_1'] = makeInvalidEarlyAccess('_emscripten_bind_SIGContainAdapter_setTactic_1');
 var _emscripten_bind_SIGContainAdapter___destroy___0 = Module['_emscripten_bind_SIGContainAdapter___destroy___0'] = makeInvalidEarlyAccess('_emscripten_bind_SIGContainAdapter___destroy___0');
@@ -5759,6 +5763,18 @@ var _emscripten_bind_VaporPressureDeficitCalculator_setTemperature_2 = Module['_
 var _emscripten_bind_VaporPressureDeficitCalculator_setRelativeHumidity_2 = Module['_emscripten_bind_VaporPressureDeficitCalculator_setRelativeHumidity_2'] = makeInvalidEarlyAccess('_emscripten_bind_VaporPressureDeficitCalculator_setRelativeHumidity_2');
 var _emscripten_bind_VaporPressureDeficitCalculator_getVaporPressureDeficit_1 = Module['_emscripten_bind_VaporPressureDeficitCalculator_getVaporPressureDeficit_1'] = makeInvalidEarlyAccess('_emscripten_bind_VaporPressureDeficitCalculator_getVaporPressureDeficit_1');
 var _emscripten_bind_VaporPressureDeficitCalculator___destroy___0 = Module['_emscripten_bind_VaporPressureDeficitCalculator___destroy___0'] = makeInvalidEarlyAccess('_emscripten_bind_VaporPressureDeficitCalculator___destroy___0');
+var _emscripten_bind_RelativeHumidityTool_RelativeHumidityTool_0 = Module['_emscripten_bind_RelativeHumidityTool_RelativeHumidityTool_0'] = makeInvalidEarlyAccess('_emscripten_bind_RelativeHumidityTool_RelativeHumidityTool_0');
+var _emscripten_bind_RelativeHumidityTool_calculate_0 = Module['_emscripten_bind_RelativeHumidityTool_calculate_0'] = makeInvalidEarlyAccess('_emscripten_bind_RelativeHumidityTool_calculate_0');
+var _emscripten_bind_RelativeHumidityTool_getDryBulbTemperature_1 = Module['_emscripten_bind_RelativeHumidityTool_getDryBulbTemperature_1'] = makeInvalidEarlyAccess('_emscripten_bind_RelativeHumidityTool_getDryBulbTemperature_1');
+var _emscripten_bind_RelativeHumidityTool_getSiteElevation_1 = Module['_emscripten_bind_RelativeHumidityTool_getSiteElevation_1'] = makeInvalidEarlyAccess('_emscripten_bind_RelativeHumidityTool_getSiteElevation_1');
+var _emscripten_bind_RelativeHumidityTool_getWetBulbTemperature_1 = Module['_emscripten_bind_RelativeHumidityTool_getWetBulbTemperature_1'] = makeInvalidEarlyAccess('_emscripten_bind_RelativeHumidityTool_getWetBulbTemperature_1');
+var _emscripten_bind_RelativeHumidityTool_getDewPointTemperature_1 = Module['_emscripten_bind_RelativeHumidityTool_getDewPointTemperature_1'] = makeInvalidEarlyAccess('_emscripten_bind_RelativeHumidityTool_getDewPointTemperature_1');
+var _emscripten_bind_RelativeHumidityTool_getRelativeHumidity_1 = Module['_emscripten_bind_RelativeHumidityTool_getRelativeHumidity_1'] = makeInvalidEarlyAccess('_emscripten_bind_RelativeHumidityTool_getRelativeHumidity_1');
+var _emscripten_bind_RelativeHumidityTool_getWetBulbDepression_1 = Module['_emscripten_bind_RelativeHumidityTool_getWetBulbDepression_1'] = makeInvalidEarlyAccess('_emscripten_bind_RelativeHumidityTool_getWetBulbDepression_1');
+var _emscripten_bind_RelativeHumidityTool_setDryBulbTemperature_2 = Module['_emscripten_bind_RelativeHumidityTool_setDryBulbTemperature_2'] = makeInvalidEarlyAccess('_emscripten_bind_RelativeHumidityTool_setDryBulbTemperature_2');
+var _emscripten_bind_RelativeHumidityTool_setSiteElevation_2 = Module['_emscripten_bind_RelativeHumidityTool_setSiteElevation_2'] = makeInvalidEarlyAccess('_emscripten_bind_RelativeHumidityTool_setSiteElevation_2');
+var _emscripten_bind_RelativeHumidityTool_setWetBulbTemperature_2 = Module['_emscripten_bind_RelativeHumidityTool_setWetBulbTemperature_2'] = makeInvalidEarlyAccess('_emscripten_bind_RelativeHumidityTool_setWetBulbTemperature_2');
+var _emscripten_bind_RelativeHumidityTool___destroy___0 = Module['_emscripten_bind_RelativeHumidityTool___destroy___0'] = makeInvalidEarlyAccess('_emscripten_bind_RelativeHumidityTool___destroy___0');
 var _emscripten_bind_SafeSeparationDistanceCalculator_SafeSeparationDistanceCalculator_0 = Module['_emscripten_bind_SafeSeparationDistanceCalculator_SafeSeparationDistanceCalculator_0'] = makeInvalidEarlyAccess('_emscripten_bind_SafeSeparationDistanceCalculator_SafeSeparationDistanceCalculator_0');
 var _emscripten_bind_SafeSeparationDistanceCalculator_calculate_0 = Module['_emscripten_bind_SafeSeparationDistanceCalculator_calculate_0'] = makeInvalidEarlyAccess('_emscripten_bind_SafeSeparationDistanceCalculator_calculate_0');
 var _emscripten_bind_SafeSeparationDistanceCalculator_getBurningCondition_0 = Module['_emscripten_bind_SafeSeparationDistanceCalculator_getBurningCondition_0'] = makeInvalidEarlyAccess('_emscripten_bind_SafeSeparationDistanceCalculator_getBurningCondition_0');
@@ -5856,6 +5872,8 @@ var _emscripten_enum_ContainFlank_ContainFlankEnum_LeftFlank = Module['_emscript
 var _emscripten_enum_ContainFlank_ContainFlankEnum_RightFlank = Module['_emscripten_enum_ContainFlank_ContainFlankEnum_RightFlank'] = makeInvalidEarlyAccess('_emscripten_enum_ContainFlank_ContainFlankEnum_RightFlank');
 var _emscripten_enum_ContainFlank_ContainFlankEnum_BothFlanks = Module['_emscripten_enum_ContainFlank_ContainFlankEnum_BothFlanks'] = makeInvalidEarlyAccess('_emscripten_enum_ContainFlank_ContainFlankEnum_BothFlanks');
 var _emscripten_enum_ContainFlank_ContainFlankEnum_NeitherFlank = Module['_emscripten_enum_ContainFlank_ContainFlankEnum_NeitherFlank'] = makeInvalidEarlyAccess('_emscripten_enum_ContainFlank_ContainFlankEnum_NeitherFlank');
+var _emscripten_enum_ContainMode_Default = Module['_emscripten_enum_ContainMode_Default'] = makeInvalidEarlyAccess('_emscripten_enum_ContainMode_Default');
+var _emscripten_enum_ContainMode_ComputeWithOptimalResource = Module['_emscripten_enum_ContainMode_ComputeWithOptimalResource'] = makeInvalidEarlyAccess('_emscripten_enum_ContainMode_ComputeWithOptimalResource');
 var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PonderosaPineLitter = Module['_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PonderosaPineLitter'] = makeInvalidEarlyAccess('_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PonderosaPineLitter');
 var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodRottenChunky = Module['_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodRottenChunky'] = makeInvalidEarlyAccess('_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodRottenChunky');
 var _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodPowderDeep = Module['_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodPowderDeep'] = makeInvalidEarlyAccess('_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodPowderDeep');
@@ -6223,6 +6241,7 @@ function assignWasmExports(wasmExports) {
   Module['_emscripten_bind_SIGContainAdapter_getPerimeterAtInitialAttack_1'] = _emscripten_bind_SIGContainAdapter_getPerimeterAtInitialAttack_1 = createExportWrapper('emscripten_bind_SIGContainAdapter_getPerimeterAtInitialAttack_1', 2);
   Module['_emscripten_bind_SIGContainAdapter_getReportSize_1'] = _emscripten_bind_SIGContainAdapter_getReportSize_1 = createExportWrapper('emscripten_bind_SIGContainAdapter_getReportSize_1', 2);
   Module['_emscripten_bind_SIGContainAdapter_getReportRate_1'] = _emscripten_bind_SIGContainAdapter_getReportRate_1 = createExportWrapper('emscripten_bind_SIGContainAdapter_getReportRate_1', 2);
+  Module['_emscripten_bind_SIGContainAdapter_getAutoComputedResourceProductionRate_1'] = _emscripten_bind_SIGContainAdapter_getAutoComputedResourceProductionRate_1 = createExportWrapper('emscripten_bind_SIGContainAdapter_getAutoComputedResourceProductionRate_1', 2);
   Module['_emscripten_bind_SIGContainAdapter_getTactic_0'] = _emscripten_bind_SIGContainAdapter_getTactic_0 = createExportWrapper('emscripten_bind_SIGContainAdapter_getTactic_0', 1);
   Module['_emscripten_bind_SIGContainAdapter_getFirePerimeterPointCount_0'] = _emscripten_bind_SIGContainAdapter_getFirePerimeterPointCount_0 = createExportWrapper('emscripten_bind_SIGContainAdapter_getFirePerimeterPointCount_0', 1);
   Module['_emscripten_bind_SIGContainAdapter_removeAllResourcesWithThisDesc_1'] = _emscripten_bind_SIGContainAdapter_removeAllResourcesWithThisDesc_1 = createExportWrapper('emscripten_bind_SIGContainAdapter_removeAllResourcesWithThisDesc_1', 2);
@@ -6232,6 +6251,7 @@ function assignWasmExports(wasmExports) {
   Module['_emscripten_bind_SIGContainAdapter_doContainRun_0'] = _emscripten_bind_SIGContainAdapter_doContainRun_0 = createExportWrapper('emscripten_bind_SIGContainAdapter_doContainRun_0', 1);
   Module['_emscripten_bind_SIGContainAdapter_removeAllResources_0'] = _emscripten_bind_SIGContainAdapter_removeAllResources_0 = createExportWrapper('emscripten_bind_SIGContainAdapter_removeAllResources_0', 1);
   Module['_emscripten_bind_SIGContainAdapter_setAttackDistance_2'] = _emscripten_bind_SIGContainAdapter_setAttackDistance_2 = createExportWrapper('emscripten_bind_SIGContainAdapter_setAttackDistance_2', 3);
+  Module['_emscripten_bind_SIGContainAdapter_setContainMode_1'] = _emscripten_bind_SIGContainAdapter_setContainMode_1 = createExportWrapper('emscripten_bind_SIGContainAdapter_setContainMode_1', 2);
   Module['_emscripten_bind_SIGContainAdapter_setFireStartTime_1'] = _emscripten_bind_SIGContainAdapter_setFireStartTime_1 = createExportWrapper('emscripten_bind_SIGContainAdapter_setFireStartTime_1', 2);
   Module['_emscripten_bind_SIGContainAdapter_setLwRatio_1'] = _emscripten_bind_SIGContainAdapter_setLwRatio_1 = createExportWrapper('emscripten_bind_SIGContainAdapter_setLwRatio_1', 2);
   Module['_emscripten_bind_SIGContainAdapter_setMaxFireSize_1'] = _emscripten_bind_SIGContainAdapter_setMaxFireSize_1 = createExportWrapper('emscripten_bind_SIGContainAdapter_setMaxFireSize_1', 2);
@@ -6240,6 +6260,8 @@ function assignWasmExports(wasmExports) {
   Module['_emscripten_bind_SIGContainAdapter_setMinSteps_1'] = _emscripten_bind_SIGContainAdapter_setMinSteps_1 = createExportWrapper('emscripten_bind_SIGContainAdapter_setMinSteps_1', 2);
   Module['_emscripten_bind_SIGContainAdapter_setReportRate_2'] = _emscripten_bind_SIGContainAdapter_setReportRate_2 = createExportWrapper('emscripten_bind_SIGContainAdapter_setReportRate_2', 3);
   Module['_emscripten_bind_SIGContainAdapter_setReportSize_2'] = _emscripten_bind_SIGContainAdapter_setReportSize_2 = createExportWrapper('emscripten_bind_SIGContainAdapter_setReportSize_2', 3);
+  Module['_emscripten_bind_SIGContainAdapter_setResourceArrivalTime_2'] = _emscripten_bind_SIGContainAdapter_setResourceArrivalTime_2 = createExportWrapper('emscripten_bind_SIGContainAdapter_setResourceArrivalTime_2', 3);
+  Module['_emscripten_bind_SIGContainAdapter_setResourceDuration_2'] = _emscripten_bind_SIGContainAdapter_setResourceDuration_2 = createExportWrapper('emscripten_bind_SIGContainAdapter_setResourceDuration_2', 3);
   Module['_emscripten_bind_SIGContainAdapter_setRetry_1'] = _emscripten_bind_SIGContainAdapter_setRetry_1 = createExportWrapper('emscripten_bind_SIGContainAdapter_setRetry_1', 2);
   Module['_emscripten_bind_SIGContainAdapter_setTactic_1'] = _emscripten_bind_SIGContainAdapter_setTactic_1 = createExportWrapper('emscripten_bind_SIGContainAdapter_setTactic_1', 2);
   Module['_emscripten_bind_SIGContainAdapter___destroy___0'] = _emscripten_bind_SIGContainAdapter___destroy___0 = createExportWrapper('emscripten_bind_SIGContainAdapter___destroy___0', 1);
@@ -6915,6 +6937,18 @@ function assignWasmExports(wasmExports) {
   Module['_emscripten_bind_VaporPressureDeficitCalculator_setRelativeHumidity_2'] = _emscripten_bind_VaporPressureDeficitCalculator_setRelativeHumidity_2 = createExportWrapper('emscripten_bind_VaporPressureDeficitCalculator_setRelativeHumidity_2', 3);
   Module['_emscripten_bind_VaporPressureDeficitCalculator_getVaporPressureDeficit_1'] = _emscripten_bind_VaporPressureDeficitCalculator_getVaporPressureDeficit_1 = createExportWrapper('emscripten_bind_VaporPressureDeficitCalculator_getVaporPressureDeficit_1', 2);
   Module['_emscripten_bind_VaporPressureDeficitCalculator___destroy___0'] = _emscripten_bind_VaporPressureDeficitCalculator___destroy___0 = createExportWrapper('emscripten_bind_VaporPressureDeficitCalculator___destroy___0', 1);
+  Module['_emscripten_bind_RelativeHumidityTool_RelativeHumidityTool_0'] = _emscripten_bind_RelativeHumidityTool_RelativeHumidityTool_0 = createExportWrapper('emscripten_bind_RelativeHumidityTool_RelativeHumidityTool_0', 0);
+  Module['_emscripten_bind_RelativeHumidityTool_calculate_0'] = _emscripten_bind_RelativeHumidityTool_calculate_0 = createExportWrapper('emscripten_bind_RelativeHumidityTool_calculate_0', 1);
+  Module['_emscripten_bind_RelativeHumidityTool_getDryBulbTemperature_1'] = _emscripten_bind_RelativeHumidityTool_getDryBulbTemperature_1 = createExportWrapper('emscripten_bind_RelativeHumidityTool_getDryBulbTemperature_1', 2);
+  Module['_emscripten_bind_RelativeHumidityTool_getSiteElevation_1'] = _emscripten_bind_RelativeHumidityTool_getSiteElevation_1 = createExportWrapper('emscripten_bind_RelativeHumidityTool_getSiteElevation_1', 2);
+  Module['_emscripten_bind_RelativeHumidityTool_getWetBulbTemperature_1'] = _emscripten_bind_RelativeHumidityTool_getWetBulbTemperature_1 = createExportWrapper('emscripten_bind_RelativeHumidityTool_getWetBulbTemperature_1', 2);
+  Module['_emscripten_bind_RelativeHumidityTool_getDewPointTemperature_1'] = _emscripten_bind_RelativeHumidityTool_getDewPointTemperature_1 = createExportWrapper('emscripten_bind_RelativeHumidityTool_getDewPointTemperature_1', 2);
+  Module['_emscripten_bind_RelativeHumidityTool_getRelativeHumidity_1'] = _emscripten_bind_RelativeHumidityTool_getRelativeHumidity_1 = createExportWrapper('emscripten_bind_RelativeHumidityTool_getRelativeHumidity_1', 2);
+  Module['_emscripten_bind_RelativeHumidityTool_getWetBulbDepression_1'] = _emscripten_bind_RelativeHumidityTool_getWetBulbDepression_1 = createExportWrapper('emscripten_bind_RelativeHumidityTool_getWetBulbDepression_1', 2);
+  Module['_emscripten_bind_RelativeHumidityTool_setDryBulbTemperature_2'] = _emscripten_bind_RelativeHumidityTool_setDryBulbTemperature_2 = createExportWrapper('emscripten_bind_RelativeHumidityTool_setDryBulbTemperature_2', 3);
+  Module['_emscripten_bind_RelativeHumidityTool_setSiteElevation_2'] = _emscripten_bind_RelativeHumidityTool_setSiteElevation_2 = createExportWrapper('emscripten_bind_RelativeHumidityTool_setSiteElevation_2', 3);
+  Module['_emscripten_bind_RelativeHumidityTool_setWetBulbTemperature_2'] = _emscripten_bind_RelativeHumidityTool_setWetBulbTemperature_2 = createExportWrapper('emscripten_bind_RelativeHumidityTool_setWetBulbTemperature_2', 3);
+  Module['_emscripten_bind_RelativeHumidityTool___destroy___0'] = _emscripten_bind_RelativeHumidityTool___destroy___0 = createExportWrapper('emscripten_bind_RelativeHumidityTool___destroy___0', 1);
   Module['_emscripten_bind_SafeSeparationDistanceCalculator_SafeSeparationDistanceCalculator_0'] = _emscripten_bind_SafeSeparationDistanceCalculator_SafeSeparationDistanceCalculator_0 = createExportWrapper('emscripten_bind_SafeSeparationDistanceCalculator_SafeSeparationDistanceCalculator_0', 0);
   Module['_emscripten_bind_SafeSeparationDistanceCalculator_calculate_0'] = _emscripten_bind_SafeSeparationDistanceCalculator_calculate_0 = createExportWrapper('emscripten_bind_SafeSeparationDistanceCalculator_calculate_0', 1);
   Module['_emscripten_bind_SafeSeparationDistanceCalculator_getBurningCondition_0'] = _emscripten_bind_SafeSeparationDistanceCalculator_getBurningCondition_0 = createExportWrapper('emscripten_bind_SafeSeparationDistanceCalculator_getBurningCondition_0', 1);
@@ -7012,6 +7046,8 @@ function assignWasmExports(wasmExports) {
   Module['_emscripten_enum_ContainFlank_ContainFlankEnum_RightFlank'] = _emscripten_enum_ContainFlank_ContainFlankEnum_RightFlank = createExportWrapper('emscripten_enum_ContainFlank_ContainFlankEnum_RightFlank', 0);
   Module['_emscripten_enum_ContainFlank_ContainFlankEnum_BothFlanks'] = _emscripten_enum_ContainFlank_ContainFlankEnum_BothFlanks = createExportWrapper('emscripten_enum_ContainFlank_ContainFlankEnum_BothFlanks', 0);
   Module['_emscripten_enum_ContainFlank_ContainFlankEnum_NeitherFlank'] = _emscripten_enum_ContainFlank_ContainFlankEnum_NeitherFlank = createExportWrapper('emscripten_enum_ContainFlank_ContainFlankEnum_NeitherFlank', 0);
+  Module['_emscripten_enum_ContainMode_Default'] = _emscripten_enum_ContainMode_Default = createExportWrapper('emscripten_enum_ContainMode_Default', 0);
+  Module['_emscripten_enum_ContainMode_ComputeWithOptimalResource'] = _emscripten_enum_ContainMode_ComputeWithOptimalResource = createExportWrapper('emscripten_enum_ContainMode_ComputeWithOptimalResource', 0);
   Module['_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PonderosaPineLitter'] = _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PonderosaPineLitter = createExportWrapper('emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PonderosaPineLitter', 0);
   Module['_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodRottenChunky'] = _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodRottenChunky = createExportWrapper('emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodRottenChunky', 0);
   Module['_emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodPowderDeep'] = _emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodPowderDeep = createExportWrapper('emscripten_enum_IgnitionFuelBedType_IgnitionFuelBedTypeEnum_PunkyWoodPowderDeep', 0);
@@ -8962,6 +8998,13 @@ SIGContainAdapter.prototype['getReportRate'] = SIGContainAdapter.prototype.getRe
 };
 
 /** @suppress {undefinedVars, duplicate} @this{Object} */
+SIGContainAdapter.prototype['getAutoComputedResourceProductionRate'] = SIGContainAdapter.prototype.getAutoComputedResourceProductionRate = function(speedUnits) {
+  var self = this.ptr;
+  if (speedUnits && typeof speedUnits === 'object') speedUnits = speedUnits.ptr;
+  return _emscripten_bind_SIGContainAdapter_getAutoComputedResourceProductionRate_1(self, speedUnits);
+};
+
+/** @suppress {undefinedVars, duplicate} @this{Object} */
 SIGContainAdapter.prototype['getTactic'] = SIGContainAdapter.prototype.getTactic = function() {
   var self = this.ptr;
   return _emscripten_bind_SIGContainAdapter_getTactic_0(self);
@@ -9036,6 +9079,13 @@ SIGContainAdapter.prototype['setAttackDistance'] = SIGContainAdapter.prototype.s
 };
 
 /** @suppress {undefinedVars, duplicate} @this{Object} */
+SIGContainAdapter.prototype['setContainMode'] = SIGContainAdapter.prototype.setContainMode = function(containmode) {
+  var self = this.ptr;
+  if (containmode && typeof containmode === 'object') containmode = containmode.ptr;
+  _emscripten_bind_SIGContainAdapter_setContainMode_1(self, containmode);
+};
+
+/** @suppress {undefinedVars, duplicate} @this{Object} */
 SIGContainAdapter.prototype['setFireStartTime'] = SIGContainAdapter.prototype.setFireStartTime = function(fireStartTime) {
   var self = this.ptr;
   if (fireStartTime && typeof fireStartTime === 'object') fireStartTime = fireStartTime.ptr;
@@ -9091,6 +9141,22 @@ SIGContainAdapter.prototype['setReportSize'] = SIGContainAdapter.prototype.setRe
   if (reportSize && typeof reportSize === 'object') reportSize = reportSize.ptr;
   if (areaUnits && typeof areaUnits === 'object') areaUnits = areaUnits.ptr;
   _emscripten_bind_SIGContainAdapter_setReportSize_2(self, reportSize, areaUnits);
+};
+
+/** @suppress {undefinedVars, duplicate} @this{Object} */
+SIGContainAdapter.prototype['setResourceArrivalTime'] = SIGContainAdapter.prototype.setResourceArrivalTime = function(arrivalTime, timeUnits) {
+  var self = this.ptr;
+  if (arrivalTime && typeof arrivalTime === 'object') arrivalTime = arrivalTime.ptr;
+  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
+  _emscripten_bind_SIGContainAdapter_setResourceArrivalTime_2(self, arrivalTime, timeUnits);
+};
+
+/** @suppress {undefinedVars, duplicate} @this{Object} */
+SIGContainAdapter.prototype['setResourceDuration'] = SIGContainAdapter.prototype.setResourceDuration = function(duration, timeUnits) {
+  var self = this.ptr;
+  if (duration && typeof duration === 'object') duration = duration.ptr;
+  if (timeUnits && typeof timeUnits === 'object') timeUnits = timeUnits.ptr;
+  _emscripten_bind_SIGContainAdapter_setResourceDuration_2(self, duration, timeUnits);
 };
 
 /** @suppress {undefinedVars, duplicate} @this{Object} */
@@ -14275,6 +14341,98 @@ VaporPressureDeficitCalculator.prototype['__destroy__'] = VaporPressureDeficitCa
   _emscripten_bind_VaporPressureDeficitCalculator___destroy___0(self);
 };
 
+// Interface: RelativeHumidityTool
+
+/** @suppress {undefinedVars, duplicate} @this{Object} */
+function RelativeHumidityTool() {
+  this.ptr = _emscripten_bind_RelativeHumidityTool_RelativeHumidityTool_0();
+  getCache(RelativeHumidityTool)[this.ptr] = this;
+};
+
+RelativeHumidityTool.prototype = Object.create(WrapperObject.prototype);
+RelativeHumidityTool.prototype.constructor = RelativeHumidityTool;
+RelativeHumidityTool.prototype.__class__ = RelativeHumidityTool;
+RelativeHumidityTool.__cache__ = {};
+Module['RelativeHumidityTool'] = RelativeHumidityTool;
+/** @suppress {undefinedVars, duplicate} @this{Object} */
+RelativeHumidityTool.prototype['calculate'] = RelativeHumidityTool.prototype.calculate = function() {
+  var self = this.ptr;
+  _emscripten_bind_RelativeHumidityTool_calculate_0(self);
+};
+
+/** @suppress {undefinedVars, duplicate} @this{Object} */
+RelativeHumidityTool.prototype['getDryBulbTemperature'] = RelativeHumidityTool.prototype.getDryBulbTemperature = function(temperatureUnits) {
+  var self = this.ptr;
+  if (temperatureUnits && typeof temperatureUnits === 'object') temperatureUnits = temperatureUnits.ptr;
+  return _emscripten_bind_RelativeHumidityTool_getDryBulbTemperature_1(self, temperatureUnits);
+};
+
+/** @suppress {undefinedVars, duplicate} @this{Object} */
+RelativeHumidityTool.prototype['getSiteElevation'] = RelativeHumidityTool.prototype.getSiteElevation = function(lengthUnits) {
+  var self = this.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  return _emscripten_bind_RelativeHumidityTool_getSiteElevation_1(self, lengthUnits);
+};
+
+/** @suppress {undefinedVars, duplicate} @this{Object} */
+RelativeHumidityTool.prototype['getWetBulbTemperature'] = RelativeHumidityTool.prototype.getWetBulbTemperature = function(temperatureUnits) {
+  var self = this.ptr;
+  if (temperatureUnits && typeof temperatureUnits === 'object') temperatureUnits = temperatureUnits.ptr;
+  return _emscripten_bind_RelativeHumidityTool_getWetBulbTemperature_1(self, temperatureUnits);
+};
+
+/** @suppress {undefinedVars, duplicate} @this{Object} */
+RelativeHumidityTool.prototype['getDewPointTemperature'] = RelativeHumidityTool.prototype.getDewPointTemperature = function(temperatureUnits) {
+  var self = this.ptr;
+  if (temperatureUnits && typeof temperatureUnits === 'object') temperatureUnits = temperatureUnits.ptr;
+  return _emscripten_bind_RelativeHumidityTool_getDewPointTemperature_1(self, temperatureUnits);
+};
+
+/** @suppress {undefinedVars, duplicate} @this{Object} */
+RelativeHumidityTool.prototype['getRelativeHumidity'] = RelativeHumidityTool.prototype.getRelativeHumidity = function(fractionUnits) {
+  var self = this.ptr;
+  if (fractionUnits && typeof fractionUnits === 'object') fractionUnits = fractionUnits.ptr;
+  return _emscripten_bind_RelativeHumidityTool_getRelativeHumidity_1(self, fractionUnits);
+};
+
+/** @suppress {undefinedVars, duplicate} @this{Object} */
+RelativeHumidityTool.prototype['getWetBulbDepression'] = RelativeHumidityTool.prototype.getWetBulbDepression = function(temperatureUnits) {
+  var self = this.ptr;
+  if (temperatureUnits && typeof temperatureUnits === 'object') temperatureUnits = temperatureUnits.ptr;
+  return _emscripten_bind_RelativeHumidityTool_getWetBulbDepression_1(self, temperatureUnits);
+};
+
+/** @suppress {undefinedVars, duplicate} @this{Object} */
+RelativeHumidityTool.prototype['setDryBulbTemperature'] = RelativeHumidityTool.prototype.setDryBulbTemperature = function(dryBulbTemperature, temperatureUnits) {
+  var self = this.ptr;
+  if (dryBulbTemperature && typeof dryBulbTemperature === 'object') dryBulbTemperature = dryBulbTemperature.ptr;
+  if (temperatureUnits && typeof temperatureUnits === 'object') temperatureUnits = temperatureUnits.ptr;
+  _emscripten_bind_RelativeHumidityTool_setDryBulbTemperature_2(self, dryBulbTemperature, temperatureUnits);
+};
+
+/** @suppress {undefinedVars, duplicate} @this{Object} */
+RelativeHumidityTool.prototype['setSiteElevation'] = RelativeHumidityTool.prototype.setSiteElevation = function(siteElevation, lengthUnits) {
+  var self = this.ptr;
+  if (siteElevation && typeof siteElevation === 'object') siteElevation = siteElevation.ptr;
+  if (lengthUnits && typeof lengthUnits === 'object') lengthUnits = lengthUnits.ptr;
+  _emscripten_bind_RelativeHumidityTool_setSiteElevation_2(self, siteElevation, lengthUnits);
+};
+
+/** @suppress {undefinedVars, duplicate} @this{Object} */
+RelativeHumidityTool.prototype['setWetBulbTemperature'] = RelativeHumidityTool.prototype.setWetBulbTemperature = function(wetBulbTemperature, temperatureUnits) {
+  var self = this.ptr;
+  if (wetBulbTemperature && typeof wetBulbTemperature === 'object') wetBulbTemperature = wetBulbTemperature.ptr;
+  if (temperatureUnits && typeof temperatureUnits === 'object') temperatureUnits = temperatureUnits.ptr;
+  _emscripten_bind_RelativeHumidityTool_setWetBulbTemperature_2(self, wetBulbTemperature, temperatureUnits);
+};
+
+
+/** @suppress {undefinedVars, duplicate} @this{Object} */
+RelativeHumidityTool.prototype['__destroy__'] = RelativeHumidityTool.prototype.__destroy__ = function() {
+  var self = this.ptr;
+  _emscripten_bind_RelativeHumidityTool___destroy___0(self);
+};
+
 // Interface: SafeSeparationDistanceCalculator
 
 /** @suppress {undefinedVars, duplicate} @this{Object} */
@@ -14602,6 +14760,13 @@ SafeSeparationDistanceCalculator.prototype['__destroy__'] = SafeSeparationDistan
     Module['BothFlanks'] = _emscripten_enum_ContainFlank_ContainFlankEnum_BothFlanks();
 
     Module['NeitherFlank'] = _emscripten_enum_ContainFlank_ContainFlankEnum_NeitherFlank();
+
+    
+// $ContainMode
+
+    Module['Default'] = _emscripten_enum_ContainMode_Default();
+
+    Module['ComputeWithOptimalResource'] = _emscripten_enum_ContainMode_ComputeWithOptimalResource();
 
     
 // $IgnitionFuelBedType_IgnitionFuelBedTypeEnum

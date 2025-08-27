@@ -585,6 +585,10 @@ double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getReportRate_1(SI
   return self->getReportRate(speedUnits);
 }
 
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getAutoComputedResourceProductionRate_1(SIGContainAdapter* self, SpeedUnits_SpeedUnitsEnum speedUnits) {
+  return self->getAutoComputedResourceProductionRate(speedUnits);
+}
+
 int EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_getTactic_0(SIGContainAdapter* self) {
   return self->getTactic();
 }
@@ -621,6 +625,10 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_setAttackDistance_2(
   self->setAttackDistance(attackDistance, lengthUnits);
 }
 
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_setContainMode_1(SIGContainAdapter* self, ContainMode containmode) {
+  self->setContainMode(containmode);
+}
+
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_setFireStartTime_1(SIGContainAdapter* self, int fireStartTime) {
   self->setFireStartTime(fireStartTime);
 }
@@ -651,6 +659,14 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_setReportRate_2(SIGC
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_setReportSize_2(SIGContainAdapter* self, double reportSize, AreaUnits_AreaUnitsEnum areaUnits) {
   self->setReportSize(reportSize, areaUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_setResourceArrivalTime_2(SIGContainAdapter* self, double arrivalTime, TimeUnits_TimeUnitsEnum timeUnits) {
+  self->setResourceArrivalTime(arrivalTime, timeUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_setResourceDuration_2(SIGContainAdapter* self, double duration, TimeUnits_TimeUnitsEnum timeUnits) {
+  self->setResourceDuration(duration, timeUnits);
 }
 
 void EMSCRIPTEN_KEEPALIVE emscripten_bind_SIGContainAdapter_setRetry_1(SIGContainAdapter* self, bool retry) {
@@ -3398,6 +3414,57 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_VaporPressureDeficitCalculator___destr
   delete self;
 }
 
+// Interface: RelativeHumidityTool
+
+
+RelativeHumidityTool* EMSCRIPTEN_KEEPALIVE emscripten_bind_RelativeHumidityTool_RelativeHumidityTool_0() {
+  return new RelativeHumidityTool();
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_RelativeHumidityTool_calculate_0(RelativeHumidityTool* self) {
+  self->calculate();
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_RelativeHumidityTool_getDryBulbTemperature_1(RelativeHumidityTool* self, TemperatureUnits_TemperatureUnitsEnum temperatureUnits) {
+  return self->getDryBulbTemperature(temperatureUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_RelativeHumidityTool_getSiteElevation_1(RelativeHumidityTool* self, LengthUnits_LengthUnitsEnum lengthUnits) {
+  return self->getSiteElevation(lengthUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_RelativeHumidityTool_getWetBulbTemperature_1(RelativeHumidityTool* self, TemperatureUnits_TemperatureUnitsEnum temperatureUnits) {
+  return self->getWetBulbTemperature(temperatureUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_RelativeHumidityTool_getDewPointTemperature_1(RelativeHumidityTool* self, TemperatureUnits_TemperatureUnitsEnum temperatureUnits) {
+  return self->getDewPointTemperature(temperatureUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_RelativeHumidityTool_getRelativeHumidity_1(RelativeHumidityTool* self, FractionUnits_FractionUnitsEnum fractionUnits) {
+  return self->getRelativeHumidity(fractionUnits);
+}
+
+double EMSCRIPTEN_KEEPALIVE emscripten_bind_RelativeHumidityTool_getWetBulbDepression_1(RelativeHumidityTool* self, TemperatureUnits_TemperatureUnitsEnum temperatureUnits) {
+  return self->getWetBulbDepression(temperatureUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_RelativeHumidityTool_setDryBulbTemperature_2(RelativeHumidityTool* self, double dryBulbTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnits) {
+  self->setDryBulbTemperature(dryBulbTemperature, temperatureUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_RelativeHumidityTool_setSiteElevation_2(RelativeHumidityTool* self, double siteElevation, LengthUnits_LengthUnitsEnum lengthUnits) {
+  self->setSiteElevation(siteElevation, lengthUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_RelativeHumidityTool_setWetBulbTemperature_2(RelativeHumidityTool* self, double wetBulbTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnits) {
+  self->setWetBulbTemperature(wetBulbTemperature, temperatureUnits);
+}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_RelativeHumidityTool___destroy___0(RelativeHumidityTool* self) {
+  delete self;
+}
+
 // Interface: SafeSeparationDistanceCalculator
 
 
@@ -3744,6 +3811,14 @@ ContainFlank_ContainFlankEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainFlank_
 }
 ContainFlank_ContainFlankEnum EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainFlank_ContainFlankEnum_NeitherFlank() {
   return ContainFlank::NeitherFlank;
+}
+
+// $ContainMode
+ContainMode EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainMode_Default() {
+  return ContainMode::Default;
+}
+ContainMode EMSCRIPTEN_KEEPALIVE emscripten_enum_ContainMode_ComputeWithOptimalResource() {
+  return ContainMode::ComputeWithOptimalResource;
 }
 
 // $IgnitionFuelBedType_IgnitionFuelBedTypeEnum
