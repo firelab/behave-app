@@ -69,7 +69,7 @@
                             :always (conj (str header-name (when-not (empty? units) (gstring/format " (%s)" units))))
 
                             (procces-map-units? map-units-enabled? gv-uuid)
-                            (conj (str header-name " Map Units " (gstring/format " (%s)" map-units))))))
+                            (conj (str  "Map Units - " header-name (gstring/format " (%s)" map-units))))))
                       []
                       headers)
      :columns (reduce (fn [acc [gv-uuid repeat-id _units]]

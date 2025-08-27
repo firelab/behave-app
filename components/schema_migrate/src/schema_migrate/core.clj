@@ -155,6 +155,7 @@
           [?e :module/translation-key ?k]
           [?e :submodule/translation-key ?k]
           [?e :group/translation-key ?k]
+          [?e :subtool-variable/translation-key ?k]
           [?e :group-variable/translation-key ?k])] (d/db conn) eid))
 
 (defn t-key->uuid
@@ -162,6 +163,7 @@
   [conn t]
   (when-let [e (or (d/entity (ds/unwrap-db conn) [:group-variable/translation-key t])
                    (d/entity (ds/unwrap-db conn) [:group-variable/result-translation-key t])
+                   (d/entity (ds/unwrap-db conn) [:subtool-variable/translation-key t])
                    (d/entity (ds/unwrap-db conn) [:group/translation-key t])
                    (d/entity (ds/unwrap-db conn) [:module/translation-key t])
                    (d/entity (ds/unwrap-db conn) [:color-tag/translation-key t])

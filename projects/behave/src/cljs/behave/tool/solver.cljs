@@ -8,6 +8,7 @@
             [behave.lib.ignite]
             [behave.lib.fine-dead-fuel-moisture-tool]
             [behave.lib.slope-tool]
+            [behave.lib.relative-humidity]
             [behave.lib.vapor-pressure-deficit-calculator]))
 
 (defn kebab->snake
