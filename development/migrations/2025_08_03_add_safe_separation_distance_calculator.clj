@@ -29,14 +29,20 @@
 ;; ===========================================================================================================
 
 (def length-dim-uuid (d/q '[:find ?uuid .
-                       :where
-                       [?e :dimension/name "Length"]
-                       [?e :bp/uuid ?uuid]] (d/db conn)))
+                            :where
+                            [?e :dimension/name "Length"]
+                            [?e :bp/uuid ?uuid]] (d/db conn)))
+
+(def feet-uuid (sm/name->uuid conn :unit/name "Feet (ft)"))
+(def meters-uuid (sm/name->uuid conn :unit/name "Meters (m)"))
 
 (def area-dim-uuid (d/q '[:find ?uuid .
-                       :where
-                       [?e :dimension/name "Area"]
-                       [?e :bp/uuid ?uuid]] (d/db conn)))
+                          :where
+                          [?e :dimension/name "Area"]
+                          [?e :bp/uuid ?uuid]] (d/db conn)))
+
+(def acres-uuid (sm/name->uuid conn :unit/name "Acres (ac)"))
+(def hectares-uuid (sm/name->uuid conn :unit/name "Hectares (ha)"))
 
 (def safety-condition-color-tag-payload
   [{:db/id                   -100
@@ -67,14 +73,14 @@
     :variable/kind      :discrete
     :variable/list
     {:list/name    "Burning Condition"
-     :list/options [{:list-option/name  "Low"
-                     :list-option/value "0"
+     :list/options [{:list-option/name            "Low"
+                     :list-option/value           "0"
                      :list-option/translation-key "behaveplus:list-option:burning-condition:low"}
-                    {:list-option/name  "Moderate"
-                     :list-option/value "1"
+                    {:list-option/name            "Moderate"
+                     :list-option/value           "1"
                      :list-option/translation-key "behaveplus:list-option:burning-condition:moderate"}
-                    {:list-option/name  "Extreme"
-                     :list-option/value "2"
+                    {:list-option/name            "Extreme"
+                     :list-option/value           "2"
                      :list-option/translation-key "behaveplus:list-option:burning-condition:extreme"}]}}
 
    {:variable/name      "Safety Condition"
@@ -103,14 +109,14 @@
     :variable/kind      :discrete
     :variable/list
     {:list/name    "Slope Class"
-     :list/options [{:list-option/name  "Flat"
-                     :list-option/value "0"
+     :list/options [{:list-option/name            "Flat"
+                     :list-option/value           "0"
                      :list-option/translation-key "behaveplus:list-option:slope-class:low"}
-                    {:list-option/name  "Moderate"
-                     :list-option/value "1"
+                    {:list-option/name            "Moderate"
+                     :list-option/value           "1"
                      :list-option/translation-key "behaveplus:list-option:slope-class:moderate"}
-                    {:list-option/name  "Steep"
-                     :list-option/value "2"
+                    {:list-option/name            "Steep"
+                     :list-option/value           "2"
                      :list-option/translation-key "behaveplus:list-option:slope-class:steep"}]}}
 
    {:variable/name      "Wind Speed Class"
@@ -119,33 +125,51 @@
     :variable/kind      :discrete
     :variable/list
     {:list/name    "Wind Speed Class"
-     :list/options [{:list-option/name  "Light"
-                     :list-option/value "0"
+     :list/options [{:list-option/name            "Light"
+                     :list-option/value           "0"
                      :list-option/translation-key "behaveplus:list-option:wind-speed-class:light"}
-                    {:list-option/name  "Moderate"
-                     :list-option/value "1"
+                    {:list-option/name            "Moderate"
+                     :list-option/value           "1"
                      :list-option/translation-key "behaveplus:list-option:wind-speed-class:moderate"}
-                    {:list-option/name  "High"
-                     :list-option/value "2"
+                    {:list-option/name            "High"
+                     :list-option/value           "2"
                      :list-option/translation-key "behaveplus:list-option:wind-speed-class:high"}]}}
 
-   {:variable/name           "Vegetation Height"
-    :variable/bp6-label      "Vegetation Height"
-    :variable/bp6-code       "vVegetationHeight"
-    :variable/kind           :continuous
-    :variable/dimension-uuid length-dim-uuid}
+   {:variable/name              "Vegetation Height"
+    :variable/bp6-label         "Vegetation Height"
+    :variable/bp6-code          "vVegetationHeight"
+    :variable/kind              :continuous
+    :variable/dimension-uuid    length-dim-uuid
+    :variable/native-unit-uuid  feet-uuid
+    :variable/native-decimals   1
+    :variable/english-unit-uuid feet-uuid
+    :variable/english-decimals  1
+    :variable/metric-unit-uuid  meters-uuid
+    :variable/metric-decimals   1}
 
-   {:variable/name           "Safe Separation Distance"
-    :variable/bp6-label      "Safe Separation Distance"
-    :variable/bp6-code       "vSafeSeparationDistance"
-    :variable/kind           :continuous
-    :variable/dimension-uuid length-dim-uuid}
+   {:variable/name              "Safe Separation Distance"
+    :variable/bp6-label         "Safe Separation Distance"
+    :variable/bp6-code          "vSafeSeparationDistance"
+    :variable/kind              :continuous
+    :variable/dimension-uuid    length-dim-uuid
+    :variable/native-unit-uuid  feet-uuid
+    :variable/native-decimals   1
+    :variable/english-unit-uuid feet-uuid
+    :variable/english-decimals  1
+    :variable/metric-unit-uuid  meters-uuid
+    :variable/metric-decimals   1}
 
-   {:variable/name           "Safety Zone Size"
-    :variable/bp6-label      "Safety Zone Size"
-    :variable/bp6-code       "vSafetyZoneSize"
-    :variable/kind           :continuous
-    :variable/dimension-uuid area-dim-uuid}])
+   {:variable/name              "Safety Zone Size"
+    :variable/bp6-label         "Safety Zone Size"
+    :variable/bp6-code          "vSafetyZoneSize"
+    :variable/kind              :continuous
+    :variable/dimension-uuid    area-dim-uuid
+    :variable/native-unit-uuid  acres-uuid
+    :variable/native-decimals   1
+    :variable/english-unit-uuid acres-uuid
+    :variable/english-decimals  1
+    :variable/metric-unit-uuid  hectares-uuid
+    :variable/metric-decimals   1}])
 
 ;; ===========================================================================================================
 ;; 2. Import CPP Functions
