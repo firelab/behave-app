@@ -89,13 +89,14 @@
                                                    repeat-id
                                                    gv-uuid
                                                    @value-atom)}]]
-      [:div
-       {:class [(if @show-range-selector?
-                  "wizard-input__range-selector-button--selected"
-                  "wizard-input__range-selector-button")]}
-       [c/button {:variant  "secondary"
-                  :label    @(<t (bp "range_selector"))
-                  :on-click #(rf/dispatch [:wizard/toggle-show-range-selector gv-uuid repeat-id])}]]
+      (when (not @(rf/subscribe [:wizard/hide-range-selector? ws-uuid gv-uuid]))
+       [:div
+        {:class [(if @show-range-selector?
+                   "wizard-input__range-selector-button--selected"
+                   "wizard-input__range-selector-button")]}
+        [c/button {:variant  "secondary"
+                   :label    @(<t (bp "range_selector"))
+                   :on-click #(rf/dispatch [:wizard/toggle-show-range-selector gv-uuid repeat-id])}]])
       [unit-display
        domain-uuid
        @*unit-uuid

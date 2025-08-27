@@ -8,7 +8,10 @@ Module.SIGContainAdapter = class {
   constructor() {}
   doContainRun() {}
   addResource() {}
+  setResourceArrivalTime() {}
+  setResourceDuration() {}
   setAttackDistance() {}
+  setContainMode() {}
   setFireStartTime() {}
   setLwRatio() {}
   setMaxFireSize() {}
@@ -23,6 +26,7 @@ Module.SIGContainAdapter = class {
   removeResourceWithThisDesc() {}
   removeResourceAt() {}
   removeAllResourcesWithThisDesc() {}
+  getAutoComputedResourceProductionRate() {}
   getContainmentStatus() {}
   getFinalContainmentArea() {}
   getFinalCost() {}

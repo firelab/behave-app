@@ -5,6 +5,7 @@
             [clojure.string          :as str]
             [goog.string             :as gstring]
             [re-frame.core           :refer [subscribe]]
+            [behave.wizard.subs      :refer [all-conditionals-pass?]]
             [string-utils.core       :as s]))
 
 (defn- procces-map-units?
@@ -201,15 +202,22 @@
                                               (assoc acc gv-uuid units))
                                             {}
                                             result-table-headers-sorted)
-        formatters                  @(subscribe [:worksheet/result-table-formatters (map first result-table-headers-sorted)])
-        multi-valued-input-uuids    @(subscribe [:worksheet/multi-value-input-uuids ws-uuid])]
+        formatters                  @(subscribe [:worksheet/result-table-formatters (map first result-table-headers-sorted)])]
     (when (seq tables)
       [:div.wizard-results__search-tables
-       (for [{search-table-group-variable  :search-table/group-variable
-              search-table-operator        :search-table/operator
-              search-table-columns         :search-table/columns
-              search-filters               :search-table/filters
-              search-table-translation-key :search-table/translation-key} tables]
+       (for [{search-table-group-variable        :search-table/group-variable
+              search-table-operator              :search-table/operator
+              search-table-columns               :search-table/columns
+              search-filters                     :search-table/filters
+              search-table-translation-key       :search-table/translation-key
+              search-table-error-translation-key :search-table/error-translation-key
+              search-table-conditionals          :search-table/show-conditionals
+              search-table-conditional-operator  :search-table/conditoinals-operator} tables
+             :when                                                                   (if (seq search-table-conditionals)
+                                                                                       (all-conditionals-pass? @(subscribe [:worksheet ws-uuid])
+                                                                                                               search-table-conditional-operator
+                                                                                                               search-table-conditionals)
+                                                                                       true)]
          (let [search-table-group-variable-uuid (:bp/uuid search-table-group-variable)
                filter-fns                       (map (fn [search-filter]
                                                        (let [filter-gv-uuid (:bp/uuid (:search-table-filter/group-variable search-filter))
@@ -244,22 +252,19 @@
                search-table-columns-sorted      (->> search-table-columns
                                                      (sort-by :search-table-column/order)
                                                      (remove (fn [search-table-column] (nil? (get table-row (keyword (:bp/uuid (:search-table-column/group-variable search-table-column))))))))
-               table-headers                    (into (mapv (fn [{search-table-column-group-variable  :search-table-column/group-variable
-                                                                  search-table-column-translation-key :search-table-column/translation-key}]
-                                                              (let [gv-uuid     (:bp/uuid search-table-column-group-variable)
-                                                                    units       (get gv-uuid->units gv-uuid)
-                                                                    header-name @(<t search-table-column-translation-key)]
-                                                                (str header-name (when-not (empty? units) (gstring/format " (%s)" units)))))
-                                                            search-table-columns-sorted)
-                                                      (mapv #(let [header-name (deref (subscribe [:wizard/gv-uuid->resolve-result-variable-name %]))
-                                                                   units       (get gv-uuid->units %)]
-                                                               (str header-name (when-not (empty? units) (gstring/format " (%s)" units))))
-                                                            multi-valued-input-uuids))
-               table-columns                    (into (mapv (fn [column]
-                                                              (keyword (:bp/uuid (:search-table-column/group-variable column))))
-                                                            search-table-columns-sorted)
-                                                      multi-valued-input-uuids)]
-           (c/table {:title   @(<t search-table-translation-key)
-                     :headers table-headers
-                     :columns table-columns
-                     :rows    [table-row]})))])))
+               table-headers                    (mapv (fn [{search-table-column-group-variable  :search-table-column/group-variable
+                                                            search-table-column-translation-key :search-table-column/translation-key}]
+                                                        (let [gv-uuid     (:bp/uuid search-table-column-group-variable)
+                                                              units       (get gv-uuid->units gv-uuid)
+                                                              header-name @(<t search-table-column-translation-key)]
+                                                          (str header-name (when-not (empty? units) (gstring/format " (%s)" units)))))
+                                                      search-table-columns-sorted)
+               table-columns                    (mapv (fn [column]
+                                                        (keyword (:bp/uuid (:search-table-column/group-variable column))))
+                                                      search-table-columns-sorted)]
+           (if (seq filtered-rows-set)
+             (c/table {:title   @(<t search-table-translation-key)
+                       :headers table-headers
+                       :columns table-columns
+                       :rows    [table-row]})
+             [:div @(<t search-table-error-translation-key)])))])))

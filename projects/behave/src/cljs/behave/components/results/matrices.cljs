@@ -237,7 +237,7 @@
                                             (mapcat (fn [pivot-table]
                                                       @(subscribe [:worksheet/pivot-table-fields (:db/id pivot-table)])))
                                             set)
-        output-gv-uuids                (->> (subscribe [:worksheet/output-uuids-filtered ws-uuid])
+        output-gv-uuids                (->> (subscribe [:worksheet/output-uuids-conditionally-filtered ws-uuid])
                                             deref
                                             (remove #(contains? pivot-table-uuids %))
                                             (remove #(contains? directional-uuids %))
