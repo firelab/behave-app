@@ -51,6 +51,7 @@
 #include "SIGFineDeadFuelMoistureTool.cpp"
 #include "vaporPressureDeficitCalculator.cpp"
 #include "relativeHumidity.cpp"
+#include "safeSeparationDistanceCalculator.cpp"
 #include "enums.cpp"
 #include "glue.cpp"
 

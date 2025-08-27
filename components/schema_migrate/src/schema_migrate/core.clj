@@ -156,6 +156,8 @@
           [?e :submodule/translation-key ?k]
           [?e :group/translation-key ?k]
           [?e :subtool-variable/translation-key ?k]
+          [?e :tag/translation-key ?k]
+          [?e :tag-set/translation-key ?k]
           [?e :group-variable/translation-key ?k])] (d/db conn) eid))
 
 (defn t-key->uuid
@@ -166,6 +168,8 @@
                    (d/entity (ds/unwrap-db conn) [:subtool-variable/translation-key t])
                    (d/entity (ds/unwrap-db conn) [:group/translation-key t])
                    (d/entity (ds/unwrap-db conn) [:module/translation-key t])
+                   (d/entity (ds/unwrap-db conn) [:tag-set/translation-key t])
+                   (d/entity (ds/unwrap-db conn) [:tag/translation-key t])
                    (d/entity (ds/unwrap-db conn) [:color-tag/translation-key t])
                    (d/entity (ds/unwrap-db conn) [:search-table/translation-key t])
                    (submodule conn t))]

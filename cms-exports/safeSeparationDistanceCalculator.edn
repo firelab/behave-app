@@ -1,0 +1,51 @@
+{:global
+ {:SafeSeparationDistanceCalculator
+  {:setBurningCondition
+   {:type "void"
+    :id   "setBurningCondition"
+    :parameters
+    [{:id "condition" :type "BurningCondition::BurningConditionEnum"}]}
+   :getSpeedClass
+   {:type       "SpeedClass::SpeedClassEnum"
+    :id         "getSpeedClass"
+    :parameters []}
+   :getConditions
+   {:type "SafetyCondition::SafetyConditionEnum"
+    :id   "getSafetyCondition"
+    :parameters
+    []}
+   :getSlopeClass
+   {:type "SlopeClass::SlopeClassEnum"
+    :id   "getSlopeClass"
+    :parameters
+    []}
+   :setSpeedClass
+   {:type "void"
+    :id   "setSpeedClass"
+    :parameters
+    [{:id "speed" :type "SpeedClass::SpeedClassEnum"}]}
+   :getBurningCondition
+   {:type       "BurningCondition::BurningConditionEnum"
+    :id         "getBurningCondition"
+    :parameters []}
+   :setVegetationHeight
+   {:type "void"
+    :id   "setVegetationHeight"
+    :parameters
+    [{:id "height" :type "double"}
+     {:id "lengthUnits" :type "LengthUnits::LengthUnitsEnum"}]}
+   :calculate
+   {:type "void" :id "calculate" :parameters
+    []}
+   :getSafeSeparationDistance
+   {:type "double" :id "getSafeSeparationDistance" :parameters
+    [{:id "lengthUnits" :type "LengthUnits::LengthUnitsEnum"}]}
+   :getSafetyZoneSize
+   {:type "double" :id "getSafetyZoneSize" :parameters
+    [{:id "areaUnits" :type "AreaUnits::AreaUnitsEnum"}]}
+   :setSlopeClass
+   {:type "void" :id "setSlopeClass" :parameters
+    [{:id "slope" :type "SlopeClass::SlopeClassEnum"}]}
+   :getVegetationHeight
+   {:type "double" :id "getVegetationHeight" :parameters
+    [{:id "lengthUnits" :type "LengthUnits::LengthUnitsEnum"}]}}}}

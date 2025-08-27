@@ -1235,6 +1235,7 @@ body {
   display: flex;
   flex-direction: row;
 }
+
 .tool-output .input-text__label,
 .tool-input .input-radio-group__label,
 .tool-input > .input-dropdown > .input-dropdown__label,
@@ -1242,8 +1243,16 @@ body {
   min-width: 250px;
   padding: 0px;
 }
+
 .tool-input .input-dropdown__select-wrapper {
   margin-top: 0px;
+}
+
+.tool-input .input-dropdown__label {
+  font-family: var(--font-family-roboto);
+  font-size: var(--font-size-16);
+  font-weight: var(--font-weight-500);
+  color: var(--black);
 }
 
 .tool-input .input-radio-group__label {

@@ -1448,3 +1448,49 @@ interface RelativeHumidityTool {
   void setSiteElevation(double siteElevation, LengthUnits_LengthUnitsEnum lengthUnits);
   void setWetBulbTemperature(double wetBulbTemperature, TemperatureUnits_TemperatureUnitsEnum temperatureUnits);
 };
+
+enum BurningCondition_BurningConditionEnum {
+  "BurningCondition::Low",
+  "BurningCondition::Moderate",
+  "BurningCondition::Extreme"
+};
+
+enum SlopeClass_SlopeClassEnum {
+  "SlopeClass::Flat",
+  "SlopeClass::Moderate",
+  "SlopeClass::Steep"
+};
+
+enum SpeedClass_SpeedClassEnum {
+  "SpeedClass::Light",
+  "SpeedClass::Moderate",
+  "SpeedClass::High"
+};
+
+enum SafetyCondition_SafetyConditionEnum {
+  "SafetyCondition::Low",
+  "SafetyCondition::Moderate",
+  "SafetyCondition::Extreme"
+};
+
+interface SafeSeparationDistanceCalculator {
+  void SafeSeparationDistanceCalculator();
+
+  // Calculate
+  void calculate();
+  BurningCondition_BurningConditionEnum getBurningCondition();
+  SlopeClass_SlopeClassEnum getSlopeClass();
+  SpeedClass_SpeedClassEnum getSpeedClass();
+
+  // Getters
+  double getSafeSeparationDistance(LengthUnits_LengthUnitsEnum lengthUnits);
+  double getSafetyZoneSize(AreaUnits_AreaUnitsEnum areaUnits);
+  double getVegetationHeight(LengthUnits_LengthUnitsEnum lengthUnits);
+  SafetyCondition_SafetyConditionEnum getSafetyCondition();
+
+  // Setters
+  void setBurningCondition(BurningCondition_BurningConditionEnum condition);
+  void setSlopeClass(SlopeClass_SlopeClassEnum slope);
+  void setSpeedClass(SpeedClass_SpeedClassEnum speed);
+  void setVegetationHeight(double height, LengthUnits_LengthUnitsEnum lengthUnits);
+};

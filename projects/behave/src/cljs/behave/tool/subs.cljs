@@ -49,7 +49,9 @@
  (fn [_ [_ subtool-uuid]]
    (let [subtool (d/pull @@s/vms-conn '[* {:subtool/variables
                                            [* {:variable/_subtool-variables
-                                               [* {:variable/list [* {:list/options [*]}]}]}]}]
+                                               [* {:variable/list
+                                                   [* {:list/options
+                                                       [* {:list-option/color-tag-ref [*]}]}]}]}]}]
                          [:bp/uuid subtool-uuid])]
      (->> (:subtool/variables subtool)
           (mapv enrich-subtool-variable)
