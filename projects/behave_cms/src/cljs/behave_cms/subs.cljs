@@ -4,6 +4,7 @@
             [re-frame.core     :as rf]
             [re-posh.core      :as rp]
             [datascript.core   :as d]
+            [behave-cms.components.conditionals.subs]
             [behave-cms.routes :refer [app-routes]]
             [behave-cms.store  :as s]
             [behave-cms.applications.subs]

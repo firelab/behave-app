@@ -83,3 +83,9 @@ typedef FDFMToolTimeOfDayIndex::TimeOfDayIndexEnum FDFMToolTimeOfDayIndex_TimeOf
 // slopeTool.h
 typedef RepresentativeFraction::RepresentativeFractionEnum RepresentativeFraction_RepresentativeFractionEnum;
 typedef HorizontalDistanceIndex::HorizontalDistanceIndexEnum HorizontalDistanceIndex_HorizontalDistanceIndexEnum;
+
+// SafeSeparationDistanceCalculator.h
+typedef BurningCondition::BurningConditionEnum BurningCondition_BurningConditionEnum;
+typedef SlopeClass::SlopeClassEnum SlopeClass_SlopeClassEnum;
+typedef SpeedClass::SpeedClassEnum SpeedClass_SpeedClassEnum;
+typedef SafetyCondition::SafetyConditionEnum SafetyCondition_SafetyConditionEnum;

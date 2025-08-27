@@ -668,6 +668,18 @@
  (fn [{:keys [state]} [_ gv-uuid repeat-id]]
    (true? (get-in state [:show-range-selector? gv-uuid repeat-id]))))
 
+(reg-sub
+ :wizard/hide-range-selector?
+ (fn [[_ ws-uuid gv-uuid]]
+   [(subscribe [:worksheet ws-uuid])
+    (subscribe [:vms/entity-from-uuid gv-uuid])])
+ (fn [[worksheet group-variable-entity] _]
+   (let [conditionals (:group-variable/hide-range-selector-conditionals group-variable-entity)
+         op           (:group-variable/hide-range-selector-conditional-operator group-variable-entity)]
+     (if (seq conditionals)
+       (all-conditionals-pass? worksheet op conditionals)
+       false))))
+
 
 (defn index-by
   "Indexes collection by key or fn."
@@ -899,3 +911,39 @@
    (subscribe [:local-storage/get-in [:state :*workflow]]))
  (fn [workflow _]
    workflow))
+
+
+(reg-sub
+ :wizard/search-table-output-group-variables
+
+ (fn [[_ ws-uuid]]
+   (subscribe [:worksheet/modules ws-uuid]))
+
+ (fn [modules _]
+   (prn ":wizard/search-table-output-group-variables")
+   (letfn [(get-search-table-filter-output-group-variables [module-eid]
+             (d/q '[:find [?gv ...]
+                    :in $ % ?module-eid
+                    :where
+                    [?module-eid :module/search-tables ?st]
+                    [?st :search-table/filters ?f]
+                    [?f :search-table-filter/group-variable ?gv]
+                    (io ?gv :output)]
+                  @@vms-conn
+                  rules
+                  module-eid))
+           (get-search-table-column-output-group-variables [module-eid]
+             (d/q '[:find [?gv ...]
+                    :in $ % ?module-eid
+                    :where
+                    [?module-eid :module/search-tables ?st]
+                    [?st :search-table/columns ?c]
+                    [?c :search-table-column/group-variable ?gv]
+                    (io ?gv :output)]
+                  @@vms-conn
+                  rules
+                  module-eid))]
+
+     (->> (mapcat #(get-search-table-filter-output-group-variables (:db/id %)) modules)
+          (concat (mapcat #(get-search-table-column-output-group-variables (:db/id %)) modules))
+          (map #(d/touch (d/entity @@vms-conn %)))))))

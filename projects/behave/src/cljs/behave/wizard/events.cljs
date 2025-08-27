@@ -80,6 +80,7 @@
  :wizard/before-solve
  (fn [_ [_ {:keys [ws-uuid]}]]
    {:fx [[:dispatch [:worksheet/proccess-conditonally-set-output-group-variables ws-uuid]]
+         [:dispatch [:worksheet/process-search-table-output-group-variables ws-uuid]]
          [:dispatch [:worksheet/proccess-conditonally-set-input-group-variables ws-uuid]]
          [:dispatch [:worksheet/delete-existing-diagrams ws-uuid]]
          [:dispatch [:worksheet/delete-existing-result-table ws-uuid]]

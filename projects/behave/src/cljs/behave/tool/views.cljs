@@ -4,6 +4,8 @@
             [behave.translate       :refer [<t bp]]
             [dom-utils.interface    :refer [input-value]]
             [reagent.core           :as r]
+            [number-utils.interface :refer [parse-int]]
+            [map-utils.interface    :refer [index-by]]
             [string-utils.interface :refer [->kebab]]
             [re-frame.core          :as rf]))
 
@@ -22,6 +24,22 @@
                                                                              :selected? false
                                                                              :order     idx})
                                                                           tools)}]}]))
+
+(defn luminance [r g b]
+  (let [srgb (fn [component]
+               (let [c (/ component 255.0)]
+                 (if (<= c 0.03928)
+                   (/ c 12.92)
+                   (js/Math.pow (/ (+ c 0.055) 1.055) 2.4))))]
+    (+ (* 0.2126 (srgb r))
+       (* 0.7152 (srgb g))
+       (* 0.0722 (srgb b)))))
+
+(defn hex-to-rgb [hex]
+  (let [r (parse-int (subs hex 1 3) 16)
+        g (parse-int (subs hex 3 5) 16)
+        b (parse-int (subs hex 5 7) 16)]
+    [r g b]))
 
 (defmulti #^{:private true} tool-input
   (fn [{:keys [variable]}] (:variable/kind variable)))
@@ -122,11 +140,15 @@
          :options   (concat [{:label @(<t (bp "select")) :value "nil"}]
                             (map ->option options))}])]))
 
-(defn- tool-output
+(defmulti #^{:private true} tool-output
+  (fn [{:keys [variable]}] (:variable/kind variable)))
+
+(defmethod tool-output :continuous
   [{:keys [variable tool-uuid subtool-uuid auto-compute?]}]
   (let [{sv-uuid           :bp/uuid
          domain-uuid       :variable/domain-uuid
          var-name          :variable/name
+         var-kind          :variable/kind
          dimension-uuid    :variable/dimension-uuid
          native-unit-uuid  :variable/native-unit-uuid
          english-unit-uuid :variable/english-unit-uuid
@@ -155,6 +177,32 @@
                      sv-uuid
                      %
                      auto-compute?])]]))
+
+(defmethod tool-output :discrete
+  [{:keys [variable tool-uuid subtool-uuid auto-compute?]}]
+  (let [{sv-uuid  :bp/uuid
+         var-name :variable/name
+         list     :variable/list
+         help-key :subtool-variable/help-key} variable
+        value           (rf/subscribe [:tool/output-value tool-uuid subtool-uuid sv-uuid])
+        list-options    (index-by :list-option/value (:list/options list))
+        matching-option (get list-options @value)
+        background      (get-in matching-option [:list-option/color-tag-ref :tag/color] "#FFFFFF")
+        lum-bg          (apply luminance (hex-to-rgb background))
+        black-contrast  (/ (+ lum-bg 0.05) 0.05)
+        white-contrast  (/ 1.05 (+ lum-bg 0.05))
+        font-color      (if (> white-contrast black-contrast) "#FFFFFF" "#000000")]
+    [:div
+     [:div.tool-output
+      {:on-mouse-over #(rf/dispatch [:help/highlight-section help-key])}
+      [:div.tool-output__output
+       {:on-mouse-over #(prn [:help/highlight-section help-key])}
+       [c/text-input {:id         sv-uuid
+                      :disabled?  true
+                      :label      var-name
+                      :background background
+                      :font-color font-color
+                      :value      (get matching-option :list-option/name "")}]]]]))
 
 (defn- auto-compute-subtool [tool-uuid subtool-uuid]
   (rf/dispatch [:tool/solve tool-uuid subtool-uuid])

@@ -4,7 +4,7 @@
             [re-frame.core :as rf]
             [string-utils.interface :refer [->kebab]]
             [behave-cms.components.common          :refer [accordion checkbox simple-table window]]
-            [behave-cms.components.conditionals    :refer [conditionals-graph manage-conditionals]]
+            [behave-cms.components.conditionals.views    :refer [conditionals-graph manage-conditionals]]
             [behave-cms.components.entity-form     :refer [entity-form]]
             [behave-cms.help.views                 :refer [help-editor]]
             [behave-cms.components.sidebar         :refer [sidebar sidebar-width]]
@@ -149,7 +149,7 @@
        [accordion
         "Conditionals"
         [:div.col-9
-         [conditionals-graph id id (concat @var-conditionals @module-conditionals) :group/conditionals :group/conditionals-operator]]
+         [conditionals-graph id id :group/conditionals :group/conditionals-operator]]
         [:div.col-3
          [manage-conditionals id :group/conditionals]]]
        [:hr]
