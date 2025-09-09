@@ -2,7 +2,7 @@ name: Bump Version
 
 on:
   workflow_dispatch:
-    inputs:
+    # inputs:
       # version:
       #   description: "Update Version"
       #   required: true
