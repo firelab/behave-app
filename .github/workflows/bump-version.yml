@@ -24,4 +24,3 @@ jobs:
            git add resources/version.edn
            git commit -m "update version"
            git push
-           bb deploy
