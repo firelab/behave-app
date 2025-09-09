@@ -3,10 +3,10 @@ name: Bump Version
 on:
   workflow_dispatch:
     inputs:
-      version:
-        description: "Update Version"
-        required: true
-        default: "7.0.0"
+      # version:
+      #   description: "Update Version"
+      #   required: true
+      #   default: "7.0.0"
 
         jobs:
           bump-version:
