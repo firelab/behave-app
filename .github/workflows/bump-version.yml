@@ -3,10 +3,10 @@ name: Bump Version
 on:
   workflow_dispatch:
     inputs:
-    version:
-      description: "Update Version"
-      required: true
-      default: "7.0.0"
+      version:
+        description: "Update Version"
+        required: true
+        default: "v7.0.0"
 
 jobs:
    bump-version:
@@ -18,5 +18,8 @@ jobs:
        - name: Write Version to file
          run: |
            cd projects/behave
-           echo "{:version ${{ github.event.inputs.version }}}" > resources/version.edn
+           echo "{:version v${{ github.event.inputs.version }}}" > resources/version.edn
+           git add resources/version.edn
+           git commit -m "update version"
+           git push
            cat resources/version.edn
