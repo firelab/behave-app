@@ -20,5 +20,5 @@ on:
               - name: Write Version to file
                 run: |
                   cd projects/behave
-                  echo "{:version $${{ github.event.inputs.version }}}" > resources/version.edn
+                  echo "{:version ${{ github.event.inputs.version }}}" > resources/version.edn
 
