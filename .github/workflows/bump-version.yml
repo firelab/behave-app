@@ -18,7 +18,9 @@ jobs:
        - name: Write Version to file
          run: |
            cd projects/behave
-           echo "{:version v${{ github.event.inputs.version }}}" > resources/version.edn
+           echo "{:version ${{ github.event.inputs.version }}}" > resources/version.edn
+           git config --global user.email "kcheung331@gmail.com"
+           git config --global user.name "kcheung42"
            git add resources/version.edn
            git commit -m "update version"
            git push
