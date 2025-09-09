@@ -1,0 +1,24 @@
+name: Bump Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Update Version"
+        required: true
+        default: "7.0.0"
+
+        jobs:
+          bump-version:
+            runs-on: ubuntu-latest
+
+
+            steps:
+              - name: Checkout code
+                uses: actions/checkout@v3
+
+              - name: Write Version to file
+                run: |
+                  cd projects/behave
+                  echo "{:version $${{ github.event.inputs.version }}}" > resources/version.edn
+
