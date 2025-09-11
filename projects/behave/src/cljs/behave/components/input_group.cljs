@@ -63,7 +63,11 @@
         *outside-range?         (rf/subscribe [:wizard/outside-range? native-unit-uuid @*unit-uuid var-min var-max @value])
         *outside-range-msg      (rf/subscribe [:wizard/outside-range-error-msg native-unit-uuid @*unit-uuid var-min var-max])
         warn-limit?             (true? @(rf/subscribe [:state :warn-multi-value-input-limit]))
-        acceptable-char-codes   (set (map #(.charCodeAt % 0) "0123456789., "))
+        hide-range-selector     @(rf/subscribe [:wizard/hide-range-selector? ws-uuid gv-uuid])
+        acceptable-char-codes   (set (map #(.charCodeAt % 0)
+                                          (if hide-range-selector
+                                            "0123456789. "
+                                            "0123456789., ")))
         on-focus-click          (partial highlight-help-section help-key)
         show-range-selector?    (rf/subscribe [:wizard/show-range-selector? gv-uuid repeat-id])]
     [:div
@@ -89,14 +93,14 @@
                                                    repeat-id
                                                    gv-uuid
                                                    @value-atom)}]]
-      (when (not @(rf/subscribe [:wizard/hide-range-selector? ws-uuid gv-uuid]))
-       [:div
-        {:class [(if @show-range-selector?
-                   "wizard-input__range-selector-button--selected"
-                   "wizard-input__range-selector-button")]}
-        [c/button {:variant  "secondary"
-                   :label    @(<t (bp "range_selector"))
-                   :on-click #(rf/dispatch [:wizard/toggle-show-range-selector gv-uuid repeat-id])}]])
+      (when (not hide-range-selector)
+        [:div
+         {:class [(if @show-range-selector?
+                    "wizard-input__range-selector-button--selected"
+                    "wizard-input__range-selector-button")]}
+         [c/button {:variant  "secondary"
+                    :label    @(<t (bp "range_selector"))
+                    :on-click #(rf/dispatch [:wizard/toggle-show-range-selector gv-uuid repeat-id])}]])
       [unit-display
        domain-uuid
        @*unit-uuid
