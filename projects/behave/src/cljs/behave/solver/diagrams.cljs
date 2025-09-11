@@ -27,7 +27,8 @@
      (contain/getFireBackAtReport module)
      (contain/getFireHeadAtReport module)
      (contain/getFireBackAtAttack module)
-     (contain/getFireHeadAtAttack module)]))
+     (contain/getFireHeadAtAttack module)
+     (contain/getContainmentStatus module)]))
 
 (defmethod build-event-vector :fire-shape
   [{:keys [ws-uuid row-id diagram module]}]

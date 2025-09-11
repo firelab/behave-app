@@ -680,29 +680,31 @@
                     fire-back-at-report
                     fire-head-at-report
                     fire-back-at-attack
-                    fire-head-at-attack]]
-   {:transact [{:worksheet/_diagrams                   [:worksheet/uuid ws-uuid]
-                :worksheet.diagram/title               title
-                :worksheet.diagram/group-variable-uuid group-variable-uuid
-                :worksheet.diagram/row-id              row-id
-                :worksheet.diagram/ellipses            [(let [l (- fire-head-at-report fire-back-at-report)
-                                                              w (/ l length-to-width-ratio)]
-                                                          {:ellipse/legend-id       "FirePerimiterAtReport"
-                                                           :ellipse/semi-major-axis (/ l 2)
-                                                           :ellipse/semi-minor-axis (/ w 2)
-                                                           :ellipse/rotation        90
-                                                           :ellipse/color           "blue"})
-                                                        (let [l (- fire-head-at-attack fire-back-at-attack)
-                                                              w (/ l length-to-width-ratio)]
-                                                          {:ellipse/legend-id       "FirePerimiterAtAttack"
-                                                           :ellipse/semi-major-axis (/ l 2)
-                                                           :ellipse/semi-minor-axis (/ w 2)
-                                                           :ellipse/rotation        90
-                                                           :ellipse/color           "red"})]
-                :worksheet.diagram/scatter-plots       [{:scatter-plot/legend-id     "FireLineConstructed"
-                                                         :scatter-plot/color         "black"
-                                                         :scatter-plot/x-coordinates fire-perimeter-points-X
-                                                         :scatter-plot/y-coordinates fire-perimeter-points-Y}]}]}))
+                    fire-head-at-attack
+                    contain-status]]
+   {:transact [(cond-> {:worksheet/_diagrams                   [:worksheet/uuid ws-uuid]
+                        :worksheet.diagram/title               title
+                        :worksheet.diagram/group-variable-uuid group-variable-uuid
+                        :worksheet.diagram/row-id              row-id
+                        :worksheet.diagram/ellipses            [(let [l (- fire-head-at-report fire-back-at-report)
+                                                                      w (/ l length-to-width-ratio)]
+                                                                  {:ellipse/legend-id       "FirePerimiterAtReport"
+                                                                   :ellipse/semi-major-axis (/ l 2)
+                                                                   :ellipse/semi-minor-axis (/ w 2)
+                                                                   :ellipse/rotation        90
+                                                                   :ellipse/color           "blue"})
+                                                                (let [l (- fire-head-at-attack fire-back-at-attack)
+                                                                      w (/ l length-to-width-ratio)]
+                                                                  {:ellipse/legend-id       "FirePerimiterAtAttack"
+                                                                   :ellipse/semi-major-axis (/ l 2)
+                                                                   :ellipse/semi-minor-axis (/ w 2)
+                                                                   :ellipse/rotation        90
+                                                                   :ellipse/color           "red"})]}
+                 (= contain-status 3)
+                 (assoc :worksheet.diagram/scatter-plots       [{:scatter-plot/legend-id     "FireLineConstructed"
+                                                                 :scatter-plot/color         "black"
+                                                                 :scatter-plot/x-coordinates fire-perimeter-points-X
+                                                                 :scatter-plot/y-coordinates fire-perimeter-points-Y}]))]}))
 
 (rp/reg-event-fx
  :worksheet/add-surface-fire-shape-diagram
