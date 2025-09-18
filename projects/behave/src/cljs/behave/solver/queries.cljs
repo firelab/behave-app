@@ -71,18 +71,6 @@
       variable
       :bp/uuid))
 
-(defn variable-native-units-uuid
-  "Given a uuid for a group-variable return either the native-unit uuid from its associated domain
-  entity or from it's assocated variable entity."
-  [group-variable-uuid]
-  (let [var-entity (variable group-variable-uuid)]
-    (or (-> var-entity
-            :variable/domain-uuid
-            uuid->entity
-            :domain/native-unit-uuid)
-        (-> var-entity
-            :variable/native-unit-uuid))))
-
 (defn variable-units-uuid
   "Given a uuid  and a keyword #{:native :english :metric} for a group-variable return either the native-unit uuid from its associated domain
   entity or from it's assocated variable entity."
