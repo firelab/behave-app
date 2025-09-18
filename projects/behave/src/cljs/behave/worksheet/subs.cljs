@@ -13,7 +13,9 @@
             [number-utils.core           :refer [parse-float]]
             [re-frame.core               :as rf]
             [re-posh.core                :as rp]
-            [string-utils.interface      :refer [->kebab ->str]]))
+            [string-utils.interface      :refer [->kebab ->str]]
+            [behave.solver.queries :as q]
+            ))
 
 ;; Helpers
 (defn make-tree
@@ -115,7 +117,7 @@
                     [?g :input-group/repeat-id ?repeat-id]
                     [?g :input-group/inputs ?i]
                     [?i :input/group-variable-uuid ?group-var-uuid]]
-                   @@s/conn ws-uuid group-uuid repeat-id group-variable-uuid)]
+                  @@s/conn ws-uuid group-uuid repeat-id group-variable-uuid)]
      (d/touch (d/entity @@s/conn eid)))))
 
 ;; Get the value of a particular input
@@ -280,6 +282,48 @@
               @@vms-conn @@s/conn rules ws-uuid))))
 
 (rf/reg-sub
+ :worksheet/all-domain-level-english-units
+ (fn [_ [_ ws-uuid]]
+   (into []
+         (d/q '[:find  ?group-uuid ?repeat-id ?gv-uuid ?unit-uuid
+                :in    $ $ws % ?ws-uuid
+                :where
+                [$ws ?w :worksheet/uuid ?ws-uuid]
+                [$ws ?w :worksheet/input-groups ?g]
+                [$ws ?g :input-group/group-uuid ?group-uuid]
+                [$ws ?g :input-group/repeat-id ?repeat-id]
+                [$ws ?g :input-group/inputs ?i]
+                [$ws ?i :input/group-variable-uuid ?gv-uuid]
+                (lookup ?gv-uuid ?gv)
+                (group-variable _ ?gv ?v)
+                [?v :variable/kind :continuous]
+                [?v :variable/domain-uuid ?domain-uuid]
+                [?d :bp/uuid ?domain-uuid]
+                [?d :domain/english-unit-uuid ?unit-uuid]]
+              @@vms-conn @@s/conn rules ws-uuid))))
+
+(rf/reg-sub
+ :worksheet/all-domain-level-metric-units
+ (fn [_ [_ ws-uuid]]
+   (into []
+         (d/q '[:find  ?group-uuid ?repeat-id ?gv-uuid ?unit-uuid
+                :in    $ $ws % ?ws-uuid
+                :where
+                [$ws ?w :worksheet/uuid ?ws-uuid]
+                [$ws ?w :worksheet/input-groups ?g]
+                [$ws ?g :input-group/group-uuid ?group-uuid]
+                [$ws ?g :input-group/repeat-id ?repeat-id]
+                [$ws ?g :input-group/inputs ?i]
+                [$ws ?i :input/group-variable-uuid ?gv-uuid]
+                (lookup ?gv-uuid ?gv)
+                (group-variable _ ?gv ?v)
+                [?v :variable/kind :continuous]
+                [?v :variable/domain-uuid ?domain-uuid]
+                [?d :bp/uuid ?domain-uuid]
+                [?d :domain/metric-unit-uuid ?unit-uuid]]
+              @@vms-conn @@s/conn rules ws-uuid))))
+
+(rf/reg-sub
  :worksheet/all-cached-units
  (fn [_]
    (rf/subscribe [:settings/local-storage-units]))
@@ -330,15 +374,28 @@
     (rf/subscribe [:worksheet/all-variable-level-native-units ws-uuid])
     (rf/subscribe [:worksheet/all-custom-units ws-uuid])
     (rf/subscribe [:worksheet/all-cached-units ws-uuid])
-    (rf/subscribe [:worksheet/all-domain-level-native-units ws-uuid])])
+    (rf/subscribe [:worksheet/all-domain-level-native-units ws-uuid])
+    (rf/subscribe [:worksheet/all-domain-level-english-units ws-uuid])
+    (rf/subscribe [:worksheet/all-domain-level-metric-units ws-uuid])
+    (rf/subscribe [:settings/units-system])])
  (fn [sub-results]
-   (let [[inputs native-units custom-units cached-units domain-units] (map make-tree sub-results)]
-     (mapv input-tree-to-vec (merge-with (comp vec concat)
-                                         inputs
-                                         (merge native-units
-                                                domain-units
-                                                cached-units
-                                                custom-units))))))
+   (let [[inputs
+          native-units
+          worksheet-saved-units
+          settings-cached-units
+          native-domain-units
+          english-domain-units
+          metric-domain-units] (map make-tree (butlast sub-results))]
+     (->> (merge native-units
+                 ;; native-domain-units
+                 (case (last sub-results)
+                   :english english-domain-units
+                   :metric  metric-domain-units
+                   native-domain-units)
+                 settings-cached-units
+                 worksheet-saved-units)
+          (merge-with (comp vec concat) inputs)
+          (mapv input-tree-to-vec)))))
 
 (rf/reg-sub
  :worksheet/all-inputs
@@ -497,8 +554,8 @@
 (rp/reg-sub
  :worksheet/graph-settings-y-axis-limits
  (fn [_ [_ ws-uuid]]
-   {:type  :query
-    :query '[:find ?group-var-uuid ?min ?max
+   {:type      :query
+    :query     '[:find ?group-var-uuid ?min ?max
              :in   $ ?ws-uuid
              :where
              [?w :worksheet/uuid ?ws-uuid]
@@ -548,8 +605,8 @@
 (rp/reg-sub
  :worksheet/table-settings-filters
  (fn [_ [_ ws-uuid]]
-   {:type :query
-    :query '[:find ?group-var-uuid ?min ?max ?enabled
+   {:type      :query
+    :query     '[:find ?group-var-uuid ?min ?max ?enabled
              :in   $ ?ws-uuid
              :where
              [?w :worksheet/uuid ?ws-uuid]
@@ -627,7 +684,7 @@
      (into {} (map
                (fn [[gv-eid gv-uuid variable multi-discrete?]]
                  (let [is-output? @(rf/subscribe [:vms/group-variable-is-output? gv-eid])]
-                  [gv-uuid (create-formatter variable multi-discrete? is-output?)]))
+                   [gv-uuid (create-formatter variable multi-discrete? is-output?)]))
                results)))))
 
 (rp/reg-sub
@@ -806,8 +863,8 @@
                                  [ws-uuid]])]
      (->> headers
           (filter (fn [[gv-uuid]]
-                   (or (contains? (set multi-input-uuids) gv-uuid)
-                       (is-directional? gv-uuid direction))))
+                    (or (contains? (set multi-input-uuids) gv-uuid)
+                        (is-directional? gv-uuid direction))))
           (sort-by (juxt #(.indexOf gv-order (first %))
                          #(second %)))))))
 
@@ -892,7 +949,7 @@
             (when (missing-input? worksheet-value)
               (reset! missing-inputs? true)))))
       (doseq [group-variable group-variables
-              :when (not (:group-variable/conditionally-set? group-variable))]
+              :when          (not (:group-variable/conditionally-set? group-variable))]
         (let [worksheet-value (get-in all-inputs [(:bp/uuid group) 0 (:bp/uuid group-variable)])]
           (when (missing-input? worksheet-value)
             (reset! missing-inputs? true))))))
@@ -942,7 +999,7 @@
  (fn [modules [_ module]]
    (when module
      (let [module     (first (filter (fn [{m-name :module/name}]
-                                   (= (->str module) (str/lower-case m-name))) modules))
+                                       (= (->str module) (str/lower-case m-name))) modules))
            submodules @(rf/subscribe [:vms/pull-children :module/submodules (:db/id module)])]
        (as-> submodules $
          (filter #(= :output (:submodule/io %)) $)
@@ -954,8 +1011,8 @@
 (rp/reg-sub
  :worksheet/input-gv-uuid+value+units
  (fn [_ [_ ws-uuid row-id]]
-   {:type      :query
-    :query     '[:find  ?gv-uuid ?value ?units
+   {:type  :query
+    :query '[:find  ?gv-uuid ?value ?units
                  :in $ ?ws-uuid ?row-id
                  :where
                  [?ws :worksheet/uuid ?ws-uuid]
@@ -979,8 +1036,8 @@
 (rp/reg-sub
  :worksheet/output-gv-uuid+value+units
  (fn [_ [_ ws-uuid row-id]]
-   {:type      :query
-    :query     '[:find  ?gv-uuid ?value ?units
+   {:type  :query
+    :query '[:find  ?gv-uuid ?value ?units
                  :in $ ?ws-uuid ?row-id
                  :where
                  [?ws :worksheet/uuid ?ws-uuid]

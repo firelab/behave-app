@@ -125,20 +125,21 @@
         (apply-multi-cpp-fn fns module repeat-group)))))
 
 (defn get-outputs [module fns outputs]
-  (reduce
-   (fn [acc group-variable-uuid]
-     (let [var-uuid     (q/variable-uuid group-variable-uuid)
-           *var-entity  (rf/subscribe [:vms/entity-from-uuid var-uuid])
-           domain-uuid  (:variable/domain-uuid @*var-entity)
-           *cached-unit (rf/subscribe [:settings/cached-unit domain-uuid])
-           unit-uuid    (or @*cached-unit
-                            (q/variable-native-units-uuid group-variable-uuid)
-                            :none)
-           result       (str (apply-output-cpp-fn fns module group-variable-uuid unit-uuid))]
-       (log-solver [:GET-OUTPUTS group-variable-uuid result unit-uuid])
-       (assoc acc group-variable-uuid [result unit-uuid])))
-   {}
-   outputs))
+  (let [units-system @(rf/subscribe [:settings/units-system])]
+   (reduce
+    (fn [acc group-variable-uuid]
+      (let [var-uuid     (q/variable-uuid group-variable-uuid)
+            *var-entity  (rf/subscribe [:vms/entity-from-uuid var-uuid])
+            domain-uuid  (:variable/domain-uuid @*var-entity)
+            *cached-unit (rf/subscribe [:settings/cached-unit domain-uuid])
+            unit-uuid    (or @*cached-unit
+                             (q/variable-units-uuid group-variable-uuid units-system)
+                             :none)
+            result       (str (apply-output-cpp-fn fns module group-variable-uuid unit-uuid))]
+        (log-solver [:GET-OUTPUTS group-variable-uuid result unit-uuid])
+        (assoc acc group-variable-uuid [result unit-uuid])))
+    {}
+    outputs)))
 
 ;;; Links
 (defn add-links [{:keys [gv-uuids] :as module}]

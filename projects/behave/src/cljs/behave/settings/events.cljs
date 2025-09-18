@@ -33,12 +33,17 @@
  (fn [{units-settings :settings/all-units+decimals} _]
    {:fx (into []
               (for [[domain settings]                                                    units-settings
-                    [_ domain-name domain-uuid domain-dimension-uuid unit-uuid decimals] settings]
+                    [_ domain-name domain-uuid domain-dimension-uuid
+                     cached-unit-uuid native-domain-unit-uuid
+                     english-domain-unit-uuid metric-domain-unit-uuid decimals] settings]
                 [:dispatch [:settings/set [:units domain domain-uuid]
-                            {:domain-name             domain-name
-                             :domain-dimension-uuid   domain-dimension-uuid
-                             :domain-native-unit-uuid unit-uuid
-                             :domain-decimals         decimals}]]))}))
+                            {:domain-name              domain-name
+                             :domain-dimension-uuid    domain-dimension-uuid
+                             :domain-cached-unit-uuid  cached-unit-uuid
+                             :domain-native-unit-uuid  native-domain-unit-uuid
+                             :domain-english-unit-uuid english-domain-unit-uuid
+                             :domain-metric-unit-uuid  metric-domain-unit-uuid
+                             :domain-decimals          decimals}]]))}))
 
 (rf/reg-event-fx
  :settings/reset-custom-unit-preferences
@@ -68,3 +73,10 @@
 
      (vector? k)
      (assoc-in settings k v))))
+
+
+(rf/reg-event-fx
+ :settings/set-units-system
+ (fn [_ [_ units-system]]
+   {:fx [[:dispatch [:settings/set [:units-system] units-system]]
+         [:dispatch [:local-storage/update-in [:units-system] units-system]]]}))

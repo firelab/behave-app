@@ -21,16 +21,6 @@
   (or (str/includes? parameter-type "Enum")
       (str/includes? parameter-type "Units")))
 
-(defn- resolve-units-uuid-from-vms-or-cached-settings
-  [sv-uuid]
-  (let [var-uuid     (q/variable-uuid sv-uuid)
-        *var-entity  (rf/subscribe [:vms/entity-from-uuid var-uuid])
-        domain-uuid  (:variable/domain-uuid @*var-entity)
-        *cached-unit (rf/subscribe [:settings/cached-unit domain-uuid])]
-    (or @*cached-unit
-        (q/variable-native-units-uuid sv-uuid)
-        :none)))
-
 (defn- apply-single-cpp-fn [fns tool-obj sv-uuid value units]
   (let [[fn-id fn-name] (q/subtool-variable->fn sv-uuid)
         value           (q/parsed-value sv-uuid value)
@@ -69,15 +59,15 @@
 
 (defn- run-tool
   [{:keys [fns inputs outputs compute-fn]}]
-  (let [init-fn  (fns "init")
-        tool-obj (init-fn)]
+  (let [init-fn     (fns "init")
+        tool-obj    (init-fn)
+        units-system @(rf/subscribe [:settings/units-system])]
 
     ;; Set inputs
     (doseq [[sv-uuid variable] inputs]
       (let [{value :input/value units-uuid :input/units-uuid} variable
             units-uuid                                        (or units-uuid
-                                                                  (resolve-units-uuid-from-vms-or-cached-settings
-                                                                   sv-uuid))
+                                                                  (q/variable-units-uuid sv-uuid units-system))
             units-enum                                        (q/unit-uuid->enum-value units-uuid)]
         (apply-single-cpp-fn fns tool-obj sv-uuid value units-enum)))
 
@@ -88,9 +78,12 @@
     (into {}
           (map (fn [[output-uuid selected-unit]]
                  (let [units-uuid   (or selected-unit
-                                        (resolve-units-uuid-from-vms-or-cached-settings output-uuid))
+                                        (q/variable-units-uuid output-uuid units-system))
                        units-enum   (q/unit-uuid->enum-value units-uuid)
                        output-value (apply-output-cpp-fn fns tool-obj output-uuid units-enum)]
+                   (prn "selected-unit: " selected-unit)
+                   (prn "(q/variable-units-uuid output-uuid units-system):" (q/variable-units-uuid output-uuid units-system))
+                   (prn "units-enum: " (q/unit-uuid->enum-value units-uuid))
                    [output-uuid {:output/value      (format-intl-number "en-US" output-value 2)
                                  :output/units-uuid units-uuid}]))
                outputs))))

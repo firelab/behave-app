@@ -43,35 +43,57 @@
                                 (sort-by :label))))}]]))
 
 (defn- build-rows [ws-uuid domain-set domain-unit-settings]
-  (map
-   (fn [[domain-uuid {:keys [domain-name
-                             domain-dimension-uuid
-                             domain-native-unit-uuid
-                             domain-decimals]}]]
-     {:domain   domain-name
-      :units    (if (not= domain-dimension-uuid "N/A")
-                  (let [dimension (rf/subscribe [:vms/entity-from-uuid domain-dimension-uuid])
-                        units     (:dimension/units @dimension)
-                        on-click  #(rf/dispatch-sync [:settings/cache-unit-preference
-                                                      domain-set
-                                                      domain-uuid
-                                                      %
-                                                      ws-uuid])]
-                    [unit-selector domain-native-unit-uuid units on-click])
-                  [:div @(rf/subscribe [:vms/units-uuid->short-code domain-native-unit-uuid])])
-      :decimals (when (not= domain-decimals "N/A")
-                  (let [decimal-atom (r/atom domain-decimals)]
-                    [c/number-input {:value-atom decimal-atom
-                                     :on-change  #(reset! decimal-atom (input-value %))
-                                     :on-blur    #(rf/dispatch-sync [:settings/cache-decimal-preference
-                                                                     domain-set domain-uuid @decimal-atom])}]))})
-   domain-unit-settings))
+  (let [cached-units-system @(rf/subscribe [:settings/units-system])]
+    (map
+     (fn [[domain-uuid {:keys [domain-name
+                               domain-dimension-uuid
+                               domain-cached-unit-uuid
+                               domain-native-unit-uuid
+                               domain-english-unit-uuid
+                               domain-metric-unit-uuid
+                               domain-decimals]}]]
+       {:domain   domain-name
+        :units    (if (not= domain-dimension-uuid "N/A")
+                    (let [dimension (rf/subscribe [:vms/entity-from-uuid domain-dimension-uuid])
+                          units     (:dimension/units @dimension)
+                          on-click  #(rf/dispatch-sync [:settings/cache-unit-preference
+                                                        domain-set
+                                                        domain-uuid
+                                                        %
+                                                        ws-uuid])]
+                      [unit-selector
+                       (or domain-cached-unit-uuid
+                           (case cached-units-system
+                             :english domain-english-unit-uuid
+                             :metric  domain-metric-unit-uuid
+                             domain-native-unit-uuid))
+                       units on-click])
+                    [:div @(rf/subscribe [:vms/units-uuid->short-code domain-native-unit-uuid])])
+        :decimals (when (not= domain-decimals "N/A")
+                    (let [decimal-atom (r/atom domain-decimals)]
+                      [c/number-input {:value-atom decimal-atom
+                                       :on-change  #(reset! decimal-atom (input-value %))
+                                       :on-blur    #(rf/dispatch-sync [:settings/cache-decimal-preference
+                                                                       domain-set domain-uuid @decimal-atom])}]))})
+     domain-unit-settings)))
 
 (defn- general-units-tab [{:keys [ws-uuid]}]
   (r/with-let [_ (rf/dispatch [:settings/load-units-from-local-storage])]
     (let [*state-settings (rf/subscribe [:settings/get :units])
           domain-sets     (sort-by first @*state-settings)]
       [:div.settings__general-units
+       [c/radio-group
+        {:label   "Units System"
+         :name    "Units System"
+         :options [{:value     :english
+                    :label     "English"
+                    :on-change #(rf/dispatch [:settings/set-units-system :english])
+                    :checked?  (= @(rf/subscribe [:settings/units-system]) :english)}
+                   {:value     :metric
+                    :label     "Metric"
+                    :on-change #(rf/dispatch [:settings/set-units-system :metric])
+                    :checked?  (= @(rf/subscribe [:settings/units-system]) :metric)}
+                   ]}]
        (c/accordion {:accordion-items (for [[domain-set-name domain-unit-settings] domain-sets]
                                         ^{:key domain-sets}
                                         {:label   domain-set-name
