@@ -82,32 +82,31 @@
     (let [*state-settings (rf/subscribe [:settings/get :units])
           domain-sets     (sort-by first @*state-settings)]
       [:div.settings__general-units
-       [c/radio-group
-        {:label   "Units System"
-         :name    "Units System"
-         :options [{:value     :english
-                    :label     "English"
-                    :on-change #(rf/dispatch [:settings/set-units-system :english])
-                    :checked?  (= @(rf/subscribe [:settings/units-system]) :english)}
-                   {:value     :metric
-                    :label     "Metric"
-                    :on-change #(rf/dispatch [:settings/set-units-system :metric])
-                    :checked?  (= @(rf/subscribe [:settings/units-system]) :metric)}
-                   ]}]
-       (c/accordion {:accordion-items (for [[domain-set-name domain-unit-settings] domain-sets]
-                                        ^{:key domain-sets}
-                                        {:label   domain-set-name
-                                         :content (c/table {:headers [@(<t (bp "variable_domain"))
-                                                                      @(<t (bp "units"))
-                                                                      @(<t (bp "decimals"))]
-                                                            :columns [:domain :units :decimals]
-                                                            :rows    (build-rows
-                                                                      ws-uuid
-                                                                      domain-set-name
-                                                                      (sort-by
-                                                                       (fn [[_ domain]]
-                                                                         (:domain-name domain))
-                                                                       domain-unit-settings))})})})])))
+       [:div.settings__general-units__units-system-selection
+        [c/radio-group
+         {:label   "Units System"
+          :name    "Units System"
+          :options [{:label     "English"
+                     :on-change #(rf/dispatch [:settings/set-units-system :english])
+                     :checked?  (= @(rf/subscribe [:settings/units-system]) :english)}
+                    {:label     "Metric"
+                     :on-change #(rf/dispatch [:settings/set-units-system :metric])
+                     :checked?  (= @(rf/subscribe [:settings/units-system]) :metric)}]}]]
+       [:div.settings__general-units__table
+        (c/accordion {:accordion-items (for [[domain-set-name domain-unit-settings] domain-sets]
+                                         ^{:key domain-sets}
+                                         {:label   domain-set-name
+                                          :content (c/table {:headers [@(<t (bp "variable_domain"))
+                                                                       @(<t (bp "units"))
+                                                                       @(<t (bp "decimals"))]
+                                                             :columns [:domain :units :decimals]
+                                                             :rows    (build-rows
+                                                                       ws-uuid
+                                                                       domain-set-name
+                                                                       (sort-by
+                                                                        (fn [[_ domain]]
+                                                                          (:domain-name domain))
+                                                                        domain-unit-settings))})})})]])))
 
 
 ;;==============================================================================
