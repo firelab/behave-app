@@ -79,4 +79,5 @@
  :settings/set-units-system
  (fn [_ [_ units-system]]
    {:fx [[:dispatch [:settings/set [:units-system] units-system]]
-         [:dispatch [:local-storage/update-in [:units-system] units-system]]]}))
+         [:dispatch [:local-storage/update-in [:units-system] units-system]]
+         [:dispatch [:state/set [:tool :data] nil]]]}))

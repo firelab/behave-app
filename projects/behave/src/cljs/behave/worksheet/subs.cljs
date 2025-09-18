@@ -240,88 +240,57 @@
                                 [ws-uuid]])]
      (into [] inputs))))
 
-;; all native units at the variable level
 (rf/reg-sub
- :worksheet/all-variable-level-native-units
- (fn [_ [_ ws-uuid]]
-   (into []
-         (d/q '[:find  ?group-uuid ?repeat-id ?gv-uuid ?unit-uuid
-                :in    $ $ws % ?ws-uuid
-                :where
-                [$ws ?w :worksheet/uuid ?ws-uuid]
-                [$ws ?w :worksheet/input-groups ?g]
-                [$ws ?g :input-group/group-uuid ?group-uuid]
-                [$ws ?g :input-group/repeat-id ?repeat-id]
-                [$ws ?g :input-group/inputs ?i]
-                [$ws ?i :input/group-variable-uuid ?gv-uuid]
-                (lookup ?gv-uuid ?gv)
-                (group-variable _ ?gv ?v)
-                [?v :variable/kind :continuous]
-                [?v :variable/native-unit-uuid ?unit-uuid]]
-              @@vms-conn @@s/conn rules ws-uuid))))
+ :worksheet/all-variable-level-units
+ (fn [_]
+   (rf/subscribe [:settings/units-system]))
+ (fn [units-system [_ ws-uuid]]
+   (let [units-system-attr (case units-system
+                             :native  :variable/native-unit-uuid
+                             :english :variable/english-unit-uuid
+                             :metric  :variable/metric-unit-uuid)]
+     (into []
+           (d/q '[:find  ?group-uuid ?repeat-id ?gv-uuid ?unit-uuid
+                  :in    $ $ws % ?ws-uuid ?units-system
+                  :where
+                  [$ws ?w :worksheet/uuid ?ws-uuid]
+                  [$ws ?w :worksheet/input-groups ?g]
+                  [$ws ?g :input-group/group-uuid ?group-uuid]
+                  [$ws ?g :input-group/repeat-id ?repeat-id]
+                  [$ws ?g :input-group/inputs ?i]
+                  [$ws ?i :input/group-variable-uuid ?gv-uuid]
+                  (lookup ?gv-uuid ?gv)
+                  (group-variable _ ?gv ?v)
+                  [?v :variable/kind :continuous]
+                  [?v ?units-system-attr ?unit-uuid]]
+                @@vms-conn @@s/conn rules ws-uuid units-system-attr)))))
 
 (rf/reg-sub
- :worksheet/all-domain-level-native-units
- (fn [_ [_ ws-uuid]]
-   (into []
-         (d/q '[:find  ?group-uuid ?repeat-id ?gv-uuid ?unit-uuid
-                :in    $ $ws % ?ws-uuid
-                :where
-                [$ws ?w :worksheet/uuid ?ws-uuid]
-                [$ws ?w :worksheet/input-groups ?g]
-                [$ws ?g :input-group/group-uuid ?group-uuid]
-                [$ws ?g :input-group/repeat-id ?repeat-id]
-                [$ws ?g :input-group/inputs ?i]
-                [$ws ?i :input/group-variable-uuid ?gv-uuid]
-                (lookup ?gv-uuid ?gv)
-                (group-variable _ ?gv ?v)
-                [?v :variable/kind :continuous]
-                [?v :variable/domain-uuid ?domain-uuid]
-                [?d :bp/uuid ?domain-uuid]
-                [?d :domain/native-unit-uuid ?unit-uuid]]
-              @@vms-conn @@s/conn rules ws-uuid))))
-
-(rf/reg-sub
- :worksheet/all-domain-level-english-units
- (fn [_ [_ ws-uuid]]
-   (into []
-         (d/q '[:find  ?group-uuid ?repeat-id ?gv-uuid ?unit-uuid
-                :in    $ $ws % ?ws-uuid
-                :where
-                [$ws ?w :worksheet/uuid ?ws-uuid]
-                [$ws ?w :worksheet/input-groups ?g]
-                [$ws ?g :input-group/group-uuid ?group-uuid]
-                [$ws ?g :input-group/repeat-id ?repeat-id]
-                [$ws ?g :input-group/inputs ?i]
-                [$ws ?i :input/group-variable-uuid ?gv-uuid]
-                (lookup ?gv-uuid ?gv)
-                (group-variable _ ?gv ?v)
-                [?v :variable/kind :continuous]
-                [?v :variable/domain-uuid ?domain-uuid]
-                [?d :bp/uuid ?domain-uuid]
-                [?d :domain/english-unit-uuid ?unit-uuid]]
-              @@vms-conn @@s/conn rules ws-uuid))))
-
-(rf/reg-sub
- :worksheet/all-domain-level-metric-units
- (fn [_ [_ ws-uuid]]
-   (into []
-         (d/q '[:find  ?group-uuid ?repeat-id ?gv-uuid ?unit-uuid
-                :in    $ $ws % ?ws-uuid
-                :where
-                [$ws ?w :worksheet/uuid ?ws-uuid]
-                [$ws ?w :worksheet/input-groups ?g]
-                [$ws ?g :input-group/group-uuid ?group-uuid]
-                [$ws ?g :input-group/repeat-id ?repeat-id]
-                [$ws ?g :input-group/inputs ?i]
-                [$ws ?i :input/group-variable-uuid ?gv-uuid]
-                (lookup ?gv-uuid ?gv)
-                (group-variable _ ?gv ?v)
-                [?v :variable/kind :continuous]
-                [?v :variable/domain-uuid ?domain-uuid]
-                [?d :bp/uuid ?domain-uuid]
-                [?d :domain/metric-unit-uuid ?unit-uuid]]
-              @@vms-conn @@s/conn rules ws-uuid))))
+ :worksheet/all-domain-level-units
+ (fn [_]
+   (rf/subscribe [:settings/units-system]))
+ (fn [units-system [_ ws-uuid]]
+   (let [units-system-attr (case units-system
+                             :english :domain/english-unit-uuid
+                             :metric  :domain/metric-unit-uuid
+                             :variable/native-unit-uuid)]
+     (into []
+           (d/q '[:find  ?group-uuid ?repeat-id ?gv-uuid ?unit-uuid
+                  :in    $ $ws % ?ws-uuid ?units-system-attr
+                  :where
+                  [$ws ?w :worksheet/uuid ?ws-uuid]
+                  [$ws ?w :worksheet/input-groups ?g]
+                  [$ws ?g :input-group/group-uuid ?group-uuid]
+                  [$ws ?g :input-group/repeat-id ?repeat-id]
+                  [$ws ?g :input-group/inputs ?i]
+                  [$ws ?i :input/group-variable-uuid ?gv-uuid]
+                  (lookup ?gv-uuid ?gv)
+                  (group-variable _ ?gv ?v)
+                  [?v :variable/kind :continuous]
+                  [?v :variable/domain-uuid ?domain-uuid]
+                  [?d :bp/uuid ?domain-uuid]
+                  [?d ?units-system-attr ?unit-uuid]]
+                @@vms-conn @@s/conn rules ws-uuid units-system-attr)))))
 
 (rf/reg-sub
  :worksheet/all-cached-units
@@ -371,22 +340,19 @@
  :worksheet/all-inputs+units-vector
  (fn [[_ ws-uuid]]
    [(rf/subscribe [:worksheet/all-inputs-vector ws-uuid])
-    (rf/subscribe [:worksheet/all-variable-level-native-units ws-uuid])
+    (rf/subscribe [:worksheet/all-variable-level-units ws-uuid])
     (rf/subscribe [:worksheet/all-custom-units ws-uuid])
     (rf/subscribe [:worksheet/all-cached-units ws-uuid])
-    (rf/subscribe [:worksheet/all-domain-level-native-units ws-uuid])
-    (rf/subscribe [:worksheet/all-domain-level-english-units ws-uuid])
-    (rf/subscribe [:worksheet/all-domain-level-metric-units ws-uuid])
-    (rf/subscribe [:settings/units-system])])
+    (rf/subscribe [:worksheet/all-domain-level-units ws-uuid])])
  (fn [sub-results]
    (let [[inputs
-          native-units
+          variable-native-units
           worksheet-saved-units
           settings-cached-units
           native-domain-units
           english-domain-units
-          metric-domain-units] (map make-tree (butlast sub-results))]
-     (->> (merge native-units
+          metric-domain-units] (map make-tree sub-results)]
+     (->> (merge variable-native-units
                  ;; native-domain-units
                  (case (last sub-results)
                    :english english-domain-units
