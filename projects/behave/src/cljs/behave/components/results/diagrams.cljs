@@ -2,7 +2,9 @@
   (:require [behave.components.vega.diagram :refer [output-diagram]]
             [clojure.set                    :refer [rename-keys]]
             [clojure.string                 :as str]
-            [re-frame.core                  :refer [subscribe]]))
+            [re-frame.core                  :refer [subscribe]]
+            [goog.string            :as gstring]
+            [re-frame.core :as rf]))
 
 (defn- construct-summary-table [ws-uuid group-variable-uuid row-id]
   (let [outputs-to-filter (set @(subscribe [:wizard/diagram-output-gv-uuids group-variable-uuid]))
@@ -35,6 +37,23 @@
                      value)]])
            outputs)]]))
 
+(defn- build-title [ws-uuid diagram-title row-id]
+  (let [multi-valued-input-uuids  (set @(subscribe [:worksheet/multi-value-input-uuids ws-uuid]))
+        *gv-order                      (subscribe [:vms/group-variable-order ws-uuid])
+        input-gv-uuid+value+units (sort-by #(.indexOf @*gv-order (first %))
+                                           @(subscribe [:worksheet/input-gv-uuid+value+units ws-uuid row-id]))
+        result                    (->> input-gv-uuid+value+units
+                                       (filter (fn [[gv-uuid _ _]]
+                                                 (contains? multi-valued-input-uuids gv-uuid)))
+                                       (map (fn [[gv-uuid value unit]]
+                                              (gstring/format
+                                               "%s=%s (%s) "
+                                               @(rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])
+                                               value
+                                               unit)))
+                                       (apply str))]
+    (gstring/format "%s for: %s" diagram-title result)))
+
 (defn- construct-diagram [ws-uuid
                           {row-id              :worksheet.diagram/row-id
                            ellipses            :worksheet.diagram/ellipses
@@ -53,7 +72,7 @@
                                        (mapcat #(str/split (:scatter-plot/y-coordinates %) ","))
                                        (map #(Math/abs (double %))))))]
     [:div.diagram
-     [output-diagram {:title         (str title " for result row: " (inc row-id))
+     [output-diagram {:title         (build-title ws-uuid title row-id)
                       :width         500
                       :height        500
                       :x-axis        {:domain        [(* -1 domain) domain]
