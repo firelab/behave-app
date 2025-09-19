@@ -7,18 +7,29 @@
             [re-frame.core :as rf]))
 
 (defn- construct-summary-table [ws-uuid group-variable-uuid row-id]
-  (let [outputs-to-filter (set @(subscribe [:wizard/diagram-output-gv-uuids group-variable-uuid]))
+  (let [gv-order @(subscribe [:vms/group-variable-order])
+        outputs-to-filter (set @(subscribe [:wizard/diagram-output-gv-uuids group-variable-uuid]))
+        output-formatters @(subscribe [:worksheet/result-table-formatters outputs-to-filter])
         outputs           (->> (subscribe [:worksheet/output-gv-uuid+value+units ws-uuid row-id])
                                deref
                                (filter (fn [[gv-uuid]] (contains? outputs-to-filter gv-uuid)))
-                               (map (fn resolve-gv-uuid->name[[gv-uuid & remain]]
-                                      (conj remain @(subscribe [:wizard/gv-uuid->resolve-result-variable-name gv-uuid])))))
+                               (sort-by (fn [[gv-uuid]] (.indexOf gv-order gv-uuid)))
+                               (map (fn resolve-gv-uuid->name [[gv-uuid value units]]
+                                      (let [fmt-fn (get output-formatters gv-uuid identity)]
+                                        [@(subscribe [:wizard/gv-uuid->resolve-result-variable-name gv-uuid])
+                                         (fmt-fn value)
+                                         units]))))
         inputs-to-filter  (set @(subscribe [:wizard/diagram-input-gv-uuids group-variable-uuid]))
+        input-formatters  @(subscribe [:worksheet/result-table-formatters inputs-to-filter])
         inputs            (->> (subscribe [:worksheet/input-gv-uuid+value+units ws-uuid row-id])
                                deref
                                (filter (fn [[gv-uuid]] (contains? inputs-to-filter gv-uuid)))
-                               (map (fn resolve-gv-uuid->name [[gv-uuid & remain]]
-                                      (conj remain @(subscribe [:wizard/gv-uuid->resolve-result-variable-name gv-uuid])))))]
+                               (sort-by (fn [[gv-uuid]] (.indexOf gv-order gv-uuid)))
+                               (map (fn resolve-gv-uuid->name [[gv-uuid value units]]
+                                      (let [fmt-fn (get input-formatters gv-uuid identity)]
+                                        [@(subscribe [:wizard/gv-uuid->resolve-result-variable-name gv-uuid])
+                                         (fmt-fn value)
+                                         units]))))]
     [:div
      [:table.diagram__table
       (map (fn [[variable-name value units]]
