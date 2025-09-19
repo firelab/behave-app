@@ -669,7 +669,7 @@
    (true? (get-in state [:show-range-selector? gv-uuid repeat-id]))))
 
 (reg-sub
- :wizard/hide-range-selector?
+ :wizard/hide-range-selector-button?
  (fn [[_ ws-uuid gv-uuid]]
    [(subscribe [:worksheet ws-uuid])
     (subscribe [:vms/entity-from-uuid gv-uuid])])
