@@ -32,10 +32,16 @@
 
  (fn [{units-settings :settings/all-units+decimals} _]
    {:fx (into []
-              (for [[domain settings]                                                    units-settings
-                    [_ domain-name domain-uuid domain-dimension-uuid
-                     cached-unit-uuid native-domain-unit-uuid
-                     english-domain-unit-uuid metric-domain-unit-uuid decimals] settings]
+              (for [[domain settings] units-settings
+                    [_
+                     domain-name
+                     domain-uuid
+                     domain-dimension-uuid
+                     cached-unit-uuid
+                     native-domain-unit-uuid
+                     english-domain-unit-uuid
+                     metric-domain-unit-uuid
+                     decimals]        settings]
                 [:dispatch [:settings/set [:units domain domain-uuid]
                             {:domain-name              domain-name
                              :domain-dimension-uuid    domain-dimension-uuid

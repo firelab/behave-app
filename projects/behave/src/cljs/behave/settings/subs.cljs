@@ -62,7 +62,14 @@
                                   [(get-else $ ?d :domain/decimals "N/A") ?decimals]]
                                 @@vms-conn)
                            (sort-by (juxt first second)))]
-     (->> (map (fn [[v-domain v-name v-uuid v-dimension-uuid native-domain-unit-uuid default-decimals english-domain-unit-uuid metric-domain-unit-uuid]]
+     (->> (map (fn [[v-domain
+                     v-name
+                     v-uuid
+                     v-dimension-uuid
+                     native-domain-unit-uuid
+                     default-decimals
+                     english-domain-unit-uuid
+                     metric-domain-unit-uuid]]
                  (let [{:keys [unit-uuid decimals]} (get cached-units v-uuid)]
                    (-> [v-domain v-name v-uuid v-dimension-uuid]
                        (into [unit-uuid
