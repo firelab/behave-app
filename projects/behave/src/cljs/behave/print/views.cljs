@@ -27,6 +27,7 @@
   (let [worksheet           @(subscribe [:worksheet ws-uuid])
         ws-date-created     (:worksheet/created worksheet)
         ws-version          (:worksheet/version worksheet)
+        ws-description      (:worksheet/run-description worksheet)
         notes               @(subscribe [:wizard/notes ws-uuid])
         graph-data          @(subscribe [:worksheet/result-table-cell-data ws-uuid])
         directional-tables? @(subscribe [:wizard/output-directional-tables? ws-uuid])]
@@ -36,6 +37,10 @@
       [:div.print__header__info
        (when ws-version [:div (str "Version: " ws-version)])
        [:div (str "Created: " (epoch->date-string ws-date-created))]]]
+     (when ws-description
+       [:div
+        [:div.wizard-print__header "Run Description"]
+        [:div ws-description]])
      [:div.wizard-print__header "Inputs"]
      [inputs-table ws-uuid]
      [wizard-notes notes]
