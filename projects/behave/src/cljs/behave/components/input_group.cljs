@@ -93,7 +93,7 @@
                                                    repeat-id
                                                    gv-uuid
                                                    @value-atom)}]]
-      (when (not hide-range-selector-button)
+      (when (not @(rf/subscribe [:wizard/disable-multi-valued-input? ws-uuid gv-uuid]))
         [:div
          {:class [(if @show-range-selector?
                     "wizard-input__range-selector-button--selected"
@@ -193,14 +193,16 @@
                                              :selected?   (contains? ws-input-values value)}
                                             (when tags {:tags (set (map :bp/nid tags))})
                                             (when color-tag {:color-tag {:color (:tag/color color-tag)}})))]
-    (let [*variable-name (rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])]
+    (let [*disable-multi-valued-input? (rf/subscribe [:wizard/disable-multi-valued-input? ws-uuid gv-uuid])
+          *variable-name               (rf/subscribe [:wizard/gv-uuid->default-variable-name gv-uuid])]
       [:div.wizard-input
        {:on-click on-focus-click
         :on-focus on-focus-click}
        [c/multi-select-input
-        (cond-> {:input-label @*variable-name
-                 :search      (= workflow :standard)
-                 :options     (doall (map ->option options))}
+        (cond-> {:input-label                 @*variable-name
+                 :disable-multi-valued-input? @*disable-multi-valued-input?
+                 :search                      (= workflow :standard)
+                 :options                     (doall (map ->option options))}
 
 
           (= workflow :standard)

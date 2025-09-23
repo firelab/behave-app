@@ -255,7 +255,7 @@
 
 (defmethod multi-select-input :no-search
   [{:keys [input-label prompt1 prompt2 prompt3 expand-options-button-label
-           collapse-options-button-label options filter-tags color-tags]}]
+           collapse-options-button-label options filter-tags color-tags disable-multi-valued-input?]}]
   (r/with-let [selections (r/atom (->> options
                                        (filter #(true? (:selected? %)))
                                        (map (fn [{:keys [label value on-deselect]}]
@@ -307,9 +307,12 @@
                                                         (reset! selections (disj @selections selection))
                                                         (when on-deselect (on-deselect value)))
                                                       (do
-                                                        (reset! selections (conj @selections selection))
-                                                        (when on-select
-                                                          (on-select value)))))}])))]])
+                                                        (if disable-multi-valued-input?
+                                                          (reset! selections (into (sorted-set) [selection]))
+                                                          (do
+                                                            (reset! selections (conj @selections selection))
+                                                            (when on-select
+                                                              (on-select value)))))))}])))]])
      [:div.multi-select__selections
       [:div.multi-select__selections__header
        [:div (gstring/format "Selected %s" input-label)]
@@ -341,7 +344,8 @@
                                                 label])])]]))
 
 (defmethod multi-select-input :search
-  [{:keys [input-label prompt1 expand-options-button-label collapse-options-button-label options color-tags]}]
+  [{:keys [input-label prompt1 expand-options-button-label collapse-options-button-label options color-tags
+           disable-multi-valued-input?]}]
   (r/with-let [selections (r/atom (->> options
                                        (filter #(true? (:selected? %)))
                                        (map (fn [{:keys [label value on-deselect]}]
@@ -393,9 +397,15 @@
       [text-input {:label        "Search"
                    :on-key-press (on-enter (fn []
                                              (when-let [{:keys [label value on-deselect on-select]} (first @filtered-options)]
-                                               (reset! selections (conj @selections [label value on-deselect]))
-                                               (reset! search nil)
-                                               (when on-select (on-select value)))))
+                                               (if disable-multi-valued-input?
+                                                 (do
+                                                   (when on-deselect (doseq [[_ value on-deselect] @selections] (on-deselect value)))
+                                                   (when on-select (on-select value))
+                                                   (reset! selections (into (sorted-set) [[label value on-deselect]])))
+                                                 (do
+                                                   (when on-select (on-select value))
+                                                   (reset! selections (conj @selections [label value on-deselect]))))
+                                               (reset! search nil))))
                    :on-change    #(do (reset! search (input-value %))
                                       (reset! filtered-options (filter (fn [option]
                                                                          (str/includes? (str/lower-case (:label option))
@@ -421,8 +431,10 @@
                                                      (do
                                                        (reset! selections (disj @selections selection))
                                                        (when on-deselect (on-deselect value)))
-                                                     (do
-                                                       (reset! selections (conj @selections selection))
-                                                       (when on-select
-                                                         (on-select value))))
+                                                     (if disable-multi-valued-input?
+                                                       (reset! selections (into (sorted-set) [selection]))
+                                                       (do
+                                                         (reset! selections (conj @selections selection))
+                                                         (when on-select
+                                                           (on-select value)))))
                                                    (reset! search nil))}])))])]))

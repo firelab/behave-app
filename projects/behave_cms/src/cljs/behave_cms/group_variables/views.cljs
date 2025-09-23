@@ -189,10 +189,10 @@
          [conditionals-graph
           gv-id
           gv-id
-          :group-variable/hide-range-selector-conditionals
-          :group-variable/hide-range-selector-conditional-operator]]
+          :group-variable/disable-multi-valued-input-conditionals
+          :group-variable/disable-multi-valued-input-conditional-operator]]
         [:div.col-3
-         [manage-conditionals gv-id :group-variable/hide-range-selector-conditionals]]]
+         [manage-conditionals gv-id :group-variable/disable-multi-valued-input-conditionals]]]
 
        [:hr]
        [accordion

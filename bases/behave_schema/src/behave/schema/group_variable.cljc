@@ -124,14 +124,26 @@
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :group-variable/hide-range-selector-conditionals
-    :db/doc         "Conditions to also be met for hiding range selector from results"
+    :db/doc         "Deprecated use `:group-variable/disable-multi-valued-input-conditionals`"
     :db/valueType   :db.type/ref
     :db/cardinality :db.cardinality/many}
 
    {:db/ident       :group-variable/hide-range-selector-conditional-operator
+    :db/doc         "Deprecated use `:group-variable/disable-multi-valued-input-conditional-operator`"
+    :db/valueType   :db.type/keyword
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :group-variable/disable-multi-valued-input-conditionals
+    :db/doc         "Conditions to also be met for hiding range selector from results"
+    :db/valueType   :db.type/ref
+    :db/cardinality :db.cardinality/many}
+
+   {:db/ident       :group-variable/disable-multi-valued-input-conditional-operator
     :db/doc         "Conditional operator, which only applies for multiple conditionals. Can be either: `:and`, `:or`."
     :db/valueType   :db.type/keyword
     :db/cardinality :db.cardinality/one}
+
+
 
    {:db/ident       :group-variable/hide-csv?
     :db/doc         "Whether a Group Variable is excluded from the csv export"
