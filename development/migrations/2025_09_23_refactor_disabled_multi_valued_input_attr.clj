@@ -23,6 +23,7 @@
 ;; Payload
 ;; ===========================================================================================================
 
+#_{:clj-kondo/ignore [:missing-docstring]}
 (def surface-gv-eids-to-proccess
   (d/q '[:find [?gv ...]
          :in $ %
@@ -30,9 +31,10 @@
          [?v :variable/group-variables ?gv]
          [?v :variable/kind :continuous]
          (module-input-vars ?m ?gv)]
-       (d/db conn)
-       rules))
+        (d/db conn)
+        rules))
 
+#_{:clj-kondo/ignore [:missing-docstring]}
 (def surface-multi-discrtee-gv-eids-to-proccess
   (d/q '[:find [?gv ...]
          :in $ %
@@ -41,9 +43,10 @@
          [?gv :group-variable/discrete-multiple? true]
          [?v :variable/kind :discrete]
          (module-input-vars ?m ?gv)]
-       (d/db conn)
-       rules))
+        (d/db conn)
+        rules))
 
+#_{:clj-kondo/ignore [:missing-docstring]}
 (def contain-gv-eids-to-process
   [(sm/t-key->eid conn "behaveplus:contain:output:fire:containment:fireline_constructed")
    (sm/t-key->eid conn "behaveplus:contain:output:fire:containment:final-production-rate")
@@ -51,7 +54,13 @@
    (sm/t-key->eid conn "behaveplus:contain:output:fire:containment:contained_area")
    (sm/t-key->eid conn "behaveplus:contain:output:fire:fire_size___at_resource_arrival_time:fire_area___at_resource_arrival_time")])
 
-(count surface-gv-eids-to-proccess)
+#_{:clj-kondo/ignore [:missing-docstring]}
+(def conditional-to-use
+  (sm/->conditional conn {:ttype    :group-variable
+                          :operator :equal
+                          :values   "1"
+                          :group-variable-uuid
+                          (:bp/uuid (sm/t-key->entity conn "behaveplus:contain:input:suppression:contain_mode:contain_mode"))}))
 
 #_{:clj-kondo/ignore [:missing-docstring]}
 (def payload
@@ -60,25 +69,11 @@
     (fn [eid]
       {:db/id                                                          eid
        :group-variable/disable-multi-valued-input-conditional-operator :and
-       :group-variable/disable-multi-valued-input-conditionals         [(sm/->conditional conn {:ttype    :group-variable
-                                                                                                :operator :equal
-                                                                                                :values   "1"
-                                                                                                :group-variable-uuid
-                                                                                                (:bp/uuid (sm/t-key->entity conn "behaveplus:contain:input:suppression:contain_mode:contain_mode"))})]})
-    (concat surface-gv-eids-to-proccess surface-multi-discrtee-gv-eids-to-proccess))
-
-   (mapv
-    (fn [eid]
-      {:db/id                                                          eid
-       :group-variable/disable-multi-valued-input-conditional-operator :and
-       :group-variable/disable-multi-valued-input-conditionals         [(sm/->conditional conn {:ttype    :group-variable
-                                                                                                :operator :equal
-                                                                                                :values   "1"
-                                                                                                :group-variable-uuid
-                                                                                                (:bp/uuid (sm/t-key->entity conn "behaveplus:contain:input:suppression:contain_mode:contain_mode"))})]
-       })
-    contain-gv-eids-to-process)
-   ))
+       :group-variable/disable-multi-valued-input-conditionals         [conditional-to-use]})
+    (concat
+     surface-gv-eids-to-proccess
+     surface-multi-discrtee-gv-eids-to-proccess
+     contain-gv-eids-to-process))))
 
 
 ;; ===========================================================================================================
