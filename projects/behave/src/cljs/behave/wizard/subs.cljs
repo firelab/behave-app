@@ -654,14 +654,17 @@
 
 (reg-sub
  :wizard/diagram-output-gv-uuids
- (fn [_ [_ gv-uuid]]
-   (d/q '[:find  [?gv-uuid ...]
-          :in    $ ?gv
-          :where
-          [?d :diagram/group-variable ?gv]
-          [?d :diagram/output-group-variables ?g]
-          [?g :bp/uuid ?gv-uuid]]
-        @@vms-conn [:bp/uuid gv-uuid])))
+ (fn [_]
+   (rf/subscribe [:vms/group-variable-order]))
+ (fn [gv-order [_ gv-uuid]]
+   (->> (d/q '[:find  [?gv-uuid ...]
+               :in    $ ?gv
+               :where
+               [?d :diagram/group-variable ?gv]
+               [?d :diagram/output-group-variables ?g]
+               [?g :bp/uuid ?gv-uuid]]
+             @@vms-conn [:bp/uuid gv-uuid])
+        (sort-by #(.indexOf gv-order %)))))
 
 (reg-sub
  :wizard/show-range-selector?
