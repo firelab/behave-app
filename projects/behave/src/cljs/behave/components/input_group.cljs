@@ -63,9 +63,9 @@
         *outside-range?            (rf/subscribe [:wizard/outside-range? native-unit-uuid @*unit-uuid var-min var-max @value])
         *outside-range-msg         (rf/subscribe [:wizard/outside-range-error-msg native-unit-uuid @*unit-uuid var-min var-max])
         warn-limit?                (true? @(rf/subscribe [:state :warn-multi-value-input-limit]))
-        hide-range-selector-button @(rf/subscribe [:wizard/hide-range-selector-button? ws-uuid gv-uuid])
+        disable-multi-valued-input? @(rf/subscribe [:wizard/disable-multi-valued-input? ws-uuid gv-uuid])
         acceptable-char-codes      (set (map #(.charCodeAt % 0)
-                                             (if hide-range-selector-button
+                                             (if disable-multi-valued-input?
                                                "0123456789. "
                                                "0123456789., ")))
         on-focus-click             (partial highlight-help-section help-key)
@@ -93,7 +93,7 @@
                                                    repeat-id
                                                    gv-uuid
                                                    @value-atom)}]]
-      (when (not @(rf/subscribe [:wizard/disable-multi-valued-input? ws-uuid gv-uuid]))
+      (when (not disable-multi-valued-input?)
         [:div
          {:class [(if @show-range-selector?
                     "wizard-input__range-selector-button--selected"
