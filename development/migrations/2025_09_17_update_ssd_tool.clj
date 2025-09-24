@@ -36,7 +36,7 @@
 (def ssd-name "Safe Separation Distance & Safety Zone Size")
 
 #_{:clj-kondo/ignore [:missing-docstring]}
-(def translations-payload
+(def ssd-translations-payload
   (sm/update-translations-payload
    conn
    "en-US"
@@ -50,7 +50,21 @@
    {:db/id        (:db/id ssd-subtool)
     :subtool/name ssd-name}])
 
-(def payload (concat name-payload translations-payload))
+;; ===========================================================================================================
+;; Update Slope List Options
+;; ===========================================================================================================
+
+#_{:clj-kondo/ignore [:missing-docstring]}
+(def slope-translations-payload
+  (sm/update-translations-payload
+   conn
+   "en-US"
+   {"behaveplus:list-option:slope-class:steep"    "Steep (>45%)"
+    "behaveplus:list-option:slope-class:low"      "Flat (<25%)"
+    "behaveplus:list-option:slope-class:moderate" "Moderate (25% - 45%)"}))
+
+#_{:clj-kondo/ignore [:missing-docstring]}
+(def payload (concat name-payload ssd-translations-payload slope-translations-payload))
 
 ;; ===========================================================================================================
 ;; Transact Payload
