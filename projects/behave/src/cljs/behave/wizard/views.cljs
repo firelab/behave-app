@@ -276,13 +276,11 @@
 
 ;; Review page
 
-(defn run-description [ws-uuid]
+(defn- run-description [ws-uuid]
   (let [*worksheet  (subscribe [:worksheet ws-uuid])
         description (:worksheet/run-description @*worksheet)
         value-atom  (r/atom (or description ""))]
     [:div.wizard-review__run-desciption
-     [:div.wizard-review__run-description__header
-      @(<t "behaveplus:run_description")]
      [:div.wizard-review-group__inputs
       [:div.wizard-review__run-description__input
        [c/text-input {:label       @(<t (bp "run_description"))
@@ -333,7 +331,6 @@
             [:div.wizard-header__banner__title @(<t (bp "worksheet_review"))]
             (show-or-close-notes-button @*show-notes?)]]
           [:div.wizard-review
-           [run-description ws-uuid]
            (when @*show-notes?
              (wizard-notes @*notes))
            (for [module modules
@@ -730,6 +727,7 @@
           [:div.wizard-header__results-toolbar__date
            [:div.wizard-header__results-toolbar__date__label (str @(<t (bp "run_date")) ":")]
            [:div.wizard-header__results-toolbar__date__value @*ws-date]]]
+         [run-description ws-uuid]
          [:div.wizard-header__results-tabs
           [c/tab-group {:variant  "highlight"
                         :on-click #(dispatch [:wizard/results-select-tab %])
