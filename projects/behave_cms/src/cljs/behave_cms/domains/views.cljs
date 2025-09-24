@@ -61,7 +61,6 @@
           on-delete
           #(when (js/confirm (str "Are you sure you want to delete the domain " (:domain/name %) "?"))
              (rf/dispatch [:api/delete-entity %]))]
-      (prn "domain:" @domain)
       [:div
        {:style {:height "400px"}}
        [simple-table

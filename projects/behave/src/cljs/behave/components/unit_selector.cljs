@@ -50,7 +50,12 @@
                native-unit       @(rf/subscribe [:vms/entity-from-uuid native-unit-uuid])
                english-unit      @(rf/subscribe [:vms/entity-from-uuid english-unit-uuid])
                metric-unit       @(rf/subscribe [:vms/entity-from-uuid metric-unit-uuid])
-               default-unit      (or @*cached-unit native-unit english-unit metric-unit) ;; FIXME: Get from Worksheet settings
+               units-system       @(rf/subscribe [:settings/units-system])
+               default-unit      (or @*cached-unit
+                                     (case units-system
+                                       :english english-unit
+                                       :metric  metric-unit
+                                       native-unit))
                show-selector? (r/atom false)
                on-click       #(do
                                  (on-change-units %)
@@ -58,7 +63,6 @@
                pre-selected-unit (or (get units-by-uuid *unit-uuid) default-unit)]
     [:div.wizard-input__units
      (if (or (>= 1 (count units)) (nil? @dimension))
-      [:div.wizard-input__units__text
-       (str @(<t (bp "units_used")) " " (:unit/short-code pre-selected-unit))]
-      [unit-selector (:bp/uuid pre-selected-unit) units on-click])]))
-
+       [:div.wizard-input__units__text
+        (str @(<t (bp "units_used")) " " (:unit/short-code pre-selected-unit))]
+       [unit-selector (:bp/uuid pre-selected-unit) units on-click])]))
