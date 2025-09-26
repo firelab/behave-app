@@ -401,31 +401,31 @@
   "Payload for a new Group Variable."
   [conn {:keys
          [parent-group-eid order variable-eid  cpp-namespace cpp-class cpp-function cpp-parameter translation-key conditionally-set? actions
-          hide-result-conditionals hide-result? hide-range-selector-conditionals hide-range-selector-conditional-operator] :as params}]
+          hide-result-conditionals hide-result? disable-multi-valued-input-conditionals disable-multi-valued-input-conditional-operator] :as params}]
   (let [payload (if (spec/valid? :behave/group-variable params)
                   params
                   (cond-> {}
-                    (nil? (:bp/uuid params))                 (assoc :bp/uuid  (rand-uuid))
-                    (not  (:bp/nid params))                  (assoc :bp/nid  (nano-id))
-                    (:bp/uuid params)                        (assoc :bp/uuid (:bp/uuid params))
-                    (:bp/nid params)                         (assoc :bp/nid (:bp/nid params))
-                    (:db/id params)                          (assoc :db/id (:db/id params))
-                    parent-group-eid                         (assoc :group/_group-variables parent-group-eid)
-                    order                                    (assoc :group-variable/order order)
-                    variable-eid                             (assoc :variable/_group-variables variable-eid)
-                    cpp-namespace                            (assoc :group-variable/cpp-namespace (cpp-ns->uuid conn cpp-namespace))
-                    cpp-class                                (assoc :group-variable/cpp-class (cpp-class->uuid conn cpp-namespace cpp-class))
-                    cpp-function                             (assoc :group-variable/cpp-function (cpp-fn->uuid conn cpp-namespace cpp-class cpp-function))
-                    cpp-parameter                            (assoc :group-variable/cpp-parameter (cpp-param->uuid conn cpp-namespace cpp-class cpp-function cpp-parameter))
-                    translation-key                          (assoc :group-variable/translation-key translation-key)
-                    translation-key                          (assoc :group-variable/result-translation-key (s/replace translation-key ":output:" ":result:"))
-                    translation-key                          (assoc :group-variable/help-key (str translation-key ":help"))
-                    conditionally-set?                       (assoc :group-variable/conditionally-set? conditionally-set?)
-                    (seq actions)                            (assoc :group-variable/actions (map #(cond->> % (map? %) (->action conn)) actions))
-                    hide-result?                             (assoc :group-variable/hide-result? hide-result?)
-                    (seq hide-result-conditionals)           (assoc :group-variable/hide-result-conditionals (map #(cond->> % (map? %) (->conditional conn)) hide-result-conditionals))
-                    hide-range-selector-conditional-operator (assoc :group-variable/hide-range-selector-conditional-operator hide-range-selector-conditional-operator)
-                    (seq hide-range-selector-conditionals)   (assoc :group-variable/hide-range-selector-conditionals (map #(cond->> % (map? %) (->conditional conn)) hide-range-selector-conditionals))))]
+                    (nil? (:bp/uuid params))                        (assoc :bp/uuid  (rand-uuid))
+                    (not  (:bp/nid params))                         (assoc :bp/nid  (nano-id))
+                    (:bp/uuid params)                               (assoc :bp/uuid (:bp/uuid params))
+                    (:bp/nid params)                                (assoc :bp/nid (:bp/nid params))
+                    (:db/id params)                                 (assoc :db/id (:db/id params))
+                    parent-group-eid                                (assoc :group/_group-variables parent-group-eid)
+                    order                                           (assoc :group-variable/order order)
+                    variable-eid                                    (assoc :variable/_group-variables variable-eid)
+                    cpp-namespace                                   (assoc :group-variable/cpp-namespace (cpp-ns->uuid conn cpp-namespace))
+                    cpp-class                                       (assoc :group-variable/cpp-class (cpp-class->uuid conn cpp-namespace cpp-class))
+                    cpp-function                                    (assoc :group-variable/cpp-function (cpp-fn->uuid conn cpp-namespace cpp-class cpp-function))
+                    cpp-parameter                                   (assoc :group-variable/cpp-parameter (cpp-param->uuid conn cpp-namespace cpp-class cpp-function cpp-parameter))
+                    translation-key                                 (assoc :group-variable/translation-key translation-key)
+                    translation-key                                 (assoc :group-variable/result-translation-key (s/replace translation-key ":output:" ":result:"))
+                    translation-key                                 (assoc :group-variable/help-key (str translation-key ":help"))
+                    conditionally-set?                              (assoc :group-variable/conditionally-set? conditionally-set?)
+                    (seq actions)                                   (assoc :group-variable/actions (map #(cond->> % (map? %) (->action conn)) actions))
+                    hide-result?                                    (assoc :group-variable/hide-result? hide-result?)
+                    (seq hide-result-conditionals)                  (assoc :group-variable/hide-result-conditionals (map #(cond->> % (map? %) (->conditional conn)) hide-result-conditionals))
+                    disable-multi-valued-input-conditional-operator (assoc :group-variable/disable-multi-valued-input-conditional-operator disable-multi-valued-input-conditional-operator)
+                    (seq disable-multi-valued-input-conditionals)   (assoc :group-variable/disable-multi-valued-input-conditionals (map #(cond->> % (map? %) (->conditional conn)) disable-multi-valued-input-conditionals))))]
     (if (spec/valid? :behave/group-variable payload)
       payload
       (spec/explain :behave/group-variable payload))))
