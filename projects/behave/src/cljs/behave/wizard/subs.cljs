@@ -672,13 +672,13 @@
    (true? (get-in state [:show-range-selector? gv-uuid repeat-id]))))
 
 (reg-sub
- :wizard/hide-range-selector-button?
+ :wizard/disable-multi-valued-input?
  (fn [[_ ws-uuid gv-uuid]]
    [(subscribe [:worksheet ws-uuid])
     (subscribe [:vms/entity-from-uuid gv-uuid])])
  (fn [[worksheet group-variable-entity] _]
-   (let [conditionals (:group-variable/hide-range-selector-conditionals group-variable-entity)
-         op           (:group-variable/hide-range-selector-conditional-operator group-variable-entity)]
+   (let [conditionals (:group-variable/disable-multi-valued-input-conditionals group-variable-entity)
+         op           (:group-variable/disable-multi-valued-input-conditional-operator group-variable-entity)]
      (if (seq conditionals)
        (all-conditionals-pass? worksheet op conditionals)
        false))))
