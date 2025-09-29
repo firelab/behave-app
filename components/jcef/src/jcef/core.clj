@@ -10,7 +10,7 @@
             CefDownloadHandler
             CefDisplayHandlerAdapter
             CefFocusHandlerAdapter
-            CefLifeSpanHandlerAdapter
+            CefJSDialogHandler CefLifeSpanHandlerAdapter
             CefMessageRouterHandler]
            [java.awt BorderLayout Cursor GraphicsEnvironment KeyboardFocusManager Toolkit]
            [java.awt.event ActionListener ComponentAdapter WindowAdapter]
@@ -145,12 +145,15 @@
   - `:frame`   - `JFrame` Application
   - `:browser` - `CefBrowser`
   - `:client`  - `CefClient`"
-  [{:keys [title menu url use-osr? size request-handler
+  [{:keys [title menu url use-osr? size request-handler cache-path remote-debug-port
            transparent? address-bar? fullscreen? dev-tools?
            on-close on-blur on-focus on-hidden on-shown on-before-launch]
     :or   {use-osr? false transparent? false address-bar? false fullscreen? false size [1024 768]}}]
   (let [builder       (jcef-builder)
-        _             (set! (.-windowless_rendering_enabled (.getCefSettings builder)) use-osr?)
+        settings      (.getCefSettings builder)
+        _             (set! (.-windowless_rendering_enabled settings) use-osr?)
+        _             (when cache-path (set! (.-cache_path settings) cache-path))
+        _             (when remote-debug-port (set! (.-remote_debugging_port settings) remote-debug-port))
         cef-app       (.build builder)
         client        (.createClient cef-app)
         msg-router    (CefMessageRouter/create)
@@ -209,7 +212,13 @@
 
       (.addLifeSpanHandler (proxy [CefLifeSpanHandlerAdapter] []
                              (onBeforePopup [& args]
-                               (apply open-new-link! client args)))))
+                               (apply open-new-link! client args))))
+
+      (.addJSDialogHandler (proxy [CefJSDialogHandler] []
+                                  (onBeforeUnloadDialog [& _args]
+                                    true)
+                                  (onJSDialog [& _args]
+                                    false))))
 
     (.addComponentListener jframe (proxy [ComponentAdapter] []
                                     (componentHidden [& args]
@@ -301,7 +310,7 @@
   (.removeDownloadHandler (:client @app))
   (.addDownloadHandler (:client @app)
                        (proxy [CefDownloadHandlerAdapter] []
-                         (onBeforeDownload​ [& args]
+                         (onBeforeDownload [& args]
                            (println [:DOWNLOAD args])
                            #_(let [[callback filename] (reverse args)
                                  suggested-filename  (str (fs/file (fs/home) (fs/base-name filename)))]
