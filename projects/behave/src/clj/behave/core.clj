@@ -78,6 +78,7 @@
                                     [:store :path]
                                     (str (io/file my-app-data-dir "db")))
                           (get-config :database :config))
+        cache-path      (str (io/file my-app-data-dir ".cache"))
         request-handler (custom-request-handler
                          {:protocol     "http"
                           :authority    (format "localhost:%s" http-port)
@@ -90,6 +91,7 @@
     (create-cef-app!
      {:title           (get-config :site :title)
       :url             (str "http://localhost:" http-port)
+      :cache-path      cache-path
       :fullscreen?     true
       :on-shown        (fn [app & _]
                          (reset! the-app app)
