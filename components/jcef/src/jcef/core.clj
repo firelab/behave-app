@@ -215,10 +215,10 @@
                                (apply open-new-link! client args))))
 
       (.addJSDialogHandler (proxy [CefJSDialogHandler] []
-                                  (onBeforeUnloadDialog [& _args]
-                                    true)
-                                  (onJSDialog [& _args]
-                                    false))))
+                             (onBeforeUnloadDialog [& _args]
+                               true)
+                             (onJSDialog [& _args]
+                               false))))
 
     (.addComponentListener jframe (proxy [ComponentAdapter] []
                                     (componentHidden [& args]
