@@ -522,17 +522,17 @@
  (fn [_ [_ ws-uuid]]
    {:type      :query
     :query     '[:find ?group-var-uuid ?min ?max
-             :in   $ ?ws-uuid
-             :where
-             [?w :worksheet/uuid ?ws-uuid]
-             [?w :worksheet/graph-settings ?g]
-             [?g :graph-settings/y-axis-limits ?y]
-             [?y :y-axis-limit/group-variable-uuid ?group-var-uuid]
-             [?y :y-axis-limit/min ?min]
-             [?y :y-axis-limit/max ?max]
-             [?w :worksheet/outputs ?o]
-             [?o :output/group-variable-uuid ?group-var-uuid]
-             [?o :output/enabled? true]]
+                 :in   $ ?ws-uuid
+                 :where
+                 [?w :worksheet/uuid ?ws-uuid]
+                 [?w :worksheet/graph-settings ?g]
+                 [?g :graph-settings/y-axis-limits ?y]
+                 [?y :y-axis-limit/group-variable-uuid ?group-var-uuid]
+                 [?y :y-axis-limit/min ?min]
+                 [?y :y-axis-limit/max ?max]
+                 [?w :worksheet/outputs ?o]
+                 [?o :output/group-variable-uuid ?group-var-uuid]
+                 [?o :output/enabled? true]]
     :variables [ws-uuid]}))
 
 (rf/reg-sub
@@ -573,18 +573,18 @@
  (fn [_ [_ ws-uuid]]
    {:type      :query
     :query     '[:find ?group-var-uuid ?min ?max ?enabled
-             :in   $ ?ws-uuid
-             :where
-             [?w :worksheet/uuid ?ws-uuid]
-             [?w :worksheet/table-settings ?ts]
-             [?ts :table-settings/filters ?tf]
-             [?tf :table-filter/group-variable-uuid ?group-var-uuid]
-             [?tf :table-filter/min ?min]
-             [?tf :table-filter/max ?max]
-             [?tf :table-filter/enabled? ?enabled]
-             [?w :worksheet/outputs ?o]
-             [?o :output/group-variable-uuid ?group-var-uuid]
-             [?o :output/enabled? true]]
+                 :in   $ ?ws-uuid
+                 :where
+                 [?w :worksheet/uuid ?ws-uuid]
+                 [?w :worksheet/table-settings ?ts]
+                 [?ts :table-settings/filters ?tf]
+                 [?tf :table-filter/group-variable-uuid ?group-var-uuid]
+                 [?tf :table-filter/min ?min]
+                 [?tf :table-filter/max ?max]
+                 [?tf :table-filter/enabled? ?enabled]
+                 [?w :worksheet/outputs ?o]
+                 [?o :output/group-variable-uuid ?group-var-uuid]
+                 [?o :output/enabled? true]]
     :variables [ws-uuid]}))
 
 (rf/reg-sub
@@ -979,24 +979,24 @@
  (fn [_ [_ ws-uuid row-id]]
    {:type  :query
     :query '[:find  ?gv-uuid ?value ?units
-                 :in $ ?ws-uuid ?row-id
-                 :where
-                 [?ws :worksheet/uuid ?ws-uuid]
-                 [?ws :worksheet/input-groups ?ig]
-                 [?ws :worksheet/result-table ?t]
-                 [?t  :result-table/rows ?rr]
-                 [?rr :result-row/id ?row-id]
-                 [?rr :result-row/cells ?c]
+             :in $ ?ws-uuid ?row-id
+             :where
+             [?ws :worksheet/uuid ?ws-uuid]
+             [?ws :worksheet/input-groups ?ig]
+             [?ws :worksheet/result-table ?t]
+             [?t  :result-table/rows ?rr]
+             [?rr :result-row/id ?row-id]
+             [?rr :result-row/cells ?c]
 
-                 ;; Filter only input variables
-                 [?ig :input-group/inputs ?i]
-                 [?i  :input/group-variable-uuid ?gv-uuid]
+             ;; Filter only input variables
+             [?ig :input-group/inputs ?i]
+             [?i  :input/group-variable-uuid ?gv-uuid]
 
-                 ;; Get  gv-uuid, value and units
-                 [?rh :result-header/group-variable-uuid ?gv-uuid]
-                 [?rh :result-header/units ?units]
-                 [?c  :result-cell/header ?rh]
-                 [?c  :result-cell/value ?value]]
+             ;; Get  gv-uuid, value and units
+             [?rh :result-header/group-variable-uuid ?gv-uuid]
+             [?rh :result-header/units ?units]
+             [?c  :result-cell/header ?rh]
+             [?c  :result-cell/value ?value]]
     :variables [ws-uuid row-id]}))
 
 (rp/reg-sub
@@ -1004,23 +1004,23 @@
  (fn [_ [_ ws-uuid row-id]]
    {:type  :query
     :query '[:find  ?gv-uuid ?value ?units
-                 :in $ ?ws-uuid ?row-id
-                 :where
-                 [?ws :worksheet/uuid ?ws-uuid]
-                 [?ws :worksheet/outputs ?o]
-                 [?ws :worksheet/result-table ?t]
-                 [?t  :result-table/rows ?rr]
-                 [?rr :result-row/id ?row-id]
-                 [?rr :result-row/cells ?c]
+             :in $ ?ws-uuid ?row-id
+             :where
+             [?ws :worksheet/uuid ?ws-uuid]
+             [?ws :worksheet/outputs ?o]
+             [?ws :worksheet/result-table ?t]
+             [?t  :result-table/rows ?rr]
+             [?rr :result-row/id ?row-id]
+             [?rr :result-row/cells ?c]
 
-                 ;; Filter only output variables
-                 [?o  :output/group-variable-uuid  ?gv-uuid]
+             ;; Filter only output variables
+             [?o  :output/group-variable-uuid  ?gv-uuid]
 
-                 ;; Get  gv-uuid, value and units
-                 [?rh :result-header/group-variable-uuid ?gv-uuid]
-                 [?rh :result-header/units ?units]
-                 [?c  :result-cell/header ?rh]
-                 [?c  :result-cell/value ?value]]
+             ;; Get  gv-uuid, value and units
+             [?rh :result-header/group-variable-uuid ?gv-uuid]
+             [?rh :result-header/units ?units]
+             [?c  :result-cell/header ?rh]
+             [?c  :result-cell/value ?value]]
     :variables [ws-uuid row-id]}))
 
 (rf/reg-sub
@@ -1146,3 +1146,31 @@
    (rf/subscribe [:worksheet/modules ws-uuid]))
  (fn [modules]
    (mapcat :module/search-tables modules)))
+
+
+(rf/reg-sub
+ :worksheet/output-eid
+ (fn [_ [_ ws-uuid gv-uuid]]
+   (d/q '[:find  ?o .
+          :in  $ ?ws-uuid ?gv-uuid
+          :where
+          [?w :worksheet/uuid ?ws-uuid]
+          [?w :worksheet/outputs ?o]
+          [?o :output/group-variable-uuid ?gv-uuid]]
+        @@s/conn
+        ws-uuid
+        gv-uuid)))
+
+(rf/reg-sub
+ :worksheet/output-unit-uuid
+ (fn [_ [_ ws-uuid gv-uuid]]
+   (d/q '[:find  ?unit-uuid .
+          :in  $ ?ws-uuid ?gv-uuid
+          :where
+          [?w :worksheet/uuid ?ws-uuid]
+          [?w :worksheet/outputs ?o]
+          [?o :output/group-variable-uuid ?gv-uuid]
+          [?o :output/units ?unit-uuid]]
+        @@s/conn
+        ws-uuid
+        gv-uuid)))

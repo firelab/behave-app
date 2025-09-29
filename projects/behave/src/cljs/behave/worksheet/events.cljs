@@ -191,6 +191,15 @@
      {:transact payload})))
 
 (rp/reg-event-fx
+ :worksheet/insert-output-units
+ [(rf/inject-cofx ::inject/sub (fn [[_ ws-uuid gv-uuid]] [:worksheet/output-eid ws-uuid gv-uuid]))]
+ (fn [{output-eid :worksheet/output-eid} [_ _ gv-uuid unit-uuid]]
+   (when output-eid
+     (let [payload [{:db/id        output-eid
+                     :output/units unit-uuid}]]
+       {:transact payload}))))
+
+(rp/reg-event-fx
  :worksheet/delete-repeat-input-group
  [(rp/inject-cofx :ds)]
  (fn [{:keys [ds]} [_ ws-uuid group-uuid repeat-id]]

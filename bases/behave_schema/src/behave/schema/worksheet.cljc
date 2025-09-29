@@ -176,6 +176,11 @@
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :input/units
+    :db/doc         "Input's units uuid."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :input/units-uuid
     :db/doc         "Input's units."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
@@ -201,6 +206,11 @@
    ;; Outputs
    {:db/ident       :output/group-variable-uuid
     :db/doc         "Output's reference to Variable's UUID."
+    :db/valueType   :db.type/string
+    :db/cardinality :db.cardinality/one}
+
+   {:db/ident       :output/units
+    :db/doc         "outputs's units uuid."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
