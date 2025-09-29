@@ -10,7 +10,7 @@
             CefDownloadHandler
             CefDisplayHandlerAdapter
             CefFocusHandlerAdapter
-            CefLifeSpanHandlerAdapter
+            CefJSDialogHandler CefLifeSpanHandlerAdapter
             CefMessageRouterHandler]
            [java.awt BorderLayout Cursor GraphicsEnvironment KeyboardFocusManager Toolkit]
            [java.awt.event ActionListener ComponentAdapter WindowAdapter]
@@ -209,7 +209,13 @@
 
       (.addLifeSpanHandler (proxy [CefLifeSpanHandlerAdapter] []
                              (onBeforePopup [& args]
-                               (apply open-new-link! client args)))))
+                               (apply open-new-link! client args))))
+
+      (.addJSDialogHandler (proxy [CefJSDialogHandler] []
+                                  (onBeforeUnloadDialog [& _args]
+                                    true)
+                                  (onJSDialog [& _args]
+                                    false))))
 
     (.addComponentListener jframe (proxy [ComponentAdapter] []
                                     (componentHidden [& args]
@@ -301,7 +307,7 @@
   (.removeDownloadHandler (:client @app))
   (.addDownloadHandler (:client @app)
                        (proxy [CefDownloadHandlerAdapter] []
-                         (onBeforeDownload​ [& args]
+                         (onBeforeDownload [& args]
                            (println [:DOWNLOAD args])
                            #_(let [[callback filename] (reverse args)
                                  suggested-filename  (str (fs/file (fs/home) (fs/base-name filename)))]

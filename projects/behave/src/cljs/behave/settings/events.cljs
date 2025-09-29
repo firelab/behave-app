@@ -1,8 +1,7 @@
 (ns behave.settings.events
   (:require [re-frame.core :as rf]
             [re-posh.core     :as rp]
-            [vimsical.re-frame.cofx.inject :as inject]
-            [behave.translate :refer [<t bp]]))
+            [vimsical.re-frame.cofx.inject :as inject]))
 
 (rp/reg-event-fx
  :settings/clear-inputs-in-domain
@@ -43,10 +42,9 @@
 (rf/reg-event-fx
  :settings/reset-custom-unit-preferences
  (fn [_]
-   (when (js/confirm @(<t (bp "are_you_sure_you_want_to_reset_your_unit_preferences?")))
-     {:fx [[:dispatch [:local-storage/clear]]
-           [:dispatch [:settings/set :units nil]]
-           [:dispatch [:settings/load-units-from-local-storage]]]})))
+   {:fx [[:dispatch [:local-storage/clear]]
+         [:dispatch [:settings/set :units nil]]
+         [:dispatch [:settings/load-units-from-local-storage]]]}))
 
 (rf/reg-event-db
  :settings/close-settings-selector
