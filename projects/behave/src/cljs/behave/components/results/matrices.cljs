@@ -3,7 +3,8 @@
             [behave.units-conversion :refer [to-map-units]]
             [behave.translate        :refer [<t bp]]
             [goog.string             :as gstring]
-            [re-frame.core           :refer [subscribe]]))
+            [re-frame.core           :refer [subscribe]]
+            [clojure.string :as str]))
 
 (defn- shade-cell-value? [table-setting-filters output-gv-uuid value]
   (let [[_ mmin mmax enabled?] (first (filter
@@ -30,7 +31,7 @@
                         (count multi-valued-inputs))])
 
 (defmethod construct-result-matrices 0
-  [{:keys [ws-uuid process-map-units? output-entities formatters]}]
+  [{:keys [ws-uuid process-map-units? output-entities formatters title]}]
   (let [map-units-settings-entity @(subscribe [:worksheet/map-units-settings-entity ws-uuid])
         map-units                 (:map-units-settings/units map-units-settings-entity)
         map-rep-frac              (:map-units-settings/map-rep-fraction map-units-settings-entity)
@@ -70,7 +71,7 @@
                :rows    rows})]))
 
 (defmethod construct-result-matrices 1
-  [{:keys [ws-uuid process-map-units? multi-valued-inputs formatters output-entities units-lookup table-setting-filters]}]
+  [{:keys [ws-uuid process-map-units? multi-valued-inputs formatters output-entities units-lookup table-setting-filters title]}]
   (let [[multi-var-name
          multi-var-units
          multi-var-gv-uuid
@@ -117,24 +118,24 @@
         row-headers               (map (fn [value] {:name (input-fmt-fn value) :key (input-fmt-fn value)}) multi-var-values)
         final-data                (reduce (fn insert-map-units-values [acc [[row col] value]]
                                             (let [fmt-fn (get formatters col identity)]
-                                (cond-> acc
-                                  (process-map-units? col)
-                                  (assoc [(input-fmt-fn row) (str col "-map-units")]
-                                         [:div {:class ["result-matrix-cell-value"
-                                                        (when (contains? rows-to-shade-set col)
-                                                          "table-cell__shaded")]}
-                                          (if (neg? value)
-                                            "-"
-                                            (-> value
-                                                (to-map-units
-                                                 (get units-lookup col)
-                                                 map-units
-                                                 map-rep-frac)
-                                                fmt-fn))]))))
-                            matrix-data-formatted
-                            matrix-data-raw)]
+                                              (cond-> acc
+                                                (process-map-units? col)
+                                                (assoc [(input-fmt-fn row) (str col "-map-units")]
+                                                       [:div {:class ["result-matrix-cell-value"
+                                                                      (when (contains? rows-to-shade-set col)
+                                                                        "table-cell__shaded")]}
+                                                        (if (neg? value)
+                                                          "-"
+                                                          (-> value
+                                                              (to-map-units
+                                                               (get units-lookup col)
+                                                               map-units
+                                                               map-rep-frac)
+                                                              fmt-fn))]))))
+                                          matrix-data-formatted
+                                          matrix-data-raw)]
     [:div.print__result-table
-     (c/matrix-table {:title          @(<t (bp "results"))
+     (c/matrix-table {:title          title
                       :rows-label     (header-label multi-var-name multi-var-units)
                       :cols-label     @(<t (bp "outputs"))
                       :column-headers column-headers
@@ -225,35 +226,56 @@
                                 :data           matrix-data-formatted})]]))))]))
 
 (defn result-matrices [ws-uuid]
-  (let [map-units-settings-entity      @(subscribe [:worksheet/map-units-settings-entity ws-uuid])
-        map-units-enabled?             (:map-units-settings/enabled? map-units-settings-entity)
-        map-unit-convertible-variables @(subscribe [:wizard/map-unit-convertible-variables])
-        units-lookup                   @(subscribe [:worksheet/result-table-units ws-uuid])
-        table-setting-filters          @(subscribe [:worksheet/table-settings-filters ws-uuid])
-        gv-order                       @(subscribe [:vms/group-variable-order ws-uuid])
-        pivot-tables                   @(subscribe [:worksheet/pivot-tables ws-uuid])
-        directional-uuids              (set @(subscribe [:vms/directional-group-variable-uuids]))
-        pivot-table-uuids              (->> pivot-tables
-                                            (mapcat (fn [pivot-table]
-                                                      @(subscribe [:worksheet/pivot-table-fields (:db/id pivot-table)])))
-                                            set)
-        output-gv-uuids                (->> (subscribe [:worksheet/output-uuids-conditionally-filtered ws-uuid])
-                                            deref
-                                            (remove #(contains? pivot-table-uuids %))
-                                            (remove #(contains? directional-uuids %))
-                                            (sort-by #(.indexOf gv-order %)))]
-    (when (seq output-gv-uuids)
+  (let [directions                      @(subscribe [:worksheet/output-directions ws-uuid])
+        map-units-settings-entity       @(subscribe [:worksheet/map-units-settings-entity ws-uuid])
+        map-units-enabled?              (:map-units-settings/enabled? map-units-settings-entity)
+        map-unit-convertible-variables  @(subscribe [:wizard/map-unit-convertible-variables])
+        units-lookup                    @(subscribe [:worksheet/result-table-units ws-uuid])
+        table-setting-filters           @(subscribe [:worksheet/table-settings-filters ws-uuid])
+        gv-order                        @(subscribe [:vms/group-variable-order ws-uuid])
+        pivot-tables                    @(subscribe [:worksheet/pivot-tables ws-uuid])
+        directional-uuids               (set @(subscribe [:vms/directional-group-variable-uuids]))
+        pivot-table-uuids               (->> pivot-tables
+                                             (mapcat (fn [pivot-table]
+                                                       @(subscribe [:worksheet/pivot-table-fields (:db/id pivot-table)])))
+                                             set)
+        all-output-gv-uuids             (->> (subscribe [:worksheet/output-uuids-conditionally-filtered ws-uuid])
+                                             deref
+                                             (remove #(contains? pivot-table-uuids %))
+                                             (sort-by #(.indexOf gv-order %)))
+        non-driectional-output-gv-uuids (remove #(contains? directional-uuids %) all-output-gv-uuids)
+        directional-gv-uuids            (filter #(contains? directional-uuids %) all-output-gv-uuids)]
+    (when (seq all-output-gv-uuids)
       [:div.wizard-results
-       [construct-result-matrices
-        {:ws-uuid               ws-uuid
-         :process-map-units?    (fn [v-uuid]
-                                  (and map-units-enabled?
-                                       (map-unit-convertible-variables v-uuid)))
-         :multi-valued-inputs   @(subscribe [:print/matrix-table-multi-valued-inputs ws-uuid])
-         :output-gv-uuids       output-gv-uuids
-         :output-entities       (map (fn [gv-uuid]
-                                       (-> @(subscribe [:wizard/group-variable gv-uuid])
-                                           (merge {:units (get units-lookup gv-uuid)}))) output-gv-uuids)
-         :units-lookup          units-lookup
-         :formatters            @(subscribe [:worksheet/result-table-formatters output-gv-uuids])
-         :table-setting-filters table-setting-filters}]])))
+       (when (seq directional-gv-uuids)
+         (for [direction directions]
+           (let [output-gv-uuids (filter #(deref (subscribe [:vms/group-variable-is-direcitonl? % direction])) directional-gv-uuids)]
+             [construct-result-matrices
+              {:title                 (str/capitalize (name direction))
+               :ws-uuid               ws-uuid
+               :process-map-units?    (fn [v-uuid]
+                                        (and map-units-enabled?
+                                             (map-unit-convertible-variables v-uuid)))
+               :multi-valued-inputs   @(subscribe [:print/matrix-table-multi-valued-inputs ws-uuid])
+               :output-gv-uuids       output-gv-uuids
+               :output-entities       (map (fn [gv-uuid]
+                                             (-> @(subscribe [:wizard/group-variable gv-uuid])
+                                                 (merge {:units (get units-lookup gv-uuid)}))) output-gv-uuids)
+               :units-lookup          units-lookup
+               :formatters            @(subscribe [:worksheet/result-table-formatters output-gv-uuids])
+               :table-setting-filters table-setting-filters}])))
+       (when (seq non-driectional-output-gv-uuids)
+         [construct-result-matrices
+          {:ws-uuid               ws-uuid
+           :title                 @(<t (bp "results"))
+           :process-map-units?    (fn [v-uuid]
+                                    (and map-units-enabled?
+                                         (map-unit-convertible-variables v-uuid)))
+           :multi-valued-inputs   @(subscribe [:print/matrix-table-multi-valued-inputs ws-uuid])
+           :output-gv-uuids       non-driectional-output-gv-uuids
+           :output-entities       (map (fn [gv-uuid]
+                                         (-> @(subscribe [:wizard/group-variable gv-uuid])
+                                             (merge {:units (get units-lookup gv-uuid)}))) non-driectional-output-gv-uuids)
+           :units-lookup          units-lookup
+           :formatters            @(subscribe [:worksheet/result-table-formatters non-driectional-output-gv-uuids])
+           :table-setting-filters table-setting-filters}])])))

@@ -5,7 +5,7 @@
             [behave.components.results.diagrams     :refer [result-diagrams]]
             [behave.components.results.matrices     :refer [result-matrices]]
             [behave.components.results.inputs.views :refer [inputs-table]]
-            [behave.components.results.table        :refer [directional-result-tables pivot-tables search-tables]]))
+            [behave.components.results.table        :refer [pivot-tables search-tables]]))
 
 (defn- wizard-notes [notes]
   (when (seq notes)
@@ -29,8 +29,7 @@
         ws-version          (:worksheet/version worksheet)
         ws-description      (:worksheet/run-description worksheet)
         notes               @(subscribe [:wizard/notes ws-uuid])
-        graph-data          @(subscribe [:worksheet/result-table-cell-data ws-uuid])
-        directional-tables? @(subscribe [:wizard/output-directional-tables? ws-uuid])]
+        graph-data          @(subscribe [:worksheet/result-table-cell-data ws-uuid])]
     [:div.print
      [:div.print__header
       [:img {:src "/images/logo.svg"}]
@@ -49,7 +48,5 @@
       [search-tables ws-uuid]
       [pivot-tables ws-uuid]
       [result-matrices ws-uuid]
-      (when directional-tables?
-        [directional-result-tables ws-uuid])
       [result-graphs ws-uuid graph-data]
       [result-diagrams ws-uuid]]]))

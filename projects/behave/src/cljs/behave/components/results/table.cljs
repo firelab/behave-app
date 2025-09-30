@@ -172,16 +172,6 @@
                             :rows
                             #(pivot-table-data pivot-rows pivot-values %)))))])))
 
-(defn directional-result-tables [ws-uuid]
-  (let [directions @(subscribe [:worksheet/output-directions ws-uuid])]
-    (when (seq directions)
-      [:div.wizard-results__directional-tables
-       (for [direction directions]
-         (c/table (build-result-table-data
-                   {:ws-uuid ws-uuid
-                    :headers @(subscribe [:worksheet/result-table-headers-sorted-direction ws-uuid direction])
-                    :title   (str/capitalize (name direction))})))])))
-
 (defn search-tables
   "A Component for rendering a serch table defined in the VMS.
   A search table has these components

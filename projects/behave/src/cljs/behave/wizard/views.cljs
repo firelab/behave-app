@@ -9,7 +9,6 @@
             [behave.components.results.graphs     :refer [result-graphs]]
             [behave.components.results.inputs.views :refer [inputs-table]]
             [behave.components.results.table      :refer [result-table-download-link
-                                                          directional-result-tables
                                                           pivot-tables
                                                           search-tables]]
             [behave.tool.views                    :refer [tool tool-selector]]
@@ -30,9 +29,7 @@
             [string-utils.interface               :refer [->kebab]]
             [reagent.core                         :as r]
             [string-utils.core :as s]
-            [clojure.string :as str]
-            [behave.schema.submodule :as submodule]
-            [re-frame.core :as rf]))
+            [clojure.string :as str]))
 
 ;; TODO Might want to set this in a config file to the application
 (def ^:const multi-value-input-limit 3)
@@ -664,7 +661,6 @@
         *notes               (subscribe [:wizard/notes ws-uuid])
         *tab-selected        (subscribe [:wizard/results-tab-selected])
         *cell-data           (subscribe [:worksheet/result-table-cell-data ws-uuid])
-        *directional-tables? (subscribe [:wizard/output-directional-tables? ws-uuid])
         show-tool-selector?  @(subscribe [:tool/show-tool-selector?])
         selected-tool-uuid   @(subscribe [:tool/selected-tool-uuid])
         tabs                 (cond-> []
@@ -746,8 +742,6 @@
             (search-tables ws-uuid)
             [pivot-tables ws-uuid]
             [result-matrices ws-uuid]
-            (when @*directional-tables?
-              [directional-result-tables ws-uuid])
             [:div.wizard-notes__header (s/capitalize-words @(<t (bp "download_run_results")))]
             ;; [raw-result-table ws-uuid]
             [result-table-download-link ws-uuid]])
@@ -842,7 +836,7 @@
                              {:value submodule-name
                               :label (str module-name " - " submodule-name)})]
               [c/dropdown
-               {:on-change #(rf/dispatch [:wizard/scroll-into-view "wizard-page__body" (input-value %)])
+               {:on-change #(dispatch [:wizard/scroll-into-view "wizard-page__body" (input-value %)])
                 :options   (map ->option all-submodules)}])]]
           [:div.wizard-page__body
            (doall
