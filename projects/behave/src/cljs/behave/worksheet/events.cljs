@@ -51,13 +51,20 @@
        conn ws-uuid group-uuid repeat-id))
 
 (defn ^:private q-input-unit [conn group-id group-variable-uuid]
-  (d/q '[:find  ?units .
-         :in    $ ?ig ?uuid
-         :where
-         [?ig :input-group/inputs ?i]
-         [?i :input/group-variable-uuid ?uuid]
-         [?i :input/units ?units]]
-       conn group-id group-variable-uuid))
+  (or (d/q '[:find  ?units .
+             :in    $ ?ig ?uuid
+             :where
+             [?ig :input-group/inputs ?i]
+             [?i :input/group-variable-uuid ?uuid]
+             [?i :input/units ?units]] ;; `:input/units` deprecated
+           conn group-id group-variable-uuid)
+      (d/q '[:find  ?units .
+             :in    $ ?ig ?uuid
+             :where
+             [?ig :input-group/inputs ?i]
+             [?i :input/group-variable-uuid ?uuid]
+             [?i :input/units-uuid ?units]]
+           conn group-id group-variable-uuid)))
 
 (defn ^:private add-input-group-tx [ws-uuid group-uuid repeat-id]
   {:db/id                   -1
@@ -172,13 +179,13 @@
 (rp/reg-event-fx
  :worksheet/update-input-units
  [(rp/inject-cofx :ds)]
- (fn [{:keys [ds]} [_ ws-uuid group-uuid repeat-id group-variable-uuid units]]
+ (fn [{:keys [ds]} [_ ws-uuid group-uuid repeat-id group-variable-uuid units-uuid]]
    (let [group-id (or (q-input-group ds ws-uuid group-uuid repeat-id) -1)
          var-id   (q-input-variable ds group-id group-variable-uuid)
          payload  (cond-> []
                     var-id
-                    (conj {:db/id       var-id
-                           :input/units units})
+                    (conj {:db/id            var-id
+                           :input/units-uuid units-uuid})
 
                     (neg? group-id)
                     (conj (add-input-group-tx ws-uuid group-uuid repeat-id))
@@ -187,7 +194,7 @@
                     (conj {:db/id                     -2
                            :input-group/_inputs       group-id
                            :input/group-variable-uuid group-variable-uuid
-                           :input/units               units}))]
+                           :input/units-uuid          units-uuid}))]
      {:transact payload})))
 
 (rp/reg-event-fx
@@ -196,7 +203,7 @@
  (fn [{output-eid :worksheet/output-eid} [_ _ gv-uuid unit-uuid]]
    (when output-eid
      (let [payload [{:db/id        output-eid
-                     :output/units unit-uuid}]]
+                     :output/units-uuid unit-uuid}]]
        {:transact payload}))))
 
 (rp/reg-event-fx

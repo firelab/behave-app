@@ -176,7 +176,7 @@
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :input/units
-    :db/doc         "Input's units uuid."
+    :db/doc         "Deprecated use `:input/units-uuid`"
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
@@ -209,7 +209,7 @@
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
-   {:db/ident       :output/units
+   {:db/ident       :output/units-uuid
     :db/doc         "outputs's units uuid."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}

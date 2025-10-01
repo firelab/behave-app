@@ -82,7 +82,7 @@
                        units-enum   (q/unit-uuid->enum-value units-uuid)
                        output-value (apply-output-cpp-fn fns tool-obj output-uuid units-enum)]
                    [output-uuid {:output/value      (format-intl-number "en-US" output-value 2)
-                                 :output/units-uuid units-uuid}]))
+                                 :output/units-uuid-uuid units-uuid}]))
                outputs))))
 
 (defn- get-compute-fn [subtool-uuid fns]
