@@ -243,13 +243,13 @@
                                              deref
                                              (remove #(contains? pivot-table-uuids %))
                                              (sort-by #(.indexOf gv-order %)))
-        non-driectional-output-gv-uuids (remove #(contains? directional-uuids %) all-output-gv-uuids)
+        non-directional-output-gv-uuids (remove #(contains? directional-uuids %) all-output-gv-uuids)
         directional-gv-uuids            (filter #(contains? directional-uuids %) all-output-gv-uuids)]
     (when (seq all-output-gv-uuids)
       [:div.wizard-results
        (when (seq directional-gv-uuids)
          (for [direction directions]
-           (let [output-gv-uuids (filter #(deref (subscribe [:vms/group-variable-is-direcitonl? % direction])) directional-gv-uuids)]
+           (let [output-gv-uuids (filter #(deref (subscribe [:vms/group-variable-is-directional? % direction])) directional-gv-uuids)]
              [construct-result-matrices
               {:title                 (str/capitalize (name direction))
                :ws-uuid               ws-uuid
@@ -264,7 +264,7 @@
                :units-lookup          units-lookup
                :formatters            @(subscribe [:worksheet/result-table-formatters output-gv-uuids])
                :table-setting-filters table-setting-filters}])))
-       (when (seq non-driectional-output-gv-uuids)
+       (when (seq non-directional-output-gv-uuids)
          [construct-result-matrices
           {:ws-uuid               ws-uuid
            :title                 @(<t (bp "results"))
@@ -272,10 +272,10 @@
                                     (and map-units-enabled?
                                          (map-unit-convertible-variables v-uuid)))
            :multi-valued-inputs   @(subscribe [:print/matrix-table-multi-valued-inputs ws-uuid])
-           :output-gv-uuids       non-driectional-output-gv-uuids
+           :output-gv-uuids       non-directional-output-gv-uuids
            :output-entities       (map (fn [gv-uuid]
                                          (-> @(subscribe [:wizard/group-variable gv-uuid])
-                                             (merge {:units (get units-lookup gv-uuid)}))) non-driectional-output-gv-uuids)
+                                             (merge {:units (get units-lookup gv-uuid)}))) non-directional-output-gv-uuids)
            :units-lookup          units-lookup
-           :formatters            @(subscribe [:worksheet/result-table-formatters non-driectional-output-gv-uuids])
+           :formatters            @(subscribe [:worksheet/result-table-formatters non-directional-output-gv-uuids])
            :table-setting-filters table-setting-filters}])])))

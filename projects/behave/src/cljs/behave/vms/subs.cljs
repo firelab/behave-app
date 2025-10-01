@@ -235,7 +235,7 @@
         @@vms-conn)))
 
 (reg-sub
- :vms/group-variable-is-direcitonl?
+ :vms/group-variable-is-directional?
  (fn [_ [_ gv-uuid direction]]
    (= (d/q '[:find  ?direction .
              :in $ ?gv-uuid
