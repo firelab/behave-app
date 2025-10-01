@@ -5,7 +5,7 @@
             [behave.components.results.diagrams     :refer [result-diagrams]]
             [behave.components.results.matrices     :refer [result-matrices]]
             [behave.components.results.inputs.views :refer [inputs-table]]
-            [behave.components.results.table        :refer [directional-result-tables pivot-tables search-tables]]))
+            [behave.components.results.table        :refer [pivot-tables search-tables]]))
 
 (defn- wizard-notes [notes]
   (when (seq notes)
@@ -27,15 +27,19 @@
   (let [worksheet           @(subscribe [:worksheet ws-uuid])
         ws-date-created     (:worksheet/created worksheet)
         ws-version          (:worksheet/version worksheet)
+        ws-description      (:worksheet/run-description worksheet)
         notes               @(subscribe [:wizard/notes ws-uuid])
-        graph-data          @(subscribe [:worksheet/result-table-cell-data ws-uuid])
-        directional-tables? @(subscribe [:wizard/output-directional-tables? ws-uuid])]
+        graph-data          @(subscribe [:worksheet/result-table-cell-data ws-uuid])]
     [:div.print
      [:div.print__header
       [:img {:src "/images/logo.svg"}]
       [:div.print__header__info
        (when ws-version [:div (str "Version: " ws-version)])
        [:div (str "Created: " (epoch->date-string ws-date-created))]]]
+     (when ws-description
+       [:div
+        [:div.wizard-print__header "Run Description"]
+        [:div ws-description]])
      [:div.wizard-print__header "Inputs"]
      [inputs-table ws-uuid]
      [wizard-notes notes]
@@ -44,7 +48,5 @@
       [search-tables ws-uuid]
       [pivot-tables ws-uuid]
       [result-matrices ws-uuid]
-      (when directional-tables?
-        [directional-result-tables ws-uuid])
       [result-graphs ws-uuid graph-data]
       [result-diagrams ws-uuid]]]))

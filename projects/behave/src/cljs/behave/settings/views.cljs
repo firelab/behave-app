@@ -141,4 +141,5 @@
                  :variant       "highlight"
                  :icon-name     "arrow2"
                  :icon-position "right"
-                 :on-click      #(rf/dispatch [:settings/reset-custom-unit-preferences])}]]]))
+                 :on-click      #(when (js/confirm @(<t (bp "are_you_sure_you_want_to_reset_your_unit_preferences?")))
+                                   (rf/dispatch [:settings/reset-custom-unit-preferences]))}]]]))

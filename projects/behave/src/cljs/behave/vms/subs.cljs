@@ -233,3 +233,15 @@
           [?gv :bp/uuid ?gv-uuid]
           [?gv :group-variable/direction ?direction]]
         @@vms-conn)))
+
+(reg-sub
+ :vms/group-variable-is-directional?
+ (fn [_ [_ gv-uuid direction]]
+   (= (d/q '[:find  ?direction .
+             :in $ ?gv-uuid
+             :where
+             [?gv :bp/uuid ?gv-uuid]
+             [?gv :group-variable/direction ?direction]]
+           @@vms-conn
+           gv-uuid)
+      direction)))
