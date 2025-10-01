@@ -29,7 +29,7 @@
 
                                   {:label     "Color"
                                    :type      :color
-                                   :disabled? (:tag-set/color? @tag-set)
+                                   :disabled? (not (:tag-set/color? @tag-set))
                                    :field-key :tag/color}]
                    :on-create    (fn [data]
                                    (let [translation (upsert-translation (:tag/translation-key data) (:tag/name data))]
