@@ -249,7 +249,7 @@
     :db/cardinality :db.cardinality/one}
 
    {:db/ident       :result-header/units
-    :db/doc         "Result header's units."
+    :db/doc         "Result header's units shortcode."
     :db/valueType   :db.type/string
     :db/cardinality :db.cardinality/one}
 
