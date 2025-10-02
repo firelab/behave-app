@@ -4,7 +4,8 @@
             [behave.translate        :refer [<t bp]]
             [goog.string             :as gstring]
             [re-frame.core           :refer [subscribe]]
-            [clojure.string :as str]))
+            [clojure.string :as str]
+            [re-frame.core :as rf]))
 
 (defn- shade-cell-value? [table-setting-filters output-gv-uuid value]
   (let [[_ mmin mmax enabled?] (first (filter
@@ -21,7 +22,7 @@
 (defmulti construct-result-matrices
   (fn [{:keys [multi-valued-inputs]}]
     (let [multi-valued-inputs-count (count multi-valued-inputs)]
-      (if (<= 0 multi-valued-inputs-count 2)
+      (if (<= 0 multi-valued-inputs-count 3)
         multi-valued-inputs-count
         :not-supported))))
 
@@ -143,7 +144,7 @@
                       :data           final-data})]))
 
 (defmethod construct-result-matrices 2
-  [{:keys [ws-uuid process-map-units? multi-valued-inputs formatters output-entities table-setting-filters]}]
+  [{:keys [sub-title ws-uuid process-map-units? multi-valued-inputs formatters output-entities table-setting-filters]}]
   (let [[row-name row-units row-gv-uuid row-values] (first multi-valued-inputs)
         [col-name col-units col-gv-uuid col-values] (second multi-valued-inputs)
         map-units-settings-entity                   @(subscribe [:worksheet/map-units-settings-entity ws-uuid])
@@ -213,17 +214,51 @@
                                         matrix-data-formatted
                                         matrix-data-raw)]
                     (c/matrix-table {:title          (gstring/format @(<t (bp "s_map_units_(s)")) output-name map-units)
+                                     :sub-title      sub-title
                                      :rows-label     (header-label row-name row-units)
                                      :cols-label     (header-label col-name col-units)
                                      :row-headers    row-headers
                                      :column-headers column-headers
                                      :data           data}))])
                (c/matrix-table {:title          (header-label output-name output-units)
+                                :sub-title      sub-title
                                 :rows-label     (header-label row-name row-units)
                                 :cols-label     (header-label col-name col-units)
                                 :row-headers    row-headers
                                 :column-headers column-headers
                                 :data           matrix-data-formatted})]]))))]))
+
+(defmethod construct-result-matrices 3
+  [{:keys [ws-uuid process-map-units? multi-valued-inputs formatters output-entities table-setting-filters units-lookup]}]
+  (let [first-multi-value                                                      (first @(subscribe [:worksheet/multi-value-input-uuids ws-uuid]))
+        [v-name units-short-code gv-uuid values :as first-multi-valued-inputs] (->> multi-valued-inputs
+                                                                                    (filter (fn [[_ _ gv-uuid]] (= gv-uuid first-multi-value)))
+                                                                                    first)
+        rest-multi-valued-inputs                                               (filter (fn [[_ _ gv-uuid]]
+                                                                                         (not= gv-uuid first-multi-value))
+                                                                                       multi-valued-inputs)]
+    (prn "gv-uuid:" gv-uuid)
+    (prn "gv-uuid:" first-multi-valued-inputs)
+    [:div.print__result-table
+     (for [value values]
+       [:div.print__result-table
+        [construct-result-matrices
+         {:ws-uuid               ws-uuid
+          :title                 @(<t (bp "results"))
+          :sub-title             (if (not-empty units-short-code)
+                                   (gstring/format "%s: %s (%s)"
+                                                   v-name
+                                                   @(subscribe [:vms/resolve-enum-translation gv-uuid value])
+                                                   units-short-code)
+                                   (gstring/format "%s: %s"
+                                                   v-name
+                                                   @(subscribe [:vms/resolve-enum-translation gv-uuid value])))
+          :process-map-units?    process-map-units?
+          :multi-valued-inputs   rest-multi-valued-inputs
+          :output-entities       output-entities
+          :units-lookup          units-lookup
+          :formatters            formatters
+          :table-setting-filters table-setting-filters}]])]))
 
 (defn result-matrices [ws-uuid]
   (let [directions                      @(subscribe [:worksheet/output-directions ws-uuid])
