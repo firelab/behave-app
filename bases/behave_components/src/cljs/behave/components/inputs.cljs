@@ -227,7 +227,7 @@
     [icon (if selected? "minus" "plus")]]
    label])
 
-(defn- manage-multi-select-fn
+(defn- multi-select-on-select
   [selections-atom selection disable-multi-valued-input?]
   (let [[_label value on-deselect on-select] selection]
     (if (contains? @selections-atom selection)
@@ -318,7 +318,7 @@
               [multi-select-option {:selected? (contains? @selections selection)
                                     :color-tag color-tag
                                     :label     label
-                                    :on-click  #(manage-multi-select-fn selections selection disable-multi-valued-input?)}])))]])
+                                    :on-click  #(multi-select-on-select selections selection disable-multi-valued-input?)}])))]])
      [:div.multi-select__selections
       [:div.multi-select__selections__header
        [:div (gstring/format "Selected %s" input-label)]
@@ -404,7 +404,7 @@
                    :on-key-press (on-enter (fn []
                                              (when-let [{:keys [label value on-deselect on-select]} (first @filtered-options)]
                                                (let [selection [label value on-deselect on-select]]
-                                                 (manage-multi-select-fn selections selection disable-multi-valued-input?))
+                                                 (multi-select-on-select selections selection disable-multi-valued-input?))
                                                (reset! search nil))))
                    :on-change    #(do (reset! search (input-value %))
                                       (reset! filtered-options (filter (fn [option]
@@ -428,5 +428,5 @@
                                    :color-tag color-tag
                                    :label     label
                                    :on-click  #(do
-                                                 (manage-multi-select-fn selections selection disable-multi-valued-input?)
+                                                 (multi-select-on-select selections selection disable-multi-valued-input?)
                                                  (reset! search nil))}])))])]))
