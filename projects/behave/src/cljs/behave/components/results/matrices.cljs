@@ -230,15 +230,12 @@
 
 (defmethod construct-result-matrices 3
   [{:keys [ws-uuid process-map-units? multi-valued-inputs formatters output-entities table-setting-filters units-lookup]}]
-  (let [first-multi-value                                                      (first @(subscribe [:worksheet/multi-value-input-uuids ws-uuid]))
-        [v-name units-short-code gv-uuid values :as first-multi-valued-inputs] (->> multi-valued-inputs
-                                                                                    (filter (fn [[_ _ gv-uuid]] (= gv-uuid first-multi-value)))
-                                                                                    first)
-        rest-multi-valued-inputs                                               (filter (fn [[_ _ gv-uuid]]
-                                                                                         (not= gv-uuid first-multi-value))
-                                                                                       multi-valued-inputs)]
-    (prn "gv-uuid:" gv-uuid)
-    (prn "gv-uuid:" first-multi-valued-inputs)
+  (let [graph-settings                             @(subscribe [:worksheet/graph-settings ws-uuid])
+        z2-axis-group-variable-uuid                (:graph-settings/z2-axis-group-variable-uuid graph-settings)
+        [var-name units-short-code gv-uuid values] (->> multi-valued-inputs
+                                                        (filter (fn [[_ _ gv-uuid]] (= gv-uuid z2-axis-group-variable-uuid)))
+                                                        first)
+        rest-multi-valued-inputs                   (filter (fn [[_ _ gv-uuid]] (not= gv-uuid z2-axis-group-variable-uuid)) multi-valued-inputs)]
     [:div.print__result-table
      (for [value values]
        [:div.print__result-table
@@ -247,11 +244,11 @@
           :title                 @(<t (bp "results"))
           :sub-title             (if (not-empty units-short-code)
                                    (gstring/format "%s: %s (%s)"
-                                                   v-name
+                                                   var-name
                                                    @(subscribe [:vms/resolve-enum-translation gv-uuid value])
                                                    units-short-code)
                                    (gstring/format "%s: %s"
-                                                   v-name
+                                                   var-name
                                                    @(subscribe [:vms/resolve-enum-translation gv-uuid value])))
           :process-map-units?    process-map-units?
           :multi-valued-inputs   rest-multi-valued-inputs
