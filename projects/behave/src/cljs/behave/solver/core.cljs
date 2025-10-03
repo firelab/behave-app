@@ -82,11 +82,13 @@
     (apply f module fn-args)))
 
 (defn apply-output-cpp-fn
-  [module-fns module gv-id unit-uuid]
-  (let [[fn-id fn-name] (q/group-variable->fn gv-id)
+  [ws-uuid module-fns module gv-uuid unit-uuid]
+  (let [[fn-id fn-name] (q/group-variable->fn gv-uuid)
         unit            (q/unit-uuid->enum-value unit-uuid)
         f               ((symbol fn-name) module-fns)
         params          (q/fn-params fn-id)]
+
+    (rf/dispatch [:worksheet/insert-output-units ws-uuid gv-uuid unit-uuid])
 
     (log-solver [:OUTPUT fn-name unit f params])
 
@@ -124,21 +126,24 @@
         (log-solver [:MULTI repeat-group])
         (apply-multi-cpp-fn fns module repeat-group)))))
 
-(defn get-outputs [module fns outputs]
-  (reduce
-   (fn [acc group-variable-uuid]
-     (let [var-uuid     (q/variable-uuid group-variable-uuid)
-           *var-entity  (rf/subscribe [:vms/entity-from-uuid var-uuid])
-           domain-uuid  (:variable/domain-uuid @*var-entity)
-           *cached-unit (rf/subscribe [:settings/cached-unit domain-uuid])
-           unit-uuid    (or @*cached-unit
-                            (q/variable-native-units-uuid group-variable-uuid)
-                            :none)
-           result       (str (apply-output-cpp-fn fns module group-variable-uuid unit-uuid))]
-       (log-solver [:GET-OUTPUTS group-variable-uuid result unit-uuid])
-       (assoc acc group-variable-uuid [result unit-uuid])))
-   {}
-   outputs))
+(defn get-outputs [ws-uuid module fns outputs]
+  (let [units-system @(rf/subscribe [:settings/units-system])]
+    (reduce
+     (fn [acc group-variable-uuid]
+       (let [var-uuid             (q/variable-uuid group-variable-uuid)
+             *var-entity          (rf/subscribe [:vms/entity-from-uuid var-uuid])
+             domain-uuid          (:variable/domain-uuid @*var-entity)
+             *cached-unit         (rf/subscribe [:settings/cached-unit domain-uuid])
+             worksheet-units-uuid (rf/subscribe [:settings/cached-unit ws-uuid group-variable-uuid])
+             unit-uuid            (or @worksheet-units-uuid
+                                      @*cached-unit
+                                      (q/variable-units-uuid group-variable-uuid units-system)
+                                      :none)
+             result               (str (apply-output-cpp-fn ws-uuid fns module group-variable-uuid unit-uuid))]
+         (log-solver [:GET-OUTPUTS group-variable-uuid result unit-uuid])
+         (assoc acc group-variable-uuid [result unit-uuid])))
+     {}
+     outputs)))
 
 ;;; Links
 (defn add-links [{:keys [gv-uuids] :as module}]
@@ -175,7 +180,7 @@
      (fn [acc [src-uuid dst-uuid]]
        (if (input-gv-uuids src-uuid)
          (let [[src-group-uuid _ _ value unit-uuid] (get inputs-by-gv-uuid src-uuid)
-               group-uuid              (q/group-variable->group dst-uuid)]
+               group-uuid                           (q/group-variable->group dst-uuid)]
            (log-solver [:ADD-LINK
                         [:SRC src-group-uuid 0 src-uuid [value unit-uuid]]
                         [:DST group-uuid 0 dst-uuid [value unit-uuid]]])
@@ -198,10 +203,10 @@
                           destination-links
                           diagrams
                           ws-uuid]}]
-  (let [module         (init-fn)
+  (let [module (init-fn)
         ;; Apply links
-        inputs         (apply-output-links outputs inputs destination-links)
-        inputs         (apply-input-links inputs destination-links)
+        inputs (apply-output-links outputs inputs destination-links)
+        inputs (apply-input-links inputs destination-links)
 
         ;; Filter IO's for module
         module-inputs  (filter-module-inputs inputs gv-uuids)
@@ -222,7 +227,7 @@
                           :module   module})
 
     ;; Get outputs, merge existing inputs/outputs with new inputs/outputs
-    (update row :outputs merge (get-outputs module fns module-outputs))))
+    (update row :outputs merge (get-outputs ws-uuid module fns module-outputs))))
 
 (defn remove-source-link-outputs [row surface-module]
   (let [{:keys [outputs all-outputs]} row
@@ -236,18 +241,22 @@
          all-inputs  @(rf/subscribe [:worksheet/all-inputs+units-vector ws-uuid])
          all-outputs @(rf/subscribe [:worksheet/all-output-uuids ws-uuid])]
 
+     (doseq [[group-uuid repeat-id gv-uuid _value unit-uuid] all-inputs]
+       (when (not= unit-uuid :none)
+         (rf/dispatch [:worksheet/update-input-units ws-uuid group-uuid repeat-id gv-uuid unit-uuid])))
+
      (-> (solve-worksheet ws-uuid modules all-inputs all-outputs)
          (t/add-to-results-table ws-uuid))))
 
   ([ws-uuid modules all-inputs all-outputs]
    (let [counter (atom 0)
          surface-module
-         (-> {:init-fn     surface/init
-              :run-fn      surface/doSurfaceRun
-              :fns         (ns-publics 'behave.lib.surface)
-              :gv-uuids    (q/class-to-group-variables "SIGSurface")
-              :diagrams    (q/module-diagrams "surface")
-              :ws-uuid     ws-uuid}
+         (-> {:init-fn  surface/init
+              :run-fn   surface/doSurfaceRun
+              :fns      (ns-publics 'behave.lib.surface)
+              :gv-uuids (q/class-to-group-variables "SIGSurface")
+              :diagrams (q/module-diagrams "surface")
+              :ws-uuid  ws-uuid}
              (add-links))
 
          crown-module
@@ -258,12 +267,12 @@
              (add-links))
 
          contain-module
-         (-> {:init-fn     contain/init
-              :run-fn      contain/doContainRun
-              :fns         (ns-publics 'behave.lib.contain)
-              :gv-uuids    (q/class-to-group-variables "SIGContainAdapter")
-              :diagrams    (q/module-diagrams "contain")
-              :ws-uuid     ws-uuid}
+         (-> {:init-fn  contain/init
+              :run-fn   contain/doContainRun
+              :fns      (ns-publics 'behave.lib.contain)
+              :gv-uuids (q/class-to-group-variables "SIGContainAdapter")
+              :diagrams (q/module-diagrams "contain")
+              :ws-uuid  ws-uuid}
              (add-links))
 
          mortality-module

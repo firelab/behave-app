@@ -923,7 +923,6 @@
    (subscribe [:worksheet/modules ws-uuid]))
 
  (fn [modules _]
-   (prn ":wizard/search-table-output-group-variables")
    (letfn [(get-search-table-filter-output-group-variables [module-eid]
              (d/q '[:find [?gv ...]
                     :in $ % ?module-eid

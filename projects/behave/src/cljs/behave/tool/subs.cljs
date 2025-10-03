@@ -136,7 +136,7 @@
                                         subtool-uuid
                                         :tool/outputs
                                         output-uuid
-                                        :output/units-uuid])])))))
+                                        :output/units-uuid-uuid])])))))
 
 (comment
   (rf/subscribe [:tool/all-inputs
